@@ -50,9 +50,17 @@ public class Material extends BaseEntity {
     @JoinColumn(name = "id_centro_investimento")
     private CentroInvestimento centroInvestimento;
 
-    @NotNull(message = "O processo é obrigatório")
-    @Column(name = "id_processo", nullable = false)
+    /** Obrigatório no catálogo operacional; a peça da frota não tem processo de negócio. */
+    @Column(name = "id_processo")
     private UUID idProcesso;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "catalogo", nullable = false, length = 20)
+    private CatalogoMaterial catalogo = CatalogoMaterial.OPERACIONAL;
+
+    /** Grupo da peça da frota (filtros, lubrificantes, freios...). */
+    @Column(name = "grupo", length = 60)
+    private String grupo;
 
     @Column(name = "detalha_serie")
     private boolean detalhaSerie = false;
@@ -73,8 +81,52 @@ public class Material extends BaseEntity {
         this.detalhaSerie = detalhaSerie;
     }
 
+    /** Peça do estoque da oficina da frota: catálogo FROTA, sem processo nem classificação técnica. */
+    public static Material pecaFrota(String codigo, String descricao, String unidadeMedida, String grupo) {
+        var material = new Material();
+        material.catalogo = CatalogoMaterial.FROTA;
+        material.preencherPecaFrota(codigo, descricao, unidadeMedida, grupo);
+        return material;
+    }
+
+    public void atualizarPecaFrota(String codigo, String descricao, String unidadeMedida, String grupo) {
+        validarStatus();
+        exigirCatalogoFrota();
+        preencherPecaFrota(codigo, descricao, unidadeMedida, grupo);
+    }
+
+    public boolean isCatalogoFrota() {
+        return catalogo == CatalogoMaterial.FROTA;
+    }
+
+    public void exigirCatalogoFrota() {
+        if (!isCatalogoFrota()) {
+            throw new InvarianteVioladaException("O material " + codigo + " não é uma peça da frota.");
+        }
+    }
+
+    private void preencherPecaFrota(String codigo, String descricao, String unidadeMedida, String grupo) {
+        if (codigo == null || codigo.isBlank()) {
+            throw new InvarianteVioladaException("Informe o código da peça.");
+        }
+        if (descricao == null || descricao.isBlank()) {
+            throw new InvarianteVioladaException("Informe o nome da peça.");
+        }
+        if (unidadeMedida == null || unidadeMedida.isBlank()) {
+            throw new InvarianteVioladaException("Informe a unidade da peça (UN, L, KG...).");
+        }
+        this.codigo = codigo.toUpperCase().trim();
+        this.descricao = descricao.trim();
+        this.unidadeMedida = unidadeMedida.toUpperCase().trim();
+        this.grupo = grupo == null || grupo.isBlank() ? null : grupo.trim();
+        this.detalhaSerie = false;
+    }
+
     public void atualizar(String codigo, String descricao, String unidadeMedida, String suprMatrFlag, boolean detalhaSerie) {
         validarStatus();
+        if (isCatalogoFrota()) {
+            throw new InvarianteVioladaException("A peça " + this.codigo + " é da frota: altere pelo estoque da oficina.");
+        }
         validarCodigo(codigo);
         validarDescricao(descricao);
         this.codigo = codigo;

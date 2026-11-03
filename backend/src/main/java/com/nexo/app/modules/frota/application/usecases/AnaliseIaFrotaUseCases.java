@@ -3,7 +3,8 @@ package com.nexo.app.modules.frota.application.usecases;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nexo.app.modules.assistente.AssistenteApi;
+import com.nexo.app.modules.assistente.CopilotoApi;
+import java.util.Base64;
 import com.nexo.app.modules.frota.application.dto.AnaliseIaResponse;
 import com.nexo.app.modules.frota.application.dto.FotoChecklistResponse;
 import com.nexo.app.modules.frota.domain.Abastecimento;
@@ -58,7 +59,7 @@ public class AnaliseIaFrotaUseCases {
     private static final int LIMITE_SEGUNDOS = 150;
     private static final java.time.format.DateTimeFormatter DIA = java.time.format.DateTimeFormatter.ofPattern("dd/MM");
 
-    private final AssistenteApi assistente;
+    private final CopilotoApi assistente;
     private final AnaliseIaFrotaRepository repository;
     private final OrdemServicoUseCases ordens;
     private final DocumentoFiscalOrdemServicoUseCases documentosFiscais;
@@ -119,9 +120,9 @@ public class AnaliseIaFrotaUseCases {
         var enviadas = preparar(coleta.fotos(), naoLidas);
         String resposta;
         try {
-            resposta = assistente.lerImagens(PromptAnaliseIaFrota.sistema(alvo), PromptAnaliseIaFrota.usuario(alvo,
+            resposta = assistente.completarComImagens(PromptAnaliseIaFrota.sistema(alvo), PromptAnaliseIaFrota.usuario(alvo,
                             contexto(coleta.dados()), enviadas),
-                    enviadas.stream().map(f -> new AssistenteApi.Imagem(f.tipoConteudo(), f.conteudo())).toList(), LIMITE_SEGUNDOS);
+                    enviadas.stream().map(f -> new CopilotoApi.Imagem(f.tipoConteudo(), Base64.getEncoder().encodeToString(f.conteudo()))).toList(), 0.1, 8192, true);
         } catch (RuntimeException e) {
             LOGGER.warn("Análise da IA de {} {} falhou: {}", alvo, idAlvo, e.getMessage());
             throw new InvarianteVioladaException("O Assistente não respondeu agora. Tente de novo em alguns instantes.");

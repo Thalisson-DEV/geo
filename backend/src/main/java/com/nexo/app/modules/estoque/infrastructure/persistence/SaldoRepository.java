@@ -50,4 +50,19 @@ public interface SaldoRepository extends JpaRepository<Saldo, UUID>, JpaSpecific
     java.util.List<Saldo> findDiferentesDeZeroByEstoqueId(@Param("estoqueId") UUID estoqueId);
 
     boolean existsByEstoqueIdAndMaterialIdAndCondicao(UUID estoqueId, UUID materialId, CondicaoMaterial condicao);
+
+    /** Saldos ativos dos almoxarifados de um tipo (ex.: FROTA), com estoque e material carregados. */
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"estoque", "material"})
+    java.util.List<Saldo> findAllByEstoqueTipoEstoqueNomeAndAtivoTrue(String tipo);
+
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"estoque", "material"})
+    java.util.List<Saldo> findAllByEstoqueIdAndAtivoTrue(UUID estoqueId);
+
+    @Query("""
+            select (count(saldo) > 0) from Saldo saldo
+            where saldo.material.id = :materialId
+              and saldo.ativo = true
+              and saldo.quantidade <> 0
+            """)
+    boolean existsSaldoNaoZeradoByMaterialId(@Param("materialId") UUID materialId);
 }

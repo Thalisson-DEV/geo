@@ -2,6 +2,7 @@ package com.nexo.app.modules.execucao.infrastructure.persistence;
 
 import com.nexo.app.modules.execucao.domain.StatusTurno;
 import com.nexo.app.modules.execucao.domain.Turno;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -30,4 +31,17 @@ public interface TurnoRepository extends JpaRepository<Turno, UUID>, JpaSpecific
     List<Turno> listarSobrepostosAoPeriodo(@Param("inicio") OffsetDateTime inicio,
                                            @Param("fim") OffsetDateTime fim,
                                            @Param("idsEquipes") Collection<UUID> idsEquipes);
+
+    @Query("SELECT t FROM Turno t "
+           + "WHERE t.ativo = true AND t.idVeiculo IS NOT NULL "
+           + "AND t.dataInicio < :fim AND (t.dataFim IS NULL OR t.dataFim >= :inicio) "
+           + "ORDER BY t.dataInicio")
+    List<Turno> listarComVeiculoSobrepostos(@Param("inicio") OffsetDateTime inicio, @Param("fim") OffsetDateTime fim);
+
+    @Query("SELECT t FROM Turno t "
+           + "WHERE t.ativo = true AND t.idVeiculo IS NOT NULL AND t.dataFim IS NOT NULL "
+           + "AND t.dataFim >= :inicio AND t.dataFim < :fim "
+           + "ORDER BY t.dataFim")
+    List<Turno> listarFechadosComVeiculo(@Param("inicio") OffsetDateTime inicio, @Param("fim") OffsetDateTime fim,
+                                         Pageable pageable);
 }

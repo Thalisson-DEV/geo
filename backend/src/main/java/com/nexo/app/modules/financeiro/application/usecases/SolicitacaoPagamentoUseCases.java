@@ -10,6 +10,7 @@ import com.nexo.app.modules.financeiro.application.dto.PrePreenchimentoResponse;
 import com.nexo.app.modules.financeiro.application.dto.SolicitacaoPagamentoFilter;
 import com.nexo.app.modules.financeiro.application.dto.SolicitacaoPagamentoResponse;
 import com.nexo.app.modules.financeiro.application.dto.SolicitacaoRequest;
+import com.nexo.app.modules.financeiro.domain.SolicitacaoBase;
 import com.nexo.app.modules.financeiro.domain.CampoCanonico;
 import com.nexo.app.modules.financeiro.domain.CampoFormulario;
 import com.nexo.app.modules.financeiro.domain.FormularioSolicitacao;
@@ -26,6 +27,7 @@ import com.nexo.app.shared.application.dto.PageResponse;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import com.nexo.app.shared.infrastructure.security.SecurityUtils;
+import com.nexo.app.shared.domain.events.SolicitacaoFinanceiraCriadaEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Pageable;
@@ -89,6 +91,7 @@ public class SolicitacaoPagamentoUseCases {
         var pagamento = repository.save(new SolicitacaoPagamento(formulario, montarNucleo(valores), usuarioSolicitanteId));
         historico.registrar(pagamento, TipoEventoSolicitacao.CRIADA, null, usuarioSolicitanteId,
                 pagamento.getNucleo().getValor(), null);
+        publicarOrigem(pagamento, request);
         return montador.montar(pagamento);
     }
 
@@ -320,5 +323,20 @@ public class SolicitacaoPagamentoUseCases {
         if (!autor && !SecurityUtils.possuiAutoridade(PERMISSAO_ADMINISTRAR)) {
             throw new InvarianteVioladaException("Somente quem abriu a solicitação pode alterá-la.");
         }
+    }
+
+    /**
+     * Avisa o módulo que pediu a solicitação, na mesma transação: se ele recusar o
+     * vínculo, a criação é desfeita junto.
+     */
+    private void publicarOrigem(SolicitacaoBase solicitacao, SolicitacaoRequest request) {
+        if (request.origem() == null) {
+            return;
+        }
+        eventPublisher.publishEvent(new SolicitacaoFinanceiraCriadaEvent(
+                solicitacao.getId(),
+                solicitacao.getTipoSolicitacao().name(),
+                request.origem().tipo().trim().toUpperCase(java.util.Locale.ROOT),
+                request.origem().id()));
     }
 }

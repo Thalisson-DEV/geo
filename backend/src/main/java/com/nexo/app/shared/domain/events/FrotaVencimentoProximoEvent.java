@@ -8,14 +8,14 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Um documento da frota (veículo ou implemento) ou uma CNH entrou numa faixa de aviso
+ * Um documento da frota (veículo ou implemento), uma CNH ou uma apólice entrou numa faixa de aviso
  * de vencimento.
  *
  * <p>O job diário da frota publica um evento por alvo e faixa; quem recebe e com que
  * texto é decidido pelas regras do gatilho {@code frota.vencimento_proximo}.</p>
  *
- * @param tipoAlvo   {@code DOCUMENTO} ou {@code CNH}
- * @param descricao  o que vence, ex.: "CRLV" ou "CNH"
+ * @param tipoAlvo   {@code DOCUMENTO}, {@code CNH} ou {@code APOLICE}
+ * @param descricao  o que vence, ex.: "CRLV", "CNH" ou "Apólice 123"
  * @param referencia de quem é, ex.: a placa, a identificação do implemento ou o nome do condutor
  * @param link       caminho da tela onde o alvo é tratado
  */

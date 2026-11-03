@@ -29,6 +29,7 @@ public interface MaterialRepository extends JpaRepository<Material, UUID>, JpaSp
                    cast(function('immutable_unaccent', lower(m.descricao)) as string) as sortKey
               from Material m
              where m.ativo = true
+               and m.catalogo = com.nexo.app.modules.estoque.domain.CatalogoMaterial.OPERACIONAL
                and (
                     cast(function('immutable_unaccent', lower(m.codigo)) as string) like concat(:query, '%')
                     or cast(function('immutable_unaccent', lower(m.descricao)) as string) like concat(:query, '%')
@@ -48,4 +49,12 @@ public interface MaterialRepository extends JpaRepository<Material, UUID>, JpaSp
             @Param("lastDescricao") String lastDescricao,
             @Param("lastId") UUID lastId,
             Pageable pageable);
+
+    @Query("""
+            select distinct m.grupo from Material m
+             where m.catalogo = com.nexo.app.modules.estoque.domain.CatalogoMaterial.FROTA
+               and m.ativo = true and m.grupo is not null
+             order by m.grupo
+            """)
+    List<String> gruposFrota();
 }

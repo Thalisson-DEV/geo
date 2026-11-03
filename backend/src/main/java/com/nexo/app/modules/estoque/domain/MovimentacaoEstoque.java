@@ -294,6 +294,8 @@ public class MovimentacaoEstoque extends BaseEntity {
         }
         if (tipo == null) throw new IllegalArgumentException("Tipo de movimentação é obrigatório");
         if (idUsuarioOperador == null) throw new IllegalArgumentException("ID do usuário operador é obrigatório");
+        exigirMesmoCatalogo(origem, material);
+        exigirMesmoCatalogo(destino, material);
 
         // Regra de Série: Se detalha série, exige número. Se não, proíbe.
         if (material.isDetalhaSerie()) {
@@ -330,6 +332,77 @@ public class MovimentacaoEstoque extends BaseEntity {
             if (origem.getId() != null && Objects.equals(origem.getId(), destino.getId())) {
                 throw new IllegalArgumentException("Origem e Destino não podem ser iguais");
             }
+        }
+    }
+    // ── Contexto da movimentação com custo (estoque da frota) ─────────────────────
+    @Column(name = "valor_unitario", precision = 14, scale = 4)
+    private BigDecimal valorUnitario;
+
+    @Column(name = "motivo", length = 40)
+    private String motivo;
+
+    @Column(name = "documento", length = 60)
+    private String documento;
+
+    @Column(name = "observacao", length = 500)
+    private String observacao;
+
+    /** Veículo que recebeu a peça (módulo frota). */
+    @Column(name = "id_veiculo")
+    private UUID idVeiculo;
+
+    /** Fornecedor da entrada (módulo financeiro). */
+    @Column(name = "id_fornecedor")
+    private UUID idFornecedor;
+
+    /** Movimentação de peça da frota, com custo e contexto. A OS vai em {@code idReferenciaOperacao}. */
+    public static MovimentacaoEstoque criarFrota(Estoque origem, Estoque destino, Material material, BigDecimal quantidade,
+                                                 TipoMovimentacao tipo, BigDecimal valorUnitario, ContextoFrota contexto,
+                                                 UUID idUsuarioOperador, OffsetDateTime dataHora) {
+        material.exigirCatalogoFrota();
+        var movimentacao = new MovimentacaoEstoque(origem, destino, material, quantidade, tipo, CondicaoMaterial.NOVO,
+                idUsuarioOperador, contexto.idReferencia(), null, dataHora);
+        movimentacao.valorUnitario = valorUnitario;
+        movimentacao.motivo = contexto.motivo();
+        movimentacao.documento = texto(contexto.documento(), 60);
+        movimentacao.observacao = texto(contexto.observacao(), 500);
+        movimentacao.idVeiculo = contexto.idVeiculo();
+        movimentacao.idFornecedor = contexto.idFornecedor();
+        return movimentacao;
+    }
+
+    /** Motivo, documento (NF), observação, veículo, fornecedor e a referência (OS) da movimentação da frota. */
+    public record ContextoFrota(String motivo, String documento, String observacao, UUID idVeiculo, UUID idFornecedor,
+                                UUID idReferencia) {
+    }
+
+    private static String texto(String valor, int max) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        String limpo = valor.trim();
+        if (limpo.length() > max) {
+            throw new InvarianteVioladaException("Texto acima de " + max + " caracteres.");
+        }
+        return limpo;
+    }
+
+
+    /**
+     * Isolamento entre o estoque da frota e o operacional: peça da frota só em estoque FROTA, e
+     * estoque FROTA só com peça da frota.
+     */
+    private static void exigirMesmoCatalogo(Estoque estoque, Material material) {
+        if (estoque == null) {
+            return;
+        }
+        if (estoque.isTipoFrota() && !material.isCatalogoFrota()) {
+            throw new InvarianteVioladaException("O " + estoque.getNomeIdentificador()
+                    + " é da frota e só movimenta peças da oficina.");
+        }
+        if (!estoque.isTipoFrota() && material.isCatalogoFrota()) {
+            throw new InvarianteVioladaException("A peça " + material.getCodigo()
+                    + " é da frota e só movimenta nos almoxarifados da oficina.");
         }
     }
 }

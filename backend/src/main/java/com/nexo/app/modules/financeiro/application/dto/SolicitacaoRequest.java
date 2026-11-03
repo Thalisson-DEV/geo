@@ -1,6 +1,7 @@
 package com.nexo.app.modules.financeiro.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.Map;
@@ -31,8 +32,16 @@ public record SolicitacaoRequest(
                           "temNf": true,
                           "naturezaServico": "SUSPENSAO_FREIOS"
                         }""")
-        Map<String, Object> valores
+        Map<String, Object> valores,
+
+        @Schema(description = "Registro de outro módulo que motivou a solicitação. Só vale na criação.")
+        @Valid
+        OrigemSolicitacaoRequest origem
 ) {
+
+    public SolicitacaoRequest(UUID formularioId, Map<String, Object> valores) {
+        this(formularioId, valores, null);
+    }
 
     /** Nunca nulo, para simplificar o consumo na validação. */
     public Map<String, Object> valoresOuVazio() {

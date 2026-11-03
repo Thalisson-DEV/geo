@@ -247,15 +247,156 @@ public enum GatilhoNotificacao {
 
     FROTA_VENCIMENTO_PROXIMO(
             "frota.vencimento_proximo",
-            "Documento ou CNH perto do vencimento",
+            "Documento, CNH ou apólice perto do vencimento",
             "Dispara uma vez por faixa de aviso (ex.: 30, 15, 7 e 0 dias) quando um documento "
-                    + "de veículo ou implemento, ou a CNH de um condutor, se aproxima do vencimento.",
+                    + "de veículo ou implemento, a CNH de um condutor ou uma apólice de seguro se aproxima do "
+                    + "vencimento. Use tipoAlvo (DOCUMENTO, CNH, APOLICE) nas condições.",
             ModoGatilho.POR_OCORRENCIA,
             CategoriaNotificacao.OPERACIONAL,
             // 'prazo' já vem como frase ("vence em 7 dias", "venceu há 2 dias") para o texto
             // não depender de aritmética no template; 'diasRestantes' fica para condições.
             List.of("tipoAlvo", "descricao", "referencia", "dataVencimento", "diasRestantes", "prazo", "link"),
-            List.of());
+            List.of()),
+
+    FROTA_OS_ABERTA(
+            "frota.os_aberta",
+            "OS de manutenção aberta",
+            "Dispara quando uma ordem de serviço de manutenção é aberta para um veículo.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            // 'criticidade' (URGENTE, ALTA, MEDIA, BAIXA) serve às condições; o rótulo, ao texto.
+            List.of("numero", "placa", "base", "criticidade", "criticidadeRotulo", "tipoManutencao",
+                    "descricao", "link"),
+            List.of()),
+
+    FROTA_OS_AGENDADA(
+            "frota.os_agendada",
+            "Manutenção agendada",
+            "Dispara quando uma ordem de serviço é agendada ou reagendada.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("numero", "placa", "base", "dataAgendamento", "local", "localTexto", "link"),
+            List.of()),
+
+    FROTA_OS_ORCAMENTO_DECIDIDO(
+            "frota.os_orcamento_decidido",
+            "Orçamento da OS decidido",
+            "Dispara quando o financeiro aprova ou reprova uma compra ou pagamento aberto por uma OS.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("numero", "placa", "decisao", "decisaoRotulo", "tipoSolicitacao", "tipoSolicitacaoRotulo",
+                    "numeroSolicitacao", "valor", "link"),
+            List.of("abertura")),
+
+    FROTA_OS_PRAZO_ESTOURADO(
+            "frota.os_prazo_estourado",
+            "OS com prazo estourado",
+            "Dispara uma vez por previsão quando uma OS em andamento passa da previsão de término.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("numero", "placa", "base", "previsaoTermino", "link"),
+            List.of()),
+
+    FROTA_MANUTENCAO_REPETIDA(
+            "frota.manutencao_repetida",
+            "Manutenção repetida",
+            "Dispara quando uma OS concluída repete um item feito na mesma placa dentro da janela de repetição.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("numero", "placa", "item", "numeroOsAnterior", "diasDesdeAnterior", "link"),
+            List.of()),
+
+    FROTA_CHECKLIST_AUSENTE(
+            "frota.checklist_ausente",
+            "Veículos sem checklist hoje",
+            "Dispara uma vez por dia e por base, no horário do aviso, quando há veículos usados no dia sem checklist.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("quantidade", "base", "placas", "link"),
+            List.of()),
+
+    FROTA_PREVENTIVA_PROXIMA(
+            "frota.preventiva_proxima",
+            "Preventiva próxima ou vencida",
+            "Dispara uma vez por etapa (próxima, vencida) em cada ciclo quando a preventiva de um veículo chega na antecedência ou vence.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("placa", "plano", "situacao", "falta", "base", "link"),
+            List.of()),
+
+    FROTA_TELEMETRIA_FALHA(
+            "frota.telemetria_falha",
+            "Telemetria sem sincronizar",
+            "Dispara uma vez por incidente quando um provedor de telemetria (Vivo/Ubicaly ou Zuq) passa de uma hora sem sincronizar.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("provedor", "desde", "mensagem", "link"),
+            List.of()),
+
+    FROTA_TELEMETRIA_EVENTO(
+            "frota.telemetria_evento",
+            "Evento de condução",
+            "Dispara a cada evento de condução importado da telemetria (excesso de velocidade, frenagem brusca, pânico etc.). Use codigoTipo nas condições para escolher os tipos.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("tipo", "codigoTipo", "placa", "ocorridoEm", "condutor", "detalhe", "base", "link"),
+            List.of()),
+
+    FROTA_CHECKLIST_CNH_INAPTA(
+            "frota.checklist_cnh_inapta",
+            "Checklist com CNH irregular",
+            "Dispara quando alguém assume um veículo pelo checklist com a CNH vencida, ausente ou de categoria abaixo da exigida.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("condutor", "placa", "situacao", "detalhe", "link"),
+            List.of()),
+
+    FROTA_SINISTRO_REGISTRADO(
+            "frota.sinistro_registrado",
+            "Sinistro registrado",
+            "Dispara quando um sinistro (acidente, furto, assalto ou carga avariada) é registrado para um veículo. "
+                    + "Use tipoCodigo nas condições para escolher os tipos.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("numero", "tipo", "tipoCodigo", "placa", "base", "ocorridoEm", "local", "localTexto", "condutor",
+                    "descricao", "link"),
+            List.of()),
+
+    FROTA_ABASTECIMENTO_SOLICITADO(
+            "frota.abastecimento_solicitado",
+            "Abastecimento para aprovar",
+            "Dispara quando a equipe pede abastecimento; vai para quem tem a placa na carteira de aprovação.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.APROVACAO,
+            List.of("placa", "solicitante", "itens", "posto", "alertas", "link"),
+            List.of("aprovadores")),
+
+    FROTA_ABASTECIMENTO_APROVADO(
+            "frota.abastecimento_aprovado",
+            "Abastecimento para liberar",
+            "Dispara quando o gestor aprova uma solicitação de abastecimento.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("placa", "itens", "posto", "aprovador", "link"),
+            List.of()),
+
+    FROTA_ABASTECIMENTO_ATUALIZADO(
+            "frota.abastecimento_atualizado",
+            "Andamento do abastecimento",
+            "Dispara quando o abastecimento é reprovado, liberado, cancelado ou vence.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("placa", "situacao", "detalhe", "link"),
+            List.of("solicitante")),
+
+    RH_MEDIDA_APLICADA(
+            "rh.medida_aplicada",
+            "Medida disciplinar aplicada",
+            "Dispara quando o RH lança uma medida disciplinar aplicada a um colaborador.",
+            ModoGatilho.POR_OCORRENCIA,
+            CategoriaNotificacao.OPERACIONAL,
+            List.of("colaborador", "tipo", "motivo", "base", "dataFato", "link"),
+            List.of("aplicador"));
 
     private final String chave;
     private final String nome;

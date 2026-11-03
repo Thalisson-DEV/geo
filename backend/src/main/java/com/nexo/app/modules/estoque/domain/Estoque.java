@@ -22,6 +22,8 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Estoque extends BaseEntity {
 
+    public static final String TIPO_FROTA = "FROTA";
+
     @NotBlank(message = "O nome identificador do estoque é obrigatório")
     @Size(min = 3, max = 100, message = "O nome deve ter entre 3 e 100 caracteres")
     @Column(name = "nome_identificador", nullable = false, length = 100)
@@ -118,6 +120,11 @@ public class Estoque extends BaseEntity {
 
     public boolean isTipoCampo() {
         return this.tipoEstoque != null && "CAMPO".equalsIgnoreCase(this.tipoEstoque.getNome());
+    }
+
+    /** Almoxarifado da oficina da frota: só recebe peças do catálogo FROTA. */
+    public boolean isTipoFrota() {
+        return this.tipoEstoque != null && TIPO_FROTA.equalsIgnoreCase(this.tipoEstoque.getNome());
     }
 
     public boolean isTipoObra() {

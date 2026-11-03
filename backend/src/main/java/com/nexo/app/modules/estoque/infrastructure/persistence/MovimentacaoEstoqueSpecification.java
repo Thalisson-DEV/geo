@@ -1,5 +1,6 @@
 package com.nexo.app.modules.estoque.infrastructure.persistence;
 
+import com.nexo.app.modules.estoque.domain.CatalogoMaterial;
 import com.nexo.app.modules.estoque.application.dto.MovimentacaoEstoqueFilter;
 import com.nexo.app.modules.estoque.domain.Estoque;
 import com.nexo.app.modules.estoque.domain.MovimentacaoEstoque;
@@ -26,6 +27,8 @@ public class MovimentacaoEstoqueSpecification {
     public static Specification<MovimentacaoEstoque> filterBy(MovimentacaoEstoqueFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            // Peças da frota (catálogo FROTA) têm telas próprias e não aparecem no almoxarifado.
+            predicates.add(cb.equal(root.get("material").get("catalogo"), CatalogoMaterial.OPERACIONAL));
             
             if (filter.idEstoque() != null) {
                 predicates.add(cb.or(

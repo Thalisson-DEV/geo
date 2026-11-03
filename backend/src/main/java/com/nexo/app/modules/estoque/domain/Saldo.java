@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
 
 /**
  * Representa o saldo quantitativo de um material em um estoque específico.
@@ -39,6 +41,10 @@ public class Saldo extends BaseEntity {
     @Column(name = "quantidade", nullable = false, precision = 12, scale = 3)
     private BigDecimal quantidade = BigDecimal.ZERO;
 
+    /** Custo médio ponderado; nulo nos estoques sem custo (operacionais). */
+    @Column(name = "custo_medio", precision = 14, scale = 4)
+    private BigDecimal custoMedio;
+
     public Saldo(Estoque estoque, Material material, CondicaoMaterial condicao) {
         validarVinculos(estoque, material, condicao);
         this.estoque = estoque;
@@ -67,6 +73,38 @@ public class Saldo extends BaseEntity {
             throw new IllegalArgumentException("A quantidade a ser removida deve ser positiva.");
         }
         this.quantidade = this.quantidade.subtract(qtd);
+    }
+
+    /**
+     * Entrada com custo: soma a quantidade e recalcula a média ponderada. Com saldo zerado ou
+     * negativo, a média passa a ser o valor da entrada.
+     */
+    public void adicionarComCusto(BigDecimal qtd, BigDecimal valorUnitario) {
+        if (valorUnitario == null || valorUnitario.signum() < 0) {
+            throw new InvarianteVioladaException("Informe o valor unitário da entrada.");
+        }
+        BigDecimal anterior = this.quantidade;
+        adicionarQuantidade(qtd);
+        if (anterior.signum() <= 0 || custoMedio == null) {
+            this.custoMedio = valorUnitario.setScale(4, RoundingMode.HALF_UP);
+        } else {
+            this.custoMedio = anterior.multiply(custoMedio).add(qtd.multiply(valorUnitario))
+                    .divide(this.quantidade, 4, RoundingMode.HALF_UP);
+        }
+    }
+
+    /** Saída sem deixar o saldo negativo (estoques com custo controlam a quantidade de verdade). */
+    public void removerSemNegativar(BigDecimal qtd) {
+        if (qtd != null && quantidade.compareTo(qtd) < 0) {
+            throw new InvarianteVioladaException("Saldo insuficiente de " + material.getDescricao() + ": há "
+                    + quantidade.stripTrailingZeros().toPlainString() + " " + Objects.toString(material.getUnidadeMedida(), "")
+                    + " no " + estoque.getNomeIdentificador() + ".");
+        }
+        removerQuantidade(qtd);
+    }
+
+    public BigDecimal custoMedioOuZero() {
+        return custoMedio == null ? BigDecimal.ZERO : custoMedio;
     }
 
     public boolean isNegativo() {

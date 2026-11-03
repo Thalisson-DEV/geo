@@ -34,6 +34,8 @@ public interface ExecucaoComercialRepository extends JpaRepository<ExecucaoComer
 
     List<ExecucaoComercial> findByIdTurnoAndAtivoTrueOrderByDataLancamentoAsc(UUID idTurno);
 
+    List<ExecucaoComercial> findByIdTurnoInAndAtivoTrueOrderByDataLancamentoAsc(Collection<UUID> idsTurnos);
+
     @Query("SELECT new com.nexo.app.modules.execucao.application.dto.ProducaoDoTurno("
            + "e.idTurno, COUNT(e), COALESCE(SUM(e.valorTotalFaturado), 0), MIN(e.dataLancamento), MAX(e.dataLancamento)) "
            + "FROM ExecucaoComercial e "

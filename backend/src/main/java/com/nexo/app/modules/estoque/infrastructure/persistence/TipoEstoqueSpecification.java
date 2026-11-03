@@ -1,5 +1,6 @@
 package com.nexo.app.modules.estoque.infrastructure.persistence;
 
+import com.nexo.app.modules.estoque.domain.Estoque;
 import com.nexo.app.modules.estoque.application.dto.TipoEstoqueFilter;
 import com.nexo.app.modules.estoque.domain.TipoEstoque;
 import com.nexo.app.shared.infrastructure.persistence.SpecificationUtils;
@@ -13,6 +14,8 @@ public class TipoEstoqueSpecification {
     public static Specification<TipoEstoque> filterBy(TipoEstoqueFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            // O estoque da oficina da frota (tipo FROTA) tem telas próprias e não aparece no almoxarifado.
+            predicates.add(cb.notEqual(root.get("nome"), Estoque.TIPO_FROTA));
             if (filter.nome() != null && !filter.nome().isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("nome")), "%" + filter.nome().toLowerCase() + "%"));
             }

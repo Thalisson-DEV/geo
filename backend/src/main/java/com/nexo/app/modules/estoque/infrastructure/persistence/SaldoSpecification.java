@@ -1,5 +1,6 @@
 package com.nexo.app.modules.estoque.infrastructure.persistence;
 
+import com.nexo.app.modules.estoque.domain.CatalogoMaterial;
 import com.nexo.app.modules.estoque.application.dto.SaldoFilter;
 import com.nexo.app.modules.estoque.domain.Saldo;
 import com.nexo.app.modules.estoque.domain.SaldoSerie;
@@ -17,6 +18,8 @@ public class SaldoSpecification {
     public static Specification<Saldo> filterBy(SaldoFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            // Peças da frota (catálogo FROTA) têm telas próprias e não aparecem no almoxarifado.
+            predicates.add(cb.equal(root.get("material").get("catalogo"), CatalogoMaterial.OPERACIONAL));
             
             if (filter.idEstoque() != null) {
                 predicates.add(cb.equal(root.get("estoque").get("id"), filter.idEstoque()));

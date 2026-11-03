@@ -13,6 +13,8 @@ public class EstoqueSpecification {
     public static Specification<Estoque> filterBy(EstoqueFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            // O estoque da oficina da frota (tipo FROTA) tem telas próprias e não aparece no almoxarifado.
+            predicates.add(cb.notEqual(root.get("tipoEstoque").get("nome"), Estoque.TIPO_FROTA));
             
             if (filter.nomeIdentificador() != null && !filter.nomeIdentificador().isBlank()) {
                 predicates.add(cb.like(cb.lower(root.get("nomeIdentificador")), "%" + filter.nomeIdentificador().toLowerCase() + "%"));

@@ -76,4 +76,6 @@ public interface EstoqueRepository extends JpaRepository<Estoque, UUID>, JpaSpec
 
     boolean existsByNomeIdentificadorIgnoreCase(String nome);
     boolean existsByNomeIdentificadorIgnoreCaseAndIdNot(String nome, UUID id);
+
+    List<Estoque> findAllByTipoEstoqueNomeOrderByNomeIdentificadorAsc(String tipo);
 }

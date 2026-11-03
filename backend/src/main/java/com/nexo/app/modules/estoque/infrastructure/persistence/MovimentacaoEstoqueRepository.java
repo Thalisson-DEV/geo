@@ -254,4 +254,9 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
             @Param("idEstoque") UUID idEstoque,
             @Param("idMaterial") UUID idMaterial,
             @Param("desde") OffsetDateTime desde);
+
+    boolean existsByTipoAndIdReferenciaOperacao(MovimentacaoEstoque.TipoMovimentacao tipo, UUID idReferenciaOperacao);
+
+    List<MovimentacaoEstoque> findAllByTipoAndIdReferenciaOperacaoIn(MovimentacaoEstoque.TipoMovimentacao tipo,
+                                                                     java.util.Collection<UUID> ids);
 }
