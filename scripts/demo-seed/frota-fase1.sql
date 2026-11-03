@@ -9,7 +9,7 @@ SELECT gen_random_uuid(), f.id, x.papel, x.tel, x.obs
 FROM (VALUES (0, 'SEGURADORA', '08007270000', 'Assistencia 24h com guincho ate 400 km'),
              (1, 'SEGURADORA', '08007011234', 'Atende frota pesada e utilitarios'),
              (2, 'CORRETORA',  '7133451200',  'Corretora responsavel pela renovacao anual')) AS x(ofs, papel, tel, obs)
-CROSS JOIN LATERAL (SELECT id FROM fornecedores ORDER BY id OFFSET x.ofs LIMIT 1) f;
+CROSS JOIN LATERAL (SELECT id FROM financeiro_fornecedor ORDER BY id OFFSET x.ofs LIMIT 1) f;
 
 -- Apolices
 INSERT INTO frota_apolices (id, numero, id_seguradora, id_corretor, segurado, id_base_operacional, vigencia_inicio, vigencia_fim, valor, franquia, observacao)
@@ -29,9 +29,9 @@ SELECT gen_random_uuid(), (SELECT id FROM frota_apolices WHERE numero='0577.2026
 FROM (SELECT id FROM veiculos ORDER BY id OFFSET 6 LIMIT 4) v;
 
 -- Sinistros
-INSERT INTO frota_sinistros (id, id_veiculo, placa, id_base_operacional, ocorrido_em, local, tipo, culpa_condutor, descricao, terceiros, boletim_ocorrencia, id_apolice, situacao)
+INSERT INTO frota_sinistros (id, id_veiculo, placa, id_base_operacional, ocorrido_em, local, tipo, culpa_condutor, descricao, terceiros, boletim_ocorrencia, id_apolice, seguradora_acionada_em, situacao)
 SELECT gen_random_uuid(), v.id, v.placa, (SELECT id FROM bases_operacionais ORDER BY id LIMIT 1), x.quando, x.local, x.tipo, x.culpa, x.descr, x.terc, x.bo,
-       (SELECT id FROM frota_apolices WHERE numero='1031.2026.0004521'), 'RASCUNHO'
+       (SELECT id FROM frota_apolices WHERE numero='1031.2026.0004521'), x.quando + interval '1 day', 'RASCUNHO'
 FROM (VALUES
   (0, TIMESTAMPTZ '2026-09-12 07:40:00-03', 'BR-324, km 612, Simoes Filho - BA', 'COLISAO_SEM_VITIMA', false,
    'Veiculo atingido na traseira por carreta em retencao no trecho de obras.', 'Carreta placa QKD-4F21, condutor acionou seguro proprio', 'BO 00451/2026-DT Simoes Filho'),

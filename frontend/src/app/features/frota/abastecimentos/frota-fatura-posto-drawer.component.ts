@@ -134,7 +134,7 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
                 @for (a of c.abastecimentos; track a.id) {
                   <div class="dd-tabela__linha fat-linha" role="row" [class.fat-linha--fora]="!selecao().has(a.id)" (click)="editavel() && alternar(a.id)">
                     <span role="cell" (click)="$event.stopPropagation()">
-                      <ces-boolean-control [label]="'Incluir na fatura: ' + placa(a.placa) + ' de ' + (a.realizadoEm | date: 'dd/MM')" [labelVisible]="false"
+                      <ces-boolean-control [label]="'Incluir na fatura: ' + placa(a.placa) + ' de ' + (a.realizadoEm | date: 'dd/MM')"
                         [value]="selecao().has(a.id)" [disabled]="!editavel()" (valueChange)="marcar(a.id, $event)"></ces-boolean-control>
                     </span>
                     <span role="cell" class="dd-material">
