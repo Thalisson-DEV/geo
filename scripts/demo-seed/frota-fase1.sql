@@ -1,6 +1,6 @@
 -- Carga de dados da frota (fase 1): seguradoras, apolices, sinistros, preventivas, pneus e telemetria.
 -- Depende de veiculos, fornecedores, bases_operacionais ja carregados. Nao executar em producao.
--- Valores de enums (papel, provedor, tipo, situacao) seguem os CHECKs das migrations V209-V227; revise se algum falhar.
+-- Valores de enums conferidos com os CHECKs das migrations V209-V227.
 BEGIN;
 
 -- Seguradoras e corretoras (vinculadas a fornecedores existentes)
@@ -33,11 +33,11 @@ INSERT INTO frota_sinistros (id, id_veiculo, placa, id_base_operacional, ocorrid
 SELECT gen_random_uuid(), v.id, v.placa, (SELECT id FROM bases_operacionais ORDER BY id LIMIT 1), x.quando, x.local, x.tipo, x.culpa, x.descr, x.terc, x.bo,
        (SELECT id FROM frota_apolices WHERE numero='1031.2026.0004521'), 'RASCUNHO'
 FROM (VALUES
-  (0, TIMESTAMPTZ '2026-09-12 07:40:00-03', 'BR-324, km 612, Simoes Filho - BA', 'COLISAO', false,
+  (0, TIMESTAMPTZ '2026-09-12 07:40:00-03', 'BR-324, km 612, Simoes Filho - BA', 'COLISAO_SEM_VITIMA', false,
    'Veiculo atingido na traseira por carreta em retencao no trecho de obras.', 'Carreta placa QKD-4F21, condutor acionou seguro proprio', 'BO 00451/2026-DT Simoes Filho'),
-  (1, TIMESTAMPTZ '2026-10-03 15:10:00-03', 'Av. Presidente Dutra, Feira de Santana - BA', 'AVARIA', true,
+  (1, TIMESTAMPTZ '2026-10-03 15:10:00-03', 'Av. Presidente Dutra, Feira de Santana - BA', 'SEM_TERCEIROS', true,
    'Retrovisor e para-lama dianteiro direito danificados em manobra no patio do cliente.', NULL, NULL),
-  (2, TIMESTAMPTZ '2026-10-21 22:30:00-03', 'Rua Sete de Setembro, Vitoria da Conquista - BA', 'ROUBO_FURTO', false,
+  (2, TIMESTAMPTZ '2026-10-21 22:30:00-03', 'Rua Sete de Setembro, Vitoria da Conquista - BA', 'FURTO', false,
    'Furto de ferramentas e bateria com o veiculo estacionado em frente ao alojamento.', NULL, 'BO 01987/2026-1a DT Vitoria da Conquista')
 ) AS x(ofs, quando, local, tipo, culpa, descr, terc, bo)
 CROSS JOIN LATERAL (SELECT id, placa FROM veiculos ORDER BY id OFFSET x.ofs LIMIT 1) v;
@@ -51,14 +51,14 @@ VALUES
  (gen_random_uuid(), 'Alinhamento e balanceamento', 'Alinhamento, balanceamento e rodizio dos pneus', 15000, NULL, 1000, NULL, 'BAIXA', false);
 
 -- Pneus em estoque e montados
-INSERT INTO frota_pneus (id, marca_fogo, numero_serie, marca, modelo, largura, perfil, aro, indice_carga, indice_velocidade, dot, nota_fiscal, data_compra, valor_compra, sulco_inicial_mm, sulco_atual_mm, pressao_recomendada_psi)
+INSERT INTO frota_pneus (id, marca_fogo, numero_serie, marca, modelo, largura, perfil, aro, indice_carga, indice_velocidade, dot, nota_fiscal, data_compra, valor_compra, sulco_inicial_mm, sulco_atual_mm, pressao_recomendada_psi, situacao)
 VALUES
- (gen_random_uuid(), 'FG-1001', 'P8813201', 'Pirelli', 'Chrono', 205, 75, '16', '110', 'R', '2226', 'NF 48812', DATE '2026-05-20', 689.90, 9.0, 7.4, 65),
- (gen_random_uuid(), 'FG-1002', 'P8813202', 'Pirelli', 'Chrono', 205, 75, '16', '110', 'R', '2226', 'NF 48812', DATE '2026-05-20', 689.90, 9.0, 7.1, 65),
- (gen_random_uuid(), 'FG-1003', 'M5520917', 'Michelin', 'Agilis', 225, 70, '15', '112', 'S', '1826', 'NF 50177', DATE '2026-07-02', 812.00, 9.5, 9.5, 70),
- (gen_random_uuid(), 'FG-1004', 'M5520918', 'Michelin', 'Agilis', 225, 70, '15', '112', 'S', '1826', 'NF 50177', DATE '2026-07-02', 812.00, 9.5, 9.5, 70),
- (gen_random_uuid(), 'FG-2001', 'B2774410', 'Bridgestone', 'R268', 275, 80, '22.5', '149', 'L', '0926', 'NF 3391', DATE '2026-02-11', 2390.00, 15.0, 11.2, 110),
- (gen_random_uuid(), 'FG-2002', 'B2774411', 'Bridgestone', 'R268', 275, 80, '22.5', '149', 'L', '0926', 'NF 3391', DATE '2026-02-11', 2390.00, 15.0, 10.8, 110);
+ (gen_random_uuid(), 'FG-1001', 'P8813201', 'Pirelli', 'Chrono', 205, 75, '16', '110', 'R', '2226', 'NF 48812', DATE '2026-05-20', 689.90, 9.0, 7.4, 65, 'DISPONIVEL'),
+ (gen_random_uuid(), 'FG-1002', 'P8813202', 'Pirelli', 'Chrono', 205, 75, '16', '110', 'R', '2226', 'NF 48812', DATE '2026-05-20', 689.90, 9.0, 7.1, 65, 'DISPONIVEL'),
+ (gen_random_uuid(), 'FG-1003', 'M5520917', 'Michelin', 'Agilis', 225, 70, '15', '112', 'S', '1826', 'NF 50177', DATE '2026-07-02', 812.00, 9.5, 9.5, 70, 'DISPONIVEL'),
+ (gen_random_uuid(), 'FG-1004', 'M5520918', 'Michelin', 'Agilis', 225, 70, '15', '112', 'S', '1826', 'NF 50177', DATE '2026-07-02', 812.00, 9.5, 9.5, 70, 'DISPONIVEL'),
+ (gen_random_uuid(), 'FG-2001', 'B2774410', 'Bridgestone', 'R268', 275, 80, '22.5', '149', 'L', '0926', 'NF 3391', DATE '2026-02-11', 2390.00, 15.0, 11.2, 110, 'DISPONIVEL'),
+ (gen_random_uuid(), 'FG-2002', 'B2774411', 'Bridgestone', 'R268', 275, 80, '22.5', '149', 'L', '0926', 'NF 3391', DATE '2026-02-11', 2390.00, 15.0, 10.8, 110, 'DISPONIVEL');
 
 -- Telemetria: rastreadores (espelhando o cadastro dos provedores)
 INSERT INTO frota_telemetria_rastreadores (id, provedor, id_externo, placa_provedor, nome_provedor, id_veiculo, situacao, ultima_comunicacao, latitude, longitude, velocidade_kmh, ignicao, odometro_metros, motorista_nome)
@@ -97,7 +97,7 @@ SELECT gen_random_uuid(), r.provedor, x.ext_evt, r.id, r.id_veiculo, r.placa_pro
 FROM (VALUES
   ('358240051112301', 'UB-EV-90311', 'EXCESSO_VELOCIDADE', interval '08:12', -12.7350, -38.6520, 'BR-324, km 590, Candeias - BA', 97.0, 80.0, 45, 'Velocidade acima do limite da via'),
   ('358240051112301', 'UB-EV-90312', 'FRENAGEM_BRUSCA',    interval '09:03', -12.4510, -38.8120, 'BR-324, Amelia Rodrigues - BA', 62.0, NULL, NULL, 'Desaceleracao brusca registrada'),
-  ('ZQ-77810',        'ZQ-EV-55120', 'OCIOSIDADE',         interval '10:40', -12.3010, -39.0410, 'BA-502, Sao Goncalo dos Campos - BA', 0.0, NULL, 1260, 'Motor ligado parado por 21 minutos'),
+  ('ZQ-77810',        'ZQ-EV-55120', 'MOTOR_LIGADO_PARADO',       interval '10:40', -12.3010, -39.0410, 'BA-502, Sao Goncalo dos Campos - BA', 0.0, NULL, 1260, 'Motor ligado parado por 21 minutos'),
   ('358240051112305', 'UB-EV-90340', 'EXCESSO_VELOCIDADE', interval '11:25', -12.0400, -38.2500, 'BA-110, Entre Rios - BA', 104.0, 80.0, 70, 'Velocidade acima do limite da via')
 ) AS x(ext, ext_evt, tipo, hora, lat, lon, ender, vel, lim, dur, descr)
 JOIN frota_telemetria_rastreadores r ON r.id_externo = x.ext;
