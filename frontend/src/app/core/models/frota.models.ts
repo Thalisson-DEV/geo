@@ -2,6 +2,7 @@
  * Contratos do módulo de frota (backend `/v1/frota`). Decisões de domínio em
  * `docs/adr/0001-modulo-gestao-frota.md` na raiz do monorepo.
  */
+import type { PreventivaOrdemServico } from './frota-preventiva.models';
 import type { CesTone } from '@ces/ui';
 
 export type SituacaoOperacional = 'ATIVO' | 'EM_MANUTENCAO' | 'PARADO' | 'RESERVA' | 'BAIXADO';
@@ -23,6 +24,9 @@ export type TipoDocumentoFrota =
   | 'OUTRO';
 export type OrigemLeituraOdometro = 'MANUAL' | 'CHECKLIST' | 'ABASTECIMENTO' | 'MANUTENCAO' | 'TELEMETRIA' | 'IMPORTACAO';
 export type SituacaoLeituraOdometro = 'VALIDA' | 'INCONSISTENTE' | 'ANULADA';
+/** Odômetro em km ou horímetro em horas. */
+export type UnidadeMedicao = 'KM' | 'HORAS';
+export type TipoLeituraOdometro = 'LEITURA' | 'TROCA_PAINEL';
 export type OrigemVinculoCondutor = 'MANUAL' | 'CHECKLIST' | 'TURNO' | 'IMPORTACAO';
 
 export interface OpcaoFrota<T extends string = string> {
@@ -38,11 +42,53 @@ export interface OpcoesFrota {
   categoriasCnh: OpcaoFrota<CategoriaCnh>[];
   tiposDocumento: OpcaoFrota<TipoDocumentoFrota>[];
   origensOdometro: OpcaoFrota<OrigemLeituraOdometro>[];
+  situacoesOrdemServico: OpcaoFrota<SituacaoOrdemServico>[];
+  criticidades: OpcaoFrota<Criticidade>[];
+  tiposManutencao: OpcaoFrota<TipoManutencao>[];
+  origensOrdemServico: OpcaoFrota<OrigemOrdemServico>[];
+  tiposOficina: OpcaoFrota<TipoOficina>[];
+  motivosServico: OpcaoFrota<MotivoServico>[];
+  naturezasServico: OpcaoFrota[];
+  situacoesAprovacao: OpcaoFrota<SituacaoAprovacaoOrcamento>[];
+  causasManutencao: OpcaoFrota<CausaManutencao>[];
+  origensPeca: OpcaoFrota<OrigemPeca>[];
+  tiposSinistro: OpcaoFrota<TipoSinistro>[];
+  situacoesSinistro: OpcaoFrota<SituacaoSinistro>[];
 }
+
+/** O que aconteceu com o veículo no sinistro. */
+export type TipoSinistro =
+  | 'COLISAO_SEM_VITIMA'
+  | 'COLISAO_COM_VITIMA'
+  | 'SEM_TERCEIROS'
+  | 'INTRAFROTA'
+  | 'CARGA_AVARIADA'
+  | 'FURTO'
+  | 'ASSALTO';
+
+/** Andamento do sinistro; só avança. */
+export type SituacaoSinistro = 'RASCUNHO' | 'EM_OFICINA' | 'SEGURADORA_ACIONADA' | 'FINALIZADO' | 'CANCELADO';
 
 export interface ParametrosFrota {
   faixasAlertaDias: number[];
   limiteKmDia: number;
+  /** Salto diário máximo, em horas, para veículos com horímetro. */
+  limiteHorasDia?: number | null;
+  /** Dias em que o mesmo item na mesma placa conta como manutenção repetida. */
+  janelaRepeticaoDias?: number | null;
+  /** Trava do campo: o app e o servidor recusam KM acima disto sobre a última leitura. */
+  limiteSaltoKm?: number | null;
+  /** Mesma trava no horímetro; zero ou vazio, sem trava de salto. */
+  limiteSaltoHoras?: number | null;
+  /** Expediente que separa o uso normal do uso fora do expediente; ausente mantém o atual. */
+  expediente?: ExpedienteFrota | null;
+}
+
+export interface ExpedienteFrota {
+  /** "HH:mm" ou "HH:mm:ss". */
+  inicio: string;
+  fim: string;
+  sabado: boolean;
 }
 
 export interface TipoVeiculo {
@@ -78,6 +124,9 @@ export interface FiltroVeiculosFrota {
   situacoes?: SituacaoOperacional[];
   regime?: RegimeVeiculo | null;
   ativo?: boolean | null;
+  /** Pela telemetria, nos últimos 30 dias. */
+  foraExpediente?: boolean | null;
+  rodaPouco?: boolean | null;
 }
 
 export interface VeiculoFrotaResumo {
@@ -102,6 +151,21 @@ export interface VeiculoFrotaResumo {
   documentosAVencer: number;
   leiturasInconsistentes: number;
   ativo: boolean;
+  /** Unidade de `kmAtual`. */
+  unidadeMedicao: UnidadeMedicao;
+  /** Valor atual somado ao que os painéis anteriores rodaram. */
+  acumulado: number | null;
+  /** Uso nos últimos 30 dias pela telemetria; nulo sem rastreador medindo o veículo. */
+  uso: UsoRecenteVeiculo | null;
+}
+
+/** {@code rodaPouco}: menos de 20 km por dia útil medido (com ao menos 5 dias medidos). */
+export interface UsoRecenteVeiculo {
+  km: number;
+  kmPorDiaUtil: number;
+  kmForaExpediente: number;
+  diasForaExpediente: number;
+  rodaPouco: boolean;
 }
 
 export interface VeiculoFrotaRequest {
@@ -127,6 +191,8 @@ export interface VeiculoFrotaRequest {
   provedorTelemetria: ProvedorTelemetria | null;
   idRastreador: string | null;
   observacao: string | null;
+  /** Nula mantém a atual. Com leituras, só muda por troca de painel. */
+  unidadeMedicao?: UnidadeMedicao | null;
 }
 
 export interface VinculoCondutor {
@@ -186,6 +252,8 @@ export interface VeiculoFrotaDetalhe {
   documentosAVencer: number;
   leiturasInconsistentes: number;
   ativo: boolean;
+  unidadeMedicao: UnidadeMedicao;
+  acumulado: number | null;
 }
 
 export interface VincularCondutorRequest {
@@ -337,11 +405,27 @@ export interface LeituraOdometro {
   registradoPor: string | null;
   dataAnulacao: string | null;
   justificativaAnulacao: string | null;
+  /** Unidade de `km` e `kmAnterior`. */
+  unidade: UnidadeMedicao;
+  tipo: TipoLeituraOdometro;
+  /** Na troca de painel: último valor do painel antigo menos o inicial do novo. */
+  deslocamento: number | null;
 }
 
 export interface RegistrarLeituraRequest {
   km: number;
   lidoEm: string;
+  /** Obrigatória quando o valor passa a trava de salto (viagem longa sem lançamentos). */
+  justificativa?: string | null;
+}
+
+export interface TrocaPainelRequest {
+  valorFechamento: number;
+  valorInicial: number;
+  /** Nula mantém a unidade atual do veículo. */
+  unidade: UnidadeMedicao | null;
+  lidoEm: string;
+  observacao: string | null;
 }
 
 // ── Apresentação ───────────────────────────────────────────────────────────────
@@ -392,6 +476,37 @@ export const ROTULO_LEITURA: Record<SituacaoLeituraOdometro, string> = {
   INCONSISTENTE: 'Inconsistente',
   ANULADA: 'Anulada'
 };
+
+export const ROTULO_UNIDADE: Record<UnidadeMedicao, string> = {
+  KM: 'Quilômetros (odômetro)',
+  HORAS: 'Horas (horímetro)'
+};
+
+/** Sufixo do valor medido: "km" ou "h". */
+export function sufixoUnidade(unidade: UnidadeMedicao | null | undefined): string {
+  return unidade === 'HORAS' ? 'h' : 'km';
+}
+
+/** Nome do instrumento: "Odômetro" ou "Horímetro". */
+export function nomeMedidor(unidade: UnidadeMedicao | null | undefined): string {
+  return unidade === 'HORAS' ? 'Horímetro' : 'Odômetro';
+}
+
+/** Valor com o sufixo da unidade e separador de milhar: "4.009 h", "264.776 km". */
+export function formatarMedicao(valor: number | null | undefined, unidade: UnidadeMedicao | null | undefined): string {
+  if (valor === null || valor === undefined) return '—';
+  return `${valor.toLocaleString('pt-BR')} ${sufixoUnidade(unidade)}`;
+}
+
+/** Origem para exibir: a troca de painel aparece como tal, não como lançamento manual. */
+export function rotuloOrigemLeitura(l: Pick<LeituraOdometro, 'origem' | 'tipo'>): string {
+  return l.tipo === 'TROCA_PAINEL' ? 'Troca de painel' : ROTULO_ORIGEM_LEITURA[l.origem];
+}
+
+/** Rótulo do valor atual: "KM atual" ou "Horímetro atual". */
+export function rotuloValorAtual(unidade: UnidadeMedicao | null | undefined): string {
+  return unidade === 'HORAS' ? 'Horímetro atual' : 'KM atual';
+}
 
 export const ROTULO_ORIGEM_LEITURA: Record<OrigemLeituraOdometro, string> = {
   MANUAL: 'Lançamento manual',
@@ -466,4 +581,473 @@ export function formatarMedida(
 export function contar(quantidade: number, singular: string, plural: string, nenhum?: string): string {
   if (quantidade === 0 && nenhum) return nenhum;
   return `${quantidade.toLocaleString('pt-BR')} ${quantidade === 1 ? singular : plural}`;
+}
+
+// ── Ordens de serviço (Fase 1) ─────────────────────────────────────────────────
+
+export type SituacaoOrdemServico = 'PENDENTE' | 'AGENDADA' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA';
+export type Criticidade = 'URGENTE' | 'ALTA' | 'MEDIA' | 'BAIXA';
+export type TipoManutencao = 'CORRETIVA' | 'PREVENTIVA';
+export type OrigemOrdemServico = 'VERBAL' | 'CHECKLIST' | 'INSPECAO' | 'PREVENTIVA' | 'MANUAL' | 'IMPORTACAO' | 'SINISTRO';
+export type TipoOficina = 'INTERNA' | 'EXTERNA';
+export type MotivoServico = 'DESGASTE_NATURAL' | 'ADEQUACAO_DE_MELHORIA' | 'PROBLEMA_MECANICO' | 'MAU_USO_DESCONTO' | 'OUTRA';
+export type SituacaoAprovacaoOrcamento = 'SEM_ORCAMENTO' | 'EM_ORCAMENTO' | 'AGUARDANDO_APROVACAO' | 'APROVADO' | 'REPROVADO';
+export type StatusSolicitacaoFinanceira = 'RASCUNHO' | 'SOLICITADO' | 'APROVADO' | 'REJEITADO' | 'CANCELADO';
+
+export interface ItemManutencao {
+  id: string;
+  nome: string;
+  natureza: string;
+  naturezaRotulo: string;
+  descricao: string | null;
+  diasRepeticao: number | null;
+  ativo: boolean;
+}
+
+export interface ItemManutencaoRequest {
+  nome: string;
+  natureza: string;
+  descricao: string | null;
+  diasRepeticao: number | null;
+}
+
+export interface FiltroOrdensServico {
+  busca?: string | null;
+  idsBase?: string[];
+  situacoes?: SituacaoOrdemServico[];
+  criticidades?: Criticidade[];
+  tiposManutencao?: TipoManutencao[];
+  origens?: OrigemOrdemServico[];
+  idsItem?: string[];
+  idVeiculo?: string | null;
+  idCondutor?: string | null;
+  abertaDe?: string | null;
+  abertaAte?: string | null;
+  /** Período de conclusão (fim real): o quadro mostra as concluídas da última semana. */
+  concluidaDe?: string | null;
+  concluidaAte?: string | null;
+  atrasadas?: boolean | null;
+  veiculoParado?: boolean | null;
+  comRepeticao?: boolean | null;
+}
+
+export interface OrdemServico {
+  id: string;
+  numero: number;
+  /** Nulo na OS sem veículo (ferramental, oficina, equipamento sem placa). */
+  idVeiculo: string | null;
+  placa: string | null;
+  veicular: boolean;
+  descricaoEquipamento: string | null;
+  idBaseOperacional: string | null;
+  base: string | null;
+  tipoManutencao: TipoManutencao;
+  origem: OrigemOrdemServico;
+  criticidade: Criticidade;
+  motivo: MotivoServico | null;
+  situacao: SituacaoOrdemServico;
+  descricao: string;
+  itens: string[];
+  idCondutor: string | null;
+  condutor: string | null;
+  abertaEm: string;
+  usuarioAbertura: string | null;
+  kmAbertura: number | null;
+  /** Unidade de kmAbertura e kmEncerramento: a do veículo na abertura. */
+  unidadeMedicao: UnidadeMedicao;
+  tipoOficina: TipoOficina;
+  idFornecedor: string | null;
+  oficinaNome: string | null;
+  oficina: string;
+  agendadaPara: string | null;
+  localAgendamento: string | null;
+  inicioReal: string | null;
+  previsaoTermino: string | null;
+  fimReal: string | null;
+  atrasada: boolean;
+  veiculoParado: boolean;
+  paradoDesde: string | null;
+  liberadoEm: string | null;
+  paradaEmCurso: boolean;
+  descricaoServico: string | null;
+  itensSubstituidos: string | null;
+  valorTotal: number | null;
+  kmEncerramento: number | null;
+  causa: CausaManutencao | null;
+  canceladaEm: string | null;
+  motivoCancelamento: string | null;
+  situacaoAprovacao: SituacaoAprovacaoOrcamento;
+  quantidadeOrcamentos: number;
+  temRepeticao: boolean;
+}
+
+export interface RepeticaoManutencao {
+  idOsAnterior: string;
+  numeroOsAnterior: number;
+  fimRealAnterior: string | null;
+  diasDesdeAnterior: number | null;
+  janelaDias: number;
+}
+
+export interface ItemOrdemServico {
+  idItem: string;
+  nome: string;
+  natureza: string;
+  naturezaRotulo: string;
+  repeticao: RepeticaoManutencao | null;
+}
+
+export interface OrcamentoOrdemServico {
+  idSolicitacao: string;
+  tipo: 'COMPRA' | 'PAGAMENTO';
+  numero: number;
+  status: StatusSolicitacaoFinanceira;
+  valor: number | null;
+  valorAprovado: number | null;
+  fornecedor: string | null;
+  descricao: string | null;
+  dataSubmissao: string | null;
+  dataDecisao: string | null;
+  motivoRejeicao: string | null;
+}
+
+export interface HistoricoOrdemServico {
+  tipo: string;
+  tipoRotulo: string;
+  descricao: string | null;
+  usuario: string | null;
+  ocorridoEm: string;
+}
+
+export interface OrdemServicoDetalhe {
+  ordem: OrdemServico;
+  itens: ItemOrdemServico[];
+  orcamentos: OrcamentoOrdemServico[];
+  historico: HistoricoOrdemServico[];
+  kmAtualVeiculo: number | null;
+  avisos: string[];
+  servicos: ServicoOrdemServico[];
+  pecas: PecaOrdemServico[];
+  totais: TotaisOrdemServico;
+  /** Planos preventivos que a OS cobre, com o roteiro de inspeção copiado na abertura. */
+  preventivas: PreventivaOrdemServico[];
+  /** Sinistro que abriu a OS de reparo (origem SINISTRO). */
+  sinistro?: { id: string; numero: number; tipo: string; situacao: string } | null;
+}
+
+/** Por que a manutenção aconteceu (obrigatória para concluir). */
+export type CausaManutencao =
+  | 'AVARIA'
+  | 'DESGASTE_NATURAL'
+  | 'USO_INDEVIDO'
+  | 'SERVICO_CORRETIVO'
+  | 'SERVICO_PREVENTIVO'
+  | 'ESTOQUE'
+  | 'SUBSTITUICAO_PNEUS';
+
+/** De onde veio a peça: estoque só registra a origem; a baixa vem na Fase 4. */
+export type OrigemPeca = 'ESTOQUE' | 'COMPRA';
+
+export interface ServicoOrdemServico {
+  id: string;
+  descricao: string;
+  idItemManutencao: string | null;
+  itemManutencao: string | null;
+  idMecanico: string | null;
+  /** Nome do colaborador (oficina interna) ou o nome livre (externa). */
+  mecanico: string | null;
+  quantidade: number;
+  valorUnitario: number;
+  subtotal: number;
+}
+
+export interface PecaOrdemServico {
+  id: string;
+  descricao: string;
+  codigo: string | null;
+  origem: OrigemPeca;
+  origemRotulo: string;
+  quantidade: number;
+  unidade: string;
+  valorUnitario: number;
+  subtotal: number;
+  idMaterial?: string | null;
+  idEstoque?: string | null;
+  estoque?: string | null;
+  baixadaNoEstoque?: boolean;
+}
+
+export interface TotaisOrdemServico {
+  servicos: number;
+  pecas: number;
+  desconto: number;
+  acrescimo: number;
+  total: number | null;
+  /** Verdadeiro quando o total vem dos lançamentos; falso quando vale o valor digitado. */
+  calculado: boolean;
+}
+
+export type TipoDocumentoFiscal = 'NFE' | 'NFSE' | 'CUPOM' | 'RECIBO' | 'OUTRO';
+
+export const ROTULO_DOCUMENTO_FISCAL: Record<TipoDocumentoFiscal, string> = {
+  NFE: 'NF-e',
+  NFSE: 'NFS-e',
+  CUPOM: 'Cupom fiscal',
+  RECIBO: 'Recibo',
+  OUTRO: 'Outro'
+};
+
+export interface DocumentoFiscalOrdemServico {
+  id: string;
+  tipo: TipoDocumentoFiscal;
+  tipoRotulo: string;
+  numero: string;
+  serie: string | null;
+  emitidoEm: string;
+  idFornecedor: string | null;
+  fornecedor: string | null;
+  valor: number;
+  possuiArquivo: boolean;
+  arquivoNome: string | null;
+  arquivoContentType: string | null;
+  arquivoTamanhoBytes: number | null;
+  registradoEm: string;
+  registradoPor: string | null;
+}
+
+export interface DocumentoFiscalOrdemServicoRequest {
+  tipo: TipoDocumentoFiscal;
+  numero: string;
+  serie: string | null;
+  emitidoEm: string;
+  idFornecedor: string | null;
+  fornecedorNome: string | null;
+  valor: number;
+}
+
+export interface ServicoOrdemServicoRequest {
+  descricao: string;
+  idItemManutencao: string | null;
+  idMecanico: string | null;
+  mecanicoNome: string | null;
+  quantidade: number;
+  valorUnitario: number;
+}
+
+export interface PecaOrdemServicoRequest {
+  descricao: string;
+  codigo: string | null;
+  origem: OrigemPeca;
+  quantidade: number;
+  unidade: string;
+  /** Nulo na peça do almoxarifado: vale o custo médio. */
+  valorUnitario: number | null;
+  idMaterial?: string | null;
+  idEstoque?: string | null;
+}
+
+export interface PainelOrdensServico {
+  pendentes: number;
+  pendentesPorCriticidade: Record<Criticidade, number>;
+  agendadas: number;
+  agendadasVencidas: number;
+  emAndamento: number;
+  atrasadas: number;
+  concluidasUltimos30Dias: number;
+  veiculosParados: number;
+  aguardandoAprovacao: number;
+}
+
+export interface AbrirOrdemServicoRequest {
+  /** Nulo abre a OS sem veículo, com base e equipamento. */
+  idVeiculo: string | null;
+  tipoManutencao: TipoManutencao;
+  origem: OrigemOrdemServico;
+  criticidade: Criticidade;
+  motivo: MotivoServico | null;
+  descricao: string;
+  idsItem: string[];
+  idCondutor: string | null;
+  abertaEm: string | null;
+  kmAbertura: number | null;
+  tipoOficina: TipoOficina;
+  idFornecedor: string | null;
+  oficinaNome: string | null;
+  veiculoParado: boolean | null;
+  idBaseOperacional?: string | null;
+  descricaoEquipamento?: string | null;
+}
+
+export type EditarOrdemServicoRequest = Omit<
+  AbrirOrdemServicoRequest,
+  'idVeiculo' | 'abertaEm' | 'kmAbertura' | 'veiculoParado' | 'idBaseOperacional' | 'descricaoEquipamento'
+>;
+
+export interface ConcluirOrdemServicoRequest {
+  inicioReal: string | null;
+  fimReal: string;
+  descricaoServico: string;
+  itensSubstituidos: string | null;
+  valorTotal: number | null;
+  kmEncerramento: number | null;
+  tipoOficina: TipoOficina;
+  idFornecedor: string | null;
+  oficinaNome: string | null;
+  idsItem: string[] | null;
+  causa: CausaManutencao | null;
+}
+
+export interface PreviaRepeticao {
+  idItem: string;
+  nome: string;
+  repeticao: RepeticaoManutencao;
+}
+
+export interface FornecedorFrota {
+  id: string;
+  nome: string;
+}
+
+/** Valores da OS para pré-preencher a compra ou o pagamento no financeiro (chaves canônicas). */
+export interface PreenchimentoFinanceiro {
+  origemTipo: string;
+  referencia: string;
+  varianteSugerida: string;
+  valores: Record<string, unknown>;
+  rotulos: Record<string, string>;
+}
+
+export const TOM_SITUACAO_OS: Record<SituacaoOrdemServico, CesTone> = {
+  PENDENTE: 'warning',
+  AGENDADA: 'info',
+  EM_ANDAMENTO: 'info',
+  CONCLUIDA: 'success',
+  CANCELADA: 'neutral'
+};
+
+export const ROTULO_SITUACAO_OS: Record<SituacaoOrdemServico, string> = {
+  PENDENTE: 'Pendente',
+  AGENDADA: 'Agendada',
+  EM_ANDAMENTO: 'Em andamento',
+  CONCLUIDA: 'Concluída',
+  CANCELADA: 'Cancelada'
+};
+
+export const ICONE_SITUACAO_OS: Record<SituacaoOrdemServico, string> = {
+  PENDENTE: 'pi-inbox',
+  AGENDADA: 'pi-calendar',
+  EM_ANDAMENTO: 'pi-wrench',
+  CONCLUIDA: 'pi-check',
+  CANCELADA: 'pi-ban'
+};
+
+export const TOM_CRITICIDADE: Record<Criticidade, CesTone> = {
+  URGENTE: 'danger',
+  ALTA: 'warning',
+  MEDIA: 'info',
+  BAIXA: 'neutral'
+};
+
+export const ROTULO_CRITICIDADE: Record<Criticidade, string> = {
+  URGENTE: 'Urgente',
+  ALTA: 'Alta',
+  MEDIA: 'Média',
+  BAIXA: 'Baixa'
+};
+
+export const ROTULO_TIPO_MANUTENCAO: Record<TipoManutencao, string> = {
+  CORRETIVA: 'Corretiva',
+  PREVENTIVA: 'Preventiva'
+};
+
+export const ROTULO_ORIGEM_OS: Record<OrigemOrdemServico, string> = {
+  VERBAL: 'Comunicação verbal',
+  CHECKLIST: 'Checklist',
+  INSPECAO: 'Inspeção',
+  PREVENTIVA: 'Plano preventivo',
+  MANUAL: 'Lançamento manual',
+  IMPORTACAO: 'Importação',
+  SINISTRO: 'Sinistro'
+};
+
+export const ROTULO_TIPO_OFICINA: Record<TipoOficina, string> = {
+  INTERNA: 'Oficina interna',
+  EXTERNA: 'Oficina externa'
+};
+
+export const TOM_APROVACAO: Record<SituacaoAprovacaoOrcamento, CesTone> = {
+  SEM_ORCAMENTO: 'neutral',
+  EM_ORCAMENTO: 'info',
+  AGUARDANDO_APROVACAO: 'warning',
+  APROVADO: 'success',
+  REPROVADO: 'danger'
+};
+
+export const ROTULO_APROVACAO: Record<SituacaoAprovacaoOrcamento, string> = {
+  SEM_ORCAMENTO: 'Pendente de orçamento',
+  EM_ORCAMENTO: 'Orçamento em preparação',
+  AGUARDANDO_APROVACAO: 'Aguardando aprovação',
+  APROVADO: 'Aprovado',
+  REPROVADO: 'Reprovado'
+};
+
+export const TOM_STATUS_FINANCEIRO: Record<StatusSolicitacaoFinanceira, CesTone> = {
+  RASCUNHO: 'neutral',
+  SOLICITADO: 'warning',
+  APROVADO: 'success',
+  REJEITADO: 'danger',
+  CANCELADO: 'neutral'
+};
+
+export const ROTULO_STATUS_FINANCEIRO: Record<StatusSolicitacaoFinanceira, string> = {
+  RASCUNHO: 'Rascunho',
+  SOLICITADO: 'Aguardando aprovação',
+  APROVADO: 'Aprovada',
+  REJEITADO: 'Reprovada',
+  CANCELADO: 'Cancelada'
+};
+
+/** OS que ainda pode mudar (pendente, agendada ou em andamento). */
+/** Placa formatada ou, na OS sem veículo, o equipamento. */
+export function identificacaoOs(os: Pick<OrdemServico, 'veicular' | 'placa' | 'descricaoEquipamento'>): string {
+  return os.veicular ? formatarPlaca(os.placa) : (os.descricaoEquipamento ?? 'Sem veículo');
+}
+
+export function osAberta(situacao: SituacaoOrdemServico): boolean {
+  return situacao === 'PENDENTE' || situacao === 'AGENDADA' || situacao === 'EM_ANDAMENTO';
+}
+
+/** "OS 123" — como a equipe se refere à ordem de serviço. */
+export function rotuloOs(numero: number | null | undefined): string {
+  return numero == null ? 'OS' : `OS ${numero}`;
+}
+
+/** Calendário da frota: o que cada evento representa. */
+export type TipoEventoAgendaFrota =
+  | 'OS_AGENDADA'
+  | 'OS_PREVISAO_TERMINO'
+  | 'DOCUMENTO_VENCIMENTO'
+  | 'CNH_VENCIMENTO'
+  | 'PREVENTIVA_PREVISTA'
+  | 'APOLICE_VENCIMENTO';
+
+export interface EventoAgendaFrota {
+  tipo: TipoEventoAgendaFrota;
+  tipoRotulo: string;
+  /** Dia civil (yyyy-MM-dd). */
+  data: string;
+  instante: string | null;
+  titulo: string;
+  detalhe: string | null;
+  placa: string | null;
+  base: string | null;
+  idReferencia: string;
+  numeroOs: number | null;
+  tom: CesTone;
+  atrasado: boolean;
+}
+
+export interface AgendaFrota {
+  eventos: EventoAgendaFrota[];
+  truncado: boolean;
 }

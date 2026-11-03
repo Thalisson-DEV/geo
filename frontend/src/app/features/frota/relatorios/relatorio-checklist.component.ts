@@ -10,7 +10,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaChecklistService } from '../../../core/services/frota-checklist.service';
 import { ROTULO_PENDENCIA, TOM_PENDENCIA } from '../checklists/frota-checklist-detalhe-drawer.component';
 import { recorrente, textoHistorico } from '../checklists/frota-checklist.util';
-import { AnalisarComAssistenteComponent } from '../../../shared/components/analisar-com-assistente/analisar-com-assistente.component';
+import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
 import { FrotaRelatorioAnaliseIaComponent } from './frota-relatorio-analise-ia.component';
 import { FrotaRelatorioCabecalhoComponent } from './frota-relatorio-cabecalho.component';
 import { FotoRelatorio, FrotaRelatorioFotosComponent } from './frota-relatorio-fotos.component';
@@ -41,7 +41,7 @@ interface Grupo {
     DatePipe,
     CesAsyncStateComponent,
     CesStatusComponent,
-    AnalisarComAssistenteComponent,
+    AnalisarComCopilotoComponent,
     FrotaRelatorioAnaliseIaComponent,
     FrotaRelatorioCabecalhoComponent,
     FrotaRelatorioFotosComponent,
@@ -67,7 +67,7 @@ interface Grupo {
           <span><strong>{{ d.resumo.modeloNome }}</strong></span>
           <span>·</span>
           <span>Preenchido em <strong>{{ d.resumo.preenchidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
-          <app-analisar-com-assistente acoes-titulo origem="Checklist da frota" tipo="frota_checklist" [entidade]="d.resumo.id"
+          <app-analisar-com-copiloto acoes-titulo origem="Checklist da frota" tipo="frota_checklist" [entidade]="d.resumo.id"
             [rotulo]="'Checklist ' + placa()" size="sm"
             pergunta="Analise este checklist para apoiar a decisão: problemas encontrados, recorrência no veículo, pendências e o que priorizar." />
         </app-frota-relatorio-cabecalho>

@@ -221,6 +221,17 @@ export class CesFormDrawerComponent {
   }
 
   /** Foca o primeiro campo (útil depois de "Salvar e novo"). */
+  focusFirstError(): void {
+    setTimeout(() => {
+      const corpo = this.body()?.nativeElement;
+      const campo = corpo?.querySelector<HTMLElement>('[aria-invalid="true"]');
+      const alvo = campo ?? corpo?.querySelector<HTMLElement>('.ces-field__error');
+      if (!alvo) return;
+      alvo.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      if (campo) campo.focus({ preventScroll: true });
+    });
+  }
+
   focusFirstField(): void {
     const primeiro = this.registry.fields()[0];
     if (primeiro) {

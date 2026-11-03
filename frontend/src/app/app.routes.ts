@@ -1,3 +1,4 @@
+import { cesUnsavedChangesGuard } from './design-system/forms/form-kit/unsaved-changes.guard';
 import { inject } from '@angular/core';
 import { Params, RedirectFunction, Router, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';

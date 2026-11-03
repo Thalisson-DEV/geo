@@ -29,7 +29,7 @@ import {
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
 import { moeda } from '../abastecimentos/frota-abastecimento.util';
-import { AnalisarComAssistenteComponent } from '../../../shared/components/analisar-com-assistente/analisar-com-assistente.component';
+import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
 import { FrotaRelatorioAnaliseIaComponent } from './frota-relatorio-analise-ia.component';
 import { FrotaRelatorioCabecalhoComponent } from './frota-relatorio-cabecalho.component';
 import { FotoRelatorio, FrotaRelatorioFotosComponent } from './frota-relatorio-fotos.component';
@@ -85,7 +85,7 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
     DatePipe,
     CesAsyncStateComponent,
     CesStatusComponent,
-    AnalisarComAssistenteComponent,
+    AnalisarComCopilotoComponent,
     FrotaRelatorioAnaliseIaComponent,
     FrotaRelatorioCabecalhoComponent,
     FrotaRelatorioFotosComponent,
@@ -109,7 +109,7 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
           <span><strong>{{ rotuloTipo[d.ordem.tipoManutencao] }}</strong></span>
           <span>·</span>
           <span>Abertura: <strong>{{ d.ordem.abertaEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
-          <app-analisar-com-assistente acoes-titulo origem="Ordem de serviço da frota" tipo="frota_ordem_servico" [entidade]="d.ordem.id"
+          <app-analisar-com-copiloto acoes-titulo origem="Ordem de serviço da frota" tipo="frota_ordem_servico" [entidade]="d.ordem.id"
             [rotulo]="'OS ' + d.ordem.numero" size="sm"
             pergunta="Analise esta ordem de serviço para apoiar a decisão: custo, tempo parado, repetição do item, oficina e histórico do veículo, comparando com OS semelhantes." />
         </app-frota-relatorio-cabecalho>

@@ -618,6 +618,8 @@ export type SolicitacaoPagamentoResponse = SolicitacaoFinanceiraResponse;
 export interface SolicitacaoRequest {
   formularioId: string;
   valores: Record<string, unknown>;
+  /** Registro de outro módulo que pediu a solicitação (ex.: `FROTA_OS`). Só vale na criação. */
+  origem?: { tipo: string; id: string };
 }
 
 /** Payloads das transições documentais executadas dentro do detalhe. */

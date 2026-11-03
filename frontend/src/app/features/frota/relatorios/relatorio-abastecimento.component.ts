@@ -9,7 +9,7 @@ import { formatarMedicao, formatarPlaca } from '../../../core/models/frota.model
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaAbastecimentoService } from '../../../core/services/frota-abastecimento.service';
 import { ICONE_SITUACAO, TOM_SITUACAO, formatarWhatsapp, moeda, precoUnitario, produtoTrocado, quantidade } from '../abastecimentos/frota-abastecimento.util';
-import { AnalisarComAssistenteComponent } from '../../../shared/components/analisar-com-assistente/analisar-com-assistente.component';
+import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
 import { FrotaRelatorioAnaliseIaComponent } from './frota-relatorio-analise-ia.component';
 import { FrotaRelatorioCabecalhoComponent } from './frota-relatorio-cabecalho.component';
 import { FotoRelatorio, FrotaRelatorioFotosComponent } from './frota-relatorio-fotos.component';
@@ -28,7 +28,7 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
     DatePipe,
     CesAsyncStateComponent,
     CesStatusComponent,
-    AnalisarComAssistenteComponent,
+    AnalisarComCopilotoComponent,
     FrotaRelatorioAnaliseIaComponent,
     FrotaRelatorioCabecalhoComponent,
     FrotaRelatorioFotosComponent,
@@ -52,7 +52,7 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
           <span><strong>{{ a.posto }}</strong></span>
           <span>·</span>
           <span>Pedido em <strong>{{ a.solicitadoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
-          <app-analisar-com-assistente acoes-titulo origem="Abastecimento da frota" tipo="frota_abastecimento" [entidade]="a.id"
+          <app-analisar-com-copiloto acoes-titulo origem="Abastecimento da frota" tipo="frota_abastecimento" [entidade]="a.id"
             [rotulo]="'Abastecimento ' + placa()" size="sm"
             pergunta="Analise este abastecimento para apoiar a decisão: consumo, preço por litro, frequência e alertas, comparando com o histórico do veículo e da base." />
         </app-frota-relatorio-cabecalho>

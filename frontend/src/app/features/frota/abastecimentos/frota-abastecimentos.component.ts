@@ -3,12 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { CesButtonComponent, CesPageHeaderComponent, CesTabItem, CesTabPanelDirective, CesTabsComponent, cesUrlParam } from '@ces/ui';
 import { FrotaAbastecimentoService } from '../../../core/services/frota-abastecimento.service';
 import {
-  AssistenteAreaComponent,
-  AssistenteDashboardContext,
-  AssistenteGatilhoComponent,
-  AssistentePainelService,
+  CopilotoAreaComponent,
+  CopilotoDashboardContext,
+  CopilotoGatilhoComponent,
+  CopilotoPainelService,
   metricaPainel
-} from '../../assistente/painel';
+} from '../../copiloto/painel';
 import { acessoFrota } from '../shared/frota-acesso';
 import { FrotaAbastecimentoAvulsoDrawerComponent } from './frota-abastecimento-avulso-drawer.component';
 import { FrotaAbastecimentoDetalheDrawerComponent } from './frota-abastecimento-detalhe-drawer.component';
@@ -36,11 +36,11 @@ type Aba = (typeof ABAS)[number];
     FrotaAbastecimentoDetalheDrawerComponent,
     FrotaAbastecimentosListaComponent,
     FrotaFaturasPostoComponent,
-    AssistenteAreaComponent,
-    AssistenteGatilhoComponent
+    CopilotoAreaComponent,
+    CopilotoGatilhoComponent
   ],
   template: `
-    <app-assistente-area [contexto]="contextoAssistente()">
+    <app-copiloto-area [contexto]="contextoAssistente()">
       <div class="ces-page">
         <ces-page-header title="Abastecimentos" icon="pi pi-gauge" [breadcrumb]="[{ label: 'Frota' }, { label: 'Abastecimentos' }]"
           description="Pedidos feitos pelo app: o gestor da placa aprova com a quantidade, o administrativo libera e avisa o posto, a equipe registra o abastecimento.">
@@ -48,7 +48,7 @@ type Aba = (typeof ABAS)[number];
             <ces-button actions variant="outline" icon="pi pi-bolt" label="Lançar avulso" (pressed)="avulsoAberto.set(true)"></ces-button>
           }
           @if (assistenteDisponivel) {
-            <app-assistente-gatilho actions></app-assistente-gatilho>
+            <app-copiloto-gatilho actions></app-copiloto-gatilho>
           }
         </ces-page-header>
 
@@ -64,7 +64,7 @@ type Aba = (typeof ABAS)[number];
           }
         </ces-tabs>
       </div>
-    </app-assistente-area>
+    </app-copiloto-area>
 
     <app-frota-abastecimento-detalhe-drawer [(visible)]="detalheAberto" [idAbastecimento]="selecionado()"
       [assistente]="assistenteDisponivel" (alterado)="aoAlterar()" (analisar)="analisar($event)"></app-frota-abastecimento-detalhe-drawer>
@@ -73,7 +73,7 @@ type Aba = (typeof ABAS)[number];
 })
 export class FrotaAbastecimentosComponent {
   private readonly servico = inject(FrotaAbastecimentoService);
-  private readonly assistente = inject(AssistentePainelService);
+  private readonly assistente = inject(CopilotoPainelService);
   private readonly route = inject(ActivatedRoute);
   private readonly listas = viewChildren(FrotaAbastecimentosListaComponent);
   protected readonly acesso = acessoFrota();
@@ -106,7 +106,7 @@ export class FrotaAbastecimentosComponent {
   });
 
   /** O Assistente recebe as filas e consulta os abastecimentos e os itens entregues. */
-  protected readonly contextoAssistente = computed<AssistenteDashboardContext>(() => ({
+  protected readonly contextoAssistente = computed<CopilotoDashboardContext>(() => ({
     id: 'frota.abastecimentos',
     nome: 'Abastecimentos da frota',
     modulo: 'Frota',
