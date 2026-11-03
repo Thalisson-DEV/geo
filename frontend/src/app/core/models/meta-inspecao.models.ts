@@ -153,6 +153,8 @@ export interface AcompanhamentoMetaItem {
   /** Pode passar de 100. */
   percentualAtingimento: number;
   status: StatusMeta;
+  /** Usuário que lança as inspeções da pessoa; `null` quando ela não tem acesso. */
+  idUsuario: string | null;
 }
 
 export interface AcompanhamentoMetasResponse {

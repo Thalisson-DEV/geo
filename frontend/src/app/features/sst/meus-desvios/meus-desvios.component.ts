@@ -9,9 +9,11 @@ import {
   CesDataTableComponent,
   CesDatepickerComponent,
   CesFilterPanelComponent,
+  CesIconButtonComponent,
   CesListShortcutsDirective,
   CesMultiSelectComponent,
   CesPageHeaderComponent,
+  CesRowActionsDirective,
   CesSelectComponent,
   CesSelectOption,
   CesStatusComponent,
@@ -43,6 +45,7 @@ import {
   SituacaoPrazo
 } from '../sst-ui';
 import { MeusDesviosFiltrosView, MeusDesviosLookupService, desvioAtendeFiltros, montarMeuDesvioFiltro } from './meus-desvios.utils';
+import { DesvioDetalheDialogComponent } from '../desvios/desvio-detalhe-dialog.component';
 import { TratamentoMeuDesvioDialogComponent } from './tratamento-meu-desvio-dialog.component';
 
 /** O endpoint de meus desvios não filtra "sem prazo". */
@@ -71,12 +74,15 @@ const ATALHOS: Atalho[] = [
     CesDataTableComponent,
     CesDatepickerComponent,
     CesFilterPanelComponent,
+    CesIconButtonComponent,
     CesListShortcutsDirective,
     CesMultiSelectComponent,
     CesPageHeaderComponent,
+    CesRowActionsDirective,
     CesSelectComponent,
     CesStatusComponent,
     AjudaListagemComponent,
+    DesvioDetalheDialogComponent,
     TratamentoMeuDesvioDialogComponent
   ],
   template: `
@@ -85,7 +91,7 @@ const ATALHOS: Atalho[] = [
         title="Meus desvios"
         icon="pi pi-exclamation-circle"
         [breadcrumb]="[{ label: 'SST' }, { label: 'Meus desvios' }]"
-        description="Desvios sob a sua responsabilidade: registre a ação corretiva, o prazo e a resolução — um a um ou em lote."
+        description="Desvios que você apontou nas suas inspeções: registre a ação corretiva, o prazo e a resolução, um a um ou em lote."
         helpLabel="Ajuda sobre meus desvios"
         (help)="ajuda.show()"
       ></ces-page-header>
@@ -115,8 +121,8 @@ const ATALHOS: Atalho[] = [
         mode="server"
         storageKey="sst-meus-desvios"
         searchPlaceholder="Descrição ou ação corretiva"
-        [rowActionLabel]="podeTratar ? 'Tratar' : undefined"
-        rowActionIcon="pi pi-wrench"
+        rowActionLabel="Ver detalhes"
+        rowActionIcon="pi pi-eye"
         noResultsTitle="Nenhum desvio encontrado com esse recorte."
         [columns]="colunas"
         [rows]="linhas()"
@@ -136,7 +142,7 @@ const ATALHOS: Atalho[] = [
         (lazyLoad)="lista.load($event)"
         (adjustFilters)="painel.expandAndFocus()"
         (clearFilters)="lista.reset()"
-        (rowActivate)="abrirTratamento($event)"
+        (rowActivate)="detalhe.open($event.id)"
       >
         <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de situação">
           @for (atalho of atalhos; track atalho.chave) {
@@ -146,6 +152,11 @@ const ATALHOS: Atalho[] = [
           }
         </div>
         <ces-button selection-actions size="sm" icon="pi pi-check-square" label="Tratar selecionados" (pressed)="abrirTratamentoEmLote()"></ces-button>
+        <ng-template cesRowActions let-row>
+          @if (podeTratar) {
+            <ces-icon-button icon="pi pi-wrench" [label]="'Tratar desvio: ' + (row.pergunta || row.id)" size="icon-sm" (pressed)="abrirTratamento(row)"></ces-icon-button>
+          }
+        </ng-template>
         <ng-template cesCell="gravidade" let-row>
           <ces-status [tone]="gravidadeTom(row.gravidade)" [icon]="gravidadeIcone(row.gravidade)">{{ gravidadeLabel(row.gravidade) }}</ces-status>
         </ng-template>
@@ -173,17 +184,24 @@ const ATALHOS: Atalho[] = [
           }
           @if (row.vencido) {
             <ces-status tone="danger" icon="pi-clock">Vencido</ces-status>
+          } @else if (row.status === 'RESOLVIDO' && row.dataResolucao) {
+            <span class="ces-cell-muted">Resolvido em {{ row.dataResolucao | date: 'dd/MM/yyyy' }}</span>
           }
         </ng-template>
       </ces-data-table>
     </div>
 
+    <app-desvio-detalhe-dialog #detalhe [canWrite]="podeTratar" (alterado)="lista.reload()" />
     <app-tratamento-meu-desvio-dialog #tratamento [loading]="salvando()" (salvar)="salvarTratamento($event)" />
 
     <app-ajuda-listagem #ajuda titulo="Meus desvios" entidadePlural="desvios" busca="descrição ou ação corretiva" [podeCriar]="false">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-filter"></i> Atalhos e recorte inicial</h4>
         <p class="help-text-desc">A lista abre com os desvios em aberto. Os atalhos acima da tabela mostram só abertos, em tratamento, resolvidos ou vencidos; clique de novo para desfazer.</p>
+      </div>
+      <div class="help-section">
+        <h4 class="help-section-title"><i class="pi pi-eye"></i> Relatório do desvio</h4>
+        <p class="help-text-desc">Clique na linha para ver o desvio completo: o que foi encontrado, responsáveis, local e evidências. A chave inglesa da linha abre o tratamento direto.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-check-square"></i> Tratamento em lote</h4>
@@ -267,13 +285,12 @@ export class MeusDesviosComponent {
   });
 
   protected readonly colunas: CesDataTableColumn<MeuDesvioResponse>[] = [
+    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
     { key: 'gravidade', header: 'Gravidade', type: 'custom', priority: 1, sortField: 'gravidade', value: (d) => d.gravidade, display: (d) => GRAVIDADE_LABELS[d.gravidade] },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, value: (d) => d.status, display: (d) => STATUS_DESVIO_LABELS[d.status] },
-    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
-    { key: 'processo', header: 'Processo', value: (d) => d.processo?.nome, display: (d) => d.processo?.nome ?? '—' },
-    { key: 'local', header: 'Base / equipe', type: 'custom', value: (d) => `${d.baseOperacional?.nome ?? ''} ${d.equipe?.codigo ?? ''}`.trim() },
     { key: 'prazo', header: 'Prazo', type: 'custom', sortField: 'prazo', value: (d) => d.prazo },
-    { key: 'resolucao', header: 'Resolvido em', type: 'date', value: (d) => d.dataResolucao },
+    { key: 'local', header: 'Base / equipe', type: 'custom', value: (d) => `${d.baseOperacional?.nome ?? ''} ${d.equipe?.codigo ?? ''}`.trim() },
+    { key: 'processo', header: 'Processo', value: (d) => d.processo?.nome, display: (d) => d.processo?.nome ?? '—' },
     { key: 'inspecao', header: 'Inspeção', type: 'date', value: (d) => d.dataInspecao }
   ];
   protected readonly rotulo = (d: MeuDesvioResponse) => d.pergunta || 'Desvio';
@@ -413,8 +430,8 @@ export class MeusDesviosComponent {
   }
 
   private falharEscrita(e: unknown): void {
+    // O formulário continua aberto para a pessoa não perder o que escreveu.
     this.salvando.set(false);
-    this.tratamento().close();
     this.notificacoes.error(getErrorMessage(e));
     if ([404, 409].includes((e as { status?: number })?.status ?? 0)) this.lista.reload();
   }

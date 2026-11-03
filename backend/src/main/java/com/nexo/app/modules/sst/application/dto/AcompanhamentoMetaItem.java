@@ -19,6 +19,7 @@ import java.util.UUID;
  * @param saldo          quantas faltam para atingir a meta (0 quando já atingida)
  * @param idCentroCusto  centro de custo da base operacional do colaborador; nulo quando
  *                       ele não tem base vinculada
+ * @param idUsuario      usuário que lança as inspeções do colaborador (inspetor); nulo sem acesso
  */
 public record AcompanhamentoMetaItem(
         UUID idMeta,
@@ -44,6 +45,7 @@ public record AcompanhamentoMetaItem(
         long realizado,
         long saldo,
         BigDecimal percentualAtingimento,
-        StatusMeta status
+        StatusMeta status,
+        UUID idUsuario
 ) {
 }

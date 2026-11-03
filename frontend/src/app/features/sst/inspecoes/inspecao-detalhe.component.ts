@@ -730,7 +730,8 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
   private desvioEmTratamento: DesvioSegurancaResponse | null = null;
   protected desvioInicialmenteResolvido = false;
 
-  protected podeTratar = computed(() => this.auth.currentUser()?.permissoes?.includes('sst:inspecao:write') ?? false);
+  /** Só o inspetor que registrou a inspeção trata os desvios e mexe nas evidências (o servidor também recusa os demais). */
+  protected podeTratar = computed(() => this.podeEditarCabecalho() && (this.auth.currentUser()?.permissoes?.includes('sst:inspecao:write') ?? false));
 
   protected isObjetivo = isTipoObjetivo;
 

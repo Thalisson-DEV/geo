@@ -49,6 +49,7 @@ const mockResponse: AcompanhamentoMetasResponse = {
       saldo: 0,
       percentualAtingimento: 100,
       status: 'ATINGIDA',
+      idUsuario: 'usuario-1',
     },
   ],
 };
@@ -77,6 +78,12 @@ describe('AcompanhamentoMetasComponent', { timeout: 15000 }, () => {
   let sstService: { listarOpcoesTiposInspecao: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
+    // As abas do DS medem a largura com ResizeObserver, que o jsdom não tem.
+    (globalThis as { ResizeObserver?: unknown }).ResizeObserver ??= class {
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    };
     metasService = {
       acompanhamento: vi.fn(() => of(mockResponse)),
     };

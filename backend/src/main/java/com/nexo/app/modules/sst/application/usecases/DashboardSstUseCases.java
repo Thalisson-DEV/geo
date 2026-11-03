@@ -541,24 +541,24 @@ public class DashboardSstUseCases {
         long inspecoesComDesvioAnterior = anterior.stream().map(DesvioContexto::inspecao).distinct().count();
         Map<String, IndicadorComparativo> result = new LinkedHashMap<>();
         result.put("totalDesvios", indicador(atual.size(), anterior.size(), null,
-                "Todos os desvios apontados nas inspeções da coorte, independentemente do status atual"));
+                "Todos os desvios apontados nas inspeções do período, resolvidos ou não"));
         result.put("desviosCriticos", indicador(criticos, criticosAnterior, null,
-                "Desvios de gravidade ALTA ou CRITICA apontados nas inspeções da coorte"));
+                "Desvios de gravidade alta ou crítica apontados nas inspeções do período"));
         result.put("inspecoesComDesvio", indicador(inspecoesComDesvio, inspecoesComDesvioAnterior, null,
-                "Inspeções da coorte que apontaram ao menos um desvio"));
+                "Inspeções do período que apontaram ao menos um desvio"));
         result.put("taxaResolucao", indicador(percent(resolvidos, atual.size()),
                 percent(resolvidosAnterior, anterior.size()), null,
-                "Desvios atualmente resolvidos / total de desvios da coorte"));
+                "Parte dos desvios do período que já foi resolvida"));
         result.put("backlog", indicador(backlog, backlogAnterior, null,
-                "Indicador operacional: desvios ABERTO ou EM_TRATAMENTO no fim do período"));
+                "Desvios ainda em aberto ou em tratamento no fim do período"));
         result.put("resolvidosNaCoorte", indicador(percent(resolvidos, atual.size()),
                 percent(resolvidosAnterior, anterior.size()), null,
-                "Indicador legado: desvios resolvidos da coorte / total de desvios da mesma coorte"));
+                "Parte dos desvios do período que já foi resolvida"));
         result.put("vencidos", indicador(historico.stream().filter(dc -> !dataAbertura(dc).isAfter(dataReferencia)
                         && vencidoEm(dc.desvio(), dataReferencia)).count(),
                 historico.stream().filter(dc -> !dataAbertura(dc).isAfter(dataComparacao)
                         && vencidoEm(dc.desvio(), dataComparacao)).count(), null,
-                "Indicador operacional: pendências com prazo anterior à data de referência"));
+                "Pendências com o prazo de correção já vencido no fim do período"));
         return result;
     }
 

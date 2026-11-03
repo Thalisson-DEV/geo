@@ -146,7 +146,7 @@
           </div>
           <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'volumePorGravidade', rotulo: 'Distribuição dos desvios por gravidade' }" />
           @if (d.totalDesvios > 0) {
-            <span class="dash-badge !font-bold">{{ d.totalDesvios }} desvio(s) no período</span>
+            <span class="dash-badge !font-bold">{{ d.totalDesvios }} {{ d.totalDesvios === 1 ? 'desvio' : 'desvios' }} no período</span>
           }
         </header>
 
@@ -177,7 +177,7 @@
                   <div class="flex items-center justify-between gap-2">
                     <div class="dash-aging-card__total-wrap">
                       <strong class="dash-aging-card__total">{{ volume.total }}</strong>
-                      <span class="dash-aging-card__unit">desvio(s)</span>
+                      <span class="dash-aging-card__unit">{{ volume.total === 1 ? 'desvio' : 'desvios' }}</span>
                     </div>
                     <div class="flex flex-col items-end" [pTooltip]="(volume.percentual | number:'1.0-1') + '% do volume total de desvios'">
                       <span class="dash-share-pill" [attr.data-tone]="volume.total > 0 ? tomGravidade(volume.gravidade) : 'neutral'">
@@ -281,7 +281,7 @@
           </div>
           <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'backlogPorIdade', rotulo: 'Pendências por tempo em aberto' }" />
           @if (totalBacklogPorIdade(d) > 0) {
-            <span class="dash-badge !font-bold">{{ totalBacklogPorIdade(d) }} pendência(s) em aberto</span>
+            <span class="dash-badge !font-bold">{{ totalBacklogPorIdade(d) }} {{ totalBacklogPorIdade(d) === 1 ? 'pendência' : 'pendências' }} em aberto</span>
           }
         </header>
 
@@ -304,7 +304,7 @@
                 <div class="dash-aging-card__body">
                   <div class="dash-aging-card__total-wrap">
                     <strong class="dash-aging-card__total">{{ faixa.total }}</strong>
-                    <span class="dash-aging-card__unit">pendência(s)</span>
+                    <span class="dash-aging-card__unit">{{ faixa.total === 1 ? 'pendência' : 'pendências' }}</span>
                   </div>
 
                   @if (faixa.total > 0) {
@@ -328,22 +328,22 @@
                     <div class="dash-aging-chips">
                       @if (faixa.porGravidade.CRITICA > 0) {
                         <span class="dash-badge dash-badge--danger !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.CRITICA + ' desvios críticos'">
-                          <i class="pi pi-bolt"></i> {{ faixa.porGravidade.CRITICA }} crítica
+                          <i class="pi pi-bolt"></i> Crítica: {{ faixa.porGravidade.CRITICA }}
                         </span>
                       }
                       @if (faixa.porGravidade.ALTA > 0) {
                         <span class="dash-badge dash-badge--orange !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.ALTA + ' desvios de alta gravidade'">
-                          {{ faixa.porGravidade.ALTA }} alta
+                          Alta: {{ faixa.porGravidade.ALTA }}
                         </span>
                       }
                       @if (faixa.porGravidade.MEDIA > 0) {
                         <span class="dash-badge dash-badge--warning !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.MEDIA + ' desvios de média gravidade'">
-                          {{ faixa.porGravidade.MEDIA }} média
+                          Média: {{ faixa.porGravidade.MEDIA }}
                         </span>
                       }
                       @if (faixa.porGravidade.BAIXA > 0) {
                         <span class="dash-badge !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.BAIXA + ' desvios de baixa gravidade'">
-                          {{ faixa.porGravidade.BAIXA }} baixa
+                          Baixa: {{ faixa.porGravidade.BAIXA }}
                         </span>
                       }
                     </div>

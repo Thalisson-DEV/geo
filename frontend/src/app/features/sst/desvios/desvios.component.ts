@@ -24,7 +24,7 @@ import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as BuscaColaboradores } from '../../../core/lookup/store/remote-lookup';
 import { DesvioDetalhadoResponse } from '../../../core/models/desvio.models';
 import { UsuarioResponse } from '../../../core/models/iam.models';
-import { MeuDesvioResponse, TratarMeuDesvioRequest } from '../../../core/models/meu-desvio.models';
+import { TratarMeuDesvioRequest } from '../../../core/models/meu-desvio.models';
 import { EquipeResponse, VeiculoResponse } from '../../../core/models/rh.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { GRAVIDADE_LABELS, GravidadeDesvio, STATUS_DESVIO_LABELS, StatusDesvio } from '../../../core/models/sst.models';
@@ -149,6 +149,19 @@ function fimDoDia(iso: string | null): Date | null {
         (clearFilters)="lista.reset()"
         (rowActivate)="detalhe.open($event.id)"
       >
+        <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de desvios">
+          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().prazoSituacao === 'VENCIDOS'" (click)="lista.set('prazoSituacao', lista.applied().prazoSituacao === 'VENCIDOS' ? null : 'VENCIDOS')">
+            <i class="pi pi-clock" aria-hidden="true"></i> Vencidos
+          </button>
+          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="soGraves()" (click)="alternarGraves()">
+            <i class="pi pi-exclamation-triangle" aria-hidden="true"></i> Alta e crítica
+          </button>
+          @if (idUsuario) {
+            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="soMeus()" (click)="alternarMeus()">
+              <i class="pi pi-user" aria-hidden="true"></i> Apontados por mim
+            </button>
+          }
+        </div>
         <ng-template cesCell="gravidade" let-row>
           <ces-status [tone]="gravidadeTom(row.gravidade)" [icon]="gravidadeIcone(row.gravidade)">{{ gravidadeLabel(row.gravidade) }}</ces-status>
         </ng-template>
@@ -182,11 +195,13 @@ function fimDoDia(iso: string | null): Date | null {
             <span class="ces-cell-muted">Sem prazo</span>
           }
           @if (row.vencido) {
-            <ces-status tone="danger" icon="pi-clock">{{ row.diasEmAtraso ? row.diasEmAtraso + ' dias em atraso' : 'Vencido' }}</ces-status>
+            <ces-status tone="danger" icon="pi-clock">{{ row.diasEmAtraso ? (row.diasEmAtraso === 1 ? '1 dia de atraso' : row.diasEmAtraso + ' dias de atraso') : 'Vencido' }}</ces-status>
+          } @else if (row.status === 'RESOLVIDO' && row.dataResolucao) {
+            <span class="ces-cell-muted">Resolvido em {{ row.dataResolucao | date: 'dd/MM/yyyy' }}</span>
           }
         </ng-template>
         <ng-template cesRowActions let-row>
-          @if (podeTratar) {
+          @if (podeTratarLinha(row)) {
             <ces-icon-button icon="pi pi-wrench" [label]="'Tratar desvio: ' + (row.pergunta || row.id)" size="icon-sm" (pressed)="abrirTratamento(row)"></ces-icon-button>
           }
         </ng-template>
@@ -203,7 +218,7 @@ function fimDoDia(iso: string | null): Date | null {
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-wrench"></i> Tratamento</h4>
-        <p class="help-text-desc">Quem tem permissão de escrita em inspeções registra a ação corretiva, o prazo e o novo status pela chave da linha. A linha se atualiza sem recarregar a lista.</p>
+        <p class="help-text-desc">Só quem registrou a inspeção trata os desvios dela: ação corretiva, prazo, status e evidências. Nos demais, você acompanha pelo relatório do desvio (clique na linha).</p>
       </div>
     </app-ajuda-listagem>
   `
@@ -217,7 +232,11 @@ export class DesviosComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly tratamento = viewChild.required<TratamentoMeuDesvioDialogComponent>('tratamento');
 
-  protected readonly podeTratar = inject(AuthService).currentUser()?.permissoes?.includes('sst:inspecao:write') ?? false;
+  private readonly usuario = inject(AuthService).currentUser();
+  protected readonly podeTratar = this.usuario?.permissoes?.includes('sst:inspecao:write') ?? false;
+  protected readonly idUsuario = this.usuario?.id ?? null;
+  /** Só o inspetor que registrou a inspeção trata o desvio (o servidor também recusa os demais). */
+  protected readonly podeTratarLinha = (d: DesvioDetalhadoResponse) => this.podeTratar && !!this.idUsuario && d.idInspetor === this.idUsuario;
   protected readonly opcoesStatus = OPCOES_STATUS_DESVIO;
   protected readonly opcoesGravidade = OPCOES_GRAVIDADE;
   protected readonly opcoesPrazo = OPCOES_SITUACAO_PRAZO;
@@ -298,6 +317,14 @@ export class DesviosComponent {
     },
     sort: [{ key: 'prazo', direction: 'asc' }]
   });
+  protected readonly soGraves = computed(() => {
+    const g = this.lista.applied().gravidade;
+    return g.length === 2 && g.includes('ALTA') && g.includes('CRITICA');
+  });
+  protected readonly soMeus = computed(() => {
+    const i = this.lista.applied().inspetor;
+    return i.length === 1 && i[0] === this.idUsuario;
+  });
   protected readonly resultado = this.lista.results<DesvioDetalhadoResponse>((pedido) => this.sst.listarDesvios(this.filtro(pedido)), { errorMessage: getErrorMessage });
   /** Linhas tratadas aqui: atualizadas (ou retiradas, se saíram do recorte) sem recarregar. */
   private readonly ajustes = signal<{ trocadas: Record<string, DesvioDetalhadoResponse>; removidas: Set<string>; base: unknown }>({ trocadas: {}, removidas: new Set(), base: null });
@@ -316,13 +343,13 @@ export class DesviosComponent {
     this.sst.listarDesvios({ ...this.filtro(this.lista.request()), page: 0, size: limite }).pipe(map((r) => r.content));
 
   protected readonly colunas: CesDataTableColumn<DesvioDetalhadoResponse>[] = [
+    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
     { key: 'gravidade', header: 'Gravidade', type: 'custom', priority: 1, sortField: 'gravidade', value: (d) => d.gravidade, display: (d) => GRAVIDADE_LABELS[d.gravidade] },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (d) => d.status, display: (d) => STATUS_DESVIO_LABELS[d.status] },
-    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
-    { key: 'responsaveis', header: 'Responsáveis', type: 'custom', value: (d) => d.colaboradores?.map((c) => c.nomeCompleto).join(', ') },
-    { key: 'inspetor', header: 'Inspetor', value: (d) => d.inspetor, display: (d) => d.inspetor || '—' },
-    { key: 'local', header: 'Base / equipe', type: 'custom', value: (d) => `${d.baseOperacional?.nome ?? ''} ${d.equipe?.codigo ?? ''}`.trim() },
     { key: 'prazo', header: 'Prazo', type: 'custom', sortField: 'prazo', value: (d) => d.prazo, display: (d) => (d.prazo ? new Date(`${d.prazo.substring(0, 10)}T00:00:00`).toLocaleDateString('pt-BR') : 'Sem prazo') },
+    { key: 'responsaveis', header: 'Responsáveis', type: 'custom', value: (d) => d.colaboradores?.map((c) => c.nomeCompleto).join(', ') },
+    { key: 'local', header: 'Base / equipe', type: 'custom', value: (d) => `${d.baseOperacional?.nome ?? ''} ${d.equipe?.codigo ?? ''}`.trim() },
+    { key: 'inspetor', header: 'Apontado por', value: (d) => d.inspetor, display: (d) => d.inspetor || '—' },
     { key: 'inspecao', header: 'Inspeção', type: 'date', sortField: 'inspecao.dataRealizacao', value: (d) => d.dataInspecao }
   ];
   protected readonly rotulo = (d: DesvioDetalhadoResponse) => d.pergunta || 'Desvio';
@@ -403,10 +430,19 @@ export class DesviosComponent {
     return STATUS_DESVIO_LABELS[s] ?? s;
   }
 
+  protected alternarGraves(): void {
+    this.lista.set('gravidade', this.soGraves() ? [] : ['ALTA', 'CRITICA']);
+  }
+
+  protected alternarMeus(): void {
+    if (!this.idUsuario) return;
+    this.lista.set('inspetor', this.soMeus() ? [] : [this.idUsuario]);
+  }
+
   protected abrirTratamento(d: DesvioDetalhadoResponse): void {
+    if (!this.podeTratarLinha(d)) return;
     this.emTratamento = d;
-    // O diálogo de tratamento usa o formato de "meu desvio"; os campos usados existem nos dois.
-    this.tratamento().open(d as unknown as MeuDesvioResponse);
+    this.tratamento().open(d);
   }
 
   protected salvarTratamento(request: TratarMeuDesvioRequest): void {
@@ -421,8 +457,8 @@ export class DesviosComponent {
         this.linhaAlterada(d.id);
       },
       error: (e) => {
+        // O formulário continua aberto para a pessoa não perder o que escreveu.
         this.salvando.set(false);
-        this.tratamento().close();
         this.notificacoes.error(getErrorMessage(e));
         if ([404, 409].includes((e as { status?: number })?.status ?? 0)) this.lista.reload();
       }

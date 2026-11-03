@@ -716,7 +716,7 @@ export class DashboardEventosComponent implements OnInit {
   }
 
   protected barWidth(value: number): number {
-    return Math.max(2, Math.min(100, value ?? 0));
+    return Math.max(0, Math.min(100, value ?? 0));
   }
 
   /** Zero em todas as faixas é "nada em aberto", e merece a mensagem, não quatro linhas vazias. */

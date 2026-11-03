@@ -119,8 +119,13 @@ public class InspecaoSegurancaUseCases {
 
     @Transactional
     @CacheEvict(allEntries = true)
-    public InspecaoSegurancaResponse tratarDesvio(UUID idInspecao, UUID idDesvio, TratarDesvioRequest request) {
+    public InspecaoSegurancaResponse tratarDesvio(UUID idInspecao, UUID idDesvio, TratarDesvioRequest request, UUID idUsuarioLogado) {
         InspecaoSeguranca inspecao = buscarEntidade(idInspecao);
+
+        if (!inspecao.getIdInspetor().equals(idUsuarioLogado)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Apenas o inspetor que registrou a inspeção pode tratar os seus desvios.");
+        }
         DesvioSeguranca desvio = inspecao.getDesvios().stream()
                 .filter(d -> d.getId().equals(idDesvio))
                 .findFirst()

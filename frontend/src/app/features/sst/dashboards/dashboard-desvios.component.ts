@@ -690,7 +690,7 @@ export class DashboardDesviosComponent implements OnInit {
               descricao: `${d.totalNoPrazo} no prazo; ${d.totalSemPrazo} sem prazo`,
             }),
             metricaPainel('tempoMedianoResolucaoDias', 'Tempo mediano para resolver', d.tempoMedianoResolucaoDias, 'dias', {
-              descricao: `P90 ${um(d.tempoP90ResolucaoDias, 2)} dia(s); ${d.totalResolvidos} resolvidos`,
+              descricao: `9 em cada 10 resolvidos em até ${um(d.tempoP90ResolucaoDias, 2)} dias; ${d.totalResolvidos} resolvidos`,
             }),
             metricaPainel('colaboradoresReincidentes', 'Colaboradores reincidentes', d.totalColaboradoresReincidentes, 'inteiro', {
               descricao: `de ${d.totalColaboradoresEnvolvidos} envolvidos (${um(d.percentualReincidencia)}%)`,
@@ -864,7 +864,7 @@ export class DashboardDesviosComponent implements OnInit {
   }
 
   protected formatarVariacao(variacao: number, anterior: number): string {
-    if (anterior === 0) return 'Sem base anterior';
+    if (anterior === 0) return 'Novo no período';
     if (variacao === 0) return '0% estável';
     const sinal = variacao > 0 ? '+' : '';
     return `${sinal}${variacao.toLocaleString('pt-BR', { maximumFractionDigits: 1, minimumFractionDigits: 0 })}%`;

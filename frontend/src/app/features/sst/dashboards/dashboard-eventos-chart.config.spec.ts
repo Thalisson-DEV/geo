@@ -24,8 +24,14 @@ describe('montarDadosGraficoEvolucao', () => {
     expect(comLesao.label).toBe('Com lesão');
     expect(comLesao.type).toBe('line');
     expect(comLesao.data).toEqual([2, 1]);
-    expect(comLesao['pointRadius']).toBeGreaterThan(0);
+    expect(comLesao['pointRadius']).toEqual([4, 4]);
     expect(comLesao.order).toBeLessThan(total.order);
+  });
+
+  it('não marca pontos nos dias sem lesão', () => {
+    const dados = montarDadosGraficoEvolucao([{ ...serie[0], comLesao: 0 }, serie[1]]);
+
+    expect(dados.datasets[1]['pointRadius']).toEqual([0, 4]);
   });
 
   it('mantém as duas representações distinguíveis mesmo quando os valores coincidem', () => {

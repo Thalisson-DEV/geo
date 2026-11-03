@@ -160,9 +160,10 @@ export const DIAS_PADRAO_INSPECOES = 90;
         </ng-template>
         <ng-template cesCell="desvios" let-row>
           @if (row.desvios?.length) {
-            <ces-status tone="warning" icon="pi-exclamation-triangle">{{ row.desvios.length }}</ces-status>
+            <ces-status [tone]="emAberto(row) ? 'warning' : 'success'" [icon]="emAberto(row) ? 'pi-exclamation-triangle' : 'pi-check-circle'">{{ row.desvios.length }}</ces-status>
+            <span class="ces-cell-muted">{{ emAberto(row) ? (emAberto(row) === 1 ? '1 em aberto' : emAberto(row) + ' em aberto') : 'Todos resolvidos' }}</span>
           } @else {
-            <span class="ces-cell-muted">0</span>
+            <span class="ces-cell-muted">Nenhum</span>
           }
         </ng-template>
         <ng-template cesCell="status" let-row>
@@ -270,6 +271,8 @@ export class InspecoesComponent {
     { key: 'desvios', header: 'Desvios', type: 'custom', value: (i) => i.desvios?.length ?? 0, display: (i) => String(i.desvios?.length ?? 0) },
     { key: 'status', header: 'Status', type: 'custom', value: (i) => i.status, display: (i) => STATUS_INSPECAO_LABELS[i.status] ?? i.status }
   ];
+  /** Desvios da inspeção ainda não resolvidos. */
+  protected readonly emAberto = (i: InspecaoSegurancaResponse) => i.desvios?.filter((d) => d.status !== 'RESOLVIDO').length ?? 0;
   protected readonly rotulo = (i: InspecaoSegurancaResponse) => `${i.formulario?.titulo ?? 'inspeção'} (${new Date(i.dataRealizacao).toLocaleDateString('pt-BR')})`;
 
   protected readonly historico = signal<string | null>(null);

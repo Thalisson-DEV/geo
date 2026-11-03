@@ -30,8 +30,8 @@ export function visaoInspecoes(d: DashboardInspecoesResponse, metaComparavel: bo
       tom,
       rotulo: tom === 'success' ? 'Plano cumprido' : tom === 'warning' ? 'Atenção' : 'Plano atrasado',
       titulo: tom === 'success' ? 'Plano de inspeções cumprido' : `Plano em ${pct(m.percentualAtingido)}`,
-      texto: `${m.realizadoPeriodo} inspeções de ${m.metaPeriodo.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} previstas; ${m.inspetoresNaMeta} de ${m.colaboradoresComMeta} colaboradores na meta. ${pct(r.percentualSemDesvio)} das inspeções sem desvio e ${pct(col.percentualCobertura)} do efetivo alcançado.`,
-      progresso: { valor: m.percentualAtingido, rotulo: `${pct(m.percentualAtingido)} da meta do período (faltam ${m.saldoParaMeta.toLocaleString('pt-BR', { maximumFractionDigits: 1 })})` }
+      texto: `${m.realizadoPeriodo} inspeções de ${m.metaPeriodo.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} previstas; ${m.inspetoresNaMeta} de ${m.colaboradoresComMeta} colaboradores na meta. ${pct(r.percentualSemDesvio)} das inspeções sem desvio e ${pct(col.percentualCobertura)} do efetivo alcançado.`,
+      progresso: { valor: m.percentualAtingido, rotulo: `${pct(m.percentualAtingido)} da meta do período (faltam ${m.saldoParaMeta.toLocaleString('pt-BR', { maximumFractionDigits: 0 })} inspeções)` }
     };
   } else {
     const tom = col.percentualCobertura >= 80 ? 'success' : col.percentualCobertura >= 50 ? 'warning' : 'danger';

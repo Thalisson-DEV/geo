@@ -540,7 +540,7 @@ export class DashboardInspecoesComponent implements OnInit {
 
   /** A barra enche até 100%, mas o percentual em si pode passar disso. */
   protected barWidth(value: number): number {
-    return Math.max(2, Math.min(100, value ?? 0));
+    return Math.max(0, Math.min(100, value ?? 0));
   }
 
   protected percentualOuSemAmostra(total: number, value: number): string {
