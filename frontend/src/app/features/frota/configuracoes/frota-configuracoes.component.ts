@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import {
+  CesBooleanControlComponent,
   CesButtonComponent,
   CesCellDirective,
   CesRowActionsDirective,
@@ -14,21 +16,47 @@ import {
   CesSelectOption,
   CesStatusComponent,
   CesSurfaceComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
   CesTextInputComponent,
   CesTextareaComponent,
-  NotificationService,
-  cesUrlParam
+  NotificationService
 } from '@ces/ui';
 import { Observable } from 'rxjs';
 import { CategoriaCnh, OpcoesFrota, TipoImplemento, TipoVeiculo } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
 import { acessoFrota } from '../shared/frota-acesso';
+import { FrotaConfigAbastecimentoComponent } from './frota-config-abastecimento.component';
+import { FrotaTiposDespesaComponent } from './frota-tipos-despesa.component';
+import { FrotaItensManutencaoComponent } from './frota-itens-manutencao.component';
+import { FrotaModelosChecklistComponent } from './frota-modelos-checklist.component';
+import { FrotaPlanosPreventivaComponent } from '../preventiva/frota-planos-preventiva.component';
 
 type Catalogo = 'veiculo' | 'implemento';
+/** Cada cadastro da frota tem a sua rota, como os cadastros do almoxarifado. */
+export type SecaoCadastroFrota =
+  | 'veiculo'
+  | 'implemento'
+  | 'itens'
+  | 'checklists'
+  | 'planos'
+  | 'aprovadores'
+  | 'postos'
+  | 'produtos'
+  | 'despesas'
+  | 'parametros';
+
+const SECOES: Record<SecaoCadastroFrota, { titulo: string; icone: string; descricao: string }> = {
+  veiculo: { titulo: 'Tipos de veículo', icone: 'pi pi-car', descricao: 'Classificam a frota e definem a CNH mínima para conduzir.' },
+  implemento: { titulo: 'Tipos de implemento', icone: 'pi pi-link', descricao: 'Cestos, guindautos, carretas e outros equipamentos acoplados aos veículos.' },
+  itens: { titulo: 'Itens de manutenção', icone: 'pi pi-wrench', descricao: 'Catálogo dos itens das OS, com a natureza do financeiro e a janela de repetição.' },
+  checklists: { titulo: 'Modelos de checklist', icone: 'pi pi-list-check', descricao: 'Perguntas do checklist por tipo de veículo e os modelos adicionais por implemento.' },
+  planos: { titulo: 'Planos de preventiva', icone: 'pi pi-calendar-clock', descricao: 'Revisões por tipo de veículo ou implemento, de quanto em quanto (km, horas ou dias) e o que a OS preventiva leva.' },
+  aprovadores: { titulo: 'Aprovadores do abastecimento', icone: 'pi pi-user-edit', descricao: 'Quem aprova os pedidos de cada placa. Placa sem aprovador fica parada na fila.' },
+  postos: { titulo: 'Postos', icone: 'pi pi-map-marker', descricao: 'Postos externos credenciados: WhatsApp do aviso e fornecedor da fatura.' },
+  produtos: { titulo: 'Produtos do abastecimento', icone: 'pi pi-box', descricao: 'Combustíveis, ARLA, óleos e fluidos que a equipe pode pedir.' },
+  despesas: { titulo: 'Tipos de despesa', icone: 'pi pi-receipt', descricao: 'Lavagem, pedágio, estacionamento e as demais despesas por veículo, com subtipos.' },
+  parametros: { titulo: 'Parâmetros da frota', icone: 'pi pi-sliders-h', descricao: 'Avisos de vencimento, limites da conferência de KM e horímetro, a janela de repetição e o expediente da frota.' }
+};
 type ItemCatalogo = { id: string; nome: string; descricao: string | null; categoriaCnhMinima?: CategoriaCnh | null; ativo: boolean };
 
 @Component({
@@ -36,6 +64,7 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    CesBooleanControlComponent,
     CesButtonComponent,
     CesCellDirective,
     CesRowActionsDirective,
@@ -47,22 +76,25 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
     CesSelectComponent,
     CesStatusComponent,
     CesSurfaceComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
     CesTextInputComponent,
-    CesTextareaComponent
+    CesTextareaComponent,
+    FrotaConfigAbastecimentoComponent,
+    FrotaTiposDespesaComponent,
+    FrotaItensManutencaoComponent,
+    FrotaModelosChecklistComponent,
+    FrotaPlanosPreventivaComponent
   ],
   template: `
     <div class="ces-page">
       <ces-page-header
-        title="Configurações"
-        icon="pi pi-cog"
-        [breadcrumb]="[{ label: 'Frota' }, { label: 'Configurações' }]"
-        description="Tipos de veículo e de implemento (base dos planos de manutenção e dos checklists) e os limites dos avisos e da conferência de KM."
+        [title]="info.titulo"
+        [icon]="info.icone"
+        [breadcrumb]="[{ label: 'Frota' }, { label: 'Cadastros' }, { label: info.titulo }]"
+        [description]="info.descricao"
       ></ces-page-header>
 
-      <ces-tabs [tabs]="abas" [(value)]="aba" ariaLabel="Configurações da frota">
-        <ng-template cesTabPanel="veiculo">
+      @switch (secao) {
+        @case ('veiculo') {
           <ces-data-table title="Tipos de veículo" description="Definem a CNH mínima e agrupam planos de manutenção e checklists."
             storageKey="frota-tipos-veiculo" searchPlaceholder="Filtrar nesta lista" [columns]="colunasVeiculo" [rows]="tiposVeiculo()"
             [rowKey]="chave" [state]="estado(tiposVeiculo())" stateTitle="Nenhum tipo de veículo cadastrado"
@@ -86,9 +118,9 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
               }
             </ng-template>
           </ces-data-table>
-        </ng-template>
+        }
 
-        <ng-template cesTabPanel="implemento">
+        @case ('implemento') {
           <ces-data-table title="Tipos de implemento" description="Classificam os equipamentos acopláveis, como cesto aéreo e guindauto."
             storageKey="frota-tipos-implemento" searchPlaceholder="Filtrar nesta lista" [columns]="colunasImplemento" [rows]="tiposImplemento()"
             [rowKey]="chave" [state]="estado(tiposImplemento())" stateTitle="Nenhum tipo de implemento cadastrado"
@@ -112,17 +144,63 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
               }
             </ng-template>
           </ces-data-table>
-        </ng-template>
+        }
 
-        <ng-template cesTabPanel="parametros">
+        @case ('itens') {
+          <app-frota-itens-manutencao [opcoes]="opcoes()" [janelaPadrao]="janelaRepeticao() ?? 90"></app-frota-itens-manutencao>
+        }
+
+        @case ('checklists') {
+          <app-frota-modelos-checklist></app-frota-modelos-checklist>
+        }
+
+        @case ('planos') {
+          <app-frota-planos-preventiva></app-frota-planos-preventiva>
+        }
+
+        @case ('aprovadores') {
+          <app-frota-config-abastecimento parte="aprovadores"></app-frota-config-abastecimento>
+        }
+
+        @case ('postos') {
+          <app-frota-config-abastecimento parte="postos"></app-frota-config-abastecimento>
+        }
+
+        @case ('produtos') {
+          <app-frota-config-abastecimento parte="produtos"></app-frota-config-abastecimento>
+        }
+
+        @case ('despesas') {
+          <app-frota-tipos-despesa></app-frota-tipos-despesa>
+        }
+
+        @case ('parametros') {
           <ces-surface>
             <section class="ces-sheet-section" aria-labelledby="parametros-titulo">
-            <h2 id="parametros-titulo"><i class="pi pi-sliders-h" aria-hidden="true"></i> Avisos e conferência de KM</h2>
+            <h2 id="parametros-titulo"><i class="pi pi-sliders-h" aria-hidden="true"></i> Avisos, KM, horímetro e repetição</h2>
             <div class="ces-form-grid">
               <ces-text-input label="Faixas de aviso de vencimento (dias)" [(value)]="faixas" [disabled]="!acesso.configurar()"
                 description="Separadas por vírgula. Ex.: 30, 15, 7, 0 — 0 avisa no dia do vencimento." [error]="erroFaixas()"></ces-text-input>
               <ces-number-input label="Limite de km por dia" [(value)]="limiteKmDia" [min]="1" [max]="5000" suffix=" km"
                 [disabled]="!acesso.configurar()" description="Acima disso, a média diária entre duas leituras marca a leitura para conferência."></ces-number-input>
+              <ces-number-input label="Limite de horas por dia" [(value)]="limiteHorasDia" [min]="1" [max]="24" suffix=" h"
+                [disabled]="!acesso.configurar()" description="Para veículos com horímetro (compressores, retroescavadeiras). Acima disso, a leitura vai para conferência."></ces-number-input>
+              <ces-number-input label="Trava de KM no campo" [(value)]="limiteSaltoKm" [min]="1" [max]="100000" suffix=" km"
+                [disabled]="!acesso.configurar()" description="No checklist e no abastecimento, o KM nunca é menor que o último nem passa dele mais que isto. Evita a casa decimal do painel virar milhões de km."></ces-number-input>
+              <ces-number-input label="Trava de horas no campo" [(value)]="limiteSaltoHoras" [min]="0" [max]="10000" suffix=" h" [showOptional]="true"
+                [disabled]="!acesso.configurar()" description="Mesma trava para o horímetro. Vazio ou zero: só recusa valor menor que o último."></ces-number-input>
+              <ces-number-input label="Janela de repetição de manutenção" [(value)]="janelaRepeticao" [min]="1" [max]="730" suffix=" dias"
+                [disabled]="!acesso.configurar()" description="O mesmo item na mesma placa dentro desse prazo conta como manutenção repetida. Cada item pode ter a sua."></ces-number-input>
+            </div>
+            </section>
+            <section class="ces-sheet-section" aria-labelledby="parametros-expediente-titulo">
+            <h2 id="parametros-expediente-titulo"><i class="pi pi-clock" aria-hidden="true"></i> Expediente da frota</h2>
+            <div class="ces-form-grid">
+              <ces-select label="Início" [options]="horarios" [(value)]="expedienteInicio" [disabled]="!acesso.configurar()"
+                description="Andar fora do horário (e no domingo) aparece como uso fora do expediente."></ces-select>
+              <ces-select label="Fim" [options]="horarios" [(value)]="expedienteFim" [disabled]="!acesso.configurar()" [error]="erroExpediente()"></ces-select>
+              <ces-boolean-control kind="toggle" label="Sábado é dia de expediente" [(value)]="sabadoExpediente" [disabled]="!acesso.configurar()"
+                description="Feriados não são descontados."></ces-boolean-control>
             </div>
             @if (acesso.configurar()) {
               <div class="ces-actions-row ces-actions-row--separated">
@@ -131,8 +209,8 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
             }
             </section>
           </ces-surface>
-        </ng-template>
-      </ces-tabs>
+        }
+      }
     </div>
 
     <ces-form-drawer [(visible)]="formularioAberto" [title]="(emEdicao() ? 'Editar ' : 'Novo ') + (catalogo() === 'veiculo' ? 'tipo de veículo' : 'tipo de implemento')"
@@ -159,13 +237,9 @@ export class FrotaConfiguracoesComponent {
   private readonly confirmacao = inject(CesConfirmationService);
   protected readonly acesso = acessoFrota();
 
-  protected readonly abas: CesTabItem[] = [
-    { value: 'veiculo', label: 'Tipos de veículo', icon: 'pi pi-car' },
-    { value: 'implemento', label: 'Tipos de implemento', icon: 'pi pi-link' },
-    { value: 'parametros', label: 'Parâmetros', icon: 'pi pi-sliders-h' }
-  ];
-  /** Aba na URL (`?aba=implemento`, `?aba=parametros`); catálogos pequenos ficam em modo cliente. */
-  protected readonly aba = cesUrlParam({ values: ['veiculo', 'implemento', 'parametros'], default: 'veiculo' });
+  /** Qual cadastro esta rota mostra (`data.secao`). */
+  protected readonly secao: SecaoCadastroFrota = (inject(ActivatedRoute).snapshot.data['secao'] as SecaoCadastroFrota) ?? 'veiculo';
+  protected readonly info = SECOES[this.secao];
 
   protected readonly tiposVeiculo = signal<TipoVeiculo[]>([]);
   protected readonly tiposImplemento = signal<TipoImplemento[]>([]);
@@ -183,7 +257,24 @@ export class FrotaConfiguracoesComponent {
 
   protected readonly faixas = signal('');
   protected readonly limiteKmDia = signal<number | null>(null);
+  protected readonly janelaRepeticao = signal<number | null>(null);
+  protected readonly limiteHorasDia = signal<number | null>(null);
+  protected readonly limiteSaltoKm = signal<number | null>(null);
+  protected readonly limiteSaltoHoras = signal<number | null>(null);
   protected readonly salvandoParametros = signal(false);
+  protected readonly expedienteInicio = signal<string | null>('06:00');
+  protected readonly expedienteFim = signal<string | null>('19:00');
+  protected readonly sabadoExpediente = signal(false);
+  /** De meia em meia hora; o expediente não precisa de minuto quebrado. */
+  protected readonly horarios: CesSelectOption<string>[] = Array.from({ length: 48 }, (_, i) => {
+    const hora = String(Math.floor(i / 2)).padStart(2, '0') + (i % 2 ? ':30' : ':00');
+    return { label: hora, value: hora };
+  });
+  protected readonly erroExpediente = computed(() => {
+    const inicio = this.expedienteInicio();
+    const fim = this.expedienteFim();
+    return inicio && fim && fim <= inicio ? 'O fim deve ser depois do início.' : undefined;
+  });
 
   protected readonly categorias = computed<CesSelectOption<CategoriaCnh>[]>(() =>
     (this.opcoes()?.categoriasCnh ?? []).map((c) => ({ label: c.rotulo, value: c.valor }))
@@ -221,6 +312,15 @@ export class FrotaConfiguracoesComponent {
       next: (p) => {
         this.faixas.set(p.faixasAlertaDias.join(', '));
         this.limiteKmDia.set(p.limiteKmDia);
+        this.janelaRepeticao.set(p.janelaRepeticaoDias ?? null);
+        this.limiteHorasDia.set(p.limiteHorasDia ?? null);
+        this.limiteSaltoKm.set(p.limiteSaltoKm ?? null);
+        this.limiteSaltoHoras.set(p.limiteSaltoHoras ?? null);
+        if (p.expediente) {
+          this.expedienteInicio.set(p.expediente.inicio.slice(0, 5));
+          this.expedienteFim.set(p.expediente.fim.slice(0, 5));
+          this.sabadoExpediente.set(p.expediente.sabado);
+        }
       },
       error: (e) => this.notificacoes.error(getErrorMessage(e))
     });
@@ -310,11 +410,26 @@ export class FrotaConfiguracoesComponent {
       this.notificacoes.warning('Revise as faixas de aviso e o limite de km por dia.');
       return;
     }
+    const inicio = this.expedienteInicio();
+    const fim = this.expedienteFim();
+    if (!inicio || !fim || this.erroExpediente()) {
+      this.notificacoes.warning('Revise o horário do expediente.');
+      return;
+    }
     this.salvandoParametros.set(true);
-    this.frota.atualizarParametros({ faixasAlertaDias: this.faixasConvertidas(), limiteKmDia: limite }).subscribe({
+    this.frota.atualizarParametros({
+      faixasAlertaDias: this.faixasConvertidas(),
+      limiteKmDia: limite,
+      janelaRepeticaoDias: this.janelaRepeticao(),
+      limiteHorasDia: this.limiteHorasDia(),
+      limiteSaltoKm: this.limiteSaltoKm(),
+      limiteSaltoHoras: this.limiteSaltoHoras() ?? 0,
+      expediente: { inicio, fim, sabado: this.sabadoExpediente() }
+    }).subscribe({
       next: (p) => {
         this.salvandoParametros.set(false);
         this.faixas.set(p.faixasAlertaDias.join(', '));
+        this.janelaRepeticao.set(p.janelaRepeticaoDias ?? null);
         this.notificacoes.success('Parâmetros salvos.');
       },
       error: (e) => {

@@ -437,6 +437,41 @@ export const routes: Routes = [
         loadComponent: () => import('./features/frota/veiculos/frota-veiculo-detalhe.component').then(m => m.FrotaVeiculoDetalheComponent)
       },
       {
+        path: 'ordens-servico',
+        data: { permission: 'frota:os:read' },
+        loadComponent: () => import('./features/frota/ordens-servico/frota-ordens-servico.component').then(m => m.FrotaOrdensServicoComponent)
+      },
+      {
+        path: 'ordens-servico/quadro',
+        data: { permission: 'frota:os:read', modo: 'kanban' },
+        loadComponent: () => import('./features/frota/ordens-servico/frota-ordens-servico.component').then(m => m.FrotaOrdensServicoComponent)
+      },
+      {
+        path: 'ordens-servico/calendario',
+        data: { permission: 'frota:os:read', modo: 'calendario' },
+        loadComponent: () => import('./features/frota/ordens-servico/frota-ordens-servico.component').then(m => m.FrotaOrdensServicoComponent)
+      },
+      {
+        path: 'ordens-servico/:id',
+        data: { permission: 'frota:os:read' },
+        loadComponent: () => import('./features/frota/ordens-servico/frota-ordem-servico-detalhe.component').then(m => m.FrotaOrdemServicoDetalheComponent)
+      },
+      {
+        path: 'ordens-servico/:id/relatorio',
+        data: { permission: 'frota:os:read', fullscreen: true, reportNavigator: 'frota-os' },
+        loadComponent: () => import('./features/frota/relatorios/relatorio-ordem-servico.component').then(m => m.RelatorioOrdemServicoComponent)
+      },
+      {
+        path: 'checklists/:id/relatorio',
+        data: { permission: 'frota:checklist:read', fullscreen: true, reportNavigator: 'frota-checklist' },
+        loadComponent: () => import('./features/frota/relatorios/relatorio-checklist.component').then(m => m.RelatorioChecklistComponent)
+      },
+      {
+        path: 'abastecimentos/:id/relatorio',
+        data: { permission: 'frota:abastecimento:read', fullscreen: true, reportNavigator: 'frota-abastecimento' },
+        loadComponent: () => import('./features/frota/relatorios/relatorio-abastecimento.component').then(m => m.RelatorioAbastecimentoComponent)
+      },
+      {
         path: 'implementos',
         data: { permission: 'frota:veiculo:read' },
         loadComponent: () => import('./features/frota/implementos/frota-implementos.component').then(m => m.FrotaImplementosComponent)
@@ -452,13 +487,134 @@ export const routes: Routes = [
         loadComponent: () => import('./features/frota/documentos/frota-documentos.component').then(m => m.FrotaDocumentosComponent)
       },
       {
+        path: 'telemetria',
+        data: { permission: 'frota:telemetria:read', modo: 'rastreadores' },
+        loadComponent: () => import('./features/frota/telemetria/frota-telemetria.component').then(m => m.FrotaTelemetriaComponent)
+      },
+      {
+        path: 'telemetria/mapa',
+        data: { permission: 'frota:telemetria:read', modo: 'mapa' },
+        loadComponent: () => import('./features/frota/telemetria/frota-telemetria.component').then(m => m.FrotaTelemetriaComponent)
+      },
+      {
+        path: 'telemetria/eventos',
+        data: { permission: 'frota:telemetria:read', modo: 'eventos' },
+        loadComponent: () => import('./features/frota/telemetria/frota-telemetria.component').then(m => m.FrotaTelemetriaComponent)
+      },
+      {
         path: 'odometro',
         data: { permission: 'frota:veiculo:read' },
         loadComponent: () => import('./features/frota/odometro/frota-odometro.component').then(m => m.FrotaOdometroComponent)
       },
       {
+        path: 'preventiva',
+        data: { permission: 'frota:preventiva:read' },
+        loadComponent: () => import('./features/frota/preventiva/frota-preventiva.component').then(m => m.FrotaPreventivaComponent)
+      },
+      {
+        path: 'relatorios/corretivas-servico',
+        data: { permission: 'frota:preventiva:read' },
+        loadComponent: () => import('./features/frota/relatorios/frota-corretivas-servico.component').then(m => m.FrotaCorretivasServicoComponent)
+      },
+      {
+        path: 'checklists',
+        data: { permission: 'frota:checklist:read' },
+        loadComponent: () => import('./features/frota/checklists/frota-checklists.component').then(m => m.FrotaChecklistsComponent)
+      },
+      {
+        path: 'despesas',
+        data: { permission: 'frota:despesa:read' },
+        loadComponent: () => import('./features/frota/despesas/frota-despesas.component').then(m => m.FrotaDespesasComponent)
+      },
+      {
+        path: 'pneus',
+        data: { permission: 'frota:pneu:read' },
+        canDeactivate: [cesUnsavedChangesGuard],
+        loadComponent: () => import('./features/frota/pneus/frota-pneus.component').then(m => m.FrotaPneusComponent)
+      },
+      {
+        path: 'estoque',
+        data: { permission: 'frota:estoque:read' },
+        loadComponent: () => import('./features/frota/estoque/frota-estoque.component').then(m => m.FrotaEstoqueComponent)
+      },
+      {
+        path: 'seguros',
+        data: { permission: 'frota:seguro:read' },
+        loadComponent: () => import('./features/frota/seguros/frota-seguros.component').then(m => m.FrotaSegurosComponent)
+      },
+      {
+        path: 'sinistros',
+        data: { permission: 'frota:sinistro:read' },
+        loadComponent: () => import('./features/frota/seguros/frota-sinistros.component').then(m => m.FrotaSinistrosComponent)
+      },
+      {
+        path: 'abastecimentos',
+        data: { permission: 'frota:abastecimento:read' },
+        loadComponent: () => import('./features/frota/abastecimentos/frota-abastecimentos.component').then(m => m.FrotaAbastecimentosComponent)
+      },
+      {
+        path: 'checklists/modelos/:id',
+        data: { permission: 'frota:checklist:read' },
+        loadComponent: () => import('./features/frota/checklists/frota-modelo-checklist-detalhe.component').then(m => m.FrotaModeloChecklistDetalheComponent)
+      },
+      {
         path: 'configuracoes',
-        data: { permission: 'frota:veiculo:read' },
+        redirectTo: 'cadastros/tipos-veiculo',
+        pathMatch: 'full'
+      },
+      {
+        path: 'cadastros/tipos-veiculo',
+        data: { permission: 'frota:veiculo:read', secao: 'veiculo' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/tipos-implemento',
+        data: { permission: 'frota:veiculo:read', secao: 'implemento' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/itens-manutencao',
+        data: { permission: 'frota:veiculo:read', secao: 'itens' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/modelos-checklist',
+        data: { permission: 'frota:checklist:read', secao: 'checklists' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/planos-preventiva',
+        data: { permission: 'frota:preventiva:read', secao: 'planos' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/aprovadores-abastecimento',
+        data: { permission: 'frota:abastecimento:read', secao: 'aprovadores' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/postos',
+        data: { permission: 'frota:abastecimento:read', secao: 'postos' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/seguradoras',
+        data: { permission: 'frota:seguro:read' },
+        loadComponent: () => import('./features/frota/seguros/frota-seguradoras-cadastro.component').then(m => m.FrotaSeguradorasCadastroComponent)
+      },
+      {
+        path: 'cadastros/produtos-abastecimento',
+        data: { permission: 'frota:abastecimento:read', secao: 'produtos' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/tipos-despesa',
+        data: { permission: 'frota:despesa:read', secao: 'despesas' },
+        loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
+      },
+      {
+        path: 'cadastros/parametros',
+        data: { permission: 'frota:veiculo:read', secao: 'parametros' },
         loadComponent: () => import('./features/frota/configuracoes/frota-configuracoes.component').then(m => m.FrotaConfiguracoesComponent)
       }
     ]

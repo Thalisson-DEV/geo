@@ -1,0 +1,581 @@
+/* Mesmo desenho do detalhe da solicitação de material: abertura no tom da situação, fluxo em linha, fatos em cartões. */
+.dd {
+  display: grid;
+  gap: 1.125rem;
+  color: var(--ces-foreground);
+}
+
+.dd-label {
+  display: block;
+  font-size: var(--ces-font-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ces-foreground-muted);
+}
+
+.dd-muted {
+  font-size: var(--ces-font-caption);
+  color: var(--ces-foreground-muted);
+}
+
+.dd-forte {
+  color: var(--ces-foreground);
+  font-weight: 700;
+}
+
+.dd-texto-aviso {
+  color: var(--ces-warning-text);
+  font-weight: 700;
+}
+
+[data-tone='warning'] { --dd-tone: var(--ces-warning); }
+[data-tone='info'] { --dd-tone: var(--ces-info); }
+[data-tone='brand'] { --dd-tone: var(--ces-brand); }
+[data-tone='success'] { --dd-tone: var(--ces-success); }
+[data-tone='danger'] { --dd-tone: var(--ces-danger); }
+[data-tone='neutral'] { --dd-tone: var(--ces-foreground-subtle); }
+
+/* Abertura */
+.dd-hero {
+  display: grid;
+  gap: 0.625rem;
+  padding: 1rem 1.125rem;
+  border: 1px solid color-mix(in srgb, var(--dd-tone) 30%, var(--ces-border));
+  border-radius: var(--ces-radius-lg);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dd-tone) 14%, transparent), transparent 65%),
+    var(--ces-surface);
+}
+
+.dd-hero__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.dd-hero__rota {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem 0.5rem;
+  margin: 0;
+  color: var(--ces-foreground-muted);
+  font-size: var(--ces-font-control);
+}
+
+.dd-hero__rota strong {
+  color: var(--ces-foreground);
+  font-weight: 700;
+}
+
+.dd-hero__rota .pi {
+  font-size: 0.75rem;
+}
+
+.dd-hero__seta {
+  color: var(--dd-tone);
+}
+
+.dd-hero__tipo {
+  padding: 0.0625rem 0.45rem;
+  border: 1px solid var(--ces-border);
+  border-radius: 999px;
+  font-size: var(--ces-font-caption);
+}
+
+.dd-hero__meta {
+  margin: 0;
+  color: var(--ces-foreground-muted);
+  font-size: var(--ces-font-caption);
+}
+
+.dd-hero__meta strong {
+  color: var(--ces-foreground);
+  font-weight: 600;
+}
+
+.dd-titulo-secao {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.625rem;
+  color: var(--ces-foreground);
+  font-size: var(--ces-font-body);
+  font-weight: 700;
+}
+
+.dd-titulo-secao .pi {
+  color: var(--ces-brand);
+}
+
+.dd-titulo-secao .dd-muted {
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.dd > * {
+  animation: dd-entra 320ms var(--ces-ease-standard) both;
+}
+
+.dd > :nth-child(2) { animation-delay: 40ms; }
+.dd > :nth-child(3) { animation-delay: 80ms; }
+.dd > :nth-child(4) { animation-delay: 120ms; }
+.dd > :nth-child(5) { animation-delay: 160ms; }
+.dd > :nth-child(n + 6) { animation-delay: 200ms; }
+
+@keyframes dd-entra {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Fluxo: pedido, aprovação, liberação, abastecimento */
+.dd-fluxo {
+  --dd-marca: 1.875rem;
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dd-fluxo__etapa {
+  position: relative;
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+  justify-items: center;
+  padding: 0 0.25rem;
+  text-align: center;
+}
+
+.dd-fluxo__etapa:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: calc(var(--dd-marca) / 2 - 1px);
+  left: calc(50% + var(--dd-marca) / 2 + 0.375rem);
+  right: calc(-50% + var(--dd-marca) / 2 + 0.375rem);
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ces-border);
+}
+
+.dd-fluxo__etapa[data-estado='feito']:not(:last-child)::after {
+  background: var(--ces-success);
+}
+
+.dd-fluxo__marca {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--dd-marca);
+  height: var(--dd-marca);
+  border: 2px solid var(--ces-border);
+  border-radius: 999px;
+  background: var(--ces-surface);
+  color: var(--ces-foreground-subtle);
+  font-size: 0.75rem;
+}
+
+.dd-fluxo__etapa[data-estado='feito'] .dd-fluxo__marca {
+  border-color: var(--ces-success);
+  background: var(--ces-success);
+  color: var(--ces-surface);
+}
+
+.dd-fluxo__etapa[data-estado='atual'] .dd-fluxo__marca {
+  border-color: var(--ces-brand);
+  background: var(--ces-brand-soft);
+  color: var(--ces-brand);
+  box-shadow: 0 0 0 4px var(--ces-brand-soft);
+}
+
+.dd-fluxo__etapa[data-estado='interrompido'] .dd-fluxo__marca {
+  border-color: var(--ces-danger);
+  background: var(--ces-danger);
+  color: var(--ces-surface);
+}
+
+.dd-fluxo__texto {
+  display: grid;
+  gap: 0.0625rem;
+  justify-items: center;
+  width: 100%;
+  min-width: 0;
+  font-size: var(--ces-font-caption);
+  color: var(--ces-foreground-muted);
+}
+
+.dd-fluxo__texto strong {
+  font-size: var(--ces-font-control);
+  color: var(--ces-foreground);
+}
+
+.dd-fluxo__etapa[data-estado='futuro'] .dd-fluxo__texto strong {
+  color: var(--ces-foreground-muted);
+  font-weight: 500;
+}
+
+.dd-fluxo__texto span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Fatos */
+.dd-fatos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.dd-fato {
+  display: grid;
+  gap: 0.25rem;
+  align-content: start;
+  min-width: 0;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--ces-border);
+  border-radius: var(--ces-radius-md);
+  background: var(--ces-surface);
+}
+
+.dd-fato strong {
+  font-size: var(--ces-font-body);
+  overflow-wrap: anywhere;
+}
+
+.dd-fato--destaque strong {
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nota abaixo do motivo, em linha própria */
+.dd-nota {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--ces-foreground-muted);
+}
+
+/* Alertas */
+.dd-alertas {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dd-alertas li {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.dd-obs {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.75rem 0.875rem;
+  border-left: 3px solid var(--ces-border-strong);
+  border-radius: 0 var(--ces-radius-md) var(--ces-radius-md) 0;
+  background: var(--ces-surface-subtle);
+  font-size: var(--ces-font-control);
+  white-space: pre-line;
+}
+
+/* Itens */
+.dd-tabela {
+  overflow: hidden;
+  border: 1px solid var(--ces-border);
+  border-radius: var(--ces-radius-lg);
+}
+
+.dd-tabela__linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5rem;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  font-size: var(--ces-font-control);
+}
+
+.dd-tabela--entregue .dd-tabela__linha {
+  grid-template-columns: minmax(0, 1fr) 4.5rem 4.5rem 6.5rem;
+}
+
+.dd-tabela__linha + .dd-tabela__linha {
+  border-top: 1px solid var(--ces-border);
+}
+
+.dd-tabela__cab {
+  background: var(--ces-surface-subtle);
+  font-size: var(--ces-font-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ces-foreground-muted);
+}
+
+.dd-tabela__total {
+  background: var(--ces-surface-subtle);
+  font-weight: 700;
+}
+
+.dd-num {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.dd-material {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: start;
+  min-width: 0;
+}
+
+.dd-material strong {
+  font-weight: 600;
+}
+
+/* Fotos */
+.dd-fotos {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.dd-foto {
+  display: grid;
+  gap: 0.375rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.dd-foto__quadro {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: 1px solid var(--ces-border);
+  border-radius: var(--ces-radius-md);
+  background: var(--ces-surface-subtle);
+}
+
+.dd-foto__quadro img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--ces-duration-normal) var(--ces-ease-standard);
+}
+
+a.dd-foto__quadro:hover img,
+a.dd-foto__quadro:focus-visible img {
+  transform: scale(1.04);
+}
+
+.dd-foto__vazia {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  text-align: center;
+  border-style: dashed;
+  color: var(--ces-foreground-muted);
+  font-size: var(--ces-font-caption);
+}
+
+.dd-foto__vazia .pi {
+  font-size: 1.125rem;
+  color: var(--ces-foreground-subtle);
+}
+
+.dd-foto figcaption {
+  font-size: var(--ces-font-caption);
+  font-weight: 600;
+  color: var(--ces-foreground-muted);
+}
+
+/* Aviso ao posto */
+.dd-aviso {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--ces-border);
+  border-radius: var(--ces-radius-lg);
+  background: var(--ces-surface-subtle);
+}
+
+.dd-aviso + .dd-aviso {
+  margin-top: 0.75rem;
+}
+
+.dd-aviso__topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dd-aviso__para {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.dd-aviso__para .pi {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ces-success) 16%, transparent);
+  color: var(--ces-success-text, var(--ces-success));
+}
+
+.dd-aviso__para span {
+  display: grid;
+  line-height: 1.25;
+}
+
+.dd-aviso__mensagem {
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--ces-border);
+  border-radius: var(--ces-radius-md) var(--ces-radius-md) var(--ces-radius-md) 0.125rem;
+  background: var(--ces-surface);
+  font-size: var(--ces-font-control);
+  white-space: pre-wrap;
+}
+
+.dd-aviso__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Rodapé */
+.dd-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.dd-linha-botoes {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* Liberação */
+.item-liberar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Carregando */
+.dd-skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.dd-skeleton span {
+  height: 3.5rem;
+  border-radius: var(--ces-radius-md);
+  background: linear-gradient(90deg, var(--ces-surface-muted), var(--ces-surface-subtle), var(--ces-surface-muted));
+  background-size: 200% 100%;
+  animation: dd-brilho 1.2s ease-in-out infinite;
+}
+
+.dd-skeleton span:first-child {
+  height: 6rem;
+}
+
+@keyframes dd-brilho {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 40rem) {
+  .dd {
+    gap: 0.875rem;
+  }
+
+  .dd-hero {
+    padding: 0.875rem;
+  }
+
+  .dd-fluxo {
+    --dd-marca: 1.625rem;
+  }
+
+  .dd-fluxo__marca {
+    font-size: 0.6875rem;
+  }
+
+  .dd-fluxo__texto {
+    font-size: 0.6875rem;
+  }
+
+  .dd-fluxo__texto strong {
+    font-size: var(--ces-font-caption);
+    white-space: normal;
+  }
+
+  .dd-fato {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .dd-tabela--entregue .dd-tabela__linha {
+    grid-template-columns: minmax(0, 1fr) 4rem 5.75rem;
+  }
+
+  .dd-tabela--entregue .dd-tabela__linha > :nth-child(2) {
+    display: none;
+  }
+
+  .dd-fotos {
+    gap: 0.5rem;
+  }
+
+  .item-liberar {
+    grid-template-columns: minmax(0, 1fr) 7.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dd > *,
+  .dd-skeleton span {
+    animation: none;
+  }
+
+  .dd-foto__quadro img {
+    transition: none;
+  }
+}
+
+/* Onde estava o veículo: só aparece com o alerta de abastecimento longe do posto. */
+.dd-local {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dd-local .dd-muted {
+  margin: 0;
+}

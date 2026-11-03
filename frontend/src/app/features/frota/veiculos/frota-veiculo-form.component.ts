@@ -18,7 +18,9 @@ import {
   ProvedorTelemetria,
   RegimeVeiculo,
   SituacaoOperacional,
+  ROTULO_UNIDADE,
   TipoVeiculo,
+  UnidadeMedicao,
   VeiculoFrotaDetalhe,
   VeiculoFrotaRequest,
   deDataIso,
@@ -82,6 +84,11 @@ import { FrotaService } from '../../../core/services/frota.service';
             [showOptional]="true"></ces-number-input>
           <ces-number-input label="Consumo de referência (km/l)" [(value)]="consumoReferencia" [min]="0" [maxFractionDigits]="2"
             description="Usado para conferir se os abastecimentos estão coerentes." [showOptional]="true"></ces-number-input>
+          <ces-select label="Controle de uso" [options]="unidades" [(value)]="unidadeMedicao"
+            [disabled]="unidadeTravada()"
+            [description]="unidadeTravada()
+              ? 'O veículo já tem leituras. Para mudar entre km e horas, use Trocar painel na ficha.'
+              : 'Compressores e retroescavadeiras costumam ser controlados por horas.'"></ces-select>
         </div>
       </ces-form-section>
 
@@ -97,14 +104,6 @@ import { FrotaService } from '../../../core/services/frota.service';
             <ces-datepicker label="Fim da locação" [(value)]="fimLocacao" [clearable]="true" [showOptional]="true"
               [error]="erro('fimLocacao')"></ces-datepicker>
           }
-        </div>
-      </ces-form-section>
-
-      <ces-form-section title="Telemetria" icon="pi pi-wifi" description="Liga o veículo ao rastreador para a integração das próximas fases.">
-        <div class="ces-form-grid">
-          <ces-select label="Provedor" [options]="provedores()" [(value)]="provedor" [clearable]="true" [showOptional]="true"></ces-select>
-          <ces-text-input label="Código do rastreador" [(value)]="idRastreador" [maxlength]="80" [showOptional]="true"
-            [error]="erro('idRastreador')"></ces-text-input>
         </div>
       </ces-form-section>
 
@@ -150,9 +149,17 @@ export class FrotaVeiculoFormComponent {
   protected readonly custoLocacao = signal<number | null>(null);
   protected readonly inicioLocacao = signal<Date | null>(null);
   protected readonly fimLocacao = signal<Date | null>(null);
+  /** O rastreador casa sozinho pela placa: não aparece no formulário, só volta como estava. */
   protected readonly provedor = signal<ProvedorTelemetria | null>(null);
   protected readonly idRastreador = signal('');
   protected readonly observacao = signal('');
+  protected readonly unidadeMedicao = signal<UnidadeMedicao | null>('KM');
+  protected readonly unidades: CesSelectOption<UnidadeMedicao>[] = (['KM', 'HORAS'] as const).map((u) => ({
+    label: ROTULO_UNIDADE[u],
+    value: u
+  }));
+  /** Com leituras, a unidade só muda por troca de painel. */
+  protected readonly unidadeTravada = computed(() => this.veiculo()?.kmAtual != null);
 
   protected readonly salvando = signal(false);
   protected readonly tentouSalvar = signal(false);
@@ -169,7 +176,6 @@ export class FrotaVeiculoFormComponent {
   protected readonly situacoes = computed(() => this.paraOpcoes(this.opcoes()?.situacoes));
   protected readonly regimes = computed(() => this.paraOpcoes(this.opcoes()?.regimes));
   protected readonly combustiveis = computed(() => this.paraOpcoes(this.opcoes()?.combustiveis));
-  protected readonly provedores = computed(() => this.paraOpcoes(this.opcoes()?.provedoresTelemetria));
 
   private readonly erros = computed<Record<string, string>>(() => {
     const e: Record<string, string> = {};
@@ -181,7 +187,6 @@ export class FrotaVeiculoFormComponent {
     const inicio = this.inicioLocacao();
     const fim = this.fimLocacao();
     if (inicio && fim && fim < inicio) e['fimLocacao'] = 'O fim não pode ser antes do início.';
-    if (!!this.provedor() !== !!this.idRastreador().trim()) e['idRastreador'] = 'Informe o provedor e o id do rastreador juntos.';
     return e;
   });
 
@@ -248,6 +253,7 @@ export class FrotaVeiculoFormComponent {
     this.provedor.set(v?.provedorTelemetria ?? null);
     this.idRastreador.set(v?.idRastreador ?? '');
     this.observacao.set(v?.observacao ?? '');
+    this.unidadeMedicao.set(v?.unidadeMedicao ?? 'KM');
     this.snapshot.set(JSON.stringify(this.montarRequest()));
   }
 
@@ -276,7 +282,8 @@ export class FrotaVeiculoFormComponent {
       fimLocacao: locado ? paraDataIso(this.fimLocacao()) : null,
       provedorTelemetria: this.provedor(),
       idRastreador: texto(this.idRastreador()),
-      observacao: texto(this.observacao())
+      observacao: texto(this.observacao()),
+      unidadeMedicao: this.unidadeTravada() ? null : this.unidadeMedicao()
     };
   }
 

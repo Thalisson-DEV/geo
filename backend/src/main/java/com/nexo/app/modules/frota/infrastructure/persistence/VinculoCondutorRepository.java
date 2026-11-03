@@ -48,4 +48,12 @@ public interface VinculoCondutorRepository extends JpaRepository<VinculoCondutor
     boolean existeEncerradoDepois(@Param("idVeiculo") UUID idVeiculo,
                                   @Param("idColaborador") UUID idColaborador,
                                   @Param("instante") OffsetDateTime instante);
+
+    /** Vínculos começados no período por outra origem que não o checklist (troca de condutor sem checklist). */
+    @Query("""
+            SELECT v FROM VinculoCondutor v
+             WHERE v.ativo = true AND v.inicio >= :inicio AND v.inicio < :fim
+               AND v.origem <> com.nexo.app.modules.frota.domain.OrigemVinculoCondutor.CHECKLIST
+            """)
+    List<VinculoCondutor> iniciadosForaDoChecklist(@Param("inicio") OffsetDateTime inicio, @Param("fim") OffsetDateTime fim);
 }

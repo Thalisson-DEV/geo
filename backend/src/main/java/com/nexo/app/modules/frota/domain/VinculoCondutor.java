@@ -49,6 +49,10 @@ public class VinculoCondutor extends BaseEntity {
     @Column(name = "observacao", length = 500)
     private String observacao;
 
+    /** CNH que não permitia dirigir no início (vínculo aberto pelo checklist, que só avisa). */
+    @Column(name = "cnh_situacao_inicio", length = 30)
+    private String cnhSituacaoInicio;
+
     public VinculoCondutor(UUID idVeiculo, UUID idColaborador, OffsetDateTime inicio,
                            OrigemVinculoCondutor origem, UUID idOrigem, String observacao) {
         if (idVeiculo == null) throw new InvarianteVioladaException("Informe o veículo.");
@@ -67,6 +71,11 @@ public class VinculoCondutor extends BaseEntity {
 
     public boolean vigenteEm(OffsetDateTime instante) {
         return Periodo.contem(inicio, fim, instante);
+    }
+
+    /** O condutor assumiu pelo checklist com a CNH vencida, ausente ou de categoria abaixo. */
+    public void marcarCnhNoInicio(String situacao) {
+        this.cnhSituacaoInicio = Textos.opcional(situacao, 30);
     }
 
     public void encerrar(OffsetDateTime fim) {

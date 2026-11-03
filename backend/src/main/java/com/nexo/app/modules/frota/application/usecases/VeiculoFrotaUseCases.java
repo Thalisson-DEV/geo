@@ -53,10 +53,14 @@ public class VeiculoFrotaUseCases {
     private final ParametrosFrotaUseCases parametros;
     private final ReferenciasFrota referencias;
     private final CatalogoFrotaMapper catalogoMapper;
+    private final SincronizacaoPreventiva preventiva;
+    private final UsoTelemetriaVeiculos usoTelemetria;
 
     @Transactional(readOnly = true)
     public PageResponse<VeiculoFrotaResumoResponse> listar(FichaVeiculoFilter filtro, Pageable pageable) {
-        Page<FichaVeiculo> pagina = fichaRepository.findAll(FichaVeiculoSpecification.of(filtro), pageable);
+        var comSinal = filtro != null && filtro.filtraUso()
+                ? usoTelemetria.comSinal(Boolean.TRUE.equals(filtro.foraExpediente()), Boolean.TRUE.equals(filtro.rodaPouco())) : null;
+        Page<FichaVeiculo> pagina = fichaRepository.findAll(FichaVeiculoSpecification.of(filtro, comSinal), pageable);
         return PageResponse.fromPage(new PageImpl<>(montarResumos(pagina.getContent()),
                 pagina.getPageable(), pagina.getTotalElements()));
     }
@@ -72,7 +76,10 @@ public class VeiculoFrotaUseCases {
         // O RH publicou VeiculoCadastradoEvent e o listener desta mesma transação criou a ficha.
         FichaVeiculo ficha = garantirFicha(veiculo);
         ficha.atualizar(dadosFicha(request));
-        return montarDetalhe(fichaRepository.save(ficha));
+        ficha.definirUnidadeMedicao(request.unidadeMedicao(), odometro.possuiLeituraValida(ficha.getIdVeiculo()));
+        ficha = fichaRepository.saveAndFlush(ficha);
+        preventiva.sincronizar(List.of(ficha.getIdVeiculo()));
+        return montarDetalhe(ficha);
     }
 
     @Transactional
@@ -81,7 +88,10 @@ public class VeiculoFrotaUseCases {
         VeiculoResponse veiculo = veiculoApi.alterarCadastro(idVeiculo, dadosRh(request));
         FichaVeiculo ficha = garantirFicha(veiculo);
         ficha.atualizar(dadosFicha(request));
-        return montarDetalhe(fichaRepository.save(ficha));
+        ficha.definirUnidadeMedicao(request.unidadeMedicao(), odometro.possuiLeituraValida(idVeiculo));
+        ficha = fichaRepository.saveAndFlush(ficha);
+        preventiva.sincronizar(List.of(idVeiculo));
+        return montarDetalhe(ficha);
     }
 
     /** Cria a ficha vazia do veículo recém-cadastrado no RH. Idempotente. */
@@ -135,6 +145,7 @@ public class VeiculoFrotaUseCases {
 
     private List<VeiculoFrotaResumoResponse> montarResumos(List<FichaVeiculo> fichas) {
         var contexto = carregarContexto(fichas);
+        var usos = usoTelemetria.recentes(fichas.stream().map(FichaVeiculo::getIdVeiculo).toList());
         return fichas.stream().map(f -> {
             UUID id = f.getIdVeiculo();
             var veiculo = contexto.veiculos().get(id);
@@ -163,8 +174,16 @@ public class VeiculoFrotaUseCases {
                     docs == null || docs.getVencidos() == null ? 0 : docs.getVencidos(),
                     docs == null || docs.getAVencer() == null ? 0 : docs.getAVencer(),
                     contexto.inconsistentes().getOrDefault(id, 0L),
-                    f.isAtivo());
+                    f.isAtivo(),
+                    f.getUnidadeMedicao(),
+                    km == null ? null : km.getKm() + contexto.deslocamentos().getOrDefault(id, 0L),
+                    usoRecente(usos.get(id)));
         }).toList();
+    }
+
+    private static VeiculoFrotaResumoResponse.UsoRecente usoRecente(UsoTelemetriaVeiculos.Uso u) {
+        return u == null ? null : new VeiculoFrotaResumoResponse.UsoRecente(u.km(), u.kmPorDiaUtil(), u.kmForaExpediente(),
+                u.diasForaExpediente(), u.rodaPouco());
     }
 
     private VeiculoFrotaDetalheResponse montarDetalhe(FichaVeiculo f) {
@@ -208,7 +227,9 @@ public class VeiculoFrotaUseCases {
                 docs == null || docs.getVencidos() == null ? 0 : docs.getVencidos(),
                 docs == null || docs.getAVencer() == null ? 0 : docs.getAVencer(),
                 contexto.inconsistentes().getOrDefault(id, 0L),
-                f.isAtivo());
+                f.isAtivo(),
+                f.getUnidadeMedicao(),
+                km == null ? null : km.getKm() + contexto.deslocamentos().getOrDefault(id, 0L));
     }
 
     private ContextoPagina carregarContexto(List<FichaVeiculo> fichas) {
@@ -226,7 +247,8 @@ public class VeiculoFrotaUseCases {
                 referencias.nomesColaboradores(condutores.values().stream().map(VinculoCondutor::getIdColaborador).toList()),
                 implementos.abertosPorVeiculo(ids),
                 documentos,
-                odometro.inconsistentesPorVeiculo(ids));
+                odometro.inconsistentesPorVeiculo(ids),
+                odometro.deslocamentoPorVeiculo(ids));
     }
 
     private record ContextoPagina(
@@ -237,7 +259,8 @@ public class VeiculoFrotaUseCases {
             Map<UUID, String> nomesCondutores,
             Map<UUID, List<AcoplamentoImplemento>> implementos,
             Map<UUID, DocumentoFrotaRepository.ResumoVencimentoProjection> documentos,
-            Map<UUID, Long> inconsistentes
+            Map<UUID, Long> inconsistentes,
+            Map<UUID, Long> deslocamentos
     ) {
     }
 }

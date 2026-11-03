@@ -3,6 +3,7 @@ package com.nexo.app.modules.frota.application.usecases;
 import com.nexo.app.modules.frota.FrotaCondutorApi;
 import com.nexo.app.modules.frota.application.dto.VincularCondutorRequest;
 import com.nexo.app.modules.frota.application.dto.VinculoCondutorResponse;
+import com.nexo.app.modules.frota.domain.AptidaoConducao;
 import com.nexo.app.modules.frota.domain.Condutor;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.OrigemVinculoCondutor;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Collection;
@@ -57,6 +59,14 @@ public class VinculoCondutorUseCases implements FrotaCondutorApi {
      */
     VinculoCondutor vincular(UUID idVeiculo, UUID idColaborador, OffsetDateTime inicio,
                              OrigemVinculoCondutor origem, UUID idOrigem, String observacao) {
+        return vincular(idVeiculo, idColaborador, inicio, origem, idOrigem, observacao, true);
+    }
+
+    /**
+     * @param conferirCnh falso quando o gestor liberou o condutor para o dia (checklist com liberação de CNH)
+     */
+    VinculoCondutor vincular(UUID idVeiculo, UUID idColaborador, OffsetDateTime inicio,
+                             OrigemVinculoCondutor origem, UUID idOrigem, String observacao, boolean conferirCnh) {
         FichaVeiculo ficha = fichaRepository.findByIdVeiculo(idVeiculo)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Veículo não encontrado na frota."));
         if (!ficha.isAtivo() || ficha.getSituacao() == SituacaoOperacional.BAIXADO) {
@@ -68,7 +78,7 @@ public class VinculoCondutorUseCases implements FrotaCondutorApi {
         if (inicio == null) {
             throw new InvarianteVioladaException("Informe a data e hora de início.");
         }
-        if (origem != OrigemVinculoCondutor.IMPORTACAO) {
+        if (origem != OrigemVinculoCondutor.IMPORTACAO && conferirCnh) {
             Condutor condutor = condutorRepository.findByIdColaborador(idColaborador)
                     .filter(Condutor::isAtivo)
                     .orElseThrow(() -> new InvarianteVioladaException(
@@ -115,6 +125,25 @@ public class VinculoCondutorUseCases implements FrotaCondutorApi {
     @Transactional(readOnly = true)
     public Optional<UUID> condutorEm(UUID idVeiculo, OffsetDateTime instante) {
         return repository.buscarVigente(idVeiculo, instante).map(VinculoCondutor::getIdColaborador);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SituacaoParaConduzir situacaoParaConduzir(UUID idColaborador, UUID idVeiculo, LocalDate data) {
+        var aptidao = aptidao(idColaborador, idVeiculo, data);
+        return new SituacaoParaConduzir(
+                SituacaoCnh.valueOf(aptidao.situacao().name()),
+                aptidao.validade(),
+                aptidao.exigida() == null ? null : aptidao.exigida().name(),
+                aptidao.atual() == null ? null : aptidao.atual().name(),
+                aptidao.mensagem());
+    }
+
+    AptidaoConducao aptidao(UUID idColaborador, UUID idVeiculo, LocalDate data) {
+        FichaVeiculo ficha = fichaRepository.findByIdVeiculo(idVeiculo)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Veículo não encontrado na frota."));
+        var exigida = ficha.getTipoVeiculo() == null ? null : ficha.getTipoVeiculo().getCategoriaCnhMinima();
+        return AptidaoConducao.avaliar(condutorRepository.findByIdColaborador(idColaborador).orElse(null), exigida, data);
     }
 
     @Transactional(readOnly = true)

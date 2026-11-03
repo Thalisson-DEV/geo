@@ -34,7 +34,10 @@ const veiculo: VeiculoFrotaResumo = {
   documentosVencidos: 1,
   documentosAVencer: 0,
   leiturasInconsistentes: 2,
-  ativo: true
+  ativo: true,
+  unidadeMedicao: 'KM',
+  acumulado: 12400,
+  uso: { km: 640, kmPorDiaUtil: 12, kmForaExpediente: 30, diasForaExpediente: 2, rodaPouco: true }
 };
 
 describe('FrotaVeiculosComponent', () => {
@@ -92,7 +95,8 @@ describe('FrotaVeiculosComponent', () => {
     expect(texto).toContain('Em manutenção');
     expect(texto).toContain('MARIA SOUZA');
     expect(texto).toContain('1 doc. vencido');
-    expect(texto).toContain('2 KM a conferir');
+    expect(texto).toContain('12.400 km');
+    expect(texto).toContain('2 leituras a conferir');
     // Painel recolhido, com o padrão como chip não removível e sem contar como filtro ativo.
     expect(el.querySelector('.ces-filter-panel__content')).toBeNull();
     expect(chips(el)).toEqual(['Cadastro: Somente ativos']);

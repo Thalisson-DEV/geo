@@ -18,5 +18,12 @@ public interface CondutorRepository extends JpaRepository<Condutor, UUID>, JpaSp
 
     boolean existsByCnhNumeroHashAndIdColaboradorNot(String cnhNumeroHash, UUID idColaborador);
 
+    /** Condutor pela CNH (blind index): casa o motorista informado pelo rastreador. */
+    List<Condutor> findAllByCnhNumeroHashAndAtivoTrue(String cnhNumeroHash);
+
+    List<Condutor> findAllByAtivoTrue();
+
     List<Condutor> findAllByAtivoTrueAndCnhValidadeLessThanEqual(LocalDate limite);
+
+    List<Condutor> findAllByAtivoTrueAndCnhValidadeBetween(LocalDate de, LocalDate ate);
 }

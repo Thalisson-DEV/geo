@@ -35,4 +35,8 @@ public interface DocumentoFrotaRepository extends JpaRepository<DocumentoFrota, 
 
         Long getAVencer();
     }
+
+    List<DocumentoFrota> findAllByAtivoTrueAndDataVencimentoBetween(LocalDate de, LocalDate ate);
+
+    List<DocumentoFrota> findAllByIdVeiculoAndAtivoTrueOrderByDataVencimentoAsc(UUID idVeiculo);
 }

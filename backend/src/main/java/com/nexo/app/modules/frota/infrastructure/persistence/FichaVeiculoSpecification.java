@@ -7,8 +7,10 @@ import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 public final class FichaVeiculoSpecification {
 
@@ -16,7 +18,15 @@ public final class FichaVeiculoSpecification {
     }
 
     public static Specification<FichaVeiculo> of(FichaVeiculoFilter filtro) {
+        return of(filtro, null);
+    }
+
+    /** {@code idsVeiculo} não nulo restringe aos veículos informados (filtros calculados fora do banco, ex.: telemetria). */
+    public static Specification<FichaVeiculo> of(FichaVeiculoFilter filtro, Collection<UUID> idsVeiculo) {
         return (root, query, cb) -> {
+            if (idsVeiculo != null && idsVeiculo.isEmpty()) {
+                return cb.disjunction();
+            }
             List<Predicate> predicates = new ArrayList<>();
             if (filtro == null) {
                 return cb.conjunction();
@@ -36,6 +46,9 @@ public final class FichaVeiculoSpecification {
             }
             if (filtro.ativo() != null) {
                 predicates.add(cb.equal(root.get("ativo"), filtro.ativo()));
+            }
+            if (idsVeiculo != null) {
+                predicates.add(root.get("idVeiculo").in(idsVeiculo));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };

@@ -4,6 +4,7 @@ import com.nexo.app.modules.frota.domain.Combustivel;
 import com.nexo.app.modules.frota.domain.ProvedorTelemetria;
 import com.nexo.app.modules.frota.domain.RegimeVeiculo;
 import com.nexo.app.modules.frota.domain.SituacaoOperacional;
+import com.nexo.app.modules.frota.domain.UnidadeMedicao;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,6 +45,10 @@ public record VeiculoFrotaDetalheResponse(
         long documentosVencidos,
         long documentosAVencer,
         long leiturasInconsistentes,
-        boolean ativo
+        boolean ativo,
+        /** Odômetro em km ou horímetro em horas; {@code kmAtual} está nesta unidade. */
+        UnidadeMedicao unidadeMedicao,
+        /** Valor atual somado ao que os painéis anteriores rodaram (trocas de painel). */
+        Long acumulado
 ) {
 }

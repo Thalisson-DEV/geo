@@ -103,7 +103,41 @@ public class FichaVeiculo extends BaseEntity {
     @Column(name = "observacao", length = 1000)
     private String observacao;
 
+    /** Odômetro em km ou horímetro em horas. Muda só com troca de painel. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unidade_medicao", nullable = false, length = 10)
+    private UnidadeMedicao unidadeMedicao = UnidadeMedicao.KM;
+
     /** Ficha vazia para um veículo recém-cadastrado no RH. */
+    /** Diagrama de pneus: eixos da frente para trás (S simples, D duplo), ex.: {@code S,D,D}. */
+    @Column(name = "eixos", length = 40)
+    private String eixos;
+
+    @Column(name = "estepes", nullable = false)
+    private int estepes = 1;
+
+    /** Nulo enquanto o diagrama de pneus não foi definido. */
+    public DiagramaPneus diagrama() {
+        return eixos == null ? null : DiagramaPneus.de(eixos, estepes);
+    }
+
+    /**
+     * Troca o diagrama. As posições ocupadas por pneus montados precisam continuar existindo
+     * ({@code posicoesOcupadas}); senão, desmonte antes.
+     */
+    public DiagramaPneus definirDiagrama(String eixos, int estepes, java.util.Collection<String> posicoesOcupadas) {
+        var diagrama = DiagramaPneus.de(eixos, estepes);
+        for (String posicao : posicoesOcupadas) {
+            if (!diagrama.contem(posicao)) {
+                throw new InvarianteVioladaException("Há pneu montado em " + DiagramaPneus.rotulo(posicao)
+                        + ", que não existe no diagrama novo. Desmonte o pneu antes.");
+            }
+        }
+        this.eixos = diagrama.texto();
+        this.estepes = diagrama.estepes();
+        return diagrama;
+    }
+
     public static FichaVeiculo provisionar(UUID idVeiculo, String placa, UUID idBaseOperacional) {
         var ficha = new FichaVeiculo();
         ficha.idVeiculo = Objects.requireNonNull(idVeiculo, "O veículo é obrigatório");
@@ -152,6 +186,44 @@ public class FichaVeiculo extends BaseEntity {
         this.observacao = Textos.opcional(dados.observacao(), 1000);
     }
 
+    /**
+     * Uma OS deixou o veículo parado. Só um veículo ativo muda: reserva, parado ou baixado
+     * foram decisões de alguém e continuam valendo.
+     */
+    public void entrarEmManutencao() {
+        if (situacao == SituacaoOperacional.ATIVO) {
+            this.situacao = SituacaoOperacional.EM_MANUTENCAO;
+        }
+    }
+
+    /** Nenhuma OS mantém mais o veículo parado; volta a ativo se ainda estava em manutenção. */
+    public void sairDaManutencao() {
+        if (situacao == SituacaoOperacional.EM_MANUTENCAO) {
+            this.situacao = SituacaoOperacional.ATIVO;
+        }
+    }
+
+    /**
+     * Define se o veículo é controlado por km ou por horas. Com leituras válidas, a unidade
+     * só muda por uma troca de painel ({@link #trocarPainel}), para o histórico não misturar unidades.
+     */
+    public void definirUnidadeMedicao(UnidadeMedicao unidade, boolean possuiLeiturasValidas) {
+        if (unidade == null || unidade == this.unidadeMedicao) return;
+        if (possuiLeiturasValidas) {
+            throw new InvarianteVioladaException(
+                    "O veículo já tem leituras. Para mudar entre km e horas, registre uma troca de painel.");
+        }
+        this.unidadeMedicao = unidade;
+    }
+
+    /** A troca de painel registrada no livro-razão pode trazer a unidade nova. */
+    public void trocarPainel(UnidadeMedicao unidadeNova) {
+        if (!isAtivo()) {
+            throw new InvarianteVioladaException("O veículo " + placa + " está desativado.");
+        }
+        this.unidadeMedicao = Objects.requireNonNull(unidadeNova, "A unidade é obrigatória");
+    }
+
     public boolean isLocado() {
         return regime == RegimeVeiculo.LOCADO;
     }
@@ -174,6 +246,25 @@ public class FichaVeiculo extends BaseEntity {
         this.custoMensalLocacao = dados.custoMensalLocacao();
         this.inicioLocacao = dados.inicioLocacao();
         this.fimLocacao = dados.fimLocacao();
+    }
+
+    /**
+     * A sincronização da telemetria casou um rastreador com o veículo: preenche o provedor e o id
+     * na ficha quando ainda estão vazios (o que o gestor informou não é sobrescrito).
+     *
+     * @return se a ficha mudou
+     */
+    public boolean associarRastreador(ProvedorTelemetria provedor, String rastreador) {
+        if (this.provedorTelemetria != null || this.idRastreador != null || provedor == null) {
+            return false;
+        }
+        String id = Textos.opcional(rastreador, 80);
+        if (id == null) {
+            return false;
+        }
+        this.provedorTelemetria = provedor;
+        this.idRastreador = id;
+        return true;
     }
 
     private void definirTelemetria(ProvedorTelemetria provedor, String rastreador) {

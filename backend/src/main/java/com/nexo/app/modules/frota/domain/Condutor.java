@@ -92,15 +92,9 @@ public class Condutor extends BaseEntity {
 
     /** CNH vencida ou de categoria insuficiente impede assumir o veículo. */
     public void exigirHabilitadoPara(CategoriaCnh exigida, LocalDate data) {
-        if (cnhValidade == null) {
-            throw new InvarianteVioladaException("O condutor não tem CNH registrada.");
-        }
-        if (isCnhVencidaEm(data)) {
-            throw new InvarianteVioladaException("A CNH do condutor está vencida desde " + cnhValidade + ".");
-        }
-        if (cnhCategoria != null && !cnhCategoria.habilita(exigida)) {
-            throw new InvarianteVioladaException(
-                    "A CNH categoria " + cnhCategoria + " não habilita veículos que exigem categoria " + exigida + ".");
+        var aptidao = AptidaoConducao.avaliar(this, exigida, data);
+        if (!aptidao.isApto()) {
+            throw new InvarianteVioladaException(aptidao.mensagem());
         }
     }
 

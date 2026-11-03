@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import {
   CesAutocompleteComponent,
@@ -228,6 +229,8 @@ export class FrotaCondutoresComponent {
   private readonly lookups = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(CesConfirmationService);
+  private readonly rota = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   protected readonly acesso = acessoFrota();
 
   protected readonly tom: Record<string, CesTone> = TOM_VENCIMENTO;
@@ -321,8 +324,23 @@ export class FrotaCondutoresComponent {
 
   constructor() {
     this.frota.opcoes().subscribe({ next: (o) => this.opcoes.set(o), error: () => undefined });
+    this.abrirCondutorDoLink();
     effect(() => {
       if (!this.formularioAberto()) untracked(() => this.tentouSalvar.set(false));
+    });
+  }
+
+  /**
+   * Aberta com ?condutor=<colaborador> (o mapa da frota aponta a CNH vencida de quem dirige): abre
+   * a CNH desse condutor para atualizar, ou o histórico de veículos para quem só consulta.
+   */
+  private abrirCondutorDoLink(): void {
+    const id = this.rota.snapshot.queryParamMap.get('condutor');
+    if (!id) return;
+    void this.router.navigate([], { relativeTo: this.rota, queryParams: { condutor: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    this.frota.buscarCondutor(id).subscribe({
+      next: (c) => (this.acesso.editarCondutor() ? this.editar(c) : this.abrirHistorico(c)),
+      error: (e) => this.notificacoes.error(getErrorMessage(e))
     });
   }
 

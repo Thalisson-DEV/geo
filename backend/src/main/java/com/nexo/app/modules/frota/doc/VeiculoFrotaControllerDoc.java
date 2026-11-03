@@ -1,9 +1,11 @@
 package com.nexo.app.modules.frota.doc;
 
+import com.nexo.app.modules.frota.application.dto.UsoFrotaDtos.UsoVeiculoResponse;
 import com.nexo.app.modules.frota.application.dto.AcoplamentoImplementoResponse;
 import com.nexo.app.modules.frota.application.dto.FichaVeiculoFilter;
 import com.nexo.app.modules.frota.application.dto.LeituraOdometroResponse;
 import com.nexo.app.modules.frota.application.dto.RegistrarLeituraRequest;
+import com.nexo.app.modules.frota.application.dto.TrocaPainelRequest;
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaDetalheResponse;
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaRequest;
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaResumoResponse;
@@ -60,4 +62,16 @@ public interface VeiculoFrotaControllerDoc {
     @ApiResponse(responseCode = "201", description = "Leitura registrada")
     @ApiResponse(responseCode = "422", description = "Leitura incoerente com o histórico")
     ResponseEntity<LeituraOdometroResponse> registrarLeitura(UUID idVeiculo, RegistrarLeituraRequest request);
+
+    @Operation(summary = "Registrar troca de painel",
+            description = "Fecha o painel antigo com o último valor e abre o novo. As leituras seguintes só são comparadas "
+                    + "com o painel novo, e o acumulado soma o que o antigo rodou. Também é o jeito de mudar entre km e horas "
+                    + "num veículo que já tem leituras.")
+    @ApiResponse(responseCode = "201", description = "Troca registrada")
+    @ApiResponse(responseCode = "422", description = "Troca antes da última leitura ou valores incoerentes")
+    ResponseEntity<LeituraOdometroResponse> trocarPainel(UUID idVeiculo, TrocaPainelRequest request);
+
+    @Operation(summary = "Uso do veículo pela telemetria",
+            description = "Nos últimos 7, 30 ou 90 dias: km, uso fora do expediente (com as saídas), motor ligado parado e custo por km.")
+    ResponseEntity<UsoVeiculoResponse> uso(UUID idVeiculo, Integer dias);
 }

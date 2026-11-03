@@ -1,6 +1,7 @@
 package com.nexo.app.modules.frota.application.usecases;
 
 import com.nexo.app.modules.frota.domain.AlertaVencimento;
+import com.nexo.app.modules.frota.domain.Apolice;
 import com.nexo.app.modules.frota.domain.Condutor;
 import com.nexo.app.modules.frota.domain.DocumentoFrota;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
@@ -8,10 +9,12 @@ import com.nexo.app.modules.frota.domain.Implemento;
 import com.nexo.app.modules.frota.domain.TipoAlvoAlerta;
 import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import com.nexo.app.modules.frota.infrastructure.persistence.AlertaVencimentoRepository;
+import com.nexo.app.modules.frota.infrastructure.persistence.ApoliceRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.CondutorRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.DocumentoFrotaRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.FichaVeiculoRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.ImplementoRepository;
+import com.nexo.app.modules.financeiro.FinanceiroApi;
 import com.nexo.app.shared.domain.events.FrotaVencimentoProximoEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +32,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Cruza documentos e CNHs com as faixas de aviso e publica um evento por alvo e faixa.
+ * Cruza documentos, CNHs e apólices com as faixas de aviso e publica um evento por alvo e faixa.
  *
  * <p>Só a faixa mais urgente já alcançada é avisada: um documento cadastrado já vencendo
  * em 5 dias gera um aviso (faixa 7), não três (30, 15 e 7). A memória em
@@ -45,8 +48,11 @@ public class AlertaVencimentoFrotaUseCases {
     private final CondutorRepository condutorRepository;
     private final FichaVeiculoRepository fichaRepository;
     private final ImplementoRepository implementoRepository;
+    private final ApoliceRepository apoliceRepository;
+    private final ApoliceUseCases apolices;
     private final ParametrosFrotaUseCases parametros;
     private final ReferenciasFrota referencias;
+    private final FinanceiroApi financeiro;
     private final ApplicationEventPublisher eventPublisher;
 
     /** @return quantidade de avisos publicados */
@@ -55,7 +61,8 @@ public class AlertaVencimentoFrotaUseCases {
         List<Integer> faixas = parametros.obter().faixasAlerta();
         if (faixas.isEmpty()) return 0;
         LocalDate limite = hoje.plusDays(faixas.get(0));
-        int avisos = processarDocumentos(faixas, hoje, limite) + processarCnhs(faixas, hoje, limite);
+        int avisos = processarDocumentos(faixas, hoje, limite) + processarCnhs(faixas, hoje, limite)
+                + processarApolices(faixas, hoje, limite);
         if (avisos > 0) {
             log.info("Frota: {} aviso(s) de vencimento publicados para {}", avisos, hoje);
         }
@@ -105,6 +112,26 @@ public class AlertaVencimentoFrotaUseCases {
             String nome = nomes.getOrDefault(condutor.getIdColaborador(), "condutor");
             if (avisar(TipoAlvoAlerta.CNH, condutor.getId(), condutor.getCnhValidade(), faixas, hoje,
                     "CNH", nome, "/frota/condutores")) {
+                avisos++;
+            }
+        }
+        return avisos;
+    }
+
+    /** Fim da vigência das apólices ativas; a seguradora entra no texto do aviso. */
+    private int processarApolices(List<Integer> faixas, LocalDate hoje, LocalDate limite) {
+        List<Apolice> vencendo = apoliceRepository.findAllByAtivoTrueAndVigenciaFimLessThanEqual(limite);
+        if (vencendo.isEmpty()) return 0;
+        // A renovação já cadastrada (cobrindo os mesmos veículos no dia seguinte) encerra o aviso.
+        var renovadas = apolices.renovacoes(vencendo);
+        List<Apolice> lista = vencendo.stream().filter(a -> !renovadas.containsKey(a.getId())).toList();
+        if (lista.isEmpty()) return 0;
+        Map<UUID, String> seguradoras = financeiro.nomesFornecedores(lista.stream().map(Apolice::getIdSeguradora).distinct().toList());
+        int avisos = 0;
+        for (Apolice apolice : lista) {
+            String seguradora = seguradoras.getOrDefault(apolice.getIdSeguradora(), "seguradora");
+            if (avisar(TipoAlvoAlerta.APOLICE, apolice.getId(), apolice.getVigenciaFim(), faixas, hoje,
+                    apolice.descricao(), seguradora, "/frota/seguros?apolice=" + apolice.getId())) {
                 avisos++;
             }
         }

@@ -5,6 +5,7 @@ import com.nexo.app.modules.frota.application.dto.FichaVeiculoFilter;
 import com.nexo.app.modules.frota.application.dto.LeituraOdometroFilter;
 import com.nexo.app.modules.frota.application.dto.LeituraOdometroResponse;
 import com.nexo.app.modules.frota.application.dto.RegistrarLeituraRequest;
+import com.nexo.app.modules.frota.application.dto.TrocaPainelRequest;
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaDetalheResponse;
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaRequest;
 import com.nexo.app.modules.frota.application.dto.VeiculoFrotaResumoResponse;
@@ -29,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import com.nexo.app.modules.frota.application.dto.UsoFrotaDtos.UsoVeiculoResponse;
+import com.nexo.app.modules.frota.application.usecases.UsoFrotaUseCases;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +49,7 @@ public class VeiculoFrotaController implements VeiculoFrotaControllerDoc {
     private final VinculoCondutorUseCases vinculos;
     private final ImplementoUseCases implementos;
     private final OdometroUseCases odometro;
+    private final UsoFrotaUseCases uso;
 
     @Override
     @GetMapping
@@ -75,6 +79,13 @@ public class VeiculoFrotaController implements VeiculoFrotaControllerDoc {
     public ResponseEntity<VeiculoFrotaDetalheResponse> atualizar(@PathVariable UUID idVeiculo,
                                                                  @Valid @RequestBody VeiculoFrotaRequest request) {
         return ResponseEntity.ok(veiculos.atualizar(idVeiculo, request));
+    }
+
+    @Override
+    @GetMapping("/{idVeiculo}/uso")
+    @PreAuthorize("hasAuthority('frota:veiculo:read')")
+    public ResponseEntity<UsoVeiculoResponse> uso(@PathVariable UUID idVeiculo, @RequestParam(required = false) Integer dias) {
+        return ResponseEntity.ok(uso.usoDoVeiculo(idVeiculo, dias));
     }
 
     @Override
@@ -123,5 +134,13 @@ public class VeiculoFrotaController implements VeiculoFrotaControllerDoc {
     public ResponseEntity<LeituraOdometroResponse> registrarLeitura(@PathVariable UUID idVeiculo,
                                                                     @Valid @RequestBody RegistrarLeituraRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(odometro.registrarManual(idVeiculo, request));
+    }
+
+    @Override
+    @PostMapping("/{idVeiculo}/odometro/troca-painel")
+    @PreAuthorize("hasAuthority('frota:odometro:write')")
+    public ResponseEntity<LeituraOdometroResponse> trocarPainel(@PathVariable UUID idVeiculo,
+                                                                @Valid @RequestBody TrocaPainelRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(odometro.trocarPainel(idVeiculo, request));
     }
 }

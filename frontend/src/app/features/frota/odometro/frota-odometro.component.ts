@@ -26,7 +26,9 @@ import {
   TOM_LEITURA,
   contar,
   formatarMedida,
-  formatarPlaca
+  formatarPlaca,
+  formatarMedicao,
+  rotuloOrigemLeitura
 } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
@@ -111,9 +113,9 @@ import { FrotaJustificativaDrawerComponent } from '../shared/frota-justificativa
         </ng-template>
         <ng-template cesCell="lidoEm" let-row>{{ row.lidoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
         <ng-template cesCell="km" let-row>
-          <span class="ces-cell-strong ces-cell-num">{{ medida(row.km, 'km') }}</span>
+          <span class="ces-cell-strong ces-cell-num">{{ medicao(row.km, row.unidade) }}</span>
           @if (row.kmAnterior != null) {
-            <span class="ces-cell-muted">Anterior: {{ medida(row.kmAnterior, 'km') }}</span>
+            <span class="ces-cell-muted">{{ row.tipo === 'TROCA_PAINEL' ? 'Painel antigo' : 'Anterior' }}: {{ medicao(row.kmAnterior, row.unidade) }}</span>
           }
         </ng-template>
         <ng-template cesCell="situacao" let-row>
@@ -207,19 +209,20 @@ export class FrotaOdometroComponent {
   protected readonly descricaoAcao = computed(() => {
     const l = this.selecionada();
     if (!l) return undefined;
-    return `${formatarPlaca(l.placa)}: leitura de ${l.km.toLocaleString('pt-BR')} km.`;
+    return `${formatarPlaca(l.placa)}: leitura de ${formatarMedicao(l.km, l.unidade)}.`;
   });
 
   protected readonly colunas: CesDataTableColumn<LeituraOdometro>[] = [
     { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (l) => l.placa, display: (l) => l.placa ?? '' },
     { key: 'lidoEm', header: 'Data', type: 'custom', priority: 1, sortField: 'lidoEm', value: (l) => l.lidoEm, display: (l) => l.lidoEm },
-    { key: 'km', header: 'KM', type: 'custom', sortField: 'km', value: (l) => l.km, display: (l) => formatarMedida(l.km, 'km') },
-    { key: 'origem', header: 'Origem', sortField: 'origem', display: (l) => ROTULO_ORIGEM_LEITURA[l.origem] },
+    { key: 'km', header: 'KM / horas', type: 'custom', sortField: 'km', value: (l) => l.km, display: (l) => formatarMedicao(l.km, l.unidade) },
+    { key: 'origem', header: 'Origem', sortField: 'origem', display: (l) => rotuloOrigemLeitura(l) },
     { key: 'situacao', header: 'Situação', type: 'custom', sortField: 'situacao', value: (l) => l.situacao, display: (l) => `${ROTULO_LEITURA[l.situacao]} ${l.motivoSituacao ?? ''}` },
     { key: 'registradoPor', header: 'Registrado por', display: (l) => l.registradoPor ?? '—' }
   ];
   protected readonly chave = (l: LeituraOdometro) => l.id;
-  protected readonly rotuloLinha = (l: LeituraOdometro) => `leitura de ${formatarMedida(l.km, 'km')} de ${formatarPlaca(l.placa)}`;
+  protected readonly rotuloLinha = (l: LeituraOdometro) => `leitura de ${formatarMedicao(l.km, l.unidade)} de ${formatarPlaca(l.placa)}`;
+  protected readonly medicao = formatarMedicao;
 
   protected pedir(leitura: LeituraOdometro, acao: 'anular' | 'confirmar'): void {
     this.selecionada.set(leitura);

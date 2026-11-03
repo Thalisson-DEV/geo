@@ -37,7 +37,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ConfiguracaoFrotaController implements ConfiguracaoFrotaControllerDoc {
 
-    private static final String LEITURA = "hasAnyAuthority('frota:veiculo:read', 'frota:condutor:read', 'frota:documento:read')";
+    private static final String LEITURA = "hasAnyAuthority('frota:veiculo:read', 'frota:condutor:read', 'frota:documento:read', 'frota:os:read')";
 
     private final OpcoesFrotaUseCases opcoes;
     private final ParametrosFrotaUseCases parametros;

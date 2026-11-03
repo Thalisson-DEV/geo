@@ -4,6 +4,18 @@ import { Observable, shareReplay } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import {
+  AbrirOrdemServicoRequest,
+  ConcluirOrdemServicoRequest,
+  EditarOrdemServicoRequest,
+  FiltroOrdensServico,
+  FornecedorFrota,
+  ItemManutencao,
+  ItemManutencaoRequest,
+  OrdemServico,
+  OrdemServicoDetalhe,
+  PainelOrdensServico,
+  PreenchimentoFinanceiro,
+  PreviaRepeticao,
   AcoplamentoImplemento,
   AcoplarImplementoRequest,
   Condutor,
@@ -20,7 +32,14 @@ import {
   LeituraOdometro,
   OpcoesFrota,
   ParametrosFrota,
+  AgendaFrota,
+  DocumentoFiscalOrdemServico,
+  DocumentoFiscalOrdemServicoRequest,
+  TipoEventoAgendaFrota,
+  PecaOrdemServicoRequest,
   RegistrarLeituraRequest,
+  ServicoOrdemServicoRequest,
+  TrocaPainelRequest,
   TipoImplemento,
   TipoImplementoRequest,
   TipoVeiculo,
@@ -149,6 +168,10 @@ export class FrotaService {
     return this.http.post<LeituraOdometro>(`${this.url}/veiculos/${idVeiculo}/odometro`, request);
   }
 
+  trocarPainel(idVeiculo: string, request: TrocaPainelRequest): Observable<LeituraOdometro> {
+    return this.http.post<LeituraOdometro>(`${this.url}/veiculos/${idVeiculo}/odometro/troca-painel`, request);
+  }
+
   // ── Odômetro ──────────────────────────────────────────────────────────────
   listarLeituras(filtro: FiltroLeiturasOdometro, pagina: PaginaFrota = {}): Observable<PagedResponse<LeituraOdometro>> {
     return this.http.get<PagedResponse<LeituraOdometro>>(`${this.url}/odometro`, {
@@ -202,6 +225,10 @@ export class FrotaService {
     });
   }
 
+  buscarCondutor(idColaborador: string): Observable<Condutor> {
+    return this.http.get<Condutor>(`${this.url}/condutores/${idColaborador}`);
+  }
+
   registrarCnh(idColaborador: string, request: CondutorRequest): Observable<Condutor> {
     return this.http.put<Condutor>(`${this.url}/condutores/${idColaborador}`, request);
   }
@@ -246,6 +273,150 @@ export class FrotaService {
 
   excluirDocumento(id: string): Observable<void> {
     return this.http.delete<void>(`${this.url}/documentos/${id}`);
+  }
+
+  // ── Itens de manutenção ───────────────────────────────────────────────────
+  itensManutencao(apenasAtivos = false): Observable<PagedResponse<ItemManutencao>> {
+    return this.http.get<PagedResponse<ItemManutencao>>(`${this.url}/itens-manutencao`, {
+      params: this.params({ ativo: apenasAtivos ? true : null }, { ...PAGINA_OPCOES, sort: ['nome'] })
+    });
+  }
+
+  salvarItemManutencao(request: ItemManutencaoRequest, id?: string | null): Observable<ItemManutencao> {
+    return id
+      ? this.http.put<ItemManutencao>(`${this.url}/itens-manutencao/${id}`, request)
+      : this.http.post<ItemManutencao>(`${this.url}/itens-manutencao`, request);
+  }
+
+  alternarItemManutencao(item: ItemManutencao): Observable<void> {
+    return item.ativo
+      ? this.http.delete<void>(`${this.url}/itens-manutencao/${item.id}`)
+      : this.http.put<void>(`${this.url}/itens-manutencao/${item.id}/ativar`, {});
+  }
+
+  // ── Ordens de serviço ─────────────────────────────────────────────────────
+  listarOrdensServico(filtro: FiltroOrdensServico, pagina: PaginaFrota = {}): Observable<PagedResponse<OrdemServico>> {
+    return this.http.get<PagedResponse<OrdemServico>>(`${this.url}/ordens-servico`, {
+      params: this.params(filtro, pagina)
+    });
+  }
+
+  painelOrdensServico(idsBase: string[] = []): Observable<PainelOrdensServico> {
+    return this.http.get<PainelOrdensServico>(`${this.url}/ordens-servico/painel`, {
+      params: this.params({ idsBase }, {})
+    });
+  }
+
+  /** Calendário: OS agendadas, previsões de término e vencimentos no período (até 62 dias). */
+  agenda(de: string, ate: string, idsBase: string[] = [], tipos: TipoEventoAgendaFrota[] = []): Observable<AgendaFrota> {
+    return this.http.get<AgendaFrota>(`${this.url}/agenda`, { params: this.params({ de, ate, idsBase, tipos }, {}) });
+  }
+
+  detalharOrdemServico(id: string): Observable<OrdemServicoDetalhe> {
+    return this.http.get<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}`);
+  }
+
+  abrirOrdemServico(request: AbrirOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico`, request);
+  }
+
+  editarOrdemServico(id: string, request: EditarOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.put<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}`, request);
+  }
+
+  agendarOrdemServico(id: string, agendadaPara: string, local: string | null): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/agendamento`, { agendadaPara, local });
+  }
+
+  iniciarOrdemServico(id: string, inicioReal: string, previsaoTermino: string | null): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/inicio`, { inicioReal, previsaoTermino });
+  }
+
+  alterarPrevisaoOrdemServico(id: string, previsaoTermino: string): Observable<OrdemServicoDetalhe> {
+    return this.http.put<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/previsao`, { previsaoTermino });
+  }
+
+  lancarServicoOs(id: string, request: ServicoOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/servicos`, request);
+  }
+
+  alterarServicoOs(id: string, idServico: string, request: ServicoOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.put<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/servicos/${idServico}`, request);
+  }
+
+  excluirServicoOs(id: string, idServico: string): Observable<OrdemServicoDetalhe> {
+    return this.http.delete<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/servicos/${idServico}`);
+  }
+
+  definirMecanicoOs(id: string, idMecanico: string | null, mecanicoNome: string | null): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/servicos/mecanico`, { idMecanico, mecanicoNome });
+  }
+
+  lancarPecaOs(id: string, request: PecaOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/pecas`, request);
+  }
+
+  alterarPecaOs(id: string, idPeca: string, request: PecaOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.put<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/pecas/${idPeca}`, request);
+  }
+
+  excluirPecaOs(id: string, idPeca: string): Observable<OrdemServicoDetalhe> {
+    return this.http.delete<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/pecas/${idPeca}`);
+  }
+
+  definirAjustesOs(id: string, desconto: number | null, acrescimo: number | null): Observable<OrdemServicoDetalhe> {
+    return this.http.put<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/ajustes`, { desconto, acrescimo });
+  }
+
+  documentosFiscaisOs(id: string): Observable<DocumentoFiscalOrdemServico[]> {
+    return this.http.get<DocumentoFiscalOrdemServico[]>(`${this.url}/ordens-servico/${id}/documentos-fiscais`);
+  }
+
+  criarDocumentoFiscalOs(id: string, request: DocumentoFiscalOrdemServicoRequest, arquivo?: File | null): Observable<DocumentoFiscalOrdemServico> {
+    const corpo = new FormData();
+    corpo.append('dados', new Blob([JSON.stringify(request)], { type: 'application/json' }));
+    if (arquivo) corpo.append('arquivo', arquivo, arquivo.name);
+    return this.http.post<DocumentoFiscalOrdemServico>(`${this.url}/ordens-servico/${id}/documentos-fiscais`, corpo);
+  }
+
+  anexarArquivoDocumentoFiscalOs(id: string, idDocumento: string, arquivo: File): Observable<DocumentoFiscalOrdemServico> {
+    const corpo = new FormData();
+    corpo.append('arquivo', arquivo, arquivo.name);
+    return this.http.post<DocumentoFiscalOrdemServico>(`${this.url}/ordens-servico/${id}/documentos-fiscais/${idDocumento}/arquivo`, corpo);
+  }
+
+  baixarArquivoDocumentoFiscalOs(id: string, idDocumento: string): Observable<Blob> {
+    return this.http.get(`${this.url}/ordens-servico/${id}/documentos-fiscais/${idDocumento}/arquivo`, { responseType: 'blob' });
+  }
+
+  excluirDocumentoFiscalOs(id: string, idDocumento: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/ordens-servico/${id}/documentos-fiscais/${idDocumento}`);
+  }
+
+  concluirOrdemServico(id: string, request: ConcluirOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/conclusao`, request);
+  }
+
+  cancelarOrdemServico(id: string, justificativa: string): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/cancelamento`, { justificativa });
+  }
+
+  alterarParadaOrdemServico(id: string, parado: boolean, instante: string | null = null): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/parada`, { parado, instante });
+  }
+
+  preenchimentoFinanceiro(id: string): Observable<PreenchimentoFinanceiro> {
+    return this.http.get<PreenchimentoFinanceiro>(`${this.url}/ordens-servico/${id}/preenchimento-financeiro`);
+  }
+
+  previaRepeticoes(idVeiculo: string, idsItem: string[]): Observable<PreviaRepeticao[]> {
+    return this.http.get<PreviaRepeticao[]>(`${this.url}/ordens-servico/repeticoes`, {
+      params: this.params({ idVeiculo, idsItem }, {})
+    });
+  }
+
+  fornecedoresOficina(): Observable<FornecedorFrota[]> {
+    return this.http.get<FornecedorFrota[]>(`${this.url}/ordens-servico/fornecedores`);
   }
 
   private params(filtro: object, pagina: PaginaFrota): HttpParams {

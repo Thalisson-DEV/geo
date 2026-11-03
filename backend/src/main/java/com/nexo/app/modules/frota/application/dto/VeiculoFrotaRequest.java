@@ -4,6 +4,7 @@ import com.nexo.app.modules.frota.domain.Combustivel;
 import com.nexo.app.modules.frota.domain.ProvedorTelemetria;
 import com.nexo.app.modules.frota.domain.RegimeVeiculo;
 import com.nexo.app.modules.frota.domain.SituacaoOperacional;
+import com.nexo.app.modules.frota.domain.UnidadeMedicao;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,19 @@ public record VeiculoFrotaRequest(
         LocalDate fimLocacao,
         ProvedorTelemetria provedorTelemetria,
         @Size(max = 80) String idRastreador,
-        @Size(max = 1000) String observacao
+        @Size(max = 1000) String observacao,
+        /** Nula mantém a atual. Com leituras, só muda por troca de painel. */
+        UnidadeMedicao unidadeMedicao
 ) {
+    public VeiculoFrotaRequest(String placa, String modelo, String fabricante, UUID idBaseOperacional,
+                               UUID idTipoVeiculo, Integer anoFabricacao, Integer anoModelo, String chassi,
+                               String renavam, String cor, Combustivel combustivel, BigDecimal capacidadeTanqueLitros,
+                               BigDecimal consumoReferenciaKmL, SituacaoOperacional situacao, RegimeVeiculo regime,
+                               String locadora, BigDecimal custoMensalLocacao, LocalDate inicioLocacao,
+                               LocalDate fimLocacao, ProvedorTelemetria provedorTelemetria, String idRastreador,
+                               String observacao) {
+        this(placa, modelo, fabricante, idBaseOperacional, idTipoVeiculo, anoFabricacao, anoModelo, chassi, renavam,
+                cor, combustivel, capacidadeTanqueLitros, consumoReferenciaKmL, situacao, regime, locadora,
+                custoMensalLocacao, inicioLocacao, fimLocacao, provedorTelemetria, idRastreador, observacao, null);
+    }
 }

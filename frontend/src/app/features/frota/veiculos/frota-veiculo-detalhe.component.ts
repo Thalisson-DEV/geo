@@ -22,24 +22,36 @@ import {
   CesTone,
   cesUrlParam
 } from '@ces/ui';
-import { forkJoin, map } from 'rxjs';
+import { forkJoin, map, of } from 'rxjs';
 import {
   AcoplamentoImplemento,
   DocumentoFrota,
+  OrdemServico,
+  OrdemServicoDetalhe,
+  ROTULO_CRITICIDADE,
+  ROTULO_SITUACAO_OS,
+  ROTULO_TIPO_MANUTENCAO,
+  TOM_CRITICIDADE,
+  TOM_SITUACAO_OS,
+  rotuloOs,
   LeituraOdometro,
   OpcoesFrota,
   ROTULO_LEITURA,
   ROTULO_ORIGEM_LEITURA,
   ROTULO_REGIME,
   ROTULO_SITUACAO,
+  ROTULO_UNIDADE,
   TOM_LEITURA,
   TOM_SITUACAO,
   TipoVeiculo,
   VeiculoFrotaDetalhe,
   VinculoCondutor,
   contar,
+  formatarMedicao,
   formatarMedida,
-  formatarPlaca
+  formatarPlaca,
+  rotuloOrigemLeitura,
+  rotuloValorAtual
 } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { NavigationHistoryService } from '../../../core/navigation';
@@ -49,10 +61,21 @@ import { FrotaDocumentosTabelaComponent } from '../documentos/frota-documentos-t
 import { acessoFrota } from '../shared/frota-acesso';
 import { FrotaJustificativaDrawerComponent } from '../shared/frota-justificativa-drawer.component';
 import { FrotaLancarKmComponent } from './frota-lancar-km.component';
+import { FrotaTrocarPainelComponent } from './frota-trocar-painel.component';
 import { FrotaVeiculoFormComponent } from './frota-veiculo-form.component';
 import { FrotaVincularCondutorComponent } from './frota-vincular-condutor.component';
+import { FrotaOrdemServicoFormComponent } from '../ordens-servico/frota-ordem-servico-form.component';
+import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
+import { FrotaVeiculoDespesasComponent } from '../despesas/frota-veiculo-despesas.component';
+import { FrotaVeiculoSeguroComponent } from '../seguros/frota-veiculo-seguro.component';
+import { FrotaVeiculoPneusComponent } from '../pneus/frota-veiculo-pneus.component';
+import { FrotaVeiculoSinistrosComponent } from '../seguros/frota-veiculo-sinistros.component';
+import { FrotaVeiculoPreventivaComponent } from '../preventiva/frota-veiculo-preventiva.component';
+import { FrotaVeiculoTelemetriaComponent } from '../telemetria/frota-veiculo-telemetria.component';
+import { PreventivaVeiculo } from '../../../core/models/frota-preventiva.models';
+import { FrotaPreventivaService } from '../../../core/services/frota-preventiva.service';
 
-const ABAS = ['ficha', 'condutores', 'implementos', 'documentos', 'odometro'] as const;
+const ABAS = ['ficha', 'manutencoes', 'preventiva', 'pneus', 'despesas', 'seguro', 'sinistros', 'condutores', 'implementos', 'documentos', 'odometro', 'telemetria'] as const;
 type Aba = (typeof ABAS)[number];
 
 @Component({
@@ -77,8 +100,16 @@ type Aba = (typeof ABAS)[number];
     FrotaDocumentosTabelaComponent,
     FrotaJustificativaDrawerComponent,
     FrotaLancarKmComponent,
+    FrotaTrocarPainelComponent,
     FrotaVeiculoFormComponent,
-    FrotaVincularCondutorComponent
+    FrotaVincularCondutorComponent,
+    FrotaOrdemServicoFormComponent,
+    FrotaVeiculoDespesasComponent,
+    FrotaVeiculoSeguroComponent,
+    FrotaVeiculoPneusComponent,
+    FrotaVeiculoSinistrosComponent,
+    FrotaVeiculoPreventivaComponent,
+    FrotaVeiculoTelemetriaComponent
   ],
   template: `
     <div class="ces-page">
@@ -101,8 +132,11 @@ type Aba = (typeof ABAS)[number];
             }
           </ng-container>
           <ng-container actions>
+            @if (acesso.editarOs() && v.ativo && v.situacao !== 'BAIXADO') {
+              <ces-button variant="outline" icon="pi pi-wrench" label="Abrir OS" (pressed)="osAberta.set(true)"></ces-button>
+            }
             @if (acesso.lancarKm() && v.ativo) {
-              <ces-button variant="outline" icon="pi pi-gauge" label="Lançar KM" (pressed)="lancarKmAberto.set(true)"></ces-button>
+              <ces-button variant="outline" icon="pi pi-gauge" [label]="rotuloLancar(v)" (pressed)="lancarKmAberto.set(true)"></ces-button>
             }
             @if (acesso.editarCondutor() && v.ativo && v.situacao !== 'BAIXADO') {
               <ces-button variant="outline" icon="pi pi-user-edit" label="Trocar condutor" (pressed)="vincularAberto.set(true)"></ces-button>
@@ -118,10 +152,13 @@ type Aba = (typeof ABAS)[number];
           <button type="button" class="ces-kpi" data-tone="info" (click)="irPara('odometro')">
             <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-gauge"></i></span>
             <span class="ces-kpi__body">
-              <span class="ces-kpi__label">KM atual</span>
-              <span class="ces-kpi__value">{{ medida(v.kmAtual, 'km', 0, 'Sem leitura') }}</span>
+              <span class="ces-kpi__label">{{ rotuloValorAtual(v.unidadeMedicao) }}</span>
+              <span class="ces-kpi__value">{{ v.kmAtual != null ? medicao(v.kmAtual, v.unidadeMedicao) : 'Sem leitura' }}</span>
               <span class="ces-kpi__detail">
-                {{ v.kmAtualEm ? 'Leitura de ' + (v.kmAtualEm | date: 'dd/MM/yyyy HH:mm') : 'Lance a primeira leitura do odômetro' }}
+                @if (v.acumulado != null && v.acumulado !== v.kmAtual) {
+                  Acumulado {{ medicao(v.acumulado, v.unidadeMedicao) }} ·
+                }
+                {{ v.kmAtualEm ? 'Leitura de ' + (v.kmAtualEm | date: 'dd/MM/yyyy HH:mm') : 'Lance a primeira leitura do ' + (v.unidadeMedicao === 'HORAS' ? 'horímetro' : 'odômetro') }}
               </span>
             </span>
             <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
@@ -151,7 +188,7 @@ type Aba = (typeof ABAS)[number];
             (click)="irPara('odometro', v.leiturasInconsistentes > 0)">
             <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-exclamation-triangle"></i></span>
             <span class="ces-kpi__body">
-              <span class="ces-kpi__label">KM a conferir</span>
+              <span class="ces-kpi__label">Leituras a conferir</span>
               <span class="ces-kpi__value">{{ contar(v.leiturasInconsistentes, 'leitura', 'leituras', 'Nenhuma') }}</span>
               <span class="ces-kpi__detail">Leituras incoerentes com o histórico</span>
             </span>
@@ -172,6 +209,7 @@ type Aba = (typeof ABAS)[number];
                   <div><dt>Combustível</dt><dd>{{ rotuloCombustivel(v.combustivel) }}</dd></div>
                   <div><dt>Tanque</dt><dd>{{ medida(v.capacidadeTanqueLitros, 'L', 2) }}</dd></div>
                   <div><dt>Consumo de referência</dt><dd>{{ medida(v.consumoReferenciaKmL, 'km/l', 2) }}</dd></div>
+                  <div><dt>Controle de uso</dt><dd>{{ rotuloUnidade[v.unidadeMedicao] }}</dd></div>
                   <div><dt>CNH mínima do tipo</dt><dd>{{ v.tipoVeiculo?.categoriaCnhMinima ?? '—' }}</dd></div>
                 </dl>
               </section>
@@ -188,14 +226,78 @@ type Aba = (typeof ABAS)[number];
                 </dl>
               </section>
 
-              <section class="ces-sheet-section" aria-labelledby="ficha-telemetria">
-                <h2 id="ficha-telemetria"><i class="pi pi-wifi" aria-hidden="true"></i> Telemetria e observações</h2>
+              <section class="ces-sheet-section" aria-labelledby="ficha-observacao">
+                <h2 id="ficha-observacao"><i class="pi pi-comment" aria-hidden="true"></i> Observação</h2>
                 <dl class="ces-sheet">
-                  <div><dt>Rastreador</dt><dd>{{ v.provedorTelemetria ? rotuloProvedor(v.provedorTelemetria) + ' · ' + v.idRastreador : 'Não vinculado' }}</dd></div>
                   <div class="ces-sheet__wide"><dt>Observação</dt><dd>{{ v.observacao || '—' }}</dd></div>
                 </dl>
               </section>
             </ces-surface>
+          </ng-template>
+
+          <ng-template cesTabPanel="manutencoes">
+            <ces-data-table
+              title="Ordens de serviço"
+              description="Manutenções do veículo, da mais recente para a mais antiga. Clique numa linha para abrir a OS."
+              storageKey="frota-veiculo-manutencoes"
+              exportFileName="manutencoes"
+              searchPlaceholder="Filtrar nesta lista"
+              rowActionLabel="Abrir OS"
+              [columns]="colunasManutencoes"
+              [rows]="manutencoes()"
+              [rowKey]="chaveOs"
+              [state]="estadoAba(manutencoes())"
+              stateTitle="Nenhuma ordem de serviço"
+              [stateDescription]="acesso.editarOs() ? 'Para registrar uma manutenção, use Abrir OS.' : 'As manutenções do veículo aparecem aqui.'"
+              (rowActivate)="abrirOs($event)"
+            >
+              <ng-container table-actions>
+                @if (acesso.editarOs() && v.ativo && v.situacao !== 'BAIXADO') {
+                  <ces-button size="sm" icon="pi pi-plus" label="Abrir OS" (pressed)="osAberta.set(true)"></ces-button>
+                }
+              </ng-container>
+              <ng-template cesCell="numero" let-row>
+                <span class="ces-cell-strong">{{ rotuloOs(row.numero) }}</span>
+                <span class="ces-cell-muted">{{ row.itens.join(', ') }}</span>
+              </ng-template>
+              <ng-template cesCell="abertaEm" let-row>{{ row.abertaEm | date: 'dd/MM/yyyy' }}</ng-template>
+              <ng-template cesCell="situacao" let-row>
+                <ces-status [tone]="tomSituacaoOs[row.situacao]">{{ rotuloSituacaoOs[row.situacao] }}</ces-status>
+                @if (row.temRepeticao) {
+                  <ces-status tone="warning" icon="pi-replay">Repetição</ces-status>
+                }
+              </ng-template>
+              <ng-template cesCell="criticidade" let-row>
+                <ces-status [tone]="tomCriticidade[row.criticidade]" emphasis="outline">{{ rotuloCriticidade[row.criticidade] }}</ces-status>
+              </ng-template>
+            </ces-data-table>
+          </ng-template>
+
+          <ng-template cesTabPanel="preventiva">
+            <app-frota-veiculo-preventiva [dados]="preventiva()" [carregando]="carregandoPreventiva()" (alterou)="carregar()"></app-frota-veiculo-preventiva>
+          </ng-template>
+
+          <ng-template cesTabPanel="telemetria">
+            <app-frota-veiculo-telemetria [idVeiculo]="v.idVeiculo" [placa]="v.placa"></app-frota-veiculo-telemetria>
+          </ng-template>
+
+          <ng-template cesTabPanel="despesas">
+            <app-frota-veiculo-despesas [veiculo]="{ idVeiculo: v.idVeiculo, placa: v.placa, modelo: v.modelo, idBaseOperacional: v.idBaseOperacional }"
+              [podeLancar]="acesso.editarDespesa() && v.ativo"></app-frota-veiculo-despesas>
+          </ng-template>
+
+          <ng-template cesTabPanel="seguro">
+            <app-frota-veiculo-seguro [veiculo]="{ idVeiculo: v.idVeiculo, placa: v.placa, modelo: v.modelo }"
+              [podeEditar]="acesso.editarSeguro() && v.ativo"></app-frota-veiculo-seguro>
+          </ng-template>
+
+          <ng-template cesTabPanel="pneus">
+            <app-frota-veiculo-pneus [idVeiculo]="v.idVeiculo"></app-frota-veiculo-pneus>
+          </ng-template>
+
+          <ng-template cesTabPanel="sinistros">
+            <app-frota-veiculo-sinistros [veiculo]="{ idVeiculo: v.idVeiculo, placa: v.placa, modelo: v.modelo }"
+              [podeRegistrar]="acesso.editarSinistro() && v.ativo"></app-frota-veiculo-sinistros>
           </ng-template>
 
           <ng-template cesTabPanel="condutores">
@@ -272,8 +374,8 @@ type Aba = (typeof ABAS)[number];
 
           <ng-template cesTabPanel="odometro">
             <ces-data-table
-              title="Leituras de odômetro"
-              description="Toda fonte grava aqui. Leitura incoerente fica marcada para conferência e não conta para o KM atual."
+              [title]="v.unidadeMedicao === 'HORAS' ? 'Leituras de horímetro' : 'Leituras de odômetro'"
+              description="Toda fonte grava aqui. Leitura incoerente fica marcada para conferência e não conta para o valor atual. A troca de painel começa um trecho novo."
               storageKey="frota-veiculo-odometro"
               exportFileName="odometro"
               searchPlaceholder="Filtrar nesta lista"
@@ -284,15 +386,21 @@ type Aba = (typeof ABAS)[number];
               [rowKey]="chaveLeitura"
               [state]="estadoAba(leituras())"
               stateTitle="Nenhuma leitura registrada"
-              stateDescription="Use Lançar KM para registrar a quilometragem do painel."
+              [stateDescription]="'Use ' + rotuloLancar(v) + ' para registrar o valor do painel.'"
             >
               <ng-container table-actions>
                 @if (acesso.lancarKm() && v.ativo) {
-                  <ces-button size="sm" icon="pi pi-plus" label="Lançar KM" (pressed)="lancarKmAberto.set(true)"></ces-button>
+                  <ces-button size="sm" variant="outline" icon="pi pi-sync" label="Trocar painel" (pressed)="trocaPainelAberta.set(true)"></ces-button>
+                  <ces-button size="sm" icon="pi pi-plus" [label]="rotuloLancar(v)" (pressed)="lancarKmAberto.set(true)"></ces-button>
                 }
               </ng-container>
               <ng-template cesCell="lidoEm" let-row>{{ row.lidoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-              <ng-template cesCell="km" let-row><span class="ces-cell-num">{{ medida(row.km, 'km') }}</span></ng-template>
+              <ng-template cesCell="km" let-row>
+                <span class="ces-cell-num">{{ medicao(row.km, row.unidade) }}</span>
+                @if (row.tipo === 'TROCA_PAINEL') {
+                  <span class="ces-cell-muted">Painel antigo: {{ medicao(row.kmAnterior, row.unidade) }}</span>
+                }
+              </ng-template>
               <ng-template cesCell="situacao" let-row>
                 <ces-status [tone]="tomLeitura[row.situacao]">{{ rotuloLeitura[row.situacao] }}</ces-status>
                 @if (row.motivoSituacao || row.justificativaAnulacao) {
@@ -303,10 +411,10 @@ type Aba = (typeof ABAS)[number];
                 @if (acesso.anularKm() && row.situacao !== 'ANULADA') {
                   <span class="ces-table-actions">
                     @if (row.situacao === 'INCONSISTENTE') {
-                      <ces-icon-button icon="pi pi-check" [label]="'Confirmar leitura de ' + medida(row.km, 'km')" tooltip="Confirmar leitura" size="icon-sm"
+                      <ces-icon-button icon="pi pi-check" [label]="'Confirmar leitura de ' + medicao(row.km, row.unidade)" tooltip="Confirmar leitura" size="icon-sm"
                         (pressed)="pedirJustificativa(row, 'confirmar')"></ces-icon-button>
                     }
-                    <ces-icon-button icon="pi pi-ban" [label]="'Anular leitura de ' + medida(row.km, 'km')" tooltip="Anular leitura" size="icon-sm"
+                    <ces-icon-button icon="pi pi-ban" [label]="'Anular leitura de ' + medicao(row.km, row.unidade)" tooltip="Anular leitura" size="icon-sm"
                       (pressed)="pedirJustificativa(row, 'anular')"></ces-icon-button>
                   </span>
                 }
@@ -317,15 +425,20 @@ type Aba = (typeof ABAS)[number];
 
         <app-frota-veiculo-form [(visivel)]="formularioAberto" [veiculo]="v" [opcoes]="opcoes()" [tiposVeiculo]="tiposVeiculo()"
           (salvo)="veiculo.set($event)"></app-frota-veiculo-form>
-        <app-frota-lancar-km [(visivel)]="lancarKmAberto" [idVeiculo]="v.idVeiculo" [placa]="placa(v.placa)" [kmAtual]="v.kmAtual"
+        <app-frota-ordem-servico-form [(visivel)]="osAberta" [idVeiculoFixo]="v.idVeiculo" [opcoes]="opcoes()"
+          (salvo)="aoAbrirOs($event)"></app-frota-ordem-servico-form>
+        <app-frota-lancar-km [(visivel)]="lancarKmAberto" [idVeiculo]="v.idVeiculo" [placa]="placa(v.placa)" [kmAtual]="v.kmAtual" [unidade]="v.unidadeMedicao"
           (registrado)="carregar()"></app-frota-lancar-km>
+        <app-frota-trocar-painel [(visivel)]="trocaPainelAberta" [idVeiculo]="v.idVeiculo" [placa]="placa(v.placa)"
+          [unidadeAtual]="v.unidadeMedicao" [valorAtual]="v.kmAtual" [acumuladoAtual]="v.acumulado"
+          (registrado)="carregar()"></app-frota-trocar-painel>
         <app-frota-vincular-condutor [(visivel)]="vincularAberto" [idVeiculo]="v.idVeiculo" [placa]="placa(v.placa)"
           [condutorAtual]="v.condutorAtual?.condutor ?? null" (vinculado)="carregar()"></app-frota-vincular-condutor>
         <app-frota-documento-form [(visivel)]="documentoAberto" [documento]="documentoEmEdicao()" [idVeiculo]="v.idVeiculo"
           [opcoes]="opcoes()" (salvo)="carregar()"></app-frota-documento-form>
         <app-frota-justificativa-drawer
           [(visivel)]="justificativaAberta"
-          [titulo]="acaoLeitura() === 'anular' ? 'Anular leitura de KM' : 'Confirmar leitura de KM'"
+          [titulo]="acaoLeitura() === 'anular' ? 'Anular leitura' : 'Confirmar leitura'"
           [descricao]="descricaoAcaoLeitura()"
           [rotuloConfirmar]="acaoLeitura() === 'anular' ? 'Anular leitura' : 'Confirmar leitura'"
           [destrutivo]="acaoLeitura() === 'anular'"
@@ -338,6 +451,7 @@ type Aba = (typeof ABAS)[number];
 })
 export class FrotaVeiculoDetalheComponent {
   private readonly frota = inject(FrotaService);
+  private readonly preventivas = inject(FrotaPreventivaService);
   private readonly notificacoes = inject(NotificationService);
   private readonly router = inject(Router);
   protected readonly acesso = acessoFrota();
@@ -356,11 +470,14 @@ export class FrotaVeiculoDetalheComponent {
   protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO;
   protected readonly rotuloRegime = ROTULO_REGIME;
+  protected readonly rotuloUnidade = ROTULO_UNIDADE;
   protected readonly tomLeitura: Record<string, CesTone> = TOM_LEITURA;
   protected readonly rotuloLeitura: Record<string, string> = ROTULO_LEITURA;
   protected readonly placa = formatarPlaca;
   protected readonly medida = formatarMedida;
   protected readonly contar = contar;
+  protected readonly medicao = formatarMedicao;
+  protected readonly rotuloValorAtual = rotuloValorAtual;
 
   protected readonly veiculo = signal<VeiculoFrotaDetalhe | null>(null);
   protected readonly carregando = signal(false);
@@ -370,6 +487,18 @@ export class FrotaVeiculoDetalheComponent {
   protected readonly implementos = signal<AcoplamentoImplemento[]>([]);
   protected readonly documentos = signal<DocumentoFrota[]>([]);
   protected readonly leituras = signal<LeituraOdometro[]>([]);
+  protected readonly manutencoes = signal<OrdemServico[]>([]);
+  protected readonly preventiva = signal<PreventivaVeiculo | null>(null);
+  protected readonly carregandoPreventiva = signal(false);
+  /** Planos vencidos ou próximos sem OS aberta: o número na aba. */
+  protected readonly preventivaPendentes = computed(() =>
+    (this.preventiva()?.controles ?? []).filter((c) => !c.idOrdemServico && c.situacao !== 'EM_DIA').length);
+  protected readonly osAberta = signal(false);
+  protected readonly rotuloOs = rotuloOs;
+  protected readonly tomSituacaoOs: Record<string, CesTone> = TOM_SITUACAO_OS;
+  protected readonly rotuloSituacaoOs: Record<string, string> = ROTULO_SITUACAO_OS;
+  protected readonly tomCriticidade: Record<string, CesTone> = TOM_CRITICIDADE;
+  protected readonly rotuloCriticidade: Record<string, string> = ROTULO_CRITICIDADE;
   protected readonly opcoes = signal<OpcoesFrota | null>(null);
   protected readonly tiposVeiculo = signal<TipoVeiculo[]>([]);
 
@@ -388,6 +517,7 @@ export class FrotaVeiculoDetalheComponent {
   );
   protected readonly formularioAberto = signal(false);
   protected readonly lancarKmAberto = signal(false);
+  protected readonly trocaPainelAberta = signal(false);
   protected readonly vincularAberto = signal(false);
   protected readonly documentoAberto = signal(false);
   protected readonly documentoEmEdicao = signal<DocumentoFrota | null>(null);
@@ -400,10 +530,22 @@ export class FrotaVeiculoDetalheComponent {
     const v = this.veiculo();
     return [
       { value: 'ficha', label: 'Ficha', icon: 'pi pi-id-card' },
+      ...(this.acesso.verOs()
+        ? [{ value: 'manutencoes', label: 'Manutenções', icon: 'pi pi-wrench', badge: this.manutencoes().filter((o) => o.situacao === 'PENDENTE' || o.situacao === 'AGENDADA' || o.situacao === 'EM_ANDAMENTO').length || undefined }]
+        : []),
+      ...(this.acesso.verPreventiva()
+        ? [{ value: 'preventiva', label: 'Preventiva', icon: 'pi pi-calendar-clock', badge: this.preventivaPendentes() || undefined }]
+        : []),
+      ...(this.acesso.verPneu() ? [{ value: 'pneus', label: 'Pneus', icon: 'ces-icon-pneu' }] : []),
+      ...(this.acesso.verDespesa() ? [{ value: 'despesas', label: 'Despesas', icon: 'pi pi-receipt' }] : []),
+      ...(this.acesso.verSeguro() ? [{ value: 'seguro', label: 'Seguro', icon: 'pi pi-shield' }] : []),
+      ...(this.acesso.verSinistro() ? [{ value: 'sinistros', label: 'Sinistros', icon: 'pi pi-exclamation-circle' }] : []),
       { value: 'condutores', label: 'Condutores', icon: 'pi pi-users', badge: this.condutores().length || undefined },
       { value: 'implementos', label: 'Implementos', icon: 'pi pi-link', badge: v?.implementosAcoplados.length || undefined },
       { value: 'documentos', label: 'Documentos', icon: 'pi pi-file', badge: (v?.documentosVencidos ?? 0) + (v?.documentosAVencer ?? 0) || undefined },
-      { value: 'odometro', label: 'Odômetro', icon: 'pi pi-gauge', badge: v?.leiturasInconsistentes || undefined }
+      { value: 'odometro', label: 'Odômetro', icon: 'pi pi-gauge', badge: v?.leiturasInconsistentes || undefined },
+      // O valor continua 'telemetria' para os links já enviados (?aba=telemetria) seguirem abrindo a aba.
+      ...(this.acesso.verTelemetria() ? [{ value: 'telemetria', label: 'Uso', icon: 'pi pi-chart-line' }] : [])
     ];
   });
 
@@ -411,8 +553,8 @@ export class FrotaVeiculoDetalheComponent {
     const l = this.leituraSelecionada();
     if (!l) return undefined;
     return this.acaoLeitura() === 'anular'
-      ? `A leitura de ${l.km.toLocaleString('pt-BR')} km deixa de contar para o KM atual.`
-      : `A leitura de ${l.km.toLocaleString('pt-BR')} km passa a contar como válida.`;
+      ? `A leitura de ${formatarMedicao(l.km, l.unidade)} deixa de contar para o valor atual.`
+      : `A leitura de ${formatarMedicao(l.km, l.unidade)} passa a contar como válida.`;
   });
 
   protected readonly colunasCondutores: CesDataTableColumn<VinculoCondutor>[] = [
@@ -432,12 +574,23 @@ export class FrotaVeiculoDetalheComponent {
 
   protected readonly colunasLeituras: CesDataTableColumn<LeituraOdometro>[] = [
     { key: 'lidoEm', header: 'Data', type: 'custom', priority: 1, value: (r) => r.lidoEm, display: (r) => r.lidoEm },
-    { key: 'km', header: 'KM', type: 'custom', priority: 1, value: (r) => r.km, display: (r) => formatarMedida(r.km, 'km') },
-    { key: 'origem', header: 'Origem', display: (r) => ROTULO_ORIGEM_LEITURA[r.origem] },
+    { key: 'km', header: 'KM / horas', type: 'custom', priority: 1, value: (r) => r.km, display: (r) => formatarMedicao(r.km, r.unidade) },
+    { key: 'origem', header: 'Origem', display: (r) => rotuloOrigemLeitura(r) },
     { key: 'situacao', header: 'Situação', type: 'custom', value: (r) => r.situacao, display: (r) => ROTULO_LEITURA[r.situacao] },
     { key: 'registradoPor', header: 'Registrado por', display: (r) => r.registradoPor ?? '—' }
   ];
 
+  protected readonly colunasManutencoes: CesDataTableColumn<OrdemServico>[] = [
+    { key: 'numero', header: 'OS', type: 'custom', priority: 1, value: (r) => r.numero, display: (r) => `${rotuloOs(r.numero)} ${r.itens.join(', ')}` },
+    { key: 'abertaEm', header: 'Aberta em', type: 'custom', priority: 1, value: (r) => r.abertaEm, display: (r) => r.abertaEm },
+    { key: 'tipoManutencao', header: 'Tipo', display: (r) => ROTULO_TIPO_MANUTENCAO[r.tipoManutencao] },
+    { key: 'criticidade', header: 'Criticidade', type: 'custom', value: (r) => r.criticidade, display: (r) => ROTULO_CRITICIDADE[r.criticidade] },
+    { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (r) => r.situacao, display: (r) => ROTULO_SITUACAO_OS[r.situacao] },
+    { key: 'oficina', header: 'Oficina' },
+    { key: 'valorTotal', header: 'Valor', display: (r) => (r.valorTotal != null ? r.valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '—') }
+  ];
+
+  protected readonly chaveOs = (r: OrdemServico) => r.id;
   protected readonly chaveVinculo = (r: VinculoCondutor) => r.id;
   protected readonly chaveAcoplamento = (r: AcoplamentoImplemento) => r.id;
   protected readonly chaveLeitura = (r: LeituraOdometro) => r.id;
@@ -465,23 +618,40 @@ export class FrotaVeiculoDetalheComponent {
         this.carregando.set(false);
       }
     });
+    this.carregarPreventiva();
     forkJoin({
       condutores: this.frota.historicoCondutoresVeiculo(id),
       implementos: this.frota.historicoImplementosVeiculo(id),
       documentos: this.frota.listarDocumentos({ idVeiculo: id }, PAGINA_OPCOES),
-      leituras: this.frota.leiturasVeiculo(id)
+      leituras: this.frota.leiturasVeiculo(id),
+      manutencoes: this.acesso.verOs()
+        ? this.frota.listarOrdensServico({ idVeiculo: id }, { size: 200, sort: ['abertaEm,desc'] })
+        : of({ content: [] as OrdemServico[] })
     }).subscribe({
       next: (r) => {
         this.condutores.set(r.condutores.content);
         this.implementos.set(r.implementos);
         this.documentos.set(r.documentos.content);
         this.leituras.set(r.leituras.content);
+        this.manutencoes.set(r.manutencoes.content);
         this.carregandoAbas.set(false);
       },
       error: (e) => {
         this.carregandoAbas.set(false);
         this.notificacoes.error(getErrorMessage(e));
       }
+    });
+  }
+
+  protected carregarPreventiva(): void {
+    if (!this.acesso.verPreventiva()) return;
+    this.carregandoPreventiva.set(true);
+    this.preventivas.doVeiculo(this.id()).subscribe({
+      next: (p) => {
+        this.preventiva.set(p);
+        this.carregandoPreventiva.set(false);
+      },
+      error: () => this.carregandoPreventiva.set(false)
     });
   }
 
@@ -492,10 +662,6 @@ export class FrotaVeiculoDetalheComponent {
   protected rotuloCombustivel(valor: string | null): string {
     if (!valor) return '—';
     return this.opcoes()?.combustiveis.find((c) => c.valor === valor)?.rotulo ?? valor;
-  }
-
-  protected rotuloProvedor(valor: string): string {
-    return this.opcoes()?.provedoresTelemetria.find((c) => c.valor === valor)?.rotulo ?? valor;
   }
 
   protected novoDocumento(): void {
@@ -536,6 +702,10 @@ export class FrotaVeiculoDetalheComponent {
     });
   }
 
+  protected rotuloLancar(v: VeiculoFrotaDetalhe): string {
+    return v.unidadeMedicao === 'HORAS' ? 'Lançar horas' : 'Lançar KM';
+  }
+
   protected modeloCompleto(v: VeiculoFrotaDetalhe): string {
     return [v.fabricante, v.modelo].filter(Boolean).join(' ') || 'Modelo não informado';
   }
@@ -558,6 +728,14 @@ export class FrotaVeiculoDetalheComponent {
     const arvore = this.router.parseUrl(url);
     const caminho = arvore.root.children['primary']?.segments.map((s) => s.path).join('/');
     return caminho === 'frota/veiculos' ? arvore.queryParams : null;
+  }
+
+  protected abrirOs(os: OrdemServico): void {
+    void this.router.navigate(['/frota/ordens-servico', os.id]);
+  }
+
+  protected aoAbrirOs(os: OrdemServicoDetalhe): void {
+    navegarAposFecharDrawer(this.router, ['/frota/ordens-servico', os.ordem.id]);
   }
 
   protected irParaImplementos(): void {

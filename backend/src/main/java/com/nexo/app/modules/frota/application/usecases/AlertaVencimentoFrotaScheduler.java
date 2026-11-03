@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.ZoneId;
 
-/** Dispara diariamente a avaliação de vencimentos de documentos e CNHs da frota. */
+/** Dispara diariamente a avaliação de vencimentos de documentos, CNHs e apólices da frota. */
 @Component
 @RequiredArgsConstructor
 public class AlertaVencimentoFrotaScheduler {

@@ -10,6 +10,18 @@ public record OpcoesFrotaResponse(
         List<OpcaoFrota> provedoresTelemetria,
         List<OpcaoFrota> categoriasCnh,
         List<OpcaoFrota> tiposDocumento,
-        List<OpcaoFrota> origensOdometro
+        List<OpcaoFrota> origensOdometro,
+        List<OpcaoFrota> situacoesOrdemServico,
+        List<OpcaoFrota> criticidades,
+        List<OpcaoFrota> tiposManutencao,
+        List<OpcaoFrota> origensOrdemServico,
+        List<OpcaoFrota> tiposOficina,
+        List<OpcaoFrota> motivosServico,
+        List<OpcaoFrota> naturezasServico,
+        List<OpcaoFrota> situacoesAprovacao,
+        List<OpcaoFrota> causasManutencao,
+        List<OpcaoFrota> origensPeca,
+        List<OpcaoFrota> tiposSinistro,
+        List<OpcaoFrota> situacoesSinistro
 ) {
 }

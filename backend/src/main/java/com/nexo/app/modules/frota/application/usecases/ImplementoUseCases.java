@@ -37,6 +37,7 @@ public class ImplementoUseCases {
 
     private final ImplementoRepository repository;
     private final AcoplamentoImplementoRepository acoplamentoRepository;
+    private final SincronizacaoPreventiva preventiva;
     private final FichaVeiculoRepository fichaRepository;
     private final TipoImplementoUseCases tipos;
     private final ReferenciasFrota referencias;
@@ -127,6 +128,8 @@ public class ImplementoUseCases {
         }
         var novo = acoplamentoRepository.save(
                 new AcoplamentoImplemento(implemento, request.idVeiculo(), request.inicio(), request.observacao()));
+        acoplamentoRepository.flush();
+        preventiva.sincronizar(aberto.map(a -> List.of(a.getIdVeiculo(), request.idVeiculo())).orElse(List.of(request.idVeiculo())));
         return montarAcoplamentos(List.of(novo)).get(0);
     }
 
@@ -135,7 +138,9 @@ public class ImplementoUseCases {
         var aberto = acoplamentoRepository.findByImplementoIdAndFimIsNullAndAtivoTrue(idImplemento)
                 .orElseThrow(() -> new InvarianteVioladaException("O implemento não está acoplado a nenhum veículo."));
         aberto.encerrar(fim);
-        return montarAcoplamentos(List.of(acoplamentoRepository.save(aberto))).get(0);
+        var encerrado = acoplamentoRepository.saveAndFlush(aberto);
+        preventiva.sincronizar(List.of(encerrado.getIdVeiculo()));
+        return montarAcoplamentos(List.of(encerrado)).get(0);
     }
 
     @Transactional(readOnly = true)

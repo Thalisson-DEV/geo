@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -28,19 +29,23 @@ import {
   VeiculoFrotaResumo,
   contar,
   formatarMedida,
-  formatarPlaca
+  formatarPlaca,
+  formatarMedicao
 } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
+import { FrotaChecklistService } from '../../../core/services/frota-checklist.service';
 import { FrotaService } from '../../../core/services/frota.service';
 import { acessoFrota } from '../shared/frota-acesso';
 import { LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FrotaVeiculoFormComponent } from './frota-veiculo-form.component';
+import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
 
 @Component({
   selector: 'app-frota-veiculos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DecimalPipe,
     CesButtonComponent,
     CesCellDirective,
     CesDataTableComponent,
@@ -115,6 +120,29 @@ import { FrotaVeiculoFormComponent } from './frota-veiculo-form.component';
         (emptyAction)="formularioAberto.set(true)"
         (rowActivate)="abrir($event)"
       >
+        @if (acesso.verTelemetria()) {
+          <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de uso">
+            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!!lista.applied().foraExpediente" (click)="alternar('foraExpediente')">
+              <i class="pi pi-moon" aria-hidden="true"></i> Fora do expediente
+            </button>
+            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!!lista.applied().rodaPouco" (click)="alternar('rodaPouco')">
+              <i class="pi pi-arrow-down-right" aria-hidden="true"></i> Roda pouco
+            </button>
+          </div>
+        }
+        <ng-template cesCell="uso" let-row>
+          @if (row.uso; as u) {
+            <span class="ces-cell-num">{{ u.km | number: '1.0-0' }} km</span>
+            <span class="ces-cell-chips">
+              @if (u.rodaPouco) { <ces-status tone="warning" icon="pi-arrow-down-right">Roda pouco</ces-status> }
+              @if (u.diasForaExpediente) {
+                <ces-status tone="warning" icon="pi-moon">{{ contar(u.diasForaExpediente, 'dia', 'dias') }} fora do expediente</ces-status>
+              }
+            </span>
+          } @else {
+            <span class="ces-cell-muted">Sem rastreador</span>
+          }
+        </ng-template>
         <ng-template cesCell="placa" let-row>
           <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
           <span class="ces-cell-muted">{{ row.fabricante }} {{ row.modelo }}{{ row.anoModelo ? ' · ' + row.anoModelo : '' }}</span>
@@ -127,7 +155,7 @@ import { FrotaVeiculoFormComponent } from './frota-veiculo-form.component';
         </ng-template>
         <ng-template cesCell="kmAtual" let-row>
           @if (row.kmAtual != null) {
-            <span class="ces-cell-num">{{ medida(row.kmAtual, 'km') }}</span>
+            <span class="ces-cell-num">{{ row.kmAtual != null ? medicao(row.kmAtual, row.unidadeMedicao) : '—' }}</span>
           } @else {
             <span class="ces-cell-muted">Sem leitura</span>
           }
@@ -148,9 +176,12 @@ import { FrotaVeiculoFormComponent } from './frota-veiculo-form.component';
               <ces-status tone="warning" icon="pi-clock">{{ contar(row.documentosAVencer, 'doc. a vencer', 'docs. a vencer') }}</ces-status>
             }
             @if (row.leiturasInconsistentes) {
-              <ces-status tone="warning" icon="pi-exclamation-triangle">{{ row.leiturasInconsistentes }} KM a conferir</ces-status>
+              <ces-status tone="warning" icon="pi-exclamation-triangle">{{ contar(row.leiturasInconsistentes, 'leitura', 'leituras', '') }} a conferir</ces-status>
             }
-            @if (!row.documentosVencidos && !row.documentosAVencer && !row.leiturasInconsistentes) {
+            @if (semChecklist().has(row.idVeiculo)) {
+              <ces-status tone="warning" icon="pi-list-check" [attr.title]="semChecklist().get(row.idVeiculo)">Sem checklist hoje</ces-status>
+            }
+            @if (!row.documentosVencidos && !row.documentosAVencer && !row.leiturasInconsistentes && !semChecklist().has(row.idVeiculo)) {
               <ces-status tone="success" icon="pi-check">Em dia</ces-status>
             }
           </span>
@@ -168,6 +199,9 @@ import { FrotaVeiculoFormComponent } from './frota-veiculo-form.component';
 })
 export class FrotaVeiculosComponent {
   private readonly frota = inject(FrotaService);
+  private readonly checklist = inject(FrotaChecklistService);
+  /** Veículos usados hoje sem checklist (só para quem vê checklists), com o motivo. */
+  protected readonly semChecklist = signal(new Map<string, string>());
   private readonly router = inject(Router);
   private readonly notificacoes = inject(NotificationService);
   protected readonly acesso = acessoFrota();
@@ -178,6 +212,7 @@ export class FrotaVeiculosComponent {
   protected readonly placa = formatarPlaca;
   protected readonly medida = formatarMedida;
   protected readonly contar = contar;
+  protected readonly medicao = formatarMedicao;
   protected readonly cadastroOpcoes = OPCOES_CADASTRO;
 
   protected readonly opcoes = signal<OpcoesFrota | null>(null);
@@ -208,7 +243,9 @@ export class FrotaVeiculosComponent {
         countLabel: (n) => `${n} selecionadas`
       }),
       regime: cesFilter.value<RegimeVeiculo | null>(null, { label: 'Regime', format: (r) => (r ? ROTULO_REGIME[r] : null) }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Cadastro', options: () => OPCOES_CADASTRO })
+      ativo: cesFilter.value<boolean | null>(true, { label: 'Cadastro', options: () => OPCOES_CADASTRO }),
+      foraExpediente: cesFilter.value<boolean | null>(null, { label: 'Uso', param: 'foraExpediente', format: (v) => (v ? 'Fora do expediente (30 dias)' : null) }),
+      rodaPouco: cesFilter.value<boolean | null>(null, { label: 'Uso', param: 'rodaPouco', format: (v) => (v ? 'Roda pouco (30 dias)' : null) })
     },
     sort: [{ key: 'placa', direction: 'asc' }]
   });
@@ -228,7 +265,9 @@ export class FrotaVeiculosComponent {
     { key: 'tipoVeiculo', header: 'Tipo', sortField: 'tipoVeiculo.nome', display: (r) => r.tipoVeiculo ?? 'Sem tipo' },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, sortField: 'situacao', value: (r) => r.situacao, display: (r) => ROTULO_SITUACAO[r.situacao] },
     { key: 'regime', header: 'Regime', sortField: 'regime', display: (r) => ROTULO_REGIME[r.regime] },
-    { key: 'kmAtual', header: 'KM atual', type: 'custom', value: (r) => r.kmAtual, display: (r) => formatarMedida(r.kmAtual, 'km', 0, '') },
+    { key: 'kmAtual', header: 'KM / horas', type: 'custom', value: (r) => r.kmAtual, display: (r) => (r.kmAtual != null ? formatarMedicao(r.kmAtual, r.unidadeMedicao) : '') },
+    { key: 'uso', header: 'Uso em 30 dias', type: 'custom', value: (r) => r.uso?.km ?? -1,
+      display: (r) => (r.uso ? `${Math.round(r.uso.km)} km${r.uso.rodaPouco ? ', roda pouco' : ''}${r.uso.diasForaExpediente ? `, ${r.uso.diasForaExpediente} dias fora do expediente` : ''}` : 'Sem rastreador') },
     { key: 'condutorAtual', header: 'Condutor', type: 'custom', value: (r) => r.condutorAtual, display: (r) => r.condutorAtual ?? 'Sem condutor' },
     { key: 'implementos', header: 'Implementos', value: (r) => r.implementosAcoplados.join(', '), display: (r) => r.implementosAcoplados.join(', ') || '—' },
     {
@@ -236,7 +275,7 @@ export class FrotaVeiculosComponent {
       header: 'Pendências',
       type: 'custom',
       value: (r) => r.documentosVencidos * 100 + r.documentosAVencer * 10 + r.leiturasInconsistentes,
-      display: (r) => `${r.documentosVencidos} vencidos, ${r.documentosAVencer} a vencer, ${r.leiturasInconsistentes} KM a conferir`
+      display: (r) => `${r.documentosVencidos} vencidos, ${r.documentosAVencer} a vencer, ${r.leiturasInconsistentes} leituras a conferir`
     }
   ];
 
@@ -251,6 +290,12 @@ export class FrotaVeiculosComponent {
   constructor() {
     this.frota.opcoes().subscribe({ next: (o) => this.opcoes.set(o), error: () => undefined });
     this.frota.tiposVeiculo().subscribe({ next: (p) => this.tiposVeiculo.set(p.content), error: () => undefined });
+    if (this.acesso.verChecklist()) {
+      this.checklist.semChecklistHoje().subscribe({
+        next: (lista) => this.semChecklist.set(new Map(lista.map((v) => [v.idVeiculo, v.motivo]))),
+        error: () => undefined
+      });
+    }
   }
 
   protected abrir(veiculo: VeiculoFrotaResumo): void {
@@ -259,7 +304,11 @@ export class FrotaVeiculosComponent {
 
   protected aoCadastrar(veiculo: VeiculoFrotaDetalhe): void {
     this.notificacoes.info('Abrindo a ficha do veículo cadastrado.');
-    void this.router.navigate(['/frota/veiculos', veiculo.idVeiculo]);
+    navegarAposFecharDrawer(this.router, ['/frota/veiculos', veiculo.idVeiculo]);
+  }
+
+  protected alternar(chave: 'foraExpediente' | 'rodaPouco'): void {
+    this.lista.set(chave, this.lista.applied()[chave] ? null : true);
   }
 
   private filtro() {

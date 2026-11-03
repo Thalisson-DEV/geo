@@ -17,13 +17,17 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Uma leitura do odômetro, a fonte única de quilometragem da frota.
+ * Uma leitura do odômetro ou do horímetro, a fonte única de uso da frota.
  *
  * <p>O registro é somente inserção: checklist, abastecimento, manutenção, telemetria e
  * lançamento manual gravam aqui. Leitura incoerente com as vizinhas não é descartada —
  * fica {@link SituacaoLeituraOdometro#INCONSISTENTE} com o motivo, porque dado de campo
  * offline não pode se perder. Uma leitura errada é anulada com justificativa, nunca
  * apagada.</p>
+ *
+ * <p>A coluna {@code km} guarda o valor lido na {@link #unidade} do veículo (km ou horas).
+ * Uma {@link TipoLeituraOdometro#TROCA_PAINEL} abre um novo trecho: o valor dela é o
+ * inicial do painel novo, e as leituras só são comparadas dentro do mesmo trecho.</p>
  */
 @Entity
 @Table(name = "frota_leituras_odometro")
@@ -41,8 +45,21 @@ public class LeituraOdometro extends BaseEntity {
     @Column(name = "id_veiculo", nullable = false, updatable = false)
     private UUID idVeiculo;
 
+    /** Valor lido, na {@link #unidade} da leitura. */
     @Column(name = "km", nullable = false, updatable = false)
     private Long km;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "unidade", nullable = false, length = 10, updatable = false)
+    private UnidadeMedicao unidade = UnidadeMedicao.KM;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo", nullable = false, length = 20, updatable = false)
+    private TipoLeituraOdometro tipo = TipoLeituraOdometro.LEITURA;
+
+    /** Na troca de painel: último valor do painel antigo menos o inicial do novo. */
+    @Column(name = "deslocamento", updatable = false)
+    private Long deslocamento;
 
     @Column(name = "lido_em", nullable = false, updatable = false)
     private OffsetDateTime lidoEm;
@@ -64,9 +81,13 @@ public class LeituraOdometro extends BaseEntity {
     @Column(name = "motivo_situacao", length = 500)
     private String motivoSituacao;
 
-    /** KM da leitura válida imediatamente anterior no momento do registro. */
+    /** Valor da leitura válida imediatamente anterior, no mesmo trecho, no momento do registro. */
     @Column(name = "km_anterior", updatable = false)
     private Long kmAnterior;
+
+    /** Justificativa do gestor para o lançamento manual acima do limite de salto. */
+    @Column(name = "justificativa_salto", length = 400)
+    private String justificativaSalto;
 
     @Column(name = "data_anulacao")
     private OffsetDateTime dataAnulacao;
@@ -78,20 +99,23 @@ public class LeituraOdometro extends BaseEntity {
     private String justificativaAnulacao;
 
     /**
-     * Registra uma leitura classificando-a contra as leituras válidas vizinhas.
+     * Registra uma leitura classificando-a contra as leituras válidas vizinhas do mesmo trecho.
      *
-     * @param anterior  última leitura válida com {@code lidoEm} até o instante desta, ou nulo
-     * @param posterior primeira leitura válida depois do instante desta, ou nulo (chegada fora de ordem)
-     * @param limiteKmDia média diária acima da qual o salto é considerado incoerente
+     * @param unidade   unidade de medição do veículo
+     * @param anterior  última leitura válida do trecho com {@code lidoEm} até o instante desta, ou nulo
+     * @param posterior primeira leitura válida do trecho depois do instante desta, ou nulo (chegada fora de ordem)
+     * @param limiteDia média diária, na unidade, acima da qual o salto é considerado incoerente
      */
-    public static LeituraOdometro registrar(UUID idVeiculo, long km, OffsetDateTime lidoEm,
+    public static LeituraOdometro registrar(UUID idVeiculo, UnidadeMedicao unidade, long km, OffsetDateTime lidoEm,
                                             OrigemLeituraOdometro origem, UUID idOrigem, UUID idUsuario,
                                             LeituraOdometro anterior, LeituraOdometro posterior,
-                                            int limiteKmDia) {
+                                            int limiteDia) {
         if (idVeiculo == null) throw new InvarianteVioladaException("Informe o veículo.");
+        Objects.requireNonNull(unidade, "A unidade da leitura é obrigatória");
         Objects.requireNonNull(origem, "A origem da leitura é obrigatória");
         if (km < 0 || km > KM_MAXIMO) {
-            throw new InvarianteVioladaException("Quilometragem inválida.");
+            throw new InvarianteVioladaException(unidade == UnidadeMedicao.HORAS
+                    ? "Horímetro inválido." : "Quilometragem inválida.");
         }
         if (lidoEm == null) throw new InvarianteVioladaException("Informe a data e hora da leitura.");
         if (lidoEm.isAfter(OffsetDateTime.now().plus(TOLERANCIA_FUTURO))) {
@@ -104,13 +128,76 @@ public class LeituraOdometro extends BaseEntity {
         var leitura = new LeituraOdometro();
         leitura.idVeiculo = idVeiculo;
         leitura.km = km;
+        leitura.unidade = unidade;
         leitura.lidoEm = lidoEm;
         leitura.origem = origem;
         leitura.idOrigem = idOrigem;
         leitura.idUsuarioRegistro = idUsuario;
         leitura.kmAnterior = anterior == null ? null : anterior.km;
-        leitura.classificar(anterior, posterior, limiteKmDia);
+        leitura.classificar(anterior, posterior, limiteDia);
         return leitura;
+    }
+
+    /**
+     * Registra a troca de painel: o valor desta linha é o inicial do painel novo e abre um
+     * trecho. O deslocamento guarda o que o painel antigo já tinha rodado para o acumulado.
+     *
+     * @param fechamento    último valor do painel antigo
+     * @param inicial       valor do painel novo no momento da troca
+     * @param unidadeNova   unidade do painel novo (a troca é o único jeito de mudar a unidade com leituras)
+     * @param ultimaValida  maior leitura válida do trecho atual, ou nula se o veículo não tem leituras
+     */
+    public static LeituraOdometro registrarTrocaPainel(UUID idVeiculo, UnidadeMedicao unidadeNova, long fechamento,
+                                                       long inicial, OffsetDateTime lidoEm, UUID idUsuario,
+                                                       LeituraOdometro ultimaValida, String observacao) {
+        if (idVeiculo == null) throw new InvarianteVioladaException("Informe o veículo.");
+        Objects.requireNonNull(unidadeNova, "A unidade do painel novo é obrigatória");
+        if (fechamento < 0 || fechamento > KM_MAXIMO || inicial < 0 || inicial > KM_MAXIMO) {
+            throw new InvarianteVioladaException("Valor de painel inválido.");
+        }
+        if (lidoEm == null) throw new InvarianteVioladaException("Informe a data e hora da troca.");
+        if (lidoEm.isAfter(OffsetDateTime.now().plus(TOLERANCIA_FUTURO))) {
+            throw new InvarianteVioladaException("A data da troca não pode estar no futuro.");
+        }
+        boolean mesmaUnidade = ultimaValida == null || ultimaValida.unidade == unidadeNova;
+        if (ultimaValida != null) {
+            if (!lidoEm.isAfter(ultimaValida.lidoEm)) {
+                throw new InvarianteVioladaException("A troca precisa ser depois da última leitura válida ("
+                        + ultimaValida.km + " " + ultimaValida.unidade.sufixo() + " em "
+                        + formatar(ultimaValida.lidoEm) + ").");
+            }
+            if (fechamento < ultimaValida.km) {
+                throw new InvarianteVioladaException("O último valor do painel antigo não pode ser menor que a última leitura válida ("
+                        + ultimaValida.km + " " + ultimaValida.unidade.sufixo() + ").");
+            }
+        }
+        if (mesmaUnidade && inicial > fechamento) {
+            throw new InvarianteVioladaException("O painel novo não pode começar acima do último valor do painel antigo.");
+        }
+
+        var troca = new LeituraOdometro();
+        troca.idVeiculo = idVeiculo;
+        troca.km = inicial;
+        troca.unidade = unidadeNova;
+        troca.tipo = TipoLeituraOdometro.TROCA_PAINEL;
+        troca.lidoEm = lidoEm;
+        troca.origem = OrigemLeituraOdometro.MANUAL;
+        troca.idUsuarioRegistro = idUsuario;
+        troca.kmAnterior = fechamento;
+        // Em unidade nova o acumulado recomeça: somar km com horas não faz sentido.
+        troca.deslocamento = mesmaUnidade ? fechamento - inicial : null;
+        troca.situacao = SituacaoLeituraOdometro.VALIDA;
+        String texto = Textos.opcional(observacao, 300);
+        troca.motivoSituacao = "Troca de painel. Painel antigo encerrado em " + fechamento + " "
+                + (ultimaValida == null ? unidadeNova : ultimaValida.unidade).sufixo()
+                + (mesmaUnidade ? "" : "; unidade alterada para " + unidadeNova.sufixo())
+                + (texto == null ? "." : ". " + texto);
+        return troca;
+    }
+
+    /** Último valor do painel antigo, para a linha de troca. */
+    public Long getFechamentoPainel() {
+        return isTrocaPainel() ? kmAnterior : null;
     }
 
     public boolean isValida() {
@@ -132,6 +219,16 @@ public class LeituraOdometro extends BaseEntity {
         this.idUsuarioAnulacao = idUsuario;
     }
 
+    /**
+     * Lançamento manual acima do limite de salto (ex.: viagem longa sem lançamentos): o gestor
+     * justifica e a leitura passa a valer. Valor menor que o anterior não entra por aqui.
+     */
+    public void aceitarSalto(String justificativa) {
+        this.justificativaSalto = Textos.obrigatorio(justificativa, "justificativa do salto", 400);
+        this.situacao = SituacaoLeituraOdometro.VALIDA;
+        this.motivoSituacao = "Salto lançado pelo gestor: " + justificativaSalto;
+    }
+
     /** Gestor conferiu a leitura inconsistente e a considera correta. */
     public void confirmar(String justificativa) {
         if (situacao != SituacaoLeituraOdometro.INCONSISTENTE) {
@@ -142,22 +239,30 @@ public class LeituraOdometro extends BaseEntity {
                 + Textos.obrigatorio(justificativa, "justificativa da confirmação", 400);
     }
 
-    private void classificar(LeituraOdometro anterior, LeituraOdometro posterior, int limiteKmDia) {
+    public boolean isTrocaPainel() {
+        return tipo == TipoLeituraOdometro.TROCA_PAINEL;
+    }
+
+    private void classificar(LeituraOdometro anterior, LeituraOdometro posterior, int limiteDia) {
+        String rotulo = unidade.rotulo();
+        String sufixo = unidade.sufixo();
         if (anterior != null && km < anterior.km) {
-            marcarInconsistente("KM menor que a leitura anterior (" + anterior.km + " km em " + formatar(anterior.lidoEm) + ").");
+            marcarInconsistente(rotulo + " menor que a leitura anterior (" + anterior.km + " " + sufixo
+                    + " em " + formatar(anterior.lidoEm) + ").");
             return;
         }
         if (posterior != null && km > posterior.km) {
-            marcarInconsistente("KM maior que a leitura seguinte (" + posterior.km + " km em " + formatar(posterior.lidoEm) + ").");
+            marcarInconsistente(rotulo + " maior que a leitura seguinte (" + posterior.km + " " + sufixo
+                    + " em " + formatar(posterior.lidoEm) + ").");
             return;
         }
-        if (anterior != null && limiteKmDia > 0) {
+        if (anterior != null && limiteDia > 0) {
             long rodado = km - anterior.km;
             double dias = Math.max(1.0, Duration.between(anterior.lidoEm, lidoEm).toMinutes() / 1440.0);
-            if (rodado / dias > limiteKmDia) {
+            if (rodado / dias > limiteDia) {
                 marcarInconsistente(String.format(java.util.Locale.ROOT,
-                        "Salto de %d km desde a leitura anterior, acima do limite de %d km por dia.",
-                        rodado, limiteKmDia));
+                        "Salto de %d %s desde a leitura anterior, acima do limite de %d %s por dia.",
+                        rodado, sufixo, limiteDia, sufixo));
                 return;
             }
         }

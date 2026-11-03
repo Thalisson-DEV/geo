@@ -25,6 +25,21 @@ public class ParametrosFrotaUseCases {
     public ParametrosFrotaResponse atualizar(ParametrosFrotaRequest request) {
         ParametrosFrota parametros = obter();
         parametros.atualizar(request.faixasAlertaDias(), request.limiteKmDia());
+        if (request.janelaRepeticaoDias() != null) {
+            parametros.definirJanelaRepeticao(request.janelaRepeticaoDias());
+        }
+        if (request.limiteHorasDia() != null) {
+            parametros.definirLimiteHorasDia(request.limiteHorasDia());
+        }
+        if (request.limiteSaltoKm() != null || request.limiteSaltoHoras() != null) {
+            parametros.definirTravaSalto(request.limiteSaltoKm() == null ? parametros.getLimiteSaltoKm() : request.limiteSaltoKm(),
+                    request.limiteSaltoHoras() == null ? parametros.getLimiteSaltoHoras()
+                            : request.limiteSaltoHoras() == 0 ? null : request.limiteSaltoHoras());
+        }
+        var e = request.expediente();
+        if (e != null) {
+            parametros.definirExpediente(e.inicio(), e.fim(), e.sabado());
+        }
         return toResponse(repository.save(parametros));
     }
 
@@ -34,6 +49,10 @@ public class ParametrosFrotaUseCases {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Parâmetros da frota não configurados."));
     }
 
+    int janelaRepeticaoDias() {
+        return obter().getJanelaRepeticaoDias();
+    }
+
     /** Maior faixa de aviso: até onde um vencimento já conta como "a vencer". */
     int diasAviso() {
         var faixas = obter().faixasAlerta();
@@ -41,6 +60,10 @@ public class ParametrosFrotaUseCases {
     }
 
     private static ParametrosFrotaResponse toResponse(ParametrosFrota parametros) {
-        return new ParametrosFrotaResponse(parametros.faixasAlerta(), parametros.getLimiteKmDia());
+        return new ParametrosFrotaResponse(parametros.faixasAlerta(), parametros.getLimiteKmDia(),
+                parametros.getJanelaRepeticaoDias(), parametros.getLimiteHorasDia(), parametros.getLimiteSaltoKm(),
+                parametros.getLimiteSaltoHoras(),
+                new ParametrosFrotaResponse.Expediente(parametros.getExpedienteInicio(), parametros.getExpedienteFim(),
+                        parametros.isSabadoExpediente()));
     }
 }
