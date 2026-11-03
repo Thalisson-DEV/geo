@@ -72,7 +72,12 @@ public final class DescontoDashboardSpecification {
             }
 
             if (!SelecaoMultipla.vazia(filtro.status())) {
-                predicates.add(root.get("status").in(filtro.status()));
+                // No painel, finalizado é baixado com o termo assinado: quem filtra baixados quer os dois.
+                var status = new java.util.HashSet<>(filtro.status());
+                if (status.contains(com.nexo.app.modules.desconto.domain.StatusDesconto.BAIXADO)) {
+                    status.add(com.nexo.app.modules.desconto.domain.StatusDesconto.FINALIZADO);
+                }
+                predicates.add(root.get("status").in(status));
             }
             if (!SelecaoMultipla.vazia(filtro.idMotivo())) {
                 predicates.add(root.get("motivo").get("id").in(filtro.idMotivo()));

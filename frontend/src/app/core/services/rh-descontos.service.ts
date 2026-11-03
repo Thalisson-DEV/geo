@@ -20,7 +20,9 @@ import {
   DescontoResponse,
   DescontoValidacaoRequest,
   DescontoBaixaRequest,
-  DescontoRejeicaoRequest
+  DescontoRejeicaoRequest,
+  DescontoDesfazerRequest,
+  EventoDesconto
 } from '../models/desconto.models';
 
 @Injectable({ providedIn: 'root' })
@@ -114,6 +116,26 @@ export class RhDescontosService extends BaseService {
 
   rejeitarDesconto(id: string, request: DescontoRejeicaoRequest): Observable<DescontoResponse | null> {
     return this.patchSync<DescontoResponse>(`${this.apiUrl}/v1/descontos`, `${id}/rejeitar`, request);
+  }
+
+  /**
+   * Volta o desconto uma etapa, com motivo: validado e rejeitado voltam a aguardar
+   * validação, baixado volta a aguardar baixa, finalizado volta a aguardar o termo.
+   */
+  desfazerDecisao(id: string, request: DescontoDesfazerRequest): Observable<DescontoResponse | null> {
+    return this.patchSync<DescontoResponse>(`${this.apiUrl}/v1/descontos`, `${id}/desfazer`, request);
+  }
+
+  /** Anexa o termo assinado pelo colaborador; o desconto baixado passa a FINALIZADO. */
+  finalizarComTermo(id: string, arquivo: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('arquivo', arquivo);
+    return this.http.post<void>(`${this.apiUrl}/v1/descontos/${id}/finalizar`, formData);
+  }
+
+  /** Linha do tempo: lançamento, alterações, decisões e decisões desfeitas. */
+  historico(id: string): Observable<EventoDesconto[]> {
+    return this.http.get<EventoDesconto[]>(`${this.apiUrl}/v1/descontos/${id}/historico`);
   }
 
   /** @param chaveIdempotencia estável por item; ver {@link iniciarSolicitacao}. */

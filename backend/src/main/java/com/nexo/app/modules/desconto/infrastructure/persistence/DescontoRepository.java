@@ -18,6 +18,10 @@ public interface DescontoRepository extends JpaRepository<Desconto, UUID>, JpaSp
 
     java.util.Optional<Desconto> findFirstByAtivoTrueOrderByIdAsc();
 
+    /** Colaboradores com ao menos um desconto ativo (base da ordenação pelo nome). */
+    @Query("select distinct d.colaboradorId from Desconto d where d.ativo = true")
+    List<UUID> listarColaboradoresComDesconto();
+
     @Query("""
             select distinct tipo.id as idTipoEquipamento,
                             tipo.descricao as tipoEquipamento,
@@ -29,6 +33,7 @@ public interface DescontoRepository extends JpaRepository<Desconto, UUID>, JpaSp
              where d.ativo = true
                and item.ativo = true
                and d.status in (com.nexo.app.modules.desconto.domain.StatusDesconto.BAIXADO,
+                                com.nexo.app.modules.desconto.domain.StatusDesconto.FINALIZADO,
                                 com.nexo.app.modules.desconto.domain.StatusDesconto.REJEITADO)
                and d.dataOcorrencia >= :inicio
                and d.dataOcorrencia < :fim

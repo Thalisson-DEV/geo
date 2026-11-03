@@ -86,8 +86,9 @@ public class DashboardDescontoUseCases {
             return desconto.getColaboradorId();
         }
 
+        /** Para os indicadores, finalizado é baixado: o termo assinado não muda o valor nem a etapa. */
         StatusDesconto status() {
-            return desconto.getStatus();
+            return desconto.getStatus() == StatusDesconto.FINALIZADO ? StatusDesconto.BAIXADO : desconto.getStatus();
         }
 
         boolean pendente() {
@@ -429,7 +430,7 @@ public class DashboardDescontoUseCases {
     private List<DistribuicaoStatusItem> porStatus(List<Termo> atuais) {
         long total = atuais.size();
         BigDecimal valorTotal = somar(atuais, termo -> valorEfetivo(termo.desconto()));
-        return Arrays.stream(StatusDesconto.values()).map(status -> {
+        return Arrays.stream(StatusDesconto.values()).filter(status -> status != StatusDesconto.FINALIZADO).map(status -> {
             List<Termo> doStatus = filtrar(atuais, status);
             BigDecimal valor = somar(doStatus, termo -> valorEfetivo(termo.desconto()));
             return new DistribuicaoStatusItem(status, rotulo(status), doStatus.size(),
@@ -443,6 +444,7 @@ public class DashboardDescontoUseCases {
             case VALIDADO -> "Aguardando baixa";
             case BAIXADO -> "Baixado em folha";
             case REJEITADO -> "Rejeitado";
+            case FINALIZADO -> "Finalizado (termo assinado)";
         };
     }
 
@@ -598,7 +600,7 @@ public class DashboardDescontoUseCases {
 
         private void adicionarTermo(StatusDesconto status) {
             this.descontos++;
-            if (status == StatusDesconto.BAIXADO) {
+            if (status.baixadoEmFolha()) {
                 this.baixados++;
             } else if (status == StatusDesconto.REJEITADO) {
                 this.rejeitados++;
@@ -705,7 +707,7 @@ public class DashboardDescontoUseCases {
                             + "solicitação e a validação",
                     "Revisar o critério de lançamento com quem abre os termos",
                     List.of(),
-                    Map.of("status", List.of("VALIDADO", "BAIXADO"))));
+                    Map.of("status", List.of("VALIDADO", "BAIXADO", "FINALIZADO"))));
         }
 
         Map<UUID, List<Termo>> porColaborador = atuais.stream()

@@ -197,7 +197,7 @@ public class DomainQueryPresets implements AgentToolProvider {
                         "Descontos em folha (perda, mau uso, dano de equipamentos): status do ciclo, motivo, colaborador, "
                                 + "base, valores sugerido/validado/baixado e tempo de validacao.",
                         "descontos", true,
-                        List.of(Campo.enumerado("status", "Status", "SOLICITADO", "VALIDADO", "BAIXADO", "REJEITADO"),
+                        List.of(Campo.enumerado("status", "Status", "SOLICITADO", "VALIDADO", "BAIXADO", "FINALIZADO", "REJEITADO"),
                                 Campo.texto("motivo", "Motivo (contem)"), Campo.texto("colaborador", "Colaborador (contem)"),
                                 Campo.texto("base_operacional", "Base (contem)"),
                                 Campo.texto("funcao_colaborador", "Funcao do colaborador (contem)"),

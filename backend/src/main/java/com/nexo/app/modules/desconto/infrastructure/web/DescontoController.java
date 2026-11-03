@@ -49,47 +49,47 @@ public class DescontoController implements DescontoDoc {
     @Override
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('desconto:editar')")
-    public ResponseEntity<DescontoResponse> atualizar(@PathVariable UUID id, @Valid @RequestBody DescontoRequest request) {
-        return ResponseEntity.ok(useCases.atualizar(id, request));
+    public ResponseEntity<DescontoResponse> atualizar(@PathVariable UUID id, @Valid @RequestBody DescontoRequest request, @AuthenticationPrincipal Usuario usuario) {
+        return ResponseEntity.ok(useCases.atualizar(id, request, usuario.getId()));
     }
 
     @Override
     @PostMapping("/{id}/itens")
     @PreAuthorize("hasAuthority('desconto:editar')")
-    public ResponseEntity<Void> adicionarItem(@PathVariable UUID id, @Valid @RequestBody DescontoItemRequest request) {
-        useCases.adicionarItem(id, request);
+    public ResponseEntity<Void> adicionarItem(@PathVariable UUID id, @Valid @RequestBody DescontoItemRequest request, @AuthenticationPrincipal Usuario usuario) {
+        useCases.adicionarItem(id, request, usuario.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     @PutMapping("/{id}/itens/{itemId}")
     @PreAuthorize("hasAuthority('desconto:editar')")
-    public ResponseEntity<Void> atualizarItem(@PathVariable UUID id, @PathVariable UUID itemId, @Valid @RequestBody DescontoItemRequest request) {
-        useCases.atualizarItem(id, itemId, request);
+    public ResponseEntity<Void> atualizarItem(@PathVariable UUID id, @PathVariable UUID itemId, @Valid @RequestBody DescontoItemRequest request, @AuthenticationPrincipal Usuario usuario) {
+        useCases.atualizarItem(id, itemId, request, usuario.getId());
         return ResponseEntity.ok().build();
     }
 
     @Override
     @DeleteMapping("/{id}/itens/{itemId}")
     @PreAuthorize("hasAuthority('desconto:editar')")
-    public ResponseEntity<Void> removerItem(@PathVariable UUID id, @PathVariable UUID itemId) {
-        useCases.removerItem(id, itemId);
+    public ResponseEntity<Void> removerItem(@PathVariable UUID id, @PathVariable UUID itemId, @AuthenticationPrincipal Usuario usuario) {
+        useCases.removerItem(id, itemId, usuario.getId());
         return ResponseEntity.noContent().build();
     }
 
     @Override
     @PostMapping(value = "/{id}/anexos", consumes = "multipart/form-data")
     @PreAuthorize("hasAuthority('desconto:anexar')")
-    public ResponseEntity<Void> adicionarAnexo(@PathVariable UUID id, @RequestPart("arquivo") MultipartFile arquivo) {
-        useCases.adicionarAnexo(id, arquivo);
+    public ResponseEntity<Void> adicionarAnexo(@PathVariable UUID id, @RequestPart("arquivo") MultipartFile arquivo, @AuthenticationPrincipal Usuario usuario) {
+        useCases.adicionarAnexo(id, arquivo, usuario.getId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     @DeleteMapping("/{id}/anexos/{anexoId}")
     @PreAuthorize("hasAuthority('desconto:anexar')")
-    public ResponseEntity<Void> removerAnexo(@PathVariable UUID id, @PathVariable UUID anexoId) {
-        useCases.removerAnexo(id, anexoId);
+    public ResponseEntity<Void> removerAnexo(@PathVariable UUID id, @PathVariable UUID anexoId, @AuthenticationPrincipal Usuario usuario) {
+        useCases.removerAnexo(id, anexoId, usuario.getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -127,6 +127,38 @@ public class DescontoController implements DescontoDoc {
     public ResponseEntity<Void> rejeitar(@PathVariable UUID id, @Valid @RequestBody com.nexo.app.modules.desconto.application.dto.DescontoRejeicaoRequest request, @AuthenticationPrincipal Usuario usuario) {
         useCases.rejeitar(id, usuario.getId(), request);
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PatchMapping("/{id}/desfazer")
+    @PreAuthorize("hasAnyAuthority('desconto:validar', 'desconto:baixar')")
+    public ResponseEntity<Void> desfazer(@PathVariable UUID id,
+                                         @Valid @RequestBody com.nexo.app.modules.desconto.application.dto.DescontoDesfazerRequest request,
+                                         @AuthenticationPrincipal Usuario usuario) {
+        // Quem desfaz é quem poderia ter decidido aquela etapa: validação e rejeição
+        // de quem valida, baixa e finalização de quem baixa.
+        String exigida = useCases.permissaoParaDesfazer(id);
+        if (usuario.getAuthorities().stream().noneMatch(a -> exigida.equals(a.getAuthority()))) {
+            throw new org.springframework.security.access.AccessDeniedException("Sem permissão para desfazer esta etapa.");
+        }
+        useCases.desfazer(id, usuario.getId(), request.motivo());
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PostMapping(value = "/{id}/finalizar", consumes = "multipart/form-data")
+    @PreAuthorize("hasAuthority('desconto:baixar')")
+    public ResponseEntity<Void> finalizar(@PathVariable UUID id, @RequestPart("arquivo") MultipartFile arquivo,
+                                          @AuthenticationPrincipal Usuario usuario) {
+        useCases.finalizar(id, arquivo, usuario.getId());
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @GetMapping("/{id}/historico")
+    @PreAuthorize("hasAuthority('desconto:read')")
+    public ResponseEntity<java.util.List<com.nexo.app.modules.desconto.application.dto.EventoDescontoResponse>> historico(@PathVariable UUID id) {
+        return ResponseEntity.ok(useCases.historico(id));
     }
 
     @Override

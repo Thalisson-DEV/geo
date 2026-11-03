@@ -29,6 +29,19 @@ public class DescontoAnexo extends BaseEntity {
     @Column(name = "tamanho_bytes", nullable = false)
     private Long tamanhoBytes;
 
+    /** O termo impresso pelo C.E.S e assinado pelo colaborador: é o que finaliza o desconto. */
+    @Column(name = "termo_assinado", nullable = false)
+    private boolean termoAssinado;
+
+    void marcarComoTermoAssinado() {
+        this.termoAssinado = true;
+    }
+
+    /** Ao desfazer a finalização o arquivo fica, como comprovante comum, para a trilha. */
+    void desmarcarTermoAssinado() {
+        this.termoAssinado = false;
+    }
+
     public DescontoAnexo(Desconto desconto, String nomeArquivo, String url, String contentType, Long tamanhoBytes) {
         if (desconto == null) throw new IllegalArgumentException("O desconto associado não pode ser nulo.");
         if (!StringUtils.hasText(nomeArquivo)) throw new IllegalArgumentException("O nome do arquivo não pode ser vazio.");

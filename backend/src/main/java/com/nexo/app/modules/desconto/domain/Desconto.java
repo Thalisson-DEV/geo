@@ -68,6 +68,12 @@ public class Desconto extends BaseEntity {
     @Column(name = "data_rejeicao")
     private OffsetDateTime dataRejeicao;
 
+    @Column(name = "usuario_finalizacao_id")
+    private UUID usuarioFinalizacaoId;
+
+    @Column(name = "data_finalizacao")
+    private OffsetDateTime dataFinalizacao;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private StatusDesconto status = StatusDesconto.SOLICITADO;
@@ -136,19 +142,94 @@ public class Desconto extends BaseEntity {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    public void adicionarAnexo(String nomeArquivo, String url, String contentType, Long tamanhoBytes) {
-        if (this.status == StatusDesconto.BAIXADO || this.status == StatusDesconto.REJEITADO) {
-            throw new InvarianteVioladaException("Não é possível adicionar anexos a um desconto que já foi finalizado.");
+    public DescontoAnexo adicionarAnexo(String nomeArquivo, String url, String contentType, Long tamanhoBytes) {
+        if (this.status != StatusDesconto.SOLICITADO && this.status != StatusDesconto.VALIDADO) {
+            throw new InvarianteVioladaException("Comprovantes só podem ser anexados antes da baixa em folha.");
         }
-        this.anexos.add(new DescontoAnexo(this, nomeArquivo, url, contentType, tamanhoBytes));
+        var anexo = new DescontoAnexo(this, nomeArquivo, url, contentType, tamanhoBytes);
+        this.anexos.add(anexo);
+        return anexo;
     }
 
     public void removerAnexo(UUID anexoId) {
-        if (this.status == StatusDesconto.BAIXADO || this.status == StatusDesconto.REJEITADO) {
-            throw new InvarianteVioladaException("Não é possível remover anexos de um desconto que já foi finalizado.");
+        if (this.status != StatusDesconto.SOLICITADO) {
+            throw new InvarianteVioladaException("Comprovantes só podem ser removidos antes da validação.");
         }
         this.anexos.removeIf(a -> a.getId().equals(anexoId));
     }
+
+    /** O termo assinado vigente, se houver. */
+    public java.util.Optional<DescontoAnexo> termoAssinado() {
+        return this.anexos.stream().filter(DescontoAnexo::isTermoAssinado).findFirst();
+    }
+
+    /**
+     * O DP anexa o termo impresso pelo C.E.S e assinado pelo colaborador. É o que fecha o
+     * ciclo: o desconto já entrou na folha e agora tem a autorização assinada guardada.
+     */
+    public DescontoAnexo finalizar(UUID usuarioFinalizacaoId, String nomeArquivo, String url, String contentType, Long tamanhoBytes) {
+        if (this.status != StatusDesconto.BAIXADO) {
+            throw new InvarianteVioladaException("O desconto precisa estar baixado em folha para receber o termo assinado.");
+        }
+        if (usuarioFinalizacaoId == null) throw new IllegalArgumentException("Usuário responsável pela finalização não pode ser nulo.");
+        var termo = new DescontoAnexo(this, nomeArquivo, url, contentType, tamanhoBytes);
+        termo.marcarComoTermoAssinado();
+        this.anexos.add(termo);
+        this.status = StatusDesconto.FINALIZADO;
+        this.usuarioFinalizacaoId = usuarioFinalizacaoId;
+        this.dataFinalizacao = OffsetDateTime.now();
+        return termo;
+    }
+
+    /**
+     * Devolve o desconto uma etapa: validado e rejeitado voltam a aguardar validação,
+     * baixado volta a aguardar baixa, finalizado volta a aguardar o termo assinado. As
+     * colunas da etapa desfeita são limpas; o que elas tinham fica no {@link Desfeito}
+     * para a linha do tempo.
+     */
+    public Desfeito desfazer() {
+        var anterior = this.status;
+        switch (anterior) {
+            case VALIDADO -> {
+                var desfeito = new Desfeito(anterior, this.usuarioValidadorId, this.valorValidado, null);
+                this.status = StatusDesconto.SOLICITADO;
+                this.valorValidado = null;
+                this.usuarioValidadorId = null;
+                this.dataValidacao = null;
+                return desfeito;
+            }
+            case REJEITADO -> {
+                var desfeito = new Desfeito(anterior, this.usuarioRejeicaoId, null, null);
+                this.status = StatusDesconto.SOLICITADO;
+                this.motivoRejeicao = null;
+                this.usuarioRejeicaoId = null;
+                this.dataRejeicao = null;
+                return desfeito;
+            }
+            case BAIXADO -> {
+                var desfeito = new Desfeito(anterior, this.usuarioBaixaId, this.valorBaixado, null);
+                this.status = StatusDesconto.VALIDADO;
+                this.valorBaixado = null;
+                this.usuarioBaixaId = null;
+                this.dataBaixa = null;
+                return desfeito;
+            }
+            case FINALIZADO -> {
+                var termo = termoAssinado().orElse(null);
+                var desfeito = new Desfeito(anterior, this.usuarioFinalizacaoId, null, termo);
+                if (termo != null) termo.desmarcarTermoAssinado();
+                this.status = StatusDesconto.BAIXADO;
+                this.usuarioFinalizacaoId = null;
+                this.dataFinalizacao = null;
+                return desfeito;
+            }
+            default -> throw new InvarianteVioladaException("Não há decisão a desfazer: o desconto ainda aguarda validação.");
+        }
+    }
+
+    /** O que a etapa desfeita tinha: quem decidiu, o valor que deixou de valer e o termo que deixou de valer. */
+    public record Desfeito(StatusDesconto statusAnterior, UUID responsavelAnterior, BigDecimal valorAnterior,
+                           DescontoAnexo termoAnterior) {}
 
     /**
      * O termo de desconto é totalmente alterável enquanto não tiver sido validado,

@@ -7,5 +7,7 @@ public record DescontoAnexoResponse(
         String nomeArquivo,
         String url,
         String contentType,
-        Long tamanhoBytes
+        Long tamanhoBytes,
+        /** Termo impresso pelo C.E.S e assinado pelo colaborador (o que finaliza o desconto). */
+        boolean termoAssinado
 ) {}

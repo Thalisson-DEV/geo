@@ -87,7 +87,7 @@ public class DescontoAnalyticsUseCases implements DescontoAnalyticsApi {
         }
 
         private void adicionar(StatusDesconto status) {
-            if (status == StatusDesconto.BAIXADO) {
+            if (status.baixadoEmFolha()) {
                 baixados++;
             } else if (status == StatusDesconto.REJEITADO) {
                 rejeitados++;

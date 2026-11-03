@@ -1,359 +1,517 @@
-import { DateMaskDirective } from '../../../../shared/directives/date-mask.directive';
-import { Component, DestroyRef, OnInit, signal, inject, computed, effect } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TableModule } from 'primeng/table';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { MessageModule } from 'primeng/message';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { AccordionModule } from 'primeng/accordion';
 import { DialogModule } from 'primeng/dialog';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { InputTextModule } from 'primeng/inputtext';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { SelectModule } from 'primeng/select';
-import { TextareaModule } from 'primeng/textarea';
-import { DatePickerModule } from 'primeng/datepicker';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import {
+  CesAsyncStateComponent,
+  CesButtonComponent,
+  CesDatepickerComponent,
+  CesFormDrawerComponent,
+  CesFormSectionComponent,
+  CesIconButtonComponent,
+  CesNumberInputComponent,
+  CesSelectComponent,
+  CesSelectOption,
+  CesStatusComponent,
+  CesTextInputComponent,
+  CesTextareaComponent,
+  CesTone
+} from '@ces/ui';
+import { CesAutocompleteComponent } from '@ces/ui/forms';
 
 import { RhDescontosService } from '../../../../core/services/rh-descontos.service';
 import { RhService } from '../../../../core/services/rh.service';
-import { UsuariosService } from '../../../../core/services/usuarios.service';
-import { AuthService } from '../../../../core/services/auth.service';
 import { NavigationHistoryService } from '../../../../core/navigation/navigation-history.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import {
-  DescontoResponse,
-  DescontoItemRequest,
-  DescontoAnexoResponse,
-  TipoEquipamentoResponse,
-  MotivoDescontoResponse,
-  DescontoRequest,
-  getValorEfetivo,
-  getEtapaValorEfetivo,
   DescontoAnexoCategoria,
-  getDescontoAnexoCategoria,
+  DescontoAnexoResponse,
+  DescontoItemResponse,
+  DescontoRequest,
+  DescontoResponse,
+  DescontoStatus,
+  EventoDesconto,
+  DESCONTO_ANEXO_ACCEPT,
+  MAX_DESCONTO_ANEXO_SIZE_BYTES,
+  MotivoDescontoResponse,
+  TipoEquipamentoResponse,
   getAnexoIcon,
   getAnexoLabel,
-  getAnexoContainerClass,
-  inferMimeType,
-  DESCONTO_ANEXO_ACCEPT,
-  MAX_DESCONTO_ANEXO_SIZE_BYTES
+  getDescontoAnexoCategoria,
+  getEtapaValorEfetivo,
+  getValorEfetivo,
+  inferMimeType
 } from '../../../../core/models/desconto.models';
 import { ColaboradorResponse } from '../../../../core/models/rh.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
 import { LookupStore } from '../../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../../core/lookup/store/remote-lookup';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+import { AnalisarComCopilotoComponent } from '../../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
+import { AcaoDesconto, AcaoDescontoConfirmada, DescontoAcaoDrawerComponent } from './desconto-acao-drawer.component';
+import { DescontoHistoricoComponent } from './desconto-historico.component';
 
-interface EtapaDesconto {
-  nome: string;
-  status: 'CONCLUIDO' | 'EM_ANDAMENTO' | 'PENDENTE' | 'REJEITADO';
-  responsavel?: string;
-  dataConclusao?: string;
-  valor?: number | null;
-  icon: string;
+interface Destaque {
+  tom: CesTone;
+  icone: string;
+  titulo: string;
+  texto: string;
+  motivo?: string | null;
 }
 
+/** Uma linha da trilha do termo: quem fez cada etapa, quando e com que valor. */
+interface EtapaTermo {
+  etapa: string;
+  icone: string;
+  responsavel: string | null;
+  data: string | null | undefined;
+  valor: number | null | undefined;
+  pendente: string | null;
+  tom: CesTone;
+}
+
+const ROTULO_STATUS: Record<DescontoStatus, string> = {
+  SOLICITADO: 'Aguardando validação',
+  VALIDADO: 'Validado',
+  BAIXADO: 'Baixado em folha',
+  FINALIZADO: 'Finalizado',
+  REJEITADO: 'Rejeitado'
+};
+
+const TOM_STATUS: Record<DescontoStatus, CesTone> = {
+  SOLICITADO: 'warning',
+  VALIDADO: 'info',
+  BAIXADO: 'success',
+  FINALIZADO: 'success',
+  REJEITADO: 'danger'
+};
+
+const ICONE_STATUS: Record<DescontoStatus, string> = {
+  SOLICITADO: 'pi-hourglass',
+  VALIDADO: 'pi-check-square',
+  BAIXADO: 'pi-wallet',
+  FINALIZADO: 'pi-verified',
+  REJEITADO: 'pi-times-circle'
+};
+
+/**
+ * Termo de autorização de desconto em folha, no padrão dos relatórios (solicitação de
+ * material, financeira, turno): cabeçalho institucional, faixa da situação, dados em
+ * três colunas, cartões, itens, trilha das etapas, termo com assinaturas e barra
+ * flutuante de ações. Na impressão sai só o documento formal; faixa, cartões, pontos
+ * de atenção e anexos ficam na tela.
+ */
 @Component({
   selector: 'app-relatorio-desconto',
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
-    RouterModule,
-    TableModule,
-    ProgressSpinnerModule,
-    MessageModule,
     ButtonModule,
-    TooltipModule,
-    ToastModule,
-    DatePipe,
-    ConfirmDialogModule,
+    AccordionModule,
     DialogModule,
-    InputNumberModule,
-    InputTextModule,
-    TextareaModule,
-    SelectModule,
-    DatePickerModule,
-    DateMaskDirective,
-    CesAutocompleteComponent
+    ProgressSpinnerModule,
+    CesAsyncStateComponent,
+    CesAutocompleteComponent,
+    CesButtonComponent,
+    CesDatepickerComponent,
+    CesFormDrawerComponent,
+    CesFormSectionComponent,
+    CesIconButtonComponent,
+    CesNumberInputComponent,
+    CesSelectComponent,
+    CesStatusComponent,
+    CesTextInputComponent,
+    CesTextareaComponent,
+    AnalisarComCopilotoComponent,
+    DescontoAcaoDrawerComponent,
+    DescontoHistoricoComponent
   ],
   templateUrl: './relatorio-desconto.component.html',
-  styles: [`
-    .kv { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-    .kv-l { font-size: 10px; font-weight: 600; color: #475569; }
-    :host-context(.app-dark) .kv-l { color: #94a3b8; }
-    .kv-v { font-size: 11px; font-weight: 600; color: #0f172a; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    :host-context(.app-dark) .kv-v { color: #f8fafc; }
-    .kv-v--wrap { font-size: 11px; font-weight: 600; color: #0f172a; text-align: right; white-space: normal; word-break: break-word; }
-    :host-context(.app-dark) .kv-v--wrap { color: #f8fafc; }
-    @keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-    .rise { animation: riseIn .45s cubic-bezier(.22,.61,.36,1) both; }
-    @media (prefers-reduced-motion: reduce) { .rise { animation: none; } }
-    @media print {
-      .fixed { display: none !important; }
-      .rise { animation: none !important; }
-      @page { margin: 10mm; }
-      .kv-l { font-size: 9px; color: #475569 !important; }
-      .kv-v, .kv-v--wrap { font-size: 9px; color: #1e293b !important; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-    }
-  `]
+  styleUrls: ['../../../execucao/relatorios/relatorio.css', './relatorio-desconto.component.css']
 })
 export class RelatorioDescontoComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly navegacao = inject(NavigationHistoryService);
-  private descontosService = inject(RhDescontosService);
-  private rhService = inject(RhService);
-  private usuariosService = inject(UsuariosService);
-  private auth = inject(AuthService);
-  private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
-  private fb = inject(FormBuilder);
-  private sanitizer = inject(DomSanitizer);
-  private destroyRef = inject(DestroyRef);
+  private readonly descontosService = inject(RhDescontosService);
+  private readonly rhService = inject(RhService);
+  private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly lookupStore = inject(LookupStore);
-  private readonly colaboradorLookup = new RemoteLookup<string>({
-    loader: ({ query, cursor }) =>
-      this.lookupStore.searchCollaborators({ query, cursor, limit: 50 }),
-    selectedValues: () => {
-      const id = this.editForm?.get('colaboradorId')?.value;
-      return typeof id === 'string' && id ? [id] : [];
-    },
-    destroyRef: this.destroyRef
-  });
+  private readonly auth = inject(AuthService);
 
-  protected desconto = signal<DescontoResponse | null>(null);
-  protected etapas = signal<EtapaDesconto[]>([]);
-  protected loading = signal(true);
-  protected saving = signal(false);
-  protected error = signal<string | null>(null);
+  protected readonly rotuloStatus = ROTULO_STATUS;
+  protected readonly tomStatus = TOM_STATUS;
+  protected readonly iconeStatus = ICONE_STATUS;
+  protected readonly anexoAccept = DESCONTO_ANEXO_ACCEPT;
+  protected readonly emitidoEm = new Date();
+  protected readonly abs = Math.abs;
 
-  // Preview de Anexos
-  protected anexoAccept = DESCONTO_ANEXO_ACCEPT;
-  protected showPreviewModal = signal(false);
-  protected previewUrl = signal<SafeResourceUrl | null>(null);
-  protected previewRawUrl = signal<string | null>(null);
-  protected previewNomeArquivo = signal<string>('');
-  protected previewTipo = signal<DescontoAnexoCategoria>('other');
-  protected loadingPreview = signal(false);
+  protected readonly desconto = signal<DescontoResponse | null>(null);
+  protected readonly carregando = signal(true);
+  protected readonly salvando = signal(false);
+  protected readonly erro = signal<string | null>(null);
+  private readonly modoImpressao = signal(false);
 
-  protected readonly colaboradores = this.colaboradorLookup.items;
-  protected readonly colaboradoresLoading = this.colaboradorLookup.loading;
-  protected readonly colaboradoresStatus = this.colaboradorLookup.status;
-  private readonly colaboradorDetalhes = signal<ColaboradorResponse[]>([]);
-  protected categorias = signal<TipoEquipamentoResponse[]>([]);
-  protected motivos = signal<MotivoDescontoResponse[]>([]);
+  protected readonly categorias = signal<TipoEquipamentoResponse[]>([]);
+  protected readonly motivos = signal<MotivoDescontoResponse[]>([]);
+  private readonly colaboradores = signal<ColaboradorResponse[]>([]);
 
-  /** Nome dos responsáveis pelas etapas, indexado pelo id do usuário do IAM. */
-  private responsaveis = signal<Record<string, string>>({});
-  /** Ids já consultados na API — evita repetir a busca a cada recarga do desconto. */
-  private responsaveisConsultados = new Set<string>();
-  private colaboradoresCarregados = false;
-
-  protected showRejeitarDialog = signal(false);
-  protected motivoRejeicao = signal('');
-  protected rejeitando = signal(false);
-  protected isPrintMode = signal(false);
-  protected readonly dataEmissao = new Date();
-
-  // Transições com valor obrigatório (guia §4.2)
-  protected showValidarDialog = signal(false);
-  protected valorValidadoInput = signal<number | null>(null);
-  protected validando = signal(false);
-
-  protected showBaixarDialog = signal(false);
-  protected valorBaixadoInput = signal<number | null>(null);
-  protected baixando = signal(false);
-
-  protected editForm: FormGroup = this.fb.group({
-    colaboradorId: [null, Validators.required],
-    motivoId: [null, Validators.required],
-    dataOcorrencia: [null, Validators.required],
-    quantidadeParcelas: [1, [Validators.required, Validators.min(1)]],
-    observacoes: ['']
-  });
-
-  protected hasChanges = signal(false);
-  private initialFormSnapshot: Record<string, unknown> | null = null;
-
-  // Espelho reativo do formulário (o form é a fonte da verdade enquanto SOLICITADO)
-  private formColaboradorId = signal<string | null>(null);
-  private formMotivoId = signal<string | null>(null);
-  private formParcelas = signal<number>(1);
-
-  protected isEditavel = computed(() => this.desconto()?.status === 'SOLICITADO');
-
-  protected colaboradorSelecionado = computed(() => {
-    const id = this.isEditavel() ? this.formColaboradorId() : this.desconto()?.colaboradorId;
-    if (!id) return undefined;
-    return this.colaboradorDetalhes().find(c => c.id === id);
-  });
-
-  protected motivoAtual = computed(() => {
-    const id = this.isEditavel() ? this.formMotivoId() : this.desconto()?.motivo?.id;
-    return this.motivos().find(m => m.id === id) ?? this.desconto()?.motivo;
-  });
-
-  protected selectedMotivoTeto = computed(() => this.motivoAtual()?.tetoParcelas ?? '-');
-
-  protected maxParcelas = computed(() => {
-    const teto = this.selectedMotivoTeto();
-    return typeof teto === 'number' ? teto : 999;
-  });
+  protected readonly opcoesMotivo = computed<CesSelectOption<string>[]>(() =>
+    this.motivos().map(m => ({ label: m.descricao, value: m.id }))
+  );
+  protected readonly opcoesCategoria = computed<CesSelectOption<string>[]>(() =>
+    this.categorias().map(c => ({ label: c.descricao, value: c.id }))
+  );
 
   // ---------------------------------------------------------------
-  // Valores por etapa (Sugerido -> Validado -> Baixado)
+  // Derivados do desconto
   // ---------------------------------------------------------------
 
-  /** Valor que vale agora: baixado > validado > sugerido. */
-  protected valorEfetivo = computed(() => {
+  protected readonly editavel = computed(() => this.desconto()?.status === 'SOLICITADO');
+  protected readonly aceitaAnexo = computed(() => {
+    const status = this.desconto()?.status;
+    return status === 'SOLICITADO' || status === 'VALIDADO';
+  });
+
+  protected readonly colaborador = computed(() => {
+    const id = this.desconto()?.colaboradorId;
+    return id ? this.colaboradores().find(c => c.id === id) ?? null : null;
+  });
+
+  protected readonly nomeColaborador = computed(() => this.colaborador()?.nomeCompleto ?? null);
+
+  protected readonly motivoAtual = computed(() => {
+    const d = this.desconto();
+    if (!d) return null;
+    return this.motivos().find(m => m.id === d.motivo?.id) ?? d.motivo ?? null;
+  });
+
+  protected readonly valorEfetivo = computed(() => {
     const d = this.desconto();
     return d ? getValorEfetivo(d) : 0;
   });
 
-  protected etapaValorEfetivo = computed(() => {
+  protected readonly etapaValorEfetivo = computed(() => {
     const d = this.desconto();
-    return d ? getEtapaValorEfetivo(d) : '-';
+    return d ? getEtapaValorEfetivo(d).toLowerCase() : '';
   });
 
-  protected parcelasAtuais = computed(() => {
-    const d = this.desconto();
-    if (!d) return 1;
-    return (this.isEditavel() ? this.formParcelas() : d.quantidadeParcelas) || 1;
-  });
+  protected readonly parcelas = computed(() => this.desconto()?.quantidadeParcelas || 1);
+  protected readonly valorParcela = computed(() => this.valorEfetivo() / this.parcelas());
 
-  protected valorParcela = computed(() => this.valorEfetivo() / (this.parcelasAtuais() || 1));
+  protected readonly somaItens = computed(() =>
+    (this.desconto()?.itens ?? []).reduce((acc, item) => acc + (item.valor || 0), 0)
+  );
 
-  /** Diferença entre o validado e o sugerido (null quando não validado ou sem divergência). */
-  protected divergenciaValidacao = computed(() => {
+  protected readonly nomesAnexos = computed(() =>
+    (this.desconto()?.anexos ?? []).filter(a => !a.termoAssinado).map(a => a.nomeArquivo).join('; ') + '.'
+  );
+
+  protected readonly codigo = computed(() => this.desconto()?.id?.substring(0, 8).toUpperCase() ?? '');
+
+  /** Diferença entre o validado e o sugerido (null quando não validado ou igual). */
+  protected readonly divergenciaValidacao = computed(() => {
     const d = this.desconto();
-    if (!d || d.valorValidado === null || d.valorValidado === undefined) return null;
+    if (!d || d.valorValidado == null) return null;
     const diff = d.valorValidado - (d.valorSugerido ?? 0);
     return Math.abs(diff) < 0.005 ? null : diff;
   });
 
-  /** Diferença entre o baixado e o validado (null quando não baixado ou sem divergência). */
-  protected divergenciaBaixa = computed(() => {
+  /** Diferença entre o baixado e o validado (null quando não baixado ou igual). */
+  protected readonly divergenciaBaixa = computed(() => {
     const d = this.desconto();
-    if (!d || d.valorBaixado === null || d.valorBaixado === undefined) return null;
-    const base = d.valorValidado ?? d.valorSugerido ?? 0;
-    const diff = d.valorBaixado - base;
+    if (!d || d.valorBaixado == null) return null;
+    const diff = d.valorBaixado - (d.valorValidado ?? d.valorSugerido ?? 0);
     return Math.abs(diff) < 0.005 ? null : diff;
   });
 
-  /** Prévia da divergência enquanto o usuário digita no diálogo de validação. */
-  protected previewDivergenciaValidacao = computed(() => {
+  /** O que está acontecendo agora e o que se espera de quem lê. */
+  protected readonly faixa = computed<Destaque | null>(() => {
     const d = this.desconto();
-    const v = this.valorValidadoInput();
-    if (!d || v === null || v === undefined) return 0;
-    return v - (d.valorSugerido ?? 0);
+    if (!d) return null;
+    switch (d.status) {
+      case 'SOLICITADO':
+        return {
+          tom: 'warning', icone: 'pi pi-hourglass', titulo: 'Aguardando validação',
+          texto: 'Confira os itens e o valor antes de validar. Até a validação, os dados e os itens podem ser alterados.'
+        };
+      case 'VALIDADO':
+        return {
+          tom: 'info', icone: 'pi pi-check-square', titulo: 'Validado, aguardando a baixa em folha',
+          texto: 'Os itens estão congelados. O Departamento Pessoal registra a baixa quando o desconto entrar na folha.'
+        };
+      case 'BAIXADO':
+        return {
+          tom: 'info', icone: 'pi pi-wallet', titulo: 'Baixado em folha, falta o termo assinado',
+          texto: 'Imprima este termo, colete a assinatura do colaborador e anexe o documento assinado para finalizar.'
+        };
+      case 'FINALIZADO':
+        return {
+          tom: 'success', icone: 'pi pi-verified', titulo: 'Finalizado',
+          texto: d.anexos.some(a => a.termoAssinado)
+            ? 'Desconto baixado em folha e termo assinado pelo colaborador anexado. Ciclo concluído.'
+            : 'Baixado em folha antes da exigência do termo assinado; finalizado automaticamente pelo sistema.'
+        };
+      case 'REJEITADO':
+        return {
+          tom: 'danger', icone: 'pi pi-times-circle', titulo: 'Desconto rejeitado',
+          texto: 'O desconto não segue para a folha. O termo fica registrado como rejeitado.',
+          motivo: d.motivoRejeicao
+        };
+    }
   });
 
-  /** Prévia da divergência enquanto o usuário digita no diálogo de baixa. */
-  protected previewDivergenciaBaixa = computed(() => {
+  /** Pontos que quem decide precisa ver antes de validar ou baixar. Só na tela. */
+  protected readonly atencao = computed<Destaque[]>(() => {
     const d = this.desconto();
-    const v = this.valorBaixadoInput();
-    if (!d || v === null || v === undefined) return 0;
-    return v - (d.valorValidado ?? d.valorSugerido ?? 0);
+    if (!d) return [];
+    const pontos: Destaque[] = [];
+    if (d.status === 'SOLICITADO' && !d.itens.length) {
+      pontos.push({
+        tom: 'danger', icone: 'pi pi-list', titulo: 'Sem itens',
+        texto: 'Inclua ao menos um item: o valor sugerido é a soma deles e a validação depende disso.'
+      });
+    }
+    const validacao = this.divergenciaValidacao();
+    if (validacao !== null) {
+      pontos.push({
+        tom: 'warning', icone: 'pi pi-arrows-v', titulo: 'Validado diferente do sugerido',
+        texto: `${this.moeda(Math.abs(validacao))} ${validacao > 0 ? 'acima' : 'abaixo'} da soma dos itens.`
+      });
+    }
+    const baixa = this.divergenciaBaixa();
+    if (baixa !== null) {
+      pontos.push({
+        tom: 'warning', icone: 'pi pi-arrows-v', titulo: 'Baixado diferente do validado',
+        texto: `${this.moeda(Math.abs(baixa))} ${baixa > 0 ? 'acima' : 'abaixo'} do valor validado.`
+      });
+    }
+    if (d.status === 'BAIXADO') {
+      pontos.push({
+        tom: 'warning', icone: 'pi pi-verified', titulo: 'Termo assinado pendente',
+        texto: 'O desconto já entrou na folha, mas a autorização assinada pelo colaborador ainda não foi anexada.'
+      });
+    }
+    if (!d.anexos.some(a => !a.termoAssinado) && d.status !== 'REJEITADO' && d.status !== 'FINALIZADO') {
+      pontos.push({
+        tom: 'info', icone: 'pi pi-paperclip', titulo: 'Sem comprovantes',
+        texto: 'Nenhuma foto ou documento anexado. Evidências ajudam se o colaborador contestar o desconto.'
+      });
+    }
+    return pontos;
   });
 
-  protected somaItens = computed(() =>
-    (this.desconto()?.itens ?? []).reduce((acc, item) => acc + (item.valor || 0), 0)
+  /** Solicitação → validação → baixa (ou rejeição), com o nome de quem fez cada uma. */
+  protected readonly etapas = computed<EtapaTermo[]>(() => {
+    const d = this.desconto();
+    if (!d) return [];
+    const nomes = d.responsaveis ?? {};
+    const etapas: EtapaTermo[] = [{
+      etapa: 'Solicitação', icone: 'pi pi-file-edit', responsavel: nomes.solicitante ?? null,
+      data: d.dataCriacao, valor: d.valorSugerido, pendente: null, tom: 'neutral'
+    }];
+    if (d.status === 'REJEITADO') {
+      etapas.push({
+        etapa: 'Rejeição', icone: 'pi pi-times-circle', responsavel: nomes.rejeicao ?? null,
+        data: d.dataRejeicao ?? d.dataUltimaAlteracao, valor: null, pendente: null, tom: 'danger'
+      });
+      return etapas;
+    }
+    const validado = d.status === 'VALIDADO' || d.status === 'BAIXADO' || d.status === 'FINALIZADO';
+    etapas.push({
+      etapa: 'Validação', icone: 'pi pi-check-square', responsavel: nomes.validador ?? null,
+      data: d.dataValidacao, valor: d.valorValidado, pendente: validado ? null : 'Aguardando validação',
+      tom: validado ? 'info' : 'neutral'
+    });
+    const baixado = d.status === 'BAIXADO' || d.status === 'FINALIZADO';
+    etapas.push({
+      etapa: 'Baixa em folha', icone: 'pi pi-wallet', responsavel: nomes.baixa ?? null,
+      data: d.dataBaixa, valor: d.valorBaixado, pendente: baixado ? null : 'Aguardando baixa',
+      tom: baixado ? 'success' : 'neutral'
+    });
+    const finalizado = d.status === 'FINALIZADO';
+    // Baixados antes da exigência do termo foram finalizados pelo sistema, sem arquivo.
+    const automatico = finalizado && !d.usuarioFinalizacaoId && !d.anexos.some(a => a.termoAssinado);
+    etapas.push({
+      etapa: 'Termo assinado', icone: 'pi pi-verified',
+      responsavel: automatico ? 'Sistema (automático)' : nomes.finalizacao ?? null,
+      data: d.dataFinalizacao, valor: null, pendente: finalizado ? null : 'Aguardando termo assinado',
+      tom: finalizado ? 'success' : 'neutral'
+    });
+    return etapas;
+  });
+
+  /** O termo assinado vigente, em destaque entre os anexos. */
+  protected readonly termo = computed(() => this.desconto()?.anexos.find(a => a.termoAssinado) ?? null);
+  protected readonly comprovantes = computed(() => this.desconto()?.anexos.filter(a => !a.termoAssinado) ?? []);
+
+  // ---------------------------------------------------------------
+  // Linha do tempo
+  // ---------------------------------------------------------------
+
+  protected readonly historico = signal<EventoDesconto[]>([]);
+  protected readonly historicoCarregando = signal(false);
+  protected readonly historicoErro = signal<string | null>(null);
+  protected readonly historicoAberto = signal<string | undefined>(undefined);
+  protected readonly decisoesDesfeitas = computed(() => this.historico().filter(e => e.tipo === 'DECISAO_DESFEITA').length);
+  protected readonly resumoHistorico = computed(() => {
+    const total = this.historico().length;
+    const desfeitas = this.decisoesDesfeitas();
+    const registros = total + (total === 1 ? ' registro' : ' registros');
+    if (!desfeitas) return registros;
+    return registros + ' · ' + desfeitas + (desfeitas === 1 ? ' decisão desfeita' : ' decisões desfeitas');
+  });
+
+  protected carregarHistorico(): void {
+    const id = this.desconto()?.id;
+    if (!id) return;
+    this.historicoCarregando.set(true);
+    this.historicoErro.set(null);
+    this.descontosService.historico(id).subscribe({
+      next: (eventos) => {
+        this.historico.set(eventos);
+        this.historicoCarregando.set(false);
+      },
+      error: (err) => {
+        this.historicoErro.set(getErrorMessage(err));
+        this.historicoCarregando.set(false);
+      }
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // Permissões
+  // ---------------------------------------------------------------
+
+  protected pode(permissao: string): boolean {
+    return this.auth.currentUser()?.permissoes?.includes(permissao) ?? false;
+  }
+
+  /** Validação e rejeição são desfeitas por quem valida; baixa e finalização, por quem baixa. */
+  protected readonly podeDesfazer = computed(() => {
+    switch (this.desconto()?.status) {
+      case 'VALIDADO':
+      case 'REJEITADO': return this.pode('desconto:validar');
+      case 'BAIXADO':
+      case 'FINALIZADO': return this.pode('desconto:baixar');
+      default: return false;
+    }
+  });
+
+  protected readonly rotuloDesfazer = computed(() => {
+    switch (this.desconto()?.status) {
+      case 'VALIDADO': return 'DESFAZER VALIDAÇÃO';
+      case 'REJEITADO': return 'DESFAZER REJEIÇÃO';
+      case 'BAIXADO': return 'DESFAZER BAIXA';
+      case 'FINALIZADO': return 'DESFAZER FINALIZAÇÃO';
+      default: return '';
+    }
+  });
+
+  // ---------------------------------------------------------------
+  // Drawers
+  // ---------------------------------------------------------------
+
+  protected readonly acaoAberta = signal(false);
+  protected readonly acao = signal<AcaoDesconto | null>(null);
+
+  // Dados do termo (colaborador, motivo, ocorrência, parcelas, observações)
+  protected readonly dadosAberto = signal(false);
+  protected readonly dColaborador = signal<string | null>(null);
+  protected readonly dMotivo = signal<string | null>(null);
+  protected readonly dData = signal<Date | null>(null);
+  protected readonly dParcelas = signal<number | null>(1);
+  protected readonly dObservacoes = signal('');
+  protected readonly dTentou = signal(false);
+  private dadosIniciais = '';
+
+  private readonly colaboradorLookup = new RemoteLookup<string>({
+    loader: ({ query, cursor }) => this.lookupStore.searchCollaborators({ query, cursor, limit: 50 }),
+    selectedValues: () => {
+      const id = this.dColaborador();
+      return id ? [id] : [];
+    },
+    destroyRef: this.destroyRef
+  });
+  protected readonly opcoesColaborador = this.colaboradorLookup.items;
+  protected readonly colaboradoresCarregando = this.colaboradorLookup.loading;
+  protected readonly colaboradoresStatus = this.colaboradorLookup.status;
+
+  protected readonly tetoParcelas = computed(() => {
+    const id = this.dMotivo();
+    return this.motivos().find(m => m.id === id)?.tetoParcelas ?? null;
+  });
+
+  protected readonly dadosSujos = computed(() => this.dadosAberto() && this.snapshotDados() !== this.dadosIniciais);
+
+  protected readonly erroParcelas = computed(() => {
+    if (!this.dTentou()) return undefined;
+    const p = this.dParcelas();
+    const teto = this.tetoParcelas();
+    if (p == null || p < 1) return 'Informe ao menos 1 parcela.';
+    if (teto != null && p > teto) return `Este motivo permite até ${teto} parcelas.`;
+    return undefined;
+  });
+
+  // Item
+  protected readonly itemAberto = signal(false);
+  protected readonly itemEditando = signal<string | null>(null);
+  protected readonly iDescricao = signal('');
+  protected readonly iCategoria = signal<string | null>(null);
+  protected readonly iValor = signal<number | null>(null);
+  protected readonly iTentou = signal(false);
+  protected readonly itemSujo = computed(() =>
+    this.itemAberto() && (!!this.iDescricao().trim() || !!this.iCategoria() || this.iValor() != null) && !this.itemEditando()
   );
 
-  /** Exposto para o template formatar divergências sem sinal. */
-  protected readonly abs = Math.abs;
+  // Pré-visualização de anexos
+  protected readonly previewAberto = signal(false);
+  protected readonly previewUrl = signal<SafeResourceUrl | null>(null);
+  private readonly previewRawUrl = signal<string | null>(null);
+  protected readonly previewNome = signal('');
+  protected readonly previewTipo = signal<DescontoAnexoCategoria>('other');
+  protected readonly previewCarregando = signal(false);
 
   constructor() {
-    this.editForm.valueChanges.subscribe((value) => {
-      this.formColaboradorId.set(value.colaboradorId ?? null);
-      this.formMotivoId.set(value.motivoId ?? null);
-      this.formParcelas.set(value.quantidadeParcelas || 1);
-      if (!this.desconto() || this.desconto()?.status !== 'SOLICITADO') return;
-      this.hasChanges.set(this.checkIfChanged());
-    });
-
+    // Ficha do colaborador (CPF, função, base) para os dados gerais e a assinatura.
     effect(() => {
-      const id = this.isEditavel() ? this.formColaboradorId() : this.desconto()?.colaboradorId;
-      if (!id || this.colaboradorDetalhes().some(colaborador => colaborador.id === id)) return;
+      const id = this.desconto()?.colaboradorId;
+      if (!id || this.colaboradores().some(c => c.id === id)) return;
       this.rhService.buscarColaboradorPorId(id).subscribe({
         next: (colaborador) => {
-          const idAtual = this.isEditavel()
-            ? this.formColaboradorId()
-            : this.desconto()?.colaboradorId;
-          if (idAtual !== id) return;
-          this.colaboradorDetalhes.update(items => [
-            ...items.filter(item => item.id !== colaborador.id),
-            colaborador
-          ]);
-          this.colaboradorLookup.seedSelected({
-            value: colaborador.id,
-            label: colaborador.nomeCompleto
-          });
+          this.colaboradores.update(lista => [...lista.filter(c => c.id !== colaborador.id), colaborador]);
+          this.colaboradorLookup.seedSelected({ value: colaborador.id, label: colaborador.nomeCompleto });
         },
         error: () => {}
       });
     });
-
-    // Regra de teto de parcelas (guia §4 regra 1) — o motivo é editável enquanto SOLICITADO
-    effect(() => {
-      const motivo = this.motivoAtual();
-      const parcelasCtrl = this.editForm.controls['quantidadeParcelas'];
-      if (motivo && parcelasCtrl && this.desconto()?.status === 'SOLICITADO') {
-        parcelasCtrl.setValidators([Validators.required, Validators.min(1), Validators.max(motivo.tetoParcelas)]);
-        if (parcelasCtrl.value > motivo.tetoParcelas) {
-          parcelasCtrl.setValue(motivo.tetoParcelas);
-        }
-        parcelasCtrl.updateValueAndValidity({ emitEvent: false });
-      }
-    });
   }
 
-  // Formulário Inline de Item
-  protected showItemForm = signal(false);
-  protected newItem = {
-    descricaoMaterial: '',
-    tipoEquipamentoId: null as string | null,
-    valor: null as number | null
-  };
-  protected editingItemId = signal<string | null>(null);
-  protected inlineEditDraft = {
-    id: '',
-    descricaoMaterial: '',
-    tipoEquipamentoId: null as string | null,
-    valor: null as number | null
-  };
-
-  ngOnInit() {
-    this.route.queryParams?.subscribe(params => {
-      if (params['mode'] === 'print') {
-        this.isPrintMode.set(true);
-      }
-    });
-    this.loadLookups();
-    const id = this.route.snapshot?.paramMap?.get('id');
-    if (id) {
-      this.loadDesconto(id);
-    } else {
-      this.error.set('ID do Desconto não informado na URL.');
-      this.loading.set(false);
-    }
+  ngOnInit(): void {
+    this.modoImpressao.set(this.route.snapshot?.queryParamMap?.get('mode') === 'print');
+    this.carregarListas();
     this.route.paramMap?.subscribe(params => {
-      const pId = params.get('id');
-      if (pId && pId !== id) {
-        this.loadDesconto(pId);
+      const id = params.get('id');
+      if (id) {
+        this.carregar(id);
+      } else {
+        this.erro.set('Desconto não informado no endereço.');
+        this.carregando.set(false);
       }
     });
   }
 
-  private loadLookups() {
-    this.colaboradoresCarregados = true;
+  private carregarListas(): void {
     this.descontosService.listarTiposEquipamento({ page: 0, size: 200, ativo: true }).subscribe({
       next: (res) => this.categorias.set(res.content)
     });
@@ -362,327 +520,96 @@ export class RelatorioDescontoComponent implements OnInit {
     });
   }
 
-  protected loadDesconto(id: string) {
-    this.loading.set(true);
-    this.error.set(null);
+  protected recarregar(): void {
+    const id = this.desconto()?.id ?? this.route.snapshot?.paramMap?.get('id');
+    if (id) this.carregar(id);
+  }
+
+  private carregar(id: string): void {
+    this.carregando.set(true);
+    this.erro.set(null);
     this.descontosService.obterDescontoPorId(id).subscribe({
       next: (res) => {
         this.desconto.set(res);
-        this.buildEtapas(res);
-        this.resolverResponsaveis();
-
-        this.editForm.patchValue({
-          colaboradorId: res.colaboradorId,
-          motivoId: res.motivo?.id,
-          dataOcorrencia: res.dataOcorrencia ? new Date(res.dataOcorrencia) : null,
-          quantidadeParcelas: res.quantidadeParcelas,
-          observacoes: res.observacoes ?? ''
-        }, { emitEvent: false });
-
-        this.formColaboradorId.set(res.colaboradorId ?? null);
-        this.formMotivoId.set(res.motivo?.id ?? null);
-        this.formParcelas.set(res.quantidadeParcelas || 1);
-        this.initialFormSnapshot = this.snapshotForm();
-        this.hasChanges.set(false);
-
-        if (res.status !== 'SOLICITADO') {
-          this.editForm.disable({ emitEvent: false });
-        } else {
-          this.editForm.enable({ emitEvent: false });
-        }
-
-        this.loading.set(false);
-        this.saving.set(false);
-
-        if (this.isPrintMode()) {
-          setTimeout(() => {
-            window.print();
-          }, 500);
+        this.carregarHistorico();
+        this.carregando.set(false);
+        this.salvando.set(false);
+        if (this.modoImpressao()) {
+          this.modoImpressao.set(false);
+          setTimeout(() => window.print(), 600);
         }
         this.atenderAcaoDoEmail(res);
       },
       error: (err) => {
-        this.error.set(getErrorMessage(err));
-        this.loading.set(false);
-        this.saving.set(false);
+        this.erro.set(getErrorMessage(err));
+        this.carregando.set(false);
+        this.salvando.set(false);
       }
     });
   }
 
-  protected searchColaboradores(query: string): void {
-    this.colaboradorLookup.search(query);
+  // ---------------------------------------------------------------
+  // Validar, baixar, rejeitar
+  // ---------------------------------------------------------------
+
+  protected abrirAcao(acao: AcaoDesconto): void {
+    const d = this.desconto();
+    if (!d) return;
+    if (acao === 'VALIDAR' && !d.itens.length) {
+      this.messageService.add({ severity: 'warn', summary: 'Sem itens', detail: 'Inclua ao menos um item antes de validar.' });
+      return;
+    }
+    this.acao.set(acao);
+    this.acaoAberta.set(true);
   }
 
-  protected loadMoreColaboradores(): void { this.colaboradorLookup.loadNext(); }
-
-  protected retryColaboradores(): void { this.colaboradorLookup.retry(); }
-
-  /**
-   * Compara contra o snapshot tirado no carregamento em vez de re-derivar do DTO,
-   * evitando falsos positivos de fuso horário na data da ocorrência.
-   */
-  private checkIfChanged(): boolean {
-    if (!this.initialFormSnapshot) return false;
-    return JSON.stringify(this.snapshotForm()) !== JSON.stringify(this.initialFormSnapshot);
-  }
-
-  private snapshotForm() {
-    const v = this.editForm.getRawValue();
-    return {
-      colaboradorId: v.colaboradorId ?? null,
-      motivoId: v.motivoId ?? null,
-      dataOcorrencia: v.dataOcorrencia instanceof Date ? this.toLocalIsoDate(v.dataOcorrencia) : (v.dataOcorrencia ?? null),
-      quantidadeParcelas: v.quantidadeParcelas ?? null,
-      observacoes: (v.observacoes || '').trim()
+  protected confirmarAcao(evento: AcaoDescontoConfirmada): void {
+    const d = this.desconto();
+    if (!d) return;
+    this.salvando.set(true);
+    const requisicoes: Record<AcaoDesconto, () => Observable<unknown>> = {
+      VALIDAR: () => this.descontosService.validarDesconto(d.id, { valorValidado: evento.valor! }),
+      BAIXAR: () => this.descontosService.baixarDesconto(d.id, { valorBaixado: evento.valor! }),
+      REJEITAR: () => this.descontosService.rejeitarDesconto(d.id, { motivoRejeicao: evento.motivo }),
+      DESFAZER: () => this.descontosService.desfazerDecisao(d.id, { motivo: evento.motivo }),
+      FINALIZAR: () => this.descontosService.finalizarComTermo(d.id, evento.arquivo!)
     };
-  }
-
-  /** Data local em yyyy-MM-dd, evitando o deslocamento de fuso do toISOString(). */
-  private toLocalIsoDate(date: Date): string {
-    const offset = date.getTimezoneOffset() * 60000;
-    return new Date(date.getTime() - offset).toISOString().substring(0, 10);
-  }
-
-  private buildEtapas(d: DescontoResponse) {
-    const arr: EtapaDesconto[] = [];
-
-    // 1. Solicitado
-    arr.push({
-      nome: 'Solicitado',
-      status: 'CONCLUIDO',
-      dataConclusao: d.dataCriacao,
-      responsavel: d.usuarioSolicitanteId,
-      valor: d.valorSugerido,
-      icon: 'pi pi-file-edit'
-    });
-
-    // 2. Validado / Rejeitado
-    if (d.status === 'REJEITADO') {
-      arr.push({
-        nome: 'Rejeitado',
-        status: 'REJEITADO',
-        dataConclusao: d.dataRejeicao || d.dataUltimaAlteracao,
-        responsavel: d.usuarioRejeicaoId || d.usuarioUltimaAlteracao,
-        icon: 'pi pi-times-circle'
-      });
-      arr.push({
-        nome: 'Baixado',
-        status: 'PENDENTE',
-        icon: 'pi pi-wallet'
-      });
-    } else {
-      arr.push({
-        nome: 'Validado',
-        status: d.status === 'VALIDADO' || d.status === 'BAIXADO' ? 'CONCLUIDO' : (d.status === 'SOLICITADO' ? 'EM_ANDAMENTO' : 'PENDENTE'),
-        dataConclusao: d.dataValidacao,
-        responsavel: d.usuarioValidadorId,
-        valor: d.valorValidado,
-        icon: 'pi pi-check-square'
-      });
-
-      // 3. Baixado
-      arr.push({
-        nome: 'Baixado',
-        status: d.status === 'BAIXADO' ? 'CONCLUIDO' : (d.status === 'VALIDADO' ? 'EM_ANDAMENTO' : 'PENDENTE'),
-        dataConclusao: d.dataBaixa,
-        responsavel: d.usuarioBaixaId,
-        valor: d.valorBaixado,
-        icon: 'pi pi-wallet'
-      });
-    }
-
-    this.etapas.set(arr);
-  }
-
-  // ---------------------------------------------------------------
-  // Responsáveis pelas etapas
-  //
-  // O backend devolve apenas o id do *usuário* (IAM) de cada transição.
-  // Resolvemos o nome primeiro na lista de colaboradores já carregada
-  // (via `idUsuario`, sem custo de rede) e só caímos no IAM para os ids
-  // que sobrarem — colaborador inativo ou fora das 200 primeiras linhas.
-  // ---------------------------------------------------------------
-
-  private static readonly UUID_REGEX =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-  private podeConsultarUsuarios(): boolean {
-    return this.auth.currentUser()?.permissoes?.includes('iam:usuario:read') ?? false;
-  }
-
-  private resolverResponsaveis() {
-    const d = this.desconto();
-    // Espera os colaboradores para não gastar requisições ao IAM à toa.
-    if (!d || !this.colaboradoresCarregados) return;
-
-    const ids = [
-      d.usuarioSolicitanteId,
-      d.usuarioValidadorId,
-      d.usuarioBaixaId,
-      d.usuarioRejeicaoId
-    ].filter((id): id is string => !!id && RelatorioDescontoComponent.UUID_REGEX.test(id));
-
-    for (const id of new Set(ids)) {
-      if (this.responsaveis()[id]) continue;
-
-      const colaborador = this.colaboradorDetalhes().find(c => c.idUsuario === id);
-      if (colaborador) {
-        this.responsaveis.update(m => ({ ...m, [id]: colaborador.nomeCompleto }));
-        continue;
-      }
-
-      if (this.responsaveisConsultados.has(id) || !this.podeConsultarUsuarios()) continue;
-      this.responsaveisConsultados.add(id);
-
-      this.usuariosService.buscarUsuarioPorId(id).subscribe({
-        next: (usuario) => {
-          const nome =
-            this.colaboradorDetalhes().find(c => c.id === usuario.idColaborador)?.nomeCompleto ||
-            usuario.login;
-          if (nome) this.responsaveis.update(m => ({ ...m, [id]: nome }));
-        },
-        // Usuário removido ou fora do alcance: o template apenas omite a linha.
-        error: () => {}
-      });
-    }
-  }
-
-  /**
-   * Nome de exibição do responsável por uma etapa.
-   * Retorna null quando não há nome legível — nunca expõe um UUID cru na tela.
-   */
-  protected getResponsavelNome(responsavel?: string): string | null {
-    if (!responsavel) return null;
-    const nome = this.responsaveis()[responsavel];
-    if (nome) return nome;
-    // `usuarioUltimaAlteracao` chega como login, não como UUID — pode ir direto pra tela.
-    return RelatorioDescontoComponent.UUID_REGEX.test(responsavel) ? null : responsavel;
-  }
-
-  protected getColaboradorName(id?: string): string {
-    if (!id) return '-';
-    return this.colaboradorDetalhes().find(c => c.id === id)?.nomeCompleto ||
-      this.colaboradores().find(c => c.value === id)?.label || id;
-  }
-
-  protected getStatusClass(status?: string): string {
-    switch (status) {
-      case 'SOLICITADO': return 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60';
-      case 'VALIDADO': return 'bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800/60';
-      case 'BAIXADO': return 'bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800/60';
-      case 'REJEITADO': return 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800/60';
-      default: return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700';
-    }
-  }
-
-  protected getStatusLabel(status?: string): string {
-    return status || '-';
-  }
-
-  // ---------------------------------------------------------------
-  // Ações de Transição
-  // ---------------------------------------------------------------
-
-  protected abrirValidarDialog() {
-    const d = this.desconto();
-    if (!d) return;
-    if (!d.itens?.length) {
-      this.messageService.add({ severity: 'warn', summary: 'Aviso', detail: 'Não é possível validar um desconto sem itens.' });
-      return;
-    }
-    if (this.hasChanges()) {
-      this.messageService.add({ severity: 'warn', summary: 'Alterações pendentes', detail: 'Salve ou descarte as alterações antes de validar.' });
-      return;
-    }
-    // UX (guia §4.2): pré-preenche com o valor da etapa anterior
-    this.valorValidadoInput.set(d.valorSugerido ?? 0);
-    this.showValidarDialog.set(true);
-  }
-
-  protected confirmarValidacao() {
-    const d = this.desconto();
-    const valor = this.valorValidadoInput();
-    if (!d || valor === null || valor === undefined || valor < 0) return;
-
-    this.validando.set(true);
-    this.descontosService.validarDesconto(d.id, { valorValidado: valor }).subscribe({
+    const requisicao = requisicoes[evento.acao]();
+    const sucesso: Record<AcaoDesconto, string> = {
+      VALIDAR: 'Desconto validado. Os itens ficam congelados.',
+      BAIXAR: 'Baixa registrada. Falta anexar o termo assinado.',
+      REJEITAR: 'Desconto rejeitado.',
+      DESFAZER: 'Decisão desfeita. O motivo ficou na linha do tempo.',
+      FINALIZAR: 'Termo assinado anexado. Desconto finalizado.'
+    };
+    requisicao.subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Validado', detail: 'Desconto validado. Os itens estão agora bloqueados para edição.' });
-        this.validando.set(false);
-        this.showValidarDialog.set(false);
-        this.loadDesconto(d.id);
+        this.messageService.add({ severity: 'success', summary: 'Pronto', detail: sucesso[evento.acao] });
+        this.acaoAberta.set(false);
+        this.carregar(d.id);
       },
       error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-        this.validando.set(false);
-      }
-    });
-  }
-
-  protected formatCpf(cpf?: string): string {
-    if (!cpf) return '-';
-    const clean = cpf.replace(/\D/g, '');
-    if (clean.length === 11) {
-      return `${clean.slice(0, 3)}.${clean.slice(3, 6)}.${clean.slice(6, 9)}-${clean.slice(9, 11)}`;
-    }
-    return cpf;
-  }
-
-  protected isBaixaValida = computed(() => {
-    const valor = this.valorBaixadoInput();
-    return valor !== null && valor !== undefined && valor >= 0;
-  });
-
-  protected abrirBaixarDialog() {
-    const d = this.desconto();
-    if (!d) return;
-    // Pré-preenche com o valor validado (etapa anterior)
-    this.valorBaixadoInput.set(d.valorValidado ?? d.valorSugerido ?? 0);
-    this.showBaixarDialog.set(true);
-  }
-
-  protected confirmarBaixa() {
-    const d = this.desconto();
-    const valor = this.valorBaixadoInput();
-    if (!d || !this.isBaixaValida()) return;
-
-    this.baixando.set(true);
-
-    this.descontosService.baixarDesconto(d.id, {
-      valorBaixado: valor!
-    }).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Baixa registrada',
-          detail: 'Desconto baixado com sucesso. O registro foi selado e não pode mais ser alterado.'
-        });
-        this.baixando.set(false);
-        this.showBaixarDialog.set(false);
-        this.loadDesconto(d.id);
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-        this.baixando.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Não foi possível concluir', detail: getErrorMessage(err) });
+        this.salvando.set(false);
       }
     });
   }
 
   /**
-   * Os botões do e-mail abrem o termo com `?acao=validar|rejeitar|baixar`: o diálogo
+   * Os botões do e-mail abrem o termo com `?acao=validar|rejeitar|baixar`: o drawer
    * da etapa já vem aberto para confirmar. Se a etapa já passou, a pessoa fica sabendo
    * em vez de procurar um botão que não existe mais. O parâmetro sai da URL em
-   * seguida, para que recarregar a página não reabra o diálogo.
+   * seguida, para que recarregar a página não reabra o drawer.
    */
-  private atenderAcaoDoEmail(desconto: DescontoResponse) {
+  private atenderAcaoDoEmail(desconto: DescontoResponse): void {
     const acao = this.route.snapshot?.queryParamMap?.get('acao');
     if (!acao) return;
     this.router.navigate([], { relativeTo: this.route, queryParams: { acao: null }, queryParamsHandling: 'merge', replaceUrl: true });
 
-    const etapa: Record<string, { status: string; abrir: () => void }> = {
-      validar: { status: 'SOLICITADO', abrir: () => this.abrirValidarDialog() },
-      rejeitar: { status: 'SOLICITADO', abrir: () => this.abrirRejeitarDialog() },
-      baixar: { status: 'VALIDADO', abrir: () => this.abrirBaixarDialog() }
+    const etapa: Record<string, { status: DescontoStatus; acao: AcaoDesconto }> = {
+      validar: { status: 'SOLICITADO', acao: 'VALIDAR' },
+      rejeitar: { status: 'SOLICITADO', acao: 'REJEITAR' },
+      baixar: { status: 'VALIDADO', acao: 'BAIXAR' }
     };
     const pedida = etapa[acao];
     if (!pedida) return;
@@ -690,194 +617,219 @@ export class RelatorioDescontoComponent implements OnInit {
       this.messageService.add({
         severity: 'info',
         summary: 'Nada a fazer nesta etapa',
-        detail: `Este desconto já está ${this.rotuloStatusEmail(desconto.status)}.`
+        detail: `Este desconto já está ${ROTULO_STATUS[desconto.status].toLowerCase()}.`
       });
       return;
     }
-    pedida.abrir();
+    this.abrirAcao(pedida.acao);
   }
 
-  private rotuloStatusEmail(status: string): string {
-    return ({ SOLICITADO: 'aguardando validação', VALIDADO: 'validado', BAIXADO: 'baixado', REJEITADO: 'rejeitado' } as Record<string, string>)[status] ?? status.toLowerCase();
-  }
+  // ---------------------------------------------------------------
+  // Dados do termo
+  // ---------------------------------------------------------------
 
-  protected abrirRejeitarDialog() {
-    this.motivoRejeicao.set('');
-    this.showRejeitarDialog.set(true);
-  }
-
-  protected cancelarRejeicao() {
-    this.showRejeitarDialog.set(false);
-  }
-
-  protected confirmarRejeicao() {
-    const d = this.desconto();
-    if (!d || !this.motivoRejeicao().trim()) return;
-
-    this.rejeitando.set(true);
-    this.descontosService.rejeitarDesconto(d.id, { motivoRejeicao: this.motivoRejeicao().trim() }).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Rejeitado', detail: 'Desconto rejeitado com sucesso.' });
-        this.rejeitando.set(false);
-        this.showRejeitarDialog.set(false);
-        this.loadDesconto(d.id);
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-        this.rejeitando.set(false);
-      }
-    });
-  }
-
-  // Gestão de Itens
-  protected addNewItem() {
-    const d = this.desconto();
-    if (!d || !this.newItem.tipoEquipamentoId || !this.newItem.valor || !this.newItem.descricaoMaterial) return;
-
-    const payload: DescontoItemRequest = {
-      descricaoMaterial: this.newItem.descricaoMaterial,
-      tipoEquipamentoId: this.newItem.tipoEquipamentoId,
-      valor: this.newItem.valor
-    };
-
-    this.saving.set(true);
-    this.descontosService.adicionarItem(d.id, payload).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Adicionado', detail: 'Item inserido. O valor sugerido foi recalculado.' });
-        this.showItemForm.set(false);
-        this.newItem = { descricaoMaterial: '', tipoEquipamentoId: null, valor: null };
-        this.loadDesconto(d.id);
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-        this.saving.set(false);
-      }
-    });
-  }
-
-  protected editItem(item: any) {
-    this.editingItemId.set(item.id);
-    this.inlineEditDraft = {
-      id: item.id,
-      descricaoMaterial: item.descricaoMaterial,
-      tipoEquipamentoId: item.tipoEquipamento?.id || item.tipoEquipamentoId,
-      valor: item.valor
-    };
-  }
-
-  protected saveEditItem() {
-    const d = this.desconto();
-    if (!d || !this.inlineEditDraft.id || !this.inlineEditDraft.tipoEquipamentoId || !this.inlineEditDraft.valor || !this.inlineEditDraft.descricaoMaterial) return;
-
-    const payload: DescontoItemRequest = {
-      descricaoMaterial: this.inlineEditDraft.descricaoMaterial,
-      tipoEquipamentoId: this.inlineEditDraft.tipoEquipamentoId!,
-      valor: this.inlineEditDraft.valor!
-    };
-
-    this.saving.set(true);
-    this.descontosService.atualizarItem(d.id, this.inlineEditDraft.id, payload).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Atualizado', detail: 'Item atualizado com sucesso. O valor sugerido foi recalculado.' });
-        this.editingItemId.set(null);
-        this.loadDesconto(d.id);
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-        this.saving.set(false);
-      }
-    });
-  }
-
-  protected cancelEditItem() {
-    this.editingItemId.set(null);
-  }
-
-  protected removeItem(itemId: string) {
+  protected abrirDados(): void {
     const d = this.desconto();
     if (!d) return;
+    this.dColaborador.set(d.colaboradorId ?? null);
+    this.dMotivo.set(d.motivo?.id ?? null);
+    this.dData.set(d.dataOcorrencia ? new Date(d.dataOcorrencia) : null);
+    this.dParcelas.set(d.quantidadeParcelas || 1);
+    this.dObservacoes.set(d.observacoes ?? '');
+    this.dTentou.set(false);
+    this.dadosIniciais = this.snapshotDados();
+    this.dadosAberto.set(true);
+  }
 
+  private snapshotDados(): string {
+    const data = this.dData();
+    return JSON.stringify([
+      this.dColaborador(), this.dMotivo(), data ? this.dataLocal(data) : null,
+      this.dParcelas(), this.dObservacoes().trim()
+    ]);
+  }
+
+  protected erroDados(campo: 'colaborador' | 'motivo' | 'data'): string | undefined {
+    if (!this.dTentou()) return undefined;
+    if (campo === 'colaborador' && !this.dColaborador()) return 'Selecione o colaborador.';
+    if (campo === 'motivo' && !this.dMotivo()) return 'Selecione o motivo.';
+    if (campo === 'data' && !this.dData()) return 'Informe a data da ocorrência.';
+    return undefined;
+  }
+
+  protected salvarDados(): void {
+    const d = this.desconto();
+    if (!d) return;
+    this.dTentou.set(true);
+    if (this.erroDados('colaborador') || this.erroDados('motivo') || this.erroDados('data') || this.erroParcelas()) return;
+
+    const payload: DescontoRequest = {
+      colaboradorId: this.dColaborador()!,
+      motivoId: this.dMotivo()!,
+      quantidadeParcelas: this.dParcelas()!,
+      dataOcorrencia: this.dData()!.toISOString()
+    };
+    const observacoes = this.dObservacoes().trim();
+    if (observacoes) payload.observacoes = observacoes;
+
+    this.salvando.set(true);
+    this.descontosService.atualizarDesconto(d.id, payload).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Alterações salvas', detail: 'Os dados do termo foram atualizados.' });
+        this.dadosAberto.set(false);
+        this.carregar(d.id);
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Não foi possível salvar', detail: getErrorMessage(err) });
+        this.salvando.set(false);
+      }
+    });
+  }
+
+  protected pesquisarColaboradores(termo: string): void { this.colaboradorLookup.search(termo); }
+  protected carregarMaisColaboradores(): void { this.colaboradorLookup.loadNext(); }
+  protected tentarColaboradoresDeNovo(): void { this.colaboradorLookup.retry(); }
+
+  /** Data local em yyyy-MM-dd, sem o deslocamento de fuso do toISOString(). */
+  private dataLocal(data: Date): string {
+    const offset = data.getTimezoneOffset() * 60000;
+    return new Date(data.getTime() - offset).toISOString().substring(0, 10);
+  }
+
+  // ---------------------------------------------------------------
+  // Itens
+  // ---------------------------------------------------------------
+
+  protected abrirItem(item?: DescontoItemResponse): void {
+    this.itemEditando.set(item?.id ?? null);
+    this.iDescricao.set(item?.descricaoMaterial ?? '');
+    this.iCategoria.set(item?.tipoEquipamento?.id ?? null);
+    this.iValor.set(item?.valor ?? null);
+    this.iTentou.set(false);
+    this.itemAberto.set(true);
+  }
+
+  protected erroItem(campo: 'descricao' | 'categoria' | 'valor'): string | undefined {
+    if (!this.iTentou()) return undefined;
+    if (campo === 'descricao' && !this.iDescricao().trim()) return 'Descreva o material.';
+    if (campo === 'categoria' && !this.iCategoria()) return 'Selecione a categoria.';
+    if (campo === 'valor' && !(this.iValor()! > 0)) return 'Informe o valor.';
+    return undefined;
+  }
+
+  protected salvarItem(): void {
+    const d = this.desconto();
+    if (!d) return;
+    this.iTentou.set(true);
+    if (this.erroItem('descricao') || this.erroItem('categoria') || this.erroItem('valor')) return;
+
+    const payload = {
+      descricaoMaterial: this.iDescricao().trim(),
+      tipoEquipamentoId: this.iCategoria()!,
+      valor: this.iValor()!
+    };
+    const id = this.itemEditando();
+    this.salvando.set(true);
+    (id ? this.descontosService.atualizarItem(d.id, id, payload) : this.descontosService.adicionarItem(d.id, payload)).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: id ? 'Item atualizado' : 'Item incluído',
+          detail: 'O valor sugerido foi recalculado.'
+        });
+        this.itemAberto.set(false);
+        this.carregar(d.id);
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Não foi possível salvar', detail: getErrorMessage(err) });
+        this.salvando.set(false);
+      }
+    });
+  }
+
+  protected removerItem(item: DescontoItemResponse): void {
+    const d = this.desconto();
+    if (!d) return;
     this.confirmationService.confirm({
-      message: 'Tem certeza que deseja remover este item? O valor sugerido será recalculado.',
-      header: 'Confirmação',
+      header: 'Remover item',
+      message: `Remover "${item.descricaoMaterial}"? O valor sugerido será recalculado.`,
       icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Remover',
+      rejectLabel: 'Voltar',
       accept: () => {
-        this.saving.set(true);
-        this.descontosService.removerItem(d.id, itemId).subscribe({
+        this.salvando.set(true);
+        this.descontosService.removerItem(d.id, item.id).subscribe({
           next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Removido', detail: 'Item deletado com sucesso.' });
-            this.loadDesconto(d.id);
+            this.messageService.add({ severity: 'success', summary: 'Item removido', detail: 'O valor sugerido foi recalculado.' });
+            this.carregar(d.id);
           },
           error: (err) => {
-            this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-            this.saving.set(false);
+            this.messageService.add({ severity: 'error', summary: 'Não foi possível remover', detail: getErrorMessage(err) });
+            this.salvando.set(false);
           }
         });
       }
     });
   }
 
-  // Gestão de Anexos
-  protected onFileSelect(event: any) {
-    const d = this.desconto();
-    if (!d) return;
+  // ---------------------------------------------------------------
+  // Anexos
+  // ---------------------------------------------------------------
 
-    const file: File = event.target.files[0];
-    if (file) {
-      if (file.size > MAX_DESCONTO_ANEXO_SIZE_BYTES) {
-        this.messageService.add({ severity: 'warn', summary: 'Atenção', detail: 'O arquivo excede o limite de 15MB.' });
-        event.target.value = '';
-        return;
-      }
-      this.saving.set(true);
-      this.descontosService.enviarAnexo(d.id, file).subscribe({
-        next: () => {
-          this.messageService.add({ severity: 'success', summary: 'Upload', detail: 'Anexo salvo com sucesso.' });
-          this.loadDesconto(d.id);
-          event.target.value = ''; // reseta input
-        },
-        error: (err) => {
-          this.messageService.add({ severity: 'error', summary: 'Erro no Upload', detail: getErrorMessage(err) });
-          this.saving.set(false);
-          event.target.value = '';
-        }
-      });
+  protected enviarAnexo(event: Event): void {
+    const d = this.desconto();
+    const campo = event.target as HTMLInputElement;
+    const arquivo = campo.files?.[0];
+    if (!d || !arquivo) return;
+    if (arquivo.size > MAX_DESCONTO_ANEXO_SIZE_BYTES) {
+      this.messageService.add({ severity: 'warn', summary: 'Arquivo grande demais', detail: 'O limite é de 15 MB por arquivo.' });
+      campo.value = '';
+      return;
     }
+    this.salvando.set(true);
+    this.descontosService.enviarAnexo(d.id, arquivo).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Anexo enviado', detail: arquivo.name });
+        campo.value = '';
+        this.carregar(d.id);
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'error', summary: 'Não foi possível enviar', detail: getErrorMessage(err) });
+        campo.value = '';
+        this.salvando.set(false);
+      }
+    });
   }
 
-  protected removerAnexo(anexoId: string) {
+  protected removerAnexo(anexo: DescontoAnexoResponse): void {
     const d = this.desconto();
     if (!d) return;
-
     this.confirmationService.confirm({
-      message: 'Tem certeza que deseja remover este anexo?',
-      header: 'Confirmação',
+      header: 'Remover anexo',
+      message: `Remover "${anexo.nomeArquivo}"?`,
       icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Remover',
+      rejectLabel: 'Voltar',
       accept: () => {
-        this.saving.set(true);
-        this.descontosService.removerAnexo(d.id, anexoId).subscribe({
+        this.salvando.set(true);
+        this.descontosService.removerAnexo(d.id, anexo.id).subscribe({
           next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Removido', detail: 'Anexo deletado.' });
-            this.loadDesconto(d.id);
+            this.messageService.add({ severity: 'success', summary: 'Anexo removido', detail: anexo.nomeArquivo });
+            this.carregar(d.id);
           },
           error: (err) => {
-            this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-            this.saving.set(false);
+            this.messageService.add({ severity: 'error', summary: 'Não foi possível remover', detail: getErrorMessage(err) });
+            this.salvando.set(false);
           }
         });
       }
     });
   }
 
-  protected baixarAnexo(anexo: DescontoAnexoResponse) {
-    const descontoId = this.desconto()?.id;
-    if (!descontoId) {
-      this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Desconto não encontrado.' });
-      return;
-    }
-
-    this.messageService.add({ severity: 'info', summary: 'Download', detail: 'Iniciando download...' });
-    this.descontosService.baixarAnexoArquivo(descontoId, anexo.id).subscribe({
+  protected baixarAnexo(anexo: DescontoAnexoResponse): void {
+    const id = this.desconto()?.id;
+    if (!id) return;
+    this.descontosService.baixarAnexoArquivo(id, anexo.id).subscribe({
       next: (blob) => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -888,57 +840,35 @@ export class RelatorioDescontoComponent implements OnInit {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao baixar o anexo.' });
-      }
+      error: () => this.messageService.add({ severity: 'error', summary: 'Não foi possível baixar', detail: anexo.nomeArquivo })
     });
   }
 
-  protected visualizarAnexo(anexo: DescontoAnexoResponse) {
-    const descontoId = this.desconto()?.id;
-    if (!descontoId) return;
-
-    const categoria = getDescontoAnexoCategoria(anexo.nomeArquivo, anexo.contentType);
-    this.previewNomeArquivo.set(anexo.nomeArquivo);
-    this.previewTipo.set(categoria);
-    this.loadingPreview.set(true);
-    this.showPreviewModal.set(true);
-
-    this.descontosService.baixarAnexoArquivo(descontoId, anexo.id).subscribe({
+  protected visualizarAnexo(anexo: DescontoAnexoResponse): void {
+    const id = this.desconto()?.id;
+    if (!id) return;
+    this.previewNome.set(anexo.nomeArquivo);
+    this.previewTipo.set(getDescontoAnexoCategoria(anexo.nomeArquivo, anexo.contentType));
+    this.previewCarregando.set(true);
+    this.previewAberto.set(true);
+    this.descontosService.baixarAnexoArquivo(id, anexo.id).subscribe({
       next: (blob) => {
-        const mimeType = inferMimeType(anexo.nomeArquivo, anexo.contentType || blob.type);
-        const typedBlob = new Blob([blob], { type: mimeType });
-        const objectUrl = window.URL.createObjectURL(typedBlob);
-        this.previewRawUrl.set(objectUrl);
-        this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl));
-        this.loadingPreview.set(false);
+        const tipo = inferMimeType(anexo.nomeArquivo, anexo.contentType || blob.type);
+        const url = window.URL.createObjectURL(new Blob([blob], { type: tipo }));
+        this.previewRawUrl.set(url);
+        this.previewUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(url));
+        this.previewCarregando.set(false);
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao carregar a pré-visualização do anexo.' });
-        this.loadingPreview.set(false);
-        this.showPreviewModal.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Não foi possível abrir', detail: anexo.nomeArquivo });
+        this.previewCarregando.set(false);
+        this.previewAberto.set(false);
       }
     });
   }
 
-  protected getAnexoCategoria(nomeArquivo?: string, contentType?: string): DescontoAnexoCategoria {
-    return getDescontoAnexoCategoria(nomeArquivo, contentType);
-  }
-
-  protected getAnexoIcon(nomeArquivo?: string, contentType?: string): string {
-    return getAnexoIcon(getDescontoAnexoCategoria(nomeArquivo, contentType));
-  }
-
-  protected getAnexoLabel(nomeArquivo?: string, contentType?: string): string {
-    return getAnexoLabel(getDescontoAnexoCategoria(nomeArquivo, contentType));
-  }
-
-  protected getAnexoContainerClass(nomeArquivo?: string, contentType?: string): string {
-    return getAnexoContainerClass(getDescontoAnexoCategoria(nomeArquivo, contentType));
-  }
-
-  protected fecharPreviewModal() {
-    this.showPreviewModal.set(false);
+  protected fecharPreview(): void {
+    this.previewAberto.set(false);
     const raw = this.previewRawUrl();
     if (raw) {
       window.URL.revokeObjectURL(raw);
@@ -947,67 +877,46 @@ export class RelatorioDescontoComponent implements OnInit {
     this.previewUrl.set(null);
   }
 
-  protected abrirPreviewNovaAba() {
+  protected abrirPreviewNovaAba(): void {
     const raw = this.previewRawUrl();
-    if (raw) {
-      window.open(raw, '_blank');
-    }
+    if (raw) window.open(raw, '_blank');
   }
 
-  protected salvarAlteracoes() {
-    const d = this.desconto();
-    if (!d || this.editForm.invalid || !this.hasChanges()) return;
-
-    this.saving.set(true);
-    const formValue = this.editForm.getRawValue();
-
-    const payload: DescontoRequest = {
-      colaboradorId: formValue.colaboradorId,
-      motivoId: formValue.motivoId,
-      quantidadeParcelas: formValue.quantidadeParcelas,
-      dataOcorrencia: formValue.dataOcorrencia instanceof Date
-        ? formValue.dataOcorrencia.toISOString()
-        : formValue.dataOcorrencia
-    };
-
-    if (formValue.observacoes && formValue.observacoes.trim() !== '') {
-      payload.observacoes = formValue.observacoes.trim();
-    }
-
-    this.descontosService.atualizarDesconto(d.id, payload).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Sucesso', detail: 'Alterações salvas.' });
-        this.loadDesconto(d.id);
-      },
-      error: (err) => {
-        this.messageService.add({ severity: 'error', summary: 'Erro', detail: getErrorMessage(err) });
-        this.saving.set(false);
-      }
-    });
+  protected categoriaAnexo(anexo: DescontoAnexoResponse): DescontoAnexoCategoria {
+    return getDescontoAnexoCategoria(anexo.nomeArquivo, anexo.contentType);
   }
 
-  protected descartarAlteracoes() {
-    const d = this.desconto();
-    if (!d) return;
-    this.editForm.patchValue({
-      colaboradorId: d.colaboradorId,
-      motivoId: d.motivo?.id,
-      dataOcorrencia: d.dataOcorrencia ? new Date(d.dataOcorrencia) : null,
-      quantidadeParcelas: d.quantidadeParcelas,
-      observacoes: d.observacoes ?? ''
-    }, { emitEvent: false });
-    this.formColaboradorId.set(d.colaboradorId ?? null);
-    this.formMotivoId.set(d.motivo?.id ?? null);
-    this.formParcelas.set(d.quantidadeParcelas || 1);
-    this.hasChanges.set(false);
+  protected iconeAnexo(anexo: DescontoAnexoResponse): string {
+    return getAnexoIcon(this.categoriaAnexo(anexo));
   }
 
-  protected formatSize(bytes: number): string {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  protected rotuloAnexo(anexo: DescontoAnexoResponse): string {
+    const tamanho = anexo.tamanhoBytes ? ` · ${this.tamanho(anexo.tamanhoBytes)}` : '';
+    return getAnexoLabel(this.categoriaAnexo(anexo)) + tamanho;
+  }
+
+  private tamanho(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1).replace('.', ',')} MB`;
+  }
+
+  // ---------------------------------------------------------------
+  // Utilidades do template
+  // ---------------------------------------------------------------
+
+  protected formatarCpf(cpf?: string | null): string {
+    const limpo = (cpf ?? '').replace(/\D/g, '');
+    if (limpo.length !== 11) return cpf || '—';
+    return `${limpo.slice(0, 3)}.${limpo.slice(3, 6)}.${limpo.slice(6, 9)}-${limpo.slice(9)}`;
+  }
+
+  private moeda(valor: number): string {
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  }
+
+  protected irPara(id: string): void {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   /** Aberto em nova aba pela lista: fecha a aba; senão volta pelo histórico. */
@@ -1015,7 +924,7 @@ export class RelatorioDescontoComponent implements OnInit {
     this.navegacao.back(['/dp/descontos/lancamento']);
   }
 
-  protected print() {
+  protected imprimir(): void {
     window.print();
   }
 }
