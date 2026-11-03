@@ -140,11 +140,36 @@ export class App {
     '/financeiro/pagamentos': 'financeiro:pagamento:read',
     '/financeiro/pagamentos/nova': 'financeiro:pagamento:write',
     '/frota/veiculos': 'frota:veiculo:read',
+    '/frota/ordens-servico': 'frota:os:read',
+    '/frota/preventiva': 'frota:preventiva:read',
+    '/frota/relatorios/corretivas-servico': 'frota:preventiva:read',
     '/frota/implementos': 'frota:veiculo:read',
     '/frota/condutores': 'frota:condutor:read',
     '/frota/documentos': 'frota:documento:read',
+    '/frota/checklists': 'frota:checklist:read',
     '/frota/odometro': 'frota:veiculo:read',
-    '/frota/configuracoes': 'frota:veiculo:read',
+    '/frota/telemetria': 'frota:telemetria:read',
+    '/frota/telemetria/eventos': 'frota:telemetria:read',
+    '/frota/telemetria/mapa': 'frota:telemetria:read',
+    '/frota/ordens-servico/quadro': 'frota:os:read',
+    '/frota/ordens-servico/calendario': 'frota:os:read',
+    '/frota/abastecimentos': 'frota:abastecimento:read',
+    '/frota/despesas': 'frota:despesa:read',
+    '/frota/sinistros': 'frota:sinistro:read',
+    '/frota/seguros': 'frota:seguro:read',
+    '/frota/pneus': 'frota:pneu:read',
+    '/frota/estoque': 'frota:estoque:read',
+    '/frota/cadastros/tipos-veiculo': 'frota:veiculo:read',
+    '/frota/cadastros/tipos-implemento': 'frota:veiculo:read',
+    '/frota/cadastros/itens-manutencao': 'frota:veiculo:read',
+    '/frota/cadastros/modelos-checklist': 'frota:checklist:read',
+    '/frota/cadastros/planos-preventiva': 'frota:preventiva:read',
+    '/frota/cadastros/aprovadores-abastecimento': 'frota:abastecimento:read',
+    '/frota/cadastros/postos': 'frota:abastecimento:read',
+    '/frota/cadastros/seguradoras': 'frota:seguro:read',
+    '/frota/cadastros/produtos-abastecimento': 'frota:abastecimento:read',
+    '/frota/cadastros/tipos-despesa': 'frota:despesa:read',
+    '/frota/cadastros/parametros': 'frota:veiculo:read',
     '/admin/cadastros/status': 'iam:status:read',
     '/admin/cadastros/tratamento-erros': 'sincronizacao:read',
     '/admin/cadastros/tipos-servico': 'execucao:tipo-servico:read',
@@ -379,12 +404,67 @@ export class App {
       label: 'Frota',
       icon: 'pi pi-car',
       items: [
-        { label: 'Veículos', icon: 'pi pi-car', routerLink: '/frota/veiculos' },
-        { label: 'Condutores', icon: 'pi pi-id-card', routerLink: '/frota/condutores' },
-        { label: 'Implementos', icon: 'pi pi-link', routerLink: '/frota/implementos' },
-        { label: 'Documentos e vencimentos', icon: 'pi pi-file', routerLink: '/frota/documentos' },
-        { label: 'Conferência de KM', icon: 'pi pi-gauge', routerLink: '/frota/odometro' },
-        { label: 'Configurações', icon: 'pi pi-cog', routerLink: '/frota/configuracoes' }
+        {
+          label: 'Manutenção',
+          icon: 'pi pi-wrench',
+          items: [
+            { label: 'Ordens de serviço', icon: 'pi pi-list', routerLink: '/frota/ordens-servico', routerLinkActiveOptions: { exact: true } },
+            { label: 'Preventiva', icon: 'pi pi-calendar-clock', routerLink: '/frota/preventiva' },
+            { label: 'Pneus', icon: 'ces-icon-pneu', routerLink: '/frota/pneus' },
+            { label: 'Estoque da oficina', icon: 'pi pi-warehouse', routerLink: '/frota/estoque' },
+            { label: 'Quadro de OS', icon: 'pi pi-objects-column', routerLink: '/frota/ordens-servico/quadro' },
+            { label: 'Agenda da frota', icon: 'pi pi-calendar', routerLink: '/frota/ordens-servico/calendario' }
+          ]
+        },
+        {
+          label: 'Operação',
+          icon: 'pi pi-truck',
+          items: [
+            { label: 'Checklists', icon: 'pi pi-list-check', routerLink: '/frota/checklists' },
+            { label: 'Abastecimentos', icon: 'pi pi-gauge', routerLink: '/frota/abastecimentos' },
+            { label: 'Despesas', icon: 'pi pi-receipt', routerLink: '/frota/despesas' },
+            { label: 'Sinistros', icon: 'pi pi-exclamation-circle', routerLink: '/frota/sinistros' },
+            { label: 'Conferência de KM', icon: 'pi pi-check-square', routerLink: '/frota/odometro' },
+            { label: 'Mapa da frota', icon: 'pi pi-map', routerLink: '/frota/telemetria/mapa' },
+            { label: 'Eventos de condução', icon: 'pi pi-exclamation-triangle', routerLink: '/frota/telemetria/eventos' }
+          ]
+        },
+        {
+          label: 'Frota e condutores',
+          icon: 'pi pi-car',
+          items: [
+            { label: 'Veículos', icon: 'pi pi-car', routerLink: '/frota/veiculos' },
+            { label: 'Implementos', icon: 'pi pi-link', routerLink: '/frota/implementos' },
+            { label: 'Condutores', icon: 'pi pi-id-card', routerLink: '/frota/condutores' },
+            { label: 'Documentos e vencimentos', icon: 'pi pi-file', routerLink: '/frota/documentos' },
+            { label: 'Seguros', icon: 'pi pi-shield', routerLink: '/frota/seguros' }
+          ]
+        },
+        {
+          label: 'Relatórios',
+          icon: 'pi pi-chart-bar',
+          items: [
+            { label: 'Corretivas por serviço', icon: 'pi pi-chart-bar', routerLink: '/frota/relatorios/corretivas-servico' }
+          ]
+        },
+        {
+          label: 'Cadastros',
+          icon: 'pi pi-cog',
+          items: [
+            { label: 'Tipos de Veículo', icon: 'pi pi-car', routerLink: '/frota/cadastros/tipos-veiculo' },
+            { label: 'Tipos de Implemento', icon: 'pi pi-link', routerLink: '/frota/cadastros/tipos-implemento' },
+            { label: 'Itens de Manutenção', icon: 'pi pi-wrench', routerLink: '/frota/cadastros/itens-manutencao' },
+            { label: 'Modelos de Checklist', icon: 'pi pi-list-check', routerLink: '/frota/cadastros/modelos-checklist' },
+            { label: 'Planos de Preventiva', icon: 'pi pi-calendar-clock', routerLink: '/frota/cadastros/planos-preventiva' },
+            { label: 'Aprovadores do Abastecimento', icon: 'pi pi-user-edit', routerLink: '/frota/cadastros/aprovadores-abastecimento' },
+            { label: 'Postos', icon: 'pi pi-map-marker', routerLink: '/frota/cadastros/postos' },
+            { label: 'Seguradoras e Corretoras', icon: 'pi pi-shield', routerLink: '/frota/cadastros/seguradoras' },
+            { label: 'Rastreadores', icon: 'pi pi-wifi', routerLink: '/frota/telemetria', routerLinkActiveOptions: { exact: true } },
+            { label: 'Produtos do Abastecimento', icon: 'pi pi-box', routerLink: '/frota/cadastros/produtos-abastecimento' },
+            { label: 'Tipos de Despesa', icon: 'pi pi-receipt', routerLink: '/frota/cadastros/tipos-despesa' },
+            { label: 'Parâmetros', icon: 'pi pi-sliders-h', routerLink: '/frota/cadastros/parametros' }
+          ]
+        }
       ]
     },
     {
