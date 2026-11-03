@@ -27,28 +27,28 @@ public interface DescontoDoc {
     @Operation(summary = "Atualizar o termo de desconto",
             description = "O termo é totalmente alterável (inclusive o colaborador) enquanto estiver no status SOLICITADO, ou seja, antes da validação.")
     @PutMapping("/{id}")
-    ResponseEntity<DescontoResponse> atualizar(@PathVariable UUID id, @RequestBody DescontoRequest request);
+    ResponseEntity<DescontoResponse> atualizar(@PathVariable UUID id, @RequestBody DescontoRequest request, @Parameter(hidden = true) Usuario usuario);
 
     @Operation(summary = "Adicionar item ao desconto")
     @PostMapping("/{id}/itens")
-    ResponseEntity<Void> adicionarItem(@PathVariable UUID id, @RequestBody DescontoItemRequest request);
+    ResponseEntity<Void> adicionarItem(@PathVariable UUID id, @RequestBody DescontoItemRequest request, @Parameter(hidden = true) Usuario usuario);
 
     @Operation(summary = "Atualizar item do desconto")
     @PutMapping("/{id}/itens/{itemId}")
-    ResponseEntity<Void> atualizarItem(@PathVariable UUID id, @PathVariable UUID itemId, @RequestBody DescontoItemRequest request);
+    ResponseEntity<Void> atualizarItem(@PathVariable UUID id, @PathVariable UUID itemId, @RequestBody DescontoItemRequest request, @Parameter(hidden = true) Usuario usuario);
 
     @Operation(summary = "Remover item do desconto")
     @DeleteMapping("/{id}/itens/{itemId}")
-    ResponseEntity<Void> removerItem(@PathVariable UUID id, @PathVariable UUID itemId);
+    ResponseEntity<Void> removerItem(@PathVariable UUID id, @PathVariable UUID itemId, @Parameter(hidden = true) Usuario usuario);
 
     @Operation(summary = "Adicionar anexo ao desconto",
             description = "Adiciona anexo ao desconto. Tipos aceitos: imagens (JPEG, PNG, WebP, HEIC), documentos (PDF, DOC, DOCX), áudios (OGG, MP3, WAV, AAC, M4A, etc.) e vídeos (MP4, WebM, MOV, AVI, MKV, etc.), com limite máximo de 15 MB.")
     @PostMapping(value = "/{id}/anexos", consumes = "multipart/form-data")
-    ResponseEntity<Void> adicionarAnexo(@PathVariable UUID id, @RequestPart("arquivo") MultipartFile arquivo);
+    ResponseEntity<Void> adicionarAnexo(@PathVariable UUID id, @RequestPart("arquivo") MultipartFile arquivo, @Parameter(hidden = true) Usuario usuario);
 
     @Operation(summary = "Remover anexo do desconto")
     @DeleteMapping("/{id}/anexos/{anexoId}")
-    ResponseEntity<Void> removerAnexo(@PathVariable UUID id, @PathVariable UUID anexoId);
+    ResponseEntity<Void> removerAnexo(@PathVariable UUID id, @PathVariable UUID anexoId, @Parameter(hidden = true) Usuario usuario);
 
     @Operation(summary = "Baixar anexo do desconto")
     @GetMapping("/{id}/anexos/{anexoId}/download")
@@ -85,4 +85,23 @@ public interface DescontoDoc {
 
     @Operation(summary = "Exportar descontos em CSV (Detalhado)", description = "Gera um arquivo CSV contendo os dados detalhados dos descontos, limitado a 10.000 registros.")
     ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> exportarDetalhado(@ParameterObject DescontoFilter filter);
+
+    @Operation(summary = "Desfazer a última decisão do desconto",
+            description = "Validado e rejeitado voltam a aguardar validação; baixado volta a aguardar baixa; "
+                    + "finalizado volta a aguardar o termo assinado. Exige motivo e fica na linha do tempo.")
+    @PatchMapping("/{id}/desfazer")
+    ResponseEntity<Void> desfazer(@PathVariable UUID id,
+                                  @RequestBody com.nexo.app.modules.desconto.application.dto.DescontoDesfazerRequest request,
+                                  @Parameter(hidden = true) Usuario usuario);
+
+    @Operation(summary = "Finalizar desconto com o termo assinado",
+            description = "Anexa o termo impresso pelo C.E.S e assinado pelo colaborador; o desconto baixado passa a FINALIZADO.")
+    @PostMapping(value = "/{id}/finalizar", consumes = "multipart/form-data")
+    ResponseEntity<Void> finalizar(@PathVariable UUID id, @RequestPart("arquivo") MultipartFile arquivo,
+                                   @Parameter(hidden = true) Usuario usuario);
+
+    @Operation(summary = "Linha do tempo do desconto",
+            description = "Tudo o que aconteceu com o desconto, na ordem: lançamento, alterações, decisões e decisões desfeitas.")
+    @GetMapping("/{id}/historico")
+    ResponseEntity<java.util.List<com.nexo.app.modules.desconto.application.dto.EventoDescontoResponse>> historico(@PathVariable UUID id);
 }

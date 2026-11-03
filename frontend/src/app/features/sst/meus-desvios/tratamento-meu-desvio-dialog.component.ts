@@ -1,368 +1,309 @@
-import { DateMaskDirective } from '../../../shared/directives/date-mask.directive';
-import { CommonModule } from '@angular/common';
-import { Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
-import { DatePickerModule } from 'primeng/datepicker';
-import { DialogModule } from 'primeng/dialog';
-import { TextareaModule } from 'primeng/textarea';
-import { TooltipModule } from 'primeng/tooltip';
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  CesButtonComponent,
+  CesCalloutComponent,
+  CesDatepickerComponent,
+  CesFormDrawerComponent,
+  CesStatusComponent,
+  CesTextareaComponent,
+  CesTone
+} from '@ces/ui';
 
-import { MeuDesvioResponse, TratarMeuDesvioRequest } from '../../../core/models/meu-desvio.models';
-import { GravidadeDesvio, StatusDesvio } from '../../../core/models/sst.models';
+import { TratarMeuDesvioRequest } from '../../../core/models/meu-desvio.models';
+import { GRAVIDADE_LABELS, GravidadeDesvio, StatusDesvio } from '../../../core/models/sst.models';
+import { GRAVIDADE_ICONE, GRAVIDADE_TOM } from '../sst-ui';
 import { formatarDataLocal, parsearDataLocal } from './meus-desvios.utils';
+
+/** O que o tratamento precisa saber do desvio (vale para "meu desvio" e para o desvio da gestão). */
+export interface DesvioEmTratamento {
+  pergunta?: string | null;
+  descricao?: string | null;
+  gravidade?: GravidadeDesvio | null;
+  status?: StatusDesvio | null;
+  acaoCorretiva?: string | null;
+  prazo?: string | null;
+  vencido?: boolean | null;
+}
+
+type Situacao = { valor: StatusDesvio; rotulo: string; detalhe: string; icone: string; tom: CesTone };
+
+const SITUACOES: Situacao[] = [
+  { valor: 'RESOLVIDO', rotulo: 'Já corrigido', detalhe: 'O problema foi resolvido.', icone: 'pi pi-check-circle', tom: 'success' },
+  { valor: 'EM_TRATAMENTO', rotulo: 'Em tratamento', detalhe: 'Tem plano e prazo para corrigir.', icone: 'pi pi-wrench', tom: 'warning' },
+  { valor: 'ABERTO', rotulo: 'Ainda em aberto', detalhe: 'Nada foi feito ainda.', icone: 'pi pi-exclamation-circle', tom: 'danger' }
+];
+
+/** Limite do tratamento em lote no servidor. */
+const LIMITE_LOTE = 100;
 
 @Component({
   selector: 'app-tratamento-meu-desvio-dialog',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    DatePickerModule,
-    DialogModule,
-    TextareaModule,
-    TooltipModule,
-    DateMaskDirective
-  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DatePipe, CesButtonComponent, CesCalloutComponent, CesDatepickerComponent, CesFormDrawerComponent, CesStatusComponent, CesTextareaComponent],
+  styles: `
+    .td-resumo {
+      display: grid;
+      gap: 0.375rem;
+      padding: 0.75rem 0.875rem;
+      border: 1px solid var(--ces-border);
+      border-radius: var(--ces-radius-md);
+      background: var(--ces-surface-subtle);
+    }
+    .td-resumo__topo {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .td-resumo__pergunta {
+      margin: 0;
+      color: var(--ces-foreground);
+      font-size: var(--ces-font-body);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .td-resumo__texto,
+    .td-resumo__prazo {
+      margin: 0;
+      color: var(--ces-foreground-muted);
+      font-size: var(--ces-font-caption);
+      line-height: 1.45;
+    }
+    .td-resumo__prazo {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.375rem;
+    }
+    .td-pergunta {
+      margin: 0 0 0.5rem;
+      color: var(--ces-foreground);
+      font-size: var(--ces-font-control);
+      font-weight: 600;
+    }
+    .td-situacoes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    @media (max-width: 30rem) {
+      .td-situacoes {
+        grid-template-columns: 1fr;
+      }
+    }
+    .td-situacao {
+      --td-tom: var(--ces-foreground-subtle);
+      display: grid;
+      gap: 0.25rem;
+      align-content: start;
+      min-height: var(--ces-touch-target, 2.75rem);
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--ces-border);
+      border-radius: var(--ces-radius-md);
+      background: var(--ces-surface);
+      color: var(--ces-foreground);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition:
+        border-color var(--ces-duration-fast) var(--ces-ease-standard),
+        background-color var(--ces-duration-fast) var(--ces-ease-standard);
+    }
+    .td-situacao[data-tone='success'] { --td-tom: var(--ces-success); }
+    .td-situacao[data-tone='warning'] { --td-tom: var(--ces-warning); }
+    .td-situacao[data-tone='danger'] { --td-tom: var(--ces-danger); }
+    .td-situacao:hover {
+      border-color: color-mix(in srgb, var(--td-tom) 55%, var(--ces-border));
+    }
+    .td-situacao:focus-visible {
+      outline: 2px solid var(--ces-focus-ring);
+      outline-offset: 2px;
+    }
+    .td-situacao[aria-checked='true'] {
+      border-color: var(--td-tom);
+      background: color-mix(in srgb, var(--td-tom) 12%, var(--ces-surface));
+      box-shadow: inset 0 0 0 1px var(--td-tom);
+    }
+    .td-situacao__rotulo {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: var(--ces-font-control);
+      font-weight: 700;
+    }
+    .td-situacao__rotulo .pi {
+      color: var(--td-tom);
+    }
+    .td-situacao__detalhe {
+      color: var(--ces-foreground-muted);
+      font-size: var(--ces-font-caption);
+      line-height: 1.35;
+    }
+  `,
   template: `
-    <p-dialog
-      [header]="modoLote ? 'Tratar desvios selecionados em lote' : 'Tratamento do desvio'"
+    <ces-form-drawer
       [(visible)]="visible"
-      [modal]="true"
-      [style]="{ width: '540px' }"
-      [breakpoints]="{ '640px': '96vw' }"
-      [draggable]="false"
-      [resizable]="false"
-      styleClass="custom-dialog dialogo-tratamento"
-      appendTo="body"
+      [title]="modoLote() ? 'Tratar ' + quantidade() + ' desvios' : 'Tratar desvio'"
+      [description]="modoLote() ? 'O mesmo status, ação e prazo valem para todos os selecionados.' : 'Conte o que foi feito ou o que será feito para corrigir.'"
+      [dirty]="alterado()"
+      size="md"
     >
-      @if (modoLote) {
-        <div class="mb-4 rounded-xl border border-primary-100 dark:border-primary-800/60 bg-primary-50/70 dark:bg-primary-950/30 p-3 text-[11px] text-primary-800 dark:text-primary-300 flex items-center gap-2">
-          <i class="pi pi-check-square text-base text-primary-700 dark:text-primary-400"></i>
-          <span>A mesma tratativa será aplicada atomicamente a <strong>{{ quantidade }}</strong> desvio(s) selecionado(s).</span>
-        </div>
-      } @else if (item; as desvio) {
-        <div class="mb-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-800 p-3.5">
-          <div class="flex items-start justify-between gap-2">
-            <div class="min-w-0 flex-1">
-              <div class="text-[11px] font-semibold text-slate-800 dark:text-slate-100">
-                {{ desvio.pergunta || 'Pergunta não identificada' }}
-              </div>
-              @if (desvio.descricao) {
-                <div class="mt-1 text-[10px] text-slate-500 dark:text-slate-400 line-clamp-3">
-                  {{ desvio.descricao }}
-                </div>
-              }
-            </div>
-            @if (desvio.gravidade) {
-              <div class="shrink-0">
-                <span
-                  class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold border shadow-2xs whitespace-nowrap"
-                  [ngClass]="gravidadeClass(desvio.gravidade)"
-                >
-                  <i [class]="gravidadeIcon(desvio.gravidade)"></i>
-                  {{ desvio.gravidade }}
-                </span>
-              </div>
+      @if (!modoLote() && item(); as d) {
+        <div class="td-resumo">
+          <div class="td-resumo__topo">
+            <p class="td-resumo__pergunta">{{ d.pergunta || 'Pergunta não identificada' }}</p>
+            @if (d.gravidade) {
+              <ces-status [tone]="gravidadeTom(d.gravidade)" [icon]="gravidadeIcone(d.gravidade)">{{ gravidadeLabel(d.gravidade) }}</ces-status>
             }
           </div>
-          @if (desvio.prazo) {
-            <div class="mt-2 pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
-              <i class="pi pi-calendar text-[10px]"></i>
-              <span>Prazo atual: <strong>{{ desvio.prazo | date: 'dd/MM/yyyy' }}</strong></span>
-              @if (desvio.vencido) {
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-rose-600 text-white shadow-xs">
-                  <i class="pi pi-clock text-[9px]"></i> Vencido
-                </span>
+          @if (d.descricao) {
+            <p class="td-resumo__texto">{{ d.descricao }}</p>
+          }
+          @if (d.prazo) {
+            <p class="td-resumo__prazo">
+              <i class="pi pi-calendar" aria-hidden="true"></i> Prazo atual: <strong>{{ d.prazo | date: 'dd/MM/yyyy' }}</strong>
+              @if (d.vencido) {
+                <ces-status tone="danger" icon="pi-clock">Vencido</ces-status>
               }
-            </div>
+            </p>
           }
         </div>
       }
 
-      <div class="flex flex-col gap-4">
-        <!-- Seletor visual de situação (Cards de escolha rápida) -->
-        <div class="flex flex-col gap-1.5">
-          <label class="filter-label !text-slate-700 dark:!text-slate-300 !text-[11px] !font-semibold">
-            Qual é a situação deste desvio? <span class="text-red-500" aria-label="obrigatório">*</span>
-          </label>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <!-- Opção: Já corrigido -->
+      <div>
+        <p class="td-pergunta" id="td-situacao-titulo">Como está este desvio agora?</p>
+        <div class="td-situacoes" role="radiogroup" aria-labelledby="td-situacao-titulo">
+          @for (s of situacoes; track s.valor) {
             <button
               type="button"
-              (click)="selecionarStatus('RESOLVIDO')"
-              [class]="status === 'RESOLVIDO'
-                ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 ring-2 ring-emerald-500/30'
-                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-emerald-300 dark:hover:border-emerald-700'"
-              class="p-2.5 rounded-xl border flex flex-col items-start gap-1 text-left transition-all cursor-pointer"
+              role="radio"
+              class="td-situacao"
+              [attr.data-tone]="s.tom"
+              [attr.aria-checked]="status() === s.valor"
+              [attr.tabindex]="status() === s.valor ? 0 : -1"
+              (click)="status.set(s.valor)"
+              (keydown)="navegar($event)"
             >
-              <div class="flex items-center gap-1.5 w-full">
-                <i class="pi pi-check-circle text-sm text-emerald-600 dark:text-emerald-400"></i>
-                <span class="text-[11px] font-bold">Já corrigido</span>
-              </div>
-              <span class="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">Solucionado e finalizado</span>
+              <span class="td-situacao__rotulo"><i [class]="s.icone" aria-hidden="true"></i>{{ s.rotulo }}</span>
+              <span class="td-situacao__detalhe">{{ s.detalhe }}</span>
             </button>
-
-            <!-- Opção: Em tratamento -->
-            <button
-              type="button"
-              (click)="selecionarStatus('EM_TRATAMENTO')"
-              [class]="status === 'EM_TRATAMENTO'
-                ? 'border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 ring-2 ring-amber-500/30'
-                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-amber-300 dark:hover:border-amber-700'"
-              class="p-2.5 rounded-xl border flex flex-col items-start gap-1 text-left transition-all cursor-pointer"
-            >
-              <div class="flex items-center gap-1.5 w-full">
-                <i class="pi pi-wrench text-sm text-amber-600 dark:text-amber-400"></i>
-                <span class="text-[11px] font-bold">Em tratamento</span>
-              </div>
-              <span class="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">Definir plano e prazo</span>
-            </button>
-
-            <!-- Opção: Em aberto -->
-            <button
-              type="button"
-              (click)="selecionarStatus('ABERTO')"
-              [class]="status === 'ABERTO'
-                ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200 ring-2 ring-rose-500/30'
-                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-rose-300 dark:hover:border-rose-700'"
-              class="p-2.5 rounded-xl border flex flex-col items-start gap-1 text-left transition-all cursor-pointer"
-            >
-              <div class="flex items-center gap-1.5 w-full">
-                <i class="pi pi-exclamation-circle text-sm text-rose-500 dark:text-rose-400"></i>
-                <span class="text-[11px] font-bold">Em aberto</span>
-              </div>
-              <span class="text-[9px] text-slate-500 dark:text-slate-400 leading-tight">Ainda não iniciado</span>
-            </button>
-          </div>
+          }
         </div>
-
-        <!-- Formulários dinâmicos conforme o status selecionado -->
-        @if (status === 'RESOLVIDO') {
-          <div class="flex flex-col gap-3 animate-in fade-in duration-300">
-            <div class="flex items-center gap-2 p-2.5 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300 text-[10px]">
-              <i class="pi pi-info-circle shrink-0"></i>
-              <span>Ao marcar como corrigido, o desvio é encerrado com a data e hora de resolução atuais.</span>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="filter-label !text-slate-600 dark:!text-slate-300 !text-[11px]">
-                O que foi realizado para sanar o desvio? <span class="text-red-500" aria-label="obrigatório">*</span>
-              </label>
-              <textarea
-                pTextarea
-                [(ngModel)]="acao"
-                rows="3"
-                class="w-full custom-input !text-[11px]"
-                placeholder="Descreva a ação corretiva que solucionou a irregularidade..."
-              ></textarea>
-            </div>
-          </div>
-        }
-
-        @if (status === 'EM_TRATAMENTO') {
-          <div class="flex flex-col gap-3 animate-in fade-in duration-300">
-            <div class="flex items-center gap-2 p-2.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-800/40 text-amber-800 dark:text-amber-300 text-[10px]">
-              <i class="pi pi-info-circle shrink-0"></i>
-              <span>Defina a data limite para a conclusão do tratamento e o plano de ação correspondente.</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div class="flex flex-col gap-1 sm:col-span-1">
-                <label class="filter-label !text-slate-600 dark:!text-slate-300 !text-[11px]">
-                  Prazo para conclusão <span class="text-red-500" aria-label="obrigatório">*</span>
-                </label>
-                <p-datepicker
-                  [(ngModel)]="prazo"
-                  dateFormat="dd/mm/yy"
-                  dateMask
-                  [showIcon]="true"
-                  iconDisplay="input"
-                  [showOnFocus]="true"
-                  [showButtonBar]="true"
-                  placeholder="dd/mm/aaaa"
-                  appendTo="body"
-                  class="custom-date w-full"
-                  size="small"
-                />
-              </div>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="filter-label !text-slate-600 dark:!text-slate-300 !text-[11px]">
-                Ação corretiva planejada
-              </label>
-              <textarea
-                pTextarea
-                [(ngModel)]="acao"
-                rows="3"
-                class="w-full custom-input !text-[11px]"
-                placeholder="Descreva as medidas que serão adotadas para corrigir a irregularidade..."
-              ></textarea>
-            </div>
-          </div>
-        }
-
-        @if (status === 'ABERTO') {
-          <div class="flex flex-col gap-3 animate-in fade-in duration-300">
-            <div class="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-[10px]">
-              <i class="pi pi-info-circle shrink-0"></i>
-              <span>O desvio permanecerá em aberto na fila de pendências até que o tratamento seja iniciado.</span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div class="flex flex-col gap-1 sm:col-span-1">
-                <label class="filter-label !text-slate-600 dark:!text-slate-300 !text-[11px]">
-                  Prazo estimado (opcional)
-                </label>
-                <p-datepicker
-                  [(ngModel)]="prazo"
-                  dateFormat="dd/mm/yy"
-                  dateMask
-                  [showIcon]="true"
-                  iconDisplay="input"
-                  [showOnFocus]="true"
-                  [showButtonBar]="true"
-                  placeholder="dd/mm/aaaa"
-                  appendTo="body"
-                  class="custom-date w-full"
-                  size="small"
-                />
-              </div>
-            </div>
-
-            <div class="flex flex-col gap-1">
-              <label class="filter-label !text-slate-600 dark:!text-slate-300 !text-[11px]">
-                Observações / anotações (opcional)
-              </label>
-              <textarea
-                pTextarea
-                [(ngModel)]="acao"
-                rows="2"
-                class="w-full custom-input !text-[11px]"
-                placeholder="Anotações adicionais sobre o desvio..."
-              ></textarea>
-            </div>
-          </div>
-        }
       </div>
 
-      <ng-template pTemplate="footer">
-        <div class="flex items-center justify-end gap-2 w-full pt-2">
-          <p-button
-            label="CANCELAR"
-            severity="secondary"
-            [text]="true"
-            (onClick)="visible = false"
-            styleClass="!font-bold !text-[10px]"
-          />
-          <p-button
-            label="SALVAR TRATAMENTO"
-            icon="pi pi-check"
-            [loading]="loading()"
-            [disabled]="botaoSalvarDesabilitado()"
-            (onClick)="confirmar()"
-            styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !py-2.5 !px-6 !font-bold !text-[10px]"
-          />
-        </div>
-      </ng-template>
-    </p-dialog>
-  `,
-  styles: [`
-    :host ::ng-deep {
-      .dialogo-tratamento .p-dialog-content { padding: 1.25rem !important; }
-      .p-datepicker, .p-datepicker-input { border-radius: 8px !important; }
-      .p-datepicker-input { height: 30px !important; font-size: 10px !important; }
-      .p-datepicker-button-icon { font-size: 10px !important; }
-      textarea.p-inputtext { border-radius: 8px !important; padding: 0.5rem 0.75rem !important; }
-    }
-  `]
+      @switch (status()) {
+        @case ('RESOLVIDO') {
+          <ces-callout tone="success" label="Ao salvar" [dense]="true">O desvio é encerrado com a data e a hora de agora.</ces-callout>
+          <ces-textarea
+            label="O que foi feito"
+            [required]="true"
+            [rows]="4"
+            [autoResize]="true"
+            placeholder="Ex.: o cinto foi trocado e a equipe foi orientada."
+            [error]="tentouSalvar() && !acao().trim() ? 'Descreva o que foi feito.' : undefined"
+            [(value)]="acao"
+          ></ces-textarea>
+        }
+        @case ('EM_TRATAMENTO') {
+          <ces-textarea
+            label="Plano de correção"
+            [showOptional]="true"
+            [rows]="4"
+            [autoResize]="true"
+            placeholder="Ex.: comprar luvas novas e trocar na próxima saída da equipe."
+            [(value)]="acao"
+          ></ces-textarea>
+          <ces-datepicker
+            label="Prazo para corrigir"
+            [(value)]="prazo"
+            [clearable]="true"
+            description="Data limite para concluir a correção."
+          ></ces-datepicker>
+        }
+        @default {
+          <ces-callout tone="info" label="Ao salvar" [dense]="true">O desvio continua na lista de pendências até alguém começar a tratar.</ces-callout>
+          <ces-textarea label="Anotações" [showOptional]="true" [rows]="3" [autoResize]="true" [(value)]="acao"></ces-textarea>
+          <ces-datepicker label="Prazo estimado" [showOptional]="true" [(value)]="prazo" [clearable]="true"></ces-datepicker>
+        }
+      }
+
+      <div drawer-footer class="ces-actions-row">
+        <ces-button variant="ghost" label="Cancelar" (pressed)="close()"></ces-button>
+        <ces-button
+          icon="pi pi-check"
+          [label]="modoLote() ? 'Salvar nos ' + quantidade() : 'Salvar tratamento'"
+          [loading]="loading()"
+          [disabled]="loteInvalido()"
+          (pressed)="confirmar()"
+        ></ces-button>
+      </div>
+    </ces-form-drawer>
+  `
 })
 export class TratamentoMeuDesvioDialogComponent {
   readonly loading = input(false);
   readonly salvar = output<TratarMeuDesvioRequest>();
 
-  protected visible = false;
-  protected modoLote = false;
-  protected quantidade = 0;
-  protected item: any = null;
-  protected status: StatusDesvio = 'EM_TRATAMENTO';
-  protected acao = '';
-  protected prazo: Date | null = null;
+  protected readonly situacoes = SITUACOES;
+  protected readonly visible = signal(false);
+  protected readonly item = signal<DesvioEmTratamento | null>(null);
+  protected readonly modoLote = computed(() => this.item() === null);
+  protected readonly quantidade = signal(0);
+  protected readonly status = signal<StatusDesvio>('EM_TRATAMENTO');
+  protected readonly acao = signal('');
+  protected readonly prazo = signal<Date | null>(null);
+  protected readonly tentouSalvar = signal(false);
+  private inicial: { status: StatusDesvio; acao: string; prazo: string | null } = { status: 'EM_TRATAMENTO', acao: '', prazo: null };
 
-  open(item: any | null, quantidade = 0) {
-    this.item = item;
-    this.modoLote = item === null;
-    this.quantidade = quantidade;
-    this.status = item?.status ?? 'EM_TRATAMENTO';
-    this.acao = item?.acaoCorretiva ?? '';
-    this.prazo = parsearDataLocal(item?.prazo ?? null);
-    this.visible = true;
+  protected readonly alterado = computed(
+    () => this.status() !== this.inicial.status || this.acao() !== this.inicial.acao || formatarDataLocal(this.prazo()) !== this.inicial.prazo
+  );
+  protected readonly loteInvalido = computed(() => this.modoLote() && (this.quantidade() < 1 || this.quantidade() > LIMITE_LOTE));
+
+  protected readonly gravidadeTom = (g: GravidadeDesvio) => GRAVIDADE_TOM[g];
+  protected readonly gravidadeIcone = (g: GravidadeDesvio) => GRAVIDADE_ICONE[g];
+  protected readonly gravidadeLabel = (g: GravidadeDesvio) => GRAVIDADE_LABELS[g] ?? g;
+
+  open(item: DesvioEmTratamento | null, quantidade = 0): void {
+    // Desvio ainda aberto já pede tratamento: a sugestão inicial é "Em tratamento".
+    const status = item?.status && item.status !== 'ABERTO' ? item.status : 'EM_TRATAMENTO';
+    this.item.set(item);
+    this.quantidade.set(quantidade);
+    this.status.set(status);
+    this.acao.set(item?.acaoCorretiva ?? '');
+    this.prazo.set(parsearDataLocal(item?.prazo ?? null));
+    this.tentouSalvar.set(false);
+    this.inicial = { status, acao: this.acao(), prazo: formatarDataLocal(this.prazo()) };
+    this.visible.set(true);
   }
 
-  close() {
-    this.visible = false;
+  close(): void {
+    this.visible.set(false);
   }
 
-  protected selecionarStatus(novoStatus: StatusDesvio) {
-    this.status = novoStatus;
+  /** Setas trocam a situação, como num grupo de rádio nativo. */
+  protected navegar(evento: KeyboardEvent): void {
+    const passo = ({ ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 } as Record<string, number>)[evento.key];
+    if (!passo) return;
+    evento.preventDefault();
+    const atual = SITUACOES.findIndex((s) => s.valor === this.status());
+    this.status.set(SITUACOES[(atual + passo + SITUACOES.length) % SITUACOES.length].valor);
+    const grupo = (evento.currentTarget as HTMLElement).parentElement;
+    queueMicrotask(() => grupo?.querySelector<HTMLElement>('[aria-checked="true"]')?.focus());
   }
 
-  protected botaoSalvarDesabilitado(): boolean {
-    if (this.modoLote && (this.quantidade < 1 || this.quantidade > 100)) {
-      return true;
-    }
-    if (this.status === 'RESOLVIDO' && !this.acao.trim()) {
-      return true;
-    }
-    return false;
-  }
+  protected confirmar(): void {
+    this.tentouSalvar.set(true);
+    const acao = this.acao().trim();
+    if (this.loteInvalido() || (this.status() === 'RESOLVIDO' && !acao)) return;
 
-  protected confirmar() {
-    const request: TratarMeuDesvioRequest = { status: this.status };
-    const acao = this.acao.trim();
-    const prazo = formatarDataLocal(this.prazo);
-
-    if (this.status === 'RESOLVIDO') {
-      if (acao) request.acaoCorretiva = acao;
-      // Ao marcar como resolvido, o desvio está sanado; não envia prazo futuro
-    } else {
-      if (acao) request.acaoCorretiva = acao;
-      if (prazo) request.prazo = prazo;
-    }
-
+    const request: TratarMeuDesvioRequest = { status: this.status() };
+    if (acao) request.acaoCorretiva = acao;
+    // Corrigido não leva prazo futuro.
+    const prazo = formatarDataLocal(this.prazo());
+    if (this.status() !== 'RESOLVIDO' && prazo) request.prazo = prazo;
     this.salvar.emit(request);
   }
-
-  protected gravidadeClass(value: GravidadeDesvio): string {
-    switch (value) {
-      case 'CRITICA':
-        return 'bg-red-100 text-red-900 border-red-300 dark:bg-red-950/60 dark:text-red-200 dark:border-red-800/80';
-      case 'ALTA':
-        return 'bg-orange-100 text-orange-900 border-orange-300 dark:bg-orange-950/60 dark:text-orange-200 dark:border-orange-800/80';
-      case 'MEDIA':
-        return 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800/80';
-      case 'BAIXA':
-        return 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700';
-      default:
-        return 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700';
-    }
-  }
-
-  protected gravidadeIcon(value: GravidadeDesvio): string {
-    switch (value) {
-      case 'CRITICA':
-        return 'pi pi-times-circle text-red-600 dark:text-red-400';
-      case 'ALTA':
-        return 'pi pi-exclamation-triangle text-orange-600 dark:text-orange-400';
-      case 'MEDIA':
-        return 'pi pi-exclamation-circle text-amber-600 dark:text-amber-400';
-      case 'BAIXA':
-        return 'pi pi-info-circle text-slate-500 dark:text-slate-400';
-      default:
-        return 'pi pi-circle-fill text-[8px] text-slate-500';
-    }
-  }
 }
-

@@ -25,7 +25,8 @@ export interface MotivoDescontoRequest {
 // DTOs e Contratos para Lançamento e Gestão de Descontos
 // ----------------------------------------------------
 
-export type DescontoStatus = 'SOLICITADO' | 'VALIDADO' | 'BAIXADO' | 'REJEITADO';
+/** FINALIZADO: baixado em folha e com o termo assinado pelo colaborador anexado. */
+export type DescontoStatus = 'SOLICITADO' | 'VALIDADO' | 'BAIXADO' | 'FINALIZADO' | 'REJEITADO';
 
 export interface DescontoRequest {
   colaboradorId: string;
@@ -54,6 +55,30 @@ export interface DescontoBaixaRequest {
 /** Corpo obrigatório do PATCH /descontos/{id}/rejeitar */
 export interface DescontoRejeicaoRequest {
   motivoRejeicao: string;
+}
+
+/** Corpo obrigatório do PATCH /descontos/{id}/desfazer */
+export interface DescontoDesfazerRequest {
+  motivo: string;
+}
+
+export type TipoEventoDesconto =
+  | 'LANCADO' | 'DADOS_ALTERADOS' | 'ITEM_INCLUIDO' | 'ITEM_ALTERADO' | 'ITEM_REMOVIDO'
+  | 'ANEXO_INCLUIDO' | 'ANEXO_REMOVIDO' | 'VALIDADO' | 'REJEITADO' | 'BAIXADO'
+  | 'FINALIZADO' | 'DECISAO_DESFEITA';
+
+/** Ponto da linha do tempo do desconto (GET /descontos/{id}/historico). Campos nulos chegam ausentes. */
+export interface EventoDesconto {
+  id: string;
+  tipo: TipoEventoDesconto;
+  rotulo: string;
+  statusAnterior?: DescontoStatus | null;
+  statusNovo: DescontoStatus;
+  usuario?: string | null;
+  valor?: number | null;
+  texto?: string | null;
+  idAnexo?: string | null;
+  ocorridoEm: string;
 }
 
 export interface DescontoFilter {
@@ -94,6 +119,8 @@ export interface DescontoAnexoResponse {
   url: string;
   contentType?: string;
   tamanhoBytes?: number;
+  /** Termo impresso pelo C.E.S e assinado pelo colaborador: o que finaliza o desconto. */
+  termoAssinado?: boolean;
 }
 
 export interface DescontoResponse {
@@ -123,12 +150,25 @@ export interface DescontoResponse {
   dataBaixa?: string;
   dataRejeicao?: string;
   motivoRejeicao?: string;
+  usuarioFinalizacaoId?: string;
+  dataFinalizacao?: string;
   usuarioUltimaAlteracao?: string;
   dataUltimaAlteracao?: string;
 
   // Coleções
   itens: DescontoItemResponse[];
   anexos: DescontoAnexoResponse[];
+
+  /** Nome de quem fez cada etapa. Só vem na consulta de um desconto (não na listagem). */
+  responsaveis?: ResponsaveisDesconto | null;
+}
+
+export interface ResponsaveisDesconto {
+  solicitante?: string | null;
+  validador?: string | null;
+  baixa?: string | null;
+  rejeicao?: string | null;
+  finalizacao?: string | null;
 }
 
 /**

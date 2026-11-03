@@ -270,6 +270,7 @@ export const STATUS_DESCONTO_LABELS: Record<DescontoStatus, string> = {
   SOLICITADO: 'Aguardando validação',
   VALIDADO: 'Aguardando baixa',
   BAIXADO: 'Baixado em folha',
+  FINALIZADO: 'Finalizado (termo assinado)',
   REJEITADO: 'Rejeitado'
 };
 

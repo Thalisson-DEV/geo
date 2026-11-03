@@ -69,7 +69,7 @@ describe('DesviosComponent (SST)', () => {
     );
     expect(chipsDoPainel(el)).toEqual(['Status: Em aberto']);
     expect(el.textContent).toContain('Usa EPI?');
-    expect(el.textContent).toContain('6 dias em atraso');
+    expect(el.textContent).toContain('6 dias de atraso');
   });
 
   it('restaura gravidade, base, prazo vencido e período de inspeção da URL', async () => {

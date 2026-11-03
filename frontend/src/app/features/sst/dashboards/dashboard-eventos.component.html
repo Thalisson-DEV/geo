@@ -220,7 +220,7 @@
                   </div>
                   <div class="backlog-card__body">
                     <div class="backlog-card__status">
-                      <span><i class="pi pi-file"></i> {{ faixa.porStatus.REGISTRADO || 0 }} registrado(s)</span>
+                      <span><i class="pi pi-file"></i> {{ faixa.porStatus.REGISTRADO || 0 }} {{ (faixa.porStatus.REGISTRADO || 0) === 1 ? 'registrado' : 'registrados' }}</span>
                       <span><i class="pi pi-pencil"></i> {{ faixa.porStatus.EM_TRATATIVA || 0 }} em tratativa</span>
                     </div>
                     <strong class="backlog-card__total">{{ faixa.total }}</strong>

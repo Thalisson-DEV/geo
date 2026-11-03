@@ -149,8 +149,8 @@
               </div>
               <div class="dash-gauge__legend">
                 <div><span>Realizado</span><strong>{{ d.meta.realizadoPeriodo }}</strong></div>
-                <div><span>Meta do período</span><strong>{{ d.meta.metaPeriodo | number:'1.0-1' }}</strong></div>
-                <div><span>Falta</span><strong>{{ d.meta.saldoParaMeta | number:'1.0-1' }}</strong></div>
+                <div><span>Meta do período</span><strong>{{ d.meta.metaPeriodo | number:'1.0-0' }}</strong></div>
+                <div><span>Falta</span><strong>{{ d.meta.saldoParaMeta | number:'1.0-0' }}</strong></div>
                 <div><span>Colaboradores na meta</span><strong>{{ d.meta.inspetoresNaMeta }}/{{ d.meta.colaboradoresComMeta }}</strong></div>
               </div>
             </div>
@@ -158,7 +158,7 @@
               <div class="dash-quality !mt-4 !mb-0" role="status">
                 <i class="pi pi-user-minus"></i>
                 <div>
-                  <strong>{{ d.meta.colaboradoresSemAcesso }} colaborador(es) sem acesso ao sistema</strong>
+                  <strong>{{ d.meta.colaboradoresSemAcesso }} {{ d.meta.colaboradoresSemAcesso === 1 ? 'colaborador sem usuário no sistema' : 'colaboradores sem usuário no sistema' }}</strong>
                   <span>Têm meta, mas não conseguem lançar inspeções — o realizado deles fica em zero.</span>
                 </div>
               </div>
@@ -183,7 +183,7 @@
           </header>
           <div class="dash-summary">
             <div class="dash-summary__total">
-              <strong>{{ d.colaboradores.colaboradoresInspecionados }}<span class="text-slate-400 text-xl"> / {{ d.colaboradores.colaboradoresAtivos }}</span></strong>
+              <strong>{{ d.colaboradores.colaboradoresInspecionados }}<span class="dash-summary__de">de {{ d.colaboradores.colaboradoresAtivos }}</span></strong>
               <span>colaboradores inspecionados</span>
               <div class="dash-progress !mt-3">
                 <div class="dash-progress__track"><span [style.width.%]="barWidth(d.colaboradores.percentualCobertura)"></span></div>

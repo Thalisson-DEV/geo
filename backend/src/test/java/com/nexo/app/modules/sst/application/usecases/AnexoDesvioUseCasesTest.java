@@ -59,10 +59,11 @@ class AnexoDesvioUseCasesTest {
     private final UUID idDesvio = UUID.randomUUID();
     private final UUID idAnexo = UUID.randomUUID();
     private final UUID colab = UUID.randomUUID();
+    private final UUID inspetor = UUID.randomUUID();
 
     private InspecaoSeguranca inspecaoComDesvio() {
         InspecaoSeguranca insp = new InspecaoSeguranca(
-                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), null, null,
+                UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), inspetor, null, null,
                 UUID.randomUUID(), OffsetDateTime.now(), "obs");
         insp.adicionarColaboradorInspecionado(colab);
         DesvioSeguranca desvio = insp.registrarDesvio(
@@ -89,7 +90,7 @@ class AnexoDesvioUseCasesTest {
 
         MockMultipartFile arquivo = new MockMultipartFile("arquivo", "foto.jpg", "image/jpeg", new byte[]{1, 2, 3});
 
-        AnexoDesvioResponse resp = useCases.anexar(idInspecao, idDesvio, ContextoAnexo.ACAO_CORRETIVA, arquivo);
+        AnexoDesvioResponse resp = useCases.anexar(idInspecao, idDesvio, ContextoAnexo.ACAO_CORRETIVA, arquivo, inspetor);
 
         verify(objectStorage).enviar(anyString(), any(InputStream.class), eq(3L), eq("image/jpeg"));
         assertEquals(1, insp.getDesvios().get(0).getAnexos().size());
@@ -109,7 +110,7 @@ class AnexoDesvioUseCasesTest {
 
         MockMultipartFile arquivo = new MockMultipartFile("arquivo", "laudo.pdf", "application/pdf", new byte[]{9});
 
-        AnexoDesvioResponse resp = useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, arquivo);
+        AnexoDesvioResponse resp = useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, arquivo, inspetor);
 
         assertEquals(TipoAnexo.DOCUMENTO, resp.tipo());
         verify(objectStorage).enviar(anyString(), any(InputStream.class), eq(1L), eq("application/pdf"));
@@ -124,7 +125,7 @@ class AnexoDesvioUseCasesTest {
         MockMultipartFile arquivo = new MockMultipartFile("arquivo", "virus.exe", "application/x-msdownload", new byte[]{1});
 
         assertThrows(InvarianteVioladaException.class,
-                () -> useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, arquivo));
+                () -> useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, arquivo, inspetor));
         verify(objectStorage, never()).enviar(anyString(), any(), anyLong(), anyString());
     }
 
@@ -140,7 +141,7 @@ class AnexoDesvioUseCasesTest {
         when(grande.getSize()).thenReturn(15L * 1024 * 1024 + 1);
 
         assertThrows(InvarianteVioladaException.class,
-                () -> useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, grande));
+                () -> useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, grande, inspetor));
         verify(objectStorage, never()).enviar(anyString(), any(), anyLong(), anyString());
     }
 
@@ -151,7 +152,7 @@ class AnexoDesvioUseCasesTest {
         MockMultipartFile arquivo = new MockMultipartFile("arquivo", "foto.jpg", "image/jpeg", new byte[]{1});
 
         assertThrows(RecursoNaoEncontradoException.class,
-                () -> useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, arquivo));
+                () -> useCases.anexar(idInspecao, idDesvio, ContextoAnexo.DESVIO, arquivo, inspetor));
     }
 
     @Test
@@ -162,7 +163,7 @@ class AnexoDesvioUseCasesTest {
         MockMultipartFile arquivo = new MockMultipartFile("arquivo", "foto.jpg", "image/jpeg", new byte[]{1});
 
         assertThrows(RecursoNaoEncontradoException.class,
-                () -> useCases.anexar(idInspecao, UUID.randomUUID(), ContextoAnexo.DESVIO, arquivo));
+                () -> useCases.anexar(idInspecao, UUID.randomUUID(), ContextoAnexo.DESVIO, arquivo, inspetor));
     }
 
     @Test
@@ -209,7 +210,7 @@ class AnexoDesvioUseCasesTest {
         when(repository.findByIdAndAtivoTrue(idInspecao)).thenReturn(Optional.of(insp));
         when(repository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        useCases.remover(idInspecao, idDesvio, idAnexo);
+        useCases.remover(idInspecao, idDesvio, idAnexo, inspetor);
 
         verify(objectStorage).remover(objectKey);
         assertEquals(0, insp.getDesvios().get(0).getAnexos().size());
@@ -224,8 +225,32 @@ class AnexoDesvioUseCasesTest {
         when(repository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
         doThrow(new ArmazenamentoException("indisponível")).when(objectStorage).remover(objectKey);
 
-        useCases.remover(idInspecao, idDesvio, idAnexo); // não deve lançar
+        useCases.remover(idInspecao, idDesvio, idAnexo, inspetor); // não deve lançar
 
         assertEquals(0, insp.getDesvios().get(0).getAnexos().size());
+    }
+
+    @Test
+    @DisplayName("anexar deve recusar quem não registrou a inspeção")
+    void anexarRecusaOutroUsuario() {
+        InspecaoSeguranca insp = inspecaoComDesvio();
+        when(repository.findByIdAndAtivoTrue(idInspecao)).thenReturn(Optional.of(insp));
+        MockMultipartFile arquivo = new MockMultipartFile("arquivo", "foto.jpg", "image/jpeg", new byte[]{1, 2, 3});
+
+        assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                () -> useCases.anexar(idInspecao, idDesvio, ContextoAnexo.ACAO_CORRETIVA, arquivo, UUID.randomUUID()));
+        verify(objectStorage, never()).enviar(anyString(), any(InputStream.class), anyLong(), anyString());
+    }
+
+    @Test
+    @DisplayName("remover deve recusar quem não registrou a inspeção")
+    void removerRecusaOutroUsuario() {
+        String objectKey = "sst/desvios/" + idDesvio + "/desvio/abc.jpg";
+        InspecaoSeguranca insp = inspecaoComAnexo(objectKey);
+        when(repository.findByIdAndAtivoTrue(idInspecao)).thenReturn(Optional.of(insp));
+
+        assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                () -> useCases.remover(idInspecao, idDesvio, idAnexo, UUID.randomUUID()));
+        assertEquals(1, insp.getDesvios().get(0).getAnexos().size());
     }
 }

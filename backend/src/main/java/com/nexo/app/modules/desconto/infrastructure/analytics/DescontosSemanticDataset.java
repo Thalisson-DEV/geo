@@ -54,9 +54,9 @@ public class DescontosSemanticDataset implements SemanticDatasetProvider {
                         measure("total_descontos", "Quantidade distinta de descontos", SemanticDataType.INTEGER, "count(distinct desconto)"),
                         measure("total_itens", "Quantidade distinta de itens", SemanticDataType.INTEGER, "count(distinct item)"),
                         measure("valor_total_itens", "Soma dos valores dos itens selecionados", SemanticDataType.DECIMAL, "sum(valor do item)"),
-                        measure("descontos_baixados", "Quantidade distinta no status BAIXADO", SemanticDataType.INTEGER, "count distinct BAIXADO"),
+                        measure("descontos_baixados", "Quantidade distinta baixada em folha (BAIXADO ou FINALIZADO)", SemanticDataType.INTEGER, "count distinct BAIXADO"),
                         measure("descontos_rejeitados", "Quantidade distinta no status REJEITADO", SemanticDataType.INTEGER, "count distinct REJEITADO"),
-                        measure("resultados_finais", "BAIXADO + REJEITADO distintos", SemanticDataType.INTEGER, "count distinct finalizado")
+                        measure("resultados_finais", "BAIXADO, FINALIZADO e REJEITADO distintos", SemanticDataType.INTEGER, "count distinct finalizado")
                 ),
                 List.of(
                         "Quais materiais geraram maior valor de desconto por mes?",
@@ -83,9 +83,9 @@ public class DescontosSemanticDataset implements SemanticDatasetProvider {
                 "total_descontos", "count(distinct d.id)",
                 "total_itens", "count(distinct item.id)",
                 "valor_total_itens", "coalesce(sum(item.valor), 0)",
-                "descontos_baixados", "count(distinct case when d.status = com.nexo.app.modules.desconto.domain.StatusDesconto.BAIXADO then d.id else null end)",
+                "descontos_baixados", "count(distinct case when d.status in (com.nexo.app.modules.desconto.domain.StatusDesconto.BAIXADO, com.nexo.app.modules.desconto.domain.StatusDesconto.FINALIZADO) then d.id else null end)",
                 "descontos_rejeitados", "count(distinct case when d.status = com.nexo.app.modules.desconto.domain.StatusDesconto.REJEITADO then d.id else null end)",
-                "resultados_finais", "count(distinct case when d.status in (com.nexo.app.modules.desconto.domain.StatusDesconto.BAIXADO, com.nexo.app.modules.desconto.domain.StatusDesconto.REJEITADO) then d.id else null end)");
+                "resultados_finais", "count(distinct case when d.status in (com.nexo.app.modules.desconto.domain.StatusDesconto.BAIXADO, com.nexo.app.modules.desconto.domain.StatusDesconto.FINALIZADO, com.nexo.app.modules.desconto.domain.StatusDesconto.REJEITADO) then d.id else null end)");
 
         return JpaSemanticQueryExecutor.execute(entityManager, descriptor(), effective,
                 "from Desconto d left join d.itens item left join item.tipoEquipamento tipo join d.motivo motivo",

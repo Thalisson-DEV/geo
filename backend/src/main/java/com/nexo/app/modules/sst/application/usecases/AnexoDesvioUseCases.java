@@ -41,8 +41,9 @@ public class AnexoDesvioUseCases {
 
     @Transactional
     @CacheEvict(allEntries = true)
-    public AnexoDesvioResponse anexar(UUID idInspecao, UUID idDesvio, ContextoAnexo contexto, MultipartFile arquivo) {
+    public AnexoDesvioResponse anexar(UUID idInspecao, UUID idDesvio, ContextoAnexo contexto, MultipartFile arquivo, UUID idUsuario) {
         InspecaoSeguranca inspecao = buscarInspecao(idInspecao);
+        exigirInspetor(inspecao, idUsuario);
         DesvioSeguranca desvio = buscarDesvio(inspecao, idDesvio);
 
         ArquivoEvidencia.Recebido recebido = ArquivoEvidencia.receber(
@@ -74,8 +75,9 @@ public class AnexoDesvioUseCases {
 
     @Transactional
     @CacheEvict(allEntries = true)
-    public void remover(UUID idInspecao, UUID idDesvio, UUID idAnexo) {
+    public void remover(UUID idInspecao, UUID idDesvio, UUID idAnexo, UUID idUsuario) {
         InspecaoSeguranca inspecao = buscarInspecao(idInspecao);
+        exigirInspetor(inspecao, idUsuario);
         DesvioSeguranca desvio = buscarDesvio(inspecao, idDesvio);
         AnexoDesvio anexo = buscarAnexo(desvio, idAnexo);
         String objectKey = anexo.getObjectKey();
@@ -100,6 +102,14 @@ public class AnexoDesvioUseCases {
     private InspecaoSeguranca buscarInspecao(UUID idInspecao) {
         return repository.findByIdAndAtivoTrue(idInspecao)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Inspeção de segurança não encontrada com ID: " + idInspecao));
+    }
+
+    /** Evidências do desvio e da ação corretiva só podem ser alteradas por quem registrou a inspeção. */
+    private void exigirInspetor(InspecaoSeguranca inspecao, UUID idUsuario) {
+        if (!inspecao.getIdInspetor().equals(idUsuario)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Apenas o inspetor que registrou a inspeção pode alterar as evidências dos seus desvios.");
+        }
     }
 
     private DesvioSeguranca buscarDesvio(InspecaoSeguranca inspecao, UUID idDesvio) {

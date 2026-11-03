@@ -255,7 +255,7 @@ public class AcompanhamentoMetasUseCases {
                 colaborador.processo() == null ? null : colaborador.processo().nome(),
                 meta.getPeriodicidade(), janela.inicio(), janela.fim(), janela.diasRestantes(referencia),
                 meta.getQuantidade(), realizado, saldo,
-                percent(realizado, meta.getQuantidade()), status);
+                percent(realizado, meta.getQuantidade()), status, colaborador.idUsuario());
     }
 
     private OffsetDateTime inicioDoDia(LocalDate data) {

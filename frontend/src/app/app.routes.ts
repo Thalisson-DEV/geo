@@ -994,6 +994,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/dp/descontos/lancamento/descontos-lancamento.component').then(m => m.DescontosLancamentoComponent)
       },
       {
+        path: 'descontos/finalizacao',
+        data: { permission: 'desconto:read', modo: 'finalizar' },
+        loadComponent: () => import('./features/dp/descontos/lancamento/descontos-lancamento.component').then(m => m.DescontosLancamentoComponent)
+      },
+      {
         path: 'descontos/:id',
         data: { permission: 'desconto:read', fullscreen: true, reportNavigator: 'desconto' },
         loadComponent: () => import('./features/dp/descontos/relatorio-desconto/relatorio-desconto.component').then(m => m.RelatorioDescontoComponent)

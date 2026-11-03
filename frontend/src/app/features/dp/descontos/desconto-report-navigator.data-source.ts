@@ -19,6 +19,7 @@ const STATUS_TONES: Record<DescontoStatus, CesTone> = {
   SOLICITADO: 'warning',
   VALIDADO: 'info',
   BAIXADO: 'success',
+  FINALIZADO: 'success',
   REJEITADO: 'danger'
 };
 
@@ -26,6 +27,7 @@ const STATUS_LABELS: Record<DescontoStatus, string> = {
   SOLICITADO: 'Lançado',
   VALIDADO: 'Validado',
   BAIXADO: 'Baixado',
+  FINALIZADO: 'Finalizado',
   REJEITADO: 'Rejeitado'
 };
 
@@ -49,6 +51,7 @@ export class DescontoReportNavigatorDataSource
       { label: 'Lançados', value: 'SOLICITADO', tone: 'warning', icon: 'pi pi-clock' },
       { label: 'Validados', value: 'VALIDADO', tone: 'info', icon: 'pi pi-check' },
       { label: 'Baixados', value: 'BAIXADO', tone: 'success', icon: 'pi pi-check-circle' },
+      { label: 'Finalizados', value: 'FINALIZADO', tone: 'success', icon: 'pi pi-verified' },
       { label: 'Rejeitados', value: 'REJEITADO', tone: 'danger', icon: 'pi pi-times-circle' }
     ],
     sortOptions: [

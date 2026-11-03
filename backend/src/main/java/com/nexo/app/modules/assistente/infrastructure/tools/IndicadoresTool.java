@@ -197,7 +197,7 @@ public class IndicadoresTool implements AgentTool {
             case "descontos" -> List.of(
                     new Kpi("Descontos por status (12 meses)", "descontos", p12, q("descontos", "contagem", null, List.of(), doze, "status", 10, true)),
                     new Kpi("Valor por status (12 meses)", "R$", p12, q("descontos", "soma", "valor_referencia", List.of(), doze, "status", 10, true)),
-                    new Kpi("Valor baixado por motivo (12 meses)", "R$", p12, q("descontos", "soma", "valor_baixado", List.of(f("status", "igual", "BAIXADO")), doze, "motivo", 10, true)),
+                    new Kpi("Valor baixado por motivo (12 meses)", "R$", p12, q("descontos", "soma", "valor_baixado", List.of(f("status", "em", "BAIXADO", "FINALIZADO")), doze, "motivo", 10, true)),
                     new Kpi("Descontos aguardando validação", "descontos", "atual", q("descontos", "contagem", null, List.of(f("status", "igual", "SOLICITADO")), null, null, null, false)),
                     new Kpi("Tempo médio até validação", "dias", p12, q("descontos", "media", "dias_ate_validacao", List.of(), doze, null, null, false)));
             case "sst" -> List.of(

@@ -129,7 +129,7 @@ public class InspecaoSegurancaController implements InspecaoSegurancaControllerD
     @PreAuthorize("hasAuthority('sst:inspecao:write')")
     public ResponseEntity<InspecaoSegurancaResponse> tratarDesvio(
             @PathVariable UUID idInspecao, @PathVariable UUID idDesvio, @Valid @RequestBody TratarDesvioRequest request) {
-        return ResponseEntity.ok(useCases.tratarDesvio(idInspecao, idDesvio, request));
+        return ResponseEntity.ok(useCases.tratarDesvio(idInspecao, idDesvio, request, SecurityUtils.getUsuarioLogadoId()));
     }
 
     @Override
@@ -163,7 +163,7 @@ public class InspecaoSegurancaController implements InspecaoSegurancaControllerD
             @PathVariable UUID idInspecao, @PathVariable UUID idDesvio,
             @RequestParam ContextoAnexo contexto, @RequestPart("arquivo") MultipartFile arquivo) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(anexoUseCases.anexar(idInspecao, idDesvio, contexto, arquivo));
+                .body(anexoUseCases.anexar(idInspecao, idDesvio, contexto, arquivo, SecurityUtils.getUsuarioLogadoId()));
     }
 
     @Override
@@ -185,7 +185,7 @@ public class InspecaoSegurancaController implements InspecaoSegurancaControllerD
     @PreAuthorize("hasAuthority('sst:inspecao:write')")
     public ResponseEntity<Void> removerEvidencia(
             @PathVariable UUID idInspecao, @PathVariable UUID idDesvio, @PathVariable UUID idAnexo) {
-        anexoUseCases.remover(idInspecao, idDesvio, idAnexo);
+        anexoUseCases.remover(idInspecao, idDesvio, idAnexo, SecurityUtils.getUsuarioLogadoId());
         return ResponseEntity.noContent().build();
     }
 

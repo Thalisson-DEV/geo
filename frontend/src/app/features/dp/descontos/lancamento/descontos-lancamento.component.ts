@@ -37,8 +37,8 @@ import { FileDownloadUtil } from '../../../../core/utils/file-download.util';
 import { AjudaListagemComponent } from '../../../../shared/listagem/ajuda-listagem.component';
 import { dataIso, dataLocal } from '../../../../shared/listagem/listagem';
 
-/** A mesma tela atende a consulta livre e as duas filas de trabalho (validar e baixar). */
-type ModoConsulta = 'todos' | 'validar' | 'baixar';
+/** A mesma tela atende a consulta livre e as filas de trabalho (validar, baixar e finalizar). */
+type ModoConsulta = 'todos' | 'validar' | 'baixar' | 'finalizar';
 
 interface Fila {
   status: DescontoStatus;
@@ -47,8 +47,8 @@ interface Fila {
   icone: string;
   vazioTitulo: string;
   vazioDescricao: string;
-  outraFilaLabel: string;
-  outraFilaRota: string;
+  /** Atalhos para as outras filas, na ordem do ciclo. */
+  outrasFilas: { label: string; rota: string }[];
 }
 
 const FILAS: Record<Exclude<ModoConsulta, 'todos'>, Fila> = {
@@ -59,8 +59,10 @@ const FILAS: Record<Exclude<ModoConsulta, 'todos'>, Fila> = {
     icone: 'pi pi-check-square',
     vazioTitulo: 'Nenhum desconto aguardando validação',
     vazioDescricao: 'A fila está zerada: nada pendente de análise no momento.',
-    outraFilaLabel: 'Fila de baixa',
-    outraFilaRota: '/dp/descontos/baixa'
+    outrasFilas: [
+      { label: 'Fila de baixa', rota: '/dp/descontos/baixa' },
+      { label: 'Fila de finalização', rota: '/dp/descontos/finalizacao' }
+    ]
   },
   baixar: {
     status: 'VALIDADO',
@@ -69,8 +71,22 @@ const FILAS: Record<Exclude<ModoConsulta, 'todos'>, Fila> = {
     icone: 'pi pi-wallet',
     vazioTitulo: 'Nenhum desconto aguardando baixa',
     vazioDescricao: 'Tudo que foi validado já está baixado em folha.',
-    outraFilaLabel: 'Fila de validação',
-    outraFilaRota: '/dp/descontos/validacao'
+    outrasFilas: [
+      { label: 'Fila de validação', rota: '/dp/descontos/validacao' },
+      { label: 'Fila de finalização', rota: '/dp/descontos/finalizacao' }
+    ]
+  },
+  finalizar: {
+    status: 'BAIXADO',
+    titulo: 'Descontos a finalizar',
+    descricao: 'Baixados em folha esperando o termo assinado pelo colaborador. Imprima, colete a assinatura e anexe no termo. Os mais antigos primeiro.',
+    icone: 'pi pi-verified',
+    vazioTitulo: 'Nenhum desconto aguardando o termo assinado',
+    vazioDescricao: 'Todo desconto baixado já tem o termo assinado anexado.',
+    outrasFilas: [
+      { label: 'Fila de validação', rota: '/dp/descontos/validacao' },
+      { label: 'Fila de baixa', rota: '/dp/descontos/baixa' }
+    ]
   }
 };
 
@@ -78,9 +94,21 @@ const STATUS_DESCONTO: CesSelectOption<DescontoStatus>[] = [
   { label: 'Solicitado', value: 'SOLICITADO' },
   { label: 'Validado', value: 'VALIDADO' },
   { label: 'Baixado', value: 'BAIXADO' },
+  { label: 'Finalizado', value: 'FINALIZADO' },
   { label: 'Rejeitado', value: 'REJEITADO' }
 ];
-const TOM_STATUS: Record<DescontoStatus, CesTone> = { SOLICITADO: 'warning', VALIDADO: 'info', BAIXADO: 'success', REJEITADO: 'danger' };
+const ORDEM_STATUS = STATUS_DESCONTO.map((s) => s.value);
+const TOM_STATUS: Record<DescontoStatus, CesTone> = { SOLICITADO: 'warning', VALIDADO: 'info', BAIXADO: 'success', FINALIZADO: 'success', REJEITADO: 'danger' };
+/** Finalizado é o verde cheio: o fim do ciclo salta aos olhos e não se confunde com validado nem com baixado. */
+const ENFASE_STATUS: Partial<Record<DescontoStatus, 'soft' | 'solid'>> = { FINALIZADO: 'solid' };
+/** Cor nunca é o único indicador: cada status tem também o seu ícone. */
+const ICONE_STATUS: Record<DescontoStatus, string> = {
+  SOLICITADO: 'pi-clock',
+  VALIDADO: 'pi-check-circle',
+  BAIXADO: 'pi-wallet',
+  FINALIZADO: 'pi-verified',
+  REJEITADO: 'pi-times-circle'
+};
 /** Padrão da consulta: criados nos últimos 90 dias (links com parâmetros abrem sem limite). */
 export const DIAS_PADRAO_DESCONTOS = 90;
 const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
@@ -124,8 +152,12 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
         helpLabel="Ajuda sobre descontos"
         (help)="ajuda.show()"
       >
+        <!-- Botões fixos: o slot "actions" do cabeçalho não projeta conteúdo de um @for. -->
         @if (fila) {
-          <ces-button actions variant="ghost" icon="pi pi-arrow-right-arrow-left" [label]="fila.outraFilaLabel" [routerLink]="fila.outraFilaRota"></ces-button>
+          <ces-button actions variant="ghost" icon="pi pi-arrow-right-arrow-left" [label]="fila.outrasFilas[0].label" [routerLink]="fila.outrasFilas[0].rota"></ces-button>
+        }
+        @if (fila) {
+          <ces-button actions variant="ghost" icon="pi pi-arrow-right-arrow-left" [label]="fila.outrasFilas[1].label" [routerLink]="fila.outrasFilas[1].rota"></ces-button>
         }
         <ces-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="exportacaoAberta.set(true)"></ces-button>
         <ces-button actions icon="pi pi-plus" label="Novo desconto" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
@@ -152,7 +184,7 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
         [title]="titulo"
         mode="server"
         [storageKey]="'dp-descontos-' + modo"
-        searchPlaceholder="Observações do desconto"
+        searchPlaceholder="Colaborador, motivo, status, observações ou código"
         rowActionLabel="Detalhes"
         rowActionIcon="pi pi-external-link"
         emptyActionLabel="Novo desconto"
@@ -175,12 +207,24 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
         (emptyAction)="novo()"
         (rowActivate)="abrir($event.id)"
       >
+        @if (!fila) {
+          <div table-filters class="ces-quick-filters" role="group" aria-label="Mostrar só os status escolhidos">
+            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!statusAplicados().length" (click)="definirStatus([])">
+              <i class="pi pi-list" aria-hidden="true"></i> Todos
+            </button>
+            @for (s of statusOpcoes; track s.value) {
+              <button type="button" class="ces-quick-filter" [attr.aria-pressed]="statusAplicados().includes(s.value)" (click)="alternarStatus(s.value)">
+                <i [class]="'pi ' + icone(s.value)" aria-hidden="true"></i> {{ s.label }}
+              </button>
+            }
+          </div>
+        }
         <ng-template cesCell="colaborador" let-row>
           <span class="ces-cell-strong">{{ nomeColaborador(row.colaboradorId) }}</span>
           <span class="ces-cell-muted">#{{ row.id | slice: 0 : 8 }}</span>
         </ng-template>
         <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tom(row.status)">{{ rotuloStatus(row.status) }}</ces-status>
+          <ces-status [tone]="tom(row.status)" [emphasis]="enfase(row.status)" [icon]="icone(row.status)">{{ rotuloStatus(row.status) }}</ces-status>
         </ng-template>
         <ng-template cesCell="sugerido" let-row>
           <span [title]="'Soma de ' + (row.itens?.length ?? 0) + ' item(ns) lançado(s)'">{{ row.valorSugerido | currency: 'BRL' }}</span>
@@ -220,14 +264,14 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
       </div>
     </ces-form-drawer>
 
-    <app-ajuda-listagem #ajuda [titulo]="titulo" entidadePlural="descontos" busca="observações" rotuloNovo="Novo desconto">
+    <app-ajuda-listagem #ajuda [titulo]="titulo" entidadePlural="descontos" busca="colaborador, motivo, status, observações ou código" rotuloNovo="Novo desconto">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-sort-amount-down"></i> Valores por etapa</h4>
         <p class="help-text-desc"><strong>Sugerido</strong> é a soma dos itens; <strong>Validado</strong> e <strong>Baixado</strong> mostram a diferença em relação à etapa anterior (seta para cima: valor maior). O que vale no fim é o baixado.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-inbox"></i> Filas de trabalho</h4>
-        <p class="help-text-desc">"A validar" e "A baixar" mostram só o status da fila, mais antigos primeiro. A consulta geral abre nos últimos {{ diasPadrao }} dias; links do painel abrem sem limite de data.</p>
+        <p class="help-text-desc">"A validar", "A baixar" e "A finalizar" mostram só o status da fila, mais antigos primeiro. A consulta geral abre nos últimos {{ diasPadrao }} dias; links do painel abrem sem limite de data.</p>
       </div>
     </app-ajuda-listagem>
   `
@@ -265,7 +309,7 @@ export class DescontosLancamentoComponent {
   protected readonly lista = cesListState({
     storageKey: `dp-descontos-${this.modo}`,
     pageSize: 20,
-    // A busca é texto livre de observações: não vai para a URL.
+    // A busca é texto livre (pode conter nome de pessoa): não vai para a URL.
     queryParam: false,
     filters: {
       colaboradorId: cesFilter.value<string | null>(null, { label: 'Colaborador', param: 'colaboradorId', format: (id): string | null => (id ? (this.nomes()[id] ?? 'colaborador selecionado') : null) }),
@@ -281,10 +325,11 @@ export class DescontosLancamentoComponent {
     // Fila é trabalho a fazer: o mais antigo primeiro. Na consulta, o mais recente.
     sort: [{ key: 'criado', direction: this.fila ? 'asc' : 'desc' }]
   });
+  protected readonly statusAplicados = computed(() => this.lista.applied().status);
   protected readonly resultado = this.lista.results<DescontoResponse>((pedido) => this.descontos.buscarDescontos(this.filtro(pedido)), { errorMessage: getErrorMessage });
 
   protected readonly colunas: CesDataTableColumn<DescontoResponse>[] = [
-    { key: 'colaborador', header: 'Colaborador', type: 'custom', priority: 1, sortField: 'colaboradorId', value: (d) => this.nomeColaborador(d.colaboradorId) },
+    { key: 'colaborador', header: 'Colaborador', type: 'custom', priority: 1, sortField: 'colaborador', value: (d) => this.nomeColaborador(d.colaboradorId) },
     { key: 'motivo', header: 'Motivo', priority: 1, sortField: 'motivo.descricao', value: (d) => d.motivo?.descricao, display: (d) => d.motivo?.descricao ?? '—' },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (d) => d.status, display: (d) => this.rotuloStatus(d.status) },
     { key: 'sugerido', header: 'Sugerido', type: 'custom', sortField: 'valorSugerido', value: (d) => d.valorSugerido },
@@ -365,6 +410,25 @@ export class DescontosLancamentoComponent {
 
   protected tom(s: DescontoStatus): CesTone {
     return TOM_STATUS[s] ?? 'neutral';
+  }
+
+  protected enfase(s: DescontoStatus): 'soft' | 'solid' {
+    return ENFASE_STATUS[s] ?? 'soft';
+  }
+
+  protected icone(s: DescontoStatus): string {
+    return ICONE_STATUS[s] ?? 'pi-circle';
+  }
+
+  protected definirStatus(status: readonly DescontoStatus[]): void {
+    this.lista.set('status', [...status]);
+  }
+
+  /** Atalho de status: liga/desliga o status, somando aos já escolhidos. */
+  protected alternarStatus(status: DescontoStatus): void {
+    const atuais = this.statusAplicados();
+    const proximos = atuais.includes(status) ? atuais.filter((s) => s !== status) : [...atuais, status];
+    this.definirStatus(ORDEM_STATUS.filter((s) => proximos.includes(s)));
   }
 
   protected rotuloStatus(s: DescontoStatus): string {

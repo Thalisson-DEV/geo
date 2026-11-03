@@ -352,12 +352,12 @@ fontes:
   descontos:
     dominio: descontos
     nome: Descontos de colaboradores
-    descricao: Descontos em folha por perda, mau uso ou dano, com colaborador, motivo, parcelas, valores (sugerido, validado, baixado) e ciclo SOLICITADO -> VALIDADO -> BAIXADO ou REJEITADO.
+    descricao: Descontos em folha por perda, mau uso ou dano, com colaborador, motivo, parcelas, valores (sugerido, validado, baixado) e ciclo SOLICITADO -> VALIDADO -> BAIXADO -> FINALIZADO (termo assinado anexado) ou REJEITADO.
     autoridades: [desconto:read]
     palavras_chave: [desconto, desconto em folha, perda, mau uso, dano, equipamento, parcela, departamento pessoal]
     coluna_data: data_ocorrencia
     colunas:
-      status: {descricao: Status do desconto, valores: [SOLICITADO, VALIDADO, BAIXADO, REJEITADO]}
+      status: {descricao: Status do desconto, valores: [SOLICITADO, VALIDADO, BAIXADO, FINALIZADO, REJEITADO]}
       valor_sugerido: Valor proposto na solicitacao
       valor_validado: Valor confirmado na validacao
       valor_baixado: Valor efetivamente descontado (baixado)
@@ -373,7 +373,7 @@ fontes:
     autoridades: [desconto:read]
     coluna_data: data_ocorrencia
     colunas:
-      status_desconto: {descricao: Status do desconto, valores: [SOLICITADO, VALIDADO, BAIXADO, REJEITADO]}
+      status_desconto: {descricao: Status do desconto, valores: [SOLICITADO, VALIDADO, BAIXADO, FINALIZADO, REJEITADO]}
   motivos_desconto:
     dominio: descontos
     nome: Motivos de desconto

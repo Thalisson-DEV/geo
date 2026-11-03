@@ -8,6 +8,7 @@ import com.nexo.app.modules.rh.VeiculoApi;
 import com.nexo.app.modules.rh.BaseOperacionalApi;
 import com.nexo.app.modules.sst.application.dto.AtualizarInspecaoRequest;
 import com.nexo.app.modules.sst.application.dto.RegistrarInspecaoRequest;
+import com.nexo.app.modules.sst.application.dto.TratarDesvioRequest;
 import com.nexo.app.modules.sst.application.dto.RegistrarInspecaoRequest.DesvioItem;
 import com.nexo.app.modules.sst.application.dto.RegistrarInspecaoRequest.RespostaItem;
 import com.nexo.app.modules.sst.domain.*;
@@ -477,5 +478,26 @@ class InspecaoSegurancaUseCasesTest {
 
         assertThrows(org.springframework.security.access.AccessDeniedException.class,
                 () -> useCases.atualizarInspecao(idInspecao, req, outro));
+    }
+
+    @Test
+    @DisplayName("tratarDesvio recusa quem não registrou a inspeção e não altera o desvio")
+    void tratarDesvioRecusaOutroUsuario() {
+        UUID idInspecao = UUID.randomUUID();
+        InspecaoSeguranca insp = new InspecaoSeguranca(idFormulario, idTipoInspecao, idProcesso, inspetor,
+                null, null, idBaseOperacional, OffsetDateTime.now(), null);
+        insp.adicionarColaboradorInspecionado(colabA);
+        DesvioSeguranca desvio = insp.registrarDesvio(idPergunta, idOpcaoNao, GravidadeDesvio.ALTA, "Luva furada", null, null, List.of(colabA));
+        UUID idDesvio = UUID.randomUUID();
+        setId(insp, idInspecao);
+        setId(desvio, idDesvio);
+        when(repository.findByIdAndAtivoTrue(idInspecao)).thenReturn(Optional.of(insp));
+        when(repository.findById(idInspecao)).thenReturn(Optional.of(insp));
+
+        TratarDesvioRequest req = new TratarDesvioRequest(StatusDesvio.RESOLVIDO, "Trocada", null);
+        assertThrows(org.springframework.security.access.AccessDeniedException.class,
+                () -> useCases.tratarDesvio(idInspecao, idDesvio, req, UUID.randomUUID()));
+        assertEquals(StatusDesvio.ABERTO, desvio.getStatus());
+        verify(repository, never()).save(any());
     }
 }

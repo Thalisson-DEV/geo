@@ -62,7 +62,8 @@ public class DescontoDetalhesNotificacao implements FornecedorDetalhesNotificaca
             StatusDesconto.SOLICITADO, "Aguardando validação",
             StatusDesconto.VALIDADO, "Validado, aguardando baixa",
             StatusDesconto.BAIXADO, "Baixado",
-            StatusDesconto.REJEITADO, "Rejeitado");
+            StatusDesconto.REJEITADO, "Rejeitado",
+            StatusDesconto.FINALIZADO, "Finalizado, com o termo assinado");
 
     private final DescontoRepository repository;
     private final ColaboradorApi colaboradorApi;

@@ -161,7 +161,8 @@ export function montarDadosGraficoEvolucao(
         borderColor: '#dc2626',
         backgroundColor: 'rgba(220, 38, 38, 0.08)',
         borderWidth: 2.5,
-        pointRadius: 4,
+        // Marcador só onde houve lesão: dias zerados não viram uma fileira de bolinhas.
+        pointRadius: serie.map((item) => (item.comLesao > 0 ? 4 : 0)),
         pointHoverRadius: 6,
         pointHitRadius: 18,
         pointBackgroundColor: '#ffffff',

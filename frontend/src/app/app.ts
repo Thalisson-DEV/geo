@@ -518,7 +518,8 @@ export class App {
           icon: 'pi pi-inbox',
           items: [
             { label: 'Aguardando Validação', icon: 'pi pi-check-square', routerLink: '/dp/descontos/validacao' },
-            { label: 'Aguardando Baixa', icon: 'pi pi-wallet', routerLink: '/dp/descontos/baixa' }
+            { label: 'Aguardando Baixa', icon: 'pi pi-wallet', routerLink: '/dp/descontos/baixa' },
+            { label: 'Aguardando Finalização', icon: 'pi pi-verified', routerLink: '/dp/descontos/finalizacao' }
           ]
         },
         {

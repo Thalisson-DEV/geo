@@ -68,7 +68,7 @@ public class InspecaoSincronizacaoApiImpl implements InspecaoSincronizacaoApi {
         if (anexo == null) {
             throw new InvarianteVioladaException("O anexo da sincronização é obrigatório.");
         }
-        return anexoDesvioUseCases.anexar(idInspecao, idDesvio, contexto, multipart(anexo));
+        return anexoDesvioUseCases.anexar(idInspecao, idDesvio, contexto, multipart(anexo), idUsuario);
     }
 
     private MultipartFile multipart(AnexoSincronizacao anexo) {

@@ -56,7 +56,7 @@ import { DashboardDrillComponent, DrillRecorte } from '../../../../shared/compon
 import { DescontoResponse, getValorEfetivo } from '../../../../core/models/desconto.models';
 
 const ROTULO_STATUS_DESCONTO: Record<DescontoStatus, string> = {
-  SOLICITADO: 'Solicitado', VALIDADO: 'Validado', BAIXADO: 'Baixado', REJEITADO: 'Rejeitado',
+  SOLICITADO: 'Solicitado', VALIDADO: 'Validado', BAIXADO: 'Baixado', FINALIZADO: 'Finalizado', REJEITADO: 'Rejeitado',
 };
 
 interface LinhaDescontoDrill {
