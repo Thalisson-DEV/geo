@@ -30,7 +30,11 @@ import {
 export class CesPdfLoader {
   async abrir(dados: ArrayBuffer): Promise<PDFDocumentProxy> {
     const pdfjs = await import('pdfjs-dist');
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL('assets/pdfjs/pdf.worker.min.mjs', document.baseURI).href;
+    // A versão na URL fura o cache do navegador: o worker não tem hash no nome, e uma resposta
+    // antiga servida com tipo errado (octet-stream) ficava presa no cache e impedia o PDF de abrir.
+    const worker = new URL('assets/pdfjs/pdf.worker.min.mjs', document.baseURI);
+    worker.searchParams.set('v', pdfjs.version);
+    pdfjs.GlobalWorkerOptions.workerSrc = worker.href;
     // O worker fica com o buffer: passa uma cópia para o chamador poder reabrir o mesmo arquivo.
     return pdfjs.getDocument({ data: dados.slice(0) }).promise;
   }
