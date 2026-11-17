@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Tag(name = "Copiloto", description = "Workspace agentic do Copiloto: conversas, streaming NDJSON, arquivos, artefatos e resultados")
+@Tag(name = "Bússola", description = "Workspace agentic da Bússola: conversas, streaming NDJSON, arquivos, artefatos e resultados")
 @SecurityRequirement(name = "bearerAuth")
 public interface AssistenteControllerDoc {
 
@@ -70,6 +70,6 @@ public interface AssistenteControllerDoc {
     @Operation(summary = "Remover anexo")
     ResponseEntity<Void> removerArquivo(UUID arquivoId);
 
-    @Operation(summary = "Capacidades do Copiloto para o usuario", description = "Ferramentas operacionais, competencias e sugestoes.")
+    @Operation(summary = "Capacidades da Bússola para o usuario", description = "Ferramentas operacionais, competencias e sugestoes.")
     ResponseEntity<CapacidadesResponse> capacidades();
 }

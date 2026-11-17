@@ -1,6 +1,6 @@
 /*
   Automações: lista, designer em canvas, painéis e visualização de execução.
-  Cada grupo de nó tem um matiz (tokens de gráfico do Nexo); os tons são misturados ao
+  Cada grupo de nó tem um matiz (tokens de gráfico do GEO); os tons são misturados ao
   cinza para o canvas ficar calmo. Só tokens: claro e escuro saem do mesmo CSS.
 */
 .aut [data-group], .aut[data-group] {
@@ -28,7 +28,7 @@
 .aut-link:hover { text-decoration: underline; }
 
 /* -------------------------------------------------------------- controles nativos
-   Os campos usam as classes de controle do Nexo (p-inputtext/p-textarea + ces-prime-control). */
+   Os campos usam as classes de controle do GEO (p-inputtext/p-textarea + ces-prime-control). */
 .aut-select { appearance: auto; }
 textarea.ces-prime-control { min-height: 4.5rem; resize: vertical; }
 .aut-check { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--ces-font-control); cursor: pointer; }

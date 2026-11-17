@@ -38,7 +38,7 @@ function visiveis(lista: ConexaoIa[], comDesconectadas: boolean): ConexaoIa[] {
 }
 
 /**
- * "Conectar sua IA": as conexões do Nexo com o Claude, o ChatGPT e outros assistentes, o passo a
+ * "Conectar sua IA": as conexões do GEO com o Claude, o ChatGPT e outros assistentes, o passo a
  * passo para conectar, as chaves de acesso e, para o administrador, as conexões da empresa.
  */
 @Component({
@@ -185,8 +185,8 @@ export class ConectarIaComponent {
     const ok = await this.confirmacao.confirm({
       title: `Desconectar ${conexao.nome}?`,
       message: deOutraPessoa
-        ? `${conexao.nome} de ${conexao.usuarioLogin} para de acessar o Nexo na hora. Para voltar, a pessoa precisa conectar de novo.`
-        : `${conexao.nome} para de acessar o Nexo na hora. Para voltar a usar, é só conectar de novo.`,
+        ? `${conexao.nome} de ${conexao.usuarioLogin} para de acessar o GEO na hora. Para voltar, a pessoa precisa conectar de novo.`
+        : `${conexao.nome} para de acessar o GEO na hora. Para voltar a usar, é só conectar de novo.`,
       confirmLabel: 'Desconectar',
       cancelLabel: 'Manter conectada',
       variant: 'destructive'

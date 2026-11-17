@@ -1,24 +1,24 @@
 <section
   class="sp"
-  aria-label="Copiloto — conversa sobre este painel"
+  aria-label="Bússola — conversa sobre este painel"
   (dragover)="aoArrastar($event)"
   (dragleave)="aoSairArrasto($event)"
   (drop)="aoSoltar($event)"
 >
   <header class="sp__topo">
-    <img class="sp__avatar" src="icons/copiloto-1.png" alt="" aria-hidden="true" />
+    <img class="sp__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
     <div class="sp__identidade">
-      <span class="sp__marca">Copiloto</span>
+      <span class="sp__marca">Bússola</span>
       <h2 class="sp__titulo" [attr.title]="titulo()">{{ titulo() }}</h2>
     </div>
     <ces-icon-button icon="pi pi-plus" label="Nova análise neste painel" tooltipPosition="bottom" (pressed)="nova()"></ces-icon-button>
     <ces-icon-button
       icon="pi pi-external-link"
-      [label]="store.conversaId() ? 'Abrir no Copiloto (continuar esta conversa no workspace completo)' : 'Abrir no Copiloto (workspace completo com o contexto deste painel)'"
+      [label]="store.conversaId() ? 'Abrir na Bússola (continuar esta conversa no workspace completo)' : 'Abrir na Bússola (workspace completo com o contexto deste painel)'"
       tooltipPosition="bottom"
       (pressed)="abrirNoWorkspace()"
     ></ces-icon-button>
-    <ces-icon-button icon="pi pi-times" label="Ocultar Copiloto" tooltipPosition="bottom" (pressed)="painel.fechar()"></ces-icon-button>
+    <ces-icon-button icon="pi pi-times" label="Ocultar Bússola" tooltipPosition="bottom" (pressed)="painel.fechar()"></ces-icon-button>
   </header>
 
   <div class="sp__mensagens" #rolagem (scroll)="aoRolar()">
@@ -37,7 +37,7 @@
         ></ces-async-state>
       } @else if (store.vazia()) {
         <div class="sp__boas-vindas">
-          <img class="sp__boas-vindas-avatar" src="icons/copiloto-2.png" alt="" aria-hidden="true" />
+          <img class="sp__boas-vindas-avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
           @if (contexto(); as ctx) {
             <p class="sp__entendi">Estou olhando o painel <strong>{{ ctx.nome }}</strong> com você.</p>
             <dl class="sp__recorte" aria-label="Recorte atual do painel">
@@ -67,7 +67,7 @@
 
           @if (store.capacidades(); as cap) {
             @if (!cap.disponivel) {
-              <ces-callout tone="warning" icon="pi-exclamation-triangle" title="Copiloto indisponível" [dense]="true">
+              <ces-callout tone="warning" icon="pi-exclamation-triangle" title="Bússola indisponível" [dense]="true">
                 {{ cap.motivoIndisponibilidade || 'O provedor de IA não está configurado neste ambiente.' }}
               </ces-callout>
             } @else if (sugestoes().length) {
@@ -83,9 +83,9 @@
               </ul>
             }
           } @else if (store.erroCapacidades()) {
-            <ces-async-state state="error" [compact]="true" title="Não foi possível falar com o Copiloto" [description]="store.erroCapacidades() || undefined"></ces-async-state>
+            <ces-async-state state="error" [compact]="true" title="Não foi possível falar com a Bússola" [description]="store.erroCapacidades() || undefined"></ces-async-state>
           } @else {
-            <ces-async-state state="loading" [compact]="true" title="Preparando o Copiloto"></ces-async-state>
+            <ces-async-state state="loading" [compact]="true" title="Preparando a Bússola"></ces-async-state>
           }
 
           @if (anterior(); as conversa) {

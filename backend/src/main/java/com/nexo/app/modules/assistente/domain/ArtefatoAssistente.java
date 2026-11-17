@@ -13,7 +13,7 @@ import java.util.UUID;
 /**
  * Artefato produzido pelo agente (dashboard, grafico, tabela, relatorio, documento). A especificacao e
  * declarativa e ja traz os dados resolvidos a partir dos resultados da conversa; o frontend renderiza
- * apenas componentes confiaveis do Nexo.
+ * apenas componentes confiaveis do GEO.
  */
 @Entity
 @Table(name = "assistente_artefato",

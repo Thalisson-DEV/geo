@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 /**
  * Pesquisa web e leitura de paginas (portadas de {@code WebSearchTool} e {@code OpenURLTool} do Onyx):
  * consultas em paralelo, intercalacao round-robin dos resultados sem duplicatas, numeracao estavel de
- * citacoes por URL durante a execucao e procedencia EXTERNO para diferenciar de dados do Nexo.
+ * citacoes por URL durante a execucao e procedencia EXTERNO para diferenciar de dados do GEO.
  */
 @Configuration(proxyBeanMethods = false)
 public class WebTools {
@@ -36,10 +36,10 @@ public class WebTools {
     @Bean
     AgentTool pesquisarWebTool(WebSearchClient client, ResultFormatter formatter, AssistenteProperties properties) {
         return new BaseTool("pesquisar_web", "Pesquisar na web",
-                "Pesquisa na internet informacoes externas e atuais que nao existem no Nexo: normas (NRs, ABNT), "
+                "Pesquisa na internet informacoes externas e atuais que nao existem no GEO: normas (NRs, ABNT), "
                         + "legislacao, precos e indices de mercado, fornecedores, noticias, documentacao tecnica. Retorna "
                         + "titulo, URL e trecho de cada resultado com numero de citacao [n]. Depois, use abrir_url nas "
-                        + "paginas mais promissoras antes de afirmar algo. Nunca use para dados internos do Nexo. Ate 3 "
+                        + "paginas mais promissoras antes de afirmar algo. Nunca use para dados internos do GEO. Ate 3 "
                         + "consultas por chamada; nao repita consultas ja feitas na conversa.",
                 JsonSchemas.object()
                         .required("consultas", JsonSchemas.arrayOfStrings("Uma a tres consultas objetivas (texto imprimivel)"))
@@ -119,7 +119,7 @@ public class WebTools {
                 resposta.put("resultados", paraModelo);
                 if (!falhas.isEmpty()) resposta.put("consultas_com_falha", falhas);
                 resposta.put("orientacao", "Trechos de busca sao incompletos: abra as paginas relevantes com abrir_url. "
-                        + "Cite as fontes no texto com [n]. Informacao externa deve ser apresentada separada dos dados do Nexo.");
+                        + "Cite as fontes no texto com [n]. Informacao externa deve ser apresentada separada dos dados do GEO.");
                 return ToolResult.of(formatter.json(resposta), intercalados.size() + " resultados na web")
                         .withSources(fontes);
             }

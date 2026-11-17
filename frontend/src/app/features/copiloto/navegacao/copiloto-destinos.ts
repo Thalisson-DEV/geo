@@ -32,7 +32,7 @@ function target(
 }
 
 /**
- * Destinos de navegação que o Copiloto pode oferecer como botão. Espelha as chaves do catálogo do
+ * Destinos de navegação que a Bússola pode oferecer como botão. Espelha as chaves do catálogo do
  * backend (navigation-actions.yaml); chaves sem rota no frontend são descartadas pelo resolvedor.
  */
 export const COPILOTO_DESTINOS: Record<string, NavigationTarget> = {

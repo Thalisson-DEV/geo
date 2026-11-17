@@ -95,7 +95,7 @@ public interface DescontoDoc {
                                   @Parameter(hidden = true) Usuario usuario);
 
     @Operation(summary = "Finalizar desconto com o termo assinado",
-            description = "Anexa o termo impresso pelo C.E.S e assinado pelo colaborador; o desconto baixado passa a FINALIZADO.")
+            description = "Anexa o termo impresso pelo GEO e assinado pelo colaborador; o desconto baixado passa a FINALIZADO.")
     @PostMapping(value = "/{id}/finalizar", consumes = "multipart/form-data")
     ResponseEntity<Void> finalizar(@PathVariable UUID id, @RequestPart("arquivo") MultipartFile arquivo,
                                    @Parameter(hidden = true) Usuario usuario);

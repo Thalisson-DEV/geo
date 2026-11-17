@@ -28,7 +28,7 @@ function rotuloFiltro(coluna: ColunaPainel, operador: OperadorFiltroPainel, valo
   return `${coluna.rotulo ?? coluna.campo} ${SIMBOLO[operador]} ${texto}`;
 }
 
-/** Filtro sugerido pelo Copiloto, já validado contra a tabela que a tela declarou. */
+/** Filtro sugerido pela Bússola, já validado contra a tabela que a tela declarou. */
 export interface FiltroSugerido {
   readonly alvo: string;
   readonly rotulo: string;

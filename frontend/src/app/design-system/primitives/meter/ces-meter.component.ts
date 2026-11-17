@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CesTone } from '../../core';
 
-/** Limiar a partir do qual o atingimento deixa de ser crítico. Compartilhado com o Copiloto. */
+/** Limiar a partir do qual o atingimento deixa de ser crítico. Compartilhado com a Bússola. */
 export const CES_ATTAINMENT_WARNING_THRESHOLD = 80;
 
 export type CesAttainmentBand = 'success' | 'warning' | 'danger';

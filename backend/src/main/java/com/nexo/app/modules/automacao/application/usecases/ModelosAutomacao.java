@@ -64,7 +64,7 @@ public class ModelosAutomacao {
     }
 
     public static final String RELATORIO_COMERCIAL_ID = "relatorio-comercial-bases";
-    public static final String RELATORIO_COMERCIAL_NOME = "Relatório semanal do comercial por base (Copiloto)";
+    public static final String RELATORIO_COMERCIAL_NOME = "Relatório semanal do comercial por base (Bússola)";
 
     /**
      * Toda segunda, uma análise por base (Juazeiro, Remanso, Jacobina e Bonfim): execuções de
@@ -118,11 +118,11 @@ public class ModelosAutomacao {
                 + "MATERIAIS DAS EXECUCOES (semana analisada, 30 maiores): {{ to_json(steps.q_materiais.outputs.rows) }}\n\n"
                 + "SOLICITACOES DE MATERIAL DO COMERCIAL (semana analisada, por status): {{ to_json(steps.q_solicitacoes.outputs.rows) }}\n\n"
                 + "METAS DE FATURAMENTO VIGENTES: {{ to_json(steps.q_metas.outputs.rows) }}";
-        Map<String, Object> analise = no("analise", "ai.copiloto", "Copiloto analisa o comercial da base", Map.of(
+        Map<String, Object> analise = no("analise", "ai.copiloto", "Bússola analisa o comercial da base", Map.of(
                 "prompt", "Escreva a análise prévia do processo comercial da base {{ item }} na semana de "
                         + "{{ trigger.outputs.semana_passada_inicio }} a {{ trigger.outputs.semana_passada_fim }}, para a coordenação da base.\n"
                         + "Os números da semana já foram consultados e estão nos dados extras (execuções, turnos, materiais, solicitações e metas). "
-                        + "Use esses números como fonte principal e não refaça essas consultas. Consulte o Nexo só para o que faltar: "
+                        + "Use esses números como fonte principal e não refaça essas consultas. Consulte o GEO só para o que faltar: "
                         + "o faturamento do ciclo comercial atual por equipe (de 26 do mês anterior até hoje, em execucoes_comerciais, "
                         + "coluna data_lancamento) para calcular o atingimento das metas, e as equipes ativas da base sem lançamento na semana.\n"
                         + "Estrutura: 1) Resumo executivo de até 5 linhas; 2) Execuções de campo: notas e faturamento por equipe e por tipo de serviço, "
@@ -141,13 +141,13 @@ public class ModelosAutomacao {
                 + "na semana de <span data-expr=\"trigger.outputs.semana_passada_inicio\"></span> a "
                 + "<span data-expr=\"trigger.outputs.semana_passada_fim\"></span>: execuções de campo, metas, materiais e solicitações.</p>"
                 + "<div data-block=\"markdown\" data-source=\"steps.analise.outputs.text\"></div>"
-                + "<p>O relatório completo está em anexo (PDF). Para aprofundar algum ponto, continue a conversa com o Copiloto.</p>";
+                + "<p>O relatório completo está em anexo (PDF). Para aprofundar algum ponto, continue a conversa com a Bússola.</p>";
         passos.add(no("enviar", "email.send", "Enviar o relatório da base", Map.of(
                 "to", List.of(Map.of("tipo", "expressao", "valor", "{{ steps.quem_recebe.outputs.recipients }}", "rotulo", "Quem recebe esta base")),
                 "subject", "Comercial {{ item }} — semana de {{ trigger.outputs.semana_passada_inicio }} a {{ trigger.outputs.semana_passada_fim }}",
                 "body", corpo,
                 "attachments", "{{ steps.analise.outputs.files }}",
-                "label", "Comercial · {{ item }}", "button_label", "Continuar a conversa com o Copiloto",
+                "label", "Comercial · {{ item }}", "button_label", "Continuar a conversa com a Bússola",
                 "button_link", "{{ steps.analise.outputs.conversation_link }}", "tone", "INFORMATIVO")));
 
         Map<String, Object> temQuem = no("tem_quem_receba", "control.condition", "A base tem quem receba?", Map.of(
@@ -203,7 +203,7 @@ public class ModelosAutomacao {
     }
 
     private Modelo relatorioSemanal() {
-        Map<String, Object> analise = no("analise", "ai.copiloto", "Copiloto analisa a produtividade", Map.of(
+        Map<String, Object> analise = no("analise", "ai.copiloto", "Bússola analisa a produtividade", Map.of(
                 "prompt", "Analise a produtividade das equipes das bases Juazeiro e Petrolina na semana passada "
                         + "({{ trigger.outputs.semana_passada_inicio }} a {{ trigger.outputs.semana_passada_fim }}): serviços executados, "
                         + "faturamento e cumprimento de meta por equipe, comparando com a semana anterior. Destaque as equipes abaixo da meta "
@@ -218,10 +218,10 @@ public class ModelosAutomacao {
                 "subject", "Produtividade semanal das equipes — {{ trigger.outputs.semana_passada_inicio }} a {{ trigger.outputs.semana_passada_fim }}",
                 "body", corpo,
                 "attachments", "{{ steps.analise.outputs.files }}",
-                "label", "Relatório semanal", "button_label", "Continuar a conversa com o Copiloto",
+                "label", "Relatório semanal", "button_label", "Continuar a conversa com a Bússola",
                 "button_link", "{{ steps.analise.outputs.conversation_link }}", "tone", "INFORMATIVO"));
-        return new Modelo("relatorio-semanal-copiloto", "Relatório semanal de produtividade (Copiloto)",
-                "Toda segunda às 7h o Copiloto analisa a produtividade das equipes das bases escolhidas e envia o relatório por e-mail, com PDF.",
+        return new Modelo("relatorio-semanal-copiloto", "Relatório semanal de produtividade (Bússola)",
+                "Toda segunda às 7h a Bússola analisa a produtividade das equipes das bases escolhidas e envia o relatório por e-mail, com PDF.",
                 TipoAutomacao.ROTINA, "sparkles", definicao("trigger.schedule",
                 Map.of("frequency", "week", "weekdays", List.of(0), "time", "07:00"), new ArrayList<>(List.of(analise, email))));
     }
@@ -239,7 +239,7 @@ public class ModelosAutomacao {
     }
 
     private Modelo aprovacaoAntesDeEnviar() {
-        Map<String, Object> resumo = no("resumo", "ai.copiloto", "Copiloto prepara o resumo", Map.of(
+        Map<String, Object> resumo = no("resumo", "ai.copiloto", "Bússola prepara o resumo", Map.of(
                 "prompt", "Resuma os chamados abertos há mais de 5 dias, por equipe responsável, com os mais antigos primeiro.",
                 "pdf", false, "timeout_minutes", 8));
         Map<String, Object> aprovar = no("aprovar", "approval.request", "Coordenador confere", Map.of(
@@ -254,7 +254,7 @@ public class ModelosAutomacao {
         condicao.put("then", new ArrayList<>(List.of(enviar)));
         condicao.put("else", new ArrayList<>());
         return new Modelo("aprovacao-antes-envio", "Resumo com aprovação antes de enviar",
-                "Toda sexta o Copiloto resume os chamados parados; um coordenador aprova no sininho e só então o e-mail sai.",
+                "Toda sexta a Bússola resume os chamados parados; um coordenador aprova no sininho e só então o e-mail sai.",
                 TipoAutomacao.APROVACAO, "check", definicao("trigger.schedule",
                 Map.of("frequency", "week", "weekdays", List.of(4), "time", "16:00"), new ArrayList<>(List.of(resumo, aprovar, condicao))));
     }

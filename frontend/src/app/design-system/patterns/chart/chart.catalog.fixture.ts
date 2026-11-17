@@ -13,7 +13,7 @@ export interface CesChartCatalogFixture {
   readonly tests: readonly string[];
 }
 
-/** Metadados do catálogo vivo para o padrão de gráfico Nexo. */
+/** Metadados do catálogo vivo para o padrão de gráfico GEO. */
 export const CesChartCatalogFixture: CesChartCatalogFixture = {
   id: 'chart',
   name: 'CesChart',

@@ -77,7 +77,7 @@ type Interno = {
 describe('DashboardAnaliseComponent', () => {
   afterEach(() => document.body.querySelectorAll('.p-drawer').forEach((el) => el.remove()));
 
-  it('carrega a origem, confere a soma com o painel e mostra trilha, KPIs e Copiloto', async () => {
+  it('carrega a origem, confere a soma com o painel e mostra trilha, KPIs e Bússola', async () => {
     const carregar = vi.fn(() => of({ linhas: NOTAS, total: 3 }));
     const fixture = await montar(vista({ origem: origem({ carregar }) }), { trilha: ['Produção no período'], copiloto: true });
     const interno = fixture.componentInstance as unknown as Interno;

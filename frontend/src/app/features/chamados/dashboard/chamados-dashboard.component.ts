@@ -120,7 +120,7 @@ export class ChamadosDashboardComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly data = signal<DashboardChamadosResponse | null>(null);
   protected readonly atualizadoEm = signal<Date | null>(null);
-  /** Filtros da consulta que produziu data() — é o recorte em tela e o que o Copiloto recebe. */
+  /** Filtros da consulta que produziu data() — é o recorte em tela e o que a Bússola recebe. */
   private readonly filtrosAplicados = signal<DashboardChamadosFilter>({});
 
   private readonly atualizacao = atualizarPeriodicamente(() => this.buscar(this.filtrosAplicados(), true), {
@@ -305,7 +305,7 @@ export class ChamadosDashboardComponent implements OnInit {
     this.aplicar();
   }
 
-  /** Contexto do dashboard para o Copiloto: o recorte aplicado e os números em tela. */
+  /** Contexto do dashboard para a Bússola: o recorte aplicado e os números em tela. */
   protected readonly contextoCopiloto = computed<CopilotoDashboardContext | null>(() => {
     const d = this.data();
     const f = this.filtrosAplicados();

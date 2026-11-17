@@ -46,9 +46,9 @@ export const PROVEDORES: Provedor[] = [
       passo('Abra o Claude, clique no seu nome no canto da tela e depois em [Configurações].'),
       passo('No menu da esquerda, clique em [Conectores] e depois em [Adicionar conector personalizado].',
         'Se essa opção não aparecer, o plano da sua conta do Claude ainda não permite conectores.'),
-      passo('Em nome, escreva [Nexo]. Em URL, cole o endereço que você copiou e clique em [Adicionar].'),
-      passo('Clique em [Conectar]. A tela do Nexo vai abrir: entre com o seu login e clique em [Autorizar].'),
-      passo('Numa conversa nova, clique no botão de ferramentas, ligue o [Nexo] e faça a sua pergunta.')
+      passo('Em nome, escreva [GEO]. Em URL, cole o endereço que você copiou e clique em [Adicionar].'),
+      passo('Clique em [Conectar]. A tela do GEO vai abrir: entre com o seu login e clique em [Autorizar].'),
+      passo('Numa conversa nova, clique no botão de ferramentas, ligue o [GEO] e faça a sua pergunta.')
     ]
   },
   {
@@ -60,9 +60,9 @@ export const PROVEDORES: Provedor[] = [
       passo('Abra o ChatGPT, clique no seu nome e depois em [Configurações].'),
       passo('Clique em [Aplicativos e conectores], depois em [Configurações avançadas], e ligue o [Modo desenvolvedor].',
         'Se essa opção não aparecer, o seu plano do ChatGPT ainda não permite conectar outros sistemas.'),
-      passo('Volte e clique em [Criar]. Em nome, escreva [Nexo]; em URL, cole o endereço que você copiou; em autenticação, escolha [OAuth]. Clique em [Criar].'),
-      passo('A tela do Nexo vai abrir: entre com o seu login e clique em [Autorizar].'),
-      passo('Numa conversa nova, clique em [+], depois em [Mais], escolha o [Nexo] e faça a sua pergunta.')
+      passo('Volte e clique em [Criar]. Em nome, escreva [GEO]; em URL, cole o endereço que você copiou; em autenticação, escolha [OAuth]. Clique em [Criar].'),
+      passo('A tela do GEO vai abrir: entre com o seu login e clique em [Autorizar].'),
+      passo('Numa conversa nova, clique em [+], depois em [Mais], escolha o [GEO] e faça a sua pergunta.')
     ]
   },
   {
@@ -72,7 +72,7 @@ export const PROVEDORES: Provedor[] = [
     onde: 'Claude Code, Cursor, VS Code e outros assistentes que aceitam conectar sistemas.',
     passos: [
       passo('No assistente, procure a opção de adicionar um conector e cole o endereço que você copiou.'),
-      passo('Se abrir a tela do Nexo, entre com o seu login e clique em [Autorizar]. Pronto.'),
+      passo('Se abrir a tela do GEO, entre com o seu login e clique em [Autorizar]. Pronto.'),
       passo('Se o assistente pedir uma chave em vez do login, clique em [Gerar chave de acesso], no alto desta tela, e cole a chave nele.')
     ]
   }

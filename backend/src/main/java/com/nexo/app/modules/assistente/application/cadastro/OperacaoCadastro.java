@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Algo que o Copiloto sabe cadastrar (ou editar) num modulo: o DTO de entrada do caso de uso, a permissao
+ * Algo que a Bússola sabe cadastrar (ou editar) num modulo: o DTO de entrada do caso de uso, a permissao
  * exigida e o executor, que chama o caso de uso real do modulo — mesmas validacoes, regras, eventos,
  * automacoes e e-mails da tela. Os campos sao lidos do DTO; a operacao so ajusta rotulos, referencias e
  * valores padrao.

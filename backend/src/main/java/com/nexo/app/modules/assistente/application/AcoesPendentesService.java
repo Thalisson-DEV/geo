@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Decisao do usuario sobre os cartoes de confirmacao do Copiloto: revisar campos, confirmar (a gravacao
+ * Decisao do usuario sobre os cartoes de confirmacao da Bússola: revisar campos, confirmar (a gravacao
  * acontece aqui, na requisicao de quem confirmou, com as permissoes dele) ou cancelar.
  */
 @Service
@@ -106,7 +106,7 @@ public class AcoesPendentesService {
             resultado.resultado().path("registros").forEach(r -> {
                 if (r.hasNonNull("mensagem")) motivos.add(r.path("mensagem").asText());
             });
-            LOGGER.info("Cartao {} do Copiloto recusado pelo modulo; segue aberto", acao.getId());
+            LOGGER.info("Cartao {} da Bússola recusado pelo modulo; segue aberto", acao.getId());
             return view(acao, null, motivos.isEmpty() ? "Não foi possível gravar. Revise os dados." : String.join(" ", motivos));
         }
         ObjectNode guardado = JsonNodeFactory.instance.objectNode();
@@ -115,7 +115,7 @@ public class AcoesPendentesService {
         if (resultado.sucesso()) acao.confirmar(guardado.toString());
         else acao.falhar(guardado.toString());
         acoes.save(acao);
-        LOGGER.info("Cartao {} do Copiloto decidido: {} ({})", acao.getId(), acao.getStatus(), acao.getFerramenta());
+        LOGGER.info("Cartao {} da Bússola decidido: {} ({})", acao.getId(), acao.getStatus(), acao.getFerramenta());
         return view(acao, resultado.sigiloso(), null);
     }
 
@@ -148,7 +148,7 @@ public class AcoesPendentesService {
             throw new InvarianteVioladaException(switch (acao.getStatus()) {
                 case CONFIRMADA, FALHOU -> "Este cartão já foi confirmado.";
                 case REJEITADA -> "Este cartão foi cancelado.";
-                default -> "Este cartão expirou. Peça de novo ao Copiloto.";
+                default -> "Este cartão expirou. Peça de novo à Bússola.";
             });
         }
         return acao;
@@ -170,7 +170,7 @@ public class AcoesPendentesService {
         try {
             return mapper.readTree(json);
         } catch (JsonProcessingException exception) {
-            throw new InvarianteVioladaException("Os dados da ação estão corrompidos. Peça de novo ao Copiloto.");
+            throw new InvarianteVioladaException("Os dados da ação estão corrompidos. Peça de novo à Bússola.");
         }
     }
 

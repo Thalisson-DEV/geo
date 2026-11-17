@@ -25,7 +25,7 @@ import { CopilotoConversasComponent } from './componentes/copiloto-conversas.com
 import { CopilotoMensagemComponent } from './componentes/copiloto-mensagem.component';
 import { AuthService } from '../../core/services/auth.service';
 
-/** Lê o contexto de origem enviado pelos atalhos "Analisar com Copiloto". */
+/** Lê o contexto de origem enviado pelos atalhos "Analisar com Bússola". */
 export function contextoDaUrl(query: ParamMap): AssistenteContexto | null {
   const contexto: AssistenteContexto = {
     pagina: query.get('origem') ?? undefined,
@@ -43,8 +43,8 @@ export function contextoDaUrl(query: ParamMap): AssistenteContexto | null {
 }
 
 /**
- * Workspace do Copiloto: histórico de conversas, conversa com linha do tempo das ferramentas e painel
- * de artefatos. Tela própria do Nexo (sem widget flutuante), responsiva: no celular, histórico e artefatos
+ * Workspace da Bússola: histórico de conversas, conversa com linha do tempo das ferramentas e painel
+ * de artefatos. Tela própria do GEO (sem widget flutuante), responsiva: no celular, histórico e artefatos
  * ocupam a área da conversa quando abertos.
  */
 @Component({
@@ -101,7 +101,7 @@ export class CopilotoWorkspaceComponent {
       });
     });
 
-    effect(() => this.titulo.setTitle(`${this.store.titulo()} · Copiloto`));
+    effect(() => this.titulo.setTitle(`${this.store.titulo()} · Bússola`));
 
     effect(() => {
       this.store.mensagens();

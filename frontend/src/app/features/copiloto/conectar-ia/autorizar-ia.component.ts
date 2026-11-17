@@ -14,7 +14,7 @@ import { ConexoesIaService } from '../../../core/services/conexoes-ia.service';
 import { ThemeService } from '../../../core/services/theme.service';
 
 /**
- * Tela de consentimento: um aplicativo de IA (Claude, ChatGPT, Cursor...) pede para usar o Nexo
+ * Tela de consentimento: um aplicativo de IA (Claude, ChatGPT, Cursor...) pede para usar o GEO
  * em nome da pessoa. Sem sessão, vai ao login e volta para cá com o mesmo pedido.
  */
 @Component({
@@ -70,7 +70,7 @@ export class AutorizarIaComponent {
     }
     if (!this.auth.currentUser()?.permissoes?.includes('assistente:conexao:use')) {
       this.carregando.set(false);
-      this.erro.set('O seu perfil não pode conectar aplicativos de IA ao Nexo.');
+      this.erro.set('O seu perfil não pode conectar aplicativos de IA ao GEO.');
       return;
     }
     if (!this.pedido.clientId || !this.pedido.redirectUri) {

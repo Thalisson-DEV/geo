@@ -38,7 +38,7 @@ public class AgentRunRegistry {
         }
         long ativos = porId.values().stream().filter(item -> !item.isFinished()).count();
         if (ativos >= Math.max(1, properties.getAgent().getMaxConcurrentRuns())) {
-            throw new IllegalStateException("O Copiloto está com muitas análises em andamento. Tente novamente em instantes.");
+            throw new IllegalStateException("A Bússola está com muitas análises em andamento. Tente novamente em instantes.");
         }
         porConversa.put(run.conversaId(), run);
         porId.put(run.id(), run);

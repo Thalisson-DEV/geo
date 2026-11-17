@@ -160,7 +160,7 @@ interface ColunaVisivel {
                 <p>{{ col.def.subtitulo }}</p>
               </div>
               @if (copiloto()) {
-              <ces-icon-button icon="pi pi-sparkles" [label]="'Analisar a etapa ' + col.def.titulo + ' com o Copiloto'" tooltip="Analisar com o Copiloto" size="icon-sm" (pressed)="analisar(col.def)" />
+              <ces-icon-button icon="pi pi-compass" [label]="'Analisar a etapa ' + col.def.titulo + ' com a Bússola'" tooltip="Analisar com a Bússola" size="icon-sm" (pressed)="analisar(col.def)" />
               }
             </header>
 
@@ -247,9 +247,9 @@ export class SolicitacoesComerciaisKanbanComponent {
   readonly verNaTabela = output<SolicitacaoStatus[]>();
   /** Uma ação mudou dados (a tela atualiza as contagens). */
   readonly alterado = output<void>();
-  /** "Analisar" de uma coluna: a tela abre o Copiloto ao lado. */
+  /** "Analisar" de uma coluna: a tela abre a Bússola ao lado. */
   readonly analisarEtapa = output<{ id: string; titulo: string; pergunta: string }>({ alias: 'analisar' });
-  /** Esconde o botão de análise quando o usuário não pode usar o Copiloto. */
+  /** Esconde o botão de análise quando o usuário não pode usar a Bússola. */
   readonly copiloto = input(true);
 
   protected readonly agrupamento = signal<AgrupamentoKanban>(lerAgrupamento());

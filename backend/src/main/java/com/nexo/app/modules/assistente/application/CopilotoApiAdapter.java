@@ -110,7 +110,7 @@ public class CopilotoApiAdapter implements CopilotoApi {
         long inicio = System.nanoTime();
         if (!disponivel()) {
             return new Analise("", null, List.of(), false,
-                    "O Copiloto está indisponível: o provedor de IA não está configurado.", 0);
+                    "A Bússola está indisponível: o provedor de IA não está configurado.", 0);
         }
         SemanticQueryContext seguranca = new SemanticQueryContext(pedido.usuarioId(), Set.copyOf(pedido.permissoes()));
         ConversaAssistente conversa = persistencia.criar(pedido.usuarioId(), pedido.titulo(), null);
@@ -134,7 +134,7 @@ public class CopilotoApiAdapter implements CopilotoApi {
         long duracao = Duration.ofNanos(System.nanoTime() - inicio).toMillis();
         MensagemAssistente mensagem = mensagens.findById(mensagemId).orElse(null);
         if (mensagem == null) {
-            return new Analise("", conversa.getId(), List.of(), false, "A resposta do Copiloto não foi encontrada.", duracao);
+            return new Analise("", conversa.getId(), List.of(), false, "A resposta da Bússola não foi encontrada.", duracao);
         }
         List<Arquivo> anexos = new ArrayList<>();
         for (ArquivoAssistente arquivo : arquivos.listarDaConversa(conversa.getId())) {
@@ -142,11 +142,11 @@ public class CopilotoApiAdapter implements CopilotoApi {
             try {
                 anexos.add(new Arquivo(arquivo.getNome(), arquivo.getTipoConteudo(), arquivos.conteudo(arquivo)));
             } catch (RuntimeException e) {
-                LOGGER.warn("Arquivo {} gerado pelo Copiloto não pôde ser lido: {}", arquivo.getId(), e.getMessage());
+                LOGGER.warn("Arquivo {} gerado pela Bússola não pôde ser lido: {}", arquivo.getId(), e.getMessage());
             }
         }
         boolean concluida = mensagem.getStatus() == StatusMensagemAssistente.CONCLUIDA;
-        String erro = concluida ? null : (mensagem.getErro() == null ? "O Copiloto não concluiu a análise." : mensagem.getErro());
+        String erro = concluida ? null : (mensagem.getErro() == null ? "A Bússola não concluiu a análise." : mensagem.getErro());
         return new Analise(mensagem.getConteudo() == null ? "" : mensagem.getConteudo(), conversa.getId(), anexos,
                 concluida, erro, duracao);
     }

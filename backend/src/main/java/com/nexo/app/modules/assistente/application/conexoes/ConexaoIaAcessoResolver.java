@@ -13,7 +13,7 @@ import java.util.Optional;
 
 /**
  * Valida a credencial de cada chamada da IA externa: token de acesso ou chave vigente, de conexao que
- * continua conectada. Desconectar no Nexo corta o acesso na chamada seguinte.
+ * continua conectada. Desconectar no GEO corta o acesso na chamada seguinte.
  */
 @Component
 public class ConexaoIaAcessoResolver implements AcessoExternoResolver {

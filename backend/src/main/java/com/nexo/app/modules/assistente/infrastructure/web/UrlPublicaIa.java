@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * Enderecos publicos das conexoes de IA. O Nexo e servido num endereco so: o app encaminha {@code /api}
+ * Enderecos publicos das conexoes de IA. O GEO e servido num endereco so: o app encaminha {@code /api}
  * e {@code /.well-known} ao backend. A base vem de {@code CES_URL_PUBLICA} ou, sem ela, da requisicao
  * (X-Forwarded-* do proxy). Fora de localhost a base e sempre https: o proxy do app recebe http do edge.
  * Em localhost, sem configuracao, vale o endereco do app liberado no CORS.
@@ -26,7 +26,7 @@ public class UrlPublicaIa {
         this.appLocal = primeiraOrigemLocal(origens);
     }
 
-    /** Base do Nexo, sem barra no fim (ex.: https://app.exemplo.com.br). Tambem e o emissor (issuer) do OAuth. */
+    /** Base do GEO, sem barra no fim (ex.: https://app.exemplo.com.br). Tambem e o emissor (issuer) do OAuth. */
     public String base(HttpServletRequest request) {
         if (!configurada.isEmpty()) return configurada;
         String host = primeiro(request.getHeader("X-Forwarded-Host"));

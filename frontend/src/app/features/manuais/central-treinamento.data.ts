@@ -11,7 +11,7 @@ export const MODULOS_TREINAMENTO: ManualModulo[] = [
   {
     id: '00',
     numeroOficial: '[00]',
-    titulo: 'Introdução ao Sistema - Acesso, Personalização, Navegação e Copiloto',
+    titulo: 'Introdução ao Sistema - Acesso, Personalização, Navegação e Bússola',
     tituloCurto: 'Introdução ao sistema',
     subtitulo: 'Primeiro acesso, credenciais padrão, temas, atalhos globais e suporte inteligente',
     categoria: 'GERAL',
@@ -120,14 +120,14 @@ export const MODULOS_TREINAMENTO: ManualModulo[] = [
       },
       {
         numero: '4',
-        titulo: 'Assistente Virtual "Copiloto"',
+        titulo: 'Assistente Virtual "Bússola"',
         icone: 'pi pi-comments',
         subtitulo: 'Inteligência artificial para apoio operacional',
         itens: [
           {
-            rotulo: 'Copiloto no menu lateral',
-            descricao: 'Tela própria de IA, no item "Copiloto" do menu lateral: consulta dados reais do Nexo, compara períodos, gera dashboards, relatórios em PDF e planilhas, lê arquivos e mostra cada etapa do trabalho.',
-            icone: 'pi pi-sparkles'
+            rotulo: 'Bússola no menu lateral',
+            descricao: 'Tela própria de IA, no item "Bússola" do menu lateral: consulta dados reais do GEO, compara períodos, gera dashboards, relatórios em PDF e planilhas, lê arquivos e mostra cada etapa do trabalho.',
+            icone: 'pi pi-compass'
           }
         ]
       }
@@ -343,7 +343,7 @@ export const MODULOS_TREINAMENTO: ManualModulo[] = [
     categoriaRotulo: 'Mobile / Campo',
     contextoTag: 'Mobile',
     icone: 'pi pi-mobile',
-    objetivo: 'Orientar o colaborador de campo na instalação do aplicativo progressivo (PWA) do Nexo em smartphones Android e iOS sem a necessidade de baixar arquivos externos ou lojas de aplicativos.',
+    objetivo: 'Orientar o colaborador de campo na instalação do aplicativo progressivo (PWA) do GEO em smartphones Android e iOS sem a necessidade de baixar arquivos externos ou lojas de aplicativos.',
     videoId: '8LbxF0v6p9k',
     videoUrlOriginal: 'http://www.youtube.com/watch?v=8LbxF0v6p9k',
     palavrasChave: ['pwa', 'mobile', 'celular', 'instalacao', 'atalho', 'android', 'ios', 'safari', 'chrome', 'app'],
@@ -364,7 +364,7 @@ export const MODULOS_TREINAMENTO: ManualModulo[] = [
         itens: [
           {
             rotulo: 'Acesso Inicial pelo Navegador',
-            descricao: 'Abra o Chrome no Android ou Safari no iPhone e acesse o endereço web direto da aplicação Nexo Mobile.',
+            descricao: 'Abra o Chrome no Android ou Safari no iPhone e acesse o endereço web direto da aplicação GEO Mobile.',
             icone: 'pi pi-globe',
             destaque: 'Chrome ou Safari'
           },
@@ -382,7 +382,7 @@ export const MODULOS_TREINAMENTO: ManualModulo[] = [
           },
           {
             rotulo: 'Pronto para Operar em Tela Cheia',
-            descricao: 'O ícone oficial do Nexo estará disponível na grade de aplicativos do smartphone, abrindo em tela cheia idêntico a um aplicativo nativo.',
+            descricao: 'O ícone oficial do GEO estará disponível na grade de aplicativos do smartphone, abrindo em tela cheia idêntico a um aplicativo nativo.',
             icone: 'pi pi-check-circle',
             badge: 'PWA Nativo'
           }

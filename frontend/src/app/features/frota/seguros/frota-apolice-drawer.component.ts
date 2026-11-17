@@ -138,7 +138,7 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
           <ces-select label="Corretor" [options]="opcoesCorretor()" [(value)]="corretor" [filter]="true" [clearable]="true" [showOptional]="true"
             [disabled]="!podeEditar()" [loading]="carregandoSeguradoras()"></ces-select>
           <ces-text-input label="Segurado" [(value)]="segurado" [maxlength]="150" [showOptional]="true" [disabled]="!podeEditar()"
-            placeholder="Ex.: NEXO"></ces-text-input>
+            placeholder="Ex.: Nome da empresa"></ces-text-input>
         </div>
         @if (podeEditar() && !novoFornecedor()) {
           <div class="links">

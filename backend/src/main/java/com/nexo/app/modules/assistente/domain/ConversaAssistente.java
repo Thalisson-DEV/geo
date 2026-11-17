@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Conversa do Copiloto pertencente a um unico usuario. O titulo nasce provisorio (primeira pergunta),
+ * Conversa da Bússola pertencente a um unico usuario. O titulo nasce provisorio (primeira pergunta),
  * e substituido por um titulo gerado pelo modelo e nunca sobrescreve um nome dado pelo proprio usuario.
  */
 @Entity

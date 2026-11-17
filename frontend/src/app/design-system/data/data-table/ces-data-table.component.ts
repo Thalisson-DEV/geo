@@ -76,7 +76,7 @@ function readStoredPageSize(key: string | undefined, options: readonly number[])
 }
 
 /**
- * Tabela de dados do Nexo.
+ * Tabela de dados do GEO.
  *
  * - `mode="client"` (padrão): conjunto já carregado; ordenação multicoluna (Shift+clique), busca
  *   rápida sem acento, paginação 10/25/50/100 lembrada por tabela, exportação CSV da visão.

@@ -11,9 +11,9 @@ import {
 } from '../../../core/models/assistente.models';
 
 /**
- * Dashboard Context Contract do Copiloto contextual.
+ * Dashboard Context Contract da Bússola contextual.
  *
- * Todo dashboard do Nexo descreve o que está em tela com este contrato (um `computed()` que acompanha
+ * Todo dashboard do GEO descreve o que está em tela com este contrato (um `computed()` que acompanha
  * filtros e dados). O contexto é **estruturado** e **enxuto**: identidade, período, filtros, KPIs com
  * comparação, agregações visíveis dos gráficos, seleção e datasets semânticos relacionados — nunca a base
  * completa. Detalhes vêm das ferramentas do agente. O contexto é pista, jamais autorização: o backend e as

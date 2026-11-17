@@ -45,7 +45,7 @@ class PreviaEmailTest {
         assertThat(previa.assunto()).isEqualTo("Comercial [Para cada › Item] — semana");
         assertThat(previa.html())
                 .contains("https://app.exemplo.com.br/assets/logo-email.png")
-                .contains("Nexo")
+                .contains("GEO")
                 .contains("[Colaborador › Nome]")
                 .contains("Execuções › Linhas")
                 .contains("Abrir relatório")

@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Unidade do protocolo de streaming do Copiloto (adaptado do Onyx: {@code {placement, obj}} em NDJSON).
+ * Unidade do protocolo de streaming da Bússola (adaptado do Onyx: {@code {placement, obj}} em NDJSON).
  *
  * <p>{@code placement.turnIndex} identifica o ciclo do agente; {@code tabIndex} 0 e o texto do modelo e
  * 1..n sao as ferramentas executadas em paralelo naquele ciclo. {@code obj.type} discrimina o pacote.</p>

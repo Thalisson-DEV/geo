@@ -26,7 +26,7 @@ const MINIMO_MOTIVO = 5;
 
 /**
  * A página do link de decisão do e-mail: quem aprova confere a solicitação e decide
- * sem entrar no Nexo. O link é a credencial; esta página não dá acesso a mais nada.
+ * sem entrar no GEO. O link é a credencial; esta página não dá acesso a mais nada.
  */
 @Component({
   selector: 'app-decisao-email',
@@ -190,7 +190,7 @@ const MINIMO_MOTIVO = 5;
       <header class="cabecalho">
         <img src="logo_vertical.svg" alt="" onerror="this.style.display='none'" />
         <div class="marca">
-          <strong>Nexo</strong>
+          <strong>GEO</strong>
           <span>Decisão de compras e pagamentos</span>
         </div>
       </header>

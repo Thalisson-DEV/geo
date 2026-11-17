@@ -49,8 +49,8 @@ import com.nexo.app.shared.infrastructure.email.ServicoEmail;
  *
  * <p>O corpo do e-mail vem do editor: texto formatado com <em>dados</em> (fichas
  * {@code <span data-expr>}) e <em>blocos</em> ({@code <div data-block data-source>}: tabela de
- * uma lista, texto em Markdown como a análise do Copiloto, HTML pronto de outro passo).
- * Tudo é sanitizado e entra no layout institucional de e-mail do Nexo.</p>
+ * uma lista, texto em Markdown como a análise da Bússola, HTML pronto de outro passo).
+ * Tudo é sanitizado e entra no layout institucional de e-mail do GEO.</p>
  */
 @Component
 public class NosAvisos implements ProvedorNos {
@@ -91,16 +91,16 @@ public class NosAvisos implements ProvedorNos {
     public Collection<EspecNo> nos() {
         List<EspecNo> nos = new ArrayList<>();
         nos.add(EspecNo.de("email.send", "notify", "Enviar e-mail",
-                        "E-mail com a identidade do Nexo: texto formatado, dados do fluxo, tabelas, a análise do Copiloto e anexos.", "mail")
+                        "E-mail com a identidade do GEO: texto formatado, dados do fluxo, tabelas, a análise da Bússola e anexos.", "mail")
                 .params(
                         EspecParam.de("to", "Para", "recipients").obrigatorio().padrao(List.of()).criar(),
                         EspecParam.de("cc", "Cópia (Cc)", "recipients").padrao(List.of()).avancado().criar(),
                         EspecParam.de("subject", "Assunto", "text").obrigatorio().placeholder("Ex.: Desconto validado aguardando baixa").criar(),
                         EspecParam.de("body", "Mensagem", "html").obrigatorio().semResolver().criar(),
                         EspecParam.de("attachments", "Anexos", "expression")
-                                .placeholder("Escolha arquivos de passos anteriores (ex.: o PDF do Copiloto)").criar(),
+                                .placeholder("Escolha arquivos de passos anteriores (ex.: o PDF da Bússola)").criar(),
                         EspecParam.de("label", "Área (linha acima do título)", "text").placeholder("Ex.: Recursos Humanos").avancado().criar(),
-                        EspecParam.de("button_label", "Texto do botão", "text").placeholder("Abrir no Nexo").avancado().criar(),
+                        EspecParam.de("button_label", "Texto do botão", "text").placeholder("Abrir no GEO").avancado().criar(),
                         EspecParam.de("button_link", "Link do botão", "text").placeholder("/descontos").avancado().criar(),
                         EspecParam.de("tone", "Destaque", "select").padrao("NEUTRO").estatico().avancado()
                                 .opcoes(List.of(List.of("NEUTRO", "Neutro"), List.of("INFORMATIVO", "Informativo"),
@@ -116,7 +116,7 @@ public class NosAvisos implements ProvedorNos {
                 .palavras("email", "e-mail", "mensagem", "outlook", "enviar", "relatório")
                 .criar());
         nos.add(EspecNo.de("notify.people", "notify", "Avisar pessoas",
-                        "Aviso no sininho do Nexo (em tempo real) e, se quiser, também por e-mail — respeitando as preferências de cada pessoa.", "bell")
+                        "Aviso no sininho do GEO (em tempo real) e, se quiser, também por e-mail — respeitando as preferências de cada pessoa.", "bell")
                 .params(
                         EspecParam.de("recipients", "Quem recebe", "recipients").obrigatorio().padrao(List.of()).criar(),
                         EspecParam.de("title", "Título", "text").obrigatorio().placeholder("Desconto aguardando baixa").criar(),
@@ -231,7 +231,7 @@ public class NosAvisos implements ProvedorNos {
                 .destaque(destaque)
                 .titulo(titulo == null ? "" : titulo.strip())
                 .htmlLivre(corpo)
-                .rotuloAcao(link.isEmpty() ? null : (rotuloBotao == null || rotuloBotao.isBlank() ? "Abrir no Nexo" : rotuloBotao))
+                .rotuloAcao(link.isEmpty() ? null : (rotuloBotao == null || rotuloBotao.isBlank() ? "Abrir no GEO" : rotuloBotao))
                 .urlAcao(link.isEmpty() ? null : emailProperties.resolverUrl(link))
                 .anexos(citados)
                 .build();
@@ -292,7 +292,7 @@ public class NosAvisos implements ProvedorNos {
         String de = origem.isBlank() ? "" : " de <strong>" + MarkdownHtml.escapar(origem) + "</strong>";
         return switch (tipo) {
             case "markdown" -> "<div style=\"" + CAIXA_EXEMPLO + "\">Aqui entra o texto" + de
-                    + ", já formatado: títulos, listas e tabelas (por exemplo, a análise do Copiloto).</div>";
+                    + ", já formatado: títulos, listas e tabelas (por exemplo, a análise da Bússola).</div>";
             case "table" -> "<p style=\"margin:8px 0 4px;font-size:12px;color:#64748b;\">Tabela" + de + " (exemplo)</p>"
                     + "<table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" style=\"border-collapse:collapse;width:100%;margin:0 0 16px\">"
                     + "<thead><tr>" + "<th style=\"padding:7px 9px;border-bottom:2px solid #cbd5e1;font-size:12px;text-align:left;color:#64748b\">Coluna</th>".repeat(3)
@@ -458,7 +458,7 @@ public class NosAvisos implements ProvedorNos {
         if (porEmail && !externos.isEmpty() && email.ativo()) {
             ConteudoEmail conteudo = ConteudoEmail.builder().titulo(titulo)
                     .paragrafos(corpo.isBlank() ? List.of() : List.of(corpo.split("\\n")))
-                    .rotuloAcao(link.isEmpty() ? null : "Abrir no Nexo").urlAcao(link.isEmpty() ? null : emailProperties.resolverUrl(link))
+                    .rotuloAcao(link.isEmpty() ? null : "Abrir no GEO").urlAcao(link.isEmpty() ? null : emailProperties.resolverUrl(link))
                     .build();
             ResultadoEnvioEmail resultado = email.enviar(MensagemEmail.builder().destinatarios(externos).assunto(titulo)
                     .html(montador.montar(conteudo)).texto(montador.montarTexto(conteudo)).build());

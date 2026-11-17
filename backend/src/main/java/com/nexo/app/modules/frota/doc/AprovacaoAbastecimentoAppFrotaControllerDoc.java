@@ -27,7 +27,7 @@ public interface AprovacaoAbastecimentoAppFrotaControllerDoc {
     ResponseEntity<PageResponse<AbastecimentoResumoResponse>> carteira(List<SituacaoAbastecimento> situacao, String busca,
                                                                     LocalDate de, LocalDate ate, Pageable pageable);
 
-    @Operation(summary = "Pedido para decidir", description = "Pedido completo, alertas e a última análise do Assistente.")
+    @Operation(summary = "Pedido para decidir", description = "Pedido completo, alertas e a última análise da Bússola.")
     ResponseEntity<AprovacaoAbastecimentoAppResponse> detalhar(UUID id);
 
     @Operation(summary = "Aprovar com quantidades", description = "Quantidade de cada item; zero tira o item. Vale até o fim do dia.")

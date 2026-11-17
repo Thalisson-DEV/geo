@@ -170,7 +170,7 @@ public class NosDados implements ProvedorNos {
                 .palavras("join", "concatenar", "lista")
                 .criar());
         nos.add(EspecNo.de("data.markdown", "data", "Formatar texto (Markdown → HTML)",
-                        "Converte um texto em Markdown (como as análises do Copiloto) em HTML pronto para o e-mail.", "text")
+                        "Converte um texto em Markdown (como as análises da Bússola) em HTML pronto para o e-mail.", "text")
                 .params(EspecParam.de("content", "Texto em Markdown", "textarea").obrigatorio().criar())
                 .saidas(EspecSaida.de("html", "HTML", "string"))
                 .executor((ctx, p) -> mapa("html", MarkdownHtml.converter(Valores.texto(p.get("content")))))

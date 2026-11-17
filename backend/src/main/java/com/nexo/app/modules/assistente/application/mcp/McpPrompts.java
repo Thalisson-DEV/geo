@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
-/** Prompts prontos do Nexo que o aplicativo de IA oferece como atalho (ex.: "/" no Claude). */
+/** Prompts prontos do GEO que o aplicativo de IA oferece como atalho (ex.: "/" no Claude). */
 final class McpPrompts {
 
     private record Argumento(String nome, String descricao, boolean obrigatorio) {
@@ -19,23 +19,23 @@ final class McpPrompts {
 
     private static final List<Prompt> PROMPTS = List.of(
             new Prompt("panorama_do_dia", "Panorama do dia",
-                    "O que pede a atenção da pessoa hoje no Nexo, nas áreas que ela acompanha.", List.of(), false,
-                    "Faça um panorama de hoje no Nexo para mim: o que está pendente, atrasado ou fora do normal nas "
-                            + "áreas que eu acompanho. Traga os números das ferramentas do Nexo e termine com as três "
+                    "O que pede a atenção da pessoa hoje no GEO, nas áreas que ela acompanha.", List.of(), false,
+                    "Faça um panorama de hoje no GEO para mim: o que está pendente, atrasado ou fora do normal nas "
+                            + "áreas que eu acompanho. Traga os números das ferramentas do GEO e termine com as três "
                             + "coisas que eu deveria olhar primeiro."),
             new Prompt("analisar_area", "Analisar uma área",
-                    "Análise de uma área do Nexo num período, com comparação e pontos de atenção.",
+                    "Análise de uma área do GEO num período, com comparação e pontos de atenção.",
                     List.of(new Argumento("area", "Área: estoque, solicitações, execução, faturamento, descontos, SST, "
                                     + "frota, chamados, financeiro, obras...", true),
                             new Argumento("periodo", "Período, ex.: este mês, últimos 30 dias, 2026", false)),
                     false,
-                    "Analise {area} no Nexo {periodo}. Compare com o período anterior, aponte o que mudou, o que está "
-                            + "fora do normal e o que eu deveria fazer. Use só números das ferramentas do Nexo."),
-            new Prompt("cadastrar_no_ces", "Cadastrar no Nexo",
-                    "Cadastra ou altera algo no Nexo, conferindo os dados com a pessoa antes de gravar.",
+                    "Analise {area} no GEO {periodo}. Compare com o período anterior, aponte o que mudou, o que está "
+                            + "fora do normal e o que eu deveria fazer. Use só números das ferramentas do GEO."),
+            new Prompt("cadastrar_no_ces", "Cadastrar no GEO",
+                    "Cadastra ou altera algo no GEO, conferindo os dados com a pessoa antes de gravar.",
                     List.of(new Argumento("pedido", "O que cadastrar ou alterar, com os detalhes que você já tem", true)),
                     true,
-                    "Quero cadastrar no Nexo: {pedido}. Descubra no Nexo o que mais é necessário, me mostre um resumo "
+                    "Quero cadastrar no GEO: {pedido}. Descubra no GEO o que mais é necessário, me mostre um resumo "
                             + "do que será gravado e só grave depois que eu confirmar."));
 
     private McpPrompts() {

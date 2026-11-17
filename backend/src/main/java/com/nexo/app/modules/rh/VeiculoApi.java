@@ -40,7 +40,7 @@ List<VeiculoCompletoData> listarVeiculosCompletosAtivos(java.util.List<UUID> bas
     List<UUID> listarIdsVeiculosAtivos(java.util.List<UUID> baseIds);
 
     /**
-     * Retorna o conjunto de todas as placas de veículos ativos no Nexo.
+     * Retorna o conjunto de todas as placas de veículos ativos no GEO.
      */
     Set<String> listarPlacasAtivas();
 
@@ -50,7 +50,7 @@ List<VeiculoCompletoData> listarVeiculosCompletosAtivos(java.util.List<UUID> bas
     Map<String, UUID> mapaPlacasIds();
 
     /**
-     * Verifica se uma placa está cadastrada e ativa no Nexo.
+     * Verifica se uma placa está cadastrada e ativa no GEO.
      */
     boolean isVeiculoCadastrado(String placa);
 

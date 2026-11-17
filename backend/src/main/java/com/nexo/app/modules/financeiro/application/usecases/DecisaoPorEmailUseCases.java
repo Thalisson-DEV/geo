@@ -171,7 +171,7 @@ public class DecisaoPorEmailUseCases {
                     + " registrada por este link. Não há mais nada a fazer aqui.";
             case JA_DECIDIDA -> "Esta solicitação já está " + FichaSolicitacaoFinanceira
                     .situacao(solicitacao.getStatus()).toLowerCase() + ". Não há decisão pendente.";
-            case EXPIRADO -> "Este link expirou. Para decidir, entre no Nexo.";
+            case EXPIRADO -> "Este link expirou. Para decidir, entre no GEO.";
             case SEM_PERMISSAO -> "Seu perfil não tem mais alçada para decidir esta solicitação.";
         };
     }

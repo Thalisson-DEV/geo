@@ -3,7 +3,7 @@ package com.nexo.app.modules.assistente.application.agent;
 import java.util.Map;
 
 /**
- * De onde o usuario abriu o Copiloto (pagina, entidade e filtros), para contextualizar a conversa.
+ * De onde o usuario abriu a Bússola (pagina, entidade e filtros), para contextualizar a conversa.
  * Quando a pergunta nasce em um painel (dashboard), {@code painel} traz o contexto estruturado da tela.
  * Todos os campos vem do frontend e sao tratados como dado nao confiavel: servem de pista, nunca de
  * autorizacao — as ferramentas validam permissao e existencia a cada consulta.

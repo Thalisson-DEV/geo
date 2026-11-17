@@ -3,7 +3,7 @@
  *
  * A definição da automação segue o formato v3 do motor (o mesmo do TON): chaves em inglês
  * (`trigger`, `steps`, `run_after`…), porque é um documento que o designer, o verificador do
- * servidor e o rascunho do Copiloto compartilham.
+ * servidor e o rascunho da Bússola compartilham.
  */
 
 export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
@@ -310,7 +310,7 @@ export const TIPO_ICONE: Record<TipoAutomacao, string> = {
   ALERTA: 'pi pi-bell',
   ROTINA: 'pi pi-calendar-clock',
   APROVACAO: 'pi pi-check-square',
-  DADOS_IA: 'pi pi-sparkles',
+  DADOS_IA: 'pi pi-compass',
   GERAL: 'pi pi-bolt'
 };
 

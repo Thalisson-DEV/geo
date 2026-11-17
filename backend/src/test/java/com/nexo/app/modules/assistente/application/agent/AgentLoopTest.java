@@ -134,7 +134,7 @@ class AgentLoopTest {
     }
 
     private List<LlmMessage> mensagensIniciais() {
-        return List.of(new LlmMessage.System("Voce e o Copiloto"), new LlmMessage.User("Some 1 e 2"));
+        return List.of(new LlmMessage.System("Voce e a Bússola"), new LlmMessage.User("Some 1 e 2"));
     }
 
     private static AgentTool somar() {

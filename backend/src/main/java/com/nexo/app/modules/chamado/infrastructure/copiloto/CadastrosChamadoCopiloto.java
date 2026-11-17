@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** O que o Copiloto cadastra em Chamados: abertura de chamado e topicos de atendimento. */
+/** O que a Bússola cadastra em Chamados: abertura de chamado e topicos de atendimento. */
 @Component
 public class CadastrosChamadoCopiloto implements ProvedorCadastros {
 

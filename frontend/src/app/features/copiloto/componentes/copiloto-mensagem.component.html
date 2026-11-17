@@ -30,13 +30,13 @@
     }
   </article>
 } @else if (resposta(); as r) {
-  <article class="assistente" [attr.aria-busy]="emAndamento()" aria-label="Resposta do Copiloto">
+  <article class="assistente" [attr.aria-busy]="emAndamento()" aria-label="Resposta da Bússola">
     <div class="assistente__avatar" aria-hidden="true">
-      <img src="icons/copiloto-2.png" alt="" />
+      <img src="icons/bussola.svg" alt="" />
     </div>
     <div class="assistente__corpo">
       <div class="assistente__cabecalho">
-        <strong>Copiloto</strong>
+        <strong>Bússola</strong>
         @switch (r.status) {
           @case ('CANCELADA') {
             <ces-status tone="warning" icon="pi-stop-circle">Interrompida</ces-status>
@@ -138,7 +138,7 @@
       }
 
       @if (acoes().length) {
-        <div class="acoes" role="group" aria-label="Atalhos sugeridos no Nexo">
+        <div class="acoes" role="group" aria-label="Atalhos sugeridos no GEO">
           @for (item of acoes(); track $index) {
             <ces-button variant="outline" size="sm" icon="pi pi-arrow-up-right" [label]="item.acao.rotulo" (pressed)="navegar(item.acao)"></ces-button>
           }

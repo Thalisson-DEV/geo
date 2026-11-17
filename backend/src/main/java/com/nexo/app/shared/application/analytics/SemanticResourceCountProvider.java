@@ -2,7 +2,7 @@ package com.nexo.app.shared.application.analytics;
 
 import java.util.List;
 
-/** Publica contagens cadastrais seguras pertencentes a um modulo do Nexo. */
+/** Publica contagens cadastrais seguras pertencentes a um modulo do GEO. */
 public interface SemanticResourceCountProvider {
 
     List<ResourceCountDescriptor> descriptors();

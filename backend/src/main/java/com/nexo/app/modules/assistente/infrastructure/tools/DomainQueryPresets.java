@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 /**
- * Ferramentas de dominio do Nexo. Cada uma cobre uma pergunta operacional recorrente com parametros de
+ * Ferramentas de dominio do GEO. Cada uma cobre uma pergunta operacional recorrente com parametros de
  * negocio; perguntas fora destes moldes usam consultar_fonte (qualquer view) ou consultar_sql.
  */
 @Component

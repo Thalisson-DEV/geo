@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Camada semantica do Nexo para o agente: significado de negocio, permissoes, enums, relacionamentos e
+ * Camada semantica do GEO para o agente: significado de negocio, permissoes, enums, relacionamentos e
  * glossario das views do schema {@code copiloto}. O conteudo e descoberto sob demanda pelas ferramentas
  * de catalogo — nunca e enviado inteiro ao prompt. Tipos de coluna vem do proprio banco.
  */
@@ -160,7 +160,7 @@ public class SemanticCatalog {
             Object carregado = new Yaml().load(input);
             return mapa(carregado);
         } catch (IOException exception) {
-            throw new IllegalStateException("Catalogo semantico do Copiloto ausente: " + RESOURCE, exception);
+            throw new IllegalStateException("Catalogo semantico da Bússola ausente: " + RESOURCE, exception);
         }
     }
 

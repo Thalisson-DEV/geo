@@ -29,7 +29,7 @@ import com.nexo.app.modules.rh.ColaboradorResponse;
  *   <li>{@code usuario} — id de usuário;</li>
  *   <li>{@code colaborador} — id de colaborador; alcança o usuário vinculado a ele (é o
  *       caminho natural quando se pensa em "o RH de Juazeiro é a Maria");</li>
- *   <li>{@code email} — endereço livre, de dentro ou de fora do Nexo;</li>
+ *   <li>{@code email} — endereço livre, de dentro ou de fora do GEO;</li>
  *   <li>{@code permissao} / {@code perfil} — todos os usuários ativos com a permissão ou
  *       do perfil, recalculado a cada execução;</li>
  *   <li>{@code papel} — pessoa que o próprio evento identifica (ex.: solicitante);</li>
@@ -169,7 +169,7 @@ public class ResolvedorDestinatarios implements Interpretador.ResolvedorPessoas 
                 if (!UUID_TEXTO.matcher(texto).matches()) return;
                 ColaboradorResponse colaborador = colaboradores.buscarPorIdResponse(UUID.fromString(texto)).orElse(null);
                 if (colaborador == null || colaborador.idUsuario() == null) {
-                    avisos.add("O colaborador " + rotulo(mapa, texto) + " não tem usuário no Nexo");
+                    avisos.add("O colaborador " + rotulo(mapa, texto) + " não tem usuário no GEO");
                 } else {
                     ids.add(colaborador.idUsuario());
                 }

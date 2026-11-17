@@ -430,9 +430,9 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                   @if (copilotoDisponivel) {
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
                       <p class="text-xs text-[var(--ces-foreground-muted)]">
-                        Quer uma segunda opinião? O Copiloto confere turnos e notas da equipe e aponta a causa provável e a resolução. Quem decide é você.
+                        Quer uma segunda opinião? A Bússola confere turnos e notas da equipe e aponta a causa provável e a resolução. Quem decide é você.
                       </p>
-                      <ces-button label="Pré-análise do Copiloto" icon="pi pi-sparkles" variant="outline" size="sm" className="shrink-0" (pressed)="preAnalisar(current)"></ces-button>
+                      <ces-button label="Pré-análise da Bússola" icon="pi pi-compass" variant="outline" size="sm" className="shrink-0" (pressed)="preAnalisar(current)"></ces-button>
                     </div>
                   }
 
@@ -958,7 +958,7 @@ export class SyncErrorCasesComponent {
   private readonly copiloto = inject(CopilotoPainelService);
   protected readonly copilotoDisponivel = this.copiloto.disponivelParaUsuario();
 
-  /** O Copiloto consulta os casos, os turnos e as notas da equipe; a pessoa decide o tratamento. */
+  /** A Bússola consulta os casos, os turnos e as notas da equipe; a pessoa decide o tratamento. */
   protected readonly contextoCopiloto: CopilotoDashboardContext = {
     id: 'admin.sincronismo',
     nome: 'Sincronismo',
@@ -1434,7 +1434,7 @@ export class SyncErrorCasesComponent {
     });
   }
 
-  /** Leva o retrato do caso, com nomes no lugar das referências, para o Copiloto analisar. */
+  /** Leva o retrato do caso, com nomes no lugar das referências, para a Bússola analisar. */
   protected preAnalisar(item: SyncErrorCaseDetail): void {
     const d = this.diagnostico(item);
     const payload = this.payloadAtual(item);

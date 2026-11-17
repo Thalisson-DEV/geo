@@ -33,7 +33,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-/** O que o Copiloto cadastra no Almoxarifado: solicitacoes de material, movimentacoes e cadastros de apoio. */
+/** O que a Bússola cadastra no Almoxarifado: solicitacoes de material, movimentacoes e cadastros de apoio. */
 @Component
 public class CadastrosEstoqueCopiloto implements ProvedorCadastros {
 

@@ -5,7 +5,7 @@ import { ContextoTag, TipoAlertaManual } from './central-treinamento.models';
  * Apresentação do domínio de treinamento.
  *
  * O conteúdo dos módulos é dado de negócio; cor, ícone e rótulo pertencem a este arquivo
- * e sempre derivam de tons semânticos do Nexo. Cada tom acompanha um rótulo textual,
+ * e sempre derivam de tons semânticos do GEO. Cada tom acompanha um rótulo textual,
  * de modo que a cor nunca seja o único indicador do tipo de alerta.
  */
 const APRESENTACAO_ALERTA: Record<

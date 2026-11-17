@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * Execucao de Python em sandbox isolado, portada do {@code PythonTool} do Onyx: mesma selecao de arquivos
  * (os citados no codigo primeiro, depois os mais recentes, com limites de quantidade e bytes), cache de
  * upload por (nome, hash) durante a execucao, saida em streaming, arquivos gerados devolvidos ao usuario e
- * resultado estruturado para o modelo. Extensao do Nexo: resultados rN viram {@code rN.csv} no diretorio de
+ * resultado estruturado para o modelo. Extensao do GEO: resultados rN viram {@code rN.csv} no diretorio de
  * trabalho e planilhas geradas voltam como novos resultados, reutilizaveis em graficos e relatorios.
  */
 @Component
@@ -54,7 +54,7 @@ public class ExecutarPythonTool extends BaseTool {
     public ExecutarPythonTool(CodeInterpreterClient client, ArquivoService arquivos, ResultStore store,
             ResultFormatter formatter, AssistenteProperties properties) {
         super("executar_python", "Executar Python",
-                "Executa codigo Python em um sandbox isolado, sem internet e sem acesso ao banco do Nexo. Use para "
+                "Executa codigo Python em um sandbox isolado, sem internet e sem acesso ao banco do GEO. Use para "
                         + "estatistica, projecoes, regressoes, simulacoes, conciliacoes complexas, transformacao de "
                         + "planilhas e graficos personalizados. Bibliotecas: pandas, numpy, scipy, matplotlib, openpyxl, "
                         + "PIL. Arquivos anexados na conversa ficam no diretorio atual com o nome original. Resultados "

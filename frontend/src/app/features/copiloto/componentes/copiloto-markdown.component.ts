@@ -22,7 +22,7 @@ const PURIFY = {
 };
 
 /**
- * Markdown das respostas do Copiloto (GFM via marked + DOMPurify). Links externos abrem em nova aba com
+ * Markdown das respostas da Bússola (GFM via marked + DOMPurify). Links externos abrem em nova aba com
  * `rel="noopener noreferrer"`; citações de fontes externas ([1], [2]) viram marcadores sobrescritos.
  */
 @Component({

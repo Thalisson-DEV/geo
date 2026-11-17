@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * O que o Copiloto cadastra no Financeiro: solicitacoes de compra e de pagamento (com os campos do formulario
+ * O que a Bússola cadastra no Financeiro: solicitacoes de compra e de pagamento (com os campos do formulario
  * escolhido, que o administrador configura) e fornecedores.
  */
 @Component

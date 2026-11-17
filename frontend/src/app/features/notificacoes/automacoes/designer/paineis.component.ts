@@ -311,7 +311,7 @@ export class PainelAdicionarComponent {
   }
 }
 
-// ------------------------------------------------------------------------------ pedir ao Copiloto
+// ------------------------------------------------------------------------------ pedir à Bússola
 
 interface Mensagem {
   de: 'user' | 'ai' | 'error';
@@ -325,15 +325,15 @@ interface Mensagem {
   imports: [CesButtonComponent, CesIconButtonComponent, CesTextareaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <aside class="aut-panel" data-group="ai" aria-label="Pedir ao Copiloto">
+    <aside class="aut-panel" data-group="ai" aria-label="Pedir à Bússola">
       <header class="aut-panel-head">
-        <span class="aut-node-icon"><i class="pi pi-sparkles" aria-hidden="true"></i></span>
-        <span class="aut-panel-title" style="flex:1">Pedir ao Copiloto</span>
+        <span class="aut-node-icon"><i class="pi pi-compass" aria-hidden="true"></i></span>
+        <span class="aut-panel-title" style="flex:1">Pedir à Bússola</span>
         <ces-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></ces-icon-button>
       </header>
       <div class="aut-panel-body">
         @if (!mensagens().length) {
-          <p class="aut-muted" style="margin:0">Descreva o que mudar. O Copiloto ajusta o fluxo e você confere no canvas (dá para desfazer).</p>
+          <p class="aut-muted" style="margin:0">Descreva o que mudar. A Bússola ajusta o fluxo e você confere no canvas (dá para desfazer).</p>
           @for (ex of exemplos; track ex) {
             <button type="button" class="aut-ask-example" (click)="pedido.set(ex)">{{ ex }}</button>
           }

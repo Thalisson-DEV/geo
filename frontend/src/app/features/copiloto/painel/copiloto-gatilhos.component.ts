@@ -4,7 +4,7 @@ import { FocoPainel } from '../../../core/models/assistente.models';
 import { CopilotoPainelService } from './copiloto-painel.service';
 
 /**
- * Ação do cabeçalho do dashboard que mostra/oculta o Copiloto contextual. Leva o avatar do Copiloto
+ * Ação do cabeçalho do dashboard que mostra/oculta a Bússola contextual. Leva o avatar da Bússola
  * para ser reconhecido como a mesma funcionalidade do workspace (não é um widget de suporte externo).
  */
 @Component({
@@ -21,9 +21,9 @@ import { CopilotoPainelService } from './copiloto-painel.service';
       [attr.aria-controls]="controla()"
       (click)="painel.alternar()"
     >
-      <img src="icons/copiloto-1.png" alt="" aria-hidden="true" />
-      <span class="gatilho__texto">{{ painel.aberto() ? 'Ocultar Copiloto' : 'Perguntar ao Copiloto' }}</span>
-      <i class="pi pi-sparkles" aria-hidden="true"></i>
+      <img src="icons/bussola.svg" alt="" aria-hidden="true" />
+      <span class="gatilho__texto">{{ painel.aberto() ? 'Ocultar Bússola' : 'Perguntar à Bússola' }}</span>
+      <i class="pi pi-compass" aria-hidden="true"></i>
     </button>
     }
   `,
@@ -62,7 +62,7 @@ export class CopilotoGatilhoComponent {
 }
 
 /**
- * Botão "Perguntar ao Copiloto" de um elemento do dashboard (gráfico, KPI, tabela): abre o painel já
+ * Botão "Perguntar à Bússola" de um elemento do dashboard (gráfico, KPI, tabela): abre o painel já
  * focado nesse elemento; a pergunta leva `foco` no contexto (id, métrica, dimensão e dados já estão no
  * contexto do painel).
  */
@@ -74,7 +74,7 @@ export class CopilotoGatilhoComponent {
   template: `
     @if (painel.disponivelParaUsuario()) {
       <ces-icon-button
-        icon="pi pi-sparkles"
+        icon="pi pi-compass"
         size="icon-sm"
         [label]="rotulo()"
         (pressed)="perguntar()"
@@ -88,7 +88,7 @@ export class CopilotoPerguntarComponent {
   /** Pergunta sugerida no compositor (o usuário pode editar antes de enviar). */
   readonly pergunta = input<string | undefined>();
 
-  protected readonly rotulo = computed(() => `Perguntar ao Copiloto sobre ${this.foco().rotulo ?? 'este elemento'}`);
+  protected readonly rotulo = computed(() => `Perguntar à Bússola sobre ${this.foco().rotulo ?? 'este elemento'}`);
 
   protected perguntar(): void {
     const foco = this.foco();

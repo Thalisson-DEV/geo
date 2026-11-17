@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * API pública do Copiloto para outros módulos.
+ * API pública da Bússola para outros módulos.
  *
  * <p>O motor de automações usa três coisas daqui: uma chamada simples ao modelo (os
  * passos de IA), uma análise completa feita pelo agente em nome de um usuário — com as

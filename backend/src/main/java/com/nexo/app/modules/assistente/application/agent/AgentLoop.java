@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 /**
- * Loop agentic do Copiloto, portado de {@code run_llm_loop} do Onyx: a cada ciclo o modelo recebe o
+ * Loop agentic da Bússola, portado de {@code run_llm_loop} do Onyx: a cada ciclo o modelo recebe o
  * historico e as ferramentas, transmite texto e/ou pede ferramentas; as ferramentas rodam em paralelo e
  * seus resultados voltam ao modelo ate ele responder sem chamar ferramentas. Protecoes: limite de ciclos,
  * de chamadas e de tempo (no ultimo ciclo as ferramentas sao desligadas e o modelo e instruido a responder),

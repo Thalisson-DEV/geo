@@ -3,7 +3,7 @@ package com.nexo.app.modules.assistente.application.llm;
 import java.util.function.BooleanSupplier;
 
 /**
- * Porta de modelo do Copiloto. O runtime agentic depende apenas desta abstracao; trocar de provedor
+ * Porta de modelo da Bússola. O runtime agentic depende apenas desta abstracao; trocar de provedor
  * (Fireworks, OpenAI, Azure, OpenRouter, Ollama...) nao exige reescrever o loop.
  */
 public interface LlmProvider {

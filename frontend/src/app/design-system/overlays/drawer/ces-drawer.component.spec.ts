@@ -54,7 +54,7 @@ describe('CesDrawerComponent', () => {
     expect(drawer.querySelector('.conteudo')).not.toBeNull();
     expect(drawer.querySelector('.ces-drawer__footer .rodape')).not.toBeNull();
     expect(drawer.querySelector('.ces-drawer__handle')).toBeNull();
-    // Superfície pelos tokens Nexo (o overlay do preset fica claro no tema escuro).
+    // Superfície pelos tokens GEO (o overlay do preset fica claro no tema escuro).
     expect(drawer.getAttribute('style')).toContain('var(--ces-surface)');
     expect(drawer.getAttribute('style')).toContain('var(--ces-foreground)');
   });

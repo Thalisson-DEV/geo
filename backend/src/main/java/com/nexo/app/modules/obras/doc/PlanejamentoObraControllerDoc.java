@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
-@Tag(name = "Obras - Planejamento", description = "Planejamento sobre o PDF do projeto: pontos, vãos, kits, anotações e leitura pelo Copiloto")
+@Tag(name = "Obras - Planejamento", description = "Planejamento sobre o PDF do projeto: pontos, vãos, kits, anotações e leitura pela Bússola")
 @SecurityRequirement(name = "bearerAuth")
 public interface PlanejamentoObraControllerDoc {
 
@@ -74,10 +74,10 @@ public interface PlanejamentoObraControllerDoc {
     @Operation(summary = "Excluir anotação")
     ResponseEntity<PlanejamentoObraResponse> excluirAnotacao(UUID idObra, UUID idAnotacao);
 
-    @Operation(summary = "Informar se a leitura pelo Copiloto está disponível e a última leitura da página")
+    @Operation(summary = "Informar se a leitura pela Bússola está disponível e a última leitura da página")
     ResponseEntity<PlanejamentoObraRequests.DisponibilidadeAnalise> disponibilidadeAnalise(UUID idObra, int pagina);
 
-    @Operation(summary = "Pedir ao Copiloto a leitura de uma página do projeto", description = "Processa em segundo plano e não grava nada no planejamento.")
+    @Operation(summary = "Pedir à Bússola a leitura de uma página do projeto", description = "Processa em segundo plano e não grava nada no planejamento.")
     ResponseEntity<PlanejamentoObraRequests.AnaliseResponse> iniciarAnalise(UUID idObra, PlanejamentoObraRequests.IniciarAnalise request);
 
     @Operation(summary = "Acompanhar a leitura e obter a proposta")

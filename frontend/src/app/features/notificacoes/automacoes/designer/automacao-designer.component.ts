@@ -93,7 +93,7 @@ function iguais(a: unknown, b: unknown): boolean {
             }
           </span>
           <ces-icon-button icon="pi pi-cog" label="Configurações" size="icon-sm" [variant]="lado()?.tipo === 'configuracoes' ? 'secondary' : 'ghost'" (pressed)="alternarLado({ tipo: 'configuracoes' })"></ces-icon-button>
-          <ces-button icon="pi pi-sparkles" label="Pedir ao Copiloto" size="sm" [variant]="lado()?.tipo === 'pedir' ? 'secondary' : 'ghost'" (pressed)="alternarLado({ tipo: 'pedir' })"></ces-button>
+          <ces-button icon="pi pi-compass" label="Pedir à Bússola" size="sm" [variant]="lado()?.tipo === 'pedir' ? 'secondary' : 'ghost'" (pressed)="alternarLado({ tipo: 'pedir' })"></ces-button>
           <span class="aut-topbar-sep" aria-hidden="true"></span>
           <ces-button icon="pi pi-play" label="Testar" variant="outline" size="sm" [title]="erros() ? 'Corrija os erros antes de testar' : 'E-mails e avisos só para você'" [disabled]="!!ocupado() || erros() > 0" (pressed)="abrirExecucao(true)"></ces-button>
           @if (detalhe()!.resumo.status !== 'ATIVA') {

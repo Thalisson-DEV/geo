@@ -41,7 +41,7 @@ describe('CopilotoPainelComponent — abrir no workspace', () => {
 
   function botaoAbrir(el: HTMLElement): HTMLButtonElement {
     const host = [...el.querySelectorAll('ces-icon-button')].find((b) =>
-      b.querySelector('button')?.getAttribute('aria-label')?.startsWith('Abrir no Copiloto'));
+      b.querySelector('button')?.getAttribute('aria-label')?.startsWith('Abrir na Bússola'));
     return host!.querySelector('button') as HTMLButtonElement;
   }
 

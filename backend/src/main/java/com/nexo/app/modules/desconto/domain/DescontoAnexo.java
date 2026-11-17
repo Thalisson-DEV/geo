@@ -29,7 +29,7 @@ public class DescontoAnexo extends BaseEntity {
     @Column(name = "tamanho_bytes", nullable = false)
     private Long tamanhoBytes;
 
-    /** O termo impresso pelo C.E.S e assinado pelo colaborador: é o que finaliza o desconto. */
+    /** O termo impresso pelo GEO e assinado pelo colaborador: é o que finaliza o desconto. */
     @Column(name = "termo_assinado", nullable = false)
     private boolean termoAssinado;
 

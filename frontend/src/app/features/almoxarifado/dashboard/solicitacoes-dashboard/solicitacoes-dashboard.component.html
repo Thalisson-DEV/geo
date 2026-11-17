@@ -668,7 +668,7 @@
     (valueChange)="expBacklog.set($event)"></ces-boolean-control>
   <div drawer-footer class="ces-actions-row">
     @if (copilotoDisponivel) {
-      <ces-button label="Relatório PDF com Copiloto" icon="pi pi-sparkles" variant="ghost" (pressed)="relatorioComCopiloto()"></ces-button>
+      <ces-button label="Relatório PDF com Bússola" icon="pi pi-compass" variant="ghost" (pressed)="relatorioComCopiloto()"></ces-button>
     }
     <ces-button label="Cancelar" variant="ghost" (pressed)="exportacaoAberta.set(false)"></ces-button>
     <ces-button [label]="expArquivo() === 'xlsx' ? 'Baixar Excel' : 'Baixar CSV'" icon="pi pi-download" [loading]="exportando()"

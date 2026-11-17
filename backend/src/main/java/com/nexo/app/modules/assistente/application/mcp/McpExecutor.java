@@ -39,7 +39,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * Executa uma ferramenta do Copiloto pedida por uma IA externa. Mesmo contrato do chat (permissao no
+ * Executa uma ferramenta da Bússola pedida por uma IA externa. Mesmo contrato do chat (permissao no
  * backend, timeout, resultado truncado, auditoria em {@code assistente_execucao_ferramenta}), sem a
  * confirmacao na tela: no MCP quem confirma a escrita e o aplicativo de IA, e a conexao so recebe
  * ferramentas de escrita quando a pessoa permitiu.
@@ -85,7 +85,7 @@ public class McpExecutor {
         ReentrantLock fila = filas.computeIfAbsent(conexaoId, ignored -> new ReentrantLock(true));
         try {
             if (!fila.tryLock(ESPERA_MAXIMA_NA_FILA.toSeconds(), TimeUnit.SECONDS)) {
-                return new Resposta("O Nexo ainda esta processando outra chamada desta conexao. Tente de novo em instantes.", true);
+                return new Resposta("O GEO ainda esta processando outra chamada desta conexao. Tente de novo em instantes.", true);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

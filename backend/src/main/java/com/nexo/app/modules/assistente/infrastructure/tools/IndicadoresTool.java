@@ -53,7 +53,7 @@ public class IndicadoresTool implements AgentTool {
 
     @Override
     public String description() {
-        return "Panorama pronto de indicadores de um dominio do Nexo: estoque (saldo, giro 30 dias, solicitacoes "
+        return "Panorama pronto de indicadores de um dominio do GEO: estoque (saldo, giro 30 dias, solicitacoes "
                 + "pendentes, retiradas atrasadas, reservas por prazo, materiais com maior saldo), financeiro "
                 + "(compras/pagamentos por status, aguardando aprovacao, vencimentos em 7 dias, documentos em aberto), "
                 + "descontos, sst (inspecoes, desvios abertos, eventos, acoes vencidas), chamados (abertos, SLA), obras, "

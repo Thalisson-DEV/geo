@@ -4,7 +4,7 @@ import { provideRouter, Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AnalisarComCopilotoComponent } from './analisar-com-copiloto.component';
 
-describe('atalho Analisar com Copiloto', () => {
+describe('atalho Analisar com Bússola', () => {
   const usuario = signal<{ permissoes: string[] } | null>(null);
 
   beforeEach(async () => {

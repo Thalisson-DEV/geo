@@ -31,7 +31,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 class DetalhesNotificacaoSolicitacaoFinanceira implements FornecedorDetalhesNotificacao {
 
-    private static final String NOTA_LINKS = "Os botões decidem sem entrar no Nexo, depois de uma confirmação. "
+    private static final String NOTA_LINKS = "Os botões decidem sem entrar no GEO, depois de uma confirmação. "
             + "O link é pessoal: vale para uma decisão, em seu nome, por 7 dias. Não encaminhe este e-mail.";
 
     private final FichaSolicitacaoFinanceira ficha;

@@ -21,7 +21,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
-/** O que o Copiloto cadastra em Descontos: a solicitacao de desconto (com os itens) e os cadastros de apoio. */
+/** O que a Bússola cadastra em Descontos: a solicitacao de desconto (com os itens) e os cadastros de apoio. */
 @Component
 public class CadastrosDescontoCopiloto implements ProvedorCadastros {
 

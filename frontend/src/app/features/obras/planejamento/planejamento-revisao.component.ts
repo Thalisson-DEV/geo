@@ -94,7 +94,7 @@ export function montarAceite(pontos: readonly PontoEmRevisao[], vaos: readonly V
   };
 }
 
-/** Painel de revisão da leitura do Copiloto: nada é gravado até o usuário aceitar. */
+/** Painel de revisão da leitura da Bússola: nada é gravado até o usuário aceitar. */
 @Component({
   selector: 'app-planejamento-revisao',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -102,7 +102,7 @@ export function montarAceite(pontos: readonly PontoEmRevisao[], vaos: readonly V
   template: `
     <header class="topo">
       <div>
-        <h2><i class="pi pi-sparkles" aria-hidden="true"></i> Revisar leitura</h2>
+        <h2><i class="pi pi-compass" aria-hidden="true"></i> Revisar leitura</h2>
         <p>Página {{ pagina() }}. Arraste os marcadores tracejados na folha para ajustar a posição.</p>
       </div>
     </header>
@@ -113,7 +113,7 @@ export function montarAceite(pontos: readonly PontoEmRevisao[], vaos: readonly V
       }
 
       @if (!pontos().length && !vaos().length) {
-        <p class="vazio">O Copiloto não encontrou pontos numerados nesta página. Marque manualmente ou tente outra página.</p>
+        <p class="vazio">A Bússola não encontrou pontos numerados nesta página. Marque manualmente ou tente outra página.</p>
       }
 
       @if (pontos().length) {

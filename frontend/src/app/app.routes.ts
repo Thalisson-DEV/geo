@@ -39,7 +39,7 @@ export const routes: Routes = [
     path: 'manuais',
     canActivate: [authGuard],
     loadComponent: () => import('./features/manuais/central-treinamento.component').then(m => m.CentralTreinamentoComponent),
-    title: 'Central de Treinamento e Manuais - Nexo'
+    title: 'Central de Treinamento e Manuais - GEO'
   },
   {
     path: 'central-treinamento',
@@ -70,14 +70,14 @@ export const routes: Routes = [
     path: 'copiloto',
     canActivate: [authGuard],
     data: { permission: 'assistente:chat:use', workspace: true },
-    title: 'Copiloto',
+    title: 'Bússola',
     loadComponent: () => import('./features/copiloto/copiloto-workspace.component').then(m => m.CopilotoWorkspaceComponent)
   },
   {
     path: 'copiloto/conectar-ia',
     canActivate: [authGuard],
     data: { permission: 'assistente:conexao:use' },
-    title: 'Conectar sua IA - Nexo',
+    title: 'Conectar sua IA - GEO',
     loadComponent: () => import('./features/copiloto/conectar-ia/conectar-ia.component').then(m => m.ConectarIaComponent)
   },
   {
@@ -85,14 +85,14 @@ export const routes: Routes = [
     // login e volta para cá com o mesmo pedido.
     path: 'conectar-ia/autorizar',
     data: { fullscreen: true },
-    title: 'Conectar sua IA - Nexo',
+    title: 'Conectar sua IA - GEO',
     loadComponent: () => import('./features/copiloto/conectar-ia/autorizar-ia.component').then(m => m.AutorizarIaComponent)
   },
   {
     path: 'copiloto/:id',
     canActivate: [authGuard],
     data: { permission: 'assistente:chat:use', workspace: true },
-    title: 'Copiloto',
+    title: 'Bússola',
     loadComponent: () => import('./features/copiloto/copiloto-workspace.component').then(m => m.CopilotoWorkspaceComponent)
   },
   {

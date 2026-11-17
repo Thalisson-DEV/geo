@@ -12,7 +12,7 @@ import { fatia, horaDe, plural, rotuloHora } from './analise-comum';
 export interface VisaoGerencial {
   readonly veredito: VereditoGerencial;
   readonly leituras: LeituraGerencial[];
-  /** Pergunta para "Leitura completa com o Copiloto". */
+  /** Pergunta para "Leitura completa com a Bússola". */
   readonly pergunta: string;
 }
 

@@ -6,7 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Markdown (o que o Copiloto escreve) em HTML de e-mail: estilos inline, tabelas com
+ * Markdown (o que a Bússola escreve) em HTML de e-mail: estilos inline, tabelas com
  * borda simples, nada que o Outlook ignore. Cobre títulos, parágrafos, negrito,
  * itálico, código, links, listas, tabelas, citações e linhas horizontais. O texto é
  * escapado antes: marcação HTML vinda do modelo nunca passa crua.

@@ -30,7 +30,7 @@ import {
 import { CopilotoPainelService } from './copiloto-painel.service';
 
 /**
- * Copiloto contextual: o **mesmo** agente do workspace em uma superfície compacta ao lado do dashboard.
+ * Bússola contextual: o **mesmo** agente do workspace em uma superfície compacta ao lado do dashboard.
  *
  * Reaproveita integralmente o núcleo do workspace — `CopilotoStore` (conversas, streaming NDJSON com
  * retomada, parada, anexos, artefatos), `AssistenteService`, e os componentes de mensagem (Markdown,
@@ -40,7 +40,7 @@ import { CopilotoPainelService } from './copiloto-painel.service';
  *
  * O store é uma instância própria do painel (provider do componente): conversas de dashboards diferentes
  * não se misturam e não interferem na conversa aberta no workspace. A conversa é real e aparece no
- * histórico geral — "Abrir no Copiloto" continua exatamente a mesma conversa em `/copiloto/:id`.
+ * histórico geral — "Abrir na Bússola" continua exatamente a mesma conversa em `/copiloto/:id`.
  */
 @Component({
   selector: 'app-copiloto-painel',
@@ -123,7 +123,7 @@ export class CopilotoPainelComponent {
       if (painel && conversa) untracked(() => this.painel.lembrarConversa(painel, conversa));
     });
 
-    // Pedido "Perguntar ao Copiloto" vindo de um gráfico/KPI do dashboard.
+    // Pedido "Perguntar à Bússola" vindo de um gráfico/KPI do dashboard.
     effect(() => {
       const pedido = this.painel.pedido();
       if (!pedido) return;
@@ -176,7 +176,7 @@ export class CopilotoPainelComponent {
   /**
    * Continua a mesma conversa no workspace completo (mensagens, artefatos, arquivos e ferramentas). Antes
    * da primeira pergunta ainda não há conversa: abre o workspace com o contexto de origem do dashboard
-   * (mesmo formato dos atalhos "Analisar com Copiloto") e o rascunho já digitado.
+   * (mesmo formato dos atalhos "Analisar com Bússola") e o rascunho já digitado.
    */
   protected abrirNoWorkspace(): void {
     const id = this.store.conversaId();

@@ -1,7 +1,7 @@
 import { convertToParamMap } from '@angular/router';
 import { contextoDaUrl } from './copiloto-workspace.component';
 
-describe('contexto da URL do Copiloto', () => {
+describe('contexto da URL da Bússola', () => {
   it('não cria contexto para uma conversa aberta pelo menu', () => {
     expect(contextoDaUrl(convertToParamMap({}))).toBeNull();
   });

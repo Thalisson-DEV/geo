@@ -65,7 +65,7 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
  * desvios críticos do dia), cada uma em sua aba.
  *
  * O dashboard só descreve a vista (`VistaAnalise`); navegação empilhada ("Voltar"), vizinhos na mesma
- * dimensão, estados de carga/erro/vazio e o atalho do Copiloto ficam aqui.
+ * dimensão, estados de carga/erro/vazio e o atalho da Bússola ficam aqui.
  */
 @Component({
   selector: 'app-dashboard-analise',
@@ -117,10 +117,10 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
             }
             @if (copiloto() && v.copiloto) {
               <button type="button" class="an-copiloto" (click)="perguntar.emit(v)"
-                [attr.aria-label]="'Analisar ' + v.titulo + ' com o Copiloto'">
-                <img src="icons/copiloto-1.png" alt="" aria-hidden="true" />
-                <span>Analisar com o Copiloto</span>
-                <i class="pi pi-sparkles" aria-hidden="true"></i>
+                [attr.aria-label]="'Analisar ' + v.titulo + ' com a Bússola'">
+                <img src="icons/bussola.svg" alt="" aria-hidden="true" />
+                <span>Analisar com a Bússola</span>
+                <i class="pi pi-compass" aria-hidden="true"></i>
               </button>
             }
           </div>
@@ -290,7 +290,7 @@ export class DashboardAnaliseComponent {
   readonly vista = input<VistaAnalise | null>(null);
   /** Títulos das análises anteriores (a última é a que "Voltar" reabre). */
   readonly trilha = input<readonly string[]>([]);
-  /** O usuário pode usar o Copiloto (a tela decide pela permissão). */
+  /** O usuário pode usar a Bússola (a tela decide pela permissão). */
   readonly copiloto = input(false);
 
   readonly fechar = output<void>();

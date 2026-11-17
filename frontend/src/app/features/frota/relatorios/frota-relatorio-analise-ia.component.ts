@@ -21,7 +21,7 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
 const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-triangle', CRITICO: 'pi-times-circle' } as const;
 
 /**
- * Seção "Análise do Assistente" dos relatórios da frota. O Assistente lê as fotos e os dados do
+ * Seção "Análise da Bússola" dos relatórios da frota. A Bússola lê as fotos e os dados do
  * registro e aponta o que confere e o que diverge; a decisão continua com o gestor. O parecer
  * fica sempre à vista; os detalhes (pontos, leitura de cada foto, sugestões) recolhem. A última
  * análise fica salva: abrir o relatório de novo não gasta outra chamada.
@@ -115,17 +115,17 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
     <section class="sp" aria-labelledby="sp-titulo">
       <header class="sp__topo">
         <div class="sp__marca">
-          <img class="sp__avatar" src="icons/Assistente 1.png" alt="" aria-hidden="true" />
+          <img class="sp__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
           <span class="sp__titulo">
-            <strong id="sp-titulo">Assistente</strong>
-            <span>Ele lê as fotos e confere com o que foi informado. O Assistente aponta; quem decide é o gestor.</span>
+            <strong id="sp-titulo">Bússola</strong>
+            <span>Ela lê as fotos e confere com o que foi informado. A Bússola aponta; quem decide é o gestor.</span>
           </span>
         </div>
         @if (estado()?.disponivel) {
           <span class="sp__acoes">
             <ces-button
-              [label]="analise() ? 'Analisar de novo' : 'Pedir análise ao Assistente'"
-              icon="pi pi-sparkles"
+              [label]="analise() ? 'Analisar de novo' : 'Pedir análise à Bússola'"
+              icon="pi pi-compass"
               [variant]="analise() ? 'outline' : 'primary'"
               size="sm"
               [loading]="analisando()"
@@ -140,8 +140,8 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
           <div class="sp__carregando"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Consultando a última análise…</div>
         } @else if (analisando()) {
           <div class="sp__carregando">
-            <img src="icons/Assistente 1.png" alt="" aria-hidden="true" />
-            O Assistente está lendo {{ fotosEsperadas() === 1 ? 'a foto' : fotosEsperadas() ? 'as ' + fotosEsperadas() + ' fotos' : 'os dados' }} deste registro. Leva até um minuto.
+            <img src="icons/bussola.svg" alt="" aria-hidden="true" />
+            A Bússola está lendo {{ fotosEsperadas() === 1 ? 'a foto' : fotosEsperadas() ? 'as ' + fotosEsperadas() + ' fotos' : 'os dados' }} deste registro. Leva até um minuto.
           </div>
         } @else if (erro()) {
           <ces-callout tone="danger" title="Não foi possível consultar a análise">{{ erro() }}</ces-callout>
@@ -149,7 +149,7 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
           <div class="sp__fala" [attr.data-tom]="tomParecer[a.parecer]">
             <span class="sp__fala-topo">
               <ces-status [tone]="tomParecer[a.parecer]" [icon]="'pi ' + iconeParecer[a.parecer]" emphasis="solid">{{ a.parecerRotulo }}</ces-status>
-              <span>Assistente, {{ a.geradaEm | date: "dd/MM 'às' HH:mm" }}</span>
+              <span>Bússola, {{ a.geradaEm | date: "dd/MM 'às' HH:mm" }}</span>
             </span>
             <p class="sp__resumo">{{ a.resumo }}</p>
             <span class="sp__contagens">
@@ -177,7 +177,7 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
           <div id="sp-detalhes" class="sp__detalhes" [hidden]="!aberto()">
             @if (a.pontos.length) {
               <div class="sp__bloco">
-                <span class="sp__rotulo">O que o Assistente apontou</span>
+                <span class="sp__rotulo">O que a Bússola apontou</span>
                 <ul class="sp__pontos">
                   @for (p of a.pontos; track $index) {
                     <li class="sp__ponto">
@@ -241,7 +241,7 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
             }
 
             @if (a.fotosNaoLidas.length) {
-              <ces-callout tone="info" title="Fotos que o Assistente não leu" [dense]="true">
+              <ces-callout tone="info" title="Fotos que a Bússola não leu" [dense]="true">
                 <ul class="sp__lista">
                   @for (n of a.fotosNaoLidas; track $index) {
                     <li>{{ n }}</li>
@@ -253,11 +253,11 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
         } @else if (estado(); as e) {
           @if (e.disponivel) {
             <ces-callout tone="info" title="Ainda não analisado" [dense]="true">
-              Peça a análise para o Assistente ler {{ fotosEsperadas() === 1 ? 'a foto' : fotosEsperadas() ? 'as ' + fotosEsperadas() + ' fotos' : 'os dados' }}
+              Peça a análise para a Bússola ler {{ fotosEsperadas() === 1 ? 'a foto' : fotosEsperadas() ? 'as ' + fotosEsperadas() + ' fotos' : 'os dados' }}
               deste registro e apontar o que confere e o que diverge.
             </ces-callout>
           } @else {
-            <ces-callout tone="neutral" title="Assistente sem leitura de fotos neste ambiente" [dense]="true">{{ e.motivoIndisponivel }}</ces-callout>
+            <ces-callout tone="neutral" title="Bússola sem leitura de fotos neste ambiente" [dense]="true">{{ e.motivoIndisponivel }}</ces-callout>
           }
         }
       </div>
@@ -363,11 +363,11 @@ export class FrotaRelatorioAnaliseIaComponent {
           this.analise.set(a);
           this.analisando.set(false);
           this.aberto.set(true);
-          this.notificacoes.success(`Análise do Assistente concluída: ${a.parecerRotulo.toLowerCase()}.`);
+          this.notificacoes.success(`Análise da Bússola concluída: ${a.parecerRotulo.toLowerCase()}.`);
         },
         error: (e) => {
           this.analisando.set(false);
-          this.notificacoes.error(getErrorMessage(e), { title: 'O Assistente não concluiu a análise' });
+          this.notificacoes.error(getErrorMessage(e), { title: 'A Bússola não concluiu a análise' });
         }
       });
   }

@@ -7,7 +7,7 @@ import lombok.Builder;
 /**
  * O conteúdo de um e-mail nos termos do layout, não do HTML.
  *
- * <p>Este record <b>é</b> a promessa de que todo e-mail do Nexo tem a mesma cara: o
+ * <p>Este record <b>é</b> a promessa de que todo e-mail do GEO tem a mesma cara: o
  * montador não aceita marcação livre, aceita estes campos. Um aviso de desconto e um
  * comunicado do mural diferem no que preenche cada campo e em nada mais — não há como
  * um deles ganhar um bloco que o outro não tenha, porque não há onde escrevê-lo.</p>

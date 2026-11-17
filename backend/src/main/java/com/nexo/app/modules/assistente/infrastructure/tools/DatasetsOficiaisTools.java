@@ -26,7 +26,7 @@ import java.time.ZoneId;
 import java.util.*;
 
 /**
- * Reuso das capacidades analiticas ja existentes no Nexo: datasets semanticos JPA publicados pelos modulos
+ * Reuso das capacidades analiticas ja existentes no GEO: datasets semanticos JPA publicados pelos modulos
  * (SST, descontos), contagens cadastrais e metricas oficiais calculadas pelos proprios modulos.
  */
 @Configuration(proxyBeanMethods = false)
@@ -102,7 +102,7 @@ public class DatasetsOficiaisTools {
     AgentTool contarCadastrosTool(SemanticResourceCountRegistry registry, ResultStore resultStore,
             ResultFormatter formatter, AssistenteProperties properties) {
         return new BaseTool("contar_cadastros", "Contar cadastros",
-                "Conta cadastros do Nexo (usuarios, colaboradores, equipes, materiais, estoques, contratos, chamados...). "
+                "Conta cadastros do GEO (usuarios, colaboradores, equipes, materiais, estoques, contratos, chamados...). "
                         + "Use os ids retornados por listar_fontes_dados em 'cadastros_contaveis'. Ate 20 por chamada.",
                 JsonSchemas.object().required("recursos", JsonSchemas.arrayOfStrings("Ids dos cadastros")).build(),
                 ToolKind.DATA, Set.of(), Duration.ofSeconds(30)) {

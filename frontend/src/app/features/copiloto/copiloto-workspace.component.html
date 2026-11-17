@@ -24,7 +24,7 @@
 
   <section
     class="ws__chat"
-    aria-label="Conversa com o Copiloto"
+    aria-label="Conversa com a Bússola"
     (dragover)="aoArrastar($event)"
     (dragleave)="aoSairArrasto($event)"
     (drop)="aoSoltar($event)"
@@ -35,9 +35,9 @@
         [label]="listaVisivel() ? 'Ocultar histórico de conversas' : 'Mostrar histórico de conversas'"
         (pressed)="alternarLista()"
       ></ces-icon-button>
-      <img class="ws__avatar" src="icons/copiloto-1.png" alt="" aria-hidden="true" />
+      <img class="ws__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
       <div class="ws__identidade">
-        <span class="ws__marca">Copiloto</span>
+        <span class="ws__marca">Bússola</span>
         <h1 class="ws__titulo">{{ store.titulo() }}</h1>
       </div>
       @if (store.artefatos().length && !painelAberto()) {
@@ -50,7 +50,7 @@
         ></ces-button>
       }
       @if (podeConectarIa()) {
-        <ces-icon-button icon="pi pi-link" label="Usar o Nexo no Claude, ChatGPT ou outra IA" tooltip="Conectar sua IA" (pressed)="conectarIa()"></ces-icon-button>
+        <ces-icon-button icon="pi pi-link" label="Usar o GEO no Claude, ChatGPT ou outra IA" tooltip="Conectar sua IA" (pressed)="conectarIa()"></ces-icon-button>
       }
       @if (!listaVisivel()) {
         <ces-icon-button icon="pi pi-plus" label="Nova conversa" (pressed)="nova()"></ces-icon-button>
@@ -110,7 +110,7 @@
         (anexar)="store.anexar($event)"
         (removerAnexo)="store.removerAnexo($event)"
       ></app-copiloto-compositor>
-      <p class="ws__aviso">O Copiloto só vê o que você pode ver e só grava no Nexo depois que você confirma no cartão. Confira decisões importantes nos módulos de origem.</p>
+      <p class="ws__aviso">A Bússola só vê o que você pode ver e só grava no GEO depois que você confirma no cartão. Confira decisões importantes nos módulos de origem.</p>
     </div>
 
     @if (arrastando()) {

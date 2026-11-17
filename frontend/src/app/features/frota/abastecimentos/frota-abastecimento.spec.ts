@@ -153,7 +153,7 @@ describe('FrotaAbastecimentoDetalheDrawerComponent', () => {
     expect(document.querySelector('.dd-fluxo__etapa[data-estado="interrompido"]')?.textContent).toContain('Reprovado');
     expect(texto()).toContain('Reprovado por GESTOR TESTE');
     expect(texto()).toContain('Refaça a foto do painel.');
-    expect(texto()).toContain('Ponto apontado pelo C.E.S');
+    expect(texto()).toContain('Ponto apontado pelo GEO');
     expect(texto()).not.toContain('Confira antes de decidir');
   });
 });

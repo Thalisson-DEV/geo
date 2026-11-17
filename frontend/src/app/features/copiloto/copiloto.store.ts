@@ -80,7 +80,7 @@ export function formatarTamanho(bytes: number): string {
 }
 
 /**
- * Estado do workspace do Copiloto. A execução do agente roda no servidor desacoplada da conexão:
+ * Estado do workspace da Bússola. A execução do agente roda no servidor desacoplada da conexão:
  * se o stream cair, o store retoma do último pacote recebido; se o usuário trocar de conversa, a
  * resposta continua e pode ser acompanhada ao voltar.
  */
@@ -343,7 +343,7 @@ export class CopilotoStore {
       { chave, papel: 'ASSISTENTE', anexos: [], resposta: novaResposta(), dataCriacao: new Date().toISOString() },
     ]);
     this.anexos.set([]);
-    this.anuncio.set('Pergunta enviada. O Copiloto está trabalhando.');
+    this.anuncio.set('Pergunta enviada. A Bússola está trabalhando.');
     this.tocarConversa(conversaId);
 
     const controlador = new AbortController();
@@ -558,7 +558,7 @@ export class CopilotoStore {
         const detalhe = await firstValueFrom(this.api.buscarConversa(conversaId));
         if (geracao === this.geracao) this.aplicarDetalhe(detalhe);
       } catch {
-        this.falhar(chave, 'A conexão com o Copiloto caiu. Recarregue a conversa para ver a resposta.');
+        this.falhar(chave, 'A conexão com a Bússola caiu. Recarregue a conversa para ver a resposta.');
       }
     }
   }

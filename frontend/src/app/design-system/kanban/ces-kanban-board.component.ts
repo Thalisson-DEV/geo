@@ -86,7 +86,7 @@ export class CesKanbanBoardComponent<T = any> {
   readonly columns = input<CesKanbanColumn<any>[]>([]);
   readonly cardTemplate = input<TemplateRef<any> | null>(null);
   readonly ariaLabel = input<string>('Painel Kanban');
-  /** Habilita o botão "Analisar com Copiloto" no popover de métricas de cada coluna */
+  /** Habilita o botão "Analisar com Bússola" no popover de métricas de cada coluna */
   readonly copilotoEnabled = input<boolean>(false);
 
   /** Emitido quando um card é arrastado entre colunas ou sub-grupos */
@@ -95,7 +95,7 @@ export class CesKanbanBoardComponent<T = any> {
   readonly subGroupToggled = output<CesKanbanSubGroupToggleEvent>();
   /** Emitido quando o usuário clica em "Ver mais" de uma coluna */
   readonly loadMore = output<string>();
-  /** Emitido quando o usuário clica em "Analisar com Copiloto" em uma coluna */
+  /** Emitido quando o usuário clica em "Analisar com Bússola" em uma coluna */
   readonly copilotoClicked = output<KanbanCopilotoContext>();
 
   /** Item sendo arrastado no momento */

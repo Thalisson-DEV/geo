@@ -88,17 +88,17 @@ import { environment } from '../../../../environments/environment';
           <div class="w-28 h-28 mb-4 flex items-center justify-center">
             @if (themeService.isDarkMode()) {
               <!-- Versão Escuro (Linhas Brancas + Texto Vermelho) -->
-              <img src="/logo_vertical_dark.svg" alt="Nexo" class="w-full h-full object-contain">
+              <img src="/logo_vertical_dark.svg" alt="GEO" class="w-full h-full object-contain">
             } @else {
               <!-- Versão Claro (Linhas Azuis + Texto Vermelho Original) -->
-              <img src="/logo_vertical.svg" alt="Nexo" class="w-full h-full object-contain">
+              <img src="/logo_vertical.svg" alt="GEO" class="w-full h-full object-contain">
             }
           </div>
           <p
             class="text-[10px] font-bold uppercase tracking-[0.25em]"
             [class.text-slate-400]="themeService.isDarkMode()"
             [class.text-slate-500]="!themeService.isDarkMode()"
-          >Gestão Operacional</p>
+          >Gestão de Equipes e Operações</p>
         </div>
 
         @if (reautenticando) {
@@ -200,7 +200,7 @@ import { environment } from '../../../../environments/environment';
           class="text-[9px] uppercase tracking-widest"
           [class.text-slate-500]="themeService.isDarkMode()"
           [class.text-slate-400]="!themeService.isDarkMode()"
-        >Nexo | Gestão de Ativos e Eficiência Operacional © 2026</span>
+        >GEO | Gestão de Ativos e Eficiência Operacional © 2026</span>
       </div>
     </div>
   `,

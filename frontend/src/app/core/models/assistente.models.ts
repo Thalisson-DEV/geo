@@ -1,5 +1,5 @@
 /**
- * Contratos da API do Copiloto (`/v1/assistente`). O backend omite campos nulos
+ * Contratos da API da Bússola (`/v1/assistente`). O backend omite campos nulos
  * (`default-property-inclusion: non_null`), por isso quase tudo é opcional.
  */
 
@@ -13,7 +13,7 @@ export type AssistenteStatus =
   | 'CANCELADA'
   | 'FALHOU';
 
-/** De onde o usuário abriu o Copiloto (pista de contexto, nunca autorização). */
+/** De onde o usuário abriu a Bússola (pista de contexto, nunca autorização). */
 export interface AssistenteContexto {
   pagina?: string;
   rota?: string;
@@ -21,7 +21,7 @@ export interface AssistenteContexto {
   entidadeId?: string;
   rotulo?: string;
   filtros?: Record<string, string>;
-  /** Contexto estruturado do dashboard em tela (Copiloto contextual). */
+  /** Contexto estruturado do dashboard em tela (Bússola contextual). */
   painel?: ContextoPainel;
 }
 
@@ -43,7 +43,7 @@ export interface ContextoPainel {
   datasets?: string[];
   foco?: FocoPainel;
   extras?: Record<string, string>;
-  /** Tabelas que aceitam filtros sugeridos pelo Copiloto (`APPLY_FILTER`), com os campos permitidos. */
+  /** Tabelas que aceitam filtros sugeridos pela Bússola (`APPLY_FILTER`), com os campos permitidos. */
   tabelas?: TabelaPainel[];
 }
 
@@ -378,7 +378,7 @@ export interface EnviarMensagemRequest {
 }
 
 // ---------------------------------------------------------------------------------------------
-// Cartões de cadastro do Copiloto: o agente prepara, o usuário revisa e confirma.
+// Cartões de cadastro da Bússola: o agente prepara, o usuário revisa e confirma.
 
 export type TipoCampoCadastro =
   | 'TEXTO' | 'TEXTO_LONGO' | 'INTEIRO' | 'DECIMAL' | 'MOEDA' | 'DATA' | 'DATA_HORA' | 'HORA'

@@ -208,7 +208,7 @@ public class ChecklistAppUseCases {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Esta foto não faz parte do checklist."));
         if (!foto.isRecebida()) {
             enviarArquivo(checklist, foto, arquivo);
-            // A última foto completa o checklist: o Assistente analisa sozinho.
+            // A última foto completa o checklist: a Bússola analisa sozinho.
             if (checklist.fotosPendentes().isEmpty()) {
                 eventos.publishEvent(new AnaliseIaPedida(AlvoAnaliseIa.CHECKLIST, checklist.getId()));
             }

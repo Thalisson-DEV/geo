@@ -1,7 +1,7 @@
 package com.nexo.app.modules.obras.domain;
 
 /**
- * Situação da leitura do projeto pelo Copiloto.
+ * Situação da leitura do projeto pela Bússola.
  */
 public enum StatusAnalisePlanejamento {
     PROCESSANDO,

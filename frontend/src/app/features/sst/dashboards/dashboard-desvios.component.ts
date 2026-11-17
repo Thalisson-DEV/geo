@@ -623,7 +623,7 @@ export class DashboardDesviosComponent implements OnInit {
     if (d && ponto) this.analise.abrir(d.granularidade === 'DIA' ? 'dia' : d.granularidade === 'MES' ? 'mes' : 'ano', ponto.inicio);
   }
 
-  /** "Analisar com o Copiloto" de dentro da análise: fecha o painel e pergunta com o recorte explícito. */
+  /** "Analisar com a Bússola" de dentro da análise: fecha o painel e pergunta com o recorte explícito. */
   protected perguntarAnalise(vista: VistaAnalise): void {
     if (!vista.copiloto) return;
     this.analise.fechar();
@@ -634,11 +634,11 @@ export class DashboardDesviosComponent implements OnInit {
     this.copiloto.perguntarSobre({ tipo: 'secao', id: 'visaoGerencial', rotulo: 'Visão gerencial' }, pergunta);
   }
 
-  /** Contexto do dashboard para o Copiloto: o recorte aplicado e os números em tela. */
+  /** Contexto do dashboard para a Bússola: o recorte aplicado e os números em tela. */
   protected readonly contextoCopiloto = computed(() => this.montarContextoCopiloto());
 
   /**
-   * Recorte estruturado para o Copiloto: período, filtros aplicados (incluindo gravidade e status),
+   * Recorte estruturado para a Bússola: período, filtros aplicados (incluindo gravidade e status),
    * indicadores comparativos, pendências, agregações exibidas e datasets. Nunca os desvios individuais.
    */
   private montarContextoCopiloto(): CopilotoDashboardContext | null {

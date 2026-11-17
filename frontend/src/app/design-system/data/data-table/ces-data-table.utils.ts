@@ -46,7 +46,7 @@ export interface CesSortRule {
 
 export type CesFilterOperator = 'eq' | 'ne' | 'lt' | 'lte' | 'gt' | 'gte' | 'contains';
 
-/** Filtro por coluna (chip removível). Pode vir do usuário ou de uma sugestão confirmada do Copiloto. */
+/** Filtro por coluna (chip removível). Pode vir do usuário ou de uma sugestão confirmada da Bússola. */
 export interface CesColumnFilter {
   readonly key: string;
   readonly operator: CesFilterOperator;

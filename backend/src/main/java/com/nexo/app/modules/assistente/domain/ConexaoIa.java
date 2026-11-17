@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * IA externa que o usuario conectou ao Nexo (servidor MCP). A IA age em nome do usuario e enxerga so
+ * IA externa que o usuario conectou ao GEO (servidor MCP). A IA age em nome do usuario e enxerga so
  * o que ele enxerga; cadastrar e alterar registros depende de {@link #permiteEscrita}. Desconectar
  * invalida todas as credenciais da conexao na requisicao seguinte.
  */

@@ -32,7 +32,7 @@ import java.util.UUID;
 
 /**
  * Servidor de autorizacao OAuth 2.1 das conexoes de IA: cadastro dinamico do aplicativo (RFC 7591),
- * codigo de autorizacao com PKCE S256 emitido pela tela de consentimento do Nexo, troca por token e
+ * codigo de autorizacao com PKCE S256 emitido pela tela de consentimento do GEO, troca por token e
  * renovacao com rotacao. Escopos: {@value #ESCOPO_LEITURA} e {@value #ESCOPO_ESCRITA}.
  */
 @Service
@@ -187,14 +187,14 @@ public class OAuthIaService {
             if (credencial.getUsadaEm().isBefore(agora.minus(TOLERANCIA_REUSO))) {
                 conexoes.findForUpdate(credencial.getConexaoId()).ifPresent(conexao -> conexao.revogar(conexao.getUsuarioId()));
             }
-            throw new OAuthErro("invalid_grant", "Token de renovacao ja usado. Conecte de novo pelo Nexo.");
+            throw new OAuthErro("invalid_grant", "Token de renovacao ja usado. Conecte de novo pelo GEO.");
         }
         if (!credencial.isValida(agora)) {
             throw new OAuthErro("invalid_grant", "Token de renovacao vencido.");
         }
         ConexaoIa conexao = conexoes.findByIdAndAtivoTrue(credencial.getConexaoId())
                 .filter(c -> c.isUtilizavel(agora))
-                .orElseThrow(() -> new OAuthErro("invalid_grant", "A conexao foi desconectada no Nexo."));
+                .orElseThrow(() -> new OAuthErro("invalid_grant", "A conexao foi desconectada no GEO."));
         String clientId = parametros.get("client_id");
         if (clientId != null && conexao.getClientId() != null && !clientId.equals(conexao.getClientId())) {
             throw new OAuthErro("invalid_grant", "O token foi emitido para outro aplicativo.");
@@ -229,11 +229,11 @@ public class OAuthIaService {
                     "O endereço de retorno não confere com o cadastro do aplicativo. Comece a conexão de novo pela sua IA.");
         }
         if (!"code".equals(pedido.responseType())) {
-            throw new OAuthErro("unsupported_response_type", "O aplicativo pediu um tipo de autorização que o Nexo não usa.");
+            throw new OAuthErro("unsupported_response_type", "O aplicativo pediu um tipo de autorização que o GEO não usa.");
         }
         if (pedido.codeChallenge() == null || pedido.codeChallenge().isBlank()
                 || !"S256".equals(pedido.codeChallengeMethod())) {
-            throw new OAuthErro("invalid_request", "O aplicativo não enviou a proteção PKCE (S256) exigida pelo Nexo.");
+            throw new OAuthErro("invalid_request", "O aplicativo não enviou a proteção PKCE (S256) exigida pelo GEO.");
         }
         if (pedido.codeChallenge().length() > 128) {
             throw new OAuthErro("invalid_request", "code_challenge invalido.");

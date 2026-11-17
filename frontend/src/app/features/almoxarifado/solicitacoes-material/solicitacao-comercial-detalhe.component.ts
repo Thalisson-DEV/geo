@@ -408,7 +408,7 @@ interface EtapaFluxo {
           <ces-icon-button icon="pi pi-external-link" label="Abrir relatório completo" tooltip="Relatório completo" (pressed)="abrirRelatorio()" />
           <ces-icon-button icon="pi pi-print" label="Imprimir a solicitação" tooltip="Imprimir" (pressed)="imprimir()" />
           @if (copiloto()) {
-            <ces-icon-button icon="pi pi-sparkles" label="Analisar esta solicitação com o Copiloto" tooltip="Analisar com o Copiloto" (pressed)="pedirAnalise()" />
+            <ces-icon-button icon="pi pi-compass" label="Analisar esta solicitação com a Bússola" tooltip="Analisar com a Bússola" (pressed)="pedirAnalise()" />
           }
         </span>
         <span class="dd-linha-botoes">
@@ -465,9 +465,9 @@ export class SolicitacaoComercialDetalheComponent {
   readonly abaInicial = input<AbaDetalheComercial>('itens');
   /** Aprovou, rejeitou, entregou ou mexeu em pendência: quem abriu recarrega. */
   readonly alterado = output<void>();
-  /** Mostra o atalho de análise quando o usuário pode usar o Copiloto. */
+  /** Mostra o atalho de análise quando o usuário pode usar a Bússola. */
   readonly copiloto = input(false);
-  /** "Analisar": a tela abre o Copiloto ao lado com o contexto desta solicitação. */
+  /** "Analisar": a tela abre a Bússola ao lado com o contexto desta solicitação. */
   readonly analisar = output<{ id: string; rotulo: string; pergunta: string }>();
 
   protected readonly detalhe = signal<SolicitacaoResponse | null>(null);

@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * Janela em que o uso do veículo é esperado: de segunda a sexta (e no sábado, se o gestor ligar),
  * entre o início e o fim, no fuso de São Paulo. Fora dela, andar conta como uso fora do expediente.
- * Feriados não são descontados: o C.E.S não tem calendário de feriados.
+ * Feriados não são descontados: o GEO não tem calendário de feriados.
  */
 public record Expediente(LocalTime inicio, LocalTime fim, boolean sabado) {
 

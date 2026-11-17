@@ -16,7 +16,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
- * Leitura de uma página do projeto pelo Copiloto. A proposta é só sugestão: nada dela entra no planejamento
+ * Leitura de uma página do projeto pela Bússola. A proposta é só sugestão: nada dela entra no planejamento
  * sem o aceite do usuário.
  */
 @Entity

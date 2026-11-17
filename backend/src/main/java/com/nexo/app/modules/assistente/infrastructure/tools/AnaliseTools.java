@@ -16,7 +16,7 @@ import java.util.*;
 
 /**
  * Analises deterministicas sobre resultados ja registrados (rN): agregacoes, series temporais,
- * estatisticas, conciliacao entre fontes (ex.: planilha x Nexo) e deteccao de anomalias.
+ * estatisticas, conciliacao entre fontes (ex.: planilha x GEO) e deteccao de anomalias.
  */
 @Configuration(proxyBeanMethods = false)
 public class AnaliseTools {
@@ -83,7 +83,7 @@ public class AnaliseTools {
     @Bean
     AgentTool compararResultadosTool(ResultStore store, ResultFormatter formatter, AssistenteProperties properties) {
         return new BaseTool("comparar_resultados", "Conciliar resultados",
-                "Concilia dois resultados pela chave (ex.: planilha enviada x movimentacoes do Nexo): aponta linhas que "
+                "Concilia dois resultados pela chave (ex.: planilha enviada x movimentacoes do GEO): aponta linhas que "
                         + "CONFEREM, DIVERGENTES (diferenca acima da tolerancia) e presentes SOMENTE em um dos lados. "
                         + "Chaves sao comparadas sem diferenciar maiusculas, acentos e espacos. Linhas repetidas da mesma "
                         + "chave sao somadas antes da comparacao.",

@@ -137,7 +137,7 @@ export class DashboardOperacionalComponent implements OnInit {
   protected readonly idsBase = signal<string[]>([]);
   protected readonly idsProcesso = signal<string[]>([]);
 
-  /** Recorte que produziu os dados em tela — é o que o Copiloto recebe. */
+  /** Recorte que produziu os dados em tela — é o que a Bússola recebe. */
   private readonly aplicado = signal<DashboardOperacionalFiltros>({});
 
   private readonly atualizacao = atualizarPeriodicamente(() => this.buscar(this.aplicado(), true), {
@@ -242,7 +242,7 @@ export class DashboardOperacionalComponent implements OnInit {
     });
   });
 
-  /** Última análise levada ao Copiloto: seus gráficos entram no contexto da conversa. */
+  /** Última análise levada à Bússola: seus gráficos entram no contexto da conversa. */
   private readonly analiseNoCopiloto = signal<VistaAnalise | null>(null);
 
   protected readonly contextoCopiloto = computed<CopilotoDashboardContext | null>(() => {
@@ -469,7 +469,7 @@ export class DashboardOperacionalComponent implements OnInit {
     this.copiloto.perguntarSobre({ tipo: 'secao', id: 'visaoGerencial', rotulo: 'Visão gerencial' }, pergunta);
   }
 
-  /** "Analisar com o Copiloto" de dentro da análise: fecha o painel e leva o recorte como contexto. */
+  /** "Analisar com a Bússola" de dentro da análise: fecha o painel e leva o recorte como contexto. */
   protected perguntarAnalise(vista: VistaAnalise): void {
     if (!vista.copiloto) return;
     this.analiseNoCopiloto.set(vista);

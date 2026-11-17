@@ -34,8 +34,8 @@ import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 
 /**
- * Monta uma automação a partir de um pedido em português (no chat do Copiloto ou no
- * "Pedir ao Copiloto" do designer).
+ * Monta uma automação a partir de um pedido em português (no chat da Bússola ou no
+ * "Pedir à Bússola" do designer).
  *
  * <p>O modelo recebe o catálogo de nós e devolve uma definição v3. Ela passa pela mesma
  * validação estrutural do designer e é salva como <b>rascunho</b> (ou como nova versão do
@@ -48,7 +48,7 @@ public class RascunhoAutomacaoService {
     private static final List<String> CONTEINERES = List.of("then", "else", "steps", "default");
 
     private static final String SISTEMA = """
-            Você monta automações (workflows, no estilo do Power Automate) para o Nexo — sistema de gestão da empresa,
+            Você monta automações (workflows, no estilo do Power Automate) para o GEO — sistema de gestão da empresa,
             empresa de serviços de energia (descontos em folha, chamados, financeiro, almoxarifado, SST, frota, execução
             de equipes em campo). Responda SOMENTE com JSON:
             {"name": "nome curto", "kind": "EMAIL|ALERTA|ROTINA|APROVACAO|DADOS_IA|GERAL",
@@ -252,11 +252,11 @@ public class RascunhoAutomacaoService {
 
     private static Map<String, Object> lerJson(String texto) {
         Matcher m = JSON.matcher(texto);
-        if (!m.find()) throw new InvarianteVioladaException("O Copiloto não devolveu uma automação. Tente explicar de outro jeito.");
+        if (!m.find()) throw new InvarianteVioladaException("A Bússola não devolveu uma automação. Tente explicar de outro jeito.");
         try {
             return Valores.mapa(Valores.json().readValue(m.group(), Object.class));
         } catch (JsonProcessingException e) {
-            throw new InvarianteVioladaException("O Copiloto devolveu uma automação incompleta. Tente de novo.");
+            throw new InvarianteVioladaException("A Bússola devolveu uma automação incompleta. Tente de novo.");
         }
     }
 
@@ -264,7 +264,7 @@ public class RascunhoAutomacaoService {
 
     @Transactional
     public RascunhoResponse rascunhar(String pedido, UUID automacaoId, UUID usuarioId) {
-        if (!copiloto.disponivel()) throw new InvarianteVioladaException("O Copiloto está indisponível: o provedor de IA não está configurado.");
+        if (!copiloto.disponivel()) throw new InvarianteVioladaException("A Bússola está indisponível: o provedor de IA não está configurado.");
         Automacao existente = automacaoId == null ? null : automacoes.findById(automacaoId).filter(Automacao::isAtivo)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Automação não encontrada."));
         StringBuilder usuario = new StringBuilder();
@@ -281,14 +281,14 @@ public class RascunhoAutomacaoService {
         try {
             resposta = copiloto.completar(SISTEMA.formatted(String.join(", ", Funcoes.TODAS.keySet())), usuario.toString(), 0.1, 150);
         } catch (RuntimeException e) {
-            throw new InvarianteVioladaException("O Copiloto não respondeu agora. Tente de novo em instantes.");
+            throw new InvarianteVioladaException("A Bússola não respondeu agora. Tente de novo em instantes.");
         }
         Map<String, Object> json = lerJson(resposta);
         Map<String, Object> definicaoBruta;
         try {
             definicaoBruta = normalizar(json.get("definition"));
         } catch (IllegalArgumentException e) {
-            throw new InvarianteVioladaException("O Copiloto não montou os passos. Detalhe mais o pedido.");
+            throw new InvarianteVioladaException("A Bússola não montou os passos. Detalhe mais o pedido.");
         }
         if (existente != null && existente.getId() != null) {
             Map<String, Object> layoutAtual = versoes.findByIdAutomacaoAndNumero(existente.getId(), existente.getNumeroVersao())
@@ -323,11 +323,11 @@ public class RascunhoAutomacaoService {
         UUID id;
         if (existente == null) {
             Automacao nova = useCases.criarInterno(new AutomacaoRequest(nome, resumo.length() > 500 ? resumo.substring(0, 500) : resumo,
-                    tipo, definicao.paraMapa(), "Rascunho do Copiloto: " + cortar(pedido, 250)), OrigemAutomacao.COPILOTO, usuarioId, null);
+                    tipo, definicao.paraMapa(), "Rascunho da Bússola: " + cortar(pedido, 250)), OrigemAutomacao.COPILOTO, usuarioId, null);
             id = nova.getId();
         } else {
             useCases.salvar(existente.getId(), new AutomacaoRequest(nome, existente.getDescricao() == null ? resumo : existente.getDescricao(),
-                    tipo, definicao.paraMapa(), "Ajuste do Copiloto: " + cortar(pedido, 250)));
+                    tipo, definicao.paraMapa(), "Ajuste da Bússola: " + cortar(pedido, 250)));
             id = existente.getId();
         }
         List<String> problemas = verificador.problemasDeAtivacao(definicao, tipo);

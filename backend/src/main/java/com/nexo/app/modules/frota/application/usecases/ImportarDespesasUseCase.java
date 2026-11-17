@@ -35,7 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Importação de despesas pelo modelo C.E.S (CSV com ";"), em duas etapas: validar (pré-visualização
+ * Importação de despesas pelo modelo GEO (CSV com ";"), em duas etapas: validar (pré-visualização
  * linha a linha) e confirmar. Com id externo, a mesma linha importada de novo atualiza a despesa em
  * vez de duplicar; a migração do EXP converte para este modelo.
  */

@@ -21,7 +21,7 @@ public class TitleGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TitleGenerator.class);
     private static final String INSTRUCAO = """
-            Crie um titulo curto e especifico, em portugues do Brasil, para uma conversa de trabalho no sistema Nexo que \
+            Crie um titulo curto e especifico, em portugues do Brasil, para uma conversa de trabalho no sistema GEO que \
             comeca com a mensagem do usuario abaixo. Regras: de 2 a 6 palavras, sem aspas, sem ponto final, sem emojis, \
             sem a palavra "conversa". Responda somente com o titulo.""";
 

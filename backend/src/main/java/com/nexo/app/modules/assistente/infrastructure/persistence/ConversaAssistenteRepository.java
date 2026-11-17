@@ -25,10 +25,10 @@ public interface ConversaAssistenteRepository extends JpaRepository<ConversaAssi
 
     Page<ConversaAssistente> findByUsuarioIdAndAtivoTrue(UUID usuarioId, Pageable pageable);
 
-    /** Historico do Copiloto: sem as conversas tecnicas das conexoes de IA externas. */
+    /** Historico da Bússola: sem as conversas tecnicas das conexoes de IA externas. */
     Page<ConversaAssistente> findByUsuarioIdAndAtivoTrueAndOrigemNot(UUID usuarioId, OrigemConversa origem, Pageable pageable);
 
-    /** Conversas do usuario iniciadas em um painel especifico (Copiloto contextual do dashboard). */
+    /** Conversas do usuario iniciadas em um painel especifico (Bússola contextual do dashboard). */
     Page<ConversaAssistente> findByUsuarioIdAndAtivoTrueAndOrigemAndOrigemId(UUID usuarioId, OrigemConversa origem,
             String origemId, Pageable pageable);
 

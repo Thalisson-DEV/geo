@@ -10,7 +10,7 @@ import {
 import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.service';
 
 /**
- * O que o Assistente apontou, no topo do detalhe: a análise roda sozinha quando o registro chega
+ * O que a Bússola apontou, no topo do detalhe: a análise roda sozinha quando o registro chega
  * com as fotos, então o gestor já abre o drawer com o parecer. Os detalhes ficam no relatório.
  * Sem modelo de visão no ambiente, não aparece.
  */
@@ -41,11 +41,11 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
   template: `
     @if (estado(); as e) {
       @if (e.ultima; as a) {
-        <section class="rs" [attr.data-tom]="tom[a.parecer]" aria-label="O que o Assistente apontou">
-          <img class="rs__avatar" src="icons/Assistente 1.png" alt="" aria-hidden="true" />
+        <section class="rs" [attr.data-tom]="tom[a.parecer]" aria-label="O que a Bússola apontou">
+          <img class="rs__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
           <div class="rs__corpo">
             <div class="rs__topo">
-              <strong>O Assistente</strong>
+              <strong>A Bússola</strong>
               <ces-status [tone]="tom[a.parecer]" [icon]="'pi ' + icone[a.parecer]">{{ a.parecerRotulo }}</ces-status>
               <span class="rs__quando">{{ a.geradaEm | date: "dd/MM 'às' HH:mm" }}{{ a.geradaPor ? '' : ' · automática' }}</span>
             </div>
@@ -58,14 +58,14 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
             <div class="rs__acoes">
               <ces-button variant="ghost" size="sm" icon="pi pi-file" label="Ver a análise completa" (pressed)="relatorio.emit()"></ces-button>
             </div>
-            <p class="rs__espera">O Assistente só aponta; quem decide é você.</p>
+            <p class="rs__espera">A Bússola só aponta; quem decide é você.</p>
           </div>
         </section>
       } @else if (e.disponivel) {
-        <section class="rs" aria-label="Análise do Assistente">
-          <img class="rs__avatar" src="icons/Assistente 1.png" alt="" aria-hidden="true" />
+        <section class="rs" aria-label="Análise da Bússola">
+          <img class="rs__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
           <div class="rs__corpo">
-            <div class="rs__topo"><strong>O Assistente</strong></div>
+            <div class="rs__topo"><strong>A Bússola</strong></div>
             <p class="rs__espera">{{ aguardando() ? 'Analisando as fotos assim que chegarem. Pode levar alguns minutos.' : 'Ainda não analisou este registro.' }}</p>
             <div class="rs__acoes">
               <ces-button variant="ghost" size="sm" icon="pi pi-refresh" label="Atualizar" (pressed)="carregar()"></ces-button>

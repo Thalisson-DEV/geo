@@ -5,7 +5,7 @@ export const STATUS_PUBLIC_API_URL = globalThis.__CES_CONFIG__?.statusPublicApiU
 export const environment = {
   production: true,
   apiUrl: '/api',
-  /** Publicados pela implantação do plano de observabilidade, sem depender do Nexo. */
+  /** Publicados pela implantação do plano de observabilidade, sem depender do GEO. */
   statusPageUrl: STATUS_PAGE_URL,
   statusPublicApiUrl: STATUS_PUBLIC_API_URL,
 };

@@ -102,7 +102,7 @@ describe('DecisaoEmailComponent', () => {
 
   it('não oferece decisão quando o link expirou', async () => {
     const { texto } = await montar(
-      of({ ...disponivel, situacao: 'EXPIRADO', mensagem: 'Este link expirou. Para decidir, entre no Nexo.' })
+      of({ ...disponivel, situacao: 'EXPIRADO', mensagem: 'Este link expirou. Para decidir, entre no GEO.' })
     );
 
     expect(texto()).toContain('Este link expirou');

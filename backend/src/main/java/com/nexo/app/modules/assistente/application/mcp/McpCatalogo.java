@@ -19,12 +19,12 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Ferramentas do Copiloto que uma IA externa enxerga pelo MCP. E o mesmo registro do chat, filtrado
+ * Ferramentas da Bússola que uma IA externa enxerga pelo MCP. E o mesmo registro do chat, filtrado
  * pelas permissoes do usuario da conexao; ferramentas que cadastram ou alteram registros so aparecem
- * quando a conexao permite escrita. Toda ferramenta de escrita registrada no Copiloto entra aqui
+ * quando a conexao permite escrita. Toda ferramenta de escrita registrada na Bússola entra aqui
  * automaticamente.
  *
- * <p>Ficam de fora as que so fazem sentido dentro da tela do Nexo (navegar, artefatos e arquivos da
+ * <p>Ficam de fora as que so fazem sentido dentro da tela do GEO (navegar, artefatos e arquivos da
  * conversa, relatorios e exportacoes para baixar) e as que a propria IA externa ja tem (pesquisa web e
  * leitura de paginas).</p>
  */
@@ -41,7 +41,7 @@ public class McpCatalogo {
         this.registry = registry;
     }
 
-    /** Cadastra, altera ou dispara algo no Nexo. */
+    /** Cadastra, altera ou dispara algo no GEO. */
     public static boolean escreve(AgentTool tool) {
         return tool.kind() == ToolKind.WRITE || tool.riskLevel().requiresConfirmation();
     }

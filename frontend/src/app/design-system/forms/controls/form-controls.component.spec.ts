@@ -21,7 +21,7 @@ const configure = async (...imports: unknown[]) => {
   await TestBed.configureTestingModule({ imports }).compileComponents();
 };
 
-describe('Nexo form controls', () => {
+describe('GEO form controls', () => {
   it('associa texto, descrição e erro ao input nativo', async () => {
     await configure(CesTextInputComponent);
     const fixture = TestBed.createComponent(CesTextInputComponent);
@@ -315,7 +315,7 @@ describe('Nexo form controls', () => {
   it('permite rótulo apenas acessível, altura máxima e foco programático no textarea', async () => {
     await configure(CesTextareaComponent);
     const fixture = TestBed.createComponent(CesTextareaComponent);
-    fixture.componentRef.setInput('label', 'Mensagem para o Copiloto');
+    fixture.componentRef.setInput('label', 'Mensagem para a Bússola');
     fixture.componentRef.setInput('inputId', 'mensagem');
     fixture.componentRef.setInput('labelVisible', false);
     fixture.componentRef.setInput('maxHeight', '12rem');

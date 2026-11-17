@@ -2,7 +2,7 @@ import { definePreset } from '@primeuix/themes';
 import Lara from '@primeuix/themes/lara';
 
 /**
- * Tema oficial do Nexo.
+ * Tema oficial do GEO.
  *
  * A paleta primária pode ser trocada em tempo de execução pelo ThemeService. Estados
  * semânticos (sucesso, alerta e erro) permanecem independentes dessa escolha.
@@ -72,7 +72,7 @@ export const cesPreset = definePreset(Lara, {
       }
     },
     // O Lara escreve o detalhe do toast escuro com {surface.0}, que ele supõe branco. Como a
-    // escala escura do Nexo é invertida (surface.0 = slate.950), o texto sumia no fundo.
+    // escala escura do GEO é invertida (surface.0 = slate.950), o texto sumia no fundo.
     toast: {
       colorScheme: {
         dark: {

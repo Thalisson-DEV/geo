@@ -8,7 +8,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Análise automática do Assistente: fora da transação e da resposta ao app, porque a chamada ao
+ * Análise automática da Bússola: fora da transação e da resposta ao app, porque a chamada ao
  * modelo leva dezenas de segundos. Falha não afeta o registro: o relatório oferece tentar de novo.
  */
 @Component

@@ -142,7 +142,7 @@ export class CesDrawerComponent {
   protected readonly compact = cesMediaQuery(CES_COMPACT_VIEWPORT_QUERY);
 
   /**
-   * Superfície e texto vêm dos tokens Nexo: o overlay do Lara usa `surface.900`, que no esquema
+   * Superfície e texto vêm dos tokens GEO: o overlay do Lara usa `surface.900`, que no esquema
    * escuro do preset (escala invertida) é claro — sem isto o painel ficava claro com texto claro.
    */
   private readonly surfaceStyle: Record<string, string> = {

@@ -26,7 +26,7 @@ public class EmailProperties {
     private String remetente;
 
     /** Nome exibido ao lado do endereço na caixa de quem recebe. */
-    private String remetenteNome = "Nexo — Gestão Operacional";
+    private String remetenteNome = "GEO — Gestão de Equipes e Operações";
 
     /** Para onde vai a resposta, quando diferente do remetente. Opcional. */
     private String responderPara;

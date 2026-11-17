@@ -55,7 +55,7 @@ import { copiarTexto } from './conectar-ia.util';
         </ces-form-section>
         <ces-form-section title="Como usar" icon="pi pi-list-check">
           <ol class="chave-uso">
-            <li>No seu assistente, adicione o Nexo com o endereço <strong>{{ endereco() }}</strong>.</li>
+            <li>No seu assistente, adicione o GEO com o endereço <strong>{{ endereco() }}</strong>.</li>
             <li>Quando ele pedir a chave, cole a que você copiou.</li>
             <li>Se ele pedir o nome do campo, use <strong>Authorization</strong> e escreva <strong>Bearer</strong> e um espaço antes da chave.</li>
           </ol>

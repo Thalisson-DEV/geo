@@ -37,7 +37,7 @@ import { mapaEspecs } from './lib/dinamico';
             <ces-status [tone]="$any(a.status === 'ATIVA' ? 'success' : a.status === 'PAUSADA' ? 'warning' : null) ?? 'neutral'">{{ statusRotulo(a.status) }}</ces-status>
             <ces-status tone="neutral">{{ tipoRotulo(a.tipo) }}</ces-status>
             @if (a.origem === 'REGRA_CONVERTIDA') { <ces-status tone="info">Convertida de regra de notificação</ces-status> }
-            @if (a.origem === 'COPILOTO') { <ces-status tone="brand">Montada pelo Copiloto</ces-status> }
+            @if (a.origem === 'COPILOTO') { <ces-status tone="brand">Montada pela Bússola</ces-status> }
           </div>
           <div actions style="display:flex;gap:0.5rem;flex-wrap:wrap">
             <ces-button icon="pi pi-pencil" label="Abrir no editor" variant="primary" size="sm" (pressed)="ir(['/notificacoes/automacoes', a.id, 'editar'])"></ces-button>

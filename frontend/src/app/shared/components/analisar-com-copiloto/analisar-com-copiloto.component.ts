@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (permitido()) {
-      <ces-button [label]="label()" icon="pi pi-sparkles" [variant]="variant()"
+      <ces-button [label]="label()" icon="pi pi-compass" [variant]="variant()"
         [size]="size()" [className]="className()" (pressed)="abrir()" />
     }
   `,
@@ -26,7 +26,7 @@ export class AnalisarComCopilotoComponent {
   readonly rotulo = input<string>();
   readonly pergunta = input<string>();
   readonly filtros = input<Record<string, string | number | boolean | null | undefined>>({});
-  readonly label = input('Analisar com Copiloto');
+  readonly label = input('Analisar com Bússola');
   readonly variant = input<CesActionVariant>('outline');
   readonly size = input<CesActionSize>('md');
 

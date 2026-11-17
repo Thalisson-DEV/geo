@@ -145,7 +145,7 @@ describe('Análise · dashboard operacional', () => {
     expect(ritmo.destaques![0].texto).toContain('por dia útil restante');
   });
 
-  it('leva indicadores e gráficos da análise ao contexto do Copiloto', () => {
+  it('leva indicadores e gráficos da análise ao contexto da Bússola', () => {
     const vista = vistaOperacional({ dimension: 'equipe', value: 'e1' }, ctx)!;
     const graficos = graficosDaAnalise(vista);
     expect(graficos[0].id).toBe('analise.equipe:e1.indicadores');

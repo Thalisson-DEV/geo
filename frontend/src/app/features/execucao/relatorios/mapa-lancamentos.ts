@@ -1,4 +1,4 @@
-// Leaflet é carregado globalmente (angular.json), como nos demais mapas do Nexo.
+// Leaflet é carregado globalmente (angular.json), como nos demais mapas do GEO.
 declare const L: any;
 
 export interface PontoDoMapa {

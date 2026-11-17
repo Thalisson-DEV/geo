@@ -87,7 +87,7 @@ public class AnaliseIaFrotaUseCases {
         var ultima = repository.findFirstByAlvoAndIdAlvoAndAtivoTrueOrderByDataCriacaoDesc(alvo, idAlvo)
                 .map(this::response).orElse(null);
         return new AnaliseIaResponse.Estado(disponivel,
-                disponivel ? null : "O Assistente não está configurado para ler fotos neste ambiente.", ultima);
+                disponivel ? null : "A Bússola não está configurado para ler fotos neste ambiente.", ultima);
     }
 
     /**
@@ -102,14 +102,14 @@ public class AnaliseIaFrotaUseCases {
         try {
             analisar(alvo, idAlvo);
         } catch (RuntimeException e) {
-            LOGGER.warn("Análise automática do Assistente em {} {} não foi feita: {}", alvo, idAlvo, e.getMessage());
+            LOGGER.warn("Análise automática da Bússola em {} {} não foi feita: {}", alvo, idAlvo, e.getMessage());
         }
     }
 
     /** Sem transação aberta: a chamada ao modelo leva dezenas de segundos. */
     public AnaliseIaResponse analisar(AlvoAnaliseIa alvo, UUID idAlvo) {
         if (!assistente.visaoDisponivel()) {
-            throw new InvarianteVioladaException("O Assistente não está configurado para ler fotos neste ambiente.");
+            throw new InvarianteVioladaException("A Bússola não está configurado para ler fotos neste ambiente.");
         }
         var coleta = switch (alvo) {
             case ORDEM_SERVICO -> coletarOrdemServico(idAlvo);
@@ -125,7 +125,7 @@ public class AnaliseIaFrotaUseCases {
                     enviadas.stream().map(f -> new CopilotoApi.Imagem(f.tipoConteudo(), Base64.getEncoder().encodeToString(f.conteudo()))).toList(), 0.1, 8192, true);
         } catch (RuntimeException e) {
             LOGGER.warn("Análise da IA de {} {} falhou: {}", alvo, idAlvo, e.getMessage());
-            throw new InvarianteVioladaException("O Assistente não respondeu agora. Tente de novo em alguns instantes.");
+            throw new InvarianteVioladaException("A Bússola não respondeu agora. Tente de novo em alguns instantes.");
         }
         var lido = ler(resposta, enviadas);
         var resultado = new LinkedHashMap<String, Object>();
@@ -317,7 +317,7 @@ public class AnaliseIaFrotaUseCases {
     Lido ler(String resposta, List<FotoEnviada> enviadas) {
         JsonNode raiz = json(resposta);
         if (raiz == null || !raiz.isObject()) {
-            throw new InvarianteVioladaException("O Assistente respondeu fora do formato esperado. Tente de novo.");
+            throw new InvarianteVioladaException("A Bússola respondeu fora do formato esperado. Tente de novo.");
         }
         var parecer = switch (raiz.path("parecer").asText("").trim().toUpperCase()) {
             case "CRITICO", "CRÍTICO" -> ParecerAnaliseIa.CRITICO;
@@ -341,7 +341,7 @@ public class AnaliseIaFrotaUseCases {
             return new AnaliseIaResponse.Foto(f.ref(), f.origem(), f.idOrigem(), f.idFoto(), f.rotulo(),
                     lida == null ? null : texto(lida.path("leitura")),
                     lida == null ? "ILEGIVEL" : resultado(lida.path("resultado").asText("")),
-                    lida == null ? "O Assistente não comentou esta foto." : texto(lida.path("observacao")));
+                    lida == null ? "A Bússola não comentou esta foto." : texto(lida.path("observacao")));
         }).toList();
         var recomendacoes = new ArrayList<String>();
         for (JsonNode r : raiz.path("recomendacoes")) {

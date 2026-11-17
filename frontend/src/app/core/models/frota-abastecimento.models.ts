@@ -235,7 +235,7 @@ export interface PrecoPostoRequest {
   vigenteDesde: string | null;
 }
 
-/** Preço lido no cupom pelo Assistente, diferente do cadastrado, aguardando quem confirma. */
+/** Preço lido no cupom pela Bússola, diferente do cadastrado, aguardando quem confirma. */
 export interface SugestaoPrecoPosto {
   id: string;
   idAbastecimento: string;

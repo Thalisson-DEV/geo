@@ -13,7 +13,7 @@ import {
 } from '../models/conexoes-ia.models';
 import { PagedResponse } from '../models/shared.models';
 
-/** Conexões do Nexo com IAs externas: endereço, chaves de acesso, consentimento e desconexão. */
+/** Conexões do GEO com IAs externas: endereço, chaves de acesso, consentimento e desconexão. */
 @Injectable({ providedIn: 'root' })
 export class ConexoesIaService {
   private readonly http = inject(HttpClient);

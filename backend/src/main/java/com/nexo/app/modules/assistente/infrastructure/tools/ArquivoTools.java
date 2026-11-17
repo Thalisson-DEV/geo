@@ -32,7 +32,7 @@ public class ArquivoTools {
         return new BaseTool("ler_arquivo", "Ler arquivo anexado",
                 "Le um arquivo anexado na conversa (f1, f2...). Planilhas (XLSX, XLS, CSV, JSON em lista): informe a "
                         + "aba (nome ou numero, padrao a primeira) e o conteudo e registrado como resultado rN para "
-                        + "analise, conciliacao com o Nexo, graficos e Python. Documentos (PDF, DOCX, TXT): retorna uma "
+                        + "analise, conciliacao com o GEO, graficos e Python. Documentos (PDF, DOCX, TXT): retorna uma "
                         + "janela de texto a partir do caractere 'inicio' (padrao 0, ate 12000 caracteres); leia em partes.",
                 JsonSchemas.object()
                         .required("arquivo", JsonSchemas.string("Codigo do arquivo, ex.: f1"))

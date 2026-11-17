@@ -198,7 +198,7 @@ interface Grupo {
         }
 
         <section class="rel-secao">
-          <div class="rel-secao__titulo"><h2>Análise do Assistente</h2></div>
+          <div class="rel-secao__titulo"><h2>Análise da Bússola</h2></div>
           <app-frota-relatorio-analise-ia alvo="CHECKLIST" [idAlvo]="d.resumo.id" [fotosEsperadas]="totalFotos()" />
         </section>
 
@@ -221,7 +221,7 @@ interface Grupo {
                 <span class="rel-assinatura__data">{{ d.resumo.preenchidoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
               </div>
               <div class="rel-assinatura">
-                <span class="rel-assinatura__papel">Gestão de Frota NEXO</span>
+                <span class="rel-assinatura__papel">Gestão de Frota</span>
                 <span class="rel-assinatura__linha"></span>
                 <span class="rel-assinatura__nome">{{ ultimoDecisor() ?? 'Gestor da frota' }}</span>
                 <span class="rel-assinatura__data">Conferência</span>
@@ -232,7 +232,7 @@ interface Grupo {
 
         <footer class="rel-rodape">
           <span>Preenchido em <strong>{{ d.resumo.preenchidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong> por <strong>{{ d.resumo.preenchidoPor ?? '—' }}</strong></span>
-          <span class="rel-rodape__marca">Documento emitido eletronicamente via Sistema C.E.S · NEXO Frota</span>
+          <span class="rel-rodape__marca">Documento emitido eletronicamente via Sistema GEO · Frota</span>
         </footer>
       </article>
 
@@ -352,7 +352,7 @@ export class RelatorioChecklistComponent {
         next: (d) => {
           this.detalhe.set(d);
           this.carregando.set(false);
-          document.title = `Checklist ${formatarPlaca(d.resumo.placa)} · Relatório · C.E.S`;
+          document.title = `Checklist ${formatarPlaca(d.resumo.placa)} · Relatório · GEO`;
         },
         error: (e) => {
           this.erro.set(getErrorMessage(e));

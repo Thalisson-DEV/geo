@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Publica, para o motor de notificações, contagens de estado pertencentes a um
- * módulo do Nexo.
+ * módulo do GEO.
  *
  * <p>Existe porque "há 10 desvios pendentes" não é um acontecimento: é uma
  * situação. Nenhum evento é emitido quando o décimo desvio continua em aberto no dia

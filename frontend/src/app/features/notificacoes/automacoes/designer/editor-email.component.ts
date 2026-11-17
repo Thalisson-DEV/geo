@@ -60,7 +60,7 @@ export type CamposEmail = Params;
  * Editor do e-mail no padrão do TON: escreve-se dentro do cartão institucional da empresa
  * (logo, área, título, corpo, botão e rodapé) e, ao lado, a prévia montada pelo servidor
  * com o mesmo layout do envio. Dados do fluxo viram fichas; blocos (tabela, lista,
- * análise do Copiloto, botão) são montados na hora do envio, com os dados reais.
+ * análise da Bússola, botão) são montados na hora do envio, com os dados reais.
  */
 @Component({
   selector: 'aut-editor-email',
@@ -85,7 +85,7 @@ export type CamposEmail = Params;
                                    (mudou)="area.set($event); mexeu()" />
             </div>
             <ces-select label="Destaque" [options]="destaques" [value]="tom()" (valueChange)="tom.set($event ?? 'NEUTRO'); mexeu()"></ces-select>
-            <ces-text-input label="Texto do botão" placeholder="Abrir no Nexo" [value]="botaoTexto()" (valueChange)="botaoTexto.set($event); mexeu()"></ces-text-input>
+            <ces-text-input label="Texto do botão" placeholder="Abrir no GEO" [value]="botaoTexto()" (valueChange)="botaoTexto.set($event); mexeu()"></ces-text-input>
             <div>
               <span class="ces-field__label">Link do botão</span>
               <aut-campo-expressao [valor]="botaoLink()" [contexto]="contexto()" rotulo="Link do botão" placeholder="Ex.: /dp/descontos (vazio: sem botão)"
@@ -170,21 +170,21 @@ export type CamposEmail = Params;
 
           <div class="aut-mail-paper">
             <div class="aut-mail-head">
-              <img class="aut-mail-logo-claro" src="assets/logo-email.png" alt="Nexo" width="46" height="36" />
+              <img class="aut-mail-logo-claro" src="assets/logo-email.png" alt="GEO" width="46" height="36" />
               <img class="aut-mail-logo-escuro" src="assets/logo-email-escuro.png" alt="" width="46" height="36" />
-              <span><strong>Nexo</strong><small>Gestão Operacional</small></span>
+              <span><strong>GEO</strong><small>Gestão de Equipes e Operações</small></span>
             </div>
             <div class="aut-mail-content">
               @if (areaLegivel()) { <div class="aut-mail-area" [attr.data-tone]="tom()">{{ areaLegivel() }}</div> }
               <h1 class="aut-mail-title" [class.aut-muted]="!assuntoLegivel()">{{ assuntoLegivel() || 'O assunto aparece aqui como título' }}</h1>
               <div #editor class="aut-email-editor aut-mail-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Mensagem"
-                   data-placeholder="Escreva a mensagem. Use Inserir dado para incluir informações do fluxo e Bloco para tabelas, listas, a análise do Copiloto ou um botão."
+                   data-placeholder="Escreva a mensagem. Use Inserir dado para incluir informações do fluxo e Bloco para tabelas, listas, a análise da Bússola ou um botão."
                    (keyup)="lembrar()" (mouseup)="lembrar()" (input)="mexeu()" (paste)="colar($event)" (click)="clicou($event)"></div>
               @if (botaoLink().trim()) {
-                <span class="aut-mail-button">{{ botaoTexto().trim() || 'Abrir no Nexo' }}</span>
+                <span class="aut-mail-button">{{ botaoTexto().trim() || 'Abrir no GEO' }}</span>
               }
             </div>
-            <div class="aut-mail-foot">Mensagem automática do sistema Nexo. Não responda a este e-mail.</div>
+            <div class="aut-mail-foot">Mensagem automática do sistema GEO. Não responda a este e-mail.</div>
           </div>
         </section>
 
@@ -292,7 +292,7 @@ export class EditorEmailComponent {
 
   protected ajudaBloco(tipo: string): string {
     switch (tipo) {
-      case 'markdown': return 'Texto já formatado, ex.: a análise do Copiloto';
+      case 'markdown': return 'Texto já formatado, ex.: a análise da Bússola';
       case 'table': return 'Uma tabela com os itens de uma lista';
       case 'list': return 'Os itens de uma lista, um por linha';
       case 'html': return 'Uma tabela pronta de "Criar tabela"';
@@ -404,7 +404,7 @@ export class EditorEmailComponent {
   protected escolheuFonte(tipo: string, fonte: string): void {
     this.seletor.set(null);
     if (tipo === 'button') {
-      this.pedido.set({ tipo: 'botao', fonte, texto: 'Abrir no Nexo' });
+      this.pedido.set({ tipo: 'botao', fonte, texto: 'Abrir no GEO' });
       return;
     }
     this.inserirBloco(tipo, fonte, null);

@@ -20,7 +20,7 @@ import com.nexo.app.modules.automacao.infrastructure.persistence.AutomacaoReposi
 import com.nexo.app.modules.iam.UsuarioApi;
 
 /**
- * Automações que o Nexo já entrega montadas, em rascunho: falta só dizer quem recebe e
+ * Automações que o GEO já entrega montadas, em rascunho: falta só dizer quem recebe e
  * ativar. São criadas uma única vez (pelo nome); apagar ou renomear não faz voltar.
  */
 @Component
@@ -62,12 +62,12 @@ public class AutomacoesIniciais {
         }
         ModelosAutomacao.Modelo modelo = modelos.relatorioComercialPorBase();
         transacao.executeWithoutResult(s -> useCases.criarInterno(new AutomacaoRequest(modelo.nome(), modelo.descricao(), modelo.tipo(),
-                modelo.definicao(), "Criada pelo Nexo: falta indicar quem recebe cada base"), OrigemAutomacao.SISTEMA, dono.get(), null));
+                modelo.definicao(), "Criada pelo GEO: falta indicar quem recebe cada base"), OrigemAutomacao.SISTEMA, dono.get(), null));
         LOGGER.info("Automação '{}' criada em rascunho.", modelo.nome());
     }
 
     /**
-     * A primeira versão do relatório deixava o Copiloto buscar tudo sozinho e estourava o
+     * A primeira versão do relatório deixava a Bússola buscar tudo sozinha e estourava o
      * limite de etapas. A atual traz os números em consultas prontas. Automações do relatório
      * ainda na versão antiga ganham a nova definição, mantendo o que a pessoa configurou:
      * quem recebe cada base, a lista de bases, a agenda e o aviso de falha.
@@ -80,7 +80,7 @@ public class AutomacoesIniciais {
             Map<String, Object> nova = Valores.mapa(modelos.relatorioComercialPorBase().definicao());
             manterConfiguracao(atual, nova);
             transacao.executeWithoutResult(s -> useCases.novaVersaoInterna(automacao.getId(), nova,
-                    "Atualizada pelo Nexo: números da semana em consultas prontas (destinatários mantidos)"));
+                    "Atualizada pelo GEO: números da semana em consultas prontas (destinatários mantidos)"));
             LOGGER.info("Automação '{}' atualizada para as consultas prontas.", automacao.getNome());
         }
     }

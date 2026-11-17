@@ -330,7 +330,7 @@ export class DashboardDescontosComponent implements OnInit {
     .map((value) => ({ label: STATUS_DESCONTO_LABELS[value], value }));
 
   /**
-   * Contexto do dashboard para o Copiloto: o recorte aplicado e os agregados em tela. Não inclui a
+   * Contexto do dashboard para a Bússola: o recorte aplicado e os agregados em tela. Não inclui a
    * lista de colaboradores (dado pessoal) — se a pergunta exigir, o agente consulta pelas ferramentas,
    * que aplicam as permissões do usuário.
    */

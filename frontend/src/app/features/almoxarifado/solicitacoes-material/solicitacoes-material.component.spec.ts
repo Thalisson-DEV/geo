@@ -164,7 +164,7 @@ describe('SolicitacoesMaterialComponent', () => {
     expect(el.querySelector('ces-data-table')).toBeNull();
   });
 
-  it('"Analisar" do quadro e do detalhe abre o Copiloto ao lado, com foco no que foi pedido', async () => {
+  it('"Analisar" do quadro e do detalhe abre a Bússola ao lado, com foco no que foi pedido', async () => {
     const { componente } = await abrir('/lista', { modo: 'kanban' });
     const perguntar = vi.spyOn(TestBed.inject(CopilotoPainelService), 'perguntarSobre').mockImplementation(() => undefined);
     const tela = componente as unknown as {

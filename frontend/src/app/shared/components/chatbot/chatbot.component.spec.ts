@@ -71,7 +71,7 @@ describe('ChatbotComponent', () => {
     const disclaimer = fixture.nativeElement.querySelector('.assistant-disclaimer') as HTMLElement;
 
     expect(disclaimer.textContent).toContain('Conteúdo gerado por IA');
-    expect(disclaimer.textContent).toContain('O Copiloto pode cometer erros');
+    expect(disclaimer.textContent).toContain('A Bússola pode cometer erros');
   });
 
   it('cria a conversa ao abrir e mostra apenas sugestões autorizadas', () => {
@@ -79,7 +79,7 @@ describe('ChatbotComponent', () => {
       id: 'user-id',
       permissoes: ['assistente:chat:use', 'sst:dashboard:read']
     });
-    clickButtonByLabel('Abrir conversa com o Copiloto');
+    clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
 
     expect(service.criarConversa).toHaveBeenCalledOnce();
@@ -126,7 +126,7 @@ describe('ChatbotComponent', () => {
       response.clientMessageId = request.clientMessageId;
       return of(response);
     });
-    clickButtonByLabel('Abrir conversa com o Copiloto');
+    clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
 
     const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
@@ -168,7 +168,7 @@ describe('ChatbotComponent', () => {
         parametros: { id }
       }]
     } satisfies AssistenteMensagem));
-    clickButtonByLabel('Abrir conversa com o Copiloto');
+    clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
 
     const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
@@ -196,7 +196,7 @@ describe('ChatbotComponent', () => {
         conteudo: 'Resposta confirmada.',
         criadaEm: new Date().toISOString()
       } satisfies AssistenteMensagem));
-    clickButtonByLabel('Abrir conversa com o Copiloto');
+    clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
 
     const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
@@ -217,7 +217,7 @@ describe('ChatbotComponent', () => {
   it('mostra que o Pensando enquanto aguarda o servidor', () => {
     const pendingResponse = new Subject<AssistenteMensagem>();
     service.enviarMensagem.mockReturnValue(pendingResponse.asObservable());
-    clickButtonByLabel('Abrir conversa com o Copiloto');
+    clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
 
     const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
@@ -248,7 +248,7 @@ describe('ChatbotComponent', () => {
 
   it('mantém Markdown e HTML da mensagem do usuário como texto literal', () => {
     service.enviarMensagem.mockReturnValue(new Subject<AssistenteMensagem>().asObservable());
-    clickButtonByLabel('Abrir conversa com o Copiloto');
+    clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
 
     const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
@@ -281,7 +281,7 @@ describe('ChatbotComponent', () => {
       mensagens: []
     };
     service.criarConversa.mockReturnValueOnce(of(previousConversation));
-    clickButtonByLabel('Abrir conversa com o Copiloto');
+    clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
     sessionStorage.setItem('ces_assistente_rascunho_user-id', 'Rascunho antigo');
     sessionStorage.setItem('ces_assistente_pendente_user-id', JSON.stringify({

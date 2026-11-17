@@ -95,7 +95,7 @@ describe('ManualTreinamentoDocumentoComponent', () => {
     expect(caminhos[0].className).toContain('suporte__caminho--principal');
     expect(caminhos[0].textContent).toContain('Abra um chamado');
     expect(caminhos[0].textContent).toContain('Chamados › Novo chamado');
-    expect(caminhos[1].textContent).toContain('Copiloto');
+    expect(caminhos[1].textContent).toContain('Bússola');
   });
 
   it('deve usar ícones decorativos, sempre acompanhados de rótulo textual', () => {

@@ -16,7 +16,7 @@ class ExecucaoResourceCountConfiguration {
     SemanticResourceCountProvider execucaoResourceCountProvider(EntityManager entityManager) {
         return new JpaSemanticResourceCountProvider(entityManager, List.of(
                 new ResourceDefinition("execucoes_comerciais", "Execucoes comerciais",
-                        "Execucoes comerciais registradas no Nexo.", "execucao:comercial:read",
+                        "Execucoes comerciais registradas no GEO.", "execucao:comercial:read",
                         "select count(e.id) from ExecucaoComercial e"),
                 new ResourceDefinition("tipos_servico", "Tipos de servico",
                         "Tipos de servico das notas executadas em campo.", "execucao:tipo-servico:read",

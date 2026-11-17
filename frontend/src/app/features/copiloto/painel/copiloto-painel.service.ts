@@ -39,7 +39,7 @@ function gravarSessao(chave: string, valor: string | null): void {
 }
 
 /**
- * Estado de UI do Copiloto contextual, compartilhado por todos os dashboards: painel aberto/fechado
+ * Estado de UI da Bússola contextual, compartilhado por todos os dashboards: painel aberto/fechado
  * (sessão), largura (preferência do dispositivo), pedidos de foco em elementos e a conversa ativa de cada
  * dashboard. Guarda apenas ids de conversa — nenhum conteúdo de conversa fica no navegador.
  */
@@ -51,7 +51,7 @@ export class CopilotoPainelService {
   readonly aberto = signal(lerSessao(CHAVE_ABERTO) === '1');
   readonly largura = signal(this.lerLargura());
   readonly pedido = signal<PedidoFocoCopiloto | null>(null);
-  /** Contexto do dashboard em tela (registrado pela área do Copiloto) — valida ações `APPLY_FILTER`. */
+  /** Contexto do dashboard em tela (registrado pela área da Bússola) — valida ações `APPLY_FILTER`. */
   readonly contextoAtivo = signal<CopilotoDashboardContext | null>(null);
   readonly pedidoFiltro = signal<PedidoFiltroCopiloto | null>(null);
 
@@ -67,7 +67,7 @@ export class CopilotoPainelService {
     });
   }
 
-  /** Só quem pode usar o Copiloto vê o painel (o backend continua exigindo a permissão). */
+  /** Só quem pode usar a Bússola vê o painel (o backend continua exigindo a permissão). */
   disponivelParaUsuario(): boolean {
     return (this.auth.currentUser()?.permissoes ?? []).includes('assistente:chat:use');
   }

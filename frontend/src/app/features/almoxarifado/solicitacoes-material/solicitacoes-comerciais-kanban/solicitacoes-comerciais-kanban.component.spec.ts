@@ -156,7 +156,7 @@ describe('SolicitacoesComerciaisKanbanComponent', () => {
     expect(abrir$).toHaveBeenCalledWith({ item: aprovado, aba: 'entrega' });
   });
 
-  it('"Analisar" de uma coluna avisa a tela (que abre o Copiloto) em vez de navegar', async () => {
+  it('"Analisar" de uma coluna avisa a tela (que abre a Bússola) em vez de navegar', async () => {
     const { el, fixture } = await abrir();
     const analisar = vi.fn();
     fixture.componentInstance.analisarEtapa.subscribe(analisar);
@@ -164,7 +164,7 @@ describe('SolicitacoesComerciaisKanbanComponent', () => {
     expect(analisar).toHaveBeenCalledWith(expect.objectContaining({ id: 'APROVACAO', titulo: 'Aprovação' }));
   });
 
-  it('sem permissão de Copiloto a coluna não mostra o botão de análise', async () => {
+  it('sem permissão de Bússola a coluna não mostra o botão de análise', async () => {
     const { el, fixture } = await abrir();
     fixture.componentRef.setInput('copiloto', false);
     fixture.detectChanges();

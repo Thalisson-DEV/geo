@@ -57,7 +57,7 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
       <div class="compositor__campo" (keydown)="aoTeclar($event)" (paste)="aoColar($event)">
         <ces-textarea
           #campo
-          label="Mensagem para o Copiloto"
+          label="Mensagem para a Bússola"
           [labelVisible]="false"
           inputId="copiloto-mensagem"
           [(value)]="valor"
@@ -181,8 +181,8 @@ export class CopilotoCompositorComponent {
   );
   protected readonly placeholder = computed(() =>
     this.disponivel()
-      ? 'Pergunte ao Copiloto…'
-      : 'O Copiloto está indisponível no momento',
+      ? 'Pergunte à Bússola…'
+      : 'A Bússola está indisponível no momento',
   );
 
   focar(): void {

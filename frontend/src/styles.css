@@ -1191,7 +1191,7 @@ input.p-inputtext,
 
 
 /*
- * Rotas `fullBleed` (dashboards com Copiloto contextual): o <main> do shell não rola; quem rola é a área
+ * Rotas `fullBleed` (dashboards com Bússola contextual): o <main> do shell não rola; quem rola é a área
  * do dashboard. Para isso a altura precisa chegar até ela — o componente roteado vira bloco com a altura
  * do <main>, sem depender de cada dashboard declarar `:host { height: 100% }`.
  */

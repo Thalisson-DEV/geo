@@ -73,7 +73,7 @@ class MontadorEmailNotificacaoTest {
         MensagemEmail mensagem = montador.montar(
                 "ana@exemplo.com.br", notificacao(PrioridadeNotificacao.ALTA, Map.of()), null);
 
-        assertThat(mensagem.assunto()).isEqualTo("[Nexo] Desconto aguardando validação");
+        assertThat(mensagem.assunto()).isEqualTo("[GEO] Desconto aguardando validação");
     }
 
     @Test

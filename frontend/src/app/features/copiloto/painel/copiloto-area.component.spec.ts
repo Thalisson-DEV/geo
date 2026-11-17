@@ -47,7 +47,7 @@ function configurar(permissoes: string[]) {
   return { fixture, api, painel: TestBed.inject(CopilotoPainelService) };
 }
 
-describe('Copiloto contextual no dashboard', () => {
+describe('Bússola contextual no dashboard', () => {
   it('mantém o dashboard intacto e só monta o painel na primeira abertura', () => {
     const { fixture, api, painel } = configurar(['assistente:chat:use']);
     const el = fixture.nativeElement as HTMLElement;
@@ -80,7 +80,7 @@ describe('Copiloto contextual no dashboard', () => {
     expect((fixture.nativeElement as HTMLElement).querySelector('app-copiloto-painel')).toBe(componente);
   });
 
-  it('sem a permissão do Copiloto, mostra apenas o dashboard', () => {
+  it('sem a permissão da Bússola, mostra apenas o dashboard', () => {
     const { fixture } = configurar(['estoque:solicitacao:read']);
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('.conteudo')).not.toBeNull();

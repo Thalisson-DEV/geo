@@ -92,9 +92,9 @@ public final class TabularExport {
             int linha = 0;
             Row cabecalho = sobre.createRow(linha++);
             Cell tituloCell = cabecalho.createCell(0);
-            tituloCell.setCellValue(titulo == null || titulo.isBlank() ? "Exportacao do Copiloto" : titulo);
+            tituloCell.setCellValue(titulo == null || titulo.isBlank() ? "Exportacao da Bússola" : titulo);
             tituloCell.setCellStyle(estilos.titulo);
-            sobre.createRow(linha++).createCell(0).setCellValue("Gerado pelo Copiloto (Nexo) em "
+            sobre.createRow(linha++).createCell(0).setCellValue("Gerado pela Bússola (GEO) em "
                     + java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm").format(LocalDateTime.now()));
             for (Aba aba : abas) {
                 String descricao = aba.nome() + ": " + aba.dados().totalRows() + " linhas"

@@ -332,7 +332,7 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
         </section>
 
         <section class="rel-secao">
-          <div class="rel-secao__titulo"><h2>Análise do Assistente</h2></div>
+          <div class="rel-secao__titulo"><h2>Análise da Bússola</h2></div>
           <app-frota-relatorio-analise-ia alvo="ORDEM_SERVICO" [idAlvo]="d.ordem.id" [fotosEsperadas]="fotosNotas().length" />
         </section>
 
@@ -349,7 +349,7 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
             </p>
             <div class="rel-assinaturas">
               <div class="rel-assinatura">
-                <span class="rel-assinatura__papel">Gestão de Frota NEXO</span>
+                <span class="rel-assinatura__papel">Gestão de Frota</span>
                 <span class="rel-assinatura__linha"></span>
                 <span class="rel-assinatura__nome">{{ d.ordem.usuarioAbertura ?? 'Responsável pela frota' }}</span>
                 <span class="rel-assinatura__data">{{ d.ordem.fimReal ? (d.ordem.fimReal | date: 'dd/MM/yyyy HH:mm') : 'Data: ____/____/________' }}</span>
@@ -369,7 +369,7 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
             Aberta em <strong>{{ d.ordem.abertaEm | date: 'dd/MM/yyyy HH:mm' }}</strong>
             @if (d.ordem.fimReal) { · Concluída em <strong>{{ d.ordem.fimReal | date: 'dd/MM/yyyy HH:mm' }}</strong> }
           </span>
-          <span class="rel-rodape__marca">Documento emitido eletronicamente via Sistema C.E.S · NEXO Frota</span>
+          <span class="rel-rodape__marca">Documento emitido eletronicamente via Sistema GEO · Frota</span>
         </footer>
       </article>
 
@@ -470,7 +470,7 @@ export class RelatorioOrdemServicoComponent {
           this.detalhe.set(detalhe);
           this.documentos.set(documentos);
           this.carregando.set(false);
-          document.title = `${rotuloOs(detalhe.ordem.numero)} · Relatório · C.E.S`;
+          document.title = `${rotuloOs(detalhe.ordem.numero)} · Relatório · GEO`;
         },
         error: (e) => {
           this.erro.set(getErrorMessage(e));

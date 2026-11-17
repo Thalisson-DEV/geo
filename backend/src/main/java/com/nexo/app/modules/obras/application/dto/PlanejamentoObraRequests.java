@@ -101,7 +101,7 @@ public final class PlanejamentoObraRequests {
     public record IniciarAnalise(@NotNull @Min(1) Integer pagina) {
     }
 
-    /** Só o que o usuário manteve na revisão da proposta do Copiloto, já com os ajustes dele. */
+    /** Só o que o usuário manteve na revisão da proposta da Bússola, já com os ajustes dele. */
     public record AceitarProposta(@Valid List<PontoAceito> pontos, @Valid List<VaoAceito> vaos) {
     }
 

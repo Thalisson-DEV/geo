@@ -27,7 +27,7 @@ import { precoUnitario } from '../abastecimentos/frota-abastecimento.util';
 /**
  * Preços do posto por produto, com histórico. O abastecimento registrado calcula o valor pelo
  * preço vigente na data, e a equipe não digita valor no posto (gestores, 23/10/2026). Os preços
- * lidos nos cupons pelo Assistente aparecem aqui para confirmar ou descartar.
+ * lidos nos cupons pela Bússola aparecem aqui para confirmar ou descartar.
  */
 @Component({
   selector: 'app-frota-precos-posto-drawer',
@@ -80,7 +80,7 @@ import { precoUnitario } from '../abastecimentos/frota-abastecimento.util';
 
           @if (sugestoes().length) {
             <section class="ces-form-stack" aria-label="Preços lidos nos cupons">
-              <h3 class="pp__titulo">Preços lidos nos cupons pelo Assistente</h3>
+              <h3 class="pp__titulo">Preços lidos nos cupons pela Bússola</h3>
               @for (s of sugestoes(); track s.id) {
                 <div class="pp__sugestao">
                   <span><strong>{{ s.produto }}</strong>: cadastro {{ s.precoCadastrado == null ? 'sem preço' : preco(s.precoCadastrado) }},

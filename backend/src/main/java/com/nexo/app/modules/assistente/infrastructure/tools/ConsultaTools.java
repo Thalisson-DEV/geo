@@ -46,8 +46,8 @@ public class ConsultaTools {
         ObjectNode ordem = JsonSchemas.object()
                 .required("campo", JsonSchemas.string("Coluna selecionada ou alias de metrica"))
                 .prop("decrescente", JsonSchemas.bool(null)).build();
-        return new BaseTool("consultar_fonte", "Consultar dados do Nexo",
-                "Consulta estruturada (sem SQL) a QUALQUER fonte da camada semantica do Nexo — inclusive descontos, "
+        return new BaseTool("consultar_fonte", "Consultar dados do GEO",
+                "Consulta estruturada (sem SQL) a QUALQUER fonte da camada semantica do GEO — inclusive descontos, "
                         + "financeiro, SST, IAM, sincronizacao, contratos, execucao. Informe a fonte, colunas "
                         + "(lista detalhada) ou agrupar_por + metricas (agregacao), filtros e periodo. Use descrever_fonte_dados "
                         + "para conhecer as colunas. Prefira as ferramentas consultar_* especificas quando existirem.",
@@ -75,7 +75,7 @@ public class ConsultaTools {
             public String progressLabel(JsonNode arguments) {
                 String fonte = ToolArgs.text(arguments, "fonte");
                 return catalog.fonte(fonte).map(item -> "Consultando " + item.nome().toLowerCase(Locale.ROOT))
-                        .orElse("Consultando dados do Nexo");
+                        .orElse("Consultando dados do GEO");
             }
 
             @Override

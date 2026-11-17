@@ -22,7 +22,7 @@ export const TIPO_GRAFICO: Record<TipoGraficoArtefato, CesChartKind> = {
 /** Ícone e rótulo de cada categoria de ferramenta (ToolKind do backend). */
 export const TIPO_ETAPA: Record<string, { icone: string; rotulo: string }> = {
   CATALOG: { icone: 'pi pi-book', rotulo: 'Catálogo' },
-  DATA: { icone: 'pi pi-database', rotulo: 'Dados do Nexo' },
+  DATA: { icone: 'pi pi-database', rotulo: 'Dados do GEO' },
   SQL: { icone: 'pi pi-code', rotulo: 'SQL analítico' },
   ANALYSIS: { icone: 'pi pi-chart-line', rotulo: 'Análise' },
   PYTHON: { icone: 'pi pi-microchip-ai', rotulo: 'Python' },
@@ -60,7 +60,7 @@ export const ROTULO_ARTEFATO: Record<TipoArtefato, string> = {
 };
 
 export const NATUREZA: Record<string, string> = {
-  INTERNO: 'Dados do Nexo',
+  INTERNO: 'Dados do GEO',
   EXTERNO: 'Fonte externa',
   ARQUIVO: 'Arquivo enviado',
   CALCULO: 'Cálculo',

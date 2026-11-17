@@ -173,7 +173,7 @@ public class AbastecimentoAppUseCases {
                 abastecimento.registrarAlertas(EtapaAlertaAbastecimento.REALIZADO, historico.realizado(abastecimento, ficha, null));
             }
             repository.save(abastecimento);
-            // Pedido com o painel ou realizado com o painel e o cupom: o Assistente analisa sozinho.
+            // Pedido com o painel ou realizado com o painel e o cupom: a Bússola analisa sozinho.
             if (abastecimento.fotosPendentes().isEmpty()) {
                 eventos.publishEvent(new AnaliseIaPedida(AlvoAnaliseIa.ABASTECIMENTO, abastecimento.getId()));
             }

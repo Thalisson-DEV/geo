@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-/** O que o Copiloto cadastra em Obras: a obra e os cadastros de apoio (status, agentes, tipos de anexo). */
+/** O que a Bússola cadastra em Obras: a obra e os cadastros de apoio (status, agentes, tipos de anexo). */
 @Component
 public class CadastrosObrasCopiloto implements ProvedorCadastros {
 

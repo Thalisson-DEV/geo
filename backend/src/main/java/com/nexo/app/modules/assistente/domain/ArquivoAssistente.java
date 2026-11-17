@@ -11,7 +11,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Arquivo do Copiloto: anexo enviado pelo usuario ou arquivo gerado pelo agente (relatorio PDF,
+ * Arquivo da Bússola: anexo enviado pelo usuario ou arquivo gerado pelo agente (relatorio PDF,
  * planilha exportada, grafico do Python...). O conteudo binario fica em {@link ArquivoConteudo}
  * (armazenamento em banco) ou no object storage; aqui ficam metadados, texto extraido e dados tabulares.
  */

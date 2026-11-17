@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** O que o Copiloto cadastra em Pessoas e estrutura: colaboradores, equipes, funções, bases, veículos... */
+/** O que a Bússola cadastra em Pessoas e estrutura: colaboradores, equipes, funções, bases, veículos... */
 @Component
 public class CadastrosRhCopiloto implements ProvedorCadastros {
 

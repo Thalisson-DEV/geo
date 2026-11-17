@@ -31,12 +31,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Automações", description = """
-        Motor de automações do Nexo (substitui as regras de notificação).
+        Motor de automações do GEO (substitui as regras de notificação).
 
         Uma automação é **um gatilho** (manual, agenda, evento de domínio, limiar ou falha de outra
         automação), **variáveis** e **uma árvore de passos**: condições com e/ou, escolher caso, para cada,
         repetir até, escopo (tentar/tratar), ramos paralelos, esperar, aprovação, dados, IA (incluindo o
-        Copiloto com relatório PDF), e-mail rico e aviso no sininho. Os passos trocam dados por
+        Bússola com relatório PDF), e-mail rico e aviso no sininho. Os passos trocam dados por
         expressões `{{ steps.<id>.outputs.<campo> }}`; os gatilhos de evento trazem as entidades por trás dos
         ids (ex.: `trigger.outputs.colaborador.base`).
 
@@ -103,7 +103,7 @@ public interface AutomacaoControllerDoc {
     @Operation(summary = "Baixa um arquivo gerado numa execução")
     ResponseEntity<byte[]> arquivo(UUID arquivoId);
 
-    @Operation(summary = "O Copiloto monta (ou ajusta) uma automação a partir de um pedido")
+    @Operation(summary = "A Bússola monta (ou ajusta) uma automação a partir de um pedido")
     ResponseEntity<RascunhoResponse> rascunho(RascunhoRequest request);
 
     @Operation(summary = "Opções para os seletores (usuario, colaborador, perfil, permissao, base, fonte)")

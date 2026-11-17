@@ -199,7 +199,7 @@ public class DescontoUseCases {
         return valor == null ? "—" : valor.toLocalDate().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
 
-    /** Sem usuário: lançamentos feitos pelo Copiloto, já atribuídos a quem pediu no LANCADO. */
+    /** Sem usuário: lançamentos feitos pela Bússola, já atribuídos a quem pediu no LANCADO. */
     @Transactional
     public void adicionarItem(UUID id, DescontoItemRequest request) {
         adicionarItem(id, request, null);
@@ -258,7 +258,7 @@ public class DescontoUseCases {
     }
 
     /**
-     * O DP anexa o termo impresso pelo C.E.S e assinado pelo colaborador. O arquivo fica
+     * O DP anexa o termo impresso pelo GEO e assinado pelo colaborador. O arquivo fica
      * marcado como o termo e o desconto passa a FINALIZADO, tudo na mesma transação.
      */
     @Transactional

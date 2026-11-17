@@ -118,7 +118,7 @@ class MontadorEmailHtmlTest {
         // cabeçalho chegaria vazio — e e-mail sem remetente identificável parece golpe.
         String html = montador.montar(completo().build());
 
-        assertThat(html).contains(">Nexo<").contains("Gestão Operacional");
+        assertThat(html).contains(">GEO<").contains("Gestão de Equipes e Operações");
     }
 
     @Test

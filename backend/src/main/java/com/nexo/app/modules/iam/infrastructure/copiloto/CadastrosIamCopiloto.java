@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-/** Usuários e perfis de acesso pelo Copiloto. */
+/** Usuários e perfis de acesso pela Bússola. */
 @Component
 public class CadastrosIamCopiloto implements ProvedorCadastros {
 
@@ -40,7 +40,7 @@ public class CadastrosIamCopiloto implements ProvedorCadastros {
         return List.of(
                 OperacaoCadastro.criar("usuario", UsuarioRequest.class)
                         .modulo(MODULO).titulo("Novo usuário").registro("Usuário")
-                        .descricao("Cria o acesso de uma pessoa ao Nexo (login, perfil, tipo ADMINISTRATIVO ou CAMPO), "
+                        .descricao("Cria o acesso de uma pessoa ao GEO (login, perfil, tipo ADMINISTRATIVO ou CAMPO), "
                                 + "opcionalmente ligado a um colaborador. Equipes de campo costumam usar o login com prefixo + os 6 "
                                 + "ultimos digitos do CPF. Sem senha informada, o sistema gera uma provisoria e mostra so ao concluir.")
                         .autoridade("iam:usuario:write")

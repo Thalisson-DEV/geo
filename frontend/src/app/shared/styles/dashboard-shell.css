@@ -144,7 +144,7 @@
 .dash-metric[data-tone='amber'] .dash-metric__track span { background: #c57a16; }
 .dash-metric[data-tone='green'] .dash-metric__track span { background: #0f766e; }
 
-/* Cartão clicável (drill-down): o botão esticado cobre o cartão; ações extras (Copiloto) ficam acima. */
+/* Cartão clicável (drill-down): o botão esticado cobre o cartão; ações extras (Bússola) ficam acima. */
 .dash-metric__corner { display: inline-flex; align-items: center; gap: 0.25rem; }
 .dash-metric__extra { position: relative; z-index: 2; display: inline-flex; }
 .dash-metric__extra:empty { display: none; }
@@ -162,7 +162,7 @@
   .dash-metric--interativo:hover .dash-metric__cta i, .dash-metric--interativo:active { transform: none; }
 }
 
-/* Painéis de gráfico clicáveis e atalho discreto do Copiloto no cabeçalho do painel. */
+/* Painéis de gráfico clicáveis e atalho discreto da Bússola no cabeçalho do painel. */
 .dash-panel__tools { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem; }
 .dash-drill-hint { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--ces-foreground-muted); font-size: 0.7rem; font-weight: 600; }
 
@@ -371,7 +371,7 @@
 }
 
 /*
- * Copiloto contextual aberto ao lado do dashboard: a área útil encolhe sem a viewport mudar, então as
+ * Bússola contextual aberta ao lado do dashboard: a área útil encolhe sem a viewport mudar, então as
  * quebras de layout são refeitas pela largura do container `copiloto-area`. Só valem com o painel
  * aberto — fechado, o dashboard fica exatamente como antes. O prefixo `.copiloto-area[data-aberto]`
  * + `.dash-page` dá especificidade maior que os ajustes locais dos componentes (ex.: `:host .dash-metrics`)

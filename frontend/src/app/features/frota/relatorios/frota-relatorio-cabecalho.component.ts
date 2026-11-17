@@ -13,7 +13,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   template: `
     <header class="rel-cabecalho" aria-label="Cabeçalho institucional">
       <div class="rel-cabecalho__centro">
-        <p class="rel-cabecalho__empresa">NEXO Construções LTDA</p>
+        <p class="rel-cabecalho__empresa">GEO</p>
         <p class="rel-cabecalho__area">Gestão de Frota · {{ area() }}</p>
         <p class="rel-cabecalho__cliente">Serviços prestados à distribuidora</p>
       </div>

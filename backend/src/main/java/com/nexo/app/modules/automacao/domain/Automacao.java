@@ -51,7 +51,7 @@ public class Automacao extends BaseEntity {
     @Column(name = "origem", nullable = false, length = 30, updatable = false)
     private OrigemAutomacao origem;
 
-    /** Em nome de quem a automação lê dados e pede análises ao Copiloto. */
+    /** Em nome de quem a automação lê dados e pede análises à Bússola. */
     @Column(name = "id_dono", nullable = false)
     private UUID idDono;
 

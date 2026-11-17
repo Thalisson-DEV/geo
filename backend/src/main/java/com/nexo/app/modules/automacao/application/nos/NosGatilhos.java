@@ -30,7 +30,7 @@ import com.nexo.app.modules.notificacao.NotificacaoApi;
 /**
  * Gatilhos: o que começa uma execução e a saída que ele congela para os passos.
  *
- * <p>Os gatilhos de evento são gerados do catálogo de gatilhos do Nexo — um por fato
+ * <p>Os gatilhos de evento são gerados do catálogo de gatilhos do GEO — um por fato
  * ("Desconto validado", "Chamado aberto"…). Além das variáveis do evento, a saída traz as
  * <b>entidades por trás dos ids</b>: o colaborador do desconto com base, função e
  * usuário; cada papel do evento (solicitante, responsável…) como pessoa. É isso que
@@ -172,7 +172,7 @@ public class NosGatilhos implements ProvedorNos {
         saidas.add(EspecSaida.objeto("executado_por", "Quem executou", Pessoa.CAMPOS));
         saidas.addAll(SAIDAS_DATA);
         return EspecNo.de("trigger.manual", "trigger", "Executar manualmente",
-                        "Roda quando alguém clica em Executar no Nexo ou pede ao Copiloto. Pode pedir informações antes.", "play")
+                        "Roda quando alguém clica em Executar no GEO ou pede à Bússola. Pode pedir informações antes.", "play")
                 .gatilho()
                 .params(EspecParam.de("inputs", "Informações pedidas ao executar", "fields").padrao(List.of()).estatico()
                         .campos(EspecCampo.texto("name", "Nome (sem espaço)", "base"),

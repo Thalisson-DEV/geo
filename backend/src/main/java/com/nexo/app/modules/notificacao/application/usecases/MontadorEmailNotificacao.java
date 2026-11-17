@@ -35,14 +35,14 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Traduz uma notificação já gravada na mensagem de e-mail correspondente.
  *
- * <p>É aqui que a notificação vira as mesmas peças que todo e-mail do Nexo tem: a
+ * <p>É aqui que a notificação vira as mesmas peças que todo e-mail do GEO tem: a
  * categoria vira etiqueta, a prioridade vira cor, o corpo vira parágrafos, o contexto
  * do gatilho vira a ficha de dados e o deeplink vira o botão. Nenhum módulo escolhe
  * como seu e-mail se parece — o layout é um só, e o que varia é o que preenche cada
  * campo.</p>
  *
  * <p>Os anexos são resolvidos agora, e não quando o evento foi publicado: em vários
- * fluxos do Nexo o registro nasce numa chamada e os arquivos sobem na seguinte.</p>
+ * fluxos do GEO o registro nasce numa chamada e os arquivos sobem na seguinte.</p>
  */
 @Component
 @RequiredArgsConstructor
@@ -53,7 +53,7 @@ public class MontadorEmailNotificacao {
     private static final Set<String> CHAVES_TECNICAS = Set.of("limiar", "link");
 
     /** Identifica o sistema na listagem da caixa e permite regra de pasta no Outlook. */
-    private static final String PREFIXO_ASSUNTO = "[Nexo]";
+    private static final String PREFIXO_ASSUNTO = "[GEO]";
 
     private final EmailProperties propriedades;
     private final MontadorEmailHtml montadorHtml;

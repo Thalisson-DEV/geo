@@ -50,7 +50,7 @@ export interface FonteImportacao {
 }
 
 /**
- * Importação de planilha das telas de Obras no padrão de importação do Nexo (`ces-import-drawer`):
+ * Importação de planilha das telas de Obras no padrão de importação do GEO (`ces-import-drawer`):
  * parâmetros (ex.: contrato) → modelo e arquivo → pré-visualização validada no servidor, com correção por
  * linha e filtro das linhas com erro → processar. As linhas válidas são processadas em segundo plano.
  */

@@ -301,7 +301,7 @@ interface Prazo {
                     <ces-status [tone]="s.situacao === 'PENDENTE' ? 'warning' : s.situacao === 'CONFIRMADA' ? 'success' : 'neutral'">{{ s.situacaoRotulo }}</ces-status>
                   </div>
                   @if (s.situacao === 'PENDENTE') {
-                    <p class="dd-aviso__mensagem">O Assistente leu um preço diferente do cadastrado. Confira o cupom: ao confirmar, o novo preço vale a partir do dia do cupom.</p>
+                    <p class="dd-aviso__mensagem">A Bússola leu um preço diferente do cadastrado. Confira o cupom: ao confirmar, o novo preço vale a partir do dia do cupom.</p>
                     <div class="dd-aviso__acoes">
                       <ces-button size="sm" icon="pi pi-check" label="Atualizar o preço do posto" [loading]="salvando()" (pressed)="decidirPreco(s, true)"></ces-button>
                       <ces-button variant="ghost" size="sm" icon="pi pi-times" label="Manter o atual" (pressed)="decidirPreco(s, false)"></ces-button>
@@ -381,7 +381,7 @@ interface Prazo {
             <ces-button variant="outline" icon="pi pi-file" label="Relatório" (pressed)="abrirRelatorio(d.id)"></ces-button>
           }
           @if (detalhe() && assistente()) {
-            <ces-icon-button icon="pi pi-sparkles" label="Analisar este abastecimento com o Assistente" tooltip="Analisar com o Assistente" (pressed)="analisarComAssistente()"></ces-icon-button>
+            <ces-icon-button icon="pi pi-compass" label="Analisar este abastecimento com a Bússola" tooltip="Analisar com a Bússola" (pressed)="analisarComAssistente()"></ces-icon-button>
           }
         </span>
         <span class="dd-linha-botoes">
@@ -436,7 +436,7 @@ interface Prazo {
             }
             @case ('cancelar') {
               @if (d.situacao === 'LIBERADA') {
-                <ces-callout tone="warning" [dense]="true">O posto já pode ter sido avisado. Ao cancelar, o C.E.S prepara a mensagem de cancelamento para o posto.</ces-callout>
+                <ces-callout tone="warning" [dense]="true">O posto já pode ter sido avisado. Ao cancelar, o GEO prepara a mensagem de cancelamento para o posto.</ces-callout>
               }
               <ces-textarea label="Motivo" [required]="d.situacao === 'LIBERADA'" [showOptional]="d.situacao !== 'LIBERADA'" [(value)]="motivo" [rows]="3" [maxlength]="500"
                 placeholder="Ex.: Veículo quebrou antes de chegar ao posto."
@@ -458,7 +458,7 @@ interface Prazo {
                 }
               </ces-form-section>
               <ces-callout tone="info" [dense]="true" icon="pi pi-whatsapp">
-                Depois de liberar, o C.E.S mostra a mensagem pronta para avisar o posto no WhatsApp. Vale até as 23h59 de hoje.
+                Depois de liberar, o GEO mostra a mensagem pronta para avisar o posto no WhatsApp. Vale até as 23h59 de hoje.
               </ces-callout>
             }
           }
@@ -560,7 +560,7 @@ export class FrotaAbastecimentoDetalheDrawerComponent {
     const n = d?.alertas.length ?? 0;
     const decidindo = d?.podeAprovar || d?.podeLiberar;
     if (decidindo) return n === 1 ? 'Confira antes de decidir' : `${n} pontos para conferir antes de decidir`;
-    return n === 1 ? 'Ponto apontado pelo C.E.S' : `${n} pontos apontados pelo C.E.S`;
+    return n === 1 ? 'Ponto apontado pelo GEO' : `${n} pontos apontados pelo GEO`;
   });
   protected readonly entregue = computed(() => this.detalhe()?.situacao === 'REALIZADA');
   /** Combustível aprovado acima do tanque da ficha: o alerta aparece antes de confirmar. */

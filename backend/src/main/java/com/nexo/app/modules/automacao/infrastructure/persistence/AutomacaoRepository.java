@@ -26,7 +26,7 @@ public interface AutomacaoRepository extends JpaRepository<Automacao, UUID>, Jpa
 
     boolean existsByNomeIgnoreCaseAndAtivoTrue(String nome);
 
-    /** Inclui as apagadas: o que o Nexo cria uma vez não volta depois de removido. */
+    /** Inclui as apagadas: o que o GEO cria uma vez não volta depois de removido. */
     boolean existsByNome(String nome);
 
     List<Automacao> findByNomeAndAtivoTrue(String nome);

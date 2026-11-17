@@ -16,7 +16,7 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * Propostas de navegacao (somente botoes): o agente leva o usuario a tela certa do Nexo, sem executar escrita.
+ * Propostas de navegacao (somente botoes): o agente leva o usuario a tela certa do GEO, sem executar escrita.
  * Reaproveita o catalogo/validador de navegacao existente.
  */
 @Configuration(proxyBeanMethods = false)
@@ -24,8 +24,8 @@ public class NavegacaoTools {
 
     @Bean
     AgentTool listarAcoesNavegacaoTool(NavigationActionCatalog catalog, ResultFormatter formatter) {
-        return new BaseTool("listar_acoes_navegacao", "Listar telas do Nexo",
-                "Lista destinos de navegacao do Nexo autorizados ao usuario (abrir, cadastrar, lancar, acompanhar algo). "
+        return new BaseTool("listar_acoes_navegacao", "Listar telas do GEO",
+                "Lista destinos de navegacao do GEO autorizados ao usuario (abrir, cadastrar, lancar, acompanhar algo). "
                         + "Nao use para perguntas analiticas.",
                 JsonSchemas.object().build(), ToolKind.NAVIGATION, Set.of(), Duration.ofSeconds(10)) {
             @Override
@@ -35,7 +35,7 @@ public class NavegacaoTools {
 
             @Override
             public String progressLabel(JsonNode arguments) {
-                return "Procurando a tela certa no Nexo";
+                return "Procurando a tela certa no GEO";
             }
 
             @Override
@@ -58,7 +58,7 @@ public class NavegacaoTools {
     @Bean
     AgentTool proporAcaoNavegacaoTool(NavigationActionResolver resolver, ObjectMapper objectMapper) {
         return new BaseTool("propor_acao_navegacao", "Oferecer atalho de tela",
-                "Oferece ao usuario um botao para abrir uma tela do Nexo usando somente chaveDestino e parametros "
+                "Oferece ao usuario um botao para abrir uma tela do GEO usando somente chaveDestino e parametros "
                         + "retornados por listar_acoes_navegacao. Nao executa nenhuma operacao; nunca envie URL.",
                 JsonSchemas.object()
                         .required("chaveDestino", JsonSchemas.string(null))
@@ -67,7 +67,7 @@ public class NavegacaoTools {
                 ToolKind.NAVIGATION, Set.of(), Duration.ofSeconds(10)) {
             @Override
             public String progressLabel(JsonNode arguments) {
-                return "Preparando atalho para o Nexo";
+                return "Preparando atalho para o GEO";
             }
 
             @Override

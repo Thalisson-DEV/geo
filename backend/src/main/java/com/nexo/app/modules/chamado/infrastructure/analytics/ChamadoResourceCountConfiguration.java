@@ -15,7 +15,7 @@ class ChamadoResourceCountConfiguration {
     @Bean
     SemanticResourceCountProvider chamadoResourceCountProvider(EntityManager entityManager) {
         return new JpaSemanticResourceCountProvider(entityManager, List.of(
-                new ResourceDefinition("chamados", "Chamados", "Chamados registrados no Nexo.",
+                new ResourceDefinition("chamados", "Chamados", "Chamados registrados no GEO.",
                         "chamado:read", "select count(c.id) from Chamado c")));
     }
 }

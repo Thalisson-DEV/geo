@@ -24,7 +24,7 @@ import { PagedResponse } from '../models/shared.models';
 
 /**
  * Motor de automações (`/v1/automacoes`): cadastro com versões, verificação, execução,
- * histórico, aprovações e o rascunho feito pelo Copiloto. Tela administrativa e online:
+ * histórico, aprovações e o rascunho feito pela Bússola. Tela administrativa e online:
  * não passa pela fila offline.
  */
 @Injectable({ providedIn: 'root' })

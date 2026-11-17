@@ -18,9 +18,9 @@ const LARGURA_MINIMA = 340;
 const LARGURA_MAXIMA = 720;
 
 /**
- * Área de um dashboard com Copiloto contextual. Não altera o dashboard: projeta o conteúdo existente
+ * Área de um dashboard com Bússola contextual. Não altera o dashboard: projeta o conteúdo existente
  * numa região rolável (com o mesmo espaçamento do shell da aplicação) e acrescenta o painel lateral do
- * Copiloto. O gatilho (`app-copiloto-gatilho`) fica no cabeçalho do próprio dashboard.
+ * Bússola. O gatilho (`app-copiloto-gatilho`) fica no cabeçalho do próprio dashboard.
  *
  * - Telas largas (≥ 1280px): painel lado a lado, redimensionável pela borda (mouse ou setas do teclado).
  *   A região do dashboard é um container `copiloto-area`, usado pelos grids para se reorganizar.
@@ -53,7 +53,7 @@ const LARGURA_MAXIMA = 720;
           id="copiloto-painel-contextual"
           class="area__painel"
           [class.area__painel--aberto]="aberto()"
-          aria-label="Copiloto"
+          aria-label="Bússola"
           [attr.aria-hidden]="!aberto()"
           [attr.inert]="aberto() ? null : ''"
           [attr.role]="modo() === 'sobreposto' ? 'dialog' : 'complementary'"
@@ -66,7 +66,7 @@ const LARGURA_MAXIMA = 720;
               role="separator"
               tabindex="0"
               aria-orientation="vertical"
-              aria-label="Redimensionar o painel do Copiloto"
+              aria-label="Redimensionar o painel da Bússola"
               [attr.aria-valuemin]="minimo"
               [attr.aria-valuemax]="maximo"
               [attr.aria-valuenow]="painel.largura()"
@@ -168,7 +168,7 @@ export class CopilotoAreaComponent {
   protected readonly modo = computed<'acoplado' | 'sobreposto'>(() => (this.larga() ? 'acoplado' : 'sobreposto'));
   protected readonly aberto = computed(() => this.disponivel && this.painel.aberto());
   /**
-   * O painel só é criado na primeira abertura (quem nunca abre não chama o Copiloto) e, depois disso,
+   * O painel só é criado na primeira abertura (quem nunca abre não chama a Bússola) e, depois disso,
    * continua montado enquanto o dashboard existir: fechar e reabrir preserva conversa e rascunho.
    */
   protected readonly montado = signal(false);

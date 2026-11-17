@@ -44,7 +44,7 @@ const MODULOS: Record<string, { rotulo: string; icone: string; ordem: number }> 
   financeiro: { rotulo: 'Financeiro', icone: 'pi pi-wallet', ordem: 9 },
   chamado: { rotulo: 'Chamados', icone: 'pi pi-ticket', ordem: 10 },
   notificacao: { rotulo: 'Comunicados e notificações', icone: 'pi pi-megaphone', ordem: 11 },
-  assistente: { rotulo: 'Copiloto (assistente)', icone: 'pi pi-comments', ordem: 12 },
+  assistente: { rotulo: 'Bússola (assistente)', icone: 'pi pi-comments', ordem: 12 },
   sincronizacao: { rotulo: 'Sincronização do aplicativo', icone: 'pi pi-sync', ordem: 13 },
   iam: { rotulo: 'Acessos e usuários', icone: 'pi pi-lock', ordem: 14 }
 };
@@ -119,7 +119,7 @@ const RECURSOS: Record<string, { rotulo: string; descricao?: string }> = {
   'chamado:dashboard': { rotulo: 'Painel de chamados' },
   'notificacao:comunicado': { rotulo: 'Mural de comunicados' },
   'notificacao:regra': { rotulo: 'Regras de notificação' },
-  'assistente:chat': { rotulo: 'Conversar com o Copiloto' },
+  'assistente:chat': { rotulo: 'Conversar com a Bússola' },
   'sincronizacao:': { rotulo: 'Sincronização' },
   'iam:usuario': { rotulo: 'Usuários' },
   'iam:perfil': { rotulo: 'Perfis de acesso' },

@@ -3,7 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { VersaoAppService } from '../../../core/services/versao-app.service';
 
 /**
- * O convite para adotar a versão nova do Nexo.
+ * O convite para adotar a versão nova do GEO.
  *
  * <p><b>Por que um convite, e não um recarregamento automático.</b> Recarregar por conta
  * própria descartaria o formulário que o usuário está preenchendo — e este é justamente o
@@ -16,7 +16,7 @@ import { VersaoAppService } from '../../../core/services/versao-app.service';
  * — daí o respiro extra na base no desktop.</p>
  *
  * <p><b>Sobre o tema escuro:</b> as variantes `dark:` do Tailwind seguem a preferência do
- * sistema operacional, que aqui não é quem manda — o tema do Nexo é o seletor `.app-dark`
+ * sistema operacional, que aqui não é quem manda — o tema do GEO é o seletor `.app-dark`
  * controlado pelo `ThemeService`. Usá-las pintaria o card de escuro sobre uma tela clara.
  * Por isso o escuro vem de regras `.app-dark` explícitas, como no `texto-marcacoes`.</p>
  */
@@ -46,7 +46,7 @@ import { VersaoAppService } from '../../../core/services/versao-app.service';
                 Nova versão disponível
               </h2>
               <p class="texto-atualizacao text-xs leading-relaxed text-slate-500">
-                O Nexo foi atualizado com melhorias e correções. Atualize para continuar com
+                O GEO foi atualizado com melhorias e correções. Atualize para continuar com
                 tudo funcionando.
               </p>
             </div>

@@ -24,7 +24,7 @@ import com.nexo.app.modules.automacao.domain.expressao.Valores;
 import com.nexo.app.shared.domain.exception.BaseBusinessException;
 
 /**
- * Ferramenta do chat: "Copiloto, toda segunda me mande…" vira um rascunho de
+ * Ferramenta do chat: "Bússola, toda segunda me mande…" vira um rascunho de
  * automação, com o botão "Abrir no editor". Nada é ativado pelo chat — quem ativa é a
  * pessoa, no editor, depois de conferir.
  */
@@ -33,8 +33,8 @@ public class FerramentaRascunhoAutomacao extends BaseTool {
 
     public FerramentaRascunhoAutomacao(ObjectProvider<RascunhoAutomacaoService> rascunhos) {
         super("criar_rascunho_automacao", "Montar automação",
-                "Cria (ou ajusta) uma AUTOMACAO do Nexo a partir do pedido do usuario: avisos e e-mails quando algo acontece "
-                        + "(ex.: desconto validado -> avisar o RH da base do colaborador), relatorios agendados com analise do Copiloto, "
+                "Cria (ou ajusta) uma AUTOMACAO do GEO a partir do pedido do usuario: avisos e e-mails quando algo acontece "
+                        + "(ex.: desconto validado -> avisar o RH da base do colaborador), relatorios agendados com analise da Bússola, "
                         + "aprovacoes, rotinas. Use quando o usuario pedir para automatizar, agendar, avisar sempre que, mandar toda semana. "
                         + "A automacao fica salva como RASCUNHO; diga o que foi montado, o que falta informar e que ele pode abrir no editor "
                         + "para conferir e ativar. Para ajustar uma automacao existente, informe automacao_id.",
@@ -46,7 +46,7 @@ public class FerramentaRascunhoAutomacao extends BaseTool {
         this.rascunhos = rascunhos;
     }
 
-    /** Preguiçoso: o rascunho usa o Copiloto, que usa o registro de ferramentas que contém esta. */
+    /** Preguiçoso: o rascunho usa a Bússola, que usa o registro de ferramentas que contém esta. */
     private final ObjectProvider<RascunhoAutomacaoService> rascunhos;
 
     @Override

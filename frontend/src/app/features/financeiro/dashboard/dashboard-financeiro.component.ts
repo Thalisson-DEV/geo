@@ -416,7 +416,7 @@ export class DashboardFinanceiroComponent implements OnInit {
   protected readonly prioridadeOptions = (Object.keys(ROTULO_PRIORIDADE) as GrauPrioridade[])
     .map((value) => ({ label: ROTULO_PRIORIDADE[value], value }));
 
-  /** Contexto do dashboard para o Copiloto: o recorte aplicado e os números em tela. */
+  /** Contexto do dashboard para a Bússola: o recorte aplicado e os números em tela. */
   protected readonly contextoCopiloto = computed(() => this.montarContextoCopiloto());
 
   protected dataInicio: Date | null = null;
@@ -708,11 +708,11 @@ export class DashboardFinanceiroComponent implements OnInit {
   // ------------------------------------------------------------------ //
 
   // ------------------------------------------------------------------ //
-  //  Copiloto contextual
+  //  Bússola contextual
   // ------------------------------------------------------------------ //
 
   /**
-   * Recorte estruturado para o Copiloto: identidade, período, filtros aplicados (com nomes legíveis e
+   * Recorte estruturado para a Bússola: identidade, período, filtros aplicados (com nomes legíveis e
    * ids), KPIs com comparação, agregações visíveis dos gráficos e datasets. Nunca os registros: o
    * agente aprofunda pelas ferramentas, com as permissões do usuário.
    */

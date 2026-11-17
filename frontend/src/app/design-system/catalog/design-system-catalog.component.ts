@@ -60,7 +60,7 @@ import {
         <div class="ces-catalog__identity">
           <span class="ces-catalog__mark" aria-hidden="true"><i class="pi pi-bolt"></i></span>
           <div>
-            <strong>Nexo UI</strong>
+            <strong>GEO UI</strong>
             <span>Contrato visual</span>
           </div>
         </div>
@@ -84,7 +84,7 @@ import {
       <main class="ces-catalog__content">
         <header class="ces-catalog__header">
           <div>
-            <span class="ces-catalog__eyebrow">Design System Nexo</span>
+            <span class="ces-catalog__eyebrow">Design System GEO</span>
             <h1>Uma linguagem única para trabalho de campo e backoffice.</h1>
             <p>
               Componentes source-owned sobre PrimeNG, com densidade compacta, estados offline

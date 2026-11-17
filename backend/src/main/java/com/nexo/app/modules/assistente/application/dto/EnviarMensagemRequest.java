@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Pergunta enviada ao Copiloto.
+ * Pergunta enviada à Bússola.
  *
  * @param clientMessageId identificador gerado pelo cliente (idempotencia: reenvios nao duplicam respostas)
  * @param conteudo        texto da pergunta

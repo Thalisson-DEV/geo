@@ -6,7 +6,7 @@ export const designSystemCatalogRoutes: Routes = [
     data: { fullscreen: true },
     loadComponent: () =>
       import('./design-system-catalog.component').then((m) => m.DesignSystemCatalogComponent),
-    title: 'Design System Nexo'
+    title: 'Design System GEO'
   },
   {
     path: '__design-system/analitico',
@@ -15,6 +15,6 @@ export const designSystemCatalogRoutes: Routes = [
       import('./design-system-catalog-analytics.component').then(
         (m) => m.DesignSystemCatalogAnalyticsComponent
       ),
-    title: 'Design System Nexo · Analítico'
+    title: 'Design System GEO · Analítico'
   }
 ];

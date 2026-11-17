@@ -58,7 +58,7 @@ public class CalculoAnalisesFrota {
     static final Duration TOLERANCIA_POSICAO = Duration.ofMinutes(15);
     /** Base sem raio cadastrado: o veículo está "na base" a até esta distância das coordenadas. */
     static final int RAIO_BASE_PADRAO_METROS = 300;
-    /** Amostras paradas necessárias para o C.E.S confiar no lugar aprendido de um posto. */
+    /** Amostras paradas necessárias para o GEO confiar no lugar aprendido de um posto. */
     static final int AMOSTRAS_MINIMAS_POSTO = 3;
     /**
      * Nota lançada a mais que isto do veículo do turno, no mesmo instante, é nota fora do local. A

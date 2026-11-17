@@ -200,7 +200,7 @@ const excludedEntries = [
     entrypoint,
     disposition: 'excluded',
     rationale:
-      'PrimeNG component-implementation base class; extending it would make Nexo contracts depend on framework internals rather than the supported component API.'
+      'PrimeNG component-implementation base class; extending it would make GEO contracts depend on framework internals rather than the supported component API.'
   })),
   {
     entrypoint: 'primeng/icons/baseicon',
@@ -212,7 +212,7 @@ const excludedEntries = [
     entrypoint: 'primeng/icons/filterfill',
     disposition: 'excluded',
     rationale:
-      'Secondary table icon leaf omitted from the public primeng/icons barrel; avoid treating this implementation-facing export as a Nexo feature contract.'
+      'Secondary table icon leaf omitted from the public primeng/icons barrel; avoid treating this implementation-facing export as a GEO feature contract.'
   },
   {
     entrypoint: 'primeng/ts-helpers',
@@ -224,7 +224,7 @@ const excludedEntries = [
     entrypoint: 'primeng/usestyle',
     disposition: 'excluded',
     rationale:
-      'PrimeNG internal style-injection and theme-loader machinery; Nexo styling is governed by the central preset, tokens, and adapters.'
+      'PrimeNG internal style-injection and theme-loader machinery; GEO styling is governed by the central preset, tokens, and adapters.'
   }
 ];
 
@@ -243,17 +243,17 @@ export const primengCoverageRegistry = Object.freeze({
     Object.freeze([
       ...defineEntries(
         'wrapper',
-        'Interactive form control; expose a Nexo wrapper to standardize labels, validation, sizing, accessibility, and value semantics.',
+        'Interactive form control; expose a GEO wrapper to standardize labels, validation, sizing, accessibility, and value semantics.',
         wrapperEntrypoints
       ),
       ...defineEntries(
         'pattern',
-        'Composite layout or data-display primitive; standardize composition and responsive behavior as a reusable Nexo pattern.',
+        'Composite layout or data-display primitive; standardize composition and responsive behavior as a reusable GEO pattern.',
         patternEntrypoints
       ),
       ...defineEntries(
         'styled-direct',
-        'Use the PrimeNG public entrypoint directly with the Nexo preset, tokens, and documented adapter classes; no wrapper contract is required by default.',
+        'Use the PrimeNG public entrypoint directly with the GEO preset, tokens, and documented adapter classes; no wrapper contract is required by default.',
         styledDirectEntrypoints
       ),
       ...defineEntries(

@@ -447,7 +447,7 @@ export class SolicitacoesMaterialComponent {
   protected readonly contagemTotal = computed(() => this.somar(ORDEM_STATUS));
   protected readonly contagemAbertas = computed(() => this.somar(STATUS_EM_ABERTO));
 
-  /** O que o Copiloto recebe: o recorte em tela e a contagem de cada status. */
+  /** O que a Bússola recebe: o recorte em tela e a contagem de cada status. */
   protected readonly contextoCopiloto = computed<CopilotoDashboardContext | null>(() => {
     const f = this.lista.applied();
     const c = this.contagens();
@@ -653,19 +653,19 @@ export class SolicitacoesMaterialComponent {
   /** Detalhe rápido em painel lateral, igual nas três visualizações. */
   protected abrirDetalhe(solicitacao: { id: string } | null | undefined, aba: AbaDetalheComercial = 'itens'): void {
     if (!solicitacao?.id) return;
-    // Abaixo de 1280px o Copiloto sobrepõe a tela: não deixa os dois painéis empilhados.
+    // Abaixo de 1280px a Bússola sobrepõe a tela: não deixa os dois painéis empilhados.
     if (typeof matchMedia === 'function' && !matchMedia('(min-width: 1280px)').matches) this.copiloto.fechar();
     this.detalheId.set(solicitacao.id);
     this.detalheAba.set(aba);
     this.detalheAberto.set(true);
   }
 
-  /** "Analisar" de uma coluna do quadro: abre o Copiloto ao lado, com o recorte da tela. */
+  /** "Analisar" de uma coluna do quadro: abre a Bússola ao lado, com o recorte da tela. */
   protected analisarEtapa(etapa: { id: string; titulo: string; pergunta: string }): void {
     this.copiloto.perguntarSobre({ tipo: 'secao', id: `quadro.${etapa.id}`, rotulo: `Etapa ${etapa.titulo}` }, etapa.pergunta);
   }
 
-  /** "Analisar" do detalhe: fecha o painel da solicitação e abre o Copiloto sobre ela. */
+  /** "Analisar" do detalhe: fecha o painel da solicitação e abre a Bússola sobre ela. */
   protected analisarSolicitacao(pedido: { id: string; rotulo: string; pergunta: string }): void {
     this.detalheAberto.set(false);
     this.copiloto.perguntarSobre({ tipo: 'secao', id: `solicitacao.${pedido.id}`, rotulo: pedido.rotulo }, pedido.pergunta);

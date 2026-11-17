@@ -31,7 +31,7 @@ import java.util.function.BooleanSupplier;
  * {@code onyx/tools/tool_implementations/python/code_interpreter_client.py}. Mesmo contrato HTTP:
  * {@code GET /health}, {@code POST /v1/files}, {@code GET|DELETE /v1/files/{id}},
  * {@code POST /v1/execute} e {@code POST /v1/execute/stream} (SSE: output/result/error).
- * O sandbox nao tem acesso a rede, ao banco, a segredos nem ao sistema de arquivos do Nexo.
+ * O sandbox nao tem acesso a rede, ao banco, a segredos nem ao sistema de arquivos do GEO.
  */
 @Component
 public class CodeInterpreterClient {

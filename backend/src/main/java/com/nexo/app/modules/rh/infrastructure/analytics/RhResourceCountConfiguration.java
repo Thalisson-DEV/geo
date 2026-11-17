@@ -31,7 +31,7 @@ class RhResourceCountConfiguration {
                         "rh:tipo-equipe:read", "select count(t.id) from TipoEquipe t"),
                 resource("processos_negocio", "Processos de negocio", "Processos de negocio cadastrados.",
                         "rh:processo-negocio:read", "select count(p.id) from ProcessoNegocio p"),
-                resource("municipios", "Municipios", "Municipios cadastrados no Nexo.",
+                resource("municipios", "Municipios", "Municipios cadastrados no GEO.",
                         "rh:municipio:read", "select count(m.id) from Municipio m"),
                 resource("centros_faturamento", "Centros de faturamento", "Centros de faturamento cadastrados.",
                         "rh:centro-faturamento:read", "select count(c.id) from CentroFaturamento c")));

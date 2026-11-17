@@ -1,5 +1,5 @@
 @if (etapas().length || emAndamento()) {
-  <section class="etapas" [class.etapas--andamento]="emAndamento()" aria-label="Etapas do trabalho do Copiloto">
+  <section class="etapas" [class.etapas--andamento]="emAndamento()" aria-label="Etapas do trabalho da Bússola">
     <button
       type="button"
       class="etapas__cabecalho"
@@ -165,7 +165,7 @@
         }
         @if (emAndamento() && !atual()) {
           <li class="etapa etapa--pensando">
-            <span class="etapa__marcador" aria-hidden="true"><i class="pi pi-sparkles"></i></span>
+            <span class="etapa__marcador" aria-hidden="true"><i class="pi pi-compass"></i></span>
             <span class="etapa__rotulo">Analisando e decidindo o próximo passo…</span>
           </li>
         }

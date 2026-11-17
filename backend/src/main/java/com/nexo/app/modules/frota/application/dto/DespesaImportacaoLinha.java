@@ -1,7 +1,7 @@
 package com.nexo.app.modules.frota.application.dto;
 
 /**
- * Linha da planilha de despesas (modelo C.E.S), como foi lida, com a situação da conferência.
+ * Linha da planilha de despesas (modelo GEO), como foi lida, com a situação da conferência.
  *
  * @param acao o que a linha vai fazer: nova despesa ou atualização da já importada
  */

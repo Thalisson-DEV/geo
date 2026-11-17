@@ -85,7 +85,7 @@ import { atualizarPeriodicamente } from '../../../shared/components/dashboard/at
 type DistributionDimension = 'processos' | 'processosInspetor' | 'tiposInspecao' | 'bases' | 'formularios';
 type SerieModo = 'periodo' | 'acumulado';
 
-/** Id estável da tabela de inspetores no contexto do Copiloto (alvo de `APPLY_FILTER`). */
+/** Id estável da tabela de inspetores no contexto da Bússola (alvo de `APPLY_FILTER`). */
 const TABELA_INSPETORES = 'sst.inspecoes#porInspetor';
 
 /** Quantos inspetores entram no comparativo realizado × meta antes de virar ruído. */
@@ -182,7 +182,7 @@ export class DashboardInspecoesComponent implements OnInit {
     effect(() => {
       if (this.analise.alvo() && this.data() && !this.loading() && !this.vistaAnalise()) this.analise.fechar();
     });
-    // "Aplicar filtro" confirmado numa resposta do Copiloto para a tabela de inspetores.
+    // "Aplicar filtro" confirmado numa resposta da Bússola para a tabela de inspetores.
     effect(() => {
       const pedido = this.copiloto.pedidoFiltro();
       if (!pedido || pedido.alvo !== TABELA_INSPETORES) return;
@@ -371,12 +371,12 @@ export class DashboardInspecoesComponent implements OnInit {
   protected readonly linhasInspetores = computed(() =>
     (this.data()?.porInspetor ?? []).map((item, indice) => ({ ...item, posicao: indice + 1 }))
   );
-  /** Filtros da tabela de inspetores (chips) — do usuário ou sugeridos pelo Copiloto e confirmados. */
+  /** Filtros da tabela de inspetores (chips) — do usuário ou sugeridos pela Bússola e confirmados. */
   protected readonly filtrosInspetores = signal<CesColumnFilter[]>([]);
   protected readonly chaveInspetor = (item: InspetorMetaItem) => item.idInspetor;
   protected readonly rotuloInspetor = (item: InspetorMetaItem) => this.nomeOuPlaceholder(item.nomeInspetor);
 
-  /** Contexto do dashboard para o Copiloto: o recorte aplicado e os números em tela. */
+  /** Contexto do dashboard para a Bússola: o recorte aplicado e os números em tela. */
   protected readonly contextoCopiloto = computed(() => this.montarContextoCopiloto());
 
   protected dataInicio: Date | null = null;
@@ -508,7 +508,7 @@ export class DashboardInspecoesComponent implements OnInit {
     this.analise.aprofundar(alvo, this.vistaAnalise()?.titulo ?? '');
   }
 
-  /** "Analisar com o Copiloto" de dentro da análise: fecha o painel e pergunta com o recorte explícito. */
+  /** "Analisar com a Bússola" de dentro da análise: fecha o painel e pergunta com o recorte explícito. */
   protected perguntarAnalise(vista: VistaAnalise): void {
     if (!vista.copiloto) return;
     this.analise.fechar();
@@ -568,7 +568,7 @@ export class DashboardInspecoesComponent implements OnInit {
   }
 
   /**
-   * Recorte estruturado para o Copiloto: período, filtros aplicados, KPIs (com a ressalva de meta não
+   * Recorte estruturado para a Bússola: período, filtros aplicados, KPIs (com a ressalva de meta não
    * comparável quando for o caso), agregações exibidas e datasets. Nunca os registros individuais.
    */
   private montarContextoCopiloto(): CopilotoDashboardContext | null {
@@ -709,7 +709,7 @@ export class DashboardInspecoesComponent implements OnInit {
     this.showExportDialog = true;
   }
 
-  /** PDF executivo: o Copiloto gera o relatório com os dados reais do recorte (capacidade "relatório"). */
+  /** PDF executivo: a Bússola gera o relatório com os dados reais do recorte (capacidade "relatório"). */
   protected relatorioComCopiloto(): void {
     this.showExportDialog = false;
     this.copiloto.perguntarSobre(

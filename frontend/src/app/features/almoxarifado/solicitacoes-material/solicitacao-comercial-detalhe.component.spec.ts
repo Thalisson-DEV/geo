@@ -287,7 +287,7 @@ describe('SolicitacaoComercialDetalheComponent', () => {
     );
   });
 
-  it('"Analisar" pede o Copiloto com o contexto da solicitação', async () => {
+  it('"Analisar" pede a Bússola com o contexto da solicitação', async () => {
     const { tela, fixture } = await abrir(detalhe());
     const analisar = vi.fn();
     fixture.componentInstance.analisar.subscribe(analisar);

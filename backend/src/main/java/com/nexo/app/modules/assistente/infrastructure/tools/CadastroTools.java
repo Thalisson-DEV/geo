@@ -35,7 +35,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
- * Cadastros pelo Copiloto. No chat, o modelo descobre o que pode cadastrar ({@code cadastros_disponiveis}), le
+ * Cadastros pela Bússola. No chat, o modelo descobre o que pode cadastrar ({@code cadastros_disponiveis}), le
  * os campos ({@code formulario_cadastro}) e pede o cadastro ({@code cadastrar}), que vira um cartao de
  * confirmacao editavel: nada e gravado sem o usuario confirmar. Cada operacao tambem existe como ferramenta
  * propria ({@code cadastrar_colaborador}, {@code editar_equipe}...) para integracoes que expoem o registro de
@@ -49,8 +49,8 @@ public class CadastroTools {
     @Bean
     AgentTool cadastrosDisponiveisTool(ServicoCadastros servico, ObjectMapper mapper) {
         return new BaseTool("cadastros_disponiveis", "Ver o que posso cadastrar",
-                "Lista o que o Copiloto pode cadastrar ou editar para este usuario, por modulo, com os campos obrigatorios. "
-                        + "Use quando o usuario pedir para cadastrar, criar, abrir, lancar, registrar ou editar algo no Nexo "
+                "Lista o que a Bússola pode cadastrar ou editar para este usuario, por modulo, com os campos obrigatorios. "
+                        + "Use quando o usuario pedir para cadastrar, criar, abrir, lancar, registrar ou editar algo no GEO "
                         + "e voce nao souber a 'operacao' exata. Filtre com 'busca' (ex.: 'colaborador', 'compra', 'desconto').",
                 JsonSchemas.object().prop("busca", JsonSchemas.string("Palavra para filtrar (opcional)")).build(),
                 ToolKind.CATALOG, Set.of(), Duration.ofSeconds(10)) {
@@ -137,7 +137,7 @@ public class CadastroTools {
     @Bean
     AgentTool localizarCadastroTool(ServicoCadastros servico, ObjectMapper mapper) {
         return new BaseTool("localizar_cadastro", "Localizar cadastro",
-                "Procura registros de um cadastro do Nexo pelo nome (colaborador, equipe, funcao, base, material, fornecedor...) "
+                "Procura registros de um cadastro do GEO pelo nome (colaborador, equipe, funcao, base, material, fornecedor...) "
                         + "e devolve as opcoes com id. Use para confirmar com o usuario qual registro ele quis dizer, ou para achar "
                         + "o registro a editar. Para cadastrar nao e preciso: cadastrar ja localiza os nomes sozinho.",
                 JsonSchemas.object()
@@ -182,8 +182,8 @@ public class CadastroTools {
 
     @Bean
     AgentTool cadastrarTool(ServicoCadastros servico) {
-        return new FerramentaCadastro("cadastrar", "Cadastrar no Nexo",
-                "Cadastra ou edita registros no Nexo: pessoas, equipes, usuarios, solicitacoes de material, compras e pagamentos, "
+        return new FerramentaCadastro("cadastrar", "Cadastrar no GEO",
+                "Cadastra ou edita registros no GEO: pessoas, equipes, usuarios, solicitacoes de material, compras e pagamentos, "
                         + "fornecedores, descontos, chamados, SST, estoque, obras, contratos e demais cadastros de cadastros_disponiveis. "
                         + "NUNCA grava direto: abre para o usuario um cartao de confirmacao editavel com os dados e as pendencias; so "
                         + "grava quando ele confirmar no cartao. Preencha somente o que o usuario disse ou o que esta nos arquivos dele; "
@@ -207,7 +207,7 @@ public class CadastroTools {
                 .map(op -> (AgentTool) new FerramentaCadastro(
                         op.modo() == OperacaoCadastro.Modo.CRIAR ? "cadastrar_" + op.id() : op.chave(),
                         op.titulo(),
-                        op.descricao() + " Grava pelos casos de uso do Nexo, com as mesmas validacoes e permissoes da tela. "
+                        op.descricao() + " Grava pelos casos de uso do GEO, com as mesmas validacoes e permissoes da tela. "
                                 + "Cadastros relacionados vao pelo nome.",
                         servico.schema(op), servico, op))
                 .toList();

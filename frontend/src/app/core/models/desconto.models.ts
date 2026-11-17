@@ -119,7 +119,7 @@ export interface DescontoAnexoResponse {
   url: string;
   contentType?: string;
   tamanhoBytes?: number;
-  /** Termo impresso pelo C.E.S e assinado pelo colaborador: o que finaliza o desconto. */
+  /** Termo impresso pelo GEO e assinado pelo colaborador: o que finaliza o desconto. */
   termoAssinado?: boolean;
 }
 

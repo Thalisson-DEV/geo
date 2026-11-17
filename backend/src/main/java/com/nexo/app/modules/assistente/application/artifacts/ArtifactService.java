@@ -17,7 +17,7 @@ import java.util.*;
 /**
  * Persistencia e leitura de artefatos (a1, a2...). A especificacao gravada ja esta resolvida (dados
  * calculados a partir dos resultados), entao reabrir uma conversa antiga mostra exatamente o mesmo
- * dashboard, grafico ou relatorio, mesmo que os dados do Nexo tenham mudado depois.
+ * dashboard, grafico ou relatorio, mesmo que os dados do GEO tenham mudado depois.
  */
 @Service
 public class ArtifactService {

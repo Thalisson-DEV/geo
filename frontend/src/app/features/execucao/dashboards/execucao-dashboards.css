@@ -3,7 +3,7 @@
  *
  * O cabeçalho, os filtros, as métricas do topo e os painéis vêm do shell compartilhado
  * (shared/styles/dashboard-shell.css). Aqui ficam só as peças das duas telas de
- * execução, todas em tokens semânticos do Nexo para acompanharem o tema escuro.
+ * execução, todas em tokens semânticos do GEO para acompanharem o tema escuro.
  */
 
 :host {

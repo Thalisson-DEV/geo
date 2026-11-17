@@ -29,7 +29,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
- * Anexos e arquivos gerados do Copiloto. O conteudo fica no banco (padrao) ou no object storage do Nexo;
+ * Anexos e arquivos gerados da Bússola. O conteudo fica no banco (padrao) ou no object storage do GEO;
  * a extracao roda no upload para que o agente decida entre ler trechos, buscar ou processar no Python.
  * Todo acesso e restrito ao dono do arquivo.
  */

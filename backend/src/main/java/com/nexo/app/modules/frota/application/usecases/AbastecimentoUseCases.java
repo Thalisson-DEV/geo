@@ -199,7 +199,7 @@ public class AbastecimentoUseCases {
         var placa = placa(a);
         avisos.save(new AvisoPostoAbastecimento(a.getId(), AvisoPostoAbastecimento.Motivo.LIBERACAO, a.getPosto().getWhatsapp(),
                 "Abastecimento liberado nº " + numero(a) + ": placa " + placa + ", condutor " + condutor(a) + ". "
-                        + mapper.resumoItens(a) + ". Vale até hoje às 23h59. NEXO"));
+                        + mapper.resumoItens(a) + ". Vale até hoje às 23h59. GEO"));
         avisarSolicitante(a, "liberado", "Pode abastecer no " + a.getPosto().getNome() + " até as 23h59 de hoje.");
         return detalhe(a);
     }
@@ -213,7 +213,7 @@ public class AbastecimentoUseCases {
         repository.save(a);
         if (jaAvisado) {
             avisos.save(new AvisoPostoAbastecimento(a.getId(), AvisoPostoAbastecimento.Motivo.CANCELAMENTO, a.getPosto().getWhatsapp(),
-                    "Abastecimento nº " + numero(a) + " da placa " + placa(a) + " foi CANCELADO. Não abastecer. NEXO"));
+                    "Abastecimento nº " + numero(a) + " da placa " + placa(a) + " foi CANCELADO. Não abastecer. GEO"));
         }
         avisarSolicitante(a, "cancelado", a.getMotivoCancelamento() == null ? "Cancelado pelo administrativo." : "Motivo: " + a.getMotivoCancelamento());
         return detalhe(a);
@@ -237,7 +237,7 @@ public class AbastecimentoUseCases {
             vencidos++;
             if (liberado) {
                 avisos.save(new AvisoPostoAbastecimento(a.getId(), AvisoPostoAbastecimento.Motivo.CANCELAMENTO, a.getPosto().getWhatsapp(),
-                        "Abastecimento nº " + numero(a) + " da placa " + placa(a) + " venceu sem uso. Não abastecer. NEXO"));
+                        "Abastecimento nº " + numero(a) + " da placa " + placa(a) + " venceu sem uso. Não abastecer. GEO"));
             }
             avisarSolicitante(a, "vencido", "Não foi usado até o fim do dia. Se ainda precisar, peça de novo.");
         }
@@ -259,7 +259,7 @@ public class AbastecimentoUseCases {
     public record PainelAnterior(UUID idAbastecimento, UUID idFoto, OffsetDateTime solicitadoEm) {
     }
 
-    /** Painel do pedido anterior do veículo, para o Assistente comparar com o atual. */
+    /** Painel do pedido anterior do veículo, para a Bússola comparar com o atual. */
     @Transactional(readOnly = true)
     public java.util.Optional<PainelAnterior> painelAnterior(UUID id) {
         var atual = buscar(id);

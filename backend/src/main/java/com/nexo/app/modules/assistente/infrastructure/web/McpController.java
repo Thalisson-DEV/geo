@@ -67,13 +67,13 @@ public class McpController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(json(servidor.erro(null, -32600, "Origem nao permitida.")));
         }
         Optional<AcessoExterno> acesso = acessoAtual();
-        if (acesso.isEmpty()) return naoAutorizado(request, "Conecte o Nexo pela sua conta para continuar.");
+        if (acesso.isEmpty()) return naoAutorizado(request, "Conecte o GEO pela sua conta para continuar.");
         Authentication autenticacao = SecurityContextHolder.getContext().getAuthentication();
         boolean podeConectar = autenticacao.getAuthorities().stream()
                 .anyMatch(a -> ConexaoIaService.PERMISSAO_USAR.equals(a.getAuthority()));
         if (!podeConectar) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(json(servidor.erro(null, -32001,
-                    "O perfil desta pessoa no Nexo nao permite conectar IAs externas. Fale com o administrador.")));
+                    "O perfil desta pessoa no GEO nao permite conectar IAs externas. Fale com o administrador.")));
         }
         if (corpo == null || corpo.isBlank() || corpo.length() > MAX_CORPO) {
             return ResponseEntity.badRequest().body(json(servidor.erro(null, -32600, "Corpo da requisicao vazio ou grande demais.")));

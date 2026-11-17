@@ -497,7 +497,7 @@ public class Interpretador {
             return falhar(no, registro, e.getMessage());
         }
         if (aprovadores.usuarios().isEmpty()) {
-            return falhar(no, registro, "Nenhum aprovador com usuário ativo no Nexo foi encontrado");
+            return falhar(no, registro, "Nenhum aprovador com usuário ativo no GEO foi encontrado");
         }
         double horas = Valores.dbl(entradas.get("expires_after_hours"));
         OffsetDateTime expira = horas > 0 ? relogio.get().plusMinutes(Math.round(horas * 60)) : null;

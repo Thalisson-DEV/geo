@@ -237,7 +237,7 @@ describe('CentralTreinamentoComponent', () => {
     expect(suporte.querySelector('ces-button')?.textContent).toContain('Abrir chamado');
 
     const alternativa = host.querySelector('.suporte__alternativa')!;
-    expect(alternativa.textContent).toContain('Copiloto');
+    expect(alternativa.textContent).toContain('Bússola');
   });
 
   it('deve navegar para a abertura de chamado', async () => {

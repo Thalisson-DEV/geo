@@ -18,7 +18,7 @@ const capacidades: CapacidadesAssistente = {
   limites: { arquivoMaxBytes: 1000, anexosPorMensagem: 2, formatosAceitos: ['pdf'] },
 };
 
-describe('boas-vindas do Copiloto', () => {
+describe('boas-vindas da Bússola', () => {
   it('mostra o catálogo completo com capacidades disponíveis e indisponíveis', async () => {
     await TestBed.configureTestingModule({ imports: [CopilotoBoasVindasComponent] }).compileComponents();
     const fixture = TestBed.createComponent(CopilotoBoasVindasComponent);
@@ -27,14 +27,14 @@ describe('boas-vindas do Copiloto', () => {
 
     const disponiveis = fixture.nativeElement.querySelector('[aria-label="Capacidades disponíveis agora"]') as HTMLElement;
     const indisponiveis = fixture.nativeElement.querySelector('[aria-label="Capacidades indisponíveis nesta sessão"]') as HTMLElement;
-    expect(disponiveis.textContent).toContain('Consultar dados do Nexo');
+    expect(disponiveis.textContent).toContain('Consultar dados do GEO');
     expect(disponiveis.textContent).toContain('Dashboards');
     expect(disponiveis.textContent).toContain('Relatórios PDF');
     expect(disponiveis.textContent).toContain('Leitura de arquivos');
     expect(disponiveis.textContent).toContain('Python');
     expect(indisponiveis.textContent).toContain('Pesquisa web');
     expect(indisponiveis.textContent).toContain('Planilhas');
-    expect(indisponiveis.textContent).toContain('Alterar dados do Nexo');
+    expect(indisponiveis.textContent).toContain('Alterar dados do GEO');
     expect(indisponiveis.textContent).not.toContain('Python');
   });
 
@@ -45,8 +45,8 @@ describe('boas-vindas do Copiloto', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('[aria-label="Capacidades disponíveis agora"]')).toBeNull();
     const indisponiveis = fixture.nativeElement.querySelector('[aria-label="Capacidades indisponíveis nesta sessão"]') as HTMLElement;
-    expect(indisponiveis.textContent).toContain('Consultar dados do Nexo');
+    expect(indisponiveis.textContent).toContain('Consultar dados do GEO');
     expect(indisponiveis.textContent).toContain('Pesquisa web');
-    expect(fixture.nativeElement.textContent).toContain('Copiloto indisponível');
+    expect(fixture.nativeElement.textContent).toContain('Bússola indisponível');
   });
 });

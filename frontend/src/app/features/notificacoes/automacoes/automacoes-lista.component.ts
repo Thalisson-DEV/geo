@@ -27,7 +27,7 @@ interface Filtros {
 const SEM_FILTROS: Filtros = { tipo: null, status: null, origem: null, execucao: null };
 
 const ORIGEM_ROTULO: Record<OrigemAutomacao, string> = {
-  USUARIO: 'Criada na tela', COPILOTO: 'Montada pelo Copiloto', SISTEMA: 'Do sistema', REGRA_CONVERTIDA: 'Convertida de regra'
+  USUARIO: 'Criada na tela', COPILOTO: 'Montada pela Bússola', SISTEMA: 'Do sistema', REGRA_CONVERTIDA: 'Convertida de regra'
 };
 
 const EXECUCAO_FILTRO_ROTULO: Record<FiltroExecucao, string> = { falhou: 'Falhou', sucesso: 'Deu certo', nunca: 'Nunca rodou' };
@@ -50,7 +50,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
   template: `
     <div class="aut aut-page">
       <ces-page-header title="Automações" icon="pi pi-sitemap"
-                       description="Quando algo acontece (ou numa agenda), o Nexo executa os passos: condições, avisos, e-mails, aprovações, consultas e análises do Copiloto.">
+                       description="Quando algo acontece (ou numa agenda), o GEO executa os passos: condições, avisos, e-mails, aprovações, consultas e análises da Bússola.">
         <div actions style="display:flex;gap:0.5rem">
           <ces-button icon="pi pi-plus" label="Nova automação" variant="primary" size="sm" (pressed)="novoAberto.set(true)"></ces-button>
         </div>
@@ -77,7 +77,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
       <ces-data-table title="Automações" storageKey="automacoes-lista" searchPlaceholder="Buscar automação"
                       [columns]="colunas" [rows]="filtradas()" [rowKey]="chave" [state]="estado()" [rowClickable]="true" [filtered]="resumoFiltros().length > 0"
                       noResultsTitle="Nenhuma automação com esse recorte." (clearFilters)="limparFiltros()"
-                      stateTitle="Nenhuma automação aqui" stateDescription="Crie uma em branco, a partir de um modelo, ou peça ao Copiloto."
+                      stateTitle="Nenhuma automação aqui" stateDescription="Crie uma em branco, a partir de um modelo, ou peça à Bússola."
                       emptyActionLabel="Nova automação" (emptyAction)="novoAberto.set(true)" (rowActivate)="abrir($event)">
         <ng-template cesCell="nome" let-row>
           <span class="aut-list-main">
@@ -110,8 +110,8 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
               <span><span class="aut-template-title">Em branco</span><span class="aut-template-desc" style="display:block">Monte passo a passo no canvas.</span></span>
             </button>
             <button type="button" class="aut-template" [attr.aria-pressed]="escolha() === 'pedir'" (click)="escolha.set('pedir')" data-group="ai">
-              <span class="aut-node-icon"><i class="pi pi-sparkles" aria-hidden="true"></i></span>
-              <span><span class="aut-template-title">Pedir ao Copiloto</span><span class="aut-template-desc" style="display:block">Descreva em português e ele monta o rascunho.</span></span>
+              <span class="aut-node-icon"><i class="pi pi-compass" aria-hidden="true"></i></span>
+              <span><span class="aut-template-title">Pedir à Bússola</span><span class="aut-template-desc" style="display:block">Descreva em português e ele monta o rascunho.</span></span>
             </button>
             @for (m of modelos(); track m.id) {
               <button type="button" class="aut-template" [attr.aria-pressed]="escolha() === m.id" (click)="escolherModelo(m)" [attr.data-group]="grupo(m.tipo)">
@@ -129,7 +129,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
       </div>
       <div dialog-footer>
         <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="novoAberto.set(false)"></ces-button>
-        <ces-button [label]="escolha() === 'pedir' ? 'Montar com o Copiloto' : 'Criar e abrir o editor'" variant="primary" size="sm" [disabled]="criando() || (escolha() === 'pedir' ? !pedido().trim() : !nome().trim())" (pressed)="criar()"></ces-button>
+        <ces-button [label]="escolha() === 'pedir' ? 'Montar com a Bússola' : 'Criar e abrir o editor'" variant="primary" size="sm" [disabled]="criando() || (escolha() === 'pedir' ? !pedido().trim() : !nome().trim())" (pressed)="criar()"></ces-button>
       </div>
     </ces-dialog-shell>
   `
@@ -270,7 +270,7 @@ export class AutomacoesListaComponent {
     if (this.escolha() === 'pedir') {
       this.service.rascunho(this.pedido()).subscribe({
         next: (r) => {
-          this.notificacao.success('Rascunho montado pelo Copiloto. Confira e ative.');
+          this.notificacao.success('Rascunho montado pela Bússola. Confira e ative.');
           fim(r.automacaoId);
         },
         error: falha

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  *   <li>varredura lexica (fora de literais e comentarios) contra palavras de escrita/controle,
  *       SELECT INTO, FOR UPDATE e funcoes perigosas ou de sistema;</li>
  *   <li>toda relacao referenciada precisa ser uma view publicada da camada semantica e o usuario precisa
- *       da permissao do Nexo correspondente a cada uma.</li>
+ *       da permissao do GEO correspondente a cada uma.</li>
  * </ol>
  * A execucao ainda ocorre em transacao somente leitura, com timeout, limite de linhas, search_path
  * restrito e role opcional sem privilegios de escrita.

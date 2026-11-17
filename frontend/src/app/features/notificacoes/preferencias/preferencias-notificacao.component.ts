@@ -170,7 +170,7 @@ interface LinhaPreferencia extends PreferenciaNotificacaoResponse {
           <div class="help-text">
             <span class="help-text-title">No sistema</span>
             <span class="help-text-desc">
-              Controla o que chega no sininho e na sua caixa de entrada dentro do Nexo.
+              Controla o que chega no sininho e na sua caixa de entrada dentro do GEO.
             </span>
           </div>
         </div>

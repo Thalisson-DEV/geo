@@ -32,7 +32,7 @@ public interface ConfiguracaoAbastecimentoFrotaControllerDoc {
     ResponseEntity<PrecoPostoResponse> registrarPreco(UUID id, PrecoPostoRequest request);
 
     @Operation(summary = "Sugestões de preço pelo cupom",
-            description = "Preços lidos pelo Assistente nos cupons, diferentes do cadastro do posto, aguardando confirmação.")
+            description = "Preços lidos pela Bússola nos cupons, diferentes do cadastro do posto, aguardando confirmação.")
     ResponseEntity<List<SugestaoPrecoPostoResponse>> listarSugestoesPreco();
 
     @Operation(summary = "Confirmar sugestão de preço", description = "O preço do cupom passa a valer no posto a partir da data do cupom.")

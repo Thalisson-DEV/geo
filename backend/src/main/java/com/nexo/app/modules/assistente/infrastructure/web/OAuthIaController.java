@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * Descoberta e endpoints publicos do OAuth das conexoes de IA. A tela de autorizacao e a do app
- * ({@code /conectar-ia/autorizar}): a pessoa entra com a conta do Nexo e decide ali.
+ * ({@code /conectar-ia/autorizar}): a pessoa entra com a conta do GEO e decide ali.
  */
 @RestController
 public class OAuthIaController {
@@ -48,7 +48,7 @@ public class OAuthIaController {
         metadados.put("authorization_servers", List.of(urls.base(request)));
         metadados.put("scopes_supported", List.of(OAuthIaService.ESCOPO_LEITURA, OAuthIaService.ESCOPO_ESCRITA));
         metadados.put("bearer_methods_supported", List.of("header"));
-        metadados.put("resource_name", "Nexo — Gestão Operacional");
+        metadados.put("resource_name", "GEO — Gestão de Equipes e Operações");
         return publico(metadados);
     }
 

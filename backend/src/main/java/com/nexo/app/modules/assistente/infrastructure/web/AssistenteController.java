@@ -31,7 +31,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * API do workspace do Copiloto. O streaming e escrito de forma sincrona na resposta (thread virtual da
+ * API do workspace da Bússola. O streaming e escrito de forma sincrona na resposta (thread virtual da
  * requisicao): evita o despacho assincrono do Servlet, no qual o contexto de seguranca nao e propagado.
  * Cabecalhos desativam buffer de proxy (nginx) e compressao para entregar cada pacote imediatamente.
  */

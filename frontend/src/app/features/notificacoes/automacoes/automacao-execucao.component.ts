@@ -243,7 +243,7 @@ export class AutomacaoExecucaoComponent {
     return Object.entries(v).slice(0, 6).map(([k, x]) => `${nomeBonito(k)}: ${typeof x === 'object' && x !== null ? '…' : x}`).join(' · ');
   }
 
-  /** O HTML vem do servidor (montado pelo próprio Nexo) e abre num iframe sem scripts. */
+  /** O HTML vem do servidor (montado pelo próprio GEO) e abre num iframe sem scripts. */
   protected htmlEmail(et: Etapa): SafeHtml | null {
     const h = et.saidas?.['html'];
     return et.tipo === 'email.send' && typeof h === 'string' ? this.sanitizer.bypassSecurityTrustHtml(h) : null;

@@ -3,7 +3,7 @@
     class="chatbot-panel"
     [class.chatbot-panel--open]="isOpen()"
     [attr.aria-hidden]="!isOpen()"
-    aria-label="Conversa com o Copiloto"
+    aria-label="Conversa com a Bússola"
   >
     <p-confirmDialog key="assistant-new-chat" appendTo="body" />
 
@@ -11,19 +11,19 @@
       <div class="assistant-identity">
         <div class="assistant-avatar-wrap" aria-hidden="true">
           <p-avatar
-            image="icons/copiloto-1.png"
+            image="icons/bussola.svg"
             shape="circle"
             styleClass="assistant-avatar copiloto-avatar"
           />
           <span class="assistant-presence-dot"></span>
         </div>
         <div class="min-w-0">
-          <h2>Copiloto</h2>
+          <h2>Bússola</h2>
           <p>
             @if (isRestarting()) {
               Começando uma nova conversa...
             } @else {
-              Seu parceiro para usar o Nexo
+              Seu parceiro para usar o GEO
             }
           </p>
         </div>
@@ -106,21 +106,21 @@
           <div class="welcome-avatar" aria-hidden="true">
             <span class="welcome-orbit"></span>
             <p-avatar
-              image="icons/copiloto-1.png"
+              image="icons/bussola.svg"
               shape="circle"
               styleClass="assistant-welcome-avatar copiloto-avatar"
             />
-            <i class="pi pi-sparkles welcome-spark"></i>
+            <i class="pi pi-compass welcome-spark"></i>
           </div>
           <div class="welcome-copy">
-            <span class="welcome-kicker">Oi, eu sou o Copiloto</span>
+            <span class="welcome-kicker">Oi, eu sou a Bússola</span>
             <h3 id="assistant-welcome-title">Como posso facilitar seu dia?</h3>
             <p>
               Posso procurar informações, explicar números e ajudar você a encontrar o próximo
-              passo no Nexo. É só me contar o que precisa.
+              passo no GEO. É só me contar o que precisa.
             </p>
           </div>
-          <div class="assistant-capabilities" aria-label="Como o Copiloto pode ajudar">
+          <div class="assistant-capabilities" aria-label="Como a Bússola pode ajudar">
             <span><i class="pi pi-search" aria-hidden="true"></i> Encontrar informações</span>
             <span><i class="pi pi-chart-line" aria-hidden="true"></i> Entender resultados</span>
             <span><i class="pi pi-compass" aria-hidden="true"></i> Indicar caminhos</span>
@@ -153,11 +153,11 @@
         <article
           class="message-enter assistant-message"
           [class.assistant-message--user]="!isAssistant(message)"
-          [attr.aria-label]="isAssistant(message) ? 'Resposta do Copiloto' : 'Sua pergunta'"
+          [attr.aria-label]="isAssistant(message) ? 'Resposta da Bússola' : 'Sua pergunta'"
         >
           @if (isAssistant(message)) {
             <p-avatar
-              image="icons/copiloto-1.png"
+              image="icons/bussola.svg"
               shape="circle"
               styleClass="message-avatar copiloto-avatar"
             />
@@ -280,7 +280,7 @@
       @if (isSending() && !hasProcessingMessage()) {
         <article class="typing-indicator assistant-message" aria-label="Pensando">
           <p-avatar
-            image="icons/copiloto-1.png"
+            image="icons/bussola.svg"
             shape="circle"
             styleClass="message-avatar copiloto-avatar"
           />
@@ -296,7 +296,7 @@
       @if (transportError()) {
         <article class="message-enter assistant-message" role="alert">
           <p-avatar
-            image="icons/copiloto-1.png"
+            image="icons/bussola.svg"
             shape="circle"
             styleClass="message-avatar copiloto-avatar"
           />
@@ -320,7 +320,7 @@
 
     <footer class="assistant-composer">
       <div class="composer-field">
-        <label for="assistant-message" class="sr-only">Conte ao Copiloto o que você precisa</label>
+        <label for="assistant-message" class="sr-only">Conte à Bússola o que você precisa</label>
         <textarea
           #messageInput
           pTextarea
@@ -350,25 +350,25 @@
         />
       </div>
       <p class="composer-hint">
-        <i class="pi pi-sparkles" aria-hidden="true"></i>
+        <i class="pi pi-compass" aria-hidden="true"></i>
         Pergunte sobre indicadores, equipes ou informações do seu dia a dia.
       </p>
       <p class="assistant-disclaimer" role="note">
-        Conteúdo gerado por IA. O Copiloto pode cometer erros. Verifique informações importantes.
+        Conteúdo gerado por IA. A Bússola pode cometer erros. Verifique informações importantes.
       </p>
     </footer>
   </section>
 
   <div class="chatbot-launcher" [class.chatbot-launcher--hidden]="isOpen()">
     <p-button
-      ariaLabel="Abrir conversa com o Copiloto"
-      pTooltip="Posso ajudar com o Nexo"
+      ariaLabel="Abrir conversa com a Bússola"
+      pTooltip="Posso ajudar com o GEO"
       tooltipPosition="left"
       [rounded]="true"
       styleClass="assistant-launcher-button"
       (onClick)="toggleChat()"
     >
-      <img src="icons/copiloto-1.png" alt="" class="copiloto-launcher-image" />
+      <img src="icons/bussola.svg" alt="" class="copiloto-launcher-image" />
     </p-button>
   </div>
 </div>

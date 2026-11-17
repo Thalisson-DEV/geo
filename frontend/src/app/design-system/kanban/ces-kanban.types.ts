@@ -64,7 +64,7 @@ export interface CesKanbanSubGroupToggleEvent {
  * - Cabeçalhos sólidos bem definidos sem bordas pretas
  * - Texto branco e ícones nítidos (WCAG AAA)
  * - Badges com pílula branca para itens ativos
- * - Área de cards limpa e neutra integrada ao Design System Nexo
+ * - Área de cards limpa e neutra integrada ao Design System GEO
  */
 export const SUB_STATUS_THEMES: Record<string, CesKanbanSubGroupStyle> = {
   // 1. Planejamento — Família Azul Royal (#005cdb)

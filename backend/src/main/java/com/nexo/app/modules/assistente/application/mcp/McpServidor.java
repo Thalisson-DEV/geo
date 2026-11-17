@@ -23,8 +23,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Servidor MCP do Nexo (JSON-RPC 2.0 sobre Streamable HTTP, sem estado entre requisicoes). Expoe as
- * ferramentas do Copiloto que o usuario da conexao pode usar, um recurso com as fontes de dados e
+ * Servidor MCP do GEO (JSON-RPC 2.0 sobre Streamable HTTP, sem estado entre requisicoes). Expoe as
+ * ferramentas da Bússola que o usuario da conexao pode usar, um recurso com as fontes de dados e
  * alguns prompts prontos.
  */
 @Component
@@ -117,7 +117,7 @@ public class McpServidor {
         capacidades.putObject("logging");
         ObjectNode servidor = resultado.putObject("serverInfo");
         servidor.put("name", "ces");
-        servidor.put("title", "Nexo — Gestão Operacional");
+        servidor.put("title", "GEO — Gestão de Equipes e Operações");
         servidor.put("version", "1.0.0");
         resultado.put("instructions", instrucoes(sessao));
         return resultado;
@@ -126,10 +126,10 @@ public class McpServidor {
     private String instrucoes(SessaoMcp sessao) {
         String quem = sessao.nomeUsuario() == null ? "o usuario" : sessao.nomeUsuario();
         return """
-                Voce esta conectado ao Nexo (Gestao Operacional), o sistema de gestao da empresa (servicos para a \
+                Voce esta conectado ao GEO (Gestao Operacional), o sistema de gestao da empresa (servicos para a \
                 Concessionária): estoque e solicitacoes de material, execucao e faturamento, equipes e colaboradores, \
                 descontos em folha, SST (inspecoes, desvios, eventos), frota, chamados, financeiro e obras.
-                Voce age em nome de %s e enxerga somente o que essa pessoa enxerga no Nexo.
+                Voce age em nome de %s e enxerga somente o que essa pessoa enxerga no GEO.
                 - Para perguntas sobre dados, prefira as consultas de dominio e os indicadores; para algo especifico, \
                 use listar_fontes_dados e descrever_fonte_dados antes de consultar_fonte ou consultar_sql.
                 - Consultas devolvem um codigo de resultado (r1, r2...). As ferramentas de analise reutilizam esse codigo \
@@ -140,7 +140,7 @@ public class McpServidor {
                 ? "Esta conexao pode cadastrar e alterar registros. Antes de gravar, mostre a pessoa o que sera feito e "
                         + "peca confirmacao; depois informe o que foi gravado (com o identificador devolvido)."
                 : "Esta conexao e somente de consulta: nao ha ferramentas de cadastro. Se a pessoa pedir para gravar algo, "
-                        + "explique que ela pode permitir cadastros reconectando o Nexo ou fazer pela tela do Nexo.");
+                        + "explique que ela pode permitir cadastros reconectando o GEO ou fazer pela tela do GEO.");
     }
 
     private ObjectNode listarFerramentas(SessaoMcp sessao) {
@@ -181,8 +181,8 @@ public class McpServidor {
         if (tool.isEmpty()) {
             if (!catalogo.existe(nome)) throw new ErroMcp(INVALID_PARAMS, "Ferramenta desconhecida: " + nome);
             return conteudo(sessao.permiteEscrita() || !catalogo.buscar(nome, sessao.seguranca(), true).isPresent()
-                    ? "O perfil desta pessoa no Nexo nao tem permissao para esta ferramenta."
-                    : "Esta conexao e somente de consulta. Para cadastrar ou alterar, a pessoa precisa reconectar o Nexo "
+                    ? "O perfil desta pessoa no GEO nao tem permissao para esta ferramenta."
+                    : "Esta conexao e somente de consulta. Para cadastrar ou alterar, a pessoa precisa reconectar o GEO "
                             + "permitindo cadastros.", true);
         }
         if (!dentroDoLimite(sessao.acesso().conexaoId())) {
@@ -205,7 +205,7 @@ public class McpServidor {
         ObjectNode recurso = resultado.putArray("resources").addObject();
         recurso.put("uri", RECURSO_FONTES);
         recurso.put("name", "fontes-de-dados");
-        recurso.put("title", "Fontes de dados do Nexo");
+        recurso.put("title", "Fontes de dados do GEO");
         recurso.put("description", "Fontes que esta pessoa pode consultar, com o que cada uma contem e suas colunas.");
         recurso.put("mimeType", "text/markdown");
         return resultado;
@@ -214,7 +214,7 @@ public class McpServidor {
     private ObjectNode lerRecurso(JsonNode params, SessaoMcp sessao) {
         String uri = params.path("uri").asText("");
         if (!RECURSO_FONTES.equals(uri)) throw new ErroMcp(INVALID_PARAMS, "Recurso desconhecido: " + uri);
-        StringBuilder texto = new StringBuilder("# Fontes de dados do Nexo\n\n");
+        StringBuilder texto = new StringBuilder("# Fontes de dados do GEO\n\n");
         for (SemanticCatalog.Fonte fonte : fontes.autorizadas(sessao.seguranca())) {
             texto.append("## ").append(fonte.nome()).append(" (`").append(fonte.id()).append("`)\n");
             if (fonte.descricao() != null) texto.append(fonte.descricao().strip()).append("\n");

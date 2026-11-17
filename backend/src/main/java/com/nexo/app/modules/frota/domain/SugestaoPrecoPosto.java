@@ -21,7 +21,7 @@ import java.time.OffsetDateTime;
 import java.util.UUID;
 
 /**
- * Preço lido no cupom pelo Assistente, diferente do cadastrado no posto. O cadastro só muda
+ * Preço lido no cupom pela Bússola, diferente do cadastrado no posto. O cadastro só muda
  * quando uma pessoa confirma; descartar mantém o preço atual.
  */
 @Entity

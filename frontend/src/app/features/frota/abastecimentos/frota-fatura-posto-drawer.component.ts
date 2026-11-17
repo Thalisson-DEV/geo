@@ -153,7 +153,7 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
       <div drawer-footer class="dd-rodape">
         <span class="dd-linha-botoes">
           @if (conferencia() && assistente()) {
-            <ces-icon-button icon="pi pi-sparkles" label="Analisar esta fatura com o Assistente" tooltip="Analisar com o Assistente" (pressed)="analisarComAssistente()"></ces-icon-button>
+            <ces-icon-button icon="pi pi-compass" label="Analisar esta fatura com a Bússola" tooltip="Analisar com a Bússola" (pressed)="analisarComAssistente()"></ces-icon-button>
           }
           @if (conferencia() && editavel()) {
             <ces-button variant="ghost" icon="pi pi-pencil" label="Editar fatura" (pressed)="editar.emit(conferencia()!.fatura)"></ces-button>

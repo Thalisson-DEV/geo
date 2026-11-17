@@ -260,7 +260,7 @@ public class AutomacaoUseCases {
         return detalhe(criarInterno(request, OrigemAutomacao.USUARIO, usuarioLogado(), null));
     }
 
-    /** Também usado pelo rascunho do Copiloto e pela conversão de regras. */
+    /** Também usado pelo rascunho da Bússola e pela conversão de regras. */
     @Transactional
     public Automacao criarInterno(AutomacaoRequest request, OrigemAutomacao origem, UUID dono, UUID idRegraOrigem) {
         DefinicaoAutomacao definicao = lerDefinicao(request.definicao());
@@ -271,7 +271,7 @@ public class AutomacaoUseCases {
         return a;
     }
 
-    /** Nova versão gravada pelo próprio Nexo (atualização de automação que ele criou). */
+    /** Nova versão gravada pelo próprio GEO (atualização de automação que ele criou). */
     @Transactional
     public void novaVersaoInterna(UUID id, Map<String, Object> definicao, String nota) {
         Automacao a = exigir(id);

@@ -3,7 +3,7 @@ package com.nexo.app.modules.assistente.application.dto;
 import java.util.List;
 
 /**
- * O que o Copiloto consegue fazer para o usuario atual (ferramentas autorizadas e operacionais,
+ * O que a Bússola consegue fazer para o usuario atual (ferramentas autorizadas e operacionais,
  * competencias e sugestoes para a tela inicial). Nao expoe permissoes nem detalhes internos.
  */
 public record CapacidadesResponse(

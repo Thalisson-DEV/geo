@@ -67,7 +67,7 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
 /**
  * Despesas por veículo: lavagens, pedágios, estacionamentos, mensalidades, taxas e outras. Abre no
  * mês corrente, com o total do recorte e o que falta mandar ao financeiro; lança, corrige e importa
- * a planilha do modelo C.E.S.
+ * a planilha do modelo GEO.
  */
 @Component({
   selector: 'app-frota-despesas',
@@ -251,7 +251,7 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
       [fornecedores]="fornecedores()" [carregandoFornecedores]="carregandoFornecedores()" [bases]="bases.opcoes()" [processos]="processos()"
       [podePedirPagamento]="acesso.solicitarPagamento()" (salva)="aoSalvar($event)" (excluida)="recarregar()"></app-frota-despesa-form>
 
-    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar despesas" description="Planilha CSV no modelo C.E.S (separada por ponto e vírgula). Com o id externo, reimportar atualiza em vez de duplicar."
+    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar despesas" description="Planilha CSV no modelo GEO (separada por ponto e vírgula). Com o id externo, reimportar atualiza em vez de duplicar."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()" [blockOnErrors]="true"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">

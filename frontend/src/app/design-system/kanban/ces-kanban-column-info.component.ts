@@ -17,7 +17,7 @@ export interface KanbanCopilotoContext {
 /**
  * Botão ℹ que abre um popover com métricas agregadas da coluna Kanban.
  * Emite `copilotoClicked` com o contexto da coluna para que o pai
- * possa navegar até o Copiloto com os filtros corretos.
+ * possa navegar até a Bússola com os filtros corretos.
  *
  * Uso de `primeng/popover` é interno ao DS — não é API de feature.
  */
@@ -80,8 +80,8 @@ export interface KanbanCopilotoContext {
                    flex items-center gap-1.5"
             (click)="onCopilotoClick()"
           >
-            <i class="pi pi-sparkles text-[11px]" aria-hidden="true"></i>
-            Analisar com Copiloto
+            <i class="pi pi-compass text-[11px]" aria-hidden="true"></i>
+            Analisar com Bússola
           </button>
         }
       </div>
@@ -90,10 +90,10 @@ export interface KanbanCopilotoContext {
 })
 export class CesKanbanColumnInfoComponent {
   column = input.required<CesKanbanColumn<unknown>>();
-  /** Se fornecido, exibe o botão "Analisar com Copiloto" */
+  /** Se fornecido, exibe o botão "Analisar com Bússola" */
   copilotoEnabled = input(false);
 
-  /** Emitido quando o usuário clica em "Analisar com Copiloto" */
+  /** Emitido quando o usuário clica em "Analisar com Bússola" */
   copilotoClicked = output<KanbanCopilotoContext>();
 
   protected readonly temCopiloto = computed(() => this.copilotoEnabled());

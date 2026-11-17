@@ -8,7 +8,7 @@ import java.util.function.BiFunction;
 
 /**
  * O que um executor pode usar. O dono e suas permissões vêm junto porque as consultas
- * e o Copiloto enxergam exatamente o que o dono da automação enxerga.
+ * e a Bússola enxergam exatamente o que o dono da automação enxerga.
  */
 public record ContextoAcao(
         UUID automacaoId,

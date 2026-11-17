@@ -75,8 +75,8 @@ const ROTULO_TOM: Record<CesTone, string> = {
         <div class="vg__acoes">
           @if (copiloto()) {
             <button type="button" class="vg__copiloto" (click)="perguntar.emit()">
-              <img src="icons/copiloto-1.png" alt="" aria-hidden="true" />
-              <span>Leitura completa com o Copiloto</span>
+              <img src="icons/bussola.svg" alt="" aria-hidden="true" />
+              <span>Leitura completa com a Bússola</span>
             </button>
           }
           <button type="button" class="vg__recolher" [attr.aria-expanded]="!recolhida()" [attr.aria-controls]="id + '-leituras'"

@@ -1,1 +1,1 @@
-// Hosts e harnesses reutilizáveis do Design System Nexo.
+// Hosts e harnesses reutilizáveis do Design System GEO.

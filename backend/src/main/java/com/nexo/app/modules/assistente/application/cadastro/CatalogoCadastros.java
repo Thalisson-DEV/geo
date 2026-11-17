@@ -37,7 +37,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Reune o que cada modulo declarou que o Copiloto pode cadastrar, le os campos dos DTOs dos casos de uso e
+ * Reune o que cada modulo declarou que a Bússola pode cadastrar, le os campos dos DTOs dos casos de uso e
  * localiza registros referenciados pelo nome.
  */
 @Component

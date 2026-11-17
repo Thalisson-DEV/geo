@@ -38,7 +38,7 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
 
         <div class="flex items-center h-8" [class.ml-2]="!isMobile()">
           <a [routerLink]="'/home'" class="flex items-center h-full">
-            <img src="/logo_vertical.svg" alt="Nexo" class="h-full w-auto object-contain">
+            <img src="/logo_vertical.svg" alt="GEO" class="h-full w-auto object-contain">
           </a>
         </div>
       </div>
@@ -347,7 +347,7 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
     <!-- Dialog Manuais -->
     <p-dialog header="Manuais de Instrução e Treinamento" [(visible)]="showManuaisDialog" [modal]="true" [style]="{ width: '90vw', maxWidth: '680px' }" [draggable]="false" [resizable]="false">
       <div class="flex flex-col gap-4 py-2">
-        <p class="text-sm text-[var(--ces-foreground-muted)]">Acesse os guias oficiais e manuais interativos com vídeos tutoriais para capacitação operacional no Nexo.</p>
+        <p class="text-sm text-[var(--ces-foreground-muted)]">Acesse os guias oficiais e manuais interativos com vídeos tutoriais para capacitação operacional no GEO.</p>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
           

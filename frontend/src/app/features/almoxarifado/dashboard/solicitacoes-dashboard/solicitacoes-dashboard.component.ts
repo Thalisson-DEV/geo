@@ -440,7 +440,7 @@ export class SolicitacoesDashboardComponent implements OnInit {
     return partes.filter(Boolean).join(' · ') || 'todo o histórico recente';
   });
 
-  // ------------------------------------------------------------------ Copiloto
+  // ------------------------------------------------------------------ Bússola
 
   protected readonly contextoCopiloto = computed<CopilotoDashboardContext | null>(() => {
     const d = this.data();
@@ -721,7 +721,7 @@ export class SolicitacoesDashboardComponent implements OnInit {
       });
   }
 
-  /** PDF executivo: o Copiloto gera o relatório com os dados reais do recorte. */
+  /** PDF executivo: a Bússola gera o relatório com os dados reais do recorte. */
   protected relatorioComCopiloto(): void {
     this.exportacaoAberta.set(false);
     this.copiloto.perguntarSobre(

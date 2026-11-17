@@ -15,9 +15,9 @@ class IamResourceCountConfiguration {
     @Bean
     SemanticResourceCountProvider iamResourceCountProvider(EntityManager entityManager) {
         return new JpaSemanticResourceCountProvider(entityManager, List.of(
-                resource("usuarios", "Usuarios", "Usuarios cadastrados no Nexo, inclusive desativados.",
+                resource("usuarios", "Usuarios", "Usuarios cadastrados no GEO, inclusive desativados.",
                         "iam:usuario:read", "select count(u.id) from Usuario u"),
-                resource("usuarios_ativos", "Usuarios ativos", "Usuarios com acesso ativo ao Nexo.",
+                resource("usuarios_ativos", "Usuarios ativos", "Usuarios com acesso ativo ao GEO.",
                         "iam:usuario:read", "select count(u.id) from Usuario u where u.ativo = true"),
                 resource("perfis_acesso", "Perfis de acesso", "Perfis de acesso cadastrados, inclusive desativados.",
                         "iam:perfil:read", "select count(p.id) from PerfilAcesso p"),

@@ -2,8 +2,8 @@
   <ces-page-header
     title="Conectar sua IA"
     icon="pi pi-link"
-    [breadcrumb]="[{ label: 'Copiloto' }, { label: 'Conectar sua IA' }]"
-    description="Use o Nexo dentro do Claude, do ChatGPT ou de outro assistente: pergunte sobre os dados da empresa sem sair da conversa."
+    [breadcrumb]="[{ label: 'Bússola' }, { label: 'Conectar sua IA' }]"
+    description="Use o GEO dentro do Claude, do ChatGPT ou de outro assistente: pergunte sobre os dados da empresa sem sair da conversa."
   >
     <ces-button actions variant="outline" icon="pi pi-key" label="Gerar chave de acesso" (pressed)="abrirChave()"></ces-button>
     <ces-button actions icon="pi pi-plus" label="Conectar uma IA" (pressed)="abrirGuia()"></ces-button>
@@ -17,7 +17,7 @@
       <ng-template cesTabPanel="empresa">
         <ces-data-table
           title="Conexões da empresa"
-          description="Todas as IAs conectadas ao Nexo, de todas as pessoas. Desconecte o que não deveria estar ligado."
+          description="Todas as IAs conectadas ao GEO, de todas as pessoas. Desconecte o que não deveria estar ligado."
           storageKey="conexoes-ia-empresa"
           searchPlaceholder="Buscar"
           rowActionLabel="Ver conexão"
@@ -74,7 +74,7 @@
 <ng-template #tabelaMinhas>
   <ces-data-table
     title="Suas conexões"
-    description="Assistentes que podem usar o Nexo com o seu login. Clique numa linha para ver os detalhes."
+    description="Assistentes que podem usar o GEO com o seu login. Clique numa linha para ver os detalhes."
     storageKey="conexoes-ia-minhas"
     searchPlaceholder="Buscar aplicativo"
     rowActionLabel="Ver conexão"
@@ -168,7 +168,7 @@
           <dd>{{ relativo(c.ultimoUsoEm) }} @if (c.ultimoUsoEm) { <span class="ces-cell-muted">{{ dataHora(c.ultimoUsoEm) }}</span> }</dd>
         </div>
         <div>
-          <dt>Pedidos feitos ao Nexo</dt>
+          <dt>Pedidos feitos ao GEO</dt>
           <dd>{{ c.totalChamadas ? c.totalChamadas.toLocaleString('pt-BR') : 'Nenhum ainda' }}</dd>
         </div>
         @if (c.aplicativo && c.aplicativo !== c.nome) {
@@ -178,7 +178,7 @@
     </section>
     @if (c.situacao === 'VENCIDA') {
       <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" class="conexao-aviso">
-        A chave venceu e o assistente não consegue mais usar o Nexo. Gere uma chave nova e troque no assistente.
+        A chave venceu e o assistente não consegue mais usar o GEO. Gere uma chave nova e troque no assistente.
       </ces-callout>
     } @else if (!c.permiteEscrita && podeEscrever() && !c.usuarioLogin) {
       <ces-callout tone="info" icon="pi pi-info-circle" [dense]="true" class="conexao-aviso">

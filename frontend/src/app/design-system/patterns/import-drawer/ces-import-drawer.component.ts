@@ -4,7 +4,7 @@ import { CES_DATA_TABLE_TEXT_FIT } from '../../data/data-table/ces-data-table.co
 import { CesFormDrawerComponent } from '../../forms/form-kit/ces-form-drawer.component';
 import { CesButtonComponent } from '../../primitives/button';
 
-/** Linha de importação no formato comum dos endpoints de pré-visualização do Nexo. */
+/** Linha de importação no formato comum dos endpoints de pré-visualização do GEO. */
 export interface CesImportRow {
   readonly linha?: number;
   readonly status?: string;

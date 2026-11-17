@@ -17,7 +17,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.UUID;
 
-@Tag(name = "Conexões de IA", description = "Conectar o Nexo ao Claude, ChatGPT e outras IAs pelo MCP: conexões, chaves de acesso e a tela de autorização do OAuth")
+@Tag(name = "Conexões de IA", description = "Conectar o GEO ao Claude, ChatGPT e outras IAs pelo MCP: conexões, chaves de acesso e a tela de autorização do OAuth")
 @SecurityRequirement(name = "bearerAuth")
 public interface ConexaoIaControllerDoc {
 
@@ -27,7 +27,7 @@ public interface ConexaoIaControllerDoc {
     @Operation(summary = "Conexões da pessoa logada", description = "Inclui as desconectadas e vencidas, para histórico.")
     ResponseEntity<List<ConexaoIaResponse>> listar();
 
-    @Operation(summary = "Gerar chave de acesso", description = "A chave é mostrada só nesta resposta; o Nexo guarda apenas o hash.")
+    @Operation(summary = "Gerar chave de acesso", description = "A chave é mostrada só nesta resposta; o GEO guarda apenas o hash.")
     ResponseEntity<ChaveIaCriadaResponse> criarChave(CriarChaveIaRequest request);
 
     @Operation(summary = "Desconectar", description = "Todas as credenciais da conexão param de valer na chamada seguinte. O administrador desconecta a de qualquer pessoa.")

@@ -30,7 +30,7 @@ const SITUACOES: CesSelectOption<Registro['situacao']>[] = [
 ];
 const REGISTROS: Registro[] = Array.from({ length: 240 }, (_, i) => ({
   id: `r-${i}`,
-  placa: `Nexo${String(1000 + i)}`,
+  placa: `GEO${String(1000 + i)}`,
   base: BASES[i % 3].value,
   situacao: SITUACOES[i % 7 === 0 ? 2 : i % 5 === 0 ? 1 : 0].value,
   km: 12000 + i * 731,

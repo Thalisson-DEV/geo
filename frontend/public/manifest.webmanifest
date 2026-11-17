@@ -1,6 +1,6 @@
 {
-  "name": "Nexo",
-  "short_name": "Nexo",
+  "name": "GEO",
+  "short_name": "GEO",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

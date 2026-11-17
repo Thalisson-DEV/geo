@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
- * Renderizador de relatorios PDF do Copiloto com a identidade do Nexo: capa com metadados, resumo
+ * Renderizador de relatorios PDF da Bússola com a identidade do GEO: capa com metadados, resumo
  * executivo, KPIs, graficos vetoriais (barras, barras horizontais/empilhadas, linha, area, pizza, rosca,
  * dispersao), tabelas paginadas com cabecalho repetido, apendice de procedencia dos dados e rodape com
  * paginacao. Recebe componentes ja resolvidos pelo {@code ArtifactResolver}: nenhum numero vem do texto do
@@ -89,8 +89,8 @@ public class PdfReportRenderer {
             rodapes(document, fontes, relatorio);
             PDDocumentInformation info = document.getDocumentInformation();
             info.setTitle(fontes.seguro(relatorio.titulo()));
-            info.setAuthor("Copiloto (Nexo)");
-            info.setCreator("Nexo - Copiloto");
+            info.setAuthor("Bússola (GEO)");
+            info.setCreator("GEO - Bússola");
             info.setSubject(fontes.seguro(Objects.toString(relatorio.subtitulo(), "")));
             document.save(output);
             return output.toByteArray();
@@ -632,8 +632,8 @@ public class PdfReportRenderer {
     private void procedencia(Pagina pagina, List<Map<String, Object>> procedencia) throws IOException {
         pagina.garantir(90);
         pagina.subtitulo("Procedência dos dados");
-        String nota = "Todos os números deste relatório foram calculados a partir dos resultados abaixo, obtidos pelo Copiloto "
-                + "com as permissões do solicitante no momento da geração. INTERNO = dados do Nexo; ARQUIVO = anexo enviado; "
+        String nota = "Todos os números deste relatório foram calculados a partir dos resultados abaixo, obtidos pela Bússola "
+                + "com as permissões do solicitante no momento da geração. INTERNO = dados do GEO; ARQUIVO = anexo enviado; "
                 + "CALCULO = processamento sobre os dados; EXTERNO = fonte pública da internet.";
         for (String linha : pagina.fontes.quebrar(nota, pagina.fontes.normal, 8, LARGURA_UTIL)) {
             pagina.garantir(12);
@@ -683,7 +683,7 @@ public class PdfReportRenderer {
                 cs.setNonStrokingColor(MARCA);
                 cs.addRect(0, ALTURA_PAGINA - 6, LARGURA_PAGINA, 6);
                 cs.fill();
-                escrever(cs, fontes, "Nexo  |  Copiloto", MARGEM, ALTURA_PAGINA - 30, fontes.negrito, 8, MARCA_ESCURA);
+                escrever(cs, fontes, "GEO  |  Bússola", MARGEM, ALTURA_PAGINA - 30, fontes.negrito, 8, MARCA_ESCURA);
                 String titulo = fontes.cortar(relatorio.titulo(), fontes.normal, 8, LARGURA_UTIL * 0.6f);
                 escrever(cs, fontes, titulo, MARGEM + LARGURA_UTIL - fontes.largura(titulo, fontes.normal, 8), ALTURA_PAGINA - 30,
                         fontes.normal, 8, TEXTO_SUAVE);
@@ -692,7 +692,7 @@ public class PdfReportRenderer {
                 cs.moveTo(MARGEM, 40);
                 cs.lineTo(MARGEM + LARGURA_UTIL, 40);
                 cs.stroke();
-                escrever(cs, fontes, "Gerado pelo Copiloto (assistente do Nexo) em " + geradoEm
+                escrever(cs, fontes, "Gerado pela Bússola (assistente do GEO) em " + geradoEm
                         + ". Confira decisões críticas nos módulos de origem.", MARGEM, 28, fontes.normal, 7, TEXTO_SUAVE);
                 String paginaTexto = "Página " + (i + 1) + " de " + total;
                 escrever(cs, fontes, paginaTexto, MARGEM + LARGURA_UTIL - fontes.largura(paginaTexto, fontes.normal, 7.5f), 28,
@@ -792,7 +792,7 @@ public class PdfReportRenderer {
 
     private static String procedenciaLegivel(Object natureza) {
         return switch (Objects.toString(natureza, "")) {
-            case "INTERNO" -> "dados internos do Nexo";
+            case "INTERNO" -> "dados internos do GEO";
             case "ARQUIVO" -> "arquivo anexado";
             case "CALCULO" -> "cálculo sobre dados";
             case "EXTERNO" -> "fonte externa";

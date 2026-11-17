@@ -30,7 +30,7 @@ public class CatalogoAutomacaoService {
     public static final Map<String, String> BLOCOS = new LinkedHashMap<>();
 
     static {
-        BLOCOS.put("markdown", "Texto formatado (ex.: análise do Copiloto)");
+        BLOCOS.put("markdown", "Texto formatado (ex.: análise da Bússola)");
         BLOCOS.put("table", "Tabela de uma lista");
         BLOCOS.put("list", "Lista com marcadores");
         BLOCOS.put("html", "HTML pronto de outro passo");

@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { DestroyRef, Signal, inject, signal } from '@angular/core';
 
-/** Largura abaixo da qual o Nexo troca layouts densos por versões de toque (cards, folhas inferiores). */
+/** Largura abaixo da qual o GEO troca layouts densos por versões de toque (cards, folhas inferiores). */
 export const CES_COMPACT_VIEWPORT_QUERY = '(max-width: 39.99rem)';
 
 /**

@@ -17,9 +17,9 @@ public class OpenApiConfig {
         
         return new OpenAPI()
                 .info(new Info()
-                        .title("Nexo - Gestão Operacional")
+                        .title("GEO - Gestão de Equipes e Operações")
                         .version("1.0")
-                        .description("API do Sistema de Gestão Operacional (Modular Monolith)"))
+                        .description("API do Sistema de Gestão de Equipes e Operações (Modular Monolith)"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()

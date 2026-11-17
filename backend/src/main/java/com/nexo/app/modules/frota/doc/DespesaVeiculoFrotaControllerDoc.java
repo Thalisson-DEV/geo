@@ -52,7 +52,7 @@ public interface DespesaVeiculoFrotaControllerDoc {
             description = "Valores para o formulário de pagamento do financeiro (origem FROTA_DESPESA); a solicitação criada fica vinculada à despesa.")
     ResponseEntity<PreenchimentoFinanceiroResponse> preenchimentoFinanceiro(UUID id);
 
-    @Operation(summary = "Validar planilha", description = "Modelo C.E.S (CSV com ponto e vírgula); devolve a pré-visualização linha a linha.")
+    @Operation(summary = "Validar planilha", description = "Modelo GEO (CSV com ponto e vírgula); devolve a pré-visualização linha a linha.")
     ResponseEntity<ImportacaoDespesasResponse> validarImportacao(MultipartFile arquivo);
 
     @Operation(summary = "Confirmar importação", description = "Grava as linhas conferidas; com id externo, atualiza em vez de duplicar.")

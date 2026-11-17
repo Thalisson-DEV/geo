@@ -163,7 +163,7 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
         </section>
 
         <section class="rel-secao">
-          <div class="rel-secao__titulo"><h2>Análise do Assistente</h2></div>
+          <div class="rel-secao__titulo"><h2>Análise da Bússola</h2></div>
           <app-frota-relatorio-analise-ia alvo="ABASTECIMENTO" [idAlvo]="a.id" [fotosEsperadas]="fotos().length" />
         </section>
 
@@ -186,7 +186,7 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
                 <span class="rel-assinatura__data">{{ a.realizadoEm ? (a.realizadoEm | date: 'dd/MM/yyyy HH:mm') : 'Data: ____/____/________' }}</span>
               </div>
               <div class="rel-assinatura">
-                <span class="rel-assinatura__papel">Gestão de Frota NEXO</span>
+                <span class="rel-assinatura__papel">Gestão de Frota</span>
                 <span class="rel-assinatura__linha"></span>
                 <span class="rel-assinatura__nome">{{ a.aprovador ?? 'Gestor da frota' }}</span>
                 <span class="rel-assinatura__data">Aprovação</span>
@@ -197,7 +197,7 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
 
         <footer class="rel-rodape">
           <span>Pedido em <strong>{{ a.solicitadoEm | date: 'dd/MM/yyyy HH:mm' }}</strong> por <strong>{{ a.solicitante ?? '—' }}</strong></span>
-          <span class="rel-rodape__marca">Documento emitido eletronicamente via Sistema C.E.S · NEXO Frota</span>
+          <span class="rel-rodape__marca">Documento emitido eletronicamente via Sistema GEO · Frota</span>
         </footer>
       </article>
 
@@ -319,7 +319,7 @@ export class RelatorioAbastecimentoComponent {
         next: (a) => {
           this.detalhe.set(a);
           this.carregando.set(false);
-          document.title = `Abastecimento ${formatarPlaca(a.placa)} · Relatório · C.E.S`;
+          document.title = `Abastecimento ${formatarPlaca(a.placa)} · Relatório · GEO`;
         },
         error: (e) => {
           this.erro.set(getErrorMessage(e));

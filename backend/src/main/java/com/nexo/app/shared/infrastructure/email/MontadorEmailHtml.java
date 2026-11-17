@@ -148,7 +148,7 @@ public class MontadorEmailHtml {
      */
     public String montarTexto(ConteudoEmail conteudo) {
         StringBuilder texto = new StringBuilder(1024);
-        texto.append("NEXO — GESTÃO OPERACIONAL\n");
+        texto.append("GEO — GESTÃO DE EQUIPES E OPERAÇÕES\n");
         texto.append("========================================\n\n");
 
         String identificacao = identificacao(conteudo);
@@ -187,7 +187,7 @@ public class MontadorEmailHtml {
             texto.append('\n');
         }
         texto.append("----------------------------------------\n")
-                .append("Mensagem automática do sistema Nexo. Não responda a este e-mail.\n");
+                .append("Mensagem automática do sistema GEO. Não responda a este e-mail.\n");
         return texto.toString();
     }
 
@@ -215,12 +215,12 @@ public class MontadorEmailHtml {
             // vez de deixar um retângulo branco no meio do escuro.
             html.append("<td style=\"vertical-align:middle;width:58px;\">")
                     .append("<img class=\"ces-logo-claro\" src=\"").append(escapar(logo))
-                    .append("\" alt=\"Nexo\" width=\"46\" height=\"36\" ")
+                    .append("\" alt=\"GEO\" width=\"46\" height=\"36\" ")
                     .append("style=\"display:block;border:0;width:46px;height:36px;\">");
             String escuro = urlLogoEscuro();
             if (escuro != null) {
                 html.append("<img class=\"ces-logo-escuro\" src=\"").append(escapar(escuro))
-                        .append("\" alt=\"Nexo\" width=\"46\" height=\"36\" ")
+                        .append("\" alt=\"GEO\" width=\"46\" height=\"36\" ")
                         .append("style=\"display:none;max-height:0;overflow:hidden;mso-hide:all;border:0;width:46px;height:36px;\">");
             }
             html.append("</td>");
@@ -229,9 +229,9 @@ public class MontadorEmailHtml {
         html.append("<td style=\"vertical-align:middle;\">")
                 .append("<div class=\"ces-marca\" style=\"font-size:16px;font-weight:700;")
                 .append("letter-spacing:0.5px;color:").append(AZUL_MARCA)
-                .append(";line-height:1.2;\">Nexo</div>")
+                .append(";line-height:1.2;\">GEO</div>")
                 .append("<div class=\"ces-suave\" style=\"font-size:12px;color:").append(TEXTO_SUAVE)
-                .append(";line-height:1.4;\">Gestão Operacional</div>")
+                .append(";line-height:1.4;\">Gestão de Equipes e Operações</div>")
                 .append("</td>");
 
         html.append("</tr></table></td></tr>");
@@ -441,7 +441,7 @@ public class MontadorEmailHtml {
 
         html.append("<p class=\"ces-suave\" style=\"margin:0;font-size:11px;line-height:1.6;color:")
                 .append(TEXTO_SUAVE)
-                .append(";\">Mensagem automática do sistema Nexo. Não responda a este e-mail.");
+                .append(";\">Mensagem automática do sistema GEO. Não responda a este e-mail.");
 
         String preferencias = propriedades.resolverUrl("/notificacoes/preferencias");
         if (preferencias != null) {

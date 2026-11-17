@@ -79,7 +79,7 @@ public class ArtefatoTools {
         return new BaseTool("criar_artefato", "Criar artefato",
                 "Cria um artefato visual no painel lateral da conversa: dashboard (varios KPIs, graficos e tabelas), "
                         + "grafico, tabela ou documento (markdown com componentes). Os dados vem SEMPRE de resultados rN ja "
-                        + "obtidos; voce informa colunas e agregacoes e o Nexo calcula os valores (nao digite numeros). "
+                        + "obtidos; voce informa colunas e agregacoes e o GEO calcula os valores (nao digite numeros). "
                         + "Para novas versoes, crie outro artefato. " + EXEMPLO_COMPONENTES,
                 JsonSchemas.object()
                         .required("tipo", JsonSchemas.enumString(null, List.of("dashboard", "grafico", "tabela", "documento")))
@@ -121,7 +121,7 @@ public class ArtefatoTools {
                 resposta.put("titulo", titulo);
                 resposta.put("componentes", componentes.stream().map(ArtefatoTools::resumoComponente).toList());
                 resposta.put("orientacao", "O artefato ja esta visivel para o usuario no painel. Na resposta, comente os "
-                        + "destaques usando os valores acima (calculados pelo Nexo) e mencione o artefato pelo titulo.");
+                        + "destaques usando os valores acima (calculados pelo GEO) e mencione o artefato pelo titulo.");
                 return ToolResult.of(formatter.json(resposta), view.codigo() + " · " + titulo);
             }
         };
@@ -136,10 +136,10 @@ public class ArtefatoTools {
                 .prop("componentes", JsonSchemas.array("KPIs, graficos, tabelas e textos da secao", componenteSchema()))
                 .build();
         return new BaseTool("gerar_relatorio_pdf", "Gerar relatório PDF",
-                "Gera um relatorio PDF profissional com a identidade do Nexo (capa, resumo executivo, secoes com KPIs, "
+                "Gera um relatorio PDF profissional com a identidade do GEO (capa, resumo executivo, secoes com KPIs, "
                         + "graficos vetoriais e tabelas, conclusoes e apendice automatico de procedencia dos dados). Use "
                         + "somente depois de obter os dados (rN) e analisar; os numeros dos componentes sao calculados pelo "
-                        + "Nexo a partir dos resultados. Textos em portugues, objetivos, com interpretacao e recomendacoes. "
+                        + "GEO a partir dos resultados. Textos em portugues, objetivos, com interpretacao e recomendacoes. "
                         + "O arquivo fica disponivel para download na conversa.",
                 JsonSchemas.object()
                         .required("titulo", JsonSchemas.string(null))
@@ -259,7 +259,7 @@ public class ArtefatoTools {
                 List<String> nomesAbas = ToolArgs.texts(arguments, "nomes_abas");
                 List<ResultStore.StoredResult> resultados = codigos.stream().map(codigo -> store.exigir(context.conversaId(), codigo)).toList();
                 String titulo = Objects.toString(ToolArgs.text(arguments, "titulo"),
-                        resultados.size() == 1 ? resultados.getFirst().titulo() : "Exportação do Copiloto");
+                        resultados.size() == 1 ? resultados.getFirst().titulo() : "Exportação da Bússola");
                 List<String> avisos = new ArrayList<>();
                 List<TabularExport.Aba> abas = new ArrayList<>();
                 List<Map<String, Object>> abasSpec = new ArrayList<>();

@@ -53,7 +53,7 @@ function doisDigitos(n: number): string {
   return String(n).padStart(2, '0');
 }
 
-/** Calendário → texto que o Copiloto entende (dd/mm/aaaa [hh:mm]). */
+/** Calendário → texto que a Bússola entende (dd/mm/aaaa [hh:mm]). */
 export function deData(data: Date | null, comHora: boolean): string | null {
   if (!data) return null;
   const dia = `${doisDigitos(data.getDate())}/${doisDigitos(data.getMonth() + 1)}/${data.getFullYear()}`;

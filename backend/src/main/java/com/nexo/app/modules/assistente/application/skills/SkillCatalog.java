@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
- * Catalogo de competencias (skills) do Copiloto: roteiros de analise em markdown carregados sob demanda.
+ * Catalogo de competencias (skills) da Bússola: roteiros de analise em markdown carregados sob demanda.
  * O prompt de sistema lista apenas nome e descricao; o conteudo completo entra no contexto quando o agente
  * chama {@code usar_competencia}, mantendo o prompt enxuto (mesmo principio das skills do Onyx/Claude).
  * Arquivos em {@code classpath:copiloto/skills/*.md} com front matter (nome, titulo, descricao, autoridades).
@@ -44,7 +44,7 @@ public class SkillCatalog {
                 carregadas.put(skill.nome(), skill);
             }
         } catch (IOException exception) {
-            throw new UncheckedIOException("Falha ao carregar competencias do Copiloto", exception);
+            throw new UncheckedIOException("Falha ao carregar competencias da Bússola", exception);
         }
         return Collections.unmodifiableMap(carregadas);
     }

@@ -13,7 +13,7 @@ import java.util.UUID;
  *
  * <p>A consulta acontece <b>no momento do envio</b>, e não quando o evento foi
  * publicado. É o que faz o e-mail levar os arquivos que existem quando ele sai, e não
- * os que existiam no instante do commit — em vários fluxos do Nexo o registro nasce
+ * os que existiam no instante do commit — em vários fluxos do GEO o registro nasce
  * primeiro e os anexos sobem logo depois, por outra chamada.</p>
  */
 public interface FornecedorAnexosNotificacao {

@@ -17,7 +17,7 @@ const proposta: PropostaPlanejamento = {
   ]
 };
 
-describe('revisão da leitura do Copiloto', () => {
+describe('revisão da leitura da Bússola', () => {
   it('não deixa marcado o que tem conflito ou baixa confiança', () => {
     const { pontos } = paraRevisao(proposta, new Set(['1']));
 

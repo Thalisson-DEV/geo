@@ -32,7 +32,7 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * Orquestra uma resposta do Copiloto: prepara a pergunta (transacao curta), registra a execucao, roda o
+ * Orquestra uma resposta da Bússola: prepara a pergunta (transacao curta), registra a execucao, roda o
  * loop agentic em virtual thread propria (desacoplada da conexao HTTP, como no Onyx), gera o titulo em
  * paralelo e persiste o resultado final com a timeline compactada e as metricas. Tambem atende
  * interrupcao, retomada do stream e recuperacao de respostas orfas.
@@ -94,7 +94,7 @@ public class AgentRunner {
     public Inicio iniciar(UUID conversaId, SemanticQueryContext security, String nomeUsuario, EnviarMensagemRequest request,
                           Orcamento orcamento) {
         if (!properties.isEnabled() || !llm.isConfigured()) {
-            throw new AssistenteIndisponivelException("O Copiloto está indisponível no momento: o provedor de IA não está configurado.");
+            throw new AssistenteIndisponivelException("A Bússola está indisponível no momento: o provedor de IA não está configurado.");
         }
         Optional<AgentRun> ativa = registry.ativaDaConversa(conversaId);
         if (ativa.isPresent()) {
@@ -157,7 +157,7 @@ public class AgentRunner {
                     preparacao.anexos(), preparacao.contexto());
             resultado = loop.executar(context, mensagens, disponiveis);
         } catch (RuntimeException exception) {
-            LOGGER.error("Execucao {} do Copiloto falhou", run.id(), exception);
+            LOGGER.error("Execucao {} da Bússola falhou", run.id(), exception);
             erro = "Falha inesperada ao processar a resposta.";
         }
         if (titulo != null) {
@@ -219,7 +219,7 @@ public class AgentRunner {
             persistencia.concluir(run.mensagemAssistenteId(), status, texto,
                     json(PacketCompactor.compactar(run.snapshotPackets())), json(context.navegacao().snapshot()), metricas, erro);
         } catch (RuntimeException exception) {
-            LOGGER.error("Falha ao persistir a resposta {} do Copiloto", run.mensagemAssistenteId(), exception);
+            LOGGER.error("Falha ao persistir a resposta {} da Bússola", run.mensagemAssistenteId(), exception);
         } finally {
             run.emit(Packet.of(Packet.Placement.ROOT, Packet.Types.STOP,
                     "status", status.name(),
@@ -272,7 +272,7 @@ public class AgentRunner {
     public void recuperarNaInicializacao() {
         try {
             int recuperadas = persistencia.recuperarOrfas(registry::possuiExecucaoAtiva, Duration.ZERO);
-            if (recuperadas > 0) LOGGER.info("{} respostas interrompidas do Copiloto marcadas como falhas", recuperadas);
+            if (recuperadas > 0) LOGGER.info("{} respostas interrompidas da Bússola marcadas como falhas", recuperadas);
         } catch (RuntimeException exception) {
             LOGGER.warn("Nao foi possivel recuperar respostas orfas: {}", exception.getClass().getSimpleName());
         }

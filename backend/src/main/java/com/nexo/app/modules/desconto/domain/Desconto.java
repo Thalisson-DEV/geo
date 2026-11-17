@@ -164,7 +164,7 @@ public class Desconto extends BaseEntity {
     }
 
     /**
-     * O DP anexa o termo impresso pelo C.E.S e assinado pelo colaborador. É o que fecha o
+     * O DP anexa o termo impresso pelo GEO e assinado pelo colaborador. É o que fecha o
      * ciclo: o desconto já entrou na folha e agora tem a autorização assinada guardada.
      */
     public DescontoAnexo finalizar(UUID usuarioFinalizacaoId, String nomeArquivo, String url, String contentType, Long tamanhoBytes) {

@@ -56,7 +56,7 @@ public class FavoritoUseCases {
         Favorito favorito = repository.findByIdAndUsuarioIdAndAtivoTrue(favoritoId, usuarioId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Favorito não encontrado ou não pertence ao usuário"));
 
-        favorito.desativar(); // Soft delete exigido pelo Nexo
+        favorito.desativar(); // Soft delete exigido pelo GEO
         repository.save(favorito);
     }
 }

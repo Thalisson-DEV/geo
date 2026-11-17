@@ -9,7 +9,7 @@ import { ConnectivityService } from '../../../core/services/connectivity.service
   template: `
     <footer class="fixed bottom-0 left-0 w-full bg-[var(--ces-surface)]/90 backdrop-blur-md border-t border-[var(--ces-border)] py-1 px-3 flex justify-between items-center text-[10px] text-[var(--ces-foreground-subtle)] z-50">
       <div class="flex gap-5 items-center">
-        <span class="font-medium text-[var(--ces-foreground-muted)]">Nexo | Gestão de Ativos e Eficiência Operacional</span>
+        <span class="font-medium text-[var(--ces-foreground-muted)]">GEO | Gestão de Ativos e Eficiência Operacional</span>
         <span class="font-medium text-[var(--ces-foreground-subtle)]"> | </span>
         <span class="font-medium text-[var(--ces-foreground-muted)] tracking-tight">v1.0</span>
       </div>

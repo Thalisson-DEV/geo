@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.Objects;
 import java.util.UUID;
 
-/** Conteudo binario de um arquivo do Copiloto quando o armazenamento configurado e o banco. */
+/** Conteudo binario de um arquivo da Bússola quando o armazenamento configurado e o banco. */
 @Entity
 @Table(name = "assistente_arquivo_conteudo")
 @Getter

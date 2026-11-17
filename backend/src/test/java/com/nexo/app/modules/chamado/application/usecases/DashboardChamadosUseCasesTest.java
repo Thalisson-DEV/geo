@@ -60,7 +60,7 @@ class DashboardChamadosUseCasesTest {
         equipeTI = new EquipeAtendimento("TI", "Suporte de TI", "Equipe responsável", Set.of(atendenteB));
         topicoRede = new TopicoChamado("REDES", "Infra de Redes", "Problemas de conectividade",
                 PrioridadeChamado.ALTA, equipeTI, 4, 24, true, 48, 1);
-        topicoSoftware = new TopicoChamado("SISTEMA", "Sistema Nexo", "Dúvidas ou correções",
+        topicoSoftware = new TopicoChamado("SISTEMA", "Sistema GEO", "Dúvidas ou correções",
                 PrioridadeChamado.NORMAL, equipeTI, 2, 8, true, 48, 2);
 
         when(colaboradorApi.buscarNomeCompletoPorUsuario(any())).thenReturn(Optional.empty());

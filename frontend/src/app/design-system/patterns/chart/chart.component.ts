@@ -72,7 +72,7 @@ const KIND_LABEL: Record<CesChartKind, string> = {
 let chartSequence = 0;
 
 /**
- * Gráfico Nexo sobre Chart.js (via `primeng/chart`). Cores vêm dos tokens `--ces-chart-*` (tema claro e
+ * Gráfico GEO sobre Chart.js (via `primeng/chart`). Cores vêm dos tokens `--ces-chart-*` (tema claro e
  * escuro), números no padrão pt-BR, resumo textual para leitores de tela e alternativa em tabela de
  * dados acessível por botão — o gráfico nunca é a única forma de ler a informação.
  */

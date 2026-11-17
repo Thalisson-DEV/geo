@@ -24,7 +24,7 @@ import { CopilotoMarkdownComponent } from './copiloto-markdown.component';
 
 /**
  * Painel de artefatos do workspace (equivalente ao painel de artefatos/"canvas" do Onyx). Renderiza apenas
- * componentes confiáveis do Nexo a partir de especificações já resolvidas pelo backend — nenhum código
+ * componentes confiáveis do GEO a partir de especificações já resolvidas pelo backend — nenhum código
  * do modelo é executado no navegador.
  */
 @Component({

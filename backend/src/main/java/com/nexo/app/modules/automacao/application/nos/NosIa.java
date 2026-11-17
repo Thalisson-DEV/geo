@@ -33,7 +33,7 @@ import com.nexo.app.shared.infrastructure.email.EmailProperties;
  *
  * <p>A IA interpreta, extrai, classifica, resume e analisa; não produz número oficial.
  * Toda saída leva {@code gerado_por_ia} e o verificador avisa quando uma decisão usa
- * resposta de IA antes de um efeito externo sem aprovação humana. O passo "Copiloto
+ * resposta de IA antes de um efeito externo sem aprovação humana. O passo "Bússola
  * analisa" é o agente completo — com as consultas, os indicadores e o relatório PDF do
  * chat —, rodando com as permissões do dono da automação.</p>
  */
@@ -43,7 +43,7 @@ public class NosIa implements ProvedorNos {
     private static final int LIMITE_ENTRADA = 60_000;
     private static final List<List<String>> TIPOS_CAMPO = List.of(List.of("text", "Texto"), List.of("number", "Número"),
             List.of("boolean", "Sim/Não"), List.of("list", "Lista"), List.of("date", "Data"));
-    private static final String SISTEMA = "Você é um passo de uma automação do Nexo (Gestão Operacional), sistema de gestão de "
+    private static final String SISTEMA = "Você é um passo de uma automação do GEO (Gestão de Equipes e Operações), sistema de gestão de "
             + "uma empresa de serviços de energia elétrica. Responda em português do Brasil, de forma objetiva. Use somente as "
             + "informações recebidas; se algo não estiver nos dados, diga que não está. Nunca invente números.";
     private static final Pattern JSON = Pattern.compile("\\{.*}|\\[.*]", Pattern.DOTALL);
@@ -71,8 +71,8 @@ public class NosIa implements ProvedorNos {
     @Override
     public Collection<EspecNo> nos() {
         List<EspecNo> nos = new ArrayList<>();
-        nos.add(EspecNo.de("ai.copiloto", "ai", "Copiloto analisa",
-                        "O Copiloto consulta os dados do Nexo, analisa e escreve um relatório (com PDF, gráficos e tabelas), "
+        nos.add(EspecNo.de("ai.copiloto", "ai", "Bússola analisa",
+                        "A Bússola consulta os dados do GEO, analisa e escreve um relatório (com PDF, gráficos e tabelas), "
                                 + "com as permissões do responsável pela automação. Ótimo para relatórios semanais.", "sparkles")
                 .params(
                         EspecParam.de("prompt", "O que analisar", "textarea").obrigatorio()
@@ -89,7 +89,7 @@ public class NosIa implements ProvedorNos {
                         EspecSaida.lista("files", "Arquivos gerados", List.of(EspecSaida.de("nome", "Nome", "string"),
                                 EspecSaida.de("tipo", "Tipo", "string"), EspecSaida.de("id", "Id", "string"))),
                         EspecSaida.objeto("pdf", "Relatório PDF", List.of(EspecSaida.de("nome", "Nome", "string"))),
-                        EspecSaida.de("conversation_link", "Link da conversa no Copiloto", "string"),
+                        EspecSaida.de("conversation_link", "Link da conversa na Bússola", "string"),
                         EspecSaida.de("gerado_por_ia", "Gerado por IA", "boolean"))
                 .executor(this::analisar)
                 .repeticao("fixed", 1, 60)
@@ -163,7 +163,7 @@ public class NosIa implements ProvedorNos {
     // ------------------------------------------------------------------------------ execução
 
     private String chamar(ContextoAcao ctx, String usuario, double temperatura) {
-        if (!copiloto.disponivel()) throw new ErroAcao("Nenhum modelo de IA configurado no Nexo");
+        if (!copiloto.disponivel()) throw new ErroAcao("Nenhum modelo de IA configurado no GEO");
         try {
             return copiloto.completar(SISTEMA, usuario, temperatura, ctx.limiteSegundos() == null ? 120 : ctx.limiteSegundos());
         } catch (RuntimeException e) {
@@ -298,13 +298,13 @@ public class NosIa implements ProvedorNos {
     }
 
     private Map<String, Object> analisar(ContextoAcao ctx, Map<String, Object> p) {
-        if (!copiloto.disponivel()) throw new ErroAcao("O Copiloto está indisponível: o provedor de IA não está configurado.");
+        if (!copiloto.disponivel()) throw new ErroAcao("A Bússola está indisponível: o provedor de IA não está configurado.");
         String pedido = Valores.texto(p.get("prompt")).strip();
-        if (pedido.isEmpty()) throw new ErroAcao("Diga o que o Copiloto deve analisar");
+        if (pedido.isEmpty()) throw new ErroAcao("Diga o que a Bússola deve analisar");
         boolean pdf = !Boolean.FALSE.equals(p.get("pdf"));
         StringBuilder pergunta = new StringBuilder(pedido);
         if (!Valores.vazio(p.get("context"))) pergunta.append("\n\nDados de apoio (vindos da automação):\n").append(entrada(p.get("context")));
-        pergunta.append("\n\n---\nEsta análise é executada por uma automação do Nexo (\"").append(ctx.automacaoNome())
+        pergunta.append("\n\n---\nEsta análise é executada por uma automação do GEO (\"").append(ctx.automacaoNome())
                 .append("\") e será enviada automaticamente por e-mail. Não faça perguntas de volta: se faltar alguma informação, ")
                 .append("assuma o razoável e diga o que assumiu. Consulte os dados reais antes de concluir. Responda em markdown, ")
                 .append("começando por um resumo executivo curto, depois os destaques com números e as recomendações.");
@@ -315,7 +315,7 @@ public class NosIa implements ProvedorNos {
         CopilotoApi.Analise analise = copiloto.analisar(new CopilotoApi.PedidoAnalise(ctx.donoId(), ctx.donoPermissoes(), nome,
                 titulo + " — " + Valores.formatarData(ctx.agora(), "dd/mm/aaaa"), pergunta.toString(), limite));
         if (!analise.concluida() || analise.texto().isBlank()) {
-            throw new ErroAcao(analise.erro() == null ? "O Copiloto não concluiu a análise" : analise.erro(), true);
+            throw new ErroAcao(analise.erro() == null ? "A Bússola não concluiu a análise" : analise.erro(), true);
         }
         List<Map<String, Object>> refs = new ArrayList<>();
         Map<String, Object> pdfRef = null;

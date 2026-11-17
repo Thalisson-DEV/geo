@@ -17,7 +17,7 @@ const MAX_PROJECTION_AGE_MS = 60_000;
 
 export type StatusSourceError = 'offline' | 'unavailable' | 'stale' | null;
 
-/** Estado compartilhado do status público. Não depende de sessão, API ou cache do Nexo. */
+/** Estado compartilhado do status público. Não depende de sessão, API ou cache do GEO. */
 @Injectable({ providedIn: 'root' })
 export class PublicStatusStore {
   private readonly service = inject(PublicStatusService);

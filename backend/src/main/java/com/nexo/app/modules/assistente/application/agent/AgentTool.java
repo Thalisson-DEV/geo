@@ -34,7 +34,7 @@ public interface AgentTool {
         return RiskLevel.READ_ONLY;
     }
 
-    /** Permissoes do Nexo exigidas: basta possuir qualquer uma. Vazio = qualquer usuario do assistente. */
+    /** Permissoes do GEO exigidas: basta possuir qualquer uma. Vazio = qualquer usuario do assistente. */
     default Set<String> requiredAuthorities() {
         return Set.of();
     }

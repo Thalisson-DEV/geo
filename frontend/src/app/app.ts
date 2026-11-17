@@ -59,7 +59,7 @@ export class App {
   protected readonly menuVisible = signal(window.innerWidth >= 1024);
   protected readonly hideLayout = signal(false);
   protected readonly layoutWorkspace = signal(false);
-  /** Rotas que gerenciam a própria rolagem e margens (workspace do Copiloto e dashboards com painel lateral). */
+  /** Rotas que gerenciam a própria rolagem e margens (workspace da Bússola e dashboards com painel lateral). */
   protected readonly layoutFullBleed = signal(false);
   private menuAntesWorkspace: boolean | null = null;
   protected readonly reportNavigatorSource = signal<string | null>(null);
@@ -266,7 +266,7 @@ export class App {
   }
 
   protected readonly menuItems = signal<MenuItem[]>(removerModulosOcultos([
-    { label: 'Copiloto', icon: 'pi pi-sparkles', routerLink: '/copiloto', badge: 'IA', styleClass: 'ces-sidebar-destaque' },
+    { label: 'Bússola', icon: 'pi pi-compass', routerLink: '/copiloto', badge: 'IA', styleClass: 'ces-sidebar-destaque' },
     // Admin guarda só o que é transversal ao sistema inteiro — quem entra e o que
     // cada um pode. Cadastro de domínio mora no módulo a que pertence: quem cadastra
     // colaborador é o DP, quem cadastra material é o almoxarifado. Ninguém precisa

@@ -162,7 +162,7 @@ export class ChatbotComponent implements AfterViewChecked, OnDestroy {
     this.confirmationService.confirm({
       key: 'assistant-new-chat',
       header: 'Começar uma nova conversa?',
-      message: 'Esta conversa será encerrada aqui. O Copiloto começará sem o contexto das mensagens anteriores.',
+      message: 'Esta conversa será encerrada aqui. A Bússola começará sem o contexto das mensagens anteriores.',
       icon: 'pi pi-comments',
       acceptLabel: 'Começar nova conversa',
       rejectLabel: 'Continuar aqui',

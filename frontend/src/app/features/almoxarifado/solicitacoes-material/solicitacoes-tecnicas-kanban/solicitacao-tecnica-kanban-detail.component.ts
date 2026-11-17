@@ -120,7 +120,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
               }
             </div>
 
-            <!-- Status Operacional e Copiloto -->
+            <!-- Status Operacional e Bússola -->
             <div class="flex items-center gap-2 shrink-0 flex-wrap">
               @if (det.tecnico?.atrasada) {
                 <ces-status tone="danger" icon="pi pi-clock">Atrasada</ces-status>
@@ -372,7 +372,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                   }
                 </div>
 
-                <!-- TABELA LIMPA DE MATERIAIS (PADRÃO Nexo, TOTALMENTE COMPATÍVEL COM TEMA ESCURO) -->
+                <!-- TABELA LIMPA DE MATERIAIS (PADRÃO GEO, TOTALMENTE COMPATÍVEL COM TEMA ESCURO) -->
                 <div class="rounded-xl border border-[var(--ces-border)] overflow-hidden shadow-2xs bg-[var(--ces-surface)]">
                   <div class="overflow-x-auto max-h-[320px]">
                     <table class="w-full text-left text-xs border-collapse">

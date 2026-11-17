@@ -8,7 +8,7 @@ import {
 } from '../../core/models/assistente.models';
 
 /**
- * Processador de pacotes do Copiloto (porta do "packet processor" do Onyx). Converte o stream
+ * Processador de pacotes da Bússola (porta do "packet processor" do Onyx). Converte o stream
  * NDJSON — ou os pacotes persistidos no histórico — numa visão da resposta: etapas das ferramentas
  * (aba 1..n de cada ciclo), texto do modelo (aba 0), artefatos, arquivos, fontes e ações. O mesmo
  * processamento é usado ao vivo e ao reabrir uma conversa, então a linha do tempo é idêntica.

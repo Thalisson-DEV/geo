@@ -405,7 +405,7 @@ export class DashboardEventosComponent implements OnInit {
     this.aplicar();
   }
 
-  /** Contexto do dashboard para o Copiloto: o recorte aplicado e os números em tela. */
+  /** Contexto do dashboard para a Bússola: o recorte aplicado e os números em tela. */
   protected readonly contextoCopiloto = computed(() => this.montarContextoCopiloto());
 
   ngOnInit(): void {
@@ -416,7 +416,7 @@ export class DashboardEventosComponent implements OnInit {
   }
 
   /**
-   * Recorte estruturado para o Copiloto: período, filtros, resumo de acidentalidade, pirâmide, dias sem
+   * Recorte estruturado para a Bússola: período, filtros, resumo de acidentalidade, pirâmide, dias sem
    * acidente, backlog e rankings exibidos. Nunca os eventos individuais nem dados das vítimas — o agente
    * consulta as ferramentas (que aplicam as permissões e preferem agregados para dados sensíveis).
    */
@@ -541,7 +541,7 @@ export class DashboardEventosComponent implements OnInit {
     this.analise.abrir(d.granularidade === 'DIA' ? 'dia' : d.granularidade === 'MES' ? 'mes' : 'ano', diaCivil(ponto.data));
   }
 
-  /** "Analisar com o Copiloto" de dentro da análise: fecha o painel e pergunta com o recorte explícito. */
+  /** "Analisar com a Bússola" de dentro da análise: fecha o painel e pergunta com o recorte explícito. */
   protected perguntarAnalise(vista: VistaAnalise): void {
     if (!vista.copiloto) return;
     this.analise.fechar();

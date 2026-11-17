@@ -12,7 +12,7 @@ import { GrupoConversas } from '../copiloto.store';
   imports: [CesButtonComponent, CesIconButtonComponent, CesAsyncStateComponent, CesTextInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="conversas" aria-label="Conversas do Copiloto">
+    <nav class="conversas" aria-label="Conversas da Bússola">
       @if (mobile()) {
         <div class="conversas__cabecalho">
           <strong>Conversas</strong>

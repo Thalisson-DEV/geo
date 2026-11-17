@@ -5,7 +5,7 @@ package com.nexo.app.modules.automacao.domain;
  * conferido na ativação: uma automação de e-mail que não envia e-mail não ativa.
  */
 public enum TipoAutomacao {
-    EMAIL("E-mail", "Envia e-mails a pessoas de dentro ou de fora do Nexo."),
+    EMAIL("E-mail", "Envia e-mails a pessoas de dentro ou de fora do GEO."),
     ALERTA("Alerta", "Avisa no sininho ou por e-mail quando algo acontece."),
     ROTINA("Rotina", "Roda numa agenda ou a cada evento, como um relatório semanal."),
     APROVACAO("Aprovação", "Pede a decisão de uma pessoa antes de seguir."),

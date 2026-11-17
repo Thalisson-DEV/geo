@@ -14,7 +14,7 @@ const mensagem: MensagemAssistente = {
   dataCriacao: '2026-09-26T12:00:00Z',
 };
 
-describe('histórico do Copiloto', () => {
+describe('histórico da Bússola', () => {
   it('abre a resposta salva quando a API antiga devolve pacotes como objeto', () => {
     const resposta = respostaDaMensagem({
       ...mensagem,

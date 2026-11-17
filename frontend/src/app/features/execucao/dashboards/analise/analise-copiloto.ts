@@ -3,7 +3,7 @@ import { VistaAnalise } from '../../../../shared/components/dashboard/dashboard-
 import { graficoPainel } from '../../../copiloto/painel';
 
 /**
- * O que a análise aberta acrescenta ao contexto do Copiloto quando o usuário pergunta a partir dela:
+ * O que a análise aberta acrescenta ao contexto da Bússola quando o usuário pergunta a partir dela:
  * os gráficos secundários (agregações visíveis) e os indicadores do recorte. É pista, não autorização —
  * o agente aprofunda pelas próprias ferramentas, com as permissões do usuário.
  */

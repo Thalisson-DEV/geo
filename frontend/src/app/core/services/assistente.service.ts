@@ -57,7 +57,7 @@ export function dividirNdjson(buffer: string): { pacotes: PacoteAssistente[]; re
 }
 
 /**
- * Cliente da API do Copiloto. Operações REST passam pelo HttpClient (interceptors de autenticação e
+ * Cliente da API da Bússola. Operações REST passam pelo HttpClient (interceptors de autenticação e
  * idempotência); o streaming NDJSON usa `fetch` + `ReadableStream`, pois o HttpClient não entrega o corpo
  * em partes. O stream não leva chave de idempotência de propósito: o filtro do backend bufferizaria a
  * resposta inteira.
@@ -68,7 +68,7 @@ export class AssistenteService {
   private readonly auth = inject(AuthService);
   private readonly base = `${environment.apiUrl}/v1/assistente`;
 
-  /** Conversas do usuário; `painel` restringe às iniciadas naquele dashboard (Copiloto contextual). */
+  /** Conversas do usuário; `painel` restringe às iniciadas naquele dashboard (Bússola contextual). */
   listarConversas(pagina = 0, tamanho = 40, busca?: string, painel?: string): Observable<PagedResponse<ConversaResumo>> {
     let params = new HttpParams().set('pagina', pagina).set('tamanho', tamanho);
     if (busca?.trim()) params = params.set('busca', busca.trim());
@@ -234,11 +234,11 @@ export class AssistenteService {
       );
     }
     if (resposta.status === 403) {
-      return new AssistenteStreamError('Seu perfil não tem acesso ao Copiloto.', 403);
+      return new AssistenteStreamError('Seu perfil não tem acesso à Bússola.', 403);
     }
     const detalhe = problema?.detail || problema?.title;
     return new AssistenteStreamError(
-      detalhe || `Não foi possível falar com o Copiloto (HTTP ${resposta.status}).`,
+      detalhe || `Não foi possível falar com a Bússola (HTTP ${resposta.status}).`,
       resposta.status,
     );
   }

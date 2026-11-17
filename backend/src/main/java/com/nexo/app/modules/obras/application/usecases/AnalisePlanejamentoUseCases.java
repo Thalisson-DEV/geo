@@ -58,7 +58,7 @@ public class AnalisePlanejamentoUseCases {
     @Transactional
     public AnaliseResponse iniciar(UUID idObra, int pagina) {
         if (!copiloto.visaoDisponivel()) {
-            throw new InvarianteVioladaException("A leitura de projetos pelo Copiloto não está configurada neste ambiente.");
+            throw new InvarianteVioladaException("A leitura de projetos pela Bússola não está configurada neste ambiente.");
         }
         planejamento.buscarObra(idObra);
         PlanejamentoObra dados = planejamento.obterPlanejamento(idObra);

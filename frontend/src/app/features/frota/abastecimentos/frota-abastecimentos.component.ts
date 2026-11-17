@@ -21,7 +21,7 @@ type Aba = (typeof ABAS)[number];
 
 /**
  * Abastecimento da frota: pedidos para aprovar (placas da carteira), para liberar, liberados
- * com o aviso ao posto e todos. O Assistente enxerga o recorte e analisa um pedido.
+ * com o aviso ao posto e todos. A Bússola enxerga o recorte e analisa um pedido.
  */
 @Component({
   selector: 'app-frota-abastecimentos',
@@ -105,7 +105,7 @@ export class FrotaAbastecimentosComponent {
     return this.abasVisiveis().map((a) => todas[a]);
   });
 
-  /** O Assistente recebe as filas e consulta os abastecimentos e os itens entregues. */
+  /** A Bússola recebe as filas e consulta os abastecimentos e os itens entregues. */
   protected readonly contextoAssistente = computed<CopilotoDashboardContext>(() => ({
     id: 'frota.abastecimentos',
     nome: 'Abastecimentos da frota',
@@ -134,7 +134,7 @@ export class FrotaAbastecimentosComponent {
   }
 
   protected abrir(id: string): void {
-    // Abaixo de 1280px o Assistente sobrepõe a tela: não deixa os dois painéis empilhados.
+    // Abaixo de 1280px a Bússola sobrepõe a tela: não deixa os dois painéis empilhados.
     if (typeof matchMedia === 'function' && !matchMedia('(min-width: 1280px)').matches) this.assistente.fechar();
     this.selecionado.set(id);
     this.detalheAberto.set(true);

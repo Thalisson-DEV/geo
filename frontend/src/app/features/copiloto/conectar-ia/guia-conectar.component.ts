@@ -13,7 +13,7 @@ import {
 import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarTexto } from './conectar-ia.util';
 
 /**
- * Passo a passo para conectar uma IA ao Nexo: copiar o endereço, seguir os cliques no
+ * Passo a passo para conectar uma IA ao GEO: copiar o endereço, seguir os cliques no
  * assistente escolhido e testar com uma pergunta.
  */
 @Component({
@@ -33,14 +33,14 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
   styleUrl: './guia-conectar.component.css',
   template: `
     <ces-drawer [(visible)]="visivel" title="Conectar uma IA" size="lg" eyebrow="Passo a passo"
-      description="Leva uns dois minutos. Depois você pergunta sobre o Nexo direto no seu assistente.">
-      <ces-form-section title="1. Copie o endereço do Nexo" icon="pi pi-link"
-        description="É por ele que o seu assistente encontra o Nexo. Você vai colar no passo 2.">
+      description="Leva uns dois minutos. Depois você pergunta sobre o GEO direto no seu assistente.">
+      <ces-form-section title="1. Copie o endereço do GEO" icon="pi pi-link"
+        description="É por ele que o seu assistente encontra o GEO. Você vai colar no passo 2.">
         @if (erroEndereco()) {
           <ces-callout tone="danger" [dense]="true">Não foi possível carregar o endereço. Feche e abra este passo a passo de novo.</ces-callout>
         } @else {
           <div class="guia-copiar">
-            <ces-text-input label="Endereço do Nexo" [labelVisible]="false" [readonly]="true"
+            <ces-text-input label="Endereço do GEO" [labelVisible]="false" [readonly]="true"
               [value]="endereco() || 'Carregando...'"></ces-text-input>
             <ces-button [variant]="copiado() === 'endereco' ? 'success' : 'primary'"
               [icon]="copiado() === 'endereco' ? 'pi pi-check' : 'pi pi-copy'"
@@ -93,8 +93,8 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
 
       <ces-form-section title="O que a sua IA pode fazer" icon="pi pi-shield">
         <div class="guia-copiloto">
-          <img src="icons/copiloto-1.png" alt="" width="40" height="40" />
-          <p>A sua IA usa as mesmas consultas do <strong>Copiloto</strong> e age sempre como você: enxerga só o que o seu perfil já enxerga no Nexo.</p>
+          <img src="icons/bussola.svg" alt="" width="40" height="40" />
+          <p>A sua IA usa as mesmas consultas da <strong>Bússola</strong> e age sempre como você: enxerga só o que o seu perfil já enxerga no GEO.</p>
         </div>
         <div class="guia-limites">
           <div>
@@ -110,7 +110,7 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
             <ul>
               <li>Ver o que o seu perfil não vê.</li>
               <li>Cadastrar nada sem a sua permissão.</li>
-              <li>Continuar usando o Nexo depois que você desconectar.</li>
+              <li>Continuar usando o GEO depois que você desconectar.</li>
             </ul>
           </div>
         </div>

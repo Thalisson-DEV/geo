@@ -14,7 +14,7 @@ import java.time.Duration;
 import java.util.*;
 
 /**
- * Ferramentas de descoberta da camada semantica: o agente aprende o Nexo sob demanda (fontes, colunas,
+ * Ferramentas de descoberta da camada semantica: o agente aprende o GEO sob demanda (fontes, colunas,
  * enums, relacionamentos e regras de negocio) em vez de receber o banco inteiro no prompt.
  */
 @Configuration(proxyBeanMethods = false)
@@ -24,7 +24,7 @@ public class CatalogoTools {
     AgentTool listarFontesDadosTool(SemanticCatalog catalog, SemanticDatasetRegistry datasets,
             SemanticResourceCountRegistry recursos, ResultFormatter formatter) {
         return new BaseTool("listar_fontes_dados", "Explorar fontes de dados",
-                "Lista as fontes de dados do Nexo que o usuario pode consultar, agrupadas por dominio (almoxarifado, obras, "
+                "Lista as fontes de dados do GEO que o usuario pode consultar, agrupadas por dominio (almoxarifado, obras, "
                         + "RH, execucao, contratos, descontos, financeiro, SST, chamados, comunicacao, acessos, "
                         + "sincronizacao), mais datasets semanticos oficiais e cadastros contaveis. Use quando nao souber "
                         + "qual fonte responde a pergunta. Filtre por dominio ou termo.",
@@ -35,7 +35,7 @@ public class CatalogoTools {
                 ToolKind.CATALOG, Set.of(), Duration.ofSeconds(20)) {
             @Override
             public String progressLabel(JsonNode arguments) {
-                return "Explorando as fontes de dados do Nexo";
+                return "Explorando as fontes de dados do GEO";
             }
 
             @Override
@@ -84,7 +84,7 @@ public class CatalogoTools {
     AgentTool descreverFonteDadosTool(SemanticCatalog catalog, SemanticDatasetRegistry datasets,
             ResultFormatter formatter) {
         return new BaseTool("descrever_fonte_dados", "Entender uma fonte de dados",
-                "Descreve uma fonte de dados do Nexo: colunas com tipo e significado, valores validos de campos "
+                "Descreve uma fonte de dados do GEO: colunas com tipo e significado, valores validos de campos "
                         + "categoricos, relacionamentos com outras fontes, coluna de data e exemplos de perguntas. "
                         + "Use antes de escrever SQL ou montar consultas com colunas que voce ainda nao conhece.",
                 JsonSchemas.object()
@@ -160,7 +160,7 @@ public class CatalogoTools {
     @Bean
     AgentTool buscarConceitoTool(SemanticCatalog catalog, ResultFormatter formatter) {
         return new BaseTool("buscar_conceito", "Consultar regras de negócio",
-                "Busca no glossario do Nexo o significado de termos e regras de negocio (SLA de reservas, tipo tecnico "
+                "Busca no glossario do GEO o significado de termos e regras de negocio (SLA de reservas, tipo tecnico "
                         + "221/921, ciclo do desconto, aprovacao financeira, SLA de chamados, obra atrasada...) e as fontes "
                         + "de dados relacionadas. Use quando a pergunta envolver um conceito que voce nao tem certeza.",
                 JsonSchemas.object().required("termo", JsonSchemas.string("Termo ou conceito, ex.: SLA, sucata, baixa")).build(),

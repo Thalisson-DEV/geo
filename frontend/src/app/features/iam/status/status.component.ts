@@ -78,7 +78,7 @@ import { PublicStatusStore } from '../../../core/services/public-status.store';
 
         <footer class="status-page__footer">
           <i class="pi pi-shield" aria-hidden="true"></i>
-          <span>O monitor é independente da autenticação e da API de negócio do Nexo.</span>
+          <span>O monitor é independente da autenticação e da API de negócio do GEO.</span>
         </footer>
       </div>
     </div>

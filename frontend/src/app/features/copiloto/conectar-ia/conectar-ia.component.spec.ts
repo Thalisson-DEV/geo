@@ -73,7 +73,7 @@ describe('ConectarIaComponent', () => {
     botao!.click();
     harness.detectChanges();
     await harness.fixture.whenStable();
-    expect(document.body.textContent).toContain('Copie o endereço do Nexo');
+    expect(document.body.textContent).toContain('Copie o endereço do GEO');
     const enderecos = Array.from(document.body.querySelectorAll<HTMLInputElement>('input[readonly]')).map((i) => i.value);
     expect(enderecos).toContain('https://ces.exemplo/api/mcp');
   });

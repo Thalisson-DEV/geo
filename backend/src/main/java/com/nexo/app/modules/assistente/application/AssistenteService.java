@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * Casos de uso do workspace do Copiloto: conversas (listar, buscar, criar, renomear, excluir), envio de
+ * Casos de uso do workspace da Bússola: conversas (listar, buscar, criar, renomear, excluir), envio de
  * mensagens com streaming, interrupcao/retomada, anexos, artefatos, resultados e capacidades. Toda operacao
  * e restrita ao dono da conversa.
  */
@@ -309,8 +309,8 @@ public class AssistenteService {
                     "pi pi-chart-line"));
         }
         sugestoes.add(new CapacidadesResponse.Sugestao("Conciliar planilha",
-                "Compare um arquivo com os dados do Nexo",
-                "Vou anexar uma planilha: concilie-a com os dados do Nexo e aponte as divergências linha a linha.",
+                "Compare um arquivo com os dados do GEO",
+                "Vou anexar uma planilha: concilie-a com os dados do GEO e aponte as divergências linha a linha.",
                 "pi pi-file-excel"));
         if (web) {
             sugestoes.add(new CapacidadesResponse.Sugestao("Normas e mercado",

@@ -127,7 +127,7 @@
                 }
                 @if(transcricoes().length){<div class="subsection"><div class="subsection-title"><i class="pi pi-history"></i>Revisões salvas <b>{{transcricoes().length}}</b></div><div class="revision-list">@for(item of transcricoes();track item.id){<div><span><b>Revisão {{item.numero}}</b><small>{{item.dataCriacao|date:'dd/MM/yyyy HH:mm'}} · {{item.origem}}</small></span>@if(item.confirmada){<p-tag value="Confirmada" severity="success"/>}@else if(podeEditar()){<p-button label="Confirmar texto" icon="pi pi-check" [text]="true" size="small" (onClick)="confirmarTranscricao(item)"/>}</div>}</div></div>}
                 @if(capabilities().normalizacaoIaDisponivel){
-                  <div class="subsection"><div class="subsection-head"><div><div class="subsection-title"><i class="pi pi-sparkles"></i>Organização assistida</div><p class="help">Separa tópicos, decisões, ações candidatas e dúvidas sem produzir a ata final.</p></div>@if(podeEditar()){<p-button label="Organizar transcrição" icon="pi pi-sparkles" [loading]="processando()==='normalizar'" (onClick)="normalizar()"/>}</div>
+                  <div class="subsection"><div class="subsection-head"><div><div class="subsection-title"><i class="pi pi-compass"></i>Organização assistida</div><p class="help">Separa tópicos, decisões, ações candidatas e dúvidas sem produzir a ata final.</p></div>@if(podeEditar()){<p-button label="Organizar transcrição" icon="pi pi-compass" [loading]="processando()==='normalizar'" (onClick)="normalizar()"/>}</div>
                     @for(item of normalizacoes();track item.id){
                       <div class="flex flex-col gap-1">
                         <div class="normalization-row">
@@ -164,26 +164,26 @@
               <div class="step-panel">
                 <div class="step-intro">
                   <span>Revisão humana obrigatória</span>
-                  <h2>Gere a ata com o Copiloto (IA)</h2>
-                  <p>Nosso assistente virtual gerará o texto da ata automaticamente lendo as transcrições. Você pode editar o texto gerado manualmente abaixo, ou descrever uma correção para o Copiloto reescrever.</p>
+                  <h2>Gere a ata com a Bússola (IA)</h2>
+                  <p>Nosso assistente virtual gerará o texto da ata automaticamente lendo as transcrições. Você pode editar o texto gerado manualmente abaixo, ou descrever uma correção para a Bússola reescrever.</p>
                 </div>
                 @if(atas().length){<div class="field"><label>Versão em revisão</label><p-select size="small" [(ngModel)]="ataSelecionada" (ngModelChange)="aoSelecionarAta()" [options]="atas()" optionLabel="numero" optionValue="id" appendTo="body"><ng-template #selectedItem let-item>Versão {{item.numero}} · {{rotulo(item.origem)}} · {{rotulo(item.status)}}</ng-template><ng-template #item let-item>Versão {{item.numero}} · {{rotulo(item.origem)}} · {{rotulo(item.status)}}</ng-template></p-select></div>}
 
                 @if (capabilities().geracaoIaDisponivel && podeEditar()) {
                   @if (atas().length) {
-                    <div class="field"><label for="correcao">O que precisa ser corrigido pela IA? <span class="optional">Opcional</span></label><textarea id="correcao" pTextarea size="small" [(ngModel)]="instrucaoCorrecao" rows="2" maxlength="4000" placeholder="Ex.: Copiloto, corrija o nome do responsável." [disabled]="!podeEditar()"></textarea></div>
+                    <div class="field"><label for="correcao">O que precisa ser corrigido pela IA? <span class="optional">Opcional</span></label><textarea id="correcao" pTextarea size="small" [(ngModel)]="instrucaoCorrecao" rows="2" maxlength="4000" placeholder="Ex.: Bússola, corrija o nome do responsável." [disabled]="!podeEditar()"></textarea></div>
                   }
                   <div class="flex flex-wrap gap-2 mb-4 mt-2">
-                    <p-button [label]="atas().length?'Pedir nova versão ao Copiloto':'Gerar ATA com o Copiloto'" icon="pi pi-sparkles" [loading]="processando()==='gerar-ata'" (onClick)="gerarAta()"/>
+                    <p-button [label]="atas().length?'Pedir nova versão à Bússola':'Gerar ATA com a Bússola'" icon="pi pi-compass" [loading]="processando()==='gerar-ata'" (onClick)="gerarAta()"/>
                   </div>
                 }
 
                 <div class="field"><label for="conteudoManual">Texto da ata</label>
                   @if (processando() === 'gerar-ata') {
                     <div class="ai-loading-container">
-                      <img src="icons/copiloto-1.png" alt="Copiloto" class="ai-avatar" />
+                      <img src="icons/bussola.svg" alt="Bússola" class="ai-avatar" />
                       <div class="ai-loading-text">
-                        <strong>O Copiloto está elaborando a ata...</strong>
+                        <strong>A Bússola está elaborando a ata...</strong>
                         <span>Isso pode levar alguns segundos dependendo do tamanho da reunião.</span>
                         <div class="typing-indicator"><span></span><span></span><span></span></div>
                       </div>

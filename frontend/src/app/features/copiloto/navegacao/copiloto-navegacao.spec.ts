@@ -2,7 +2,7 @@ import { AssistenteAcao } from '../../../core/models/assistente.models';
 import { COPILOTO_DESTINOS } from './copiloto-destinos';
 import { resolveChatNavigation } from './copiloto-navegacao';
 
-describe('navegação do Copiloto', () => {
+describe('navegação da Bússola', () => {
   const uuid = '550e8400-e29b-41d4-a716-446655440000';
 
   it('publica exatamente as 86 chaves ativas do catálogo 1.1', () => {

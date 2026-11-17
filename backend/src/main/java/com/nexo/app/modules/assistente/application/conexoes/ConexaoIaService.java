@@ -117,7 +117,7 @@ public class ConexaoIaService {
 
     /**
      * Conversa tecnica da conexao (resultados r1, r2... e auditoria das ferramentas), criada no primeiro
-     * uso. Fica fora do historico do Copiloto.
+     * uso. Fica fora do historico da Bússola.
      */
     @Transactional
     public ConexaoIa garantirConversa(UUID conexaoId) {

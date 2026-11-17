@@ -13,7 +13,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** Arquivo produzido numa execução (ex.: o relatório PDF do Copiloto), anexável a e-mails. */
+/** Arquivo produzido numa execução (ex.: o relatório PDF da Bússola), anexável a e-mails. */
 @Entity
 @Table(name = "automacao_arquivos")
 @Getter

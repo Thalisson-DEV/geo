@@ -1,4 +1,4 @@
-/** Conexões do Nexo com IAs externas (Claude, ChatGPT, Cursor...) pelo protocolo MCP. */
+/** Conexões do GEO com IAs externas (Claude, ChatGPT, Cursor...) pelo protocolo MCP. */
 
 export type TipoConexaoIa = 'OAUTH' | 'CHAVE';
 export type SituacaoConexaoIa = 'CONECTADA' | 'VENCIDA' | 'DESCONECTADA';

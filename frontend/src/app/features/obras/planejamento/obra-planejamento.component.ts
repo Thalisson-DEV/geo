@@ -191,7 +191,7 @@ export class ObraPlanejamentoComponent {
   protected readonly projetoArquivo = signal<File | null>(null);
   protected readonly enviandoProjeto = signal(false);
 
-  // ---- Copiloto ----
+  // ---- Bússola ----
   protected readonly leituraDisponivel = signal(false);
   protected readonly analisando = signal(false);
   protected readonly analise = signal<AnalisePlanejamento | null>(null);
@@ -1090,7 +1090,7 @@ export class ObraPlanejamentoComponent {
     });
   }
 
-  // ---- Copiloto ----
+  // ---- Bússola ----
 
   private consultarLeitura(pagina: number): void {
     this.api.disponibilidadeAnalise(this.idObra, pagina).pipe(take(1)).subscribe({

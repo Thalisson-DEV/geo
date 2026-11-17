@@ -10,7 +10,7 @@ import com.nexo.app.modules.notificacao.domain.PrioridadeNotificacao;
 
 /**
  * Projeção interna da política que o adapter de observabilidade pode avaliar sem
- * consultar o Nexo. O contrato é deliberadamente separado das respostas públicas
+ * consultar o GEO. O contrato é deliberadamente separado das respostas públicas
  * de regras e preferências, pois contém a audiência técnica.
  */
 public record PoliticaObservabilidadeResponse(

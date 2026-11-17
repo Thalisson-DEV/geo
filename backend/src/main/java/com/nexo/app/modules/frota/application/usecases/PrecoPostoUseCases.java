@@ -34,7 +34,7 @@ import java.util.stream.Stream;
 
 /**
  * Preço por posto e produto, com histórico: o realizado calcula o valor por ele. O preço lido
- * no cupom pelo Assistente vira sugestão e só muda o cadastro depois de confirmado.
+ * no cupom pela Bússola vira sugestão e só muda o cadastro depois de confirmado.
  */
 @Service
 @RequiredArgsConstructor

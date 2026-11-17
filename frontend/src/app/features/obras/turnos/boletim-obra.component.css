@@ -86,7 +86,7 @@
   white-space: normal;
 }
 
-/* A rota é fullBleed: o shell não rola, então a tela rola sozinha, como a área do Copiloto faz no comercial. */
+/* A rota é fullBleed: o shell não rola, então a tela rola sozinha, como a área da Bússola faz no comercial. */
 :host {
   display: block;
   height: 100%;

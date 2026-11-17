@@ -8,6 +8,6 @@ public record DescontoAnexoResponse(
         String url,
         String contentType,
         Long tamanhoBytes,
-        /** Termo impresso pelo C.E.S e assinado pelo colaborador (o que finaliza o desconto). */
+        /** Termo impresso pelo GEO e assinado pelo colaborador (o que finaliza o desconto). */
         boolean termoAssinado
 ) {}

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * O que o Copiloto leu numa página do projeto, já convertido para coordenadas da página.
+ * O que a Bússola leu numa página do projeto, já convertido para coordenadas da página.
  *
  * @param referencia identifica a sugestão dentro da proposta (é o número lido na folha)
  * @param confianca  de 0 a 1, informada pelo modelo

@@ -122,7 +122,7 @@ public class ProcessarAnaliseProjetoService {
             lerBloco(pergunta, folha, interpretador);
         } catch (Exception e) {
             log.warn("Modelo indisponível na leitura do projeto; seguindo só com o texto do PDF", e);
-            interpretador.avisar("O Copiloto não conseguiu analisar o desenho: vieram só os pontos lidos do texto do PDF, sem vãos.");
+            interpretador.avisar("A Bússola não conseguiu analisar o desenho: vieram só os pontos lidos do texto do PDF, sem vãos.");
         }
     }
 

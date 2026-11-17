@@ -10,26 +10,26 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="boas-vindas" aria-labelledby="copiloto-boas-vindas-titulo">
-      <img class="boas-vindas__avatar" src="icons/copiloto-2.png" alt="" aria-hidden="true" />
+      <img class="boas-vindas__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
       <h1 id="copiloto-boas-vindas-titulo" class="boas-vindas__titulo">O que vamos explorar hoje?</h1>
       <p class="boas-vindas__texto">
-        Converse com os dados do Nexo, investigue resultados e crie análises.
+        Converse com os dados do GEO, investigue resultados e crie análises.
       </p>
 
       @if (contexto(); as ctx) {
         <ces-callout tone="info" icon="pi-map-marker" title="Contexto desta conversa" [dense]="true">
-          Você abriu o Copiloto a partir de {{ ctx.rotulo || ctx.pagina || ctx.entidadeTipo }}. Perguntas como
+          Você abriu a Bússola a partir de {{ ctx.rotulo || ctx.pagina || ctx.entidadeTipo }}. Perguntas como
           “analise isto” usam esse contexto.
         </ces-callout>
       }
 
       @if (capacidades(); as cap) {
         @if (!cap.disponivel) {
-          <ces-callout tone="warning" icon="pi-exclamation-triangle" title="Copiloto indisponível" [dense]="true">
+          <ces-callout tone="warning" icon="pi-exclamation-triangle" title="Bússola indisponível" [dense]="true">
             {{ cap.motivoIndisponibilidade || 'O provedor de IA não está configurado neste ambiente.' }}
           </ces-callout>
         }
-        <div class="boas-vindas__recursos" aria-label="Capacidades do Copiloto">
+        <div class="boas-vindas__recursos" aria-label="Capacidades da Bússola">
           <h2 class="boas-vindas__subtitulo">O que posso fazer</h2>
           @if (capacidadesDisponiveis().length) {
             <p class="boas-vindas__estado">Disponível agora</p>
@@ -67,7 +67,7 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
       } @else if (erro()) {
         <ces-async-state state="error" [compact]="true" title="Não foi possível carregar as capacidades" [description]="erro() || undefined"></ces-async-state>
       } @else {
-        <ces-async-state state="loading" [compact]="true" title="Preparando o Copiloto"></ces-async-state>
+        <ces-async-state state="loading" [compact]="true" title="Preparando a Bússola"></ces-async-state>
       }
     </section>
   `,
@@ -166,7 +166,7 @@ export class CopilotoBoasVindasComponent {
     const tipos = new Set((cap?.ferramentas ?? []).map((ferramenta) => ferramenta.tipo));
     const disponivel = (habilitada: boolean) => !!cap?.disponivel && habilitada;
     return [
-      { label: 'Consultar dados do Nexo', icon: 'pi pi-database', disponivel: disponivel(['CATALOG', 'DATA', 'SQL'].some((tipo) => tipos.has(tipo))) },
+      { label: 'Consultar dados do GEO', icon: 'pi pi-database', disponivel: disponivel(['CATALOG', 'DATA', 'SQL'].some((tipo) => tipos.has(tipo))) },
       { label: 'Analisar resultados', icon: 'pi pi-chart-line', disponivel: disponivel(tipos.has('ANALYSIS')) },
       { label: 'Indicar caminhos', icon: 'pi pi-compass', disponivel: disponivel(tipos.has('NAVIGATION')) },
       { label: 'Dashboards', icon: 'pi pi-objects-column', disponivel: disponivel(tipos.has('ARTIFACT')) },
@@ -177,7 +177,7 @@ export class CopilotoBoasVindasComponent {
       { label: 'Pesquisa web', icon: 'pi pi-globe', disponivel: disponivel(!!cap?.pesquisaWeb) },
       { label: 'Leitura de páginas', icon: 'pi pi-external-link', disponivel: disponivel(!!cap?.leituraWeb) },
       { label: 'Competências', icon: 'pi pi-sparkles', disponivel: disponivel(!!cap?.competencias?.length) },
-      { label: 'Alterar dados do Nexo', icon: 'pi pi-pencil', disponivel: disponivel(tipos.has('WRITE')) },
+      { label: 'Alterar dados do GEO', icon: 'pi pi-pencil', disponivel: disponivel(tipos.has('WRITE')) },
     ];
   });
 

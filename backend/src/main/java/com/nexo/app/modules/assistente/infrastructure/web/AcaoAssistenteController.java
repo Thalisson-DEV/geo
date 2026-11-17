@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Cartoes de confirmacao do Copiloto: o usuario revisa, confirma ou cancela o que o assistente preparou.
+ * Cartoes de confirmacao da Bússola: o usuario revisa, confirma ou cancela o que o assistente preparou.
  *
  * <p>As previas sao arvores JSON do Jackson 2 (as mesmas do agente); o conversor HTTP do Spring usa o Jackson 3,
  * que nao as conhece. Por isso entrada e saida sao serializadas aqui, com o mesmo mapper do agente.</p>
@@ -31,7 +31,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/v1/assistente")
 @PreAuthorize("hasAuthority('assistente:chat:use')")
-@Tag(name = "Copiloto - ações", description = "Confirmação das ações preparadas pelo Copiloto")
+@Tag(name = "Bússola - ações", description = "Confirmação das ações preparadas pela Bússola")
 public class AcaoAssistenteController {
 
     private final AcoesPendentesService service;

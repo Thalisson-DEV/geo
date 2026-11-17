@@ -23,7 +23,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
-/** O que o Copiloto cadastra em Segurança do trabalho: eventos, acoes, metas de inspecao e catalogos. */
+/** O que a Bússola cadastra em Segurança do trabalho: eventos, acoes, metas de inspecao e catalogos. */
 @Component
 public class CadastrosSstCopiloto implements ProvedorCadastros {
 

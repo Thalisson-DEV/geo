@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 /**
  * Cadastro que outros cadastros referenciam (funcao, base, equipe, material...). O modulo dono declara uma
- * consulta somente leitura que devolve as colunas {@code id}, {@code rotulo} e {@code detalhe}; o Copiloto a
+ * consulta somente leitura que devolve as colunas {@code id}, {@code rotulo} e {@code detalhe}; a Bússola a
  * usa para achar o registro pelo nome que o usuario falou, sem que ninguem precise saber ids.
  *
  * @param tipo     chave estavel ("funcao", "base_operacional")

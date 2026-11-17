@@ -1,5 +1,5 @@
 /**
- * Destino ao clicar — catálogo das rotas reais do Nexo.
+ * Destino ao clicar — catálogo das rotas reais do GEO.
  *
  * Mora ao lado do formulário de regras, e não em `notificacoes-ui.ts`, porque aquele arquivo é
  * alcançado pelo sininho e pelo mural — presentes no shell da aplicação. A lista de rotas só

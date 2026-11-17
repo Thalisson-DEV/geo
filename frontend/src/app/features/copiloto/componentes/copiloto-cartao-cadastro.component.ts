@@ -39,7 +39,7 @@ const ICONE_MODULO: Record<string, string> = {
 };
 
 /**
- * Cartão de confirmação de um cadastro preparado pelo Copiloto: mostra os dados com o que falta, deixa
+ * Cartão de confirmação de um cadastro preparado pela Bússola: mostra os dados com o que falta, deixa
  * corrigir cada campo ali mesmo e só grava quando a pessoa confirma.
  */
 @Component({

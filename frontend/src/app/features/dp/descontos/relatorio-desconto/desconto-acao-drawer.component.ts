@@ -63,7 +63,7 @@ const CONFIGURACAO: Record<Exclude<AcaoDesconto, 'DESFAZER'>, ConfiguracaoAcao> 
   },
   FINALIZAR: {
     titulo: 'Anexar termo assinado',
-    descricao: 'Digitalize o termo impresso pelo C.E.S com a assinatura do colaborador. Ao anexar, o desconto é finalizado.',
+    descricao: 'Digitalize o termo impresso pelo GEO com a assinatura do colaborador. Ao anexar, o desconto é finalizado.',
     confirmar: 'Anexar e finalizar',
     icone: 'pi pi-verified',
     variante: 'success'

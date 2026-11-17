@@ -91,7 +91,7 @@ interface CatalogInspector {
     <main class="ces-catalog-analytics">
       <header class="ces-catalog-analytics__header">
         <div>
-          <span class="ces-catalog__eyebrow">Design System Nexo · BI</span>
+          <span class="ces-catalog__eyebrow">Design System GEO · BI</span>
           <h1>Analítico e drill-down</h1>
           <p>
             Gráfico selecionável abrindo painel de detalhe, tabela analítica com ordenação

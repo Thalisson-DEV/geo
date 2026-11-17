@@ -31,7 +31,7 @@ import com.nexo.app.modules.rh.ColaboradorApi;
 import com.nexo.app.modules.rh.ColaboradorResponse;
 
 /**
- * Pessoas e dados do Nexo: escolher destinatários por regra (ex.: a base do
+ * Pessoas e dados do GEO: escolher destinatários por regra (ex.: a base do
  * colaborador decide qual RH atende), buscar colaborador ou usuário, consultar os dados
  * do sistema com as permissões do dono e pedir aprovação.
  */
@@ -105,8 +105,8 @@ public class NosPessoasDados implements ProvedorNos {
                 })
                 .palavras("pessoas", "usuários", "equipe", "lista", "permissão", "perfil")
                 .criar());
-        nos.add(EspecNo.de("ces.query", "ces", "Consultar dados do Nexo",
-                        "Consulta estruturada às bases de dados do Nexo (descontos, execução, estoque, SST…), com as permissões do responsável.", "database")
+        nos.add(EspecNo.de("ces.query", "ces", "Consultar dados do GEO",
+                        "Consulta estruturada às bases de dados do GEO (descontos, execução, estoque, SST…), com as permissões do responsável.", "database")
                 .params(
                         EspecParam.de("source", "Fonte de dados", "source").obrigatorio().estatico().criar(),
                         EspecParam.de("columns", "Colunas (vazio = todas)", "list").padrao(List.of()).criar(),

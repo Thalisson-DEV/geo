@@ -171,7 +171,7 @@ class OpenAiCompatibleLlmProviderTest {
         LlmToolDefinition ferramenta = new LlmToolDefinition("consultar_estoque", "Consulta saldos",
                 mapper.createObjectNode().put("type", "object"));
         return new LlmRequest("accounts/fireworks/models/deepseek-v4-flash-0731", List.of(
-                new LlmMessage.System("Voce e o Copiloto"),
+                new LlmMessage.System("Voce e a Bússola"),
                 new LlmMessage.User("Quanto temos de cabo?"),
                 new LlmMessage.Assistant(null, "raciocinio anterior",
                         List.of(new LlmToolCall("call_0", "consultar_estoque", "{}"))),

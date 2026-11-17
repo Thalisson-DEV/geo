@@ -345,7 +345,7 @@
   <ces-boolean-control label="Somente as minhas inspeções" kind="toggle" [value]="exportApenasMinhas" (valueChange)="exportApenasMinhas = $event"></ces-boolean-control>
   <div drawer-footer class="ces-actions-row">
     @if (copilotoDisponivel) {
-      <ces-button label="Relatório PDF com Copiloto" icon="pi pi-sparkles" variant="ghost" (pressed)="relatorioComCopiloto()"></ces-button>
+      <ces-button label="Relatório PDF com Bússola" icon="pi pi-compass" variant="ghost" (pressed)="relatorioComCopiloto()"></ces-button>
     }
     <ces-button label="Cancelar" variant="ghost" (pressed)="showExportDialog = false"></ces-button>
     <ces-button [label]="exportArquivo === 'xlsx' ? 'Baixar Excel' : 'Baixar CSV'" icon="pi pi-download" [loading]="exportando()" (pressed)="executarExportacao()"></ces-button>

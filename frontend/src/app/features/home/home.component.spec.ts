@@ -16,7 +16,7 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
   });
 
-  it('apresenta as sete áreas do Nexo como links de navegação', () => {
+  it('apresenta as sete áreas do GEO como links de navegação', () => {
     const links = fixture.nativeElement.querySelectorAll('a.module-link') as NodeListOf<HTMLAnchorElement>;
 
     expect(links).toHaveLength(7);
