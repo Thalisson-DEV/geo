@@ -5,6 +5,7 @@ import { Page, expect, test } from '@playwright/test';
 const OBRA = '11111111-1111-4111-8111-111111111111';
 const MODELO = '22222222-2222-4222-8222-222222222222';
 const PONTO = '33333333-3333-4333-8333-333333333333';
+const COLABORADOR = '44444444-4444-4444-8444-444444444444';
 
 const obra = {
   id: OBRA, numero: '7000001', titulo: 'Obra de teste', statusNome: 'EM EXECUÇÃO', statusConcluida: false, tipoObra: 'OBRA', anexos: [], subprojetos: [], equipes: [], projetosRelacionados: [], ocorrencias: [], historicoStatus: []
@@ -44,6 +45,7 @@ async function simularApi(page: Page, estado: Estado): Promise<void> {
     const pedido = route.request();
     const caminho = new URL(pedido.url()).pathname;
     if (/favorit|notifica/.test(caminho)) return responder(route, []);
+    if (caminho.endsWith('/rh/colaboradores/options')) return responder(route, { items: [{ value: COLABORADOR, label: 'ANA FICTICIA' }], nextCursor: null, hasMore: false });
     if (pedido.method() !== 'GET' && caminho.includes('/obras/')) {
       estado.escritas.push({ metodo: pedido.method(), caminho, corpo: caminho.endsWith('/evidencias') ? null : pedido.postDataJSON() });
       if (caminho.endsWith('/visitas')) estado.documentacao = documentacao({ visitaRealizada: true, visitas: [{ id: 'v1', idModelo: MODELO, tituloModelo: 'Pré-vistoria', dataVisita: '2026-11-01', responsavel: 'ANA FICTICIA', observacoes: null, respostas: { itens: [] }, usuario: 'Teste', data: '2026-11-01T10:00:00-03:00' }] });
@@ -77,7 +79,7 @@ test('o supervisor registra a visita prévia, e a obra passa a "Realizada"', asy
   await page.goto(`/obras/${OBRA}`);
 
   const secao = page.locator('app-obra-documentacao');
-  await expect(secao.getByText('Não realizada')).toBeVisible({ timeout: 20_000 });
+  await expect(secao.getByText('Não realizada', { exact: true })).toBeVisible({ timeout: 20_000 });
   await secao.getByRole('button', { name: 'Registrar visita' }).click();
 
   const gaveta = page.locator('.p-drawer');
@@ -85,7 +87,8 @@ test('o supervisor registra a visita prévia, e a obra passa a "Realizada"', asy
   await expect(gaveta.getByText('Responda esta pergunta.')).toBeVisible();
   expect(estado.escritas).toEqual([]);
 
-  await gaveta.getByRole('textbox', { name: /Responsável/i }).fill('ANA FICTICIA');
+  await gaveta.getByRole('combobox', { name: /Responsável/i }).fill('ANA');
+  await page.getByRole('option', { name: 'ANA FICTICIA' }).click();
   await gaveta.getByRole('button', { name: 'Sim', exact: true }).click();
   await gaveta.getByRole('checkbox', { name: 'Não se aplica' }).click();
   await gaveta.getByRole('button', { name: 'Salvar visita' }).click();
@@ -117,7 +120,7 @@ test('quem só consulta vê a documentação sem ações de lançamento', async 
   await page.goto(`/obras/${OBRA}`);
 
   const secao = page.locator('app-obra-documentacao');
-  await expect(secao.getByText('Não realizada')).toBeVisible({ timeout: 20_000 });
+  await expect(secao.getByText('Não realizada', { exact: true })).toBeVisible({ timeout: 20_000 });
   for (const acao of ['Registrar visita', 'Gerar versão 1', 'Marcar equipamento']) {
     await expect(secao.getByRole('button', { name: acao })).toHaveCount(0);
   }

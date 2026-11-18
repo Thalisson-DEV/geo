@@ -122,15 +122,13 @@ test.describe('listagens críticas', () => {
     await expect(page.getByText('Editar material')).toBeVisible();
   });
 
-  test('solicitações de material: abre nos dados do contexto comercial', async ({ page }) => {
-    const chamadas = await simularApi(page, {
-      '/v1/solicitacoes-material': pagina([
-        { id: 'abcdef12-0000', tipoTecnico: 'ADICAO_COMUM', estoqueOrigemNome: 'ALMOX CENTRAL', estoqueDestinoNome: 'CAMPO EQ-01', status: 'PENDENTE', dataSolicitacao: '2026-09-10T10:00:00Z', totalItens: 2 }
-      ])
-    });
+  // As solicitações comerciais ficam fora desta distribuição (core/white-label/modulos-ocultos.ts):
+  // o endereço direto volta ao início em vez de abrir a listagem.
+  test('solicitações comerciais: o endereço direto volta ao início', async ({ page }) => {
+    await simularApi(page, {});
     await page.goto('/almoxarifado/solicitacoes');
-    await expect(page.getByText('ALMOX CENTRAL')).toBeVisible({ timeout: 20_000 });
-    await expect.poll(() => chamadas.at(-1)?.searchParams.get('contexto')).toBe('COMERCIAL');
+    await expect(page.getByRole('heading', { level: 1, name: /Pessoas, ativos e operação/ })).toBeVisible({ timeout: 20_000 });
+    await expect(page).not.toHaveURL(/\/almoxarifado\/solicitacoes/);
   });
 
   test('movimentações: abre nos dados e a prévia carrega os itens', async ({ page }) => {

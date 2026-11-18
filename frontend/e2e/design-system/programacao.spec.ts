@@ -116,6 +116,8 @@ async function entrar(page: Page): Promise<void> {
 async function escolher(page: Page, gaveta: ReturnType<Page['locator']>, campo: string, opcao: string): Promise<void> {
   await gaveta.getByRole('combobox', { name: campo }).click();
   await page.getByRole('option', { name: opcao, exact: true }).click();
+  // Espera a lista fechar: a do campo anterior ainda some quando a próxima abre.
+  await expect(page.getByRole('listbox')).toHaveCount(0);
 }
 
 test('programa a seleção, exige as condições e avisa o que fica de fora', async ({ page, isMobile }) => {
@@ -207,7 +209,7 @@ test('o histórico envia os filtros e os atalhos ao servidor', async ({ page }) 
 
   await expect(page.getByRole('button', { name: /Todos/ }).first()).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
   await expect.poll(() => pedidos.some((u) => u.includes('mudou=EQUIPE') && u.includes('obra=7000001'))).toBe(true);
-  await page.locator('.hist-atalhos').getByRole('button', { name: /^Excluída/ }).click();
+  await page.getByRole('group', { name: 'Mostrar só os tipos escolhidos' }).getByRole('button', { name: /^Excluída/ }).click();
   await expect.poll(() => pedidos.some((u) => u.includes('tipos=EXCLUIDA') && u.includes('size=25'))).toBe(true);
 });
 
@@ -230,10 +232,10 @@ test('abre a semana filtrada pela URL e reprograma com observação', async ({ p
   await gaveta.getByRole('radio', { name: /LNV-02/ }).click();
 
   await gaveta.getByRole('button', { name: 'Reprogramar' }).click();
-  await expect(gaveta).toContainText('Informe a observação da reprogramação.');
+  await expect(gaveta).toContainText('Informe o motivo da reprogramação.');
   expect(estado.reprogramar).toBeUndefined();
 
-  await gaveta.getByLabel('Observação').fill('turma errada');
+  await gaveta.getByLabel('Motivo da reprogramação').fill('turma errada');
   await gaveta.getByRole('button', { name: 'Reprogramar' }).click();
   await expect.poll(() => estado.reprogramar?.['observacao']).toBe('turma errada');
   expect(estado.reprogramar?.['idEquipe']).toBe(EQUIPE_B);
