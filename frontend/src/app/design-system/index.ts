@@ -6,3 +6,4 @@ export * from './overlays';
 export * from './feedback';
 export * from './patterns';
 export * from './kanban';
+export * from './icons';

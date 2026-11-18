@@ -2,7 +2,6 @@ import { Component, input, output, model, inject, computed } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
 import { BadgeModule } from 'primeng/badge';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuItem } from 'primeng/api';
@@ -16,7 +15,6 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
     CommonModule,
     PanelMenuModule,
     ButtonModule,
-    RippleModule,
     BadgeModule,
     TooltipModule,
     RouterLink
@@ -54,7 +52,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
           <!-- Expanded Menu -->
           <div class="px-3 animate-in slide-in-from-left-2 duration-300" [class.mt-4]="isMobile()">
             @if (copilotoItem(); as item) {
-              <a pRipple
+              <a
                  [routerLink]="item.routerLink"
                  class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)] geo-sidebar-destaque"
                  [class.geo-sidebar-active-link]="isItemActive(item)"
@@ -67,7 +65,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
             <p-panelmenu [model]="panelItems()" class="!border-0 !w-full custom-panelmenu">
               <ng-template #item let-item>
                 @if (item.routerLink) {
-                  <a pRipple
+                  <a
                      [routerLink]="item.routerLink"
                      [queryParams]="item.queryParams"
                      class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)]"
@@ -79,7 +77,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
                     @if (item.badge) { <span class="geo-sidebar-badge">{{ item.badge }}</span> }
                   </a>
                 } @else if (item.url) {
-                  <a pRipple
+                  <a
                      [href]="item.url"
                      [target]="item.target || '_self'"
                      class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)]"
@@ -88,7 +86,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
                     <span class="ms-3 text-[11px] font-medium text-[var(--geo-foreground-muted)] group-hover:text-[var(--geo-foreground)]">{{ item.label }}</span>
                   </a>
                 } @else {
-                  <a pRipple
+                  <a
                      class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)]"
                      (click)="onItemClick(item)">
                     <i [class]="item.icon + ' text-[var(--geo-foreground-subtle)] group-hover:text-[var(--geo-brand)] transition-colors'"></i>

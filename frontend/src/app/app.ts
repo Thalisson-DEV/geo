@@ -217,17 +217,11 @@ export class App {
     // preservando a preferência explicitamente salva no navegador pelo usuário
     effect(() => {
       const user = this.auth.currentUser();
-      const savedMode = localStorage.getItem('geo_theme_mode');
-      const isDark = savedMode ? savedMode === 'dark' : user?.tema === 'dark';
-      this.theme.setDarkMode(isDark);
-
-      const savedColor = localStorage.getItem('geo_primary_color');
-      const color = savedColor || user?.corPrimaria;
-      if (color) this.theme.updatePrimaryColor(color);
-
-      const savedRipple = localStorage.getItem('geo_ripple_enabled');
-      const ripple = savedRipple !== null ? savedRipple !== 'false' : (user?.animacoesAtivadas ?? true);
-      this.theme.setRipple(ripple);
+      // A escolha gravada neste aparelho vale mais que a do perfil. O perfil só traz o escuro
+      // (o claro é o padrão do servidor e não é escolha); sem nenhuma, segue o sistema.
+      if (user?.tema === 'dark' && !this.theme.temTemaSalvo()) {
+        untracked(() => this.theme.setTema('escuro'));
+      }
     });
 
     // O menu é montado uma vez; ao entrar/sair da sessão as entradas dependentes

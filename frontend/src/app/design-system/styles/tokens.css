@@ -1,44 +1,89 @@
+/*
+ * Tokens do GEO: a única fonte de cor, tipo, forma, elevação, densidade e movimento.
+ *
+ * Convenção: --geo-<categoria>-<papel>[-<variante>], nomeado pelo papel e nunca pela cor.
+ * Todo token declarado em :root tem valor no tema escuro (bloco .app-dark), garantido por
+ * tokens.spec.ts. O tema escuro só vale na tela (@media screen): a impressão sai sempre clara.
+ */
 @layer geo.tokens {
+  @font-face {
+    font-family: 'Manrope';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url('/fonts/manrope-latin.woff2') format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+      U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  }
+
+  @font-face {
+    font-family: 'Manrope';
+    font-style: normal;
+    font-display: swap;
+    font-weight: 200 800;
+    src: url('/fonts/manrope-latin-ext.woff2') format('woff2-variations');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+      U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  }
+
   :root {
     color-scheme: light;
 
-    --geo-canvas: var(--p-surface-50);
-    --geo-surface: var(--p-surface-0);
-    --geo-surface-subtle: var(--p-surface-50);
-    --geo-surface-muted: var(--p-surface-100);
-    --geo-foreground: var(--p-surface-900);
-    --geo-foreground-muted: var(--p-surface-600);
-    --geo-foreground-subtle: var(--p-surface-500);
-    --geo-border: var(--p-surface-200);
-    --geo-border-strong: var(--p-surface-300);
-    --geo-focus-ring: color-mix(in srgb, var(--p-primary-500) 42%, transparent);
+    /* Superfícies e texto: neutros do GEO, levemente azulados. */
+    --geo-canvas: #f4f6fa;
+    --geo-surface: #ffffff;
+    --geo-surface-subtle: #f7f9fc;
+    --geo-surface-muted: #eef1f6;
+    --geo-surface-raised: #ffffff;
+    --geo-surface-inverse: #151b26;
+    --geo-foreground: #151b26;
+    --geo-foreground-muted: #4b5567;
+    --geo-foreground-subtle: #626c80;
+    --geo-foreground-inverse: #ffffff;
+    --geo-border: #e1e6ee;
+    --geo-border-strong: #cbd2de;
+    --geo-border-focus: var(--geo-focus-ring);
 
-    --geo-brand: var(--p-primary-600);
-    --geo-brand-hover: var(--p-primary-700);
-    --geo-brand-soft: var(--p-primary-50);
+    /* Marca: azul do "G". */
+    --geo-brand: #2563eb;
+    --geo-brand-hover: #1d4fd8;
+    --geo-brand-pressed: #1e40af;
+    --geo-brand-soft: #eff5ff;
+    --geo-brand-text: #1d4fd8;
+    --geo-brand-foreground: #ffffff;
+    --geo-brand-contrast: var(--geo-brand-foreground);
+    --geo-brand-hover-bg: color-mix(in srgb, var(--geo-brand) 8%, transparent);
+
+    /*
+     * Destaque âmbar: só item ativo, foco, contador de notificações e Bússola.
+     * Nunca preenche botão de ação, link ou status.
+     */
+    --geo-accent: #f59e0b;
+    --geo-accent-strong: #d97706;
+    --geo-accent-soft: #fef3c7;
+    --geo-accent-text: #92400e;
+    --geo-focus-ring: #cf6f05;
+    --geo-ring: var(--geo-focus-ring);
+
+    /* Estados: sólido para preenchimento, -soft para fundo e -text para tinta sobre superfície. */
     --geo-info: #2563eb;
     --geo-info-soft: #eff6ff;
+    --geo-info-text: #1d4ed8;
     --geo-success: #15803d;
     --geo-success-hover: #166534;
     --geo-success-soft: #f0fdf4;
+    --geo-success-text: #15803d;
     --geo-warning: #b45309;
     --geo-warning-hover: #92400e;
     --geo-warning-soft: #fffbeb;
+    --geo-warning-text: #b45309;
+    --geo-warning-border: #fcd34d;
     --geo-danger: #b91c1c;
     --geo-danger-hover: #991b1b;
     --geo-danger-soft: #fef2f2;
-
-    /*
-     * Variantes de FEEDBACK para texto/ícone sobre superfícies do tema.
-     * Os tokens sólidos acima (--geo-info/success/warning/danger) continuam
-     * reservados para preenchimento (fundo sólido + texto branco); usá-los como
-     * cor de tinta em superfícies escuras reprova contraste. No tema claro estas
-     * variantes são idênticas aos sólidos, no escuro clareiam para atingir AA.
-     */
-    --geo-info-text: var(--geo-info);
-    --geo-success-text: var(--geo-success);
-    --geo-warning-text: var(--geo-warning);
-    --geo-danger-text: var(--geo-danger);
+    --geo-danger-text: #b91c1c;
+    --geo-danger-border: #fca5a5;
+    --geo-danger-foreground: #ffffff;
 
     /* Pódio de rankings (geo-rank-badge): borda, fundo suave e tinta com contraste AA. */
     --geo-rank-1: #ca8a04;
@@ -51,32 +96,108 @@
     --geo-rank-3-soft: #ffedd5;
     --geo-rank-3-text: #9a3412;
 
+    /* Menu lateral azul-marinho, igual nos dois temas. */
+    --geo-nav-bg: #0f1d3d;
+    --geo-nav-bg-hover: rgb(255 255 255 / 0.06);
+    --geo-nav-bg-active: rgb(251 191 36 / 0.12);
+    --geo-nav-fg: #c9d4ea;
+    --geo-nav-fg-muted: #8b9bbd;
+    --geo-nav-fg-active: #ffffff;
+    --geo-nav-indicator: #fbbf24;
+    --geo-nav-border: rgb(255 255 255 / 0.08);
+    --geo-nav-width: 15.5rem;
+    --geo-nav-width-collapsed: 4.25rem;
+
+    /* Tipografia. A raiz é 13px: 1rem = 13px. */
+    --geo-font-family-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --geo-font-family-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, monospace;
+    --geo-font-mono: var(--geo-font-family-mono);
+    --geo-font-weight-regular: 400;
+    --geo-font-weight-medium: 500;
+    --geo-font-weight-semibold: 600;
+    --geo-font-weight-bold: 700;
+    --geo-text-display: 1.846rem;
+    --geo-text-title-1: 1.538rem;
+    --geo-text-title-2: 1.231rem;
+    --geo-text-title-3: 1.077rem;
+    --geo-text-body: 1rem;
+    --geo-text-body-sm: 0.923rem;
+    --geo-text-label: 0.846rem;
+    --geo-text-caption: 0.769rem;
+    --geo-text-leading-tight: 1.25;
+    --geo-text-leading-normal: 1.5;
+    --geo-text-tracking-display: -0.02em;
+    /* Tamanhos usados pelos componentes atuais do DS. */
+    --geo-font-caption: 0.6875rem;
+    --geo-font-control: 0.769rem;
+    --geo-font-label: var(--geo-font-control);
+    --geo-font-body: 0.846rem;
+    --geo-font-title: 1rem;
+    --geo-font-size-xs: var(--geo-font-caption);
+    --geo-font-size-sm: var(--geo-font-control);
+
+    /* Densidade e controles. */
     --geo-control-height-sm: 1.875rem;
     --geo-control-height-md: 2.25rem;
     --geo-control-height-lg: 2.75rem;
     --geo-touch-target: 2.75rem;
+    --geo-table-row-height: 2.5rem;
 
-    --geo-radius-sm: 0.5rem;
-    --geo-radius-md: 0.75rem;
-    --geo-radius-lg: 1rem;
-    --geo-radius-xl: 1.25rem;
+    /* Espaçamento (múltiplos de 4px). */
+    --geo-space-1: 0.3077rem;
+    --geo-space-2: 0.6154rem;
+    --geo-space-3: 0.9231rem;
+    --geo-space-4: 1.2308rem;
+    --geo-space-5: 1.8462rem;
+    --geo-space-6: 2.4615rem;
 
-    --geo-shadow-sm: 0 1px 2px rgb(15 23 42 / 0.04);
-    --geo-shadow-md: 0 8px 24px rgb(15 23 42 / 0.08);
-    --geo-shadow-lg: 0 18px 44px rgb(15 23 42 / 0.14);
+    /* Forma: três raios. */
+    --geo-radius-sm: 0.3846rem;
+    --geo-radius-md: 0.6154rem;
+    --geo-radius-lg: 0.9231rem;
+    --geo-radius-xs: var(--geo-radius-sm);
+    --geo-radius-xl: var(--geo-radius-lg);
+    --geo-radius-full: 999px;
 
-    --geo-duration-fast: 120ms;
-    --geo-duration-normal: 180ms;
-    --geo-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    /* Elevação: três níveis. */
+    --geo-elevation-1: 0 1px 2px rgb(21 27 38 / 0.06), 0 0 0 1px rgb(21 27 38 / 0.02);
+    --geo-elevation-2: 0 6px 16px -4px rgb(21 27 38 / 0.12), 0 2px 4px rgb(21 27 38 / 0.04);
+    --geo-elevation-3: 0 20px 40px -12px rgb(21 27 38 / 0.24), 0 4px 10px rgb(21 27 38 / 0.06);
+    --geo-shadow-sm: var(--geo-elevation-1);
+    --geo-shadow-md: var(--geo-elevation-2);
+    --geo-shadow-lg: var(--geo-elevation-3);
+    --geo-overlay-backdrop: rgb(11 15 23 / 0.45);
 
-    --geo-font-caption: 0.6875rem;
-    --geo-font-control: 0.769rem;
-    --geo-font-body: 0.846rem;
-    --geo-font-title: 1rem;
+    /* Ícones. */
+    --geo-icon-size-sm: 0.9231rem;
+    --geo-icon-size-md: 1.2308rem;
+    --geo-icon-size-lg: 1.5385rem;
+    --geo-icon-stroke: 1.75;
+
+    /*
+     * Movimento. A saída usa cerca de 70% da duração da entrada. Com "reduzir movimento"
+     * (data-motion="reduced"), deslocamentos e escala viram zero e as durações, instantâneas.
+     */
+    --geo-motion-instant: 90ms;
+    --geo-motion-fast: 140ms;
+    --geo-motion-base: 200ms;
+    --geo-motion-slow: 280ms;
+    --geo-motion-exit: 140ms;
+    --geo-motion-distance-sm: 4px;
+    --geo-motion-distance-md: 6px;
+    --geo-motion-distance-lg: 16px;
+    --geo-motion-scale-press: 0.98;
+    --geo-motion-scale-enter: 0.97;
+    --geo-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --geo-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --geo-ease-emphasis: cubic-bezier(0.3, 0, 0, 1);
+    --geo-ease-standard: var(--geo-ease-out);
+    --geo-duration-fast: var(--geo-motion-fast);
+    --geo-duration-normal: var(--geo-motion-base);
 
     /*
      * Kit de formulário (geo-form-*): UM visual de card/cabeçalho/seção/rodapé para toda a aplicação.
-     * Só aliases dos tokens acima — tema claro/escuro e densidade vêm de graça.
+     * Só aliases dos tokens acima: tema claro/escuro e densidade vêm de graça.
      */
     --geo-form-card-bg: var(--geo-surface);
     --geo-form-card-border: var(--geo-border);
@@ -92,11 +213,10 @@
     --geo-form-footer-bg: color-mix(in srgb, var(--geo-surface) 94%, transparent);
 
     /*
-     * Paleta categórica de séries (geo-chart). Não comunica estado: a série 1 acompanha a cor
-     * primária escolhida e as demais evitam vermelho/verde para não sugerir sucesso ou erro.
-     * A série 8 é reservada para agrupamentos como "Outros".
+     * Paleta categórica de séries (geo-chart). Não comunica estado: a série 1 é a marca e as
+     * demais evitam vermelho/verde para não sugerir sucesso ou erro. A série 8 é para "Outros".
      */
-    --geo-chart-1: var(--p-primary-600);
+    --geo-chart-1: #2563eb;
     --geo-chart-2: #0891b2;
     --geo-chart-3: #7c3aed;
     --geo-chart-4: #d97706;
@@ -104,65 +224,130 @@
     --geo-chart-6: #0f766e;
     --geo-chart-7: #c026d3;
     --geo-chart-8: #64748b;
+    --geo-chart-grid: #e1e6ee;
+    --geo-chart-axis: #626c80;
   }
 
-  :root.app-dark,
-  :root.dark,
-  .app-dark,
-  .dark {
-    color-scheme: dark;
-    --geo-canvas: var(--p-surface-50);
-    --geo-surface: var(--p-surface-100);
-    --geo-surface-subtle: var(--p-surface-50);
-    --geo-surface-muted: var(--p-surface-200);
-    --geo-foreground: #ffffff;
-    --geo-foreground-muted: #cbd5e1;
-    --geo-foreground-subtle: #94a3b8;
-    --geo-border: var(--p-surface-300);
-    --geo-border-strong: var(--p-surface-400);
-    --geo-focus-ring: color-mix(in srgb, var(--p-primary-400) 50%, transparent);
+  @media screen {
+    :root.app-dark,
+    :root.dark,
+    .app-dark,
+    .dark {
+      color-scheme: dark;
 
-    --geo-brand: var(--p-primary-400);
-    --geo-brand-hover: var(--p-primary-300);
-    --geo-brand-soft: color-mix(in srgb, var(--p-primary-500) 20%, transparent);
-    --geo-brand-hover-bg: color-mix(in srgb, var(--p-primary-500) 14%, transparent);
-    --geo-info-soft: rgb(37 99 235 / 0.2);
-    --geo-success-soft: rgb(21 128 61 / 0.2);
-    --geo-warning-soft: rgb(180 83 9 / 0.22);
-    --geo-danger-soft: rgb(185 28 28 / 0.22);
-    --geo-info-text: #93c5fd;
-    --geo-success-text: #4ade80;
-    --geo-warning-text: #fbbf24;
-    --geo-danger-text: #fca5a5;
-    --geo-rank-1: rgb(234 179 8 / 0.55);
-    --geo-rank-1-soft: rgb(234 179 8 / 0.18);
-    --geo-rank-1-text: #fde047;
-    --geo-rank-2: rgb(148 163 184 / 0.55);
-    --geo-rank-2-soft: rgb(148 163 184 / 0.18);
-    --geo-rank-2-text: #e2e8f0;
-    --geo-rank-3: rgb(249 115 22 / 0.55);
-    --geo-rank-3-soft: rgb(249 115 22 / 0.18);
-    --geo-rank-3-text: #fdba74;
+      --geo-canvas: #0b0f17;
+      --geo-surface: #121826;
+      --geo-surface-subtle: #0f1420;
+      --geo-surface-muted: #1a2232;
+      --geo-surface-raised: #182031;
+      --geo-surface-inverse: #f2f5fa;
+      --geo-foreground: #f2f5fa;
+      --geo-foreground-muted: #b4bdcc;
+      --geo-foreground-subtle: #8f99ab;
+      --geo-foreground-inverse: #151b26;
+      --geo-border: #263043;
+      --geo-border-strong: #35415a;
+      --geo-border-focus: var(--geo-focus-ring);
 
-    --geo-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.15);
-    --geo-shadow-md: 0 4px 12px rgb(0 0 0 / 0.22);
-    --geo-shadow-lg: 0 8px 24px rgb(0 0 0 / 0.32);
+      --geo-brand: #6093fa;
+      --geo-brand-hover: #93b7fd;
+      --geo-brand-pressed: #bfd4fe;
+      --geo-brand-soft: rgb(59 114 246 / 0.18);
+      --geo-brand-text: #93b7fd;
+      --geo-brand-foreground: #0b0f17;
+      --geo-brand-contrast: var(--geo-brand-foreground);
+      --geo-brand-hover-bg: rgb(59 114 246 / 0.14);
 
-    --geo-chart-1: var(--p-primary-400);
-    --geo-chart-2: #22d3ee;
-    --geo-chart-3: #a78bfa;
-    --geo-chart-4: #fbbf24;
-    --geo-chart-5: #f472b6;
-    --geo-chart-6: #2dd4bf;
-    --geo-chart-7: #e879f9;
-    --geo-chart-8: #94a3b8;
+      --geo-accent: #fbbf24;
+      --geo-accent-strong: #fcd34d;
+      --geo-accent-soft: rgb(251 191 36 / 0.16);
+      --geo-accent-text: #fcd34d;
+      --geo-focus-ring: #fbbf24;
+      --geo-ring: var(--geo-focus-ring);
+
+      --geo-info: #2563eb;
+      --geo-info-soft: rgb(37 99 235 / 0.2);
+      --geo-info-text: #93c5fd;
+      --geo-success: #15803d;
+      --geo-success-hover: #166534;
+      --geo-success-soft: rgb(21 128 61 / 0.2);
+      --geo-success-text: #4ade80;
+      --geo-warning: #b45309;
+      --geo-warning-hover: #92400e;
+      --geo-warning-soft: rgb(180 83 9 / 0.22);
+      --geo-warning-text: #fbbf24;
+      --geo-warning-border: rgb(251 191 36 / 0.45);
+      --geo-danger: #b91c1c;
+      --geo-danger-hover: #991b1b;
+      --geo-danger-soft: rgb(185 28 28 / 0.22);
+      --geo-danger-text: #fca5a5;
+      --geo-danger-border: rgb(252 165 165 / 0.45);
+      --geo-danger-foreground: #ffffff;
+
+      --geo-rank-1: rgb(234 179 8 / 0.55);
+      --geo-rank-1-soft: rgb(234 179 8 / 0.18);
+      --geo-rank-1-text: #fde047;
+      --geo-rank-2: rgb(148 163 184 / 0.55);
+      --geo-rank-2-soft: rgb(148 163 184 / 0.18);
+      --geo-rank-2-text: #e2e8f0;
+      --geo-rank-3: rgb(249 115 22 / 0.55);
+      --geo-rank-3-soft: rgb(249 115 22 / 0.18);
+      --geo-rank-3-text: #fdba74;
+
+      /* No escuro o menu continua azul-marinho e a área de conteúdo fica num neutro mais escuro. */
+      --geo-nav-bg: #0f1a33;
+      --geo-nav-bg-hover: rgb(255 255 255 / 0.06);
+      --geo-nav-bg-active: rgb(251 191 36 / 0.14);
+      --geo-nav-fg: #c9d4ea;
+      --geo-nav-fg-muted: #8b9bbd;
+      --geo-nav-fg-active: #ffffff;
+      --geo-nav-indicator: #fbbf24;
+      --geo-nav-border: #263043;
+
+      --geo-elevation-1: 0 1px 2px rgb(0 0 0 / 0.3), 0 0 0 1px rgb(255 255 255 / 0.03);
+      --geo-elevation-2: 0 6px 16px -4px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(255 255 255 / 0.04);
+      --geo-elevation-3: 0 20px 40px -12px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(255 255 255 / 0.05);
+      --geo-shadow-sm: var(--geo-elevation-1);
+      --geo-shadow-md: var(--geo-elevation-2);
+      --geo-shadow-lg: var(--geo-elevation-3);
+      --geo-overlay-backdrop: rgb(0 0 0 / 0.6);
+
+      --geo-form-card-bg: var(--geo-surface);
+      --geo-form-footer-bg: color-mix(in srgb, var(--geo-surface) 94%, transparent);
+
+      --geo-chart-1: #6093fa;
+      --geo-chart-2: #22d3ee;
+      --geo-chart-3: #a78bfa;
+      --geo-chart-4: #fbbf24;
+      --geo-chart-5: #f472b6;
+      --geo-chart-6: #2dd4bf;
+      --geo-chart-7: #e879f9;
+      --geo-chart-8: #94a3b8;
+      --geo-chart-grid: #263043;
+      --geo-chart-axis: #b4bdcc;
+    }
   }
 
+  /* Confortável: alvos maiores (toque). A compacta é o valor de :root. */
   :root[data-geo-density='comfortable'] {
     --geo-control-height-sm: 2.25rem;
     --geo-control-height-md: 2.75rem;
     --geo-control-height-lg: 3rem;
+    --geo-table-row-height: 3rem;
     --geo-font-control: 0.846rem;
     --geo-font-body: 0.923rem;
+  }
+
+  /* Reduzir movimento: nenhum componente precisa de lógica própria. */
+  :root[data-motion='reduced'] {
+    --geo-motion-fast: var(--geo-motion-instant);
+    --geo-motion-base: var(--geo-motion-instant);
+    --geo-motion-slow: var(--geo-motion-instant);
+    --geo-motion-exit: var(--geo-motion-instant);
+    --geo-motion-distance-sm: 0px;
+    --geo-motion-distance-md: 0px;
+    --geo-motion-distance-lg: 0px;
+    --geo-motion-scale-press: 1;
+    --geo-motion-scale-enter: 1;
   }
 }

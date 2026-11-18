@@ -24,17 +24,17 @@
 
 ## 1. Frente A: Fundamentos da identidade
 
-- [ ] 1.1 Adicionar `lucide-angular` e criar o registro central `design-system/icons/geo-icons.ts` com o mapa `pi-* → lucide`
-- [ ] 1.2 Adicionar a fonte Manrope variável em `public/fonts/` com `@font-face`, `preload` no `index.html` e precache no service worker
-- [ ] 1.3 Reescrever `tokens.css` com a paleta GEO (primária `geo.50–950`, âmbar de destaque, neutros, semânticas com variantes `-soft` e `-text`) para claro e escuro
-- [ ] 1.4 Adicionar tokens de tipografia (família, escala display→legenda, pesos, `tabular-nums`), forma (3 raios), elevação (3 níveis), navegação (`--geo-nav-*`) e densidade
-- [ ] 1.5 Adicionar tokens de movimento (durações, curvas, deslocamentos) e a redefinição sob `[data-motion="reduced"]`
-- [ ] 1.6 Reescrever o `geoPreset` com a escala `geo` e component tokens apontando para `--geo-*`; `providePrimeNG({ ripple: false })`
-- [ ] 1.7 `ThemeService`: tema `claro|escuro|sistema` com `matchMedia`, preferência "Reduzir movimento" (`automático|ligado`), remoção de `updatePrimaryColor`/ripple ignorando as chaves antigas do `localStorage`; testes unitários
-- [ ] 1.8 Script inline no `index.html` que aplica `.app-dark`, `color-scheme` e `data-motion` antes da primeira pintura; teste e2e sem flash no escuro
-- [ ] 1.9 `@media print` forçando os tokens claros
-- [ ] 1.10 Criar `ThemeTokens` reativo para chart.js, Leaflet e o visualizador de PDF lerem cores do tema
-- [ ] 1.11 Teste de tokens: todo `--geo-*` em `:root` tem valor em `.app-dark` e segue a convenção `--geo-<categoria>-<papel>[-<variante>]`
+- [x] 1.1 Adicionar `lucide-angular` e criar o registro central `design-system/icons/geo-icons.ts` com o mapa `pi-* → lucide`
+- [x] 1.2 Adicionar a fonte Manrope variável em `public/fonts/` com `@font-face`, `preload` no `index.html` e precache no service worker
+- [x] 1.3 Reescrever `tokens.css` com a paleta GEO (primária `geo.50–950`, âmbar de destaque, neutros, semânticas com variantes `-soft` e `-text`) para claro e escuro
+- [x] 1.4 Adicionar tokens de tipografia (família, escala display→legenda, pesos, `tabular-nums`), forma (3 raios), elevação (3 níveis), navegação (`--geo-nav-*`) e densidade
+- [x] 1.5 Adicionar tokens de movimento (durações, curvas, deslocamentos) e a redefinição sob `[data-motion="reduced"]`
+- [x] 1.6 Reescrever o `geoPreset` com a escala `geo` e component tokens apontando para `--geo-*`; `providePrimeNG({ ripple: false })`
+- [x] 1.7 `ThemeService`: tema `claro|escuro|sistema` com `matchMedia`, preferência "Reduzir movimento" (`automático|ligado`), remoção de `updatePrimaryColor`/ripple ignorando as chaves antigas do `localStorage`; testes unitários
+- [x] 1.8 Script inline no `index.html` que aplica `.app-dark`, `color-scheme` e `data-motion` antes da primeira pintura; teste e2e sem flash no escuro
+- [x] 1.9 `@media print` forçando os tokens claros
+- [x] 1.10 Criar `ThemeTokens` reativo para chart.js, Leaflet e o visualizador de PDF lerem cores do tema
+- [x] 1.11 Teste de tokens: todo `--geo-*` em `:root` tem valor em `.app-dark` e segue a convenção `--geo-<categoria>-<papel>[-<variante>]`
 
 ## 2. Frente B: Guardas de conformidade
 
@@ -46,7 +46,7 @@
 
 ## 3. Frente C: Componentes do Design System
 
-- [ ] 3.1 Componente `geo-icon` com mapa `pi-* → lucide` e suporte a `icon="pi pi-…"` nos componentes existentes
+- [x] 3.1 Componente `geo-icon` com mapa `pi-* → lucide` e suporte a `icon="pi pi-…"` nos componentes existentes
 - [ ] 3.2 Componentes `geo-logo` (só o "G", variantes claro/escuro) e `geo-bussola-avatar` (estados repouso, trabalhando, concluído e interrompido, com agulha animada)
 - [ ] 3.3 Utilitários de movimento: classes `geo-enter-*`/`geo-leave-*` para `animate.enter`/`animate.leave`, resposta de pressão, diretiva `geo-valor-animado`
 - [ ] 3.4 Rever botões, campos, selects, checkbox/radio/switch, chips e tags com os novos tokens e estados (repouso, hover, focus-visible âmbar, pressionado, desabilitado, carregando)

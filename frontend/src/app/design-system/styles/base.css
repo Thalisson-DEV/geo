@@ -2,15 +2,17 @@
   html {
     background: var(--geo-canvas);
     color: var(--geo-foreground);
+    font-family: var(--geo-font-family-sans);
   }
 
   body {
     background: var(--geo-canvas);
     color: var(--geo-foreground);
+    font-family: var(--geo-font-family-sans);
   }
 
   :where(button, a, input, textarea, select, [tabindex]):focus-visible {
-    outline: 3px solid var(--geo-focus-ring);
+    outline: 2px solid var(--geo-focus-ring);
     outline-offset: 2px;
   }
 
@@ -30,14 +32,38 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /*
+   * Reduzir movimento: o atributo vem do sistema operacional ou da preferência do usuário
+   * (ThemeService e script inline do index.html). Os tokens já zeram deslocamentos e
+   * durações; isto cobre animações de terceiros (PrimeNG, Leaflet).
+   */
+  :root[data-motion='reduced'] *,
+  :root[data-motion='reduced'] *::before,
+  :root[data-motion='reduced'] *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    :root:not([data-motion]) *,
+    :root:not([data-motion]) *::before,
+    :root:not([data-motion]) *::after {
       scroll-behavior: auto !important;
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Documentos saem sempre no tema claro (os tokens escuros só valem em @media screen). */
+  @media print {
+    html,
+    body {
+      color-scheme: light;
+      background: #ffffff;
+      color: #151b26;
     }
   }
 }

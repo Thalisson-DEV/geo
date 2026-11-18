@@ -1,12 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import {
-  ThemeService,
-  GEO_PRIMARY_COLORS,
-  GeoPrimaryColor,
-} from '../../core/services/theme.service';
+import { ThemeService } from '../../core/services/theme.service';
 import { GeoAsyncStateComponent, GeoCalloutComponent } from '../feedback';
 import {
   GeoAutocompleteComponent,
@@ -36,7 +31,6 @@ import {
   imports: [
     FormsModule,
     InputTextModule,
-    SelectModule,
     GeoAutocompleteComponent,
     GeoAsyncStateComponent,
     GeoButtonComponent,
@@ -93,17 +87,6 @@ import {
           </div>
 
           <div class="geo-catalog__controls" aria-label="Preferências de visualização">
-            <label>
-              <span>Cor primária</span>
-              <p-select
-                [autofocus]="false"
-                [options]="primaryColors"
-                [(ngModel)]="selectedColor"
-                (onChange)="setPrimaryColor($event.value)"
-                appendTo="body"
-                styleClass="geo-prime-control"
-              ></p-select>
-            </label>
             <geo-button
               [label]="theme.isDarkMode() ? 'Usar tema claro' : 'Usar tema escuro'"
               [icon]="theme.isDarkMode() ? 'pi pi-sun' : 'pi pi-moon'"
@@ -117,6 +100,14 @@ import {
               icon="pi pi-sliders-h"
               variant="ghost"
               (pressed)="toggleDensity()"
+            ></geo-button>
+            <geo-button
+              [label]="theme.movimentoReduzido() ? 'Movimento completo' : 'Reduzir movimento'"
+              icon="pi pi-bolt"
+              variant="ghost"
+              (pressed)="
+                theme.setReduzirMovimento(theme.reduzirMovimento() === 'ligado' ? 'automatico' : 'ligado')
+              "
             ></geo-button>
           </div>
         </header>
@@ -472,11 +463,6 @@ import {
 })
 export class DesignSystemCatalogComponent {
   protected readonly theme = inject(ThemeService);
-  protected readonly primaryColors = GEO_PRIMARY_COLORS.map((color) => ({
-    label: color,
-    value: color,
-  }));
-  protected readonly selectedColor = signal<GeoPrimaryColor>(this.theme.primaryColor());
   protected readonly catalogFile = signal<File | null>(null);
   protected readonly blockingProgressVisible = signal(false);
   protected readonly chartLabels = GEO_CHART_CATALOG_LABELS;
@@ -492,11 +478,6 @@ export class DesignSystemCatalogComponent {
   ];
   protected readonly catalogCollaboratorOptions = signal(this.catalogCollaborators);
   protected readonly catalogCollaboratorStatus = signal<'idle' | 'success' | 'empty'>('idle');
-
-  protected setPrimaryColor(color: GeoPrimaryColor) {
-    this.selectedColor.set(color);
-    this.theme.updatePrimaryColor(color);
-  }
 
   protected readonly catalogPdfRotacao = signal(0);
   /** PDF mínimo, de uma página com um texto, escrito aqui para o catálogo não depender de arquivo. */

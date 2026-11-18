@@ -65,7 +65,7 @@ export const appConfig: ApplicationConfig = {
       }
     },
     providePrimeNG({
-      ripple: true,
+      ripple: false,
       pt: {
         confirmDialog: {
           host: {

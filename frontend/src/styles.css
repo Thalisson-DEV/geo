@@ -17,7 +17,7 @@
 
 body {
   margin: 0;
-  font-family: var(--font-family);
+  font-family: var(--geo-font-family-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--geo-foreground);

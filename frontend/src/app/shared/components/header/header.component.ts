@@ -9,7 +9,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { RouterLink, Router } from "@angular/router";
 import { ChangePasswordDialogComponent } from '../change-password-dialog/change-password-dialog.component';
 import { FavoritosService } from '../../../core/services/favoritos.service';
-import { ThemeService } from '../../../core/services/theme.service';
+import {
+  GeoDensidadePreferida,
+  GeoReduzirMovimento,
+  GeoTema,
+  ThemeService
+} from '../../../core/services/theme.service';
 import { GeoShortcutsPreference } from '@geo/ui';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 import { NotificacoesStore } from '../../../core/services/notificacoes-store.service';
@@ -22,6 +27,14 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
 
 @Component({
   selector: 'app-header',
+  styles: [`
+    .geo-pref-grupo { border: 0; margin: 0 0 0.75rem; padding: 0; min-width: 0; }
+    .geo-pref-rotulo { font-size: var(--geo-text-caption); font-weight: var(--geo-font-weight-semibold); color: var(--geo-foreground-muted); margin-bottom: 0.375rem; padding: 0 0.25rem; }
+    .geo-pref-opcoes { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 2px; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+    .geo-pref-opcao { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; min-height: var(--geo-control-height-sm); padding: 0 0.5rem; border: 0; border-radius: var(--geo-radius-sm); background: transparent; color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-text-label); font-weight: var(--geo-font-weight-medium); cursor: pointer; transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out); }
+    .geo-pref-opcao:hover { color: var(--geo-foreground); }
+    .geo-pref-opcao[aria-checked='true'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-elevation-1); }
+  `],
   standalone: true,
   imports: [CommonModule, ButtonModule, AvatarModule, PopoverModule, DialogModule, TooltipModule, RouterLink, ChangePasswordDialogComponent, NotificacoesPanelComponent, BuscaTelasComponent],
   template: `
@@ -172,51 +185,45 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
           <div class="p-4 border-b border-[var(--geo-border)]">
             <span class="text-[10px] font-bold text-[var(--geo-foreground-subtle)] uppercase tracking-widest block mb-3 px-1">Personalização</span>
 
-            <!-- Dark Mode Toggle -->
-            <div class="flex items-center justify-between p-2 mb-3 bg-[var(--geo-surface-subtle)] rounded-xl border border-[var(--geo-border)]">
-              <div class="flex items-center gap-2">
-                <i [class]="theme.isDarkMode() ? 'pi pi-moon text-primary-400' : 'pi pi-sun text-amber-500'" class="text-sm"></i>
-                <span class="text-xs font-semibold text-[var(--geo-foreground-muted)]">Modo Escuro</span>
+            <!-- Tema, densidade e movimento -->
+            <fieldset class="geo-pref-grupo">
+              <legend class="geo-pref-rotulo">Tema</legend>
+              <div class="geo-pref-opcoes" role="radiogroup" aria-label="Tema">
+                @for (opcao of opcoesTema; track opcao.valor) {
+                  <button type="button" role="radio" class="geo-pref-opcao"
+                    [attr.aria-checked]="theme.tema() === opcao.valor"
+                    (click)="escolherTema(opcao.valor)">
+                    <i [class]="'pi ' + opcao.icone" aria-hidden="true"></i>{{ opcao.rotulo }}
+                  </button>
+                }
               </div>
-              <p-button
-                [icon]="theme.isDarkMode() ? 'pi pi-check' : 'pi pi-circle'"
-                [text]="true"
-                (onClick)="toggleTheme()"
-                [styleClass]="theme.isDarkMode() ? '!bg-primary-600 !text-white !w-12 !h-7 !rounded-full' : '!bg-slate-200 dark:!bg-slate-700 !text-slate-400 !w-12 !h-7 !rounded-full'"
-              ></p-button>
-            </div>
+            </fieldset>
 
-            <!-- Color Palette Selector -->
-            <div class="flex flex-wrap gap-2 px-1">
-              @for (color of availableColors; track color.name) {
-                <button
-                  (click)="changeColor(color.name)"
-                  [class]="color.class"
-                  [title]="color.label"
-                  class="w-6 h-6 rounded-full border-2 transition-all transform hover:scale-110 active:scale-95 flex items-center justify-center"
-                  [class.!border-[var(--geo-foreground)]]="theme.primaryColor() === color.name"
-                  [class.border-transparent]="theme.primaryColor() !== color.name"
-                >
-                  @if (theme.primaryColor() === color.name) {
-                    <i class="pi pi-check text-[10px] text-white"></i>
-                  }
-                </button>
-              }
-            </div>
-
-            <!-- Animations Toggle -->
-            <div class="flex items-center justify-between p-2 mt-3 bg-[var(--geo-surface-subtle)] rounded-xl border border-[var(--geo-border)]">
-              <div class="flex items-center gap-2">
-                <i class="pi pi-bolt text-[var(--geo-foreground-subtle)] text-sm"></i>
-                <span class="text-xs font-semibold text-[var(--geo-foreground-muted)]">Animações</span>
+            <fieldset class="geo-pref-grupo">
+              <legend class="geo-pref-rotulo">Densidade</legend>
+              <div class="geo-pref-opcoes" role="radiogroup" aria-label="Densidade">
+                @for (opcao of opcoesDensidade; track opcao.valor) {
+                  <button type="button" role="radio" class="geo-pref-opcao"
+                    [attr.aria-checked]="theme.densidadePreferida() === opcao.valor"
+                    (click)="theme.setDensity(opcao.valor)">
+                    {{ opcao.rotulo }}
+                  </button>
+                }
               </div>
-              <p-button
-                [icon]="theme.rippleEnabled() ? 'pi pi-check' : 'pi pi-circle'"
-                [text]="true"
-                (onClick)="toggleAnimations()"
-                [styleClass]="theme.rippleEnabled() ? '!bg-green-500 !text-white !w-12 !h-7 !rounded-full' : '!bg-slate-200 !text-slate-400 !w-12 !h-7 !rounded-full'"
-              ></p-button>
-            </div>
+            </fieldset>
+
+            <fieldset class="geo-pref-grupo">
+              <legend class="geo-pref-rotulo">Reduzir movimento</legend>
+              <div class="geo-pref-opcoes" role="radiogroup" aria-label="Reduzir movimento">
+                @for (opcao of opcoesMovimento; track opcao.valor) {
+                  <button type="button" role="radio" class="geo-pref-opcao"
+                    [attr.aria-checked]="theme.reduzirMovimento() === opcao.valor"
+                    (click)="escolherMovimento(opcao.valor)">
+                    {{ opcao.rotulo }}
+                  </button>
+                }
+              </div>
+            </fieldset>
 
             <!-- Single-key shortcuts (WCAG 2.1.4) -->
             <div class="flex items-center justify-between p-2 mt-3 bg-[var(--geo-surface-subtle)] rounded-xl border border-[var(--geo-border)]">
@@ -439,13 +446,19 @@ export class HeaderComponent {
 
   showManuaisDialog = signal(false);
 
-  availableColors = [
-    { name: 'blue', label: 'Azul', class: '!bg-blue-500' },
-    { name: 'emerald', label: 'Esmeralda', class: '!bg-emerald-500' },
-    { name: 'violet', label: 'Violeta', class: '!bg-violet-500' },
-    { name: 'amber', label: 'Âmbar', class: '!bg-amber-500' },
-    { name: 'rose', label: 'Rosa', class: '!bg-rose-500' },
-    { name: 'slate', label: 'Grafite', class: '!bg-slate-600' }
+  readonly opcoesTema: { valor: GeoTema; rotulo: string; icone: string }[] = [
+    { valor: 'claro', rotulo: 'Claro', icone: 'pi-sun' },
+    { valor: 'escuro', rotulo: 'Escuro', icone: 'pi-moon' },
+    { valor: 'sistema', rotulo: 'Sistema', icone: 'pi-desktop' }
+  ];
+  readonly opcoesDensidade: { valor: GeoDensidadePreferida; rotulo: string }[] = [
+    { valor: 'auto', rotulo: 'Automática' },
+    { valor: 'compact', rotulo: 'Compacta' },
+    { valor: 'comfortable', rotulo: 'Confortável' }
+  ];
+  readonly opcoesMovimento: { valor: GeoReduzirMovimento; rotulo: string }[] = [
+    { valor: 'automatico', rotulo: 'Automático' },
+    { valor: 'ligado', rotulo: 'Ligado' }
   ];
 
   showChangePassword() {
@@ -458,14 +471,13 @@ export class HeaderComponent {
     this.syncPreferencias();
   }
 
-  changeColor(color: string) {
-    this.theme.updatePrimaryColor(color);
+  escolherTema(tema: GeoTema) {
+    this.theme.setTema(tema);
     this.syncPreferencias();
   }
 
-  toggleAnimations() {
-    const newValue = !this.theme.rippleEnabled();
-    this.theme.setRipple(newValue);
+  escolherMovimento(valor: GeoReduzirMovimento) {
+    this.theme.setReduzirMovimento(valor);
     this.syncPreferencias();
   }
 
@@ -481,7 +493,7 @@ export class HeaderComponent {
     const themeData = {
       tema: (this.theme.isDarkMode() ? 'dark' : 'light') as 'light' | 'dark',
       corPrimaria: this.theme.primaryColor(),
-      animacoesAtivadas: this.theme.rippleEnabled()
+      animacoesAtivadas: this.theme.reduzirMovimento() !== 'ligado'
     };
 
     // Atualiza a sessão e localStorage localmente de forma imediata

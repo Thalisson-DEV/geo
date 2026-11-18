@@ -304,8 +304,7 @@ export class AuthService {
     const tipoUsuario: 'ADMINISTRATIVO' | 'CAMPO' =
       decoded?.tipoUsuario === 'CAMPO' ? 'CAMPO' : 'ADMINISTRATIVO';
     const savedThemeMode = localStorage.getItem('geo_theme_mode');
-    const savedColor = localStorage.getItem('geo_primary_color');
-    const savedRipple = localStorage.getItem('geo_ripple_enabled');
+    const savedReduzirMovimento = localStorage.getItem('geo_reduzir_movimento');
     const savedRedesMoveis = localStorage.getItem('geo_usar_redes_moveis');
     const usarRedesMoveis =
       savedRedesMoveis !== null ? savedRedesMoveis === 'true' : tipoUsuario !== 'CAMPO';
@@ -324,10 +323,11 @@ export class AuthService {
         savedThemeMode === 'dark' || savedThemeMode === 'light'
           ? savedThemeMode
           : atual?.tema || decoded?.preferencias?.tema || 'light',
-      corPrimaria: (savedColor as any) || atual?.corPrimaria || decoded?.preferencias?.corPrimaria || 'blue',
+      // A cor primária é fixa no GEO; o campo continua no perfil por compatibilidade.
+      corPrimaria: 'blue',
       animacoesAtivadas:
-        savedRipple !== null
-          ? savedRipple !== 'false'
+        savedReduzirMovimento !== null
+          ? savedReduzirMovimento !== 'ligado'
           : (atual?.animacoesAtivadas ?? decoded?.preferencias?.animacoesAtivadas ?? true),
     };
 
