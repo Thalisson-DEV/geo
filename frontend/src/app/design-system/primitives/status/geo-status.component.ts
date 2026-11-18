@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { GeoTone } from '../../core';
+import { GeoIconComponent } from '../../icons/geo-icon.component';
 
 /**
  * Ícone usado quando a tag não informa um próprio. Toda tag do GEO tem ícone:
@@ -18,6 +19,7 @@ export const GEO_STATUS_ICONE_PADRAO: Readonly<Record<GeoTone, string>> = {
 @Component({
   selector: 'geo-status',
   standalone: true,
+  imports: [GeoIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: 'geo-status',
@@ -25,7 +27,7 @@ export const GEO_STATUS_ICONE_PADRAO: Readonly<Record<GeoTone, string>> = {
     '[attr.data-emphasis]': 'emphasis()'
   },
   template: `
-    <i [class]="'geo-status__icon ' + primeIcon()" aria-hidden="true"></i>
+    <geo-icon class="geo-status__icon" [name]="primeIcon()" size="sm" />
     <span><ng-content></ng-content></span>
   `
 })

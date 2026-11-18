@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { GeoTone } from '../../core';
+import { resolverIcone } from '../../icons/geo-icons';
 import { GEO_STATUS_ICONE_PADRAO, GeoStatusComponent } from './geo-status.component';
 
 @Component({
@@ -27,18 +28,18 @@ describe('GeoStatusComponent', () => {
     (tone, icone) => {
       const el = montar(tone);
       expect(el).not.toBeNull();
-      expect(el!.classList).toContain('pi');
-      expect(el!.classList).toContain(icone);
+      expect(el!.dataset['icon']).toBe(resolverIcone(icone)?.nome);
+      expect(el!.querySelector('svg')).not.toBeNull();
       expect(el!.getAttribute('aria-hidden')).toBe('true');
     }
   );
 
   it('ícone vazio não deixa a tag sem ícone', () => {
-    expect(montar('success', '  ')!.classList).toContain('pi-check-circle');
+    expect(montar('success', '  ')!.dataset['icon']).toBe('circle-check');
   });
 
   it('usa o ícone informado, com ou sem o prefixo pi', () => {
-    expect(montar('info', 'pi-truck')!.className).toBe('geo-status__icon pi pi-truck');
-    expect(montar('info', 'pi pi-ban')!.className).toBe('geo-status__icon pi pi-ban');
+    expect(montar('info', 'pi-truck')!.dataset['icon']).toBe('truck');
+    expect(montar('info', 'pi pi-ban')!.dataset['icon']).toBe('ban');
   });
 });

@@ -2,14 +2,44 @@
   .geo-button.p-button,
   .geo-icon-button.p-button {
     border-radius: var(--geo-radius-sm);
+    font-family: var(--geo-font-family-sans);
     font-size: var(--geo-font-control);
-    font-weight: 700;
-    letter-spacing: 0.025em;
+    font-weight: var(--geo-font-weight-semibold);
+    letter-spacing: 0;
+    gap: 0.4rem;
     transition:
-      background-color var(--geo-duration-fast) var(--geo-ease-standard),
-      border-color var(--geo-duration-fast) var(--geo-ease-standard),
-      color var(--geo-duration-fast) var(--geo-ease-standard),
-      box-shadow var(--geo-duration-fast) var(--geo-ease-standard);
+      background-color var(--geo-motion-fast) var(--geo-ease-out),
+      border-color var(--geo-motion-fast) var(--geo-ease-out),
+      color var(--geo-motion-fast) var(--geo-ease-out),
+      box-shadow var(--geo-motion-fast) var(--geo-ease-out),
+      transform var(--geo-motion-instant) var(--geo-ease-out),
+      filter var(--geo-motion-instant) var(--geo-ease-out);
+  }
+
+  /* Resposta de pressão do GEO (sem ripple). */
+  .geo-button.p-button:not(:disabled):active,
+  .geo-icon-button.p-button:not(:disabled):active {
+    transform: scale(var(--geo-motion-scale-press));
+    filter: brightness(0.94);
+  }
+
+  /* Foco âmbar, igual em todo o produto. */
+  .geo-button.p-button:focus-visible,
+  .geo-icon-button.p-button:focus-visible {
+    outline: 2px solid var(--geo-focus-ring);
+    outline-offset: 2px;
+    box-shadow: none;
+  }
+
+  .geo-button.p-button:disabled,
+  .geo-icon-button.p-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .geo-button.p-button .p-button-icon,
+  .geo-icon-button.p-button .p-button-icon {
+    font-size: var(--geo-icon-size-sm);
   }
 
   .geo-button--sm.p-button,
@@ -33,23 +63,23 @@
   .geo-button--primary.p-button,
   .p-button.p-button-primary,
   .p-button-primary {
-    border-color: var(--p-primary-700, #1d4ed8) !important;
-    background: var(--p-primary-700, #1d4ed8) !important;
-    color: #ffffff !important;
+    border-color: var(--geo-brand) !important;
+    background: var(--geo-brand) !important;
+    color: var(--geo-brand-foreground) !important;
   }
 
   .geo-button--primary.p-button *,
   .p-button.p-button-primary *,
   .p-button-primary * {
-    color: #ffffff !important;
+    color: var(--geo-brand-foreground) !important;
   }
 
   .geo-button--primary.p-button:not(:disabled):hover,
   .p-button.p-button-primary:not(:disabled):hover,
   .p-button-primary:not(:disabled):hover {
-    border-color: var(--p-primary-800, #1e40af) !important;
-    background: var(--p-primary-800, #1e40af) !important;
-    color: #ffffff !important;
+    border-color: var(--geo-brand-hover) !important;
+    background: var(--geo-brand-hover) !important;
+    color: var(--geo-brand-foreground) !important;
   }
 
   .geo-button--success.p-button,

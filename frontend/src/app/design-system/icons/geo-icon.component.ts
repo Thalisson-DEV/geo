@@ -27,7 +27,7 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
     class: 'geo-icon',
     '[class.geo-icon--sm]': "size() === 'sm'",
     '[class.geo-icon--lg]': "size() === 'lg'",
-    '[class.geo-icon--spin]': 'resolvido()?.girar',
+    '[class.geo-icon--spin]': 'spin() || resolvido()?.girar',
     '[attr.role]': "label() ? 'img' : null",
     '[attr.aria-label]': 'label() || null',
     '[attr.aria-hidden]': "label() ? null : 'true'",
@@ -75,6 +75,8 @@ export class GeoIconComponent {
   readonly size = input<GeoIconSize>('md');
   /** Nome acessível. Use só quando o ícone comunica algo que não está escrito ao lado. */
   readonly label = input<string>();
+  /** Gira continuamente (carregando). Para no "reduzir movimento". */
+  readonly spin = input(false);
 
   protected readonly resolvido = computed(() => resolverIcone(this.name()));
 

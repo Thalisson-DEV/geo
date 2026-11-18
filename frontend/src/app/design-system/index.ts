@@ -7,3 +7,4 @@ export * from './feedback';
 export * from './patterns';
 export * from './kanban';
 export * from './icons';
+export * from './motion';

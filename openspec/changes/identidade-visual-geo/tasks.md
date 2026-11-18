@@ -47,8 +47,8 @@
 ## 3. Frente C: Componentes do Design System
 
 - [x] 3.1 Componente `geo-icon` com mapa `pi-* → lucide` e suporte a `icon="pi pi-…"` nos componentes existentes
-- [ ] 3.2 Componentes `geo-logo` (só o "G", variantes claro/escuro) e `geo-bussola-avatar` (estados repouso, trabalhando, concluído e interrompido, com agulha animada)
-- [ ] 3.3 Utilitários de movimento: classes `geo-enter-*`/`geo-leave-*` para `animate.enter`/`animate.leave`, resposta de pressão, diretiva `geo-valor-animado`
+- [x] 3.2 Componentes `geo-logo` (só o "G", variantes claro/escuro) e `geo-bussola-avatar` (estados repouso, trabalhando, concluído e interrompido, com agulha animada)
+- [x] 3.3 Utilitários de movimento: classes `geo-enter-*`/`geo-leave-*` para `animate.enter`/`animate.leave`, resposta de pressão, diretiva `geo-valor-animado`
 - [ ] 3.4 Rever botões, campos, selects, checkbox/radio/switch, chips e tags com os novos tokens e estados (repouso, hover, focus-visible âmbar, pressionado, desabilitado, carregando)
 - [ ] 3.5 Rever tabela (`geo-data-table`), paginação, filtros (`geo-filter-panel`), cabeçalho de página e status (`geo-status` com símbolo e texto) com densidade e `tabular-nums`
 - [ ] 3.6 Rever overlays (drawer, diálogo, confirmação, popover, menu, tooltip, toast) com movimento coordenado de fundo e painel e saída mais curta
