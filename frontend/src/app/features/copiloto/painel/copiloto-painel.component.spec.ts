@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { NotificationService } from '@ces/ui/feedback';
+import { NotificationService } from '@geo/ui/feedback';
 import { PacoteAssistente } from '../../../core/models/assistente.models';
 import { AssistenteService } from '../../../core/services/assistente.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -40,7 +40,7 @@ describe('CopilotoPainelComponent — abrir no workspace', () => {
   }
 
   function botaoAbrir(el: HTMLElement): HTMLButtonElement {
-    const host = [...el.querySelectorAll('ces-icon-button')].find((b) =>
+    const host = [...el.querySelectorAll('geo-icon-button')].find((b) =>
       b.querySelector('button')?.getAttribute('aria-label')?.startsWith('Abrir na Bússola'));
     return host!.querySelector('button') as HTMLButtonElement;
   }
@@ -54,7 +54,7 @@ describe('CopilotoPainelComponent — abrir no workspace', () => {
     const botao = botaoAbrir(fixture.nativeElement);
     expect(botao.disabled).toBe(false);
     botao.click();
-    expect(navegar).toHaveBeenCalledWith(['/copiloto', 'conversa-42']);
+    expect(navegar).toHaveBeenCalledWith(['/bussola', 'conversa-42']);
   });
 
   it('antes de haver conversa, abre o workspace com o contexto do painel (nunca fica sem ação)', () => {
@@ -67,7 +67,7 @@ describe('CopilotoPainelComponent — abrir no workspace', () => {
     const botao = botaoAbrir(fixture.nativeElement);
     expect(botao.disabled).toBe(false);
     botao.click();
-    expect(navegar).toHaveBeenCalledWith(['/copiloto'], {
+    expect(navegar).toHaveBeenCalledWith(['/bussola'], {
       queryParams: {
         origem: 'Financeiro', tipo: 'DASHBOARD', entidade: 'financeiro.executivo', rotulo: 'Financeiro',
         rota: '/financeiro/dashboard', f_Base: 'Norte',

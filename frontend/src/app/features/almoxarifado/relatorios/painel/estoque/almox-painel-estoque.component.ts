@@ -2,20 +2,20 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, WritableSignal, computed, effect, signal } from '@angular/core';
 import { ParamMap } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesCellDirective,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoCellDirective,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 import { forkJoin } from 'rxjs';
 
 import { EstoqueRelatorioResponse, MovimentacoesRelatorioResponse } from '../../../../../core/models/almoxarifado-relatorios.models';
@@ -69,10 +69,10 @@ interface DadosEstoque {
   selector: 'app-almox-painel-estoque',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesCellDirective, CesStatusComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoCellDirective, GeoStatusComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, AlmoxPainelTopoComponent, AlmoxRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -95,18 +95,18 @@ export class AlmoxPainelEstoqueComponent extends PainelAlmoxBase<DadosEstoque> {
   protected readonly materiaisSel = signal<string[]>([]);
   private readonly proprios = signal<FiltrosEstoque>({ tipos: [], condicoes: [], faixas: [], materiais: [] });
 
-  protected readonly opcoesTipo: CesSelectOption<string>[] = Object.entries(ROTULO_TIPO_ESTOQUE).map(([value, label]) => ({ label, value }));
-  protected readonly opcoesCondicao: CesSelectOption<string>[] = Object.entries(ROTULO_CONDICAO).map(([value, label]) => ({ label, value }));
-  protected readonly opcoesFaixa: CesSelectOption<string>[] = FAIXAS.map((f) => ({ label: f.rotulo, value: f.id }));
-  protected readonly opcoesMaterial = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesTipo: GeoSelectOption<string>[] = Object.entries(ROTULO_TIPO_ESTOQUE).map(([value, label]) => ({ label, value }));
+  protected readonly opcoesCondicao: GeoSelectOption<string>[] = Object.entries(ROTULO_CONDICAO).map(([value, label]) => ({ label, value }));
+  protected readonly opcoesFaixa: GeoSelectOption<string>[] = FAIXAS.map((f) => ({ label: f.rotulo, value: f.id }));
+  protected readonly opcoesMaterial = computed<GeoSelectOption<string>[]>(() => {
     const vistos = new Map<string, string>();
     for (const s of this.dados()?.e.saldos ?? []) vistos.set(s.idMaterial, `${s.codigo} · ${s.descricao}`);
     return [...vistos.entries()].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
   });
 
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const f = this.proprios();
-    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): CesFilterChip[] =>
+    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): GeoFilterChip[] =>
       sel.length ? [{ key, label: `${rotulo}: ${sel.length === 1 ? nome(sel[0]) : `${sel.length} selecionados`}` }] : [];
     return [
       ...chip('tipo', 'Estoque', f.tipos, (v) => ROTULO_TIPO_ESTOQUE[v] ?? v),

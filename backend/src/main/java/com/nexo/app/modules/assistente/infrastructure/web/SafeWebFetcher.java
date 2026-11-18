@@ -40,7 +40,7 @@ public class SafeWebFetcher {
     private static final long MAX_HTML_BYTES = 8L * 1024 * 1024;
     private static final long MAX_PDF_BYTES = 25L * 1024 * 1024;
     private static final int MAX_TEXTO = 400_000;
-    private static final String USER_AGENT = "Mozilla/5.0 (compatible; CopilotoCES/1.0; +https://app.exemplo.com.br)";
+    private static final String USER_AGENT = "Mozilla/5.0 (compatible; BussolaGEO/1.0; +https://app.exemplo.com.br)";
     private static final Set<String> HOSTS_BLOQUEADOS = Set.of("metadata.google.internal", "metadata.gke.internal",
             "metadata.azure.com", "localhost", "metadata");
     private static final Set<String> TAGS_REMOVIDAS = Set.of("script", "style", "noscript", "svg", "iframe", "form",

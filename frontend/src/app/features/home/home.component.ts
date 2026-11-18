@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-interface CesModule {
+interface GeoModule {
   code: string;
   name: string;
   description: string;
@@ -19,7 +19,7 @@ interface CesModule {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
-  protected readonly modules: CesModule[] = [
+  protected readonly modules: GeoModule[] = [
     {
       code: '01',
       name: 'Almoxarifado',

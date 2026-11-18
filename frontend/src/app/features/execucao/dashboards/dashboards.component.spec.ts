@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import {
   DashboardOperacionalFiltros,
   DashboardOperacionalResponse,
@@ -131,7 +131,7 @@ describe('Dashboard de turnos', () => {
     expect(texto(eq01)).toContain('Maria Souza');
     expect(texto(eq01)).toContain('ABC1D23');
     expect(texto(eq01)).toContain('2 pessoas');
-    expect(eq01.querySelector('ces-meter')).not.toBeNull();
+    expect(eq01.querySelector('geo-meter')).not.toBeNull();
     const marcas = eq01.querySelectorAll('a.ed-timeline__mark');
     expect(marcas).toHaveLength(2);
     expect(marcas[0].getAttribute('aria-label')).toContain('Nota de CORTE lançada às');
@@ -252,7 +252,7 @@ describe('Dashboard operacional', () => {
     const cartoes = [...el.querySelectorAll('article.ed-team')] as HTMLElement[];
 
     expect(cartoes.map((c) => c.querySelector('h3')?.textContent)).toEqual(['EQ-02', 'EQ-01']);
-    expect(texto(cartoes[0].querySelector('ces-status') as HTMLElement)).toBe('Abaixo do ritmo');
+    expect(texto(cartoes[0].querySelector('geo-status') as HTMLElement)).toBe('Abaixo do ritmo');
     expect(cartoes[0].querySelectorAll('.ed-bars li')).toHaveLength(2);
     expect(cartoes[0].querySelector('a.ed-link')?.getAttribute('href')).toContain('/obras/turnos?equipe=EQ-02');
   });

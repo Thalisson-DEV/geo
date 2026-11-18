@@ -93,7 +93,7 @@ public class CodeInterpreterClient {
     }
 
     public String uploadFile(byte[] content, String filename) throws IOException, InterruptedException {
-        String boundary = "----ces" + UUID.randomUUID().toString().replace("-", "");
+        String boundary = "----geo" + UUID.randomUUID().toString().replace("-", "");
         ByteArrayOutputStream body = new ByteArrayOutputStream(content.length + 512);
         String safeName = filename.replace("\"", "_").replace("\r", "_").replace("\n", "_");
         body.write(("--" + boundary + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"" + safeName

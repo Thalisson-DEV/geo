@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 
 import { MovimentacaoRelatorio, MovimentacoesRelatorioResponse } from '../../../../../core/models/almoxarifado-relatorios.models';
 import {
@@ -293,7 +293,7 @@ export function visaoMov(m: ModeloMov): { veredito: VereditoGerencial; leituras:
 
   const graves = leituras.filter((l) => l.tom === 'danger').length;
   const atencao = leituras.filter((l) => l.tom === 'warning').length;
-  const tom: CesTone = graves ? 'danger' : atencao ? 'warning' : 'success';
+  const tom: GeoTone = graves ? 'danger' : atencao ? 'warning' : 'success';
   const ritmo = vOps == null ? '' : ` O volume ${vOps > 0.05 ? 'subiu' : vOps < -0.05 ? 'caiu' : 'ficou estável'} (${textoVariacao(m.operacoes, m.operacoesAnt)}).`;
   const veredito: VereditoGerencial = {
     tom,
@@ -314,7 +314,7 @@ export function visaoMov(m: ModeloMov): { veredito: VereditoGerencial; leituras:
 
 // ── Análise detalhada ────────────────────────────────────────────────────────────────────────────
 
-const colMateriais: CesDataTableColumn<MaterialMov>[] = [
+const colMateriais: GeoDataTableColumn<MaterialMov>[] = [
   { key: 'codigo', header: 'Código', priority: 1 },
   { key: 'descricao', header: 'Material', priority: 1 },
   { key: 'movimentos', header: 'Movimentos', type: 'integer', priority: 2 },
@@ -328,7 +328,7 @@ const colMateriais: CesDataTableColumn<MaterialMov>[] = [
 export const colunasMateriais = colMateriais;
 
 interface LinhaGrupo { chave: string; rotulo: string; itens: number; operacoes: number; entregas: number; retornos: number; estornos: number; baixas: number }
-const colGrupo: CesDataTableColumn<LinhaGrupo>[] = [
+const colGrupo: GeoDataTableColumn<LinhaGrupo>[] = [
   { key: 'rotulo', header: 'Nome', priority: 1 },
   { key: 'operacoes', header: 'Operações', type: 'integer', priority: 1 },
   { key: 'itens', header: 'Itens', type: 'integer', priority: 2 },

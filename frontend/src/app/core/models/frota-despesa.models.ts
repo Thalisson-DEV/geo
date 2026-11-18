@@ -1,5 +1,5 @@
 /** Despesas por veículo na web: lavagem, estacionamento, pedágio, mensalidade, taxa e outras. */
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 export type FormaPagamentoDespesa = 'A_PAGAR' | 'CARTAO' | 'REEMBOLSO' | 'JA_PAGO';
 export type SituacaoPagamentoDespesa = 'SOLICITADO' | 'APROVADO' | 'REPROVADO';
@@ -149,7 +149,7 @@ export interface ImportacaoDespesas {
 
 /** Situação do pagamento para a equipe: a pagar ainda sem solicitação, solicitado, aprovado, reprovado ou só registro. */
 export function pagamentoDespesa(d: Pick<DespesaVeiculo, 'formaPagamento' | 'formaPagamentoRotulo' | 'situacaoPagamento' | 'situacaoPagamentoRotulo'>): {
-  rotulo: string; tom: CesTone; icone: string;
+  rotulo: string; tom: GeoTone; icone: string;
 } {
   if (d.formaPagamento !== 'A_PAGAR') return { rotulo: d.formaPagamentoRotulo, tom: 'neutral', icone: 'pi-credit-card' };
   switch (d.situacaoPagamento) {

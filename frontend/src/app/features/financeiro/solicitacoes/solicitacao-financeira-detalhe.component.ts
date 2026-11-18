@@ -11,12 +11,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesIconButtonComponent,
-  CesStatusComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoIconButtonComponent,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import {
@@ -52,7 +52,7 @@ const ROTULO_STATUS: Record<StatusSolicitacao, string> = {
   CANCELADO: 'Cancelada'
 };
 
-const TOM_STATUS: Record<StatusSolicitacao, CesTone> = {
+const TOM_STATUS: Record<StatusSolicitacao, GeoTone> = {
   RASCUNHO: 'neutral',
   SOLICITADO: 'warning',
   APROVADO: 'success',
@@ -85,7 +85,7 @@ interface LinhaKv {
 }
 
 interface Faixa {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;
@@ -115,9 +115,9 @@ type BlocoRelatorio = GrupoDeCampos & { largo: boolean };
     CommonModule,
     AccordionModule,
     ButtonModule,
-    CesAsyncStateComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
     AnalisarComCopilotoComponent,
     SolicitacaoDecisaoDrawerComponent,
     SolicitacaoDocumentosComponent,
@@ -487,7 +487,7 @@ export class SolicitacaoFinanceiraDetalheComponent {
     return aguardando ? `${aguardando} aguardando conferência` : 'todos conferidos';
   }
 
-  protected tomDocumentos(item: SolicitacaoFinanceira): CesTone {
+  protected tomDocumentos(item: SolicitacaoFinanceira): GeoTone {
     if (item.documentos.some((d) => d.situacao === 'COM_PENDENCIA')) return 'danger';
     return item.documentos.length ? 'neutral' : 'warning';
   }

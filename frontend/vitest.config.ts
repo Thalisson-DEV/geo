@@ -38,14 +38,14 @@ export default defineConfig({
   },
   resolve: {
     alias: [
-      { find: /^@ces\/ui\/forms$/, replacement: path.resolve(__dirname, './src/app/design-system/forms/index.ts') },
-      { find: /^@ces\/ui\/autocomplete$/, replacement: path.resolve(__dirname, './src/app/design-system/autocomplete/index.ts') },
-      { find: /^@ces\/ui\/data$/, replacement: path.resolve(__dirname, './src/app/design-system/data/index.ts') },
-      { find: /^@ces\/ui\/overlays$/, replacement: path.resolve(__dirname, './src/app/design-system/overlays/index.ts') },
-      { find: /^@ces\/ui\/feedback$/, replacement: path.resolve(__dirname, './src/app/design-system/feedback/index.ts') },
-      { find: /^@ces\/ui\/patterns$/, replacement: path.resolve(__dirname, './src/app/design-system/patterns/index.ts') },
-      { find: /^@ces\/ui\/testing$/, replacement: path.resolve(__dirname, './src/app/design-system/testing/index.ts') },
-      { find: /^@ces\/ui$/, replacement: path.resolve(__dirname, './src/app/design-system/index.ts') },
+      { find: /^@geo\/ui\/forms$/, replacement: path.resolve(__dirname, './src/app/design-system/forms/index.ts') },
+      { find: /^@geo\/ui\/autocomplete$/, replacement: path.resolve(__dirname, './src/app/design-system/autocomplete/index.ts') },
+      { find: /^@geo\/ui\/data$/, replacement: path.resolve(__dirname, './src/app/design-system/data/index.ts') },
+      { find: /^@geo\/ui\/overlays$/, replacement: path.resolve(__dirname, './src/app/design-system/overlays/index.ts') },
+      { find: /^@geo\/ui\/feedback$/, replacement: path.resolve(__dirname, './src/app/design-system/feedback/index.ts') },
+      { find: /^@geo\/ui\/patterns$/, replacement: path.resolve(__dirname, './src/app/design-system/patterns/index.ts') },
+      { find: /^@geo\/ui\/testing$/, replacement: path.resolve(__dirname, './src/app/design-system/testing/index.ts') },
+      { find: /^@geo\/ui$/, replacement: path.resolve(__dirname, './src/app/design-system/index.ts') },
     ],
   },
 });

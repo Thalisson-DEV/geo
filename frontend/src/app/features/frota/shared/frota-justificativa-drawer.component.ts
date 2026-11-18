@@ -1,23 +1,23 @@
 import { ChangeDetectionStrategy, Component, effect, input, model, output, signal, untracked } from '@angular/core';
-import { CesButtonComponent, CesFormDrawerComponent, CesTextareaComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoFormDrawerComponent, GeoTextareaComponent } from '@geo/ui';
 
 /** Pede uma justificativa antes de uma ação auditada (anular leitura, confirmar inconsistência...). */
 @Component({
   selector: 'app-frota-justificativa-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesFormDrawerComponent, CesTextareaComponent],
+  imports: [GeoButtonComponent, GeoFormDrawerComponent, GeoTextareaComponent],
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()" [dirty]="!!texto().trim()"
+    <geo-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()" [dirty]="!!texto().trim()"
       [loading]="processando()" size="sm">
-      <ces-textarea [label]="rotuloCampo()" [required]="true" [(value)]="texto" [rows]="4" [maxlength]="400" [placeholder]="placeholder() ?? ''"
-        description="Fica registrada com seu usuário e a data." [error]="erro()"></ces-textarea>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button [variant]="destrutivo() ? 'destructive' : 'primary'" icon="pi pi-check" [label]="rotuloConfirmar()" [loading]="processando()"
-          (pressed)="confirmar()"></ces-button>
+      <geo-textarea [label]="rotuloCampo()" [required]="true" [(value)]="texto" [rows]="4" [maxlength]="400" [placeholder]="placeholder() ?? ''"
+        description="Fica registrada com seu usuário e a data." [error]="erro()"></geo-textarea>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button [variant]="destrutivo() ? 'destructive' : 'primary'" icon="pi pi-check" [label]="rotuloConfirmar()" [loading]="processando()"
+          (pressed)="confirmar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaJustificativaDrawerComponent {

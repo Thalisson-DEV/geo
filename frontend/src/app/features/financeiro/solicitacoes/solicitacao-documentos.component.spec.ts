@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import {
   DocumentoFinanceiro,
   DocumentoResumo,
@@ -307,7 +307,7 @@ describe('SolicitacaoDocumentosComponent', () => {
           }
         },
         { provide: NotificationService, useValue: notificationServiceMock },
-        { provide: CesConfirmationService, useValue: confirmationServiceMock }
+        { provide: GeoConfirmationService, useValue: confirmationServiceMock }
       ]
     }).compileComponents();
 

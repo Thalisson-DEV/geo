@@ -16,8 +16,8 @@
 :host-context(.dark) .context-shell {
   --context-accent: var(--p-primary-500);
   --context-soft: rgba(59, 130, 246, 0.16);
-  border-color: var(--ces-border, #334155);
-  background: var(--ces-surface, #0f172a);
+  border-color: var(--geo-border, #334155);
+  background: var(--geo-surface, #0f172a);
 }
 
 :host-context(.app-dark) .context-shell[data-contexto='brigada'],
@@ -38,8 +38,8 @@
 
 :host-context(.app-dark) .context-heading,
 :host-context(.dark) .context-heading {
-  border-bottom-color: var(--ces-border, #334155);
-  background: linear-gradient(105deg, var(--context-soft), var(--ces-surface, #0f172a) 60%);
+  border-bottom-color: var(--geo-border, #334155);
+  background: linear-gradient(105deg, var(--context-soft), var(--geo-surface, #0f172a) 60%);
 }
 
 .context-copy span,

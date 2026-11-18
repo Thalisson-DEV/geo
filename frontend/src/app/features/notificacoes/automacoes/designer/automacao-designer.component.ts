@@ -5,7 +5,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, debounceTime, forkJoin, switchMap, catchError, of } from 'rxjs';
-import { CesAsyncStateComponent, NotificationService, CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesCalloutComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, NotificationService, GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoCalloutComponent } from '@geo/ui';
 
 import {
   AutomacaoDetalhe, Catalogo, Definicao, FlowNode, JsonValue, NoEspec, Params, Rascunho, STATUS_ROTULO, TipoAutomacao, Validacao
@@ -46,7 +46,7 @@ function iguais(a: unknown, b: unknown): boolean {
 @Component({
   selector: 'app-automacao-designer',
   standalone: true,
-  imports: [CesStatusComponent, CesCalloutComponent, CesButtonComponent, CesIconButtonComponent, CesAsyncStateComponent, CanvasComponent, PainelConfigComponent, PainelAdicionarComponent, PainelPedirComponent,
+  imports: [GeoStatusComponent, GeoCalloutComponent, GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent, CanvasComponent, PainelConfigComponent, PainelAdicionarComponent, PainelPedirComponent,
     PainelConfiguracoesComponent, DialogoExecutarComponent],
   styleUrls: ['../automacoes.css', '../automacoes-canvas.css', '../automacoes-campos.css', '../automacoes-email.css', '../automacoes-execucao.css'],
   encapsulation: ViewEncapsulation.None,
@@ -55,29 +55,29 @@ function iguais(a: unknown, b: unknown): boolean {
     @if (!detalhe() || !catalogo()) {
       <div class="aut" style="padding:2rem">
         @if (erroCarga()) {
-          <ces-async-state state="error" title="Não foi possível abrir a automação" [description]="erroCarga()!" actionLabel="Tentar de novo" (action)="carregar()" />
+          <geo-async-state state="error" title="Não foi possível abrir a automação" [description]="erroCarga()!" actionLabel="Tentar de novo" (action)="carregar()" />
         } @else {
-          <ces-async-state state="loading" title="Abrindo o editor" />
+          <geo-async-state state="loading" title="Abrindo o editor" />
         }
       </div>
     } @else {
       <div class="aut aut-designer">
         <header class="aut-topbar">
-          <ces-icon-button icon="pi pi-arrow-left" label="Voltar" variant="ghost" size="icon-sm" (pressed)="voltar()"></ces-icon-button>
+          <geo-icon-button icon="pi pi-arrow-left" label="Voltar" variant="ghost" size="icon-sm" (pressed)="voltar()"></geo-icon-button>
           <div class="aut-topbar-title">
             <input class="aut-name" aria-label="Nome da automação" maxlength="120" [value]="estado().nome" (input)="commit({ nome: $any($event.target).value })" />
             <span class="aut-topbar-meta">
-              <ces-status [tone]="$any(tomStatus()) ?? 'neutral'" [icon]="iconeStatus[detalhe()?.resumo?.status ?? 'RASCUNHO']">{{ statusRotulo() }}</ces-status>
+              <geo-status [tone]="$any(tomStatus()) ?? 'neutral'" [icon]="iconeStatus[detalhe()?.resumo?.status ?? 'RASCUNHO']">{{ statusRotulo() }}</geo-status>
               <span class="aut-save-state" [attr.data-dirty]="sujo() || null">{{ ocupado() === 'salvar' ? 'Salvando…' : sujo() ? 'Alterações não salvas' : 'Salvo' }}</span>
             </span>
           </div>
           <span style="flex:1"></span>
-          <ces-icon-button icon="pi pi-undo" label="Desfazer" variant="ghost" size="icon-sm" [disabled]="!passado().length" (pressed)="desfazer()"></ces-icon-button>
-          <ces-icon-button icon="pi pi-refresh" label="Refazer" variant="ghost" size="icon-sm" [disabled]="!futuro().length" (pressed)="refazer()"></ces-icon-button>
+          <geo-icon-button icon="pi pi-undo" label="Desfazer" variant="ghost" size="icon-sm" [disabled]="!passado().length" (pressed)="desfazer()"></geo-icon-button>
+          <geo-icon-button icon="pi pi-refresh" label="Refazer" variant="ghost" size="icon-sm" [disabled]="!futuro().length" (pressed)="refazer()"></geo-icon-button>
           <span style="position:relative">
-            <ces-button size="sm" aria-haspopup="dialog" [variant]="erros() ? 'destructive' : 'ghost'" [icon]="erros() || avisos() ? 'pi pi-exclamation-circle' : 'pi pi-check-circle'"
+            <geo-button size="sm" aria-haspopup="dialog" [variant]="erros() ? 'destructive' : 'ghost'" [icon]="erros() || avisos() ? 'pi pi-exclamation-circle' : 'pi pi-check-circle'"
               [label]="erros() || avisos() ? (erros() ? erros() + ' erro(s)' : '') + (erros() && avisos() ? ' · ' : '') + (avisos() ? avisos() + ' aviso(s)' : '') : 'Fluxo verificado'"
-              (pressed)="verificadorAberto.set(!verificadorAberto())"></ces-button>
+              (pressed)="verificadorAberto.set(!verificadorAberto())"></geo-button>
             @if (verificadorAberto()) {
               <div class="aut-popover" style="right:0;top:calc(100% + 6px)" role="dialog" aria-label="Verificador do fluxo">
                 <strong>Verificador do fluxo</strong>
@@ -93,18 +93,18 @@ function iguais(a: unknown, b: unknown): boolean {
               </div>
             }
           </span>
-          <ces-icon-button icon="pi pi-cog" label="Configurações" size="icon-sm" [variant]="lado()?.tipo === 'configuracoes' ? 'secondary' : 'ghost'" (pressed)="alternarLado({ tipo: 'configuracoes' })"></ces-icon-button>
-          <ces-button icon="pi pi-compass" label="Pedir à Bússola" size="sm" [variant]="lado()?.tipo === 'pedir' ? 'secondary' : 'ghost'" (pressed)="alternarLado({ tipo: 'pedir' })"></ces-button>
+          <geo-icon-button icon="pi pi-cog" label="Configurações" size="icon-sm" [variant]="lado()?.tipo === 'configuracoes' ? 'secondary' : 'ghost'" (pressed)="alternarLado({ tipo: 'configuracoes' })"></geo-icon-button>
+          <geo-button icon="pi pi-compass" label="Pedir à Bússola" size="sm" [variant]="lado()?.tipo === 'pedir' ? 'secondary' : 'ghost'" (pressed)="alternarLado({ tipo: 'pedir' })"></geo-button>
           <span class="aut-topbar-sep" aria-hidden="true"></span>
-          <ces-button icon="pi pi-play" label="Testar" variant="outline" size="sm" [title]="erros() ? 'Corrija os erros antes de testar' : 'E-mails e avisos só para você'" [disabled]="!!ocupado() || erros() > 0" (pressed)="abrirExecucao(true)"></ces-button>
+          <geo-button icon="pi pi-play" label="Testar" variant="outline" size="sm" [title]="erros() ? 'Corrija os erros antes de testar' : 'E-mails e avisos só para você'" [disabled]="!!ocupado() || erros() > 0" (pressed)="abrirExecucao(true)"></geo-button>
           @if (detalhe()!.resumo.status !== 'ATIVA') {
-            <ces-button icon="pi pi-check" label="Ativar" variant="outline" size="sm" [disabled]="!!ocupado() || erros() > 0 || problemasTipo().length > 0" (pressed)="mudarStatus('ATIVA')"></ces-button>
+            <geo-button icon="pi pi-check" label="Ativar" variant="outline" size="sm" [disabled]="!!ocupado() || erros() > 0 || problemasTipo().length > 0" (pressed)="mudarStatus('ATIVA')"></geo-button>
           } @else {
-            <ces-button icon="pi pi-pause" label="Pausar" variant="outline" size="sm" [disabled]="!!ocupado()" (pressed)="mudarStatus('PAUSADA')"></ces-button>
+            <geo-button icon="pi pi-pause" label="Pausar" variant="outline" size="sm" [disabled]="!!ocupado()" (pressed)="mudarStatus('PAUSADA')"></geo-button>
           }
-          <ces-button [label]="ocupado() === 'salvar' ? 'Salvando…' : 'Salvar'" variant="primary" size="sm" [disabled]="!!ocupado() || !sujo()" (pressed)="salvar()"></ces-button>
+          <geo-button [label]="ocupado() === 'salvar' ? 'Salvando…' : 'Salvar'" variant="primary" size="sm" [disabled]="!!ocupado() || !sujo()" (pressed)="salvar()"></geo-button>
         </header>
-        @if (erro()) { <ces-callout tone="danger" [dense]="true" role="alert">{{ erro() }} <button type="button" class="aut-link" (click)="erro.set(null)">Fechar</button></ces-callout> }
+        @if (erro()) { <geo-callout tone="danger" [dense]="true" role="alert">{{ erro() }} <button type="button" class="aut-link" (click)="erro.set(null)">Fechar</button></geo-callout> }
         <div class="aut-workspace">
           @if (lado(); as l) {
             @if (l.tipo === 'adicionar') {

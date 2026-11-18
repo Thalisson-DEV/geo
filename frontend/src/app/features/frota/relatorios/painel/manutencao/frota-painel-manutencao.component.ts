@@ -2,21 +2,21 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import { DetalheManutencaoFrota, FiltroRelatorioFrota, OsAbertaDetalheFrota } from '../../../../../core/models/frota-relatorios.models';
 import { VistaAnalise } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -64,7 +64,7 @@ import {
   visaoManutencao
 } from './analise-manutencao';
 
-const opcoes = (mapa: Record<string, string>): CesSelectOption<string>[] => Object.entries(mapa).map(([value, label]) => ({ label, value }));
+const opcoes = (mapa: Record<string, string>): GeoSelectOption<string>[] => Object.entries(mapa).map(([value, label]) => ({ label, value }));
 const TIPOS = opcoes({ CORRETIVA: 'Corretiva', PREVENTIVA: 'Preventiva' });
 const CRITICIDADES = opcoes({ URGENTE: 'Urgente', ALTA: 'Alta', MEDIA: 'Média', BAIXA: 'Baixa' });
 const OFICINAS = opcoes(ROTULO_OFICINA);
@@ -78,10 +78,10 @@ const ORIGENS = opcoes(ROTULO_ORIGEM_OS);
   selector: 'app-frota-painel-manutencao',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteFrotaService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteFrotaService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesCellDirective, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, CesStatusComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoCellDirective, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoStatusComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, FrotaPainelTopoComponent, FrotaRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -110,9 +110,9 @@ export class FrotaPainelManutencaoComponent extends PainelFrotaBase<DetalheManut
   protected readonly origemSel = signal<string[]>([]);
   private readonly proprios = signal<FiltrosManutencao>({ tipo: [], criticidade: [], oficina: [], origem: [] });
 
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const f = this.proprios();
-    const chip = (key: string, nome: string, sel: string[], mapa: CesSelectOption<string>[]) =>
+    const chip = (key: string, nome: string, sel: string[], mapa: GeoSelectOption<string>[]) =>
       sel.length ? [{ key, label: `${nome}: ${sel.length === 1 ? mapa.find((o) => o.value === sel[0])?.label : `${sel.length} selecionados`}` }] : [];
     return [...chip('tipoManutencao', 'Tipo', f.tipo, TIPOS), ...chip('criticidade', 'Criticidade', f.criticidade, CRITICIDADES),
       ...chip('oficina', 'Oficina', f.oficina, OFICINAS), ...chip('origem', 'Origem', f.origem, ORIGENS)];
@@ -172,21 +172,21 @@ export class FrotaPainelManutencaoComponent extends PainelFrotaBase<DetalheManut
   protected readonly chaveDescricao = (p: { descricao: string }) => p.descricao;
   protected readonly rotuloSituacao = (s: string) => rotulo(ROTULO_SITUACAO_OS, s);
 
-  protected readonly colParados: CesDataTableColumn<OsAbertaDetalheFrota>[] = [
+  protected readonly colParados: GeoDataTableColumn<OsAbertaDetalheFrota>[] = [
     { key: 'placa', header: 'Veículo', priority: 1, value: (o) => o.placa ?? '—' },
     { key: 'numero', header: 'OS', type: 'custom', priority: 1, value: (o) => o.numero ?? 0, display: (o) => (o.numero ? `#${o.numero}` : '—') },
     { key: 'diasAberta', header: 'Dias', type: 'integer', priority: 1 },
     { key: 'oficina', header: 'Oficina', priority: 3 },
     { key: 'descricao', header: 'Motivo', priority: 2, value: (o) => o.descricao ?? '' }
   ];
-  protected readonly colFila: CesDataTableColumn<OsAbertaDetalheFrota>[] = [
+  protected readonly colFila: GeoDataTableColumn<OsAbertaDetalheFrota>[] = [
     { key: 'numero', header: 'OS', type: 'custom', priority: 1, value: (o) => o.numero ?? 0, display: (o) => (o.numero ? `#${o.numero}` : '—') },
     { key: 'placa', header: 'Veículo', priority: 1, value: (o) => o.placa ?? '—' },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (o) => o.situacao },
     { key: 'criticidade', header: 'Criticidade', priority: 2, value: (o) => rotulo(ROTULO_CRITICIDADE, o.criticidade) },
     { key: 'diasAberta', header: 'Dias aberta', type: 'integer', priority: 1 }
   ];
-  protected readonly colOficinas: CesDataTableColumn<OficinaManutencao>[] = [
+  protected readonly colOficinas: GeoDataTableColumn<OficinaManutencao>[] = [
     { key: 'nome', header: 'Oficina', priority: 1 },
     { key: 'os', header: 'OS', type: 'custom', priority: 1, value: (o) => o.os.length, display: (o) => inteiro(o.os.length) },
     { key: 'valor', header: 'Valor', type: 'currency', priority: 1 },
@@ -194,7 +194,7 @@ export class FrotaPainelManutencaoComponent extends PainelFrotaBase<DetalheManut
     { key: 'horas', header: 'Horas por OS', type: 'custom', priority: 2, value: (o) => o.horas ?? -1, display: (o) => (o.horas == null ? '—' : numero(o.horas)) },
     { key: 'retrabalhos', header: 'Retrabalho', type: 'integer', priority: 2 }
   ];
-  protected readonly colItens: CesDataTableColumn<ItemManutencao>[] = [
+  protected readonly colItens: GeoDataTableColumn<ItemManutencao>[] = [
     { key: 'item', header: 'Item', priority: 1 },
     { key: 'tipo', header: 'Tipo', priority: 3, value: (i) => (i.tipo === 'PECA' ? 'Peça' : 'Mão de obra') },
     { key: 'os', header: 'OS', type: 'custom', priority: 1, value: (i) => i.os.length, display: (i) => inteiro(i.os.length) },
@@ -202,19 +202,19 @@ export class FrotaPainelManutencaoComponent extends PainelFrotaBase<DetalheManut
     { key: 'retrabalhos', header: 'Retrabalho', type: 'integer', priority: 2 },
     { key: 'valor', header: 'Valor das OS', type: 'currency', priority: 3 }
   ];
-  protected readonly colPecas: CesDataTableColumn<{ descricao: string; quantidade: number; valor: number; os: number }>[] = [
+  protected readonly colPecas: GeoDataTableColumn<{ descricao: string; quantidade: number; valor: number; os: number }>[] = [
     { key: 'descricao', header: 'Peça', priority: 1 },
     { key: 'quantidade', header: 'Quantidade', type: 'number', priority: 2 },
     { key: 'os', header: 'OS', type: 'integer', priority: 2 },
     { key: 'valor', header: 'Valor', type: 'currency', priority: 1 }
   ];
-  protected readonly colMecanicos: CesDataTableColumn<{ nome: string; servicos: number; valor: number; os: number }>[] = [
+  protected readonly colMecanicos: GeoDataTableColumn<{ nome: string; servicos: number; valor: number; os: number }>[] = [
     { key: 'nome', header: 'Mecânico', priority: 1 },
     { key: 'os', header: 'OS', type: 'integer', priority: 1 },
     { key: 'servicos', header: 'Serviços', type: 'integer', priority: 2 },
     { key: 'valor', header: 'Valor', type: 'currency', priority: 2 }
   ];
-  protected readonly colVeiculos: CesDataTableColumn<VeiculoManutencao>[] = [
+  protected readonly colVeiculos: GeoDataTableColumn<VeiculoManutencao>[] = [
     { key: 'placa', header: 'Veículo', priority: 1 },
     { key: 'tipo', header: 'Tipo', priority: 3, value: (v) => v.tipo ?? '' },
     { key: 'corretivas', header: 'Corretivas', type: 'integer', priority: 1 },

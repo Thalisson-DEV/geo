@@ -8,14 +8,14 @@ import org.springframework.stereotype.Component;
 /**
  * Configuração única do envio de e-mail, no mesmo molde de {@code R2Properties}.
  *
- * <p>Tudo mora sob o prefixo {@code ces.email} — inclusive os dados de SMTP, em vez do
+ * <p>Tudo mora sob o prefixo {@code geo.email} — inclusive os dados de SMTP, em vez do
  * {@code spring.mail.*} padrão. A razão é que o {@code JavaMailSender} do Spring só
  * nasce quando {@code spring.mail.host} existe, e essa condição invisível transformaria
  * um erro de configuração em um bean ausente no meio da subida. Construindo o sender a
  * partir daqui, a única chave que decide qualquer coisa é {@link #provedor}.</p>
  */
 @Component
-@ConfigurationProperties(prefix = "ces.email")
+@ConfigurationProperties(prefix = "geo.email")
 @Getter
 @Setter
 public class EmailProperties {

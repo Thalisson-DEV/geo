@@ -2,12 +2,12 @@ import { DatePipe } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDrawerComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDrawerComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import { SaudeRastreadores, SituacaoTelemetria, haQuanto } from '../../../core/models/frota-telemetria.models';
 import { formatarPlaca } from '../../../core/models/frota.models';
@@ -39,38 +39,38 @@ const ATRASO_MINUTOS = 15;
   selector: 'app-frota-telemetria',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink, CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesPageHeaderComponent, CesStatusComponent,
+  imports: [DatePipe, RouterLink, GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoPageHeaderComponent, GeoStatusComponent,
     FrotaMapaFrotaComponent, FrotaTelemetriaEventosComponent, FrotaTelemetriaRastreadoresComponent],
   styles: `
     .tl-acao { margin-top: 0.5rem; }
     .tl-dobro { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
-    .tl-dobro li { display: grid; gap: 0.375rem; padding: 0.75rem 0; border-bottom: 1px solid var(--ces-border); }
+    .tl-dobro li { display: grid; gap: 0.375rem; padding: 0.75rem 0; border-bottom: 1px solid var(--geo-border); }
     .tl-dobro li:last-child { border-bottom: 0; }
     .tl-dobro__placa { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; }
-    .tl-dobro__placa strong { font-size: var(--ces-font-control); }
-    .tl-dobro__placa span, .tl-dobro__rastreador span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .tl-dobro__placa strong { font-size: var(--geo-font-control); }
+    .tl-dobro__placa span, .tl-dobro__rastreador span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .tl-dobro__rastreador { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
   `,
   template: `
-    <div class="ces-page">
-      <ces-page-header
+    <div class="geo-page">
+      <geo-page-header
         [title]="cabecalho.titulo"
         [icon]="cabecalho.icone"
         [breadcrumb]="[{ label: 'Frota' }, { label: cabecalho.trilha }, { label: cabecalho.titulo }]"
         [description]="cabecalho.descricao"
-      ></ces-page-header>
+      ></geo-page-header>
 
       @if (modo === 'rastreadores') {
         @if (atrasadasDesde(); as desde) {
-          <ces-callout tone="warning" icon="pi pi-clock" title="Posições atrasadas">
+          <geo-callout tone="warning" icon="pi pi-clock" title="Posições atrasadas">
             Os rastreadores não atualizam desde {{ desde | date: "dd/MM 'às' HH:mm" }}. O mapa e o km automático voltam sozinhos quando a leitura voltar.
-          </ces-callout>
+          </geo-callout>
         }
         @if (saude()?.duplicados?.length; as n) {
-          <ces-callout tone="warning" icon="pi pi-clone" [title]="n === 1 ? '1 placa com dois rastreadores' : n + ' placas com dois rastreadores'">
+          <geo-callout tone="warning" icon="pi pi-clone" [title]="n === 1 ? '1 placa com dois rastreadores' : n + ' placas com dois rastreadores'">
             São dois equipamentos pagos no mesmo veículo. Fica o que comunica melhor; o outro pode ser cancelado no contrato.
-            <div class="tl-acao"><ces-button variant="secondary" size="sm" icon="pi pi-list" label="Ver as placas" (pressed)="dobroAberto.set(true)"></ces-button></div>
-          </ces-callout>
+            <div class="tl-acao"><geo-button variant="secondary" size="sm" icon="pi pi-list" label="Ver as placas" (pressed)="dobroAberto.set(true)"></geo-button></div>
+          </geo-callout>
         }
         <app-frota-telemetria-rastreadores #rastreadores (alterado)="carregarSaude()"></app-frota-telemetria-rastreadores>
       } @else if (modo === 'eventos') {
@@ -80,7 +80,7 @@ const ATRASO_MINUTOS = 15;
       }
     </div>
 
-    <ces-drawer [(visible)]="dobroAberto" eyebrow="Rastreadores" title="Placas com dois rastreadores" size="md"
+    <geo-drawer [(visible)]="dobroAberto" eyebrow="Rastreadores" title="Placas com dois rastreadores" size="md"
       description="Fica o que comunica e informa o km; o outro é candidato a cancelar.">
       <ul class="tl-dobro">
         @for (d of saude()?.duplicados ?? []; track d.placa) {
@@ -93,16 +93,16 @@ const ATRASO_MINUTOS = 15;
             </div>
             @for (r of d.rastreadores; track r.idRastreador) {
               <div class="tl-dobro__rastreador">
-                <ces-status [tone]="r.manter ? 'success' : 'warning'" [icon]="r.manter ? 'pi pi-check' : 'pi pi-times'">
+                <geo-status [tone]="r.manter ? 'success' : 'warning'" [icon]="r.manter ? 'pi pi-check' : 'pi pi-times'">
                   {{ r.manter ? 'Manter' : 'Cancelar' }} · {{ r.provedorRotulo }}
-                </ces-status>
+                </geo-status>
                 <span>{{ r.ultimaComunicacao ? 'comunicou ' + haQuanto(r.ultimaComunicacao) : 'nunca comunicou' }}{{ r.comOdometro ? '' : ' · sem km' }}</span>
               </div>
             }
           </li>
         }
       </ul>
-    </ces-drawer>
+    </geo-drawer>
   `
 })
 export class FrotaTelemetriaComponent implements AfterViewInit {

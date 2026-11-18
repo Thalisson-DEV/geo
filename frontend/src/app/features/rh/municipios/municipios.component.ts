@@ -1,27 +1,27 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesRowActionsDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoRowActionsDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesImportStatus,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoImportStatus,
+  geoListState
+} from '@geo/ui';
 
 import { AuditDialogComponent } from '../../../shared/components/audit-dialog/audit-dialog.component';
 import { HelpDialogComponent } from '../../../shared/components/help-dialog/help-dialog.component';
@@ -36,26 +36,26 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesRowActionsDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoRowActionsDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     HelpDialogComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Municípios"
         icon="pi pi-map"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'Cadastros' }, { label: 'Municípios' }]"
@@ -63,11 +63,11 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
         helpLabel="Ajuda sobre municípios"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo município" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo município" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel
+      <geo-filter-panel
         #painel
         storageKey="rh-municipios"
         [activeCount]="lista.activeCount()"
@@ -77,13 +77,13 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-select label="Base operacional" [options]="basesOpcoes()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Base operacional" [options]="basesOpcoes()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Municípios"
         mode="server"
         storageKey="rh-municipios"
@@ -113,32 +113,32 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
-              size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
+              size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar município' : 'Novo município'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar município' : 'Novo município'"
       [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
-      <ces-form-section title="Dados do município" icon="pi pi-map">
-        <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Salvador" [error]="erro('nome')"></ces-text-input>
-        <ces-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true" [error]="erro('base')"></ces-select>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar município'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <geo-form-section title="Dados do município" icon="pi pi-map">
+        <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Salvador" [error]="erro('nome')"></geo-text-input>
+        <geo-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true" [error]="erro('base')"></geo-select>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar município'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-import-drawer
+    <geo-import-drawer
       [(visible)]="importacaoAberta"
       title="Importar municípios"
       description="Planilha CSV com o nome do município e a base operacional."
@@ -151,42 +151,42 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       (cleared)="importacao.set([])"
     >
       @if (importacao().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="nome" let-row>
+          <ng-template geoCell="nome" let-row>
             @if (row.editing) {
-              <ces-text-input label="Nome" [labelVisible]="false" [(value)]="row.nome"></ces-text-input>
+              <geo-text-input label="Nome" [labelVisible]="false" [(value)]="row.nome"></geo-text-input>
             } @else {
               {{ row.nome }}
             }
           </ng-template>
-          <ng-template cesCell="base" let-row>
+          <ng-template geoCell="base" let-row>
             @if (row.editing) {
-              <ces-select label="Base operacional" [labelVisible]="false" [options]="basesOpcoes()" [value]="row.idBaseOperacional ?? null"
-                (valueChange)="definirBaseImportada(row, $event)" [filter]="true"></ces-select>
+              <geo-select label="Base operacional" [labelVisible]="false" [options]="basesOpcoes()" [value]="row.idBaseOperacional ?? null"
+                (valueChange)="definirBaseImportada(row, $event)" [filter]="true"></geo-select>
             } @else {
               {{ nomeBase(row.idBaseOperacional) || row.nomeBaseOperacional || '—' }}
             }
           </ng-template>
-          <ng-template cesCell="status" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="status" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="concluirCorrecao(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="concluirCorrecao(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="removerLinha(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="removerLinha(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-help-dialog #ajuda title="Ajuda: Municípios">
@@ -219,18 +219,18 @@ export class MunicipiosComponent {
   private readonly rh = inject(RhService);
   private readonly importacaoService = inject(ImportacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly bases = signal<BaseOperacionalResponse[]>([]);
-  protected readonly basesOpcoes = computed<CesSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
+  protected readonly basesOpcoes = computed<GeoSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
   protected readonly statusOpcoes = OPCOES_STATUS;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'rh-municipios',
     filters: {
-      idBaseOperacional: cesFilter.value<string | null>(null, { label: 'Base', param: 'base', format: (id) => (id ? this.nomeBase(id) : null) }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      idBaseOperacional: geoFilter.value<string | null>(null, { label: 'Base', param: 'base', format: (id) => (id ? this.nomeBase(id) : null) }),
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
@@ -241,7 +241,7 @@ export class MunicipiosComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.rh.listarMunicipios({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<MunicipioResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MunicipioResponse>[] = [
     { key: 'nome', header: 'Nome', priority: 1, sortField: 'nome' },
     { key: 'base', header: 'Base operacional', sortField: 'baseOperacional.nome', value: (m) => m.baseOperacional?.nome, display: (m) => m.baseOperacional?.nome ?? '—' },
     { key: 'ativo', header: 'Status', type: 'custom', priority: 1, sortField: 'ativo', value: (m) => m.ativo, display: (m) => (m.ativo ? 'Ativo' : 'Inativo') }
@@ -270,9 +270,9 @@ export class MunicipiosComponent {
   protected readonly importacao = signal<MunicipioImportacaoDTO[]>([]);
   protected readonly enviando = signal(false);
   protected readonly processando = signal(false);
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveImportacao = (r: MunicipioImportacaoDTO, i: number) => String(r.linha ?? i);
-  protected readonly colunasImportacao: CesDataTableColumn<MunicipioImportacaoDTO>[] = [
+  protected readonly colunasImportacao: GeoDataTableColumn<MunicipioImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'nome', header: 'Nome', type: 'custom', priority: 1, value: (r) => r.nome },
     { key: 'base', header: 'Base operacional', type: 'custom', value: (r) => r.nomeBaseOperacional },

@@ -1,30 +1,30 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Dashboard operacional" icon="pi pi-chart-line"
+    <geo-page-header title="Dashboard operacional" icon="pi pi-chart-line"
       [breadcrumb]="[{ label: 'Relatórios' }, { label: 'Dashboard operacional' }]"
       description="Quanto cada equipe de obras executou no período, como isso se compara à meta e se o ritmo atual fecha o mês.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
       @if (data(); as d) {
         <span actions class="dash-updated">Atualizado às {{ d.geradoEm | date: 'HH:mm' }}</span>
       }
-      <ces-button actions label="Boletim de hoje" icon="pi pi-th-large" variant="secondary" (pressed)="abrirBoletim()"></ces-button>
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Boletim de hoje" icon="pi pi-th-large" variant="secondary" (pressed)="abrirBoletim()"></geo-button>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="dash-operacional" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+    <geo-filter-panel storageKey="dash-operacional" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
-        <ces-datepicker label="Início" inputId="operacional-inicio" [value]="inicio()" (valueChange)="inicio.set($event)" [maxDate]="fim()"></ces-datepicker>
-        <ces-datepicker label="Fim" inputId="operacional-fim" [value]="fim()" (valueChange)="fim.set($event)" [minDate]="inicio()"></ces-datepicker>
-        <ces-multiselect label="Base operacional" inputId="operacional-base" placeholder="Todas" [clearable]="true"
+      <div class="geo-filter-grid">
+        <geo-datepicker label="Início" inputId="operacional-inicio" [value]="inicio()" (valueChange)="inicio.set($event)" [maxDate]="fim()"></geo-datepicker>
+        <geo-datepicker label="Fim" inputId="operacional-fim" [value]="fim()" (valueChange)="fim.set($event)" [minDate]="inicio()"></geo-datepicker>
+        <geo-multiselect label="Base operacional" inputId="operacional-base" placeholder="Todas" [clearable]="true"
           selectedItemsLabel="{0} bases" [maxSelectedLabels]="2"
-          [options]="recorte.opcoesBases()" [loading]="recorte.carregando()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></ces-multiselect>
-        <ces-multiselect label="Processo" inputId="operacional-processo" placeholder="Todos" [clearable]="true"
+          [options]="recorte.opcoesBases()" [loading]="recorte.carregando()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></geo-multiselect>
+        <geo-multiselect label="Processo" inputId="operacional-processo" placeholder="Todos" [clearable]="true"
           selectedItemsLabel="{0} processos" [maxSelectedLabels]="2"
-          [options]="recorte.opcoesProcessos()" [loading]="recorte.carregando()" [value]="idsProcesso()" (valueChange)="idsProcesso.set($event)"></ces-multiselect>
+          [options]="recorte.opcoesProcessos()" [loading]="recorte.carregando()" [value]="idsProcesso()" (valueChange)="idsProcesso.set($event)"></geo-multiselect>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     <div class="dash-tabs ed-periodos" role="group" aria-label="Período rápido">
       @for (periodo of periodosRapidos; track periodo.valor) {
@@ -34,10 +34,10 @@
     </div>
 
     @if (loading() && !data()) {
-      <ces-async-state state="loading" title="Consolidando a produção das equipes" description="Somando o executado nas obras no período."></ces-async-state>
+      <geo-async-state state="loading" title="Consolidando a produção das equipes" description="Somando o executado nas obras no período."></geo-async-state>
     } @else if (erro() && !data()) {
-      <ces-async-state state="error" title="Não foi possível carregar o dashboard" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível carregar o dashboard" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (data(); as d) {
       @if (visaoGerencial(); as vg) {
         <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
@@ -93,10 +93,10 @@
             </div>
             </div>
           </header>
-          <ces-chart [kind]="visaoSerie() === 'dia' ? 'line' : 'bar'" title="Produção e meta do período" [showTitle]="false"
+          <geo-chart [kind]="visaoSerie() === 'dia' ? 'line' : 'bar'" title="Produção e meta do período" [showTitle]="false"
             [labels]="serieTemporal().rotulos" [series]="serieTemporal().series" valueFormat="currency" [height]="300"
             [note]="notaMeta(d)" [selectable]="true" [selectLabel]="visaoSerie() === 'dia' ? 'Analisar dia' : 'Analisar mês'"
-            (pointSelect)="selecionarSerie($event)"></ces-chart>
+            (pointSelect)="selecionarSerie($event)"></geo-chart>
         </article>
 
         <article class="dash-panel dash-col-5">
@@ -107,10 +107,10 @@
             </div>
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'producaoMetaEquipe', rotulo: 'Produção × meta por equipe' }" />
           </header>
-          <ces-chart kind="bar-horizontal" title="Produção e meta por equipe" [showTitle]="false"
+          <geo-chart kind="bar-horizontal" title="Produção e meta por equipe" [showTitle]="false"
             [labels]="seriePorEquipe().rotulos" [series]="seriePorEquipe().series" valueFormat="currency"
             [height]="alturaGraficoEquipes()" [selectable]="true" selectLabel="Analisar equipe"
-            (pointSelect)="selecionarEquipe($event)"></ces-chart>
+            (pointSelect)="selecionarEquipe($event)"></geo-chart>
         </article>
       </section>
 
@@ -213,9 +213,9 @@
                     <span class="ed-team__eyebrow">Equipe</span>
                     <h3 [id]="'op-equipe-' + equipe.idEquipe">{{ equipe.codigo }}</h3>
                   </div>
-                  <ces-status [tone]="situacaoMeta[equipe.situacao].tom" [icon]="situacaoMeta[equipe.situacao].icone">
+                  <geo-status [tone]="situacaoMeta[equipe.situacao].tom" [icon]="situacaoMeta[equipe.situacao].icone">
                     {{ situacaoMeta[equipe.situacao].rotulo }}
-                  </ces-status>
+                  </geo-status>
                 </header>
 
                 <ul class="ed-team__tags" aria-label="Dados da equipe">
@@ -230,8 +230,8 @@
                       <span class="ed-goal__label"><i class="pi pi-flag" aria-hidden="true"></i> Meta do período</span>
                       <strong class="ed-goal__pct">{{ percentual(equipe.percentualMeta) }}</strong>
                     </div>
-                    <ces-meter [value]="equipe.percentualMeta ?? 0" [label]="'Meta do período da equipe ' + equipe.codigo"
-                      [detail]="moedaCompacta(equipe.producao) + ' de ' + moedaCompacta(equipe.metaPeriodo)"></ces-meter>
+                    <geo-meter [value]="equipe.percentualMeta ?? 0" [label]="'Meta do período da equipe ' + equipe.codigo"
+                      [detail]="moedaCompacta(equipe.producao) + ' de ' + moedaCompacta(equipe.metaPeriodo)"></geo-meter>
                     <ul class="ed-goal__rows">
                       @if (falta(equipe.metaPeriodo, equipe.producao) > 0) {
                         <li><i class="pi pi-arrow-up" aria-hidden="true"></i>Faltam <strong>{{ moedaCompacta(falta(equipe.metaPeriodo, equipe.producao)) }}</strong></li>

@@ -2,19 +2,19 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+} from '@geo/ui';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 import { catchError, concatMap, from, map, of, take, toArray } from 'rxjs';
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -38,43 +38,43 @@ import { EvidenciaPendente, novaPendente, porPergunta } from './visita-evidencia
   imports: [
     FormsModule,
     RouterLink,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesSelectComponent,
-    CesTextareaComponent,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoSelectComponent,
+    GeoTextareaComponent,
     ChecklistRespostasComponent,
     VisitaEvidenciasComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="aberto" [title]="visita() ? 'Corrigir visita prévia' : 'Registrar visita prévia'" [dirty]="alterado()" size="lg"
+    <geo-form-drawer [(visible)]="aberto" [title]="visita() ? 'Corrigir visita prévia' : 'Registrar visita prévia'" [dirty]="alterado()" size="lg"
       description="Checklist feito antes da execução, com as condições e necessidades da obra.">
       @if (carregando()) {
         <p class="vp-dica" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Carregando os modelos</p>
       } @else if (!modelosAtivos().length && !modelo()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Nenhum modelo ativo" [dense]="true">
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Nenhum modelo ativo" [dense]="true">
           Cadastre um modelo de visita prévia em
           @if (podeVerModelos()) { <a routerLink="/obras/cadastros/checklists">Checklists da documentação</a> } @else { Checklists da documentação }
           para registrar a visita.
-        </ces-callout>
+        </geo-callout>
       } @else {
-        <ces-form-section title="Visita" icon="pi pi-map-marker">
-          <div class="ces-form-grid">
-            <ces-select label="Modelo" [required]="true" [options]="opcoesModelo()" [value]="modelo()?.id ?? null" [disabled]="!!visita()" (valueChange)="escolherModelo($event)"></ces-select>
-            <ces-datepicker label="Data da visita" [required]="true" [maxDate]="hoje" [(value)]="dataVisita" [error]="tentou() && !dataVisita() ? 'Informe a data.' : undefined"></ces-datepicker>
+        <geo-form-section title="Visita" icon="pi pi-map-marker">
+          <div class="geo-form-grid">
+            <geo-select label="Modelo" [required]="true" [options]="opcoesModelo()" [value]="modelo()?.id ?? null" [disabled]="!!visita()" (valueChange)="escolherModelo($event)"></geo-select>
+            <geo-datepicker label="Data da visita" [required]="true" [maxDate]="hoje" [(value)]="dataVisita" [error]="tentou() && !dataVisita() ? 'Informe a data.' : undefined"></geo-datepicker>
           </div>
-          <div class="ces-form-stack">
-            <ces-autocomplete label="Responsável" placeholder="Busque pelo nome do colaborador" [required]="!nomeAntigo()" [clearable]="true"
+          <div class="geo-form-stack">
+            <geo-autocomplete label="Responsável" placeholder="Busque pelo nome do colaborador" [required]="!nomeAntigo()" [clearable]="true"
               [options]="colaboradores()" [loading]="colaboradorLookup.loading()" [status]="colaboradorLookup.status()" [error]="erroResponsavel()" [minLength]="2"
               [description]="nomeAntigo() ? 'Registrada como ' + nomeAntigo() + '. Escolha o colaborador para vincular; sem escolher, o nome é mantido.' : undefined"
               [ngModel]="idColaborador()" (ngModelChange)="idColaborador.set($event ?? null)"
-              (search)="colaboradorLookup.search($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></ces-autocomplete>
+              (search)="colaboradorLookup.search($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></geo-autocomplete>
           </div>
-        </ces-form-section>
+        </geo-form-section>
       }
 
       @if (modelo(); as m) {
@@ -84,24 +84,24 @@ import { EvidenciaPendente, novaPendente, porPergunta } from './visita-evidencia
               <h3 id="vp-checklist-titulo">Checklist</h3>
               <span class="vp-dica">{{ geral().respondidas }} de {{ geral().total }} respondidas</span>
             </div>
-            <ces-boolean-control label="Só pendentes" kind="toggle" [inline]="true" [(value)]="somentePendentes"></ces-boolean-control>
+            <geo-boolean-control label="Só pendentes" kind="toggle" [inline]="true" [(value)]="somentePendentes"></geo-boolean-control>
           </div>
           <div class="vp-barra" role="progressbar" aria-label="Progresso do checklist" aria-valuemin="0" [attr.aria-valuemax]="geral().total" [attr.aria-valuenow]="geral().respondidas">
             <span [style.width.%]="geral().total ? (geral().respondidas / geral().total) * 100 : 0"></span>
           </div>
           @if (conformesRestantes() > 0) {
-            <ces-button class="vp-checklist__acao" variant="outline" size="sm" icon="pi pi-check-square"
+            <geo-button class="vp-checklist__acao" variant="outline" size="sm" icon="pi pi-check-square"
               [label]="'Marcar ' + conformesRestantes() + (conformesRestantes() === 1 ? ' restante como conforme' : ' restantes como conforme')"
-              (pressed)="marcarTodosConformes()"></ces-button>
+              (pressed)="marcarTodosConformes()"></geo-button>
           }
           @if (naoConformes().length) {
-            <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [title]="naoConformes().length === 1 ? '1 não conformidade' : naoConformes().length + ' não conformidades'" [dense]="true">
+            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [title]="naoConformes().length === 1 ? '1 não conformidade' : naoConformes().length + ' não conformidades'" [dense]="true">
               <ul class="vp-nc">
                 @for (n of naoConformes(); track n.pergunta.id) {
                   <li><span class="vp-nc__grupo">{{ n.grupo }}</span> {{ n.pergunta.enunciado }}: <strong>{{ n.resposta }}</strong></li>
                 }
               </ul>
-            </ces-callout>
+            </geo-callout>
           }
           @if (somentePendentes() && geral().respondidas === geral().total) {
             <p class="vp-dica" role="status"><i class="pi pi-check-circle" aria-hidden="true"></i> Todas as perguntas respondidas.</p>
@@ -116,36 +116,36 @@ import { EvidenciaPendente, novaPendente, porPergunta } from './visita-evidencia
             (adicionar)="adicionar($event, p.id)" (removerGravada)="removerGravada($event)" (removerPendente)="removerPendente($event)"></app-visita-evidencias>
         </ng-template>
 
-        <ces-form-section title="Evidências gerais" icon="pi pi-images" description="Fotos do local ou documentos da visita que não são de uma pergunta específica.">
+        <geo-form-section title="Evidências gerais" icon="pi pi-images" description="Fotos do local ou documentos da visita que não são de uma pergunta específica.">
           <app-visita-evidencias [idObra]="idObra()" [idVisita]="visita()?.id ?? null" [podeEscrever]="podeEscrever()" rotulo="Evidências gerais"
             [gravadas]="gravadasDa(null)" [pendentes]="pendentesDa(null)"
             (adicionar)="adicionar($event, null)" (removerGravada)="removerGravada($event)" (removerPendente)="removerPendente($event)"></app-visita-evidencias>
-        </ces-form-section>
+        </geo-form-section>
 
-        <div class="ces-form-stack vp-observacoes">
-          <ces-textarea label="Observações" [rows]="3" [maxlength]="2000" [(value)]="observacoes"></ces-textarea>
+        <div class="geo-form-stack vp-observacoes">
+          <geo-textarea label="Observações" [rows]="3" [maxlength]="2000" [(value)]="observacoes"></geo-textarea>
         </div>
       }
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" [label]="podeEscrever() ? 'Cancelar' : 'Fechar'" (pressed)="aberto.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" [label]="podeEscrever() ? 'Cancelar' : 'Fechar'" (pressed)="aberto.set(false)"></geo-button>
         @if (podeEscrever() && modelo()) {
-          <ces-button icon="pi pi-check" label="Salvar visita" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+          <geo-button icon="pi pi-check" label="Salvar visita" [loading]="salvando()" (pressed)="salvar()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
-    .vp-dica { display: inline-flex; align-items: center; gap: 0.375rem; margin: 0; color: var(--ces-foreground-muted); font-size: 0.8125rem; }
+    .vp-dica { display: inline-flex; align-items: center; gap: 0.375rem; margin: 0; color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .vp-checklist { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem; }
     .vp-checklist__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
     .vp-checklist__titulo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.75rem; }
-    .vp-checklist__titulo h3 { margin: 0; color: var(--ces-foreground); font-size: 1rem; font-weight: 700; }
+    .vp-checklist__titulo h3 { margin: 0; color: var(--geo-foreground); font-size: 1rem; font-weight: 700; }
     .vp-checklist__acao { align-self: flex-start; }
-    .vp-barra { display: block; height: 0.5rem; overflow: hidden; border-radius: 999px; background: var(--ces-surface-muted); }
-    .vp-barra span { display: block; height: 100%; border-radius: inherit; background: var(--ces-brand); transition: width 160ms ease-out; }
+    .vp-barra { display: block; height: 0.5rem; overflow: hidden; border-radius: 999px; background: var(--geo-surface-muted); }
+    .vp-barra span { display: block; height: 100%; border-radius: inherit; background: var(--geo-brand); transition: width 160ms ease-out; }
     .vp-nc { display: flex; flex-direction: column; gap: 0.25rem; margin: 0.25rem 0 0; padding-left: 1rem; }
-    .vp-nc__grupo { color: var(--ces-foreground-muted); font-weight: 600; }
+    .vp-nc__grupo { color: var(--geo-foreground-muted); font-weight: 600; }
     .vp-nc__grupo::after { content: ' ·'; }
     .vp-observacoes { margin-top: 1rem; }
     @media (prefers-reduced-motion: reduce) { .vp-barra span { transition: none; } }
@@ -154,7 +154,7 @@ import { EvidenciaPendente, novaPendente, porPergunta } from './visita-evidencia
 export class VisitaPreviaDrawerComponent {
   private readonly servico = inject(ObrasDocumentacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly lookupStore = inject(LookupStore);
 
   readonly idObra = input.required<string>();
@@ -198,7 +198,7 @@ export class VisitaPreviaDrawerComponent {
     if (erro) return getErrorMessage(erro);
     return this.tentou() && !this.idColaborador() && !this.nomeAntigo() ? 'Escolha o colaborador responsável.' : undefined;
   });
-  protected readonly opcoesModelo = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesModelo = computed<GeoSelectOption<string>[]>(() => {
     const atual = this.modelo();
     const ativos = this.modelosAtivos().map((m) => ({ label: m.titulo, value: m.id }));
     return atual && !ativos.some((o) => o.value === atual.id) ? [{ label: atual.titulo, value: atual.id }, ...ativos] : ativos;

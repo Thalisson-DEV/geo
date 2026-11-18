@@ -9,7 +9,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CesAsyncStateComponent, CesButtonComponent, CesTone, NotificationService } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoButtonComponent, GeoTone, NotificationService } from '@geo/ui';
 import { Observable } from 'rxjs';
 import { getErrorMessage } from '../../../../core/models/shared.models';
 import {
@@ -72,7 +72,7 @@ export interface HistoricoMaterialModificadoDisplay {
 @Component({
   selector: 'app-solicitacao-tecnica-historico',
   standalone: true,
-  imports: [CommonModule, CesAsyncStateComponent, CesButtonComponent],
+  imports: [CommonModule, GeoAsyncStateComponent, GeoButtonComponent],
   templateUrl: './solicitacao-tecnica-historico.component.html',
   styleUrl: './solicitacao-tecnica-historico.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -189,7 +189,7 @@ export class SolicitacaoTecnicaHistoricoComponent implements OnInit {
     return list.some((item) => Boolean(item.tipoTecnico));
   }
 
-  protected integrityTone(status: string): CesTone {
+  protected integrityTone(status: string): GeoTone {
     return status === 'INTEGRO' ? 'success' : status === 'VIOLADO' ? 'danger' : 'warning';
   }
 

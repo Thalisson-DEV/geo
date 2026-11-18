@@ -2,26 +2,26 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -42,15 +42,15 @@ import { ExecucaoService } from '../../../core/services/execucao.service';
 import { RhService } from '../../../core/services/rh.service';
 import { LinhaAcao, LinhaMaterial, diferencaDaNota, materiaisDaNota, resumoDaDiferenca } from './alterar-nota.utils';
 
-const OPERACOES: CesSelectOption<OperacaoMaterial>[] = [
+const OPERACOES: GeoSelectOption<OperacaoMaterial>[] = [
   { label: 'Aplicado no cliente', value: 'APLICADO' },
   { label: 'Retirado do cliente', value: 'RETIRADO' }
 ];
-const ORIGENS: CesSelectOption<OrigemMaterial>[] = [
+const ORIGENS: GeoSelectOption<OrigemMaterial>[] = [
   { label: 'Equipe', value: 'EQUIPE' },
   { label: 'Concessionária', value: 'CONCESSIONARIA' }
 ];
-const TIPOS: CesSelectOption<TipoNota>[] = (Object.keys(TIPOS_NOTA) as TipoNota[]).map((tipo) => ({
+const TIPOS: GeoSelectOption<TipoNota>[] = (Object.keys(TIPOS_NOTA) as TipoNota[]).map((tipo) => ({
   label: tipo === 'OCORRENCIA' ? 'Ocorrência comercial' : TIPOS_NOTA[tipo].rotulo,
   value: tipo
 }));
@@ -68,161 +68,161 @@ const DATA_HORA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeSty
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="visible" [title]="'Alterar ' + titulo()" size="lg" [dirty]="alterado() || !!motivo().trim()"
+    <geo-form-drawer [(visible)]="visible" [title]="'Alterar ' + titulo()" size="lg" [dirty]="alterado() || !!motivo().trim()"
       description="Corrija qualquer dado da nota. Ela fica marcada como alterada e a mudança entra na linha do tempo."
       discardMessage="A correção desta nota ainda não foi salva e será perdida.">
-      <ces-form-section title="Dados da nota" icon="pi pi-file-edit"
+      <geo-form-section title="Dados da nota" icon="pi pi-file-edit"
         description="Mudar a data recalcula o valor pela tabela do novo dia e leva a nota para o dia certo nas metas.">
-        <div class="ces-form-grid">
-          <ces-text-input [label]="tipoNota() === 'OCORRENCIA' ? 'Número da ocorrência' : 'Número da nota'" [required]="true"
-            [value]="numero()" (valueChange)="numero.set($event)" [maxlength]="100" [error]="erroNumero()"></ces-text-input>
-          <ces-select label="Tipo da nota" [options]="tipos" [value]="tipoNota()" (valueChange)="tipoNota.set($event ?? 'COMUM')"
-            [description]="descricaoTipo()"></ces-select>
-          <ces-select label="Tipo de serviço" [options]="opcoesTiposServico()" [(value)]="idTipoServico" [filter]="true"
-            [loading]="carregandoDados()" placeholder="Sem tipo de serviço"></ces-select>
-          <ces-select label="Município" [options]="opcoesMunicipios()" [(value)]="idMunicipio" [filter]="true"
-            [loading]="carregandoDados()" placeholder="Sem município"></ces-select>
-          <ces-datepicker label="Data e hora do lançamento" [showTime]="true" [required]="true" [value]="dataLancamento()"
-            (valueChange)="dataLancamento.set($event)" [maxDate]="agora()" [error]="erroData()"></ces-datepicker>
+        <div class="geo-form-grid">
+          <geo-text-input [label]="tipoNota() === 'OCORRENCIA' ? 'Número da ocorrência' : 'Número da nota'" [required]="true"
+            [value]="numero()" (valueChange)="numero.set($event)" [maxlength]="100" [error]="erroNumero()"></geo-text-input>
+          <geo-select label="Tipo da nota" [options]="tipos" [value]="tipoNota()" (valueChange)="tipoNota.set($event ?? 'COMUM')"
+            [description]="descricaoTipo()"></geo-select>
+          <geo-select label="Tipo de serviço" [options]="opcoesTiposServico()" [(value)]="idTipoServico" [filter]="true"
+            [loading]="carregandoDados()" placeholder="Sem tipo de serviço"></geo-select>
+          <geo-select label="Município" [options]="opcoesMunicipios()" [(value)]="idMunicipio" [filter]="true"
+            [loading]="carregandoDados()" placeholder="Sem município"></geo-select>
+          <geo-datepicker label="Data e hora do lançamento" [showTime]="true" [required]="true" [value]="dataLancamento()"
+            (valueChange)="dataLancamento.set($event)" [maxDate]="agora()" [error]="erroData()"></geo-datepicker>
         </div>
         @if (concessionariaForaDaOcorrencia()) {
-          <ces-callout tone="danger" title="Material da Concessionária na nota">
+          <geo-callout tone="danger" title="Material da Concessionária na nota">
             Só a ocorrência comercial aceita material da Concessionária. Remova esses materiais ou mantenha o tipo ocorrência.
-          </ces-callout>
+          </geo-callout>
         }
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Serviços" icon="pi pi-wrench" description="Os serviços definem o valor faturado, recalculado pela tabela do dia do lançamento.">
-        <div class="ces-form-grid">
-          <ces-select label="Serviço" [options]="acoesDisponiveis()" [(value)]="novaAcao" [filter]="true" [clearable]="true"
-            [loading]="carregandoAcoes()" placeholder="Escolha o serviço"></ces-select>
+      <geo-form-section title="Serviços" icon="pi pi-wrench" description="Os serviços definem o valor faturado, recalculado pela tabela do dia do lançamento.">
+        <div class="geo-form-grid">
+          <geo-select label="Serviço" [options]="acoesDisponiveis()" [(value)]="novaAcao" [filter]="true" [clearable]="true"
+            [loading]="carregandoAcoes()" placeholder="Escolha o serviço"></geo-select>
         </div>
-        <div class="ces-actions-row">
-          <ces-button variant="outline" icon="pi pi-plus" label="Adicionar serviço" [disabled]="!novaAcao()" (pressed)="adicionarAcao()"></ces-button>
+        <div class="geo-actions-row">
+          <geo-button variant="outline" icon="pi pi-plus" label="Adicionar serviço" [disabled]="!novaAcao()" (pressed)="adicionarAcao()"></geo-button>
         </div>
-        <ces-data-table caption="Serviços da nota" [searchable]="false" [columns]="colunasAcoes" [rows]="acoes()" [rowKey]="chaveAcao"
+        <geo-data-table caption="Serviços da nota" [searchable]="false" [columns]="colunasAcoes" [rows]="acoes()" [rowKey]="chaveAcao"
           [state]="acoes().length ? 'ready' : 'empty'" stateTitle="Nenhum serviço" stateDescription="A nota fica sem valor faturado.">
-          <ng-template cesCell="nome" let-row>
+          <ng-template geoCell="nome" let-row>
             <span class="linha-nome">
               <span>{{ row.nome }}</span>
-              @if (row.nova) { <ces-status tone="info" icon="pi-plus">Novo</ces-status> }
+              @if (row.nova) { <geo-status tone="info" icon="pi-plus">Novo</geo-status> }
             </span>
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-trash" [label]="'Remover o serviço ' + row.nome" size="icon-sm" (pressed)="removerAcao(row)"></ces-icon-button>
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-trash" [label]="'Remover o serviço ' + row.nome" size="icon-sm" (pressed)="removerAcao(row)"></geo-icon-button>
             </span>
           </ng-template>
-        </ces-data-table>
-      </ces-form-section>
+        </geo-data-table>
+      </geo-form-section>
 
-      <ces-form-section title="Materiais" icon="pi pi-box" description="O saldo do caminhão é ajustado: o que sair da nota volta ao saldo, o que entrar é baixado.">
+      <geo-form-section title="Materiais" icon="pi pi-box" description="O saldo do caminhão é ajustado: o que sair da nota volta ao saldo, o que entrar é baixado.">
         @if (substituindo(); as antigo) {
-          <ces-callout tone="info" title="Substituindo material">
+          <geo-callout tone="info" title="Substituindo material">
             Escolha o material certo no lugar de {{ antigo.rotulo }} ({{ antigo.operacao === 'APLICADO' ? 'aplicado' : 'retirado' }}).
-            <div class="ces-actions-row"><ces-button variant="ghost" size="sm" label="Desistir da troca" (pressed)="cancelarSubstituicao()"></ces-button></div>
-          </ces-callout>
+            <div class="geo-actions-row"><geo-button variant="ghost" size="sm" label="Desistir da troca" (pressed)="cancelarSubstituicao()"></geo-button></div>
+          </geo-callout>
         }
-        <div class="ces-form-grid">
-          <ces-autocomplete label="Material" placeholder="Código ou descrição" [options]="materiaisBusca.items()" [ngModel]="novoMaterial()"
+        <div class="geo-form-grid">
+          <geo-autocomplete label="Material" placeholder="Código ou descrição" [options]="materiaisBusca.items()" [ngModel]="novoMaterial()"
             (ngModelChange)="escolherMaterial($event)" [loading]="materiaisBusca.loading()" [status]="materiaisBusca.status()" [clearable]="true"
-            (search)="materiaisBusca.search($event)" (loadMore)="materiaisBusca.loadNext()" (retry)="materiaisBusca.retry()"></ces-autocomplete>
-          <ces-select label="Operação" [options]="operacoes" [value]="novaOperacao()" (valueChange)="escolherOperacao($event)"></ces-select>
+            (search)="materiaisBusca.search($event)" (loadMore)="materiaisBusca.loadNext()" (retry)="materiaisBusca.retry()"></geo-autocomplete>
+          <geo-select label="Operação" [options]="operacoes" [value]="novaOperacao()" (valueChange)="escolherOperacao($event)"></geo-select>
           @if (ocorrencia()) {
-            <ces-select label="Origem" [options]="origens" [value]="novaOrigem()" (valueChange)="escolherOrigem($event)"
-              description="Material da Concessionária não mexe no saldo da equipe."></ces-select>
+            <geo-select label="Origem" [options]="origens" [value]="novaOrigem()" (valueChange)="escolherOrigem($event)"
+              description="Material da Concessionária não mexe no saldo da equipe."></geo-select>
           }
           @if (materialEscolhido(); as mat) {
             @if (!mat.detalhaSerie) {
-              <ces-number-input label="Quantidade" [(value)]="novaQuantidade" [min]="0" [maxFractionDigits]="3" [required]="true"
-                [suffix]="mat.unidadeMedida ? ' ' + mat.unidadeMedida : undefined"></ces-number-input>
+              <geo-number-input label="Quantidade" [(value)]="novaQuantidade" [min]="0" [maxFractionDigits]="3" [required]="true"
+                [suffix]="mat.unidadeMedida ? ' ' + mat.unidadeMedida : undefined"></geo-number-input>
             } @else if (aplicaDoCaminhao()) {
-              <ces-multiselect label="Séries no caminhão" [required]="true" display="chip" [options]="seriesDisponiveis()" [(value)]="seriesEscolhidas"
+              <geo-multiselect label="Séries no caminhão" [required]="true" display="chip" [options]="seriesDisponiveis()" [(value)]="seriesEscolhidas"
                 [loading]="carregandoSeries()" [placeholder]="seriesDisponiveis().length ? 'Marque as séries aplicadas' : 'Nenhuma série deste material no caminhão'"
-                description="Uma linha por série. São as séries novas no saldo da equipe."></ces-multiselect>
+                description="Uma linha por série. São as séries novas no saldo da equipe."></geo-multiselect>
             } @else {
-              <ces-text-input label="Série retirada" [required]="true" [value]="novaSerie()" (valueChange)="novaSerie.set($event.toUpperCase())"
-                placeholder="Digite a série do cliente" description="Material com controle de série: uma por linha."></ces-text-input>
+              <geo-text-input label="Série retirada" [required]="true" [value]="novaSerie()" (valueChange)="novaSerie.set($event.toUpperCase())"
+                placeholder="Digite a série do cliente" description="Material com controle de série: uma por linha."></geo-text-input>
             }
           }
         </div>
         @if (materialEscolhido()?.detalhaSerie && aplicaDoCaminhao()) {
           @if (digitarForaDoSaldo()) {
             <div class="fora-saldo">
-              <ces-text-input label="Série fora do saldo" [value]="novaSerie()" (valueChange)="novaSerie.set($event.toUpperCase())"
-                placeholder="Digite a série" description="Só se a série aplicada não aparece no caminhão. O saldo da equipe fica negativo e o almoxarifado é avisado."></ces-text-input>
+              <geo-text-input label="Série fora do saldo" [value]="novaSerie()" (valueChange)="novaSerie.set($event.toUpperCase())"
+                placeholder="Digite a série" description="Só se a série aplicada não aparece no caminhão. O saldo da equipe fica negativo e o almoxarifado é avisado."></geo-text-input>
             </div>
           } @else {
-            <div class="ces-actions-row">
-              <ces-button variant="ghost" size="sm" icon="pi pi-pencil" label="A série não está na lista" (pressed)="digitarForaDoSaldo.set(true)"></ces-button>
+            <div class="geo-actions-row">
+              <geo-button variant="ghost" size="sm" icon="pi pi-pencil" label="A série não está na lista" (pressed)="digitarForaDoSaldo.set(true)"></geo-button>
             </div>
           }
         }
         @if (erroMaterial(); as mensagem) {
-          <ces-callout tone="danger">{{ mensagem }}</ces-callout>
+          <geo-callout tone="danger">{{ mensagem }}</geo-callout>
         }
-        <div class="ces-actions-row">
-          <ces-button variant="outline" icon="pi pi-plus" [label]="substituindo() ? 'Substituir material' : 'Adicionar material'"
-            [disabled]="!podeAdicionarMaterial()" (pressed)="adicionarMaterial()"></ces-button>
+        <div class="geo-actions-row">
+          <geo-button variant="outline" icon="pi pi-plus" [label]="substituindo() ? 'Substituir material' : 'Adicionar material'"
+            [disabled]="!podeAdicionarMaterial()" (pressed)="adicionarMaterial()"></geo-button>
         </div>
-        <ces-data-table caption="Materiais da nota" [searchable]="false" [columns]="colunasMateriais()" [rows]="materiais()" [rowKey]="chaveMaterial"
+        <geo-data-table caption="Materiais da nota" [searchable]="false" [columns]="colunasMateriais()" [rows]="materiais()" [rowKey]="chaveMaterial"
           [state]="materiais().length ? 'ready' : 'empty'" stateTitle="Nenhum material" stateDescription="A nota fica só com os serviços.">
-          <ng-template cesCell="material" let-row>
+          <ng-template geoCell="material" let-row>
             <span class="linha-nome">
               <span>{{ row.rotulo }}</span>
-              @if (row.nova) { <ces-status tone="info" icon="pi-plus">Novo</ces-status> }
-              @if (row.foraDoSaldo) { <ces-status tone="warning" icon="pi-exclamation-triangle">Fora do saldo</ces-status> }
+              @if (row.nova) { <geo-status tone="info" icon="pi-plus">Novo</geo-status> }
+              @if (row.foraDoSaldo) { <geo-status tone="warning" icon="pi-exclamation-triangle">Fora do saldo</geo-status> }
             </span>
           </ng-template>
-          <ng-template cesCell="operacao" let-row>
-            <ces-status [tone]="row.operacao === 'APLICADO' ? 'brand' : 'neutral'" [icon]="row.operacao === 'APLICADO' ? 'pi-arrow-down' : 'pi-arrow-up'">
+          <ng-template geoCell="operacao" let-row>
+            <geo-status [tone]="row.operacao === 'APLICADO' ? 'brand' : 'neutral'" [icon]="row.operacao === 'APLICADO' ? 'pi-arrow-down' : 'pi-arrow-up'">
               {{ row.operacao === 'APLICADO' ? 'Aplicado' : 'Retirado' }}
-            </ces-status>
+            </geo-status>
           </ng-template>
-          <ng-template cesCell="quantidade" let-row>
+          <ng-template geoCell="quantidade" let-row>
             @if (row.numSerie) {
               {{ row.quantidade }} {{ row.unidade }}
             } @else {
-              <ces-number-input [label]="'Quantidade de ' + row.rotulo" [labelVisible]="false" [value]="row.quantidade" [min]="0" [maxFractionDigits]="3"
-                [suffix]="row.unidade ? ' ' + row.unidade : undefined" (valueChange)="mudarQuantidade(row, $event)"></ces-number-input>
+              <geo-number-input [label]="'Quantidade de ' + row.rotulo" [labelVisible]="false" [value]="row.quantidade" [min]="0" [maxFractionDigits]="3"
+                [suffix]="row.unidade ? ' ' + row.unidade : undefined" (valueChange)="mudarQuantidade(row, $event)"></geo-number-input>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-arrow-right-arrow-left" size="icon-sm" (pressed)="inverterOperacao(row)"
-                [label]="'Trocar ' + row.rotulo + ' para ' + (row.operacao === 'APLICADO' ? 'retirado' : 'aplicado')"></ces-icon-button>
-              <ces-icon-button icon="pi pi-sync" [label]="'Substituir ' + row.rotulo + ' por outro material'" size="icon-sm" (pressed)="substituir(row)"></ces-icon-button>
-              <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + row.rotulo" size="icon-sm" (pressed)="removerMaterial(row)"></ces-icon-button>
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-arrow-right-arrow-left" size="icon-sm" (pressed)="inverterOperacao(row)"
+                [label]="'Trocar ' + row.rotulo + ' para ' + (row.operacao === 'APLICADO' ? 'retirado' : 'aplicado')"></geo-icon-button>
+              <geo-icon-button icon="pi pi-sync" [label]="'Substituir ' + row.rotulo + ' por outro material'" size="icon-sm" (pressed)="substituir(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + row.rotulo" size="icon-sm" (pressed)="removerMaterial(row)"></geo-icon-button>
             </span>
           </ng-template>
-        </ces-data-table>
-      </ces-form-section>
+        </geo-data-table>
+      </geo-form-section>
 
-      <ces-form-section title="Motivo" icon="pi pi-comment" description="Aparece na linha do tempo e no relatório da nota.">
-        <ces-textarea label="Motivo da alteração" [required]="true" [value]="motivo()" (valueChange)="motivo.set($event)"
-          [maxlength]="tamanhoMotivo" [rows]="3" placeholder="Ex.: material lançado errado; o correto é o cabo 16 mm." [error]="erroMotivo()"></ces-textarea>
-      </ces-form-section>
+      <geo-form-section title="Motivo" icon="pi pi-comment" description="Aparece na linha do tempo e no relatório da nota.">
+        <geo-textarea label="Motivo da alteração" [required]="true" [value]="motivo()" (valueChange)="motivo.set($event)"
+          [maxlength]="tamanhoMotivo" [rows]="3" placeholder="Ex.: material lançado errado; o correto é o cabo 16 mm." [error]="erroMotivo()"></geo-textarea>
+      </geo-form-section>
 
       @if (resumo(); as linhas) {
-        <ces-callout [tone]="linhas.length ? 'warning' : 'info'" [title]="linhas.length ? 'O que muda na nota' : 'Nada mudou ainda'">
+        <geo-callout [tone]="linhas.length ? 'warning' : 'info'" [title]="linhas.length ? 'O que muda na nota' : 'Nada mudou ainda'">
           @if (linhas.length) {
             <ul class="resumo">
               @for (linha of linhas; track linha) { <li>{{ linha }}</li> }
@@ -230,14 +230,14 @@ const DATA_HORA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeSty
           } @else {
             Ajuste os dados, os serviços ou os materiais para salvar a alteração.
           }
-        </ces-callout>
+        </geo-callout>
       }
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Salvar alteração" [loading]="salvando()" [disabled]="!alterado()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Salvar alteração" [loading]="salvando()" [disabled]="!alterado()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
     .linha-nome { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
@@ -299,7 +299,7 @@ export class AlterarNotaDrawerComponent {
   protected readonly aplicaDoCaminhao = computed(() => this.novaOperacao() === 'APLICADO' && (!this.ocorrencia() || this.novaOrigem() === 'EQUIPE'));
 
   /** Séries do caminhão que ainda não estão na nota, mais as que esta alteração tirou (voltam ao saldo). */
-  protected readonly seriesDisponiveis = computed<CesSelectOption<string>[]>(() => {
+  protected readonly seriesDisponiveis = computed<GeoSelectOption<string>[]>(() => {
     const id = this.materialEscolhido()?.id;
     const naNota = new Set(this.materiais().filter((m) => m.numSerie).map((m) => m.numSerie!.toUpperCase()));
     const devolvidas = (this.execucao()?.materiais ?? [])
@@ -334,13 +334,13 @@ export class AlterarNotaDrawerComponent {
   protected readonly ocorrencia = computed(() => this.tipoNota() === 'OCORRENCIA');
 
   /** Inativos só aparecem se já são os da nota: não dá para escolher um novo. */
-  protected readonly opcoesTiposServico = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesTiposServico = computed<GeoSelectOption<string>[]>(() => {
     const atual = this.execucao()?.tipoServico;
     const lista = this.tiposServico().filter((t) => t.ativo || t.id === atual?.id);
     if (atual && !lista.some((t) => t.id === atual.id)) lista.push({ ...atual });
     return lista.map((t) => ({ label: t.codigo ? `${t.codigo} · ${t.descricao}` : t.descricao, value: t.id }));
   });
-  protected readonly opcoesMunicipios = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesMunicipios = computed<GeoSelectOption<string>[]>(() => {
     const atual = this.execucao()?.municipio;
     const lista = [...this.municipios()];
     if (atual && !lista.some((m) => m.id === atual.id)) lista.push({ id: atual.id, nome: atual.nome });
@@ -397,7 +397,7 @@ export class AlterarNotaDrawerComponent {
   });
 
   /** Serviços que ainda não estão na nota. */
-  protected readonly acoesDisponiveis = computed<CesSelectOption<string>[]>(() => {
+  protected readonly acoesDisponiveis = computed<GeoSelectOption<string>[]>(() => {
     const naNota = new Set(this.acoes().map((a) => a.id));
     return this.catalogoAcoes()
       .filter((a) => !naNota.has(a.id))
@@ -418,12 +418,12 @@ export class AlterarNotaDrawerComponent {
     return d ? [...this.resumoDados(), ...resumoDaDiferenca(d)] : null;
   });
 
-  protected readonly colunasAcoes: CesDataTableColumn<LinhaAcao>[] = [
+  protected readonly colunasAcoes: GeoDataTableColumn<LinhaAcao>[] = [
     { key: 'codigo', header: 'Código', priority: 2, value: (a) => a.codigo, display: (a) => a.codigo || '—' },
     { key: 'nome', header: 'Serviço', type: 'custom', priority: 1, value: (a) => a.nome }
   ];
   // Origem (Equipe ou Concessionária) só existe na ocorrência.
-  protected readonly colunasMateriais = computed<CesDataTableColumn<LinhaMaterial>[]>(() => [
+  protected readonly colunasMateriais = computed<GeoDataTableColumn<LinhaMaterial>[]>(() => [
     { key: 'material', header: 'Material', type: 'custom', priority: 1, value: (m) => m.rotulo },
     { key: 'operacao', header: 'Operação', type: 'custom', priority: 1, value: (m) => m.operacao },
     { key: 'quantidade', header: 'Quantidade', type: 'custom', priority: 1, value: (m) => m.quantidade },

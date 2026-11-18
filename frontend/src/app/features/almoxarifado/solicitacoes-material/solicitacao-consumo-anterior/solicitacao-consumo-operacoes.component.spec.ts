@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { of, throwError } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -136,7 +136,7 @@ describe('ConsumoAnteriorOperacoesComponent', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('Não foi possível carregar as operações');
 
-    el.querySelector<HTMLButtonElement>('ces-button button')!.click();
+    el.querySelector<HTMLButtonElement>('geo-button button')!.click();
     fixture.detectChanges();
 
     expect(buscar).toHaveBeenCalledTimes(2);

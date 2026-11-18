@@ -4,9 +4,9 @@
  * Guarda do padrão de listagem "tabela primeiro" (docs/design-system/components/list-page.md):
  *
  * 1. `app-crud-page` foi removido: nenhum arquivo o referencia.
- * 2. `TableModule` (primeng/table) em features/shared: listagens usam `ces-data-table`; só as
+ * 2. `TableModule` (primeng/table) em features/shared: listagens usam `geo-data-table`; só as
  *    exceções justificadas de list-pattern-exceptions.mjs (tabelas que não são listagens) o importam.
- * 3. Telas no padrão (com `ces-page-header`) não declaram hosts locais de toast/confirmação.
+ * 3. Telas no padrão (com `geo-page-header`) não declaram hosts locais de toast/confirmação.
  */
 
 import { readFile, readdir } from 'node:fs/promises';
@@ -38,7 +38,7 @@ for await (const file of walk(APP)) {
 for (const [path, text] of sources) {
   if (/\bCrudPageComponent\b|<app-crud-page\b/.test(text)) {
     errors.push(
-      `${path}: app-crud-page foi removido. Use o padrão de listagem (ces-page-header + ces-filter-panel + ces-data-table), ver docs/design-system/components/list-page.md.`
+      `${path}: app-crud-page foi removido. Use o padrão de listagem (geo-page-header + geo-filter-panel + geo-data-table), ver docs/design-system/components/list-page.md.`
     );
   }
 
@@ -47,7 +47,7 @@ for (const [path, text] of sources) {
     tableUsers.add(path);
     if (!tableExceptions.has(path)) {
       errors.push(
-        `${path}: listagens usam ces-data-table (modo servidor para dados paginados), não TableModule. Ver docs/design-system/prime-ng-coverage.md (table).`
+        `${path}: listagens usam geo-data-table (modo servidor para dados paginados), não TableModule. Ver docs/design-system/prime-ng-coverage.md (table).`
       );
     }
   }
@@ -58,7 +58,7 @@ for (const [path, text] of sources) {
   if (!path.endsWith('.ts')) continue;
   const html = sources.get(path.replace(/\.ts$/, '.html')) ?? '';
   const markup = text + html;
-  if (!/<ces-page-header\b/.test(markup)) continue;
+  if (!/<geo-page-header\b/.test(markup)) continue;
   if (/<p-toast\b/i.test(markup) || /<p-confirm(?:dialog|popup)\b/i.test(markup)) {
     errors.push(`${path}: tela no padrão de listagem não declara p-toast/p-confirmDialog; use os hosts globais.`);
   }

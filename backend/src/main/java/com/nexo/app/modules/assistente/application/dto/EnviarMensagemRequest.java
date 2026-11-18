@@ -1,6 +1,6 @@
 package com.nexo.app.modules.assistente.application.dto;
 
-import com.nexo.app.modules.assistente.application.agent.ContextoCes;
+import com.nexo.app.modules.assistente.application.agent.ContextoGeo;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -20,7 +20,7 @@ public record EnviarMensagemRequest(
         @NotNull UUID clientMessageId,
         @NotBlank @Size(max = 20_000) String conteudo,
         @Size(max = 10) List<UUID> arquivos,
-        ContextoCes contexto) {
+        ContextoGeo contexto) {
 
     public EnviarMensagemRequest {
         arquivos = arquivos == null ? List.of() : List.copyOf(arquivos);

@@ -18,12 +18,12 @@ public class TokenService {
     /** Claim com o id da sessão do aparelho que emitiu o token de acesso. */
     public static final String CLAIM_SESSAO = "sid";
 
-    @Value("${ces.security.jwt.secret}")
+    @Value("${geo.security.jwt.secret}")
     private String secret;
-    @Value("${ces.security.jwt.expiration}")
+    @Value("${geo.security.jwt.expiration}")
     private Integer expirationTime;
 
-    private static final String ISSUER = "ces-api";
+    private static final String ISSUER = "geo-api";
 
     public String gerarToken(UUID userId, String nome, UUID equipeId, UUID estoqueId, List<String> roles,
                              String tipoUsuario, UUID sessaoId) {

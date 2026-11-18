@@ -1,6 +1,6 @@
 package com.nexo.app.modules.assistente.application.dto;
 
-import com.nexo.app.modules.assistente.application.agent.ContextoCes;
+import com.nexo.app.modules.assistente.application.agent.ContextoGeo;
 import com.nexo.app.modules.assistente.application.agent.Packet;
 import com.nexo.app.modules.assistente.domain.PapelMensagem;
 import com.nexo.app.modules.assistente.domain.StatusMensagemAssistente;
@@ -25,7 +25,7 @@ public record MensagemResponse(
         List<ArquivoAssistenteResponse> arquivos,
         OffsetDateTime dataCriacao,
         Metricas metricas,
-        ContextoCes contexto) {
+        ContextoGeo contexto) {
     public record Metricas(String modelo, Integer tokensEntrada, Integer tokensSaida, Long duracaoMs, Integer ciclos,
             Integer chamadasFerramenta) {
     }

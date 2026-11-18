@@ -14,20 +14,20 @@ import { Router } from '@angular/router';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesDialogShellComponent,
-  CesKanbanBoardComponent,
-  CesKanbanColumn,
-  CesKanbanItemMovedEvent,
-  CesKanbanMetrica,
-  CesKanbanSubGroup,
-  CesKanbanSubGroupToggleEvent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoDialogShellComponent,
+  GeoKanbanBoardComponent,
+  GeoKanbanColumn,
+  GeoKanbanItemMovedEvent,
+  GeoKanbanMetrica,
+  GeoKanbanSubGroup,
+  GeoKanbanSubGroupToggleEvent,
+  GeoTone,
   getSubGroupTheme,
   KanbanCopilotoContext,
   NotificationService,
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   KanbanColunaResponse,
   MacroEtapaKanban,
@@ -53,7 +53,7 @@ interface MacroColunaDef {
   etapa: MacroEtapaKanban;
   label: string;
   icon: string;
-  tone: CesTone;
+  tone: GeoTone;
 }
 
 const MACRO_COLUNAS_KANBAN: MacroColunaDef[] = [
@@ -83,7 +83,7 @@ const MACRO_COLUNAS_KANBAN: MacroColunaDef[] = [
   },
 ];
 
-const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
+const STORAGE_KEY_COLLAPSED = 'geo_kanban_substatus_collapsed';
 
 @Component({
   selector: 'app-solicitacoes-tecnicas-kanban',
@@ -94,10 +94,10 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
     FormsModule,
     SelectModule,
     TextareaModule,
-    CesKanbanBoardComponent,
-    CesButtonComponent,
-    CesAsyncStateComponent,
-    CesDialogShellComponent,
+    GeoKanbanBoardComponent,
+    GeoButtonComponent,
+    GeoAsyncStateComponent,
+    GeoDialogShellComponent,
     SolicitacaoTecnicaKanbanCardComponent,
     SolicitacaoTecnicaKanbanDetailComponent,
     SolicitacaoTecnicaPlanejamentoComponent,
@@ -108,18 +108,18 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
       <!-- Barra de Controle do Kanban: Ações rápidas & Status de atualização -->
       <div class="flex items-center justify-between gap-3 px-1 py-0.5">
         <div class="flex items-center gap-2">
-          <span class="text-xs font-semibold text-[var(--ces-fg-muted)]">
+          <span class="text-xs font-semibold text-[var(--geo-fg-muted)]">
             Visão Geral das Fases Operacionais
           </span>
           @if (totalGeral() > 0) {
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--ces-surface-subtle)] text-[var(--ces-fg-muted)] border border-[var(--ces-border)]">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--geo-surface-subtle)] text-[var(--geo-fg-muted)] border border-[var(--geo-border)]">
               {{ totalGeral() }} solicitações
             </span>
           }
         </div>
 
         <div class="flex items-center gap-2">
-          <ces-button
+          <geo-button
             icon="pi pi-refresh"
             label="Atualizar Quadro"
             variant="ghost"
@@ -133,7 +133,7 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
       <!-- ESTADO: CARREGANDO -->
       @if (loading()) {
         <div class="flex items-center justify-center p-12">
-          <ces-async-state
+          <geo-async-state
             state="loading"
             title="Carregando quadro Kanban..."
             description="Consultando solicitações agrupadas por macro-etapa e sub-status..."
@@ -144,7 +144,7 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
       <!-- ESTADO: ERRO -->
       @else if (erro()) {
         <div class="flex items-center justify-center p-8">
-          <ces-async-state
+          <geo-async-state
             state="error"
             title="Erro ao carregar o Kanban"
             [description]="erro()!"
@@ -156,7 +156,7 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
 
       <!-- ESTADO: SUCESSO / QUADRO KANBAN -->
       @else {
-        <ces-kanban-board
+        <geo-kanban-board
           #board
           [columns]="colunas()"
           [cardTemplate]="cardTpl"
@@ -212,7 +212,7 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
       }
 
       <!-- MODAL OFICIAL DE REJEIÇÃO IN-PLACE -->
-      <ces-dialog-shell
+      <geo-dialog-shell
         [(visible)]="rejectModalVisible"
         title="Rejeitar Solicitação Técnica"
         description="A rejeição cancelará permanentemente a solicitação técnica de material."
@@ -289,8 +289,8 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
         </div>
 
         <div dialog-footer class="flex items-center justify-end gap-2">
-          <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="rejectModalVisible.set(false)" />
-          <ces-button
+          <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="rejectModalVisible.set(false)" />
+          <geo-button
             label="Confirmar Rejeição"
             icon="pi pi-times-circle"
             variant="destructive"
@@ -300,10 +300,10 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
             (pressed)="confirmarRejeicao()"
           />
         </div>
-      </ces-dialog-shell>
+      </geo-dialog-shell>
 
       <!-- MODAL DE CONFLITO DE VERSÃO (409) -->
-      <ces-dialog-shell
+      <geo-dialog-shell
         [(visible)]="conflictVisible"
         title="Conflito de versão"
         description="Esta solicitação foi atualizada recentemente por outro usuário ou processo."
@@ -330,10 +330,10 @@ const STORAGE_KEY_COLLAPSED = 'ces_kanban_substatus_collapsed';
           </div>
         </div>
         <div dialog-footer class="flex items-center justify-end gap-2">
-          <ces-button label="Fechar" variant="ghost" size="sm" (pressed)="conflictVisible.set(false)" />
-          <ces-button label="Recarregar e atualizar" icon="pi pi-refresh" variant="primary" size="sm" (pressed)="reconciliarConflito()" />
+          <geo-button label="Fechar" variant="ghost" size="sm" (pressed)="conflictVisible.set(false)" />
+          <geo-button label="Recarregar e atualizar" icon="pi pi-refresh" variant="primary" size="sm" (pressed)="reconciliarConflito()" />
         </div>
-      </ces-dialog-shell>
+      </geo-dialog-shell>
     </div>
   `,
 })
@@ -348,11 +348,11 @@ export class SolicitacoesTecnicasKanbanComponent {
   /** Notifica o componente pai para alternar para a lista tabular filtrada por etapa */
   readonly navegarParaEtapa = output<string>();
 
-  protected readonly board = viewChild<CesKanbanBoardComponent<SolicitacaoMaterialSummaryResponse>>('board');
+  protected readonly board = viewChild<GeoKanbanBoardComponent<SolicitacaoMaterialSummaryResponse>>('board');
 
   protected readonly loading = signal(true);
   protected readonly erro = signal<string | null>(null);
-  protected readonly colunas = signal<CesKanbanColumn<SolicitacaoMaterialSummaryResponse>[]>([]);
+  protected readonly colunas = signal<GeoKanbanColumn<SolicitacaoMaterialSummaryResponse>[]>([]);
   protected readonly totalGeral = signal(0);
 
   protected readonly selectedItem = signal<SolicitacaoMaterialSummaryResponse | null>(null);
@@ -401,13 +401,13 @@ export class SolicitacoesTecnicasKanbanComponent {
 
         const colapsosSalvos = this.carregarPreferenciasColapso();
 
-        const colunasFormatadas: CesKanbanColumn<SolicitacaoMaterialSummaryResponse>[] =
+        const colunasFormatadas: GeoKanbanColumn<SolicitacaoMaterialSummaryResponse>[] =
           MACRO_COLUNAS_KANBAN.map((def) => {
             const data = colunasMap.get(def.etapa);
             const m = data?.metricas;
             const totalCount = m?.total ?? 0;
 
-            const metricas: CesKanbanMetrica[] = [
+            const metricas: GeoKanbanMetrica[] = [
               { label: 'Total', valor: totalCount },
               {
                 label: 'Atrasadas',
@@ -429,7 +429,7 @@ export class SolicitacoesTecnicasKanbanComponent {
               });
             }
 
-            const subGroups: CesKanbanSubGroup<SolicitacaoMaterialSummaryResponse>[] =
+            const subGroups: GeoKanbanSubGroup<SolicitacaoMaterialSummaryResponse>[] =
               (data?.subColunas ?? []).map((sub) => {
                 const totalCards = sub.total ?? sub.itens?.length ?? 0;
                 let isCollapsed: boolean;
@@ -593,7 +593,7 @@ export class SolicitacoesTecnicasKanbanComponent {
   /**
    * Salva a preferência de colapso de cada sub-status no navegador do usuário.
    */
-  protected onSubGroupToggled(event: CesKanbanSubGroupToggleEvent): void {
+  protected onSubGroupToggled(event: GeoKanbanSubGroupToggleEvent): void {
     const colapsos = this.carregarPreferenciasColapso();
     colapsos[event.subGroupId] = event.collapsed;
     try {
@@ -636,7 +636,7 @@ export class SolicitacoesTecnicasKanbanComponent {
    * Trata o evento de arrastar um card entre colunas ou sub-etapas.
    * Executa atalhos rápidos e inteligentes, acionando diálogos oficiais in-place ou mutações diretas.
    */
-  protected onItemMoved(event: CesKanbanItemMovedEvent<SolicitacaoMaterialSummaryResponse>): void {
+  protected onItemMoved(event: GeoKanbanItemMovedEvent<SolicitacaoMaterialSummaryResponse>): void {
     const { item, fromColumnId, toColumnId, fromSubGroupId, toSubGroupId } = event;
     const origem = fromSubGroupId ?? fromColumnId;
     const destino = toSubGroupId ?? toColumnId;
@@ -768,7 +768,7 @@ export class SolicitacoesTecnicasKanbanComponent {
       pergunta: `Analise as solicitações na macro-etapa "${context.columnLabel}" do Almoxarifado, apontando potenciais gargalos, atrasos e recomendações de ação para a equipe.`,
     };
 
-    void this.router.navigate(['/copiloto'], { queryParams });
+    void this.router.navigate(['/bussola'], { queryParams });
   }
 
   /**

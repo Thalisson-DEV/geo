@@ -2,17 +2,17 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { PendenciaChecklist, SituacaoPendenciaChecklist } from '../../../core/models/frota-checklist.models';
 import { formatarPlaca } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -38,7 +38,7 @@ interface GrupoChecklist {
 }
 
 type Agrupamento = 'checklist' | 'problema';
-const AGRUPAMENTOS: CesSelectOption<Agrupamento>[] = [
+const AGRUPAMENTOS: GeoSelectOption<Agrupamento>[] = [
   { label: 'Por checklist', value: 'checklist' },
   { label: 'Por problema', value: 'problema' }
 ];
@@ -52,7 +52,7 @@ function lerAgrupamento(): Agrupamento {
   }
 }
 
-const SITUACOES: CesSelectOption<SituacaoPendenciaChecklist>[] = [
+const SITUACOES: GeoSelectOption<SituacaoPendenciaChecklist>[] = [
   { label: 'Aguardando o gestor', value: 'ABERTA' },
   { label: 'Com OS aberta', value: 'OS_ABERTA' },
   { label: 'Resolvidas na hora', value: 'RESOLVIDA_NA_HORA' },
@@ -69,68 +69,68 @@ const SITUACOES: CesSelectOption<SituacaoPendenciaChecklist>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesIconButtonComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoIconButtonComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaChecklistDetalheDrawerComponent,
     FrotaJustificativaDrawerComponent,
     FrotaPendenciaDecisaoDrawerComponent
   ],
   template: `
     @if (agrupamento() === 'checklist') {
-      <ces-data-table title="Pendências do checklist" [description]="descricaoGrupos()" storageKey="frota-checklist-pendencias-grupos"
+      <geo-data-table title="Pendências do checklist" [description]="descricaoGrupos()" storageKey="frota-checklist-pendencias-grupos"
         searchPlaceholder="Filtrar nesta lista" [(query)]="busca" [columns]="colunasGrupo" [rows]="grupos()" [rowKey]="chaveGrupo"
         [state]="carregando() ? 'loading' : erro() ? 'error' : grupos().length ? 'ready' : 'empty'"
         [stateTitle]="erro() ? 'Não foi possível carregar as pendências' : situacao() === 'ABERTA' ? 'Nenhum checklist esperando decisão' : 'Nenhuma pendência nessa situação'"
         [stateDescription]="erro() ?? (situacao() === 'ABERTA' ? 'Os checklists com Não OK aparecem aqui para você abrir a OS, registrar o que foi resolvido ou descartar.' : undefined)"
         rowActionLabel="Ver o checklist" (rowActivate)="verChecklistDoGrupo($event)">
         <ng-container table-actions>
-          <ces-select label="Agrupar" [labelVisible]="false" [options]="agrupamentos" [value]="agrupamento()" (valueChange)="agrupar($event)"></ces-select>
-          <ces-select label="Situação" [labelVisible]="false" [options]="situacoes" [value]="situacao()" (valueChange)="situacao.set($event ?? 'ABERTA')"></ces-select>
+          <geo-select label="Agrupar" [labelVisible]="false" [options]="agrupamentos" [value]="agrupamento()" (valueChange)="agrupar($event)"></geo-select>
+          <geo-select label="Situação" [labelVisible]="false" [options]="situacoes" [value]="situacao()" (valueChange)="situacao.set($event ?? 'ABERTA')"></geo-select>
         </ng-container>
-        <ng-template cesCell="placa" let-row>
-          <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-          <span class="ces-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
+        <ng-template geoCell="placa" let-row>
+          <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+          <span class="geo-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
         </ng-template>
-        <ng-template cesCell="problemas" let-row>
-          <span class="ces-cell-strong">{{ row.pendencias.length }} {{ row.pendencias.length === 1 ? 'problema' : 'problemas' }}</span>
-          <span class="ces-cell-muted">{{ resumos(row) }}</span>
+        <ng-template geoCell="problemas" let-row>
+          <span class="geo-cell-strong">{{ row.pendencias.length }} {{ row.pendencias.length === 1 ? 'problema' : 'problemas' }}</span>
+          <span class="geo-cell-muted">{{ resumos(row) }}</span>
           @if (row.recorrentes) {
-            <ces-status tone="danger" emphasis="outline" icon="pi-history">{{ row.recorrentes === 1 ? '1 recorrente' : row.recorrentes + ' recorrentes' }}</ces-status>
+            <geo-status tone="danger" emphasis="outline" icon="pi-history">{{ row.recorrentes === 1 ? '1 recorrente' : row.recorrentes + ' recorrentes' }}</geo-status>
           }
         </ng-template>
-        <ng-template cesCell="preenchidoEm" let-row>
+        <ng-template geoCell="preenchidoEm" let-row>
           {{ row.preenchidoEm | date: 'dd/MM HH:mm' }}
-          <span class="ces-cell-muted">{{ row.condutorNome ?? '—' }}</span>
+          <span class="geo-cell-muted">{{ row.condutorNome ?? '—' }}</span>
         </ng-template>
-        <ng-template cesCell="fotos" let-row>
+        <ng-template geoCell="fotos" let-row>
           @if (row.fotosAChegar) {
-            <ces-status tone="info" icon="pi-mobile">{{ row.fotosAChegar === 1 ? '1 no celular' : row.fotosAChegar + ' no celular' }}</ces-status>
+            <geo-status tone="info" icon="pi-mobile">{{ row.fotosAChegar === 1 ? '1 no celular' : row.fotosAChegar + ' no celular' }}</geo-status>
           } @else if (row.fotos) {
-            <ces-status tone="neutral" icon="pi-camera">{{ row.fotos }}</ces-status>
+            <geo-status tone="neutral" icon="pi-camera">{{ row.fotos }}</geo-status>
           } @else {
-            <span class="ces-cell-muted">—</span>
+            <span class="geo-cell-muted">—</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (abertas(row).length && acesso.editarOs()) {
-              <ces-icon-button icon="pi pi-wrench" [label]="'Abrir uma OS para os problemas de ' + placa(row.placa)" tooltip="Abrir uma OS para todos" size="icon-sm"
-                (pressed)="decidir(abertas(row), 'os')"></ces-icon-button>
-              <ces-icon-button icon="pi pi-check" [label]="'Resolvidos na hora: problemas de ' + placa(row.placa)" tooltip="Todos resolvidos na hora" size="icon-sm"
-                (pressed)="decidir(abertas(row), 'hora')"></ces-icon-button>
+              <geo-icon-button icon="pi pi-wrench" [label]="'Abrir uma OS para os problemas de ' + placa(row.placa)" tooltip="Abrir uma OS para todos" size="icon-sm"
+                (pressed)="decidir(abertas(row), 'os')"></geo-icon-button>
+              <geo-icon-button icon="pi pi-check" [label]="'Resolvidos na hora: problemas de ' + placa(row.placa)" tooltip="Todos resolvidos na hora" size="icon-sm"
+                (pressed)="decidir(abertas(row), 'hora')"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-list" [label]="'Ver cada problema de ' + placa(row.placa)" tooltip="Ver cada problema" size="icon-sm"
-              (pressed)="verProblemas(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-list" [label]="'Ver cada problema de ' + placa(row.placa)" tooltip="Ver cada problema" size="icon-sm"
+              (pressed)="verProblemas(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     } @else {
-    <ces-data-table title="Pendências do checklist" [description]="descricao()" storageKey="frota-checklist-pendencias"
+    <geo-data-table title="Pendências do checklist" [description]="descricao()" storageKey="frota-checklist-pendencias"
       searchPlaceholder="Filtrar nesta lista" [(query)]="busca" [columns]="colunasVisiveis()" [rows]="pendencias()" [rowKey]="chave"
       [state]="carregando() ? 'loading' : erro() ? 'error' : pendencias().length ? 'ready' : 'empty'"
       [stateTitle]="erro() ? 'Não foi possível carregar as pendências' : situacao() === 'ABERTA' ? 'Nenhum problema esperando decisão' : 'Nenhuma pendência nessa situação'"
@@ -138,61 +138,61 @@ const SITUACOES: CesSelectOption<SituacaoPendenciaChecklist>[] = [
       [selectable]="situacao() === 'ABERTA' && acesso.editarOs()" [(selection)]="selecionadas"
       [rowClickable]="true" (rowActivate)="verChecklist($event)">
       <ng-container table-actions>
-        <ces-select label="Agrupar" [labelVisible]="false" [options]="agrupamentos" [value]="agrupamento()" (valueChange)="agrupar($event)"></ces-select>
-        <ces-select label="Situação" [labelVisible]="false" [options]="situacoes" [value]="situacao()" (valueChange)="situacao.set($event ?? 'ABERTA')"></ces-select>
+        <geo-select label="Agrupar" [labelVisible]="false" [options]="agrupamentos" [value]="agrupamento()" (valueChange)="agrupar($event)"></geo-select>
+        <geo-select label="Situação" [labelVisible]="false" [options]="situacoes" [value]="situacao()" (valueChange)="situacao.set($event ?? 'ABERTA')"></geo-select>
       </ng-container>
-      <ces-button selection-actions size="sm" icon="pi pi-wrench" label="Abrir uma OS" (pressed)="decidirSelecionadas('os')"></ces-button>
-      <ces-button selection-actions size="sm" variant="outline" icon="pi pi-check" label="Resolvido na hora" (pressed)="decidirSelecionadas('hora')"></ces-button>
+      <geo-button selection-actions size="sm" icon="pi pi-wrench" label="Abrir uma OS" (pressed)="decidirSelecionadas('os')"></geo-button>
+      <geo-button selection-actions size="sm" variant="outline" icon="pi pi-check" label="Resolvido na hora" (pressed)="decidirSelecionadas('hora')"></geo-button>
 
-      <ng-template cesCell="placa" let-row>
-        <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-        <span class="ces-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
+      <ng-template geoCell="placa" let-row>
+        <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+        <span class="geo-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
       </ng-template>
-      <ng-template cesCell="resumo" let-row>
-        <span class="ces-cell-strong">{{ row.resumo }}</span>
+      <ng-template geoCell="resumo" let-row>
+        <span class="geo-cell-strong">{{ row.resumo }}</span>
         @if (row.comentario) {
-          <span class="ces-cell-muted">{{ row.comentario }}</span>
+          <span class="geo-cell-muted">{{ row.comentario }}</span>
         }
       </ng-template>
-      <ng-template cesCell="historico" let-row>
+      <ng-template geoCell="historico" let-row>
         @if (recorrente(row.historico)) {
-          <ces-status tone="danger" emphasis="outline" icon="pi-history">Recorrente</ces-status>
+          <geo-status tone="danger" emphasis="outline" icon="pi-history">Recorrente</geo-status>
         }
-        <span class="ces-cell-muted">{{ textoHistorico(row.historico) ?? '—' }}</span>
+        <span class="geo-cell-muted">{{ textoHistorico(row.historico) ?? '—' }}</span>
       </ng-template>
-      <ng-template cesCell="preenchidoEm" let-row>
+      <ng-template geoCell="preenchidoEm" let-row>
         {{ row.preenchidoEm | date: 'dd/MM HH:mm' }}
-        <span class="ces-cell-muted">{{ row.condutorNome ?? '—' }}</span>
+        <span class="geo-cell-muted">{{ row.condutorNome ?? '—' }}</span>
       </ng-template>
-      <ng-template cesCell="fotos" let-row>
+      <ng-template geoCell="fotos" let-row>
         @if (row.fotosAChegar) {
-          <ces-status tone="info" icon="pi-mobile">{{ row.fotosAChegar === 1 ? '1 no celular' : row.fotosAChegar + ' no celular' }}</ces-status>
+          <geo-status tone="info" icon="pi-mobile">{{ row.fotosAChegar === 1 ? '1 no celular' : row.fotosAChegar + ' no celular' }}</geo-status>
         } @else if (row.fotos.length) {
-          <ces-status tone="neutral" icon="pi-camera">{{ row.fotos.length }}</ces-status>
+          <geo-status tone="neutral" icon="pi-camera">{{ row.fotos.length }}</geo-status>
         } @else {
-          <span class="ces-cell-muted">—</span>
+          <span class="geo-cell-muted">—</span>
         }
       </ng-template>
-      <ng-template cesCell="decisao" let-row>
-        <ces-status [tone]="tomDe(row.situacao)" emphasis="outline">{{ rotuloDe(row.situacao) }}</ces-status>
+      <ng-template geoCell="decisao" let-row>
+        <geo-status [tone]="tomDe(row.situacao)" emphasis="outline">{{ rotuloDe(row.situacao) }}</geo-status>
         @if (row.numeroOrdemServico) {
-          <span class="ces-cell-muted">OS {{ row.numeroOrdemServico }}{{ row.decididaPor ? ' · ' + row.decididaPor : '' }}</span>
+          <span class="geo-cell-muted">OS {{ row.numeroOrdemServico }}{{ row.decididaPor ? ' · ' + row.decididaPor : '' }}</span>
         } @else if (row.justificativa) {
-          <span class="ces-cell-muted">{{ row.justificativa }}</span>
+          <span class="geo-cell-muted">{{ row.justificativa }}</span>
         }
       </ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
           @if (row.situacao === 'ABERTA' && acesso.editarOs()) {
-            <ces-icon-button icon="pi pi-wrench" [label]="'Abrir OS para ' + row.resumo" tooltip="Abrir OS" size="icon-sm" (pressed)="decidir([row], 'os')"></ces-icon-button>
-            <ces-icon-button icon="pi pi-check" [label]="'Resolvido na hora: ' + row.resumo" tooltip="Resolvido na hora" size="icon-sm" (pressed)="decidir([row], 'hora')"></ces-icon-button>
-            <ces-icon-button icon="pi pi-times" [label]="'Descartar ' + row.resumo" tooltip="Descartar (marcado por engano)" size="icon-sm" (pressed)="pedirDescarte(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-wrench" [label]="'Abrir OS para ' + row.resumo" tooltip="Abrir OS" size="icon-sm" (pressed)="decidir([row], 'os')"></geo-icon-button>
+            <geo-icon-button icon="pi pi-check" [label]="'Resolvido na hora: ' + row.resumo" tooltip="Resolvido na hora" size="icon-sm" (pressed)="decidir([row], 'hora')"></geo-icon-button>
+            <geo-icon-button icon="pi pi-times" [label]="'Descartar ' + row.resumo" tooltip="Descartar (marcado por engano)" size="icon-sm" (pressed)="pedirDescarte(row)"></geo-icon-button>
           } @else if (row.idOrdemServico) {
-            <ces-icon-button icon="pi pi-external-link" [label]="'Ver a OS ' + row.numeroOrdemServico" tooltip="Ver a OS" size="icon-sm" (pressed)="verOs(row.idOrdemServico)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-external-link" [label]="'Ver a OS ' + row.numeroOrdemServico" tooltip="Ver a OS" size="icon-sm" (pressed)="verOs(row.idOrdemServico)"></geo-icon-button>
           }
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
     }
 
     <app-frota-pendencia-decisao-drawer [(visible)]="decisaoAberta" [modo]="modo()" [pendencias]="emDecisao()" (concluido)="aposDecidir()"></app-frota-pendencia-decisao-drawer>
@@ -248,7 +248,7 @@ export class FrotaPendenciasChecklistComponent {
     return recorrentes ? `${base} · ${recorrentes} ${recorrentes === 1 ? 'recorrente' : 'recorrentes'}` : base;
   });
 
-  protected readonly colunas: CesDataTableColumn<PendenciaChecklist>[] = [
+  protected readonly colunas: GeoDataTableColumn<PendenciaChecklist>[] = [
     { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (p) => p.placa, display: (p) => formatarPlaca(p.placa) },
     { key: 'resumo', header: 'Problema', type: 'custom', priority: 1, value: (p) => p.resumo, display: (p) => `${p.resumo} ${p.comentario ?? ''}` },
     { key: 'historico', header: 'Há quanto tempo', type: 'custom', priority: 1, value: (p) => p.historico?.diasComProblema ?? 0, display: (p) => textoHistorico(p.historico) ?? '' },
@@ -297,7 +297,7 @@ export class FrotaPendenciasChecklistComponent {
     return g ? `${g} ${g === 1 ? 'checklist' : 'checklists'} · ${n} ${n === 1 ? 'problema' : 'problemas'}` : 'Nenhum checklist';
   });
 
-  protected readonly colunasGrupo: CesDataTableColumn<GrupoChecklist>[] = [
+  protected readonly colunasGrupo: GeoDataTableColumn<GrupoChecklist>[] = [
     { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (g) => g.placa, display: (g) => `${formatarPlaca(g.placa)} ${g.baseNome ?? ''}` },
     { key: 'problemas', header: 'Problemas apontados', type: 'custom', priority: 1, value: (g) => g.pendencias.length, display: (g) => this.resumos(g) },
     { key: 'preenchidoEm', header: 'Checklist de', type: 'custom', priority: 1, value: (g) => g.preenchidoEm, display: (g) => `${g.preenchidoEm} ${g.condutorNome ?? ''}` },

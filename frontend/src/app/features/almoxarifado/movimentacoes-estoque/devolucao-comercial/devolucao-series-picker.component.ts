@@ -1,40 +1,40 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesTextInputComponent,
-} from '@ces/ui';
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoTextInputComponent,
+} from '@geo/ui';
 
 /** Lista de números de série com busca e seleção múltipla. */
 @Component({
   selector: 'app-devolucao-series-picker',
   standalone: true,
-  imports: [CesBooleanControlComponent, CesButtonComponent, CesTextInputComponent],
+  imports: [GeoBooleanControlComponent, GeoButtonComponent, GeoTextInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col gap-2">
       <div class="flex flex-wrap items-end gap-2">
-        <ces-text-input
+        <geo-text-input
           class="flex-1 min-w-48"
           label="Buscar série"
           [labelVisible]="false"
           placeholder="Buscar série..."
           [(value)]="busca"
-        ></ces-text-input>
-        <ces-button
+        ></geo-text-input>
+        <geo-button
           size="sm"
           variant="secondary"
           [label]="'Selecionar todas (' + visiveis().length + ')'"
           [disabled]="loading() || visiveis().length === 0 || todasVisiveisSelecionadas()"
           (pressed)="selecionarVisiveis()"
-        ></ces-button>
-        <ces-button
+        ></geo-button>
+        <geo-button
           size="sm"
           variant="ghost"
           label="Limpar"
           [disabled]="selecionadas().length === 0"
           (pressed)="selecionadas.set([])"
-        ></ces-button>
+        ></geo-button>
       </div>
 
       <div
@@ -54,12 +54,12 @@ import {
           <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-3 px-3 py-1">
             @for (sn of visiveis(); track sn) {
               <li class="py-1 font-mono text-xs">
-                <ces-boolean-control
+                <geo-boolean-control
                   [inline]="true"
                   [label]="sn"
                   [value]="selecionadasSet().has(sn)"
                   (valueChange)="alternar(sn, $event)"
-                ></ces-boolean-control>
+                ></geo-boolean-control>
               </li>
             }
           </ul>

@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   AprDoTurno,
   AtividadeDoTurno,
@@ -22,12 +22,12 @@ export const TIPO_OCORRENCIA: Record<TipoOcorrenciaTurno, { rotulo: string; icon
   OUTROS: { rotulo: 'Outros', icone: 'pi pi-info-circle' }
 };
 
-export const STATUS_APR: Record<StatusAprTurno, { rotulo: string; tom: CesTone; icone: string }> = {
+export const STATUS_APR: Record<StatusAprTurno, { rotulo: string; tom: GeoTone; icone: string }> = {
   RASCUNHO: { rotulo: 'Rascunho', tom: 'warning', icone: 'pi pi-pencil' },
   CONCLUIDA: { rotulo: 'Concluída', tom: 'success', icone: 'pi pi-check-circle' }
 };
 
-export const LIBERACAO: Record<SituacaoLiberacao, { rotulo: string; tom: CesTone; icone: string }> = {
+export const LIBERACAO: Record<SituacaoLiberacao, { rotulo: string; tom: GeoTone; icone: string }> = {
   PENDENTE: { rotulo: 'APR pendente', tom: 'warning', icone: 'pi pi-shield' },
   EM_PREENCHIMENTO: { rotulo: 'APR em preenchimento', tom: 'warning', icone: 'pi pi-pencil' },
   LIBERADA: { rotulo: 'APR concluída', tom: 'success', icone: 'pi pi-check-circle' },

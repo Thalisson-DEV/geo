@@ -4,21 +4,21 @@ import { Observable, map } from 'rxjs';
 import { FechamentoFiltro, FechamentoResumo } from '../../../core/models/fechamento-obra.models';
 import { FechamentoObraService } from '../../../core/services/fechamento-obra.service';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import { ATALHOS, SITUACOES, atalhoFechamento, iconeTipo, nomePessoa, rotuloObra, tipoFechamento } from './fechamento-ui';
 
 @Injectable({ providedIn: 'root' })
-export class FechamentoReportNavigatorDataSource implements CesReportNavigatorDataSource<FechamentoResumo> {
+export class FechamentoReportNavigatorDataSource implements GeoReportNavigatorDataSource<FechamentoResumo> {
   private readonly service = inject(FechamentoObraService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = { sort: 'solicitacao,desc' };
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = { sort: 'solicitacao,desc' };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Encerramento de obras',
     icon: 'pi pi-flag',
     eyebrow: 'Navegador',
@@ -38,7 +38,7 @@ export class FechamentoReportNavigatorDataSource implements CesReportNavigatorDa
     totalLabel: (total) => `${total} ${total === 1 ? 'solicitação' : 'solicitações'}`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<FechamentoResumo>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<FechamentoResumo>> {
     const [ordenacao, direcao] = (criteria.sort || 'solicitacao,desc').split(',');
     const atalho = atalhoFechamento(criteria.status as string | null);
     const filtro: FechamentoFiltro = {
@@ -54,7 +54,7 @@ export class FechamentoReportNavigatorDataSource implements CesReportNavigatorDa
     return this.service.listar(filtro).pipe(map((r) => ({ items: r.content ?? [], totalElements: r.page?.totalElements ?? r.content.length })));
   }
 
-  toItem(raw: FechamentoResumo): CesReportNavigatorItem {
+  toItem(raw: FechamentoResumo): GeoReportNavigatorItem {
     const situacao = SITUACOES[raw.situacao];
     return {
       id: raw.id,
@@ -68,7 +68,7 @@ export class FechamentoReportNavigatorDataSource implements CesReportNavigatorDa
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | FechamentoResumo): string[] {
+  getRouteForItem(item: GeoReportNavigatorItem | FechamentoResumo): string[] {
     return ['/obras', 'fechamento', String(item.id)];
   }
 

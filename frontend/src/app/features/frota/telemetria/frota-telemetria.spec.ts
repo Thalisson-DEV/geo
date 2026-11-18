@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -133,7 +133,7 @@ describe('Telemetria da frota', () => {
 
   it('rastreadores: o atalho "Sem veículo" filtra a lista', async () => {
     const { el, harness } = await abrirTelaFrota(FrotaTelemetriaComponent, 'frota/telemetria', '/frota/telemetria', {}, permissoes, extras());
-    const sem = Array.from(el.querySelectorAll<HTMLButtonElement>('button.ces-quick-filter')).find((b) => b.textContent!.includes('Sem veículo'))!;
+    const sem = Array.from(el.querySelectorAll<HTMLButtonElement>('button.geo-quick-filter')).find((b) => b.textContent!.includes('Sem veículo'))!;
     sem.click();
     harness.detectChanges();
     await harness.fixture.whenStable();

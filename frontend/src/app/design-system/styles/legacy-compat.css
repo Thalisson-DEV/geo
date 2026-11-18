@@ -1,11 +1,11 @@
-@layer ces.legacy {
+@layer geo.legacy {
   /*
-   * Compatibilidade temporária. Novas telas devem usar componentes e classes ces-*.
+   * Compatibilidade temporária. Novas telas devem usar componentes e classes geo-*.
    * O inventário em tools/design-system acompanha os consumidores antes da remoção.
    */
   .filter-label {
-    color: var(--ces-foreground-subtle);
-    font-size: var(--ces-font-caption);
+    color: var(--geo-foreground-subtle);
+    font-size: var(--geo-font-caption);
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: capitalize;
@@ -15,6 +15,6 @@
   .custom-select,
   .custom-dialog,
   .custom-table {
-    --ces-legacy-compatible: 1;
+    --geo-legacy-compatible: 1;
   }
 }

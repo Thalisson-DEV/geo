@@ -1,7 +1,7 @@
 <div class="rich-content">
   @for (block of blocks(); track block.id) {
     @if (block.kind === 'text') {
-      @if (block.format === 'MARKDOWN_CES_V1') {
+      @if (block.format === 'MARKDOWN_GEO_V1') {
         <app-assistant-markdown [content]="block.content" />
       } @else {
         <p class="plain-content">{{ block.content }}</p>

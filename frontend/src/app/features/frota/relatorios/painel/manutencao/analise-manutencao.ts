@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
 import {
@@ -287,7 +287,7 @@ export function visaoManutencao(m: ModeloManutencao): { veredito: VereditoGerenc
       acao: { rotulo: 'Ver as OS', alvo: alvo('kpi', 'baixa') } });
   }
 
-  const tom: CesTone = disp != null && disp < LIMITES_FROTA.disponibilidadeCritica ? 'danger'
+  const tom: GeoTone = disp != null && disp < LIMITES_FROTA.disponibilidadeCritica ? 'danger'
     : l.some((x) => x.tom === 'warning' || x.tom === 'danger') ? 'warning' : 'success';
   return {
     veredito: {
@@ -304,7 +304,7 @@ export function visaoManutencao(m: ModeloManutencao): { veredito: VereditoGerenc
 
 // ── Análises ─────────────────────────────────────────────────────────────────────────────────────
 
-const colOs: CesDataTableColumn<OsDetalheFrota>[] = [
+const colOs: GeoDataTableColumn<OsDetalheFrota>[] = [
   { key: 'numero', header: 'OS', type: 'custom', priority: 1, value: (o) => o.numero ?? 0, display: (o) => (o.numero ? `#${o.numero}` : '—') },
   { key: 'placa', header: 'Veículo', priority: 1, value: (o) => o.placa ?? '—' },
   { key: 'tipoManutencao', header: 'Tipo', priority: 2, value: (o) => rotulo(ROTULO_TIPO_MANUTENCAO, o.tipoManutencao) },
@@ -315,7 +315,7 @@ const colOs: CesDataTableColumn<OsDetalheFrota>[] = [
   { key: 'valor', header: 'Valor', type: 'currency', priority: 1 }
 ];
 
-const colAbertas: CesDataTableColumn<OsAbertaDetalheFrota>[] = [
+const colAbertas: GeoDataTableColumn<OsAbertaDetalheFrota>[] = [
   { key: 'numero', header: 'OS', type: 'custom', priority: 1, value: (o) => o.numero ?? 0, display: (o) => (o.numero ? `#${o.numero}` : '—') },
   { key: 'placa', header: 'Veículo', priority: 1, value: (o) => o.placa ?? '—' },
   { key: 'situacao', header: 'Situação', priority: 2, value: (o) => rotulo(ROTULO_SITUACAO_OS, o.situacao) + (o.atrasada ? ' · atrasada' : '') },
@@ -444,7 +444,7 @@ export function vistaManutencao(a: { dimension: string; value: string }, m: Mode
       const vista = vistaDeOs(chave, 'Item de manutenção', it.item, it.os, m);
       return { ...vista, icone: 'pi pi-cog', destaques: [
         { icone: 'pi pi-car', tom: 'info', texto: `Apareceu em ${plural(it.veiculos, 'veículo', 'veículos')}.` },
-        ...(it.retrabalhos ? [{ icone: 'pi pi-replay', tom: 'warning' as CesTone, texto: `${plural(it.retrabalhos, 'vez voltou', 'vezes voltou')} em até 30 dias no mesmo veículo.` }] : [])
+        ...(it.retrabalhos ? [{ icone: 'pi pi-replay', tom: 'warning' as GeoTone, texto: `${plural(it.retrabalhos, 'vez voltou', 'vezes voltou')} em até 30 dias no mesmo veículo.` }] : [])
       ] };
     }
     case 'faixa': {

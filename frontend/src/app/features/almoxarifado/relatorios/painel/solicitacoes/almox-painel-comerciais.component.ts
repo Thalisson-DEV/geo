@@ -1,18 +1,18 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesCellDirective,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoCellDirective,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import { DashboardAnaliseComponent } from '../../../../../shared/components/dashboard/dashboard-analise.component';
 import { NavegacaoAnaliseService } from '../../../../../shared/components/dashboard/dashboard-analise.navegacao';
@@ -31,10 +31,10 @@ import { PainelSolicitacoesBase } from './painel-solicitacoes-base';
   selector: 'app-almox-painel-comerciais',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesCellDirective, CesStatusComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoCellDirective, GeoStatusComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, AlmoxPainelTopoComponent, AlmoxRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],

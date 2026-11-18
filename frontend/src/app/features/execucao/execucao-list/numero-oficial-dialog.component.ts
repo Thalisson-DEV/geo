@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, model, output, signal, untracked } from '@angular/core';
-import { CesButtonComponent, CesCalloutComponent, CesDialogShellComponent, CesTextInputComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoDialogShellComponent, GeoTextInputComponent, NotificationService } from '@geo/ui';
 
 import { ExecucaoComercialResponse } from '../../../core/models/execucao.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -10,9 +10,9 @@ import { ExecucaoService } from '../../../core/services/execucao.service';
   selector: 'app-numero-oficial-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesCalloutComponent, CesDialogShellComponent, CesTextInputComponent],
+  imports: [GeoButtonComponent, GeoCalloutComponent, GeoDialogShellComponent, GeoTextInputComponent],
   template: `
-    <ces-dialog-shell
+    <geo-dialog-shell
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       title="Informar número oficial"
@@ -20,8 +20,8 @@ import { ExecucaoService } from '../../../core/services/execucao.service';
       size="sm"
     >
       <div class="num-form">
-        <ces-callout tone="info" title="Só a identificação muda">Serviços, materiais, faturamento e turno continuam como foram lançados. O número provisório fica guardado na nota.</ces-callout>
-        <ces-text-input
+        <geo-callout tone="info" title="Só a identificação muda">Serviços, materiais, faturamento e turno continuam como foram lançados. O número provisório fica guardado na nota.</geo-callout>
+        <geo-text-input
           label="Número oficial da nota"
           placeholder="Ex.: 123456789"
           [value]="numero()"
@@ -30,11 +30,11 @@ import { ExecucaoService } from '../../../core/services/execucao.service';
           [error]="erro()"
         />
       </div>
-      <div dialog-footer class="ces-actions-row">
-        <ces-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
-        <ces-button label="Salvar número" icon="pi pi-check" [loading]="salvando()" (pressed)="confirmar()" />
+      <div dialog-footer class="geo-actions-row">
+        <geo-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
+        <geo-button label="Salvar número" icon="pi pi-check" [loading]="salvando()" (pressed)="confirmar()" />
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `,
   styles: `
     .num-form { display: grid; gap: 1rem; }

@@ -12,19 +12,19 @@ import {
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import {
-  CES_FORM_KIT,
-  CesAsyncStateComponent,
-  CesAutocompleteComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesDatepickerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesTextInputComponent,
+  GEO_FORM_KIT,
+  GeoAsyncStateComponent,
+  GeoAutocompleteComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoDatepickerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFocusFirstInvalid,
-} from '@ces/ui';
+  geoFocusFirstInvalid,
+} from '@geo/ui';
 
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { RhService } from '../../../../core/services/rh.service';
@@ -53,17 +53,17 @@ export interface AddedCommercialItem extends ItemRequest {
   selector: 'app-solicitacao-material-form',
   standalone: true,
   imports: [
-    ...CES_FORM_KIT,
+    ...GEO_FORM_KIT,
     FormsModule,
-    CesAsyncStateComponent,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesDatepickerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoDatepickerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
     SaldoEstoqueDialogComponent,
   ],
   templateUrl: './solicitacao-material-form.component.html',
@@ -398,7 +398,7 @@ export class SolicitacaoMaterialFormComponent implements OnInit {
     this.fieldErrors.set(errors);
     if (Object.keys(errors).length > 0) {
       this.notifications.warning('Preencha os campos destacados para enviar.');
-      setTimeout(() => cesFocusFirstInvalid());
+      setTimeout(() => geoFocusFirstInvalid());
       return false;
     }
     return true;

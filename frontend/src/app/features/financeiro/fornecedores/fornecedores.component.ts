@@ -1,28 +1,28 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 
 import { Fornecedor, FornecedorRequest } from '../../../core/models/financeiro.models';
@@ -34,23 +34,23 @@ import { LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from '../../../shar
 
 type Curadoria = Fornecedor['status'];
 
-const CURADORIA: CesSelectOption<Curadoria | null>[] = [
+const CURADORIA: GeoSelectOption<Curadoria | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Pendente', value: 'PENDENTE' },
   { label: 'Homologado', value: 'HOMOLOGADO' },
   { label: 'Bloqueado', value: 'BLOQUEADO' }
 ];
-const DISPONIBILIDADE: CesSelectOption<boolean | null>[] = [
+const DISPONIBILIDADE: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Somente utilizáveis', value: true },
   { label: 'Somente indisponíveis', value: false }
 ];
-const ATIVOS: CesSelectOption<boolean | null>[] = [
+const ATIVOS: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Ativos', value: true },
   { label: 'Inativos', value: false }
 ];
-const TOM_CURADORIA: Record<Curadoria, CesTone> = { PENDENTE: 'warning', HOMOLOGADO: 'success', BLOQUEADO: 'danger' };
+const TOM_CURADORIA: Record<Curadoria, GeoTone> = { PENDENTE: 'warning', HOMOLOGADO: 'success', BLOQUEADO: 'danger' };
 const ICONE_CURADORIA: Record<Curadoria, string> = { PENDENTE: 'pi-hourglass', HOMOLOGADO: 'pi-verified', BLOQUEADO: 'pi-lock' };
 
 /** `00000000000` / `00000000000000` → CPF / CNPJ formatado. */
@@ -67,26 +67,26 @@ export function formatarDocumento(valor?: string | null): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeEditar" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeEditar" (newRequested)="novo()">
+      <geo-page-header
         title="Fornecedores"
         icon="pi pi-building"
         [breadcrumb]="[{ label: 'Financeiro' }, { label: 'Admin' }, { label: 'Fornecedores' }]"
@@ -95,20 +95,20 @@ export function formatarDocumento(valor?: string | null): string {
         (help)="ajuda.show()"
       >
         @if (podeEditar) {
-          <ces-button actions icon="pi pi-plus" label="Novo fornecedor" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo fornecedor" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="fin-fornecedores" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="fin-fornecedores" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Curadoria" [options]="curadoria" [(value)]="lista.filters.status"></ces-select>
-          <ces-select label="Disponibilidade" [options]="disponibilidade" [(value)]="lista.filters.utilizavel"></ces-select>
-          <ces-select label="Status" [options]="ativos" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Curadoria" [options]="curadoria" [(value)]="lista.filters.status"></geo-select>
+          <geo-select label="Disponibilidade" [options]="disponibilidade" [(value)]="lista.filters.utilizavel"></geo-select>
+          <geo-select label="Status" [options]="ativos" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Fornecedores"
         mode="server"
         storageKey="fin-fornecedores"
@@ -138,67 +138,67 @@ export function formatarDocumento(valor?: string | null): string {
         (emptyAction)="novo()"
         (rowActivate)="podeEditar && editar($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.nomeFantasia }}</span>
-          <span class="ces-cell-muted">{{ row.razaoSocial || 'Razão social não informada' }}</span>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.nomeFantasia }}</span>
+          <span class="geo-cell-muted">{{ row.razaoSocial || 'Razão social não informada' }}</span>
         </ng-template>
-        <ng-template cesCell="curadoria" let-row>
-          <ces-status [tone]="tom(row.status)" [icon]="iconeCuradoria[row.status]">{{ rotuloCuradoria(row.status) }}</ces-status>
+        <ng-template geoCell="curadoria" let-row>
+          <geo-status [tone]="tom(row.status)" [icon]="iconeCuradoria[row.status]">{{ rotuloCuradoria(row.status) }}</geo-status>
           @if (row.motivoBloqueio) {
-            <span class="ces-cell-muted">{{ row.motivoBloqueio }}</span>
+            <span class="geo-cell-muted">{{ row.motivoBloqueio }}</span>
           }
         </ng-template>
-        <ng-template cesCell="utilizavel" let-row>
-          <ces-status [tone]="row.utilizavel ? 'success' : 'neutral'" [emphasis]="row.utilizavel ? 'soft' : 'outline'" [icon]="row.utilizavel ? 'pi-check-circle' : 'pi-ban'">
+        <ng-template geoCell="utilizavel" let-row>
+          <geo-status [tone]="row.utilizavel ? 'success' : 'neutral'" [emphasis]="row.utilizavel ? 'soft' : 'outline'" [icon]="row.utilizavel ? 'pi-check-circle' : 'pi-ban'">
             {{ row.utilizavel ? 'Sim' : 'Não' }}
-          </ces-status>
+          </geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (podeHomologar && row.status === 'PENDENTE') {
-              <ces-icon-button icon="pi pi-verified" [label]="'Homologar ' + row.nomeFantasia" size="icon-sm" (pressed)="homologar(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-verified" [label]="'Homologar ' + row.nomeFantasia" size="icon-sm" (pressed)="homologar(row)"></geo-icon-button>
             }
             @if (podeHomologar && row.status !== 'BLOQUEADO') {
-              <ces-icon-button icon="pi pi-lock" [label]="'Bloquear ' + row.nomeFantasia" size="icon-sm" (pressed)="abrirBloqueio(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-lock" [label]="'Bloquear ' + row.nomeFantasia" size="icon-sm" (pressed)="abrirBloqueio(row)"></geo-icon-button>
             }
             @if (podeHomologar && row.status === 'BLOQUEADO') {
-              <ces-icon-button icon="pi pi-lock-open" [label]="'Desbloquear ' + row.nomeFantasia" size="icon-sm" (pressed)="executar(row, 'desbloquear', 'Fornecedor desbloqueado.')"></ces-icon-button>
+              <geo-icon-button icon="pi pi-lock-open" [label]="'Desbloquear ' + row.nomeFantasia" size="icon-sm" (pressed)="executar(row, 'desbloquear', 'Fornecedor desbloqueado.')"></geo-icon-button>
             }
             @if (podeEditar) {
-              <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nomeFantasia" size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+              <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nomeFantasia" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
             }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar fornecedor' : 'Novo fornecedor'" [description]="emEdicao()?.nomeFantasia"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar fornecedor' : 'Novo fornecedor'" [description]="emEdicao()?.nomeFantasia"
       [dirty]="alterado()" size="md">
-      <ces-form-section title="Identificação" icon="pi pi-building">
-        <ces-text-input label="Nome fantasia" [required]="true" [(value)]="nomeFantasia" [maxlength]="150" placeholder="Nome pelo qual o fornecedor é conhecido" [error]="erro('nome')"></ces-text-input>
-        <ces-text-input label="Razão social" [(value)]="razaoSocial" [maxlength]="200" [showOptional]="true" description="Necessária para homologar."></ces-text-input>
-        <ces-text-input label="CPF ou CNPJ" [(value)]="documento" [maxlength]="18" [showOptional]="true" placeholder="Somente números ou com máscara"
-          description="Necessário para homologar; não pode repetir." [error]="erro('documento')"></ces-text-input>
-      </ces-form-section>
-      <ces-form-section title="Financeiro" icon="pi pi-wallet">
-        <ces-textarea label="Dados bancários" [(value)]="dadosBancarios" [rows]="3" [showOptional]="true" placeholder="Banco, agência, conta, tipo e titular"
-          description="Dado sensível: guardado cifrado e não pesquisável."></ces-textarea>
-        <ces-textarea label="Observações" [(value)]="observacoes" [rows]="3" [showOptional]="true" placeholder="Informações úteis para a equipe financeira"></ces-textarea>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar fornecedor'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <geo-form-section title="Identificação" icon="pi pi-building">
+        <geo-text-input label="Nome fantasia" [required]="true" [(value)]="nomeFantasia" [maxlength]="150" placeholder="Nome pelo qual o fornecedor é conhecido" [error]="erro('nome')"></geo-text-input>
+        <geo-text-input label="Razão social" [(value)]="razaoSocial" [maxlength]="200" [showOptional]="true" description="Necessária para homologar."></geo-text-input>
+        <geo-text-input label="CPF ou CNPJ" [(value)]="documento" [maxlength]="18" [showOptional]="true" placeholder="Somente números ou com máscara"
+          description="Necessário para homologar; não pode repetir." [error]="erro('documento')"></geo-text-input>
+      </geo-form-section>
+      <geo-form-section title="Financeiro" icon="pi pi-wallet">
+        <geo-textarea label="Dados bancários" [(value)]="dadosBancarios" [rows]="3" [showOptional]="true" placeholder="Banco, agência, conta, tipo e titular"
+          description="Dado sensível: guardado cifrado e não pesquisável."></geo-textarea>
+        <geo-textarea label="Observações" [(value)]="observacoes" [rows]="3" [showOptional]="true" placeholder="Informações úteis para a equipe financeira"></geo-textarea>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar fornecedor'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [(visible)]="bloqueioAberto" title="Bloquear fornecedor" [description]="emBloqueio()?.nomeFantasia" [dirty]="!!motivo().trim()" size="sm">
-      <ces-callout tone="warning">Novas solicitações não poderão usar este fornecedor até o desbloqueio.</ces-callout>
-      <ces-textarea label="Motivo do bloqueio" [required]="true" [(value)]="motivo" [rows]="4" [error]="tentouBloquear() && !motivo().trim() ? 'Informe o motivo.' : undefined"></ces-textarea>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Voltar" (pressed)="bloqueioAberto.set(false)"></ces-button>
-        <ces-button variant="destructive" icon="pi pi-lock" label="Confirmar bloqueio" [loading]="salvando()" (pressed)="bloquear()"></ces-button>
+    <geo-form-drawer [(visible)]="bloqueioAberto" title="Bloquear fornecedor" [description]="emBloqueio()?.nomeFantasia" [dirty]="!!motivo().trim()" size="sm">
+      <geo-callout tone="warning">Novas solicitações não poderão usar este fornecedor até o desbloqueio.</geo-callout>
+      <geo-textarea label="Motivo do bloqueio" [required]="true" [(value)]="motivo" [rows]="4" [error]="tentouBloquear() && !motivo().trim() ? 'Informe o motivo.' : undefined"></geo-textarea>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Voltar" (pressed)="bloqueioAberto.set(false)"></geo-button>
+        <geo-button variant="destructive" icon="pi pi-lock" label="Confirmar bloqueio" [loading]="salvando()" (pressed)="bloquear()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Fornecedores" entidadePlural="fornecedores" busca="nome, razão social ou CPF/CNPJ" rotuloNovo="Novo fornecedor" [podeCriar]="podeEditar">
       <div class="help-section">
@@ -216,7 +216,7 @@ export class FornecedoresComponent {
   private readonly financeiro = inject(FinanceiroService);
   private readonly auth = inject(AuthService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   protected readonly podeEditar = this.temPermissao('financeiro:fornecedor:write');
   protected readonly podeHomologar = this.temPermissao('financeiro:fornecedor:homologar');
@@ -225,14 +225,14 @@ export class FornecedoresComponent {
   protected readonly ativos = ATIVOS;
   protected readonly formatarDocumento = formatarDocumento;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'fin-fornecedores',
     // A busca pode ser o CPF de um fornecedor pessoa física: não vai para a URL.
     queryParam: false,
     filters: {
-      status: cesFilter.value<Curadoria | null>(null, { label: 'Curadoria', type: 'string', options: () => CURADORIA }),
-      utilizavel: cesFilter.value<boolean | null>(null, { label: 'Disponibilidade', options: () => DISPONIBILIDADE }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Status', options: () => ATIVOS })
+      status: geoFilter.value<Curadoria | null>(null, { label: 'Curadoria', type: 'string', options: () => CURADORIA }),
+      utilizavel: geoFilter.value<boolean | null>(null, { label: 'Disponibilidade', options: () => DISPONIBILIDADE }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Status', options: () => ATIVOS })
     },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
@@ -243,7 +243,7 @@ export class FornecedoresComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.financeiro.listarFornecedores({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<Fornecedor>[] = [
+  protected readonly colunas: GeoDataTableColumn<Fornecedor>[] = [
     { key: 'nome', header: 'Fornecedor', type: 'custom', priority: 1, sortField: 'nomeFantasia', value: (f) => f.nomeFantasia, display: (f) => f.nomeFantasia },
     { key: 'documento', header: 'CPF / CNPJ', value: (f) => f.documento, display: (f) => formatarDocumento(f.documento) || '—' },
     { key: 'curadoria', header: 'Curadoria', type: 'custom', priority: 1, sortField: 'status', value: (f) => f.status, display: (f) => this.rotuloCuradoria(f.status) },
@@ -291,7 +291,7 @@ export class FornecedoresComponent {
 
   protected readonly iconeCuradoria: Record<string, string> = ICONE_CURADORIA;
 
-  protected tom(status: Curadoria): CesTone {
+  protected tom(status: Curadoria): GeoTone {
     return TOM_CURADORIA[status] ?? 'neutral';
   }
 

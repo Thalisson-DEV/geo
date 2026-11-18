@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 /**
  * Apoio de apresentação do módulo de notificações.
  *
@@ -168,8 +168,8 @@ export const PRIORIDADE_CLASSES: Record<PrioridadeNotificacao, string> = {
   CRITICA: 'bg-red-50 text-red-600'
 };
 
-/** Tom do DS (`ces-status`) para a prioridade. */
-export const PRIORIDADE_TOM: Record<PrioridadeNotificacao, CesTone> = {
+/** Tom do DS (`geo-status`) para a prioridade. */
+export const PRIORIDADE_TOM: Record<PrioridadeNotificacao, GeoTone> = {
   BAIXA: 'neutral',
   NORMAL: 'info',
   ALTA: 'warning',
@@ -192,7 +192,7 @@ export const TIPO_COMUNICADO_ICONES: Record<TipoComunicado, string> = {
 };
 
 /** Tom do Design System por tipo de comunicado (mural, detalhe e cadastro usam o mesmo). */
-export const TOM_TIPO_COMUNICADO: Record<TipoComunicado, CesTone> = {
+export const TOM_TIPO_COMUNICADO: Record<TipoComunicado, GeoTone> = {
   DICA: 'warning',
   CHANGELOG: 'brand',
   AVISO: 'info',

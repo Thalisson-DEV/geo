@@ -43,15 +43,15 @@ public class AnalisesFrotaScheduler {
     /** Um cálculo de cada vez: o histórico pode demorar e cruzar com a rotina de 30 minutos. */
     private final AtomicBoolean rodando = new AtomicBoolean();
 
-    @Value("${ces.frota.analises.calcular-ao-subir:true}")
+    @Value("${geo.frota.analises.calcular-ao-subir:true}")
     private boolean calcularAoSubir;
 
-    @Scheduled(cron = "${ces.frota.analises.recentes-cron:0 7,37 * * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.analises.recentes-cron:0 7,37 * * * *}", zone = "America/Sao_Paulo")
     public void recentes() {
         executar("recentes", this::atualizarRecentes);
     }
 
-    @Scheduled(cron = "${ces.frota.analises.historico-cron:0 40 3 * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.analises.historico-cron:0 40 3 * * *}", zone = "America/Sao_Paulo")
     public void historico() {
         executar("histórico", this::completarHistorico);
     }

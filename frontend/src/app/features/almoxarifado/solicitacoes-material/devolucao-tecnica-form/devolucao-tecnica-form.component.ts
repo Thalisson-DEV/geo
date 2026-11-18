@@ -14,23 +14,23 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import {
-  CES_FORM_KIT,
-  CesAsyncStateComponent,
-  CesAutocompleteComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GEO_FORM_KIT,
+  GeoAsyncStateComponent,
+  GeoAutocompleteComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesFocusFirstInvalid,
-} from '@ces/ui';
+  geoFocusFirstInvalid,
+} from '@geo/ui';
 import { LookupStore } from '../../../../core/lookup/store/lookup.store';
 import { RemoteLookup as CursorRemoteLookup } from '../../../../core/lookup/store/remote-lookup';
 import {
@@ -69,12 +69,12 @@ export interface ItemDevolucao {
   saldoNaObra: number;
 }
 
-const TIPOS: CesSelectOption<TipoDevolucao>[] = [
+const TIPOS: GeoSelectOption<TipoDevolucao>[] = [
   { value: 'DEVOLUCAO_COMUM', label: '222 · Comum' },
   { value: 'DEVOLUCAO_CONCRETO', label: '922 · Concreto' },
 ];
 
-const CONDICOES: CesSelectOption<CondicaoDevolucao>[] = [
+const CONDICOES: GeoSelectOption<CondicaoDevolucao>[] = [
   { value: 'NOVO', label: 'Novo' },
   { value: 'SUCATA', label: 'Sucata' },
 ];
@@ -88,19 +88,19 @@ const CONDICOES: CesSelectOption<CondicaoDevolucao>[] = [
   selector: 'app-devolucao-tecnica-form',
   standalone: true,
   imports: [
-    ...CES_FORM_KIT,
+    ...GEO_FORM_KIT,
     FormsModule,
-    CesAsyncStateComponent,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     SaldoEstoqueDialogComponent,
   ],
   templateUrl: './devolucao-tecnica-form.component.html',
@@ -115,7 +115,7 @@ export class DevolucaoTecnicaFormComponent implements OnInit {
   private readonly rhService = inject(RhService);
   private readonly lookupStore = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -369,7 +369,7 @@ export class DevolucaoTecnicaFormComponent implements OnInit {
     this.tentouEnviar.set(true);
     if (Object.keys(this.erros()).length) {
       this.notificacoes.warning('Preencha os campos destacados para registrar a devolução.');
-      setTimeout(() => cesFocusFirstInvalid());
+      setTimeout(() => geoFocusFirstInvalid());
       return;
     }
     const n = this.itens().length;

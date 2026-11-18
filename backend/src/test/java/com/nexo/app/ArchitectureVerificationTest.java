@@ -12,7 +12,7 @@ class ArchitectureVerificationTest {
 
     @Test
     void inventoryUsesOnlyDeclaredModuleDependenciesAndPublicApis() {
-        var modules = ApplicationModules.of(CesApplication.class);
+        var modules = ApplicationModules.of(GeoApplication.class);
         var inventory = modules.stream()
                 .filter(module -> module.getBasePackage().getName()
                         .equals("com.nexo.app.modules.estoque"))

@@ -2,7 +2,7 @@ import '@angular/compiler';
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { MessageService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -107,7 +107,7 @@ describe('ChamadoDetalheComponent', () => {
         provideRouter([]),
         { provide: ChamadosService, useValue: chamadosService },
         { provide: UsuariosService, useValue: usuariosService },
-        { provide: CesConfirmationService, useValue: confirmacao },
+        { provide: GeoConfirmationService, useValue: confirmacao },
         {
           provide: ActivatedRoute,
           useValue: {

@@ -1,1 +1,1 @@
-export * from './ces-surface.component';
+export * from './geo-surface.component';

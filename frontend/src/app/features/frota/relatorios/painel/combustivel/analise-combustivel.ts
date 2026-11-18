@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
 import {
@@ -232,7 +232,7 @@ export function visaoCombustivel(m: ModeloCombustivel): { veredito: VereditoGere
       texto: 'Tempo médio entre o pedido e a aprovação do abastecimento. Equipe esperando é produção perdida.' });
   }
   const varLitros = m.litrosAnterior ? m.litros / m.litrosAnterior - 1 : null;
-  const tom: CesTone = m.foraDoPadrao.length > 2 || (m.comAlerta.length / (m.atual.length || 1)) > 0.15 ? 'warning' : l.some((x) => x.tom === 'warning') ? 'warning' : 'success';
+  const tom: GeoTone = m.foraDoPadrao.length > 2 || (m.comAlerta.length / (m.atual.length || 1)) > 0.15 ? 'warning' : l.some((x) => x.tom === 'warning') ? 'warning' : 'success';
   return {
     veredito: {
       tom, rotulo: tom === 'warning' ? 'Acompanhar' : 'Sob controle',
@@ -247,7 +247,7 @@ export function visaoCombustivel(m: ModeloCombustivel): { veredito: VereditoGere
 
 // ── Análises ─────────────────────────────────────────────────────────────────────────────────────
 
-const colAbastecimentos: CesDataTableColumn<AbastecimentoDetalheFrota>[] = [
+const colAbastecimentos: GeoDataTableColumn<AbastecimentoDetalheFrota>[] = [
   { key: 'realizadoEm', header: 'Data', type: 'date', priority: 1 },
   { key: 'placa', header: 'Veículo', priority: 1, value: (a) => a.placa ?? '—' },
   { key: 'posto', header: 'Posto', priority: 2 },
@@ -395,7 +395,7 @@ function vistaKpi(qual: string, m: ModeloCombustivel, chave: string): VistaAnali
           { formato: 'currency', inteiro: true, aoSelecionar: (i) => navegar('mes', m.meses[i]), rotuloSelecao: 'Analisar o mês' }), graficoPostos(m.atual)]
       });
     case 'postos': {
-      const colunas: CesDataTableColumn<PostoCombustivel>[] = [
+      const colunas: GeoDataTableColumn<PostoCombustivel>[] = [
         { key: 'nome', header: 'Posto', priority: 1 },
         { key: 'abastecimentos', header: 'Abastecimentos', type: 'custom', priority: 2, value: (p) => p.linhas.length, display: (p) => inteiro(p.linhas.length) },
         { key: 'litros', header: 'Litros', type: 'number', priority: 2 },
@@ -417,7 +417,7 @@ function vistaKpi(qual: string, m: ModeloCombustivel, chave: string): VistaAnali
       };
     }
     case 'consumo': {
-      const colunas: CesDataTableColumn<VeiculoCombustivel>[] = [
+      const colunas: GeoDataTableColumn<VeiculoCombustivel>[] = [
         { key: 'placa', header: 'Veículo', priority: 1 },
         { key: 'kmL', header: 'km/l', type: 'custom', priority: 1, value: (x) => x.kmL ?? -1, display: (x) => numero(x.kmL, 2) },
         { key: 'referencia', header: 'Referência', type: 'custom', priority: 2, value: (x) => x.referencia ?? -1, display: (x) => numero(x.referencia, 2) },

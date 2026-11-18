@@ -1,4 +1,4 @@
-<ces-dialog-shell
+<geo-dialog-shell
   [title]="dialogTitle()"
   size="xl"
   [(visible)]="visible"
@@ -16,7 +16,7 @@
       <i class="pi pi-exclamation-triangle text-amber-500 text-2xl"></i>
       <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">Não foi possível preparar o formulário</span>
       <span class="text-[11px] text-slate-500 max-w-md">{{ lookupError() }}</span>
-      <ces-button label="Tentar novamente" icon="pi pi-refresh" (pressed)="retryLookups()" size="sm" variant="outline" />
+      <geo-button label="Tentar novamente" icon="pi pi-refresh" (pressed)="retryLookups()" size="sm" variant="outline" />
     </div>
   } @else {
     <div class="flex flex-col gap-4 py-2">
@@ -238,7 +238,7 @@
                     <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-1">
                       Estoque físico ou de obra de onde sairão os materiais solicitados.
                     </p>
-                    <ces-autocomplete
+                    <geo-autocomplete
                       label="Almoxarifado de atendimento"
                       [labelVisible]="false"
                       [showSearchInstruction]="false"
@@ -305,7 +305,7 @@
                       </div>
 
                       @if (saqueForaEquipe()) {
-                        <ces-autocomplete
+                        <geo-autocomplete
                           label="Responsável pelo saque"
                           [labelVisible]="false"
                           inputId="planejamento-responsavel-saque"
@@ -479,14 +479,14 @@
 
                 <!-- NAVEGAÇÃO DA ETAPA 1 -->
                 <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 mt-1">
-                  <ces-button
+                  <geo-button
                     label="Cancelar"
                     variant="ghost"
                     size="sm"
                     [disabled]="submitting()"
                     (pressed)="close()"
                   />
-                  <ces-button
+                  <geo-button
                     label="Avançar para Materiais"
                     icon="pi pi-arrow-right"
                     variant="primary"
@@ -524,7 +524,7 @@
 
                   <div class="flex items-center gap-2">
                     <div class="flex-1 min-w-0">
-                      <ces-autocomplete
+                      <geo-autocomplete
                         label="Material"
                         [labelVisible]="false"
                         [showSearchInstruction]="false"
@@ -560,7 +560,7 @@
                       />
                     </div>
                     <div class="shrink-0">
-                      <ces-button
+                      <geo-button
                         icon="pi pi-plus"
                         label="Adicionar"
                         variant="primary"
@@ -642,7 +642,7 @@
 
                 <!-- NAVEGAÇÃO DA ETAPA 2 -->
                 <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 mt-1">
-                  <ces-button
+                  <geo-button
                     label="Voltar para Agendamento"
                     icon="pi pi-arrow-left"
                     variant="ghost"
@@ -653,7 +653,7 @@
                     <span class="text-xs text-slate-500">
                       <strong>{{ lines().length }}</strong> item(ns) · <strong>{{ totalMaterialQuantity() | number: '1.0-3' }}</strong> un.
                     </span>
-                    <ces-button
+                    <geo-button
                       label="Avançar para Revisão"
                       icon="pi pi-arrow-right"
                       variant="primary"
@@ -805,7 +805,7 @@
 
                 <!-- NAVEGAÇÃO DA ETAPA 3 (FINAL) -->
                 <div class="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 mt-1">
-                  <ces-button
+                  <geo-button
                     label="Voltar para Materiais"
                     icon="pi pi-arrow-left"
                     variant="ghost"
@@ -813,7 +813,7 @@
                     [disabled]="submitting()"
                     (pressed)="previousStep()"
                   />
-                  <ces-button
+                  <geo-button
                     [label]="isInitialPlanning() ? 'Confirmar e Salvar Planejamento' : 'Confirmar e Salvar Replanejamento'"
                     icon="pi pi-check"
                     variant="primary"
@@ -831,4 +831,4 @@
       </p-stepper>
     </div>
   }
-</ces-dialog-shell>
+</geo-dialog-shell>

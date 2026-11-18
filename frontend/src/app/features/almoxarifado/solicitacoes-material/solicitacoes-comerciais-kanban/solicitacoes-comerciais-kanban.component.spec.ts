@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { ConfirmationService } from 'primeng/api';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -115,7 +115,7 @@ describe('SolicitacoesComerciaisKanbanComponent', () => {
     expect(tela.colunas()[0].grupos.map((g) => g.label)).toEqual(['Falta de material', 'Sem pendência']);
     tela.agrupar('prazo');
     expect(tela.colunas()[1].grupos.map((g) => g.label)).toContain('Atrasadas');
-    expect(localStorage.getItem('ces_kanban_comercial_agrupamento')).toBe('prazo');
+    expect(localStorage.getItem('geo_kanban_comercial_agrupamento')).toBe('prazo');
   });
 
   it('coluna sem nada mostra o estado vazio', async () => {
@@ -174,7 +174,7 @@ describe('SolicitacoesComerciaisKanbanComponent', () => {
     const { el, fixture } = await abrir();
     const analisar = vi.fn();
     fixture.componentInstance.analisarEtapa.subscribe(analisar);
-    el.querySelector<HTMLButtonElement>('#kb-col-APROVACAO .kb-col__head ces-icon-button button')!.click();
+    el.querySelector<HTMLButtonElement>('#kb-col-APROVACAO .kb-col__head geo-icon-button button')!.click();
     expect(analisar).toHaveBeenCalledWith(expect.objectContaining({ id: 'APROVACAO', titulo: 'Aprovação' }));
   });
 
@@ -182,7 +182,7 @@ describe('SolicitacoesComerciaisKanbanComponent', () => {
     const { el, fixture } = await abrir();
     fixture.componentRef.setInput('copiloto', false);
     fixture.detectChanges();
-    expect(el.querySelector('#kb-col-APROVACAO .kb-col__head ces-icon-button')).toBeNull();
+    expect(el.querySelector('#kb-col-APROVACAO .kb-col__head geo-icon-button')).toBeNull();
   });
 
   it('parcial com saldo encerrado sai de Entrega e vai para Encerradas, sem ação de entrega', async () => {

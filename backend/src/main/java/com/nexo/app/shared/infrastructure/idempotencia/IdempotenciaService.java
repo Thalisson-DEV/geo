@@ -48,7 +48,7 @@ public class IdempotenciaService {
      * quem lança dois descontos parecidos em dias diferentes. 24h cobrem com folga a
      * janela real: retentativa de usuário e fila offline esperando a rede voltar.
      */
-    @Value("${ces.idempotencia.janela-horas:24}")
+    @Value("${geo.idempotencia.janela-horas:24}")
     private long janelaHoras;
 
     /**
@@ -157,7 +157,7 @@ public class IdempotenciaService {
      * reserva vencida já não bloqueia nada — a retomada por {@code ON CONFLICT} cuida
      * disso na hora. O expurgo existe só para a tabela não crescer para sempre.</p>
      */
-    @Scheduled(cron = "${ces.idempotencia.cron-expurgo:0 20 3 * * *}")
+    @Scheduled(cron = "${geo.idempotencia.cron-expurgo:0 20 3 * * *}")
     @Transactional
     public void expurgarExpirados() {
         int removidos = repository.expurgarExpirados(OffsetDateTime.now());

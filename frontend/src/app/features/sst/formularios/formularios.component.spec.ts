@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -35,7 +35,7 @@ describe('FormulariosComponent (SST)', () => {
 
   it('duplicar abre o construtor na cópia', async () => {
     const { componente } = await abrir();
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     await (componente as unknown as { duplicar(f: unknown): Promise<void> }).duplicar(formulario);
     expect(sst['duplicarFormulario']).toHaveBeenCalledWith('f1');

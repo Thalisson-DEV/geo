@@ -1,12 +1,12 @@
 import { Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesDialogShellComponent,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoDialogShellComponent,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextareaComponent,
   NotificationService,
-} from '@ces/ui';
+} from '@geo/ui';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { ItemPendenciaRequest, MotivoPendenciaResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -33,14 +33,14 @@ export interface ItemPendenciaConfig {
   selector: 'app-solicitacao-pendencia-modal',
   standalone: true,
   imports: [
-    CesDialogShellComponent,
-    CesButtonComponent,
-    CesSelectComponent,
-    CesTextareaComponent,
-    CesStatusComponent,
+    GeoDialogShellComponent,
+    GeoButtonComponent,
+    GeoSelectComponent,
+    GeoTextareaComponent,
+    GeoStatusComponent,
   ],
   template: `
-    <ces-dialog-shell
+    <geo-dialog-shell
       [title]="modalTitle()"
       [description]="modalDescription()"
       [size]="modalSize()"
@@ -48,22 +48,22 @@ export interface ItemPendenciaConfig {
     >
       <div class="flex flex-col gap-4 py-1">
         @if (motivoAtual(); as motivo) {
-          <div class="rounded-xl border border-[var(--ces-warning)] bg-[var(--ces-warning-soft)] p-3 flex flex-col gap-2">
+          <div class="rounded-xl border border-[var(--geo-warning)] bg-[var(--geo-warning-soft)] p-3 flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2">
-              <span class="text-xs font-bold text-[var(--ces-warning-text)] uppercase tracking-wider flex items-center gap-1.5">
-                <i class="pi pi-exclamation-triangle text-[var(--ces-warning-text)]"></i>
+              <span class="text-xs font-bold text-[var(--geo-warning-text)] uppercase tracking-wider flex items-center gap-1.5">
+                <i class="pi pi-exclamation-triangle text-[var(--geo-warning-text)]"></i>
                 {{ idItem() ? 'Pendência Atual do Material' : 'Pendência Atual da Solicitação' }}
               </span>
-              <ces-status tone="warning" icon="pi-flag">{{ motivo.nome }}</ces-status>
+              <geo-status tone="warning" icon="pi-flag">{{ motivo.nome }}</geo-status>
             </div>
             @if (justificativaAtual()) {
-              <p class="text-xs text-[var(--ces-foreground)] italic bg-[var(--ces-surface)] p-2 rounded-lg border border-[var(--ces-border)]">
+              <p class="text-xs text-[var(--geo-foreground)] italic bg-[var(--geo-surface)] p-2 rounded-lg border border-[var(--geo-border)]">
                 "{{ justificativaAtual() }}"
               </p>
             }
             @if (podeResolver()) {
               <div class="flex justify-end pt-1">
-                <ces-button
+                <geo-button
                   [label]="idItem() ? 'Resolver pendência do material' : 'Resolver pendência geral'"
                   icon="pi pi-check"
                   variant="ghost"
@@ -79,7 +79,7 @@ export interface ItemPendenciaConfig {
         @if (idItem(); as itemId) {
           <!-- Modo Material Individual -->
           <div class="flex flex-col gap-3">
-            <ces-select
+            <geo-select
               label="Motivo da pendência"
               placeholder="Selecione o motivo..."
               [options]="opcoesMotivos()"
@@ -90,7 +90,7 @@ export interface ItemPendenciaConfig {
               [error]="getItemMotivoErro(itemId)"
             />
 
-            <ces-textarea
+            <geo-textarea
               label="Descrição da pendência"
               placeholder="Descreva detalhadamente a pendência (mínimo de 5 caracteres)..."
               [rows]="3"
@@ -105,7 +105,7 @@ export interface ItemPendenciaConfig {
         } @else {
           <!-- Seletor de Escopo: Geral vs Por Material -->
           <div class="flex flex-col gap-1.5">
-            <span class="text-xs font-semibold text-[var(--ces-foreground)]">
+            <span class="text-xs font-semibold text-[var(--geo-foreground)]">
               Escopo da Pendência
             </span>
             <div class="grid grid-cols-2 gap-2">
@@ -114,14 +114,14 @@ export interface ItemPendenciaConfig {
                 (click)="setEscopo('GERAL')"
                 class="flex flex-col items-start gap-1 p-3 rounded-xl border text-left transition-all cursor-pointer"
                 [class]="escopo() === 'GERAL'
-                  ? 'border-[var(--ces-brand)] bg-[var(--ces-brand-soft)] text-[var(--ces-foreground)] shadow-2xs'
-                  : 'border-[var(--ces-border)] bg-[var(--ces-surface)] hover:bg-[var(--ces-surface-subtle)] text-[var(--ces-foreground-muted)]'"
+                  ? 'border-[var(--geo-brand)] bg-[var(--geo-brand-soft)] text-[var(--geo-foreground)] shadow-2xs'
+                  : 'border-[var(--geo-border)] bg-[var(--geo-surface)] hover:bg-[var(--geo-surface-subtle)] text-[var(--geo-foreground-muted)]'"
               >
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-file text-sm" [class.text-[var(--ces-brand)]]="escopo() === 'GERAL'"></i>
+                  <i class="pi pi-file text-sm" [class.text-[var(--geo-brand)]]="escopo() === 'GERAL'"></i>
                   <span class="text-xs font-bold">Geral</span>
                 </div>
-                <span class="text-[11px] text-[var(--ces-foreground-muted)]">
+                <span class="text-[11px] text-[var(--geo-foreground-muted)]">
                   Para toda a solicitação
                 </span>
               </button>
@@ -131,14 +131,14 @@ export interface ItemPendenciaConfig {
                 (click)="setEscopo('MATERIAL')"
                 class="flex flex-col items-start gap-1 p-3 rounded-xl border text-left transition-all cursor-pointer"
                 [class]="escopo() === 'MATERIAL'
-                  ? 'border-[var(--ces-brand)] bg-[var(--ces-brand-soft)] text-[var(--ces-foreground)] shadow-2xs'
-                  : 'border-[var(--ces-border)] bg-[var(--ces-surface)] hover:bg-[var(--ces-surface-subtle)] text-[var(--ces-foreground-muted)]'"
+                  ? 'border-[var(--geo-brand)] bg-[var(--geo-brand-soft)] text-[var(--geo-foreground)] shadow-2xs'
+                  : 'border-[var(--geo-border)] bg-[var(--geo-surface)] hover:bg-[var(--geo-surface-subtle)] text-[var(--geo-foreground-muted)]'"
               >
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-box text-sm" [class.text-[var(--ces-brand)]]="escopo() === 'MATERIAL'"></i>
+                  <i class="pi pi-box text-sm" [class.text-[var(--geo-brand)]]="escopo() === 'MATERIAL'"></i>
                   <span class="text-xs font-bold">Por Material</span>
                 </div>
-                <span class="text-[11px] text-[var(--ces-foreground-muted)]">
+                <span class="text-[11px] text-[var(--geo-foreground-muted)]">
                   Configurar por item da solicitação
                 </span>
               </button>
@@ -148,7 +148,7 @@ export interface ItemPendenciaConfig {
           <!-- Seção: Pendência Geral -->
           @if (escopo() === 'GERAL') {
             <div class="flex flex-col gap-3">
-              <ces-select
+              <geo-select
                 label="Motivo da pendência"
                 placeholder="Selecione o motivo..."
                 [options]="opcoesMotivos()"
@@ -157,7 +157,7 @@ export interface ItemPendenciaConfig {
                 [required]="true"
               />
 
-              <ces-textarea
+              <geo-textarea
                 label="Descrição da pendência"
                 placeholder="Descreva detalhadamente a pendência (mínimo de 5 caracteres)..."
                 [rows]="3"
@@ -172,13 +172,13 @@ export interface ItemPendenciaConfig {
 
         <!-- Seção: Por Material (Itens com suas respectivas pendências) -->
         @if (escopo() === 'MATERIAL') {
-          <div class="flex flex-col gap-3 p-3.5 rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface-subtle)]">
+          <div class="flex flex-col gap-3 p-3.5 rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface-subtle)]">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-              <span class="text-xs font-bold text-[var(--ces-foreground)]">
+              <span class="text-xs font-bold text-[var(--geo-foreground)]">
                 Materiais da Solicitação ({{ itensSelecionados().size }} com pendência)
               </span>
               @if (listaItens().length > 0) {
-                <ces-button
+                <geo-button
                   [label]="todosSelecionados() ? 'Desmarcar todos' : 'Selecionar todos'"
                   variant="ghost"
                   size="sm"
@@ -189,14 +189,14 @@ export interface ItemPendenciaConfig {
 
             <!-- Preenchimento em lote opcional -->
             @if (listaItens().length > 1) {
-              <div class="p-3 rounded-lg bg-[var(--ces-surface)] border border-[var(--ces-border)] flex flex-col gap-2.5">
+              <div class="p-3 rounded-lg bg-[var(--geo-surface)] border border-[var(--geo-border)] flex flex-col gap-2.5">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-xs font-semibold text-[var(--ces-foreground)] flex items-center gap-1.5">
-                    <i class="pi pi-bolt text-[var(--ces-warning-text)]"></i>
+                  <span class="text-xs font-semibold text-[var(--geo-foreground)] flex items-center gap-1.5">
+                    <i class="pi pi-bolt text-[var(--geo-warning-text)]"></i>
                     Aplicar mesmo motivo aos selecionados (opcional)
                   </span>
                   @if (itensSelecionados().size > 0 && idMotivoLote()) {
-                    <ces-button
+                    <geo-button
                       label="Aplicar aos marcados"
                       icon="pi pi-arrow-down"
                       variant="ghost"
@@ -206,13 +206,13 @@ export interface ItemPendenciaConfig {
                   }
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <ces-select
+                  <geo-select
                     label="Motivo para lote"
                     placeholder="Selecione para preencher selecionados..."
                     [options]="opcoesMotivos()"
                     [(value)]="idMotivoLote"
                   />
-                  <ces-textarea
+                  <geo-textarea
                     label="Justificativa para lote"
                     placeholder="Justificativa padrão para os selecionados..."
                     [rows]="1"
@@ -224,12 +224,12 @@ export interface ItemPendenciaConfig {
             }
 
             @if (carregandoItens()) {
-              <div class="py-4 text-center text-xs text-[var(--ces-foreground-muted)] flex items-center justify-center gap-2">
+              <div class="py-4 text-center text-xs text-[var(--geo-foreground-muted)] flex items-center justify-center gap-2">
                 <i class="pi pi-spin pi-spinner"></i>
                 <span>Carregando materiais da solicitação...</span>
               </div>
             } @else if (listaItens().length === 0) {
-              <div class="py-3 text-center text-xs text-[var(--ces-foreground-muted)]">
+              <div class="py-3 text-center text-xs text-[var(--geo-foreground-muted)]">
                 Nenhum material encontrado nesta solicitação.
               </div>
             } @else {
@@ -238,24 +238,24 @@ export interface ItemPendenciaConfig {
                   <div
                     class="p-3 rounded-xl border transition-colors flex flex-col gap-2"
                     [class]="itensSelecionados().has(item.id)
-                      ? 'border-[var(--ces-brand)] bg-[var(--ces-surface)] shadow-2xs'
-                      : 'border-[var(--ces-border)] bg-[var(--ces-surface)] opacity-90'"
+                      ? 'border-[var(--geo-brand)] bg-[var(--geo-surface)] shadow-2xs'
+                      : 'border-[var(--geo-border)] bg-[var(--geo-surface)] opacity-90'"
                   >
                     <div class="flex items-center justify-between gap-2">
                       <label class="flex items-center gap-2.5 cursor-pointer min-w-0 flex-1">
                         <input
                           type="checkbox"
-                          class="rounded border-[var(--ces-border-strong)] text-[var(--ces-brand)] focus:ring-0 cursor-pointer shrink-0"
+                          class="rounded border-[var(--geo-border-strong)] text-[var(--geo-brand)] focus:ring-0 cursor-pointer shrink-0"
                           [checked]="itensSelecionados().has(item.id)"
                           (change)="toggleItem(item.id)"
                         />
                         <div class="flex flex-col min-w-0 flex-1">
                           <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="font-bold text-[var(--ces-foreground)] text-xs">{{ item.codigo }}</span>
-                            <span class="text-[var(--ces-foreground-muted)] dark:text-[var(--ces-foreground-muted)] text-xs">—</span>
-                            <span class="truncate text-[var(--ces-foreground)] text-xs font-medium">{{ item.descricao }}</span>
+                            <span class="font-bold text-[var(--geo-foreground)] text-xs">{{ item.codigo }}</span>
+                            <span class="text-[var(--geo-foreground-muted)] dark:text-[var(--geo-foreground-muted)] text-xs">—</span>
+                            <span class="truncate text-[var(--geo-foreground)] text-xs font-medium">{{ item.descricao }}</span>
                             @if (item.quantidade !== null && item.quantidade !== undefined) {
-                              <span class="text-[11px] text-[var(--ces-foreground-muted)]">({{ item.quantidade }} un)</span>
+                              <span class="text-[11px] text-[var(--geo-foreground-muted)]">({{ item.quantidade }} un)</span>
                             }
                           </div>
                         </div>
@@ -263,9 +263,9 @@ export interface ItemPendenciaConfig {
 
                       @if (item.motivoPendencia) {
                         <div class="flex items-center gap-1.5 shrink-0">
-                          <ces-status tone="warning" icon="pi-flag">{{ item.motivoPendencia.nome }}</ces-status>
+                          <geo-status tone="warning" icon="pi-flag">{{ item.motivoPendencia.nome }}</geo-status>
                           @if (podeResolver()) {
-                            <ces-button
+                            <geo-button
                               label="Resolver"
                               variant="ghost"
                               size="sm"
@@ -279,8 +279,8 @@ export interface ItemPendenciaConfig {
 
                     <!-- Campos individuais da pendência do material (visíveis quando selecionado) -->
                     @if (itensSelecionados().has(item.id)) {
-                      <div class="pt-2.5 border-t border-[var(--ces-border)] grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <ces-select
+                      <div class="pt-2.5 border-t border-[var(--geo-border)] grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <geo-select
                           label="Motivo deste item"
                           placeholder="Selecione o motivo..."
                           [options]="opcoesMotivos()"
@@ -289,7 +289,7 @@ export interface ItemPendenciaConfig {
                           [required]="true"
                           [error]="getItemMotivoErro(item.id)"
                         />
-                        <ces-textarea
+                        <geo-textarea
                           label="Justificativa deste item"
                           placeholder="Mínimo 5 caracteres..."
                           [rows]="1"
@@ -307,7 +307,7 @@ export interface ItemPendenciaConfig {
             }
 
             @if (touched() && itensSelecionados().size === 0) {
-              <span class="text-[11px] text-[var(--ces-danger-text)] font-medium">
+              <span class="text-[11px] text-[var(--geo-danger-text)] font-medium">
                 Selecione ao menos um material para registrar pendência.
               </span>
             }
@@ -317,13 +317,13 @@ export interface ItemPendenciaConfig {
       </div>
 
       <div dialog-footer class="flex items-center justify-end gap-2 w-full">
-        <ces-button
+        <geo-button
           label="Cancelar"
           variant="ghost"
           size="sm"
           (pressed)="fechar()"
         />
-        <ces-button
+        <geo-button
           label="Salvar"
           icon="pi pi-check"
           variant="primary"
@@ -333,7 +333,7 @@ export interface ItemPendenciaConfig {
           (pressed)="salvar()"
         />
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `,
 })
 export class SolicitacaoPendenciaModalComponent {

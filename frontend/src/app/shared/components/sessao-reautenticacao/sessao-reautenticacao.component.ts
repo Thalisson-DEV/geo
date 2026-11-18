@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { CesCalloutComponent } from '@ces/ui';
+import { GeoCalloutComponent } from '@geo/ui';
 import { AuthService } from '../../../core/services/auth.service';
 import { ConnectivityService } from '../../../core/services/connectivity.service';
 
@@ -16,11 +16,11 @@ import { ConnectivityService } from '../../../core/services/connectivity.service
   selector: 'app-sessao-reautenticacao',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, CesCalloutComponent],
+  imports: [ButtonModule, GeoCalloutComponent],
   template: `
     @if (auth.reautenticacaoNecessaria()) {
       <div role="status" aria-live="polite" class="px-4 pt-3 lg:px-6 print:hidden">
-        <ces-callout tone="warning" title="Entre novamente para sincronizar" [dense]="true">
+        <geo-callout tone="warning" title="Entre novamente para sincronizar" [dense]="true">
           <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <p>
               Seus lançamentos continuam salvos neste aparelho e ficam enfileirados para
@@ -40,7 +40,7 @@ import { ConnectivityService } from '../../../core/services/connectivity.service
               ></p-button>
             }
           </div>
-        </ces-callout>
+        </geo-callout>
       </div>
     }
   `,

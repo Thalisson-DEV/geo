@@ -1,6 +1,6 @@
 package com.nexo.app.modules.assistente.application.dto;
 
-import com.nexo.app.modules.assistente.application.agent.ContextoCes;
+import com.nexo.app.modules.assistente.application.agent.ContextoGeo;
 import com.nexo.app.modules.assistente.application.artifacts.ArtifactService;
 import com.nexo.app.modules.assistente.domain.OrigemConversa;
 
@@ -17,7 +17,7 @@ public record ConversaDetalheResponse(
         String titulo,
         OffsetDateTime dataCriacao,
         OffsetDateTime ultimaAtividadeEm,
-        ContextoCes contexto,
+        ContextoGeo contexto,
         List<MensagemResponse> mensagens,
         List<ArtifactService.ArtefatoView> artefatos,
         List<ArquivoAssistenteResponse> arquivos,

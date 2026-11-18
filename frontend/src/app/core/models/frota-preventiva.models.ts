@@ -1,4 +1,4 @@
-import type { CesTone } from '@ces/ui';
+import type { GeoTone } from '@geo/ui';
 import type { Criticidade, UnidadeMedicao } from './frota.models';
 
 /** Quanto falta para a próxima realização. */
@@ -174,7 +174,7 @@ export function resumoOsPreventivas(r: OsPreventivaAberta, placa: (p: string) =>
 }
 
 /** Tom e ícone da situação na tabela e na ficha. Com OS aberta, o tom é de acompanhamento (info). */
-export function aparenciaPreventiva(c: Pick<ControlePreventivo, 'situacao' | 'idOrdemServico'>): { tom: CesTone; icone: string; rotulo: string } {
+export function aparenciaPreventiva(c: Pick<ControlePreventivo, 'situacao' | 'idOrdemServico'>): { tom: GeoTone; icone: string; rotulo: string } {
   if (c.idOrdemServico) return { tom: 'info', icone: 'pi-wrench', rotulo: 'Com OS aberta' };
   switch (c.situacao) {
     case 'VENCIDA':

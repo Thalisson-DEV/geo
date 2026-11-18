@@ -1,7 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -150,7 +150,7 @@ describe('ObrasListComponent', () => {
       visualizarObra(o: ObraResumoResponse): void;
       solicitandoObra(): string | null;
     };
-    const confirmar = vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(false);
+    const confirmar = vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(false);
     await tela.desativarObra(obra);
     expect(servico['desativarObra']).not.toHaveBeenCalled();
     confirmar.mockResolvedValue(true);
@@ -200,7 +200,7 @@ describe('ObrasListComponent', () => {
     expect(corrigida).toMatchObject({ numero: '1234567', titulo: 'REFORMA DE REDE', status: ImportacaoStatus.AGUARDANDO_PROCESSAMENTO, editing: false });
     expect(corrigida.mensagemErro).toBeUndefined();
 
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     await tela.importacao.processar();
     expect(servico['confirmarImportacao']).toHaveBeenCalledWith({ registros: [expect.not.objectContaining({ editing: expect.anything() })] });
   });

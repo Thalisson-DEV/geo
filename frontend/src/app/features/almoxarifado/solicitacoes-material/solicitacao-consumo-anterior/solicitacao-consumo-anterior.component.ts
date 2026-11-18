@@ -1,6 +1,6 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
-import { CesCalloutComponent, CesStatusComponent } from '@ces/ui';
+import { GeoCalloutComponent, GeoStatusComponent } from '@geo/ui';
 
 import { ConsumoAnteriorItem, ItemSolicitacaoResponse } from '../../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -16,7 +16,7 @@ import { ConsumoAnteriorOperacoesComponent } from './solicitacao-consumo-operaco
   selector: 'app-consumo-anterior-linha',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, CesStatusComponent],
+  imports: [DatePipe, DecimalPipe, GeoStatusComponent],
   template: `
     @if (carregando()) {
       <span class="ca-esqueleto" role="status" aria-label="Carregando o consumo anterior"></span>
@@ -36,7 +36,7 @@ import { ConsumoAnteriorOperacoesComponent } from './solicitacao-consumo-operaco
           }
         </dl>
         @if (leitura().tom !== 'neutral') {
-          <ces-status [tone]="leitura().tom" [icon]="iconeLeitura()">{{ leitura().dica }}</ces-status>
+          <geo-status [tone]="leitura().tom" [icon]="iconeLeitura()">{{ leitura().dica }}</geo-status>
         }
       } @else {
         <span class="ca-primeiro">
@@ -53,17 +53,17 @@ import { ConsumoAnteriorOperacoesComponent } from './solicitacao-consumo-operaco
   `,
   styles: [`
     :host { display: grid; gap: 0.3rem; justify-items: start; }
-    .ca-linha { display: flex; flex-wrap: wrap; gap: 0.25rem 0.875rem; margin: 0.15rem 0 0; font-size: var(--ces-font-caption); }
+    .ca-linha { display: flex; flex-wrap: wrap; gap: 0.25rem 0.875rem; margin: 0.15rem 0 0; font-size: var(--geo-font-caption); }
     .ca-linha div { display: flex; gap: 0.3rem; align-items: baseline; }
-    .ca-linha dt { color: var(--ces-foreground-muted); }
-    .ca-linha dd { margin: 0; font-weight: 600; color: var(--ces-foreground); font-variant-numeric: tabular-nums; }
+    .ca-linha dt { color: var(--geo-foreground-muted); }
+    .ca-linha dd { margin: 0; font-weight: 600; color: var(--geo-foreground); font-variant-numeric: tabular-nums; }
     .ca-ver { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0; border: 0; background: none; font: inherit; font-weight: 600;
-      color: var(--ces-brand); cursor: pointer; }
+      color: var(--geo-brand); cursor: pointer; }
     .ca-ver i { font-size: 0.65rem; }
     .ca-ver:hover { text-decoration: underline; }
-    .ca-ver:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; border-radius: var(--ces-radius-sm); }
-    .ca-primeiro { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .ca-esqueleto { display: block; width: 14rem; max-width: 100%; height: 0.75rem; border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
+    .ca-ver:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
+    .ca-primeiro { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .ca-esqueleto { display: block; width: 14rem; max-width: 100%; height: 0.75rem; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
   `]
 })
 export class ConsumoAnteriorLinhaComponent {
@@ -100,7 +100,7 @@ interface LinhaConsumo {
   selector: 'app-consumo-anterior-tabela',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, CesCalloutComponent, CesStatusComponent, ConsumoAnteriorOperacoesComponent],
+  imports: [DatePipe, DecimalPipe, GeoCalloutComponent, GeoStatusComponent, ConsumoAnteriorOperacoesComponent],
   template: `
     <section class="ca" aria-labelledby="ca-titulo">
       <header class="mb-3 border-l-2 border-primary-500 pl-3">
@@ -115,7 +115,7 @@ interface LinhaConsumo {
       @if (carregando()) {
         <div class="ca-esqueletos" role="status" aria-label="Carregando o consumo"><span></span><span></span><span></span></div>
       } @else if (erro()) {
-        <ces-callout tone="warning" title="Não foi possível carregar o consumo">{{ erro() }}</ces-callout>
+        <geo-callout tone="warning" title="Não foi possível carregar o consumo">{{ erro() }}</geo-callout>
       } @else {
         <div class="ca-tabela" role="table" aria-label="Consumo por material">
           <div class="ca-tabela__linha ca-tabela__cab" role="row">
@@ -138,7 +138,7 @@ interface LinhaConsumo {
                   <strong>{{ l.material.descricao }}</strong>
                 </button>
                 <span>{{ l.material.codigo }} · {{ l.material.unidadeMedida || 'UN' }}</span>
-                @if (l.leitura.tom !== 'neutral') { <ces-status [tone]="l.leitura.tom" [icon]="iconeDaLeitura(l.leitura.tom)" class="ca-dica">{{ l.leitura.dica }}</ces-status> }
+                @if (l.leitura.tom !== 'neutral') { <geo-status [tone]="l.leitura.tom" [icon]="iconeDaLeitura(l.leitura.tom)" class="ca-dica">{{ l.leitura.dica }}</geo-status> }
               </span>
               @if (l.consumo?.ultimaSolicitacao; as u) {
                 <span role="cell" data-rotulo="Último pedido">{{ u.dataEntrega | date: 'dd/MM/yyyy' }}</span>
@@ -173,35 +173,35 @@ interface LinhaConsumo {
   styles: [`
     :host { display: block; }
     .ca { display: block; }
-    .ca-tabela { border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); overflow: hidden; }
+    .ca-tabela { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); overflow: hidden; }
     .ca-tabela__linha { display: grid; grid-template-columns: minmax(12rem, 1fr) 6.5rem repeat(6, 4.75rem); gap: 0.5rem; align-items: center;
-      padding: 0.625rem 0.875rem; font-size: var(--ces-font-caption); color: var(--ces-foreground); }
-    .ca-tabela__linha + .ca-tabela__linha { border-top: 1px solid var(--ces-border); }
+      padding: 0.625rem 0.875rem; font-size: var(--geo-font-caption); color: var(--geo-foreground); }
+    .ca-tabela__linha + .ca-tabela__linha { border-top: 1px solid var(--geo-border); }
     .ca-tabela__linha--expansivel { cursor: pointer; }
-    .ca-tabela__linha--expansivel:hover { background: var(--ces-surface-subtle); }
-    .ca-tabela__linha--aberta { background: var(--ces-surface-subtle); }
-    .ca-tabela__detalhe { padding: 0.75rem 0.875rem 0.875rem; border-top: 1px solid var(--ces-border); background: var(--ces-surface-subtle); }
+    .ca-tabela__linha--expansivel:hover { background: var(--geo-surface-subtle); }
+    .ca-tabela__linha--aberta { background: var(--geo-surface-subtle); }
+    .ca-tabela__detalhe { padding: 0.75rem 0.875rem 0.875rem; border-top: 1px solid var(--geo-border); background: var(--geo-surface-subtle); }
     .ca-material__botao { display: inline-flex; align-items: baseline; gap: 0.4rem; padding: 0; border: 0; background: none; color: inherit; font: inherit;
       text-align: left; cursor: pointer; }
-    .ca-material__botao i { font-size: 0.7rem; color: var(--ces-brand); }
-    .ca-material__botao:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; border-radius: var(--ces-radius-sm); }
-    .ca-tabela__cab { background: var(--ces-surface-subtle); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ces-foreground-muted); }
+    .ca-material__botao i { font-size: 0.7rem; color: var(--geo-brand); }
+    .ca-material__botao:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
+    .ca-tabela__cab { background: var(--geo-surface-subtle); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--geo-foreground-muted); }
     .ca-material { display: grid; gap: 0.15rem; justify-items: start; min-width: 0; }
     .ca-material strong { font-weight: 600; }
-    .ca-material > span { color: var(--ces-foreground-muted); }
+    .ca-material > span { color: var(--geo-foreground-muted); }
     .ca-dica { margin-top: 0.2rem; }
     .ca-num { text-align: right; font-variant-numeric: tabular-nums; }
     .ca-forte { font-weight: 700; }
-    .ca-muted { color: var(--ces-foreground-muted); }
+    .ca-muted { color: var(--geo-foreground-muted); }
     .ca-vazio { margin: 0; padding: 0.875rem; }
     .ca-esqueletos { display: grid; gap: 0.5rem; }
-    .ca-esqueletos span { height: 2.25rem; border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
+    .ca-esqueletos span { height: 2.25rem; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     @media (max-width: 768px) {
       .ca-tabela__cab { display: none; }
       .ca-tabela__linha { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .ca-material { grid-column: 1 / -1; }
       .ca-num { text-align: left; }
-      [data-rotulo]::before { content: attr(data-rotulo); display: block; font-weight: 400; color: var(--ces-foreground-muted); }
+      [data-rotulo]::before { content: attr(data-rotulo); display: block; font-weight: 400; color: var(--geo-foreground-muted); }
       .ca-primeiro-pedido { grid-column: 1 / -1; }
       .ca-so-tela-larga { display: none; }
     }

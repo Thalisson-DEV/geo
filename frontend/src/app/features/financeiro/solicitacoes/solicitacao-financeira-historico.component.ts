@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { CesAsyncStateComponent, CesStatusComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
 import { EventoSolicitacao, TipoEventoSolicitacao } from '../../../core/models/financeiro.models';
 
 type Tom = 'success' | 'warning' | 'info' | 'danger' | 'neutral';
@@ -22,13 +22,13 @@ const EVENTOS: Record<TipoEventoSolicitacao, { icone: string; tom: Tom; rotuloTe
   selector: 'app-solicitacao-financeira-historico',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesAsyncStateComponent, CesStatusComponent],
+  imports: [DatePipe, GeoAsyncStateComponent, GeoStatusComponent],
   template: `
     @if (carregando()) {
-      <ces-async-state state="loading" title="Carregando a linha do tempo..."></ces-async-state>
+      <geo-async-state state="loading" title="Carregando a linha do tempo..."></geo-async-state>
     } @else if (erro()) {
-      <ces-async-state state="error" title="Linha do tempo indisponível" [description]="erro()!"
-        actionLabel="Tentar novamente" (action)="recarregar.emit()"></ces-async-state>
+      <geo-async-state state="error" title="Linha do tempo indisponível" [description]="erro()!"
+        actionLabel="Tentar novamente" (action)="recarregar.emit()"></geo-async-state>
     } @else if (!eventos().length) {
       <p class="apoio">Nenhuma movimentação registrada.</p>
     } @else {
@@ -43,7 +43,7 @@ const EVENTOS: Record<TipoEventoSolicitacao, { icone: string; tom: Tom; rotuloTe
               <div class="cabeca">
                 <span class="titulo">{{ ev.rotulo }}</span>
                 @if (ev.tipo === 'DECISAO_DESFEITA') {
-                  <ces-status tone="warning" icon="pi-undo">{{ ev.statusAnterior === 'APROVADO' ? 'Era aprovação' : 'Era rejeição' }}</ces-status>
+                  <geo-status tone="warning" icon="pi-undo">{{ ev.statusAnterior === 'APROVADO' ? 'Era aprovação' : 'Era rejeição' }}</geo-status>
                 }
                 <time class="quando" [attr.datetime]="ev.ocorridoEm">{{ ev.ocorridoEm | date: 'dd/MM/yyyy · HH:mm' }}</time>
               </div>
@@ -79,23 +79,23 @@ const EVENTOS: Record<TipoEventoSolicitacao, { icone: string; tom: Tom; rotuloTe
     .item { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); min-height: 3.5rem; break-inside: avoid; }
     .trilho { display: flex; flex-direction: column; align-items: center; padding-top: 0.1rem; }
     .ponto { width: 1.75rem; height: 1.75rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem;
-      border: 2px solid var(--ces-border); background: var(--ces-surface); color: var(--ces-foreground-muted); }
-    .ponto[data-tom='success'] { border-color: var(--ces-success); color: var(--ces-success); background: var(--ces-success-soft); }
-    .ponto[data-tom='warning'] { border-color: var(--ces-warning); color: var(--ces-warning); background: var(--ces-warning-soft); }
-    .ponto[data-tom='info'] { border-color: var(--ces-info); color: var(--ces-info); background: var(--ces-info-soft); }
-    .ponto[data-tom='danger'] { border-color: var(--ces-danger); color: var(--ces-danger); background: var(--ces-danger-soft); }
-    .conector { flex: 1; width: 2px; background: var(--ces-border); margin: 0.25rem 0; min-height: 1rem; }
+      border: 2px solid var(--geo-border); background: var(--geo-surface); color: var(--geo-foreground-muted); }
+    .ponto[data-tom='success'] { border-color: var(--geo-success); color: var(--geo-success); background: var(--geo-success-soft); }
+    .ponto[data-tom='warning'] { border-color: var(--geo-warning); color: var(--geo-warning); background: var(--geo-warning-soft); }
+    .ponto[data-tom='info'] { border-color: var(--geo-info); color: var(--geo-info); background: var(--geo-info-soft); }
+    .ponto[data-tom='danger'] { border-color: var(--geo-danger); color: var(--geo-danger); background: var(--geo-danger-soft); }
+    .conector { flex: 1; width: 2px; background: var(--geo-border); margin: 0.25rem 0; min-height: 1rem; }
     .conteudo { padding: 0 0 1.25rem 0.5rem; min-width: 0; display: grid; gap: 0.35rem; }
     .cabeca { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .titulo { font-weight: 700; font-size: 0.875rem; color: var(--ces-foreground); }
-    .quando { margin-left: auto; font-size: 0.75rem; color: var(--ces-foreground-muted); font-variant-numeric: tabular-nums; }
-    .meta, .apoio, .mudanca { margin: 0; font-size: 0.75rem; color: var(--ces-foreground-muted); }
-    .mudanca { color: var(--ces-foreground); }
-    .antes { text-decoration: line-through; color: var(--ces-foreground-muted); }
-    .motivo { margin: 0; display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.5rem 0.75rem; border-radius: var(--ces-radius-md);
-      background: var(--ces-surface-muted); border: 1px solid var(--ces-border); font-size: 0.8125rem; color: var(--ces-foreground);
+    .titulo { font-weight: 700; font-size: 0.875rem; color: var(--geo-foreground); }
+    .quando { margin-left: auto; font-size: 0.75rem; color: var(--geo-foreground-muted); font-variant-numeric: tabular-nums; }
+    .meta, .apoio, .mudanca { margin: 0; font-size: 0.75rem; color: var(--geo-foreground-muted); }
+    .mudanca { color: var(--geo-foreground); }
+    .antes { text-decoration: line-through; color: var(--geo-foreground-muted); }
+    .motivo { margin: 0; display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.5rem 0.75rem; border-radius: var(--geo-radius-md);
+      background: var(--geo-surface-muted); border: 1px solid var(--geo-border); font-size: 0.8125rem; color: var(--geo-foreground);
       white-space: pre-line; overflow-wrap: anywhere; }
-    .motivo i { margin-top: 0.15rem; color: var(--ces-foreground-muted); }
+    .motivo i { margin-top: 0.15rem; color: var(--geo-foreground-muted); }
     @media print {
       .titulo, .mudanca, .motivo { color: #0f172a !important; }
       .meta, .quando, .apoio { color: #475569 !important; }

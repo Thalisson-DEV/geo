@@ -20,11 +20,27 @@ class ConexoesIaRegrasTest {
 
     @Test
     void escopoSoDeLeituraNuncaViraEscrita() {
-        assertThat(OAuthIaService.pedeEscrita("ces.leitura")).isFalse();
-        assertThat(OAuthIaService.pedeEscrita("ces.leitura ces.escrita")).isTrue();
+        assertThat(OAuthIaService.pedeEscrita("geo.leitura")).isFalse();
+        assertThat(OAuthIaService.pedeEscrita("geo.leitura geo.escrita")).isTrue();
         assertThat(OAuthIaService.pedeEscrita(null)).isTrue();
         assertThat(OAuthIaService.pedeEscrita("  ")).isTrue();
         assertThat(OAuthIaService.pedeEscrita("openid")).isTrue();
+    }
+
+    @Test
+    void escoposComPrefixoAntigoContinuamValendo() {
+        // renomear-geo: manter a linha seguinte (escopos pedidos por clientes conectados antes da troca)
+        assertThat(OAuthIaService.pedeEscrita("ces.leitura")).isFalse();
+        // renomear-geo: manter a linha seguinte
+        assertThat(OAuthIaService.pedeEscrita("ces.leitura ces.escrita")).isTrue();
+    }
+
+    @Test
+    void credencialComPrefixoAntigoContinuaSendoExterna() {
+        // renomear-geo: manter a linha seguinte (credenciais emitidas antes da troca)
+        assertThat(com.nexo.app.shared.infrastructure.security.AcessoExterno.isCredencialExterna("ces_at_abc")).isTrue();
+        assertThat(com.nexo.app.shared.infrastructure.security.AcessoExterno.isCredencialExterna("geo_at_abc")).isTrue();
+        assertThat(com.nexo.app.shared.infrastructure.security.AcessoExterno.isCredencialExterna("eyJhbGciOi")).isFalse();
     }
 
     @Test
@@ -49,7 +65,7 @@ class ConexoesIaRegrasTest {
         String verificador = "a".repeat(50);
         String desafio = Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(MessageDigest.getInstance("SHA-256").digest(verificador.getBytes(StandardCharsets.US_ASCII)));
-        CodigoAutorizacaoIa codigo = new CodigoAutorizacaoIa("h", "ces-app-x", UUID.randomUUID(), false,
+        CodigoAutorizacaoIa codigo = new CodigoAutorizacaoIa("h", "geo-app-x", UUID.randomUUID(), false,
                 "http://localhost/cb", desafio, null, OffsetDateTime.now().plusMinutes(5));
 
         assertThat(codigo.confereVerificador(verificador)).isTrue();
@@ -60,7 +76,7 @@ class ConexoesIaRegrasTest {
 
     @Test
     void codigoDeUsoUnicoEComPrazo() {
-        CodigoAutorizacaoIa codigo = new CodigoAutorizacaoIa("h", "ces-app-x", UUID.randomUUID(), true,
+        CodigoAutorizacaoIa codigo = new CodigoAutorizacaoIa("h", "geo-app-x", UUID.randomUUID(), true,
                 "http://localhost/cb", "d", null, OffsetDateTime.now().plusMinutes(5));
         assertThat(codigo.isUtilizavel(OffsetDateTime.now())).isTrue();
         assertThat(codigo.isUtilizavel(OffsetDateTime.now().plusMinutes(6))).isFalse();
@@ -71,10 +87,10 @@ class ConexoesIaRegrasTest {
     @Test
     void credenciaisTemPrefixoEHashEstavel() {
         String chave = CredenciaisIa.gerar(CredenciaisIa.PREFIXO_CHAVE);
-        assertThat(chave).startsWith("ces_key_").hasSizeGreaterThan(40);
+        assertThat(chave).startsWith("geo_key_").hasSizeGreaterThan(40);
         assertThat(CredenciaisIa.gerar(CredenciaisIa.PREFIXO_CHAVE)).isNotEqualTo(chave);
         assertThat(CredenciaisIa.hash(chave)).isEqualTo(CredenciaisIa.hash(chave)).doesNotContain(chave);
-        assertThat(CredenciaisIa.gerarClientId()).startsWith("ces-app-");
+        assertThat(CredenciaisIa.gerarClientId()).startsWith("geo-app-");
     }
 
     @Test

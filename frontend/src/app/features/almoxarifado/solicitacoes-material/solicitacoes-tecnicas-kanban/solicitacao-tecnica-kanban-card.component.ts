@@ -10,7 +10,7 @@ import { DragDropModule } from 'primeng/dragdrop';
 import { TooltipModule } from 'primeng/tooltip';
 import { MenuModule } from 'primeng/menu';
 import { MenuItem } from 'primeng/api';
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   AcaoPermitidaSolicitacao,
   SolicitacaoMaterialSummaryResponse,
@@ -39,7 +39,7 @@ import {
              hover:shadow-md
              cursor-grab active:cursor-grabbing transition-all
              focus-within:ring-2 focus-within:ring-sky-500"
-      pDraggable="ces-kanban-card"
+      pDraggable="geo-kanban-card"
       (onDragStart)="onDragStart()"
       (onDragEnd)="onDragEnd()"
       (click)="onClick($event)"

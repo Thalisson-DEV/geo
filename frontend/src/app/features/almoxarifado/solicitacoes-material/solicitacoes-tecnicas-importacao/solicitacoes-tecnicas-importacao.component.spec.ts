@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import { ConfirmationService } from 'primeng/api';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -134,7 +134,7 @@ describe('SolicitacoesTecnicasImportacaoComponent', () => {
   });
 
   it('avisos exigem reconhecimento antes de processar', async () => {
-    const confirmar = vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    const confirmar = vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     tela.previewData.set(previa({ totalAvisos: 1 }));
     tela.selectedPares.set([{ chave: 'OBRA-01', tipo: '221' }]);
     await tela.onProcessImport();
@@ -143,7 +143,7 @@ describe('SolicitacoesTecnicasImportacaoComponent', () => {
   });
 
   it('falha numa combinação mantém a prévia e marca a linha; sucesso total fecha e avisa a lista', async () => {
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     const processado = vi.fn();
     tela.processado.subscribe(processado);
     tela.visible.set(true);

@@ -1,10 +1,10 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { updatePreset } from '@primeuix/themes';
 import { PrimeNG } from 'primeng/config';
-import { CesDensity } from '../../design-system/core';
+import { GeoDensity } from '../../design-system/core';
 
-export const CES_PRIMARY_COLORS = ['blue', 'emerald', 'violet', 'amber', 'rose', 'slate'] as const;
-export type CesPrimaryColor = (typeof CES_PRIMARY_COLORS)[number];
+export const GEO_PRIMARY_COLORS = ['blue', 'emerald', 'violet', 'amber', 'rose', 'slate'] as const;
+export type GeoPrimaryColor = (typeof GEO_PRIMARY_COLORS)[number];
 
 @Injectable({
   providedIn: 'root'
@@ -12,15 +12,15 @@ export type CesPrimaryColor = (typeof CES_PRIMARY_COLORS)[number];
 export class ThemeService {
   private primeng = inject(PrimeNG);
   
-  private readonly STORAGE_KEY = 'ces_theme_mode';
-  private readonly COLOR_KEY = 'ces_primary_color';
-  private readonly RIPPLE_KEY = 'ces_ripple_enabled';
-  private readonly DENSITY_KEY = 'ces_density';
+  private readonly STORAGE_KEY = 'geo_theme_mode';
+  private readonly COLOR_KEY = 'geo_primary_color';
+  private readonly RIPPLE_KEY = 'geo_ripple_enabled';
+  private readonly DENSITY_KEY = 'geo_density';
 
   isDarkMode = signal<boolean>(false);
-  primaryColor = signal<CesPrimaryColor>('blue');
+  primaryColor = signal<GeoPrimaryColor>('blue');
   rippleEnabled = signal<boolean>(true);
-  density = signal<CesDensity>('compact');
+  density = signal<GeoDensity>('compact');
 
   constructor() {
     // Fallback inicial via LocalStorage
@@ -56,9 +56,9 @@ export class ThemeService {
     }
   }
 
-  setDensity(density: CesDensity) {
+  setDensity(density: GeoDensity) {
     this.density.set(density);
-    document.documentElement.dataset['cesDensity'] = density;
+    document.documentElement.dataset['geoDensity'] = density;
     localStorage.setItem(this.DENSITY_KEY, density);
   }
 
@@ -86,7 +86,7 @@ export class ThemeService {
     });
   }
 
-  private isPrimaryColor(value: string | null): value is CesPrimaryColor {
-    return CES_PRIMARY_COLORS.some((color) => color === value);
+  private isPrimaryColor(value: string | null): value is GeoPrimaryColor {
+    return GEO_PRIMARY_COLORS.some((color) => color === value);
   }
 }

@@ -43,8 +43,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
 }
 
 .sol-item {
@@ -64,7 +64,7 @@
 }
 
 .sol-item + .sol-item {
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .sol-item__nome {
@@ -79,7 +79,7 @@
 
 .sol-item__descricao {
   overflow: hidden;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.8125rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -88,16 +88,16 @@
 .sol-vazio {
   margin: 0;
   padding: 1rem;
-  border: 1px dashed var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  color: var(--ces-foreground-muted);
+  border: 1px dashed var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  color: var(--geo-foreground-muted);
   font-size: 0.875rem;
   text-align: center;
 }
 
 .sol-erro {
   margin: 0;
-  color: var(--ces-danger-foreground, var(--ces-foreground));
+  color: var(--geo-danger-foreground, var(--geo-foreground));
   font-size: 0.8125rem;
 }
 
@@ -108,7 +108,7 @@
 }
 
 .sol-resumo {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.875rem;
 }
 

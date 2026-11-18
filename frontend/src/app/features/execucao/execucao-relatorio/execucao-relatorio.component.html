@@ -1,5 +1,5 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative transition-colors duration-200"
+  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200"
   [class.p-4]="!isPrintMode()"
   [class.md:p-8]="!isPrintMode()"
   [class.print:p-0]="isPrintMode()"
@@ -9,14 +9,14 @@
 >
   @if (loading()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state [state]="'loading'" title="Carregando execução comercial..."
-        description="Consultando serviço executado, materiais e contexto da equipe..."></ces-async-state>
+      <geo-async-state [state]="'loading'" title="Carregando execução comercial..."
+        description="Consultando serviço executado, materiais e contexto da equipe..."></geo-async-state>
     </div>
   } @else if (error()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state [state]="'error'" title="Execução indisponível"
+      <geo-async-state [state]="'error'" title="Execução indisponível"
         [description]="error() || 'Não foi possível carregar os dados.'" actionLabel="Tentar novamente"
-        (action)="loadData()"></ces-async-state>
+        (action)="loadData()"></geo-async-state>
     </div>
   } @else if (execucao(); as e) {
     @let ctx = contexto();
@@ -43,7 +43,7 @@
         <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-xs text-slate-600 dark:text-slate-400 print:text-slate-600 font-medium">
           <span class="font-mono font-bold text-slate-900 dark:text-slate-100 print:text-black">{{ rotuloReferencia().toUpperCase() }} {{ e.referenciaNota }}</span>
           @if (e.aguardandoNumeroOficial) {
-            <ces-status tone="warning" icon="pi-clock">Sem nº oficial</ces-status>
+            <geo-status tone="warning" icon="pi-clock">Sem nº oficial</geo-status>
           }
           <span>·</span>
           <span>Tipo: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ tipoServico() }}</strong></span>
@@ -51,10 +51,10 @@
           <span>Lançada em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ e.dataLancamento | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>·</span>
           @if (status(); as s) {
-            <ces-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</ces-status>
+            <geo-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</geo-status>
           }
           @if (e.alterada) {
-            <ces-status tone="warning" icon="pi-pencil">Alterada</ces-status>
+            <geo-status tone="warning" icon="pi-pencil">Alterada</geo-status>
           }
         </div>
       </div>
@@ -288,12 +288,12 @@
                     }
                   </td>
                   <td class="py-2.5 px-3 text-center">
-                    <ces-status [tone]="item.operacao === 'APLICADO' ? 'brand' : 'neutral'" [icon]="item.operacao === 'APLICADO' ? 'pi-plus-circle' : 'pi-minus-circle'">{{ item.operacao === 'APLICADO' ? 'Aplicado' : 'Retirado' }}</ces-status>
+                    <geo-status [tone]="item.operacao === 'APLICADO' ? 'brand' : 'neutral'" [icon]="item.operacao === 'APLICADO' ? 'pi-plus-circle' : 'pi-minus-circle'">{{ item.operacao === 'APLICADO' ? 'Aplicado' : 'Retirado' }}</geo-status>
                   </td>
                   <td class="py-2.5 px-3 text-center font-mono text-slate-600 dark:text-slate-400 print:text-slate-700">{{ item.numSerie || '-' }}</td>
                   @if (mostrarOrigem()) {
                     <td class="py-2.5 px-3 text-center">
-                      <ces-status [tone]="item.origem === 'CONCESSIONARIA' ? 'info' : 'neutral'" [icon]="item.origem === 'CONCESSIONARIA' ? 'pi-building' : 'pi-users'">{{ origens[item.origem] }}</ces-status>
+                      <geo-status [tone]="item.origem === 'CONCESSIONARIA' ? 'info' : 'neutral'" [icon]="item.origem === 'CONCESSIONARIA' ? 'pi-building' : 'pi-users'">{{ origens[item.origem] }}</geo-status>
                     </td>
                   }
                 </tr>
@@ -410,7 +410,7 @@
                       <span class="text-xs text-slate-600 dark:text-slate-300 font-normal">Como a nota foi lançada e cada mudança depois: quem, de onde e por quê.</span>
                     </div>
                   </div>
-                  <ces-status [tone]="e.alterada ? 'warning' : 'neutral'" [icon]="e.alterada ? 'pi-pencil' : 'pi-history'">{{ resumoAlteracoes }}</ces-status>
+                  <geo-status [tone]="e.alterada ? 'warning' : 'neutral'" [icon]="e.alterada ? 'pi-pencil' : 'pi-history'">{{ resumoAlteracoes }}</geo-status>
                 </div>
               </p-accordion-header>
               <p-accordion-content>
@@ -440,14 +440,14 @@
     <!-- 13. AÇÕES FLUTUANTES -->
     <div class="fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
       <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+        styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       @if (e.tipoNota === 'AVULSA') {
         <p-button icon="pi pi-pencil" [label]="e.aguardandoNumeroOficial ? 'NÚMERO OFICIAL' : 'CORRIGIR NÚMERO'" (onClick)="numeroOficialAberto.set(true)"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       }
       @if (podeAlterar()) {
         <p-button icon="pi pi-pencil" label="ALTERAR NOTA" (onClick)="alteracaoAberta.set(true)"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       }
       @if (e.idTurno) {
         <p-button icon="pi pi-calendar-clock" label="VER TURNO" (onClick)="abrirTurno()"

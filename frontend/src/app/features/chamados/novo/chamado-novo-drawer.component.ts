@@ -13,22 +13,22 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormActionsComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormActionsComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
+  GeoTone,
   NotificationService,
-  cesFocusFirstInvalid
-} from '@ces/ui';
+  geoFocusFirstInvalid
+} from '@geo/ui';
 import { firstValueFrom } from 'rxjs';
 import {
   Chamado,
@@ -55,7 +55,7 @@ export const LIMITE_BYTES_ANEXO = 15 * 1024 * 1024;
 export const EXTENSOES_ACEITAS = ['jpg', 'jpeg', 'png', 'webp', 'pdf', 'txt', 'log', 'doc', 'docx', 'xls', 'xlsx'];
 
 /** Apresentação de cada situação de envio: tom, ícone e texto (a cor nunca é o único indicador). */
-const ENVIO: Record<UploadStatus, { tom: CesTone; icone: string; rotulo: string }> = {
+const ENVIO: Record<UploadStatus, { tom: GeoTone; icone: string; rotulo: string }> = {
   pendente: { tom: 'neutral', icone: 'pi pi-clock', rotulo: 'Aguardando envio' },
   enviando: { tom: 'info', icone: 'pi pi-spin pi-spinner', rotulo: 'Enviando…' },
   concluido: { tom: 'success', icone: 'pi pi-check-circle', rotulo: 'Enviado' },
@@ -73,17 +73,17 @@ type Campo = 'topico' | 'assunto' | 'descricao';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFormActionsComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFormActionsComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   templateUrl: './chamado-novo-drawer.component.html',
   styleUrl: './chamado-novo-drawer.component.css'
@@ -121,7 +121,7 @@ export class ChamadoNovoDrawerComponent {
   protected readonly salvando = signal(false);
   protected readonly criado = signal<Chamado | null>(null);
 
-  protected readonly topicosOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly topicosOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.topicos().map((topico) => ({ label: topico.nome, value: topico.id }))
   );
   protected readonly topicoSelecionado = computed(() =>
@@ -131,7 +131,7 @@ export class ChamadoNovoDrawerComponent {
     const prioridade = this.topicoSelecionado()?.prioridadePadrao;
     return prioridade ? CHAMADO_PRIORIDADE_LABELS[prioridade] : null;
   });
-  protected readonly prioridadeOpcoes = computed<CesSelectOption<ChamadoPrioridade | null>[]>(() => [
+  protected readonly prioridadeOpcoes = computed<GeoSelectOption<ChamadoPrioridade | null>[]>(() => [
     {
       label: this.prioridadePadrao() ? `Padrão do tópico (${this.prioridadePadrao()})` : 'Usar prioridade padrão do tópico',
       value: null
@@ -224,7 +224,7 @@ export class ChamadoNovoDrawerComponent {
     this.tentouEnviar.set(true);
     if (Object.keys(this.erros()).length) {
       this.notificacoes.warning('Revise os campos destacados antes de abrir o chamado.');
-      afterNextRender(() => cesFocusFirstInvalid(document.querySelector('.ces-form-drawer') ?? document), {
+      afterNextRender(() => geoFocusFirstInvalid(document.querySelector('.geo-form-drawer') ?? document), {
         injector: this.injector
       });
       return;

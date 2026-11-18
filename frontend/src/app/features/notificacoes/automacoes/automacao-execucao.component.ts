@@ -3,7 +3,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ChangeDetectionStrategy, Component, DestroyRef, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { CesAsyncStateComponent, NotificationService, CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesCalloutComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, NotificationService, GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoCalloutComponent } from '@geo/ui';
 
 import {
   Catalogo, Etapa, ExecucaoDetalhe, JsonValue, MODO_ROTULO, NoEspec, STATUS_ETAPA_ROTULO, STATUS_EXECUCAO_ROTULO
@@ -23,21 +23,21 @@ const ROTULOS_COMUNS: Record<string, string> = {
 @Component({
   selector: 'app-automacao-execucao',
   standalone: true,
-  imports: [CesStatusComponent, CesCalloutComponent, CesButtonComponent, CesIconButtonComponent, RouterLink, DatePipe, JsonPipe, NgTemplateOutlet, CesAsyncStateComponent, CanvasComponent],
+  imports: [GeoStatusComponent, GeoCalloutComponent, GeoButtonComponent, GeoIconButtonComponent, RouterLink, DatePipe, JsonPipe, NgTemplateOutlet, GeoAsyncStateComponent, CanvasComponent],
   styleUrls: ['./automacoes.css', './automacoes-canvas.css', './automacoes-campos.css', './automacoes-email.css', './automacoes-execucao.css'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (!execucao() || !catalogo()) {
       <div class="aut" style="padding:2rem">
-        @if (erro()) { <ces-async-state state="error" title="Não foi possível carregar a execução" [description]="erro()!" actionLabel="Tentar de novo" (action)="carregar()" /> }
-        @else { <ces-async-state state="loading" title="Carregando execução" /> }
+        @if (erro()) { <geo-async-state state="error" title="Não foi possível carregar a execução" [description]="erro()!" actionLabel="Tentar de novo" (action)="carregar()" /> }
+        @else { <geo-async-state state="loading" title="Carregando execução" /> }
       </div>
     } @else {
       @let e = execucao()!;
       <div class="aut aut-designer">
         <header class="aut-topbar">
-          <ces-icon-button icon="pi pi-arrow-left" label="Voltar" variant="ghost" size="icon-sm" (pressed)="ir(['/notificacoes/automacoes', e.resumo.automacaoId])"></ces-icon-button>
+          <geo-icon-button icon="pi pi-arrow-left" label="Voltar" variant="ghost" size="icon-sm" (pressed)="ir(['/notificacoes/automacoes', e.resumo.automacaoId])"></geo-icon-button>
           <div class="aut-topbar-title">
             <strong style="padding-left:0.375rem">{{ e.automacaoNome }}</strong>
             <span class="aut-topbar-meta">
@@ -46,20 +46,20 @@ const ROTULOS_COMUNS: Record<string, string> = {
             </span>
           </div>
           <span style="flex:1"></span>
-          @if (ativa()) { <ces-status tone="warning" icon="pi pi-spin pi-spinner">Atualizando</ces-status> }
+          @if (ativa()) { <geo-status tone="warning" icon="pi pi-spin pi-spinner">Atualizando</geo-status> }
           @if (!final()) {
-            <ces-button icon="pi pi-stop-circle" label="Cancelar" variant="destructive" size="sm" (pressed)="cancelar()"></ces-button>
+            <geo-button icon="pi pi-stop-circle" label="Cancelar" variant="destructive" size="sm" (pressed)="cancelar()"></geo-button>
           }
-          <ces-button icon="pi pi-replay" label="Reenviar" variant="outline" size="sm" (pressed)="reenviar()" title="Roda de novo com os mesmos dados do gatilho, na versão atual"></ces-button>
-          <ces-button icon="pi pi-pencil" label="Editor" variant="primary" size="sm" (pressed)="ir(['/notificacoes/automacoes', e.resumo.automacaoId, 'editar'])"></ces-button>
+          <geo-button icon="pi pi-replay" label="Reenviar" variant="outline" size="sm" (pressed)="reenviar()" title="Roda de novo com os mesmos dados do gatilho, na versão atual"></geo-button>
+          <geo-button icon="pi pi-pencil" label="Editor" variant="primary" size="sm" (pressed)="ir(['/notificacoes/automacoes', e.resumo.automacaoId, 'editar'])"></geo-button>
         </header>
-        @if (e.resumo.erro) { <ces-callout tone="danger" [dense]="true" role="alert">{{ e.resumo.erro }}</ces-callout> }
+        @if (e.resumo.erro) { <geo-callout tone="danger" [dense]="true" role="alert">{{ e.resumo.erro }}</geo-callout> }
         @else if (e.resumo.status === 'AGUARDANDO') {
-          <ces-callout tone="warning" [dense]="true">{{ e.resumo.aguardando === 'aprovacao' ? 'Aguardando a resposta de uma aprovação.' : 'Aguardando para continuar' }}
+          <geo-callout tone="warning" [dense]="true">{{ e.resumo.aguardando === 'aprovacao' ? 'Aguardando a resposta de uma aprovação.' : 'Aguardando para continuar' }}
             @if (e.resumo.retomarEm) { — retoma em {{ e.resumo.retomarEm | date: 'dd/MM HH:mm' }} }
-          </ces-callout>
+          </geo-callout>
         } @else if (e.resumo.status === 'SUCESSO') {
-          <ces-callout tone="success" [dense]="true">Execução concluída. Clique num passo para ver o que entrou e o que saiu.</ces-callout>
+          <geo-callout tone="success" [dense]="true">Execução concluída. Clique num passo para ver o que entrou e o que saiu.</geo-callout>
         }
         <div class="aut-workspace">
           <aut-canvas [definicao]="definicao()" [catalogo]="catalogo()!" [especs]="especs()" [somenteLeitura]="true"
@@ -76,7 +76,7 @@ const ROTULOS_COMUNS: Record<string, string> = {
                 @if (e.arquivos.length) {
                   <span class="aut-section-title">Arquivos gerados</span>
                   @for (f of e.arquivos; track f.id) {
-                    <ces-button icon="pi pi-file-pdf" [label]="f.nome" variant="outline" size="sm" style="justify-content:flex-start" (pressed)="baixar(f.id, f.nome)"></ces-button>
+                    <geo-button icon="pi pi-file-pdf" [label]="f.nome" variant="outline" size="sm" style="justify-content:flex-start" (pressed)="baixar(f.id, f.nome)"></geo-button>
                   }
                 }
               </div>
@@ -88,7 +88,7 @@ const ROTULOS_COMUNS: Record<string, string> = {
                   <span class="aut-panel-title">{{ n?.label || espec()?.rotulo }}</span>
                   <span class="aut-muted">{{ espec()?.rotulo }}</span>
                 </div>
-                <ces-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="selecionado.set(null)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="selecionado.set(null)"></geo-icon-button>
               </header>
               <div class="aut-panel-body">
                 @if (!etapasSelecionadas().length) { <p class="aut-muted">Este passo não rodou nesta execução.</p> }
@@ -106,17 +106,17 @@ const ROTULOS_COMUNS: Record<string, string> = {
                     <div><dt>Duração</dt><dd>{{ duracaoEtapa(et) }}</dd></div>
                     @if (et.proximaEm) { <div><dt>Retoma em</dt><dd>{{ et.proximaEm | date: 'dd/MM HH:mm' }}</dd></div> }
                   </dl>
-                  @if (et.erro) { <ces-callout tone="danger" [dense]="true" style="margin:0">{{ et.erro }}</ces-callout> }
+                  @if (et.erro) { <geo-callout tone="danger" [dense]="true" style="margin:0">{{ et.erro }}</geo-callout> }
                   @if (aprovacao(); as ap) {
-                    <ces-callout tone="info" [dense]="true">
+                    <geo-callout tone="info" [dense]="true">
                       <strong>Aprovação: {{ ap.titulo }}</strong>
                       <span>{{ ap.status === 'PENDENTE' ? 'Aguardando resposta' : ap.status === 'DECIDIDA' ? ap.resposta + ' por ' + ap.respondidaPor : ap.status }}</span>
                       @if (ap.podeResponder) { <a class="aut-link" [routerLink]="['/notificacoes/automacoes/aprovacoes', ap.id]">Responder</a> }
-                    </ces-callout>
+                    </geo-callout>
                   }
                   @if (htmlEmail(et); as h) {
                     <span class="aut-section-title">E-mail montado</span>
-                    <iframe [srcdoc]="h" title="Prévia do e-mail" sandbox="" style="width:100%;height:24rem;border:1px solid var(--ces-border);border-radius:10px;background:#fff"></iframe>
+                    <iframe [srcdoc]="h" title="Prévia do e-mail" sandbox="" style="width:100%;height:24rem;border:1px solid var(--geo-border);border-radius:10px;background:#fff"></iframe>
                   }
                   <span class="aut-section-title">Entradas</span>
                   <ng-container *ngTemplateOutlet="dados; context: { $implicit: et.entradas, modo: 'entrada' }" />

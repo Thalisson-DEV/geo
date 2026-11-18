@@ -51,6 +51,6 @@ export class ChatbotStorage {
   }
 
   private key(type: 'conversa' | 'pendente' | 'rascunho'): string {
-    return `ces_assistente_${type}_${this.currentUserId() ?? 'anonimo'}`;
+    return `geo_assistente_${type}_${this.currentUserId() ?? 'anonimo'}`;
   }
 }

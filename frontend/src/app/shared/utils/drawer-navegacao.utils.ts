@@ -23,7 +23,7 @@ export function navegarSaindoDoDrawer(navegar: () => Promise<boolean>): Promise<
 const SAIDA_DO_DRAWER_MS = 300;
 
 /**
- * Saída de um drawer que a tela monta só enquanto está aberto. O `closed` do `ces-form-drawer` não
+ * Saída de um drawer que a tela monta só enquanto está aberto. O `closed` do `geo-form-drawer` não
  * dispara quando ele fecha sozinho, então quem fecha chama a função devolvida: ela espera o painel
  * sair, avisa a tela e devolve o foco a quem abriu. Chame no inicializador de um campo.
  */

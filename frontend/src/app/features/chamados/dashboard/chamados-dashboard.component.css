@@ -1,16 +1,16 @@
 /* Layout e cartões vêm de shared/styles/dashboard-shell.css (dash-*); aqui só o que é próprio deste painel, com tokens do tema. */
-ces-callout { display: block; margin-bottom: 1rem; }
-ces-data-table, ces-tabs { display: block; }
+geo-callout { display: block; margin-bottom: 1rem; }
+geo-data-table, geo-tabs { display: block; }
 
 .cd-secao { margin-top: 1.5rem; }
 .cd-secao > header { margin-bottom: 0.75rem; }
-.cd-secao > header h2 { margin: 0.15rem 0 0; font-size: 1.05rem; color: var(--ces-foreground); }
-.cd-secao > header p { margin: 0.25rem 0 0; max-width: 72ch; color: var(--ces-foreground-muted); font-size: 0.82rem; }
+.cd-secao > header h2 { margin: 0.15rem 0 0; font-size: 1.05rem; color: var(--geo-foreground); }
+.cd-secao > header p { margin: 0.25rem 0 0; max-width: 72ch; color: var(--geo-foreground-muted); font-size: 0.82rem; }
 .cd-espaco { margin-top: 1rem; }
 .cd-aba { padding-top: 0.75rem; }
 
-.dash-panel__header h3 { margin: 0; font-size: 0.95rem; color: var(--ces-foreground); }
-.dash-panel__header h3 + p { margin: 0.2rem 0 0; color: var(--ces-foreground-muted); font-size: 0.78rem; }
+.dash-panel__header h3 { margin: 0; font-size: 0.95rem; color: var(--geo-foreground); }
+.dash-panel__header h3 + p { margin: 0.2rem 0 0; color: var(--geo-foreground-muted); font-size: 0.78rem; }
 
 .cd-motivos { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
-.cd-mudo { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+.cd-mudo { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }

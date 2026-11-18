@@ -48,8 +48,8 @@ public class DeslocamentoObraService {
                                    BaseOperacionalApi baseOperacionalApi,
                                    RotaRodoviariaPort rotas,
                                    PlatformTransactionManager transacoes,
-                                   @Value("${ces.obras.rotas.fator-sinuosidade:1.3}") double fatorSinuosidade,
-                                   @Value("${ces.obras.rotas.velocidade-media-kmh:45}") double velocidadeMediaKmh) {
+                                   @Value("${geo.obras.rotas.fator-sinuosidade:1.3}") double fatorSinuosidade,
+                                   @Value("${geo.obras.rotas.velocidade-media-kmh:45}") double velocidadeMediaKmh) {
         this.obraRepository = obraRepository;
         this.baseOperacionalApi = baseOperacionalApi;
         this.rotas = rotas;
@@ -100,8 +100,8 @@ public class DeslocamentoObraService {
         return new Deslocamento(BigDecimal.valueOf(km).setScale(2, RoundingMode.HALF_UP), minutos, true);
     }
 
-    @Scheduled(fixedDelayString = "${ces.obras.rotas.recalculo-intervalo:PT10M}",
-            initialDelayString = "${ces.obras.rotas.recalculo-atraso-inicial:PT2M}")
+    @Scheduled(fixedDelayString = "${geo.obras.rotas.recalculo-intervalo:PT10M}",
+            initialDelayString = "${geo.obras.rotas.recalculo-atraso-inicial:PT2M}")
     public void recalcularDesatualizados() {
         List<UUID> ids = obraRepository.buscarIdsComDeslocamentoDesatualizado(PageRequest.of(0, LOTE));
         for (UUID id : ids) {

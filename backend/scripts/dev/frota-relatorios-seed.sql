@@ -11,7 +11,7 @@
 --     pelo próprio script antes de recriar.
 --
 -- Uso (banco local da branch):
---   docker exec -i ces-postgres psql -U postgres -d ces-db-frota -v ON_ERROR_STOP=1 \
+--   docker exec -i geo-postgres psql -U postgres -d geo-db-frota -v ON_ERROR_STOP=1 \
 --     < backend/scripts/dev/frota-relatorios-seed.sql
 -- Só limpar:  acrescente  -v limpar=1
 --

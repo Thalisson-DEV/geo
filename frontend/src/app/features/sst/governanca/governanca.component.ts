@@ -1,27 +1,27 @@
-import { CES_STATUS_ICONE_PADRAO } from '@ces/ui';
+import { GEO_STATUS_ICONE_PADRAO } from '@geo/ui';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDrawerComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDrawerComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { Observable, finalize } from 'rxjs';
 
 import {
@@ -74,7 +74,7 @@ export function rotuloGovernanca(valor?: string | null): string {
   return ROTULOS[valor] ?? valor.replaceAll('_', ' ').toLocaleLowerCase('pt-BR').replace(/^./, (c) => c.toLocaleUpperCase('pt-BR'));
 }
 
-export function tomGovernanca(valor?: string | null): CesTone {
+export function tomGovernanca(valor?: string | null): GeoTone {
   if (!valor) return 'neutral';
   if (SUCESSO.includes(valor)) return 'success';
   if (PERIGO.includes(valor)) return 'danger';
@@ -94,7 +94,7 @@ const ICONES: Record<string, string> = {
 
 /** Ícone da situação; valores sem ícone próprio caem no ícone do tom. */
 export function iconeGovernanca(valor?: string | null): string {
-  return (valor && ICONES[valor]) || CES_STATUS_ICONE_PADRAO[tomGovernanca(valor)];
+  return (valor && ICONES[valor]) || GEO_STATUS_ICONE_PADRAO[tomGovernanca(valor)];
 }
 
 const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}T00:00:00`).toLocaleDateString('pt-BR') : '');
@@ -110,76 +110,76 @@ const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesDrawerComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoDrawerComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
     GovernancaContextoComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeAdicionar()" (newRequested)="adicionar()">
-      <ces-page-header [title]="titulo()" icon="pi pi-shield" [breadcrumb]="breadcrumb()" [description]="descricao()">
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeAdicionar()" (newRequested)="adicionar()">
+      <geo-page-header [title]="titulo()" icon="pi pi-shield" [breadcrumb]="breadcrumb()" [description]="descricao()">
         @if (podeAdicionar()) {
-          <ces-button actions icon="pi pi-plus" [label]="entidade()" [keyShortcut]="atalhos.newShortcut()" (pressed)="adicionar()"></ces-button>
+          <geo-button actions icon="pi pi-plus" [label]="entidade()" [keyShortcut]="atalhos.newShortcut()" (pressed)="adicionar()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
       <app-governanca-contexto [tipo]="tipo()" [secao]="secao" (tipoChange)="trocarTipo($event)" />
 
-      <ces-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="secao === 'painel' ? carregandoPainel() : resultado.loading()" (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="remover($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Bases operacionais" [options]="basesOpcoes()" [(value)]="lista.filters.bases" placeholder="Todas"></ces-multiselect>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Bases operacionais" [options]="basesOpcoes()" [(value)]="lista.filters.bases" placeholder="Todas"></geo-multiselect>
           @if (statusOpcoes.length) {
-            <ces-multiselect label="Situação" [options]="statusOpcoes" [(value)]="lista.filters.status" [filter]="false" placeholder="Todas"></ces-multiselect>
+            <geo-multiselect label="Situação" [options]="statusOpcoes" [(value)]="lista.filters.status" [filter]="false" placeholder="Todas"></geo-multiselect>
           }
-          <ces-datepicker label="Período de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Período até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></ces-datepicker>
+          <geo-datepicker label="Período de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Período até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></geo-datepicker>
         </div>
-        <p class="ces-cell-muted">Mostra só {{ tipo() === 'CIPA' ? 'a CIPA' : 'a Brigada de incêndio' }}; para trocar de grupo, use o seletor acima.</p>
-      </ces-filter-panel>
+        <p class="geo-cell-muted">Mostra só {{ tipo() === 'CIPA' ? 'a CIPA' : 'a Brigada de incêndio' }}; para trocar de grupo, use o seletor acima.</p>
+      </geo-filter-panel>
 
       @if (secao === 'painel') {
         @if (erroPainel()) {
-          <ces-async-state state="error" title="Não foi possível carregar o painel" [description]="erroPainel()!" actionLabel="Tentar novamente" (action)="carregarPainel()"></ces-async-state>
+          <geo-async-state state="error" title="Não foi possível carregar o painel" [description]="erroPainel()!" actionLabel="Tentar novamente" (action)="carregarPainel()"></geo-async-state>
         } @else if (carregandoPainel() && !dashboard()) {
-          <ces-async-state state="loading" title="Calculando as pendências…"></ces-async-state>
+          <geo-async-state state="loading" title="Calculando as pendências…"></geo-async-state>
         } @else {
           <section class="gov-painel" aria-label="Indicadores e pendências">
             <div class="gov-metricas">
               @for (m of metricas(); track m.secao) {
                 <button type="button" class="gov-metrica" (click)="irPara(m.secao)">
-                  <ces-status [tone]="m.tom" [icon]="m.icone">{{ m.rotulo }}</ces-status>
+                  <geo-status [tone]="m.tom" [icon]="m.icone">{{ m.rotulo }}</geo-status>
                   <strong>{{ m.valor }}</strong>
                 </button>
               }
             </div>
             <div class="gov-atencao">
               <h3>O que precisa de atenção</h3>
-              <span class="ces-cell-muted">Atualizado em {{ dashboard()?.calculadoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="geo-cell-muted">Atualizado em {{ dashboard()?.calculadoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
               @for (item of dashboard()?.atencao ?? []; track item.idRegistro) {
                 <button type="button" class="gov-atencao__item" (click)="abrirAtencao(item)">
-                  <ces-status [tone]="item.severidade === 'VENCIDO' ? 'danger' : 'warning'" [icon]="item.severidade === 'VENCIDO' ? 'pi-calendar-times' : 'pi-clock'">{{ item.severidade === 'VENCIDO' ? 'Vencido' : 'A vencer' }}</ces-status>
+                  <geo-status [tone]="item.severidade === 'VENCIDO' ? 'danger' : 'warning'" [icon]="item.severidade === 'VENCIDO' ? 'pi-calendar-times' : 'pi-clock'">{{ item.severidade === 'VENCIDO' ? 'Vencido' : 'A vencer' }}</geo-status>
                   <span><strong>{{ item.titulo }}</strong>
-                    <span class="ces-cell-muted">{{ rotulo(item.tipo) }}{{ item.prazo ? ' · prazo ' + (item.prazo | date: 'dd/MM/yyyy') : '' }}</span></span>
+                    <span class="geo-cell-muted">{{ rotulo(item.tipo) }}{{ item.prazo ? ' · prazo ' + (item.prazo | date: 'dd/MM/yyyy') : '' }}</span></span>
                   <i class="pi pi-angle-right" aria-hidden="true"></i>
                 </button>
               } @empty {
-                <ces-async-state state="empty" title="Nenhuma pendência neste recorte" description="Documentos, atas, treinamentos e ações estão em dia."></ces-async-state>
+                <geo-async-state state="empty" title="Nenhuma pendência neste recorte" description="Documentos, atas, treinamentos e ações estão em dia."></geo-async-state>
               }
             </div>
           </section>
         }
       } @else {
-        <ces-data-table
+        <geo-data-table
           [title]="titulo()"
           mode="server"
           [storageKey]="chave"
@@ -206,79 +206,79 @@ const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}
           (emptyAction)="adicionar()"
           (rowActivate)="abrirLinha($event)"
         >
-          <ng-template cesCell="principal" let-row>
+          <ng-template geoCell="principal" let-row>
             @switch (secao) {
               @case ('composicoes') {
-                <span class="ces-cell-strong">{{ row.nome }}</span>
-                <span class="ces-cell-muted">{{ tipo() === 'CIPA' ? (row.regimeComposicao === 'REPRESENTANTE_NOMEADO' ? 'Representante nomeado' : 'Comissão dimensionada') : 'Equipe de brigadistas' }}</span>
+                <span class="geo-cell-strong">{{ row.nome }}</span>
+                <span class="geo-cell-muted">{{ tipo() === 'CIPA' ? (row.regimeComposicao === 'REPRESENTANTE_NOMEADO' ? 'Representante nomeado' : 'Comissão dimensionada') : 'Equipe de brigadistas' }}</span>
               }
               @case ('reunioes') {
-                <span class="ces-cell-strong">{{ row.dataHora | date: 'dd/MM/yyyy HH:mm' }}</span>
-                <span class="ces-cell-muted">{{ row.duracaoMinutos }} minutos · {{ rotulo(row.tipo) }}</span>
+                <span class="geo-cell-strong">{{ row.dataHora | date: 'dd/MM/yyyy HH:mm' }}</span>
+                <span class="geo-cell-muted">{{ row.duracaoMinutos }} minutos · {{ rotulo(row.tipo) }}</span>
               }
               @case ('documentos') {
-                <span class="ces-cell-strong">{{ row.categoriaNome }}</span>
-                <span class="ces-cell-muted" [title]="row.nomeArquivo">{{ row.nomeArquivo }}</span>
+                <span class="geo-cell-strong">{{ row.categoriaNome }}</span>
+                <span class="geo-cell-muted" [title]="row.nomeArquivo">{{ row.nomeArquivo }}</span>
               }
               @case ('treinamentos') {
-                <span class="ces-cell-strong">{{ row.nomeColaborador }}</span>
-                <span class="ces-cell-muted">{{ row.funcaoNome || row.papelCorpo || 'Função não informada' }}</span>
+                <span class="geo-cell-strong">{{ row.nomeColaborador }}</span>
+                <span class="geo-cell-muted">{{ row.funcaoNome || row.papelCorpo || 'Função não informada' }}</span>
               }
               @default {
-                <span class="ces-cell-strong">{{ row.titulo }}</span>
-                <span class="ces-cell-muted" [title]="row.descricao">{{ row.descricao }}</span>
+                <span class="geo-cell-strong">{{ row.titulo }}</span>
+                <span class="geo-cell-muted" [title]="row.descricao">{{ row.descricao }}</span>
               }
             }
           </ng-template>
-          <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="tom(situacaoDe(row))" [icon]="icone(situacaoDe(row))">{{ rotulo(situacaoDe(row)) }}</ces-status>
-            @if (secao === 'documentos') { <span class="ces-cell-muted">{{ rotulo(row.statusValidade) }}</span> }
+          <ng-template geoCell="situacao" let-row>
+            <geo-status [tone]="tom(situacaoDe(row))" [icon]="icone(situacaoDe(row))">{{ rotulo(situacaoDe(row)) }}</geo-status>
+            @if (secao === 'documentos') { <span class="geo-cell-muted">{{ rotulo(row.statusValidade) }}</span> }
           </ng-template>
-          <ng-template cesCell="prioridade" let-row>
-            <ces-status [tone]="row.prioridade === 'CRITICA' ? 'danger' : row.prioridade === 'ALTA' ? 'warning' : 'neutral'" icon="pi-flag">{{ rotulo(row.prioridade) }}</ces-status>
+          <ng-template geoCell="prioridade" let-row>
+            <geo-status [tone]="row.prioridade === 'CRITICA' ? 'danger' : row.prioridade === 'ALTA' ? 'warning' : 'neutral'" icon="pi-flag">{{ rotulo(row.prioridade) }}</geo-status>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
     </div>
 
-    <ces-drawer [visible]="!!detalheAcao()" (visibleChange)="!$event && detalheAcao.set(null)" title="Detalhes da ação" size="md">
+    <geo-drawer [visible]="!!detalheAcao()" (visibleChange)="!$event && detalheAcao.set(null)" title="Detalhes da ação" size="md">
       @if (detalheAcao(); as acao) {
-        <p class="ces-cell-muted">{{ rotulo(acao.tipo) }}</p>
+        <p class="geo-cell-muted">{{ rotulo(acao.tipo) }}</p>
         <h3>{{ acao.titulo }}</h3>
         <p>{{ acao.descricao }}</p>
         <dl class="gov-detalhe">
           <div><dt>Responsável</dt><dd>{{ acao.responsavelNome || 'Responsável definido' }}</dd></div>
           <div><dt>Prazo</dt><dd>{{ acao.prazo | date: 'dd/MM/yyyy' }}</dd></div>
-          <div><dt>Prioridade</dt><dd><ces-status [tone]="acao.prioridade === 'CRITICA' ? 'danger' : acao.prioridade === 'ALTA' ? 'warning' : 'neutral'" icon="pi-flag">{{ rotulo(acao.prioridade) }}</ces-status></dd></div>
-          <div><dt>Situação</dt><dd><ces-status [tone]="tom(acao.status)" [icon]="icone(acao.status)">{{ rotulo(acao.status) }}</ces-status></dd></div>
+          <div><dt>Prioridade</dt><dd><geo-status [tone]="acao.prioridade === 'CRITICA' ? 'danger' : acao.prioridade === 'ALTA' ? 'warning' : 'neutral'" icon="pi-flag">{{ rotulo(acao.prioridade) }}</geo-status></dd></div>
+          <div><dt>Situação</dt><dd><geo-status [tone]="tom(acao.status)" [icon]="icone(acao.status)">{{ rotulo(acao.status) }}</geo-status></dd></div>
         </dl>
-        <ces-callout tone="info" icon="pi pi-link">Esta ação faz parte somente da {{ tipo() === 'CIPA' ? 'CIPA' : 'Brigada de incêndio' }} selecionada.</ces-callout>
+        <geo-callout tone="info" icon="pi pi-link">Esta ação faz parte somente da {{ tipo() === 'CIPA' ? 'CIPA' : 'Brigada de incêndio' }} selecionada.</geo-callout>
       }
-    </ces-drawer>
+    </geo-drawer>
   `,
   styles: `
-    .gov-painel { display: flex; flex-direction: column; gap: var(--ces-space-4, 1rem); }
-    .gov-metricas { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--ces-space-3, 0.75rem); }
+    .gov-painel { display: flex; flex-direction: column; gap: var(--geo-space-4, 1rem); }
+    .gov-metricas { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: var(--geo-space-3, 0.75rem); }
     .gov-metrica {
-      display: flex; flex-direction: column; align-items: flex-start; gap: var(--ces-space-2, 0.5rem);
-      padding: var(--ces-space-4, 1rem); border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg, 0.75rem);
-      background: var(--ces-surface); color: var(--ces-foreground); cursor: pointer; text-align: left;
+      display: flex; flex-direction: column; align-items: flex-start; gap: var(--geo-space-2, 0.5rem);
+      padding: var(--geo-space-4, 1rem); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg, 0.75rem);
+      background: var(--geo-surface); color: var(--geo-foreground); cursor: pointer; text-align: left;
     }
-    .gov-metrica:hover, .gov-metrica:focus-visible { border-color: var(--ces-primary, currentColor); }
+    .gov-metrica:hover, .gov-metrica:focus-visible { border-color: var(--geo-primary, currentColor); }
     .gov-metrica strong { font-size: 1.5rem; font-weight: 700; }
     .gov-atencao {
-      display: flex; flex-direction: column; gap: var(--ces-space-2, 0.5rem); padding: var(--ces-space-4, 1rem);
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg, 0.75rem); background: var(--ces-surface);
+      display: flex; flex-direction: column; gap: var(--geo-space-2, 0.5rem); padding: var(--geo-space-4, 1rem);
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg, 0.75rem); background: var(--geo-surface);
     }
-    .gov-atencao h3 { margin: 0; color: var(--ces-foreground); font-size: var(--ces-font-body); font-weight: 700; }
+    .gov-atencao h3 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 700; }
     .gov-atencao__item {
-      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--ces-space-3, 0.75rem);
-      padding: var(--ces-space-2, 0.5rem) 0; border: 0; border-top: 1px solid var(--ces-border); background: none;
-      color: var(--ces-foreground); cursor: pointer; text-align: left;
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--geo-space-3, 0.75rem);
+      padding: var(--geo-space-2, 0.5rem) 0; border: 0; border-top: 1px solid var(--geo-border); background: none;
+      color: var(--geo-foreground); cursor: pointer; text-align: left;
     }
     .gov-atencao__item > span { display: flex; flex-direction: column; }
-    .gov-detalhe { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ces-space-3, 0.75rem); margin: var(--ces-space-4, 1rem) 0; }
-    .gov-detalhe dt { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .gov-detalhe { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--geo-space-3, 0.75rem); margin: var(--geo-space-4, 1rem) 0; }
+    .gov-detalhe dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .gov-detalhe dd { margin: 0; }
   `
 })
@@ -301,17 +301,17 @@ export class GovernancaSstComponent {
   protected readonly rotulo = rotuloGovernanca;
   protected readonly tom = tomGovernanca;
   protected readonly icone = iconeGovernanca;
-  protected readonly statusOpcoes: CesSelectOption<string>[] = STATUS_POR_SECAO[this.secao].map((v) => ({ label: rotuloGovernanca(v), value: v }));
+  protected readonly statusOpcoes: GeoSelectOption<string>[] = STATUS_POR_SECAO[this.secao].map((v) => ({ label: rotuloGovernanca(v), value: v }));
   private readonly bases = signal<{ id: string; nome: string }[]>([]);
-  protected readonly basesOpcoes = computed<CesSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
+  protected readonly basesOpcoes = computed<GeoSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
   private readonly baixando = signal<string | null>(null);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: this.chave,
     filters: {
-      bases: cesFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.bases().find((b) => b.id === id)?.nome ?? 'base selecionada', countLabel: (n) => `${n} selecionadas` }),
-      status: cesFilter.list<string>([], { label: 'Situação', itemLabel: (s) => rotuloGovernanca(s), countLabel: (n) => `${n} selecionadas` }),
-      periodo: cesFilter.range({ from: null, to: null }, { label: 'Período' })
+      bases: geoFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.bases().find((b) => b.id === id)?.nome ?? 'base selecionada', countLabel: (n) => `${n} selecionadas` }),
+      status: geoFilter.list<string>([], { label: 'Situação', itemLabel: (s) => rotuloGovernanca(s), countLabel: (n) => `${n} selecionadas` }),
+      periodo: geoFilter.range({ from: null, to: null }, { label: 'Período' })
     }
   });
   protected readonly resultado = this.lista.results<Linha>((pedido) => this.listar({ ...this.filtros(), page: pedido.page, size: pedido.size, sort: 'dataCriacao,desc' }), {
@@ -325,16 +325,16 @@ export class GovernancaSstComponent {
   protected readonly metricas = computed(() => {
     const i = this.dashboard()?.indicadores;
     return [
-      { secao: 'composicoes' as Secao, rotulo: 'Composições ativas', icone: 'pi-users', tom: 'info' as CesTone, valor: i?.corposAtivos ?? 0 },
-      { secao: 'reunioes' as Secao, rotulo: 'Atas pendentes', icone: 'pi-calendar', tom: 'warning' as CesTone, valor: i?.reunioesPendentesAta ?? 0 },
-      { secao: 'documentos' as Secao, rotulo: 'Documentos vencidos', icone: 'pi-file-excel', tom: 'danger' as CesTone, valor: i?.documentosVencidos ?? 0 },
-      { secao: 'treinamentos' as Secao, rotulo: 'Treinamentos pendentes', icone: 'pi-graduation-cap', tom: 'warning' as CesTone, valor: i?.treinamentosIrregulares ?? 0 },
-      { secao: 'acoes' as Secao, rotulo: 'Ações em atraso', icone: 'pi-check-square', tom: 'danger' as CesTone, valor: i?.acoesVencidas ?? 0 }
+      { secao: 'composicoes' as Secao, rotulo: 'Composições ativas', icone: 'pi-users', tom: 'info' as GeoTone, valor: i?.corposAtivos ?? 0 },
+      { secao: 'reunioes' as Secao, rotulo: 'Atas pendentes', icone: 'pi-calendar', tom: 'warning' as GeoTone, valor: i?.reunioesPendentesAta ?? 0 },
+      { secao: 'documentos' as Secao, rotulo: 'Documentos vencidos', icone: 'pi-file-excel', tom: 'danger' as GeoTone, valor: i?.documentosVencidos ?? 0 },
+      { secao: 'treinamentos' as Secao, rotulo: 'Treinamentos pendentes', icone: 'pi-graduation-cap', tom: 'warning' as GeoTone, valor: i?.treinamentosIrregulares ?? 0 },
+      { secao: 'acoes' as Secao, rotulo: 'Ações em atraso', icone: 'pi-check-square', tom: 'danger' as GeoTone, valor: i?.acoesVencidas ?? 0 }
     ];
   });
   protected readonly detalheAcao = signal<AcaoGovernancaResumo | null>(null);
 
-  protected readonly colunas: CesDataTableColumn<Linha>[] = this.colunasDaSecao();
+  protected readonly colunas: GeoDataTableColumn<Linha>[] = this.colunasDaSecao();
   protected readonly rotuloLinha = (l: Linha) => l.nome || l.titulo || l.categoriaNome || l.nomeColaborador || 'Registro';
 
   protected readonly titulo = computed(() => {
@@ -388,9 +388,9 @@ export class GovernancaSstComponent {
     if (this.secao === 'painel') this.carregarPainel();
   }
 
-  private colunasDaSecao(): CesDataTableColumn<Linha>[] {
-    const principal = (header: string): CesDataTableColumn<Linha> => ({ key: 'principal', header, type: 'custom', priority: 1, value: (l) => this.rotuloLinha(l) });
-    const situacao: CesDataTableColumn<Linha> = { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (l) => rotuloGovernanca(this.situacaoDe(l)) };
+  private colunasDaSecao(): GeoDataTableColumn<Linha>[] {
+    const principal = (header: string): GeoDataTableColumn<Linha> => ({ key: 'principal', header, type: 'custom', priority: 1, value: (l) => this.rotuloLinha(l) });
+    const situacao: GeoDataTableColumn<Linha> = { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (l) => rotuloGovernanca(this.situacaoDe(l)) };
     switch (this.secao) {
       case 'composicoes':
         return [

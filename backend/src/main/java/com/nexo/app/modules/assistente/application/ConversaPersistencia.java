@@ -2,7 +2,7 @@ package com.nexo.app.modules.assistente.application;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nexo.app.modules.assistente.application.agent.ContextoCes;
+import com.nexo.app.modules.assistente.application.agent.ContextoGeo;
 import com.nexo.app.modules.assistente.application.dto.EnviarMensagemRequest;
 import com.nexo.app.modules.assistente.application.files.ArquivoService;
 import com.nexo.app.modules.assistente.domain.*;
@@ -53,7 +53,7 @@ public class ConversaPersistencia {
     }
 
     @Transactional
-    public ConversaAssistente criar(UUID usuarioId, String titulo, ContextoCes contexto) {
+    public ConversaAssistente criar(UUID usuarioId, String titulo, ContextoGeo contexto) {
         ConversaAssistente conversa = new ConversaAssistente(usuarioId, titulo, contextoJson(contexto));
         if (contexto != null && contexto.dePainel()) conversa.associarPainel(contexto.painel().id());
         return conversas.saveAndFlush(conversa);
@@ -96,7 +96,7 @@ public class ConversaPersistencia {
 
         // Sem contexto nesta pergunta (ex.: conversa de painel continuada no workspace), o painel salvo deixa de
         // ser "o que o usuario esta vendo agora": fica so a pista de origem; os recortes antigos seguem no historico.
-        ContextoCes contexto = comContexto ? request.contexto() : semPainel(contexto(conversa));
+        ContextoGeo contexto = comContexto ? request.contexto() : semPainel(contexto(conversa));
         return new Preparacao(conversaId, pergunta.getId(), resposta.getId(), null, historico, anexos, contexto,
                 anteriores == 0 && !conversa.isTituloDefinidoPeloUsuario(),
                 Math.toIntExact(resultados.countByConversaId(conversaId)),
@@ -144,28 +144,28 @@ public class ConversaPersistencia {
         return recuperadas;
     }
 
-    public ContextoCes contexto(ConversaAssistente conversa) {
+    public ContextoGeo contexto(ConversaAssistente conversa) {
         return contextoDe(conversa.getContextoJson());
     }
 
     /** Le um contexto persistido (conversa ou snapshot de mensagem); JSON invalido vira ausencia de contexto. */
-    public ContextoCes contextoDe(String json) {
+    public ContextoGeo contextoDe(String json) {
         if (json == null || json.isBlank()) return null;
         try {
-            return objectMapper.readValue(json, ContextoCes.class);
+            return objectMapper.readValue(json, ContextoGeo.class);
         } catch (JsonProcessingException | IllegalArgumentException exception) {
             return null;
         }
     }
 
-    static ContextoCes semPainel(ContextoCes contexto) {
+    static ContextoGeo semPainel(ContextoGeo contexto) {
         if (contexto == null || contexto.painel() == null) return contexto;
-        ContextoCes origem = new ContextoCes(contexto.pagina(), contexto.rota(), contexto.entidadeTipo(), contexto.entidadeId(),
+        ContextoGeo origem = new ContextoGeo(contexto.pagina(), contexto.rota(), contexto.entidadeTipo(), contexto.entidadeId(),
                 contexto.rotulo(), contexto.filtros(), null);
         return origem.vazio() ? null : origem;
     }
 
-    private String contextoJson(ContextoCes contexto) {
+    private String contextoJson(ContextoGeo contexto) {
         if (contexto == null || contexto.vazio()) return null;
         return json(contexto);
     }
@@ -182,7 +182,7 @@ public class ConversaPersistencia {
      * Resultado da preparacao. {@code existente} preenchido indica pergunta repetida (nenhuma nova execucao).
      */
     public record Preparacao(UUID conversaId, UUID mensagemUsuarioId, UUID mensagemAssistenteId, MensagemAssistente existente,
-            List<MensagemAssistente> historico, List<ArquivoAssistente> anexos, ContextoCes contexto, boolean primeiraPergunta,
+            List<MensagemAssistente> historico, List<ArquivoAssistente> anexos, ContextoGeo contexto, boolean primeiraPergunta,
             int resultadosExistentes, int artefatosExistentes, int arquivosExistentes) {
     }
 }

@@ -2,21 +2,21 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, WritableSignal, computed, effect, inject, signal } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesCellDirective,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoCellDirective,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import { FechamentoRelatorio, FechamentoRelatorioResponse } from '../../../../../core/models/almoxarifado-relatorios.models';
 import { VistaAnalise } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -65,10 +65,10 @@ import {
   selector: 'app-almox-painel-fechamento',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesCellDirective, CesStatusComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoCellDirective, GeoStatusComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, AlmoxPainelTopoComponent, AlmoxRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -89,14 +89,14 @@ export class AlmoxPainelFechamentoComponent extends PainelAlmoxBase<FechamentoRe
   protected readonly tiposObraSel = signal<string[]>([]);
   private readonly proprios = signal<FiltrosFechamento>({ tipos: [], situacoes: [], prazos: [], tiposObra: [] });
 
-  protected readonly opcoesTipo: CesSelectOption<string>[] = Object.entries(TIPOS_TECNICOS).map(([value, l]) => ({ label: `${value} · ${l}`, value }));
-  protected readonly opcoesSituacao: CesSelectOption<string>[] = SITUACOES_FECHAMENTO.map((s) => ({ label: ROTULO_SITUACAO_FECHAMENTO[s], value: s }));
-  protected readonly opcoesPrazo: CesSelectOption<string>[] = Object.entries(ROTULO_PRAZO).map(([value, label]) => ({ label, value }));
-  protected readonly opcoesTipoObra: CesSelectOption<string>[] = Object.entries(ROTULO_TIPO_OBRA).map(([value, label]) => ({ label, value }));
+  protected readonly opcoesTipo: GeoSelectOption<string>[] = Object.entries(TIPOS_TECNICOS).map(([value, l]) => ({ label: `${value} · ${l}`, value }));
+  protected readonly opcoesSituacao: GeoSelectOption<string>[] = SITUACOES_FECHAMENTO.map((s) => ({ label: ROTULO_SITUACAO_FECHAMENTO[s], value: s }));
+  protected readonly opcoesPrazo: GeoSelectOption<string>[] = Object.entries(ROTULO_PRAZO).map(([value, label]) => ({ label, value }));
+  protected readonly opcoesTipoObra: GeoSelectOption<string>[] = Object.entries(ROTULO_TIPO_OBRA).map(([value, label]) => ({ label, value }));
 
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const f = this.proprios();
-    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): CesFilterChip[] =>
+    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): GeoFilterChip[] =>
       sel.length ? [{ key, label: `${rotulo}: ${sel.length === 1 ? nome(sel[0]) : `${sel.length} selecionados`}` }] : [];
     return [
       ...chip('tipo', 'Tipo', f.tipos, (v) => v),
@@ -176,7 +176,7 @@ export class AlmoxPainelFechamentoComponent extends PainelAlmoxBase<FechamentoRe
   });
 
   protected readonly colFechamento = colFechamento;
-  protected readonly colObras: CesDataTableColumn<ObraFechamento>[] = [
+  protected readonly colObras: GeoDataTableColumn<ObraFechamento>[] = [
     { key: 'rotulo', header: 'Obra', priority: 1 },
     { key: 'titulo', header: 'Título', priority: 2, value: (o) => o.titulo ?? '—' },
     { key: 'tipoObra', header: 'Tipo', priority: 3, value: (o) => ROTULO_TIPO_OBRA[o.tipoObra ?? ''] ?? '—' },

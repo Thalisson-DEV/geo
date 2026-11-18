@@ -4,8 +4,8 @@ app-copiloto-markdown {
 }
 
 .copiloto-markdown {
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   line-height: 1.65;
   overflow-wrap: anywhere;
 }
@@ -29,7 +29,7 @@ app-copiloto-markdown {
   margin: 1.1rem 0 0.5rem;
   line-height: 1.3;
   font-weight: 650;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .copiloto-markdown h1 { font-size: 1.25rem; }
@@ -40,13 +40,13 @@ app-copiloto-markdown {
 .copiloto-markdown strong { font-weight: 700; }
 
 .copiloto-markdown a {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .copiloto-markdown a:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
   border-radius: 2px;
 }
@@ -65,26 +65,26 @@ app-copiloto-markdown {
   height: 0.9rem;
   margin-right: 0.4rem;
   vertical-align: -0.1rem;
-  border: 1.5px solid var(--ces-border-strong);
+  border: 1.5px solid var(--geo-border-strong);
   border-radius: 0.25rem;
 }
 
 .copiloto-markdown .task-checkbox--checked {
-  background: var(--ces-brand);
-  border-color: var(--ces-brand);
+  background: var(--geo-brand);
+  border-color: var(--geo-brand);
 }
 
 .copiloto-markdown blockquote {
   padding: 0.5rem 0.9rem;
-  border-left: 3px solid var(--ces-brand);
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground-muted);
-  border-radius: 0 var(--ces-radius-sm) var(--ces-radius-sm) 0;
+  border-left: 3px solid var(--geo-brand);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
+  border-radius: 0 var(--geo-radius-sm) var(--geo-radius-sm) 0;
 }
 
 .copiloto-markdown hr {
   border: 0;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
   margin: 1rem 0;
 }
 
@@ -93,15 +93,15 @@ app-copiloto-markdown {
   font-size: 0.85em;
   padding: 0.1rem 0.35rem;
   border-radius: 0.3rem;
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .copiloto-markdown pre {
   padding: 0.75rem 0.9rem;
   overflow-x: auto;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface-muted);
-  border: 1px solid var(--ces-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-muted);
+  border: 1px solid var(--geo-border);
 }
 
 .copiloto-markdown pre code {
@@ -112,12 +112,12 @@ app-copiloto-markdown {
 .copiloto-markdown .markdown-table {
   max-width: 100%;
   overflow-x: auto;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
 }
 
 .copiloto-markdown .markdown-table:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
 }
 
@@ -130,7 +130,7 @@ app-copiloto-markdown {
 .copiloto-markdown th,
 .copiloto-markdown td {
   padding: 0.45rem 0.7rem;
-  border-bottom: 1px solid var(--ces-border);
+  border-bottom: 1px solid var(--geo-border);
   text-align: left;
   vertical-align: top;
 }
@@ -141,13 +141,13 @@ app-copiloto-markdown {
 .copiloto-markdown td[align='center'] { text-align: center; }
 
 .copiloto-markdown thead th {
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
   font-weight: 600;
   white-space: nowrap;
 }
 
 .copiloto-markdown tbody tr:last-child td { border-bottom: 0; }
-.copiloto-markdown tbody tr:nth-child(even) { background: var(--ces-surface-subtle); }
+.copiloto-markdown tbody tr:nth-child(even) { background: var(--geo-surface-subtle); }
 
 .copiloto-markdown sup .markdown-citacao {
   display: inline-block;
@@ -159,6 +159,6 @@ app-copiloto-markdown {
   text-align: center;
   text-decoration: none;
   border-radius: 999px;
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }

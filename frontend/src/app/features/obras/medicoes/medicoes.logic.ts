@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   ContextoObra,
   ItemPendenteMedicao,
@@ -12,7 +12,7 @@ import {
 
 export interface Rotulo {
   rotulo: string;
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
 }
 

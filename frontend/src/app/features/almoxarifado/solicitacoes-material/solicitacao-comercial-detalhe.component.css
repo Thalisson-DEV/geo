@@ -1,34 +1,34 @@
 .dd {
   display: grid;
   gap: 1.125rem;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .dd-label {
   display: block;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .dd-muted {
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .dd-forte {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-weight: 700;
 }
 
 .dd-texto-alerta {
-  color: var(--ces-danger-text);
+  color: var(--geo-danger-text);
 }
 
 .dd-texto-aviso {
-  color: var(--ces-warning-text);
+  color: var(--geo-warning-text);
   font-weight: 700;
 }
 
@@ -43,34 +43,34 @@
 
 /* Abertura: status, rota e quem pediu, no tom do status */
 [data-tone='warning'] {
-  --dd-tone: var(--ces-warning);
+  --dd-tone: var(--geo-warning);
 }
 
 [data-tone='info'] {
-  --dd-tone: var(--ces-info);
+  --dd-tone: var(--geo-info);
 }
 
 [data-tone='success'] {
-  --dd-tone: var(--ces-success);
+  --dd-tone: var(--geo-success);
 }
 
 [data-tone='danger'] {
-  --dd-tone: var(--ces-danger);
+  --dd-tone: var(--geo-danger);
 }
 
 [data-tone='neutral'] {
-  --dd-tone: var(--ces-foreground-subtle);
+  --dd-tone: var(--geo-foreground-subtle);
 }
 
 .dd-hero {
   display: grid;
   gap: 0.625rem;
   padding: 1rem 1.125rem;
-  border: 1px solid color-mix(in srgb, var(--dd-tone) 30%, var(--ces-border));
-  border-radius: var(--ces-radius-lg);
+  border: 1px solid color-mix(in srgb, var(--dd-tone) 30%, var(--geo-border));
+  border-radius: var(--geo-radius-lg);
   background:
     linear-gradient(135deg, color-mix(in srgb, var(--dd-tone) 14%, transparent), transparent 65%),
-    var(--ces-surface);
+    var(--geo-surface);
 }
 
 .dd-hero__topo {
@@ -90,12 +90,12 @@
   align-items: center;
   gap: 0.375rem 0.5rem;
   margin: 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-control);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-control);
 }
 
 .dd-hero__rota strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-weight: 700;
 }
 
@@ -109,25 +109,25 @@
 
 .dd-hero__tipo {
   padding: 0.0625rem 0.45rem;
-  border: 1px solid var(--ces-border);
+  border: 1px solid var(--geo-border);
   border-radius: 999px;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
 }
 
 .dd-hero__meta {
   margin: 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .dd-hero__id {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .dd-hero__meta strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-weight: 600;
 }
 
@@ -136,18 +136,18 @@
   align-items: center;
   gap: 0.5rem;
   margin: 0;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 700;
 }
 
 .dd-titulo-secao .pi {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 /* Entrada em cascata das seções */
 .dd > * {
-  animation: dd-entra 320ms var(--ces-ease-standard) both;
+  animation: dd-entra 320ms var(--geo-ease-standard) both;
 }
 
 .dd > :nth-child(2) { animation-delay: 40ms; }
@@ -192,11 +192,11 @@
   right: calc(-50% + var(--dd-marca) / 2 + 0.375rem);
   height: 2px;
   border-radius: 2px;
-  background: var(--ces-border);
+  background: var(--geo-border);
 }
 
 .dd-fluxo__etapa[data-estado='feito']:not(:last-child)::after {
-  background: var(--ces-success);
+  background: var(--geo-success);
 }
 
 .dd-fluxo__marca {
@@ -205,30 +205,30 @@
   justify-content: center;
   width: var(--dd-marca);
   height: var(--dd-marca);
-  border: 2px solid var(--ces-border);
+  border: 2px solid var(--geo-border);
   border-radius: 999px;
-  background: var(--ces-surface);
-  color: var(--ces-foreground-subtle);
+  background: var(--geo-surface);
+  color: var(--geo-foreground-subtle);
   font-size: 0.75rem;
 }
 
 .dd-fluxo__etapa[data-estado='feito'] .dd-fluxo__marca {
-  border-color: var(--ces-success);
-  background: var(--ces-success);
-  color: var(--ces-surface);
+  border-color: var(--geo-success);
+  background: var(--geo-success);
+  color: var(--geo-surface);
 }
 
 .dd-fluxo__etapa[data-estado='atual'] .dd-fluxo__marca {
-  border-color: var(--ces-brand);
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
-  box-shadow: 0 0 0 4px var(--ces-brand-soft);
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
+  box-shadow: 0 0 0 4px var(--geo-brand-soft);
 }
 
 .dd-fluxo__etapa[data-estado='interrompido'] .dd-fluxo__marca {
-  border-color: var(--ces-danger);
-  background: var(--ces-danger);
-  color: var(--ces-surface);
+  border-color: var(--geo-danger);
+  background: var(--geo-danger);
+  color: var(--geo-surface);
 }
 
 .dd-fluxo__texto {
@@ -237,17 +237,17 @@
   justify-items: center;
   width: 100%;
   min-width: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .dd-fluxo__texto strong {
-  font-size: var(--ces-font-control);
-  color: var(--ces-foreground);
+  font-size: var(--geo-font-control);
+  color: var(--geo-foreground);
 }
 
 .dd-fluxo__etapa[data-estado='futuro'] .dd-fluxo__texto strong {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .dd-fluxo__texto span {
@@ -269,13 +269,13 @@
   align-content: start;
   min-width: 0;
   padding: 0.75rem 0.875rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
 }
 
 .dd-fato strong {
-  font-size: var(--ces-font-body);
+  font-size: var(--geo-font-body);
 }
 
 .dd-fato--largo {
@@ -286,15 +286,15 @@
   height: 0.5rem;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .dd-progresso span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: var(--ces-success);
-  transition: width var(--ces-duration-normal) var(--ces-ease-standard);
+  background: var(--geo-success);
+  transition: width var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .dd-callout-linha {
@@ -310,10 +310,10 @@
   gap: 0.25rem;
   margin: 0;
   padding: 0.75rem 0.875rem;
-  border-left: 3px solid var(--ces-border-strong);
-  border-radius: 0 var(--ces-radius-md) var(--ces-radius-md) 0;
-  background: var(--ces-surface-subtle);
-  font-size: var(--ces-font-control);
+  border-left: 3px solid var(--geo-border-strong);
+  border-radius: 0 var(--geo-radius-md) var(--geo-radius-md) 0;
+  background: var(--geo-surface-subtle);
+  font-size: var(--geo-font-control);
   white-space: pre-line;
 }
 
@@ -336,8 +336,8 @@
 
 .dd-tabela {
   overflow: hidden;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
 }
 
 .dd-tabela__linha {
@@ -346,7 +346,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
 }
 
 .dd-reserva {
@@ -364,9 +364,9 @@
   border: 0;
   background: none;
   font: inherit;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   cursor: pointer;
 }
 
@@ -379,9 +379,9 @@
 }
 
 .dd-reserva__botao:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--ces-radius-sm);
+  border-radius: var(--geo-radius-sm);
 }
 
 .dd-reserva__painel {
@@ -391,7 +391,7 @@
 
 .dd-reserva__texto {
   margin: 0;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
 }
 
 .dd-reserva__acoes {
@@ -406,21 +406,21 @@
 .dd-consumo-ops {
   grid-column: 1 / -1;
   padding: 0.75rem;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface-subtle);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
 }
 
 .dd-tabela__linha + .dd-tabela__linha {
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .dd-tabela__cab {
-  background: var(--ces-surface-subtle);
-  font-size: var(--ces-font-caption);
+  background: var(--geo-surface-subtle);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .dd-num {
@@ -455,9 +455,9 @@
   display: grid;
   gap: 0.875rem;
   padding: 0.875rem 1rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-surface-subtle);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-surface-subtle);
 }
 
 .dd-grid-2 {
@@ -471,7 +471,7 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.875rem;
   padding-top: 0.875rem;
-  border-top: 1px dashed var(--ces-border);
+  border-top: 1px dashed var(--geo-border);
 }
 
 .dd-entrega__lista {
@@ -486,13 +486,13 @@
   display: grid;
   gap: 0.625rem;
   padding: 0.75rem 0.875rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
 }
 
 .dd-entrega__item--ok {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .dd-entrega__campos {
@@ -512,11 +512,11 @@
 }
 
 .dd-aprov__item--removido {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .dd-aprov__item--removido .dd-material > strong {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   text-decoration: line-through;
 }
 
@@ -541,15 +541,15 @@
   gap: 0.5rem;
   margin-top: 0.75rem;
   padding: 0.875rem 1rem;
-  border: 1px dashed var(--ces-border);
-  border-radius: var(--ces-radius-md);
+  border: 1px dashed var(--geo-border);
+  border-radius: var(--geo-radius-md);
 }
 
 .dd-aprov__data {
   margin: 0.5rem 0 0.75rem;
 }
 
-.dd-aprov__data ces-datepicker {
+.dd-aprov__data geo-datepicker {
   max-width: 16rem;
 }
 
@@ -584,8 +584,8 @@
 
 .dd-skeleton span {
   height: 3.5rem;
-  border-radius: var(--ces-radius-md);
-  background: linear-gradient(90deg, var(--ces-surface-muted), var(--ces-surface-subtle), var(--ces-surface-muted));
+  border-radius: var(--geo-radius-md);
+  background: linear-gradient(90deg, var(--geo-surface-muted), var(--geo-surface-subtle), var(--geo-surface-muted));
   background-size: 200% 100%;
   animation: dd-brilho 1.2s ease-in-out infinite;
 }
@@ -624,7 +624,7 @@
   }
 
   .dd-fluxo__texto strong {
-    font-size: var(--ces-font-caption);
+    font-size: var(--geo-font-caption);
     white-space: normal;
   }
 

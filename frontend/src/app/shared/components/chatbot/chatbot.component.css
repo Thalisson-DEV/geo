@@ -187,79 +187,79 @@
    CHATBOT - DARK MODE ADAPTATIONS
    ========================================================================== */
 :host-context(.app-dark) .chatbot-panel {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  color: var(--ces-foreground);
-  box-shadow: var(--ces-shadow-lg);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
+  box-shadow: var(--geo-shadow-lg);
 }
 
 :host-context(.app-dark) .assistant-header {
-  border-color: var(--ces-border);
-  background: var(--ces-surface-subtle);
+  border-color: var(--geo-border);
+  background: var(--geo-surface-subtle);
 }
 
 :host-context(.app-dark) .assistant-identity h2 {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 :host-context(.app-dark) .assistant-identity p {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 :host-context(.app-dark) .assistant-close-button {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 :host-context(.app-dark) .assistant-conversation {
-  background: var(--ces-canvas);
+  background: var(--geo-canvas);
 }
 
 :host-context(.app-dark) .assistant-composer {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
 }
 
 :host-context(.app-dark) .composer-field {
-  border-color: var(--ces-border);
-  background: var(--ces-surface-subtle);
+  border-color: var(--geo-border);
+  background: var(--geo-surface-subtle);
 }
 
 :host-context(.app-dark) .composer-field:focus-within {
-  border-color: var(--ces-brand);
-  background: var(--ces-surface);
+  border-color: var(--geo-brand);
+  background: var(--geo-surface);
 }
 
 :host-context(.app-dark) .assistant-textarea {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 :host-context(.app-dark) .assistant-textarea::placeholder {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 :host-context(.app-dark) .message-bubble--assistant {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  color: var(--ces-foreground);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
 }
 
 :host-context(.app-dark) .message-bubble--quiet {
-  border-color: var(--ces-border);
-  background: var(--ces-surface-muted);
-  color: var(--ces-foreground-muted);
+  border-color: var(--geo-border);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
 }
 
 :host-context(.app-dark) .typing-bubble {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
 }
 
 :host-context(.app-dark) .assistant-empty-state strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 :host-context(.app-dark) .assistant-empty-state p {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 @media print {

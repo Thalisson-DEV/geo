@@ -20,7 +20,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/v1/obras")
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "ces.estoque.solicitacoes-tecnicas", name = "enabled",
+@ConditionalOnProperty(prefix = "geo.estoque.solicitacoes-tecnicas", name = "enabled",
         havingValue = "true", matchIfMissing = false)
 @Tag(name = "Solicitações técnicas por obra")
 public class ProjecaoSolicitacoesObraController {

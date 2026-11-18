@@ -1,28 +1,28 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="O que aconteceu, com quem e há quanto tempo" icon="pi pi-shield"
+    <geo-page-header title="O que aconteceu, com quem e há quanto tempo" icon="pi pi-shield"
       [breadcrumb]="[{ label: 'Segurança' }, { label: 'Painel de eventos' }]"
       description="Do incidente sem lesão ao afastamento, na mesma série — com os desvios das inspeções sustentando a base. Eventos cancelados ficam de fora de todos os indicadores.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
         @if (atualizadoEm()) { <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span> }
-        <ces-button actions label="Atualizar" icon="pi pi-refresh"
-          [loading]="loading()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+        <geo-button actions label="Atualizar" icon="pi pi-refresh"
+          [loading]="loading()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="dash-sst-eventos" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+    <geo-filter-panel storageKey="dash-sst-eventos" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
-        <ces-datepicker label="Início" [(value)]="dataInicio" [clearable]="true"></ces-datepicker>
-        <ces-datepicker label="Fim" [(value)]="dataFim" [clearable]="true"></ces-datepicker>
-        <ces-multiselect label="Tipo" [options]="tipoOptions" [value]="$any(filter.tipo ?? [])" (valueChange)="filter.tipo = $event" [filter]="false" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Base operacional" [options]="opcoes.basesOperacionais()" [value]="$any(filter.idBaseOperacional ?? [])" (valueChange)="filter.idBaseOperacional = $event" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Centro de custo" [options]="opcoes.centrosCusto()" [value]="$any(filter.idCentroCusto ?? [])" (valueChange)="filter.idCentroCusto = $event" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Equipe" [options]="opcoes.equipes()" [value]="$any(filter.idEquipe ?? [])" (valueChange)="filter.idEquipe = $event" placeholder="Todas" [loading]="equipesLoading()" (opened)="openEquipes()" (search)="searchEquipes({ filter: $event })"></ces-multiselect>
-        <ces-multiselect label="Processo" [options]="opcoes.processos()" [value]="$any(filter.idProcesso ?? [])" (valueChange)="filter.idProcesso = $event" placeholder="Todos"></ces-multiselect>
-        <ces-select label="Recorte da série" [options]="granularidadeOptions" [value]="filter.granularidade ?? null" (valueChange)="filter.granularidade = $any($event)"></ces-select>
+      <div class="geo-filter-grid">
+        <geo-datepicker label="Início" [(value)]="dataInicio" [clearable]="true"></geo-datepicker>
+        <geo-datepicker label="Fim" [(value)]="dataFim" [clearable]="true"></geo-datepicker>
+        <geo-multiselect label="Tipo" [options]="tipoOptions" [value]="$any(filter.tipo ?? [])" (valueChange)="filter.tipo = $event" [filter]="false" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Base operacional" [options]="opcoes.basesOperacionais()" [value]="$any(filter.idBaseOperacional ?? [])" (valueChange)="filter.idBaseOperacional = $event" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Centro de custo" [options]="opcoes.centrosCusto()" [value]="$any(filter.idCentroCusto ?? [])" (valueChange)="filter.idCentroCusto = $event" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Equipe" [options]="opcoes.equipes()" [value]="$any(filter.idEquipe ?? [])" (valueChange)="filter.idEquipe = $event" placeholder="Todas" [loading]="equipesLoading()" (opened)="openEquipes()" (search)="searchEquipes({ filter: $event })"></geo-multiselect>
+        <geo-multiselect label="Processo" [options]="opcoes.processos()" [value]="$any(filter.idProcesso ?? [])" (valueChange)="filter.idProcesso = $event" placeholder="Todos"></geo-multiselect>
+        <geo-select label="Recorte da série" [options]="granularidadeOptions" [value]="filter.granularidade ?? null" (valueChange)="filter.granularidade = $any($event)"></geo-select>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     @if (loading()) {
       <div class="dash-metrics">@for (item of [1,2,3,4,5]; track item) { <p-skeleton height="156px" borderRadius="16px" /> }</div>
@@ -105,9 +105,9 @@
             </div>
             <app-copiloto-perguntar [foco]="{ tipo: 'tabela', id: 'composicaoPorTipo', rotulo: 'Composição por tipo' }" />
           </header>
-          <ces-data-table caption="Composição do período por tipo" [searchable]="false" exportFileName="eventos-por-tipo"
+          <geo-data-table caption="Composição do período por tipo" [searchable]="false" exportFileName="eventos-por-tipo"
             rowActionLabel="Analisar" rowActionIcon="pi pi-chart-bar" [columns]="colunasComposicao" [rows]="composicaoPorTipo(d)"
-            [rowKey]="chaveTipo" (rowActivate)="analisar('tipo', $event.tipo)"></ces-data-table>
+            [rowKey]="chaveTipo" (rowActivate)="analisar('tipo', $event.tipo)"></geo-data-table>
         </article>
 
         <article class="dash-panel dash-col-6">
@@ -119,21 +119,21 @@
             </div>
           </header>
           @if (d.diasSemAcidente.length) {
-            <ces-data-table caption="Dias sem evento com lesão por base" storageKey="sst-dashboard-dias-sem" exportFileName="dias-sem-acidente-por-base"
+            <geo-data-table caption="Dias sem evento com lesão por base" storageKey="sst-dashboard-dias-sem" exportFileName="dias-sem-acidente-por-base"
               searchPlaceholder="Buscar base" rowActionLabel="Analisar" rowActionIcon="pi pi-chart-bar"
               [columns]="colunasDiasSem" [rows]="d.diasSemAcidente" [rowKey]="chaveBase" [rowLabel]="rotuloBase"
               (rowActivate)="analisar('ranking', 'base~' + $event.idBaseOperacional)">
-              <ng-template cesCell="diasSemAcidente" let-item>
+              <ng-template geoCell="diasSemAcidente" let-item>
                 @if (item.diasSemAcidente === null) {
-                  <ces-status tone="success" icon="pi-check-circle">Sem ocorrência</ces-status>
+                  <geo-status tone="success" icon="pi-check-circle">Sem ocorrência</geo-status>
                 } @else {
-                  <ces-status [tone]="item.diasSemAcidente < 30 ? 'danger' : 'neutral'" icon="pi-shield">{{ item.diasSemAcidente }} dias</ces-status>
+                  <geo-status [tone]="item.diasSemAcidente < 30 ? 'danger' : 'neutral'" icon="pi-shield">{{ item.diasSemAcidente }} dias</geo-status>
                 }
               </ng-template>
-              <ng-template cesCell="comLesaoNoPeriodo" let-item>
-                @if (item.comLesaoNoPeriodo > 0) { <ces-status tone="danger" icon="pi-heart">{{ item.comLesaoNoPeriodo }}</ces-status> } @else { <span class="dash-zero">0</span> }
+              <ng-template geoCell="comLesaoNoPeriodo" let-item>
+                @if (item.comLesaoNoPeriodo > 0) { <geo-status tone="danger" icon="pi-heart">{{ item.comLesaoNoPeriodo }}</geo-status> } @else { <span class="dash-zero">0</span> }
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           } @else {
             <div class="dash-empty"><i class="pi pi-check-circle"></i>Nenhuma base com evento no período.</div>
           }
@@ -149,7 +149,7 @@
               <h2>Andamento e cobertura</h2>
               <p>Quanto do período já foi tratado e quanta CAT foi emitida onde houve lesão.</p>
             </div>
-            <ces-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'cat')"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'cat')"></geo-button>
           </header>
           <div class="dash-summary">
             <div class="dash-summary__items">
@@ -175,7 +175,7 @@
               <h2>Prazo de comunicação ao SESMT</h2>
               <p>O prazo legal é do tipo do evento: 24 h para acidentes e doença ocupacional, 72 h para os demais.</p>
             </div>
-            <ces-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'comunicacao')"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'comunicacao')"></geo-button>
           </header>
           <div class="dash-summary">
             <div class="dash-summary__total">
@@ -205,7 +205,7 @@
             </div>
             <div class="dash-panel__tools">
               <app-copiloto-perguntar [foco]="{ tipo: 'secao', id: 'backlog', rotulo: 'Eventos em aberto' }" />
-              <ces-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'abertos')"></ces-button>
+              <geo-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'abertos')"></geo-button>
             </div>
           </header>
           @if (totalEmAberto(d) > 0) {
@@ -249,10 +249,10 @@
             }
           </div>
         </header>
-        <ces-data-table caption="Onde os eventos se concentram" storageKey="sst-dashboard-ranking-eventos" exportFileName="eventos-concentracao"
+        <geo-data-table caption="Onde os eventos se concentram" storageKey="sst-dashboard-ranking-eventos" exportFileName="eventos-concentracao"
           searchPlaceholder="Buscar" rowActionLabel="Analisar" rowActionIcon="pi pi-chart-bar"
           [columns]="colunasRanking" [rows]="linhasRanking()" [rowKey]="chaveRanking" [rowLabel]="rotuloRanking"
-          stateTitle="Sem dados para esta dimensão no período" (rowActivate)="analisar('ranking', rankingDimensao() + '~' + $event.id)"></ces-data-table>
+          stateTitle="Sem dados para esta dimensão no período" (rowActivate)="analisar('ranking', rankingDimensao() + '~' + $event.id)"></geo-data-table>
       </section>
 
       <!-- Lesão no corpo — movido para o final, imagem oculta por padrão -->
@@ -264,8 +264,8 @@
               <h2>Locais de lesão no corpo</h2>
               <p>Distribuição das lesões sobre uma prancha anatômica frontal e posterior, compatível com todos os locais oficiais carregados no catálogo.</p>
             </div>
-            <ces-button variant="outline" size="sm" [label]="mostrarMapaCorporal() ? 'Ocultar prancha' : 'Exibir prancha anatômica'"
-              [icon]="mostrarMapaCorporal() ? 'pi pi-eye-slash' : 'pi pi-eye'" (pressed)="mostrarMapaCorporal.set(!mostrarMapaCorporal())"></ces-button>
+            <geo-button variant="outline" size="sm" [label]="mostrarMapaCorporal() ? 'Ocultar prancha' : 'Exibir prancha anatômica'"
+              [icon]="mostrarMapaCorporal() ? 'pi pi-eye-slash' : 'pi pi-eye'" (pressed)="mostrarMapaCorporal.set(!mostrarMapaCorporal())"></geo-button>
           </header>
           @if (mostrarMapaCorporal()) {
             <app-mapa-corpo-lesoes [itens]="d.porLocalLesao" />

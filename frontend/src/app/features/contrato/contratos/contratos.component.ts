@@ -4,28 +4,28 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesListShortcutsDirective,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoListShortcutsDirective,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesImportStatus,
-  cesListState
-} from '@ces/ui';
-import { CES_FORM_KIT, CesFormDrawerComponent, cesValidateForm } from '@ces/ui/forms';
+  geoFilter,
+  geoImportStatus,
+  geoListState
+} from '@geo/ui';
+import { GEO_FORM_KIT, GeoFormDrawerComponent, geoValidateForm } from '@geo/ui/forms';
 
 import { ContratoImportacaoDTO, ContratoResponse } from '../../../core/models/contrato.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -48,28 +48,28 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
     DatePickerModule,
     InputNumberModule,
     InputTextModule,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesListShortcutsDirective,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    ...CES_FORM_KIT,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoListShortcutsDirective,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    ...GEO_FORM_KIT,
     AuditDialogComponent,
     AjudaListagemComponent,
     DateMaskDirective
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="showAddDialog()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="showAddDialog()">
+      <geo-page-header
         title="Contratos"
         icon="pi pi-file"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'Cadastros' }, { label: 'Contratos' }]"
@@ -77,19 +77,19 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
         helpLabel="Ajuda sobre contratos"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo contrato" [keyShortcut]="atalhos.newShortcut()" (pressed)="showAddDialog()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo contrato" [keyShortcut]="atalhos.newShortcut()" (pressed)="showAddDialog()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="contratos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="contratos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-text-input label="Cliente" [value]="lista.filters.cliente() ?? ''" (valueChange)="lista.filters.cliente.set($event || null)" placeholder="Ex.: Concessionária"></ces-text-input>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-text-input label="Cliente" [value]="lista.filters.cliente() ?? ''" (valueChange)="lista.filters.cliente.set($event || null)" placeholder="Ex.: Concessionária"></geo-text-input>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Contratos"
         mode="server"
         storageKey="contratos"
@@ -119,21 +119,21 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
         (emptyAction)="showAddDialog()"
         (rowActivate)="editContrato($event)"
       >
-        <ng-template cesCell="numero" let-row><span class="ces-cell-strong">{{ row.numeroContrato }}</span></ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="numero" let-row><span class="geo-cell-strong">{{ row.numeroContrato }}</span></ng-template>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.numeroContrato" size="icon-sm" (pressed)="toggleStatus(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.numeroContrato" size="icon-sm" (pressed)="showLogs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.numeroContrato" size="icon-sm" (pressed)="toggleStatus(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.numeroContrato" size="icon-sm" (pressed)="showLogs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <!-- Cadastro de contrato (drawer, formulário único, ?novo=1 / ?editar=<id>) -->
-    <ces-form-drawer
+    <geo-form-drawer
       #drawer
       [visible]="drawerUrl.open()"
       (visibleChange)="!$event && drawerUrl.close()"
@@ -144,24 +144,24 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
       size="md"
     >
       <form [formGroup]="contratoForm" (ngSubmit)="onSave()">
-        <ces-form-section title="Identificação" icon="pi pi-file">
-          <ces-form-field label="Número do contrato" size="lg">
+        <geo-form-section title="Identificação" icon="pi pi-file">
+          <geo-form-field label="Número do contrato" size="lg">
             <input pInputText formControlName="numeroContrato" pSize="small" placeholder="Ex.: 123/2024" />
-          </ces-form-field>
-          <ces-form-field label="Cliente" size="lg">
+          </geo-form-field>
+          <geo-form-field label="Cliente" size="lg">
             <input pInputText formControlName="cliente" pSize="small" placeholder="Ex.: Concessionária" />
-          </ces-form-field>
-        </ces-form-section>
-        <ces-form-section title="Vigência" icon="pi pi-calendar">
-          <ces-form-field label="Início da vigência" size="lg">
+          </geo-form-field>
+        </geo-form-section>
+        <geo-form-section title="Vigência" icon="pi pi-calendar">
+          <geo-form-field label="Início da vigência" size="lg">
             <p-datepicker formControlName="dataVigencia" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small"></p-datepicker>
-          </ces-form-field>
-          <ces-form-field label="Encerramento" size="lg">
+          </geo-form-field>
+          <geo-form-field label="Encerramento" size="lg">
             <p-datepicker formControlName="dataEncerramento" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small"></p-datepicker>
-          </ces-form-field>
-        </ces-form-section>
-        <ces-form-section title="Faturamento" icon="pi pi-percentage">
-          <ces-form-field
+          </geo-form-field>
+        </geo-form-section>
+        <geo-form-section title="Faturamento" icon="pi pi-percentage">
+          <geo-form-field
             label="Coeficiente de faturamento"
             size="lg"
             hint="Multiplicador do valor base das ações deste contrato (1,0 = sem ajuste)."
@@ -178,74 +178,74 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
               placeholder="Ex.: 1,0000"
               size="small"
             ></p-inputNumber>
-          </ces-form-field>
-        </ces-form-section>
+          </geo-form-field>
+        </geo-form-section>
         <button type="submit" hidden aria-hidden="true" tabindex="-1"></button>
       </form>
-      <ces-form-actions
+      <geo-form-actions
         drawer-footer
         [saving]="saving()"
         [saveAndNew]="!editingId()"
         (save)="onSave()"
         (saveAndNewClick)="onSave(true)"
         (cancel)="drawer.requestClose()"
-      ></ces-form-actions>
-    </ces-form-drawer>
+      ></geo-form-actions>
+    </geo-form-drawer>
 
-    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar contratos"
+    <geo-import-drawer [(visible)]="importacao.aberta" title="Importar contratos"
       description="Planilha CSV com número, cliente, início e fim da vigência e coeficiente de faturamento."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao.linhas()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="numero" let-row>
-            @if (row.editing) { <ces-text-input label="Número" [labelVisible]="false" [(value)]="row.numeroContrato"></ces-text-input> } @else { {{ row.numeroContrato }} }
+          <ng-template geoCell="numero" let-row>
+            @if (row.editing) { <geo-text-input label="Número" [labelVisible]="false" [(value)]="row.numeroContrato"></geo-text-input> } @else { {{ row.numeroContrato }} }
           </ng-template>
-          <ng-template cesCell="cliente" let-row>
-            @if (row.editing) { <ces-text-input label="Cliente" [labelVisible]="false" [(value)]="row.cliente"></ces-text-input> } @else { {{ row.cliente }} }
+          <ng-template geoCell="cliente" let-row>
+            @if (row.editing) { <geo-text-input label="Cliente" [labelVisible]="false" [(value)]="row.cliente"></geo-text-input> } @else { {{ row.cliente }} }
           </ng-template>
-          <ng-template cesCell="inicio" let-row>
+          <ng-template geoCell="inicio" let-row>
             @if (row.editing) {
-              <ces-datepicker label="Início" [labelVisible]="false" [value]="dataLocal(row.dataVigencia)" (valueChange)="row.dataVigencia = dataIso($event) ?? ''"></ces-datepicker>
+              <geo-datepicker label="Início" [labelVisible]="false" [value]="dataLocal(row.dataVigencia)" (valueChange)="row.dataVigencia = dataIso($event) ?? ''"></geo-datepicker>
             } @else {
               {{ dataBr(row.dataVigencia) }}
             }
           </ng-template>
-          <ng-template cesCell="fim" let-row>
+          <ng-template geoCell="fim" let-row>
             @if (row.editing) {
-              <ces-datepicker label="Encerramento" [labelVisible]="false" [value]="dataLocal(row.dataEncerramento)" (valueChange)="row.dataEncerramento = dataIso($event) ?? ''"></ces-datepicker>
+              <geo-datepicker label="Encerramento" [labelVisible]="false" [value]="dataLocal(row.dataEncerramento)" (valueChange)="row.dataEncerramento = dataIso($event) ?? ''"></geo-datepicker>
             } @else {
               {{ dataBr(row.dataEncerramento) }}
             }
           </ng-template>
-          <ng-template cesCell="coeficiente" let-row>
+          <ng-template geoCell="coeficiente" let-row>
             @if (row.editing) {
-              <ces-number-input label="Coeficiente" [labelVisible]="false" [(value)]="row.coeficienteFaturamento" [min]="0" [max]="1000" [maxFractionDigits]="4"></ces-number-input>
+              <geo-number-input label="Coeficiente" [labelVisible]="false" [(value)]="row.coeficienteFaturamento" [min]="0" [max]="1000" [maxFractionDigits]="4"></geo-number-input>
             } @else {
               {{ coeficiente(row.coeficienteFaturamento) }}
             }
           </ng-template>
-          <ng-template cesCell="status" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="status" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Contratos" entidadePlural="contratos" busca="número do contrato ou cliente" rotuloNovo="Novo contrato"
@@ -262,18 +262,18 @@ export class ContratosComponent implements OnInit {
   private readonly importacaoService = inject(ImportacaoService);
   private readonly fb = inject(FormBuilder);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly statusOpcoes = OPCOES_STATUS;
   protected readonly dataLocal = dataLocal;
   protected readonly dataIso = dataIso;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'contratos',
     filters: {
-      cliente: cesFilter.value<string | null>(null, { label: 'Cliente' }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      cliente: geoFilter.value<string | null>(null, { label: 'Cliente' }),
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'numero', direction: 'asc' }]
   });
@@ -284,7 +284,7 @@ export class ContratosComponent implements OnInit {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.contratoService.listarContratos({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<ContratoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<ContratoResponse>[] = [
     { key: 'numero', header: 'Contrato', type: 'custom', priority: 1, sortField: 'numeroContrato', value: (c) => c.numeroContrato, display: (c) => c.numeroContrato },
     { key: 'cliente', header: 'Cliente', priority: 1, sortField: 'cliente' },
     { key: 'inicio', header: 'Início', type: 'date', sortField: 'dataVigencia', value: (c) => c.dataVigencia },
@@ -298,7 +298,7 @@ export class ContratosComponent implements OnInit {
   protected readonly editingId = signal<string | null>(null);
   /** Drawer de cadastro na URL: o voltar do navegador fecha, F5 e link reabrem. */
   protected readonly drawerUrl = bindDrawerToUrl();
-  private readonly drawer = viewChild(CesFormDrawerComponent);
+  private readonly drawer = viewChild(GeoFormDrawerComponent);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   protected readonly carregandoContrato = signal(false);
   /** Linha clicada na tabela: evita buscar de novo o registro que já está na tela. */
@@ -318,9 +318,9 @@ export class ContratosComponent implements OnInit {
     modelo: () => this.importacaoService.baixarModeloCsv('/v1/contratos/importar/modelo', 'modelo-contratos.csv'),
     aoProcessar: () => this.lista.reload()
   });
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveImportacao = CHAVE_LINHA_IMPORTACAO;
-  protected readonly colunasImportacao: CesDataTableColumn<ContratoImportacaoDTO>[] = [
+  protected readonly colunasImportacao: GeoDataTableColumn<ContratoImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'numero', header: 'Contrato', type: 'custom', priority: 1, value: (r) => r.numeroContrato },
     { key: 'cliente', header: 'Cliente', type: 'custom', value: (r) => r.cliente },
@@ -420,8 +420,8 @@ export class ContratosComponent implements OnInit {
 
   protected async onSave(novoEmSeguida = false) {
     if (this.saving()) return;
-    const painel = document.querySelector('.ces-form-drawer') ?? this.host.nativeElement;
-    if (!(await cesValidateForm(this.contratoForm, painel))) return;
+    const painel = document.querySelector('.geo-form-drawer') ?? this.host.nativeElement;
+    if (!(await geoValidateForm(this.contratoForm, painel))) return;
     this.saving.set(true);
     const valor = this.contratoForm.value;
     const request = {

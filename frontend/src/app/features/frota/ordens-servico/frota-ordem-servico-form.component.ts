@@ -1,20 +1,20 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { forkJoin } from 'rxjs';
 import { LookupStore } from '../../../core/lookup';
 import {
@@ -53,20 +53,20 @@ import { FrotaSeguroService } from '../../../core/services/frota-seguro.service'
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer
+    <geo-form-drawer
       [(visible)]="visivel"
       [title]="editando() ? 'Editar ' + rotuloOs(ordem()!.ordem.numero) : sinistro() ? 'OS de reparo do sinistro ' + sinistro()!.numero : 'Abrir ordem de serviço'"
       [description]="editando()
@@ -82,30 +82,30 @@ import { FrotaSeguroService } from '../../../core/services/frota-seguro.service'
     >
       <!-- Só com o drawer aberto: fechar destrói os datepickers e o painel que eles anexam ao body. -->
       @if (visivel()) {
-      <ces-form-section title="Veículo e problema" icon="pi pi-car">
+      <geo-form-section title="Veículo e problema" icon="pi pi-car">
         @if (!editando() && !idVeiculoFixo() && !sinistro()) {
-          <ces-boolean-control kind="toggle" label="Manutenção sem veículo" [(value)]="semVeiculo"
-            description="Ferramental, oficina ou equipamento sem placa. Não registra KM, condutor nem veículo parado."></ces-boolean-control>
+          <geo-boolean-control kind="toggle" label="Manutenção sem veículo" [(value)]="semVeiculo"
+            description="Ferramental, oficina ou equipamento sem placa. Não registra KM, condutor nem veículo parado."></geo-boolean-control>
         }
-        <div class="ces-form-grid">
+        <div class="geo-form-grid">
           @if (!editando() && semVeiculo()) {
-            <ces-text-input label="Equipamento" [required]="true" [(value)]="descricaoEquipamento" [maxlength]="150"
-              placeholder="Ex.: esmerilhadeira da oficina" [error]="erros()['descricaoEquipamento']"></ces-text-input>
-            <ces-select label="Base" [required]="true" [options]="bases()" [(value)]="idBase" [filter]="true"
-              [error]="erros()['idBase']"></ces-select>
+            <geo-text-input label="Equipamento" [required]="true" [(value)]="descricaoEquipamento" [maxlength]="150"
+              placeholder="Ex.: esmerilhadeira da oficina" [error]="erros()['descricaoEquipamento']"></geo-text-input>
+            <geo-select label="Base" [required]="true" [options]="bases()" [(value)]="idBase" [filter]="true"
+              [error]="erros()['idBase']"></geo-select>
           }
           @if (!editando() && !semVeiculo()) {
-            <ces-select label="Veículo" [required]="true" [options]="veiculosOpcoes()" [(value)]="idVeiculo" [filter]="true"
+            <geo-select label="Veículo" [required]="true" [options]="veiculosOpcoes()" [(value)]="idVeiculo" [filter]="true"
               [disabled]="!!idVeiculoFixo() || !!sinistro()" [loading]="carregando()" [error]="erros()['idVeiculo']"
-              (valueChange)="aoMudarVeiculoOuItens()"></ces-select>
+              (valueChange)="aoMudarVeiculoOuItens()"></geo-select>
           }
-          <ces-multiselect label="Itens de manutenção" [required]="true" [options]="itensOpcoes()" [(value)]="idsItem"
+          <geo-multiselect label="Itens de manutenção" [required]="true" [options]="itensOpcoes()" [(value)]="idsItem"
             display="chip" [maxSelectedLabels]="6" [error]="erros()['idsItem']"
             description="O serviço ou a peça. É por item que a repetição é contada."
-            (valueChange)="aoMudarVeiculoOuItens()"></ces-multiselect>
+            (valueChange)="aoMudarVeiculoOuItens()"></geo-multiselect>
         </div>
         @if (repeticoes().length) {
-          <ces-callout tone="warning" title="Manutenção recente nesta placa">
+          <geo-callout tone="warning" title="Manutenção recente nesta placa">
             <ul class="list-disc pl-5 my-1">
               @for (r of repeticoes(); track r.idItem) {
                 <li>
@@ -116,67 +116,67 @@ import { FrotaSeguroService } from '../../../core/services/frota-seguro.service'
               }
             </ul>
             Confira se é o mesmo defeito voltando antes de abrir: a repetição fica registrada quando a OS for concluída.
-          </ces-callout>
+          </geo-callout>
         }
-        <ces-textarea label="Descrição do problema" [required]="true" [(value)]="descricao" [rows]="3" [maxlength]="2000"
-          placeholder="O que foi relatado, por quem e em que situação" [error]="erros()['descricao']"></ces-textarea>
-      </ces-form-section>
+        <geo-textarea label="Descrição do problema" [required]="true" [(value)]="descricao" [rows]="3" [maxlength]="2000"
+          placeholder="O que foi relatado, por quem e em que situação" [error]="erros()['descricao']"></geo-textarea>
+      </geo-form-section>
 
-      <ces-form-section title="Classificação" icon="pi pi-tags">
-        <div class="ces-form-grid">
-          <ces-select label="Criticidade" [required]="true" [options]="criticidades()" [(value)]="criticidade"
-            (valueChange)="aoMudarCriticidade()"></ces-select>
-          <ces-select label="Tipo de manutenção" [required]="true" [options]="tipos()" [(value)]="tipoManutencao"></ces-select>
-          <ces-select label="Origem" [required]="true" [options]="origens()" [(value)]="origem" [disabled]="origemFixa()"
-            [description]="origemFixa() ? 'Reparo de sinistro: a origem não muda.' : 'Como a necessidade chegou até a frota.'"></ces-select>
-          <ces-select label="Motivo" [options]="motivos()" [(value)]="motivo" [clearable]="true" [showOptional]="true"
-            description="Mau uso pode virar desconto do condutor."></ces-select>
+      <geo-form-section title="Classificação" icon="pi pi-tags">
+        <div class="geo-form-grid">
+          <geo-select label="Criticidade" [required]="true" [options]="criticidades()" [(value)]="criticidade"
+            (valueChange)="aoMudarCriticidade()"></geo-select>
+          <geo-select label="Tipo de manutenção" [required]="true" [options]="tipos()" [(value)]="tipoManutencao"></geo-select>
+          <geo-select label="Origem" [required]="true" [options]="origens()" [(value)]="origem" [disabled]="origemFixa()"
+            [description]="origemFixa() ? 'Reparo de sinistro: a origem não muda.' : 'Como a necessidade chegou até a frota.'"></geo-select>
+          <geo-select label="Motivo" [options]="motivos()" [(value)]="motivo" [clearable]="true" [showOptional]="true"
+            description="Mau uso pode virar desconto do condutor."></geo-select>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Condutor e abertura" icon="pi pi-user">
-        <div class="ces-form-grid">
+      <geo-form-section title="Condutor e abertura" icon="pi pi-user">
+        <div class="geo-form-grid">
           @if (veicular()) {
-          <ces-select label="Condutor no momento" [options]="condutoresOpcoes()" [(value)]="idCondutor" [filter]="true"
+          <geo-select label="Condutor no momento" [options]="condutoresOpcoes()" [(value)]="idCondutor" [filter]="true"
             [clearable]="true" [showOptional]="true"
-            [description]="editando() ? undefined : 'Em branco, fica quem estava vinculado ao veículo na abertura.'"></ces-select>
+            [description]="editando() ? undefined : 'Em branco, fica quem estava vinculado ao veículo na abertura.'"></geo-select>
           }
           @if (!editando()) {
-            <ces-datepicker label="Aberta em" [required]="true" [(value)]="abertaEm" [showTime]="true" [maxDate]="agora"
-              description="Ajuste para lançar uma OS de algo que já aconteceu."></ces-datepicker>
+            <geo-datepicker label="Aberta em" [required]="true" [(value)]="abertaEm" [showTime]="true" [maxDate]="agora"
+              description="Ajuste para lançar uma OS de algo que já aconteceu."></geo-datepicker>
             @if (!semVeiculo()) {
-            <ces-number-input [label]="unidadeVeiculo() === 'HORAS' ? 'Horímetro no momento' : 'KM no momento'" [(value)]="kmAbertura"
+            <geo-number-input [label]="unidadeVeiculo() === 'HORAS' ? 'Horímetro no momento' : 'KM no momento'" [(value)]="kmAbertura"
               [min]="0" [suffix]="' ' + sufixoUnidade(unidadeVeiculo())" [showOptional]="true"
-              [description]="unidadeVeiculo() === 'HORAS' ? 'Entra no histórico do horímetro do veículo.' : 'Entra no histórico de quilometragem do veículo.'"></ces-number-input>
+              [description]="unidadeVeiculo() === 'HORAS' ? 'Entra no histórico do horímetro do veículo.' : 'Entra no histórico de quilometragem do veículo.'"></geo-number-input>
             }
           }
         </div>
         @if (!editando() && !semVeiculo()) {
-          <ces-boolean-control kind="toggle" label="Veículo parado" [(value)]="veiculoParado"
-            description="Enquanto a OS estiver aberta, o veículo fica em manutenção e o tempo parado conta para a disponibilidade."></ces-boolean-control>
+          <geo-boolean-control kind="toggle" label="Veículo parado" [(value)]="veiculoParado"
+            description="Enquanto a OS estiver aberta, o veículo fica em manutenção e o tempo parado conta para a disponibilidade."></geo-boolean-control>
         }
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Oficina e fornecedor" icon="pi pi-wrench" description="Já informe se o fornecedor é conhecido (ex.: serviço de Munk). Pode ficar em branco e ser definido depois.">
-        <div class="ces-form-grid">
-          <ces-select label="Onde será feito" [options]="tiposOficina()" [(value)]="tipoOficina"></ces-select>
+      <geo-form-section title="Oficina e fornecedor" icon="pi pi-wrench" description="Já informe se o fornecedor é conhecido (ex.: serviço de Munk). Pode ficar em branco e ser definido depois.">
+        <div class="geo-form-grid">
+          <geo-select label="Onde será feito" [options]="tiposOficina()" [(value)]="tipoOficina"></geo-select>
           @if (tipoOficina() === 'EXTERNA') {
-            <ces-select label="Fornecedor" [options]="fornecedoresOpcoes()" [(value)]="idFornecedor" [filter]="true"
-              [clearable]="true" [showOptional]="true" description="Cadastro de fornecedores do financeiro."></ces-select>
+            <geo-select label="Fornecedor" [options]="fornecedoresOpcoes()" [(value)]="idFornecedor" [filter]="true"
+              [clearable]="true" [showOptional]="true" description="Cadastro de fornecedores do financeiro."></geo-select>
           }
-          <ces-text-input [label]="tipoOficina() === 'EXTERNA' ? 'Oficina não cadastrada' : 'Oficina'" [(value)]="oficinaNome"
+          <geo-text-input [label]="tipoOficina() === 'EXTERNA' ? 'Oficina não cadastrada' : 'Oficina'" [(value)]="oficinaNome"
             [maxlength]="150" [showOptional]="true"
-            [placeholder]="tipoOficina() === 'EXTERNA' ? 'Nome, se não estiver na lista' : 'Ex.: oficina da base'"></ces-text-input>
+            [placeholder]="tipoOficina() === 'EXTERNA' ? 'Nome, se não estiver na lista' : 'Ex.: oficina da base'"></geo-text-input>
         </div>
-      </ces-form-section>
+      </geo-form-section>
       }
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="editando() ? 'Salvar alterações' : 'Abrir OS'" [loading]="salvando()"
-          (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="editando() ? 'Salvar alterações' : 'Abrir OS'" [loading]="salvando()"
+          (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaOrdemServicoFormComponent {
@@ -232,7 +232,7 @@ export class FrotaOrdemServicoFormComponent {
   protected readonly semVeiculo = signal(false);
   protected readonly descricaoEquipamento = signal('');
   protected readonly idBase = signal<string | null>(null);
-  protected readonly bases = computed<CesSelectOption<string>[]>(() =>
+  protected readonly bases = computed<GeoSelectOption<string>[]>(() =>
     this.lookups.operationalBases().map((b) => ({ label: b.label, value: b.value }))
   );
   /** Abrindo com veículo ou editando uma OS de veículo. */
@@ -242,20 +242,20 @@ export class FrotaOrdemServicoFormComponent {
   protected readonly oficinaNome = signal('');
 
   protected readonly editando = computed(() => !!this.ordem());
-  protected readonly veiculosOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly veiculosOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.veiculos().map((v) => ({
       label: `${formatarPlaca(v.placa)} — ${[v.fabricante, v.modelo].filter(Boolean).join(' ')}${v.baseOperacional ? ' · ' + v.baseOperacional : ''}`,
       value: v.idVeiculo,
       disabled: v.situacao === 'BAIXADO'
     }))
   );
-  protected readonly itensOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly itensOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.itens().map((i) => ({ label: `${i.nome} (${i.naturezaRotulo})`, value: i.id }))
   );
-  protected readonly condutoresOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly condutoresOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.condutores().map((c) => ({ label: c.nome ?? 'Sem nome', value: c.idColaborador }))
   );
-  protected readonly fornecedoresOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly fornecedoresOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.fornecedores().map((f) => ({ label: f.nome, value: f.id }))
   );
   protected readonly criticidades = computed(() => this.paraOpcoes(this.opcoes()?.criticidades));
@@ -439,7 +439,7 @@ export class FrotaOrdemServicoFormComponent {
     return [...ativos, ...daOs];
   }
 
-  private paraOpcoes<T extends string>(lista: { valor: T; rotulo: string }[] | undefined): CesSelectOption<T>[] {
+  private paraOpcoes<T extends string>(lista: { valor: T; rotulo: string }[] | undefined): GeoSelectOption<T>[] {
     return (lista ?? []).map((o) => ({ label: o.rotulo, value: o.valor }));
   }
 }

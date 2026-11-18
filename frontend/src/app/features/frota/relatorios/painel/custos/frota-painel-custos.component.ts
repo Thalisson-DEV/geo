@@ -2,19 +2,19 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption
+} from '@geo/ui';
 
 import { DetalheCustosFrota, FiltroRelatorioFrota, LancamentoFrota } from '../../../../../core/models/frota-relatorios.models';
 import { VistaAnalise } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -70,10 +70,10 @@ import {
   selector: 'app-frota-painel-custos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteFrotaService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteFrotaService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, FrotaPainelTopoComponent, FrotaRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -94,11 +94,11 @@ export class FrotaPainelCustosComponent extends PainelFrotaBase<DetalheCustosFro
   // ── Filtro próprio ───────────────────────────────────────────────────────────────────────────
   protected readonly categoriasSel = signal<string[]>([]);
   private readonly categoriasAplicadas = signal<string[]>([]);
-  protected readonly opcoesCategoria = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesCategoria = computed<GeoSelectOption<string>[]>(() => {
     const visiveis = this.gerencial()?.custos.porCategoria.map((c) => c.categoria) ?? [...PARTES];
     return visiveis.map((c) => ({ label: ROTULO_CATEGORIA[c], value: c }));
   });
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const c = this.categoriasAplicadas();
     return c.length ? [{ key: 'categoria', label: `Categoria: ${c.length === 1 ? ROTULO_CATEGORIA[c[0]] : `${c.length} selecionadas`}` }] : [];
   });
@@ -147,7 +147,7 @@ export class FrotaPainelCustosComponent extends PainelFrotaBase<DetalheCustosFro
   protected readonly chaveGrupo = (g: GrupoCusto) => `${g.dimensao}:${g.id}`;
   protected readonly chaveLancamento = (l: LancamentoFrota) => `${l.categoria}:${l.id}`;
 
-  protected readonly colVeiculos: CesDataTableColumn<VeiculoCusto>[] = [
+  protected readonly colVeiculos: GeoDataTableColumn<VeiculoCusto>[] = [
     { key: 'placa', header: 'Veículo', priority: 1 },
     { key: 'tipo', header: 'Tipo', priority: 2, value: (v) => v.tipo ?? '' },
     { key: 'base', header: 'Base', priority: 2, value: (v) => v.base ?? '' },
@@ -166,7 +166,7 @@ export class FrotaPainelCustosComponent extends PainelFrotaBase<DetalheCustosFro
       display: (v) => (v.delta == null ? '—' : `${v.delta >= 0 ? '+' : '−'}${moeda(Math.abs(v.delta))}`) }
   ];
 
-  protected readonly colGrupos: CesDataTableColumn<GrupoCusto>[] = [
+  protected readonly colGrupos: GeoDataTableColumn<GrupoCusto>[] = [
     { key: 'nome', header: 'Grupo', priority: 1 },
     { key: 'veiculos', header: 'Veículos', type: 'custom', priority: 2, value: (g) => g.veiculos.length, display: (g) => inteiro(g.veiculos.length) },
     { key: 'custo', header: 'Custo', type: 'currency', priority: 1 },
@@ -176,21 +176,21 @@ export class FrotaPainelCustosComponent extends PainelFrotaBase<DetalheCustosFro
       display: (g) => moeda(dividir(g.custo, g.veiculos.length)) }
   ];
 
-  protected readonly colForaCurva: CesDataTableColumn<VeiculoCusto>[] = [
+  protected readonly colForaCurva: GeoDataTableColumn<VeiculoCusto>[] = [
     { key: 'placa', header: 'Veículo', priority: 1 },
     { key: 'tipo', header: 'Tipo', priority: 2, value: (v) => v.tipo ?? '' },
     { key: 'custoKm', header: 'R$/km', type: 'custom', priority: 1, value: (v) => v.custoKm ?? -1, display: (v) => moeda(v.custoKm) },
     { key: 'sobreTipo', header: 'Sobre o tipo', type: 'custom', priority: 1, value: (v) => v.sobreTipo ?? 0, display: (v) => `${numero(v.sobreTipo, 2)}×` }
   ];
 
-  protected readonly colAltas: CesDataTableColumn<VeiculoCusto>[] = [
+  protected readonly colAltas: GeoDataTableColumn<VeiculoCusto>[] = [
     { key: 'placa', header: 'Veículo', priority: 1 },
     { key: 'totalAnterior', header: 'Anterior', type: 'currency', priority: 2 },
     { key: 'total', header: 'Atual', type: 'currency', priority: 1 },
     { key: 'delta', header: 'Alta', type: 'currency', priority: 1 }
   ];
 
-  protected readonly colLancamentos: CesDataTableColumn<LancamentoFrota>[] = [
+  protected readonly colLancamentos: GeoDataTableColumn<LancamentoFrota>[] = [
     { key: 'data', header: 'Data', type: 'date', priority: 2 },
     { key: 'placa', header: 'Veículo', priority: 1, value: (l) => l.placa ?? '—' },
     { key: 'categoria', header: 'Categoria', priority: 2, value: (l) => ROTULO_CATEGORIA[l.categoria] ?? l.categoria },

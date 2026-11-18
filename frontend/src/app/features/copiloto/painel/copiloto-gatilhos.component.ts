@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
-import { CesIconButtonComponent } from '@ces/ui';
+import { GeoIconButtonComponent } from '@geo/ui';
 import { FocoPainel } from '../../../core/models/assistente.models';
 import { CopilotoPainelService } from './copiloto-painel.service';
 
@@ -33,26 +33,26 @@ import { CopilotoPainelService } from './copiloto-painel.service';
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      min-height: var(--ces-control-height-sm, 2rem);
+      min-height: var(--geo-control-height-sm, 2rem);
       padding: 0.2rem 0.75rem 0.2rem 0.25rem;
-      border: 1px solid color-mix(in srgb, var(--ces-brand) 35%, var(--ces-border));
+      border: 1px solid color-mix(in srgb, var(--geo-brand) 35%, var(--geo-border));
       border-radius: 999px;
-      background: var(--ces-surface);
-      color: var(--ces-brand);
+      background: var(--geo-surface);
+      color: var(--geo-brand);
       font: inherit;
-      font-size: var(--ces-font-body);
+      font-size: var(--geo-font-body);
       font-weight: 650;
       cursor: pointer;
-      box-shadow: var(--ces-shadow-sm);
-      transition: background var(--ces-duration-fast) var(--ces-ease-standard),
-        border-color var(--ces-duration-fast) var(--ces-ease-standard);
+      box-shadow: var(--geo-shadow-sm);
+      transition: background var(--geo-duration-fast) var(--geo-ease-standard),
+        border-color var(--geo-duration-fast) var(--geo-ease-standard);
     }
-    .gatilho img { width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--ces-brand-soft); object-fit: contain; }
+    .gatilho img { width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--geo-brand-soft); object-fit: contain; }
     .gatilho i { font-size: 0.75rem; }
-    .gatilho:hover { background: var(--ces-brand-soft); border-color: var(--ces-brand); }
-    .gatilho:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .gatilho:hover { background: var(--geo-brand-soft); border-color: var(--geo-brand); }
+    .gatilho:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .gatilho:active { transform: translateY(1px); }
-    .gatilho--aberto { background: var(--ces-brand-soft); border-color: var(--ces-brand); }
+    .gatilho--aberto { background: var(--geo-brand-soft); border-color: var(--geo-brand); }
     @media (max-width: 480px) { .gatilho__texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .gatilho { padding-right: 0.55rem; } }
   `,
 })
@@ -69,16 +69,16 @@ export class CopilotoGatilhoComponent {
 @Component({
   selector: 'app-copiloto-perguntar',
   standalone: true,
-  imports: [CesIconButtonComponent],
+  imports: [GeoIconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (painel.disponivelParaUsuario()) {
-      <ces-icon-button
+      <geo-icon-button
         icon="pi pi-compass"
         size="icon-sm"
         [label]="rotulo()"
         (pressed)="perguntar()"
-      ></ces-icon-button>
+      ></geo-icon-button>
     }
   `,
 })

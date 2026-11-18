@@ -2,21 +2,21 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { ParamMap } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import {
   CnhDetalheFrota,
@@ -48,7 +48,7 @@ import { PainelFrotaBase } from '../painel-frota-base';
 import { RecorteFrotaService } from '../recorte-frota.service';
 import { GrupoChecklist, ModeloConformidade, modeloConformidade, vistaConformidade, visaoConformidade } from './analise-conformidade';
 
-const HORIZONTES: CesSelectOption<number>[] = [
+const HORIZONTES: GeoSelectOption<number>[] = [
   { label: 'Próximos 30 dias', value: 30 }, { label: 'Próximos 60 dias', value: 60 },
   { label: 'Próximos 90 dias', value: 90 }, { label: 'Próximos 180 dias', value: 180 }
 ];
@@ -61,10 +61,10 @@ const HORIZONTES: CesSelectOption<number>[] = [
   selector: 'app-frota-painel-conformidade',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteFrotaService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteFrotaService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesCellDirective, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesPageHeaderComponent, CesSelectComponent, CesStatusComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoCellDirective, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoPageHeaderComponent, GeoSelectComponent, GeoStatusComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, FrotaPainelTopoComponent, FrotaRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -82,7 +82,7 @@ export class FrotaPainelConformidadeComponent extends PainelFrotaBase<DetalheCon
 
   protected readonly horizonteSel = signal<number | null>(90);
   private readonly horizonte = signal(90);
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() =>
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() =>
     this.horizonte() !== 90 ? [{ key: 'horizonte', label: `Vencimentos: ${HORIZONTES.find((h) => h.value === this.horizonte())?.label.toLowerCase()}` }] : []);
 
   protected readonly modelo = computed<ModeloConformidade | null>(() => {
@@ -130,25 +130,25 @@ export class FrotaPainelConformidadeComponent extends PainelFrotaBase<DetalheCon
   protected readonly chaveBase = (g: GrupoChecklist) => g.id;
   protected readonly chaveSemana = (s: { inicio: string }) => s.inicio;
 
-  protected readonly colDocs: CesDataTableColumn<DocumentoDetalheFrota>[] = [
+  protected readonly colDocs: GeoDataTableColumn<DocumentoDetalheFrota>[] = [
     { key: 'placa', header: 'Veículo', priority: 1, value: (d) => d.placa ?? '—' },
     { key: 'tipo', header: 'Documento', priority: 1, value: (d) => rotulo(ROTULO_DOCUMENTO, d.tipo) },
     { key: 'vencimento', header: 'Vencimento', type: 'date', priority: 2 },
     { key: 'dias', header: 'Situação', type: 'custom', priority: 1, value: (d) => d.dias }
   ];
-  protected readonly colCnh: CesDataTableColumn<CnhDetalheFrota>[] = [
+  protected readonly colCnh: GeoDataTableColumn<CnhDetalheFrota>[] = [
     { key: 'nome', header: 'Condutor', priority: 1 },
     { key: 'validade', header: 'Validade', type: 'date', priority: 2 },
     { key: 'dias', header: 'Situação', type: 'custom', priority: 1, value: (c) => c.dias ?? -9999 },
     { key: 'placas', header: 'Veículo atual', type: 'custom', priority: 2, value: (c) => c.placas.join(', '), display: (c) => c.placas.join(', ') || '—' }
   ];
-  protected readonly colPend: CesDataTableColumn<PendenciaDetalheFrota>[] = [
+  protected readonly colPend: GeoDataTableColumn<PendenciaDetalheFrota>[] = [
     { key: 'placa', header: 'Veículo', priority: 1, value: (p) => p.placa ?? '—' },
     { key: 'item', header: 'Item', priority: 1 },
     { key: 'dias', header: 'Dias aberta', type: 'integer', priority: 1 },
     { key: 'idOrdemServico', header: 'OS', type: 'custom', priority: 2, value: (p) => (p.idOrdemServico ? 1 : 0), display: (p) => (p.idOrdemServico ? 'Com OS' : 'Sem OS') }
   ];
-  protected readonly colChecklist: CesDataTableColumn<VeiculoRelatorioFrota>[] = [
+  protected readonly colChecklist: GeoDataTableColumn<VeiculoRelatorioFrota>[] = [
     { key: 'placa', header: 'Veículo', priority: 1 },
     { key: 'base', header: 'Base', priority: 2, value: (v) => v.base ?? '' },
     { key: 'diasComChecklist', header: 'Dias com checklist', type: 'custom', priority: 2, value: (v) => v.diasComChecklist ?? 0, display: (v) => inteiro(v.diasComChecklist) },

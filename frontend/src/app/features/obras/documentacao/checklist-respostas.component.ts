@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, TemplateRef, input, model } from '@angular/core';
-import { CesBooleanControlComponent, CesButtonComponent, CesDatepickerComponent, CesNumberInputComponent, CesStatusComponent, CesTextareaComponent } from '@ces/ui';
+import { GeoBooleanControlComponent, GeoButtonComponent, GeoDatepickerComponent, GeoNumberInputComponent, GeoStatusComponent, GeoTextareaComponent } from '@geo/ui';
 import { EstruturaChecklist, GrupoChecklist, PerguntaChecklist } from '../../../core/models/obras-documentacao.models';
 import {
   RespostaEmEdicao,
@@ -23,7 +23,7 @@ import {
 @Component({
   selector: 'app-checklist-respostas',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgTemplateOutlet, CesBooleanControlComponent, CesButtonComponent, CesDatepickerComponent, CesNumberInputComponent, CesStatusComponent, CesTextareaComponent],
+  imports: [NgTemplateOutlet, GeoBooleanControlComponent, GeoButtonComponent, GeoDatepickerComponent, GeoNumberInputComponent, GeoStatusComponent, GeoTextareaComponent],
   template: `
     @for (grupo of estrutura().grupos; track $index; let gi = $index) {
       @let pr = progressoDo(grupo);
@@ -31,15 +31,15 @@ import {
         <div class="cr-grupo" role="group" [attr.aria-labelledby]="'cr-g-' + gi" [class.cr-grupo--completo]="pr.respondidas === pr.total">
           <div class="cr-grupo__legenda">
             <h4 class="cr-grupo__titulo" [id]="'cr-g-' + gi">{{ grupo.titulo }}</h4>
-            <span class="cr-grupo__contagem">{{ pr.respondidas }} de {{ pr.total }}<span class="ces-sr-only"> respondidas</span></span>
+            <span class="cr-grupo__contagem">{{ pr.respondidas }} de {{ pr.total }}<span class="geo-sr-only"> respondidas</span></span>
           </div>
           <div class="cr-barra" role="progressbar" [attr.aria-label]="'Progresso da seção ' + grupo.titulo" aria-valuemin="0" [attr.aria-valuemax]="pr.total" [attr.aria-valuenow]="pr.respondidas">
             <span class="cr-barra__valor" [style.width.%]="pr.total ? (pr.respondidas / pr.total) * 100 : 0"></span>
           </div>
           @if (conformesDo(grupo) > 0) {
-            <ces-button class="cr-grupo__acao" variant="ghost" size="sm" icon="pi pi-check-square"
+            <geo-button class="cr-grupo__acao" variant="ghost" size="sm" icon="pi pi-check-square"
               [label]="'Marcar ' + conformesDo(grupo) + (conformesDo(grupo) === 1 ? ' restante como conforme' : ' restantes como conforme')"
-              (pressed)="marcarConformes(grupo)"></ces-button>
+              (pressed)="marcarConformes(grupo)"></geo-button>
           }
           @for (p of grupo.perguntas; track p.id) {
             @if (!somentePendentes() || !respondida(p, respostas()[p.id])) {
@@ -47,7 +47,7 @@ import {
                 <div class="cr-pergunta__topo">
                   <span class="cr-enunciado" [id]="'cr-' + p.id">{{ p.enunciado }}@if (p.obrigatoria) {<span class="cr-obrigatoria" aria-hidden="true"> *</span>}</span>
                   @if (naoConforme(p, respostas()[p.id])) {
-                    <ces-status tone="warning" icon="pi-exclamation-triangle">Não conforme</ces-status>
+                    <geo-status tone="warning" icon="pi-exclamation-triangle">Não conforme</geo-status>
                   }
                 </div>
                 @if (temOpcoes(p.tipo)) {
@@ -63,17 +63,17 @@ import {
                   </div>
                 } @else if (p.tipo === 'NUMERO') {
                   <!-- Sem [required]: obrigatório, o campo vazio viraria 0 e pareceria respondido. -->
-                  <ces-number-input [label]="p.enunciado" [labelVisible]="false" [value]="r(p).numero" [maxFractionDigits]="4" [useGrouping]="false"
-                    [disabled]="r(p).naoSeAplica" (valueChange)="alterar(p, { numero: $event })"></ces-number-input>
+                  <geo-number-input [label]="p.enunciado" [labelVisible]="false" [value]="r(p).numero" [maxFractionDigits]="4" [useGrouping]="false"
+                    [disabled]="r(p).naoSeAplica" (valueChange)="alterar(p, { numero: $event })"></geo-number-input>
                 } @else if (p.tipo === 'DATA') {
-                  <ces-datepicker [label]="p.enunciado" [labelVisible]="false" [value]="r(p).data" [disabled]="r(p).naoSeAplica"
-                    (valueChange)="alterar(p, { data: $event })"></ces-datepicker>
+                  <geo-datepicker [label]="p.enunciado" [labelVisible]="false" [value]="r(p).data" [disabled]="r(p).naoSeAplica"
+                    (valueChange)="alterar(p, { data: $event })"></geo-datepicker>
                 } @else {
-                  <ces-textarea [label]="p.enunciado" [labelVisible]="false" [rows]="2" [maxlength]="2000" [value]="r(p).texto" [disabled]="r(p).naoSeAplica"
-                    (valueChange)="alterar(p, { texto: $event })"></ces-textarea>
+                  <geo-textarea [label]="p.enunciado" [labelVisible]="false" [rows]="2" [maxlength]="2000" [value]="r(p).texto" [disabled]="r(p).naoSeAplica"
+                    (valueChange)="alterar(p, { texto: $event })"></geo-textarea>
                 }
                 @if (p.aceitaNaoSeAplica) {
-                  <ces-boolean-control label="Não se aplica" [inline]="true" [value]="r(p).naoSeAplica" (valueChange)="marcarNaoSeAplica(p, $event)"></ces-boolean-control>
+                  <geo-boolean-control label="Não se aplica" [inline]="true" [value]="r(p).naoSeAplica" (valueChange)="marcarNaoSeAplica(p, $event)"></geo-boolean-control>
                 }
                 @if (pendente(p)) {
                   <p class="cr-erro" role="alert"><i class="pi pi-exclamation-circle" aria-hidden="true"></i> Responda esta pergunta{{ p.aceitaNaoSeAplica ? ' ou marque "Não se aplica"' : '' }}.</p>
@@ -90,34 +90,34 @@ import {
   `,
   styles: `
     :host { display: flex; flex-direction: column; gap: 1rem; }
-    .cr-grupo { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; padding: 0.875rem 1rem 1rem; border: 1px solid var(--ces-border-strong); border-radius: var(--ces-radius-lg); background: var(--ces-surface-subtle); }
+    .cr-grupo { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; padding: 0.875rem 1rem 1rem; border: 1px solid var(--geo-border-strong); border-radius: var(--geo-radius-lg); background: var(--geo-surface-subtle); }
     .cr-grupo__legenda { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
-    .cr-grupo__titulo { margin: 0; color: var(--ces-foreground); font-size: 0.9375rem; font-weight: 700; overflow-wrap: anywhere; }
-    .cr-grupo__contagem { flex: none; color: var(--ces-foreground-muted); font-size: 0.8125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .cr-grupo--completo .cr-grupo__contagem { color: var(--ces-success-text); }
-    .cr-barra { display: block; height: 0.375rem; overflow: hidden; border-radius: 999px; background: var(--ces-surface-muted); }
-    .cr-barra__valor { display: block; height: 100%; border-radius: inherit; background: var(--ces-brand); transition: width 160ms ease-out; }
-    .cr-grupo--completo .cr-barra__valor { background: var(--ces-success); }
+    .cr-grupo__titulo { margin: 0; color: var(--geo-foreground); font-size: 0.9375rem; font-weight: 700; overflow-wrap: anywhere; }
+    .cr-grupo__contagem { flex: none; color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .cr-grupo--completo .cr-grupo__contagem { color: var(--geo-success-text); }
+    .cr-barra { display: block; height: 0.375rem; overflow: hidden; border-radius: 999px; background: var(--geo-surface-muted); }
+    .cr-barra__valor { display: block; height: 100%; border-radius: inherit; background: var(--geo-brand); transition: width 160ms ease-out; }
+    .cr-grupo--completo .cr-barra__valor { background: var(--geo-success); }
     .cr-grupo__acao { align-self: flex-start; }
-    .cr-pergunta { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.875rem; border-top: 1px solid var(--ces-border); }
+    .cr-pergunta { display: flex; flex-direction: column; gap: 0.5rem; padding-top: 0.875rem; border-top: 1px solid var(--geo-border); }
     .cr-grupo__acao + .cr-pergunta, .cr-barra + .cr-pergunta { padding-top: 0.25rem; border-top: 0; }
-    .cr-pergunta--pendente { padding-left: 0.625rem; border-left: 3px solid var(--ces-danger-text); }
-    .cr-pergunta--nc { padding-left: 0.625rem; border-left: 3px solid var(--ces-warning-text); }
+    .cr-pergunta--pendente { padding-left: 0.625rem; border-left: 3px solid var(--geo-danger-text); }
+    .cr-pergunta--nc { padding-left: 0.625rem; border-left: 3px solid var(--geo-warning-text); }
     .cr-pergunta__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem 0.75rem; }
-    .cr-enunciado { flex: 1 1 14rem; color: var(--ces-foreground); font-size: 0.875rem; font-weight: 500; overflow-wrap: anywhere; }
-    .cr-obrigatoria { color: var(--ces-danger-text); }
+    .cr-enunciado { flex: 1 1 14rem; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 500; overflow-wrap: anywhere; }
+    .cr-obrigatoria { color: var(--geo-danger-text); }
     .cr-opcoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .cr-opcao { display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--ces-touch-target); padding: 0.375rem 0.875rem; border: 1px solid var(--ces-border-strong); border-radius: var(--ces-radius-md); background: var(--ces-surface); color: var(--ces-foreground); font: inherit; font-size: 0.875rem; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out; }
-    .cr-opcao .pi { font-size: 0.75rem; color: var(--ces-foreground-subtle); }
-    .cr-opcao:hover:not(:disabled) { border-color: var(--ces-brand); background: var(--ces-surface-muted); }
-    .cr-opcao:active:not(:disabled) { background: var(--ces-brand-soft); }
-    .cr-opcao:focus-visible { outline: 3px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .cr-opcao { display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--geo-touch-target); padding: 0.375rem 0.875rem; border: 1px solid var(--geo-border-strong); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; font-size: 0.875rem; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out; }
+    .cr-opcao .pi { font-size: 0.75rem; color: var(--geo-foreground-subtle); }
+    .cr-opcao:hover:not(:disabled) { border-color: var(--geo-brand); background: var(--geo-surface-muted); }
+    .cr-opcao:active:not(:disabled) { background: var(--geo-brand-soft); }
+    .cr-opcao:focus-visible { outline: 3px solid var(--geo-focus-ring); outline-offset: 2px; }
     .cr-opcao:disabled { opacity: 0.55; cursor: not-allowed; }
-    .cr-opcao--marcada, .cr-opcao--marcada:hover:not(:disabled) { border-color: var(--ces-brand); background: var(--ces-brand-soft); box-shadow: inset 0 0 0 1px var(--ces-brand); color: var(--ces-foreground); font-weight: 700; }
-    .cr-opcao--marcada .pi { color: var(--ces-brand); }
-    .cr-opcao--alerta, .cr-opcao--alerta:hover:not(:disabled) { border-color: var(--ces-warning-text); background: var(--ces-warning-soft); box-shadow: inset 0 0 0 1px var(--ces-warning-text); }
-    .cr-opcao--alerta .pi { color: var(--ces-warning-text); }
-    .cr-erro { display: flex; gap: 0.375rem; align-items: center; margin: 0; color: var(--ces-danger-text); font-size: 0.8125rem; }
+    .cr-opcao--marcada, .cr-opcao--marcada:hover:not(:disabled) { border-color: var(--geo-brand); background: var(--geo-brand-soft); box-shadow: inset 0 0 0 1px var(--geo-brand); color: var(--geo-foreground); font-weight: 700; }
+    .cr-opcao--marcada .pi { color: var(--geo-brand); }
+    .cr-opcao--alerta, .cr-opcao--alerta:hover:not(:disabled) { border-color: var(--geo-warning-text); background: var(--geo-warning-soft); box-shadow: inset 0 0 0 1px var(--geo-warning-text); }
+    .cr-opcao--alerta .pi { color: var(--geo-warning-text); }
+    .cr-erro { display: flex; gap: 0.375rem; align-items: center; margin: 0; color: var(--geo-danger-text); font-size: 0.8125rem; }
     @media (prefers-reduced-motion: reduce) { .cr-barra__valor, .cr-opcao { transition: none; } }
   `
 })

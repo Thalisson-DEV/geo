@@ -7,22 +7,22 @@ import { Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesDrawerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoDrawerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
   NotificationService
-} from '@ces/ui';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+} from '@geo/ui';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as CursorRemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -90,18 +90,18 @@ interface EtapaFluxo {
     DecimalPipe,
     NgTemplateOutlet,
     FormsModule,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesDrawerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTabsComponent,
-    CesTabPanelDirective,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoDrawerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTabsComponent,
+    GeoTabPanelDirective,
     ConsumoAnteriorLinhaComponent,
     ConsumoAnteriorOperacoesComponent,
     SeriesSelecaoComponent,
@@ -112,7 +112,7 @@ interface EtapaFluxo {
   ],
   styleUrl: './solicitacao-comercial-detalhe.component.css',
   template: `
-    <ces-drawer
+    <geo-drawer
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       eyebrow="Solicitação comercial"
@@ -125,20 +125,20 @@ interface EtapaFluxo {
           <span></span><span></span><span></span><span></span>
         </div>
       } @else if (erro()) {
-        <ces-callout tone="danger" title="Não foi possível carregar a solicitação">{{ erro() }}</ces-callout>
+        <geo-callout tone="danger" title="Não foi possível carregar a solicitação">{{ erro() }}</geo-callout>
       } @else if (detalhe(); as det) {
         <div class="dd">
           <section class="dd-hero" [attr.data-tone]="status().tone" aria-label="Resumo">
             <div class="dd-hero__topo">
-              <ces-status [tone]="status().tone" [icon]="'pi ' + status().icon" emphasis="solid">{{ status().label }}</ces-status>
+              <geo-status [tone]="status().tone" [icon]="'pi ' + status().icon" emphasis="solid">{{ status().label }}</geo-status>
               @if (atrasada()) {
-                <ces-status tone="danger" icon="pi pi-exclamation-triangle">Saque atrasado</ces-status>
+                <geo-status tone="danger" icon="pi pi-exclamation-triangle">Saque atrasado</geo-status>
               }
               @if (det.foraPrazoSaque) {
-                <ces-status tone="warning" icon="pi pi-clock">Fora do prazo de 48h</ces-status>
+                <geo-status tone="warning" icon="pi pi-clock">Fora do prazo de 48h</geo-status>
               }
               @if (det.possuiPendencia) {
-                <ces-status tone="warning" icon="pi pi-flag">Com pendência</ces-status>
+                <geo-status tone="warning" icon="pi pi-flag">Com pendência</geo-status>
               }
             </div>
             <p class="dd-hero__rota">
@@ -195,34 +195,34 @@ interface EtapaFluxo {
           }
 
           @if (det.encerrada && det.motivoEncerramento && det.status !== 'ENTREGUE') {
-            <ces-callout tone="info" title="Saldo pendente encerrado">{{ det.motivoEncerramento }}</ces-callout>
+            <geo-callout tone="info" title="Saldo pendente encerrado">{{ det.motivoEncerramento }}</geo-callout>
           }
           @if (det.status === 'REJEITADO' && det.motivoRejeicao) {
-            <ces-callout tone="danger" [title]="'Rejeitada: ' + det.motivoRejeicao.nome">{{ det.justificativaRejeicao || 'Sem justificativa registrada.' }}</ces-callout>
+            <geo-callout tone="danger" [title]="'Rejeitada: ' + det.motivoRejeicao.nome">{{ det.justificativaRejeicao || 'Sem justificativa registrada.' }}</geo-callout>
           }
           @if (det.motivoPendencia) {
-            <ces-callout tone="warning" [title]="'Pendência: ' + det.motivoPendencia.nome">
+            <geo-callout tone="warning" [title]="'Pendência: ' + det.motivoPendencia.nome">
               <div class="dd-callout-linha">
                 <span>{{ det.justificativaPendencia || 'Sem justificativa informada.' }}</span>
                 @if (podeRegistrarPendencia()) {
-                  <ces-button label="Resolver pendência" icon="pi pi-check" variant="outline" size="sm" [loading]="executando()" (pressed)="resolverPendenciaGeral()" />
+                  <geo-button label="Resolver pendência" icon="pi pi-check" variant="outline" size="sm" [loading]="executando()" (pressed)="resolverPendenciaGeral()" />
                 }
               </div>
-            </ces-callout>
+            </geo-callout>
           }
           @if (det.observacao) {
             <blockquote class="dd-obs"><span class="dd-label">Observação do requisitante</span>{{ det.observacao }}</blockquote>
           }
 
           @if (abas().length > 1) {
-            <ces-tabs [(value)]="aba" [tabs]="abas()">
-              <ng-template cesTabPanel="itens"><ng-container *ngTemplateOutlet="materiais" /></ng-template>
+            <geo-tabs [(value)]="aba" [tabs]="abas()">
+              <ng-template geoTabPanel="itens"><ng-container *ngTemplateOutlet="materiais" /></ng-template>
 
               @if (podeEntregar()) {
-                <ng-template cesTabPanel="entrega">
+                <ng-template geoTabPanel="entrega">
                   <div class="dd-entrega">
                     <div class="dd-entrega__quem">
-                      <ces-select
+                      <geo-select
                         label="Sai de"
                         [options]="opcoesOrigem()"
                         [value]="origemEntrega().id"
@@ -234,14 +234,14 @@ interface EtapaFluxo {
                         [description]="podeTrocarOrigem() ? 'Almoxarifado de onde o material sai nesta entrega.' : 'Já saiu material daqui: a origem não muda mais, porque o estorno volta para ela.'"
                       />
                       @if (origemTrocada()) {
-                        <ces-callout tone="warning" [title]="'Sai de ' + origemEntrega().nome + ' em vez de ' + det.estoqueOrigem.nomeIdentificador">
+                        <geo-callout tone="warning" [title]="'Sai de ' + origemEntrega().nome + ' em vez de ' + det.estoqueOrigem.nomeIdentificador">
                           A solicitação passa a ser atendida por {{ origemEntrega().nome }}.@if (temSeriesReservadas()) { As séries definidas na origem anterior não valem aqui: escolha as séries de novo. }
-                        </ces-callout>
+                        </geo-callout>
                       }
-                      <ces-boolean-control kind="toggle" label="Retirada por outra equipe"
+                      <geo-boolean-control kind="toggle" label="Retirada por outra equipe"
                       description="Ligue quando quem retira não é da equipe de destino." [value]="saqueForaEquipe()" (valueChange)="alternarForaEquipe($event)" />
                       <div class="dd-grid-2">
-                        <ces-select
+                        <geo-select
                           label="Quem retira"
                           placeholder="Selecione"
                           [options]="saqueForaEquipe() ? colaboradoresGerais() : membrosEquipe()"
@@ -252,7 +252,7 @@ interface EtapaFluxo {
                           [error]="tentouEntregar() && !responsavelId() ? 'Escolha quem retira o material.' : undefined"
                           [description]="!saqueForaEquipe() && !membrosEquipe().length && !carregandoColaboradores() ? 'A equipe de destino não tem membros ativos. Ligue a retirada por outra equipe.' : saqueForaEquipe() ? 'Qualquer colaborador ativo.' : 'Membros ativos da equipe de destino.'"
                         />
-                        <ces-select label="Assinatura" [options]="opcoesAssinatura" [value]="assinatura()" (valueChange)="trocarAssinatura($event)" [required]="true" />
+                        <geo-select label="Assinatura" [options]="opcoesAssinatura" [value]="assinatura()" (valueChange)="trocarAssinatura($event)" [required]="true" />
                       </div>
                       @if (assinatura() === 'DIGITAL') {
                         <div class="dd-assinaturas">
@@ -265,8 +265,8 @@ interface EtapaFluxo {
                     <div class="dd-secao-topo">
                       <span class="dd-muted">{{ resumoEntrega() }}</span>
                       <span class="dd-linha-botoes">
-                        <ces-button label="Entregar tudo o que falta" icon="pi pi-check-square" variant="ghost" size="sm" (pressed)="preencherTudo()" />
-                        <ces-button label="Zerar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="zerarTudo()" />
+                        <geo-button label="Entregar tudo o que falta" icon="pi pi-check-square" variant="ghost" size="sm" (pressed)="preencherTudo()" />
+                        <geo-button label="Zerar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="zerarTudo()" />
                       </span>
                     </div>
 
@@ -282,9 +282,9 @@ interface EtapaFluxo {
                               @if (l.material.detalhaSerie) { · com nº de série }
                             </span>
                             @if (!l.idItem) {
-                              <ces-status tone="brand" icon="pi pi-plus">Incluído nesta entrega</ces-status>
+                              <geo-status tone="brand" icon="pi pi-plus">Incluído nesta entrega</geo-status>
                             } @else if (l.removido) {
-                              <ces-status tone="danger" icon="pi pi-trash">Sai da solicitação</ces-status>
+                              <geo-status tone="danger" icon="pi pi-trash">Sai da solicitação</geo-status>
                             }
                           </div>
                           <div class="dd-aprov__campos">
@@ -303,7 +303,7 @@ interface EtapaFluxo {
                               />
                             }
                             @if (!l.idItem || podeTirarDaSolicitacao(l)) {
-                              <ces-icon-button
+                              <geo-icon-button
                                 [icon]="l.removido ? 'pi pi-undo' : 'pi pi-trash'"
                                 [label]="(l.removido ? 'Manter ' : l.idItem ? 'Tirar da solicitação ' : 'Descartar ') + l.material.codigo"
                                 [tooltip]="l.removido ? 'Manter na solicitação' : l.idItem ? 'Tirar da solicitação' : 'Descartar'"
@@ -336,11 +336,11 @@ interface EtapaFluxo {
               }
 
               @if (det.operacoes?.length) {
-                <ng-template cesTabPanel="historico">
+                <ng-template geoTabPanel="historico">
                   <app-solicitacao-operacoes-historico [operacoes]="det.operacoes!" [equipeNome]="det.estoqueDestino.nomeIdentificador" [recolhivel]="false" />
                 </ng-template>
               }
-            </ces-tabs>
+            </geo-tabs>
           } @else {
             <section aria-labelledby="dd-materiais-titulo">
               <h3 id="dd-materiais-titulo" class="dd-titulo-secao"><i class="pi pi-box" aria-hidden="true"></i>Materiais</h3>
@@ -351,7 +351,7 @@ interface EtapaFluxo {
           <ng-template #materiais>
             @if (ajustando()) {
               <div class="dd-entrega__quem dd-aprov__data">
-                <ces-datepicker
+                <geo-datepicker
                   label="Data prevista do saque"
                   [value]="dataPrevistaAprovacao()"
                   (valueChange)="dataPrevistaAprovacao.set($event)"
@@ -361,9 +361,9 @@ interface EtapaFluxo {
               <div class="dd-secao-topo">
                 <span class="dd-muted">{{ resumoAjustes() }}</span>
                 <span class="dd-linha-botoes">
-                  <ces-button label="Desfazer ajustes" icon="pi pi-undo" variant="ghost" size="sm" [disabled]="!temAjustes()" (pressed)="iniciarAjustes()" />
+                  <geo-button label="Desfazer ajustes" icon="pi pi-undo" variant="ghost" size="sm" [disabled]="!temAjustes()" (pressed)="iniciarAjustes()" />
                   @if (podeRegistrarPendencia() && !det.motivoPendencia) {
-                    <ces-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendenciaGeral()" />
+                    <geo-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendenciaGeral()" />
                   }
                 </span>
               </div>
@@ -378,11 +378,11 @@ interface EtapaFluxo {
                         @if (linha.idItem) { · pedido {{ linha.pedido | number: '1.0-3' }} }
                       </span>
                       @if (!linha.idItem) {
-                        <ces-status tone="brand" icon="pi pi-plus">Incluído na aprovação</ces-status>
+                        <geo-status tone="brand" icon="pi pi-plus">Incluído na aprovação</geo-status>
                       } @else if (linha.removido) {
-                        <ces-status tone="danger" icon="pi pi-trash">Sai da solicitação</ces-status>
+                        <geo-status tone="danger" icon="pi pi-trash">Sai da solicitação</geo-status>
                       } @else if (linha.quantidade !== linha.pedido) {
-                        <ces-status tone="warning" icon="pi pi-pencil">Quantidade ajustada</ces-status>
+                        <geo-status tone="warning" icon="pi pi-pencil">Quantidade ajustada</geo-status>
                       }
                       @if (linha.idItem && !erroConsumo()) {
                         <app-consumo-anterior-linha
@@ -397,7 +397,7 @@ interface EtapaFluxo {
                     </div>
                     <div class="dd-aprov__campos">
                       @if (!linha.removido) {
-                        <ces-number-input
+                        <geo-number-input
                           class="dd-aprov__quantidade"
                           [label]="'Quantidade aprovada de ' + linha.material.codigo"
                           [labelVisible]="false"
@@ -409,7 +409,7 @@ interface EtapaFluxo {
                           [error]="tentouAprovar() && (linha.quantidade ?? 0) < quantidadeMinima ? 'Informe a quantidade' : undefined"
                         />
                       }
-                      <ces-icon-button
+                      <geo-icon-button
                         [icon]="linha.removido ? 'pi pi-undo' : 'pi pi-trash'"
                         [label]="(linha.removido ? 'Manter ' : 'Tirar da solicitação ') + linha.material.codigo"
                         [tooltip]="linha.removido ? 'Manter na solicitação' : 'Tirar da solicitação'"
@@ -432,10 +432,10 @@ interface EtapaFluxo {
                 <span class="dd-muted">{{ det.itens.length }} {{ det.itens.length === 1 ? 'material' : 'materiais' }}</span>
                 <span class="dd-linha-botoes">
                   @if (podeAprovar()) {
-                    <ces-button label="Ajustar materiais e data" icon="pi pi-pencil" variant="ghost" size="sm" (pressed)="iniciarAjustes()" />
+                    <geo-button label="Ajustar materiais e data" icon="pi pi-pencil" variant="ghost" size="sm" (pressed)="iniciarAjustes()" />
                   }
                   @if (podeRegistrarPendencia() && !det.motivoPendencia) {
-                    <ces-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendenciaGeral()" />
+                    <geo-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendenciaGeral()" />
                   }
                 </span>
               </div>
@@ -448,7 +448,7 @@ interface EtapaFluxo {
               <div class="dd-aprov__adicionar">
                 <span class="dd-label"><i class="pi pi-plus-circle" aria-hidden="true"></i> Adicionar material <span class="dd-aprov__dica">· {{ dica }}</span></span>
                 <div class="dd-aprov__adicionar-campos">
-                  <ces-autocomplete
+                  <geo-autocomplete
                     class="dd-aprov__material"
                     label="Material a adicionar"
                     [labelVisible]="false"
@@ -468,7 +468,7 @@ interface EtapaFluxo {
                     (loadMore)="carregarMaisMateriais()"
                     (retry)="tentarMateriaisDeNovo()"
                   />
-                  <ces-number-input
+                  <geo-number-input
                     class="dd-aprov__quantidade"
                     label="Quantidade a adicionar"
                     [labelVisible]="false"
@@ -479,7 +479,7 @@ interface EtapaFluxo {
                     [value]="quantidadeNova()"
                     (valueChange)="quantidadeNova.set($event)"
                   />
-                  <ces-button label="Adicionar" icon="pi pi-plus" size="sm" variant="outline" [disabled]="!materialNovo() || (quantidadeNova() ?? 0) < quantidadeMinima" (pressed)="adicionarMaterial()" />
+                  <geo-button label="Adicionar" icon="pi pi-plus" size="sm" variant="outline" [disabled]="!materialNovo() || (quantidadeNova() ?? 0) < quantidadeMinima" (pressed)="adicionarMaterial()" />
                 </div>
                 @if (materialNovo(); as m) {
                   <span class="dd-muted" aria-live="polite">
@@ -513,16 +513,16 @@ interface EtapaFluxo {
                         @if (item.material.detalhaSerie) { · com nº de série }
                       </span>
                       @if (item.motivoPendencia) {
-                        <ces-status tone="warning" icon="pi pi-flag">{{ item.motivoPendencia.nome }}</ces-status>
+                        <geo-status tone="warning" icon="pi pi-flag">{{ item.motivoPendencia.nome }}</geo-status>
                       } @else if (entregue(item) >= item.quantidade) {
-                        <ces-status tone="success" icon="pi pi-check">Atendido</ces-status>
+                        <geo-status tone="success" icon="pi pi-check">Atendido</geo-status>
                       } @else if (entregue(item) > 0) {
-                        <ces-status tone="warning" icon="pi pi-truck">Parcial</ces-status>
+                        <geo-status tone="warning" icon="pi pi-truck">Parcial</geo-status>
                       }
                       @if (podeDefinirSeries(item)) {
                         <span class="dd-reserva">
                           @if (item.seriesReservadas?.length) {
-                            <ces-status tone="brand" icon="pi pi-lock">{{ item.seriesReservadas!.length }} de {{ pendente(item) | number: '1.0-0' }} {{ pendente(item) === 1 ? 'série definida' : 'séries definidas' }}</ces-status>
+                            <geo-status tone="brand" icon="pi pi-lock">{{ item.seriesReservadas!.length }} de {{ pendente(item) | number: '1.0-0' }} {{ pendente(item) === 1 ? 'série definida' : 'séries definidas' }}</geo-status>
                           }
                           <button type="button" class="dd-reserva__botao" [attr.aria-expanded]="reservaAberta() === item.id" [attr.aria-controls]="'dd-reserva-' + item.id" (click)="alternarReserva(item)">
                             {{ reservaAberta() === item.id ? 'Fechar' : item.seriesReservadas?.length ? 'Alterar séries' : 'Definir séries' }}
@@ -546,7 +546,7 @@ interface EtapaFluxo {
                     <span role="cell" class="dd-num" [class.dd-texto-aviso]="pendente(item) > 0">{{ pendente(item) | number: '1.0-3' }}</span>
                     <span role="cell" class="dd-acao">
                       @if (podeRegistrarPendencia()) {
-                        <ces-icon-button
+                        <geo-icon-button
                           [icon]="item.motivoPendencia ? 'pi pi-exclamation-triangle' : 'pi pi-flag'"
                           [label]="(item.motivoPendencia ? 'Ver ou resolver a pendência de ' : 'Apontar pendência em ') + item.material.codigo"
                           [tooltip]="item.motivoPendencia ? 'Ver ou resolver pendência' : 'Apontar pendência'"
@@ -568,8 +568,8 @@ interface EtapaFluxo {
                           [(selecionadas)]="reservaRascunho"
                         />
                         <span class="dd-linha-botoes dd-reserva__acoes">
-                          <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="reservaAberta.set(null)" />
-                          <ces-button label="Salvar séries" icon="pi pi-lock" size="sm" [loading]="salvandoReserva()" (pressed)="salvarReserva(item)" />
+                          <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="reservaAberta.set(null)" />
+                          <geo-button label="Salvar séries" icon="pi pi-lock" size="sm" [loading]="salvandoReserva()" (pressed)="salvarReserva(item)" />
                         </span>
                       </div>
                     }
@@ -587,16 +587,16 @@ interface EtapaFluxo {
 
       <div drawer-footer class="dd-rodape">
         <span class="dd-linha-botoes">
-          <ces-icon-button icon="pi pi-external-link" label="Abrir relatório completo" tooltip="Relatório completo" (pressed)="abrirRelatorio()" />
-          <ces-icon-button icon="pi pi-print" label="Imprimir a solicitação" tooltip="Imprimir" (pressed)="imprimir()" />
+          <geo-icon-button icon="pi pi-external-link" label="Abrir relatório completo" tooltip="Relatório completo" (pressed)="abrirRelatorio()" />
+          <geo-icon-button icon="pi pi-print" label="Imprimir a solicitação" tooltip="Imprimir" (pressed)="imprimir()" />
           @if (copiloto()) {
-            <ces-icon-button icon="pi pi-compass" label="Analisar esta solicitação com a Bússola" tooltip="Analisar com a Bússola" (pressed)="pedirAnalise()" />
+            <geo-icon-button icon="pi pi-compass" label="Analisar esta solicitação com a Bússola" tooltip="Analisar com a Bússola" (pressed)="pedirAnalise()" />
           }
         </span>
         <span class="dd-linha-botoes">
           @if (aba() === 'entrega' && podeEntregar()) {
-            <ces-button label="Voltar" variant="ghost" (pressed)="aba.set('itens')" />
-            <ces-button
+            <geo-button label="Voltar" variant="ghost" (pressed)="aba.set('itens')" />
+            <geo-button
               [label]="'Confirmar entrega' + (itensMarcados() ? ' (' + itensMarcados() + ')' : '')"
               icon="pi pi-check-circle"
               [loading]="salvandoEntrega()"
@@ -604,23 +604,23 @@ interface EtapaFluxo {
               (pressed)="confirmarEntrega()"
             />
           } @else if (ajustando()) {
-            <ces-button label="Cancelar ajustes" variant="ghost" [disabled]="executando()" (pressed)="sairDosAjustes()" />
-            <ces-button [label]="temAjustes() ? 'Aprovar com ajustes' : 'Aprovar'" icon="pi pi-check" [loading]="executando()" (pressed)="aprovar()" />
+            <geo-button label="Cancelar ajustes" variant="ghost" [disabled]="executando()" (pressed)="sairDosAjustes()" />
+            <geo-button [label]="temAjustes() ? 'Aprovar com ajustes' : 'Aprovar'" icon="pi pi-check" [loading]="executando()" (pressed)="aprovar()" />
           } @else {
             @if (podeRejeitar()) {
-              <ces-button [label]="detalhe()?.status === 'PENDENTE' ? 'Reprovar' : 'Rejeitar'" icon="pi pi-times" variant="outline" [disabled]="executando()" (pressed)="rejeicaoAberta.set(true)" />
+              <geo-button [label]="detalhe()?.status === 'PENDENTE' ? 'Reprovar' : 'Rejeitar'" icon="pi pi-times" variant="outline" [disabled]="executando()" (pressed)="rejeicaoAberta.set(true)" />
             }
             @if (podeAprovar()) {
-              <ces-button label="Aprovar" icon="pi pi-check" [loading]="executando()" (pressed)="aprovar()" />
+              <geo-button label="Aprovar" icon="pi pi-check" [loading]="executando()" (pressed)="aprovar()" />
             } @else if (podeEntregar()) {
-              <ces-button label="Registrar entrega" icon="pi pi-truck" (pressed)="irParaEntrega()" />
+              <geo-button label="Registrar entrega" icon="pi pi-truck" (pressed)="irParaEntrega()" />
             } @else {
-              <ces-button label="Fechar" variant="ghost" (pressed)="visible.set(false)" />
+              <geo-button label="Fechar" variant="ghost" (pressed)="visible.set(false)" />
             }
           }
         </span>
       </div>
-    </ces-drawer>
+    </geo-drawer>
 
     <app-solicitacao-rejeicao-dialog [(visible)]="rejeicaoAberta" [idSolicitacao]="detalhe()?.id ?? null" [reprovar]="detalhe()?.status === 'PENDENTE'" (rejeitada)="aoAlterar()" />
 
@@ -769,8 +769,8 @@ export class SolicitacaoComercialDetalheComponent {
   protected readonly responsavelId = signal<string | null>(null);
   protected readonly saqueForaEquipe = signal(false);
   protected readonly assinatura = signal<'FISICA' | 'DIGITAL'>('FISICA');
-  protected readonly membrosEquipe = signal<CesSelectOption<string>[]>([]);
-  protected readonly colaboradoresGerais = signal<CesSelectOption<string>[]>([]);
+  protected readonly membrosEquipe = signal<GeoSelectOption<string>[]>([]);
+  protected readonly colaboradoresGerais = signal<GeoSelectOption<string>[]>([]);
   protected readonly carregandoColaboradores = signal(false);
   protected readonly salvandoEntrega = signal(false);
   protected readonly tentouEntregar = signal(false);
@@ -779,7 +779,7 @@ export class SolicitacaoComercialDetalheComponent {
   protected readonly assinaturaEquipe = signal('');
 
   // Quem entrega pode trocar o almoxarifado que atende, antes da primeira saída
-  private readonly origensCarregadas = signal<CesSelectOption<string>[]>([]);
+  private readonly origensCarregadas = signal<GeoSelectOption<string>[]>([]);
   protected readonly carregandoOrigens = signal(false);
   protected readonly idOrigemEntrega = signal<string | null>(null);
   protected readonly origemEntrega = computed(() => {
@@ -789,7 +789,7 @@ export class SolicitacaoComercialDetalheComponent {
     return { id, nome: this.origensCarregadas().find((o) => o.value === id)?.label ?? '' };
   });
   /** Antes de abrir a lista, o select mostra só a origem atual. */
-  protected readonly opcoesOrigem = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesOrigem = computed<GeoSelectOption<string>[]>(() => {
     const atual = this.detalhe()?.estoqueOrigem;
     if (this.origensCarregadas().length) return this.origensCarregadas();
     return atual ? [{ label: atual.nomeIdentificador, value: atual.id }] : [];
@@ -829,7 +829,7 @@ export class SolicitacaoComercialDetalheComponent {
     this.assinaturaEquipe.set('');
   }
 
-  protected readonly opcoesAssinatura: CesSelectOption<'FISICA' | 'DIGITAL'>[] = [
+  protected readonly opcoesAssinatura: GeoSelectOption<'FISICA' | 'DIGITAL'>[] = [
     { label: 'Física — termo em papel', value: 'FISICA' },
     { label: 'Digital — no dispositivo', value: 'DIGITAL' }
   ];
@@ -880,9 +880,9 @@ export class SolicitacaoComercialDetalheComponent {
     return !!det && !det.encerrada && ['PENDENTE', 'APROVADO', 'ENTREGUE_PARCIAL'].includes(det.status);
   });
 
-  protected readonly abas = computed<readonly CesTabItem[]>(() => {
+  protected readonly abas = computed<readonly GeoTabItem[]>(() => {
     const det = this.detalhe();
-    const abas: CesTabItem[] = [{ value: 'itens', label: 'Materiais', icon: 'pi pi-box', badge: det?.itens.length || undefined }];
+    const abas: GeoTabItem[] = [{ value: 'itens', label: 'Materiais', icon: 'pi pi-box', badge: det?.itens.length || undefined }];
     if (this.podeEntregar()) abas.push({ value: 'entrega', label: 'Registrar entrega', icon: 'pi pi-truck' });
     if (det?.operacoes?.length) abas.push({ value: 'historico', label: 'Histórico', icon: 'pi pi-history', badge: det.operacoes.length });
     return abas;

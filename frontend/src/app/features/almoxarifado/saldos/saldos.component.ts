@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesFormSectionComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesSurfaceComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoFormSectionComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoSurfaceComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { EstoqueResponse } from '../../../core/models/almoxarifado.models';
 import { EquipeResponse } from '../../../core/models/rh.models';
@@ -24,43 +24,43 @@ import { HelpDialogComponent } from '../../../shared/components/help-dialog/help
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesFormSectionComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesSurfaceComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoFormSectionComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoSurfaceComponent,
+    GeoTextInputComponent,
     HelpDialogComponent
   ],
   template: `
-    <div class="ces-page">
-      <ces-page-header
+    <div class="geo-page">
+      <geo-page-header
         title="Consulta de saldos"
         icon="pi pi-chart-bar"
         [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Consulta de saldos' }]"
         description="Escolha o estoque (ou a equipe) e abra o relatório de saldos numa nova aba."
         helpLabel="Ajuda sobre a consulta de saldos"
         (help)="ajuda.show()"
-      ></ces-page-header>
+      ></geo-page-header>
 
-      <ces-surface variant="outlined">
+      <geo-surface variant="outlined">
         <form (submit)="$event.preventDefault(); consultar()">
-          <ces-form-section title="Consulta" icon="pi pi-search">
-            <div class="ces-form-grid">
-              <ces-select label="Estoque" [required]="true" [options]="estoquesOpcoes()" [value]="idEstoque()" (valueChange)="escolherEstoque($event)"
-                [filter]="true" [clearable]="true" placeholder="Selecione um estoque" [error]="erro()"></ces-select>
-              <ces-select label="Equipe" [options]="equipesOpcoes()" [value]="idEquipe()" (valueChange)="escolherEquipe($event)" [filter]="true" [clearable]="true"
+          <geo-form-section title="Consulta" icon="pi pi-search">
+            <div class="geo-form-grid">
+              <geo-select label="Estoque" [required]="true" [options]="estoquesOpcoes()" [value]="idEstoque()" (valueChange)="escolherEstoque($event)"
+                [filter]="true" [clearable]="true" placeholder="Selecione um estoque" [error]="erro()"></geo-select>
+              <geo-select label="Equipe" [options]="equipesOpcoes()" [value]="idEquipe()" (valueChange)="escolherEquipe($event)" [filter]="true" [clearable]="true"
                 [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)" placeholder="Pesquise pelo código"
-                description="Escolher a equipe preenche o estoque dela."></ces-select>
+                description="Escolher a equipe preenche o estoque dela."></geo-select>
             </div>
-            <ces-text-input label="Material" [(value)]="busca" [showOptional]="true" placeholder="Código ou descrição"
-              description="Deixe em branco para ver todos os materiais do estoque."></ces-text-input>
-          </ces-form-section>
-          <div class="ces-actions-row">
-            <ces-button type="submit" icon="pi pi-external-link" label="Abrir relatório"></ces-button>
+            <geo-text-input label="Material" [(value)]="busca" [showOptional]="true" placeholder="Código ou descrição"
+              description="Deixe em branco para ver todos os materiais do estoque."></geo-text-input>
+          </geo-form-section>
+          <div class="geo-actions-row">
+            <geo-button type="submit" icon="pi pi-external-link" label="Abrir relatório"></geo-button>
           </div>
         </form>
-      </ces-surface>
+      </geo-surface>
     </div>
 
     <app-help-dialog #ajuda title="Ajuda: Consulta de saldos">
@@ -87,7 +87,7 @@ export class SaldosComponent implements OnInit {
   protected readonly busca = signal('');
   protected readonly tentou = signal(false);
   protected readonly erro = computed(() => (this.tentou() && !this.idEstoque() ? 'Escolha um estoque ou uma equipe com estoque.' : undefined));
-  protected readonly estoquesOpcoes = computed<CesSelectOption<string>[]>(() => this.estoques().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
+  protected readonly estoquesOpcoes = computed<GeoSelectOption<string>[]>(() => this.estoques().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
 
   protected readonly equipes = new RemoteLookup<EquipeResponse>(
     {
@@ -97,7 +97,7 @@ export class SaldosComponent implements OnInit {
     },
     inject(DestroyRef)
   );
-  protected readonly equipesOpcoes = computed<CesSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
+  protected readonly equipesOpcoes = computed<GeoSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
 
   /** Filtros da última consulta na URL (replace): F5 e Voltar reabrem a tela preenchida. */
   private readonly filtrosUrl = createUrlFilters<{ idEstoque: string | null; idEquipe: string | null; buscaGlobal: string }>({

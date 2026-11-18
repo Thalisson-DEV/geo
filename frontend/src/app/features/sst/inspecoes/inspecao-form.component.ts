@@ -55,7 +55,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as LookupRemoteLookup } from '../../../core/lookup/store/remote-lookup';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
-import { CesAutocompleteComponent, CesBooleanControlComponent } from '@ces/ui/forms';
+import { GeoAutocompleteComponent, GeoBooleanControlComponent } from '@geo/ui/forms';
 
 interface RespostaState {
   opcoesSelecionadas: string[];
@@ -110,8 +110,8 @@ interface Inspecionado {
     HelpDialogComponent,
     EvidenciasInspecaoUploadComponent,
     DateMaskDirective,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent
   ],
   providers: [MessageService],
   template: `
@@ -223,7 +223,7 @@ interface Inspecionado {
                 </div>
                 <div class="flex flex-col gap-2 mt-2">
                   <label class="dl">Manualmente</label>
-                  <ces-autocomplete
+                  <geo-autocomplete
                     label="Adicionar colaborador manualmente"
                     [labelVisible]="false"
                     inputId="inspecao-colaborador-manual"
@@ -244,7 +244,7 @@ interface Inspecionado {
                     (search)="searchColaboradores($event)"
                     (loadMore)="loadMoreColaboradores()"
                     (retry)="retryColaboradores()"
-                  ></ces-autocomplete>
+                  ></geo-autocomplete>
                 </div>
               </div>
               <div class="p-4 md:p-5 flex flex-col gap-4 bg-white dark:bg-slate-900">
@@ -320,7 +320,7 @@ interface Inspecionado {
                   </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                  <ces-boolean-control kind="toggle" [inline]="true" label="Só não conformes" [value]="soNaoConformes()" (valueChange)="soNaoConformes.set($event)"></ces-boolean-control>
+                  <geo-boolean-control kind="toggle" [inline]="true" label="Só não conformes" [value]="soNaoConformes()" (valueChange)="soNaoConformes.set($event)"></geo-boolean-control>
                   <p-button [text]="true" size="small" [icon]="todosRecolhidos() ? 'pi pi-angle-double-down' : 'pi pi-angle-double-up'" [label]="todosRecolhidos() ? 'Abrir grupos' : 'Recolher grupos'" (onClick)="alternarTodosGrupos()" styleClass="!text-[11px]"></p-button>
                 </div>
               </div>
@@ -422,12 +422,12 @@ interface Inspecionado {
                                     </span>
                                   </div>
                                 </div>
-                                <ces-boolean-control
+                                <geo-boolean-control
                                   kind="toggle"
                                   [inline]="true"
                                   [value]="!!dv.tratadoInLoco"
                                   (valueChange)="onToggleTratadoInLoco(dv, $event)"
-                                ></ces-boolean-control>
+                                ></geo-boolean-control>
                               </div>
 
                               <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 pt-1">

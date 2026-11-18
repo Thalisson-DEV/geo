@@ -40,10 +40,10 @@ public class SessaoAutenticacaoUseCases {
 
     private final SessaoAutenticacaoRepository repository;
 
-    @Value("${ces.security.sessao.inatividade-dias:30}")
+    @Value("${geo.security.sessao.inatividade-dias:30}")
     private int inatividadeDias;
 
-    @Value("${ces.security.sessao.duracao-maxima-dias:90}")
+    @Value("${geo.security.sessao.duracao-maxima-dias:90}")
     private int duracaoMaximaDias;
 
     /** Token recém-emitido; o segredo em claro só existe neste objeto, a caminho do cookie. */

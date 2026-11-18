@@ -1,23 +1,23 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   DocumentoFiscalOrdemServico,
   FornecedorFrota,
@@ -44,21 +44,21 @@ const OUTRO_FORNECEDOR = '__outro__';
   imports: [
     CurrencyPipe,
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoTextInputComponent
   ],
   template: `
-    <ces-data-table
+    <geo-data-table
       title="Documentos fiscais"
       description="Notas, cupons e recibos do serviço. Podem ser lançados depois da conclusão, quando a nota chegar."
       storageKey="frota-os-documentos-fiscais"
@@ -72,65 +72,65 @@ const OUTRO_FORNECEDOR = '__outro__';
     >
       <ng-container table-actions>
         @if (podeLancar()) {
-          <ces-button size="sm" icon="pi pi-plus" label="Lançar documento" (pressed)="novo()"></ces-button>
+          <geo-button size="sm" icon="pi pi-plus" label="Lançar documento" (pressed)="novo()"></geo-button>
         }
       </ng-container>
-      <ng-template cesCell="numero" let-row>
-        <span class="ces-cell-strong">{{ row.tipoRotulo }} {{ row.numero }}{{ row.serie ? ' série ' + row.serie : '' }}</span>
-        <span class="ces-cell-muted">{{ row.possuiArquivo ? row.arquivoNome : 'Sem arquivo' }}</span>
+      <ng-template geoCell="numero" let-row>
+        <span class="geo-cell-strong">{{ row.tipoRotulo }} {{ row.numero }}{{ row.serie ? ' série ' + row.serie : '' }}</span>
+        <span class="geo-cell-muted">{{ row.possuiArquivo ? row.arquivoNome : 'Sem arquivo' }}</span>
       </ng-template>
-      <ng-template cesCell="emitidoEm" let-row>{{ row.emitidoEm | date: 'dd/MM/yyyy' }}</ng-template>
-      <ng-template cesCell="valor" let-row><span class="ces-cell-num">{{ row.valor | currency: 'BRL' }}</span></ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
+      <ng-template geoCell="emitidoEm" let-row>{{ row.emitidoEm | date: 'dd/MM/yyyy' }}</ng-template>
+      <ng-template geoCell="valor" let-row><span class="geo-cell-num">{{ row.valor | currency: 'BRL' }}</span></ng-template>
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
           @if (row.possuiArquivo) {
-            <ces-icon-button icon="pi pi-download" [label]="'Baixar arquivo de ' + nome(row)" tooltip="Baixar arquivo" size="icon-sm"
-              (pressed)="baixar(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-download" [label]="'Baixar arquivo de ' + nome(row)" tooltip="Baixar arquivo" size="icon-sm"
+              (pressed)="baixar(row)"></geo-icon-button>
           }
           @if (podeEditar() && ordem().situacao !== 'CANCELADA') {
-            <ces-icon-button icon="pi pi-trash" [label]="'Excluir ' + nome(row)" tooltip="Excluir documento" size="icon-sm"
-              (pressed)="excluir(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-trash" [label]="'Excluir ' + nome(row)" tooltip="Excluir documento" size="icon-sm"
+              (pressed)="excluir(row)"></geo-icon-button>
           }
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
 
-    <ces-form-drawer [(visible)]="formularioAberto" title="Lançar documento fiscal"
+    <geo-form-drawer [(visible)]="formularioAberto" title="Lançar documento fiscal"
       [description]="'OS ' + ordem().numero + '. A mesma nota não entra duas vezes na OS.'" [dirty]="alterado()" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
-        <div class="ces-form-grid">
-          <ces-select label="Tipo" [required]="true" [options]="tipos" [(value)]="tipo"></ces-select>
-          <ces-datepicker label="Emissão" [required]="true" [(value)]="emissao" [maxDate]="hoje" [error]="erro_('emissao')"></ces-datepicker>
+      <div class="geo-form-stack">
+        <div class="geo-form-grid">
+          <geo-select label="Tipo" [required]="true" [options]="tipos" [(value)]="tipo"></geo-select>
+          <geo-datepicker label="Emissão" [required]="true" [(value)]="emissao" [maxDate]="hoje" [error]="erro_('emissao')"></geo-datepicker>
         </div>
-        <div class="ces-form-grid">
-          <ces-text-input label="Número" [required]="true" [(value)]="numero" [maxlength]="60" [error]="erro_('numero')"></ces-text-input>
-          <ces-text-input label="Série" [(value)]="serie" [maxlength]="10" [showOptional]="true"></ces-text-input>
+        <div class="geo-form-grid">
+          <geo-text-input label="Número" [required]="true" [(value)]="numero" [maxlength]="60" [error]="erro_('numero')"></geo-text-input>
+          <geo-text-input label="Série" [(value)]="serie" [maxlength]="10" [showOptional]="true"></geo-text-input>
         </div>
-        <ces-select label="Fornecedor" [required]="true" [options]="fornecedoresOpcoes()" [(value)]="idFornecedor" [filter]="true"
-          [error]="erro_('fornecedor')"></ces-select>
+        <geo-select label="Fornecedor" [required]="true" [options]="fornecedoresOpcoes()" [(value)]="idFornecedor" [filter]="true"
+          [error]="erro_('fornecedor')"></geo-select>
         @if (idFornecedor() === outro) {
-          <ces-text-input label="Nome do fornecedor" [required]="true" [(value)]="fornecedorNome" [maxlength]="150"
-            [error]="erro_('fornecedorNome')"></ces-text-input>
+          <geo-text-input label="Nome do fornecedor" [required]="true" [(value)]="fornecedorNome" [maxlength]="150"
+            [error]="erro_('fornecedorNome')"></geo-text-input>
         }
-        <ces-number-input label="Valor" mode="currency" [required]="true" [(value)]="valor" [min]="0" [error]="erro_('valor')"></ces-number-input>
-        <ces-file-input label="Arquivo" description="PDF, XML da NF-e ou imagem, até 15 MB."
+        <geo-number-input label="Valor" mode="currency" [required]="true" [(value)]="valor" [min]="0" [error]="erro_('valor')"></geo-number-input>
+        <geo-file-input label="Arquivo" description="PDF, XML da NF-e ou imagem, até 15 MB."
           accept="application/pdf,application/xml,text/xml,.xml,image/jpeg,image/png,image/webp"
-          [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></ces-file-input>
+          [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></geo-file-input>
         @if (erroServidor()) {
-          <ces-callout tone="danger" [dense]="true">{{ erroServidor() }}</ces-callout>
+          <geo-callout tone="danger" [dense]="true">{{ erroServidor() }}</geo-callout>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Lançar documento" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Lançar documento" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaOsDocumentosFiscaisComponent {
   private readonly frota = inject(FrotaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   readonly ordem = input.required<OrdemServico>();
   readonly podeEditar = input(false);
@@ -138,7 +138,7 @@ export class FrotaOsDocumentosFiscaisComponent {
   protected readonly hoje = new Date();
   protected readonly outro = OUTRO_FORNECEDOR;
   protected readonly limiteArquivo = LIMITE_ARQUIVO;
-  protected readonly tipos: CesSelectOption<TipoDocumentoFiscal>[] = (Object.keys(ROTULO_DOCUMENTO_FISCAL) as TipoDocumentoFiscal[])
+  protected readonly tipos: GeoSelectOption<TipoDocumentoFiscal>[] = (Object.keys(ROTULO_DOCUMENTO_FISCAL) as TipoDocumentoFiscal[])
     .map((t) => ({ label: ROTULO_DOCUMENTO_FISCAL[t], value: t }));
 
   protected readonly documentos = signal<DocumentoFiscalOrdemServico[]>([]);
@@ -164,7 +164,7 @@ export class FrotaOsDocumentosFiscaisComponent {
   protected readonly estado = computed<'loading' | 'error' | 'empty' | 'ready'>(() =>
     this.carregando() ? 'loading' : this.erro() ? 'error' : this.documentos().length ? 'ready' : 'empty'
   );
-  protected readonly fornecedoresOpcoes = computed<CesSelectOption<string>[]>(() => [
+  protected readonly fornecedoresOpcoes = computed<GeoSelectOption<string>[]>(() => [
     ...this.fornecedores().map((f) => ({ label: f.nome, value: f.id })),
     { label: 'Outro (digitar o nome)', value: OUTRO_FORNECEDOR }
   ]);
@@ -180,7 +180,7 @@ export class FrotaOsDocumentosFiscaisComponent {
     return e;
   });
 
-  protected readonly colunas: CesDataTableColumn<DocumentoFiscalOrdemServico>[] = [
+  protected readonly colunas: GeoDataTableColumn<DocumentoFiscalOrdemServico>[] = [
     { key: 'numero', header: 'Documento', type: 'custom', priority: 1, value: (r) => r.numero, display: (r) => `${r.tipoRotulo} ${r.numero}` },
     { key: 'emitidoEm', header: 'Emissão', type: 'custom', priority: 1, value: (r) => r.emitidoEm, display: (r) => r.emitidoEm },
     { key: 'fornecedor', header: 'Fornecedor', display: (r) => r.fornecedor ?? '—' },

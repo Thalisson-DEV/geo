@@ -1,4 +1,4 @@
-<ces-dialog-shell
+<geo-dialog-shell
   [title]="title()"
   [size]="dialogSize()"
   [(visible)]="visible"
@@ -109,7 +109,7 @@
                 </span>
                 <span
                   class="step-label"
-                  [ngClass]="value <= activeStep() ? 'text-[var(--ces-brand)]' : 'text-slate-400'"
+                  [ngClass]="value <= activeStep() ? 'text-[var(--geo-brand)]' : 'text-slate-400'"
                 >
                   Identificação da Reserva
                 </span>
@@ -128,7 +128,7 @@
                 </span>
                 <span
                   class="step-label"
-                  [ngClass]="value <= activeStep() ? 'text-[var(--ces-brand)]' : 'text-slate-400'"
+                  [ngClass]="value <= activeStep() ? 'text-[var(--geo-brand)]' : 'text-slate-400'"
                 >
                   Revisão e Confirmação
                 </span>
@@ -504,7 +504,7 @@
                 </span>
                 <span
                   class="step-label"
-                  [ngClass]="value <= activeStep() ? 'text-[var(--ces-brand)]' : 'text-slate-400'"
+                  [ngClass]="value <= activeStep() ? 'text-[var(--geo-brand)]' : 'text-slate-400'"
                 >
                   Escopo & Materiais
                 </span>
@@ -523,7 +523,7 @@
                 </span>
                 <span
                   class="step-label"
-                  [ngClass]="value <= activeStep() ? 'text-[var(--ces-brand)]' : 'text-slate-400'"
+                  [ngClass]="value <= activeStep() ? 'text-[var(--geo-brand)]' : 'text-slate-400'"
                 >
                   Retirada & Reserva
                 </span>
@@ -666,9 +666,9 @@
                               </div>
                               @if (isFirstLineForItem(rowIndex) && saldoNegativoDoMaterial(line.idMaterial); as negativo) {
                                 <div>
-                                  <ces-status tone="warning">
+                                  <geo-status tone="warning">
                                     Saldo {{ negativo.quantidade | number: '1.0-3' }} {{ negativo.unidadeMedida }} na equipe
-                                  </ces-status>
+                                  </geo-status>
                                 </div>
                               }
                               @if (deliveryMode() === 'partial' && isFirstLineForItem(rowIndex)) {
@@ -875,7 +875,7 @@
                       </div>
 
                       @if (withdrawalOutsideTeam()) {
-                        <ces-autocomplete
+                        <geo-autocomplete
                           label="Colaborador responsável pelo saque"
                           [labelVisible]="false"
                           inputId="delivery-withdrawal-collaborator"
@@ -1456,7 +1456,7 @@
       </div>
     }
   </div>
-</ces-dialog-shell>
+</geo-dialog-shell>
 
   <app-solicitacao-pendencia-modal
     [(visible)]="pendenciaModalVisible"

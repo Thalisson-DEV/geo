@@ -184,10 +184,10 @@ const COR_PADRAO = '#64748b';
 
     /* --- Dark mode --- */
     :host-context(.app-dark), :host-context(.dark) {
-      .bird__legend-row:hover { background: var(--ces-surface-subtle, rgba(255,255,255,.05)); }
+      .bird__legend-row:hover { background: var(--geo-surface-subtle, rgba(255,255,255,.05)); }
       .bird__legend-text strong { color: #f1f5f9; }
       .bird__legend-text span { color: #64748b; }
-      .bird__caption { border-color: var(--ces-border, #334155); }
+      .bird__caption { border-color: var(--geo-border, #334155); }
       .bird__ratio { color: #f8fafc; }
     }
   `]

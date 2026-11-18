@@ -1,2 +1,2 @@
-export * from './ces-pdf-canvas.component';
-export * from './ces-pdf-canvas.geometry';
+export * from './geo-pdf-canvas.component';
+export * from './geo-pdf-canvas.geometry';

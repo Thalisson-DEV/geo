@@ -285,6 +285,6 @@ describe('MedidaDisciplinarDrawerComponent', () => {
     expect(texto()).toContain('advertencia-assinada.pdf');
     expect(document.querySelector('[aria-label="Baixar advertencia-assinada.pdf"]')).not.toBeNull();
     expect(document.querySelector('[aria-label="Remover advertencia-assinada.pdf"]')).toBeNull();
-    expect(document.querySelector('ces-file-input')).toBeNull();
+    expect(document.querySelector('geo-file-input')).toBeNull();
   });
 });

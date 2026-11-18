@@ -29,10 +29,10 @@ public class ExpurgoEvidenciasPendentesService {
     private final EvidenciaInspecaoRepository repository;
     private final ObjectStorageService objectStorage;
 
-    @Value("${ces.sst.evidencias.retencao-pendentes-horas:72}")
+    @Value("${geo.sst.evidencias.retencao-pendentes-horas:72}")
     private int retencaoHoras;
 
-    @Scheduled(cron = "${ces.sst.evidencias.expurgo-cron:0 45 3 * * *}")
+    @Scheduled(cron = "${geo.sst.evidencias.expurgo-cron:0 45 3 * * *}")
     @Transactional
     public void expurgar() {
         OffsetDateTime corte = OffsetDateTime.now().minusHours(retencaoHoras);

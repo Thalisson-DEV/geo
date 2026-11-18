@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesConfirmationService,
-  CesIconButtonComponent,
-  CesMultiSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoConfirmationService,
+  GeoIconButtonComponent,
+  GeoMultiSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { catchError, of } from 'rxjs';
 
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -41,19 +41,19 @@ interface SerieComProblema extends LeituraSerie {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesMultiSelectComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoMultiSelectComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
+    GeoTextInputComponent
   ],
   template: `
-    <ces-tabs [(value)]="modo" [tabs]="abas" [lazy]="false" [ariaLabel]="'Como informar as séries de ' + material().descricao">
-      <ng-template cesTabPanel="digitar">
+    <geo-tabs [(value)]="modo" [tabs]="abas" [lazy]="false" [ariaLabel]="'Como informar as séries de ' + material().descricao">
+      <ng-template geoTabPanel="digitar">
         <div class="ss-digitar">
-          <ces-text-input
+          <geo-text-input
             label="Número de série"
             placeholder="Digite ou bipe e tecle Enter"
             [description]="'Pode colar várias separadas por espaço ou vírgula. Cada uma é conferida em ' + origem().nome + '.'"
@@ -61,19 +61,19 @@ interface SerieComProblema extends LeituraSerie {
             [(value)]="digitado"
             (keydown.enter)="$event.preventDefault(); adicionarDigitadas()"
           />
-          <ces-button label="Adicionar" icon="pi pi-plus" variant="secondary" size="sm" [disabled]="completo() || !digitado().trim()" [loading]="verificando()" (pressed)="adicionarDigitadas()" />
+          <geo-button label="Adicionar" icon="pi pi-plus" variant="secondary" size="sm" [disabled]="completo() || !digitado().trim()" [loading]="verificando()" (pressed)="adicionarDigitadas()" />
         </div>
         @if (problemas().length) {
           <ul class="ss-problemas" aria-label="Séries que não podem sair como estão">
             @for (p of problemas(); track p.numSerie) {
               <li class="ss-problema">
                 <span class="ss-numero">{{ p.numSerie }}</span>
-                <ces-status [tone]="p.situacao === 'fora-do-sistema' ? 'info' : 'warning'" [icon]="p.situacao === 'fora-do-sistema' ? 'pi pi-info-circle' : 'pi pi-exclamation-triangle'">{{ p.mensagem }}</ces-status>
+                <geo-status [tone]="p.situacao === 'fora-do-sistema' ? 'info' : 'warning'" [icon]="p.situacao === 'fora-do-sistema' ? 'pi pi-info-circle' : 'pi pi-exclamation-triangle'">{{ p.mensagem }}</geo-status>
                 <span class="ss-problema__acoes">
                   @if (p.situacao === 'fora-do-sistema' && podeDarEntrada()) {
-                    <ces-button label="Dar entrada" icon="pi pi-arrow-down-left" variant="ghost" size="sm" [loading]="!!p.registrando" (pressed)="darEntrada(p.numSerie)" />
+                    <geo-button label="Dar entrada" icon="pi pi-arrow-down-left" variant="ghost" size="sm" [loading]="!!p.registrando" (pressed)="darEntrada(p.numSerie)" />
                   }
-                  <ces-icon-button icon="pi pi-times" [label]="'Descartar a série ' + p.numSerie" size="icon-sm" (pressed)="descartar(p.numSerie)" />
+                  <geo-icon-button icon="pi pi-times" [label]="'Descartar a série ' + p.numSerie" size="icon-sm" (pressed)="descartar(p.numSerie)" />
                 </span>
               </li>
             }
@@ -84,8 +84,8 @@ interface SerieComProblema extends LeituraSerie {
         }
       </ng-template>
 
-      <ng-template cesTabPanel="lista">
-        <ces-multiselect
+      <ng-template geoTabPanel="lista">
+        <geo-multiselect
           label="Séries disponíveis"
           placeholder="Escolha as séries"
           display="chip"
@@ -97,13 +97,13 @@ interface SerieComProblema extends LeituraSerie {
           [maxSelectedLabels]="50"
         />
       </ng-template>
-    </ces-tabs>
+    </geo-tabs>
 
     <div class="ss-escolhidas">
       <div class="ss-escolhidas__topo">
         <span><strong>{{ selecionadas().length }}</strong> de {{ maximo() }} {{ maximo() === 1 ? 'série' : 'séries' }}</span>
         @if (selecionadas().length) {
-          <ces-button label="Limpar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="selecionadas.set([])" />
+          <geo-button label="Limpar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="selecionadas.set([])" />
         }
       </div>
       @if (selecionadas().length) {
@@ -123,31 +123,31 @@ interface SerieComProblema extends LeituraSerie {
   styles: [`
     :host { display: grid; gap: 0.75rem; }
     .ss-digitar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; align-items: start; padding-top: 0.5rem; }
-    .ss-digitar ces-button { margin-top: 1.4rem; }
-    .ss-nota { margin: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .ss-numero { font-family: var(--ces-font-mono, ui-monospace, monospace); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .ss-digitar geo-button { margin-top: 1.4rem; }
+    .ss-nota { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .ss-numero { font-family: var(--geo-font-mono, ui-monospace, monospace); font-weight: 600; font-variant-numeric: tabular-nums; }
     .ss-problemas { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.375rem; }
     .ss-problema { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem 0.625rem; padding: 0.5rem 0.625rem;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); font-size: var(--ces-font-caption); }
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); font-size: var(--geo-font-caption); }
     .ss-problema__acoes { display: inline-flex; align-items: center; gap: 0.25rem; margin-left: auto; }
-    .ss-escolhidas { display: grid; gap: 0.5rem; padding: 0.625rem 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
-    .ss-escolhidas__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .ss-escolhidas__topo strong { color: var(--ces-foreground); }
+    .ss-escolhidas { display: grid; gap: 0.5rem; padding: 0.625rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+    .ss-escolhidas__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .ss-escolhidas__topo strong { color: var(--geo-foreground); }
     .ss-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .ss-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.25rem 0.2rem 0.5rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface); font-size: var(--ces-font-caption); color: var(--ces-foreground); }
-    .ss-chip > i { color: var(--ces-foreground-muted); font-size: 0.7rem; }
-    .ss-chip__remover { display: inline-grid; place-items: center; width: 1.25rem; height: 1.25rem; padding: 0; border: 0; border-radius: var(--ces-radius-sm);
-      background: none; color: var(--ces-foreground-muted); cursor: pointer; }
-    .ss-chip__remover:hover { background: var(--ces-surface-muted); color: var(--ces-foreground); }
-    .ss-chip__remover:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .ss-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.25rem 0.2rem 0.5rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface); font-size: var(--geo-font-caption); color: var(--geo-foreground); }
+    .ss-chip > i { color: var(--geo-foreground-muted); font-size: 0.7rem; }
+    .ss-chip__remover { display: inline-grid; place-items: center; width: 1.25rem; height: 1.25rem; padding: 0; border: 0; border-radius: var(--geo-radius-sm);
+      background: none; color: var(--geo-foreground-muted); cursor: pointer; }
+    .ss-chip__remover:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
+    .ss-chip__remover:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .ss-chip__remover i { font-size: 0.6rem; }
   `]
 })
 export class SeriesSelecaoComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
   private readonly auth = inject(AuthService);
-  private readonly confirmacoes = inject(CesConfirmationService);
+  private readonly confirmacoes = inject(GeoConfirmationService);
   private readonly avisos = inject(NotificationService);
 
   /** Solicitação que está entregando: a série reservada para ela continua disponível. */
@@ -157,7 +157,7 @@ export class SeriesSelecaoComponent {
   readonly maximo = input.required<number>();
   readonly selecionadas = model<string[]>([]);
 
-  protected readonly abas: readonly CesTabItem[] = [
+  protected readonly abas: readonly GeoTabItem[] = [
     { value: 'digitar', label: 'Digitar ou bipar', icon: 'pi pi-pencil' },
     { value: 'lista', label: 'Escolher na lista', icon: 'pi pi-list' }
   ];
@@ -173,7 +173,7 @@ export class SeriesSelecaoComponent {
   protected readonly semPermissaoDeEntrada = computed(
     () => !this.podeDarEntrada() && this.problemas().some((p) => p.situacao === 'fora-do-sistema')
   );
-  protected readonly opcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoes = computed<GeoSelectOption<string>[]>(() =>
     [...new Set([...this.selecionadas(), ...this.disponiveis()])]
       .sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric: true }))
       .map((s) => ({ label: s, value: s }))

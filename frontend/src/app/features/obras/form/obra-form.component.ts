@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CES_FORM_KIT,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GEO_FORM_KIT,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesFocusFirstInvalid
-} from '@ces/ui';
+  geoFocusFirstInvalid
+} from '@geo/ui';
 import {
   AgenteResponsavelResponse,
   ObraRequest,
@@ -55,16 +55,16 @@ import {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ...CES_FORM_KIT,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    ...GEO_FORM_KIT,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     LocationPickerDialogComponent
   ],
   templateUrl: './obra-form.component.html',
@@ -235,7 +235,7 @@ export class ObraFormComponent implements OnInit {
     this.tentouSalvar.set(true);
     if (Object.keys(this.erros()).length) {
       this.notificacoes.warning('Preencha os campos destacados para salvar a obra.');
-      setTimeout(() => cesFocusFirstInvalid());
+      setTimeout(() => geoFocusFirstInvalid());
       return;
     }
 

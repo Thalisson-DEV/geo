@@ -11,9 +11,9 @@
   place-items: center;
   width: 2rem;
   height: 2rem;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }
 
 .conexao-app__texto {
@@ -29,7 +29,7 @@
 
 .conexao-permissao .pi {
   font-size: 0.8rem;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .conexoes-filtros {
@@ -38,7 +38,7 @@
   align-items: center;
 }
 
-.conexoes-filtros ces-select {
+.conexoes-filtros geo-select {
   width: 11rem;
 }
 
@@ -47,7 +47,7 @@
     flex-wrap: wrap;
   }
 
-  .conexoes-filtros ces-select {
+  .conexoes-filtros geo-select {
     width: 100%;
   }
 }

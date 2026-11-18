@@ -1,24 +1,24 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, forkJoin, of, tap } from 'rxjs';
 
 import { PerfilAcessoResponse, UsuarioResponse } from '../../../../core/models/iam.models';
@@ -30,37 +30,37 @@ import { AjudaListagemComponent } from '../../../../shared/listagem/ajuda-listag
 import { LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from '../../../../shared/listagem/listagem';
 import { CATEGORIA_OPTIONS } from '../../notificacoes-ui';
 
-const SITUACOES: CesSelectOption<boolean | null>[] = [
+const SITUACOES: GeoSelectOption<boolean | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Ativas', value: true },
   { label: 'Inativas', value: false }
 ];
-const ORIGENS: CesSelectOption<boolean>[] = [
+const ORIGENS: GeoSelectOption<boolean>[] = [
   { label: 'De fábrica', value: true },
   { label: 'Criadas aqui', value: false }
 ];
-const TOM_PRIORIDADE: Record<PrioridadeNotificacao, CesTone> = { BAIXA: 'neutral', NORMAL: 'info', ALTA: 'warning', CRITICA: 'danger' };
+const TOM_PRIORIDADE: Record<PrioridadeNotificacao, GeoTone> = { BAIXA: 'neutral', NORMAL: 'info', ALTA: 'warning', CRITICA: 'danger' };
 
 @Component({
   selector: 'app-regras-notificacao',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="nova()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="nova()">
+      <geo-page-header
         title="Regras de notificação"
         icon="pi pi-bell"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'Comunicação' }, { label: 'Regras de notificação' }]"
@@ -68,20 +68,20 @@ const TOM_PRIORIDADE: Record<PrioridadeNotificacao, CesTone> = { BAIXA: 'neutral
         helpLabel="Ajuda sobre regras de notificação"
         (help)="ajuda.show()"
       >
-        <ces-button actions icon="pi pi-plus" label="Nova regra" [keyShortcut]="atalhos.newShortcut()" (pressed)="nova()"></ces-button>
-      </ces-page-header>
+        <geo-button actions icon="pi pi-plus" label="Nova regra" [keyShortcut]="atalhos.newShortcut()" (pressed)="nova()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="notificacoes-regras" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="notificacoes-regras" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Gatilho" [options]="gatilhoOpcoes()" [(value)]="lista.filters.gatilho" [filter]="true" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Categoria" [options]="categorias" [(value)]="lista.filters.categoria" [clearable]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Origem" [options]="origens" [(value)]="lista.filters.sistema" [clearable]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Status" [options]="situacoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Gatilho" [options]="gatilhoOpcoes()" [(value)]="lista.filters.gatilho" [filter]="true" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Categoria" [options]="categorias" [(value)]="lista.filters.categoria" [clearable]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Origem" [options]="origens" [(value)]="lista.filters.sistema" [clearable]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Status" [options]="situacoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Regras"
         mode="server"
         storageKey="notificacoes-regras"
@@ -111,52 +111,52 @@ const TOM_PRIORIDADE: Record<PrioridadeNotificacao, CesTone> = { BAIXA: 'neutral
         (emptyAction)="nova()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.nome }}</span>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.nome }}</span>
           @if (row.sistema) {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-lock">De fábrica</ces-status>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-lock">De fábrica</geo-status>
           }
           @if (row.descricao) {
-            <span class="ces-cell-muted">{{ row.descricao }}</span>
+            <span class="geo-cell-muted">{{ row.descricao }}</span>
           }
         </ng-template>
-        <ng-template cesCell="gatilho" let-row>
+        <ng-template geoCell="gatilho" let-row>
           {{ row.gatilhoNome }}
-          <code class="ces-cell-muted">{{ row.chaveGatilho }}</code>
+          <code class="geo-cell-muted">{{ row.chaveGatilho }}</code>
         </ng-template>
-        <ng-template cesCell="prioridade" let-row>
-          <ces-status [tone]="tomPrioridade[row.prioridade]" icon="pi-flag">{{ row.prioridade }}</ces-status>
+        <ng-template geoCell="prioridade" let-row>
+          <geo-status [tone]="tomPrioridade[row.prioridade]" icon="pi-flag">{{ row.prioridade }}</geo-status>
         </ng-template>
-        <ng-template cesCell="canais" let-row>
+        <ng-template geoCell="canais" let-row>
           <span [title]="rotuloCanalEmail(row)">{{ row.enviarEmail ? 'Sininho + e-mail' : 'Sininho' }}</span>
           @if (!row.enviarEmail) {
-            <span class="ces-cell-muted">{{ rotuloCanalEmail(row) }}</span>
+            <span class="geo-cell-muted">{{ rotuloCanalEmail(row) }}</span>
           }
         </ng-template>
-        <ng-template cesCell="avisa" let-row>
-          <span class="ces-cell-chips">
+        <ng-template geoCell="avisa" let-row>
+          <span class="geo-cell-chips">
             @for (alvo of destinatarios(row); track $index) {
-              <ces-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo }}</ces-status>
+              <geo-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo }}</geo-status>
             }
           </span>
         </ng-template>
-        <ng-template cesCell="disparo" let-row>
+        <ng-template geoCell="disparo" let-row>
           {{ row.modo === 'POR_LIMIAR' ? 'A partir de ' + row.limiar + ' pendentes' : 'A cada ocorrência' }}
-          <span class="ces-cell-muted">{{ silencio(row.cooldownMinutos) }}{{ row.condicoes.length ? ' · ' + row.condicoes.length + ' condição(ões)' : '' }}</span>
+          <span class="geo-cell-muted">{{ silencio(row.cooldownMinutos) }}{{ row.condicoes.length ? ' · ' + row.condicoes.length + ' condição(ões)' : '' }}</span>
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
-              size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
+              size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
             @if (!row.sistema) {
-              <ces-icon-button icon="pi pi-trash" variant="destructive" [label]="'Remover ' + row.nome" size="icon-sm" (pressed)="remover(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-trash" variant="destructive" [label]="'Remover ' + row.nome" size="icon-sm" (pressed)="remover(row)"></geo-icon-button>
             }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-ajuda-listagem #ajuda titulo="Regras de notificação" entidadePlural="regras" artigoPlural="as" busca="nome ou descrição" rotuloNovo="Nova regra">
@@ -171,25 +171,25 @@ export class RegrasNotificacaoComponent {
   private readonly servico = inject(NotificacoesService);
   private readonly usuarios = inject(UsuariosService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
 
   protected readonly situacoes = SITUACOES;
   protected readonly origens = ORIGENS;
-  protected readonly categorias = CATEGORIA_OPTIONS as CesSelectOption<CategoriaNotificacao>[];
-  protected readonly tomPrioridade: Record<string, CesTone> = TOM_PRIORIDADE;
+  protected readonly categorias = CATEGORIA_OPTIONS as GeoSelectOption<CategoriaNotificacao>[];
+  protected readonly tomPrioridade: Record<string, GeoTone> = TOM_PRIORIDADE;
   protected readonly gatilhos = signal<GatilhoResponse[]>([]);
-  protected readonly gatilhoOpcoes = computed<CesSelectOption<string>[]>(() => this.gatilhos().map((g) => ({ label: g.nome, value: g.chave })));
+  protected readonly gatilhoOpcoes = computed<GeoSelectOption<string>[]>(() => this.gatilhos().map((g) => ({ label: g.nome, value: g.chave })));
   private readonly perfis = signal<PerfilAcessoResponse[]>([]);
   private readonly listaUsuarios = signal<UsuarioResponse[]>([]);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'notificacoes-regras',
     filters: {
-      gatilho: cesFilter.value<string | null>(null, { label: 'Gatilho', format: (chave): string | null => (chave ? this.nomeGatilho(chave) : null) }),
-      categoria: cesFilter.value<CategoriaNotificacao | null>(null, { label: 'Categoria', options: () => CATEGORIA_OPTIONS as CesSelectOption<CategoriaNotificacao | null>[] }),
-      sistema: cesFilter.value<boolean | null>(null, { label: 'Origem', type: 'boolean', options: () => ORIGENS as CesSelectOption<boolean | null>[] }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Status', options: () => SITUACOES })
+      gatilho: geoFilter.value<string | null>(null, { label: 'Gatilho', format: (chave): string | null => (chave ? this.nomeGatilho(chave) : null) }),
+      categoria: geoFilter.value<CategoriaNotificacao | null>(null, { label: 'Categoria', options: () => CATEGORIA_OPTIONS as GeoSelectOption<CategoriaNotificacao | null>[] }),
+      sistema: geoFilter.value<boolean | null>(null, { label: 'Origem', type: 'boolean', options: () => ORIGENS as GeoSelectOption<boolean | null>[] }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Status', options: () => SITUACOES })
     },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
@@ -206,7 +206,7 @@ export class RegrasNotificacaoComponent {
     () => this.lista.request()
   );
 
-  protected readonly colunas: CesDataTableColumn<RegraNotificacaoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<RegraNotificacaoResponse>[] = [
     { key: 'nome', header: 'Regra', type: 'custom', priority: 1, sortField: 'nome', value: (r) => r.nome, display: (r) => r.nome },
     { key: 'gatilho', header: 'Gatilho', type: 'custom', value: (r) => r.gatilhoNome, display: (r) => r.gatilhoNome },
     { key: 'categoria', header: 'Categoria', display: (r) => CATEGORIA_OPTIONS.find((c) => c.value === r.categoria)?.label ?? r.categoria },

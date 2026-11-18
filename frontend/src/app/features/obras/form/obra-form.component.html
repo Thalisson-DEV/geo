@@ -1,72 +1,72 @@
-<ces-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" [title]="editando() ? 'Editar obra' : 'Nova obra'" [description]="editando() ? numero() + ' · ' + titulo() : undefined"
+<geo-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" [title]="editando() ? 'Editar obra' : 'Nova obra'" [description]="editando() ? numero() + ' · ' + titulo() : undefined"
   size="lg" [resizable]="true" [dirty]="alterado()" [loading]="carregando()">
-  <ces-form-section title="Identificação" icon="pi pi-file-edit">
-    <div class="ces-form-grid">
-      <ces-text-input label="Número da obra" [required]="true" [(value)]="numero" [maxlength]="7" placeholder="Ex.: 1228694" [error]="erro('numero')"
-        (focusout)="numero.set(numeroLimpo())"></ces-text-input>
-      <ces-text-input label="Nota da obra" [(value)]="notaObra" [maxlength]="50" placeholder="Ex.: NOT-2026-8812" [showOptional]="true"></ces-text-input>
+  <geo-form-section title="Identificação" icon="pi pi-file-edit">
+    <div class="geo-form-grid">
+      <geo-text-input label="Número da obra" [required]="true" [(value)]="numero" [maxlength]="7" placeholder="Ex.: 1228694" [error]="erro('numero')"
+        (focusout)="numero.set(numeroLimpo())"></geo-text-input>
+      <geo-text-input label="Nota da obra" [(value)]="notaObra" [maxlength]="50" placeholder="Ex.: NOT-2026-8812" [showOptional]="true"></geo-text-input>
     </div>
-    <ces-select label="Tipo de obra" [required]="true" [options]="tiposObraOpcoes()" [(value)]="idTipoObra" [filter]="true"
-      [description]="descricaoTipo()" [error]="erro('idTipoObra')"></ces-select>
-    <ces-text-input label="Título da obra" [required]="true" [(value)]="titulo" [maxlength]="300" placeholder="Ex.: Subestação Central - Reforma Alimentador 02" [error]="erro('titulo')"
-      (focusout)="titulo.set(tituloLimpo())"></ces-text-input>
-    <ces-textarea label="Descrição / escopo técnico" [(value)]="descricao" [rows]="3" [maxlength]="1000" [showOptional]="true"></ces-textarea>
-  </ces-form-section>
+    <geo-select label="Tipo de obra" [required]="true" [options]="tiposObraOpcoes()" [(value)]="idTipoObra" [filter]="true"
+      [description]="descricaoTipo()" [error]="erro('idTipoObra')"></geo-select>
+    <geo-text-input label="Título da obra" [required]="true" [(value)]="titulo" [maxlength]="300" placeholder="Ex.: Subestação Central - Reforma Alimentador 02" [error]="erro('titulo')"
+      (focusout)="titulo.set(tituloLimpo())"></geo-text-input>
+    <geo-textarea label="Descrição / escopo técnico" [(value)]="descricao" [rows]="3" [maxlength]="1000" [showOptional]="true"></geo-textarea>
+  </geo-form-section>
 
-  <ces-form-section title="Enquadramento" icon="pi pi-sitemap">
-    <div class="ces-form-grid obra-grade-2">
-      <ces-select label="Processo de negócio" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso" [error]="erro('idProcesso')"></ces-select>
-      <ces-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBaseOperacional" [error]="erro('idBaseOperacional')"></ces-select>
-      <ces-select label="Município" [required]="true" [options]="municipiosOpcoes()" [(value)]="idMunicipio" [filter]="true" [error]="erro('idMunicipio')"></ces-select>
-      <ces-select label="Centro de custo" [required]="true" [options]="centrosOpcoes()" [(value)]="idCentroCusto" [error]="erro('idCentroCusto')"></ces-select>
+  <geo-form-section title="Enquadramento" icon="pi pi-sitemap">
+    <div class="geo-form-grid obra-grade-2">
+      <geo-select label="Processo de negócio" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso" [error]="erro('idProcesso')"></geo-select>
+      <geo-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBaseOperacional" [error]="erro('idBaseOperacional')"></geo-select>
+      <geo-select label="Município" [required]="true" [options]="municipiosOpcoes()" [(value)]="idMunicipio" [filter]="true" [error]="erro('idMunicipio')"></geo-select>
+      <geo-select label="Centro de custo" [required]="true" [options]="centrosOpcoes()" [(value)]="idCentroCusto" [error]="erro('idCentroCusto')"></geo-select>
     </div>
-  </ces-form-section>
+  </geo-form-section>
 
-  <ces-form-section title="Responsáveis" icon="pi pi-users">
-    <div class="ces-form-grid">
-      <ces-select label="Supervisor" [required]="true" [options]="supervisoresOpcoes()" [(value)]="idSupervisor" [filter]="true" [clearable]="true" [error]="erro('idSupervisor')"></ces-select>
-      <ces-select label="Coordenador" [required]="true" [options]="coordenadoresOpcoes()" [(value)]="idCoordenador" [filter]="true" [clearable]="true" [error]="erro('idCoordenador')"></ces-select>
+  <geo-form-section title="Responsáveis" icon="pi pi-users">
+    <div class="geo-form-grid">
+      <geo-select label="Supervisor" [required]="true" [options]="supervisoresOpcoes()" [(value)]="idSupervisor" [filter]="true" [clearable]="true" [error]="erro('idSupervisor')"></geo-select>
+      <geo-select label="Coordenador" [required]="true" [options]="coordenadoresOpcoes()" [(value)]="idCoordenador" [filter]="true" [clearable]="true" [error]="erro('idCoordenador')"></geo-select>
     </div>
-    <ces-select label="Agente responsável" description="Fiscal da concessionária que acompanha a obra." [options]="agentesOpcoes()" [(value)]="idAgenteResponsavel"
-      [filter]="true" [clearable]="true" [showOptional]="true"></ces-select>
-  </ces-form-section>
+    <geo-select label="Agente responsável" description="Fiscal da concessionária que acompanha a obra." [options]="agentesOpcoes()" [(value)]="idAgenteResponsavel"
+      [filter]="true" [clearable]="true" [showOptional]="true"></geo-select>
+  </geo-form-section>
 
-  <ces-form-section title="Prazo e valor" icon="pi pi-calendar">
-    <div class="ces-form-grid obra-grade-2">
-      <ces-datepicker label="Data de início" [required]="true" [(value)]="dataInicio" [error]="erro('dataInicio')"></ces-datepicker>
-      <ces-datepicker label="Previsão de término" [required]="true" [(value)]="dataPrevisaoFim" [error]="erro('dataPrevisaoFim')"></ces-datepicker>
-      <ces-select label="Status" [required]="true" [options]="statusOpcoes()" [(value)]="idStatusObra" [error]="erro('idStatusObra')"></ces-select>
-      <ces-number-input label="Valor do projeto" mode="currency" [(value)]="valorProjeto" [minFractionDigits]="2" [showOptional]="true"></ces-number-input>
+  <geo-form-section title="Prazo e valor" icon="pi pi-calendar">
+    <div class="geo-form-grid obra-grade-2">
+      <geo-datepicker label="Data de início" [required]="true" [(value)]="dataInicio" [error]="erro('dataInicio')"></geo-datepicker>
+      <geo-datepicker label="Previsão de término" [required]="true" [(value)]="dataPrevisaoFim" [error]="erro('dataPrevisaoFim')"></geo-datepicker>
+      <geo-select label="Status" [required]="true" [options]="statusOpcoes()" [(value)]="idStatusObra" [error]="erro('idStatusObra')"></geo-select>
+      <geo-number-input label="Valor do projeto" mode="currency" [(value)]="valorProjeto" [minFractionDigits]="2" [showOptional]="true"></geo-number-input>
     </div>
     @if (concluida()) {
-      <ces-callout tone="success" title="Status de conclusão">Informe a data de término real, ou deixe em branco para assumir hoje.</ces-callout>
-      <ces-datepicker label="Data de término real" [(value)]="dataFimEfetiva" [clearable]="true" [showOptional]="true"></ces-datepicker>
+      <geo-callout tone="success" title="Status de conclusão">Informe a data de término real, ou deixe em branco para assumir hoje.</geo-callout>
+      <geo-datepicker label="Data de término real" [(value)]="dataFimEfetiva" [clearable]="true" [showOptional]="true"></geo-datepicker>
     }
-  </ces-form-section>
+  </geo-form-section>
 
-  <ces-form-section title="Execução" icon="pi pi-wrench">
-    <ces-multiselect label="Equipes de campo" [options]="equipesOpcoes()" [(value)]="equipes" [clearable]="true" selectedItemsLabel="{0} equipes selecionadas" [showOptional]="true"></ces-multiselect>
-    <ces-boolean-control label="Esta obra é de KIT ou medidor" description="Vincula esta obra a uma obra principal." kind="toggle" [(value)]="ehSubprojeto"></ces-boolean-control>
+  <geo-form-section title="Execução" icon="pi pi-wrench">
+    <geo-multiselect label="Equipes de campo" [options]="equipesOpcoes()" [(value)]="equipes" [clearable]="true" selectedItemsLabel="{0} equipes selecionadas" [showOptional]="true"></geo-multiselect>
+    <geo-boolean-control label="Esta obra é de KIT ou medidor" description="Vincula esta obra a uma obra principal." kind="toggle" [(value)]="ehSubprojeto"></geo-boolean-control>
     @if (ehSubprojeto()) {
-      <div class="ces-form-grid">
-        <ces-select label="Obra principal" [required]="true" [options]="obrasPaiOpcoes()" [(value)]="idObraPai" [filter]="true" [clearable]="true" [error]="erro('idObraPai')"></ces-select>
-        <ces-select label="Tipo de vínculo" [required]="true" [options]="tipoVinculoOpcoes" [(value)]="tipoVinculoPai" [error]="erro('tipoVinculoPai')"></ces-select>
+      <div class="geo-form-grid">
+        <geo-select label="Obra principal" [required]="true" [options]="obrasPaiOpcoes()" [(value)]="idObraPai" [filter]="true" [clearable]="true" [error]="erro('idObraPai')"></geo-select>
+        <geo-select label="Tipo de vínculo" [required]="true" [options]="tipoVinculoOpcoes" [(value)]="tipoVinculoPai" [error]="erro('tipoVinculoPai')"></geo-select>
       </div>
     }
-  </ces-form-section>
+  </geo-form-section>
 
-  <ces-form-section title="Localização" icon="pi pi-map-marker">
-    <div section-actions class="ces-actions-row">
-      <ces-button variant="ghost" size="sm" icon="pi pi-compass" label="Capturar GPS" (pressed)="capturarGps()"></ces-button>
-      <ces-button variant="ghost" size="sm" icon="pi pi-map" label="Escolher no mapa" (pressed)="mapa.open(latitude(), longitude())"></ces-button>
+  <geo-form-section title="Localização" icon="pi pi-map-marker">
+    <div section-actions class="geo-actions-row">
+      <geo-button variant="ghost" size="sm" icon="pi pi-compass" label="Capturar GPS" (pressed)="capturarGps()"></geo-button>
+      <geo-button variant="ghost" size="sm" icon="pi pi-map" label="Escolher no mapa" (pressed)="mapa.open(latitude(), longitude())"></geo-button>
     </div>
-    <div class="ces-form-grid">
-      <ces-number-input label="Latitude" [(value)]="latitude" [minFractionDigits]="6" [maxFractionDigits]="6" placeholder="Ex.: -9,416667" [showOptional]="true"></ces-number-input>
-      <ces-number-input label="Longitude" [(value)]="longitude" [minFractionDigits]="6" [maxFractionDigits]="6" placeholder="Ex.: -40,500000" [showOptional]="true"></ces-number-input>
+    <div class="geo-form-grid">
+      <geo-number-input label="Latitude" [(value)]="latitude" [minFractionDigits]="6" [maxFractionDigits]="6" placeholder="Ex.: -9,416667" [showOptional]="true"></geo-number-input>
+      <geo-number-input label="Longitude" [(value)]="longitude" [minFractionDigits]="6" [maxFractionDigits]="6" placeholder="Ex.: -40,500000" [showOptional]="true"></geo-number-input>
     </div>
-  </ces-form-section>
+  </geo-form-section>
 
-  <ces-form-actions drawer-footer [submitLabel]="editando() ? 'Salvar alterações' : 'Cadastrar obra'" [saving]="salvando()" (save)="salvar()" (cancel)="gaveta.requestClose()"></ces-form-actions>
-</ces-form-drawer>
+  <geo-form-actions drawer-footer [submitLabel]="editando() ? 'Salvar alterações' : 'Cadastrar obra'" [saving]="salvando()" (save)="salvar()" (cancel)="gaveta.requestClose()"></geo-form-actions>
+</geo-form-drawer>
 
 <app-location-picker-dialog #mapa (localConfirmado)="aoEscolherNoMapa($event)"></app-location-picker-dialog>

@@ -1,16 +1,16 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0"
+  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0"
 >
   @if (carregando() && !desconto()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state state="loading" title="Carregando o termo..."
-        description="Consultando o colaborador, os itens e as etapas do desconto..."></ces-async-state>
+      <geo-async-state state="loading" title="Carregando o termo..."
+        description="Consultando o colaborador, os itens e as etapas do desconto..."></geo-async-state>
     </div>
   } @else if (erro()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state state="error" title="Termo indisponível" [description]="erro()!"
+      <geo-async-state state="error" title="Termo indisponível" [description]="erro()!"
         actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="recarregar()"
-        secondaryActionLabel="Voltar" secondaryActionIcon="pi pi-arrow-left" (secondaryAction)="voltar()"></ces-async-state>
+        secondaryActionLabel="Voltar" secondaryActionIcon="pi pi-arrow-left" (secondaryAction)="voltar()"></geo-async-state>
     </div>
   } @else if (desconto(); as d) {
     <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
@@ -40,7 +40,7 @@
           <span>·</span>
           <span>Lançado em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ d.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>·</span>
-          <ces-status [tone]="tomStatus[d.status]" [emphasis]="d.status === 'FINALIZADO' ? 'solid' : 'soft'" [icon]="iconeStatus[d.status]">{{ rotuloStatus[d.status] }}</ces-status>
+          <geo-status [tone]="tomStatus[d.status]" [emphasis]="d.status === 'FINALIZADO' ? 'solid' : 'soft'" [icon]="iconeStatus[d.status]">{{ rotuloStatus[d.status] }}</geo-status>
         </div>
         <div class="mt-3 print:hidden">
           <app-analisar-com-copiloto origem="Termo de desconto em folha" tipo="desconto"
@@ -201,9 +201,9 @@
             <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ d.itens.length }})</span>
           </div>
           @if (editavel() && pode('desconto:editar')) {
-            <ces-button class="print:hidden" variant="outline" size="sm" icon="pi pi-plus" label="Incluir item" (pressed)="abrirItem()"></ces-button>
+            <geo-button class="print:hidden" variant="outline" size="sm" icon="pi pi-plus" label="Incluir item" (pressed)="abrirItem()"></geo-button>
           } @else if (!editavel()) {
-            <ces-status class="print:hidden" tone="neutral" icon="pi-lock">Itens congelados</ces-status>
+            <geo-status class="print:hidden" tone="neutral" icon="pi-lock">Itens congelados</geo-status>
           }
         </div>
         <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 print:border-slate-300">
@@ -229,8 +229,8 @@
                   @if (editavel()) {
                     <td class="py-1 px-2 print:hidden">
                       <div class="flex items-center justify-end gap-1">
-                        <ces-icon-button icon="pi pi-pencil" [label]="'Editar ' + item.descricaoMaterial" tooltip="Editar item" size="icon-sm" (pressed)="abrirItem(item)" />
-                        <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + item.descricaoMaterial" tooltip="Remover item" size="icon-sm" (pressed)="removerItem(item)" />
+                        <geo-icon-button icon="pi pi-pencil" [label]="'Editar ' + item.descricaoMaterial" tooltip="Editar item" size="icon-sm" (pressed)="abrirItem(item)" />
+                        <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + item.descricaoMaterial" tooltip="Remover item" size="icon-sm" (pressed)="removerItem(item)" />
                       </div>
                     </td>
                   }
@@ -241,7 +241,7 @@
                     <div class="flex flex-col items-center gap-2">
                       <span class="text-xs text-slate-500 dark:text-slate-400">Nenhum item incluído.</span>
                       @if (editavel()) {
-                        <ces-button class="print:hidden" variant="primary" size="sm" icon="pi pi-plus" label="Incluir o primeiro item" (pressed)="abrirItem()"></ces-button>
+                        <geo-button class="print:hidden" variant="primary" size="sm" icon="pi pi-plus" label="Incluir o primeiro item" (pressed)="abrirItem()"></geo-button>
                       }
                     </div>
                   </td>
@@ -327,7 +327,7 @@
                     <span class="text-xs text-slate-600 dark:text-slate-300 font-normal">Lançamento, alterações, decisões e decisões desfeitas: quem, quando e por quê.</span>
                   </div>
                 </div>
-                <ces-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : 'pi-history'">{{ resumoHistorico() }}</ces-status>
+                <geo-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : 'pi-history'">{{ resumoHistorico() }}</geo-status>
               </div>
             </p-accordion-header>
             <p-accordion-content>
@@ -350,7 +350,7 @@
             <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">({{ d.anexos.length }})</span>
           </div>
           @if (aceitaAnexo() && comprovantes().length && pode('desconto:anexar')) {
-            <ces-button variant="outline" size="sm" icon="pi pi-paperclip" label="Anexar arquivo" [loading]="salvando()" (pressed)="seletorAnexo.click()"></ces-button>
+            <geo-button variant="outline" size="sm" icon="pi pi-paperclip" label="Anexar arquivo" [loading]="salvando()" (pressed)="seletorAnexo.click()"></geo-button>
           }
         </div>
         <input #seletorAnexo type="file" class="hidden" [accept]="anexoAccept" (change)="enviarAnexo($event)" />
@@ -362,16 +362,16 @@
             <div class="flex flex-col min-w-0 flex-1 gap-0.5">
               <span class="flex items-center gap-2 flex-wrap">
                 <span class="text-xs font-bold uppercase tracking-wider">Termo assinado pelo colaborador</span>
-                <ces-status tone="success" emphasis="solid" icon="pi-lock">Documento do termo</ces-status>
+                <geo-status tone="success" emphasis="solid" icon="pi-lock">Documento do termo</geo-status>
               </span>
-              <span class="text-xs font-semibold text-[var(--ces-foreground)] truncate" [title]="t.nomeArquivo">{{ t.nomeArquivo }}</span>
-              <span class="text-[11px] text-[var(--ces-foreground-muted)]">
+              <span class="text-xs font-semibold text-[var(--geo-foreground)] truncate" [title]="t.nomeArquivo">{{ t.nomeArquivo }}</span>
+              <span class="text-[11px] text-[var(--geo-foreground-muted)]">
                 Anexado{{ d.responsaveis?.finalizacao ? ' por ' + d.responsaveis!.finalizacao : '' }}{{ d.dataFinalizacao ? ' em ' + (d.dataFinalizacao | date: 'dd/MM/yyyy HH:mm') : '' }} · {{ rotuloAnexo(t) }}
               </span>
             </div>
             <div class="flex items-center gap-0.5 shrink-0">
-              <ces-icon-button icon="pi pi-eye" [label]="'Abrir ' + t.nomeArquivo" tooltip="Abrir" size="icon-sm" (pressed)="visualizarAnexo(t)" />
-              <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + t.nomeArquivo" tooltip="Baixar" size="icon-sm" (pressed)="baixarAnexo(t)" />
+              <geo-icon-button icon="pi pi-eye" [label]="'Abrir ' + t.nomeArquivo" tooltip="Abrir" size="icon-sm" (pressed)="visualizarAnexo(t)" />
+              <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + t.nomeArquivo" tooltip="Baixar" size="icon-sm" (pressed)="baixarAnexo(t)" />
             </div>
           </div>
         } @else if (d.status === 'BAIXADO') {
@@ -382,7 +382,7 @@
               <span class="text-[11px]">Imprima o termo, colete a assinatura do colaborador e anexe a via assinada para finalizar.</span>
             </div>
             @if (pode('desconto:baixar')) {
-              <ces-button variant="primary" size="sm" icon="pi pi-upload" label="Anexar termo assinado" (pressed)="abrirAcao('FINALIZAR')"></ces-button>
+              <geo-button variant="primary" size="sm" icon="pi pi-upload" label="Anexar termo assinado" (pressed)="abrirAcao('FINALIZAR')"></geo-button>
             }
           </div>
         }
@@ -393,15 +393,15 @@
               <div class="anexo">
                 <div class="anexo__icone" [attr.data-tipo]="categoriaAnexo(anexo)"><i class="pi" [class]="iconeAnexo(anexo)" aria-hidden="true"></i></div>
                 <div class="flex flex-col min-w-0 flex-1">
-                  <span class="text-xs font-semibold text-[var(--ces-foreground)] truncate" [title]="anexo.nomeArquivo">{{ anexo.nomeArquivo }}</span>
-                  <span class="text-[11px] text-[var(--ces-foreground-muted)]">{{ rotuloAnexo(anexo) }}</span>
+                  <span class="text-xs font-semibold text-[var(--geo-foreground)] truncate" [title]="anexo.nomeArquivo">{{ anexo.nomeArquivo }}</span>
+                  <span class="text-[11px] text-[var(--geo-foreground-muted)]">{{ rotuloAnexo(anexo) }}</span>
                 </div>
                 <div class="flex items-center gap-0.5 shrink-0">
-                  <ces-icon-button [icon]="categoriaAnexo(anexo) === 'audio' || categoriaAnexo(anexo) === 'video' ? 'pi pi-play' : 'pi pi-eye'"
+                  <geo-icon-button [icon]="categoriaAnexo(anexo) === 'audio' || categoriaAnexo(anexo) === 'video' ? 'pi pi-play' : 'pi pi-eye'"
                     [label]="'Abrir ' + anexo.nomeArquivo" tooltip="Abrir" size="icon-sm" (pressed)="visualizarAnexo(anexo)" />
-                  <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + anexo.nomeArquivo" tooltip="Baixar" size="icon-sm" (pressed)="baixarAnexo(anexo)" />
+                  <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + anexo.nomeArquivo" tooltip="Baixar" size="icon-sm" (pressed)="baixarAnexo(anexo)" />
                   @if (editavel() && pode('desconto:anexar')) {
-                    <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + anexo.nomeArquivo" tooltip="Remover" size="icon-sm" (pressed)="removerAnexo(anexo)" />
+                    <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + anexo.nomeArquivo" tooltip="Remover" size="icon-sm" (pressed)="removerAnexo(anexo)" />
                   }
                 </div>
               </div>
@@ -511,20 +511,20 @@
     <!-- No celular só ficam as ações sobre o termo; voltar e imprimir são do navegador. -->
     <div class="barra-acoes fixed inset-x-0 bottom-0 px-4 pb-4 pt-6 md:inset-x-auto md:bottom-8 md:right-12 md:p-0 flex items-center justify-end flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
       <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
         styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
       @if (editavel() && pode('desconto:editar')) {
         <p-button icon="pi pi-pencil" label="EDITAR" (onClick)="abrirDados()"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       }
       @if (podeDesfazer()) {
         <p-button icon="pi pi-undo" [label]="rotuloDesfazer()" (onClick)="abrirAcao('DESFAZER')"
-          styleClass="!rounded-lg !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-warning-hover)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"></p-button>
       }
       @if (editavel() && pode('desconto:rejeitar')) {
         <p-button icon="pi pi-times" label="REJEITAR" (onClick)="abrirAcao('REJEITAR')"
-          styleClass="!rounded-lg !bg-[var(--ces-danger)] !border-[var(--ces-danger)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-danger-hover)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"></p-button>
       }
       @if (editavel() && pode('desconto:validar')) {
         <p-button icon="pi pi-check" label="VALIDAR" (onClick)="abrirAcao('VALIDAR')"
@@ -532,11 +532,11 @@
       }
       @if (d.status === 'VALIDADO' && pode('desconto:baixar')) {
         <p-button icon="pi pi-wallet" label="BAIXAR EM FOLHA" (onClick)="abrirAcao('BAIXAR')"
-          styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"></p-button>
       }
       @if (d.status === 'BAIXADO' && pode('desconto:baixar')) {
         <p-button icon="pi pi-verified" label="ANEXAR TERMO ASSINADO" (onClick)="abrirAcao('FINALIZAR')"
-          styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"></p-button>
       }
     </div>
 
@@ -544,62 +544,62 @@
       [nomeColaborador]="nomeColaborador()" [processando]="salvando()" (confirmado)="confirmarAcao($event)" />
 
     <!-- Drawer: dados do termo -->
-    <ces-form-drawer [(visible)]="dadosAberto" title="Editar dados do termo"
+    <geo-form-drawer [(visible)]="dadosAberto" title="Editar dados do termo"
       description="Enquanto o desconto não for validado, dá para corrigir o colaborador, o motivo, a data e o parcelamento."
       [dirty]="dadosSujos()" [loading]="salvando()" size="md">
-      <ces-form-section title="Colaborador e ocorrência" icon="pi pi-user">
-        <div class="ces-form-stack">
-          <ces-autocomplete label="Colaborador" [required]="true" [ngModel]="dColaborador()" (ngModelChange)="dColaborador.set($event)"
+      <geo-form-section title="Colaborador e ocorrência" icon="pi pi-user">
+        <div class="geo-form-stack">
+          <geo-autocomplete label="Colaborador" [required]="true" [ngModel]="dColaborador()" (ngModelChange)="dColaborador.set($event)"
             [options]="opcoesColaborador()" [loading]="colaboradoresCarregando()" [status]="colaboradoresStatus()"
             placeholder="Pesquisar pelo nome" [clearable]="true" [error]="erroDados('colaborador')"
-            (search)="pesquisarColaboradores($event)" (loadMore)="carregarMaisColaboradores()" (retry)="tentarColaboradoresDeNovo()"></ces-autocomplete>
-          <ces-select label="Motivo" [required]="true" [options]="opcoesMotivo()" [filter]="true"
-            [value]="dMotivo()" (valueChange)="dMotivo.set($any($event))" [error]="erroDados('motivo')"></ces-select>
-          <ces-datepicker label="Data da ocorrência" [required]="true" [(value)]="dData" [maxDate]="emitidoEm" [error]="erroDados('data')"></ces-datepicker>
+            (search)="pesquisarColaboradores($event)" (loadMore)="carregarMaisColaboradores()" (retry)="tentarColaboradoresDeNovo()"></geo-autocomplete>
+          <geo-select label="Motivo" [required]="true" [options]="opcoesMotivo()" [filter]="true"
+            [value]="dMotivo()" (valueChange)="dMotivo.set($any($event))" [error]="erroDados('motivo')"></geo-select>
+          <geo-datepicker label="Data da ocorrência" [required]="true" [(value)]="dData" [maxDate]="emitidoEm" [error]="erroDados('data')"></geo-datepicker>
         </div>
-      </ces-form-section>
-      <ces-form-section title="Parcelamento" icon="pi pi-calendar">
-        <ces-number-input label="Quantidade de parcelas" [required]="true" [min]="1" [max]="tetoParcelas() ?? undefined"
+      </geo-form-section>
+      <geo-form-section title="Parcelamento" icon="pi pi-calendar">
+        <geo-number-input label="Quantidade de parcelas" [required]="true" [min]="1" [max]="tetoParcelas() ?? undefined"
           [showButtons]="true" [(value)]="dParcelas" [error]="erroParcelas()"
-          [description]="tetoParcelas() ? 'Este motivo permite até ' + tetoParcelas() + ' parcelas.' : undefined"></ces-number-input>
-      </ces-form-section>
-      <ces-form-section title="Justificativa" icon="pi pi-align-left">
-        <ces-textarea label="Observações" [showOptional]="true" [(value)]="dObservacoes" [rows]="4" [maxlength]="2000"
+          [description]="tetoParcelas() ? 'Este motivo permite até ' + tetoParcelas() + ' parcelas.' : undefined"></geo-number-input>
+      </geo-form-section>
+      <geo-form-section title="Justificativa" icon="pi pi-align-left">
+        <geo-textarea label="Observações" [showOptional]="true" [(value)]="dObservacoes" [rows]="4" [maxlength]="2000"
           placeholder="O que aconteceu, onde e como o item foi danificado ou perdido."
-          description="Sai impressa no termo, acima das assinaturas."></ces-textarea>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Voltar" (pressed)="dadosAberto.set(false)" [disabled]="salvando()"></ces-button>
-        <ces-button variant="primary" icon="pi pi-check" label="Salvar alterações" [loading]="salvando()" (pressed)="salvarDados()"></ces-button>
+          description="Sai impressa no termo, acima das assinaturas."></geo-textarea>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Voltar" (pressed)="dadosAberto.set(false)" [disabled]="salvando()"></geo-button>
+        <geo-button variant="primary" icon="pi pi-check" label="Salvar alterações" [loading]="salvando()" (pressed)="salvarDados()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <!-- Drawer: item -->
-    <ces-form-drawer [(visible)]="itemAberto" [title]="itemEditando() ? 'Editar item' : 'Incluir item'"
+    <geo-form-drawer [(visible)]="itemAberto" [title]="itemEditando() ? 'Editar item' : 'Incluir item'"
       description="O valor sugerido do desconto é a soma dos itens e é recalculado ao salvar."
       [dirty]="itemSujo()" [loading]="salvando()" size="sm">
-      <ces-form-section title="Item" icon="pi pi-box">
-        <div class="ces-form-stack">
-          <ces-text-input label="Material ou equipamento" [required]="true" [(value)]="iDescricao" [maxlength]="255"
-            placeholder="Ex.: multímetro, bota de segurança" [error]="erroItem('descricao')"></ces-text-input>
-          <ces-select label="Categoria" [required]="true" [options]="opcoesCategoria()" [filter]="true"
-            [value]="iCategoria()" (valueChange)="iCategoria.set($any($event))" [error]="erroItem('categoria')"></ces-select>
-          <ces-number-input label="Valor" mode="currency" [required]="true" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2"
-            [(value)]="iValor" [error]="erroItem('valor')"></ces-number-input>
+      <geo-form-section title="Item" icon="pi pi-box">
+        <div class="geo-form-stack">
+          <geo-text-input label="Material ou equipamento" [required]="true" [(value)]="iDescricao" [maxlength]="255"
+            placeholder="Ex.: multímetro, bota de segurança" [error]="erroItem('descricao')"></geo-text-input>
+          <geo-select label="Categoria" [required]="true" [options]="opcoesCategoria()" [filter]="true"
+            [value]="iCategoria()" (valueChange)="iCategoria.set($any($event))" [error]="erroItem('categoria')"></geo-select>
+          <geo-number-input label="Valor" mode="currency" [required]="true" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2"
+            [(value)]="iValor" [error]="erroItem('valor')"></geo-number-input>
         </div>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Voltar" (pressed)="itemAberto.set(false)" [disabled]="salvando()"></ces-button>
-        <ces-button variant="primary" icon="pi pi-check" [label]="itemEditando() ? 'Salvar item' : 'Incluir item'" [loading]="salvando()" (pressed)="salvarItem()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Voltar" (pressed)="itemAberto.set(false)" [disabled]="salvando()"></geo-button>
+        <geo-button variant="primary" icon="pi pi-check" [label]="itemEditando() ? 'Salvar item' : 'Incluir item'" [loading]="salvando()" (pressed)="salvarItem()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <!-- Visualização de anexo (PDF, imagem, áudio, vídeo) -->
     <p-dialog [visible]="previewAberto()" (visibleChange)="!$event && fecharPreview()" [modal]="true" [dismissableMask]="true"
       [style]="{ width: '90vw', maxWidth: '950px' }" [header]="previewNome()" [draggable]="false" [resizable]="false">
-      <div class="flex flex-col items-center justify-center min-h-[350px] max-h-[75vh] w-full rounded-lg overflow-hidden bg-[var(--ces-surface-subtle)]">
+      <div class="flex flex-col items-center justify-center min-h-[350px] max-h-[75vh] w-full rounded-lg overflow-hidden bg-[var(--geo-surface-subtle)]">
         @if (previewCarregando()) {
-          <ces-async-state state="loading" title="Abrindo o arquivo..."></ces-async-state>
+          <geo-async-state state="loading" title="Abrindo o arquivo..."></geo-async-state>
         } @else if (previewUrl()) {
           @switch (previewTipo()) {
             @case ('pdf') { <iframe [src]="previewUrl()" class="w-full h-[70vh] border-0" [title]="previewNome()"></iframe> }
@@ -608,17 +608,17 @@
             @case ('video') { <video controls autoplay playsinline [src]="previewUrl()" class="max-w-full max-h-[65vh]"></video> }
             @default {
               <div class="flex flex-col items-center gap-3 p-8 text-center">
-                <i class="pi pi-file text-3xl text-[var(--ces-foreground-subtle)]" aria-hidden="true"></i>
-                <p class="text-xs text-[var(--ces-foreground-muted)]">Este formato não abre aqui. Abra em outra aba ou baixe o arquivo.</p>
+                <i class="pi pi-file text-3xl text-[var(--geo-foreground-subtle)]" aria-hidden="true"></i>
+                <p class="text-xs text-[var(--geo-foreground-muted)]">Este formato não abre aqui. Abra em outra aba ou baixe o arquivo.</p>
               </div>
             }
           }
         }
       </div>
       <ng-template pTemplate="footer">
-        <div class="ces-actions-row w-full pt-3">
-          <ces-button variant="ghost" icon="pi pi-external-link" label="Abrir em outra aba" (pressed)="abrirPreviewNovaAba()"></ces-button>
-          <ces-button variant="outline" label="Fechar" (pressed)="fecharPreview()"></ces-button>
+        <div class="geo-actions-row w-full pt-3">
+          <geo-button variant="ghost" icon="pi pi-external-link" label="Abrir em outra aba" (pressed)="abrirPreviewNovaAba()"></geo-button>
+          <geo-button variant="outline" label="Fechar" (pressed)="fecharPreview()"></geo-button>
         </div>
       </ng-template>
     </p-dialog>

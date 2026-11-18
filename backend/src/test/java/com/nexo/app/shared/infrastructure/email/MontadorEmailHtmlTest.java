@@ -72,8 +72,8 @@ class MontadorEmailHtmlTest {
 
         // O Outlook.com troca as cores e marca com data-ogsc/data-ogsb o que tocou.
         assertThat(html).contains("[data-ogsc]").contains("[data-ogsb]");
-        assertThat(html).contains("ces-cartao").contains("ces-superficie")
-                .contains("ces-botao").contains("ces-forte").contains("ces-suave");
+        assertThat(html).contains("geo-cartao").contains("geo-superficie")
+                .contains("geo-botao").contains("geo-forte").contains("geo-suave");
     }
 
     @Test

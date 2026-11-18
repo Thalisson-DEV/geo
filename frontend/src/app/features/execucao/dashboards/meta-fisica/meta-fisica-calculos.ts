@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { DashboardMetaFisicaResponse, nomeServico } from '../../../../core/models/meta-fisica.models';
 
 /**
@@ -10,7 +10,7 @@ import { DashboardMetaFisicaResponse, nomeServico } from '../../../../core/model
 export type SituacaoFisica = 'ATINGIDA' | 'NO_RITMO' | 'ABAIXO' | 'NAO_ATINGIDA' | 'A_INICIAR';
 export type EstadoMes = 'andamento' | 'encerrado' | 'futuro';
 
-export const SITUACAO_FISICA: Record<SituacaoFisica, { rotulo: string; tom: CesTone; icone: string }> = {
+export const SITUACAO_FISICA: Record<SituacaoFisica, { rotulo: string; tom: GeoTone; icone: string }> = {
   ATINGIDA: { rotulo: 'Meta batida', tom: 'success', icone: 'pi pi-check-circle' },
   NO_RITMO: { rotulo: 'No ritmo', tom: 'info', icone: 'pi pi-arrow-up-right' },
   ABAIXO: { rotulo: 'Abaixo do ritmo', tom: 'warning', icone: 'pi pi-exclamation-triangle' },

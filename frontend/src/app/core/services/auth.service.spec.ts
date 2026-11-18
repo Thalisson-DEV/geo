@@ -133,6 +133,6 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
     http.expectOne(`${API}/logout`).flush(null);
     await Promise.resolve();
-    expect(localStorage.getItem('ces_logout_pendente')).toBeNull();
+    expect(localStorage.getItem('geo_logout_pendente')).toBeNull();
   });
 });

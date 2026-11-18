@@ -18,9 +18,9 @@ import lombok.extern.slf4j.Slf4j;
  * Envio por servidor SMTP — o caminho da caixa corporativa da empresa na GoDaddy.
  *
  * <p>O {@code JavaMailSender} é construído aqui, e não herdado da autoconfiguração do
- * Spring, para que a única chave que liga o envio seja {@code ces.email.provedor}.
+ * Spring, para que a única chave que liga o envio seja {@code geo.email.provedor}.
  * Detalhe da GoDaddy que costuma custar uma tarde: a porta 465 exige SSL direto
- * ({@code ces.email.smtp.ssl=true}) e a 587 exige STARTTLS — as duas funcionam, mas
+ * ({@code geo.email.smtp.ssl=true}) e a 587 exige STARTTLS — as duas funcionam, mas
  * não com a mesma configuração.</p>
  */
 @Slf4j

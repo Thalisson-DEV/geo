@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 class ArmazemBucketsRedis implements ArmazemBuckets {
 
-    static final String PREFIXO = "ces:rate-limit:";
+    static final String PREFIXO = "geo:rate-limit:";
     private static final Duration FOLGA_EXPIRACAO = Duration.ofSeconds(10);
 
     private final RedisConnectionFactory fabrica;

@@ -268,7 +268,7 @@
                       }
                     </div>
                     <div class="field">
-                      <ces-autocomplete
+                      <geo-autocomplete
                         [(ngModel)]="idGestor"
                         label="Gestor responsável"
                         [required]="true"
@@ -565,7 +565,7 @@
                               </div>
                               <div class="sm:col-span-8 flex flex-col gap-1">
                                 <label class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Colaborador *</label>
-                                <ces-autocomplete
+                                <geo-autocomplete
                                   [(ngModel)]="envolvido.idColaborador"
                                   [labelVisible]="false"
                                   label="Colaborador"

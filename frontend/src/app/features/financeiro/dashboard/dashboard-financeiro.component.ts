@@ -4,24 +4,24 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesChartComponent,
-  CesChartSeries,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoChartComponent,
+  GeoChartSeries,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import {
   DIMENSOES_FILTRO_FINANCEIRO,
@@ -106,12 +106,12 @@ const AMOSTRA_ACAO = 40;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesCellDirective, CesChartComponent, CesDataTableComponent,
-    CesDatepickerComponent, CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, CesSelectComponent, CesStatusComponent,
+    GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoCellDirective, GeoChartComponent, GeoDataTableComponent,
+    GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoSelectComponent, GeoStatusComponent,
     DashboardAnaliseComponent, DashboardMetricCardComponent, DashboardVisaoGerencialComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-financeiro.component.html',
   styleUrl: './dashboard-financeiro.component.css'
 })
@@ -233,23 +233,23 @@ export class DashboardFinanceiroComponent implements OnInit {
   ];
   protected readonly abasRanking = (Object.keys(DIMENSOES_RANKING) as DimensaoRanking[]).map((value) => ({ label: DIMENSOES_RANKING[value].aba, value }));
 
-  protected readonly opcoesFornecedores = computed<CesSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nomeFantasia, value: f.id })));
-  protected readonly opcoesBases = computed<CesSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
-  protected readonly opcoesProcessos = computed<CesSelectOption<string>[]>(() => this.processos().map((p) => ({ label: p.nome, value: p.id })));
-  protected readonly opcoesObras = computed<CesSelectOption<string>[]>(() => this.obras().map((o) => ({ label: o.numeroContrato, value: o.id })));
-  protected readonly opcoesFormularios = computed<CesSelectOption<string>[]>(() => this.formularios().map((f) => ({ label: f.titulo, value: f.id })));
+  protected readonly opcoesFornecedores = computed<GeoSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nomeFantasia, value: f.id })));
+  protected readonly opcoesBases = computed<GeoSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
+  protected readonly opcoesProcessos = computed<GeoSelectOption<string>[]>(() => this.processos().map((p) => ({ label: p.nome, value: p.id })));
+  protected readonly opcoesObras = computed<GeoSelectOption<string>[]>(() => this.obras().map((o) => ({ label: o.numeroContrato, value: o.id })));
+  protected readonly opcoesFormularios = computed<GeoSelectOption<string>[]>(() => this.formularios().map((f) => ({ label: f.titulo, value: f.id })));
 
   /** Recorte aplicado como chips; o agrupamento do gráfico não recorta e fica fora. */
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.filtrosAplicados();
-    const chips: CesFilterChip[] = [];
+    const chips: GeoFilterChip[] = [];
     const dia = (iso: string) => new Date(iso).toLocaleDateString('pt-BR');
     if (f.tipo) chips.push({ key: 'tipo', label: f.tipo === 'COMPRA' ? 'Só compras' : 'Só pagamentos' });
     if (f.inicio || f.fim) {
       const texto = f.inicio && f.fim ? `${dia(f.inicio)} a ${dia(f.fim)}` : f.inicio ? `a partir de ${dia(f.inicio)}` : `até ${dia(f.fim!)}`;
       chips.push({ key: 'periodo', label: `Abertura: ${texto}` });
     }
-    const grupos: [keyof DashboardFinanceiroFilter, string, CesSelectOption<string>[]][] = [
+    const grupos: [keyof DashboardFinanceiroFilter, string, GeoSelectOption<string>[]][] = [
       ['idFornecedor', 'Fornecedor', this.opcoesFornecedores()],
       ['idBase', 'Base', this.opcoesBases()],
       ['idProcesso', 'Centro de custo', this.opcoesProcessos()],
@@ -321,7 +321,7 @@ export class DashboardFinanceiroComponent implements OnInit {
       series: [
         { name: acumulado ? 'Pedido (acumulado)' : 'Pedido', values: acumulado ? corrida(pedido) : pedido },
         { name: acumulado ? 'Autorizado (acumulado)' : 'Autorizado', values: acumulado ? corrida(autorizado) : autorizado }
-      ] as CesChartSeries[]
+      ] as GeoChartSeries[]
     };
   });
 
@@ -332,7 +332,7 @@ export class DashboardFinanceiroComponent implements OnInit {
       series: [
         { name: 'Compras', values: faixas.map((f) => f.porTipo?.COMPRA ?? 0) },
         { name: 'Pagamentos', values: faixas.map((f) => f.porTipo?.PAGAMENTO ?? 0) }
-      ] as CesChartSeries[]
+      ] as GeoChartSeries[]
     };
   });
 
@@ -348,11 +348,11 @@ export class DashboardFinanceiroComponent implements OnInit {
       series: [
         { name: 'Autorizado', values: itens.map((i) => i.valorAprovado) },
         { name: 'Pedido', values: itens.map((i) => i.valorSolicitado) }
-      ] as CesChartSeries[]
+      ] as GeoChartSeries[]
     };
   });
   protected readonly rotuloRanking = computed(() => DIMENSOES_RANKING[this.dimensaoRanking()].rotulo);
-  protected readonly colunasRanking = computed<CesDataTableColumn<RankingFinanceiroItem>[]>(() => [
+  protected readonly colunasRanking = computed<GeoDataTableColumn<RankingFinanceiroItem>[]>(() => [
     { key: 'nome', header: this.rotuloRanking(), priority: 1, value: nomeDoItem },
     { key: 'valorAprovado', header: 'Autorizado', type: 'currency', priority: 1 },
     { key: 'percentualValor', header: '% do autorizado', type: 'percent', priority: 1 },
@@ -381,13 +381,13 @@ export class DashboardFinanceiroComponent implements OnInit {
     return {
       itens: situacoes,
       rotulos: situacoes.map((s) => s.rotulo),
-      series: [{ name: 'Documentos', values: situacoes.map((s) => s.quantidade) }] as CesChartSeries[]
+      series: [{ name: 'Documentos', values: situacoes.map((s) => s.quantidade) }] as GeoChartSeries[]
     };
   });
 
   // ------------------------------------------------------------------ tabelas
 
-  protected readonly colunasPendencias: CesDataTableColumn<PendenciaFinanceira>[] = [
+  protected readonly colunasPendencias: GeoDataTableColumn<PendenciaFinanceira>[] = [
     { key: 'gravidade', header: 'Gravidade', type: 'custom', priority: 1, width: '8.5rem', value: (p) => p.peso, display: (p) => p.gravidade },
     { key: 'oQue', header: 'O quê', priority: 1 },
     { key: 'detalhe', header: 'Detalhe', priority: 1 },

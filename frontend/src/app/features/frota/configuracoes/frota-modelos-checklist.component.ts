@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ModeloChecklistResumo } from '../../../core/models/frota-checklist.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaChecklistService } from '../../../core/services/frota-checklist.service';
@@ -27,16 +27,16 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesIconButtonComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoIconButtonComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
     FrotaModeloChecklistFormComponent
   ],
   template: `
-    <ces-data-table title="Modelos de checklist"
+    <geo-data-table title="Modelos de checklist"
       description="Perguntas que o condutor responde no app. Abra um modelo para ver e editar as perguntas."
       storageKey="frota-modelos-checklist" searchPlaceholder="Filtrar nesta lista"
       [columns]="colunas" [rows]="modelos()" [rowKey]="chave" [state]="estado()"
@@ -45,22 +45,22 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
       [rowClickable]="true" (rowActivate)="editar($event)">
       <ng-container table-actions>
         @if (podeConfigurar()) {
-          <ces-button size="sm" icon="pi pi-plus" label="Novo modelo" (pressed)="novo()"></ces-button>
+          <geo-button size="sm" icon="pi pi-plus" label="Novo modelo" (pressed)="novo()"></geo-button>
         }
       </ng-container>
-      <ng-template cesCell="ativo" let-row>
-        <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+      <ng-template geoCell="ativo" let-row>
+        <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
       </ng-template>
-      <ng-template cesRowActions let-row>
+      <ng-template geoRowActions let-row>
         @if (podeConfigurar()) {
-          <span class="ces-table-actions">
-            <ces-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar modelo" size="icon-sm" (pressed)="editar(row)"></ces-icon-button>
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-              [tooltip]="row.ativo ? 'Desativar modelo' : 'Reativar modelo'" size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+          <span class="geo-table-actions">
+            <geo-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar modelo" size="icon-sm" (pressed)="editar(row)"></geo-icon-button>
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+              [tooltip]="row.ativo ? 'Desativar modelo' : 'Reativar modelo'" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
           </span>
         }
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
 
     <app-frota-modelo-checklist-form [(visible)]="novoAberto" (salvo)="abrirCriado($event)"></app-frota-modelo-checklist-form>
   `
@@ -68,7 +68,7 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
 export class FrotaModelosChecklistComponent {
   private readonly checklist = inject(FrotaChecklistService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
 
   protected readonly podeConfigurar = acessoFrota().configurarChecklist;
@@ -77,7 +77,7 @@ export class FrotaModelosChecklistComponent {
   protected readonly novoAberto = signal(false);
   protected readonly estado = computed(() => (this.carregando() ? 'loading' : this.modelos().length ? 'ready' : 'empty'));
 
-  protected readonly colunas: CesDataTableColumn<ModeloChecklistResumo>[] = [
+  protected readonly colunas: GeoDataTableColumn<ModeloChecklistResumo>[] = [
     { key: 'nome', header: 'Modelo', priority: 1 },
     { key: 'tipoRotulo', header: 'Tipo', priority: 1 },
     { key: 'aplicacao', header: 'Vale para', value: (m) => aplicacao(m), display: (m) => aplicacao(m) },

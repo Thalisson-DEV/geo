@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, signal, untracked } from '@angular/core';
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { Observable } from 'rxjs';
 
 /** Uma foto do relatório; `carregar` busca a imagem com o token do interceptor. */
@@ -10,7 +10,7 @@ export interface FotoRelatorio {
   recebida: boolean;
   carregar: () => Observable<Blob>;
   /** Selo opcional sobre a foto (ex.: leitura da IA). */
-  selo?: { rotulo: string; tom: CesTone; icone: string } | null;
+  selo?: { rotulo: string; tom: GeoTone; icone: string } | null;
 }
 
 /**
@@ -25,19 +25,19 @@ export interface FotoRelatorio {
     .fotos { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); margin: 0; padding: 0; list-style: none; }
     .foto { display: grid; gap: 0.375rem; margin: 0; }
     .foto__quadro { position: relative; display: flex; aspect-ratio: 4 / 3; align-items: center; justify-content: center; overflow: hidden;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md, 0.5rem); background: var(--ces-surface-subtle);
-      color: var(--ces-foreground-muted); font-size: 0.75rem; text-align: center; }
-    a.foto__quadro:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem); background: var(--geo-surface-subtle);
+      color: var(--geo-foreground-muted); font-size: 0.75rem; text-align: center; }
+    a.foto__quadro:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     a.foto__quadro:hover img { transform: scale(1.02); }
     .foto__quadro img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
     .foto__selo { position: absolute; top: 0.375rem; left: 0.375rem; display: inline-flex; align-items: center; gap: 0.25rem;
-      padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--ces-surface); font-size: 0.6875rem; font-weight: 700;
-      box-shadow: var(--ces-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.1)); }
-    .foto__selo[data-tom='success'] { color: var(--ces-success-text); }
-    .foto__selo[data-tom='danger'] { color: var(--ces-danger-text); }
-    .foto__selo[data-tom='warning'] { color: var(--ces-warning-text); }
+      padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface); font-size: 0.6875rem; font-weight: 700;
+      box-shadow: var(--geo-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.1)); }
+    .foto__selo[data-tom='success'] { color: var(--geo-success-text); }
+    .foto__selo[data-tom='danger'] { color: var(--geo-danger-text); }
+    .foto__selo[data-tom='warning'] { color: var(--geo-warning-text); }
     .foto__legenda { font-size: 0.75rem; font-weight: 600; line-height: 1.35; }
-    .foto__detalhe { display: block; font-weight: 400; color: var(--ces-foreground-muted); }
+    .foto__detalhe { display: block; font-weight: 400; color: var(--geo-foreground-muted); }
     @media (prefers-reduced-motion: reduce) { .foto__quadro img { transition: none; } }
     @media print { .fotos { grid-template-columns: repeat(4, minmax(0, 1fr)); } .foto { break-inside: avoid; } }
   `,

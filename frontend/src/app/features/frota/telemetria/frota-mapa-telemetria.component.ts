@@ -42,10 +42,10 @@ export interface LigacaoMapa {
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     :host { display: block; }
-    .mapa { width: 100%; height: var(--mapa-altura, 280px); border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg);
-      overflow: hidden; background: var(--ces-surface-muted); }
+    .mapa { width: 100%; height: var(--mapa-altura, 280px); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg);
+      overflow: hidden; background: var(--geo-surface-muted); }
     .mapa__vazio { display: grid; place-items: center; gap: 0.25rem; height: var(--mapa-altura, 280px); padding: 1rem; text-align: center;
-      border: 1px dashed var(--ces-border); border-radius: var(--ces-radius-lg); color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+      border: 1px dashed var(--geo-border); border-radius: var(--geo-radius-lg); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .mapa__vazio .pi { font-size: 1.25rem; }
   `,
   template: `
@@ -92,8 +92,8 @@ export class FrotaMapaTelemetriaComponent implements OnDestroy {
     if (typeof L === 'undefined') return;
     const estilo = getComputedStyle(el);
     // Neutro não tem token próprio de cor cheia: usa o texto secundário.
-    const cor = (tom: string) => estilo.getPropertyValue(`--ces-${tom === 'neutral' ? 'foreground-muted' : tom}`).trim() || 'currentColor';
-    const borda = estilo.getPropertyValue('--ces-surface').trim() || 'white';
+    const cor = (tom: string) => estilo.getPropertyValue(`--geo-${tom === 'neutral' ? 'foreground-muted' : tom}`).trim() || 'currentColor';
+    const borda = estilo.getPropertyValue('--geo-surface').trim() || 'white';
     const reduzido = matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.mapa = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: false, zoomAnimation: !reduzido });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap' }).addTo(this.mapa);

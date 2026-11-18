@@ -1,14 +1,14 @@
-import { CesChartKind, CesChartValueFormat, formatCesChartValue } from '@ces/ui/patterns';
+import { GeoChartKind, GeoChartValueFormat, formatGeoChartValue } from '@geo/ui/patterns';
 import { FormatoValor, TipoArtefato, TipoGraficoArtefato } from '../../core/models/assistente.models';
 
-export const FORMATO_GRAFICO: Record<FormatoValor, CesChartValueFormat> = {
+export const FORMATO_GRAFICO: Record<FormatoValor, GeoChartValueFormat> = {
   numero: 'number',
   inteiro: 'integer',
   moeda: 'currency',
   percentual: 'percent',
 };
 
-export const TIPO_GRAFICO: Record<TipoGraficoArtefato, CesChartKind> = {
+export const TIPO_GRAFICO: Record<TipoGraficoArtefato, GeoChartKind> = {
   barra: 'bar',
   barra_horizontal: 'bar-horizontal',
   barra_empilhada: 'bar-stacked',
@@ -68,7 +68,7 @@ export const NATUREZA: Record<string, string> = {
 
 export function formatarValor(valor: number | null | undefined, formato: FormatoValor = 'numero'): string {
   if (valor === null || valor === undefined || !Number.isFinite(valor)) return '—';
-  return formatCesChartValue(valor, FORMATO_GRAFICO[formato] ?? 'number');
+  return formatGeoChartValue(valor, FORMATO_GRAFICO[formato] ?? 'number');
 }
 
 export function formatarDuracao(ms: number | undefined): string {
@@ -86,8 +86,8 @@ export function formatarCelula(valor: unknown, tipo: string | undefined, coluna 
   if (typeof valor === 'boolean') return valor ? 'Sim' : 'Não';
   if (typeof valor === 'number') {
     const nome = coluna.toLowerCase();
-    if (/(valor|custo|preco|preço|montante)/.test(nome)) return formatCesChartValue(valor, 'currency');
-    return formatCesChartValue(valor, tipo === 'inteiro' ? 'integer' : 'number');
+    if (/(valor|custo|preco|preço|montante)/.test(nome)) return formatGeoChartValue(valor, 'currency');
+    return formatGeoChartValue(valor, tipo === 'inteiro' ? 'integer' : 'number');
   }
   const texto = String(valor);
   if ((tipo === 'data' || /^\d{4}-\d{2}-\d{2}$/.test(texto)) && /^\d{4}-\d{2}-\d{2}/.test(texto)) {

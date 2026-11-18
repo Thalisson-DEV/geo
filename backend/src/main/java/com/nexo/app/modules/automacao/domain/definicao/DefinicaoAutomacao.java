@@ -80,6 +80,16 @@ public record DefinicaoAutomacao(
             List<Ramo> ramos
     ) {
 
+        // renomear-geo: manter a linha seguinte (tipos gravados nas automações antes da troca de nome)
+        private static final String PREFIXO_TIPO_LEGADO = "ces.";
+
+        /** Automações salvas antes da troca de nome do produto guardam os nós do grupo antigo. */
+        public No {
+            if (tipo != null && tipo.startsWith(PREFIXO_TIPO_LEGADO)) {
+                tipo = "geo." + tipo.substring(PREFIXO_TIPO_LEGADO.length());
+            }
+        }
+
         /** (slot, lista) de cada lista filha, ex.: ("then", [...]). */
         public List<Map.Entry<String, List<No>>> filhos() {
             List<Map.Entry<String, List<No>>> filhos = new ArrayList<>();

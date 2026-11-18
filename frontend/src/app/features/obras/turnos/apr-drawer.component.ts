@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
-import { CesButtonComponent, CesCalloutComponent, CesFormDrawerComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoFormDrawerComponent, NotificationService } from '@geo/ui';
 import { take } from 'rxjs';
 import { AprDoTurno, FotoTurno, RespostaApr, TurnoObraDetalhe } from '../../../core/models/obras-turnos.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -12,16 +12,16 @@ const RESPOSTAS: Record<RespostaApr, string> = { SIM: 'Sim', NAO: 'Não', NAO_SE
 @Component({
   selector: 'app-apr-drawer',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesCalloutComponent, CesFormDrawerComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoCalloutComponent, GeoFormDrawerComponent],
   template: `
-    <ces-form-drawer [(visible)]="aberto" [title]="'APR da obra ' + (apr()?.numeroObra ?? '')" size="md">
+    <geo-form-drawer [(visible)]="aberto" [title]="'APR da obra ' + (apr()?.numeroObra ?? '')" size="md">
       @if (apr(); as a) {
         @if (a.status === 'CONCLUIDA') {
-          <ces-callout tone="success" icon="pi pi-check-circle" title="APR concluída" [dense]="true">
+          <geo-callout tone="success" icon="pi pi-check-circle" title="APR concluída" [dense]="true">
             {{ a.responsavel ?? 'Sem responsável' }}{{ a.dataConclusao ? ' · ' + (a.dataConclusao | date: 'dd/MM/yyyy HH:mm') : '' }}
-          </ces-callout>
+          </geo-callout>
         } @else {
-          <ces-callout tone="warning" icon="pi pi-pencil" title="A equipe ainda está preenchendo" [dense]="true">O serviço só pode ser apontado quando ela concluir.</ces-callout>
+          <geo-callout tone="warning" icon="pi pi-pencil" title="A equipe ainda está preenchendo" [dense]="true">O serviço só pode ser apontado quando ela concluir.</geo-callout>
         }
         <dl class="apr-leitura">
           <div><dt>Atividade</dt><dd>{{ a.atividade }}</dd></div>
@@ -49,23 +49,23 @@ const RESPOSTAS: Record<RespostaApr, string> = { SIM: 'Sim', NAO: 'Não', NAO_SE
           </ul>
         }
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Fechar" (pressed)="aberto.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Fechar" (pressed)="aberto.set(false)"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
     .apr-leitura { display: flex; flex-direction: column; gap: 0.625rem; margin: 1rem 0; }
-    .apr-leitura dt { color: var(--ces-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
+    .apr-leitura dt { color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
     .apr-leitura dd { margin: 0; overflow-wrap: anywhere; }
     .apr-subtitulo { margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 700; }
     .apr-respostas { display: flex; flex-direction: column; gap: 0.375rem; margin: 0 0 1rem; padding: 0; font-size: 0.875rem; list-style: none; }
     .apr-respostas li { display: flex; gap: 1rem; justify-content: space-between; }
     .apr-respostas strong { flex: none; }
     .apr-anexos { margin: 0; padding: 0; list-style: none; }
-    .apr-link { padding: 0; color: var(--ces-brand); font-weight: 600; text-align: left; background: none; border: 0; cursor: pointer; }
+    .apr-link { padding: 0; color: var(--geo-brand); font-weight: 600; text-align: left; background: none; border: 0; cursor: pointer; }
     .apr-link:hover { text-decoration: underline; }
-    .apr-link:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .apr-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
   `
 })
 export class AprDrawerComponent {

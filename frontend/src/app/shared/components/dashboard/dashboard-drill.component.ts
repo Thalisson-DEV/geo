@@ -15,13 +15,13 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { Observable, Subscription } from 'rxjs';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrawerComponent,
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrawerComponent,
+} from '@geo/ui';
 
 /** Indicador curto exibido no topo do recorte (vem do agregado que o dashboard já tem). */
 export interface DrillKpi {
@@ -42,7 +42,7 @@ export interface DrillRecorte<T = unknown> {
   readonly titulo: string;
   readonly descricao?: string;
   readonly kpis?: readonly DrillKpi[];
-  readonly colunas: readonly CesDataTableColumn<T>[];
+  readonly colunas: readonly GeoDataTableColumn<T>[];
   /** Primeira página da listagem filtrada (até ~100 linhas) e o total real. */
   readonly carregar: () => Observable<{ linhas: T[]; total: number }>;
   readonly rotuloLinha?: (linha: T) => string;
@@ -63,8 +63,8 @@ export interface DrillRecorte<T = unknown> {
   selector: 'app-dashboard-drill',
   standalone: true,
   imports: [
-    DecimalPipe, NgTemplateOutlet, CesAsyncStateComponent, CesButtonComponent, CesCellDirective,
-    CesDataTableComponent, CesDrawerComponent,
+    DecimalPipe, NgTemplateOutlet, GeoAsyncStateComponent, GeoButtonComponent, GeoCellDirective,
+    GeoDataTableComponent, GeoDrawerComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
@@ -77,24 +77,24 @@ export interface DrillRecorte<T = unknown> {
       display: grid;
       gap: 0.15rem;
       padding: 0.625rem 0.75rem;
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md);
-      background: var(--ces-surface-subtle);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md);
+      background: var(--geo-surface-subtle);
     }
-    .drill-kpi span, .drill-kpi small { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
-    .drill-kpi strong { color: var(--ces-foreground); font-size: 1.125rem; font-variant-numeric: tabular-nums; }
+    .drill-kpi span, .drill-kpi small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .drill-kpi strong { color: var(--geo-foreground); font-size: 1.125rem; font-variant-numeric: tabular-nums; }
     .drill-nota {
       display: flex;
       gap: 0.5rem;
       margin: 0;
-      color: var(--ces-foreground-muted);
-      font-size: var(--ces-font-caption);
+      color: var(--geo-foreground-muted);
+      font-size: var(--geo-font-caption);
       line-height: 1.45;
     }
   `,
   template: `
     @if (recorte(); as r) {
-      <ces-drawer
+      <geo-drawer
         [visible]="true"
         (visibleChange)="!$event && fechar.emit()"
         [eyebrow]="r.eyebrow"
@@ -118,11 +118,11 @@ export interface DrillRecorte<T = unknown> {
         }
 
         @if (erro()) {
-          <ces-async-state state="error" title="Não foi possível carregar o recorte"
+          <geo-async-state state="error" title="Não foi possível carregar o recorte"
             description="Tente novamente; os filtros do painel continuam aplicados."
-            actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+            actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
         } @else {
-          <ces-data-table
+          <geo-data-table
             [caption]="r.titulo"
             [columns]="$any(r.colunas)"
             [rows]="linhas()"
@@ -135,22 +135,22 @@ export interface DrillRecorte<T = unknown> {
             (rowActivate)="r.abrirLinha?.($any($event))"
           >
             @for (coluna of colunasCustomizadas(); track coluna) {
-              <ng-template [cesCell]="coluna" let-row>
+              <ng-template [geoCell]="coluna" let-row>
                 <ng-container *ngTemplateOutlet="r.celulas![coluna]; context: { $implicit: row }"></ng-container>
               </ng-template>
             }
-          </ces-data-table>
+          </geo-data-table>
           @if (total() > linhas().length) {
             <p class="drill-nota">Mostrando {{ linhas().length }} de {{ total() | number }}. Use “{{ r.rotuloVerTudo ?? 'Ver todos na listagem' }}” para o restante.</p>
           }
         }
 
         @if (r.verTudo) {
-          <ces-button drawer-footer variant="outline" icon="pi pi-external-link"
+          <geo-button drawer-footer variant="outline" icon="pi pi-external-link"
             [label]="r.rotuloVerTudo ?? 'Ver todos na listagem'" (pressed)="r.verTudo!()" />
         }
-        <ces-button drawer-footer label="Fechar" (pressed)="fechar.emit()" />
-      </ces-drawer>
+        <geo-button drawer-footer label="Fechar" (pressed)="fechar.emit()" />
+      </geo-drawer>
     }
   `,
 })

@@ -14,7 +14,7 @@ import {
 } from './generate.mjs';
 
 const makeRepository = async () => {
-  const repositoryRoot = await mkdtemp(join(tmpdir(), 'ces-ds-generator-'));
+  const repositoryRoot = await mkdtemp(join(tmpdir(), 'geo-ds-generator-'));
   await mkdir(join(repositoryRoot, 'src', 'app', 'design-system', 'primitives'), {
     recursive: true,
   });
@@ -39,12 +39,12 @@ test('validates supported kinds and kebab-case names', () => {
 });
 
 test('derives selector, class name, paths, and non-destructive patch guidance', () => {
-  const repositoryRoot = join(tmpdir(), 'ces-generator-plan');
+  const repositoryRoot = join(tmpdir(), 'geo-generator-plan');
   const plan = buildPlan({ kind: 'pattern', name: 'sync-indicator', repositoryRoot });
 
   assert.equal(toPascalCase('sync-indicator'), 'SyncIndicator');
-  assert.equal(plan.className, 'CesSyncIndicator');
-  assert.equal(plan.selector, 'ces-sync-indicator');
+  assert.equal(plan.className, 'GeoSyncIndicator');
+  assert.equal(plan.selector, 'geo-sync-indicator');
   assert.equal(plan.files.length, 7);
   assert.match(plan.componentDir, /design-system[\\/]patterns[\\/]sync-indicator$/);
   assert.ok(plan.guidance.some((item) => item.path === 'src/app/design-system/patterns/index.ts'));
@@ -64,7 +64,7 @@ test('dry-run renders the complete plan without creating the target directory', 
 
     assert.equal(plan.dryRun, true);
     assert.equal(plan.files.length, 7);
-    assert.match(plan.files[0].content, /selector: 'ces-work-order-field'/);
+    assert.match(plan.files[0].content, /selector: 'geo-work-order-field'/);
     await assert.rejects(readFile(join(plan.componentDir, 'index.ts'), 'utf8'), { code: 'ENOENT' });
   } finally {
     await rm(repositoryRoot, { recursive: true, force: true });

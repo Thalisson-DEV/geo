@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
 import { FechamentoRelatorio, FechamentoRelatorioResponse, SituacaoFechamento } from '../../../../../core/models/almoxarifado-relatorios.models';
@@ -43,21 +43,21 @@ export const ROTULO_SITUACAO_FECHAMENTO: Record<SituacaoFechamento, string> = {
   CANCELADA: 'Cancelada'
 };
 export const SITUACOES_FECHAMENTO = Object.keys(ROTULO_SITUACAO_FECHAMENTO) as SituacaoFechamento[];
-export const TAG_SITUACAO_FECHAMENTO: Record<SituacaoFechamento, { tom: CesTone; icone: string }> = {
+export const TAG_SITUACAO_FECHAMENTO: Record<SituacaoFechamento, { tom: GeoTone; icone: string }> = {
   AGUARDANDO_RESERVA: { tom: 'info', icone: 'pi pi-bookmark' },
   AGUARDANDO_MOVIMENTACAO: { tom: 'info', icone: 'pi pi-arrow-right-arrow-left' },
   MOVIMENTADA_PARCIALMENTE: { tom: 'warning', icone: 'pi pi-percentage' },
   MOVIMENTADA: { tom: 'success', icone: 'pi pi-check-circle' },
   CANCELADA: { tom: 'neutral', icone: 'pi pi-ban' }
 };
-export const TAG_PRAZO: Record<string, { tom: CesTone; icone: string }> = {
+export const TAG_PRAZO: Record<string, { tom: GeoTone; icone: string }> = {
   NO_PRAZO: { tom: 'success', icone: 'pi pi-clock' },
   VENCE_EM_BREVE: { tom: 'warning', icone: 'pi pi-hourglass' },
   ATRASADO: { tom: 'danger', icone: 'pi pi-calendar-times' },
   CUMPRIDO: { tom: 'success', icone: 'pi pi-check' },
   CUMPRIDO_COM_ATRASO: { tom: 'warning', icone: 'pi pi-history' }
 };
-export const TAG_OBRA: Record<string, { tom: CesTone; icone: string; rotulo: string }> = {
+export const TAG_OBRA: Record<string, { tom: GeoTone; icone: string; rotulo: string }> = {
   FINALIZADO: { tom: 'success', icone: 'pi pi-flag-fill', rotulo: 'Finalizado' },
   PARCIAL: { tom: 'warning', icone: 'pi pi-percentage', rotulo: 'Parcial' },
   PENDENTE: { tom: 'info', icone: 'pi pi-clock', rotulo: 'Pendente' },
@@ -260,7 +260,7 @@ export function visaoFechamento(m: ModeloFechamento): { veredito: VereditoGerenc
 
 // ── Origem e análises ────────────────────────────────────────────────────────────────────────────
 
-export const colFechamento: CesDataTableColumn<FechamentoRelatorio>[] = [
+export const colFechamento: GeoDataTableColumn<FechamentoRelatorio>[] = [
   { key: 'criadaEm', header: 'Aberta em', type: 'custom', priority: 1, value: (s) => s.criadaEm, display: (s) => diaHora(s.criadaEm) },
   { key: 'obra', header: 'Obra', priority: 1, value: (s) => s.numeroObra ?? '—' },
   { key: 'tipo', header: 'Tipo', priority: 2, value: (s) => `${s.tipo} · ${TIPOS_TECNICOS[s.tipo] ?? ''}` },
@@ -434,6 +434,6 @@ export function vistaFechamento(a: { dimension: string; value: string }, m: Mode
   }
 }
 
-export function tomTaxa(t: number | null): CesTone {
+export function tomTaxa(t: number | null): GeoTone {
   return t == null ? 'neutral' : t >= 0.9 ? 'success' : t >= 0.75 ? 'warning' : 'danger';
 }

@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 import { DesvioDetalhadoResponse, DesvioFilter } from '../../../../core/models/desvio.models';
 import {
   GRAVIDADE_LABELS,
@@ -130,7 +130,7 @@ export function linhaInspecao(i: InspecaoSegurancaResponse): LinhaInspecao {
   };
 }
 
-export const COLUNAS_INSPECAO: CesDataTableColumn<LinhaInspecao>[] = [
+export const COLUNAS_INSPECAO: GeoDataTableColumn<LinhaInspecao>[] = [
   { key: 'dataRealizacao', header: 'Realizada', priority: 1, width: '8rem', value: (l) => l.dataRealizacao, display: (l) => diaHora(l.dataRealizacao), searchable: false },
   { key: 'formulario', header: 'Formulário', priority: 1 },
   { key: 'inspetor', header: 'Inspetor', priority: 1 },
@@ -333,7 +333,7 @@ function rotuloPrazo(l: LinhaDesvio): string {
   return l.vencido ? `${data} · vencido há ${plural(l.diasEmAtraso ?? 0, 'dia', 'dias')}` : data;
 }
 
-export const COLUNAS_DESVIO: CesDataTableColumn<LinhaDesvio>[] = [
+export const COLUNAS_DESVIO: GeoDataTableColumn<LinhaDesvio>[] = [
   { key: 'gravidade', header: 'Gravidade', priority: 1, width: '7rem', value: (l) => ORDEM_GRAVIDADE.indexOf(l.gravidade), display: (l) => GRAVIDADE_LABELS[l.gravidade] },
   { key: 'item', header: 'Item do checklist', priority: 1 },
   { key: 'equipe', header: 'Equipe', priority: 2 },

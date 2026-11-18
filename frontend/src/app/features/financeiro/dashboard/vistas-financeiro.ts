@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 
 import { DashboardFinanceiroFilter, DashboardFinanceiroResponse } from '../../../core/models/financeiro-dashboard.models';
 import { SolicitacaoFinanceiraFilter } from '../../../core/models/financeiro.models';
@@ -79,7 +79,7 @@ const COL = {
   vencimento: { key: 'vencimento', header: 'Vencimento', type: 'custom', priority: 1, value: (l) => l.vencimento ?? '', display: textoVencimento },
   comprovante: { key: 'temComprovante', header: 'Comprovante', type: 'custom', priority: 2, value: (l) => Number(l.temComprovante), display: (l) => (l.temComprovante ? 'Anexado' : 'Falta') },
   fiscal: { key: 'temFiscal', header: 'Nota ou boleto', type: 'custom', priority: 2, value: (l) => Number(l.temFiscal), display: (l) => (l.temFiscal ? 'Anexado' : 'Falta') }
-} satisfies Record<string, CesDataTableColumn<LinhaSolicitacao>>;
+} satisfies Record<string, GeoDataTableColumn<LinhaSolicitacao>>;
 
 function detalheSolicitacao(l: LinhaSolicitacao): DetalheRegistro {
   return {
@@ -106,7 +106,7 @@ interface OpcoesOrigem {
   /** Filtros que a origem define e que, por isso, não vêm do painel. */
   readonly sobrepor?: readonly (keyof SolicitacaoFinanceiraFilter)[];
   readonly ordem?: string;
-  readonly colunas: readonly CesDataTableColumn<LinhaSolicitacao>[];
+  readonly colunas: readonly GeoDataTableColumn<LinhaSolicitacao>[];
   readonly filtroInicial?: FiltroOrigem<LinhaSolicitacao>;
   readonly nomeArquivo: string;
   readonly vazio: string;

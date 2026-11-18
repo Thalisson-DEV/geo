@@ -1,12 +1,12 @@
 /* Layout vem de shared/styles/dashboard-shell.css (dash-*); aqui só o que é comum aos painéis da frota. */
-ces-callout { display: block; margin-bottom: 1rem; }
-ces-data-table { display: block; }
+geo-callout { display: block; margin-bottom: 1rem; }
+geo-data-table { display: block; }
 .pf-secao { margin-top: 1.5rem; }
 .pf-secao > header { margin-bottom: 0.75rem; }
-.pf-secao > header h2 { margin: 0.15rem 0 0; font-size: 1.05rem; color: var(--ces-foreground); }
-.pf-secao > header p { margin: 0.25rem 0 0; color: var(--ces-foreground-muted); font-size: 0.82rem; }
+.pf-secao > header h2 { margin: 0.15rem 0 0; font-size: 1.05rem; color: var(--geo-foreground); }
+.pf-secao > header p { margin: 0.25rem 0 0; color: var(--geo-foreground-muted); font-size: 0.82rem; }
 .pf-grid-espaco { margin-top: 1rem; }
-.pf-dica { display: flex; align-items: center; gap: 0.4rem; margin: 0.5rem 0 0; color: var(--ces-foreground-muted); font-size: 0.75rem; }
+.pf-dica { display: flex; align-items: center; gap: 0.4rem; margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: 0.75rem; }
 
 /* Lista "situação da frota": cada linha é um botão que abre a análise. */
 .pf-situacao { margin: 1.2rem 0 0; padding: 0; list-style: none; }
@@ -14,9 +14,9 @@ ces-data-table { display: block; }
   width: 100%; padding: 0.35rem 0.5rem; margin: -0.35rem -0.5rem; border: 0; border-radius: 0.5rem; background: transparent;
   font: inherit; text-align: left; cursor: pointer; box-sizing: content-box; transition: background-color 150ms ease;
 }
-.pf-situacao__item:hover { background: var(--ces-surface-muted); }
-.pf-situacao__item:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
-.pf-situacao .dash-summary__dot[data-tone='danger'] { background: var(--ces-danger); }
-.pf-situacao .dash-summary__dot[data-tone='warning'] { background: var(--ces-warning); }
-.pf-situacao .dash-summary__dot[data-tone='success'] { background: var(--ces-success); }
+.pf-situacao__item:hover { background: var(--geo-surface-muted); }
+.pf-situacao__item:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
+.pf-situacao .dash-summary__dot[data-tone='danger'] { background: var(--geo-danger); }
+.pf-situacao .dash-summary__dot[data-tone='warning'] { background: var(--geo-warning); }
+.pf-situacao .dash-summary__dot[data-tone='success'] { background: var(--geo-success); }
 @media (prefers-reduced-motion: reduce) { .pf-situacao__item { transition: none; } }

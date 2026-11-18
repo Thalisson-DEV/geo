@@ -2,21 +2,21 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable, of, switchMap } from 'rxjs';
 import {
   DespesaVeiculo,
@@ -42,9 +42,9 @@ export interface VeiculoDespesa {
 }
 
 const LIMITE_ARQUIVO = 15 * 1024 * 1024;
-const FORMAS: CesSelectOption<FormaPagamentoDespesa>[] = (Object.keys(ROTULO_FORMA_PAGAMENTO) as FormaPagamentoDespesa[])
+const FORMAS: GeoSelectOption<FormaPagamentoDespesa>[] = (Object.keys(ROTULO_FORMA_PAGAMENTO) as FormaPagamentoDespesa[])
   .map((f) => ({ label: ROTULO_FORMA_PAGAMENTO[f], value: f }));
-const DOCUMENTOS: CesSelectOption<TipoDocumentoDespesa>[] = (Object.keys(ROTULO_DOCUMENTO) as TipoDocumentoDespesa[])
+const DOCUMENTOS: GeoSelectOption<TipoDocumentoDespesa>[] = (Object.keys(ROTULO_DOCUMENTO) as TipoDocumentoDespesa[])
   .map((d) => ({ label: ROTULO_DOCUMENTO[d], value: d }));
 
 /**
@@ -58,37 +58,37 @@ const DOCUMENTOS: CesSelectOption<TipoDocumentoDespesa>[] = (Object.keys(ROTULO_
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   styles: `
     .anexos { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
-    .anexo { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-    .anexo .pi-file { color: var(--ces-brand); }
+    .anexo { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+    .anexo .pi-file { color: var(--geo-brand); }
     .anexo__texto { flex: 1; min-width: 0; display: grid; }
     .anexo__texto strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .anexo__texto span { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .anexo__texto span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .pagamento { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
     .rodape { display: flex; align-items: center; gap: 0.5rem; width: 100%; flex-wrap: wrap; }
     .rodape__espaco { flex: 1; }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="despesa() ? 'Despesa do ' + placa(despesa()!.placa) : idVeiculoFixo() && veiculos()[0] ? 'Lançar despesa do ' + placa(veiculos()[0].placa) : 'Lançar despesa'"
+    <geo-form-drawer [(visible)]="visivel" [title]="despesa() ? 'Despesa do ' + placa(despesa()!.placa) : idVeiculoFixo() && veiculos()[0] ? 'Lançar despesa do ' + placa(veiculos()[0].placa) : 'Lançar despesa'"
       [description]="descricao()" [dirty]="alterado()" [loading]="salvando()" size="md">
 
       @if (despesa(); as d) {
         @let p = pagamento(d);
-        <ces-callout [tone]="p.tom === 'neutral' ? 'info' : p.tom" [icon]="'pi ' + p.icone" [dense]="true" [title]="p.rotulo">
+        <geo-callout [tone]="p.tom === 'neutral' ? 'info' : p.tom" [icon]="'pi ' + p.icone" [dense]="true" [title]="p.rotulo">
           <div class="pagamento">
             <span>
               @switch (d.situacaoPagamento) {
@@ -101,92 +101,92 @@ const DOCUMENTOS: CesSelectOption<TipoDocumentoDespesa>[] = (Object.keys(ROTULO_
               }
             </span>
             @if (d.podePedirPagamento && podePedirPagamento()) {
-              <ces-button size="sm" icon="pi pi-send" label="Pedir pagamento" [loading]="salvando()" (pressed)="pedirPagamento()"></ces-button>
+              <geo-button size="sm" icon="pi pi-send" label="Pedir pagamento" [loading]="salvando()" (pressed)="pedirPagamento()"></geo-button>
             }
           </div>
-        </ces-callout>
+        </geo-callout>
       }
 
-      <ces-form-section title="Despesa" icon="pi pi-receipt">
+      <geo-form-section title="Despesa" icon="pi pi-receipt">
         @if (!idVeiculoFixo()) {
-          <ces-select label="Veículo" [required]="true" [options]="opcoesVeiculo()" [(value)]="veiculo" [filter]="true" [disabled]="!!despesa()"
+          <geo-select label="Veículo" [required]="true" [options]="opcoesVeiculo()" [(value)]="veiculo" [filter]="true" [disabled]="!!despesa()"
             [description]="despesa() ? 'O veículo não muda; para outro, exclua e lance de novo.' : undefined"
-            [loading]="!veiculos().length" [error]="erro('veiculo')" (valueChange)="aoTrocarVeiculo()"></ces-select>
+            [loading]="!veiculos().length" [error]="erro('veiculo')" (valueChange)="aoTrocarVeiculo()"></geo-select>
         }
-        <div class="ces-form-grid">
-          <ces-select label="Tipo" [required]="true" [options]="opcoesTipo()" [(value)]="tipo" [error]="erro('tipo')"
-            (valueChange)="subtipo.set(null)"></ces-select>
+        <div class="geo-form-grid">
+          <geo-select label="Tipo" [required]="true" [options]="opcoesTipo()" [(value)]="tipo" [error]="erro('tipo')"
+            (valueChange)="subtipo.set(null)"></geo-select>
           @if (subtipos().length) {
-            <ces-select label="Subtipo" [options]="subtipos()" [(value)]="subtipo" [clearable]="true" [showOptional]="true"></ces-select>
+            <geo-select label="Subtipo" [options]="subtipos()" [(value)]="subtipo" [clearable]="true" [showOptional]="true"></geo-select>
           }
         </div>
-        <div class="ces-form-grid">
-          <ces-datepicker label="Data" [required]="true" [(value)]="data" [maxDate]="hoje" [error]="erro('data')"></ces-datepicker>
-          <ces-number-input label="Valor" [required]="true" mode="currency" [(value)]="valor" [min]="0.01" [disabled]="travado()"
-            [error]="erro('valor')"></ces-number-input>
+        <div class="geo-form-grid">
+          <geo-datepicker label="Data" [required]="true" [(value)]="data" [maxDate]="hoje" [error]="erro('data')"></geo-datepicker>
+          <geo-number-input label="Valor" [required]="true" mode="currency" [(value)]="valor" [min]="0.01" [disabled]="travado()"
+            [error]="erro('valor')"></geo-number-input>
         </div>
-        <ces-textarea label="Descrição" [(value)]="descricaoDespesa" [rows]="2" [maxlength]="500" [showOptional]="true"
-          placeholder="Ex.: lavagem depois da obra na zona rural"></ces-textarea>
-      </ces-form-section>
+        <geo-textarea label="Descrição" [(value)]="descricaoDespesa" [rows]="2" [maxlength]="500" [showOptional]="true"
+          placeholder="Ex.: lavagem depois da obra na zona rural"></geo-textarea>
+      </geo-form-section>
 
-      <ces-form-section title="Pagamento" icon="pi pi-wallet">
-        <ces-select label="Pagamento" [required]="true" [options]="formas" [(value)]="forma" [disabled]="travado()"
-          [description]="forma() === 'A_PAGAR' ? 'Vai ao financeiro como solicitação de pagamento.' : 'Só registro: já foi pago e não vai ao financeiro.'"></ces-select>
-        <ces-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedor" [filter]="true" [clearable]="true"
+      <geo-form-section title="Pagamento" icon="pi pi-wallet">
+        <geo-select label="Pagamento" [required]="true" [options]="formas" [(value)]="forma" [disabled]="travado()"
+          [description]="forma() === 'A_PAGAR' ? 'Vai ao financeiro como solicitação de pagamento.' : 'Só registro: já foi pago e não vai ao financeiro.'"></geo-select>
+        <geo-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedor" [filter]="true" [clearable]="true"
           [showOptional]="true" [disabled]="travado()" [loading]="carregandoFornecedores()"
-          description="Cadastrado no financeiro. Se não estiver, escreva o nome abaixo."></ces-select>
+          description="Cadastrado no financeiro. Se não estiver, escreva o nome abaixo."></geo-select>
         @if (!fornecedor()) {
-          <ces-text-input label="Nome" [(value)]="fornecedorNome" description="Fornecedor sem cadastro no financeiro." [maxlength]="150" [showOptional]="true" [disabled]="travado()"
-            placeholder="Ex.: Lava Rápido do Centro"></ces-text-input>
+          <geo-text-input label="Nome" [(value)]="fornecedorNome" description="Fornecedor sem cadastro no financeiro." [maxlength]="150" [showOptional]="true" [disabled]="travado()"
+            placeholder="Ex.: Lava Rápido do Centro"></geo-text-input>
         }
-        <div class="ces-form-grid">
-          <ces-select label="Documento" [options]="documentos" [(value)]="documento" [clearable]="true" [showOptional]="true" [disabled]="travado()"></ces-select>
-          <ces-text-input label="Número" [(value)]="documentoNumero" [maxlength]="60" [required]="!!documento()"
-            [disabled]="travado() || !documento()" [error]="erro('documento')"></ces-text-input>
+        <div class="geo-form-grid">
+          <geo-select label="Documento" [options]="documentos" [(value)]="documento" [clearable]="true" [showOptional]="true" [disabled]="travado()"></geo-select>
+          <geo-text-input label="Número" [(value)]="documentoNumero" [maxlength]="60" [required]="!!documento()"
+            [disabled]="travado() || !documento()" [error]="erro('documento')"></geo-text-input>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Centro de custo" icon="pi pi-sitemap" description="A base vem do veículo; troque se a despesa for de outra base.">
-        <div class="ces-form-grid">
-          <ces-select label="Base" [options]="bases()" [(value)]="base" [filter]="true" [clearable]="true" [showOptional]="true"></ces-select>
-          <ces-select label="Setor" [options]="processos()" description="Centro de custo do financeiro." [(value)]="processo" [filter]="true" [clearable]="true"
-            [showOptional]="true"></ces-select>
+      <geo-form-section title="Centro de custo" icon="pi pi-sitemap" description="A base vem do veículo; troque se a despesa for de outra base.">
+        <div class="geo-form-grid">
+          <geo-select label="Base" [options]="bases()" [(value)]="base" [filter]="true" [clearable]="true" [showOptional]="true"></geo-select>
+          <geo-select label="Setor" [options]="processos()" description="Centro de custo do financeiro." [(value)]="processo" [filter]="true" [clearable]="true"
+            [showOptional]="true"></geo-select>
         </div>
-        <ces-number-input label="Medição" description="KM ou horas no dia da despesa." [(value)]="medicao" [min]="0" [maxFractionDigits]="1" [showOptional]="true"></ces-number-input>
-      </ces-form-section>
+        <geo-number-input label="Medição" description="KM ou horas no dia da despesa." [(value)]="medicao" [min]="0" [maxFractionDigits]="1" [showOptional]="true"></geo-number-input>
+      </geo-form-section>
 
-      <ces-form-section title="Comprovantes" icon="pi pi-paperclip">
+      <geo-form-section title="Comprovantes" icon="pi pi-paperclip">
         @if (despesa()?.anexos?.length) {
           <ul class="anexos">
             @for (a of despesa()!.anexos; track a.id) {
               <li class="anexo">
                 <i class="pi pi-file" aria-hidden="true"></i>
                 <span class="anexo__texto"><strong>{{ a.nome }}</strong><span>Enviado em {{ a.enviadoEm | date: "dd/MM/yyyy 'às' HH:mm" }}</span></span>
-                <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + a.nome" tooltip="Baixar" size="icon-sm" (pressed)="baixar(a.id, a.nome)"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + a.nome" tooltip="Remover" size="icon-sm" (pressed)="removerAnexo(a.id, a.nome)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + a.nome" tooltip="Baixar" size="icon-sm" (pressed)="baixar(a.id, a.nome)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + a.nome" tooltip="Remover" size="icon-sm" (pressed)="removerAnexo(a.id, a.nome)"></geo-icon-button>
               </li>
             }
           </ul>
         }
-        <ces-file-input label="Comprovante" description="Nota, recibo ou cupom em PDF ou imagem (JPG, PNG, WebP), até 15 MB." accept="application/pdf,image/jpeg,image/png,image/webp"
-          [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></ces-file-input>
-      </ces-form-section>
+        <geo-file-input label="Comprovante" description="Nota, recibo ou cupom em PDF ou imagem (JPG, PNG, WebP), até 15 MB." accept="application/pdf,image/jpeg,image/png,image/webp"
+          [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></geo-file-input>
+      </geo-form-section>
 
       <div drawer-footer class="rodape">
         @if (despesa() && podeExcluir()) {
-          <ces-button variant="ghost" icon="pi pi-trash" label="Excluir" (pressed)="excluir()"></ces-button>
+          <geo-button variant="ghost" icon="pi pi-trash" label="Excluir" (pressed)="excluir()"></geo-button>
         }
         <span class="rodape__espaco"></span>
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="despesa() ? 'Salvar' : 'Lançar despesa'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="despesa() ? 'Salvar' : 'Lançar despesa'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaDespesaFormComponent {
   private readonly servico = inject(FrotaDespesaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
 
   readonly visivel = model(false);
@@ -197,8 +197,8 @@ export class FrotaDespesaFormComponent {
   readonly tipos = input<TipoDespesa[]>([]);
   readonly fornecedores = input<FornecedorFrota[]>([]);
   readonly carregandoFornecedores = input(false);
-  readonly bases = input<CesSelectOption<string>[]>([]);
-  readonly processos = input<CesSelectOption<string>[]>([]);
+  readonly bases = input<GeoSelectOption<string>[]>([]);
+  readonly processos = input<GeoSelectOption<string>[]>([]);
   readonly podePedirPagamento = input(false);
   readonly salva = output<DespesaVeiculo>();
   readonly excluida = output<void>();
@@ -241,13 +241,13 @@ export class FrotaDespesaFormComponent {
     if (!d) return 'Lavagem, pedágio, estacionamento, mensalidade, taxa ou outra despesa do veículo.';
     return `${d.tipo}${d.subtipo ? ' ' + d.subtipo.toLowerCase() : ''}${d.origem === 'IMPORTACAO' ? ' · importada da planilha' : ''}`;
   });
-  protected readonly opcoesVeiculo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesVeiculo = computed<GeoSelectOption<string>[]>(() =>
     this.veiculos().map((v) => ({ label: `${formatarPlaca(v.placa)}${v.modelo ? ' · ' + v.modelo : ''}`, value: v.idVeiculo })));
-  protected readonly opcoesTipo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesTipo = computed<GeoSelectOption<string>[]>(() =>
     this.tipos().filter((t) => t.ativo || t.id === this.despesa()?.idTipo).map((t) => ({ label: t.nome, value: t.id })));
-  protected readonly subtipos = computed<CesSelectOption<string>[]>(() =>
+  protected readonly subtipos = computed<GeoSelectOption<string>[]>(() =>
     (this.tipos().find((t) => t.id === this.tipo())?.subtipos ?? []).map((s) => ({ label: s.nome, value: s.id })));
-  protected readonly opcoesFornecedor = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesFornecedor = computed<GeoSelectOption<string>[]>(() =>
     this.fornecedores().map((f) => ({ label: f.nome, value: f.id })));
 
   private readonly erros = computed<Record<string, string>>(() => {

@@ -2,11 +2,11 @@ import { ICONE_STATUS_EVENTO } from '../../../core/models/sst-evento.models';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   EventoSstFilter,
@@ -16,9 +16,9 @@ import {
   TIPO_EVENTO_LABELS
 } from '../../../core/models/sst-evento.models';
 import { SstService } from '../../../core/services/sst.service';
-import { CesTone } from '../../../design-system/core';
+import { GeoTone } from '../../../design-system/core';
 
-const STATUS_TONES: Record<StatusEventoSst, CesTone> = {
+const STATUS_TONES: Record<StatusEventoSst, GeoTone> = {
   REGISTRADO: 'warning',
   EM_TRATATIVA: 'info',
   CONCLUIDO: 'success',
@@ -28,16 +28,16 @@ const STATUS_TONES: Record<StatusEventoSst, CesTone> = {
 /** Navegador lateral do relatório de evento de segurança (mesmo modelo do de inspeções). */
 @Injectable({ providedIn: 'root' })
 export class EventoSstReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<EventoSstResumoResponse>
+  implements GeoReportNavigatorDataSource<EventoSstResumoResponse>
 {
   private readonly service = inject(SstService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODOS',
     sort: 'dataOcorrencia,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Eventos de segurança',
     icon: 'pi pi-exclamation-triangle',
     eyebrow: 'Navegador',
@@ -56,7 +56,7 @@ export class EventoSstReportNavigatorDataSource
     totalLabel: (total) => `${total} ${total === 1 ? 'evento' : 'eventos'}`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<EventoSstResumoResponse>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<EventoSstResumoResponse>> {
     const filtros: EventoSstFilter = {
       page: 0,
       size: 50,
@@ -74,7 +74,7 @@ export class EventoSstReportNavigatorDataSource
     );
   }
 
-  toItem(raw: EventoSstResumoResponse): CesReportNavigatorItem {
+  toItem(raw: EventoSstResumoResponse): GeoReportNavigatorItem {
     return {
       id: raw.id,
       number: raw.numeroRegistro,
@@ -102,7 +102,7 @@ export class EventoSstReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | EventoSstResumoResponse): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | EventoSstResumoResponse): any[] {
     return ['/sst', 'eventos', (item as { id: string }).id];
   }
 

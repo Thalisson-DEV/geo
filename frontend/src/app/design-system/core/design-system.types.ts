@@ -1,4 +1,4 @@
-export type CesActionVariant =
+export type GeoActionVariant =
   | 'primary'
   | 'secondary'
   | 'outline'
@@ -7,13 +7,13 @@ export type CesActionVariant =
   | 'success'
   | 'link';
 
-export type CesActionSize = 'sm' | 'md' | 'lg' | 'icon-sm' | 'icon-md' | 'icon-lg';
+export type GeoActionSize = 'sm' | 'md' | 'lg' | 'icon-sm' | 'icon-md' | 'icon-lg';
 
-export type CesTone = 'neutral' | 'brand' | 'info' | 'success' | 'warning' | 'danger';
+export type GeoTone = 'neutral' | 'brand' | 'info' | 'success' | 'warning' | 'danger';
 
-export type CesSurfaceVariant = 'plain' | 'raised' | 'outlined' | 'subtle' | 'interactive';
+export type GeoSurfaceVariant = 'plain' | 'raised' | 'outlined' | 'subtle' | 'interactive';
 
-export type CesContentState =
+export type GeoContentState =
   | 'idle'
   | 'loading'
   | 'ready'
@@ -23,7 +23,7 @@ export type CesContentState =
   | 'offline-cached'
   | 'stale';
 
-export type CesMutationState =
+export type GeoMutationState =
   | 'idle'
   | 'submitting'
   | 'committed'
@@ -32,4 +32,4 @@ export type CesMutationState =
   | 'failed'
   | 'cancelled';
 
-export type CesDensity = 'compact' | 'comfortable';
+export type GeoDensity = 'compact' | 'comfortable';

@@ -24,8 +24,8 @@ public class SpringAiGeracaoAtaGateway implements GeracaoAtaGateway {
     private final Duration timeout;
 
     public SpringAiGeracaoAtaGateway(ObjectProvider<ChatClient.Builder> builderProvider,
-                                      @Value("${ces.sst.ata-ai.enabled:false}") boolean enabled,
-                                      @Value("${ces.sst.ata-ai.timeout-seconds:45}") long timeoutSeconds) {
+                                      @Value("${geo.sst.ata-ai.enabled:false}") boolean enabled,
+                                      @Value("${geo.sst.ata-ai.timeout-seconds:45}") long timeoutSeconds) {
         this.builderProvider = builderProvider;
         this.enabled = enabled;
         this.timeout = Duration.ofSeconds(Math.max(1, timeoutSeconds));

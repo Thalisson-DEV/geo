@@ -1,29 +1,29 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Ocorrência e tratamento dos desvios" icon="pi pi-exclamation-triangle"
+    <geo-page-header title="Ocorrência e tratamento dos desvios" icon="pi pi-exclamation-triangle"
       [breadcrumb]="[{ label: 'Segurança' }, { label: 'Painel de desvios' }]"
       description="Acompanhe os desvios identificados, veja onde eles aparecem e priorize o que ainda precisa de tratamento.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
         @if (atualizadoEm()) { <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span> }
-        <ces-button actions label="Atualizar" icon="pi pi-refresh"
-          [loading]="loading()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+        <geo-button actions label="Atualizar" icon="pi pi-refresh"
+          [loading]="loading()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="dash-sst-desvios" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+    <geo-filter-panel storageKey="dash-sst-desvios" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
-        <ces-datepicker label="Início" [(value)]="dataInicio" [clearable]="true"></ces-datepicker>
-        <ces-datepicker label="Fim" [(value)]="dataFim" [clearable]="true"></ces-datepicker>
-        <ces-multiselect label="Processo da inspeção" [options]="opcoes.processos()" [value]="$any(filter.idProcesso ?? [])" (valueChange)="filter.idProcesso = $event" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Processo do inspetor" [options]="opcoes.processos()" [value]="$any(filter.idProcessoInspetor ?? [])" (valueChange)="filter.idProcessoInspetor = $event" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Equipe" [options]="opcoes.equipes()" [value]="$any(filter.idEquipe ?? [])" (valueChange)="filter.idEquipe = $event" placeholder="Todas" [loading]="equipesLoading()" (opened)="openEquipes()" (search)="searchEquipes({ filter: $event })"></ces-multiselect>
-        <ces-multiselect label="Centro de custo" [options]="opcoes.centrosCusto()" [value]="$any(filter.idCentroCusto ?? [])" (valueChange)="filter.idCentroCusto = $event" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Base operacional" [options]="opcoes.basesOperacionais()" [value]="$any(filter.idBaseOperacional ?? [])" (valueChange)="filter.idBaseOperacional = $event" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Gravidade" [options]="gravidadeOptions" [value]="$any(filter.gravidade ?? [])" (valueChange)="filter.gravidade = $event" [filter]="false" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Status" [options]="statusOptions" [value]="$any(filter.status ?? [])" (valueChange)="filter.status = $event" [filter]="false" placeholder="Todos"></ces-multiselect>
+      <div class="geo-filter-grid">
+        <geo-datepicker label="Início" [(value)]="dataInicio" [clearable]="true"></geo-datepicker>
+        <geo-datepicker label="Fim" [(value)]="dataFim" [clearable]="true"></geo-datepicker>
+        <geo-multiselect label="Processo da inspeção" [options]="opcoes.processos()" [value]="$any(filter.idProcesso ?? [])" (valueChange)="filter.idProcesso = $event" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Processo do inspetor" [options]="opcoes.processos()" [value]="$any(filter.idProcessoInspetor ?? [])" (valueChange)="filter.idProcessoInspetor = $event" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Equipe" [options]="opcoes.equipes()" [value]="$any(filter.idEquipe ?? [])" (valueChange)="filter.idEquipe = $event" placeholder="Todas" [loading]="equipesLoading()" (opened)="openEquipes()" (search)="searchEquipes({ filter: $event })"></geo-multiselect>
+        <geo-multiselect label="Centro de custo" [options]="opcoes.centrosCusto()" [value]="$any(filter.idCentroCusto ?? [])" (valueChange)="filter.idCentroCusto = $event" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Base operacional" [options]="opcoes.basesOperacionais()" [value]="$any(filter.idBaseOperacional ?? [])" (valueChange)="filter.idBaseOperacional = $event" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Gravidade" [options]="gravidadeOptions" [value]="$any(filter.gravidade ?? [])" (valueChange)="filter.gravidade = $event" [filter]="false" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Status" [options]="statusOptions" [value]="$any(filter.status ?? [])" (valueChange)="filter.status = $event" [filter]="false" placeholder="Todos"></geo-multiselect>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     @if (loading()) {
       <div class="dash-metrics">@for (item of [1,2,3,4]; track item) { <p-skeleton height="156px" borderRadius="16px" /> }</div>
@@ -103,7 +103,7 @@
               <h2>Tempo para resolver</h2>
               <p>Quanto tempo foi necessário para concluir os desvios resolvidos.</p>
             </div>
-            <ces-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'resolucao')"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('kpi', 'resolucao')"></geo-button>
           </header>
           <div class="dash-summary">
             <div class="dash-summary__total">
@@ -378,17 +378,17 @@
               }
             </div>
           </header>
-          <ces-data-table caption="Pendências que exigem gestão" storageKey="sst-dashboard-pendencias" exportFileName="pendencias-desvios"
+          <geo-data-table caption="Pendências que exigem gestão" storageKey="sst-dashboard-pendencias" exportFileName="pendencias-desvios"
             searchPlaceholder="Buscar agrupamento" rowActionLabel="Analisar" rowActionIcon="pi pi-chart-bar"
             [columns]="colunasPendencias" [rows]="pendingRows()" [rowKey]="chaveGrupo" [rowLabel]="rotuloGrupo"
             stateTitle="Não há pendências neste agrupamento" (rowActivate)="analisarGrupo(pendingDimension(), $event.id)">
-            <ng-template cesCell="totalVencidos" let-item>
-              @if (item.totalVencidos > 0) { <ces-status tone="danger" icon="pi-calendar-times">{{ item.totalVencidos }}</ces-status> } @else { <span class="dash-zero">0</span> }
+            <ng-template geoCell="totalVencidos" let-item>
+              @if (item.totalVencidos > 0) { <geo-status tone="danger" icon="pi-calendar-times">{{ item.totalVencidos }}</geo-status> } @else { <span class="dash-zero">0</span> }
             </ng-template>
-            <ng-template cesCell="totalCriticos" let-item>
-              @if (item.totalCriticos > 0) { <ces-status tone="danger" icon="pi-bolt">{{ item.totalCriticos }}</ces-status> } @else { <span class="dash-zero">0</span> }
+            <ng-template geoCell="totalCriticos" let-item>
+              @if (item.totalCriticos > 0) { <geo-status tone="danger" icon="pi-bolt">{{ item.totalCriticos }}</geo-status> } @else { <span class="dash-zero">0</span> }
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </article>
       </section>
       </section>
@@ -417,14 +417,14 @@
               }
             </div>
           </header>
-          <ces-data-table caption="Desvios a cada 100 inspeções" storageKey="sst-dashboard-exposicao" exportFileName="desvios-por-100-inspecoes"
+          <geo-data-table caption="Desvios a cada 100 inspeções" storageKey="sst-dashboard-exposicao" exportFileName="desvios-por-100-inspecoes"
             searchPlaceholder="Buscar agrupamento" rowActionLabel="Analisar" rowActionIcon="pi pi-chart-bar"
             [columns]="colunasExposicao" [rows]="exposureRows()" [rowKey]="chaveGrupo" [rowLabel]="rotuloGrupo"
             stateTitle="Não há dados para este agrupamento" (rowActivate)="analisarGrupo(exposureDimension(), $event.id)">
-            <ng-template cesCell="vencidos" let-item>
-              @if (item.vencidos > 0) { <ces-status tone="danger" icon="pi-calendar-times">{{ item.vencidos }}</ces-status> } @else { <span class="dash-zero">0</span> }
+            <ng-template geoCell="vencidos" let-item>
+              @if (item.vencidos > 0) { <geo-status tone="danger" icon="pi-calendar-times">{{ item.vencidos }}</geo-status> } @else { <span class="dash-zero">0</span> }
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </article>
 
         <article class="dash-panel dash-col-6">
@@ -437,15 +437,15 @@
             <app-copiloto-perguntar [foco]="{ tipo: 'tabela', id: 'itensCriticosRecorrentes', rotulo: 'Itens com mais desvios' }" />
           </header>
           @if (d.itensCriticosRecorrentes.length) {
-            <ces-data-table caption="Itens com mais desvios" storageKey="sst-dashboard-itens" exportFileName="itens-com-mais-desvios"
+            <geo-data-table caption="Itens com mais desvios" storageKey="sst-dashboard-itens" exportFileName="itens-com-mais-desvios"
               searchPlaceholder="Buscar item" rowActionLabel="Analisar" rowActionIcon="pi pi-chart-bar"
               [columns]="colunasItens" [rows]="d.itensCriticosRecorrentes" [rowKey]="chaveItem" [rowLabel]="rotuloItem"
               (rowActivate)="analisar('item', $event.idPergunta)">
-              <ng-template cesCell="maiorGravidade" let-item>
-                <ces-status [tone]="item.maiorGravidade === 'CRITICA' ? 'danger' : item.maiorGravidade === 'ALTA' ? 'warning' : item.maiorGravidade === 'MEDIA' ? 'info' : 'neutral'"
-                  [icon]="item.maiorGravidade === 'CRITICA' ? 'pi-bolt' : 'pi-exclamation-triangle'">{{ rotuloGravidade(item.maiorGravidade) }}</ces-status>
+              <ng-template geoCell="maiorGravidade" let-item>
+                <geo-status [tone]="item.maiorGravidade === 'CRITICA' ? 'danger' : item.maiorGravidade === 'ALTA' ? 'warning' : item.maiorGravidade === 'MEDIA' ? 'info' : 'neutral'"
+                  [icon]="item.maiorGravidade === 'CRITICA' ? 'pi-bolt' : 'pi-exclamation-triangle'">{{ rotuloGravidade(item.maiorGravidade) }}</geo-status>
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           } @else {
             <div class="dash-empty"><i class="pi pi-list"></i>Nenhum item crítico no período.</div>
           }

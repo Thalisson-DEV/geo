@@ -9,9 +9,9 @@ context: |
   doc, domain, infrastructure/{persistence,web}. Rich Domain Model sobre BaseEntity (UUID, versao, auditoria, soft delete),
   sem setters, OffsetDateTime, Problem Details, Specifications + PageResponse, cache Redis nos UseCases CRUD,
   comunicação entre módulos só por eventos de domínio.
-  Frontend: Angular 21 standalone + signals, PrimeNG 21 consumido via @ces/ui (Design System Nexo, source-owned),
+  Frontend: Angular 21 standalone + signals, PrimeNG 21 consumido via @geo/ui (Design System Nexo, source-owned),
   Tailwind v4, offline-first (BaseService/SyncService/Dexie), Leaflet, chart.js. Listagens seguem o padrão
-  "tabela primeiro" (ces-page-header, ces-filter-panel, ces-data-table mode server, ces-form-drawer, cesListState).
+  "tabela primeiro" (geo-page-header, geo-filter-panel, geo-data-table mode server, geo-form-drawer, geoListState).
   Sem ::ng-deep, sem cores semânticas hardcoded, sem hosts locais de toast/confirm. Rodar npm run verify:design-system.
   Mobile: app de campo em mobile/ (Angular), offline-first.
   Domínio existente relevante: Obra (subprojetos, anexos, status, agente responsável), Contrato/Acao/AcaoValor

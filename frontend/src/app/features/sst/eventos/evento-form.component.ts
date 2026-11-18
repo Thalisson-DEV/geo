@@ -51,7 +51,7 @@ import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as LookupRemoteLookup } from '../../../core/lookup/store/remote-lookup';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 
-import { CesAutocompleteComponent } from '@ces/ui';
+import { GeoAutocompleteComponent } from '@geo/ui';
 
 interface EnvolvidoForm {
   tipo: TipoEnvolvido;
@@ -82,7 +82,7 @@ interface EnvolvidoForm {
     ToastModule,
     ToggleSwitchModule,
     TooltipModule,
-    CesAutocompleteComponent,
+    GeoAutocompleteComponent,
   ],
   providers: [MessageService],
   templateUrl: './evento-form.component.html',

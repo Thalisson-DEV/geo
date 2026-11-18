@@ -57,7 +57,7 @@ describe('FrotaOrdensServicoComponent', () => {
 
   it('o indicador de em andamento filtra as atrasadas', async () => {
     const { el, harness } = await abrir();
-    const botoes = Array.from(el.querySelectorAll<HTMLButtonElement>('button.ces-kpi'));
+    const botoes = Array.from(el.querySelectorAll<HTMLButtonElement>('button.geo-kpi'));
     botoes.find((b) => b.textContent?.includes('Em andamento'))!.click();
     harness.detectChanges();
     await harness.fixture.whenStable();
@@ -74,12 +74,12 @@ describe('FrotaOrdensServicoComponent', () => {
 
   it('só oferece abrir OS a quem pode escrever', async () => {
     let tela = await abrir();
-    expect(tela.el.querySelector('ces-page-header')?.textContent).not.toContain('Abrir OS');
+    expect(tela.el.querySelector('geo-page-header')?.textContent).not.toContain('Abrir OS');
 
     TestBed.resetTestingModule();
     permissoes = ['frota:os:read', 'frota:os:write'];
     tela = await abrir();
-    expect(tela.el.querySelector('ces-page-header')?.textContent).toContain('Abrir OS');
+    expect(tela.el.querySelector('geo-page-header')?.textContent).toContain('Abrir OS');
   });
 
   it('abre a ficha da OS ao ativar a linha', async () => {

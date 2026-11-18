@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
-@ConfigurationProperties(prefix = "ces.assistente.navigation")
+@ConfigurationProperties(prefix = "geo.assistente.navigation")
 public record NavigationActionProperties(
         String version,
         List<Entry> entries) {

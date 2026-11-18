@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { of } from 'rxjs';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { UsuarioLookupService } from '../../../../core/services/usuario-lookup.service';
 import { RhService } from '../../../../core/services/rh.service';
 import { ObrasService } from '../../../../core/services/obras.service';

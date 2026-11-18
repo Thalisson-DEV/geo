@@ -4,8 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { map } from 'rxjs';
-import { CesAsyncStateComponent, CesIconButtonComponent, CesStatusComponent, CesTone } from '@ces/ui';
-import { CesCellDirective, CesDataTableColumn, CesDataTableComponent } from '@ces/ui/data';
+import { GeoAsyncStateComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoCellDirective, GeoDataTableColumn, GeoDataTableComponent } from '@geo/ui/data';
 
 import { FechamentoDetalhe, ItemFechamento, MovimentacaoFechamento } from '../../../core/models/fechamento-obra.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -36,7 +36,7 @@ import {
 } from './fechamento-ui';
 
 interface FaixaSituacao {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;
@@ -58,11 +58,11 @@ const DATA_HORA_LONGA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', t
     RouterLink,
     AccordionModule,
     ButtonModule,
-    CesAsyncStateComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
     FechamentoDetalheDrawerComponent,
     FechamentoEstornoDrawerComponent,
     FechamentoOperacoesHistoricoComponent,
@@ -156,7 +156,7 @@ export class FechamentoRelatorioComponent implements OnInit {
     }
   });
 
-  protected readonly colunasItens: CesDataTableColumn<ItemFechamento>[] = [
+  protected readonly colunasItens: GeoDataTableColumn<ItemFechamento>[] = [
     { key: 'codigo', header: 'Código', priority: 1, width: '7rem', value: (i) => i.codigoMaterial },
     { key: 'descricao', header: 'Material / Descrição', type: 'custom', priority: 1, searchable: true, value: (i) => i.descricaoMaterial, display: (i) => i.descricaoMaterial },
     { key: 'unidade', header: 'Un.', priority: 2, width: '4rem', value: (i) => i.unidade || 'UN' },

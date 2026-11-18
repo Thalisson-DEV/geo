@@ -1,7 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CesButtonComponent, CesCalloutComponent, CesStatusComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent } from '@geo/ui';
 
 import { ConsumoAnteriorDetalheResponse } from '../../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -17,15 +17,15 @@ import { agruparOperacoesConsumo } from './consumo-anterior.util';
   selector: 'app-consumo-anterior-operacoes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, RouterLink, CesButtonComponent, CesCalloutComponent, CesStatusComponent, SeriesGradeComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent, SeriesGradeComponent],
   template: `
     @if (carregando()) {
       <div class="co-esqueletos" role="status" aria-label="Carregando as operações do material"><span></span><span></span><span></span></div>
     } @else if (erro()) {
-      <ces-callout tone="warning" title="Não foi possível carregar as operações">
+      <geo-callout tone="warning" title="Não foi possível carregar as operações">
         {{ erro() }}
-        <ces-button label="Tentar de novo" icon="pi pi-refresh" variant="ghost" size="sm" (pressed)="carregar()" />
-      </ces-callout>
+        <geo-button label="Tentar de novo" icon="pi pi-refresh" variant="ghost" size="sm" (pressed)="carregar()" />
+      </geo-callout>
     } @else if (detalhe(); as d) {
       @if (!d.inicio) {
         <p class="co-vazio">Primeiro pedido deste material para o estoque: não há período anterior para detalhar.</p>
@@ -60,7 +60,7 @@ import { agruparOperacoesConsumo } from './consumo-anterior.util';
               <h4>{{ s.titulo }}</h4>
               <span class="co-muted">{{ s.linhas.length }} {{ s.linhas.length === 1 ? 'operação' : 'operações' }}</span>
               @if (s.foraDaConta) {
-                <ces-status tone="neutral" icon="pi pi-info-circle">Fora da conta do saldo novo</ces-status>
+                <geo-status tone="neutral" icon="pi pi-info-circle">Fora da conta do saldo novo</geo-status>
               }
               <strong class="co-secao__total">{{ s.total > 0 ? '+' : '−' }}{{ abs(s.total) | number: '1.0-3' }} {{ unidade() }}</strong>
             </header>
@@ -104,40 +104,40 @@ import { agruparOperacoesConsumo } from './consumo-anterior.util';
   `,
   styles: [`
     :host { display: grid; gap: 0.75rem; }
-    .co-muted { color: var(--ces-foreground-muted); }
-    .co-vazio, .co-nota { margin: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .co-muted { color: var(--geo-foreground-muted); }
+    .co-vazio, .co-nota { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .co-conta { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0; }
-    .co-conta__parcela { display: grid; gap: 0.1rem; padding: 0.375rem 0.625rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-    .co-conta__parcela dt { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .co-conta__parcela dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ces-foreground); }
-    .co-conta__parcela--total { border-color: var(--ces-brand); background: var(--ces-brand-soft); }
-    .co-secao { border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); overflow: hidden; }
-    .co-secao__cab { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; padding: 0.5rem 0.75rem; background: var(--ces-surface-subtle);
-      border-bottom: 1px solid var(--ces-border); font-size: var(--ces-font-caption); }
-    .co-secao__cab > i { color: var(--ces-foreground-muted); }
-    .co-secao__cab h4 { margin: 0; font-size: var(--ces-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ces-foreground); }
-    .co-secao__total { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--ces-foreground); }
+    .co-conta__parcela { display: grid; gap: 0.1rem; padding: 0.375rem 0.625rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+    .co-conta__parcela dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .co-conta__parcela dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--geo-foreground); }
+    .co-conta__parcela--total { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
+    .co-secao { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); overflow: hidden; }
+    .co-secao__cab { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; padding: 0.5rem 0.75rem; background: var(--geo-surface-subtle);
+      border-bottom: 1px solid var(--geo-border); font-size: var(--geo-font-caption); }
+    .co-secao__cab > i { color: var(--geo-foreground-muted); }
+    .co-secao__cab h4 { margin: 0; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--geo-foreground); }
+    .co-secao__total { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--geo-foreground); }
     .co-linhas { list-style: none; margin: 0; padding: 0; }
     .co-linha { display: grid; grid-template-columns: 6.75rem minmax(0, 1fr) auto 4.5rem; gap: 0.25rem 0.75rem; align-items: center;
-      padding: 0.5rem 0.75rem; font-size: var(--ces-font-caption); color: var(--ces-foreground); }
-    .co-linha + .co-linha { border-top: 1px solid var(--ces-border); }
-    .co-linha__data { color: var(--ces-foreground-muted); font-variant-numeric: tabular-nums; }
+      padding: 0.5rem 0.75rem; font-size: var(--geo-font-caption); color: var(--geo-foreground); }
+    .co-linha + .co-linha { border-top: 1px solid var(--geo-border); }
+    .co-linha__data { color: var(--geo-foreground-muted); font-variant-numeric: tabular-nums; }
     .co-linha__desc { display: grid; gap: 0.1rem; min-width: 0; }
-    .co-linha__desc a { display: inline-flex; align-items: center; gap: 0.3rem; width: fit-content; font-weight: 600; color: var(--ces-brand); text-decoration: none; }
+    .co-linha__desc a { display: inline-flex; align-items: center; gap: 0.3rem; width: fit-content; font-weight: 600; color: var(--geo-brand); text-decoration: none; }
     .co-linha__desc a:hover { text-decoration: underline; }
-    .co-linha__desc a:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; border-radius: var(--ces-radius-sm); }
+    .co-linha__desc a:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
     .co-linha__desc a i { font-size: 0.65rem; }
-    .co-linha__desc small { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .co-linha__desc small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .co-linha__qtd { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .co-serie { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1rem 0.45rem; border-radius: var(--ces-radius-sm);
-      background: var(--ces-surface-muted); color: var(--ces-foreground); font-variant-numeric: tabular-nums; font-size: var(--ces-font-caption); }
-    .co-serie--botao { border: 1px solid var(--ces-border); cursor: pointer; font: inherit; font-size: var(--ces-font-caption); }
-    .co-serie--botao:hover { background: var(--ces-surface-subtle); }
-    .co-serie--botao:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .co-serie { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1rem 0.45rem; border-radius: var(--geo-radius-sm);
+      background: var(--geo-surface-muted); color: var(--geo-foreground); font-variant-numeric: tabular-nums; font-size: var(--geo-font-caption); }
+    .co-serie--botao { border: 1px solid var(--geo-border); cursor: pointer; font: inherit; font-size: var(--geo-font-caption); }
+    .co-serie--botao:hover { background: var(--geo-surface-subtle); }
+    .co-serie--botao:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .co-linha__grade { grid-column: 1 / -1; display: none; padding-top: 0.25rem; }
     .co-linha__grade--aberta { display: block; }
     .co-esqueletos { display: grid; gap: 0.5rem; }
-    .co-esqueletos span { height: 2rem; border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
+    .co-esqueletos span { height: 2rem; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     @media (max-width: 640px) {
       .co-linha { grid-template-columns: minmax(0, 1fr) auto; }
       .co-linha__data { grid-column: 1 / -1; }

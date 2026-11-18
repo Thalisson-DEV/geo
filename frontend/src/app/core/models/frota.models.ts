@@ -3,7 +3,7 @@
  * `docs/adr/0001-modulo-gestao-frota.md` na raiz do monorepo.
  */
 import type { PreventivaOrdemServico } from './frota-preventiva.models';
-import type { CesTone } from '@ces/ui';
+import type { GeoTone } from '@geo/ui';
 
 export type SituacaoOperacional = 'ATIVO' | 'EM_MANUTENCAO' | 'PARADO' | 'RESERVA' | 'BAIXADO';
 export type RegimeVeiculo = 'PROPRIO' | 'LOCADO';
@@ -439,7 +439,7 @@ export interface TrocaPainelRequest {
 
 // ── Apresentação ───────────────────────────────────────────────────────────────
 
-export const TOM_SITUACAO: Record<SituacaoOperacional, CesTone> = {
+export const TOM_SITUACAO: Record<SituacaoOperacional, GeoTone> = {
   ATIVO: 'success',
   EM_MANUTENCAO: 'warning',
   PARADO: 'danger',
@@ -460,7 +460,7 @@ export const ROTULO_REGIME: Record<RegimeVeiculo, string> = {
   LOCADO: 'Locado'
 };
 
-export const TOM_VENCIMENTO: Record<SituacaoVencimento, CesTone> = {
+export const TOM_VENCIMENTO: Record<SituacaoVencimento, GeoTone> = {
   SEM_VENCIMENTO: 'neutral',
   VIGENTE: 'success',
   A_VENCER: 'warning',
@@ -474,7 +474,7 @@ export const ROTULO_VENCIMENTO: Record<SituacaoVencimento, string> = {
   VENCIDO: 'Vencido'
 };
 
-export const TOM_LEITURA: Record<SituacaoLeituraOdometro, CesTone> = {
+export const TOM_LEITURA: Record<SituacaoLeituraOdometro, GeoTone> = {
   VALIDA: 'success',
   INCONSISTENTE: 'warning',
   ANULADA: 'neutral'
@@ -987,7 +987,7 @@ export interface PreenchimentoFinanceiro {
   rotulos: Record<string, string>;
 }
 
-export const TOM_SITUACAO_OS: Record<SituacaoOrdemServico, CesTone> = {
+export const TOM_SITUACAO_OS: Record<SituacaoOrdemServico, GeoTone> = {
   PENDENTE: 'warning',
   AGENDADA: 'info',
   EM_ANDAMENTO: 'info',
@@ -1012,7 +1012,7 @@ export function rotuloSituacaoOs(os: Pick<OrdemServico, 'situacao' | 'baixaPende
   return os.baixaPendente ? 'Concluída · valores pendentes' : 'Finalizada';
 }
 
-export function tomSituacaoOs(os: Pick<OrdemServico, 'situacao' | 'baixaPendente'>): CesTone {
+export function tomSituacaoOs(os: Pick<OrdemServico, 'situacao' | 'baixaPendente'>): GeoTone {
   return os.situacao === 'CONCLUIDA' && os.baixaPendente ? 'warning' : TOM_SITUACAO_OS[os.situacao];
 }
 
@@ -1024,7 +1024,7 @@ export const ICONE_SITUACAO_OS: Record<SituacaoOrdemServico, string> = {
   CANCELADA: 'pi-ban'
 };
 
-export const TOM_CRITICIDADE: Record<Criticidade, CesTone> = {
+export const TOM_CRITICIDADE: Record<Criticidade, GeoTone> = {
   URGENTE: 'danger',
   ALTA: 'warning',
   MEDIA: 'info',
@@ -1058,7 +1058,7 @@ export const ROTULO_TIPO_OFICINA: Record<TipoOficina, string> = {
   EXTERNA: 'Oficina externa'
 };
 
-export const TOM_APROVACAO: Record<SituacaoAprovacaoOrcamento, CesTone> = {
+export const TOM_APROVACAO: Record<SituacaoAprovacaoOrcamento, GeoTone> = {
   SEM_ORCAMENTO: 'neutral',
   EM_ORCAMENTO: 'info',
   AGUARDANDO_APROVACAO: 'warning',
@@ -1074,7 +1074,7 @@ export const ROTULO_APROVACAO: Record<SituacaoAprovacaoOrcamento, string> = {
   REPROVADO: 'Reprovado'
 };
 
-export const TOM_STATUS_FINANCEIRO: Record<StatusSolicitacaoFinanceira, CesTone> = {
+export const TOM_STATUS_FINANCEIRO: Record<StatusSolicitacaoFinanceira, GeoTone> = {
   RASCUNHO: 'neutral',
   SOLICITADO: 'warning',
   APROVADO: 'success',
@@ -1126,7 +1126,7 @@ export interface EventoAgendaFrota {
   base: string | null;
   idReferencia: string;
   numeroOs: number | null;
-  tom: CesTone;
+  tom: GeoTone;
   atrasado: boolean;
 }
 

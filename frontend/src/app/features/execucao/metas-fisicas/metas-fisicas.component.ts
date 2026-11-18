@@ -2,28 +2,28 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { TipoServicoResponse } from '../../../core/models/execucao.models';
 import {
@@ -75,27 +75,27 @@ function plural(n: number, um: string, varios: string): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent
   ],
   styleUrls: ['../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao.css', './metas-fisicas.component.css'],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Meta física"
         icon="pi pi-bullseye"
         [breadcrumb]="[{ label: 'Comercial' }, { label: 'Meta física' }]"
@@ -103,21 +103,21 @@ function plural(n: number, um: string, varios: string): string {
         helpLabel="Ajuda sobre a meta física"
         (help)="ajuda.show()"
       >
-        <ces-button actions icon="pi pi-chart-bar" variant="secondary" label="Abrir painel" (pressed)="abrirPainel()"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Nova meta" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions icon="pi pi-chart-bar" variant="secondary" label="Abrir painel" (pressed)="abrirPainel()"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Nova meta" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="execucao-metas-fisicas" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="execucao-metas-fisicas" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Base operacional" [options]="basesOpcoes()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Mês" [options]="mesesOpcoes()" [(value)]="lista.filters.competencia" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Tipo de serviço" [options]="tiposOpcoes()" [(value)]="lista.filters.idTipoServico" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Base operacional" [options]="basesOpcoes()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Mês" [options]="mesesOpcoes()" [(value)]="lista.filters.competencia" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Tipo de serviço" [options]="tiposOpcoes()" [(value)]="lista.filters.idTipoServico" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Metas"
         mode="server"
         storageKey="execucao-metas-fisicas"
@@ -144,19 +144,19 @@ function plural(n: number, um: string, varios: string): string {
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="base" let-row>
-          <span class="ces-cell-strong">{{ row.baseOperacional ?? 'Base não encontrada' }}</span>
-          <span class="ces-cell-muted">{{ origem(row) }}</span>
+        <ng-template geoCell="base" let-row>
+          <span class="geo-cell-strong">{{ row.baseOperacional ?? 'Base não encontrada' }}</span>
+          <span class="geo-cell-muted">{{ origem(row) }}</span>
         </ng-template>
-        <ng-template cesCell="competencia" let-row>
-          <span class="ces-cell-strong">{{ nomeMes(row.competencia) }}</span>
-          <span class="ces-cell-muted">{{ row.diasUteis }} dias úteis</span>
+        <ng-template geoCell="competencia" let-row>
+          <span class="geo-cell-strong">{{ nomeMes(row.competencia) }}</span>
+          <span class="geo-cell-muted">{{ row.diasUteis }} dias úteis</span>
         </ng-template>
-        <ng-template cesCell="total" let-row>
-          <span class="ces-cell-strong">{{ plural(row.total, 'nota', 'notas') }}</span>
-          <span class="ces-cell-muted">{{ decimal(row.porDiaUtil) }} por dia útil</span>
+        <ng-template geoCell="total" let-row>
+          <span class="geo-cell-strong">{{ plural(row.total, 'nota', 'notas') }}</span>
+          <span class="geo-cell-muted">{{ decimal(row.porDiaUtil) }} por dia útil</span>
         </ng-template>
-        <ng-template cesCell="servicos" let-row>
+        <ng-template geoCell="servicos" let-row>
           <ul class="mf-chips" [attr.aria-label]="'Serviços da meta de ' + (row.baseOperacional ?? 'base')">
             @for (s of row.servicos; track s.idTipoServico) {
               <li [title]="rotuloTipo(s.codigoTipoServico, s.tipoServico) + ': ' + decimal(s.porDiaUtil) + ' por dia útil'">
@@ -165,19 +165,19 @@ function plural(n: number, um: string, varios: string): string {
             }
           </ul>
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <ces-icon-button icon="pi pi-copy" [label]="'Repetir a meta de ' + (row.baseOperacional ?? 'base') + ' em outro mês'" tooltip="Repetir em outro mês"
-            size="icon-sm" (pressed)="repetir(row)"></ces-icon-button>
-          <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar meta de ' : 'Reativar meta de ') + (row.baseOperacional ?? 'base')"
-            size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <geo-icon-button icon="pi pi-copy" [label]="'Repetir a meta de ' + (row.baseOperacional ?? 'base') + ' em outro mês'" tooltip="Repetir em outro mês"
+            size="icon-sm" (pressed)="repetir(row)"></geo-icon-button>
+          <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar meta de ' : 'Reativar meta de ') + (row.baseOperacional ?? 'base')"
+            size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar meta física' : 'Nova meta física'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar meta física' : 'Nova meta física'"
       [description]="emEdicao() ? (emEdicao()!.baseOperacional ?? '') + ' · ' + nomeMes(emEdicao()!.competencia) : 'Notas de cada serviço que a base deve executar no mês.'"
       [dirty]="alterado()" size="md">
       <div class="ns">
@@ -185,15 +185,15 @@ function plural(n: number, um: string, varios: string): string {
           <h3 id="mf-base" class="ns-secao__titulo"><i class="pi pi-building" aria-hidden="true"></i>Base e mês</h3>
           <div class="ns-cartao">
             @if (emEdicao()) {
-              <ces-callout tone="info">Base e mês não mudam. Para outro mês, use "Repetir em outro mês" na lista.</ces-callout>
+              <geo-callout tone="info">Base e mês não mudam. Para outro mês, use "Repetir em outro mês" na lista.</geo-callout>
             }
             <div class="ns-grade">
-              <ces-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true"
-                [readonly]="!!emEdicao()" placeholder="Escolha a base" [error]="erro('base')"></ces-select>
-              <ces-select label="Mês" [required]="true" [options]="mesesFormulario()" [value]="competencia()" (valueChange)="trocarMes($event)"
-                [readonly]="!!emEdicao()" [error]="erro('mes')"></ces-select>
+              <geo-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true"
+                [readonly]="!!emEdicao()" placeholder="Escolha a base" [error]="erro('base')"></geo-select>
+              <geo-select label="Mês" [required]="true" [options]="mesesFormulario()" [value]="competencia()" (valueChange)="trocarMes($event)"
+                [readonly]="!!emEdicao()" [error]="erro('mes')"></geo-select>
             </div>
-            <ces-text-input label="Descrição" [(value)]="descricao" [maxlength]="200" [showOptional]="true" placeholder="Ex.: Meta enviada no e-mail de 13/11"></ces-text-input>
+            <geo-text-input label="Descrição" [(value)]="descricao" [maxlength]="200" [showOptional]="true" placeholder="Ex.: Meta enviada no e-mail de 13/11"></geo-text-input>
           </div>
         </section>
 
@@ -211,10 +211,10 @@ function plural(n: number, um: string, varios: string): string {
             @if (modo() === 'PARCIAL') {
               <p class="ns-info"><i class="pi pi-info-circle" aria-hidden="true"></i><span>A meta do mês de cada serviço é o total repartido na proporção do parcial. A soma fecha exatamente com o total.</span></p>
               <div class="ns-grade">
-                <ces-number-input label="Total de notas do mês" [min]="1" [maxFractionDigits]="0" [required]="true" [(value)]="totalMes"
-                  placeholder="Ex.: 626" [error]="erro('total')"></ces-number-input>
-                <ces-datepicker label="Parcial calculado até" [value]="parcialAte()" (valueChange)="parcialAte.set($event)" [showOptional]="true"
-                  [minDate]="inicioDoMes()" [maxDate]="fimDoMes()" [clearable]="true"></ces-datepicker>
+                <geo-number-input label="Total de notas do mês" [min]="1" [maxFractionDigits]="0" [required]="true" [(value)]="totalMes"
+                  placeholder="Ex.: 626" [error]="erro('total')"></geo-number-input>
+                <geo-datepicker label="Parcial calculado até" [value]="parcialAte()" (valueChange)="parcialAte.set($event)" [showOptional]="true"
+                  [minDate]="inicioDoMes()" [maxDate]="fimDoMes()" [clearable]="true"></geo-datepicker>
               </div>
             } @else {
               <p class="ns-info"><i class="pi pi-info-circle" aria-hidden="true"></i><span>Informe direto quantas notas de cada serviço a base deve executar no mês.</span></p>
@@ -236,14 +236,14 @@ function plural(n: number, um: string, varios: string): string {
             <ul class="ns-lista">
               @for (linha of linhas(); track linha.chave; let i = $index) {
                 <li class="mf-linha">
-                  <ces-select [label]="i === 0 ? 'Tipo de serviço' : 'Tipo de serviço da linha ' + (i + 1)" [labelVisible]="i === 0" [options]="tiposDaLinha(i)" [value]="linha.idTipoServico"
+                  <geo-select [label]="i === 0 ? 'Tipo de serviço' : 'Tipo de serviço da linha ' + (i + 1)" [labelVisible]="i === 0" [options]="tiposDaLinha(i)" [value]="linha.idTipoServico"
                     (valueChange)="alterar(i, { idTipoServico: $event })" [filter]="true" placeholder="Escolha o tipo" [loading]="carregandoTipos()"
-                    [error]="erroLinha(i, 'tipo')"></ces-select>
-                  <ces-number-input [label]="modo() === 'PARCIAL' ? 'Parcial da Concessionária' : 'Meta do mês'" [labelVisible]="i === 0" [min]="0" [maxFractionDigits]="0"
+                    [error]="erroLinha(i, 'tipo')"></geo-select>
+                  <geo-number-input [label]="modo() === 'PARCIAL' ? 'Parcial da Concessionária' : 'Meta do mês'" [labelVisible]="i === 0" [min]="0" [maxFractionDigits]="0"
                     [value]="linha.valor" (valueChange)="alterar(i, { valor: $event })" [placeholder]="modo() === 'PARCIAL' ? 'Ex.: 215' : 'Ex.: 528'"
-                    [error]="erroLinha(i, 'valor')"></ces-number-input>
-                  <ces-icon-button class="mf-linha__remover" icon="pi pi-trash" [label]="'Tirar o serviço ' + (i + 1) + ' da meta'" tooltip="Tirar da meta" size="icon-sm"
-                    (pressed)="remover(i)"></ces-icon-button>
+                    [error]="erroLinha(i, 'valor')"></geo-number-input>
+                  <geo-icon-button class="mf-linha__remover" icon="pi pi-trash" [label]="'Tirar o serviço ' + (i + 1) + ' da meta'" tooltip="Tirar da meta" size="icon-sm"
+                    (pressed)="remover(i)"></geo-icon-button>
                   @if (resultadoLinha(i); as r) {
                     <p class="mf-linha__resultado"><i class="pi pi-arrow-right" aria-hidden="true"></i><span>{{ r }}</span></p>
                   }
@@ -252,7 +252,7 @@ function plural(n: number, um: string, varios: string): string {
             </ul>
           }
           <div>
-            <ces-button label="Incluir serviço" icon="pi pi-plus" variant="outline" size="sm" [disabled]="!podeIncluir()" (pressed)="incluir()"></ces-button>
+            <geo-button label="Incluir serviço" icon="pi pi-plus" variant="outline" size="sm" [disabled]="!podeIncluir()" (pressed)="incluir()"></geo-button>
           </div>
         </section>
 
@@ -289,7 +289,7 @@ function plural(n: number, um: string, varios: string): string {
         }
 
         @if (erroServidor(); as mensagem) {
-          <ces-callout tone="danger" title="Não foi possível salvar">{{ mensagem }}</ces-callout>
+          <geo-callout tone="danger" title="Não foi possível salvar">{{ mensagem }}</geo-callout>
         }
       </div>
       <div drawer-footer class="ns-rodape">
@@ -301,11 +301,11 @@ function plural(n: number, um: string, varios: string): string {
           }
         </span>
         <div class="ns-rodape__acoes">
-          <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-          <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar meta'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+          <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+          <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar meta'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
         </div>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Meta física" artigoPlural="as" entidadePlural="metas" busca="base ou descrição" rotuloNovo="Nova meta">
       <div class="help-section">
@@ -333,7 +333,7 @@ export class MetasFisicasComponent {
   private readonly rh = inject(RhService);
   private readonly router = inject(Router);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   protected readonly statusOpcoes = OPCOES_STATUS;
   protected readonly nomeMes = nomeMes;
@@ -345,12 +345,12 @@ export class MetasFisicasComponent {
   protected readonly tipos = signal<TipoServicoResponse[]>([]);
   protected readonly carregandoTipos = signal(true);
   protected readonly basesOpcoes = computed(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
-  protected readonly tiposOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly tiposOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.tipos().map((t) => ({ label: rotuloTipoServico(t.codigo, t.descricao), value: t.id }))
   );
-  protected readonly mesesOpcoes = computed<CesSelectOption<string>[]>(() => {
+  protected readonly mesesOpcoes = computed<GeoSelectOption<string>[]>(() => {
     const atual = competenciaAtual();
-    const opcoes: CesSelectOption<string>[] = [];
+    const opcoes: GeoSelectOption<string>[] = [];
     for (let i = MESES_DEPOIS; i >= -MESES_ANTES; i--) {
       const comp = deslocarCompetencia(atual, i);
       opcoes.push({ label: nomeMes(comp) + (i === 0 ? ' · atual' : ''), value: comp });
@@ -363,21 +363,21 @@ export class MetasFisicasComponent {
     return escolhido && !opcoes.some((o) => o.value === escolhido) ? [{ label: nomeMes(escolhido), value: escolhido }, ...opcoes] : opcoes;
   });
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'execucao-metas-fisicas',
     filters: {
-      idBaseOperacional: cesFilter.value<string | null>(null, {
+      idBaseOperacional: geoFilter.value<string | null>(null, {
         label: 'Base',
         param: 'base',
         format: (id): string | null => (id ? (this.bases().find((b) => b.id === id)?.nome ?? 'selecionada') : null)
       }),
-      competencia: cesFilter.value<string | null>(null, { label: 'Mês', param: 'mes', format: (c): string | null => (c ? nomeMes(c) : null) }),
-      idTipoServico: cesFilter.value<string | null>(null, {
+      competencia: geoFilter.value<string | null>(null, { label: 'Mês', param: 'mes', format: (c): string | null => (c ? nomeMes(c) : null) }),
+      idTipoServico: geoFilter.value<string | null>(null, {
         label: 'Serviço',
         param: 'servico',
         format: (id): string | null => (id ? (this.tipos().find((t) => t.id === id)?.descricao ?? 'selecionado') : null)
       }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'competencia', direction: 'desc' }]
   });
@@ -389,7 +389,7 @@ export class MetasFisicasComponent {
     { errorMessage: getErrorMessage }
   );
 
-  protected readonly colunas: CesDataTableColumn<MetaFisicaResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MetaFisicaResponse>[] = [
     { key: 'base', header: 'Base', type: 'custom', priority: 1, value: (m) => m.baseOperacional, display: (m) => m.baseOperacional ?? '—' },
     { key: 'competencia', header: 'Mês', type: 'custom', priority: 1, sortField: 'competencia', value: (m) => m.competencia, display: (m) => nomeMes(m.competencia) },
     { key: 'total', header: 'Meta do mês', type: 'custom', priority: 1, value: (m) => m.total, display: (m) => plural(m.total, 'nota', 'notas') },
@@ -527,7 +527,7 @@ export class MetasFisicasComponent {
   }
 
   /** Opções da linha: os tipos ativos que ainda não estão em outra linha (mais o da própria). */
-  protected tiposDaLinha(i: number): CesSelectOption<string>[] {
+  protected tiposDaLinha(i: number): GeoSelectOption<string>[] {
     const usados = new Set(this.linhas().filter((_, j) => j !== i).map((l) => l.idTipoServico));
     const atual = this.linhas()[i]?.idTipoServico;
     const opcoes = this.tiposOpcoes().filter((o) => !usados.has(o.value));

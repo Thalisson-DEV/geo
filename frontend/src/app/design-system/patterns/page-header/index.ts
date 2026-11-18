@@ -1,1 +1,1 @@
-export * from './ces-page-header.component';
+export * from './geo-page-header.component';

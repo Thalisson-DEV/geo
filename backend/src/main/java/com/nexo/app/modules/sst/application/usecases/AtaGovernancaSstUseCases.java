@@ -69,10 +69,10 @@ public class AtaGovernancaSstUseCases {
     private final ObjectStorageService storage;
     private final PlatformTransactionManager transactionManager;
 
-    @Value("${ces.sst.ata-ai.enabled:false}")
+    @Value("${geo.sst.ata-ai.enabled:false}")
     private boolean geracaoIaDisponivel;
 
-    @Value("${ces.sst.ata-ai.normalizacao.enabled:false}")
+    @Value("${geo.sst.ata-ai.normalizacao.enabled:false}")
     private boolean normalizacaoIaDisponivel;
 
     public com.nexo.app.modules.sst.application.dto.ReuniaoGovernancaDto.CapabilitiesResponse obterCapabilities() {

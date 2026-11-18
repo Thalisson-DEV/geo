@@ -2,20 +2,20 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesMultiSelectComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTone,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoMultiSelectComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService,
-  cesListState
-} from '@ces/ui';
+  geoListState
+} from '@geo/ui';
 import {
   AbastecimentoResumo,
   FilaAbastecimento,
@@ -68,43 +68,43 @@ const TEXTOS: Record<ModoLista, { titulo: string; vazio: string; vazioDescricao:
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesMultiSelectComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoMultiSelectComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent
   ],
   styles: `
     .alertas { display: flex; flex-wrap: wrap; gap: 0.25rem; }
     .posto { display: inline-flex; align-items: center; gap: 0.375rem; }
-    .posto .pi { color: var(--ces-brand); font-size: 0.8125rem; }
-    .espera { display: block; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .posto .pi { color: var(--geo-brand); font-size: 0.8125rem; }
+    .espera { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
   `,
   template: `
-    <div class="ces-form-stack">
+    <div class="geo-form-stack">
       @let f = filtros().estado;
-      <ces-filter-panel storageKey="frota-abastecimentos" [activeCount]="ativos()" [summary]="resumo()"
+      <geo-filter-panel storageKey="frota-abastecimentos" [activeCount]="ativos()" [summary]="resumo()"
         [loading]="resultado.loading()" (applied)="f.apply()" (cleared)="f.reset()" (chipRemoved)="f.remove($any($event))">
-        <div class="ces-filter-grid">
+        <div class="geo-filter-grid">
           @if (modo() === 'todos') {
-            <ces-multiselect label="Situação" [options]="situacoes" [(value)]="f.filters.situacoes" placeholder="Todas"></ces-multiselect>
+            <geo-multiselect label="Situação" [options]="situacoes" [(value)]="f.filters.situacoes" placeholder="Todas"></geo-multiselect>
           }
-          <ces-multiselect label="Base" [options]="filtros().bases.opcoes()" [(value)]="f.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Posto" [options]="filtros().opcoesPosto()" [(value)]="f.filters.idPosto" placeholder="Todos" [filter]="true" [clearable]="true"></ces-select>
-          <ces-datepicker label="De" [value]="dataLocal(f.filters.de())" [clearable]="true" (valueChange)="f.filters.de.set(dataIso($event))"></ces-datepicker>
-          <ces-datepicker label="Até" [value]="dataLocal(f.filters.ate())" [clearable]="true" (valueChange)="f.filters.ate.set(dataIso($event))"></ces-datepicker>
-          <ces-select label="Alertas" [options]="opcoesAlerta" [(value)]="f.filters.comAlerta"></ces-select>
+          <geo-multiselect label="Base" [options]="filtros().bases.opcoes()" [(value)]="f.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Posto" [options]="filtros().opcoesPosto()" [(value)]="f.filters.idPosto" placeholder="Todos" [filter]="true" [clearable]="true"></geo-select>
+          <geo-datepicker label="De" [value]="dataLocal(f.filters.de())" [clearable]="true" (valueChange)="f.filters.de.set(dataIso($event))"></geo-datepicker>
+          <geo-datepicker label="Até" [value]="dataLocal(f.filters.ate())" [clearable]="true" (valueChange)="f.filters.ate.set(dataIso($event))"></geo-datepicker>
+          <geo-select label="Alertas" [options]="opcoesAlerta" [(value)]="f.filters.comAlerta"></geo-select>
           @if (modo() !== 'aprovar') {
-            <ces-select label="Origem" [options]="opcoesOrigem" [(value)]="f.filters.origem"></ces-select>
+            <geo-select label="Origem" [options]="opcoesOrigem" [(value)]="f.filters.origem"></geo-select>
           }
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table [title]="textos().titulo" mode="server" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar placa"
+      <geo-data-table [title]="textos().titulo" mode="server" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar placa"
         [storageKey]="'frota-abastecimentos-' + modo()" exportFileName="frota-abastecimentos" [columns]="colunas()" [rows]="resultado.rows()"
         [totalRecords]="resultado.total()" [rowKey]="chave" [rowLabel]="rotulo" [state]="resultado.state()"
         [stateTitle]="resultado.error() ? 'Não foi possível carregar os abastecimentos' : textos().vazio"
@@ -113,64 +113,64 @@ const TEXTOS: Record<ModoLista, { titulo: string; vazio: string; vazioDescricao:
         [exportRows]="exportar" [exportLimit]="limiteExportacao"
         [(query)]="lista.query" [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort" (lazyLoad)="lista.load($event)"
         (clearFilters)="f.reset()" [rowClickable]="true" (rowActivate)="abrir.emit($event.id)">
-        <ng-template cesCell="solicitadoEm" let-row>
+        <ng-template geoCell="solicitadoEm" let-row>
           {{ row.solicitadoEm | date: 'dd/MM HH:mm' }}
           @if (modo() === 'aprovar' || modo() === 'liberar') {
             <span class="espera">{{ espera(row.solicitadoEm) }}</span>
           }
         </ng-template>
-        <ng-template cesCell="placa" let-row>
-          <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-          <span class="ces-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
+        <ng-template geoCell="placa" let-row>
+          <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+          <span class="geo-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
         </ng-template>
-        <ng-template cesCell="posto" let-row>
-          <span class="posto"><i class="pi pi-map-marker" aria-hidden="true"></i><span class="ces-cell-strong">{{ row.posto }}</span></span>
+        <ng-template geoCell="posto" let-row>
+          <span class="posto"><i class="pi pi-map-marker" aria-hidden="true"></i><span class="geo-cell-strong">{{ row.posto }}</span></span>
         </ng-template>
-        <ng-template cesCell="itens" let-row>
+        <ng-template geoCell="itens" let-row>
           {{ row.itens }}
-          @if (row.destino) { <span class="ces-cell-muted">Destino: {{ row.destino }}</span> }
-          @if (row.origem === 'AVULSA') { <ces-status tone="neutral" icon="pi-bolt">Avulso</ces-status> }
+          @if (row.destino) { <span class="geo-cell-muted">Destino: {{ row.destino }}</span> }
+          @if (row.origem === 'AVULSA') { <geo-status tone="neutral" icon="pi-bolt">Avulso</geo-status> }
         </ng-template>
-        <ng-template cesCell="pessoas" let-row>
+        <ng-template geoCell="pessoas" let-row>
           {{ row.condutor ?? '—' }}
           @if (row.solicitante && row.solicitante !== row.condutor) {
-            <span class="ces-cell-muted">Pedido por {{ row.solicitante }}</span>
+            <span class="geo-cell-muted">Pedido por {{ row.solicitante }}</span>
           }
         </ng-template>
-        <ng-template cesCell="alertas" let-row>
+        <ng-template geoCell="alertas" let-row>
           @if (row.alertas.length) {
             <span class="alertas">
               @for (a of row.alertas; track a) {
-                <ces-status tone="warning" icon="pi-exclamation-triangle">{{ rotuloAlerta(a) }}</ces-status>
+                <geo-status tone="warning" icon="pi-exclamation-triangle">{{ rotuloAlerta(a) }}</geo-status>
               }
             </span>
           } @else {
-            <span class="ces-cell-muted">Sem alerta</span>
+            <span class="geo-cell-muted">Sem alerta</span>
           }
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tom(row.situacao)" [icon]="icone(row.situacao)">{{ row.situacaoRotulo }}</ces-status>
+        <ng-template geoCell="situacao" let-row>
+          <geo-status [tone]="tom(row.situacao)" [icon]="icone(row.situacao)">{{ row.situacaoRotulo }}</geo-status>
           @if (row.valorTotal != null) {
-            <span class="ces-cell-muted">{{ dinheiro(row.valorTotal) }}</span>
+            <span class="geo-cell-muted">{{ dinheiro(row.valorTotal) }}</span>
           }
         </ng-template>
-        <ng-template cesCell="avisoPosto" let-row>
+        <ng-template geoCell="avisoPosto" let-row>
           @if (row.avisoPosto === 'ENVIADO') {
-            <ces-status tone="success" icon="pi-check">Posto avisado</ces-status>
+            <geo-status tone="success" icon="pi-check">Posto avisado</geo-status>
           } @else {
-            <ces-status tone="warning" icon="pi-whatsapp">Falta avisar</ces-status>
+            <geo-status tone="warning" icon="pi-whatsapp">Falta avisar</geo-status>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (modo() === 'aprovar') {
-              <ces-icon-button icon="pi pi-check" [label]="'Definir as quantidades e aprovar o pedido de ' + placa(row.placa)"
-                tooltip="Definir as quantidades e aprovar" size="icon-sm" (pressed)="abrir.emit(row.id)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-check" [label]="'Definir as quantidades e aprovar o pedido de ' + placa(row.placa)"
+                tooltip="Definir as quantidades e aprovar" size="icon-sm" (pressed)="abrir.emit(row.id)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-angle-right" [label]="'Abrir o pedido de ' + placa(row.placa)" tooltip="Abrir" size="icon-sm" (pressed)="abrir.emit(row.id)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-angle-right" [label]="'Abrir o pedido de ' + placa(row.placa)" tooltip="Abrir" size="icon-sm" (pressed)="abrir.emit(row.id)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
   `
 })
@@ -192,7 +192,7 @@ export class FrotaAbastecimentosListaComponent {
     return ROTULO_ALERTA[tipo];
   }
 
-  protected tom(situacao: SituacaoAbastecimento): CesTone {
+  protected tom(situacao: SituacaoAbastecimento): GeoTone {
     return TOM_SITUACAO[situacao];
   }
 
@@ -209,7 +209,7 @@ export class FrotaAbastecimentosListaComponent {
   protected readonly textos = computed(() => TEXTOS[this.modo()]);
 
   /** Nesta aba só a página, o tamanho, a ordenação e a busca; o recorte vem da página. */
-  protected readonly lista = cesListState({ storageKey: 'frota-abastecimentos', url: false, filters: {}, sort: [{ key: 'solicitadoEm', direction: 'desc' }] });
+  protected readonly lista = geoListState({ storageKey: 'frota-abastecimentos', url: false, filters: {}, sort: [{ key: 'solicitadoEm', direction: 'desc' }] });
   /** A situação só recorta a aba Todos; nas filas ela já é a da etapa. */
   protected readonly resumo = computed(() => this.filtros().estado.summary().filter((c) => this.modo() === 'todos' || c.key !== 'situacoes'));
   protected readonly ativos = computed(() => this.resumo().filter((c) => c.removable).length);
@@ -225,9 +225,9 @@ export class FrotaAbastecimentosListaComponent {
     this.resultado.loading() && !this.resultado.total() ? undefined : contar(this.resultado.total(), 'pedido', 'pedidos', 'Nenhum pedido')
   );
 
-  protected readonly colunas = computed<CesDataTableColumn<AbastecimentoResumo>[]>(() => {
+  protected readonly colunas = computed<GeoDataTableColumn<AbastecimentoResumo>[]>(() => {
     const modo = this.modo();
-    const colunas: CesDataTableColumn<AbastecimentoResumo>[] = [
+    const colunas: GeoDataTableColumn<AbastecimentoResumo>[] = [
       { key: 'solicitadoEm', header: 'Pedido', type: 'custom', priority: 1, sortField: 'solicitadoEm', value: (a) => a.solicitadoEm, display: (a) => a.solicitadoEm },
       { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (a) => a.placa, display: (a) => formatarPlaca(a.placa) },
       { key: 'posto', header: 'Posto', type: 'custom', priority: 1, value: (a) => a.posto, display: (a) => a.posto },

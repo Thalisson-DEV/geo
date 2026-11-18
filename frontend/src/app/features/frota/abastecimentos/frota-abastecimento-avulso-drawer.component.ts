@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   AbastecimentoDetalhe,
   PostoAbastecimento,
@@ -40,72 +40,72 @@ interface ItemAvulso {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   styles: `
     .item { display: grid; grid-template-columns: minmax(0, 1fr) 9rem auto; gap: 0.5rem; align-items: end; }
-    @media (max-width: 480px) { .item { grid-template-columns: minmax(0, 1fr) auto; } .item ces-number-input { grid-column: 1; } }
+    @media (max-width: 480px) { .item { grid-template-columns: minmax(0, 1fr) auto; } .item geo-number-input { grid-column: 1; } }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visible" title="Lançar abastecimento avulso" description="Já sai aprovado por você e vai para a liberação."
+    <geo-form-drawer [(visible)]="visible" title="Lançar abastecimento avulso" description="Já sai aprovado por você e vai para a liberação."
       [dirty]="sujo()" [loading]="salvando()" size="md">
-      <div class="ces-form-stack">
-        <ces-callout tone="info" [dense]="true" icon="pi pi-bolt">
+      <div class="geo-form-stack">
+        <geo-callout tone="info" [dense]="true" icon="pi pi-bolt">
           Use quando o pedido não vier pelo app. Ele aparece como avulso nas listas e segue o fluxo normal: liberação, aviso ao posto e registro pelo condutor.
-        </ces-callout>
+        </geo-callout>
 
-        <ces-form-section title="Veículo e condutor" icon="pi pi-car">
-          <ces-select label="Veículo" [required]="true" [options]="opcoesVeiculo()" [(value)]="idVeiculo" [filter]="true"
+        <geo-form-section title="Veículo e condutor" icon="pi pi-car">
+          <geo-select label="Veículo" [required]="true" [options]="opcoesVeiculo()" [(value)]="idVeiculo" [filter]="true"
             [loading]="carregandoVeiculos()" placeholder="Placas da sua carteira"
             [description]="opcoesVeiculo().length || carregandoVeiculos() ? undefined : 'Sua carteira de aprovação não tem placas. Peça ao gestor da frota.'"
-            [error]="tentou() && !idVeiculo() ? 'Escolha o veículo.' : undefined"></ces-select>
-          <ces-select label="Condutor" [required]="true" [options]="opcoesCondutor()" [(value)]="idCondutor" [filter]="true"
+            [error]="tentou() && !idVeiculo() ? 'Escolha o veículo.' : undefined"></geo-select>
+          <geo-select label="Condutor" [required]="true" [options]="opcoesCondutor()" [(value)]="idCondutor" [filter]="true"
             placeholder="Quem vai ao posto" description="O condutor vê o abastecimento no app e registra depois de abastecer."
-            [error]="tentou() && !idCondutor() ? 'Escolha o condutor.' : undefined"></ces-select>
-          <ces-number-input label="KM ou horímetro do painel" [showOptional]="true" [(value)]="medicao" [min]="0" [maxFractionDigits]="1"
-            description="Se souber. Informado, passa pela trava: não pode ser menor que o último nem saltar mais de 2.000 km."></ces-number-input>
-        </ces-form-section>
+            [error]="tentou() && !idCondutor() ? 'Escolha o condutor.' : undefined"></geo-select>
+          <geo-number-input label="KM ou horímetro do painel" [showOptional]="true" [(value)]="medicao" [min]="0" [maxFractionDigits]="1"
+            description="Se souber. Informado, passa pela trava: não pode ser menor que o último nem saltar mais de 2.000 km."></geo-number-input>
+        </geo-form-section>
 
-        <ces-form-section title="Posto e destino" icon="pi pi-map-marker">
-          <ces-select label="Posto" [required]="true" [options]="opcoesPosto()" [(value)]="idPosto" [filter]="true"
-            [error]="tentou() && !idPosto() ? 'Escolha o posto.' : undefined"></ces-select>
-          <ces-text-input label="Destino" [required]="true" [(value)]="destino" [maxlength]="200" placeholder="Ex.: Juazeiro → Sobradinho"
-            [error]="tentou() && !destino().trim() ? 'Informe o destino.' : undefined"></ces-text-input>
-        </ces-form-section>
+        <geo-form-section title="Posto e destino" icon="pi pi-map-marker">
+          <geo-select label="Posto" [required]="true" [options]="opcoesPosto()" [(value)]="idPosto" [filter]="true"
+            [error]="tentou() && !idPosto() ? 'Escolha o posto.' : undefined"></geo-select>
+          <geo-text-input label="Destino" [required]="true" [(value)]="destino" [maxlength]="200" placeholder="Ex.: Juazeiro → Sobradinho"
+            [error]="tentou() && !destino().trim() ? 'Informe o destino.' : undefined"></geo-text-input>
+        </geo-form-section>
 
-        <ces-form-section title="O que abastecer" icon="pi pi-shopping-bag" description="Um combustível por abastecimento; ARLA, óleo e fluidos separados.">
+        <geo-form-section title="O que abastecer" icon="pi pi-shopping-bag" description="Um combustível por abastecimento; ARLA, óleo e fluidos separados.">
           @for (item of itens(); track item.chave; let i = $index) {
             <div class="item">
-              <ces-select [label]="'Produto ' + (i + 1)" [options]="opcoesProduto()" [value]="item.idProduto"
-                (valueChange)="alterarItem(item.chave, { idProduto: $event })"></ces-select>
-              <ces-number-input [label]="'Quantidade ' + (i + 1)" [value]="item.quantidade" [min]="0" [maxFractionDigits]="2"
-                [suffix]="' ' + unidade(item.idProduto)" (valueChange)="alterarItem(item.chave, { quantidade: $event })"></ces-number-input>
+              <geo-select [label]="'Produto ' + (i + 1)" [options]="opcoesProduto()" [value]="item.idProduto"
+                (valueChange)="alterarItem(item.chave, { idProduto: $event })"></geo-select>
+              <geo-number-input [label]="'Quantidade ' + (i + 1)" [value]="item.quantidade" [min]="0" [maxFractionDigits]="2"
+                [suffix]="' ' + unidade(item.idProduto)" (valueChange)="alterarItem(item.chave, { quantidade: $event })"></geo-number-input>
               @if (itens().length > 1) {
-                <ces-icon-button icon="pi pi-trash" [label]="'Tirar o produto ' + (i + 1)" tooltip="Tirar" (pressed)="tirarItem(item.chave)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Tirar o produto ' + (i + 1)" tooltip="Tirar" (pressed)="tirarItem(item.chave)"></geo-icon-button>
               }
             </div>
           }
-          <ces-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar produto" (pressed)="adicionarItem()"></ces-button>
+          <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar produto" (pressed)="adicionarItem()"></geo-button>
           @if (tentou() && erroItens(); as erro) {
-            <ces-callout tone="danger" [dense]="true">{{ erro }}</ces-callout>
+            <geo-callout tone="danger" [dense]="true">{{ erro }}</geo-callout>
           }
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-textarea label="Observação" [showOptional]="true" [(value)]="observacao" [rows]="2" [maxlength]="500"></ces-textarea>
+        <geo-textarea label="Observação" [showOptional]="true" [(value)]="observacao" [rows]="2" [maxlength]="500"></geo-textarea>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Lançar aprovado" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Lançar aprovado" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaAbastecimentoAvulsoDrawerComponent {
@@ -128,16 +128,16 @@ export class FrotaAbastecimentoAvulsoDrawerComponent {
   protected readonly salvando = signal(false);
 
   protected readonly carregandoVeiculos = signal(false);
-  protected readonly opcoesVeiculo = signal<CesSelectOption<string>[]>([]);
-  protected readonly opcoesCondutor = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesVeiculo = signal<GeoSelectOption<string>[]>([]);
+  protected readonly opcoesCondutor = signal<GeoSelectOption<string>[]>([]);
   private readonly postos = signal<PostoAbastecimento[]>([]);
   private readonly produtos = signal<ProdutoAbastecimento[]>([]);
   private proximaChave = 2;
 
-  protected readonly opcoesPosto = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesPosto = computed<GeoSelectOption<string>[]>(() =>
     this.postos().filter((p) => p.ativo).map((p) => ({ label: p.baseNome ? `${p.nome} · ${p.baseNome}` : p.nome, value: p.id }))
   );
-  protected readonly opcoesProduto = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesProduto = computed<GeoSelectOption<string>[]>(() =>
     this.produtos().filter((p) => p.ativo).map((p) => ({ label: `${p.nome} · ${ROTULO_CATEGORIA_PRODUTO[p.categoria]}`, value: p.id }))
   );
   protected readonly sujo = computed(() => !!this.idVeiculo() || !!this.destino().trim() || this.itens().some((i) => i.idProduto));

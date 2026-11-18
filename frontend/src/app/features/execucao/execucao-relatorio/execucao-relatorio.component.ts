@@ -16,7 +16,7 @@ import { catchError, of } from 'rxjs';
 import { AccordionModule } from 'primeng/accordion';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { CesAsyncStateComponent, CesStatusComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
 
 import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -50,8 +50,8 @@ import { imprimirSempreNoTemaClaro } from '../relatorios/relatorio-impressao';
     AccordionModule,
     ButtonModule,
     TooltipModule,
-    CesAsyncStateComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoStatusComponent,
     NumeroOficialDialogComponent,
     AlterarNotaDrawerComponent,
     HistoricoNotaComponent

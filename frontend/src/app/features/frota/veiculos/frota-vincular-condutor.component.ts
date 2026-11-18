@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Condutor, VinculoCondutor, paraInstanteIso } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService, PAGINA_OPCOES } from '../../../core/services/frota.service';
@@ -23,38 +23,38 @@ import { FrotaService, PAGINA_OPCOES } from '../../../core/services/frota.servic
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="visivel" title="Trocar condutor"
+    <geo-form-drawer [(visible)]="visivel" title="Trocar condutor"
       [description]="'Veículo ' + placa() + '. A CNH e a categoria do novo condutor são conferidas ao salvar.'"
       [dirty]="!!idColaborador()" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
+      <div class="geo-form-stack">
         @if (condutorAtual()) {
-          <ces-callout tone="info" [dense]="true">
+          <geo-callout tone="info" [dense]="true">
             Hoje o veículo está com {{ condutorAtual() }}. Esse vínculo é encerrado no início do novo.
-          </ces-callout>
+          </geo-callout>
         }
-        <ces-select label="Novo condutor" [required]="true" [options]="opcoes()" [(value)]="idColaborador" [filter]="true"
+        <geo-select label="Novo condutor" [required]="true" [options]="opcoes()" [(value)]="idColaborador" [filter]="true"
           [loading]="carregando()" description="Só aparecem colaboradores cadastrados em Condutores."
-          [error]="erro()"></ces-select>
-        <div class="ces-form-grid">
-          <ces-datepicker label="Início" [required]="true" [(value)]="data" [maxDate]="hoje"></ces-datepicker>
-          <ces-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5"></ces-text-input>
+          [error]="erro()"></geo-select>
+        <div class="geo-form-grid">
+          <geo-datepicker label="Início" [required]="true" [(value)]="data" [maxDate]="hoje"></geo-datepicker>
+          <geo-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5"></geo-text-input>
         </div>
-        <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="500" [showOptional]="true"></ces-textarea>
+        <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="500" [showOptional]="true"></geo-textarea>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Confirmar troca" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Confirmar troca" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaVincularCondutorComponent {
@@ -77,7 +77,7 @@ export class FrotaVincularCondutorComponent {
   protected readonly erro = signal<string | undefined>(undefined);
   protected readonly salvando = signal(false);
 
-  protected readonly opcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoes = computed<GeoSelectOption<string>[]>(() =>
     this.condutores().map((c) => ({
       label: `${c.nome ?? 'Sem nome'} — CNH ${c.cnhCategoria ?? '?'}${c.situacaoCnh === 'VENCIDO' ? ' (vencida)' : ''}`,
       value: c.idColaborador,

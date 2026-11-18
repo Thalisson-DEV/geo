@@ -132,7 +132,7 @@ describe('DashboardAnaliseComponent', () => {
     (fixture.componentInstance as unknown as Interno).selecionarPonto(v.graficos[0], { index: 0, label: 'EQ', seriesIndex: 0 });
     expect(navegar).toHaveBeenCalledWith({ dimension: 'equipe', value: 'e1' });
 
-    const proximo = document.body.querySelector('.an-passos ces-icon-button:last-child button') as HTMLButtonElement;
+    const proximo = document.body.querySelector('.an-passos geo-icon-button:last-child button') as HTMLButtonElement;
     proximo.click();
     expect(trocar).toHaveBeenCalledWith({ dimension: 'dia', value: '2026-10-09' });
   });

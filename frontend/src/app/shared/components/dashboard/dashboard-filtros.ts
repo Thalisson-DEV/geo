@@ -1,13 +1,13 @@
-import { CesFilterChip, CesSelectOption } from '@ces/ui';
+import { GeoFilterChip, GeoSelectOption } from '@geo/ui';
 import { dataLocal } from '../../listagem/listagem';
 
 /**
- * Auxiliares dos painéis (dashboards) no padrão de listagem: o `ces-filter-panel` mostra o
+ * Auxiliares dos painéis (dashboards) no padrão de listagem: o `geo-filter-panel` mostra o
  * recorte aplicado como chips e cada chip remove o próprio filtro.
  */
 
-/** Itens de um cadastro → opções do `ces-select`/`ces-multiselect`. */
-export function opcoesDe<T>(itens: readonly T[] | null | undefined, rotulo: keyof T, valor: keyof T = 'id' as keyof T): CesSelectOption<string>[] {
+/** Itens de um cadastro → opções do `geo-select`/`geo-multiselect`. */
+export function opcoesDe<T>(itens: readonly T[] | null | undefined, rotulo: keyof T, valor: keyof T = 'id' as keyof T): GeoSelectOption<string>[] {
   return (itens ?? []).map((item) => ({ label: String(item[rotulo] ?? ''), value: String(item[valor]) }));
 }
 
@@ -15,7 +15,7 @@ export interface GrupoDeChip {
   /** Chave do filtro (o chip removido devolve essa chave). */
   readonly chave: string;
   readonly rotulo: string;
-  readonly opcoes: readonly CesSelectOption<unknown>[];
+  readonly opcoes: readonly GeoSelectOption<unknown>[];
 }
 
 /**
@@ -26,8 +26,8 @@ export function chipsDoRecorte(
   filtros: Readonly<Record<string, unknown>>,
   grupos: readonly GrupoDeChip[],
   periodo?: { readonly inicio?: string | null; readonly fim?: string | null; readonly rotulo?: string }
-): CesFilterChip[] {
-  const chips: CesFilterChip[] = [];
+): GeoFilterChip[] {
+  const chips: GeoFilterChip[] = [];
   if (periodo && (periodo.inicio || periodo.fim)) {
     // "2026-11-01" em new Date() é meia-noite UTC: no fuso de Brasília cairia no dia anterior.
     const dia = (iso: string) => dataLocal(iso)!.toLocaleDateString('pt-BR');

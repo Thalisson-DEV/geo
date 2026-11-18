@@ -8,20 +8,20 @@
   display: block;
   width: 100%;
   min-height: 100%;
-  background-color: var(--ces-surface);
+  background-color: var(--geo-surface);
 
   /*
    * Ação "neutra forte" (IMPRIMIR) da barra flutuante.
    */
-  --report-action-strong-bg: var(--ces-foreground);
-  --report-action-strong-bg-hover: var(--ces-foreground-muted);
+  --report-action-strong-bg: var(--geo-foreground);
+  --report-action-strong-bg-hover: var(--geo-foreground-muted);
 }
 
 :host-context(.app-dark),
 :host-context(.dark) {
-  background-color: var(--ces-canvas);
-  --report-action-strong-bg: var(--ces-surface-muted);
-  --report-action-strong-bg-hover: var(--ces-border-strong);
+  background-color: var(--geo-canvas);
+  --report-action-strong-bg: var(--geo-surface-muted);
+  --report-action-strong-bg-hover: var(--geo-border-strong);
 }
 
 /* ANIMAÇÃO DE ENTRADA SUAVE */
@@ -57,7 +57,7 @@
 .kv-l {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   flex-shrink: 0;
@@ -66,7 +66,7 @@
 .kv-v {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   text-align: right;
   max-width: 14rem;
   overflow: hidden;
@@ -75,15 +75,15 @@
 }
 
 .kv-v--muted {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .kv-v--success {
-  color: var(--ces-success-text);
+  color: var(--geo-success-text);
 }
 
 .kv-v--brand {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .kv-v--wrap {
@@ -97,7 +97,7 @@
   align-items: flex-end;
   justify-content: center;
   margin-bottom: 0.375rem;
-  border-bottom: 1px solid var(--ces-border-strong);
+  border-bottom: 1px solid var(--geo-border-strong);
 }
 
 .signature-image {
@@ -210,7 +210,7 @@
   right: 0;
   height: 4px;
   border-radius: 999px;
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
   transform: translateY(-50%);
 }
 
@@ -222,10 +222,10 @@
   width: 1.4rem;
   height: 1.4rem;
   padding: 0;
-  border: 2px solid var(--ces-surface);
+  border: 2px solid var(--geo-surface);
   border-radius: 999px;
-  background: var(--ces-brand);
-  color: var(--ces-surface);
+  background: var(--geo-brand);
+  color: var(--geo-surface);
   font-size: 9px;
   font-weight: 700;
   cursor: pointer;
@@ -234,7 +234,7 @@
 
 .trilho-ponto:focus-visible {
   outline: none;
-  box-shadow: var(--ces-focus-ring);
+  box-shadow: var(--geo-focus-ring);
 }
 
 /* BARRA DE PROPORÇÃO (meta, frequência) */
@@ -243,7 +243,7 @@
   height: 0.375rem;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .barra > span {
@@ -251,46 +251,46 @@
   inset: 0 auto 0 0;
   max-width: 100%;
   border-radius: 999px;
-  background: var(--ces-brand);
+  background: var(--geo-brand);
 }
 
 .barra[data-tone='success'] > span {
-  background: var(--ces-success);
+  background: var(--geo-success);
 }
 
 .barra[data-tone='warning'] > span {
-  background: var(--ces-warning);
+  background: var(--geo-warning);
 }
 
 .barra[data-tone='danger'] > span {
-  background: var(--ces-danger);
+  background: var(--geo-danger);
 }
 
 /* DESTAQUES (mesmo desenho do banner de natureza da operação) */
 .destaque {
-  border-color: var(--ces-border);
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground);
+  border-color: var(--geo-border);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground);
 }
 
 .destaque[data-tone='success'] {
-  border-color: var(--ces-success);
-  background: var(--ces-success-soft);
+  border-color: var(--geo-success);
+  background: var(--geo-success-soft);
 }
 
 .destaque[data-tone='warning'] {
-  border-color: var(--ces-warning);
-  background: var(--ces-warning-soft);
+  border-color: var(--geo-warning);
+  background: var(--geo-warning-soft);
 }
 
 .destaque[data-tone='danger'] {
-  border-color: var(--ces-danger);
-  background: var(--ces-danger-soft);
+  border-color: var(--geo-danger);
+  background: var(--geo-danger-soft);
 }
 
 .destaque[data-tone='info'] {
-  border-color: var(--ces-info);
-  background: var(--ces-info-soft);
+  border-color: var(--geo-info);
+  background: var(--geo-info-soft);
 }
 
 .destaque__icone {
@@ -298,19 +298,19 @@
 }
 
 .destaque[data-tone='success'] .destaque__icone {
-  color: var(--ces-success-text);
+  color: var(--geo-success-text);
 }
 
 .destaque[data-tone='warning'] .destaque__icone {
-  color: var(--ces-warning-text);
+  color: var(--geo-warning-text);
 }
 
 .destaque[data-tone='danger'] .destaque__icone {
-  color: var(--ces-danger-text);
+  color: var(--geo-danger-text);
 }
 
 .destaque[data-tone='info'] .destaque__icone {
-  color: var(--ces-info-text);
+  color: var(--geo-info-text);
 }
 
 /* MAPA */
@@ -336,15 +336,15 @@
   gap: 0.75rem;
   align-items: flex-start;
   padding: 0.75rem 1rem;
-  border-radius: var(--ces-radius-md);
-  border: 1px solid color-mix(in srgb, var(--ces-warning) 40%, transparent);
-  background: var(--ces-warning-soft);
-  color: var(--ces-foreground);
+  border-radius: var(--geo-radius-md);
+  border: 1px solid color-mix(in srgb, var(--geo-warning) 40%, transparent);
+  background: var(--geo-warning-soft);
+  color: var(--geo-foreground);
   font-size: 0.8125rem;
 }
-.nota-alterada > i { color: var(--ces-warning); font-size: 1rem; margin-top: 0.1rem; }
+.nota-alterada > i { color: var(--geo-warning); font-size: 1rem; margin-top: 0.1rem; }
 .nota-alterada > div { display: grid; gap: 0.15rem; }
-.nota-alterada span { color: var(--ces-foreground-muted); }
+.nota-alterada span { color: var(--geo-foreground-muted); }
 @media print {
   .nota-alterada { border-color: currentColor; }
 }

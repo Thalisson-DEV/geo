@@ -4,27 +4,27 @@ import { Router } from '@angular/router';
 import { forkJoin, map } from 'rxjs';
 
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMeterComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSortRule,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabValue,
-  CesTabsComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMeterComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSortRule,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabValue,
+  GeoTabsComponent,
+  GeoTone,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { BaseOperacionalResponse, CentroFaturamentoResponse, FuncaoResponse, ProcessoNegocioResponse } from '../../../core/models/rh.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { TipoInspecaoResponse } from '../../../core/models/sst.models';
@@ -53,7 +53,7 @@ import { AlvoAnalise, VistaAnalise } from '../../../shared/components/dashboard/
 import { NavegacaoAnaliseService } from '../../../shared/components/dashboard/dashboard-analise.navegacao';
 import { chavePessoa, vistaMetas } from './analise-metas';
 
-const TOM_STATUS: Record<StatusMeta, CesTone> = { NAO_ATINGIDA: 'danger', EM_ANDAMENTO: 'warning', ATINGIDA: 'success' };
+const TOM_STATUS: Record<StatusMeta, GeoTone> = { NAO_ATINGIDA: 'danger', EM_ANDAMENTO: 'warning', ATINGIDA: 'success' };
 const ICONE_STATUS: Record<StatusMeta, string> = { NAO_ATINGIDA: 'pi-times-circle', EM_ANDAMENTO: 'pi-clock', ATINGIDA: 'pi-check-circle' };
 /** Ordem de cobrança: quem não atingiu primeiro. */
 const PESO_STATUS: Record<StatusMeta, number> = { NAO_ATINGIDA: 0, EM_ANDAMENTO: 1, ATINGIDA: 2 };
@@ -97,49 +97,49 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
   imports: [
     DecimalPipe,
     NgTemplateOutlet,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesMeterComponent,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoMeterComponent,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
     DashboardAnaliseComponent
   ],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   styleUrl: './acompanhamento-metas.component.css',
   template: `
-    <div class="ces-page">
-      <ces-page-header
+    <div class="geo-page">
+      <geo-page-header
         title="Acompanhamento das metas de inspeção"
         icon="pi pi-flag"
         [breadcrumb]="[{ label: 'Segurança' }, { label: 'Metas de inspeção' }, { label: 'Acompanhamento' }]"
         description="Quem já cumpriu, quem está a caminho e quem ficou para trás no período da meta. Conta só as inspeções lançadas pela própria pessoa."
       >
-        <ces-button actions label="Cadastro de metas" icon="pi pi-cog" variant="outline" (pressed)="irParaCadastro()"></ces-button>
-        <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="ghost" [loading]="loading()" (pressed)="carregar()"></ces-button>
-      </ces-page-header>
+        <geo-button actions label="Cadastro de metas" icon="pi pi-cog" variant="outline" (pressed)="irParaCadastro()"></geo-button>
+        <geo-button actions label="Atualizar" icon="pi pi-refresh" variant="ghost" [loading]="loading()" (pressed)="carregar()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel storageKey="dash-metas-inspecao" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+      <geo-filter-panel storageKey="dash-metas-inspecao" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
         (applied)="carregar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-        <div class="ces-filter-grid">
-          <ces-datepicker label="Data de referência" placeholder="Hoje" [(value)]="dataReferencia" [clearable]="true"
-            description="Mostra a situação como estava neste dia."></ces-datepicker>
-          <ces-multiselect label="Tipo de inspeção" [options]="opcoes.tipos()" [value]="$any(filtros.idTipoInspecao ?? [])" (valueChange)="filtros.idTipoInspecao = $event" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Função" [options]="opcoes.funcoes()" [value]="$any(filtros.idFuncao ?? [])" (valueChange)="filtros.idFuncao = $event" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Colaborador" [options]="colaboradores()" [value]="$any(filtros.idColaborador ?? [])" (valueChange)="filtros.idColaborador = $event"
-            placeholder="Todos" [loading]="colaboradoresLoading()" (search)="searchColaboradores({ filter: $event })" description="Digite ao menos 2 letras do nome."></ces-multiselect>
-          <ces-multiselect label="Centro de custo" [options]="opcoes.centros()" [value]="$any(filtros.idCentroCusto ?? [])" (valueChange)="filtros.idCentroCusto = $event" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Base operacional" [options]="opcoes.bases()" [value]="$any(filtros.idBaseOperacional ?? [])" (valueChange)="filtros.idBaseOperacional = $event" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Processo" [options]="opcoes.processos()" [value]="$any(filtros.idProcesso ?? [])" (valueChange)="filtros.idProcesso = $event" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Situação" [options]="statusOptions" [value]="$any(filtros.status ?? [])" (valueChange)="filtros.status = $event" [filter]="false" placeholder="Todas"></ces-multiselect>
+        <div class="geo-filter-grid">
+          <geo-datepicker label="Data de referência" placeholder="Hoje" [(value)]="dataReferencia" [clearable]="true"
+            description="Mostra a situação como estava neste dia."></geo-datepicker>
+          <geo-multiselect label="Tipo de inspeção" [options]="opcoes.tipos()" [value]="$any(filtros.idTipoInspecao ?? [])" (valueChange)="filtros.idTipoInspecao = $event" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Função" [options]="opcoes.funcoes()" [value]="$any(filtros.idFuncao ?? [])" (valueChange)="filtros.idFuncao = $event" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Colaborador" [options]="colaboradores()" [value]="$any(filtros.idColaborador ?? [])" (valueChange)="filtros.idColaborador = $event"
+            placeholder="Todos" [loading]="colaboradoresLoading()" (search)="searchColaboradores({ filter: $event })" description="Digite ao menos 2 letras do nome."></geo-multiselect>
+          <geo-multiselect label="Centro de custo" [options]="opcoes.centros()" [value]="$any(filtros.idCentroCusto ?? [])" (valueChange)="filtros.idCentroCusto = $event" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Base operacional" [options]="opcoes.bases()" [value]="$any(filtros.idBaseOperacional ?? [])" (valueChange)="filtros.idBaseOperacional = $event" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Processo" [options]="opcoes.processos()" [value]="$any(filtros.idProcesso ?? [])" (valueChange)="filtros.idProcesso = $event" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Situação" [options]="statusOptions" [value]="$any(filtros.status ?? [])" (valueChange)="filtros.status = $event" [filter]="false" placeholder="Todas"></geo-multiselect>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
       @if (loading() && !data()) {
         <div class="am-skeleton" role="status" aria-label="Carregando o acompanhamento">
@@ -148,10 +148,10 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
           <span class="am-skeleton__tabela"></span>
         </div>
       } @else if (erro()) {
-        <ces-callout tone="danger" title="Não foi possível carregar o acompanhamento">
+        <geo-callout tone="danger" title="Não foi possível carregar o acompanhamento">
           {{ erro() }}
-          <div class="am-callout-acao"><ces-button size="sm" variant="outline" icon="pi pi-refresh" label="Tentar de novo" (pressed)="carregar()"></ces-button></div>
-        </ces-callout>
+          <div class="am-callout-acao"><geo-button size="sm" variant="outline" icon="pi pi-refresh" label="Tentar de novo" (pressed)="carregar()"></geo-button></div>
+        </geo-callout>
       } @else if (data(); as d) {
         @if (resumo(); as r) {
           <!-- Os números do topo ignoram o filtro de situação: com "Atingiram" aplicado, os outros grupos zerariam. -->
@@ -159,7 +159,7 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
             <div class="am-panorama__execucao">
               <div class="am-panorama__topo">
                 <span class="am-rotulo">Execução das metas</span>
-                <ces-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('geral', 'todos')"></ces-button>
+                <geo-button size="sm" variant="outline" icon="pi pi-chart-bar" label="Analisar" (pressed)="analisar('geral', 'todos')"></geo-button>
               </div>
               <strong class="am-panorama__numero" [attr.data-tone]="tomPercentual(r.percentualExecucaoGlobal)">{{ r.percentualExecucaoGlobal | number: '1.0-1' }}%</strong>
               <span class="am-muted">{{ r.somaRealizado }} de {{ r.somaMetas }} inspeções previstas no período</span>
@@ -184,12 +184,12 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
               }
               <div class="am-situacoes" role="group" aria-label="Filtrar a lista pela situação">
                 @for (fatia of fatias(); track fatia.status) {
-                  <button type="button" class="ces-kpi am-situacao" [attr.data-tone]="fatia.tom" [attr.aria-pressed]="situacaoUnica() === fatia.status" (click)="alternarSituacao(fatia.status)">
-                    <span class="ces-kpi__icon"><i [class]="'pi ' + fatia.icone" aria-hidden="true"></i></span>
-                    <span class="ces-kpi__body">
-                      <span class="ces-kpi__label">{{ fatia.rotulo }}</span>
-                      <span class="ces-kpi__value">{{ fatia.quantidade }}</span>
-                      <span class="ces-kpi__detail">{{ fatia.percentual | number: '1.0-0' }}% das pessoas</span>
+                  <button type="button" class="geo-kpi am-situacao" [attr.data-tone]="fatia.tom" [attr.aria-pressed]="situacaoUnica() === fatia.status" (click)="alternarSituacao(fatia.status)">
+                    <span class="geo-kpi__icon"><i [class]="'pi ' + fatia.icone" aria-hidden="true"></i></span>
+                    <span class="geo-kpi__body">
+                      <span class="geo-kpi__label">{{ fatia.rotulo }}</span>
+                      <span class="geo-kpi__value">{{ fatia.quantidade }}</span>
+                      <span class="geo-kpi__detail">{{ fatia.percentual | number: '1.0-0' }}% das pessoas</span>
                     </span>
                   </button>
                 }
@@ -199,19 +199,19 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
         }
 
         @if (filtrandoPorSituacao()) {
-          <ces-callout tone="info" [dense]="true">
+          <geo-callout tone="info" [dense]="true">
             A lista mostra só {{ situacoesSelecionadas() }}. O panorama acima continua com todo o recorte.
-          </ces-callout>
+          </geo-callout>
         }
         @if (semAcesso() > 0) {
-          <ces-callout tone="warning" [title]="semAcesso() === 1 ? '1 pessoa sem usuário no sistema' : semAcesso() + ' pessoas sem usuário no sistema'">
+          <geo-callout tone="warning" [title]="semAcesso() === 1 ? '1 pessoa sem usuário no sistema' : semAcesso() + ' pessoas sem usuário no sistema'">
             Sem usuário, a pessoa não consegue lançar inspeções: o zero dela é falta de acesso, não falta de trabalho. Elas aparecem marcadas na lista.
-          </ces-callout>
+          </geo-callout>
         }
 
-        <ces-tabs [(value)]="visao" [tabs]="abas()" ariaLabel="Forma de ver as metas">
-          <ng-template cesTabPanel="pessoas">
-            <ces-data-table
+        <geo-tabs [(value)]="visao" [tabs]="abas()" ariaLabel="Forma de ver as metas">
+          <ng-template geoTabPanel="pessoas">
+            <geo-data-table
               title="Metas por pessoa"
               storageKey="sst-metas-acompanhamento"
               exportFileName="acompanhamento-metas-inspecao"
@@ -233,51 +233,51 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
               (emptyAction)="irParaCadastro()"
               (clearFilters)="limpar()"
             >
-              <ng-template cesCell="pessoa" let-row>
-                <span class="ces-cell-strong">
+              <ng-template geoCell="pessoa" let-row>
+                <span class="geo-cell-strong">
                   {{ row.nomeColaborador || 'Cadastro não disponível' }}
                   @if (!row.possuiUsuario) {
-                    <ces-status tone="warning" icon="pi-user-minus">Sem usuário</ces-status>
+                    <geo-status tone="warning" icon="pi-user-minus">Sem usuário</geo-status>
                   }
                 </span>
-                <span class="ces-cell-muted">{{ row.nomeFuncao || 'Função não informada' }} · {{ row.nomeBaseOperacional || 'Base não informada' }}</span>
+                <span class="geo-cell-muted">{{ row.nomeFuncao || 'Função não informada' }} · {{ row.nomeBaseOperacional || 'Base não informada' }}</span>
               </ng-template>
-              <ng-template cesCell="progresso" let-row>
-                <ces-meter class="am-medidor" [value]="row.percentualAtingimento" [detail]="row.realizado + ' de ' + row.meta" [label]="'Atingimento da meta de ' + (row.nomeColaborador || 'colaborador')"></ces-meter>
+              <ng-template geoCell="progresso" let-row>
+                <geo-meter class="am-medidor" [value]="row.percentualAtingimento" [detail]="row.realizado + ' de ' + row.meta" [label]="'Atingimento da meta de ' + (row.nomeColaborador || 'colaborador')"></geo-meter>
               </ng-template>
-              <ng-template cesCell="situacao" let-row>
-                <ces-status [tone]="tomStatus(row.status)" [icon]="iconeStatus(row.status)">{{ rotuloStatus(row.status) }}</ces-status>
+              <ng-template geoCell="situacao" let-row>
+                <geo-status [tone]="tomStatus(row.status)" [icon]="iconeStatus(row.status)">{{ rotuloStatus(row.status) }}</geo-status>
               </ng-template>
-              <ng-template cesCell="falta" let-row>
+              <ng-template geoCell="falta" let-row>
                 @if (row.saldo > 0) {
-                  <span class="ces-cell-strong ces-tabular-nums">{{ row.saldo }}</span>
-                  <span class="ces-cell-muted">{{ row.saldo === 1 ? 'inspeção' : 'inspeções' }}</span>
+                  <span class="geo-cell-strong geo-tabular-nums">{{ row.saldo }}</span>
+                  <span class="geo-cell-muted">{{ row.saldo === 1 ? 'inspeção' : 'inspeções' }}</span>
                 } @else {
-                  <span class="ces-cell-muted">Nada</span>
+                  <span class="geo-cell-muted">Nada</span>
                 }
               </ng-template>
-              <ng-template cesCell="prazo" let-row>
+              <ng-template geoCell="prazo" let-row>
                 @if (encerrada(row, d.dataReferencia)) {
-                  <span class="ces-cell-muted">Período encerrado</span>
+                  <span class="geo-cell-muted">Período encerrado</span>
                 } @else {
                   <span [class.am-texto-alerta]="row.diasRestantes <= 5 && row.saldo > 0">{{ tempoRestante(row) }}</span>
                 }
-                <span class="ces-cell-muted">{{ formatarData(row.janelaInicio) }} a {{ formatarData(row.janelaFim) }}</span>
+                <span class="geo-cell-muted">{{ formatarData(row.janelaInicio) }} a {{ formatarData(row.janelaFim) }}</span>
               </ng-template>
-              <ng-template cesCell="meta" let-row>
+              <ng-template geoCell="meta" let-row>
                 <span>{{ row.nomeTipoInspecao || 'Todos os tipos' }} · {{ rotuloPeriodicidade(row) }}</span>
-                <span class="ces-cell-muted">{{ row.origem === 'COLABORADOR' ? 'Meta individual' : 'Meta da função' }}</span>
+                <span class="geo-cell-muted">{{ row.origem === 'COLABORADOR' ? 'Meta individual' : 'Meta da função' }}</span>
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           </ng-template>
 
-          <ng-template cesTabPanel="bases">
+          <ng-template geoTabPanel="bases">
             <ng-container [ngTemplateOutlet]="grupos" [ngTemplateOutletContext]="{ $implicit: porBase(), titulo: 'Metas por base operacional', chave: 'sst-metas-por-base', coluna: 'Base', dimensao: 'base' }"></ng-container>
           </ng-template>
-          <ng-template cesTabPanel="funcoes">
+          <ng-template geoTabPanel="funcoes">
             <ng-container [ngTemplateOutlet]="grupos" [ngTemplateOutletContext]="{ $implicit: porFuncao(), titulo: 'Metas por função', chave: 'sst-metas-por-funcao', coluna: 'Função', dimensao: 'funcao' }"></ng-container>
           </ng-template>
-        </ces-tabs>
+        </geo-tabs>
       }
     </div>
 
@@ -285,7 +285,7 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
       (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)" (voltar)="analise.voltar($event)" />
 
     <ng-template #grupos let-linhas let-titulo="titulo" let-chave="chave" let-coluna="coluna" let-dimensao="dimensao">
-      <ces-data-table
+      <geo-data-table
         [title]="titulo"
         [storageKey]="chave"
         [exportFileName]="chave"
@@ -299,22 +299,22 @@ function agrupar(itens: readonly AcompanhamentoMetaItem[], chave: (i: Acompanham
         rowActionIcon="pi pi-chart-bar"
         (rowActivate)="analisar(dimensao, $event.id)"
       >
-        <ng-template cesCell="grupo" let-row>
-          <span class="ces-cell-strong">{{ row.nome }}</span>
-          <span class="ces-cell-muted">{{ row.pessoas }} {{ row.pessoas === 1 ? 'pessoa' : 'pessoas' }}</span>
+        <ng-template geoCell="grupo" let-row>
+          <span class="geo-cell-strong">{{ row.nome }}</span>
+          <span class="geo-cell-muted">{{ row.pessoas }} {{ row.pessoas === 1 ? 'pessoa' : 'pessoas' }}</span>
         </ng-template>
-        <ng-template cesCell="execucao" let-row>
-          <ces-meter class="am-medidor" [value]="row.percentual" [detail]="row.realizado + ' de ' + row.meta" [label]="'Execução das metas de ' + row.nome"></ces-meter>
+        <ng-template geoCell="execucao" let-row>
+          <geo-meter class="am-medidor" [value]="row.percentual" [detail]="row.realizado + ' de ' + row.meta" [label]="'Execução das metas de ' + row.nome"></geo-meter>
         </ng-template>
-        <ng-template cesCell="distribuicao" let-row>
+        <ng-template geoCell="distribuicao" let-row>
           <div class="am-mini" role="img" [attr.aria-label]="row.atingiram + ' atingiram, ' + row.emAndamento + ' em andamento, ' + row.naoAtingiram + ' não atingiram'">
             @if (row.naoAtingiram) { <span data-tone="danger" [style.flex-grow]="row.naoAtingiram"></span> }
             @if (row.emAndamento) { <span data-tone="warning" [style.flex-grow]="row.emAndamento"></span> }
             @if (row.atingiram) { <span data-tone="success" [style.flex-grow]="row.atingiram"></span> }
           </div>
-          <span class="ces-cell-muted">{{ row.atingiram }} atingiram · {{ row.emAndamento }} a caminho · {{ row.naoAtingiram }} não atingiram</span>
+          <span class="geo-cell-muted">{{ row.atingiram }} atingiram · {{ row.emAndamento }} a caminho · {{ row.naoAtingiram }} não atingiram</span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </ng-template>
   `
 })
@@ -354,7 +354,7 @@ export class AcompanhamentoMetasComponent implements OnInit {
   protected readonly tomStatus = (s: StatusMeta) => TOM_STATUS[s];
   protected readonly iconeStatus = (s: StatusMeta) => ICONE_STATUS[s];
   protected readonly rotuloStatus = (s: StatusMeta) => STATUS_META_LABELS[s];
-  protected readonly tomPercentual = (p: number): CesTone => (p >= 100 ? 'success' : p >= 80 ? 'warning' : 'danger');
+  protected readonly tomPercentual = (p: number): GeoTone => (p >= 100 ? 'success' : p >= 80 ? 'warning' : 'danger');
 
   protected readonly statusOptions = [
     { label: STATUS_META_LABELS.NAO_ATINGIDA, value: 'NAO_ATINGIDA' as StatusMeta },
@@ -362,8 +362,8 @@ export class AcompanhamentoMetasComponent implements OnInit {
     { label: STATUS_META_LABELS.ATINGIDA, value: 'ATINGIDA' as StatusMeta }
   ];
 
-  protected readonly visao = signal<CesTabValue | undefined>('pessoas' satisfies Visao);
-  protected readonly abas = computed<CesTabItem[]>(() => {
+  protected readonly visao = signal<GeoTabValue | undefined>('pessoas' satisfies Visao);
+  protected readonly abas = computed<GeoTabItem[]>(() => {
     const itens = this.data()?.itens ?? [];
     return [
       { value: 'pessoas', label: 'Por pessoa', icon: 'pi pi-user', badge: itens.length },
@@ -373,10 +373,10 @@ export class AcompanhamentoMetasComponent implements OnInit {
   });
 
   /** Cobrança primeiro: menor atingimento no topo. */
-  protected readonly ordemPessoas = signal<CesSortRule[]>([{ key: 'progresso', direction: 'asc' }]);
-  protected readonly ordemGrupos = signal<CesSortRule[]>([{ key: 'execucao', direction: 'asc' }]);
+  protected readonly ordemPessoas = signal<GeoSortRule[]>([{ key: 'progresso', direction: 'asc' }]);
+  protected readonly ordemGrupos = signal<GeoSortRule[]>([{ key: 'execucao', direction: 'asc' }]);
 
-  protected readonly colunasPessoas: CesDataTableColumn<AcompanhamentoMetaItem>[] = [
+  protected readonly colunasPessoas: GeoDataTableColumn<AcompanhamentoMetaItem>[] = [
     { key: 'pessoa', header: 'Pessoa', type: 'custom', priority: 1, width: '16rem', value: (i) => i.nomeColaborador, display: (i) => i.nomeColaborador ?? 'Cadastro não disponível' },
     { key: 'progresso', header: 'Atingimento', type: 'custom', priority: 1, width: '13rem', value: (i) => i.percentualAtingimento, display: (i) => `${i.realizado} de ${i.meta} (${Math.round(i.percentualAtingimento)}%)` },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (i) => PESO_STATUS[i.status], display: (i) => STATUS_META_LABELS[i.status] },
@@ -388,8 +388,8 @@ export class AcompanhamentoMetasComponent implements OnInit {
   ];
   protected readonly rotuloPessoa = (i: AcompanhamentoMetaItem) => i.nomeColaborador ?? 'colaborador';
 
-  private readonly colunasPorGrupo = new Map<string, CesDataTableColumn<GrupoMeta>[]>();
-  protected colunasGrupo(nome: string): CesDataTableColumn<GrupoMeta>[] {
+  private readonly colunasPorGrupo = new Map<string, GeoDataTableColumn<GrupoMeta>[]>();
+  protected colunasGrupo(nome: string): GeoDataTableColumn<GrupoMeta>[] {
     let colunas = this.colunasPorGrupo.get(nome);
     if (!colunas) {
       colunas = [
@@ -440,7 +440,7 @@ export class AcompanhamentoMetasComponent implements OnInit {
     processos: computed(() => opcoesDe(this.processos(), 'nome'))
   };
 
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.filtrosAplicados();
     const chips = chipsDoRecorte(f as Record<string, unknown>, [
       { chave: 'idTipoInspecao', rotulo: 'Tipo', opcoes: this.opcoes.tipos() },

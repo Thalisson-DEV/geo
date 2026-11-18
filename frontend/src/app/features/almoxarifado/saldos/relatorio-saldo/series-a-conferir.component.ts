@@ -1,18 +1,18 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import {
   AplicacaoForaDoSaldo,
@@ -39,14 +39,14 @@ interface AplicacaoEmConferencia {
   imports: [
     DatePipe,
     DecimalPipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent
   ],
   template: `
     <section class="mb-8 print:hidden" aria-labelledby="series-a-conferir-titulo">
@@ -70,12 +70,12 @@ interface AplicacaoEmConferencia {
                 Saldo {{ material.quantidadeSaldo | number: '1.0-3' }} · {{ material.seriesNoSaldo }} {{ material.seriesNoSaldo === 1 ? 'série' : 'séries' }} no caminhão
               </span>
             </div>
-            <ces-status tone="warning" icon="pi pi-barcode">
+            <geo-status tone="warning" icon="pi pi-barcode">
               {{ material.seriesSobrando }} {{ material.seriesSobrando === 1 ? 'série a mais' : 'séries a mais' }}
-            </ces-status>
+            </geo-status>
           </div>
 
-          <ces-data-table
+          <geo-data-table
             [caption]="'Séries aplicadas fora do caminhão: ' + material.codigo"
             [searchable]="material.aplicadas.length > 10"
             searchPlaceholder="Buscar série"
@@ -85,62 +85,62 @@ interface AplicacaoEmConferencia {
             [rowLabel]="rotulo"
             [pageSizeOptions]="[10, 25, 50]"
           >
-            <ng-template cesCell="numSerie" let-row>
+            <ng-template geoCell="numSerie" let-row>
               <span class="font-mono font-semibold">{{ row.numSerie }}</span>
             </ng-template>
-            <ng-template cesCell="dataHora" let-row>
+            <ng-template geoCell="dataHora" let-row>
               {{ row.dataHora | date: 'dd/MM/yyyy HH:mm' }}
             </ng-template>
-            <ng-template cesCell="sugestao" let-row>
+            <ng-template geoCell="sugestao" let-row>
               @if (row.sugestao) {
                 <span class="inline-flex items-center gap-2">
                   <span class="font-mono">{{ row.sugestao }}</span>
-                  <ces-status tone="info" icon="pi-search">Parecida</ces-status>
+                  <geo-status tone="info" icon="pi-search">Parecida</geo-status>
                 </span>
               } @else {
                 <span class="text-slate-400">Nenhuma parecida</span>
               }
             </ng-template>
-            <ng-template cesRowActions let-row>
-              <ces-button variant="outline" size="sm" icon="pi pi-check-square" label="Conferir"
-                [ariaLabel]="'Conferir a série ' + row.numSerie" (pressed)="abrir(material, row)"></ces-button>
+            <ng-template geoRowActions let-row>
+              <geo-button variant="outline" size="sm" icon="pi pi-check-square" label="Conferir"
+                [ariaLabel]="'Conferir a série ' + row.numSerie" (pressed)="abrir(material, row)"></geo-button>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </div>
       }
     </section>
 
-    <ces-form-drawer [(visible)]="drawerAberto" title="Conferir série aplicada" [description]="descricaoDrawer()"
+    <geo-form-drawer [(visible)]="drawerAberto" title="Conferir série aplicada" [description]="descricaoDrawer()"
       [dirty]="false" [loading]="salvando()" size="md" (closed)="fechar()">
       @if (emConferencia(); as c) {
-        <ces-form-section title="O que aconteceu" icon="pi pi-info-circle">
+        <geo-form-section title="O que aconteceu" icon="pi pi-info-circle">
           <p class="text-sm text-slate-700 dark:text-slate-300 m-0">
             A equipe registrou a série <strong class="font-mono">{{ c.aplicacao.numSerie }}</strong> na nota de
             {{ c.aplicacao.dataHora | date: "dd/MM/yyyy 'às' HH:mm" }}, mas essa série não estava no caminhão.
             Na maioria das vezes é um número digitado errado.
           </p>
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="Série do caminhão" icon="pi pi-barcode">
-          <ces-select label="Série usada" [required]="true" [options]="opcoes()" [(value)]="serieEscolhida"
+        <geo-form-section title="Série do caminhão" icon="pi pi-barcode">
+          <geo-select label="Série usada" [required]="true" [options]="opcoes()" [(value)]="serieEscolhida"
             [filter]="opcoes().length > 8" filterPlaceholder="Buscar série" placeholder="Escolha a série"
             [description]="c.aplicacao.sugestao
               ? 'Sugerimos a série mais parecida com a digitada. Confira na etiqueta antes de confirmar.'
-              : 'Nenhuma série do caminhão é parecida com a digitada. Confira a etiqueta do item instalado.'"></ces-select>
+              : 'Nenhuma série do caminhão é parecida com a digitada. Confira a etiqueta do item instalado.'"></geo-select>
           <ul class="text-[12px] text-slate-600 dark:text-slate-400 m-0 pl-4 list-disc flex flex-col gap-1">
             <li>A série escolhida sai do saldo da equipe.</li>
             <li>A quantidade em saldo continua {{ c.material.quantidadeSaldo | number: '1.0-3' }}: a nota já descontou o item.</li>
             <li>Se nenhuma série do caminhão foi usada, escolha "Nenhuma corresponde": a série só sai desta lista.</li>
           </ul>
-        </ces-form-section>
+        </geo-form-section>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Nenhuma corresponde" [disabled]="salvando()" (pressed)="confirmar(null)"></ces-button>
-        <ces-button variant="ghost" label="Cancelar" [disabled]="salvando()" (pressed)="drawerAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Confirmar série" [loading]="salvando()" [disabled]="!serieEscolhida()"
-          (pressed)="confirmar(serieEscolhida())"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Nenhuma corresponde" [disabled]="salvando()" (pressed)="confirmar(null)"></geo-button>
+        <geo-button variant="ghost" label="Cancelar" [disabled]="salvando()" (pressed)="drawerAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Confirmar série" [loading]="salvando()" [disabled]="!serieEscolhida()"
+          (pressed)="confirmar(serieEscolhida())"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class SeriesAConferirComponent {
@@ -160,7 +160,7 @@ export class SeriesAConferirComponent {
   protected readonly totalAplicadas = computed(() =>
     this.dados().materiais.reduce((total, m) => total + m.aplicadas.length, 0));
 
-  protected readonly colunas: CesDataTableColumn<AplicacaoForaDoSaldo>[] = [
+  protected readonly colunas: GeoDataTableColumn<AplicacaoForaDoSaldo>[] = [
     { key: 'numSerie', header: 'Série na nota', type: 'custom', priority: 1, value: (a) => a.numSerie },
     { key: 'dataHora', header: 'Aplicada em', type: 'custom', priority: 1, width: '10rem', value: (a) => a.dataHora },
     { key: 'sugestao', header: 'Série parecida no caminhão', type: 'custom', priority: 2, value: (a) => a.sugestao ?? '' }
@@ -175,7 +175,7 @@ export class SeriesAConferirComponent {
   });
 
   /** Séries do caminhão, com a sugerida primeiro. */
-  protected readonly opcoes = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoes = computed<GeoSelectOption<string>[]>(() => {
     const c = this.emConferencia();
     if (!c) return [];
     const sugestao = c.aplicacao.sugestao;

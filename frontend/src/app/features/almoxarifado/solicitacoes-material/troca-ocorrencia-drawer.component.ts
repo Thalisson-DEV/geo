@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormDrawerComponent,
-  CesTextareaComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormDrawerComponent,
+  GeoTextareaComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solicitacao-material-tecnica.service';
@@ -23,32 +23,32 @@ const MINIMO_MOTIVO = 5;
   selector: 'app-troca-ocorrencia-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesCalloutComponent, CesFormDrawerComponent, CesTextareaComponent, CesTextInputComponent],
+  imports: [GeoButtonComponent, GeoCalloutComponent, GeoFormDrawerComponent, GeoTextareaComponent, GeoTextInputComponent],
   template: `
-    <ces-form-drawer [(visible)]="visible" [title]="'Trocar a ' + rotulo()" size="sm"
+    <geo-form-drawer [(visible)]="visible" [title]="'Trocar a ' + rotulo()" size="sm"
       [description]="'A solicitação passa a valer para a nova ' + rotulo() + '. O material entregue continua onde está.'">
       <div class="flex flex-col gap-4">
         @if (entregue()) {
-          <ces-callout tone="info" title="Já houve entrega">
+          <geo-callout tone="info" title="Já houve entrega">
             O saldo e as entregas ficam como estão. Só o número muda, e a troca aparece na linha do tempo.
-          </ces-callout>
+          </geo-callout>
         }
         <div class="flex flex-col gap-1">
-          <span class="text-xs font-semibold text-[var(--ces-foreground-muted)]">{{ rotulo() }} atual</span>
-          <strong class="font-mono text-sm text-[var(--ces-foreground)]">{{ atual() || '—' }}</strong>
+          <span class="text-xs font-semibold text-[var(--geo-foreground-muted)]">{{ rotulo() }} atual</span>
+          <strong class="font-mono text-sm text-[var(--geo-foreground)]">{{ atual() || '—' }}</strong>
         </div>
-        <ces-text-input [label]="'Nova ' + rotulo()" [required]="true" [value]="nova()" (valueChange)="nova.set($event)"
+        <geo-text-input [label]="'Nova ' + rotulo()" [required]="true" [value]="nova()" (valueChange)="nova.set($event)"
           [placeholder]="'Ex.: ' + rotulo() + ' 88412'" [maxlength]="100"
           [error]="tentou() && !nova().trim() ? 'Informe o novo número.' : erroNova()" />
-        <ces-textarea label="Motivo" [required]="true" [value]="motivo()" (valueChange)="motivo.set($event)" [rows]="3" [maxlength]="500"
+        <geo-textarea label="Motivo" [required]="true" [value]="motivo()" (valueChange)="motivo.set($event)" [rows]="3" [maxlength]="500"
           placeholder="Ex.: a equipe foi remanejada para outra ocorrência no caminho"
           [error]="tentou() && motivo().trim().length < minimo ? 'Conte em poucas palavras por que mudou.' : undefined" />
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
-        <ces-button [label]="'Trocar ' + rotulo()" icon="pi pi-check" [loading]="salvando()" (pressed)="confirmar()" />
+      <div drawer-footer class="geo-actions-row">
+        <geo-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
+        <geo-button [label]="'Trocar ' + rotulo()" icon="pi pi-check" [loading]="salvando()" (pressed)="confirmar()" />
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class TrocaOcorrenciaDrawerComponent {

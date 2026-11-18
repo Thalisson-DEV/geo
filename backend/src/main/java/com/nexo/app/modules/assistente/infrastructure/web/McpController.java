@@ -52,7 +52,7 @@ public class McpController {
     private final Set<String> origensPermitidas;
 
     public McpController(McpServidor servidor, AssistantSecurityContextFactory seguranca, UrlPublicaIa urls,
-            ObjectMapper objectMapper, @Value("${ces.cors.allowed-origins:}") String origens) {
+            ObjectMapper objectMapper, @Value("${geo.cors.allowed-origins:}") String origens) {
         this.servidor = servidor;
         this.seguranca = seguranca;
         this.urls = urls;

@@ -119,7 +119,7 @@ describe('FrotaChecklistsComponent', () => {
   });
 
   it('a base escolhida no topo filtra as pendências e fica guardada', async () => {
-    localStorage.setItem('ces.filtros.compartilhados', JSON.stringify({ 'frota.base': 'b1' }));
+    localStorage.setItem('geo.filtros.compartilhados', JSON.stringify({ 'frota.base': 'b1' }));
     await abrir();
     expect(checklist['pendencias']).toHaveBeenCalledWith('ABERTA', ['b1'], expect.anything());
     expect(checklist['semChecklistHoje']).toHaveBeenCalledWith(['b1']);

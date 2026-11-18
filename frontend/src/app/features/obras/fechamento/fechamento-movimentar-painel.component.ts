@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CesButtonComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, NotificationService } from '@geo/ui';
 import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 
 import { FechamentoDetalhe, ItemFechamento, PreviaSaldo } from '../../../core/models/fechamento-obra.models';
@@ -24,7 +24,7 @@ import { quantidade, tipoFechamento } from './fechamento-ui';
   selector: 'app-fechamento-movimentar-painel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, FechamentoPreviaSaldoComponent, QuantidadeUnidadeComponent],
+  imports: [GeoButtonComponent, FechamentoPreviaSaldoComponent, QuantidadeUnidadeComponent],
   styleUrls: ['../../almoxarifado/solicitacoes-material/solicitacao-comercial-detalhe.component.css', './fechamento.css'],
   styles: `
     .fm-bloco { margin-top: 0.75rem; }
@@ -34,8 +34,8 @@ import { quantidade, tipoFechamento } from './fechamento-ui';
       <div class="dd-secao-topo">
         <span class="dd-muted">{{ resumo() }}</span>
         <span class="dd-linha-botoes">
-          <ces-button label="Movimentar tudo o que falta" icon="pi pi-check-square" variant="ghost" size="sm" (pressed)="preencherTudo()" />
-          <ces-button label="Zerar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="zerarTudo()" />
+          <geo-button label="Movimentar tudo o que falta" icon="pi pi-check-square" variant="ghost" size="sm" (pressed)="preencherTudo()" />
+          <geo-button label="Zerar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="zerarTudo()" />
         </span>
       </div>
 

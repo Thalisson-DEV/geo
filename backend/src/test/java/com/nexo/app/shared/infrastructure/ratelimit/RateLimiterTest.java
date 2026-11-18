@@ -39,7 +39,7 @@ class RateLimiterTest {
         assertThat(terceira.bloqueada()).isTrue();
         assertThat(terceira.retryAfterSegundos()).isBetween(1L, 31L);
         assertThat(terceira.capacidade()).isEqualTo(2);
-        assertThat(registry.counter("ces.rate_limit.excedido", "politica", "copiloto", "modo", "ativo").count())
+        assertThat(registry.counter("geo.rate_limit.excedido", "politica", "copiloto", "modo", "ativo").count())
                 .isEqualTo(1);
     }
 
@@ -61,7 +61,7 @@ class RateLimiterTest {
 
         assertThat(segunda.bloqueada()).isFalse();
         assertThat(segunda.resultado()).isEqualTo(DecisaoRateLimit.Resultado.SOMBRA);
-        assertThat(registry.counter("ces.rate_limit.excedido", "politica", "copiloto", "modo", "sombra").count())
+        assertThat(registry.counter("geo.rate_limit.excedido", "politica", "copiloto", "modo", "sombra").count())
                 .isEqualTo(1);
     }
 
@@ -114,7 +114,7 @@ class RateLimiterTest {
         relogio.addAndGet(Duration.ofSeconds(31).toNanos());
         limiter.consumir(PoliticaRateLimit.COPILOTO, "u1");
         assertThat(tentativas).hasValue(2);
-        assertThat(registry.counter("ces.rate_limit.falha_armazem", "politica", "login-ip", "contingencia", "local").count())
+        assertThat(registry.counter("geo.rate_limit.falha_armazem", "politica", "login-ip", "contingencia", "local").count())
                 .isEqualTo(2);
     }
 

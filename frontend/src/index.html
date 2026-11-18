@@ -26,7 +26,8 @@
   <!-- Inicialização Imediata do Tema (Previne FOUC e garante tema persistido no navegador) -->
   <script>
     try {
-      var savedTheme = localStorage.getItem('ces_theme_mode');
+      // Roda antes da migração de chaves do main.ts; por isso também lê a chave antiga.
+      var savedTheme = localStorage.getItem('geo_theme_mode') || localStorage.getItem('ces_theme_mode'); // renomear-geo: manter
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('app-dark', 'dark');
       } else if (savedTheme === 'light') {

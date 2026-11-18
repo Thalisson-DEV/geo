@@ -115,7 +115,7 @@ describe('RelatorioSaldoComponent', () => {
     const fixture = await montar();
     const el: HTMLElement = fixture.nativeElement;
 
-    const expansores = el.querySelectorAll<HTMLButtonElement>('.ces-data-table__expander');
+    const expansores = el.querySelectorAll<HTMLButtonElement>('.geo-data-table__expander');
     expect(expansores).toHaveLength(1);
     expect(expansores[0].getAttribute('aria-label')).toBe('Expandir C-a Material a');
 

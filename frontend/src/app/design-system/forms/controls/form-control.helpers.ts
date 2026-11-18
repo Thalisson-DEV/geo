@@ -1,6 +1,6 @@
 let controlSequence = 0;
 
-export const createControlId = (): string => `ces-control-${++controlSequence}`;
+export const createControlId = (): string => `geo-control-${++controlSequence}`;
 
 export const getDescribedBy = (
   controlId: string,

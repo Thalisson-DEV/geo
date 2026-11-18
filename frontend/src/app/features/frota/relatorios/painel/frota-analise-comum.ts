@@ -1,4 +1,4 @@
-import { CesChartSeries, CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoChartSeries, GeoDataTableColumn, GeoTone } from '@geo/ui';
 
 import { IndicadorFrota, RelatorioGerencialFrota, VeiculoRelatorioFrota } from '../../../../core/models/frota-relatorios.models';
 import {
@@ -145,10 +145,10 @@ export function agrupar<T>(linhas: readonly T[], chave: (l: T) => string | null 
   return [...mapa.values()].sort((a, b) => ordem(b) - ordem(a));
 }
 
-/** Rótulos e uma série a partir de grupos (para `ces-chart`). */
+/** Rótulos e uma série a partir de grupos (para `geo-chart`). */
 export function serieDeGrupos<T>(grupos: readonly Grupo<T>[], nome: string, valor: (g: Grupo<T>) => number, limite = 12) {
   const g = grupos.slice(0, limite);
-  return { rotulos: g.map((x) => x.rotulo), series: [{ name: nome, values: g.map(valor) }] as CesChartSeries[], grupos: g };
+  return { rotulos: g.map((x) => x.rotulo), series: [{ name: nome, values: g.map(valor) }] as GeoChartSeries[], grupos: g };
 }
 
 /** Pareto: quantos itens (do maior para o menor) somam `corte` do total. */
@@ -168,7 +168,7 @@ export function pareto(valores: readonly number[], corte = 0.8): { itens: number
 // ── Gráficos e tabelas da análise ────────────────────────────────────────────────────────────────
 
 export function grafico(id: string, titulo: string, tipo: GraficoAnalise['tipo'], rotulos: readonly string[],
-                        series: readonly CesChartSeries[], extra: Partial<GraficoAnalise> = {}): GraficoAnalise {
+                        series: readonly GeoChartSeries[], extra: Partial<GraficoAnalise> = {}): GraficoAnalise {
   const altura = extra.altura ?? (tipo === 'bar-horizontal' ? Math.max(200, rotulos.length * 30) : undefined);
   return { id, titulo, tipo, rotulos, series, ...extra, ...(altura ? { altura } : {}) };
 }
@@ -177,7 +177,7 @@ export function tabela<T>(t: TabelaAnalise<T>): TabelaAnalise<T> {
   return t;
 }
 
-export const colPlaca = <T extends { placa: string | null }>(): CesDataTableColumn<T> =>
+export const colPlaca = <T extends { placa: string | null }>(): GeoDataTableColumn<T> =>
   ({ key: 'placa', header: 'Veículo', priority: 1, value: (v) => v.placa ?? '—' });
 
 // ── Links para os registros de origem ────────────────────────────────────────────────────────────
@@ -200,7 +200,7 @@ export function veiculoDo(r: RelatorioGerencialFrota, id: string): VeiculoRelato
 }
 
 /** Tom de um número contra uma referência ("menor é melhor" por padrão). */
-export function tomContra(valor: number | null, referencia: number | null, tolerancia = 0.15, menorMelhor = true): CesTone {
+export function tomContra(valor: number | null, referencia: number | null, tolerancia = 0.15, menorMelhor = true): GeoTone {
   if (valor == null || referencia == null || referencia === 0) return 'neutral';
   const desvio = valor / referencia - 1;
   const ruim = menorMelhor ? desvio > tolerancia : desvio < -tolerancia;

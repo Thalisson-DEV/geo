@@ -1,4 +1,4 @@
-/* Somente tokens --ces-*: o tema claro/escuro vem do preset central. */
+/* Somente tokens --geo-*: o tema claro/escuro vem do preset central. */
 .chamado-topico {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -9,48 +9,48 @@
   display: grid;
   gap: 0.15rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface-subtle);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface-subtle);
 }
 .chamado-topico dt {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 .chamado-topico dd {
   margin: 0;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 600;
 }
 
 .chamado-upload {
   position: relative;
   display: flex;
-  min-height: var(--ces-touch-target);
+  min-height: var(--geo-touch-target);
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.65rem 0.75rem;
-  border: 1px dashed var(--ces-border-strong);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface-subtle);
-  color: var(--ces-brand);
-  font-size: var(--ces-font-control);
+  border: 1px dashed var(--geo-border-strong);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-brand);
+  font-size: var(--geo-font-control);
   font-weight: 600;
   cursor: pointer;
-  transition: background-color var(--ces-duration-fast) var(--ces-ease-standard),
-    border-color var(--ces-duration-fast) var(--ces-ease-standard);
+  transition: background-color var(--geo-duration-fast) var(--geo-ease-standard),
+    border-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
 .chamado-upload:hover {
-  border-color: var(--ces-brand);
-  background: var(--ces-brand-soft);
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
 }
 .chamado-upload:active {
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 .chamado-upload:focus-within {
-  outline: 3px solid var(--ces-focus-ring);
+  outline: 3px solid var(--geo-focus-ring);
   outline-offset: 2px;
 }
 .chamado-upload__input {
@@ -74,12 +74,12 @@
   align-items: center;
   gap: 0.5rem 0.65rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
 }
 .chamado-arquivo__icone {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 .chamado-arquivo__texto {
   display: grid;
@@ -89,36 +89,36 @@
 }
 .chamado-arquivo__nome {
   overflow: hidden;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .chamado-arquivo__meta {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 .chamado-arquivo__erro {
-  color: var(--ces-danger-text);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-danger-text);
+  font-size: var(--geo-font-caption);
 }
 
 .chamado-vazio {
   margin: 0;
   padding: 1rem;
-  border: 1px dashed var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-body);
+  border: 1px dashed var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-body);
   text-align: center;
 }
 
 .chamado-protocolo {
   margin: 0 0 0.25rem;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--ces-font-title);
+  font-size: var(--geo-font-title);
   font-weight: 700;
 }
 

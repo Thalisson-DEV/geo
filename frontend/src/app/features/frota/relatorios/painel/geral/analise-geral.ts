@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 
 import { RelatorioGerencialFrota, VeiculoRelatorioFrota } from '../../../../../core/models/frota-relatorios.models';
 import { DestaqueAnalise, LinkAnalise, VistaAnalise, chaveDoAlvo } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -115,7 +115,7 @@ const rotaPainel = (painel: string, filtros: Record<string, string | null>, dril
   rota: `/frota/relatorios/${painel}`, queryParams: { ...filtros, ...(drill ? { drill } : {}) }
 });
 
-const colAtencao: CesDataTableColumn<VeiculoAtencao>[] = [
+const colAtencao: GeoDataTableColumn<VeiculoAtencao>[] = [
   { key: 'placa', header: 'Veículo', priority: 1 },
   { key: 'pontos', header: 'Pontos', type: 'integer', priority: 2 },
   { key: 'resumo', header: 'Por quê', priority: 1 }
@@ -129,7 +129,7 @@ export function vistaGeral(a: { dimension: string; value: string }, m: ModeloGer
     const v = x?.v ?? r.veiculos.find((w) => w.idVeiculo === a.value);
     if (!v) return null;
     const paineis = [...new Set((x?.motivos ?? []).map((mo) => mo.painel))];
-    const destaques: DestaqueAnalise[] = (x?.motivos ?? []).map((mo) => ({ icone: 'pi pi-exclamation-circle', tom: (mo.peso >= 4 ? 'danger' : mo.peso >= 3 ? 'warning' : 'info') as CesTone, texto: mo.texto }));
+    const destaques: DestaqueAnalise[] = (x?.motivos ?? []).map((mo) => ({ icone: 'pi pi-exclamation-circle', tom: (mo.peso >= 4 ? 'danger' : mo.peso >= 3 ? 'warning' : 'info') as GeoTone, texto: mo.texto }));
     return {
       chave, eyebrow: 'Veículo', titulo: v.placa, descricao: [v.tipo, v.base, v.processo].filter(Boolean).join(' · '), icone: 'pi pi-car',
       kpis: [
@@ -159,8 +159,8 @@ export function vistaGeral(a: { dimension: string; value: string }, m: ModeloGer
         { rotulo: 'Checklist', valor: pct(b.checklist) }
       ],
       destaques: [
-        ...(b.ociosos ? [{ icone: 'pi pi-pause-circle', tom: 'warning' as CesTone, texto: `${plural(b.ociosos, 'veículo ocioso', 'veículos ociosos')}.` }] : []),
-        ...(b.foraConsumo ? [{ icone: 'pi pi-gauge', tom: 'warning' as CesTone, texto: `${plural(b.foraConsumo, 'veículo com consumo fora do padrão', 'veículos com consumo fora do padrão')}.` }] : [])
+        ...(b.ociosos ? [{ icone: 'pi pi-pause-circle', tom: 'warning' as GeoTone, texto: `${plural(b.ociosos, 'veículo ocioso', 'veículos ociosos')}.` }] : []),
+        ...(b.foraConsumo ? [{ icone: 'pi pi-gauge', tom: 'warning' as GeoTone, texto: `${plural(b.foraConsumo, 'veículo com consumo fora do padrão', 'veículos com consumo fora do padrão')}.` }] : [])
       ],
       graficos: [grafico('veic', 'Custo por veículo', 'bar-horizontal', b.veiculos.slice(0, 15).map((v) => v.placa), [{ name: 'Custo', values: b.veiculos.slice(0, 15).map((v) => v.total) }],
         { formato: 'currency', aoSelecionar: (i) => (b.veiculos[i] ? navegar('veiculo', b.veiculos[i].idVeiculo) : null), rotuloSelecao: 'Analisar o veículo' })],

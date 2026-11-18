@@ -13,8 +13,8 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { CesButtonComponent, CesIconButtonComponent, CesStatusComponent } from '@ces/ui';
-import { CesAsyncStateComponent, CesCalloutComponent } from '@ces/ui/feedback';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui/feedback';
 import { ConversaResumo, FocoPainel } from '../../../core/models/assistente.models';
 import { AssistenteService } from '../../../core/services/assistente.service';
 import { CopilotoStore } from '../copiloto.store';
@@ -40,17 +40,17 @@ import { CopilotoPainelService } from './copiloto-painel.service';
  *
  * O store é uma instância própria do painel (provider do componente): conversas de dashboards diferentes
  * não se misturam e não interferem na conversa aberta no workspace. A conversa é real e aparece no
- * histórico geral — "Abrir na Bússola" continua exatamente a mesma conversa em `/copiloto/:id`.
+ * histórico geral — "Abrir na Bússola" continua exatamente a mesma conversa em `/bussola/:id`.
  */
 @Component({
   selector: 'app-copiloto-painel',
   standalone: true,
   imports: [
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
-    CesAsyncStateComponent,
-    CesCalloutComponent,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
+    GeoAsyncStateComponent,
+    GeoCalloutComponent,
     CopilotoArtefatoComponent,
     CopilotoCompositorComponent,
     CopilotoMensagemComponent,
@@ -181,7 +181,7 @@ export class CopilotoPainelComponent {
   protected abrirNoWorkspace(): void {
     const id = this.store.conversaId();
     if (id) {
-      void this.router.navigate(['/copiloto', id]);
+      void this.router.navigate(['/bussola', id]);
       return;
     }
     const contexto = this.contexto();
@@ -199,7 +199,7 @@ export class CopilotoPainelComponent {
     }
     const rascunho = this.rascunho().trim();
     if (rascunho) queryParams['pergunta'] = rascunho;
-    void this.router.navigate(['/copiloto'], { queryParams });
+    void this.router.navigate(['/bussola'], { queryParams });
   }
 
   protected abrirArtefato(codigo: string): void {

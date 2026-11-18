@@ -7,7 +7,7 @@ import org.springframework.web.client.RestClient;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Escolhe o adaptador de envio a partir de {@code ces.email.provedor}.
+ * Escolhe o adaptador de envio a partir de {@code geo.email.provedor}.
  *
  * <p>A seleção é feita em código, e não por {@code @ConditionalOnProperty} espalhado
  * pelas implementações, por causa da queda para {@link EmailDesabilitadoService}
@@ -22,7 +22,7 @@ public class EmailConfig {
     @Bean
     public ServicoEmail servicoEmail(EmailProperties propriedades, RestClient.Builder builder) {
         if (propriedades.getProvedor() == ProvedorEmail.NENHUM) {
-            log.info("Envio de e-mail desligado por configuração (ces.email.provedor=NENHUM).");
+            log.info("Envio de e-mail desligado por configuração (geo.email.provedor=NENHUM).");
             return new EmailDesabilitadoService();
         }
         if (!propriedades.isConfigurado()) {

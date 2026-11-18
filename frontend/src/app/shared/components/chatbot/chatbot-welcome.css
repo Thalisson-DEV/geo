@@ -190,66 +190,66 @@
    WELCOME CARD - DARK MODE ADAPTATIONS
    ========================================================================== */
 :host-context(.app-dark) .welcome-card {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-md);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-md);
 }
 
 :host-context(.app-dark) .welcome-card::after {
-  border-color: color-mix(in srgb, var(--ces-brand) 15%, transparent);
+  border-color: color-mix(in srgb, var(--geo-brand) 15%, transparent);
 }
 
 :host-context(.app-dark) .welcome-spark {
-  background: var(--ces-surface-muted);
-  color: var(--ces-brand);
+  background: var(--geo-surface-muted);
+  color: var(--geo-brand);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
 }
 
 :host-context(.app-dark) .welcome-kicker {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 :host-context(.app-dark) .welcome-copy h3 {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 :host-context(.app-dark) .welcome-copy p {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 :host-context(.app-dark) .assistant-capabilities span {
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground-muted);
-  border: 1px solid var(--ces-border);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
+  border: 1px solid var(--geo-border);
 }
 
 :host-context(.app-dark) .assistant-capabilities i {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 :host-context(.app-dark) .suggestions-heading {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 :host-context(.app-dark) :host ::ng-deep .assistant-suggestion,
 :host-context(.app-dark) .assistant-suggestion {
-  background: var(--ces-surface) !important;
-  border-color: var(--ces-border) !important;
-  color: var(--ces-foreground) !important;
-  box-shadow: var(--ces-shadow-sm) !important;
+  background: var(--geo-surface) !important;
+  border-color: var(--geo-border) !important;
+  color: var(--geo-foreground) !important;
+  box-shadow: var(--geo-shadow-sm) !important;
 }
 
 :host-context(.app-dark) :host ::ng-deep .assistant-suggestion:hover,
 :host-context(.app-dark) .assistant-suggestion:hover {
-  background: var(--ces-surface-muted) !important;
-  border-color: var(--ces-brand) !important;
-  color: var(--ces-foreground) !important;
+  background: var(--geo-surface-muted) !important;
+  border-color: var(--geo-brand) !important;
+  color: var(--geo-foreground) !important;
 }
 
 :host-context(.app-dark) :host ::ng-deep .assistant-suggestion .p-button-label {
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
 }
 
 :host-context(.app-dark) :host ::ng-deep .assistant-suggestion .p-button-icon {
-  color: var(--ces-brand) !important;
+  color: var(--geo-brand) !important;
 }

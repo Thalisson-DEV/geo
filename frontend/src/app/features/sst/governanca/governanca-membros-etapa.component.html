@@ -72,7 +72,7 @@
               <span class="table-primary table-mono">Desde {{ membro.inicioParticipacao | date:'dd/MM/yyyy' }}</span>
               @if (membro.fimParticipacao) { <span class="table-secondary">Encerrado em {{ membro.fimParticipacao | date:'dd/MM/yyyy' }}</span> }
             </td>
-            <td><ces-status [tone]="membro.fimParticipacao ? 'neutral' : 'success'" [icon]="membro.fimParticipacao ? 'pi-history' : 'pi-check-circle'">{{ membro.fimParticipacao ? 'Histórico' : 'Ativo' }}</ces-status></td>
+            <td><geo-status [tone]="membro.fimParticipacao ? 'neutral' : 'success'" [icon]="membro.fimParticipacao ? 'pi-history' : 'pi-check-circle'">{{ membro.fimParticipacao ? 'Histórico' : 'Ativo' }}</geo-status></td>
             <td class="table-actions">
               @if (podeGerenciar() && !membro.fimParticipacao) {
                 <p-button icon="pi pi-sync" [rounded]="true" [text]="true" pTooltip="Substituir integrante" (onClick)="prepararSubstituicao(membro)" styleClass="table-action-button !text-primary-700 dark:!text-primary-400" />

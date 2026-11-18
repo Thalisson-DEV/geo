@@ -1,33 +1,33 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Recuperação de valor e gargalos do ciclo" icon="pi pi-money-bill"
+    <geo-page-header title="Recuperação de valor e gargalos do ciclo" icon="pi pi-money-bill"
       [breadcrumb]="[{ label: 'Departamento pessoal' }, { label: 'Descontos' }, { label: 'Painel' }]"
       description="Quanto do que foi solicitado virou desconto real, onde o processo trava e em que motivos, materiais e equipes as perdas se concentram.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
       @if (atualizadoEm()) { <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span> }
-      <ces-button actions [label]="showManagementView() ? 'Ocultar leitura' : 'Leitura gerencial'" [icon]="showManagementView() ? 'pi pi-eye-slash' : 'pi pi-eye'"
-        variant="secondary" (pressed)="showManagementView.set(!showManagementView())"></ces-button>
-      <ces-button actions label="Ver lançamentos" icon="pi pi-list" variant="secondary" (pressed)="verListagem()"></ces-button>
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions [label]="showManagementView() ? 'Ocultar leitura' : 'Leitura gerencial'" [icon]="showManagementView() ? 'pi pi-eye-slash' : 'pi pi-eye'"
+        variant="secondary" (pressed)="showManagementView.set(!showManagementView())"></geo-button>
+      <geo-button actions label="Ver lançamentos" icon="pi pi-list" variant="secondary" (pressed)="verListagem()"></geo-button>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="dash-descontos" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+    <geo-filter-panel storageKey="dash-descontos" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
-        <ces-select label="Analisar por" inputId="desconto-tipo-data" [options]="tiposFiltroData" [value]="tipoDataFiltro()" (valueChange)="tipoDataFiltro.set($any($event))"></ces-select>
-        <ces-datepicker label="Início" inputId="desconto-inicio" [(value)]="dataInicio" [clearable]="true"></ces-datepicker>
-        <ces-datepicker label="Fim" inputId="desconto-fim" [(value)]="dataFim" [clearable]="true"></ces-datepicker>
-        <ces-multiselect label="Motivo" [options]="opcoesMotivos()" [value]="$any(filter.idMotivo ?? [])" (valueChange)="filter.idMotivo = $event" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Tipo de equipamento" [options]="opcoesTipos()" [value]="$any(filter.idTipoEquipamento ?? [])" (valueChange)="filter.idTipoEquipamento = $event" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Centro de custo" [options]="opcoesCentros()" [value]="$any(filter.idCentroCusto ?? [])" (valueChange)="filter.idCentroCusto = $event" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Base operacional" [options]="opcoesBases()" [value]="$any(filter.idBaseOperacional ?? [])" (valueChange)="filter.idBaseOperacional = $event" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Função" [options]="opcoesFuncoes()" [value]="$any(filter.idFuncao ?? [])" (valueChange)="filter.idFuncao = $event" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Status" [options]="statusOptions" [value]="$any(filter.status ?? [])" (valueChange)="filter.status = $event" [filter]="false" placeholder="Todos"></ces-multiselect>
-        <ces-select label="Agrupamento do gráfico" [options]="granularidadeOptions" [value]="filter.granularidade ?? null"
-          (valueChange)="filter.granularidade = $event; onGranularidadeChange()"></ces-select>
+      <div class="geo-filter-grid">
+        <geo-select label="Analisar por" inputId="desconto-tipo-data" [options]="tiposFiltroData" [value]="tipoDataFiltro()" (valueChange)="tipoDataFiltro.set($any($event))"></geo-select>
+        <geo-datepicker label="Início" inputId="desconto-inicio" [(value)]="dataInicio" [clearable]="true"></geo-datepicker>
+        <geo-datepicker label="Fim" inputId="desconto-fim" [(value)]="dataFim" [clearable]="true"></geo-datepicker>
+        <geo-multiselect label="Motivo" [options]="opcoesMotivos()" [value]="$any(filter.idMotivo ?? [])" (valueChange)="filter.idMotivo = $event" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Tipo de equipamento" [options]="opcoesTipos()" [value]="$any(filter.idTipoEquipamento ?? [])" (valueChange)="filter.idTipoEquipamento = $event" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Centro de custo" [options]="opcoesCentros()" [value]="$any(filter.idCentroCusto ?? [])" (valueChange)="filter.idCentroCusto = $event" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Base operacional" [options]="opcoesBases()" [value]="$any(filter.idBaseOperacional ?? [])" (valueChange)="filter.idBaseOperacional = $event" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Função" [options]="opcoesFuncoes()" [value]="$any(filter.idFuncao ?? [])" (valueChange)="filter.idFuncao = $event" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Status" [options]="statusOptions" [value]="$any(filter.status ?? [])" (valueChange)="filter.status = $event" [filter]="false" placeholder="Todos"></geo-multiselect>
+        <geo-select label="Agrupamento do gráfico" [options]="granularidadeOptions" [value]="filter.granularidade ?? null"
+          (valueChange)="filter.granularidade = $event; onGranularidadeChange()"></geo-select>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     @if (loading()) {
       <div class="dash-metrics">@for (item of [1,2,3,4]; track item) { <p-skeleton height="156px" borderRadius="16px" /> }</div>
@@ -377,7 +377,7 @@
                     </span>
                   </td>
                   <td class="text-right" (click)="$event.stopPropagation()">
-                    <ces-icon-button icon="pi pi-search-plus" size="icon-sm" [label]="'Ver termos de ' + nomeOuPlaceholder(item.nomeColaborador)" (pressed)="abrirColaborador(item.idColaborador)" />
+                    <geo-icon-button icon="pi pi-search-plus" size="icon-sm" [label]="'Ver termos de ' + nomeOuPlaceholder(item.nomeColaborador)" (pressed)="abrirColaborador(item.idColaborador)" />
                   </td>
                 </tr>
               </ng-template>

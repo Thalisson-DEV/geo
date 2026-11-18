@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { Confirmation, ConfirmationService } from 'primeng/api';
 
-import { CesConfirmationService } from './confirmation.service';
+import { GeoConfirmationService } from './confirmation.service';
 
-describe('CesConfirmationService', () => {
+describe('GeoConfirmationService', () => {
   it('resolve true e configura uma ação destrutiva de forma semântica', async () => {
     let request: Confirmation | undefined;
     const confirmations = {
@@ -14,12 +14,12 @@ describe('CesConfirmationService', () => {
     };
     TestBed.configureTestingModule({
       providers: [
-        CesConfirmationService,
+        GeoConfirmationService,
         { provide: ConfirmationService, useValue: confirmations }
       ]
     });
 
-    const result = TestBed.inject(CesConfirmationService).confirm({
+    const result = TestBed.inject(GeoConfirmationService).confirm({
       title: 'Excluir material',
       message: 'Esta ação não pode ser desfeita.',
       variant: 'destructive'
@@ -47,12 +47,12 @@ describe('CesConfirmationService', () => {
     };
     TestBed.configureTestingModule({
       providers: [
-        CesConfirmationService,
+        GeoConfirmationService,
         { provide: ConfirmationService, useValue: confirmations }
       ]
     });
 
-    const result = TestBed.inject(CesConfirmationService).confirm({
+    const result = TestBed.inject(GeoConfirmationService).confirm({
       title: 'Continuar operação',
       message: 'Deseja continuar?'
     });

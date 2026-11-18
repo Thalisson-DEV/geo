@@ -9,8 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesButtonComponent, CesIconButtonComponent, CesStatusComponent } from '@ces/ui';
-import { CesCalloutComponent, NotificationService } from '@ces/ui/feedback';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoCalloutComponent, NotificationService } from '@geo/ui/feedback';
 import { ArquivoAssistente, ArtefatoAssistente, AssistenteAcao } from '../../../core/models/assistente.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { MensagemView, CopilotoStore, formatarTamanho } from '../copiloto.store';
@@ -29,10 +29,10 @@ import { CopilotoMarkdownComponent } from './copiloto-markdown.component';
   selector: 'app-copiloto-mensagem',
   standalone: true,
   imports: [
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
-    CesCalloutComponent,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
+    GeoCalloutComponent,
     CopilotoCartaoAprovacaoComponent,
     CopilotoCartaoCadastroComponent,
     CopilotoEtapasComponent,

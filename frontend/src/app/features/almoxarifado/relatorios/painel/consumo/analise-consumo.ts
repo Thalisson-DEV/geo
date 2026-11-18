@@ -1,4 +1,4 @@
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 
 import { MovimentacaoRelatorio, MovimentacoesRelatorioResponse } from '../../../../../core/models/almoxarifado-relatorios.models';
 import { DestaqueAnalise, VistaAnalise, chaveDoAlvo } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -271,7 +271,7 @@ export function visaoConsumo(m: ModeloConsumo): { veredito: VereditoGerencial; l
 
 // ── Tabelas ──────────────────────────────────────────────────────────────────────────────────────
 
-export const colMateriaisConsumo: CesDataTableColumn<ConsumoMaterial>[] = [
+export const colMateriaisConsumo: GeoDataTableColumn<ConsumoMaterial>[] = [
   { key: 'classe', header: 'ABC', priority: 2 },
   { key: 'codigo', header: 'Código', priority: 1 },
   { key: 'descricao', header: 'Material', priority: 1 },
@@ -285,7 +285,7 @@ export const colMateriaisConsumo: CesDataTableColumn<ConsumoMaterial>[] = [
     display: (x) => (x.entregueAnterior ? textoVariacao(x.entregue, x.entregueAnterior, '') : 'Novo') }
 ];
 
-export const colEquipesConsumo: CesDataTableColumn<ConsumoEquipe>[] = [
+export const colEquipesConsumo: GeoDataTableColumn<ConsumoEquipe>[] = [
   { key: 'rotulo', header: 'Equipe', priority: 1 },
   { key: 'processo', header: 'Processo', priority: 3, value: (e) => e.processo ?? '—' },
   { key: 'base', header: 'Base', priority: 3, value: (e) => e.base ?? '—' },
@@ -298,7 +298,7 @@ export const colEquipesConsumo: CesDataTableColumn<ConsumoEquipe>[] = [
   { key: 'foraDaCurva', header: 'Fora da curva', type: 'integer', priority: 1 }
 ];
 
-export const colForaDaCurva: CesDataTableColumn<ForaDaCurva>[] = [
+export const colForaDaCurva: GeoDataTableColumn<ForaDaCurva>[] = [
   { key: 'equipe', header: 'Equipe', priority: 1 },
   { key: 'material', header: 'Material', priority: 1, value: (f) => `${f.codigo} · ${f.descricao}` },
   { key: 'quantidade', header: 'Levou', type: 'custom', priority: 1, value: (f) => f.quantidade, display: (f) => qtd(f.quantidade, f.unidade) },

@@ -62,7 +62,7 @@ describe('FrotaImplementosComponent', () => {
   it('a linha abre a edição e desativar fica no drawer (no máximo três ícones por linha)', async () => {
     permissoes = ['frota:veiculo:read', 'frota:veiculo:write'];
     const { el, harness } = await abrir();
-    expect(el.querySelectorAll('tbody .ces-table-actions ces-icon-button').length).toBeLessThanOrEqual(3);
+    expect(el.querySelectorAll('tbody .geo-table-actions geo-icon-button').length).toBeLessThanOrEqual(3);
     (el.querySelector('button[aria-label="Editar: CESTO-01"]') as HTMLButtonElement).click();
     harness.detectChanges();
     await harness.fixture.whenStable();

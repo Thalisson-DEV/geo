@@ -1,19 +1,19 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDatepickerComponent,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDatepickerComponent,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { LookupStore } from '../../../core/lookup';
 import { Apolice, CoberturaApolice, CoberturaVeiculo, coberturaNaApolice, vigenciaApolice } from '../../../core/models/frota-seguro.models';
 import { FornecedorFrota, deDataIso, formatarPlaca, paraDataIso } from '../../../core/models/frota.models';
@@ -37,42 +37,42 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesSelectComponent,
-    CesIconButtonComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoSelectComponent,
+    GeoIconButtonComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
     FrotaApoliceDrawerComponent
   ],
   styles: `
     :host { display: grid; gap: 1rem; }
     .aviso { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
     .aviso__texto { flex: 1 1 18rem; min-width: 0; }
-    .incluir { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md);
-      background: var(--ces-surface-subtle); }
+    .incluir { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md);
+      background: var(--geo-surface-subtle); }
     .incluir__titulo { font-weight: 600; }
-    .incluir__texto { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .incluir__texto { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; }
     .acoes > * { flex: 1 1 12rem; }
-    .acoes > ces-button { flex: 0 0 auto; }
+    .acoes > geo-button { flex: 0 0 auto; }
   `,
   template: `
     @if (situacao(); as s) {
       @if (s.cobertoHoje) {
-        <ces-callout [tone]="s.perdeCoberturaEm ? 'warning' : 'success'" [icon]="s.perdeCoberturaEm ? 'pi pi-clock' : 'pi pi-check-circle'" [dense]="true"
+        <geo-callout [tone]="s.perdeCoberturaEm ? 'warning' : 'success'" [icon]="s.perdeCoberturaEm ? 'pi pi-clock' : 'pi pi-check-circle'" [dense]="true"
           [title]="'Coberto pela apólice ' + s.numeroApolice">
           @if (s.perdeCoberturaEm) {
             Fica sem seguro a partir de {{ dataBr(s.perdeCoberturaEm) }}: renove a apólice ou inclua o veículo em outra.
           } @else {
             Seguro em dia até {{ dataBr(s.cobertoAte) }}.
           }
-        </ces-callout>
+        </geo-callout>
       } @else {
-        <ces-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Sem seguro hoje">
+        <geo-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Sem seguro hoje">
           <div class="aviso">
             <span class="aviso__texto">
               @if (s.proximaCoberturaEm) {
@@ -84,10 +84,10 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
               }
             </span>
             @if (podeEditar() && !incluindo()) {
-              <ces-button size="sm" variant="outline" icon="pi pi-link" label="Incluir numa apólice" (pressed)="abrirInclusao()"></ces-button>
+              <geo-button size="sm" variant="outline" icon="pi pi-link" label="Incluir numa apólice" (pressed)="abrirInclusao()"></geo-button>
             }
           </div>
-        </ces-callout>
+        </geo-callout>
       }
     }
 
@@ -102,16 +102,16 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
           }
         </p>
         <div class="acoes">
-          <ces-select label="Apólice" [required]="true" [options]="opcoesApolice()" [(value)]="apoliceEscolhida" [filter]="true"
-            [loading]="carregandoApolices()" filterPlaceholder="Número ou seguradora"></ces-select>
-          <ces-datepicker label="Coberto desde" [required]="true" [(value)]="desde" [minDate]="minDesde()" [maxDate]="maxDesde()"></ces-datepicker>
-          <ces-button variant="ghost" label="Cancelar" (pressed)="incluindo.set(false)"></ces-button>
-          <ces-button icon="pi pi-check" label="Incluir" [disabled]="!apoliceEscolhida() || !desde()" [loading]="gravando()" (pressed)="incluir()"></ces-button>
+          <geo-select label="Apólice" [required]="true" [options]="opcoesApolice()" [(value)]="apoliceEscolhida" [filter]="true"
+            [loading]="carregandoApolices()" filterPlaceholder="Número ou seguradora"></geo-select>
+          <geo-datepicker label="Coberto desde" [required]="true" [(value)]="desde" [minDate]="minDesde()" [maxDate]="maxDesde()"></geo-datepicker>
+          <geo-button variant="ghost" label="Cancelar" (pressed)="incluindo.set(false)"></geo-button>
+          <geo-button icon="pi pi-check" label="Incluir" [disabled]="!apoliceEscolhida() || !desde()" [loading]="gravando()" (pressed)="incluir()"></geo-button>
         </div>
       </div>
     }
 
-    <ces-data-table title="Apólices do veículo" description="Apólices que cobrem ou cobriram o veículo, com o período dele em cada uma."
+    <geo-data-table title="Apólices do veículo" description="Apólices que cobrem ou cobriram o veículo, com o período dele em cada uma."
       storageKey="frota-veiculo-seguro" exportFileName="seguros-veiculo" searchPlaceholder="Filtrar nesta lista" [rowClickable]="true"
       [columns]="colunas" [rows]="apolices()" [rowKey]="chave" [state]="estado()"
       [stateTitle]="erro() ? 'Não foi possível carregar as apólices' : 'Veículo sem seguro cadastrado'"
@@ -120,34 +120,34 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
       <ng-container table-actions>
         @if (podeEditar()) {
           @if (!incluindo() && situacao()?.cobertoHoje !== false) {
-            <ces-button size="sm" variant="outline" icon="pi pi-link" label="Incluir numa apólice" (pressed)="abrirInclusao()"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-link" label="Incluir numa apólice" (pressed)="abrirInclusao()"></geo-button>
           }
-          <ces-button size="sm" icon="pi pi-plus" label="Cadastrar apólice" (pressed)="novo()"></ces-button>
+          <geo-button size="sm" icon="pi pi-plus" label="Cadastrar apólice" (pressed)="novo()"></geo-button>
         }
       </ng-container>
-      <ng-template cesCell="apolice" let-row>
-        <span class="ces-cell-strong">{{ row.numero }}</span>
-        <span class="ces-cell-muted">{{ row.seguradora ?? 'Seguradora' }}</span>
+      <ng-template geoCell="apolice" let-row>
+        <span class="geo-cell-strong">{{ row.numero }}</span>
+        <span class="geo-cell-muted">{{ row.seguradora ?? 'Seguradora' }}</span>
       </ng-template>
-      <ng-template cesCell="periodo" let-row>
+      <ng-template geoCell="periodo" let-row>
         @let c = cobertura(row);
         @if (c) {
           @let s = situacaoCobertura(c, row);
-          <ces-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</ces-status>
-          <span class="ces-cell-muted">{{ c.inicio | date: 'dd/MM/yyyy' }} a {{ (c.fim ?? row.vigenciaFim) | date: 'dd/MM/yyyy' }}</span>
+          <geo-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</geo-status>
+          <span class="geo-cell-muted">{{ c.inicio | date: 'dd/MM/yyyy' }} a {{ (c.fim ?? row.vigenciaFim) | date: 'dd/MM/yyyy' }}</span>
         }
       </ng-template>
-      <ng-template cesCell="vigencia" let-row>
+      <ng-template geoCell="vigencia" let-row>
         @let v = vigencia(row);
-        <ces-status [tone]="v.tom" [icon]="v.icone">{{ v.rotulo }}</ces-status>
-        <span class="ces-cell-muted">até {{ row.vigenciaFim | date: 'dd/MM/yyyy' }}{{ row.franquia ? ' · franquia ' + moeda(row.franquia) : '' }}</span>
+        <geo-status [tone]="v.tom" [icon]="v.icone">{{ v.rotulo }}</geo-status>
+        <span class="geo-cell-muted">até {{ row.vigenciaFim | date: 'dd/MM/yyyy' }}{{ row.franquia ? ' · franquia ' + moeda(row.franquia) : '' }}</span>
       </ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
-          <ces-icon-button icon="pi pi-angle-right" [label]="'Abrir a apólice ' + row.numero" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
+          <geo-icon-button icon="pi pi-angle-right" [label]="'Abrir a apólice ' + row.numero" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
 
     <app-frota-apolice-drawer [(visivel)]="painelAberto" [apolice]="emEdicao()" [renovacaoDe]="renovacao()" [veiculos]="veiculosDrawer()"
       [idsVeiculoIniciais]="[veiculo().idVeiculo]" (renovar)="renovar($event)"
@@ -178,7 +178,7 @@ export class FrotaVeiculoSeguroComponent {
   private readonly candidatas = signal<Apolice[]>([]);
   protected readonly apoliceEscolhida = signal<string | null>(null);
   protected readonly desde = signal<Date | null>(null);
-  protected readonly opcoesApolice = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesApolice = computed<GeoSelectOption<string>[]>(() =>
     this.candidatas().map((a) => ({
       label: `${a.numero} · ${a.seguradora ?? 'Seguradora'} · ${dataBr(a.vigenciaInicio)} a ${dataBr(a.vigenciaFim)}`,
       value: a.id
@@ -199,10 +199,10 @@ export class FrotaVeiculoSeguroComponent {
   protected readonly carregandoFornecedores = signal(true);
   protected readonly painelAberto = signal(false);
   protected readonly emEdicao = signal<Apolice | null>(null);
-  protected readonly processos = computed<CesSelectOption<string>[]>(() => this.lookups.processes().map((p) => ({ label: p.label, value: p.value })));
+  protected readonly processos = computed<GeoSelectOption<string>[]>(() => this.lookups.processes().map((p) => ({ label: p.label, value: p.value })));
   protected readonly estado = computed(() => (this.carregando() ? 'loading' : this.erro() ? 'error' : this.apolices().length ? 'ready' : 'empty'));
 
-  protected readonly colunas: CesDataTableColumn<Apolice>[] = [
+  protected readonly colunas: GeoDataTableColumn<Apolice>[] = [
     { key: 'apolice', header: 'Apólice', type: 'custom', priority: 1, value: (a) => a.numero, display: (a) => `${a.numero} ${a.seguradora ?? ''}` },
     { key: 'periodo', header: 'Este veículo', type: 'custom', priority: 1, value: (a) => this.cobertura(a)?.inicio, display: (a) => this.cobertura(a)?.inicio ?? '' },
     { key: 'vigencia', header: 'Vigência', type: 'custom', priority: 1, value: (a) => a.vigenciaFim, display: (a) => vigenciaApolice(a).rotulo }

@@ -41,7 +41,7 @@ class PoliticaObservabilidadeUseCasesTest {
         when(resolvedor.resolver(regra, Map.of(), Map.of()))
                 .thenReturn(Set.of(elegivel, semEmail, silenciado));
         when(usuarioApi.buscarEmailsPorIds(Set.of(elegivel, semEmail, silenciado)))
-                .thenReturn(Map.of(elegivel, "tecnico@ces.example", silenciado, "silenciado@ces.example"));
+                .thenReturn(Map.of(elegivel, "tecnico@geo.example", silenciado, "silenciado@geo.example"));
         when(preferencias.listar(elegivel)).thenReturn(preferencia(true));
         when(preferencias.listar(silenciado)).thenReturn(preferencia(false));
 
@@ -52,7 +52,7 @@ class PoliticaObservabilidadeUseCasesTest {
         assertThat(response.rules()).singleElement().satisfies(projected -> {
             assertThat(projected.emailEnabled()).isTrue();
             assertThat(projected.audience()).extracting("email")
-                    .containsExactly("tecnico@ces.example");
+                    .containsExactly("tecnico@geo.example");
         });
     }
 
@@ -77,7 +77,7 @@ class PoliticaObservabilidadeUseCasesTest {
         when(resolvedor.resolver(regra, Map.of(), Map.of())).thenReturn(Set.of(tecnico));
         when(preferencias.listar(tecnico)).thenReturn(preferencia(true));
         when(usuarioApi.buscarEmailsPorIds(Set.of(tecnico)))
-                .thenReturn(Map.of(tecnico, "primeiro@ces.example"), Map.of(tecnico, "segundo@ces.example"));
+                .thenReturn(Map.of(tecnico, "primeiro@geo.example"), Map.of(tecnico, "segundo@geo.example"));
 
         String primeira = useCases.projetar().version();
         String segunda = useCases.projetar().version();

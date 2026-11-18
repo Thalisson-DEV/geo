@@ -27,10 +27,10 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { StepperModule } from 'primeng/stepper';
 import {
-  CesDialogShellComponent,
+  GeoDialogShellComponent,
   NotificationService,
-} from '@ces/ui';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+} from '@geo/ui';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { ObrasService } from '../../../../core/services/obras.service';
 import { RhService } from '../../../../core/services/rh.service';
@@ -75,7 +75,7 @@ import {
   tipoTecnicoIcon,
   tipoTecnicoLabel,
 } from '../solicitacao-tecnica-presentation';
-import { CesButtonComponent } from '@ces/ui';
+import { GeoButtonComponent } from '@geo/ui';
 
 export interface PlanningLine {
   idItem: string | null;
@@ -102,9 +102,9 @@ export interface PlanningLine {
     TooltipModule,
     ProgressSpinnerModule,
     StepperModule,
-    CesDialogShellComponent,
-    CesAutocompleteComponent,
-    CesButtonComponent,
+    GeoDialogShellComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
   ],
   templateUrl: './solicitacao-tecnica-planejamento.component.html',
   styleUrl: './solicitacao-tecnica-planejamento.component.css',

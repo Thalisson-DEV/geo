@@ -3,25 +3,25 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
 import {
@@ -94,19 +94,19 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
     DatePipe,
     NgTemplateOutlet,
     AjudaListagemComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     FechamentoCalendarioComponent,
     FechamentoCriarDrawerComponent,
     FechamentoDetalheDrawerComponent,
@@ -119,30 +119,30 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
   styles: `
     .fl-toolbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
     .fl-atalhos { flex: 1 1 auto; min-width: 0; gap: 0.25rem; }
-    .fl-atalhos .ces-quick-filter { padding-inline: 0.5rem; }
+    .fl-atalhos .geo-quick-filter { padding-inline: 0.5rem; }
     .fl-contagem {
       display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem;
-      border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted);
+      border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
       font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
     }
-    .ces-quick-filter[aria-pressed='true'] .fl-contagem { background: var(--ces-surface); color: var(--ces-foreground); }
-    .fl-contagem--alerta { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .fl-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--ces-border); }
-    .ces-quick-filter[data-tone] .pi { color: var(--fl-tom); }
-    [data-tone='warning'] { --fl-tom: var(--ces-warning); }
-    [data-tone='info'] { --fl-tom: var(--ces-info); }
-    [data-tone='success'] { --fl-tom: var(--ces-success); }
-    [data-tone='danger'] { --fl-tom: var(--ces-danger); }
-    [data-tone='neutral'] { --fl-tom: var(--ces-foreground-subtle); }
-    .fl-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
+    .geo-quick-filter[aria-pressed='true'] .fl-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
+    .fl-contagem--alerta { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .fl-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--geo-border); }
+    .geo-quick-filter[data-tone] .pi { color: var(--fl-tom); }
+    [data-tone='warning'] { --fl-tom: var(--geo-warning); }
+    [data-tone='info'] { --fl-tom: var(--geo-info); }
+    [data-tone='success'] { --fl-tom: var(--geo-success); }
+    [data-tone='danger'] { --fl-tom: var(--geo-danger); }
+    [data-tone='neutral'] { --fl-tom: var(--geo-foreground-subtle); }
+    .fl-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
     .fl-visoes button {
-      display: inline-flex; align-items: center; gap: 0.375rem; min-height: calc(var(--ces-control-height-sm) - 2px); padding: 0 0.75rem;
-      border: 0; border-radius: calc(var(--ces-radius-md) - 2px); background: transparent; color: var(--ces-foreground-muted);
-      font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.375rem; min-height: calc(var(--geo-control-height-sm) - 2px); padding: 0 0.75rem;
+      border: 0; border-radius: calc(var(--geo-radius-md) - 2px); background: transparent; color: var(--geo-foreground-muted);
+      font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer;
     }
-    .fl-visoes button:hover { color: var(--ces-foreground); }
-    .fl-visoes button[aria-current='page'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
-    .fl-visoes button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .fl-visoes button:hover { color: var(--geo-foreground); }
+    .fl-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
+    .fl-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .fl-visoes .pi { font-size: 0.8rem; }
     .fl-obra { display: grid; gap: 0.125rem; min-width: 15rem; }
     .fl-pilha { display: grid; gap: 0.125rem; justify-items: start; min-width: 0; }
@@ -150,15 +150,15 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
       .fl-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.625rem; }
       .fl-atalhos { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
       .fl-atalhos::-webkit-scrollbar { display: none; }
-      .fl-atalhos .ces-quick-filter { flex: none; scroll-snap-align: start; }
+      .fl-atalhos .geo-quick-filter { flex: none; scroll-snap-align: start; }
       .fl-visoes { width: 100%; }
       .fl-visoes button { flex: 1; justify-content: center; }
     }
   `,
   template: `
     <app-copiloto-area [contexto]="contextoCopiloto()">
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeCriar" (newRequested)="criacaoAberta.set(true)">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeCriar" (newRequested)="criacaoAberta.set(true)">
+      <geo-page-header
         title="Encerramento de obras"
         icon="pi pi-flag"
         [breadcrumb]="[{ label: 'Obras', route: '/obras' }, { label: 'Encerramento' }]"
@@ -167,49 +167,49 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
         (help)="ajuda.show()"
       >
         <app-copiloto-gatilho actions></app-copiloto-gatilho>
-        <ces-button actions variant="outline" icon="pi pi-download" label="Exportar" (pressed)="exportacaoAberta.set(true)"></ces-button>
+        <geo-button actions variant="outline" icon="pi pi-download" label="Exportar" (pressed)="exportacaoAberta.set(true)"></geo-button>
         @if (podeCriar) {
-          <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></geo-button>
         }
         @if (podeCriar) {
-          <ces-button actions icon="pi pi-plus" label="Nova solicitação" [keyShortcut]="atalhos.newShortcut()" (pressed)="criacaoAberta.set(true)"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Nova solicitação" [keyShortcut]="atalhos.newShortcut()" (pressed)="criacaoAberta.set(true)"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
         @if (visao !== 'tabela') {
-          <div filter-actions class="ces-quick-filters"><ng-container [ngTemplateOutlet]="soAsMinhas"></ng-container></div>
+          <div filter-actions class="geo-quick-filters"><ng-container [ngTemplateOutlet]="soAsMinhas"></ng-container></div>
         }
-        <div class="ces-filter-grid">
-          <ces-select label="Obra" [options]="opcoesObra()" [(value)]="lista.filters.obra" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-multiselect label="Tipo" [options]="opcoesTipo" [(value)]="lista.filters.tipos" [clearable]="true" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Prazo" [options]="opcoesPrazo" [(value)]="lista.filters.prazo" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Pendência" [options]="opcoesPendencia" [(value)]="lista.filters.pendencia" [clearable]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Almoxarifado" [options]="opcoesAlmoxarifado()" [(value)]="lista.filters.almoxarifado" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Solicitante" [options]="opcoesSolicitante()" [(value)]="lista.filters.solicitante" [clearable]="true" [filter]="true" placeholder="Todos"
-            [disabled]="lista.filters.minhas()" [description]="lista.filters.minhas() ? 'Desligue Só as minhas para escolher outro solicitante.' : undefined"></ces-select>
-          <ces-select label="Supervisor" [options]="opcoesSupervisor()" [(value)]="lista.filters.supervisor" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Coordenador" [options]="opcoesCoordenador()" [(value)]="lista.filters.coordenador" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Encerramento da obra" [options]="opcoesSituacaoObra" [(value)]="lista.filters.situacaoObra" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-text-input label="Número da reserva" [(value)]="lista.filters.reserva" [maxlength]="20"></ces-text-input>
-          <ces-datepicker label="Criadas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Criadas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-select label="Obra" [options]="opcoesObra()" [(value)]="lista.filters.obra" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-multiselect label="Tipo" [options]="opcoesTipo" [(value)]="lista.filters.tipos" [clearable]="true" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Prazo" [options]="opcoesPrazo" [(value)]="lista.filters.prazo" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Pendência" [options]="opcoesPendencia" [(value)]="lista.filters.pendencia" [clearable]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Almoxarifado" [options]="opcoesAlmoxarifado()" [(value)]="lista.filters.almoxarifado" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Solicitante" [options]="opcoesSolicitante()" [(value)]="lista.filters.solicitante" [clearable]="true" [filter]="true" placeholder="Todos"
+            [disabled]="lista.filters.minhas()" [description]="lista.filters.minhas() ? 'Desligue Só as minhas para escolher outro solicitante.' : undefined"></geo-select>
+          <geo-select label="Supervisor" [options]="opcoesSupervisor()" [(value)]="lista.filters.supervisor" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Coordenador" [options]="opcoesCoordenador()" [(value)]="lista.filters.coordenador" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Encerramento da obra" [options]="opcoesSituacaoObra" [(value)]="lista.filters.situacaoObra" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-text-input label="Número da reserva" [(value)]="lista.filters.reserva" [maxlength]="20"></geo-text-input>
+          <geo-datepicker label="Criadas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Criadas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
       <div class="fl-toolbar">
-        <div class="ces-quick-filters fl-atalhos" role="group" aria-label="Mostrar só a situação escolhida">
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!atalhoAplicado()" (click)="definirAtalho(null)">
+        <div class="geo-quick-filters fl-atalhos" role="group" aria-label="Mostrar só a situação escolhida">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!atalhoAplicado()" (click)="definirAtalho(null)">
             <i class="pi pi-list" aria-hidden="true"></i> Todas <span class="fl-contagem">{{ contagemTotal() ?? '–' }}</span>
           </button>
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="atalhoAplicado() === emAberto.value" (click)="alternarAtalho(emAberto.value)" [title]="emAberto.descricao">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="atalhoAplicado() === emAberto.value" (click)="alternarAtalho(emAberto.value)" [title]="emAberto.descricao">
             <i [class]="emAberto.icon" aria-hidden="true"></i> Em aberto
             <span class="fl-contagem" [class.fl-contagem--alerta]="(contagens()[emAberto.value] ?? 0) > 0">{{ contagens()[emAberto.value] ?? '–' }}</span>
           </button>
           <span class="fl-divisor" aria-hidden="true"></span>
           @for (a of atalhosStatus; track a.value) {
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="atalhoAplicado() === a.value" [attr.data-tone]="a.tone"
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="atalhoAplicado() === a.value" [attr.data-tone]="a.tone"
               [title]="a.descricao" (click)="alternarAtalho(a.value)" [attr.aria-label]="a.atalho + ': ' + (contagens()[a.value] ?? 'contagem indisponível')">
               <i [class]="a.icon" aria-hidden="true"></i> {{ a.atalho }} <span class="fl-contagem">{{ contagens()[a.value] ?? '–' }}</span>
             </button>
@@ -225,7 +225,7 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
       </div>
 
       <ng-template #soAsMinhas>
-        <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().minhas" (click)="escopo(!lista.applied().minhas)">
+        <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().minhas" (click)="escopo(!lista.applied().minhas)">
           <i class="pi pi-user" aria-hidden="true"></i> Só as minhas
         </button>
       </ng-template>
@@ -238,7 +238,7 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
           <app-fechamento-calendario #calendario [filtros]="filtroVisao()" (abrir)="abrir($event)"></app-fechamento-calendario>
         }
         @default {
-          <ces-data-table
+          <geo-data-table
             title="Solicitações de encerramento"
             mode="server"
             storageKey="obras-fechamento-lista-v5"
@@ -265,73 +265,73 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
             (emptyAction)="criacaoAberta.set(true)"
             (rowActivate)="abrir($event)"
           >
-            <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos do fechamento">
+            <div table-filters class="geo-quick-filters" role="group" aria-label="Atalhos do fechamento">
               <ng-container [ngTemplateOutlet]="soAsMinhas"></ng-container>
             </div>
-            <ng-template cesCell="solicitacao" let-row>
-              <span class="ces-cell-strong">#{{ row.id.slice(0, 8) }}</span>
-              <span class="ces-cell-muted">{{ row.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+            <ng-template geoCell="solicitacao" let-row>
+              <span class="geo-cell-strong">#{{ row.id.slice(0, 8) }}</span>
+              <span class="geo-cell-muted">{{ row.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</span>
             </ng-template>
-            <ng-template cesCell="obra" let-row>
+            <ng-template geoCell="obra" let-row>
               <span class="fl-obra">
-                <span class="ces-cell-strong">{{ row.obra.numero ?? '—' }}</span>
-                <span class="ces-cell-muted" [title]="row.obra.titulo ?? ''">{{ row.obra.titulo }}</span>
+                <span class="geo-cell-strong">{{ row.obra.numero ?? '—' }}</span>
+                <span class="geo-cell-muted" [title]="row.obra.titulo ?? ''">{{ row.obra.titulo }}</span>
               </span>
             </ng-template>
-            <ng-template cesCell="tipo" let-row>
-              <ces-status [tone]="tipo(row.tipo).adicao ? 'info' : 'neutral'" [icon]="iconeTipo(row.tipo)" [title]="tipo(row.tipo).nome">{{ row.tipo }}</ces-status>
+            <ng-template geoCell="tipo" let-row>
+              <geo-status [tone]="tipo(row.tipo).adicao ? 'info' : 'neutral'" [icon]="iconeTipo(row.tipo)" [title]="tipo(row.tipo).nome">{{ row.tipo }}</geo-status>
             </ng-template>
-            <ng-template cesCell="encarregado" let-row>
-              <span [class.ces-cell-muted]="!row.encarregado">{{ pessoa(row.encarregado, 'Sem encarregado') }}</span>
+            <ng-template geoCell="encarregado" let-row>
+              <span [class.geo-cell-muted]="!row.encarregado">{{ pessoa(row.encarregado, 'Sem encarregado') }}</span>
             </ng-template>
-            <ng-template cesCell="supervisor" let-row>
-              <span [class.ces-cell-muted]="!row.supervisor">{{ pessoa(row.supervisor, 'Sem supervisor') }}</span>
+            <ng-template geoCell="supervisor" let-row>
+              <span [class.geo-cell-muted]="!row.supervisor">{{ pessoa(row.supervisor, 'Sem supervisor') }}</span>
             </ng-template>
-            <ng-template cesCell="coordenador" let-row>
-              <span [class.ces-cell-muted]="!row.coordenador">{{ pessoa(row.coordenador, 'Sem coordenador') }}</span>
+            <ng-template geoCell="coordenador" let-row>
+              <span [class.geo-cell-muted]="!row.coordenador">{{ pessoa(row.coordenador, 'Sem coordenador') }}</span>
             </ng-template>
-            <ng-template cesCell="solicitante" let-row>
-              <span [class.ces-cell-muted]="semColaborador(row)">{{ pessoa(row.solicitante) }}</span>
+            <ng-template geoCell="solicitante" let-row>
+              <span [class.geo-cell-muted]="semColaborador(row)">{{ pessoa(row.solicitante) }}</span>
             </ng-template>
-            <ng-template cesCell="prazo" let-row>
+            <ng-template geoCell="prazo" let-row>
               <span class="fl-pilha">
                 @if (row.prazoVigente.limite) {
                   <span>{{ textoPrazo(row.situacao, row.prazoVigente) }}</span>
                 } @else if (row.situacao === 'MOVIMENTADA') {
-                  <span class="ces-cell-muted">Concluída {{ row.movimentacaoConcluidaEm | date: 'dd/MM/yyyy' }}</span>
+                  <span class="geo-cell-muted">Concluída {{ row.movimentacaoConcluidaEm | date: 'dd/MM/yyyy' }}</span>
                 } @else {
-                  <span class="ces-cell-muted">Sem prazo</span>
+                  <span class="geo-cell-muted">Sem prazo</span>
                 }
                 @if (prazo(row.prazoVigente.situacao); as p) {
-                  <ces-status [tone]="p.tone" [icon]="p.icon">{{ p.label }}</ces-status>
+                  <geo-status [tone]="p.tone" [icon]="p.icon">{{ p.label }}</geo-status>
                 }
               </span>
             </ng-template>
-            <ng-template cesCell="situacao" let-row>
+            <ng-template geoCell="situacao" let-row>
               <span class="fl-pilha">
-                <ces-status [tone]="sit(row.situacao).tone" [icon]="sit(row.situacao).icon">{{ sit(row.situacao).label }}</ces-status>
-                @if (row.possuiPendencia) { <ces-status tone="warning" icon="pi pi-flag">Com pendência</ces-status> }
+                <geo-status [tone]="sit(row.situacao).tone" [icon]="sit(row.situacao).icon">{{ sit(row.situacao).label }}</geo-status>
+                @if (row.possuiPendencia) { <geo-status tone="warning" icon="pi pi-flag">Com pendência</geo-status> }
               </span>
             </ng-template>
-            <ng-template cesCell="reserva" let-row>
+            <ng-template geoCell="reserva" let-row>
               @if (row.numeroReserva) {
-                <span class="ces-cell-strong">{{ row.numeroReserva }}</span>
+                <span class="geo-cell-strong">{{ row.numeroReserva }}</span>
               } @else {
-                <span class="ces-cell-muted">Sem reserva</span>
+                <span class="geo-cell-muted">Sem reserva</span>
               }
             </ng-template>
-            <ng-template cesRowActions let-row>
-              <span class="ces-table-actions">
-                <ces-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="imprimirRelatorio(row)"></ces-icon-button>
+            <ng-template geoRowActions let-row>
+              <span class="geo-table-actions">
+                <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="imprimirRelatorio(row)"></geo-icon-button>
                 @if (row.acoes.registrarReserva) {
-                  <ces-icon-button icon="pi pi-hashtag" [label]="'Registrar reserva da solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="executar(row, 'RESERVA')"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-hashtag" [label]="'Registrar reserva da solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="executar(row, 'RESERVA')"></geo-icon-button>
                 }
                 @if (row.acoes.movimentar) {
-                  <ces-icon-button icon="pi pi-check-square" [label]="'Marcar como movimentado a solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="executar(row, 'MOVIMENTAR')"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-check-square" [label]="'Marcar como movimentado a solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="executar(row, 'MOVIMENTAR')"></geo-icon-button>
                 }
               </span>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         }
       }
     </div>
@@ -391,7 +391,7 @@ export class FechamentoListaComponent {
   protected readonly opcoesTipo = OPCOES_TIPO;
   protected readonly opcoesPrazo = OPCOES_PRAZO;
   protected readonly opcoesSituacaoObra = OPCOES_SITUACAO_OBRA;
-  protected readonly opcoesPendencia: CesSelectOption<boolean>[] = [
+  protected readonly opcoesPendencia: GeoSelectOption<boolean>[] = [
     { label: 'Com pendência', value: true },
     { label: 'Sem pendência', value: false }
   ];
@@ -418,38 +418,38 @@ export class FechamentoListaComponent {
   private readonly solicitantes = signal<{ id: string; nome: string | null }[]>([]);
   private readonly supervisores = signal<{ id: string; nome: string; idCoordenador: string; nomeCoordenador: string }[]>([]);
 
-  protected readonly opcoesObra = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesObra = computed<GeoSelectOption<string>[]>(() =>
     this.obrasLista().map((o) => ({ label: `${o.numero} · ${o.titulo}`, value: o.id }))
   );
-  protected readonly opcoesAlmoxarifado = computed<CesSelectOption<string>[]>(() => this.almoxarifados().map((a) => ({ label: a.nome, value: a.id })));
-  protected readonly opcoesSolicitante = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesAlmoxarifado = computed<GeoSelectOption<string>[]>(() => this.almoxarifados().map((a) => ({ label: a.nome, value: a.id })));
+  protected readonly opcoesSolicitante = computed<GeoSelectOption<string>[]>(() =>
     this.solicitantes().map((s) => ({ label: s.nome ?? SEM_COLABORADOR, value: s.id }))
   );
-  protected readonly opcoesSupervisor = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesSupervisor = computed<GeoSelectOption<string>[]>(() =>
     this.supervisores().map((s) => ({ label: s.nome, value: s.id }))
   );
-  protected readonly opcoesCoordenador = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesCoordenador = computed<GeoSelectOption<string>[]>(() => {
     const vistos = new Map<string, string>();
     this.supervisores().forEach((s) => vistos.set(s.idCoordenador, s.nomeCoordenador));
     return [...vistos.entries()].map(([value, label]) => ({ label, value })).sort((a, b) => a.label.localeCompare(b.label));
   });
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: this.chave,
     filters: {
-      minhas: cesFilter.value<boolean>(false, { label: 'Escopo', format: (v): string | null => (v ? 'Só as minhas' : null) }),
-      obra: cesFilter.value<string | null>(null, { label: 'Obra', format: (id): string | null => (id ? this.rotuloDe(this.opcoesObra(), id) : null) }),
-      tipos: cesFilter.list<TipoFechamento>([], { label: 'Tipo' }),
-      situacao: cesFilter.value<string | null>(null, { label: 'Situação', format: (s): string | null => (s ? (atalhoFechamento(s)?.atalho ?? s) : null) }),
-      prazo: cesFilter.value<Prazo | null>(null, { label: 'Prazo', type: 'string', options: () => OPCOES_PRAZO }),
-      pendencia: cesFilter.value<boolean | null>(null, { label: 'Pendência', type: 'boolean', options: () => this.opcoesPendencia }),
-      almoxarifado: cesFilter.value<string | null>(null, { label: 'Almoxarifado', format: (id): string | null => (id ? this.rotuloDe(this.opcoesAlmoxarifado(), id) : null) }),
-      solicitante: cesFilter.value<string | null>(null, { label: 'Solicitante', format: (id): string | null => (id ? this.rotuloDe(this.opcoesSolicitante(), id) : null) }),
-      supervisor: cesFilter.value<string | null>(null, { label: 'Supervisor', format: (id): string | null => (id ? this.rotuloDe(this.opcoesSupervisor(), id) : null) }),
-      coordenador: cesFilter.value<string | null>(null, { label: 'Coordenador', format: (id): string | null => (id ? this.rotuloDe(this.opcoesCoordenador(), id) : null) }),
-      situacaoObra: cesFilter.value<SituacaoFechamentoObra | null>(null, { label: 'Encerramento da obra', type: 'string', options: () => OPCOES_SITUACAO_OBRA }),
-      reserva: cesFilter.value<string>('', { label: 'Reserva' }),
-      periodo: cesFilter.range({ from: null, to: null }, { label: 'Criação' })
+      minhas: geoFilter.value<boolean>(false, { label: 'Escopo', format: (v): string | null => (v ? 'Só as minhas' : null) }),
+      obra: geoFilter.value<string | null>(null, { label: 'Obra', format: (id): string | null => (id ? this.rotuloDe(this.opcoesObra(), id) : null) }),
+      tipos: geoFilter.list<TipoFechamento>([], { label: 'Tipo' }),
+      situacao: geoFilter.value<string | null>(null, { label: 'Situação', format: (s): string | null => (s ? (atalhoFechamento(s)?.atalho ?? s) : null) }),
+      prazo: geoFilter.value<Prazo | null>(null, { label: 'Prazo', type: 'string', options: () => OPCOES_PRAZO }),
+      pendencia: geoFilter.value<boolean | null>(null, { label: 'Pendência', type: 'boolean', options: () => this.opcoesPendencia }),
+      almoxarifado: geoFilter.value<string | null>(null, { label: 'Almoxarifado', format: (id): string | null => (id ? this.rotuloDe(this.opcoesAlmoxarifado(), id) : null) }),
+      solicitante: geoFilter.value<string | null>(null, { label: 'Solicitante', format: (id): string | null => (id ? this.rotuloDe(this.opcoesSolicitante(), id) : null) }),
+      supervisor: geoFilter.value<string | null>(null, { label: 'Supervisor', format: (id): string | null => (id ? this.rotuloDe(this.opcoesSupervisor(), id) : null) }),
+      coordenador: geoFilter.value<string | null>(null, { label: 'Coordenador', format: (id): string | null => (id ? this.rotuloDe(this.opcoesCoordenador(), id) : null) }),
+      situacaoObra: geoFilter.value<SituacaoFechamentoObra | null>(null, { label: 'Encerramento da obra', type: 'string', options: () => OPCOES_SITUACAO_OBRA }),
+      reserva: geoFilter.value<string>('', { label: 'Reserva' }),
+      periodo: geoFilter.range({ from: null, to: null }, { label: 'Criação' })
     },
     sort: [{ key: 'solicitacao', direction: 'desc' }]
   });
@@ -522,7 +522,7 @@ export class FechamentoListaComponent {
     };
   });
 
-  protected readonly colunas: CesDataTableColumn<FechamentoResumo>[] = [
+  protected readonly colunas: GeoDataTableColumn<FechamentoResumo>[] = [
     { key: 'solicitacao', header: 'Solicitação', type: 'custom', priority: 1, sortField: 'solicitacao', value: (r) => r.criadaEm },
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, sortField: 'obra', value: (r) => rotuloObra(r.obra) },
     { key: 'tipo', header: 'Tipo', type: 'custom', priority: 1, width: '6rem', sortField: 'tipo', value: (r) => r.tipo },
@@ -614,7 +614,7 @@ export class FechamentoListaComponent {
     return escolhido ? comAtalho(base, escolhido) : base;
   }
 
-  private rotuloDe(opcoes: CesSelectOption<string>[], id: string): string {
+  private rotuloDe(opcoes: GeoSelectOption<string>[], id: string): string {
     return opcoes.find((o) => o.value === id)?.label ?? 'selecionado';
   }
 

@@ -12,9 +12,9 @@ FROM nginx:alpine
 # Remove config default
 RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# outputPath confirmado em angular.json: dist/ces-frontend/browser
-COPY --from=build /app/dist/ces-frontend/browser /usr/share/nginx/html
-COPY docker/env.template.js /opt/ces/env.template.js
+# outputPath confirmado em angular.json: dist/geo-frontend/browser
+COPY --from=build /app/dist/geo-frontend/browser /usr/share/nginx/html
+COPY docker/env.template.js /opt/geo/env.template.js
 COPY docker/40-env-config.sh /docker-entrypoint.d/40-env-config.sh
 RUN chmod +x /docker-entrypoint.d/40-env-config.sh
 

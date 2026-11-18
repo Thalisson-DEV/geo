@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { of } from 'rxjs';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { SolicitacaoPendenciaModalComponent } from './solicitacao-pendencia-modal.component';
 
@@ -50,7 +50,7 @@ describe('SolicitacaoPendenciaModalComponent', () => {
     fixture.detectChanges();
 
     // O diálogo é aberto no overlay global (fora do host do componente).
-    const saveButton = document.body.querySelector('ces-button[label="Salvar"]');
+    const saveButton = document.body.querySelector('geo-button[label="Salvar"]');
     expect(saveButton).toBeTruthy();
   });
 

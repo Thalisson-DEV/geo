@@ -3,20 +3,20 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesChartComponent,
-  CesChartPointSelection,
-  CesDatepickerComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMeterComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoChartComponent,
+  GeoChartPointSelection,
+  GeoDatepickerComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMeterComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { createUrlFilters, qp } from '../../../../core/navigation';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -122,15 +122,15 @@ const ATUALIZACAO_AUTOMATICA_MS = 2 * 60_000;
   imports: [
     DatePipe,
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesChartComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesMeterComponent,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoChartComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoMeterComponent,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
     DashboardMetricCardComponent,
     CopilotoAreaComponent,
     CopilotoGatilhoComponent,
@@ -138,7 +138,7 @@ const ATUALIZACAO_AUTOMATICA_MS = 2 * 60_000;
     DashboardAnaliseComponent,
     DashboardVisaoGerencialComponent
   ],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-turnos.component.html',
   styleUrl: '../execucao-dashboards.css'
 })
@@ -401,9 +401,9 @@ export class DashboardTurnosComponent implements OnInit {
   }
 
   /** Recorte aplicado como chips: o dia sempre vale (não removível); cada base e processo sai pelo seu chip. */
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.aplicado();
-    const chips: CesFilterChip[] = [];
+    const chips: GeoFilterChip[] = [];
     if (f.data) chips.push({ key: 'dia', label: `Dia: ${f.data.substring(8, 10)}/${f.data.substring(5, 7)}/${f.data.substring(0, 4)}`, removable: false });
     for (const id of f.idBaseOperacional ?? []) chips.push({ key: `base:${id}`, label: `Base: ${this.recorte.nomeDaBase(id)}` });
     for (const id of f.idProcesso ?? []) chips.push({ key: `processo:${id}`, label: `Processo: ${this.recorte.nomeDoProcesso(id)}` });
@@ -434,7 +434,7 @@ export class DashboardTurnosComponent implements OnInit {
     this.analise.aprofundar(alvo, this.vistaAnalise()?.titulo ?? '');
   }
 
-  protected selecionarEquipe(selecao: CesChartPointSelection): void {
+  protected selecionarEquipe(selecao: GeoChartPointSelection): void {
     const codigo = this.serieDoDia().rotulos[selecao.index];
     const equipe = this.data()?.equipes.find((e) => e.codigo === codigo);
     if (equipe) this.analisar('equipe', equipe.idEquipe);

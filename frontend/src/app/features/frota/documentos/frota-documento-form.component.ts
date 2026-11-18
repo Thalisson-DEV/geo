@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesDatepickerComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoDatepickerComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable, switchMap, of } from 'rxjs';
 import {
   DocumentoFrota,
@@ -37,17 +37,17 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesDatepickerComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoDatepickerComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer
+    <geo-form-drawer
       [(visible)]="visivel"
       [title]="documento() ? 'Editar documento' : 'Novo documento'"
       [description]="descricao()"
@@ -55,39 +55,39 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
       [loading]="salvando()"
       size="md"
     >
-      <ces-form-section title="Documento" icon="pi pi-file">
+      <geo-form-section title="Documento" icon="pi pi-file">
         @if (!documento() && !titularFixo()) {
-          <ces-select label="Veículo ou implemento" [required]="true" [options]="opcoesTitular()" [(value)]="titular"
-            [filter]="true" [error]="erro('titular')"></ces-select>
+          <geo-select label="Veículo ou implemento" [required]="true" [options]="opcoesTitular()" [(value)]="titular"
+            [filter]="true" [error]="erro('titular')"></geo-select>
         }
-        <div class="ces-form-grid">
-          <ces-select label="Tipo" [required]="true" [options]="tipos()" [(value)]="tipo" [error]="erro('tipo')"></ces-select>
-          <ces-text-input label="Número" [(value)]="numero" [maxlength]="80" [showOptional]="true"></ces-text-input>
+        <div class="geo-form-grid">
+          <geo-select label="Tipo" [required]="true" [options]="tipos()" [(value)]="tipo" [error]="erro('tipo')"></geo-select>
+          <geo-text-input label="Número" [(value)]="numero" [maxlength]="80" [showOptional]="true"></geo-text-input>
         </div>
-        <ces-text-input label="Descrição" [(value)]="descricaoDocumento" [maxlength]="150"
-          [required]="tipo() === 'OUTRO'" [showOptional]="tipo() !== 'OUTRO'" [error]="erro('descricao')"></ces-text-input>
-        <div class="ces-form-grid">
-          <ces-datepicker label="Emissão" [(value)]="emissao" [clearable]="true" [showOptional]="true"></ces-datepicker>
-          <ces-datepicker label="Vencimento" [(value)]="vencimento" [clearable]="true" [showOptional]="true"
-            description="Gera avisos automáticos conforme as faixas configuradas." [error]="erro('vencimento')"></ces-datepicker>
+        <geo-text-input label="Descrição" [(value)]="descricaoDocumento" [maxlength]="150"
+          [required]="tipo() === 'OUTRO'" [showOptional]="tipo() !== 'OUTRO'" [error]="erro('descricao')"></geo-text-input>
+        <div class="geo-form-grid">
+          <geo-datepicker label="Emissão" [(value)]="emissao" [clearable]="true" [showOptional]="true"></geo-datepicker>
+          <geo-datepicker label="Vencimento" [(value)]="vencimento" [clearable]="true" [showOptional]="true"
+            description="Gera avisos automáticos conforme as faixas configuradas." [error]="erro('vencimento')"></geo-datepicker>
         </div>
-        <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></ces-textarea>
-      </ces-form-section>
+        <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></geo-textarea>
+      </geo-form-section>
 
-      <ces-form-section title="Arquivo" icon="pi pi-paperclip">
+      <geo-form-section title="Arquivo" icon="pi pi-paperclip">
         @if (documento()?.possuiArquivo) {
-          <p class="ces-cell-muted">Arquivo atual: {{ documento()!.arquivoNome }}. Selecione outro para substituir.</p>
+          <p class="geo-cell-muted">Arquivo atual: {{ documento()!.arquivoNome }}. Selecione outro para substituir.</p>
         }
-        <ces-file-input label="Arquivo" description="PDF ou imagem (JPG, PNG, WebP), até 15 MB." accept="application/pdf,image/jpeg,image/png,image/webp"
-          [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></ces-file-input>
-      </ces-form-section>
+        <geo-file-input label="Arquivo" description="PDF ou imagem (JPG, PNG, WebP), até 15 MB." accept="application/pdf,image/jpeg,image/png,image/webp"
+          [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></geo-file-input>
+      </geo-form-section>
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="documento() ? 'Salvar documento' : 'Cadastrar documento'"
-          [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="documento() ? 'Salvar documento' : 'Cadastrar documento'"
+          [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaDocumentoFormComponent {
@@ -125,10 +125,10 @@ export class FrotaDocumentoFormComponent {
         ? `Documento do implemento ${this.documento()!.implemento}.`
         : 'Documento com vencimento e arquivo anexado.'
   );
-  protected readonly tipos = computed<CesSelectOption<TipoDocumentoFrota>[]>(() =>
+  protected readonly tipos = computed<GeoSelectOption<TipoDocumentoFrota>[]>(() =>
     (this.opcoes()?.tiposDocumento ?? []).map((o) => ({ label: o.rotulo, value: o.valor }))
   );
-  protected readonly opcoesTitular = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesTitular = computed<GeoSelectOption<string>[]>(() =>
     this.titulares().map((t) => ({ label: t.rotulo, value: `${t.tipo}:${t.id}` }))
   );
 

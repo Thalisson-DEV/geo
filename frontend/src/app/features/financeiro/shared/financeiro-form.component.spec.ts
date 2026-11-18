@@ -217,7 +217,7 @@ describe('FinanceiroFormComponent — referência de colaborador', () => {
     host.componentInstance.schema.set(esquemaComColaborador());
     host.detectChanges();
 
-    expect(host.nativeElement.querySelector('ces-autocomplete')).not.toBeNull();
+    expect(host.nativeElement.querySelector('geo-autocomplete')).not.toBeNull();
     expect(host.nativeElement.querySelector('p-select')).toBeNull();
     expect(lookupStore.searchCollaborators).not.toHaveBeenCalled();
 

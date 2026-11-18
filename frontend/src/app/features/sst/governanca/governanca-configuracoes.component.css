@@ -11,8 +11,8 @@
 .catalog-header{padding:1.5rem 1.75rem;border-bottom:1px solid #f1f5f9}
 .catalog-header h1,.list-header h1{margin-top:.25rem;color:#1e293b;font-size:16px;font-weight:600}
 .catalog-header p,.list-header p{margin-top:.3rem;max-width:48rem;color:#64748b;font-size:10px;line-height:1rem}
-:host-context(.app-dark) .catalog-shell,:host-context(.dark) .catalog-shell,:host-context(.app-dark) .list-shell,:host-context(.dark) .list-shell{border-color:var(--ces-border,#334155);background:var(--ces-surface,#0f172a)}
-:host-context(.app-dark) .catalog-header,:host-context(.dark) .catalog-header,:host-context(.app-dark) .list-header,:host-context(.dark) .list-header{border-bottom-color:var(--ces-border,#334155)}
+:host-context(.app-dark) .catalog-shell,:host-context(.dark) .catalog-shell,:host-context(.app-dark) .list-shell,:host-context(.dark) .list-shell{border-color:var(--geo-border,#334155);background:var(--geo-surface,#0f172a)}
+:host-context(.app-dark) .catalog-header,:host-context(.dark) .catalog-header,:host-context(.app-dark) .list-header,:host-context(.dark) .list-header{border-bottom-color:var(--geo-border,#334155)}
 :host-context(.app-dark) .catalog-header h1,:host-context(.dark) .catalog-header h1,:host-context(.app-dark) .list-header h1,:host-context(.dark) .list-header h1{color:#ffffff}
 :host-context(.app-dark) .catalog-header p,:host-context(.dark) .catalog-header p,:host-context(.app-dark) .list-header p,:host-context(.dark) .list-header p{color:#94a3b8}
 .catalog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;padding:1.25rem}

@@ -30,7 +30,7 @@ public class OsrmRotaRodoviariaAdapter implements RotaRodoviariaPort {
     private final CircuitBreakerFactory<?, ?> circuitBreakers;
     private final boolean habilitado;
 
-    public OsrmRotaRodoviariaAdapter(@Value("${ces.obras.rotas.osrm-url:}") String urlBase,
+    public OsrmRotaRodoviariaAdapter(@Value("${geo.obras.rotas.osrm-url:}") String urlBase,
                                      RestClient.Builder builder,
                                      CircuitBreakerFactory<?, ?> circuitBreakers) {
         this.habilitado = urlBase != null && !urlBase.isBlank();

@@ -1,20 +1,20 @@
-@layer ces.base {
+@layer geo.base {
   html {
-    background: var(--ces-canvas);
-    color: var(--ces-foreground);
+    background: var(--geo-canvas);
+    color: var(--geo-foreground);
   }
 
   body {
-    background: var(--ces-canvas);
-    color: var(--ces-foreground);
+    background: var(--geo-canvas);
+    color: var(--geo-foreground);
   }
 
   :where(button, a, input, textarea, select, [tabindex]):focus-visible {
-    outline: 3px solid var(--ces-focus-ring);
+    outline: 3px solid var(--geo-focus-ring);
     outline-offset: 2px;
   }
 
-  .ces-sr-only {
+  .geo-sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -26,7 +26,7 @@
     border: 0;
   }
 
-  .ces-tabular-nums {
+  .geo-tabular-nums {
     font-variant-numeric: tabular-nums;
   }
 

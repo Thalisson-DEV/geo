@@ -86,7 +86,7 @@ export interface KitConstrutivoFilter {
 export type TipoImportacaoObra = 'KITS' | 'CARTEIRA' | 'ORCAMENTO';
 export type SituacaoLinhaImportacao = 'AGUARDANDO_PROCESSAMENTO' | 'COM_ERRO' | 'EM_PROCESSAMENTO' | 'CONCLUIDO';
 
-/** Campos comuns de toda linha da pré-visualização (formato de `CesImportRow`). */
+/** Campos comuns de toda linha da pré-visualização (formato de `GeoImportRow`). */
 interface LinhaImportacaoBase {
   linha?: number;
   status?: SituacaoLinhaImportacao;

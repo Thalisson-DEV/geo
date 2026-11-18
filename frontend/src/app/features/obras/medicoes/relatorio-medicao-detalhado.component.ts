@@ -2,21 +2,21 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-  CesAsyncStateComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFileInputComponent,
-  CesFormSectionComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAsyncStateComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFileInputComponent,
+  GeoFormSectionComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { AnaliseOrcadoFaturado, ObraNaPlanilha } from '../../../core/models/obras-medicoes.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.service';
@@ -36,118 +36,118 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFileInputComponent,
-    CesFormSectionComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFileInputComponent,
+    GeoFormSectionComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page">
-      <ces-page-header title="Relatório de medição detalhado" icon="pi pi-file-export"
+    <div class="geo-page">
+      <geo-page-header title="Relatório de medição detalhado" icon="pi pi-file-export"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Medições' }, { label: 'Relatório detalhado' }]"
         description="Orçado e faturado do contrato lado a lado com a execução de cada obra, em Excel, PDF e fotos do book num único pacote."
         helpLabel="Ajuda sobre o relatório detalhado" (help)="ajuda.show()">
-        <ces-button actions label="Baixar modelo" icon="pi pi-download" variant="outline" [loading]="baixandoModelo()" (pressed)="baixarModelo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions label="Baixar modelo" icon="pi pi-download" variant="outline" [loading]="baixandoModelo()" (pressed)="baixarModelo()"></geo-button>
+      </geo-page-header>
 
-      <ces-form-section title="1. Planilha orçado × faturado" icon="pi pi-file-excel"
+      <geo-form-section title="1. Planilha orçado × faturado" icon="pi pi-file-excel"
         description="Abas Materiais orçados, Mão de obra orçada e Faturado. Quem já usa a planilha nesse layout pode enviá-la como está.">
-        <ces-file-input label="Planilha" accept=".xlsx" [maxBytes]="limiteArquivo" buttonLabel="Escolher a planilha (XLSX)"
-          emptyLabel="Até 15 MB. A análise começa ao escolher o arquivo." [file]="arquivo()" (fileChange)="escolher($event)"></ces-file-input>
-      </ces-form-section>
+        <geo-file-input label="Planilha" accept=".xlsx" [maxBytes]="limiteArquivo" buttonLabel="Escolher a planilha (XLSX)"
+          emptyLabel="Até 15 MB. A análise começa ao escolher o arquivo." [file]="arquivo()" (fileChange)="escolher($event)"></geo-file-input>
+      </geo-form-section>
 
       @if (analisando()) {
-        <ces-async-state state="loading" title="Lendo a planilha" [compact]="true"></ces-async-state>
+        <geo-async-state state="loading" title="Lendo a planilha" [compact]="true"></geo-async-state>
       } @else if (erro(); as mensagem) {
-        <ces-async-state state="error" title="Não foi possível ler a planilha" [description]="mensagem"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível ler a planilha" [description]="mensagem"></geo-async-state>
       } @else if (analise(); as a) {
         <section class="relatorio__analise" aria-label="Resultado da análise">
-          <div class="ces-kpis">
-            <div class="ces-kpi" [attr.data-tone]="a.obras.length ? 'info' : 'warning'">
-              <span class="ces-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
-              <span class="ces-kpi__body"><span class="ces-kpi__label">Obras reconhecidas</span>
-                <span class="ces-kpi__value">{{ a.obras.length }}</span>
-                <span class="ces-kpi__detail">{{ a.linhasMaoDeObra + a.linhasMateriais }} linhas de orçamento · {{ a.linhasFaturado }} de faturado</span></span>
+          <div class="geo-kpis">
+            <div class="geo-kpi" [attr.data-tone]="a.obras.length ? 'info' : 'warning'">
+              <span class="geo-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
+              <span class="geo-kpi__body"><span class="geo-kpi__label">Obras reconhecidas</span>
+                <span class="geo-kpi__value">{{ a.obras.length }}</span>
+                <span class="geo-kpi__detail">{{ a.linhasMaoDeObra + a.linhasMateriais }} linhas de orçamento · {{ a.linhasFaturado }} de faturado</span></span>
             </div>
-            <div class="ces-kpi" data-tone="neutral">
-              <span class="ces-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
-              <span class="ces-kpi__body"><span class="ces-kpi__label">Orçado de mão de obra</span>
-                <span class="ces-kpi__value">{{ moeda(totalOrcado()) }}</span>
-                <span class="ces-kpi__detail">Valor atualizado quando houver</span></span>
+            <div class="geo-kpi" data-tone="neutral">
+              <span class="geo-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+              <span class="geo-kpi__body"><span class="geo-kpi__label">Orçado de mão de obra</span>
+                <span class="geo-kpi__value">{{ moeda(totalOrcado()) }}</span>
+                <span class="geo-kpi__detail">Valor atualizado quando houver</span></span>
             </div>
-            <div class="ces-kpi" data-tone="brand">
-              <span class="ces-kpi__icon"><i class="pi pi-receipt" aria-hidden="true"></i></span>
-              <span class="ces-kpi__body"><span class="ces-kpi__label">Faturado</span>
-                <span class="ces-kpi__value">{{ moeda(totalFaturado()) }}</span>
-                <span class="ces-kpi__detail">Lançamentos aprovados; crédito subtrai</span></span>
+            <div class="geo-kpi" data-tone="brand">
+              <span class="geo-kpi__icon"><i class="pi pi-receipt" aria-hidden="true"></i></span>
+              <span class="geo-kpi__body"><span class="geo-kpi__label">Faturado</span>
+                <span class="geo-kpi__value">{{ moeda(totalFaturado()) }}</span>
+                <span class="geo-kpi__detail">Lançamentos aprovados; crédito subtrai</span></span>
             </div>
-            <div class="ces-kpi" [attr.data-tone]="obrasComPendencia() ? 'warning' : 'success'">
-              <span class="ces-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
-              <span class="ces-kpi__body"><span class="ces-kpi__label">Obras com pendência</span>
-                <span class="ces-kpi__value">{{ obrasComPendencia() }}</span>
-                <span class="ces-kpi__detail">Linha com erro ou lançamento a conferir</span></span>
+            <div class="geo-kpi" [attr.data-tone]="obrasComPendencia() ? 'warning' : 'success'">
+              <span class="geo-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+              <span class="geo-kpi__body"><span class="geo-kpi__label">Obras com pendência</span>
+                <span class="geo-kpi__value">{{ obrasComPendencia() }}</span>
+                <span class="geo-kpi__detail">Linha com erro ou lançamento a conferir</span></span>
             </div>
           </div>
 
           @if (a.errosSemObra.length) {
-            <ces-callout tone="danger" [dense]="true" [title]="a.errosSemObra.length === 1 ? '1 linha sem o número da obra' : a.errosSemObra.length + ' linhas sem o número da obra'">
+            <geo-callout tone="danger" [dense]="true" [title]="a.errosSemObra.length === 1 ? '1 linha sem o número da obra' : a.errosSemObra.length + ' linhas sem o número da obra'">
               {{ primeiros(a.errosSemObra) }}
-            </ces-callout>
+            </geo-callout>
           }
           @if (a.naoIdentificadas.length) {
-            <ces-callout tone="warning" [dense]="true" [title]="a.naoIdentificadas.length === 1 ? '1 obra não cadastrada' : a.naoIdentificadas.length + ' obras não cadastradas'">
+            <geo-callout tone="warning" [dense]="true" [title]="a.naoIdentificadas.length === 1 ? '1 obra não cadastrada' : a.naoIdentificadas.length + ' obras não cadastradas'">
               {{ a.naoIdentificadas.join(', ') }}. Elas ficam fora do relatório e não impedem as demais.
-            </ces-callout>
+            </geo-callout>
           }
 
           @if (a.obras.length) {
-            <ces-data-table caption="Obras da planilha" exportFileName="obras-orcado-faturado" searchPlaceholder="Obra, título ou município"
+            <geo-data-table caption="Obras da planilha" exportFileName="obras-orcado-faturado" searchPlaceholder="Obra, título ou município"
               [columns]="colunas" [rows]="a.obras" [rowKey]="chave" [rowLabel]="rotulo" [selectable]="true" [(selection)]="escolhidas"
               [pageSizeOptions]="[10, 25, 50]" [pageSize]="10">
-              <ng-template cesCell="obra" let-row>
-                <span class="ces-cell-strong">{{ row.numero }}</span>
-                <span class="ces-cell-muted">{{ row.titulo }}</span>
+              <ng-template geoCell="obra" let-row>
+                <span class="geo-cell-strong">{{ row.numero }}</span>
+                <span class="geo-cell-muted">{{ row.titulo }}</span>
               </ng-template>
-              <ng-template cesCell="situacao" let-row>
-                <ces-status [tone]="situacaoDe(row).tom" [icon]="situacaoDe(row).icone">{{ situacaoDe(row).rotulo }}</ces-status>
+              <ng-template geoCell="situacao" let-row>
+                <geo-status [tone]="situacaoDe(row).tom" [icon]="situacaoDe(row).icone">{{ situacaoDe(row).rotulo }}</geo-status>
               </ng-template>
-              <ng-template cesCell="ultimoFaturamento" let-row>{{ row.ultimoFaturamento ? (row.ultimoFaturamento | date: 'dd/MM/yyyy') : '—' }}</ng-template>
-            </ces-data-table>
+              <ng-template geoCell="ultimoFaturamento" let-row>{{ row.ultimoFaturamento ? (row.ultimoFaturamento | date: 'dd/MM/yyyy') : '—' }}</ng-template>
+            </geo-data-table>
 
             @for (o of escolhidasComErro(); track o.idObra) {
-              <ces-callout tone="danger" [dense]="true" [title]="'Obra ' + o.numero + ': ' + situacaoDe(o).rotulo">{{ primeiros(o.erros) }}</ces-callout>
+              <geo-callout tone="danger" [dense]="true" [title]="'Obra ' + o.numero + ': ' + situacaoDe(o).rotulo">{{ primeiros(o.erros) }}</geo-callout>
             }
 
-            <ces-form-section title="2. Dados do relatório" icon="pi pi-sliders-h"
+            <geo-form-section title="2. Dados do relatório" icon="pi pi-sliders-h"
               description="Execução, faturado e medições entram até a data de corte. Fiscal e responsável vão para as assinaturas do PDF.">
               <div class="relatorio__campos">
-                <ces-datepicker label="Data de corte" [required]="true" [value]="dataCorte()" [maxDate]="hoje" (valueChange)="dataCorte.set($any($event))"
-                  [error]="dataCorte() ? undefined : 'Informe a data de corte.'"></ces-datepicker>
-                <ces-text-input label="Fiscal" [(value)]="fiscal" [maxlength]="120" placeholder="Nome do fiscal do contrato" [showOptional]="true"></ces-text-input>
-                <ces-text-input label="Responsável" [(value)]="responsavel" [maxlength]="120" placeholder="Quem responde pela medição" [showOptional]="true"></ces-text-input>
+                <geo-datepicker label="Data de corte" [required]="true" [value]="dataCorte()" [maxDate]="hoje" (valueChange)="dataCorte.set($any($event))"
+                  [error]="dataCorte() ? undefined : 'Informe a data de corte.'"></geo-datepicker>
+                <geo-text-input label="Fiscal" [(value)]="fiscal" [maxlength]="120" placeholder="Nome do fiscal do contrato" [showOptional]="true"></geo-text-input>
+                <geo-text-input label="Responsável" [(value)]="responsavel" [maxlength]="120" placeholder="Quem responde pela medição" [showOptional]="true"></geo-text-input>
               </div>
-              <ces-boolean-control kind="toggle" label="Incluir as fotos do book" [(value)]="incluirFotos"
-                description="Fotos dos pontos executados, no PDF e numa pasta do pacote. Sem elas o pacote sai mais leve."></ces-boolean-control>
-              <div class="ces-actions-row relatorio__acoes">
+              <geo-boolean-control kind="toggle" label="Incluir as fotos do book" [(value)]="incluirFotos"
+                description="Fotos dos pontos executados, no PDF e numa pasta do pacote. Sem elas o pacote sai mais leve."></geo-boolean-control>
+              <div class="geo-actions-row relatorio__acoes">
                 @if (bloqueio(); as motivo) {
                   <span class="relatorio__motivo" role="status">{{ motivo }}</span>
                 }
-                <ces-button icon="pi pi-file-export" [label]="rotuloGerar()" [loading]="gerando()" [disabled]="!!bloqueio() || !dataCorte()" (pressed)="gerar()"></ces-button>
+                <geo-button icon="pi pi-file-export" [label]="rotuloGerar()" [loading]="gerando()" [disabled]="!!bloqueio() || !dataCorte()" (pressed)="gerar()"></geo-button>
               </div>
-            </ces-form-section>
+            </geo-form-section>
           } @else {
-            <ces-callout tone="info" [dense]="true" title="Nenhuma obra cadastrada na planilha">
+            <geo-callout tone="info" [dense]="true" title="Nenhuma obra cadastrada na planilha">
               Confira a coluna Obra: o número precisa ser o mesmo do cadastro.
-            </ces-callout>
+            </geo-callout>
           }
         </section>
       }
@@ -176,7 +176,7 @@ const LIMITE_ARQUIVO = 15 * 1024 * 1024;
     .relatorio__analise { display: grid; gap: 1rem; margin-top: 1.25rem; }
     .relatorio__campos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); margin-bottom: 0.75rem; }
     .relatorio__acoes { justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem; }
-    .relatorio__motivo { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .relatorio__motivo { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
   `
 })
 export class RelatorioMedicaoDetalhadoComponent {
@@ -211,7 +211,7 @@ export class RelatorioMedicaoDetalhadoComponent {
     return n > 1 ? `Gerar pacote de ${n} obras` : 'Gerar pacote';
   });
 
-  protected readonly colunas: CesDataTableColumn<ObraNaPlanilha>[] = [
+  protected readonly colunas: GeoDataTableColumn<ObraNaPlanilha>[] = [
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (o) => o.numero, display: (o) => `${o.numero} ${o.titulo}` },
     { key: 'municipio', header: 'Município', value: (o) => o.municipio },
     { key: 'orcadoMaoDeObra', header: 'Orçado mão de obra', type: 'currency', priority: 1, value: (o) => o.orcadoMaoDeObra },

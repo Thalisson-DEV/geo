@@ -31,7 +31,7 @@ public class LimpezaConexoesIa {
         this.credenciais = credenciais;
     }
 
-    @Scheduled(cron = "${ces.conexoes-ia.limpeza-cron:0 40 3 * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.conexoes-ia.limpeza-cron:0 40 3 * * *}", zone = "America/Sao_Paulo")
     @Transactional
     public void limpar() {
         OffsetDateTime agora = OffsetDateTime.now();

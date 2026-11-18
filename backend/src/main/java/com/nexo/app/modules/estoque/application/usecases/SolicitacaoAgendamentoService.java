@@ -33,7 +33,7 @@ public class SolicitacaoAgendamentoService {
      * Verifica periodicamente se existem solicitações com entrega parcial há mais de 72 horas não encerradas.
      * Caso existam, encerra o saldo pendente mantendo o status de entrega parcial.
      */
-    @Scheduled(cron = "${ces.estoque.expiracao-parcial-cron:0 0 * * * *}") // Executa a cada hora
+    @Scheduled(cron = "${geo.estoque.expiracao-parcial-cron:0 0 * * * *}") // Executa a cada hora
     @Transactional
     public void processarSolicitacoesParciaisExpiradas() {
         OffsetDateTime limite = OffsetDateTime.now().minusHours(72);

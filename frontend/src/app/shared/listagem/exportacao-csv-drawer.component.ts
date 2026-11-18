@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
-import { CesButtonComponent, CesFormDrawerComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoFormDrawerComponent } from '@geo/ui';
 
 const INTEIRO = new Intl.NumberFormat('pt-BR');
 
@@ -21,7 +21,7 @@ export interface OpcaoFormatoExportacao {
   selector: 'app-exportacao-csv-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesFormDrawerComponent],
+  imports: [GeoButtonComponent, GeoFormDrawerComponent],
   styleUrls: ['../../features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao.css'],
   styles: `
     .ex-formato { display: grid; gap: 0.5rem; }
@@ -29,7 +29,7 @@ export interface OpcaoFormatoExportacao {
     @media (max-width: 40rem) { .ex-recorte { grid-template-columns: minmax(0, 1fr); } }
   `,
   template: `
-    <ces-form-drawer #drawer [(visible)]="visible" [title]="titulo()" [description]="descricao()" size="md">
+    <geo-form-drawer #drawer [(visible)]="visible" [title]="titulo()" [description]="descricao()" size="md">
       <div class="ns">
         <section class="ns-secao" aria-labelledby="ex-formato">
           <h3 id="ex-formato" class="ns-secao__titulo"><i class="pi pi-file" aria-hidden="true"></i>Formato</h3>
@@ -88,11 +88,11 @@ export interface OpcaoFormatoExportacao {
           }
         </span>
         <span class="ns-rodape__acoes">
-          <ces-button label="Cancelar" variant="ghost" (pressed)="drawer.requestClose()" />
-          <ces-button label="Baixar CSV" icon="pi pi-download" [loading]="exportando()" [disabled]="total() === 0" (pressed)="exportar.emit(formato())" />
+          <geo-button label="Cancelar" variant="ghost" (pressed)="drawer.requestClose()" />
+          <geo-button label="Baixar CSV" icon="pi pi-download" [loading]="exportando()" [disabled]="total() === 0" (pressed)="exportar.emit(formato())" />
         </span>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class ExportacaoCsvDrawerComponent {

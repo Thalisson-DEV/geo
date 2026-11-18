@@ -2,19 +2,19 @@ import { ICONE_VENCIMENTO } from '../../../core/models/frota.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, model, output } from '@angular/core';
 import {
-  CesCellDirective,
-  CesRowActionsDirective,
-  CesConfirmationService,
-  CesContentState,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesLazyLoadEvent,
-  CesSortRule,
-  CesStatusComponent,
+  GeoCellDirective,
+  GeoRowActionsDirective,
+  GeoConfirmationService,
+  GeoContentState,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoLazyLoadEvent,
+  GeoSortRule,
+  GeoStatusComponent,
   NotificationService,
-  CesTone
-} from '@ces/ui';
+  GeoTone
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 import {
   DocumentoFrota,
@@ -34,9 +34,9 @@ import { FrotaService } from '../../../core/services/frota.service';
   selector: 'app-frota-documentos-tabela',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesCellDirective, CesDataTableComponent, CesIconButtonComponent, CesStatusComponent],
+  imports: [DatePipe, GeoCellDirective, GeoDataTableComponent, GeoIconButtonComponent, GeoStatusComponent],
   template: `
-    <ces-data-table
+    <geo-data-table
       [title]="titulo()"
       [description]="descricao()"
       [mode]="modo()"
@@ -68,51 +68,51 @@ import { FrotaService } from '../../../core/services/frota.service';
     >
       <ng-container table-filters><ng-content select="[filtros-rapidos]"></ng-content></ng-container>
       <ng-container table-actions><ng-content select="[acoes]"></ng-content></ng-container>
-      <ng-template cesCell="titular" let-row>
-        <span class="ces-cell-strong">{{ row.placa ? placa(row.placa) : row.implemento }}</span>
-        <span class="ces-cell-muted">{{ row.placa ? 'Veículo' : 'Implemento' }}</span>
+      <ng-template geoCell="titular" let-row>
+        <span class="geo-cell-strong">{{ row.placa ? placa(row.placa) : row.implemento }}</span>
+        <span class="geo-cell-muted">{{ row.placa ? 'Veículo' : 'Implemento' }}</span>
       </ng-template>
-      <ng-template cesCell="tipo" let-row>
-        <span class="ces-cell-strong">{{ row.tipoRotulo }}</span>
+      <ng-template geoCell="tipo" let-row>
+        <span class="geo-cell-strong">{{ row.tipoRotulo }}</span>
         @if (row.descricao) {
-          <span class="ces-cell-muted">{{ row.descricao }}</span>
+          <span class="geo-cell-muted">{{ row.descricao }}</span>
         }
       </ng-template>
-      <ng-template cesCell="dataVencimento" let-row>
+      <ng-template geoCell="dataVencimento" let-row>
         @if (row.dataVencimento) {
-          <span class="ces-cell-strong">{{ row.dataVencimento | date: 'dd/MM/yyyy' }}</span>
+          <span class="geo-cell-strong">{{ row.dataVencimento | date: 'dd/MM/yyyy' }}</span>
           @if (row.diasParaVencer !== null && row.situacaoVencimento !== 'VIGENTE') {
-            <span class="ces-cell-muted">{{ prazo(row.diasParaVencer) }}</span>
+            <span class="geo-cell-muted">{{ prazo(row.diasParaVencer) }}</span>
           }
         } @else {
-          <span class="ces-cell-muted">Sem vencimento</span>
+          <span class="geo-cell-muted">Sem vencimento</span>
         }
       </ng-template>
-      <ng-template cesCell="situacaoVencimento" let-row>
-        <ces-status [tone]="tom[row.situacaoVencimento]" [icon]="icone[row.situacaoVencimento]">{{ rotulo[row.situacaoVencimento] }}</ces-status>
+      <ng-template geoCell="situacaoVencimento" let-row>
+        <geo-status [tone]="tom[row.situacaoVencimento]" [icon]="icone[row.situacaoVencimento]">{{ rotulo[row.situacaoVencimento] }}</geo-status>
       </ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
           @if (row.possuiArquivo) {
-            <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + (row.arquivoNome ?? 'arquivo de ' + nomeDoc(row))" tooltip="Baixar arquivo" size="icon-sm"
-              (pressed)="baixar(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + (row.arquivoNome ?? 'arquivo de ' + nomeDoc(row))" tooltip="Baixar arquivo" size="icon-sm"
+              (pressed)="baixar(row)"></geo-icon-button>
           }
           @if (podeEditar()) {
-            <ces-icon-button icon="pi pi-trash" [label]="'Excluir ' + nomeDoc(row)" tooltip="Excluir documento" size="icon-sm"
-              (pressed)="excluir(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-trash" [label]="'Excluir ' + nomeDoc(row)" tooltip="Excluir documento" size="icon-sm"
+              (pressed)="excluir(row)"></geo-icon-button>
           }
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
   `
 })
 export class FrotaDocumentosTabelaComponent {
   private readonly frota = inject(FrotaService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly notificacoes = inject(NotificationService);
 
   readonly documentos = input<readonly DocumentoFrota[]>([]);
-  readonly estado = input<CesContentState>('ready');
+  readonly estado = input<GeoContentState>('ready');
   readonly titulo = input('Documentos');
   readonly descricao = input<string | undefined>();
   readonly erro = input<string | null>(null);
@@ -127,19 +127,19 @@ export class FrotaDocumentosTabelaComponent {
   readonly modo = input<'client' | 'server'>('client');
   readonly total = input<number | undefined>();
   readonly filtrado = input(false);
-  readonly exportarLinhas = input<((evento: CesLazyLoadEvent, limite: number) => Observable<readonly DocumentoFrota[]>) | undefined>();
+  readonly exportarLinhas = input<((evento: GeoLazyLoadEvent, limite: number) => Observable<readonly DocumentoFrota[]>) | undefined>();
   readonly limiteExportacao = input(10000);
   readonly pagina = model(0);
   readonly tamanho = model(25);
-  readonly ordem = model<CesSortRule[]>([]);
+  readonly ordem = model<GeoSortRule[]>([]);
   readonly busca = model('');
   readonly editar = output<DocumentoFrota>();
   readonly alterado = output<void>();
-  readonly carregar = output<CesLazyLoadEvent>();
+  readonly carregar = output<GeoLazyLoadEvent>();
   readonly ajustarFiltros = output<void>();
   readonly limparFiltros = output<void>();
 
-  protected readonly tom: Record<string, CesTone> = TOM_VENCIMENTO;
+  protected readonly tom: Record<string, GeoTone> = TOM_VENCIMENTO;
   protected readonly icone: Record<string, string> = ICONE_VENCIMENTO;
   protected readonly rotulo: Record<string, string> = ROTULO_VENCIMENTO;
   protected readonly prazo = descreverPrazo;
@@ -147,14 +147,14 @@ export class FrotaDocumentosTabelaComponent {
   protected readonly chave = (d: DocumentoFrota) => d.id;
   protected readonly nomeDoc = (d: DocumentoFrota) => `${d.tipoRotulo}${d.numero ? ' nº ' + d.numero : ''}`;
 
-  protected readonly colunas: CesDataTableColumn<DocumentoFrota>[] = [
+  protected readonly colunas: GeoDataTableColumn<DocumentoFrota>[] = [
     { key: 'tipo', header: 'Documento', type: 'custom', priority: 1, sortField: 'tipo', value: (d) => d.tipoRotulo, display: (d) => `${d.tipoRotulo} ${d.descricao ?? ''}` },
     { key: 'numero', header: 'Número', sortField: 'numero', display: (d) => d.numero ?? '—' },
     { key: 'dataVencimento', header: 'Vencimento', type: 'custom', sortField: 'dataVencimento', value: (d) => d.dataVencimento ?? '9999-12-31', display: (d) => d.dataVencimento ?? '' },
     { key: 'situacaoVencimento', header: 'Situação', type: 'custom', priority: 1, value: (d) => d.diasParaVencer ?? 99999, display: (d) => ROTULO_VENCIMENTO[d.situacaoVencimento] }
   ];
 
-  protected readonly colunasComTitular: CesDataTableColumn<DocumentoFrota>[] = [
+  protected readonly colunasComTitular: GeoDataTableColumn<DocumentoFrota>[] = [
     { key: 'titular', header: 'Pertence a', type: 'custom', priority: 1, value: (d) => d.placa ?? d.implemento, display: (d) => d.placa ?? d.implemento ?? '' },
     ...this.colunas
   ];

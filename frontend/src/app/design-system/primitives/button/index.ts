@@ -1,2 +1,2 @@
-export * from './ces-button.component';
-export * from './ces-icon-button.component';
+export * from './geo-button.component';
+export * from './geo-icon-button.component';

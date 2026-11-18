@@ -1,28 +1,28 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesImportStatus,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoImportStatus,
+  geoListState
+} from '@geo/ui';
 import { Observable, map, of, switchMap } from 'rxjs';
 
 import { PerfilAcessoImportacaoDTO, PerfilAcessoResponse, PermissaoResponse } from '../../../core/models/iam.models';
@@ -46,35 +46,35 @@ import { PermissoesPerfilEditorComponent } from './permissoes-perfil-editor.comp
       gap: 0.75rem;
       margin: 0.25rem 0 1rem;
     }
-    .perfil-copiar ces-select {
+    .perfil-copiar geo-select {
       flex: 1 1 16rem;
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent,
     PermissoesPerfilEditorComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Perfis de acesso"
         icon="pi pi-shield"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'Cadastros' }, { label: 'Perfis de acesso' }]"
@@ -82,18 +82,18 @@ import { PermissoesPerfilEditorComponent } from './permissoes-perfil-editor.comp
         helpLabel="Ajuda sobre perfis de acesso"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo perfil" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo perfil" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="iam-perfis" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="iam-perfis" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Perfis de acesso"
         mode="server"
         storageKey="iam-perfis"
@@ -123,44 +123,44 @@ import { PermissoesPerfilEditorComponent } from './permissoes-perfil-editor.comp
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row><span class="ces-cell-strong">{{ row.nome }}</span></ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="nome" let-row><span class="geo-cell-strong">{{ row.nome }}</span></ng-template>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome" size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar perfil' : 'Novo perfil'" [description]="emEdicao()?.nome"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar perfil' : 'Novo perfil'" [description]="emEdicao()?.nome"
       [dirty]="alterado()" size="xl">
-      <ces-form-section title="Perfil" icon="pi pi-shield">
-        <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="50" placeholder="Ex.: ADMIN" [error]="erro('nome')"></ces-text-input>
+      <geo-form-section title="Perfil" icon="pi pi-shield">
+        <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="50" placeholder="Ex.: ADMIN" [error]="erro('nome')"></geo-text-input>
         @if (emEdicao()) {
-          <ces-boolean-control label="Perfil ativo" kind="toggle" [(value)]="ativo"></ces-boolean-control>
+          <geo-boolean-control label="Perfil ativo" kind="toggle" [(value)]="ativo"></geo-boolean-control>
         }
-      </ces-form-section>
-      <ces-form-section title="Permissões" icon="pi pi-lock" description="O que quem tem este perfil pode ver e fazer em cada módulo.">
+      </geo-form-section>
+      <geo-form-section title="Permissões" icon="pi pi-lock" description="O que quem tem este perfil pode ver e fazer em cada módulo.">
         @if (emEdicao()) {
-          <ces-callout tone="warning" title="Vale no próximo acesso">
+          <geo-callout tone="warning" title="Vale no próximo acesso">
             As permissões mudam na hora no servidor, mas quem já está usando o sistema com este perfil precisa
             <strong>sair e entrar de novo</strong> para ver os menus e botões atualizados.
-          </ces-callout>
+          </geo-callout>
         }
         <div class="perfil-copiar">
-          <ces-select
+          <geo-select
             label="Começar a partir de outro perfil"
             description="Copia as permissões de um perfil existente; depois é só ajustar."
             placeholder="Escolha um perfil"
             [options]="opcoesCopia()"
             [(value)]="perfilParaCopiar"
             [filter]="opcoesCopia().length > 8"
-          ></ces-select>
-          <ces-button label="Copiar permissões" icon="pi pi-copy" variant="outline" [disabled]="!perfilParaCopiar()" [loading]="copiando()" (pressed)="copiarPermissoes()"></ces-button>
+          ></geo-select>
+          <geo-button label="Copiar permissões" icon="pi pi-copy" variant="outline" [disabled]="!perfilParaCopiar()" [loading]="copiando()" (pressed)="copiarPermissoes()"></geo-button>
         </div>
         <app-permissoes-perfil-editor
           [permissoes]="todasPermissoes()"
@@ -168,42 +168,42 @@ import { PermissoesPerfilEditorComponent } from './permissoes-perfil-editor.comp
           [iniciais]="iniciais()"
           [carregando]="carregandoPermissoes()"
         />
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar perfil'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar perfil'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar perfis" description="Planilha CSV com o nome de cada perfil. As permissões são marcadas depois, na edição."
+    <geo-import-drawer [(visible)]="importacao.aberta" title="Importar perfis" description="Planilha CSV com o nome de cada perfil. As permissões são marcadas depois, na edição."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao.linhas()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="nome" let-row>
-            @if (row.editing) { <ces-text-input label="Nome" [labelVisible]="false" [(value)]="row.nome"></ces-text-input> } @else { {{ row.nome }} }
+          <ng-template geoCell="nome" let-row>
+            @if (row.editing) { <geo-text-input label="Nome" [labelVisible]="false" [(value)]="row.nome"></geo-text-input> } @else { {{ row.nome }} }
           </ng-template>
-          <ng-template cesCell="status" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="status" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Perfis de acesso" entidadePlural="perfis" busca="nome do perfil" rotuloNovo="Novo perfil" [importacao]="true">
@@ -220,15 +220,15 @@ export class PerfisAcessoComponent {
   private readonly perfis = inject(PerfisAcessoService);
   private readonly importacaoService = inject(ImportacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly statusOpcoes = OPCOES_STATUS;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'iam-perfis',
     filters: {
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
@@ -239,7 +239,7 @@ export class PerfisAcessoComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.perfis.listarPerfis({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<PerfilAcessoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<PerfilAcessoResponse>[] = [
     { key: 'nome', header: 'Nome', type: 'custom', priority: 1, sortField: 'nome', value: (p) => p.nome, display: (p) => p.nome },
     { key: 'ativo', header: 'Status', type: 'custom', sortField: 'ativo', value: (p) => p.ativo, display: (p) => (p.ativo ? 'Ativo' : 'Inativo') }
   ];
@@ -280,9 +280,9 @@ export class PerfisAcessoComponent {
     modelo: () => this.importacaoService.baixarModeloCsv('/v1/iam/perfis/importar/modelo', 'modelo-perfis-acesso.csv'),
     aoProcessar: () => this.lista.reload()
   });
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveImportacao = CHAVE_LINHA_IMPORTACAO;
-  protected readonly colunasImportacao: CesDataTableColumn<PerfilAcessoImportacaoDTO>[] = [
+  protected readonly colunasImportacao: GeoDataTableColumn<PerfilAcessoImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'nome', header: 'Nome do perfil', type: 'custom', priority: 1, value: (r) => r.nome },
     { key: 'status', header: 'Situação', type: 'custom', priority: 1, value: (r) => r.status }

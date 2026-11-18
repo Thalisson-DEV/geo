@@ -1,31 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesImportStatus,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoImportStatus,
+  geoListState
+} from '@geo/ui';
 import { map } from 'rxjs';
 
 import { ColaboradorResponse, CoordenadorMinResponse, SupervisorImportacaoDTO, SupervisorRequest, SupervisorResponse } from '../../../core/models/rh.models';
@@ -47,29 +47,29 @@ import { buscaColaboradores, resumoColaborador, rotuloColaborador, situacaoVigen
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Supervisores"
         icon="pi pi-users"
         [breadcrumb]="[{ label: 'Departamento Pessoal' }, { label: 'Cadastros' }, { label: 'Supervisores' }]"
@@ -77,23 +77,23 @@ import { buscaColaboradores, resumoColaborador, rotuloColaborador, situacaoVigen
         helpLabel="Ajuda sobre supervisores"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo supervisor" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo supervisor" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="rh-supervisores" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="rh-supervisores" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Coordenador" [options]="coordenadoresOpcoes()" [(value)]="lista.filters.idCoordenador" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-datepicker label="Início a partir de" [value]="dataLocal(lista.filters.inicio())" [clearable]="true"
-            (valueChange)="lista.filters.inicio.set(dataIso($event))"></ces-datepicker>
-          <ces-datepicker label="Fim até" [value]="dataLocal(lista.filters.fim())" [clearable]="true"
-            (valueChange)="lista.filters.fim.set(dataIso($event))"></ces-datepicker>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Coordenador" [options]="coordenadoresOpcoes()" [(value)]="lista.filters.idCoordenador" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-datepicker label="Início a partir de" [value]="dataLocal(lista.filters.inicio())" [clearable]="true"
+            (valueChange)="lista.filters.inicio.set(dataIso($event))"></geo-datepicker>
+          <geo-datepicker label="Fim até" [value]="dataLocal(lista.filters.fim())" [clearable]="true"
+            (valueChange)="lista.filters.fim.set(dataIso($event))"></geo-datepicker>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Supervisores"
         mode="server"
         storageKey="rh-supervisores"
@@ -123,97 +123,97 @@ import { buscaColaboradores, resumoColaborador, rotuloColaborador, situacaoVigen
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.colaborador?.nomeCompleto }}</span>
-          <span class="ces-cell-muted">{{ formatarCpf(row.colaborador?.cpf) }}</span>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.colaborador?.nomeCompleto }}</span>
+          <span class="geo-cell-muted">{{ formatarCpf(row.colaborador?.cpf) }}</span>
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="vigencia(row).tone" [icon]="vigencia(row).icon">{{ vigencia(row).label }}</ces-status>
+        <ng-template geoCell="situacao" let-row>
+          <geo-status [tone]="vigencia(row).tone" [icon]="vigencia(row).icon">{{ vigencia(row).label }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.colaborador?.nomeCompleto" size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.colaborador?.nomeCompleto" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.colaborador?.nomeCompleto" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.colaborador?.nomeCompleto" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar supervisor' : 'Novo supervisor'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar supervisor' : 'Novo supervisor'"
       [description]="emEdicao()?.colaborador?.nomeCompleto" [dirty]="alterado()" size="md">
-      <ces-form-section title="Colaborador" icon="pi pi-user">
-        <ces-autocomplete label="Colaborador" [required]="true" placeholder="Digite o nome" [options]="colaboradoresLookup.items()"
+      <geo-form-section title="Colaborador" icon="pi pi-user">
+        <geo-autocomplete label="Colaborador" [required]="true" placeholder="Digite o nome" [options]="colaboradoresLookup.items()"
           [ngModel]="idColaborador()" (ngModelChange)="selecionar($event)" [loading]="colaboradoresLookup.loading()"
           [status]="colaboradoresLookup.status()" [clearable]="true" [error]="erro('colaborador')"
-          (search)="colaboradoresLookup.search($event)" (loadMore)="colaboradoresLookup.loadNext()" (retry)="colaboradoresLookup.retry()"></ces-autocomplete>
+          (search)="colaboradoresLookup.search($event)" (loadMore)="colaboradoresLookup.loadNext()" (retry)="colaboradoresLookup.retry()"></geo-autocomplete>
         @if (colaborador(); as c) {
-          <ces-callout tone="info" [title]="c.nomeCompleto">
+          <geo-callout tone="info" [title]="c.nomeCompleto">
             {{ resumoColaborador(c) }}
-          </ces-callout>
+          </geo-callout>
         }
-      </ces-form-section>
-      <ces-form-section title="Coordenação" icon="pi pi-sitemap">
-        <ces-select label="Coordenador" [required]="true" [options]="coordenadoresOpcoes()" [(value)]="idCoordenador" [filter]="true"
-          description="A quem este supervisor responde." [error]="erro('coordenador')"></ces-select>
-      </ces-form-section>
-      <ces-form-section title="Vigência" icon="pi pi-calendar">
-        <div class="ces-form-grid">
-          <ces-datepicker label="Início" [required]="true" [(value)]="inicio" [error]="erro('inicio')"></ces-datepicker>
-          <ces-datepicker label="Fim" [(value)]="fim" [clearable]="true" [showOptional]="true" [minDate]="inicio()"
-            description="Em branco = vigente sem data de término." [error]="erro('fim')"></ces-datepicker>
+      </geo-form-section>
+      <geo-form-section title="Coordenação" icon="pi pi-sitemap">
+        <geo-select label="Coordenador" [required]="true" [options]="coordenadoresOpcoes()" [(value)]="idCoordenador" [filter]="true"
+          description="A quem este supervisor responde." [error]="erro('coordenador')"></geo-select>
+      </geo-form-section>
+      <geo-form-section title="Vigência" icon="pi pi-calendar">
+        <div class="geo-form-grid">
+          <geo-datepicker label="Início" [required]="true" [(value)]="inicio" [error]="erro('inicio')"></geo-datepicker>
+          <geo-datepicker label="Fim" [(value)]="fim" [clearable]="true" [showOptional]="true" [minDate]="inicio()"
+            description="Em branco = vigente sem data de término." [error]="erro('fim')"></geo-datepicker>
         </div>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar supervisor'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar supervisor'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar supervisores"
+    <geo-import-drawer [(visible)]="importacao.aberta" title="Importar supervisores"
       description="Planilha CSV com CPF ou nome do supervisor e do coordenador, início e fim da vigência."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao.linhas()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="cpf" let-row>
-            @if (row.editing) { <ces-text-input label="CPF" [labelVisible]="false" [(value)]="row.cpfColaborador"></ces-text-input> } @else { {{ row.cpfColaborador || '—' }} }
+          <ng-template geoCell="cpf" let-row>
+            @if (row.editing) { <geo-text-input label="CPF" [labelVisible]="false" [(value)]="row.cpfColaborador"></geo-text-input> } @else { {{ row.cpfColaborador || '—' }} }
           </ng-template>
-          <ng-template cesCell="nome" let-row>
-            @if (row.editing) { <ces-text-input label="Nome" [labelVisible]="false" [(value)]="row.nomeColaborador"></ces-text-input> } @else { {{ row.nomeColaborador || '—' }} }
+          <ng-template geoCell="nome" let-row>
+            @if (row.editing) { <geo-text-input label="Nome" [labelVisible]="false" [(value)]="row.nomeColaborador"></geo-text-input> } @else { {{ row.nomeColaborador || '—' }} }
           </ng-template>
-          <ng-template cesCell="cpfCoordenador" let-row>
-            @if (row.editing) { <ces-text-input label="CPF do coordenador" [labelVisible]="false" [(value)]="row.cpfCoordenador"></ces-text-input> } @else { {{ row.cpfCoordenador || '—' }} }
+          <ng-template geoCell="cpfCoordenador" let-row>
+            @if (row.editing) { <geo-text-input label="CPF do coordenador" [labelVisible]="false" [(value)]="row.cpfCoordenador"></geo-text-input> } @else { {{ row.cpfCoordenador || '—' }} }
           </ng-template>
-          <ng-template cesCell="nomeCoordenador" let-row>
-            @if (row.editing) { <ces-text-input label="Coordenador" [labelVisible]="false" [(value)]="row.nomeCoordenador"></ces-text-input> } @else { {{ row.nomeCoordenador || '—' }} }
+          <ng-template geoCell="nomeCoordenador" let-row>
+            @if (row.editing) { <geo-text-input label="Coordenador" [labelVisible]="false" [(value)]="row.nomeCoordenador"></geo-text-input> } @else { {{ row.nomeCoordenador || '—' }} }
           </ng-template>
-          <ng-template cesCell="inicio" let-row>
-            @if (row.editing) { <ces-text-input label="Início" [labelVisible]="false" [(value)]="row.dataInicio" placeholder="dd/mm/aaaa"></ces-text-input> } @else { {{ row.dataInicio }} }
+          <ng-template geoCell="inicio" let-row>
+            @if (row.editing) { <geo-text-input label="Início" [labelVisible]="false" [(value)]="row.dataInicio" placeholder="dd/mm/aaaa"></geo-text-input> } @else { {{ row.dataInicio }} }
           </ng-template>
-          <ng-template cesCell="fim" let-row>
-            @if (row.editing) { <ces-text-input label="Fim" [labelVisible]="false" [(value)]="row.dataFim" placeholder="Opcional"></ces-text-input> } @else { {{ row.dataFim || '—' }} }
+          <ng-template geoCell="fim" let-row>
+            @if (row.editing) { <geo-text-input label="Fim" [labelVisible]="false" [(value)]="row.dataFim" placeholder="Opcional"></geo-text-input> } @else { {{ row.dataFim || '—' }} }
           </ng-template>
-          <ng-template cesCell="status" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="status" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Supervisores" entidadePlural="supervisores" busca="nome do supervisor" rotuloNovo="Novo supervisor" [importacao]="true">
@@ -230,7 +230,7 @@ export class SupervisoresComponent {
   private readonly rh = inject(RhService);
   private readonly importacaoService = inject(ImportacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly formatarCpf = formatarCpf;
@@ -240,15 +240,15 @@ export class SupervisoresComponent {
   protected readonly dataIso = dataIso;
   protected readonly statusOpcoes = OPCOES_STATUS;
   protected readonly coordenadoresAtivos = signal<CoordenadorMinResponse[]>([]);
-  protected readonly coordenadoresOpcoes = computed<CesSelectOption<string>[]>(() => this.coordenadoresAtivos().map((c) => ({ label: c.nomeColaborador, value: c.id })));
+  protected readonly coordenadoresOpcoes = computed<GeoSelectOption<string>[]>(() => this.coordenadoresAtivos().map((c) => ({ label: c.nomeColaborador, value: c.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'rh-supervisores',
     filters: {
-      idCoordenador: cesFilter.value<string | null>(null, { label: 'Coordenador', param: 'coordenador', format: (id): string | null => (id ? this.nomeCoordenador(id) : null) }),
-      inicio: cesFilter.date(null, { label: 'Início a partir de' }),
-      fim: cesFilter.date(null, { label: 'Fim até' }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      idCoordenador: geoFilter.value<string | null>(null, { label: 'Coordenador', param: 'coordenador', format: (id): string | null => (id ? this.nomeCoordenador(id) : null) }),
+      inicio: geoFilter.date(null, { label: 'Início a partir de' }),
+      fim: geoFilter.date(null, { label: 'Fim até' }),
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'inicio', direction: 'desc' }]
   });
@@ -265,7 +265,7 @@ export class SupervisoresComponent {
     () => this.lista.request()
   );
 
-  protected readonly colunas: CesDataTableColumn<SupervisorResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<SupervisorResponse>[] = [
     { key: 'nome', header: 'Supervisor', type: 'custom', priority: 1, sortField: 'colaborador.nomeCompleto', value: (c) => c.colaborador?.nomeCompleto, display: (c) => c.colaborador?.nomeCompleto ?? '' },
     { key: 'coordenador', header: 'Coordenador', priority: 1, sortField: 'coordenador.colaborador.nomeCompleto', value: (c) => c.coordenador?.colaborador?.nomeCompleto, display: (c) => c.coordenador?.colaborador?.nomeCompleto ?? '—' },
     { key: 'base', header: 'Base', value: (c) => c.colaborador?.baseOperacional?.nome, display: (c) => c.colaborador?.baseOperacional?.nome ?? '—' },
@@ -309,9 +309,9 @@ export class SupervisoresComponent {
     modelo: () => this.importacaoService.baixarModeloCsv('/v1/rh/supervisores/importar/modelo', 'modelo-supervisores.csv'),
     aoProcessar: () => this.lista.reload()
   });
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveImportacao = CHAVE_LINHA_IMPORTACAO;
-  protected readonly colunasImportacao: CesDataTableColumn<SupervisorImportacaoDTO>[] = [
+  protected readonly colunasImportacao: GeoDataTableColumn<SupervisorImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'cpf', header: 'CPF', type: 'custom', value: (r) => r.cpfColaborador },
     { key: 'nome', header: 'Supervisor', type: 'custom', priority: 1, value: (r) => r.nomeColaborador },

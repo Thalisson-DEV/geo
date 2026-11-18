@@ -1,5 +1,5 @@
 import { Observable, map } from 'rxjs';
-import { CesListRequest, CesSelectOption } from '@ces/ui';
+import { GeoListRequest, GeoSelectOption } from '@geo/ui';
 
 /**
  * Auxiliares das telas no padrão de listagem (docs/design-system/components/list-page.md) que
@@ -7,7 +7,7 @@ import { CesListRequest, CesSelectOption } from '@ces/ui';
  */
 
 /** Página, tamanho e ordenação no formato do Spring (`sort=campo,asc`; vários critérios repetem o parâmetro). */
-export function paginaPadrao(pedido: Pick<CesListRequest<unknown>, 'page' | 'size' | 'sort'>): {
+export function paginaPadrao(pedido: Pick<GeoListRequest<unknown>, 'page' | 'size' | 'sort'>): {
   page: number;
   size: number;
   sort?: string | string[];
@@ -17,7 +17,7 @@ export function paginaPadrao(pedido: Pick<CesListRequest<unknown>, 'page' | 'siz
 }
 
 /** Filtro de status de cadastro (ativo/inativo). `null` = todos. */
-export const OPCOES_STATUS: CesSelectOption<boolean | null>[] = [
+export const OPCOES_STATUS: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Ativo', value: true },
   { label: 'Inativo', value: false }
@@ -30,12 +30,12 @@ export const OPCOES_STATUS: CesSelectOption<boolean | null>[] = [
 export const LIMITE_EXPORTACAO = 2000;
 
 /**
- * Provedor `exportRows` do `ces-data-table` para serviços paginados: repete a consulta do recorte
+ * Provedor `exportRows` do `geo-data-table` para serviços paginados: repete a consulta do recorte
  * atual pedindo a primeira página com `LIMITE_EXPORTACAO` linhas.
  */
 export function exportacaoPadrao<T>(
   buscar: (pagina: { page: number; size: number; sort?: string | string[] }) => Observable<{ content: T[] }>,
-  pedido: () => Pick<CesListRequest<unknown>, 'page' | 'size' | 'sort'>
+  pedido: () => Pick<GeoListRequest<unknown>, 'page' | 'size' | 'sort'>
 ): (evento: unknown, limite: number) => Observable<T[]> {
   return (_evento, limite) => buscar({ ...paginaPadrao(pedido()), page: 0, size: limite }).pipe(map((r) => r.content));
 }
@@ -46,7 +46,7 @@ export function dataIso(data: Date | null | undefined): string | null {
   return `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, '0')}-${String(data.getDate()).padStart(2, '0')}`;
 }
 
-/** `yyyy-MM-dd` → `Date` local à meia-noite (para o `ces-datepicker`). */
+/** `yyyy-MM-dd` → `Date` local à meia-noite (para o `geo-datepicker`). */
 export function dataLocal(valor: string | null | undefined): Date | null {
   if (!valor) return null;
   const [ano, mes, dia] = valor.substring(0, 10).split('-').map(Number);

@@ -2,20 +2,20 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, WritableSignal, computed, effect, signal } from '@angular/core';
 import { ParamMap } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesCellDirective,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoCellDirective,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import { MovimentacoesRelatorioResponse } from '../../../../../core/models/almoxarifado-relatorios.models';
 import { VistaAnalise } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -50,7 +50,7 @@ import {
   vistaConsumo
 } from './analise-consumo';
 
-const DESTINOS: CesSelectOption<string>[] = [
+const DESTINOS: GeoSelectOption<string>[] = [
   { label: 'Equipes', value: 'CAMPO' },
   { label: 'Obras', value: 'OBRA' }
 ];
@@ -63,10 +63,10 @@ const DESTINOS: CesSelectOption<string>[] = [
   selector: 'app-almox-painel-consumo',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesCellDirective, CesStatusComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoCellDirective, GeoStatusComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, AlmoxPainelTopoComponent, AlmoxRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -85,12 +85,12 @@ export class AlmoxPainelConsumoComponent extends PainelAlmoxBase<MovimentacoesRe
   protected readonly destinosSel = signal<string[]>([]);
   private readonly proprios = signal({ materiais: [] as string[], destinos: [] as string[] });
   protected readonly opcoesDestino = DESTINOS;
-  protected readonly opcoesMaterial = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesMaterial = computed<GeoSelectOption<string>[]>(() => {
     const vistos = new Map<string, string>();
     for (const m of this.dados()?.movimentacoes ?? []) vistos.set(m.idMaterial, `${m.codigo} · ${m.descricao}`);
     return [...vistos.entries()].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
   });
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const f = this.proprios();
     return [
       ...(f.materiais.length ? [{ key: 'material', label: `Material: ${f.materiais.length === 1 ? (this.opcoesMaterial().find((o) => o.value === f.materiais[0])?.label.split(' · ')[0] ?? '1') : `${f.materiais.length} selecionados`}` }] : []),

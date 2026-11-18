@@ -28,4 +28,4 @@ jobs:
         working-directory: mobile
         run: node --test tests/nginx-config.test.mjs
       - name: Build deployable image
-        run: docker build --tag ces-mobile:ci ./mobile
+        run: docker build --tag geo-mobile:ci ./mobile

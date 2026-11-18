@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, computed, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { CesFilterChip, CesSelectOption } from '@ces/ui';
+import { GeoFilterChip, GeoSelectOption } from '@geo/ui';
 import { filter, take } from 'rxjs';
 
 import { LookupStore } from '../../../../core/lookup';
@@ -58,21 +58,21 @@ export class RecorteAlmoxService {
   readonly idsEquipe = signal<string[]>([]);
   readonly periodoAtivo = signal<PeriodoAlmox | null>(PERIODO_PADRAO);
 
-  readonly bases = computed<CesSelectOption<string>[]>(() =>
+  readonly bases = computed<GeoSelectOption<string>[]>(() =>
     this.lookups.operationalBases().map((b) => ({ label: b.label, value: String(b.value) }))
   );
-  readonly processos = computed<CesSelectOption<string>[]>(() =>
+  readonly processos = computed<GeoSelectOption<string>[]>(() =>
     this.lookups.processes().map((p) => ({ label: p.label, value: String(p.value) }))
   );
   private readonly almoxConhecidos = signal<Map<string, string>>(new Map());
   private readonly equipesConhecidas = signal<Map<string, string>>(new Map());
-  readonly almoxOpcoes = computed<CesSelectOption<string>[]>(() => opcoes(this.almoxConhecidos()));
-  readonly equipeOpcoes = computed<CesSelectOption<string>[]>(() => opcoes(this.equipesConhecidas()));
+  readonly almoxOpcoes = computed<GeoSelectOption<string>[]>(() => opcoes(this.almoxConhecidos()));
+  readonly equipeOpcoes = computed<GeoSelectOption<string>[]>(() => opcoes(this.equipesConhecidas()));
 
   /** Recorte da última consulta (é o que os números mostram). */
   readonly aplicado = signal<RecorteAlmox>({});
 
-  readonly chips = computed<CesFilterChip[]>(() => {
+  readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.aplicado();
     return chipsDoRecorte(f as Record<string, unknown>, [
       { chave: 'idBase', rotulo: 'Base', opcoes: this.bases() },
@@ -245,6 +245,6 @@ function juntar(atual: Map<string, string>, novos: Iterable<[string | null, stri
   return mudou ? m : atual;
 }
 
-function opcoes(m: Map<string, string>): CesSelectOption<string>[] {
+function opcoes(m: Map<string, string>): GeoSelectOption<string>[] {
   return [...m.entries()].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
 }

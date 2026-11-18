@@ -2,32 +2,32 @@ import { ICONE_SITUACAO } from '../../../core/models/frota.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesRowActionsDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoRowActionsDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  CesTone,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoTone,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { forkJoin } from 'rxjs';
 import {
   AcoplamentoImplemento,
@@ -56,39 +56,39 @@ type Modo = 'cadastro' | 'acoplar' | 'desacoplar' | 'historico';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesRowActionsDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoRowActionsDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="acesso.editarVeiculo()" (newRequested)="abrirCadastro(null)">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarVeiculo()" (newRequested)="abrirCadastro(null)">
+      <geo-page-header
         title="Implementos"
         icon="pi pi-link"
         [breadcrumb]="[{ label: 'Frota' }, { label: 'Implementos' }]"
         description="Cestos aéreos, guindautos, reboques e demais equipamentos, com o veículo em que estão acoplados e o histórico de onde já estiveram. Atalhos: / busca, F filtros, N novo implemento."
       >
         @if (acesso.editarVeiculo()) {
-          <ces-button actions icon="pi pi-plus" label="Novo implemento" [keyShortcut]="atalhos.newShortcut()" (pressed)="abrirCadastro(null)"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo implemento" [keyShortcut]="atalhos.newShortcut()" (pressed)="abrirCadastro(null)"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel
+      <geo-filter-panel
         #painel
         storageKey="frota-implementos"
         [activeCount]="lista.activeCount()"
@@ -98,14 +98,14 @@ type Modo = 'cadastro' | 'acoplar' | 'desacoplar' | 'historico';
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Tipo" [options]="tiposOpcoes()" [(value)]="lista.filters.idsTipoImplemento" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Acoplamento" [options]="acopladoOpcoes" [(value)]="lista.filters.acoplado" [clearable]="true" placeholder="Todos"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Tipo" [options]="tiposOpcoes()" [(value)]="lista.filters.idsTipoImplemento" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Acoplamento" [options]="acopladoOpcoes" [(value)]="lista.filters.acoplado" [clearable]="true" placeholder="Todos"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Implementos"
         mode="server"
         [description]="descricaoTabela()"
@@ -137,133 +137,133 @@ type Modo = 'cadastro' | 'acoplar' | 'desacoplar' | 'historico';
         (emptyAction)="abrirCadastro(null)"
         (rowActivate)="acesso.editarVeiculo() ? abrirCadastro($event) : abrirHistorico($event)"
       >
-        <ng-template cesCell="identificacao" let-row>
-          <span class="ces-cell-strong">{{ row.identificacao }}</span>
-          <span class="ces-cell-muted">{{ row.tipoImplemento }}{{ row.fabricante ? ' · ' + row.fabricante : '' }}{{ row.modelo ? ' ' + row.modelo : '' }}</span>
+        <ng-template geoCell="identificacao" let-row>
+          <span class="geo-cell-strong">{{ row.identificacao }}</span>
+          <span class="geo-cell-muted">{{ row.tipoImplemento }}{{ row.fabricante ? ' · ' + row.fabricante : '' }}{{ row.modelo ? ' ' + row.modelo : '' }}</span>
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
+        <ng-template geoCell="situacao" let-row>
+          <geo-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</geo-status>
           @if (!row.ativo) {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</ces-status>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</geo-status>
           }
         </ng-template>
-        <ng-template cesCell="veiculo" let-row>
+        <ng-template geoCell="veiculo" let-row>
           @if (row.acoplamentoAtual) {
-            <span class="ces-cell-strong">{{ placa(row.acoplamentoAtual.placa) }}</span>
-            <span class="ces-cell-muted">desde {{ row.acoplamentoAtual.inicio | date: 'dd/MM/yyyy' }}</span>
+            <span class="geo-cell-strong">{{ placa(row.acoplamentoAtual.placa) }}</span>
+            <span class="geo-cell-muted">desde {{ row.acoplamentoAtual.inicio | date: 'dd/MM/yyyy' }}</span>
           } @else {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-minus-circle">Livre</ces-status>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-minus-circle">Livre</geo-status>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (acesso.editarVeiculo()) {
-              <ces-icon-button icon="pi pi-history" [label]="'Histórico de acoplamentos de ' + row.identificacao" tooltip="Histórico de acoplamentos"
-                size="icon-sm" (pressed)="abrirHistorico(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-history" [label]="'Histórico de acoplamentos de ' + row.identificacao" tooltip="Histórico de acoplamentos"
+                size="icon-sm" (pressed)="abrirHistorico(row)"></geo-icon-button>
             }
             @if (acesso.editarVeiculo() && row.ativo) {
               @if (row.acoplamentoAtual) {
-                <ces-icon-button icon="pi pi-arrow-right-arrow-left" [label]="'Mudar ' + row.identificacao + ' de veículo'" tooltip="Mudar de veículo"
-                  size="icon-sm" (pressed)="abrir('acoplar', row)"></ces-icon-button>
-                <ces-icon-button icon="pi pi-times-circle" [label]="'Desacoplar ' + row.identificacao" tooltip="Desacoplar" size="icon-sm"
-                  (pressed)="abrir('desacoplar', row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-arrow-right-arrow-left" [label]="'Mudar ' + row.identificacao + ' de veículo'" tooltip="Mudar de veículo"
+                  size="icon-sm" (pressed)="abrir('acoplar', row)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-times-circle" [label]="'Desacoplar ' + row.identificacao" tooltip="Desacoplar" size="icon-sm"
+                  (pressed)="abrir('desacoplar', row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-link" [label]="'Acoplar ' + row.identificacao + ' a um veículo'" tooltip="Acoplar a um veículo"
-                  size="icon-sm" (pressed)="abrir('acoplar', row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-link" [label]="'Acoplar ' + row.identificacao + ' a um veículo'" tooltip="Acoplar a um veículo"
+                  size="icon-sm" (pressed)="abrir('acoplar', row)"></geo-icon-button>
               }
             }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [visible]="modo() === 'cadastro'" (visibleChange)="!$event && fechar()"
+    <geo-form-drawer [visible]="modo() === 'cadastro'" (visibleChange)="!$event && fechar()"
       [title]="selecionado() ? 'Editar implemento' : 'Novo implemento'"
       [description]="selecionado() ? selecionado()!.identificacao + ' · ' + selecionado()!.tipoImplemento : 'Equipamento que pode ser acoplado a um veículo da frota.'"
       [dirty]="!!identificacao().trim()" [loading]="salvando()" size="md">
-      <ces-form-section title="Implemento" icon="pi pi-cog">
-        <div class="ces-form-grid">
-          <ces-text-input label="Identificação" [required]="true" [(value)]="identificacao" [maxlength]="60"
-            description="Código que a operação usa para o equipamento." [error]="erroCampo('identificacao')"></ces-text-input>
-          <ces-select label="Tipo" [required]="true" [options]="tiposOpcoesAtivos()" [(value)]="idTipo" [filter]="true"
-            [error]="erroCampo('tipo')"></ces-select>
-          <ces-select label="Base operacional" [required]="true" [options]="bases.opcoes()" [(value)]="idBase" [filter]="true"
-            [error]="erroCampo('base')"></ces-select>
-          <ces-text-input label="Fabricante" [(value)]="fabricante" [maxlength]="80" [showOptional]="true"></ces-text-input>
-          <ces-text-input label="Modelo" [(value)]="modelo" [maxlength]="100" [showOptional]="true"></ces-text-input>
-          <ces-text-input label="Número de série" [(value)]="numeroSerie" [maxlength]="80" [showOptional]="true"></ces-text-input>
-          <ces-number-input label="Ano de fabricação" [(value)]="ano" [useGrouping]="false" [min]="1950" [showOptional]="true"></ces-number-input>
+      <geo-form-section title="Implemento" icon="pi pi-cog">
+        <div class="geo-form-grid">
+          <geo-text-input label="Identificação" [required]="true" [(value)]="identificacao" [maxlength]="60"
+            description="Código que a operação usa para o equipamento." [error]="erroCampo('identificacao')"></geo-text-input>
+          <geo-select label="Tipo" [required]="true" [options]="tiposOpcoesAtivos()" [(value)]="idTipo" [filter]="true"
+            [error]="erroCampo('tipo')"></geo-select>
+          <geo-select label="Base operacional" [required]="true" [options]="bases.opcoes()" [(value)]="idBase" [filter]="true"
+            [error]="erroCampo('base')"></geo-select>
+          <geo-text-input label="Fabricante" [(value)]="fabricante" [maxlength]="80" [showOptional]="true"></geo-text-input>
+          <geo-text-input label="Modelo" [(value)]="modelo" [maxlength]="100" [showOptional]="true"></geo-text-input>
+          <geo-text-input label="Número de série" [(value)]="numeroSerie" [maxlength]="80" [showOptional]="true"></geo-text-input>
+          <geo-number-input label="Ano de fabricação" [(value)]="ano" [useGrouping]="false" [min]="1950" [showOptional]="true"></geo-number-input>
           @if (selecionado()) {
-            <ces-select label="Situação" [options]="situacoesOpcoes()" [(value)]="situacao"></ces-select>
+            <geo-select label="Situação" [options]="situacoesOpcoes()" [(value)]="situacao"></geo-select>
           }
         </div>
-        <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></ces-textarea>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
+        <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></geo-textarea>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
         @if (selecionado(); as atual) {
-          <ces-button [variant]="atual.ativo ? 'destructive' : 'outline'" [icon]="atual.ativo ? 'pi pi-ban' : 'pi pi-replay'"
-            [label]="atual.ativo ? 'Desativar implemento' : 'Reativar implemento'" [disabled]="salvando()" (pressed)="alternar(atual)"></ces-button>
+          <geo-button [variant]="atual.ativo ? 'destructive' : 'outline'" [icon]="atual.ativo ? 'pi pi-ban' : 'pi pi-replay'"
+            [label]="atual.ativo ? 'Desativar implemento' : 'Reativar implemento'" [disabled]="salvando()" (pressed)="alternar(atual)"></geo-button>
         }
-        <ces-button variant="ghost" label="Cancelar" (pressed)="fechar()"></ces-button>
-        <ces-button icon="pi pi-check" [label]="selecionado() ? 'Salvar alterações' : 'Cadastrar implemento'" [loading]="salvando()" (pressed)="salvarCadastro()"></ces-button>
+        <geo-button variant="ghost" label="Cancelar" (pressed)="fechar()"></geo-button>
+        <geo-button icon="pi pi-check" [label]="selecionado() ? 'Salvar alterações' : 'Cadastrar implemento'" [loading]="salvando()" (pressed)="salvarCadastro()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [visible]="modo() === 'acoplar' || modo() === 'desacoplar'" (visibleChange)="!$event && fechar()"
+    <geo-form-drawer [visible]="modo() === 'acoplar' || modo() === 'desacoplar'" (visibleChange)="!$event && fechar()"
       [title]="modo() === 'acoplar' ? (selecionado()?.acoplamentoAtual ? 'Mudar de veículo' : 'Acoplar a um veículo') : 'Desacoplar implemento'"
       [description]="descricaoMovimento()"
       [dirty]="!!idVeiculo()" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
+      <div class="geo-form-stack">
         @if (modo() === 'acoplar' && selecionado()?.acoplamentoAtual) {
-          <ces-callout tone="info" [dense]="true">
+          <geo-callout tone="info" [dense]="true">
             Hoje está no veículo {{ placa(selecionado()!.acoplamentoAtual!.placa) }}. Esse acoplamento é encerrado no instante informado.
-          </ces-callout>
+          </geo-callout>
         }
         @if (modo() === 'acoplar') {
-          <ces-select label="Veículo" [required]="true" [options]="veiculosOpcoes()" [(value)]="idVeiculo" [filter]="true"
-            [error]="erroCampo('veiculo')"></ces-select>
+          <geo-select label="Veículo" [required]="true" [options]="veiculosOpcoes()" [(value)]="idVeiculo" [filter]="true"
+            [error]="erroCampo('veiculo')"></geo-select>
         }
-        <div class="ces-form-grid">
-          <ces-datepicker [label]="modo() === 'acoplar' ? 'Data do acoplamento' : 'Data da retirada'" [required]="true" [(value)]="data"
-            [maxDate]="hoje"></ces-datepicker>
-          <ces-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5" [error]="erroCampo('hora')"></ces-text-input>
+        <div class="geo-form-grid">
+          <geo-datepicker [label]="modo() === 'acoplar' ? 'Data do acoplamento' : 'Data da retirada'" [required]="true" [(value)]="data"
+            [maxDate]="hoje"></geo-datepicker>
+          <geo-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5" [error]="erroCampo('hora')"></geo-text-input>
         </div>
         @if (modo() === 'acoplar') {
-          <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="500" [showOptional]="true"></ces-textarea>
+          <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="500" [showOptional]="true"></geo-textarea>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="fechar()"></ces-button>
-        <ces-button [variant]="modo() === 'desacoplar' ? 'destructive' : 'primary'" icon="pi pi-check"
-          [label]="modo() === 'acoplar' ? 'Confirmar acoplamento' : 'Confirmar retirada'" [loading]="salvando()" (pressed)="salvarMovimento()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="fechar()"></geo-button>
+        <geo-button [variant]="modo() === 'desacoplar' ? 'destructive' : 'primary'" icon="pi pi-check"
+          [label]="modo() === 'acoplar' ? 'Confirmar acoplamento' : 'Confirmar retirada'" [loading]="salvando()" (pressed)="salvarMovimento()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [visible]="modo() === 'historico'" (visibleChange)="!$event && fechar()"
+    <geo-form-drawer [visible]="modo() === 'historico'" (visibleChange)="!$event && fechar()"
       title="Histórico de acoplamentos" [description]="(selecionado()?.identificacao ?? '') + ' — veículos em que esteve acoplado.'" size="md">
-      <ces-data-table caption="Histórico de acoplamentos" [searchable]="false" [columns]="colunasHistorico" [rows]="historico()"
+      <geo-data-table caption="Histórico de acoplamentos" [searchable]="false" [columns]="colunasHistorico" [rows]="historico()"
         [rowKey]="chaveAcoplamento" [state]="carregandoHistorico() ? 'loading' : historico().length ? 'ready' : 'empty'"
         stateTitle="Nunca acoplado" stateDescription="Os acoplamentos deste implemento aparecem aqui.">
-        <ng-template cesCell="placa" let-row><span class="ces-cell-strong">{{ placa(row.placa) }}</span></ng-template>
-        <ng-template cesCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-        <ng-template cesCell="fim" let-row>
+        <ng-template geoCell="placa" let-row><span class="geo-cell-strong">{{ placa(row.placa) }}</span></ng-template>
+        <ng-template geoCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+        <ng-template geoCell="fim" let-row>
           @if (row.fim) {
             {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
           } @else {
-            <ces-status tone="success" icon="pi-link">Acoplado</ces-status>
+            <geo-status tone="success" icon="pi-link">Acoplado</geo-status>
           }
         </ng-template>
-      </ces-data-table>
-    </ces-form-drawer>
+      </geo-data-table>
+    </geo-form-drawer>
   `
 })
 export class FrotaImplementosComponent {
   private readonly frota = inject(FrotaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   protected readonly acesso = acessoFrota();
 
-  protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO;
+  protected readonly tomSituacao: Record<string, GeoTone> = TOM_SITUACAO;
   protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO;
   protected readonly placa = formatarPlaca;
@@ -293,7 +293,7 @@ export class FrotaImplementosComponent {
   protected readonly historico = signal<AcoplamentoImplemento[]>([]);
   protected readonly carregandoHistorico = signal(false);
 
-  protected readonly acopladoOpcoes: CesSelectOption<boolean>[] = [
+  protected readonly acopladoOpcoes: GeoSelectOption<boolean>[] = [
     { label: 'Acoplados', value: true },
     { label: 'Livres', value: false }
   ];
@@ -309,17 +309,17 @@ export class FrotaImplementosComponent {
       .filter((v) => v.situacao !== 'BAIXADO')
       .map((v) => ({ label: `${formatarPlaca(v.placa)} — ${v.modelo ?? ''} (${v.baseOperacional ?? 'sem base'})`, value: v.idVeiculo }))
   );
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-implementos',
     rememberFilters: 'frota-implementos',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      idsTipoImplemento: cesFilter.list<string>([], {
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsTipoImplemento: geoFilter.list<string>([], {
         label: 'Tipo',
         param: 'tipo',
         itemLabel: (id) => this.tipos().find((t) => t.id === id)?.nome ?? 'tipo selecionado'
       }),
-      acoplado: cesFilter.value<boolean | null>(null, { label: 'Acoplamento', options: () => this.acopladoOpcoes })
+      acoplado: geoFilter.value<boolean | null>(null, { label: 'Acoplamento', options: () => this.acopladoOpcoes })
     },
     sort: [{ key: 'identificacao', direction: 'asc' }]
   });
@@ -356,13 +356,13 @@ export class FrotaImplementosComponent {
     return e;
   });
 
-  protected readonly colunas: CesDataTableColumn<Implemento>[] = [
+  protected readonly colunas: GeoDataTableColumn<Implemento>[] = [
     { key: 'identificacao', header: 'Implemento', type: 'custom', priority: 1, sortField: 'identificacao', value: (i) => i.identificacao, display: (i) => `${i.identificacao} ${i.tipoImplemento}` },
     { key: 'baseOperacional', header: 'Base', display: (i) => i.baseOperacional ?? '' },
     { key: 'situacao', header: 'Situação', type: 'custom', sortField: 'situacao', value: (i) => i.situacao, display: (i) => ROTULO_SITUACAO[i.situacao] },
     { key: 'veiculo', header: 'Veículo', type: 'custom', priority: 1, value: (i) => i.acoplamentoAtual?.placa ?? '', display: (i) => i.acoplamentoAtual?.placa ?? 'Livre' }
   ];
-  protected readonly colunasHistorico: CesDataTableColumn<AcoplamentoImplemento>[] = [
+  protected readonly colunasHistorico: GeoDataTableColumn<AcoplamentoImplemento>[] = [
     { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (a) => a.placa, display: (a) => a.placa ?? '' },
     { key: 'inicio', header: 'Acoplado em', type: 'custom', value: (a) => a.inicio, display: (a) => a.inicio },
     { key: 'fim', header: 'Desacoplado em', type: 'custom', value: (a) => a.fim ?? '9999', display: (a) => a.fim ?? 'Atual' }

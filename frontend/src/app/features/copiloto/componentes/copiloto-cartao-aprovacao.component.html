@@ -8,7 +8,7 @@
         <h3 class="cartao__titulo">{{ p.titulo }}</h3>
         <p class="cartao__subtitulo">{{ subtitulo() }}</p>
       </div>
-      <ces-status class="cartao__selo" [tone]="selo().tom" [icon]="selo().icone">{{ selo().texto }}</ces-status>
+      <geo-status class="cartao__selo" [tone]="selo().tom" [icon]="selo().icone">{{ selo().texto }}</geo-status>
     </header>
 
     @if (pendente()) {
@@ -46,23 +46,23 @@
                     <span class="item__acao">{{ item.decisao === 'APROVAR' ? 'Aprovar' : 'Rejeitar' }}</span>
                   </div>
                   <div class="item__botoes">
-                    <ces-icon-button [icon]="item.decisao === 'APROVAR' ? 'pi pi-times' : 'pi pi-check'" size="icon-sm"
+                    <geo-icon-button [icon]="item.decisao === 'APROVAR' ? 'pi pi-times' : 'pi pi-check'" size="icon-sm"
                       [label]="(item.decisao === 'APROVAR' ? 'Rejeitar ' : 'Aprovar ') + item.titulo + ' em vez disso'"
-                      [disabled]="ocupado() !== null" (pressed)="trocarDecisao(item)"></ces-icon-button>
+                      [disabled]="ocupado() !== null" (pressed)="trocarDecisao(item)"></geo-icon-button>
                     @if (item.caminho) {
-                      <ces-icon-button icon="pi pi-arrow-up-right" size="icon-sm" [label]="'Abrir ' + item.titulo"
-                        [disabled]="ocupado() !== null" (pressed)="abrir(item.caminho)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-arrow-up-right" size="icon-sm" [label]="'Abrir ' + item.titulo"
+                        [disabled]="ocupado() !== null" (pressed)="abrir(item.caminho)"></geo-icon-button>
                     }
-                    <ces-icon-button icon="pi pi-trash" size="icon-sm" [label]="'Tirar ' + item.titulo + ' da decisão'"
-                      [disabled]="ocupado() !== null" (pressed)="tirar(item)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-trash" size="icon-sm" [label]="'Tirar ' + item.titulo + ' da decisão'"
+                      [disabled]="ocupado() !== null" (pressed)="tirar(item)"></geo-icon-button>
                   </div>
                 </div>
                 @if (item.decisao === 'REJEITAR') {
                   <div class="item__motivo">
-                    <ces-textarea label="Motivo da rejeição" [inputId]="'motivo-' + p.chave + '-' + item.indice" [required]="true"
+                    <geo-textarea label="Motivo da rejeição" [inputId]="'motivo-' + p.chave + '-' + item.indice" [required]="true"
                       [rows]="2" [autoResize]="true" [value]="motivo(item)" (valueChange)="digitarMotivo(item, $event)"
                       [disabled]="ocupado() === 'confirmando'" [error]="motivos()[item.indice]?.trim() ? undefined : item.falta"
-                      description="Quem pediu vê este motivo."></ces-textarea>
+                      description="Quem pediu vê este motivo."></geo-textarea>
                   </div>
                 } @else if (item.observacao) {
                   <p class="item__observacao"><i class="pi pi-comment" aria-hidden="true"></i> {{ item.observacao }}</p>
@@ -89,7 +89,7 @@
       </div>
 
       @if (erro()) {
-        <ces-callout tone="danger" icon="pi-exclamation-triangle" [dense]="true" title="Não foi possível concluir">{{ erro() }}</ces-callout>
+        <geo-callout tone="danger" icon="pi-exclamation-triangle" [dense]="true" title="Não foi possível concluir">{{ erro() }}</geo-callout>
       }
 
       <footer class="cartao__rodape">
@@ -101,11 +101,11 @@
           }
         </p>
         <div class="cartao__botoes">
-          <ces-button variant="ghost" size="sm" label="Cancelar" [disabled]="ocupado() !== null"
-            [loading]="ocupado() === 'cancelando'" (pressed)="cancelar()"></ces-button>
-          <ces-button variant="primary" size="sm" icon="pi pi-check" [label]="rotuloConfirmar()"
+          <geo-button variant="ghost" size="sm" label="Cancelar" [disabled]="ocupado() !== null"
+            [loading]="ocupado() === 'cancelando'" (pressed)="cancelar()"></geo-button>
+          <geo-button variant="primary" size="sm" icon="pi pi-check" [label]="rotuloConfirmar()"
             [disabled]="!entram().length || faltam() > 0 || (ocupado() !== null && ocupado() !== 'confirmando')"
-            [loading]="ocupado() === 'confirmando'" (pressed)="confirmar()"></ces-button>
+            [loading]="ocupado() === 'confirmando'" (pressed)="confirmar()"></geo-button>
         </div>
       </footer>
     } @else {
@@ -131,8 +131,8 @@
                   <span class="desfecho__valor">{{ moeda(item.valor) }}</span>
                   <span class="desfecho__status">{{ rotuloStatus(item) }}</span>
                   @if (item.caminho) {
-                    <ces-button variant="link" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" label="Abrir"
-                      [ariaLabel]="'Abrir ' + item.titulo" (pressed)="abrir(item.caminho)"></ces-button>
+                    <geo-button variant="link" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" label="Abrir"
+                      [ariaLabel]="'Abrir ' + item.titulo" (pressed)="abrir(item.caminho)"></geo-button>
                   }
                   @if (item.mensagem) {
                     <span class="desfecho__motivo">{{ item.mensagem }}</span>

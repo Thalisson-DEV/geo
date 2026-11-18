@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import {
-  CesBlockingProgressDialogComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBlockingProgressDialogComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesImportStatus
-} from '@ces/ui';
+  geoImportStatus
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 
 import { PreviaImportacaoObraResponse, SituacaoLinhaImportacao, TipoImportacaoObra } from '../../../core/models/obras-kit.models';
@@ -35,7 +35,7 @@ export interface ColunaPlanilha {
   header: string;
   priority?: 1 | 2 | 3;
   editavel?: boolean;
-  opcoes?: readonly CesSelectOption<string>[];
+  opcoes?: readonly GeoSelectOption<string>[];
   /** Texto exibido no lugar do valor (ex.: "Nova" / "Existente"). */
   exibir?: (linha: LinhaPlanilha) => string;
 }
@@ -50,7 +50,7 @@ export interface FonteImportacao {
 }
 
 /**
- * Importação de planilha das telas de Obras no padrão de importação do GEO (`ces-import-drawer`):
+ * Importação de planilha das telas de Obras no padrão de importação do GEO (`geo-import-drawer`):
  * parâmetros (ex.: contrato) → modelo e arquivo → pré-visualização validada no servidor, com correção por
  * linha e filtro das linhas com erro → processar. As linhas válidas são processadas em segundo plano.
  */
@@ -59,45 +59,45 @@ export interface FonteImportacao {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBlockingProgressDialogComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoBlockingProgressDialogComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   template: `
-    <ces-import-drawer [(visible)]="visible" [title]="titulo()" [description]="descricao()" accept=".xlsx,.csv"
+    <geo-import-drawer [(visible)]="visible" [title]="titulo()" [description]="descricao()" accept=".xlsx,.csv"
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="enviar($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (exigeContrato()) {
-        <ces-select import-params label="Contrato" [required]="true" [options]="contratos()" [value]="idContrato()"
+        <geo-select import-params label="Contrato" [required]="true" [options]="contratos()" [value]="idContrato()"
           (valueChange)="trocarContrato($event)" [filter]="true" placeholder="Selecione o contrato" [error]="erroContrato()"
-          [description]="importacao.linhas().length ? 'Trocar o contrato descarta as linhas carregadas.' : 'Escolha o contrato antes do arquivo.'"></ces-select>
+          [description]="importacao.linhas().length ? 'Trocar o contrato descarta as linhas carregadas.' : 'Escolha o contrato antes do arquivo.'"></geo-select>
       }
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" searchPlaceholder="Buscar nas linhas" [columns]="colunasTabela()"
+        <geo-data-table caption="Pré-visualização da importação" searchPlaceholder="Buscar nas linhas" [columns]="colunasTabela()"
           [rows]="exibidas()" [rowKey]="chave" [pageSizeOptions]="[25, 50, 100]">
-          <div table-filters class="ces-quick-filters">
+          <div table-filters class="geo-quick-filters">
             @if (comErro() > 0) {
-              <button type="button" class="ces-quick-filter" [attr.aria-pressed]="apenasErros()" (click)="apenasErros.set(!apenasErros())">
+              <button type="button" class="geo-quick-filter" [attr.aria-pressed]="apenasErros()" (click)="apenasErros.set(!apenasErros())">
                 <i class="pi pi-filter" aria-hidden="true"></i> Só as {{ comErro() }} com erro
               </button>
             }
           </div>
           @for (coluna of colunas(); track coluna.key) {
-            <ng-template [cesCell]="coluna.key" let-row>
+            <ng-template [geoCell]="coluna.key" let-row>
               @if (row.editing && coluna.editavel !== false) {
                 @if (coluna.opcoes) {
-                  <ces-select [label]="coluna.header" [labelVisible]="false" [options]="coluna.opcoes" [value]="$any(row[coluna.key]) ?? null"
-                    (valueChange)="row[coluna.key] = $event" [clearable]="true"></ces-select>
+                  <geo-select [label]="coluna.header" [labelVisible]="false" [options]="coluna.opcoes" [value]="$any(row[coluna.key]) ?? null"
+                    (valueChange)="row[coluna.key] = $event" [clearable]="true"></geo-select>
                 } @else {
-                  <ces-text-input [label]="coluna.header" [labelVisible]="false" [value]="$any(row[coluna.key]) ?? ''"
-                    (valueChange)="row[coluna.key] = $event"></ces-text-input>
+                  <geo-text-input [label]="coluna.header" [labelVisible]="false" [value]="$any(row[coluna.key]) ?? ''"
+                    (valueChange)="row[coluna.key] = $event"></geo-text-input>
                 }
               } @else if (coluna.exibir) {
                 {{ coluna.exibir(row) }}
@@ -106,29 +106,29 @@ export interface FonteImportacao {
               }
             </ng-template>
           }
-          <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="situacao" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Revalidar a linha ' + row.linha" size="icon-sm" (pressed)="revalidar(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Revalidar a linha ' + row.linha" size="icon-sm" (pressed)="revalidar(row)"></geo-icon-button>
               } @else if (row.status !== 'EM_PROCESSAMENTO') {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
-    <ces-blocking-progress-dialog [visible]="importacao.processando()" [title]="'Processando ' + titulo().toLowerCase()"
+    <geo-blocking-progress-dialog [visible]="importacao.processando()" [title]="'Processando ' + titulo().toLowerCase()"
       statusTitle="Enviando as linhas conferidas" [statusMessages]="['Revalidando as linhas…', 'Registrando a importação…', 'Iniciando o processamento…']">
-    </ces-blocking-progress-dialog>
+    </geo-blocking-progress-dialog>
   `
 })
 export class ImportacaoPlanilhaObrasComponent {
@@ -142,7 +142,7 @@ export class ImportacaoPlanilhaObrasComponent {
   readonly colunas = input.required<readonly ColunaPlanilha[]>();
   readonly fonte = input.required<FonteImportacao>();
   readonly exigeContrato = input(false);
-  readonly contratos = input<readonly CesSelectOption<string>[]>([]);
+  readonly contratos = input<readonly GeoSelectOption<string>[]>([]);
   /** Contrato pré-selecionado (ex.: o filtro atual da listagem). */
   readonly contratoInicial = input<string | null | undefined>(null);
 
@@ -153,7 +153,7 @@ export class ImportacaoPlanilhaObrasComponent {
   private readonly nomeArquivo = signal<string | null>(null);
   private readonly tentouSemContrato = signal(false);
   protected readonly apenasErros = signal(false);
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chave = CHAVE_LINHA_IMPORTACAO;
 
   protected readonly importacao = importacaoListagem<LinhaPlanilha>({
@@ -168,9 +168,9 @@ export class ImportacaoPlanilhaObrasComponent {
     this.apenasErros() && this.comErro() ? this.importacao.linhas().filter((l) => l.status === 'COM_ERRO') : this.importacao.linhas()
   );
   protected readonly erroContrato = computed(() => (this.tentouSemContrato() && !this.idContrato() ? 'Selecione o contrato.' : undefined));
-  protected readonly colunasTabela = computed<CesDataTableColumn<LinhaPlanilha>[]>(() => [
+  protected readonly colunasTabela = computed<GeoDataTableColumn<LinhaPlanilha>[]>(() => [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
-    ...this.colunas().map((c): CesDataTableColumn<LinhaPlanilha> => ({
+    ...this.colunas().map((c): GeoDataTableColumn<LinhaPlanilha> => ({
       key: c.key,
       header: c.header,
       type: 'custom',
@@ -178,7 +178,7 @@ export class ImportacaoPlanilhaObrasComponent {
       value: (r) => r[c.key],
       display: (r) => (c.exibir ? c.exibir(r) : String(r[c.key] ?? ''))
     })),
-    { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (r) => r.status, display: (r) => cesImportStatus(r.status).label }
+    { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (r) => r.status, display: (r) => geoImportStatus(r.status).label }
   ]);
 
   constructor() {

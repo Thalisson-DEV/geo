@@ -1,6 +1,6 @@
 package com.nexo.app.modules.frota;
 
-import com.nexo.app.CesApplication;
+import com.nexo.app.GeoApplication;
 import org.junit.jupiter.api.Test;
 import org.springframework.modulith.core.ApplicationModules;
 
@@ -9,7 +9,7 @@ class FrotaModuloArquiteturaTest {
 
     @Test
     void frotaUsaApenasApisPublicasDeOutrosModulos() {
-        var modules = ApplicationModules.of(CesApplication.class);
+        var modules = ApplicationModules.of(GeoApplication.class);
         var frota = modules.stream()
                 .filter(module -> module.getBasePackage().getName().equals("com.nexo.app.modules.frota"))
                 .findFirst()

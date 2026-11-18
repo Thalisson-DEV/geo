@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import {
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  cesUrlParam
-} from '@ces/ui';
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  geoUrlParam
+} from '@geo/ui';
 import { FrotaChecklistService } from '../../../core/services/frota-checklist.service';
 import { basesFrota } from '../shared/frota-lista';
 import { FrotaChecklistsPreenchidosComponent } from './frota-checklists-preenchidos.component';
@@ -23,37 +23,37 @@ type Aba = (typeof ABAS)[number];
   selector: 'app-frota-checklists',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesMultiSelectComponent, CesPageHeaderComponent, CesTabPanelDirective, CesTabsComponent, FrotaChecklistsPreenchidosComponent,
+  imports: [GeoMultiSelectComponent, GeoPageHeaderComponent, GeoTabPanelDirective, GeoTabsComponent, FrotaChecklistsPreenchidosComponent,
     FrotaLiberacoesCnhComponent, FrotaPendenciasChecklistComponent, FrotaSemChecklistHojeComponent],
   styles: `
     .checklists-base { min-width: min(16rem, 100%); }
   `,
   template: `
-    <div class="ces-page">
-      <ces-page-header title="Checklists" icon="pi pi-list-check" [breadcrumb]="[{ label: 'Frota' }, { label: 'Checklists' }]"
+    <div class="geo-page">
+      <geo-page-header title="Checklists" icon="pi pi-list-check" [breadcrumb]="[{ label: 'Frota' }, { label: 'Checklists' }]"
         description="O que os condutores conferiram no app antes de usar o veículo, com as fotos e os problemas apontados.">
         <!-- Os preenchidos têm o próprio painel de filtros, com a base entre eles. -->
         @if (aba() !== 'preenchidos') {
-          <ces-multiselect actions class="checklists-base" label="Base" [labelVisible]="false" [options]="bases.opcoes()"
+          <geo-multiselect actions class="checklists-base" label="Base" [labelVisible]="false" [options]="bases.opcoes()"
             [value]="idsBase()" (valueChange)="escolherBases($event)" placeholder="Todas as bases" [clearable]="true"
-            selectedItemsLabel="{0} bases"></ces-multiselect>
+            selectedItemsLabel="{0} bases"></geo-multiselect>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções dos checklists">
-        <ng-template cesTabPanel="pendencias">
+      <geo-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções dos checklists">
+        <ng-template geoTabPanel="pendencias">
           <app-frota-pendencias-checklist [idsBase]="idsBase()" (alterou)="contar()"></app-frota-pendencias-checklist>
         </ng-template>
-        <ng-template cesTabPanel="sem-checklist">
+        <ng-template geoTabPanel="sem-checklist">
           <app-frota-sem-checklist-hoje [idsBase]="idsBase()"></app-frota-sem-checklist-hoje>
         </ng-template>
-        <ng-template cesTabPanel="preenchidos">
+        <ng-template geoTabPanel="preenchidos">
           <app-frota-checklists-preenchidos></app-frota-checklists-preenchidos>
         </ng-template>
-        <ng-template cesTabPanel="liberacoes">
+        <ng-template geoTabPanel="liberacoes">
           <app-frota-liberacoes-cnh [idsBase]="idsBase()"></app-frota-liberacoes-cnh>
         </ng-template>
-      </ces-tabs>
+      </geo-tabs>
     </div>
   `
 })
@@ -65,8 +65,8 @@ export class FrotaChecklistsComponent {
   /** Contadores das abas que pedem atenção. */
   private readonly pendentes = signal<number | undefined>(undefined);
   private readonly semChecklist = signal<number | undefined>(undefined);
-  protected readonly aba = cesUrlParam<Aba>({ values: ABAS, default: 'pendencias' });
-  protected readonly abas = computed<CesTabItem[]>(() => [
+  protected readonly aba = geoUrlParam<Aba>({ values: ABAS, default: 'pendencias' });
+  protected readonly abas = computed<GeoTabItem[]>(() => [
     { value: 'pendencias', label: 'Pendências', icon: 'pi pi-exclamation-triangle', badge: this.pendentes() || undefined },
     { value: 'preenchidos', label: 'Preenchidos', icon: 'pi pi-list-check' },
     { value: 'sem-checklist', label: 'Sem checklist hoje', icon: 'pi pi-clock', badge: this.semChecklist() || undefined },

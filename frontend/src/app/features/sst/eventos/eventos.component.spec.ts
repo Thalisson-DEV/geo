@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -135,7 +135,7 @@ describe('EventosImportacaoComponent', () => {
         { provide: ImportacaoService, useValue: {} },
         MessageService,
         { provide: LookupStore, useValue: { searchCollaborators: () => of({ items: [], nextCursor: null, hasMore: false }) } },
-        { provide: CesConfirmationService, useValue: { confirm: () => Promise.resolve(true) } }
+        { provide: GeoConfirmationService, useValue: { confirm: () => Promise.resolve(true) } }
       ]
     });
   });

@@ -1,31 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import {
   MetaFaturamentoResponse,
@@ -47,11 +47,11 @@ import { RhService } from '../../../core/services/rh.service';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { OPCOES_STATUS, dataIso, dataLocal, paginaPadrao } from '../../../shared/listagem/listagem';
 
-const PERIODICIDADES: CesSelectOption<PeriodicidadeMetaFaturamento>[] = [
+const PERIODICIDADES: GeoSelectOption<PeriodicidadeMetaFaturamento>[] = [
   { label: PERIODICIDADE_FATURAMENTO_LABELS.CICLO_COMERCIAL, value: 'CICLO_COMERCIAL' },
   { label: PERIODICIDADE_FATURAMENTO_LABELS.MENSAL, value: 'MENSAL' }
 ];
-const PERIODICIDADES_FILTRO: CesSelectOption<PeriodicidadeMetaFaturamento | null>[] = [{ label: 'Todas', value: null }, ...PERIODICIDADES];
+const PERIODICIDADES_FILTRO: GeoSelectOption<PeriodicidadeMetaFaturamento | null>[] = [{ label: 'Todas', value: null }, ...PERIODICIDADES];
 const MOEDA = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
 /** Competências oferecidas no formulário: um ano para trás e um ano e meio à frente. */
 const MESES_ANTES = 12;
@@ -66,29 +66,29 @@ function nomeEm(lista: { id: string; nome: string }[], id: string): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Metas de faturamento"
         icon="pi pi-flag"
         [breadcrumb]="[{ label: 'Comercial' }, { label: 'Metas de faturamento' }]"
@@ -96,22 +96,22 @@ function nomeEm(lista: { id: string; nome: string }[], id: string): string {
         helpLabel="Ajuda sobre metas de faturamento"
         (help)="ajuda.show()"
       >
-        <ces-button actions icon="pi pi-plus" label="Nova meta" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions icon="pi pi-plus" label="Nova meta" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="rh-metas-faturamento" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="rh-metas-faturamento" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Base operacional" [options]="basesOpcoes()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Processo" [options]="processosOpcoes()" [(value)]="lista.filters.idProcesso" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Periodicidade" [options]="periodicidadesFiltro" [(value)]="lista.filters.periodicidade"></ces-select>
-          <ces-datepicker label="Vigente em" [value]="dataLocal(lista.filters.vigenteEm())" [clearable]="true" (valueChange)="lista.filters.vigenteEm.set(dataIso($event))"></ces-datepicker>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Base operacional" [options]="basesOpcoes()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Processo" [options]="processosOpcoes()" [(value)]="lista.filters.idProcesso" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Periodicidade" [options]="periodicidadesFiltro" [(value)]="lista.filters.periodicidade"></geo-select>
+          <geo-datepicker label="Vigente em" [value]="dataLocal(lista.filters.vigenteEm())" [clearable]="true" (valueChange)="lista.filters.vigenteEm.set(dataIso($event))"></geo-datepicker>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Metas"
         mode="server"
         storageKey="rh-metas-faturamento"
@@ -138,81 +138,81 @@ function nomeEm(lista: { id: string; nome: string }[], id: string): string {
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="equipe" let-row>
-          <span class="ces-cell-strong">{{ row.codigoEquipe ?? 'Equipe não encontrada' }}</span>
-          <span class="ces-cell-muted">{{ detalheEquipe(row) }}</span>
+        <ng-template geoCell="equipe" let-row>
+          <span class="geo-cell-strong">{{ row.codigoEquipe ?? 'Equipe não encontrada' }}</span>
+          <span class="geo-cell-muted">{{ detalheEquipe(row) }}</span>
         </ng-template>
-        <ng-template cesCell="meta" let-row>
-          <span class="ces-cell-strong">{{ moeda(row.valor) }}</span>
-          <span class="ces-cell-muted">{{ rotuloPeriodicidade(row.periodicidade) }}</span>
+        <ng-template geoCell="meta" let-row>
+          <span class="geo-cell-strong">{{ moeda(row.valor) }}</span>
+          <span class="geo-cell-muted">{{ rotuloPeriodicidade(row.periodicidade) }}</span>
         </ng-template>
-        <ng-template cesCell="vigencia" let-row>
+        <ng-template geoCell="vigencia" let-row>
           {{ vigencia(row) }}
           @if (row.descricao) {
-            <span class="ces-cell-muted">{{ row.descricao }}</span>
+            <span class="geo-cell-muted">{{ row.descricao }}</span>
           }
         </ng-template>
-        <ng-template cesCell="janela" let-row>
+        <ng-template geoCell="janela" let-row>
           @if (row.janelaAtualInicio && row.janelaAtualFim) {
             {{ formatarData(row.janelaAtualInicio) }} a {{ formatarData(row.janelaAtualFim) }}
-            <span class="ces-cell-muted">{{ moeda(row.metaDiariaAtual) }} por dia útil ({{ row.diasUteisJanelaAtual }} dias)</span>
+            <span class="geo-cell-muted">{{ moeda(row.metaDiariaAtual) }} por dia útil ({{ row.diasUteisJanelaAtual }} dias)</span>
           } @else {
-            <span class="ces-cell-muted">Fora da vigência</span>
+            <span class="geo-cell-muted">Fora da vigência</span>
           }
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar meta de ' : 'Reativar meta de ') + (row.codigoEquipe ?? 'equipe')"
-            size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar meta de ' : 'Reativar meta de ') + (row.codigoEquipe ?? 'equipe')"
+            size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar meta' : 'Nova meta'" [description]="emEdicao()?.codigoEquipe ?? undefined"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar meta' : 'Nova meta'" [description]="emEdicao()?.codigoEquipe ?? undefined"
       [dirty]="alterado()" size="md">
-      <ces-form-section title="Equipes e valor" icon="pi pi-users">
+      <geo-form-section title="Equipes e valor" icon="pi pi-users">
         @if (emEdicao(); as meta) {
-          <ces-callout tone="info">A equipe não muda. Para outra equipe, cadastre outra meta.</ces-callout>
-          <ces-text-input label="Equipe" [value]="meta.codigoEquipe ?? ''" [readonly]="true"></ces-text-input>
+          <geo-callout tone="info">A equipe não muda. Para outra equipe, cadastre outra meta.</geo-callout>
+          <geo-text-input label="Equipe" [value]="meta.codigoEquipe ?? ''" [readonly]="true"></geo-text-input>
         } @else {
-          <ces-multiselect label="Equipes" [required]="true" [options]="equipesOpcoes()" [value]="idsEquipes()" (valueChange)="escolherEquipes($event)"
+          <geo-multiselect label="Equipes" [required]="true" [options]="equipesOpcoes()" [value]="idsEquipes()" (valueChange)="escolherEquipes($event)"
             display="chip" [maxSelectedLabels]="6" selectedItemsLabel="{0} equipes" [loading]="carregandoEquipes()"
-            description="A mesma meta é criada para cada equipe escolhida." [error]="erro('equipes')"></ces-multiselect>
+            description="A mesma meta é criada para cada equipe escolhida." [error]="erro('equipes')"></geo-multiselect>
         }
-        <ces-number-input label="Meta por janela" mode="currency" currency="BRL" locale="pt-BR" [min]="0" [required]="true"
-          [(value)]="valor" [description]="'Faturamento esperado em cada ' + (periodicidade() === 'CICLO_COMERCIAL' ? 'ciclo.' : 'mês.')" [error]="erro('valor')"></ces-number-input>
-      </ces-form-section>
+        <geo-number-input label="Meta por janela" mode="currency" currency="BRL" locale="pt-BR" [min]="0" [required]="true"
+          [(value)]="valor" [description]="'Faturamento esperado em cada ' + (periodicidade() === 'CICLO_COMERCIAL' ? 'ciclo.' : 'mês.')" [error]="erro('valor')"></geo-number-input>
+      </geo-form-section>
 
-      <ces-form-section title="Período" icon="pi pi-calendar">
-        <ces-select label="Apuração" [required]="true" [options]="periodicidades" [value]="periodicidade()" (valueChange)="escolherPeriodicidade($event)"
-          description="Equipes do processo comercial apuram pelo ciclo de 26 a 25."></ces-select>
+      <geo-form-section title="Período" icon="pi pi-calendar">
+        <geo-select label="Apuração" [required]="true" [options]="periodicidades" [value]="periodicidade()" (valueChange)="escolherPeriodicidade($event)"
+          description="Equipes do processo comercial apuram pelo ciclo de 26 a 25."></geo-select>
         @if (processosMisturados()) {
-          <ces-callout tone="warning">As equipes escolhidas são de processos diferentes. Confira a apuração: o ciclo de 26 a 25 vale só para o comercial.</ces-callout>
+          <geo-callout tone="warning">As equipes escolhidas são de processos diferentes. Confira a apuração: o ciclo de 26 a 25 vale só para o comercial.</geo-callout>
         }
-        <div class="ces-form-grid">
-          <ces-select label="A partir de" [required]="true" [options]="competenciasOpcoes()" [(value)]="compInicio" [filter]="true" [error]="erro('inicio')"></ces-select>
-          <ces-select label="Até" [options]="competenciasFimOpcoes()" [(value)]="compFim" [filter]="true" [clearable]="true" [showOptional]="true"
-            placeholder="Sem prazo" [error]="erro('fim')"></ces-select>
+        <div class="geo-form-grid">
+          <geo-select label="A partir de" [required]="true" [options]="competenciasOpcoes()" [(value)]="compInicio" [filter]="true" [error]="erro('inicio')"></geo-select>
+          <geo-select label="Até" [options]="competenciasFimOpcoes()" [(value)]="compFim" [filter]="true" [clearable]="true" [showOptional]="true"
+            placeholder="Sem prazo" [error]="erro('fim')"></geo-select>
         </div>
-        <ces-text-input label="Descrição" [(value)]="descricao" [maxlength]="200" [showOptional]="true" placeholder="Ex.: Meta do 2º semestre"></ces-text-input>
+        <geo-text-input label="Descrição" [(value)]="descricao" [maxlength]="200" [showOptional]="true" placeholder="Ex.: Meta do 2º semestre"></geo-text-input>
         @if (!emEdicao()) {
-          <ces-boolean-control label="Substituir a meta atual das equipes" [(value)]="substituir"
-            description="A meta sem prazo que a equipe já tem termina no fim do período anterior. O histórico continua valendo nos relatórios."></ces-boolean-control>
+          <geo-boolean-control label="Substituir a meta atual das equipes" [(value)]="substituir"
+            description="A meta sem prazo que a equipe já tem termina no fim do período anterior. O histórico continua valendo nos relatórios."></geo-boolean-control>
         }
         @if (previa(); as p) {
-          <ces-callout tone="info" title="Prévia">{{ p }}</ces-callout>
+          <geo-callout tone="info" title="Prévia">{{ p }}</geo-callout>
         }
         @if (erroServidor(); as mensagem) {
-          <ces-callout tone="danger">{{ mensagem }}</ces-callout>
+          <geo-callout tone="danger">{{ mensagem }}</geo-callout>
         }
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : rotuloCadastrar()" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : rotuloCadastrar()" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Metas de faturamento" artigoPlural="as" entidadePlural="metas" busca="descrição" rotuloNovo="Nova meta">
       <div class="help-section">
@@ -234,7 +234,7 @@ export class MetasFaturamentoComponent {
   private readonly metas = inject(MetasFaturamentoService);
   private readonly rh = inject(RhService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   protected readonly periodicidades = PERIODICIDADES;
   protected readonly periodicidadesFiltro = PERIODICIDADES_FILTRO;
@@ -247,25 +247,25 @@ export class MetasFaturamentoComponent {
   protected readonly carregandoEquipes = signal(true);
   protected readonly bases = signal<BaseOperacionalResponse[]>([]);
   protected readonly processos = signal<ProcessoNegocioResponse[]>([]);
-  protected readonly equipesOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly equipesOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.equipes().map((e) => ({ label: [e.codigo, e.processo?.nome].filter(Boolean).join(' · '), value: e.id }))
   );
   protected readonly basesOpcoes = computed(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
   protected readonly processosOpcoes = computed(() => this.processos().map((p) => ({ label: p.nome, value: p.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'rh-metas-faturamento',
     filters: {
-      idEquipe: cesFilter.value<string | null>(null, {
+      idEquipe: geoFilter.value<string | null>(null, {
         label: 'Equipe',
         param: 'equipe',
         format: (id): string | null => (id ? (this.equipes().find((e) => e.id === id)?.codigo ?? 'equipe selecionada') : null)
       }),
-      idBaseOperacional: cesFilter.value<string | null>(null, { label: 'Base', param: 'base', format: (id): string | null => (id ? nomeEm(this.bases(), id) : null) }),
-      idProcesso: cesFilter.value<string | null>(null, { label: 'Processo', param: 'processo', format: (id): string | null => (id ? nomeEm(this.processos(), id) : null) }),
-      periodicidade: cesFilter.value<PeriodicidadeMetaFaturamento | null>(null, { label: 'Apuração', type: 'string', options: () => PERIODICIDADES_FILTRO }),
-      vigenteEm: cesFilter.date(null, { label: 'Vigente em', param: 'vigente' }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      idBaseOperacional: geoFilter.value<string | null>(null, { label: 'Base', param: 'base', format: (id): string | null => (id ? nomeEm(this.bases(), id) : null) }),
+      idProcesso: geoFilter.value<string | null>(null, { label: 'Processo', param: 'processo', format: (id): string | null => (id ? nomeEm(this.processos(), id) : null) }),
+      periodicidade: geoFilter.value<PeriodicidadeMetaFaturamento | null>(null, { label: 'Apuração', type: 'string', options: () => PERIODICIDADES_FILTRO }),
+      vigenteEm: geoFilter.date(null, { label: 'Vigente em', param: 'vigente' }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'vigencia', direction: 'desc' }]
   });
@@ -277,7 +277,7 @@ export class MetasFaturamentoComponent {
     { errorMessage: getErrorMessage }
   );
 
-  protected readonly colunas: CesDataTableColumn<MetaFaturamentoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MetaFaturamentoResponse>[] = [
     { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, value: (m) => m.codigoEquipe, display: (m) => m.codigoEquipe ?? '—' },
     { key: 'meta', header: 'Meta', type: 'custom', priority: 1, sortField: 'valor', value: (m) => m.valor, display: (m) => MOEDA.format(m.valor) },
     { key: 'vigencia', header: 'Vigência', type: 'custom', sortField: 'vigenciaInicio', value: (m) => m.vigenciaInicio, display: (m) => this.vigencia(m) },
@@ -303,11 +303,11 @@ export class MetasFaturamentoComponent {
   /** A apuração segue o processo das equipes até a pessoa escolhê-la à mão. */
   private readonly apuracaoManual = signal(false);
 
-  protected readonly competenciasOpcoes = computed<CesSelectOption<string>[]>(() => {
+  protected readonly competenciasOpcoes = computed<GeoSelectOption<string>[]>(() => {
     const p = this.periodicidade();
     const atual = competenciaDe(p, new Date());
     const [ano, mes] = atual.split('-').map(Number);
-    const opcoes: CesSelectOption<string>[] = [];
+    const opcoes: GeoSelectOption<string>[] = [];
     for (let i = -MESES_ANTES; i <= MESES_DEPOIS; i++) {
       const comp = montarCompetencia(ano, mes + i);
       const janela = janelaDaCompetencia(p, comp);
@@ -514,7 +514,7 @@ export class MetasFaturamentoComponent {
     return `${inicio} → ${fim}`;
   }
 
-  private opcaoCompetencia(comp: string): CesSelectOption<string> {
+  private opcaoCompetencia(comp: string): GeoSelectOption<string> {
     const p = this.periodicidade();
     const janela = janelaDaCompetencia(p, comp);
     return { label: `${nomeCompetencia(p, comp)} (${formatarDataCurta(janela.inicio)} a ${formatarDataCurta(janela.fim)})`, value: comp };

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CesDatepickerComponent, CesMultiSelectComponent } from '@ces/ui';
+import { GeoDatepickerComponent, GeoMultiSelectComponent } from '@geo/ui';
 
 import { PeriodoAlmox, RecorteAlmoxService } from './recorte-almox.service';
 
@@ -18,36 +18,36 @@ export const PAINEIS_ALMOX = [
 export type CampoRecorteAlmox = 'periodo' | 'base' | 'processo' | 'almox' | 'equipe';
 
 /**
- * Campos do recorte comum, dentro do `ces-filter-grid` do relatório (o host some do layout). O relatório
+ * Campos do recorte comum, dentro do `geo-filter-grid` do relatório (o host some do layout). O relatório
  * acrescenta depois os filtros próprios.
  */
 @Component({
   selector: 'app-almox-recorte-campos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesDatepickerComponent, CesMultiSelectComponent],
+  imports: [GeoDatepickerComponent, GeoMultiSelectComponent],
   host: { style: 'display: contents' },
   template: `
     @let r = recorte;
     @if (campos().includes('periodo')) {
-      <ces-datepicker label="Início" [inputId]="prefixo() + '-inicio'" [value]="r.inicio()" (valueChange)="r.mudarData('inicio', $event)" [maxDate]="r.fim()"></ces-datepicker>
-      <ces-datepicker label="Fim" [inputId]="prefixo() + '-fim'" [value]="r.fim()" (valueChange)="r.mudarData('fim', $event)" [minDate]="r.inicio()"></ces-datepicker>
+      <geo-datepicker label="Início" [inputId]="prefixo() + '-inicio'" [value]="r.inicio()" (valueChange)="r.mudarData('inicio', $event)" [maxDate]="r.fim()"></geo-datepicker>
+      <geo-datepicker label="Fim" [inputId]="prefixo() + '-fim'" [value]="r.fim()" (valueChange)="r.mudarData('fim', $event)" [minDate]="r.inicio()"></geo-datepicker>
     }
     @if (campos().includes('base')) {
-      <ces-multiselect label="Base operacional" [inputId]="prefixo() + '-base'" placeholder="Todas" [options]="r.bases()"
-        [value]="r.idsBase()" (valueChange)="r.idsBase.set($event)"></ces-multiselect>
+      <geo-multiselect label="Base operacional" [inputId]="prefixo() + '-base'" placeholder="Todas" [options]="r.bases()"
+        [value]="r.idsBase()" (valueChange)="r.idsBase.set($event)"></geo-multiselect>
     }
     @if (campos().includes('almox')) {
-      <ces-multiselect label="Almoxarifado" [inputId]="prefixo() + '-almox'" placeholder="Todos" [options]="r.almoxOpcoes()"
-        [value]="r.idsAlmox()" (valueChange)="r.idsAlmox.set($event)"></ces-multiselect>
+      <geo-multiselect label="Almoxarifado" [inputId]="prefixo() + '-almox'" placeholder="Todos" [options]="r.almoxOpcoes()"
+        [value]="r.idsAlmox()" (valueChange)="r.idsAlmox.set($event)"></geo-multiselect>
     }
     @if (campos().includes('processo')) {
-      <ces-multiselect label="Processo" [inputId]="prefixo() + '-processo'" placeholder="Todos" [options]="r.processos()"
-        description="Pela equipe envolvida." [value]="r.idsProcesso()" (valueChange)="r.idsProcesso.set($event)"></ces-multiselect>
+      <geo-multiselect label="Processo" [inputId]="prefixo() + '-processo'" placeholder="Todos" [options]="r.processos()"
+        description="Pela equipe envolvida." [value]="r.idsProcesso()" (valueChange)="r.idsProcesso.set($event)"></geo-multiselect>
     }
     @if (campos().includes('equipe')) {
-      <ces-multiselect label="Equipe" [inputId]="prefixo() + '-equipe'" placeholder="Todas" [options]="r.equipeOpcoes()" [virtualScroll]="true"
-        [value]="r.idsEquipe()" (valueChange)="r.idsEquipe.set($event)"></ces-multiselect>
+      <geo-multiselect label="Equipe" [inputId]="prefixo() + '-equipe'" placeholder="Todas" [options]="r.equipeOpcoes()" [virtualScroll]="true"
+        [value]="r.idsEquipe()" (valueChange)="r.idsEquipe.set($event)"></geo-multiselect>
     }
   `
 })
@@ -69,17 +69,17 @@ export class AlmoxRecorteCamposComponent {
   styles: `
     :host { display: block; margin-bottom: 1rem; }
     .apt-periodos { width: fit-content; max-width: 100%; overflow-x: auto; }
-    .apt-recorte { margin: 0.5rem 0 0; color: var(--ces-foreground-muted); font-size: 0.8rem; }
+    .apt-recorte { margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8rem; }
     .apt-paineis { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0 0 0.875rem; padding: 0; list-style: none; }
     .apt-painel {
       display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.25rem; padding: 0.35rem 0.8rem;
-      border: 1px solid var(--ces-border); border-radius: 999px; color: var(--ces-foreground-muted);
-      font-size: 0.8125rem; font-weight: 600; text-decoration: none; background: var(--ces-surface);
+      border: 1px solid var(--geo-border); border-radius: 999px; color: var(--geo-foreground-muted);
+      font-size: 0.8125rem; font-weight: 600; text-decoration: none; background: var(--geo-surface);
       transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
     }
-    .apt-painel:hover { color: var(--ces-foreground); border-color: var(--ces-border-strong); }
-    .apt-painel:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .apt-painel.is-ativo { color: var(--ces-brand); background: var(--ces-brand-soft); border-color: var(--ces-brand); }
+    .apt-painel:hover { color: var(--geo-foreground); border-color: var(--geo-border-strong); }
+    .apt-painel:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .apt-painel.is-ativo { color: var(--geo-brand); background: var(--geo-brand-soft); border-color: var(--geo-brand); }
     .apt-painel i { font-size: 0.8rem; }
     @media (prefers-reduced-motion: reduce) { .apt-painel { transition: none; } }
   `,

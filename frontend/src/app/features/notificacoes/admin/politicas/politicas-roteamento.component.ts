@@ -1,23 +1,23 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { forkJoin, map } from 'rxjs';
 
 import { GatilhoResponse, PoliticaRoteamentoResponse, RotaRoteamentoResponse } from '../../../../core/models/notificacao.models';
@@ -25,7 +25,7 @@ import { getErrorMessage } from '../../../../core/models/shared.models';
 import { NotificacoesService } from '../../../../core/services/notificacoes.service';
 import { AjudaListagemComponent } from '../../../../shared/listagem/ajuda-listagem.component';
 
-const SITUACOES: CesSelectOption<boolean | null>[] = [
+const SITUACOES: GeoSelectOption<boolean | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Ativas', value: true },
   { label: 'Inativas', value: false }
@@ -40,21 +40,21 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="nova()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="nova()">
+      <geo-page-header
         title="Políticas de roteamento"
         icon="pi pi-sitemap"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'Comunicação' }, { label: 'Políticas de roteamento' }]"
@@ -62,18 +62,18 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         helpLabel="Ajuda sobre políticas de roteamento"
         (help)="ajuda.show()"
       >
-        <ces-button actions icon="pi pi-plus" label="Nova política" [keyShortcut]="atalhos.newShortcut()" (pressed)="nova()"></ces-button>
-      </ces-page-header>
+        <geo-button actions icon="pi pi-plus" label="Nova política" [keyShortcut]="atalhos.newShortcut()" (pressed)="nova()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="notificacoes-politicas" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="notificacoes-politicas" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Gatilho" [options]="gatilhoOpcoes()" [(value)]="lista.filters.gatilho" [filter]="true" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Status" [options]="situacoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Gatilho" [options]="gatilhoOpcoes()" [(value)]="lista.filters.gatilho" [filter]="true" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Status" [options]="situacoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Políticas"
         storageKey="notificacoes-politicas"
         exportFileName="politicas-roteamento"
@@ -95,38 +95,38 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         (emptyAction)="nova()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.nome }}</span>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.nome }}</span>
           @if (row.descricao) {
-            <span class="ces-cell-muted">{{ row.descricao }}</span>
+            <span class="geo-cell-muted">{{ row.descricao }}</span>
           }
         </ng-template>
-        <ng-template cesCell="gatilho" let-row>
+        <ng-template geoCell="gatilho" let-row>
           {{ nomeGatilho(row.chaveGatilho) }}
-          <code class="ces-cell-muted">{{ row.chaveGatilho }}</code>
+          <code class="geo-cell-muted">{{ row.chaveGatilho }}</code>
         </ng-template>
-        <ng-template cesCell="rotas" let-row>
+        <ng-template geoCell="rotas" let-row>
           {{ condicionais(row).length }} {{ condicionais(row).length === 1 ? 'rota' : 'rotas' }}
-          <span class="ces-cell-muted">{{ totalCondicoes(row) }} {{ totalCondicoes(row) === 1 ? 'condição' : 'condições' }}, avaliadas por ordem</span>
+          <span class="geo-cell-muted">{{ totalCondicoes(row) }} {{ totalCondicoes(row) === 1 ? 'condição' : 'condições' }}, avaliadas por ordem</span>
         </ng-template>
-        <ng-template cesCell="padrao" let-row>
+        <ng-template geoCell="padrao" let-row>
           @if (rotaPadrao(row); as padrao) {
             Configurado
-            <span class="ces-cell-muted">Ordem {{ padrao.ordem }}</span>
+            <span class="geo-cell-muted">Ordem {{ padrao.ordem }}</span>
           } @else {
-            <ces-status tone="warning" icon="pi-exclamation-triangle">Não configurado</ces-status>
+            <geo-status tone="warning" icon="pi-exclamation-triangle">Não configurado</geo-status>
           }
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
-              size="icon-sm" [loading]="alterandoId() === row.id" (pressed)="alternar(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
+              size="icon-sm" [loading]="alterandoId() === row.id" (pressed)="alternar(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-ajuda-listagem #ajuda titulo="Políticas de roteamento" entidadePlural="políticas" artigoPlural="as" busca="nome da política" rotuloNovo="Nova política">
@@ -140,23 +140,23 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
 export class PoliticasRoteamentoComponent {
   private readonly servico = inject(NotificacoesService);
   private readonly router = inject(Router);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly notificacoes = inject(NotificationService);
 
   protected readonly situacoes = SITUACOES;
   protected readonly gatilhos = signal<GatilhoResponse[]>([]);
-  protected readonly gatilhoOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly gatilhoOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.gatilhos().filter((g) => g.modo === 'POR_OCORRENCIA').map((g) => ({ label: g.nome, value: g.chave }))
   );
   protected readonly alterandoId = signal<string | null>(null);
   /** Políticas alteradas nesta tela (ativar/desativar devolve a política atualizada). */
   private readonly atualizadas = signal<ReadonlyMap<string, PoliticaRoteamentoResponse>>(new Map());
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'notificacoes-politicas',
     filters: {
-      gatilho: cesFilter.value<string | null>(null, { label: 'Gatilho', format: (chave): string | null => (chave ? this.nomeGatilho(chave) : null) }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Status', options: () => SITUACOES })
+      gatilho: geoFilter.value<string | null>(null, { label: 'Gatilho', format: (chave): string | null => (chave ? this.nomeGatilho(chave) : null) }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Status', options: () => SITUACOES })
     },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
@@ -180,7 +180,7 @@ export class PoliticasRoteamentoComponent {
       .filter((p) => (!gatilho || p.chaveGatilho === gatilho) && (ativo === null || p.ativo === ativo));
   });
 
-  protected readonly colunas: CesDataTableColumn<PoliticaRoteamentoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<PoliticaRoteamentoResponse>[] = [
     { key: 'nome', header: 'Política', type: 'custom', priority: 1, value: (p) => p.nome, display: (p) => `${p.nome} ${p.descricao ?? ''}` },
     { key: 'gatilho', header: 'Gatilho', type: 'custom', value: (p) => this.nomeGatilho(p.chaveGatilho), display: (p) => this.nomeGatilho(p.chaveGatilho) },
     { key: 'rotas', header: 'Rotas condicionais', type: 'custom', value: (p) => this.condicionais(p).length, display: (p) => `${this.condicionais(p).length} rotas` },

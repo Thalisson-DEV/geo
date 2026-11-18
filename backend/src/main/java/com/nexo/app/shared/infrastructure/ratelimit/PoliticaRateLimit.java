@@ -4,7 +4,7 @@ import java.time.Duration;
 
 /**
  * Políticas de rate limit da aplicação, com os valores padrão. Capacidade, período, modo e
- * comportamento sem Redis podem ser trocados em {@code ces.rate-limit.politicas.<nome>}.
+ * comportamento sem Redis podem ser trocados em {@code geo.rate-limit.politicas.<nome>}.
  *
  * <p>O algoritmo é token bucket: cabem {@code capacidade} requisições de uma vez e o balde
  * volta a encher de forma contínua ao longo do {@code periodo}. Rajadas curtas (uma tela que
@@ -58,7 +58,7 @@ public enum PoliticaRateLimit {
     COPILOTO("copiloto", TipoChave.USUARIO, 20, Duration.ofMinutes(1), FalhaArmazem.LIBERAR,
             "Muitas mensagens para a Bússola em pouco tempo."),
     /**
-     * Autocomplete e bootstrap de lookups. Herda {@code ces.lookup.rate-limit} (ligado e
+     * Autocomplete e bootstrap de lookups. Herda {@code geo.lookup.rate-limit} (ligado e
      * 300 por minuto), que já estava ativo antes das demais políticas.
      */
     LOOKUP("lookup", TipoChave.USUARIO, 300, Duration.ofMinutes(1), FalhaArmazem.LIBERAR,

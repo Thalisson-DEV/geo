@@ -17,27 +17,27 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDialogShellComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDialogShellComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
+  GeoTone,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Subject, catchError, debounceTime, map, of, switchMap } from 'rxjs';
 
 import { CLASSES_TENSAO, ClasseTensao } from '../../../core/models/obras-kit.models';
@@ -100,7 +100,7 @@ declare var L: any;
 
 type Carga<T> = { estado: 'loading' } | { estado: 'error'; mensagem: string } | { estado: 'ready'; dados: T };
 
-const RAIOS: CesSelectOption<number>[] = [
+const RAIOS: GeoSelectOption<number>[] = [
   { label: '5 km', value: 5 },
   { label: '10 km', value: 10 },
   { label: '20 km', value: 20 },
@@ -140,21 +140,21 @@ interface MarcoPrazo {
     ProgramacaoDetalheComponent,
     RouterLink,
     MenuModule,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesDialogShellComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoDialogShellComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     AnalisarComCopilotoComponent
   ],
   templateUrl: './obra-detalhe.component.html',
@@ -168,7 +168,7 @@ export class ObraDetalheComponent {
   private readonly rhService = inject(RhService);
   private readonly solicitacaoService = inject(SolicitacaoMaterialTecnicaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly tema = inject(ThemeService);
   private readonly mapEl = viewChild<ElementRef<HTMLDivElement>>('mapa');
@@ -210,7 +210,7 @@ export class ObraDetalheComponent {
   protected readonly raios = RAIOS;
   protected readonly tensoes = CLASSES_TENSAO;
   protected readonly prioridades = PRIORIDADES_OBRA;
-  protected readonly tiposVinculo: CesSelectOption<TipoVinculoSubprojeto>[] = TIPO_VINCULO_OPTIONS.map((t) => ({ label: t.label, value: t.value }));
+  protected readonly tiposVinculo: GeoSelectOption<TipoVinculoSubprojeto>[] = TIPO_VINCULO_OPTIONS.map((t) => ({ label: t.label, value: t.value }));
   protected readonly emissao = new Date();
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -222,7 +222,7 @@ export class ObraDetalheComponent {
   protected readonly erro = signal<string | null>(null);
   protected readonly equipes = signal<EquipeResponse[]>([]);
   protected readonly statusList = signal<StatusObraResponse[]>([]);
-  protected readonly tiposAnexo = signal<CesSelectOption<string>[]>([]);
+  protected readonly tiposAnexo = signal<GeoSelectOption<string>[]>([]);
   protected readonly solicitacoes = signal<Carga<ProjecaoObraSolicitacoesResponse | null>>({ estado: 'loading' });
   protected readonly saldoObra = signal<CargaSaldoObra>(null);
   protected readonly historico = signal<Carga<HistoricoStatusObraResponse[]>>({ estado: 'loading' });
@@ -234,9 +234,9 @@ export class ObraDetalheComponent {
   protected readonly contratoOpcoes = toSignal(
     this.contratos.listarContratosAtivos().pipe(
       map((p) => p.content.map((c) => ({ label: `${c.numeroContrato} · ${c.cliente}`, value: c.id }))),
-      catchError(() => of([] as CesSelectOption<string>[]))
+      catchError(() => of([] as GeoSelectOption<string>[]))
     ),
-    { initialValue: [] as CesSelectOption<string>[] }
+    { initialValue: [] as GeoSelectOption<string>[] }
   );
 
   protected readonly carteira = computed(() => this.obra()?.carteira ?? null);
@@ -247,7 +247,7 @@ export class ObraDetalheComponent {
     return this.contratoOpcoes().find((o) => o.value === id)?.label ?? 'Contrato inativo';
   });
   protected readonly rotuloPrioridade = computed(() => PRIORIDADES_OBRA.find((p) => p.value === this.carteira()?.prioridade)?.label ?? null);
-  protected readonly tomPrioridade = computed<CesTone>(() => {
+  protected readonly tomPrioridade = computed<GeoTone>(() => {
     const p = this.carteira()?.prioridade;
     return p === 'URGENTE' ? 'danger' : p === 'ALTA' ? 'warning' : p === 'NORMAL' ? 'info' : 'neutral';
   });
@@ -299,7 +299,7 @@ export class ObraDetalheComponent {
     const dias = Math.round((limite.getTime() - hoje.getTime()) / DIA_MS);
     const total = Math.max(DIA_MS, previsao.getTime() - inicio.getTime());
     const decorrido = Math.min(100, Math.max(0, ((hoje.getTime() - inicio.getTime()) / total) * 100));
-    let situacao: { texto: string; tom: CesTone; icone: string };
+    let situacao: { texto: string; tom: GeoTone; icone: string };
     if (conclusao) situacao = { texto: `Concluída em ${o.dataFimEfetiva}`, tom: 'success', icone: 'pi-check-circle' };
     else if (dias < 0) situacao = { texto: `${Math.abs(dias)} ${Math.abs(dias) === 1 ? 'dia' : 'dias'} de atraso`, tom: 'danger', icone: 'pi-exclamation-circle' };
     else if (dias <= 15) situacao = { texto: `Faltam ${dias} ${dias === 1 ? 'dia' : 'dias'}`, tom: 'warning', icone: 'pi-clock' };
@@ -354,7 +354,7 @@ export class ObraDetalheComponent {
     return itens;
   });
 
-  protected readonly colunasOrcamento: CesDataTableColumn<ItemOrcamentoObraResponse>[] = [
+  protected readonly colunasOrcamento: GeoDataTableColumn<ItemOrcamentoObraResponse>[] = [
     { key: 'codigo', header: 'Serviço', type: 'custom', priority: 1, value: (i) => i.codigo, display: (i) => `${i.codigo} ${i.descricao ?? ''}` },
     { key: 'quantidade', header: 'Qtd.', width: '7rem', value: (i) => i.quantidade, display: (i) => `${i.quantidade.toLocaleString('pt-BR')} ${i.unidade ?? ''}` },
     { key: 'valorUnitario', header: 'Unitário', type: 'currency', width: '8rem' },
@@ -966,9 +966,9 @@ export class ObraDetalheComponent {
     if (!el || !o || o.latitude == null || o.longitude == null || typeof L === 'undefined') return;
     this.destruirMapa();
     const estilo = getComputedStyle(document.documentElement);
-    const marca = estilo.getPropertyValue('--ces-brand').trim() || 'currentColor';
-    const neutro = estilo.getPropertyValue('--ces-foreground-muted').trim() || 'gray';
-    const superficie = estilo.getPropertyValue('--ces-surface').trim() || 'white';
+    const marca = estilo.getPropertyValue('--geo-brand').trim() || 'currentColor';
+    const neutro = estilo.getPropertyValue('--geo-foreground-muted').trim() || 'gray';
+    const superficie = estilo.getPropertyValue('--geo-surface').trim() || 'white';
     try {
       this.leafletMap = L.map(el, { zoomControl: true, attributionControl: false, scrollWheelZoom: false });
       const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(this.leafletMap);
@@ -989,8 +989,8 @@ export class ObraDetalheComponent {
       // Os controles do Leaflet ficam fora do encapsulamento do componente: recebem os tokens aqui.
       for (const botao of Array.from<HTMLElement>(this.leafletMap.zoomControl.getContainer().querySelectorAll('a'))) {
         botao.style.background = superficie;
-        botao.style.color = estilo.getPropertyValue('--ces-foreground').trim();
-        botao.style.borderColor = estilo.getPropertyValue('--ces-border').trim();
+        botao.style.color = estilo.getPropertyValue('--geo-foreground').trim();
+        botao.style.borderColor = estilo.getPropertyValue('--geo-border').trim();
       }
       setTimeout(() => this.leafletMap?.invalidateSize(), 200);
     } catch {

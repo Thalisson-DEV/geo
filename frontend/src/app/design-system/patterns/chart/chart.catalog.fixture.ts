@@ -1,6 +1,6 @@
-import type { CesChartSeries } from './chart.component';
+import type { GeoChartSeries } from './chart.component';
 
-export interface CesChartCatalogFixture {
+export interface GeoChartCatalogFixture {
   readonly id: string;
   readonly name: string;
   readonly group: string;
@@ -14,13 +14,13 @@ export interface CesChartCatalogFixture {
 }
 
 /** Metadados do catálogo vivo para o padrão de gráfico GEO. */
-export const CesChartCatalogFixture: CesChartCatalogFixture = {
+export const GeoChartCatalogFixture: GeoChartCatalogFixture = {
   id: 'chart',
-  name: 'CesChart',
+  name: 'GeoChart',
   group: 'Patterns',
   status: 'experimental',
-  selector: 'ces-chart',
-  entrypoint: '@ces/ui/patterns',
+  selector: 'geo-chart',
+  entrypoint: '@geo/ui/patterns',
   objective:
     'Exibir séries numéricas com cores de token, números pt-BR, resumo textual e alternativa em tabela.',
   documentationPath: 'docs/design-system/components/chart.md',
@@ -38,8 +38,8 @@ export const CesChartCatalogFixture: CesChartCatalogFixture = {
 };
 
 /** Dados determinísticos usados no catálogo. */
-export const CES_CHART_CATALOG_LABELS: readonly string[] = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
-export const CES_CHART_CATALOG_SERIES: readonly CesChartSeries[] = [
+export const GEO_CHART_CATALOG_LABELS: readonly string[] = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+export const GEO_CHART_CATALOG_SERIES: readonly GeoChartSeries[] = [
   { name: 'Entradas', values: [120, 132, 98, 145, 160, 151] },
   { name: 'Saídas', values: [90, 110, 105, 120, 138, 142] },
 ];

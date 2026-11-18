@@ -1,42 +1,42 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Combustível da frota" icon="pi pi-gauge"
+    <geo-page-header title="Combustível da frota" icon="pi pi-gauge"
       [breadcrumb]="[{ label: 'Frota' }, { label: 'Relatórios' }, { label: 'Combustível' }]"
       description="Quanto a frota abastece e paga, quem consome fora do padrão, quais postos cobram mais e onde estão os alertas.">
       @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
       @if (gerencial(); as g) { <span actions class="dash-updated">Calculado às {{ g.periodo.calculadoEm | date: 'HH:mm' }}</span> }
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="frota-painel-combustivel" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+    <geo-filter-panel storageKey="frota-painel-combustivel" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
+      <div class="geo-filter-grid">
         <app-frota-recorte-campos prefixo="fpb" />
-        <ces-multiselect label="Posto" inputId="fpb-posto" placeholder="Todos" [options]="opcoesPosto()"
-          [value]="postoSel()" (valueChange)="postoSel.set($event)"></ces-multiselect>
-        <ces-multiselect label="Alerta" inputId="fpb-alerta" placeholder="Com e sem alerta" [options]="alertasOpcoes" [filter]="false"
-          description="Só os abastecimentos com algum dos alertas escolhidos." [value]="alertaSel()" (valueChange)="alertaSel.set($event)"></ces-multiselect>
-        <ces-multiselect label="Condutor" inputId="fpb-condutor" placeholder="Todos" [options]="opcoesCondutor()"
-          [value]="condutorSel()" (valueChange)="condutorSel.set($event)"></ces-multiselect>
+        <geo-multiselect label="Posto" inputId="fpb-posto" placeholder="Todos" [options]="opcoesPosto()"
+          [value]="postoSel()" (valueChange)="postoSel.set($event)"></geo-multiselect>
+        <geo-multiselect label="Alerta" inputId="fpb-alerta" placeholder="Com e sem alerta" [options]="alertasOpcoes" [filter]="false"
+          description="Só os abastecimentos com algum dos alertas escolhidos." [value]="alertaSel()" (valueChange)="alertaSel.set($event)"></geo-multiselect>
+        <geo-multiselect label="Condutor" inputId="fpb-condutor" placeholder="Todos" [options]="opcoesCondutor()"
+          [value]="condutorSel()" (valueChange)="condutorSel.set($event)"></geo-multiselect>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     <app-frota-painel-topo [dados]="gerencial()" (periodo)="usarPeriodo($event)" />
 
     @if (carregando() && !modelo()) {
-      <ces-async-state state="loading" title="Calculando o combustível da frota" description="Somando abastecimentos, preços e consumo do período."></ces-async-state>
+      <geo-async-state state="loading" title="Calculando o combustível da frota" description="Somando abastecimentos, preços e consumo do período."></geo-async-state>
     } @else if (erro() && !modelo()) {
-      <ces-async-state state="error" title="Não foi possível calcular o combustível" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível calcular o combustível" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (modelo(); as m) {
       @if (erro()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</geo-callout>
       }
       @if (m.filtrado) {
-        <ces-callout tone="info" icon="pi pi-filter" title="Recorte por posto, alerta ou condutor">
+        <geo-callout tone="info" icon="pi pi-filter" title="Recorte por posto, alerta ou condutor">
           Litros, gasto e preço seguem o filtro. O km/l de cada veículo considera todos os abastecimentos dele.
-        </ces-callout>
+        </geo-callout>
       }
 
       @if (visao(); as vg) {
@@ -75,31 +75,31 @@
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Volume</span><h2>Litros por mês</h2><p>Clique num mês para ver os abastecimentos.</p></div>
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'mensal', rotulo: 'Litros por mês' }" /></header>
-          <ces-chart kind="bar" title="Litros por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+          <geo-chart kind="bar" title="Litros por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
             [labels]="graficoMensal().rotulos" [series]="graficoMensal().litros" valueFormat="number" [height]="260"
-            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></ces-chart>
+            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Preço</span><h2>Preço médio do litro</h2><p>Só combustível; ARLA e óleo ficam fora do preço.</p></div></header>
-          <ces-chart kind="line" title="Preço médio do litro por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+          <geo-chart kind="line" title="Preço médio do litro por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
             [labels]="graficoMensal().rotulos" [series]="graficoMensal().preco" valueFormat="currency" [height]="260"
-            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></ces-chart>
+            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></geo-chart>
         </article>
       </section>
 
       <section class="dash-grid pf-grid-espaco">
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Onde</span><h2>R$/litro por posto</h2><p>Do mais caro para o mais barato. Clique para analisar o posto.</p></div></header>
-          <ces-chart kind="bar-horizontal" title="Preço por posto" [showTitle]="false" [selectable]="true" selectLabel="Analisar o posto"
+          <geo-chart kind="bar-horizontal" title="Preço por posto" [showTitle]="false" [selectable]="true" selectLabel="Analisar o posto"
             [labels]="graficoPostos().rotulos" [series]="graficoPostos().series" valueFormat="currency" [height]="260"
-            (pointSelect)="selecionar(postosTop(), $event.index, 'posto', chaveId)"></ces-chart>
+            (pointSelect)="selecionar(postosTop(), $event.index, 'posto', chaveId)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Conferência</span><h2>Alertas por tipo</h2><p>Gerados na solicitação, aprovação ou realização.</p></div></header>
           @if (m.alertas.length) {
-            <ces-chart kind="bar-horizontal" title="Alertas por tipo" [showTitle]="false" [selectable]="true" selectLabel="Ver os abastecimentos"
+            <geo-chart kind="bar-horizontal" title="Alertas por tipo" [showTitle]="false" [selectable]="true" selectLabel="Ver os abastecimentos"
               [labels]="graficoAlertas().rotulos" [series]="graficoAlertas().series" valueFormat="integer" [height]="260"
-              (pointSelect)="selecionar(m.alertas, $event.index, 'alerta', chaveGrupo)"></ces-chart>
+              (pointSelect)="selecionar(m.alertas, $event.index, 'alerta', chaveGrupo)"></geo-chart>
           } @else {
             <div class="dash-empty"><i class="pi pi-check-circle"></i>Nenhum alerta no período.</div>
           }
@@ -109,52 +109,52 @@
       <section class="dash-grid pf-grid-espaco">
         <article class="dash-panel dash-col-12">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Quando</span><h2>Abastecimentos por dia da semana</h2><p>Fim de semana fora da escala merece conferência.</p></div></header>
-          <ces-chart kind="bar" title="Abastecimentos por dia da semana" [showTitle]="false" [selectable]="true" selectLabel="Ver os abastecimentos"
+          <geo-chart kind="bar" title="Abastecimentos por dia da semana" [showTitle]="false" [selectable]="true" selectLabel="Ver os abastecimentos"
             [labels]="graficoDias().rotulos" [series]="graficoDias().series" valueFormat="integer" [height]="200"
-            (pointSelect)="selecionar(dias, $event.index, 'dia', identidade)"></ces-chart>
+            (pointSelect)="selecionar(dias, $event.index, 'dia', identidade)"></geo-chart>
         </article>
       </section>
 
       <section class="pf-secao" aria-labelledby="fpb-veic">
         <header><span class="dash-eyebrow">Por veículo</span><h2 id="fpb-veic">Consumo por veículo</h2>
           <p>km do odômetro ÷ litros de combustível. Fora do padrão: abaixo de 85% da referência da ficha.</p></header>
-        <ces-data-table title="Consumo por veículo" storageKey="fpb-veiculos" exportFileName="frota-consumo-por-veiculo" [columns]="colVeiculos"
+        <geo-data-table title="Consumo por veículo" storageKey="fpb-veiculos" exportFileName="frota-consumo-por-veiculo" [columns]="colVeiculos"
           [rows]="m.veiculos" [rowKey]="chaveVeiculo" searchPlaceholder="Filtrar placa" rowActionLabel="Analisar"
           (rowActivate)="analisar('veiculo', $event.idVeiculo)" [state]="m.veiculos.length ? 'ready' : 'empty'" stateTitle="Nenhum abastecimento no período">
-          <ng-template cesCell="desvio" let-row>
+          <ng-template geoCell="desvio" let-row>
             @if (row.desvio != null && row.desvio < -0.15) {
-              <ces-status tone="warning" icon="pi-exclamation-triangle">Fora do padrão</ces-status>
+              <geo-status tone="warning" icon="pi-exclamation-triangle">Fora do padrão</geo-status>
             } @else if (row.desvio != null) {
-              <ces-status tone="success" emphasis="outline" icon="pi-check">No padrão</ces-status>
+              <geo-status tone="success" emphasis="outline" icon="pi-check">No padrão</geo-status>
             } @else {
-              <span class="ces-cell-muted">Sem referência</span>
+              <span class="geo-cell-muted">Sem referência</span>
             }
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       </section>
 
       <section class="pf-secao">
         <div class="dash-grid">
           <div class="dash-col-6">
-            <ces-data-table title="Postos" description="Preço médio e quanto se pagou acima ou abaixo da média do recorte." storageKey="fpb-postos"
+            <geo-data-table title="Postos" description="Preço médio e quanto se pagou acima ou abaixo da média do recorte." storageKey="fpb-postos"
               exportFileName="frota-postos" [columns]="colPostos" [rows]="m.postos" [rowKey]="chaveId" [searchable]="false"
-              rowActionLabel="Analisar" (rowActivate)="analisar('posto', $event.id)" [state]="m.postos.length ? 'ready' : 'empty'" stateTitle="Sem abastecimento"></ces-data-table>
+              rowActionLabel="Analisar" (rowActivate)="analisar('posto', $event.id)" [state]="m.postos.length ? 'ready' : 'empty'" stateTitle="Sem abastecimento"></geo-data-table>
           </div>
           <div class="dash-col-6">
-            <ces-data-table title="Condutores" description="Quem abasteceu e quantas vezes com alerta." storageKey="fpb-condutores"
+            <geo-data-table title="Condutores" description="Quem abasteceu e quantas vezes com alerta." storageKey="fpb-condutores"
               exportFileName="frota-condutores-abastecimento" [columns]="colCondutores" [rows]="m.condutores" [rowKey]="chaveCondutor"
               searchPlaceholder="Filtrar condutor" rowActionLabel="Analisar" (rowActivate)="analisar('condutor', $event.chave)"
-              [state]="m.condutores.length ? 'ready' : 'empty'" stateTitle="Sem abastecimento"></ces-data-table>
+              [state]="m.condutores.length ? 'ready' : 'empty'" stateTitle="Sem abastecimento"></geo-data-table>
           </div>
         </div>
       </section>
 
       <section class="pf-secao" aria-labelledby="fpb-alertas">
         <header><span class="dash-eyebrow">Conferir</span><h2 id="fpb-alertas">Abastecimentos com alerta</h2><p>Abra a linha para conferir o abastecimento.</p></header>
-        <ces-data-table title="Abastecimentos com alerta" storageKey="fpb-com-alerta" exportFileName="frota-abastecimentos-com-alerta"
+        <geo-data-table title="Abastecimentos com alerta" storageKey="fpb-com-alerta" exportFileName="frota-abastecimentos-com-alerta"
           [columns]="colAbastecimentos" [rows]="m.comAlerta" [rowKey]="chaveId" searchPlaceholder="Filtrar placa ou posto"
           rowActionLabel="Abrir o abastecimento" (rowActivate)="abrirAbastecimento($event)"
-          [state]="m.comAlerta.length ? 'ready' : 'empty'" stateTitle="Nenhum abastecimento com alerta"></ces-data-table>
+          [state]="m.comAlerta.length ? 'ready' : 'empty'" stateTitle="Nenhum abastecimento com alerta"></geo-data-table>
       </section>
     }
   </div>

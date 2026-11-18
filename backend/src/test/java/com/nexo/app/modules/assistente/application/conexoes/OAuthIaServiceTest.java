@@ -48,8 +48,8 @@ class OAuthIaServiceTest {
 
     @BeforeEach
     void preparar() {
-        cliente = new ClienteConexaoIa("ces-app-teste", "Claude", List.of(RETORNO), null, "127.0.0.1");
-        when(clientes.findByClientIdAndAtivoTrue("ces-app-teste")).thenReturn(Optional.of(cliente));
+        cliente = new ClienteConexaoIa("geo-app-teste", "Claude", List.of(RETORNO), null, "127.0.0.1");
+        when(clientes.findByClientIdAndAtivoTrue("geo-app-teste")).thenReturn(Optional.of(cliente));
         when(conexoes.save(any(ConexaoIa.class))).thenAnswer(invocacao -> {
             ConexaoIa conexao = invocacao.getArgument(0);
             ReflectionTestUtils.setField(conexao, "id", UUID.randomUUID());
@@ -68,9 +68,9 @@ class OAuthIaServiceTest {
 
         Map<String, Object> resposta = servico.token(troca(VERIFICADOR));
 
-        assertThat((String) resposta.get("access_token")).startsWith("ces_at_");
-        assertThat((String) resposta.get("refresh_token")).startsWith("ces_rt_");
-        assertThat(resposta.get("scope")).isEqualTo("ces.leitura ces.escrita");
+        assertThat((String) resposta.get("access_token")).startsWith("geo_at_");
+        assertThat((String) resposta.get("refresh_token")).startsWith("geo_rt_");
+        assertThat(resposta.get("scope")).isEqualTo("geo.leitura geo.escrita");
         assertThat(resposta.get("expires_in")).isEqualTo(3600L);
         assertThat(codigo.isUtilizavel(OffsetDateTime.now())).isFalse();
         assertThat(emitidas).extracting(CredencialConexaoIa::getTipo)
@@ -106,10 +106,10 @@ class OAuthIaServiceTest {
         when(credenciais.findByHashForUpdate(anyString())).thenReturn(Optional.of(renovacao));
         when(conexoes.findByIdAndAtivoTrue(conexao.getId())).thenReturn(Optional.of(conexao));
 
-        Map<String, Object> resposta = servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "ces_rt_x"));
+        Map<String, Object> resposta = servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "geo_rt_x"));
 
         assertThat(resposta).containsKeys("access_token", "refresh_token");
-        assertThat(resposta.get("scope")).isEqualTo("ces.leitura");
+        assertThat(resposta.get("scope")).isEqualTo("geo.leitura");
         assertThat(renovacao.getUsadaEm()).isNotNull();
     }
 
@@ -120,7 +120,7 @@ class OAuthIaServiceTest {
         when(credenciais.findByHashForUpdate(anyString())).thenReturn(Optional.of(renovacao));
         when(conexoes.findForUpdate(conexao.getId())).thenReturn(Optional.of(conexao));
 
-        assertThatThrownBy(() -> servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "ces_rt_x")))
+        assertThatThrownBy(() -> servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "geo_rt_x")))
                 .isInstanceOf(OAuthErro.class);
         assertThat(conexao.isRevogada()).isTrue();
     }
@@ -132,7 +132,7 @@ class OAuthIaServiceTest {
         when(credenciais.findByHashForUpdate(anyString())).thenReturn(Optional.of(renovacao));
         when(conexoes.findForUpdate(conexao.getId())).thenReturn(Optional.of(conexao));
 
-        assertThatThrownBy(() -> servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "ces_rt_x")))
+        assertThatThrownBy(() -> servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "geo_rt_x")))
                 .isInstanceOf(OAuthErro.class);
         assertThat(conexao.isRevogada()).isFalse();
     }
@@ -144,7 +144,7 @@ class OAuthIaServiceTest {
         when(credenciais.findByHashForUpdate(anyString())).thenReturn(Optional.of(renovacao(conexao, null)));
         when(conexoes.findByIdAndAtivoTrue(conexao.getId())).thenReturn(Optional.of(conexao));
 
-        assertThatThrownBy(() -> servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "ces_rt_x")))
+        assertThatThrownBy(() -> servico.token(Map.of("grant_type", "refresh_token", "refresh_token", "geo_rt_x")))
                 .isInstanceOf(OAuthErro.class).hasMessageContaining("desconectada");
         assertThat(emitidas).isEmpty();
     }
@@ -157,8 +157,8 @@ class OAuthIaServiceTest {
 
     @Test
     void recusaDevolveAccessDeniedComStateEEmissor() {
-        AutorizarIaRequest pedido = new AutorizarIaRequest("code", "ces-app-teste", RETORNO, "desafio", "S256", "abc",
-                "ces.leitura", null, false);
+        AutorizarIaRequest pedido = new AutorizarIaRequest("code", "geo-app-teste", RETORNO, "desafio", "S256", "abc",
+                "geo.leitura", null, false);
 
         var params = UriComponentsBuilder.fromUriString(servico.recusar(pedido, "https://app.exemplo.com.br").redirectUrl())
                 .build().getQueryParams();
@@ -170,10 +170,10 @@ class OAuthIaServiceTest {
 
     @Test
     void pedidoSemPkceOuComRetornoNaoCadastradoERecusado() {
-        AutorizarIaRequest semPkce = new AutorizarIaRequest("code", "ces-app-teste", RETORNO, null, null, null, null, null, false);
-        AutorizarIaRequest outroRetorno = new AutorizarIaRequest("code", "ces-app-teste", "http://localhost:9/x", "d", "S256",
+        AutorizarIaRequest semPkce = new AutorizarIaRequest("code", "geo-app-teste", RETORNO, null, null, null, null, null, false);
+        AutorizarIaRequest outroRetorno = new AutorizarIaRequest("code", "geo-app-teste", "http://localhost:9/x", "d", "S256",
                 null, null, null, false);
-        AutorizarIaRequest plain = new AutorizarIaRequest("code", "ces-app-teste", RETORNO, "d", "plain", null, null, null, false);
+        AutorizarIaRequest plain = new AutorizarIaRequest("code", "geo-app-teste", RETORNO, "d", "plain", null, null, null, false);
 
         assertThatThrownBy(() -> servico.previa(semPkce, true)).isInstanceOf(OAuthErro.class);
         assertThatThrownBy(() -> servico.previa(outroRetorno, true)).isInstanceOf(OAuthErro.class);
@@ -182,10 +182,10 @@ class OAuthIaServiceTest {
 
     @Test
     void previaSoOfereceEscritaSeOPerfilPodeEOEscopoPede() {
-        AutorizarIaRequest leitura = new AutorizarIaRequest("code", "ces-app-teste", RETORNO, "d", "S256", null, "ces.leitura",
+        AutorizarIaRequest leitura = new AutorizarIaRequest("code", "geo-app-teste", RETORNO, "d", "S256", null, "geo.leitura",
                 null, false);
-        AutorizarIaRequest ambos = new AutorizarIaRequest("code", "ces-app-teste", RETORNO, "d", "S256", null,
-                "ces.leitura ces.escrita", null, false);
+        AutorizarIaRequest ambos = new AutorizarIaRequest("code", "geo-app-teste", RETORNO, "d", "S256", null,
+                "geo.leitura geo.escrita", null, false);
 
         assertThat(servico.previa(leitura, true).podeEscrever()).isFalse();
         assertThat(servico.previa(ambos, false).podeEscrever()).isFalse();
@@ -197,13 +197,13 @@ class OAuthIaServiceTest {
     private CodigoAutorizacaoIa codigo(boolean escrita) throws Exception {
         String desafio = Base64.getUrlEncoder().withoutPadding().encodeToString(
                 MessageDigest.getInstance("SHA-256").digest(VERIFICADOR.getBytes(StandardCharsets.US_ASCII)));
-        return new CodigoAutorizacaoIa("hash", "ces-app-teste", UUID.randomUUID(), escrita, RETORNO, desafio, null,
+        return new CodigoAutorizacaoIa("hash", "geo-app-teste", UUID.randomUUID(), escrita, RETORNO, desafio, null,
                 OffsetDateTime.now().plusMinutes(5));
     }
 
     private static Map<String, String> troca(String verificador) {
-        return Map.of("grant_type", "authorization_code", "code", "ces_code_x", "redirect_uri", RETORNO,
-                "client_id", "ces-app-teste", "code_verifier", verificador);
+        return Map.of("grant_type", "authorization_code", "code", "geo_code_x", "redirect_uri", RETORNO,
+                "client_id", "geo-app-teste", "code_verifier", verificador);
     }
 
     private ConexaoIa conexao() {

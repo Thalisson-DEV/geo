@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../design-system/patterns/report-navigator/report-navigator.models';
 import { StatusTurno, TurnoConsulta } from '../../core/models/dashboard.models';
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -13,15 +13,15 @@ import { situacaoDoTurno } from './turno-list/turno-list.utils';
 
 /** Navega entre os relatórios de turno, pela mesma consulta da tela de turnos. */
 @Injectable({ providedIn: 'root' })
-export class TurnoReportNavigatorDataSource implements CesReportNavigatorDataSource<TurnoConsulta> {
+export class TurnoReportNavigatorDataSource implements GeoReportNavigatorDataSource<TurnoConsulta> {
   private readonly dashboardService = inject(DashboardService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODOS',
     sort: 'dataInicio,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Turnos',
     icon: 'pi pi-calendar-clock',
     eyebrow: 'Navegador',
@@ -40,7 +40,7 @@ export class TurnoReportNavigatorDataSource implements CesReportNavigatorDataSou
     totalLabel: (total) => `${total} ${total === 1 ? 'turno' : 'turnos'}`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<TurnoConsulta>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<TurnoConsulta>> {
     const status =
       criteria.scope === 'ABERTO' || criteria.scope === 'FECHADO' ? (criteria.scope as StatusTurno) : undefined;
     return this.dashboardService
@@ -59,7 +59,7 @@ export class TurnoReportNavigatorDataSource implements CesReportNavigatorDataSou
       );
   }
 
-  toItem(raw: TurnoConsulta): CesReportNavigatorItem {
+  toItem(raw: TurnoConsulta): GeoReportNavigatorItem {
     const situacao = situacaoDoTurno(raw);
     const equipe = raw.codigoEquipe || 'Equipe';
     return {
@@ -83,7 +83,7 @@ export class TurnoReportNavigatorDataSource implements CesReportNavigatorDataSou
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | TurnoConsulta): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | TurnoConsulta): any[] {
     return ['/execucao', 'turnos', (item as { id: string }).id, 'detalhamento'];
   }
 

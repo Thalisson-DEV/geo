@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { FaturaPosto, ItemAbastecimento, SituacaoAbastecimento, SituacaoFaturaPosto } from '../../../core/models/frota-abastecimento.models';
 
 /** "5574999990000" → "(74) 99999-0000"; números de outro país ficam com o DDI. */
@@ -12,7 +12,7 @@ export function formatarWhatsapp(numero: string | null | undefined): string {
   return resto.length === 9 ? `(${ddd}) ${resto.slice(0, 5)}-${resto.slice(5)}` : `(${ddd}) ${resto.slice(0, 4)}-${resto.slice(4)}`;
 }
 
-export const TOM_SITUACAO: Record<SituacaoAbastecimento, CesTone> = {
+export const TOM_SITUACAO: Record<SituacaoAbastecimento, GeoTone> = {
   AGUARDANDO_APROVACAO: 'warning',
   APROVADA: 'info',
   REPROVADA: 'danger',
@@ -66,7 +66,7 @@ export function produtoTrocado(item: ItemAbastecimento): boolean {
   return !!item.idProduto && item.idProduto !== item.idProdutoPedido;
 }
 
-export const TOM_FATURA: Record<SituacaoFaturaPosto, CesTone> = {
+export const TOM_FATURA: Record<SituacaoFaturaPosto, GeoTone> = {
   RASCUNHO: 'warning',
   CONFERIDA: 'info',
   ENVIADA_AO_FINANCEIRO: 'success'

@@ -2,22 +2,22 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable, catchError, concatMap, from, map, of, switchMap, toArray } from 'rxjs';
 import { SolicitacaoFinanceira } from '../../../core/models/financeiro.models';
 import {
@@ -67,51 +67,51 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     FrotaAnexosComponent
   ],
   styles: `
     .linhas { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
     .linha { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; padding: 0.5rem 0.75rem;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .linha__texto { flex: 1; min-width: 12rem; display: grid; }
     .linha__texto strong { font-weight: 600; }
-    .linha__texto span { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .linha__texto span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .linha__valor { font-weight: 700; font-variant-numeric: tabular-nums; }
-    .linha--edicao { background: var(--ces-surface-subtle); }
+    .linha--edicao { background: var(--geo-surface-subtle); }
     .acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; }
     .acoes > * { flex: 1 1 10rem; }
-    .acoes > ces-button { flex: 0 0 auto; }
+    .acoes > geo-button { flex: 0 0 auto; }
     .acoes--linha { flex-basis: 100%; }
-    .bloco { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md);
-      background: var(--ces-surface-subtle); }
+    .bloco { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md);
+      background: var(--geo-surface-subtle); }
     .bloco__titulo { font-weight: 600; }
-    .bloco__texto { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); margin: 0; }
-    .links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; color: var(--ces-foreground-muted);
-      font-size: var(--ces-font-caption); }
-    .totais { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; font-size: var(--ces-font-caption);
-      color: var(--ces-foreground-muted); }
-    .totais strong { color: var(--ces-foreground); }
+    .bloco__texto { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); margin: 0; }
+    .links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.75rem; color: var(--geo-foreground-muted);
+      font-size: var(--geo-font-caption); }
+    .totais { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; font-size: var(--geo-font-caption);
+      color: var(--geo-foreground-muted); }
+    .totais strong { color: var(--geo-foreground); }
     .rodape { display: flex; align-items: center; gap: 0.5rem; width: 100%; flex-wrap: wrap; }
     .rodape__espaco { flex: 1; }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()" [dirty]="alterado()" [loading]="salvando()" size="lg">
+    <geo-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()" [dirty]="alterado()" [loading]="salvando()" size="lg">
 
       @if (apolice(); as a) {
         @let v = vigencia(a);
-        <ces-callout [tone]="v.tom" [icon]="v.icone" [dense]="true" [title]="v.rotulo">
+        <geo-callout [tone]="v.tom" [icon]="v.icone" [dense]="true" [title]="v.rotulo">
           @if (a.diasParaComecar > 0) {
             {{ a.veiculos.length === 1 ? '1 veículo coberto' : a.veiculos.length + ' veículos cobertos' }} a partir de {{ dataBr(a.vigenciaInicio) }} ·
           } @else {
@@ -123,28 +123,28 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
           } @else if (a.situacao !== 'VIGENTE' && a.diasParaComecar <= 0) {
             . Renove antes do fim da vigência para os veículos não ficarem descobertos.
           }
-        </ces-callout>
+        </geo-callout>
       } @else if (renovacaoDe(); as r) {
-        <ces-callout tone="info" icon="pi pi-replay" [dense]="true" title="Renovação da apólice {{ r.numero }}">
+        <geo-callout tone="info" icon="pi pi-replay" [dense]="true" title="Renovação da apólice {{ r.numero }}">
           Seguradora, corretor, base, setor e os veículos cobertos no fim da vigência já vieram preenchidos. Confira o número, a vigência e o valor da nova apólice.
-        </ces-callout>
+        </geo-callout>
       }
 
-      <ces-form-section title="Apólice" icon="pi pi-shield">
-        <div class="ces-form-grid">
-          <ces-text-input label="Número da apólice" [required]="true" [(value)]="numero" [maxlength]="60" [disabled]="!podeEditar()" [error]="erro('numero')"></ces-text-input>
-          <ces-select label="Seguradora" [required]="true" [options]="opcoesSeguradora()" [(value)]="seguradora" [filter]="true" [disabled]="!podeEditar()"
-            [loading]="carregandoSeguradoras()" [error]="erro('seguradora')"></ces-select>
-          <ces-select label="Corretor" [options]="opcoesCorretor()" [(value)]="corretor" [filter]="true" [clearable]="true" [showOptional]="true"
-            [disabled]="!podeEditar()" [loading]="carregandoSeguradoras()"></ces-select>
-          <ces-text-input label="Segurado" [(value)]="segurado" [maxlength]="150" [showOptional]="true" [disabled]="!podeEditar()"
-            placeholder="Ex.: Nome da empresa"></ces-text-input>
+      <geo-form-section title="Apólice" icon="pi pi-shield">
+        <div class="geo-form-grid">
+          <geo-text-input label="Número da apólice" [required]="true" [(value)]="numero" [maxlength]="60" [disabled]="!podeEditar()" [error]="erro('numero')"></geo-text-input>
+          <geo-select label="Seguradora" [required]="true" [options]="opcoesSeguradora()" [(value)]="seguradora" [filter]="true" [disabled]="!podeEditar()"
+            [loading]="carregandoSeguradoras()" [error]="erro('seguradora')"></geo-select>
+          <geo-select label="Corretor" [options]="opcoesCorretor()" [(value)]="corretor" [filter]="true" [clearable]="true" [showOptional]="true"
+            [disabled]="!podeEditar()" [loading]="carregandoSeguradoras()"></geo-select>
+          <geo-text-input label="Segurado" [(value)]="segurado" [maxlength]="150" [showOptional]="true" [disabled]="!podeEditar()"
+            placeholder="Ex.: Nome da empresa"></geo-text-input>
         </div>
         @if (podeEditar() && !novoFornecedor()) {
           <div class="links">
             <span>Não está na lista?</span>
-            <ces-button variant="link" size="sm" icon="pi pi-plus" label="Incluir seguradora" (pressed)="abrirNovoFornecedor('SEGURADORA')"></ces-button>
-            <ces-button variant="link" size="sm" icon="pi pi-plus" label="Incluir corretora" (pressed)="abrirNovoFornecedor('CORRETORA')"></ces-button>
+            <geo-button variant="link" size="sm" icon="pi pi-plus" label="Incluir seguradora" (pressed)="abrirNovoFornecedor('SEGURADORA')"></geo-button>
+            <geo-button variant="link" size="sm" icon="pi pi-plus" label="Incluir corretora" (pressed)="abrirNovoFornecedor('CORRETORA')"></geo-button>
           </div>
         }
         @if (novoFornecedor(); as papel) {
@@ -153,52 +153,52 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
             @if (!fornecedorDoZero()) {
               <p class="bloco__texto">Escolha no cadastro de fornecedores do financeiro. Ela passa a aparecer em Cadastros › Seguradoras e corretoras.</p>
               <div class="acoes">
-                <ces-select label="Fornecedor do financeiro" [required]="true" [options]="opcoesFornecedorNovo()" [(value)]="fornecedorEscolhido" [filter]="true"
-                  filterPlaceholder="Nome do fornecedor" [loading]="carregandoFornecedores()"></ces-select>
-                <ces-button variant="ghost" label="Cancelar" (pressed)="novoFornecedor.set(null)"></ces-button>
-                <ces-button icon="pi pi-check" label="Incluir" [disabled]="!fornecedorEscolhido()" [loading]="gravandoFornecedor()"
-                  (pressed)="incluirSeguradora(papel, fornecedorEscolhido()!)"></ces-button>
+                <geo-select label="Fornecedor do financeiro" [required]="true" [options]="opcoesFornecedorNovo()" [(value)]="fornecedorEscolhido" [filter]="true"
+                  filterPlaceholder="Nome do fornecedor" [loading]="carregandoFornecedores()"></geo-select>
+                <geo-button variant="ghost" label="Cancelar" (pressed)="novoFornecedor.set(null)"></geo-button>
+                <geo-button icon="pi pi-check" label="Incluir" [disabled]="!fornecedorEscolhido()" [loading]="gravandoFornecedor()"
+                  (pressed)="incluirSeguradora(papel, fornecedorEscolhido()!)"></geo-button>
               </div>
               @if (podeCadastrarFornecedor()) {
                 <div class="links">
                   <span>Não está no financeiro?</span>
-                  <ces-button variant="link" size="sm" icon="pi pi-plus" label="Cadastrar fornecedor" (pressed)="fornecedorDoZero.set(true)"></ces-button>
+                  <geo-button variant="link" size="sm" icon="pi pi-plus" label="Cadastrar fornecedor" (pressed)="fornecedorDoZero.set(true)"></geo-button>
                 </div>
               }
             } @else {
               <p class="bloco__texto">Entra no cadastro de fornecedores do financeiro, que confere e homologa depois.</p>
               <div class="acoes">
-                <ces-text-input label="Nome" [required]="true" [(value)]="fornecedorNome" [maxlength]="150"></ces-text-input>
-                <ces-text-input label="CNPJ" [(value)]="fornecedorCnpj" [maxlength]="18" [showOptional]="true" placeholder="Só números"></ces-text-input>
-                <ces-button variant="ghost" label="Voltar" (pressed)="fornecedorDoZero.set(false)"></ces-button>
-                <ces-button icon="pi pi-check" label="Cadastrar" [disabled]="!fornecedorNome().trim()" [loading]="gravandoFornecedor()" (pressed)="cadastrarFornecedor(papel)"></ces-button>
+                <geo-text-input label="Nome" [required]="true" [(value)]="fornecedorNome" [maxlength]="150"></geo-text-input>
+                <geo-text-input label="CNPJ" [(value)]="fornecedorCnpj" [maxlength]="18" [showOptional]="true" placeholder="Só números"></geo-text-input>
+                <geo-button variant="ghost" label="Voltar" (pressed)="fornecedorDoZero.set(false)"></geo-button>
+                <geo-button icon="pi pi-check" label="Cadastrar" [disabled]="!fornecedorNome().trim()" [loading]="gravandoFornecedor()" (pressed)="cadastrarFornecedor(papel)"></geo-button>
               </div>
             }
           </div>
         }
-        <div class="ces-form-grid">
-          <ces-datepicker label="Início da vigência" [required]="true" [(value)]="inicio" [disabled]="!podeEditar()" [error]="erro('inicio')"></ces-datepicker>
-          <ces-datepicker label="Fim da vigência" [required]="true" [(value)]="fim" [minDate]="inicio() ?? undefined" [disabled]="!podeEditar()"
-            [error]="erro('fim')" description="O aviso de vencimento segue as faixas da frota."></ces-datepicker>
-          <ces-number-input label="Valor (prêmio)" [required]="true" mode="currency" [(value)]="valor" [min]="0" [disabled]="!podeEditar()" [error]="erro('valor')"></ces-number-input>
-          <ces-number-input label="Franquia" mode="currency" [(value)]="franquia" [min]="0" [showOptional]="true" [disabled]="!podeEditar()"></ces-number-input>
+        <div class="geo-form-grid">
+          <geo-datepicker label="Início da vigência" [required]="true" [(value)]="inicio" [disabled]="!podeEditar()" [error]="erro('inicio')"></geo-datepicker>
+          <geo-datepicker label="Fim da vigência" [required]="true" [(value)]="fim" [minDate]="inicio() ?? undefined" [disabled]="!podeEditar()"
+            [error]="erro('fim')" description="O aviso de vencimento segue as faixas da frota."></geo-datepicker>
+          <geo-number-input label="Valor (prêmio)" [required]="true" mode="currency" [(value)]="valor" [min]="0" [disabled]="!podeEditar()" [error]="erro('valor')"></geo-number-input>
+          <geo-number-input label="Franquia" mode="currency" [(value)]="franquia" [min]="0" [showOptional]="true" [disabled]="!podeEditar()"></geo-number-input>
         </div>
-        <div class="ces-form-grid">
-          <ces-select label="Base" [required]="true" [options]="bases()" [(value)]="base" [filter]="true" [disabled]="!podeEditar()"
-            description="Vai para o pagamento das parcelas." [error]="erro('base')"></ces-select>
-          <ces-select label="Setor" [required]="true" [options]="processos()" description="Centro de custo do pagamento das parcelas." [(value)]="processo" [filter]="true"
-            [disabled]="!podeEditar()" [error]="erro('processo')"></ces-select>
+        <div class="geo-form-grid">
+          <geo-select label="Base" [required]="true" [options]="bases()" [(value)]="base" [filter]="true" [disabled]="!podeEditar()"
+            description="Vai para o pagamento das parcelas." [error]="erro('base')"></geo-select>
+          <geo-select label="Setor" [required]="true" [options]="processos()" description="Centro de custo do pagamento das parcelas." [(value)]="processo" [filter]="true"
+            [disabled]="!podeEditar()" [error]="erro('processo')"></geo-select>
         </div>
         @if (!apolice()) {
-          <ces-multiselect label="Veículos cobertos" [options]="opcoesVeiculo()" [(value)]="idsVeiculo" [filter]="true" [showOptional]="true"
+          <geo-multiselect label="Veículos cobertos" [options]="opcoesVeiculo()" [(value)]="idsVeiculo" [filter]="true" [showOptional]="true"
             [maxSelectedLabels]="0" [selectedItemsLabel]="idsVeiculo().length === 1 ? '1 veículo' : '{0} veículos'"
-            filterPlaceholder="Placa, modelo ou base" [description]="descricaoVeiculos()"></ces-multiselect>
+            filterPlaceholder="Placa, modelo ou base" [description]="descricaoVeiculos()"></geo-multiselect>
         }
-        <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true" [disabled]="!podeEditar()"></ces-textarea>
-      </ces-form-section>
+        <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true" [disabled]="!podeEditar()"></geo-textarea>
+      </geo-form-section>
 
       @if (apolice(); as a) {
-        <ces-form-section title="Veículos cobertos" icon="pi pi-car" [description]="a.veiculos.length ? undefined : 'Nenhum veículo nesta apólice ainda.'">
+        <geo-form-section title="Veículos cobertos" icon="pi pi-car" [description]="a.veiculos.length ? undefined : 'Nenhum veículo nesta apólice ainda.'">
           @if (a.veiculos.length) {
             <ul class="linhas">
               @for (c of a.veiculos; track c.id) {
@@ -208,29 +208,29 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
                     <strong>{{ placa(c.placa) }}{{ c.modelo ? ' · ' + c.modelo : '' }}</strong>
                     <span>{{ c.inicio | date: 'dd/MM/yyyy' }} a {{ c.fim ? (c.fim | date: 'dd/MM/yyyy') : 'fim da vigência' }}{{ c.motivoEncerramentoRotulo ? ' · ' + c.motivoEncerramentoRotulo : '' }}{{ c.observacaoEncerramento ? ': ' + c.observacaoEncerramento : '' }}</span>
                   </span>
-                  <ces-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</ces-status>
+                  <geo-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</geo-status>
                   @if (podeEditar() && !c.motivoEncerramento) {
-                    <ces-icon-button icon="pi pi-calendar-times" [label]="'Tirar o ' + placa(c.placa) + ' da apólice'" tooltip="Veículo saiu da apólice" size="icon-sm"
-                      (pressed)="iniciarEncerramento(c)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-calendar-times" [label]="'Tirar o ' + placa(c.placa) + ' da apólice'" tooltip="Veículo saiu da apólice" size="icon-sm"
+                      (pressed)="iniciarEncerramento(c)"></geo-icon-button>
                   }
                   @if (podeEditar()) {
-                    <ces-icon-button icon="pi pi-trash" [label]="'Retirar ' + placa(c.placa) + ' da apólice'" tooltip="Retirar (lançado por engano)" size="icon-sm"
-                      (pressed)="removerCobertura(c)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-trash" [label]="'Retirar ' + placa(c.placa) + ' da apólice'" tooltip="Retirar (lançado por engano)" size="icon-sm"
+                      (pressed)="removerCobertura(c)"></geo-icon-button>
                   }
                   @if (encerrando()?.id === c.id) {
                     <div class="acoes acoes--linha">
-                      <ces-select label="Motivo" [required]="true" [options]="motivos" [(value)]="motivoEncerramento"></ces-select>
-                      <ces-datepicker label="Coberto até" [required]="true" [(value)]="fimCobertura" [minDate]="deData(c.inicio)" [maxDate]="deData(a.vigenciaFim)"></ces-datepicker>
-                      <ces-text-input label="Detalhe" [(value)]="observacaoEncerramento" [maxlength]="300" [required]="motivoEncerramento() === 'OUTRO'"
-                        [showOptional]="motivoEncerramento() !== 'OUTRO'"></ces-text-input>
+                      <geo-select label="Motivo" [required]="true" [options]="motivos" [(value)]="motivoEncerramento"></geo-select>
+                      <geo-datepicker label="Coberto até" [required]="true" [(value)]="fimCobertura" [minDate]="deData(c.inicio)" [maxDate]="deData(a.vigenciaFim)"></geo-datepicker>
+                      <geo-text-input label="Detalhe" [(value)]="observacaoEncerramento" [maxlength]="300" [required]="motivoEncerramento() === 'OUTRO'"
+                        [showOptional]="motivoEncerramento() !== 'OUTRO'"></geo-text-input>
                     </div>
-                    <ces-callout class="acoes--linha" tone="info" icon="pi pi-info-circle" [dense]="true">
+                    <geo-callout class="acoes--linha" tone="info" icon="pi pi-info-circle" [dense]="true">
                       Peça à corretora o endosso de exclusão do {{ placa(c.placa) }}: pode haver devolução de parte do prêmio. Anexe o endosso nesta apólice.
-                    </ces-callout>
+                    </geo-callout>
                     <div class="acoes acoes--linha">
                       <span class="rodape__espaco"></span>
-                      <ces-button variant="ghost" label="Cancelar" (pressed)="encerrando.set(null)"></ces-button>
-                      <ces-button icon="pi pi-check" label="Confirmar saída" [loading]="gravandoItem()" (pressed)="encerrarCobertura(c)"></ces-button>
+                      <geo-button variant="ghost" label="Cancelar" (pressed)="encerrando.set(null)"></geo-button>
+                      <geo-button icon="pi pi-check" label="Confirmar saída" [loading]="gravandoItem()" (pressed)="encerrarCobertura(c)"></geo-button>
                     </div>
                   }
                 </li>
@@ -240,16 +240,16 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
           @if (podeEditar()) {
             <p class="bloco__texto">Incluir veículo: sem data, fica coberto desde o início da vigência.</p>
             <div class="acoes">
-              <ces-select label="Incluir veículo" [options]="opcoesVeiculo()" [(value)]="novoVeiculo" [filter]="true" [clearable]="true"
-                filterPlaceholder="Placa, modelo ou base"></ces-select>
-              <ces-datepicker label="Desde" [(value)]="novoInicio" [minDate]="deData(a.vigenciaInicio)" [maxDate]="deData(a.vigenciaFim)"
-                [clearable]="true"></ces-datepicker>
-              <ces-button variant="outline" icon="pi pi-plus" label="Incluir" [disabled]="!novoVeiculo()" [loading]="gravandoItem()" (pressed)="incluirVeiculo()"></ces-button>
+              <geo-select label="Incluir veículo" [options]="opcoesVeiculo()" [(value)]="novoVeiculo" [filter]="true" [clearable]="true"
+                filterPlaceholder="Placa, modelo ou base"></geo-select>
+              <geo-datepicker label="Desde" [(value)]="novoInicio" [minDate]="deData(a.vigenciaInicio)" [maxDate]="deData(a.vigenciaFim)"
+                [clearable]="true"></geo-datepicker>
+              <geo-button variant="outline" icon="pi pi-plus" label="Incluir" [disabled]="!novoVeiculo()" [loading]="gravandoItem()" (pressed)="incluirVeiculo()"></geo-button>
             </div>
           }
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="Parcelas" icon="pi pi-wallet" description="Cada parcela vira uma solicitação de pagamento no financeiro.">
+        <geo-form-section title="Parcelas" icon="pi pi-wallet" description="Cada parcela vira uma solicitação de pagamento no financeiro.">
           @if (a.parcelas.length) {
             <ul class="linhas">
               @for (p of a.parcelas; track p.id) {
@@ -260,14 +260,14 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
                     <span>Vence em {{ p.vencimento | date: 'dd/MM/yyyy' }}{{ p.numeroSolicitacaoFinanceira ? ' · solicitação nº ' + p.numeroSolicitacaoFinanceira : '' }}
                       {{ p.motivoReprovacaoPagamento ? ' · ' + p.motivoReprovacaoPagamento : '' }}</span>
                   </span>
-                  <ces-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</ces-status>
+                  <geo-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</geo-status>
                   @if (p.podePedirPagamento && podePedirPagamento() && !modeloPagamento()) {
-                    <ces-icon-button icon="pi pi-send" [label]="'Pedir o pagamento da parcela ' + p.numero" tooltip="Pedir pagamento" size="icon-sm"
-                      (pressed)="pedirPagamento(p)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-send" [label]="'Pedir o pagamento da parcela ' + p.numero" tooltip="Pedir pagamento" size="icon-sm"
+                      (pressed)="pedirPagamento(p)"></geo-icon-button>
                   }
                   @if (podeEditar() && !travada(p)) {
-                    <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir a parcela ' + p.numero" tooltip="Corrigir" size="icon-sm" (pressed)="editarParcela(p)"></ces-icon-button>
-                    <ces-icon-button icon="pi pi-trash" [label]="'Excluir a parcela ' + p.numero" tooltip="Excluir" size="icon-sm" (pressed)="removerParcela(p)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir a parcela ' + p.numero" tooltip="Corrigir" size="icon-sm" (pressed)="editarParcela(p)"></geo-icon-button>
+                    <geo-icon-button icon="pi pi-trash" [label]="'Excluir a parcela ' + p.numero" tooltip="Excluir" size="icon-sm" (pressed)="removerParcela(p)"></geo-icon-button>
                   }
                 </li>
               }
@@ -283,70 +283,70 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
                     forma de pagamento, dados bancários, solicitante, base e setor. Troca valor e vencimento e envia para aprovação. Anexe o boleto pela solicitação, se precisar.
                     Já vêm marcadas as vencidas e as que vencem em até 30 dias.</p>
                   <div class="acoes">
-                    <ces-multiselect label="Parcelas" [options]="opcoesParcelaPedido()" [(value)]="parcelasPedido" [filter]="false"
-                      [maxSelectedLabels]="0" [selectedItemsLabel]="parcelasPedido().length === 1 ? '1 parcela' : '{0} parcelas'"></ces-multiselect>
-                    <ces-button icon="pi pi-send" [label]="rotuloPedido()" [disabled]="!parcelasPedido().length" [loading]="pedindo()" (pressed)="pedirEmLote(m)"></ces-button>
+                    <geo-multiselect label="Parcelas" [options]="opcoesParcelaPedido()" [(value)]="parcelasPedido" [filter]="false"
+                      [maxSelectedLabels]="0" [selectedItemsLabel]="parcelasPedido().length === 1 ? '1 parcela' : '{0} parcelas'"></geo-multiselect>
+                    <geo-button icon="pi pi-send" [label]="rotuloPedido()" [disabled]="!parcelasPedido().length" [loading]="pedindo()" (pressed)="pedirEmLote(m)"></geo-button>
                   </div>
                 </div>
               } @else {
-                <span class="ces-cell-muted">O primeiro pedido abre o formulário do financeiro. Os seguintes repetem os mesmos dados e saem daqui mesmo.</span>
+                <span class="geo-cell-muted">O primeiro pedido abre o formulário do financeiro. Os seguintes repetem os mesmos dados e saem daqui mesmo.</span>
               }
             }
           }
           @if (podeEditar()) {
             @if (editandoParcela() || incluindoParcela()) {
               <div class="acoes">
-                <ces-datepicker label="Vencimento" [required]="true" [(value)]="parcelaVencimento"></ces-datepicker>
-                <ces-number-input label="Valor" [required]="true" mode="currency" [(value)]="parcelaValor" [min]="0.01"></ces-number-input>
-                <ces-button variant="ghost" label="Cancelar" (pressed)="fecharParcela()"></ces-button>
-                <ces-button icon="pi pi-check" [label]="editandoParcela() ? 'Salvar parcela ' + editandoParcela()!.numero : 'Incluir parcela'"
-                  [loading]="gravandoItem()" (pressed)="salvarParcela()"></ces-button>
+                <geo-datepicker label="Vencimento" [required]="true" [(value)]="parcelaVencimento"></geo-datepicker>
+                <geo-number-input label="Valor" [required]="true" mode="currency" [(value)]="parcelaValor" [min]="0.01"></geo-number-input>
+                <geo-button variant="ghost" label="Cancelar" (pressed)="fecharParcela()"></geo-button>
+                <geo-button icon="pi pi-check" [label]="editandoParcela() ? 'Salvar parcela ' + editandoParcela()!.numero : 'Incluir parcela'"
+                  [loading]="gravandoItem()" (pressed)="salvarParcela()"></geo-button>
               </div>
             } @else if (!a.parcelas.some(enviada)) {
               <div class="acoes">
-                <ces-number-input label="Quantidade" [(value)]="quantidade" [min]="1" [max]="24" [maxFractionDigits]="0"></ces-number-input>
-                <ces-datepicker label="1º vencimento" [(value)]="primeiroVencimento"></ces-datepicker>
-                <ces-button variant="outline" icon="pi pi-bolt" [label]="a.parcelas.length ? 'Gerar de novo' : 'Gerar parcelas'"
-                  [disabled]="!quantidade() || !primeiroVencimento()" [loading]="gravandoItem()" (pressed)="gerarParcelas()"></ces-button>
+                <geo-number-input label="Quantidade" [(value)]="quantidade" [min]="1" [max]="24" [maxFractionDigits]="0"></geo-number-input>
+                <geo-datepicker label="1º vencimento" [(value)]="primeiroVencimento"></geo-datepicker>
+                <geo-button variant="outline" icon="pi pi-bolt" [label]="a.parcelas.length ? 'Gerar de novo' : 'Gerar parcelas'"
+                  [disabled]="!quantidade() || !primeiroVencimento()" [loading]="gravandoItem()" (pressed)="gerarParcelas()"></geo-button>
               </div>
-              <span class="ces-cell-muted">Divide {{ moeda(a.valor) }} em parcelas mensais; a diferença dos centavos fica na primeira.</span>
+              <span class="geo-cell-muted">Divide {{ moeda(a.valor) }} em parcelas mensais; a diferença dos centavos fica na primeira.</span>
             } @else {
-              <ces-button variant="outline" size="sm" icon="pi pi-plus" label="Incluir parcela" (pressed)="incluirParcela()"></ces-button>
+              <geo-button variant="outline" size="sm" icon="pi pi-plus" label="Incluir parcela" (pressed)="incluirParcela()"></geo-button>
             }
           }
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="Anexos" icon="pi pi-paperclip">
+        <geo-form-section title="Anexos" icon="pi pi-paperclip">
           <app-frota-anexos [anexos]="a.anexos" [podeEditar]="podeEditar()" [(arquivo)]="arquivo" rotulo="Apólice, endosso ou boleto"
             (baixar)="baixar($event)" (remover)="removerAnexo($event)"></app-frota-anexos>
-        </ces-form-section>
+        </geo-form-section>
       } @else {
-        <ces-form-section title="Anexo" icon="pi pi-paperclip">
+        <geo-form-section title="Anexo" icon="pi pi-paperclip">
           <app-frota-anexos [podeEditar]="true" [(arquivo)]="arquivo" rotulo="Apólice"></app-frota-anexos>
-        </ces-form-section>
+        </geo-form-section>
       }
 
       <div drawer-footer class="rodape">
         @if (apolice() && podeEditar()) {
-          <ces-button variant="ghost" icon="pi pi-trash" label="Excluir" (pressed)="excluir()"></ces-button>
+          <geo-button variant="ghost" icon="pi pi-trash" label="Excluir" (pressed)="excluir()"></geo-button>
           @if (!apolice()!.renovadaPor) {
-            <ces-button variant="outline" icon="pi pi-replay" label="Renovar" (pressed)="pedirRenovacao()"></ces-button>
+            <geo-button variant="outline" icon="pi pi-replay" label="Renovar" (pressed)="pedirRenovacao()"></geo-button>
           }
         }
         <span class="rodape__espaco"></span>
-        <ces-button variant="ghost" [label]="podeEditar() ? 'Cancelar' : 'Fechar'" (pressed)="visivel.set(false)"></ces-button>
+        <geo-button variant="ghost" [label]="podeEditar() ? 'Cancelar' : 'Fechar'" (pressed)="visivel.set(false)"></geo-button>
         @if (podeEditar()) {
-          <ces-button icon="pi pi-check" [label]="apolice() ? 'Salvar' : renovacaoDe() ? 'Cadastrar renovação' : 'Cadastrar apólice'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+          <geo-button icon="pi pi-check" [label]="apolice() ? 'Salvar' : renovacaoDe() ? 'Cadastrar renovação' : 'Cadastrar apólice'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaApoliceDrawerComponent {
   private readonly servico = inject(FrotaSeguroService);
   private readonly financeiro = inject(FinanceiroService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
   private readonly acesso = acessoFrota();
 
@@ -357,8 +357,8 @@ export class FrotaApoliceDrawerComponent {
   readonly veiculos = input<VeiculoSeguro[]>([]);
   readonly fornecedores = input<FornecedorFrota[]>([]);
   readonly carregandoFornecedores = input(false);
-  readonly bases = input<CesSelectOption<string>[]>([]);
-  readonly processos = input<CesSelectOption<string>[]>([]);
+  readonly bases = input<GeoSelectOption<string>[]>([]);
+  readonly processos = input<GeoSelectOption<string>[]>([]);
   readonly podeEditar = input(false);
   readonly podePedirPagamento = input(false);
   /** Veículos já escolhidos no cadastro (aba Seguro da ficha, ou os sem seguro da lista). */
@@ -445,12 +445,12 @@ export class FrotaApoliceDrawerComponent {
   protected readonly opcoesSeguradora = computed(() => this.opcoesPapel('SEGURADORA', this.seguradora()));
   protected readonly opcoesCorretor = computed(() => this.opcoesPapel('CORRETORA', this.corretor()));
   /** Fornecedores que ainda não estão no papel que se quer incluir. */
-  protected readonly opcoesFornecedorNovo = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesFornecedorNovo = computed<GeoSelectOption<string>[]>(() => {
     const papel = this.novoFornecedor();
     const usados = new Set(this.seguradorasCadastro().filter((s) => s.ativo && s.papel === papel).map((s) => s.idFornecedor));
     return this.todosFornecedores().filter((f) => !usados.has(f.id)).map((f) => ({ label: f.nome, value: f.id }));
   });
-  protected readonly opcoesVeiculo = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesVeiculo = computed<GeoSelectOption<string>[]>(() => {
     const coberturas = this.coberturas();
     return this.veiculos().map((v) => ({
       label: rotuloVeiculoSeguro(formatarPlaca(v.placa), v.modelo, coberturas.get(v.idVeiculo)),
@@ -466,7 +466,7 @@ export class FrotaApoliceDrawerComponent {
   /** Última parcela já pedida: o modelo dos próximos pedidos. */
   protected readonly modeloPagamento = computed(() =>
     [...(this.apolice()?.parcelas ?? [])].filter((p) => p.idSolicitacaoFinanceira).sort((x, y) => y.numero - x.numero)[0] ?? null);
-  protected readonly opcoesParcelaPedido = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesParcelaPedido = computed<GeoSelectOption<string>[]>(() =>
     (this.apolice()?.parcelas ?? []).filter((p) => p.podePedirPagamento)
       .map((p) => ({ label: `Parcela ${p.numero} · ${moeda(p.valor)} · vence ${dataBr(p.vencimento)}`, value: p.id })));
   protected readonly rotuloPedido = computed(() => {
@@ -771,7 +771,7 @@ export class FrotaApoliceDrawerComponent {
   }
 
   /** As ativas do cadastro no papel; a já gravada na apólice continua na lista mesmo se saiu dele. */
-  private opcoesPapel(papel: PapelSeguradora, atual: string | null): CesSelectOption<string>[] {
+  private opcoesPapel(papel: PapelSeguradora, atual: string | null): GeoSelectOption<string>[] {
     const opcoes = this.seguradorasCadastro()
       .filter((s) => s.ativo && s.papel === papel)
       .map((s) => ({ label: s.nome, value: s.idFornecedor }));

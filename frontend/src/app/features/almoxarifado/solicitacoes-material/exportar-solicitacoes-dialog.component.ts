@@ -18,7 +18,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
-import { CesButtonComponent } from '@ces/ui';
+import { GeoButtonComponent } from '@geo/ui';
 import { DateMaskDirective } from '../../../shared/directives/date-mask.directive';
 import { FechamentoObraService } from '../../../core/services/fechamento-obra.service';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
@@ -46,7 +46,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
     ToggleButtonModule,
     InputTextModule,
     DateMaskDirective,
-    CesButtonComponent,
+    GeoButtonComponent,
   ],
   template: `
     <p-dialog
@@ -548,21 +548,21 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
       </div>
 
       <ng-template pTemplate="footer">
-        <ces-button
+        <geo-button
           label="Cancelar"
           icon="pi pi-times"
           variant="secondary"
           size="sm"
           (pressed)="fechar()"
-        ></ces-button>
-        <ces-button
+        ></geo-button>
+        <geo-button
           [label]="processoSelecionado === 'TODOS' && tipoArquivo === 'ZIP' ? 'Baixar Pacote (.ZIP)' : 'Baixar CSV'"
           [icon]="processoSelecionado === 'TODOS' && tipoArquivo === 'ZIP' ? 'pi pi-folder' : 'pi pi-download'"
           variant="success"
           size="sm"
           (pressed)="executarExportacao()"
           [loading]="exportando()"
-        ></ces-button>
+        ></geo-button>
       </ng-template>
     </p-dialog>
   `,

@@ -72,7 +72,7 @@ describe('FrotaAcompanhamentoPreventivaComponent', () => {
     const { tela, el } = montarAcompanhamento(['frota:preventiva:read']);
     expect(tela['recorte']()).toBe('VENCIDA');
     expect(tela['linhas']().map((c: ControlePreventivo) => c.id)).toEqual(['c1']);
-    const valores = Array.from(el.querySelectorAll('.ces-kpi__value')).map((v) => v.textContent!.trim());
+    const valores = Array.from(el.querySelectorAll('.geo-kpi__value')).map((v) => v.textContent!.trim());
     expect(valores).toEqual(['1', '1', '1', '1', '1']);
   });
 

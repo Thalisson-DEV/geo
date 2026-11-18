@@ -31,7 +31,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompAuthChannelInterceptor stompAuthChannelInterceptor;
 
-    @Value("${ces.cors.allowed-origins}")
+    @Value("${geo.cors.allowed-origins}")
     private String allowedOrigins;
 
     @Override

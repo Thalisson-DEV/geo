@@ -1,4 +1,4 @@
-import { CesTone, cesAttainmentBand } from '@ces/ui';
+import { GeoTone, geoAttainmentBand } from '@geo/ui';
 import {
   EquipeOperacional,
   EquipeTurno,
@@ -17,7 +17,7 @@ import {
 
 export interface RotuloSituacao {
   rotulo: string;
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
 }
 
@@ -34,9 +34,9 @@ export const SITUACAO_TURNO: Record<SituacaoTurno, RotuloSituacao> = {
   SEM_TURNO: { rotulo: 'Sem turno', tom: 'neutral', icone: 'pi pi-circle' }
 };
 
-/** Tom do bloco de meta, nas mesmas faixas do `ces-meter`; neutro sem meta. */
-export function tomDaMeta(percentualMeta: number | null | undefined): CesTone {
-  return percentualMeta === null || percentualMeta === undefined ? 'neutral' : cesAttainmentBand(percentualMeta);
+/** Tom do bloco de meta, nas mesmas faixas do `geo-meter`; neutro sem meta. */
+export function tomDaMeta(percentualMeta: number | null | undefined): GeoTone {
+  return percentualMeta === null || percentualMeta === undefined ? 'neutral' : geoAttainmentBand(percentualMeta);
 }
 
 const MOEDA = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });

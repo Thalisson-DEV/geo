@@ -6,16 +6,16 @@ import { MultiSelect } from 'primeng/multiselect';
 import { Select } from 'primeng/select';
 import { AutoComplete } from 'primeng/autocomplete';
 
-import { CesAutocompleteComponent } from './ces-autocomplete.component';
-import { CesBooleanControlComponent } from './ces-boolean-control.component';
-import { CesDatepickerComponent } from './ces-datepicker.component';
-import { CesFileInputComponent } from './ces-file-input.component';
-import { CesMultiSelectComponent } from './ces-multiselect.component';
-import { CesNumberInputComponent } from './ces-number-input.component';
-import { CesPasswordInputComponent } from './ces-password-input.component';
-import { CesSelectComponent } from './ces-select.component';
-import { CesTextInputComponent } from './ces-text-input.component';
-import { CesTextareaComponent } from './ces-textarea.component';
+import { GeoAutocompleteComponent } from './geo-autocomplete.component';
+import { GeoBooleanControlComponent } from './geo-boolean-control.component';
+import { GeoDatepickerComponent } from './geo-datepicker.component';
+import { GeoFileInputComponent } from './geo-file-input.component';
+import { GeoMultiSelectComponent } from './geo-multiselect.component';
+import { GeoNumberInputComponent } from './geo-number-input.component';
+import { GeoPasswordInputComponent } from './geo-password-input.component';
+import { GeoSelectComponent } from './geo-select.component';
+import { GeoTextInputComponent } from './geo-text-input.component';
+import { GeoTextareaComponent } from './geo-textarea.component';
 
 const configure = async (...imports: unknown[]) => {
   await TestBed.configureTestingModule({ imports }).compileComponents();
@@ -23,8 +23,8 @@ const configure = async (...imports: unknown[]) => {
 
 describe('GEO form controls', () => {
   it('associa texto, descrição e erro ao input nativo', async () => {
-    await configure(CesTextInputComponent);
-    const fixture = TestBed.createComponent(CesTextInputComponent);
+    await configure(GeoTextInputComponent);
+    const fixture = TestBed.createComponent(GeoTextInputComponent);
     fixture.componentRef.setInput('label', 'Nome da base');
     fixture.componentRef.setInput('inputId', 'base-name');
     fixture.componentRef.setInput('description', 'Use o nome oficial.');
@@ -46,8 +46,8 @@ describe('GEO form controls', () => {
   });
 
   it('distingue readonly de disabled no input de texto', async () => {
-    await configure(CesTextInputComponent);
-    const fixture = TestBed.createComponent(CesTextInputComponent);
+    await configure(GeoTextInputComponent);
+    const fixture = TestBed.createComponent(GeoTextInputComponent);
     fixture.componentRef.setInput('label', 'Código');
     fixture.componentRef.setInput('readonly', true);
     fixture.detectChanges();
@@ -63,33 +63,33 @@ describe('GEO form controls', () => {
 
   it('usa os padrões compactos e appendTo body nos controles de overlay', async () => {
     await configure(
-      CesSelectComponent,
-      CesMultiSelectComponent,
-      CesDatepickerComponent,
-      CesAutocompleteComponent,
+      GeoSelectComponent,
+      GeoMultiSelectComponent,
+      GeoDatepickerComponent,
+      GeoAutocompleteComponent,
     );
 
-    const selectFixture = TestBed.createComponent(CesSelectComponent);
+    const selectFixture = TestBed.createComponent(GeoSelectComponent);
     selectFixture.componentRef.setInput('label', 'Município');
     selectFixture.detectChanges();
     const select = selectFixture.debugElement.query(By.directive(Select))
       .componentInstance as Select;
 
-    const multiFixture = TestBed.createComponent(CesMultiSelectComponent);
+    const multiFixture = TestBed.createComponent(GeoMultiSelectComponent);
     multiFixture.componentRef.setInput('label', 'Bases');
     multiFixture.detectChanges();
     const multiselect = multiFixture.debugElement.query(By.directive(MultiSelect))
       .componentInstance as MultiSelect;
 
-    const dateFixture = TestBed.createComponent(CesDatepickerComponent);
+    const dateFixture = TestBed.createComponent(GeoDatepickerComponent);
     dateFixture.componentRef.setInput('label', 'Vencimento');
     dateFixture.componentRef.setInput('labelVisible', false);
     dateFixture.detectChanges();
     const datepicker = dateFixture.debugElement.query(By.directive(DatePicker))
       .componentInstance as DatePicker;
-    expect(dateFixture.nativeElement.querySelector('.ces-sr-only')?.textContent).toContain('Vencimento');
+    expect(dateFixture.nativeElement.querySelector('.geo-sr-only')?.textContent).toContain('Vencimento');
 
-    const autocompleteFixture = TestBed.createComponent(CesAutocompleteComponent);
+    const autocompleteFixture = TestBed.createComponent(GeoAutocompleteComponent);
     autocompleteFixture.componentRef.setInput('label', 'Colaborador');
     autocompleteFixture.detectChanges();
     const autocomplete = autocompleteFixture.debugElement.query(By.directive(AutoComplete))
@@ -109,8 +109,8 @@ describe('GEO form controls', () => {
   });
 
   it('mantem valor primitivo no ControlValueAccessor e encaminha busca/paginacao', async () => {
-    await configure(CesAutocompleteComponent);
-    const fixture = TestBed.createComponent(CesAutocompleteComponent<string>);
+    await configure(GeoAutocompleteComponent);
+    const fixture = TestBed.createComponent(GeoAutocompleteComponent<string>);
     fixture.componentRef.setInput('label', 'Colaborador');
     fixture.componentRef.setInput('inputId', 'collaborator');
     fixture.componentRef.setInput('description', 'Pesquise por nome.');
@@ -147,8 +147,8 @@ describe('GEO form controls', () => {
   });
 
   it('explica antes da busca que o usuario precisa digitar', async () => {
-    await configure(CesAutocompleteComponent);
-    const fixture = TestBed.createComponent(CesAutocompleteComponent);
+    await configure(GeoAutocompleteComponent);
+    const fixture = TestBed.createComponent(GeoAutocompleteComponent);
     fixture.componentRef.setInput('label', 'Material');
     fixture.componentRef.setInput('inputId', 'material-search');
     fixture.detectChanges();
@@ -164,8 +164,8 @@ describe('GEO form controls', () => {
   });
 
   it('mostra o rotulo da opcao para um valor primitivo hidratado', async () => {
-    await configure(CesAutocompleteComponent);
-    const fixture = TestBed.createComponent(CesAutocompleteComponent<string>);
+    await configure(GeoAutocompleteComponent);
+    const fixture = TestBed.createComponent(GeoAutocompleteComponent<string>);
     fixture.componentRef.setInput('label', 'Colaborador');
     fixture.componentRef.setInput('options', [{ value: 'colab-1', label: 'Maria Souza' }]);
     fixture.detectChanges();
@@ -179,23 +179,23 @@ describe('GEO form controls', () => {
   });
 
   it('mantem rotulo acessivel sem ocupar espaco quando a tela preserva seu label externo', async () => {
-    await configure(CesAutocompleteComponent);
-    const fixture = TestBed.createComponent(CesAutocompleteComponent);
+    await configure(GeoAutocompleteComponent);
+    const fixture = TestBed.createComponent(GeoAutocompleteComponent);
     fixture.componentRef.setInput('label', 'Colaborador');
     fixture.componentRef.setInput('labelVisible', false);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.ces-field__heading')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.geo-field__heading')).toBeNull();
     const input = fixture.nativeElement.querySelector('[role="combobox"]') as HTMLElement;
     const labelId = input.getAttribute('aria-labelledby');
     const label = fixture.nativeElement.querySelector(`#${labelId}`) as HTMLLabelElement;
-    expect(label.classList).toContain('ces-sr-only');
+    expect(label.classList).toContain('geo-sr-only');
     expect(label.textContent?.trim()).toBe('Colaborador');
   });
 
   it('associa estado de erro ao combobox e a regiao anunciavel', async () => {
-    await configure(CesAutocompleteComponent);
-    const fixture = TestBed.createComponent(CesAutocompleteComponent);
+    await configure(GeoAutocompleteComponent);
+    const fixture = TestBed.createComponent(GeoAutocompleteComponent);
     fixture.componentRef.setInput('label', 'Centro de custo');
     fixture.componentRef.setInput('inputId', 'cost-center');
     fixture.componentRef.setInput('error', 'Selecione um centro valido.');
@@ -218,8 +218,8 @@ describe('GEO form controls', () => {
   });
 
   it('mapeia o erro do select para o combobox acessível', async () => {
-    await configure(CesSelectComponent);
-    const fixture = TestBed.createComponent(CesSelectComponent);
+    await configure(GeoSelectComponent);
+    const fixture = TestBed.createComponent(GeoSelectComponent);
     fixture.componentRef.setInput('label', 'Centro de custo');
     fixture.componentRef.setInput('inputId', 'cost-center');
     fixture.componentRef.setInput('error', 'Selecione um centro de custo.');
@@ -232,15 +232,15 @@ describe('GEO form controls', () => {
   });
 
   it('expõe modelos coerentes para número e booleano', async () => {
-    await configure(CesNumberInputComponent, CesBooleanControlComponent);
+    await configure(GeoNumberInputComponent, GeoBooleanControlComponent);
 
-    const numberFixture = TestBed.createComponent(CesNumberInputComponent);
+    const numberFixture = TestBed.createComponent(GeoNumberInputComponent);
     numberFixture.componentRef.setInput('label', 'Quantidade');
     numberFixture.componentInstance.value.set(12.5);
     numberFixture.detectChanges();
     expect(numberFixture.componentInstance.value()).toBe(12.5);
 
-    const booleanFixture = TestBed.createComponent(CesBooleanControlComponent);
+    const booleanFixture = TestBed.createComponent(GeoBooleanControlComponent);
     booleanFixture.componentRef.setInput('label', 'Ativo');
     booleanFixture.componentRef.setInput('kind', 'toggle');
     booleanFixture.componentInstance.value.set(true);
@@ -253,8 +253,8 @@ describe('GEO form controls', () => {
   });
 
   it('mantém rótulo, controle e descrição do booleano inline em uma única linha', async () => {
-    await configure(CesBooleanControlComponent);
-    const fixture = TestBed.createComponent(CesBooleanControlComponent);
+    await configure(GeoBooleanControlComponent);
+    const fixture = TestBed.createComponent(GeoBooleanControlComponent);
     fixture.componentRef.setInput('label', 'Saque fora da equipe');
     fixture.componentRef.setInput('inputId', 'outside-team');
     fixture.componentRef.setInput('description', 'Permite selecionar um colaborador externo.');
@@ -262,17 +262,17 @@ describe('GEO form controls', () => {
     fixture.componentRef.setInput('inline', true);
     fixture.detectChanges();
 
-    const field = fixture.nativeElement.querySelector('ces-field') as HTMLElement;
+    const field = fixture.nativeElement.querySelector('geo-field') as HTMLElement;
     const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
 
-    expect(field.classList.contains('ces-field--inline')).toBe(true);
+    expect(field.classList.contains('geo-field--inline')).toBe(true);
     expect(input.getAttribute('aria-describedby')).toBe('outside-team-description');
   });
 
   it('habilita virtualScroll automaticamente em listas grandes ou quando explicitado', async () => {
-    await configure(CesSelectComponent, CesMultiSelectComponent);
+    await configure(GeoSelectComponent, GeoMultiSelectComponent);
 
-    const selectFixture = TestBed.createComponent(CesSelectComponent);
+    const selectFixture = TestBed.createComponent(GeoSelectComponent);
     selectFixture.componentRef.setInput('label', 'Colaborador');
     const largeOptions = Array.from({ length: 50 }, (_, i) => ({
       label: `Colab ${i}`,
@@ -285,7 +285,7 @@ describe('GEO form controls', () => {
       .componentInstance as Select;
     expect(select.virtualScroll).toBe(true);
 
-    const multiFixture = TestBed.createComponent(CesMultiSelectComponent);
+    const multiFixture = TestBed.createComponent(GeoMultiSelectComponent);
     multiFixture.componentRef.setInput('label', 'Materiais');
     multiFixture.componentRef.setInput('options', largeOptions);
     multiFixture.detectChanges();
@@ -296,8 +296,8 @@ describe('GEO form controls', () => {
   });
 
   it('valida o limite do arquivo antes de expor a seleção', async () => {
-    await configure(CesFileInputComponent);
-    const fixture = TestBed.createComponent(CesFileInputComponent);
+    await configure(GeoFileInputComponent);
+    const fixture = TestBed.createComponent(GeoFileInputComponent);
     fixture.componentRef.setInput('label', 'Planilha');
     fixture.componentRef.setInput('maxBytes', 4);
     fixture.detectChanges();
@@ -313,8 +313,8 @@ describe('GEO form controls', () => {
   });
 
   it('permite rótulo apenas acessível, altura máxima e foco programático no textarea', async () => {
-    await configure(CesTextareaComponent);
-    const fixture = TestBed.createComponent(CesTextareaComponent);
+    await configure(GeoTextareaComponent);
+    const fixture = TestBed.createComponent(GeoTextareaComponent);
     fixture.componentRef.setInput('label', 'Mensagem para a Bússola');
     fixture.componentRef.setInput('inputId', 'mensagem');
     fixture.componentRef.setInput('labelVisible', false);
@@ -323,7 +323,7 @@ describe('GEO form controls', () => {
 
     const label = fixture.nativeElement.querySelector('label') as HTMLLabelElement;
     const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement;
-    expect(label.classList).toContain('ces-sr-only');
+    expect(label.classList).toContain('geo-sr-only');
     expect(label.htmlFor).toBe('mensagem');
     expect(textarea.style.maxHeight).toBe('12rem');
     expect(textarea.style.overflowY).toBe('auto');
@@ -332,8 +332,8 @@ describe('GEO form controls', () => {
     expect(document.activeElement).toBe(textarea);
   });
   it('mascara a senha, revela sob demanda e propaga o valor', async () => {
-    await configure(CesPasswordInputComponent);
-    const fixture = TestBed.createComponent(CesPasswordInputComponent);
+    await configure(GeoPasswordInputComponent);
+    const fixture = TestBed.createComponent(GeoPasswordInputComponent);
     fixture.componentRef.setInput('label', 'Senha inicial');
     fixture.componentRef.setInput('inputId', 'senha');
     fixture.componentRef.setInput('minlength', 6);
@@ -358,8 +358,8 @@ describe('GEO form controls', () => {
     expect(fixture.componentInstance.value()).toBe('segredo1');
   });
   it('datepicker com hora: placeholder, showTime e máscara dd/mm/aaaa hh:mm', async () => {
-    await configure(CesDatepickerComponent);
-    const fixture = TestBed.createComponent(CesDatepickerComponent);
+    await configure(GeoDatepickerComponent);
+    const fixture = TestBed.createComponent(GeoDatepickerComponent);
     fixture.componentRef.setInput('label', 'Início da vigência');
     fixture.componentRef.setInput('showTime', true);
     fixture.detectChanges();
@@ -380,8 +380,8 @@ describe('GEO form controls', () => {
   });
 
   it('número obrigatório vazio continua vazio (não vira 0)', async () => {
-    await configure(CesNumberInputComponent);
-    const fixture = TestBed.createComponent(CesNumberInputComponent);
+    await configure(GeoNumberInputComponent);
+    const fixture = TestBed.createComponent(GeoNumberInputComponent);
     fixture.componentRef.setInput('label', 'KM na revisão');
     fixture.componentRef.setInput('required', true);
     fixture.componentRef.setInput('suffix', ' km');
@@ -395,8 +395,8 @@ describe('GEO form controls', () => {
   });
 
   it('datepicker abre no clique, não no foco, e anda de 5 em 5 minutos', async () => {
-    await configure(CesDatepickerComponent);
-    const fixture = TestBed.createComponent(CesDatepickerComponent);
+    await configure(GeoDatepickerComponent);
+    const fixture = TestBed.createComponent(GeoDatepickerComponent);
     fixture.componentRef.setInput('label', 'Agendada para');
     fixture.componentRef.setInput('showTime', true);
     fixture.detectChanges();
@@ -413,8 +413,8 @@ describe('GEO form controls', () => {
   });
 
   it('datepicker não reemite o mesmo instante (evita laço com Date recriado a cada leitura)', async () => {
-    await configure(CesDatepickerComponent);
-    const fixture = TestBed.createComponent(CesDatepickerComponent);
+    await configure(GeoDatepickerComponent);
+    const fixture = TestBed.createComponent(GeoDatepickerComponent);
     fixture.componentRef.setInput('label', 'Data');
     fixture.componentRef.setInput('value', new Date(2026, 9, 10));
     fixture.detectChanges();
@@ -428,7 +428,7 @@ describe('GEO form controls', () => {
   });
 
   it('controles do PrimeNG não saem com autofocus', async () => {
-    for (const tipo of [CesDatepickerComponent, CesSelectComponent]) {
+    for (const tipo of [GeoDatepickerComponent, GeoSelectComponent]) {
       await configure(tipo);
       const fixture = TestBed.createComponent(tipo as never);
       (fixture.componentRef as { setInput(n: string, v: unknown): void }).setInput('label', 'Campo');

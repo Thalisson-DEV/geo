@@ -2,24 +2,24 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, map, of } from 'rxjs';
 
 import { Chamado, ChamadoFiltros, ChamadoPrioridade, ChamadoStatus, EquipeChamado, TopicoChamado } from '../../../core/models/chamado.models';
@@ -46,13 +46,13 @@ import {
 } from '../chamados-ui';
 import { ChamadoNovoDrawerComponent } from '../novo/chamado-novo-drawer.component';
 
-const SIM_NAO: CesSelectOption<boolean | null>[] = [
+const SIM_NAO: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Sim', value: true },
   { label: 'Não', value: false }
 ];
-const STATUS: CesSelectOption<ChamadoStatus | null>[] = [{ label: 'Todos', value: null }, ...STATUS_OPTIONS];
-const PRIORIDADES: CesSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Todas', value: null }, ...PRIORIDADE_OPTIONS];
+const STATUS: GeoSelectOption<ChamadoStatus | null>[] = [{ label: 'Todos', value: null }, ...STATUS_OPTIONS];
+const PRIORIDADES: GeoSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Todas', value: null }, ...PRIORIDADE_OPTIONS];
 
 @Component({
   selector: 'app-chamados-lista',
@@ -60,24 +60,24 @@ const PRIORIDADES: CesSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent,
     ChamadoNovoDrawerComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="!modoCentral" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="!modoCentral" (newRequested)="novo()">
+      <geo-page-header
         [title]="titulo"
         icon="pi pi-ticket"
         [breadcrumb]="[{ label: 'Chamados' }, { label: modoCentral ? 'Central de atendimento' : 'Meus chamados' }]"
@@ -86,35 +86,35 @@ const PRIORIDADES: CesSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
         (help)="ajuda.show()"
       >
         @if (!modoCentral) {
-          <ces-button actions icon="pi pi-plus" label="Novo chamado" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo chamado" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-text-input label="Protocolo" [value]="lista.filters.protocolo() ?? ''" (valueChange)="lista.filters.protocolo.set($event || null)" placeholder="CH-AAAAMMDD-..."></ces-text-input>
-          <ces-select label="Tópico" [options]="topicosOpcoes()" [(value)]="lista.filters.topicoId" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-text-input label="Protocolo" [value]="lista.filters.protocolo() ?? ''" (valueChange)="lista.filters.protocolo.set($event || null)" placeholder="CH-AAAAMMDD-..."></geo-text-input>
+          <geo-select label="Tópico" [options]="topicosOpcoes()" [(value)]="lista.filters.topicoId" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
           @if (modoCentral) {
-            <ces-select label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.equipeId" [clearable]="true" [filter]="true" placeholder="Todas"
-              [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></ces-select>
+            <geo-select label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.equipeId" [clearable]="true" [filter]="true" placeholder="Todas"
+              [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></geo-select>
           }
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></ces-select>
-          <ces-select label="Prioridade" [options]="prioridadeOpcoes" [(value)]="lista.filters.prioridade"></ces-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></geo-select>
+          <geo-select label="Prioridade" [options]="prioridadeOpcoes" [(value)]="lista.filters.prioridade"></geo-select>
           @if (modoCentral) {
-            <ces-select label="Solicitante" [options]="usuariosOpcoes()" [(value)]="lista.filters.solicitanteId" [clearable]="true" [filter]="true" placeholder="Todos"
-              [loading]="usuarios.loading()" (opened)="usuarios.open()" (search)="usuarios.search($event)"></ces-select>
-            <ces-select label="Responsável" [options]="usuariosOpcoes()" [(value)]="lista.filters.responsavelId" [clearable]="true" [filter]="true" placeholder="Todos"
-              [loading]="usuarios.loading()" (opened)="usuarios.open()" (search)="usuarios.search($event)"></ces-select>
+            <geo-select label="Solicitante" [options]="usuariosOpcoes()" [(value)]="lista.filters.solicitanteId" [clearable]="true" [filter]="true" placeholder="Todos"
+              [loading]="usuarios.loading()" (opened)="usuarios.open()" (search)="usuarios.search($event)"></geo-select>
+            <geo-select label="Responsável" [options]="usuariosOpcoes()" [(value)]="lista.filters.responsavelId" [clearable]="true" [filter]="true" placeholder="Todos"
+              [loading]="usuarios.loading()" (opened)="usuarios.open()" (search)="usuarios.search($event)"></geo-select>
           }
-          <ces-datepicker label="Abertos a partir de" [value]="dataLocal(lista.filters.abertura().from)" [clearable]="true" (valueChange)="abertura('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Abertos até" [value]="dataLocal(lista.filters.abertura().to)" [clearable]="true" (valueChange)="abertura('to', $event)"></ces-datepicker>
-          <ces-select label="1ª resposta vencida" [options]="simNao" [(value)]="lista.filters.primeiraRespostaVencida"></ces-select>
-          <ces-select label="Resolução vencida" [options]="simNao" [(value)]="lista.filters.resolucaoVencida"></ces-select>
+          <geo-datepicker label="Abertos a partir de" [value]="dataLocal(lista.filters.abertura().from)" [clearable]="true" (valueChange)="abertura('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Abertos até" [value]="dataLocal(lista.filters.abertura().to)" [clearable]="true" (valueChange)="abertura('to', $event)"></geo-datepicker>
+          <geo-select label="1ª resposta vencida" [options]="simNao" [(value)]="lista.filters.primeiraRespostaVencida"></geo-select>
+          <geo-select label="Resolução vencida" [options]="simNao" [(value)]="lista.filters.resolucaoVencida"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         [title]="titulo"
         mode="server"
         [storageKey]="chave"
@@ -144,31 +144,31 @@ const PRIORIDADES: CesSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
         (emptyAction)="novo()"
         (rowActivate)="abrir($event)"
       >
-        <ng-template cesCell="protocolo" let-row><span class="ces-cell-strong">{{ row.protocolo }}</span></ng-template>
-        <ng-template cesCell="assunto" let-row>
+        <ng-template geoCell="protocolo" let-row><span class="geo-cell-strong">{{ row.protocolo }}</span></ng-template>
+        <ng-template geoCell="assunto" let-row>
           <span>{{ row.assunto }}</span>
-          <span class="ces-cell-muted">{{ row.topico?.nome }}</span>
+          <span class="geo-cell-muted">{{ row.topico?.nome }}</span>
         </ng-template>
-        <ng-template cesCell="atendimento" let-row>
+        <ng-template geoCell="atendimento" let-row>
           <span>{{ row.equipeAtendimento?.nome }}</span>
           @if (modoCentral) {
-            <span class="ces-cell-muted">{{ nomeUsuario(row.usuarioResponsavelId) }}</span>
+            <span class="geo-cell-muted">{{ nomeUsuario(row.usuarioResponsavelId) }}</span>
           }
         </ng-template>
-        <ng-template cesCell="prioridade" let-row>
-          <ces-status [tone]="prioridadeTom(row.prioridade)" icon="pi-flag">{{ prioridadeLabel(row.prioridade) }}</ces-status>
+        <ng-template geoCell="prioridade" let-row>
+          <geo-status [tone]="prioridadeTom(row.prioridade)" icon="pi-flag">{{ prioridadeLabel(row.prioridade) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="statusTom(row.status)" [icon]="statusIcone(row.status)">{{ statusLabel(row.status) }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="statusTom(row.status)" [icon]="statusIcone(row.status)">{{ statusLabel(row.status) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="prazo" let-row>
-          <ces-status [tone]="prazoTom(row)" [icon]="prazoIcon(row)" emphasis="outline">{{ prazoLabel(row) }}</ces-status>
-          <span class="ces-cell-muted">{{ row.dataLimiteResolucao | date: 'dd/MM/yy HH:mm' }}</span>
+        <ng-template geoCell="prazo" let-row>
+          <geo-status [tone]="prazoTom(row)" [icon]="prazoIcon(row)" emphasis="outline">{{ prazoLabel(row) }}</geo-status>
+          <span class="geo-cell-muted">{{ row.dataLimiteResolucao | date: 'dd/MM/yy HH:mm' }}</span>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <ces-icon-button icon="pi pi-copy" [label]="'Copiar protocolo ' + row.protocolo" size="icon-sm" (pressed)="copiarProtocolo(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <geo-icon-button icon="pi pi-copy" [label]="'Copiar protocolo ' + row.protocolo" size="icon-sm" (pressed)="copiarProtocolo(row)"></geo-icon-button>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     @if (!modoCentral) {
@@ -211,7 +211,7 @@ export class ChamadosListaComponent implements OnInit {
   protected readonly prioridadeLabel = (p: ChamadoPrioridade) => CHAMADO_PRIORIDADE_LABELS[p];
 
   protected readonly topicos = signal<TopicoChamado[]>([]);
-  protected readonly topicosOpcoes = computed<CesSelectOption<string>[]>(() => this.topicos().map((t) => ({ label: t.nome, value: t.id })));
+  protected readonly topicosOpcoes = computed<GeoSelectOption<string>[]>(() => this.topicos().map((t) => ({ label: t.nome, value: t.id })));
   /** Logins de usuários já conhecidos (filtros e coluna de responsável). */
   private readonly logins = signal<Record<string, string>>({});
   private readonly destroyRef = inject(DestroyRef);
@@ -225,7 +225,7 @@ export class ChamadosListaComponent implements OnInit {
     },
     this.destroyRef
   );
-  protected readonly equipesOpcoes = computed<CesSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.nome, value: e.id })));
+  protected readonly equipesOpcoes = computed<GeoSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.nome, value: e.id })));
   protected readonly usuarios = new RemoteLookup<UsuarioResponse>(
     {
       identify: (u) => u.id,
@@ -234,29 +234,29 @@ export class ChamadosListaComponent implements OnInit {
     },
     this.destroyRef
   );
-  protected readonly usuariosOpcoes = computed<CesSelectOption<string>[]>(() => this.usuarios.items().map((u) => ({ label: u.login, value: u.id })));
+  protected readonly usuariosOpcoes = computed<GeoSelectOption<string>[]>(() => this.usuarios.items().map((u) => ({ label: u.login, value: u.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: this.chave,
     filters: {
-      protocolo: cesFilter.value<string | null>(null, { label: 'Protocolo' }),
-      topicoId: cesFilter.value<string | null>(null, {
+      protocolo: geoFilter.value<string | null>(null, { label: 'Protocolo' }),
+      topicoId: geoFilter.value<string | null>(null, {
         label: 'Tópico',
         param: 'topico',
         format: (id): string | null => (id ? (this.topicos().find((t) => t.id === id)?.nome ?? 'tópico selecionado') : null)
       }),
-      equipeId: cesFilter.value<string | null>(null, {
+      equipeId: geoFilter.value<string | null>(null, {
         label: 'Equipe',
         param: 'equipe',
         format: (id): string | null => (id ? (this.equipes.items().find((e) => e.id === id)?.nome ?? 'equipe selecionada') : null)
       }),
-      status: cesFilter.value<ChamadoStatus | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
-      prioridade: cesFilter.value<ChamadoPrioridade | null>(null, { label: 'Prioridade', type: 'string', options: () => PRIORIDADES }),
-      solicitanteId: cesFilter.value<string | null>(null, { label: 'Solicitante', param: 'solicitante', format: (id): string | null => (id ? this.nomeUsuario(id) : null) }),
-      responsavelId: cesFilter.value<string | null>(null, { label: 'Responsável', param: 'responsavel', format: (id): string | null => (id ? this.nomeUsuario(id) : null) }),
-      abertura: cesFilter.range({ from: null, to: null }, { label: 'Abertura' }),
-      primeiraRespostaVencida: cesFilter.value<boolean | null>(null, { label: '1ª resposta vencida', param: 'primeiraResposta', options: () => SIM_NAO }),
-      resolucaoVencida: cesFilter.value<boolean | null>(null, { label: 'Resolução vencida', param: 'resolucao', options: () => SIM_NAO })
+      status: geoFilter.value<ChamadoStatus | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
+      prioridade: geoFilter.value<ChamadoPrioridade | null>(null, { label: 'Prioridade', type: 'string', options: () => PRIORIDADES }),
+      solicitanteId: geoFilter.value<string | null>(null, { label: 'Solicitante', param: 'solicitante', format: (id): string | null => (id ? this.nomeUsuario(id) : null) }),
+      responsavelId: geoFilter.value<string | null>(null, { label: 'Responsável', param: 'responsavel', format: (id): string | null => (id ? this.nomeUsuario(id) : null) }),
+      abertura: geoFilter.range({ from: null, to: null }, { label: 'Abertura' }),
+      primeiraRespostaVencida: geoFilter.value<boolean | null>(null, { label: '1ª resposta vencida', param: 'primeiraResposta', options: () => SIM_NAO }),
+      resolucaoVencida: geoFilter.value<boolean | null>(null, { label: 'Resolução vencida', param: 'resolucao', options: () => SIM_NAO })
     },
     sort: [this.modoCentral ? { key: 'prazo', direction: 'asc' } : { key: 'ultima', direction: 'desc' }]
   });
@@ -265,7 +265,7 @@ export class ChamadosListaComponent implements OnInit {
   protected readonly exportar = (_evento: unknown, limite: number) =>
     this.listar({ ...this.filtro(this.lista.request()), page: 0, size: limite }).pipe(map((r) => r.content));
 
-  protected readonly colunas: CesDataTableColumn<Chamado>[] = [
+  protected readonly colunas: GeoDataTableColumn<Chamado>[] = [
     { key: 'protocolo', header: 'Protocolo', type: 'custom', priority: 1, sortField: 'protocolo', value: (c) => c.protocolo, display: (c) => c.protocolo },
     { key: 'assunto', header: 'Chamado', type: 'custom', priority: 1, value: (c) => c.assunto, display: (c) => `${c.assunto} (${c.topico?.nome ?? ''})` },
     { key: 'atendimento', header: 'Atendimento', type: 'custom', value: (c) => c.equipeAtendimento?.nome, display: (c) => c.equipeAtendimento?.nome ?? '—' },

@@ -81,7 +81,7 @@ export function resumirNo(no: FlowNode | null, espec: NoEspec | undefined, d: De
       const t = legivel(texto(p['prompt'] ?? p['instructions']), d, c);
       return t ? (t.length > 70 ? `${t.slice(0, 68)}…` : t) : 'Escreva o pedido';
     }
-    case 'ces.query':
+    case 'geo.query':
       return texto(p['source']) ? `Fonte: ${texto(p['source'])}` : 'Escolha a fonte de dados';
     case 'approval.request':
       return `${legivel(texto(p['title']), d, c) || 'O que aprovar?'} → ${destinatarios(p['approvers'])}`;

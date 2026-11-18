@@ -12,7 +12,7 @@ describe('ChaveAcessoDrawerComponent', () => {
 
   beforeEach(() => {
     TestBed.resetTestingModule();
-    criarChave = vi.fn(() => of({ chave: 'ces_key_segredo', conexao: { nome: 'Cursor do notebook' } }));
+    criarChave = vi.fn(() => of({ chave: 'geo_key_segredo', conexao: { nome: 'Cursor do notebook' } }));
     TestBed.configureTestingModule({
       providers: [
         provideNoopAnimations(),
@@ -25,7 +25,7 @@ describe('ChaveAcessoDrawerComponent', () => {
 
   async function abrir(podeEscrever = true) {
     const fixture = TestBed.createComponent(ChaveAcessoDrawerComponent);
-    fixture.componentRef.setInput('endereco', 'https://ces.exemplo/api/mcp');
+    fixture.componentRef.setInput('endereco', 'https://geo.exemplo/api/mcp');
     fixture.componentRef.setInput('podeEscrever', podeEscrever);
     fixture.componentRef.setInput('visivel', true);
     fixture.detectChanges();
@@ -53,6 +53,6 @@ describe('ChaveAcessoDrawerComponent', () => {
     expect(criarChave).toHaveBeenCalledWith({ nome: 'Cursor do notebook', permiteEscrita: false, validadeDias: 90 });
     expect(document.body.textContent).toContain('Copie agora');
     const campo = document.body.querySelector('input[readonly]') as HTMLInputElement;
-    expect(campo.value).toBe('ces_key_segredo');
+    expect(campo.value).toBe('geo_key_segredo');
   });
 });

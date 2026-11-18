@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   DescontoResponse,
@@ -13,7 +13,7 @@ import {
   getValorEfetivo
 } from '../../../core/models/desconto.models';
 import { RhDescontosService } from '../../../core/services/rh-descontos.service';
-import { CesTone } from '../../../design-system/core';
+import { GeoTone } from '../../../design-system/core';
 
 const STATUS_ICONES: Record<DescontoStatus, string> = {
   SOLICITADO: 'pi-clock',
@@ -23,7 +23,7 @@ const STATUS_ICONES: Record<DescontoStatus, string> = {
   REJEITADO: 'pi-times-circle'
 };
 
-const STATUS_TONES: Record<DescontoStatus, CesTone> = {
+const STATUS_TONES: Record<DescontoStatus, GeoTone> = {
   SOLICITADO: 'warning',
   VALIDADO: 'info',
   BAIXADO: 'success',
@@ -41,16 +41,16 @@ const STATUS_LABELS: Record<DescontoStatus, string> = {
 
 @Injectable({ providedIn: 'root' })
 export class DescontoReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<DescontoResponse>
+  implements GeoReportNavigatorDataSource<DescontoResponse>
 {
   private readonly descontosService = inject(RhDescontosService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     status: null,
     sort: 'dataCriacao,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Descontos em folha',
     icon: 'pi pi-money-bill',
     eyebrow: 'Departamento Pessoal',
@@ -75,7 +75,7 @@ export class DescontoReportNavigatorDataSource
     totalLabel: (total) => `${total} ${total === 1 ? 'desconto' : 'descontos'}`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<DescontoResponse>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<DescontoResponse>> {
     return this.descontosService
       .buscarDescontos({
         buscaGlobal: criteria.search.trim() || undefined,
@@ -92,7 +92,7 @@ export class DescontoReportNavigatorDataSource
       );
   }
 
-  toItem(raw: DescontoResponse): CesReportNavigatorItem {
+  toItem(raw: DescontoResponse): GeoReportNavigatorItem {
     const valor = getValorEfetivo(raw);
     const motivoDescricao = raw.motivo?.descricao || 'Desconto';
 
@@ -125,8 +125,8 @@ export class DescontoReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | DescontoResponse): string[] {
-    const raw = (item as CesReportNavigatorItem).raw as DescontoResponse | undefined ?? (item as DescontoResponse);
+  getRouteForItem(item: GeoReportNavigatorItem | DescontoResponse): string[] {
+    const raw = (item as GeoReportNavigatorItem).raw as DescontoResponse | undefined ?? (item as DescontoResponse);
     return ['/dp/descontos', String(raw.id || item.id)];
   }
 

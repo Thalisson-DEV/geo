@@ -26,22 +26,22 @@
 
 .leitura__rotulo,
 .multiplo__rotulo {
-  font-size: var(--ces-form-label-size, var(--ces-font-caption));
+  font-size: var(--geo-form-label-size, var(--geo-font-caption));
   font-weight: 600;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .leitura__valor {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  min-height: var(--ces-control-height-md);
+  min-height: var(--geo-control-height-md);
   padding: 0 0.75rem;
-  border: 1px dashed var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  font-size: var(--ces-font-control);
-  color: var(--ces-foreground-muted);
-  background: var(--ces-surface-subtle);
+  border: 1px dashed var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  font-size: var(--geo-font-control);
+  color: var(--geo-foreground-muted);
+  background: var(--geo-surface-subtle);
 }
 
 .leitura__valor i {
@@ -50,7 +50,7 @@
 
 .opcional {
   font-weight: 400;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 /* Sugestões quando o nome dito bate com mais de um cadastro */
@@ -67,35 +67,35 @@
   max-width: 100%;
   min-height: 2rem;
   padding: 0.25rem 0.65rem;
-  border: 1px solid var(--ces-border);
+  border: 1px solid var(--geo-border);
   border-radius: 999px;
-  background: var(--ces-surface);
-  color: var(--ces-foreground);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
   font: inherit;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   cursor: pointer;
   text-align: left;
-  transition: border-color var(--ces-duration-fast) var(--ces-ease-standard),
-    background-color var(--ces-duration-fast) var(--ces-ease-standard);
+  transition: border-color var(--geo-duration-fast) var(--geo-ease-standard),
+    background-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
 
 .candidato small {
   font-weight: 400;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .candidato:hover:not(:disabled) {
-  border-color: var(--ces-brand);
-  background: var(--ces-brand-soft);
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
 }
 
 .candidato:focus-visible {
   outline: none;
-  box-shadow: var(--ces-focus-ring);
+  box-shadow: var(--geo-focus-ring);
 }
 
 .candidato:disabled {
@@ -126,17 +126,17 @@
   gap: 0.4rem;
   margin-bottom: 0.4rem;
   padding: 0;
-  font-size: var(--ces-form-label-size, var(--ces-font-caption));
+  font-size: var(--geo-form-label-size, var(--geo-font-caption));
   font-weight: 600;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .lista__contagem {
   min-width: 1.25rem;
   padding: 0 0.35rem;
   border-radius: 999px;
-  background: var(--ces-surface-muted);
-  color: var(--ces-foreground-muted);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.7rem;
   line-height: 1.25rem;
   text-align: center;
@@ -147,12 +147,12 @@
   align-items: center;
   gap: 0.4rem;
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-subtle);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
 }
 
 .lista__vazia--problema {
-  color: var(--ces-danger-text);
+  color: var(--geo-danger-text);
 }
 
 .lista__item {
@@ -161,9 +161,9 @@
   gap: 0.5rem;
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface-subtle);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
 }
 
 .lista__campos,
@@ -180,7 +180,7 @@
 }
 
 .grupo__campos {
-  gap: var(--ces-form-field-gap, 1rem);
+  gap: var(--geo-form-field-gap, 1rem);
 }
 
 /* Vários registros num campo (técnicos, equipes) */
@@ -205,23 +205,23 @@
   align-items: center;
   gap: 0.25rem;
   padding: 0.1rem 0.15rem 0.1rem 0.65rem;
-  border: 1px solid var(--ces-border);
+  border: 1px solid var(--geo-border);
   border-radius: 999px;
-  background: var(--ces-surface);
-  font-size: var(--ces-font-caption);
+  background: var(--geo-surface);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 
 .multiplo__item--problema {
-  border-color: var(--ces-danger);
-  border-radius: var(--ces-radius-md);
+  border-color: var(--geo-danger);
+  border-radius: var(--geo-radius-md);
   padding: 0.35rem 0.5rem;
 }
 
 .multiplo__problema {
   flex-basis: 100%;
   font-weight: 400;
-  color: var(--ces-danger-text);
+  color: var(--geo-danger-text);
 }
 
 @media (max-width: 40rem) {

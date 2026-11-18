@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { CesAsyncStateComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoTone } from '@geo/ui';
 import { Observable, catchError, forkJoin, map, of, switchMap, tap } from 'rxjs';
 
 import { FechamentoFiltro, FechamentoResumo, SituacaoFechamento, TipoFechamento } from '../../../core/models/fechamento-obra.models';
@@ -15,7 +15,7 @@ type ColunaId = 'RESERVA' | 'MOVIMENTACAO' | 'PARCIAL' | 'ENCERRADAS';
 interface FaixaDef {
   situacao: SituacaoFechamento;
   label: string;
-  tone: CesTone;
+  tone: GeoTone;
   aberta: boolean;
 }
 
@@ -24,7 +24,7 @@ interface ColunaDef {
   titulo: string;
   subtitulo: string;
   icon: string;
-  tone: CesTone;
+  tone: GeoTone;
   faixas: FaixaDef[];
   vazio: { icon: string; titulo: string; texto: string };
 }
@@ -74,8 +74,8 @@ const COLUNAS: readonly ColunaDef[] = [
 
 const LIMITE_ABERTAS = 200;
 const LIMITE_ENCERRADAS = 15;
-const CHAVE_RECOLHIDOS = 'ces_kanban_fechamento_grupos_recolhidos';
-const CHAVE_AGRUPAMENTO = 'ces_kanban_fechamento_agrupamento';
+const CHAVE_RECOLHIDOS = 'geo_kanban_fechamento_grupos_recolhidos';
+const CHAVE_AGRUPAMENTO = 'geo_kanban_fechamento_agrupamento';
 
 interface Faixa {
   def: FaixaDef;
@@ -86,7 +86,7 @@ interface Faixa {
 interface Grupo {
   id: string;
   label: string;
-  tone: CesTone;
+  tone: GeoTone;
   itens: FechamentoResumo[];
   total: number;
 }
@@ -107,7 +107,7 @@ interface ColunaVisivel {
   selector: 'app-fechamento-quadro',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, FechamentoKanbanCardComponent],
+  imports: [GeoAsyncStateComponent, FechamentoKanbanCardComponent],
   styleUrl: '../../almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacoes-comerciais-kanban.component.css',
   template: `
     <div class="kb-bar">
@@ -132,7 +132,7 @@ interface ColunaVisivel {
     </nav>
 
     @if (erro()) {
-      <ces-async-state type="error" title="Não foi possível carregar o quadro" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
+      <geo-async-state type="error" title="Não foi possível carregar o quadro" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
     } @else if (!faixas()) {
       <div class="kb-board" aria-busy="true" aria-label="Carregando o quadro">
         @for (c of [1, 2, 3, 4]; track c) {
@@ -362,7 +362,7 @@ export class FechamentoQuadroComponent {
 
   // --- Arrastar e soltar (atalho das mesmas ações dos botões) ---
 
-  protected acaoDeSoltar(coluna: ColunaId): { texto: string; icon: string; tone: CesTone; acao: AcaoFechamento } | null {
+  protected acaoDeSoltar(coluna: ColunaId): { texto: string; icon: string; tone: GeoTone; acao: AcaoFechamento } | null {
     const arraste = this.arrastando();
     if (!arraste || arraste.de === coluna) return null;
     const { registrarReserva, movimentar } = arraste.item.acoes;
@@ -421,13 +421,13 @@ function porPendencia(itens: FechamentoResumo[]): Grupo[] {
   const com = itens.filter((i) => i.possuiPendencia);
   const sem = itens.filter((i) => !i.possuiPendencia);
   return [
-    { id: 'PEND:SIM', label: 'Com pendência', tone: 'warning' as CesTone, itens: com, total: com.length },
-    { id: 'PEND:NAO', label: 'Sem pendência', tone: 'success' as CesTone, itens: sem, total: sem.length }
+    { id: 'PEND:SIM', label: 'Com pendência', tone: 'warning' as GeoTone, itens: com, total: com.length },
+    { id: 'PEND:NAO', label: 'Sem pendência', tone: 'success' as GeoTone, itens: sem, total: sem.length }
   ].filter((g) => g.total > 0);
 }
 
 function porPrazo(itens: FechamentoResumo[]): Grupo[] {
-  const faixas: { id: string; label: string; tone: CesTone; teste: (s: FechamentoResumo) => boolean }[] = [
+  const faixas: { id: string; label: string; tone: GeoTone; teste: (s: FechamentoResumo) => boolean }[] = [
     { id: 'PRAZO:ATRASADO', label: 'Atrasadas', tone: 'danger', teste: (s) => s.prazoVigente.situacao === 'ATRASADO' },
     { id: 'PRAZO:BREVE', label: 'Vencem em breve', tone: 'warning', teste: (s) => s.prazoVigente.situacao === 'VENCE_EM_BREVE' },
     { id: 'PRAZO:OK', label: 'No prazo', tone: 'success', teste: () => true }

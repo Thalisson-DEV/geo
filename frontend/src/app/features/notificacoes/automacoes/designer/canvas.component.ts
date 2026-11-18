@@ -1,7 +1,7 @@
 import {
   AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, computed, effect, input, output, signal, viewChild
 } from '@angular/core';
-import { CesIconButtonComponent } from '@ces/ui';
+import { GeoIconButtonComponent } from '@geo/ui';
 
 import { Catalogo, Definicao, NoEspec, StatusEtapa } from '../../../../core/models/automacao.models';
 import { InsertTarget, buscarNo, chaveAlvo, contem } from '../lib/arvore';
@@ -36,7 +36,7 @@ export function formatarDuracao(ms: number | null): string {
 @Component({
   selector: 'aut-canvas',
   standalone: true,
-  imports: [CesIconButtonComponent],
+  imports: [GeoIconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div #area class="aut-canvas" [attr.data-panning]="panning() || null" tabindex="-1"
@@ -153,13 +153,13 @@ export function formatarDuracao(ms: number | null): string {
       </div>
 
       <div class="aut-controls" role="toolbar" aria-label="Visualização" (pointerdown)="$event.stopPropagation()">
-        <ces-icon-button icon="pi pi-search-plus" label="Aproximar" variant="ghost" size="icon-sm" (pressed)="zoomEm(1.2)"></ces-icon-button>
-        <ces-icon-button icon="pi pi-search-minus" label="Afastar" variant="ghost" size="icon-sm" (pressed)="zoomEm(1 / 1.2)"></ces-icon-button>
+        <geo-icon-button icon="pi pi-search-plus" label="Aproximar" variant="ghost" size="icon-sm" (pressed)="zoomEm(1.2)"></geo-icon-button>
+        <geo-icon-button icon="pi pi-search-minus" label="Afastar" variant="ghost" size="icon-sm" (pressed)="zoomEm(1 / 1.2)"></geo-icon-button>
         <span class="aut-zoom-label">{{ (zoom() * 100).toFixed(0) }}%</span>
-        <ces-icon-button icon="pi pi-window-maximize" label="Ver o fluxo inteiro" variant="ghost" size="icon-sm" (pressed)="ajustar()"></ces-icon-button>
-        <ces-icon-button icon="pi pi-arrow-up" label="Voltar ao início" variant="ghost" size="icon-sm" (pressed)="topo()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-window-maximize" label="Ver o fluxo inteiro" variant="ghost" size="icon-sm" (pressed)="ajustar()"></geo-icon-button>
+        <geo-icon-button icon="pi pi-arrow-up" label="Voltar ao início" variant="ghost" size="icon-sm" (pressed)="topo()"></geo-icon-button>
         @if (!somenteLeitura() && movido()) {
-          <ces-icon-button icon="pi pi-sitemap" label="Reorganizar" variant="ghost" size="icon-sm" (pressed)="reorganizar.emit()"></ces-icon-button>
+          <geo-icon-button icon="pi pi-sitemap" label="Reorganizar" variant="ghost" size="icon-sm" (pressed)="reorganizar.emit()"></geo-icon-button>
         }
       </div>
       @if (!somenteLeitura()) {
@@ -404,7 +404,7 @@ export class CanvasComponent implements AfterViewInit {
   // ------------------------------------------------------------------------ soltar da paleta
 
   protected sobrePaleta(e: DragEvent): void {
-    if (this.somenteLeitura() || !e.dataTransfer?.types.includes('application/ces-automacao')) return;
+    if (this.somenteLeitura() || !e.dataTransfer?.types.includes('application/geo-automacao')) return;
     e.preventDefault();
     const p = this.pontoCanvas(e.clientX, e.clientY);
     const alvo = this.maisProximo(p.x, p.y, null, DISTANCIA_SOLTAR);
@@ -413,7 +413,7 @@ export class CanvasComponent implements AfterViewInit {
 
   protected soltarPaleta(e: DragEvent): void {
     if (this.somenteLeitura()) return;
-    const dado = e.dataTransfer?.getData('application/ces-automacao');
+    const dado = e.dataTransfer?.getData('application/geo-automacao');
     if (!dado) return;
     e.preventDefault();
     const p = this.pontoCanvas(e.clientX, e.clientY);

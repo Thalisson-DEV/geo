@@ -66,7 +66,7 @@ async function entrar(page: Page, permissoes: string[]): Promise<void> {
   await page.addInitScript((lista) => {
     const carga = btoa(JSON.stringify({ exp: 4102444800, sub: 'teste' }));
     const sessao = { id: 'u1', tema: 'light', corPrimaria: 'blue', animacoesAtivadas: false, token: `x.${carga}.y`, login: 'teste', nome: 'Teste', permissoes: lista };
-    localStorage.setItem('ces_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
+    localStorage.setItem('geo_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
   }, permissoes);
 }
 

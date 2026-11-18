@@ -44,70 +44,70 @@ export const ESCOPO_PNEU = 'frota-pneu';
   styles: `
     :host { display: block; }
     .veiculo { position: relative; display: grid; justify-items: center; gap: 1.1rem; padding: 3rem 0.75rem 1rem;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-xl); background:
-        radial-gradient(circle at 50% 0, var(--ces-brand-soft), transparent 60%), var(--ces-surface-subtle); }
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background:
+        radial-gradient(circle at 50% 0, var(--geo-brand-soft), transparent 60%), var(--geo-surface-subtle); }
     .frente { position: absolute; top: 0.6rem; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 0.35rem;
-      font-size: var(--ces-font-caption); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ces-foreground-muted); }
+      font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--geo-foreground-muted); }
     /* O chassi acompanha só os eixos: o estepe fica fora dele. */
     .eixos { position: relative; display: grid; justify-items: center; gap: 1.1rem; }
     .chassi { position: absolute; top: -0.2rem; bottom: -0.2rem; left: 50%; width: 3.2rem; transform: translateX(-50%);
-      border-inline: 3px solid var(--ces-border-strong); border-radius: var(--ces-radius-md); opacity: 0.55; pointer-events: none; }
+      border-inline: 3px solid var(--geo-border-strong); border-radius: var(--geo-radius-md); opacity: 0.55; pointer-events: none; }
     .eixo { position: relative; display: flex; align-items: center; gap: 0.35rem; }
-    .eixo__barra { width: clamp(2.5rem, 12vw, 5.5rem); height: 0.55rem; border-radius: 999px; background: var(--ces-border-strong); }
+    .eixo__barra { width: clamp(2.5rem, 12vw, 5.5rem); height: 0.55rem; border-radius: 999px; background: var(--geo-border-strong); }
     .eixo__numero { position: absolute; top: -1.05rem; left: 50%; transform: translateX(-50%); font-size: 0.7rem; font-weight: 700;
-      color: var(--ces-foreground-subtle); }
+      color: var(--geo-foreground-subtle); }
     .lado { display: flex; gap: 0.2rem; }
     /* Com eixo duplo no veículo, todo lado reserva o espaço de duas rodas: o pneu do eixo simples fica na borda de fora, alinhado ao externo do duplo. */
     .veiculo--com-duplo .lado { width: 6.4rem; }
     .veiculo--com-duplo .lado--direita { justify-content: flex-end; }
     .veiculo--com-duplo .eixo::before { content: ''; position: absolute; left: 1.5rem; right: 1.5rem; top: 50%; height: 0.55rem; transform: translateY(-50%);
-      border-radius: 999px; background: var(--ces-border-strong); }
+      border-radius: 999px; background: var(--geo-border-strong); }
     .lado { position: relative; }
     .roda { position: relative; display: grid; place-items: center; width: 3.1rem; height: 5.2rem; padding: 0; border-radius: 0.8rem;
-      border: 2px dashed var(--ces-border-strong); background: var(--ces-surface); color: var(--ces-foreground-muted); cursor: pointer;
-      transition: transform var(--ces-duration-fast) var(--ces-ease-standard), box-shadow var(--ces-duration-fast) var(--ces-ease-standard),
-        border-color var(--ces-duration-fast) var(--ces-ease-standard); }
+      border: 2px dashed var(--geo-border-strong); background: var(--geo-surface); color: var(--geo-foreground-muted); cursor: pointer;
+      transition: transform var(--geo-duration-fast) var(--geo-ease-standard), box-shadow var(--geo-duration-fast) var(--geo-ease-standard),
+        border-color var(--geo-duration-fast) var(--geo-ease-standard); }
     .roda:disabled { cursor: default; }
-    .roda:not(:disabled):hover { border-color: var(--ces-brand); box-shadow: var(--ces-shadow-sm); }
-    .roda:focus-visible { outline: none; box-shadow: var(--ces-focus-ring); }
+    .roda:not(:disabled):hover { border-color: var(--geo-brand); box-shadow: var(--geo-shadow-sm); }
+    .roda:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); }
     /* A borracha é sempre escura, nos dois temas: banda com sulcos longitudinais e cravos. */
     .roda--ocupada { border: 0; border-radius: 0.95rem 0.95rem 0.95rem 0.95rem / 0.7rem; color: var(--p-slate-50);
       background:
         linear-gradient(90deg, transparent 0 20%, var(--p-slate-950) 20% 23%, transparent 23% 48.5%, var(--p-slate-950) 48.5% 51.5%, transparent 51.5% 77%, var(--p-slate-950) 77% 80%, transparent 80%),
         repeating-linear-gradient(180deg, var(--p-slate-700) 0 0.42rem, var(--p-slate-900) 0.42rem 0.56rem);
       box-shadow: inset 3px 0 3px -1px var(--p-slate-500), inset -3px 0 3px -1px var(--p-slate-950), 0 2px 5px color-mix(in srgb, var(--p-slate-950) 45%, transparent); }
-    .roda--alvo { border-color: var(--ces-brand); border-style: solid; background: var(--ces-brand-soft); transform: scale(1.04); }
-    .roda--ocupada.roda--alvo { box-shadow: 0 0 0 3px var(--ces-brand); }
-    .roda--ocupada:not(:disabled):hover { box-shadow: 0 0 0 2px var(--ces-brand), 0 2px 5px color-mix(in srgb, var(--p-slate-950) 45%, transparent); }
-    .roda--selecionada { box-shadow: 0 0 0 3px var(--ces-brand), var(--ces-shadow-md); transform: translateY(-2px); }
+    .roda--alvo { border-color: var(--geo-brand); border-style: solid; background: var(--geo-brand-soft); transform: scale(1.04); }
+    .roda--ocupada.roda--alvo { box-shadow: 0 0 0 3px var(--geo-brand); }
+    .roda--ocupada:not(:disabled):hover { box-shadow: 0 0 0 2px var(--geo-brand), 0 2px 5px color-mix(in srgb, var(--p-slate-950) 45%, transparent); }
+    .roda--selecionada { box-shadow: 0 0 0 3px var(--geo-brand), var(--geo-shadow-md); transform: translateY(-2px); }
     /* Enquanto um pneu está escolhido ou sendo arrastado, as posições mostram que recebem o pneu. */
-    .roda--destino:not(.roda--ocupada) { border-color: var(--ces-brand); border-style: solid; background: var(--ces-brand-soft); color: var(--ces-brand); }
-    .roda--destino.roda--ocupada { outline: 2px dashed var(--ces-brand); outline-offset: 2px; }
-    .roda--selecionada:not(.roda--ocupada) { border-color: var(--ces-brand); border-style: solid; background: var(--ces-brand-soft); color: var(--ces-brand); }
+    .roda--destino:not(.roda--ocupada) { border-color: var(--geo-brand); border-style: solid; background: var(--geo-brand-soft); color: var(--geo-brand); }
+    .roda--destino.roda--ocupada { outline: 2px dashed var(--geo-brand); outline-offset: 2px; }
+    .roda--selecionada:not(.roda--ocupada) { border-color: var(--geo-brand); border-style: solid; background: var(--geo-brand-soft); color: var(--geo-brand); }
     .roda--alterada::after { content: ''; position: absolute; top: -0.3rem; right: -0.3rem; width: 0.8rem; height: 0.8rem; border-radius: 50%;
-      background: var(--ces-brand); border: 2px solid var(--ces-surface); }
+      background: var(--geo-brand); border: 2px solid var(--geo-surface); }
     .roda__fogo { max-width: 2.7rem; padding: 0.1rem 0.25rem; border-radius: 0.3rem; background: var(--p-slate-950); font-size: 0.66rem; font-weight: 800;
       letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .roda__vazia { font-size: 0.9rem; }
     .roda__sulco { position: absolute; left: 0.5rem; right: 0.5rem; top: 0.3rem; height: 0.26rem; border-radius: 999px; }
-    .roda__sulco[data-tom='danger'] { background: var(--ces-danger); }
-    .roda__sulco[data-tom='warning'] { background: var(--ces-warning); }
-    .roda__sulco[data-tom='success'] { background: var(--ces-success); }
-    .roda__sulco[data-tom='neutral'] { background: var(--ces-foreground-subtle); }
+    .roda__sulco[data-tom='danger'] { background: var(--geo-danger); }
+    .roda__sulco[data-tom='warning'] { background: var(--geo-warning); }
+    .roda__sulco[data-tom='success'] { background: var(--geo-success); }
+    .roda__sulco[data-tom='neutral'] { background: var(--geo-foreground-subtle); }
     .roda__aviso { position: absolute; bottom: -0.35rem; right: -0.35rem; display: grid; place-items: center; width: 1.15rem; height: 1.15rem;
-      border-radius: 50%; font-size: 0.7rem; font-weight: 800; line-height: 1; background: var(--ces-danger); color: var(--p-slate-50); border: 2px solid var(--ces-surface); }
-    .estepes { display: grid; justify-items: center; gap: 0.35rem; margin-top: 0.35rem; padding-top: 0.75rem; border-top: 1px dashed var(--ces-border-strong);
+      border-radius: 50%; font-size: 0.7rem; font-weight: 800; line-height: 1; background: var(--geo-danger); color: var(--p-slate-50); border: 2px solid var(--geo-surface); }
+    .estepes { display: grid; justify-items: center; gap: 0.35rem; margin-top: 0.35rem; padding-top: 0.75rem; border-top: 1px dashed var(--geo-border-strong);
       width: min(100%, 18rem); }
-    .estepes__titulo { font-size: var(--ces-font-caption); font-weight: 700; color: var(--ces-foreground-muted); }
+    .estepes__titulo { font-size: var(--geo-font-caption); font-weight: 700; color: var(--geo-foreground-muted); }
     .estepes__rodas { display: flex; gap: 0.5rem; }
-    .legenda { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 0.9rem; margin-top: 0.6rem; font-size: var(--ces-font-caption);
-      color: var(--ces-foreground-muted); }
+    .legenda { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 0.9rem; margin-top: 0.6rem; font-size: var(--geo-font-caption);
+      color: var(--geo-foreground-muted); }
     .legenda span { display: inline-flex; align-items: center; gap: 0.35rem; }
     .legenda i { display: inline-block; width: 0.6rem; height: 0.6rem; border-radius: 50%; }
-    .legenda i[data-tom='danger'] { background: var(--ces-danger); }
-    .legenda i[data-tom='warning'] { background: var(--ces-warning); }
-    .legenda i[data-tom='success'] { background: var(--ces-success); }
-    .legenda i[data-tom='brand'] { background: var(--ces-brand); }
+    .legenda i[data-tom='danger'] { background: var(--geo-danger); }
+    .legenda i[data-tom='warning'] { background: var(--geo-warning); }
+    .legenda i[data-tom='success'] { background: var(--geo-success); }
+    .legenda i[data-tom='brand'] { background: var(--geo-brand); }
     @media (prefers-reduced-motion: reduce) { .roda { transition: none; } .roda--alvo, .roda--selecionada { transform: none; } }
   `,
   template: `

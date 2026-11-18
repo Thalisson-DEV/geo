@@ -65,7 +65,7 @@ describe('ConnectivityService', () => {
     expect(service.isBloqueadoPorDadosMoveis()).toBe(false);
     expect(service.statusConexao()).toBe('online');
     expect(mockAuth.updateUserSession).toHaveBeenCalledWith({ usarRedesMoveis: true });
-    expect(localStorage.getItem('ces_usar_redes_moveis')).toBe('true');
+    expect(localStorage.getItem('geo_usar_redes_moveis')).toBe('true');
   });
 
   it('deve cortar conectividade quando o usuário ativar o modo offline manual', () => {

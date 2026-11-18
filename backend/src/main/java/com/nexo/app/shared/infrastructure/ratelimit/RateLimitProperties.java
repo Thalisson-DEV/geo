@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.Map;
 
 /**
- * Configuração de {@code ces.rate-limit}. Tudo é opcional: o que faltar usa o padrão da
+ * Configuração de {@code geo.rate-limit}. Tudo é opcional: o que faltar usa o padrão da
  * {@link PoliticaRateLimit} e do próprio record.
  *
  * @param habilitado      desliga todas as políticas de uma vez (inclusive a de lookup)
@@ -16,7 +16,7 @@ import java.util.Map;
  * @param maxChavesLocais teto de contadores guardados na memória quando o Redis está fora
  * @param politicas       ajustes por política, pelo nome (ex.: {@code login-ip})
  */
-@ConfigurationProperties(prefix = "ces.rate-limit")
+@ConfigurationProperties(prefix = "geo.rate-limit")
 public record RateLimitProperties(
         Boolean habilitado,
         ModoRateLimit modoPadrao,
@@ -32,7 +32,7 @@ public record RateLimitProperties(
         pausaAposFalha = positivo(pausaAposFalha, Duration.ofSeconds(30), "pausa-apos-falha");
         maxChavesLocais = maxChavesLocais == null ? 50_000 : maxChavesLocais;
         if (maxChavesLocais < 100) {
-            throw new IllegalArgumentException("ces.rate-limit.max-chaves-locais deve ser pelo menos 100");
+            throw new IllegalArgumentException("geo.rate-limit.max-chaves-locais deve ser pelo menos 100");
         }
         politicas = politicas == null ? Map.of() : Map.copyOf(politicas);
         var nomes = java.util.Arrays.stream(PoliticaRateLimit.values()).map(PoliticaRateLimit::nome).toList();
@@ -69,7 +69,7 @@ public record RateLimitProperties(
             return padrao;
         }
         if (valor.isZero() || valor.isNegative()) {
-            throw new IllegalArgumentException("ces.rate-limit." + nome + " deve ser positivo");
+            throw new IllegalArgumentException("geo.rate-limit." + nome + " deve ser positivo");
         }
         return valor;
     }

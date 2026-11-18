@@ -1,9 +1,9 @@
-export interface CesSelectOption<T> {
+export interface GeoSelectOption<T> {
   label: string;
   value: T;
   disabled?: boolean;
 }
 
-export type CesDateValue = Date | null;
-export type CesBooleanControlKind = 'checkbox' | 'toggle';
-export type CesOverlayAppendTarget = 'body' | 'self';
+export type GeoDateValue = Date | null;
+export type GeoBooleanControlKind = 'checkbox' | 'toggle';
+export type GeoOverlayAppendTarget = 'body' | 'self';

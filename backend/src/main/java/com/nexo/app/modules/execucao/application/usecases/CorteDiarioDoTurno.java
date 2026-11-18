@@ -19,8 +19,8 @@ public class CorteDiarioDoTurno {
     private final ZoneId zona;
 
     public CorteDiarioDoTurno(
-            @Value("${ces.turno.encerramento-automatico.horario-corte:22:00}") String horario,
-            @Value("${ces.turno.encerramento-automatico.zona:America/Sao_Paulo}") String zona) {
+            @Value("${geo.turno.encerramento-automatico.horario-corte:22:00}") String horario,
+            @Value("${geo.turno.encerramento-automatico.zona:America/Sao_Paulo}") String zona) {
         this.horario = LocalTime.parse(horario);
         this.zona = ZoneId.of(zona);
     }

@@ -42,7 +42,7 @@ describe('apresentação estruturada do assistente', () => {
       kind: 'text',
       id: 'conteudo-fallback',
       content: message.conteudo,
-      format: 'MARKDOWN_CES_V1'
+      format: 'MARKDOWN_GEO_V1'
     }]);
   });
 
@@ -70,7 +70,7 @@ describe('apresentação estruturada do assistente', () => {
       }],
       apresentacao: {
         versao: '1.0',
-        formatoConteudo: 'MARKDOWN_CES_V1',
+        formatoConteudo: 'MARKDOWN_GEO_V1',
         blocos: [
           { id: 'texto-principal', tipo: 'TEXTO', conteudo: 'A equipe **Alfa** ficou em primeiro lugar.', visualizacao: null },
           { id: 'ranking', tipo: 'VISUALIZACAO', conteudo: null, visualizacao: visualization }

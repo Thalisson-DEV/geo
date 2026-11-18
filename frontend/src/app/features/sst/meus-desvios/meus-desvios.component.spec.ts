@@ -62,7 +62,7 @@ describe('MeusDesviosComponent', () => {
     const { el } = await abrir('/lista?vencidos=true');
     await new Promise((r) => setTimeout(r));
     expect(sst['listarMeusDesvios']).toHaveBeenLastCalledWith(expect.objectContaining({ apenasVencidos: true }));
-    const vencidos = Array.from(el.querySelectorAll('.ces-quick-filter')).find((b) => b.textContent!.includes('Abertos')) as HTMLButtonElement;
+    const vencidos = Array.from(el.querySelectorAll('.geo-quick-filter')).find((b) => b.textContent!.includes('Abertos')) as HTMLButtonElement;
     vencidos.click();
     await new Promise((r) => setTimeout(r));
     expect(sst['listarMeusDesvios']).toHaveBeenLastCalledWith(expect.objectContaining({ status: ['ABERTO'], apenasVencidos: null }));

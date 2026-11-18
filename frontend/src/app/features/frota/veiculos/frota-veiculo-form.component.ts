@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { LookupStore } from '../../../core/lookup';
 import {
   Combustivel,
@@ -35,17 +35,17 @@ import { FrotaService } from '../../../core/services/frota.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer
+    <geo-form-drawer
       [(visible)]="visivel"
       [title]="veiculo() ? 'Editar ficha' : 'Novo veículo'"
       [description]="(veiculo() ? 'Veículo ' + veiculo()!.placa + '. ' : '') + 'Placa, modelo e base ficam no cadastro geral de veículos; o restante é a ficha da frota.'"
@@ -53,70 +53,70 @@ import { FrotaService } from '../../../core/services/frota.service';
       [loading]="salvando()"
       size="lg"
     >
-      <ces-form-section title="Identificação" icon="pi pi-car">
-        <div class="ces-form-grid">
-          <ces-text-input label="Placa" [required]="true" [(value)]="placa" placeholder="ABC1D23" [maxlength]="10"
-            [error]="erro('placa')"></ces-text-input>
-          <ces-text-input label="Marca / fabricante" [required]="true" [(value)]="fabricante" [maxlength]="50"
-            [error]="erro('fabricante')"></ces-text-input>
-          <ces-text-input label="Modelo" [required]="true" [(value)]="modelo" [maxlength]="100"
-            [error]="erro('modelo')"></ces-text-input>
-          <ces-select label="Base operacional" [required]="true" [options]="bases()" [(value)]="idBase" [filter]="true"
-            [error]="erro('idBase')"></ces-select>
-          <ces-select label="Tipo de veículo" [options]="tipos()" [(value)]="idTipo" [filter]="true" [clearable]="true"
-            [showOptional]="true"></ces-select>
-          <ces-select label="Situação" [options]="situacoes()" [(value)]="situacao"></ces-select>
+      <geo-form-section title="Identificação" icon="pi pi-car">
+        <div class="geo-form-grid">
+          <geo-text-input label="Placa" [required]="true" [(value)]="placa" placeholder="ABC1D23" [maxlength]="10"
+            [error]="erro('placa')"></geo-text-input>
+          <geo-text-input label="Marca / fabricante" [required]="true" [(value)]="fabricante" [maxlength]="50"
+            [error]="erro('fabricante')"></geo-text-input>
+          <geo-text-input label="Modelo" [required]="true" [(value)]="modelo" [maxlength]="100"
+            [error]="erro('modelo')"></geo-text-input>
+          <geo-select label="Base operacional" [required]="true" [options]="bases()" [(value)]="idBase" [filter]="true"
+            [error]="erro('idBase')"></geo-select>
+          <geo-select label="Tipo de veículo" [options]="tipos()" [(value)]="idTipo" [filter]="true" [clearable]="true"
+            [showOptional]="true"></geo-select>
+          <geo-select label="Situação" [options]="situacoes()" [(value)]="situacao"></geo-select>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Dados do veículo" icon="pi pi-id-card">
-        <div class="ces-form-grid">
-          <ces-number-input label="Ano de fabricação" [(value)]="anoFabricacao" [useGrouping]="false" [min]="1950"
-            [showOptional]="true"></ces-number-input>
-          <ces-number-input label="Ano do modelo" [(value)]="anoModelo" [useGrouping]="false" [min]="1950"
-            [showOptional]="true"></ces-number-input>
-          <ces-text-input label="Chassi" [(value)]="chassi" [maxlength]="30" [showOptional]="true"></ces-text-input>
-          <ces-text-input label="Renavam" [(value)]="renavam" [maxlength]="20" [showOptional]="true"></ces-text-input>
-          <ces-text-input label="Cor" [(value)]="cor" [maxlength]="40" [showOptional]="true"></ces-text-input>
-          <ces-select label="Combustível" [options]="combustiveis()" [(value)]="combustivel" [clearable]="true"
-            [showOptional]="true"></ces-select>
-          <ces-number-input label="Tanque (litros)" [(value)]="capacidadeTanque" [min]="0" [maxFractionDigits]="2"
-            [showOptional]="true"></ces-number-input>
-          <ces-number-input label="Consumo de referência (km/l)" [(value)]="consumoReferencia" [min]="0" [maxFractionDigits]="2"
-            description="Usado para conferir se os abastecimentos estão coerentes." [showOptional]="true"></ces-number-input>
-          <ces-select label="Controle de uso" [options]="unidades" [(value)]="unidadeMedicao"
+      <geo-form-section title="Dados do veículo" icon="pi pi-id-card">
+        <div class="geo-form-grid">
+          <geo-number-input label="Ano de fabricação" [(value)]="anoFabricacao" [useGrouping]="false" [min]="1950"
+            [showOptional]="true"></geo-number-input>
+          <geo-number-input label="Ano do modelo" [(value)]="anoModelo" [useGrouping]="false" [min]="1950"
+            [showOptional]="true"></geo-number-input>
+          <geo-text-input label="Chassi" [(value)]="chassi" [maxlength]="30" [showOptional]="true"></geo-text-input>
+          <geo-text-input label="Renavam" [(value)]="renavam" [maxlength]="20" [showOptional]="true"></geo-text-input>
+          <geo-text-input label="Cor" [(value)]="cor" [maxlength]="40" [showOptional]="true"></geo-text-input>
+          <geo-select label="Combustível" [options]="combustiveis()" [(value)]="combustivel" [clearable]="true"
+            [showOptional]="true"></geo-select>
+          <geo-number-input label="Tanque (litros)" [(value)]="capacidadeTanque" [min]="0" [maxFractionDigits]="2"
+            [showOptional]="true"></geo-number-input>
+          <geo-number-input label="Consumo de referência (km/l)" [(value)]="consumoReferencia" [min]="0" [maxFractionDigits]="2"
+            description="Usado para conferir se os abastecimentos estão coerentes." [showOptional]="true"></geo-number-input>
+          <geo-select label="Controle de uso" [options]="unidades" [(value)]="unidadeMedicao"
             [disabled]="unidadeTravada()"
             [description]="unidadeTravada()
               ? 'O veículo já tem leituras. Para mudar entre km e horas, use Trocar painel na ficha.'
-              : 'Compressores e retroescavadeiras costumam ser controlados por horas.'"></ces-select>
+              : 'Compressores e retroescavadeiras costumam ser controlados por horas.'"></geo-select>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Propriedade" icon="pi pi-briefcase">
-        <div class="ces-form-grid">
-          <ces-select label="Regime" [options]="regimes()" [(value)]="regime"></ces-select>
+      <geo-form-section title="Propriedade" icon="pi pi-briefcase">
+        <div class="geo-form-grid">
+          <geo-select label="Regime" [options]="regimes()" [(value)]="regime"></geo-select>
           @if (regime() === 'LOCADO') {
-            <ces-text-input label="Locadora" [required]="true" [(value)]="locadora" [maxlength]="150"
-              [error]="erro('locadora')"></ces-text-input>
-            <ces-number-input label="Custo mensal da locação" mode="currency" [(value)]="custoLocacao" [min]="0"
-              [showOptional]="true"></ces-number-input>
-            <ces-datepicker label="Início da locação" [(value)]="inicioLocacao" [clearable]="true" [showOptional]="true"></ces-datepicker>
-            <ces-datepicker label="Fim da locação" [(value)]="fimLocacao" [clearable]="true" [showOptional]="true"
-              [error]="erro('fimLocacao')"></ces-datepicker>
+            <geo-text-input label="Locadora" [required]="true" [(value)]="locadora" [maxlength]="150"
+              [error]="erro('locadora')"></geo-text-input>
+            <geo-number-input label="Custo mensal da locação" mode="currency" [(value)]="custoLocacao" [min]="0"
+              [showOptional]="true"></geo-number-input>
+            <geo-datepicker label="Início da locação" [(value)]="inicioLocacao" [clearable]="true" [showOptional]="true"></geo-datepicker>
+            <geo-datepicker label="Fim da locação" [(value)]="fimLocacao" [clearable]="true" [showOptional]="true"
+              [error]="erro('fimLocacao')"></geo-datepicker>
           }
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Observação" icon="pi pi-comment">
-        <ces-textarea label="Observação" [labelVisible]="false" [(value)]="observacao" [rows]="3" [maxlength]="1000"></ces-textarea>
-      </ces-form-section>
+      <geo-form-section title="Observação" icon="pi pi-comment">
+        <geo-textarea label="Observação" [labelVisible]="false" [(value)]="observacao" [rows]="3" [maxlength]="1000"></geo-textarea>
+      </geo-form-section>
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="veiculo() ? 'Salvar alterações' : 'Cadastrar veículo'"
-          [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="veiculo() ? 'Salvar alterações' : 'Cadastrar veículo'"
+          [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaVeiculoFormComponent {
@@ -154,7 +154,7 @@ export class FrotaVeiculoFormComponent {
   protected readonly idRastreador = signal('');
   protected readonly observacao = signal('');
   protected readonly unidadeMedicao = signal<UnidadeMedicao | null>('KM');
-  protected readonly unidades: CesSelectOption<UnidadeMedicao>[] = (['KM', 'HORAS'] as const).map((u) => ({
+  protected readonly unidades: GeoSelectOption<UnidadeMedicao>[] = (['KM', 'HORAS'] as const).map((u) => ({
     label: ROTULO_UNIDADE[u],
     value: u
   }));
@@ -165,10 +165,10 @@ export class FrotaVeiculoFormComponent {
   protected readonly tentouSalvar = signal(false);
   private readonly snapshot = signal('');
 
-  protected readonly bases = computed<CesSelectOption<string>[]>(() =>
+  protected readonly bases = computed<GeoSelectOption<string>[]>(() =>
     this.lookups.operationalBases().map((b) => ({ label: b.label, value: b.value }))
   );
-  protected readonly tipos = computed<CesSelectOption<string>[]>(() =>
+  protected readonly tipos = computed<GeoSelectOption<string>[]>(() =>
     this.tiposVeiculo()
       .filter((t) => t.ativo || t.id === this.veiculo()?.tipoVeiculo?.id)
       .map((t) => ({ label: t.nome, value: t.id }))
@@ -287,7 +287,7 @@ export class FrotaVeiculoFormComponent {
     };
   }
 
-  private paraOpcoes<T extends string>(lista?: { valor: T; rotulo: string }[]): CesSelectOption<T>[] {
+  private paraOpcoes<T extends string>(lista?: { valor: T; rotulo: string }[]): GeoSelectOption<T>[] {
     return (lista ?? []).map((o) => ({ label: o.rotulo, value: o.valor }));
   }
 }

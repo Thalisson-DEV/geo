@@ -12,23 +12,23 @@ import {
 import { FormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
 import {
-  CES_FORM_KIT,
-  CesAsyncStateComponent,
-  CesAutocompleteComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GEO_FORM_KIT,
+  GeoAsyncStateComponent,
+  GeoAutocompleteComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesFocusFirstInvalid,
-} from '@ces/ui';
+  geoFocusFirstInvalid,
+} from '@geo/ui';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { ObrasService } from '../../../../core/services/obras.service';
 import { RhService } from '../../../../core/services/rh.service';
@@ -86,20 +86,20 @@ const TIPOS: { value: TipoSolicitacaoTecnica; nome: string }[] = [
   selector: 'app-solicitacao-tecnica-form',
   standalone: true,
   imports: [
-    ...CES_FORM_KIT,
+    ...GEO_FORM_KIT,
     FormsModule,
-    CesAsyncStateComponent,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
   ],
   templateUrl: './solicitacao-tecnica-form.component.html',
   styleUrl: '../solicitacao-form-itens.css',
@@ -283,7 +283,7 @@ export class SolicitacaoTecnicaFormComponent implements OnInit {
     const obra = this.obraDetalhe() ?? this.selectedObra();
     return obra ? `${obra.numero} · ${obra.titulo}` : undefined;
   });
-  protected readonly tipoOpcoes = computed<CesSelectOption<TipoSolicitacaoTecnica>[]>(() =>
+  protected readonly tipoOpcoes = computed<GeoSelectOption<TipoSolicitacaoTecnica>[]>(() =>
     TIPOS.map((t) => ({ value: t.value, label: `${tipoTecnicoLabel(t.value)} · ${t.nome}` })),
   );
   protected readonly alterado = computed(
@@ -614,7 +614,7 @@ export class SolicitacaoTecnicaFormComponent implements OnInit {
     this.fieldErrors.set(errors);
     if (Object.keys(errors).length) {
       this.notifications.warning('Preencha os campos destacados para enviar.');
-      setTimeout(() => cesFocusFirstInvalid());
+      setTimeout(() => geoFocusFirstInvalid());
       return false;
     }
     return true;

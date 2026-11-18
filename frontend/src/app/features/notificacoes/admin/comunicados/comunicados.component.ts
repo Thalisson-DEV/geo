@@ -1,29 +1,29 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDrawerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDrawerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, map, of } from 'rxjs';
 
 import { PerfilAcessoResponse } from '../../../../core/models/iam.models';
@@ -41,20 +41,20 @@ import { AjudaListagemComponent } from '../../../../shared/listagem/ajuda-listag
 import { LIMITE_EXPORTACAO, paginaPadrao } from '../../../../shared/listagem/listagem';
 import { STATUS_COMUNICADO_OPTIONS, TIPO_COMUNICADO_ICONES, TIPO_COMUNICADO_OPTIONS, TIPO_USUARIO_OPTIONS, formatarDataHora } from '../../notificacoes-ui';
 
-const TIPOS: CesSelectOption<TipoComunicado | null>[] = [{ label: 'Todos', value: null }, ...TIPO_COMUNICADO_OPTIONS];
-const STATUS: CesSelectOption<StatusComunicado | null>[] = [{ label: 'Todos', value: null }, ...STATUS_COMUNICADO_OPTIONS];
-const CONFIRMACAO: CesSelectOption<boolean | null>[] = [
+const TIPOS: GeoSelectOption<TipoComunicado | null>[] = [{ label: 'Todos', value: null }, ...TIPO_COMUNICADO_OPTIONS];
+const STATUS: GeoSelectOption<StatusComunicado | null>[] = [{ label: 'Todos', value: null }, ...STATUS_COMUNICADO_OPTIONS];
+const CONFIRMACAO: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Exigem confirmação', value: true },
   { label: 'Não exigem', value: false }
 ];
-const SITUACAO: CesSelectOption<boolean | null>[] = [
+const SITUACAO: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Ativos', value: true },
   { label: 'Inativos', value: false }
 ];
-const TOM_STATUS: Record<StatusComunicado, CesTone> = { RASCUNHO: 'neutral', PUBLICADO: 'success', ARQUIVADO: 'neutral' };
-const TOM_TIPO: Record<TipoComunicado, CesTone> = { DICA: 'warning', CHANGELOG: 'brand', AVISO: 'info', MANUTENCAO: 'neutral', URGENTE: 'danger' };
+const TOM_STATUS: Record<StatusComunicado, GeoTone> = { RASCUNHO: 'neutral', PUBLICADO: 'success', ARQUIVADO: 'neutral' };
+const TOM_TIPO: Record<TipoComunicado, GeoTone> = { DICA: 'warning', CHANGELOG: 'brand', AVISO: 'info', MANUTENCAO: 'neutral', URGENTE: 'danger' };
 const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', PUBLICADO: 'pi-megaphone', ARQUIVADO: 'pi-inbox' };
 
 @Component({
@@ -62,26 +62,26 @@ const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', 
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesDrawerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoDrawerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Comunicados"
         icon="pi pi-megaphone"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'Comunicação' }, { label: 'Comunicados' }]"
@@ -89,20 +89,20 @@ const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', 
         helpLabel="Ajuda sobre comunicados"
         (help)="ajuda.show()"
       >
-        <ces-button actions icon="pi pi-plus" label="Novo comunicado" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions icon="pi pi-plus" label="Novo comunicado" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="comunicados" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="comunicados" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo"></ces-select>
-          <ces-select label="Status" [options]="status" [(value)]="lista.filters.status"></ces-select>
-          <ces-select label="Confirmação de leitura" [options]="confirmacao" [(value)]="lista.filters.exigeConfirmacao"></ces-select>
-          <ces-select label="Situação do registro" [options]="situacao" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo"></geo-select>
+          <geo-select label="Status" [options]="status" [(value)]="lista.filters.status"></geo-select>
+          <geo-select label="Confirmação de leitura" [options]="confirmacao" [(value)]="lista.filters.exigeConfirmacao"></geo-select>
+          <geo-select label="Situação do registro" [options]="situacao" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Comunicados"
         mode="server"
         storageKey="comunicados"
@@ -132,41 +132,41 @@ const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', 
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="titulo" let-row>
-          <span class="ces-cell-strong">
+        <ng-template geoCell="titulo" let-row>
+          <span class="geo-cell-strong">
             <i [class]="icone(row)" aria-hidden="true"></i> {{ row.titulo }}
             @if (row.fixado) {
               <i class="pi pi-thumbtack" aria-label="Fixado no topo"></i>
             }
             @if (row.anexos?.length) {
-              <span class="ces-cell-muted"><i class="pi pi-paperclip" aria-hidden="true"></i> {{ row.anexos.length }}</span>
+              <span class="geo-cell-muted"><i class="pi pi-paperclip" aria-hidden="true"></i> {{ row.anexos.length }}</span>
             }
           </span>
           @if (row.resumo) {
-            <span class="ces-cell-muted">{{ row.resumo }}</span>
+            <span class="geo-cell-muted">{{ row.resumo }}</span>
           }
-          <span class="ces-cell-chips"><ces-status [tone]="tomTipo(row.tipo)" [icon]="iconeTipo[row.tipo]">{{ row.tipoRotulo }}</ces-status></span>
+          <span class="geo-cell-chips"><geo-status [tone]="tomTipo(row.tipo)" [icon]="iconeTipo[row.tipo]">{{ row.tipoRotulo }}</geo-status></span>
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tomStatus(row.status)" [icon]="iconeStatus[row.status]" [emphasis]="row.status === 'ARQUIVADO' ? 'outline' : 'soft'">{{ row.statusRotulo }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="tomStatus(row.status)" [icon]="iconeStatus[row.status]" [emphasis]="row.status === 'ARQUIVADO' ? 'outline' : 'soft'">{{ row.statusRotulo }}</geo-status>
         </ng-template>
-        <ng-template cesCell="vigencia" let-row>
-          <ces-status [tone]="vigencia(row).tom" emphasis="outline" [icon]="vigencia(row).icone">{{ vigencia(row).rotulo }}</ces-status>
+        <ng-template geoCell="vigencia" let-row>
+          <geo-status [tone]="vigencia(row).tom" emphasis="outline" [icon]="vigencia(row).icone">{{ vigencia(row).rotulo }}</geo-status>
           @if (row.dataInicio) {
-            <span class="ces-cell-muted">de {{ quando(row.dataInicio) }}</span>
+            <span class="geo-cell-muted">de {{ quando(row.dataInicio) }}</span>
           }
           @if (row.dataFim) {
-            <span class="ces-cell-muted">até {{ quando(row.dataFim) }}</span>
+            <span class="geo-cell-muted">até {{ quando(row.dataFim) }}</span>
           }
         </ng-template>
-        <ng-template cesCell="publico" let-row>
-          <span class="ces-cell-chips">
+        <ng-template geoCell="publico" let-row>
+          <span class="geo-cell-chips">
             @for (segmento of row.segmentos; track segmento.id) {
-              <ces-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo(segmento) }}</ces-status>
+              <geo-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo(segmento) }}</geo-status>
             }
           </span>
         </ng-template>
-        <ng-template cesCell="entrega" let-row>
+        <ng-template geoCell="entrega" let-row>
           @if (row.notificarNoSininho) {
             <span><i class="pi pi-bell" aria-hidden="true"></i> Sino</span>
           }
@@ -174,70 +174,70 @@ const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', 
             <span><i class="pi pi-verified" aria-hidden="true"></i> Exige confirmação</span>
           }
           @if (!row.notificarNoSininho && !row.exigeConfirmacao) {
-            <span class="ces-cell-muted">Somente no mural</span>
+            <span class="geo-cell-muted">Somente no mural</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (row.status === 'RASCUNHO') {
-              <ces-icon-button icon="pi pi-send" [label]="'Publicar ' + row.titulo" size="icon-sm" (pressed)="abrirPublicacao(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-send" [label]="'Publicar ' + row.titulo" size="icon-sm" (pressed)="abrirPublicacao(row)"></geo-icon-button>
             }
             @if (row.status === 'PUBLICADO') {
-              <ces-icon-button icon="pi pi-inbox" [label]="'Arquivar ' + row.titulo" size="icon-sm" (pressed)="arquivar(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-inbox" [label]="'Arquivar ' + row.titulo" size="icon-sm" (pressed)="arquivar(row)"></geo-icon-button>
             }
             @if (row.exigeConfirmacao) {
-              <ces-icon-button icon="pi pi-verified" [label]="'Relatório de confirmação de ' + row.titulo" size="icon-sm" (pressed)="abrirRelatorio(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-verified" [label]="'Relatório de confirmação de ' + row.titulo" size="icon-sm" (pressed)="abrirRelatorio(row)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + row.titulo" size="icon-sm" (pressed)="remover(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + row.titulo" size="icon-sm" (pressed)="remover(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="publicacaoAberta" title="Publicar comunicado" [description]="selecionado()?.titulo" [dirty]="!!(inicio() || fim())" size="sm">
-      <ces-callout tone="info">Sem início, o comunicado entra no ar agora. Com início futuro ele já fica publicado e aparece quando a janela começar.</ces-callout>
-      <ces-datepicker label="Início da vigência" [showTime]="true" [(value)]="inicio" [clearable]="true" [showOptional]="true" placeholder="Publicar agora"></ces-datepicker>
-      <ces-datepicker label="Fim da vigência" [showTime]="true" [(value)]="fim" [clearable]="true" [showOptional]="true" placeholder="Até arquivar"
-        [minDate]="inicio()" [error]="erroPeriodo()"></ces-datepicker>
+    <geo-form-drawer [(visible)]="publicacaoAberta" title="Publicar comunicado" [description]="selecionado()?.titulo" [dirty]="!!(inicio() || fim())" size="sm">
+      <geo-callout tone="info">Sem início, o comunicado entra no ar agora. Com início futuro ele já fica publicado e aparece quando a janela começar.</geo-callout>
+      <geo-datepicker label="Início da vigência" [showTime]="true" [(value)]="inicio" [clearable]="true" [showOptional]="true" placeholder="Publicar agora"></geo-datepicker>
+      <geo-datepicker label="Fim da vigência" [showTime]="true" [(value)]="fim" [clearable]="true" [showOptional]="true" placeholder="Até arquivar"
+        [minDate]="inicio()" [error]="erroPeriodo()"></geo-datepicker>
       @if (selecionado()?.segmentos?.length) {
-        <p class="ces-cell-muted">Será entregue a:</p>
-        <span class="ces-cell-chips">
+        <p class="geo-cell-muted">Será entregue a:</p>
+        <span class="geo-cell-chips">
           @for (segmento of selecionado()!.segmentos; track segmento.id) {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo(segmento) }}</ces-status>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo(segmento) }}</geo-status>
           }
         </span>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Voltar" (pressed)="publicacaoAberta.set(false)"></ces-button>
-        <ces-button icon="pi pi-send" label="Publicar" [loading]="salvando()" (pressed)="publicar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Voltar" (pressed)="publicacaoAberta.set(false)"></geo-button>
+        <geo-button icon="pi pi-send" label="Publicar" [loading]="salvando()" (pressed)="publicar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-drawer [(visible)]="relatorioAberto" title="Relatório de confirmação" [description]="selecionado()?.titulo" size="lg">
+    <geo-drawer [(visible)]="relatorioAberto" title="Relatório de confirmação" [description]="selecionado()?.titulo" size="lg">
       @if (carregandoRelatorio()) {
-        <ces-async-state state="loading" title="Carregando o relatório"></ces-async-state>
+        <geo-async-state state="loading" title="Carregando o relatório"></geo-async-state>
       } @else if (relatorio(); as dados) {
-        <p class="ces-cell-muted">Prova de comunicação para auditoria: o denominador é o total de destinatários.</p>
-        <div class="ces-kpis">
-          <div class="ces-kpi" data-tone="info"><span class="ces-kpi__body"><span class="ces-kpi__label">Destinatários</span><span class="ces-kpi__value">{{ dados.totalDestinatarios }}</span></span></div>
-          <div class="ces-kpi" data-tone="success"><span class="ces-kpi__body"><span class="ces-kpi__label">Confirmaram</span><span class="ces-kpi__value">{{ dados.totalConfirmados }}</span></span></div>
-          <div class="ces-kpi" data-tone="neutral"><span class="ces-kpi__body"><span class="ces-kpi__label">Visualizaram</span><span class="ces-kpi__value">{{ dados.totalVisualizados }}</span></span></div>
-          <div class="ces-kpi" [attr.data-tone]="cobertura() === 100 ? 'success' : 'warning'"><span class="ces-kpi__body"><span class="ces-kpi__label">Cobertura</span><span class="ces-kpi__value">{{ cobertura() }}%</span></span></div>
+        <p class="geo-cell-muted">Prova de comunicação para auditoria: o denominador é o total de destinatários.</p>
+        <div class="geo-kpis">
+          <div class="geo-kpi" data-tone="info"><span class="geo-kpi__body"><span class="geo-kpi__label">Destinatários</span><span class="geo-kpi__value">{{ dados.totalDestinatarios }}</span></span></div>
+          <div class="geo-kpi" data-tone="success"><span class="geo-kpi__body"><span class="geo-kpi__label">Confirmaram</span><span class="geo-kpi__value">{{ dados.totalConfirmados }}</span></span></div>
+          <div class="geo-kpi" data-tone="neutral"><span class="geo-kpi__body"><span class="geo-kpi__label">Visualizaram</span><span class="geo-kpi__value">{{ dados.totalVisualizados }}</span></span></div>
+          <div class="geo-kpi" [attr.data-tone]="cobertura() === 100 ? 'success' : 'warning'"><span class="geo-kpi__body"><span class="geo-kpi__label">Cobertura</span><span class="geo-kpi__value">{{ cobertura() }}%</span></span></div>
         </div>
-        <ces-data-table [caption]="'Confirmados (' + dados.confirmados.length + ')'" [columns]="colunasConfirmados" [rows]="dados.confirmados"
-          [rowKey]="chavePessoa" [state]="dados.confirmados.length ? 'ready' : 'empty'" stateTitle="Ninguém confirmou ainda"></ces-data-table>
-        <ces-data-table [caption]="'Pendentes (' + dados.pendentes.length + ') · ' + abriramSemConfirmar() + ' abriram sem confirmar'" [columns]="colunasPendentes"
+        <geo-data-table [caption]="'Confirmados (' + dados.confirmados.length + ')'" [columns]="colunasConfirmados" [rows]="dados.confirmados"
+          [rowKey]="chavePessoa" [state]="dados.confirmados.length ? 'ready' : 'empty'" stateTitle="Ninguém confirmou ainda"></geo-data-table>
+        <geo-data-table [caption]="'Pendentes (' + dados.pendentes.length + ') · ' + abriramSemConfirmar() + ' abriram sem confirmar'" [columns]="colunasPendentes"
           [rows]="dados.pendentes" [rowKey]="chavePessoa" [state]="dados.pendentes.length ? 'ready' : 'empty'" stateTitle="Todos confirmaram">
-          <ng-template cesCell="situacao" let-row>
+          <ng-template geoCell="situacao" let-row>
             @if (row.visualizadoEm) {
-              <ces-status tone="warning" [title]="'Abriu em ' + quando(row.visualizadoEm)" icon="pi-eye">Abriu, não confirmou</ces-status>
+              <geo-status tone="warning" [title]="'Abriu em ' + quando(row.visualizadoEm)" icon="pi-eye">Abriu, não confirmou</geo-status>
             } @else {
-              <ces-status tone="neutral" emphasis="outline" icon="pi-eye-slash">Nunca abriu</ces-status>
+              <geo-status tone="neutral" emphasis="outline" icon="pi-eye-slash">Nunca abriu</geo-status>
             }
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-drawer>
+    </geo-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Comunicados" entidadePlural="comunicados" busca="título ou resumo" rotuloNovo="Novo comunicado">
       <div class="help-section">
@@ -255,7 +255,7 @@ export class ComunicadosComponent {
   private readonly service = inject(ComunicadosService);
   private readonly usuarios = inject(UsuariosService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacaoDialogo = inject(CesConfirmationService);
+  private readonly confirmacaoDialogo = inject(GeoConfirmationService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -267,13 +267,13 @@ export class ComunicadosComponent {
   /** Logins dos usuários citados nos segmentos da página. */
   private readonly logins = signal<Record<string, string>>({});
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'comunicados',
     filters: {
-      tipo: cesFilter.value<TipoComunicado | null>(null, { label: 'Tipo', type: 'string', options: () => TIPOS }),
-      status: cesFilter.value<StatusComunicado | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
-      exigeConfirmacao: cesFilter.value<boolean | null>(null, { label: 'Confirmação', param: 'confirmacao', options: () => CONFIRMACAO }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Situação', param: 'situacao', options: () => SITUACAO })
+      tipo: geoFilter.value<TipoComunicado | null>(null, { label: 'Tipo', type: 'string', options: () => TIPOS }),
+      status: geoFilter.value<StatusComunicado | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
+      exigeConfirmacao: geoFilter.value<boolean | null>(null, { label: 'Confirmação', param: 'confirmacao', options: () => CONFIRMACAO }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Situação', param: 'situacao', options: () => SITUACAO })
     },
     sort: [{ key: 'criado', direction: 'desc' }]
   });
@@ -282,7 +282,7 @@ export class ComunicadosComponent {
   protected readonly exportar = (_evento: unknown, limite: number) =>
     this.service.listar({ ...this.filtro(this.lista.request()), page: 0, size: limite }).pipe(map((r) => r.content));
 
-  protected readonly colunas: CesDataTableColumn<ComunicadoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<ComunicadoResponse>[] = [
     { key: 'titulo', header: 'Comunicado', type: 'custom', priority: 1, sortField: 'titulo', value: (c) => c.titulo, display: (c) => c.titulo },
     { key: 'apresentacao', header: 'Apresentação', value: (c) => c.apresentacaoRotulo, display: (c) => c.apresentacaoRotulo },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, value: (c) => c.status, display: (c) => c.statusRotulo },
@@ -315,11 +315,11 @@ export class ComunicadosComponent {
   });
   protected readonly abriramSemConfirmar = computed(() => this.relatorio()?.pendentes.filter((p) => !!p.visualizadoEm).length ?? 0);
   protected readonly chavePessoa = (p: { idUsuario: string }) => p.idUsuario;
-  protected readonly colunasConfirmados: CesDataTableColumn<RelatorioConfirmacaoResponse['confirmados'][number]>[] = [
+  protected readonly colunasConfirmados: GeoDataTableColumn<RelatorioConfirmacaoResponse['confirmados'][number]>[] = [
     { key: 'login', header: 'Usuário', priority: 1 },
     { key: 'confirmadoEm', header: 'Confirmou em', value: (p) => p.confirmadoEm, display: (p) => formatarDataHora(p.confirmadoEm) }
   ];
-  protected readonly colunasPendentes: CesDataTableColumn<RelatorioConfirmacaoResponse['pendentes'][number]>[] = [
+  protected readonly colunasPendentes: GeoDataTableColumn<RelatorioConfirmacaoResponse['pendentes'][number]>[] = [
     { key: 'login', header: 'Usuário', priority: 1 },
     { key: 'situacao', header: 'Situação', type: 'custom', value: (p) => (p.visualizadoEm ? 'Abriu' : 'Nunca abriu') }
   ];
@@ -367,16 +367,16 @@ export class ComunicadosComponent {
   protected readonly iconeTipo: Record<string, string> = TIPO_COMUNICADO_ICONES;
   protected readonly iconeStatus: Record<string, string> = ICONE_STATUS;
 
-  protected tomTipo(t: TipoComunicado): CesTone {
+  protected tomTipo(t: TipoComunicado): GeoTone {
     return TOM_TIPO[t] ?? 'neutral';
   }
 
-  protected tomStatus(s: StatusComunicado): CesTone {
+  protected tomStatus(s: StatusComunicado): GeoTone {
     return TOM_STATUS[s] ?? 'neutral';
   }
 
   /** Não existe status "agendado": os indicadores vêm prontos do servidor. */
-  protected vigencia(c: ComunicadoResponse): { rotulo: string; tom: CesTone; icone: string } {
+  protected vigencia(c: ComunicadoResponse): { rotulo: string; tom: GeoTone; icone: string } {
     if (c.status !== 'PUBLICADO') return { rotulo: '—', tom: 'neutral', icone: 'pi-minus' };
     if (c.agendado) return { rotulo: 'Agendado', tom: 'warning', icone: 'pi-calendar-clock' };
     if (c.vigente) return { rotulo: 'No ar', tom: 'success', icone: 'pi-eye' };

@@ -3,17 +3,17 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesChartComponent,
-  CesChartPointSelection,
-  CesChartSeries,
-  CesDatepickerComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoChartComponent,
+  GeoChartPointSelection,
+  GeoChartSeries,
+  GeoDatepickerComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 import { catchError, map, of, startWith, switchMap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { BarraGantt, EquipePainelProgramacao, PainelProgramacao } from '../../../core/models/obras-programacao.models';
@@ -53,13 +53,13 @@ const SEMANA_CURTA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
   imports: [
     DatePipe,
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesChartComponent,
-    CesDatepickerComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoChartComponent,
+    GeoDatepickerComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
     DashboardInsightPanelComponent,
     DashboardMetricCardComponent,
     ProgramacaoDetalheComponent,
@@ -87,8 +87,8 @@ export class ProgramacaoPainelComponent {
   protected readonly fim = signal<Date>(dataDaUrl(this.params.get('fim')) ?? periodoRapido('mes').fim);
   protected readonly idBase = signal<string | null>(this.params.get('base'));
   protected readonly idTipoEquipe = signal<string | null>(this.params.get('tipo'));
-  protected readonly bases = signal<CesSelectOption<string>[]>([]);
-  protected readonly tipos = signal<CesSelectOption<string>[]>([]);
+  protected readonly bases = signal<GeoSelectOption<string>[]>([]);
+  protected readonly tipos = signal<GeoSelectOption<string>[]>([]);
   private readonly recarga = signal(0);
 
   protected readonly estado = signal<{ carregando: boolean; erro: string | null; painel: PainelProgramacao | null }>({ carregando: true, erro: null, painel: null });
@@ -117,7 +117,7 @@ export class ProgramacaoPainelComponent {
 
   protected readonly serieTempo = computed(() => {
     const d = this.d();
-    if (!d) return { rotulos: [] as string[], series: [] as CesChartSeries[] };
+    if (!d) return { rotulos: [] as string[], series: [] as GeoChartSeries[] };
     const semanal = d.agrupamentoSerie === 'SEMANA';
     return {
       rotulos: d.serie.map((p) => (semanal ? 'Sem. ' : '') + p.data.slice(0, 5)),
@@ -130,7 +130,7 @@ export class ProgramacaoPainelComponent {
 
   protected readonly serieSituacao = computed(() => {
     const t = this.d()?.totais;
-    if (!t) return { rotulos: [] as string[], series: [] as CesChartSeries[] };
+    if (!t) return { rotulos: [] as string[], series: [] as GeoChartSeries[] };
     const pares: [string, number][] = [
       [SITUACAO_PROGRAMACAO.PROGRAMADA.rotulo, t.programadas],
       [SITUACAO_PROGRAMACAO.EM_ANDAMENTO.rotulo, t.emAndamento],
@@ -261,12 +261,12 @@ export class ProgramacaoPainelComponent {
     });
   }
 
-  protected selecionarDiaDaSerie(evento: CesChartPointSelection): void {
+  protected selecionarDiaDaSerie(evento: GeoChartPointSelection): void {
     const ponto = this.d()?.serie[evento.index];
     if (ponto) this.irParaAgenda({ data: ponto.data });
   }
 
-  protected selecionarBase(evento: CesChartPointSelection): void {
+  protected selecionarBase(evento: GeoChartPointSelection): void {
     const nome = this.d()?.bases[evento.index]?.base;
     const base = this.bases().find((b) => b.label === nome);
     if (base) this.definirBase(base.value);

@@ -6,27 +6,27 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesRowDetailDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDialogShellComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTone,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoRowDetailDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDialogShellComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTone,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, of, switchMap } from 'rxjs';
 
 import { RemoteLookup as BuscaMateriais } from '../../../core/lookup/store/remote-lookup';
@@ -82,12 +82,12 @@ export interface OperacaoCardOption {
   descricao: string;
   rota: string;
   icone: string;
-  badgeTone: CesTone;
+  badgeTone: GeoTone;
   /** Ícone da tag do cartão; complementa o ícone grande da operação. */
   tagIcone: string;
 }
 
-const TIPOS: CesSelectOption<TipoMovimentacao | null>[] = [
+const TIPOS: GeoSelectOption<TipoMovimentacao | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Entrada avulsa', value: 'ENTRADA_AVULSA' },
   { label: 'Baixa avulsa', value: 'BAIXA_AVULSA' },
@@ -99,7 +99,7 @@ const TIPOS: CesSelectOption<TipoMovimentacao | null>[] = [
   { label: 'Aplicação', value: 'APLICACAO' }
 ];
 const OPERACAO_DA_URL: Record<string, TipoOperacaoEstoque> = { entrada: 'ENTRADA', baixa: 'BAIXA', transferencia: 'TRANSFERENCIA' };
-const PROCESSOS: CesSelectOption<ProcessoMovimentacao | null>[] = [
+const PROCESSOS: GeoSelectOption<ProcessoMovimentacao | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Comercial', value: 'COMERCIAL' },
   { label: 'Técnico', value: 'TECNICO' },
@@ -183,21 +183,21 @@ const OPERACOES: OperacaoCardOption[] = [
     DatePipe,
     DecimalPipe,
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesRowDetailDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesDialogShellComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoRowDetailDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoDialogShellComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     CopilotoAreaComponent,
     CopilotoGatilhoComponent,
     AuditDialogComponent,
@@ -209,8 +209,8 @@ const OPERACOES: OperacaoCardOption[] = [
   ],
   template: `
     <app-copiloto-area [contexto]="contextoCopiloto()">
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novaOperacaoAberta.set(true)">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novaOperacaoAberta.set(true)">
+      <geo-page-header
         title="Movimentações de estoque"
         icon="pi pi-arrows-h"
         [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Movimentações de estoque' }]"
@@ -219,38 +219,38 @@ const OPERACOES: OperacaoCardOption[] = [
         (help)="ajuda.show()"
       >
         <app-copiloto-gatilho actions></app-copiloto-gatilho>
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Nova movimentação" [keyShortcut]="atalhos.newShortcut()" (pressed)="novaOperacaoAberta.set(true)"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Nova movimentação" [keyShortcut]="atalhos.newShortcut()" (pressed)="novaOperacaoAberta.set(true)"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="almox-movimentacoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="almox-movimentacoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Estoque" [options]="estoqueOptions()" [(value)]="lista.filters.idEstoque" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-autocomplete label="Material" placeholder="Digite para buscar" [options]="materiaisFiltro.items()" [ngModel]="lista.filters.idMaterial()"
+        <div class="geo-filter-grid">
+          <geo-select label="Estoque" [options]="estoqueOptions()" [(value)]="lista.filters.idEstoque" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-autocomplete label="Material" placeholder="Digite para buscar" [options]="materiaisFiltro.items()" [ngModel]="lista.filters.idMaterial()"
             (ngModelChange)="lista.filters.idMaterial.set($event)" [loading]="materiaisFiltro.loading()" [status]="materiaisFiltro.status()" [minLength]="2" [clearable]="true"
-            (search)="materiaisFiltro.search($event)" (loadMore)="materiaisFiltro.loadNext()" (retry)="materiaisFiltro.retry()"></ces-autocomplete>
-          <ces-select label="Base de origem" [options]="baseOptions()" [(value)]="lista.filters.idBaseOrigem" [clearable]="true" [filter]="true" placeholder="Todas"
-            [loading]="bases.loading()" (opened)="bases.open()" (search)="bases.search($event)"></ces-select>
-          <ces-select label="Base de destino" [options]="baseOptions()" [(value)]="lista.filters.idBaseDestino" [clearable]="true" [filter]="true" placeholder="Todas"
-            [loading]="bases.loading()" (opened)="bases.open()" (search)="bases.search($event)"></ces-select>
-          <ces-select label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo"></ces-select>
-          <ces-select label="Motivo" [options]="motivos" [(value)]="lista.filters.motivo" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Mês/ano"></ces-select>
-          <ces-text-input label="Número de série" [(value)]="lista.filters.numSerie" hint="Não fica salvo no endereço da página."></ces-text-input>
-          <ces-datepicker label="A partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></ces-datepicker>
+            (search)="materiaisFiltro.search($event)" (loadMore)="materiaisFiltro.loadNext()" (retry)="materiaisFiltro.retry()"></geo-autocomplete>
+          <geo-select label="Base de origem" [options]="baseOptions()" [(value)]="lista.filters.idBaseOrigem" [clearable]="true" [filter]="true" placeholder="Todas"
+            [loading]="bases.loading()" (opened)="bases.open()" (search)="bases.search($event)"></geo-select>
+          <geo-select label="Base de destino" [options]="baseOptions()" [(value)]="lista.filters.idBaseDestino" [clearable]="true" [filter]="true" placeholder="Todas"
+            [loading]="bases.loading()" (opened)="bases.open()" (search)="bases.search($event)"></geo-select>
+          <geo-select label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo"></geo-select>
+          <geo-select label="Motivo" [options]="motivos" [(value)]="lista.filters.motivo" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Mês/ano"></geo-select>
+          <geo-text-input label="Número de série" [(value)]="lista.filters.numSerie" hint="Não fica salvo no endereço da página."></geo-text-input>
+          <geo-datepicker label="A partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
       <div class="mov-toolbar">
-        <div class="ces-quick-filters mov-atalhos" role="group" aria-label="Mostrar só o tipo escolhido">
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!lista.applied().tipo" (click)="definirTipo(null)">
+        <div class="geo-quick-filters mov-atalhos" role="group" aria-label="Mostrar só o tipo escolhido">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!lista.applied().tipo" (click)="definirTipo(null)">
             Todas <span class="mov-contagem">{{ contagens()?.total ?? '–' }}</span>
           </button>
           <span class="mov-divisor" aria-hidden="true"></span>
           @for (t of atalhosTipo; track t.value) {
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().tipo === t.value" [attr.data-tone]="tipoTone(t.value)" (click)="definirTipo(t.value)"
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().tipo === t.value" [attr.data-tone]="tipoTone(t.value)" (click)="definirTipo(t.value)"
               [attr.aria-label]="t.label + ': ' + contagemTipo(t.value)">
               <i [class]="tipoIcone(t.value)" aria-hidden="true"></i> {{ t.label }} <span class="mov-contagem">{{ contagemTipo(t.value) }}</span>
             </button>
@@ -263,7 +263,7 @@ const OPERACOES: OperacaoCardOption[] = [
         </div>
       </div>
 
-      <ces-data-table
+      <geo-data-table
         title="Operações"
         mode="server"
         storageKey="almox-movimentacoes"
@@ -290,46 +290,46 @@ const OPERACOES: OperacaoCardOption[] = [
         (emptyAction)="novaOperacaoAberta.set(true)"
         (rowActivate)="verDetalhes($event)"
       >
-        <ng-template cesCell="operacao" let-mov><span class="ces-cell-strong">#{{ mov.idReferenciaOperacao?.substring(0, 8) }}</span></ng-template>
-        <ng-template cesCell="tipo" let-mov><ces-status [tone]="tipoTone(mov.tipo)" [icon]="tipoIcone(mov.tipo)">{{ tipoLabel(mov.tipo) }}</ces-status></ng-template>
-        <ng-template cesRowActions let-mov>
-          <span class="ces-table-actions">
-            <ces-icon-button icon="pi pi-print" [label]="'Imprimir relatório da operação #' + mov.idReferenciaOperacao?.substring(0, 8)" size="icon-sm" (pressed)="imprimir(mov)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações da operação #' + mov.idReferenciaOperacao?.substring(0, 8)" size="icon-sm" (pressed)="showLogs(mov)"></ces-icon-button>
+        <ng-template geoCell="operacao" let-mov><span class="geo-cell-strong">#{{ mov.idReferenciaOperacao?.substring(0, 8) }}</span></ng-template>
+        <ng-template geoCell="tipo" let-mov><geo-status [tone]="tipoTone(mov.tipo)" [icon]="tipoIcone(mov.tipo)">{{ tipoLabel(mov.tipo) }}</geo-status></ng-template>
+        <ng-template geoRowActions let-mov>
+          <span class="geo-table-actions">
+            <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da operação #' + mov.idReferenciaOperacao?.substring(0, 8)" size="icon-sm" (pressed)="imprimir(mov)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da operação #' + mov.idReferenciaOperacao?.substring(0, 8)" size="icon-sm" (pressed)="showLogs(mov)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
     </app-copiloto-area>
 
-    <ces-dialog-shell title="Nova operação de estoque" size="lg" [visible]="novaOperacaoAberta()" (visibleChange)="novaOperacaoAberta.set($event)">
-      <div class="ces-card-grid">
+    <geo-dialog-shell title="Nova operação de estoque" size="lg" [visible]="novaOperacaoAberta()" (visibleChange)="novaOperacaoAberta.set($event)">
+      <div class="geo-card-grid">
         @for (op of operacoes; track op.tipo) {
-          <button type="button" class="ces-choice-card" (click)="navigateToOperation(op.rota)">
-            <span class="ces-choice-card__head">
+          <button type="button" class="geo-choice-card" (click)="navigateToOperation(op.rota)">
+            <span class="geo-choice-card__head">
               <i [class]="op.icone" aria-hidden="true"></i>
-              <ces-status [tone]="op.badgeTone" [icon]="op.tagIcone">{{ op.tag }}</ces-status>
+              <geo-status [tone]="op.badgeTone" [icon]="op.tagIcone">{{ op.tag }}</geo-status>
             </span>
-            <span class="ces-cell-muted">{{ op.subtitulo }}</span>
+            <span class="geo-cell-muted">{{ op.subtitulo }}</span>
             <strong>{{ op.titulo }}</strong>
-            <span class="ces-cell-muted">{{ op.descricao }}</span>
+            <span class="geo-cell-muted">{{ op.descricao }}</span>
           </button>
         }
       </div>
       <div dialog-footer>
-        <ces-button label="Fechar" variant="secondary" size="sm" (pressed)="novaOperacaoAberta.set(false)"></ces-button>
+        <geo-button label="Fechar" variant="secondary" size="sm" (pressed)="novaOperacaoAberta.set(false)"></geo-button>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
 
-    <ces-dialog-shell title="Prévia da movimentação" size="lg" [visible]="detalheVisible()" (visibleChange)="detalheVisible.set($event)"
+    <geo-dialog-shell title="Prévia da movimentação" size="lg" [visible]="detalheVisible()" (visibleChange)="detalheVisible.set($event)"
       [loading]="loadingDetalhe()" loadingLabel="Buscando os itens da operação…">
       @if (operacaoSelecionada(); as op) {
-        <dl class="ces-details-grid">
-          <div><dt>Operação</dt><dd class="ces-cell-strong">#{{ op.idReferenciaOperacao.slice(0, 8) }}</dd></div>
+        <dl class="geo-details-grid">
+          <div><dt>Operação</dt><dd class="geo-cell-strong">#{{ op.idReferenciaOperacao.slice(0, 8) }}</dd></div>
           <div><dt>Data</dt><dd>{{ op.dataHora | date: 'dd/MM/yyyy HH:mm:ss' }}</dd></div>
-          <div><dt>Tipo</dt><dd><ces-status [tone]="tipoTone(op.tipo)" [icon]="tipoIcone(op.tipo)">{{ tipoLabel(op.tipo) }}</ces-status></dd></div>
+          <div><dt>Tipo</dt><dd><geo-status [tone]="tipoTone(op.tipo)" [icon]="tipoIcone(op.tipo)">{{ tipoLabel(op.tipo) }}</geo-status></dd></div>
           @if (op.numeroNota) {
-            <div><dt>Nota</dt><dd class="ces-cell-strong">{{ op.numeroNota }}</dd></div>
+            <div><dt>Nota</dt><dd class="geo-cell-strong">{{ op.numeroNota }}</dd></div>
           }
           @if (op.motivo) {
             <div><dt>Motivo</dt><dd>{{ rotuloMotivo(op.motivo) }}</dd></div>
@@ -340,7 +340,7 @@ const OPERACOES: OperacaoCardOption[] = [
             <dd>
               {{ op.estoqueOrigem?.nomeIdentificador || '—' }}
               @if (op.estoqueOrigem; as origem) {
-                <ces-icon-button icon="pi pi-search" [label]="'Ver saldo de ' + origem.nomeIdentificador" size="icon-sm" (pressed)="abrirSaldoEstoque(origem.id, origem.nomeIdentificador)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-search" [label]="'Ver saldo de ' + origem.nomeIdentificador" size="icon-sm" (pressed)="abrirSaldoEstoque(origem.id, origem.nomeIdentificador)"></geo-icon-button>
               }
             </dd>
           </div>
@@ -349,36 +349,36 @@ const OPERACOES: OperacaoCardOption[] = [
             <dd>
               {{ op.estoqueDestino?.nomeIdentificador || '—' }}
               @if (op.estoqueDestino; as destino) {
-                <ces-icon-button icon="pi pi-search" [label]="'Ver saldo de ' + destino.nomeIdentificador" size="icon-sm" (pressed)="abrirSaldoEstoque(destino.id, destino.nomeIdentificador)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-search" [label]="'Ver saldo de ' + destino.nomeIdentificador" size="icon-sm" (pressed)="abrirSaldoEstoque(destino.id, destino.nomeIdentificador)"></geo-icon-button>
               }
             </dd>
           </div>
         </dl>
         @if (op.observacao) {
-          <p class="ces-detalhe-observacao"><strong>Observação:</strong> {{ op.observacao }}</p>
+          <p class="geo-detalhe-observacao"><strong>Observação:</strong> {{ op.observacao }}</p>
         }
-        <ces-data-table [caption]="itensAgrupados().length + (itensAgrupados().length === 1 ? ' material' : ' materiais') + ' · total ' + (totalSelecionado() | number: '1.0-3')"
+        <geo-data-table [caption]="itensAgrupados().length + (itensAgrupados().length === 1 ? ' material' : ' materiais') + ' · total ' + (totalSelecionado() | number: '1.0-3')"
           searchPlaceholder="Buscar por código, material ou série" [searchable]="itensAgrupados().length > 8"
           [columns]="colunasItens" [rows]="itensAgrupados()" [rowKey]="chaveItem" [rowExpandable]="temSeries" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="descricao" let-g>
-            <span class="ces-cell-strong">{{ g.material?.descricao }}</span>
+          <ng-template geoCell="descricao" let-g>
+            <span class="geo-cell-strong">{{ g.material?.descricao }}</span>
             @if (g.series.length) {
-              <ces-status tone="brand" icon="pi pi-barcode">{{ g.series.length }} {{ g.series.length === 1 ? 'série' : 'séries' }}</ces-status>
+              <geo-status tone="brand" icon="pi pi-barcode">{{ g.series.length }} {{ g.series.length === 1 ? 'série' : 'séries' }}</geo-status>
             }
           </ng-template>
-          <ng-template cesCell="condicao" let-g><ces-status [tone]="tomCondicao(g.condicao)" [icon]="iconeCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</ces-status></ng-template>
-          <ng-template cesRowDetail let-g>
+          <ng-template geoCell="condicao" let-g><geo-status [tone]="tomCondicao(g.condicao)" [icon]="iconeCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</geo-status></ng-template>
+          <ng-template geoRowDetail let-g>
             <app-series-grade [series]="g.grade" [rotulo]="'Números de série de ' + g.material?.descricao" />
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-      <div dialog-footer class="ces-actions-row">
+      <div dialog-footer class="geo-actions-row">
         @if (operacaoSelecionada(); as op) {
-          <ces-button variant="link" icon="pi pi-external-link" label="Abrir relatório completo" (pressed)="abrirRelatorio(op.idReferenciaOperacao)"></ces-button>
+          <geo-button variant="link" icon="pi pi-external-link" label="Abrir relatório completo" (pressed)="abrirRelatorio(op.idReferenciaOperacao)"></geo-button>
         }
-        <ces-button label="Fechar" variant="secondary" size="sm" (pressed)="detalheVisible.set(false)"></ces-button>
+        <geo-button label="Fechar" variant="secondary" size="sm" (pressed)="detalheVisible.set(false)"></geo-button>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
 
     <app-operacao-estoque-drawer [(visible)]="operacaoAberta" [tipo]="tipoOperacao()" [estoques]="estoques()" (registrada)="atualizar()" (importar)="abrirImportacao()" />
     <app-devolucao-comercial-drawer [(visible)]="devolucaoComercialAberta" [estoques]="estoques()" (registrada)="atualizar()" />
@@ -401,80 +401,80 @@ const OPERACOES: OperacaoCardOption[] = [
     .mov-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
     .mov-atalhos { flex: 1 1 auto; min-width: 0; }
     .mov-atalhos .pi { font-size: 0.75rem; color: var(--mov-tom, currentColor); }
-    .ces-quick-filter[aria-pressed='true'] .pi { color: inherit; }
+    .geo-quick-filter[aria-pressed='true'] .pi { color: inherit; }
     .mov-contagem {
       display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem;
-      border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted);
+      border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
       font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
     }
-    .ces-quick-filter[aria-pressed='true'] .mov-contagem { background: var(--ces-surface); color: var(--ces-foreground); }
-    .mov-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--ces-border); }
-    [data-tone='warning'] { --mov-tom: var(--ces-warning); }
-    [data-tone='info'] { --mov-tom: var(--ces-info); }
-    [data-tone='success'] { --mov-tom: var(--ces-success); }
-    [data-tone='danger'] { --mov-tom: var(--ces-danger); }
-    [data-tone='brand'] { --mov-tom: var(--ces-primary); }
-    [data-tone='neutral'] { --mov-tom: var(--ces-foreground-subtle); }
-    .mov-processos { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
+    .geo-quick-filter[aria-pressed='true'] .mov-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
+    .mov-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--geo-border); }
+    [data-tone='warning'] { --mov-tom: var(--geo-warning); }
+    [data-tone='info'] { --mov-tom: var(--geo-info); }
+    [data-tone='success'] { --mov-tom: var(--geo-success); }
+    [data-tone='danger'] { --mov-tom: var(--geo-danger); }
+    [data-tone='brand'] { --mov-tom: var(--geo-primary); }
+    [data-tone='neutral'] { --mov-tom: var(--geo-foreground-subtle); }
+    .mov-processos { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
     .mov-processos button {
-      display: inline-flex; align-items: center; min-height: calc(var(--ces-control-height-sm) - 2px); padding: 0 0.75rem;
-      border: 0; border-radius: calc(var(--ces-radius-md) - 2px); background: transparent; color: var(--ces-foreground-muted);
-      font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; min-height: calc(var(--geo-control-height-sm) - 2px); padding: 0 0.75rem;
+      border: 0; border-radius: calc(var(--geo-radius-md) - 2px); background: transparent; color: var(--geo-foreground-muted);
+      font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer;
     }
-    .mov-processos button:hover { color: var(--ces-foreground); }
-    .mov-processos button[aria-pressed='true'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
-    .mov-processos button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .mov-processos button:hover { color: var(--geo-foreground); }
+    .mov-processos button[aria-pressed='true'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
+    .mov-processos button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     @media (max-width: 40rem) {
       .mov-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.625rem; }
       .mov-atalhos { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
       .mov-atalhos::-webkit-scrollbar { display: none; }
-      .mov-atalhos .ces-quick-filter { flex: none; scroll-snap-align: start; }
+      .mov-atalhos .geo-quick-filter { flex: none; scroll-snap-align: start; }
       .mov-processos { width: 100%; }
       .mov-processos button { flex: 1; justify-content: center; }
     }
-    .ces-card-grid {
+    .geo-card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-      gap: var(--ces-space-3, 0.75rem);
+      gap: var(--geo-space-3, 0.75rem);
     }
-    .ces-choice-card {
+    .geo-choice-card {
       display: flex;
       flex-direction: column;
-      gap: var(--ces-space-1, 0.25rem);
-      padding: var(--ces-space-4, 1rem);
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-lg, 0.75rem);
-      background: var(--ces-surface);
-      color: var(--ces-foreground);
+      gap: var(--geo-space-1, 0.25rem);
+      padding: var(--geo-space-4, 1rem);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-lg, 0.75rem);
+      background: var(--geo-surface);
+      color: var(--geo-foreground);
       text-align: left;
       cursor: pointer;
     }
-    .ces-choice-card:hover,
-    .ces-choice-card:focus-visible {
-      border-color: var(--ces-primary, currentColor);
+    .geo-choice-card:hover,
+    .geo-choice-card:focus-visible {
+      border-color: var(--geo-primary, currentColor);
     }
-    .ces-choice-card__head {
+    .geo-choice-card__head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: var(--ces-space-2, 0.5rem);
+      margin-bottom: var(--geo-space-2, 0.5rem);
       font-size: 1.25rem;
     }
-    .ces-detalhe-observacao { margin: 0 0 var(--ces-space-4, 1rem); white-space: pre-line; }
-    .ces-details-grid {
+    .geo-detalhe-observacao { margin: 0 0 var(--geo-space-4, 1rem); white-space: pre-line; }
+    .geo-details-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
-      gap: var(--ces-space-3, 0.75rem);
-      margin: 0 0 var(--ces-space-4, 1rem);
+      gap: var(--geo-space-3, 0.75rem);
+      margin: 0 0 var(--geo-space-4, 1rem);
     }
-    .ces-details-grid dt {
-      color: var(--ces-foreground-muted);
-      font-size: var(--ces-font-caption, 0.75rem);
+    .geo-details-grid dt {
+      color: var(--geo-foreground-muted);
+      font-size: var(--geo-font-caption, 0.75rem);
     }
-    .ces-details-grid dd {
+    .geo-details-grid dd {
       display: flex;
       align-items: center;
-      gap: var(--ces-space-1, 0.25rem);
+      gap: var(--geo-space-1, 0.25rem);
       margin: 0;
     }
   `
@@ -496,7 +496,7 @@ export class MovimentacoesEstoqueComponent {
   protected readonly processos = PROCESSOS;
   protected readonly motivos = MOTIVOS_MOVIMENTACAO;
   protected readonly rotuloMotivo = rotuloMotivo;
-  protected readonly referencias: CesSelectOption<string>[] = generateReferenceOptions(24);
+  protected readonly referencias: GeoSelectOption<string>[] = generateReferenceOptions(24);
   protected readonly dataLocal = dataLocal;
   protected readonly novaOperacaoAberta = signal(false);
   protected readonly importacaoAberta = signal(false);
@@ -506,7 +506,7 @@ export class MovimentacoesEstoqueComponent {
 
   protected readonly estoques = signal<EstoqueResponse[]>([]);
   protected readonly materiais = signal<MaterialResponse[]>([]);
-  protected readonly estoqueOptions = computed<CesSelectOption<string>[]>(() => this.estoques().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
+  protected readonly estoqueOptions = computed<GeoSelectOption<string>[]>(() => this.estoques().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
   protected readonly bases = new RemoteLookup<BaseOperacionalResponse>(
     {
       identify: (b) => b.id,
@@ -515,35 +515,35 @@ export class MovimentacoesEstoqueComponent {
     },
     this.destroyRef
   );
-  protected readonly baseOptions = computed<CesSelectOption<string>[]>(() => this.bases.items().map((b) => ({ label: b.nome, value: b.id })));
+  protected readonly baseOptions = computed<GeoSelectOption<string>[]>(() => this.bases.items().map((b) => ({ label: b.nome, value: b.id })));
   protected readonly materiaisFiltro: BuscaMateriais<string> = new BuscaMateriais<string>({
     loader: ({ query, cursor }) => this.lookupStore.searchMaterials({ query, cursor }),
     selectedValues: () => [this.lista.filters.idMaterial()].filter((id): id is string => !!id),
     destroyRef: this.destroyRef
   });
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'almox-movimentacoes',
     filters: {
-      idEstoque: cesFilter.value<string | null>(null, {
+      idEstoque: geoFilter.value<string | null>(null, {
         label: 'Estoque',
         param: 'estoque',
         format: (id): string | null => (id ? (this.estoques().find((e) => e.id === id)?.nomeIdentificador ?? 'selecionado') : null)
       }),
-      idMaterial: cesFilter.value<string | null>(null, {
+      idMaterial: geoFilter.value<string | null>(null, {
         label: 'Material',
         param: 'material',
         format: (id): string | null => (id ? (this.materiaisFiltro.items().find((m) => m.value === id)?.label ?? 'material selecionado') : null)
       }),
-      idBaseOrigem: cesFilter.value<string | null>(null, { label: 'Base de origem', param: 'baseOrigem', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
-      idBaseDestino: cesFilter.value<string | null>(null, { label: 'Base de destino', param: 'baseDestino', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
-      tipo: cesFilter.value<TipoMovimentacao | null>(null, { label: 'Tipo', options: () => TIPOS }),
-      processo: cesFilter.value<ProcessoMovimentacao | null>(null, { label: 'Processo', options: () => PROCESSOS }),
-      motivo: cesFilter.value<MotivoMovimentacao | null>(null, { label: 'Motivo', options: () => MOTIVOS_MOVIMENTACAO }),
-      referencia: cesFilter.value<string | null>(null, { label: 'Referência', param: 'ref', type: 'string' }),
+      idBaseOrigem: geoFilter.value<string | null>(null, { label: 'Base de origem', param: 'baseOrigem', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
+      idBaseDestino: geoFilter.value<string | null>(null, { label: 'Base de destino', param: 'baseDestino', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
+      tipo: geoFilter.value<TipoMovimentacao | null>(null, { label: 'Tipo', options: () => TIPOS }),
+      processo: geoFilter.value<ProcessoMovimentacao | null>(null, { label: 'Processo', options: () => PROCESSOS }),
+      motivo: geoFilter.value<MotivoMovimentacao | null>(null, { label: 'Motivo', options: () => MOTIVOS_MOVIMENTACAO }),
+      referencia: geoFilter.value<string | null>(null, { label: 'Referência', param: 'ref', type: 'string' }),
       // Nº de série é dado sensível: fica fora da URL.
-      numSerie: cesFilter.value<string>('', { label: 'Nº de série', url: false }),
-      periodo: cesFilter.range({ from: null, to: null }, { label: 'Período' })
+      numSerie: geoFilter.value<string>('', { label: 'Nº de série', url: false }),
+      periodo: geoFilter.range({ from: null, to: null }, { label: 'Período' })
     },
     sort: [{ key: 'data', direction: 'desc' }]
   });
@@ -597,7 +597,7 @@ export class MovimentacoesEstoqueComponent {
     };
   });
 
-  protected readonly colunas: CesDataTableColumn<MovimentacaoOperacaoSummaryResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MovimentacaoOperacaoSummaryResponse>[] = [
     { key: 'operacao', header: 'Operação', type: 'custom', priority: 1, sortField: 'idReferenciaOperacao', value: (m) => m.idReferenciaOperacao },
     {
       key: 'data',
@@ -630,7 +630,7 @@ export class MovimentacoesEstoqueComponent {
   );
   protected readonly chaveItem = (g: ItemMovimentacaoAgrupado) => g.chave;
   protected readonly temSeries = (g: ItemMovimentacaoAgrupado) => g.series.length > 0;
-  protected readonly colunasItens: CesDataTableColumn<ItemMovimentacaoAgrupado>[] = [
+  protected readonly colunasItens: GeoDataTableColumn<ItemMovimentacaoAgrupado>[] = [
     { key: 'codigo', header: 'Código', priority: 1, value: (g) => g.material?.codigo },
     {
       key: 'descricao',
@@ -730,7 +730,7 @@ export class MovimentacoesEstoqueComponent {
     this.lista.filters.periodo.update((atual) => ({ ...atual, [ponta]: dataIso(data) }));
   }
 
-  protected tipoTone(tipo?: string | null): CesTone {
+  protected tipoTone(tipo?: string | null): GeoTone {
     return tomTipoMovimentacao(tipo);
   }
 

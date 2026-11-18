@@ -2,20 +2,20 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Subscription } from 'rxjs';
 import {
   CicloMedicao,
@@ -29,7 +29,7 @@ import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.serv
 import { formatarMoeda } from '../obras-ui';
 import { cabeNoCiclo, competenciaDe, competenciasRecentes, percentualMedido, rotuloCompetencia, somarItens } from './medicoes.logic';
 
-const TIPOS: CesSelectOption<TipoMedicao>[] = [
+const TIPOS: GeoSelectOption<TipoMedicao>[] = [
   { label: 'Parcial: o que está concluído até hoje', value: 'PARCIAL' },
   { label: 'Por ciclo: o concluído até o fim da competência', value: 'CICLO' }
 ];
@@ -43,23 +43,23 @@ const TIPOS: CesSelectOption<TipoMedicao>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesSelectComponent,
-    CesTextareaComponent
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoSelectComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="aberto" [title]="obra() ? 'Medir a obra ' + obra()!.numero : 'Medir obra'" [description]="obra()?.titulo"
+    <geo-form-drawer [(visible)]="aberto" [title]="obra() ? 'Medir a obra ' + obra()!.numero : 'Medir obra'" [description]="obra()?.titulo"
       [dirty]="!!observacao().trim()" size="lg">
       @if (erro(); as mensagem) {
-        <ces-async-state state="error" title="Não foi possível abrir a medição da obra" [description]="mensagem"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível abrir a medição da obra" [description]="mensagem"></geo-async-state>
       } @else if (!obra()) {
-        <ces-async-state state="loading" title="Carregando os serviços a medir" [compact]="true"></ces-async-state>
+        <geo-async-state state="loading" title="Carregando os serviços a medir" [compact]="true"></geo-async-state>
       } @else {
         @let o = obra()!;
         <dl class="medir__saldo">
@@ -71,15 +71,15 @@ const TIPOS: CesSelectOption<TipoMedicao>[] = [
         <a class="medir__link" [routerLink]="['/obras', o.idObra]"><i class="pi pi-building" aria-hidden="true"></i> Ficha da obra</a>
 
         @if (!o.pendentes.length) {
-          <ces-callout tone="success" [dense]="true" title="Nada pendente">
+          <geo-callout tone="success" [dense]="true" title="Nada pendente">
             Todos os serviços concluídos desta obra já foram medidos. As medições geradas estão na aba "Medições geradas".
-          </ces-callout>
+          </geo-callout>
         } @else {
-          <ces-form-section title="Medição" icon="pi pi-calculator">
-            <div class="ces-form-grid">
-              <ces-select label="Tipo" [options]="tipos" [(value)]="tipo" (valueChange)="aoTrocarTipo()"></ces-select>
+          <geo-form-section title="Medição" icon="pi pi-calculator">
+            <div class="geo-form-grid">
+              <geo-select label="Tipo" [options]="tipos" [(value)]="tipo" (valueChange)="aoTrocarTipo()"></geo-select>
               @if (tipo() === 'CICLO') {
-                <ces-select label="Competência" [options]="competencias" [(value)]="competencia" (valueChange)="carregarCiclo()"></ces-select>
+                <geo-select label="Competência" [options]="competencias" [(value)]="competencia" (valueChange)="carregarCiclo()"></geo-select>
               }
             </div>
             @if (tipo() === 'CICLO') {
@@ -91,60 +91,60 @@ const TIPOS: CesSelectOption<TipoMedicao>[] = [
                   <div><dt>Saldo após esta medição</dt><dd>{{ c.saldoAposCiclo != null ? moeda(c.saldoAposCiclo - totalSelecionado()) : '—' }}</dd></div>
                 </dl>
               } @else {
-                <ces-async-state state="loading" title="Calculando o ciclo" [compact]="true"></ces-async-state>
+                <geo-async-state state="loading" title="Calculando o ciclo" [compact]="true"></geo-async-state>
               }
             }
             @if (semValor()) {
-              <ces-callout tone="warning" [dense]="true">
+              <geo-callout tone="warning" [dense]="true">
                 {{ semValor() === 1 ? '1 serviço não tinha valor ao ser programado e entra' : semValor() + ' serviços não tinham valor ao serem programados e entram' }} com valor zero. Confira o valor da ação no contrato antes de medir.
-              </ces-callout>
+              </geo-callout>
             }
-          </ces-form-section>
+          </geo-form-section>
 
-          <ces-form-section title="Serviços" icon="pi pi-list-check"
+          <geo-form-section title="Serviços" icon="pi pi-list-check"
             [description]="tipo() === 'CICLO' ? 'Concluídos até ' + fimDoCiclo() + ' e ainda não medidos.' : 'Concluídos e ainda não medidos. Desmarque o que não vai nesta medição.'">
             @if (disponiveis().length) {
-              <ces-data-table caption="Serviços a medir" [columns]="colunas" [rows]="disponiveis()" [rowKey]="chave" [rowLabel]="rotulo"
+              <geo-data-table caption="Serviços a medir" [columns]="colunas" [rows]="disponiveis()" [rowKey]="chave" [rowLabel]="rotulo"
                 [selectable]="true" [(selection)]="selecionados" [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" exportFileName="servicos-a-medir">
-                <ng-template cesCell="servico" let-row>
-                  <span class="ces-cell-strong">{{ row.descricao }}</span>
-                  <span class="ces-cell-muted">{{ row.codigo }} · {{ row.codigoKit }}</span>
+                <ng-template geoCell="servico" let-row>
+                  <span class="geo-cell-strong">{{ row.descricao }}</span>
+                  <span class="geo-cell-muted">{{ row.codigo }} · {{ row.codigoKit }}</span>
                 </ng-template>
-              </ces-data-table>
+              </geo-data-table>
             } @else {
-              <ces-callout tone="info" [dense]="true">Nenhum serviço foi concluído até o fim de {{ rotuloCompetencia(competencia()) }}.</ces-callout>
+              <geo-callout tone="info" [dense]="true">Nenhum serviço foi concluído até o fim de {{ rotuloCompetencia(competencia()) }}.</geo-callout>
             }
-          </ces-form-section>
+          </geo-form-section>
 
-          <ces-form-section title="Observação" icon="pi pi-comment">
-            <ces-textarea label="Observação" [showOptional]="true" [rows]="2" [maxlength]="1000" [(value)]="observacao"
-              placeholder="Ex.: medição referente à primeira etapa"></ces-textarea>
-          </ces-form-section>
+          <geo-form-section title="Observação" icon="pi pi-comment">
+            <geo-textarea label="Observação" [showOptional]="true" [rows]="2" [maxlength]="1000" [(value)]="observacao"
+              placeholder="Ex.: medição referente à primeira etapa"></geo-textarea>
+          </geo-form-section>
         }
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Fechar" (pressed)="aberto.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Fechar" (pressed)="aberto.set(false)"></geo-button>
         @if (obra()?.pendentes?.length) {
-          <ces-button icon="pi pi-check" [label]="'Gerar medição · ' + moeda(totalSelecionado())" [loading]="gerando()"
-            [disabled]="!selecionados().length" (pressed)="gerar()"></ces-button>
+          <geo-button icon="pi pi-check" [label]="'Gerar medição · ' + moeda(totalSelecionado())" [loading]="gerando()"
+            [disabled]="!selecionados().length" (pressed)="gerar()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
     .medir__saldo { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.75rem; margin: 0 0 0.5rem; }
-    .medir__saldo div { padding: 0.6rem 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
-    .medir__saldo dt { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .medir__saldo div { padding: 0.6rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
+    .medir__saldo dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .medir__saldo dd { margin: 0.15rem 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .medir__saldo small { margin-left: 0.35rem; font-weight: 400; color: var(--ces-foreground-muted); }
+    .medir__saldo small { margin-left: 0.35rem; font-weight: 400; color: var(--geo-foreground-muted); }
     .medir__saldo--ciclo { margin-top: 0.75rem; }
-    .medir__link { display: inline-flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; color: var(--ces-brand); font-size: var(--ces-font-body); }
+    .medir__link { display: inline-flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; color: var(--geo-brand); font-size: var(--geo-font-body); }
   `
 })
 export class MedirObraDrawerComponent {
   private readonly api = inject(ObrasMedicoesService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly aberto = model(false);
@@ -181,7 +181,7 @@ export class MedirObraDrawerComponent {
     return new Date(ano, mes, 0).toLocaleDateString('pt-BR');
   });
 
-  protected readonly colunas: CesDataTableColumn<ItemPendenteMedicao>[] = [
+  protected readonly colunas: GeoDataTableColumn<ItemPendenteMedicao>[] = [
     { key: 'servico', header: 'Serviço', type: 'custom', priority: 1, value: (i) => i.descricao, display: (i) => `${i.descricao ?? ''} (${i.codigo ?? ''})` },
     { key: 'local', header: 'Local', value: (i) => i.local },
     { key: 'quantidade', header: 'Qtd.', type: 'number', value: (i) => i.quantidade, display: (i) => `${i.quantidade.toLocaleString('pt-BR')} ${i.unidade ?? ''}`.trim() },

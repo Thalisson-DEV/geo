@@ -1,4 +1,4 @@
-import { CesSelectOption } from '@ces/ui';
+import { GeoSelectOption } from '@geo/ui';
 import { Observable } from 'rxjs';
 
 import {
@@ -12,16 +12,16 @@ import { PRIORIDADES_OBRA } from '../../../core/models/obras.models';
 import { ObrasKitService } from '../../../core/services/obras-kit.service';
 import { ColunaPlanilha, FonteImportacao, LinhaPlanilha } from './importacao-planilha-obras.component';
 
-const TIPOS_ITEM: CesSelectOption<string>[] = [
+const TIPOS_ITEM: GeoSelectOption<string>[] = [
   { label: 'Serviço', value: 'SERVICO' },
   { label: 'Material', value: 'MATERIAL' }
 ];
-const OPERACOES: CesSelectOption<string>[] = [
+const OPERACOES: GeoSelectOption<string>[] = [
   { label: 'Instalar', value: 'INSTALAR' },
   { label: 'Retirar', value: 'RETIRAR' }
 ];
-const TENSOES: CesSelectOption<string>[] = CLASSES_TENSAO.map((c) => ({ label: c.label, value: c.label }));
-const PRIORIDADES: CesSelectOption<string>[] = PRIORIDADES_OBRA.map((p) => ({ label: p.label, value: p.label }));
+const TENSOES: GeoSelectOption<string>[] = CLASSES_TENSAO.map((c) => ({ label: c.label, value: c.label }));
+const PRIORIDADES: GeoSelectOption<string>[] = PRIORIDADES_OBRA.map((p) => ({ label: p.label, value: p.label }));
 
 /** As linhas tipadas do serviço circulam na pré-visualização genérica como registros de campos. */
 const comoLinhas = <T>(resposta: Observable<PreviaImportacaoObraResponse<T>>) =>
@@ -29,7 +29,7 @@ const comoLinhas = <T>(resposta: Observable<PreviaImportacaoObraResponse<T>>) =>
 const deLinhas = <T>(registros: LinhaPlanilha[]) => registros as unknown as T[];
 
 /** Rótulo de uma opção pelo valor da planilha (aceita o código ou o próprio rótulo). */
-const rotulo = (opcoes: readonly CesSelectOption<string>[], chave: string) => (r: LinhaPlanilha) => {
+const rotulo = (opcoes: readonly GeoSelectOption<string>[], chave: string) => (r: LinhaPlanilha) => {
   const valor = String(r[chave] ?? '').trim();
   if (!valor) return '—';
   return opcoes.find((o) => o.value.toUpperCase() === valor.toUpperCase() || o.label.toUpperCase() === valor.toUpperCase())?.label ?? valor;

@@ -12,57 +12,57 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 1rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg, 0.75rem);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg, 0.75rem);
+  background: var(--geo-surface);
 }
 .resumo__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.resumo__rotulo { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ces-foreground-muted); }
+.resumo__rotulo { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground-muted); }
 .resumo__icone {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-  width: 1.75rem; height: 1.75rem; border-radius: var(--ces-radius-md, 0.5rem);
-  border: 1px solid var(--ces-border); background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.75rem;
+  width: 1.75rem; height: 1.75rem; border-radius: var(--geo-radius-md, 0.5rem);
+  border: 1px solid var(--geo-border); background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.75rem;
 }
-.resumo__valor { display: block; font-size: 1.5rem; font-weight: 700; color: var(--ces-foreground); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.resumo__legenda { font-size: 11px; font-weight: 500; color: var(--ces-foreground-muted); }
+.resumo__valor { display: block; font-size: 1.5rem; font-weight: 700; color: var(--geo-foreground); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.resumo__legenda { font-size: 11px; font-weight: 500; color: var(--geo-foreground-muted); }
 
-.resumo--destaque { border-color: var(--ces-brand); background: var(--ces-brand-soft); }
+.resumo--destaque { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
 .resumo--destaque .resumo__rotulo,
 .resumo--destaque .resumo__valor,
-.resumo--destaque .resumo__icone { color: var(--ces-brand); }
-.resumo--destaque .resumo__icone { border-color: var(--ces-brand); background: transparent; }
+.resumo--destaque .resumo__icone { color: var(--geo-brand); }
+.resumo--destaque .resumo__icone { border-color: var(--geo-brand); background: transparent; }
 
-.resumo--sucesso { border-color: var(--ces-success); background: var(--ces-success-soft); }
+.resumo--sucesso { border-color: var(--geo-success); background: var(--geo-success-soft); }
 .resumo--sucesso .resumo__rotulo,
 .resumo--sucesso .resumo__valor,
-.resumo--sucesso .resumo__icone { color: var(--ces-success-text); }
-.resumo--sucesso .resumo__icone { border-color: var(--ces-success); background: transparent; }
+.resumo--sucesso .resumo__icone { color: var(--geo-success-text); }
+.resumo--sucesso .resumo__icone { border-color: var(--geo-success); background: transparent; }
 
-.resumo--info { border-color: var(--ces-info); background: var(--ces-info-soft); }
+.resumo--info { border-color: var(--geo-info); background: var(--geo-info-soft); }
 .resumo--info .resumo__rotulo,
 .resumo--info .resumo__valor,
-.resumo--info .resumo__icone { color: var(--ces-info-text); }
-.resumo--info .resumo__icone { border-color: var(--ces-info); background: transparent; }
+.resumo--info .resumo__icone { color: var(--geo-info-text); }
+.resumo--info .resumo__icone { border-color: var(--geo-info); background: transparent; }
 
 /* JUSTIFICATIVA */
 .texto-longo {
   margin: 0;
   padding: 0.75rem 1rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg, 0.75rem);
-  background: var(--ces-surface-subtle);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg, 0.75rem);
+  background: var(--geo-surface-subtle);
   font-size: 0.75rem;
   line-height: 1.6;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
 
 /* ÍCONE DA ETAPA */
-.etapa-icone { color: var(--ces-foreground-subtle); }
-.etapa-icone[data-tone='info'] { color: var(--ces-info-text); }
-.etapa-icone[data-tone='success'] { color: var(--ces-success-text); }
-.etapa-icone[data-tone='danger'] { color: var(--ces-danger-text); }
+.etapa-icone { color: var(--geo-foreground-subtle); }
+.etapa-icone[data-tone='info'] { color: var(--geo-info-text); }
+.etapa-icone[data-tone='success'] { color: var(--geo-success-text); }
+.etapa-icone[data-tone='danger'] { color: var(--geo-danger-text); }
 
 /* ANEXOS */
 .anexo {
@@ -70,20 +70,20 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.5rem 0.5rem 0.5rem 0.625rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md, 0.5rem);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md, 0.5rem);
+  background: var(--geo-surface);
   min-width: 0;
 }
 .anexo__icone {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-  width: 2rem; height: 2rem; border-radius: var(--ces-radius-md, 0.5rem);
-  background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.875rem;
+  width: 2rem; height: 2rem; border-radius: var(--geo-radius-md, 0.5rem);
+  background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.875rem;
 }
-.anexo__icone[data-tipo='image'] { background: var(--ces-info-soft); color: var(--ces-info-text); }
-.anexo__icone[data-tipo='pdf'] { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
-.anexo__icone[data-tipo='audio'] { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-.anexo__icone[data-tipo='video'] { background: var(--ces-brand-soft); color: var(--ces-brand); }
+.anexo__icone[data-tipo='image'] { background: var(--geo-info-soft); color: var(--geo-info-text); }
+.anexo__icone[data-tipo='pdf'] { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+.anexo__icone[data-tipo='audio'] { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+.anexo__icone[data-tipo='video'] { background: var(--geo-brand-soft); color: var(--geo-brand); }
 
 .anexo-vazio {
   display: flex;
@@ -92,15 +92,15 @@
   align-items: center;
   gap: 0.25rem;
   padding: 1.5rem 1rem;
-  border: 1px dashed var(--ces-border-strong);
-  border-radius: var(--ces-radius-lg, 0.75rem);
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground-muted);
+  border: 1px dashed var(--geo-border-strong);
+  border-radius: var(--geo-radius-lg, 0.75rem);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
   cursor: pointer;
-  transition: border-color var(--ces-duration-fast, 120ms) var(--ces-ease-standard, ease);
+  transition: border-color var(--geo-duration-fast, 120ms) var(--geo-ease-standard, ease);
 }
-.anexo-vazio:hover { border-color: var(--ces-brand); color: var(--ces-foreground); }
-.anexo-vazio:focus-visible { outline: none; box-shadow: var(--ces-focus-ring); }
+.anexo-vazio:hover { border-color: var(--geo-brand); color: var(--geo-foreground); }
+.anexo-vazio:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); }
 .anexo-vazio:disabled { cursor: progress; opacity: 0.6; }
 
 /* QUADROS DE ASSINATURA (mesmo desenho da solicitação de material) */
@@ -111,15 +111,15 @@
   justify-content: space-between;
   min-height: 9rem;
   padding: 1rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md, 0.5rem);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md, 0.5rem);
+  background: var(--geo-surface);
   text-align: center;
 }
 
 /* Barra de ações: no celular ocupa a largura, com fundo para não sobrepor o texto. */
 .barra-acoes {
-  background: linear-gradient(to top, var(--ces-surface) 70%, transparent);
+  background: linear-gradient(to top, var(--geo-surface) 70%, transparent);
 }
 
 @media (min-width: 768px) {
@@ -130,7 +130,7 @@
 
 :host-context(.app-dark) .barra-acoes,
 :host-context(.dark) .barra-acoes {
-  background: linear-gradient(to top, var(--ces-canvas) 70%, transparent);
+  background: linear-gradient(to top, var(--geo-canvas) 70%, transparent);
 }
 
 @media (min-width: 768px) {
@@ -158,24 +158,24 @@
 }
 
 /* TERMO ASSINADO: o documento que finaliza o desconto, em destaque sobre os comprovantes. */
-.etapa-icone[data-tone='brand'] { color: var(--ces-brand); }
+.etapa-icone[data-tone='brand'] { color: var(--geo-brand); }
 
 .termo-assinado {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 0.75rem 0.75rem 0.875rem;
-  border: 1px solid var(--ces-success);
+  border: 1px solid var(--geo-success);
   border-left-width: 4px;
-  border-radius: var(--ces-radius-lg, 0.75rem);
-  background: var(--ces-success-soft);
-  color: var(--ces-success-text);
+  border-radius: var(--geo-radius-lg, 0.75rem);
+  background: var(--geo-success-soft);
+  color: var(--geo-success-text);
   min-width: 0;
 }
 .termo-assinado__icone {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-  width: 2.25rem; height: 2.25rem; border-radius: var(--ces-radius-md, 0.5rem);
-  border: 1px solid var(--ces-success); background: var(--ces-surface); color: var(--ces-success-text); font-size: 1rem;
+  width: 2.25rem; height: 2.25rem; border-radius: var(--geo-radius-md, 0.5rem);
+  border: 1px solid var(--geo-success); background: var(--geo-surface); color: var(--geo-success-text); font-size: 1rem;
 }
 
 .termo-pendente {
@@ -184,34 +184,34 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   padding: 0.75rem 0.875rem;
-  border: 1px dashed var(--ces-warning);
-  border-radius: var(--ces-radius-lg, 0.75rem);
-  background: var(--ces-warning-soft);
-  color: var(--ces-warning-text);
+  border: 1px dashed var(--geo-warning);
+  border-radius: var(--geo-radius-lg, 0.75rem);
+  background: var(--geo-warning-soft);
+  color: var(--geo-warning-text);
 }
 
 /* ACCORDION (LINHA DO TEMPO): mesmo desenho do histórico da solicitação de material. */
 p-accordion {
   display: block;
   width: 100%;
-  --p-accordion-header-background: var(--ces-surface-subtle);
-  --p-accordion-header-hover-background: var(--ces-surface-muted);
-  --p-accordion-header-active-background: var(--ces-surface-subtle);
-  --p-accordion-header-active-hover-background: var(--ces-surface-muted);
-  --p-accordion-header-color: var(--ces-foreground);
-  --p-accordion-header-active-color: var(--ces-foreground);
-  --p-accordion-header-border-color: var(--ces-border);
-  --p-accordion-content-background: var(--ces-surface);
-  --p-accordion-content-color: var(--ces-foreground);
-  --p-accordion-content-border-color: var(--ces-border);
-  --p-accordion-panel-border-color: var(--ces-border);
+  --p-accordion-header-background: var(--geo-surface-subtle);
+  --p-accordion-header-hover-background: var(--geo-surface-muted);
+  --p-accordion-header-active-background: var(--geo-surface-subtle);
+  --p-accordion-header-active-hover-background: var(--geo-surface-muted);
+  --p-accordion-header-color: var(--geo-foreground);
+  --p-accordion-header-active-color: var(--geo-foreground);
+  --p-accordion-header-border-color: var(--geo-border);
+  --p-accordion-content-background: var(--geo-surface);
+  --p-accordion-content-color: var(--geo-foreground);
+  --p-accordion-content-border-color: var(--geo-border);
+  --p-accordion-panel-border-color: var(--geo-border);
 }
 
 p-accordion-panel {
   display: block;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-xl, 0.75rem);
-  background-color: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-xl, 0.75rem);
+  background-color: var(--geo-surface);
   overflow: hidden;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
 }
@@ -219,14 +219,14 @@ p-accordion-panel {
 p-accordion-header {
   display: block;
   width: 100%;
-  background-color: var(--ces-surface-subtle);
-  color: var(--ces-foreground);
+  background-color: var(--geo-surface-subtle);
+  color: var(--geo-foreground);
   border: none;
 }
 
 p-accordion-content {
   display: block;
-  background-color: var(--ces-surface);
-  color: var(--ces-foreground);
-  border-top: 1px solid var(--ces-border);
+  background-color: var(--geo-surface);
+  color: var(--geo-foreground);
+  border-top: 1px solid var(--geo-border);
 }

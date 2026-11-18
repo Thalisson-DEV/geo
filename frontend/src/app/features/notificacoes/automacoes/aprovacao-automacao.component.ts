@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { CesAsyncStateComponent, CesPageHeaderComponent, NotificationService, CesButtonComponent, CesTextareaComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoPageHeaderComponent, NotificationService, GeoButtonComponent, GeoTextareaComponent } from '@geo/ui';
 
 import { Aprovacao } from '../../../core/models/automacao.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -11,30 +11,30 @@ import { AutomacoesService } from '../../../core/services/automacoes.service';
 @Component({
   selector: 'app-aprovacao-automacao',
   standalone: true,
-  imports: [DatePipe, RouterLink, CesButtonComponent, CesTextareaComponent, CesPageHeaderComponent, CesAsyncStateComponent],
+  imports: [DatePipe, RouterLink, GeoButtonComponent, GeoTextareaComponent, GeoPageHeaderComponent, GeoAsyncStateComponent],
   styleUrls: ['./automacoes.css', './automacoes-campos.css'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut aut-page" style="max-width:48rem">
       @if (!aprovacao()) {
-        @if (erro()) { <ces-async-state state="error" title="Aprovação não encontrada" [description]="erro()!" /> }
-        @else { <ces-async-state state="loading" title="Carregando" /> }
+        @if (erro()) { <geo-async-state state="error" title="Aprovação não encontrada" [description]="erro()!" /> }
+        @else { <geo-async-state state="loading" title="Carregando" /> }
       } @else {
         @let a = aprovacao()!;
-        <ces-page-header [title]="a.titulo" icon="pi pi-check-square" [description]="'Pedido pela automação ' + a.automacaoNome" />
+        <geo-page-header [title]="a.titulo" icon="pi pi-check-square" [description]="'Pedido pela automação ' + a.automacaoNome" />
         <section class="aut-card" style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem">
           <dl class="aut-datalist">
             <div><dt>Pedido em</dt><dd>{{ a.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
             @if (a.expiraEm) { <div><dt>Prazo</dt><dd>{{ a.expiraEm | date: 'dd/MM/yyyy HH:mm' }}</dd></div> }
             <div><dt>Situação</dt><dd>{{ a.status === 'PENDENTE' ? 'Aguardando decisão' : a.status === 'DECIDIDA' ? a.resposta + ' por ' + a.respondidaPor : a.status }}</dd></div>
           </dl>
-          @if (a.detalhes) { <div class="aut-json" style="font-family:inherit;font-size:var(--ces-font-body);white-space:pre-line">{{ a.detalhes }}</div> }
+          @if (a.detalhes) { <div class="aut-json" style="font-family:inherit;font-size:var(--geo-font-body);white-space:pre-line">{{ a.detalhes }}</div> }
           @if (a.podeResponder) {
-            <ces-textarea label="Comentário" [showOptional]="true" [rows]="3" [value]="comentario()" (valueChange)="comentario.set($event)"></ces-textarea>
+            <geo-textarea label="Comentário" [showOptional]="true" [rows]="3" [value]="comentario()" (valueChange)="comentario.set($event)"></geo-textarea>
             <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
               @for (o of a.opcoes; track o; let i = $index) {
-                <ces-button [label]="o" [variant]="i === 0 ? 'primary' : 'outline'" size="sm" [disabled]="enviando()" (pressed)="responder(o)"></ces-button>
+                <geo-button [label]="o" [variant]="i === 0 ? 'primary' : 'outline'" size="sm" [disabled]="enviando()" (pressed)="responder(o)"></geo-button>
               }
             </div>
           } @else if (a.status === 'PENDENTE') {

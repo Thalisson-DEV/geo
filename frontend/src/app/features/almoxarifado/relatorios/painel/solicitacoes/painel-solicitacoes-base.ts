@@ -1,6 +1,6 @@
 import { Directive, WritableSignal, computed, effect, inject, signal } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
-import { CesDataTableColumn, CesFilterChip, CesSelectOption } from '@ces/ui';
+import { GeoDataTableColumn, GeoFilterChip, GeoSelectOption } from '@geo/ui';
 
 import { PainelSolicitacoesResponse, SolicitacaoDoPainel } from '../../../../../core/models/painel-solicitacoes.models';
 import { VistaAnalise } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -79,16 +79,16 @@ export abstract class PainelSolicitacoesBase extends PainelAlmoxBase<PainelSolic
   protected readonly tiposObraSel = signal<string[]>([]);
   protected readonly proprios = signal({ situacoes: [] as string[], etapas: [] as string[], tipos: [] as string[], tiposObra: [] as string[] });
 
-  protected readonly opcoesSituacao: CesSelectOption<string>[] = SITUACOES_FILTRO.map((s) => ({ label: s.rotulo, value: s.valor }));
-  protected readonly opcoesEtapa = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesSituacao: GeoSelectOption<string>[] = SITUACOES_FILTRO.map((s) => ({ label: s.rotulo, value: s.valor }));
+  protected readonly opcoesEtapa = computed<GeoSelectOption<string>[]>(() =>
     [...ETAPAS_ABERTAS[this.modo], 'CONCLUIDO', 'REJEITADO', 'CANCELADO'].map((e) => ({ label: ETAPAS[e as keyof typeof ETAPAS].rotulo, value: e }))
   );
-  protected readonly opcoesTipo: CesSelectOption<string>[] = Object.keys(TIPOS_TECNICOS).map((k) => ({ label: rotuloTipo(k), value: k }));
-  protected readonly opcoesTipoObra: CesSelectOption<string>[] = Object.entries(TIPOS_OBRA).map(([value, label]) => ({ label: label!, value }));
+  protected readonly opcoesTipo: GeoSelectOption<string>[] = Object.keys(TIPOS_TECNICOS).map((k) => ({ label: rotuloTipo(k), value: k }));
+  protected readonly opcoesTipoObra: GeoSelectOption<string>[] = Object.entries(TIPOS_OBRA).map(([value, label]) => ({ label: label!, value }));
 
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const f = this.proprios();
-    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): CesFilterChip[] =>
+    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): GeoFilterChip[] =>
       sel.length ? [{ key, label: `${rotulo}: ${sel.length === 1 ? nome(sel[0]) : `${sel.length} selecionados`}` }] : [];
     return [
       ...chip('situacao', 'Situação', f.situacoes, (v) => SITUACOES_FILTRO.find((s) => s.valor === v)?.rotulo ?? v),
@@ -204,7 +204,7 @@ export abstract class PainelSolicitacoesBase extends PainelAlmoxBase<PainelSolic
   });
 
   // ── Colunas ──────────────────────────────────────────────────────────────────────────────────
-  protected readonly colRanking: CesDataTableColumn<LinhaRanking>[] = [
+  protected readonly colRanking: GeoDataTableColumn<LinhaRanking>[] = [
     { key: 'rotulo', header: 'Nome', priority: 1 },
     { key: 'detalhe', header: 'Base · processo', priority: 3, value: (l) => l.detalhe ?? '—' },
     { key: 'total', header: 'No período', type: 'integer', priority: 1 },
@@ -215,7 +215,7 @@ export abstract class PainelSolicitacoesBase extends PainelAlmoxBase<PainelSolic
     { key: 'cicloMediana', header: 'Ciclo mediano', type: 'custom', priority: 2, value: (l) => l.cicloMediana ?? -1, display: (l) => tempo(l.cicloMediana) },
     { key: 'atendimento', header: 'Qtd. atendida', type: 'custom', priority: 3, value: (l) => l.atendimento ?? -1, display: (l) => percentual(l.atendimento) }
   ];
-  protected readonly colMateriais: CesDataTableColumn<LinhaMaterial>[] = [
+  protected readonly colMateriais: GeoDataTableColumn<LinhaMaterial>[] = [
     { key: 'codigo', header: 'Código', priority: 1 },
     { key: 'descricao', header: 'Material', priority: 1 },
     { key: 'solicitacoes', header: 'Pedidos', type: 'integer', priority: 1 },
@@ -224,7 +224,7 @@ export abstract class PainelSolicitacoesBase extends PainelAlmoxBase<PainelSolic
     { key: 'atendimento', header: '% atendido', type: 'custom', priority: 1, value: (m) => m.atendimento ?? -1, display: (m) => percentual(m.atendimento) },
     { key: 'saldo', header: 'Faltou', type: 'custom', priority: 2, value: (m) => m.saldo, display: (m) => (m.saldo ? `${quantidade(m.saldo)} ${(m.unidade ?? '').toLowerCase()}` : '—') }
   ];
-  protected readonly colAtencao: CesDataTableColumn<SolicitacaoDoPainel>[] = [
+  protected readonly colAtencao: GeoDataTableColumn<SolicitacaoDoPainel>[] = [
     { key: 'dataSolicitacao', header: 'Aberta em', type: 'custom', priority: 1, value: (l) => l.dataSolicitacao, display: (l) => diaHora(l.dataSolicitacao) },
     { key: 'equipe', header: 'Equipe', priority: 1, value: (l) => l.equipe ?? '—' },
     { key: 'obra', header: 'Obra', priority: 2, value: (l) => (l.numeroObra ? `${l.numeroObra}${l.tipoTecnico ? ' · ' + l.tipoTecnico : ''}` : '—') },

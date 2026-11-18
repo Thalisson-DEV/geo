@@ -3,24 +3,24 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTextInputComponent,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTextInputComponent,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { map } from 'rxjs';
 import { MedicaoDetalhe, MedicaoResumo, ObraAMedir, OpcoesMedicoes, StatusMedicao, TipoMedicao } from '../../../core/models/obras-medicoes.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -44,11 +44,11 @@ import {
 
 type Aba = 'a-medir' | 'geradas';
 
-const TIPOS: CesSelectOption<TipoMedicao>[] = [
+const TIPOS: GeoSelectOption<TipoMedicao>[] = [
   { label: 'Parcial', value: 'PARCIAL' },
   { label: 'Por ciclo', value: 'CICLO' }
 ];
-const STATUS: CesSelectOption<StatusMedicao>[] = [
+const STATUS: GeoSelectOption<StatusMedicao>[] = [
   { label: 'Gerada', value: 'GERADA' },
   { label: 'Estornada', value: 'ESTORNADA' }
 ];
@@ -62,83 +62,83 @@ const STATUS: CesSelectOption<StatusMedicao>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent,
     MedicaoDetalheDrawerComponent,
     MedirObraDrawerComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts>
-      <ces-page-header title="Medições" icon="pi pi-calculator"
+    <div class="geo-page" geoListShortcuts>
+      <geo-page-header title="Medições" icon="pi pi-calculator"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Medições' }]"
         description="Serviços concluídos levados à cobrança, com o valor congelado na programação. O que é medido não entra em outra medição."
         helpLabel="Ajuda sobre medições" (help)="ajuda.show()">
-        <ces-button actions label="Pré-fechamento" icon="pi pi-clipboard" variant="outline" (pressed)="ir('/obras/pre-fechamento')"></ces-button>
-        <ces-button actions label="Fechamento de obra" icon="pi pi-file-check" variant="outline" (pressed)="ir('/obras/fechamento')"></ces-button>
-      </ces-page-header>
+        <geo-button actions label="Pré-fechamento" icon="pi pi-clipboard" variant="outline" (pressed)="ir('/obras/pre-fechamento')"></geo-button>
+        <geo-button actions label="Fechamento de obra" icon="pi pi-file-check" variant="outline" (pressed)="ir('/obras/fechamento')"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="obras-medicoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="obras-medicoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))"
         description="Base, município e supervisor valem para as duas abas; os demais, só para a aba aberta.">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base operacional" [options]="opcoesBases()" [(value)]="lista.filters.bases" [clearable]="true" [filter]="true"
-            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Município" [options]="opcoesMunicipios()" [(value)]="lista.filters.municipios" [clearable]="true" [filter]="true"
-            selectedItemsLabel="{0} municípios" [maxSelectedLabels]="2" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Supervisor" [options]="opcoesSupervisores()" [(value)]="lista.filters.supervisores" [clearable]="true" [filter]="true"
-            selectedItemsLabel="{0} supervisores" [maxSelectedLabels]="2" placeholder="Todos"></ces-multiselect>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base operacional" [options]="opcoesBases()" [(value)]="lista.filters.bases" [clearable]="true" [filter]="true"
+            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Município" [options]="opcoesMunicipios()" [(value)]="lista.filters.municipios" [clearable]="true" [filter]="true"
+            selectedItemsLabel="{0} municípios" [maxSelectedLabels]="2" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Supervisor" [options]="opcoesSupervisores()" [(value)]="lista.filters.supervisores" [clearable]="true" [filter]="true"
+            selectedItemsLabel="{0} supervisores" [maxSelectedLabels]="2" placeholder="Todos"></geo-multiselect>
           @if (aba() === 'a-medir') {
-            <ces-multiselect label="Status da obra" [options]="opcoesStatus()" [(value)]="lista.filters.statusObra" [clearable]="true" placeholder="Todos"></ces-multiselect>
-            <ces-multiselect label="Prioridade" [options]="prioridadesOpcoes" [(value)]="lista.filters.prioridades" [clearable]="true" placeholder="Todas"></ces-multiselect>
+            <geo-multiselect label="Status da obra" [options]="opcoesStatus()" [(value)]="lista.filters.statusObra" [clearable]="true" placeholder="Todos"></geo-multiselect>
+            <geo-multiselect label="Prioridade" [options]="prioridadesOpcoes" [(value)]="lista.filters.prioridades" [clearable]="true" placeholder="Todas"></geo-multiselect>
           } @else {
-            <ces-multiselect label="Tipo" [options]="tiposOpcoes" [(value)]="lista.filters.tipos" [clearable]="true" placeholder="Todos"></ces-multiselect>
-            <ces-multiselect label="Situação" [options]="statusOpcoes" [(value)]="lista.filters.status" [clearable]="true" placeholder="Todas"></ces-multiselect>
-            <ces-select label="Competência a partir de" [options]="competencias" [(value)]="lista.filters.competenciaDe" [clearable]="true" placeholder="Qualquer"></ces-select>
-            <ces-select label="Competência até" [options]="competencias" [(value)]="lista.filters.competenciaAte" [clearable]="true" placeholder="Qualquer"></ces-select>
-            <ces-text-input label="Gerada por" placeholder="Login de quem gerou" [value]="lista.filters.usuario()" (valueChange)="lista.filters.usuario.set($event)"></ces-text-input>
-            <ces-datepicker label="Gerada a partir de" [value]="dataLocal(lista.filters.gerada().from)" [clearable]="true" (valueChange)="gerada('from', $event)"></ces-datepicker>
-            <ces-datepicker label="Gerada até" [value]="dataLocal(lista.filters.gerada().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.gerada().from)"
-              (valueChange)="gerada('to', $event)"></ces-datepicker>
+            <geo-multiselect label="Tipo" [options]="tiposOpcoes" [(value)]="lista.filters.tipos" [clearable]="true" placeholder="Todos"></geo-multiselect>
+            <geo-multiselect label="Situação" [options]="statusOpcoes" [(value)]="lista.filters.status" [clearable]="true" placeholder="Todas"></geo-multiselect>
+            <geo-select label="Competência a partir de" [options]="competencias" [(value)]="lista.filters.competenciaDe" [clearable]="true" placeholder="Qualquer"></geo-select>
+            <geo-select label="Competência até" [options]="competencias" [(value)]="lista.filters.competenciaAte" [clearable]="true" placeholder="Qualquer"></geo-select>
+            <geo-text-input label="Gerada por" placeholder="Login de quem gerou" [value]="lista.filters.usuario()" (valueChange)="lista.filters.usuario.set($event)"></geo-text-input>
+            <geo-datepicker label="Gerada a partir de" [value]="dataLocal(lista.filters.gerada().from)" [clearable]="true" (valueChange)="gerada('from', $event)"></geo-datepicker>
+            <geo-datepicker label="Gerada até" [value]="dataLocal(lista.filters.gerada().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.gerada().from)"
+              (valueChange)="gerada('to', $event)"></geo-datepicker>
           }
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <section class="ces-kpis medicoes-kpis" aria-label="Indicadores do que está a medir" aria-live="polite">
-        <div class="ces-kpi" [attr.data-tone]="aMedir().length ? 'info' : 'success'">
-          <span class="ces-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Obras a medir</span>
-            <span class="ces-kpi__value">{{ aMedir().length }}</span>
-            <span class="ces-kpi__detail">Com serviço concluído não medido</span></span>
+      <section class="geo-kpis medicoes-kpis" aria-label="Indicadores do que está a medir" aria-live="polite">
+        <div class="geo-kpi" [attr.data-tone]="aMedir().length ? 'info' : 'success'">
+          <span class="geo-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Obras a medir</span>
+            <span class="geo-kpi__value">{{ aMedir().length }}</span>
+            <span class="geo-kpi__detail">Com serviço concluído não medido</span></span>
         </div>
-        <div class="ces-kpi" data-tone="brand">
-          <span class="ces-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Valor a medir</span>
-            <span class="ces-kpi__value">{{ moeda(valorAMedir()) }}</span>
-            <span class="ces-kpi__detail">{{ servicosAMedir() }} {{ servicosAMedir() === 1 ? 'serviço' : 'serviços' }}</span></span>
+        <div class="geo-kpi" data-tone="brand">
+          <span class="geo-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Valor a medir</span>
+            <span class="geo-kpi__value">{{ moeda(valorAMedir()) }}</span>
+            <span class="geo-kpi__detail">{{ servicosAMedir() }} {{ servicosAMedir() === 1 ? 'serviço' : 'serviços' }}</span></span>
         </div>
-        <div class="ces-kpi" [attr.data-tone]="maisAntiga() ? 'warning' : 'neutral'">
-          <span class="ces-kpi__icon"><i class="pi pi-hourglass" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Esperando medição há mais tempo</span>
-            <span class="ces-kpi__value">{{ maisAntiga()?.ultimaExecucao ?? '—' }}</span>
-            <span class="ces-kpi__detail">{{ maisAntiga() ? 'Obra ' + maisAntiga()!.numero + ', pela última execução' : 'Nada pendente' }}</span></span>
+        <div class="geo-kpi" [attr.data-tone]="maisAntiga() ? 'warning' : 'neutral'">
+          <span class="geo-kpi__icon"><i class="pi pi-hourglass" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Esperando medição há mais tempo</span>
+            <span class="geo-kpi__value">{{ maisAntiga()?.ultimaExecucao ?? '—' }}</span>
+            <span class="geo-kpi__detail">{{ maisAntiga() ? 'Obra ' + maisAntiga()!.numero + ', pela última execução' : 'Nada pendente' }}</span></span>
         </div>
       </section>
 
-      <ces-tabs [value]="aba()" (valueChange)="trocarAba($any($event))" [tabs]="abas()" ariaLabel="Medições">
-        <ng-template cesTabPanel="a-medir">
-          <ces-data-table title="Obras a medir" storageKey="obras-a-medir" exportFileName="obras-a-medir"
+      <geo-tabs [value]="aba()" (valueChange)="trocarAba($any($event))" [tabs]="abas()" ariaLabel="Medições">
+        <ng-template geoTabPanel="a-medir">
+          <geo-data-table title="Obras a medir" storageKey="obras-a-medir" exportFileName="obras-a-medir"
             searchPlaceholder="Obra, título ou município" [rowActionLabel]="podeGerar ? 'Medir' : 'Ver serviços'" rowActionIcon="pi pi-calculator"
             noResultsTitle="Nenhuma obra encontrada com essa busca."
             [columns]="colunasAMedir" [rows]="aMedir()" [rowKey]="chaveObra" [rowLabel]="rotuloObra" [state]="estadoAMedir()"
@@ -146,19 +146,19 @@ const STATUS: CesSelectOption<StatusMedicao>[] = [
             [stateDescription]="erroAMedir() ?? 'Todos os serviços concluídos já foram medidos. A execução apontada pelas equipes aparece aqui quando o serviço é concluído.'"
             [filtered]="recorteObraAtivo()" (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()"
             (rowActivate)="medir($event)">
-            <ng-template cesCell="obra" let-row>
-              <span class="ces-cell-strong">{{ row.numero }}</span>
-              <span class="ces-cell-muted">{{ row.titulo }}</span>
+            <ng-template geoCell="obra" let-row>
+              <span class="geo-cell-strong">{{ row.numero }}</span>
+              <span class="geo-cell-muted">{{ row.titulo }}</span>
             </ng-template>
-            <ng-template cesCell="local" let-row>
+            <ng-template geoCell="local" let-row>
               <span>{{ row.contexto?.municipio ?? '—' }}</span>
-              <span class="ces-cell-muted">{{ local(row) }}</span>
+              <span class="geo-cell-muted">{{ local(row) }}</span>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </ng-template>
 
-        <ng-template cesTabPanel="geradas">
-          <ces-data-table title="Medições geradas" mode="server" storageKey="obras-medicoes" exportFileName="medicoes-obras"
+        <ng-template geoTabPanel="geradas">
+          <geo-data-table title="Medições geradas" mode="server" storageKey="obras-medicoes" exportFileName="medicoes-obras"
             searchPlaceholder="Número da medição (#12), obra ou título" rowActionLabel="Ver medição" rowActionIcon="pi pi-angle-right"
             noResultsTitle="Nenhuma medição encontrada com esse recorte."
             [columns]="colunasGeradas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowLabel]="rotuloMedicao" [state]="resultado.state()"
@@ -167,25 +167,25 @@ const STATUS: CesSelectOption<StatusMedicao>[] = [
             [filtered]="lista.filtered()" [exportRows]="exportar" [exportLimit]="limiteExportacao"
             [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort" [(query)]="lista.query"
             (lazyLoad)="lista.load($event)" (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()" (rowActivate)="verMedicao($event)">
-            <ng-template cesCell="numero" let-row>
-              <span class="ces-cell-strong">#{{ row.numero }}</span>
-              <span class="ces-cell-muted">{{ tipoDe(row) }}</span>
+            <ng-template geoCell="numero" let-row>
+              <span class="geo-cell-strong">#{{ row.numero }}</span>
+              <span class="geo-cell-muted">{{ tipoDe(row) }}</span>
             </ng-template>
-            <ng-template cesCell="obra" let-row>
-              <span class="ces-cell-strong">{{ row.numeroObra }}</span>
-              <span class="ces-cell-muted">{{ row.tituloObra }}</span>
+            <ng-template geoCell="obra" let-row>
+              <span class="geo-cell-strong">{{ row.numeroObra }}</span>
+              <span class="geo-cell-muted">{{ row.tituloObra }}</span>
             </ng-template>
-            <ng-template cesCell="status" let-row>
-              <ces-status [tone]="statusDe(row).tom" [icon]="statusDe(row).icone">{{ statusDe(row).rotulo }}</ces-status>
-              @if (row.status === 'ESTORNADA') { <span class="ces-cell-muted" [title]="row.justificativaEstorno">{{ row.justificativaEstorno }}</span> }
+            <ng-template geoCell="status" let-row>
+              <geo-status [tone]="statusDe(row).tom" [icon]="statusDe(row).icone">{{ statusDe(row).rotulo }}</geo-status>
+              @if (row.status === 'ESTORNADA') { <span class="geo-cell-muted" [title]="row.justificativaEstorno">{{ row.justificativaEstorno }}</span> }
             </ng-template>
-            <ng-template cesCell="gerada" let-row>
+            <ng-template geoCell="gerada" let-row>
               <span>{{ row.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</span>
-              <span class="ces-cell-muted">por {{ row.usuarioCriacao }}</span>
+              <span class="geo-cell-muted">por {{ row.usuarioCriacao }}</span>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </ng-template>
-      </ces-tabs>
+      </geo-tabs>
     </div>
 
     <app-medir-obra-drawer [(aberto)]="medindo" [idObra]="obraEmMedicao()" (gerada)="aoGerar($event)"></app-medir-obra-drawer>
@@ -254,20 +254,20 @@ export class MedicoesComponent {
     { value: 'geradas', label: 'Medições geradas', icon: 'pi pi-history' }
   ]);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-medicoes',
     filters: {
-      bases: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
-      municipios: cesFilter.list<string>([], { label: 'Município', param: 'municipio', itemLabel: (id) => this.nome(this.opcoesMunicipios(), id), countLabel: (n) => `${n} municípios` }),
-      supervisores: cesFilter.list<string>([], { label: 'Supervisor', param: 'supervisor', itemLabel: (id) => this.nome(this.opcoesSupervisores(), id), countLabel: (n) => `${n} supervisores` }),
-      statusObra: cesFilter.list<string>([], { label: 'Status da obra', param: 'statusObra', countLabel: (n) => `${n} status` }),
-      prioridades: cesFilter.list<string>([], { label: 'Prioridade', param: 'prioridade', itemLabel: (v) => PRIORIDADES.find((p) => p.value === v)?.label ?? v }),
-      tipos: cesFilter.list<TipoMedicao>([], { label: 'Tipo', param: 'tipo', itemLabel: (t) => TIPO_MEDICAO[t] }),
-      status: cesFilter.list<StatusMedicao>([], { label: 'Situação', param: 'situacao', itemLabel: (s) => STATUS_MEDICAO[s].rotulo }),
-      competenciaDe: cesFilter.value<string | null>(null, { label: 'Competência de', param: 'de', type: 'string', format: (v): string | null => (v ? rotuloCompetencia(v) : null) }),
-      competenciaAte: cesFilter.value<string | null>(null, { label: 'Competência até', param: 'ate', type: 'string', format: (v): string | null => (v ? rotuloCompetencia(v) : null) }),
-      usuario: cesFilter.value<string>('', { label: 'Gerada por', param: 'usuario', format: (v): string | null => v || null }),
-      gerada: cesFilter.range({ from: null, to: null }, { label: 'Gerada' })
+      bases: geoFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
+      municipios: geoFilter.list<string>([], { label: 'Município', param: 'municipio', itemLabel: (id) => this.nome(this.opcoesMunicipios(), id), countLabel: (n) => `${n} municípios` }),
+      supervisores: geoFilter.list<string>([], { label: 'Supervisor', param: 'supervisor', itemLabel: (id) => this.nome(this.opcoesSupervisores(), id), countLabel: (n) => `${n} supervisores` }),
+      statusObra: geoFilter.list<string>([], { label: 'Status da obra', param: 'statusObra', countLabel: (n) => `${n} status` }),
+      prioridades: geoFilter.list<string>([], { label: 'Prioridade', param: 'prioridade', itemLabel: (v) => PRIORIDADES.find((p) => p.value === v)?.label ?? v }),
+      tipos: geoFilter.list<TipoMedicao>([], { label: 'Tipo', param: 'tipo', itemLabel: (t) => TIPO_MEDICAO[t] }),
+      status: geoFilter.list<StatusMedicao>([], { label: 'Situação', param: 'situacao', itemLabel: (s) => STATUS_MEDICAO[s].rotulo }),
+      competenciaDe: geoFilter.value<string | null>(null, { label: 'Competência de', param: 'de', type: 'string', format: (v): string | null => (v ? rotuloCompetencia(v) : null) }),
+      competenciaAte: geoFilter.value<string | null>(null, { label: 'Competência até', param: 'ate', type: 'string', format: (v): string | null => (v ? rotuloCompetencia(v) : null) }),
+      usuario: geoFilter.value<string>('', { label: 'Gerada por', param: 'usuario', format: (v): string | null => v || null }),
+      gerada: geoFilter.range({ from: null, to: null }, { label: 'Gerada' })
     },
     sort: [{ key: 'numero', direction: 'desc' }]
   });
@@ -306,14 +306,14 @@ export class MedicoesComponent {
   protected readonly exportar = (_evento: unknown, limite: number) =>
     this.api.listar({ ...this.filtro(this.lista.request()), page: 0, size: limite }).pipe(map((r) => r.content));
 
-  protected readonly colunasAMedir: CesDataTableColumn<ObraAMedir>[] = [
+  protected readonly colunasAMedir: GeoDataTableColumn<ObraAMedir>[] = [
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (o) => o.numero, display: (o) => `${o.numero} ${o.titulo}` },
     { key: 'local', header: 'Município', type: 'custom', value: (o) => o.contexto?.municipio, display: (o) => [o.contexto?.municipio, this.local(o)].filter(Boolean).join(' · ') },
     { key: 'servicos', header: 'Serviços', type: 'integer', value: (o) => o.servicos },
     { key: 'valor', header: 'Valor a medir', type: 'currency', priority: 1, value: (o) => o.valor },
     { key: 'ultimaExecucao', header: 'Última execução', value: (o) => o.ultimaExecucao?.split('/').reverse().join('-'), display: (o) => o.ultimaExecucao ?? '—' }
   ];
-  protected readonly colunasGeradas: CesDataTableColumn<MedicaoResumo>[] = [
+  protected readonly colunasGeradas: GeoDataTableColumn<MedicaoResumo>[] = [
     { key: 'numero', header: 'Medição', type: 'custom', priority: 1, sortField: 'numero', value: (m) => m.numero, display: (m) => `#${m.numero} ${TIPO_MEDICAO[m.tipo]}` },
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (m) => m.numeroObra, display: (m) => `${m.numeroObra ?? ''} ${m.tituloObra ?? ''}` },
     { key: 'competencia', header: 'Competência', sortField: 'competencia', value: (m) => m.competencia, display: (m) => rotuloCompetencia(m.competencia) },

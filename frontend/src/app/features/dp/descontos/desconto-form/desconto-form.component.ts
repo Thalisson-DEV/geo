@@ -43,7 +43,7 @@ import { ColaboradorResponse } from '../../../../core/models/rh.models';
 import { ImageModule } from 'primeng/image';
 import { LookupStore } from '../../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../../core/lookup/store/remote-lookup';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 import { NavigationHistoryService, createFormDraft } from '../../../../core/navigation';
 
 interface EtapaDesconto {
@@ -81,7 +81,7 @@ interface AnexoPreview {
     ProgressSpinnerModule,
     HelpDialogComponent,
     DateMaskDirective,
-    CesAutocompleteComponent
+    GeoAutocompleteComponent
   ],
   templateUrl: './desconto-form.component.html',
   styles: [`

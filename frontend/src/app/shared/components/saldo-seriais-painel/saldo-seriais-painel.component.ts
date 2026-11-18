@@ -2,7 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, model, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Subscription, debounceTime, distinctUntilChanged, skip } from 'rxjs';
-import { CesButtonComponent, CesTextInputComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoTextInputComponent } from '@geo/ui';
 
 import { SaldoSerieResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -20,7 +20,7 @@ const TAMANHO_PAGINA = 60;
 @Component({
   selector: 'app-saldo-seriais-painel',
   standalone: true,
-  imports: [DecimalPipe, CesButtonComponent, CesTextInputComponent, SeriesGradeComponent],
+  imports: [DecimalPipe, GeoButtonComponent, GeoTextInputComponent, SeriesGradeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './saldo-seriais-painel.component.css',
   template: `
@@ -40,7 +40,7 @@ const TAMANHO_PAGINA = 60;
         </div>
         @if (mostrarBusca()) {
           <div class="seriais__busca print:hidden">
-            <ces-text-input
+            <geo-text-input
               label="Filtrar números de série"
               [labelVisible]="false"
               placeholder="Filtrar número de série..."
@@ -64,7 +64,7 @@ const TAMANHO_PAGINA = 60;
       @if (erro()) {
         <div class="seriais__estado" role="alert">
           <span>{{ erro() }}</span>
-          <ces-button label="Tentar novamente" icon="pi pi-refresh" size="sm" variant="outline" (pressed)="recarregar()" />
+          <geo-button label="Tentar novamente" icon="pi pi-refresh" size="sm" variant="outline" (pressed)="recarregar()" />
         </div>
       } @else if (carregando() && !seriais().length) {
         <ul class="seriais__esqueleto" aria-hidden="true">
@@ -80,7 +80,7 @@ const TAMANHO_PAGINA = 60;
         <app-series-grade [series]="grade()" [rotulo]="'Números de série de ' + descricao()" />
         @if (restantes() > 0) {
           <div class="seriais__mais print:hidden">
-            <ces-button
+            <geo-button
               [label]="'Mostrar mais ' + proximos() + ' de ' + restantes()"
               icon="pi pi-angle-down"
               size="sm"

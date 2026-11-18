@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -45,7 +45,7 @@ describe('ConectarIaComponent', () => {
       disconnect(): void {}
     };
     servico = {
-      info: vi.fn(() => of({ urlServidor: 'https://ces.exemplo/api/mcp', podeEscrever: true, ferramentas: 10, ferramentasEscrita: 2 })),
+      info: vi.fn(() => of({ urlServidor: 'https://geo.exemplo/api/mcp', podeEscrever: true, ferramentas: 10, ferramentasEscrita: 2 })),
       listar: vi.fn(() => of([conexao])),
       listarTodas: vi.fn(() => paginaTeste([{ ...conexao, id: 'c2', usuarioLogin: 'USR123456' }])),
       desconectar: vi.fn(() => of(conexao))
@@ -75,12 +75,12 @@ describe('ConectarIaComponent', () => {
     await harness.fixture.whenStable();
     expect(document.body.textContent).toContain('Copie o endereço do GEO');
     const enderecos = Array.from(document.body.querySelectorAll<HTMLInputElement>('input[readonly]')).map((i) => i.value);
-    expect(enderecos).toContain('https://ces.exemplo/api/mcp');
+    expect(enderecos).toContain('https://geo.exemplo/api/mcp');
   });
 
   it('desconecta depois da confirmação e recarrega a lista', async () => {
     const { el, harness } = await abrir();
-    const confirmar = vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    const confirmar = vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     (el.querySelector('button[aria-label="Desconectar Claude"]') as HTMLButtonElement).click();
     await harness.fixture.whenStable();
     expect(confirmar).toHaveBeenCalledWith(expect.objectContaining({ variant: 'destructive', confirmLabel: 'Desconectar' }));

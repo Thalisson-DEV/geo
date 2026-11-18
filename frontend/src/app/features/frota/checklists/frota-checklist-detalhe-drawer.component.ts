@@ -1,7 +1,7 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import {
   ChecklistDetalhe,
   FotoChecklist,
@@ -21,7 +21,7 @@ export const ROTULO_PENDENCIA: Record<SituacaoPendenciaChecklist, string> = {
   RESOLVIDA_NA_HORA: 'Resolvido na hora',
   DESCARTADA: 'Descartado'
 };
-export const TOM_PENDENCIA: Record<SituacaoPendenciaChecklist, CesTone> = {
+export const TOM_PENDENCIA: Record<SituacaoPendenciaChecklist, GeoTone> = {
   ABERTA: 'warning',
   OS_ABERTA: 'info',
   RESOLVIDA_NA_HORA: 'success',
@@ -49,57 +49,57 @@ interface Grupo {
   selector: 'app-frota-checklist-detalhe-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, NgTemplateOutlet, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent,
+  imports: [DatePipe, NgTemplateOutlet, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent,
     FrotaResumoAssistenteComponent],
   styleUrls: ['../abastecimentos/frota-abastecimento-detalhe-drawer.component.css'],
   styles: `
     .chk-problemas { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.75rem; }
-    .chk-problema { display: grid; gap: 0.5rem; padding: 0.875rem 1rem; border: 1px solid var(--ces-border); border-left: 3px solid var(--ces-warning);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-    .chk-problema[data-decidido='true'] { border-left-color: var(--ces-border-strong); }
+    .chk-problema { display: grid; gap: 0.5rem; padding: 0.875rem 1rem; border: 1px solid var(--geo-border); border-left: 3px solid var(--geo-warning);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+    .chk-problema[data-decidido='true'] { border-left-color: var(--geo-border-strong); }
     .chk-problema__topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
     .chk-problema__pergunta { display: grid; gap: 0.125rem; }
-    .chk-problema__pergunta strong { font-size: var(--ces-font-body); }
-    .chk-problema__motivo { color: var(--ces-warning-text); font-weight: 700; }
-    .chk-problema__comentario { margin: 0; padding-left: 0.625rem; border-left: 2px solid var(--ces-border); color: var(--ces-foreground-muted); font-style: italic; }
-    .chk-problema__historico { display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; margin: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .chk-problema__pergunta strong { font-size: var(--geo-font-body); }
+    .chk-problema__motivo { color: var(--geo-warning-text); font-weight: 700; }
+    .chk-problema__comentario { margin: 0; padding-left: 0.625rem; border-left: 2px solid var(--geo-border); color: var(--geo-foreground-muted); font-style: italic; }
+    .chk-problema__historico { display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .chk-problema__decisao { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;
-      padding-top: 0.5rem; border-top: 1px dashed var(--ces-border); }
+      padding-top: 0.5rem; border-top: 1px dashed var(--geo-border); }
     .chk-problema__decisao a { font-weight: 600; }
     .chk-problema .dd-fotos { grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); }
 
     .chk-folha { display: grid; gap: 1rem; }
     .chk-grupo__titulo { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; margin: 0 0 0.375rem; }
-    .chk-itens { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
+    .chk-itens { list-style: none; margin: 0; padding: 0; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .chk-item { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.5rem 0.875rem; min-height: 2.5rem; }
-    .chk-item + .chk-item { border-top: 1px solid var(--ces-border); }
+    .chk-item + .chk-item { border-top: 1px solid var(--geo-border); }
     .chk-item__pergunta { min-width: 0; }
-    .chk-item__texto { display: block; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); white-space: pre-line; }
+    .chk-item__texto { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); white-space: pre-line; }
     .chk-item[data-problema='true'] .chk-item__pergunta { font-weight: 600; }
     .chk-recebimento .dd-fotos { grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); }
   `,
   template: `
-    <ces-drawer [(visible)]="visible" eyebrow="Checklist do veículo" [title]="titulo()" [description]="subtitulo()" size="lg">
+    <geo-drawer [(visible)]="visible" eyebrow="Checklist do veículo" [title]="titulo()" [description]="subtitulo()" size="lg">
       @if (carregando()) {
         <div class="dd-skeleton" role="status" aria-label="Carregando o checklist"><span></span><span></span><span></span><span></span></div>
       } @else if (erro()) {
-        <ces-async-state state="error" title="Não foi possível carregar o checklist" [description]="erro()!" [compact]="true"
-          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível carregar o checklist" [description]="erro()!" [compact]="true"
+          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
       } @else if (detalhe(); as d) {
         @let r = d.resumo;
         <div class="dd">
           <section class="dd-hero" [attr.data-tone]="resultado().tom" aria-label="Resultado">
             <div class="dd-hero__topo">
-              <ces-status [tone]="resultado().tom" [icon]="'pi ' + resultado().icone" emphasis="solid">{{ resultado().rotulo }}</ces-status>
+              <geo-status [tone]="resultado().tom" [icon]="'pi ' + resultado().icone" emphasis="solid">{{ resultado().rotulo }}</geo-status>
               @if (r.problemas) {
-                <ces-status [tone]="decididos() === r.problemas ? 'success' : 'warning'" [icon]="decididos() === r.problemas ? 'pi pi-check-circle' : 'pi pi-clock'">
+                <geo-status [tone]="decididos() === r.problemas ? 'success' : 'warning'" [icon]="decididos() === r.problemas ? 'pi pi-check-circle' : 'pi pi-clock'">
                   {{ decididos() === r.problemas ? 'Gestor decidiu todos' : decididos() + ' de ' + r.problemas + ' decididos' }}
-                </ces-status>
+                </geo-status>
               }
-              @if (algumRecorrente()) { <ces-status tone="danger" icon="pi pi-history">Problema recorrente</ces-status> }
-              @if (r.passagemVeiculo) { <ces-status tone="info" icon="pi pi-arrow-right-arrow-left">Recebeu o veículo</ces-status> }
-              @if (r.finalidade !== 'USO') { <ces-status tone="neutral" icon="pi pi-clipboard">{{ r.finalidadeRotulo }}, sem condutor</ces-status> }
-              @if (r.avisoCnh) { <ces-status tone="warning" icon="pi pi-id-card">CNH irregular</ces-status> }
+              @if (algumRecorrente()) { <geo-status tone="danger" icon="pi pi-history">Problema recorrente</geo-status> }
+              @if (r.passagemVeiculo) { <geo-status tone="info" icon="pi pi-arrow-right-arrow-left">Recebeu o veículo</geo-status> }
+              @if (r.finalidade !== 'USO') { <geo-status tone="neutral" icon="pi pi-clipboard">{{ r.finalidadeRotulo }}, sem condutor</geo-status> }
+              @if (r.avisoCnh) { <geo-status tone="warning" icon="pi pi-id-card">CNH irregular</geo-status> }
             </div>
             <p class="dd-hero__rota">
               <i class="pi pi-car" aria-hidden="true"></i>
@@ -114,20 +114,20 @@ interface Grupo {
           </section>
 
           @if (r.fotosAChegar) {
-            <ces-callout tone="info" icon="pi pi-mobile" [dense]="true">
+            <geo-callout tone="info" icon="pi pi-mobile" [dense]="true">
               {{ r.fotosAChegar === 1 ? '1 foto ainda está' : r.fotosAChegar + ' fotos ainda estão' }} no celular de quem preencheu. {{ r.fotosAChegar === 1 ? 'Ela chega' : 'Elas chegam' }} assim que o celular tiver sinal.
-            </ces-callout>
+            </geo-callout>
           }
           <app-frota-resumo-assistente alvo="CHECKLIST" [idAlvo]="r.id" [aguardando]="r.fotosAChegar > 0"
             (relatorio)="abrirRelatorio(r.id)"></app-frota-resumo-assistente>
 
           @if (r.avisoCnh) {
-            <ces-callout tone="warning" icon="pi pi-id-card" [dense]="true" title="Assumiu o veículo com a CNH irregular">
+            <geo-callout tone="warning" icon="pi pi-id-card" [dense]="true" title="Assumiu o veículo com a CNH irregular">
               {{ r.avisoCnh }} O checklist vale e o condutor ficou vinculado; o abastecimento fica bloqueado até a renovação ou a liberação do gestor.
-            </ces-callout>
+            </geo-callout>
           }
           @if (d.justificativaLiberacaoCnh) {
-            <ces-callout tone="warning" icon="pi pi-id-card" [dense]="true" title="Dirigiu com liberação de CNH">{{ d.justificativaLiberacaoCnh }}</ces-callout>
+            <geo-callout tone="warning" icon="pi pi-id-card" [dense]="true" title="Dirigiu com liberação de CNH">{{ d.justificativaLiberacaoCnh }}</geo-callout>
           }
 
           <section class="dd-fatos" aria-label="Condutor, medição e itens">
@@ -171,7 +171,7 @@ interface Grupo {
                         @if (p.grupo) { <span class="dd-label">{{ p.grupo }}</span> }
                         <strong>{{ p.pergunta }}</strong>
                       </span>
-                      <ces-status tone="warning" icon="pi pi-exclamation-triangle">{{ rotuloResposta(p) }}</ces-status>
+                      <geo-status tone="warning" icon="pi pi-exclamation-triangle">{{ rotuloResposta(p) }}</geo-status>
                     </div>
                     @if (motivo(p); as m) { <span class="chk-problema__motivo">{{ m }}</span> }
                     @if (p.comentario) { <p class="chk-problema__comentario">“{{ p.comentario }}”</p> }
@@ -185,12 +185,12 @@ interface Grupo {
                     @if (textoHistorico(p.historico); as historico) {
                       <p class="chk-problema__historico">
                         <i class="pi pi-history" aria-hidden="true"></i><span>{{ historico }}</span>
-                        @if (recorrente(p.historico)) { <ces-status tone="danger" emphasis="outline">Recorrente</ces-status> }
+                        @if (recorrente(p.historico)) { <geo-status tone="danger" emphasis="outline">Recorrente</geo-status> }
                       </p>
                     }
                     @if (p.situacaoPendencia; as s) {
                       <div class="chk-problema__decisao">
-                        <ces-status [tone]="tomPendencia[s]" [icon]="'pi ' + iconePendencia[s]">{{ rotuloPendencia[s] }}</ces-status>
+                        <geo-status [tone]="tomPendencia[s]" [icon]="'pi ' + iconePendencia[s]">{{ rotuloPendencia[s] }}</geo-status>
                         @if (p.idOrdemServico) {
                           <a [href]="'/frota/ordens-servico/' + p.idOrdemServico" (click)="$event.preventDefault(); abrirOs(p.idOrdemServico)">Ver a OS {{ p.numeroOrdemServico }} <i class="pi pi-arrow-right" aria-hidden="true"></i></a>
                         } @else if (s === 'ABERTA') {
@@ -225,8 +225,8 @@ interface Grupo {
                           @else if (i.comentario && !i.problema) { <span class="chk-item__texto">“{{ i.comentario }}”</span> }
                         </span>
                         @if (i.tipoResposta !== 'TEXTO') {
-                          <ces-status [tone]="i.problema ? 'warning' : i.conforme ? 'success' : 'neutral'"
-                            [icon]="i.problema ? 'pi-exclamation-triangle' : i.conforme ? 'pi-check' : undefined">{{ i.problema ? rotuloResposta(i) : i.resposta }}</ces-status>
+                          <geo-status [tone]="i.problema ? 'warning' : i.conforme ? 'success' : 'neutral'"
+                            [icon]="i.problema ? 'pi-exclamation-triangle' : i.conforme ? 'pi-check' : undefined">{{ i.problema ? rotuloResposta(i) : i.resposta }}</geo-status>
                         }
                       </li>
                     }
@@ -252,12 +252,12 @@ interface Grupo {
         </div>
       }
       @if (detalhe(); as d) {
-        <div drawer-footer class="ces-actions-row">
-          <ces-button variant="outline" icon="pi pi-file" label="Relatório completo" (pressed)="abrirRelatorio(d.resumo.id)"></ces-button>
-          <ces-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></ces-button>
+        <div drawer-footer class="geo-actions-row">
+          <geo-button variant="outline" icon="pi pi-file" label="Relatório completo" (pressed)="abrirRelatorio(d.resumo.id)"></geo-button>
+          <geo-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></geo-button>
         </div>
       }
-    </ces-drawer>
+    </geo-drawer>
 
     <ng-template #foto let-f let-rotulo="rotulo" let-legenda="legenda">
       <figure class="dd-foto">
@@ -309,7 +309,7 @@ export class FrotaChecklistDetalheDrawerComponent {
     return d ? d.respostas.reduce((n, r) => n + r.fotos.length, 0) + d.fotosRecebimento.length : 0;
   });
   /** Abertura no tom do resultado: verde sem problema, âmbar com algo a decidir, azul com tudo decidido. */
-  protected readonly resultado = computed<{ rotulo: string; tom: CesTone; icone: string }>(() => {
+  protected readonly resultado = computed<{ rotulo: string; tom: GeoTone; icone: string }>(() => {
     const n = this.problemas().length;
     if (!n) return { rotulo: 'Tudo OK', tom: 'success', icone: 'pi-check-circle' };
     const rotulo = n === 1 ? '1 item com problema' : `${n} itens com problema`;

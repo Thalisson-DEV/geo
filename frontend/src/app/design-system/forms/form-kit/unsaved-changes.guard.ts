@@ -1,9 +1,9 @@
 import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
-import { CesConfirmationService } from '../../overlays/confirmation/confirmation.service';
+import { GeoConfirmationService } from '../../overlays/confirmation/confirmation.service';
 
 /** Tela de formulário que pode ter alterações não salvas. */
-export interface CesUnsavedChanges {
+export interface GeoUnsavedChanges {
   /** `true` quando sair agora perderia dados (sem rascunho automático que os guarde). */
   hasUnsavedChanges(): boolean;
 }
@@ -14,12 +14,12 @@ export interface CesUnsavedChanges {
  * rascunho, que volta ao reabrir.
  *
  * ```ts
- * { path: 'nova', loadComponent: …, canDeactivate: [cesUnsavedChangesGuard] }
+ * { path: 'nova', loadComponent: …, canDeactivate: [geoUnsavedChangesGuard] }
  * ```
  */
-export const cesUnsavedChangesGuard: CanDeactivateFn<CesUnsavedChanges> = (component) => {
+export const geoUnsavedChangesGuard: CanDeactivateFn<GeoUnsavedChanges> = (component) => {
   if (!component?.hasUnsavedChanges?.()) return true;
-  return inject(CesConfirmationService).confirm({
+  return inject(GeoConfirmationService).confirm({
     title: 'Sair sem salvar?',
     message: 'As alterações feitas neste formulário serão perdidas.',
     confirmLabel: 'Sair sem salvar',

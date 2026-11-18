@@ -2,23 +2,23 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import {
   FiltroSinistros,
   ROTULO_SITUACAO_SINISTRO,
@@ -38,8 +38,8 @@ import { LIMITE_EXPORTACAO_FROTA, basesFrota, exportacaoFrota, paginaFrota } fro
 import { VeiculoSeguro } from './frota-apolice-drawer.component';
 import { FrotaSinistroDrawerComponent } from './frota-sinistro-drawer.component';
 
-const TIPOS: CesSelectOption<TipoSinistro>[] = (Object.keys(ROTULO_TIPO_SINISTRO) as TipoSinistro[]).map((t) => ({ label: ROTULO_TIPO_SINISTRO[t], value: t }));
-const SITUACOES: CesSelectOption<SituacaoSinistro>[] = (Object.keys(ROTULO_SITUACAO_SINISTRO) as SituacaoSinistro[])
+const TIPOS: GeoSelectOption<TipoSinistro>[] = (Object.keys(ROTULO_TIPO_SINISTRO) as TipoSinistro[]).map((t) => ({ label: ROTULO_TIPO_SINISTRO[t], value: t }));
+const SITUACOES: GeoSelectOption<SituacaoSinistro>[] = (Object.keys(ROTULO_SITUACAO_SINISTRO) as SituacaoSinistro[])
   .map((s) => ({ label: ROTULO_SITUACAO_SINISTRO[s], value: s }));
 const EM_ANDAMENTO: SituacaoSinistro[] = ['RASCUNHO', 'EM_OFICINA', 'SEGURADORA_ACIONADA'];
 const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -54,18 +54,18 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaOrdemServicoFormComponent,
     FrotaSinistroDrawerComponent
   ],
@@ -73,77 +73,77 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
     .resumo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) repeat(2, minmax(0, 1.4fr)); gap: 0.75rem; }
     @media (max-width: 1100px) { .resumo { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 640px) { .resumo { grid-template-columns: minmax(0, 1fr); } }
-    .resumo__atalho[aria-pressed='true'] { border-color: var(--ces-warning); box-shadow: inset 3px 0 0 var(--ces-warning), var(--ces-shadow-sm); }
-    .ranking { list-style: none; margin: 0.375rem 0 0; padding: 0; display: grid; gap: 0.125rem; font-size: var(--ces-font-caption); }
+    .resumo__atalho[aria-pressed='true'] { border-color: var(--geo-warning); box-shadow: inset 3px 0 0 var(--geo-warning), var(--geo-shadow-sm); }
+    .ranking { list-style: none; margin: 0.375rem 0 0; padding: 0; display: grid; gap: 0.125rem; font-size: var(--geo-font-caption); }
     .ranking li { display: flex; justify-content: space-between; gap: 0.75rem; }
     .ranking strong { font-variant-numeric: tabular-nums; }
   `,
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="acesso.editarSinistro()" (newRequested)="novo()">
-      <ces-page-header title="Sinistros" icon="pi pi-exclamation-circle" [breadcrumb]="[{ label: 'Frota' }, { label: 'Sinistros' }]"
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarSinistro()" (newRequested)="novo()">
+      <geo-page-header title="Sinistros" icon="pi pi-exclamation-circle" [breadcrumb]="[{ label: 'Frota' }, { label: 'Sinistros' }]"
         description="Acidentes, furtos, assaltos e cargas avariadas com a OS de reparo e a seguradora acionada. O condutor vem do vínculo do veículo na hora do sinistro. Atalhos: / busca, F filtros, N novo sinistro.">
         <ng-container ngProjectAs="[actions]">
           @if (acesso.editarSinistro()) {
-            <ces-button icon="pi pi-plus" label="Registrar sinistro" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+            <geo-button icon="pi pi-plus" label="Registrar sinistro" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
           }
         </ng-container>
-      </ces-page-header>
+      </geo-page-header>
 
       @if (resumo(); as r) {
         <section class="resumo" aria-label="Totais do recorte">
-          <button type="button" class="ces-kpi resumo__atalho" [attr.data-tone]="r.emAndamento ? 'warning' : 'success'"
+          <button type="button" class="geo-kpi resumo__atalho" [attr.data-tone]="r.emAndamento ? 'warning' : 'success'"
             [attr.aria-pressed]="soEmAndamento()" (click)="alternarEmAndamento()"
             [attr.aria-label]="soEmAndamento() ? 'Mostrar todos os sinistros' : 'Mostrar só os sinistros em andamento'">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-hourglass"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Em andamento</span>
-              <span class="ces-kpi__value">{{ r.emAndamento }}</span>
-              <span class="ces-kpi__detail">{{ contar(r.quantidade, 'sinistro', 'sinistros', 'Nenhum sinistro') }} no recorte</span>
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-hourglass"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Em andamento</span>
+              <span class="geo-kpi__value">{{ r.emAndamento }}</span>
+              <span class="geo-kpi__detail">{{ contar(r.quantidade, 'sinistro', 'sinistros', 'Nenhum sinistro') }} no recorte</span>
             </span>
-            <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+            <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
           </button>
-          <div class="ces-kpi" [attr.data-tone]="r.comCulpaCondutor ? 'warning' : 'info'">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-user"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Com culpa do condutor</span>
-              <span class="ces-kpi__value">{{ r.comCulpaCondutor }}</span>
-              <span class="ces-kpi__detail">Franquias pagas: {{ moeda(r.franquiasPagas) }}</span>
+          <div class="geo-kpi" [attr.data-tone]="r.comCulpaCondutor ? 'warning' : 'info'">
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-user"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Com culpa do condutor</span>
+              <span class="geo-kpi__value">{{ r.comCulpaCondutor }}</span>
+              <span class="geo-kpi__detail">Franquias pagas: {{ moeda(r.franquiasPagas) }}</span>
             </span>
           </div>
-          <div class="ces-kpi" data-tone="info">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-chart-bar"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Por tipo</span>
+          <div class="geo-kpi" data-tone="info">
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-chart-bar"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Por tipo</span>
               @if (r.porTipo.length) {
                 <ul class="ranking">@for (l of r.porTipo.slice(0, 4); track l.chave) { <li><span>{{ l.rotulo }}</span><strong>{{ l.quantidade }}</strong></li> }</ul>
-              } @else { <span class="ces-kpi__detail">Sem sinistros no recorte.</span> }
+              } @else { <span class="geo-kpi__detail">Sem sinistros no recorte.</span> }
             </span>
           </div>
-          <div class="ces-kpi" data-tone="info">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-users"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Por condutor</span>
+          <div class="geo-kpi" data-tone="info">
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-users"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Por condutor</span>
               @if (r.porCondutor.length) {
                 <ul class="ranking">@for (l of r.porCondutor.slice(0, 4); track l.chave) { <li><span>{{ l.rotulo }}</span><strong>{{ l.quantidade }}</strong></li> }</ul>
-              } @else { <span class="ces-kpi__detail">Sem sinistros no recorte.</span> }
+              } @else { <span class="geo-kpi__detail">Sem sinistros no recorte.</span> }
             </span>
           </div>
         </section>
       }
 
-      <ces-filter-panel #painel storageKey="frota-sinistros" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="frota-sinistros" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Situação" [options]="situacoes" [(value)]="lista.filters.situacoes" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Tipo" [options]="tipos" [(value)]="lista.filters.tipos" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Condutor" [options]="opcoesCondutor()" [(value)]="lista.filters.idCondutor" [filter]="true" [clearable]="true"></ces-select>
-          <ces-datepicker label="De" [value]="dataLocal(lista.filters.de())" [clearable]="true" (valueChange)="lista.filters.de.set(dataIso($event))"></ces-datepicker>
-          <ces-datepicker label="Até" [value]="dataLocal(lista.filters.ate())" [clearable]="true" (valueChange)="lista.filters.ate.set(dataIso($event))"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Situação" [options]="situacoes" [(value)]="lista.filters.situacoes" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Tipo" [options]="tipos" [(value)]="lista.filters.tipos" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Condutor" [options]="opcoesCondutor()" [(value)]="lista.filters.idCondutor" [filter]="true" [clearable]="true"></geo-select>
+          <geo-datepicker label="De" [value]="dataLocal(lista.filters.de())" [clearable]="true" (valueChange)="lista.filters.de.set(dataIso($event))"></geo-datepicker>
+          <geo-datepicker label="Até" [value]="dataLocal(lista.filters.ate())" [clearable]="true" (valueChange)="lista.filters.ate.set(dataIso($event))"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table title="Sinistros" mode="server" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar placa"
+      <geo-data-table title="Sinistros" mode="server" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar placa"
         storageKey="frota-sinistros" exportFileName="frota-sinistros" [exportRows]="exportar" [exportLimit]="limiteExportacao"
         [columns]="colunas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowKey]="chave" [rowLabel]="rotulo"
         [state]="resultado.state()"
@@ -153,37 +153,37 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
         noResultsTitle="Nenhum sinistro com esse recorte." [filtered]="lista.filtered()"
         [(query)]="lista.query" [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort" (lazyLoad)="lista.load($event)"
         (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()" [rowClickable]="true" (rowActivate)="abrir($event)">
-        <ng-template cesCell="ocorrido" let-row>
-          <span class="ces-cell-strong">{{ row.ocorridoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
-          <span class="ces-cell-muted">Sinistro {{ row.numero }}</span>
+        <ng-template geoCell="ocorrido" let-row>
+          <span class="geo-cell-strong">{{ row.ocorridoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+          <span class="geo-cell-muted">Sinistro {{ row.numero }}</span>
         </ng-template>
-        <ng-template cesCell="veiculo" let-row>
-          <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-          <span class="ces-cell-muted">{{ row.baseOperacional ?? 'Sem base' }}</span>
+        <ng-template geoCell="veiculo" let-row>
+          <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+          <span class="geo-cell-muted">{{ row.baseOperacional ?? 'Sem base' }}</span>
         </ng-template>
-        <ng-template cesCell="tipo" let-row>
-          <span class="ces-cell-strong">{{ row.tipoRotulo }}</span>
-          @if (row.local) { <span class="ces-cell-muted">{{ row.local }}</span> }
+        <ng-template geoCell="tipo" let-row>
+          <span class="geo-cell-strong">{{ row.tipoRotulo }}</span>
+          @if (row.local) { <span class="geo-cell-muted">{{ row.local }}</span> }
         </ng-template>
-        <ng-template cesCell="condutor" let-row>
+        <ng-template geoCell="condutor" let-row>
           {{ row.condutor ?? 'Não identificado' }}
-          @if (row.culpaCondutor) { <span class="ces-cell-muted">Com culpa</span> }
+          @if (row.culpaCondutor) { <span class="geo-cell-muted">Com culpa</span> }
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
+        <ng-template geoCell="situacao" let-row>
           @let st = situacao(row.situacao);
-          <ces-status [tone]="st.tom" [icon]="st.icone">{{ st.rotulo }}</ces-status>
-          @if (row.reparo) { <span class="ces-cell-muted">{{ rotuloOs(row.reparo.numero) }} · {{ row.reparo.situacaoRotulo }}</span> }
+          <geo-status [tone]="st.tom" [icon]="st.icone">{{ st.rotulo }}</geo-status>
+          @if (row.reparo) { <span class="geo-cell-muted">{{ rotuloOs(row.reparo.numero) }} · {{ row.reparo.situacaoRotulo }}</span> }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (row.anexos.length) {
-              <ces-icon-button icon="pi pi-images" [label]="row.anexos.length + ' anexo(s) de ' + rotulo(row)"
-                [tooltip]="row.anexos.length === 1 ? '1 anexo' : row.anexos.length + ' anexos'" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-images" [label]="row.anexos.length + ' anexo(s) de ' + rotulo(row)"
+                [tooltip]="row.anexos.length === 1 ? '1 anexo' : row.anexos.length + ' anexos'" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-angle-right" [label]="'Abrir ' + rotulo(row)" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-angle-right" [label]="'Abrir ' + rotulo(row)" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-frota-sinistro-drawer [(visivel)]="painelAberto" [sinistro]="emEdicao()" [veiculos]="veiculos()" [condutores]="condutores()"
@@ -218,21 +218,21 @@ export class FrotaSinistrosComponent {
   protected readonly emEdicao = signal<Sinistro | null>(null);
   protected readonly osAberta = signal(false);
   protected readonly sinistroDaOs = signal<Sinistro | null>(null);
-  protected readonly opcoesCondutor = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesCondutor = computed<GeoSelectOption<string>[]>(() =>
     this.condutores().map((c) => ({ label: c.nome ?? 'Sem nome', value: c.idColaborador })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-sinistros',
     rememberFilters: 'frota-sinistros',
     filters: {
-      situacoes: cesFilter.list<SituacaoSinistro>(EM_ANDAMENTO, {
+      situacoes: geoFilter.list<SituacaoSinistro>(EM_ANDAMENTO, {
         label: 'Situação', param: 'situacao', itemLabel: (s) => ROTULO_SITUACAO_SINISTRO[s], countLabel: (n) => `${n} situações`
       }),
-      tipos: cesFilter.list<TipoSinistro>([], { label: 'Tipo', param: 'tipo', itemLabel: (t) => ROTULO_TIPO_SINISTRO[t], countLabel: (n) => `${n} tipos` }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      idCondutor: cesFilter.value<string | null>(null, { label: 'Condutor', param: 'condutor', options: () => this.opcoesCondutor() }),
-      de: cesFilter.date(null, { label: 'De' }),
-      ate: cesFilter.date(null, { label: 'Até' })
+      tipos: geoFilter.list<TipoSinistro>([], { label: 'Tipo', param: 'tipo', itemLabel: (t) => ROTULO_TIPO_SINISTRO[t], countLabel: (n) => `${n} tipos` }),
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idCondutor: geoFilter.value<string | null>(null, { label: 'Condutor', param: 'condutor', options: () => this.opcoesCondutor() }),
+      de: geoFilter.date(null, { label: 'De' }),
+      ate: geoFilter.date(null, { label: 'Até' })
     },
     sort: [{ key: 'ocorridoEm', direction: 'desc' }]
   });
@@ -251,7 +251,7 @@ export class FrotaSinistrosComponent {
     return atuais.length === EM_ANDAMENTO.length && EM_ANDAMENTO.every((s) => atuais.includes(s));
   });
 
-  protected readonly colunas: CesDataTableColumn<Sinistro>[] = [
+  protected readonly colunas: GeoDataTableColumn<Sinistro>[] = [
     { key: 'ocorrido', header: 'Quando', type: 'custom', priority: 1, sortField: 'ocorridoEm', value: (s) => s.ocorridoEm, display: (s) => s.ocorridoEm },
     { key: 'veiculo', header: 'Veículo', type: 'custom', priority: 1, sortField: 'placa', value: (s) => s.placa, display: (s) => formatarPlaca(s.placa) },
     { key: 'tipo', header: 'Tipo', type: 'custom', priority: 1, sortField: 'tipo', value: (s) => s.tipo, display: (s) => s.tipoRotulo },

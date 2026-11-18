@@ -38,25 +38,25 @@ import { getErrorMessage } from '../../../core/models/shared.models';
       appendTo="body"
       (onHide)="onClose()"
     >
-      <div class="bg-[var(--ces-surface)] text-[var(--ces-foreground)] border border-[var(--ces-border)] rounded-2xl overflow-hidden flex flex-col relative shadow-2xl">
+      <div class="bg-[var(--geo-surface)] text-[var(--geo-foreground)] border border-[var(--geo-border)] rounded-2xl overflow-hidden flex flex-col relative shadow-2xl">
         <!-- Close Button -->
         <p-button
           icon="pi pi-times"
           [text]="true"
           [rounded]="true"
           (onClick)="visible = false"
-          styleClass="!absolute top-4 right-4 !text-[var(--ces-foreground-subtle)] !z-50 hover:!bg-[var(--ces-surface-muted)]"
+          styleClass="!absolute top-4 right-4 !text-[var(--geo-foreground-subtle)] !z-50 hover:!bg-[var(--geo-surface-muted)]"
         ></p-button>
 
         <!-- Header Hero Section (Estilo Stepper/Profile) -->
-        <div class="pt-10 pb-6 px-6 bg-[var(--ces-surface-subtle)] border-b border-[var(--ces-border)] flex flex-col items-center text-center">
+        <div class="pt-10 pb-6 px-6 bg-[var(--geo-surface-subtle)] border-b border-[var(--geo-border)] flex flex-col items-center text-center">
           <div class="relative mb-4">
             <div class="w-13 h-13 rounded-full bg-primary-600 flex items-center justify-center shadow-md shadow-primary-600/20">
               <i class="pi pi-lock text-white text-2xl"></i>
             </div>
           </div>
 
-          <h2 class="font-bold text-[var(--ces-foreground)] tracking-tight uppercase text-sm">Segurança da Conta</h2>
+          <h2 class="font-bold text-[var(--geo-foreground)] tracking-tight uppercase text-sm">Segurança da Conta</h2>
 
           @if (user(); as u) {
             <div class="mt-2 flex flex-col items-center">
@@ -64,7 +64,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
                 {{ u.login }}
               </span>
               @if (u.nome) {
-                <span class="text-[10px] text-[var(--ces-foreground-muted)] font-medium mt-1 uppercase tracking-tight">{{ u.nome }}</span>
+                <span class="text-[10px] text-[var(--geo-foreground-muted)] font-medium mt-1 uppercase tracking-tight">{{ u.nome }}</span>
               }
             </div>
           }
@@ -73,25 +73,25 @@ import { getErrorMessage } from '../../../core/models/shared.models';
         <div class="p-6">
           <form [formGroup]="passwordForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
             <div class="flex flex-col gap-1.5">
-              <label class="filter-label !text-[var(--ces-foreground-muted)] !text-[11px] ml-1 font-semibold">Senha Atual</label>
+              <label class="filter-label !text-[var(--geo-foreground-muted)] !text-[11px] ml-1 font-semibold">Senha Atual</label>
               <p-password
                 formControlName="senhaAntiga"
                 [toggleMask]="true"
                 [feedback]="false"
                 class="w-full"
-                inputStyleClass="w-full !rounded-xl !py-3 !text-sm !bg-[var(--ces-surface-subtle)] !border-[var(--ces-border)] !text-[var(--ces-foreground)] focus:!border-primary-400 focus:!ring-0 transition-all"
+                inputStyleClass="w-full !rounded-xl !py-3 !text-sm !bg-[var(--geo-surface-subtle)] !border-[var(--geo-border)] !text-[var(--geo-foreground)] focus:!border-primary-400 focus:!ring-0 transition-all"
                 placeholder="Digite sua senha atual"
                 size="small"
               ></p-password>
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="filter-label !text-[var(--ces-foreground-muted)] !text-[11px] ml-1 font-semibold">Nova Senha</label>
+              <label class="filter-label !text-[var(--geo-foreground-muted)] !text-[11px] ml-1 font-semibold">Nova Senha</label>
               <p-password
                 formControlName="novaSenha"
                 [toggleMask]="true"
                 class="w-full"
-                inputStyleClass="w-full !rounded-xl !py-3 !text-sm !bg-[var(--ces-surface-subtle)] !border-[var(--ces-border)] !text-[var(--ces-foreground)] focus:!border-primary-400 focus:!ring-0 transition-all"
+                inputStyleClass="w-full !rounded-xl !py-3 !text-sm !bg-[var(--geo-surface-subtle)] !border-[var(--geo-border)] !text-[var(--geo-foreground)] focus:!border-primary-400 focus:!ring-0 transition-all"
                 placeholder="Digite a nova senha"
                 promptLabel="Escolha uma senha forte"
                 weakLabel="Fraca"
@@ -102,13 +102,13 @@ import { getErrorMessage } from '../../../core/models/shared.models';
             </div>
 
             <div class="flex flex-col gap-1.5">
-              <label class="filter-label !text-[var(--ces-foreground-muted)] !text-[11px] ml-1 font-semibold">Confirmar Nova Senha</label>
+              <label class="filter-label !text-[var(--geo-foreground-muted)] !text-[11px] ml-1 font-semibold">Confirmar Nova Senha</label>
               <p-password
                 formControlName="confirmarSenha"
                 [toggleMask]="true"
                 [feedback]="false"
                 class="w-full"
-                inputStyleClass="w-full !rounded-xl !py-3 !text-sm !bg-[var(--ces-surface-subtle)] !border-[var(--ces-border)] !text-[var(--ces-foreground)] focus:!border-primary-400 focus:!ring-0 transition-all"
+                inputStyleClass="w-full !rounded-xl !py-3 !text-sm !bg-[var(--geo-surface-subtle)] !border-[var(--geo-border)] !text-[var(--geo-foreground)] focus:!border-primary-400 focus:!ring-0 transition-all"
                 placeholder="Repita a nova senha"
                 size="small"
               ></p-password>
@@ -134,7 +134,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
                 label="CANCELAR"
                 [text]="true"
                 (onClick)="visible = false"
-                styleClass="w-full !text-[var(--ces-foreground-subtle)] !font-medium !text-[10px] !py-3 hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] !rounded-xl transition-all mt-1.5"
+                styleClass="w-full !text-[var(--geo-foreground-subtle)] !font-medium !text-[10px] !py-3 hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] !rounded-xl transition-all mt-1.5"
               ></p-button>
             </div>
           </form>

@@ -9,7 +9,7 @@ export type StatusConexao = 'online' | 'offline_sem_rede' | 'dados_moveis_bloque
 export class ConnectivityService {
   private readonly auth = inject(AuthService, { optional: true });
 
-  private readonly STORAGE_REDES_MOVEIS = 'ces_usar_redes_moveis';
+  private readonly STORAGE_REDES_MOVEIS = 'geo_usar_redes_moveis';
 
   /** Conexão física de rede informada pelo navegador/sistema operacional */
   readonly hardwareOnline = signal(typeof navigator !== 'undefined' ? navigator.onLine : true);

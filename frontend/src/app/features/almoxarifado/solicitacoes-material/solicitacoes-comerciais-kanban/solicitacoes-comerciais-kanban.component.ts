@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { CesAsyncStateComponent, CesIconButtonComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoIconButtonComponent, GeoTone } from '@geo/ui';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { SolicitacaoStatus, SolicitacaoSummaryResponse } from '../../../../core/models/almoxarifado.models';
@@ -19,7 +19,7 @@ interface ColunaDef {
   titulo: string;
   subtitulo: string;
   icon: string;
-  tone: CesTone;
+  tone: GeoTone;
   statuses: SolicitacaoStatus[];
   vazio: { icon: string; titulo: string; texto: string };
 }
@@ -55,7 +55,7 @@ const COLUNAS: readonly ColunaDef[] = [
   }
 ];
 
-const SITUACAO: Partial<Record<SolicitacaoStatus, { label: string; tone: CesTone }>> = {
+const SITUACAO: Partial<Record<SolicitacaoStatus, { label: string; tone: GeoTone }>> = {
   PENDENTE: { label: 'Aguardando aprovação', tone: 'warning' },
   APROVADO: { label: 'Aguardando retirada', tone: 'info' },
   ENTREGUE_PARCIAL: { label: 'Entregue em parte', tone: 'warning' },
@@ -68,8 +68,8 @@ const SITUACAO: Partial<Record<SolicitacaoStatus, { label: string; tone: CesTone
 export const LIMITE_ABERTAS = 200;
 export const LIMITE_ENCERRADAS = 15;
 const ABERTOS: readonly SolicitacaoStatus[] = ['PENDENTE', 'APROVADO', 'ENTREGUE_PARCIAL'];
-const CHAVE_RECOLHIDOS = 'ces_kanban_comercial_grupos_recolhidos';
-const CHAVE_AGRUPAMENTO = 'ces_kanban_comercial_agrupamento';
+const CHAVE_RECOLHIDOS = 'geo_kanban_comercial_grupos_recolhidos';
+const CHAVE_AGRUPAMENTO = 'geo_kanban_comercial_agrupamento';
 
 interface FaixaStatus {
   status: SolicitacaoStatus;
@@ -80,7 +80,7 @@ interface FaixaStatus {
 export interface GrupoKanban {
   id: string;
   label: string;
-  tone: CesTone;
+  tone: GeoTone;
   itens: Card[];
   total: number;
   /** Status da faixa, quando o grupo é por situação (para "ver todas na tabela"). */
@@ -99,7 +99,7 @@ interface ColunaVisivel {
   selector: 'app-solicitacoes-comerciais-kanban',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, CesIconButtonComponent, SolicitacaoComercialKanbanCardComponent],
+  imports: [GeoAsyncStateComponent, GeoIconButtonComponent, SolicitacaoComercialKanbanCardComponent],
   styleUrl: './solicitacoes-comerciais-kanban.component.css',
   template: `
     <div class="kb-bar">
@@ -124,7 +124,7 @@ interface ColunaVisivel {
 
 
     @if (erro()) {
-      <ces-async-state type="error" title="Não foi possível carregar o quadro" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
+      <geo-async-state type="error" title="Não foi possível carregar o quadro" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
     } @else if (!faixas()) {
       <div class="kb-board" aria-busy="true" aria-label="Carregando o quadro">
         @for (c of [1, 2, 3]; track c) {
@@ -159,7 +159,7 @@ interface ColunaVisivel {
                 <p>{{ col.def.subtitulo }}</p>
               </div>
               @if (copiloto()) {
-              <ces-icon-button icon="pi pi-compass" [label]="'Analisar a etapa ' + col.def.titulo + ' com a Bússola'" tooltip="Analisar com a Bússola" size="icon-sm" (pressed)="analisar(col.def)" />
+              <geo-icon-button icon="pi pi-compass" [label]="'Analisar a etapa ' + col.def.titulo + ' com a Bússola'" tooltip="Analisar com a Bússola" size="icon-sm" (pressed)="analisar(col.def)" />
               }
             </header>
 
@@ -379,7 +379,7 @@ export class SolicitacoesComerciaisKanbanComponent {
   // --- Arrastar e soltar (atalho das mesmas ações dos botões) ---
 
   /** O que acontece ao soltar o cartão arrastado nesta coluna; `null` quando não há ação. */
-  protected acaoDeSoltar(coluna: ColunaKanbanComercial): { texto: string; icon: string; tone: CesTone; acao: 'APROVAR' | 'REJEITAR' | 'ENTREGAR' } | null {
+  protected acaoDeSoltar(coluna: ColunaKanbanComercial): { texto: string; icon: string; tone: GeoTone; acao: 'APROVAR' | 'REJEITAR' | 'ENTREGAR' } | null {
     const arraste = this.arrastando();
     if (!arraste || arraste.de === coluna) return null;
     const acoes = arraste.item.acoesPermitidas ?? [];
@@ -463,7 +463,7 @@ function porPrazo(itens: Card[]): GrupoKanban[] {
   const hojeIso = isoCivil(hoje);
   const semana = isoCivil(new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 7));
   const dia = (s: Card) => s.dataPrevista?.substring(0, 10) ?? '';
-  const faixas: { id: string; label: string; tone: CesTone; teste: (s: Card) => boolean }[] = [
+  const faixas: { id: string; label: string; tone: GeoTone; teste: (s: Card) => boolean }[] = [
     { id: 'PRAZO:ATRASADAS', label: 'Atrasadas', tone: 'danger', teste: (s) => saqueAtrasado(s, hoje) },
     { id: 'PRAZO:HOJE', label: 'Saque hoje', tone: 'warning', teste: (s) => dia(s) === hojeIso },
     { id: 'PRAZO:SEMANA', label: 'Próximos 7 dias', tone: 'info', teste: (s) => !!dia(s) && dia(s) > hojeIso && dia(s) <= semana },

@@ -7,9 +7,9 @@
   </header>
 
   @if (loading()) {
-    <ces-async-state [state]="'loading'" title="Carregando histórico..." />
+    <geo-async-state [state]="'loading'" title="Carregando histórico..." />
   } @else if (error()) {
-    <ces-async-state
+    <geo-async-state
       [state]="'error'"
       [description]="error()"
       actionLabel="Tentar novamente"
@@ -331,7 +331,7 @@
 
       @if (totalPages() > 1) {
         <footer class="timeline-footer">
-          <ces-button
+          <geo-button
             label="Anterior"
             variant="ghost"
             size="sm"
@@ -340,7 +340,7 @@
             (pressed)="previous()"
           />
           <span class="page-info">{{ page() + 1 }} de {{ totalPages() }}</span>
-          <ces-button
+          <geo-button
             label="Próxima"
             variant="ghost"
             size="sm"
@@ -352,7 +352,7 @@
         </footer>
       }
     } @else {
-      <ces-async-state
+      <geo-async-state
         [state]="'empty'"
         title="Nenhum evento registrado"
         description="Ainda não há alterações registradas nesta solicitação."

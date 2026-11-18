@@ -1,4 +1,4 @@
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 import {
   DashboardTurnosFiltros,
   DashboardTurnosResponse,
@@ -123,7 +123,7 @@ function situacaoTexto(e: EquipeTurno, d: DashboardTurnosResponse): string {
   }
 }
 
-function colunasTurnos(d: DashboardTurnosResponse): CesDataTableColumn<EquipeTurno>[] {
+function colunasTurnos(d: DashboardTurnosResponse): GeoDataTableColumn<EquipeTurno>[] {
   return [
     { key: 'codigo', header: 'Equipe', priority: 1 },
     { key: 'situacao', header: 'Situação', priority: 1, value: (e) => situacaoTexto(e, d) },
@@ -378,7 +378,7 @@ function vistaSemLancamento(a: AlvoAnalise, c: ContextoAnaliseTurnos): VistaAnal
     .filter((e) => e.situacao === 'EM_TURNO')
     .sort((x, y) => (y.minutosSemLancamento ?? 0) - (x.minutosSemLancamento ?? 0));
   const pior = emTurno[0];
-  const colunas: CesDataTableColumn<EquipeTurno>[] = [
+  const colunas: GeoDataTableColumn<EquipeTurno>[] = [
     { key: 'codigo', header: 'Equipe', priority: 1 },
     { key: 'minutosSemLancamento', header: 'Sem lançar há', priority: 1, value: (e) => e.minutosSemLancamento ?? -1, display: (e) => duracao(e.minutosSemLancamento) },
     { key: 'ultimoLancamento', header: 'Último lançamento', priority: 2, value: (e) => e.ultimoLancamento ?? '', display: (e) => (e.ultimoLancamento ? horaMinuto(e.ultimoLancamento) : 'Nenhum desde a abertura') },
@@ -504,7 +504,7 @@ function vistaSemTurno(a: AlvoAnalise, c: ContextoAnaliseTurnos): VistaAnalise {
   semTurno.forEach((e) => porBase.set(e.baseOperacional ?? 'Sem base', (porBase.get(e.baseOperacional ?? 'Sem base') ?? 0) + 1));
   const bases = [...porBase.entries()].sort((x, y) => y[1] - x[1]);
   const esquecidos = d.equipes.filter((e) => e.abertoDesdeOutroDia);
-  const colunas: CesDataTableColumn<EquipeTurno>[] = [
+  const colunas: GeoDataTableColumn<EquipeTurno>[] = [
     { key: 'codigo', header: 'Equipe', priority: 1 },
     { key: 'baseOperacional', header: 'Base', priority: 1, display: (e) => e.baseOperacional ?? '—' },
     { key: 'processo', header: 'Processo', priority: 2, display: (e) => e.processo ?? '—' },
@@ -663,7 +663,7 @@ function vistaEquipe(a: AlvoAnalise, c: ContextoAnaliseTurnos): VistaAnalise | n
       colunas: [
         { key: 'nome', header: 'Nome', priority: 1 },
         { key: 'papel', header: 'Papel', priority: 1 }
-      ] as CesDataTableColumn<{ id: string; nome: string; papel: string }>[],
+      ] as GeoDataTableColumn<{ id: string; nome: string; papel: string }>[],
       linhas: membros,
       chaveLinha: (m: { id: string }) => m.id,
       nomeArquivo: `composicao-${e.codigo}-${d.data}`

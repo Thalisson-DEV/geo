@@ -24,7 +24,7 @@ npm run pwa:start    # build + serve a partir de dist via http-server na :8081 (
 - Scaffold: `npx ng generate component features/<dominio>/<nome>` (prefixo `app`, standalone por padrão).
 
 Observações:
-- O test runner é o **Vitest** (builder `@angular/build:unit-test`), não Karma/Jasmine. A cobertura de testes hoje é mínima — só existe `src/app/app.spec.ts`, e ele ainda valida o template padrão `Hello, ces-frontend` (defasado; o componente raiz real renderiza o shell da aplicação).
+- O test runner é o **Vitest** (builder `@angular/build:unit-test`), não Karma/Jasmine. A cobertura de testes hoje é mínima — só existe `src/app/app.spec.ts`, e ele ainda valida o template padrão `Hello, geo-frontend` (defasado; o componente raiz real renderiza o shell da aplicação).
 - O service worker fica desabilitado em dev (`isDevMode()`); use `npm run pwa:start` para exercitar o comportamento offline.
 - `environment.ts` e `environment.development.ts` apontam ambos `apiUrl` para `http://localhost:8080/api`. Não há URL de API de homologação/produção configurada — defina quando existir.
 
@@ -44,13 +44,13 @@ Este é o ponto mais importante a entender. Não chame o `HttpClient` diretament
 
 1. **`BaseService`** (`core/services/base.service.ts`) — classe abstrata que todo serviço de domínio estende. Fornece `getList` / `getOne` / `createSync` / `updateSync` / `deleteSync`. As leituras fazem fallback para o cache IndexedDB em falha de rede (quando uma `Table` Dexie é passada); as escritas passam pelo `SyncService`.
 2. **`SyncService`** — executa mutações quando online; quando offline (ou em erro 5xx/rede) enfileira-as na tabela Dexie `syncQueue` e as reprocessa automaticamente via um `effect()` que observa `ConnectivityService.isOnline()`.
-3. **`DatabaseService`** — o banco Dexie (`CesDatabase`). Hoje só `colaboradores` é cacheado como tabela real, além de `syncQueue`. Adicionar cache offline para uma nova entidade exige uma nova tabela + um schema com versão incrementada em `this.version(n).stores({...})`.
+3. **`DatabaseService`** — o banco Dexie, cujo nome no aparelho continua `CesDatabase` (trocar apagaria a fila offline). Hoje só `colaboradores` é cacheado como tabela real, além de `syncQueue`. Adicionar cache offline para uma nova entidade exige uma nova tabela + um schema com versão incrementada em `this.version(n).stores({...})`. <!-- renomear-geo: manter -->
 4. **`ConnectivityService`** — um signal que envolve `navigator.onLine`.
 
 Os serviços de domínio (`rh.service.ts`, `almoxarifado.service.ts`, `contrato.service.ts`, `execucao.service.ts`, `frota.service.ts`, etc.) estendem `BaseService`, montam URLs a partir de `environment.apiUrl` + `/v1/...` e passam a tabela Dexie correspondente para habilitar o cache. Novos endpoints seguem o padrão por método já existente nesses arquivos.
 
 ### Autenticação e autorização
-- `AuthService` — o login decodifica o JWT no cliente (sem biblioteca), deriva `permissoes` a partir de `roles` e as preferências de tema do token, e persiste a sessão no `localStorage` sob `ces_session_enc` com uma ofuscação reversível leve (base64 + reverse — *não* é criptografia real). `session`, `isAuthenticated`, `token`, `currentUser` são signals/computed.
+- `AuthService` — o login decodifica o JWT no cliente (sem biblioteca), deriva `permissoes` a partir de `roles` e as preferências de tema do token, e persiste a sessão no `localStorage` sob `geo_session_enc` com uma ofuscação reversível leve (base64 + reverse — *não* é criptografia real). `session`, `isAuthenticated`, `token`, `currentUser` são signals/computed.
 - `authInterceptor` — anexa o token `Bearer`; em 401 faz logout, exceto quando o corpo é um Problem Details de `access-denied` (aí apenas exibe um toast).
 - `authGuard` — verifica autenticação e depois confere `route.data.permission` (uma string como `rh:colaborador:read`) contra as `permissoes` do usuário; redireciona para `/home` com toast se faltar.
 - `publicGuard` — mantém usuários autenticados fora de `/login`.
@@ -74,7 +74,7 @@ O backend retorna Problem Details RFC 7807. Use `getErrorMessage(error)` de `cor
 
 ### Design System Nexo
 
-Antes de criar ou alterar UI, leia `docs/design-system/README.md` e o registro `docs/design-system/prime-ng-coverage.md`. O contrato-alvo é source-owned e consumido por `@ces/ui`; novos imports diretos de PrimeNG dependem da disposição registrada. Não introduza `::ng-deep`, hosts locais de toast/confirmação ou cores semânticas hardcoded. Mudanças de componente/pattern devem atualizar catálogo, cobertura, documentação e testes em conjunto e executar `npm run verify:design-system` (se o script ainda não existir na branch, registre o bloqueio explicitamente).
+Antes de criar ou alterar UI, leia `docs/design-system/README.md` e o registro `docs/design-system/prime-ng-coverage.md`. O contrato-alvo é source-owned e consumido por `@geo/ui`; novos imports diretos de PrimeNG dependem da disposição registrada. Não introduza `::ng-deep`, hosts locais de toast/confirmação ou cores semânticas hardcoded. Mudanças de componente/pattern devem atualizar catálogo, cobertura, documentação e testes em conjunto e executar `npm run verify:design-system` (se o script ainda não existir na branch, registre o bloqueio explicitamente).
 
 ---
 

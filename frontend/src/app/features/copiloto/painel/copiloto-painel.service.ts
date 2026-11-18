@@ -16,9 +16,9 @@ export interface PedidoFiltroCopiloto extends FiltroSugerido {
   readonly sequencia: number;
 }
 
-const CHAVE_ABERTO = 'ces.copiloto.painel.aberto';
-const CHAVE_LARGURA = 'ces.copiloto.painel.largura';
-const CHAVE_CONVERSAS = 'ces.copiloto.painel.conversas';
+const CHAVE_ABERTO = 'geo.copiloto.painel.aberto';
+const CHAVE_LARGURA = 'geo.copiloto.painel.largura';
+const CHAVE_CONVERSAS = 'geo.copiloto.painel.conversas';
 
 function lerSessao(chave: string): string | null {
   try {

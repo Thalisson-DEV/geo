@@ -14,7 +14,7 @@ import {
 } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
-import { CesButtonComponent, CesConfirmationService, CesStatusComponent, CesTone, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoConfirmationService, GeoStatusComponent, GeoTone, NotificationService } from '@geo/ui';
 
 import { getErrorMessage } from '../../../core/models/shared.models';
 import {
@@ -28,7 +28,7 @@ interface OrigemAnexo {
   contexto: ContextoAnexoEvento;
   rotulo: string;
   icone: string;
-  tom: CesTone;
+  tom: GeoTone;
   /** O que se espera em cada origem, para o botão de anexar e o estado vazio. */
   dica: string;
   acao: string;
@@ -55,7 +55,7 @@ const ORIGENS: OrigemAnexo[] = [
   selector: 'app-evento-anexos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, DatePipe, DialogModule, TooltipModule, CesButtonComponent, CesStatusComponent],
+  imports: [CommonModule, DatePipe, DialogModule, TooltipModule, GeoButtonComponent, GeoStatusComponent],
   template: `
     <div class="mb-8 print:mb-3">
       <div class="flex items-center justify-between gap-3 mb-3 print:mb-2 flex-wrap">
@@ -68,8 +68,8 @@ const ORIGENS: OrigemAnexo[] = [
         @if (canWrite()) {
           <div class="flex items-center gap-2 flex-wrap print:hidden">
             @for (o of origens; track o.contexto) {
-              <ces-button variant="outline" size="sm" [icon]="'pi ' + o.icone" [label]="o.acao"
-                [loading]="enviando() === o.contexto" [disabled]="!!enviando()" (pressed)="escolherArquivo(o.contexto)"></ces-button>
+              <geo-button variant="outline" size="sm" [icon]="'pi ' + o.icone" [label]="o.acao"
+                [loading]="enviando() === o.contexto" [disabled]="!!enviando()" (pressed)="escolherArquivo(o.contexto)"></geo-button>
             }
           </div>
         }
@@ -110,7 +110,7 @@ const ORIGENS: OrigemAnexo[] = [
                   @if (thumbs()[anexo.id]; as url) {
                     <img [src]="url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 print:scale-100" [alt]="anexo.nomeArquivo" />
                     <span class="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity flex items-center justify-center print:hidden">
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--ces-surface)] text-[var(--ces-foreground)] text-xs font-semibold shadow">
+                      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--geo-surface)] text-[var(--geo-foreground)] text-xs font-semibold shadow">
                         <i class="pi pi-search-plus"></i> Ampliar
                       </span>
                     </span>
@@ -123,7 +123,7 @@ const ORIGENS: OrigemAnexo[] = [
                 </button>
               } @else {
                 <div class="h-44 w-full bg-slate-50 dark:bg-slate-800/60 flex flex-col items-center justify-center gap-2.5 px-3 text-center">
-                  <div class="w-14 h-14 rounded-xl flex items-center justify-center border border-[var(--ces-border)] bg-[var(--ces-surface)] text-[var(--ces-foreground-muted)]">
+                  <div class="w-14 h-14 rounded-xl flex items-center justify-center border border-[var(--geo-border)] bg-[var(--geo-surface)] text-[var(--geo-foreground-muted)]">
                     <i [class]="iconeArquivo(anexo)" class="text-2xl"></i>
                   </div>
                   <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300 break-all line-clamp-2">{{ anexo.nomeArquivo }}</span>
@@ -135,7 +135,7 @@ const ORIGENS: OrigemAnexo[] = [
 
               <div class="p-3.5 flex flex-col gap-1.5 flex-1 bg-white dark:bg-slate-900">
                 <div class="flex items-center justify-between gap-1">
-                  <ces-status [tone]="o.tom" [icon]="o.icone">{{ o.rotulo }}</ces-status>
+                  <geo-status [tone]="o.tom" [icon]="o.icone">{{ o.rotulo }}</geo-status>
                   <span class="text-[10px] text-slate-400 font-medium">{{ formatarTamanho(anexo.tamanhoBytes) }}</span>
                 </div>
                 <span class="text-xs font-semibold text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug mt-1" [title]="anexo.nomeArquivo">{{ anexo.nomeArquivo }}</span>
@@ -144,12 +144,12 @@ const ORIGENS: OrigemAnexo[] = [
                   <span class="text-[10px] text-slate-400 truncate">Anexado em {{ anexo.dataCriacao | date: 'dd/MM/yy HH:mm' }}</span>
                   <span class="flex items-center gap-0.5 print:hidden shrink-0">
                     <button type="button" (click)="baixar(anexo)" pTooltip="Baixar arquivo original" tooltipPosition="top" [attr.aria-label]="'Baixar ' + anexo.nomeArquivo"
-                      class="inline-flex items-center px-2 py-1 rounded-md text-slate-400 hover:text-[var(--ces-brand)] hover:bg-[var(--ces-surface-muted)] transition-colors">
+                      class="inline-flex items-center px-2 py-1 rounded-md text-slate-400 hover:text-[var(--geo-brand)] hover:bg-[var(--geo-surface-muted)] transition-colors">
                       <i class="pi pi-download text-[10px]"></i>
                     </button>
                     @if (canWrite()) {
                       <button type="button" (click)="confirmarRemocao(anexo)" pTooltip="Remover evidência" tooltipPosition="top" [attr.aria-label]="'Remover ' + anexo.nomeArquivo"
-                        class="inline-flex items-center px-2 py-1 rounded-md text-slate-400 hover:text-[var(--ces-danger-text)] hover:bg-[var(--ces-danger-soft)] transition-colors">
+                        class="inline-flex items-center px-2 py-1 rounded-md text-slate-400 hover:text-[var(--geo-danger-text)] hover:bg-[var(--geo-danger-soft)] transition-colors">
                         <i class="pi pi-trash text-[10px]"></i>
                       </button>
                     }
@@ -173,7 +173,7 @@ const ORIGENS: OrigemAnexo[] = [
           </div>
           <div class="flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
             <div class="flex items-center justify-between gap-3">
-              <ces-status [tone]="origem(anexo.contexto).tom" [icon]="origem(anexo.contexto).icone">{{ origem(anexo.contexto).rotulo }}</ces-status>
+              <geo-status [tone]="origem(anexo.contexto).tom" [icon]="origem(anexo.contexto).icone">{{ origem(anexo.contexto).rotulo }}</geo-status>
               <span class="text-[11px] text-slate-400 font-medium shrink-0">{{ formatarTamanho(anexo.tamanhoBytes) }}</span>
             </div>
             <div class="flex items-center justify-between gap-3 pt-2 mt-1 border-t border-slate-200/60 dark:border-slate-800">
@@ -191,17 +191,17 @@ const ORIGENS: OrigemAnexo[] = [
     .filtro {
       display: inline-flex; align-items: center; gap: 0.375rem;
       padding: 0.25rem 0.625rem; border-radius: 999px;
-      border: 1px solid var(--ces-border); background: var(--ces-surface);
-      font-size: 11px; font-weight: 600; color: var(--ces-foreground-muted);
+      border: 1px solid var(--geo-border); background: var(--geo-surface);
+      font-size: 11px; font-weight: 600; color: var(--geo-foreground-muted);
       cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease;
     }
     .filtro i { font-size: 10px; }
-    .filtro strong { color: var(--ces-foreground); font-variant-numeric: tabular-nums; }
-    .filtro:hover:not(:disabled) { background: var(--ces-surface-muted); color: var(--ces-foreground); }
-    .filtro:focus-visible { outline: none; box-shadow: var(--ces-focus-ring); }
+    .filtro strong { color: var(--geo-foreground); font-variant-numeric: tabular-nums; }
+    .filtro:hover:not(:disabled) { background: var(--geo-surface-muted); color: var(--geo-foreground); }
+    .filtro:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); }
     .filtro:disabled { opacity: 0.45; cursor: not-allowed; }
-    .filtro--ativo { border-color: var(--ces-brand); background: var(--ces-brand-soft); color: var(--ces-brand); }
-    .filtro--ativo strong { color: var(--ces-brand); }
+    .filtro--ativo { border-color: var(--geo-brand); background: var(--geo-brand-soft); color: var(--geo-brand); }
+    .filtro--ativo strong { color: var(--geo-brand); }
     @media print {
       .filtro { cursor: default; background: #ffffff !important; }
       .filtro--ativo { border-color: #cbd5e1 !important; color: #334155 !important; }
@@ -213,7 +213,7 @@ export class EventoAnexosComponent implements OnInit, OnDestroy {
 
   private readonly sst = inject(SstService);
   private readonly notifications = inject(NotificationService);
-  private readonly confirm = inject(CesConfirmationService);
+  private readonly confirm = inject(GeoConfirmationService);
 
   readonly idEvento = input.required<string>();
   readonly canWrite = input(false);

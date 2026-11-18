@@ -1,10 +1,10 @@
-<div class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0">
+<div class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0">
   <p-toast></p-toast>
 
   @if (loading()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state state="loading" title="Carregando o relatório..."
-        description="Consultando o checklist, os desvios e as fotos da inspeção..."></ces-async-state>
+      <geo-async-state state="loading" title="Carregando o relatório..."
+        description="Consultando o checklist, os desvios e as fotos da inspeção..."></geo-async-state>
     </div>
   } @else if (inspecao(); as insp) {
     <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
@@ -34,7 +34,7 @@
           <span>·</span>
           <span>Realizada em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ insp.dataRealizacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>·</span>
-          <ces-status [tone]="situacao().tom" [emphasis]="situacao().tom === 'success' ? 'solid' : 'soft'" [icon]="situacao().icone">{{ situacao().rotulo }}</ces-status>
+          <geo-status [tone]="situacao().tom" [emphasis]="situacao().tom === 'success' ? 'solid' : 'soft'" [icon]="situacao().icone">{{ situacao().rotulo }}</geo-status>
         </div>
         <p class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 mt-1">{{ insp.formulario.titulo }}</p>
         <div class="mt-3 print:hidden">
@@ -195,7 +195,7 @@
           </div>
           @if (formulario() && resumo().desvios) {
             <div class="print:hidden">
-              <ces-boolean-control kind="toggle" [inline]="true" label="Só não conformes" [value]="soNaoConformes()" (valueChange)="soNaoConformes.set($event)"></ces-boolean-control>
+              <geo-boolean-control kind="toggle" [inline]="true" label="Só não conformes" [value]="soNaoConformes()" (valueChange)="soNaoConformes.set($event)"></geo-boolean-control>
             </div>
           }
         </div>
@@ -231,7 +231,7 @@
                             </td>
                             <td class="td text-right align-top">
                               @if (ehChecklist(pergunta)) {
-                                <ces-status [tone]="tomResposta(pergunta)" [icon]="iconeResposta(pergunta)">{{ respostaTexto(pergunta) }}</ces-status>
+                                <geo-status [tone]="tomResposta(pergunta)" [icon]="iconeResposta(pergunta)">{{ respostaTexto(pergunta) }}</geo-status>
                               } @else {
                                 <span class="text-slate-800 dark:text-slate-200 print:text-black whitespace-pre-line">{{ respostaTexto(pergunta) }}</span>
                               }
@@ -285,7 +285,7 @@
                         <span class="block text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 mt-0.5"><strong class="font-semibold">Ação:</strong> {{ desvio.acaoCorretiva }}</span>
                       }
                     </td>
-                    <td class="td"><ces-status [tone]="tomGravidade(desvio.gravidade)" [emphasis]="desvio.gravidade === 'CRITICA' ? 'solid' : 'soft'" [icon]="iconeGravidade[desvio.gravidade]">{{ gravidadeLabel(desvio.gravidade) }}</ces-status></td>
+                    <td class="td"><geo-status [tone]="tomGravidade(desvio.gravidade)" [emphasis]="desvio.gravidade === 'CRITICA' ? 'solid' : 'soft'" [icon]="iconeGravidade[desvio.gravidade]">{{ gravidadeLabel(desvio.gravidade) }}</geo-status></td>
                     <td class="td uppercase text-slate-700 dark:text-slate-200 print:text-black">
                       @for (c of desvio.colaboradores; track c.id; let ultimo = $last) { {{ c.nomeCompleto }}@if (!ultimo) {<br />} }
                       @if (!desvio.colaboradores.length) { <span class="normal-case italic text-slate-500 dark:text-slate-400">Equipe</span> }
@@ -295,16 +295,16 @@
                       @if (prazoVencido(desvio)) { <span class="block text-[10px] font-bold uppercase">vencido</span> }
                     </td>
                     <td class="td">
-                      <ces-status [tone]="tomStatusDesvio(desvio.status)" [icon]="iconeStatusDesvio(desvio.status)">{{ statusDesvioLabel(desvio.status) }}</ces-status>
+                      <geo-status [tone]="tomStatusDesvio(desvio.status)" [icon]="iconeStatusDesvio(desvio.status)">{{ statusDesvioLabel(desvio.status) }}</geo-status>
                       @if (desvio.dataResolucao) {
                         <span class="block text-[10px] text-slate-500 dark:text-slate-400 print:text-slate-600 mt-1">em {{ desvio.dataResolucao | date: 'dd/MM/yyyy' }}</span>
                       }
                     </td>
                     <td class="td print:hidden">
                       <div class="flex items-center justify-end gap-1">
-                        <ces-icon-button icon="pi pi-paperclip" [label]="'Evidências do desvio ' + (i + 1)" [tooltip]="totalAnexos(desvio) + (totalAnexos(desvio) === 1 ? ' evidência' : ' evidências')" size="icon-sm" (pressed)="abrirDesvio(desvio)" />
+                        <geo-icon-button icon="pi pi-paperclip" [label]="'Evidências do desvio ' + (i + 1)" [tooltip]="totalAnexos(desvio) + (totalAnexos(desvio) === 1 ? ' evidência' : ' evidências')" size="icon-sm" (pressed)="abrirDesvio(desvio)" />
                         @if (podeTratar()) {
-                          <ces-icon-button icon="pi pi-pencil" [label]="'Tratar desvio ' + (i + 1)" tooltip="Tratar desvio" size="icon-sm" (pressed)="abrirTratamento(desvio)" />
+                          <geo-icon-button icon="pi pi-pencil" [label]="'Tratar desvio ' + (i + 1)" tooltip="Tratar desvio" size="icon-sm" (pressed)="abrirTratamento(desvio)" />
                         }
                       </div>
                     </td>
@@ -429,12 +429,12 @@
     <!-- 14. AÇÕES FLUTUANTES: navegação e impressão à esquerda, a ação por último. -->
     <div class="barra-acoes fixed inset-x-0 bottom-0 px-4 pb-4 pt-6 md:inset-x-auto md:bottom-8 md:right-12 md:p-0 flex items-center justify-end flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
       <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="printReport()"
         styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
       @if (podeEditarCabecalho()) {
         <p-button icon="pi pi-pencil" label="EDITAR" (onClick)="navegarParaEdicao()"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       }
       @if (podeTratar() && proximoDesvioPendente(); as d) {
         <p-button icon="pi pi-wrench" label="TRATAR DESVIOS" (onClick)="abrirTratamento(d)"
@@ -443,52 +443,52 @@
     </div>
 
     <!-- Drawer: evidências de um desvio -->
-    <ces-form-drawer [visible]="!!desvioAberto()" (visibleChange)="!$event && desvioAberto.set(null)"
+    <geo-form-drawer [visible]="!!desvioAberto()" (visibleChange)="!$event && desvioAberto.set(null)"
       [title]="'Evidências do desvio'" [description]="desvioAberto() ? perguntaEnunciado(desvioAberto()!.idPergunta) : undefined" size="md">
       @if (desvioAberto(); as d) {
-        <ces-form-section title="Desvio" icon="pi pi-exclamation-triangle">
+        <geo-form-section title="Desvio" icon="pi pi-exclamation-triangle">
           <div class="flex flex-col gap-2">
-            <div class="kv"><span class="kv-l">Gravidade</span><span class="kv-v"><ces-status [tone]="tomGravidade(d.gravidade)" [icon]="iconeGravidade[d.gravidade]">{{ gravidadeLabel(d.gravidade) }}</ces-status></span></div>
-            <div class="kv"><span class="kv-l">Situação</span><span class="kv-v"><ces-status [tone]="tomStatusDesvio(d.status)" [icon]="iconeStatusDesvio(d.status)">{{ statusDesvioLabel(d.status) }}</ces-status></span></div>
+            <div class="kv"><span class="kv-l">Gravidade</span><span class="kv-v"><geo-status [tone]="tomGravidade(d.gravidade)" [icon]="iconeGravidade[d.gravidade]">{{ gravidadeLabel(d.gravidade) }}</geo-status></span></div>
+            <div class="kv"><span class="kv-l">Situação</span><span class="kv-v"><geo-status [tone]="tomStatusDesvio(d.status)" [icon]="iconeStatusDesvio(d.status)">{{ statusDesvioLabel(d.status) }}</geo-status></span></div>
             <div class="kv"><span class="kv-l">Prazo</span><span class="kv-v">{{ d.prazo ? (d.prazo | date: 'dd/MM/yyyy') : '—' }}</span></div>
             @if (d.acaoCorretiva) { <p class="texto-longo mt-1">{{ d.acaoCorretiva }}</p> }
           </div>
-        </ces-form-section>
-        <ces-form-section title="Evidências" icon="pi pi-paperclip">
+        </geo-form-section>
+        <geo-form-section title="Evidências" icon="pi pi-paperclip">
           <app-desvio-anexos [idInspecao]="insp.id" [idDesvio]="d.id" [anexos]="d.anexos || []" [canWrite]="podeTratar()"
             (anexosChange)="onAnexoMudado(d, $event)"></app-desvio-anexos>
-        </ces-form-section>
+        </geo-form-section>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Fechar" (pressed)="desvioAberto.set(null)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Fechar" (pressed)="desvioAberto.set(null)"></geo-button>
         @if (podeTratar() && desvioAberto(); as d) {
-          <ces-button variant="primary" icon="pi pi-pencil" label="Tratar desvio" (pressed)="desvioAberto.set(null); abrirTratamento(d)"></ces-button>
+          <geo-button variant="primary" icon="pi pi-pencil" label="Tratar desvio" (pressed)="desvioAberto.set(null); abrirTratamento(d)"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <!-- Drawer: tratamento do desvio -->
-    <ces-form-drawer [visible]="dialogTratamento" (visibleChange)="dialogTratamento = $event" title="Tratar desvio"
+    <geo-form-drawer [visible]="dialogTratamento" (visibleChange)="dialogTratamento = $event" title="Tratar desvio"
       [description]="desvioTratadoEnunciado()" [loading]="salvandoTratamento()" size="sm">
-      <ces-form-section title="Tratamento" icon="pi pi-wrench">
-        <div class="ces-form-stack">
-          <ces-select label="Situação" [required]="true" [options]="statusDesvioOptions" [(value)]="tratamento.status"
+      <geo-form-section title="Tratamento" icon="pi pi-wrench">
+        <div class="geo-form-stack">
+          <geo-select label="Situação" [required]="true" [options]="statusDesvioOptions" [(value)]="tratamento.status"
             [disabled]="desvioInicialmenteResolvido"
-            [description]="desvioInicialmenteResolvido ? 'Desvio resolvido não volta a ficar aberto.' : undefined"></ces-select>
-          <ces-textarea label="Ação corretiva" [showOptional]="true" [rows]="3" [maxlength]="1000" [value]="tratamento.acaoCorretiva ?? ''" (valueChange)="tratamento.acaoCorretiva = $event"
-            placeholder="O que foi ou será feito para corrigir"></ces-textarea>
-          <ces-datepicker label="Prazo" [showOptional]="true" [(value)]="tratamentoPrazo"></ces-datepicker>
+            [description]="desvioInicialmenteResolvido ? 'Desvio resolvido não volta a ficar aberto.' : undefined"></geo-select>
+          <geo-textarea label="Ação corretiva" [showOptional]="true" [rows]="3" [maxlength]="1000" [value]="tratamento.acaoCorretiva ?? ''" (valueChange)="tratamento.acaoCorretiva = $event"
+            placeholder="O que foi ou será feito para corrigir"></geo-textarea>
+          <geo-datepicker label="Prazo" [showOptional]="true" [(value)]="tratamentoPrazo"></geo-datepicker>
         </div>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Voltar" (pressed)="dialogTratamento = false" [disabled]="salvandoTratamento()"></ces-button>
-        <ces-button variant="primary" icon="pi pi-check" label="Salvar tratamento" [loading]="salvandoTratamento()" [disabled]="!tratamento.status" (pressed)="salvarTratamento()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Voltar" (pressed)="dialogTratamento = false" [disabled]="salvandoTratamento()"></geo-button>
+        <geo-button variant="primary" icon="pi pi-check" label="Salvar tratamento" [loading]="salvandoTratamento()" [disabled]="!tratamento.status" (pressed)="salvarTratamento()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   } @else {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state state="error" title="Inspeção indisponível" description="A inspeção não foi encontrada ou não pôde ser carregada."
-        actionLabel="Voltar às inspeções" actionIcon="pi pi-arrow-left" (action)="voltar()"></ces-async-state>
+      <geo-async-state state="error" title="Inspeção indisponível" description="A inspeção não foi encontrada ou não pôde ser carregada."
+        actionLabel="Voltar às inspeções" actionIcon="pi pi-arrow-left" (action)="voltar()"></geo-async-state>
     </div>
   }
 </div>

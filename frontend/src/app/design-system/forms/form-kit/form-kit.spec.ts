@@ -4,11 +4,11 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { provideRouter } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CesConfirmationService } from '../../overlays/confirmation/confirmation.service';
-import { CesFormDrawerComponent } from './ces-form-drawer.component';
-import { CES_FORM_KIT } from './index';
-import { cesErrorMessage, cesValidateForm } from './form-kit.utils';
-import { cesUnsavedChangesGuard } from './unsaved-changes.guard';
+import { GeoConfirmationService } from '../../overlays/confirmation/confirmation.service';
+import { GeoFormDrawerComponent } from './geo-form-drawer.component';
+import { GEO_FORM_KIT } from './index';
+import { geoErrorMessage, geoValidateForm } from './form-kit.utils';
+import { geoUnsavedChangesGuard } from './unsaved-changes.guard';
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -23,27 +23,27 @@ function mockMatchMedia() {
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, ...CES_FORM_KIT],
+  imports: [ReactiveFormsModule, ...GEO_FORM_KIT],
   template: `
-    <ces-form-page title="Novo contrato" icon="pi pi-file" backFallback="/contratos" [sectionNav]="true" [loading]="carregando()">
+    <geo-form-page title="Novo contrato" icon="pi pi-file" backFallback="/contratos" [sectionNav]="true" [loading]="carregando()">
       <form [formGroup]="form">
-        <ces-form-section title="Identificação" id="identificacao">
-          <ces-form-field label="Número do contrato" size="md" hint="Como aparece no contrato">
+        <geo-form-section title="Identificação" id="identificacao">
+          <geo-form-field label="Número do contrato" size="md" hint="Como aparece no contrato">
             <input formControlName="numero" />
-          </ces-form-field>
-          <ces-form-field label="Cliente" size="lg">
+          </geo-form-field>
+          <geo-form-field label="Cliente" size="lg">
             <input formControlName="cliente" />
-          </ces-form-field>
-        </ces-form-section>
-        <ces-form-section title="Vigência" id="vigencia">
-          <ces-form-field label="Coeficiente" size="sm" disabledReason="Definido pelo contrato-mãe">
+          </geo-form-field>
+        </geo-form-section>
+        <geo-form-section title="Vigência" id="vigencia">
+          <geo-form-field label="Coeficiente" size="sm" disabledReason="Definido pelo contrato-mãe">
             <input formControlName="coeficiente" />
-          </ces-form-field>
-        </ces-form-section>
+          </geo-form-field>
+        </geo-form-section>
       </form>
-      <ces-form-summary form-aside />
-      <ces-form-actions form-actions [saving]="salvando()" (save)="salvar()" (cancel)="cancelou = true" />
-    </ces-form-page>
+      <geo-form-summary form-aside />
+      <geo-form-actions form-actions [saving]="salvando()" (save)="salvar()" (cancel)="cancelou = true" />
+    </geo-form-page>
   `,
 })
 class PaginaHost {
@@ -63,22 +63,22 @@ class PaginaHost {
 
 @Component({
   standalone: true,
-  imports: [ReactiveFormsModule, ...CES_FORM_KIT],
+  imports: [ReactiveFormsModule, ...GEO_FORM_KIT],
   template: `
-    <ces-form-drawer #drawer [(visible)]="aberto" title="Novo contrato" [dirty]="form.dirty">
+    <geo-form-drawer #drawer [(visible)]="aberto" title="Novo contrato" [dirty]="form.dirty">
       <form [formGroup]="form">
-        <ces-form-section>
-          <ces-form-field label="Número"><input formControlName="numero" /></ces-form-field>
-        </ces-form-section>
+        <geo-form-section>
+          <geo-form-field label="Número"><input formControlName="numero" /></geo-form-field>
+        </geo-form-section>
       </form>
-      <ces-form-actions drawer-footer [saveAndNew]="true" (save)="salvos = salvos + 1" (cancel)="drawer.requestClose()" />
-    </ces-form-drawer>
+      <geo-form-actions drawer-footer [saveAndNew]="true" (save)="salvos = salvos + 1" (cancel)="drawer.requestClose()" />
+    </geo-form-drawer>
   `,
 })
 class DrawerHost {
   readonly aberto = signal(true);
   readonly form = new FormGroup({ numero: new FormControl('') });
-  readonly drawer = viewChild.required(CesFormDrawerComponent);
+  readonly drawer = viewChild.required(GeoFormDrawerComponent);
   salvos = 0;
 }
 
@@ -90,7 +90,7 @@ async function montar<T>(host: new () => T, confirmar?: boolean) {
     providers: [
       provideRouter([]),
       ConfirmationService,
-      { provide: CesConfirmationService, useValue: { confirm } },
+      { provide: GeoConfirmationService, useValue: { confirm } },
     ],
   }).compileComponents();
   const fixture = TestBed.createComponent(host);
@@ -111,33 +111,33 @@ describe('kit de formulário', () => {
     TestBed.resetTestingModule();
   });
 
-  describe('ces-form-field', () => {
+  describe('geo-form-field', () => {
     it('associa rótulo, mostra obrigatório pelo validador e a ajuda', async () => {
       const { fixture } = await montar(PaginaHost);
       const el: HTMLElement = fixture.nativeElement;
-      const [numero, cliente] = Array.from(el.querySelectorAll('ces-form-field')) as HTMLElement[];
+      const [numero, cliente] = Array.from(el.querySelectorAll('geo-form-field')) as HTMLElement[];
       const input = numero.querySelector('input')!;
       const label = numero.querySelector('label')!;
 
       expect(label.getAttribute('for')).toBe(input.id);
-      expect(numero.querySelector('.ces-form-field__required')).not.toBeNull();
-      expect(cliente.querySelector('.ces-form-field__required')).toBeNull();
+      expect(numero.querySelector('.geo-form-field__required')).not.toBeNull();
+      expect(cliente.querySelector('.geo-form-field__required')).toBeNull();
       expect(input.getAttribute('aria-required')).toBe('true');
-      expect(numero.querySelector('.ces-form-field__message')!.textContent).toContain('Como aparece no contrato');
-      expect(numero.style.getPropertyValue('--ces-form-span')).toBe('4');
+      expect(numero.querySelector('.geo-form-field__message')!.textContent).toContain('Como aparece no contrato');
+      expect(numero.style.getPropertyValue('--geo-form-span')).toBe('4');
     });
 
     it('mostra o erro só depois de tocado, com aria-invalid e aria-describedby', async () => {
       const { fixture } = await montar(PaginaHost);
       const host = fixture.componentInstance;
-      const campo = fixture.nativeElement.querySelector('ces-form-field') as HTMLElement;
+      const campo = fixture.nativeElement.querySelector('geo-form-field') as HTMLElement;
       const input = campo.querySelector('input')!;
 
-      expect(campo.querySelector('.ces-form-field__message--error')).toBeNull();
+      expect(campo.querySelector('.geo-form-field__message--error')).toBeNull();
       host.form.controls.numero.markAsTouched();
       fixture.detectChanges();
 
-      const erro = campo.querySelector('.ces-form-field__message--error')!;
+      const erro = campo.querySelector('.geo-form-field__message--error')!;
       expect(erro.textContent).toContain('Campo obrigatório.');
       expect(input.getAttribute('aria-invalid')).toBe('true');
       expect(input.getAttribute('aria-describedby')).toBe(erro.id);
@@ -149,20 +149,20 @@ describe('kit de formulário', () => {
 
     it('campo desabilitado mostra o motivo', async () => {
       const { fixture } = await montar(PaginaHost);
-      const campo = fixture.nativeElement.querySelectorAll('ces-form-field')[2] as HTMLElement;
-      expect(campo.classList).toContain('ces-form-field--disabled');
+      const campo = fixture.nativeElement.querySelectorAll('geo-form-field')[2] as HTMLElement;
+      expect(campo.classList).toContain('geo-form-field--disabled');
       expect(campo.textContent).toContain('Definido pelo contrato-mãe');
     });
   });
 
-  describe('ces-form-page', () => {
+  describe('geo-form-page', () => {
     it('título único, seções sem numeração e índice de âncoras', async () => {
       const { fixture } = await montar(PaginaHost);
       const el: HTMLElement = fixture.nativeElement;
       expect(el.querySelector('h1')!.textContent).toContain('Novo contrato');
-      const titulos = Array.from(el.querySelectorAll('.ces-form-section__title')).map((t) => t.textContent!.trim());
+      const titulos = Array.from(el.querySelectorAll('.geo-form-section__title')).map((t) => t.textContent!.trim());
       expect(titulos).toEqual(['Identificação', 'Vigência']);
-      const links = Array.from(el.querySelectorAll('.ces-form-nav a')).map((a) => a.getAttribute('href'));
+      const links = Array.from(el.querySelectorAll('.geo-form-nav a')).map((a) => a.getAttribute('href'));
       expect(links).toEqual(['#identificacao', '#vigencia']);
     });
 
@@ -176,8 +176,8 @@ describe('kit de formulário', () => {
       const { fixture } = await montar(PaginaHost);
       fixture.componentInstance.carregando.set(true);
       fixture.detectChanges();
-      expect(fixture.nativeElement.querySelector('.ces-form-skeleton')).not.toBeNull();
-      expect(fixture.nativeElement.querySelector('.ces-form-card__body').getAttribute('aria-busy')).toBe('true');
+      expect(fixture.nativeElement.querySelector('.geo-form-skeleton')).not.toBeNull();
+      expect(fixture.nativeElement.querySelector('.geo-form-card__body').getAttribute('aria-busy')).toBe('true');
     });
   });
 
@@ -188,12 +188,12 @@ describe('kit de formulário', () => {
       const root: HTMLElement = fixture.nativeElement;
       (root.querySelector('input[formcontrolname="cliente"]') as HTMLElement).focus();
 
-      const promessa = cesValidateForm(host.form, root);
+      const promessa = geoValidateForm(host.form, root);
       fixture.detectChanges();
       expect(await promessa).toBe(false);
 
       expect(document.activeElement).toBe(root.querySelector('input[formcontrolname="numero"]'));
-      const pendencias = Array.from(root.querySelectorAll('.ces-form-summary__pending button'));
+      const pendencias = Array.from(root.querySelectorAll('.geo-form-summary__pending button'));
       expect(pendencias).toHaveLength(1);
       expect(pendencias[0].textContent).toContain('Número do contrato');
       expect(pendencias[0].textContent).toContain('Identificação');
@@ -202,18 +202,18 @@ describe('kit de formulário', () => {
     it('formulário válido passa', async () => {
       const { fixture } = await montar(PaginaHost);
       fixture.componentInstance.form.controls.numero.setValue('CT-001');
-      expect(await cesValidateForm(fixture.componentInstance.form, fixture.nativeElement)).toBe(true);
+      expect(await geoValidateForm(fixture.componentInstance.form, fixture.nativeElement)).toBe(true);
     });
 
     it('mensagem de validador próprio', () => {
-      expect(cesErrorMessage({ periodo: 'A data final deve ser posterior à inicial.' })).toBe(
+      expect(geoErrorMessage({ periodo: 'A data final deve ser posterior à inicial.' })).toBe(
         'A data final deve ser posterior à inicial.',
       );
-      expect(cesErrorMessage({ max: { max: 10 } })).toBe('O valor máximo é 10.');
+      expect(geoErrorMessage({ max: { max: 10 } })).toBe('O valor máximo é 10.');
     });
   });
 
-  describe('ces-form-actions', () => {
+  describe('geo-form-actions', () => {
     it('Ctrl+S salva; durante o salvamento ignora e mostra carregando', async () => {
       const { fixture } = await montar(PaginaHost);
       const host = fixture.componentInstance;
@@ -224,13 +224,13 @@ describe('kit de formulário', () => {
       fixture.detectChanges();
       ctrlS();
       expect(host.salvos).toBe(1);
-      const botoes = Array.from(fixture.nativeElement.querySelectorAll('.ces-form-actions button')) as HTMLButtonElement[];
+      const botoes = Array.from(fixture.nativeElement.querySelectorAll('.geo-form-actions button')) as HTMLButtonElement[];
       expect(botoes.some((b) => b.textContent!.includes('Salvando'))).toBe(true);
       expect(botoes.every((b) => b.disabled)).toBe(true);
     });
   });
 
-  describe('ces-form-drawer', () => {
+  describe('geo-form-drawer', () => {
     it('Ctrl+S vai para o drawer aberto, que tem "Salvar e novo"', async () => {
       const { fixture } = await montar(DrawerHost);
       const drawer = document.body.querySelector('.p-drawer') as HTMLElement;
@@ -281,13 +281,13 @@ describe('kit de formulário', () => {
     });
   });
 
-  describe('cesUnsavedChangesGuard', () => {
+  describe('geoUnsavedChangesGuard', () => {
     it('só pergunta quando há alterações não salvas', async () => {
       const confirm = vi.fn(async () => false);
-      TestBed.configureTestingModule({ providers: [{ provide: CesConfirmationService, useValue: { confirm } }] });
+      TestBed.configureTestingModule({ providers: [{ provide: GeoConfirmationService, useValue: { confirm } }] });
       const rodar = (sujo: boolean) =>
         TestBed.runInInjectionContext(() =>
-          cesUnsavedChangesGuard({ hasUnsavedChanges: () => sujo }, null as any, null as any, null as any),
+          geoUnsavedChangesGuard({ hasUnsavedChanges: () => sujo }, null as any, null as any, null as any),
         );
       expect(rodar(false)).toBe(true);
       expect(await rodar(true)).toBe(false);

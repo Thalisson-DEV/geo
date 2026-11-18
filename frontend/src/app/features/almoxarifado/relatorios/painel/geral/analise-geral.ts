@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import {
   EstoqueRelatorioResponse,
@@ -49,7 +49,7 @@ export interface Pendencia {
   responsavel: string;
   desde: string;
   atraso: number;
-  tom: CesTone;
+  tom: GeoTone;
   /** Destino: rota do registro ou do relatório com a análise aberta. */
   rota: unknown[];
   queryParams?: Record<string, string>;

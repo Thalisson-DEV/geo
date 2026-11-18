@@ -37,11 +37,11 @@ export function buildAssistantPresentation(message: AssistenteMensagem): Assista
     kind: 'text',
     id: 'conteudo-fallback',
     content: fallbackAssistantContent(message),
-    format: 'MARKDOWN_CES_V1'
+    format: 'MARKDOWN_GEO_V1'
   }];
   const presentation = message.apresentacao;
   if (presentation?.versao !== '1.0' || !Array.isArray(presentation.blocos)) return fallback();
-  if (presentation.formatoConteudo !== 'MARKDOWN_CES_V1' &&
+  if (presentation.formatoConteudo !== 'MARKDOWN_GEO_V1' &&
       presentation.formatoConteudo !== 'TEXTO_SIMPLES') return fallback();
 
   const result: AssistantRenderableBlock[] = [];

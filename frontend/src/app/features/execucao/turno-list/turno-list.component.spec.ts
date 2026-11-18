@@ -72,7 +72,7 @@ describe('TurnoListComponent', () => {
   it('atalho "Em turno" e equipe da URL', async () => {
     const { el } = await abrir('/lista?equipe=q1&abertura=~');
     expect(dashboard['consultarTurnos']).toHaveBeenLastCalledWith(expect.objectContaining({ idEquipe: 'q1', aberturaDe: undefined }));
-    const emTurno = Array.from(el.querySelectorAll('.ces-quick-filter')).find((b) => b.textContent!.includes('Em turno')) as HTMLButtonElement;
+    const emTurno = Array.from(el.querySelectorAll('.geo-quick-filter')).find((b) => b.textContent!.includes('Em turno')) as HTMLButtonElement;
     emTurno.click();
     await new Promise((r) => setTimeout(r));
     expect(dashboard['consultarTurnos']).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'ABERTO', idEquipe: 'q1' }));

@@ -1,5 +1,5 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { CesDrillStateService } from '@ces/ui';
+import { GeoDrillStateService } from '@geo/ui';
 import { AlvoAnalise } from './dashboard-analise.models';
 
 interface PassoAnalise {
@@ -8,15 +8,15 @@ interface PassoAnalise {
 }
 
 /**
- * Navegação da análise detalhada sobre o `CesDrillStateService`: o alvo atual fica em `?drill=`
+ * Navegação da análise detalhada sobre o `GeoDrillStateService`: o alvo atual fica em `?drill=`
  * (link compartilhável, Voltar do navegador fecha) e a trilha das análises anteriores fica em memória,
  * para "Voltar" dentro do painel retornar à análise de onde o usuário aprofundou.
  *
- * Forneça por componente: `providers: [CesDrillStateService, NavegacaoAnaliseService]`.
+ * Forneça por componente: `providers: [GeoDrillStateService, NavegacaoAnaliseService]`.
  */
 @Injectable()
 export class NavegacaoAnaliseService {
-  private readonly drill = inject(CesDrillStateService);
+  private readonly drill = inject(GeoDrillStateService);
   private readonly pilha = signal<readonly PassoAnalise[]>([]);
 
   readonly alvo = this.drill.target;

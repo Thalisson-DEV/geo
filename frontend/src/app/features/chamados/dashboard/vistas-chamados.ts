@@ -1,5 +1,5 @@
 import { Observable, of } from 'rxjs';
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 
 import { ChamadoFiltros, ChamadoPrioridade, ChamadoStatus } from '../../../core/models/chamado.models';
 import { DashboardChamadosFilter, DashboardChamadosResponse } from '../../../core/models/chamado-dashboard.models';
@@ -69,7 +69,7 @@ export const TAMANHO_ORIGEM = 200;
 
 const ir = (dimension: string, value: string): AlvoAnalise => ({ dimension, value });
 
-export const COLUNAS_CHAMADO: CesDataTableColumn<LinhaChamado>[] = [
+export const COLUNAS_CHAMADO: GeoDataTableColumn<LinhaChamado>[] = [
   { key: 'protocolo', header: 'Protocolo', priority: 1 },
   { key: 'assunto', header: 'Assunto', priority: 1 },
   { key: 'topico', header: 'Tópico', priority: 2 },

@@ -1,5 +1,5 @@
 import { Injectable, inject, Injector, Type } from '@angular/core';
-import { CesReportNavigatorDataSource } from '../../design-system/patterns/report-navigator/report-navigator.models';
+import { GeoReportNavigatorDataSource } from '../../design-system/patterns/report-navigator/report-navigator.models';
 import { FinanceiroReportNavigatorDataSource } from '../../features/financeiro/solicitacoes/financeiro-report-navigator.data-source';
 import { SolicitacaoMaterialReportNavigatorDataSource } from '../../features/almoxarifado/solicitacoes-material/solicitacao-material-report-navigator.data-source';
 import { SolicitacaoTecnicaReportNavigatorDataSource } from '../../features/almoxarifado/solicitacoes-material/solicitacao-tecnica-report-navigator.data-source';
@@ -17,7 +17,7 @@ import { FechamentoReportNavigatorDataSource } from '../../features/obras/fecham
 export class ReportNavigatorRegistryService {
   private readonly injector = inject(Injector);
 
-  private readonly registry: Record<string, Type<CesReportNavigatorDataSource>> = {
+  private readonly registry: Record<string, Type<GeoReportNavigatorDataSource>> = {
     financeiro: FinanceiroReportNavigatorDataSource,
     'solicitacao-material': SolicitacaoMaterialReportNavigatorDataSource,
     'solicitacao-tecnica': SolicitacaoTecnicaReportNavigatorDataSource,
@@ -32,7 +32,7 @@ export class ReportNavigatorRegistryService {
     fechamento: FechamentoReportNavigatorDataSource
   };
 
-  resolve(sourceKey: string): CesReportNavigatorDataSource | null {
+  resolve(sourceKey: string): GeoReportNavigatorDataSource | null {
     const token = this.registry[sourceKey];
     return token ? this.injector.get(token) : null;
   }

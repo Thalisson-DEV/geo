@@ -1,21 +1,21 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { AnexoOrdemServico, OrdemServico } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
@@ -23,7 +23,7 @@ import { FrotaService } from '../../../core/services/frota.service';
 const LIMITE_ARQUIVO = 15 * 1024 * 1024;
 /** Valor do seletor que libera a descrição livre. */
 const OUTRO = '__outro__';
-const TIPOS: CesSelectOption<string>[] = [
+const TIPOS: GeoSelectOption<string>[] = [
   { label: 'Checklist da oficina assinado', value: 'Checklist da oficina assinado' },
   { label: 'Foto de antes do serviço', value: 'Foto de antes do serviço' },
   { label: 'Foto de depois do serviço', value: 'Foto de depois do serviço' },
@@ -44,19 +44,19 @@ const tamanho = (bytes: number | null | undefined) =>
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoTextInputComponent
   ],
   template: `
-    <ces-data-table
+    <geo-data-table
       title="Anexos e evidências"
       description="Checklist da oficina assinado, fotos de antes e depois e laudos. Podem entrar depois da conclusão."
       storageKey="frota-os-anexos"
@@ -72,55 +72,55 @@ const tamanho = (bytes: number | null | undefined) =>
     >
       <ng-container table-actions>
         @if (podeAnexar()) {
-          <ces-button size="sm" icon="pi pi-paperclip" label="Anexar arquivo" (pressed)="novo()"></ces-button>
+          <geo-button size="sm" icon="pi pi-paperclip" label="Anexar arquivo" (pressed)="novo()"></geo-button>
         }
       </ng-container>
-      <ng-template cesCell="descricao" let-row>
-        <span class="ces-cell-strong">{{ row.descricao ?? row.arquivoNome }}</span>
-        <span class="ces-cell-muted">{{ row.descricao ? row.arquivoNome + ' · ' : '' }}{{ tamanho(row.arquivoTamanhoBytes) }}</span>
+      <ng-template geoCell="descricao" let-row>
+        <span class="geo-cell-strong">{{ row.descricao ?? row.arquivoNome }}</span>
+        <span class="geo-cell-muted">{{ row.descricao ? row.arquivoNome + ' · ' : '' }}{{ tamanho(row.arquivoTamanhoBytes) }}</span>
       </ng-template>
-      <ng-template cesCell="enviadoEm" let-row>
+      <ng-template geoCell="enviadoEm" let-row>
         {{ row.enviadoEm | date: 'dd/MM/yyyy HH:mm' }}
-        @if (row.enviadoPor) {<span class="ces-cell-muted">{{ row.enviadoPor }}</span>}
+        @if (row.enviadoPor) {<span class="geo-cell-muted">{{ row.enviadoPor }}</span>}
       </ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
-          <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + (row.descricao ?? row.arquivoNome)" tooltip="Baixar" size="icon-sm"
-            (pressed)="baixar(row)"></ces-icon-button>
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
+          <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + (row.descricao ?? row.arquivoNome)" tooltip="Baixar" size="icon-sm"
+            (pressed)="baixar(row)"></geo-icon-button>
           @if (podeAnexar()) {
-            <ces-icon-button icon="pi pi-trash" [label]="'Excluir ' + (row.descricao ?? row.arquivoNome)" tooltip="Excluir anexo" size="icon-sm"
-              (pressed)="excluir(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-trash" [label]="'Excluir ' + (row.descricao ?? row.arquivoNome)" tooltip="Excluir anexo" size="icon-sm"
+              (pressed)="excluir(row)"></geo-icon-button>
           }
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
 
-    <ces-form-drawer [(visible)]="formularioAberto" title="Anexar arquivo"
+    <geo-form-drawer [(visible)]="formularioAberto" title="Anexar arquivo"
       [description]="'OS ' + ordem().numero + '. PDF ou imagem, até 15 MB.'" [dirty]="!!arquivo()" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
-        <ces-select label="O que é" [required]="true" [options]="tipos" [(value)]="tipo"></ces-select>
+      <div class="geo-form-stack">
+        <geo-select label="O que é" [required]="true" [options]="tipos" [(value)]="tipo"></geo-select>
         @if (tipo() === outro) {
-          <ces-text-input label="Descrição" [(value)]="descricaoLivre" [maxlength]="200" [showOptional]="true"
-            placeholder="Ex.: foto do pneu dianteiro"></ces-text-input>
+          <geo-text-input label="Descrição" [(value)]="descricaoLivre" [maxlength]="200" [showOptional]="true"
+            placeholder="Ex.: foto do pneu dianteiro"></geo-text-input>
         }
-        <ces-file-input label="Arquivo" [required]="true" description="PDF ou imagem (JPG, PNG, WEBP), até 15 MB."
+        <geo-file-input label="Arquivo" [required]="true" description="PDF ou imagem (JPG, PNG, WEBP), até 15 MB."
           accept="application/pdf,image/jpeg,image/png,image/webp" [maxBytes]="limiteArquivo" [(file)]="arquivo"
-          [error]="tentouSalvar() && !arquivo() ? 'Escolha o arquivo.' : undefined"></ces-file-input>
+          [error]="tentouSalvar() && !arquivo() ? 'Escolha o arquivo.' : undefined"></geo-file-input>
         @if (erroServidor()) {
-          <ces-callout tone="danger" [dense]="true">{{ erroServidor() }}</ces-callout>
+          <geo-callout tone="danger" [dense]="true">{{ erroServidor() }}</geo-callout>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Anexar" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Anexar" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaOsAnexosComponent {
   private readonly frota = inject(FrotaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   readonly ordem = input.required<OrdemServico>();
   readonly podeEditar = input(false);
@@ -148,7 +148,7 @@ export class FrotaOsAnexosComponent {
     this.carregando() ? 'loading' : this.erro() ? 'error' : this.anexos().length ? 'ready' : 'empty'
   );
 
-  protected readonly colunas: CesDataTableColumn<AnexoOrdemServico>[] = [
+  protected readonly colunas: GeoDataTableColumn<AnexoOrdemServico>[] = [
     { key: 'descricao', header: 'Anexo', type: 'custom', priority: 1, value: (r) => r.descricao ?? r.arquivoNome, display: (r) => `${r.descricao ?? ''} ${r.arquivoNome}` },
     { key: 'enviadoEm', header: 'Enviado em', type: 'custom', priority: 1, value: (r) => r.enviadoEm, display: (r) => r.enviadoEm }
   ];

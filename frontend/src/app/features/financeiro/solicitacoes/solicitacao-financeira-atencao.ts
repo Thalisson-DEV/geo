@@ -1,9 +1,9 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { FormularioSchema, SolicitacaoFinanceira } from '../../../core/models/financeiro.models';
 
 /** Algo que quem aprova deveria olhar antes de decidir (mesmo formato dos relatórios de execução). */
 export interface PontoAtencao {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;

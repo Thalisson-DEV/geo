@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
-import { CesCalloutComponent } from '@ces/ui';
+import { GeoCalloutComponent } from '@geo/ui';
 import { SaldoResponse } from '../../../core/models/almoxarifado.models';
 
 /** Saldo negativo de um material no estoque da equipe que vai receber a entrega. */
@@ -42,10 +42,10 @@ export function agruparSaldosNegativos(saldos: readonly SaldoResponse[]): Map<st
   selector: 'app-aviso-saldo-negativo-equipe',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, CesCalloutComponent],
+  imports: [DecimalPipe, GeoCalloutComponent],
   template: `
     @if (itens().length > 0) {
-      <ces-callout tone="warning" title="Saldo negativo na equipe" [dense]="true">
+      <geo-callout tone="warning" title="Saldo negativo na equipe" [dense]="true">
         <p>
           {{ itens().length === 1 ? 'Este material está' : 'Estes materiais estão' }} com saldo negativo
           {{ equipe() ? 'na equipe ' + equipe() : 'nesta equipe' }}:
@@ -62,7 +62,7 @@ export function agruparSaldosNegativos(saldos: readonly SaldoResponse[]): Map<st
           O ideal é informar ao gestor da equipe que {{ itens().length === 1 ? 'esse material está negativo' : 'esses materiais estão negativos' }}.
           A entrega pode seguir normalmente.
         </p>
-      </ces-callout>
+      </geo-callout>
     }
   `,
 })

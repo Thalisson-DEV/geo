@@ -1,14 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesNumberInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoNumberInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ControlePreventivo } from '../../../core/models/frota-preventiva.models';
 import { formatarMedicao, formatarPlaca, rotuloValorAtual } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -23,39 +23,39 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
   selector: 'app-frota-informar-realizacao-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesCalloutComponent, CesDatepickerComponent, CesFormDrawerComponent, CesNumberInputComponent, CesTextareaComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoCalloutComponent, GeoDatepickerComponent, GeoFormDrawerComponent, GeoNumberInputComponent, GeoTextareaComponent],
   styles: `
-    .contexto { display: grid; gap: 0.125rem; padding: 0.75rem; border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
-    .contexto__titulo { font-weight: 700; color: var(--ces-foreground); }
-    .contexto__linha { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .contexto { display: grid; gap: 0.125rem; padding: 0.75rem; border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+    .contexto__titulo { font-weight: 700; color: var(--geo-foreground); }
+    .contexto__linha { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visivel" title="Informar a última realização"
+    <geo-form-drawer [(visible)]="visivel" title="Informar a última realização"
       [description]="controle() ? placa(controle()!.placa) + ' · ' + controle()!.plano : undefined"
       [dirty]="alterado()" [loading]="salvando()" size="sm">
       @if (controle(); as c) {
-        <div class="ces-form-stack">
+        <div class="geo-form-stack">
           <div class="contexto">
             <span class="contexto__titulo">Hoje conta a partir de {{ c.baseData | date: 'dd/MM/yyyy' }}{{ c.baseMedicao != null ? ' com ' + medicao(c.baseMedicao, c.unidade) : '' }}</span>
             <span class="contexto__linha">{{ c.baseOrigemRotulo }} · {{ rotuloAtual(c.unidade) }}: {{ medicao(c.medicaoAtual, c.unidade) }}</span>
           </div>
-          <ces-callout tone="info" [dense]="true" icon="pi pi-info-circle">
+          <geo-callout tone="info" [dense]="true" icon="pi pi-info-circle">
             Para a revisão feita fora do sistema. Ela vira a base: a próxima conta a partir dela.
-          </ces-callout>
-          <ces-datepicker label="Quando foi feita" [required]="true" [value]="dataLocal(data())" [maxDate]="hoje"
-            (valueChange)="data.set(dataIso($event))" [error]="tentou() && !data() ? 'Informe a data.' : undefined"></ces-datepicker>
-          <ces-number-input [label]="c.unidade === 'HORAS' ? 'Horímetro na revisão' : 'KM na revisão'" [(value)]="valor" [min]="0"
+          </geo-callout>
+          <geo-datepicker label="Quando foi feita" [required]="true" [value]="dataLocal(data())" [maxDate]="hoje"
+            (valueChange)="data.set(dataIso($event))" [error]="tentou() && !data() ? 'Informe a data.' : undefined"></geo-datepicker>
+          <geo-number-input [label]="c.unidade === 'HORAS' ? 'Horímetro na revisão' : 'KM na revisão'" [(value)]="valor" [min]="0"
             [suffix]="c.unidade === 'HORAS' ? ' h' : ' km'" [required]="exigeMedicao()"
-            [showOptional]="!exigeMedicao()" [description]="descricaoMedicao()" [error]="erroMedicao()"></ces-number-input>
-          <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"
-            placeholder="Ex.: Feita na concessionária, nota 1234"></ces-textarea>
+            [showOptional]="!exigeMedicao()" [description]="descricaoMedicao()" [error]="erroMedicao()"></geo-number-input>
+          <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"
+            placeholder="Ex.: Feita na concessionária, nota 1234"></geo-textarea>
         </div>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Registrar realização" [loading]="salvando()" (pressed)="registrar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Registrar realização" [loading]="salvando()" (pressed)="registrar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaInformarRealizacaoDrawerComponent {

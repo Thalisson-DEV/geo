@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   Chamado,
   ChamadoPrioridade,
@@ -60,35 +60,35 @@ export function statusSeverity(status: ChamadoStatus): 'info' | 'warn' | 'succes
  * Classes de texto e fundo suave por tom, com os tokens semânticos do GEO (tema claro/escuro).
  * Os literais ficam completos para o Tailwind gerar as utilities.
  */
-const TOM_TEXTO: Record<CesTone, string> = {
-  neutral: 'text-[var(--ces-foreground-muted)]',
-  brand: 'text-[var(--ces-brand)]',
-  info: 'text-[var(--ces-info-text)]',
-  success: 'text-[var(--ces-success-text)]',
-  warning: 'text-[var(--ces-warning-text)]',
-  danger: 'text-[var(--ces-danger-text)]'
+const TOM_TEXTO: Record<GeoTone, string> = {
+  neutral: 'text-[var(--geo-foreground-muted)]',
+  brand: 'text-[var(--geo-brand)]',
+  info: 'text-[var(--geo-info-text)]',
+  success: 'text-[var(--geo-success-text)]',
+  warning: 'text-[var(--geo-warning-text)]',
+  danger: 'text-[var(--geo-danger-text)]'
 };
 
-const TOM_TEXTO_FORCADO: Record<CesTone, string> = {
-  neutral: '!text-[var(--ces-foreground-muted)]',
-  brand: '!text-[var(--ces-brand)]',
-  info: '!text-[var(--ces-info-text)]',
-  success: '!text-[var(--ces-success-text)]',
-  warning: '!text-[var(--ces-warning-text)]',
-  danger: '!text-[var(--ces-danger-text)]'
+const TOM_TEXTO_FORCADO: Record<GeoTone, string> = {
+  neutral: '!text-[var(--geo-foreground-muted)]',
+  brand: '!text-[var(--geo-brand)]',
+  info: '!text-[var(--geo-info-text)]',
+  success: '!text-[var(--geo-success-text)]',
+  warning: '!text-[var(--geo-warning-text)]',
+  danger: '!text-[var(--geo-danger-text)]'
 };
 
-const TOM_FUNDO: Record<CesTone, string> = {
-  neutral: 'bg-[var(--ces-surface-muted)]',
-  brand: 'bg-[var(--ces-brand-soft)]',
-  info: 'bg-[var(--ces-info-soft)]',
-  success: 'bg-[var(--ces-success-soft)]',
-  warning: 'bg-[var(--ces-warning-soft)]',
-  danger: 'bg-[var(--ces-danger-soft)]'
+const TOM_FUNDO: Record<GeoTone, string> = {
+  neutral: 'bg-[var(--geo-surface-muted)]',
+  brand: 'bg-[var(--geo-brand-soft)]',
+  info: 'bg-[var(--geo-info-soft)]',
+  success: 'bg-[var(--geo-success-soft)]',
+  warning: 'bg-[var(--geo-warning-soft)]',
+  danger: 'bg-[var(--geo-danger-soft)]'
 };
 
-/** Texto + fundo suave do tom (selos montados à mão; prefira `ces-status`). */
-export function tomClass(tom: CesTone): string {
+/** Texto + fundo suave do tom (selos montados à mão; prefira `geo-status`). */
+export function tomClass(tom: GeoTone): string {
   return `${TOM_TEXTO[tom]} ${TOM_FUNDO[tom]}`;
 }
 
@@ -134,7 +134,7 @@ export function contagemSlaLabel(chamado: SituacaoSla): string {
 }
 
 /** Tom da contagem do SLA de resolução (acompanha `contagemSlaLabel`). */
-export function contagemSlaTom(chamado: SituacaoSla): CesTone {
+export function contagemSlaTom(chamado: SituacaoSla): GeoTone {
   if (chamado.status === 'CANCELADO') return 'neutral';
   if (concluido(chamado.status)) return chamado.slaResolucaoVencido ? 'danger' : 'success';
   if (chamado.slaPausado) return 'neutral';
@@ -179,9 +179,9 @@ export function prazoLabel(chamado: SituacaoPrazo): string {
   return venceEmBreve(chamado) ? 'Vence em breve' : 'No prazo';
 }
 
-/** Tom do DS (`ces-status`) para o status do chamado. */
-export function statusTom(status: ChamadoStatus): CesTone {
-  const tons: Record<ChamadoStatus, CesTone> = {
+/** Tom do DS (`geo-status`) para o status do chamado. */
+export function statusTom(status: ChamadoStatus): GeoTone {
+  const tons: Record<ChamadoStatus, GeoTone> = {
     ABERTO: 'info',
     EM_ATENDIMENTO: 'warning',
     AGUARDANDO_SOLICITANTE: 'neutral',
@@ -205,14 +205,14 @@ export function statusIcone(status: ChamadoStatus): string {
   return icones[status];
 }
 
-/** Tom do DS (`ces-status`) para a prioridade. */
-export function prioridadeTom(prioridade: ChamadoPrioridade): CesTone {
-  const tons: Record<ChamadoPrioridade, CesTone> = { BAIXA: 'neutral', NORMAL: 'info', ALTA: 'warning', CRITICA: 'danger' };
+/** Tom do DS (`geo-status`) para a prioridade. */
+export function prioridadeTom(prioridade: ChamadoPrioridade): GeoTone {
+  const tons: Record<ChamadoPrioridade, GeoTone> = { BAIXA: 'neutral', NORMAL: 'info', ALTA: 'warning', CRITICA: 'danger' };
   return tons[prioridade];
 }
 
 /** Tom do DS para o prazo de resolução (`prazoClass`, `prazoIcon` e `prazoLabel` seguem a mesma regra). */
-export function prazoTom(chamado: SituacaoPrazo): CesTone {
+export function prazoTom(chamado: SituacaoPrazo): GeoTone {
   if (chamado.status === 'CANCELADO') return 'neutral';
   if (concluido(chamado.status)) return chamado.slaResolucaoVencido ? 'danger' : 'success';
   if (chamado.slaResolucaoVencido) return 'danger';

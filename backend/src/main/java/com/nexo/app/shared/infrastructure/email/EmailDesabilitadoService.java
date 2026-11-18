@@ -25,7 +25,7 @@ public class EmailDesabilitadoService implements ServicoEmail {
 
     @Override
     public ResultadoEnvioEmail enviar(MensagemEmail mensagem) {
-        log.info("Envio de e-mail desligado (ces.email.provedor=NENHUM). "
+        log.info("Envio de e-mail desligado (geo.email.provedor=NENHUM). "
                         + "Assunto '{}' seria enviado a {} destinatário(s) com {} anexo(s).",
                 mensagem.assunto(), mensagem.destinatarios().size(), mensagem.anexos().size());
         return ResultadoEnvioEmail.entregue(ProvedorEmail.NENHUM, null);

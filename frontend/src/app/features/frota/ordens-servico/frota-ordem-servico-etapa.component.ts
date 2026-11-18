@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 import { OrdemServicoDetalhe, paraInstanteIso, rotuloOs } from '../../../core/models/frota.models';
 import { fimDeHoje } from './frota-ordem-servico.util';
@@ -40,41 +40,41 @@ const TEXTOS: Record<EtapaOrdemServico, { titulo: string; descricao: string; bot
   selector: 'app-frota-ordem-servico-etapa',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesDatepickerComponent, CesFormDrawerComponent, CesTextInputComponent],
+  imports: [GeoButtonComponent, GeoDatepickerComponent, GeoFormDrawerComponent, GeoTextInputComponent],
   styles: `.horarios { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: -0.25rem; }`,
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="textos().titulo"
+    <geo-form-drawer [(visible)]="visivel" [title]="textos().titulo"
       [description]="rotuloOs(ordem()?.ordem?.numero) + ' · ' + (ordem()?.ordem?.placa ?? '') + '. ' + textos().descricao"
       [dirty]="alterado()" [loading]="salvando()" size="sm">
       <!-- Só com o drawer aberto: fechar destrói os datepickers e o painel que eles anexam ao body. -->
       @if (visivel()) {
-      <div class="ces-form-stack">
+      <div class="geo-form-stack">
         @switch (etapa()) {
           @case ('agendar') {
-            <ces-datepicker label="Data e hora" [required]="true" [(value)]="data" [showTime]="true" [error]="erro()"></ces-datepicker>
+            <geo-datepicker label="Data e hora" [required]="true" [(value)]="data" [showTime]="true" [error]="erro()"></geo-datepicker>
             <div class="horarios" role="group" aria-label="Horários rápidos">
               @for (s of sugestoes; track s.rotulo) {
-                <ces-button size="sm" variant="outline" [label]="s.rotulo" (pressed)="data.set(s.data())"></ces-button>
+                <geo-button size="sm" variant="outline" [label]="s.rotulo" (pressed)="data.set(s.data())"></geo-button>
               }
             </div>
-            <ces-text-input label="Local" [(value)]="local" [maxlength]="200" [showOptional]="true"
-              placeholder="Oficina, endereço ou base"></ces-text-input>
+            <geo-text-input label="Local" [(value)]="local" [maxlength]="200" [showOptional]="true"
+              placeholder="Oficina, endereço ou base"></geo-text-input>
           }
           @case ('iniciar') {
-            <ces-datepicker label="Início real" [required]="true" [(value)]="data" [showTime]="true" [maxDate]="agora" [error]="erro()"></ces-datepicker>
-            <ces-datepicker label="Previsão de término" [(value)]="previsao" [showTime]="true" [clearable]="true" [showOptional]="true"></ces-datepicker>
+            <geo-datepicker label="Início real" [required]="true" [(value)]="data" [showTime]="true" [maxDate]="agora" [error]="erro()"></geo-datepicker>
+            <geo-datepicker label="Previsão de término" [(value)]="previsao" [showTime]="true" [clearable]="true" [showOptional]="true"></geo-datepicker>
           }
           @case ('previsao') {
-            <ces-datepicker label="Nova previsão de término" [required]="true" [(value)]="previsao" [showTime]="true" [error]="erro()"></ces-datepicker>
+            <geo-datepicker label="Nova previsão de término" [required]="true" [(value)]="previsao" [showTime]="true" [error]="erro()"></geo-datepicker>
           }
         }
       </div>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="textos().botao" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="textos().botao" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaOrdemServicoEtapaComponent {

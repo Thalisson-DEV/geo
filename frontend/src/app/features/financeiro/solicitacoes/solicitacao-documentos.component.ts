@@ -2,17 +2,17 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesButtonComponent,
-  CesConfirmationService,
-  CesDialogShellComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoConfirmationService,
+  GeoDialogShellComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   DocumentoFinanceiro,
   DocumentoRequest,
@@ -91,14 +91,14 @@ const ACOES_FECHADAS: AcoesDocumento = {
   imports: [
     CommonModule,
     FormsModule,
-    CesButtonComponent,
-    CesDialogShellComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoDialogShellComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   styles: `
     .step-circle {
@@ -200,7 +200,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 <span class="text-[9px] text-slate-400 dark:text-slate-400">
                   {{ tamanho(arquivo.size) }}
                 </span>
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-times"
                   [label]="'Remover ' + arquivo.name + ' da seleção'"
                   size="icon-sm"
@@ -212,7 +212,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
           </ul>
 
           <div class="mt-3">
-            <ces-button
+            <geo-button
               label="Adicionar mais arquivos"
               icon="pi pi-plus"
               variant="ghost"
@@ -223,20 +223,20 @@ const ACOES_FECHADAS: AcoesDocumento = {
           </div>
 
           <div class="flex flex-col sm:flex-row sm:items-end gap-3 mt-3">
-            <ces-select
+            <geo-select
               class="flex-1"
               label="Tipo do documento"
               [options]="tipos"
               [(value)]="tipoDocumento"
             />
             <div class="flex justify-end gap-2">
-              <ces-button
+              <geo-button
                 label="Cancelar"
                 variant="ghost"
                 size="sm"
                 (pressed)="cancelarSelecao()"
               />
-              <ces-button
+              <geo-button
                 [label]="rotuloEnvio()"
                 icon="pi pi-upload"
                 size="sm"
@@ -274,12 +274,12 @@ const ACOES_FECHADAS: AcoesDocumento = {
                   }
                 </p>
               </div>
-              <ces-status [tone]="tomSituacao(documento.situacao)"
+              <geo-status [tone]="tomSituacao(documento.situacao)"
                 [icon]="documento.situacao === 'PENDENTE' ? 'pi pi-clock' : (documento.situacao === 'CONFERIDO' ? 'pi pi-check' : 'pi pi-exclamation-triangle')"
                 [emphasis]="documento.situacao === 'PENDENTE' ? 'outline' : 'soft'"
                 [class]="documento.situacao === 'PENDENTE' ? 'font-bold !border-amber-400 dark:!border-amber-500 !text-amber-700 dark:!text-amber-300 !bg-amber-50 dark:!bg-amber-950/40' : ''">
                 {{ documento.situacaoRotulo || documento.situacao }}
-              </ces-status>
+              </geo-status>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-11 text-[10px]">
@@ -303,7 +303,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                   <span class="text-[9px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Código de pagamento
                   </span>
-                  <ces-icon-button
+                  <geo-icon-button
                     icon="pi pi-copy"
                     label="Copiar código de pagamento"
                     size="icon-sm"
@@ -355,7 +355,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
 
             <div class="ml-11 flex flex-wrap items-center gap-1.5" aria-label="Ações do documento">
               @if (acoes(documento).baixar && podeVisualizar(documento)) {
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-eye"
                   label="Visualizar anexo"
                   size="icon-sm"
@@ -364,7 +364,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 />
               }
               @if (acoes(documento).baixar) {
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-download"
                   label="Baixar arquivo"
                   size="icon-sm"
@@ -373,7 +373,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 />
               }
               @if (acoes(documento).editarMetadados) {
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-pencil"
                   label="Editar metadados"
                   size="icon-sm"
@@ -382,7 +382,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 />
               }
               @if (acoes(documento).apontarPendencia) {
-                <ces-button
+                <geo-button
                   label="Apontar pendência"
                   icon="pi pi-flag"
                   variant="secondary"
@@ -392,7 +392,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 />
               }
               @if (acoes(documento).arquivar) {
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-folder"
                   label="Arquivar documento"
                   size="icon-sm"
@@ -400,7 +400,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 />
               }
               @if (acoes(documento).reabrir) {
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-folder-open"
                   label="Reabrir documento"
                   size="icon-sm"
@@ -408,7 +408,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 />
               }
               @if (acoes(documento).desvincular) {
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-link"
                   label="Desvincular da solicitação"
                   size="icon-sm"
@@ -416,7 +416,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
                 />
               }
               @if (acoes(documento).remover) {
-                <ces-icon-button
+                <geo-icon-button
                   icon="pi pi-trash"
                   label="Remover documento"
                   variant="destructive"
@@ -436,7 +436,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
       </div>
     </section>
 
-    <ces-dialog-shell
+    <geo-dialog-shell
       [(visible)]="dialogVisivel"
       title="Apontar pendência"
       description="Informe o motivo para registrar a pendência."
@@ -444,7 +444,7 @@ const ACOES_FECHADAS: AcoesDocumento = {
       [loading]="mutacaoEmAndamento()"
       loadingLabel="Salvando pendência"
     >
-      <ces-textarea
+      <geo-textarea
         label="Motivo"
         [required]="true"
         [maxlength]="1000"
@@ -454,22 +454,22 @@ const ACOES_FECHADAS: AcoesDocumento = {
         [(value)]="textoPendencia"
       />
       <div dialog-footer>
-        <ces-button
+        <geo-button
           label="Cancelar"
           variant="ghost"
           [disabled]="mutacaoEmAndamento()"
           (pressed)="fecharDialogo()"
         />
-        <ces-button
+        <geo-button
           label="Registrar pendência"
           variant="primary"
           [loading]="mutacaoEmAndamento()"
           (pressed)="confirmarDialogo()"
         />
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
 
-    <ces-dialog-shell
+    <geo-dialog-shell
       [(visible)]="editorVisivel"
       title="Editar metadados do documento"
       description="Navegue pelas etapas e ajuste os metadados do documento."
@@ -524,36 +524,36 @@ const ACOES_FECHADAS: AcoesDocumento = {
 
       @if (etapaEditor() === 1) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in duration-200">
-          <ces-select
+          <geo-select
             class="sm:col-span-2"
             label="Tipo do documento"
             [options]="tipos"
             [(value)]="editor.tipo"
           />
-          <ces-text-input
+          <geo-text-input
             label="Número do documento"
             [showOptional]="true"
             [(value)]="editor.numeroDocumento"
           />
-          <ces-text-input
+          <geo-text-input
             label="Nome do emissor"
             [showOptional]="true"
             [(value)]="editor.emissorNome"
           />
-          <ces-text-input
+          <geo-text-input
             class="sm:col-span-2"
             label="Chave de acesso"
             [showOptional]="true"
             [(value)]="editor.chaveAcesso"
           />
-          <ces-text-input
+          <geo-text-input
             class="sm:col-span-2"
             label="Código de pagamento"
             [showOptional]="true"
             [maxlength]="512"
             [(value)]="editor.codigoPagamento"
           />
-          <ces-text-input
+          <geo-text-input
             class="sm:col-span-2"
             label="Fornecedor"
             [showOptional]="true"
@@ -564,26 +564,26 @@ const ACOES_FECHADAS: AcoesDocumento = {
 
       @if (etapaEditor() === 2) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in duration-200">
-          <ces-number-input
+          <geo-number-input
             class="sm:col-span-2"
             label="Valor"
             mode="currency"
             locale="pt-BR"
             [(value)]="editor.valor"
           />
-          <ces-text-input
+          <geo-text-input
             label="Data de emissão"
             description="Formato: AAAA-MM-DD"
             [showOptional]="true"
             [(value)]="editor.dataEmissao"
           />
-          <ces-text-input
+          <geo-text-input
             label="Data de vencimento"
             description="Formato: AAAA-MM-DD"
             [showOptional]="true"
             [(value)]="editor.dataVencimento"
           />
-          <ces-text-input
+          <geo-text-input
             class="sm:col-span-2"
             label="Mês contábil (competência)"
             description="Formato: AAAA-MM-DD"
@@ -595,29 +595,29 @@ const ACOES_FECHADAS: AcoesDocumento = {
 
       @if (etapaEditor() === 3) {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in duration-200">
-          <ces-text-input
+          <geo-text-input
             label="Base"
             [showOptional]="true"
             [(value)]="editor.baseId"
           />
-          <ces-text-input
+          <geo-text-input
             label="Processo"
             [showOptional]="true"
             [(value)]="editor.processoId"
           />
-          <ces-text-input
+          <geo-text-input
             class="sm:col-span-2"
             label="Obra"
             [showOptional]="true"
             [(value)]="editor.obraId"
           />
-          <ces-text-input
+          <geo-text-input
             class="sm:col-span-2"
             label="Descrição"
             [showOptional]="true"
             [(value)]="editor.descricao"
           />
-          <ces-textarea
+          <geo-textarea
             class="sm:col-span-2"
             label="Observações"
             [showOptional]="true"
@@ -631,14 +631,14 @@ const ACOES_FECHADAS: AcoesDocumento = {
       <div dialog-footer class="flex items-center justify-between w-full">
         <div>
           @if (etapaEditor() === 1) {
-            <ces-button
+            <geo-button
               label="Cancelar"
               variant="ghost"
               [disabled]="salvandoEdicao()"
               (pressed)="fecharEdicao()"
             />
           } @else {
-            <ces-button
+            <geo-button
               label="Voltar"
               icon="pi pi-arrow-left"
               variant="ghost"
@@ -649,14 +649,14 @@ const ACOES_FECHADAS: AcoesDocumento = {
         </div>
         <div class="flex items-center gap-2">
           @if (etapaEditor() < 3) {
-            <ces-button
+            <geo-button
               label="Próximo"
               icon="pi pi-arrow-right"
               iconPosition="right"
               (pressed)="etapaEditor.set(etapaEditor() + 1)"
             />
           } @else {
-            <ces-button
+            <geo-button
               label="Salvar metadados"
               icon="pi pi-check"
               [loading]="salvandoEdicao()"
@@ -665,14 +665,14 @@ const ACOES_FECHADAS: AcoesDocumento = {
           }
         </div>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `
 })
 export class SolicitacaoDocumentosComponent {
   private readonly service = inject(FinanceiroService);
   private readonly auth = inject(AuthService);
   private readonly notifications = inject(NotificationService);
-  private readonly confirmations = inject(CesConfirmationService);
+  private readonly confirmations = inject(GeoConfirmationService);
 
   readonly tipo = input.required<TipoSolicitacao>();
   readonly solicitacao = input.required<SolicitacaoFinanceira>();

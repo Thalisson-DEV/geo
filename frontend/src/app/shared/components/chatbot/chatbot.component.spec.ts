@@ -113,7 +113,7 @@ describe('ChatbotComponent', () => {
       }],
       apresentacao: {
         versao: '1.0',
-        formatoConteudo: 'MARKDOWN_CES_V1',
+        formatoConteudo: 'MARKDOWN_GEO_V1',
         blocos: [{
           id: 'texto-principal',
           tipo: 'TEXTO',
@@ -283,8 +283,8 @@ describe('ChatbotComponent', () => {
     service.criarConversa.mockReturnValueOnce(of(previousConversation));
     clickButtonByLabel('Abrir conversa com a Bússola');
     fixture.detectChanges();
-    sessionStorage.setItem('ces_assistente_rascunho_user-id', 'Rascunho antigo');
-    sessionStorage.setItem('ces_assistente_pendente_user-id', JSON.stringify({
+    sessionStorage.setItem('geo_assistente_rascunho_user-id', 'Rascunho antigo');
+    sessionStorage.setItem('geo_assistente_pendente_user-id', JSON.stringify({
       conversaId: previousConversation.id,
       clientMessageId: 'pending-id',
       conteudo: 'Pergunta antiga'
@@ -300,9 +300,9 @@ describe('ChatbotComponent', () => {
     fixture.detectChanges();
 
     expect(service.criarConversa).toHaveBeenCalledTimes(2);
-    expect(localStorage.getItem('ces_assistente_conversa_user-id')).toBe(freshConversation.id);
-    expect(sessionStorage.getItem('ces_assistente_rascunho_user-id')).toBeNull();
-    expect(sessionStorage.getItem('ces_assistente_pendente_user-id')).toBeNull();
+    expect(localStorage.getItem('geo_assistente_conversa_user-id')).toBe(freshConversation.id);
+    expect(sessionStorage.getItem('geo_assistente_rascunho_user-id')).toBeNull();
+    expect(sessionStorage.getItem('geo_assistente_pendente_user-id')).toBeNull();
     expect(fixture.nativeElement.textContent).not.toContain('Contexto da conversa anterior.');
     expect(fixture.nativeElement.textContent).toContain('Como posso facilitar seu dia?');
   });

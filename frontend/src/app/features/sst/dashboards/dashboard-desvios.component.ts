@@ -37,18 +37,18 @@ import { AlvoAnalise, VistaAnalise } from '../../../shared/components/dashboard/
 import { NavegacaoAnaliseService } from '../../../shared/components/dashboard/dashboard-analise.navegacao';
 import { DashboardVisaoGerencialComponent } from '../../../shared/components/dashboard/dashboard-visao-gerencial.component';
 import { GrupoDesvio, visaoDesvios, vistaDesvios } from './analise/analise-desvios';
-import { CesButtonComponent, CesDrillStateService,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesStatusComponent,
-  CesDatepickerComponent,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
+import { GeoButtonComponent, GeoDrillStateService,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoStatusComponent,
+  GeoDatepickerComponent,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { chipsDoRecorte, opcoesDe } from '../../../shared/components/dashboard/dashboard-filtros';
 import {
   CopilotoAreaComponent,
@@ -76,11 +76,11 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesDatepickerComponent, CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent,
-    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, CesCellDirective, CesDataTableComponent, CesStatusComponent,
-    DashboardMetricCardComponent, CesButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent,
+    GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent,
+    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, GeoCellDirective, GeoDataTableComponent, GeoStatusComponent,
+    DashboardMetricCardComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent,
     DashboardAnaliseComponent, DashboardVisaoGerencialComponent],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-desvios.component.html',
   styles: [`
     :host .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -90,8 +90,8 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       position: absolute; inset: 0; z-index: 1; width: 100%; padding: 0; border: 0; border-radius: inherit;
       background: transparent; cursor: pointer;
     }
-    .dash-card-hit:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
-    .dash-aging-card:has(.dash-card-hit):hover { border-color: color-mix(in srgb, var(--ces-brand) 45%, var(--ces-border)); box-shadow: var(--ces-shadow-md); }
+    .dash-card-hit:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
+    .dash-aging-card:has(.dash-card-hit):hover { border-color: color-mix(in srgb, var(--geo-brand) 45%, var(--geo-border)); box-shadow: var(--geo-shadow-md); }
     .dash-aging-card:has(.dash-card-hit:disabled) .dash-card-hit { cursor: default; }
     .dash-cell-name { color: #243b53; font-size: .78rem; font-weight: 600; }
     .dash-pct-pill {
@@ -286,18 +286,18 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
 
     :host-context(.app-dark), :host-context(.dark) {
       .dash-cell-name { color: #e2e8f0; }
-      .dash-pct-pill { background: var(--ces-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge { background: var(--ces-surface-muted, #334155); color: #cbd5e1; }
+      .dash-pct-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
+      .dash-badge { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
       .dash-badge--success { background: rgba(34,197,94,.12); color: #4ade80; }
       .dash-badge--warning { background: rgba(245,158,11,.12); color: #fbbf24; }
       .dash-badge--orange { background: rgba(249,115,22,.15); color: #fb923c; }
       .dash-badge--danger { background: rgba(239,68,68,.12); color: #f87171; }
 
-      .dash-aging-card { background: var(--ces-surface, #1e293b); border-color: var(--ces-border, #334155); }
-      .dash-aging-card:hover { border-color: color-mix(in srgb, var(--ces-brand, #3b82f6) 40%, transparent); }
+      .dash-aging-card { background: var(--geo-surface, #1e293b); border-color: var(--geo-border, #334155); }
+      .dash-aging-card:hover { border-color: color-mix(in srgb, var(--geo-brand, #3b82f6) 40%, transparent); }
       .dash-aging-card.is-vazio { background: rgba(15, 23, 42, 0.6); opacity: 0.5; }
       .dash-aging-card.is-alerta { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.5); }
-      .dash-aging-card__header { background: var(--ces-surface-subtle, #0f172a); border-color: var(--ces-border, #334155); }
+      .dash-aging-card__header { background: var(--geo-surface-subtle, #0f172a); border-color: var(--geo-border, #334155); }
       .dash-aging-card__range { color: #f8fafc; }
       .dash-aging-card__stage[data-tone='success'] { color: #4ade80; }
       .dash-aging-card__stage[data-tone='info'] { color: #60a5fa; }
@@ -307,7 +307,7 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       .dash-aging-card__total { color: #fff; }
       .dash-aging-card__unit { color: #94a3b8; }
       .dash-aging-bar { background: #334155; }
-      .dash-share-pill { background: var(--ces-surface-muted, #334155); color: #cbd5e1; }
+      .dash-share-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
       .dash-share-pill[data-tone='danger'] { background: rgba(239,68,68,.15); color: #f87171; }
       .dash-share-pill[data-tone='orange'] { background: rgba(249,115,22,.15); color: #fb923c; }
       .dash-share-pill[data-tone='warning'] { background: rgba(245,158,11,.15); color: #fbbf24; }
@@ -397,20 +397,20 @@ export class DashboardDesviosComponent implements OnInit {
     return vistaDesvios(alvo, { d, filtros: this.filtrosAplicados(), sst: this.sst });
   });
 
-  protected readonly colunasPendencias: CesDataTableColumn<PendenciaAgrupadaResponse>[] = [
+  protected readonly colunasPendencias: GeoDataTableColumn<PendenciaAgrupadaResponse>[] = [
     { key: 'nome', header: 'Agrupamento', priority: 1, value: (i) => i.nome ?? 'Cadastro não localizado', display: (i) => `${i.nome ?? 'Cadastro não localizado'} · ${i.totalAbertos} abertos, ${i.totalEmTratamento} em tratamento` },
     { key: 'totalPendentes', header: 'Pendentes', type: 'integer', priority: 1 },
     { key: 'totalVencidos', header: 'Vencidos', type: 'custom', value: (i) => i.totalVencidos, priority: 1 },
     { key: 'totalCriticos', header: 'Críticos', type: 'custom', value: (i) => i.totalCriticos, priority: 2 }
   ];
-  protected readonly colunasExposicao: CesDataTableColumn<ExposicaoNormalizadaItem>[] = [
+  protected readonly colunasExposicao: GeoDataTableColumn<ExposicaoNormalizadaItem>[] = [
     { key: 'nome', header: 'Agrupamento', priority: 1, value: (i) => i.nome ?? 'Cadastro não localizado' },
     { key: 'inspecoes', header: 'Inspeções', type: 'integer', priority: 2 },
     { key: 'desvios', header: 'Desvios', type: 'integer', priority: 2 },
     { key: 'desviosPor100Inspecoes', header: 'A cada 100', type: 'number', priority: 1 },
     { key: 'vencidos', header: 'Vencidos', type: 'custom', value: (i) => i.vencidos, priority: 1 }
   ];
-  protected readonly colunasItens: CesDataTableColumn<ItemCriticoDashboard>[] = [
+  protected readonly colunasItens: GeoDataTableColumn<ItemCriticoDashboard>[] = [
     { key: 'item', header: 'Item', priority: 1, value: (i) => i.item ?? 'Cadastro não localizado', display: (i) => `${i.item ?? 'Cadastro não localizado'} · ${i.respostas} respostas` },
     { key: 'reprovacoes', header: 'Desvios', type: 'integer', priority: 1 },
     { key: 'taxaReprovacao', header: '% com desvio', type: 'percent', priority: 1 },
@@ -477,7 +477,7 @@ export class DashboardDesviosComponent implements OnInit {
     basesOperacionais: computed(() => opcoesDe(this.basesOperacionais(), 'nome'))
   };
   /** Recorte aplicado como chips (cada um remove o próprio filtro); o agrupamento do gráfico não recorta. */
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.filtrosAplicados();
     return chipsDoRecorte(f as Record<string, unknown>, [
       { chave: 'idProcesso', rotulo: 'Processo da inspeção', opcoes: this.opcoes.processos() },

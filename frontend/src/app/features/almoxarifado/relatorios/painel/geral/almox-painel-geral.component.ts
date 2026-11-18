@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesCellDirective,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoCellDirective,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent
+} from '@geo/ui';
 import { Observable, catchError, forkJoin, of } from 'rxjs';
 
 import { AuthService } from '../../../../../core/services/auth.service';
@@ -44,10 +44,10 @@ import { AREAS, Area, FontesGeral, ModeloGeral, Pendencia, descricaoPendencia, m
   selector: 'app-almox-painel-geral',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    CesAsyncStateComponent, CesCellDirective, CesStatusComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesPageHeaderComponent, DashboardMetricCardComponent, DashboardVisaoGerencialComponent,
+    GeoAsyncStateComponent, GeoCellDirective, GeoStatusComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoPageHeaderComponent, DashboardMetricCardComponent, DashboardVisaoGerencialComponent,
     AlmoxPainelTopoComponent, AlmoxRecorteCamposComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
   templateUrl: './almox-painel-geral.component.html',
@@ -64,7 +64,7 @@ export class AlmoxPainelGeralComponent extends PainelAlmoxBase<FontesGeral> {
 
   /** Áreas que o perfil não pôde ler nesta consulta. */
   protected readonly semAcesso = signal<Area[]>([]);
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => []);
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => []);
   protected readonly vistaAnalise = computed<VistaAnalise | null>(() => null);
 
   protected readonly modelo = computed<ModeloGeral | null>(() => {
@@ -91,7 +91,7 @@ export class AlmoxPainelGeralComponent extends PainelAlmoxBase<FontesGeral> {
     };
   });
 
-  protected readonly colPendencias: CesDataTableColumn<Pendencia>[] = [
+  protected readonly colPendencias: GeoDataTableColumn<Pendencia>[] = [
     { key: 'area', header: 'Área', priority: 2, value: (p) => AREAS[p.area].curto },
     { key: 'situacao', header: 'Situação', priority: 1, value: (p) => p.situacao },
     { key: 'tipo', header: 'O quê', priority: 1 },

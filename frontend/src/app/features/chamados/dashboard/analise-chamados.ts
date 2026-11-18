@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { Chamado, ChamadoFiltros, ChamadoPrioridade, ChamadoStatus } from '../../../core/models/chamado.models';
 import {
@@ -59,7 +59,7 @@ export function variacaoTexto(ind: IndicadorComparativoChamado | undefined, sufi
 
 export type MotivoAcao = 'sla-vencido' | 'resposta-vencida' | 'a-vencer' | 'sem-responsavel' | 'parado';
 
-export const MOTIVOS: Record<MotivoAcao, { readonly rotulo: string; readonly curto: string; readonly icone: string; readonly tom: CesTone; readonly peso: number }> = {
+export const MOTIVOS: Record<MotivoAcao, { readonly rotulo: string; readonly curto: string; readonly icone: string; readonly tom: GeoTone; readonly peso: number }> = {
   'sla-vencido': { rotulo: 'SLA de resolução estourado', curto: 'SLA estourado', icone: 'pi pi-exclamation-circle', tom: 'danger', peso: 0 },
   'resposta-vencida': { rotulo: 'Sem 1ª resposta no prazo', curto: '1ª resposta vencida', icone: 'pi pi-comment', tom: 'danger', peso: 1 },
   'a-vencer': { rotulo: `Vence nas próximas ${HORAS_A_VENCER} h`, curto: 'Vence em breve', icone: 'pi pi-hourglass', tom: 'warning', peso: 2 },
@@ -156,7 +156,7 @@ export function prazoRelativo(l: Pick<LinhaChamado, 'horasParaPrazo' | 'slaPausa
   return l.horasParaPrazo < 0 ? `venceu há ${duracao(-l.horasParaPrazo)}` : `vence em ${duracao(l.horasParaPrazo)}`;
 }
 
-export function situacaoSla(l: LinhaChamado): { readonly texto: string; readonly tom: CesTone; readonly icone: string } {
+export function situacaoSla(l: LinhaChamado): { readonly texto: string; readonly tom: GeoTone; readonly icone: string } {
   if (l.status === 'CANCELADO') return { texto: 'Cancelado', tom: 'neutral', icone: 'pi pi-times-circle' };
   if (!l.aberto) return l.slaVencido
     ? { texto: 'Concluído fora do prazo', tom: 'danger', icone: 'pi pi-exclamation-circle' }
@@ -169,7 +169,7 @@ export function situacaoSla(l: LinhaChamado): { readonly texto: string; readonly
 
 // ── Recorte ────────────────────────────────────────────────────────────────────────────────────
 
-/** Filtros do painel como ficam no `cesListState` (período em `yyyy-MM-dd`). */
+/** Filtros do painel como ficam no `geoListState` (período em `yyyy-MM-dd`). */
 export interface FiltrosAplicados {
   readonly periodo: { readonly from: string | null; readonly to: string | null };
   readonly topico: string[];
@@ -433,7 +433,7 @@ export function visaoGerencial(d: DashboardChamadosResponse, fila: FilaAgora | n
   } else {
     const graves = estourados + semResposta;
     const atencao = aVencer + semResponsavel + parados;
-    const tom: CesTone = graves ? 'danger' : atencao ? 'warning' : 'success';
+    const tom: GeoTone = graves ? 'danger' : atencao ? 'warning' : 'success';
     const partes = [
       `${plural(d.totalChamados, 'chamado aberto', 'chamados abertos')} no período${varVolume ? ` (${varVolume})` : ''}`,
       d.totalChamados ? `${pct(d.taxaResolucao)} já resolvidos` : null,
@@ -539,7 +539,7 @@ export function visaoGerencial(d: DashboardChamadosResponse, fila: FilaAgora | n
     acao: { rotulo: 'Analisar o volume', alvo: alvo('kpi', 'volume') }
   });
 
-  const peso: Record<CesTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
+  const peso: Record<GeoTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
   return { veredito, leituras: leituras.sort((a, b) => peso[a.tom] - peso[b.tom]).slice(0, 6) };
 }
 

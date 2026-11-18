@@ -1,23 +1,23 @@
 import { Injectable, inject } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 
-export type CesConfirmationVariant = 'default' | 'destructive';
+export type GeoConfirmationVariant = 'default' | 'destructive';
 
-export interface CesConfirmationRequest {
+export interface GeoConfirmationRequest {
   title: string;
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
   icon?: string;
-  variant?: CesConfirmationVariant;
+  variant?: GeoConfirmationVariant;
   key?: string;
 }
 
 @Injectable({ providedIn: 'root' })
-export class CesConfirmationService {
+export class GeoConfirmationService {
   private readonly confirmations = inject(ConfirmationService);
 
-  confirm(request: CesConfirmationRequest): Promise<boolean> {
+  confirm(request: GeoConfirmationRequest): Promise<boolean> {
     return new Promise((resolve) => {
       const destructive = request.variant === 'destructive';
       this.confirmations.confirm({

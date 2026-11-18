@@ -7,13 +7,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.time.Duration;
 
 /**
- * Telemetria da frota (prefixo {@code ces.frota.telemetria}). As chaves dos provedores vêm só das
+ * Telemetria da frota (prefixo {@code geo.frota.telemetria}). As chaves dos provedores vêm só das
  * variáveis de ambiente ({@code UBICALY_API_KEY}, {@code ZUQ_API_TOKEN}); sem chave, o provedor
  * fica "Não configurado" e nada é chamado.
  */
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "ces.frota.telemetria")
+@ConfigurationProperties(prefix = "geo.frota.telemetria")
 public class TelemetriaFrotaProperties {
 
     private Provedor ubicaly = new Provedor("https://panel.ubicaly.com");

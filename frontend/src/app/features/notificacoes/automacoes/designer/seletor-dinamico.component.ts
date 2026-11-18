@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, afterNextRender, computed, inject, input, output, signal } from '@angular/core';
-import { CesButtonComponent, CesTextareaComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoTextareaComponent } from '@geo/ui';
 
 import { Catalogo, Definicao } from '../../../../core/models/automacao.models';
 import { GrupoDinamico, TIPO_DADO, gruposDinamicos } from '../lib/dinamico';
@@ -16,7 +16,7 @@ export interface ContextoDinamico {
 @Component({
   selector: 'aut-seletor-dinamico',
   standalone: true,
-  imports: [CesTextareaComponent, CesButtonComponent],
+  imports: [GeoTextareaComponent, GeoButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-dyn" role="dialog" aria-label="Escolher dado">
@@ -27,7 +27,7 @@ export interface ContextoDinamico {
         </button>
       </div>
       @if (aba() === 'dados') {
-        <input #busca class="p-inputtext ces-prime-control" placeholder="Buscar dado" [value]="termo()" (input)="termo.set(busca.value)" aria-label="Buscar dado" />
+        <input #busca class="p-inputtext geo-prime-control" placeholder="Buscar dado" [value]="termo()" (input)="termo.set(busca.value)" aria-label="Buscar dado" />
         <div class="aut-dyn-list">
           @if (!filtrados().length) {
             <p class="aut-muted">{{ contexto().noId === 'trigger' ? 'O gatilho não lê dados de outros passos.' : 'Nenhum dado disponível antes deste passo.' }}</p>
@@ -53,10 +53,10 @@ export interface ContextoDinamico {
         </div>
       } @else {
         <p class="aut-muted">Combine dados e funções. Ex.: <code>format_money(trigger.outputs.valorValidado)</code></p>
-        <ces-textarea label="Expressão" [labelVisible]="false" [rows]="3" [value]="expressao()" (valueChange)="expressao.set($event)"
-                      placeholder="upper(trigger.outputs.colaborador.base)"></ces-textarea>
+        <geo-textarea label="Expressão" [labelVisible]="false" [rows]="3" [value]="expressao()" (valueChange)="expressao.set($event)"
+                      placeholder="upper(trigger.outputs.colaborador.base)"></geo-textarea>
         <div style="display:flex;justify-content:flex-end">
-          <ces-button label="Inserir" variant="primary" size="sm" [disabled]="!expressao().trim()" (pressed)="escolher.emit(expressao().trim())"></ces-button>
+          <geo-button label="Inserir" variant="primary" size="sm" [disabled]="!expressao().trim()" (pressed)="escolher.emit(expressao().trim())"></geo-button>
         </div>
         <span class="aut-section-title">Funções</span>
         <div class="aut-dyn-functions">

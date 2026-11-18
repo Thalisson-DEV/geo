@@ -12,7 +12,7 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
-import { CesStatusComponent } from '@ces/ui';
+import { GeoStatusComponent } from '@geo/ui';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -44,7 +44,7 @@ interface ItemConfiguracao { id: CadastroConfiguracao; titulo: string; descricao
     InputTextModule,
     SelectModule,
     TableModule,
-    CesStatusComponent,
+    GeoStatusComponent,
     TextareaModule,
     ToastModule,
     TooltipModule,

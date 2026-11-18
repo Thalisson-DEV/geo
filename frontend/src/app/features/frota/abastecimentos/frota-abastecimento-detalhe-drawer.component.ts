@@ -1,20 +1,20 @@
 import { DatePipe, NgTemplateOutlet, formatDate } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDrawerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDrawerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import {
@@ -76,36 +76,36 @@ interface Prazo {
     DatePipe,
     NgTemplateOutlet,
     FrotaMapaTelemetriaComponent,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDrawerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDrawerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent,
     FrotaResumoAssistenteComponent
   ],
   styleUrl: './frota-abastecimento-detalhe-drawer.component.css',
   template: `
-    <ces-drawer [(visible)]="visible" eyebrow="Abastecimento" [title]="titulo()" size="lg">
+    <geo-drawer [(visible)]="visible" eyebrow="Abastecimento" [title]="titulo()" size="lg">
       @if (carregando() && !detalhe()) {
         <div class="dd-skeleton" role="status" aria-label="Carregando o abastecimento">
           <span></span><span></span><span></span><span></span>
         </div>
       } @else if (erro()) {
-        <ces-async-state state="error" title="Não foi possível carregar o abastecimento" [description]="erro()!" [compact]="true"
-          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível carregar o abastecimento" [description]="erro()!" [compact]="true"
+          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
       } @else if (detalhe(); as d) {
         <div class="dd">
           <section class="dd-hero" [attr.data-tone]="tom[d.situacao]" aria-label="Resumo">
             <div class="dd-hero__topo">
-              <ces-status [tone]="tom[d.situacao]" [icon]="'pi ' + icone[d.situacao]" emphasis="solid">{{ d.situacaoRotulo }}</ces-status>
+              <geo-status [tone]="tom[d.situacao]" [icon]="'pi ' + icone[d.situacao]" emphasis="solid">{{ d.situacaoRotulo }}</geo-status>
               @if (d.alertas.length) {
-                <ces-status tone="warning" icon="pi pi-exclamation-triangle">{{ d.alertas.length === 1 ? '1 ponto para conferir' : d.alertas.length + ' pontos para conferir' }}</ces-status>
+                <geo-status tone="warning" icon="pi pi-exclamation-triangle">{{ d.alertas.length === 1 ? '1 ponto para conferir' : d.alertas.length + ' pontos para conferir' }}</geo-status>
               }
               @if (consumoTelemetria()?.local; as l) {
             @if (l.longeDoPosto) {
@@ -119,13 +119,13 @@ interface Prazo {
           }
 
           @if (avisoPendente()) {
-                <ces-status tone="warning" icon="pi pi-whatsapp">Falta avisar o posto</ces-status>
+                <geo-status tone="warning" icon="pi pi-whatsapp">Falta avisar o posto</geo-status>
               }
               @if (d.itens.some(trocado)) {
-                <ces-status tone="info" icon="pi pi-sync">Produto trocado no posto</ces-status>
+                <geo-status tone="info" icon="pi pi-sync">Produto trocado no posto</geo-status>
               }
               @if (d.origem === 'AVULSA') {
-                <ces-status tone="neutral" icon="pi pi-bolt">Avulso, lançado na web</ces-status>
+                <geo-status tone="neutral" icon="pi pi-bolt">Avulso, lançado na web</geo-status>
               }
             </div>
             @if (d.destino) {
@@ -167,27 +167,27 @@ interface Prazo {
 
           @switch (d.situacao) {
             @case ('REPROVADA') {
-              <ces-callout tone="danger" icon="pi pi-times" [title]="'Reprovado por ' + (d.aprovador ?? 'gestor')">{{ d.motivoReprovacao }}</ces-callout>
+              <geo-callout tone="danger" icon="pi pi-times" [title]="'Reprovado por ' + (d.aprovador ?? 'gestor')">{{ d.motivoReprovacao }}</geo-callout>
             }
             @case ('CANCELADA') {
-              <ces-callout tone="neutral" icon="pi pi-ban" [title]="'Cancelado por ' + (d.cancelador ?? '—')">
+              <geo-callout tone="neutral" icon="pi pi-ban" [title]="'Cancelado por ' + (d.cancelador ?? '—')">
                 {{ d.motivoCancelamento ?? 'Sem motivo informado.' }}
                 @if (semAvisoNecessario()) { <span class="dd-nota">O posto não chegou a ser avisado da liberação, então não precisa avisar o cancelamento.</span> }
-              </ces-callout>
+              </geo-callout>
             }
             @case ('VENCIDA') {
-              <ces-callout tone="neutral" icon="pi pi-hourglass" title="Venceu sem uso">Não foi usado até as 23h59 do dia. Se ainda precisar, a equipe pede de novo.</ces-callout>
+              <geo-callout tone="neutral" icon="pi pi-hourglass" title="Venceu sem uso">Não foi usado até as 23h59 do dia. Se ainda precisar, a equipe pede de novo.</geo-callout>
             }
           }
 
           @if (d.alertas.length) {
-            <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [title]="tituloAlertas()">
+            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [title]="tituloAlertas()">
               <ul class="dd-alertas">
                 @for (a of d.alertas; track a.tipo + a.etapa) {
                   <li><strong>{{ a.tipoRotulo }}</strong><span>{{ a.mensagem }}</span></li>
                 }
               </ul>
-            </ces-callout>
+            </geo-callout>
           }
 
           @if (avisoPendente()) {
@@ -259,7 +259,7 @@ interface Prazo {
                     <strong>{{ i.produto ?? i.produtoPedido }}</strong>
                     <span class="dd-muted">{{ categoria[i.categoria] }}@if (i.tanqueCheio) { · completou o tanque }</span>
                     @if (trocado(i)) {
-                      <ces-status tone="info" icon="pi pi-sync">Pedido: {{ i.produtoPedido }}</ces-status>
+                      <geo-status tone="info" icon="pi pi-sync">Pedido: {{ i.produtoPedido }}</geo-status>
                     }
                   </span>
                   <span role="cell" class="dd-num">
@@ -298,13 +298,13 @@ interface Prazo {
                         <span class="dd-muted">Cadastro: {{ s.precoCadastrado == null ? 'sem preço' : preco(s.precoCadastrado, 'l') }} · Cupom de {{ s.dataCupom | date: 'dd/MM' }}: {{ preco(s.precoCupom, 'l') }}</span>
                       </span>
                     </span>
-                    <ces-status [tone]="s.situacao === 'PENDENTE' ? 'warning' : s.situacao === 'CONFIRMADA' ? 'success' : 'neutral'">{{ s.situacaoRotulo }}</ces-status>
+                    <geo-status [tone]="s.situacao === 'PENDENTE' ? 'warning' : s.situacao === 'CONFIRMADA' ? 'success' : 'neutral'">{{ s.situacaoRotulo }}</geo-status>
                   </div>
                   @if (s.situacao === 'PENDENTE') {
                     <p class="dd-aviso__mensagem">A Bússola leu um preço diferente do cadastrado. Confira o cupom: ao confirmar, o novo preço vale a partir do dia do cupom.</p>
                     <div class="dd-aviso__acoes">
-                      <ces-button size="sm" icon="pi pi-check" label="Atualizar o preço do posto" [loading]="salvando()" (pressed)="decidirPreco(s, true)"></ces-button>
-                      <ces-button variant="ghost" size="sm" icon="pi pi-times" label="Manter o atual" (pressed)="decidirPreco(s, false)"></ces-button>
+                      <geo-button size="sm" icon="pi pi-check" label="Atualizar o preço do posto" [loading]="salvando()" (pressed)="decidirPreco(s, true)"></geo-button>
+                      <geo-button variant="ghost" size="sm" icon="pi pi-times" label="Manter o atual" (pressed)="decidirPreco(s, false)"></geo-button>
                     </div>
                   } @else if (s.decididoPor) {
                     <p class="dd-aviso__mensagem">Decidido por {{ s.decididoPor }} em {{ s.decididoEm | date: "dd/MM 'às' HH:mm" }}.</p>
@@ -357,18 +357,18 @@ interface Prazo {
                   </span>
                 </span>
                 @if (a.situacao === 'ENVIADO') {
-                  <ces-status tone="success" icon="pi pi-check">Aberto por {{ a.abertoPor ?? '—' }} às {{ a.abertoEm | date: 'HH:mm' }}</ces-status>
+                  <geo-status tone="success" icon="pi pi-check">Aberto por {{ a.abertoPor ?? '—' }} às {{ a.abertoEm | date: 'HH:mm' }}</geo-status>
                 } @else {
-                  <ces-status tone="warning" icon="pi pi-clock">Falta avisar</ces-status>
+                  <geo-status tone="warning" icon="pi pi-clock">Falta avisar</geo-status>
                 }
               </div>
               <p class="dd-aviso__mensagem">{{ a.mensagem }}</p>
               <div class="dd-aviso__acoes">
                 @if (a.linkWhatsapp) {
-                  <ces-button [variant]="a.situacao === 'ENVIADO' ? 'outline' : 'primary'" size="sm" icon="pi pi-whatsapp"
-                    [label]="a.situacao === 'ENVIADO' ? 'Abrir de novo' : 'Avisar no WhatsApp'" (pressed)="avisar(a)"></ces-button>
+                  <geo-button [variant]="a.situacao === 'ENVIADO' ? 'outline' : 'primary'" size="sm" icon="pi pi-whatsapp"
+                    [label]="a.situacao === 'ENVIADO' ? 'Abrir de novo' : 'Avisar no WhatsApp'" (pressed)="avisar(a)"></geo-button>
                 }
-                <ces-button variant="ghost" size="sm" icon="pi pi-copy" label="Copiar mensagem" (pressed)="copiar(a)"></ces-button>
+                <geo-button variant="ghost" size="sm" icon="pi pi-copy" label="Copiar mensagem" (pressed)="copiar(a)"></geo-button>
               </div>
             </div>
           }
@@ -378,98 +378,98 @@ interface Prazo {
       <div drawer-footer class="dd-rodape">
         <span class="dd-linha-botoes">
           @if (detalhe(); as d) {
-            <ces-button variant="outline" icon="pi pi-file" label="Relatório" (pressed)="abrirRelatorio(d.id)"></ces-button>
+            <geo-button variant="outline" icon="pi pi-file" label="Relatório" (pressed)="abrirRelatorio(d.id)"></geo-button>
           }
           @if (detalhe() && assistente()) {
-            <ces-icon-button icon="pi pi-compass" label="Analisar este abastecimento com a Bússola" tooltip="Analisar com a Bússola" (pressed)="analisarComAssistente()"></ces-icon-button>
+            <geo-icon-button icon="pi pi-compass" label="Analisar este abastecimento com a Bússola" tooltip="Analisar com a Bússola" (pressed)="analisarComAssistente()"></geo-icon-button>
           }
         </span>
         <span class="dd-linha-botoes">
           @if (detalhe(); as d) {
             @if (d.podeCancelar) {
-              <ces-button variant="ghost" icon="pi pi-ban" label="Cancelar pedido" (pressed)="abrirFormulario('cancelar')"></ces-button>
+              <geo-button variant="ghost" icon="pi pi-ban" label="Cancelar pedido" (pressed)="abrirFormulario('cancelar')"></geo-button>
             }
             @if (d.podeAprovar) {
-              <ces-button variant="outline" icon="pi pi-times" label="Reprovar" (pressed)="abrirFormulario('reprovar')"></ces-button>
-              <ces-button icon="pi pi-check" label="Aprovar" (pressed)="abrirFormulario('aprovar')"></ces-button>
+              <geo-button variant="outline" icon="pi pi-times" label="Reprovar" (pressed)="abrirFormulario('reprovar')"></geo-button>
+              <geo-button icon="pi pi-check" label="Aprovar" (pressed)="abrirFormulario('aprovar')"></geo-button>
             } @else if (d.podeLiberar) {
-              <ces-button icon="pi pi-send" label="Liberar" (pressed)="abrirFormulario('liberar')"></ces-button>
+              <geo-button icon="pi pi-send" label="Liberar" (pressed)="abrirFormulario('liberar')"></geo-button>
             } @else if (!d.podeCancelar) {
-              <ces-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></ces-button>
+              <geo-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></geo-button>
             }
           }
         </span>
       </div>
-    </ces-drawer>
+    </geo-drawer>
 
-    <ces-form-drawer [visible]="formulario() !== null" (visibleChange)="!$event && formulario.set(null)" [title]="tituloFormulario()"
+    <geo-form-drawer [visible]="formulario() !== null" (visibleChange)="!$event && formulario.set(null)" [title]="tituloFormulario()"
       [description]="titulo()" [dirty]="!!motivo().trim()" [loading]="salvando()" size="sm">
       @if (detalhe(); as d) {
-        <div class="ces-form-stack">
+        <div class="geo-form-stack">
           @switch (formulario()) {
             @case ('aprovar') {
               @if (d.destino) {
-                <ces-callout tone="info" [dense]="true" icon="pi pi-map" title="Destino informado pela equipe">{{ d.destino }}</ces-callout>
+                <geo-callout tone="info" [dense]="true" icon="pi pi-map" title="Destino informado pela equipe">{{ d.destino }}</geo-callout>
               }
-              <ces-form-section title="Quantidade de cada item" icon="pi pi-sliders-h"
+              <geo-form-section title="Quantidade de cada item" icon="pi pi-sliders-h"
                 description="A equipe pede só o produto. Defina quanto abastecer pelo destino; zero tira o item.">
                 @for (i of d.itens; track i.id) {
                   <div class="item-liberar">
                     <span>{{ i.produtoPedido }}<span class="dd-muted"> · {{ categoria[i.categoria] }}</span></span>
-                    <ces-number-input [label]="'Quantidade de ' + i.produtoPedido" [labelVisible]="false" [value]="quantidades()[i.id]"
-                      (valueChange)="ajustar(i.id, $event)" [min]="0" [maxFractionDigits]="2" [suffix]="' ' + i.unidade"></ces-number-input>
+                    <geo-number-input [label]="'Quantidade de ' + i.produtoPedido" [labelVisible]="false" [value]="quantidades()[i.id]"
+                      (valueChange)="ajustar(i.id, $event)" [min]="0" [maxFractionDigits]="2" [suffix]="' ' + i.unidade"></geo-number-input>
                   </div>
                 }
-              </ces-form-section>
+              </geo-form-section>
               @if (acimaDoTanque(); as aviso) {
-                <ces-callout tone="warning" [dense]="true" icon="pi pi-exclamation-triangle">{{ aviso }}</ces-callout>
+                <geo-callout tone="warning" [dense]="true" icon="pi pi-exclamation-triangle">{{ aviso }}</geo-callout>
               } @else if (d.capacidadeTanque) {
-                <ces-callout tone="neutral" [dense]="true" icon="pi pi-info-circle">Tanque de {{ qtd(d.capacidadeTanque, 'l') }} pela ficha do veículo.</ces-callout>
+                <geo-callout tone="neutral" [dense]="true" icon="pi pi-info-circle">Tanque de {{ qtd(d.capacidadeTanque, 'l') }} pela ficha do veículo.</geo-callout>
               }
-              <ces-callout tone="info" [dense]="true">A aprovação vale até as 23h59 de hoje. A liberação ainda pode ajustar as quantidades.</ces-callout>
+              <geo-callout tone="info" [dense]="true">A aprovação vale até as 23h59 de hoje. A liberação ainda pode ajustar as quantidades.</geo-callout>
             }
             @case ('reprovar') {
-              <ces-textarea label="Motivo" [required]="true" [(value)]="motivo" [rows]="3" [maxlength]="400"
+              <geo-textarea label="Motivo" [required]="true" [(value)]="motivo" [rows]="3" [maxlength]="400"
                 placeholder="Ex.: Abasteceu ontem e o painel mostra mais da metade do tanque."
                 description="A equipe vê o motivo no app e pode pedir de novo."
-                [error]="tentou() && motivo().trim().length < 5 ? 'Explique o motivo (ao menos 5 letras).' : undefined"></ces-textarea>
+                [error]="tentou() && motivo().trim().length < 5 ? 'Explique o motivo (ao menos 5 letras).' : undefined"></geo-textarea>
             }
             @case ('cancelar') {
               @if (d.situacao === 'LIBERADA') {
-                <ces-callout tone="warning" [dense]="true">O posto já pode ter sido avisado. Ao cancelar, o GEO prepara a mensagem de cancelamento para o posto.</ces-callout>
+                <geo-callout tone="warning" [dense]="true">O posto já pode ter sido avisado. Ao cancelar, o GEO prepara a mensagem de cancelamento para o posto.</geo-callout>
               }
-              <ces-textarea label="Motivo" [required]="d.situacao === 'LIBERADA'" [showOptional]="d.situacao !== 'LIBERADA'" [(value)]="motivo" [rows]="3" [maxlength]="500"
+              <geo-textarea label="Motivo" [required]="d.situacao === 'LIBERADA'" [showOptional]="d.situacao !== 'LIBERADA'" [(value)]="motivo" [rows]="3" [maxlength]="500"
                 placeholder="Ex.: Veículo quebrou antes de chegar ao posto."
-                [error]="tentou() && d.situacao === 'LIBERADA' && !motivo().trim() ? 'Informe o motivo do cancelamento.' : undefined"></ces-textarea>
+                [error]="tentou() && d.situacao === 'LIBERADA' && !motivo().trim() ? 'Informe o motivo do cancelamento.' : undefined"></geo-textarea>
             }
             @case ('liberar') {
-              <ces-form-section title="Posto" icon="pi pi-map-marker">
-                <ces-select label="Onde vai abastecer" [options]="opcoesPosto()" [(value)]="postoLiberacao" [loading]="!postos().length"
-                  description="Troque se o posto pedido não puder atender."></ces-select>
-              </ces-form-section>
-              <ces-form-section title="Quantidades" icon="pi pi-sliders-h"
+              <geo-form-section title="Posto" icon="pi pi-map-marker">
+                <geo-select label="Onde vai abastecer" [options]="opcoesPosto()" [(value)]="postoLiberacao" [loading]="!postos().length"
+                  description="Troque se o posto pedido não puder atender."></geo-select>
+              </geo-form-section>
+              <geo-form-section title="Quantidades" icon="pi pi-sliders-h"
                 description="Partem do aprovado. Ajuste se precisar; o posto recebe estes valores e o aprovado continua guardado.">
                 @for (i of d.itens; track i.id) {
                   <div class="item-liberar">
                     <span>{{ i.produtoPedido }}@if (i.quantidadeAprovada != null) {<span class="dd-muted"> · aprovado {{ qtd(i.quantidadeAprovada, i.unidade) }}</span>}</span>
-                    <ces-number-input [label]="'Quantidade de ' + i.produtoPedido" [labelVisible]="false" [value]="quantidades()[i.id]"
-                      (valueChange)="ajustar(i.id, $event)" [min]="0" [maxFractionDigits]="2" [suffix]="' ' + i.unidade"></ces-number-input>
+                    <geo-number-input [label]="'Quantidade de ' + i.produtoPedido" [labelVisible]="false" [value]="quantidades()[i.id]"
+                      (valueChange)="ajustar(i.id, $event)" [min]="0" [maxFractionDigits]="2" [suffix]="' ' + i.unidade"></geo-number-input>
                   </div>
                 }
-              </ces-form-section>
-              <ces-callout tone="info" [dense]="true" icon="pi pi-whatsapp">
+              </geo-form-section>
+              <geo-callout tone="info" [dense]="true" icon="pi pi-whatsapp">
                 Depois de liberar, o GEO mostra a mensagem pronta para avisar o posto no WhatsApp. Vale até as 23h59 de hoje.
-              </ces-callout>
+              </geo-callout>
             }
           }
         </div>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Voltar" (pressed)="formulario.set(null)"></ces-button>
-        <ces-button [variant]="formulario() === 'liberar' || formulario() === 'aprovar' ? 'primary' : 'destructive'" [icon]="iconeConfirmar()" [label]="rotuloConfirmar()"
-          [loading]="salvando()" (pressed)="confirmar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Voltar" (pressed)="formulario.set(null)"></geo-button>
+        <geo-button [variant]="formulario() === 'liberar' || formulario() === 'aprovar' ? 'primary' : 'destructive'" [icon]="iconeConfirmar()" [label]="rotuloConfirmar()"
+          [loading]="salvando()" (pressed)="confirmar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaAbastecimentoDetalheDrawerComponent {
@@ -552,7 +552,7 @@ export class FrotaAbastecimentoDetalheDrawerComponent {
     const d = this.detalhe();
     return d?.situacao === 'CANCELADA' && !!d.liberadoEm && !this.avisosVisiveis().length;
   });
-  protected readonly opcoesPosto = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesPosto = computed<GeoSelectOption<string>[]>(() =>
     this.postos().filter((p) => p.ativo).map((p) => ({ label: p.baseNome ? `${p.nome} · ${p.baseNome}` : p.nome, value: p.id }))
   );
   protected readonly tituloAlertas = computed(() => {

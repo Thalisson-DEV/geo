@@ -1,5 +1,5 @@
 import { inject, signal } from '@angular/core';
-import { CesConfirmationService, CesImportRow, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, GeoImportRow, NotificationService } from '@geo/ui';
 import { Observable } from 'rxjs';
 import { getErrorMessage } from '../../core/models/shared.models';
 
@@ -9,11 +9,11 @@ export interface RespostaImportacao<T> {
 }
 
 /**
- * Fluxo de importação de planilha das listagens, para usar com `ces-import-drawer`:
+ * Fluxo de importação de planilha das listagens, para usar com `geo-import-drawer`:
  * enviar arquivo → pré-visualização com correção por linha → processar (com confirmação).
  * Crie num inicializador de campo (usa `inject`).
  */
-export function importacaoListagem<T extends CesImportRow>(opcoes: {
+export function importacaoListagem<T extends GeoImportRow>(opcoes: {
   /** Envia o arquivo e devolve a pré-visualização. */
   enviar: (arquivo: File) => Observable<RespostaImportacao<T>>;
   /** Confirma as linhas conferidas. */
@@ -26,7 +26,7 @@ export function importacaoListagem<T extends CesImportRow>(opcoes: {
   sensivel?: boolean;
 }) {
   const notificacoes = inject(NotificationService);
-  const confirmacao = inject(CesConfirmationService);
+  const confirmacao = inject(GeoConfirmationService);
   const aberta = signal(false);
   const linhas = signal<T[]>([]);
   const enviando = signal(false);
@@ -90,4 +90,4 @@ export function importacaoListagem<T extends CesImportRow>(opcoes: {
 }
 
 /** Colunas comuns ao fim da pré-visualização de importação. */
-export const CHAVE_LINHA_IMPORTACAO = (r: CesImportRow, i: number) => String(r.linha ?? i);
+export const CHAVE_LINHA_IMPORTACAO = (r: GeoImportRow, i: number) => String(r.linha ?? i);

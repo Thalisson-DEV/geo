@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
 import {
@@ -162,7 +162,7 @@ export function visaoConformidade(m: ModeloConformidade): { veredito: VereditoGe
       texto: `${plural(c.acidentes.diasPerdidos, 'dia perdido', 'dias perdidos')} registrados no SST.`, acao: { rotulo: 'Ver os registros', alvo: alvo('kpi', 'acidentes') } });
   }
   const criticos = m.docVencidos.length + m.cnhVencidas.length + (c.semSeguro?.length ?? 0);
-  const tom: CesTone = criticos ? 'danger' : l.some((x) => x.tom === 'warning') ? 'warning' : 'success';
+  const tom: GeoTone = criticos ? 'danger' : l.some((x) => x.tom === 'warning') ? 'warning' : 'success';
   return {
     veredito: {
       tom, rotulo: tom === 'danger' ? 'Agir agora' : tom === 'warning' ? 'Acompanhar' : 'Em dia',
@@ -181,35 +181,35 @@ export function visaoConformidade(m: ModeloConformidade): { veredito: VereditoGe
 
 const situacaoDias = (dias: number | null) => (dias == null ? 'Sem validade' : dias < 0 ? `Vencido há ${-dias} dias` : dias === 0 ? 'Vence hoje' : `Vence em ${dias} dias`);
 
-const colDocs: CesDataTableColumn<DocumentoDetalheFrota>[] = [
+const colDocs: GeoDataTableColumn<DocumentoDetalheFrota>[] = [
   { key: 'placa', header: 'Veículo', priority: 1, value: (d) => d.placa ?? '—' },
   { key: 'tipo', header: 'Documento', priority: 1, value: (d) => rotulo(ROTULO_DOCUMENTO, d.tipo) },
   { key: 'vencimento', header: 'Vencimento', type: 'date', priority: 2 },
   { key: 'dias', header: 'Situação', type: 'custom', priority: 1, value: (d) => d.dias, display: (d) => situacaoDias(d.dias) },
   { key: 'comArquivo', header: 'Arquivo', type: 'custom', priority: 3, value: (d) => (d.comArquivo ? 1 : 0), display: (d) => (d.comArquivo ? 'Anexado' : 'Sem arquivo') }
 ];
-const colCnh: CesDataTableColumn<CnhDetalheFrota>[] = [
+const colCnh: GeoDataTableColumn<CnhDetalheFrota>[] = [
   { key: 'nome', header: 'Condutor', priority: 1 },
   { key: 'categoria', header: 'Categoria', priority: 3, value: (c) => c.categoria ?? '—' },
   { key: 'validade', header: 'Validade', type: 'date', priority: 2 },
   { key: 'dias', header: 'Situação', type: 'custom', priority: 1, value: (c) => c.dias ?? -9999, display: (c) => situacaoDias(c.dias) },
   { key: 'placas', header: 'Veículo atual', type: 'custom', priority: 1, value: (c) => c.placas.join(', '), display: (c) => c.placas.join(', ') || '—' }
 ];
-const colPend: CesDataTableColumn<PendenciaDetalheFrota>[] = [
+const colPend: GeoDataTableColumn<PendenciaDetalheFrota>[] = [
   { key: 'placa', header: 'Veículo', priority: 1, value: (p) => p.placa ?? '—' },
   { key: 'item', header: 'Item', priority: 1 },
   { key: 'abertaEm', header: 'Apontada em', type: 'date', priority: 2 },
   { key: 'dias', header: 'Dias', type: 'integer', priority: 1 },
   { key: 'idOrdemServico', header: 'OS', type: 'custom', priority: 2, value: (p) => (p.idOrdemServico ? 1 : 0), display: (p) => (p.idOrdemServico ? 'Com OS' : 'Sem OS') }
 ];
-const colChecklist: CesDataTableColumn<VeiculoRelatorioFrota>[] = [
+const colChecklist: GeoDataTableColumn<VeiculoRelatorioFrota>[] = [
   { key: 'placa', header: 'Veículo', priority: 1 },
   { key: 'base', header: 'Base', priority: 2, value: (v) => v.base ?? '' },
   { key: 'diasComChecklist', header: 'Dias com checklist', type: 'custom', priority: 2, value: (v) => v.diasComChecklist ?? 0, display: (v) => inteiro(v.diasComChecklist) },
   { key: 'coberturaChecklist', header: 'Cobertura', type: 'custom', priority: 1, value: (v) => v.coberturaChecklist ?? -1, display: (v) => pct(v.coberturaChecklist) },
   { key: 'pendenciasChecklist', header: 'Pendências', type: 'custom', priority: 1, value: (v) => v.pendenciasChecklist ?? 0, display: (v) => inteiro(v.pendenciasChecklist) }
 ];
-const colSinistros: CesDataTableColumn<Sinistro>[] = [
+const colSinistros: GeoDataTableColumn<Sinistro>[] = [
   { key: 'numero', header: 'Sinistro', type: 'custom', priority: 1, value: (s) => s.numero ?? 0, display: (s) => (s.numero ? `#${s.numero}` : '—') },
   { key: 'placa', header: 'Veículo', priority: 1 },
   { key: 'tipo', header: 'Tipo', priority: 1, value: (s) => rotulo(ROTULO_TIPO_SINISTRO, s.tipo) },
@@ -354,9 +354,9 @@ function vistaKpi(qual: string, m: ModeloConformidade, chave: string): VistaAnal
         origem: origemPend(chave, 'Pendências abertas', [...p].sort((a, b) => b.dias - a.dias)) };
     }
     case 'seguro': {
-      const colunas: CesDataTableColumn<NonNullable<Rel['conformidade']['semSeguro']>[number]>[] = [
+      const colunas: GeoDataTableColumn<NonNullable<Rel['conformidade']['semSeguro']>[number]>[] = [
         { key: 'placa', header: 'Veículo', priority: 1 }, { key: 'tipo', header: 'Tipo', priority: 2, value: (v) => v.tipo ?? '' }, { key: 'base', header: 'Base', priority: 2, value: (v) => v.base ?? '' }];
-      const apol: CesDataTableColumn<NonNullable<Rel['conformidade']['apolicesVencendo']>[number]>[] = [
+      const apol: GeoDataTableColumn<NonNullable<Rel['conformidade']['apolicesVencendo']>[number]>[] = [
         { key: 'numero', header: 'Apólice', priority: 1 }, { key: 'seguradora', header: 'Seguradora', priority: 2, value: (a) => a.seguradora ?? '' },
         { key: 'vigenciaFim', header: 'Fim da vigência', type: 'date', priority: 1 }, { key: 'veiculos', header: 'Veículos', type: 'integer', priority: 1 }];
       return { chave, eyebrow: 'Seguro', titulo: 'Cobertura de seguro', icone: 'pi pi-shield',
@@ -384,7 +384,7 @@ function vistaKpi(qual: string, m: ModeloConformidade, chave: string): VistaAnal
     case 'eventos': {
       const e = c.eventosConducao;
       if (!e) return null;
-      const colunas: CesDataTableColumn<NonNullable<Rel['conformidade']['condutores']>[number]>[] = [
+      const colunas: GeoDataTableColumn<NonNullable<Rel['conformidade']['condutores']>[number]>[] = [
         { key: 'nome', header: 'Condutor', priority: 1 }, { key: 'eventos', header: 'Eventos', type: 'integer', priority: 1 },
         { key: 'sinistros', header: 'Sinistros', type: 'integer', priority: 2 }, { key: 'sinistrosComCulpa', header: 'Com culpa', type: 'integer', priority: 2 }];
       const veic = [...m.r.veiculos].filter((v) => (v.eventosConducao ?? 0) > 0).sort((a, b) => (b.eventosConducao ?? 0) - (a.eventosConducao ?? 0)).slice(0, 12);
@@ -401,7 +401,7 @@ function vistaKpi(qual: string, m: ModeloConformidade, chave: string): VistaAnal
     }
     case 'acidentes': {
       const ac = c.acidentes;
-      const colunas: CesDataTableColumn<Rel['conformidade']['acidentes']['lista'][number]>[] = [
+      const colunas: GeoDataTableColumn<Rel['conformidade']['acidentes']['lista'][number]>[] = [
         { key: 'placa', header: 'Veículo', priority: 1 }, { key: 'rotulo', header: 'Tipo', priority: 1 },
         { key: 'ocorridoEm', header: 'Data', type: 'date', priority: 1 }, { key: 'diasPerdidos', header: 'Dias perdidos', type: 'integer', priority: 2 }];
       return { chave, eyebrow: 'SST', titulo: 'Acidentes e danos com veículo', icone: 'pi pi-heart',

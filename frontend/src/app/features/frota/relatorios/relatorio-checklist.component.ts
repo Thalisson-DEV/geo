@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CesAsyncStateComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { map } from 'rxjs/operators';
 import { ChecklistDetalhe, FotoChecklist, RespostaChecklistDetalhe, SituacaoPendenciaChecklist } from '../../../core/models/frota-checklist.models';
 import { formatarMedicao, formatarPlaca } from '../../../core/models/frota.models';
@@ -16,7 +16,7 @@ import { FrotaRelatorioCabecalhoComponent } from './frota-relatorio-cabecalho.co
 import { FotoRelatorio, FrotaRelatorioFotosComponent } from './frota-relatorio-fotos.component';
 import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-relatorio-linha-tempo.component';
 
-const EVENTO_DECISAO: Record<SituacaoPendenciaChecklist, { titulo: string; icone: string; tom: CesTone }> = {
+const EVENTO_DECISAO: Record<SituacaoPendenciaChecklist, { titulo: string; icone: string; tom: GeoTone }> = {
   ABERTA: { titulo: 'Aguardando o gestor', icone: 'pi-clock', tom: 'warning' },
   OS_ABERTA: { titulo: 'OS aberta', icone: 'pi-wrench', tom: 'info' },
   RESOLVIDA_NA_HORA: { titulo: 'Resolvido na hora', icone: 'pi-check', tom: 'success' },
@@ -39,8 +39,8 @@ interface Grupo {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoStatusComponent,
     AnalisarComCopilotoComponent,
     FrotaRelatorioAnaliseIaComponent,
     FrotaRelatorioCabecalhoComponent,
@@ -51,18 +51,18 @@ interface Grupo {
   template: `
     @if (carregando()) {
       <div class="rel-estado">
-        <ces-async-state state="loading" title="Carregando o checklist..." description="Consultando respostas, fotos e decisões."></ces-async-state>
+        <geo-async-state state="loading" title="Carregando o checklist..." description="Consultando respostas, fotos e decisões."></geo-async-state>
       </div>
     } @else if (erro()) {
       <div class="rel-estado">
-        <ces-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></ces-async-state>
+        <geo-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as d) {
       <article class="rel">
         <app-frota-relatorio-cabecalho area="Checklist do veículo" [titulo]="'Checklist · ' + placa()">
-          <ces-status [tone]="problemas().length ? 'warning' : 'success'" [icon]="problemas().length ? 'pi pi-exclamation-triangle' : 'pi pi-check'">
+          <geo-status [tone]="problemas().length ? 'warning' : 'success'" [icon]="problemas().length ? 'pi pi-exclamation-triangle' : 'pi pi-check'">
             {{ problemas().length ? problemas().length + (problemas().length === 1 ? ' problema' : ' problemas') : 'Tudo OK' }}
-          </ces-status>
+          </geo-status>
           <span>·</span>
           <span><strong>{{ d.resumo.modeloNome }}</strong></span>
           <span>·</span>
@@ -124,13 +124,13 @@ interface Grupo {
                       <td>{{ r.resposta }}@if (r.comentario) {<span class="rel-tabela__sub">"{{ r.comentario }}"</span>}</td>
                       <td>
                         @if (recorrente(r.historico)) {
-                          <ces-status tone="danger" icon="pi pi-replay">Recorrente</ces-status>
+                          <geo-status tone="danger" icon="pi pi-replay">Recorrente</geo-status>
                         }
                         <span class="rel-tabela__sub">{{ textoHistorico(r.historico) ?? '—' }}</span>
                       </td>
                       <td>
                         @if (r.situacaoPendencia; as s) {
-                          <ces-status [tone]="tomPendencia[s]">{{ rotuloPendencia[s] }}{{ r.numeroOrdemServico ? ' · OS ' + r.numeroOrdemServico : '' }}</ces-status>
+                          <geo-status [tone]="tomPendencia[s]">{{ rotuloPendencia[s] }}{{ r.numeroOrdemServico ? ' · OS ' + r.numeroOrdemServico : '' }}</geo-status>
                           @if (r.decididaPor) {
                             <span class="rel-tabela__sub">{{ r.decididaPor }} em {{ r.decididaEm | date: 'dd/MM/yyyy HH:mm' }}</span>
                           }
@@ -161,16 +161,16 @@ interface Grupo {
               <thead><tr><th>Item</th><th>Resposta</th><th>Situação</th></tr></thead>
               @for (g of grupos(); track g.titulo) {
                 <tbody>
-                  <tr><td colspan="3" style="background: var(--ces-surface-subtle); font-weight: 700">{{ g.titulo }}</td></tr>
+                  <tr><td colspan="3" style="background: var(--geo-surface-subtle); font-weight: 700">{{ g.titulo }}</td></tr>
                   @for (r of g.respostas; track r.id) {
                     <tr>
                       <td>{{ r.pergunta }}</td>
                       <td>{{ r.resposta }}@if (r.comentario) {<span class="rel-tabela__sub">"{{ r.comentario }}"</span>}</td>
                       <td>
                         @if (r.problema) {
-                          <ces-status tone="warning" icon="pi pi-exclamation-triangle">Não OK</ces-status>
+                          <geo-status tone="warning" icon="pi pi-exclamation-triangle">Não OK</geo-status>
                         } @else if (r.conforme) {
-                          <ces-status tone="success" icon="pi pi-check">OK</ces-status>
+                          <geo-status tone="success" icon="pi pi-check">OK</geo-status>
                         } @else {
                           <span class="rel-tabela__sub">Informado</span>
                         }

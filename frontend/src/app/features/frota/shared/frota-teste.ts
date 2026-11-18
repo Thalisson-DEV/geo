@@ -126,5 +126,5 @@ export async function abrirTelaFrota<T>(
 }
 
 export function chipsDoResumo(el: HTMLElement): string[] {
-  return Array.from(el.querySelectorAll('.ces-filter-panel__chip')).map((c) => c.textContent!.trim());
+  return Array.from(el.querySelectorAll('.geo-filter-panel__chip')).map((c) => c.textContent!.trim());
 }

@@ -9,7 +9,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { CesAsyncStateComponent, CesButtonComponent, CesTone, NotificationService } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoButtonComponent, GeoTone, NotificationService } from '@geo/ui';
 import { getErrorMessage } from '../../../../core/models/shared.models';
 import {
   HistoricoInspecaoAlteracaoItem,
@@ -27,7 +27,7 @@ export interface SnapshotDisplayItem {
 @Component({
   selector: 'app-inspecao-seguranca-historico',
   standalone: true,
-  imports: [CommonModule, DatePipe, CesAsyncStateComponent, CesButtonComponent],
+  imports: [CommonModule, DatePipe, GeoAsyncStateComponent, GeoButtonComponent],
   templateUrl: './inspecao-seguranca-historico.component.html',
   styleUrl: './inspecao-seguranca-historico.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -121,7 +121,7 @@ export class InspecaoSegurancaHistoricoComponent implements OnInit {
     });
   }
 
-  protected integrityTone(status: string): CesTone {
+  protected integrityTone(status: string): GeoTone {
     return status === 'INTEGRO' ? 'success' : status === 'VIOLADO' ? 'danger' : 'warning';
   }
 

@@ -31,10 +31,10 @@ public class SpringAiNormalizacaoTranscricaoGateway implements NormalizacaoTrans
     public SpringAiNormalizacaoTranscricaoGateway(
             ObjectProvider<ChatClient.Builder> builderProvider,
             ObjectMapper objectMapper,
-            @Value("${ces.sst.ata-ai.normalizacao.enabled:false}") boolean enabled,
-            @Value("${ces.sst.ata-ai.normalizacao.timeout-seconds:30}") long timeoutSeconds,
-            @Value("${ces.sst.ata-ai.normalizacao.model-version:normalizacao-v1}") String versaoModelo,
-            @Value("${ces.sst.ata-ai.normalizacao.model-name:}") String modelName) {
+            @Value("${geo.sst.ata-ai.normalizacao.enabled:false}") boolean enabled,
+            @Value("${geo.sst.ata-ai.normalizacao.timeout-seconds:30}") long timeoutSeconds,
+            @Value("${geo.sst.ata-ai.normalizacao.model-version:normalizacao-v1}") String versaoModelo,
+            @Value("${geo.sst.ata-ai.normalizacao.model-name:}") String modelName) {
         this.builderProvider = builderProvider;
         this.objectMapper = objectMapper;
         this.enabled = enabled;

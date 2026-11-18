@@ -1,27 +1,27 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import { EstoqueResponse } from '../../../core/models/almoxarifado.models';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 
 @Injectable({ providedIn: 'root' })
 export class SaldoEstoqueReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<EstoqueResponse>
+  implements GeoReportNavigatorDataSource<EstoqueResponse>
 {
   private readonly service = inject(AlmoxarifadoService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODOS',
     sort: 'nomeIdentificador,asc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Saldos de Estoque',
     icon: 'pi pi-chart-bar',
     eyebrow: 'Navegador',
@@ -36,8 +36,8 @@ export class SaldoEstoqueReportNavigatorDataSource
   };
 
   load(
-    criteria: CesReportNavigatorCriteria
-  ): Observable<CesReportNavigatorPage<EstoqueResponse>> {
+    criteria: GeoReportNavigatorCriteria
+  ): Observable<GeoReportNavigatorPage<EstoqueResponse>> {
     const params: any = {
       page: 0,
       size: 100,
@@ -54,7 +54,7 @@ export class SaldoEstoqueReportNavigatorDataSource
     );
   }
 
-  toItem(raw: EstoqueResponse): CesReportNavigatorItem {
+  toItem(raw: EstoqueResponse): GeoReportNavigatorItem {
     const tipoNome = raw.tipoEstoque?.nome || 'Estoque';
 
     return {
@@ -80,7 +80,7 @@ export class SaldoEstoqueReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | EstoqueResponse): string {
+  getRouteForItem(item: GeoReportNavigatorItem | EstoqueResponse): string {
     const id = (item as any).id;
     return `/almoxarifado/saldos/relatorio?idEstoque=${id}`;
   }

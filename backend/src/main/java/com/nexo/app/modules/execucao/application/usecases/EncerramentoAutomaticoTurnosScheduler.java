@@ -20,12 +20,12 @@ public class EncerramentoAutomaticoTurnosScheduler {
 
     public EncerramentoAutomaticoTurnosScheduler(
             EncerrarTurnosEsquecidosUseCase useCase,
-            @Value("${ces.turno.encerramento-automatico.habilitado:true}") boolean habilitado) {
+            @Value("${geo.turno.encerramento-automatico.habilitado:true}") boolean habilitado) {
         this.useCase = useCase;
         this.habilitado = habilitado;
     }
 
-    @Scheduled(cron = "${ces.turno.encerramento-automatico.cron:0 */10 * * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.turno.encerramento-automatico.cron:0 */10 * * * *}", zone = "America/Sao_Paulo")
     public void processar() {
         if (!habilitado) {
             return;

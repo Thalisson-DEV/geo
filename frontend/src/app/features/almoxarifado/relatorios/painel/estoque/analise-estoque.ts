@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
 import {
@@ -53,7 +53,7 @@ export const DIAS_EM_CAMPO = 30;
 
 export type Faixa = 'ruptura' | 'critica' | 'baixa' | 'adequada' | 'excesso' | 'parado' | 'sem-consumo';
 
-export const FAIXAS: { id: Faixa; rotulo: string; descricao: string; tom: CesTone; icone: string }[] = [
+export const FAIXAS: { id: Faixa; rotulo: string; descricao: string; tom: GeoTone; icone: string }[] = [
   { id: 'ruptura', rotulo: 'Ruptura', descricao: 'Teve saída no período e está sem saldo', tom: 'danger', icone: 'pi pi-ban' },
   { id: 'critica', rotulo: 'Menos de 7 dias', descricao: 'O saldo acaba em menos de uma semana no ritmo atual', tom: 'danger', icone: 'pi pi-hourglass' },
   { id: 'baixa', rotulo: '7 a 15 dias', descricao: 'Repor já para não faltar', tom: 'warning', icone: 'pi pi-arrow-down' },
@@ -300,7 +300,7 @@ export function visaoEstoque(m: ModeloEstoque): { veredito: VereditoGerencial; l
 
 // ── Tabelas ──────────────────────────────────────────────────────────────────────────────────────
 
-export const colPosicao: CesDataTableColumn<PosicaoAlmox>[] = [
+export const colPosicao: GeoDataTableColumn<PosicaoAlmox>[] = [
   { key: 'codigo', header: 'Código', priority: 1 },
   { key: 'descricao', header: 'Material', priority: 1 },
   { key: 'estoque', header: 'Almoxarifado', priority: 2 },
@@ -314,7 +314,7 @@ export const colPosicao: CesDataTableColumn<PosicaoAlmox>[] = [
   { key: 'sucata', header: 'Sucata', type: 'custom', priority: 3, value: (p) => p.sucata, display: (p) => (p.sucata ? qtd(p.sucata, p.unidade) : '—') }
 ];
 
-export const colCampo: CesDataTableColumn<PosicaoCampo>[] = [
+export const colCampo: GeoDataTableColumn<PosicaoCampo>[] = [
   { key: 'equipe', header: 'Equipe', priority: 1, value: (c) => c.saldo.equipe ?? c.saldo.estoque },
   { key: 'material', header: 'Material', priority: 1, value: (c) => `${c.saldo.codigo} · ${c.saldo.descricao}` },
   { key: 'quantidade', header: 'Saldo', type: 'custom', priority: 1, value: (c) => c.saldo.quantidade, display: (c) => qtd(c.saldo.quantidade, c.saldo.unidade) },
@@ -323,7 +323,7 @@ export const colCampo: CesDataTableColumn<PosicaoCampo>[] = [
   { key: 'diasSemSaida', header: 'Sem movimento', type: 'custom', priority: 2, value: (c) => c.diasSemSaida ?? -1, display: (c) => dias(c.diasSemSaida) }
 ];
 
-export const colSaldo: CesDataTableColumn<SaldoRelatorio>[] = [
+export const colSaldo: GeoDataTableColumn<SaldoRelatorio>[] = [
   { key: 'estoque', header: 'Estoque', priority: 1, value: (s) => (s.obra ? `Obra ${s.obra}` : s.equipe ?? s.estoque) },
   { key: 'tipo', header: 'Tipo', priority: 3, value: (s) => rotulo(ROTULO_TIPO_ESTOQUE, s.tipoEstoque) },
   { key: 'material', header: 'Material', priority: 1, value: (s) => `${s.codigo} · ${s.descricao}` },

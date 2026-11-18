@@ -4,7 +4,7 @@ export interface LoginRequest {
 }
 
 export interface TokenResponse {
-  /** JWT de acesso, curto. O refresh token só trafega no cookie HttpOnly `ces_sessao`. */
+  /** JWT de acesso, curto. O refresh token só trafega no cookie HttpOnly `geo_sessao`. */
   token: string;
   /** Até quando a sessão do aparelho pode ser renovada sem senha (ISO-8601). */
   sessaoExpiraEm?: string;

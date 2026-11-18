@@ -1,10 +1,10 @@
 import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, input, OnChanges, output, signal, SimpleChanges, viewChild } from '@angular/core';
-import { CesButtonComponent, CesStatusComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoStatusComponent } from '@geo/ui';
 
 @Component({
   selector: 'app-solicitacao-tecnica-assinatura',
   standalone: true,
-  imports: [CesButtonComponent, CesStatusComponent],
+  imports: [GeoButtonComponent, GeoStatusComponent],
   templateUrl: './solicitacao-tecnica-assinatura.component.html',
   styleUrl: './solicitacao-tecnica-assinatura.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush

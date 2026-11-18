@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -93,12 +93,12 @@ describe('SolicitacoesMaterialComponent', () => {
   it('modo kanban mostra o quadro no lugar da tabela', async () => {
     const { el } = await abrir('/lista', { modo: 'kanban' });
     expect(el.querySelector('app-solicitacoes-comerciais-kanban')).not.toBeNull();
-    expect(el.querySelector('ces-data-table')).toBeNull();
+    expect(el.querySelector('geo-data-table')).toBeNull();
   });
 
   it('estorno parcial: só itens entregues, todos selecionados; envia as quantidades após confirmar', async () => {
     const { componente } = await abrir();
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     const tela = componente as unknown as {
       confirmarEstorno(s: unknown): void;
       estornoItens(): { id: string; quantidadeEstorno: number }[];
@@ -131,7 +131,7 @@ describe('SolicitacoesMaterialComponent', () => {
       p.size === 1 ? paginaTeste([], p.statuses?.length === 3 ? 4 : p.statuses?.[0] === 'PENDENTE' ? 3 : 1) : paginaTeste([solicitacao])
     );
     const { el, harness } = await abrir();
-    const atalhos = () => Array.from(el.querySelectorAll<HTMLButtonElement>('.sol-atalhos .ces-quick-filter'));
+    const atalhos = () => Array.from(el.querySelectorAll<HTMLButtonElement>('.sol-atalhos .geo-quick-filter'));
     expect(atalhos()[0].textContent).toContain('Todas');
     expect(atalhos()[0].textContent).toContain('8');
     expect(atalhos()[1].textContent).toContain('Em aberto');
@@ -161,7 +161,7 @@ describe('SolicitacoesMaterialComponent', () => {
   it('Só as minhas filtra pelo usuário logado e entra na exportação', async () => {
     const { el, harness, componente } = await abrir();
     expect(ultimaConsulta().idRequisitante).toBeUndefined();
-    const botao = Array.from(el.querySelectorAll<HTMLButtonElement>('.ces-quick-filter')).find((b) => b.textContent!.includes('Só as minhas'))!;
+    const botao = Array.from(el.querySelectorAll<HTMLButtonElement>('.geo-quick-filter')).find((b) => b.textContent!.includes('Só as minhas'))!;
     botao.click();
     harness.detectChanges();
     await harness.fixture.whenStable();
@@ -180,7 +180,7 @@ describe('SolicitacoesMaterialComponent', () => {
   it('modo calendário mostra o calendário no lugar da tabela', async () => {
     const { el } = await abrir('/lista', { modo: 'calendario' });
     expect(el.querySelector('app-solicitacoes-comerciais-calendario')).not.toBeNull();
-    expect(el.querySelector('ces-data-table')).toBeNull();
+    expect(el.querySelector('geo-data-table')).toBeNull();
   });
 
   it('"Analisar" do quadro e do detalhe abre a Bússola ao lado, com foco no que foi pedido', async () => {

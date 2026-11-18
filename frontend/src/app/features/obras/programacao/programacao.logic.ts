@@ -1,4 +1,4 @@
-import { CesSelectOption, CesTone } from '@ces/ui';
+import { GeoSelectOption, GeoTone } from '@geo/ui';
 import {
   BarraGantt,
   EventoProgramacao,
@@ -9,19 +9,19 @@ import {
 } from '../../../core/models/obras-programacao.models';
 import { parseDataBrParaDate } from '../obras-ui';
 
-export const TURNOS: CesSelectOption<TurnoProgramacao>[] = [
+export const TURNOS: GeoSelectOption<TurnoProgramacao>[] = [
   { label: 'Dia todo', value: 'DIA_TODO' },
   { label: 'Manhã', value: 'MANHA' },
   { label: 'Tarde', value: 'TARDE' }
 ];
 
-export const SITUACOES_INTERVENCAO: CesSelectOption<SituacaoIntervencao>[] = [
+export const SITUACOES_INTERVENCAO: GeoSelectOption<SituacaoIntervencao>[] = [
   { label: 'Criado', value: 'CRIADO' },
   { label: 'Pendente', value: 'PENDENTE' },
   { label: 'Não se aplica', value: 'NAO_SE_APLICA' }
 ];
 
-export const SIM_NAO: CesSelectOption<boolean>[] = [
+export const SIM_NAO: GeoSelectOption<boolean>[] = [
   { label: 'Sim', value: true },
   { label: 'Não', value: false }
 ];
@@ -35,7 +35,7 @@ export const ROTULO_INTERVENCAO: Record<SituacaoIntervencao, string> = {
 };
 
 /** A situação sempre tem ícone além da cor. */
-export const SITUACAO_PROGRAMACAO: Record<SituacaoProgramacao, { rotulo: string; tom: CesTone; icone: string }> = {
+export const SITUACAO_PROGRAMACAO: Record<SituacaoProgramacao, { rotulo: string; tom: GeoTone; icone: string }> = {
   PROGRAMADA: { rotulo: 'Programada', tom: 'info', icone: 'pi pi-calendar' },
   ATRASADA: { rotulo: 'Atrasada', tom: 'danger', icone: 'pi pi-exclamation-triangle' },
   EM_ANDAMENTO: { rotulo: 'Em execução', tom: 'warning', icone: 'pi pi-play' },
@@ -43,7 +43,7 @@ export const SITUACAO_PROGRAMACAO: Record<SituacaoProgramacao, { rotulo: string;
   CANCELADA: { rotulo: 'Cancelada', tom: 'neutral', icone: 'pi pi-ban' }
 };
 
-export const TIPO_EVENTO: Record<TipoEventoProgramacao, { rotulo: string; tom: CesTone; icone: string }> = {
+export const TIPO_EVENTO: Record<TipoEventoProgramacao, { rotulo: string; tom: GeoTone; icone: string }> = {
   CRIADA: { rotulo: 'Criada', tom: 'success', icone: 'pi pi-calendar-plus' },
   EDITADA: { rotulo: 'Editada', tom: 'info', icone: 'pi pi-pencil' },
   REPROGRAMADA: { rotulo: 'Reprogramada', tom: 'warning', icone: 'pi pi-calendar-clock' },

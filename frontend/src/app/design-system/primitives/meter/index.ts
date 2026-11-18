@@ -1,1 +1,1 @@
-export * from './ces-meter.component';
+export * from './geo-meter.component';

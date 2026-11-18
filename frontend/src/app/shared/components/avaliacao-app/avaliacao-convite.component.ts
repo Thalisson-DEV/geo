@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { CesButtonComponent } from '@ces/ui';
+import { GeoButtonComponent } from '@geo/ui';
 import { AvaliacaoConviteService } from '../../../core/services/avaliacao-convite.service';
 import { EstrelasAvaliacaoComponent } from './estrelas-avaliacao.component';
 
@@ -15,7 +15,7 @@ import { EstrelasAvaliacaoComponent } from './estrelas-avaliacao.component';
   selector: 'app-avaliacao-convite',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, EstrelasAvaliacaoComponent],
+  imports: [GeoButtonComponent, EstrelasAvaliacaoComponent],
   template: `
     @if (servico.mostrarConvite()) {
       <aside class="av-convite" aria-labelledby="av-convite-titulo">
@@ -33,8 +33,8 @@ import { EstrelasAvaliacaoComponent } from './estrelas-avaliacao.component';
           </div>
 
           <div class="av-acoes">
-            <ces-button label="Responder depois" variant="secondary" size="sm" [fluid]="true" (pressed)="servico.adiar()" />
-            <ces-button label="Avaliar agora" icon="pi pi-arrow-right" iconPosition="right" size="sm" [fluid]="true" (pressed)="servico.abrir()" />
+            <geo-button label="Responder depois" variant="secondary" size="sm" [fluid]="true" (pressed)="servico.adiar()" />
+            <geo-button label="Avaliar agora" icon="pi pi-arrow-right" iconPosition="right" size="sm" [fluid]="true" (pressed)="servico.abrir()" />
           </div>
 
           @if (servico.convite()?.ultimaVez) {
@@ -58,8 +58,8 @@ import { EstrelasAvaliacaoComponent } from './estrelas-avaliacao.component';
 
     .av-cartao {
       display: grid; gap: 0.875rem; padding: 1.25rem;
-      border: 1px solid var(--ces-border); border-radius: 1rem;
-      background: var(--ces-surface); color: var(--ces-foreground);
+      border: 1px solid var(--geo-border); border-radius: 1rem;
+      background: var(--geo-surface); color: var(--geo-foreground);
       box-shadow: 0 20px 40px -16px rgb(15 23 42 / 0.25);
       animation: av-subir 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
@@ -73,30 +73,30 @@ import { EstrelasAvaliacaoComponent } from './estrelas-avaliacao.component';
     .av-icone {
       display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center;
       width: 2.75rem; height: 2.75rem; border-radius: 999px;
-      background: var(--ces-brand-soft); color: var(--ces-brand); font-size: 1.125rem;
+      background: var(--geo-brand-soft); color: var(--geo-brand); font-size: 1.125rem;
     }
     .av-textos { display: grid; gap: 0.25rem; min-width: 0; }
-    .av-titulo { margin: 0; font-size: var(--ces-font-body); font-weight: 700; letter-spacing: -0.01em; }
-    .av-texto { margin: 0; font-size: var(--ces-font-caption); line-height: 1.5; color: var(--ces-foreground-muted); }
+    .av-titulo { margin: 0; font-size: var(--geo-font-body); font-weight: 700; letter-spacing: -0.01em; }
+    .av-texto { margin: 0; font-size: var(--geo-font-caption); line-height: 1.5; color: var(--geo-foreground-muted); }
 
     .av-nota {
       padding: 0.75rem 0.5rem 0.5rem; border-radius: 0.875rem;
-      background: var(--ces-surface-subtle); border: 1px solid var(--ces-border);
+      background: var(--geo-surface-subtle); border: 1px solid var(--geo-border);
     }
 
     .av-ultima {
       display: flex; flex-wrap: wrap; justify-content: center; gap: 0.375rem; margin: 0;
-      font-size: var(--ces-font-caption); line-height: 1.5; color: var(--ces-foreground-muted);
+      font-size: var(--geo-font-caption); line-height: 1.5; color: var(--geo-foreground-muted);
     }
     .av-ultima .pi { margin-top: 0.125rem; font-size: 0.75rem; }
 
     .av-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
     .av-recusar {
       padding: 0; border: 0; background: none; font: inherit; font-weight: 600; cursor: pointer;
-      color: var(--ces-foreground-muted); text-decoration: underline; text-underline-offset: 2px;
+      color: var(--geo-foreground-muted); text-decoration: underline; text-underline-offset: 2px;
     }
-    .av-recusar:hover { color: var(--ces-foreground); }
-    .av-recusar:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; border-radius: 0.25rem; }
+    .av-recusar:hover { color: var(--geo-foreground); }
+    .av-recusar:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: 0.25rem; }
   `
 })
 export class AvaliacaoConviteComponent {

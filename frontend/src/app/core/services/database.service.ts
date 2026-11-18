@@ -60,7 +60,7 @@ export class DatabaseService extends Dexie {
   anexoQueue!: Table<PendingAnexo, number>;
 
   constructor() {
-    super('CesDatabase');
+    super('CesDatabase'); // renomear-geo: manter (nome do banco no aparelho; trocar perderia a fila offline)
 
     this.version(1).stores({
       colaboradores: 'id, nome, cpf, ativo', // id é a PK

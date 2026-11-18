@@ -3,7 +3,7 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { Observable, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -198,7 +198,7 @@ describe('ObraDetalheComponent', () => {
 
   it('remover anexo e desvincular subprojeto pedem confirmação', async () => {
     await abrir();
-    const confirmar = vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(false);
+    const confirmar = vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(false);
     await tela.removerAnexo(anexo);
     await tela.desvincular(mockObra.subprojetos[0]);
     expect(confirmar).toHaveBeenCalledTimes(2);

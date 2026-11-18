@@ -1,42 +1,42 @@
 import { Observable } from 'rxjs';
-import { CesTone } from '../../core';
+import { GeoTone } from '../../core';
 
 /** Identificador de item no navegador */
-export type CesReportNavigatorItemId = string | number;
+export type GeoReportNavigatorItemId = string | number;
 
 /** Opção de seletor segmentado (escopo/tipo) ou ordenação */
-export interface CesReportNavigatorOption<T = unknown> {
+export interface GeoReportNavigatorOption<T = unknown> {
   label: string;
   value: T;
   icon?: string;
 }
 
 /** Chip de filtro rápido de status */
-export interface CesReportNavigatorChip<T = unknown> {
+export interface GeoReportNavigatorChip<T = unknown> {
   label: string;
   value: T | null;
-  tone?: CesTone;
+  tone?: GeoTone;
   icon?: string;
 }
 
 /** Configuração visual e comportamental do navegador */
-export interface CesReportNavigatorConfig {
+export interface GeoReportNavigatorConfig {
   /** Título do navegador quando expandido (string ou função reativa aos critérios) */
-  title: string | ((criteria: CesReportNavigatorCriteria) => string);
+  title: string | ((criteria: GeoReportNavigatorCriteria) => string);
   /** Eyebrow no header (padrão: "Navegador") */
   eyebrow?: string;
   /** Ícone do cabeçalho (classe CSS PrimeIcons ou função reativa) */
-  icon: string | ((criteria: CesReportNavigatorCriteria) => string);
+  icon: string | ((criteria: GeoReportNavigatorCriteria) => string);
   /** Opções de seletor de tipo / escopo (ex: Ambos, Compras, Pagamentos) */
-  scopeOptions?: readonly CesReportNavigatorOption[];
+  scopeOptions?: readonly GeoReportNavigatorOption[];
   /** Placeholder do campo de busca */
   searchPlaceholder?: string;
   /** Label de acessibilidade do campo de busca */
   searchLabel?: string;
   /** Chips de filtro rápido (status) */
-  statusChips?: readonly CesReportNavigatorChip[];
+  statusChips?: readonly GeoReportNavigatorChip[];
   /** Opções de ordenação */
-  sortOptions?: readonly CesReportNavigatorOption<string>[];
+  sortOptions?: readonly GeoReportNavigatorOption<string>[];
   /** Habilitar toggle "Minhas" */
   showMineToggle?: boolean;
   /** Label do toggle "Minhas" (default: "Minhas") */
@@ -54,7 +54,7 @@ export interface CesReportNavigatorConfig {
 }
 
 /** Critérios de busca e filtros passados ao data source */
-export interface CesReportNavigatorCriteria {
+export interface GeoReportNavigatorCriteria {
   search: string;
   scope?: unknown;
   status?: unknown;
@@ -63,14 +63,14 @@ export interface CesReportNavigatorCriteria {
 }
 
 /** Página de itens retornada pelo data source */
-export interface CesReportNavigatorPage<T = unknown> {
+export interface GeoReportNavigatorPage<T = unknown> {
   items: T[];
   totalElements: number;
 }
 
 /** Estrutura normalizada para renderizar um card no navegador */
-export interface CesReportNavigatorItem {
-  id: CesReportNavigatorItemId;
+export interface GeoReportNavigatorItem {
+  id: GeoReportNavigatorItemId;
   /** Identificador curto / número (Linha 1, ex: "#1024", "OB-001") */
   number?: string;
   /** Pill opcional no topo (Linha 1, ex: "Compra", "Adição", "Entrada") */
@@ -83,10 +83,10 @@ export interface CesReportNavigatorItem {
   value?: string | number | null;
   /** Título principal / Descrição (Linha 2) */
   title: string;
-  /** Status exibido com CesStatus (Linha 3) */
+  /** Status exibido com GeoStatus (Linha 3) */
   status?: {
     label: string;
-    tone?: CesTone;
+    tone?: GeoTone;
     /** Ícone da situação (PrimeIcons). Sem ele, a tag usa o ícone do tom. */
     icon?: string;
   };
@@ -113,19 +113,19 @@ export interface CesReportNavigatorItem {
 }
 
 /** Contrato que todo data source de relatório implementa */
-export interface CesReportNavigatorDataSource<T = unknown> {
+export interface GeoReportNavigatorDataSource<T = unknown> {
   /** Configuração declarativa do cabeçalho, filtros e botões */
-  readonly config: CesReportNavigatorConfig;
+  readonly config: GeoReportNavigatorConfig;
   /** Valores iniciais opcionais dos critérios */
-  readonly initialCriteria?: Partial<CesReportNavigatorCriteria>;
+  readonly initialCriteria?: Partial<GeoReportNavigatorCriteria>;
   /** Carrega uma página de dados baseada nos critérios informados */
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<T>>;
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<T>>;
   /** Converte a entidade de domínio para a representação do card */
-  toItem(raw: T): CesReportNavigatorItem;
+  toItem(raw: T): GeoReportNavigatorItem;
   /** Retorna os comandos do Router para navegar ao item selecionado */
-  getRouteForItem(item: CesReportNavigatorItem | T): any[] | string;
+  getRouteForItem(item: GeoReportNavigatorItem | T): any[] | string;
   /** Retorna os comandos do Router para o botão "Ver todas" */
   getListRoute(): any[] | string;
   /** Busca item específico por ID caso precise ser injetado fora da 1ª página (opcional) */
-  loadById?(id: CesReportNavigatorItemId): Observable<T | null>;
+  loadById?(id: GeoReportNavigatorItemId): Observable<T | null>;
 }

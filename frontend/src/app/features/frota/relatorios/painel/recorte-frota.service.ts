@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, computed, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, NavigationEnd, ParamMap, Router } from '@angular/router';
-import { CesFilterChip, CesSelectOption } from '@ces/ui';
+import { GeoFilterChip, GeoSelectOption } from '@geo/ui';
 import { filter, take } from 'rxjs';
 
 import { LookupStore } from '../../../../core/lookup';
@@ -23,12 +23,12 @@ export const PERIODOS_FROTA: { valor: PeriodoFrota; rotulo: string }[] = [
   { valor: 'ano', rotulo: 'Ano atual' }
 ];
 
-export const REGIMES_FROTA: CesSelectOption<string>[] = [
+export const REGIMES_FROTA: GeoSelectOption<string>[] = [
   { label: 'Próprio', value: 'PROPRIO' },
   { label: 'Locado', value: 'LOCADO' }
 ];
 
-export const SITUACOES_FROTA: CesSelectOption<string>[] = [
+export const SITUACOES_FROTA: GeoSelectOption<string>[] = [
   { label: 'Ativo', value: 'ATIVO' },
   { label: 'Em manutenção', value: 'EM_MANUTENCAO' },
   { label: 'Parado', value: 'PARADO' },
@@ -68,16 +68,16 @@ export class RecorteFrotaService {
   readonly idsVeiculo = signal<string[]>([]);
   readonly periodoAtivo = signal<PeriodoFrota | null>('6m');
 
-  readonly tipos = signal<CesSelectOption<string>[]>([]);
-  readonly veiculosOpcoes = signal<CesSelectOption<string>[]>([]);
-  readonly processos = computed<CesSelectOption<string>[]>(() =>
+  readonly tipos = signal<GeoSelectOption<string>[]>([]);
+  readonly veiculosOpcoes = signal<GeoSelectOption<string>[]>([]);
+  readonly processos = computed<GeoSelectOption<string>[]>(() =>
     this.lookups.processes().map((p) => ({ label: p.label, value: p.value }))
   );
 
   /** Recorte da última consulta (é o que os números mostram). */
   readonly aplicado = signal<FiltroRelatorioFrota>({});
 
-  readonly chips = computed<CesFilterChip[]>(() => {
+  readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.aplicado();
     return chipsDoRecorte(f as Record<string, unknown>, [
       { chave: 'idBase', rotulo: 'Base', opcoes: this.bases.opcoes() },

@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { ConsumoAnteriorItem, ConsumoAnteriorMovimentacao } from '../../../../core/models/almoxarifado.models';
 
@@ -10,7 +10,7 @@ export const APROVEITAMENTO_ALTO = 0.8;
 export interface LeituraConsumo {
   /** Aplicado ÷ recebido na última solicitação (null quando não houve). */
   aproveitamento: number | null;
-  tom: CesTone;
+  tom: GeoTone;
   /** Frase curta para quem aprova. */
   dica: string;
 }

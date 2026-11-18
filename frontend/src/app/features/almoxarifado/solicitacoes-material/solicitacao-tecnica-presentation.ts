@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   CodigoTipoTecnico,
   ContextoSolicitacaoMaterial,
@@ -28,7 +28,7 @@ export function statusLabel(status?: StatusSolicitacaoMaterial | string | null):
   return (STATUS_LABELS as Record<string, string>)[status] ?? status;
 }
 
-export function statusTone(status?: StatusSolicitacaoMaterial | string | null): CesTone {
+export function statusTone(status?: StatusSolicitacaoMaterial | string | null): GeoTone {
   if (!status) return 'neutral';
   if (status === 'ENTREGUE' || status === 'DEVOLVIDO') return 'success';
   if (status === 'REJEITADO' || status === 'CANCELADO' || status === 'ENCERRADO' || status === 'ENCERRADA') return 'danger';
@@ -64,7 +64,7 @@ export function separacaoLabel(status: StatusSeparacao | null | undefined): stri
   return status ? SEPARACAO_LABELS[status] : 'Não se aplica';
 }
 
-export function separacaoTone(status: StatusSeparacao | null | undefined): CesTone {
+export function separacaoTone(status: StatusSeparacao | null | undefined): GeoTone {
   if (status === 'SEPARADO') return 'success';
   if (status === 'EM_SEPARACAO') return 'info';
   if (status) return 'warning';
@@ -405,7 +405,7 @@ export function eventoIcon(tipo: string): string {
   return EVENTO_ICONS[tipo] ?? 'pi pi-circle';
 }
 
-export function eventoTone(tipo: string): CesTone {
+export function eventoTone(tipo: string): GeoTone {
   if (tipo.includes('CRIADA') || tipo.includes('SUBMISSAO')) return 'info';
   if (tipo === 'PENDENCIA_REGISTRADA') return 'warning';
   if (tipo === 'MOVIMENTACAO_CONFIRMADA' || tipo === 'PENDENCIA_REMOVIDA') return 'success';

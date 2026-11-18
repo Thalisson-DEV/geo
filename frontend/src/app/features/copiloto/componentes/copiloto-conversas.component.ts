@@ -1,40 +1,40 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent } from '@ces/ui';
-import { CesAsyncStateComponent } from '@ces/ui/feedback';
-import { CesTextInputComponent } from '@ces/ui/forms';
-import { CesConfirmationService } from '@ces/ui/overlays';
+import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
+import { GeoAsyncStateComponent } from '@geo/ui/feedback';
+import { GeoTextInputComponent } from '@geo/ui/forms';
+import { GeoConfirmationService } from '@geo/ui/overlays';
 import { ConversaResumo } from '../../../core/models/assistente.models';
 import { GrupoConversas } from '../copiloto.store';
 
 @Component({
   selector: 'app-copiloto-conversas',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesAsyncStateComponent, CesTextInputComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoAsyncStateComponent, GeoTextInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <nav class="conversas" aria-label="Conversas da Bússola">
       @if (mobile()) {
         <div class="conversas__cabecalho">
           <strong>Conversas</strong>
-          <ces-icon-button icon="pi pi-times" label="Voltar à conversa" size="icon-sm" (pressed)="fechar.emit()"></ces-icon-button>
+          <geo-icon-button icon="pi pi-times" label="Voltar à conversa" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
         </div>
       }
       <div class="conversas__topo">
-        <ces-button icon="pi pi-plus" label="Nova conversa" [fluid]="true" (pressed)="nova.emit()"></ces-button>
-        <ces-text-input
+        <geo-button icon="pi pi-plus" label="Nova conversa" [fluid]="true" (pressed)="nova.emit()"></geo-button>
+        <geo-text-input
           label="Buscar conversas"
           inputId="copiloto-busca"
           placeholder="Buscar no histórico"
           [value]="busca()"
           (valueChange)="aoBuscar($event)"
-        ></ces-text-input>
+        ></geo-text-input>
       </div>
 
       <div class="conversas__lista">
         @if (carregando() && !grupos().length) {
-          <ces-async-state state="loading" [compact]="true" title="Carregando conversas"></ces-async-state>
+          <geo-async-state state="loading" [compact]="true" title="Carregando conversas"></geo-async-state>
         } @else if (erro()) {
-          <ces-async-state
+          <geo-async-state
             state="error"
             [compact]="true"
             title="Não foi possível carregar o histórico"
@@ -42,14 +42,14 @@ import { GrupoConversas } from '../copiloto.store';
             actionLabel="Tentar novamente"
             actionIcon="pi pi-refresh"
             (action)="recarregar.emit()"
-          ></ces-async-state>
+          ></geo-async-state>
         } @else if (!grupos().length) {
-          <ces-async-state
+          <geo-async-state
             state="empty"
             [compact]="true"
             [title]="busca() ? 'Nenhuma conversa encontrada' : 'Nenhuma conversa ainda'"
             [description]="busca() ? 'Tente outros termos.' : 'Suas conversas aparecerão aqui.'"
-          ></ces-async-state>
+          ></geo-async-state>
         } @else {
           @for (grupo of grupos(); track grupo.rotulo) {
             <section class="grupo" [attr.aria-labelledby]="'grupo-' + $index">
@@ -59,7 +59,7 @@ import { GrupoConversas } from '../copiloto.store';
                   <li class="item" [class.item--ativa]="conversa.id === ativa()">
                     @if (editando() === conversa.id) {
                       <form class="item__edicao" (submit)="$event.preventDefault(); confirmarRenomear(conversa)">
-                        <label class="ces-sr-only" [for]="'renomear-' + conversa.id">Novo título da conversa</label>
+                        <label class="geo-sr-only" [for]="'renomear-' + conversa.id">Novo título da conversa</label>
                         <input
                           #campoTitulo
                           class="item__campo"
@@ -80,30 +80,30 @@ import { GrupoConversas } from '../copiloto.store';
                       >
                         @if (conversa.emAndamento) {
                           <i class="pi pi-spinner item__giro" aria-hidden="true"></i>
-                          <span class="ces-sr-only">Resposta em andamento:</span>
+                          <span class="geo-sr-only">Resposta em andamento:</span>
                         }
                         @if (conversa.origem === 'DASHBOARD') {
                           <i class="pi pi-objects-column item__origem" aria-hidden="true" title="Iniciada em um dashboard"></i>
-                          <span class="ces-sr-only">Iniciada em um dashboard:</span>
+                          <span class="geo-sr-only">Iniciada em um dashboard:</span>
                         }
                         <span class="item__titulo">{{ conversa.titulo }}</span>
                       </button>
                       <span class="item__acoes">
-                        <ces-icon-button
+                        <geo-icon-button
                           icon="pi pi-pencil"
                           size="icon-sm"
                           [label]="'Renomear ' + conversa.titulo"
                           tooltip="Renomear"
                           (pressed)="iniciarEdicao(conversa)"
-                        ></ces-icon-button>
-                        <ces-icon-button
+                        ></geo-icon-button>
+                        <geo-icon-button
                           icon="pi pi-trash"
                           size="icon-sm"
                           variant="ghost"
                           [label]="'Excluir ' + conversa.titulo"
                           tooltip="Excluir"
                           (pressed)="confirmarExclusao(conversa)"
-                        ></ces-icon-button>
+                        ></geo-icon-button>
                       </span>
                     }
                   </li>
@@ -124,14 +124,14 @@ import { GrupoConversas } from '../copiloto.store';
       min-width: 0;
       min-height: 0;
       overflow: hidden;
-      background: var(--ces-surface);
+      background: var(--geo-surface);
     }
     .conversas__topo {
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
       padding: 0.85rem 0.8rem 0.6rem;
-      border-bottom: 1px solid var(--ces-border);
+      border-bottom: 1px solid var(--geo-border);
     }
     .conversas__cabecalho {
       display: flex;
@@ -139,9 +139,9 @@ import { GrupoConversas } from '../copiloto.store';
       justify-content: space-between;
       min-height: 3.25rem;
       padding: 0.5rem 0.85rem;
-      border-bottom: 1px solid var(--ces-border);
-      font-size: var(--ces-font-body);
-      color: var(--ces-foreground);
+      border-bottom: 1px solid var(--geo-border);
+      font-size: var(--geo-font-body);
+      color: var(--geo-foreground);
     }
     .conversas__lista {
       flex: 1;
@@ -153,11 +153,11 @@ import { GrupoConversas } from '../copiloto.store';
     .grupo + .grupo { margin-top: 0.6rem; }
     .grupo__titulo {
       margin: 0.4rem 0.45rem 0.25rem;
-      font-size: var(--ces-font-caption);
+      font-size: var(--geo-font-caption);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--ces-foreground-subtle);
+      color: var(--geo-foreground-subtle);
     }
     ul { list-style: none; margin: 0; padding: 0; }
     .item {
@@ -167,11 +167,11 @@ import { GrupoConversas } from '../copiloto.store';
       width: 100%;
       min-width: 0;
       overflow: hidden;
-      border-radius: var(--ces-radius-sm);
+      border-radius: var(--geo-radius-sm);
     }
-    .item:hover { background: var(--ces-surface-muted); }
-    .item--ativa { background: var(--ces-brand-soft); }
-    .item--ativa .item__titulo { color: var(--ces-brand); font-weight: 600; }
+    .item:hover { background: var(--geo-surface-muted); }
+    .item--ativa { background: var(--geo-brand-soft); }
+    .item--ativa .item__titulo { color: var(--geo-brand); font-weight: 600; }
     .item__abrir {
       flex: 1;
       min-width: 0;
@@ -181,40 +181,40 @@ import { GrupoConversas } from '../copiloto.store';
       padding: 0.5rem 0.5rem;
       border: 0;
       background: transparent;
-      color: var(--ces-foreground);
+      color: var(--geo-foreground);
       font: inherit;
-      font-size: var(--ces-font-body);
+      font-size: var(--geo-font-body);
       text-align: left;
       cursor: pointer;
-      border-radius: var(--ces-radius-sm);
+      border-radius: var(--geo-radius-sm);
     }
     .item__abrir:focus-visible, .item__campo:focus-visible {
-      outline: 2px solid var(--ces-focus-ring);
+      outline: 2px solid var(--geo-focus-ring);
       outline-offset: -2px;
     }
     .item__titulo { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .item__giro { color: var(--ces-brand); font-size: 0.75rem; animation: item-giro 0.9s linear infinite; }
+    .item__giro { color: var(--geo-brand); font-size: 0.75rem; animation: item-giro 0.9s linear infinite; }
     @keyframes item-giro { to { transform: rotate(360deg); } }
-    .item__origem { flex: 0 0 auto; color: var(--ces-foreground-subtle); font-size: 0.7rem; }
+    .item__origem { flex: 0 0 auto; color: var(--geo-foreground-subtle); font-size: 0.7rem; }
     .item__acoes { display: none; flex: 0 0 auto; padding-right: 0.15rem; }
     .item:hover .item__acoes, .item:focus-within .item__acoes, .item--ativa .item__acoes { display: inline-flex; }
     .item__edicao { flex: 1; padding: 0.25rem; }
     .item__campo {
       width: 100%;
       padding: 0.35rem 0.5rem;
-      border: 1px solid var(--ces-brand);
-      border-radius: var(--ces-radius-sm);
-      background: var(--ces-surface);
-      color: var(--ces-foreground);
+      border: 1px solid var(--geo-brand);
+      border-radius: var(--geo-radius-sm);
+      background: var(--geo-surface);
+      color: var(--geo-foreground);
       font: inherit;
-      font-size: var(--ces-font-body);
+      font-size: var(--geo-font-body);
     }
     @media (hover: none) { .item__acoes { display: inline-flex; } }
     @media (prefers-reduced-motion: reduce) { .item__giro { animation: none; } }
   `,
 })
 export class CopilotoConversasComponent {
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly campoTitulo = viewChild<ElementRef<HTMLInputElement>>('campoTitulo');
 
   readonly grupos = input.required<readonly GrupoConversas[]>();

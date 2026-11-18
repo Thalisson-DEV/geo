@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesNumberInputComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoNumberInputComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { LeituraOdometro, UnidadeMedicao, formatarMedicao, paraInstanteIso, sufixoUnidade } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
@@ -19,41 +19,41 @@ import { FrotaService } from '../../../core/services/frota.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesNumberInputComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoNumberInputComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="horas() ? 'Lançar horas' : 'Lançar KM'"
+    <geo-form-drawer [(visible)]="visivel" [title]="horas() ? 'Lançar horas' : 'Lançar KM'"
       [description]="'Veículo ' + placa() + (horas() ? '. Informe as horas do horímetro' : '. Informe a quilometragem do painel') + '; valor incoerente com o histórico é recusado.'"
       [dirty]="km() !== null" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
+      <div class="geo-form-stack">
         @if (kmAtual() != null) {
-          <ces-callout tone="info" [dense]="true">{{ horas() ? 'Horímetro atual' : 'KM atual' }} registrado: {{ formatarMedicao(kmAtual(), unidade()) }}.</ces-callout>
+          <geo-callout tone="info" [dense]="true">{{ horas() ? 'Horímetro atual' : 'KM atual' }} registrado: {{ formatarMedicao(kmAtual(), unidade()) }}.</geo-callout>
         }
-        <ces-number-input [label]="horas() ? 'Horas no horímetro' : 'Quilometragem'" [required]="true" [(value)]="km" [min]="0"
-          [suffix]="' ' + sufixoUnidade(unidade())" [error]="erroKm()"></ces-number-input>
-        <div class="ces-form-grid">
-          <ces-datepicker label="Data da leitura" [required]="true" [(value)]="data" [maxDate]="hoje"></ces-datepicker>
-          <ces-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5" [error]="erroHora()"></ces-text-input>
+        <geo-number-input [label]="horas() ? 'Horas no horímetro' : 'Quilometragem'" [required]="true" [(value)]="km" [min]="0"
+          [suffix]="' ' + sufixoUnidade(unidade())" [error]="erroKm()"></geo-number-input>
+        <div class="geo-form-grid">
+          <geo-datepicker label="Data da leitura" [required]="true" [(value)]="data" [maxDate]="hoje"></geo-datepicker>
+          <geo-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5" [error]="erroHora()"></geo-text-input>
         </div>
         @if (pedeJustificativa()) {
-          <ces-callout tone="warning" [dense]="true" icon="pi pi-exclamation-triangle">
+          <geo-callout tone="warning" [dense]="true" icon="pi pi-exclamation-triangle">
             O valor passa o último registrado mais que a trava do campo. Se está certo (ex.: viagem longa sem lançamentos), justifique para registrar.
-          </ces-callout>
-          <ces-textarea label="Justificativa" [required]="true" [(value)]="justificativa" [rows]="2" [maxlength]="400"
-            placeholder="Ex.: Viagem a Salvador sem abastecimento no sistema."></ces-textarea>
+          </geo-callout>
+          <geo-textarea label="Justificativa" [required]="true" [(value)]="justificativa" [rows]="2" [maxlength]="400"
+            placeholder="Ex.: Viagem a Salvador sem abastecimento no sistema."></geo-textarea>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Registrar leitura" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Registrar leitura" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaLancarKmComponent {

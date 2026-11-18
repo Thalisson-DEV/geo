@@ -3,17 +3,17 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, mo
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  CesAutocompleteComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormDrawerComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
+  GeoAutocompleteComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormDrawerComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { LookupStore } from '../../../core/lookup';
 import { SaldoPecaFrota } from '../../../core/models/frota-pneu.models';
 import {
@@ -47,139 +47,139 @@ const UNIDADES = ['UN', 'L', 'KG', 'M', 'JG', 'PC', 'CX', 'KIT'];
     CurrencyPipe,
     FormsModule,
     RouterLink,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFormDrawerComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFormDrawerComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
     NgTemplateOutlet
   ],
   styles: `
     .catalogo-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; margin-top: -0.5rem;
-      font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+      font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()"
+    <geo-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()"
       [dirty]="alterado()" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
+      <div class="geo-form-stack">
         @if (tipo() === 'servico') {
           @if (usaCatalogo()) {
             <!-- Mão de obra da lista de itens de manutenção: o mesmo serviço não ganha nomes diferentes. -->
-            <ces-select label="Serviço" [required]="true" [options]="opcoesItens()" [(value)]="idItemCatalogo" [filter]="true"
+            <geo-select label="Serviço" [required]="true" [options]="opcoesItens()" [(value)]="idItemCatalogo" [filter]="true"
               filterPlaceholder="Procurar serviço" [loading]="carregandoItens()" [error]="erro('catalogo')"
-              description="Itens de manutenção do tipo mão de obra."></ces-select>
+              description="Itens de manutenção do tipo mão de obra."></geo-select>
             <ng-container *ngTemplateOutlet="naoAchou"></ng-container>
           } @else {
-            <ces-text-input label="Serviço" [required]="true" [(value)]="nome" [maxlength]="300" [error]="erro('nome')"
-              description="Lançado antes da lista de itens: o nome fica como foi digitado."></ces-text-input>
+            <geo-text-input label="Serviço" [required]="true" [(value)]="nome" [maxlength]="300" [error]="erro('nome')"
+              description="Lançado antes da lista de itens: o nome fica como foi digitado."></geo-text-input>
           }
           @if (interna()) {
-            <ces-autocomplete label="Mecânico" [required]="true" [options]="opcoesMecanico()" [status]="statusBusca()"
+            <geo-autocomplete label="Mecânico" [required]="true" [options]="opcoesMecanico()" [status]="statusBusca()"
               [loading]="statusBusca() === 'loading'" [ngModel]="idMecanico()" (ngModelChange)="idMecanico.set($event)"
               (search)="buscarMecanico($event)" [error]="erro('mecanico')"
-              description="Oficina interna: escolha o colaborador que fez o serviço."></ces-autocomplete>
+              description="Oficina interna: escolha o colaborador que fez o serviço."></geo-autocomplete>
           } @else {
-            <ces-text-input label="Mecânico" [(value)]="mecanicoNome" [maxlength]="120" [showOptional]="true"
-              description="Oficina externa: o nome de quem fez, se a oficina informou."></ces-text-input>
+            <geo-text-input label="Mecânico" [(value)]="mecanicoNome" [maxlength]="120" [showOptional]="true"
+              description="Oficina externa: o nome de quem fez, se a oficina informou."></geo-text-input>
           }
-          <div class="ces-form-grid">
-            <ces-number-input label="Horas / quantidade" [required]="true" [(value)]="quantidade" [min]="0"
-              [maxFractionDigits]="3" [error]="erro('quantidade')"></ces-number-input>
-            <ces-number-input label="Valor unitário" mode="currency" [required]="true" [(value)]="valorUnitario" [min]="0"
-              [maxFractionDigits]="4" [error]="erro('valor')"></ces-number-input>
+          <div class="geo-form-grid">
+            <geo-number-input label="Horas / quantidade" [required]="true" [(value)]="quantidade" [min]="0"
+              [maxFractionDigits]="3" [error]="erro('quantidade')"></geo-number-input>
+            <geo-number-input label="Valor unitário" mode="currency" [required]="true" [(value)]="valorUnitario" [min]="0"
+              [maxFractionDigits]="4" [error]="erro('valor')"></geo-number-input>
           </div>
         } @else {
-          <ces-select label="Origem" [required]="true" [options]="origens()" [(value)]="origem"
-            [description]="origem() === 'COMPRA' ? 'Entra na lista de peças da compra.' : usaAlmoxarifado() ? 'Sai do almoxarifado pelo custo médio. Tirar da OS devolve ao estoque.' : 'Só registra a origem; não dá baixa no estoque.'"></ces-select>
+          <geo-select label="Origem" [required]="true" [options]="origens()" [(value)]="origem"
+            [description]="origem() === 'COMPRA' ? 'Entra na lista de peças da compra.' : usaAlmoxarifado() ? 'Sai do almoxarifado pelo custo médio. Tirar da OS devolve ao estoque.' : 'Só registra a origem; não dá baixa no estoque.'"></geo-select>
           @if (semSaldoNoEstoque()) {
-            <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Nenhuma peça com saldo na oficina">
+            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Nenhuma peça com saldo na oficina">
               Sem saldo, a peça abaixo fica só registrada na OS e não baixa do estoque. Lance a entrada em
               <a routerLink="/frota/estoque">Estoque da oficina</a> ou escolha a origem Compra.
-            </ces-callout>
+            </geo-callout>
           }
           @if (usaAlmoxarifado()) {
-            <ces-select label="Peça do almoxarifado" [required]="true" [options]="opcoesSaldo()" [(value)]="saldoEscolhido" [filter]="true"
-              filterPlaceholder="Código, nome ou almoxarifado" [loading]="carregandoSaldos()" [error]="erro('saldo')" [description]="descricaoSaldo()"></ces-select>
-            <ces-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
-              [maxFractionDigits]="casasSaldo()" [suffix]="saldoAtual() ? ' ' + saldoAtual()!.unidade : ''" [error]="erroQuantidadeSaldo()"></ces-number-input>
+            <geo-select label="Peça do almoxarifado" [required]="true" [options]="opcoesSaldo()" [(value)]="saldoEscolhido" [filter]="true"
+              filterPlaceholder="Código, nome ou almoxarifado" [loading]="carregandoSaldos()" [error]="erro('saldo')" [description]="descricaoSaldo()"></geo-select>
+            <geo-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
+              [maxFractionDigits]="casasSaldo()" [suffix]="saldoAtual() ? ' ' + saldoAtual()!.unidade : ''" [error]="erroQuantidadeSaldo()"></geo-number-input>
           } @else if (usaCatalogo()) {
             <!-- Peça da lista de itens de manutenção: a mesma peça não ganha cinco nomes diferentes. -->
-            <ces-select label="Peça ou consumível" [required]="true" [options]="opcoesItens()" [(value)]="idItemCatalogo" [filter]="true"
+            <geo-select label="Peça ou consumível" [required]="true" [options]="opcoesItens()" [(value)]="idItemCatalogo" [filter]="true"
               filterPlaceholder="Procurar peça" [loading]="carregandoItens()" [error]="erro('catalogo')"
-              description="Itens de manutenção do tipo peça ou consumível."></ces-select>
+              description="Itens de manutenção do tipo peça ou consumível."></geo-select>
             <ng-container *ngTemplateOutlet="naoAchou"></ng-container>
-            <div class="ces-form-grid">
-              <ces-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
-                [maxFractionDigits]="3" [error]="erro('quantidade')"></ces-number-input>
-              <ces-select label="Unidade" [required]="true" [options]="unidades()" [(value)]="unidade" [filter]="true"
-                [error]="erro('unidade')"></ces-select>
+            <div class="geo-form-grid">
+              <geo-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
+                [maxFractionDigits]="3" [error]="erro('quantidade')"></geo-number-input>
+              <geo-select label="Unidade" [required]="true" [options]="unidades()" [(value)]="unidade" [filter]="true"
+                [error]="erro('unidade')"></geo-select>
             </div>
-            <ces-number-input label="Valor unitário" mode="currency" [required]="true" [(value)]="valorUnitario" [min]="0"
-              [maxFractionDigits]="4" [error]="erro('valor')"></ces-number-input>
+            <geo-number-input label="Valor unitário" mode="currency" [required]="true" [(value)]="valorUnitario" [min]="0"
+              [maxFractionDigits]="4" [error]="erro('valor')"></geo-number-input>
           } @else {
-            <ces-text-input label="Peça ou consumível" [required]="true" [(value)]="nome" [maxlength]="300"
+            <geo-text-input label="Peça ou consumível" [required]="true" [(value)]="nome" [maxlength]="300"
               placeholder="Ex.: filtro de óleo" [error]="erro('nome')"
-              description="Lançada antes da lista de itens: o nome fica como foi digitado."></ces-text-input>
-            <ces-text-input label="Código" [(value)]="codigo" [maxlength]="60" [showOptional]="true"></ces-text-input>
-            <div class="ces-form-grid">
-              <ces-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
-                [maxFractionDigits]="3" [error]="erro('quantidade')"></ces-number-input>
-              <ces-select label="Unidade" [required]="true" [options]="unidades()" [(value)]="unidade" [filter]="true"
-                [error]="erro('unidade')"></ces-select>
+              description="Lançada antes da lista de itens: o nome fica como foi digitado."></geo-text-input>
+            <geo-text-input label="Código" [(value)]="codigo" [maxlength]="60" [showOptional]="true"></geo-text-input>
+            <div class="geo-form-grid">
+              <geo-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
+                [maxFractionDigits]="3" [error]="erro('quantidade')"></geo-number-input>
+              <geo-select label="Unidade" [required]="true" [options]="unidades()" [(value)]="unidade" [filter]="true"
+                [error]="erro('unidade')"></geo-select>
             </div>
-            <ces-number-input label="Valor unitário" mode="currency" [required]="true" [(value)]="valorUnitario" [min]="0"
-              [maxFractionDigits]="4" [error]="erro('valor')"></ces-number-input>
+            <geo-number-input label="Valor unitário" mode="currency" [required]="true" [(value)]="valorUnitario" [min]="0"
+              [maxFractionDigits]="4" [error]="erro('valor')"></geo-number-input>
           }
         }
         @if (subtotal() !== null) {
-          <ces-callout tone="neutral" [dense]="true">Subtotal: {{ subtotal() | currency: 'BRL' }}</ces-callout>
+          <geo-callout tone="neutral" [dense]="true">Subtotal: {{ subtotal() | currency: 'BRL' }}</geo-callout>
         }
         @if (pedeSemCusto()) {
-          <ces-boolean-control kind="toggle" label="Sem custo" [(value)]="semCusto"
-            [description]="semCusto() ? 'Garantia, cortesia ou doação: o valor zero é de propósito.' : 'Sem valor ainda: a OS concluída fica com valores pendentes até lançar o valor.'"></ces-boolean-control>
+          <geo-boolean-control kind="toggle" label="Sem custo" [(value)]="semCusto"
+            [description]="semCusto() ? 'Garantia, cortesia ou doação: o valor zero é de propósito.' : 'Sem valor ainda: a OS concluída fica com valores pendentes até lançar o valor.'"></geo-boolean-control>
         }
         @if (erroServidor()) {
-          <ces-callout tone="danger" [dense]="true">{{ erroServidor() }}</ces-callout>
+          <geo-callout tone="danger" [dense]="true">{{ erroServidor() }}</geo-callout>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="editando() ? 'Salvar alterações' : (tipo() === 'servico' ? 'Adicionar serviço' : 'Adicionar peça')"
-          [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="editando() ? 'Salvar alterações' : (tipo() === 'servico' ? 'Adicionar serviço' : 'Adicionar peça')"
+          [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <ng-template #naoAchou>
       <div class="catalogo-acao">
         @if (acesso.configurar()) {
           <span>Não achou?</span>
-          <ces-button variant="link" size="sm" icon="pi pi-plus" [label]="tipo() === 'servico' ? 'Cadastrar mão de obra' : 'Cadastrar peça'"
-            (pressed)="abrirCadastroItem()"></ces-button>
+          <geo-button variant="link" size="sm" icon="pi pi-plus" [label]="tipo() === 'servico' ? 'Cadastrar mão de obra' : 'Cadastrar peça'"
+            (pressed)="abrirCadastroItem()"></geo-button>
         } @else {
           <span>Não achou? Peça o cadastro a quem administra a frota.</span>
         }
       </div>
     </ng-template>
 
-    <ces-form-drawer [(visible)]="cadastroItemAberto" [title]="tipo() === 'servico' ? 'Cadastrar mão de obra' : 'Cadastrar peça'"
+    <geo-form-drawer [(visible)]="cadastroItemAberto" [title]="tipo() === 'servico' ? 'Cadastrar mão de obra' : 'Cadastrar peça'"
       description="Entra nos itens de manutenção da frota e já fica escolhido aqui." [dirty]="!!novoItemNome().trim()"
       [loading]="salvandoItem()" size="sm">
-      <div class="ces-form-stack">
-        <ces-text-input label="Nome" [required]="true" [(value)]="novoItemNome" [maxlength]="120"
+      <div class="geo-form-stack">
+        <geo-text-input label="Nome" [required]="true" [(value)]="novoItemNome" [maxlength]="120"
           [placeholder]="tipo() === 'servico' ? 'Ex.: Alinhamento e balanceamento' : 'Ex.: Fluido de freio DOT 4'"
           [error]="tentouItem() && !novoItemNome().trim() ? 'Informe o nome.' : undefined"
-          description="Confira na lista antes: o mesmo item com outro nome atrapalha os relatórios."></ces-text-input>
-        <ces-select label="Natureza" [required]="true" [options]="naturezas()" [(value)]="novoItemNatureza" [filter]="true"
-          [error]="tentouItem() && !novoItemNatureza() ? 'Escolha a natureza.' : undefined"></ces-select>
+          description="Confira na lista antes: o mesmo item com outro nome atrapalha os relatórios."></geo-text-input>
+        <geo-select label="Natureza" [required]="true" [options]="naturezas()" [(value)]="novoItemNatureza" [filter]="true"
+          [error]="tentouItem() && !novoItemNatureza() ? 'Escolha a natureza.' : undefined"></geo-select>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="cadastroItemAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Cadastrar" [loading]="salvandoItem()" (pressed)="cadastrarItem()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="cadastroItemAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Cadastrar" [loading]="salvandoItem()" (pressed)="cadastrarItem()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaOsLancamentoComponent {
@@ -199,7 +199,7 @@ export class FrotaOsLancamentoComponent {
   readonly salvo = output<OrdemServicoDetalhe>();
 
   /** As unidades comuns e, na edição, a unidade já gravada se ela for outra. */
-  protected readonly unidades = computed<CesSelectOption<string>[]>(() => {
+  protected readonly unidades = computed<GeoSelectOption<string>[]>(() => {
     const gravada = this.peca()?.unidade;
     const lista = gravada && !UNIDADES.includes(gravada) ? [...UNIDADES, gravada] : UNIDADES;
     return lista.map((u) => ({ label: u, value: u }));
@@ -216,7 +216,7 @@ export class FrotaOsLancamentoComponent {
   protected readonly valorUnitario = signal<number | null>(null);
   /** Valor zero de propósito (garantia, cortesia): não deixa a OS com valores pendentes. */
   protected readonly semCusto = signal(false);
-  protected readonly opcoesMecanico = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesMecanico = signal<GeoSelectOption<string>[]>([]);
   private readonly saldos = signal<SaldoPecaFrota[]>([]);
   protected readonly carregandoSaldos = signal(false);
   /** Chave idEstoque:idMaterial da peça escolhida no almoxarifado. */
@@ -232,7 +232,7 @@ export class FrotaOsLancamentoComponent {
   protected readonly carregandoItens = signal(false);
   protected readonly idItemCatalogo = signal<string | null>(null);
   protected readonly itemCatalogo = computed(() => this.itensCadastro().find((i) => i.id === this.idItemCatalogo()) ?? null);
-  protected readonly opcoesItens = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesItens = computed<GeoSelectOption<string>[]>(() => {
     const tipo = this.tipo() === 'servico' ? 'MAO_DE_OBRA' : 'PECA';
     return this.itensCadastro()
       .filter((i) => (i.tipo ?? 'MAO_DE_OBRA') === tipo && (i.ativo || i.id === this.idItemCatalogo()))
@@ -253,7 +253,7 @@ export class FrotaOsLancamentoComponent {
   protected readonly novoItemNatureza = signal<string | null>(null);
   protected readonly salvandoItem = signal(false);
   protected readonly tentouItem = signal(false);
-  protected readonly naturezas = computed<CesSelectOption<string>[]>(() =>
+  protected readonly naturezas = computed<GeoSelectOption<string>[]>(() =>
     (this.opcoes()?.naturezasServico ?? []).map((n) => ({ label: n.rotulo, value: n.valor })));
 
   protected readonly saldoAtual = computed(() => this.saldos().find((s) => this.chaveSaldo(s) === this.saldoEscolhido()) ?? null);
@@ -267,7 +267,7 @@ export class FrotaOsLancamentoComponent {
   /** Escolheu Estoque, mas não há nada para baixar: a pessoa precisa saber antes de lançar. */
   protected readonly semSaldoNoEstoque = computed(() =>
     this.tipo() === 'peca' && this.origem() === 'ESTOQUE' && this.acesso.verEstoque() && !this.peca() && !this.carregandoSaldos() && !this.saldos().some((s) => s.quantidade > 0));
-  protected readonly opcoesSaldo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesSaldo = computed<GeoSelectOption<string>[]>(() =>
     this.saldos().filter((s) => s.quantidade > 0 || this.chaveSaldo(s) === this.saldoEscolhido()).map((s) => ({
       label: `${s.codigo} · ${s.descricao} · ${s.estoque} · ${this.disponivel(s).toLocaleString('pt-BR')} ${s.unidade}`,
       value: this.chaveSaldo(s)
@@ -300,10 +300,10 @@ export class FrotaOsLancamentoComponent {
     const os = this.detalhe().ordem;
     return `OS ${os.numero} · ${os.veicular ? os.placa : os.descricaoEquipamento} · oficina ${this.interna() ? 'interna' : 'externa'}.`;
   });
-  protected readonly itensOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly itensOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.detalhe().itens.map((i) => ({ label: i.nome, value: i.idItem }))
   );
-  protected readonly origens = computed<CesSelectOption<OrigemPeca>[]>(() =>
+  protected readonly origens = computed<GeoSelectOption<OrigemPeca>[]>(() =>
     (this.opcoes()?.origensPeca ?? [
       { valor: 'ESTOQUE' as OrigemPeca, rotulo: 'Estoque' },
       { valor: 'COMPRA' as OrigemPeca, rotulo: 'Compra' }

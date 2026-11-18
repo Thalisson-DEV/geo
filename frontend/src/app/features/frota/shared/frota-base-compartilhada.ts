@@ -1,5 +1,5 @@
 import { WritableSignal, effect, signal } from '@angular/core';
-import { readSharedFilter, writeSharedFilter } from '@ces/ui';
+import { readSharedFilter, writeSharedFilter } from '@geo/ui';
 
 /** Chave da base escolhida nas telas da frota: escolher numa tela vale para as outras. */
 export const CHAVE_BASE_FROTA = 'frota.base';

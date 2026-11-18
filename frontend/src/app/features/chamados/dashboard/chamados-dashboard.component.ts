@@ -4,27 +4,27 @@ import { Router } from '@angular/router';
 import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDrillStateService,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDrillStateService,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { Chamado, ChamadoFiltros, ChamadoPrioridade, ChamadoStatus, EquipeChamado, TopicoChamado } from '../../../core/models/chamado.models';
 import { DashboardChamadosFilter, DashboardChamadosResponse, RankingSolicitanteItem } from '../../../core/models/chamado-dashboard.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -108,23 +108,23 @@ interface Carga {
   selector: 'app-chamados-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesChartComponent,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoChartComponent,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
     DashboardAnaliseComponent,
     DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent,
@@ -153,26 +153,26 @@ export class ChamadosDashboardComponent {
   // ── Filtros ──────────────────────────────────────────────────────────────────────────────────
   protected readonly topicos = signal<TopicoChamado[]>([]);
   protected readonly equipes = signal<EquipeChamado[]>([]);
-  protected readonly topicoOpcoes = computed<CesSelectOption<string>[]>(() => this.topicos().map((t) => ({ label: t.nome, value: t.id })));
-  protected readonly equipeOpcoes = computed<CesSelectOption<string>[]>(() => this.equipes().map((e) => ({ label: e.nome, value: e.id })));
+  protected readonly topicoOpcoes = computed<GeoSelectOption<string>[]>(() => this.topicos().map((t) => ({ label: t.nome, value: t.id })));
+  protected readonly equipeOpcoes = computed<GeoSelectOption<string>[]>(() => this.equipes().map((e) => ({ label: e.nome, value: e.id })));
   protected readonly prioridadeOpcoes = PRIORIDADE_OPTIONS;
   protected readonly statusOpcoes = STATUS_OPTIONS;
-  protected readonly slaOpcoes: CesSelectOption<boolean | null>[] = [
+  protected readonly slaOpcoes: GeoSelectOption<boolean | null>[] = [
     { label: 'Todos os prazos', value: null },
     { label: 'Só com SLA estourado', value: true },
     { label: 'Só dentro do prazo', value: false }
   ];
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'chamados-dashboard',
     queryParam: false,
     filters: {
-      periodo: cesFilter.range(periodoPadrao(), { label: 'Período' }),
-      topico: cesFilter.list<string>([], { label: 'Tópico', itemLabel: (id) => this.topicoOpcoes().find((o) => o.value === id)?.label ?? 'tópico selecionado', countLabel: (n) => `${n} tópicos` }),
-      equipe: cesFilter.list<string>([], { label: 'Equipe', itemLabel: (id) => this.equipeOpcoes().find((o) => o.value === id)?.label ?? 'equipe selecionada', countLabel: (n) => `${n} equipes` }),
-      prioridade: cesFilter.list<string>([], { label: 'Prioridade', itemLabel: (v) => rotuloPrioridade(v as ChamadoPrioridade), countLabel: (n) => `${n} prioridades` }),
-      status: cesFilter.list<string>([], { label: 'Status', itemLabel: (v) => rotuloStatus(v as ChamadoStatus), countLabel: (n) => `${n} status` }),
-      sla: cesFilter.value<boolean | null>(null, { label: 'Prazo', type: 'boolean', options: () => this.slaOpcoes })
+      periodo: geoFilter.range(periodoPadrao(), { label: 'Período' }),
+      topico: geoFilter.list<string>([], { label: 'Tópico', itemLabel: (id) => this.topicoOpcoes().find((o) => o.value === id)?.label ?? 'tópico selecionado', countLabel: (n) => `${n} tópicos` }),
+      equipe: geoFilter.list<string>([], { label: 'Equipe', itemLabel: (id) => this.equipeOpcoes().find((o) => o.value === id)?.label ?? 'equipe selecionada', countLabel: (n) => `${n} equipes` }),
+      prioridade: geoFilter.list<string>([], { label: 'Prioridade', itemLabel: (v) => rotuloPrioridade(v as ChamadoPrioridade), countLabel: (n) => `${n} prioridades` }),
+      status: geoFilter.list<string>([], { label: 'Status', itemLabel: (v) => rotuloStatus(v as ChamadoStatus), countLabel: (n) => `${n} status` }),
+      sla: geoFilter.value<boolean | null>(null, { label: 'Prazo', type: 'boolean', options: () => this.slaOpcoes })
     }
   });
 
@@ -215,7 +215,7 @@ export class ChamadosDashboardComponent {
   protected readonly prioridade = computed(() => (this.d() ? graficoPrioridade(this.d()!) : null));
 
   protected readonly dimensao = signal<Dimensao>('topico');
-  protected readonly abasDimensao: CesTabItem[] = (Object.keys(DIMENSOES) as Dimensao[]).map((k) => ({ value: k, label: DIMENSOES[k].rotulo, icon: DIMENSOES[k].icone }));
+  protected readonly abasDimensao: GeoTabItem[] = (Object.keys(DIMENSOES) as Dimensao[]).map((k) => ({ value: k, label: DIMENSOES[k].rotulo, icon: DIMENSOES[k].icone }));
   protected readonly dimensoes = DIMENSOES;
   protected readonly linhasRanking = computed(() => (this.d() ? ranking(this.d()!, this.dimensao()) : []));
   protected readonly graficoDimensao = computed(() => graficoRanking(this.linhasRanking()));
@@ -230,7 +230,7 @@ export class ChamadosDashboardComponent {
   protected readonly comparacao = (chave: string, alternativo: string): string => variacaoTexto(this.d()?.indicadores?.[chave]) ?? alternativo;
 
   // ── Tabelas ──────────────────────────────────────────────────────────────────────────────────
-  protected readonly colAcao: CesDataTableColumn<LinhaChamado>[] = [
+  protected readonly colAcao: GeoDataTableColumn<LinhaChamado>[] = [
     { key: 'situacao', header: 'Por que pede ação', type: 'custom', priority: 1, value: (l) => MOTIVOS[motivoPrincipal(l)!].peso, display: (l) => l.motivos.map((m) => MOTIVOS[m].curto).join(', ') },
     { key: 'protocolo', header: 'Protocolo', priority: 1 },
     { key: 'assunto', header: 'Assunto', priority: 1 },
@@ -249,7 +249,7 @@ export class ChamadosDashboardComponent {
   protected readonly vencido = (l: unknown) => (l as LinhaChamado).horasParaPrazo < 0 && !(l as LinhaChamado).slaPausado;
   protected readonly prazo = (l: unknown) => prazoRelativo(l as LinhaChamado);
 
-  protected readonly colRanking = computed<CesDataTableColumn<LinhaRanking>[]>(() => [
+  protected readonly colRanking = computed<GeoDataTableColumn<LinhaRanking>[]>(() => [
     { key: 'nome', header: DIMENSOES[this.dimensao()].singular, priority: 1 },
     { key: 'detalhe', header: this.dimensao() === 'atendente' ? 'Equipe' : 'Código', priority: 3 },
     { key: 'total', header: 'Chamados', type: 'integer', priority: 1 },
@@ -262,7 +262,7 @@ export class ChamadosDashboardComponent {
   protected readonly chaveRanking = (l: LinhaRanking) => l.chave;
   protected readonly rotuloRanking = (l: LinhaRanking) => l.nome;
 
-  protected readonly colSolicitantes: CesDataTableColumn<RankingSolicitanteItem>[] = [
+  protected readonly colSolicitantes: GeoDataTableColumn<RankingSolicitanteItem>[] = [
     { key: 'nome', header: 'Solicitante', priority: 1 },
     { key: 'totalChamados', header: 'Chamados', type: 'integer', priority: 1 },
     { key: 'participacaoPercentual', header: 'Do total', type: 'percent', priority: 2 }

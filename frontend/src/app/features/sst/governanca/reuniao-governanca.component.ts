@@ -11,7 +11,7 @@ import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { StepperModule } from 'primeng/stepper';
 import { TableModule } from 'primeng/table';
-import { CesStatusComponent } from '@ces/ui';
+import { GeoStatusComponent } from '@geo/ui';
 import { iconeGovernanca } from './governanca.component';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
@@ -34,7 +34,7 @@ type Transcricao = { id: string; numero: number; origem: string; conteudo: strin
   selector: 'app-reuniao-governanca',
   standalone: true,
   imports: [CommonModule, FormsModule, BreadcrumbModule, ButtonModule, FileUploadModule, InputTextModule, SelectModule,
-    SkeletonModule, StepperModule, TableModule, CesStatusComponent, TextareaModule, ToastModule, TooltipModule],
+    SkeletonModule, StepperModule, TableModule, GeoStatusComponent, TextareaModule, ToastModule, TooltipModule],
   providers: [MessageService],
   templateUrl: './reuniao-governanca.component.html',
   styleUrls: ['./reuniao-governanca.component.css'],

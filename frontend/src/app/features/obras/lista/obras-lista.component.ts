@@ -7,30 +7,30 @@ import { SolicitacaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes
 import { ObraFormComponent } from '../form/obra-form.component';
 import { catchError, debounceTime, distinctUntilChanged, map, of, startWith, switchMap } from 'rxjs';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesImportStatus,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoImportStatus,
+  geoListState
+} from '@geo/ui';
 
 import {
   ImportacaoStatus,
@@ -78,11 +78,11 @@ const SELECOES_IMPORTACAO: { key: string; campo: CampoImportacao; header: string
   { key: 'statusObra', campo: 'nomeStatus', header: 'Status da obra', lookup: 'status' },
   { key: 'agente', campo: 'nomeAgenteResponsavel', header: 'Agente', lookup: 'agentes' }
 ];
-const PRINCIPAIS: CesSelectOption<boolean | null>[] = [
+const PRINCIPAIS: GeoSelectOption<boolean | null>[] = [
   { label: 'Obras e subprojetos', value: null },
   { label: 'Só obras principais', value: true }
 ];
-const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
+const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
   { label: 'Listagem resumida', value: 'resumo' },
   { label: 'Relatório completo', value: 'detalhado' }
 ];
@@ -93,7 +93,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
-    .ces-kpis {
+    .geo-kpis {
       margin-bottom: 1rem;
     }
 
@@ -102,8 +102,8 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
       white-space: nowrap;
     }
 
-    .obra-encerramento { display: inline-flex; margin-top: 0.25rem; padding: 0; border: 0; background: none; cursor: pointer; border-radius: var(--ces-radius-sm); }
-    .obra-encerramento:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .obra-encerramento { display: inline-flex; margin-top: 0.25rem; padding: 0; border: 0; background: none; cursor: pointer; border-radius: var(--geo-radius-sm); }
+    .obra-encerramento:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .obra-titulo {
       display: block;
       min-width: 16rem;
@@ -115,32 +115,32 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
     }
   `,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
     ObraFormComponent,
     DevolucaoTecnicaFormComponent,
     SolicitacaoTecnicaFormComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent,
     ImportacaoPlanilhaObrasComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeEscrever" (newRequested)="novaObra()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeEscrever" (newRequested)="novaObra()">
+      <geo-page-header
         title="Obras e projetos"
         icon="pi pi-building"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Gestão de obras e projetos' }]"
@@ -149,62 +149,62 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         (help)="ajuda.show()"
       >
         @if (podeExportar) {
-          <ces-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="exportacaoAberta.set(true)"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="exportacaoAberta.set(true)"></geo-button>
         }
         @if (podeImportar) {
-          <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="escolhaImportacaoAberta.set(true)"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="escolhaImportacaoAberta.set(true)"></geo-button>
         }
         @if (podeEscrever) {
-          <ces-button actions icon="pi pi-plus" label="Nova obra" [keyShortcut]="atalhos.newShortcut()" (pressed)="novaObra()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Nova obra" [keyShortcut]="atalhos.newShortcut()" (pressed)="novaObra()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="obras-lista" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="obras-lista" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-text-input label="Número" [(value)]="lista.filters.numero" placeholder="Ex.: 1228694"></ces-text-input>
-          <ces-text-input label="Título" [(value)]="lista.filters.titulo"></ces-text-input>
-          <ces-text-input label="Nota da obra" [(value)]="lista.filters.notaObra"></ces-text-input>
-          <ces-multiselect label="Status" [options]="opcoes('status')" [(value)]="lista.filters.status" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Processo" [options]="opcoes('processos')" [(value)]="lista.filters.processo" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Base operacional" [options]="opcoes('bases')" [(value)]="lista.filters.base" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Município" [options]="opcoes('municipios')" [(value)]="lista.filters.municipio" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Centro de custo" [options]="opcoes('centros')" [(value)]="lista.filters.centroCusto" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Supervisor" [options]="opcoes('supervisores')" [(value)]="lista.filters.supervisor" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Coordenador" [options]="opcoes('coordenadores')" [(value)]="lista.filters.coordenador" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Agente responsável" [options]="opcoes('agentes')" [(value)]="lista.filters.agente" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Hierarquia" [options]="principais" [(value)]="lista.filters.apenasPrincipais"></ces-select>
-          <ces-datepicker label="Início a partir de" [value]="dataLocal(lista.filters.inicio().from)" [clearable]="true" (valueChange)="periodo('inicio', 'from', $event)"></ces-datepicker>
-          <ces-datepicker label="Início até" [value]="dataLocal(lista.filters.inicio().to)" [clearable]="true" (valueChange)="periodo('inicio', 'to', $event)"></ces-datepicker>
-          <ces-datepicker label="Previsão de fim a partir de" [value]="dataLocal(lista.filters.previsaoFim().from)" [clearable]="true" (valueChange)="periodo('previsaoFim', 'from', $event)"></ces-datepicker>
-          <ces-datepicker label="Previsão de fim até" [value]="dataLocal(lista.filters.previsaoFim().to)" [clearable]="true" (valueChange)="periodo('previsaoFim', 'to', $event)"></ces-datepicker>
-          <ces-number-input label="Valor mínimo" mode="currency" [min]="0" [(value)]="lista.filters.valorMin"></ces-number-input>
-          <ces-number-input label="Valor máximo" mode="currency" [min]="0" [(value)]="lista.filters.valorMax"></ces-number-input>
+        <div class="geo-filter-grid">
+          <geo-text-input label="Número" [(value)]="lista.filters.numero" placeholder="Ex.: 1228694"></geo-text-input>
+          <geo-text-input label="Título" [(value)]="lista.filters.titulo"></geo-text-input>
+          <geo-text-input label="Nota da obra" [(value)]="lista.filters.notaObra"></geo-text-input>
+          <geo-multiselect label="Status" [options]="opcoes('status')" [(value)]="lista.filters.status" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Processo" [options]="opcoes('processos')" [(value)]="lista.filters.processo" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Base operacional" [options]="opcoes('bases')" [(value)]="lista.filters.base" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Município" [options]="opcoes('municipios')" [(value)]="lista.filters.municipio" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Centro de custo" [options]="opcoes('centros')" [(value)]="lista.filters.centroCusto" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Supervisor" [options]="opcoes('supervisores')" [(value)]="lista.filters.supervisor" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Coordenador" [options]="opcoes('coordenadores')" [(value)]="lista.filters.coordenador" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Agente responsável" [options]="opcoes('agentes')" [(value)]="lista.filters.agente" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Hierarquia" [options]="principais" [(value)]="lista.filters.apenasPrincipais"></geo-select>
+          <geo-datepicker label="Início a partir de" [value]="dataLocal(lista.filters.inicio().from)" [clearable]="true" (valueChange)="periodo('inicio', 'from', $event)"></geo-datepicker>
+          <geo-datepicker label="Início até" [value]="dataLocal(lista.filters.inicio().to)" [clearable]="true" (valueChange)="periodo('inicio', 'to', $event)"></geo-datepicker>
+          <geo-datepicker label="Previsão de fim a partir de" [value]="dataLocal(lista.filters.previsaoFim().from)" [clearable]="true" (valueChange)="periodo('previsaoFim', 'from', $event)"></geo-datepicker>
+          <geo-datepicker label="Previsão de fim até" [value]="dataLocal(lista.filters.previsaoFim().to)" [clearable]="true" (valueChange)="periodo('previsaoFim', 'to', $event)"></geo-datepicker>
+          <geo-number-input label="Valor mínimo" mode="currency" [min]="0" [(value)]="lista.filters.valorMin"></geo-number-input>
+          <geo-number-input label="Valor máximo" mode="currency" [min]="0" [(value)]="lista.filters.valorMax"></geo-number-input>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <section class="ces-kpis" aria-label="Indicadores do recorte" aria-live="polite">
-        <div class="ces-kpi" data-tone="info">
-          <span class="ces-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Obras no recorte</span>
-            <span class="ces-kpi__value">{{ indicador('quantidade') }}</span>
-            <span class="ces-kpi__detail">{{ indicador('municipios') }}</span></span>
+      <section class="geo-kpis" aria-label="Indicadores do recorte" aria-live="polite">
+        <div class="geo-kpi" data-tone="info">
+          <span class="geo-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Obras no recorte</span>
+            <span class="geo-kpi__value">{{ indicador('quantidade') }}</span>
+            <span class="geo-kpi__detail">{{ indicador('municipios') }}</span></span>
         </div>
-        <div class="ces-kpi" data-tone="neutral">
-          <span class="ces-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Valor de projeto</span><span class="ces-kpi__value">{{ indicador('valorProjeto') }}</span></span>
+        <div class="geo-kpi" data-tone="neutral">
+          <span class="geo-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Valor de projeto</span><span class="geo-kpi__value">{{ indicador('valorProjeto') }}</span></span>
         </div>
-        <div class="ces-kpi" data-tone="neutral">
-          <span class="ces-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Material previsto</span><span class="ces-kpi__value">{{ indicador('valorMaterialPrevisto') }}</span></span>
+        <div class="geo-kpi" data-tone="neutral">
+          <span class="geo-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Material previsto</span><span class="geo-kpi__value">{{ indicador('valorMaterialPrevisto') }}</span></span>
         </div>
-        <div class="ces-kpi" data-tone="neutral">
-          <span class="ces-kpi__icon"><i class="pi pi-wrench" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Serviço previsto</span><span class="ces-kpi__value">{{ indicador('valorServicoPrevisto') }}</span></span>
+        <div class="geo-kpi" data-tone="neutral">
+          <span class="geo-kpi__icon"><i class="pi pi-wrench" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span><span class="geo-kpi__value">{{ indicador('valorServicoPrevisto') }}</span></span>
         </div>
       </section>
 
-      <ces-data-table
+      <geo-data-table
         title="Obras"
         mode="server"
         storageKey="obras-lista"
@@ -231,163 +231,163 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         (emptyAction)="novaObra()"
         (rowActivate)="visualizarObra($event)"
       >
-        <ng-template cesCell="numero" let-row>
-          <span class="ces-cell-strong">{{ row.numero }}</span>
+        <ng-template geoCell="numero" let-row>
+          <span class="geo-cell-strong">{{ row.numero }}</span>
           @if (row.obraPaiNumero) {
-            <span class="ces-cell-muted"><i class="pi pi-link" aria-hidden="true"></i> subprojeto de {{ row.obraPaiNumero }}</span>
+            <span class="geo-cell-muted"><i class="pi pi-link" aria-hidden="true"></i> subprojeto de {{ row.obraPaiNumero }}</span>
           }
         </ng-template>
-        <ng-template cesCell="titulo" let-row><span class="obra-titulo" [title]="row.titulo">{{ row.titulo }}</span></ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="statusTone(row.statusNome, row.statusConcluida)" [icon]="statusIcon(row.statusNome)">{{ row.statusNome }}</ces-status>
+        <ng-template geoCell="titulo" let-row><span class="obra-titulo" [title]="row.titulo">{{ row.titulo }}</span></ng-template>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="statusTone(row.statusNome, row.statusConcluida)" [icon]="statusIcon(row.statusNome)">{{ row.statusNome }}</geo-status>
           @if (encerramentoDe(row); as enc) {
             <button type="button" class="obra-encerramento" [title]="'Ver o encerramento da obra ' + row.numero" (click)="verEncerramento(row); $event.stopPropagation()">
-              <ces-status [tone]="enc.tone" [icon]="enc.icon">{{ enc.label }}</ces-status>
+              <geo-status [tone]="enc.tone" [icon]="enc.icon">{{ enc.label }}</geo-status>
             </button>
           }
         </ng-template>
-        <ng-template cesCell="planejado" let-row>
+        <ng-template geoCell="planejado" let-row>
           @if (resumoDe(row); as r) {
             @if (r.temKits) {
               <strong>{{ moedaResumo(r.valorTotal) }}</strong>
-              <span class="ces-cell-muted obra-planejado">{{ numeroResumo(r.percentualProgramado) }}% prog. · {{ numeroResumo(r.percentualConcluido) }}% concl.@if (r.pontosSemKit) { · {{ r.pontosSemKit }} sem kit }</span>
+              <span class="geo-cell-muted obra-planejado">{{ numeroResumo(r.percentualProgramado) }}% prog. · {{ numeroResumo(r.percentualConcluido) }}% concl.@if (r.pontosSemKit) { · {{ r.pontosSemKit }} sem kit }</span>
             } @else {
-              <span class="ces-cell-muted">Sem kits</span>
+              <span class="geo-cell-muted">Sem kits</span>
             }
           } @else {
-            <span class="ces-cell-muted">—</span>
+            <span class="geo-cell-muted">—</span>
           }
         </ng-template>
-        <ng-template cesCell="prazo" let-row>
+        <ng-template geoCell="prazo" let-row>
           <span>{{ row.dataInicio }} → {{ row.dataPrevisaoFim }}</span>
           @if (row.dataFimEfetiva) {
-            <span class="ces-cell-muted">Concluída em {{ row.dataFimEfetiva }}</span>
+            <span class="geo-cell-muted">Concluída em {{ row.dataFimEfetiva }}</span>
           }
         </ng-template>
-        <ng-template cesCell="tensao" let-row>
+        <ng-template geoCell="tensao" let-row>
           @if (row.carteira?.classeTensaoRotulo) {
             {{ row.carteira.classeTensaoRotulo }}
           } @else {
-            <span class="ces-cell-muted" title="Classe de tensão não informada">—</span>
+            <span class="geo-cell-muted" title="Classe de tensão não informada">—</span>
           }
         </ng-template>
-        <ng-template cesCell="prioridade" let-row>
+        <ng-template geoCell="prioridade" let-row>
           @if (row.carteira?.prioridade; as p) {
-            <ces-status [tone]="tomPrioridade(p)" [icon]="p === 'URGENTE' ? 'pi-exclamation-circle' : undefined">{{ rotuloPrioridade(p) }}</ces-status>
+            <geo-status [tone]="tomPrioridade(p)" [icon]="p === 'URGENTE' ? 'pi-exclamation-circle' : undefined">{{ rotuloPrioridade(p) }}</geo-status>
           } @else {
-            <span class="ces-cell-muted">—</span>
+            <span class="geo-cell-muted">—</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button icon="pi pi-cart-plus" [label]="'Solicitar materiais para ' + row.numero" size="icon-sm" (pressed)="solicitarMateriais(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button icon="pi pi-cart-plus" [label]="'Solicitar materiais para ' + row.numero" size="icon-sm" (pressed)="solicitarMateriais(row)"></geo-icon-button>
             @if (podeCriarEncerramento) {
-              <ces-icon-button icon="pi pi-flag" [label]="'Nova solicitação de encerramento da obra ' + row.numero" size="icon-sm" (pressed)="novoEncerramento(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-flag" [label]="'Nova solicitação de encerramento da obra ' + row.numero" size="icon-sm" (pressed)="novoEncerramento(row)"></geo-icon-button>
             }
             @if (podeDevolver) {
-              <ces-icon-button icon="pi pi-undo" [label]="'Devolver materiais de ' + row.numero" size="icon-sm" (pressed)="devolvendoObra.set(row.id)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-undo" [label]="'Devolver materiais de ' + row.numero" size="icon-sm" (pressed)="devolvendoObra.set(row.id)"></geo-icon-button>
             }
             @if (podeEscrever) {
-              <ces-icon-button icon="pi pi-pencil" [label]="'Editar obra ' + row.numero" size="icon-sm" (pressed)="editarObra(row)"></ces-icon-button>
-              <ces-icon-button icon="pi pi-sync" [label]="'Alterar status da obra ' + row.numero" size="icon-sm" (pressed)="abrirAlteracaoStatus(row)"></ces-icon-button>
-              <ces-icon-button icon="pi pi-ban" [label]="'Desativar obra ' + row.numero" size="icon-sm" (pressed)="desativarObra(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-pencil" [label]="'Editar obra ' + row.numero" size="icon-sm" (pressed)="editarObra(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-sync" [label]="'Alterar status da obra ' + row.numero" size="icon-sm" (pressed)="abrirAlteracaoStatus(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-ban" [label]="'Desativar obra ' + row.numero" size="icon-sm" (pressed)="desativarObra(row)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações da obra ' + row.numero" size="icon-sm" (pressed)="showLogs(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da obra ' + row.numero" size="icon-sm" (pressed)="showLogs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [visible]="!!obraStatus()" (visibleChange)="!$event && obraStatus.set(null)" title="Alterar status da obra"
+    <geo-form-drawer [visible]="!!obraStatus()" (visibleChange)="!$event && obraStatus.set(null)" title="Alterar status da obra"
       [description]="obraStatus() ? obraStatus()!.numero + ' · ' + obraStatus()!.titulo : undefined" size="sm">
-      <ces-select label="Novo status" [required]="true" [options]="opcoes('status')" [(value)]="novoStatusId"></ces-select>
+      <geo-select label="Novo status" [required]="true" [options]="opcoes('status')" [(value)]="novoStatusId"></geo-select>
       @if (statusSelecionadoEhConcluido()) {
-        <ces-datepicker label="Data de conclusão efetiva" [(value)]="novaDataFimEfetiva" [maxDate]="hoje" [clearable]="true"
-          hint="Se ficar em branco, o sistema usa a data de hoje."></ces-datepicker>
+        <geo-datepicker label="Data de conclusão efetiva" [(value)]="novaDataFimEfetiva" [maxDate]="hoje" [clearable]="true"
+          hint="Se ficar em branco, o sistema usa a data de hoje."></geo-datepicker>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="obraStatus.set(null)"></ces-button>
-        <ces-button icon="pi pi-check" label="Salvar status" [disabled]="!novoStatusId()" [loading]="salvandoStatus()" (pressed)="salvarAlteracaoStatus()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="obraStatus.set(null)"></geo-button>
+        <geo-button icon="pi pi-check" label="Salvar status" [disabled]="!novoStatusId()" [loading]="salvandoStatus()" (pressed)="salvarAlteracaoStatus()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [(visible)]="exportacaoAberta" title="Exportar obras (CSV)" description="Exporta o recorte atual da lista, inclusive a busca." size="sm">
-      <ces-select label="Formato" [options]="formatos" [(value)]="exportFormato"></ces-select>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></ces-button>
-        <ces-button icon="pi pi-download" label="Exportar" [loading]="exportando()" (pressed)="executarExportacao()"></ces-button>
+    <geo-form-drawer [(visible)]="exportacaoAberta" title="Exportar obras (CSV)" description="Exporta o recorte atual da lista, inclusive a busca." size="sm">
+      <geo-select label="Formato" [options]="formatos" [(value)]="exportFormato"></geo-select>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></geo-button>
+        <geo-button icon="pi pi-download" label="Exportar" [loading]="exportando()" (pressed)="executarExportacao()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar obras"
+    <geo-import-drawer [(visible)]="importacao.aberta" title="Importar obras"
       description="Planilha CSV com número, título, datas, processo, base, município, centro de custo, supervisor e coordenador."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao.linhas()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="numero" let-row>
-            @if (row.editing) { <ces-text-input label="Número" [labelVisible]="false" [(value)]="row.numero" [maxlength]="7"></ces-text-input> } @else { {{ row.numero || '—' }} }
+          <ng-template geoCell="numero" let-row>
+            @if (row.editing) { <geo-text-input label="Número" [labelVisible]="false" [(value)]="row.numero" [maxlength]="7"></geo-text-input> } @else { {{ row.numero || '—' }} }
           </ng-template>
-          <ng-template cesCell="titulo" let-row>
-            @if (row.editing) { <ces-text-input label="Título" [labelVisible]="false" [(value)]="row.titulo"></ces-text-input> } @else { {{ row.titulo || '—' }} }
+          <ng-template geoCell="titulo" let-row>
+            @if (row.editing) { <geo-text-input label="Título" [labelVisible]="false" [(value)]="row.titulo"></geo-text-input> } @else { {{ row.titulo || '—' }} }
           </ng-template>
           @for (sel of selecoesImportacao; track sel.key) {
-            <ng-template [cesCell]="sel.key" let-row>
+            <ng-template [geoCell]="sel.key" let-row>
               @if (row.editing) {
-                <ces-select [label]="sel.header" [labelVisible]="false" [options]="nomes(sel.lookup)" [value]="row[sel.campo] ?? null"
-                  (valueChange)="row[sel.campo] = $event ?? undefined" [clearable]="true" [filter]="true"></ces-select>
+                <geo-select [label]="sel.header" [labelVisible]="false" [options]="nomes(sel.lookup)" [value]="row[sel.campo] ?? null"
+                  (valueChange)="row[sel.campo] = $event ?? undefined" [clearable]="true" [filter]="true"></geo-select>
               } @else {
                 {{ row[sel.campo] || '—' }}
               }
             </ng-template>
           }
-          <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="situacao" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="finishImportEdit(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="finishImportEdit(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
-    <ces-form-drawer [(visible)]="escolhaImportacaoAberta" title="Importar planilha" description="Escolha o que a planilha traz." size="sm">
+    <geo-form-drawer [(visible)]="escolhaImportacaoAberta" title="Importar planilha" description="Escolha o que a planilha traz." size="sm">
       <div class="importacao-opcoes">
-        <button type="button" class="ces-kpi" (click)="abrirImportacao('obras')">
-          <span class="ces-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Cadastro de obras</span>
-            <span class="ces-kpi__detail">CSV conferido e corrigido linha a linha antes de gravar.</span></span>
-          <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+        <button type="button" class="geo-kpi" (click)="abrirImportacao('obras')">
+          <span class="geo-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Cadastro de obras</span>
+            <span class="geo-kpi__detail">CSV conferido e corrigido linha a linha antes de gravar.</span></span>
+          <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
         </button>
-        <button type="button" class="ces-kpi" (click)="abrirImportacao('carteira')">
-          <span class="ces-kpi__icon"><i class="pi pi-briefcase" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Carteira do contrato</span>
-            <span class="ces-kpi__detail">Cria e atualiza obras pelo número, com tensão, prazos, prioridade e valores previstos.</span></span>
-          <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+        <button type="button" class="geo-kpi" (click)="abrirImportacao('carteira')">
+          <span class="geo-kpi__icon"><i class="pi pi-briefcase" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Carteira do contrato</span>
+            <span class="geo-kpi__detail">Cria e atualiza obras pelo número, com tensão, prazos, prioridade e valores previstos.</span></span>
+          <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
         </button>
-        <button type="button" class="ces-kpi" (click)="abrirImportacao('orcamento')">
-          <span class="ces-kpi__icon"><i class="pi pi-calculator" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Serviços e orçamento previstos</span>
-            <span class="ces-kpi__detail">Serviços com preço por obra, para comparar com o planejamento.</span></span>
-          <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+        <button type="button" class="geo-kpi" (click)="abrirImportacao('orcamento')">
+          <span class="geo-kpi__icon"><i class="pi pi-calculator" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Serviços e orçamento previstos</span>
+            <span class="geo-kpi__detail">Serviços com preço por obra, para comparar com o planejamento.</span></span>
+          <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
         </button>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="escolhaImportacaoAberta.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="escolhaImportacaoAberta.set(false)"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-importacao-planilha-obras [(visible)]="importacaoCarteiraAberta" tipo="CARTEIRA" titulo="Importar carteira"
       descricao="Obras existentes são atualizadas pelo número (célula vazia mantém o valor atual); obras novas são criadas. Planejamento, programação e medições não são alterados."
@@ -428,7 +428,7 @@ export class ObrasListComponent {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   private readonly permissoes = this.auth.currentUser()?.permissoes ?? [];
@@ -450,25 +450,25 @@ export class ObrasListComponent {
   });
   private readonly statusObras = signal<StatusObraResponse[]>([]);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-lista',
     filters: {
-      numero: cesFilter.value<string>('', { label: 'Número' }),
-      titulo: cesFilter.value<string>('', { label: 'Título' }),
-      notaObra: cesFilter.value<string>('', { label: 'Nota' }),
-      status: cesFilter.list<string>([], { label: 'Status', itemLabel: (id) => this.nome('status', id) }),
-      processo: cesFilter.list<string>([], { label: 'Processo', itemLabel: (id) => this.nome('processos', id) }),
-      base: cesFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.nome('bases', id), countLabel: (n) => `${n} selecionadas` }),
-      municipio: cesFilter.list<string>([], { label: 'Município', itemLabel: (id) => this.nome('municipios', id) }),
-      centroCusto: cesFilter.list<string>([], { label: 'Centro de custo', itemLabel: (id) => this.nome('centros', id) }),
-      supervisor: cesFilter.list<string>([], { label: 'Supervisor', itemLabel: (id) => this.nome('supervisores', id) }),
-      coordenador: cesFilter.list<string>([], { label: 'Coordenador', itemLabel: (id) => this.nome('coordenadores', id) }),
-      agente: cesFilter.value<string | null>(null, { label: 'Agente', format: (id): string | null => (id ? this.nome('agentes', id) : null) }),
-      apenasPrincipais: cesFilter.value<boolean | null>(null, { label: 'Hierarquia', param: 'principais', options: () => PRINCIPAIS }),
-      inicio: cesFilter.range({ from: null, to: null }, { label: 'Início' }),
-      previsaoFim: cesFilter.range({ from: null, to: null }, { label: 'Previsão de fim' }),
-      valorMin: cesFilter.value<number | null>(null, { label: 'Valor mínimo', type: 'number' }),
-      valorMax: cesFilter.value<number | null>(null, { label: 'Valor máximo', type: 'number' })
+      numero: geoFilter.value<string>('', { label: 'Número' }),
+      titulo: geoFilter.value<string>('', { label: 'Título' }),
+      notaObra: geoFilter.value<string>('', { label: 'Nota' }),
+      status: geoFilter.list<string>([], { label: 'Status', itemLabel: (id) => this.nome('status', id) }),
+      processo: geoFilter.list<string>([], { label: 'Processo', itemLabel: (id) => this.nome('processos', id) }),
+      base: geoFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.nome('bases', id), countLabel: (n) => `${n} selecionadas` }),
+      municipio: geoFilter.list<string>([], { label: 'Município', itemLabel: (id) => this.nome('municipios', id) }),
+      centroCusto: geoFilter.list<string>([], { label: 'Centro de custo', itemLabel: (id) => this.nome('centros', id) }),
+      supervisor: geoFilter.list<string>([], { label: 'Supervisor', itemLabel: (id) => this.nome('supervisores', id) }),
+      coordenador: geoFilter.list<string>([], { label: 'Coordenador', itemLabel: (id) => this.nome('coordenadores', id) }),
+      agente: geoFilter.value<string | null>(null, { label: 'Agente', format: (id): string | null => (id ? this.nome('agentes', id) : null) }),
+      apenasPrincipais: geoFilter.value<boolean | null>(null, { label: 'Hierarquia', param: 'principais', options: () => PRINCIPAIS }),
+      inicio: geoFilter.range({ from: null, to: null }, { label: 'Início' }),
+      previsaoFim: geoFilter.range({ from: null, to: null }, { label: 'Previsão de fim' }),
+      valorMin: geoFilter.value<number | null>(null, { label: 'Valor mínimo', type: 'number' }),
+      valorMax: geoFilter.value<number | null>(null, { label: 'Valor máximo', type: 'number' })
     },
     sort: [{ key: 'prazo', direction: 'desc' }]
   });
@@ -477,7 +477,7 @@ export class ObrasListComponent {
     { errorMessage: getErrorMessage }
   );
 
-  protected readonly colunas: CesDataTableColumn<ObraResumoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<ObraResumoResponse>[] = [
     { key: 'numero', header: 'Número', type: 'custom', priority: 1, sortField: 'numero', width: '9rem', value: (o) => o.numero, display: (o) => o.numero },
     { key: 'titulo', header: 'Título', type: 'custom', priority: 1, sortField: 'titulo', value: (o) => o.titulo, display: (o) => o.titulo },
     { key: 'nota', header: 'Nota', sortField: 'notaObra', value: (o) => o.notaObra, display: (o) => o.notaObra || '—' },
@@ -577,9 +577,9 @@ export class ObrasListComponent {
   protected readonly contratoOpcoes = toSignal(
     this.contratos.listarContratosAtivos().pipe(
       map((p) => p.content.map((c) => ({ label: `${c.numeroContrato} · ${c.cliente}`, value: c.id }))),
-      catchError(() => of([] as CesSelectOption<string>[]))
+      catchError(() => of([] as GeoSelectOption<string>[]))
     ),
-    { initialValue: [] as CesSelectOption<string>[] }
+    { initialValue: [] as GeoSelectOption<string>[] }
   );
   protected readonly importacao = importacaoListagem<ObraImportRow>({
     enviar: (arquivo) => this.service.validarImportacao(arquivo),
@@ -591,15 +591,15 @@ export class ObrasListComponent {
       }),
     aoProcessar: () => this.lista.reload()
   });
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveImportacao = CHAVE_LINHA_IMPORTACAO;
   protected readonly selecoesImportacao = SELECOES_IMPORTACAO;
-  protected readonly colunasImportacao: CesDataTableColumn<ObraImportRow>[] = [
+  protected readonly colunasImportacao: GeoDataTableColumn<ObraImportRow>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'numero', header: 'Número', type: 'custom', priority: 1, value: (r) => r.numero },
     { key: 'titulo', header: 'Título', type: 'custom', priority: 1, value: (r) => r.titulo },
     { key: 'datas', header: 'Início → previsão', value: (r) => r.dataInicio, display: (r) => `${r.dataInicio || '—'} → ${r.dataPrevisaoFim || '—'}` },
-    ...SELECOES_IMPORTACAO.map((s): CesDataTableColumn<ObraImportRow> => ({ key: s.key, header: s.header, type: 'custom', value: (r) => r[s.campo] })),
+    ...SELECOES_IMPORTACAO.map((s): GeoDataTableColumn<ObraImportRow> => ({ key: s.key, header: s.header, type: 'custom', value: (r) => r[s.campo] })),
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (r) => r.status }
   ];
 
@@ -669,12 +669,12 @@ export class ObrasListComponent {
     return this.cadastros()[chave].find((i) => i.id === id)?.nome ?? 'selecionado';
   }
 
-  protected opcoes(chave: Lookup): CesSelectOption<string>[] {
+  protected opcoes(chave: Lookup): GeoSelectOption<string>[] {
     return this.cadastros()[chave].map((i) => ({ label: i.nome, value: i.id }));
   }
 
   /** Na importação o backend casa os cadastros pelo nome. */
-  protected nomes(chave: Lookup): CesSelectOption<string>[] {
+  protected nomes(chave: Lookup): GeoSelectOption<string>[] {
     return this.cadastros()[chave].map((i) => ({ label: i.nome, value: i.nome }));
   }
 

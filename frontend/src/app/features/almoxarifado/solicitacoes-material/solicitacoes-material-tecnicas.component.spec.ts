@@ -130,7 +130,7 @@ describe('SolicitacoesMaterialTecnicasComponent', () => {
   it('modo kanban mostra o quadro no lugar da tabela; o seletor navega entre as visões', async () => {
     const { el, componente } = await abrir('/lista', { modo: 'kanban' });
     expect(el.querySelector('app-solicitacoes-tecnicas-kanban')).not.toBeNull();
-    expect(el.querySelector('ces-data-table')).toBeNull();
+    expect(el.querySelector('geo-data-table')).toBeNull();
     const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     const tela = componente as unknown as { trocarVisao(v: string): void };
     tela.trocarVisao('kanban');
@@ -144,7 +144,7 @@ describe('SolicitacoesMaterialTecnicasComponent', () => {
   it('modo calendário mostra a agenda no lugar da tabela', async () => {
     const { el } = await abrir('/lista', { modo: 'calendario' });
     expect(el.querySelector('app-solicitacoes-tecnicas-calendario')).not.toBeNull();
-    expect(el.querySelector('ces-data-table')).toBeNull();
+    expect(el.querySelector('geo-data-table')).toBeNull();
   });
 
   it('sem conexão mostra o aviso; linha abre o detalhe', async () => {

@@ -5,25 +5,25 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesBreadcrumbItem,
-  CesButtonComponent,
-  CesCellDirective,
-  CesRowActionsDirective,
-  CesColumnFilter,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent,
-  CesSurfaceComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
+  GeoAsyncStateComponent,
+  GeoBreadcrumbItem,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoRowActionsDirective,
+  GeoColumnFilter,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent,
+  GeoSurfaceComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
   NotificationService,
-  CesTone,
-  cesUrlParam
-} from '@ces/ui';
+  GeoTone,
+  geoUrlParam
+} from '@geo/ui';
 import { forkJoin, map, of } from 'rxjs';
 import {
   AcoplamentoImplemento,
@@ -88,17 +88,17 @@ type Aba = (typeof ABAS)[number];
   imports: [
     CurrencyPipe,
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesRowActionsDirective,
-    CesDataTableComponent,
-    CesIconButtonComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
-    CesSurfaceComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoRowActionsDirective,
+    GeoDataTableComponent,
+    GeoIconButtonComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
+    GeoSurfaceComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
     FrotaDocumentoFormComponent,
     FrotaDocumentosTabelaComponent,
     FrotaJustificativaDrawerComponent,
@@ -115,96 +115,96 @@ type Aba = (typeof ABAS)[number];
     FrotaVeiculoTelemetriaComponent
   ],
   template: `
-    <div class="ces-page">
+    <div class="geo-page">
       @if (carregando() && !veiculo()) {
-        <ces-async-state state="loading" title="Carregando a ficha do veículo"></ces-async-state>
+        <geo-async-state state="loading" title="Carregando a ficha do veículo"></geo-async-state>
       } @else if (erro()) {
-        <ces-async-state state="error" title="Não foi possível carregar o veículo" [description]="erro()!"
-          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível carregar o veículo" [description]="erro()!"
+          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
       } @else if (veiculo(); as v) {
-        <ces-page-header
+        <geo-page-header
           [title]="placa(v.placa) + ' · ' + modeloCompleto(v)"
           icon="pi pi-car"
           [breadcrumb]="trilha(v)"
           [description]="(v.baseOperacional ?? 'Sem base') + ' · ' + (v.tipoVeiculo?.nome ?? 'Tipo não informado') + ' · ' + rotuloRegime[v.regime]"
         >
           <ng-container status>
-            <ces-status [tone]="tomSituacao[v.situacao]" [icon]="iconeSituacao[v.situacao]">{{ rotuloSituacao[v.situacao] }}</ces-status>
+            <geo-status [tone]="tomSituacao[v.situacao]" [icon]="iconeSituacao[v.situacao]">{{ rotuloSituacao[v.situacao] }}</geo-status>
             @if (!v.ativo) {
-              <ces-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado no cadastro</ces-status>
+              <geo-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado no cadastro</geo-status>
             }
           </ng-container>
           <ng-container actions>
             @if (acesso.editarOs() && v.ativo && v.situacao !== 'BAIXADO') {
-              <ces-button variant="outline" icon="pi pi-wrench" label="Abrir OS" (pressed)="osAberta.set(true)"></ces-button>
+              <geo-button variant="outline" icon="pi pi-wrench" label="Abrir OS" (pressed)="osAberta.set(true)"></geo-button>
             }
             @if (acesso.lancarKm() && v.ativo) {
-              <ces-button variant="outline" icon="pi pi-gauge" [label]="rotuloLancar(v)" (pressed)="lancarKmAberto.set(true)"></ces-button>
+              <geo-button variant="outline" icon="pi pi-gauge" [label]="rotuloLancar(v)" (pressed)="lancarKmAberto.set(true)"></geo-button>
             }
             @if (acesso.editarCondutor() && v.ativo && v.situacao !== 'BAIXADO') {
-              <ces-button variant="outline" icon="pi pi-user-edit" label="Trocar condutor" (pressed)="vincularAberto.set(true)"></ces-button>
+              <geo-button variant="outline" icon="pi pi-user-edit" label="Trocar condutor" (pressed)="vincularAberto.set(true)"></geo-button>
             }
             @if (acesso.editarVeiculo() && v.ativo) {
-              <ces-button icon="pi pi-pencil" label="Editar ficha" (pressed)="formularioAberto.set(true)"></ces-button>
+              <geo-button icon="pi pi-pencil" label="Editar ficha" (pressed)="formularioAberto.set(true)"></geo-button>
             }
           </ng-container>
-        </ces-page-header>
+        </geo-page-header>
 
         <!-- Indicadores são atalhos: cada um abre a aba (e o recorte) correspondente. -->
-        <div class="ces-kpis">
-          <button type="button" class="ces-kpi" data-tone="info" (click)="irPara('odometro')">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-gauge"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">{{ rotuloValorAtual(v.unidadeMedicao) }}</span>
-              <span class="ces-kpi__value">{{ v.kmAtual != null ? medicao(v.kmAtual, v.unidadeMedicao) : 'Sem leitura' }}</span>
-              <span class="ces-kpi__detail">
+        <div class="geo-kpis">
+          <button type="button" class="geo-kpi" data-tone="info" (click)="irPara('odometro')">
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-gauge"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">{{ rotuloValorAtual(v.unidadeMedicao) }}</span>
+              <span class="geo-kpi__value">{{ v.kmAtual != null ? medicao(v.kmAtual, v.unidadeMedicao) : 'Sem leitura' }}</span>
+              <span class="geo-kpi__detail">
                 @if (v.acumulado != null && v.acumulado !== v.kmAtual) {
                   Acumulado {{ medicao(v.acumulado, v.unidadeMedicao) }} ·
                 }
                 {{ v.kmAtualEm ? 'Leitura de ' + (v.kmAtualEm | date: 'dd/MM/yyyy HH:mm') : 'Lance a primeira leitura do ' + (v.unidadeMedicao === 'HORAS' ? 'horímetro' : 'odômetro') }}
               </span>
             </span>
-            <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+            <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
           </button>
-          <button type="button" class="ces-kpi" [attr.data-tone]="v.condutorAtual ? 'info' : 'warning'" (click)="irPara('condutores')">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-user"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Condutor atual</span>
-              <span class="ces-kpi__value">{{ v.condutorAtual?.condutor ?? 'Sem condutor' }}</span>
-              <span class="ces-kpi__detail">
+          <button type="button" class="geo-kpi" [attr.data-tone]="v.condutorAtual ? 'info' : 'warning'" (click)="irPara('condutores')">
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-user"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Condutor atual</span>
+              <span class="geo-kpi__value">{{ v.condutorAtual?.condutor ?? 'Sem condutor' }}</span>
+              <span class="geo-kpi__detail">
                 {{ v.condutorAtual ? 'Desde ' + (v.condutorAtual.inicio | date: 'dd/MM/yyyy HH:mm') : 'Nenhum responsável vinculado' }}
               </span>
             </span>
-            <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+            <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
           </button>
-          <button type="button" class="ces-kpi" [attr.data-tone]="v.documentosVencidos ? 'danger' : v.documentosAVencer ? 'warning' : 'success'"
+          <button type="button" class="geo-kpi" [attr.data-tone]="v.documentosVencidos ? 'danger' : v.documentosAVencer ? 'warning' : 'success'"
             (click)="irPara('documentos')">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-file"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Documentos</span>
-              <span class="ces-kpi__value">{{ contar(v.documentosVencidos, 'vencido', 'vencidos', 'Em dia') }}</span>
-              <span class="ces-kpi__detail">{{ contar(v.documentosAVencer, 'a vencer', 'a vencer', 'Nada a vencer') }} na janela de aviso</span>
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-file"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Documentos</span>
+              <span class="geo-kpi__value">{{ contar(v.documentosVencidos, 'vencido', 'vencidos', 'Em dia') }}</span>
+              <span class="geo-kpi__detail">{{ contar(v.documentosAVencer, 'a vencer', 'a vencer', 'Nada a vencer') }} na janela de aviso</span>
             </span>
-            <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+            <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
           </button>
-          <button type="button" class="ces-kpi" [attr.data-tone]="v.leiturasInconsistentes ? 'warning' : 'success'"
+          <button type="button" class="geo-kpi" [attr.data-tone]="v.leiturasInconsistentes ? 'warning' : 'success'"
             (click)="irPara('odometro', v.leiturasInconsistentes > 0)">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-exclamation-triangle"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Leituras a conferir</span>
-              <span class="ces-kpi__value">{{ contar(v.leiturasInconsistentes, 'leitura', 'leituras', 'Nenhuma') }}</span>
-              <span class="ces-kpi__detail">Leituras incoerentes com o histórico</span>
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-exclamation-triangle"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Leituras a conferir</span>
+              <span class="geo-kpi__value">{{ contar(v.leiturasInconsistentes, 'leitura', 'leituras', 'Nenhuma') }}</span>
+              <span class="geo-kpi__detail">Leituras incoerentes com o histórico</span>
             </span>
-            <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+            <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
           </button>
         </div>
 
-        <ces-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções da ficha do veículo">
-          <ng-template cesTabPanel="ficha">
-            <ces-surface>
-              <section class="ces-sheet-section" aria-labelledby="ficha-dados">
+        <geo-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções da ficha do veículo">
+          <ng-template geoTabPanel="ficha">
+            <geo-surface>
+              <section class="geo-sheet-section" aria-labelledby="ficha-dados">
                 <h2 id="ficha-dados"><i class="pi pi-id-card" aria-hidden="true"></i> Dados do veículo</h2>
-                <dl class="ces-sheet">
+                <dl class="geo-sheet">
                   <div><dt>Ano fabricação / modelo</dt><dd>{{ v.anoFabricacao || v.anoModelo ? (v.anoFabricacao ?? '—') + ' / ' + (v.anoModelo ?? '—') : '—' }}</dd></div>
                   <div><dt>Chassi</dt><dd>{{ v.chassi || '—' }}</dd></div>
                   <div><dt>Renavam</dt><dd>{{ v.renavam || '—' }}</dd></div>
@@ -217,9 +217,9 @@ type Aba = (typeof ABAS)[number];
                 </dl>
               </section>
 
-              <section class="ces-sheet-section" aria-labelledby="ficha-propriedade">
+              <section class="geo-sheet-section" aria-labelledby="ficha-propriedade">
                 <h2 id="ficha-propriedade"><i class="pi pi-briefcase" aria-hidden="true"></i> Propriedade</h2>
-                <dl class="ces-sheet">
+                <dl class="geo-sheet">
                   <div><dt>Regime</dt><dd>{{ rotuloRegime[v.regime] }}</dd></div>
                   @if (v.regime === 'LOCADO') {
                     <div><dt>Locadora</dt><dd>{{ v.locadora || '—' }}</dd></div>
@@ -229,17 +229,17 @@ type Aba = (typeof ABAS)[number];
                 </dl>
               </section>
 
-              <section class="ces-sheet-section" aria-labelledby="ficha-observacao">
+              <section class="geo-sheet-section" aria-labelledby="ficha-observacao">
                 <h2 id="ficha-observacao"><i class="pi pi-comment" aria-hidden="true"></i> Observação</h2>
-                <dl class="ces-sheet">
-                  <div class="ces-sheet__wide"><dt>Observação</dt><dd>{{ v.observacao || '—' }}</dd></div>
+                <dl class="geo-sheet">
+                  <div class="geo-sheet__wide"><dt>Observação</dt><dd>{{ v.observacao || '—' }}</dd></div>
                 </dl>
               </section>
-            </ces-surface>
+            </geo-surface>
           </ng-template>
 
-          <ng-template cesTabPanel="manutencoes">
-            <ces-data-table
+          <ng-template geoTabPanel="manutencoes">
+            <geo-data-table
               title="Ordens de serviço"
               description="Manutenções do veículo, da mais recente para a mais antiga. Clique numa linha para abrir a OS."
               storageKey="frota-veiculo-manutencoes"
@@ -256,55 +256,55 @@ type Aba = (typeof ABAS)[number];
             >
               <ng-container table-actions>
                 @if (acesso.editarOs() && v.ativo && v.situacao !== 'BAIXADO') {
-                  <ces-button size="sm" icon="pi pi-plus" label="Abrir OS" (pressed)="osAberta.set(true)"></ces-button>
+                  <geo-button size="sm" icon="pi pi-plus" label="Abrir OS" (pressed)="osAberta.set(true)"></geo-button>
                 }
               </ng-container>
-              <ng-template cesCell="numero" let-row>
-                <span class="ces-cell-strong">{{ rotuloOs(row.numero) }}</span>
-                <span class="ces-cell-muted">{{ row.itens.join(', ') }}</span>
+              <ng-template geoCell="numero" let-row>
+                <span class="geo-cell-strong">{{ rotuloOs(row.numero) }}</span>
+                <span class="geo-cell-muted">{{ row.itens.join(', ') }}</span>
               </ng-template>
-              <ng-template cesCell="abertaEm" let-row>{{ row.abertaEm | date: 'dd/MM/yyyy' }}</ng-template>
-              <ng-template cesCell="situacao" let-row>
-                <ces-status [tone]="tomSituacaoOs[row.situacao]">{{ rotuloSituacaoOs[row.situacao] }}</ces-status>
+              <ng-template geoCell="abertaEm" let-row>{{ row.abertaEm | date: 'dd/MM/yyyy' }}</ng-template>
+              <ng-template geoCell="situacao" let-row>
+                <geo-status [tone]="tomSituacaoOs[row.situacao]">{{ rotuloSituacaoOs[row.situacao] }}</geo-status>
                 @if (row.temRepeticao) {
-                  <ces-status tone="warning" icon="pi-replay">Repetição</ces-status>
+                  <geo-status tone="warning" icon="pi-replay">Repetição</geo-status>
                 }
               </ng-template>
-              <ng-template cesCell="criticidade" let-row>
-                <ces-status [tone]="tomCriticidade[row.criticidade]" emphasis="outline">{{ rotuloCriticidade[row.criticidade] }}</ces-status>
+              <ng-template geoCell="criticidade" let-row>
+                <geo-status [tone]="tomCriticidade[row.criticidade]" emphasis="outline">{{ rotuloCriticidade[row.criticidade] }}</geo-status>
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           </ng-template>
 
-          <ng-template cesTabPanel="preventiva">
+          <ng-template geoTabPanel="preventiva">
             <app-frota-veiculo-preventiva [dados]="preventiva()" [carregando]="carregandoPreventiva()" (alterou)="carregar()"></app-frota-veiculo-preventiva>
           </ng-template>
 
-          <ng-template cesTabPanel="telemetria">
+          <ng-template geoTabPanel="telemetria">
             <app-frota-veiculo-telemetria [idVeiculo]="v.idVeiculo" [placa]="v.placa"></app-frota-veiculo-telemetria>
           </ng-template>
 
-          <ng-template cesTabPanel="despesas">
+          <ng-template geoTabPanel="despesas">
             <app-frota-veiculo-despesas [veiculo]="{ idVeiculo: v.idVeiculo, placa: v.placa, modelo: v.modelo, idBaseOperacional: v.idBaseOperacional }"
               [podeLancar]="acesso.editarDespesa() && v.ativo"></app-frota-veiculo-despesas>
           </ng-template>
 
-          <ng-template cesTabPanel="seguro">
+          <ng-template geoTabPanel="seguro">
             <app-frota-veiculo-seguro [veiculo]="{ idVeiculo: v.idVeiculo, placa: v.placa, modelo: v.modelo }"
               [podeEditar]="acesso.editarSeguro() && v.ativo"></app-frota-veiculo-seguro>
           </ng-template>
 
-          <ng-template cesTabPanel="pneus">
+          <ng-template geoTabPanel="pneus">
             <app-frota-veiculo-pneus [idVeiculo]="v.idVeiculo"></app-frota-veiculo-pneus>
           </ng-template>
 
-          <ng-template cesTabPanel="sinistros">
+          <ng-template geoTabPanel="sinistros">
             <app-frota-veiculo-sinistros [veiculo]="{ idVeiculo: v.idVeiculo, placa: v.placa, modelo: v.modelo }"
               [podeRegistrar]="acesso.editarSinistro() && v.ativo"></app-frota-veiculo-sinistros>
           </ng-template>
 
-          <ng-template cesTabPanel="condutores">
-            <ces-data-table
+          <ng-template geoTabPanel="condutores">
+            <geo-data-table
               title="Histórico de condutores"
               description="Quem foi responsável pelo veículo em cada período."
               storageKey="frota-veiculo-condutores"
@@ -318,22 +318,22 @@ type Aba = (typeof ABAS)[number];
             >
               <ng-container table-actions>
                 @if (acesso.editarCondutor() && v.ativo && v.situacao !== 'BAIXADO') {
-                  <ces-button size="sm" variant="outline" icon="pi pi-user-edit" label="Trocar condutor" (pressed)="vincularAberto.set(true)"></ces-button>
+                  <geo-button size="sm" variant="outline" icon="pi pi-user-edit" label="Trocar condutor" (pressed)="vincularAberto.set(true)"></geo-button>
                 }
               </ng-container>
-              <ng-template cesCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-              <ng-template cesCell="fim" let-row>
+              <ng-template geoCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+              <ng-template geoCell="fim" let-row>
                 @if (row.fim) {
                   {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
                 } @else {
-                  <ces-status tone="success" icon="pi-check-circle">Atual</ces-status>
+                  <geo-status tone="success" icon="pi-check-circle">Atual</geo-status>
                 }
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           </ng-template>
 
-          <ng-template cesTabPanel="implementos">
-            <ces-data-table
+          <ng-template geoTabPanel="implementos">
+            <geo-data-table
               title="Implementos"
               description="Implementos acoplados agora e no passado. Para acoplar ou desacoplar, use a tela Implementos."
               storageKey="frota-veiculo-implementos"
@@ -346,20 +346,20 @@ type Aba = (typeof ABAS)[number];
               stateDescription="Os acoplamentos feitos na tela Implementos aparecem aqui."
             >
               <ng-container table-actions>
-                <ces-button size="sm" variant="ghost" icon="pi pi-arrow-right" label="Ir para Implementos" (pressed)="irParaImplementos()"></ces-button>
+                <geo-button size="sm" variant="ghost" icon="pi pi-arrow-right" label="Ir para Implementos" (pressed)="irParaImplementos()"></geo-button>
               </ng-container>
-              <ng-template cesCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-              <ng-template cesCell="fim" let-row>
+              <ng-template geoCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+              <ng-template geoCell="fim" let-row>
                 @if (row.fim) {
                   {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
                 } @else {
-                  <ces-status tone="success" icon="pi-link">Acoplado</ces-status>
+                  <geo-status tone="success" icon="pi-link">Acoplado</geo-status>
                 }
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           </ng-template>
 
-          <ng-template cesTabPanel="documentos">
+          <ng-template geoTabPanel="documentos">
             <app-frota-documentos-tabela
               descricao="Documentos com vencimento geram aviso automático para quem mantém a documentação."
               storageKey="frota-veiculo-documentos"
@@ -370,13 +370,13 @@ type Aba = (typeof ABAS)[number];
               (alterado)="carregar()"
             >
               @if (acesso.editarDocumento() && v.ativo) {
-                <ces-button acoes size="sm" icon="pi pi-plus" label="Novo documento" (pressed)="novoDocumento()"></ces-button>
+                <geo-button acoes size="sm" icon="pi pi-plus" label="Novo documento" (pressed)="novoDocumento()"></geo-button>
               }
             </app-frota-documentos-tabela>
           </ng-template>
 
-          <ng-template cesTabPanel="odometro">
-            <ces-data-table
+          <ng-template geoTabPanel="odometro">
+            <geo-data-table
               [title]="v.unidadeMedicao === 'HORAS' ? 'Leituras de horímetro' : 'Leituras de odômetro'"
               description="Toda fonte grava aqui. Leitura incoerente fica marcada para conferência e não conta para o valor atual. A troca de painel começa um trecho novo."
               storageKey="frota-veiculo-odometro"
@@ -393,38 +393,38 @@ type Aba = (typeof ABAS)[number];
             >
               <ng-container table-actions>
                 @if (acesso.lancarKm() && v.ativo) {
-                  <ces-button size="sm" variant="outline" icon="pi pi-sync" label="Trocar painel" (pressed)="trocaPainelAberta.set(true)"></ces-button>
-                  <ces-button size="sm" icon="pi pi-plus" [label]="rotuloLancar(v)" (pressed)="lancarKmAberto.set(true)"></ces-button>
+                  <geo-button size="sm" variant="outline" icon="pi pi-sync" label="Trocar painel" (pressed)="trocaPainelAberta.set(true)"></geo-button>
+                  <geo-button size="sm" icon="pi pi-plus" [label]="rotuloLancar(v)" (pressed)="lancarKmAberto.set(true)"></geo-button>
                 }
               </ng-container>
-              <ng-template cesCell="lidoEm" let-row>{{ row.lidoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-              <ng-template cesCell="km" let-row>
-                <span class="ces-cell-num">{{ medicao(row.km, row.unidade) }}</span>
+              <ng-template geoCell="lidoEm" let-row>{{ row.lidoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+              <ng-template geoCell="km" let-row>
+                <span class="geo-cell-num">{{ medicao(row.km, row.unidade) }}</span>
                 @if (row.tipo === 'TROCA_PAINEL') {
-                  <span class="ces-cell-muted">Painel antigo: {{ medicao(row.kmAnterior, row.unidade) }}</span>
+                  <span class="geo-cell-muted">Painel antigo: {{ medicao(row.kmAnterior, row.unidade) }}</span>
                 }
               </ng-template>
-              <ng-template cesCell="situacao" let-row>
-                <ces-status [tone]="tomLeitura[row.situacao]" [icon]="iconeLeitura[row.situacao]">{{ rotuloLeitura[row.situacao] }}</ces-status>
+              <ng-template geoCell="situacao" let-row>
+                <geo-status [tone]="tomLeitura[row.situacao]" [icon]="iconeLeitura[row.situacao]">{{ rotuloLeitura[row.situacao] }}</geo-status>
                 @if (row.motivoSituacao || row.justificativaAnulacao) {
-                  <span class="ces-cell-muted">{{ row.justificativaAnulacao ?? row.motivoSituacao }}</span>
+                  <span class="geo-cell-muted">{{ row.justificativaAnulacao ?? row.motivoSituacao }}</span>
                 }
               </ng-template>
-              <ng-template cesRowActions let-row>
+              <ng-template geoRowActions let-row>
                 @if (acesso.anularKm() && row.situacao !== 'ANULADA') {
-                  <span class="ces-table-actions">
+                  <span class="geo-table-actions">
                     @if (row.situacao === 'INCONSISTENTE') {
-                      <ces-icon-button icon="pi pi-check" [label]="'Confirmar leitura de ' + medicao(row.km, row.unidade)" tooltip="Confirmar leitura" size="icon-sm"
-                        (pressed)="pedirJustificativa(row, 'confirmar')"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-check" [label]="'Confirmar leitura de ' + medicao(row.km, row.unidade)" tooltip="Confirmar leitura" size="icon-sm"
+                        (pressed)="pedirJustificativa(row, 'confirmar')"></geo-icon-button>
                     }
-                    <ces-icon-button icon="pi pi-ban" [label]="'Anular leitura de ' + medicao(row.km, row.unidade)" tooltip="Anular leitura" size="icon-sm"
-                      (pressed)="pedirJustificativa(row, 'anular')"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-ban" [label]="'Anular leitura de ' + medicao(row.km, row.unidade)" tooltip="Anular leitura" size="icon-sm"
+                      (pressed)="pedirJustificativa(row, 'anular')"></geo-icon-button>
                   </span>
                 }
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           </ng-template>
-        </ces-tabs>
+        </geo-tabs>
 
         <app-frota-veiculo-form [(visivel)]="formularioAberto" [veiculo]="v" [opcoes]="opcoes()" [tiposVeiculo]="tiposVeiculo()"
           (salvo)="veiculo.set($event)"></app-frota-veiculo-form>
@@ -470,12 +470,12 @@ export class FrotaVeiculoDetalheComponent {
   /** Id do veículo na rota `/frota/veiculos/:id`. */
   protected readonly id = toSignal(this.route.paramMap.pipe(map((p) => p.get('id') ?? '')), { initialValue: '' });
 
-  protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO;
+  protected readonly tomSituacao: Record<string, GeoTone> = TOM_SITUACAO;
   protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO;
   protected readonly rotuloRegime = ROTULO_REGIME;
   protected readonly rotuloUnidade = ROTULO_UNIDADE;
-  protected readonly tomLeitura: Record<string, CesTone> = TOM_LEITURA;
+  protected readonly tomLeitura: Record<string, GeoTone> = TOM_LEITURA;
   protected readonly iconeLeitura: Record<string, string> = ICONE_LEITURA;
   protected readonly rotuloLeitura: Record<string, string> = ROTULO_LEITURA;
   protected readonly placa = formatarPlaca;
@@ -500,22 +500,22 @@ export class FrotaVeiculoDetalheComponent {
     (this.preventiva()?.controles ?? []).filter((c) => !c.idOrdemServico && c.situacao !== 'EM_DIA').length);
   protected readonly osAberta = signal(false);
   protected readonly rotuloOs = rotuloOs;
-  protected readonly tomSituacaoOs: Record<string, CesTone> = TOM_SITUACAO_OS;
+  protected readonly tomSituacaoOs: Record<string, GeoTone> = TOM_SITUACAO_OS;
   protected readonly rotuloSituacaoOs: Record<string, string> = ROTULO_SITUACAO_OS;
-  protected readonly tomCriticidade: Record<string, CesTone> = TOM_CRITICIDADE;
+  protected readonly tomCriticidade: Record<string, GeoTone> = TOM_CRITICIDADE;
   protected readonly rotuloCriticidade: Record<string, string> = ROTULO_CRITICIDADE;
   protected readonly opcoes = signal<OpcoesFrota | null>(null);
   protected readonly tiposVeiculo = signal<TipoVeiculo[]>([]);
 
   /** Aba na URL (`?aba=`): links e notificações abrem a seção certa. */
-  protected readonly aba = cesUrlParam<Aba>({ values: ABAS, default: 'ficha' });
+  protected readonly aba = geoUrlParam<Aba>({ values: ABAS, default: 'ficha' });
   /** `?leituras=inconsistentes` filtra a aba Odômetro (atalho do indicador "KM a conferir"). */
-  protected readonly leiturasFiltro = cesUrlParam<'todas' | 'inconsistentes'>({
+  protected readonly leiturasFiltro = geoUrlParam<'todas' | 'inconsistentes'>({
     param: 'leituras',
     values: ['todas', 'inconsistentes'],
     default: 'todas'
   });
-  protected readonly filtrosLeituras = computed<CesColumnFilter[]>(() =>
+  protected readonly filtrosLeituras = computed<GeoColumnFilter[]>(() =>
     this.leiturasFiltro() === 'inconsistentes'
       ? [{ key: 'situacao', operator: 'eq', value: 'INCONSISTENTE', label: `Situação: ${ROTULO_LEITURA.INCONSISTENTE}` }]
       : []
@@ -531,7 +531,7 @@ export class FrotaVeiculoDetalheComponent {
   protected readonly acaoLeitura = signal<'anular' | 'confirmar'>('anular');
   protected readonly processandoLeitura = signal(false);
 
-  protected readonly abas = computed<CesTabItem[]>(() => {
+  protected readonly abas = computed<GeoTabItem[]>(() => {
     const v = this.veiculo();
     return [
       { value: 'ficha', label: 'Ficha', icon: 'pi pi-id-card' },
@@ -541,7 +541,7 @@ export class FrotaVeiculoDetalheComponent {
       ...(this.acesso.verPreventiva()
         ? [{ value: 'preventiva', label: 'Preventiva', icon: 'pi pi-calendar-clock', badge: this.preventivaPendentes() || undefined }]
         : []),
-      ...(this.acesso.verPneu() ? [{ value: 'pneus', label: 'Pneus', icon: 'ces-icon-pneu' }] : []),
+      ...(this.acesso.verPneu() ? [{ value: 'pneus', label: 'Pneus', icon: 'geo-icon-pneu' }] : []),
       ...(this.acesso.verDespesa() ? [{ value: 'despesas', label: 'Despesas', icon: 'pi pi-receipt' }] : []),
       ...(this.acesso.verSeguro() ? [{ value: 'seguro', label: 'Seguro', icon: 'pi pi-shield' }] : []),
       ...(this.acesso.verSinistro() ? [{ value: 'sinistros', label: 'Sinistros', icon: 'pi pi-exclamation-circle' }] : []),
@@ -562,7 +562,7 @@ export class FrotaVeiculoDetalheComponent {
       : `A leitura de ${formatarMedicao(l.km, l.unidade)} passa a contar como válida.`;
   });
 
-  protected readonly colunasCondutores: CesDataTableColumn<VinculoCondutor>[] = [
+  protected readonly colunasCondutores: GeoDataTableColumn<VinculoCondutor>[] = [
     { key: 'condutor', header: 'Condutor', priority: 1, display: (r) => r.condutor ?? '—' },
     { key: 'inicio', header: 'Início', type: 'custom', priority: 1, value: (r) => r.inicio, display: (r) => r.inicio },
     { key: 'fim', header: 'Fim', type: 'custom', value: (r) => r.fim ?? '9999', display: (r) => r.fim ?? 'Atual' },
@@ -570,14 +570,14 @@ export class FrotaVeiculoDetalheComponent {
     { key: 'observacao', header: 'Observação', display: (r) => r.observacao ?? '' }
   ];
 
-  protected readonly colunasImplementos: CesDataTableColumn<AcoplamentoImplemento>[] = [
+  protected readonly colunasImplementos: GeoDataTableColumn<AcoplamentoImplemento>[] = [
     { key: 'identificacao', header: 'Implemento', priority: 1 },
     { key: 'tipoImplemento', header: 'Tipo' },
     { key: 'inicio', header: 'Acoplado em', type: 'custom', value: (r) => r.inicio, display: (r) => r.inicio },
     { key: 'fim', header: 'Desacoplado em', type: 'custom', value: (r) => r.fim ?? '9999', display: (r) => r.fim ?? 'Acoplado' }
   ];
 
-  protected readonly colunasLeituras: CesDataTableColumn<LeituraOdometro>[] = [
+  protected readonly colunasLeituras: GeoDataTableColumn<LeituraOdometro>[] = [
     { key: 'lidoEm', header: 'Data', type: 'custom', priority: 1, value: (r) => r.lidoEm, display: (r) => r.lidoEm },
     { key: 'km', header: 'KM / horas', type: 'custom', priority: 1, value: (r) => r.km, display: (r) => formatarMedicao(r.km, r.unidade) },
     { key: 'origem', header: 'Origem', display: (r) => rotuloOrigemLeitura(r) },
@@ -585,7 +585,7 @@ export class FrotaVeiculoDetalheComponent {
     { key: 'registradoPor', header: 'Registrado por', display: (r) => r.registradoPor ?? '—' }
   ];
 
-  protected readonly colunasManutencoes: CesDataTableColumn<OrdemServico>[] = [
+  protected readonly colunasManutencoes: GeoDataTableColumn<OrdemServico>[] = [
     { key: 'numero', header: 'OS', type: 'custom', priority: 1, value: (r) => r.numero, display: (r) => `${rotuloOs(r.numero)} ${r.itens.join(', ')}` },
     { key: 'abertaEm', header: 'Aberta em', type: 'custom', priority: 1, value: (r) => r.abertaEm, display: (r) => r.abertaEm },
     { key: 'tipoManutencao', header: 'Tipo', display: (r) => ROTULO_TIPO_MANUTENCAO[r.tipoManutencao] },
@@ -720,7 +720,7 @@ export class FrotaVeiculoDetalheComponent {
     if (aba === 'odometro') this.leiturasFiltro.set(somenteInconsistentes ? 'inconsistentes' : 'todas');
   }
 
-  protected trilha(v: VeiculoFrotaDetalhe): CesBreadcrumbItem[] {
+  protected trilha(v: VeiculoFrotaDetalhe): GeoBreadcrumbItem[] {
     return [
       { label: 'Frota' },
       { label: 'Veículos', route: '/frota/veiculos', queryParams: this.origem },

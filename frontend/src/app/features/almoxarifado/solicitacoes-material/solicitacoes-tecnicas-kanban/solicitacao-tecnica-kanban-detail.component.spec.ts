@@ -9,7 +9,7 @@ try {
   TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
 } catch {}
 
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { ObrasService } from '../../../../core/services/obras.service';
 import { RhService } from '../../../../core/services/rh.service';

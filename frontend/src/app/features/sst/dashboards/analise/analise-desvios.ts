@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { DesvioFilter } from '../../../../core/models/desvio.models';
 import { DashboardDesviosResponse, DashboardSstFilter, GRAVIDADE_LABELS, GravidadeDesvio } from '../../../../core/models/sst.models';
 import { ExposicaoNormalizadaItem, FaixaBacklog, GranularidadeDashboard, PendenciaAgrupadaResponse } from '../../../../core/models/sst-dashboard.models';
@@ -54,7 +54,7 @@ const alvo = (dimension: string, value: string): AlvoAnalise => ({ dimension, va
 const navegar = (dimension: string, value: string) => ({ tipo: 'navegar' as const, alvo: alvo(dimension, value) });
 const DIMENSAO_GRANULARIDADE: Record<GranularidadeDashboard, string> = { DIA: 'dia', MES: 'mes', ANO: 'ano' };
 const GRANULARIDADE_DIMENSAO: Record<string, GranularidadeDashboard> = { dia: 'DIA', mes: 'MES', ano: 'ANO' };
-const TOM_GRAVIDADE: Record<GravidadeDesvio, CesTone> = { BAIXA: 'neutral', MEDIA: 'info', ALTA: 'warning', CRITICA: 'danger' };
+const TOM_GRAVIDADE: Record<GravidadeDesvio, GeoTone> = { BAIXA: 'neutral', MEDIA: 'info', ALTA: 'warning', CRITICA: 'danger' };
 
 function intervaloDoPainel(d: DashboardDesviosResponse): IntervaloDrill {
   const de = diaCivil(d.inicio);
@@ -526,7 +526,7 @@ function vistaFaixa(a: AlvoAnalise, c: ContextoAnaliseDesvios): VistaAnalise | n
     proximo: vizinho(idx + 1),
     kpis: [
       { rotulo: 'Pendências', valor: String(f.total), tom: f.idadeMinimaDias >= 31 ? 'danger' : f.idadeMinimaDias >= 16 ? 'warning' : 'info', icone: 'pi pi-inbox' },
-      ...(['CRITICA', 'ALTA', 'MEDIA', 'BAIXA'] as GravidadeDesvio[]).map((g) => ({ rotulo: GRAVIDADE_LABELS[g], valor: String(f.porGravidade[g] ?? 0), tom: (f.porGravidade[g] ? TOM_GRAVIDADE[g] : 'neutral') as CesTone }))
+      ...(['CRITICA', 'ALTA', 'MEDIA', 'BAIXA'] as GravidadeDesvio[]).map((g) => ({ rotulo: GRAVIDADE_LABELS[g], valor: String(f.porGravidade[g] ?? 0), tom: (f.porGravidade[g] ? TOM_GRAVIDADE[g] : 'neutral') as GeoTone }))
     ],
     destaques: (f.porGravidade.CRITICA || f.porGravidade.ALTA) && f.idadeMinimaDias >= 31
       ? [{ tom: 'danger', icone: 'pi pi-bolt', texto: 'Há pendências graves e antigas nesta faixa: são as primeiras a cobrar.' }]
@@ -575,13 +575,13 @@ function vistaGrupo(a: AlvoAnalise, c: ContextoAnaliseDesvios): VistaAnalise | n
     kpis: [
       ...(e ? [
         { rotulo: 'Inspeções', valor: String(e.inspecoes), icone: 'pi pi-clipboard' },
-        { rotulo: 'Desvios', valor: String(e.desvios), tom: 'brand' as CesTone, icone: 'pi pi-exclamation-triangle' },
+        { rotulo: 'Desvios', valor: String(e.desvios), tom: 'brand' as GeoTone, icone: 'pi pi-exclamation-triangle' },
         { rotulo: 'A cada 100 inspeções', valor: e.desviosPor100Inspecoes.toLocaleString('pt-BR', { maximumFractionDigits: 1 }), icone: 'pi pi-percentage' }
       ] : []),
       ...(p ? [
-        { rotulo: 'Pendentes', valor: String(p.totalPendentes), icone: 'pi pi-inbox', tom: (p.totalPendentes ? 'warning' : 'success') as CesTone, detalhe: `${p.totalAbertos} abertos · ${p.totalEmTratamento} em tratamento` },
-        { rotulo: 'Vencidos', valor: String(p.totalVencidos), icone: 'pi pi-calendar-times', tom: (p.totalVencidos ? 'danger' : 'neutral') as CesTone },
-        { rotulo: 'Críticos pendentes', valor: String(p.totalCriticos), icone: 'pi pi-bolt', tom: (p.totalCriticos ? 'danger' : 'neutral') as CesTone }
+        { rotulo: 'Pendentes', valor: String(p.totalPendentes), icone: 'pi pi-inbox', tom: (p.totalPendentes ? 'warning' : 'success') as GeoTone, detalhe: `${p.totalAbertos} abertos · ${p.totalEmTratamento} em tratamento` },
+        { rotulo: 'Vencidos', valor: String(p.totalVencidos), icone: 'pi pi-calendar-times', tom: (p.totalVencidos ? 'danger' : 'neutral') as GeoTone },
+        { rotulo: 'Críticos pendentes', valor: String(p.totalCriticos), icone: 'pi pi-bolt', tom: (p.totalCriticos ? 'danger' : 'neutral') as GeoTone }
       ] : [])
     ],
     destaques,
@@ -664,7 +664,7 @@ export function visaoDesvios(d: DashboardDesviosResponse): VisaoGerencialSst {
   if (!d.totalDesvios && !backlog.valor) {
     veredito = { tom: 'success', rotulo: 'Sem pendências', titulo: 'Nenhum desvio no período e nada pendente', texto: 'Confira no painel de inspeções se o volume inspecionado é suficiente para sustentar essa leitura.' };
   } else {
-    const tom: CesTone = vencidos.valor > 0 && graves > 0 ? 'danger' : vencidos.valor > 0 || d.totalCriticos > 0 ? 'warning' : 'success';
+    const tom: GeoTone = vencidos.valor > 0 && graves > 0 ? 'danger' : vencidos.valor > 0 || d.totalCriticos > 0 ? 'warning' : 'success';
     veredito = {
       tom,
       rotulo: tom === 'danger' ? 'Agir agora' : tom === 'warning' ? 'Atenção' : 'Sob controle',

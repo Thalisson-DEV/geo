@@ -18,7 +18,7 @@
 
 .bol-agenda__link {
   padding: 0;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-weight: 600;
   text-align: left;
   background: none;
@@ -31,7 +31,7 @@
 }
 
 .bol-agenda__link:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
 }
 
@@ -58,10 +58,10 @@
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.6875rem;
   font-weight: 700;
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
   border-radius: 50%;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .bol-pessoa small {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .ed-team__facts dd {

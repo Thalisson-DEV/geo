@@ -14,7 +14,13 @@ import java.util.UUID;
 public record AcessoExterno(UUID usuarioId, UUID conexaoId, boolean permiteEscrita) {
 
     /** Prefixo das credenciais de acesso externo; tudo que não começa assim é JWT da sessão. */
-    public static final String PREFIXO = "ces_";
+    public static final String PREFIXO = "geo_";
+
+    /**
+     * Prefixo das credenciais emitidas antes da troca de nome do produto. Continuam valendo até expirar
+     * ou serem revogadas; nenhuma credencial nova sai com ele.
+     */
+    static final String PREFIXO_LEGADO = "ces_"; // renomear-geo: manter (credenciais já emitidas)
 
     public AcessoExterno {
         Objects.requireNonNull(usuarioId, "usuarioId");
@@ -22,6 +28,6 @@ public record AcessoExterno(UUID usuarioId, UUID conexaoId, boolean permiteEscri
     }
 
     public static boolean isCredencialExterna(String token) {
-        return token != null && token.startsWith(PREFIXO);
+        return token != null && (token.startsWith(PREFIXO) || token.startsWith(PREFIXO_LEGADO));
     }
 }

@@ -2,22 +2,22 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, debounceTime, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { EventoProgramacao, TipoEventoProgramacao } from '../../../core/models/obras-programacao.models';
@@ -28,12 +28,12 @@ import { ProgramacaoDetalheComponent } from './programacao-detalhe.component';
 import { MudancaEvento, TIPO_EVENTO, lerEvento } from './programacao.logic';
 
 const ORDEM_TIPOS: TipoEventoProgramacao[] = ['CRIADA', 'REPROGRAMADA', 'EDITADA', 'CANCELADA', 'EXCLUIDA'];
-const TIPOS: CesSelectOption<TipoEventoProgramacao>[] = ORDEM_TIPOS.map((value) => ({ value, label: TIPO_EVENTO[value].rotulo }));
+const TIPOS: GeoSelectOption<TipoEventoProgramacao>[] = ORDEM_TIPOS.map((value) => ({ value, label: TIPO_EVENTO[value].rotulo }));
 const POR_PAGINA_LINHA = 30;
 
 type MudouFiltro = 'EQUIPE' | 'PERIODO';
 type VisaoHistorico = 'linha' | 'tabela';
-const OPCOES_MUDOU: CesSelectOption<MudouFiltro | null>[] = [
+const OPCOES_MUDOU: GeoSelectOption<MudouFiltro | null>[] = [
   { label: 'Qualquer mudança', value: null },
   { label: 'Trocou de equipe', value: 'EQUIPE' },
   { label: 'Mudou o período', value: 'PERIODO' }
@@ -80,48 +80,48 @@ function rotuloDia(dia: string): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     ProgramacaoDetalheComponent
   ],
   template: `
-    <div class="ces-page">
-      <ces-page-header title="Programação" icon="pi pi-calendar"
+    <div class="geo-page">
+      <geo-page-header title="Programação" icon="pi pi-calendar"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação', route: '/obras/programacao' }, { label: 'Histórico' }]"
-        description="Criações, edições, reprogramações, cancelamentos e exclusões: o que mudou, antes e depois, quem e por quê."></ces-page-header>
+        description="Criações, edições, reprogramações, cancelamentos e exclusões: o que mudou, antes e depois, quem e por quê."></geo-page-header>
 
 
-      <ces-filter-panel #painel storageKey="obras-programacao-historico" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="obras-programacao-historico" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading() || linha().carregando" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Tipo de evento" [options]="tipos" [(value)]="lista.filters.tipos" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-select label="O que mudou" [options]="opcoesMudou" [(value)]="lista.filters.mudou"></ces-select>
-          <ces-text-input label="Obra" [(value)]="lista.filters.obra" placeholder="Número da obra"></ces-text-input>
-          <ces-text-input label="Equipe" [(value)]="lista.filters.equipe" placeholder="De origem ou de destino"></ces-text-input>
-          <ces-text-input label="Usuário" [(value)]="lista.filters.usuario" placeholder="Quem alterou"></ces-text-input>
-          <ces-text-input label="Programação nº" [value]="lista.filters.programacao() ? '' + lista.filters.programacao() : ''" (valueChange)="definirProgramacao($event)" placeholder="Ex.: 1687"></ces-text-input>
-          <ces-datepicker label="Alteradas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="definirPeriodo('from', $any($event))"></ces-datepicker>
-          <ces-datepicker label="Alteradas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="definirPeriodo('to', $any($event))"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Tipo de evento" [options]="tipos" [(value)]="lista.filters.tipos" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-select label="O que mudou" [options]="opcoesMudou" [(value)]="lista.filters.mudou"></geo-select>
+          <geo-text-input label="Obra" [(value)]="lista.filters.obra" placeholder="Número da obra"></geo-text-input>
+          <geo-text-input label="Equipe" [(value)]="lista.filters.equipe" placeholder="De origem ou de destino"></geo-text-input>
+          <geo-text-input label="Usuário" [(value)]="lista.filters.usuario" placeholder="Quem alterou"></geo-text-input>
+          <geo-text-input label="Programação nº" [value]="lista.filters.programacao() ? '' + lista.filters.programacao() : ''" (valueChange)="definirProgramacao($event)" placeholder="Ex.: 1687"></geo-text-input>
+          <geo-datepicker label="Alteradas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="definirPeriodo('from', $any($event))"></geo-datepicker>
+          <geo-datepicker label="Alteradas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="definirPeriodo('to', $any($event))"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
       <div class="hist-barra">
-        <div class="ces-quick-filters" role="group" aria-label="Mostrar só os tipos escolhidos">
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!tiposAplicados().length" (click)="definirTipos([])">
+        <div class="geo-quick-filters" role="group" aria-label="Mostrar só os tipos escolhidos">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!tiposAplicados().length" (click)="definirTipos([])">
             Todos <span class="hist-contagem">{{ contagemTotal() ?? '–' }}</span>
           </button>
           <span class="hist-divisor" aria-hidden="true"></span>
           @for (t of ordemTipos; track t) {
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="tiposAplicados().includes(t)" [attr.data-tone]="tipoEvento[t].tom" (click)="alternarTipo(t)"
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="tiposAplicados().includes(t)" [attr.data-tone]="tipoEvento[t].tom" (click)="alternarTipo(t)"
               [attr.aria-label]="tipoEvento[t].rotulo + ': ' + (contagens()[t] ?? 'contagem indisponível')">
               <i [class]="tipoEvento[t].icone" aria-hidden="true"></i> {{ tipoEvento[t].rotulo }} <span class="hist-contagem">{{ contagens()[t] ?? '–' }}</span>
             </button>
@@ -136,16 +136,16 @@ function rotuloDia(dia: string): string {
       @if (visao() === 'linha') {
         <section class="hist-card" aria-label="Linha do tempo das mudanças">
           <div class="hist-card__topo">
-            <ces-text-input class="hist-busca" label="Buscar" [labelVisible]="false" placeholder="Obra, equipe, nº da programação, usuário ou motivo" [(value)]="lista.query"></ces-text-input>
+            <geo-text-input class="hist-busca" label="Buscar" [labelVisible]="false" placeholder="Obra, equipe, nº da programação, usuário ou motivo" [(value)]="lista.query"></geo-text-input>
             <span class="hist-card__total" aria-live="polite">{{ linha().total }} {{ linha().total === 1 ? 'evento' : 'eventos' }}</span>
           </div>
           @if (linha().erro; as mensagem) {
-            <ces-async-state state="error" title="Não foi possível carregar o histórico" [description]="mensagem" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="recarregarLinha()"></ces-async-state>
+            <geo-async-state state="error" title="Não foi possível carregar o histórico" [description]="mensagem" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="recarregarLinha()"></geo-async-state>
           } @else if (linha().carregando && !linha().eventos.length) {
-            <ces-async-state state="loading" title="Carregando o histórico" [compact]="true"></ces-async-state>
+            <geo-async-state state="loading" title="Carregando o histórico" [compact]="true"></geo-async-state>
           } @else if (!linha().eventos.length) {
-            <ces-async-state state="empty" icon="pi pi-history" [title]="lista.filtered() ? 'Nenhum evento com esse recorte' : 'Nenhuma programação foi registrada ainda'"
-              [description]="lista.filtered() ? 'Ajuste ou limpe os filtros para ver mais eventos.' : 'Criações, edições, reprogramações e cancelamentos aparecem aqui.'"></ces-async-state>
+            <geo-async-state state="empty" icon="pi pi-history" [title]="lista.filtered() ? 'Nenhum evento com esse recorte' : 'Nenhuma programação foi registrada ainda'"
+              [description]="lista.filtered() ? 'Ajuste ou limpe os filtros para ver mais eventos.' : 'Criações, edições, reprogramações e cancelamentos aparecem aqui.'"></geo-async-state>
           } @else {
             @for (grupo of dias(); track grupo.dia) {
               <h3 class="hist-dia">{{ rotuloDia(grupo.dia) }}</h3>
@@ -155,7 +155,7 @@ function rotuloDia(dia: string): string {
                     <span class="hist-evento__marca" aria-hidden="true"><i [class]="tipoEvento[ev.e.tipo].icone"></i></span>
                     <article class="hist-evento__corpo">
                       <header class="hist-evento__topo">
-                        <ces-status [tone]="tipoEvento[ev.e.tipo].tom" [icon]="tipoEvento[ev.e.tipo].icone">{{ tipoEvento[ev.e.tipo].rotulo }}</ces-status>
+                        <geo-status [tone]="tipoEvento[ev.e.tipo].tom" [icon]="tipoEvento[ev.e.tipo].icone">{{ tipoEvento[ev.e.tipo].rotulo }}</geo-status>
                         @if (ev.e.tipo !== 'EXCLUIDA') {
                           <button type="button" class="hist-link" (click)="abrir(ev.e)">Programação #{{ ev.e.numeroProgramacao }}</button>
                         } @else {
@@ -191,13 +191,13 @@ function rotuloDia(dia: string): string {
             }
             @if (linha().eventos.length < linha().total) {
               <div class="hist-mais">
-                <ces-button variant="outline" icon="pi pi-angle-down" [label]="'Carregar mais ' + Math.min(porPagina, linha().total - linha().eventos.length)" [loading]="linha().carregando" (pressed)="carregarMais()"></ces-button>
+                <geo-button variant="outline" icon="pi pi-angle-down" [label]="'Carregar mais ' + Math.min(porPagina, linha().total - linha().eventos.length)" [loading]="linha().carregando" (pressed)="carregarMais()"></geo-button>
               </div>
             }
           }
         </section>
       } @else {
-        <ces-data-table
+        <geo-data-table
           title="Eventos"
           mode="server"
           storageKey="obras-programacao-historico"
@@ -225,10 +225,10 @@ function rotuloDia(dia: string): string {
           (clearFilters)="lista.reset()"
           (rowActivate)="abrir($event)"
         >
-          <ng-template cesCell="tipo" let-row>
-            <ces-status [tone]="tipoDe(row).tom" [icon]="tipoDe(row).icone">{{ tipoDe(row).rotulo }}</ces-status>
+          <ng-template geoCell="tipo" let-row>
+            <geo-status [tone]="tipoDe(row).tom" [icon]="tipoDe(row).icone">{{ tipoDe(row).rotulo }}</geo-status>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
     </div>
 
@@ -236,50 +236,50 @@ function rotuloDia(dia: string): string {
   `,
   styles: [`
     .hist-barra { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-    .hist-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .ces-quick-filter[aria-pressed='true'] .hist-contagem { background: var(--ces-surface); color: var(--ces-foreground); }
-    .hist-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--ces-border); }
-    .ces-quick-filters .pi { font-size: 0.75rem; }
-    .ces-quick-filters [data-tone='info'] .pi { color: var(--ces-info); }
-    .ces-quick-filters [data-tone='warning'] .pi { color: var(--ces-warning); }
-    .ces-quick-filters [data-tone='danger'] .pi { color: var(--ces-danger); }
-    .ces-quick-filters [data-tone='success'] .pi { color: var(--ces-success); }
-    .hist-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
-    .hist-visoes button { display: inline-flex; gap: 0.375rem; align-items: center; min-height: calc(var(--ces-control-height-sm) - 2px); padding: 0 0.75rem; border: 0; border-radius: calc(var(--ces-radius-md) - 2px); background: transparent; color: var(--ces-foreground-muted); font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer; }
-    .hist-visoes button:hover { color: var(--ces-foreground); }
-    .hist-visoes button[aria-current='page'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
-    .hist-visoes button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .hist-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .geo-quick-filter[aria-pressed='true'] .hist-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
+    .hist-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--geo-border); }
+    .geo-quick-filters .pi { font-size: 0.75rem; }
+    .geo-quick-filters [data-tone='info'] .pi { color: var(--geo-info); }
+    .geo-quick-filters [data-tone='warning'] .pi { color: var(--geo-warning); }
+    .geo-quick-filters [data-tone='danger'] .pi { color: var(--geo-danger); }
+    .geo-quick-filters [data-tone='success'] .pi { color: var(--geo-success); }
+    .hist-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
+    .hist-visoes button { display: inline-flex; gap: 0.375rem; align-items: center; min-height: calc(var(--geo-control-height-sm) - 2px); padding: 0 0.75rem; border: 0; border-radius: calc(var(--geo-radius-md) - 2px); background: transparent; color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer; }
+    .hist-visoes button:hover { color: var(--geo-foreground); }
+    .hist-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
+    .hist-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .hist-visoes .pi { font-size: 0.8rem; }
-    .hist-card { padding: 1rem 1.25rem 1.25rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-xl); background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); }
+    .hist-card { padding: 1rem 1.25rem 1.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
     .hist-card__topo { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
     .hist-busca { width: min(28rem, 100%); }
-    .hist-card__total { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); font-variant-numeric: tabular-nums; }
-    .hist-dia { position: sticky; top: 0; z-index: 1; margin: 1rem 0 0.5rem; padding: 0.25rem 0; background: var(--ces-surface); color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    .hist-card__total { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; }
+    .hist-dia { position: sticky; top: 0; z-index: 1; margin: 1rem 0 0.5rem; padding: 0.25rem 0; background: var(--geo-surface); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
     .hist-linha { margin: 0; padding: 0; list-style: none; }
     .hist-evento { position: relative; display: flex; gap: 0.75rem; padding-bottom: 0.75rem; }
-    .hist-evento:not(:last-child)::before { position: absolute; top: 2rem; bottom: 0; left: 0.9375rem; width: 1px; background: var(--ces-border); content: ''; }
-    .hist-evento__marca { display: grid; flex: none; width: 2rem; height: 2rem; place-items: center; border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.8rem; }
-    .hist-evento[data-tone='info'] .hist-evento__marca { background: var(--ces-info-soft); color: var(--ces-info-text); }
-    .hist-evento[data-tone='warning'] .hist-evento__marca { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .hist-evento[data-tone='danger'] .hist-evento__marca { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
-    .hist-evento[data-tone='success'] .hist-evento__marca { background: var(--ces-success-soft); color: var(--ces-success-text); }
-    .hist-evento__corpo { flex: 1; min-width: 0; padding: 0.625rem 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-    .hist-evento__topo { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; font-size: var(--ces-font-control); }
-    .hist-evento__quem { display: inline-flex; gap: 0.375rem; align-items: center; margin-left: auto; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .hist-evento:not(:last-child)::before { position: absolute; top: 2rem; bottom: 0; left: 0.9375rem; width: 1px; background: var(--geo-border); content: ''; }
+    .hist-evento__marca { display: grid; flex: none; width: 2rem; height: 2rem; place-items: center; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.8rem; }
+    .hist-evento[data-tone='info'] .hist-evento__marca { background: var(--geo-info-soft); color: var(--geo-info-text); }
+    .hist-evento[data-tone='warning'] .hist-evento__marca { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .hist-evento[data-tone='danger'] .hist-evento__marca { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+    .hist-evento[data-tone='success'] .hist-evento__marca { background: var(--geo-success-soft); color: var(--geo-success-text); }
+    .hist-evento__corpo { flex: 1; min-width: 0; padding: 0.625rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+    .hist-evento__topo { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; font-size: var(--geo-font-control); }
+    .hist-evento__quem { display: inline-flex; gap: 0.375rem; align-items: center; margin-left: auto; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .hist-evento__quem .pi { font-size: 0.7rem; }
-    .hist-link { padding: 0; border: 0; background: transparent; color: var(--ces-brand); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .hist-link { padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
     .hist-link:hover { text-decoration: underline; }
-    .hist-link:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .hist-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .hist-numero { font-weight: 700; }
-    .hist-sep { color: var(--ces-foreground-muted); }
+    .hist-sep { color: var(--geo-foreground-muted); }
     .hist-mudancas { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.375rem 1rem; margin: 0.5rem 0 0; }
-    .hist-mudancas dt { color: var(--ces-foreground-muted); font-size: 0.6875rem; font-weight: 600; }
-    .hist-mudancas dd { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; margin: 0; font-size: var(--ces-font-control); }
-    .hist-mudancas del { color: var(--ces-foreground-muted); }
+    .hist-mudancas dt { color: var(--geo-foreground-muted); font-size: 0.6875rem; font-weight: 600; }
+    .hist-mudancas dd { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; margin: 0; font-size: var(--geo-font-control); }
+    .hist-mudancas del { color: var(--geo-foreground-muted); }
     .hist-mudancas ins { font-weight: 600; text-decoration: none; }
-    .hist-mudancas .pi { color: var(--ces-foreground-muted); font-size: 0.625rem; }
-    .hist-motivo { margin: 0.5rem 0 0; padding: 0.375rem 0.625rem; border-left: 3px solid var(--ces-border); background: var(--ces-surface-subtle); font-size: var(--ces-font-control); }
-    .hist-motivo span { color: var(--ces-foreground-muted); font-weight: 600; }
+    .hist-mudancas .pi { color: var(--geo-foreground-muted); font-size: 0.625rem; }
+    .hist-motivo { margin: 0.5rem 0 0; padding: 0.375rem 0.625rem; border-left: 3px solid var(--geo-border); background: var(--geo-surface-subtle); font-size: var(--geo-font-control); }
+    .hist-motivo span { color: var(--geo-foreground-muted); font-weight: 600; }
     .hist-mais { display: flex; justify-content: center; margin-top: 0.5rem; }
     @media (max-width: 40rem) {
       .hist-evento__quem { margin-left: 0; width: 100%; }
@@ -305,16 +305,16 @@ export class ProgramacaoHistoricoComponent {
   protected readonly idDetalhe = signal<string | null>(null);
   protected readonly visao = signal<VisaoHistorico>(this.rota.snapshot.queryParamMap.get('visao') === 'tabela' ? 'tabela' : 'linha');
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-programacao-historico',
     filters: {
-      tipos: cesFilter.list<TipoEventoProgramacao>([], { label: 'Tipo', param: 'tipo', itemLabel: (t) => TIPO_EVENTO[t].rotulo }),
-      mudou: cesFilter.value<MudouFiltro | null>(null, { label: 'O que mudou', param: 'mudou', options: () => OPCOES_MUDOU }),
-      obra: cesFilter.value<string>('', { label: 'Obra', param: 'obra' }),
-      equipe: cesFilter.value<string>('', { label: 'Equipe', param: 'equipe' }),
-      usuario: cesFilter.value<string>('', { label: 'Usuário', param: 'usuario' }),
-      programacao: cesFilter.value<number | null>(null, { label: 'Programação', param: 'programacao', type: 'number', format: (n) => (n ? `#${n}` : null) }),
-      periodo: cesFilter.range({ from: null, to: null }, { label: 'Alteração', param: 'periodo' })
+      tipos: geoFilter.list<TipoEventoProgramacao>([], { label: 'Tipo', param: 'tipo', itemLabel: (t) => TIPO_EVENTO[t].rotulo }),
+      mudou: geoFilter.value<MudouFiltro | null>(null, { label: 'O que mudou', param: 'mudou', options: () => OPCOES_MUDOU }),
+      obra: geoFilter.value<string>('', { label: 'Obra', param: 'obra' }),
+      equipe: geoFilter.value<string>('', { label: 'Equipe', param: 'equipe' }),
+      usuario: geoFilter.value<string>('', { label: 'Usuário', param: 'usuario' }),
+      programacao: geoFilter.value<number | null>(null, { label: 'Programação', param: 'programacao', type: 'number', format: (n) => (n ? `#${n}` : null) }),
+      periodo: geoFilter.range({ from: null, to: null }, { label: 'Alteração', param: 'periodo' })
     },
     sort: [{ key: 'dataCriacao', direction: 'desc' }]
   });
@@ -324,7 +324,7 @@ export class ProgramacaoHistoricoComponent {
   );
   protected readonly exportar = exportacaoPadrao((pagina) => this.api.historico({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<EventoProgramacao>[] = [
+  protected readonly colunas: GeoDataTableColumn<EventoProgramacao>[] = [
     { key: 'data', header: 'Data e hora', sortField: 'dataCriacao', priority: 1, value: (e) => e.data, display: (e) => formatarDataHora(e.data) },
     { key: 'tipo', header: 'Tipo', type: 'custom', sortField: 'tipo', priority: 1, value: (e) => TIPO_EVENTO[e.tipo].rotulo },
     { key: 'numeroProgramacao', header: 'Programação', sortField: 'numeroProgramacao', priority: 1, value: (e) => e.numeroProgramacao, display: (e) => `#${e.numeroProgramacao}` },

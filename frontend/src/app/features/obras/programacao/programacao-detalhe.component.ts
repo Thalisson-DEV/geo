@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { take } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { EquipeProjetada, EventoProgramacao, ItemProgramado, ProgramacaoDetalhe, SituacaoIntervencao, TurnoProgramacao } from '../../../core/models/obras-programacao.models';
@@ -44,62 +44,62 @@ function realizadoDo(item: ItemProgramado): number {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     CondicoesProgramacaoComponent,
     EquipesProjecaoComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="aberto" [title]="tituloDrawer()" [description]="descricaoDrawer()" [dirty]="modo() !== 'ver'" size="lg">
+    <geo-form-drawer [(visible)]="aberto" [title]="tituloDrawer()" [description]="descricaoDrawer()" [dirty]="modo() !== 'ver'" size="lg">
       @if (erro(); as mensagem) {
-        <ces-async-state state="error" title="Não foi possível abrir a programação" [description]="mensagem"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível abrir a programação" [description]="mensagem"></geo-async-state>
       } @else if (!p()) {
-        <ces-async-state state="loading" title="Abrindo a programação" [compact]="true"></ces-async-state>
+        <geo-async-state state="loading" title="Abrindo a programação" [compact]="true"></geo-async-state>
       } @else {
         @let programacao = p()!;
         @switch (modo()) {
           @case ('editar') {
-            <ces-form-section title="Condições da intervenção" icon="pi pi-bolt">
-              <ces-text-input label="Descrição do planejamento" [required]="true" [maxlength]="500" [(value)]="descricao"
-                [error]="tentou() && !descricao().trim() ? 'Informe a descrição do planejamento.' : undefined"></ces-text-input>
+            <geo-form-section title="Condições da intervenção" icon="pi pi-bolt">
+              <geo-text-input label="Descrição do planejamento" [required]="true" [maxlength]="500" [(value)]="descricao"
+                [error]="tentou() && !descricao().trim() ? 'Informe a descrição do planejamento.' : undefined"></geo-text-input>
               <app-condicoes-programacao [validar]="tentou()" [(linhaViva)]="linhaViva" [(desligamento)]="desligamento"
                 [(finalizaObra)]="finalizaObra" [(turno)]="turno" [(situacaoIntervencao)]="situacaoIntervencao" [(observacao)]="observacao"></app-condicoes-programacao>
-            </ces-form-section>
+            </geo-form-section>
           }
           @case ('reprogramar') {
-            <ces-callout tone="info" [dense]="true">Hoje: {{ programacao.codigoEquipe }}, {{ periodoDe(programacao) }}. A mudança fica no histórico com o motivo.</ces-callout>
-            <ces-form-section title="Novo período" icon="pi pi-calendar">
-              <div class="ces-form-grid">
-                <ces-datepicker label="Início" [required]="true" [value]="inicio()" (valueChange)="inicio.set($any($event)); projetar()"></ces-datepicker>
-                <ces-datepicker label="Fim" [required]="true" [value]="fim()" [minDate]="inicio()" (valueChange)="fim.set($any($event)); projetar()"></ces-datepicker>
+            <geo-callout tone="info" [dense]="true">Hoje: {{ programacao.codigoEquipe }}, {{ periodoDe(programacao) }}. A mudança fica no histórico com o motivo.</geo-callout>
+            <geo-form-section title="Novo período" icon="pi pi-calendar">
+              <div class="geo-form-grid">
+                <geo-datepicker label="Início" [required]="true" [value]="inicio()" (valueChange)="inicio.set($any($event)); projetar()"></geo-datepicker>
+                <geo-datepicker label="Fim" [required]="true" [value]="fim()" [minDate]="inicio()" (valueChange)="fim.set($any($event)); projetar()"></geo-datepicker>
               </div>
-            </ces-form-section>
-            <ces-form-section title="Equipe" icon="pi pi-users" description="O valor congelado na confirmação não muda.">
+            </geo-form-section>
+            <geo-form-section title="Equipe" icon="pi pi-users" description="O valor congelado na confirmação não muda.">
               <app-equipes-projecao [equipes]="equipes()" [carregando]="carregandoEquipes()" [turno]="programacao.turno" [(selecionada)]="idEquipe"></app-equipes-projecao>
-            </ces-form-section>
-            <ces-form-section title="Motivo" icon="pi pi-comment">
-              <ces-textarea label="Motivo da reprogramação" [required]="true" [rows]="2" [maxlength]="1000" [(value)]="motivo" placeholder="Ex.: desligamento negado na data original"
-                [error]="tentou() && !motivo().trim() ? 'Informe o motivo da reprogramação.' : undefined"></ces-textarea>
-            </ces-form-section>
+            </geo-form-section>
+            <geo-form-section title="Motivo" icon="pi pi-comment">
+              <geo-textarea label="Motivo da reprogramação" [required]="true" [rows]="2" [maxlength]="1000" [(value)]="motivo" placeholder="Ex.: desligamento negado na data original"
+                [error]="tentou() && !motivo().trim() ? 'Informe o motivo da reprogramação.' : undefined"></geo-textarea>
+            </geo-form-section>
           }
           @case ('cancelar') {
-            <ces-form-section title="Cancelar a programação" icon="pi pi-ban" description="Os itens sem execução voltam a pendentes e a obra volta para a lista do que falta programar.">
-              <ces-textarea label="Motivo do cancelamento" [required]="true" [rows]="3" [maxlength]="1000" [(value)]="motivo"
-                [error]="tentou() && !motivo().trim() ? 'Informe o motivo do cancelamento.' : undefined"></ces-textarea>
-            </ces-form-section>
+            <geo-form-section title="Cancelar a programação" icon="pi pi-ban" description="Os itens sem execução voltam a pendentes e a obra volta para a lista do que falta programar.">
+              <geo-textarea label="Motivo do cancelamento" [required]="true" [rows]="3" [maxlength]="1000" [(value)]="motivo"
+                [error]="tentou() && !motivo().trim() ? 'Informe o motivo do cancelamento.' : undefined"></geo-textarea>
+            </geo-form-section>
           }
           @default {
             <section class="pd-hero" [attr.data-tone]="situacao().tom" aria-label="Resumo da programação">
               <div class="pd-hero__topo">
-                <ces-status [tone]="situacao().tom" [icon]="situacao().icone">{{ situacao().rotulo }}</ces-status>
+                <geo-status [tone]="situacao().tom" [icon]="situacao().icone">{{ situacao().rotulo }}</geo-status>
                 @if (programacao.criadoPor || programacao.criadoEm) {
                   <span class="pd-hero__autor">Programada{{ programacao.criadoPor ? ' por ' + programacao.criadoPor : '' }}{{ programacao.criadoEm ? ' em ' + dataHora(programacao.criadoEm) : '' }}</span>
                 }
@@ -130,10 +130,10 @@ function realizadoDo(item: ItemProgramado): number {
             </nav>
 
             @if (situacao().tom === 'danger') {
-              <ces-callout tone="danger" [dense]="true">O período terminou em {{ programacao.fim }} sem a execução concluída. Reprograme ou cancele com o motivo.</ces-callout>
+              <geo-callout tone="danger" [dense]="true">O período terminou em {{ programacao.fim }} sem a execução concluída. Reprograme ou cancele com o motivo.</geo-callout>
             }
 
-            <ces-form-section title="Programado × realizado" icon="pi pi-chart-line" description="O realizado conta o que a equipe apontou pelo aplicativo, ao valor congelado.">
+            <geo-form-section title="Programado × realizado" icon="pi pi-chart-line" description="O realizado conta o que a equipe apontou pelo aplicativo, ao valor congelado.">
               @let ex = execucao();
               <div class="pd-execucao">
                 <div class="pd-execucao__numeros">
@@ -147,11 +147,11 @@ function realizadoDo(item: ItemProgramado): number {
                 </div>
                 <p class="pd-execucao__legenda">{{ numero(ex.percentual) }}% executado{{ ex.itensComExecucao ? ' · ' + ex.itensComExecucao + (ex.itensComExecucao === 1 ? ' item com apontamento' : ' itens com apontamento') : ' · nenhum apontamento ainda' }}</p>
               </div>
-            </ces-form-section>
+            </geo-form-section>
 
-            <ces-form-section [title]="'Itens programados (' + programacao.itens.length + ')'" icon="pi pi-list">
+            <geo-form-section [title]="'Itens programados (' + programacao.itens.length + ')'" icon="pi pi-list">
               @if (!programacao.itens.length) {
-                <ces-callout tone="info" [dense]="true">Os itens voltaram a pendentes.</ces-callout>
+                <geo-callout tone="info" [dense]="true">Os itens voltaram a pendentes.</geo-callout>
               }
               @for (g of grupos(); track g.local) {
                 <div class="pd-grupo">
@@ -171,23 +171,23 @@ function realizadoDo(item: ItemProgramado): number {
                           }
                         </span>
                         @if (podeEditar && aberta() && !item.quantidadeExecutada) {
-                          <ces-icon-button icon="pi pi-minus-circle" size="icon-sm" [label]="'Retirar ' + item.descricao + ' da programação'" tooltip="Retirar da programação" (pressed)="retirar(item)"></ces-icon-button>
+                          <geo-icon-button icon="pi pi-minus-circle" size="icon-sm" [label]="'Retirar ' + item.descricao + ' da programação'" tooltip="Retirar da programação" (pressed)="retirar(item)"></geo-icon-button>
                         }
                       </li>
                     }
                   </ul>
                 </div>
               }
-            </ces-form-section>
+            </geo-form-section>
 
-            <ces-form-section title="Notas" icon="pi pi-align-left">
+            <geo-form-section title="Notas" icon="pi pi-align-left">
               <dl class="pd-notas">
                 <div><dt>Descrição</dt><dd>{{ programacao.descricao }}</dd></div>
                 @if (programacao.observacao) { <div><dt>Observação</dt><dd>{{ programacao.observacao }}</dd></div> }
               </dl>
-            </ces-form-section>
+            </geo-form-section>
 
-            <ces-form-section title="Histórico" icon="pi pi-history">
+            <geo-form-section title="Histórico" icon="pi pi-history">
               @if (!eventos().length) {
                 <p class="pd-vazio">Sem mudanças registradas.</p>
               } @else {
@@ -213,103 +213,103 @@ function realizadoDo(item: ItemProgramado): number {
                   </a>
                 }
               }
-            </ces-form-section>
+            </geo-form-section>
           }
         }
       }
 
-      <div drawer-footer class="ces-actions-row">
+      <div drawer-footer class="geo-actions-row">
         @if (modo() === 'ver') {
           @if (podeEditar && p()) {
-            <ces-button variant="ghost" icon="pi pi-trash" label="Excluir" (pressed)="excluir()"></ces-button>
+            <geo-button variant="ghost" icon="pi pi-trash" label="Excluir" (pressed)="excluir()"></geo-button>
             @if (aberta()) {
-              <ces-button variant="ghost" icon="pi pi-ban" label="Cancelar programação" (pressed)="abrirModo('cancelar')"></ces-button>
-              <ces-button variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="abrirModo('editar')"></ces-button>
-              <ces-button icon="pi pi-calendar-clock" label="Reprogramar" (pressed)="abrirModo('reprogramar')"></ces-button>
+              <geo-button variant="ghost" icon="pi pi-ban" label="Cancelar programação" (pressed)="abrirModo('cancelar')"></geo-button>
+              <geo-button variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="abrirModo('editar')"></geo-button>
+              <geo-button icon="pi pi-calendar-clock" label="Reprogramar" (pressed)="abrirModo('reprogramar')"></geo-button>
             }
           }
         } @else {
-          <ces-button variant="ghost" label="Voltar" (pressed)="modo.set('ver')"></ces-button>
-          <ces-button icon="pi pi-check" [label]="rotuloConfirmar()" [loading]="salvando()" (pressed)="confirmar()"></ces-button>
+          <geo-button variant="ghost" label="Voltar" (pressed)="modo.set('ver')"></geo-button>
+          <geo-button icon="pi pi-check" [label]="rotuloConfirmar()" [loading]="salvando()" (pressed)="confirmar()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: [`
-    .pd-hero { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; border: 1px solid var(--ces-border); border-left-width: 4px; border-radius: var(--ces-radius-lg);
-      background: var(--ces-surface-subtle); }
-    .pd-hero[data-tone='info'] { border-left-color: var(--ces-info); }
-    .pd-hero[data-tone='warning'] { border-left-color: var(--ces-warning); }
-    .pd-hero[data-tone='danger'] { border-left-color: var(--ces-danger); }
-    .pd-hero[data-tone='success'] { border-left-color: var(--ces-success); }
-    .pd-hero[data-tone='neutral'] { border-left-color: var(--ces-border-strong, var(--ces-border)); }
+    .pd-hero { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; border: 1px solid var(--geo-border); border-left-width: 4px; border-radius: var(--geo-radius-lg);
+      background: var(--geo-surface-subtle); }
+    .pd-hero[data-tone='info'] { border-left-color: var(--geo-info); }
+    .pd-hero[data-tone='warning'] { border-left-color: var(--geo-warning); }
+    .pd-hero[data-tone='danger'] { border-left-color: var(--geo-danger); }
+    .pd-hero[data-tone='success'] { border-left-color: var(--geo-success); }
+    .pd-hero[data-tone='neutral'] { border-left-color: var(--geo-border-strong, var(--geo-border)); }
     .pd-hero__topo { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: center; justify-content: space-between; }
-    .pd-hero__autor { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
-    .pd-hero__obra { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: baseline; color: var(--ces-foreground); font-size: 1.0625rem; line-height: 1.35; text-decoration: none; }
-    .pd-hero__obra span { color: var(--ces-foreground-muted); font-weight: 500; }
-    .pd-hero__obra .pi { color: var(--ces-brand); font-size: 0.75rem; }
-    .pd-hero__obra:hover span { color: var(--ces-foreground); text-decoration: underline; }
-    .pd-hero__obra:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; border-radius: var(--ces-radius-sm); }
+    .pd-hero__autor { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .pd-hero__obra { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: baseline; color: var(--geo-foreground); font-size: 1.0625rem; line-height: 1.35; text-decoration: none; }
+    .pd-hero__obra span { color: var(--geo-foreground-muted); font-weight: 500; }
+    .pd-hero__obra .pi { color: var(--geo-brand); font-size: 0.75rem; }
+    .pd-hero__obra:hover span { color: var(--geo-foreground); text-decoration: underline; }
+    .pd-hero__obra:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
     .pd-fatos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0; }
-    .pd-fatos > div { padding: 0.5rem 0.625rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-    .pd-fatos dt { display: flex; gap: 0.375rem; align-items: center; color: var(--ces-foreground-muted); font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+    .pd-fatos > div { padding: 0.5rem 0.625rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+    .pd-fatos dt { display: flex; gap: 0.375rem; align-items: center; color: var(--geo-foreground-muted); font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
     .pd-fatos dt .pi { font-size: 0.7rem; }
-    .pd-fatos dd { display: flex; flex-direction: column; margin: 0.125rem 0 0; color: var(--ces-foreground); font-size: 0.9375rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .pd-fatos dd small { color: var(--ces-foreground-muted); font-size: 0.75rem; font-weight: 400; }
+    .pd-fatos dd { display: flex; flex-direction: column; margin: 0.125rem 0 0; color: var(--geo-foreground); font-size: 0.9375rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pd-fatos dd small { color: var(--geo-foreground-muted); font-size: 0.75rem; font-weight: 400; }
     .pd-tags { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0; padding: 0; list-style: none; }
-    .pd-tags li { display: inline-flex; gap: 0.375rem; align-items: center; padding: 0.1875rem 0.5rem; border: 1px solid var(--ces-border); border-radius: 999px;
-      background: var(--ces-surface); color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
-    .pd-tags li[data-ativo='true'] { border-color: var(--ces-warning); background: var(--ces-warning-soft); color: var(--ces-warning-text); font-weight: 600; }
+    .pd-tags li { display: inline-flex; gap: 0.375rem; align-items: center; padding: 0.1875rem 0.5rem; border: 1px solid var(--geo-border); border-radius: 999px;
+      background: var(--geo-surface); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .pd-tags li[data-ativo='true'] { border-color: var(--geo-warning); background: var(--geo-warning-soft); color: var(--geo-warning-text); font-weight: 600; }
     .pd-tags .pi { font-size: 0.7rem; }
     .pd-atalhos { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .pd-atalho { display: inline-flex; gap: 0.375rem; align-items: center; min-height: 2rem; padding: 0 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md);
-      background: var(--ces-surface); color: var(--ces-foreground); font: inherit; font-size: var(--ces-font-control); font-weight: 600; text-decoration: none; cursor: pointer; }
-    .pd-atalho:hover { border-color: var(--ces-brand); color: var(--ces-brand); }
-    .pd-atalho:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .pd-atalho { display: inline-flex; gap: 0.375rem; align-items: center; min-height: 2rem; padding: 0 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md);
+      background: var(--geo-surface); color: var(--geo-foreground); font: inherit; font-size: var(--geo-font-control); font-weight: 600; text-decoration: none; cursor: pointer; }
+    .pd-atalho:hover { border-color: var(--geo-brand); color: var(--geo-brand); }
+    .pd-atalho:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .pd-atalho .pi { font-size: 0.8rem; }
     .pd-execucao { display: flex; flex-direction: column; gap: 0.5rem; }
     .pd-execucao__numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
-    .pd-execucao__numeros span { display: block; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .pd-execucao__numeros span { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .pd-execucao__numeros strong { font-size: 1rem; font-variant-numeric: tabular-nums; }
-    .pd-barra { height: 0.625rem; overflow: hidden; border-radius: 999px; background: var(--ces-surface-muted); }
-    .pd-barra span { display: block; height: 100%; border-radius: inherit; background: var(--ces-success); }
-    .pd-execucao__legenda { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .pd-barra { height: 0.625rem; overflow: hidden; border-radius: 999px; background: var(--geo-surface-muted); }
+    .pd-barra span { display: block; height: 100%; border-radius: inherit; background: var(--geo-success); }
+    .pd-execucao__legenda { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .pd-grupo + .pd-grupo { margin-top: 0.75rem; }
-    .pd-grupo__titulo { display: flex; gap: 0.375rem; align-items: center; margin: 0 0 0.25rem; color: var(--ces-foreground); font-size: var(--ces-font-control); font-weight: 700; }
-    .pd-grupo__titulo .pi { color: var(--ces-foreground-muted); font-size: 0.75rem; }
-    .pd-grupo__titulo small { margin-left: auto; color: var(--ces-foreground-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .pd-grupo__titulo { display: flex; gap: 0.375rem; align-items: center; margin: 0 0 0.25rem; color: var(--geo-foreground); font-size: var(--geo-font-control); font-weight: 700; }
+    .pd-grupo__titulo .pi { color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .pd-grupo__titulo small { margin-left: auto; color: var(--geo-foreground-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
     .pd-itens { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
-    .pd-itens li { display: flex; gap: 0.5rem; align-items: center; padding: 0.375rem 0; border-bottom: 1px solid var(--ces-border); }
-    .pd-tipo { flex: none; width: 1.125rem; border-radius: var(--ces-radius-sm); background: var(--ces-success-soft); color: var(--ces-success-text); font-size: 0.625rem; font-weight: 700; line-height: 1.125rem; text-align: center; }
-    .pd-tipo[data-material='true'] { background: var(--ces-info-soft); color: var(--ces-info-text); }
+    .pd-itens li { display: flex; gap: 0.5rem; align-items: center; padding: 0.375rem 0; border-bottom: 1px solid var(--geo-border); }
+    .pd-tipo { flex: none; width: 1.125rem; border-radius: var(--geo-radius-sm); background: var(--geo-success-soft); color: var(--geo-success-text); font-size: 0.625rem; font-weight: 700; line-height: 1.125rem; text-align: center; }
+    .pd-tipo[data-material='true'] { background: var(--geo-info-soft); color: var(--geo-info-text); }
     .pd-item { display: flex; flex: 1; flex-direction: column; min-width: 0; font-size: 0.8125rem; }
-    .pd-item small { color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .pd-item small { color: var(--geo-foreground-muted); font-size: 0.75rem; }
     .pd-item__progresso { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.125rem; }
-    .pd-mini { width: 6rem; height: 0.3125rem; overflow: hidden; border-radius: 999px; background: var(--ces-surface-muted); }
-    .pd-mini span { display: block; height: 100%; background: var(--ces-success); }
+    .pd-mini { width: 6rem; height: 0.3125rem; overflow: hidden; border-radius: 999px; background: var(--geo-surface-muted); }
+    .pd-mini span { display: block; height: 100%; background: var(--geo-success); }
     .pd-notas { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; }
-    .pd-notas dt { color: var(--ces-foreground-muted); font-size: 0.6875rem; }
+    .pd-notas dt { color: var(--geo-foreground-muted); font-size: 0.6875rem; }
     .pd-notas dd { margin: 0; font-size: 0.875rem; white-space: pre-line; }
-    .pd-vazio { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); }
+    .pd-vazio { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); }
     .pd-linha { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
     .pd-linha li { position: relative; display: flex; gap: 0.625rem; padding-bottom: 0.875rem; }
-    .pd-linha li:not(:last-child)::before { position: absolute; top: 1.75rem; bottom: 0; left: 0.8125rem; width: 1px; background: var(--ces-border); content: ''; }
-    .pd-linha__marca { display: grid; flex: none; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.75rem; }
-    .pd-linha li[data-tone='info'] .pd-linha__marca { background: var(--ces-info-soft); color: var(--ces-info-text); }
-    .pd-linha li[data-tone='warning'] .pd-linha__marca { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .pd-linha li[data-tone='danger'] .pd-linha__marca { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
-    .pd-linha li[data-tone='success'] .pd-linha__marca { background: var(--ces-success-soft); color: var(--ces-success-text); }
+    .pd-linha li:not(:last-child)::before { position: absolute; top: 1.75rem; bottom: 0; left: 0.8125rem; width: 1px; background: var(--geo-border); content: ''; }
+    .pd-linha__marca { display: grid; flex: none; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .pd-linha li[data-tone='info'] .pd-linha__marca { background: var(--geo-info-soft); color: var(--geo-info-text); }
+    .pd-linha li[data-tone='warning'] .pd-linha__marca { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .pd-linha li[data-tone='danger'] .pd-linha__marca { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+    .pd-linha li[data-tone='success'] .pd-linha__marca { background: var(--geo-success-soft); color: var(--geo-success-text); }
     .pd-linha__corpo { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; font-size: 0.8125rem; }
     .pd-linha__titulo { margin: 0.25rem 0 0; }
-    .pd-linha__titulo small { color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .pd-linha__titulo small { color: var(--geo-foreground-muted); font-size: 0.75rem; }
     .pd-linha__mudanca { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; margin: 0; }
-    .pd-linha__mudanca > span { color: var(--ces-foreground-muted); }
-    .pd-linha__mudanca del { color: var(--ces-foreground-muted); }
+    .pd-linha__mudanca > span { color: var(--geo-foreground-muted); }
+    .pd-linha__mudanca del { color: var(--geo-foreground-muted); }
     .pd-linha__mudanca ins { font-weight: 600; text-decoration: none; }
-    .pd-linha__mudanca .pi { color: var(--ces-foreground-muted); font-size: 0.625rem; }
-    .pd-linha__motivo { margin: 0; color: var(--ces-foreground-muted); font-style: italic; }
-    .pd-mais { display: inline-flex; gap: 0.375rem; align-items: center; color: var(--ces-brand); font-size: var(--ces-font-control); font-weight: 600; text-decoration: none; }
-    .pd-mais:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .pd-linha__mudanca .pi { color: var(--geo-foreground-muted); font-size: 0.625rem; }
+    .pd-linha__motivo { margin: 0; color: var(--geo-foreground-muted); font-style: italic; }
+    .pd-mais { display: inline-flex; gap: 0.375rem; align-items: center; color: var(--geo-brand); font-size: var(--geo-font-control); font-weight: 600; text-decoration: none; }
+    .pd-mais:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     @media (max-width: 40rem) {
       .pd-fatos, .pd-execucao__numeros { grid-template-columns: 1fr; }
     }
@@ -318,7 +318,7 @@ function realizadoDo(item: ItemProgramado): number {
 export class ProgramacaoDetalheComponent {
   private readonly api = inject(ObrasProgramacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   readonly aberto = model(false);
   readonly idProgramacao = input<string | null>(null);

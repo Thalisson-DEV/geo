@@ -1,28 +1,28 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { CatalogoSstResponse, TipoCatalogoSst } from '../../../core/models/sst-evento.models';
@@ -32,7 +32,7 @@ import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.
 import { LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from '../../../shared/listagem/listagem';
 import { CATALOGO_SST_PAGE_CONFIG } from './catalogo-sst-page.config';
 
-const SITUACOES: CesSelectOption<boolean | null>[] = [
+const SITUACOES: GeoSelectOption<boolean | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Ativos', value: true },
   { label: 'Desativados', value: false }
@@ -47,26 +47,26 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
+      <geo-page-header
         [title]="config.titulo"
         [icon]="config.icone"
         [breadcrumb]="[{ label: 'SST' }, { label: 'Cadastros' }, { label: config.titulo }]"
@@ -75,18 +75,18 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         (help)="ajuda.show()"
       >
         @if (podeEscrever) {
-          <ces-button actions icon="pi pi-plus" [label]="config.entityLabel" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" [label]="config.entityLabel" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel [storageKey]="'sst-catalogo-' + tipo" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="'sst-catalogo-' + tipo" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Situação" [options]="situacoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Situação" [options]="situacoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         [title]="config.titulo"
         mode="server"
         [storageKey]="'sst-catalogo-' + tipo"
@@ -116,42 +116,42 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.nome }}</span>
-          <span class="ces-cell-muted">{{ row.descricao || '—' }}</span>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.nome }}</span>
+          <span class="geo-cell-muted">{{ row.descricao || '—' }}</span>
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Desativado' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Desativado' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
+        <ng-template geoRowActions let-row>
           @if (podeEscrever) {
-            <span class="ces-table-actions">
-              <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-                size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+            <span class="geo-table-actions">
+              <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+                size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
             </span>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? config.dialogEditar : config.dialogNovo"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? config.dialogEditar : config.dialogNovo"
       [description]="emEdicao()?.nome" [dirty]="alterado()" size="md">
-      <ces-form-section [title]="config.colunaNome" [icon]="config.icone">
-        <ces-text-input [label]="config.nomeLabel" [required]="true" [(value)]="nome" [maxlength]="120" [placeholder]="config.nomePlaceholder"
-          [description]="config.nomeAjuda" [error]="tentouSalvar() && !nome().trim() ? 'Campo obrigatório.' : undefined"></ces-text-input>
-        <ces-textarea label="Descrição" [(value)]="descricao" [rows]="3" [maxlength]="255" [showOptional]="true"
-          placeholder="Explique quando esta opção deve ser usada"></ces-textarea>
-        <div class="ces-form-grid">
-          <ces-text-input label="Código externo" [(value)]="codigo" [maxlength]="30" [showOptional]="true" placeholder="Ex.: código eSocial"
-            description="Só quando houver referência normativa ou de integração."></ces-text-input>
-          <ces-number-input label="Ordem de exibição" [(value)]="ordem" [min]="0" [useGrouping]="false" description="Menores números aparecem primeiro."></ces-number-input>
+      <geo-form-section [title]="config.colunaNome" [icon]="config.icone">
+        <geo-text-input [label]="config.nomeLabel" [required]="true" [(value)]="nome" [maxlength]="120" [placeholder]="config.nomePlaceholder"
+          [description]="config.nomeAjuda" [error]="tentouSalvar() && !nome().trim() ? 'Campo obrigatório.' : undefined"></geo-text-input>
+        <geo-textarea label="Descrição" [(value)]="descricao" [rows]="3" [maxlength]="255" [showOptional]="true"
+          placeholder="Explique quando esta opção deve ser usada"></geo-textarea>
+        <div class="geo-form-grid">
+          <geo-text-input label="Código externo" [(value)]="codigo" [maxlength]="30" [showOptional]="true" placeholder="Ex.: código eSocial"
+            description="Só quando houver referência normativa ou de integração."></geo-text-input>
+          <geo-number-input label="Ordem de exibição" [(value)]="ordem" [min]="0" [useGrouping]="false" description="Menores números aparecem primeiro."></geo-number-input>
         </div>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : config.botaoCadastrar" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : config.botaoCadastrar" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda [titulo]="config.titulo" [entidadePlural]="config.titulo.toLowerCase()" artigoPlural="os"
       [busca]="config.colunaNome.toLowerCase() + ', descrição ou código'" [rotuloNovo]="config.entityLabel" [podeCriar]="podeEscrever">
@@ -165,16 +165,16 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
 export class CatalogosSstComponent {
   private readonly sst = inject(SstService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   protected readonly podeEscrever = inject(AuthService).currentUser()?.permissoes?.includes('sst:catalogo:write') ?? false;
 
   protected readonly tipo = inject(ActivatedRoute).snapshot.data['tipoCatalogo'] as TipoCatalogoSst;
   protected readonly config = CATALOGO_SST_PAGE_CONFIG[this.tipo];
   protected readonly situacoes = SITUACOES;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: `sst-catalogo-${this.tipo}`,
-    filters: { ativo: cesFilter.value<boolean | null>(true, { label: 'Situação', param: 'situacao', options: () => SITUACOES }) },
+    filters: { ativo: geoFilter.value<boolean | null>(true, { label: 'Situação', param: 'situacao', options: () => SITUACOES }) },
     sort: [{ key: 'ordem', direction: 'asc' }]
   });
   protected readonly resultado = this.lista.results<CatalogoSstResponse>(
@@ -184,7 +184,7 @@ export class CatalogosSstComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.sst.listarCatalogosSst({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<CatalogoSstResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<CatalogoSstResponse>[] = [
     { key: 'nome', header: this.config.colunaNome, type: 'custom', priority: 1, sortField: 'nome', value: (c) => c.nome, display: (c) => `${c.nome} ${c.descricao ?? ''}` },
     { key: 'codigo', header: 'Código externo', display: (c) => c.codigo || '—' },
     { key: 'ativo', header: 'Situação', type: 'custom', priority: 1, value: (c) => c.ativo, display: (c) => (c.ativo ? 'Ativo' : 'Desativado') },

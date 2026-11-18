@@ -1,9 +1,9 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { MaterialResponse, MotivoMovimentacao, MovimentacaoItemResponse, TipoMovimentacao } from '../../core/models/almoxarifado.models';
 
 interface ApresentacaoTipo {
   readonly rotulo: string;
-  readonly tom: CesTone;
+  readonly tom: GeoTone;
   readonly icone: string;
 }
 
@@ -23,7 +23,7 @@ export function rotuloTipoMovimentacao(tipo?: string | null): string {
   return TIPOS_MOVIMENTACAO[tipo as TipoMovimentacao]?.rotulo ?? (tipo ? tipo.replace(/_/g, ' ') : '—');
 }
 
-export function tomTipoMovimentacao(tipo?: string | null): CesTone {
+export function tomTipoMovimentacao(tipo?: string | null): GeoTone {
   return TIPOS_MOVIMENTACAO[tipo as TipoMovimentacao]?.tom ?? 'neutral';
 }
 
@@ -59,7 +59,7 @@ export function rotuloMotivo(motivo?: string | null): string {
   return MOTIVOS_MOVIMENTACAO.find((m) => m.value === motivo)?.label ?? '—';
 }
 
-const TOM_CONDICAO: Record<string, CesTone> = {
+const TOM_CONDICAO: Record<string, GeoTone> = {
   NOVO: 'neutral',
   USADO: 'info',
   RECUPERADO: 'brand',
@@ -83,7 +83,7 @@ export function iconeCondicao(condicao?: string | null): string {
   return ICONE_CONDICAO[condicao || 'NOVO'] ?? 'pi-box';
 }
 
-export function tomCondicao(condicao?: string | null): CesTone {
+export function tomCondicao(condicao?: string | null): GeoTone {
   return TOM_CONDICAO[condicao || 'NOVO'] ?? 'neutral';
 }
 

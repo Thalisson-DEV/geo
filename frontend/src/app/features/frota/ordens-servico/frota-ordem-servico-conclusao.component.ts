@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked, viewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesMultiSelectComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoMultiSelectComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { forkJoin } from 'rxjs';
 import {
   FornecedorFrota,
@@ -47,96 +47,96 @@ export type ModoConclusao = 'concluir' | 'completar';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesMultiSelectComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoMultiSelectComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer #drawer [(visible)]="visivel" [title]="titulo()" [description]="subtitulo()"
+    <geo-form-drawer #drawer [(visible)]="visivel" [title]="titulo()" [description]="subtitulo()"
       [dirty]="alterado()" [loading]="salvando()" size="lg">
       <!-- Só com o drawer aberto: fechar destrói os datepickers e o painel que eles anexam ao body. -->
       @if (visivel()) {
       @if (valorAprovado() !== null) {
-        <ces-callout tone="info" [dense]="true">
+        <geo-callout tone="info" [dense]="true">
           Orçamentos aprovados no financeiro somam {{ moeda(valorAprovado()!) }}.
-        </ces-callout>
+        </geo-callout>
       }
       @if (modo() === 'concluir') {
-        <ces-form-section title="Execução" icon="pi pi-clock">
-          <div class="ces-form-grid">
-            <ces-datepicker label="Início real" [required]="true" [(value)]="inicio" [showTime]="true" [maxDate]="agora"
-              [error]="erros()['inicio']"></ces-datepicker>
-            <ces-datepicker label="Fim real" [required]="true" [(value)]="fim" [showTime]="true" [maxDate]="agora"
-              [error]="erros()['fim']"></ces-datepicker>
+        <geo-form-section title="Execução" icon="pi pi-clock">
+          <div class="geo-form-grid">
+            <geo-datepicker label="Início real" [required]="true" [(value)]="inicio" [showTime]="true" [maxDate]="agora"
+              [error]="erros()['inicio']"></geo-datepicker>
+            <geo-datepicker label="Fim real" [required]="true" [(value)]="fim" [showTime]="true" [maxDate]="agora"
+              [error]="erros()['fim']"></geo-datepicker>
             @if (ordem()?.ordem?.veicular !== false) {
-              <ces-number-input [label]="horas() ? 'Horímetro na entrega' : 'KM na entrega'" [(value)]="km" [min]="0"
+              <geo-number-input [label]="horas() ? 'Horímetro na entrega' : 'KM na entrega'" [(value)]="km" [min]="0"
                 [suffix]="horas() ? ' h' : ' km'" [showOptional]="!preventiva()" [required]="preventiva()" [description]="kmDescricao()"
-                [error]="erros()['km']"></ces-number-input>
+                [error]="erros()['km']"></geo-number-input>
             }
           </div>
-        </ces-form-section>
+        </geo-form-section>
       } @else if (ordem()?.ordem; as os) {
-        <ces-callout tone="neutral" icon="pi pi-check-circle" [dense]="true">
+        <geo-callout tone="neutral" icon="pi pi-check-circle" [dense]="true">
           Serviço de {{ os.inicioReal | date: 'dd/MM/yyyy HH:mm' }} a {{ os.fimReal | date: 'dd/MM/yyyy HH:mm' }}.
           Peças e serviços lançados na aba Execução entram no valor.
-        </ces-callout>
+        </geo-callout>
       }
 
-      <ces-form-section title="Serviço realizado" icon="pi pi-wrench">
-        <ces-select label="Causa" [required]="true" [options]="causas()" [(value)]="causa" [error]="erros()['causa']"
-          [description]="causaSugerida() ? 'Sugerida pelo motivo informado na abertura.' : 'Por que a manutenção aconteceu.'"></ces-select>
-        <ces-multiselect label="Itens de manutenção" [required]="true" [options]="itensOpcoes()" [(value)]="idsItem" display="chip"
+      <geo-form-section title="Serviço realizado" icon="pi pi-wrench">
+        <geo-select label="Causa" [required]="true" [options]="causas()" [(value)]="causa" [error]="erros()['causa']"
+          [description]="causaSugerida() ? 'Sugerida pelo motivo informado na abertura.' : 'Por que a manutenção aconteceu.'"></geo-select>
+        <geo-multiselect label="Itens de manutenção" [required]="true" [options]="itensOpcoes()" [(value)]="idsItem" display="chip"
           [maxSelectedLabels]="6" description="Ajuste se o serviço feito foi diferente do previsto na abertura."
-          [error]="erros()['idsItem']"></ces-multiselect>
-        <ces-textarea label="Descrição do serviço" [required]="true" [(value)]="descricaoServico" [rows]="3" [maxlength]="4000"
+          [error]="erros()['idsItem']"></geo-multiselect>
+        <geo-textarea label="Descrição do serviço" [required]="true" [(value)]="descricaoServico" [rows]="3" [maxlength]="4000"
           [description]="descricaoVeioDaAbertura() ? 'Veio da abertura da OS. Ajuste só se o serviço foi diferente.' : undefined"
-          [error]="erros()['descricaoServico']"></ces-textarea>
-        <ces-textarea label="Itens substituídos" [(value)]="itensSubstituidos" [rows]="2" [maxlength]="4000" [showOptional]="true"
-          placeholder="Peças trocadas, quantidades, marcas"></ces-textarea>
-      </ces-form-section>
+          [error]="erros()['descricaoServico']"></geo-textarea>
+        <geo-textarea label="Itens substituídos" [(value)]="itensSubstituidos" [rows]="2" [maxlength]="4000" [showOptional]="true"
+          placeholder="Peças trocadas, quantidades, marcas"></geo-textarea>
+      </geo-form-section>
 
-      <ces-form-section title="Oficina e valor" icon="pi pi-briefcase">
-        <div class="ces-form-grid">
-          <ces-select label="Onde foi feito" [required]="true" [options]="tiposOficina()" [(value)]="tipoOficina"></ces-select>
+      <geo-form-section title="Oficina e valor" icon="pi pi-briefcase">
+        <div class="geo-form-grid">
+          <geo-select label="Onde foi feito" [required]="true" [options]="tiposOficina()" [(value)]="tipoOficina"></geo-select>
           @if (tipoOficina() === 'EXTERNA') {
-            <ces-select label="Fornecedor" [options]="fornecedoresOpcoes()" [(value)]="idFornecedor" [filter]="true" [clearable]="true"
-              [error]="erros()['oficina']"></ces-select>
+            <geo-select label="Fornecedor" [options]="fornecedoresOpcoes()" [(value)]="idFornecedor" [filter]="true" [clearable]="true"
+              [error]="erros()['oficina']"></geo-select>
           }
           <!-- Na externa, fornecedor ou nome: um dos dois é obrigatório, então nenhum se diz "opcional". -->
-          <ces-text-input [label]="tipoOficina() === 'EXTERNA' ? 'Oficina não cadastrada' : 'Oficina'" [(value)]="oficinaNome"
+          <geo-text-input [label]="tipoOficina() === 'EXTERNA' ? 'Oficina não cadastrada' : 'Oficina'" [(value)]="oficinaNome"
             [maxlength]="150" [showOptional]="tipoOficina() !== 'EXTERNA'"
-            [description]="tipoOficina() === 'EXTERNA' ? 'Ou escolha o fornecedor ao lado.' : undefined"></ces-text-input>
+            [description]="tipoOficina() === 'EXTERNA' ? 'Ou escolha o fornecedor ao lado.' : undefined"></geo-text-input>
           @if (totais()?.calculado) {
-            <ces-number-input label="Valor total" mode="currency" [value]="totais()!.total" [readonly]="true"
-              description="Calculado pelos serviços e peças da aba Execução."></ces-number-input>
+            <geo-number-input label="Valor total" mode="currency" [value]="totais()!.total" [readonly]="true"
+              description="Calculado pelos serviços e peças da aba Execução."></geo-number-input>
           } @else {
-            <ces-number-input label="Valor total" mode="currency" [(value)]="valorTotal" [min]="0" [showOptional]="true"
-              description="Sem serviços nem peças lançados, vale este valor. Em branco, a OS fica com valores pendentes."></ces-number-input>
+            <geo-number-input label="Valor total" mode="currency" [(value)]="valorTotal" [min]="0" [showOptional]="true"
+              description="Sem serviços nem peças lançados, vale este valor. Em branco, a OS fica com valores pendentes."></geo-number-input>
           }
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
       @if (faltaValor().length) {
-        <ces-callout tone="warning" icon="pi pi-hourglass" [dense]="true"
+        <geo-callout tone="warning" icon="pi pi-hourglass" [dense]="true"
           [title]="modo() === 'concluir' ? 'A OS vai ficar com valores pendentes' : 'Ainda faltam valores'">
           Falta o valor de: {{ faltaValor().join('; ') }}. Lance na aba Execução quando tiver
           (ou marque como sem custo). Com o último valor, a OS fica finalizada sozinha.
-        </ces-callout>
+        </geo-callout>
       }
       }
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="rotuloSalvar()" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="rotuloSalvar()" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaOrdemServicoConclusaoComponent {
@@ -195,11 +195,11 @@ export class FrotaOrdemServicoConclusaoComponent {
       ...d.pecas.filter((p) => !p.subtotal && !p.semCusto).map((p) => p.descricao)
     ];
   });
-  private readonly drawer = viewChild.required<CesFormDrawerComponent>('drawer');
+  private readonly drawer = viewChild.required<GeoFormDrawerComponent>('drawer');
   /** Na preventiva o KM da entrega recomeça o ciclo do plano: vem preenchido com a leitura atual e é obrigatório. */
   protected readonly preventiva = computed(() => this.ordem()?.ordem.tipoManutencao === 'PREVENTIVA' && this.ordem()?.ordem.veicular !== false);
   protected readonly causaSugerida = signal(false);
-  protected readonly causas = computed<CesSelectOption<CausaManutencao>[]>(() =>
+  protected readonly causas = computed<GeoSelectOption<CausaManutencao>[]>(() =>
     (this.opcoes()?.causasManutencao ?? []).map((o) => ({ label: o.rotulo, value: o.valor }))
   );
 
@@ -210,13 +210,13 @@ export class FrotaOrdemServicoConclusaoComponent {
   private readonly inicial = signal('');
   protected readonly alterado = computed(() => this.assinatura() !== this.inicial());
 
-  protected readonly itensOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly itensOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.itens().map((i) => ({ label: `${i.nome} (${i.naturezaRotulo})`, value: i.id }))
   );
-  protected readonly fornecedoresOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly fornecedoresOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.fornecedores().map((f) => ({ label: f.nome, value: f.id }))
   );
-  protected readonly tiposOficina = computed<CesSelectOption<TipoOficina>[]>(() =>
+  protected readonly tiposOficina = computed<GeoSelectOption<TipoOficina>[]>(() =>
     (this.opcoes()?.tiposOficina ?? []).map((o) => ({ label: o.rotulo, value: o.valor }))
   );
   protected readonly valorAprovado = computed(() => {

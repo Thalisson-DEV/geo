@@ -22,7 +22,7 @@ public class ExpurgoSessoesService {
 
     private final SessaoAutenticacaoRepository repository;
 
-    @Scheduled(cron = "${ces.security.sessao.expurgo-cron:0 15 4 * * *}")
+    @Scheduled(cron = "${geo.security.sessao.expurgo-cron:0 15 4 * * *}")
     @Transactional
     public void expurgar() {
         int removidas = repository.expurgarEncerradasAntesDe(OffsetDateTime.now().minusDays(RETENCAO_DIAS));

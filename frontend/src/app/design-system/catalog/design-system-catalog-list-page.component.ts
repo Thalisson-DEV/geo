@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { Observable, delay, of } from 'rxjs';
-import { CesDataTableColumn, CesDataTableComponent, CesCellDirective } from '../data';
-import { CesMultiSelectComponent, CesSelectComponent, CesSelectOption, CesTextInputComponent } from '../forms';
-import { CesFormDrawerComponent } from '../forms/form-kit';
-import { CesFilterPanelComponent } from '../patterns/filter-panel';
-import { CesImportDrawerComponent, CesImportRow, cesImportStatus } from '../patterns/import-drawer';
-import { CesListShortcutsDirective } from '../patterns/list-shortcuts';
-import { CesListRequest, cesFilter, cesListState } from '../patterns/list-state';
-import { CesPageHeaderComponent } from '../patterns/page-header';
-import { CesButtonComponent, CesStatusComponent } from '../primitives';
+import { GeoDataTableColumn, GeoDataTableComponent, GeoCellDirective } from '../data';
+import { GeoMultiSelectComponent, GeoSelectComponent, GeoSelectOption, GeoTextInputComponent } from '../forms';
+import { GeoFormDrawerComponent } from '../forms/form-kit';
+import { GeoFilterPanelComponent } from '../patterns/filter-panel';
+import { GeoImportDrawerComponent, GeoImportRow, geoImportStatus } from '../patterns/import-drawer';
+import { GeoListShortcutsDirective } from '../patterns/list-shortcuts';
+import { GeoListRequest, geoFilter, geoListState } from '../patterns/list-state';
+import { GeoPageHeaderComponent } from '../patterns/page-header';
+import { GeoButtonComponent, GeoStatusComponent } from '../primitives';
 
 interface Registro {
   id: string;
@@ -18,12 +18,12 @@ interface Registro {
   km: number;
 }
 
-const BASES: CesSelectOption<string>[] = [
+const BASES: GeoSelectOption<string>[] = [
   { label: 'Feira de Santana', value: 'FSA' },
   { label: 'Salvador', value: 'SSA' },
   { label: 'Vitória da Conquista', value: 'VDC' },
 ];
-const SITUACOES: CesSelectOption<Registro['situacao']>[] = [
+const SITUACOES: GeoSelectOption<Registro['situacao']>[] = [
   { label: 'Operando', value: 'OPERANDO' },
   { label: 'Em manutenção', value: 'MANUTENCAO' },
   { label: 'Parado', value: 'PARADO' },
@@ -36,7 +36,7 @@ const REGISTROS: Registro[] = Array.from({ length: 240 }, (_, i) => ({
   km: 12000 + i * 731,
 }));
 
-interface LinhaImportada extends CesImportRow {
+interface LinhaImportada extends GeoImportRow {
   placa: string;
   base: string;
   observacao: string;
@@ -56,7 +56,7 @@ const LINHAS_IMPORTADAS: LinhaImportada[] = Array.from({ length: 6 }, (_, i) => 
 type Filtros = { bases: string[]; situacao: Registro['situacao'] | null };
 
 /** Servidor simulado: filtra, busca, ordena e pagina com atraso de rede. */
-function servidor(pedido: CesListRequest<Filtros>): Observable<{ content: Registro[]; page: { totalElements: number } }> {
+function servidor(pedido: GeoListRequest<Filtros>): Observable<{ content: Registro[]; page: { totalElements: number } }> {
   const termo = pedido.query.toLocaleLowerCase('pt-BR');
   let linhas = REGISTROS.filter(
     (r) =>
@@ -74,26 +74,26 @@ function servidor(pedido: CesListRequest<Filtros>): Observable<{ content: Regist
 
 /** Template de referência do padrão de listagem (docs/design-system/components/list-page.md). */
 @Component({
-  selector: 'ces-catalog-list-page',
+  selector: 'geo-catalog-list-page',
   standalone: true,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesImportDrawerComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoImportDrawerComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo.set(true)">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo.set(true)">
+      <geo-page-header
         title="Veículos"
         icon="pi pi-car"
         description="Abre direto nos dados. Filtros recolhidos com resumo, busca única no servidor e cadastro em drawer."
@@ -101,12 +101,12 @@ function servidor(pedido: CesListRequest<Filtros>): Observable<{ content: Regist
         [favoritable]="false"
         [breadcrumb]="[{ label: 'Catálogo' }, { label: 'Listagem' }]"
       >
-        <ces-status status tone="info" icon="pi-info-circle">Servidor simulado</ces-status>
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importando.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo veículo" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo.set(true)"></ces-button>
-      </ces-page-header>
+        <geo-status status tone="info" icon="pi-info-circle">Servidor simulado</geo-status>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importando.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo veículo" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo.set(true)"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel
+      <geo-filter-panel
         #painel
         storageKey="catalogo-listagem"
         [activeCount]="lista.activeCount()"
@@ -116,13 +116,13 @@ function servidor(pedido: CesListRequest<Filtros>): Observable<{ content: Regist
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base" [options]="bases" [(value)]="lista.filters.bases" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Situação" [options]="situacoes" [(value)]="lista.filters.situacao" [clearable]="true" placeholder="Todas"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base" [options]="bases" [(value)]="lista.filters.bases" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Situação" [options]="situacoes" [(value)]="lista.filters.situacao" [clearable]="true" placeholder="Todas"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Veículos"
         mode="server"
         storageKey="catalogo-listagem"
@@ -151,45 +151,45 @@ function servidor(pedido: CesListRequest<Filtros>): Observable<{ content: Regist
         (emptyAction)="novo.set(true)"
         (rowActivate)="novo.set(true)"
       >
-        <ces-button selection-actions size="sm" variant="outline" icon="pi pi-wrench" label="Enviar para manutenção" (pressed)="selecionados.set([])"></ces-button>
-        <ng-template cesCell="placa" let-row>
-          <span class="ces-cell-strong">{{ row.placa }}</span>
-          <span class="ces-cell-muted">{{ nomeBase(row.base) }}</span>
+        <geo-button selection-actions size="sm" variant="outline" icon="pi pi-wrench" label="Enviar para manutenção" (pressed)="selecionados.set([])"></geo-button>
+        <ng-template geoCell="placa" let-row>
+          <span class="geo-cell-strong">{{ row.placa }}</span>
+          <span class="geo-cell-muted">{{ nomeBase(row.base) }}</span>
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="row.situacao === 'OPERANDO' ? 'success' : row.situacao === 'PARADO' ? 'danger' : 'warning'" [icon]="row.situacao === 'OPERANDO' ? 'pi-check-circle' : row.situacao === 'PARADO' ? 'pi-pause-circle' : 'pi-wrench'">
+        <ng-template geoCell="situacao" let-row>
+          <geo-status [tone]="row.situacao === 'OPERANDO' ? 'success' : row.situacao === 'PARADO' ? 'danger' : 'warning'" [icon]="row.situacao === 'OPERANDO' ? 'pi-check-circle' : row.situacao === 'PARADO' ? 'pi-pause-circle' : 'pi-wrench'">
             {{ nomeSituacao(row.situacao) }}
-          </ces-status>
+          </geo-status>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-import-drawer [(visible)]="importando" title="Importar veículos"
+    <geo-import-drawer [(visible)]="importando" title="Importar veículos"
       description="Exemplo: selecione ou arraste qualquer .csv para carregar a pré-visualização simulada."
       [rows]="linhasImportadas()" (fileSelected)="linhasImportadas.set(exemploImportacao)"
       (cleared)="linhasImportadas.set([])" (processed)="linhasImportadas.set([]); importando.set(false)">
-      <ces-select import-params label="Base de destino" [options]="bases" placeholder="Selecione a base"
-        description="Parâmetro da importação (slot import-params), escolhido antes do arquivo."></ces-select>
+      <geo-select import-params label="Base de destino" [options]="bases" placeholder="Selecione a base"
+        description="Parâmetro da importação (slot import-params), escolhido antes do arquivo."></geo-select>
       @if (linhasImportadas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao" [rows]="linhasImportadas()">
-          <ng-template cesCell="status" let-row>
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao" [rows]="linhasImportadas()">
+          <ng-template geoCell="status" let-row>
             @let situacao = situacaoImportacao(row.status);
-            <ces-status [tone]="situacao.tone" [icon]="situacao.icon">{{ situacao.label }}</ces-status>
+            <geo-status [tone]="situacao.tone" [icon]="situacao.icon">{{ situacao.label }}</geo-status>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
-    <ces-form-drawer [(visible)]="novo" title="Novo veículo" description="Exemplo de cadastro em drawer." size="md">
-      <div class="ces-form-grid">
-        <ces-text-input label="Placa" [required]="true"></ces-text-input>
-        <ces-select label="Base" [options]="bases" [required]="true"></ces-select>
+    <geo-form-drawer [(visible)]="novo" title="Novo veículo" description="Exemplo de cadastro em drawer." size="md">
+      <div class="geo-form-grid">
+        <geo-text-input label="Placa" [required]="true"></geo-text-input>
+        <geo-select label="Base" [options]="bases" [required]="true"></geo-select>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="novo.set(false)"></ces-button>
-        <ces-button label="Cadastrar veículo" (pressed)="novo.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="novo.set(false)"></geo-button>
+        <geo-button label="Cadastrar veículo" (pressed)="novo.set(false)"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
 })
 export class DesignSystemCatalogListPageComponent {
@@ -199,8 +199,8 @@ export class DesignSystemCatalogListPageComponent {
   protected readonly importando = signal(false);
   protected readonly linhasImportadas = signal<readonly LinhaImportada[]>([]);
   protected readonly exemploImportacao = LINHAS_IMPORTADAS;
-  protected readonly situacaoImportacao = cesImportStatus;
-  protected readonly colunasImportacao: CesDataTableColumn<LinhaImportada>[] = [
+  protected readonly situacaoImportacao = geoImportStatus;
+  protected readonly colunasImportacao: GeoDataTableColumn<LinhaImportada>[] = [
     { key: 'linha', header: 'Linha', type: 'integer' },
     { key: 'status', header: 'Situação', type: 'custom', value: (r) => r.status },
     { key: 'placa', header: 'Placa' },
@@ -210,18 +210,18 @@ export class DesignSystemCatalogListPageComponent {
   ];
   protected readonly selecionados = signal<readonly Registro[]>([]);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'catalogo-listagem',
     url: false,
     filters: {
-      bases: cesFilter.list<string>([], { label: 'Base', itemLabel: (v) => this.nomeBase(v), countLabel: (n) => `${n} selecionadas` }),
-      situacao: cesFilter.value<Registro['situacao'] | null>(null, { label: 'Situação', options: () => SITUACOES }),
+      bases: geoFilter.list<string>([], { label: 'Base', itemLabel: (v) => this.nomeBase(v), countLabel: (n) => `${n} selecionadas` }),
+      situacao: geoFilter.value<Registro['situacao'] | null>(null, { label: 'Situação', options: () => SITUACOES }),
     },
     sort: [{ key: 'placa', direction: 'asc' }],
   });
   protected readonly resultado = this.lista.results<Registro>(servidor);
 
-  protected readonly colunas: CesDataTableColumn<Registro>[] = [
+  protected readonly colunas: GeoDataTableColumn<Registro>[] = [
     { key: 'placa', header: 'Placa', type: 'custom', priority: 1, sortField: 'placa', value: (r) => r.placa },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, sortField: 'situacao', value: (r) => r.situacao, display: (r) => this.nomeSituacao(r.situacao) },
     { key: 'km', header: 'KM atual', type: 'integer', sortField: 'km' },

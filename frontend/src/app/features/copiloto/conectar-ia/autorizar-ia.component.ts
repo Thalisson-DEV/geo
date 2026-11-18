@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesIconButtonComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoIconButtonComponent
+} from '@geo/ui';
 import { AutorizacaoIaPrevia, AutorizarIaRequest } from '../../../core/models/conexoes-ia.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -21,7 +21,7 @@ import { ThemeService } from '../../../core/services/theme.service';
   selector: 'app-autorizar-ia',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, CesBooleanControlComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent],
+  imports: [GeoAsyncStateComponent, GeoBooleanControlComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent],
   styleUrl: './autorizar-ia.component.css',
   templateUrl: './autorizar-ia.component.html'
 })

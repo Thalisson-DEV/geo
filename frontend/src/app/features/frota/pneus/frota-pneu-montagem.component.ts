@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { DragDropModule } from 'primeng/dragdrop';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   AlmoxarifadoFrota,
   DestinoPneu,
@@ -65,14 +65,14 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DragDropModule,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     FrotaPneuDiagramaComponent
   ],
   styles: `
@@ -80,73 +80,73 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
     .topo { display: grid; grid-template-columns: minmax(14rem, 22rem) repeat(2, minmax(10rem, 14rem)) 1fr; gap: 0.75rem; align-items: start; }
     .topo__acoes { display: flex; justify-content: flex-end; gap: 0.5rem; flex-wrap: wrap; padding-top: 1.35rem; }
     .area { display: grid; grid-template-columns: minmax(15rem, 1fr) minmax(19rem, 1.35fr) minmax(16rem, 1fr); gap: 1rem; margin-top: 1rem; align-items: start; }
-    .painel { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface);
-      box-shadow: var(--ces-shadow-sm); min-width: 0; }
-    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--ces-font-body); font-weight: 700; }
-    .painel__sub { margin: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .painel { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface);
+      box-shadow: var(--geo-shadow-sm); min-width: 0; }
+    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--geo-font-body); font-weight: 700; }
+    .painel__sub { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .estoque { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 0.5rem; max-height: 30rem; overflow: auto; padding: 0.25rem;
-      border-radius: var(--ces-radius-md); transition: background var(--ces-duration-fast) var(--ces-ease-standard); }
-    .estoque--alvo { background: var(--ces-brand-soft); outline: 2px dashed var(--ces-brand); }
+      border-radius: var(--geo-radius-md); transition: background var(--geo-duration-fast) var(--geo-ease-standard); }
+    .estoque--alvo { background: var(--geo-brand-soft); outline: 2px dashed var(--geo-brand); }
     .ficha { position: relative; display: grid; gap: 0.15rem; justify-items: start; padding: 0.55rem 0.55rem 0.55rem 0.9rem; text-align: left; cursor: grab;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); color: var(--ces-foreground); font: inherit; }
-    .ficha:hover { border-color: var(--ces-brand); box-shadow: var(--ces-shadow-sm); }
-    .ficha:focus-visible { outline: none; box-shadow: var(--ces-focus-ring); }
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; }
+    .ficha:hover { border-color: var(--geo-brand); box-shadow: var(--geo-shadow-sm); }
+    .ficha:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); }
     .ficha:active { cursor: grabbing; }
-    .ficha[aria-pressed='true'] { border-color: var(--ces-brand); box-shadow: 0 0 0 2px var(--ces-brand); }
+    .ficha[aria-pressed='true'] { border-color: var(--geo-brand); box-shadow: 0 0 0 2px var(--geo-brand); }
     .ficha__faixa { position: absolute; left: 0.3rem; top: 0.45rem; bottom: 0.45rem; width: 0.25rem; border-radius: 999px; }
-    .ficha__faixa[data-tom='danger'] { background: var(--ces-danger); }
-    .ficha__faixa[data-tom='warning'] { background: var(--ces-warning); }
-    .ficha__faixa[data-tom='success'] { background: var(--ces-success); }
-    .ficha__faixa[data-tom='neutral'] { background: var(--ces-foreground-subtle); }
+    .ficha__faixa[data-tom='danger'] { background: var(--geo-danger); }
+    .ficha__faixa[data-tom='warning'] { background: var(--geo-warning); }
+    .ficha__faixa[data-tom='success'] { background: var(--geo-success); }
+    .ficha__faixa[data-tom='neutral'] { background: var(--geo-foreground-subtle); }
     .ficha__fogo { font-weight: 800; letter-spacing: 0.03em; }
-    .ficha__info { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); line-height: 1.25; }
-    .ficha__saindo { font-size: 0.7rem; font-weight: 700; color: var(--ces-brand); }
-    .ficha__aviso { font-size: 0.7rem; font-weight: 700; color: var(--ces-warning-text); }
-    .estoque--escolhendo .ficha { border-color: var(--ces-brand); background: var(--ces-brand-soft); }
-    .guia { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; min-height: 2rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .guia--ativa { padding: 0.35rem 0.35rem 0.35rem 0.7rem; border-radius: var(--ces-radius-md); background: var(--ces-brand-soft); color: var(--ces-foreground); font-weight: 600; }
+    .ficha__info { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); line-height: 1.25; }
+    .ficha__saindo { font-size: 0.7rem; font-weight: 700; color: var(--geo-brand); }
+    .ficha__aviso { font-size: 0.7rem; font-weight: 700; color: var(--geo-warning-text); }
+    .estoque--escolhendo .ficha { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
+    .guia { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; min-height: 2rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .guia--ativa { padding: 0.35rem 0.35rem 0.35rem 0.7rem; border-radius: var(--geo-radius-md); background: var(--geo-brand-soft); color: var(--geo-foreground); font-weight: 600; }
     /* Telas estreitas empilham os painéis: a gravação fica sempre à mão enquanto há mudança. */
     .barra-salvar { display: none; }
     @media (max-width: 1200px) {
       .barra-salvar { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 1rem; padding: 0.6rem 0.75rem;
-        border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); box-shadow: var(--ces-shadow-md); }
-      .barra-salvar span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+        border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); box-shadow: var(--geo-shadow-md); }
+      .barra-salvar span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     }
-    .estado { margin-top: 1rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); }
+    .estado { margin-top: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
     .avisos { margin: 0; padding-left: 1rem; }
     .zonas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
-    .zona { display: grid; gap: 0.15rem; justify-items: start; padding: 0.7rem; text-align: left; border: 2px dashed var(--ces-border-strong);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); color: var(--ces-foreground); font: inherit; cursor: pointer;
-      transition: border-color var(--ces-duration-fast) var(--ces-ease-standard), background var(--ces-duration-fast) var(--ces-ease-standard); }
-    .zona:hover, .zona--alvo { border-color: var(--ces-brand); background: var(--ces-brand-soft); }
-    .zona:focus-visible { outline: none; box-shadow: var(--ces-focus-ring); }
+    .zona { display: grid; gap: 0.15rem; justify-items: start; padding: 0.7rem; text-align: left; border: 2px dashed var(--geo-border-strong);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); color: var(--geo-foreground); font: inherit; cursor: pointer;
+      transition: border-color var(--geo-duration-fast) var(--geo-ease-standard), background var(--geo-duration-fast) var(--geo-ease-standard); }
+    .zona:hover, .zona--alvo { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
+    .zona:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); }
     .zona:disabled { cursor: default; opacity: 0.6; }
-    .zona--destino { border-color: var(--ces-brand); border-style: solid; }
+    .zona--destino { border-color: var(--geo-brand); border-style: solid; }
     .zona--indisponivel { opacity: 0.55; }
-    .zona[data-tipo='DESCARTE']:hover, .zona[data-tipo='DESCARTE'].zona--alvo { border-color: var(--ces-danger); background: var(--ces-danger-soft); }
+    .zona[data-tipo='DESCARTE']:hover, .zona[data-tipo='DESCARTE'].zona--alvo { border-color: var(--geo-danger); background: var(--geo-danger-soft); }
     .zona__titulo { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; }
-    .zona__dica { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .zona__qtd { font-size: var(--ces-font-caption); font-weight: 700; color: var(--ces-brand); }
+    .zona__dica { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .zona__qtd { font-size: var(--geo-font-caption); font-weight: 700; color: var(--geo-brand); }
     .selecionado dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem 0.75rem; margin: 0; }
-    .selecionado dt { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .selecionado dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .selecionado dd { margin: 0; font-weight: 600; }
     .mudancas { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
-    .mudanca { display: grid; gap: 0.45rem; padding: 0.6rem 0.7rem; border: 1px solid var(--ces-border); border-left: 3px solid var(--ces-brand);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
+    .mudanca { display: grid; gap: 0.45rem; padding: 0.6rem 0.7rem; border: 1px solid var(--geo-border); border-left: 3px solid var(--geo-brand);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
     .mudanca__linha { display: flex; align-items: center; gap: 0.5rem; justify-content: space-between; }
-    .mudanca__texto { min-width: 0; font-size: var(--ces-font-caption); }
-    .mudanca__texto strong { font-size: var(--ces-font-body); }
+    .mudanca__texto { min-width: 0; font-size: var(--geo-font-caption); }
+    .mudanca__texto strong { font-size: var(--geo-font-body); }
     .rodape { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; }
     .diagrama-config { display: grid; gap: 1rem; }
     .modelos { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: 0.5rem; }
-    .modelo { display: grid; gap: 0.15rem; padding: 0.7rem; text-align: left; font: inherit; color: var(--ces-foreground); cursor: pointer;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-    .modelo:hover, .modelo[aria-pressed='true'] { border-color: var(--ces-brand); background: var(--ces-brand-soft); }
-    .modelo:focus-visible { outline: none; box-shadow: var(--ces-focus-ring); }
-    .modelo span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .modelo { display: grid; gap: 0.15rem; padding: 0.7rem; text-align: left; font: inherit; color: var(--geo-foreground); cursor: pointer;
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+    .modelo:hover, .modelo[aria-pressed='true'] { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
+    .modelo:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); }
+    .modelo span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .construtor { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-    .eixo-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.35rem 0.25rem 0.6rem; border: 1px solid var(--ces-border);
-      border-radius: 999px; font-size: var(--ces-font-caption); font-weight: 600; }
+    .eixo-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.35rem 0.25rem 0.6rem; border: 1px solid var(--geo-border);
+      border-radius: 999px; font-size: var(--geo-font-caption); font-weight: 600; }
     .config-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem); gap: 1rem; align-items: start; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (max-width: 1200px) { .area { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .area__diagrama { grid-column: 1 / -1; order: -1; } }
@@ -155,15 +155,15 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
   `,
   template: `
     <div class="topo">
-      <ces-select label="Veículo" [options]="veiculos()" [value]="idVeiculo()" (valueChange)="trocarVeiculo($event)" [filter]="true"
-        placeholder="Escolha a placa" [loading]="carregandoVeiculos()"></ces-select>
+      <geo-select label="Veículo" [options]="veiculos()" [value]="idVeiculo()" (valueChange)="trocarVeiculo($event)" [filter]="true"
+        placeholder="Escolha a placa" [loading]="carregandoVeiculos()"></geo-select>
       @if (veiculo()?.eixos && !configurando()) {
-        <ces-number-input [label]="veiculo()!.unidade === 'HORAS' ? 'Horímetro' : 'Km do veículo'" [(value)]="km" [min]="0" [error]="erroKm() ? 'Menor que o último registrado.' : undefined"
-          [description]="veiculo()!.kmAtual != null ? 'Último registrado: ' + formatarKm(veiculo()!.kmAtual, veiculo()!.unidade) : 'Sem leitura registrada'"></ces-number-input>
-        <ces-datepicker label="Quando" [(value)]="quando" [showTime]="true" [maxDate]="agora" description="Vazio: agora."></ces-datepicker>
+        <geo-number-input [label]="veiculo()!.unidade === 'HORAS' ? 'Horímetro' : 'Km do veículo'" [(value)]="km" [min]="0" [error]="erroKm() ? 'Menor que o último registrado.' : undefined"
+          [description]="veiculo()!.kmAtual != null ? 'Último registrado: ' + formatarKm(veiculo()!.kmAtual, veiculo()!.unidade) : 'Sem leitura registrada'"></geo-number-input>
+        <geo-datepicker label="Quando" [(value)]="quando" [showTime]="true" [maxDate]="agora" description="Vazio: agora."></geo-datepicker>
         <div class="topo__acoes">
           @if (podeEditar()) {
-            <ces-button variant="ghost" size="sm" icon="pi pi-sitemap" label="Alterar diagrama" (pressed)="configurar()"></ces-button>
+            <geo-button variant="ghost" size="sm" icon="pi pi-sitemap" label="Alterar diagrama" (pressed)="configurar()"></geo-button>
           }
         </div>
       }
@@ -172,13 +172,13 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
     <p class="sr" aria-live="polite">{{ anuncio() }}</p>
 
     @if (!idVeiculo()) {
-      <ces-async-state class="estado" state="empty" icon="pi-car" title="Escolha um veículo"
-        description="O diagrama mostra os pneus de cada posição. Arraste do estoque para montar, ou toque no pneu e depois na posição."></ces-async-state>
+      <geo-async-state class="estado" state="empty" icon="pi-car" title="Escolha um veículo"
+        description="O diagrama mostra os pneus de cada posição. Arraste do estoque para montar, ou toque no pneu e depois na posição."></geo-async-state>
     } @else if (carregando() && !veiculo()) {
-      <ces-async-state class="estado" state="loading" title="Carregando os pneus do veículo" description="Só um instante."></ces-async-state>
+      <geo-async-state class="estado" state="loading" title="Carregando os pneus do veículo" description="Só um instante."></geo-async-state>
     } @else if (erro()) {
-      <ces-async-state class="estado" state="error" title="Não foi possível carregar os pneus do veículo" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+      <geo-async-state class="estado" state="error" title="Não foi possível carregar os pneus do veículo" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
     } @else if (veiculo(); as v) {
       @if (!v.eixos || configurando()) {
         <section class="painel diagrama-config" style="margin-top: 1rem" aria-label="Diagrama de pneus do veículo">
@@ -199,30 +199,30 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
               <div class="construtor" role="group" aria-label="Eixos da frente para trás">
                 @for (e of eixosConfig(); track $index) {
                   <span class="eixo-chip">Eixo {{ $index + 1 }}
-                    <ces-button size="sm" variant="ghost" [label]="e === 'S' ? 'Simples' : 'Duplo'" [ariaLabel]="'Eixo ' + ($index + 1) + ' ' + (e === 'S' ? 'simples' : 'duplo') + '. Trocar'"
-                      (pressed)="alternarEixo($index)" [disabled]="!podeEditar()"></ces-button>
+                    <geo-button size="sm" variant="ghost" [label]="e === 'S' ? 'Simples' : 'Duplo'" [ariaLabel]="'Eixo ' + ($index + 1) + ' ' + (e === 'S' ? 'simples' : 'duplo') + '. Trocar'"
+                      (pressed)="alternarEixo($index)" [disabled]="!podeEditar()"></geo-button>
                     @if (eixosConfig().length > 1) {
-                      <ces-button size="sm" variant="ghost" icon="pi pi-times" [ariaLabel]="'Remover eixo ' + ($index + 1)" (pressed)="removerEixo($index)" [disabled]="!podeEditar()"></ces-button>
+                      <geo-button size="sm" variant="ghost" icon="pi pi-times" [ariaLabel]="'Remover eixo ' + ($index + 1)" (pressed)="removerEixo($index)" [disabled]="!podeEditar()"></geo-button>
                     }
                   </span>
                 }
                 @if (eixosConfig().length < 9) {
-                  <ces-button size="sm" variant="outline" icon="pi pi-plus" label="Eixo" (pressed)="adicionarEixo()" [disabled]="!podeEditar()"></ces-button>
+                  <geo-button size="sm" variant="outline" icon="pi pi-plus" label="Eixo" (pressed)="adicionarEixo()" [disabled]="!podeEditar()"></geo-button>
                 }
               </div>
               <div style="max-width: 12rem">
-                <ces-number-input label="Estepes" [(value)]="estepesConfigValor" [min]="0" [max]="4" [showButtons]="true" [disabled]="!podeEditar()"></ces-number-input>
+                <geo-number-input label="Estepes" [(value)]="estepesConfigValor" [min]="0" [max]="4" [showButtons]="true" [disabled]="!podeEditar()"></geo-number-input>
               </div>
               @if (semPosicao().length) {
-                <ces-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Pneus sem posição neste diagrama">
+                <geo-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Pneus sem posição neste diagrama">
                   {{ semPosicao().join(', ') }}. Tire esses pneus do veículo na montagem antes de mudar o diagrama.
-                </ces-callout>
+                </geo-callout>
               }
               <div class="rodape" style="justify-content: flex-start">
                 @if (podeEditar()) {
-                  <ces-button icon="pi pi-check" label="Salvar diagrama" [disabled]="semPosicao().length > 0" [loading]="salvando()" (pressed)="salvarDiagrama()"></ces-button>
+                  <geo-button icon="pi pi-check" label="Salvar diagrama" [disabled]="semPosicao().length > 0" [loading]="salvando()" (pressed)="salvarDiagrama()"></geo-button>
                 }
-                @if (v.eixos) { <ces-button variant="ghost" label="Cancelar" (pressed)="configurando.set(false)"></ces-button> }
+                @if (v.eixos) { <geo-button variant="ghost" label="Cancelar" (pressed)="configurando.set(false)"></geo-button> }
               </div>
             </div>
             <app-frota-pneu-diagrama [eixos]="eixosConfig().join(',')" [posicoes]="previa()" [interativo]="false" [legenda]="false" [titulo]="placa(v.placa)"></app-frota-pneu-diagrama>
@@ -231,8 +231,8 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
       } @else {
         <div class="area">
           <section class="painel" aria-label="Pneus disponíveis">
-            <h3 class="painel__titulo">Pneus disponíveis <ces-status tone="neutral">{{ noEstoque().length }}</ces-status></h3>
-            <ces-text-input label="Buscar" [labelVisible]="false" placeholder="Marca de fogo, marca ou medida" [(value)]="busca"></ces-text-input>
+            <h3 class="painel__titulo">Pneus disponíveis <geo-status tone="neutral">{{ noEstoque().length }}</geo-status></h3>
+            <geo-text-input label="Buscar" [labelVisible]="false" placeholder="Marca de fogo, marca ou medida" [(value)]="busca"></geo-text-input>
             <div class="estoque" [class.estoque--alvo]="alvoEstoque()" [class.estoque--escolhendo]="!!posicaoAlvo()" [pDroppable]="escopo" (onDragEnter)="alvoEstoque.set(true)"
               (onDragLeave)="alvoEstoque.set(false)" (onDrop)="soltarEm('ESTOQUE'); alvoEstoque.set(false)">
               @for (p of estoqueFiltrado(); track p.id) {
@@ -255,7 +255,7 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
 
           <section class="painel area__diagrama" aria-label="Diagrama do veículo">
             <h3 class="painel__titulo">{{ placa(v.placa) }}{{ v.tipoVeiculo ? ' · ' + v.tipoVeiculo : '' }}
-              <ces-status tone="neutral">{{ montados() }} de {{ rodas() }} rodas</ces-status></h3>
+              <geo-status tone="neutral">{{ montados() }} de {{ rodas() }} rodas</geo-status></h3>
             <app-frota-pneu-diagrama [eixos]="v.eixos" [posicoes]="posicoesView()" [sulcoMinimo]="v.sulcoMinimoMm" [titulo]="placa(v.placa)"
               [arrastavel]="podeEditar()" [interativo]="podeEditar()" [selecionado]="selecionado()" [posicaoSelecionada]="posicaoAlvo()"
               [destacarDestinos]="!!selecionado() || !!arrastando()"
@@ -264,7 +264,7 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
             <div class="guia" [class.guia--ativa]="!!selecionado() || !!posicaoAlvo()">
               <span>{{ guia() }}</span>
               @if (selecionado() || posicaoAlvo()) {
-                <ces-button size="sm" variant="ghost" label="Cancelar" ariaLabel="Cancelar a escolha (Esc)" (pressed)="cancelarEscolha()"></ces-button>
+                <geo-button size="sm" variant="ghost" label="Cancelar" ariaLabel="Cancelar a escolha (Esc)" (pressed)="cancelarEscolha()"></geo-button>
               }
             </div>
           </section>
@@ -287,7 +287,7 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
             @if (pneuSelecionado(); as p) {
               <div class="selecionado">
                 <h3 class="painel__titulo">Pneu {{ p.marcaFogo }}
-                  <ces-button size="sm" variant="ghost" icon="pi pi-times" ariaLabel="Tirar a seleção" (pressed)="selecionado.set(null)"></ces-button></h3>
+                  <geo-button size="sm" variant="ghost" icon="pi pi-times" ariaLabel="Tirar a seleção" (pressed)="selecionado.set(null)"></geo-button></h3>
                 <dl>
                   <div><dt>Marca e modelo</dt><dd>{{ p.marca }}{{ p.modelo ? ' ' + p.modelo : '' }}</dd></div>
                   <div><dt>Medida</dt><dd>{{ p.medida ?? '—' }}</dd></div>
@@ -296,58 +296,58 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
                   <div><dt>Km na vida</dt><dd>{{ formatarKm(p.kmVida) }}</dd></div>
                   <div><dt>Onde está</dt><dd>{{ ondeEsta(p) }}</dd></div>
                 </dl>
-                <ces-button size="sm" variant="outline" icon="pi pi-external-link" label="Abrir pneu" (pressed)="abrirPneu.emit(p)"></ces-button>
+                <geo-button size="sm" variant="outline" icon="pi pi-external-link" label="Abrir pneu" (pressed)="abrirPneu.emit(p)"></geo-button>
               </div>
             }
 
-            <h3 class="painel__titulo">Alterações <ces-status [tone]="alteracoes().length ? 'info' : 'neutral'">{{ alteracoes().length }}</ces-status></h3>
+            <h3 class="painel__titulo">Alterações <geo-status [tone]="alteracoes().length ? 'info' : 'neutral'">{{ alteracoes().length }}</geo-status></h3>
             @if (alteracoes().length) {
               <ul class="mudancas">
                 @for (a of alteracoes(); track a.pneu.id) {
                   <li class="mudanca">
                     <div class="mudanca__linha">
                       <span class="mudanca__texto"><strong>{{ a.pneu.marcaFogo }}</strong><br>{{ descreverLocal(a.de) }} → {{ descreverLocal(a.para) }}</span>
-                      <ces-button size="sm" variant="ghost" icon="pi pi-undo" [ariaLabel]="'Desfazer a mudança do pneu ' + a.pneu.marcaFogo" (pressed)="desfazer(a.pneu.id)"></ces-button>
+                      <geo-button size="sm" variant="ghost" icon="pi pi-undo" [ariaLabel]="'Desfazer a mudança do pneu ' + a.pneu.marcaFogo" (pressed)="desfazer(a.pneu.id)"></geo-button>
                     </div>
                     @switch (a.para.tipo) {
                       @case ('ESTOQUE') {
-                        <ces-select label="Almoxarifado" [options]="opcoesAlmoxarifado()" [value]="$any(a.para).idEstoque" (valueChange)="definir(a.pneu.id, { tipo: 'ESTOQUE', idEstoque: $event })"
-                          [error]="$any(a.para).idEstoque ? undefined : 'Escolha o almoxarifado.'"></ces-select>
+                        <geo-select label="Almoxarifado" [options]="opcoesAlmoxarifado()" [value]="$any(a.para).idEstoque" (valueChange)="definir(a.pneu.id, { tipo: 'ESTOQUE', idEstoque: $event })"
+                          [error]="$any(a.para).idEstoque ? undefined : 'Escolha o almoxarifado.'"></geo-select>
                       }
                       @case ('REPARO') {
-                        <ces-select label="Fornecedor do reparo" [options]="opcoesFornecedor()" [value]="$any(a.para).idFornecedor" [filter]="true" [clearable]="true" [showOptional]="true"
-                          (valueChange)="definir(a.pneu.id, { tipo: 'REPARO', idFornecedor: $event })"></ces-select>
+                        <geo-select label="Fornecedor do reparo" [options]="opcoesFornecedor()" [value]="$any(a.para).idFornecedor" [filter]="true" [clearable]="true" [showOptional]="true"
+                          (valueChange)="definir(a.pneu.id, { tipo: 'REPARO', idFornecedor: $event })"></geo-select>
                       }
                       @case ('REFORMA') {
-                        <ces-select label="Reformadora" [options]="opcoesFornecedor()" [value]="$any(a.para).idFornecedor" [filter]="true" [clearable]="true" [showOptional]="true"
-                          (valueChange)="definir(a.pneu.id, { tipo: 'REFORMA', idFornecedor: $event })"></ces-select>
+                        <geo-select label="Reformadora" [options]="opcoesFornecedor()" [value]="$any(a.para).idFornecedor" [filter]="true" [clearable]="true" [showOptional]="true"
+                          (valueChange)="definir(a.pneu.id, { tipo: 'REFORMA', idFornecedor: $event })"></geo-select>
                       }
                       @case ('DESCARTE') {
-                        <ces-text-input label="Motivo do descarte" [required]="true" [value]="$any(a.para).motivo" [maxlength]="300"
+                        <geo-text-input label="Motivo do descarte" [required]="true" [value]="$any(a.para).motivo" [maxlength]="300"
                           placeholder="Ex.: carcaça cortada, sulco no fim" (valueChange)="definir(a.pneu.id, { tipo: 'DESCARTE', motivo: $event })"
-                          [error]="$any(a.para).motivo?.trim() ? undefined : 'Informe o motivo.'"></ces-text-input>
+                          [error]="$any(a.para).motivo?.trim() ? undefined : 'Informe o motivo.'"></geo-text-input>
                       }
                     }
                   </li>
                 }
               </ul>
               @if (avisos().length) {
-                <ces-callout tone="warning" icon="pi pi-exclamation-circle" [dense]="true" title="Confira antes de salvar">
+                <geo-callout tone="warning" icon="pi pi-exclamation-circle" [dense]="true" title="Confira antes de salvar">
                   <ul class="avisos">@for (a of avisos(); track a) { <li>{{ a }}</li> }</ul>
-                </ces-callout>
+                </geo-callout>
               }
               @if (erroKm()) {
-                <ces-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Confira o km do veículo">{{ erroKm() }}</ces-callout>
+                <geo-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Confira o km do veículo">{{ erroKm() }}</geo-callout>
               }
               @if (conflitos().length) {
-                <ces-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Dois pneus na mesma posição">
+                <geo-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Dois pneus na mesma posição">
                   {{ conflitos().join(', ') }}. Mova um deles antes de salvar.
-                </ces-callout>
+                </geo-callout>
               }
               <div class="rodape">
-                <ces-button variant="ghost" icon="pi pi-times" label="Descartar alterações" (pressed)="limpar()"></ces-button>
-                <ces-button icon="pi pi-check" [label]="'Salvar ' + (alteracoes().length === 1 ? '1 alteração' : alteracoes().length + ' alterações')"
-                  [disabled]="!podeSalvar()" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+                <geo-button variant="ghost" icon="pi pi-times" label="Descartar alterações" (pressed)="limpar()"></geo-button>
+                <geo-button icon="pi pi-check" [label]="'Salvar ' + (alteracoes().length === 1 ? '1 alteração' : alteracoes().length + ' alterações')"
+                  [disabled]="!podeSalvar()" [loading]="salvando()" (pressed)="salvar()"></geo-button>
               </div>
             } @else {
               <p class="painel__sub">Nada mudou ainda. As mudanças aparecem aqui antes de gravar.</p>
@@ -358,9 +358,9 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
           <div class="barra-salvar">
             <span>{{ podeSalvar() ? 'Mudanças ainda não salvas' : 'Complete as alterações antes de salvar' }}</span>
             @if (podeSalvar()) {
-              <ces-button size="sm" icon="pi pi-check" [label]="'Salvar ' + alteracoes().length" [ariaLabel]="'Salvar ' + alteracoes().length + ' alterações'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+              <geo-button size="sm" icon="pi pi-check" [label]="'Salvar ' + alteracoes().length" [ariaLabel]="'Salvar ' + alteracoes().length + ' alterações'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
             } @else {
-              <ces-button size="sm" variant="outline" icon="pi pi-arrow-down" label="Ver alterações" (pressed)="rolarPara('.mudancas', true)"></ces-button>
+              <geo-button size="sm" variant="outline" icon="pi pi-arrow-down" label="Ver alterações" (pressed)="rolarPara('.mudancas', true)"></geo-button>
             }
           </div>
         }
@@ -371,10 +371,10 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
 export class FrotaPneuMontagemComponent {
   private readonly servico = inject(FrotaPneuService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly elemento = inject<ElementRef<HTMLElement>>(ElementRef);
 
-  readonly veiculos = input<CesSelectOption<string>[]>([]);
+  readonly veiculos = input<GeoSelectOption<string>[]>([]);
   readonly carregandoVeiculos = input(false);
   readonly almoxarifados = input<AlmoxarifadoFrota[]>([]);
   readonly fornecedores = input<FornecedorFrota[]>([]);
@@ -487,9 +487,9 @@ export class FrotaPneuMontagemComponent {
   protected readonly pneuSelecionado = computed(() => (this.selecionado() ? this.pneus().get(this.selecionado()!) ?? null : null));
   protected readonly montados = computed(() => this.posicoesView().filter((p) => p.pneu && !p.estepe).length);
   protected readonly rodas = computed(() => this.posicoesView().filter((p) => !p.estepe).length);
-  protected readonly opcoesAlmoxarifado = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesAlmoxarifado = computed<GeoSelectOption<string>[]>(() =>
     this.almoxarifados().filter((a) => a.ativo).map((a) => ({ label: a.baseOperacional ? `${a.nome} · ${a.baseOperacional}` : a.nome, value: a.id })));
-  protected readonly opcoesFornecedor = computed<CesSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nome, value: f.id })));
+  protected readonly opcoesFornecedor = computed<GeoSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nome, value: f.id })));
   protected readonly erroKm = computed(() => {
     const v = this.veiculo();
     return v ? erroKmMovimentacao(this.km(), v.kmAtual, !!this.quando(), v.unidade) : undefined;

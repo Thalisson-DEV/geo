@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { OperacaoSolicitacaoComercialResponse } from '../../../../core/models/almoxarifado.models';

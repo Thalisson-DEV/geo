@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CesAsyncStateComponent, CesStatusComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
 import { map } from 'rxjs/operators';
 import { AbastecimentoDetalhe } from '../../../core/models/frota-abastecimento.models';
 import { formatarMedicao, formatarPlaca } from '../../../core/models/frota.models';
@@ -26,8 +26,8 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoStatusComponent,
     AnalisarComCopilotoComponent,
     FrotaRelatorioAnaliseIaComponent,
     FrotaRelatorioCabecalhoComponent,
@@ -38,16 +38,16 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
   template: `
     @if (carregando()) {
       <div class="rel-estado">
-        <ces-async-state state="loading" title="Carregando o abastecimento..." description="Consultando pedido, liberação e realizado."></ces-async-state>
+        <geo-async-state state="loading" title="Carregando o abastecimento..." description="Consultando pedido, liberação e realizado."></geo-async-state>
       </div>
     } @else if (erro()) {
       <div class="rel-estado">
-        <ces-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></ces-async-state>
+        <geo-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as a) {
       <article class="rel">
         <app-frota-relatorio-cabecalho area="Abastecimento" [titulo]="'Abastecimento · ' + placa()">
-          <ces-status [tone]="tomSituacao[a.situacao]" [icon]="'pi ' + iconeSituacao[a.situacao]">{{ a.situacaoRotulo }}</ces-status>
+          <geo-status [tone]="tomSituacao[a.situacao]" [icon]="'pi ' + iconeSituacao[a.situacao]">{{ a.situacaoRotulo }}</geo-status>
           <span>·</span>
           <span><strong>{{ a.posto }}</strong></span>
           <span>·</span>

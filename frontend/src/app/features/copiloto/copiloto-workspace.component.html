@@ -30,46 +30,46 @@
     (drop)="aoSoltar($event)"
   >
     <header class="ws__topo">
-      <ces-icon-button
+      <geo-icon-button
         icon="pi pi-history"
         [label]="listaVisivel() ? 'Ocultar histórico de conversas' : 'Mostrar histórico de conversas'"
         (pressed)="alternarLista()"
-      ></ces-icon-button>
+      ></geo-icon-button>
       <img class="ws__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
       <div class="ws__identidade">
         <span class="ws__marca">Bússola</span>
         <h1 class="ws__titulo">{{ store.titulo() }}</h1>
       </div>
       @if (store.artefatos().length && !painelAberto()) {
-        <ces-button
+        <geo-button
           variant="ghost"
           size="sm"
           icon="pi pi-objects-column"
           [label]="'Artefatos (' + store.artefatos().length + ')'"
           (pressed)="abrirUltimoArtefato()"
-        ></ces-button>
+        ></geo-button>
       }
       @if (podeConectarIa()) {
-        <ces-icon-button icon="pi pi-link" label="Usar o GEO no Claude, ChatGPT ou outra IA" tooltip="Conectar sua IA" (pressed)="conectarIa()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-link" label="Usar o GEO no Claude, ChatGPT ou outra IA" tooltip="Conectar sua IA" (pressed)="conectarIa()"></geo-icon-button>
       }
       @if (!listaVisivel()) {
-        <ces-icon-button icon="pi pi-plus" label="Nova conversa" (pressed)="nova()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-plus" label="Nova conversa" (pressed)="nova()"></geo-icon-button>
       }
     </header>
 
     <div class="ws__mensagens" #rolagem (scroll)="aoRolar()">
       <div class="ws__conteudo" [class.ws__conteudo--vazio]="store.vazia()" role="log" aria-label="Mensagens da conversa" aria-live="off">
         @if (store.carregandoConversa()) {
-          <ces-async-state state="loading" title="Abrindo a conversa"></ces-async-state>
+          <geo-async-state state="loading" title="Abrindo a conversa"></geo-async-state>
         } @else if (store.erroConversa()) {
-          <ces-async-state
+          <geo-async-state
             state="error"
             title="Não foi possível abrir esta conversa"
             [description]="store.erroConversa() || undefined"
             actionLabel="Começar nova conversa"
             actionIcon="pi pi-plus"
             (action)="nova()"
-          ></ces-async-state>
+          ></geo-async-state>
         } @else if (store.vazia()) {
           <app-copiloto-boas-vindas
             [capacidades]="store.capacidades()"
@@ -87,15 +87,15 @@
 
     @if (!grudado() && !store.vazia()) {
       <div class="ws__fim">
-        <ces-button variant="secondary" size="sm" icon="pi pi-arrow-down" label="Ir para o fim" (pressed)="irParaOFim()"></ces-button>
+        <geo-button variant="secondary" size="sm" icon="pi pi-arrow-down" label="Ir para o fim" (pressed)="irParaOFim()"></geo-button>
       </div>
     }
 
     <div class="ws__rodape">
       @if (store.reconectando()) {
-        <ces-callout tone="warning" icon="pi-sync" [dense]="true">
+        <geo-callout tone="warning" icon="pi-sync" [dense]="true">
           A conexão oscilou. Reconectando à resposta em andamento — nada foi perdido.
-        </ces-callout>
+        </geo-callout>
       }
       <app-copiloto-compositor
         [(valor)]="rascunho"
@@ -132,4 +132,4 @@
     </aside>
   }
 </div>
-<div class="ces-sr-only" aria-live="polite" role="status">{{ store.anuncio() }}</div>
+<div class="geo-sr-only" aria-live="polite" role="status">{{ store.anuncio() }}</div>

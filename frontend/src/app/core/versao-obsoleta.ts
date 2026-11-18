@@ -40,7 +40,7 @@ import { ErrorHandler, Injectable } from '@angular/core';
  * Fica em `sessionStorage` porque o escopo desejado é exatamente o da aba: outra aba
  * pode legitimamente precisar do seu próprio reload, e fechar a aba encerra o assunto.
  */
-const CHAVE_ULTIMO_RELOAD = 'ces:reload-versao-obsoleta';
+const CHAVE_ULTIMO_RELOAD = 'geo:reload-versao-obsoleta';
 
 /**
  * Janela mínima entre dois reloads automáticos.

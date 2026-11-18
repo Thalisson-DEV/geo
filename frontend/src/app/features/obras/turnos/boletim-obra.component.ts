@@ -2,20 +2,20 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesChartComponent,
-  CesChartPointSelection,
-  CesDatepickerComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMeterComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoChartComponent,
+  GeoChartPointSelection,
+  GeoDatepickerComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMeterComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 import { take } from 'rxjs';
 import { createUrlFilters, qp } from '../../../core/navigation';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -84,15 +84,15 @@ function gravarPreferencia(chave: string, valor: string): void {
   imports: [
     DatePipe,
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesChartComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesMeterComponent,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoChartComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoMeterComponent,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
     CopilotoAreaComponent,
     CopilotoGatilhoComponent,
     CopilotoPerguntarComponent,
@@ -101,38 +101,38 @@ function gravarPreferencia(chave: string, valor: string): void {
     DashboardVisaoGerencialComponent,
     ProgramacaoDetalheComponent
   ],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   styleUrls: ['../../execucao/dashboards/execucao-dashboards.css', './boletim-obra.component.css'],
   template: `
     <app-copiloto-area [contexto]="contextoCopiloto()">
     <main class="dash-page">
       <div class="dash-shell">
-        <ces-page-header title="Boletim das equipes" icon="pi pi-th-large" [breadcrumb]="[{ label: 'Relatórios' }, { label: 'Boletim das equipes' }]"
+        <geo-page-header title="Boletim das equipes" icon="pi pi-th-large" [breadcrumb]="[{ label: 'Relatórios' }, { label: 'Boletim das equipes' }]"
           description="Quem está em campo, com quem, se a APR está em dia e quanto foi programado e executado.">
           <app-copiloto-gatilho actions></app-copiloto-gatilho>
           @if (b(); as d) {
             <span actions class="dash-updated" [title]="d.hoje ? 'Atualiza sozinho a cada 2 minutos' : ''">Atualizado às {{ d.geradoEm | date: 'HH:mm' }}</span>
           }
-          <ces-button actions label="Hoje" icon="pi pi-calendar" variant="outline" (pressed)="hoje()"></ces-button>
-          <ces-button actions label="Turnos" icon="pi pi-calendar-clock" variant="secondary" (pressed)="irParaTurnos()"></ces-button>
-          <ces-button actions label="Atualizar" icon="pi pi-refresh" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
-        </ces-page-header>
+          <geo-button actions label="Hoje" icon="pi pi-calendar" variant="outline" (pressed)="hoje()"></geo-button>
+          <geo-button actions label="Turnos" icon="pi pi-calendar-clock" variant="secondary" (pressed)="irParaTurnos()"></geo-button>
+          <geo-button actions label="Atualizar" icon="pi pi-refresh" [loading]="carregando()" (pressed)="aplicar()"></geo-button>
+        </geo-page-header>
 
-        <ces-filter-panel storageKey="boletim-obras" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+        <geo-filter-panel storageKey="boletim-obras" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
           (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-          <div class="ces-filter-grid">
-            <ces-datepicker label="Dia" inputId="boletim-dia" [value]="dia()" (valueChange)="dia.set($any($event))" [maxDate]="hojeLocal"></ces-datepicker>
-            <ces-multiselect label="Base operacional" inputId="boletim-base" placeholder="Todas" [clearable]="true" selectedItemsLabel="{0} bases" [maxSelectedLabels]="2"
-              [options]="opcoesBases()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></ces-multiselect>
-            <ces-multiselect label="Tipo de equipe" inputId="boletim-tipo" placeholder="Todos" [clearable]="true" selectedItemsLabel="{0} tipos" [maxSelectedLabels]="2"
-              [options]="opcoesTipos()" [value]="tipos()" (valueChange)="tipos.set($event)"></ces-multiselect>
+          <div class="geo-filter-grid">
+            <geo-datepicker label="Dia" inputId="boletim-dia" [value]="dia()" (valueChange)="dia.set($any($event))" [maxDate]="hojeLocal"></geo-datepicker>
+            <geo-multiselect label="Base operacional" inputId="boletim-base" placeholder="Todas" [clearable]="true" selectedItemsLabel="{0} bases" [maxSelectedLabels]="2"
+              [options]="opcoesBases()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></geo-multiselect>
+            <geo-multiselect label="Tipo de equipe" inputId="boletim-tipo" placeholder="Todos" [clearable]="true" selectedItemsLabel="{0} tipos" [maxSelectedLabels]="2"
+              [options]="opcoesTipos()" [value]="tipos()" (valueChange)="tipos.set($event)"></geo-multiselect>
           </div>
-        </ces-filter-panel>
+        </geo-filter-panel>
 
         @if (carregando() && !b()) {
-          <ces-async-state state="loading" title="Montando o boletim" description="Turnos, composição, APR, programado e executado de cada equipe."></ces-async-state>
+          <geo-async-state state="loading" title="Montando o boletim" description="Turnos, composição, APR, programado e executado de cada equipe."></geo-async-state>
         } @else if (erro() && !b()) {
-          <ces-async-state state="error" title="Não foi possível montar o boletim" [description]="erro()!" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+          <geo-async-state state="error" title="Não foi possível montar o boletim" [description]="erro()!" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
         } @else if (b(); as d) {
           @if (visaoGerencial(); as vg) {
             <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
@@ -179,8 +179,8 @@ function gravarPreferencia(chave: string, valor: string): void {
                   </div>
                   <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'execucaoDoDia', rotulo: 'Executado × programado por equipe' }" />
                 </header>
-                <ces-chart kind="bar" title="Executado, programado e meta por equipe" [showTitle]="false" [labels]="serie().rotulos" [series]="serie().series" valueFormat="currency" [height]="280"
-                  [selectable]="true" selectLabel="Analisar equipe" (pointSelect)="selecionarEquipe($event)"></ces-chart>
+                <geo-chart kind="bar" title="Executado, programado e meta por equipe" [showTitle]="false" [labels]="serie().rotulos" [series]="serie().series" valueFormat="currency" [height]="280"
+                  [selectable]="true" selectLabel="Analisar equipe" (pointSelect)="selecionarEquipe($event)"></geo-chart>
               </article>
             </section>
           }
@@ -220,11 +220,11 @@ function gravarPreferencia(chave: string, valor: string): void {
                           <td>{{ a.descricao }}</td>
                           <td>
                             @if (!agendaEmAberto(a)) {
-                              <ces-status tone="success" icon="pi-check">Itens concluídos</ces-status>
+                              <geo-status tone="success" icon="pi-check">Itens concluídos</geo-status>
                             } @else if (a.situacaoEquipe === 'SEM_TURNO') {
-                              <ces-status tone="neutral">Sem turno</ces-status>
+                              <geo-status tone="neutral">Sem turno</geo-status>
                             } @else {
-                              <ces-status [tone]="liberacao[a.liberacao].tom" [icon]="liberacao[a.liberacao].icone.replace('pi ', '')">{{ liberacao[a.liberacao].rotulo }}</ces-status>
+                              <geo-status [tone]="liberacao[a.liberacao].tom" [icon]="liberacao[a.liberacao].icone.replace('pi ', '')">{{ liberacao[a.liberacao].rotulo }}</geo-status>
                             }
                           </td>
                           <td class="ed-tipos__fatia">
@@ -324,7 +324,7 @@ function gravarPreferencia(chave: string, valor: string): void {
                             <span class="ed-team__eyebrow">{{ e.tipoEquipe ?? 'Equipe' }}</span>
                             <h3 [id]="'bol-' + e.idEquipe">{{ e.codigo }}</h3>
                           </div>
-                          <ces-status [tone]="situacaoTurno[e.situacao].tom" [icon]="situacaoTurno[e.situacao].icone">{{ rotuloSituacao(e, d.hoje) }}</ces-status>
+                          <geo-status [tone]="situacaoTurno[e.situacao].tom" [icon]="situacaoTurno[e.situacao].icone">{{ rotuloSituacao(e, d.hoje) }}</geo-status>
                         </header>
 
                         <ul class="ed-team__tags" aria-label="Dados da equipe">
@@ -353,7 +353,7 @@ function gravarPreferencia(chave: string, valor: string): void {
                                 <span class="ed-goal__label"><i class="pi pi-flag" aria-hidden="true"></i> Meta do dia</span>
                                 <strong class="ed-goal__pct">{{ percentual(e.percentualMeta) }}</strong>
                               </div>
-                              <ces-meter [value]="e.percentualMeta ?? 0" [label]="'Meta diária da equipe ' + e.codigo" [detail]="moeda(e.noDia.executado) + ' de ' + moeda(e.metaDiaria)"></ces-meter>
+                              <geo-meter [value]="e.percentualMeta ?? 0" [label]="'Meta diária da equipe ' + e.codigo" [detail]="moeda(e.noDia.executado) + ' de ' + moeda(e.metaDiaria)"></geo-meter>
                               <ul class="ed-goal__rows">
                                 @if (e.metaDiaria - e.noDia.executado > 0) {
                                   <li><i class="pi pi-arrow-up" aria-hidden="true"></i>Faltam <strong>{{ moeda(e.metaDiaria - e.noDia.executado) }}</strong> {{ d.hoje ? 'hoje' : 'no dia' }}</li>
@@ -389,8 +389,8 @@ function gravarPreferencia(chave: string, valor: string): void {
                                 <li>
                                   <button type="button" class="bol-agenda__link" [title]="a.descricao" (click)="verProgramacao(a.idProgramacao)">#{{ a.numero }} · {{ a.numeroObra }}</button>
                                   @if (!agendaEmAberto(a)) {
-                                    <ces-status tone="success" icon="pi-check">Itens concluídos</ces-status>
-                                  } @else if (e.situacao !== 'SEM_TURNO') { <ces-status [tone]="liberacao[a.liberacao].tom" [icon]="liberacao[a.liberacao].icone.replace('pi ', '')">{{ liberacao[a.liberacao].rotulo }}</ces-status> }
+                                    <geo-status tone="success" icon="pi-check">Itens concluídos</geo-status>
+                                  } @else if (e.situacao !== 'SEM_TURNO') { <geo-status [tone]="liberacao[a.liberacao].tom" [icon]="liberacao[a.liberacao].icone.replace('pi ', '')">{{ liberacao[a.liberacao].rotulo }}</geo-status> }
                                 </li>
                               }
                             </ul>
@@ -404,8 +404,8 @@ function gravarPreferencia(chave: string, valor: string): void {
                               <li>
                                 <span class="bol-avatar" aria-hidden="true">{{ iniciais(m.nome) }}</span>
                                 <span class="bol-pessoa"><strong>{{ m.nome }}</strong><small>{{ m.funcao }}</small></span>
-                                @if (m.lider) { <ces-status tone="info" icon="pi-star">Líder</ces-status> }
-                                @if (m.substituto) { <ces-status tone="warning">Substituto</ces-status> }
+                                @if (m.lider) { <geo-status tone="info" icon="pi-star">Líder</geo-status> }
+                                @if (m.substituto) { <geo-status tone="warning">Substituto</geo-status> }
                               </li>
                             } @empty {
                               <li class="ed-team__note">Sem componentes na equipe.</li>
@@ -509,17 +509,17 @@ export class BoletimObraComponent implements OnInit {
     ];
     return lista;
   });
-  protected readonly opcoesBases = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesBases = computed<GeoSelectOption<string>[]>(() => {
     const mapa = new Map<string, string>();
     for (const e of this.b()?.equipes ?? []) if (e.idBase && e.baseOperacional) mapa.set(e.idBase, e.baseOperacional);
     return [...mapa].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
   });
-  protected readonly opcoesTipos = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesTipos = computed<GeoSelectOption<string>[]>(() =>
     [...new Set((this.b()?.equipes ?? []).map((e) => e.tipoEquipe).filter((t): t is string => !!t))].sort().map((t) => ({ value: t, label: t }))
   );
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.aplicado();
-    const chips: CesFilterChip[] = [];
+    const chips: GeoFilterChip[] = [];
     if (this.b()) chips.push({ key: 'dia', label: `Dia: ${this.b()!.data}`, removable: false });
     for (const id of f.idsBase) chips.push({ key: `base:${id}`, label: `Base: ${this.opcoesBases().find((o) => o.value === id)?.label ?? id}` });
     for (const t of f.tipos) chips.push({ key: `tipo:${t}`, label: `Tipo: ${t}` });
@@ -652,7 +652,7 @@ export class BoletimObraComponent implements OnInit {
     this.analise.aprofundar(alvo, this.vistaAnalise()?.titulo ?? '');
   }
 
-  protected selecionarEquipe(selecao: CesChartPointSelection): void {
+  protected selecionarEquipe(selecao: GeoChartPointSelection): void {
     const codigo = this.serie().rotulos[selecao.index];
     const equipe = this.noRecorte().find((e) => e.codigo === codigo);
     if (equipe) this.analise.abrir('equipe', equipe.idEquipe);

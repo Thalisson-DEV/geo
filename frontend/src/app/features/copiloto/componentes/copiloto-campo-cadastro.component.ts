@@ -11,18 +11,18 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAutocompleteComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesDatepickerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAutocompleteComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoDatepickerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   LookupOption,
   LookupStatus,
-} from '@ces/ui';
+} from '@geo/ui';
 import { CampoCadastro, OpcaoCadastro } from '../../../core/models/assistente.models';
 import { AssistenteService } from '../../../core/services/assistente.service';
 
@@ -66,15 +66,15 @@ export function deData(data: Date | null, comHora: boolean): string | null {
   standalone: true,
   imports: [
     FormsModule,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesDatepickerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoDatepickerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     forwardRef(() => CopilotoCampoCadastroComponent),
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,

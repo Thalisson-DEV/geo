@@ -4,7 +4,7 @@ import { Router, provideRouter } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { CesConfirmationService } from '@ces/ui/overlays';
+import { GeoConfirmationService } from '@geo/ui/overlays';
 import { ContratoService } from '../../../core/services/contrato.service';
 import { FavoritosService } from '../../../core/services/favoritos.service';
 import { ImportacaoService } from '../../../core/services/importacao.service';
@@ -46,7 +46,7 @@ describe('ContratosComponent — cadastro em drawer (tipo A)', () => {
         provideLocationMocks(),
         ConfirmationService,
         MessageService,
-        { provide: CesConfirmationService, useValue: { confirm } },
+        { provide: GeoConfirmationService, useValue: { confirm } },
         { provide: ContratoService, useValue: service },
         { provide: ImportacaoService, useValue: { baixarModeloCsv: vi.fn() } },
         { provide: FavoritosService, useValue: { isCurrentPageFavorite: () => false, toggleFavorite: vi.fn() } },
@@ -80,7 +80,7 @@ describe('ContratosComponent — cadastro em drawer (tipo A)', () => {
       expect.objectContaining({ cliente: 'neo', ativo: null, page: 0, size: 25, sort: 'numeroContrato,asc' }),
     );
     expect(fixture.nativeElement.textContent).toContain('1,5000');
-    expect(Array.from(fixture.nativeElement.querySelectorAll('.ces-filter-panel__chip')).map((c: any) => c.textContent.trim())).toEqual(['Cliente: neo']);
+    expect(Array.from(fixture.nativeElement.querySelectorAll('.geo-filter-panel__chip')).map((c: any) => c.textContent.trim())).toEqual(['Cliente: neo']);
   });
 
   it('Novo abre o drawer em ?novo=1 com formulário único (sem etapas)', async () => {
@@ -93,7 +93,7 @@ describe('ContratosComponent — cadastro em drawer (tipo A)', () => {
     const drawer = document.body.querySelector('.p-drawer') as HTMLElement;
     expect(drawer.querySelector('h2')!.textContent).toContain('Novo contrato');
     expect(drawer.querySelector('p-stepper')).toBeNull();
-    expect(Array.from(drawer.querySelectorAll('.ces-form-section__title')).map((t) => t.textContent!.trim())).toEqual([
+    expect(Array.from(drawer.querySelectorAll('.geo-form-section__title')).map((t) => t.textContent!.trim())).toEqual([
       'Identificação',
       'Vigência',
       'Faturamento',
@@ -106,7 +106,7 @@ describe('ContratosComponent — cadastro em drawer (tipo A)', () => {
     fixture.detectChanges();
 
     expect(service['criarContrato']).not.toHaveBeenCalled();
-    expect(document.body.querySelectorAll('.p-drawer .ces-form-field--invalid')).toHaveLength(5);
+    expect(document.body.querySelectorAll('.p-drawer .geo-form-field--invalid')).toHaveLength(5);
   });
 
   it('mantém as regras do coeficiente (maior que 0 e até 1000)', async () => {

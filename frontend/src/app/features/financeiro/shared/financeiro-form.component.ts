@@ -31,7 +31,7 @@ import { FinanceiroService } from '../../../core/services/financeiro.service';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as CursorRemoteLookup } from '../../../core/lookup/store/remote-lookup';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 import {
   agruparCampos,
   aplicarValidacaoCondicional,
@@ -66,7 +66,7 @@ import {
     SelectButtonModule,
     TextareaModule,
     DateMaskDirective,
-    CesAutocompleteComponent
+    GeoAutocompleteComponent
   ],
   template: `
     <div class="flex flex-col gap-6">
@@ -163,7 +163,7 @@ import {
                   }
                   @case ('REFERENCIA') {
                     @if (ehReferenciaColaborador(campo)) {
-                      <ces-autocomplete
+                      <geo-autocomplete
                         [label]="campo.rotulo"
                         [labelVisible]="false"
                         [inputId]="campo.chave"
@@ -180,7 +180,7 @@ import {
                         (search)="pesquisarColaboradores($event)"
                         (loadMore)="carregarMaisColaboradores()"
                         (retry)="tentarNovamenteColaboradores()"
-                      ></ces-autocomplete>
+                      ></geo-autocomplete>
                     } @else {
                       <p-select [inputId]="campo.chave" [formControl]="controle(campo)"
                         [options]="opcoesReferencia(campo)"

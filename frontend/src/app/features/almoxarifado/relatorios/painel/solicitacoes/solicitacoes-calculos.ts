@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   EtapaSolicitacao,
   MaterialDoPainel,
@@ -394,10 +394,10 @@ export interface FaixaIdade {
   readonly ate: number;
   readonly total: number;
   readonly atrasadas: number;
-  readonly tom: CesTone;
+  readonly tom: GeoTone;
 }
 
-export const FAIXAS_IDADE: readonly { id: string; rotulo: string; de: number; ate: number; tom: CesTone }[] = [
+export const FAIXAS_IDADE: readonly { id: string; rotulo: string; de: number; ate: number; tom: GeoTone }[] = [
   { id: 'ate-1', rotulo: 'Até 1 dia', de: 0, ate: 1, tom: 'success' },
   { id: '1-3', rotulo: '1 a 3 dias', de: 1, ate: 3, tom: 'info' },
   { id: '3-7', rotulo: '3 a 7 dias', de: 3, ate: 7, tom: 'warning' },

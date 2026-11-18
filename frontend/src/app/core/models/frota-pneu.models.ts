@@ -1,4 +1,4 @@
-import type { CesTone } from '@ces/ui';
+import type { GeoTone } from '@geo/ui';
 
 // ── Estoque da oficina ──────────────────────────────────────────────────────────
 
@@ -80,7 +80,7 @@ export const ROTULO_MOTIVO_MOVIMENTO: Record<MotivoMovimentoFrota, string> = {
 export const MOTIVOS_ENTRADA: MotivoMovimentoFrota[] = ['COMPRA', 'DEVOLUCAO', 'SALDO_INICIAL'];
 export const MOTIVOS_SAIDA: MotivoMovimentoFrota[] = ['VEICULO', 'USO_OFICINA', 'PERDA', 'VENDA'];
 
-export const TIPO_MOVIMENTO: Record<TipoMovimentoFrota, { rotulo: string; tom: CesTone; icone: string; sinal: 1 | -1 | 0 }> = {
+export const TIPO_MOVIMENTO: Record<TipoMovimentoFrota, { rotulo: string; tom: GeoTone; icone: string; sinal: 1 | -1 | 0 }> = {
   ENTRADA: { rotulo: 'Entrada', tom: 'success', icone: 'pi pi-arrow-down-left', sinal: 1 },
   SAIDA: { rotulo: 'Saída', tom: 'warning', icone: 'pi pi-arrow-up-right', sinal: -1 },
   TRANSFERENCIA: { rotulo: 'Transferência', tom: 'info', icone: 'pi pi-arrow-right-arrow-left', sinal: 0 },
@@ -178,7 +178,7 @@ export type TipoEventoPneu =
   | 'CADASTRO' | 'MONTAGEM' | 'DESMONTAGEM' | 'RODIZIO' | 'ENVIO_REPARO' | 'RETORNO_REPARO'
   | 'ENVIO_REFORMA' | 'RETORNO_REFORMA' | 'DESCARTE' | 'INSPECAO' | 'TRANSFERENCIA' | 'CORRECAO';
 
-export const SITUACAO_PNEU: Record<SituacaoPneu, { rotulo: string; tom: CesTone; icone: string }> = {
+export const SITUACAO_PNEU: Record<SituacaoPneu, { rotulo: string; tom: GeoTone; icone: string }> = {
   DISPONIVEL: { rotulo: 'Disponível', tom: 'success', icone: 'pi pi-box' },
   EM_USO: { rotulo: 'Em uso', tom: 'info', icone: 'pi pi-car' },
   EM_REPARO: { rotulo: 'Em reparo', tom: 'warning', icone: 'pi pi-wrench' },
@@ -186,14 +186,14 @@ export const SITUACAO_PNEU: Record<SituacaoPneu, { rotulo: string; tom: CesTone;
   DESCARTADO: { rotulo: 'Descartado', tom: 'neutral', icone: 'pi pi-trash' }
 };
 
-export const ALERTA_PNEU: Record<AlertaPneu, { rotulo: string; tom: CesTone; icone: string }> = {
+export const ALERTA_PNEU: Record<AlertaPneu, { rotulo: string; tom: GeoTone; icone: string }> = {
   SULCO_BAIXO: { rotulo: 'Sulco no limite', tom: 'danger', icone: 'pi pi-exclamation-triangle' },
   SULCO_ATENCAO: { rotulo: 'Sulco perto do limite', tom: 'warning', icone: 'pi pi-exclamation-circle' },
   SERVICO_ATRASADO: { rotulo: 'Há mais de 30 dias no serviço', tom: 'warning', icone: 'pi pi-clock' },
   PRESSAO_FORA: { rotulo: 'Pressão fora da faixa', tom: 'warning', icone: 'pi pi-gauge' }
 };
 
-export const EVENTO_PNEU: Record<TipoEventoPneu, { rotulo: string; icone: string; tom: CesTone }> = {
+export const EVENTO_PNEU: Record<TipoEventoPneu, { rotulo: string; icone: string; tom: GeoTone }> = {
   CADASTRO: { rotulo: 'Cadastro', icone: 'pi pi-plus-circle', tom: 'neutral' },
   MONTAGEM: { rotulo: 'Montagem', icone: 'pi pi-download', tom: 'info' },
   DESMONTAGEM: { rotulo: 'Desmontagem', icone: 'pi pi-upload', tom: 'neutral' },
@@ -444,7 +444,7 @@ export const formatarSulco = (mm: number | null | undefined) =>
   mm === null || mm === undefined ? '—' : `${mm.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm`;
 
 /** Tom do sulco: abaixo do mínimo é perigo; até 1,5 mm acima, atenção. */
-export function tomSulco(mm: number | null | undefined, minimo: number): CesTone {
+export function tomSulco(mm: number | null | undefined, minimo: number): GeoTone {
   if (mm === null || mm === undefined) return 'neutral';
   if (mm <= minimo) return 'danger';
   if (mm <= minimo + 1.5) return 'warning';

@@ -2,24 +2,24 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListRequest,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectOption,
-  CesStatusComponent,
-  cesFilter,
-  cesListState,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListRequest,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectOption,
+  GeoStatusComponent,
+  geoFilter,
+  geoListState,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable, map } from 'rxjs';
 import { LookupStore } from '../../../core/lookup';
 import {
@@ -40,9 +40,9 @@ import { PaginaMedidas, RhMedidaDisciplinarService } from '../../../core/service
 import { LIMITE_EXPORTACAO, dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { ColaboradorMedida, MedidaDisciplinarDrawerComponent, PreenchimentoMedida } from './medida-disciplinar-drawer.component';
 
-const SITUACOES: CesSelectOption<SituacaoMedidaDisciplinar>[] = (Object.keys(ROTULO_SITUACAO_MEDIDA) as SituacaoMedidaDisciplinar[])
+const SITUACOES: GeoSelectOption<SituacaoMedidaDisciplinar>[] = (Object.keys(ROTULO_SITUACAO_MEDIDA) as SituacaoMedidaDisciplinar[])
   .map((s) => ({ label: ROTULO_SITUACAO_MEDIDA[s], value: s }));
-const ORIGENS: CesSelectOption<OrigemMedidaDisciplinar>[] = (Object.keys(ROTULO_ORIGEM_MEDIDA) as OrigemMedidaDisciplinar[])
+const ORIGENS: GeoSelectOption<OrigemMedidaDisciplinar>[] = (Object.keys(ROTULO_ORIGEM_MEDIDA) as OrigemMedidaDisciplinar[])
   .map((o) => ({ label: ROTULO_ORIGEM_MEDIDA[o], value: o }));
 
 /**
@@ -54,7 +54,7 @@ export const PREENCHIMENTO_POR_ORIGEM: Record<string, ((id: string) => Observabl
 };
 
 /** Pedido da listagem no formato do endpoint (sort como lista). */
-export function paginaMedidas(pedido: Pick<CesListRequest<unknown>, 'page' | 'size' | 'sort'>): PaginaMedidas {
+export function paginaMedidas(pedido: Pick<GeoListRequest<unknown>, 'page' | 'size' | 'sort'>): PaginaMedidas {
   return {
     page: pedido.page,
     size: pedido.size,
@@ -73,47 +73,47 @@ export function paginaMedidas(pedido: Pick<CesListRequest<unknown>, 'page' | 'si
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
     MedidaDisciplinarDrawerComponent
   ],
   styles: `
     .avisos { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.25rem; }
   `,
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeEditar()" (newRequested)="novo()">
-      <ces-page-header title="Medidas disciplinares" icon="pi pi-exclamation-triangle" [breadcrumb]="[{ label: 'Departamento Pessoal' }, { label: 'Medidas disciplinares' }]"
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeEditar()" (newRequested)="novo()">
+      <geo-page-header title="Medidas disciplinares" icon="pi pi-exclamation-triangle" [breadcrumb]="[{ label: 'Departamento Pessoal' }, { label: 'Medidas disciplinares' }]"
         description="Orientações, advertências, suspensões e desligamentos já aplicados, por qualquer motivo, com anexos e histórico por colaborador. Atalhos: / busca, F filtros, N lançar medida.">
         <ng-container ngProjectAs="[actions]">
           @if (podeEditar()) {
-            <ces-button icon="pi pi-plus" label="Lançar medida" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+            <geo-button icon="pi pi-plus" label="Lançar medida" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
           }
         </ng-container>
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="rh-medidas-disciplinares" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="rh-medidas-disciplinares" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-datepicker label="Fato de" [value]="dataLocal(lista.filters.de())" [clearable]="true" (valueChange)="lista.filters.de.set(dataIso($event))"></ces-datepicker>
-          <ces-datepicker label="Fato até" [value]="dataLocal(lista.filters.ate())" [clearable]="true" (valueChange)="lista.filters.ate.set(dataIso($event))"></ces-datepicker>
-          <ces-multiselect label="Base" [options]="opcoesBase()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Tipo" [options]="opcoesTipo()" [(value)]="lista.filters.idsTipo" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Motivo" [options]="opcoesMotivo()" [(value)]="lista.filters.idsMotivo" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Situação" [options]="situacoes" [(value)]="lista.filters.situacoes" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Origem" [options]="origens" [(value)]="lista.filters.origens" placeholder="Todas"></ces-multiselect>
+        <div class="geo-filter-grid">
+          <geo-datepicker label="Fato de" [value]="dataLocal(lista.filters.de())" [clearable]="true" (valueChange)="lista.filters.de.set(dataIso($event))"></geo-datepicker>
+          <geo-datepicker label="Fato até" [value]="dataLocal(lista.filters.ate())" [clearable]="true" (valueChange)="lista.filters.ate.set(dataIso($event))"></geo-datepicker>
+          <geo-multiselect label="Base" [options]="opcoesBase()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Tipo" [options]="opcoesTipo()" [(value)]="lista.filters.idsTipo" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Motivo" [options]="opcoesMotivo()" [(value)]="lista.filters.idsMotivo" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Situação" [options]="situacoes" [(value)]="lista.filters.situacoes" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Origem" [options]="origens" [(value)]="lista.filters.origens" placeholder="Todas"></geo-multiselect>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table title="Medidas" mode="server" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar colaborador"
+      <geo-data-table title="Medidas" mode="server" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar colaborador"
         storageKey="rh-medidas-disciplinares" exportFileName="medidas-disciplinares" [exportRows]="exportar" [exportLimit]="limiteExportacao"
         [columns]="colunas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowKey]="chave" [rowLabel]="rotulo"
         [state]="resultado.state()"
@@ -123,31 +123,31 @@ export function paginaMedidas(pedido: Pick<CesListRequest<unknown>, 'page' | 'si
         noResultsTitle="Nenhuma medida com esse recorte." [filtered]="lista.filtered()"
         [(query)]="lista.query" [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort" (lazyLoad)="lista.load($event)"
         (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()" [rowClickable]="true" (rowActivate)="abrir($event)">
-        <ng-template cesCell="colaborador" let-row>
-          <span class="ces-cell-strong">{{ row.colaboradorNome ?? '—' }}</span>
-          <span class="ces-cell-muted">{{ row.colaboradorFuncao ?? '' }}{{ row.baseNome ? ' · ' + row.baseNome : '' }}</span>
+        <ng-template geoCell="colaborador" let-row>
+          <span class="geo-cell-strong">{{ row.colaboradorNome ?? '—' }}</span>
+          <span class="geo-cell-muted">{{ row.colaboradorFuncao ?? '' }}{{ row.baseNome ? ' · ' + row.baseNome : '' }}</span>
         </ng-template>
-        <ng-template cesCell="medida" let-row>
-          <span class="ces-cell-strong">{{ row.tipoNome }}</span>
-          <span class="ces-cell-muted">{{ row.motivoNome }}{{ row.origem !== 'MANUAL' ? ' · ' + row.origemRotulo.toLowerCase() : '' }}</span>
+        <ng-template geoCell="medida" let-row>
+          <span class="geo-cell-strong">{{ row.tipoNome }}</span>
+          <span class="geo-cell-muted">{{ row.motivoNome }}{{ row.origem !== 'MANUAL' ? ' · ' + row.origemRotulo.toLowerCase() : '' }}</span>
         </ng-template>
-        <ng-template cesCell="dataFato" let-row>{{ row.dataFato | date: 'dd/MM/yyyy' }}</ng-template>
-        <ng-template cesCell="dataAplicacao" let-row>{{ row.dataAplicacao | date: 'dd/MM/yyyy' }}</ng-template>
-        <ng-template cesCell="situacao" let-row>
+        <ng-template geoCell="dataFato" let-row>{{ row.dataFato | date: 'dd/MM/yyyy' }}</ng-template>
+        <ng-template geoCell="dataAplicacao" let-row>{{ row.dataAplicacao | date: 'dd/MM/yyyy' }}</ng-template>
+        <ng-template geoCell="situacao" let-row>
           @let s = situacao(row);
-          <ces-status [tone]="s.tom" [icon]="'pi ' + s.icone">{{ s.rotulo }}</ces-status>
+          <geo-status [tone]="s.tom" [icon]="'pi ' + s.icone">{{ s.rotulo }}</geo-status>
           @if (row.foraDaImediatidade) {
             <span class="avisos">
-              <ces-status tone="warning" emphasis="outline" icon="pi pi-exclamation-triangle">{{ row.diasDesdeOFato }} dias do fato</ces-status>
+              <geo-status tone="warning" emphasis="outline" icon="pi pi-exclamation-triangle">{{ row.diasDesdeOFato }} dias do fato</geo-status>
             </span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button icon="pi pi-angle-right" [label]="'Abrir ' + rotulo(row)" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button icon="pi pi-angle-right" [label]="'Abrir ' + rotulo(row)" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-medida-disciplinar-drawer [(visivel)]="drawerAberto" [medida]="emEdicao()" [tipos]="tipos()" [motivos]="motivos()"
@@ -183,21 +183,21 @@ export class MedidasDisciplinaresComponent {
   protected readonly preenchimento = signal<PreenchimentoMedida | null>(null);
   protected readonly preenchimentoIndisponivel = signal(false);
 
-  protected readonly opcoesBase = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesBase = computed<GeoSelectOption<string>[]>(() =>
     this.lookups.operationalBases().map((b) => ({ label: b.label, value: b.value })));
-  protected readonly opcoesTipo = computed<CesSelectOption<string>[]>(() => this.tipos().map((t) => ({ label: t.nome, value: t.id })));
-  protected readonly opcoesMotivo = computed<CesSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.nome, value: m.id })));
+  protected readonly opcoesTipo = computed<GeoSelectOption<string>[]>(() => this.tipos().map((t) => ({ label: t.nome, value: t.id })));
+  protected readonly opcoesMotivo = computed<GeoSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.nome, value: m.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'rh-medidas-disciplinares',
     filters: {
-      de: cesFilter.date(null, { label: 'Fato de' }),
-      ate: cesFilter.date(null, { label: 'Fato até' }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.opcoesBase(), id, 'base'), countLabel: (n) => `${n} selecionadas` }),
-      idsTipo: cesFilter.list<string>([], { label: 'Tipo', param: 'tipo', itemLabel: (id) => this.nome(this.opcoesTipo(), id, 'tipo'), countLabel: (n) => `${n} selecionados` }),
-      idsMotivo: cesFilter.list<string>([], { label: 'Motivo', param: 'motivo', itemLabel: (id) => this.nome(this.opcoesMotivo(), id, 'motivo'), countLabel: (n) => `${n} selecionados` }),
-      situacoes: cesFilter.list<SituacaoMedidaDisciplinar>([], { label: 'Situação', param: 'situacao', itemLabel: (s) => ROTULO_SITUACAO_MEDIDA[s], countLabel: (n) => `${n} selecionadas` }),
-      origens: cesFilter.list<OrigemMedidaDisciplinar>([], { label: 'Origem', param: 'origem', itemLabel: (o) => ROTULO_ORIGEM_MEDIDA[o], countLabel: (n) => `${n} selecionadas` })
+      de: geoFilter.date(null, { label: 'Fato de' }),
+      ate: geoFilter.date(null, { label: 'Fato até' }),
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.opcoesBase(), id, 'base'), countLabel: (n) => `${n} selecionadas` }),
+      idsTipo: geoFilter.list<string>([], { label: 'Tipo', param: 'tipo', itemLabel: (id) => this.nome(this.opcoesTipo(), id, 'tipo'), countLabel: (n) => `${n} selecionados` }),
+      idsMotivo: geoFilter.list<string>([], { label: 'Motivo', param: 'motivo', itemLabel: (id) => this.nome(this.opcoesMotivo(), id, 'motivo'), countLabel: (n) => `${n} selecionados` }),
+      situacoes: geoFilter.list<SituacaoMedidaDisciplinar>([], { label: 'Situação', param: 'situacao', itemLabel: (s) => ROTULO_SITUACAO_MEDIDA[s], countLabel: (n) => `${n} selecionadas` }),
+      origens: geoFilter.list<OrigemMedidaDisciplinar>([], { label: 'Origem', param: 'origem', itemLabel: (o) => ROTULO_ORIGEM_MEDIDA[o], countLabel: (n) => `${n} selecionadas` })
     },
     sort: [{ key: 'dataFato', direction: 'desc' }]
   });
@@ -216,7 +216,7 @@ export class MedidasDisciplinaresComponent {
     return n === 0 ? 'Nenhuma medida' : n === 1 ? '1 medida' : `${n} medidas`;
   });
 
-  protected readonly colunas: CesDataTableColumn<MedidaDisciplinar>[] = [
+  protected readonly colunas: GeoDataTableColumn<MedidaDisciplinar>[] = [
     { key: 'colaborador', header: 'Colaborador', type: 'custom', priority: 1, value: (m) => m.colaboradorNome, display: (m) => `${m.colaboradorNome ?? ''} ${m.baseNome ?? ''}` },
     { key: 'medida', header: 'Medida', type: 'custom', priority: 1, value: (m) => m.tipoNome, display: (m) => `${m.tipoNome} · ${m.motivoNome}` },
     { key: 'dataFato', header: 'Fato', type: 'custom', priority: 1, sortField: 'dataFato', value: (m) => m.dataFato, display: (m) => m.dataFato },
@@ -296,7 +296,7 @@ export class MedidasDisciplinaresComponent {
     });
   }
 
-  private nome(opcoes: CesSelectOption<string>[], id: string, padrao: string): string {
+  private nome(opcoes: GeoSelectOption<string>[], id: string, padrao: string): string {
     return opcoes.find((o) => o.value === id)?.label ?? padrao;
   }
 

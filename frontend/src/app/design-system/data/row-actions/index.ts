@@ -1,1 +1,1 @@
-export * from './ces-row-actions.component';
+export * from './geo-row-actions.component';

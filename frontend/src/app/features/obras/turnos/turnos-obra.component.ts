@@ -2,23 +2,23 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  cesAttainmentBand,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  geoAttainmentBand,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { map, take, tap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FiltroTurnosObra, IndicadoresTurnosObra, MetaTurnoFiltro, StatusTurnoObra, TurnoObraDetalhe, TurnoObraLinha } from '../../../core/models/obras-turnos.models';
@@ -31,12 +31,12 @@ import { situacaoDoTurno } from '../../execucao/turno-list/turno-list.utils';
 import { formatarMoeda } from '../obras-ui';
 import { horasTotais } from './turnos-obra.logic';
 
-const STATUS: CesSelectOption<StatusTurnoObra | null>[] = [
+const STATUS: GeoSelectOption<StatusTurnoObra | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Em turno', value: 'ABERTO' },
   { label: 'Encerrado', value: 'FECHADO' }
 ];
-const METAS: CesSelectOption<MetaTurnoFiltro | null>[] = [
+const METAS: GeoSelectOption<MetaTurnoFiltro | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Bateu a meta', value: 'BATEU' },
   { label: 'Não bateu a meta', value: 'NAO_BATEU' }
@@ -56,83 +56,83 @@ function inicioPadrao(): string {
   imports: [
     CurrencyPipe,
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent,
   ],
   template: `
-    <div class="ces-page" cesListShortcuts>
-      <ces-page-header title="Turnos" icon="pi pi-calendar-clock"
+    <div class="geo-page" geoListShortcuts>
+      <geo-page-header title="Turnos" icon="pi pi-calendar-clock"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Turnos' }]"
         description="Jornadas das equipes de Obras: quem trabalhou, em quais obras, quanto executou contra a meta do dia e o que foi registrado."
         helpLabel="Ajuda sobre turnos" (help)="ajuda.show()">
-        <ces-button actions label="Boletim" icon="pi pi-th-large" variant="outline" (pressed)="irParaBoletim()"></ces-button>
-      </ces-page-header>
+        <geo-button actions label="Boletim" icon="pi pi-th-large" variant="outline" (pressed)="irParaBoletim()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="obras-turnos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="obras-turnos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Equipe" [options]="equipes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-text-input label="Obra" placeholder="Número da obra" [value]="lista.filters.obra()" (valueChange)="lista.filters.obra.set($event)"></ces-text-input>
-          <ces-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true"
-            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></ces-select>
-          <ces-select label="Meta do dia" [options]="metaOpcoes" [(value)]="lista.filters.meta"></ces-select>
-          <ces-datepicker label="Abertos a partir de" [value]="dataLocal(lista.filters.abertura().from)" [clearable]="true" (valueChange)="abertura('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Abertos até" [value]="dataLocal(lista.filters.abertura().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.abertura().from)"
-            (valueChange)="abertura('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-select label="Equipe" [options]="equipes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-text-input label="Obra" placeholder="Número da obra" [value]="lista.filters.obra()" (valueChange)="lista.filters.obra.set($event)"></geo-text-input>
+          <geo-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true"
+            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></geo-select>
+          <geo-select label="Meta do dia" [options]="metaOpcoes" [(value)]="lista.filters.meta"></geo-select>
+          <geo-datepicker label="Abertos a partir de" [value]="dataLocal(lista.filters.abertura().from)" [clearable]="true" (valueChange)="abertura('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Abertos até" [value]="dataLocal(lista.filters.abertura().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.abertura().from)"
+            (valueChange)="abertura('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <section class="ces-kpis turnos-kpis" aria-label="Indicadores dos turnos" aria-live="polite">
-        <button type="button" class="ces-kpi" data-tone="info" [attr.aria-pressed]="semAtalho()" (click)="limparAtalhos()">
-          <span class="ces-kpi__icon"><i class="pi pi-calendar-clock" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Turnos</span>
-            <span class="ces-kpi__value">{{ ind().turnos }}</span>
-            <span class="ces-kpi__detail">{{ horas(ind().minutosTotais) }} no total</span></span>
+      <section class="geo-kpis turnos-kpis" aria-label="Indicadores dos turnos" aria-live="polite">
+        <button type="button" class="geo-kpi" data-tone="info" [attr.aria-pressed]="semAtalho()" (click)="limparAtalhos()">
+          <span class="geo-kpi__icon"><i class="pi pi-calendar-clock" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Turnos</span>
+            <span class="geo-kpi__value">{{ ind().turnos }}</span>
+            <span class="geo-kpi__detail">{{ horas(ind().minutosTotais) }} no total</span></span>
         </button>
-        <button type="button" class="ces-kpi" [attr.data-tone]="ind().emAndamento ? 'success' : 'neutral'" [attr.aria-pressed]="lista.applied().status === 'ABERTO'" (click)="alternarStatus('ABERTO')">
-          <span class="ces-kpi__icon"><i class="pi pi-play-circle" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Em andamento</span>
-            <span class="ces-kpi__value">{{ ind().emAndamento }}</span>
-            <span class="ces-kpi__detail">Ainda não fechados</span></span>
+        <button type="button" class="geo-kpi" [attr.data-tone]="ind().emAndamento ? 'success' : 'neutral'" [attr.aria-pressed]="lista.applied().status === 'ABERTO'" (click)="alternarStatus('ABERTO')">
+          <span class="geo-kpi__icon"><i class="pi pi-play-circle" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Em andamento</span>
+            <span class="geo-kpi__value">{{ ind().emAndamento }}</span>
+            <span class="geo-kpi__detail">Ainda não fechados</span></span>
         </button>
-        <button type="button" class="ces-kpi" [attr.data-tone]="ind().comMeta && ind().bateuMeta === ind().comMeta ? 'success' : 'neutral'" [attr.aria-pressed]="lista.applied().meta === 'BATEU'" (click)="alternarMeta('BATEU')">
-          <span class="ces-kpi__icon"><i class="pi pi-flag" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Bateu a meta</span>
-            <span class="ces-kpi__value">{{ ind().bateuMeta }} de {{ ind().comMeta }}</span>
-            <span class="ces-kpi__detail">Turnos com meta no dia</span></span>
+        <button type="button" class="geo-kpi" [attr.data-tone]="ind().comMeta && ind().bateuMeta === ind().comMeta ? 'success' : 'neutral'" [attr.aria-pressed]="lista.applied().meta === 'BATEU'" (click)="alternarMeta('BATEU')">
+          <span class="geo-kpi__icon"><i class="pi pi-flag" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Bateu a meta</span>
+            <span class="geo-kpi__value">{{ ind().bateuMeta }} de {{ ind().comMeta }}</span>
+            <span class="geo-kpi__detail">Turnos com meta no dia</span></span>
         </button>
-        <button type="button" class="ces-kpi" [attr.data-tone]="ind().semRelatorio ? 'warning' : 'neutral'" [attr.aria-pressed]="lista.applied().semRelatorio" (click)="lista.set('semRelatorio', !lista.applied().semRelatorio)">
-          <span class="ces-kpi__icon"><i class="pi pi-file-excel" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Sem relatório</span>
-            <span class="ces-kpi__value">{{ ind().semRelatorio }}</span>
-            <span class="ces-kpi__detail">Fechados sem relatório diário</span></span>
+        <button type="button" class="geo-kpi" [attr.data-tone]="ind().semRelatorio ? 'warning' : 'neutral'" [attr.aria-pressed]="lista.applied().semRelatorio" (click)="lista.set('semRelatorio', !lista.applied().semRelatorio)">
+          <span class="geo-kpi__icon"><i class="pi pi-file-excel" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Sem relatório</span>
+            <span class="geo-kpi__value">{{ ind().semRelatorio }}</span>
+            <span class="geo-kpi__detail">Fechados sem relatório diário</span></span>
         </button>
-        <button type="button" class="ces-kpi" [attr.data-tone]="ind().comOcorrencias ? 'danger' : 'neutral'" [attr.aria-pressed]="lista.applied().comOcorrencia" (click)="lista.set('comOcorrencia', !lista.applied().comOcorrencia)">
-          <span class="ces-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Com ocorrências</span>
-            <span class="ces-kpi__value">{{ ind().comOcorrencias }}</span>
-            <span class="ces-kpi__detail">Turnos com algum registro</span></span>
+        <button type="button" class="geo-kpi" [attr.data-tone]="ind().comOcorrencias ? 'danger' : 'neutral'" [attr.aria-pressed]="lista.applied().comOcorrencia" (click)="lista.set('comOcorrencia', !lista.applied().comOcorrencia)">
+          <span class="geo-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Com ocorrências</span>
+            <span class="geo-kpi__value">{{ ind().comOcorrencias }}</span>
+            <span class="geo-kpi__detail">Turnos com algum registro</span></span>
         </button>
-        <div class="ces-kpi" data-tone="neutral">
-          <span class="ces-kpi__icon"><i class="pi pi-check-square" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Serviços executados</span>
-            <span class="ces-kpi__value">{{ ind().servicosExecutados }}</span>
-            <span class="ces-kpi__detail">{{ moeda(ind().valorExecutado) }}</span></span>
+        <div class="geo-kpi" data-tone="neutral">
+          <span class="geo-kpi__icon"><i class="pi pi-check-square" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Serviços executados</span>
+            <span class="geo-kpi__value">{{ ind().servicosExecutados }}</span>
+            <span class="geo-kpi__detail">{{ moeda(ind().valorExecutado) }}</span></span>
         </div>
       </section>
 
-      <ces-data-table title="Turnos" mode="server" storageKey="obras-turnos" exportFileName="turnos-obras"
+      <geo-data-table title="Turnos" mode="server" storageKey="obras-turnos" exportFileName="turnos-obras"
         searchPlaceholder="Equipe, placa, quem abriu ou obra" rowActionLabel="Ver turno" rowActionIcon="pi pi-angle-right"
         noResultsTitle="Nenhum turno encontrado com esse recorte."
         [columns]="colunas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowLabel]="rotulo" [state]="resultado.state()"
@@ -141,41 +141,41 @@ function inicioPadrao(): string {
         [filtered]="lista.filtered()" [exportRows]="exportar" [exportLimit]="limiteExportacao"
         [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort" [(query)]="lista.query"
         (lazyLoad)="lista.load($event)" (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()" (rowActivate)="ver($event)">
-        <ng-template cesCell="equipe" let-row>
-          <span class="ces-cell-strong">{{ row.codigoEquipe || 'Equipe removida' }}</span>
-          <span class="ces-cell-muted">{{ local(row) }}</span>
+        <ng-template geoCell="equipe" let-row>
+          <span class="geo-cell-strong">{{ row.codigoEquipe || 'Equipe removida' }}</span>
+          <span class="geo-cell-muted">{{ local(row) }}</span>
         </ng-template>
-        <ng-template cesCell="abertura" let-row>
+        <ng-template geoCell="abertura" let-row>
           <span>{{ row.dataInicio | date: 'dd/MM/yyyy HH:mm' }}</span>
-          @if (row.abertoPor) { <span class="ces-cell-muted">por {{ row.abertoPor }}</span> }
+          @if (row.abertoPor) { <span class="geo-cell-muted">por {{ row.abertoPor }}</span> }
         </ng-template>
-        <ng-template cesCell="fechamento" let-row>
-          @if (row.dataFim) { {{ row.dataFim | date: 'dd/MM/yyyy HH:mm' }} } @else { <span class="ces-cell-muted">Em aberto</span> }
+        <ng-template geoCell="fechamento" let-row>
+          @if (row.dataFim) { {{ row.dataFim | date: 'dd/MM/yyyy HH:mm' }} } @else { <span class="geo-cell-muted">Em aberto</span> }
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="situacao(row).tom" [icon]="situacao(row).icone.replace('pi ', '')">{{ situacao(row).rotulo }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="situacao(row).tom" [icon]="situacao(row).icone.replace('pi ', '')">{{ situacao(row).rotulo }}</geo-status>
         </ng-template>
-        <ng-template cesCell="obras" let-row>
+        <ng-template geoCell="obras" let-row>
           @if (row.obras.length) {
             <span [title]="row.obras.join(', ')">{{ row.obras[0] }}{{ row.obras.length > 1 ? ' +' + (row.obras.length - 1) : '' }}</span>
-          } @else { <span class="ces-cell-muted">Sem atividade</span> }
+          } @else { <span class="geo-cell-muted">Sem atividade</span> }
         </ng-template>
-        <ng-template cesCell="meta" let-row>
+        <ng-template geoCell="meta" let-row>
           <span>{{ row.realizado | currency: 'BRL' }}</span>
           @if (row.percentualMeta != null) {
-            <span class="turnos-meta"><ces-status [tone]="faixa(row.percentualMeta)">{{ percentual(row.percentualMeta) }}</ces-status> <span class="ces-cell-muted">de {{ row.metaDiaria | currency: 'BRL' }}</span></span>
-          } @else { <span class="ces-cell-muted">Sem meta</span> }
+            <span class="turnos-meta"><geo-status [tone]="faixa(row.percentualMeta)">{{ percentual(row.percentualMeta) }}</geo-status> <span class="geo-cell-muted">de {{ row.metaDiaria | currency: 'BRL' }}</span></span>
+          } @else { <span class="geo-cell-muted">Sem meta</span> }
         </ng-template>
-        <ng-template cesCell="registros" let-row>
+        <ng-template geoCell="registros" let-row>
           <span class="turnos-registros">
-            @if (row.semRelatorio) { <ces-status tone="warning" icon="pi-file-excel">Sem relatório</ces-status> }
-            @if (row.ocorrencias) { <ces-status tone="danger" icon="pi-exclamation-triangle">{{ row.ocorrencias === 1 ? '1 ocorrência' : row.ocorrencias + ' ocorrências' }}</ces-status> }
-            @if (row.aprs) { <ces-status [tone]="row.aprsEmRascunho ? 'warning' : 'neutral'" icon="pi-shield">{{ rotuloApr(row) }}</ces-status> }
-            @if (row.substitutos) { <ces-status tone="info" icon="pi-sync">{{ row.substitutos === 1 ? '1 substituto' : row.substitutos + ' substitutos' }}</ces-status> }
-            @if (!row.semRelatorio && !row.ocorrencias && !row.aprs && !row.substitutos) { <span class="ces-cell-muted">—</span> }
+            @if (row.semRelatorio) { <geo-status tone="warning" icon="pi-file-excel">Sem relatório</geo-status> }
+            @if (row.ocorrencias) { <geo-status tone="danger" icon="pi-exclamation-triangle">{{ row.ocorrencias === 1 ? '1 ocorrência' : row.ocorrencias + ' ocorrências' }}</geo-status> }
+            @if (row.aprs) { <geo-status [tone]="row.aprsEmRascunho ? 'warning' : 'neutral'" icon="pi-shield">{{ rotuloApr(row) }}</geo-status> }
+            @if (row.substitutos) { <geo-status tone="info" icon="pi-sync">{{ row.substitutos === 1 ? '1 substituto' : row.substitutos + ' substitutos' }}</geo-status> }
+            @if (!row.semRelatorio && !row.ocorrencias && !row.aprs && !row.substitutos) { <span class="geo-cell-muted">—</span> }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-ajuda-listagem #ajuda titulo="Turnos de Obras" entidadePlural="turnos" busca="equipe, placa, quem abriu ou obra" [podeCriar]="false">
@@ -210,24 +210,24 @@ export class TurnosObraComponent {
   protected readonly dataLocal = dataLocal;
   protected readonly percentual = percentual;
   protected readonly situacao = situacaoDoTurno;
-  protected readonly faixa = cesAttainmentBand;
+  protected readonly faixa = geoAttainmentBand;
   protected readonly horas = horasTotais;
   protected readonly moeda = formatarMoeda;
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
-  protected readonly equipes = signal<CesSelectOption<string>[]>([]);
+  protected readonly equipes = signal<GeoSelectOption<string>[]>([]);
   private readonly indicadores = signal<IndicadoresTurnosObra | null>(null);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-turnos',
     filters: {
-      idEquipe: cesFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nome(this.equipes(), id) : null) }),
-      idBaseOperacional: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.recorte.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
-      obra: cesFilter.value<string>('', { label: 'Obra', param: 'obra', format: (v): string | null => v || null }),
-      status: cesFilter.value<StatusTurnoObra | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
-      meta: cesFilter.value<MetaTurnoFiltro | null>(null, { label: 'Meta', type: 'string', options: () => METAS }),
-      semRelatorio: cesFilter.value<boolean>(false, { label: 'Relatório', param: 'semRelatorio', format: (v): string | null => (v ? 'sem relatório' : null) }),
-      comOcorrencia: cesFilter.value<boolean>(false, { label: 'Ocorrências', param: 'comOcorrencia', format: (v): string | null => (v ? 'com ocorrências' : null) }),
-      abertura: cesFilter.range({ from: inicioPadrao(), to: null }, { label: 'Abertura' })
+      idEquipe: geoFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nome(this.equipes(), id) : null) }),
+      idBaseOperacional: geoFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.recorte.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
+      obra: geoFilter.value<string>('', { label: 'Obra', param: 'obra', format: (v): string | null => v || null }),
+      status: geoFilter.value<StatusTurnoObra | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
+      meta: geoFilter.value<MetaTurnoFiltro | null>(null, { label: 'Meta', type: 'string', options: () => METAS }),
+      semRelatorio: geoFilter.value<boolean>(false, { label: 'Relatório', param: 'semRelatorio', format: (v): string | null => (v ? 'sem relatório' : null) }),
+      comOcorrencia: geoFilter.value<boolean>(false, { label: 'Ocorrências', param: 'comOcorrencia', format: (v): string | null => (v ? 'com ocorrências' : null) }),
+      abertura: geoFilter.range({ from: inicioPadrao(), to: null }, { label: 'Abertura' })
     },
     sort: [{ key: 'abertura', direction: 'desc' }]
   });
@@ -246,7 +246,7 @@ export class TurnosObraComponent {
     return !a.status && !a.meta && !a.semRelatorio && !a.comOcorrencia;
   });
 
-  protected readonly colunas: CesDataTableColumn<TurnoObraLinha>[] = [
+  protected readonly colunas: GeoDataTableColumn<TurnoObraLinha>[] = [
     { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, sortField: 'equipe', value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
     { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
     { key: 'fechamento', header: 'Fechamento', type: 'custom', sortField: 'dataFim', value: (t) => t.dataFim, display: (t) => (t.dataFim ? new Date(t.dataFim).toLocaleString('pt-BR') : 'Em aberto') },
@@ -263,7 +263,7 @@ export class TurnosObraComponent {
     this.api.boletim().pipe(take(1)).subscribe((b) => this.equipes.set(b.equipes.map((e) => ({ value: e.idEquipe, label: e.codigo }))));
   }
 
-  private nome(opcoes: readonly CesSelectOption<string>[], id: string): string {
+  private nome(opcoes: readonly GeoSelectOption<string>[], id: string): string {
     return opcoes.find((o) => o.value === id)?.label ?? 'selecionada';
   }
 

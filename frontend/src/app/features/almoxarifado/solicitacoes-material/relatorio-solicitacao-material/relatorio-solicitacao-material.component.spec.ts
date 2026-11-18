@@ -5,7 +5,7 @@ import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 
 import { RelatorioSolicitacaoMaterialComponent } from './relatorio-solicitacao-material.component';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';

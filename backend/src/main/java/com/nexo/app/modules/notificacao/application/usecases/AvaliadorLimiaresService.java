@@ -39,7 +39,7 @@ public class AvaliadorLimiaresService {
     private final MotorNotificacoes motor;
     private final List<ProvedorMetricaGatilho> provedores;
 
-    @Scheduled(cron = "${ces.notificacao.limiares-cron:0 */15 * * * *}")
+    @Scheduled(cron = "${geo.notificacao.limiares-cron:0 */15 * * * *}")
     public void avaliar() {
         Map<String, ProvedorMetricaGatilho> provedorPorGatilho = indexarProvedores();
         if (provedorPorGatilho.isEmpty()) {

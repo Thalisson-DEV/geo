@@ -1,2 +1,2 @@
-export * from './ces-tab-panel.directive';
-export * from './ces-tabs.component';
+export * from './geo-tab-panel.directive';
+export * from './geo-tabs.component';

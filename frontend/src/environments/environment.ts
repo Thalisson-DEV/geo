@@ -1,6 +1,6 @@
 /** Configuração injetada no bundle pela implantação do frontend. */
-export const STATUS_PAGE_URL = globalThis.__CES_CONFIG__?.statusPageUrl ?? '';
-export const STATUS_PUBLIC_API_URL = globalThis.__CES_CONFIG__?.statusPublicApiUrl ?? '';
+export const STATUS_PAGE_URL = globalThis.__GEO_CONFIG__?.statusPageUrl ?? '';
+export const STATUS_PUBLIC_API_URL = globalThis.__GEO_CONFIG__?.statusPublicApiUrl ?? '';
 
 export const environment = {
   production: true,

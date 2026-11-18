@@ -3,27 +3,27 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesMultiSelectComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoMultiSelectComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesAttainmentBand,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoAttainmentBand,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
 
 import { ConsultaTurnosFiltros, StatusTurno, TurnoConsulta } from '../../../core/models/dashboard.models';
@@ -38,7 +38,7 @@ import { duracao, percentual } from '../dashboards/execucao-dashboards.utils';
 import { RecorteDashboardService } from '../dashboards/recorte-dashboard.service';
 import { situacaoDoTurno } from './turno-list.utils';
 
-const STATUS: CesSelectOption<StatusTurno | null>[] = [
+const STATUS: GeoSelectOption<StatusTurno | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Em turno', value: 'ABERTO' },
   { label: 'Encerrado', value: 'FECHADO' }
@@ -61,53 +61,53 @@ function inicioPadrao(): string {
   imports: [
     CurrencyPipe,
     DatePipe,
-    CesBooleanControlComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesMultiSelectComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesButtonComponent,
-    CesTextInputComponent,
+    GeoBooleanControlComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoMultiSelectComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoButtonComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent,
     ExportacaoCsvDrawerComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts>
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts>
+      <geo-page-header
         title="Turnos"
         icon="pi pi-calendar-clock"
         [breadcrumb]="[{ label: 'Execução' }, { label: 'Turnos' }]"
         description="Turnos das equipes: abertura, fechamento, notas lançadas, produção e atingimento da meta do dia."
         helpLabel="Ajuda sobre turnos"
         (help)="ajuda.show()"
-      ></ces-page-header>
+      ></geo-page-header>
 
-      <ces-filter-panel #painel storageKey="execucao-turnos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="execucao-turnos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Equipe" [options]="recorte.opcoesEquipes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true"
-            [loading]="recorte.carregandoEquipes()" placeholder="Todas"></ces-select>
-          <ces-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true"
-            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Processo" [options]="recorte.opcoesProcessos()" [(value)]="lista.filters.idProcesso" [clearable]="true"
-            selectedItemsLabel="{0} processos" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></ces-select>
-          <ces-datepicker label="Abertos a partir de" [value]="dataLocal(lista.filters.abertura().from)" [clearable]="true" (valueChange)="abertura('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Abertos até" [value]="dataLocal(lista.filters.abertura().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.abertura().from)"
-            (valueChange)="abertura('to', $event)"></ces-datepicker>
-          <ces-boolean-control label="Só os abertos hoje" kind="toggle" [inline]="true" [value]="lista.filters.apenasHoje()" (valueChange)="lista.filters.apenasHoje.set($event)"></ces-boolean-control>
+        <div class="geo-filter-grid">
+          <geo-select label="Equipe" [options]="recorte.opcoesEquipes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true"
+            [loading]="recorte.carregandoEquipes()" placeholder="Todas"></geo-select>
+          <geo-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true"
+            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Processo" [options]="recorte.opcoesProcessos()" [(value)]="lista.filters.idProcesso" [clearable]="true"
+            selectedItemsLabel="{0} processos" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></geo-select>
+          <geo-datepicker label="Abertos a partir de" [value]="dataLocal(lista.filters.abertura().from)" [clearable]="true" (valueChange)="abertura('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Abertos até" [value]="dataLocal(lista.filters.abertura().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.abertura().from)"
+            (valueChange)="abertura('to', $event)"></geo-datepicker>
+          <geo-boolean-control label="Só os abertos hoje" kind="toggle" [inline]="true" [value]="lista.filters.apenasHoje()" (valueChange)="lista.filters.apenasHoje.set($event)"></geo-boolean-control>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Turnos"
         mode="server"
         storageKey="execucao-turnos"
@@ -132,51 +132,51 @@ function inicioPadrao(): string {
         (clearFilters)="lista.reset()"
         (rowActivate)="verRelatorio($event)"
       >
-        <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de turnos">
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().status === 'ABERTO'" (click)="alternarEmTurno()">
+        <div table-filters class="geo-quick-filters" role="group" aria-label="Atalhos de turnos">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().status === 'ABERTO'" (click)="alternarEmTurno()">
             <i class="pi pi-play-circle" aria-hidden="true"></i> Em turno
           </button>
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().apenasHoje" (click)="lista.set('apenasHoje', !lista.applied().apenasHoje)">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().apenasHoje" (click)="lista.set('apenasHoje', !lista.applied().apenasHoje)">
             <i class="pi pi-calendar" aria-hidden="true"></i> Abertos hoje
           </button>
         </div>
-        <ces-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></ces-button>
-        <ng-template cesCell="equipe" let-row>
-          <span class="ces-cell-strong">{{ row.codigoEquipe || 'Equipe removida' }}</span>
-          <span class="ces-cell-muted">{{ local(row) }}</span>
+        <geo-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></geo-button>
+        <ng-template geoCell="equipe" let-row>
+          <span class="geo-cell-strong">{{ row.codigoEquipe || 'Equipe removida' }}</span>
+          <span class="geo-cell-muted">{{ local(row) }}</span>
         </ng-template>
-        <ng-template cesCell="abertura" let-row>
+        <ng-template geoCell="abertura" let-row>
           <span>{{ row.dataInicio | date: 'dd/MM/yyyy HH:mm' }}</span>
           @if (row.abertoPor) {
-            <span class="ces-cell-muted">por {{ row.abertoPor }}</span>
+            <span class="geo-cell-muted">por {{ row.abertoPor }}</span>
           }
         </ng-template>
-        <ng-template cesCell="fechamento" let-row>
+        <ng-template geoCell="fechamento" let-row>
           @if (row.dataFim) {
             {{ row.dataFim | date: 'dd/MM/yyyy HH:mm' }}
           } @else {
-            <span class="ces-cell-muted">Em aberto</span>
+            <span class="geo-cell-muted">Em aberto</span>
           }
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="situacao(row).tom" [icon]="situacao(row).icone.replace('pi ', '')">{{ situacao(row).rotulo }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="situacao(row).tom" [icon]="situacao(row).icone.replace('pi ', '')">{{ situacao(row).rotulo }}</geo-status>
         </ng-template>
-        <ng-template cesCell="meta" let-row>
+        <ng-template geoCell="meta" let-row>
           @if (row.percentualMetaDiaria !== null) {
-            <ces-status [tone]="faixa(row.percentualMetaDiaria)" icon="pi-chart-line">{{ percentual(row.percentualMetaDiaria) }}</ces-status>
-            <span class="ces-cell-muted">de {{ row.metaDiaria | currency: 'BRL' }}</span>
+            <geo-status [tone]="faixa(row.percentualMetaDiaria)" icon="pi-chart-line">{{ percentual(row.percentualMetaDiaria) }}</geo-status>
+            <span class="geo-cell-muted">de {{ row.metaDiaria | currency: 'BRL' }}</span>
           } @else {
-            <span class="ces-cell-muted">Sem meta</span>
+            <span class="geo-cell-muted">Sem meta</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button icon="pi pi-print" [label]="'Imprimir turno de ' + rotulo(row)" size="icon-sm" (pressed)="imprimir(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-list" [label]="'Notas do turno de ' + rotulo(row)" size="icon-sm" [disabled]="row.notas === 0" (pressed)="verNotas(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações do turno de ' + rotulo(row)" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button icon="pi pi-print" [label]="'Imprimir turno de ' + rotulo(row)" size="icon-sm" (pressed)="imprimir(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-list" [label]="'Notas do turno de ' + rotulo(row)" size="icon-sm" [disabled]="row.notas === 0" (pressed)="verNotas(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações do turno de ' + rotulo(row)" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
@@ -185,18 +185,18 @@ function inicioPadrao(): string {
       [total]="totalExportacao()" [contando]="contandoExportacao()" [limite]="limiteExportacao" [exportando]="exportando()"
       (exportar)="exportarCsv($event)">
       @if (exportacaoAberta()) {
-        <ces-text-input label="Equipe, placa ou quem abriu" [value]="expBusca()" (valueChange)="expBusca.set($event)"></ces-text-input>
-        <ces-select label="Equipe" [options]="recorte.opcoesEquipes()" [value]="exp().idEquipe" (valueChange)="mudar('idEquipe', $event)" [clearable]="true" [filter]="true"
-          [loading]="recorte.carregandoEquipes()" placeholder="Todas"></ces-select>
-        <ces-datepicker label="Abertos a partir de" [value]="dataLocal(exp().abertura.from)" [clearable]="true" (valueChange)="periodoExportacao('from', $event)"></ces-datepicker>
-        <ces-datepicker label="Abertos até" [value]="dataLocal(exp().abertura.to)" [clearable]="true" [minDate]="dataLocal(exp().abertura.from)"
-          (valueChange)="periodoExportacao('to', $event)"></ces-datepicker>
-        <ces-select label="Status" [options]="statusOpcoes" [value]="exp().status" (valueChange)="mudar('status', $event)"></ces-select>
-        <ces-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [value]="exp().idBaseOperacional" (valueChange)="mudar('idBaseOperacional', $event)"
-          [clearable]="true" selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Processo" [options]="recorte.opcoesProcessos()" [value]="exp().idProcesso" (valueChange)="mudar('idProcesso', $event)"
-          [clearable]="true" selectedItemsLabel="{0} processos" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todos"></ces-multiselect>
-        <ces-boolean-control label="Só os abertos hoje" kind="toggle" [inline]="true" [value]="exp().apenasHoje" (valueChange)="mudar('apenasHoje', $event)"></ces-boolean-control>
+        <geo-text-input label="Equipe, placa ou quem abriu" [value]="expBusca()" (valueChange)="expBusca.set($event)"></geo-text-input>
+        <geo-select label="Equipe" [options]="recorte.opcoesEquipes()" [value]="exp().idEquipe" (valueChange)="mudar('idEquipe', $event)" [clearable]="true" [filter]="true"
+          [loading]="recorte.carregandoEquipes()" placeholder="Todas"></geo-select>
+        <geo-datepicker label="Abertos a partir de" [value]="dataLocal(exp().abertura.from)" [clearable]="true" (valueChange)="periodoExportacao('from', $event)"></geo-datepicker>
+        <geo-datepicker label="Abertos até" [value]="dataLocal(exp().abertura.to)" [clearable]="true" [minDate]="dataLocal(exp().abertura.from)"
+          (valueChange)="periodoExportacao('to', $event)"></geo-datepicker>
+        <geo-select label="Status" [options]="statusOpcoes" [value]="exp().status" (valueChange)="mudar('status', $event)"></geo-select>
+        <geo-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [value]="exp().idBaseOperacional" (valueChange)="mudar('idBaseOperacional', $event)"
+          [clearable]="true" selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Processo" [options]="recorte.opcoesProcessos()" [value]="exp().idProcesso" (valueChange)="mudar('idProcesso', $event)"
+          [clearable]="true" selectedItemsLabel="{0} processos" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todos"></geo-multiselect>
+        <geo-boolean-control label="Só os abertos hoje" kind="toggle" [inline]="true" [value]="exp().apenasHoje" (valueChange)="mudar('apenasHoje', $event)"></geo-boolean-control>
       }
     </app-exportacao-csv-drawer>
     <app-ajuda-listagem #ajuda titulo="Turnos" entidadePlural="turnos" busca="equipe, placa ou quem abriu" [podeCriar]="false">
@@ -223,17 +223,17 @@ export class TurnoListComponent {
   protected readonly dataLocal = dataLocal;
   protected readonly percentual = percentual;
   protected readonly situacao = situacaoDoTurno;
-  protected readonly faixa = cesAttainmentBand;
+  protected readonly faixa = geoAttainmentBand;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'execucao-turnos',
     filters: {
-      idEquipe: cesFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nome(this.recorte.opcoesEquipes(), id) : null) }),
-      idBaseOperacional: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.recorte.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
-      idProcesso: cesFilter.list<string>([], { label: 'Processo', param: 'processo', itemLabel: (id) => this.nome(this.recorte.opcoesProcessos(), id), countLabel: (n) => `${n} processos` }),
-      status: cesFilter.value<StatusTurno | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
-      apenasHoje: cesFilter.value<boolean>(false, { label: 'Abertura', param: 'hoje', format: (v): string | null => (v ? 'hoje' : null) }),
-      abertura: cesFilter.range({ from: inicioPadrao(), to: null }, { label: 'Abertura' })
+      idEquipe: geoFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nome(this.recorte.opcoesEquipes(), id) : null) }),
+      idBaseOperacional: geoFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.recorte.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
+      idProcesso: geoFilter.list<string>([], { label: 'Processo', param: 'processo', itemLabel: (id) => this.nome(this.recorte.opcoesProcessos(), id), countLabel: (n) => `${n} processos` }),
+      status: geoFilter.value<StatusTurno | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
+      apenasHoje: geoFilter.value<boolean>(false, { label: 'Abertura', param: 'hoje', format: (v): string | null => (v ? 'hoje' : null) }),
+      abertura: geoFilter.range({ from: inicioPadrao(), to: null }, { label: 'Abertura' })
     },
     sort: [{ key: 'abertura', direction: 'desc' }]
   });
@@ -255,7 +255,7 @@ export class TurnoListComponent {
   protected readonly contandoExportacao = signal(false);
   private readonly recorteExportacao = computed(() => this.paraApi(this.exp(), this.expBusca()));
 
-  protected readonly colunas: CesDataTableColumn<TurnoConsulta>[] = [
+  protected readonly colunas: GeoDataTableColumn<TurnoConsulta>[] = [
     { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
     { key: 'abertura', header: 'Abertura', type: 'custom', priority: 1, sortField: 'dataInicio', value: (t) => t.dataInicio, display: (t) => new Date(t.dataInicio).toLocaleString('pt-BR') },
     { key: 'fechamento', header: 'Fechamento', type: 'custom', sortField: 'dataFim', value: (t) => t.dataFim, display: (t) => (t.dataFim ? new Date(t.dataFim).toLocaleString('pt-BR') : 'Em aberto') },
@@ -292,7 +292,7 @@ export class TurnoListComponent {
     this.recorte.carregarEquipes(destroyRef);
   }
 
-  private nome(opcoes: readonly CesSelectOption<string>[], id: string): string {
+  private nome(opcoes: readonly GeoSelectOption<string>[], id: string): string {
     return opcoes.find((o) => o.value === id)?.label ?? 'selecionado';
   }
 

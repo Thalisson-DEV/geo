@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 
 /**
  * Configuração de acesso ao bucket Cloudflare R2 (API S3-compatível).
- * Valores vêm de variáveis de ambiente (ver {@code application.yaml}, prefixo {@code ces.r2}).
+ * Valores vêm de variáveis de ambiente (ver {@code application.yaml}, prefixo {@code geo.r2}).
  */
 @Component
-@ConfigurationProperties(prefix = "ces.r2")
+@ConfigurationProperties(prefix = "geo.r2")
 @Getter
 @Setter
 public class R2Properties {

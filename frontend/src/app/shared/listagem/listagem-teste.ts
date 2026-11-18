@@ -44,7 +44,7 @@ export async function abrirListagem<T>(
 }
 
 export function chipsDoPainel(el: HTMLElement): string[] {
-  return Array.from(el.querySelectorAll('.ces-filter-panel__chip')).map((c) => c.textContent!.trim());
+  return Array.from(el.querySelectorAll('.geo-filter-panel__chip')).map((c) => c.textContent!.trim());
 }
 
 /** Dispara uma tecla de atalho no documento (fora de campos). */

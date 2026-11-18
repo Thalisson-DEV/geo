@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, output, signal } from '@angular/core';
-import { CesAsyncStateComponent, CesButtonComponent, CesDialogShellComponent, CesIconButtonComponent, NotificationService } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoButtonComponent, GeoDialogShellComponent, GeoIconButtonComponent, NotificationService } from '@geo/ui';
 import { Observable, take } from 'rxjs';
 import { EvidenciaVisita } from '../../../core/models/obras-documentacao.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -16,7 +16,7 @@ type Entrada = { tipo: 'gravada'; evidencia: EvidenciaVisita } | { tipo: 'penden
 @Component({
   selector: 'app-visita-evidencias',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, CesButtonComponent, CesDialogShellComponent, CesIconButtonComponent],
+  imports: [GeoAsyncStateComponent, GeoButtonComponent, GeoDialogShellComponent, GeoIconButtonComponent],
   template: `
     @if (entradas().length) {
       <ul class="ve-lista" [attr.aria-label]="rotulo()">
@@ -35,7 +35,7 @@ type Entrada = { tipo: 'gravada'; evidencia: EvidenciaVisita } | { tipo: 'penden
               }
             </button>
             @if (podeEscrever()) {
-              <ces-icon-button class="ve-item__remover" icon="pi pi-times" [label]="'Remover ' + nomeDe(en)" size="icon-sm" variant="ghost" (pressed)="remover(en)"></ces-icon-button>
+              <geo-icon-button class="ve-item__remover" icon="pi pi-times" [label]="'Remover ' + nomeDe(en)" size="icon-sm" variant="ghost" (pressed)="remover(en)"></geo-icon-button>
             }
           </li>
         }
@@ -45,8 +45,8 @@ type Entrada = { tipo: 'gravada'; evidencia: EvidenciaVisita } | { tipo: 'penden
       <div class="ve-acoes" [class.ve-acoes--discreta]="discreto()">
         <input #arquivo type="file" class="ve-oculto" [accept]="tipos" multiple (change)="escolher($event)" />
         <input #camera type="file" class="ve-oculto" accept="image/*" capture="environment" (change)="escolher($event)" />
-        <ces-button variant="ghost" size="sm" icon="pi pi-paperclip" [label]="discreto() && !entradas().length ? 'Adicionar evidência' : 'Anexar'" [ariaLabel]="'Anexar foto ou PDF' + (rotulo() ? ' em ' + rotulo() : '')" (pressed)="arquivo.click()"></ces-button>
-        <ces-button variant="ghost" size="sm" icon="pi pi-camera" label="Tirar foto" [ariaLabel]="'Tirar foto com a câmera' + (rotulo() ? ' para ' + rotulo() : '')" (pressed)="camera.click()"></ces-button>
+        <geo-button variant="ghost" size="sm" icon="pi pi-paperclip" [label]="discreto() && !entradas().length ? 'Adicionar evidência' : 'Anexar'" [ariaLabel]="'Anexar foto ou PDF' + (rotulo() ? ' em ' + rotulo() : '')" (pressed)="arquivo.click()"></geo-button>
+        <geo-button variant="ghost" size="sm" icon="pi pi-camera" label="Tirar foto" [ariaLabel]="'Tirar foto com a câmera' + (rotulo() ? ' para ' + rotulo() : '')" (pressed)="camera.click()"></geo-button>
         @if (!discreto()) {
           <span class="ve-dica">JPG, PNG ou PDF, até 15 MB. Opcional.</span>
         }
@@ -55,38 +55,38 @@ type Entrada = { tipo: 'gravada'; evidencia: EvidenciaVisita } | { tipo: 'penden
       <p class="ve-dica">Nenhuma evidência anexada.</p>
     }
 
-    <ces-dialog-shell [visible]="!!aberta()" (visibleChange)="$event || fecharFoto()" [title]="tituloAberta()" size="lg">
+    <geo-dialog-shell [visible]="!!aberta()" (visibleChange)="$event || fecharFoto()" [title]="tituloAberta()" size="lg">
       <div class="ve-foto">
         @if (urlAberta(); as src) {
           <img [src]="src" [alt]="tituloAberta()" />
         } @else if (erroAberta()) {
-          <ces-async-state state="error" [compact]="true" title="Não foi possível abrir a foto" [description]="erroAberta()!"></ces-async-state>
+          <geo-async-state state="error" [compact]="true" title="Não foi possível abrir a foto" [description]="erroAberta()!"></geo-async-state>
         } @else {
-          <ces-async-state state="loading" [compact]="true" title="Abrindo a foto"></ces-async-state>
+          <geo-async-state state="loading" [compact]="true" title="Abrindo a foto"></geo-async-state>
         }
       </div>
-      <div dialog-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Fechar" (pressed)="fecharFoto()"></ces-button>
+      <div dialog-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Fechar" (pressed)="fecharFoto()"></geo-button>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `,
   styles: `
     :host { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
     .ve-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(4.75rem, 1fr)); gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
     .ve-item { position: relative; min-width: 0; }
-    .ve-mini { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1; overflow: hidden; padding: 0; border: 1px solid var(--ces-border-strong); border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); color: var(--ces-foreground-muted); cursor: zoom-in; }
-    .ve-mini:hover { border-color: var(--ces-brand); }
-    .ve-mini:focus-visible { outline: 3px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .ve-mini { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1; overflow: hidden; padding: 0; border: 1px solid var(--geo-border-strong); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); color: var(--geo-foreground-muted); cursor: zoom-in; }
+    .ve-mini:hover { border-color: var(--geo-brand); }
+    .ve-mini:focus-visible { outline: 3px solid var(--geo-focus-ring); outline-offset: 2px; }
     .ve-mini img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .ve-mini__pdf { display: flex; flex-direction: column; align-items: center; gap: 0.125rem; color: var(--ces-danger-text); font-size: 0.6875rem; font-weight: 700; }
+    .ve-mini__pdf { display: flex; flex-direction: column; align-items: center; gap: 0.125rem; color: var(--geo-danger-text); font-size: 0.6875rem; font-weight: 700; }
     .ve-mini__pdf .pi { font-size: 1.25rem; }
-    .ve-mini__selo { position: absolute; inset: auto 0 0 0; padding: 0.125rem 0.25rem; background: var(--ces-info-soft); color: var(--ces-info-text); font-size: 0.625rem; font-weight: 700; text-align: center; backdrop-filter: blur(4px); }
-    .ve-item__remover { position: absolute; top: 0.125rem; right: 0.125rem; border-radius: 999px; background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); }
+    .ve-mini__selo { position: absolute; inset: auto 0 0 0; padding: 0.125rem 0.25rem; background: var(--geo-info-soft); color: var(--geo-info-text); font-size: 0.625rem; font-weight: 700; text-align: center; backdrop-filter: blur(4px); }
+    .ve-item__remover { position: absolute; top: 0.125rem; right: 0.125rem; border-radius: 999px; background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
     .ve-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; }
     .ve-acoes--discreta { margin-left: -0.5rem; }
     .ve-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
-    .ve-dica { margin: 0; color: var(--ces-foreground-muted); font-size: 0.75rem; }
-    .ve-foto { display: grid; place-items: center; min-height: 14rem; overflow: hidden; border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
+    .ve-dica { margin: 0; color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .ve-foto { display: grid; place-items: center; min-height: 14rem; overflow: hidden; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     .ve-foto img { display: block; max-width: 100%; max-height: 70vh; object-fit: contain; }
   `
 })

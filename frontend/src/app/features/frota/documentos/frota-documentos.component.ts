@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, forkJoin, map, of, shareReplay, switchMap } from 'rxjs';
 import {
   DocumentoFrota,
@@ -31,7 +31,7 @@ import { FrotaDocumentosTabelaComponent } from './frota-documentos-tabela.compon
 /** "Vencidos e a vencer": a lista de trabalho de quem renova documentos (padrão da tela). */
 export type SituacaoDocumentoFiltro = SituacaoVencimento | 'PENDENTE';
 
-const SITUACOES: CesSelectOption<SituacaoDocumentoFiltro>[] = [
+const SITUACOES: GeoSelectOption<SituacaoDocumentoFiltro>[] = [
   { label: 'Vencidos e a vencer', value: 'PENDENTE' },
   ...(['VENCIDO', 'A_VENCER', 'VIGENTE', 'SEM_VENCIMENTO'] as SituacaoVencimento[]).map((s) => ({ label: ROTULO_VENCIMENTO[s], value: s }))
 ];
@@ -49,29 +49,29 @@ function daquiA(dias: number): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
+    GeoButtonComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
     FrotaDocumentoFormComponent,
     FrotaDocumentosTabelaComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="acesso.editarDocumento()" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarDocumento()" (newRequested)="novo()">
+      <geo-page-header
         title="Documentos e vencimentos"
         icon="pi pi-file"
         [breadcrumb]="[{ label: 'Frota' }, { label: 'Documentos' }]"
         description="Documentos de veículos e implementos. Abre no que está vencido ou perto de vencer; quem cuida da documentação recebe aviso nas faixas configuradas. Atalhos: / busca, F filtros, N novo documento."
       >
         @if (acesso.editarDocumento()) {
-          <ces-button actions icon="pi pi-plus" label="Novo documento" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo documento" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel
+      <geo-filter-panel
         #painel
         storageKey="frota-documentos"
         [activeCount]="lista.activeCount()"
@@ -81,12 +81,12 @@ function daquiA(dias: number): string {
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Tipo" [options]="tipos()" [(value)]="lista.filters.tipos" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Situação" [options]="situacoes" [(value)]="lista.filters.situacao" [clearable]="true" placeholder="Todas"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Tipo" [options]="tipos()" [(value)]="lista.filters.tipos" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Situação" [options]="situacoes" [(value)]="lista.filters.situacao" [clearable]="true" placeholder="Todas"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
       <app-frota-documentos-tabela
         titulo="Documentos"
@@ -115,9 +115,9 @@ function daquiA(dias: number): string {
         (editar)="editar($event)"
         (alterado)="lista.reload()"
       >
-        <div filtros-rapidos class="ces-quick-filters" role="group" aria-label="Filtros rápidos de situação">
+        <div filtros-rapidos class="geo-quick-filters" role="group" aria-label="Filtros rápidos de situação">
           @for (rapido of filtrosRapidos; track rapido.value) {
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().situacao === rapido.value"
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().situacao === rapido.value"
               (click)="alternarRapido(rapido.value)">
               <i class="pi" [class.pi-check]="lista.applied().situacao === rapido.value" [class.pi-filter]="lista.applied().situacao !== rapido.value" aria-hidden="true"></i>
               {{ rapido.label }}
@@ -142,23 +142,23 @@ export class FrotaDocumentosComponent {
   protected readonly emEdicao = signal<DocumentoFrota | null>(null);
 
   protected readonly situacoes = SITUACOES;
-  protected readonly filtrosRapidos: CesSelectOption<SituacaoDocumentoFiltro>[] = [
+  protected readonly filtrosRapidos: GeoSelectOption<SituacaoDocumentoFiltro>[] = [
     { label: 'Vencidos', value: 'VENCIDO' },
     { label: 'A vencer', value: 'A_VENCER' }
   ];
   protected readonly tipos = computed(() => (this.opcoes()?.tiposDocumento ?? []).map((t) => ({ label: t.rotulo, value: t.valor })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-documentos',
     rememberFilters: 'frota-documentos',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      tipos: cesFilter.list<TipoDocumentoFrota>([], {
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      tipos: geoFilter.list<TipoDocumentoFrota>([], {
         label: 'Tipo',
         param: 'tipo',
         itemLabel: (t) => this.tipos().find((o) => o.value === t)?.label ?? t
       }),
-      situacao: cesFilter.value<SituacaoDocumentoFiltro | null>('PENDENTE', { label: 'Situação', options: () => SITUACOES })
+      situacao: geoFilter.value<SituacaoDocumentoFiltro | null>('PENDENTE', { label: 'Situação', options: () => SITUACOES })
     },
     sort: [{ key: 'dataVencimento', direction: 'asc' }]
   });

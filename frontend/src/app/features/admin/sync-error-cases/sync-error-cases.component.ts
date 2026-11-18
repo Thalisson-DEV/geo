@@ -10,22 +10,22 @@ import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { catchError, of } from 'rxjs';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
-import { CesSelectComponent } from '@ces/ui/forms';
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
+import { GeoSelectComponent } from '@geo/ui/forms';
 import { SyncReferenceSelectorComponent } from './sync-reference-selector.component';
 import { SyncReferenceCatalogService, syncReferenceKind } from './sync-reference-catalog.service';
 import { HelpDialogComponent } from '../../../shared/components/help-dialog/help-dialog.component';
@@ -180,16 +180,16 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
     TooltipModule,
     TextareaModule,
     StepperModule,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesSelectComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoSelectComponent,
     SyncReferenceSelectorComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
     HelpDialogComponent,
     CopilotoAreaComponent,
     CopilotoGatilhoComponent
@@ -197,11 +197,11 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
   styles: [`
     :host ::ng-deep {
       .p-stepper {
-        --p-stepper-separator-background: var(--ces-border);
+        --p-stepper-separator-background: var(--geo-border);
         --p-stepper-separator-active-background: var(--p-primary-600);
       }
       .p-stepper-separator {
-        background-color: var(--ces-border) !important;
+        background-color: var(--geo-border) !important;
       }
       .custom-select, .custom-date {
         width: 100%;
@@ -210,8 +210,8 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
   `],
   template: `
     <app-copiloto-area [contexto]="contextoCopiloto">
-    <div class="ces-page">
-      <ces-page-header
+    <div class="geo-page">
+      <geo-page-header
         title="Sincronismo"
         icon="pi pi-sync"
         [breadcrumb]="breadcrumbItems"
@@ -222,19 +222,19 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
         @if (copilotoDisponivel) {
           <app-copiloto-gatilho actions></app-copiloto-gatilho>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="admin-sync-erros" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="admin-sync-erros" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Situação" [options]="statusOptions" [(value)]="lista.filters.status"></ces-select>
-          <ces-select label="Tipo de atividade" [options]="operationOptions" [(value)]="lista.filters.tipo"></ces-select>
-          <ces-datepicker label="Enviados a partir de" [value]="dataLocal(lista.filters.envio().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Enviados até" [value]="dataLocal(lista.filters.envio().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-select label="Situação" [options]="statusOptions" [(value)]="lista.filters.status"></geo-select>
+          <geo-select label="Tipo de atividade" [options]="operationOptions" [(value)]="lista.filters.tipo"></geo-select>
+          <geo-datepicker label="Enviados a partir de" [value]="dataLocal(lista.filters.envio().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Enviados até" [value]="dataLocal(lista.filters.envio().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Pendências de sincronismo"
         mode="server"
         storageKey="admin-sync-erros"
@@ -262,20 +262,20 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
         (clearFilters)="lista.reset()"
         (rowActivate)="open($event)"
       >
-        <ng-template cesCell="atividade" let-item>
-          <span class="ces-cell-strong"><i [class]="getOperationIcon(item.operationType)" aria-hidden="true"></i> {{ getOperationLabel(item.operationType) }}</span>
+        <ng-template geoCell="atividade" let-item>
+          <span class="geo-cell-strong"><i [class]="getOperationIcon(item.operationType)" aria-hidden="true"></i> {{ getOperationLabel(item.operationType) }}</span>
           @if (getRecordBusinessLabel(item); as recordRef) {
-            <span class="ces-cell-muted">{{ recordRef }}</span>
+            <span class="geo-cell-muted">{{ recordRef }}</span>
           }
         </ng-template>
-        <ng-template cesCell="problema" let-item>
-          <span class="ces-cell-strong">{{ diagnostico(item).titulo }}</span>
-          <span class="ces-cell-muted" [title]="diagnostico(item).explicacao">{{ diagnostico(item).explicacao }}</span>
+        <ng-template geoCell="problema" let-item>
+          <span class="geo-cell-strong">{{ diagnostico(item).titulo }}</span>
+          <span class="geo-cell-muted" [title]="diagnostico(item).explicacao">{{ diagnostico(item).explicacao }}</span>
         </ng-template>
-        <ng-template cesCell="status" let-item>
-          <ces-status [tone]="statusTone(item.status)" [icon]="statusIcon(item.status)">{{ statusLabel(item.status) }}</ces-status>
+        <ng-template geoCell="status" let-item>
+          <geo-status [tone]="statusTone(item.status)" [icon]="statusIcon(item.status)">{{ statusLabel(item.status) }}</geo-status>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
     </app-copiloto-area>
 
@@ -305,7 +305,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
             }
           </div>
           <div class="flex items-center gap-2">
-            <ces-status [tone]="statusTone(current.status)" [icon]="statusIcon(current.status)">{{ statusLabel(current.status) }}</ces-status>
+            <geo-status [tone]="statusTone(current.status)" [icon]="statusIcon(current.status)">{{ statusLabel(current.status) }}</geo-status>
             @if (!isAssignedToCurrentUser(current) && canManage()) {
               <p-button
                 label="Assumir Atendimento"
@@ -417,24 +417,24 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                 <div class="flex flex-col gap-4 mt-1">
                   <!-- Diagnóstico: o que aconteceu e o que fazer (ou o desfecho, se encerrado) -->
                   @if (current.status === 'RESOLVIDO' || current.status === 'REJEITADO') {
-                    <ces-callout [tone]="current.status === 'RESOLVIDO' ? 'success' : 'neutral'" [title]="current.status === 'RESOLVIDO' ? 'Registro sincronizado' : 'Registro descartado'" [dense]="true">
-                      <p class="text-xs leading-relaxed text-[var(--ces-foreground)]">{{ desfecho(current) }}</p>
-                      <p class="mt-1.5 text-[11px] leading-relaxed text-[var(--ces-foreground-muted)]">
+                    <geo-callout [tone]="current.status === 'RESOLVIDO' ? 'success' : 'neutral'" [title]="current.status === 'RESOLVIDO' ? 'Registro sincronizado' : 'Registro descartado'" [dense]="true">
+                      <p class="text-xs leading-relaxed text-[var(--geo-foreground)]">{{ desfecho(current) }}</p>
+                      <p class="mt-1.5 text-[11px] leading-relaxed text-[var(--geo-foreground-muted)]">
                         <strong>O que tinha impedido:</strong> {{ diagnostico(current).titulo }}. {{ diagnostico(current).explicacao }}
                       </p>
-                    </ces-callout>
+                    </geo-callout>
                   } @else {
-                    <ces-callout [tone]="toneDaAcao(diagnostico(current).acao)" [title]="diagnostico(current).titulo" [dense]="true">
-                      <p class="mb-1.5 text-xs leading-relaxed text-[var(--ces-foreground-muted)]">{{ diagnostico(current).explicacao }}</p>
-                      <p class="text-xs leading-relaxed text-[var(--ces-foreground)]"><strong>O que fazer:</strong> {{ diagnostico(current).orientacao }}</p>
-                    </ces-callout>
+                    <geo-callout [tone]="toneDaAcao(diagnostico(current).acao)" [title]="diagnostico(current).titulo" [dense]="true">
+                      <p class="mb-1.5 text-xs leading-relaxed text-[var(--geo-foreground-muted)]">{{ diagnostico(current).explicacao }}</p>
+                      <p class="text-xs leading-relaxed text-[var(--geo-foreground)]"><strong>O que fazer:</strong> {{ diagnostico(current).orientacao }}</p>
+                    </geo-callout>
                   }
                   @if (copilotoDisponivel) {
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-                      <p class="text-xs text-[var(--ces-foreground-muted)]">
+                      <p class="text-xs text-[var(--geo-foreground-muted)]">
                         Quer uma segunda opinião? A Bússola confere turnos e notas da equipe e aponta a causa provável e a resolução. Quem decide é você.
                       </p>
-                      <ces-button label="Pré-análise da Bússola" icon="pi pi-compass" variant="outline" size="sm" className="shrink-0" (pressed)="preAnalisar(current)"></ces-button>
+                      <geo-button label="Pré-análise da Bússola" icon="pi pi-compass" variant="outline" size="sm" className="shrink-0" (pressed)="preAnalisar(current)"></geo-button>
                     </div>
                   }
 
@@ -507,11 +507,11 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                           @for (mat of getComplexItems(payloadAtual(current)).materiais; track $index) {
                             <div class="p-2.5 bg-white dark:bg-slate-900/80 rounded-lg border flex justify-between items-start gap-3"
-                              [ngClass]="serieRepetida(current, mat.numSerie) ? 'border-[var(--ces-danger)]' : 'border-slate-200 dark:border-slate-800'">
+                              [ngClass]="serieRepetida(current, mat.numSerie) ? 'border-[var(--geo-danger)]' : 'border-slate-200 dark:border-slate-800'">
                               <div class="min-w-0">
                                 <span class="font-semibold text-slate-800 dark:text-slate-200 block">{{ getMaterialLabel(mat) }}</span>
                                 @if (mat.numSerie) {
-                                  <span class="text-[11px] block" [ngClass]="serieRepetida(current, mat.numSerie) ? 'text-[var(--ces-danger-text)] font-semibold' : 'text-slate-500 dark:text-slate-400'">
+                                  <span class="text-[11px] block" [ngClass]="serieRepetida(current, mat.numSerie) ? 'text-[var(--geo-danger-text)] font-semibold' : 'text-slate-500 dark:text-slate-400'">
                                     Série {{ mat.numSerie }}{{ serieRepetida(current, mat.numSerie) ? ' · repetida na nota' : '' }}
                                   </span>
                                 }
@@ -549,7 +549,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                                   <li class="text-[11px] text-slate-600 dark:text-slate-300">
                                     {{ m.label }}: <span class="line-through text-slate-400 dark:text-slate-500">{{ m.before || '(vazio)' }}</span>
                                     <i class="pi pi-arrow-right text-[8px] mx-1 text-slate-400" aria-hidden="true"></i>
-                                    <strong class="text-[var(--ces-success-text)]">{{ m.after || '(vazio)' }}</strong>
+                                    <strong class="text-[var(--geo-success-text)]">{{ m.after || '(vazio)' }}</strong>
                                   </li>
                                 }
                               </ul>
@@ -604,16 +604,16 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                   ></p-button>
 
                   @if (current.status === 'RESOLVIDO' || current.status === 'REJEITADO') {
-                    <span class="text-xs text-[var(--ces-foreground-muted)]">Caso encerrado.</span>
+                    <span class="text-xs text-[var(--geo-foreground-muted)]">Caso encerrado.</span>
                   } @else if (canCorrect(current)) {
                     <div class="flex flex-wrap justify-end gap-2">
                       @if (diagnostico(current).acao === 'DESCARTAR') {
-                        <ces-button label="Descartar registro" icon="pi pi-trash" variant="destructive" size="sm" (pressed)="irParaDescarte()"></ces-button>
+                        <geo-button label="Descartar registro" icon="pi pi-trash" variant="destructive" size="sm" (pressed)="irParaDescarte()"></geo-button>
                       }
-                      <ces-button label="Corrigir dados" icon="pi pi-pencil" [variant]="diagnostico(current).acao === 'CORRIGIR' ? 'primary' : 'outline'" size="sm" (pressed)="activeStep.set(2)"></ces-button>
+                      <geo-button label="Corrigir dados" icon="pi pi-pencil" [variant]="diagnostico(current).acao === 'CORRIGIR' ? 'primary' : 'outline'" size="sm" (pressed)="activeStep.set(2)"></geo-button>
                       @if (podeReenviarSemAlterar(current)) {
-                        <ces-button label="Reenviar sem alterar" icon="pi pi-send" [variant]="diagnostico(current).acao === 'REENVIAR' ? 'primary' : 'outline'" size="sm"
-                          [loading]="saving()" [disabled]="saving()" (pressed)="reenviarSemAlterar(current)"></ces-button>
+                        <geo-button label="Reenviar sem alterar" icon="pi pi-send" [variant]="diagnostico(current).acao === 'REENVIAR' ? 'primary' : 'outline'" size="sm"
+                          [loading]="saving()" [disabled]="saving()" (pressed)="reenviarSemAlterar(current)"></geo-button>
                       }
                     </div>
                   } @else {
@@ -628,9 +628,9 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
               <ng-template #content let-activateCallback="activateCallback">
                 <div class="flex flex-col gap-4 mt-1">
                   <!-- Info Banner -->
-                  <ces-callout tone="info" title="Ajuste só o que estiver errado" [dense]="true">
+                  <geo-callout tone="info" title="Ajuste só o que estiver errado" [dense]="true">
                     {{ diagnostico(current).orientacao }} O envio original fica guardado para consulta.
-                  </ces-callout>
+                  </geo-callout>
 
                   <!-- Campos Editáveis -->
                   <div class="space-y-3">
@@ -648,9 +648,9 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                         </label>
                         }
                         @if (field.type === 'boolean') {
-                          <ces-select [label]="field.label" [options]="booleanOptions" [value]="field.value" (valueChange)="setFieldValue(field, $event)" />
+                          <geo-select [label]="field.label" [options]="booleanOptions" [value]="field.value" (valueChange)="setFieldValue(field, $event)" />
                         } @else if (field.type === 'date') {
-                          <ces-datepicker [label]="field.label" [value]="field.dateValue ?? null" (valueChange)="setDateValue(field, $event)" />
+                          <geo-datepicker [label]="field.label" [value]="field.dateValue ?? null" (valueChange)="setDateValue(field, $event)" />
                         } @else if (field.type === 'textarea') {
                           <textarea
                             pTextarea
@@ -675,11 +675,11 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
 
                     @if (acoesKey()) {
                       <div class="space-y-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-                        <h4 class="font-bold text-xs text-[var(--ces-foreground)]">Serviços executados ({{ editableAcoes().length }})</h4>
+                        <h4 class="font-bold text-xs text-[var(--geo-foreground)]">Serviços executados ({{ editableAcoes().length }})</h4>
                         @for (acao of editableAcoes(); track acao; let index = $index) {
                           <div class="flex items-center justify-between gap-2 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
-                            <span class="font-semibold text-[var(--ces-foreground)]">{{ nomeDaReferencia(acao, 'Serviço') }}</span>
-                            <ces-button [label]="'Remover serviço ' + (index + 1)" icon="pi pi-trash" variant="ghost" size="sm" (pressed)="removerAcao(index)"></ces-button>
+                            <span class="font-semibold text-[var(--geo-foreground)]">{{ nomeDaReferencia(acao, 'Serviço') }}</span>
+                            <geo-button [label]="'Remover serviço ' + (index + 1)" icon="pi pi-trash" variant="ghost" size="sm" (pressed)="removerAcao(index)"></geo-button>
                           </div>
                         }
                         <app-sync-reference-selector kind="action" label="Adicionar serviço" [value]="null" (valueChange)="adicionarAcao($event)" />
@@ -689,27 +689,27 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                     @if (materialKey()) {
                       <div class="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
                         <div class="flex items-center justify-between gap-2">
-                          <h4 class="font-bold text-xs text-[var(--ces-foreground)]">Materiais ({{ editableMaterials().length }})</h4>
-                          <ces-button label="Adicionar material" icon="pi pi-plus" variant="secondary" size="sm" (pressed)="addMaterial()"></ces-button>
+                          <h4 class="font-bold text-xs text-[var(--geo-foreground)]">Materiais ({{ editableMaterials().length }})</h4>
+                          <geo-button label="Adicionar material" icon="pi pi-plus" variant="secondary" size="sm" (pressed)="addMaterial()"></geo-button>
                         </div>
                         @for (material of editableMaterials(); track material; let index = $index) {
                           <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 space-y-2">
                             <div class="flex items-center justify-between">
-                              <span class="font-semibold text-xs text-[var(--ces-foreground)]">Material {{ index + 1 }}</span>
-                              <ces-button [label]="'Remover material ' + (index + 1)" icon="pi pi-trash" variant="destructive" size="sm" (pressed)="removeMaterial(index)"></ces-button>
+                              <span class="font-semibold text-xs text-[var(--geo-foreground)]">Material {{ index + 1 }}</span>
+                              <geo-button [label]="'Remover material ' + (index + 1)" icon="pi pi-trash" variant="destructive" size="sm" (pressed)="removeMaterial(index)"></geo-button>
                             </div>
                             @for (field of material.fields; track field.key) {
                               @if (referenceKind(field.key); as kind) {
                                 <app-sync-reference-selector [kind]="kind" [label]="field.label" [value]="field.value" (valueChange)="setFieldValue(field, $event)" />
                               } @else if (field.type === 'operation') {
-                                <ces-select [label]="field.label" [options]="operacaoMaterialOptions" [value]="field.value" (valueChange)="setFieldValue(field, $event)" />
+                                <geo-select [label]="field.label" [options]="operacaoMaterialOptions" [value]="field.value" (valueChange)="setFieldValue(field, $event)" />
                               } @else {
-                                <label class="flex flex-col gap-1 text-xs text-[var(--ces-foreground)]">
+                                <label class="flex flex-col gap-1 text-xs text-[var(--geo-foreground)]">
                                   <span>{{ field.label }}</span>
                                   <input pInputText [(ngModel)]="field.value" (ngModelChange)="checkFieldModified(field); revalidarSeries()" class="custom-input !w-full" [attr.inputmode]="field.type === 'number' ? 'decimal' : null"
                                     [attr.aria-invalid]="field.key === 'numSerie' && seriesRepetidasNaCorrecao().has(normalizarSerie(field.value)) ? true : null" />
                                   @if (field.key === 'numSerie' && seriesRepetidasNaCorrecao().has(normalizarSerie(field.value))) {
-                                    <span class="text-[11px] font-semibold text-[var(--ces-danger-text)]">Esta série aparece em outro material da nota. Cada série entra uma vez só.</span>
+                                    <span class="text-[11px] font-semibold text-[var(--geo-danger-text)]">Esta série aparece em outro material da nota. Cada série entra uma vez só.</span>
                                   }
                                 </label>
                               }
@@ -720,7 +720,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                     }
 
                     @for (field of complexFields(); track field.key) {
-                      <label class="flex flex-col gap-1 text-xs text-[var(--ces-foreground)]">
+                      <label class="flex flex-col gap-1 text-xs text-[var(--geo-foreground)]">
                         <span>{{ field.label }} (dados avançados)</span>
                         <textarea pTextarea [(ngModel)]="field.value" (ngModelChange)="checkFieldModified(field)" rows="4" class="custom-input !w-full font-mono"></textarea>
                       </label>
@@ -757,7 +757,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
 
                 @if (canCorrect(current)) {
                   <div class="flex justify-end mt-3">
-                    <ces-button label="Descartar registro" icon="pi pi-trash" variant="destructive" size="sm" [disabled]="saving()" (pressed)="onDiscard(current)"></ces-button>
+                    <geo-button label="Descartar registro" icon="pi pi-trash" variant="destructive" size="sm" [disabled]="saving()" (pressed)="onDiscard(current)"></geo-button>
                   </div>
                 }
 
@@ -816,17 +816,17 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                   </div>
 
                   <!-- Card: Liberar para Reprocessamento -->
-                  <div class="p-4 bg-[var(--ces-success-soft)] border border-[color-mix(in_srgb,var(--ces-success)_32%,transparent)] border-l-4 border-l-[var(--ces-success)] rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div class="p-4 bg-[var(--geo-success-soft)] border border-[color-mix(in_srgb,var(--geo-success)_32%,transparent)] border-l-4 border-l-[var(--geo-success)] rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full bg-[color-mix(in_srgb,var(--ces-success)_20%,transparent)] text-[var(--ces-success-text)] flex items-center justify-center shrink-0">
+                      <div class="w-10 h-10 rounded-full bg-[color-mix(in_srgb,var(--geo-success)_20%,transparent)] text-[var(--geo-success-text)] flex items-center justify-center shrink-0">
                         <i class="pi pi-sync text-lg"></i>
                       </div>
                       <div>
-                        <h4 class="font-bold text-xs text-[var(--ces-foreground)] uppercase tracking-wider">Tudo pronto para reenviar</h4>
-                        <p class="text-xs text-[var(--ces-foreground-muted)]">O servidor tenta gravar o registro com os dados corrigidos. Se recusar, o caso continua aqui com o novo motivo.</p>
+                        <h4 class="font-bold text-xs text-[var(--geo-foreground)] uppercase tracking-wider">Tudo pronto para reenviar</h4>
+                        <p class="text-xs text-[var(--geo-foreground-muted)]">O servidor tenta gravar o registro com os dados corrigidos. Se recusar, o caso continua aqui com o novo motivo.</p>
                       </div>
                     </div>
-                    <ces-button
+                    <geo-button
                       label="Reenviar agora"
                       icon="pi pi-check"
                       variant="success"
@@ -834,7 +834,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                       [loading]="saving()"
                       [disabled]="!canReprocess(current) || saving()"
                       (pressed)="onReprocess(current)"
-                    ></ces-button>
+                    ></geo-button>
                   </div>
                 </div>
 
@@ -952,7 +952,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
 export class SyncErrorCasesComponent {
   private readonly service = inject(SyncErrorCasesService);
   private readonly messages = inject(MessageService);
-  private readonly confirmations = inject(CesConfirmationService);
+  private readonly confirmations = inject(GeoConfirmationService);
   private readonly auth = inject(AuthService);
   private readonly usuarioLookup = inject(UsuarioLookupService, { optional: true });
   private readonly rhService = inject(RhService, { optional: true });
@@ -1041,7 +1041,7 @@ export class SyncErrorCasesComponent {
   protected readonly dataLocal = dataLocal;
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
 
-  protected readonly statusOptions: CesSelectOption<SyncCaseStatus | null>[] = [
+  protected readonly statusOptions: GeoSelectOption<SyncCaseStatus | null>[] = [
     { label: 'Todas', value: null },
     { label: 'Não foi possível sincronizar', value: 'ABERTO' },
     { label: 'Em tratamento', value: 'EM_ANALISE' },
@@ -1050,7 +1050,7 @@ export class SyncErrorCasesComponent {
     { label: 'Descartado', value: 'REJEITADO' }
   ];
 
-  protected readonly operationOptions: CesSelectOption<string | null>[] = [
+  protected readonly operationOptions: GeoSelectOption<string | null>[] = [
     { label: 'Todas', value: null },
     { label: 'Turno de Trabalho', value: 'TURNO' },
     { label: 'Execução de Serviço', value: 'EXECUCAO' },
@@ -1060,12 +1060,12 @@ export class SyncErrorCasesComponent {
     { label: 'Evidência Fotográfica', value: 'ANEXO' }
   ];
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'admin-sync-erros',
     filters: {
-      status: cesFilter.value<SyncCaseStatus | null>(null, { label: 'Situação', options: () => this.statusOptions }),
-      tipo: cesFilter.value<string | null>(null, { label: 'Atividade', options: () => this.operationOptions }),
-      envio: cesFilter.range({ from: null, to: null }, { label: 'Envio' })
+      status: geoFilter.value<SyncCaseStatus | null>(null, { label: 'Situação', options: () => this.statusOptions }),
+      tipo: geoFilter.value<string | null>(null, { label: 'Atividade', options: () => this.operationOptions }),
+      envio: geoFilter.range({ from: null, to: null }, { label: 'Envio' })
     },
     // Fila de tratamento: os mais antigos primeiro.
     sort: [{ key: 'envio', direction: 'asc' }]
@@ -1079,7 +1079,7 @@ export class SyncErrorCasesComponent {
     () => this.lista.request()
   );
 
-  protected readonly colunas: CesDataTableColumn<SyncErrorCaseSummary>[] = [
+  protected readonly colunas: GeoDataTableColumn<SyncErrorCaseSummary>[] = [
     { key: 'envio', header: 'Enviado em', type: 'date', priority: 1, sortField: 'receivedAt', value: (c) => c.receivedAt,
       display: (c) => (c.receivedAt ? new Date(c.receivedAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—') },
     { key: 'atividade', header: 'Atividade', type: 'custom', priority: 1, sortField: 'tipo', value: (c) => this.getOperationLabel(c.operationType) },
@@ -1587,8 +1587,8 @@ export class SyncErrorCasesComponent {
     return this.statusOptions.find(option => option.value === status)?.label ?? status;
   }
 
-  protected statusTone(status: SyncCaseStatus): CesTone {
-    return ({ ABERTO: 'danger', EM_ANALISE: 'info', AGUARDANDO_REPROCESSAMENTO: 'warning', RESOLVIDO: 'success', REJEITADO: 'neutral' } as Record<string, CesTone>)[status] ?? 'neutral';
+  protected statusTone(status: SyncCaseStatus): GeoTone {
+    return ({ ABERTO: 'danger', EM_ANALISE: 'info', AGUARDANDO_REPROCESSAMENTO: 'warning', RESOLVIDO: 'success', REJEITADO: 'neutral' } as Record<string, GeoTone>)[status] ?? 'neutral';
   }
 
   protected statusIcon(status: SyncCaseStatus): string {
@@ -1602,8 +1602,8 @@ export class SyncErrorCasesComponent {
     return { codigo: 'OUTRO', titulo: info.title, explicacao: info.explanation, orientacao: info.suggestion, acao: 'CONFERIR' };
   }
 
-  protected toneDaAcao(acao: SyncAcaoRecomendada): CesTone {
-    return ({ REENVIAR: 'success', AGUARDAR: 'info', CORRIGIR: 'warning', CONFERIR: 'warning', DESCARTAR: 'neutral' } as Record<SyncAcaoRecomendada, CesTone>)[acao];
+  protected toneDaAcao(acao: SyncAcaoRecomendada): GeoTone {
+    return ({ REENVIAR: 'success', AGUARDAR: 'info', CORRIGIR: 'warning', CONFERIR: 'warning', DESCARTAR: 'neutral' } as Record<SyncAcaoRecomendada, GeoTone>)[acao];
   }
 
   protected desfecho(item: SyncErrorCaseDetail): string {

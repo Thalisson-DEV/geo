@@ -92,7 +92,7 @@ async function entrar(page: Page): Promise<void> {
       id: 'u1', tema: 'light', corPrimaria: 'blue', animacoesAtivadas: false, token: `x.${carga}.y`, login: 'teste', nome: 'Teste',
       permissoes: ['obras:obra:read', 'obras:programacao:read', 'obras:turno:read', 'obras:turno:write', 'obras:execucao:write']
     };
-    localStorage.setItem('ces_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
+    localStorage.setItem('geo_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
   });
 }
 
@@ -102,7 +102,7 @@ test('os indicadores da listagem filtram sem mudar os números e não há como a
   await simularApi(page, estado);
   await page.goto('/obras/turnos');
 
-  const semRelatorio = page.locator('.ces-kpis').getByRole('button', { name: /Sem relatório/ });
+  const semRelatorio = page.locator('.geo-kpis').getByRole('button', { name: /Sem relatório/ });
   await expect(semRelatorio).toContainText('1', { timeout: 20_000 });
   await expect(page.getByText('FIC-CON-01').first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Abrir turno' })).toHaveCount(0);

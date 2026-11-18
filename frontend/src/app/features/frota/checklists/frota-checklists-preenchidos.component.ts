@@ -2,18 +2,18 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { ChecklistResumo } from '../../../core/models/frota-checklist.models';
 import { contar, formatarMedicao, formatarPlaca } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -22,7 +22,7 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { LIMITE_EXPORTACAO_FROTA, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FrotaChecklistDetalheDrawerComponent } from './frota-checklist-detalhe-drawer.component';
 
-const OPCOES_PROBLEMA: CesSelectOption<boolean | null>[] = [
+const OPCOES_PROBLEMA: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Com Não OK', value: true },
   { label: 'Sem problema', value: false }
@@ -35,28 +35,28 @@ const OPCOES_PROBLEMA: CesSelectOption<boolean | null>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesMultiSelectComponent,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoMultiSelectComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaChecklistDetalheDrawerComponent
   ],
   template: `
-    <div class="ces-form-stack">
-      <ces-filter-panel #painel storageKey="frota-checklists" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+    <div class="geo-form-stack">
+      <geo-filter-panel #painel storageKey="frota-checklists" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-datepicker label="De" [value]="dataLocal(lista.filters.de())" [clearable]="true" (valueChange)="lista.filters.de.set(dataIso($event))"></ces-datepicker>
-          <ces-datepicker label="Até" [value]="dataLocal(lista.filters.ate())" [clearable]="true" (valueChange)="lista.filters.ate.set(dataIso($event))"></ces-datepicker>
-          <ces-select label="Problemas" [options]="opcoesProblema" [(value)]="lista.filters.comProblema"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-datepicker label="De" [value]="dataLocal(lista.filters.de())" [clearable]="true" (valueChange)="lista.filters.de.set(dataIso($event))"></geo-datepicker>
+          <geo-datepicker label="Até" [value]="dataLocal(lista.filters.ate())" [clearable]="true" (valueChange)="lista.filters.ate.set(dataIso($event))"></geo-datepicker>
+          <geo-select label="Problemas" [options]="opcoesProblema" [(value)]="lista.filters.comProblema"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table title="Checklists preenchidos" mode="server" [description]="descricao()" [searchable]="false"
+      <geo-data-table title="Checklists preenchidos" mode="server" [description]="descricao()" [searchable]="false"
         storageKey="frota-checklists" exportFileName="frota-checklists" [columns]="colunas" [rows]="resultado.rows()"
         [totalRecords]="resultado.total()" [rowKey]="chave" [rowLabel]="rotulo" [state]="resultado.state()"
         [stateTitle]="resultado.error() ? 'Não foi possível carregar os checklists' : 'Nenhum checklist preenchido'"
@@ -66,28 +66,28 @@ const OPCOES_PROBLEMA: CesSelectOption<boolean | null>[] = [
         [(page)]="lista.page" [(pageSize)]="lista.pageSize" [(sort)]="lista.sort" (lazyLoad)="lista.load($event)"
         (adjustFilters)="painel.expandAndFocus()" (clearFilters)="lista.reset()"
         [rowClickable]="true" (rowActivate)="abrir($event)">
-        <ng-template cesCell="preenchidoEm" let-row>{{ row.preenchidoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-        <ng-template cesCell="placa" let-row>
-          <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-          <span class="ces-cell-muted">{{ row.modeloNome }}</span>
+        <ng-template geoCell="preenchidoEm" let-row>{{ row.preenchidoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+        <ng-template geoCell="placa" let-row>
+          <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+          <span class="geo-cell-muted">{{ row.modeloNome }}</span>
         </ng-template>
-        <ng-template cesCell="condutorNome" let-row>
+        <ng-template geoCell="condutorNome" let-row>
           {{ row.condutorNome ?? '—' }}
           @if (row.passagemVeiculo) {
-            <span class="ces-cell-muted">Recebeu o veículo</span>
+            <span class="geo-cell-muted">Recebeu o veículo</span>
           }
         </ng-template>
-        <ng-template cesCell="problemas" let-row>
+        <ng-template geoCell="problemas" let-row>
           @if (row.problemas) {
-            <ces-status tone="warning" icon="pi-exclamation-triangle">{{ row.problemas }} Não OK</ces-status>
+            <geo-status tone="warning" icon="pi-exclamation-triangle">{{ row.problemas }} Não OK</geo-status>
           } @else {
-            <ces-status tone="success" icon="pi-check">Tudo OK</ces-status>
+            <geo-status tone="success" icon="pi-check">Tudo OK</geo-status>
           }
           @if (row.liberacaoCnh) {
-            <span class="ces-cell-muted">Com liberação de CNH</span>
+            <span class="geo-cell-muted">Com liberação de CNH</span>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-frota-checklist-detalhe-drawer [(visible)]="detalheAberto" [idChecklist]="selecionado()"></app-frota-checklist-detalhe-drawer>
@@ -106,20 +106,20 @@ export class FrotaChecklistsPreenchidosComponent {
   protected readonly detalheAberto = signal(false);
   protected readonly selecionado = signal<string | null>(null);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-checklists',
     rememberFilters: 'frota-checklists',
     filters: {
-      idVeiculo: cesFilter.value<string | null>(null, {
+      idVeiculo: geoFilter.value<string | null>(null, {
         label: 'Veículo',
         param: 'veiculo',
         type: 'string',
         format: (id) => (id ? (this.placaDoFiltro ? formatarPlaca(this.placaDoFiltro) : 'Veículo escolhido') : null)
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      de: cesFilter.date(null, { label: 'De' }),
-      ate: cesFilter.date(null, { label: 'Até' }),
-      comProblema: cesFilter.value<boolean | null>(null, { label: 'Problemas', param: 'problema', options: () => OPCOES_PROBLEMA })
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      de: geoFilter.date(null, { label: 'De' }),
+      ate: geoFilter.date(null, { label: 'Até' }),
+      comProblema: geoFilter.value<boolean | null>(null, { label: 'Problemas', param: 'problema', options: () => OPCOES_PROBLEMA })
     },
     sort: [{ key: 'preenchidoEm', direction: 'desc' }]
   });
@@ -136,7 +136,7 @@ export class FrotaChecklistsPreenchidosComponent {
     this.resultado.loading() && !this.resultado.total() ? undefined : contar(this.resultado.total(), 'checklist', 'checklists', 'Nenhum checklist')
   );
 
-  protected readonly colunas: CesDataTableColumn<ChecklistResumo>[] = [
+  protected readonly colunas: GeoDataTableColumn<ChecklistResumo>[] = [
     { key: 'preenchidoEm', header: 'Quando', type: 'custom', priority: 1, sortField: 'preenchidoEm', value: (c) => c.preenchidoEm, display: (c) => c.preenchidoEm },
     { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, sortField: 'placa', value: (c) => c.placa, display: (c) => `${formatarPlaca(c.placa)} ${c.modeloNome}` },
     { key: 'condutorNome', header: 'Condutor', type: 'custom', priority: 1, value: (c) => c.condutorNome, display: (c) => c.condutorNome ?? '' },

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, Injector, afterNextRender, computed, effect, inject, input, output, signal } from '@angular/core';
 import { Subject, debounceTime, distinctUntilChanged, of, switchMap, catchError } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CesButtonComponent } from '@ces/ui';
+import { GeoButtonComponent } from '@geo/ui';
 
 import { JsonValue, Opcao } from '../../../../core/models/automacao.models';
 import { AutomacoesService } from '../../../../core/services/automacoes.service';
@@ -48,7 +48,7 @@ export function iconeDestinatario(tipo: string): string {
 @Component({
   selector: 'aut-destinatarios',
   standalone: true,
-  imports: [CesButtonComponent, SeletorDinamicoComponent],
+  imports: [GeoButtonComponent, SeletorDinamicoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-chips">
@@ -61,7 +61,7 @@ export function iconeDestinatario(tipo: string): string {
       }
       @if (!itens().length) { <span class="aut-muted">{{ vazio() }}</span> }
       <span style="flex:1"></span>
-      <ces-button icon="pi pi-plus" label="Adicionar" variant="ghost" size="sm" data-dyn-trigger (pressed)="abrirMenu()" aria-haspopup="true"></ces-button>
+      <geo-button icon="pi pi-plus" label="Adicionar" variant="ghost" size="sm" data-dyn-trigger (pressed)="abrirMenu()" aria-haspopup="true"></geo-button>
 
       @if (menu() === 'tipos') {
         <div class="aut-dyn" role="menu">
@@ -82,8 +82,8 @@ export function iconeDestinatario(tipo: string): string {
           <div class="aut-dyn-top"><span>{{ tipoAtual()?.rotulo }}</span><button type="button" class="aut-link" (click)="menu.set('tipos')">Voltar</button></div>
           @if (tipoAtual()?.tipo === 'email') {
             <form (submit)="$event.preventDefault(); adicionarEmail(email.value); email.value=''" style="display:flex;gap:0.5rem">
-              <input #email class="p-inputtext ces-prime-control" type="email" placeholder="rh.juazeiro@exemplo.com.br" aria-label="E-mail" />
-              <ces-button label="Adicionar" variant="primary" size="sm" type="submit" ></ces-button>
+              <input #email class="p-inputtext geo-prime-control" type="email" placeholder="rh.juazeiro@exemplo.com.br" aria-label="E-mail" />
+              <geo-button label="Adicionar" variant="primary" size="sm" type="submit" ></geo-button>
             </form>
           } @else if (tipoAtual()?.tipo === 'papel') {
             <div class="aut-dyn-list">
@@ -96,15 +96,15 @@ export function iconeDestinatario(tipo: string): string {
           } @else {
             @if (tipoAtual()?.tipo === 'permissao' || tipoAtual()?.tipo === 'perfil') {
               <label class="aut-field">
-                <span class="ces-field__label">Só da base</span>
-                <select class="p-inputtext ces-prime-control aut-select" [value]="base()" (change)="base.set($any($event.target).value)">
+                <span class="geo-field__label">Só da base</span>
+                <select class="p-inputtext geo-prime-control aut-select" [value]="base()" (change)="base.set($any($event.target).value)">
                   <option value="">Todas as bases</option>
                   @if (temColaborador()) { <option [value]="baseDoColaborador">Base do colaborador do evento</option> }
                   @for (b of bases(); track b.valor) { <option [value]="b.valor">{{ b.rotulo }}</option> }
                 </select>
               </label>
             }
-            <input #q class="p-inputtext ces-prime-control" [placeholder]="tipoAtual()?.ajuda ?? 'Buscar'" (input)="buscar(q.value)" aria-label="Buscar" />
+            <input #q class="p-inputtext geo-prime-control" [placeholder]="tipoAtual()?.ajuda ?? 'Buscar'" (input)="buscar(q.value)" aria-label="Buscar" />
             <div class="aut-dyn-list">
               @if (carregando()) { <p class="aut-muted">Buscando…</p> }
               @for (o of opcoes(); track o.valor) {

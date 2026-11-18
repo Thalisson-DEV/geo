@@ -156,7 +156,7 @@ public class SystemPromptBuilder {
         if (context.nomeUsuario() != null && !context.nomeUsuario().isBlank()) {
             prompt.append("- Usuário: ").append(context.nomeUsuario()).append(".\n");
         }
-        ContextoCes origem = context.contexto();
+        ContextoGeo origem = context.contexto();
         String painel = null;
         if (origem != null && origem.painel() != null) {
             prompt.append("- O usuário está conversando pelo painel lateral da Bússola dentro de um dashboard do GEO (mesmo agente e mesmas ferramentas do workspace completo).\n");

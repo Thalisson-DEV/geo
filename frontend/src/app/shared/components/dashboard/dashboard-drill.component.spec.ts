@@ -57,7 +57,7 @@ describe('DashboardDrillComponent', () => {
     const drawer = document.body.querySelector('.p-drawer') as HTMLElement;
     expect(drawer.textContent).toContain('Não foi possível carregar o recorte');
     carregar.mockReturnValue(of({ linhas: [], total: 0 }));
-    (drawer.querySelector('ces-async-state button') as HTMLButtonElement).click();
+    (drawer.querySelector('geo-async-state button') as HTMLButtonElement).click();
     expect(carregar).toHaveBeenCalledTimes(2);
     drawer.remove();
   });

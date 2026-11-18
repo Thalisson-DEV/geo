@@ -58,13 +58,13 @@ describe('MinhasNotificacoesComponent', () => {
     expect(servico['listar']).toHaveBeenCalledWith(expect.objectContaining({ page: 0, size: 25, sort: 'dataCriacao,desc', apenasNaoLidas: undefined }));
     expect(el.textContent).toContain('Desconto aguardando validação');
     expect(el.textContent).toContain('Nova');
-    const rapidos = Array.from(el.querySelectorAll('.ces-quick-filter')).map((b) => b.textContent!.trim());
+    const rapidos = Array.from(el.querySelectorAll('.geo-quick-filter')).map((b) => b.textContent!.trim());
     expect(rapidos).toEqual(['Aprovações pendentes · 2']);
   });
 
   it('o filtro rápido aplica a categoria e vira chip', async () => {
     const { el, harness } = await abrir();
-    (el.querySelector('.ces-quick-filter') as HTMLButtonElement).click();
+    (el.querySelector('.geo-quick-filter') as HTMLButtonElement).click();
     await harness.fixture.whenStable();
     harness.detectChanges();
     expect(servico['listar']).toHaveBeenLastCalledWith(expect.objectContaining({ categoria: 'APROVACAO' }));

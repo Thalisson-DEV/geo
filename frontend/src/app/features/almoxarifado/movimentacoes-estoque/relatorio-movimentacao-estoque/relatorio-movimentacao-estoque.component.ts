@@ -6,8 +6,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 
-import { CesAsyncStateComponent, CesStatusComponent, CesTone } from '@ces/ui';
-import { CesCellDirective, CesDataTableColumn, CesDataTableComponent, CesRowDetailDirective } from '@ces/ui/data';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoCellDirective, GeoDataTableColumn, GeoDataTableComponent, GeoRowDetailDirective } from '@geo/ui/data';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { RhService } from '../../../../core/services/rh.service';
 import { ObrasService } from '../../../../core/services/obras.service';
@@ -45,12 +45,12 @@ type GrupoItens = ItemMovimentacaoAgrupado & { readonly grade: readonly SerieGra
     TooltipModule,
     DecimalPipe,
     DatePipe,
-    CesStatusComponent,
-    CesAsyncStateComponent,
+    GeoStatusComponent,
+    GeoAsyncStateComponent,
     SaldoEstoqueDialogComponent,
-    CesDataTableComponent,
-    CesCellDirective,
-    CesRowDetailDirective,
+    GeoDataTableComponent,
+    GeoCellDirective,
+    GeoRowDetailDirective,
     SeriesGradeComponent,
   ],
   templateUrl: './relatorio-movimentacao-estoque.component.html',
@@ -104,7 +104,7 @@ export class RelatorioMovimentacaoEstoqueComponent implements OnInit, AfterViewI
   protected readonly rotuloGrupo = (g: GrupoItens) => `${g.material.codigo} ${g.material.descricao}`;
   protected readonly temSeries = (g: GrupoItens) => g.series.length > 0;
 
-  protected readonly colunasItens: CesDataTableColumn<GrupoItens>[] = [
+  protected readonly colunasItens: GeoDataTableColumn<GrupoItens>[] = [
     { key: 'codigo', header: 'Código', priority: 1, width: '7rem', value: (g) => g.material.codigo },
     {
       key: 'descricao',
@@ -283,7 +283,7 @@ export class RelatorioMovimentacaoEstoqueComponent implements OnInit, AfterViewI
     });
   }
 
-  protected getTipoTone(tipo?: TipoMovimentacao): CesTone {
+  protected getTipoTone(tipo?: TipoMovimentacao): GeoTone {
     return tomTipoMovimentacao(tipo);
   }
 

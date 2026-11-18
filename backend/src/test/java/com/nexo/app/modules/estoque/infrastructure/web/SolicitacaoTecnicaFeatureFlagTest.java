@@ -73,7 +73,7 @@ class SolicitacaoTecnicaFeatureFlagTest {
 
     @Test
     void desabilitadoRemoveRotaTecnicaEPreservaHttpComercial() {
-        runner.withPropertyValues("ces.estoque.solicitacoes-tecnicas.enabled=false")
+        runner.withPropertyValues("geo.estoque.solicitacoes-tecnicas.enabled=false")
                 .run(contexto -> {
                     assertThat(contexto).doesNotHaveBean(SolicitacaoTecnicaController.class);
                     assertThat(contexto).hasSingleBean(SolicitacaoController.class);
@@ -99,7 +99,7 @@ class SolicitacaoTecnicaFeatureFlagTest {
 
     @Test
     void habilitadoPublicaPontoDeEntradaTecnico() {
-        runner.withPropertyValues("ces.estoque.solicitacoes-tecnicas.enabled=true")
+        runner.withPropertyValues("geo.estoque.solicitacoes-tecnicas.enabled=true")
                 .run(contexto -> assertThat(contexto).hasSingleBean(SolicitacaoTecnicaController.class));
     }
 }

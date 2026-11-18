@@ -1,5 +1,5 @@
 import { of } from 'rxjs';
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 import {
   DashboardOperacionalFiltros,
   DashboardOperacionalResponse,
@@ -108,7 +108,7 @@ function graficoObras(obras: readonly ProducaoPorObra[], titulo = 'Produção po
   };
 }
 
-const colunasEquipes: CesDataTableColumn<EquipeOperacional>[] = [
+const colunasEquipes: GeoDataTableColumn<EquipeOperacional>[] = [
   { key: 'codigo', header: 'Equipe', priority: 1 },
   { key: 'baseOperacional', header: 'Base', priority: 2, display: (e) => e.baseOperacional ?? '—' },
   { key: 'situacao', header: 'Situação', priority: 1, value: (e) => SITUACAO_META[e.situacao].rotulo },
@@ -137,7 +137,7 @@ function tabelaEquipes(equipes: readonly EquipeOperacional[], titulo = 'Equipes'
   };
 }
 
-const colunasObras: CesDataTableColumn<ProducaoPorObra>[] = [
+const colunasObras: GeoDataTableColumn<ProducaoPorObra>[] = [
   { key: 'numero', header: 'Obra', priority: 1 },
   { key: 'titulo', header: 'Título', priority: 2, display: (o) => o.titulo ?? '—' },
   { key: 'equipes', header: 'Equipes', type: 'integer', priority: 3 },
@@ -323,7 +323,7 @@ function vistaMeta(a: AlvoAnalise, c: ContextoAnaliseOperacional): VistaAnalise 
     destaques.push({ tom: 'neutral', icone: 'pi pi-info-circle', texto: `${plural(r.equipesAtivas - r.equipesComMeta, 'equipe não tem', 'equipes não têm')} meta cadastrada e fica fora do percentual.` });
   }
 
-  const colunas: CesDataTableColumn<EquipeOperacional>[] = [
+  const colunas: GeoDataTableColumn<EquipeOperacional>[] = [
     { key: 'codigo', header: 'Equipe', priority: 1 },
     { key: 'situacao', header: 'Situação', priority: 1, value: (e) => SITUACAO_META[e.situacao].rotulo },
     { key: 'metaMensal', header: 'Meta do ciclo/mês', type: 'currency', priority: 3 },
@@ -497,7 +497,7 @@ function vistaRitmo(a: AlvoAnalise, c: ContextoAnaliseOperacional): VistaAnalise
   }));
   if (!destaques.length) destaques.push({ tom: 'success', icone: 'pi pi-check-circle', texto: 'Nenhuma equipe com meta está abaixo do ritmo esperado.' });
 
-  const colunas: CesDataTableColumn<EquipeOperacional>[] = [
+  const colunas: GeoDataTableColumn<EquipeOperacional>[] = [
     { key: 'codigo', header: 'Equipe', priority: 1 },
     { key: 'situacao', header: 'Situação', priority: 1, value: (e) => (semExecucao(e) ? 'Sem execução' : SITUACAO_META[e.situacao].rotulo) },
     { key: 'producao', header: 'Produção', type: 'currency', priority: 1 },

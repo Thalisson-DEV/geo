@@ -2,22 +2,22 @@ import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesRowActionsDirective,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoRowActionsDirective,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { LookupStore } from '../../../core/lookup';
 import {
   OpcoesFrota,
@@ -47,83 +47,83 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
     CurrencyPipe,
     DecimalPipe,
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     FrotaOsLancamentoComponent
   ],
   template: `
     @let d = detalhe();
-    <div class="ces-form-stack">
+    <div class="geo-form-stack">
       <!-- != null: o backend omite o total nulo (non_null), então ele chega como undefined. -->
       @if (valoresPendentes().length) {
-        <ces-callout tone="warning" icon="pi pi-hourglass" title="Valores pendentes">
+        <geo-callout tone="warning" icon="pi pi-hourglass" title="Valores pendentes">
           Falta o valor de: {{ valoresPendentes().join('; ') }}. Edite a linha e informe o valor (ou marque como sem
           custo). Com o último valor, a OS fica finalizada sozinha.
-        </ces-callout>
+        </geo-callout>
       }
       @if (!d.totais.calculado && d.totais.total != null) {
-        <ces-callout tone="info" [dense]="true">
+        <geo-callout tone="info" [dense]="true">
           Esta OS foi encerrada com o valor digitado ({{ d.totais.total | currency: 'BRL' }}), sem serviços nem peças lançados.
-        </ces-callout>
+        </geo-callout>
       }
 
       <!-- Totais no topo: o valor da OS é o que mais se consulta na execução. -->
-      <div class="ces-kpis" role="group" aria-label="Totais da execução">
-        <div class="ces-kpi" data-tone="info">
-          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-wrench"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Mão de obra</span>
-            <span class="ces-kpi__value">{{ d.totais.servicos | currency: 'BRL' }}</span>
-            <span class="ces-kpi__detail">{{ d.servicos.length }} {{ d.servicos.length === 1 ? 'serviço' : 'serviços' }}</span>
+      <div class="geo-kpis" role="group" aria-label="Totais da execução">
+        <div class="geo-kpi" data-tone="info">
+          <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-wrench"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Mão de obra</span>
+            <span class="geo-kpi__value">{{ d.totais.servicos | currency: 'BRL' }}</span>
+            <span class="geo-kpi__detail">{{ d.servicos.length }} {{ d.servicos.length === 1 ? 'serviço' : 'serviços' }}</span>
           </span>
         </div>
-        <div class="ces-kpi" data-tone="info">
-          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-box"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Peças</span>
-            <span class="ces-kpi__value">{{ d.totais.pecas | currency: 'BRL' }}</span>
-            <span class="ces-kpi__detail">{{ (d.totais.pecasEstoque ?? 0) > 0 ? moeda(d.totais.pecasEstoque) + ' do estoque, já comprado' : d.pecas.length + (d.pecas.length === 1 ? ' peça' : ' peças') }}</span>
+        <div class="geo-kpi" data-tone="info">
+          <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-box"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Peças</span>
+            <span class="geo-kpi__value">{{ d.totais.pecas | currency: 'BRL' }}</span>
+            <span class="geo-kpi__detail">{{ (d.totais.pecasEstoque ?? 0) > 0 ? moeda(d.totais.pecasEstoque) + ' do estoque, já comprado' : d.pecas.length + (d.pecas.length === 1 ? ' peça' : ' peças') }}</span>
           </span>
         </div>
         @if (editavel() && temLancamentos()) {
-          <button type="button" class="ces-kpi" data-tone="neutral" (click)="abrirAjustes()">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-percentage"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Desconto e acréscimo</span>
-              <span class="ces-kpi__value">{{ ajusteTexto() }}</span>
-              <span class="ces-kpi__detail">Toque para ajustar</span>
+          <button type="button" class="geo-kpi" data-tone="neutral" (click)="abrirAjustes()">
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-percentage"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Desconto e acréscimo</span>
+              <span class="geo-kpi__value">{{ ajusteTexto() }}</span>
+              <span class="geo-kpi__detail">Toque para ajustar</span>
             </span>
-            <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+            <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
           </button>
         } @else if (d.totais.desconto || d.totais.acrescimo) {
-          <div class="ces-kpi" data-tone="neutral">
-            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-percentage"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">Desconto e acréscimo</span>
-              <span class="ces-kpi__value">{{ ajusteTexto() }}</span>
+          <div class="geo-kpi" data-tone="neutral">
+            <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-percentage"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">Desconto e acréscimo</span>
+              <span class="geo-kpi__value">{{ ajusteTexto() }}</span>
             </span>
           </div>
         }
-        <div class="ces-kpi" data-tone="success">
-          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-calculator"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Total da OS</span>
-            <span class="ces-kpi__value">{{ moeda(d.totais.total) }}</span>
-            <span class="ces-kpi__detail">{{ (d.totais.pecasEstoque ?? 0) > 0 ? 'A comprar no financeiro: ' + moeda(d.totais.aComprar) : 'Vai inteiro para a compra no financeiro' }}</span>
+        <div class="geo-kpi" data-tone="success">
+          <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-calculator"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Total da OS</span>
+            <span class="geo-kpi__value">{{ moeda(d.totais.total) }}</span>
+            <span class="geo-kpi__detail">{{ (d.totais.pecasEstoque ?? 0) > 0 ? 'A comprar no financeiro: ' + moeda(d.totais.aComprar) : 'Vai inteiro para a compra no financeiro' }}</span>
           </span>
         </div>
       </div>
 
-      <ces-data-table
+      <geo-data-table
         title="Serviços (mão de obra)"
         [description]="interna() ? 'Oficina interna: cada serviço tem o colaborador que fez.' : 'Oficina externa: o mecânico é opcional, pelo nome.'"
         storageKey="frota-os-servicos"
@@ -137,51 +137,51 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
       >
         <ng-container table-actions>
           @if (editavel() && d.servicos.length > 1) {
-            <ces-button size="sm" variant="outline" icon="pi pi-users" label="Mesmo mecânico para todos" (pressed)="abrirMecanico()"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-users" label="Mesmo mecânico para todos" (pressed)="abrirMecanico()"></geo-button>
           }
           @if (editavel()) {
-            <ces-button size="sm" icon="pi pi-plus" label="Adicionar serviço" (pressed)="novo('servico')"></ces-button>
+            <geo-button size="sm" icon="pi pi-plus" label="Adicionar serviço" (pressed)="novo('servico')"></geo-button>
           }
         </ng-container>
-        <ng-template cesCell="descricao" let-row>
-          <span class="ces-cell-strong">{{ row.descricao }}</span>
+        <ng-template geoCell="descricao" let-row>
+          <span class="geo-cell-strong">{{ row.descricao }}</span>
           @if (row.itemManutencao) {
-            <span class="ces-cell-muted">{{ row.itemManutencao }}</span>
+            <span class="geo-cell-muted">{{ row.itemManutencao }}</span>
           }
         </ng-template>
-        <ng-template cesCell="mecanico" let-row>
+        <ng-template geoCell="mecanico" let-row>
           @if (row.mecanico) {
             {{ row.mecanico }}
           } @else if (interna()) {
-            <ces-status tone="warning" icon="pi-exclamation-triangle">Sem mecânico</ces-status>
+            <geo-status tone="warning" icon="pi-exclamation-triangle">Sem mecânico</geo-status>
           } @else {
-            <span class="ces-cell-muted">Não informado</span>
+            <span class="geo-cell-muted">Não informado</span>
           }
         </ng-template>
-        <ng-template cesCell="quantidade" let-row><span class="ces-cell-num">{{ row.quantidade | number: '1.0-3' }}</span></ng-template>
-        <ng-template cesCell="valorUnitario" let-row><span class="ces-cell-num">{{ row.valorUnitario | currency: 'BRL' }}</span></ng-template>
-        <ng-template cesCell="subtotal" let-row>
+        <ng-template geoCell="quantidade" let-row><span class="geo-cell-num">{{ row.quantidade | number: '1.0-3' }}</span></ng-template>
+        <ng-template geoCell="valorUnitario" let-row><span class="geo-cell-num">{{ row.valorUnitario | currency: 'BRL' }}</span></ng-template>
+        <ng-template geoCell="subtotal" let-row>
           @if (!row.subtotal && row.semCusto) {
-            <ces-status tone="neutral" emphasis="outline">Sem custo</ces-status>
+            <geo-status tone="neutral" emphasis="outline">Sem custo</geo-status>
           } @else if (!row.subtotal && !interna()) {
-            <ces-status tone="warning" icon="pi-hourglass">Sem valor</ces-status>
+            <geo-status tone="warning" icon="pi-hourglass">Sem valor</geo-status>
           } @else {
-            <span class="ces-cell-num ces-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span>
+            <span class="geo-cell-num geo-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
+        <ng-template geoRowActions let-row>
           @if (editavel()) {
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-pencil" [label]="'Editar serviço ' + row.descricao" tooltip="Editar" size="icon-sm"
-                (pressed)="editarServico(row)"></ces-icon-button>
-              <ces-icon-button icon="pi pi-trash" [label]="'Excluir serviço ' + row.descricao" tooltip="Excluir" size="icon-sm"
-                (pressed)="excluirServico(row)"></ces-icon-button>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-pencil" [label]="'Editar serviço ' + row.descricao" tooltip="Editar" size="icon-sm"
+                (pressed)="editarServico(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-trash" [label]="'Excluir serviço ' + row.descricao" tooltip="Excluir" size="icon-sm"
+                (pressed)="excluirServico(row)"></geo-icon-button>
             </span>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
 
-      <ces-data-table
+      <geo-data-table
         title="Peças e consumíveis"
         description="A peça do estoque sai do almoxarifado pelo custo médio, já foi comprada e não entra de novo na compra ao financeiro. A de compra entra no pedido."
         storageKey="frota-os-pecas"
@@ -195,85 +195,85 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
       >
         <ng-container table-actions>
           @if (editavel()) {
-            <ces-button size="sm" icon="pi pi-plus" label="Adicionar peça" (pressed)="novo('peca')"></ces-button>
+            <geo-button size="sm" icon="pi pi-plus" label="Adicionar peça" (pressed)="novo('peca')"></geo-button>
           }
         </ng-container>
-        <ng-template cesCell="descricao" let-row>
-          <span class="ces-cell-strong">{{ row.descricao }}</span>
+        <ng-template geoCell="descricao" let-row>
+          <span class="geo-cell-strong">{{ row.descricao }}</span>
           @if (row.codigo) {
-            <span class="ces-cell-muted">Código {{ row.codigo }}</span>
+            <span class="geo-cell-muted">Código {{ row.codigo }}</span>
           }
         </ng-template>
-        <ng-template cesCell="origem" let-row>
-          <ces-status [tone]="row.origem === 'COMPRA' ? 'info' : 'neutral'" emphasis="outline">{{ row.origemRotulo }}</ces-status>
+        <ng-template geoCell="origem" let-row>
+          <geo-status [tone]="row.origem === 'COMPRA' ? 'info' : 'neutral'" emphasis="outline">{{ row.origemRotulo }}</geo-status>
           @if (row.estoque) {
-            <span class="ces-cell-muted">{{ row.baixadaNoEstoque ? 'Baixada de ' : '' }}{{ row.estoque }}</span>
+            <span class="geo-cell-muted">{{ row.baixadaNoEstoque ? 'Baixada de ' : '' }}{{ row.estoque }}</span>
           }
         </ng-template>
-        <ng-template cesCell="quantidade" let-row><span class="ces-cell-num">{{ row.quantidade | number: '1.0-3' }} {{ row.unidade }}</span></ng-template>
-        <ng-template cesCell="valorUnitario" let-row><span class="ces-cell-num">{{ row.valorUnitario | currency: 'BRL' }}</span></ng-template>
-        <ng-template cesCell="subtotal" let-row>
+        <ng-template geoCell="quantidade" let-row><span class="geo-cell-num">{{ row.quantidade | number: '1.0-3' }} {{ row.unidade }}</span></ng-template>
+        <ng-template geoCell="valorUnitario" let-row><span class="geo-cell-num">{{ row.valorUnitario | currency: 'BRL' }}</span></ng-template>
+        <ng-template geoCell="subtotal" let-row>
           @if (!row.subtotal && row.semCusto) {
-            <ces-status tone="neutral" emphasis="outline">Sem custo</ces-status>
+            <geo-status tone="neutral" emphasis="outline">Sem custo</geo-status>
           } @else if (!row.subtotal) {
-            <ces-status tone="warning" icon="pi-hourglass">Sem valor</ces-status>
+            <geo-status tone="warning" icon="pi-hourglass">Sem valor</geo-status>
           } @else {
-            <span class="ces-cell-num ces-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span>
+            <span class="geo-cell-num geo-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
+        <ng-template geoRowActions let-row>
           @if (editavel()) {
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-pencil" [label]="'Editar peça ' + row.descricao" tooltip="Editar" size="icon-sm"
-                (pressed)="editarPeca(row)"></ces-icon-button>
-              <ces-icon-button icon="pi pi-trash" [label]="'Excluir peça ' + row.descricao" tooltip="Excluir" size="icon-sm"
-                (pressed)="excluirPeca(row)"></ces-icon-button>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-pencil" [label]="'Editar peça ' + row.descricao" tooltip="Editar" size="icon-sm"
+                (pressed)="editarPeca(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-trash" [label]="'Excluir peça ' + row.descricao" tooltip="Excluir" size="icon-sm"
+                (pressed)="excluirPeca(row)"></geo-icon-button>
             </span>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
 
     </div>
 
     <app-frota-os-lancamento [(visivel)]="lancamentoAberto" [tipo]="tipoLancamento()" [detalhe]="d" [opcoes]="opcoes()"
       [servico]="servicoEmEdicao()" [peca]="pecaEmEdicao()" (salvo)="atualizado.emit($event)"></app-frota-os-lancamento>
 
-    <ces-form-drawer [(visible)]="ajustesAberto" title="Desconto e acréscimo"
+    <geo-form-drawer [(visible)]="ajustesAberto" title="Desconto e acréscimo"
       [description]="'Sobre os ' + moeda(somaLancamentos()) + ' de serviços e peças.'" [loading]="salvandoAjustes()" size="sm">
-      <div class="ces-form-stack">
-        <ces-number-input label="Desconto" mode="currency" [(value)]="desconto" [min]="0" [error]="erroDesconto()"></ces-number-input>
-        <ces-number-input label="Acréscimo" mode="currency" [(value)]="acrescimo" [min]="0"></ces-number-input>
-        <ces-callout tone="neutral" [dense]="true">Total da OS: {{ moeda(totalPrevisto()) }}</ces-callout>
+      <div class="geo-form-stack">
+        <geo-number-input label="Desconto" mode="currency" [(value)]="desconto" [min]="0" [error]="erroDesconto()"></geo-number-input>
+        <geo-number-input label="Acréscimo" mode="currency" [(value)]="acrescimo" [min]="0"></geo-number-input>
+        <geo-callout tone="neutral" [dense]="true">Total da OS: {{ moeda(totalPrevisto()) }}</geo-callout>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="ajustesAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Aplicar" [loading]="salvandoAjustes()" (pressed)="salvarAjustes()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="ajustesAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Aplicar" [loading]="salvandoAjustes()" (pressed)="salvarAjustes()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [(visible)]="mecanicoAberto" title="Mesmo mecânico para todos"
+    <geo-form-drawer [(visible)]="mecanicoAberto" title="Mesmo mecânico para todos"
       [description]="'Aplica o mecânico aos ' + d.servicos.length + ' serviços desta OS.'" [loading]="salvandoMecanico()" size="sm">
-      <div class="ces-form-stack">
+      <div class="geo-form-stack">
         @if (interna()) {
-          <ces-autocomplete label="Mecânico" [required]="true" [options]="opcoesMecanico()" [status]="statusBusca()"
+          <geo-autocomplete label="Mecânico" [required]="true" [options]="opcoesMecanico()" [status]="statusBusca()"
             [loading]="statusBusca() === 'loading'" [ngModel]="idMecanico()" (ngModelChange)="idMecanico.set($event)"
-            (search)="buscarMecanico($event)" [error]="erroMecanico()"></ces-autocomplete>
+            (search)="buscarMecanico($event)" [error]="erroMecanico()"></geo-autocomplete>
         } @else {
-          <ces-text-input label="Mecânico" [required]="true" [(value)]="mecanicoNome" [maxlength]="120" [error]="erroMecanico()"></ces-text-input>
+          <geo-text-input label="Mecânico" [required]="true" [(value)]="mecanicoNome" [maxlength]="120" [error]="erroMecanico()"></geo-text-input>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="mecanicoAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Aplicar a todos" [loading]="salvandoMecanico()" (pressed)="salvarMecanico()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="mecanicoAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Aplicar a todos" [loading]="salvandoMecanico()" (pressed)="salvarMecanico()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaOsExecucaoComponent {
   private readonly frota = inject(FrotaService);
   private readonly lookups = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   readonly detalhe = input.required<OrdemServicoDetalhe>();
   readonly opcoes = input<OpcoesFrota | null>(null);
@@ -319,7 +319,7 @@ export class FrotaOsExecucaoComponent {
   protected readonly mecanicoAberto = signal(false);
   protected readonly idMecanico = signal<string | null>(null);
   protected readonly mecanicoNome = signal('');
-  protected readonly opcoesMecanico = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesMecanico = signal<GeoSelectOption<string>[]>([]);
   protected readonly statusBusca = signal<'idle' | 'loading' | 'success' | 'empty' | 'error'>('idle');
   protected readonly salvandoMecanico = signal(false);
   protected readonly tentouMecanico = signal(false);
@@ -327,7 +327,7 @@ export class FrotaOsExecucaoComponent {
     this.tentouMecanico() && !(this.interna() ? this.idMecanico() : this.mecanicoNome().trim()) ? 'Informe o mecânico.' : undefined
   );
 
-  protected readonly colunasServicos: CesDataTableColumn<ServicoOrdemServico>[] = [
+  protected readonly colunasServicos: GeoDataTableColumn<ServicoOrdemServico>[] = [
     { key: 'descricao', header: 'Serviço', type: 'custom', priority: 1, value: (r) => r.descricao, display: (r) => r.descricao },
     { key: 'mecanico', header: 'Mecânico', type: 'custom', value: (r) => r.mecanico ?? '', display: (r) => r.mecanico ?? '—' },
     { key: 'quantidade', header: 'Qtd. / horas', type: 'custom', value: (r) => r.quantidade, display: (r) => numero(r.quantidade) },
@@ -335,7 +335,7 @@ export class FrotaOsExecucaoComponent {
     { key: 'subtotal', header: 'Subtotal', type: 'custom', priority: 1, value: (r) => r.subtotal, display: (r) => moeda(r.subtotal) }
   ];
 
-  protected readonly colunasPecas: CesDataTableColumn<PecaOrdemServico>[] = [
+  protected readonly colunasPecas: GeoDataTableColumn<PecaOrdemServico>[] = [
     { key: 'descricao', header: 'Peça', type: 'custom', priority: 1, value: (r) => r.descricao, display: (r) => r.descricao },
     { key: 'origem', header: 'Origem', type: 'custom', value: (r) => r.origem, display: (r) => (r.estoque ? `${r.origemRotulo} ${r.estoque}` : r.origemRotulo) },
     { key: 'quantidade', header: 'Quantidade', type: 'custom', value: (r) => r.quantidade, display: (r) => `${numero(r.quantidade)} ${r.unidade}` },

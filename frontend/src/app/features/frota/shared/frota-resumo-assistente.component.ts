@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
-import { CesButtonComponent, CesStatusComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoStatusComponent } from '@geo/ui';
 import {
   AlvoAnaliseIa,
   EstadoAnaliseIa,
@@ -18,25 +18,25 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
   selector: 'app-frota-resumo-assistente',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesStatusComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoStatusComponent],
   styles: `
     :host { display: block; }
     .rs { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: 0.75rem; align-items: start; padding: 0.875rem 1rem;
-      border: 1px solid var(--ces-border); border-left: 4px solid var(--rs-tom, var(--ces-brand)); border-radius: var(--ces-radius-lg, 0.75rem);
-      background: linear-gradient(90deg, var(--ces-brand-soft), transparent 75%); }
-    .rs[data-tom='success'] { --rs-tom: var(--ces-success); }
-    .rs[data-tom='warning'] { --rs-tom: var(--ces-warning); }
-    .rs[data-tom='danger'] { --rs-tom: var(--ces-danger); }
-    .rs__avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--ces-surface); object-fit: contain;
-      box-shadow: 0 0 0 2px var(--ces-brand-soft), 0 0 0 3px var(--ces-brand); }
+      border: 1px solid var(--geo-border); border-left: 4px solid var(--rs-tom, var(--geo-brand)); border-radius: var(--geo-radius-lg, 0.75rem);
+      background: linear-gradient(90deg, var(--geo-brand-soft), transparent 75%); }
+    .rs[data-tom='success'] { --rs-tom: var(--geo-success); }
+    .rs[data-tom='warning'] { --rs-tom: var(--geo-warning); }
+    .rs[data-tom='danger'] { --rs-tom: var(--geo-danger); }
+    .rs__avatar { width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--geo-surface); object-fit: contain;
+      box-shadow: 0 0 0 2px var(--geo-brand-soft), 0 0 0 3px var(--geo-brand); }
     .rs__corpo { display: grid; gap: 0.375rem; min-width: 0; }
     .rs__topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
     .rs__topo strong { font-size: 0.875rem; }
-    .rs__quando { font-size: 0.72rem; color: var(--ces-foreground-muted); }
+    .rs__quando { font-size: 0.72rem; color: var(--geo-foreground-muted); }
     .rs__texto { margin: 0; font-size: 0.8125rem; line-height: 1.55; }
     .rs__pontos { margin: 0; padding-left: 1.1rem; font-size: 0.8125rem; display: grid; gap: 0.2rem; }
     .rs__acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .rs__espera { font-size: 0.8125rem; color: var(--ces-foreground-muted); margin: 0; }
+    .rs__espera { font-size: 0.8125rem; color: var(--geo-foreground-muted); margin: 0; }
   `,
   template: `
     @if (estado(); as e) {
@@ -46,7 +46,7 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
           <div class="rs__corpo">
             <div class="rs__topo">
               <strong>A Bússola</strong>
-              <ces-status [tone]="tom[a.parecer]" [icon]="'pi ' + icone[a.parecer]">{{ a.parecerRotulo }}</ces-status>
+              <geo-status [tone]="tom[a.parecer]" [icon]="'pi ' + icone[a.parecer]">{{ a.parecerRotulo }}</geo-status>
               <span class="rs__quando">{{ a.geradaEm | date: "dd/MM 'às' HH:mm" }}{{ a.geradaPor ? '' : ' · automática' }}</span>
             </div>
             <p class="rs__texto">{{ a.resumo }}</p>
@@ -56,7 +56,7 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
               </ul>
             }
             <div class="rs__acoes">
-              <ces-button variant="ghost" size="sm" icon="pi pi-file" label="Ver a análise completa" (pressed)="relatorio.emit()"></ces-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-file" label="Ver a análise completa" (pressed)="relatorio.emit()"></geo-button>
             </div>
             <p class="rs__espera">A Bússola só aponta; quem decide é você.</p>
           </div>
@@ -68,8 +68,8 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
             <div class="rs__topo"><strong>A Bússola</strong></div>
             <p class="rs__espera">{{ aguardando() ? 'Analisando as fotos assim que chegarem. Pode levar alguns minutos.' : 'Ainda não analisou este registro.' }}</p>
             <div class="rs__acoes">
-              <ces-button variant="ghost" size="sm" icon="pi pi-refresh" label="Atualizar" (pressed)="carregar()"></ces-button>
-              <ces-button variant="ghost" size="sm" icon="pi pi-file" label="Pedir no relatório" (pressed)="relatorio.emit()"></ces-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-refresh" label="Atualizar" (pressed)="carregar()"></geo-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-file" label="Pedir no relatório" (pressed)="relatorio.emit()"></geo-button>
             </div>
           </div>
         </section>

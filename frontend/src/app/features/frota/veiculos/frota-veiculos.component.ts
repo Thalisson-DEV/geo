@@ -3,21 +3,21 @@ import { ICONE_SITUACAO } from '../../../core/models/frota.models';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import {
   OpcoesFrota,
   ROTULO_REGIME,
@@ -47,31 +47,31 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DecimalPipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaVeiculoFormComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="acesso.editarVeiculo()" (newRequested)="formularioAberto.set(true)">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarVeiculo()" (newRequested)="formularioAberto.set(true)">
+      <geo-page-header
         title="Veículos"
         icon="pi pi-car"
         [breadcrumb]="[{ label: 'Frota' }, { label: 'Veículos' }]"
         description="Situação, condutor, quilometragem e pendências de cada placa. Clique numa linha para abrir a ficha. Atalhos: / busca, F filtros, N novo veículo."
       >
         @if (acesso.editarVeiculo()) {
-          <ces-button actions icon="pi pi-plus" label="Novo veículo" [keyShortcut]="atalhos.newShortcut()" (pressed)="formularioAberto.set(true)"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo veículo" [keyShortcut]="atalhos.newShortcut()" (pressed)="formularioAberto.set(true)"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel
+      <geo-filter-panel
         #painel
         storageKey="frota-veiculos"
         [activeCount]="lista.activeCount()"
@@ -81,16 +81,16 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Tipo" [options]="tiposOpcoes()" [(value)]="lista.filters.idsTipoVeiculo" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Situação" [options]="situacoesOpcoes()" [(value)]="lista.filters.situacoes" [filter]="false" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Regime" [options]="regimesOpcoes()" [(value)]="lista.filters.regime" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Cadastro" [options]="cadastroOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Tipo" [options]="tiposOpcoes()" [(value)]="lista.filters.idsTipoVeiculo" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Situação" [options]="situacoesOpcoes()" [(value)]="lista.filters.situacoes" [filter]="false" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Regime" [options]="regimesOpcoes()" [(value)]="lista.filters.regime" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Cadastro" [options]="cadastroOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Veículos"
         mode="server"
         [description]="descricaoTabela()"
@@ -122,72 +122,72 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
         (rowActivate)="abrir($event)"
       >
         @if (acesso.verTelemetria()) {
-          <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de uso">
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!!lista.applied().foraExpediente" (click)="alternar('foraExpediente')">
+          <div table-filters class="geo-quick-filters" role="group" aria-label="Atalhos de uso">
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!!lista.applied().foraExpediente" (click)="alternar('foraExpediente')">
               <i class="pi pi-moon" aria-hidden="true"></i> Fora do expediente
             </button>
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!!lista.applied().rodaPouco" (click)="alternar('rodaPouco')">
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!!lista.applied().rodaPouco" (click)="alternar('rodaPouco')">
               <i class="pi pi-arrow-down-right" aria-hidden="true"></i> Roda pouco
             </button>
           </div>
         }
-        <ng-template cesCell="uso" let-row>
+        <ng-template geoCell="uso" let-row>
           @if (row.uso; as u) {
-            <span class="ces-cell-num">{{ u.km | number: '1.0-0' }} km</span>
-            <span class="ces-cell-chips">
-              @if (u.rodaPouco) { <ces-status tone="warning" icon="pi-arrow-down-right">Roda pouco</ces-status> }
+            <span class="geo-cell-num">{{ u.km | number: '1.0-0' }} km</span>
+            <span class="geo-cell-chips">
+              @if (u.rodaPouco) { <geo-status tone="warning" icon="pi-arrow-down-right">Roda pouco</geo-status> }
               @if (u.diasForaExpediente) {
-                <ces-status tone="warning" icon="pi-moon">{{ contar(u.diasForaExpediente, 'dia', 'dias') }} fora do expediente</ces-status>
+                <geo-status tone="warning" icon="pi-moon">{{ contar(u.diasForaExpediente, 'dia', 'dias') }} fora do expediente</geo-status>
               }
             </span>
           } @else {
-            <span class="ces-cell-muted">Sem rastreador</span>
+            <span class="geo-cell-muted">Sem rastreador</span>
           }
         </ng-template>
-        <ng-template cesCell="placa" let-row>
-          <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-          <span class="ces-cell-muted">{{ row.fabricante }} {{ row.modelo }}{{ row.anoModelo ? ' · ' + row.anoModelo : '' }}</span>
+        <ng-template geoCell="placa" let-row>
+          <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+          <span class="geo-cell-muted">{{ row.fabricante }} {{ row.modelo }}{{ row.anoModelo ? ' · ' + row.anoModelo : '' }}</span>
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
+        <ng-template geoCell="situacao" let-row>
+          <geo-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</geo-status>
           @if (!row.ativo) {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</ces-status>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</geo-status>
           }
         </ng-template>
-        <ng-template cesCell="kmAtual" let-row>
+        <ng-template geoCell="kmAtual" let-row>
           @if (row.kmAtual != null) {
-            <span class="ces-cell-num">{{ row.kmAtual != null ? medicao(row.kmAtual, row.unidadeMedicao) : '—' }}</span>
+            <span class="geo-cell-num">{{ row.kmAtual != null ? medicao(row.kmAtual, row.unidadeMedicao) : '—' }}</span>
           } @else {
-            <span class="ces-cell-muted">Sem leitura</span>
+            <span class="geo-cell-muted">Sem leitura</span>
           }
         </ng-template>
-        <ng-template cesCell="condutorAtual" let-row>
+        <ng-template geoCell="condutorAtual" let-row>
           @if (row.condutorAtual) {
             {{ row.condutorAtual }}
           } @else {
-            <span class="ces-cell-muted">Sem condutor</span>
+            <span class="geo-cell-muted">Sem condutor</span>
           }
         </ng-template>
-        <ng-template cesCell="pendencias" let-row>
-          <span class="ces-cell-chips">
+        <ng-template geoCell="pendencias" let-row>
+          <span class="geo-cell-chips">
             @if (row.documentosVencidos) {
-              <ces-status tone="danger" icon="pi-file">{{ contar(row.documentosVencidos, 'doc. vencido', 'docs. vencidos') }}</ces-status>
+              <geo-status tone="danger" icon="pi-file">{{ contar(row.documentosVencidos, 'doc. vencido', 'docs. vencidos') }}</geo-status>
             }
             @if (row.documentosAVencer) {
-              <ces-status tone="warning" icon="pi-clock">{{ contar(row.documentosAVencer, 'doc. a vencer', 'docs. a vencer') }}</ces-status>
+              <geo-status tone="warning" icon="pi-clock">{{ contar(row.documentosAVencer, 'doc. a vencer', 'docs. a vencer') }}</geo-status>
             }
             @if (row.leiturasInconsistentes) {
-              <ces-status tone="warning" icon="pi-exclamation-triangle">{{ contar(row.leiturasInconsistentes, 'leitura', 'leituras', '') }} a conferir</ces-status>
+              <geo-status tone="warning" icon="pi-exclamation-triangle">{{ contar(row.leiturasInconsistentes, 'leitura', 'leituras', '') }} a conferir</geo-status>
             }
             @if (semChecklist().has(row.idVeiculo)) {
-              <ces-status tone="warning" icon="pi-list-check" [attr.title]="semChecklist().get(row.idVeiculo)">Sem checklist hoje</ces-status>
+              <geo-status tone="warning" icon="pi-list-check" [attr.title]="semChecklist().get(row.idVeiculo)">Sem checklist hoje</geo-status>
             }
             @if (!row.documentosVencidos && !row.documentosAVencer && !row.leiturasInconsistentes && !semChecklist().has(row.idVeiculo)) {
-              <ces-status tone="success" icon="pi-check">Em dia</ces-status>
+              <geo-status tone="success" icon="pi-check">Em dia</geo-status>
             }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-frota-veiculo-form
@@ -208,7 +208,7 @@ export class FrotaVeiculosComponent {
   protected readonly acesso = acessoFrota();
   protected readonly bases = basesFrota();
 
-  protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO;
+  protected readonly tomSituacao: Record<string, GeoTone> = TOM_SITUACAO;
   protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO;
   protected readonly placa = formatarPlaca;
@@ -229,26 +229,26 @@ export class FrotaVeiculosComponent {
     (this.opcoes()?.regimes ?? []).map((o) => ({ label: o.rotulo, value: o.valor }))
   );
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-veiculos',
     rememberFilters: 'frota-veiculos',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      idsTipoVeiculo: cesFilter.list<string>([], {
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsTipoVeiculo: geoFilter.list<string>([], {
         label: 'Tipo',
         param: 'tipo',
         itemLabel: (id) => this.tiposVeiculo().find((t) => t.id === id)?.nome ?? 'tipo selecionado'
       }),
-      situacoes: cesFilter.list<SituacaoOperacional>([], {
+      situacoes: geoFilter.list<SituacaoOperacional>([], {
         label: 'Situação',
         param: 'situacao',
         itemLabel: (s) => ROTULO_SITUACAO[s],
         countLabel: (n) => `${n} selecionadas`
       }),
-      regime: cesFilter.value<RegimeVeiculo | null>(null, { label: 'Regime', format: (r) => (r ? ROTULO_REGIME[r] : null) }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Cadastro', options: () => OPCOES_CADASTRO }),
-      foraExpediente: cesFilter.value<boolean | null>(null, { label: 'Uso', param: 'foraExpediente', format: (v) => (v ? 'Fora do expediente (30 dias)' : null) }),
-      rodaPouco: cesFilter.value<boolean | null>(null, { label: 'Uso', param: 'rodaPouco', format: (v) => (v ? 'Roda pouco (30 dias)' : null) })
+      regime: geoFilter.value<RegimeVeiculo | null>(null, { label: 'Regime', format: (r) => (r ? ROTULO_REGIME[r] : null) }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Cadastro', options: () => OPCOES_CADASTRO }),
+      foraExpediente: geoFilter.value<boolean | null>(null, { label: 'Uso', param: 'foraExpediente', format: (v) => (v ? 'Fora do expediente (30 dias)' : null) }),
+      rodaPouco: geoFilter.value<boolean | null>(null, { label: 'Uso', param: 'rodaPouco', format: (v) => (v ? 'Roda pouco (30 dias)' : null) })
     },
     sort: [{ key: 'placa', direction: 'asc' }]
   });
@@ -262,7 +262,7 @@ export class FrotaVeiculosComponent {
     this.resultado.loading() && !this.resultado.total() ? undefined : contar(this.resultado.total(), 'veículo', 'veículos', 'Nenhum veículo')
   );
 
-  protected readonly colunas: CesDataTableColumn<VeiculoFrotaResumo>[] = [
+  protected readonly colunas: GeoDataTableColumn<VeiculoFrotaResumo>[] = [
     { key: 'placa', header: 'Placa', type: 'custom', priority: 1, sortField: 'placa', value: (r) => r.placa, display: (r) => `${r.placa} ${r.modelo ?? ''}` },
     { key: 'baseOperacional', header: 'Base', priority: 1 },
     { key: 'tipoVeiculo', header: 'Tipo', sortField: 'tipoVeiculo.nome', display: (r) => r.tipoVeiculo ?? 'Sem tipo' },

@@ -1,5 +1,5 @@
 import { statusComercial } from '../solicitacao-comercial-status';
-import { CesFormDrawerComponent } from '@ces/ui';
+import { GeoFormDrawerComponent } from '@geo/ui';
 import { QuantidadeUnidadeComponent } from '../../shared/quantidade-unidade.component';
 import { daUnidadeBase } from '../../shared/unidade-material';
 import { AbaDetalheComercial, SolicitacaoComercialDetalheComponent } from '../solicitacao-comercial-detalhe.component';
@@ -34,15 +34,15 @@ import { AccordionModule } from 'primeng/accordion';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { catchError, forkJoin, map, of } from 'rxjs';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesStatusComponent,
-  CesTone,
-} from '@ces/ui';
-import { CesAutocompleteComponent, CesDatepickerComponent, CesSelectComponent, CesSelectOption } from '@ces/ui/forms';
-import { CesCellDirective, CesDataTableColumn, CesDataTableComponent, CesRowDetailDirective } from '@ces/ui/data';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoStatusComponent,
+  GeoTone,
+} from '@geo/ui';
+import { GeoAutocompleteComponent, GeoDatepickerComponent, GeoSelectComponent, GeoSelectOption } from '@geo/ui/forms';
+import { GeoCellDirective, GeoDataTableColumn, GeoDataTableComponent, GeoRowDetailDirective } from '@geo/ui/data';
 
 import { AuthService } from '../../../../core/services/auth.service';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
@@ -91,7 +91,7 @@ import {
 
 /** A faixa abaixo do título: a situação da solicitação em uma frase. */
 interface FaixaSituacao {
-  readonly tom: CesTone | 'brand';
+  readonly tom: GeoTone | 'brand';
   readonly icone: string;
   readonly titulo: string;
   readonly texto: string;
@@ -102,7 +102,7 @@ interface FaixaSituacao {
   standalone: true,
   imports: [
     QuantidadeUnidadeComponent,
-    CesFormDrawerComponent,
+    GeoFormDrawerComponent,
     SolicitacaoComercialDetalheComponent,
     SolicitacaoRejeicaoDialogComponent,
     CommonModule,
@@ -122,17 +122,17 @@ interface FaixaSituacao {
     TextareaModule,
     CheckboxModule,
     AccordionModule,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesStatusComponent,
-    CesAutocompleteComponent,
-    CesSelectComponent,
-    CesDatepickerComponent,
-    CesDataTableComponent,
-    CesCellDirective,
-    CesRowDetailDirective,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoStatusComponent,
+    GeoAutocompleteComponent,
+    GeoSelectComponent,
+    GeoDatepickerComponent,
+    GeoDataTableComponent,
+    GeoCellDirective,
+    GeoRowDetailDirective,
     SeriesGradeComponent,
     SaldoEstoqueDialogComponent,
     SolicitacaoTecnicaHistoricoComponent,
@@ -261,7 +261,7 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
     }
   });
 
-  protected readonly colunasItens: CesDataTableColumn<GrupoItemSolicitacao>[] = [
+  protected readonly colunasItens: GeoDataTableColumn<GrupoItemSolicitacao>[] = [
     { key: 'codigo', header: 'Código', priority: 1, width: '7rem', value: (g) => g.material.codigo },
     {
       key: 'descricao',
@@ -342,7 +342,7 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
   protected readonly saldosDoSelecionado = signal<{ origem: number; destino: number } | null>(null);
 
   // Atendimento: quem aprova troca origem e data do saque; quem entrega, só a origem
-  protected readonly opcoesOrigem = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesOrigem = signal<GeoSelectOption<string>[]>([]);
   protected readonly carregandoOrigens = signal(false);
   protected readonly idOrigemEscolhida = signal<string | null>(null);
   protected readonly dataPrevistaEscolhida = signal<Date | null>(null);
@@ -599,7 +599,7 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
     return statusComercial(status).icon;
   }
 
-  protected getStatusTone(status: SolicitacaoStatus | undefined): CesTone {
+  protected getStatusTone(status: SolicitacaoStatus | undefined): GeoTone {
     if (!status) return 'neutral';
     switch (status) {
       case 'ENTREGUE':
@@ -642,7 +642,7 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
     return '221 — Saída Direta / Obra';
   }
 
-  protected tipoTone(tipo?: string | null): CesTone {
+  protected tipoTone(tipo?: string | null): GeoTone {
     if (tipo === 'DEVOLUCAO_COMUM' || tipo === '222') return 'neutral';
     return 'info';
   }

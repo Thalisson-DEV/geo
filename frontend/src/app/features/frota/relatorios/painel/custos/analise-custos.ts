@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
 import { LancamentoFrota, RelatorioGerencialFrota, VeiculoRelatorioFrota } from '../../../../../core/models/frota-relatorios.models';
@@ -253,7 +253,7 @@ export function visaoCustos(m: ModeloCustos): { veredito: VereditoGerencial; lei
     });
   }
 
-  const tom: CesTone = varTotal !== null && varTotal > 0.15 ? 'warning' : m.foraDaCurva.length > 2 ? 'warning' : 'success';
+  const tom: GeoTone = varTotal !== null && varTotal > 0.15 ? 'warning' : m.foraDaCurva.length > 2 ? 'warning' : 'success';
   const veredito: VereditoGerencial = {
     tom,
     rotulo: tom === 'warning' ? 'Acompanhar' : 'Sob controle',
@@ -270,7 +270,7 @@ export function visaoCustos(m: ModeloCustos): { veredito: VereditoGerencial; lei
 
 // ── Análises (drill-down) ────────────────────────────────────────────────────────────────────────
 
-const colLancamentos: CesDataTableColumn<LancamentoFrota>[] = [
+const colLancamentos: GeoDataTableColumn<LancamentoFrota>[] = [
   { key: 'data', header: 'Data', type: 'date', priority: 1 },
   { key: 'placa', header: 'Veículo', priority: 1, value: (l) => l.placa ?? '—' },
   { key: 'categoria', header: 'Categoria', priority: 2, value: (l) => ROTULO_CATEGORIA[l.categoria] ?? l.categoria },
@@ -279,7 +279,7 @@ const colLancamentos: CesDataTableColumn<LancamentoFrota>[] = [
   { key: 'valor', header: 'Valor', type: 'currency', priority: 1 }
 ];
 
-const colVeiculos: CesDataTableColumn<VeiculoCusto>[] = [
+const colVeiculos: GeoDataTableColumn<VeiculoCusto>[] = [
   { key: 'placa', header: 'Veículo', priority: 1 },
   { key: 'tipo', header: 'Tipo', priority: 2, value: (v) => v.tipo ?? '' },
   { key: 'base', header: 'Base', priority: 3, value: (v) => v.base ?? '' },
@@ -410,7 +410,7 @@ function vistaKpi(qual: string, m: ModeloCustos, chave: string): VistaAnalise | 
     };
   }
   if (qual === 'fora-da-curva') {
-    const colunas: CesDataTableColumn<VeiculoCusto>[] = [
+    const colunas: GeoDataTableColumn<VeiculoCusto>[] = [
       ...colVeiculos,
       { key: 'sobreTipo', header: 'Sobre a mediana do tipo', type: 'custom', priority: 1, value: (v) => v.sobreTipo ?? 0, display: (v) => `${numero(v.sobreTipo, 2)}×` }
     ];
@@ -429,7 +429,7 @@ function vistaKpi(qual: string, m: ModeloCustos, chave: string): VistaAnalise | 
     };
   }
   if (qual === 'altas') {
-    const colunas: CesDataTableColumn<VeiculoCusto>[] = [
+    const colunas: GeoDataTableColumn<VeiculoCusto>[] = [
       { key: 'placa', header: 'Veículo', priority: 1 },
       { key: 'totalAnterior', header: 'Anterior', type: 'currency', priority: 2 },
       { key: 'total', header: 'Atual', type: 'currency', priority: 1 },

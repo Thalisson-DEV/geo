@@ -2,19 +2,19 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import {
   ProvedorTelemetria,
@@ -31,7 +31,7 @@ import { FrotaTelemetriaService } from '../../../core/services/frota-telemetria.
 import { LIMITE_EXPORTACAO_FROTA, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FrotaRastreadorDrawerComponent } from './frota-rastreador-drawer.component';
 
-const SIM: CesSelectOption<boolean | null>[] = [
+const SIM: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Só os sem comunicação há 24 h', value: true }
 ];
@@ -45,19 +45,19 @@ const SIM: CesSelectOption<boolean | null>[] = [
     DatePipe,
     DecimalPipe,
     RouterLink,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaRastreadorDrawerComponent
   ],
   styles: `.tl-lista { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }`,
   template: `
-    <div class="tl-lista" cesListShortcuts>
-      <ces-filter-panel
+    <div class="tl-lista" geoListShortcuts>
+      <geo-filter-panel
         #painel
         storageKey="frota-telemetria-rastreadores"
         [activeCount]="lista.activeCount()"
@@ -67,15 +67,15 @@ const SIM: CesSelectOption<boolean | null>[] = [
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Situação" [options]="situacoesOpcoes" [(value)]="lista.filters.situacoes" [filter]="false" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Provedor" [options]="provedoresOpcoes" [(value)]="lista.filters.provedores" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Comunicação" [options]="sim" [(value)]="lista.filters.semComunicacao"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Situação" [options]="situacoesOpcoes" [(value)]="lista.filters.situacoes" [filter]="false" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Provedor" [options]="provedoresOpcoes" [(value)]="lista.filters.provedores" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Comunicação" [options]="sim" [(value)]="lista.filters.semComunicacao"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Rastreadores"
         mode="server"
         [description]="descricaoTabela()"
@@ -104,47 +104,47 @@ const SIM: CesSelectOption<boolean | null>[] = [
         (adjustFilters)="painel.expandAndFocus()"
         (clearFilters)="lista.reset()"
       >
-        <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de rastreadores">
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="semVeiculoAplicado()" (click)="alternarSemVeiculo()">
+        <div table-filters class="geo-quick-filters" role="group" aria-label="Atalhos de rastreadores">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="semVeiculoAplicado()" (click)="alternarSemVeiculo()">
             <i class="pi pi-question-circle" aria-hidden="true"></i> Sem veículo
           </button>
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().semComunicacao === true" (click)="alternarSemSinal()">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().semComunicacao === true" (click)="alternarSemSinal()">
             <i class="pi pi-wifi" aria-hidden="true"></i> Sem sinal há 24 h
           </button>
         </div>
-        <ng-template cesCell="veiculo" let-row>
+        <ng-template geoCell="veiculo" let-row>
           @if (row.idVeiculo) {
-            <a [routerLink]="['/frota/veiculos', row.idVeiculo]" [queryParams]="{ aba: 'telemetria' }" class="ces-cell-strong"
+            <a [routerLink]="['/frota/veiculos', row.idVeiculo]" [queryParams]="{ aba: 'telemetria' }" class="geo-cell-strong"
               (click)="$event.stopPropagation()">{{ placa(row.placa) }}</a>
-            @if (row.base) { <span class="ces-cell-muted">{{ row.base }}</span> }
+            @if (row.base) { <span class="geo-cell-muted">{{ row.base }}</span> }
           } @else {
-            <span class="ces-cell-strong">{{ row.placaProvedor ?? row.nomeProvedor ?? row.idExterno }}</span>
-            <span class="ces-cell-muted">Placa no provedor</span>
+            <span class="geo-cell-strong">{{ row.placaProvedor ?? row.nomeProvedor ?? row.idExterno }}</span>
+            <span class="geo-cell-muted">Placa no provedor</span>
           }
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tom[row.situacao]">{{ row.situacaoRotulo }}</ces-status>
-          @if (row.vinculoManual) { <span class="ces-cell-muted">Vínculo manual</span> }
+        <ng-template geoCell="situacao" let-row>
+          <geo-status [tone]="tom[row.situacao]">{{ row.situacaoRotulo }}</geo-status>
+          @if (row.vinculoManual) { <span class="geo-cell-muted">Vínculo manual</span> }
         </ng-template>
-        <ng-template cesCell="comunicacao" let-row>
+        <ng-template geoCell="comunicacao" let-row>
           @if (row.semComunicacao) {
-            <ces-status tone="warning" icon="pi pi-exclamation-triangle">{{ quanto(row.ultimaComunicacao) }}</ces-status>
+            <geo-status tone="warning" icon="pi pi-exclamation-triangle">{{ quanto(row.ultimaComunicacao) }}</geo-status>
           } @else {
             <span>{{ quanto(row.ultimaComunicacao) }}</span>
           }
-          @if (row.ultimaComunicacao) { <span class="ces-cell-muted">{{ row.ultimaComunicacao | date: 'dd/MM HH:mm' }}</span> }
+          @if (row.ultimaComunicacao) { <span class="geo-cell-muted">{{ row.ultimaComunicacao | date: 'dd/MM HH:mm' }}</span> }
         </ng-template>
-        <ng-template cesCell="movimento" let-row>
+        <ng-template geoCell="movimento" let-row>
           @if (!row.ultimaComunicacao) {
-            <span class="ces-cell-muted">—</span>
+            <span class="geo-cell-muted">—</span>
           } @else if (row.velocidadeKmh != null && row.velocidadeKmh > 3) {
-            <span class="ces-cell-num">{{ row.velocidadeKmh | number: '1.0-0' }} km/h</span>
+            <span class="geo-cell-num">{{ row.velocidadeKmh | number: '1.0-0' }} km/h</span>
           } @else {
-            <span class="ces-cell-muted">Parado</span>
+            <span class="geo-cell-muted">Parado</span>
           }
-          @if (row.ultimaComunicacao && row.ignicao != null) { <span class="ces-cell-muted">Ignição {{ row.ignicao ? 'ligada' : 'desligada' }}</span> }
+          @if (row.ultimaComunicacao && row.ignicao != null) { <span class="geo-cell-muted">Ignição {{ row.ignicao ? 'ligada' : 'desligada' }}</span> }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-frota-rastreador-drawer [(visivel)]="drawerAberto" [rastreador]="selecionado()" (alterado)="aoAlterar($event)"></app-frota-rastreador-drawer>
@@ -155,7 +155,7 @@ export class FrotaTelemetriaRastreadoresComponent {
   /** Um vínculo mudou: a tela atualiza os indicadores. */
   readonly alterado = output<void>();
 
-  protected readonly tom: Record<string, CesTone> = TOM_SITUACAO_RASTREADOR;
+  protected readonly tom: Record<string, GeoTone> = TOM_SITUACAO_RASTREADOR;
   protected readonly placa = formatarPlaca;
   protected readonly quanto = haQuanto;
   protected readonly sim = SIM;
@@ -168,18 +168,18 @@ export class FrotaTelemetriaRastreadoresComponent {
   protected readonly provedoresOpcoes = (Object.keys(ROTULO_PROVEDOR) as ProvedorTelemetria[])
     .map((p) => ({ label: ROTULO_PROVEDOR[p], value: p }));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-telemetria-rastreadores',
     rememberFilters: 'frota-telemetria-rastreadores',
     filters: {
-      situacoes: cesFilter.list<SituacaoRastreador>([], {
+      situacoes: geoFilter.list<SituacaoRastreador>([], {
         label: 'Situação', param: 'situacao', itemLabel: (s) => ROTULO_SITUACAO_RASTREADOR[s], countLabel: (n) => `${n} selecionadas`
       }),
-      provedores: cesFilter.list<ProvedorTelemetria>([], {
+      provedores: geoFilter.list<ProvedorTelemetria>([], {
         label: 'Provedor', param: 'provedor', itemLabel: (p) => ROTULO_PROVEDOR[p], countLabel: (n) => `${n} selecionados`
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      semComunicacao: cesFilter.value<boolean | null>(null, { label: 'Comunicação', param: 'semComunicacao', options: () => SIM })
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      semComunicacao: geoFilter.value<boolean | null>(null, { label: 'Comunicação', param: 'semComunicacao', options: () => SIM })
     },
     sort: [{ key: 'situacao', direction: 'asc' }]
   });
@@ -196,7 +196,7 @@ export class FrotaTelemetriaRastreadoresComponent {
     this.resultado.loading() && !this.resultado.total() ? undefined
       : contar(this.resultado.total(), 'rastreador', 'rastreadores', 'Nenhum rastreador'));
 
-  protected readonly colunas: CesDataTableColumn<RastreadorTelemetria>[] = [
+  protected readonly colunas: GeoDataTableColumn<RastreadorTelemetria>[] = [
     { key: 'veiculo', header: 'Veículo', type: 'custom', priority: 1, value: (r) => r.placa ?? r.placaProvedor,
       display: (r) => (r.placa ? formatarPlaca(r.placa) : r.placaProvedor ?? r.idExterno) },
     { key: 'provedor', header: 'Provedor', sortField: 'provedor', display: (r) => r.provedorRotulo },

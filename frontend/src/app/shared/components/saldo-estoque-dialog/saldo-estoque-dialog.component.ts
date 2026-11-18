@@ -5,15 +5,15 @@ import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { DialogModule } from 'primeng/dialog';
 import { Subject, catchError, map, of, switchMap } from 'rxjs';
-import { CesButtonComponent, CesContentState, CesIconButtonComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoButtonComponent, GeoContentState, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import {
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesLazyLoadEvent,
-  CesRowActionsDirective,
-  CesRowDetailDirective,
-} from '@ces/ui/data';
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoLazyLoadEvent,
+  GeoRowActionsDirective,
+  GeoRowDetailDirective,
+} from '@geo/ui/data';
 
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { PageResponseSaldoResponse, SaldoResponse } from '../../../core/models/almoxarifado.models';
@@ -33,13 +33,13 @@ const ORDENACAO_PADRAO = 'material.descricao,asc';
   imports: [
     DecimalPipe,
     DialogModule,
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
-    CesDataTableComponent,
-    CesCellDirective,
-    CesRowActionsDirective,
-    CesRowDetailDirective,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
+    GeoDataTableComponent,
+    GeoCellDirective,
+    GeoRowActionsDirective,
+    GeoRowDetailDirective,
     MovimentacoesMaterialDialogComponent,
     SaldoSeriaisPainelComponent,
   ],
@@ -59,13 +59,13 @@ export class SaldoEstoqueDialogComponent {
   readonly saldos = signal<SaldoResponse[]>([]);
   readonly totalRecords = signal(0);
   readonly negativeCount = computed(() => this.saldos().filter((saldo) => saldo.negativo).length);
-  protected readonly estado = signal<CesContentState>('loading');
+  protected readonly estado = signal<GeoContentState>('loading');
   protected readonly erro = signal<string | undefined>(undefined);
   protected readonly busca = signal('');
   protected readonly pagina = signal(0);
   protected readonly tamanho = signal(10);
 
-  protected readonly colunas: CesDataTableColumn<SaldoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<SaldoResponse>[] = [
     { key: 'codigo', header: 'Código', priority: 1, width: '7rem', value: (s) => s.material.codigo, sortField: 'material.codigo' },
     { key: 'descricao', header: 'Material', type: 'custom', priority: 1, value: (s) => s.material.descricao, sortField: 'material.descricao' },
     { key: 'unidade', header: 'Un.', priority: 2, width: '4rem', value: (s) => s.material.unidadeMedida, sortable: false },
@@ -76,7 +76,7 @@ export class SaldoEstoqueDialogComponent {
   protected readonly rotuloSaldo = (saldo: SaldoResponse) => `${saldo.material.codigo} ${saldo.material.descricao}`;
   protected readonly ehSeriado = (saldo: SaldoResponse) => !!saldo.material.detalhaSerie;
 
-  private readonly cargas = new Subject<CesLazyLoadEvent>();
+  private readonly cargas = new Subject<GeoLazyLoadEvent>();
 
   constructor() {
     this.cargas
@@ -118,7 +118,7 @@ export class SaldoEstoqueDialogComponent {
     this.visible = false;
   }
 
-  protected onLazyLoad(evento: CesLazyLoadEvent) {
+  protected onLazyLoad(evento: GeoLazyLoadEvent) {
     if (!this.estoqueId) return;
     if (!this.saldos().length) this.estado.set('loading');
     this.cargas.next(evento);
@@ -139,7 +139,7 @@ export class SaldoEstoqueDialogComponent {
 
   protected readonly iconeCondicao = iconeCondicao;
 
-  protected tomCondicao(condicao: string | undefined): CesTone {
+  protected tomCondicao(condicao: string | undefined): GeoTone {
     return condicao === 'SUCATA' ? 'warning' : 'neutral';
   }
 
@@ -148,7 +148,7 @@ export class SaldoEstoqueDialogComponent {
     return condicao.charAt(0) + condicao.slice(1).toLowerCase();
   }
 
-  private parametros(evento: CesLazyLoadEvent): Record<string, unknown> {
+  private parametros(evento: GeoLazyLoadEvent): Record<string, unknown> {
     const regra = evento.sort[0];
     return {
       idEstoque: this.estoqueId,

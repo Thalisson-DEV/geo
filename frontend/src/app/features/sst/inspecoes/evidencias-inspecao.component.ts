@@ -20,7 +20,7 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
-import { CesButtonComponent } from '@ces/ui';
+import { GeoButtonComponent } from '@geo/ui';
 
 import { SstService } from '../../../core/services/sst.service';
 import {
@@ -86,7 +86,7 @@ interface ItemGaleria {
 @Component({
   selector: 'app-evidencias-inspecao',
   standalone: true,
-  imports: [CommonModule, DatePipe, ButtonModule, CesButtonComponent, ConfirmPopupModule, DialogModule, TooltipModule],
+  imports: [CommonModule, DatePipe, ButtonModule, GeoButtonComponent, ConfirmPopupModule, DialogModule, TooltipModule],
   providers: [ConfirmationService],
   template: `
     <div class="mb-8 print:mb-3">
@@ -96,8 +96,8 @@ interface ItemGaleria {
           <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ itens().length }})</span>
         </div>
         @if (canWrite()) {
-          <ces-button class="print:hidden" variant="outline" size="sm" icon="pi pi-camera" label="Acrescentar foto"
-            [loading]="enviando() > 0" (pressed)="escolherArquivos()"></ces-button>
+          <geo-button class="print:hidden" variant="outline" size="sm" icon="pi pi-camera" label="Acrescentar foto"
+            [loading]="enviando() > 0" (pressed)="escolherArquivos()"></geo-button>
         }
       </div>
 

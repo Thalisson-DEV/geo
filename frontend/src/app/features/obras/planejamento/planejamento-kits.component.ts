@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent, CesNumberInputComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoNumberInputComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CLASSES_TENSAO, ClasseTensao, KitConstrutivoResponse, OperacaoItemKit } from '../../../core/models/obras-kit.models';
@@ -7,7 +7,7 @@ import { ItemPlanejado, KitAplicado, StatusItemPlanejado } from '../../../core/m
 import { ObrasKitService } from '../../../core/services/obras-kit.service';
 import { ROTULO_STATUS_ITEM, formatarQuantidade, kitBloqueado } from './planejamento.logic';
 
-const TOM_STATUS: Record<StatusItemPlanejado, CesTone> = {
+const TOM_STATUS: Record<StatusItemPlanejado, GeoTone> = {
   PENDENTE: 'neutral',
   PROGRAMADO: 'info',
   EM_ANDAMENTO: 'warning',
@@ -24,7 +24,7 @@ export interface AplicacaoKit {
 @Component({
   selector: 'app-planejamento-kits',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesNumberInputComponent, CesStatusComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoNumberInputComponent, GeoStatusComponent],
   template: `
     @if (podeEditar()) {
       <div class="busca">
@@ -98,22 +98,22 @@ export interface AplicacaoKit {
                 <code>{{ kit.codigo }}</code>
                 <span class="kit__descricao" [title]="kit.descricao">{{ kit.descricao }}</span>
               </button>
-              @if (kit.operacao === 'RETIRAR') { <ces-status tone="warning">Retirar</ces-status> }
-              @if (kit.executadoAntes) { <ces-status tone="success">Já executado</ces-status> }
+              @if (kit.operacao === 'RETIRAR') { <geo-status tone="warning">Retirar</geo-status> }
+              @if (kit.executadoAntes) { <geo-status tone="success">Já executado</geo-status> }
               @if (bloqueado(kit)) { <i class="pi pi-lock kit__cadeado" title="Tem item programado ou executado: não pode ser alterado nem removido"></i> }
               @if (podeEditar() && !bloqueado(kit) && !kit.executadoAntes) {
-                <ces-icon-button icon="pi pi-trash" variant="ghost" size="icon-sm" label="Remover kit" tooltip="Remover kit" (pressed)="remover.emit(kit)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-trash" variant="ghost" size="icon-sm" label="Remover kit" tooltip="Remover kit" (pressed)="remover.emit(kit)"></geo-icon-button>
               }
             </header>
 
             @if (abertos().has(kit.id)) {
               @if (podeEditar() && !bloqueado(kit) && !kit.executadoAntes) {
                 <div class="kit__quantidade">
-                  <ces-number-input [label]="emVao() ? 'Metros' : 'Qtd. de kits'" [labelVisible]="true" [min]="0.0001" [maxFractionDigits]="4"
+                  <geo-number-input [label]="emVao() ? 'Metros' : 'Qtd. de kits'" [labelVisible]="true" [min]="0.0001" [maxFractionDigits]="4"
                     [description]="emVao() ? 'Só os itens medidos em metro acompanham a metragem.' : undefined"
-                    [value]="kit.multiplicador" (valueChange)="rascunho.set({ id: kit.id, valor: $event })"></ces-number-input>
-                  <ces-button variant="outline" size="sm" label="Aplicar" [disabled]="!podeAplicarQuantidade(kit)"
-                    (pressed)="alterarQuantidade.emit({ kit, multiplicador: rascunho()!.valor! })"></ces-button>
+                    [value]="kit.multiplicador" (valueChange)="rascunho.set({ id: kit.id, valor: $event })"></geo-number-input>
+                  <geo-button variant="outline" size="sm" label="Aplicar" [disabled]="!podeAplicarQuantidade(kit)"
+                    (pressed)="alterarQuantidade.emit({ kit, multiplicador: rascunho()!.valor! })"></geo-button>
                 </div>
               }
               <ul class="itens">
@@ -123,21 +123,21 @@ export interface AplicacaoKit {
                     <span class="item__nome"><code>{{ item.codigo }}</code> {{ item.descricao }}</span>
                     @if (editando()?.id === item.id) {
                       <span class="item__edicao">
-                        <ces-number-input label="Quantidade" [labelVisible]="false" [min]="0.0001" [maxFractionDigits]="4"
-                          [value]="editando()!.valor" (valueChange)="editando.set({ id: item.id, valor: $event })"></ces-number-input>
-                        <ces-icon-button icon="pi pi-check" variant="ghost" size="icon-sm" label="Salvar quantidade" [disabled]="!editando()!.valor"
-                          (pressed)="salvarItem(kit, item)"></ces-icon-button>
-                        <ces-icon-button icon="pi pi-times" variant="ghost" size="icon-sm" label="Cancelar" (pressed)="editando.set(null)"></ces-icon-button>
+                        <geo-number-input label="Quantidade" [labelVisible]="false" [min]="0.0001" [maxFractionDigits]="4"
+                          [value]="editando()!.valor" (valueChange)="editando.set({ id: item.id, valor: $event })"></geo-number-input>
+                        <geo-icon-button icon="pi pi-check" variant="ghost" size="icon-sm" label="Salvar quantidade" [disabled]="!editando()!.valor"
+                          (pressed)="salvarItem(kit, item)"></geo-icon-button>
+                        <geo-icon-button icon="pi pi-times" variant="ghost" size="icon-sm" label="Cancelar" (pressed)="editando.set(null)"></geo-icon-button>
                       </span>
                     } @else {
                       <span class="item__qtd" title="Previsto e executado">
                         {{ qtd(item.quantidadePrevista) }} {{ item.unidade }}
                         @if (item.tipo === 'SERVICO') { <small>exec. {{ qtd(item.quantidadeExecutada) }}</small> }
                       </span>
-                      <ces-status [tone]="tom[item.status]">{{ rotulo[item.status] }}</ces-status>
+                      <geo-status [tone]="tom[item.status]">{{ rotulo[item.status] }}</geo-status>
                       @if (podeEditar() && item.status === 'PENDENTE' && !kit.executadoAntes) {
-                        <ces-icon-button icon="pi pi-pencil" variant="ghost" size="icon-sm" label="Editar quantidade" (pressed)="editando.set({ id: item.id, valor: item.quantidadePrevista })"></ces-icon-button>
-                        <ces-icon-button icon="pi pi-times" variant="ghost" size="icon-sm" label="Remover item" (pressed)="removerItem.emit({ kit, item })"></ces-icon-button>
+                        <geo-icon-button icon="pi pi-pencil" variant="ghost" size="icon-sm" label="Editar quantidade" (pressed)="editando.set({ id: item.id, valor: item.quantidadePrevista })"></geo-icon-button>
+                        <geo-icon-button icon="pi pi-times" variant="ghost" size="icon-sm" label="Remover item" (pressed)="removerItem.emit({ kit, item })"></geo-icon-button>
                       }
                     }
                   </li>
@@ -158,50 +158,50 @@ export interface AplicacaoKit {
     }
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; font-size: 0.8125rem; color: var(--ces-foreground); }
-    code { color: var(--ces-brand); font-size: 0.75rem; font-weight: 600; }
+    :host { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; font-size: 0.8125rem; color: var(--geo-foreground); }
+    code { color: var(--geo-brand); font-size: 0.75rem; font-weight: 600; }
     .busca { display: flex; flex-direction: column; gap: 0.375rem; }
     .busca__linha { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .busca__campo { display: flex; flex: 1 1 10rem; gap: 0.375rem; align-items: center; min-width: 0; padding: 0.375rem 0.5rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); color: var(--ces-foreground-muted); }
-    .busca__campo:focus-within { border-color: var(--ces-brand); }
-    .busca__campo input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ces-foreground); }
-    .segmento { display: inline-flex; flex: none; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); overflow: hidden; }
-    .segmento button { padding: 0.25rem 0.5rem; border: 0; background: transparent; color: var(--ces-foreground-muted); font-size: 0.75rem; cursor: pointer; }
-    .segmento button[aria-pressed='true'] { background: var(--ces-brand-soft); color: var(--ces-brand); font-weight: 600; }
-    .busca__tensao { display: flex; gap: 0.375rem; align-items: center; color: var(--ces-foreground-muted); font-size: 0.75rem; cursor: pointer; }
-    .aviso { margin: 0; color: var(--ces-warning-text); font-size: 0.75rem; }
-    .busca__titulo { margin: 0.25rem 0 0; color: var(--ces-foreground-muted); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
-    .resultados { max-height: 14rem; margin: 0; padding: 0; overflow-y: auto; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); list-style: none; }
-    .resultados li + li { border-top: 1px solid var(--ces-border); }
+    .busca__campo { display: flex; flex: 1 1 10rem; gap: 0.375rem; align-items: center; min-width: 0; padding: 0.375rem 0.5rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground-muted); }
+    .busca__campo:focus-within { border-color: var(--geo-brand); }
+    .busca__campo input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--geo-foreground); }
+    .segmento { display: inline-flex; flex: none; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); overflow: hidden; }
+    .segmento button { padding: 0.25rem 0.5rem; border: 0; background: transparent; color: var(--geo-foreground-muted); font-size: 0.75rem; cursor: pointer; }
+    .segmento button[aria-pressed='true'] { background: var(--geo-brand-soft); color: var(--geo-brand); font-weight: 600; }
+    .busca__tensao { display: flex; gap: 0.375rem; align-items: center; color: var(--geo-foreground-muted); font-size: 0.75rem; cursor: pointer; }
+    .aviso { margin: 0; color: var(--geo-warning-text); font-size: 0.75rem; }
+    .busca__titulo { margin: 0.25rem 0 0; color: var(--geo-foreground-muted); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    .resultados { max-height: 14rem; margin: 0; padding: 0; overflow-y: auto; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); list-style: none; }
+    .resultados li + li { border-top: 1px solid var(--geo-border); }
     .resultados button { display: flex; gap: 0.5rem; align-items: center; width: 100%; padding: 0.375rem 0.5rem; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-    .resultados button:hover:not(:disabled) { background: var(--ces-surface-muted); }
-    .resultados button:disabled { color: var(--ces-foreground-muted); cursor: default; }
+    .resultados button:hover:not(:disabled) { background: var(--geo-surface-muted); }
+    .resultados button:disabled { color: var(--geo-foreground-muted); cursor: default; }
     .resultados span { flex: 1; min-width: 0; }
-    .resultados__vazio { padding: 0.5rem; color: var(--ces-foreground-muted); }
-    .resultados button.resultados__todos { display: inline; width: auto; padding: 0; color: var(--ces-brand); font-weight: 600; text-decoration: underline; }
+    .resultados__vazio { padding: 0.5rem; color: var(--geo-foreground-muted); }
+    .resultados button.resultados__todos { display: inline; width: auto; padding: 0; color: var(--geo-brand); font-weight: 600; text-decoration: underline; }
     .kits { display: flex; flex-direction: column; gap: 0.375rem; }
-    .kits__vazio { margin: 0; padding: 0.625rem; border: 1px dashed var(--ces-border); border-radius: var(--ces-radius-md); color: var(--ces-foreground-muted); font-size: 0.75rem; text-align: center; }
-    .kit { border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
+    .kits__vazio { margin: 0; padding: 0.625rem; border: 1px dashed var(--geo-border); border-radius: var(--geo-radius-md); color: var(--geo-foreground-muted); font-size: 0.75rem; text-align: center; }
+    .kit { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .kit__topo { display: flex; gap: 0.25rem; align-items: center; padding: 0.25rem 0.375rem; }
     .kit__abrir { display: flex; flex: 1; gap: 0.375rem; align-items: center; min-width: 0; padding: 0.125rem; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-    .kit__abrir i { color: var(--ces-foreground-muted); font-size: 0.625rem; }
+    .kit__abrir i { color: var(--geo-foreground-muted); font-size: 0.625rem; }
     .kit__descricao { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .kit__cadeado { color: var(--ces-foreground-muted); font-size: 0.75rem; }
-    .kit__quantidade { display: flex; gap: 0.5rem; align-items: flex-end; padding: 0.25rem 0.5rem 0.5rem; border-top: 1px solid var(--ces-border); }
-    .kit__quantidade ces-number-input { flex: 1; min-width: 0; }
-    .itens { margin: 0; padding: 0; border-top: 1px solid var(--ces-border); list-style: none; }
+    .kit__cadeado { color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .kit__quantidade { display: flex; gap: 0.5rem; align-items: flex-end; padding: 0.25rem 0.5rem 0.5rem; border-top: 1px solid var(--geo-border); }
+    .kit__quantidade geo-number-input { flex: 1; min-width: 0; }
+    .itens { margin: 0; padding: 0; border-top: 1px solid var(--geo-border); list-style: none; }
     .item { display: flex; flex-wrap: wrap; gap: 0.375rem; align-items: center; padding: 0.3125rem 0.5rem; }
-    .item + .item { border-top: 1px solid var(--ces-border); }
-    .item__tipo { flex: none; width: 1rem; border-radius: var(--ces-radius-sm); background: var(--ces-success-soft); color: var(--ces-success-text); font-size: 0.625rem; font-weight: 700; line-height: 1rem; text-align: center; }
-    .item__tipo[data-material='true'] { background: var(--ces-info-soft); color: var(--ces-info-text); }
+    .item + .item { border-top: 1px solid var(--geo-border); }
+    .item__tipo { flex: none; width: 1rem; border-radius: var(--geo-radius-sm); background: var(--geo-success-soft); color: var(--geo-success-text); font-size: 0.625rem; font-weight: 700; line-height: 1rem; text-align: center; }
+    .item__tipo[data-material='true'] { background: var(--geo-info-soft); color: var(--geo-info-text); }
     .item__nome { flex: 1 1 9rem; min-width: 0; font-size: 0.75rem; }
     .item__qtd { display: inline-flex; flex-direction: column; font-size: 0.75rem; font-variant-numeric: tabular-nums; text-align: right; }
-    .item__qtd small { color: var(--ces-foreground-muted); font-size: 0.6875rem; }
+    .item__qtd small { color: var(--geo-foreground-muted); font-size: 0.6875rem; }
     .item__edicao { display: inline-flex; gap: 0.125rem; align-items: center; width: 11rem; }
-    .item__edicao ces-number-input { flex: 1; min-width: 0; }
-    .kit__antes { display: flex; gap: 0.375rem; align-items: center; width: 100%; padding: 0.375rem 0.5rem; border: 0; border-top: 1px solid var(--ces-border); background: transparent; color: var(--ces-foreground-muted); font-size: 0.75rem; text-align: left; cursor: pointer; }
-    .kit__antes:hover { color: var(--ces-foreground); background: var(--ces-surface-muted); }
-    button:focus-visible { outline: 2px solid var(--ces-brand); outline-offset: 1px; }
+    .item__edicao geo-number-input { flex: 1; min-width: 0; }
+    .kit__antes { display: flex; gap: 0.375rem; align-items: center; width: 100%; padding: 0.375rem 0.5rem; border: 0; border-top: 1px solid var(--geo-border); background: transparent; color: var(--geo-foreground-muted); font-size: 0.75rem; text-align: left; cursor: pointer; }
+    .kit__antes:hover { color: var(--geo-foreground); background: var(--geo-surface-muted); }
+    button:focus-visible { outline: 2px solid var(--geo-brand); outline-offset: 1px; }
   `]
 })
 export class PlanejamentoKitsComponent {

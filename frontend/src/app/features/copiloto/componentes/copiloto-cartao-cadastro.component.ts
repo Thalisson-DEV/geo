@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, linkedSignal, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesTone } from '@ces/ui';
-import { CesCalloutComponent, NotificationService } from '@ces/ui/feedback';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoCalloutComponent, NotificationService } from '@geo/ui/feedback';
 import {
   AcaoCartao,
   AlteracaoCartao,
@@ -45,7 +45,7 @@ const ICONE_MODULO: Record<string, string> = {
 @Component({
   selector: 'app-copiloto-cartao-cadastro',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesCalloutComponent, CopilotoCampoCadastroComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoCalloutComponent, CopilotoCampoCadastroComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './copiloto-cartao-cadastro.component.html',
   styleUrl: './copiloto-cartao-cadastro.component.css',
@@ -95,7 +95,7 @@ export class CopilotoCartaoCadastroComponent {
     (this.previa()?.registros ?? []).reduce((total, r) => total + (r.pronto ? 0 : Math.max(r.pendencias, 1)), 0),
   );
 
-  protected readonly selo = computed<{ tom: CesTone; texto: string; icone: string }>(() => {
+  protected readonly selo = computed<{ tom: GeoTone; texto: string; icone: string }>(() => {
     switch (this.status()) {
       case 'CONFIRMADA': {
         const falhas = this.acao().resultado?.falhas ?? 0;

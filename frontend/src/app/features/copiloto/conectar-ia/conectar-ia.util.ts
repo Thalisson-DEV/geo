@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { ConexaoIa, SituacaoConexaoIa } from '../../../core/models/conexoes-ia.models';
 
 /** Textos e apoios da tela "Conectar sua IA", escritos para quem nunca conectou nada. */
@@ -87,7 +87,7 @@ export const EXEMPLOS_PERGUNTA = [
 
 export const EXEMPLO_CADASTRO = 'Cadastre um motivo de desconto chamado "Avaria de ferramenta", com até 3 parcelas.';
 
-export const SITUACAO: Record<SituacaoConexaoIa, { rotulo: string; tom: CesTone; icone: string }> = {
+export const SITUACAO: Record<SituacaoConexaoIa, { rotulo: string; tom: GeoTone; icone: string }> = {
   CONECTADA: { rotulo: 'Conectada', tom: 'success', icone: 'pi-check-circle' },
   VENCIDA: { rotulo: 'Chave vencida', tom: 'warning', icone: 'pi-exclamation-triangle' },
   DESCONECTADA: { rotulo: 'Desconectada', tom: 'neutral', icone: 'pi-minus-circle' }

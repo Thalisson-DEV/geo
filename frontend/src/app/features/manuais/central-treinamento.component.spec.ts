@@ -183,7 +183,7 @@ describe('CentralTreinamentoComponent', () => {
     component.digitarBusca('termo_totalmente_inexistente_xyz');
     fixture.detectChanges();
 
-    expect(host.querySelector('ces-async-state')).toBeTruthy();
+    expect(host.querySelector('geo-async-state')).toBeTruthy();
     expect(host.querySelectorAll('.manual section.modulo').length).toBe(0);
     expect(host.querySelector('nav.indice')).toBeNull();
   });
@@ -218,7 +218,7 @@ describe('CentralTreinamentoComponent', () => {
     const documento = host.querySelector('app-manual-treinamento-documento')!;
 
     expect(documento.className).toContain('print:block');
-    expect(host.querySelector('.ces-page')?.className).toContain('print:hidden');
+    expect(host.querySelector('.geo-page')?.className).toContain('print:hidden');
     expect(documento.textContent).toContain('[00]');
     expect(documento.textContent).toContain('[07.2]');
   });
@@ -234,7 +234,7 @@ describe('CentralTreinamentoComponent', () => {
 
     expect(suporte.textContent).toContain('Ficou com dúvida?');
     expect(suporte.textContent).toContain('Abra um chamado');
-    expect(suporte.querySelector('ces-button')?.textContent).toContain('Abrir chamado');
+    expect(suporte.querySelector('geo-button')?.textContent).toContain('Abrir chamado');
 
     const alternativa = host.querySelector('.suporte__alternativa')!;
     expect(alternativa.textContent).toContain('Bússola');

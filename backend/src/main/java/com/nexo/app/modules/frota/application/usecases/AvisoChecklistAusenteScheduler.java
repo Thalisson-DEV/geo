@@ -13,7 +13,7 @@ public class AvisoChecklistAusenteScheduler {
 
     private final AvisoChecklistAusenteUseCases useCases;
 
-    @Scheduled(cron = "${ces.frota.checklist-ausente-cron:0 0 10 * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.checklist-ausente-cron:0 0 10 * * *}", zone = "America/Sao_Paulo")
     public void processar() {
         useCases.avisar(LocalDate.now(LiberacaoCnhUseCases.FUSO));
     }

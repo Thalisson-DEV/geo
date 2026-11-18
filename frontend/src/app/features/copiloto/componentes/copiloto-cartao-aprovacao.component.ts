@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesTextareaComponent, CesTone } from '@ces/ui';
-import { CesCalloutComponent } from '@ces/ui/feedback';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent, GeoTone } from '@geo/ui';
+import { GeoCalloutComponent } from '@geo/ui/feedback';
 import {
   AcaoCartao,
   AlteracaoCartao,
@@ -28,7 +28,7 @@ const DATA = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit'
 @Component({
   selector: 'app-copiloto-cartao-aprovacao',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesTextareaComponent, CesCalloutComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent, GeoCalloutComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './copiloto-cartao-aprovacao.component.html',
   styleUrl: './copiloto-cartao-aprovacao.component.css',
@@ -67,7 +67,7 @@ export class CopilotoCartaoAprovacaoComponent {
   /** Rejeições ainda sem motivo, contando o que já foi digitado no cartão. */
   protected readonly faltam = computed(() => this.entram().filter((i) => !!i.falta && !this.motivos()[i.indice]?.trim()).length);
 
-  protected readonly selo = computed<{ tom: CesTone; texto: string; icone: string }>(() => {
+  protected readonly selo = computed<{ tom: GeoTone; texto: string; icone: string }>(() => {
     switch (this.status()) {
       case 'CONFIRMADA': {
         const r = this.resultado();

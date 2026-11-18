@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import { NotificationService } from '@ces/ui/feedback';
+import { NotificationService } from '@geo/ui/feedback';
 import { AssistenteContexto, EnviarMensagemRequest, PacoteAssistente } from '../../core/models/assistente.models';
 import { AssistenteService } from '../../core/services/assistente.service';
 import { AuthService } from '../../core/services/auth.service';

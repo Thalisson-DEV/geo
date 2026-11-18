@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CesButtonComponent, CesCalloutComponent, CesStatusComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent, NotificationService } from '@geo/ui';
 import {
   AlvoAnaliseIa,
   AnaliseIa,
@@ -30,78 +30,78 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
   selector: 'app-frota-relatorio-analise-ia',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesCalloutComponent, CesStatusComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent],
   styles: `
     :host { display: block; }
-    .sp { border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg, 0.75rem); background: var(--ces-surface); overflow: hidden; }
+    .sp { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg, 0.75rem); background: var(--geo-surface); overflow: hidden; }
     .sp__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 1rem 1.25rem;
-      background: linear-gradient(90deg, var(--ces-brand-soft), transparent 70%); border-bottom: 1px solid var(--ces-border); }
+      background: linear-gradient(90deg, var(--geo-brand-soft), transparent 70%); border-bottom: 1px solid var(--geo-border); }
     .sp__marca { display: flex; align-items: center; gap: 0.875rem; min-width: 0; }
-    .sp__avatar { width: 2.75rem; height: 2.75rem; flex-shrink: 0; border-radius: 50%; background: var(--ces-surface); object-fit: contain;
-      box-shadow: 0 0 0 2px var(--ces-brand-soft), 0 0 0 3px var(--ces-brand); }
+    .sp__avatar { width: 2.75rem; height: 2.75rem; flex-shrink: 0; border-radius: 50%; background: var(--geo-surface); object-fit: contain;
+      box-shadow: 0 0 0 2px var(--geo-brand-soft), 0 0 0 3px var(--geo-brand); }
     .sp__titulo { display: grid; gap: 0.125rem; min-width: 0; }
     .sp__titulo strong { font-size: 0.9375rem; }
-    .sp__titulo span { font-size: 0.75rem; color: var(--ces-foreground-muted); }
+    .sp__titulo span { font-size: 0.75rem; color: var(--geo-foreground-muted); }
     .sp__acoes { display: flex; align-items: center; gap: 0.5rem; }
     .sp__corpo { display: grid; gap: 1rem; padding: 1.25rem; }
 
-    .sp__fala { position: relative; display: grid; gap: 0.5rem; padding: 0.875rem 1rem 0.875rem 1.125rem; border-radius: var(--ces-radius-md, 0.5rem);
-      border: 1px solid var(--ces-border); border-left: 4px solid var(--sp-tom, var(--ces-border-strong)); background: var(--sp-tom-soft, var(--ces-surface-subtle)); }
-    .sp__fala[data-tom='success'] { --sp-tom: var(--ces-success); --sp-tom-soft: var(--ces-success-soft); }
-    .sp__fala[data-tom='warning'] { --sp-tom: var(--ces-warning); --sp-tom-soft: var(--ces-warning-soft); }
-    .sp__fala[data-tom='danger'] { --sp-tom: var(--ces-danger); --sp-tom-soft: var(--ces-danger-soft); }
-    .sp__fala-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--ces-foreground-muted); }
+    .sp__fala { position: relative; display: grid; gap: 0.5rem; padding: 0.875rem 1rem 0.875rem 1.125rem; border-radius: var(--geo-radius-md, 0.5rem);
+      border: 1px solid var(--geo-border); border-left: 4px solid var(--sp-tom, var(--geo-border-strong)); background: var(--sp-tom-soft, var(--geo-surface-subtle)); }
+    .sp__fala[data-tom='success'] { --sp-tom: var(--geo-success); --sp-tom-soft: var(--geo-success-soft); }
+    .sp__fala[data-tom='warning'] { --sp-tom: var(--geo-warning); --sp-tom-soft: var(--geo-warning-soft); }
+    .sp__fala[data-tom='danger'] { --sp-tom: var(--geo-danger); --sp-tom-soft: var(--geo-danger-soft); }
+    .sp__fala-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.75rem; color: var(--geo-foreground-muted); }
     .sp__resumo { margin: 0; font-size: 0.875rem; line-height: 1.6; }
     .sp__contagens { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .sp__contagem { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--ces-surface);
-      border: 1px solid var(--ces-border); font-size: 0.72rem; font-weight: 600; color: var(--ces-foreground-muted); }
-    .sp__contagem[data-tom='danger'] { color: var(--ces-danger-text); }
-    .sp__contagem[data-tom='warning'] { color: var(--ces-warning-text); }
-    .sp__contagem[data-tom='success'] { color: var(--ces-success-text); }
+    .sp__contagem { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface);
+      border: 1px solid var(--geo-border); font-size: 0.72rem; font-weight: 600; color: var(--geo-foreground-muted); }
+    .sp__contagem[data-tom='danger'] { color: var(--geo-danger-text); }
+    .sp__contagem[data-tom='warning'] { color: var(--geo-warning-text); }
+    .sp__contagem[data-tom='success'] { color: var(--geo-success-text); }
 
     .sp__alternar { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.625rem 0.75rem;
-      border: 1px dashed var(--ces-border-strong); border-radius: var(--ces-radius-md, 0.5rem); background: transparent; color: var(--ces-brand);
+      border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-md, 0.5rem); background: transparent; color: var(--geo-brand);
       font: inherit; font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
-    .sp__alternar:hover { background: var(--ces-brand-soft); border-style: solid; }
-    .sp__alternar:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .sp__alternar:hover { background: var(--geo-brand-soft); border-style: solid; }
+    .sp__alternar:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .sp__alternar .pi { transition: transform 0.2s ease; }
     .sp__alternar[aria-expanded='true'] .pi-chevron-down { transform: rotate(180deg); }
 
     .sp__detalhes { display: grid; gap: 1.25rem; }
     .sp__bloco { display: grid; gap: 0.625rem; }
-    .sp__rotulo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ces-foreground-muted); }
+    .sp__rotulo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--geo-foreground-muted); }
 
-    .sp__pontos { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md, 0.5rem); overflow: hidden; }
+    .sp__pontos { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem); overflow: hidden; }
     .sp__ponto { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: 0.625rem; padding: 0.75rem 0.875rem; }
-    .sp__ponto + .sp__ponto { border-top: 1px solid var(--ces-border); }
+    .sp__ponto + .sp__ponto { border-top: 1px solid var(--geo-border); }
     .sp__ponto-icone { display: flex; width: 1.75rem; height: 1.75rem; align-items: center; justify-content: center; border-radius: 50%; font-size: 0.8rem; }
-    .sp__ponto-icone[data-tom='danger'] { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
-    .sp__ponto-icone[data-tom='warning'] { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .sp__ponto-icone[data-tom='info'] { background: var(--ces-info-soft); color: var(--ces-info-text); }
+    .sp__ponto-icone[data-tom='danger'] { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+    .sp__ponto-icone[data-tom='warning'] { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .sp__ponto-icone[data-tom='info'] { background: var(--geo-info-soft); color: var(--geo-info-text); }
     .sp__ponto-corpo { display: grid; gap: 0.25rem; min-width: 0; }
     .sp__ponto-corpo strong { font-size: 0.8125rem; }
-    .sp__ponto-corpo p { margin: 0; font-size: 0.78rem; line-height: 1.5; color: var(--ces-foreground-muted); }
+    .sp__ponto-corpo p { margin: 0; font-size: 0.78rem; line-height: 1.5; color: var(--geo-foreground-muted); }
 
     .sp__fotos { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); margin: 0; padding: 0; list-style: none; }
-    .sp__foto { display: grid; grid-template-rows: auto 1fr; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md, 0.5rem); overflow: hidden; background: var(--ces-surface); }
-    .sp__foto-imagem { position: relative; display: flex; aspect-ratio: 16 / 10; align-items: center; justify-content: center; background: var(--ces-surface-subtle);
-      color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .sp__foto { display: grid; grid-template-rows: auto 1fr; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem); overflow: hidden; background: var(--geo-surface); }
+    .sp__foto-imagem { position: relative; display: flex; aspect-ratio: 16 / 10; align-items: center; justify-content: center; background: var(--geo-surface-subtle);
+      color: var(--geo-foreground-muted); font-size: 0.75rem; }
     .sp__foto-imagem img { width: 100%; height: 100%; object-fit: cover; }
-    a.sp__foto-imagem:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
-    .sp__ref { position: absolute; top: 0.5rem; left: 0.5rem; padding: 0.1rem 0.45rem; border-radius: var(--ces-radius-sm, 0.375rem);
-      background: var(--ces-surface); font-size: 0.7rem; font-weight: 700; box-shadow: var(--ces-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.1)); }
+    a.sp__foto-imagem:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
+    .sp__ref { position: absolute; top: 0.5rem; left: 0.5rem; padding: 0.1rem 0.45rem; border-radius: var(--geo-radius-sm, 0.375rem);
+      background: var(--geo-surface); font-size: 0.7rem; font-weight: 700; box-shadow: var(--geo-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.1)); }
     .sp__foto-corpo { display: grid; gap: 0.375rem; align-content: start; padding: 0.75rem; font-size: 0.75rem; }
     .sp__foto-topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem; }
     .sp__foto-topo strong { font-size: 0.78rem; min-width: 0; }
     .sp__foto-corpo p { margin: 0; line-height: 1.5; }
-    .sp__mudo { color: var(--ces-foreground-muted); }
+    .sp__mudo { color: var(--geo-foreground-muted); }
 
     .sp__lista { margin: 0; padding-left: 1.125rem; display: grid; gap: 0.25rem; font-size: 0.8125rem; line-height: 1.55; }
     .sp__rodape { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; padding: 0.75rem 1.25rem;
-      border-top: 1px solid var(--ces-border); background: var(--ces-surface-subtle); font-size: 0.72rem; color: var(--ces-foreground-muted); }
-    .sp__carregando { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: var(--ces-radius-md, 0.5rem);
-      background: var(--ces-brand-soft); font-size: 0.8125rem; }
-    .sp__carregando img { width: 2rem; height: 2rem; border-radius: 50%; background: var(--ces-surface); object-fit: contain; animation: sp-pulso 1.4s ease-in-out infinite; }
+      border-top: 1px solid var(--geo-border); background: var(--geo-surface-subtle); font-size: 0.72rem; color: var(--geo-foreground-muted); }
+    .sp__carregando { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; border-radius: var(--geo-radius-md, 0.5rem);
+      background: var(--geo-brand-soft); font-size: 0.8125rem; }
+    .sp__carregando img { width: 2rem; height: 2rem; border-radius: 50%; background: var(--geo-surface); object-fit: contain; animation: sp-pulso 1.4s ease-in-out infinite; }
     @keyframes sp-pulso { 50% { transform: scale(0.92); opacity: 0.7; } }
     @media (prefers-reduced-motion: reduce) { .sp__carregando img { animation: none; } .sp__alternar .pi { transition: none; } }
     @media print {
@@ -123,7 +123,7 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
         </div>
         @if (estado()?.disponivel) {
           <span class="sp__acoes">
-            <ces-button
+            <geo-button
               [label]="analise() ? 'Analisar de novo' : 'Pedir análise à Bússola'"
               icon="pi pi-compass"
               [variant]="analise() ? 'outline' : 'primary'"
@@ -144,11 +144,11 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
             A Bússola está lendo {{ fotosEsperadas() === 1 ? 'a foto' : fotosEsperadas() ? 'as ' + fotosEsperadas() + ' fotos' : 'os dados' }} deste registro. Leva até um minuto.
           </div>
         } @else if (erro()) {
-          <ces-callout tone="danger" title="Não foi possível consultar a análise">{{ erro() }}</ces-callout>
+          <geo-callout tone="danger" title="Não foi possível consultar a análise">{{ erro() }}</geo-callout>
         } @else if (analise(); as a) {
           <div class="sp__fala" [attr.data-tom]="tomParecer[a.parecer]">
             <span class="sp__fala-topo">
-              <ces-status [tone]="tomParecer[a.parecer]" [icon]="'pi ' + iconeParecer[a.parecer]" emphasis="solid">{{ a.parecerRotulo }}</ces-status>
+              <geo-status [tone]="tomParecer[a.parecer]" [icon]="'pi ' + iconeParecer[a.parecer]" emphasis="solid">{{ a.parecerRotulo }}</geo-status>
               <span>Bússola, {{ a.geradaEm | date: "dd/MM 'às' HH:mm" }}</span>
             </span>
             <p class="sp__resumo">{{ a.resumo }}</p>
@@ -214,7 +214,7 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
                       <div class="sp__foto-corpo">
                         <span class="sp__foto-topo">
                           <strong>{{ f.rotulo }}</strong>
-                          <ces-status [tone]="tomResultado[f.resultado]" [icon]="'pi ' + iconeResultado[f.resultado]">{{ rotuloResultado[f.resultado] }}</ces-status>
+                          <geo-status [tone]="tomResultado[f.resultado]" [icon]="'pi ' + iconeResultado[f.resultado]">{{ rotuloResultado[f.resultado] }}</geo-status>
                         </span>
                         @if (f.leitura) {
                           <p><span class="sp__mudo">Leu:</span> {{ f.leitura }}</p>
@@ -241,23 +241,23 @@ const ICONE_GRAVIDADE = { INFO: 'pi-info-circle', ATENCAO: 'pi-exclamation-trian
             }
 
             @if (a.fotosNaoLidas.length) {
-              <ces-callout tone="info" title="Fotos que a Bússola não leu" [dense]="true">
+              <geo-callout tone="info" title="Fotos que a Bússola não leu" [dense]="true">
                 <ul class="sp__lista">
                   @for (n of a.fotosNaoLidas; track $index) {
                     <li>{{ n }}</li>
                   }
                 </ul>
-              </ces-callout>
+              </geo-callout>
             }
           </div>
         } @else if (estado(); as e) {
           @if (e.disponivel) {
-            <ces-callout tone="info" title="Ainda não analisado" [dense]="true">
+            <geo-callout tone="info" title="Ainda não analisado" [dense]="true">
               Peça a análise para a Bússola ler {{ fotosEsperadas() === 1 ? 'a foto' : fotosEsperadas() ? 'as ' + fotosEsperadas() + ' fotos' : 'os dados' }}
               deste registro e apontar o que confere e o que diverge.
-            </ces-callout>
+            </geo-callout>
           } @else {
-            <ces-callout tone="neutral" title="Bússola sem leitura de fotos neste ambiente" [dense]="true">{{ e.motivoIndisponivel }}</ces-callout>
+            <geo-callout tone="neutral" title="Bússola sem leitura de fotos neste ambiente" [dense]="true">{{ e.motivoIndisponivel }}</geo-callout>
           }
         }
       </div>

@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import { AbastecimentoResumo, SituacaoAbastecimento } from '../../../core/models/frota-abastecimento.models';
 import { ChecklistResumo } from '../../../core/models/frota-checklist.models';
@@ -27,12 +27,12 @@ const ordem = (sort: string | undefined, padrao: string) => [sort || padrao];
 
 /** Navegador lateral do relatório da OS: troca de OS sem voltar à lista. */
 @Injectable({ providedIn: 'root' })
-export class OrdemServicoReportNavigatorDataSource implements CesReportNavigatorDataSource<OrdemServico> {
+export class OrdemServicoReportNavigatorDataSource implements GeoReportNavigatorDataSource<OrdemServico> {
   private readonly service = inject(FrotaService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = { sort: 'abertaEm,desc' };
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = { sort: 'abertaEm,desc' };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Ordens de serviço',
     icon: 'pi pi-wrench',
     eyebrow: 'Navegador',
@@ -53,7 +53,7 @@ export class OrdemServicoReportNavigatorDataSource implements CesReportNavigator
     totalLabel: (total) => `${total} OS`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<OrdemServico>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<OrdemServico>> {
     return this.service
       .listarOrdensServico(
         {
@@ -65,7 +65,7 @@ export class OrdemServicoReportNavigatorDataSource implements CesReportNavigator
       .pipe(map((res) => ({ items: res.content, totalElements: res.page?.totalElements ?? res.content.length })));
   }
 
-  toItem(os: OrdemServico): CesReportNavigatorItem {
+  toItem(os: OrdemServico): GeoReportNavigatorItem {
     return {
       id: os.id,
       number: `OS ${os.numero}`,
@@ -79,7 +79,7 @@ export class OrdemServicoReportNavigatorDataSource implements CesReportNavigator
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | OrdemServico): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | OrdemServico): any[] {
     return ['/frota', 'ordens-servico', String(item.id), 'relatorio'];
   }
 
@@ -90,12 +90,12 @@ export class OrdemServicoReportNavigatorDataSource implements CesReportNavigator
 
 /** Navegador lateral do relatório do checklist. */
 @Injectable({ providedIn: 'root' })
-export class ChecklistReportNavigatorDataSource implements CesReportNavigatorDataSource<ChecklistResumo> {
+export class ChecklistReportNavigatorDataSource implements GeoReportNavigatorDataSource<ChecklistResumo> {
   private readonly service = inject(FrotaChecklistService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = { sort: 'preenchidoEm,desc' };
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = { sort: 'preenchidoEm,desc' };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Checklists',
     icon: 'pi pi-list-check',
     eyebrow: 'Navegador',
@@ -114,14 +114,14 @@ export class ChecklistReportNavigatorDataSource implements CesReportNavigatorDat
     totalLabel: (total) => `${total} ${total === 1 ? 'checklist' : 'checklists'}`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<ChecklistResumo>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<ChecklistResumo>> {
     const comProblema = criteria.status === 'PROBLEMA' ? true : criteria.status === 'OK' ? false : null;
     return this.service
       .checklists({ comProblema }, { page: 0, size: 50, sort: ordem(criteria.sort, 'preenchidoEm,desc') })
       .pipe(map((res) => ({ items: res.content, totalElements: res.page?.totalElements ?? res.content.length })));
   }
 
-  toItem(c: ChecklistResumo): CesReportNavigatorItem {
+  toItem(c: ChecklistResumo): GeoReportNavigatorItem {
     return {
       id: c.id,
       number: formatarPlaca(c.placa),
@@ -136,7 +136,7 @@ export class ChecklistReportNavigatorDataSource implements CesReportNavigatorDat
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | ChecklistResumo): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | ChecklistResumo): any[] {
     return ['/frota', 'checklists', String(item.id), 'relatorio'];
   }
 
@@ -147,12 +147,12 @@ export class ChecklistReportNavigatorDataSource implements CesReportNavigatorDat
 
 /** Navegador lateral do relatório do abastecimento. */
 @Injectable({ providedIn: 'root' })
-export class AbastecimentoReportNavigatorDataSource implements CesReportNavigatorDataSource<AbastecimentoResumo> {
+export class AbastecimentoReportNavigatorDataSource implements GeoReportNavigatorDataSource<AbastecimentoResumo> {
   private readonly service = inject(FrotaAbastecimentoService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = { sort: 'solicitadoEm,desc' };
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = { sort: 'solicitadoEm,desc' };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Abastecimentos',
     icon: 'pi pi-car',
     eyebrow: 'Navegador',
@@ -172,7 +172,7 @@ export class AbastecimentoReportNavigatorDataSource implements CesReportNavigato
     totalLabel: (total) => `${total} ${total === 1 ? 'abastecimento' : 'abastecimentos'}`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<AbastecimentoResumo>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<AbastecimentoResumo>> {
     return this.service
       .listar(
         { busca: criteria.search.trim() || null, situacoes: criteria.status ? [criteria.status as SituacaoAbastecimento] : [] },
@@ -181,7 +181,7 @@ export class AbastecimentoReportNavigatorDataSource implements CesReportNavigato
       .pipe(map((res) => ({ items: res.content, totalElements: res.page?.totalElements ?? res.content.length })));
   }
 
-  toItem(a: AbastecimentoResumo): CesReportNavigatorItem {
+  toItem(a: AbastecimentoResumo): GeoReportNavigatorItem {
     return {
       id: a.id,
       number: formatarPlaca(a.placa),
@@ -195,7 +195,7 @@ export class AbastecimentoReportNavigatorDataSource implements CesReportNavigato
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | AbastecimentoResumo): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | AbastecimentoResumo): any[] {
     return ['/frota', 'abastecimentos', String(item.id), 'relatorio'];
   }
 

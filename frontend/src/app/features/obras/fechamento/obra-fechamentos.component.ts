@@ -1,14 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoStatusComponent
+} from '@geo/ui';
 import { Subscription } from 'rxjs';
 
 import { FechamentoResumo, SituacaoFechamento } from '../../../core/models/fechamento-obra.models';
@@ -31,14 +31,14 @@ export interface AberturaFechamento {
   selector: 'app-obra-fechamentos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesCellDirective, CesDataTableComponent, CesIconButtonComponent, CesRowActionsDirective, CesStatusComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoCellDirective, GeoDataTableComponent, GeoIconButtonComponent, GeoRowActionsDirective, GeoStatusComponent],
   styles: `
     :host { display: block; }
     .of-repetir { margin-top: 0.5rem; }
     .of-pilha { display: grid; gap: 0.125rem; justify-items: start; min-width: 0; }
   `,
   template: `
-    <ces-data-table
+    <geo-data-table
       caption="Solicitações de encerramento da obra"
       searchPlaceholder="Buscar por número, tipo ou reserva"
       stateTitle="Nenhuma solicitação de encerramento"
@@ -58,69 +58,69 @@ export interface AberturaFechamento {
       (emptyAction)="nova.emit()"
       (rowActivate)="abrir.emit({ id: $event.id, aba: 'itens' })"
     >
-      <ng-template cesCell="solicitacao" let-row>
+      <ng-template geoCell="solicitacao" let-row>
         <span class="of-pilha">
-          <span class="ces-cell-strong">#{{ row.id.slice(0, 8) }}</span>
-          <span class="ces-cell-muted">{{ row.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+          <span class="geo-cell-strong">#{{ row.id.slice(0, 8) }}</span>
+          <span class="geo-cell-muted">{{ row.criadaEm | date: 'dd/MM/yyyy HH:mm' }}</span>
         </span>
       </ng-template>
-      <ng-template cesCell="tipo" let-row>
-        <ces-status [tone]="tipo(row.tipo).adicao ? 'info' : 'neutral'" [icon]="iconeTipo(row.tipo)" [title]="tipo(row.tipo).nome">{{ row.tipo }}</ces-status>
+      <ng-template geoCell="tipo" let-row>
+        <geo-status [tone]="tipo(row.tipo).adicao ? 'info' : 'neutral'" [icon]="iconeTipo(row.tipo)" [title]="tipo(row.tipo).nome">{{ row.tipo }}</geo-status>
       </ng-template>
-      <ng-template cesCell="reserva" let-row>
+      <ng-template geoCell="reserva" let-row>
         @if (row.numeroReserva) {
-          <span class="ces-cell-strong">{{ row.numeroReserva }}</span>
+          <span class="geo-cell-strong">{{ row.numeroReserva }}</span>
         } @else {
-          <span class="ces-cell-muted">Sem reserva</span>
+          <span class="geo-cell-muted">Sem reserva</span>
         }
       </ng-template>
-      <ng-template cesCell="prazo" let-row>
+      <ng-template geoCell="prazo" let-row>
         <span class="of-pilha">
           @if (row.prazoVigente.limite) {
             <span>{{ textoPrazo(row.situacao, row.prazoVigente) }}</span>
           } @else if (row.situacao === 'MOVIMENTADA') {
-            <span class="ces-cell-muted">Concluída {{ row.movimentacaoConcluidaEm | date: 'dd/MM/yyyy' }}</span>
+            <span class="geo-cell-muted">Concluída {{ row.movimentacaoConcluidaEm | date: 'dd/MM/yyyy' }}</span>
           } @else {
-            <span class="ces-cell-muted">Sem prazo</span>
+            <span class="geo-cell-muted">Sem prazo</span>
           }
           @if (prazo(row.prazoVigente.situacao); as p) {
-            <ces-status [tone]="p.tone" [icon]="p.icon">{{ p.label }}</ces-status>
+            <geo-status [tone]="p.tone" [icon]="p.icon">{{ p.label }}</geo-status>
           }
         </span>
       </ng-template>
-      <ng-template cesCell="situacao" let-row>
+      <ng-template geoCell="situacao" let-row>
         <span class="of-pilha">
-          <ces-status [tone]="sit(row.situacao).tone" [icon]="sit(row.situacao).icon">{{ sit(row.situacao).label }}</ces-status>
-          @if (row.possuiPendencia) { <ces-status tone="warning" icon="pi pi-flag">Com pendência</ces-status> }
+          <geo-status [tone]="sit(row.situacao).tone" [icon]="sit(row.situacao).icon">{{ sit(row.situacao).label }}</geo-status>
+          @if (row.possuiPendencia) { <geo-status tone="warning" icon="pi pi-flag">Com pendência</geo-status> }
           @if (compacta()) {
             @if (prazo(row.prazoVigente.situacao); as p) {
-              <span class="ces-cell-muted" [title]="textoPrazo(row.situacao, row.prazoVigente)">{{ textoPrazo(row.situacao, row.prazoVigente) }}</span>
-              @if (p.tone !== 'success') { <ces-status [tone]="p.tone" [icon]="p.icon">{{ p.label }}</ces-status> }
+              <span class="geo-cell-muted" [title]="textoPrazo(row.situacao, row.prazoVigente)">{{ textoPrazo(row.situacao, row.prazoVigente) }}</span>
+              @if (p.tone !== 'success') { <geo-status [tone]="p.tone" [icon]="p.icon">{{ p.label }}</geo-status> }
             }
           }
         </span>
       </ng-template>
-      <ng-template cesCell="movimentado" let-row>
-        <span [class.ces-cell-muted]="!row.quantidadeMovimentada">{{ qtd(row.quantidadeMovimentada) }} de {{ qtd(row.quantidadeSolicitada) }}</span>
+      <ng-template geoCell="movimentado" let-row>
+        <span [class.geo-cell-muted]="!row.quantidadeMovimentada">{{ qtd(row.quantidadeMovimentada) }} de {{ qtd(row.quantidadeSolicitada) }}</span>
       </ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
           @if (row.acoes.registrarReserva) {
-            <ces-icon-button icon="pi pi-hashtag" [label]="'Registrar reserva da solicitação #' + row.id.slice(0, 8)" size="icon-sm"
-              (pressed)="abrir.emit({ id: row.id, aba: 'reserva' })"></ces-icon-button>
+            <geo-icon-button icon="pi pi-hashtag" [label]="'Registrar reserva da solicitação #' + row.id.slice(0, 8)" size="icon-sm"
+              (pressed)="abrir.emit({ id: row.id, aba: 'reserva' })"></geo-icon-button>
           }
           @if (row.acoes.movimentar) {
-            <ces-icon-button icon="pi pi-check-square" [label]="'Marcar como movimentado a solicitação #' + row.id.slice(0, 8)" size="icon-sm"
-              (pressed)="abrir.emit({ id: row.id, aba: 'movimentar' })"></ces-icon-button>
+            <geo-icon-button icon="pi pi-check-square" [label]="'Marcar como movimentado a solicitação #' + row.id.slice(0, 8)" size="icon-sm"
+              (pressed)="abrir.emit({ id: row.id, aba: 'movimentar' })"></geo-icon-button>
           }
-          <ces-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + row.id.slice(0, 8)" size="icon-sm"
-            (pressed)="imprimir.emit(row)"></ces-icon-button>
+          <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + row.id.slice(0, 8)" size="icon-sm"
+            (pressed)="imprimir.emit(row)"></geo-icon-button>
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
     @if (estado() === 'error') {
       <div class="of-repetir">
-        <ces-button variant="ghost" size="sm" icon="pi pi-refresh" label="Tentar novamente" (pressed)="recarregar()"></ces-button>
+        <geo-button variant="ghost" size="sm" icon="pi pi-refresh" label="Tentar novamente" (pressed)="recarregar()"></geo-button>
       </div>
     }
   `
@@ -154,7 +154,7 @@ export class ObraFechamentosComponent {
   protected readonly chave = (r: FechamentoResumo) => r.id;
   protected readonly rotulo = (r: FechamentoResumo) => `Encerramento ${r.tipo} #${r.id.slice(0, 8)}`;
 
-  private readonly todasColunas: CesDataTableColumn<FechamentoResumo>[] = [
+  private readonly todasColunas: GeoDataTableColumn<FechamentoResumo>[] = [
     { key: 'solicitacao', header: 'Solicitação', type: 'custom', priority: 1, width: '9rem', value: (r) => r.criadaEm, display: (r) => '#' + r.id.slice(0, 8) },
     { key: 'tipo', header: 'Tipo', type: 'custom', priority: 1, width: '5.5rem', value: (r) => r.tipo, display: (r) => `${r.tipo} ${tipoFechamento(r.tipo).nome}` },
     { key: 'reserva', header: 'Reserva', type: 'custom', priority: 2, width: '8rem', value: (r) => r.numeroReserva, display: (r) => r.numeroReserva ?? 'Sem reserva' },

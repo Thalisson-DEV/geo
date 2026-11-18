@@ -15,18 +15,18 @@ import {
 import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesChartComponent,
-  CesChartPointSelection,
-  CesDataTableComponent,
-  CesDrawerComponent,
-  CesIconButtonComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTabValue
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoChartComponent,
+  GeoChartPointSelection,
+  GeoDataTableComponent,
+  GeoDrawerComponent,
+  GeoIconButtonComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTabValue
+} from '@geo/ui';
 import {
   AcaoAnalise,
   AlvoAnalise,
@@ -72,20 +72,20 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
   standalone: true,
   imports: [
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesChartComponent,
-    CesDataTableComponent,
-    CesDrawerComponent,
-    CesIconButtonComponent,
-    CesTabPanelDirective,
-    CesTabsComponent
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoChartComponent,
+    GeoDataTableComponent,
+    GeoDrawerComponent,
+    GeoIconButtonComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './dashboard-analise.component.css',
   template: `
     @if (vista(); as v) {
-      <ces-drawer [visible]="true" (visibleChange)="!$event && fechar.emit()" size="xl"
+      <geo-drawer [visible]="true" (visibleChange)="!$event && fechar.emit()" size="xl"
         [eyebrow]="v.eyebrow" [title]="v.titulo" [description]="v.descricao" closeLabel="Fechar análise">
 
         <div class="an-topo">
@@ -107,12 +107,12 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
           <div class="an-topo__acoes">
             @if (v.anterior || v.proximo) {
               <div class="an-passos" role="group" [attr.aria-label]="'Navegar entre ' + v.eyebrow.toLowerCase()">
-                <ces-icon-button icon="pi pi-chevron-left" size="icon-sm" variant="outline"
+                <geo-icon-button icon="pi pi-chevron-left" size="icon-sm" variant="outline"
                   [label]="v.anterior ? 'Ir para ' + v.anterior.rotulo : 'Não há anterior'" [tooltip]="v.anterior?.rotulo"
-                  [disabled]="!v.anterior" (pressed)="v.anterior && trocar.emit(v.anterior.alvo)"></ces-icon-button>
-                <ces-icon-button icon="pi pi-chevron-right" size="icon-sm" variant="outline"
+                  [disabled]="!v.anterior" (pressed)="v.anterior && trocar.emit(v.anterior.alvo)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-chevron-right" size="icon-sm" variant="outline"
                   [label]="v.proximo ? 'Ir para ' + v.proximo.rotulo : 'Não há seguinte'" [tooltip]="v.proximo?.rotulo"
-                  [disabled]="!v.proximo" (pressed)="v.proximo && trocar.emit(v.proximo.alvo)"></ces-icon-button>
+                  [disabled]="!v.proximo" (pressed)="v.proximo && trocar.emit(v.proximo.alvo)"></geo-icon-button>
               </div>
             }
             @if (copiloto() && v.copiloto) {
@@ -149,8 +149,8 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
           </section>
         }
 
-        <ces-tabs [tabs]="abas()" [value]="aba()" (valueChange)="aba.set($event ?? 'visao')" ariaLabel="Seções da análise">
-          <ng-template cesTabPanel="visao">
+        <geo-tabs [tabs]="abas()" [value]="aba()" (valueChange)="aba.set($event ?? 'visao')" ariaLabel="Seções da análise">
+          <ng-template geoTabPanel="visao">
             @if (graficos().length || carregandoDerivados()) {
               <div class="an-graficos">
                 @for (g of graficos(); track g.id) {
@@ -159,10 +159,10 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
                       <h3>{{ g.titulo }}</h3>
                       @if (g.descricao) { <p>{{ g.descricao }}</p> }
                     </header>
-                    <ces-chart [kind]="g.tipo" [title]="g.titulo" [showTitle]="false" [labels]="g.rotulos" [series]="g.series"
+                    <geo-chart [kind]="g.tipo" [title]="g.titulo" [showTitle]="false" [labels]="g.rotulos" [series]="g.series"
                       [valueFormat]="g.formato ?? 'number'" [height]="g.altura ?? 240" [note]="g.nota"
                       [selectable]="!!g.aoSelecionar" [selectLabel]="g.rotuloSelecao ?? 'Detalhar'"
-                      (pointSelect)="selecionarPonto(g, $event)"></ces-chart>
+                      (pointSelect)="selecionarPonto(g, $event)"></geo-chart>
                   </article>
                 }
                 @if (carregandoDerivados()) {
@@ -175,20 +175,20 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
           </ng-template>
 
           @for (t of v.tabelas ?? []; track t.id) {
-            <ng-template [cesTabPanel]="t.id">
+            <ng-template [geoTabPanel]="t.id">
               <div class="an-tabela">
                 @if (t.descricao) { <p class="an-nota">{{ t.descricao }}</p> }
-                <ces-data-table [caption]="t.titulo" [columns]="$any(t.colunas)" [rows]="t.linhas"
+                <geo-data-table [caption]="t.titulo" [columns]="$any(t.colunas)" [rows]="t.linhas"
                   [rowKey]="$any(t.chaveLinha)" [rowLabel]="$any(t.rotuloLinha)"
                   [rowActionLabel]="t.aoAtivar ? (t.rotuloAcao ?? 'Analisar') : undefined"
                   [stateTitle]="t.vazio ?? 'Nada neste recorte'" [exportFileName]="t.nomeArquivo"
-                  (rowActivate)="ativarLinha(t, $event)"></ces-data-table>
+                  (rowActivate)="ativarLinha(t, $event)"></geo-data-table>
               </div>
             </ng-template>
           }
 
           @for (o of origens(); track idDe(o)) {
-            <ng-template [cesTabPanel]="idDe(o)">
+            <ng-template [geoTabPanel]="idDe(o)">
               <div class="an-origem">
                 <header class="an-origem__cabecalho">
                   <div>
@@ -224,7 +224,7 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
                         <h4>{{ dt.titulo }}</h4>
                         @if (dt.subtitulo) { <p>{{ dt.subtitulo }}</p> }
                       </div>
-                      <ces-icon-button icon="pi pi-times" size="icon-sm" label="Fechar detalhe" (pressed)="definirSelecionado(idDe(o), null)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-times" size="icon-sm" label="Fechar detalhe" (pressed)="definirSelecionado(idDe(o), null)"></geo-icon-button>
                     </header>
                     <dl>
                       @for (c of dt.campos; track c.rotulo) {
@@ -254,15 +254,15 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
                 }
 
                 @if (estadoDe(o).erro) {
-                  <ces-async-state state="error" title="Não foi possível carregar a origem dos dados"
+                  <geo-async-state state="error" title="Não foi possível carregar a origem dos dados"
                     description="Os números do painel continuam válidos; tente carregar os registros novamente."
-                    actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregarOrigem(o)"></ces-async-state>
+                    actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregarOrigem(o)"></geo-async-state>
                 } @else {
-                  <ces-data-table [caption]="o.titulo" [columns]="$any(o.colunas)" [rows]="visiveis()[idDe(o)] ?? []"
+                  <geo-data-table [caption]="o.titulo" [columns]="$any(o.colunas)" [rows]="visiveis()[idDe(o)] ?? []"
                     [state]="estadoDe(o).carregando ? 'loading' : 'ready'" [stateTitle]="o.vazio ?? 'Nenhum registro neste recorte'"
                     [rowKey]="$any(o.chaveLinha)" [rowLabel]="$any(o.rotuloLinha)"
                     [rowActionLabel]="o.detalhar ? 'Ver detalhe' : undefined" rowActionIcon="pi pi-eye"
-                    [exportFileName]="o.nomeArquivo" (rowActivate)="selecionarRegistro(o, $event)"></ces-data-table>
+                    [exportFileName]="o.nomeArquivo" (rowActivate)="selecionarRegistro(o, $event)"></geo-data-table>
                   @if (!estadoDe(o).carregando && !o.filtroInicial && estadoDe(o).total > estadoDe(o).linhas.length) {
                     <p class="an-nota">Mostrando {{ estadoDe(o).linhas.length.toLocaleString('pt-BR') }} de {{ estadoDe(o).total.toLocaleString('pt-BR') }} registros.
                       @if (o.verTudo) { Use “{{ o.verTudo.rotulo }}” para ver todos. }</p>
@@ -271,15 +271,15 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
               </div>
             </ng-template>
           }
-        </ces-tabs>
+        </geo-tabs>
 
         @for (lk of rodape(); track lk.rotulo) {
           <a drawer-footer class="an-link an-link--rodape" [routerLink]="$any(lk.rota)" [queryParams]="lk.queryParams ?? null">
             <i [class]="lk.icone" aria-hidden="true"></i> {{ lk.rotulo }}
           </a>
         }
-        <ces-button drawer-footer label="Fechar" variant="secondary" (pressed)="fechar.emit()"></ces-button>
-      </ces-drawer>
+        <geo-button drawer-footer label="Fechar" variant="secondary" (pressed)="fechar.emit()"></geo-button>
+      </geo-drawer>
     }
   `
 })
@@ -302,7 +302,7 @@ export class DashboardAnaliseComponent {
   readonly voltar = output<number>();
   readonly perguntar = output<VistaAnalise>();
 
-  protected readonly aba = signal<CesTabValue>('visao');
+  protected readonly aba = signal<GeoTabValue>('visao');
   private readonly estados = signal<Readonly<Record<string, EstadoOrigem>>>({});
   protected readonly filtros = signal<Readonly<Record<string, FiltroOrigem | null>>>({});
   private readonly selecionados = signal<Readonly<Record<string, string | null>>>({});
@@ -349,10 +349,10 @@ export class DashboardAnaliseComponent {
     return [...v.graficos, ...derivados];
   });
 
-  protected readonly abas = computed<CesTabItem[]>(() => {
+  protected readonly abas = computed<GeoTabItem[]>(() => {
     const v = this.vista();
     if (!v) return [];
-    const abas: CesTabItem[] = [{ value: 'visao', label: 'Visão geral', icon: 'pi pi-chart-bar' }];
+    const abas: GeoTabItem[] = [{ value: 'visao', label: 'Visão geral', icon: 'pi pi-chart-bar' }];
     for (const t of v.tabelas ?? []) abas.push({ value: t.id, label: t.titulo, icon: t.icone, badge: t.linhas.length });
     for (const o of this.origens()) {
       const e = this.estadoDe(o);
@@ -473,7 +473,7 @@ export class DashboardAnaliseComponent {
     };
   }
 
-  protected selecionarPonto(grafico: GraficoAnalise, selecao: CesChartPointSelection): void {
+  protected selecionarPonto(grafico: GraficoAnalise, selecao: GeoChartPointSelection): void {
     this.executar(grafico.aoSelecionar?.(selecao.index) ?? null);
   }
 

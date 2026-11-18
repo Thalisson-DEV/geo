@@ -1,22 +1,22 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesStatusComponent,
-  CesSurfaceComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoStatusComponent,
+  GeoSurfaceComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { MotivoMedidaDisciplinar, ParametrosRh, TipoMedidaDisciplinar } from '../../../core/models/rh-medida-disciplinar.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -42,129 +42,129 @@ const SECOES: Record<SecaoCadastroMedida, { titulo: string; icone: string; descr
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
-    CesSurfaceComponent,
-    CesTextInputComponent
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
+    GeoSurfaceComponent,
+    GeoTextInputComponent
   ],
   styles: `
     .parametros { display: grid; gap: 1rem; max-width: 42rem; }
   `,
   template: `
-    <div class="ces-page">
-      <ces-page-header [title]="info.titulo" [icon]="info.icone" [description]="info.descricao"
-        [breadcrumb]="[{ label: 'Departamento Pessoal' }, { label: 'Cadastros' }, { label: info.titulo }]"></ces-page-header>
+    <div class="geo-page">
+      <geo-page-header [title]="info.titulo" [icon]="info.icone" [description]="info.descricao"
+        [breadcrumb]="[{ label: 'Departamento Pessoal' }, { label: 'Cadastros' }, { label: info.titulo }]"></geo-page-header>
 
       @switch (secao) {
         @case ('tipos') {
-          <ces-data-table title="Tipos de medida" description="Ordenados por gravidade. A gravidade indica o tipo sugerido na reincidência."
+          <geo-data-table title="Tipos de medida" description="Ordenados por gravidade. A gravidade indica o tipo sugerido na reincidência."
             storageKey="rh-tipos-medida" exportFileName="tipos-medida-disciplinar" searchPlaceholder="Filtrar nesta lista"
             [columns]="colunasTipo" [rows]="tipos()" [rowKey]="chaveTipo" [state]="estadoTipos()"
             [stateTitle]="erroTipos() ? 'Não foi possível carregar os tipos' : 'Nenhum tipo cadastrado'" [stateDescription]="erroTipos() ?? undefined"
             [rowClickable]="podeEditar()" (rowActivate)="abrirTipo($event)">
             <ng-container table-actions>
-              @if (podeEditar()) { <ces-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrirTipo(null)"></ces-button> }
+              @if (podeEditar()) { <geo-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrirTipo(null)"></geo-button> }
             </ng-container>
-            <ng-template cesCell="nome" let-row>
-              <span class="ces-cell-strong">{{ row.nome }}</span>
-              @if (row.exigePeriodo) { <span class="ces-cell-muted">Exige dias e período</span> }
+            <ng-template geoCell="nome" let-row>
+              <span class="geo-cell-strong">{{ row.nome }}</span>
+              @if (row.exigePeriodo) { <span class="geo-cell-muted">Exige dias e período</span> }
             </ng-template>
-            <ng-template cesCell="gravidade" let-row>{{ row.gravidade }} de 5</ng-template>
-            <ng-template cesCell="ativo" let-row>
-              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+            <ng-template geoCell="gravidade" let-row>{{ row.gravidade }} de 5</ng-template>
+            <ng-template geoCell="ativo" let-row>
+              <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
             </ng-template>
-            <ng-template cesRowActions let-row>
+            <ng-template geoRowActions let-row>
               @if (podeEditar()) {
-                <span class="ces-table-actions">
-                  <ces-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar" size="icon-sm" (pressed)="abrirTipo(row)"></ces-icon-button>
-                  <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-                    [tooltip]="row.ativo ? 'Desativar' : 'Reativar'" size="icon-sm" (pressed)="alternarTipo(row)"></ces-icon-button>
+                <span class="geo-table-actions">
+                  <geo-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar" size="icon-sm" (pressed)="abrirTipo(row)"></geo-icon-button>
+                  <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+                    [tooltip]="row.ativo ? 'Desativar' : 'Reativar'" size="icon-sm" (pressed)="alternarTipo(row)"></geo-icon-button>
                 </span>
               }
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         }
 
         @case ('motivos') {
-          <ces-data-table title="Motivos" description="A reincidência compara medidas do mesmo motivo."
+          <geo-data-table title="Motivos" description="A reincidência compara medidas do mesmo motivo."
             storageKey="rh-motivos-medida" exportFileName="motivos-medida-disciplinar" searchPlaceholder="Filtrar nesta lista"
             [columns]="colunasMotivo" [rows]="motivos()" [rowKey]="chaveMotivo" [state]="estadoMotivos()"
             [stateTitle]="erroMotivos() ? 'Não foi possível carregar os motivos' : 'Nenhum motivo cadastrado'" [stateDescription]="erroMotivos() ?? undefined"
             [rowClickable]="podeEditar()" (rowActivate)="abrirMotivo($event)">
             <ng-container table-actions>
-              @if (podeEditar()) { <ces-button size="sm" icon="pi pi-plus" label="Novo motivo" (pressed)="abrirMotivo(null)"></ces-button> }
+              @if (podeEditar()) { <geo-button size="sm" icon="pi pi-plus" label="Novo motivo" (pressed)="abrirMotivo(null)"></geo-button> }
             </ng-container>
-            <ng-template cesCell="nome" let-row><span class="ces-cell-strong">{{ row.nome }}</span></ng-template>
-            <ng-template cesCell="ativo" let-row>
-              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+            <ng-template geoCell="nome" let-row><span class="geo-cell-strong">{{ row.nome }}</span></ng-template>
+            <ng-template geoCell="ativo" let-row>
+              <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
             </ng-template>
-            <ng-template cesRowActions let-row>
+            <ng-template geoRowActions let-row>
               @if (podeEditar()) {
-                <span class="ces-table-actions">
-                  <ces-icon-button icon="pi pi-pencil" [label]="'Renomear ' + row.nome" tooltip="Renomear" size="icon-sm" (pressed)="abrirMotivo(row)"></ces-icon-button>
-                  <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-                    [tooltip]="row.ativo ? 'Desativar' : 'Reativar'" size="icon-sm" (pressed)="alternarMotivo(row)"></ces-icon-button>
+                <span class="geo-table-actions">
+                  <geo-icon-button icon="pi pi-pencil" [label]="'Renomear ' + row.nome" tooltip="Renomear" size="icon-sm" (pressed)="abrirMotivo(row)"></geo-icon-button>
+                  <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+                    [tooltip]="row.ativo ? 'Desativar' : 'Reativar'" size="icon-sm" (pressed)="alternarMotivo(row)"></geo-icon-button>
                 </span>
               }
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         }
 
         @case ('parametros') {
-          <ces-surface>
+          <geo-surface>
           <div class="parametros">
-            <ces-form-section title="Prazos" icon="pi pi-clock">
-              <ces-number-input label="Janela de reincidência (meses)" [(value)]="janela" [min]="1" [max]="60" [readonly]="!podeEditar()"
-                description="Medidas do mesmo motivo dentro desta janela aparecem como reincidência."></ces-number-input>
-              <ces-number-input label="Prazo de imediatidade (dias)" [(value)]="imediatidade" [min]="1" [max]="365" [readonly]="!podeEditar()"
-                description="Acima disto entre o fato e a aplicação, o formulário avisa do risco de perdão tácito."></ces-number-input>
-            </ces-form-section>
+            <geo-form-section title="Prazos" icon="pi pi-clock">
+              <geo-number-input label="Janela de reincidência (meses)" [(value)]="janela" [min]="1" [max]="60" [readonly]="!podeEditar()"
+                description="Medidas do mesmo motivo dentro desta janela aparecem como reincidência."></geo-number-input>
+              <geo-number-input label="Prazo de imediatidade (dias)" [(value)]="imediatidade" [min]="1" [max]="365" [readonly]="!podeEditar()"
+                description="Acima disto entre o fato e a aplicação, o formulário avisa do risco de perdão tácito."></geo-number-input>
+            </geo-form-section>
             @if (podeEditar()) {
-              <div class="ces-actions-row">
-                <ces-button icon="pi pi-check" label="Salvar parâmetros" [loading]="salvando()" (pressed)="salvarParametros()"></ces-button>
+              <div class="geo-actions-row">
+                <geo-button icon="pi pi-check" label="Salvar parâmetros" [loading]="salvando()" (pressed)="salvarParametros()"></geo-button>
               </div>
             }
           </div>
-          </ces-surface>
+          </geo-surface>
         }
       }
     </div>
 
-    <ces-form-drawer [(visible)]="tipoAberto" [title]="tipoEmEdicao() ? 'Editar tipo de medida' : 'Novo tipo de medida'" [description]="tipoEmEdicao()?.nome"
+    <geo-form-drawer [(visible)]="tipoAberto" [title]="tipoEmEdicao() ? 'Editar tipo de medida' : 'Novo tipo de medida'" [description]="tipoEmEdicao()?.nome"
       [loading]="salvando()" size="sm">
-      <ces-form-section title="Tipo" icon="pi pi-tag">
-        <div class="ces-form-grid">
-          <ces-text-input label="Nome" [required]="true" [(value)]="nomeTipo" [maxlength]="80" placeholder="Ex.: Advertência escrita"
-            [error]="tentou() && !nomeTipo().trim() ? 'Informe o nome.' : undefined"></ces-text-input>
-          <ces-number-input label="Gravidade" [required]="true" [(value)]="gravidade" [min]="1" [max]="5" description="1 (mais leve) a 5 (mais grave)."
-            [error]="tentou() && !gravidadeValida() ? 'De 1 a 5.' : undefined"></ces-number-input>
+      <geo-form-section title="Tipo" icon="pi pi-tag">
+        <div class="geo-form-grid">
+          <geo-text-input label="Nome" [required]="true" [(value)]="nomeTipo" [maxlength]="80" placeholder="Ex.: Advertência escrita"
+            [error]="tentou() && !nomeTipo().trim() ? 'Informe o nome.' : undefined"></geo-text-input>
+          <geo-number-input label="Gravidade" [required]="true" [(value)]="gravidade" [min]="1" [max]="5" description="1 (mais leve) a 5 (mais grave)."
+            [error]="tentou() && !gravidadeValida() ? 'De 1 a 5.' : undefined"></geo-number-input>
         </div>
-        <ces-boolean-control kind="toggle" label="Exige dias e período (suspensão)" [(value)]="exigePeriodo"></ces-boolean-control>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="tipoAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="tipoEmEdicao() ? 'Salvar alterações' : 'Cadastrar tipo'" [loading]="salvando()" (pressed)="salvarTipo()"></ces-button>
+        <geo-boolean-control kind="toggle" label="Exige dias e período (suspensão)" [(value)]="exigePeriodo"></geo-boolean-control>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="tipoAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="tipoEmEdicao() ? 'Salvar alterações' : 'Cadastrar tipo'" [loading]="salvando()" (pressed)="salvarTipo()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [(visible)]="motivoAberto" [title]="motivoEmEdicao() ? 'Renomear motivo' : 'Novo motivo'" [description]="motivoEmEdicao()?.nome"
+    <geo-form-drawer [(visible)]="motivoAberto" [title]="motivoEmEdicao() ? 'Renomear motivo' : 'Novo motivo'" [description]="motivoEmEdicao()?.nome"
       [loading]="salvando()" size="sm">
-      <ces-text-input label="Nome" [required]="true" [(value)]="nomeMotivo" [maxlength]="80" placeholder="Ex.: Trânsito"
-        [error]="tentou() && !nomeMotivo().trim() ? 'Informe o nome.' : undefined"></ces-text-input>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="motivoAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="motivoEmEdicao() ? 'Salvar' : 'Cadastrar motivo'" [loading]="salvando()" (pressed)="salvarMotivo()"></ces-button>
+      <geo-text-input label="Nome" [required]="true" [(value)]="nomeMotivo" [maxlength]="80" placeholder="Ex.: Trânsito"
+        [error]="tentou() && !nomeMotivo().trim() ? 'Informe o nome.' : undefined"></geo-text-input>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="motivoAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="motivoEmEdicao() ? 'Salvar' : 'Cadastrar motivo'" [loading]="salvando()" (pressed)="salvarMotivo()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class CadastrosMedidasDisciplinaresComponent {
@@ -203,12 +203,12 @@ export class CadastrosMedidasDisciplinaresComponent {
   protected readonly salvando = signal(false);
   protected readonly tentou = signal(false);
 
-  protected readonly colunasTipo: CesDataTableColumn<TipoMedidaDisciplinar>[] = [
+  protected readonly colunasTipo: GeoDataTableColumn<TipoMedidaDisciplinar>[] = [
     { key: 'nome', header: 'Tipo', type: 'custom', priority: 1, value: (t) => t.nome, display: (t) => t.nome },
     { key: 'gravidade', header: 'Gravidade', type: 'custom', priority: 1, value: (t) => t.gravidade, display: (t) => `${t.gravidade} de 5` },
     { key: 'ativo', header: 'Situação', type: 'custom', priority: 1, value: (t) => t.ativo, display: (t) => (t.ativo ? 'Ativo' : 'Inativo') }
   ];
-  protected readonly colunasMotivo: CesDataTableColumn<MotivoMedidaDisciplinar>[] = [
+  protected readonly colunasMotivo: GeoDataTableColumn<MotivoMedidaDisciplinar>[] = [
     { key: 'nome', header: 'Motivo', type: 'custom', priority: 1, value: (m) => m.nome, display: (m) => m.nome },
     { key: 'ativo', header: 'Situação', type: 'custom', priority: 1, value: (m) => m.ativo, display: (m) => (m.ativo ? 'Ativo' : 'Inativo') }
   ];

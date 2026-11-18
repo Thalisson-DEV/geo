@@ -361,12 +361,12 @@
 :host-context(.dark) {
   .mapa__painel,
   .mapa__prancha {
-    background: var(--ces-surface);
-    border-color: var(--ces-border);
+    background: var(--geo-surface);
+    border-color: var(--geo-border);
   }
   .mapa__resumo {
-    background: var(--ces-surface-subtle);
-    border-color: var(--ces-border);
+    background: var(--geo-surface-subtle);
+    border-color: var(--geo-border);
   }
   .mapa__resumo strong,
   .mapa__lista b,
@@ -378,20 +378,20 @@
     color: #e2e8f0;
   }
   .mapa__sistemas button {
-    background: var(--ces-surface-subtle);
-    border-color: var(--ces-border);
+    background: var(--geo-surface-subtle);
+    border-color: var(--geo-border);
     color: #cbd5e1;
   }
   .mapa__sistemas button:hover,
   .mapa__sistemas button:focus-visible {
-    background: var(--ces-surface-muted);
-    border-color: var(--ces-brand);
+    background: var(--geo-surface-muted);
+    border-color: var(--geo-brand);
   }
   .mapa__lista button:hover,
   .mapa__lista button:focus-visible,
   .mapa__lista button.is-ativo {
-    border-color: var(--ces-border);
-    background: var(--ces-surface-subtle);
+    border-color: var(--geo-border);
+    background: var(--geo-surface-subtle);
   }
 }
 

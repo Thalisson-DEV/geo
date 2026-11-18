@@ -1,17 +1,17 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesConfirmationService,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoConfirmationService,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { forkJoin, of } from 'rxjs';
 import { MovimentoEstoqueFrota, PecaFrota, SaldoPecaFrota, TIPO_MOVIMENTO } from '../../../core/models/frota-pneu.models';
 import { formatarPlaca } from '../../../core/models/frota.models';
@@ -21,7 +21,7 @@ import { moeda, numero, quantidadeMovimento } from './frota-estoque.util';
 
 const NOVO_GRUPO = '__NOVO__';
 const GRUPOS_PADRAO = ['Filtros', 'Lubrificantes', 'Freios', 'Suspensão', 'Elétrica', 'Motor', 'Acessórios', 'Consumíveis'];
-const UNIDADES: CesSelectOption<string>[] = ['UN', 'L', 'KG', 'M', 'JG', 'PC', 'CX', 'KIT'].map((u) => ({ label: u, value: u }));
+const UNIDADES: GeoSelectOption<string>[] = ['UN', 'L', 'KG', 'M', 'JG', 'PC', 'CX', 'KIT'].map((u) => ({ label: u, value: u }));
 
 export type OperacaoPeca = 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA' | 'AJUSTE';
 
@@ -36,39 +36,39 @@ export type OperacaoPeca = 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA' | 'AJUSTE';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   styles: `
-    .saldo { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.5rem 1rem; margin: 0; padding: 0.75rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
-    .saldo dt { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .saldo { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.5rem 1rem; margin: 0; padding: 0.75rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+    .saldo dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .saldo dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
     .botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .extrato { display: grid; margin: 0; padding: 0; list-style: none; }
-    .extrato li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.2rem 0.6rem; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid var(--ces-border); }
-    .extrato__det { grid-column: 1 / -1; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .extrato li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.2rem 0.6rem; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid var(--geo-border); }
+    .extrato__det { grid-column: 1 / -1; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .extrato__qtd { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
     .locais { display: grid; margin: 0; padding: 0; list-style: none; }
-    .local { display: flex; width: 100%; align-items: center; gap: 0.75rem; padding: 0.6rem 0.25rem; border: 0; border-bottom: 1px solid var(--ces-border); background: none; color: inherit;
+    .local { display: flex; width: 100%; align-items: center; gap: 0.75rem; padding: 0.6rem 0.25rem; border: 0; border-bottom: 1px solid var(--geo-border); background: none; color: inherit;
       font: inherit; text-align: start; cursor: pointer; }
-    .local:hover { background: var(--ces-surface-subtle); }
-    .local:focus-visible { outline: 2px solid var(--ces-ring); outline-offset: -2px; }
+    .local:hover { background: var(--geo-surface-subtle); }
+    .local:focus-visible { outline: 2px solid var(--geo-ring); outline-offset: -2px; }
     .local__nome { flex: 1; min-width: 0; display: grid; }
-    .local__det { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .local__det { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .local__qtd { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .local__seta { color: var(--ces-foreground-muted); }
-    .vazio { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .local__seta { color: var(--geo-foreground-muted); }
+    .vazio { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .rodape { display: flex; align-items: center; gap: 0.5rem; width: 100%; flex-wrap: wrap; }
     .rodape__espaco { flex: 1; }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="peca() ? peca()!.descricao : 'Cadastrar peça'"
+    <geo-form-drawer [(visible)]="visivel" [title]="peca() ? peca()!.descricao : 'Cadastrar peça'"
       [description]="peca() ? peca()!.codigo + (saldo() ? ' · ' + saldo()!.estoque : '') : 'A peça fica no catálogo da oficina, separado dos materiais do almoxarifado operacional.'"
       [dirty]="alterado()" [loading]="salvando()" size="md">
 
@@ -79,50 +79,50 @@ export type OperacaoPeca = 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA' | 'AJUSTE';
           <div><dt>Valor em estoque</dt><dd>{{ moeda(s.valorTotal) }}</dd></div>
         </dl>
         @if (s.abaixoMinimo) {
-          <ces-status tone="warning" icon="pi pi-exclamation-triangle">Abaixo do mínimo de {{ numero(s.estoqueMinimo) }} {{ s.unidade }}</ces-status>
+          <geo-status tone="warning" icon="pi pi-exclamation-triangle">Abaixo do mínimo de {{ numero(s.estoqueMinimo) }} {{ s.unidade }}</geo-status>
         }
         @if (editavel()) {
           <div class="botoes">
-            <ces-button size="sm" variant="outline" icon="pi pi-arrow-down-left" label="Entrada" (pressed)="movimentar.emit('ENTRADA')"></ces-button>
-            <ces-button size="sm" variant="outline" icon="pi pi-arrow-up-right" label="Saída" [disabled]="s.quantidade <= 0" (pressed)="movimentar.emit('SAIDA')"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-arrow-down-left" label="Entrada" (pressed)="movimentar.emit('ENTRADA')"></geo-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-arrow-up-right" label="Saída" [disabled]="s.quantidade <= 0" (pressed)="movimentar.emit('SAIDA')"></geo-button>
             @if (podeTransferir()) {
-              <ces-button size="sm" variant="outline" icon="pi pi-arrow-right-arrow-left" label="Transferir" [disabled]="s.quantidade <= 0" (pressed)="movimentar.emit('TRANSFERENCIA')"></ces-button>
+              <geo-button size="sm" variant="outline" icon="pi pi-arrow-right-arrow-left" label="Transferir" [disabled]="s.quantidade <= 0" (pressed)="movimentar.emit('TRANSFERENCIA')"></geo-button>
             }
-            <ces-button size="sm" variant="ghost" icon="pi pi-sliders-h" label="Ajustar" (pressed)="movimentar.emit('AJUSTE')"></ces-button>
+            <geo-button size="sm" variant="ghost" icon="pi pi-sliders-h" label="Ajustar" (pressed)="movimentar.emit('AJUSTE')"></geo-button>
           </div>
         }
 
-        <ces-form-section title="Neste almoxarifado" icon="pi pi-map-marker">
-          <div class="ces-form-grid">
-            <ces-number-input label="Mínimo" [(value)]="minimo" [min]="0" [maxFractionDigits]="3" [showOptional]="true" [disabled]="!editavel()"
-              description="Abaixo disso, a peça aparece para repor."></ces-number-input>
-            <ces-text-input label="Localização" [(value)]="localizacao" [maxlength]="60" [showOptional]="true" [disabled]="!editavel()" placeholder="Ex.: Prateleira A2"></ces-text-input>
+        <geo-form-section title="Neste almoxarifado" icon="pi pi-map-marker">
+          <div class="geo-form-grid">
+            <geo-number-input label="Mínimo" [(value)]="minimo" [min]="0" [maxFractionDigits]="3" [showOptional]="true" [disabled]="!editavel()"
+              description="Abaixo disso, a peça aparece para repor."></geo-number-input>
+            <geo-text-input label="Localização" [(value)]="localizacao" [maxlength]="60" [showOptional]="true" [disabled]="!editavel()" placeholder="Ex.: Prateleira A2"></geo-text-input>
           </div>
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="Últimas movimentações" icon="pi pi-history">
+        <geo-form-section title="Últimas movimentações" icon="pi pi-history">
           @if (extrato().length) {
             <ul class="extrato">
               @for (m of extrato(); track m.id) {
                 @let t = tipo(m);
                 <li>
-                  <span><ces-status [tone]="t.tom" [icon]="t.icone">{{ t.rotulo }}</ces-status></span>
+                  <span><geo-status [tone]="t.tom" [icon]="t.icone">{{ t.rotulo }}</geo-status></span>
                   <span class="extrato__qtd">{{ quantidade(m) }}</span>
                   <span class="extrato__det">{{ m.dataHora | date: 'dd/MM/yyyy HH:mm' }}{{ m.motivoRotulo ? ' · ' + m.motivoRotulo : '' }}{{ m.placa ? ' · ' + placa(m.placa) : '' }}{{ m.numeroOrdemServico ? ' · OS ' + m.numeroOrdemServico : '' }}{{ m.documento ? ' · ' + m.documento : '' }}{{ m.estornado ? ' · estornada' : '' }}</span>
                 </li>
               }
             </ul>
-            <ces-button variant="link" size="sm" icon="pi pi-list" label="Ver todas as movimentações" (pressed)="verMovimentacoes.emit()"></ces-button>
+            <geo-button variant="link" size="sm" icon="pi pi-list" label="Ver todas as movimentações" (pressed)="verMovimentacoes.emit()"></geo-button>
           } @else {
             <span class="vazio">Nenhuma movimentação ainda.</span>
           }
-        </ces-form-section>
+        </geo-form-section>
       } @else if (peca(); as p) {
         @if (!p.ativo) {
-          <span><ces-status tone="neutral" emphasis="outline" icon="pi pi-ban">Peça desativada</ces-status></span>
+          <span><geo-status tone="neutral" emphasis="outline" icon="pi pi-ban">Peça desativada</geo-status></span>
         }
         @if (locais().length) {
-          <ces-form-section title="Saldo por almoxarifado" icon="pi pi-warehouse">
+          <geo-form-section title="Saldo por almoxarifado" icon="pi pi-warehouse">
             <ul class="locais">
               @for (l of locais(); track l.idEstoque) {
                 <li>
@@ -131,56 +131,56 @@ export type OperacaoPeca = 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA' | 'AJUSTE';
                       {{ l.estoque }}
                       <span class="local__det">{{ l.localizacao || 'Sem localização' }}{{ l.estoqueMinimo ? ' · mínimo ' + numero(l.estoqueMinimo) : '' }}</span>
                     </span>
-                    @if (l.abaixoMinimo) { <ces-status tone="warning" icon="pi pi-exclamation-triangle">Repor</ces-status> }
+                    @if (l.abaixoMinimo) { <geo-status tone="warning" icon="pi pi-exclamation-triangle">Repor</geo-status> }
                     <span class="local__qtd">{{ numero(l.quantidade) }} {{ l.unidade }}</span>
                     <i class="pi pi-angle-right local__seta" aria-hidden="true"></i>
                   </button>
                 </li>
               }
             </ul>
-          </ces-form-section>
+          </geo-form-section>
         }
         @if (editavel()) {
           <div class="botoes">
-            <ces-button size="sm" variant="outline" icon="pi pi-arrow-down-left" label="Lançar entrada" (pressed)="movimentar.emit('ENTRADA')"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-arrow-down-left" label="Lançar entrada" (pressed)="movimentar.emit('ENTRADA')"></geo-button>
           </div>
           @if (p.saldoTotal > 0) { <span class="vazio">Para desativar a peça, zere o saldo em todos os almoxarifados.</span> }
         }
       }
 
-      <ces-form-section [title]="saldo() ? 'Cadastro da peça' : 'Peça'" icon="pi pi-wrench">
-        <div class="ces-form-grid">
-          <ces-text-input label="Código" [required]="true" [(value)]="codigo" [maxlength]="50" [disabled]="!editavel()" [error]="erro('codigo')"
-            description="Do fabricante ou interno. Cada código só pode ser usado uma vez."></ces-text-input>
-          <ces-select label="Unidade" [required]="true" [options]="unidades()" [(value)]="unidade" [disabled]="!editavel()" [error]="erro('unidade')"></ces-select>
+      <geo-form-section [title]="saldo() ? 'Cadastro da peça' : 'Peça'" icon="pi pi-wrench">
+        <div class="geo-form-grid">
+          <geo-text-input label="Código" [required]="true" [(value)]="codigo" [maxlength]="50" [disabled]="!editavel()" [error]="erro('codigo')"
+            description="Do fabricante ou interno. Cada código só pode ser usado uma vez."></geo-text-input>
+          <geo-select label="Unidade" [required]="true" [options]="unidades()" [(value)]="unidade" [disabled]="!editavel()" [error]="erro('unidade')"></geo-select>
         </div>
-        <ces-text-input label="Nome" [required]="true" [(value)]="descricao" [maxlength]="355" [disabled]="!editavel()" [error]="erro('descricao')"
-          placeholder="Ex.: Filtro de óleo PSL 340"></ces-text-input>
-        <div class="ces-form-grid">
-          <ces-select label="Grupo" [options]="opcoesGrupo()" [(value)]="grupo" [filter]="true" [clearable]="true" [showOptional]="true" [disabled]="!editavel()"></ces-select>
+        <geo-text-input label="Nome" [required]="true" [(value)]="descricao" [maxlength]="355" [disabled]="!editavel()" [error]="erro('descricao')"
+          placeholder="Ex.: Filtro de óleo PSL 340"></geo-text-input>
+        <div class="geo-form-grid">
+          <geo-select label="Grupo" [options]="opcoesGrupo()" [(value)]="grupo" [filter]="true" [clearable]="true" [showOptional]="true" [disabled]="!editavel()"></geo-select>
           @if (grupo() === novoGrupo) {
-            <ces-text-input label="Nome do grupo" [required]="true" [(value)]="grupoNovo" [maxlength]="60" [disabled]="!editavel()" [error]="erroGrupo()"></ces-text-input>
+            <geo-text-input label="Nome do grupo" [required]="true" [(value)]="grupoNovo" [maxlength]="60" [disabled]="!editavel()" [error]="erroGrupo()"></geo-text-input>
           }
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
       <div drawer-footer class="rodape">
         @if (editavel() && peca() && !saldo() && peca()!.saldoTotal <= 0) {
-          <ces-button variant="ghost" icon="pi pi-ban" label="Desativar" ariaLabel="Desativar peça" (pressed)="desativar()"></ces-button>
+          <geo-button variant="ghost" icon="pi pi-ban" label="Desativar" ariaLabel="Desativar peça" (pressed)="desativar()"></geo-button>
         }
         <span class="rodape__espaco"></span>
-        <ces-button variant="ghost" [label]="editavel() ? 'Cancelar' : 'Fechar'" (pressed)="visivel.set(false)"></ces-button>
+        <geo-button variant="ghost" [label]="editavel() ? 'Cancelar' : 'Fechar'" (pressed)="visivel.set(false)"></geo-button>
         @if (editavel()) {
-          <ces-button icon="pi pi-check" [label]="peca() ? 'Salvar alterações' : 'Cadastrar peça'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+          <geo-button icon="pi pi-check" [label]="peca() ? 'Salvar alterações' : 'Cadastrar peça'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaPecaDrawerComponent {
   private readonly servico = inject(FrotaPneuService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   readonly visivel = model(false);
   readonly peca = input<PecaFrota | null>(null);
@@ -214,12 +214,12 @@ export class FrotaPecaDrawerComponent {
   protected readonly extrato = signal<MovimentoEstoqueFrota[]>([]);
   private readonly inicial = signal('');
 
-  protected readonly opcoesGrupo = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesGrupo = computed<GeoSelectOption<string>[]>(() => {
     const lista = [...new Set([...GRUPOS_PADRAO, ...this.grupos()])].sort((a, b) => a.localeCompare(b, 'pt-BR'));
     return [...lista.map((g) => ({ label: g, value: g })), { label: 'Outro grupo…', value: NOVO_GRUPO }];
   });
   /** As unidades comuns e, na peça já cadastrada, a dela se for outra. */
-  protected readonly unidades = computed<CesSelectOption<string>[]>(() => {
+  protected readonly unidades = computed<GeoSelectOption<string>[]>(() => {
     const gravada = this.peca()?.unidade;
     return gravada && !UNIDADES.some((u) => u.value === gravada) ? [...UNIDADES, { label: gravada, value: gravada }] : UNIDADES;
   });

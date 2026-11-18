@@ -1,5 +1,5 @@
 /** Seguros e sinistros da frota na web: apólices, veículos cobertos, parcelas e sinistros. */
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { SituacaoPagamentoDespesa } from './frota-despesa.models';
 import { SituacaoOrdemServico, SituacaoSinistro, SituacaoVencimento, TipoSinistro } from './frota.models';
 
@@ -277,7 +277,7 @@ export const ROTULO_SITUACAO_SINISTRO: Record<SituacaoSinistro, string> = {
 };
 
 /** Tom e ícone da situação do sinistro (a cor nunca vem sozinha: o rótulo acompanha). */
-export function situacaoSinistro(s: SituacaoSinistro): { tom: CesTone; icone: string; rotulo: string } {
+export function situacaoSinistro(s: SituacaoSinistro): { tom: GeoTone; icone: string; rotulo: string } {
   switch (s) {
     case 'RASCUNHO': return { tom: 'warning', icone: 'pi pi-pencil', rotulo: ROTULO_SITUACAO_SINISTRO[s] };
     case 'EM_OFICINA': return { tom: 'info', icone: 'pi pi-wrench', rotulo: ROTULO_SITUACAO_SINISTRO[s] };
@@ -290,7 +290,7 @@ export function situacaoSinistro(s: SituacaoSinistro): { tom: CesTone; icone: st
 /** Tom e ícone da vigência da apólice. */
 export function vigenciaApolice(
   a: Pick<Apolice, 'situacao' | 'diasParaVencer'> & Partial<Pick<Apolice, 'diasParaComecar' | 'vigenciaInicio' | 'renovadaPor'>>
-): { tom: CesTone; icone: string; rotulo: string } {
+): { tom: GeoTone; icone: string; rotulo: string } {
   if ((a.diasParaComecar ?? 0) > 0 && a.vigenciaInicio) {
     return { tom: 'info', icone: 'pi pi-calendar', rotulo: `Começa em ${dataCurta(a.vigenciaInicio)}` };
   }
@@ -304,7 +304,7 @@ export function vigenciaApolice(
 }
 
 /** Situação do pagamento da parcela. */
-export function pagamentoParcela(p: ParcelaApolice): { tom: CesTone; icone: string; rotulo: string } {
+export function pagamentoParcela(p: ParcelaApolice): { tom: GeoTone; icone: string; rotulo: string } {
   switch (p.situacaoPagamento) {
     case 'SOLICITADO': return { tom: 'info', icone: 'pi pi-send', rotulo: 'Pagamento solicitado' };
     case 'APROVADO': return { tom: 'success', icone: 'pi pi-check-circle', rotulo: 'Pagamento aprovado' };
@@ -320,7 +320,7 @@ export function pagamentoParcela(p: ParcelaApolice): { tom: CesTone; icone: stri
 
 /** Situação do veículo dentro da apólice: coberto hoje, a partir de quando ou desde quando saiu. */
 export function coberturaNaApolice(c: CoberturaApolice, a: Pick<Apolice, 'vigenciaInicio' | 'vigenciaFim'>, hoje = hojeIso()): {
-  tom: CesTone; icone: string; rotulo: string;
+  tom: GeoTone; icone: string; rotulo: string;
 } {
   if (c.cobertoHoje) return { tom: 'success', icone: 'pi pi-check-circle', rotulo: 'Coberto hoje' };
   const inicio = c.inicio > a.vigenciaInicio ? c.inicio : a.vigenciaInicio;

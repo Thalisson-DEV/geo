@@ -2,24 +2,24 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService,
-  cesFilter,
-  cesListState,
-  cesUrlParam
-} from '@ces/ui';
+  geoFilter,
+  geoListState,
+  geoUrlParam
+} from '@geo/ui';
 import { map, tap } from 'rxjs';
 import {
   ContagensPreventiva,
@@ -75,50 +75,50 @@ function entra(c: ControlePreventivo, recorte: Recorte): boolean {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaInformarRealizacaoDrawerComponent
   ],
   styles: `
-    .ces-kpi[aria-pressed='true'] { border-color: var(--ces-brand); box-shadow: inset 3px 0 0 var(--ces-brand), var(--ces-shadow-sm); }
-    .falta--danger { color: var(--ces-danger-text); font-weight: 600; }
-    .falta--warning { color: var(--ces-warning-text); font-weight: 600; }
+    .geo-kpi[aria-pressed='true'] { border-color: var(--geo-brand); box-shadow: inset 3px 0 0 var(--geo-brand), var(--geo-shadow-sm); }
+    .falta--danger { color: var(--geo-danger-text); font-weight: 600; }
+    .falta--warning { color: var(--geo-warning-text); font-weight: 600; }
   `,
   template: `
-    <div class="ces-page" cesListShortcuts>
-      <section class="ces-kpis" aria-label="Situação da preventiva">
+    <div class="geo-page" geoListShortcuts>
+      <section class="geo-kpis" aria-label="Situação da preventiva">
         @for (a of atalhos; track a.valor) {
           @let n = contagens() ? a.quantidade(contagens()!) : null;
-          <button type="button" class="ces-kpi" [attr.data-tone]="n ? a.tom : 'neutral'" [attr.aria-pressed]="recorte() === a.valor"
+          <button type="button" class="geo-kpi" [attr.data-tone]="n ? a.tom : 'neutral'" [attr.aria-pressed]="recorte() === a.valor"
             (click)="escolher(a.valor)" [attr.aria-label]="a.rotulo + ': ' + (n ?? 0) + '. ' + (recorte() === a.valor ? 'Mostrar todas' : 'Mostrar só essas')">
-            <span class="ces-kpi__icon" aria-hidden="true"><i [class]="'pi ' + a.icone"></i></span>
-            <span class="ces-kpi__body">
-              <span class="ces-kpi__label">{{ a.rotulo }}</span>
-              <span class="ces-kpi__value">{{ n ?? '—' }}</span>
-              <span class="ces-kpi__detail">{{ a.detalhe }}</span>
+            <span class="geo-kpi__icon" aria-hidden="true"><i [class]="'pi ' + a.icone"></i></span>
+            <span class="geo-kpi__body">
+              <span class="geo-kpi__label">{{ a.rotulo }}</span>
+              <span class="geo-kpi__value">{{ n ?? '—' }}</span>
+              <span class="geo-kpi__detail">{{ a.detalhe }}</span>
             </span>
-            <i class="pi ces-kpi__go" [class.pi-angle-right]="recorte() !== a.valor" [class.pi-times]="recorte() === a.valor" aria-hidden="true"></i>
+            <i class="pi geo-kpi__go" [class.pi-angle-right]="recorte() !== a.valor" [class.pi-times]="recorte() === a.valor" aria-hidden="true"></i>
           </button>
         }
       </section>
 
-      <ces-filter-panel #painelFiltros storageKey="frota-preventiva-acompanhamento" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painelFiltros storageKey="frota-preventiva-acompanhamento" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Plano" [options]="opcoesPlano()" [(value)]="lista.filters.idPlano" placeholder="Todos" [clearable]="true"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Plano" [options]="opcoesPlano()" [(value)]="lista.filters.idPlano" placeholder="Todos" [clearable]="true"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table [title]="titulo()" [description]="descricao()" storageKey="frota-preventiva-acompanhamento"
+      <geo-data-table [title]="titulo()" [description]="descricao()" storageKey="frota-preventiva-acompanhamento"
         exportFileName="preventiva-acompanhamento" searchPlaceholder="Placa ou plano"
         [columns]="colunas" [rows]="linhas()" [rowKey]="chave" [rowLabel]="rotulo"
         [state]="resultado.state() === 'ready' && !linhas().length ? 'empty' : resultado.state()"
@@ -131,59 +131,59 @@ function entra(c: ControlePreventivo, recorte: Recorte): boolean {
         rowActionLabel="Ficha do veículo" (rowActivate)="verVeiculo($event)">
         <ng-container table-actions>
           @if (recorte() !== 'TODAS') {
-            <ces-button size="sm" variant="ghost" icon="pi pi-filter-slash" label="Ver todas as situações" (pressed)="escolher('TODAS')"></ces-button>
+            <geo-button size="sm" variant="ghost" icon="pi pi-filter-slash" label="Ver todas as situações" (pressed)="escolher('TODAS')"></geo-button>
           }
         </ng-container>
-        <ces-button selection-actions size="sm" icon="pi pi-wrench" [label]="rotuloAbrirSelecionados()" [loading]="abrindo()"
-          [disabled]="!livresSelecionados().length" (pressed)="abrirOs(selecionados())"></ces-button>
+        <geo-button selection-actions size="sm" icon="pi pi-wrench" [label]="rotuloAbrirSelecionados()" [loading]="abrindo()"
+          [disabled]="!livresSelecionados().length" (pressed)="abrirOs(selecionados())"></geo-button>
 
-        <ng-template cesCell="veiculo" let-row>
-          <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-          <span class="ces-cell-muted">{{ row.base ?? 'Sem base' }}</span>
+        <ng-template geoCell="veiculo" let-row>
+          <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+          <span class="geo-cell-muted">{{ row.base ?? 'Sem base' }}</span>
         </ng-template>
-        <ng-template cesCell="plano" let-row>
-          <span class="ces-cell-strong">{{ row.plano }}</span>
-          <span class="ces-cell-muted">{{ row.frequencia }}</span>
+        <ng-template geoCell="plano" let-row>
+          <span class="geo-cell-strong">{{ row.plano }}</span>
+          <span class="geo-cell-muted">{{ row.frequencia }}</span>
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
+        <ng-template geoCell="situacao" let-row>
           @let ap = aparencia(row);
-          <ces-status [tone]="ap.tom" [icon]="ap.icone">{{ ap.rotulo }}</ces-status>
+          <geo-status [tone]="ap.tom" [icon]="ap.icone">{{ ap.rotulo }}</geo-status>
           @if (row.numeroOrdemServico) {
-            <span class="ces-cell-muted">OS {{ row.numeroOrdemServico }} · {{ row.situacaoRotulo.toLowerCase() }}</span>
+            <span class="geo-cell-muted">OS {{ row.numeroOrdemServico }} · {{ row.situacaoRotulo.toLowerCase() }}</span>
           }
         </ng-template>
-        <ng-template cesCell="falta" let-row>
-          <span class="ces-cell-strong" [class.falta--danger]="row.situacao === 'VENCIDA'" [class.falta--warning]="row.situacao === 'PROXIMA'">{{ primeiraMaiuscula(row.falta) }}</span>
+        <ng-template geoCell="falta" let-row>
+          <span class="geo-cell-strong" [class.falta--danger]="row.situacao === 'VENCIDA'" [class.falta--warning]="row.situacao === 'PROXIMA'">{{ primeiraMaiuscula(row.falta) }}</span>
           @if (row.previsao && row.situacao !== 'VENCIDA') {
-            <span class="ces-cell-muted">Previsão {{ row.previsao | date: 'dd/MM/yyyy' }}</span>
+            <span class="geo-cell-muted">Previsão {{ row.previsao | date: 'dd/MM/yyyy' }}</span>
           }
         </ng-template>
-        <ng-template cesCell="ultima" let-row>
+        <ng-template geoCell="ultima" let-row>
           @if (row.semHistorico) {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-question-circle">Sem histórico</ces-status>
-            <span class="ces-cell-muted">Contando desde {{ row.baseData | date: 'dd/MM/yyyy' }}</span>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-question-circle">Sem histórico</geo-status>
+            <span class="geo-cell-muted">Contando desde {{ row.baseData | date: 'dd/MM/yyyy' }}</span>
           } @else {
             {{ row.baseData | date: 'dd/MM/yyyy' }}{{ row.baseMedicao != null ? ' · ' + medicao(row.baseMedicao, row.unidade) : '' }}
-            <span class="ces-cell-muted">{{ row.baseOrigemRotulo }}</span>
+            <span class="geo-cell-muted">{{ row.baseOrigemRotulo }}</span>
           }
         </ng-template>
-        <ng-template cesCell="proxima" let-row>
+        <ng-template geoCell="proxima" let-row>
           {{ proxima(row) }}
-          <span class="ces-cell-muted">{{ rotuloAtual(row.unidade) }}: {{ medicao(row.medicaoAtual, row.unidade) }}</span>
+          <span class="geo-cell-muted">{{ rotuloAtual(row.unidade) }}: {{ medicao(row.medicaoAtual, row.unidade) }}</span>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (row.idOrdemServico) {
-              <ces-icon-button icon="pi pi-external-link" [label]="'Ver a OS ' + row.numeroOrdemServico" tooltip="Ver a OS" size="icon-sm" (pressed)="verOs(row.idOrdemServico)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-external-link" [label]="'Ver a OS ' + row.numeroOrdemServico" tooltip="Ver a OS" size="icon-sm" (pressed)="verOs(row.idOrdemServico)"></geo-icon-button>
             } @else if (podeAbrirOs()) {
-              <ces-icon-button icon="pi pi-wrench" [label]="'Abrir OS de ' + rotulo(row)" tooltip="Abrir OS" size="icon-sm" [disabled]="abrindo()" (pressed)="abrirOs([row])"></ces-icon-button>
+              <geo-icon-button icon="pi pi-wrench" [label]="'Abrir OS de ' + rotulo(row)" tooltip="Abrir OS" size="icon-sm" [disabled]="abrindo()" (pressed)="abrirOs([row])"></geo-icon-button>
             }
             @if (acesso.editarPreventiva()) {
-              <ces-icon-button icon="pi pi-history" [label]="'Informar a última realização de ' + rotulo(row)" tooltip="Informar última realização" size="icon-sm" (pressed)="informar(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-history" [label]="'Informar a última realização de ' + rotulo(row)" tooltip="Informar última realização" size="icon-sm" (pressed)="informar(row)"></geo-icon-button>
             }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-frota-informar-realizacao-drawer [(visivel)]="informarAberto" [controle]="emInforme()" (registrado)="lista.reload()"></app-frota-informar-realizacao-drawer>
@@ -192,7 +192,7 @@ function entra(c: ControlePreventivo, recorte: Recorte): boolean {
 export class FrotaAcompanhamentoPreventivaComponent {
   private readonly preventiva = inject(FrotaPreventivaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
   protected readonly acesso = acessoFrota();
   protected readonly bases = basesFrota();
@@ -202,21 +202,21 @@ export class FrotaAcompanhamentoPreventivaComponent {
   protected readonly rotuloAtual = rotuloValorAtual;
   protected readonly aparencia = aparenciaPreventiva;
 
-  private readonly escolhido = cesUrlParam<Recorte | 'AUTO'>({ param: 'situacao', values: RECORTES, default: 'AUTO' });
-  protected readonly opcoesPlano = signal<CesSelectOption<string>[]>([]);
+  private readonly escolhido = geoUrlParam<Recorte | 'AUTO'>({ param: 'situacao', values: RECORTES, default: 'AUTO' });
+  protected readonly opcoesPlano = signal<GeoSelectOption<string>[]>([]);
   protected readonly contagens = signal<ContagensPreventiva | null>(null);
   protected readonly selecionados = signal<readonly ControlePreventivo[]>([]);
   protected readonly abrindo = signal(false);
   protected readonly informarAberto = signal(false);
   protected readonly emInforme = signal<ControlePreventivo | null>(null);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-preventiva-acompanhamento',
     rememberFilters: 'frota-preventiva-acompanhamento',
     queryParam: false,
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      idPlano: cesFilter.value<string | null>(null, { label: 'Plano', param: 'plano', options: () => this.opcoesPlano() })
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idPlano: geoFilter.value<string | null>(null, { label: 'Plano', param: 'plano', options: () => this.opcoesPlano() })
     }
   });
   /** A lista inteira vem de uma vez (o recorte por situação é local); as contagens vêm junto. */
@@ -274,7 +274,7 @@ export class FrotaAcompanhamentoPreventivaComponent {
     return veiculos > 1 ? `Abrir ${veiculos} OS` : 'Abrir OS';
   });
 
-  protected readonly colunas: CesDataTableColumn<ControlePreventivo>[] = [
+  protected readonly colunas: GeoDataTableColumn<ControlePreventivo>[] = [
     { key: 'veiculo', header: 'Veículo', type: 'custom', priority: 1, value: (c) => c.placa, display: (c) => `${formatarPlaca(c.placa)} ${c.base ?? ''}` },
     { key: 'plano', header: 'Plano', type: 'custom', priority: 1, value: (c) => c.plano, display: (c) => `${c.plano} ${c.frequencia}` },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, value: (c) => aparenciaPreventiva(c).rotulo, display: (c) => aparenciaPreventiva(c).rotulo },

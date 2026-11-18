@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, signal } from '@angular/core';
-import { CesBooleanControlComponent, CesButtonComponent, CesCalloutComponent, CesStatusComponent, CesTextInputComponent } from '@ces/ui';
+import { GeoBooleanControlComponent, GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent, GeoTextInputComponent } from '@geo/ui';
 
 import { PermissaoResponse } from '../../../core/models/iam.models';
 import { ModuloPermissao, RecursoPermissao, agruparPermissoes, normalizar, textoBusca } from './permissoes-catalogo';
@@ -14,30 +14,30 @@ import { ModuloPermissao, RecursoPermissao, agruparPermissoes, normalizar, texto
   selector: 'app-permissoes-perfil-editor',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesBooleanControlComponent, CesButtonComponent, CesCalloutComponent, CesStatusComponent, CesTextInputComponent],
+  imports: [GeoBooleanControlComponent, GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent, GeoTextInputComponent],
   styleUrl: './permissoes-perfil-editor.component.css',
   template: `
     <div class="editor" [attr.aria-busy]="carregando()">
-      <ces-callout tone="info" title="Como funciona">
+      <geo-callout tone="info" title="Como funciona">
         <strong>Ver</strong> deixa consultar; <strong>Editar</strong> deixa cadastrar e alterar; as demais são ações
         específicas (aprovar, entregar...). Marcar qualquer ação marca também o <strong>Ver</strong> do mesmo item, e
         desmarcar o <strong>Ver</strong> tira as demais.
-      </ces-callout>
+      </geo-callout>
 
       <div class="editor__barra">
         <div class="editor__busca">
-          <ces-text-input label="Buscar permissão" [labelVisible]="false" placeholder="Buscar por módulo, tela ou ação (ex.: solicitações, aprovar)" [(value)]="busca" />
+          <geo-text-input label="Buscar permissão" [labelVisible]="false" placeholder="Buscar por módulo, tela ou ação (ex.: solicitações, aprovar)" [(value)]="busca" />
         </div>
-        <ces-boolean-control label="Mostrar só as marcadas" kind="toggle" [inline]="true" [(value)]="soMarcadas" />
+        <geo-boolean-control label="Mostrar só as marcadas" kind="toggle" [inline]="true" [(value)]="soMarcadas" />
       </div>
 
       <div class="editor__resumo" aria-live="polite">
         <span><strong>{{ selecionadas().size }}</strong> de {{ total() }} permissões marcadas</span>
         @if (adicionadas() || removidas()) {
           <span class="editor__mudancas">
-            @if (adicionadas()) { <ces-status tone="success" icon="pi pi-plus">{{ adicionadas() }} a conceder</ces-status> }
-            @if (removidas()) { <ces-status tone="danger" icon="pi pi-minus">{{ removidas() }} a remover</ces-status> }
-            <ces-button label="Desfazer alterações" icon="pi pi-undo" size="sm" variant="ghost" (pressed)="desfazer()" />
+            @if (adicionadas()) { <geo-status tone="success" icon="pi pi-plus">{{ adicionadas() }} a conceder</geo-status> }
+            @if (removidas()) { <geo-status tone="danger" icon="pi pi-minus">{{ removidas() }} a remover</geo-status> }
+            <geo-button label="Desfazer alterações" icon="pi pi-undo" size="sm" variant="ghost" (pressed)="desfazer()" />
           </span>
         }
       </div>
@@ -72,9 +72,9 @@ import { ModuloPermissao, RecursoPermissao, agruparPermissoes, normalizar, texto
                 <span class="modulo__contagem">{{ marcadas }} de {{ m.modulo.ids.length }}</span>
               </button>
               <span class="modulo__atalhos">
-                <ces-button label="Só consultar" size="sm" variant="ghost" [ariaLabel]="'Marcar só consulta em ' + m.modulo.rotulo" (pressed)="soConsultar(m.modulo)" />
-                <ces-button label="Tudo" size="sm" variant="ghost" [ariaLabel]="'Marcar tudo em ' + m.modulo.rotulo" (pressed)="marcarModulo(m.modulo, true)" />
-                <ces-button label="Nenhuma" size="sm" variant="ghost" [ariaLabel]="'Desmarcar tudo em ' + m.modulo.rotulo" [disabled]="!marcadas" (pressed)="marcarModulo(m.modulo, false)" />
+                <geo-button label="Só consultar" size="sm" variant="ghost" [ariaLabel]="'Marcar só consulta em ' + m.modulo.rotulo" (pressed)="soConsultar(m.modulo)" />
+                <geo-button label="Tudo" size="sm" variant="ghost" [ariaLabel]="'Marcar tudo em ' + m.modulo.rotulo" (pressed)="marcarModulo(m.modulo, true)" />
+                <geo-button label="Nenhuma" size="sm" variant="ghost" [ariaLabel]="'Desmarcar tudo em ' + m.modulo.rotulo" [disabled]="!marcadas" (pressed)="marcarModulo(m.modulo, false)" />
               </span>
             </header>
 
@@ -90,7 +90,7 @@ import { ModuloPermissao, RecursoPermissao, agruparPermissoes, normalizar, texto
                       @for (a of r.acoes; track a.permissao.id) {
                         @let marcada = selecionadas().has(a.permissao.id);
                         <div class="acao" [class.acao--nova]="marcada && !iniciais().has(a.permissao.id)" [class.acao--removida]="!marcada && iniciais().has(a.permissao.id)" [title]="a.ajuda ?? a.permissao.nome">
-                          <ces-boolean-control [label]="a.rotulo" [inline]="true" [value]="marcada" (valueChange)="marcar(r, a.permissao, $event)" />
+                          <geo-boolean-control [label]="a.rotulo" [inline]="true" [value]="marcada" (valueChange)="marcar(r, a.permissao, $event)" />
                           @if (a.ajuda) { <span class="acao__ajuda">{{ a.ajuda }}</span> }
                         </div>
                       }

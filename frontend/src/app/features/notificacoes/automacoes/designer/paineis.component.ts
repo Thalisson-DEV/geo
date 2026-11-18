@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ElementRef, afterNextRender, computed, inject, input, output, signal } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent, CesTabItem, CesTabPanelDirective, CesTabsComponent, CesTextareaComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoTabItem, GeoTabPanelDirective, GeoTabsComponent, GeoTextareaComponent } from '@geo/ui';
 
 import {
   Catalogo, Definicao, FlowNode, NoEspec, Params, Problema, Rascunho, RetryPolicy, RunAfter, RUN_AFTER_ROTULO, TipoAutomacao, Variavel
@@ -18,7 +18,7 @@ type Aba = 'params' | 'config' | 'saidas';
 @Component({
   selector: 'aut-painel-config',
   standalone: true,
-  imports: [NgTemplateOutlet, CesButtonComponent, CesIconButtonComponent, CesTabsComponent, CesTabPanelDirective, FormParametrosComponent],
+  imports: [NgTemplateOutlet, GeoButtonComponent, GeoIconButtonComponent, GeoTabsComponent, GeoTabPanelDirective, FormParametrosComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (espec(); as e) {
@@ -36,19 +36,19 @@ type Aba = 'params' | 'config' | 'saidas';
             }
           </div>
           @if (ehGatilho()) {
-            <ces-icon-button icon="pi pi-arrow-right-arrow-left" label="Trocar o gatilho" variant="ghost" size="icon-sm" (pressed)="trocarGatilho.emit()"></ces-icon-button>
+            <geo-icon-button icon="pi pi-arrow-right-arrow-left" label="Trocar o gatilho" variant="ghost" size="icon-sm" (pressed)="trocarGatilho.emit()"></geo-icon-button>
           } @else if (!somenteLeitura()) {
-            <ces-icon-button icon="pi pi-copy" label="Duplicar" variant="ghost" size="icon-sm" (pressed)="duplicar.emit(selecionado())"></ces-icon-button>
-            <ces-icon-button icon="pi pi-trash" label="Excluir passo" variant="destructive" size="icon-sm" (pressed)="excluir.emit(selecionado())"></ces-icon-button>
+            <geo-icon-button icon="pi pi-copy" label="Duplicar" variant="ghost" size="icon-sm" (pressed)="duplicar.emit(selecionado())"></geo-icon-button>
+            <geo-icon-button icon="pi pi-trash" label="Excluir passo" variant="destructive" size="icon-sm" (pressed)="excluir.emit(selecionado())"></geo-icon-button>
           }
-          <ces-icon-button icon="pi pi-times" label="Fechar painel" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></ces-icon-button>
+          <geo-icon-button icon="pi pi-times" label="Fechar painel" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
         </header>
         <p class="aut-muted" style="margin:0">{{ e.descricao }}</p>
-        <ces-tabs class="aut-panel-tabs" [tabs]="abasDs()" [value]="aba()" (valueChange)="aba.set($any($event))" ariaLabel="Seções do passo">
+        <geo-tabs class="aut-panel-tabs" [tabs]="abasDs()" [value]="aba()" (valueChange)="aba.set($any($event))" ariaLabel="Seções do passo">
           @for (a of abas(); track a[0]) {
-            <ng-template [cesTabPanel]="a[0]"><ng-container [ngTemplateOutlet]="corpo" /></ng-template>
+            <ng-template [geoTabPanel]="a[0]"><ng-container [ngTemplateOutlet]="corpo" /></ng-template>
           }
-        </ces-tabs>
+        </geo-tabs>
         <ng-template #corpo>
         <div class="aut-panel-body">
           @if (proprios().length && aba() !== 'saidas') {
@@ -67,12 +67,12 @@ type Aba = 'params' | 'config' | 'saidas';
                     <p class="aut-muted">Cada caso é uma coluna no canvas. Num caso, separe vários valores com ;</p>
                     @for (c of n.cases ?? []; track c.id) {
                       <div style="display:flex;gap:0.5rem">
-                        <input class="p-inputtext ces-prime-control" [value]="c.value" placeholder="Juazeiro" aria-label="Valor do caso"
+                        <input class="p-inputtext geo-prime-control" [value]="c.value" placeholder="Juazeiro" aria-label="Valor do caso"
                                (input)="mudarNo({ cases: trocarCaso(n, c.id, $any($event.target).value) })" />
-                        <ces-icon-button icon="pi pi-times" label="Remover caso" variant="ghost" size="icon-sm" (pressed)="mudarNo({ cases: (n.cases ?? []).filter(x => x.id !== c.id) })"></ces-icon-button>
+                        <geo-icon-button icon="pi pi-times" label="Remover caso" variant="ghost" size="icon-sm" (pressed)="mudarNo({ cases: (n.cases ?? []).filter(x => x.id !== c.id) })"></geo-icon-button>
                       </div>
                     }
-                    <div><ces-button icon="pi pi-plus" label="Caso" variant="secondary" size="sm" (pressed)="novoCaso(n)"></ces-button></div>
+                    <div><geo-button icon="pi pi-plus" label="Caso" variant="secondary" size="sm" (pressed)="novoCaso(n)"></geo-button></div>
                   </div>
                 }
                 @if (n.type === 'control.parallel') {
@@ -80,12 +80,12 @@ type Aba = 'params' | 'config' | 'saidas';
                     <span class="aut-section-title">Ramos</span>
                     @for (b of n.branches ?? []; track b.id) {
                       <div style="display:flex;gap:0.5rem">
-                        <input class="p-inputtext ces-prime-control" [value]="b.label" aria-label="Nome do ramo"
+                        <input class="p-inputtext geo-prime-control" [value]="b.label" aria-label="Nome do ramo"
                                (input)="mudarNo({ branches: trocarRamo(n, b.id, $any($event.target).value) })" />
-                        <ces-icon-button icon="pi pi-times" label="Remover ramo" variant="ghost" size="icon-sm" (pressed)="mudarNo({ branches: (n.branches ?? []).filter(x => x.id !== b.id) })"></ces-icon-button>
+                        <geo-icon-button icon="pi pi-times" label="Remover ramo" variant="ghost" size="icon-sm" (pressed)="mudarNo({ branches: (n.branches ?? []).filter(x => x.id !== b.id) })"></geo-icon-button>
                       </div>
                     }
-                    <div><ces-button icon="pi pi-plus" label="Ramo" variant="secondary" size="sm" (pressed)="novoRamo(n)"></ces-button></div>
+                    <div><geo-button icon="pi pi-plus" label="Ramo" variant="secondary" size="sm" (pressed)="novoRamo(n)"></geo-button></div>
                   </div>
                 }
               }
@@ -94,11 +94,11 @@ type Aba = 'params' | 'config' | 'saidas';
               @if (no(); as n) {
                 <div class="aut-section">
                   <label class="aut-field">
-                    <span class="ces-field__label">Anotação</span>
-                    <input class="p-inputtext ces-prime-control" [value]="n.description ?? ''" placeholder="Por que este passo existe" (input)="mudarNo({ description: $any($event.target).value })" />
+                    <span class="geo-field__label">Anotação</span>
+                    <input class="p-inputtext geo-prime-control" [value]="n.description ?? ''" placeholder="Por que este passo existe" (input)="mudarNo({ description: $any($event.target).value })" />
                   </label>
                   <div class="aut-field">
-                    <span class="ces-field__label">Executar depois que o passo anterior…</span>
+                    <span class="geo-field__label">Executar depois que o passo anterior…</span>
                     <div class="aut-toggles" role="group">
                       @for (s of situacoes; track s[0]) {
                         <button type="button" class="aut-toggle" [attr.aria-pressed]="runAfter(n).includes(s[0])" (click)="alternarRunAfter(n, s[0])">{{ s[1] }}</button>
@@ -108,22 +108,22 @@ type Aba = 'params' | 'config' | 'saidas';
                   </div>
                   @if (!e.conteiner && !['control.wait', 'approval.request', 'control.terminate'].includes(n.type)) {
                     <label class="aut-field">
-                      <span class="ces-field__label">Se falhar por instabilidade, tentar de novo</span>
-                      <select class="p-inputtext ces-prime-control aut-select" (change)="mudarRetry(n, { policy: $any($event.target).value })">
+                      <span class="geo-field__label">Se falhar por instabilidade, tentar de novo</span>
+                      <select class="p-inputtext geo-prime-control aut-select" (change)="mudarRetry(n, { policy: $any($event.target).value })">
                         @for (o of politicas; track o[0]) { <option [value]="o[0]" [selected]="retry(n).policy === o[0]">{{ o[1] }}</option> }
                       </select>
                     </label>
                     @if (retry(n).policy !== 'none') {
                       <div class="aut-grid2">
-                        <label class="aut-field"><span class="ces-field__label">Vezes</span>
-                          <input class="p-inputtext ces-prime-control" type="number" min="1" max="10" [value]="retry(n).count" (input)="mudarRetry(n, { count: +$any($event.target).value || 1 })" /></label>
-                        <label class="aut-field"><span class="ces-field__label">Intervalo (s)</span>
-                          <input class="p-inputtext ces-prime-control" type="number" min="1" max="3600" [value]="retry(n).interval_seconds" (input)="mudarRetry(n, { interval_seconds: +$any($event.target).value || 30 })" /></label>
+                        <label class="aut-field"><span class="geo-field__label">Vezes</span>
+                          <input class="p-inputtext geo-prime-control" type="number" min="1" max="10" [value]="retry(n).count" (input)="mudarRetry(n, { count: +$any($event.target).value || 1 })" /></label>
+                        <label class="aut-field"><span class="geo-field__label">Intervalo (s)</span>
+                          <input class="p-inputtext geo-prime-control" type="number" min="1" max="3600" [value]="retry(n).interval_seconds" (input)="mudarRetry(n, { interval_seconds: +$any($event.target).value || 30 })" /></label>
                       </div>
                     }
                     <label class="aut-field">
-                      <span class="ces-field__label">Tempo limite (segundos)</span>
-                      <input class="p-inputtext ces-prime-control" type="number" min="1" [value]="n.timeout_seconds ?? ''" placeholder="Padrão do passo"
+                      <span class="geo-field__label">Tempo limite (segundos)</span>
+                      <input class="p-inputtext geo-prime-control" type="number" min="1" [value]="n.timeout_seconds ?? ''" placeholder="Padrão do passo"
                              (input)="mudarNo({ timeout_seconds: $any($event.target).value ? +$any($event.target).value : null })" />
                     </label>
                   }
@@ -181,7 +181,7 @@ export class PainelConfigComponent {
   protected readonly params = computed(() => (this.ehGatilho() ? this.definicao().trigger.params : this.no()?.params ?? {}));
   protected readonly proprios = computed(() => this.problemas().filter((p) => (p.noId ?? '') === this.selecionado()));
   protected readonly soltos = computed(() => (this.aba() === 'params' ? this.proprios().filter((p) => !p.param) : this.proprios()));
-  protected readonly abasDs = computed<CesTabItem[]>(() => this.abas().map(([value, label]) => ({ value, label })));
+  protected readonly abasDs = computed<GeoTabItem[]>(() => this.abas().map(([value, label]) => ({ value, label })));
   protected readonly abas = computed<[Aba, string][]>(() =>
     this.ehGatilho() ? [['params', 'Parâmetros'], ['saidas', 'Dados gerados']] : [['params', 'Parâmetros'], ['config', 'Configurações'], ['saidas', 'Dados gerados']]);
 
@@ -247,15 +247,15 @@ export class PainelConfigComponent {
 @Component({
   selector: 'aut-painel-adicionar',
   standalone: true,
-  imports: [CesIconButtonComponent],
+  imports: [GeoIconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <aside class="aut aut-add" [attr.aria-label]="modo() === 'gatilho' ? 'Escolher gatilho' : 'Adicionar ação'">
       <header class="aut-panel-head">
         <span class="aut-panel-title" style="flex:1">{{ modo() === 'gatilho' ? 'Quando a automação começa?' : 'Adicionar ação' }}</span>
-        <ces-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
       </header>
-      <input #q class="p-inputtext ces-prime-control" placeholder="Buscar (ex.: e-mail, desconto, condição)" (input)="termo.set(q.value)" aria-label="Buscar" />
+      <input #q class="p-inputtext geo-prime-control" placeholder="Buscar (ex.: e-mail, desconto, condição)" (input)="termo.set(q.value)" aria-label="Buscar" />
       @if (modo() === 'acao') { <p class="aut-muted" style="margin:0">Clique para adicionar ou arraste até um + no canvas.</p> }
       <div class="aut-add-list">
         @for (g of grupos(); track g.chave) {
@@ -305,7 +305,7 @@ export class PainelAdicionarComponent {
   });
 
   protected arrastar(e: DragEvent, n: NoEspec): void {
-    e.dataTransfer?.setData('application/ces-automacao', `novo:${n.tipo}`);
+    e.dataTransfer?.setData('application/geo-automacao', `novo:${n.tipo}`);
     if (e.dataTransfer) e.dataTransfer.effectAllowed = 'copy';
     this.arrastando.emit(true);
   }
@@ -322,14 +322,14 @@ interface Mensagem {
 @Component({
   selector: 'aut-painel-pedir',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesTextareaComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoTextareaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <aside class="aut-panel" data-group="ai" aria-label="Pedir à Bússola">
       <header class="aut-panel-head">
         <span class="aut-node-icon"><i class="pi pi-compass" aria-hidden="true"></i></span>
         <span class="aut-panel-title" style="flex:1">Pedir à Bússola</span>
-        <ces-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
       </header>
       <div class="aut-panel-body">
         @if (!mensagens().length) {
@@ -354,9 +354,9 @@ interface Mensagem {
         </div>
       </div>
       <form class="aut-composer" (submit)="$event.preventDefault(); enviar()">
-        <ces-textarea label="O que mudar" [labelVisible]="false" [rows]="3" placeholder="Ex.: se a base for Petrolina, avise também a Ana"
-                      [value]="pedido()" (valueChange)="pedido.set($event)" (keydown.control.enter)="enviar()"></ces-textarea>
-        <ces-button label="Pedir" variant="primary" size="sm" type="submit" [disabled]="ocupado() || !pedido().trim()"></ces-button>
+        <geo-textarea label="O que mudar" [labelVisible]="false" [rows]="3" placeholder="Ex.: se a base for Petrolina, avise também a Ana"
+                      [value]="pedido()" (valueChange)="pedido.set($event)" (keydown.control.enter)="enviar()"></geo-textarea>
+        <geo-button label="Pedir" variant="primary" size="sm" type="submit" [disabled]="ocupado() || !pedido().trim()"></geo-button>
       </form>
     </aside>
   `
@@ -400,24 +400,24 @@ export class PainelPedirComponent {
 @Component({
   selector: 'aut-painel-configuracoes',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesTextareaComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoTextareaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <aside class="aut-panel" aria-label="Configurações da automação">
       <header class="aut-panel-head">
         <span class="aut-panel-title" style="flex:1">Configurações</span>
-        <ces-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-times" label="Fechar" variant="ghost" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
       </header>
       <div class="aut-panel-body">
         <div class="aut-section">
           <label class="aut-field">
-            <span class="ces-field__label">Tipo</span>
-            <select class="p-inputtext ces-prime-control aut-select" (change)="mudouTipo.emit($any($event.target).value)">
+            <span class="geo-field__label">Tipo</span>
+            <select class="p-inputtext geo-prime-control aut-select" (change)="mudouTipo.emit($any($event.target).value)">
               @for (t of catalogo().tipos; track t.valor) { <option [value]="t.valor" [selected]="t.valor === tipo()">{{ t.rotulo }}</option> }
             </select>
             <span class="aut-field-help">{{ descricaoTipo() }}</span>
           </label>
-          <ces-textarea label="Descrição" [rows]="2" [value]="descricao()" (valueChange)="mudouDescricao.emit($event)"></ces-textarea>
+          <geo-textarea label="Descrição" [rows]="2" [value]="descricao()" (valueChange)="mudouDescricao.emit($event)"></geo-textarea>
         </div>
         <div class="aut-section">
           <span class="aut-section-title">Valores guardados (variáveis)</span>
@@ -425,30 +425,30 @@ export class PainelPedirComponent {
           @for (v of definicao().variables; track $index; let i = $index) {
             <div class="aut-row">
               <div class="aut-row-fields">
-                <input class="p-inputtext ces-prime-control aut-row-cell" [value]="v.name" placeholder="nome_sem_espaco" aria-label="Nome"
+                <input class="p-inputtext geo-prime-control aut-row-cell" [value]="v.name" placeholder="nome_sem_espaco" aria-label="Nome"
                        (input)="mudarVar(i, { name: $any($event.target).value })" />
-                <select class="p-inputtext ces-prime-control aut-select aut-row-cell" aria-label="Tipo" (change)="mudarVar(i, { type: $any($event.target).value })">
+                <select class="p-inputtext geo-prime-control aut-select aut-row-cell" aria-label="Tipo" (change)="mudarVar(i, { type: $any($event.target).value })">
                   @for (t of tiposVar; track t[0]) { <option [value]="t[0]" [selected]="v.type === t[0]">{{ t[1] }}</option> }
                 </select>
-                <input class="p-inputtext ces-prime-control aut-row-wide" [value]="texto(v.value)" placeholder="Valor inicial" aria-label="Valor inicial"
+                <input class="p-inputtext geo-prime-control aut-row-wide" [value]="texto(v.value)" placeholder="Valor inicial" aria-label="Valor inicial"
                        (input)="mudarVar(i, { value: $any($event.target).value })" />
-                <input class="p-inputtext ces-prime-control aut-row-wide" [value]="v.description ?? ''" placeholder="Para que serve" aria-label="Descrição"
+                <input class="p-inputtext geo-prime-control aut-row-wide" [value]="v.description ?? ''" placeholder="Para que serve" aria-label="Descrição"
                        (input)="mudarVar(i, { description: $any($event.target).value })" />
               </div>
-              <ces-icon-button icon="pi pi-trash" label="Remover variável" variant="ghost" size="icon-sm" (pressed)="removerVar(i)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-trash" label="Remover variável" variant="ghost" size="icon-sm" (pressed)="removerVar(i)"></geo-icon-button>
             </div>
           }
-          <div><ces-button icon="pi pi-plus" label="Valor guardado" variant="secondary" size="sm" (pressed)="novaVar()"></ces-button></div>
+          <div><geo-button icon="pi pi-plus" label="Valor guardado" variant="secondary" size="sm" (pressed)="novaVar()"></geo-button></div>
         </div>
         <div class="aut-section">
           <label class="aut-field">
-            <span class="ces-field__label">Avisar por e-mail quando falhar</span>
-            <input class="p-inputtext ces-prime-control" [value]="definicao().settings.notify_on_failure.join(', ')" placeholder="ti@exemplo.com.br"
+            <span class="geo-field__label">Avisar por e-mail quando falhar</span>
+            <input class="p-inputtext geo-prime-control" [value]="definicao().settings.notify_on_failure.join(', ')" placeholder="ti@exemplo.com.br"
                    (change)="mudarAviso($any($event.target).value)" />
           </label>
           <label class="aut-field">
-            <span class="ces-field__label">Tempo limite da execução (horas)</span>
-            <input class="p-inputtext ces-prime-control" type="number" min="1" max="720" [value]="definicao().settings.timeout_hours"
+            <span class="geo-field__label">Tempo limite da execução (horas)</span>
+            <input class="p-inputtext geo-prime-control" type="number" min="1" max="720" [value]="definicao().settings.timeout_hours"
                    (input)="mudouDefinicao.emit({ ...definicao(), settings: { ...definicao().settings, timeout_hours: +$any($event.target).value || 168 } })" />
             <span class="aut-field-help">Esperas e aprovações contam neste tempo.</span>
           </label>

@@ -3,20 +3,20 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormSectionComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormSectionComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   Fechamento,
   FechamentoObra,
@@ -43,59 +43,59 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormSectionComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormSectionComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
+    GeoTextareaComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page">
-      <ces-page-header title="Fechamento de obra" icon="pi pi-file-check"
+    <div class="geo-page">
+      <geo-page-header title="Fechamento de obra" icon="pi pi-file-check"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Medições' }, { label: 'Fechamento de obra' }]"
         description="Serviços e materiais lançados × concluídos com o valor executado, kits e medições geradas de uma ou várias obras."
         helpLabel="Ajuda sobre o fechamento" (help)="ajuda.show()">
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-form-section title="Obras" icon="pi pi-building" description="Cole a coluna de códigos do Excel, um por linha, ou separe por vírgula.">
-        <ces-textarea label="Códigos das obras" [labelVisible]="false" [rows]="4" [(value)]="codigos" placeholder="Ex.: 7000001&#10;7100002"
+      <geo-form-section title="Obras" icon="pi pi-building" description="Cole a coluna de códigos do Excel, um por linha, ou separe por vírgula.">
+        <geo-textarea label="Códigos das obras" [labelVisible]="false" [rows]="4" [(value)]="codigos" placeholder="Ex.: 7000001&#10;7100002"
           [description]="quantidade() ? quantidade() + (quantidade() === 1 ? ' código' : ' códigos') + (quantidade() > limite ? ' — o limite é ' + limite + ' por vez' : '') : undefined"
-          [error]="quantidade() > limite ? 'Gere o fechamento de até ' + limite + ' obras por vez.' : undefined"></ces-textarea>
-        <div class="ces-actions-row fechamento__acoes">
-          <ces-button variant="outline" icon="pi pi-file-excel" label="Exportar XLSX" [loading]="exportando()"
-            [disabled]="!quantidade() || quantidade() > limite" (pressed)="exportar()"></ces-button>
-          <ces-button icon="pi pi-search" label="Gerar fechamento" [loading]="gerando()" [disabled]="!quantidade() || quantidade() > limite" (pressed)="gerar()"></ces-button>
+          [error]="quantidade() > limite ? 'Gere o fechamento de até ' + limite + ' obras por vez.' : undefined"></geo-textarea>
+        <div class="geo-actions-row fechamento__acoes">
+          <geo-button variant="outline" icon="pi pi-file-excel" label="Exportar XLSX" [loading]="exportando()"
+            [disabled]="!quantidade() || quantidade() > limite" (pressed)="exportar()"></geo-button>
+          <geo-button icon="pi pi-search" label="Gerar fechamento" [loading]="gerando()" [disabled]="!quantidade() || quantidade() > limite" (pressed)="gerar()"></geo-button>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
       @if (erro(); as mensagem) {
-        <ces-async-state state="error" title="Não foi possível gerar o fechamento" [description]="mensagem"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível gerar o fechamento" [description]="mensagem"></geo-async-state>
       } @else if (resultado(); as r) {
         @if (r.naoEncontrados.length) {
-          <ces-callout tone="warning" [dense]="true" [title]="r.naoEncontrados.length === 1 ? '1 código sem obra' : r.naoEncontrados.length + ' códigos sem obra'">
+          <geo-callout tone="warning" [dense]="true" [title]="r.naoEncontrados.length === 1 ? '1 código sem obra' : r.naoEncontrados.length + ' códigos sem obra'">
             {{ r.naoEncontrados.join(', ') }}
-          </ces-callout>
+          </geo-callout>
         }
         @if (r.obras.length) {
-          <ces-data-table title="Resumo" exportFileName="fechamento-resumo" searchPlaceholder="Obra, título ou município"
+          <geo-data-table title="Resumo" exportFileName="fechamento-resumo" searchPlaceholder="Obra, título ou município"
             rowActionLabel="Ver detalhe" rowActionIcon="pi pi-angle-down" [columns]="colunasResumo" [rows]="r.obras" [rowKey]="chaveObra"
             [rowLabel]="rotuloObra" (rowActivate)="ver($event)">
-            <ng-template cesCell="obra" let-row>
-              <span class="ces-cell-strong">{{ row.numero }}</span>
-              <span class="ces-cell-muted">{{ row.titulo }}</span>
+            <ng-template geoCell="obra" let-row>
+              <span class="geo-cell-strong">{{ row.numero }}</span>
+              <span class="geo-cell-muted">{{ row.titulo }}</span>
             </ng-template>
-            <ng-template cesCell="situacao" let-row>
-              <ces-status [tone]="situacaoDe(row).tom" [icon]="situacaoDe(row).icone">{{ situacaoDe(row).rotulo }}</ces-status>
+            <ng-template geoCell="situacao" let-row>
+              <geo-status [tone]="situacaoDe(row).tom" [icon]="situacaoDe(row).icone">{{ situacaoDe(row).rotulo }}</geo-status>
             </ng-template>
-            <ng-template cesCell="kits" let-row>{{ row.kitsConcluidos }} de {{ row.kitsLancados }}</ng-template>
-          </ces-data-table>
+            <ng-template geoCell="kits" let-row>{{ row.kitsConcluidos }} de {{ row.kitsLancados }}</ng-template>
+          </geo-data-table>
         }
 
         @if (obra(); as o) {
@@ -107,72 +107,72 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
                 <button type="button" (click)="ir(['/obras', o.idObra, 'planejamento'])"><i class="pi pi-map" aria-hidden="true"></i> Planejamento</button>
               </span>
             </header>
-            <div class="ces-kpis">
-              <div class="ces-kpi" [attr.data-tone]="situacao[o.situacao].tom">
-                <span class="ces-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
-                <span class="ces-kpi__body"><span class="ces-kpi__label">Kits concluídos</span>
-                  <span class="ces-kpi__value">{{ o.kitsConcluidos }} de {{ o.kitsLancados }}</span>
-                  <span class="ces-kpi__detail">{{ situacao[o.situacao].rotulo }}</span></span>
+            <div class="geo-kpis">
+              <div class="geo-kpi" [attr.data-tone]="situacao[o.situacao].tom">
+                <span class="geo-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
+                <span class="geo-kpi__body"><span class="geo-kpi__label">Kits concluídos</span>
+                  <span class="geo-kpi__value">{{ o.kitsConcluidos }} de {{ o.kitsLancados }}</span>
+                  <span class="geo-kpi__detail">{{ situacao[o.situacao].rotulo }}</span></span>
               </div>
-              <div class="ces-kpi" data-tone="neutral">
-                <span class="ces-kpi__icon"><i class="pi pi-map" aria-hidden="true"></i></span>
-                <span class="ces-kpi__body"><span class="ces-kpi__label">Planejado</span>
-                  <span class="ces-kpi__value">{{ moeda(o.valorPlanejado) }}</span>
-                  <span class="ces-kpi__detail">Serviços pelo valor de hoje</span></span>
+              <div class="geo-kpi" data-tone="neutral">
+                <span class="geo-kpi__icon"><i class="pi pi-map" aria-hidden="true"></i></span>
+                <span class="geo-kpi__body"><span class="geo-kpi__label">Planejado</span>
+                  <span class="geo-kpi__value">{{ moeda(o.valorPlanejado) }}</span>
+                  <span class="geo-kpi__detail">Serviços pelo valor de hoje</span></span>
               </div>
-              <div class="ces-kpi" data-tone="info">
-                <span class="ces-kpi__icon"><i class="pi pi-check-square" aria-hidden="true"></i></span>
-                <span class="ces-kpi__body"><span class="ces-kpi__label">Executado</span>
-                  <span class="ces-kpi__value">{{ moeda(o.valorExecutado) }}</span>
-                  <span class="ces-kpi__detail">Pelo valor congelado</span></span>
+              <div class="geo-kpi" data-tone="info">
+                <span class="geo-kpi__icon"><i class="pi pi-check-square" aria-hidden="true"></i></span>
+                <span class="geo-kpi__body"><span class="geo-kpi__label">Executado</span>
+                  <span class="geo-kpi__value">{{ moeda(o.valorExecutado) }}</span>
+                  <span class="geo-kpi__detail">Pelo valor congelado</span></span>
               </div>
-              <div class="ces-kpi" [attr.data-tone]="o.valorMedido ? 'success' : 'neutral'">
-                <span class="ces-kpi__icon"><i class="pi pi-calculator" aria-hidden="true"></i></span>
-                <span class="ces-kpi__body"><span class="ces-kpi__label">Já medido</span>
-                  <span class="ces-kpi__value">{{ moeda(o.valorMedido) }}</span>
-                  <span class="ces-kpi__detail">{{ o.medicoesAtivas }} {{ o.medicoesAtivas === 1 ? 'medição ativa' : 'medições ativas' }}</span></span>
+              <div class="geo-kpi" [attr.data-tone]="o.valorMedido ? 'success' : 'neutral'">
+                <span class="geo-kpi__icon"><i class="pi pi-calculator" aria-hidden="true"></i></span>
+                <span class="geo-kpi__body"><span class="geo-kpi__label">Já medido</span>
+                  <span class="geo-kpi__value">{{ moeda(o.valorMedido) }}</span>
+                  <span class="geo-kpi__detail">{{ o.medicoesAtivas }} {{ o.medicoesAtivas === 1 ? 'medição ativa' : 'medições ativas' }}</span></span>
               </div>
             </div>
 
-            <ces-tabs [(value)]="abaObra" [tabs]="abas()" [ariaLabel]="'Detalhe da obra ' + o.numero">
-              <ng-template cesTabPanel="servicos">
-                <ces-data-table caption="Serviços" [columns]="colunasServicos" [rows]="o.servicos" [rowKey]="chaveLinha" [exportFileName]="'fechamento-' + o.numero + '-servicos'"
-                  [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" stateTitle="Nenhum serviço planejado"></ces-data-table>
+            <geo-tabs [(value)]="abaObra" [tabs]="abas()" [ariaLabel]="'Detalhe da obra ' + o.numero">
+              <ng-template geoTabPanel="servicos">
+                <geo-data-table caption="Serviços" [columns]="colunasServicos" [rows]="o.servicos" [rowKey]="chaveLinha" [exportFileName]="'fechamento-' + o.numero + '-servicos'"
+                  [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" stateTitle="Nenhum serviço planejado"></geo-data-table>
               </ng-template>
-              <ng-template cesTabPanel="materiais">
-                <ces-data-table caption="Materiais" [columns]="colunasMateriais" [rows]="o.materiais" [rowKey]="chaveLinha" [exportFileName]="'fechamento-' + o.numero + '-materiais'"
-                  [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" stateTitle="Nenhum material planejado"></ces-data-table>
+              <ng-template geoTabPanel="materiais">
+                <geo-data-table caption="Materiais" [columns]="colunasMateriais" [rows]="o.materiais" [rowKey]="chaveLinha" [exportFileName]="'fechamento-' + o.numero + '-materiais'"
+                  [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" stateTitle="Nenhum material planejado"></geo-data-table>
               </ng-template>
-              <ng-template cesTabPanel="kits">
-                <ces-data-table caption="Kits lançados × concluídos" [columns]="colunasKits" [rows]="o.kits" [rowKey]="chaveKit" [exportFileName]="'fechamento-' + o.numero + '-kits'"
+              <ng-template geoTabPanel="kits">
+                <geo-data-table caption="Kits lançados × concluídos" [columns]="colunasKits" [rows]="o.kits" [rowKey]="chaveKit" [exportFileName]="'fechamento-' + o.numero + '-kits'"
                   [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" stateTitle="Nenhum kit aplicado">
-                  <ng-template cesCell="kit" let-row>
-                    <span class="ces-cell-strong">{{ row.codigoKit }}</span>
-                    <span class="ces-cell-muted">{{ row.descricao }}</span>
+                  <ng-template geoCell="kit" let-row>
+                    <span class="geo-cell-strong">{{ row.codigoKit }}</span>
+                    <span class="geo-cell-muted">{{ row.descricao }}</span>
                   </ng-template>
-                  <ng-template cesCell="concluidos" let-row>
-                    <ces-status [tone]="row.concluidos === row.lancados ? 'success' : row.concluidos ? 'info' : 'neutral'"
-                      [icon]="row.concluidos === row.lancados ? 'pi-check-circle' : 'pi-circle'">{{ row.concluidos }} de {{ row.lancados }}</ces-status>
+                  <ng-template geoCell="concluidos" let-row>
+                    <geo-status [tone]="row.concluidos === row.lancados ? 'success' : row.concluidos ? 'info' : 'neutral'"
+                      [icon]="row.concluidos === row.lancados ? 'pi-check-circle' : 'pi-circle'">{{ row.concluidos }} de {{ row.lancados }}</geo-status>
                   </ng-template>
-                </ces-data-table>
+                </geo-data-table>
               </ng-template>
-              <ng-template cesTabPanel="medicoes">
+              <ng-template geoTabPanel="medicoes">
                 @if (o.medicoes.length) {
-                  <ces-data-table caption="Medições" [columns]="colunasMedicoes" [rows]="o.medicoes" [rowKey]="chaveMedicao" [exportFileName]="'fechamento-' + o.numero + '-medicoes'">
-                    <ng-template cesCell="status" let-row>
-                      <ces-status [tone]="statusDe(row).tom" [icon]="statusDe(row).icone">{{ statusDe(row).rotulo }}</ces-status>
+                  <geo-data-table caption="Medições" [columns]="colunasMedicoes" [rows]="o.medicoes" [rowKey]="chaveMedicao" [exportFileName]="'fechamento-' + o.numero + '-medicoes'">
+                    <ng-template geoCell="status" let-row>
+                      <geo-status [tone]="statusDe(row).tom" [icon]="statusDe(row).icone">{{ statusDe(row).rotulo }}</geo-status>
                     </ng-template>
-                    <ng-template cesCell="gerada" let-row>{{ row.dataCriacao | date: 'dd/MM/yyyy' }} · {{ row.usuarioCriacao }}</ng-template>
-                  </ces-data-table>
+                    <ng-template geoCell="gerada" let-row>{{ row.dataCriacao | date: 'dd/MM/yyyy' }} · {{ row.usuarioCriacao }}</ng-template>
+                  </geo-data-table>
                 } @else {
-                  <ces-callout tone="info" [dense]="true" title="Nenhuma medição gerada">Esta obra ainda não teve medição.</ces-callout>
+                  <geo-callout tone="info" [dense]="true" title="Nenhuma medição gerada">Esta obra ainda não teve medição.</geo-callout>
                 }
               </ng-template>
-            </ces-tabs>
+            </geo-tabs>
           </section>
         }
       } @else if (gerando()) {
-        <ces-async-state state="loading" title="Gerando o fechamento" [compact]="true"></ces-async-state>
+        <geo-async-state state="loading" title="Gerando o fechamento" [compact]="true"></geo-async-state>
       }
     </div>
 
@@ -196,11 +196,11 @@ const OPERACAO = { INSTALAR: 'Instalar', RETIRAR: 'Retirar' } as const;
     .fechamento__obra { margin-top: 1.25rem; display: grid; gap: 1rem; scroll-margin-top: 4rem; }
     .fechamento__obra:focus { outline: none; }
     .fechamento__titulo { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
-    .fechamento__titulo h2 { margin: 0; font-size: var(--ces-font-title, 1.125rem); }
-    .fechamento__titulo h2 span { color: var(--ces-foreground-muted); font-weight: 400; }
+    .fechamento__titulo h2 { margin: 0; font-size: var(--geo-font-title, 1.125rem); }
+    .fechamento__titulo h2 span { color: var(--geo-foreground-muted); font-weight: 400; }
     .fechamento__links { display: inline-flex; gap: 0.75rem; }
-    .fechamento__links button { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0; border: 0; background: transparent; color: var(--ces-brand); font: inherit; cursor: pointer; }
-    .fechamento__links button:focus-visible { outline: 2px solid var(--ces-focus-ring, currentColor); outline-offset: 2px; }
+    .fechamento__links button { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; cursor: pointer; }
+    .fechamento__links button:focus-visible { outline: 2px solid var(--geo-focus-ring, currentColor); outline-offset: 2px; }
   `
 })
 export class FechamentoObraComponent {
@@ -237,7 +237,7 @@ export class FechamentoObraComponent {
     ];
   });
 
-  protected readonly colunasResumo: CesDataTableColumn<FechamentoObra>[] = [
+  protected readonly colunasResumo: GeoDataTableColumn<FechamentoObra>[] = [
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (o) => o.numero, display: (o) => `${o.numero} ${o.titulo}` },
     { key: 'municipio', header: 'Município', value: (o) => o.municipio },
     { key: 'situacao', header: 'Execução', type: 'custom', priority: 1, value: (o) => o.situacao, display: (o) => SITUACAO_EXECUCAO[o.situacao].rotulo },
@@ -247,7 +247,7 @@ export class FechamentoObraComponent {
     { key: 'valorMedido', header: 'Medido', type: 'currency', value: (o) => o.valorMedido },
     { key: 'medicoesAtivas', header: 'Medições', type: 'integer', value: (o) => o.medicoesAtivas }
   ];
-  protected readonly colunasServicos: CesDataTableColumn<LinhaServicoFechamento>[] = [
+  protected readonly colunasServicos: GeoDataTableColumn<LinhaServicoFechamento>[] = [
     { key: 'codigo', header: 'Código', value: (s) => s.codigo },
     { key: 'descricao', header: 'Serviço', priority: 1, value: (s) => s.descricao },
     { key: 'operacao', header: 'Operação', value: (s) => OPERACAO[s.operacao] },
@@ -256,7 +256,7 @@ export class FechamentoObraComponent {
     { key: 'unidade', header: 'Un.', value: (s) => s.unidade },
     { key: 'valorExecutado', header: 'Valor executado', type: 'currency', value: (s) => s.valorExecutado }
   ];
-  protected readonly colunasMateriais: CesDataTableColumn<LinhaMaterialFechamento>[] = [
+  protected readonly colunasMateriais: GeoDataTableColumn<LinhaMaterialFechamento>[] = [
     { key: 'codigo', header: 'Código', value: (m) => m.codigo },
     { key: 'descricao', header: 'Material', priority: 1, value: (m) => m.descricao },
     { key: 'operacao', header: 'Operação', value: (m) => OPERACAO[m.operacao] },
@@ -264,12 +264,12 @@ export class FechamentoObraComponent {
     { key: 'aplicado', header: 'Aplicado/retirado', type: 'number', priority: 1, value: (m) => m.aplicado },
     { key: 'unidade', header: 'Un.', value: (m) => m.unidade }
   ];
-  protected readonly colunasKits: CesDataTableColumn<LinhaKitFechamento>[] = [
+  protected readonly colunasKits: GeoDataTableColumn<LinhaKitFechamento>[] = [
     { key: 'kit', header: 'Kit', type: 'custom', priority: 1, value: (k) => k.codigoKit, display: (k) => `${k.codigoKit ?? ''} ${k.descricao ?? ''}` },
     { key: 'concluidos', header: 'Concluídos', type: 'custom', priority: 1, value: (k) => k.concluidos, display: (k) => `${k.concluidos} de ${k.lancados}` },
     { key: 'locais', header: 'Locais', value: (k) => k.locais.join(', ') }
   ];
-  protected readonly colunasMedicoes: CesDataTableColumn<MedicaoResumo>[] = [
+  protected readonly colunasMedicoes: GeoDataTableColumn<MedicaoResumo>[] = [
     { key: 'numero', header: 'Medição', value: (m) => m.numero, display: (m) => `#${m.numero}` },
     { key: 'tipo', header: 'Tipo', value: (m) => TIPO_MEDICAO[m.tipo] },
     { key: 'competencia', header: 'Competência', value: (m) => m.competencia, display: (m) => rotuloCompetencia(m.competencia) },

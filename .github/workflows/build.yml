@@ -8,11 +8,26 @@ on:
       - 'frontend/**'
       - 'observability/**'
       - '.github/workflows/build.yml'
+      - 'tools/**'
 
 permissions:
   contents: read
 
 jobs:
+  nomenclatura:
+    # O prefixo `ces` (sistema de origem) não volta ao código: use `geo`.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Testes do script de renomeação
+        run: node --test tools/renomear-geo.test.mjs
+      - name: Nenhum identificador ces
+        run: node tools/renomear-geo.mjs --check
+
   docker:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -23,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build application image
-        run: docker build --tag ces-${{ matrix.application }}:ci ./${{ matrix.application }}
+        run: docker build --tag geo-${{ matrix.application }}:ci ./${{ matrix.application }}
 
   observability:
     runs-on: ubuntu-latest
@@ -57,6 +72,6 @@ jobs:
         env:
           ALERT_TRANSPORT: fake
         run: |
-          docker build --tag ces-gatus:ci ./gatus
-          docker build --tag ces-observability-probes:ci ./probes
-          docker build --tag ces-observability-synthetics:ci ./synthetics
+          docker build --tag geo-gatus:ci ./gatus
+          docker build --tag geo-observability-probes:ci ./probes
+          docker build --tag geo-observability-synthetics:ci ./synthetics

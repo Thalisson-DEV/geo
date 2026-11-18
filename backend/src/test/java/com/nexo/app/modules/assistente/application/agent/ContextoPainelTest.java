@@ -56,14 +56,14 @@ class ContextoPainelTest {
 
     @Test
     void contextoSemPainelContinuaCompativelComJsonAntigo() throws Exception {
-        ContextoCes antigo = mapper.readValue("{\"pagina\":\"Obras\",\"filtros\":{\"status\":\"ATRASADA\"}}", ContextoCes.class);
+        ContextoGeo antigo = mapper.readValue("{\"pagina\":\"Obras\",\"filtros\":{\"status\":\"ATRASADA\"}}", ContextoGeo.class);
         assertThat(antigo.painel()).isNull();
         assertThat(antigo.dePainel()).isFalse();
         assertThat(antigo.vazio()).isFalse();
 
-        ContextoCes novo = new ContextoCes("Solicitações", "/almoxarifado/dashboard/solicitacoes", "DASHBOARD",
+        ContextoGeo novo = new ContextoGeo("Solicitações", "/almoxarifado/dashboard/solicitacoes", "DASHBOARD",
                 "almoxarifado.solicitacoes", "Solicitações", Map.of("Base", "NORTE"), painel("NORTE"));
-        ContextoCes lido = mapper.readValue(mapper.writeValueAsString(novo), ContextoCes.class);
+        ContextoGeo lido = mapper.readValue(mapper.writeValueAsString(novo), ContextoGeo.class);
         assertThat(lido.dePainel()).isTrue();
         assertThat(lido.painel().metricas().getFirst().comparacao().variacaoPercentual()).isEqualTo(18.2);
         assertThat(lido.painel().filtros()).hasSize(2);
@@ -72,17 +72,17 @@ class ContextoPainelTest {
     @Test
     void painelSemIdentidadeEhDescartado() {
         ContextoPainel vazio = new ContextoPainel(null, " ", null, null, null, null, null, null, null, null, null, null);
-        assertThat(new ContextoCes(null, null, null, null, null, null, vazio).vazio()).isTrue();
+        assertThat(new ContextoGeo(null, null, null, null, null, null, vazio).vazio()).isTrue();
     }
 
     @Test
     void recorteMarcaPerguntaApenasQuandoHaPainel() {
-        ContextoCes norte = new ContextoCes(null, null, null, null, null, null, painel("NORTE"));
+        ContextoGeo norte = new ContextoGeo(null, null, null, null, null, null, painel("NORTE"));
         assertThat(ContextAssembler.comRecorte("Qual material mais contribuiu?", norte, "nesta pergunta"))
                 .startsWith("[Recorte do painel nesta pergunta:")
                 .contains("Base operacional: NORTE")
                 .endsWith("Qual material mais contribuiu?");
-        assertThat(ContextAssembler.comRecorte("Oi", new ContextoCes("Obras", null, null, null, null, null), "agora"))
+        assertThat(ContextAssembler.comRecorte("Oi", new ContextoGeo("Obras", null, null, null, null, null), "agora"))
                 .isEqualTo("Oi");
     }
 

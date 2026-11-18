@@ -14,16 +14,16 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDialogShellComponent,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDialogShellComponent,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTone,
   NotificationService,
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   AcaoPermitidaSolicitacao,
   ItemSolicitacaoTecnicaResponse,
@@ -64,17 +64,17 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
     CommonModule,
     FormsModule,
     TooltipModule,
-    CesDialogShellComponent,
-    CesButtonComponent,
-    CesStatusComponent,
-    CesTabsComponent,
-    CesTabPanelDirective,
-    CesCalloutComponent,
+    GeoDialogShellComponent,
+    GeoButtonComponent,
+    GeoStatusComponent,
+    GeoTabsComponent,
+    GeoTabPanelDirective,
+    GeoCalloutComponent,
     AnalisarComCopilotoComponent,
     SolicitacaoPendenciaModalComponent,
   ],
   template: `
-    <ces-dialog-shell
+    <geo-dialog-shell
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       [title]="dialogTitle()"
@@ -83,38 +83,38 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
       (closed)="onClose()"
     >
       @if (loading()) {
-        <div class="flex flex-col items-center justify-center py-16 gap-3 text-[var(--ces-foreground-muted)]">
-          <i class="pi pi-spin pi-spinner text-3xl text-[var(--ces-brand)]"></i>
+        <div class="flex flex-col items-center justify-center py-16 gap-3 text-[var(--geo-foreground-muted)]">
+          <i class="pi pi-spin pi-spinner text-3xl text-[var(--geo-brand)]"></i>
           <span class="text-xs font-medium">Carregando dados da solicitação técnica...</span>
         </div>
       } @else if (detalhe(); as det) {
-        <div class="flex flex-col gap-4 text-[var(--ces-foreground)]">
+        <div class="flex flex-col gap-4 text-[var(--geo-foreground)]">
           <!-- CABEÇALHO OPERACIONAL: ROTA, TIPO TÉCNICO, STATUS E ASSISTENTE IA -->
-          <div class="flex items-center justify-between gap-3 pb-3 border-b border-[var(--ces-border)] flex-wrap">
+          <div class="flex items-center justify-between gap-3 pb-3 border-b border-[var(--geo-border)] flex-wrap">
             <div class="flex items-center gap-2 min-w-0 flex-wrap">
-              <span class="text-xs font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">
+              <span class="text-xs font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">
                 {{ tipoEhAdicao() ? 'Movimentação (Saque):' : 'Movimentação (Devolução):' }}
               </span>
 
-              <span class="text-xs font-bold text-[var(--ces-foreground)] truncate" [title]="rotaOrigem()">
+              <span class="text-xs font-bold text-[var(--geo-foreground)] truncate" [title]="rotaOrigem()">
                 {{ rotaOrigem() }}
               </span>
-              <i class="pi pi-arrow-right text-[10px] text-[var(--ces-brand)] shrink-0" aria-hidden="true"></i>
-              <span class="text-xs font-bold text-[var(--ces-foreground)] truncate" [title]="rotaDestino()">
+              <i class="pi pi-arrow-right text-[10px] text-[var(--geo-brand)] shrink-0" aria-hidden="true"></i>
+              <span class="text-xs font-bold text-[var(--geo-foreground)] truncate" [title]="rotaDestino()">
                 {{ rotaDestino() }}
               </span>
 
               @if (det.tecnico?.tipoTecnico) {
-                <ces-status [tone]="tipoEhAdicao() ? 'success' : 'danger'" [icon]="tipoTecnicoIcon(det.tecnico?.tipoTecnico)">
+                <geo-status [tone]="tipoEhAdicao() ? 'success' : 'danger'" [icon]="tipoTecnicoIcon(det.tecnico?.tipoTecnico)">
                   {{ tipoTecnicoDescricaoCompleta(det.tecnico?.tipoTecnico) }}
-                </ces-status>
+                </geo-status>
               }
 
-              <span class="text-xs font-medium text-[var(--ces-foreground-muted)]">
+              <span class="text-xs font-medium text-[var(--geo-foreground-muted)]">
                 · {{ obraDisplay() }}
               </span>
               @if (det.tecnico?.ocorrencia?.codigo; as oc) {
-                <span class="text-xs font-medium text-[var(--ces-foreground-muted)]">
+                <span class="text-xs font-medium text-[var(--geo-foreground-muted)]">
                   · OC {{ oc }}
                 </span>
               }
@@ -123,18 +123,18 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             <!-- Status Operacional e Bússola -->
             <div class="flex items-center gap-2 shrink-0 flex-wrap">
               @if (det.tecnico?.atrasada) {
-                <ces-status tone="danger" icon="pi pi-clock">Atrasada</ces-status>
+                <geo-status tone="danger" icon="pi pi-clock">Atrasada</geo-status>
               }
               @if (det.possuiPendencia) {
-                <ces-status tone="warning" icon="pi pi-exclamation-triangle">Com Pendência</ces-status>
+                <geo-status tone="warning" icon="pi pi-exclamation-triangle">Com Pendência</geo-status>
               }
-              <ces-status [tone]="statusTone(det.status)">
+              <geo-status [tone]="statusTone(det.status)">
                 {{ statusLabel(det.status) }}
-              </ces-status>
+              </geo-status>
               @if (det.statusSeparacao) {
-                <ces-status [tone]="separacaoTone(det.statusSeparacao)">
+                <geo-status [tone]="separacaoTone(det.statusSeparacao)">
                   {{ separacaoLabel(det.statusSeparacao) }}
-                </ces-status>
+                </geo-status>
               }
 
               <app-analisar-com-copiloto
@@ -152,77 +152,77 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
 
           <!-- BALANÇO OPERACIONAL EXECUTIVO (4 CARDS KPI) -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface)] shadow-2xs">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">Itens Distintos</span>
-              <span class="text-xl font-bold text-[var(--ces-foreground)] tabular-nums">{{ totalItens() }}</span>
-              <span class="text-[10px] text-[var(--ces-foreground-muted)]">
+            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface)] shadow-2xs">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">Itens Distintos</span>
+              <span class="text-xl font-bold text-[var(--geo-foreground)] tabular-nums">{{ totalItens() }}</span>
+              <span class="text-[10px] text-[var(--geo-foreground-muted)]">
                 {{ totalItens() === 1 ? '1 material técnico' : totalItens() + ' materiais técnicos' }}
               </span>
             </div>
 
-            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface)] shadow-2xs">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">Volume Solicitado</span>
-              <span class="text-xl font-bold text-[var(--ces-foreground)] tabular-nums">{{ totalSolicitado() | number: '1.0-3' }}</span>
-              <span class="text-[10px] text-[var(--ces-foreground-muted)]">Demanda técnica total</span>
+            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface)] shadow-2xs">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">Volume Solicitado</span>
+              <span class="text-xl font-bold text-[var(--geo-foreground)] tabular-nums">{{ totalSolicitado() | number: '1.0-3' }}</span>
+              <span class="text-[10px] text-[var(--geo-foreground-muted)]">Demanda técnica total</span>
             </div>
 
-            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface)] shadow-2xs">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">
+            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface)] shadow-2xs">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">
                 {{ tipoEhAdicao() ? 'Total Entregue' : 'Total Devolvido' }}
               </span>
-              <span class="text-xl font-bold text-[var(--ces-success)] tabular-nums">{{ totalAtendido() | number: '1.0-3' }}</span>
-              <span class="text-[10px] text-[var(--ces-foreground-muted)]">{{ percentualAtendido() }}% atendido</span>
+              <span class="text-xl font-bold text-[var(--geo-success)] tabular-nums">{{ totalAtendido() | number: '1.0-3' }}</span>
+              <span class="text-[10px] text-[var(--geo-foreground-muted)]">{{ percentualAtendido() }}% atendido</span>
             </div>
 
-            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface)] shadow-2xs">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">Saldo Pendente</span>
+            <div class="flex flex-col gap-1 p-3 rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface)] shadow-2xs">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">Saldo Pendente</span>
               <span
                 class="text-xl font-bold tabular-nums"
-                [class.text-[var(--ces-warning)]]="totalPendente() > 0"
-                [class.text-[var(--ces-foreground-muted)]]="totalPendente() === 0"
+                [class.text-[var(--geo-warning)]]="totalPendente() > 0"
+                [class.text-[var(--geo-foreground-muted)]]="totalPendente() === 0"
               >
                 {{ totalPendente() | number: '1.0-3' }}
               </span>
-              <span class="text-[10px] text-[var(--ces-foreground-muted)]">
+              <span class="text-[10px] text-[var(--geo-foreground-muted)]">
                 {{ totalPendente() === 0 ? 'Totalmente atendido' : (tipoEhAdicao() ? 'Pendente de entrega' : 'Pendente de devolução') }}
               </span>
             </div>
           </div>
 
           <!-- DADOS GERAIS ESTRUTURADOS (3 COLUNAS NÃO-REDUNDANTES) -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3.5 rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface-subtle)]">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 p-3.5 rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface-subtle)]">
             <!-- Coluna 1: Cronograma & Prazos -->
             <div class="flex flex-col gap-2">
-              <div class="flex items-center gap-1.5 text-xs font-bold text-[var(--ces-foreground)] uppercase tracking-wider border-b border-[var(--ces-border)] pb-1.5">
-                <i class="pi pi-calendar text-[var(--ces-brand)] text-xs"></i>
+              <div class="flex items-center gap-1.5 text-xs font-bold text-[var(--geo-foreground)] uppercase tracking-wider border-b border-[var(--geo-border)] pb-1.5">
+                <i class="pi pi-calendar text-[var(--geo-brand)] text-xs"></i>
                 <span>Cronograma & Prazos</span>
               </div>
               <div class="flex flex-col gap-1.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Solicitação:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)]">
+                  <span class="text-[var(--geo-foreground-muted)]">Solicitação:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)]">
                     {{ (det.dataSolicitacao | date: 'dd/MM/yyyy HH:mm') || '—' }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Saque Previsto:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)]" [class.text-[var(--ces-danger)]]="det.tecnico?.atrasada">
+                  <span class="text-[var(--geo-foreground-muted)]">Saque Previsto:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)]" [class.text-[var(--geo-danger)]]="det.tecnico?.atrasada">
                     {{ (det.tecnico?.dataPrevista | date: 'dd/MM/yyyy') || 'Aguardando agendamento' }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Situação do Prazo:</span>
+                  <span class="text-[var(--geo-foreground-muted)]">Situação do Prazo:</span>
                   @if (det.tecnico?.atrasada) {
-                    <ces-status tone="danger" size="sm">Atrasada</ces-status>
+                    <geo-status tone="danger" size="sm">Atrasada</geo-status>
                   } @else if (det.tecnico?.dataPrevista) {
-                    <span class="text-[var(--ces-success)] font-medium">No Prazo</span>
+                    <span class="text-[var(--geo-success)] font-medium">No Prazo</span>
                   } @else {
-                    <span class="text-[var(--ces-foreground-muted)] italic">A definir</span>
+                    <span class="text-[var(--geo-foreground-muted)] italic">A definir</span>
                   }
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Separação:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)]">
+                  <span class="text-[var(--geo-foreground-muted)]">Separação:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)]">
                     {{ separacaoLabel(det.statusSeparacao) }}
                   </span>
                 </div>
@@ -230,40 +230,40 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             </div>
 
             <!-- Coluna 2: Equipe & Envolvidos -->
-            <div class="flex flex-col gap-2 md:border-x md:border-[var(--ces-border)] md:px-3">
-              <div class="flex items-center gap-1.5 text-xs font-bold text-[var(--ces-foreground)] uppercase tracking-wider border-b border-[var(--ces-border)] pb-1.5">
-                <i class="pi pi-users text-[var(--ces-brand)] text-xs"></i>
+            <div class="flex flex-col gap-2 md:border-x md:border-[var(--geo-border)] md:px-3">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-[var(--geo-foreground)] uppercase tracking-wider border-b border-[var(--geo-border)] pb-1.5">
+                <i class="pi pi-users text-[var(--geo-brand)] text-xs"></i>
                 <span>Equipe & Envolvidos</span>
               </div>
               <div class="flex flex-col gap-1.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Equipe de Campo:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)] truncate" [title]="equipeNome()">
+                  <span class="text-[var(--geo-foreground-muted)]">Equipe de Campo:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)] truncate" [title]="equipeNome()">
                     {{ equipeNome() }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Resp. Saque:</span>
+                  <span class="text-[var(--geo-foreground-muted)]">Resp. Saque:</span>
                   <div class="flex items-center gap-1 min-w-0">
-                    <span class="font-semibold text-[var(--ces-foreground)] truncate" [title]="responsavelSaqueNome()">
+                    <span class="font-semibold text-[var(--geo-foreground)] truncate" [title]="responsavelSaqueNome()">
                       {{ responsavelSaqueNome() }}
                     </span>
                     @if (det.tecnico?.saqueForaEquipe) {
-                      <span class="text-[9px] px-1 py-0.2 rounded bg-[var(--ces-surface)] text-[var(--ces-foreground-muted)] border border-[var(--ces-border)] shrink-0">
+                      <span class="text-[9px] px-1 py-0.2 rounded bg-[var(--geo-surface)] text-[var(--geo-foreground-muted)] border border-[var(--geo-border)] shrink-0">
                         Fora
                       </span>
                     }
                   </div>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Reserva SAP:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)] truncate">
+                  <span class="text-[var(--geo-foreground-muted)]">Reserva SAP:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)] truncate">
                     {{ det.tecnico?.reserva?.numero ? ('#' + det.tecnico?.reserva?.numero) : 'Sem reserva' }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Requisitante:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)] truncate" [title]="requisitanteNome()">
+                  <span class="text-[var(--geo-foreground-muted)]">Requisitante:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)] truncate" [title]="requisitanteNome()">
                     {{ requisitanteNome() }}
                   </span>
                 </div>
@@ -272,32 +272,32 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
 
             <!-- Coluna 3: Obra & Almoxarifado -->
             <div class="flex flex-col gap-2">
-              <div class="flex items-center gap-1.5 text-xs font-bold text-[var(--ces-foreground)] uppercase tracking-wider border-b border-[var(--ces-border)] pb-1.5">
-                <i class="pi pi-building text-[var(--ces-brand)] text-xs"></i>
+              <div class="flex items-center gap-1.5 text-xs font-bold text-[var(--geo-foreground)] uppercase tracking-wider border-b border-[var(--geo-border)] pb-1.5">
+                <i class="pi pi-building text-[var(--geo-brand)] text-xs"></i>
                 <span>Obra & Estoque</span>
               </div>
               <div class="flex flex-col gap-1.5 text-xs">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Obra:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)] truncate" [title]="obraDisplay()">
+                  <span class="text-[var(--geo-foreground-muted)]">Obra:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)] truncate" [title]="obraDisplay()">
                     {{ obraDisplay() }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Tipo de Obra:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)]">
+                  <span class="text-[var(--geo-foreground-muted)]">Tipo de Obra:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)]">
                     {{ det.tecnico?.tipoObra || '—' }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Estoque Almox.:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)] truncate" [title]="almoxarifadoNome()">
+                  <span class="text-[var(--geo-foreground-muted)]">Estoque Almox.:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)] truncate" [title]="almoxarifadoNome()">
                     {{ almoxarifadoNome() }}
                   </span>
                 </div>
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[var(--ces-foreground-muted)]">Etapa Operacional:</span>
-                  <span class="font-semibold text-[var(--ces-foreground)]">
+                  <span class="text-[var(--geo-foreground-muted)]">Etapa Operacional:</span>
+                  <span class="font-semibold text-[var(--geo-foreground)]">
                     {{ etapaLabel(det.etapaOperacional || det.tecnico?.etapaOperacional) }}
                   </span>
                 </div>
@@ -307,26 +307,26 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
 
           <!-- OBSERVAÇÕES OPERACIONAIS (SE HOUVER) -->
           @if (det.tecnico?.observacao; as obs) {
-            <div class="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface-subtle)] text-xs">
-              <i class="pi pi-info-circle text-[var(--ces-brand)] text-sm shrink-0 mt-0.5" aria-hidden="true"></i>
+            <div class="flex items-start gap-2.5 p-3 rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface-subtle)] text-xs">
+              <i class="pi pi-info-circle text-[var(--geo-brand)] text-sm shrink-0 mt-0.5" aria-hidden="true"></i>
               <div class="flex flex-col gap-0.5 min-w-0">
-                <span class="text-[10px] font-bold uppercase tracking-wide text-[var(--ces-foreground-muted)]">
+                <span class="text-[10px] font-bold uppercase tracking-wide text-[var(--geo-foreground-muted)]">
                   Observações Operacionais do Almoxarifado
                 </span>
-                <p class="text-[var(--ces-foreground)] whitespace-pre-wrap leading-relaxed">{{ obs }}</p>
+                <p class="text-[var(--geo-foreground)] whitespace-pre-wrap leading-relaxed">{{ obs }}</p>
               </div>
             </div>
           }
 
           <!-- ALERTA DE PENDÊNCIA GERAL DA SOLICITAÇÃO (SE HOUVER) -->
           @if (det.motivoPendencia) {
-            <ces-callout tone="warning" title="Pendência Registrada na Solicitação" icon="pi pi-exclamation-triangle">
+            <geo-callout tone="warning" title="Pendência Registrada na Solicitação" icon="pi pi-exclamation-triangle">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mt-1">
                 <div class="text-xs">
                   <span class="font-semibold">{{ det.motivoPendencia.nome }}:</span>
                   <span class="ml-1 italic">{{ det.justificativaPendencia || 'Sem justificativa informada.' }}</span>
                 </div>
-                <ces-button
+                <geo-button
                   label="Resolver Pendência Geral"
                   icon="pi pi-check"
                   variant="ghost"
@@ -335,32 +335,32 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                   (pressed)="resolverPendenciaGeral()"
                 />
               </div>
-            </ces-callout>
+            </geo-callout>
           }
 
           <!-- ALERTA DE MOTIVO DE REJEIÇÃO (SE REJEITADA) -->
           @if (det.status === 'REJEITADO' && det.motivoRejeicao) {
-            <ces-callout tone="danger" title="Solicitação Rejeitada" icon="pi pi-times-circle">
+            <geo-callout tone="danger" title="Solicitação Rejeitada" icon="pi pi-times-circle">
               <div class="text-xs mt-1">
                 <span class="font-semibold">{{ det.motivoRejeicao.nome }}:</span>
                 <span class="ml-1">{{ det.justificativaRejeicao || 'Sem justificativa registrada.' }}</span>
               </div>
-            </ces-callout>
+            </geo-callout>
           }
 
           <!-- NAVEGAÇÃO POR ABAS -->
-          <ces-tabs [(value)]="abaAtiva" [tabs]="abas()">
+          <geo-tabs [(value)]="abaAtiva" [tabs]="abas()">
             <!-- ABA 1: MATERIAIS & QUANTIDADES -->
-            <ng-template cesTabPanel="geral">
+            <ng-template geoTabPanel="geral">
               <div class="flex flex-col gap-3 pt-2">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
-                  <span class="text-xs font-bold uppercase tracking-wider text-[var(--ces-foreground)] flex items-center gap-1.5">
-                    <i class="pi pi-box text-[var(--ces-brand)]"></i>
+                  <span class="text-xs font-bold uppercase tracking-wider text-[var(--geo-foreground)] flex items-center gap-1.5">
+                    <i class="pi pi-box text-[var(--geo-brand)]"></i>
                     Materiais da Solicitação ({{ totalItens() }})
                   </span>
 
                   @if (podeRegistrarPendencia() && !det.motivoPendencia) {
-                    <ces-button
+                    <geo-button
                       label="Apontar Pendência Geral"
                       icon="pi pi-flag"
                       variant="ghost"
@@ -373,11 +373,11 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                 </div>
 
                 <!-- TABELA LIMPA DE MATERIAIS (PADRÃO GEO, TOTALMENTE COMPATÍVEL COM TEMA ESCURO) -->
-                <div class="rounded-xl border border-[var(--ces-border)] overflow-hidden shadow-2xs bg-[var(--ces-surface)]">
+                <div class="rounded-xl border border-[var(--geo-border)] overflow-hidden shadow-2xs bg-[var(--geo-surface)]">
                   <div class="overflow-x-auto max-h-[320px]">
                     <table class="w-full text-left text-xs border-collapse">
-                      <thead class="sticky top-0 z-10 bg-[var(--ces-surface-muted)] border-b border-[var(--ces-border)]">
-                        <tr class="text-[11px] font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">
+                      <thead class="sticky top-0 z-10 bg-[var(--geo-surface-muted)] border-b border-[var(--geo-border)]">
+                        <tr class="text-[11px] font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">
                           <th class="py-2.5 px-3">Código</th>
                           <th class="py-2.5 px-3">Material</th>
                           <th class="py-2.5 px-3 text-center">Unid.</th>
@@ -390,87 +390,87 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                           <th class="py-2.5 px-3 text-center w-24">Pendência</th>
                         </tr>
                       </thead>
-                      <tbody class="divide-y divide-[var(--ces-border)] text-xs">
+                      <tbody class="divide-y divide-[var(--geo-border)] text-xs">
                         @for (item of det.itens; track item.id) {
-                          <tr class="hover:bg-[var(--ces-surface-muted)]/50 transition-colors">
-                            <td class="py-2.5 px-3 whitespace-nowrap font-bold text-xs text-[var(--ces-foreground)]">
+                          <tr class="hover:bg-[var(--geo-surface-muted)]/50 transition-colors">
+                            <td class="py-2.5 px-3 whitespace-nowrap font-bold text-xs text-[var(--geo-foreground)]">
                               {{ item.material.codigo }}
                             </td>
                             <td class="py-2.5 px-3">
                               <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="font-medium text-xs text-[var(--ces-foreground)]">
+                                <span class="font-medium text-xs text-[var(--geo-foreground)]">
                                   {{ item.material.descricao }}
                                 </span>
                                 @if (item.material.detalhaSerie) {
-                                  <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--ces-surface-subtle)] text-[var(--ces-foreground-muted)] border border-[var(--ces-border)]">
+                                  <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[var(--geo-surface-subtle)] text-[var(--geo-foreground-muted)] border border-[var(--geo-border)]">
                                     SÉRIE
                                   </span>
                                 }
                               </div>
                             </td>
-                            <td class="py-2.5 px-3 text-center text-[11px] text-[var(--ces-foreground-muted)] uppercase">
+                            <td class="py-2.5 px-3 text-center text-[11px] text-[var(--geo-foreground-muted)] uppercase">
                               {{ item.material.unidadeMedida || 'UN' }}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-semibold tabular-nums text-xs text-[var(--ces-foreground)]">
+                            <td class="py-2.5 px-3 text-right font-semibold tabular-nums text-xs text-[var(--geo-foreground)]">
                               {{ item.quantidade | number: '1.2-3' }}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-semibold tabular-nums text-xs text-[var(--ces-success)]">
+                            <td class="py-2.5 px-3 text-right font-semibold tabular-nums text-xs text-[var(--geo-success)]">
                               {{ itemAtendido(item) | number: '1.2-3' }}
                             </td>
                             <td
                               class="py-2.5 px-3 text-right font-semibold tabular-nums text-xs"
-                              [class.text-[var(--ces-warning)]]="itemPendente(item) > 0"
-                              [class.text-[var(--ces-foreground-muted)]]="itemPendente(item) <= 0"
+                              [class.text-[var(--geo-warning)]]="itemPendente(item) > 0"
+                              [class.text-[var(--geo-foreground-muted)]]="itemPendente(item) <= 0"
                             >
                               {{ itemPendente(item) | number: '1.2-3' }}
                             </td>
                             <td class="py-2.5 px-3 text-center">
                               @if (item.motivoPendencia) {
-                                <ces-status tone="warning" emphasis="outline">Pendência</ces-status>
+                                <geo-status tone="warning" emphasis="outline">Pendência</geo-status>
                               } @else if (itemAtendido(item) >= item.quantidade) {
-                                <ces-status tone="success" emphasis="soft">Atendido</ces-status>
+                                <geo-status tone="success" emphasis="soft">Atendido</geo-status>
                               } @else if (itemAtendido(item) > 0) {
-                                <ces-status tone="warning" emphasis="soft">Parcial</ces-status>
+                                <geo-status tone="warning" emphasis="soft">Parcial</geo-status>
                               } @else {
-                                <ces-status tone="neutral" emphasis="soft">Aguardando</ces-status>
+                                <geo-status tone="neutral" emphasis="soft">Aguardando</geo-status>
                               }
                             </td>
                             <td class="py-2.5 px-3 text-center">
                               @if (podeRegistrarPendencia()) {
                                 <button
                                   type="button"
-                                  class="inline-flex items-center justify-center p-1.5 rounded-lg border border-[var(--ces-border)] bg-[var(--ces-surface)] text-[var(--ces-foreground-muted)] hover:text-[var(--ces-warning)] hover:border-[var(--ces-warning)] transition-colors cursor-pointer"
+                                  class="inline-flex items-center justify-center p-1.5 rounded-lg border border-[var(--geo-border)] bg-[var(--geo-surface)] text-[var(--geo-foreground-muted)] hover:text-[var(--geo-warning)] hover:border-[var(--geo-warning)] transition-colors cursor-pointer"
                                   (click)="abrirPendenciaItem(item)"
                                   [title]="item.motivoPendencia ? 'Ver/Resolver pendência do item' : 'Registrar pendência neste item'"
                                 >
-                                  <i class="pi" [ngClass]="item.motivoPendencia ? 'pi-exclamation-triangle text-[var(--ces-warning)]' : 'pi-flag'" aria-hidden="true"></i>
+                                  <i class="pi" [ngClass]="item.motivoPendencia ? 'pi-exclamation-triangle text-[var(--geo-warning)]' : 'pi-flag'" aria-hidden="true"></i>
                                 </button>
                               } @else {
-                                <span class="text-[var(--ces-foreground-muted)] text-[11px]">—</span>
+                                <span class="text-[var(--geo-foreground-muted)] text-[11px]">—</span>
                               }
                             </td>
                           </tr>
                         }
                       </tbody>
-                      <tfoot class="sticky bottom-0 bg-[var(--ces-surface-muted)] border-t border-[var(--ces-border)] font-semibold text-xs text-[var(--ces-foreground)]">
+                      <tfoot class="sticky bottom-0 bg-[var(--geo-surface-muted)] border-t border-[var(--geo-border)] font-semibold text-xs text-[var(--geo-foreground)]">
                         <tr>
-                          <td colspan="3" class="py-2.5 px-3 font-bold uppercase tracking-wider text-[11px] text-[var(--ces-foreground-muted)]">
+                          <td colspan="3" class="py-2.5 px-3 font-bold uppercase tracking-wider text-[11px] text-[var(--geo-foreground-muted)]">
                             Total Consolidado
                           </td>
                           <td class="py-2.5 px-3 text-right tabular-nums font-bold">
                             {{ totalSolicitado() | number: '1.2-3' }}
                           </td>
-                          <td class="py-2.5 px-3 text-right tabular-nums font-bold text-[var(--ces-success)]">
+                          <td class="py-2.5 px-3 text-right tabular-nums font-bold text-[var(--geo-success)]">
                             {{ totalAtendido() | number: '1.2-3' }}
                           </td>
                           <td
                             class="py-2.5 px-3 text-right tabular-nums font-bold"
-                            [class.text-[var(--ces-warning)]]="totalPendente() > 0"
-                            [class.text-[var(--ces-foreground-muted)]]="totalPendente() <= 0"
+                            [class.text-[var(--geo-warning)]]="totalPendente() > 0"
+                            [class.text-[var(--geo-foreground-muted)]]="totalPendente() <= 0"
                           >
                             {{ totalPendente() | number: '1.2-3' }}
                           </td>
-                          <td colspan="2" class="py-2.5 px-3 text-center text-[11px] text-[var(--ces-foreground-muted)]">
+                          <td colspan="2" class="py-2.5 px-3 text-center text-[11px] text-[var(--geo-foreground-muted)]">
                             {{ percentualAtendido() }}% atendido
                           </td>
                         </tr>
@@ -483,25 +483,25 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
 
             <!-- ABA 2: HISTÓRICO DE MOVIMENTAÇÕES (SE HOUVER) -->
             @if (det.tecnico?.operacoes && det.tecnico!.operacoes.length > 0) {
-              <ng-template cesTabPanel="historico">
+              <ng-template geoTabPanel="historico">
                 <div class="flex flex-col gap-3 pt-2">
                   <div class="flex items-center justify-between gap-2 pb-1">
-                    <span class="text-xs text-[var(--ces-foreground-muted)]">
+                    <span class="text-xs text-[var(--geo-foreground-muted)]">
                       Movimentações físicas e registros de entrega/devolução já processados nesta solicitação:
                     </span>
                     <div class="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
                         (click)="expandirTodasOperacoes()"
-                        class="text-xs font-semibold text-[var(--ces-brand)] hover:underline cursor-pointer"
+                        class="text-xs font-semibold text-[var(--geo-brand)] hover:underline cursor-pointer"
                       >
                         Expandir todas
                       </button>
-                      <span class="text-[var(--ces-foreground-muted)]">·</span>
+                      <span class="text-[var(--geo-foreground-muted)]">·</span>
                       <button
                         type="button"
                         (click)="recolherTodasOperacoes()"
-                        class="text-xs font-semibold text-[var(--ces-foreground-muted)] hover:underline cursor-pointer"
+                        class="text-xs font-semibold text-[var(--geo-foreground-muted)] hover:underline cursor-pointer"
                       >
                         Recolher todas
                       </button>
@@ -510,32 +510,32 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
 
                   <div class="flex flex-col gap-2.5">
                     @for (op of det.tecnico!.operacoes; track op.id) {
-                      <div class="rounded-xl border border-[var(--ces-border)] bg-[var(--ces-surface)] shadow-2xs overflow-hidden">
+                      <div class="rounded-xl border border-[var(--geo-border)] bg-[var(--geo-surface)] shadow-2xs overflow-hidden">
                         <button
                           type="button"
                           (click)="alternarOperacao(op.id)"
-                          class="w-full p-3 flex items-center justify-between gap-3 hover:bg-[var(--ces-surface-muted)]/50 transition-colors text-left cursor-pointer select-none"
+                          class="w-full p-3 flex items-center justify-between gap-3 hover:bg-[var(--geo-surface-muted)]/50 transition-colors text-left cursor-pointer select-none"
                           [attr.aria-expanded]="isOperacaoExpandida(op.id)"
                         >
                           <div class="flex items-center gap-3 min-w-0">
                             <div
-                              class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-[var(--ces-border)] bg-[var(--ces-surface-subtle)]"
-                              [ngClass]="operacaoTone(op.tipo) === 'success' ? 'text-[var(--ces-success)]' : (operacaoTone(op.tipo) === 'danger' ? 'text-[var(--ces-danger)]' : 'text-[var(--ces-brand)]')"
+                              class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-[var(--geo-border)] bg-[var(--geo-surface-subtle)]"
+                              [ngClass]="operacaoTone(op.tipo) === 'success' ? 'text-[var(--geo-success)]' : (operacaoTone(op.tipo) === 'danger' ? 'text-[var(--geo-danger)]' : 'text-[var(--geo-brand)]')"
                             >
                               <i [class]="operacaoIcon(op.tipo)" class="text-sm"></i>
                             </div>
 
                             <div class="flex flex-col gap-0.5 min-w-0">
                               <div class="flex items-center gap-2 flex-wrap">
-                                <span class="text-xs font-bold text-[var(--ces-foreground)]">{{ operacaoFriendlyTitle(op.tipo) }}</span>
-                                <span class="text-[11px] text-[var(--ces-foreground-muted)] font-mono">#{{ op.id.slice(0, 8) }}</span>
+                                <span class="text-xs font-bold text-[var(--geo-foreground)]">{{ operacaoFriendlyTitle(op.tipo) }}</span>
+                                <span class="text-[11px] text-[var(--geo-foreground-muted)] font-mono">#{{ op.id.slice(0, 8) }}</span>
                                 @if (op.saqueForaEquipe) {
-                                  <span class="text-[9px] px-1.5 py-0.2 rounded bg-[var(--ces-surface-subtle)] text-[var(--ces-foreground-muted)] border border-[var(--ces-border)]">
+                                  <span class="text-[9px] px-1.5 py-0.2 rounded bg-[var(--geo-surface-subtle)] text-[var(--geo-foreground-muted)] border border-[var(--geo-border)]">
                                     Saque fora da equipe
                                   </span>
                                 }
                               </div>
-                              <div class="flex items-center gap-2 flex-wrap text-xs text-[var(--ces-foreground-muted)]">
+                              <div class="flex items-center gap-2 flex-wrap text-xs text-[var(--geo-foreground-muted)]">
                                 <span class="inline-flex items-center gap-1">
                                   <i class="pi pi-calendar text-[10px]"></i>
                                   {{ op.realizadaEm | date: 'dd/MM/yyyy às HH:mm' }}
@@ -543,13 +543,13 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                                 <span>·</span>
                                 <span class="inline-flex items-center gap-1">
                                   <i class="pi pi-user text-[10px]"></i>
-                                  Operador: <strong class="text-[var(--ces-foreground)]">{{ resolverNomeUsuario(op.idUsuarioOperador) }}</strong>
+                                  Operador: <strong class="text-[var(--geo-foreground)]">{{ resolverNomeUsuario(op.idUsuarioOperador) }}</strong>
                                 </span>
                                 @if (op.idColaboradorSaque) {
                                   <span>·</span>
                                   <span class="inline-flex items-center gap-1">
                                     <i class="pi pi-id-card text-[10px]"></i>
-                                    Saque: <strong class="text-[var(--ces-foreground)]">{{ resolverNomeUsuario(op.idColaboradorSaque) }}</strong>
+                                    Saque: <strong class="text-[var(--geo-foreground)]">{{ resolverNomeUsuario(op.idColaboradorSaque) }}</strong>
                                   </span>
                                 }
                               </div>
@@ -557,28 +557,28 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                           </div>
 
                           <div class="flex items-center gap-3 shrink-0">
-                            <span class="text-xs font-bold px-2 py-0.5 rounded border border-[var(--ces-border)] bg-[var(--ces-surface-subtle)] text-[var(--ces-foreground)]">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded border border-[var(--geo-border)] bg-[var(--geo-surface-subtle)] text-[var(--geo-foreground)]">
                               {{ op.itens.length }} {{ op.itens.length === 1 ? 'item' : 'itens' }}
                             </span>
                             <i
-                              class="pi text-xs text-[var(--ces-foreground-muted)] transition-transform duration-200"
+                              class="pi text-xs text-[var(--geo-foreground-muted)] transition-transform duration-200"
                               [class.pi-chevron-up]="isOperacaoExpandida(op.id)"
                               [class.pi-chevron-down]="!isOperacaoExpandida(op.id)"
                             ></i>
                           </div>
                         </button>
 
-                        <div [class.hidden]="!isOperacaoExpandida(op.id)" class="border-t border-[var(--ces-border)] p-3 bg-[var(--ces-surface-subtle)]">
+                        <div [class.hidden]="!isOperacaoExpandida(op.id)" class="border-t border-[var(--geo-border)] p-3 bg-[var(--geo-surface-subtle)]">
                           @if (op.motivo) {
-                            <div class="mb-2 text-xs text-[var(--ces-foreground-muted)]">
-                              <span class="font-semibold text-[var(--ces-foreground)]">Motivo/Justificativa:</span> {{ op.motivo }}
+                            <div class="mb-2 text-xs text-[var(--geo-foreground-muted)]">
+                              <span class="font-semibold text-[var(--geo-foreground)]">Motivo/Justificativa:</span> {{ op.motivo }}
                             </div>
                           }
 
-                          <div class="rounded-lg border border-[var(--ces-border)] overflow-hidden bg-[var(--ces-surface)]">
+                          <div class="rounded-lg border border-[var(--geo-border)] overflow-hidden bg-[var(--geo-surface)]">
                             <table class="w-full text-left text-xs border-collapse">
                               <thead>
-                                <tr class="bg-[var(--ces-surface-muted)] border-b border-[var(--ces-border)] text-[11px] font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">
+                                <tr class="bg-[var(--geo-surface-muted)] border-b border-[var(--geo-border)] text-[11px] font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">
                                   <th class="py-2 px-3">Código</th>
                                   <th class="py-2 px-3">Material</th>
                                   <th class="py-2 px-3 text-right">Quantidade</th>
@@ -586,27 +586,27 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                                   <th class="py-2 px-3">Nº Série</th>
                                 </tr>
                               </thead>
-                              <tbody class="divide-y divide-[var(--ces-border)]">
+                              <tbody class="divide-y divide-[var(--geo-border)]">
                                 @for (opItem of op.itens; track opItem.id) {
-                                  <tr class="hover:bg-[var(--ces-surface-muted)]/50 transition-colors">
-                                    <td class="py-2 px-3 font-bold text-xs text-[var(--ces-foreground)] whitespace-nowrap">
+                                  <tr class="hover:bg-[var(--geo-surface-muted)]/50 transition-colors">
+                                    <td class="py-2 px-3 font-bold text-xs text-[var(--geo-foreground)] whitespace-nowrap">
                                       {{ opItem.codigoMaterial }}
                                     </td>
-                                    <td class="py-2 px-3 text-xs text-[var(--ces-foreground)]">
+                                    <td class="py-2 px-3 text-xs text-[var(--geo-foreground)]">
                                       {{ opItem.descricaoMaterial }}
                                     </td>
-                                    <td class="py-2 px-3 text-right font-semibold tabular-nums text-xs text-[var(--ces-foreground)]">
+                                    <td class="py-2 px-3 text-right font-semibold tabular-nums text-xs text-[var(--geo-foreground)]">
                                       {{ opItem.quantidade | number: '1.2-3' }}
                                     </td>
                                     <td class="py-2 px-3 text-center">
                                       <span
-                                        class="text-[10px] font-bold px-1.5 py-0.5 rounded border border-[var(--ces-border)]"
-                                        [ngClass]="opItem.condicao === 'NOVO' ? 'bg-[var(--ces-surface-subtle)] text-[var(--ces-success)]' : 'bg-[var(--ces-surface-subtle)] text-[var(--ces-warning)]'"
+                                        class="text-[10px] font-bold px-1.5 py-0.5 rounded border border-[var(--geo-border)]"
+                                        [ngClass]="opItem.condicao === 'NOVO' ? 'bg-[var(--geo-surface-subtle)] text-[var(--geo-success)]' : 'bg-[var(--geo-surface-subtle)] text-[var(--geo-warning)]'"
                                       >
                                         {{ opItem.condicao || 'NOVO' }}
                                       </span>
                                     </td>
-                                    <td class="py-2 px-3 text-xs text-[var(--ces-foreground-muted)] font-mono">
+                                    <td class="py-2 px-3 text-xs text-[var(--geo-foreground-muted)] font-mono">
                                       {{ opItem.numeroSerie || '—' }}
                                     </td>
                                   </tr>
@@ -621,16 +621,16 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
                 </div>
               </ng-template>
             }
-          </ces-tabs>
+          </geo-tabs>
         </div>
       }
 
       <!-- RODAPÉ DO DIALOG SHELL COM AÇÕES INTEGRADAS -->
-      <div dialog-footer class="flex items-center justify-between w-full pt-3 border-t border-[var(--ces-border)]">
+      <div dialog-footer class="flex items-center justify-between w-full pt-3 border-t border-[var(--geo-border)]">
         <!-- Ações secundárias (lado esquerdo) -->
         <div class="flex items-center gap-1.5 flex-wrap">
           @if (detalhe(); as det) {
-            <ces-button
+            <geo-button
               label="Ver Relatório Completo"
               icon="pi pi-external-link"
               variant="ghost"
@@ -639,7 +639,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
               pTooltip="Abrir página completa com detalhamento e fluxo de assinaturas"
               tooltipPosition="top"
             />
-            <ces-button
+            <geo-button
               label="Imprimir"
               icon="pi pi-print"
               variant="ghost"
@@ -655,7 +655,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
         <div class="flex items-center gap-2 flex-wrap">
           @if (detalhe(); as det) {
             @if (podeRejeitar(det)) {
-              <ces-button
+              <geo-button
                 label="Rejeitar"
                 icon="pi pi-times"
                 variant="destructive"
@@ -665,7 +665,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
 
             @if (podeAprovar(det)) {
-              <ces-button
+              <geo-button
                 label="Aprovar / Planejar"
                 icon="pi pi-calendar"
                 variant="primary"
@@ -675,7 +675,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
 
             @if (podeIniciarSeparacao(det)) {
-              <ces-button
+              <geo-button
                 label="Iniciar Separação"
                 icon="pi pi-play"
                 variant="primary"
@@ -685,7 +685,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
 
             @if (podePularSeparacao(det)) {
-              <ces-button
+              <geo-button
                 label="Pular Separação"
                 icon="pi pi-forward"
                 variant="outline"
@@ -695,7 +695,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
 
             @if (podeConcluirSeparacao(det)) {
-              <ces-button
+              <geo-button
                 label="Concluir Separação"
                 icon="pi pi-box"
                 variant="primary"
@@ -705,7 +705,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
 
             @if (podeEntregar(det)) {
-              <ces-button
+              <geo-button
                 label="Registrar Entrega"
                 icon="pi pi-truck"
                 variant="primary"
@@ -715,7 +715,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
 
             @if (podeDevolver(det)) {
-              <ces-button
+              <geo-button
                 label="Confirmar Devolução"
                 icon="pi pi-undo"
                 variant="primary"
@@ -725,7 +725,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
 
             @if (podeEncerrarSaldo(det)) {
-              <ces-button
+              <geo-button
                 label="Encerrar Saldo"
                 icon="pi pi-lock"
                 variant="outline"
@@ -735,7 +735,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
             }
           }
 
-          <ces-button
+          <geo-button
             label="Fechar"
             variant="ghost"
             size="sm"
@@ -743,7 +743,7 @@ import { navegarSaindoDoDrawer } from '../../../../shared/utils/drawer-navegacao
           />
         </div>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
 
     <!-- MODAL DE PENDÊNCIA (GERAL OU POR ITEM) -->
     @if (detalhe(); as det) {
@@ -874,9 +874,9 @@ export class SolicitacaoTecnicaKanbanDetailComponent {
     return Math.min(100, Math.round((atendido / sol) * 100));
   });
 
-  protected readonly abas = computed<CesTabItem[]>(() => {
+  protected readonly abas = computed<GeoTabItem[]>(() => {
     const det = this.detalhe();
-    const tabs: CesTabItem[] = [
+    const tabs: GeoTabItem[] = [
       { value: 'geral', label: 'Materiais & Saldos', icon: 'pi pi-box' },
     ];
     if (det?.tecnico?.operacoes && det.tecnico.operacoes.length > 0) {
@@ -1092,7 +1092,7 @@ export class SolicitacaoTecnicaKanbanDetailComponent {
     return tipo || 'Movimentação';
   }
 
-  protected operacaoTone(tipo: string): CesTone {
+  protected operacaoTone(tipo: string): GeoTone {
     const t = (tipo || '').toUpperCase();
     if (t === 'ENTREGA' || t === 'DEVOLUCAO') return 'success';
     if (t === 'ESTORNO') return 'danger';

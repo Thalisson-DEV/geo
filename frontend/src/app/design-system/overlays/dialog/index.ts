@@ -1,2 +1,2 @@
-export * from './ces-dialog-shell.component';
-export * from './ces-blocking-progress-dialog.component';
+export * from './geo-dialog-shell.component';
+export * from './geo-blocking-progress-dialog.component';

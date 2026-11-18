@@ -1,6 +1,6 @@
 import { Injectable, InjectionToken, Signal, signal } from '@angular/core';
 
-const STORAGE_KEY = 'ces_single_key_shortcuts';
+const STORAGE_KEY = 'geo_single_key_shortcuts';
 
 function readEnabled(): boolean {
   try {
@@ -15,7 +15,7 @@ function readEnabled(): boolean {
  * Ligada por padrão; desligada, as listagens ignoram `/`, `F` e `N` e deixam de anunciá-los.
  */
 @Injectable({ providedIn: 'root' })
-export class CesShortcutsPreference {
+export class GeoShortcutsPreference {
   private readonly state = signal(readEnabled());
   readonly enabled = this.state.asReadonly();
 
@@ -29,10 +29,10 @@ export class CesShortcutsPreference {
   }
 }
 
-/** Contexto provido pela diretiva `cesListShortcuts` aos componentes da listagem. */
-export interface CesListShortcutsContext {
+/** Contexto provido pela diretiva `geoListShortcuts` aos componentes da listagem. */
+export interface GeoListShortcutsContext {
   /** Atalhos ativos nesta página (preferência ligada). */
   readonly enabled: Signal<boolean>;
 }
 
-export const CES_LIST_SHORTCUTS = new InjectionToken<CesListShortcutsContext>('CES_LIST_SHORTCUTS');
+export const GEO_LIST_SHORTCUTS = new InjectionToken<GeoListShortcutsContext>('GEO_LIST_SHORTCUTS');

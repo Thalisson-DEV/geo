@@ -2,20 +2,20 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import {
   EventoTelemetria,
@@ -31,7 +31,7 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { LIMITE_EXPORTACAO_FROTA, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FrotaEventoTelemetriaDrawerComponent } from './frota-evento-telemetria-drawer.component';
 
-const CONDUTOR: CesSelectOption<boolean | null>[] = [
+const CONDUTOR: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Só os sem condutor identificado', value: true }
 ];
@@ -44,20 +44,20 @@ const CONDUTOR: CesSelectOption<boolean | null>[] = [
   imports: [
     DatePipe,
     RouterLink,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaEventoTelemetriaDrawerComponent
   ],
   styles: `.tl-lista { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }`,
   template: `
-    <div class="tl-lista" cesListShortcuts>
-      <ces-filter-panel
+    <div class="tl-lista" geoListShortcuts>
+      <geo-filter-panel
         #painel
         storageKey="frota-telemetria-eventos"
         [activeCount]="lista.activeCount()"
@@ -67,16 +67,16 @@ const CONDUTOR: CesSelectOption<boolean | null>[] = [
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Tipo" [options]="tiposOpcoes" [(value)]="lista.filters.tipos" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Condutor" [options]="condutorOpcoes" [(value)]="lista.filters.semCondutor"></ces-select>
-          <ces-datepicker label="A partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Tipo" [options]="tiposOpcoes" [(value)]="lista.filters.tipos" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Condutor" [options]="condutorOpcoes" [(value)]="lista.filters.semCondutor"></geo-select>
+          <geo-datepicker label="A partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Eventos de condução"
         mode="server"
         [description]="descricaoTabela()"
@@ -105,26 +105,26 @@ const CONDUTOR: CesSelectOption<boolean | null>[] = [
         (adjustFilters)="painel.expandAndFocus()"
         (clearFilters)="lista.reset()"
       >
-        <ng-template cesCell="tipo" let-row>
-          <ces-status [tone]="tom[row.tipo]" [icon]="icone[row.tipo]">{{ row.tipoRotulo }}</ces-status>
-          @if (row.detalhe) { <span class="ces-cell-muted">{{ row.detalhe }}</span> }
+        <ng-template geoCell="tipo" let-row>
+          <geo-status [tone]="tom[row.tipo]" [icon]="icone[row.tipo]">{{ row.tipoRotulo }}</geo-status>
+          @if (row.detalhe) { <span class="geo-cell-muted">{{ row.detalhe }}</span> }
         </ng-template>
-        <ng-template cesCell="ocorridoEm" let-row>{{ row.ocorridoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-        <ng-template cesCell="placa" let-row>
+        <ng-template geoCell="ocorridoEm" let-row>{{ row.ocorridoEm | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+        <ng-template geoCell="placa" let-row>
           @if (row.idVeiculo) {
-            <a [routerLink]="['/frota/veiculos', row.idVeiculo]" [queryParams]="{ aba: 'telemetria' }" class="ces-cell-strong"
+            <a [routerLink]="['/frota/veiculos', row.idVeiculo]" [queryParams]="{ aba: 'telemetria' }" class="geo-cell-strong"
               (click)="$event.stopPropagation()">{{ placa(row.placa) }}</a>
-          } @else { <span class="ces-cell-strong">{{ placa(row.placa) || '—' }}</span> }
-          @if (row.base) { <span class="ces-cell-muted">{{ row.base }}</span> }
+          } @else { <span class="geo-cell-strong">{{ placa(row.placa) || '—' }}</span> }
+          @if (row.base) { <span class="geo-cell-muted">{{ row.base }}</span> }
         </ng-template>
-        <ng-template cesCell="condutor" let-row>
+        <ng-template geoCell="condutor" let-row>
           @if (row.condutor) {
             <span>{{ row.condutor }}</span>
           } @else {
-            <ces-status tone="neutral" emphasis="outline">Não identificado</ces-status>
+            <geo-status tone="neutral" emphasis="outline">Não identificado</geo-status>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-frota-evento-telemetria-drawer [(visivel)]="drawerAberto" [evento]="selecionado()"></app-frota-evento-telemetria-drawer>
@@ -133,7 +133,7 @@ const CONDUTOR: CesSelectOption<boolean | null>[] = [
 export class FrotaTelemetriaEventosComponent {
   private readonly servico = inject(FrotaTelemetriaService);
 
-  protected readonly tom: Record<string, CesTone> = TOM_TIPO_EVENTO;
+  protected readonly tom: Record<string, GeoTone> = TOM_TIPO_EVENTO;
   protected readonly icone: Record<string, string> = ICONE_TIPO_EVENTO;
   protected readonly placa = formatarPlaca;
   protected readonly dataLocal = dataLocal;
@@ -145,16 +145,16 @@ export class FrotaTelemetriaEventosComponent {
   protected readonly tiposOpcoes = (Object.keys(ROTULO_TIPO_EVENTO) as TipoEventoTelemetria[])
     .map((t) => ({ label: ROTULO_TIPO_EVENTO[t], value: t }));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-telemetria-eventos',
     rememberFilters: 'frota-telemetria-eventos',
     filters: {
-      tipos: cesFilter.list<TipoEventoTelemetria>([], {
+      tipos: geoFilter.list<TipoEventoTelemetria>([], {
         label: 'Tipo', param: 'tipo', itemLabel: (t) => ROTULO_TIPO_EVENTO[t], countLabel: (n) => `${n} selecionados`
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      semCondutor: cesFilter.value<boolean | null>(null, { label: 'Condutor', param: 'semCondutor', options: () => CONDUTOR }),
-      periodo: cesFilter.range({ from: null, to: null }, { label: 'Período' })
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      semCondutor: geoFilter.value<boolean | null>(null, { label: 'Condutor', param: 'semCondutor', options: () => CONDUTOR }),
+      periodo: geoFilter.range({ from: null, to: null }, { label: 'Período' })
     },
     sort: [{ key: 'ocorridoEm', direction: 'desc' }]
   });
@@ -170,7 +170,7 @@ export class FrotaTelemetriaEventosComponent {
   protected readonly descricaoTabela = computed(() =>
     this.resultado.loading() && !this.resultado.total() ? undefined : contar(this.resultado.total(), 'evento', 'eventos', 'Nenhum evento'));
 
-  protected readonly colunas: CesDataTableColumn<EventoTelemetria>[] = [
+  protected readonly colunas: GeoDataTableColumn<EventoTelemetria>[] = [
     { key: 'tipo', header: 'Evento', type: 'custom', priority: 1, sortField: 'tipo', value: (e) => e.tipo, display: (e) => `${e.tipoRotulo} ${e.detalhe}` },
     { key: 'ocorridoEm', header: 'Quando', type: 'custom', priority: 1, sortField: 'ocorridoEm', value: (e) => e.ocorridoEm, display: (e) => e.ocorridoEm },
     { key: 'placa', header: 'Veículo', type: 'custom', sortField: 'placa', value: (e) => e.placa, display: (e) => formatarPlaca(e.placa) },

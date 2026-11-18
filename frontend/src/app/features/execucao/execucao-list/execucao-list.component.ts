@@ -3,27 +3,27 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesBooleanControlComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoBooleanControlComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
@@ -53,16 +53,16 @@ import { NumeroOficialDialogComponent } from './numero-oficial-dialog.component'
 /** As notas exportam bem mais que o padrão das listagens: o mês inteiro cabe numa planilha. */
 const LIMITE_EXPORTACAO_NOTAS = 30_000;
 
-const STATUS: CesSelectOption<StatusExecucao | null>[] = [
+const STATUS: GeoSelectOption<StatusExecucao | null>[] = [
   { label: 'Todos', value: null },
   ...(Object.keys(STATUS_EXECUCAO) as StatusExecucao[]).map((s) => ({ label: STATUS_EXECUCAO[s].rotulo, value: s }))
 ];
-const OPERACOES: CesSelectOption<OperacaoMaterial | null>[] = [
+const OPERACOES: GeoSelectOption<OperacaoMaterial | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Aplicado', value: 'APLICADO' },
   { label: 'Retirado', value: 'RETIRADO' }
 ];
-const TIPOS_LANCAMENTO: CesSelectOption<TipoNota | null>[] = [
+const TIPOS_LANCAMENTO: GeoSelectOption<TipoNota | null>[] = [
   { label: 'Todos', value: null },
   ...(Object.keys(TIPOS_NOTA) as TipoNota[]).map((t) => ({ label: TIPOS_NOTA[t].rotulo, value: t }))
 ];
@@ -84,65 +84,65 @@ function inicioPadrao(): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent,
-    CesButtonComponent,
+    GeoButtonComponent,
     ExportacaoCsvDrawerComponent,
     NumeroOficialDialogComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts>
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts>
+      <geo-page-header
         title="Execuções"
         icon="pi pi-bolt"
         [breadcrumb]="[{ label: 'Execução' }, { label: 'Comercial' }]"
         description="Notas lançadas pelas equipes: ações, materiais aplicados e retirados e o valor faturado."
         helpLabel="Ajuda sobre execuções"
         (help)="ajuda.show()"
-      ></ces-page-header>
+      ></geo-page-header>
 
-      <ces-filter-panel #painel storageKey="execucao-comercial" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="execucao-comercial" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-text-input label="Nota" [value]="lista.filters.referenciaNota() ?? ''" (valueChange)="lista.filters.referenciaNota.set($event || null)" placeholder="Ex.: 123456"></ces-text-input>
-          <ces-text-input label="Nº de série do material" [value]="lista.filters.numSerie() ?? ''" (valueChange)="filtrarSerie($event)" placeholder="Ex.: 12345678"></ces-text-input>
-          <ces-select label="Tipo de lançamento" [options]="tiposLancamento" [(value)]="lista.filters.tipoNota"></ces-select>
-          <ces-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Equipe" [options]="recorte.opcoesEquipes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true"
-            [loading]="recorte.carregandoEquipes()" placeholder="Todas"></ces-select>
-          <ces-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true"
-            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Tipo de serviço" [options]="tiposServico()" [(value)]="lista.filters.tipoServico" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></ces-select>
-          <ces-select label="Ação" [options]="acoes()" [(value)]="lista.filters.idAcao" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-autocomplete label="Material" placeholder="Código ou descrição" [options]="materiais.items()" [ngModel]="lista.filters.idMaterial()"
+        <div class="geo-filter-grid">
+          <geo-text-input label="Nota" [value]="lista.filters.referenciaNota() ?? ''" (valueChange)="lista.filters.referenciaNota.set($event || null)" placeholder="Ex.: 123456"></geo-text-input>
+          <geo-text-input label="Nº de série do material" [value]="lista.filters.numSerie() ?? ''" (valueChange)="filtrarSerie($event)" placeholder="Ex.: 12345678"></geo-text-input>
+          <geo-select label="Tipo de lançamento" [options]="tiposLancamento" [(value)]="lista.filters.tipoNota"></geo-select>
+          <geo-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Equipe" [options]="recorte.opcoesEquipes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true"
+            [loading]="recorte.carregandoEquipes()" placeholder="Todas"></geo-select>
+          <geo-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true"
+            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Tipo de serviço" [options]="tiposServico()" [(value)]="lista.filters.tipoServico" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></geo-select>
+          <geo-select label="Ação" [options]="acoes()" [(value)]="lista.filters.idAcao" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-autocomplete label="Material" placeholder="Código ou descrição" [options]="materiais.items()" [ngModel]="lista.filters.idMaterial()"
             (ngModelChange)="escolherMaterial($event)" [loading]="materiais.loading()" [status]="materiais.status()" [clearable]="true"
-            (search)="materiais.search($event)" (loadMore)="materiais.loadNext()" (retry)="materiais.retry()"></ces-autocomplete>
-          <ces-select label="Operação do material" [options]="operacoes" [(value)]="lista.filters.operacaoMaterial"></ces-select>
-          <ces-datepicker label="Lançadas a partir de" [value]="dataLocal(lista.filters.lancamento().from)" [clearable]="true" (valueChange)="lancamento('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Lançadas até" [value]="dataLocal(lista.filters.lancamento().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.lancamento().from)"
-            (valueChange)="lancamento('to', $event)"></ces-datepicker>
-          <ces-boolean-control label="Só as lançadas hoje" kind="toggle" [inline]="true" [value]="lista.filters.apenasHoje()" (valueChange)="lista.filters.apenasHoje.set($event)"></ces-boolean-control>
-          <ces-boolean-control class="ces-filter-grid__wide" label="Só avulsas sem número oficial" kind="toggle" [inline]="true" [value]="lista.filters.semNumeroOficial()" (valueChange)="lista.filters.semNumeroOficial.set($event)"></ces-boolean-control>
-          <ces-boolean-control label="Só notas alteradas" kind="toggle" [inline]="true" [value]="lista.filters.alterada()" (valueChange)="lista.filters.alterada.set($event)"></ces-boolean-control>
+            (search)="materiais.search($event)" (loadMore)="materiais.loadNext()" (retry)="materiais.retry()"></geo-autocomplete>
+          <geo-select label="Operação do material" [options]="operacoes" [(value)]="lista.filters.operacaoMaterial"></geo-select>
+          <geo-datepicker label="Lançadas a partir de" [value]="dataLocal(lista.filters.lancamento().from)" [clearable]="true" (valueChange)="lancamento('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Lançadas até" [value]="dataLocal(lista.filters.lancamento().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.lancamento().from)"
+            (valueChange)="lancamento('to', $event)"></geo-datepicker>
+          <geo-boolean-control label="Só as lançadas hoje" kind="toggle" [inline]="true" [value]="lista.filters.apenasHoje()" (valueChange)="lista.filters.apenasHoje.set($event)"></geo-boolean-control>
+          <geo-boolean-control class="geo-filter-grid__wide" label="Só avulsas sem número oficial" kind="toggle" [inline]="true" [value]="lista.filters.semNumeroOficial()" (valueChange)="lista.filters.semNumeroOficial.set($event)"></geo-boolean-control>
+          <geo-boolean-control label="Só notas alteradas" kind="toggle" [inline]="true" [value]="lista.filters.alterada()" (valueChange)="lista.filters.alterada.set($event)"></geo-boolean-control>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Execuções"
         mode="server"
         storageKey="execucao-comercial"
@@ -167,36 +167,36 @@ function inicioPadrao(): string {
         (clearFilters)="lista.reset()"
         (rowActivate)="verNota($event)"
       >
-        <ces-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></ces-button>
-        <ng-template cesCell="nota" let-row>
+        <geo-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></geo-button>
+        <ng-template geoCell="nota" let-row>
           <span class="nota-cel">
-            <span class="ces-cell-strong">{{ row.referenciaNota }}</span>
+            <span class="geo-cell-strong">{{ row.referenciaNota }}</span>
             @if (row.aguardandoNumeroOficial) {
-              <ces-status tone="warning" icon="pi-clock">Sem nº oficial</ces-status>
+              <geo-status tone="warning" icon="pi-clock">Sem nº oficial</geo-status>
             } @else if (tipoDe(row); as tipo) {
-              <ces-status [tone]="tipo.tom" [icon]="tipo.icone">{{ tipo.rotulo }}</ces-status>
+              <geo-status [tone]="tipo.tom" [icon]="tipo.icone">{{ tipo.rotulo }}</geo-status>
             }
             @if (row.alterada) {
-              <ces-status tone="warning" icon="pi-pencil" [attr.title]="'Alterada ' + (row.totalAlteracoes === 1 ? '1 vez' : row.totalAlteracoes + ' vezes') + ' depois de sincronizada'">Alterada</ces-status>
+              <geo-status tone="warning" icon="pi-pencil" [attr.title]="'Alterada ' + (row.totalAlteracoes === 1 ? '1 vez' : row.totalAlteracoes + ' vezes') + ' depois de sincronizada'">Alterada</geo-status>
             }
           </span>
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="status(row.statusExecucao)?.tom ?? 'neutral'" [icon]="status(row.statusExecucao)?.icone?.replace('pi ', '')">
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="status(row.statusExecucao)?.tom ?? 'neutral'" [icon]="status(row.statusExecucao)?.icone?.replace('pi ', '')">
             {{ status(row.statusExecucao)?.rotulo ?? row.statusExecucao }}
-          </ces-status>
+          </geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (row.tipoNota === 'AVULSA') {
-              <ces-icon-button icon="pi pi-pencil" [label]="(row.aguardandoNumeroOficial ? 'Informar número oficial da nota ' : 'Corrigir número oficial da nota ') + row.referenciaNota"
-                size="icon-sm" (pressed)="informarNumero(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-pencil" [label]="(row.aguardandoNumeroOficial ? 'Informar número oficial da nota ' : 'Corrigir número oficial da nota ') + row.referenciaNota"
+                size="icon-sm" (pressed)="informarNumero(row)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-print" [label]="'Imprimir nota ' + row.referenciaNota" size="icon-sm" (pressed)="imprimir(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações da nota ' + row.referenciaNota" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-print" [label]="'Imprimir nota ' + row.referenciaNota" size="icon-sm" (pressed)="imprimir(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da nota ' + row.referenciaNota" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
@@ -206,29 +206,29 @@ function inicioPadrao(): string {
       [total]="totalExportacao()" [contando]="contandoExportacao()" [limite]="limiteExportacao" [exportando]="exportando()"
       (exportar)="exportarCsv($event)">
       @if (exportacaoAberta()) {
-        <ces-text-input label="Nota" [value]="exp().referenciaNota ?? ''" (valueChange)="mudar('referenciaNota', $event || null)" placeholder="Ex.: 123456"></ces-text-input>
-        <ces-text-input label="Nº de poste ou posto" [value]="expBusca()" (valueChange)="expBusca.set($event)"></ces-text-input>
-        <ces-datepicker label="Lançadas a partir de" [value]="dataLocal(exp().lancamento.from)" [clearable]="true" (valueChange)="periodoExportacao('from', $event)"></ces-datepicker>
-        <ces-datepicker label="Lançadas até" [value]="dataLocal(exp().lancamento.to)" [clearable]="true" [minDate]="dataLocal(exp().lancamento.from)"
-          (valueChange)="periodoExportacao('to', $event)"></ces-datepicker>
-        <ces-select label="Equipe" [options]="recorte.opcoesEquipes()" [value]="exp().idEquipe" (valueChange)="mudar('idEquipe', $event)" [clearable]="true" [filter]="true"
-          [loading]="recorte.carregandoEquipes()" placeholder="Todas"></ces-select>
-        <ces-select label="Status" [options]="statusOpcoes" [value]="exp().status" (valueChange)="mudar('status', $event)"></ces-select>
-        <ces-select label="Tipo de serviço" [options]="tiposServico()" [value]="exp().tipoServico" (valueChange)="mudar('tipoServico', $event)" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-        <ces-select label="Tipo de lançamento" [options]="tiposLancamento" [value]="exp().tipoNota" (valueChange)="mudar('tipoNota', $event)"></ces-select>
-        <ces-select label="Ação" [options]="acoes()" [value]="exp().idAcao" (valueChange)="mudar('idAcao', $event)" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-        <ces-select label="Referência" [options]="referencias" [value]="exp().referencia" (valueChange)="mudar('referencia', $event)" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-        <ces-autocomplete label="Material" placeholder="Código ou descrição" [options]="materiais.items()" [ngModel]="exp().idMaterial"
+        <geo-text-input label="Nota" [value]="exp().referenciaNota ?? ''" (valueChange)="mudar('referenciaNota', $event || null)" placeholder="Ex.: 123456"></geo-text-input>
+        <geo-text-input label="Nº de poste ou posto" [value]="expBusca()" (valueChange)="expBusca.set($event)"></geo-text-input>
+        <geo-datepicker label="Lançadas a partir de" [value]="dataLocal(exp().lancamento.from)" [clearable]="true" (valueChange)="periodoExportacao('from', $event)"></geo-datepicker>
+        <geo-datepicker label="Lançadas até" [value]="dataLocal(exp().lancamento.to)" [clearable]="true" [minDate]="dataLocal(exp().lancamento.from)"
+          (valueChange)="periodoExportacao('to', $event)"></geo-datepicker>
+        <geo-select label="Equipe" [options]="recorte.opcoesEquipes()" [value]="exp().idEquipe" (valueChange)="mudar('idEquipe', $event)" [clearable]="true" [filter]="true"
+          [loading]="recorte.carregandoEquipes()" placeholder="Todas"></geo-select>
+        <geo-select label="Status" [options]="statusOpcoes" [value]="exp().status" (valueChange)="mudar('status', $event)"></geo-select>
+        <geo-select label="Tipo de serviço" [options]="tiposServico()" [value]="exp().tipoServico" (valueChange)="mudar('tipoServico', $event)" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+        <geo-select label="Tipo de lançamento" [options]="tiposLancamento" [value]="exp().tipoNota" (valueChange)="mudar('tipoNota', $event)"></geo-select>
+        <geo-select label="Ação" [options]="acoes()" [value]="exp().idAcao" (valueChange)="mudar('idAcao', $event)" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+        <geo-select label="Referência" [options]="referencias" [value]="exp().referencia" (valueChange)="mudar('referencia', $event)" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+        <geo-autocomplete label="Material" placeholder="Código ou descrição" [options]="materiais.items()" [ngModel]="exp().idMaterial"
           (ngModelChange)="escolherMaterialExportacao($event)" [loading]="materiais.loading()" [status]="materiais.status()" [clearable]="true"
-          (search)="materiais.search($event)" (loadMore)="materiais.loadNext()" (retry)="materiais.retry()"></ces-autocomplete>
-        <ces-select label="Operação do material" [options]="operacoes" [value]="exp().operacaoMaterial" (valueChange)="mudar('operacaoMaterial', $event)"></ces-select>
-        <ces-text-input label="Nº de série do material" [value]="exp().numSerie ?? ''" (valueChange)="mudar('numSerie', $event || null)" placeholder="Ex.: 12345678"></ces-text-input>
+          (search)="materiais.search($event)" (loadMore)="materiais.loadNext()" (retry)="materiais.retry()"></geo-autocomplete>
+        <geo-select label="Operação do material" [options]="operacoes" [value]="exp().operacaoMaterial" (valueChange)="mudar('operacaoMaterial', $event)"></geo-select>
+        <geo-text-input label="Nº de série do material" [value]="exp().numSerie ?? ''" (valueChange)="mudar('numSerie', $event || null)" placeholder="Ex.: 12345678"></geo-text-input>
         @if (exp().idTurno) {
-          <ces-boolean-control label="Só as notas do turno" kind="toggle" [inline]="true" [value]="true" (valueChange)="mudar('idTurno', $event ? exp().idTurno : null)"></ces-boolean-control>
+          <geo-boolean-control label="Só as notas do turno" kind="toggle" [inline]="true" [value]="true" (valueChange)="mudar('idTurno', $event ? exp().idTurno : null)"></geo-boolean-control>
         }
-        <ces-boolean-control label="Só as lançadas hoje" kind="toggle" [inline]="true" [value]="exp().apenasHoje" (valueChange)="mudar('apenasHoje', $event)"></ces-boolean-control>
-        <ces-boolean-control label="Só avulsas sem número oficial" kind="toggle" [inline]="true" [value]="exp().semNumeroOficial" (valueChange)="mudar('semNumeroOficial', $event)"></ces-boolean-control>
-        <ces-boolean-control label="Só notas alteradas" kind="toggle" [inline]="true" [value]="exp().alterada" (valueChange)="mudar('alterada', $event)"></ces-boolean-control>
+        <geo-boolean-control label="Só as lançadas hoje" kind="toggle" [inline]="true" [value]="exp().apenasHoje" (valueChange)="mudar('apenasHoje', $event)"></geo-boolean-control>
+        <geo-boolean-control label="Só avulsas sem número oficial" kind="toggle" [inline]="true" [value]="exp().semNumeroOficial" (valueChange)="mudar('semNumeroOficial', $event)"></geo-boolean-control>
+        <geo-boolean-control label="Só notas alteradas" kind="toggle" [inline]="true" [value]="exp().alterada" (valueChange)="mudar('alterada', $event)"></geo-boolean-control>
       }
     </app-exportacao-csv-drawer>
     <app-ajuda-listagem #ajuda titulo="Execuções" artigoPlural="as" entidadePlural="execuções" busca="nº de poste ou posto" [podeCriar]="false">
@@ -268,11 +268,11 @@ export class ExecucaoListComponent {
   protected readonly tiposLancamento = TIPOS_LANCAMENTO;
   protected readonly numeroOficialAberto = signal(false);
   protected readonly avulsaEscolhida = signal<ExecucaoComercialResponse | null>(null);
-  protected readonly referencias: CesSelectOption<string>[] = generateReferenceOptions();
+  protected readonly referencias: GeoSelectOption<string>[] = generateReferenceOptions();
   protected readonly diasPadrao = DIAS_PADRAO_EXECUCOES;
   protected readonly dataLocal = dataLocal;
-  protected readonly acoes = signal<CesSelectOption<string>[]>([]);
-  protected readonly tiposServico = signal<CesSelectOption<string>[]>([{ label: TIPO_SERVICO_NAO_INFORMADO, value: SEM_TIPO_SERVICO }]);
+  protected readonly acoes = signal<GeoSelectOption<string>[]>([]);
+  protected readonly tiposServico = signal<GeoSelectOption<string>[]>([{ label: TIPO_SERVICO_NAO_INFORMADO, value: SEM_TIPO_SERVICO }]);
   private readonly nomeMaterial = signal<Record<string, string>>({});
 
   protected readonly materiais = new RemoteLookup<string>({
@@ -284,25 +284,25 @@ export class ExecucaoListComponent {
   /** Vindo de um turno (`?idTurno=`) as notas dele aparecem todas, sem o limite de data. */
   private readonly doTurno = inject(ActivatedRoute).snapshot.queryParamMap.has('idTurno');
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'execucao-comercial',
     filters: {
-      idTurno: cesFilter.value<string | null>(null, { label: 'Turno', param: 'idTurno', format: (id): string | null => (id ? 'notas do turno' : null) }),
-      referenciaNota: cesFilter.value<string | null>(null, { label: 'Nota', param: 'nota' }),
-      numSerie: cesFilter.value<string | null>(null, { label: 'Nº de série', param: 'serie' }),
-      tipoNota: cesFilter.value<TipoNota | null>(null, { label: 'Tipo de lançamento', param: 'tipoNota', type: 'string', options: () => TIPOS_LANCAMENTO }),
-      semNumeroOficial: cesFilter.value<boolean>(false, { label: 'Avulsas', param: 'semNumero', format: (v): string | null => (v ? 'sem número oficial' : null) }),
-      alterada: cesFilter.value<boolean>(false, { label: 'Notas', param: 'alterada', format: (v): string | null => (v ? 'alteradas' : null) }),
-      referencia: cesFilter.value<string | null>(null, { label: 'Referência', param: 'ref' }),
-      idEquipe: cesFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nome(this.recorte.opcoesEquipes(), id) : null) }),
-      idBaseOperacional: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.recorte.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
-      tipoServico: cesFilter.value<string | null>(null, { label: 'Tipo de serviço', param: 'tipo', format: (id): string | null => (id ? this.nome(this.tiposServico(), id) : null) }),
-      status: cesFilter.value<StatusExecucao | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
-      idAcao: cesFilter.value<string | null>(null, { label: 'Ação', param: 'acao', format: (id): string | null => (id ? this.nome(this.acoes(), id) : null) }),
-      idMaterial: cesFilter.value<string | null>(null, { label: 'Material', param: 'material', format: (id): string | null => (id ? (this.nomeMaterial()[id] ?? 'material selecionado') : null) }),
-      operacaoMaterial: cesFilter.value<OperacaoMaterial | null>(null, { label: 'Operação', param: 'operacao', type: 'string', options: () => OPERACOES }),
-      apenasHoje: cesFilter.value<boolean>(false, { label: 'Lançamento', param: 'hoje', format: (v): string | null => (v ? 'hoje' : null) }),
-      lancamento: cesFilter.range(this.doTurno ? { from: null, to: null } : { from: inicioPadrao(), to: null }, { label: 'Lançamento' })
+      idTurno: geoFilter.value<string | null>(null, { label: 'Turno', param: 'idTurno', format: (id): string | null => (id ? 'notas do turno' : null) }),
+      referenciaNota: geoFilter.value<string | null>(null, { label: 'Nota', param: 'nota' }),
+      numSerie: geoFilter.value<string | null>(null, { label: 'Nº de série', param: 'serie' }),
+      tipoNota: geoFilter.value<TipoNota | null>(null, { label: 'Tipo de lançamento', param: 'tipoNota', type: 'string', options: () => TIPOS_LANCAMENTO }),
+      semNumeroOficial: geoFilter.value<boolean>(false, { label: 'Avulsas', param: 'semNumero', format: (v): string | null => (v ? 'sem número oficial' : null) }),
+      alterada: geoFilter.value<boolean>(false, { label: 'Notas', param: 'alterada', format: (v): string | null => (v ? 'alteradas' : null) }),
+      referencia: geoFilter.value<string | null>(null, { label: 'Referência', param: 'ref' }),
+      idEquipe: geoFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nome(this.recorte.opcoesEquipes(), id) : null) }),
+      idBaseOperacional: geoFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.recorte.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
+      tipoServico: geoFilter.value<string | null>(null, { label: 'Tipo de serviço', param: 'tipo', format: (id): string | null => (id ? this.nome(this.tiposServico(), id) : null) }),
+      status: geoFilter.value<StatusExecucao | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
+      idAcao: geoFilter.value<string | null>(null, { label: 'Ação', param: 'acao', format: (id): string | null => (id ? this.nome(this.acoes(), id) : null) }),
+      idMaterial: geoFilter.value<string | null>(null, { label: 'Material', param: 'material', format: (id): string | null => (id ? (this.nomeMaterial()[id] ?? 'material selecionado') : null) }),
+      operacaoMaterial: geoFilter.value<OperacaoMaterial | null>(null, { label: 'Operação', param: 'operacao', type: 'string', options: () => OPERACOES }),
+      apenasHoje: geoFilter.value<boolean>(false, { label: 'Lançamento', param: 'hoje', format: (v): string | null => (v ? 'hoje' : null) }),
+      lancamento: geoFilter.range(this.doTurno ? { from: null, to: null } : { from: inicioPadrao(), to: null }, { label: 'Lançamento' })
     },
     sort: [{ key: 'lancamento', direction: 'desc' }]
   });
@@ -327,7 +327,7 @@ export class ExecucaoListComponent {
   protected readonly contandoExportacao = signal(false);
   private readonly recorteExportacao = computed(() => this.paraApi(this.exp(), this.expBusca()));
 
-  protected readonly colunas: CesDataTableColumn<ExecucaoComercialResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<ExecucaoComercialResponse>[] = [
     { key: 'nota', header: 'Nota', type: 'custom', priority: 1, sortField: 'referenciaNota', value: (e) => e.referenciaNota, display: (e) => e.referenciaNota },
     { key: 'tipoNota', header: 'Lançamento', priority: 2, sortField: 'tipoNota', value: (e) => e.tipoNota, display: (e) => TIPOS_NOTA[e.tipoNota]?.rotulo ?? 'Comum' },
     { key: 'tipoServico', header: 'Tipo de serviço', priority: 1, value: (e) => e.tipoServico?.descricao, display: (e) => rotuloTipoServico(e.tipoServico) },
@@ -379,7 +379,7 @@ export class ExecucaoListComponent {
     });
   }
 
-  private nome(opcoes: readonly CesSelectOption<string>[], id: string): string {
+  private nome(opcoes: readonly GeoSelectOption<string>[], id: string): string {
     return opcoes.find((o) => o.value === id)?.label ?? 'selecionado';
   }
 

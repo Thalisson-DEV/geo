@@ -1,1 +1,1 @@
-export * from './ces-callout.component';
+export * from './geo-callout.component';

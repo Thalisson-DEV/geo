@@ -2,22 +2,22 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesDrawerComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoDrawerComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 
 import { MotivoPendenciaResponse } from '../../../core/models/almoxarifado.models';
@@ -68,18 +68,18 @@ interface EtapaFluxo {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesDrawerComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoDrawerComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     FechamentoEditarDrawerComponent,
     FechamentoEstornoDrawerComponent,
     FechamentoMovimentarPainelComponent,
@@ -87,7 +87,7 @@ interface EtapaFluxo {
   ],
   styleUrls: ['../../almoxarifado/solicitacoes-material/solicitacao-comercial-detalhe.component.css', './fechamento.css'],
   template: `
-    <ces-drawer
+    <geo-drawer
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       eyebrow="Solicitação de encerramento"
@@ -100,20 +100,20 @@ interface EtapaFluxo {
           <span></span><span></span><span></span><span></span>
         </div>
       } @else if (erro()) {
-        <ces-callout tone="danger" title="Não foi possível carregar a solicitação">{{ erro() }}</ces-callout>
+        <geo-callout tone="danger" title="Não foi possível carregar a solicitação">{{ erro() }}</geo-callout>
       } @else if (detalhe(); as det) {
         <div class="dd">
           <section class="dd-hero" [attr.data-tone]="situacao().tone" aria-label="Resumo">
             <div class="dd-hero__topo">
-              <ces-status [tone]="situacao().tone" [icon]="situacao().icon" emphasis="solid">{{ situacao().label }}</ces-status>
-              <ces-status [tone]="tipoDe(det).adicao ? 'info' : 'neutral'" [icon]="iconeTipo(det.tipo)" [title]="tipoDe(det).nome">{{ det.tipo }}</ces-status>
+              <geo-status [tone]="situacao().tone" [icon]="situacao().icon" emphasis="solid">{{ situacao().label }}</geo-status>
+              <geo-status [tone]="tipoDe(det).adicao ? 'info' : 'neutral'" [icon]="iconeTipo(det.tipo)" [title]="tipoDe(det).nome">{{ det.tipo }}</geo-status>
               @if (det.prazoVigente.situacao === 'ATRASADO') {
-                <ces-status tone="danger" icon="pi pi-exclamation-triangle">Prazo atrasado</ces-status>
+                <geo-status tone="danger" icon="pi pi-exclamation-triangle">Prazo atrasado</geo-status>
               } @else if (det.prazoVigente.situacao === 'VENCE_EM_BREVE') {
-                <ces-status tone="warning" icon="pi pi-hourglass">Vence em breve</ces-status>
+                <geo-status tone="warning" icon="pi pi-hourglass">Vence em breve</geo-status>
               }
               @if (det.possuiPendencia) {
-                <ces-status tone="warning" icon="pi pi-flag">Com pendência</ces-status>
+                <geo-status tone="warning" icon="pi pi-flag">Com pendência</geo-status>
               }
             </div>
             <p class="dd-hero__rota">
@@ -176,29 +176,29 @@ interface EtapaFluxo {
           }
 
           @if (det.situacao === 'CANCELADA') {
-            <ces-callout tone="neutral" title="Solicitação cancelada">Cancelada em {{ dataHora(det.canceladaEm) }}. Motivo: {{ det.motivoCancelamento }}</ces-callout>
+            <geo-callout tone="neutral" title="Solicitação cancelada">Cancelada em {{ dataHora(det.canceladaEm) }}. Motivo: {{ det.motivoCancelamento }}</geo-callout>
           }
           @if (det.pendenciaGeral; as p) {
-            <ces-callout tone="warning" [title]="'Pendência: ' + p.motivo">
+            <geo-callout tone="warning" [title]="'Pendência: ' + p.motivo">
               <div class="dd-callout-linha">
                 <span>{{ p.justificativa || 'Sem justificativa informada.' }}</span>
                 @if (det.acoes.pendencias) {
-                  <ces-button label="Resolver pendência" icon="pi pi-check" variant="outline" size="sm" [loading]="processando()" (pressed)="removerPendencia(null)" />
+                  <geo-button label="Resolver pendência" icon="pi pi-check" variant="outline" size="sm" [loading]="processando()" (pressed)="removerPendencia(null)" />
                 }
               </div>
-            </ces-callout>
+            </geo-callout>
           }
           @if (det.observacao && aba() === 'itens') {
             <blockquote class="dd-obs"><span class="dd-label">Observação do solicitante</span>{{ det.observacao }}</blockquote>
           }
 
-          <ces-tabs [(value)]="aba" [tabs]="abas()" ariaLabel="Seções da solicitação de encerramento">
-            <ng-template cesTabPanel="itens">
+          <geo-tabs [(value)]="aba" [tabs]="abas()" ariaLabel="Seções da solicitação de encerramento">
+            <ng-template geoTabPanel="itens">
               <div class="dd-secao-topo">
                 <span class="dd-muted">{{ det.itens.length }} {{ det.itens.length === 1 ? 'material' : 'materiais' }}</span>
                 @if (det.acoes.pendencias && !det.pendenciaGeral) {
                   <span class="dd-linha-botoes">
-                    <ces-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendencia(null)" />
+                    <geo-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendencia(null)" />
                   </span>
                 }
               </div>
@@ -216,14 +216,14 @@ interface EtapaFluxo {
                     <span role="cell" class="dd-material">
                       <strong>{{ item.descricaoMaterial }}</strong>
                       <span class="dd-muted">{{ item.codigoMaterial }} · {{ item.unidade || 'UN' }}</span>
-                      <ces-status [tone]="s.tone" [icon]="s.icon">{{ s.label }}</ces-status>
+                      <geo-status [tone]="s.tone" [icon]="s.icon">{{ s.label }}</geo-status>
                     </span>
                     <span role="cell" class="dd-num">{{ quantidade(item.quantidade) }}</span>
                     <span role="cell" class="dd-num">{{ quantidade(item.quantidadeMovimentada) }}</span>
                     <span role="cell" class="dd-num" [class.dd-texto-aviso]="item.quantidadePendente > 0">{{ quantidade(item.quantidadePendente) }}</span>
                     <span role="cell" class="dd-acao">
                       @if (det.acoes.pendencias) {
-                        <ces-icon-button
+                        <geo-icon-button
                           [icon]="item.pendencia ? 'pi pi-exclamation-triangle' : 'pi pi-flag'"
                           [label]="(item.pendencia ? 'Ver ou resolver a pendência de ' : 'Apontar pendência em ') + item.codigoMaterial"
                           [tooltip]="item.pendencia ? 'Ver ou resolver pendência' : 'Apontar pendência'"
@@ -238,13 +238,13 @@ interface EtapaFluxo {
             </ng-template>
 
             @if (podeReserva()) {
-              <ng-template cesTabPanel="reserva">
+              <ng-template geoTabPanel="reserva">
                 <div class="dd-entrega">
                   <div class="dd-entrega__quem">
                     <div class="dd-grid-2">
-                      <ces-text-input label="Número da reserva" [(value)]="reservaNumero" [maxlength]="20" [required]="true"
+                      <geo-text-input label="Número da reserva" [(value)]="reservaNumero" [maxlength]="20" [required]="true"
                         [error]="tentouReserva() && !reservaValida() ? 'Só números, até 20 dígitos.' : undefined" />
-                      <ces-datepicker label="Data da reserva" [(value)]="reservaData" [maxDate]="hoje" [clearable]="true" description="Se vazia, vale hoje." />
+                      <geo-datepicker label="Data da reserva" [(value)]="reservaData" [maxDate]="hoje" [clearable]="true" description="Se vazia, vale hoje." />
                     </div>
                     <span class="dd-muted">
                       {{ det.reserva ? 'Só enquanto nada estiver movimentado. O prazo de movimentação não recomeça.' : 'Com a reserva, o almoxarifado tem 48 horas úteis para movimentar.' }}
@@ -255,37 +255,37 @@ interface EtapaFluxo {
             }
 
             @if (det.acoes.movimentar) {
-              <ng-template cesTabPanel="movimentar">
+              <ng-template geoTabPanel="movimentar">
                 <app-fechamento-movimentar-painel #painelMovimentar [solicitacao]="det" (movimentada)="aoMovimentar($event)" (conflito)="recarregar()" />
               </ng-template>
             }
 
-            <ng-template cesTabPanel="movimentacoes">
+            <ng-template geoTabPanel="movimentacoes">
               <app-fechamento-operacoes-historico [movimentacoes]="det.movimentacoes" [recolhivel]="false" [acoes]="true"
                 [textoVazio]="det.reserva ? 'Nada movimentado ainda. Use Marcar movimentado quando o SAP estiver movimentado.' : 'Nada movimentado ainda. Primeiro a reserva precisa ser registrada.'"
                 (estornar)="abrirEstorno($event)" />
             </ng-template>
-          </ces-tabs>
+          </geo-tabs>
         </div>
       }
 
       <div drawer-footer class="dd-rodape">
         <span class="dd-linha-botoes">
-          <ces-icon-button icon="pi pi-external-link" label="Abrir relatório completo" tooltip="Relatório completo" (pressed)="abrirRelatorio()" />
-          <ces-icon-button icon="pi pi-print" label="Imprimir a solicitação" tooltip="Imprimir" (pressed)="imprimir()" />
+          <geo-icon-button icon="pi pi-external-link" label="Abrir relatório completo" tooltip="Relatório completo" (pressed)="abrirRelatorio()" />
+          <geo-icon-button icon="pi pi-print" label="Imprimir a solicitação" tooltip="Imprimir" (pressed)="imprimir()" />
           @if (aba() === 'itens' || aba() === 'movimentacoes') {
             @if (detalhe()?.acoes?.editar) {
-              <ces-icon-button icon="pi pi-pencil" label="Editar a solicitação" tooltip="Editar" (pressed)="edicaoAberta.set(true)" />
+              <geo-icon-button icon="pi pi-pencil" label="Editar a solicitação" tooltip="Editar" (pressed)="edicaoAberta.set(true)" />
             }
             @if (detalhe()?.acoes?.cancelar) {
-              <ces-icon-button icon="pi pi-ban" label="Cancelar a solicitação" tooltip="Cancelar solicitação" (pressed)="abrirCancelamento()" />
+              <geo-icon-button icon="pi pi-ban" label="Cancelar a solicitação" tooltip="Cancelar solicitação" (pressed)="abrirCancelamento()" />
             }
           }
         </span>
         <span class="dd-linha-botoes">
           @if (aba() === 'movimentar' && detalhe()?.acoes?.movimentar) {
-            <ces-button label="Voltar" variant="ghost" (pressed)="aba.set('itens')" />
-            <ces-button
+            <geo-button label="Voltar" variant="ghost" (pressed)="aba.set('itens')" />
+            <geo-button
               [label]="painelMovimentar()?.pendenteEnvio() ? 'Tentar novamente' : 'Confirmar movimentação' + (painelMovimentar()?.itensMarcados() ? ' (' + painelMovimentar()!.itensMarcados() + ')' : '')"
               icon="pi pi-check-circle"
               [loading]="painelMovimentar()?.salvando() ?? false"
@@ -293,55 +293,55 @@ interface EtapaFluxo {
               (pressed)="painelMovimentar()?.confirmar()"
             />
           } @else if (aba() === 'reserva' && podeReserva()) {
-            <ces-button label="Voltar" variant="ghost" (pressed)="aba.set('itens')" />
-            <ces-button icon="pi pi-check" label="Salvar reserva" [loading]="processando()" (pressed)="salvarReserva()" />
+            <geo-button label="Voltar" variant="ghost" (pressed)="aba.set('itens')" />
+            <geo-button icon="pi pi-check" label="Salvar reserva" [loading]="processando()" (pressed)="salvarReserva()" />
           } @else if (detalhe()?.acoes?.registrarReserva) {
-            <ces-button label="Registrar reserva" icon="pi pi-hashtag" (pressed)="aba.set('reserva')" />
+            <geo-button label="Registrar reserva" icon="pi pi-hashtag" (pressed)="aba.set('reserva')" />
           } @else if (detalhe()?.acoes?.movimentar) {
-            <ces-button label="Marcar movimentado" icon="pi pi-check-square" (pressed)="aba.set('movimentar')" />
+            <geo-button label="Marcar movimentado" icon="pi pi-check-square" (pressed)="aba.set('movimentar')" />
           } @else {
-            <ces-button label="Fechar" variant="ghost" (pressed)="visible.set(false)" />
+            <geo-button label="Fechar" variant="ghost" (pressed)="visible.set(false)" />
           }
         </span>
       </div>
-    </ces-drawer>
+    </geo-drawer>
 
     @if (detalhe(); as det) {
       <app-fechamento-estorno-drawer [(visible)]="estornoAberto" [solicitacao]="det" [movimentacao]="movimentacaoSelecionada()"
         (estornada)="atualizar($event)" (conflito)="recarregar()" />
       <app-fechamento-editar-drawer [(visible)]="edicaoAberta" [solicitacao]="det" (salva)="atualizar($event)" (conflito)="recarregar()" />
 
-      <ces-form-drawer [(visible)]="pendenciaAberta" [title]="tituloPendencia()" size="sm"
+      <geo-form-drawer [(visible)]="pendenciaAberta" [title]="tituloPendencia()" size="sm"
         [description]="pendenciaAtual() ? undefined : 'Pendência não impede a movimentação; serve para registrar o que falta resolver.'">
         @if (pendenciaAtual(); as p) {
-          <ces-callout tone="warning" [title]="p.motivo">{{ p.justificativa || 'Sem justificativa informada.' }}</ces-callout>
+          <geo-callout tone="warning" [title]="p.motivo">{{ p.justificativa || 'Sem justificativa informada.' }}</geo-callout>
         } @else {
           <div class="fx-form">
-            <ces-select label="Motivo" [options]="opcoesMotivo()" [(value)]="pendenciaMotivo" [filter]="true" [required]="true"
+            <geo-select label="Motivo" [options]="opcoesMotivo()" [(value)]="pendenciaMotivo" [filter]="true" [required]="true"
               [error]="pendenciaTentou() && !pendenciaMotivo() ? 'Escolha o motivo.' : undefined" />
-            <ces-textarea label="Justificativa" [(value)]="pendenciaJustificativa" [rows]="3" [maxlength]="2000"
+            <geo-textarea label="Justificativa" [(value)]="pendenciaJustificativa" [rows]="3" [maxlength]="2000"
               [error]="pendenciaJustificativa().trim() && pendenciaJustificativa().trim().length < 5 ? 'Escreva ao menos 5 caracteres ou deixe em branco.' : undefined" />
           </div>
         }
-        <div drawer-footer class="ces-actions-row">
-          <ces-button variant="ghost" label="Voltar" (pressed)="pendenciaAberta.set(false)" />
+        <div drawer-footer class="geo-actions-row">
+          <geo-button variant="ghost" label="Voltar" (pressed)="pendenciaAberta.set(false)" />
           @if (pendenciaAtual()) {
-            <ces-button icon="pi pi-check" label="Resolver pendência" [loading]="processando()" (pressed)="removerPendencia(pendenciaItem()?.id ?? null)" />
+            <geo-button icon="pi pi-check" label="Resolver pendência" [loading]="processando()" (pressed)="removerPendencia(pendenciaItem()?.id ?? null)" />
           } @else {
-            <ces-button icon="pi pi-flag" label="Registrar pendência" [loading]="processando()" (pressed)="salvarPendencia()" />
+            <geo-button icon="pi pi-flag" label="Registrar pendência" [loading]="processando()" (pressed)="salvarPendencia()" />
           }
         </div>
-      </ces-form-drawer>
+      </geo-form-drawer>
 
-      <ces-form-drawer [(visible)]="cancelamentoAberto" title="Cancelar solicitação" size="sm"
+      <geo-form-drawer [(visible)]="cancelamentoAberto" title="Cancelar solicitação" size="sm"
         description="A solicitação deixa de contar para o encerramento da obra. Não dá para desfazer.">
-        <ces-textarea label="Motivo" [(value)]="cancelamentoMotivo" [rows]="3" [maxlength]="500" [required]="true"
+        <geo-textarea label="Motivo" [(value)]="cancelamentoMotivo" [rows]="3" [maxlength]="500" [required]="true"
           [error]="cancelamentoTentou() && !cancelamentoMotivo().trim() ? 'Informe o motivo.' : undefined" />
-        <div drawer-footer class="ces-actions-row">
-          <ces-button variant="ghost" label="Voltar" (pressed)="cancelamentoAberto.set(false)" />
-          <ces-button variant="destructive" icon="pi pi-ban" label="Cancelar solicitação" [loading]="processando()" (pressed)="cancelar()" />
+        <div drawer-footer class="geo-actions-row">
+          <geo-button variant="ghost" label="Voltar" (pressed)="cancelamentoAberto.set(false)" />
+          <geo-button variant="destructive" icon="pi pi-ban" label="Cancelar solicitação" [loading]="processando()" (pressed)="cancelar()" />
         </div>
-      </ces-form-drawer>
+      </geo-form-drawer>
 
     }
   `
@@ -415,9 +415,9 @@ export class FechamentoDetalheDrawerComponent {
     return total > 0 ? Math.min(100, Math.round((this.totalMovimentado() / total) * 100)) : 0;
   });
 
-  protected readonly abas = computed<readonly CesTabItem[]>(() => {
+  protected readonly abas = computed<readonly GeoTabItem[]>(() => {
     const d = this.detalhe();
-    const abas: CesTabItem[] = [{ value: 'itens', label: 'Materiais', icon: 'pi pi-box', badge: d?.itens.length || undefined }];
+    const abas: GeoTabItem[] = [{ value: 'itens', label: 'Materiais', icon: 'pi pi-box', badge: d?.itens.length || undefined }];
     if (this.podeReserva()) abas.push({ value: 'reserva', label: d?.reserva ? 'Corrigir reserva' : 'Registrar reserva', icon: 'pi pi-hashtag' });
     if (d?.acoes.movimentar) abas.push({ value: 'movimentar', label: 'Movimentar', icon: 'pi pi-check-square' });
     abas.push({ value: 'movimentacoes', label: 'Movimentações', icon: 'pi pi-arrow-right-arrow-left', badge: d?.movimentacoes.length || undefined });
@@ -451,7 +451,7 @@ export class FechamentoDetalheDrawerComponent {
     return etapas;
   });
 
-  protected readonly opcoesMotivo = computed<CesSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.nome, value: m.id })));
+  protected readonly opcoesMotivo = computed<GeoSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.nome, value: m.id })));
   protected readonly pendenciaAtual = computed(() => {
     const item = this.pendenciaItem();
     return item ? (this.detalhe()?.itens.find((i) => i.id === item.id)?.pendencia ?? null) : (this.detalhe()?.pendenciaGeral ?? null);

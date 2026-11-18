@@ -4,7 +4,7 @@ import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 
 try {
   TestBed.initTestEnvironment(BrowserTestingModule, platformBrowserTesting());

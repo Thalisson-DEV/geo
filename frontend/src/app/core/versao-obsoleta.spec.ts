@@ -27,7 +27,7 @@ describe('versao-obsoleta', () => {
       getItem: (chave: string) => guardado.get(chave) ?? null,
       setItem: (chave: string, valor: string) => void guardado.set(chave, valor)
     });
-    vi.stubGlobal('location', { assign, reload, href: 'https://ces.local/dp/descontos/novo' });
+    vi.stubGlobal('location', { assign, reload, href: 'https://geo.local/dp/descontos/novo' });
     vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });

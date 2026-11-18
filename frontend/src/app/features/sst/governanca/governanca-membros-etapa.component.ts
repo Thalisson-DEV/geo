@@ -9,7 +9,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
-import { CesStatusComponent } from '@ces/ui';
+import { GeoStatusComponent } from '@geo/ui';
 import { TextareaModule } from 'primeng/textarea';
 import { TooltipModule } from 'primeng/tooltip';
 import { finalize, forkJoin, map, Observable, of, switchMap } from 'rxjs';
@@ -45,7 +45,7 @@ type ModoManutencao = 'ADICIONAR' | 'SAIDA' | 'SUBSTITUIR' | null;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, ReactiveFormsModule, ButtonModule, CheckboxModule, DatePickerModule,
-    InputTextModule, SelectModule, TableModule, CesStatusComponent, TextareaModule, TooltipModule
+    InputTextModule, SelectModule, TableModule, GeoStatusComponent, TextareaModule, TooltipModule
   , DateMaskDirective],
   templateUrl: './governanca-membros-etapa.component.html',
   styleUrls: ['./governanca-membros-etapa.component.css', './governanca-table.css']

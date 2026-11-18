@@ -15,14 +15,14 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@ces/ui": ["./src/app/design-system/index.ts"],
-      "@ces/ui/forms": ["./src/app/design-system/forms/index.ts"],
-      "@ces/ui/autocomplete": ["./src/app/design-system/autocomplete/index.ts"],
-      "@ces/ui/data": ["./src/app/design-system/data/index.ts"],
-      "@ces/ui/overlays": ["./src/app/design-system/overlays/index.ts"],
-      "@ces/ui/feedback": ["./src/app/design-system/feedback/index.ts"],
-      "@ces/ui/patterns": ["./src/app/design-system/patterns/index.ts"],
-      "@ces/ui/testing": ["./src/app/design-system/testing/index.ts"]
+      "@geo/ui": ["./src/app/design-system/index.ts"],
+      "@geo/ui/forms": ["./src/app/design-system/forms/index.ts"],
+      "@geo/ui/autocomplete": ["./src/app/design-system/autocomplete/index.ts"],
+      "@geo/ui/data": ["./src/app/design-system/data/index.ts"],
+      "@geo/ui/overlays": ["./src/app/design-system/overlays/index.ts"],
+      "@geo/ui/feedback": ["./src/app/design-system/feedback/index.ts"],
+      "@geo/ui/patterns": ["./src/app/design-system/patterns/index.ts"],
+      "@geo/ui/testing": ["./src/app/design-system/testing/index.ts"]
     }
   },
   "angularCompilerOptions": {

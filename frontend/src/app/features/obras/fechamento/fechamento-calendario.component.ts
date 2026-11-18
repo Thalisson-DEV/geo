@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { FechamentoFiltro, FechamentoResumo } from '../../../core/models/fechamento-obra.models';
@@ -31,25 +31,25 @@ interface Dia {
   selector: 'app-fechamento-calendario',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent],
+  imports: [GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent, GeoStatusComponent],
   styleUrl: '../../almoxarifado/solicitacoes-material/solicitacoes-comerciais-calendario/solicitacoes-comerciais-calendario.component.css',
   template: `
     @if (erro()) {
-      <ces-async-state type="error" title="Não foi possível carregar o calendário" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
+      <geo-async-state type="error" title="Não foi possível carregar o calendário" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
     } @else {
       @if (truncado()) {
-        <ces-callout tone="warning" title="Mês com muitas solicitações">
+        <geo-callout tone="warning" title="Mês com muitas solicitações">
           Mostrando {{ limite }} de {{ total() }}. Use os filtros ou os atalhos de status para reduzir o recorte.
-        </ces-callout>
+        </geo-callout>
       }
       <div class="cal-shell">
         <section class="cal-card" aria-labelledby="calf-titulo">
           <header class="cal-head">
             <div class="cal-nav">
-              <ces-icon-button icon="pi pi-chevron-left" label="Mês anterior" size="icon-sm" (pressed)="mudarMes(-1)" />
+              <geo-icon-button icon="pi pi-chevron-left" label="Mês anterior" size="icon-sm" (pressed)="mudarMes(-1)" />
               <h2 id="calf-titulo" class="cal-title" aria-live="polite">{{ tituloMes() }}</h2>
-              <ces-icon-button icon="pi pi-chevron-right" label="Próximo mês" size="icon-sm" (pressed)="mudarMes(1)" />
-              <ces-button label="Hoje" variant="outline" size="sm" [disabled]="ehMesAtual()" (pressed)="irParaHoje()" />
+              <geo-icon-button icon="pi pi-chevron-right" label="Próximo mês" size="icon-sm" (pressed)="mudarMes(1)" />
+              <geo-button label="Hoje" variant="outline" size="sm" [disabled]="ehMesAtual()" (pressed)="irParaHoje()" />
             </div>
             <div class="cal-resumo" aria-live="polite">
               @if (carregando()) {
@@ -57,7 +57,7 @@ interface Dia {
               } @else {
                 <span>{{ doMes().length }} {{ doMes().length === 1 ? 'solicitação' : 'solicitações' }} no mês</span>
                 @if (atrasadasNoMes() > 0) {
-                  <ces-status tone="danger" icon="pi pi-exclamation-triangle">{{ atrasadasNoMes() }} {{ atrasadasNoMes() === 1 ? 'atrasada' : 'atrasadas' }}</ces-status>
+                  <geo-status tone="danger" icon="pi pi-exclamation-triangle">{{ atrasadasNoMes() }} {{ atrasadasNoMes() === 1 ? 'atrasada' : 'atrasadas' }}</geo-status>
                 }
               }
             </div>
@@ -123,7 +123,7 @@ interface Dia {
                     <span class="cal-agenda-item__tag">{{ s.tipo }}</span>
                     <span class="cal-agenda-item__id">#{{ s.id.substring(0, 8) }}</span>
                   </span>
-                  <ces-status [tone]="agenda(s).tone" [icon]="'pi ' + agenda(s).icon">{{ agenda(s).label }}</ces-status>
+                  <geo-status [tone]="agenda(s).tone" [icon]="'pi ' + agenda(s).icon">{{ agenda(s).label }}</geo-status>
                 </span>
                 <span class="cal-agenda-item__titulo">{{ obra(s) }}</span>
                 <span class="cal-agenda-item__rota">{{ rota(s) }}</span>

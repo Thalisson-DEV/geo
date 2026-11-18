@@ -1,6 +1,6 @@
 /**
  * Nome do header que carrega a chave de idempotência até o backend.
- * Espelha `IdempotenciaFilter.HEADER_CHAVE` no ces-backend.
+ * Espelha `IdempotenciaFilter.HEADER_CHAVE` no geo-backend.
  */
 export const HEADER_IDEMPOTENCIA = 'Idempotency-Key';
 

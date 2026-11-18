@@ -1,8 +1,8 @@
 import { Injectable, InjectionToken, computed, signal } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
-/** Campo registrado por um `ces-form-field` (usado pelo resumo de pendências e pelo foco no erro). */
-export interface CesFormFieldRef {
+/** Campo registrado por um `geo-form-field` (usado pelo resumo de pendências e pelo foco no erro). */
+export interface GeoFormFieldRef {
   readonly label: () => string;
   readonly control: () => AbstractControl | null;
   readonly section: () => string | null;
@@ -14,8 +14,8 @@ export interface CesFormFieldRef {
   element(): HTMLElement;
 }
 
-/** Seção registrada por um `ces-form-section` (índice de âncoras do tipo C). */
-export interface CesFormSectionRef {
+/** Seção registrada por um `geo-form-section` (índice de âncoras do tipo C). */
+export interface GeoFormSectionRef {
   readonly id: string;
   readonly title: () => string;
   readonly icon: () => string | undefined;
@@ -23,13 +23,13 @@ export interface CesFormSectionRef {
 }
 
 /**
- * Registro de campos e seções de UM formulário. Provido por `ces-form-page` e `ces-form-drawer`;
+ * Registro de campos e seções de UM formulário. Provido por `geo-form-page` e `geo-form-drawer`;
  * os campos/seções projetados neles se registram sozinhos.
  */
 @Injectable()
-export class CesFormRegistry {
-  private readonly fieldList = signal<CesFormFieldRef[]>([]);
-  private readonly sectionList = signal<CesFormSectionRef[]>([]);
+export class GeoFormRegistry {
+  private readonly fieldList = signal<GeoFormFieldRef[]>([]);
+  private readonly sectionList = signal<GeoFormSectionRef[]>([]);
   /** Incrementado quando o status de algum controle muda (controles não são signals). */
   readonly version = signal(0);
 
@@ -42,12 +42,12 @@ export class CesFormRegistry {
     return this.fields().filter((field) => field.invalid());
   });
 
-  addField(field: CesFormFieldRef): () => void {
+  addField(field: GeoFormFieldRef): () => void {
     this.fieldList.update((list) => [...list, field]);
     return () => this.fieldList.update((list) => list.filter((item) => item !== field));
   }
 
-  addSection(section: CesFormSectionRef): () => void {
+  addSection(section: GeoFormSectionRef): () => void {
     this.sectionList.update((list) => [...list, section]);
     return () => this.sectionList.update((list) => list.filter((item) => item !== section));
   }
@@ -66,9 +66,9 @@ function sortByDocument<T extends { element(): HTMLElement }>(items: T[]): T[] {
   });
 }
 
-/** Seção atual de um campo (provida por `ces-form-section`). */
-export interface CesFormSectionContext {
+/** Seção atual de um campo (provida por `geo-form-section`). */
+export interface GeoFormSectionContext {
   readonly title: () => string;
   readonly icon: () => string | undefined;
 }
-export const CES_FORM_SECTION = new InjectionToken<CesFormSectionContext>('CES_FORM_SECTION');
+export const GEO_FORM_SECTION = new InjectionToken<GeoFormSectionContext>('GEO_FORM_SECTION');

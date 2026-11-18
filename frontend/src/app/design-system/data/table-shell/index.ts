@@ -1,1 +1,1 @@
-export * from './ces-table-shell.component';
+export * from './geo-table-shell.component';

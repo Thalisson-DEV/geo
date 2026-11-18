@@ -4,33 +4,33 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesRowActionsDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoRowActionsDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   LookupOption,
   LookupStatus,
   NotificationService,
-  CesTone,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  GeoTone,
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { LookupStore } from '../../../core/lookup';
 import {
   CategoriaCnh,
@@ -58,38 +58,38 @@ import { LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, 
   imports: [
     DatePipe,
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesRowActionsDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoRowActionsDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="acesso.editarCondutor()" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarCondutor()" (newRequested)="novo()">
+      <geo-page-header
         title="Condutores"
         icon="pi pi-id-card"
         [breadcrumb]="[{ label: 'Frota' }, { label: 'Condutores' }]"
         description="Colaboradores habilitados a dirigir a frota, com a CNH e o veículo que conduzem agora. CNH vencida impede novo vínculo. Atalhos: / busca, F filtros, N novo condutor."
       >
         @if (acesso.editarCondutor()) {
-          <ces-button actions icon="pi pi-plus" label="Novo condutor" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo condutor" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel
+      <geo-filter-panel
         #painel
         storageKey="frota-condutores"
         [activeCount]="lista.activeCount()"
@@ -99,15 +99,15 @@ import { LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, 
         (cleared)="lista.reset()"
         (chipRemoved)="lista.remove($any($event))"
       >
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Categoria" [options]="categorias()" [(value)]="lista.filters.categorias" [filter]="false" placeholder="Todas"></ces-multiselect>
-          <ces-select label="CNH" [options]="situacoesCnh" [(value)]="lista.filters.situacaoCnh" [clearable]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Cadastro" [options]="cadastroOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Base" [options]="bases.opcoes()" [(value)]="lista.filters.idsBase" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Categoria" [options]="categorias()" [(value)]="lista.filters.categorias" [filter]="false" placeholder="Todas"></geo-multiselect>
+          <geo-select label="CNH" [options]="situacoesCnh" [(value)]="lista.filters.situacaoCnh" [clearable]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Cadastro" [options]="cadastroOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Condutores"
         mode="server"
         [description]="descricaoTabela()"
@@ -139,102 +139,102 @@ import { LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, 
         (emptyAction)="novo()"
         (rowActivate)="acesso.editarCondutor() ? editar($event) : abrirHistorico($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.nome ?? '—' }}</span>
-          <span class="ces-cell-muted">{{ row.funcao }} · {{ row.baseOperacional }}</span>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.nome ?? '—' }}</span>
+          <span class="geo-cell-muted">{{ row.funcao }} · {{ row.baseOperacional }}</span>
         </ng-template>
-        <ng-template cesCell="cnh" let-row>
-          <span class="ces-cell-strong">{{ row.cnhCategoria ?? '—' }}</span>
-          <span class="ces-cell-muted">{{ row.cnhNumeroMascarado }}</span>
+        <ng-template geoCell="cnh" let-row>
+          <span class="geo-cell-strong">{{ row.cnhCategoria ?? '—' }}</span>
+          <span class="geo-cell-muted">{{ row.cnhNumeroMascarado }}</span>
         </ng-template>
-        <ng-template cesCell="cnhValidade" let-row>
-          <span class="ces-cell-strong">{{ row.cnhValidade | date: 'dd/MM/yyyy' }}</span>
+        <ng-template geoCell="cnhValidade" let-row>
+          <span class="geo-cell-strong">{{ row.cnhValidade | date: 'dd/MM/yyyy' }}</span>
           @if (row.situacaoCnh !== 'VIGENTE') {
-            <span class="ces-cell-muted">{{ prazo(row.diasParaVencerCnh) }}</span>
+            <span class="geo-cell-muted">{{ prazo(row.diasParaVencerCnh) }}</span>
           }
         </ng-template>
-        <ng-template cesCell="situacaoCnh" let-row>
-          <ces-status [tone]="tom[row.situacaoCnh]" [icon]="icone[row.situacaoCnh]">{{ rotuloVencimento[row.situacaoCnh] }}</ces-status>
+        <ng-template geoCell="situacaoCnh" let-row>
+          <geo-status [tone]="tom[row.situacaoCnh]" [icon]="icone[row.situacaoCnh]">{{ rotuloVencimento[row.situacaoCnh] }}</geo-status>
           @if (!row.ativo) {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-history">Retirado</ces-status>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-history">Retirado</geo-status>
           }
         </ng-template>
-        <ng-template cesCell="placaAtual" let-row>
+        <ng-template geoCell="placaAtual" let-row>
           @if (row.placaAtual) {
-            <span class="ces-cell-strong">{{ placa(row.placaAtual) }}</span>
-            <span class="ces-cell-muted">desde {{ row.conduzDesde | date: 'dd/MM/yyyy' }}</span>
+            <span class="geo-cell-strong">{{ placa(row.placaAtual) }}</span>
+            <span class="geo-cell-muted">desde {{ row.conduzDesde | date: 'dd/MM/yyyy' }}</span>
           } @else {
-            <span class="ces-cell-muted">Sem veículo</span>
+            <span class="geo-cell-muted">Sem veículo</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (acesso.editarCondutor()) {
-              <ces-icon-button icon="pi pi-history" [label]="'Veículos conduzidos por ' + row.nome" tooltip="Histórico de veículos" size="icon-sm"
-                (pressed)="abrirHistorico(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-history" [label]="'Veículos conduzidos por ' + row.nome" tooltip="Histórico de veículos" size="icon-sm"
+                (pressed)="abrirHistorico(row)"></geo-icon-button>
               @if (row.ativo) {
-                <ces-icon-button icon="pi pi-user-minus" [label]="'Retirar ' + row.nome + ' dos condutores'" tooltip="Retirar dos condutores"
-                  size="icon-sm" (pressed)="desativar(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-user-minus" [label]="'Retirar ' + row.nome + ' dos condutores'" tooltip="Retirar dos condutores"
+                  size="icon-sm" (pressed)="desativar(row)"></geo-icon-button>
               }
             }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Atualizar CNH' : 'Novo condutor'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Atualizar CNH' : 'Novo condutor'"
       [description]="emEdicao() ? emEdicao()!.nome + '. O número da CNH é guardado cifrado e aparece mascarado nas telas.' : 'Registre a CNH de um colaborador para ele poder conduzir veículos da frota.'"
       [dirty]="alterado()" [loading]="salvando()" size="md">
-      <ces-form-section title="Habilitação" icon="pi pi-id-card">
+      <geo-form-section title="Habilitação" icon="pi pi-id-card">
         @if (!emEdicao()) {
-          <ces-autocomplete label="Colaborador" [required]="true" [options]="opcoesColaborador()" [status]="statusBusca()"
+          <geo-autocomplete label="Colaborador" [required]="true" [options]="opcoesColaborador()" [status]="statusBusca()"
             [loading]="statusBusca() === 'loading'" [ngModel]="idColaborador()" (ngModelChange)="idColaborador.set($event)" (search)="buscarColaborador($event)"
-            [error]="erroCampo('colaborador')"></ces-autocomplete>
+            [error]="erroCampo('colaborador')"></geo-autocomplete>
         }
-        <div class="ces-form-grid">
-          <ces-text-input label="Número da CNH" [required]="true" [(value)]="cnhNumero" [maxlength]="14"
+        <div class="geo-form-grid">
+          <geo-text-input label="Número da CNH" [required]="true" [(value)]="cnhNumero" [maxlength]="14"
             [description]="emEdicao() ? 'Digite os 11 dígitos novamente para confirmar.' : '11 dígitos, só números.'"
-            [error]="erroCampo('numero')"></ces-text-input>
-          <ces-select label="Categoria" [required]="true" [options]="categorias()" [(value)]="cnhCategoria" [error]="erroCampo('categoria')"></ces-select>
-          <ces-datepicker label="Validade" [required]="true" [(value)]="cnhValidade" [error]="erroCampo('validade')"></ces-datepicker>
-          <ces-datepicker label="Primeira habilitação" [(value)]="primeiraHabilitacao" [clearable]="true" [maxDate]="hoje" [showOptional]="true"></ces-datepicker>
+            [error]="erroCampo('numero')"></geo-text-input>
+          <geo-select label="Categoria" [required]="true" [options]="categorias()" [(value)]="cnhCategoria" [error]="erroCampo('categoria')"></geo-select>
+          <geo-datepicker label="Validade" [required]="true" [(value)]="cnhValidade" [error]="erroCampo('validade')"></geo-datepicker>
+          <geo-datepicker label="Primeira habilitação" [(value)]="primeiraHabilitacao" [clearable]="true" [maxDate]="hoje" [showOptional]="true"></geo-datepicker>
         </div>
-        <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></ces-textarea>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar condutor'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></geo-textarea>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar condutor'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [(visible)]="historicoAberto" title="Histórico de veículos"
+    <geo-form-drawer [(visible)]="historicoAberto" title="Histórico de veículos"
       [description]="(historicoDe()?.nome ?? '') + ' — períodos em que foi o condutor responsável.'" size="md">
-      <ces-data-table caption="Histórico de veículos" [searchable]="false" [columns]="colunasHistorico" [rows]="historico()"
+      <geo-data-table caption="Histórico de veículos" [searchable]="false" [columns]="colunasHistorico" [rows]="historico()"
         [rowKey]="chaveVinculo" [state]="carregandoHistorico() ? 'loading' : historico().length ? 'ready' : 'empty'"
         stateTitle="Nenhum veículo conduzido ainda">
-        <ng-template cesCell="placa" let-row><span class="ces-cell-strong">{{ placa(row.placa) }}</span></ng-template>
-        <ng-template cesCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
-        <ng-template cesCell="fim" let-row>
+        <ng-template geoCell="placa" let-row><span class="geo-cell-strong">{{ placa(row.placa) }}</span></ng-template>
+        <ng-template geoCell="inicio" let-row>{{ row.inicio | date: 'dd/MM/yyyy HH:mm' }}</ng-template>
+        <ng-template geoCell="fim" let-row>
           @if (row.fim) {
             {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
           } @else {
-            <ces-status tone="success" icon="pi-check-circle">Atual</ces-status>
+            <geo-status tone="success" icon="pi-check-circle">Atual</geo-status>
           }
         </ng-template>
-      </ces-data-table>
-    </ces-form-drawer>
+      </geo-data-table>
+    </geo-form-drawer>
   `
 })
 export class FrotaCondutoresComponent {
   private readonly frota = inject(FrotaService);
   private readonly lookups = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly rota = inject(ActivatedRoute);
   private readonly router = inject(Router);
   protected readonly acesso = acessoFrota();
 
-  protected readonly tom: Record<string, CesTone> = TOM_VENCIMENTO;
+  protected readonly tom: Record<string, GeoTone> = TOM_VENCIMENTO;
   protected readonly icone: Record<string, string> = ICONE_VENCIMENTO;
   protected readonly rotuloVencimento: Record<string, string> = ROTULO_VENCIMENTO;
   protected readonly prazo = descreverPrazo;
@@ -263,23 +263,23 @@ export class FrotaCondutoresComponent {
   protected readonly historico = signal<VinculoCondutor[]>([]);
   protected readonly carregandoHistorico = signal(false);
 
-  protected readonly situacoesCnh: CesSelectOption<SituacaoVencimento>[] = (
+  protected readonly situacoesCnh: GeoSelectOption<SituacaoVencimento>[] = (
     ['VENCIDO', 'A_VENCER', 'VIGENTE'] as SituacaoVencimento[]
   ).map((s) => ({ label: ROTULO_VENCIMENTO[s], value: s }));
-  protected readonly categorias = computed<CesSelectOption<CategoriaCnh>[]>(() =>
+  protected readonly categorias = computed<GeoSelectOption<CategoriaCnh>[]>(() =>
     (this.opcoes()?.categoriasCnh ?? []).map((c) => ({ label: c.rotulo, value: c.valor }))
   );
 
   /** A busca aceita o número da CNH: por isso não vai para a URL (`queryParam: false`). */
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'frota-condutores',
     rememberFilters: 'frota-condutores',
     queryParam: false,
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      categorias: cesFilter.list<CategoriaCnh>([], { label: 'Categoria', param: 'categoria', countLabel: (n) => `${n} selecionadas` }),
-      situacaoCnh: cesFilter.value<SituacaoVencimento | null>(null, { label: 'CNH', param: 'cnh', options: () => this.situacoesCnh }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Cadastro', options: () => OPCOES_CADASTRO })
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      categorias: geoFilter.list<CategoriaCnh>([], { label: 'Categoria', param: 'categoria', countLabel: (n) => `${n} selecionadas` }),
+      situacaoCnh: geoFilter.value<SituacaoVencimento | null>(null, { label: 'CNH', param: 'cnh', options: () => this.situacoesCnh }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Cadastro', options: () => OPCOES_CADASTRO })
     },
     sort: [{ key: 'cnhValidade', direction: 'asc' }]
   });
@@ -309,14 +309,14 @@ export class FrotaCondutoresComponent {
     return e;
   });
 
-  protected readonly colunas: CesDataTableColumn<Condutor>[] = [
+  protected readonly colunas: GeoDataTableColumn<Condutor>[] = [
     { key: 'nome', header: 'Condutor', type: 'custom', priority: 1, value: (c) => c.nome, display: (c) => c.nome ?? '' },
     { key: 'cnh', header: 'CNH', type: 'custom', sortField: 'cnhCategoria', value: (c) => c.cnhCategoria, display: (c) => `${c.cnhCategoria ?? ''} ${c.cnhNumeroMascarado ?? ''}` },
     { key: 'cnhValidade', header: 'Validade da CNH', type: 'custom', sortField: 'cnhValidade', value: (c) => c.cnhValidade ?? '9999', display: (c) => c.cnhValidade ?? '' },
     { key: 'situacaoCnh', header: 'Situação', type: 'custom', priority: 1, value: (c) => c.diasParaVencerCnh ?? 99999, display: (c) => ROTULO_VENCIMENTO[c.situacaoCnh] },
     { key: 'placaAtual', header: 'Conduz agora', type: 'custom', value: (c) => c.placaAtual, display: (c) => c.placaAtual ?? 'Sem veículo' }
   ];
-  protected readonly colunasHistorico: CesDataTableColumn<VinculoCondutor>[] = [
+  protected readonly colunasHistorico: GeoDataTableColumn<VinculoCondutor>[] = [
     { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (v) => v.placa, display: (v) => v.placa ?? '' },
     { key: 'inicio', header: 'Início', type: 'custom', value: (v) => v.inicio, display: (v) => v.inicio },
     { key: 'fim', header: 'Fim', type: 'custom', value: (v) => v.fim ?? '9999', display: (v) => v.fim ?? 'Atual' }

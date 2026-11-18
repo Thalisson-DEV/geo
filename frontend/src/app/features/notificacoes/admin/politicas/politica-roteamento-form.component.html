@@ -18,14 +18,14 @@
     </div>
   } @else if (loadError()) {
     <div class="form-shell mx-auto w-full max-w-4xl p-6">
-      <ces-async-state
+      <geo-async-state
         state="error"
         title="Não foi possível carregar a política"
         [description]="loadError()"
         actionLabel="Tentar novamente"
         actionIcon="pi pi-refresh"
         (action)="carregar()"
-      ></ces-async-state>
+      ></geo-async-state>
     </div>
   } @else {
     <div class="form-shell mx-auto w-full max-w-4xl">
@@ -135,7 +135,7 @@
                   <div>
                     <div class="section-marker"><span>Identificação</span></div>
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2 md:pl-5">
-                      <ces-text-input
+                      <geo-text-input
                         class="md:col-span-2"
                         label="Nome"
                         [required]="true"
@@ -144,8 +144,8 @@
                         [value]="nome()"
                         [error]="erro('nome')"
                         (valueChange)="nome.set($event)"
-                      ></ces-text-input>
-                      <ces-textarea
+                      ></geo-text-input>
+                      <geo-textarea
                         class="md:col-span-2"
                         label="Descrição"
                         [showOptional]="true"
@@ -155,7 +155,7 @@
                         [value]="descricao()"
                         [error]="erro('descricao')"
                         (valueChange)="descricao.set($event)"
-                      ></ces-textarea>
+                      ></geo-textarea>
                     </div>
                   </div>
 
@@ -190,8 +190,8 @@
 
                   <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="section-marker !mb-0"><span>Rotas e condições</span></div>
-                    <ces-button label="Adicionar rota condicional" icon="pi pi-plus" variant="outline" size="sm"
-                      [disabled]="!gatilhoAtual()" (pressed)="adicionarRota()"></ces-button>
+                    <geo-button label="Adicionar rota condicional" icon="pi pi-plus" variant="outline" size="sm"
+                      [disabled]="!gatilhoAtual()" (pressed)="adicionarRota()"></geo-button>
                   </div>
 
                   @if (erro('rotas')) {
@@ -207,30 +207,30 @@
                               <h2 class="text-[11px] font-bold text-slate-700">
                                 {{ rota.padrao ? 'Caso contrário' : 'Rota condicional ' + (exibida + 1) }}
                               </h2>
-                              <ces-status [tone]="rota.padrao ? 'info' : 'brand'" [icon]="rota.padrao ? 'pi-star' : 'pi-sort-numeric-down'">
+                              <geo-status [tone]="rota.padrao ? 'info' : 'brand'" [icon]="rota.padrao ? 'pi-star' : 'pi-sort-numeric-down'">
                                 {{ rota.padrao ? 'Padrão' : 'Ordem ' + rota.ordem }}
-                              </ces-status>
+                              </geo-status>
                             </div>
                             <p class="mt-1 text-[9px] text-slate-400">
                               {{ rota.padrao ? 'Usada quando nenhuma rota condicional corresponde.' : 'Todas as condições abaixo precisam ser verdadeiras.' }}
                             </p>
                           </div>
                           @if (!rota.padrao) {
-                            <ces-button label="Remover rota" icon="pi pi-trash" variant="ghost" size="sm"
-                              [disabled]="totalCondicionais() === 1" (pressed)="removerRota(rota.localId)"></ces-button>
+                            <geo-button label="Remover rota" icon="pi pi-trash" variant="ghost" size="sm"
+                              [disabled]="totalCondicionais() === 1" (pressed)="removerRota(rota.localId)"></geo-button>
                           }
                         </header>
 
                         <div class="route-fields">
-                          <ces-number-input label="Ordem" description="Inteiro único, maior ou igual a zero."
+                          <geo-number-input label="Ordem" description="Inteiro único, maior ou igual a zero."
                             [required]="true" [min]="0" [maxFractionDigits]="0" [value]="rota.ordem"
-                            [error]="erroRota(rota, 'ordem')" (valueChange)="atualizarOrdem(rota.localId, $event)"></ces-number-input>
-                          <ces-text-input label="Pesquisar usuário ativo" description="Nome, login ou e-mail."
+                            [error]="erroRota(rota, 'ordem')" (valueChange)="atualizarOrdem(rota.localId, $event)"></geo-number-input>
+                          <geo-text-input label="Pesquisar usuário ativo" description="Nome, login ou e-mail."
                             placeholder="Digite para pesquisar" [value]="rota.usuarioBusca"
-                            (valueChange)="pesquisarUsuarios(rota.localId, $event)"></ces-text-input>
-                          <ces-select label="Usuário destinatário" [required]="true" [filter]="true"
+                            (valueChange)="pesquisarUsuarios(rota.localId, $event)"></geo-text-input>
+                          <geo-select label="Usuário destinatário" [required]="true" [filter]="true"
                             [options]="usuarioOptions(rota)" [loading]="rota.usuariosLoading" [value]="rota.usuarioId"
-                            [error]="erroRota(rota, 'usuarioId')" (valueChange)="definirUsuario(rota.localId, $event)"></ces-select>
+                            [error]="erroRota(rota, 'usuarioId')" (valueChange)="definirUsuario(rota.localId, $event)"></geo-select>
                         </div>
 
                         @if (!rota.padrao) {
@@ -240,26 +240,26 @@
                                 <h3 class="text-[10px] font-bold uppercase tracking-wider text-slate-600">Condições</h3>
                                 <p class="mt-0.5 text-[9px] text-slate-400">Use somente variáveis publicadas pelo gatilho.</p>
                               </div>
-                              <ces-button label="Adicionar condição" icon="pi pi-plus" variant="ghost" size="sm"
-                                (pressed)="adicionarCondicao(rota.localId)"></ces-button>
+                              <geo-button label="Adicionar condição" icon="pi pi-plus" variant="ghost" size="sm"
+                                (pressed)="adicionarCondicao(rota.localId)"></geo-button>
                             </div>
                             @if (erroRota(rota, 'condicoes')) {
                               <p class="policy-inline-error" role="alert">{{ erroRota(rota, 'condicoes') }}</p>
                             }
                             @for (condicao of rota.condicoes; track condicao.localId) {
                               <div class="condition-row">
-                                <ces-select label="Campo" [required]="true" [options]="variaveisOptions()"
+                                <geo-select label="Campo" [required]="true" [options]="variaveisOptions()"
                                   [value]="condicao.campo" [error]="erroCondicao(rota, condicao, 'campo')"
-                                  (valueChange)="atualizarCondicao(rota.localId, condicao.localId, { campo: $event || '' })"></ces-select>
-                                <ces-select label="Operador" [required]="true" [options]="operadorOptionsPara(condicao)"
+                                  (valueChange)="atualizarCondicao(rota.localId, condicao.localId, { campo: $event || '' })"></geo-select>
+                                <geo-select label="Operador" [required]="true" [options]="operadorOptionsPara(condicao)"
                                   [value]="condicao.operador"
-                                  (valueChange)="atualizarCondicao(rota.localId, condicao.localId, { operador: $event || 'IGUAL' })"></ces-select>
-                                <ces-text-input label="Valor" [required]="true"
+                                  (valueChange)="atualizarCondicao(rota.localId, condicao.localId, { operador: $event || 'IGUAL' })"></geo-select>
+                                <geo-text-input label="Valor" [required]="true"
                                   [value]="condicao.valor" [error]="erroCondicao(rota, condicao, 'valor')"
-                                  (valueChange)="atualizarCondicao(rota.localId, condicao.localId, { valor: $event })"></ces-text-input>
-                                <ces-button label="Remover condição" icon="pi pi-trash" variant="ghost" size="sm"
+                                  (valueChange)="atualizarCondicao(rota.localId, condicao.localId, { valor: $event })"></geo-text-input>
+                                <geo-button label="Remover condição" icon="pi pi-trash" variant="ghost" size="sm"
                                   [disabled]="rota.condicoes.length === 1"
-                                  (pressed)="removerCondicao(rota.localId, condicao.localId)"></ces-button>
+                                  (pressed)="removerCondicao(rota.localId, condicao.localId)"></geo-button>
                               </div>
                             }
                           </div>

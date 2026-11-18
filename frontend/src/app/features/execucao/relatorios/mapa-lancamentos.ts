@@ -23,7 +23,7 @@ export function desenharMapaDeLancamentos(elemento: HTMLElement, pontos: readonl
   if (!pontos.length || typeof L === 'undefined') return null;
 
   const estilo = getComputedStyle(elemento);
-  const traco = estilo.getPropertyValue('--ces-brand').trim() || 'currentColor';
+  const traco = estilo.getPropertyValue('--geo-brand').trim() || 'currentColor';
 
   const mapa = L.map(elemento, { zoomControl: true, attributionControl: true, scrollWheelZoom: false });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -41,8 +41,8 @@ export function desenharMapaDeLancamentos(elemento: HTMLElement, pontos: readonl
     // Estilo inline com var(): o ícone é inserido fora da view do componente.
     const html =
       `<span style="display:grid;place-items:center;width:${tamanho}px;height:${tamanho}px;border-radius:999px;` +
-      `border:2px solid var(--ces-surface);box-shadow:var(--ces-shadow-md);font:700 11px/1 system-ui,sans-serif;` +
-      `background:${ponto.destaque ? 'var(--ces-foreground)' : 'var(--ces-brand)'};color:var(--ces-surface)">` +
+      `border:2px solid var(--geo-surface);box-shadow:var(--geo-shadow-md);font:700 11px/1 system-ui,sans-serif;` +
+      `background:${ponto.destaque ? 'var(--geo-foreground)' : 'var(--geo-brand)'};color:var(--geo-surface)">` +
       `${escapar(ponto.rotulo)}</span>`;
     L.marker([ponto.latitude, ponto.longitude], {
       icon: L.divIcon({ html, className: '', iconSize: [tamanho, tamanho], iconAnchor: [tamanho / 2, tamanho / 2] }),

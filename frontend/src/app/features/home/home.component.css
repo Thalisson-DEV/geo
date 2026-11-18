@@ -8,10 +8,10 @@
   display: grid;
   grid-template-columns: minmax(20rem, 0.82fr) minmax(32rem, 1.18fr);
   overflow: hidden;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-xl);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-md);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-xl);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-md);
 }
 
 .brand-panel {
@@ -21,8 +21,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid color-mix(in srgb, var(--ces-brand) 24%, var(--ces-border));
-  background: var(--ces-brand-soft);
+  border-right: 1px solid color-mix(in srgb, var(--geo-brand) 24%, var(--geo-border));
+  background: var(--geo-brand-soft);
 }
 
 .brand-panel__identity {
@@ -39,10 +39,10 @@
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid color-mix(in srgb, var(--ces-brand) 18%, var(--ces-border));
-  border-radius: var(--ces-radius-md);
+  border: 1px solid color-mix(in srgb, var(--geo-brand) 18%, var(--geo-border));
+  border-radius: var(--geo-radius-md);
   background: #fff;
-  box-shadow: var(--ces-shadow-sm);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .brand-panel__logo img {
@@ -54,7 +54,7 @@
 .brand-panel__product,
 .brand-panel__eyebrow,
 .module-index__header > span {
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -62,7 +62,7 @@
 
 .brand-panel__product {
   max-width: 10rem;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   line-height: 1.45;
 }
 
@@ -77,12 +77,12 @@
 .brand-panel__eyebrow {
   display: block;
   margin-bottom: 1.25rem;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .brand-panel__statement h1 {
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: clamp(2.55rem, 5vw, 5rem);
   font-weight: 760;
   line-height: 0.94;
@@ -93,7 +93,7 @@
 .brand-panel__statement p {
   width: min(100%, 25rem);
   margin: 1.75rem 0 0;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: clamp(0.9rem, 1.25vw, 1.05rem);
   line-height: 1.65;
 }
@@ -102,7 +102,7 @@
   position: absolute;
   right: -0.08em;
   bottom: 14%;
-  color: color-mix(in srgb, var(--ces-brand) 8%, transparent);
+  color: color-mix(in srgb, var(--geo-brand) 8%, transparent);
   font-size: clamp(7rem, 18vw, 18rem);
   font-weight: 900;
   line-height: 0.72;
@@ -119,11 +119,11 @@
   align-items: end;
   gap: 1.25rem;
   padding-top: 1.5rem;
-  border-top: 1px solid color-mix(in srgb, var(--ces-brand) 28%, var(--ces-border));
+  border-top: 1px solid color-mix(in srgb, var(--geo-brand) 28%, var(--geo-border));
 }
 
 .brand-panel__focus > span {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: -0.06em;
@@ -140,19 +140,19 @@
 
 .brand-panel__focus i {
   grid-row: 1 / 3;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-size: 1rem;
 }
 
 .brand-panel__focus strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 0.82rem;
 }
 
 .brand-panel__focus small {
   overflow: hidden;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   line-height: 1.4;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -163,7 +163,7 @@
   padding: clamp(2rem, 4vw, 4.5rem);
   display: flex;
   flex-direction: column;
-  background: var(--ces-surface);
+  background: var(--geo-surface);
 }
 
 .module-index__header {
@@ -175,12 +175,12 @@
 
 .module-index__header > span {
   padding-top: 0.35rem;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .module-index__header h2 {
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: clamp(1.65rem, 3vw, 2.5rem);
   line-height: 1;
   letter-spacing: -0.045em;
@@ -188,8 +188,8 @@
 
 .module-index__header p {
   margin: 0.65rem 0 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-body);
   line-height: 1.5;
 }
 
@@ -197,7 +197,7 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  border-bottom: 1px solid var(--ces-border);
+  border-bottom: 1px solid var(--geo-border);
 }
 
 .module-link {
@@ -209,29 +209,29 @@
   flex: 1;
   align-items: center;
   gap: 0.8rem;
-  border-top: 1px solid var(--ces-border);
-  color: var(--ces-foreground);
+  border-top: 1px solid var(--geo-border);
+  color: var(--geo-foreground);
   text-decoration: none;
   transition:
-    background-color var(--ces-duration-normal) var(--ces-ease-standard),
-    color var(--ces-duration-normal) var(--ces-ease-standard);
+    background-color var(--geo-duration-normal) var(--geo-ease-standard),
+    color var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .module-link::before {
   position: absolute;
   inset: 0 auto 0 0;
   width: 3px;
-  background: var(--ces-brand);
+  background: var(--geo-brand);
   content: '';
   transform: scaleY(0);
   transform-origin: center;
-  transition: transform var(--ces-duration-normal) var(--ces-ease-standard);
+  transition: transform var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .module-link:hover,
 .module-link--featured,
 .module-link:focus-visible {
-  background: var(--ces-brand-soft);
+  background: var(--geo-brand-soft);
 }
 
 .module-link:hover::before,
@@ -241,18 +241,18 @@
 }
 
 .module-link:active {
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .module-link:focus-visible {
   z-index: 1;
-  outline: 3px solid var(--ces-focus-ring);
+  outline: 3px solid var(--geo-focus-ring);
   outline-offset: -3px;
 }
 
 .module-link__number {
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
   font-weight: 800;
   letter-spacing: 0.08em;
 }
@@ -262,17 +262,17 @@
   height: 2.75rem;
   display: grid;
   place-items: center;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
-  color: var(--ces-brand);
-  background: var(--ces-surface);
-  transition: border-color var(--ces-duration-normal) var(--ces-ease-standard);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  color: var(--geo-brand);
+  background: var(--geo-surface);
+  transition: border-color var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .module-link:hover .module-link__icon,
 .module-link--featured .module-link__icon,
 .module-link:focus-visible .module-link__icon {
-  border-color: color-mix(in srgb, var(--ces-brand) 42%, var(--ces-border));
+  border-color: color-mix(in srgb, var(--geo-brand) 42%, var(--geo-border));
 }
 
 .module-link__copy {
@@ -291,8 +291,8 @@
 
 .module-link__copy small {
   overflow: hidden;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   line-height: 1.35;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -304,16 +304,16 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
   transition:
-    color var(--ces-duration-fast) var(--ces-ease-standard),
-    transform var(--ces-duration-normal) var(--ces-ease-standard);
+    color var(--geo-duration-fast) var(--geo-ease-standard),
+    transform var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .module-link:hover .module-link__arrow,
 .module-link--featured .module-link__arrow,
 .module-link:focus-visible .module-link__arrow {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   transform: translateX(0.25rem);
 }
 
@@ -341,7 +341,7 @@
   .brand-panel {
     min-height: 27rem;
     border-right: 0;
-    border-bottom: 1px solid color-mix(in srgb, var(--ces-brand) 24%, var(--ces-border));
+    border-bottom: 1px solid color-mix(in srgb, var(--geo-brand) 24%, var(--geo-border));
   }
 
   .brand-panel__statement {
@@ -360,7 +360,7 @@
 
 @media (max-width: 560px) {
   .home {
-    border-radius: var(--ces-radius-lg);
+    border-radius: var(--geo-radius-lg);
   }
 
   .brand-panel,

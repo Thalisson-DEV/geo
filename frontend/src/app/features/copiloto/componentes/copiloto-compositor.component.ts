@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, input, model, output, viewChild } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent, CesStatusComponent } from '@ces/ui';
-import { CesTextareaComponent } from '@ces/ui/forms';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoTextareaComponent } from '@geo/ui/forms';
 import { AssistenteContexto } from '../../../core/models/assistente.models';
 import { AnexoPendente, formatarTamanho } from '../copiloto.store';
 
@@ -13,15 +13,15 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
 @Component({
   selector: 'app-copiloto-compositor',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesTextareaComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTextareaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form class="compositor" (submit)="$event.preventDefault(); enviarAgora()" [class.compositor--desabilitado]="!disponivel()">
       @if (contexto(); as ctx) {
         <div class="compositor__contexto">
-          <ces-status tone="brand" icon="pi-map-marker">
+          <geo-status tone="brand" icon="pi-map-marker">
             Contexto: {{ ctx.rotulo || ctx.pagina || ctx.entidadeTipo }}
-          </ces-status>
+          </geo-status>
         </div>
       }
       @if (anexos().length) {
@@ -44,18 +44,18 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
                   @default { {{ anexo.erro ? 'Enviado; leitura automática falhou' : formatarTamanho(anexo.tamanho) }} }
                 }
               </span>
-              <ces-icon-button
+              <geo-icon-button
                 icon="pi pi-times"
                 size="icon-sm"
                 [label]="'Remover ' + anexo.nome"
                 (pressed)="removerAnexo.emit(anexo.idLocal)"
-              ></ces-icon-button>
+              ></geo-icon-button>
             </li>
           }
         </ul>
       }
       <div class="compositor__campo" (keydown)="aoTeclar($event)" (paste)="aoColar($event)">
-        <ces-textarea
+        <geo-textarea
           #campo
           label="Mensagem para a Bússola"
           [labelVisible]="false"
@@ -66,43 +66,43 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
           [maxlength]="20000"
           [placeholder]="placeholder()"
           [disabled]="!disponivel()"
-        ></ces-textarea>
+        ></geo-textarea>
       </div>
       <div class="compositor__barra">
         <input
           #seletor
           type="file"
           multiple
-          class="ces-sr-only"
+          class="geo-sr-only"
           tabindex="-1"
           aria-hidden="true"
           [accept]="aceitos"
           (change)="aoSelecionar($event)"
         />
-        <ces-icon-button
+        <geo-icon-button
           icon="pi pi-paperclip"
           label="Anexar arquivos (PDF, planilhas, CSV, JSON, texto, DOCX ou imagens)"
           [disabled]="!disponivel()"
           (pressed)="seletor.click()"
-        ></ces-icon-button>
+        ></geo-icon-button>
         <span class="compositor__dica">Enter envia · Shift+Enter quebra linha</span>
         @if (transmitindo()) {
-          <ces-button
+          <geo-button
             variant="secondary"
             icon="pi pi-stop-circle"
             label="Parar"
             ariaLabel="Parar a geração da resposta"
             [loading]="parando()"
             (pressed)="parar.emit()"
-          ></ces-button>
+          ></geo-button>
         } @else {
-          <ces-button
+          <geo-button
             type="submit"
             icon="pi pi-send"
             label="Enviar"
             [disabled]="!podeEnviar()"
             ariaLabel="Enviar mensagem"
-          ></ces-button>
+          ></geo-button>
         }
       </div>
     </form>
@@ -114,20 +114,20 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
       flex-direction: column;
       gap: 0.5rem;
       padding: 0.6rem 0.7rem 0.55rem;
-      border: 1px solid var(--ces-border-strong);
-      border-radius: var(--ces-radius-lg);
-      background: var(--ces-surface);
-      box-shadow: var(--ces-shadow-md);
+      border: 1px solid var(--geo-border-strong);
+      border-radius: var(--geo-radius-lg);
+      background: var(--geo-surface);
+      box-shadow: var(--geo-shadow-md);
     }
-    .compositor:focus-within { border-color: var(--ces-brand); }
+    .compositor:focus-within { border-color: var(--geo-brand); }
     .compositor--desabilitado { opacity: 0.7; }
     .compositor__contexto { display: flex; }
     .compositor__campo { min-width: 0; }
     .compositor__barra { display: flex; align-items: center; gap: 0.5rem; }
     .compositor__dica {
       flex: 1;
-      font-size: var(--ces-font-caption);
-      color: var(--ces-foreground-subtle);
+      font-size: var(--geo-font-caption);
+      color: var(--geo-foreground-subtle);
     }
     .compositor__anexos {
       list-style: none;
@@ -143,22 +143,22 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
       gap: 0.4rem;
       max-width: 100%;
       padding: 0.15rem 0.2rem 0.15rem 0.6rem;
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-sm);
-      background: var(--ces-surface-subtle);
-      font-size: var(--ces-font-caption);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-sm);
+      background: var(--geo-surface-subtle);
+      font-size: var(--geo-font-caption);
     }
-    .anexo[data-estado='erro'] { border-color: var(--ces-danger-text); color: var(--ces-danger-text); }
-    .anexo__nome { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ces-foreground); }
-    .anexo__meta { color: var(--ces-foreground-subtle); }
-    .anexo__giro { color: var(--ces-brand); animation: anexo-giro 0.9s linear infinite; }
+    .anexo[data-estado='erro'] { border-color: var(--geo-danger-text); color: var(--geo-danger-text); }
+    .anexo__nome { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--geo-foreground); }
+    .anexo__meta { color: var(--geo-foreground-subtle); }
+    .anexo__giro { color: var(--geo-brand); animation: anexo-giro 0.9s linear infinite; }
     @keyframes anexo-giro { to { transform: rotate(360deg); } }
     @media (max-width: 640px) { .compositor__dica { visibility: hidden; } }
     @media (prefers-reduced-motion: reduce) { .anexo__giro { animation: none; } }
   `,
 })
 export class CopilotoCompositorComponent {
-  private readonly campo = viewChild<CesTextareaComponent>('campo');
+  private readonly campo = viewChild<GeoTextareaComponent>('campo');
   private readonly seletor = viewChild<ElementRef<HTMLInputElement>>('seletor');
 
   readonly valor = model('');

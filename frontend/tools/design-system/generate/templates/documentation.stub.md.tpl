@@ -10,14 +10,14 @@ TODO: Describe the user problem and why this belongs in the design system rather
 ## Status and import
 
 - Status: experimental
-- Selector: `ces-{{NAME}}`
+- Selector: `geo-{{NAME}}`
 - Public entrypoint after barrel integration: `{{PUBLIC_ENTRYPOINT}}`
 - Introduced in: TODO
 
 ## Minimal example
 
 ```html
-<ces-{{NAME}} ariaLabel="Descrição acessível">Conteúdo</ces-{{NAME}}>
+<geo-{{NAME}} ariaLabel="Descrição acessível">Conteúdo</geo-{{NAME}}>
 ```
 
 ## Public API

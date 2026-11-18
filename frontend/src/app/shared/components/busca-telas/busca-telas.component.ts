@@ -32,38 +32,38 @@ interface TelaBuscavel {
   template: `
     <!-- Gatilho: barra no desktop, só a lupa quando não há largura para ela -->
     <button type="button" (click)="abrir()" aria-label="Buscar telas"
-      class="hidden md:flex items-center gap-2 h-10 pl-3 pr-2 rounded-xl border border-[var(--ces-border)]
-        bg-[var(--ces-surface-subtle)] hover:bg-[var(--ces-surface)] hover:border-primary-400 text-[var(--ces-foreground-muted)] hover:text-primary-500
+      class="hidden md:flex items-center gap-2 h-10 pl-3 pr-2 rounded-xl border border-[var(--geo-border)]
+        bg-[var(--geo-surface-subtle)] hover:bg-[var(--geo-surface)] hover:border-primary-400 text-[var(--geo-foreground-muted)] hover:text-primary-500
         transition-all">
       <i class="pi pi-search text-xs"></i>
       <span class="text-[11px] font-medium">Buscar telas</span>
-      <span class="ml-3 text-[9px] font-bold text-[var(--ces-foreground-subtle)] bg-[var(--ces-surface)] border border-[var(--ces-border)]
+      <span class="ml-3 text-[9px] font-bold text-[var(--geo-foreground-subtle)] bg-[var(--geo-surface)] border border-[var(--geo-border)]
         rounded-md px-1.5 py-0.5 tracking-wider">CTRL K</span>
     </button>
     <p-button icon="pi pi-search" [text]="true" (onClick)="abrir()"
-      styleClass="md:!hidden !text-[var(--ces-foreground-muted)] hover:!bg-[var(--ces-brand-soft)] hover:!text-[var(--ces-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all" />
+      styleClass="md:!hidden !text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all" />
 
     <p-dialog [visible]="aberto()" (visibleChange)="aberto.set($event)" [modal]="true"
       [showHeader]="false" [dismissableMask]="true" [draggable]="false" [resizable]="false"
       position="top" [style]="{ width: '92vw', maxWidth: '560px', marginTop: '8vh' }"
       styleClass="busca-telas-dialog" appendTo="body" (onShow)="campo.focus()">
 
-      <div class="flex flex-col bg-[var(--ces-surface)] text-[var(--ces-foreground)] border border-[var(--ces-border)] rounded-2xl overflow-hidden shadow-2xl
+      <div class="flex flex-col bg-[var(--geo-surface)] text-[var(--geo-foreground)] border border-[var(--geo-border)] rounded-2xl overflow-hidden shadow-2xl
         animate-in zoom-in-95 duration-200">
 
-        <div class="flex items-center gap-3 px-4 h-14 border-b border-[var(--ces-border)] bg-[var(--ces-surface-subtle)]">
-          <i class="pi pi-search text-[var(--ces-foreground-subtle)] text-sm"></i>
+        <div class="flex items-center gap-3 px-4 h-14 border-b border-[var(--geo-border)] bg-[var(--geo-surface-subtle)]">
+          <i class="pi pi-search text-[var(--geo-foreground-subtle)] text-sm"></i>
           <input #campo type="text" [ngModel]="termo()" (ngModelChange)="digitar($event)"
             placeholder="Buscar telas do sistema..." autocomplete="off"
-            class="flex-1 bg-transparent border-0 outline-none text-sm text-[var(--ces-foreground)]
-              placeholder:text-[var(--ces-foreground-subtle)]" />
-          <span class="text-[9px] font-bold text-[var(--ces-foreground-subtle)] bg-[var(--ces-surface)] border border-[var(--ces-border)]
+            class="flex-1 bg-transparent border-0 outline-none text-sm text-[var(--geo-foreground)]
+              placeholder:text-[var(--geo-foreground-subtle)]" />
+          <span class="text-[9px] font-bold text-[var(--geo-foreground-subtle)] bg-[var(--geo-surface)] border border-[var(--geo-border)]
             rounded-md px-1.5 py-0.5 tracking-wider">ESC</span>
         </div>
 
         <div class="max-h-[380px] overflow-y-auto custom-scrollbar">
           @if (lista().length) {
-            <span class="block px-4 pt-3 pb-1 text-[10px] font-bold text-[var(--ces-foreground-subtle)]
+            <span class="block px-4 pt-3 pb-1 text-[10px] font-bold text-[var(--geo-foreground-subtle)]
               uppercase tracking-widest">{{ tituloDaLista() }}</span>
 
             <div class="flex flex-col p-1">
@@ -71,16 +71,16 @@ interface TelaBuscavel {
                 <button type="button" (click)="ir(tela)" (mouseenter)="indiceAtivo.set(i)"
                   class="flex items-center justify-between gap-3 p-3 rounded-xl text-left
                     transition-all group"
-                  [class.!bg-[var(--ces-brand-soft)]]="i === indiceAtivo()"
-                  [class.hover:bg-[var(--ces-surface-muted)]]="true">
+                  [class.!bg-[var(--geo-brand-soft)]]="i === indiceAtivo()"
+                  [class.hover:bg-[var(--geo-surface-muted)]]="true">
                   <div class="flex items-center gap-3 overflow-hidden">
-                    <div class="w-8 h-8 rounded-lg bg-[var(--ces-surface-subtle)] border border-[var(--ces-border)] flex items-center justify-center
-                      shrink-0 group-hover:bg-[var(--ces-surface)] group-hover:shadow-sm transition-all">
-                      <i [class]="tela.icone" class="text-[var(--ces-foreground-subtle)] group-hover:text-primary-500 text-sm"></i>
+                    <div class="w-8 h-8 rounded-lg bg-[var(--geo-surface-subtle)] border border-[var(--geo-border)] flex items-center justify-center
+                      shrink-0 group-hover:bg-[var(--geo-surface)] group-hover:shadow-sm transition-all">
+                      <i [class]="tela.icone" class="text-[var(--geo-foreground-subtle)] group-hover:text-primary-500 text-sm"></i>
                     </div>
                     <div class="flex flex-col overflow-hidden">
-                      <span class="text-xs font-medium text-[var(--ces-foreground)] truncate">{{ tela.label }}</span>
-                      <span class="text-[10px] text-[var(--ces-foreground-subtle)] truncate">{{ tela.caminho }}</span>
+                      <span class="text-xs font-medium text-[var(--geo-foreground)] truncate">{{ tela.label }}</span>
+                      <span class="text-[10px] text-[var(--geo-foreground-subtle)] truncate">{{ tela.caminho }}</span>
                     </div>
                   </div>
                   @if (i === indiceAtivo()) {
@@ -91,22 +91,22 @@ interface TelaBuscavel {
             </div>
           } @else {
             <div class="flex flex-col items-center justify-center py-12 px-6 text-center">
-              <div class="w-12 h-12 bg-[var(--ces-surface-subtle)] rounded-full flex items-center justify-center mb-4 border border-[var(--ces-border)]">
-                <i class="pi pi-search-minus text-[var(--ces-foreground-subtle)] text-2xl"></i>
+              <div class="w-12 h-12 bg-[var(--geo-surface-subtle)] rounded-full flex items-center justify-center mb-4 border border-[var(--geo-border)]">
+                <i class="pi pi-search-minus text-[var(--geo-foreground-subtle)] text-2xl"></i>
               </div>
-              <span class="text-sm font-medium text-[var(--ces-foreground-muted)]">Nenhuma tela encontrada</span>
-              <p class="text-[11px] text-[var(--ces-foreground-subtle)] mt-1 leading-relaxed">
+              <span class="text-sm font-medium text-[var(--geo-foreground-muted)]">Nenhuma tela encontrada</span>
+              <p class="text-[11px] text-[var(--geo-foreground-subtle)] mt-1 leading-relaxed">
                 Tente outro termo, ou o nome do módulo.
               </p>
             </div>
           }
         </div>
 
-        <div class="flex items-center gap-4 px-4 py-2.5 border-t border-[var(--ces-border)] bg-[var(--ces-surface-subtle)]">
-          <span class="flex items-center gap-1.5 text-[10px] text-[var(--ces-foreground-subtle)]">
+        <div class="flex items-center gap-4 px-4 py-2.5 border-t border-[var(--geo-border)] bg-[var(--geo-surface-subtle)]">
+          <span class="flex items-center gap-1.5 text-[10px] text-[var(--geo-foreground-subtle)]">
             <i class="pi pi-arrows-v text-[9px]"></i> navegar
           </span>
-          <span class="flex items-center gap-1.5 text-[10px] text-[var(--ces-foreground-subtle)]">
+          <span class="flex items-center gap-1.5 text-[10px] text-[var(--geo-foreground-subtle)]">
             <i class="pi pi-arrow-down-left text-[9px]"></i> abrir
           </span>
         </div>

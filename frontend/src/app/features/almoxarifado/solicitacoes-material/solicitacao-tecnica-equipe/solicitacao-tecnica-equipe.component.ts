@@ -16,9 +16,9 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
 import {
-  CesDialogShellComponent,
+  GeoDialogShellComponent,
   NotificationService,
-} from '@ces/ui';
+} from '@geo/ui';
 import { EquipeResponse } from '../../../../core/models/rh.models';
 import { ObraResponse } from '../../../../core/models/obras.models';
 import { ObrasService } from '../../../../core/services/obras.service';
@@ -53,7 +53,7 @@ import {
     ButtonModule,
     SelectModule,
     TooltipModule,
-    CesDialogShellComponent,
+    GeoDialogShellComponent,
   ],
   templateUrl: './solicitacao-tecnica-equipe.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

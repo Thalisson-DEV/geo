@@ -28,7 +28,7 @@ public class EncryptionService {
     private static final int TAG_LENGTH_BIT = 128;
     private static final int IV_LENGTH_BYTE = 12;
 
-    @Value("${ces.security.crypto.secret-key}")
+    @Value("${geo.security.crypto.secret-key}")
     private String secretKey;
 
     private SecretKeySpec keySpec;

@@ -1,71 +1,71 @@
 @if (carregando() && !chamado()) {
   <div class="estado-pagina">
-    <ces-async-state state="loading" title="Carregando o chamado..."
+    <geo-async-state state="loading" title="Carregando o chamado..."
       description="Consultando dados, prazos, conversa e evidências." />
   </div>
 } @else if (erro() && !chamado()) {
   <div class="estado-pagina">
-    <ces-async-state state="error" title="Chamado indisponível" [description]="erro()!"
+    <geo-async-state state="error" title="Chamado indisponível" [description]="erro()!"
       actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"
       secondaryActionLabel="Voltar" secondaryActionIcon="pi pi-arrow-left" (secondaryAction)="voltar()" />
   </div>
 } @else if (chamado(); as item) {
   <div class="detalhe" [attr.aria-busy]="carregando()">
     <!-- 1. CABEÇALHO: trilha, assunto, protocolo, selos e ações principais -->
-    <ces-page-header [title]="item.assunto" icon="pi pi-ticket" [breadcrumb]="breadcrumb" [favoritable]="false"
+    <geo-page-header [title]="item.assunto" icon="pi pi-ticket" [breadcrumb]="breadcrumb" [favoritable]="false"
       [description]="'Protocolo ' + item.protocolo + ' · ' + item.topico.nome">
       <ng-container status>
-        <ces-status [tone]="statusTom(item.status)" [icon]="statusIcone(item.status)" emphasis="outline">
-          <span class="ces-sr-only">Status: </span>{{ statusLabel(item.status) }}
-        </ces-status>
-        <ces-status [tone]="prioridadeTom(item.prioridade)" [icon]="prioridadeIcone(item.prioridade)">
+        <geo-status [tone]="statusTom(item.status)" [icon]="statusIcone(item.status)" emphasis="outline">
+          <span class="geo-sr-only">Status: </span>{{ statusLabel(item.status) }}
+        </geo-status>
+        <geo-status [tone]="prioridadeTom(item.prioridade)" [icon]="prioridadeIcone(item.prioridade)">
           Prioridade {{ prioridadeLabel(item.prioridade) | lowercase }}
-        </ces-status>
+        </geo-status>
         @if (prazoEstourado()) {
-          <ces-status tone="danger" icon="pi-exclamation-circle" emphasis="solid">Prazo estourado</ces-status>
+          <geo-status tone="danger" icon="pi-exclamation-circle" emphasis="solid">Prazo estourado</geo-status>
         } @else if (item.slaPausado) {
-          <ces-status tone="neutral" icon="pi-pause-circle">Prazo pausado</ces-status>
+          <geo-status tone="neutral" icon="pi-pause-circle">Prazo pausado</geo-status>
         }
         @if (carregando()) {
-          <ces-status tone="brand" icon="pi-spin pi-spinner" role="status">Atualizando</ces-status>
+          <geo-status tone="brand" icon="pi-spin pi-spinner" role="status">Atualizando</geo-status>
         }
       </ng-container>
       <div actions class="acoes-cabecalho print:hidden">
-        <ces-button label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="voltar()" />
+        <geo-button label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="voltar()" />
         @if (modoCentral && statusDisponiveis().length) {
-          <ces-button label="Atualizar atendimento" icon="pi pi-sliders-h" variant="primary"
+          <geo-button label="Atualizar atendimento" icon="pi pi-sliders-h" variant="primary"
             (pressed)="abrirAtendimento()" />
         }
         @if (podeReabrirMeu()) {
-          <ces-button label="Reabrir chamado" icon="pi pi-replay" variant="primary" (pressed)="abrirReabertura()" />
+          <geo-button label="Reabrir chamado" icon="pi pi-replay" variant="primary" (pressed)="abrirReabertura()" />
         }
         @if (podeCancelarMeu()) {
-          <ces-button label="Cancelar chamado" icon="pi pi-ban" variant="destructive"
+          <geo-button label="Cancelar chamado" icon="pi pi-ban" variant="destructive"
             [loading]="saving()" (pressed)="confirmarCancelamento()" />
         }
       </div>
-    </ces-page-header>
+    </geo-page-header>
 
     <!-- Falha ao atualizar com dados já na tela: mantém o que existe e oferece nova tentativa. -->
     @if (erro()) {
-      <ces-callout tone="warning" title="Não foi possível atualizar o chamado" [dense]="true">
+      <geo-callout tone="warning" title="Não foi possível atualizar o chamado" [dense]="true">
         <p>{{ erro() }} Os dados exibidos podem estar desatualizados.</p>
-        <ces-button class="mt-2 inline-block" label="Tentar novamente" icon="pi pi-refresh" variant="outline"
+        <geo-button class="mt-2 inline-block" label="Tentar novamente" icon="pi pi-refresh" variant="outline"
           size="sm" (pressed)="carregar()" />
-      </ces-callout>
+      </geo-callout>
     }
 
     <!-- 2. FAIXA DA SITUAÇÃO: o que acontece agora e o que se espera de quem lê. -->
     @if (situacao(); as faixa) {
-      <ces-callout [tone]="faixa.tom" [icon]="faixa.icone" label="Situação" [title]="faixa.titulo">
+      <geo-callout [tone]="faixa.tom" [icon]="faixa.icone" label="Situação" [title]="faixa.titulo">
         <p>{{ faixa.texto }}</p>
-      </ces-callout>
+      </geo-callout>
     }
     @if (prazoEstourado()) {
-      <ces-callout tone="danger" icon="pi-exclamation-circle" label="Prazo" title="Resolução fora do prazo" [dense]="true">
+      <geo-callout tone="danger" icon="pi-exclamation-circle" label="Prazo" title="Resolução fora do prazo" [dense]="true">
         <p>O limite era {{ item.dataLimiteResolucao | date: 'dd/MM/yy HH:mm' }}.
           {{ modoCentral ? 'Priorize este chamado ou registre o motivo do atraso na conversa.' : 'A equipe de atendimento já foi sinalizada sobre o atraso.' }}</p>
-      </ces-callout>
+      </geo-callout>
     }
 
     <!-- 3. CARTÕES DE PRAZO -->
@@ -84,7 +84,7 @@
 
     <!-- 4. DADOS GERAIS -->
     <section class="painel dados-gerais" aria-labelledby="dados-gerais-titulo">
-      <h2 id="dados-gerais-titulo" class="ces-sr-only">Dados gerais</h2>
+      <h2 id="dados-gerais-titulo" class="geo-sr-only">Dados gerais</h2>
       <div class="grupo">
         <h3 class="grupo__titulo"><i class="pi pi-tag" aria-hidden="true"></i>Identificação</h3>
         <dl>
@@ -152,9 +152,9 @@
         </section>
 
         @if (item.solucao) {
-          <ces-callout tone="success" label="Solução registrada" icon="pi-check-circle">
+          <geo-callout tone="success" label="Solução registrada" icon="pi-check-circle">
             <p class="texto-longo">{{ item.solucao }}</p>
-          </ces-callout>
+          </geo-callout>
         }
 
         <!-- 6. LINHA DO TEMPO -->
@@ -173,7 +173,7 @@
                       <div class="timeline__topo">
                         <span class="timeline__rotulo">{{ evento.rotulo }}</span>
                         @if (evento.interno) {
-                          <ces-status tone="warning" icon="pi-lock">Interno</ces-status>
+                          <geo-status tone="warning" icon="pi-lock">Interno</geo-status>
                         }
                         <time class="timeline__data" [attr.datetime]="evento.data">{{ evento.data | date: 'dd/MM/yyyy HH:mm' }}</time>
                       </div>
@@ -184,14 +184,14 @@
                         <div class="timeline__mensagem"><app-texto-marcacoes [texto]="evento.mensagem" /></div>
                       }
                       @if (modoCentral) {
-                        <p class="timeline__autor"><span class="ces-sr-only">Autor: </span><i class="pi pi-user" aria-hidden="true"></i> {{ evento.autor }}</p>
+                        <p class="timeline__autor"><span class="geo-sr-only">Autor: </span><i class="pi pi-user" aria-hidden="true"></i> {{ evento.autor }}</p>
                       }
                     </div>
                   </li>
                 }
               </ol>
             } @else {
-              <ces-async-state state="empty" [compact]="true" icon="pi-history" title="Nenhum evento registrado"
+              <geo-async-state state="empty" [compact]="true" icon="pi-history" title="Nenhum evento registrado"
                 description="As mensagens e mudanças de status aparecerão aqui." />
             }
           </div>
@@ -203,33 +203,33 @@
             <header class="painel__cabecalho">
               <h2 id="composer-titulo">{{ modoInterno() ? 'Novo comentário interno' : 'Nova mensagem' }}</h2>
               @if (modoInterno()) {
-                <ces-status tone="warning" icon="pi-lock">Só a central vê</ces-status>
+                <geo-status tone="warning" icon="pi-lock">Só a central vê</geo-status>
               }
             </header>
             <div class="painel__corpo composer" (keydown.control.enter)="enviarMensagem()" (keydown.meta.enter)="enviarMensagem()">
               @if (modoCentral && item.status === 'RESOLVIDO') {
-                <ces-callout tone="warning" icon="pi-lock" [dense]="true">
+                <geo-callout tone="warning" icon="pi-lock" [dense]="true">
                   <p>Chamados resolvidos aceitam apenas comentário interno. Retome o atendimento para enviar mensagem ao solicitante.</p>
-                </ces-callout>
+                </geo-callout>
               }
               <app-mencao-textarea [(texto)]="mensagem" [rows]="5" [maxlength]="limiteMensagem"
                 [visibilidadeRestrita]="modoInterno()" origem="CHAMADO_INTERACAO" [disabled]="saving()"
                 [placeholder]="modoCentral ? 'Escreva uma atualização para o solicitante ou uma nota interna.' : 'Adicione informações para a equipe de atendimento.'" />
               @if (erroMarcacao(); as erroMsg) {
                 <div role="alert">
-                  <ces-callout tone="danger" [title]="erroMsg" [dense]="true">
+                  <geo-callout tone="danger" [title]="erroMsg" [dense]="true">
                     <p>Nada foi enviado. Ajuste a marcação no texto acima e tente de novo.</p>
-                  </ces-callout>
+                  </geo-callout>
                 </div>
               }
               <div class="composer__rodape">
                 @if (modoCentral && item.status !== 'RESOLVIDO') {
-                  <ces-boolean-control inputId="chamado-interno" label="Comentário interno" [inline]="true"
+                  <geo-boolean-control inputId="chamado-interno" label="Comentário interno" [inline]="true"
                     description="Invisível ao solicitante." [value]="interno()" (valueChange)="interno.set($event)" />
                 } @else {
                   <span class="composer__dica">Ctrl + Enter envia.</span>
                 }
-                <ces-button [label]="modoInterno() ? 'Registrar comentário' : 'Enviar mensagem'"
+                <geo-button [label]="modoInterno() ? 'Registrar comentário' : 'Enviar mensagem'"
                   [icon]="modoInterno() ? 'pi pi-lock' : 'pi pi-send'" [loading]="saving()"
                   [disabled]="!mensagem().trim()" (pressed)="enviarMensagem()" />
               </div>
@@ -247,10 +247,10 @@
             </header>
             <div class="painel__corpo acoes">
               @for (acao of acoesCentral(); track acao.status) {
-                <ces-button [label]="acao.label" [icon]="acao.icon" [variant]="acao.variant" [fluid]="true"
+                <geo-button [label]="acao.label" [icon]="acao.icon" [variant]="acao.variant" [fluid]="true"
                   (pressed)="abrirAtendimento(acao.status)" />
               }
-              <ces-button label="Encaminhar ou atribuir" icon="pi pi-arrow-right-arrow-left" variant="ghost" [fluid]="true"
+              <geo-button label="Encaminhar ou atribuir" icon="pi pi-arrow-right-arrow-left" variant="ghost" [fluid]="true"
                 (pressed)="abrirAtendimento()" />
             </div>
           </section>
@@ -264,9 +264,9 @@
           </header>
           <div class="painel__corpo evidencias">
             @if (podeAnexar()) {
-              <input #arquivoInput type="file" class="ces-sr-only" tabindex="-1" aria-hidden="true"
+              <input #arquivoInput type="file" class="geo-sr-only" tabindex="-1" aria-hidden="true"
                 [accept]="extensoesAceitas" (change)="selecionarAnexo($event)" />
-              <ces-button [label]="uploading() ? 'Enviando evidência...' : 'Adicionar evidência'" icon="pi pi-upload"
+              <geo-button [label]="uploading() ? 'Enviando evidência...' : 'Adicionar evidência'" icon="pi pi-upload"
                 variant="outline" [fluid]="true" [loading]="uploading()" (pressed)="escolherArquivo()" />
               <p class="evidencias__dica" id="evidencias-dica">Imagens, PDF, texto, Word ou Excel · até 15 MB por arquivo.</p>
             } @else if (item.anexos.length >= limiteAnexos) {
@@ -289,7 +289,7 @@
                 }
               </ul>
             } @else {
-              <ces-async-state state="empty" [compact]="true" icon="pi-paperclip" title="Nenhuma evidência"
+              <geo-async-state state="empty" [compact]="true" icon="pi-paperclip" title="Nenhuma evidência"
                 description="Prints, fotos ou arquivos ajudam a equipe a entender o problema." />
             }
           </div>
@@ -300,57 +300,57 @@
 
   <!-- DIÁLOGO: atualizar atendimento (central) -->
   @if (modoCentral) {
-    <ces-dialog-shell [visible]="dialogAtendimento()" (visibleChange)="$event ? null : fecharAtendimento()"
+    <geo-dialog-shell [visible]="dialogAtendimento()" (visibleChange)="$event ? null : fecharAtendimento()"
       [title]="tituloAtendimento()" [description]="'Chamado ' + item.protocolo + ' · ' + item.assunto"
       size="md" [loading]="saving()" loadingLabel="Salvando atendimento">
       <div class="formulario">
-        <ces-select label="Próximo status" inputId="atd-status" [options]="statusDisponiveis()"
+        <geo-select label="Próximo status" inputId="atd-status" [options]="statusDisponiveis()"
           [value]="statusAtendimento()" (valueChange)="statusAtendimento.set($event)"
           placeholder="Manter status atual" [clearable]="true" />
-        <ces-select label="Prioridade" inputId="atd-prioridade" [options]="prioridadeOptions"
+        <geo-select label="Prioridade" inputId="atd-prioridade" [options]="prioridadeOptions"
           [value]="prioridadeAtendimento()" (valueChange)="prioridadeAtendimento.set($event)" />
-        <ces-field label="Equipe" inputId="atd-equipe" description="Encaminhar para outra equipe.">
-          <p-select inputId="atd-equipe" ariaLabelledBy="atd-equipe-label" class="ces-prime-control" size="small"
+        <geo-field label="Equipe" inputId="atd-equipe" description="Encaminhar para outra equipe.">
+          <p-select inputId="atd-equipe" ariaLabelledBy="atd-equipe-label" class="geo-prime-control" size="small"
             [options]="equipes()" [ngModel]="equipeAtendimentoId()" (ngModelChange)="selecionarEquipe($event)"
             optionLabel="nome" optionValue="id" [filter]="true" [loading]="equipesLoading()"
             [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body"
             (onShow)="openEquipes()" (onFilter)="searchEquipes($event)" (onLazyLoad)="loadMoreEquipes()" />
-        </ces-field>
-        <ces-field label="Responsável" inputId="atd-responsavel" description="Vazio: atribuição automática.">
-          <p-select inputId="atd-responsavel" ariaLabelledBy="atd-responsavel-label" class="ces-prime-control"
+        </geo-field>
+        <geo-field label="Responsável" inputId="atd-responsavel" description="Vazio: atribuição automática.">
+          <p-select inputId="atd-responsavel" ariaLabelledBy="atd-responsavel-label" class="geo-prime-control"
             size="small" [options]="responsaveisDisponiveis()" [ngModel]="responsavelAtendimentoId()"
             (ngModelChange)="responsavelAtendimentoId.set($event)" optionLabel="login" optionValue="id"
             placeholder="Atribuição automática" [showClear]="true" [filter]="true" [loading]="usuariosLoading()"
             [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body"
             (onShow)="openUsuarios()" (onFilter)="searchUsuarios($event)" (onLazyLoad)="loadMoreUsuarios()" />
-        </ces-field>
+        </geo-field>
         @if (statusAtendimento() === 'RESOLVIDO') {
-          <ces-textarea class="formulario__largo" label="Solução" inputId="atd-solucao" [required]="true" [rows]="5"
+          <geo-textarea class="formulario__largo" label="Solução" inputId="atd-solucao" [required]="true" [rows]="5"
             [maxlength]="limiteMensagem" [value]="solucao()" (valueChange)="definirSolucao($event)"
             [error]="erroSolucao()" description="Fica visível ao solicitante."
             placeholder="Descreva a correção aplicada e como ela foi validada." />
         }
       </div>
       <div dialog-footer class="rodape-dialogo">
-        <ces-button label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="fecharAtendimento()" />
-        <ces-button label="Salvar alterações" icon="pi pi-check" [loading]="saving()" (pressed)="salvarAtendimento()" />
+        <geo-button label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="fecharAtendimento()" />
+        <geo-button label="Salvar alterações" icon="pi pi-check" [loading]="saving()" (pressed)="salvarAtendimento()" />
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   }
 
   <!-- DIÁLOGO: reabrir (solicitante) -->
   @if (!modoCentral) {
-    <ces-dialog-shell [visible]="dialogReabertura()" (visibleChange)="dialogReabertura.set($event)"
+    <geo-dialog-shell [visible]="dialogReabertura()" (visibleChange)="dialogReabertura.set($event)"
       title="Reabrir chamado" description="O chamado volta para a fila da equipe com o motivo informado."
       size="sm" [loading]="saving()" loadingLabel="Reabrindo chamado">
-      <ces-textarea label="Motivo" inputId="reabertura-motivo" [required]="true" [rows]="5" [maxlength]="limiteMensagem"
+      <geo-textarea label="Motivo" inputId="reabertura-motivo" [required]="true" [rows]="5" [maxlength]="limiteMensagem"
         [value]="motivoReabertura()" (valueChange)="motivoReabertura.set($event)"
         placeholder="Explique por que o problema voltou a ocorrer." />
       <div dialog-footer class="rodape-dialogo">
-        <ces-button label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="dialogReabertura.set(false)" />
-        <ces-button label="Reabrir chamado" icon="pi pi-replay" [loading]="saving()"
+        <geo-button label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="dialogReabertura.set(false)" />
+        <geo-button label="Reabrir chamado" icon="pi pi-replay" [loading]="saving()"
           [disabled]="!motivoReabertura().trim()" (pressed)="reabrirMeu()" />
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   }
 }

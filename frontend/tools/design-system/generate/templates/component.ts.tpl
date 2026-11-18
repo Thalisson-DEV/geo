@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
-  selector: 'ces-{{NAME}}',
+  selector: 'geo-{{NAME}}',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './{{NAME}}.component.html',
   styleUrl: './{{NAME}}.component.css',
   host: {
-    class: 'ces-{{NAME}}',
+    class: 'geo-{{NAME}}',
     '[attr.aria-label]': 'ariaLabel()'
   }
 })

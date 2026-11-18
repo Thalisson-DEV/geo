@@ -1,11 +1,11 @@
 /*
- * Detalhe do chamado. Só tokens --ces-*: claro e escuro vêm do tema central (.app-dark),
+ * Detalhe do chamado. Só tokens --geo-*: claro e escuro vêm do tema central (.app-dark),
  * sem cor fixa nem penetração de estilo em componentes filhos. Tom de estado sempre acompanha texto ou ícone.
  */
 
 :host {
   display: block;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .estado-pagina {
@@ -52,10 +52,10 @@
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.875rem 1rem;
-  border: 1px solid var(--ces-border);
+  border: 1px solid var(--geo-border);
   border-left-width: 4px;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
 }
 
 .cartao__topo {
@@ -66,8 +66,8 @@
 }
 
 .cartao__rotulo {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -80,53 +80,53 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface-muted);
-  color: var(--ces-foreground-muted);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.75rem;
 }
 
 .cartao__valor {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 1.125rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .cartao__legenda {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 
-.cartao[data-tone='neutral'] { border-left-color: var(--ces-border-strong); }
-.cartao[data-tone='info'] { border-left-color: var(--ces-info-text); }
-.cartao[data-tone='brand'] { border-left-color: var(--ces-brand); }
-.cartao[data-tone='success'] { border-left-color: var(--ces-success-text); }
-.cartao[data-tone='warning'] { border-left-color: var(--ces-warning-text); }
-.cartao[data-tone='danger'] { border-left-color: var(--ces-danger-text); }
+.cartao[data-tone='neutral'] { border-left-color: var(--geo-border-strong); }
+.cartao[data-tone='info'] { border-left-color: var(--geo-info-text); }
+.cartao[data-tone='brand'] { border-left-color: var(--geo-brand); }
+.cartao[data-tone='success'] { border-left-color: var(--geo-success-text); }
+.cartao[data-tone='warning'] { border-left-color: var(--geo-warning-text); }
+.cartao[data-tone='danger'] { border-left-color: var(--geo-danger-text); }
 
 .cartao[data-tone='success'] .cartao__icone,
-.cartao[data-tone='success'] .cartao__legenda { color: var(--ces-success-text); }
+.cartao[data-tone='success'] .cartao__legenda { color: var(--geo-success-text); }
 .cartao[data-tone='warning'] .cartao__icone,
-.cartao[data-tone='warning'] .cartao__legenda { color: var(--ces-warning-text); }
+.cartao[data-tone='warning'] .cartao__legenda { color: var(--geo-warning-text); }
 .cartao[data-tone='danger'] .cartao__icone,
-.cartao[data-tone='danger'] .cartao__legenda { color: var(--ces-danger-text); }
-.cartao[data-tone='info'] .cartao__icone { color: var(--ces-info-text); }
+.cartao[data-tone='danger'] .cartao__legenda { color: var(--geo-danger-text); }
+.cartao[data-tone='info'] .cartao__icone { color: var(--geo-info-text); }
 
-.cartao[data-tone='success'] .cartao__icone { border-color: var(--ces-success); background: var(--ces-success-soft); }
-.cartao[data-tone='warning'] .cartao__icone { border-color: var(--ces-warning); background: var(--ces-warning-soft); }
-.cartao[data-tone='danger'] .cartao__icone { border-color: var(--ces-danger); background: var(--ces-danger-soft); }
-.cartao[data-tone='info'] .cartao__icone { border-color: var(--ces-info); background: var(--ces-info-soft); }
+.cartao[data-tone='success'] .cartao__icone { border-color: var(--geo-success); background: var(--geo-success-soft); }
+.cartao[data-tone='warning'] .cartao__icone { border-color: var(--geo-warning); background: var(--geo-warning-soft); }
+.cartao[data-tone='danger'] .cartao__icone { border-color: var(--geo-danger); background: var(--geo-danger-soft); }
+.cartao[data-tone='info'] .cartao__icone { border-color: var(--geo-info); background: var(--geo-info-soft); }
 
 /* ── Painéis ──────────────────────────────────────────────────────────────── */
 .painel {
   overflow: hidden;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .painel__cabecalho {
@@ -136,20 +136,20 @@
   justify-content: space-between;
   gap: 0.5rem 1rem;
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--ces-border);
-  background: var(--ces-surface-subtle);
+  border-bottom: 1px solid var(--geo-border);
+  background: var(--geo-surface-subtle);
 }
 
 .painel__cabecalho h2 {
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 0.875rem;
   font-weight: 700;
 }
 
 .painel__contagem {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 
@@ -159,8 +159,8 @@
 
 .texto-longo {
   margin: 0;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -181,7 +181,7 @@
 
   .grupo + .grupo {
     padding-left: 1.25rem;
-    border-left: 1px solid var(--ces-border);
+    border-left: 1px solid var(--geo-border);
   }
 }
 
@@ -195,16 +195,16 @@
   gap: 0.5rem;
   margin: 0 0 0.75rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--ces-border);
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-caption);
+  border-bottom: 1px solid var(--geo-border);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .grupo__titulo .pi {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-size: 0.75rem;
 }
 
@@ -224,31 +224,31 @@
 
 .kv dt {
   flex-shrink: 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 
 .kv dd {
   min-width: 0;
   margin: 0;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-control);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-control);
   font-weight: 600;
   text-align: right;
 }
 
 .kv dd.kv--apagado {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
   font-weight: 500;
 }
 
 .kv dd.kv--perigo {
-  color: var(--ces-danger-text);
+  color: var(--geo-danger-text);
 }
 
 .kv__marca {
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
 }
 
@@ -298,7 +298,7 @@
   bottom: 0.75rem;
   left: 0.9375rem;
   width: 1px;
-  background: var(--ces-border);
+  background: var(--geo-border);
   content: '';
 }
 
@@ -317,24 +317,24 @@
   flex: none;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--ces-brand);
+  border: 1px solid var(--geo-brand);
   border-radius: 999px;
-  background: var(--ces-surface);
-  color: var(--ces-brand);
+  background: var(--geo-surface);
+  color: var(--geo-brand);
   font-size: 0.75rem;
 }
 
 .timeline__item--interno .timeline__icone {
-  border-color: var(--ces-warning);
-  background: var(--ces-warning-soft);
-  color: var(--ces-warning-text);
+  border-color: var(--geo-warning);
+  background: var(--geo-warning-soft);
+  color: var(--geo-warning-text);
 }
 
 .timeline__conteudo {
   min-width: 0;
   flex: 1;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--ces-border);
+  border-bottom: 1px solid var(--geo-border);
 }
 
 .timeline__item:last-child .timeline__conteudo {
@@ -344,9 +344,9 @@
 
 .timeline__item--interno .timeline__conteudo {
   padding: 0.625rem 0.75rem;
-  border: 1px dashed var(--ces-warning);
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-warning-soft);
+  border: 1px dashed var(--geo-warning);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-warning-soft);
 }
 
 .timeline__topo {
@@ -357,29 +357,29 @@
 }
 
 .timeline__rotulo {
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-control);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-control);
   font-weight: 700;
 }
 
 .timeline__data {
   margin-left: auto;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-variant-numeric: tabular-nums;
 }
 
 .timeline__detalhe {
   margin: 0.25rem 0 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 
 .timeline__mensagem {
   margin-top: 0.5rem;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -390,8 +390,8 @@
   align-items: center;
   gap: 0.25rem;
   margin: 0.5rem 0 0;
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
 }
 
 /* ── Composer ─────────────────────────────────────────────────────────────── */
@@ -416,8 +416,8 @@
 }
 
 .composer__dica {
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
 }
 
 /* ── Ações e evidências ───────────────────────────────────────────────────── */
@@ -430,8 +430,8 @@
 
 .evidencias__dica {
   margin: 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .anexos {
@@ -446,38 +446,38 @@
 .anexo {
   display: flex;
   width: 100%;
-  min-height: var(--ces-touch-target);
+  min-height: var(--geo-touch-target);
   align-items: center;
   gap: 0.625rem;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface);
-  color: var(--ces-foreground);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
   font: inherit;
   text-align: left;
   cursor: pointer;
   transition:
-    background-color var(--ces-duration-fast) var(--ces-ease-standard),
-    border-color var(--ces-duration-fast) var(--ces-ease-standard);
+    background-color var(--geo-duration-fast) var(--geo-ease-standard),
+    border-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
 
 .anexo:hover {
-  border-color: var(--ces-border-strong);
-  background: var(--ces-surface-muted);
+  border-color: var(--geo-border-strong);
+  background: var(--geo-surface-muted);
 }
 
 .anexo:active {
-  background: var(--ces-brand-soft);
+  background: var(--geo-brand-soft);
 }
 
 .anexo:focus-visible {
-  outline: 3px solid var(--ces-focus-ring);
+  outline: 3px solid var(--geo-focus-ring);
   outline-offset: 2px;
 }
 
 .anexo__icone {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .anexo__texto {
@@ -489,19 +489,19 @@
 
 .anexo__texto strong {
   overflow: hidden;
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .anexo__texto small {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .anexo__acao {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 /* ── Diálogos ─────────────────────────────────────────────────────────────── */

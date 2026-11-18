@@ -18,11 +18,11 @@ import { ConnectivityService } from './connectivity.service';
 /** Margem para renovar antes do vencimento e absorver relógio de aparelho adiantado. */
 const MARGEM_VENCIMENTO_MS = 30_000;
 /** Nome da trava entre abas: só uma aba renova por vez (Web Locks API). */
-const TRAVA_RENOVACAO = 'ces-renovacao-sessao';
+const TRAVA_RENOVACAO = 'geo-renovacao-sessao';
 /** Logout feito sem rede: a sessão do servidor ainda precisa ser encerrada. */
-const LOGOUT_PENDENTE_KEY = 'ces_logout_pendente';
+const LOGOUT_PENDENTE_KEY = 'geo_logout_pendente';
 /** A pessoa saiu: nada de restaurar a sessão pelo cookie até um novo login. */
-const SAIU_KEY = 'ces_saiu_da_conta';
+const SAIU_KEY = 'geo_saiu_da_conta';
 
 /** Retornos que valem para qualquer usuário que entrar (não só para a reautenticação). */
 const retornoLivre = (retorno: unknown): boolean =>
@@ -36,7 +36,7 @@ const retornoLivre = (retorno: unknown): boolean =>
  * continuar abrindo o app e lançando; o que não puder ir ao servidor fica na fila.</p>
  *
  * <p>Credenciais: o token de acesso (JWT, ~1h) vive na sessão local e vai em cada requisição.
- * O refresh token vive só no cookie HttpOnly `ces_sessao`, que o JavaScript não lê; renovar é
+ * O refresh token vive só no cookie HttpOnly `geo_sessao`, que o JavaScript não lê; renovar é
  * um POST para `/v1/auth/refresh`. Quando o servidor responde que a sessão acabou de verdade
  * (`SESSAO_INVALIDA`), a sessão local é marcada com `reautenticacaoNecessaria`: o app segue
  * funcionando offline e a sincronização aguarda um novo login.</p>
@@ -52,7 +52,7 @@ export class AuthService {
   private readonly navigationHistory = inject(NavigationHistoryService);
   private readonly injector = inject(Injector);
   private readonly apiUrl = `${environment.apiUrl}/v1/auth`;
-  private readonly STORAGE_KEY = 'ces_session_enc';
+  private readonly STORAGE_KEY = 'geo_session_enc';
 
   // State
   private readonly session = signal<UserSession | null>(this.loadSession());
@@ -303,10 +303,10 @@ export class AuthService {
 
     const tipoUsuario: 'ADMINISTRATIVO' | 'CAMPO' =
       decoded?.tipoUsuario === 'CAMPO' ? 'CAMPO' : 'ADMINISTRATIVO';
-    const savedThemeMode = localStorage.getItem('ces_theme_mode');
-    const savedColor = localStorage.getItem('ces_primary_color');
-    const savedRipple = localStorage.getItem('ces_ripple_enabled');
-    const savedRedesMoveis = localStorage.getItem('ces_usar_redes_moveis');
+    const savedThemeMode = localStorage.getItem('geo_theme_mode');
+    const savedColor = localStorage.getItem('geo_primary_color');
+    const savedRipple = localStorage.getItem('geo_ripple_enabled');
+    const savedRedesMoveis = localStorage.getItem('geo_usar_redes_moveis');
     const usarRedesMoveis =
       savedRedesMoveis !== null ? savedRedesMoveis === 'true' : tipoUsuario !== 'CAMPO';
 

@@ -72,7 +72,7 @@ public class OAuthIaController {
         metadados.put("revocation_endpoint_auth_methods_supported", List.of("none"));
         metadados.put("code_challenge_methods_supported", List.of("S256"));
         metadados.put("authorization_response_iss_parameter_supported", true);
-        metadados.put("service_documentation", base + "/copiloto/conectar-ia");
+        metadados.put("service_documentation", base + "/bussola/conectar-ia");
         return publico(metadados);
     }
 

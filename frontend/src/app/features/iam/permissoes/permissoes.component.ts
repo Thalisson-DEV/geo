@@ -1,25 +1,25 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { map } from 'rxjs';
 
 import { PermissaoResponse } from '../../../core/models/iam.models';
@@ -36,8 +36,8 @@ interface PermissaoLinha extends PermissaoResponse {
   acao: string;
 }
 
-const MODULOS: CesSelectOption<string>[] = ['COMERCIAL', 'CONTRATO', 'ESTOQUE', 'EXECUCAO', 'IAM', 'LOGISTICA', 'RH'].map((m) => ({ label: m, value: m }));
-const ACOES: CesSelectOption<string>[] = [
+const MODULOS: GeoSelectOption<string>[] = ['COMERCIAL', 'CONTRATO', 'ESTOQUE', 'EXECUCAO', 'IAM', 'LOGISTICA', 'RH'].map((m) => ({ label: m, value: m }));
+const ACOES: GeoSelectOption<string>[] = [
   { label: 'Leitura (READ)', value: 'READ' },
   { label: 'Escrita (WRITE)', value: 'WRITE' },
   { label: 'Execução (EXECUTE)', value: 'EXECUTE' },
@@ -60,25 +60,25 @@ function separar(p: PermissaoResponse): PermissaoLinha {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Permissões"
         icon="pi pi-lock"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'IAM' }, { label: 'Permissões' }]"
@@ -86,17 +86,17 @@ function separar(p: PermissaoResponse): PermissaoLinha {
         helpLabel="Ajuda sobre permissões"
         (help)="ajuda.show()"
       >
-        <ces-button actions icon="pi pi-plus" label="Nova permissão" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions icon="pi pi-plus" label="Nova permissão" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="iam-permissoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="iam-permissoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Permissões"
         mode="server"
         storageKey="iam-permissoes"
@@ -126,41 +126,41 @@ function separar(p: PermissaoResponse): PermissaoLinha {
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <code class="ces-cell-strong">{{ row.nome }}</code>
+        <ng-template geoCell="nome" let-row>
+          <code class="geo-cell-strong">{{ row.nome }}</code>
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo !== false ? 'success' : 'neutral'" [emphasis]="row.ativo !== false ? 'soft' : 'outline'" [icon]="row.ativo !== false ? 'pi pi-check-circle' : 'pi pi-ban'">
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo !== false ? 'success' : 'neutral'" [emphasis]="row.ativo !== false ? 'soft' : 'outline'" [icon]="row.ativo !== false ? 'pi pi-check-circle' : 'pi pi-ban'">
             {{ row.ativo !== false ? 'Ativa' : 'Inativa' }}
-          </ces-status>
+          </geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo !== false ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo !== false ? 'Desativar ' : 'Ativar ') + row.nome"
-              size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo !== false ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo !== false ? 'Desativar ' : 'Ativar ') + row.nome"
+              size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar permissão' : 'Nova permissão'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar permissão' : 'Nova permissão'"
       [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
-      <ces-form-section title="Composição" icon="pi pi-lock">
-        <div class="ces-form-grid">
-          <ces-select label="Módulo" [required]="true" [options]="modulos" [(value)]="modulo" [error]="erro('modulo')"></ces-select>
-          <ces-select label="Ação" [required]="true" [options]="acoes" [(value)]="acao" [error]="erro('acao')"></ces-select>
+      <geo-form-section title="Composição" icon="pi pi-lock">
+        <div class="geo-form-grid">
+          <geo-select label="Módulo" [required]="true" [options]="modulos" [(value)]="modulo" [error]="erro('modulo')"></geo-select>
+          <geo-select label="Ação" [required]="true" [options]="acoes" [(value)]="acao" [error]="erro('acao')"></geo-select>
         </div>
-        <ces-text-input label="Recurso" [required]="true" [value]="recurso()" (valueChange)="recurso.set(normalizar($event))"
-          placeholder="Ex.: MATERIAL-SOLICITACAO" description="Só letras e hífen (ex.: BASE-OPERACIONAL)." [error]="erro('recurso')"></ces-text-input>
-        <ces-text-input label="Identificador final" [value]="nome()" [readonly]="true"
-          description="Montado a partir de módulo, recurso e ação."></ces-text-input>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar permissão'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        <geo-text-input label="Recurso" [required]="true" [value]="recurso()" (valueChange)="recurso.set(normalizar($event))"
+          placeholder="Ex.: MATERIAL-SOLICITACAO" description="Só letras e hífen (ex.: BASE-OPERACIONAL)." [error]="erro('recurso')"></geo-text-input>
+        <geo-text-input label="Identificador final" [value]="nome()" [readonly]="true"
+          description="Montado a partir de módulo, recurso e ação."></geo-text-input>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar permissão'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Permissões" entidadePlural="permissões" artigoPlural="as" busca="identificador" rotuloNovo="Nova permissão">
@@ -174,15 +174,15 @@ function separar(p: PermissaoResponse): PermissaoLinha {
 export class PermissoesComponent {
   private readonly servico = inject(PermissoesService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly statusOpcoes = OPCOES_STATUS;
   protected readonly modulos = MODULOS;
   protected readonly acoes = ACOES;
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'iam-permissoes',
-    filters: { ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS }) },
+    filters: { ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS }) },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
   protected readonly resultado = this.lista.results<PermissaoLinha>(
@@ -195,7 +195,7 @@ export class PermissoesComponent {
     () => this.lista.request()
   );
 
-  protected readonly colunas: CesDataTableColumn<PermissaoLinha>[] = [
+  protected readonly colunas: GeoDataTableColumn<PermissaoLinha>[] = [
     { key: 'modulo', header: 'Módulo', priority: 1 },
     { key: 'recurso', header: 'Recurso' },
     { key: 'acao', header: 'Ação' },

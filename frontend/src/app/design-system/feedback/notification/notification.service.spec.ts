@@ -34,9 +34,9 @@ describe('NotificationService', () => {
 
     const enviada = messages.add.mock.calls[0][0];
     expect(enviada.life).toBe(9000);
-    expect(enviada.data.cesAction).toBe(acao);
+    expect(enviada.data.geoAction).toBe(acao);
 
-    service.runAction(enviada.data.cesAction);
+    service.runAction(enviada.data.geoAction);
     expect(messages.clear).toHaveBeenCalled();
     expect(acao.run).toHaveBeenCalled();
   });

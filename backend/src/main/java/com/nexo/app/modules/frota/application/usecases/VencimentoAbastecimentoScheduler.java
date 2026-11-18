@@ -15,7 +15,7 @@ public class VencimentoAbastecimentoScheduler {
 
     private final AbastecimentoUseCases useCases;
 
-    @Scheduled(cron = "${ces.frota.abastecimento-vencimento-cron:0 0 0 * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.abastecimento-vencimento-cron:0 0 0 * * *}", zone = "America/Sao_Paulo")
     public void processar() {
         int vencidos = useCases.vencer(OffsetDateTime.now());
         if (vencidos > 0) {

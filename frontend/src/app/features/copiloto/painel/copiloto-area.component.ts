@@ -102,8 +102,8 @@ const LARGURA_MAXIMA = 720;
       width: var(--sp-largura, 420px);
       min-width: 0;
       min-height: 0;
-      border-left: 1px solid var(--ces-border);
-      background: var(--ces-surface);
+      border-left: 1px solid var(--geo-border);
+      background: var(--geo-surface);
     }
     .area__painel--aberto { display: flex; flex-direction: column; }
     .area__painel > app-copiloto-painel { flex: 1 1 auto; min-height: 0; }
@@ -123,9 +123,9 @@ const LARGURA_MAXIMA = 720;
       left: 3px;
       width: 2px;
       background: transparent;
-      transition: background var(--ces-duration-fast) var(--ces-ease-standard);
+      transition: background var(--geo-duration-fast) var(--geo-ease-standard);
     }
-    .area__alca:hover::after, .area__alca:focus-visible::after { background: var(--ces-brand); }
+    .area__alca:hover::after, .area__alca:focus-visible::after { background: var(--geo-brand); }
     .area__alca:focus-visible { outline: none; }
     :host([data-modo='sobreposto']) .area__painel {
       position: fixed;
@@ -134,19 +134,19 @@ const LARGURA_MAXIMA = 720;
       z-index: 60;
       flex: none;
       width: min(100vw, 440px);
-      box-shadow: var(--ces-shadow-lg);
+      box-shadow: var(--geo-shadow-lg);
     }
     .area__fundo {
       position: fixed;
       inset: 0;
       z-index: 59;
-      background: color-mix(in srgb, var(--ces-foreground) 38%, transparent);
+      background: color-mix(in srgb, var(--geo-foreground) 38%, transparent);
     }
     @media (max-width: 640px) {
       :host([data-modo='sobreposto']) .area__painel { width: 100vw; border-left: 0; }
     }
     @media (prefers-reduced-motion: no-preference) {
-      :host([data-modo='sobreposto']) .area__painel--aberto { animation: sp-entrar var(--ces-duration-normal) var(--ces-ease-standard); }
+      :host([data-modo='sobreposto']) .area__painel--aberto { animation: sp-entrar var(--geo-duration-normal) var(--geo-ease-standard); }
       @keyframes sp-entrar { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
     }
     @media print {

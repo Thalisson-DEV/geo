@@ -1,5 +1,5 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative"
+  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative"
   [class.p-4]="!isPrintMode()"
   [class.md:p-8]="!isPrintMode()"
   [class.print:p-0]="isPrintMode()"
@@ -14,24 +14,24 @@
   <!-- Loading State -->
   @if (loading()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state
+      <geo-async-state
         [state]="'loading'"
         title="Carregando solicitação de material..."
         description="Consultando informações da solicitação..."
-      ></ces-async-state>
+      ></geo-async-state>
     </div>
   }
 
   <!-- Error State -->
   @else if (error()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state
+      <geo-async-state
         [state]="'error'"
         title="Solicitação indisponível"
         [description]="error() || 'Não foi possível carregar os dados.'"
         actionLabel="Tentar novamente"
         (action)="loadData()"
-      ></ces-async-state>
+      ></geo-async-state>
     </div>
   }
 
@@ -78,7 +78,7 @@
             }}</strong></span
           >
           <span>·</span>
-          <ces-status [tone]="getStatusTone(sol.status)" [icon]="getStatusIcon(sol.status)">{{ getStatusLabel(sol.status) }}</ces-status>
+          <geo-status [tone]="getStatusTone(sol.status)" [icon]="getStatusIcon(sol.status)">{{ getStatusLabel(sol.status) }}</geo-status>
         </div>
       </div>
 
@@ -112,7 +112,7 @@
               <span class="kv-v font-semibold" [title]="sol.estoqueOrigem.nomeIdentificador">{{
                 sol.estoqueOrigem.nomeIdentificador
               }}</span>
-              <ces-icon-button
+              <geo-icon-button
                 icon="pi pi-search"
                 [label]="'Consultar o saldo de ' + sol.estoqueOrigem.nomeIdentificador"
                 tooltip="Consultar saldo da origem"
@@ -128,7 +128,7 @@
               <span class="kv-v font-semibold" [title]="sol.estoqueDestino.nomeIdentificador">{{
                 sol.estoqueDestino.nomeIdentificador
               }}</span>
-              <ces-icon-button
+              <geo-icon-button
                 icon="pi pi-search"
                 [label]="'Consultar o saldo de ' + sol.estoqueDestino.nomeIdentificador"
                 tooltip="Consultar saldo do destino"
@@ -140,17 +140,17 @@
           </div>
           <div class="kv">
             <span class="kv-l">Status Atual</span>
-            <ces-status [tone]="getStatusTone(sol.status)" [icon]="getStatusIcon(sol.status)">{{ getStatusLabel(sol.status) }}</ces-status>
+            <geo-status [tone]="getStatusTone(sol.status)" [icon]="getStatusIcon(sol.status)">{{ getStatusLabel(sol.status) }}</geo-status>
           </div>
           <div class="kv">
             <span class="kv-l">Tipo</span>
-            <ces-status
+            <geo-status
               [tone]="tipoTone(sol.tipoTecnico)"
               [icon]="tipoIcon(sol.tipoTecnico)"
-              [class.ces-status--devolucao]="sol.tipoTecnico === 'DEVOLUCAO_COMUM' || sol.tipoTecnico === '222' || sol.tipoTecnico === 'DEVOLUCAO_CONCRETO' || sol.tipoTecnico === '922'"
+              [class.geo-status--devolucao]="sol.tipoTecnico === 'DEVOLUCAO_COMUM' || sol.tipoTecnico === '222' || sol.tipoTecnico === 'DEVOLUCAO_CONCRETO' || sol.tipoTecnico === '922'"
             >
               {{ tipoLabel(sol.tipoTecnico) }}
-            </ces-status>
+            </geo-status>
           </div>
           @if (sol.status === 'ENTREGUE') {
             <div class="kv items-start">
@@ -179,7 +179,7 @@
           @if (sol.foraPrazoSaque) {
             <div class="kv items-start">
               <span class="kv-l">Prazo de Solicitação</span>
-              <ces-status tone="warning" icon="pi pi-exclamation-triangle">Solicitada fora do prazo</ces-status>
+              <geo-status tone="warning" icon="pi pi-exclamation-triangle">Solicitada fora do prazo</geo-status>
             </div>
           }
           <div class="kv">
@@ -342,7 +342,7 @@
               </span>
             </div>
             <div class="atendimento">
-              <ces-select
+              <geo-select
                 label="Almoxarifado de origem"
                 [options]="opcoesOrigem()"
                 [value]="origemAtual()?.id ?? null"
@@ -353,7 +353,7 @@
                 [description]="podeTrocarOrigem() ? undefined : 'Já saiu material daqui: a origem não muda mais, porque o estorno volta para ela.'"
               />
               @if (isEditMode()) {
-                <ces-datepicker
+                <geo-datepicker
                   label="Data prevista do saque"
                   [value]="dataPrevistaAtual()"
                   (valueChange)="dataPrevistaEscolhida.set($event)"
@@ -398,7 +398,7 @@
             </div>
 
             @if (withdrawalOutsideTeam()) {
-              <ces-autocomplete
+              <geo-autocomplete
                 label="Colaborador responsável pelo saque"
                 [labelVisible]="false"
                 [options]="withdrawalOptions()"
@@ -447,12 +447,12 @@
           </div>
           @if (isDeliveryMode()) {
             <span class="flex items-center gap-1">
-              <ces-button label="Entregar tudo o que falta" icon="pi pi-check-square" variant="ghost" size="sm" (pressed)="preencherEntrega()" />
-              <ces-button label="Zerar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="zerarEntrega()" />
+              <geo-button label="Entregar tudo o que falta" icon="pi pi-check-square" variant="ghost" size="sm" (pressed)="preencherEntrega()" />
+              <geo-button label="Zerar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="zerarEntrega()" />
             </span>
           } @else {
-            <span class="text-xs text-[var(--ces-foreground-muted)]">
-              Total solicitado: <strong class="font-mono text-[var(--ces-foreground)]">{{ totais.solicitada | number: '1.0-3' }}</strong>
+            <span class="text-xs text-[var(--geo-foreground-muted)]">
+              Total solicitado: <strong class="font-mono text-[var(--geo-foreground)]">{{ totais.solicitada | number: '1.0-3' }}</strong>
             </span>
           }
         </div>
@@ -461,12 +461,12 @@
           <!-- Adição de material: aparece na aprovação e na entrega -->
           <div class="painel painel--tracejado mb-4 print:hidden">
             <div class="flex items-center gap-2 mb-2">
-              <i class="pi pi-plus-circle text-[var(--ces-brand)]" aria-hidden="true"></i>
+              <i class="pi pi-plus-circle text-[var(--geo-brand)]" aria-hidden="true"></i>
               <span class="painel__titulo">Adicionar material</span>
               <span class="painel__texto">{{ isDeliveryMode() ? 'sai junto nesta entrega' : 'entra na solicitação ao aprovar' }}</span>
             </div>
             <div class="adicionar">
-              <ces-autocomplete
+              <geo-autocomplete
                 label="Material"
                 [labelVisible]="false"
                 [(ngModel)]="selectedMaterialId"
@@ -485,8 +485,8 @@
                 (search)="searchMaterials($event)"
                 (loadMore)="loadMoreMaterials()"
                 (retry)="retryMaterials()"
-              ></ces-autocomplete>
-              <ces-number-input
+              ></geo-autocomplete>
+              <geo-number-input
                 class="adicionar__quantidade"
                 label="Quantidade"
                 [labelVisible]="false"
@@ -497,22 +497,22 @@
                 [value]="itemQuantity()"
                 (valueChange)="itemQuantity.set($event)"
               />
-              <ces-button label="Adicionar" icon="pi pi-plus" size="sm" [disabled]="!selectedMaterial() || !itemQuantity()" (pressed)="addItem()" />
+              <geo-button label="Adicionar" icon="pi pi-plus" size="sm" [disabled]="!selectedMaterial() || !itemQuantity()" (pressed)="addItem()" />
             </div>
             @if (selectedMaterial(); as m) {
               <div class="adicionar__saldos" aria-live="polite">
                 <span class="adicionar__nome">{{ m.codigo }} · {{ m.descricao }}</span>
                 @if (m.detalhaSerie) {
-                  <ces-status tone="brand" icon="pi pi-barcode">Com nº de série{{ isDeliveryMode() ? ': escolha as séries na linha' : '' }}</ces-status>
+                  <geo-status tone="brand" icon="pi pi-barcode">Com nº de série{{ isDeliveryMode() ? ': escolha as séries na linha' : '' }}</geo-status>
                 }
                 @if (saldosDoSelecionado(); as s) {
                   <span>Em {{ origemAtual()?.nome }}: <strong>{{ s.origem | number: '1.0-3' }} {{ m.unidadeMedida || 'UN' }}</strong></span>
                   <span>{{ sol.estoqueDestino.nomeIdentificador }} tem: <strong>{{ s.destino | number: '1.0-3' }} {{ m.unidadeMedida || 'UN' }}</strong></span>
                   @if ((itemQuantity() ?? 0) > s.origem) {
-                    <ces-status tone="warning" icon="pi pi-exclamation-triangle">Passa do saldo da origem</ces-status>
+                    <geo-status tone="warning" icon="pi pi-exclamation-triangle">Passa do saldo da origem</geo-status>
                   }
                 } @else {
-                  <span class="text-[var(--ces-foreground-muted)]">Consultando saldos...</span>
+                  <span class="text-[var(--geo-foreground-muted)]">Consultando saldos...</span>
                 }
               </div>
             }
@@ -541,13 +541,13 @@
                     @if (l.material.detalhaSerie) { · com nº de série }
                   </span>
                   @if (!l.idItem) {
-                    <ces-status tone="brand" icon="pi pi-plus">Incluído nesta entrega</ces-status>
+                    <geo-status tone="brand" icon="pi pi-plus">Incluído nesta entrega</geo-status>
                   }
                   @if (l.removido) {
-                    <ces-status tone="danger" icon="pi pi-trash">Sai da solicitação</ces-status>
+                    <geo-status tone="danger" icon="pi pi-trash">Sai da solicitação</geo-status>
                   }
                   @if (saldoNegativoDoMaterial(l.material.id); as negativo) {
-                    <ces-status tone="warning" icon="pi-exclamation-triangle">Saldo {{ negativo.quantidade | number: '1.0-3' }} {{ negativo.unidadeMedida }} na equipe</ces-status>
+                    <geo-status tone="warning" icon="pi-exclamation-triangle">Saldo {{ negativo.quantidade | number: '1.0-3' }} {{ negativo.unidadeMedida }} na equipe</geo-status>
                   }
                 </span>
                 <span role="cell" class="entrega__num">{{ l.solicitada | number: '1.0-3' }}</span>
@@ -562,7 +562,7 @@
                     —
                   } @else if (l.material.detalhaSerie) {
                     <strong>{{ l.series.length }}</strong>
-                    <small class="block text-[var(--ces-foreground-muted)]">{{ l.series.length === 1 ? 'série' : 'séries' }}</small>
+                    <small class="block text-[var(--geo-foreground-muted)]">{{ l.series.length === 1 ? 'série' : 'séries' }}</small>
                   } @else {
                     <app-quantidade-unidade
                       [label]="'Quantidade de ' + l.material.codigo + ' que sai agora'"
@@ -579,7 +579,7 @@
                 </span>
                 <span role="cell" class="entrega__acoes">
                   @if (!l.idItem || podeTirarDaSolicitacao(l)) {
-                    <ces-icon-button
+                    <geo-icon-button
                       [icon]="l.removido ? 'pi pi-undo' : 'pi pi-trash'"
                       [label]="(l.removido ? 'Manter ' : (l.idItem ? 'Tirar da solicitação ' : 'Descartar ')) + l.material.codigo"
                       [tooltip]="l.removido ? 'Manter na solicitação' : l.idItem ? 'Tirar da solicitação' : 'Descartar'"
@@ -619,15 +619,15 @@
                 <span role="cell" class="entrega__material">
                   <strong>{{ item.material.descricao }}</strong>
                   <span>{{ item.material.codigo }} · {{ item.material.unidadeMedida || 'UN' }} @if (item.material.detalhaSerie) { · com nº de série }</span>
-                  @if (item.isNew) { <ces-status tone="brand" icon="pi pi-plus">Incluído na aprovação</ces-status> }
-                  @if (item.removed) { <ces-status tone="danger" icon="pi pi-trash">Sai da solicitação</ces-status> }
+                  @if (item.isNew) { <geo-status tone="brand" icon="pi pi-plus">Incluído na aprovação</geo-status> }
+                  @if (item.removed) { <geo-status tone="danger" icon="pi pi-trash">Sai da solicitação</geo-status> }
                 </span>
                 <span role="cell" class="entrega__num">{{ (item.quantidadeOriginal ?? item.quantidade) | number: '1.0-3' }}</span>
                 <span role="cell" class="entrega__num">
                   @if (item.removed) {
                     —
                   } @else {
-                    <ces-number-input
+                    <geo-number-input
                       [label]="'Quantidade aprovada de ' + item.material.codigo"
                       [labelVisible]="false"
                       [min]="0.001"
@@ -638,7 +638,7 @@
                   }
                 </span>
                 <span role="cell" class="entrega__acoes">
-                  <ces-icon-button
+                  <geo-icon-button
                     [icon]="item.removed ? 'pi pi-undo' : 'pi pi-trash'"
                     [label]="(item.removed ? 'Manter ' : 'Tirar da solicitação ') + item.material.codigo"
                     [tooltip]="item.removed ? 'Manter na solicitação' : 'Tirar da solicitação'"
@@ -652,11 +652,11 @@
           </div>
         } @else {
           @if (resumoSeries().materiais) {
-            <p class="text-[11px] text-[var(--ces-foreground-muted)] mb-3 print:hidden">
+            <p class="text-[11px] text-[var(--geo-foreground-muted)] mb-3 print:hidden">
               Materiais com série (<i class="pi pi-barcode text-[10px]" aria-hidden="true"></i>) abrem na própria linha com as séries entregues{{ pode('ENTREGAR') ? ' e a definição das séries antes da entrega' : '' }}.
             </p>
           }
-          <ces-data-table
+          <geo-data-table
             class="print:hidden"
             caption="Itens da solicitação por material"
             searchPlaceholder="Buscar por código, descrição ou série"
@@ -670,34 +670,34 @@
             [rowExpandable]="grupoExpansivel"
             [pageSizeOptions]="[50, 100, 500]"
           >
-            <ng-template cesCell="codigo" let-g>
+            <ng-template geoCell="codigo" let-g>
               <span class="font-mono font-semibold">{{ g.material.codigo }}</span>
             </ng-template>
-            <ng-template cesCell="descricao" let-g>
+            <ng-template geoCell="descricao" let-g>
               <span class="inline-flex items-center gap-2 flex-wrap">
                 <span class="uppercase">{{ g.material.descricao }}</span>
                 @if (g.seriesEntregues.length) {
-                  <ces-status tone="brand" icon="pi pi-barcode" class="print:hidden">{{ g.seriesEntregues.length }} {{ g.seriesEntregues.length === 1 ? 'série entregue' : 'séries entregues' }}</ces-status>
+                  <geo-status tone="brand" icon="pi pi-barcode" class="print:hidden">{{ g.seriesEntregues.length }} {{ g.seriesEntregues.length === 1 ? 'série entregue' : 'séries entregues' }}</geo-status>
                 }
                 @if (g.seriesReservadas.length && g.pendente > 0) {
-                  <ces-status tone="info" icon="pi pi-lock" class="print:hidden">{{ g.seriesReservadas.length }} de {{ g.pendente | number: '1.0-0' }} {{ g.seriesReservadas.length === 1 ? 'definida' : 'definidas' }}</ces-status>
+                  <geo-status tone="info" icon="pi pi-lock" class="print:hidden">{{ g.seriesReservadas.length }} de {{ g.pendente | number: '1.0-0' }} {{ g.seriesReservadas.length === 1 ? 'definida' : 'definidas' }}</geo-status>
                 } @else if (g.material.detalhaSerie && g.pendente > 0 && pode('ENTREGAR')) {
-                  <ces-status tone="neutral" icon="pi pi-barcode" class="print:hidden">Séries a definir</ces-status>
+                  <geo-status tone="neutral" icon="pi pi-barcode" class="print:hidden">Séries a definir</geo-status>
                 }
               </span>
             </ng-template>
-            <ng-template cesCell="situacao" let-g>
+            <ng-template geoCell="situacao" let-g>
               <span class="inline-flex items-center gap-1">
                 @let s = situacao(g);
-                <ces-status [tone]="s.tom" [icon]="s.icone">{{ g.itemComPendencia && g.pendente > 0 ? g.itemComPendencia.motivoPendencia?.nome : s.rotulo }}</ces-status>
+                <geo-status [tone]="s.tom" [icon]="s.icone">{{ g.itemComPendencia && g.pendente > 0 ? g.itemComPendencia.motivoPendencia?.nome : s.rotulo }}</geo-status>
                 @if (g.itemComPendencia) {
-                  <ces-icon-button icon="pi pi-exclamation-triangle" [label]="'Ver a pendência de ' + g.material.codigo" tooltip="Ver pendência" size="icon-sm" class="print:hidden" (pressed)="abrirModalPendenciaItem(g.itemComPendencia)" />
+                  <geo-icon-button icon="pi pi-exclamation-triangle" [label]="'Ver a pendência de ' + g.material.codigo" tooltip="Ver pendência" size="icon-sm" class="print:hidden" (pressed)="abrirModalPendenciaItem(g.itemComPendencia)" />
                 } @else if (podeRegistrarPendencia() && g.itemPendente) {
-                  <ces-icon-button icon="pi pi-flag" [label]="'Apontar pendência em ' + g.material.codigo" tooltip="Apontar pendência" size="icon-sm" class="print:hidden" (pressed)="abrirModalPendenciaItem(g.itemPendente)" />
+                  <geo-icon-button icon="pi pi-flag" [label]="'Apontar pendência em ' + g.material.codigo" tooltip="Apontar pendência" size="icon-sm" class="print:hidden" (pressed)="abrirModalPendenciaItem(g.itemPendente)" />
                 }
               </span>
             </ng-template>
-            <ng-template cesRowDetail let-g>
+            <ng-template geoRowDetail let-g>
               <div class="detalhe-series">
                 @if (g.seriesEntregues.length) {
                   <div class="detalhe-series__bloco">
@@ -722,8 +722,8 @@
                         [(selecionadas)]="reservaRascunho"
                       />
                       <span class="flex justify-end gap-2">
-                        <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="reservaAberta.set(null)" />
-                        <ces-button label="Salvar séries" icon="pi pi-lock" size="sm" [loading]="salvandoReserva()" (pressed)="salvarReserva(g)" />
+                        <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="reservaAberta.set(null)" />
+                        <geo-button label="Salvar séries" icon="pi pi-lock" size="sm" [loading]="salvandoReserva()" (pressed)="salvarReserva(g)" />
                       </span>
                     } @else {
                       @if (g.seriesReservadas.length) {
@@ -732,7 +732,7 @@
                         <p class="detalhe-series__texto">Nenhuma série definida ainda. Defina agora e, na entrega, é só confirmar.</p>
                       }
                       <span>
-                        <ces-button [label]="g.seriesReservadas.length ? 'Alterar séries' : 'Definir séries'" icon="pi pi-barcode" variant="secondary" size="sm" (pressed)="abrirReserva(g)" />
+                        <geo-button [label]="g.seriesReservadas.length ? 'Alterar séries' : 'Definir séries'" icon="pi pi-barcode" variant="secondary" size="sm" (pressed)="abrirReserva(g)" />
                       </span>
                     }
                   </div>
@@ -744,7 +744,7 @@
                 }
               </div>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
 
           <!-- No papel: a mesma tabela, com as séries entregues abertas logo abaixo de cada material. -->
           <table class="tabela-documento" aria-hidden="true">
@@ -932,7 +932,7 @@
         icon="pi pi-arrow-left"
         label="VOLTAR"
         (onClick)="voltar()"
-        styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"
+        styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"
       ></p-button>
 
       @if (isEditMode()) {
@@ -940,7 +940,7 @@
           label="CANCELAR"
           icon="pi pi-times"
           (onClick)="cancelApproval()"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] cursor-pointer"
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] cursor-pointer"
         ></p-button>
         <p-button
           label="CONFIRMAR E APROVAR"
@@ -954,14 +954,14 @@
           label="CANCELAR ENTREGA"
           icon="pi pi-times"
           (onClick)="cancelDelivery()"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] cursor-pointer"
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] cursor-pointer"
         ></p-button>
         <p-button
           label="CONFIRMAR ENTREGA FÍSICA"
           icon="pi pi-box"
           [loading]="saving()"
           (onClick)="confirmDelivery()"
-          styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"
+          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
         ></p-button>
       } @else {
         <p-button
@@ -977,7 +977,7 @@
             icon="pi pi-replay"
             [loading]="saving()"
             (onClick)="confirmarEstorno()"
-            styleClass="!rounded-lg !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-warning-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -986,7 +986,7 @@
             label="PENDÊNCIA"
             icon="pi pi-exclamation-triangle"
             (onClick)="abrirModalPendenciaSolicitacao()"
-            styleClass="!rounded-lg !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-warning-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -995,7 +995,7 @@
             [label]="rotuloRejeicao().toUpperCase()"
             icon="pi pi-times"
             (onClick)="rejeicaoAberta.set(true)"
-            styleClass="!rounded-lg !bg-[var(--ces-danger)] !border-[var(--ces-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-danger-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -1011,7 +1011,7 @@
             label="REGISTRAR ENTREGA"
             icon="pi pi-box"
             (onClick)="abrirPainel('entrega')"
-            styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
           ></p-button>
         }
       }
@@ -1190,14 +1190,14 @@
     </div>
 
     <div class="mt-4 border-t border-slate-200 dark:border-slate-700 pt-4 flex items-center justify-end gap-2.5">
-      <ces-button
+      <geo-button
         label="Voltar"
         variant="ghost"
         size="sm"
         [disabled]="saving()"
         (pressed)="displayDigitalSignatureDashboard.set(false); displaySignatureTypeModal.set(true)"
       />
-      <ces-button
+      <geo-button
         label="Finalizar Entrega Digital"
         icon="pi pi-check-circle"
         variant="primary"
@@ -1268,8 +1268,8 @@
     </div>
 
     <div class="flex justify-end gap-2.5 mt-4 border-t border-slate-200 dark:border-slate-700 pt-4">
-      <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="displaySignatureModal.set(false)" />
-      <ces-button label="Salvar Assinatura" icon="pi pi-check" variant="primary" size="sm" (pressed)="saveSignature()" />
+      <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="displaySignatureModal.set(false)" />
+      <geo-button label="Salvar Assinatura" icon="pi pi-check" variant="primary" size="sm" (pressed)="saveSignature()" />
     </div>
   </div>
 </p-dialog>
@@ -1281,7 +1281,7 @@
 }
 
 <!-- Modal de Estorno Parcial -->
-<ces-form-drawer
+<geo-form-drawer
   [(visible)]="displayEstornoParcialModal"
   title="Estorno parcial de materiais"
   description="Os itens selecionados voltam ao estoque de origem."
@@ -1361,11 +1361,11 @@
     </div>
 
   </div>
-  <div drawer-footer class="ces-actions-row">
-    <ces-button label="Cancelar" variant="ghost" (pressed)="displayEstornoParcialModal.set(false)" />
-    <ces-button label="Confirmar estorno" icon="pi pi-replay" variant="destructive" [loading]="saving()" (pressed)="confirmarEstornoParcial()" />
+  <div drawer-footer class="geo-actions-row">
+    <geo-button label="Cancelar" variant="ghost" (pressed)="displayEstornoParcialModal.set(false)" />
+    <geo-button label="Confirmar estorno" icon="pi pi-replay" variant="destructive" [loading]="saving()" (pressed)="confirmarEstornoParcial()" />
   </div>
-</ces-form-drawer>
+</geo-form-drawer>
 
 <app-saldo-estoque-dialog #saldoDialog></app-saldo-estoque-dialog>
 

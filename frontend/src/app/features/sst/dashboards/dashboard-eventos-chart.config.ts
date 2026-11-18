@@ -1,5 +1,5 @@
 import { SerieEventosItem } from '../../../core/models/sst-evento.models';
-import { CesPrimaryColor } from '../../../core/services/theme.service';
+import { GeoPrimaryColor } from '../../../core/services/theme.service';
 
 export interface DatasetEvolucao {
   type: 'bar' | 'line';
@@ -21,7 +21,7 @@ export interface PaletaGradientePrimaria {
   hover: string;
 }
 
-export const PALETAS_GRADIENTE_PRIMARIA: Record<CesPrimaryColor, PaletaGradientePrimaria> = {
+export const PALETAS_GRADIENTE_PRIMARIA: Record<GeoPrimaryColor, PaletaGradientePrimaria> = {
   blue: {
     claro: '#60a5fa', // blue-400
     forte: '#1d4ed8', // blue-700
@@ -60,9 +60,9 @@ export const PALETAS_GRADIENTE_PRIMARIA: Record<CesPrimaryColor, PaletaGradiente
   }
 };
 
-export function obterPaletaPrimaria(cor?: CesPrimaryColor | string | null): PaletaGradientePrimaria {
+export function obterPaletaPrimaria(cor?: GeoPrimaryColor | string | null): PaletaGradientePrimaria {
   if (!cor) return PALETAS_GRADIENTE_PRIMARIA.blue;
-  const chave = cor.toLowerCase().trim() as CesPrimaryColor;
+  const chave = cor.toLowerCase().trim() as GeoPrimaryColor;
   return PALETAS_GRADIENTE_PRIMARIA[chave] ?? PALETAS_GRADIENTE_PRIMARIA.blue;
 }
 
@@ -89,7 +89,7 @@ export function criarGradienteBarra(
  */
 export function montarDadosGraficoEvolucao(
   serie: readonly SerieEventosItem[],
-  corPrimaria?: CesPrimaryColor | string | null
+  corPrimaria?: GeoPrimaryColor | string | null
 ): DadosGraficoEvolucao {
   const paleta = obterPaletaPrimaria(corPrimaria);
 

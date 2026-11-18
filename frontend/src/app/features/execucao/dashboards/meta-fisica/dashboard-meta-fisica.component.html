@@ -1,30 +1,30 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Painel da meta física" icon="pi pi-bullseye"
+    <geo-page-header title="Painel da meta física" icon="pi pi-bullseye"
       [breadcrumb]="[{ label: 'Execução' }, { label: 'Painel da meta física' }]"
       description="Notas produtivas por base e serviço contra a meta da Concessionária, distribuída nos dias úteis do mês. Notas só com serviço não efetuado não contam.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
       @if (data(); as d) {
         <span actions class="dash-updated">Atualizado às {{ d.geradoEm | date: 'HH:mm' }}</span>
       }
-      <ces-button actions label="Metas cadastradas" icon="pi pi-bullseye" variant="secondary" (pressed)="cadastrar()"></ces-button>
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Metas cadastradas" icon="pi pi-bullseye" variant="secondary" (pressed)="cadastrar()"></geo-button>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="dash-meta-fisica" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+    <geo-filter-panel storageKey="dash-meta-fisica" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
-        <ces-select label="Mês" inputId="meta-fisica-mes" [options]="opcoesMeses()" [value]="competencia()"
-          (valueChange)="$event && competencia.set($event)" [filter]="true"></ces-select>
-        <ces-multiselect label="Base operacional" inputId="meta-fisica-base" placeholder="Todas com meta" [clearable]="true"
+      <div class="geo-filter-grid">
+        <geo-select label="Mês" inputId="meta-fisica-mes" [options]="opcoesMeses()" [value]="competencia()"
+          (valueChange)="$event && competencia.set($event)" [filter]="true"></geo-select>
+        <geo-multiselect label="Base operacional" inputId="meta-fisica-base" placeholder="Todas com meta" [clearable]="true"
           selectedItemsLabel="{0} bases" [maxSelectedLabels]="2"
-          [options]="recorte.opcoesBases()" [loading]="recorte.carregando()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></ces-multiselect>
-        <ces-multiselect label="Tipo de serviço" inputId="meta-fisica-tipo" placeholder="Todos com meta" [clearable]="true"
+          [options]="recorte.opcoesBases()" [loading]="recorte.carregando()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></geo-multiselect>
+        <geo-multiselect label="Tipo de serviço" inputId="meta-fisica-tipo" placeholder="Todos com meta" [clearable]="true"
           selectedItemsLabel="{0} serviços" [maxSelectedLabels]="2"
-          [options]="opcoesTipos()" [value]="idsTipo()" (valueChange)="idsTipo.set($event)"></ces-multiselect>
+          [options]="opcoesTipos()" [value]="idsTipo()" (valueChange)="idsTipo.set($event)"></geo-multiselect>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     <div class="dash-tabs ed-periodos" role="group" aria-label="Mês rápido">
       @for (mes of mesesRapidos; track mes.valor) {
@@ -34,15 +34,15 @@
     </div>
 
     @if (loading() && !data()) {
-      <ces-async-state state="loading" title="Apurando a meta física" description="Contando as notas de cada base e serviço."></ces-async-state>
+      <geo-async-state state="loading" title="Apurando a meta física" description="Contando as notas de cada base e serviço."></geo-async-state>
     } @else if (erro() && !data()) {
-      <ces-async-state state="error" title="Não foi possível carregar o painel" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível carregar o painel" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (modelo(); as m) {
       @if (!m.celulas.length) {
-        <ces-async-state state="empty" icon="pi pi-bullseye" [title]="'Nenhuma meta física em ' + nomeMes(m.d.competencia).toLowerCase()"
+        <geo-async-state state="empty" icon="pi pi-bullseye" [title]="'Nenhuma meta física em ' + nomeMes(m.d.competencia).toLowerCase()"
           description="Cadastre a meta de cada base com as quantidades de corte, enlace e baixa que a Concessionária enviou para acompanhar o ritmo aqui."
-          actionLabel="Cadastrar meta" actionIcon="pi pi-plus" (action)="cadastrar()"></ces-async-state>
+          actionLabel="Cadastrar meta" actionIcon="pi pi-plus" (action)="cadastrar()"></geo-async-state>
       } @else {
         @if (visaoGerencial(); as vg) {
           <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
@@ -89,13 +89,13 @@
                   <span class="mf-servico__codigo">{{ s.codigo ?? 'Serviço' }}</span>
                   <h2>{{ s.nome }}</h2>
                 </div>
-                <ces-status [tone]="situacao[s.situacao].tom" [icon]="situacao[s.situacao].icone">{{ situacao[s.situacao].rotulo }}</ces-status>
+                <geo-status [tone]="situacao[s.situacao].tom" [icon]="situacao[s.situacao].icone">{{ situacao[s.situacao].rotulo }}</geo-status>
               </header>
               <div class="mf-servico__numeros">
                 <strong>{{ inteiro(s.realizado) }}</strong>
                 <span>de {{ notas(s.meta) }}</span>
               </div>
-              <ces-meter [value]="s.pct ?? 0" [label]="'Meta de ' + s.nome" [detail]="percentual(s.pct) + ' da meta do mês'"></ces-meter>
+              <geo-meter [value]="s.pct ?? 0" [label]="'Meta de ' + s.nome" [detail]="percentual(s.pct) + ' da meta do mês'"></geo-meter>
               <ul class="ed-goal__rows">
                 @if (m.estado === 'andamento') {
                   <li><i class="pi pi-calendar-clock" aria-hidden="true"></i>Esperado até ontem <strong>{{ inteiro(s.esperado) }}</strong>
@@ -138,10 +138,10 @@
                 </div>
               </div>
             </header>
-            <ces-chart [kind]="visaoSerie() === 'acumulado' ? 'line' : 'bar'" title="Executado e meta do mês" [showTitle]="false"
+            <geo-chart [kind]="visaoSerie() === 'acumulado' ? 'line' : 'bar'" title="Executado e meta do mês" [showTitle]="false"
               [labels]="serieMes().rotulos" [series]="serieMes().series" valueFormat="number" [height]="300"
               [note]="m.d.diasUteis + ' dias úteis no mês · ' + umaCasa(m.d.diasUteis ? m.geral.meta / m.d.diasUteis : null) + ' notas por dia útil'"
-              [selectable]="true" selectLabel="Analisar dia" (pointSelect)="selecionarDia($event)"></ces-chart>
+              [selectable]="true" selectLabel="Analisar dia" (pointSelect)="selecionarDia($event)"></geo-chart>
           </article>
 
           <article class="dash-panel dash-col-4">
@@ -152,9 +152,9 @@
               </div>
               <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'bases', rotulo: 'Atingimento por base' }" />
             </header>
-            <ces-chart kind="bar-horizontal" title="Atingimento por base" [showTitle]="false"
+            <geo-chart kind="bar-horizontal" title="Atingimento por base" [showTitle]="false"
               [labels]="serieBases().rotulos" [series]="serieBases().series" valueFormat="percent"
-              [height]="300" [selectable]="true" selectLabel="Analisar base" (pointSelect)="selecionarBase($event)"></ces-chart>
+              [height]="300" [selectable]="true" selectLabel="Analisar base" (pointSelect)="selecionarBase($event)"></geo-chart>
           </article>
         </section>
 
@@ -262,7 +262,7 @@
                     <span class="ed-team__eyebrow">Base</span>
                     <h3 [id]="'mf-base-' + base.id">{{ base.nome }}</h3>
                   </div>
-                  <ces-status [tone]="situacao[base.situacao].tom" [icon]="situacao[base.situacao].icone">{{ situacao[base.situacao].rotulo }}</ces-status>
+                  <geo-status [tone]="situacao[base.situacao].tom" [icon]="situacao[base.situacao].icone">{{ situacao[base.situacao].rotulo }}</geo-status>
                 </header>
 
                 <section class="ed-goal" [attr.data-tone]="tomDaMeta(base.pct)" [attr.aria-label]="'Meta do mês da base ' + base.nome">
@@ -270,7 +270,7 @@
                     <span class="ed-goal__label"><i class="pi pi-bullseye" aria-hidden="true"></i> Meta do mês</span>
                     <strong class="ed-goal__pct">{{ percentual(base.pct) }}</strong>
                   </div>
-                  <ces-meter [value]="base.pct ?? 0" [label]="'Meta do mês da base ' + base.nome" [detail]="inteiro(base.realizado) + ' de ' + notas(base.meta)"></ces-meter>
+                  <geo-meter [value]="base.pct ?? 0" [label]="'Meta do mês da base ' + base.nome" [detail]="inteiro(base.realizado) + ' de ' + notas(base.meta)"></geo-meter>
                   <ul class="ed-goal__rows">
                     @if (m.estado === 'andamento') {
                       @if (base.falta > 0) {
@@ -342,9 +342,9 @@
                 </div>
                 <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'historico', rotulo: 'Meses anteriores' }" />
               </header>
-              <ces-chart kind="bar" title="Meta e executado por mês" [showTitle]="false"
+              <geo-chart kind="bar" title="Meta e executado por mês" [showTitle]="false"
                 [labels]="serieHistorico().rotulos" [series]="serieHistorico().series" valueFormat="integer" [height]="260"
-                [selectable]="true" selectLabel="Analisar mês" (pointSelect)="selecionarMes($event)"></ces-chart>
+                [selectable]="true" selectLabel="Analisar mês" (pointSelect)="selecionarMes($event)"></geo-chart>
             </article>
           </section>
         }

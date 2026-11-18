@@ -1,30 +1,30 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesImportStatus,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoImportStatus,
+  geoListState
+} from '@geo/ui';
 import { Observable, of, switchMap } from 'rxjs';
-import { CesNumberInputComponent } from '@ces/ui';
+import { GeoNumberInputComponent } from '@geo/ui';
 
 import { AvaliacaoMaterialResponse, CentroInvestimentoResponse, MaterialImportacaoDTO, MaterialRequest, MaterialResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -48,7 +48,7 @@ interface LinhaEquivalencia {
 
 let proximaChave = 1;
 
-const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
+const OPCOES_SERIE: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Sim', value: true },
   { label: 'Não', value: false }
@@ -59,22 +59,22 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesNumberInputComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoNumberInputComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent
   ],
@@ -82,17 +82,17 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
     .mat-unidade { display: inline-flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; }
     .mat-eq { display: grid; gap: 0.625rem; margin: 0 0 0.75rem; padding: 0; list-style: none; }
     .mat-eq__linha { display: grid; grid-template-columns: minmax(0, 6.5rem) minmax(0, 6rem) auto minmax(0, 8rem) auto; gap: 0.5rem; align-items: start; }
-    .mat-eq__igual { padding-top: 0.5rem; font-weight: 600; color: var(--ces-foreground-muted); }
-    .mat-eq__exemplo { grid-column: 1 / -1; margin: -0.125rem 0 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .mat-eq__vazio { margin: 0 0 0.75rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .mat-eq__igual { padding-top: 0.5rem; font-weight: 600; color: var(--geo-foreground-muted); }
+    .mat-eq__exemplo { grid-column: 1 / -1; margin: -0.125rem 0 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .mat-eq__vazio { margin: 0 0 0.75rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     @media (max-width: 30rem) {
       .mat-eq__linha { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
       .mat-eq__igual { display: none; }
     }
   `,
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Materiais"
         icon="pi pi-box"
         [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Materiais' }]"
@@ -100,21 +100,21 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
         helpLabel="Ajuda sobre materiais"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo material" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo material" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="almox-materiais" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="almox-materiais" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Processo" [options]="processosOpcoes()" [(value)]="lista.filters.idProcesso" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Avaliação técnica" [options]="avaliacoesOpcoes()" [(value)]="lista.filters.idAvaliacaoTecnica" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Controla nº de série" [options]="opcoesSerie" [(value)]="lista.filters.detalhaSerie"></ces-select>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Processo" [options]="processosOpcoes()" [(value)]="lista.filters.idProcesso" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Avaliação técnica" [options]="avaliacoesOpcoes()" [(value)]="lista.filters.idAvaliacaoTecnica" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Controla nº de série" [options]="opcoesSerie" [(value)]="lista.filters.detalhaSerie"></geo-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Materiais"
         mode="server"
         storageKey="almox-materiais"
@@ -144,69 +144,69 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="codigo" let-row><span class="ces-cell-strong">{{ row.codigo }}</span></ng-template>
-        <ng-template cesCell="processo" let-row>
+        <ng-template geoCell="codigo" let-row><span class="geo-cell-strong">{{ row.codigo }}</span></ng-template>
+        <ng-template geoCell="processo" let-row>
           @if (visualProcesso(row.processo?.nome); as p) {
-            <ces-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</ces-status>
+            <geo-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</geo-status>
           } @else {
-            <span class="ces-cell-muted">—</span>
+            <span class="geo-cell-muted">—</span>
           }
         </ng-template>
-        <ng-template cesCell="unidade" let-row>
+        <ng-template geoCell="unidade" let-row>
           <span class="mat-unidade">
             <span>{{ row.unidadeMedida || 'UN' }}</span>
             @if (row.equivalencias?.length) {
-              <ces-status tone="info" icon="pi pi-arrow-right-arrow-left" [title]="frasesDe(row)">{{ row.equivalencias.length === 1 ? '1 equivalência' : row.equivalencias.length + ' equivalências' }}</ces-status>
+              <geo-status tone="info" icon="pi pi-arrow-right-arrow-left" [title]="frasesDe(row)">{{ row.equivalencias.length === 1 ? '1 equivalência' : row.equivalencias.length + ' equivalências' }}</geo-status>
             }
           </span>
         </ng-template>
-        <ng-template cesCell="serie" let-row>
+        <ng-template geoCell="serie" let-row>
           @if (row.detalhaSerie) {
-            <ces-status tone="info" icon="pi-hashtag">Controla</ces-status>
+            <geo-status tone="info" icon="pi-hashtag">Controla</geo-status>
           } @else {
-            <span class="ces-cell-muted">Não</span>
+            <span class="geo-cell-muted">Não</span>
           }
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.codigo" size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.codigo" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.codigo" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.codigo" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar material' : 'Novo material'" [description]="emEdicao()?.codigo"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar material' : 'Novo material'" [description]="emEdicao()?.codigo"
       [dirty]="alterado()" size="md">
-      <ces-form-section title="Material" icon="pi pi-box">
-        <div class="ces-form-grid">
-          <ces-text-input label="Código" [required]="true" [value]="codigo()" (valueChange)="codigo.set($event.toUpperCase())" [maxlength]="40" placeholder="Ex.: MAT001" [error]="erro('codigo')"></ces-text-input>
-          <ces-text-input label="Unidade de medida" [(value)]="unidade" [maxlength]="10" placeholder="Ex.: MT" [showOptional]="true"></ces-text-input>
+      <geo-form-section title="Material" icon="pi pi-box">
+        <div class="geo-form-grid">
+          <geo-text-input label="Código" [required]="true" [value]="codigo()" (valueChange)="codigo.set($event.toUpperCase())" [maxlength]="40" placeholder="Ex.: MAT001" [error]="erro('codigo')"></geo-text-input>
+          <geo-text-input label="Unidade de medida" [(value)]="unidade" [maxlength]="10" placeholder="Ex.: MT" [showOptional]="true"></geo-text-input>
         </div>
-        <ces-text-input label="Descrição" [required]="true" [(value)]="descricao" [maxlength]="255" placeholder="Ex.: Cabo de cobre 16mm" [error]="erro('descricao')"></ces-text-input>
-        <ces-text-input label="SUPR/MATR" [(value)]="suprMatr" [maxlength]="10" placeholder="Ex.: SUPR" [showOptional]="true"></ces-text-input>
-      </ces-form-section>
-      <ces-form-section title="Processo" icon="pi pi-sitemap" description="Define em quais solicitações o material pode ser pedido e separa o saldo do comercial e de obras.">
-        <ces-select label="Processo do material" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso"
-          [description]="dicaProcesso()" [error]="erro('idProcesso')"></ces-select>
-      </ces-form-section>
-      <ces-form-section title="Unidades equivalentes" icon="pi pi-arrow-right-arrow-left"
+        <geo-text-input label="Descrição" [required]="true" [(value)]="descricao" [maxlength]="255" placeholder="Ex.: Cabo de cobre 16mm" [error]="erro('descricao')"></geo-text-input>
+        <geo-text-input label="SUPR/MATR" [(value)]="suprMatr" [maxlength]="10" placeholder="Ex.: SUPR" [showOptional]="true"></geo-text-input>
+      </geo-form-section>
+      <geo-form-section title="Processo" icon="pi pi-sitemap" description="Define em quais solicitações o material pode ser pedido e separa o saldo do comercial e de obras.">
+        <geo-select label="Processo do material" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso"
+          [description]="dicaProcesso()" [error]="erro('idProcesso')"></geo-select>
+      </geo-form-section>
+      <geo-form-section title="Unidades equivalentes" icon="pi pi-arrow-right-arrow-left"
         [description]="'O saldo fica sempre em ' + base() + '. Cadastre outras unidades para receber, entregar ou lançar nas notas e o GEO converte.'">
         @if (equivalencias().length) {
           <ul class="mat-eq" aria-label="Unidades equivalentes">
             @for (e of equivalencias(); track e.chave; let i = $index) {
               <li class="mat-eq__linha">
-                <ces-number-input class="mat-eq__qtd" [label]="'Quantidade na outra unidade, linha ' + (i + 1)" [labelVisible]="false" [min]="0" [maxFractionDigits]="6"
-                  [value]="e.quantidadeUnidade" (valueChange)="alterarEquivalencia(i, { quantidadeUnidade: $event })" [error]="erroEquivalencia(e, 'quantidadeUnidade')"></ces-number-input>
-                <ces-text-input class="mat-eq__unidade" [label]="'Outra unidade, linha ' + (i + 1)" [labelVisible]="false" [maxlength]="10" placeholder="Ex.: KG"
-                  [value]="e.unidade" (valueChange)="alterarEquivalencia(i, { unidade: $event.toUpperCase() })" [error]="erroEquivalencia(e, 'unidade')"></ces-text-input>
+                <geo-number-input class="mat-eq__qtd" [label]="'Quantidade na outra unidade, linha ' + (i + 1)" [labelVisible]="false" [min]="0" [maxFractionDigits]="6"
+                  [value]="e.quantidadeUnidade" (valueChange)="alterarEquivalencia(i, { quantidadeUnidade: $event })" [error]="erroEquivalencia(e, 'quantidadeUnidade')"></geo-number-input>
+                <geo-text-input class="mat-eq__unidade" [label]="'Outra unidade, linha ' + (i + 1)" [labelVisible]="false" [maxlength]="10" placeholder="Ex.: KG"
+                  [value]="e.unidade" (valueChange)="alterarEquivalencia(i, { unidade: $event.toUpperCase() })" [error]="erroEquivalencia(e, 'unidade')"></geo-text-input>
                 <span class="mat-eq__igual" aria-hidden="true">=</span>
-                <ces-number-input class="mat-eq__qtd" [label]="'Quantidade em ' + base() + ', linha ' + (i + 1)" [labelVisible]="false" [min]="0" [maxFractionDigits]="6"
-                  [suffix]="' ' + base()" [value]="e.quantidadeBase" (valueChange)="alterarEquivalencia(i, { quantidadeBase: $event })" [error]="erroEquivalencia(e, 'quantidadeBase')"></ces-number-input>
-                <ces-icon-button icon="pi pi-trash" [label]="'Tirar a equivalência ' + (e.unidade || (i + 1))" tooltip="Tirar" size="icon-sm" (pressed)="removerEquivalencia(i)"></ces-icon-button>
+                <geo-number-input class="mat-eq__qtd" [label]="'Quantidade em ' + base() + ', linha ' + (i + 1)" [labelVisible]="false" [min]="0" [maxFractionDigits]="6"
+                  [suffix]="' ' + base()" [value]="e.quantidadeBase" (valueChange)="alterarEquivalencia(i, { quantidadeBase: $event })" [error]="erroEquivalencia(e, 'quantidadeBase')"></geo-number-input>
+                <geo-icon-button icon="pi pi-trash" [label]="'Tirar a equivalência ' + (e.unidade || (i + 1))" tooltip="Tirar" size="icon-sm" (pressed)="removerEquivalencia(i)"></geo-icon-button>
                 @if (exemplo(e); as ex) {
                   <p class="mat-eq__exemplo"><i class="pi pi-info-circle" aria-hidden="true"></i> {{ ex }}</p>
                 }
@@ -216,66 +216,66 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
         } @else {
           <p class="mat-eq__vazio">Nenhuma equivalência. Ex.: cabo controlado em MT e recebido em KG (1 KG = 4,2 MT), ou rolo de fita em UN usado em metros nas notas (20 M = 1 UN).</p>
         }
-        <ces-button variant="outline" size="sm" icon="pi pi-plus" label="Adicionar equivalência" (pressed)="adicionarEquivalencia()"></ces-button>
-      </ces-form-section>
-      <ces-form-section title="Classificação" icon="pi pi-sliders-h">
-        <div class="ces-form-grid">
-          <ces-select label="Avaliação técnica" [options]="avaliacoesOpcoes()" [(value)]="idAvaliacao" [filter]="true" [clearable]="true" [showOptional]="true"></ces-select>
-          <ces-select label="Centro de investimento" [options]="centrosOpcoes()" [(value)]="idCentro" [filter]="true" [clearable]="true" [showOptional]="true"></ces-select>
+        <geo-button variant="outline" size="sm" icon="pi pi-plus" label="Adicionar equivalência" (pressed)="adicionarEquivalencia()"></geo-button>
+      </geo-form-section>
+      <geo-form-section title="Classificação" icon="pi pi-sliders-h">
+        <div class="geo-form-grid">
+          <geo-select label="Avaliação técnica" [options]="avaliacoesOpcoes()" [(value)]="idAvaliacao" [filter]="true" [clearable]="true" [showOptional]="true"></geo-select>
+          <geo-select label="Centro de investimento" [options]="centrosOpcoes()" [(value)]="idCentro" [filter]="true" [clearable]="true" [showOptional]="true"></geo-select>
         </div>
-        <ces-boolean-control label="Controla número de série" kind="toggle" [(value)]="detalhaSerie"
-          description="Exige informar o número de série em cada movimentação."></ces-boolean-control>
-        <ces-boolean-control [label]="emEdicao() ? 'Material ativo' : 'Cadastrar já ativo'" kind="toggle" [(value)]="ativo"></ces-boolean-control>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar material'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        <geo-boolean-control label="Controla número de série" kind="toggle" [(value)]="detalhaSerie"
+          description="Exige informar o número de série em cada movimentação."></geo-boolean-control>
+        <geo-boolean-control [label]="emEdicao() ? 'Material ativo' : 'Cadastrar já ativo'" kind="toggle" [(value)]="ativo"></geo-boolean-control>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar material'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar materiais"
+    <geo-import-drawer [(visible)]="importacao.aberta" title="Importar materiais"
       description="Planilha CSV com código, descrição, unidade, SUPR/MATR, avaliação, centro de investimento e se controla nº de série."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao.linhas()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="codigo" let-row>
-            @if (row.editing) { <ces-text-input label="Código" [labelVisible]="false" [(value)]="row.codigo"></ces-text-input> } @else { {{ row.codigo }} }
+          <ng-template geoCell="codigo" let-row>
+            @if (row.editing) { <geo-text-input label="Código" [labelVisible]="false" [(value)]="row.codigo"></geo-text-input> } @else { {{ row.codigo }} }
           </ng-template>
-          <ng-template cesCell="descricao" let-row>
-            @if (row.editing) { <ces-text-input label="Descrição" [labelVisible]="false" [(value)]="row.descricao"></ces-text-input> } @else { {{ row.descricao }} }
+          <ng-template geoCell="descricao" let-row>
+            @if (row.editing) { <geo-text-input label="Descrição" [labelVisible]="false" [(value)]="row.descricao"></geo-text-input> } @else { {{ row.descricao }} }
           </ng-template>
-          <ng-template cesCell="unidade" let-row>
-            @if (row.editing) { <ces-text-input label="Unidade" [labelVisible]="false" [(value)]="row.unidadeMedida"></ces-text-input> } @else { {{ row.unidadeMedida || '—' }} }
+          <ng-template geoCell="unidade" let-row>
+            @if (row.editing) { <geo-text-input label="Unidade" [labelVisible]="false" [(value)]="row.unidadeMedida"></geo-text-input> } @else { {{ row.unidadeMedida || '—' }} }
           </ng-template>
-          <ng-template cesCell="serie" let-row>
+          <ng-template geoCell="serie" let-row>
             @if (row.editing) {
-              <ces-boolean-control label="Controla nº de série" [inline]="true" [(value)]="row.detalhaSerie"></ces-boolean-control>
+              <geo-boolean-control label="Controla nº de série" [inline]="true" [(value)]="row.detalhaSerie"></geo-boolean-control>
             } @else {
               {{ row.detalhaSerie ? 'Sim' : 'Não' }}
             }
           </ng-template>
-          <ng-template cesCell="status" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="status" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Materiais" entidadePlural="materiais" busca="código ou descrição" rotuloNovo="Novo material" [importacao]="true">
@@ -290,7 +290,7 @@ export class MateriaisComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
   private readonly importacaoService = inject(ImportacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly rh = inject(RhService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
@@ -299,27 +299,27 @@ export class MateriaisComponent {
   protected readonly avaliacoes = signal<AvaliacaoMaterialResponse[]>([]);
   protected readonly centros = signal<CentroInvestimentoResponse[]>([]);
   protected readonly processos = signal<ProcessoNegocioResponse[]>([]);
-  protected readonly processosOpcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly processosOpcoes = computed<GeoSelectOption<string>[]>(() =>
     this.processos().map((p) => ({ label: processoMaterial(p.nome)?.rotulo ?? p.nome, value: p.id })));
   protected readonly visualProcesso = processoMaterial;
-  protected readonly avaliacoesOpcoes = computed<CesSelectOption<string>[]>(() => this.avaliacoes().map((a) => ({ label: a.nome, value: a.id })));
-  protected readonly centrosOpcoes = computed<CesSelectOption<string>[]>(() => this.centros().map((c) => ({ label: c.codigo, value: c.id })));
+  protected readonly avaliacoesOpcoes = computed<GeoSelectOption<string>[]>(() => this.avaliacoes().map((a) => ({ label: a.nome, value: a.id })));
+  protected readonly centrosOpcoes = computed<GeoSelectOption<string>[]>(() => this.centros().map((c) => ({ label: c.codigo, value: c.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'almox-materiais',
     filters: {
-      idProcesso: cesFilter.value<string | null>(null, {
+      idProcesso: geoFilter.value<string | null>(null, {
         label: 'Processo',
         param: 'processo',
         format: (id): string | null => (id ? (processoMaterial(this.processos().find((p) => p.id === id)?.nome)?.rotulo ?? 'processo selecionado') : null)
       }),
-      idAvaliacaoTecnica: cesFilter.value<string | null>(null, {
+      idAvaliacaoTecnica: geoFilter.value<string | null>(null, {
         label: 'Avaliação',
         param: 'avaliacao',
         format: (id): string | null => (id ? (this.avaliacoes().find((a) => a.id === id)?.nome ?? 'avaliação selecionada') : null)
       }),
-      detalhaSerie: cesFilter.value<boolean | null>(null, { label: 'Nº de série', param: 'serie', options: () => OPCOES_SERIE }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      detalhaSerie: geoFilter.value<boolean | null>(null, { label: 'Nº de série', param: 'serie', options: () => OPCOES_SERIE }),
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'codigo', direction: 'asc' }]
   });
@@ -330,7 +330,7 @@ export class MateriaisComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.almoxarifado.listarMateriais({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<MaterialResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MaterialResponse>[] = [
     { key: 'codigo', header: 'Código', type: 'custom', priority: 1, sortField: 'codigo', width: '9rem', value: (m) => m.codigo, display: (m) => m.codigo },
     { key: 'descricao', header: 'Descrição', priority: 1, sortField: 'descricao' },
     { key: 'processo', header: 'Processo', type: 'custom', sortable: false, width: '9rem', value: (m) => m.processo?.nome, display: (m) => processoMaterial(m.processo?.nome)?.rotulo ?? '—' },
@@ -394,9 +394,9 @@ export class MateriaisComponent {
     modelo: () => this.importacaoService.baixarModeloCsv('/v1/materiais/importar/modelo', 'modelo-materiais.csv'),
     aoProcessar: () => this.lista.reload()
   });
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveImportacao = CHAVE_LINHA_IMPORTACAO;
-  protected readonly colunasImportacao: CesDataTableColumn<MaterialImportacaoDTO>[] = [
+  protected readonly colunasImportacao: GeoDataTableColumn<MaterialImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'codigo', header: 'Código', type: 'custom', priority: 1, value: (r) => r.codigo },
     { key: 'descricao', header: 'Descrição', type: 'custom', value: (r) => r.descricao },

@@ -169,7 +169,7 @@ public class McpExecutor {
     private void registrarMetrica(String nome, boolean sucesso, long duracaoMs) {
         MeterRegistry registry = metricas.getIfAvailable();
         if (registry == null) return;
-        Timer.builder("ces.mcp.ferramenta.duracao")
+        Timer.builder("geo.mcp.ferramenta.duracao")
                 .tag("ferramenta", nome)
                 .tag("status", sucesso ? "ok" : "erro")
                 .register(registry)

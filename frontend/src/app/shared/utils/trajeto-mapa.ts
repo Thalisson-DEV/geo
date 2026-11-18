@@ -34,7 +34,7 @@ const SETA_MINIMA_METROS = 120;
 export function desenharTrajeto(mapa: any, pontos: readonly [number, number][], opcoes: OpcoesTrajeto): any | null {
   if (typeof L === 'undefined' || pontos.length < 2) return null;
   const estilo = getComputedStyle(opcoes.tema);
-  const cor = (token: string, reserva: string) => estilo.getPropertyValue(`--ces-${token}`).trim() || reserva;
+  const cor = (token: string, reserva: string) => estilo.getPropertyValue(`--geo-${token}`).trim() || reserva;
   const linha = cor('brand', '#2563eb');
   const contorno = cor('surface', '#ffffff');
   const sucesso = cor('success', '#16a34a');

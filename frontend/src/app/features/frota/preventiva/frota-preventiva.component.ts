@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesButtonComponent, CesPageHeaderComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
 import { FrotaAcompanhamentoPreventivaComponent } from './frota-acompanhamento-preventiva.component';
 
 /**
@@ -11,15 +11,15 @@ import { FrotaAcompanhamentoPreventivaComponent } from './frota-acompanhamento-p
   selector: 'app-frota-preventiva',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesPageHeaderComponent, FrotaAcompanhamentoPreventivaComponent],
+  imports: [GeoButtonComponent, GeoPageHeaderComponent, FrotaAcompanhamentoPreventivaComponent],
   template: `
-    <div class="ces-page">
-      <ces-page-header title="Preventiva" icon="pi pi-calendar-clock" [breadcrumb]="[{ label: 'Frota' }, { label: 'Manutenção' }, { label: 'Preventiva' }]"
+    <div class="geo-page">
+      <geo-page-header title="Preventiva" icon="pi pi-calendar-clock" [breadcrumb]="[{ label: 'Frota' }, { label: 'Manutenção' }, { label: 'Preventiva' }]"
         description="Quando cada veículo precisa da revisão: pelo km, pelas horas ou pela data, o que vencer primeiro. Os indicadores filtram a lista. Atalhos: / busca, F filtros.">
         <ng-container ngProjectAs="[actions]">
-          <ces-button variant="outline" icon="pi pi-cog" label="Planos de preventiva" (pressed)="irParaPlanos()"></ces-button>
+          <geo-button variant="outline" icon="pi pi-cog" label="Planos de preventiva" (pressed)="irParaPlanos()"></geo-button>
         </ng-container>
-      </ces-page-header>
+      </geo-page-header>
 
       <app-frota-acompanhamento-preventiva></app-frota-acompanhamento-preventiva>
     </div>

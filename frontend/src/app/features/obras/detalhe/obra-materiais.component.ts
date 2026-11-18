@@ -1,7 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CesAsyncStateComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import {
   ItemMovimentacaoResumoObra,
   SaldoObra,
@@ -62,7 +62,7 @@ export function agruparMateriais(itens: readonly ItemMovimentacaoResumoObra[]): 
 @Component({
   selector: 'app-obra-materiais',
   standalone: true,
-  imports: [CesAsyncStateComponent, CesStatusComponent, DatePipe, DecimalPipe, RouterLink],
+  imports: [GeoAsyncStateComponent, GeoStatusComponent, DatePipe, DecimalPipe, RouterLink],
   templateUrl: './obra-materiais.component.html',
   styleUrl: './obra-materiais.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -118,7 +118,7 @@ export class ObraMateriaisComponent {
     return condicao === 'SUCATA' ? 'Sucata' : 'Novo';
   }
 
-  protected tomCondicao(condicao: string): CesTone {
+  protected tomCondicao(condicao: string): GeoTone {
     return condicao === 'SUCATA' ? 'warning' : 'neutral';
   }
 

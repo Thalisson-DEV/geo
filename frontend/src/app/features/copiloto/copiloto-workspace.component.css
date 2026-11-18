@@ -9,7 +9,7 @@
   display: flex;
   height: 100%;
   min-height: 0;
-  background: var(--ces-canvas);
+  background: var(--geo-canvas);
 }
 
 .ws__lista {
@@ -17,7 +17,7 @@
   flex: 0 0 15rem;
   min-width: 0;
   min-height: 0;
-  border-right: 1px solid var(--ces-border);
+  border-right: 1px solid var(--geo-border);
 }
 
 .ws--lista-aberta .ws__lista {
@@ -38,8 +38,8 @@
   min-width: 0;
   min-height: 0;
   display: flex;
-  border-left: 1px solid var(--ces-border);
-  box-shadow: var(--ces-shadow-md);
+  border-left: 1px solid var(--geo-border);
+  box-shadow: var(--geo-shadow-md);
 }
 
 .ws__topo {
@@ -47,8 +47,8 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.55rem 0.9rem;
-  border-bottom: 1px solid var(--ces-border);
-  background: var(--ces-surface);
+  border-bottom: 1px solid var(--geo-border);
+  background: var(--geo-surface);
 }
 
 .ws__identidade {
@@ -64,21 +64,21 @@
   flex: 0 0 auto;
   border-radius: 50%;
   object-fit: contain;
-  background: var(--ces-brand-soft);
+  background: var(--geo-brand-soft);
 }
 
 .ws__marca {
-  font-size: var(--ces-font-body);
+  font-size: var(--geo-font-body);
   font-weight: 700;
   letter-spacing: -0.01em;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .ws__titulo {
   margin: 0;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 500;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -133,8 +133,8 @@
 .ws__aviso {
   margin: 0;
   text-align: center;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-subtle);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
 }
 
 .ws__soltar {
@@ -146,11 +146,11 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  border: 2px dashed var(--ces-brand);
-  border-radius: var(--ces-radius-lg);
-  background: color-mix(in srgb, var(--ces-surface) 88%, transparent);
-  color: var(--ces-brand);
-  font-size: var(--ces-font-title);
+  border: 2px dashed var(--geo-brand);
+  border-radius: var(--geo-radius-lg);
+  background: color-mix(in srgb, var(--geo-surface) 88%, transparent);
+  color: var(--geo-brand);
+  font-size: var(--geo-font-title);
   pointer-events: none;
 }
 
@@ -199,7 +199,7 @@
 @media print {
   .ws__lista,
   .ws__rodape,
-  .ws__topo ces-icon-button,
+  .ws__topo geo-icon-button,
   .ws__fim {
     display: none !important;
   }

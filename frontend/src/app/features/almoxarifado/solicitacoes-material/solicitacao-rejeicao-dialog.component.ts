@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
-import { CesButtonComponent, CesCalloutComponent, CesDialogShellComponent, CesSelectComponent, CesSelectOption, CesTextareaComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoDialogShellComponent, GeoSelectComponent, GeoSelectOption, GeoTextareaComponent, NotificationService } from '@geo/ui';
 
 import { MotivoRejeicaoResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -12,9 +12,9 @@ const MINIMO_JUSTIFICATIVA = 5;
   selector: 'app-solicitacao-rejeicao-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesCalloutComponent, CesDialogShellComponent, CesSelectComponent, CesTextareaComponent],
+  imports: [GeoButtonComponent, GeoCalloutComponent, GeoDialogShellComponent, GeoSelectComponent, GeoTextareaComponent],
   template: `
-    <ces-dialog-shell
+    <geo-dialog-shell
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       [title]="(reprovar() ? 'Reprovar' : 'Rejeitar') + ' solicitação #' + idCurto()"
@@ -22,8 +22,8 @@ const MINIMO_JUSTIFICATIVA = 5;
       size="sm"
     >
       <div class="rej-form">
-        <ces-callout tone="danger" title="Encerra o atendimento">Depois de {{ reprovar() ? 'reprovada' : 'rejeitada' }}, a solicitação não pode ser aprovada nem entregue.</ces-callout>
-        <ces-select
+        <geo-callout tone="danger" title="Encerra o atendimento">Depois de {{ reprovar() ? 'reprovada' : 'rejeitada' }}, a solicitação não pode ser aprovada nem entregue.</geo-callout>
+        <geo-select
           label="Motivo"
           placeholder="Selecione o motivo"
           [options]="opcoes()"
@@ -33,7 +33,7 @@ const MINIMO_JUSTIFICATIVA = 5;
           [required]="true"
           [error]="tentou() && !idMotivo() ? 'Escolha um motivo.' : undefined"
         />
-        <ces-textarea
+        <geo-textarea
           label="Justificativa"
           placeholder="Explique ao requisitante o que impede o atendimento"
           [rows]="4"
@@ -43,11 +43,11 @@ const MINIMO_JUSTIFICATIVA = 5;
           [error]="tentou() && !justificativaValida() ? 'Escreva ao menos ' + minimo + ' caracteres.' : undefined"
         />
       </div>
-      <div dialog-footer class="ces-actions-row">
-        <ces-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
-        <ces-button [label]="(reprovar() ? 'Reprovar' : 'Rejeitar') + ' solicitação'" icon="pi pi-times" variant="destructive" [loading]="salvando()" (pressed)="confirmar()" />
+      <div dialog-footer class="geo-actions-row">
+        <geo-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
+        <geo-button [label]="(reprovar() ? 'Reprovar' : 'Rejeitar') + ' solicitação'" icon="pi pi-times" variant="destructive" [loading]="salvando()" (pressed)="confirmar()" />
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `,
   styles: `
     .rej-form { display: grid; gap: 1rem; }
@@ -72,7 +72,7 @@ export class SolicitacaoRejeicaoDialogComponent {
   protected readonly salvando = signal(false);
 
   protected readonly idCurto = computed(() => (this.idSolicitacao() ?? '').substring(0, 8));
-  protected readonly opcoes = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoes = computed<GeoSelectOption<string>[]>(() =>
     this.motivos().map((m) => ({ label: m.descricao ? `${m.nome} — ${m.descricao}` : m.nome, value: m.id }))
   );
   protected readonly justificativaValida = computed(() => this.justificativa().trim().length >= MINIMO_JUSTIFICATIVA);

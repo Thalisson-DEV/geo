@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { ControleExecucaoObra } from '../../core/models/obras.models';
 
@@ -10,7 +10,7 @@ export interface ControleObraInfo {
   titulo: string;
   texto: string;
   icone: string;
-  tone: CesTone;
+  tone: GeoTone;
   /** Nome do número digitado na solicitação (OS/OC). */
   campo?: string;
 }

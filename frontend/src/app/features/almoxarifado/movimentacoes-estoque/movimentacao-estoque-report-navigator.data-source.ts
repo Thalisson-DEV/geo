@@ -2,18 +2,18 @@ import { iconeTipoMovimentacao } from '../../../shared/utils/movimentacao.utils'
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   MovimentacaoOperacaoSummaryResponse,
   TipoMovimentacao
 } from '../../../core/models/almoxarifado.models';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
-import { CesTone } from '../../../design-system/core';
+import { GeoTone } from '../../../design-system/core';
 
 const TIPO_LABELS: Record<TipoMovimentacao, string> = {
   ENTRADA_AVULSA: 'Entrada',
@@ -26,7 +26,7 @@ const TIPO_LABELS: Record<TipoMovimentacao, string> = {
   APLICACAO: 'Aplicação',
 };
 
-const TIPO_TONES: Record<TipoMovimentacao, CesTone> = {
+const TIPO_TONES: Record<TipoMovimentacao, GeoTone> = {
   ENTRADA_AVULSA: 'success',
   BAIXA_AVULSA: 'warning',
   TRANSFERENCIA: 'info',
@@ -39,16 +39,16 @@ const TIPO_TONES: Record<TipoMovimentacao, CesTone> = {
 
 @Injectable({ providedIn: 'root' })
 export class MovimentacaoEstoqueReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<MovimentacaoOperacaoSummaryResponse>
+  implements GeoReportNavigatorDataSource<MovimentacaoOperacaoSummaryResponse>
 {
   private readonly service = inject(AlmoxarifadoService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODAS',
     sort: 'dataHora,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Movimentações de Estoque',
     icon: 'pi pi-arrow-right-arrow-left',
     eyebrow: 'Navegador',
@@ -73,8 +73,8 @@ export class MovimentacaoEstoqueReportNavigatorDataSource
   };
 
   load(
-    criteria: CesReportNavigatorCriteria
-  ): Observable<CesReportNavigatorPage<MovimentacaoOperacaoSummaryResponse>> {
+    criteria: GeoReportNavigatorCriteria
+  ): Observable<GeoReportNavigatorPage<MovimentacaoOperacaoSummaryResponse>> {
     const params: any = {
       page: 0,
       size: 50,
@@ -94,7 +94,7 @@ export class MovimentacaoEstoqueReportNavigatorDataSource
     );
   }
 
-  toItem(raw: MovimentacaoOperacaoSummaryResponse): CesReportNavigatorItem {
+  toItem(raw: MovimentacaoOperacaoSummaryResponse): GeoReportNavigatorItem {
     const tipo = raw.tipo;
     const origem = raw.estoqueOrigem?.nomeIdentificador;
     const destino = raw.estoqueDestino?.nomeIdentificador;
@@ -128,7 +128,7 @@ export class MovimentacaoEstoqueReportNavigatorDataSource
   }
 
   getRouteForItem(
-    item: CesReportNavigatorItem | MovimentacaoOperacaoSummaryResponse
+    item: GeoReportNavigatorItem | MovimentacaoOperacaoSummaryResponse
   ): any[] {
     const raw = item as any;
     const refId = raw.idReferenciaOperacao || raw.id;

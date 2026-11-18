@@ -3,14 +3,14 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesMeterComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoMeterComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { take } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FotoTurno, ProgramacaoDoTurno, TurnoObraDetalhe } from '../../../core/models/obras-turnos.models';
@@ -34,35 +34,35 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
   imports: [
     DatePipe,
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesMeterComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoMeterComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
     AprDrawerComponent,
     ProgramacaoDetalheComponent
   ],
   template: `
-    <div class="ces-page">
+    <div class="geo-page">
       @if (erro(); as mensagem) {
-        <ces-page-header title="Turno" icon="pi pi-calendar-clock" [breadcrumb]="[{ label: 'Obras' }, { label: 'Turnos', route: '/obras/turnos' }, { label: 'Turno' }]"></ces-page-header>
-        <ces-async-state state="error" title="Não foi possível abrir o turno" [description]="mensagem" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+        <geo-page-header title="Turno" icon="pi pi-calendar-clock" [breadcrumb]="[{ label: 'Obras' }, { label: 'Turnos', route: '/obras/turnos' }, { label: 'Turno' }]"></geo-page-header>
+        <geo-async-state state="error" title="Não foi possível abrir o turno" [description]="mensagem" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
       } @else if (!t()) {
-        <ces-page-header title="Turno" icon="pi pi-calendar-clock" [breadcrumb]="[{ label: 'Obras' }, { label: 'Turnos', route: '/obras/turnos' }, { label: 'Turno' }]"></ces-page-header>
-        <ces-async-state state="loading" title="Abrindo o turno"></ces-async-state>
+        <geo-page-header title="Turno" icon="pi pi-calendar-clock" [breadcrumb]="[{ label: 'Obras' }, { label: 'Turnos', route: '/obras/turnos' }, { label: 'Turno' }]"></geo-page-header>
+        <geo-async-state state="loading" title="Abrindo o turno"></geo-async-state>
       } @else {
         @let turno = t()!;
-        <ces-page-header [title]="'Turno de ' + turno.codigoEquipe" icon="pi pi-calendar-clock"
+        <geo-page-header [title]="'Turno de ' + turno.codigoEquipe" icon="pi pi-calendar-clock"
           [breadcrumb]="[{ label: 'Obras' }, { label: 'Turnos', route: '/obras/turnos' }, { label: turno.codigoEquipe }]" [favoritable]="false"
           [description]="subtitulo()">
-          <ces-status status [tone]="situacao().tom" [icon]="situacao().icone.replace('pi ', '')">{{ situacao().rotulo }}</ces-status>
-        </ces-page-header>
+          <geo-status status [tone]="situacao().tom" [icon]="situacao().icone.replace('pi ', '')">{{ situacao().rotulo }}</geo-status>
+        </geo-page-header>
 
         @if (turno.encerradoAutomaticamente) {
-          <ces-callout tone="warning" title="Encerrado pelo sistema" icon="pi pi-clock">{{ turno.motivoEncerramento }}</ces-callout>
+          <geo-callout tone="warning" title="Encerrado pelo sistema" icon="pi pi-clock">{{ turno.motivoEncerramento }}</geo-callout>
         } @else if (turno.abertoDesdeOutroDia) {
-          <ces-callout tone="warning" title="Aberto desde outro dia" icon="pi pi-exclamation-triangle">Quase sempre é turno esquecido pela equipe.</ces-callout>
+          <geo-callout tone="warning" title="Aberto desde outro dia" icon="pi pi-exclamation-triangle">Quase sempre é turno esquecido pela equipe.</geo-callout>
         }
 
         <section class="td-resumo" aria-label="Resumo do dia">
@@ -70,7 +70,7 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
             <span class="td-rotulo">Realizado no turno</span>
             <strong class="td-resumo__valor">{{ moeda(turno.realizado) }}</strong>
             @if (turno.percentualMeta != null) {
-              <ces-meter [value]="turno.percentualMeta" [label]="'Meta do dia de ' + turno.codigoEquipe" [detail]="turno.bateuMeta ? 'Meta de ' + moeda(turno.metaDiaria) + ' batida' : 'Faltam ' + moeda(turno.metaDiaria! - turno.realizado) + ' para ' + moeda(turno.metaDiaria)"></ces-meter>
+              <geo-meter [value]="turno.percentualMeta" [label]="'Meta do dia de ' + turno.codigoEquipe" [detail]="turno.bateuMeta ? 'Meta de ' + moeda(turno.metaDiaria) + ' batida' : 'Faltam ' + moeda(turno.metaDiaria! - turno.realizado) + ' para ' + moeda(turno.metaDiaria)"></geo-meter>
             } @else {
               <span class="td-muted">Sem meta neste dia</span>
             }
@@ -104,9 +104,9 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
                     @if (c.atividade?.observacao; as observacao) { <span class="td-muted">{{ observacao }}</span> }
                   </div>
                   @if (c.programacao; as p) {
-                    <ces-status [tone]="situacaoProg(p).tom" [icon]="situacaoProg(p).icone.replace('pi ', '')">{{ situacaoProg(p).rotulo }}</ces-status>
+                    <geo-status [tone]="situacaoProg(p).tom" [icon]="situacaoProg(p).icone.replace('pi ', '')">{{ situacaoProg(p).rotulo }}</geo-status>
                   } @else if (!c.atividade?.programada) {
-                    <ces-status tone="warning">Não programada</ces-status>
+                    <geo-status tone="warning">Não programada</geo-status>
                   }
                 </header>
 
@@ -133,7 +133,7 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
                     }
                   </div>
                   @if (c.aprs.length) {
-                    <ces-button size="sm" variant="ghost" icon="pi pi-eye" label="Ver APR" (pressed)="apr().abrir(c.aprConcluida ?? c.aprs[0])"></ces-button>
+                    <geo-button size="sm" variant="ghost" icon="pi pi-eye" label="Ver APR" (pressed)="apr().abrir(c.aprConcluida ?? c.aprs[0])"></geo-button>
                   }
                 </div>
 
@@ -185,8 +185,8 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
                     <li>
                       <span class="td-avatar" aria-hidden="true">{{ iniciais(m.nome) }}</span>
                       <span class="td-pessoa"><strong>{{ m.nome }}</strong><small>{{ m.funcao }}</small></span>
-                      @if (m.lider) { <ces-status tone="info" icon="pi-star">Líder</ces-status> }
-                      @if (m.substituto) { <ces-status tone="warning">Substituto</ces-status> }
+                      @if (m.lider) { <geo-status tone="info" icon="pi-star">Líder</geo-status> }
+                      @if (m.substituto) { <geo-status tone="warning">Substituto</geo-status> }
                     </li>
                   }
                 </ul>
@@ -246,68 +246,68 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
     <app-programacao-detalhe [(aberto)]="detalheAberto" [idProgramacao]="idDetalhe()" (alterada)="carregar()"></app-programacao-detalhe>
   `,
   styles: `
-    .td-resumo { display: grid; grid-template-columns: minmax(16rem, 2fr) minmax(0, 3fr); gap: 1.5rem; align-items: center; margin-bottom: 1rem; padding: 1rem 1.25rem; background: var(--ces-surface); border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); }
+    .td-resumo { display: grid; grid-template-columns: minmax(16rem, 2fr) minmax(0, 3fr); gap: 1.5rem; align-items: center; margin-bottom: 1rem; padding: 1rem 1.25rem; background: var(--geo-surface); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
     .td-resumo__meta { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
-    .td-rotulo { color: var(--ces-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
+    .td-rotulo { color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
     .td-resumo__valor { font-size: 1.5rem; font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1.2; }
     .td-resumo__fatos { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.75rem; margin: 0; }
-    .td-resumo__fatos dt { color: var(--ces-foreground-muted); font-size: 0.8125rem; }
+    .td-resumo__fatos dt { color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .td-resumo__fatos dt i { margin-right: 0.125rem; font-size: 0.75rem; }
     .td-resumo__fatos dd { margin: 0.125rem 0 0; font-variant-numeric: tabular-nums; font-weight: 600; }
     .td-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem); gap: 1rem; align-items: start; }
     .td-frentes, .td-lateral { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
     .td-secao h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; }
-    .td-secao p { margin: 0.125rem 0 0; color: var(--ces-foreground-muted); font-size: 0.875rem; }
-    .td-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--ces-surface); border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); }
+    .td-secao p { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: 0.875rem; }
+    .td-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--geo-surface); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
     .td-card__topo { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-start; justify-content: space-between; }
     .td-card__titulo { display: flex; flex: 1 1 16rem; flex-direction: column; gap: 0.125rem; min-width: 0; overflow-wrap: anywhere; }
-    .td-gate { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: center; padding: 0.625rem 0.75rem; background: var(--ces-surface-subtle); border-left: 3px solid var(--ces-border); border-radius: var(--ces-radius-sm); }
-    .td-gate[data-liberacao='PENDENTE'], .td-gate[data-liberacao='EM_PREENCHIMENTO'] { background: var(--ces-warning-soft); border-left-color: var(--ces-warning-text); }
-    .td-gate[data-liberacao='LIBERADA'] { background: var(--ces-success-soft); border-left-color: var(--ces-success-text); }
+    .td-gate { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: center; padding: 0.625rem 0.75rem; background: var(--geo-surface-subtle); border-left: 3px solid var(--geo-border); border-radius: var(--geo-radius-sm); }
+    .td-gate[data-liberacao='PENDENTE'], .td-gate[data-liberacao='EM_PREENCHIMENTO'] { background: var(--geo-warning-soft); border-left-color: var(--geo-warning-text); }
+    .td-gate[data-liberacao='LIBERADA'] { background: var(--geo-success-soft); border-left-color: var(--geo-success-text); }
     .td-gate__icone { flex: none; }
-    .td-gate[data-liberacao='PENDENTE'] .td-gate__icone, .td-gate[data-liberacao='EM_PREENCHIMENTO'] .td-gate__icone { color: var(--ces-warning-text); }
-    .td-gate[data-liberacao='LIBERADA'] .td-gate__icone { color: var(--ces-success-text); }
-    .td-gate[data-liberacao='IMPEDIDA'] .td-gate__icone { color: var(--ces-foreground-muted); }
+    .td-gate[data-liberacao='PENDENTE'] .td-gate__icone, .td-gate[data-liberacao='EM_PREENCHIMENTO'] .td-gate__icone { color: var(--geo-warning-text); }
+    .td-gate[data-liberacao='LIBERADA'] .td-gate__icone { color: var(--geo-success-text); }
+    .td-gate[data-liberacao='IMPEDIDA'] .td-gate__icone { color: var(--geo-foreground-muted); }
     .td-gate__texto { display: flex; flex: 1 1 14rem; flex-direction: column; min-width: 0; font-size: 0.875rem; overflow-wrap: anywhere; }
     .td-progresso { display: flex; flex-direction: column; gap: 0.25rem; }
-    .td-progresso__trilho { display: block; height: 0.375rem; overflow: hidden; background: var(--ces-surface-subtle); border-radius: 999px; }
-    .td-progresso__trilho span { display: block; height: 100%; background: var(--ces-brand); border-radius: inherit; }
-    .td-aviso { margin: 0; color: var(--ces-warning-text); font-size: 0.875rem; font-weight: 600; }
-    .td-vazio-card { flex-direction: row; align-items: center; color: var(--ces-foreground-muted); font-size: 0.875rem; }
+    .td-progresso__trilho { display: block; height: 0.375rem; overflow: hidden; background: var(--geo-surface-subtle); border-radius: 999px; }
+    .td-progresso__trilho span { display: block; height: 100%; background: var(--geo-brand); border-radius: inherit; }
+    .td-aviso { margin: 0; color: var(--geo-warning-text); font-size: 0.875rem; font-weight: 600; }
+    .td-vazio-card { flex-direction: row; align-items: center; color: var(--geo-foreground-muted); font-size: 0.875rem; }
     .td-vazio-card p { margin: 0; }
-    .td-bloco { padding: 1rem; background: var(--ces-surface); border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); }
+    .td-bloco { padding: 1rem; background: var(--geo-surface); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
     .td-bloco h2 { margin: 0 0 0.625rem; font-size: 0.9375rem; font-weight: 700; }
-    .td-bloco h2 i { margin-right: 0.25rem; color: var(--ces-foreground-muted); }
+    .td-bloco h2 i { margin-right: 0.25rem; color: var(--geo-foreground-muted); }
     .td-pessoas { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
     .td-pessoas li { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-    .td-avatar { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.875rem; height: 1.875rem; color: var(--ces-foreground-muted); font-size: 0.6875rem; font-weight: 700; background: var(--ces-surface-subtle); border-radius: 50%; }
+    .td-avatar { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.875rem; height: 1.875rem; color: var(--geo-foreground-muted); font-size: 0.6875rem; font-weight: 700; background: var(--geo-surface-subtle); border-radius: 50%; }
     .td-pessoa { display: flex; flex: 1 1 8rem; flex-direction: column; min-width: 0; font-size: 0.875rem; overflow-wrap: anywhere; }
     .td-pessoa strong { font-weight: 600; }
-    .td-pessoa small { color: var(--ces-foreground-muted); }
+    .td-pessoa small { color: var(--geo-foreground-muted); }
     .td-lista { display: flex; flex-direction: column; gap: 0.625rem; margin: 0; padding: 0; list-style: none; }
     .td-linha { display: flex; flex-direction: column; min-width: 0; font-size: 0.875rem; overflow-wrap: anywhere; }
-    .td-linha small { color: var(--ces-foreground-muted); }
-    .td-link { padding: 0; color: var(--ces-brand); font-weight: 700; text-align: left; text-decoration: none; background: none; border: 0; cursor: pointer; }
+    .td-linha small { color: var(--geo-foreground-muted); }
+    .td-link { padding: 0; color: var(--geo-brand); font-weight: 700; text-align: left; text-decoration: none; background: none; border: 0; cursor: pointer; }
     .td-link:hover { text-decoration: underline; }
-    .td-link:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .td-muted { color: var(--ces-foreground-muted); font-size: 0.875rem; }
+    .td-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .td-muted { color: var(--geo-foreground-muted); font-size: 0.875rem; }
     .td-rodape { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin: 0.625rem 0 0; font-size: 0.8125rem; }
     .td-rodape:empty { display: none; }
     .td-texto { margin: 0; font-size: 0.875rem; overflow-wrap: anywhere; white-space: pre-wrap; }
-    .td-vazio { margin: 0; color: var(--ces-foreground-muted); font-size: 0.875rem; }
+    .td-vazio { margin: 0; color: var(--geo-foreground-muted); font-size: 0.875rem; }
     .td-tabela-wrap { overflow-x: auto; }
     .td-tabela { width: 100%; font-size: 0.875rem; border-collapse: collapse; }
-    .td-tabela th { padding: 0.375rem 0.5rem; color: var(--ces-foreground-muted); font-size: 0.8125rem; font-weight: 600; text-align: left; border-bottom: 1px solid var(--ces-border); }
-    .td-tabela td { padding: 0.5rem; vertical-align: top; border-bottom: 1px solid var(--ces-border); }
+    .td-tabela th { padding: 0.375rem 0.5rem; color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; text-align: left; border-bottom: 1px solid var(--geo-border); }
+    .td-tabela td { padding: 0.5rem; vertical-align: top; border-bottom: 1px solid var(--geo-border); }
     .td-tabela tr:last-child td { border-bottom: 0; }
-    .td-tabela small { display: block; color: var(--ces-foreground-muted); }
+    .td-tabela small { display: block; color: var(--geo-foreground-muted); }
     .td-tabela .td-num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .td-tabela .td-excedente { color: var(--ces-warning-text); }
+    .td-tabela .td-excedente { color: var(--geo-warning-text); }
     .td-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .td-fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 0.5rem; margin: 0.75rem 0 0; padding: 0; list-style: none; }
-    .td-foto { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; color: var(--ces-foreground-muted); background: var(--ces-surface-subtle); border: 1px solid var(--ces-border); border-radius: var(--ces-radius-sm); cursor: zoom-in; }
+    .td-foto { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; color: var(--geo-foreground-muted); background: var(--geo-surface-subtle); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-sm); cursor: zoom-in; }
     .td-foto img { width: 100%; height: 100%; object-fit: cover; }
-    .td-foto:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .td-foto:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     @media (max-width: 1080px) { .td-grid, .td-resumo { grid-template-columns: minmax(0, 1fr); } }
   `
 })

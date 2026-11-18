@@ -17,41 +17,41 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesIconButtonComponent,
-  CesStatusComponent,
-  CesTextInputComponent
+  GeoAsyncStateComponent,
+  GeoIconButtonComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent
 } from '../../index';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import {
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorItemId,
-  CesReportNavigatorOption
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorItemId,
+  GeoReportNavigatorOption
 } from './report-navigator.models';
 
 @Component({
-  selector: 'ces-report-navigator',
+  selector: 'geo-report-navigator',
   standalone: true,
   imports: [
     CommonModule,
     DatePipe,
-    CesAsyncStateComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoAsyncStateComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'ces-report-nav-host print:hidden',
-    '[class.ces-report-nav-host--open]': 'opened()'
+    class: 'geo-report-nav-host print:hidden',
+    '[class.geo-report-nav-host--open]': 'opened()'
   },
   template: `
     <!-- Container Sidebar Fixo na Lateral Esquerda -->
     <aside
-      class="ces-report-nav-sidebar"
-      [class.ces-report-nav-sidebar--open]="opened()"
+      class="geo-report-nav-sidebar"
+      [class.geo-report-nav-sidebar--open]="opened()"
       [attr.aria-label]="title()"
       [attr.aria-busy]="loading()"
     >
@@ -61,35 +61,35 @@ import {
              ================================================================== -->
         <button
           type="button"
-          class="ces-report-nav-rail"
+          class="geo-report-nav-rail"
           (click)="open()"
           aria-label="Abrir navegador rápido (Ctrl + K)"
           title="Abrir navegador rápido (Ctrl + K)"
         >
           <!-- Handle com ícone > -->
-          <div class="ces-report-nav-rail__handle">
-            <span class="ces-report-nav-rail__icon">
+          <div class="geo-report-nav-rail__handle">
+            <span class="geo-report-nav-rail__icon">
               <i class="pi pi-chevron-right" aria-hidden="true"></i>
             </span>
           </div>
 
           <!-- Tooltip flutuante suave no hover -->
-          <div class="ces-report-nav-rail__tooltip" role="tooltip">
+          <div class="geo-report-nav-rail__tooltip" role="tooltip">
             <i class="pi pi-list text-xs" aria-hidden="true"></i>
             <span>Navegador rápido</span>
-            <kbd class="ces-report-nav-rail__tooltip-kbd">Ctrl K</kbd>
+            <kbd class="geo-report-nav-rail__tooltip-kbd">Ctrl K</kbd>
           </div>
         </button>
       } @else {
         <!-- ==================================================================
              ESTADO EXPANDIDO: SIDEBAR COMPLETA COM SELETOR DE ESCOPO, FILTROS E LISTA
              ================================================================== -->
-        <div class="ces-report-nav-expanded">
+        <div class="geo-report-nav-expanded">
           <!-- Cabeçalho com botão < para recolher -->
-          <header class="ces-report-nav-header">
+          <header class="geo-report-nav-header">
             <button
               type="button"
-              class="ces-report-nav-header__collapse"
+              class="geo-report-nav-header__collapse"
               (click)="collapse()"
               aria-label="Recolher navegador rápido (Esc)"
               title="Recolher (Esc)"
@@ -97,18 +97,18 @@ import {
               <i class="pi pi-chevron-left" aria-hidden="true"></i>
             </button>
 
-            <div class="ces-report-nav-header__title-group">
-              <div class="ces-report-nav-header__icon">
+            <div class="geo-report-nav-header__title-group">
+              <div class="geo-report-nav-header__icon">
                 <i [class]="icon()" aria-hidden="true"></i>
               </div>
-              <div class="ces-report-nav-header__text">
-                <span class="ces-report-nav-header__eyebrow">{{ eyebrow() }}</span>
+              <div class="geo-report-nav-header__text">
+                <span class="geo-report-nav-header__eyebrow">{{ eyebrow() }}</span>
                 <h2>{{ title() }}</h2>
               </div>
             </div>
 
-            <div class="ces-report-nav-header__actions">
-              <ces-icon-button
+            <div class="geo-report-nav-header__actions">
+              <geo-icon-button
                 icon="pi pi-refresh"
                 label="Atualizar lista"
                 tooltip="Atualizar"
@@ -116,16 +116,16 @@ import {
                 size="icon-sm"
                 [loading]="loading()"
                 (pressed)="load()"
-              ></ces-icon-button>
+              ></geo-icon-button>
             </div>
           </header>
 
           <!-- Seção de Filtros e Busca -->
-          <section class="ces-report-nav-filters" aria-label="Filtros do navegador">
+          <section class="geo-report-nav-filters" aria-label="Filtros do navegador">
             <!-- Segmented Control de Tipo / Escopo -->
             @if (hasScopeOptions()) {
               <div
-                class="ces-report-nav-type-selector"
+                class="geo-report-nav-type-selector"
                 role="group"
                 aria-label="Tipo ou escopo de exibição"
                 [style.grid-template-columns]="'repeat(' + scopeOptions().length + ', 1fr)'"
@@ -133,8 +133,8 @@ import {
                 @for (opt of scopeOptions(); track opt.label) {
                   <button
                     type="button"
-                    class="ces-report-nav-type-btn"
-                    [class.ces-report-nav-type-btn--active]="criteria().scope === opt.value"
+                    class="geo-report-nav-type-btn"
+                    [class.geo-report-nav-type-btn--active]="criteria().scope === opt.value"
                     (click)="changeScope(opt.value)"
                   >
                     @if (opt.icon) {
@@ -147,30 +147,30 @@ import {
             }
 
             <!-- Campo de Busca -->
-            <div class="ces-report-nav-search">
-              <ces-text-input
+            <div class="geo-report-nav-search">
+              <geo-text-input
                 [label]="searchLabel()"
-                inputId="ces-report-nav-search-input"
+                inputId="geo-report-nav-search-input"
                 [placeholder]="searchPlaceholder()"
                 [value]="criteria().search"
                 (valueChange)="changeSearch($event)"
-              ></ces-text-input>
+              ></geo-text-input>
             </div>
 
             <!-- Chips Rápidos de Status -->
             @if (hasStatusChips()) {
-              <div class="ces-report-nav-chips" role="group" aria-label="Filtro rápido por status">
+              <div class="geo-report-nav-chips" role="group" aria-label="Filtro rápido por status">
                 @for (chip of statusChips(); track chip.label) {
                   <button
                     type="button"
-                    class="ces-report-nav-chip"
-                    [class.ces-report-nav-chip--active]="criteria().status === chip.value"
+                    class="geo-report-nav-chip"
+                    [class.geo-report-nav-chip--active]="criteria().status === chip.value"
                     (click)="changeStatus(chip.value)"
                   >
                     @if (chip.icon) {
                       <i [class]="chip.icon" aria-hidden="true"></i>
                     } @else if (chip.tone) {
-                      <span class="ces-report-nav-chip__dot" [attr.data-tone]="chip.tone"></span>
+                      <span class="geo-report-nav-chip__dot" [attr.data-tone]="chip.tone"></span>
                     }
                     <span>{{ chip.label }}</span>
                   </button>
@@ -180,17 +180,17 @@ import {
 
             <!-- Linha de Controles: Ordenação e Minhas -->
             @if (hasSortOptions() || showMineToggle()) {
-              <div class="ces-report-nav-controls-row">
+              <div class="geo-report-nav-controls-row">
                 @if (hasSortOptions()) {
-                  <div class="ces-report-nav-sort-group" role="group" aria-label="Ordenação">
-                    <span class="ces-report-nav-control-label" title="Ordenar por">
+                  <div class="geo-report-nav-sort-group" role="group" aria-label="Ordenação">
+                    <span class="geo-report-nav-control-label" title="Ordenar por">
                       <i class="pi pi-sort-alt" aria-hidden="true"></i>
                     </span>
                     @for (sortOpt of sortOptions(); track sortOpt.label) {
                       <button
                         type="button"
-                        class="ces-report-nav-control-btn"
-                        [class.ces-report-nav-control-btn--active]="criteria().sort === sortOpt.value"
+                        class="geo-report-nav-control-btn"
+                        [class.geo-report-nav-control-btn--active]="criteria().sort === sortOpt.value"
                         (click)="changeSort(sortOpt.value)"
                       >
                         {{ sortOpt.label }}
@@ -202,8 +202,8 @@ import {
                 @if (showMineToggle()) {
                   <button
                     type="button"
-                    class="ces-report-nav-toggle-btn"
-                    [class.ces-report-nav-toggle-btn--active]="criteria().mine"
+                    class="geo-report-nav-toggle-btn"
+                    [class.geo-report-nav-toggle-btn--active]="criteria().mine"
                     (click)="toggleMine()"
                     [title]="mineToggleTitle()"
                   >
@@ -215,8 +215,8 @@ import {
             }
 
             <!-- Barra de Resumo e Ações Rápidas -->
-            <div class="ces-report-nav-summary">
-              <div class="ces-report-nav-count">
+            <div class="geo-report-nav-summary">
+              <div class="geo-report-nav-count">
                 <i class="pi pi-list" aria-hidden="true"></i>
                 <span>{{ totalLabel() }}</span>
               </div>
@@ -224,7 +224,7 @@ import {
                 @if (hasFilters()) {
                   <button
                     type="button"
-                    class="ces-report-nav-clear-btn"
+                    class="geo-report-nav-clear-btn"
                     (click)="clearFilters()"
                   >
                     <i class="pi pi-filter-slash" aria-hidden="true"></i>
@@ -233,7 +233,7 @@ import {
                 }
                 <button
                   type="button"
-                  class="ces-report-nav-link-btn"
+                  class="geo-report-nav-link-btn"
                   (click)="navigateToListAll()"
                   [title]="listAllTooltip()"
                 >
@@ -245,26 +245,26 @@ import {
           </section>
 
           <!-- Lista de Registros com Scroll Próprio -->
-          <section class="ces-report-nav-results" aria-label="Registros encontrados">
+          <section class="geo-report-nav-results" aria-label="Registros encontrados">
             @if (loading() && !loaded()) {
-              <div class="ces-report-nav-skeletons" aria-hidden="true">
+              <div class="geo-report-nav-skeletons" aria-hidden="true">
                 @for (i of [1, 2, 3, 4, 5]; track i) {
-                  <div class="ces-report-nav-skeleton-card">
+                  <div class="geo-report-nav-skeleton-card">
                     <div class="flex justify-between items-center">
-                      <div class="ces-report-nav-skeleton-line w-28 h-3.5"></div>
-                      <div class="ces-report-nav-skeleton-line w-20 h-3.5"></div>
+                      <div class="geo-report-nav-skeleton-line w-28 h-3.5"></div>
+                      <div class="geo-report-nav-skeleton-line w-20 h-3.5"></div>
                     </div>
-                    <div class="ces-report-nav-skeleton-line w-full h-4 mt-2"></div>
+                    <div class="geo-report-nav-skeleton-line w-full h-4 mt-2"></div>
                     <div class="flex justify-between items-center mt-2">
-                      <div class="ces-report-nav-skeleton-line w-32 h-3"></div>
-                      <div class="ces-report-nav-skeleton-line w-20 h-3"></div>
+                      <div class="geo-report-nav-skeleton-line w-32 h-3"></div>
+                      <div class="geo-report-nav-skeleton-line w-20 h-3"></div>
                     </div>
                   </div>
                 }
               </div>
             } @else if (error() && visibleItems().length === 0) {
               <div class="p-4">
-                <ces-async-state
+                <geo-async-state
                   state="error"
                   [compact]="true"
                   title="Não foi possível carregar"
@@ -272,11 +272,11 @@ import {
                   actionLabel="Tentar novamente"
                   actionIcon="pi pi-refresh"
                   (action)="load()"
-                ></ces-async-state>
+                ></geo-async-state>
               </div>
             } @else if (visibleItems().length === 0) {
               <div class="p-4">
-                <ces-async-state
+                <geo-async-state
                   state="empty"
                   [compact]="true"
                   title="Nenhum registro encontrado"
@@ -284,43 +284,43 @@ import {
                   actionLabel="Limpar filtros"
                   actionIcon="pi pi-filter-slash"
                   (action)="clearFilters()"
-                ></ces-async-state>
+                ></geo-async-state>
               </div>
             } @else {
               @if (loading()) {
-                <div class="ces-report-nav-refresh-indicator" role="status">
+                <div class="geo-report-nav-refresh-indicator" role="status">
                   <i class="pi pi-spinner pi-spin text-xs" aria-hidden="true"></i>
                   <span>Atualizando registros...</span>
                 </div>
               }
 
-              <ul class="ces-report-nav-list" role="list">
+              <ul class="geo-report-nav-list" role="list">
                 @for (item of visibleItems(); track item.id) {
                   <li>
                     <button
                       type="button"
-                      class="ces-report-nav-item"
-                      [class.ces-report-nav-item--current]="isCurrent(item.id)"
+                      class="geo-report-nav-item"
+                      [class.geo-report-nav-item--current]="isCurrent(item.id)"
                       [attr.aria-current]="isCurrent(item.id) ? 'page' : null"
                       (click)="select(item)"
                     >
                       <!-- Linha 1: Identificação, Tipo e Valor -->
-                      <div class="ces-report-nav-item__row-top">
+                      <div class="geo-report-nav-item__row-top">
                         <div class="flex items-center gap-2 min-w-0">
                           @if (item.number) {
-                            <span class="ces-report-nav-item__number">{{ item.number }}</span>
+                            <span class="geo-report-nav-item__number">{{ item.number }}</span>
                           }
                           @if (item.typePill) {
                             <span
-                              class="ces-report-nav-item__type-pill"
-                              [class.ces-report-nav-item__type-pill--compra]="item.typePill.variant === 'compra'"
-                              [class.ces-report-nav-item__type-pill--pagamento]="item.typePill.variant === 'pagamento'"
-                              [class.ces-report-nav-item__type-pill--info]="item.typePill.variant === 'info'"
-                              [class.ces-report-nav-item__type-pill--brand]="item.typePill.variant === 'brand'"
-                              [class.ces-report-nav-item__type-pill--success]="item.typePill.variant === 'success'"
-                              [class.ces-report-nav-item__type-pill--warning]="item.typePill.variant === 'warning'"
-                              [class.ces-report-nav-item__type-pill--danger]="item.typePill.variant === 'danger'"
-                              [class.ces-report-nav-item__type-pill--devolucao]="item.typePill.variant === 'devolucao' || item.typePill.variant === 'purple' || item.typePill.variant === 'indigo'"
+                              class="geo-report-nav-item__type-pill"
+                              [class.geo-report-nav-item__type-pill--compra]="item.typePill.variant === 'compra'"
+                              [class.geo-report-nav-item__type-pill--pagamento]="item.typePill.variant === 'pagamento'"
+                              [class.geo-report-nav-item__type-pill--info]="item.typePill.variant === 'info'"
+                              [class.geo-report-nav-item__type-pill--brand]="item.typePill.variant === 'brand'"
+                              [class.geo-report-nav-item__type-pill--success]="item.typePill.variant === 'success'"
+                              [class.geo-report-nav-item__type-pill--warning]="item.typePill.variant === 'warning'"
+                              [class.geo-report-nav-item__type-pill--danger]="item.typePill.variant === 'danger'"
+                              [class.geo-report-nav-item__type-pill--devolucao]="item.typePill.variant === 'devolucao' || item.typePill.variant === 'purple' || item.typePill.variant === 'indigo'"
                             >
                               @if (item.typePill.icon) {
                                 <i [class]="item.typePill.icon" aria-hidden="true"></i>
@@ -332,34 +332,34 @@ import {
 
                         <!-- Valor destacado à direita -->
                         @if (item.value !== null && item.value !== undefined) {
-                          <span class="ces-report-nav-item__value">
+                          <span class="geo-report-nav-item__value">
                             {{ formatValue(item.value) }}
                           </span>
                         }
                       </div>
 
                       <!-- Linha 2: Título Principal / Descrição -->
-                      <div class="ces-report-nav-item__title">
+                      <div class="geo-report-nav-item__title">
                         {{ item.title }}
                       </div>
 
                       <!-- Linha 3: Status + Solicitante + Data + Badge Atual -->
-                      <div class="ces-report-nav-item__row-bottom">
+                      <div class="geo-report-nav-item__row-bottom">
                         @if (item.status) {
-                          <ces-status
+                          <geo-status
                             [tone]="item.status.tone ?? 'neutral'"
                             [icon]="item.status.icon"
                             emphasis="soft"
-                            [class.ces-status--devolucao]="item.status.label === 'Devolução' || item.typePill?.variant === 'devolucao'"
+                            [class.geo-status--devolucao]="item.status.label === 'Devolução' || item.typePill?.variant === 'devolucao'"
                           >
                             {{ item.status.label }}
-                          </ces-status>
+                          </geo-status>
                         }
 
-                        <div class="ces-report-nav-item__meta-group">
+                        <div class="geo-report-nav-item__meta-group">
                           @if (item.metaAuthor) {
                             <span
-                              class="ces-report-nav-item__requester"
+                              class="geo-report-nav-item__requester"
                               [title]="item.metaAuthor.title || item.metaAuthor.label"
                             >
                               <i [class]="item.metaAuthor.icon || 'pi pi-user'" aria-hidden="true"></i>
@@ -368,12 +368,12 @@ import {
                           }
 
                           @if (item.metaAuthor && item.metaDate) {
-                            <span class="ces-report-nav-item__dot-sep" aria-hidden="true">·</span>
+                            <span class="geo-report-nav-item__dot-sep" aria-hidden="true">·</span>
                           }
 
                           @if (item.metaDate && item.metaDate.date) {
                             <time
-                              class="ces-report-nav-item__date"
+                              class="geo-report-nav-item__date"
                               [title]="item.metaDate.title || (item.metaDate.date | date: 'dd/MM/yyyy HH:mm')"
                             >
                               <i class="pi pi-calendar" aria-hidden="true"></i>
@@ -382,8 +382,8 @@ import {
                           }
 
                           @if (item.metaExtra) {
-                            <span class="ces-report-nav-item__dot-sep" aria-hidden="true">·</span>
-                            <span class="ces-report-nav-item__requester" [title]="item.metaExtra.title || item.metaExtra.label">
+                            <span class="geo-report-nav-item__dot-sep" aria-hidden="true">·</span>
+                            <span class="geo-report-nav-item__requester" [title]="item.metaExtra.title || item.metaExtra.label">
                               @if (item.metaExtra.icon) {
                                 <i [class]="item.metaExtra.icon" aria-hidden="true"></i>
                               }
@@ -393,7 +393,7 @@ import {
                         </div>
 
                         @if (isCurrent(item.id)) {
-                          <span class="ces-report-nav-item__active-badge">
+                          <span class="geo-report-nav-item__active-badge">
                             <i class="pi pi-eye" aria-hidden="true"></i>
                             <span>Atual</span>
                           </span>
@@ -411,20 +411,20 @@ import {
   `,
   styleUrl: './report-navigator.component.css'
 })
-export class CesReportNavigatorComponent {
+export class GeoReportNavigatorComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly elementRef = inject(ElementRef);
   private searchTimer?: ReturnType<typeof setTimeout>;
   private requestId = 0;
 
-  readonly dataSource = input.required<CesReportNavigatorDataSource>();
-  readonly currentId = input<CesReportNavigatorItemId | null>(null);
-  readonly currentItem = input<CesReportNavigatorItem | null>(null);
+  readonly dataSource = input.required<GeoReportNavigatorDataSource>();
+  readonly currentId = input<GeoReportNavigatorItemId | null>(null);
+  readonly currentItem = input<GeoReportNavigatorItem | null>(null);
   readonly opened = model(false);
-  readonly itemSelected = output<CesReportNavigatorItem>();
+  readonly itemSelected = output<GeoReportNavigatorItem>();
 
-  protected readonly criteria = signal<CesReportNavigatorCriteria>({
+  protected readonly criteria = signal<GeoReportNavigatorCriteria>({
     search: '',
     scope: undefined,
     status: null,
@@ -432,7 +432,7 @@ export class CesReportNavigatorComponent {
     mine: false
   });
 
-  protected readonly items = signal<CesReportNavigatorItem[]>([]);
+  protected readonly items = signal<GeoReportNavigatorItem[]>([]);
   protected readonly total = signal(0);
   protected readonly loading = signal(false);
   protected readonly loaded = signal(false);
@@ -465,7 +465,7 @@ export class CesReportNavigatorComponent {
   protected readonly statusChips = computed(() => this.config().statusChips ?? []);
   protected readonly hasStatusChips = computed(() => this.statusChips().length > 0);
 
-  protected readonly sortOptions = computed<readonly CesReportNavigatorOption<string>[]>(
+  protected readonly sortOptions = computed<readonly GeoReportNavigatorOption<string>[]>(
     () => this.config().sortOptions ?? []
   );
   protected readonly hasSortOptions = computed(() => this.sortOptions().length > 0);
@@ -689,7 +689,7 @@ export class CesReportNavigatorComponent {
       });
   }
 
-  select(item: CesReportNavigatorItem): void {
+  select(item: GeoReportNavigatorItem): void {
     this.itemSelected.emit(item);
     const route = this.dataSource().getRouteForItem(item);
     if (Array.isArray(route)) {
@@ -699,7 +699,7 @@ export class CesReportNavigatorComponent {
     }
   }
 
-  isCurrent(itemId: CesReportNavigatorItemId): boolean {
+  isCurrent(itemId: GeoReportNavigatorItemId): boolean {
     const currId = this.currentId();
     if (currId === null || currId === undefined) return false;
     return String(itemId) === String(currId);
@@ -716,7 +716,7 @@ export class CesReportNavigatorComponent {
   private scrollToCurrent(): void {
     setTimeout(() => {
       const currentEl = this.elementRef.nativeElement.querySelector(
-        '.ces-report-nav-item--current'
+        '.geo-report-nav-item--current'
       );
       if (currentEl && typeof currentEl.scrollIntoView === 'function') {
         currentEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

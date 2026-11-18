@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import {
   DashboardEventosSstFilter,
   DashboardEventosSstResponse,
@@ -107,7 +107,7 @@ function linhaEvento(e: EventoSstResumoResponse): LinhaEvento {
   };
 }
 
-const COLUNAS_EVENTO: CesDataTableColumn<LinhaEvento>[] = [
+const COLUNAS_EVENTO: GeoDataTableColumn<LinhaEvento>[] = [
   { key: 'ocorrencia', header: 'Ocorrência', priority: 1, width: '8rem', value: (l) => l.ocorrencia, display: (l) => diaHora(l.ocorrencia), searchable: false },
   { key: 'numero', header: 'Registro', priority: 1 },
   { key: 'tipo', header: 'Tipo', priority: 1, value: (l) => TIPO_EVENTO_LABELS[l.tipo] ?? l.tipo },
@@ -402,7 +402,7 @@ function vistaDiasSem(a: AlvoAnalise, c: ContextoAnaliseEventos): VistaAnalise {
   const { d } = c;
   const bases = [...d.diasSemAcidente].sort((x, y) => (x.diasSemAcidente ?? Infinity) - (y.diasSemAcidente ?? Infinity));
   const comHistorico = bases.filter((b) => b.diasSemAcidente != null);
-  const colunas: CesDataTableColumn<DiasSemAcidenteItem>[] = [
+  const colunas: GeoDataTableColumn<DiasSemAcidenteItem>[] = [
     { key: 'baseNome', header: 'Base', priority: 1 },
     { key: 'diasSemAcidente', header: 'Dias sem lesão', priority: 1, value: (b) => b.diasSemAcidente ?? 99999, display: (b) => (b.diasSemAcidente == null ? 'Sem ocorrência' : `${b.diasSemAcidente} dias`) },
     { key: 'ultimaOcorrencia', header: 'Última ocorrência', priority: 2, value: (b) => b.ultimaOcorrencia ?? '', display: (b) => (b.ultimaOcorrencia ? new Date(b.ultimaOcorrencia).toLocaleDateString('pt-BR') : '—') },
@@ -801,7 +801,7 @@ function vistaRanking(a: AlvoAnalise, c: ContextoAnaliseEventos): VistaAnalise |
       { rotulo: 'Eventos', valor: String(item?.total ?? 0), tom: 'brand', icone: 'pi pi-flag' },
       { rotulo: 'Fatia do período', valor: pct(item?.percentual ?? 0), icone: 'pi pi-chart-pie' },
       ...(item ? [{ rotulo: 'Posição', valor: `${k + 1}º de ${itens.length}`, icone: 'pi pi-sort-amount-down' }] : []),
-      ...(base ? [{ rotulo: 'Com lesão no período', valor: String(base.comLesaoNoPeriodo), icone: 'pi pi-heart', tom: (base.comLesaoNoPeriodo ? 'danger' : 'success') as CesTone }] : [])
+      ...(base ? [{ rotulo: 'Com lesão no período', valor: String(base.comLesaoNoPeriodo), icone: 'pi pi-heart', tom: (base.comLesaoNoPeriodo ? 'danger' : 'success') as GeoTone }] : [])
     ],
     destaques,
     graficos: [],
@@ -835,7 +835,7 @@ export function visaoEventos(d: DashboardEventosSstResponse): VisaoGerencialSst 
       texto: emAberto ? `Mas ${plural(emAberto, 'evento de outro período segue', 'eventos de outros períodos seguem')} sem desfecho.` : `${r.diasSemEventos != null ? `${r.diasSemEventos} dias sem eventos na operação. ` : ''}Mantenha as inspeções e o relato de desvios.`
     };
   } else {
-    const tom: CesTone = r.comLesao > 0 && (semCat > 0 || r.variacaoComLesao > 0) ? 'danger' : r.comLesao > 0 || r.comunicacoesAtrasadas > 0 ? 'warning' : 'success';
+    const tom: GeoTone = r.comLesao > 0 && (semCat > 0 || r.variacaoComLesao > 0) ? 'danger' : r.comLesao > 0 || r.comunicacoesAtrasadas > 0 ? 'warning' : 'success';
     veredito = {
       tom,
       rotulo: tom === 'danger' ? 'Agir agora' : tom === 'warning' ? 'Atenção' : 'Sob controle',

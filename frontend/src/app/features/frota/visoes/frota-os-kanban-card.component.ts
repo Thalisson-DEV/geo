@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
 
 import { OrdemServico, ROTULO_CRITICIDADE, identificacaoOs, rotuloOs } from '../../../core/models/frota.models';
 
@@ -15,55 +15,55 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'LANCAR_VALORES' |
   selector: 'app-frota-os-kanban-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesIconButtonComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoIconButtonComponent],
   styles: `
     :host { display: block; }
     .kc {
       display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; overflow: hidden; gap: 0.625rem; padding: 0.75rem;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); color: var(--ces-foreground);
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); color: var(--geo-foreground);
       cursor: pointer; outline: none;
-      transition: border-color var(--ces-duration-fast) var(--ces-ease-standard), box-shadow var(--ces-duration-fast) var(--ces-ease-standard),
-        transform var(--ces-duration-fast) var(--ces-ease-standard), opacity var(--ces-duration-fast) var(--ces-ease-standard);
+      transition: border-color var(--geo-duration-fast) var(--geo-ease-standard), box-shadow var(--geo-duration-fast) var(--geo-ease-standard),
+        transform var(--geo-duration-fast) var(--geo-ease-standard), opacity var(--geo-duration-fast) var(--geo-ease-standard);
     }
-    .kc:hover { border-color: var(--ces-border-strong); box-shadow: var(--ces-shadow-md); transform: translateY(-1px); }
+    .kc:hover { border-color: var(--geo-border-strong); box-shadow: var(--geo-shadow-md); transform: translateY(-1px); }
     .kc--arrastando { opacity: 0.4; transform: scale(0.98); box-shadow: none; }
     [draggable='true'].kc { cursor: grab; }
     [draggable='true'].kc:active { cursor: grabbing; }
-    .kc:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .kc:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     /* Faixa da criticidade (vermelho, laranja, amarelo, verde), para separar de relance numa lista longa. */
     .kc[data-crit] { box-shadow: inset 4px 0 0 var(--kc-crit); }
-    .kc[data-crit]:hover { box-shadow: inset 4px 0 0 var(--kc-crit), var(--ces-shadow-md); }
-    [data-crit='URGENTE'] { --kc-crit: var(--ces-danger); --kc-crit-soft: var(--ces-danger-soft); --kc-crit-ink: var(--ces-danger-text); }
-    [data-crit='ALTA'] { --kc-crit: #ea580c; --kc-crit-soft: color-mix(in srgb, #ea580c 14%, var(--ces-surface)); --kc-crit-ink: color-mix(in srgb, #ea580c 70%, var(--ces-foreground)); }
-    [data-crit='MEDIA'] { --kc-crit: #eab308; --kc-crit-soft: color-mix(in srgb, #eab308 18%, var(--ces-surface)); --kc-crit-ink: color-mix(in srgb, #a16207 75%, var(--ces-foreground)); }
-    [data-crit='BAIXA'] { --kc-crit: var(--ces-success); --kc-crit-soft: var(--ces-success-soft); --kc-crit-ink: var(--ces-success-text); }
+    .kc[data-crit]:hover { box-shadow: inset 4px 0 0 var(--kc-crit), var(--geo-shadow-md); }
+    [data-crit='URGENTE'] { --kc-crit: var(--geo-danger); --kc-crit-soft: var(--geo-danger-soft); --kc-crit-ink: var(--geo-danger-text); }
+    [data-crit='ALTA'] { --kc-crit: #ea580c; --kc-crit-soft: color-mix(in srgb, #ea580c 14%, var(--geo-surface)); --kc-crit-ink: color-mix(in srgb, #ea580c 70%, var(--geo-foreground)); }
+    [data-crit='MEDIA'] { --kc-crit: #eab308; --kc-crit-soft: color-mix(in srgb, #eab308 18%, var(--geo-surface)); --kc-crit-ink: color-mix(in srgb, #a16207 75%, var(--geo-foreground)); }
+    [data-crit='BAIXA'] { --kc-crit: var(--geo-success); --kc-crit-soft: var(--geo-success-soft); --kc-crit-ink: var(--geo-success-text); }
     .kc__tag.kc__tag--crit { background: var(--kc-crit-soft); color: var(--kc-crit-ink); }
     .kc__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.125rem 0.5rem; align-items: baseline; }
-    .kc__titulo { overflow: hidden; font-size: var(--ces-font-control); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-    .kc__id { font-size: var(--ces-font-caption); color: var(--ces-foreground-subtle); font-variant-numeric: tabular-nums; }
+    .kc__titulo { overflow: hidden; font-size: var(--geo-font-control); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .kc__id { font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); font-variant-numeric: tabular-nums; }
     .kc__descricao {
       grid-column: 1 / -1; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-      font-size: var(--ces-font-caption); line-height: 1.4; color: var(--ces-foreground-muted); word-break: break-word;
+      font-size: var(--geo-font-caption); line-height: 1.4; color: var(--geo-foreground-muted); word-break: break-word;
     }
     .kc__tags { display: flex; flex-wrap: wrap; gap: 0.25rem; min-width: 0; }
     .kc__tag {
       display: inline-flex; max-width: 100%; overflow: hidden; text-overflow: ellipsis; align-items: center; gap: 0.3rem; height: 1.375rem;
-      padding: 0 0.5rem; border-radius: var(--ces-radius-sm); background: var(--ces-surface-muted); color: var(--ces-foreground-muted);
+      padding: 0 0.5rem; border-radius: var(--geo-radius-sm); background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
       font-size: 0.72rem; font-weight: 600; white-space: nowrap;
     }
     .kc__tag .pi { font-size: 0.65rem; }
-    .kc__tag--perigo { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
-    .kc__tag--aviso { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .kc__tag--ok { background: var(--ces-success-soft); color: var(--ces-success-text); }
-    .kc__tag--info { background: var(--ces-info-soft); color: var(--ces-info-text); }
+    .kc__tag--perigo { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+    .kc__tag--aviso { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .kc__tag--ok { background: var(--geo-success-soft); color: var(--geo-success-text); }
+    .kc__tag--info { background: var(--geo-info-soft); color: var(--geo-info-text); }
     .kc__foot { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 1.75rem; }
-    .kc__foot ces-button, .kc__foot ces-icon-button { flex: none; }
+    .kc__foot geo-button, .kc__foot geo-icon-button { flex: none; }
     .kc__acoes { display: inline-flex; flex: none; align-items: center; gap: 0.125rem; }
     .kc__oficina { display: inline-flex; flex: 1 1 auto; align-items: center; gap: 0.4rem; min-width: 0; overflow: hidden;
-      font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+      font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .kc__oficina span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .kc__icone { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem;
-      border-radius: 999px; background: var(--ces-brand-soft); color: var(--ces-brand); font-size: 0.7rem; }
+      border-radius: 999px; background: var(--geo-brand-soft); color: var(--geo-brand); font-size: 0.7rem; }
     @media (prefers-reduced-motion: reduce) { .kc { transition: none; } .kc:hover { transform: none; } }
   `,
   template: `
@@ -136,15 +136,15 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'LANCAR_VALORES' |
         </span>
         <span class="kc__acoes">
           @if (podeCancelar() && item().situacao !== 'CONCLUIDA' && item().situacao !== 'CANCELADA') {
-            <ces-icon-button icon="pi pi-ban" [label]="'Cancelar ' + rotuloOs(item().numero)" tooltip="Cancelar OS" size="icon-sm"
+            <geo-icon-button icon="pi pi-ban" [label]="'Cancelar ' + rotuloOs(item().numero)" tooltip="Cancelar OS" size="icon-sm"
               (pressed)="actionTriggered.emit({ item: item(), action: 'CANCELAR' })" (click)="$event.stopPropagation()" />
           }
           @if (podeReabrir() && item().situacao === 'CONCLUIDA') {
-            <ces-icon-button icon="pi pi-replay" [label]="'Voltar ' + rotuloOs(item().numero) + ' para em andamento'" tooltip="Voltar para em andamento" size="icon-sm"
+            <geo-icon-button icon="pi pi-replay" [label]="'Voltar ' + rotuloOs(item().numero) + ' para em andamento'" tooltip="Voltar para em andamento" size="icon-sm"
               (pressed)="actionTriggered.emit({ item: item(), action: 'REABRIR' })" (click)="$event.stopPropagation()" />
           }
           @if (acao(); as a) {
-            <ces-button [label]="a.rotulo" [icon]="a.icone" size="sm" variant="outline" [ariaLabel]="a.rotulo + ' a ' + rotuloOs(item().numero)"
+            <geo-button [label]="a.rotulo" [icon]="a.icone" size="sm" variant="outline" [ariaLabel]="a.rotulo + ' a ' + rotuloOs(item().numero)"
               (pressed)="actionTriggered.emit({ item: item(), action: a.acao })" (click)="$event.stopPropagation()" />
           }
         </span>

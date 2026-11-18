@@ -1,16 +1,16 @@
-<div class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0 print:bg-white print:text-black">
+<div class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0 print:bg-white print:text-black">
   <app-movimentacoes-material-dialog #movimentacoesDialog></app-movimentacoes-material-dialog>
 
   @if (loading()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state [state]="'loading'" title="Carregando relatório de saldo..."
-        description="Consultando o estoque, a equipe vinculada e os materiais em saldo..."></ces-async-state>
+      <geo-async-state [state]="'loading'" title="Carregando relatório de saldo..."
+        description="Consultando o estoque, a equipe vinculada e os materiais em saldo..."></geo-async-state>
     </div>
   } @else if (error()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state [state]="'error'" title="Saldo indisponível"
+      <geo-async-state [state]="'error'" title="Saldo indisponível"
         [description]="error() || 'Não foi possível carregar os dados.'" [actionLabel]="idEstoque ? 'Tentar novamente' : undefined"
-        (action)="loadData()"></ces-async-state>
+        (action)="loadData()"></geo-async-state>
     </div>
   } @else if (estoque(); as e) {
     @let r = resumo();
@@ -42,7 +42,7 @@
           <span>Posição em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ emitidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           @if (situacao(); as s) {
             <span>·</span>
-            <ces-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</ces-status>
+            <geo-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</geo-status>
           }
         </div>
       </div>
@@ -210,7 +210,7 @@
           Materiais seriados (<i class="pi pi-barcode text-[10px]" aria-hidden="true"></i>) abrem na própria linha com os números de série.
         </p>
 
-        <ces-data-table
+        <geo-data-table
           mode="server"
           caption="Materiais em saldo no estoque"
           searchPlaceholder="Buscar por código ou descrição"
@@ -234,32 +234,32 @@
           (clearFilters)="limparRecorte()"
           (adjustFilters)="recorteGrupo.querySelector('button')?.focus()"
         >
-          <ng-template cesCell="codigo" let-row>
+          <ng-template geoCell="codigo" let-row>
             <span class="font-mono font-semibold">{{ row.material.codigo }}</span>
           </ng-template>
-          <ng-template cesCell="descricao" let-row>
+          <ng-template geoCell="descricao" let-row>
             <span class="inline-flex items-center gap-2 flex-wrap">
               <span class="uppercase">{{ row.material.descricao }}</span>
               @if (row.material.detalhaSerie) {
-                <ces-status tone="brand" icon="pi pi-barcode">Seriado</ces-status>
+                <geo-status tone="brand" icon="pi pi-barcode">Seriado</geo-status>
               }
             </span>
           </ng-template>
-          <ng-template cesCell="processo" let-row>
+          <ng-template geoCell="processo" let-row>
             @if (processoVisual(row.material.processo?.nome); as p) {
-              <ces-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</ces-status>
+              <geo-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</geo-status>
             } @else {
               —
             }
           </ng-template>
-          <ng-template cesCell="condicao" let-row>
+          <ng-template geoCell="condicao" let-row>
             @if (row.condicao) {
-              <ces-status [tone]="tomCondicao(row.condicao)" [icon]="iconeCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</ces-status>
+              <geo-status [tone]="tomCondicao(row.condicao)" [icon]="iconeCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</geo-status>
             } @else {
               —
             }
           </ng-template>
-          <ng-template cesCell="quantidade" let-row>
+          <ng-template geoCell="quantidade" let-row>
             <span class="quantidade" [attr.data-tone]="row.negativo ? 'danger' : row.quantidade === 0 ? 'zero' : null">
               @if (row.negativo) {
                 <i class="pi pi-exclamation-triangle text-[11px]" aria-hidden="true"></i>
@@ -268,10 +268,10 @@
               {{ row.quantidade | number: '1.0-3' }}
             </span>
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <ces-icon-button icon="pi pi-history" label="Ver movimentações" size="icon-sm" (pressed)="abrirMovimentacoes(row)"></ces-icon-button>
+          <ng-template geoRowActions let-row>
+            <geo-icon-button icon="pi pi-history" label="Ver movimentações" size="icon-sm" (pressed)="abrirMovimentacoes(row)"></geo-icon-button>
           </ng-template>
-          <ng-template cesRowDetail let-row>
+          <ng-template geoRowDetail let-row>
             <app-saldo-seriais-painel
               [idEstoque]="idEstoque"
               [idMaterial]="row.material.id"
@@ -280,7 +280,7 @@
               [quantidade]="row.quantidade"
             />
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       </div>
 
       <!-- 8. RODAPÉ DE EMISSÃO -->
@@ -298,7 +298,7 @@
     <!-- 9. AÇÕES FLUTUANTES -->
     <div class="fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
       <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+        styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
         styleClass="!rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
     </div>

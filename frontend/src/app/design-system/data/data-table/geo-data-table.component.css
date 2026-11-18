@@ -1,0 +1,511 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.geo-data-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--geo-font-control);
+  color: var(--geo-foreground);
+}
+
+.geo-data-table__table th,
+.geo-data-table__table td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--geo-border);
+  text-align: start;
+  vertical-align: middle;
+}
+
+.geo-data-table__table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* textFit: texto em até N linhas, mais compacto; o excedente fica no title da célula. */
+.geo-data-table__clamp {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--geo-data-table-lines, 3);
+  line-clamp: var(--geo-data-table-lines, 3);
+  line-height: 1.3;
+  overflow-wrap: break-word;
+}
+
+:host([data-fit]) .geo-data-table__table td {
+  padding-block: 0.4rem;
+}
+
+.geo-data-table__table tbody tr:hover {
+  background: var(--geo-surface-subtle);
+}
+
+/* Linha/cartão clicável (rowClickable): abre o detalhe ou a edição. */
+.geo-data-table__table tbody tr.is-clickable,
+.geo-data-table__card.is-clickable {
+  cursor: pointer;
+}
+
+.geo-data-table__card.is-clickable:hover {
+  border-color: color-mix(in srgb, var(--geo-brand) 35%, var(--geo-border));
+}
+
+.geo-data-table__numeric {
+  text-align: end !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.geo-data-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.geo-data-table__numeric .geo-data-table__sort {
+  flex-direction: row-reverse;
+}
+
+.geo-data-table__sort:focus-visible,
+.geo-data-table__expander:focus-visible,
+.geo-data-table__card-toggle:focus-visible {
+  outline: 2px solid var(--geo-focus-ring, var(--geo-brand));
+  outline-offset: 2px;
+  border-radius: var(--geo-radius-sm);
+}
+
+.geo-data-table__sort-idle {
+  opacity: 0.45;
+}
+
+.geo-data-table__sort-order {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
+  font-size: 0.625rem;
+}
+
+.geo-data-table__expander-col {
+  width: 2.75rem;
+}
+
+/* Seleção de linhas (ações em lote). */
+.geo-data-table__select-col {
+  width: 2.75rem;
+  text-align: center !important;
+}
+
+.geo-data-table__checkbox,
+.geo-data-table__check input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--geo-brand);
+  cursor: pointer;
+}
+
+.geo-data-table__checkbox:focus-visible,
+.geo-data-table__check input:focus-visible {
+  outline: none;
+  box-shadow: var(--geo-focus-ring);
+}
+
+tr.is-selected > td,
+.geo-data-table__card.is-selected {
+  background: var(--geo-brand-soft);
+}
+
+.geo-data-table__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--geo-foreground-muted);
+}
+
+.geo-data-table__selection {
+  /* Flutua no rodapé da tela enquanto há seleção: sempre à vista, sem deslocar as linhas. */
+  position: fixed;
+  inset-inline: 0;
+  bottom: 1rem;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  margin-inline: auto;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--geo-brand) 40%, var(--geo-border));
+  border-radius: var(--geo-radius-lg);
+  background: color-mix(in srgb, var(--geo-brand) 14%, var(--geo-surface));
+  box-shadow: var(--geo-shadow-lg);
+}
+
+.geo-data-table__selection-limit {
+  color: var(--geo-foreground-muted);
+}
+
+/* Ações da linha: coluna enxuta no fim, título e conteúdo alinhados à direita. */
+.geo-data-table__action-col {
+  width: 1%;
+  white-space: nowrap;
+  text-align: end !important;
+}
+
+.geo-data-table__row-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.125rem;
+  vertical-align: middle;
+}
+
+.geo-data-table__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--geo-border);
+}
+
+.geo-data-table__expander {
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--geo-radius-sm);
+  background: none;
+  color: var(--geo-foreground-muted);
+  cursor: pointer;
+}
+
+.geo-data-table__expander:hover {
+  background: var(--geo-surface-muted);
+}
+
+.geo-data-table__detail-row td {
+  background: var(--geo-surface-subtle);
+}
+
+.geo-data-table__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid var(--geo-border);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.geo-data-table__range {
+  font-variant-numeric: tabular-nums;
+}
+
+.geo-data-table__page-size,
+.geo-data-table__sort-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.geo-data-table__page-size select,
+.geo-data-table__sort-select select {
+  min-height: 2.75rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
+  font: inherit;
+}
+
+.geo-data-table__pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.geo-data-table__page-label {
+  padding: 0 0.5rem;
+  white-space: nowrap;
+}
+
+.geo-data-table__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.geo-data-table__page {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.375rem;
+  border: 1px solid transparent;
+  border-radius: var(--geo-radius-sm);
+  background: none;
+  color: var(--geo-foreground-muted);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.geo-data-table__page:hover {
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground);
+}
+
+.geo-data-table__page:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 1px;
+}
+
+/* Página atual: borda, fundo e peso — não só cor. */
+.geo-data-table__page[aria-current='page'] {
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-foreground);
+  font-weight: 700;
+}
+
+.geo-data-table__page-gap {
+  padding: 0 0.25rem;
+  color: var(--geo-foreground-subtle);
+}
+
+/* Com os números visíveis, o texto "Página X de Y" fica só para leitores de tela em telas largas. */
+@media (min-width: 48rem) {
+  .geo-data-table__page-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 47.99rem) {
+  .geo-data-table__pages {
+    display: none;
+  }
+}
+
+/* ---------- Cards (telas compactas) ---------- */
+
+.geo-data-table__cards {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.75rem;
+  list-style: none;
+}
+
+.geo-data-table__card {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md, 0.75rem);
+  background: var(--geo-surface);
+}
+
+.geo-data-table__card-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.geo-data-table__card-field {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.geo-data-table__card-field--lead {
+  flex: 1 0 100%;
+  font-weight: 650;
+}
+
+.geo-data-table__card-label,
+.geo-data-table__card-more dt {
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
+}
+
+.geo-data-table__card-value {
+  font-size: var(--geo-font-control);
+  font-variant-numeric: tabular-nums;
+}
+
+.geo-data-table__card-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--geo-brand);
+  font: inherit;
+  font-size: var(--geo-font-caption);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.geo-data-table__card-more dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0 0 0.5rem;
+}
+
+.geo-data-table__card-more dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+:host([data-layout='cards']) .geo-data-table__footer {
+  justify-content: center;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+.geo-data-table__toolbar-bar {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--geo-border);
+}
+
+.geo-data-table__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.geo-data-table__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0 0.25rem 0 0.625rem;
+  border: 1px solid color-mix(in srgb, var(--geo-brand) 35%, var(--geo-border));
+  border-radius: 999px;
+  background: var(--geo-brand-soft);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
+}
+
+.geo-data-table__chip button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--geo-foreground-muted);
+  cursor: pointer;
+}
+
+.geo-data-table__chip button:hover {
+  background: var(--geo-surface-muted);
+}
+
+.geo-data-table__chip button:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 1px;
+}
+
+:host([data-layout='cards']) .geo-data-table__chip button {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* Modo servidor: recarga com as linhas anteriores visíveis. */
+.geo-data-table__progress {
+  height: 2px;
+  overflow: hidden;
+  background: var(--geo-brand-soft);
+}
+
+.geo-data-table__progress::after {
+  content: '';
+  display: block;
+  width: 30%;
+  height: 100%;
+  background: var(--geo-brand);
+  animation: geo-data-table-progress 1.1s ease-in-out infinite;
+}
+
+@keyframes geo-data-table-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .geo-data-table__progress::after {
+    width: 100%;
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+:host([data-busy]) .geo-data-table__table tbody,
+:host([data-busy]) .geo-data-table__cards {
+  opacity: 0.6;
+  transition: opacity 120ms ease;
+}
+
+/* Relatórios impressos levam os dados, não os controles da tabela. */
+@media print {
+  geo-table-toolbar,
+  .geo-data-table__page-size,
+  .geo-data-table__pager,
+  .geo-data-table__expander,
+  .geo-data-table__expander-col,
+  .geo-data-table__action-col {
+    display: none !important;
+  }
+}

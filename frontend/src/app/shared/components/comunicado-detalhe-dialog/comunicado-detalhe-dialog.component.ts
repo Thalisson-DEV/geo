@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { ComunicadoMuralResponse } from '../../../core/models/notificacao.models';
 import { MuralStore } from '../../../core/services/mural-store.service';
 import { TIPO_COMUNICADO_ICONES, TOM_TIPO_COMUNICADO, formatarDataHora } from '../../../features/notificacoes/notificacoes-ui';
@@ -14,38 +14,38 @@ import { ComunicadoConteudoComponent } from '../comunicado-conteudo/comunicado-c
   selector: 'app-comunicado-detalhe-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, ComunicadoConteudoComponent],
+  imports: [GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent, ComunicadoConteudoComponent],
   styles: `
     .cd { display: grid; gap: 1rem; }
     .cd-hero {
       display: grid;
       gap: 0.5rem;
       padding: 0.875rem 1rem;
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-lg);
-      background: var(--ces-surface-subtle);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-lg);
+      background: var(--geo-surface-subtle);
     }
     .cd-hero__topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; }
-    .cd-hero__resumo { margin: 0; color: var(--ces-foreground); font-size: var(--ces-font-body); font-weight: 500; line-height: 1.5; }
-    .cd-hero__meta { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .cd-hero__resumo { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 500; line-height: 1.5; }
+    .cd-hero__meta { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .cd-hero__meta span { display: inline-flex; align-items: center; gap: 0.3rem; }
     .cd-rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem; width: 100%; }
   `,
   template: `
     @if (comunicado(); as item) {
-      <ces-drawer [visible]="true" (visibleChange)="!$event && comunicado.set(null)" [eyebrow]="item.tipoRotulo" [title]="item.titulo" size="lg">
+      <geo-drawer [visible]="true" (visibleChange)="!$event && comunicado.set(null)" [eyebrow]="item.tipoRotulo" [title]="item.titulo" size="lg">
         <div class="cd">
           <section class="cd-hero" aria-label="Resumo do comunicado">
             <div class="cd-hero__topo">
-              <ces-status [tone]="tom(item)" [icon]="icone(item)" emphasis="solid">{{ item.tipoRotulo }}</ces-status>
+              <geo-status [tone]="tom(item)" [icon]="icone(item)" emphasis="solid">{{ item.tipoRotulo }}</geo-status>
               @if (item.fixado) {
-                <ces-status tone="neutral" icon="pi pi-thumbtack">Fixado</ces-status>
+                <geo-status tone="neutral" icon="pi pi-thumbtack">Fixado</geo-status>
               }
               @if (item.exigeConfirmacao) {
                 @if (item.confirmado) {
-                  <ces-status tone="success" icon="pi pi-verified">Leitura confirmada</ces-status>
+                  <geo-status tone="success" icon="pi pi-verified">Leitura confirmada</geo-status>
                 } @else {
-                  <ces-status tone="warning" icon="pi pi-exclamation-circle">Exige confirmação de leitura</ces-status>
+                  <geo-status tone="warning" icon="pi pi-exclamation-circle">Exige confirmação de leitura</geo-status>
                 }
               }
             </div>
@@ -65,21 +65,21 @@ import { ComunicadoConteudoComponent } from '../comunicado-conteudo/comunicado-c
           <app-comunicado-conteudo [comunicado]="item"></app-comunicado-conteudo>
 
           @if (item.exigeConfirmacao && !item.confirmado) {
-            <ces-callout tone="warning" [dense]="true">Ao confirmar, sua leitura fica registrada como prova de comunicação.</ces-callout>
+            <geo-callout tone="warning" [dense]="true">Ao confirmar, sua leitura fica registrada como prova de comunicação.</geo-callout>
           }
         </div>
 
         <div drawer-footer class="cd-rodape">
           @if (item.acaoRotulo && item.acaoDeeplink) {
-            <ces-button variant="outline" icon="pi pi-arrow-up-right" [label]="item.acaoRotulo" (pressed)="executarAcao(item)"></ces-button>
+            <geo-button variant="outline" icon="pi pi-arrow-up-right" [label]="item.acaoRotulo" (pressed)="executarAcao(item)"></geo-button>
           }
           @if (item.exigeConfirmacao && !item.confirmado) {
-            <ces-button variant="success" icon="pi pi-check" label="Li e entendi" (pressed)="confirmar(item)"></ces-button>
+            <geo-button variant="success" icon="pi pi-check" label="Li e entendi" (pressed)="confirmar(item)"></geo-button>
           } @else {
-            <ces-button variant="ghost" label="Fechar" (pressed)="comunicado.set(null)"></ces-button>
+            <geo-button variant="ghost" label="Fechar" (pressed)="comunicado.set(null)"></geo-button>
           }
         </div>
-      </ces-drawer>
+      </geo-drawer>
     }
   `
 })
@@ -104,7 +104,7 @@ export class ComunicadoDetalheDialogComponent {
     return TIPO_COMUNICADO_ICONES[item.tipo] ?? 'pi pi-megaphone';
   }
 
-  protected tom(item: ComunicadoMuralResponse): CesTone {
+  protected tom(item: ComunicadoMuralResponse): GeoTone {
     return TOM_TIPO_COMUNICADO[item.tipo] ?? 'neutral';
   }
 

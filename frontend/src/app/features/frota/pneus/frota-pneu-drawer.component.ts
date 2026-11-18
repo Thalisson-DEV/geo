@@ -1,21 +1,21 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked, viewChild } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormActionsComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormActionsComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   ALERTA_PNEU,
   AlmoxarifadoFrota,
@@ -35,7 +35,7 @@ import { FrotaPneuService } from '../../../core/services/frota-pneu.service';
 type Etapa = 'envio' | 'retorno' | 'descarte' | 'transferir' | null;
 const OUTRA = '__OUTRA__';
 const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-const VIDAS: CesSelectOption<number>[] = [
+const VIDAS: GeoSelectOption<number>[] = [
   { label: 'Novo (1ª vida)', value: 0 },
   ...[1, 2, 3, 4, 5].map((n) => ({ label: n === 1 ? 'Reformado 1 vez' : `Reformado ${n} vezes`, value: n }))
 ];
@@ -52,50 +52,50 @@ const VELOCIDADES = ['F', 'G', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormActionsComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormActionsComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   styles: `
     .resumo { display: grid; gap: 0.6rem; }
     .resumo dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.5rem 1rem; margin: 0; }
-    .resumo dt { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .resumo dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .resumo dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
     .alertas { display: flex; flex-wrap: wrap; gap: 0.35rem; }
     .botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .etapa { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
+    .etapa { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
     .etapa__botoes { display: flex; justify-content: flex-end; gap: 0.5rem; }
     .linha { position: relative; display: grid; gap: 0; margin: 0; padding: 0 0 0 1.4rem; list-style: none; }
-    .linha::before { content: ''; position: absolute; left: 0.45rem; top: 0.4rem; bottom: 0.4rem; width: 2px; background: var(--ces-border); }
+    .linha::before { content: ''; position: absolute; left: 0.45rem; top: 0.4rem; bottom: 0.4rem; width: 2px; background: var(--geo-border); }
     .evento { position: relative; display: grid; gap: 0.15rem; padding: 0.35rem 0 0.75rem; }
     .evento__marca { position: absolute; left: -1.4rem; top: 0.35rem; display: grid; place-items: center; width: 1.1rem; height: 1.1rem; border-radius: 50%;
-      font-size: 0.6rem; background: var(--ces-surface); border: 2px solid var(--ces-border-strong); color: var(--ces-foreground-muted); }
-    .evento__marca[data-tom='info'] { border-color: var(--ces-info); color: var(--ces-info-text); }
-    .evento__marca[data-tom='success'] { border-color: var(--ces-success); color: var(--ces-success-text); }
-    .evento__marca[data-tom='warning'] { border-color: var(--ces-warning); color: var(--ces-warning-text); }
-    .evento__marca[data-tom='danger'] { border-color: var(--ces-danger); color: var(--ces-danger-text); }
+      font-size: 0.6rem; background: var(--geo-surface); border: 2px solid var(--geo-border-strong); color: var(--geo-foreground-muted); }
+    .evento__marca[data-tom='info'] { border-color: var(--geo-info); color: var(--geo-info-text); }
+    .evento__marca[data-tom='success'] { border-color: var(--geo-success); color: var(--geo-success-text); }
+    .evento__marca[data-tom='warning'] { border-color: var(--geo-warning); color: var(--geo-warning-text); }
+    .evento__marca[data-tom='danger'] { border-color: var(--geo-danger); color: var(--geo-danger-text); }
     .evento__topo { display: flex; flex-wrap: wrap; gap: 0.25rem 0.6rem; align-items: baseline; }
     .evento__titulo { font-weight: 700; }
-    .evento__quando { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .evento__detalhe { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .evento__quando { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .evento__detalhe { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,
   template: `
-    <ces-form-drawer #drawer [(visible)]="visivel" [title]="pneu() ? 'Pneu ' + pneu()!.marcaFogo : 'Cadastrar pneu'"
+    <geo-form-drawer #drawer [(visible)]="visivel" [title]="pneu() ? 'Pneu ' + pneu()!.marcaFogo : 'Cadastrar pneu'"
       [description]="pneu() ? (pneu()!.marca + (pneu()!.modelo ? ' ' + pneu()!.modelo : '') + (pneu()!.medida ? ' · ' + pneu()!.medida : '')) : 'Entra disponível no almoxarifado. Monte no veículo pela aba Montagem.'"
       [dirty]="alterado()" [loading]="salvando()" size="lg">
 
       @if (pneu(); as p) {
         @let st = situacao(p);
-        <ces-callout [tone]="st.tom === 'neutral' ? 'info' : st.tom" [icon]="st.icone" [dense]="true" [title]="st.rotulo + onde(p) + tempoServico(p)">
+        <geo-callout [tone]="st.tom === 'neutral' ? 'info' : st.tom" [icon]="st.icone" [dense]="true" [title]="st.rotulo + onde(p) + tempoServico(p)">
           <div class="resumo">
             <dl>
               <div><dt>Sulco</dt><dd>{{ sulco(p.sulcoAtualMm) }}</dd></div>
@@ -107,83 +107,83 @@ const VELOCIDADES = ['F', 'G', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
             </dl>
             @if (p.alertas.length) {
               <div class="alertas">
-                @for (a of p.alertas; track a) { <ces-status [tone]="alerta(a).tom" [icon]="alerta(a).icone">{{ alerta(a).rotulo }}</ces-status> }
+                @for (a of p.alertas; track a) { <geo-status [tone]="alerta(a).tom" [icon]="alerta(a).icone">{{ alerta(a).rotulo }}</geo-status> }
               </div>
             }
             @if (podeEditar() && p.situacao !== 'DESCARTADO') {
               <div class="botoes">
                 @if (p.situacao === 'EM_USO') {
-                  <ces-button size="sm" variant="outline" icon="pi pi-sitemap" label="Abrir na montagem" (pressed)="abrirMontagem.emit(p.idVeiculo!)"></ces-button>
+                  <geo-button size="sm" variant="outline" icon="pi pi-sitemap" label="Abrir na montagem" (pressed)="abrirMontagem.emit(p.idVeiculo!)"></geo-button>
                 }
                 @if (p.situacao === 'DISPONIVEL') {
-                  <ces-button size="sm" variant="outline" icon="pi pi-wrench" label="Enviar ao reparo ou reforma" (pressed)="abrirEtapa('envio')"></ces-button>
-                  <ces-button size="sm" variant="outline" icon="pi pi-arrow-right-arrow-left" label="Guardar em outro almoxarifado" (pressed)="abrirEtapa('transferir')"></ces-button>
+                  <geo-button size="sm" variant="outline" icon="pi pi-wrench" label="Enviar ao reparo ou reforma" (pressed)="abrirEtapa('envio')"></geo-button>
+                  <geo-button size="sm" variant="outline" icon="pi pi-arrow-right-arrow-left" label="Guardar em outro almoxarifado" (pressed)="abrirEtapa('transferir')"></geo-button>
                 }
                 @if (p.situacao === 'EM_REPARO' || p.situacao === 'EM_REFORMA') {
-                  <ces-button size="sm" icon="pi pi-check-circle" [label]="p.situacao === 'EM_REFORMA' ? 'Registrar volta da reforma' : 'Registrar volta do reparo'" (pressed)="abrirEtapa('retorno')"></ces-button>
+                  <geo-button size="sm" icon="pi pi-check-circle" [label]="p.situacao === 'EM_REFORMA' ? 'Registrar volta da reforma' : 'Registrar volta do reparo'" (pressed)="abrirEtapa('retorno')"></geo-button>
                 }
                 @if (p.situacao !== 'EM_USO') {
-                  <ces-button size="sm" variant="ghost" icon="pi pi-trash" label="Descartar" (pressed)="abrirEtapa('descarte')"></ces-button>
+                  <geo-button size="sm" variant="ghost" icon="pi pi-trash" label="Descartar" (pressed)="abrirEtapa('descarte')"></geo-button>
                 }
               </div>
             }
           </div>
-        </ces-callout>
+        </geo-callout>
 
         @switch (etapa()) {
           @case ('envio') {
             <div class="etapa" role="group" aria-label="Enviar ao reparo ou à reforma">
-              <ces-select label="Para onde" [required]="true" [options]="destinosEnvio" [(value)]="destinoEnvio"></ces-select>
-              <ces-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedorEtapa" [filter]="true" [clearable]="true" [showOptional]="true"></ces-select>
-              <ces-textarea label="Observação" [(value)]="observacaoEtapa" [rows]="2" [maxlength]="1000" [showOptional]="true" placeholder="Ex.: furo na banda, corte no ombro"></ces-textarea>
+              <geo-select label="Para onde" [required]="true" [options]="destinosEnvio" [(value)]="destinoEnvio"></geo-select>
+              <geo-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedorEtapa" [filter]="true" [clearable]="true" [showOptional]="true"></geo-select>
+              <geo-textarea label="Observação" [(value)]="observacaoEtapa" [rows]="2" [maxlength]="1000" [showOptional]="true" placeholder="Ex.: furo na banda, corte no ombro"></geo-textarea>
               <div class="etapa__botoes">
-                <ces-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></ces-button>
-                <ces-button icon="pi pi-send" label="Enviar" [loading]="gravando()" (pressed)="enviar()"></ces-button>
+                <geo-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></geo-button>
+                <geo-button icon="pi pi-send" label="Enviar" [loading]="gravando()" (pressed)="enviar()"></geo-button>
               </div>
             </div>
           }
           @case ('retorno') {
             <div class="etapa" role="group" aria-label="Registrar retorno">
-              <div class="ces-form-grid">
-                <ces-select label="Almoxarifado que recebe" [required]="true" [options]="opcoesAlmoxarifado()" [(value)]="almoxarifadoEtapa"></ces-select>
-                <ces-number-input label="Valor do serviço" mode="currency" [(value)]="valorEtapa" [min]="0" [showOptional]="true"></ces-number-input>
-                <ces-number-input [label]="p.situacao === 'EM_REFORMA' ? 'Sulco do pneu reformado (mm)' : 'Sulco medido (mm)'" [(value)]="sulcoEtapa" [min]="0" [max]="40"
+              <div class="geo-form-grid">
+                <geo-select label="Almoxarifado que recebe" [required]="true" [options]="opcoesAlmoxarifado()" [(value)]="almoxarifadoEtapa"></geo-select>
+                <geo-number-input label="Valor do serviço" mode="currency" [(value)]="valorEtapa" [min]="0" [showOptional]="true"></geo-number-input>
+                <geo-number-input [label]="p.situacao === 'EM_REFORMA' ? 'Sulco do pneu reformado (mm)' : 'Sulco medido (mm)'" [(value)]="sulcoEtapa" [min]="0" [max]="40"
                   [minFractionDigits]="1" [maxFractionDigits]="1" [required]="p.situacao === 'EM_REFORMA'" [showOptional]="p.situacao !== 'EM_REFORMA'"
-                  [description]="p.situacao === 'EM_REFORMA' ? 'A reforma começa uma vida nova e zera o km da vida.' : undefined"></ces-number-input>
-                <ces-text-input label="Nota fiscal ou recibo" [(value)]="documentoEtapa" [maxlength]="60" [showOptional]="true"></ces-text-input>
-                <ces-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedorEtapa" [filter]="true" [clearable]="true" [showOptional]="true"
-                  [description]="p.fornecedorServico ? 'Enviado para ' + p.fornecedorServico + '.' : undefined"></ces-select>
-                <ces-datepicker label="Voltou em" [(value)]="quandoEtapa" [maxDate]="agora" [showTime]="true" description="Vazio: agora."></ces-datepicker>
+                  [description]="p.situacao === 'EM_REFORMA' ? 'A reforma começa uma vida nova e zera o km da vida.' : undefined"></geo-number-input>
+                <geo-text-input label="Nota fiscal ou recibo" [(value)]="documentoEtapa" [maxlength]="60" [showOptional]="true"></geo-text-input>
+                <geo-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedorEtapa" [filter]="true" [clearable]="true" [showOptional]="true"
+                  [description]="p.fornecedorServico ? 'Enviado para ' + p.fornecedorServico + '.' : undefined"></geo-select>
+                <geo-datepicker label="Voltou em" [(value)]="quandoEtapa" [maxDate]="agora" [showTime]="true" description="Vazio: agora."></geo-datepicker>
               </div>
               <div class="etapa__botoes">
-                <ces-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></ces-button>
-                <ces-button icon="pi pi-check" label="Registrar retorno" [disabled]="!almoxarifadoEtapa() || (p.situacao === 'EM_REFORMA' && sulcoEtapa() == null)"
-                  [loading]="gravando()" (pressed)="retornar()"></ces-button>
+                <geo-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></geo-button>
+                <geo-button icon="pi pi-check" label="Registrar retorno" [disabled]="!almoxarifadoEtapa() || (p.situacao === 'EM_REFORMA' && sulcoEtapa() == null)"
+                  [loading]="gravando()" (pressed)="retornar()"></geo-button>
               </div>
             </div>
           }
           @case ('transferir') {
             <div class="etapa" role="group" aria-label="Guardar em outro almoxarifado">
-              <ces-select label="Almoxarifado" [required]="true" [options]="opcoesAlmoxarifado()" [(value)]="almoxarifadoEtapa"></ces-select>
+              <geo-select label="Almoxarifado" [required]="true" [options]="opcoesAlmoxarifado()" [(value)]="almoxarifadoEtapa"></geo-select>
               <div class="etapa__botoes">
-                <ces-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></ces-button>
-                <ces-button icon="pi pi-check" label="Guardar" [disabled]="!almoxarifadoEtapa()" [loading]="gravando()" (pressed)="transferir()"></ces-button>
+                <geo-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></geo-button>
+                <geo-button icon="pi pi-check" label="Guardar" [disabled]="!almoxarifadoEtapa()" [loading]="gravando()" (pressed)="transferir()"></geo-button>
               </div>
             </div>
           }
           @case ('descarte') {
             <div class="etapa" role="group" aria-label="Descartar pneu">
-              <ces-textarea label="Motivo do descarte" [required]="true" [(value)]="observacaoEtapa" [rows]="2" [maxlength]="300"
-                placeholder="Ex.: carcaça sem condição de reforma" description="O descarte tira o pneu da frota de vez e não pode ser desfeito."></ces-textarea>
+              <geo-textarea label="Motivo do descarte" [required]="true" [(value)]="observacaoEtapa" [rows]="2" [maxlength]="300"
+                placeholder="Ex.: carcaça sem condição de reforma" description="O descarte tira o pneu da frota de vez e não pode ser desfeito."></geo-textarea>
               <div class="etapa__botoes">
-                <ces-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></ces-button>
-                <ces-button variant="destructive" icon="pi pi-trash" label="Descartar pneu" [disabled]="observacaoEtapa().trim().length < 3" [loading]="gravando()" (pressed)="descartar()"></ces-button>
+                <geo-button variant="ghost" label="Voltar" (pressed)="etapa.set(null)"></geo-button>
+                <geo-button variant="destructive" icon="pi pi-trash" label="Descartar pneu" [disabled]="observacaoEtapa().trim().length < 3" [loading]="gravando()" (pressed)="descartar()"></geo-button>
               </div>
             </div>
           }
         }
 
-        <ces-form-section title="Linha do tempo" icon="pi pi-history">
+        <geo-form-section title="Linha do tempo" icon="pi pi-history">
           @if (carregandoHistorico()) {
             <span class="evento__detalhe" aria-busy="true"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Carregando…</span>
           } @else {
@@ -206,86 +206,86 @@ const VELOCIDADES = ['F', 'G', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
             </ol>
             @if (historico().length > limiteHistorico) {
               <div>
-                <ces-button size="sm" variant="ghost" [icon]="historicoCompleto() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
-                  [label]="historicoCompleto() ? 'Ver menos' : 'Ver os ' + historico().length + ' registros'" (pressed)="historicoCompleto.set(!historicoCompleto())"></ces-button>
+                <geo-button size="sm" variant="ghost" [icon]="historicoCompleto() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+                  [label]="historicoCompleto() ? 'Ver menos' : 'Ver os ' + historico().length + ' registros'" (pressed)="historicoCompleto.set(!historicoCompleto())"></geo-button>
               </div>
             }
           }
-        </ces-form-section>
+        </geo-form-section>
       }
 
-      <ces-form-section title="Identificação" icon="pi pi-tag">
-        <div class="ces-form-grid">
-          <ces-text-input label="Marca de fogo" [required]="true" [(value)]="marcaFogo" [maxlength]="30" [disabled]="!editavel()" [error]="erro('marcaFogo')"
-            description="Número gravado no pneu pela empresa."></ces-text-input>
-          <ces-text-input label="Número de série" [(value)]="numeroSerie" [maxlength]="60" [showOptional]="true" [disabled]="!editavel()"></ces-text-input>
-          <ces-select label="Marca" [required]="true" [options]="opcoesMarca()" [(value)]="marca" [filter]="true" [disabled]="!editavel()"
-            [error]="marca() === outra ? undefined : erro('marca')" placeholder="Ex.: Goodyear"></ces-select>
+      <geo-form-section title="Identificação" icon="pi pi-tag">
+        <div class="geo-form-grid">
+          <geo-text-input label="Marca de fogo" [required]="true" [(value)]="marcaFogo" [maxlength]="30" [disabled]="!editavel()" [error]="erro('marcaFogo')"
+            description="Número gravado no pneu pela empresa."></geo-text-input>
+          <geo-text-input label="Número de série" [(value)]="numeroSerie" [maxlength]="60" [showOptional]="true" [disabled]="!editavel()"></geo-text-input>
+          <geo-select label="Marca" [required]="true" [options]="opcoesMarca()" [(value)]="marca" [filter]="true" [disabled]="!editavel()"
+            [error]="marca() === outra ? undefined : erro('marca')" placeholder="Ex.: Goodyear"></geo-select>
           @if (marca() === outra) {
-            <ces-text-input label="Nome da marca" [required]="true" [(value)]="marcaOutra" [maxlength]="60" [disabled]="!editavel()" [error]="erro('marca')"></ces-text-input>
+            <geo-text-input label="Nome da marca" [required]="true" [(value)]="marcaOutra" [maxlength]="60" [disabled]="!editavel()" [error]="erro('marca')"></geo-text-input>
           }
-          <ces-text-input label="Modelo" [(value)]="modelo" [maxlength]="80" [showOptional]="true" [disabled]="!editavel()" placeholder="Ex.: G686 MSS"></ces-text-input>
+          <geo-text-input label="Modelo" [(value)]="modelo" [maxlength]="80" [showOptional]="true" [disabled]="!editavel()" placeholder="Ex.: G686 MSS"></geo-text-input>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Medida e características" icon="pi pi-cog">
-        <div class="ces-form-grid">
-          <ces-number-input label="Largura (mm)" [(value)]="largura" [min]="100" [max]="500" [useGrouping]="false" [showOptional]="true" [disabled]="!editavel()" placeholder="295"></ces-number-input>
-          <ces-number-input label="Perfil (%)" [(value)]="perfil" [min]="10" [max]="120" [showOptional]="true" [disabled]="!editavel()" placeholder="80"></ces-number-input>
-          <ces-text-input label="Aro" [(value)]="aro" [maxlength]="10" [showOptional]="true" [disabled]="!editavel()" placeholder="22.5"></ces-text-input>
-          <ces-text-input label="Índice de carga" [(value)]="indiceCarga" [maxlength]="10" [showOptional]="true" [disabled]="!editavel()" placeholder="152/148"></ces-text-input>
-          <ces-select label="Índice de velocidade" [options]="velocidades" [(value)]="indiceVelocidade" [clearable]="true" [showOptional]="true" [disabled]="!editavel()"></ces-select>
-          <ces-number-input label="Lonas" [(value)]="lonas" [min]="1" [max]="40" [showOptional]="true" [disabled]="!editavel()"></ces-number-input>
-          <ces-text-input label="DOT (semana e ano)" [(value)]="dot" [maxlength]="4" [showOptional]="true" [disabled]="!editavel()" placeholder="2324"
-            [error]="erro('dot')"></ces-text-input>
-          <ces-number-input label="Pressão (psi)" [(value)]="pressao" [min]="1" [max]="200" [showOptional]="true" [disabled]="!editavel()"
-            description="A recomendada. Base do alerta de calibragem (±10%)."></ces-number-input>
+      <geo-form-section title="Medida e características" icon="pi pi-cog">
+        <div class="geo-form-grid">
+          <geo-number-input label="Largura (mm)" [(value)]="largura" [min]="100" [max]="500" [useGrouping]="false" [showOptional]="true" [disabled]="!editavel()" placeholder="295"></geo-number-input>
+          <geo-number-input label="Perfil (%)" [(value)]="perfil" [min]="10" [max]="120" [showOptional]="true" [disabled]="!editavel()" placeholder="80"></geo-number-input>
+          <geo-text-input label="Aro" [(value)]="aro" [maxlength]="10" [showOptional]="true" [disabled]="!editavel()" placeholder="22.5"></geo-text-input>
+          <geo-text-input label="Índice de carga" [(value)]="indiceCarga" [maxlength]="10" [showOptional]="true" [disabled]="!editavel()" placeholder="152/148"></geo-text-input>
+          <geo-select label="Índice de velocidade" [options]="velocidades" [(value)]="indiceVelocidade" [clearable]="true" [showOptional]="true" [disabled]="!editavel()"></geo-select>
+          <geo-number-input label="Lonas" [(value)]="lonas" [min]="1" [max]="40" [showOptional]="true" [disabled]="!editavel()"></geo-number-input>
+          <geo-text-input label="DOT (semana e ano)" [(value)]="dot" [maxlength]="4" [showOptional]="true" [disabled]="!editavel()" placeholder="2324"
+            [error]="erro('dot')"></geo-text-input>
+          <geo-number-input label="Pressão (psi)" [(value)]="pressao" [min]="1" [max]="200" [showOptional]="true" [disabled]="!editavel()"
+            description="A recomendada. Base do alerta de calibragem (±10%)."></geo-number-input>
         </div>
-        <div class="ces-form-grid">
-          <ces-boolean-control label="Radial" [(value)]="radial" [disabled]="!editavel()"></ces-boolean-control>
-          <ces-boolean-control label="Com câmara" [(value)]="comCamara" [disabled]="!editavel()"></ces-boolean-control>
+        <div class="geo-form-grid">
+          <geo-boolean-control label="Radial" [(value)]="radial" [disabled]="!editavel()"></geo-boolean-control>
+          <geo-boolean-control label="Com câmara" [(value)]="comCamara" [disabled]="!editavel()"></geo-boolean-control>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Compra" icon="pi pi-shopping-cart">
-        <div class="ces-form-grid">
-          <ces-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedor" [filter]="true" [clearable]="true" [showOptional]="true" [disabled]="!editavel()"></ces-select>
-          <ces-text-input label="Nota fiscal" [(value)]="notaFiscal" [maxlength]="60" [showOptional]="true" [disabled]="!editavel()"></ces-text-input>
-          <ces-datepicker label="Data da compra" [(value)]="dataCompra" [maxDate]="agora" [showOptional]="true" [disabled]="!editavel()"></ces-datepicker>
-          <ces-number-input label="Valor de compra" mode="currency" [(value)]="valorCompra" [min]="0" [showOptional]="true" [disabled]="!editavel()"
-            description="Entra no custo por km."></ces-number-input>
+      <geo-form-section title="Compra" icon="pi pi-shopping-cart">
+        <div class="geo-form-grid">
+          <geo-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="fornecedor" [filter]="true" [clearable]="true" [showOptional]="true" [disabled]="!editavel()"></geo-select>
+          <geo-text-input label="Nota fiscal" [(value)]="notaFiscal" [maxlength]="60" [showOptional]="true" [disabled]="!editavel()"></geo-text-input>
+          <geo-datepicker label="Data da compra" [(value)]="dataCompra" [maxDate]="agora" [showOptional]="true" [disabled]="!editavel()"></geo-datepicker>
+          <geo-number-input label="Valor de compra" mode="currency" [(value)]="valorCompra" [min]="0" [showOptional]="true" [disabled]="!editavel()"
+            description="Entra no custo por km."></geo-number-input>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
       @if (!pneu()) {
-        <ces-form-section title="Situação na entrada" icon="pi pi-box">
-          <div class="ces-form-grid">
-            <ces-select label="Almoxarifado" [required]="true" [options]="opcoesAlmoxarifado()" [(value)]="idEstoque" [error]="erro('idEstoque')"
-              [description]="opcoesAlmoxarifado().length ? undefined : 'Cadastre um almoxarifado em Frota › Estoque da oficina.'"></ces-select>
-            <ces-number-input label="Sulco inicial (mm)" [(value)]="sulcoInicial" [min]="0" [max]="40" [minFractionDigits]="1" [maxFractionDigits]="1" [showOptional]="true"></ces-number-input>
-            <ces-select label="Vida do pneu" [options]="vidas" [(value)]="vida"></ces-select>
-            <ces-number-input label="Km já rodado nesta vida" [(value)]="kmVida" [min]="0" [showOptional]="true" description="Para pneu usado ou vindo de outro sistema."></ces-number-input>
+        <geo-form-section title="Situação na entrada" icon="pi pi-box">
+          <div class="geo-form-grid">
+            <geo-select label="Almoxarifado" [required]="true" [options]="opcoesAlmoxarifado()" [(value)]="idEstoque" [error]="erro('idEstoque')"
+              [description]="opcoesAlmoxarifado().length ? undefined : 'Cadastre um almoxarifado em Frota › Estoque da oficina.'"></geo-select>
+            <geo-number-input label="Sulco inicial (mm)" [(value)]="sulcoInicial" [min]="0" [max]="40" [minFractionDigits]="1" [maxFractionDigits]="1" [showOptional]="true"></geo-number-input>
+            <geo-select label="Vida do pneu" [options]="vidas" [(value)]="vida"></geo-select>
+            <geo-number-input label="Km já rodado nesta vida" [(value)]="kmVida" [min]="0" [showOptional]="true" description="Para pneu usado ou vindo de outro sistema."></geo-number-input>
           </div>
-        </ces-form-section>
+        </geo-form-section>
       }
 
-      <ces-form-section title="Observação" icon="pi pi-comment">
-        <ces-textarea label="Observação" [labelVisible]="false" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true" [disabled]="!editavel()"></ces-textarea>
-      </ces-form-section>
+      <geo-form-section title="Observação" icon="pi pi-comment">
+        <geo-textarea label="Observação" [labelVisible]="false" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true" [disabled]="!editavel()"></geo-textarea>
+      </geo-form-section>
 
       @if (editavel()) {
-        <ces-form-actions drawer-footer [submitLabel]="pneu() ? 'Salvar' : 'Cadastrar pneu'" savingLabel="Salvando…" [saving]="salvando()" [saveAndNew]="!pneu()"
-          [cancelLabel]="alterado() ? 'Cancelar' : 'Fechar'" (save)="salvar()" (saveAndNewClick)="salvar(true)" (cancel)="drawer.requestClose()"></ces-form-actions>
+        <geo-form-actions drawer-footer [submitLabel]="pneu() ? 'Salvar' : 'Cadastrar pneu'" savingLabel="Salvando…" [saving]="salvando()" [saveAndNew]="!pneu()"
+          [cancelLabel]="alterado() ? 'Cancelar' : 'Fechar'" (save)="salvar()" (saveAndNewClick)="salvar(true)" (cancel)="drawer.requestClose()"></geo-form-actions>
       } @else {
-        <ces-form-actions drawer-footer [shortcut]="false" [showCancel]="false" submitLabel="Fechar" submitIcon="" (save)="drawer.requestClose()"></ces-form-actions>
+        <geo-form-actions drawer-footer [shortcut]="false" [showCancel]="false" submitLabel="Fechar" submitIcon="" (save)="drawer.requestClose()"></geo-form-actions>
       }
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaPneuDrawerComponent {
   private readonly servico = inject(FrotaPneuService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly drawer = viewChild(CesFormDrawerComponent);
+  private readonly drawer = viewChild(GeoFormDrawerComponent);
 
   readonly visivel = model(false);
   readonly pneu = input<Pneu | null>(null);
@@ -304,7 +304,7 @@ export class FrotaPneuDrawerComponent {
   protected readonly velocidades = VELOCIDADES;
   protected readonly vidas = VIDAS;
   protected readonly limiteHistorico = 6;
-  protected readonly destinosEnvio: CesSelectOption<'REPARO' | 'REFORMA'>[] = [
+  protected readonly destinosEnvio: GeoSelectOption<'REPARO' | 'REFORMA'>[] = [
     { label: 'Reparo (conserto)', value: 'REPARO' },
     { label: 'Reforma (recapagem)', value: 'REFORMA' }
   ];
@@ -358,10 +358,10 @@ export class FrotaPneuDrawerComponent {
   protected readonly observacaoEtapa = signal('');
 
   protected readonly editavel = computed(() => this.podeEditar() && this.pneu()?.situacao !== 'DESCARTADO');
-  protected readonly opcoesFornecedor = computed<CesSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nome, value: f.id })));
-  protected readonly opcoesAlmoxarifado = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesFornecedor = computed<GeoSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nome, value: f.id })));
+  protected readonly opcoesAlmoxarifado = computed<GeoSelectOption<string>[]>(() =>
     this.almoxarifados().filter((a) => a.ativo).map((a) => ({ label: a.baseOperacional ? `${a.nome} · ${a.baseOperacional}` : a.nome, value: a.id })));
-  protected readonly opcoesMarca = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesMarca = computed<GeoSelectOption<string>[]>(() => {
     const lista = new Set([...this.marcas(), 'Bridgestone', 'Continental', 'Firestone', 'Goodyear', 'Michelin', 'Pirelli', 'XBRI']);
     return [...[...lista].sort((a, b) => a.localeCompare(b, 'pt-BR')).map((m) => ({ label: m, value: m })), { label: 'Outra marca…', value: OUTRA }];
   });

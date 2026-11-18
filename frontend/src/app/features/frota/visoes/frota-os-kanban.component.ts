@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { CesAsyncStateComponent, CesTone, NotificationService } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoTone, NotificationService } from '@geo/ui';
 import { Observable, catchError, forkJoin, map, of, switchMap, tap } from 'rxjs';
 
 import {
@@ -30,7 +30,7 @@ interface ColunaDef {
   titulo: string;
   subtitulo: string;
   icon: string;
-  tone: CesTone;
+  tone: GeoTone;
   situacao: SituacaoOrdemServico;
   ordem: string;
   limite: number;
@@ -61,8 +61,8 @@ const COLUNAS: readonly ColunaDef[] = [
   }
 ];
 
-const CHAVE_RECOLHIDOS = 'ces_kanban_frota_os_grupos_recolhidos';
-const CHAVE_AGRUPAMENTO = 'ces_kanban_frota_os_agrupamento';
+const CHAVE_RECOLHIDOS = 'geo_kanban_frota_os_grupos_recolhidos';
+const CHAVE_AGRUPAMENTO = 'geo_kanban_frota_os_agrupamento';
 
 interface Faixa {
   coluna: ColunaQuadroOs;
@@ -71,7 +71,7 @@ interface Faixa {
 }
 
 /** Tons do quadro: os do design system e as cores de criticidade (vermelho, laranja, amarelo, verde). */
-type TomGrupo = CesTone | 'crit-urgente' | 'crit-alta' | 'crit-media' | 'crit-baixa';
+type TomGrupo = GeoTone | 'crit-urgente' | 'crit-alta' | 'crit-media' | 'crit-baixa';
 
 const TOM_GRUPO_CRITICIDADE: Record<Criticidade, TomGrupo> = {
   URGENTE: 'crit-urgente',
@@ -100,7 +100,7 @@ interface ColunaVisivel {
 interface AcaoSoltar {
   texto: string;
   icon: string;
-  tone: CesTone;
+  tone: GeoTone;
   acao: 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'REABRIR';
 }
 
@@ -113,7 +113,7 @@ interface AcaoSoltar {
   selector: 'app-frota-os-kanban',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, FrotaOsKanbanCardComponent, FrotaOrdemServicoEtapaComponent, FrotaOrdemServicoConclusaoComponent, FrotaJustificativaDrawerComponent],
+  imports: [GeoAsyncStateComponent, FrotaOsKanbanCardComponent, FrotaOrdemServicoEtapaComponent, FrotaOrdemServicoConclusaoComponent, FrotaJustificativaDrawerComponent],
   styleUrl: './frota-os-kanban.component.css',
   template: `
     <div class="kb-bar">
@@ -142,7 +142,7 @@ interface AcaoSoltar {
     <p class="kb-sr" aria-live="polite">{{ anuncio() }}</p>
 
     @if (erro()) {
-      <ces-async-state state="error" title="Não foi possível carregar o quadro" [description]="erro()!" actionLabel="Tentar novamente" (action)="recarregar()" />
+      <geo-async-state state="error" title="Não foi possível carregar o quadro" [description]="erro()!" actionLabel="Tentar novamente" (action)="recarregar()" />
     } @else if (!faixas()) {
       <div class="kb-board" aria-busy="true" aria-label="Carregando o quadro">
         @for (c of [1, 2, 3, 4]; track c) {
@@ -638,7 +638,7 @@ function porTexto(itens: OrdemServico[], chave: (o: OrdemServico) => string): Gr
   for (const o of itens) grupos.set(chave(o), [...(grupos.get(chave(o)) ?? []), o]);
   return [...grupos]
     .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'pt-BR'))
-    .map(([nome, lista]) => ({ id: nome, label: nome, tone: 'neutral' as CesTone, itens: lista, total: lista.length }));
+    .map(([nome, lista]) => ({ id: nome, label: nome, tone: 'neutral' as GeoTone, itens: lista, total: lista.length }));
 }
 
 function salvar(chave: string, valor: string): void {

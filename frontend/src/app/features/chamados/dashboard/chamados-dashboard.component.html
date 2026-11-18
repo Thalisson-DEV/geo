@@ -1,7 +1,7 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Dashboard de chamados" icon="pi pi-chart-bar"
+    <geo-page-header title="Dashboard de chamados" icon="pi pi-chart-bar"
       [breadcrumb]="[{ label: 'Chamados' }, { label: 'Relatórios' }, { label: 'Dashboard de chamados' }]"
       description="O que pede ação na fila agora, cumprimento de SLA e tempo de atendimento. Cada número abre a análise ou a fila com o mesmo recorte.">
       @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
@@ -10,42 +10,42 @@
       } @else if (carga(); as c) {
         <span actions class="dash-updated">Atualizado às {{ c.em | date: 'HH:mm' }}</span>
       }
-      <ces-button actions label="Fila de chamados" icon="pi pi-list" variant="secondary" (pressed)="abrirFila()"></ces-button>
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="lista.reload()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Fila de chamados" icon="pi pi-list" variant="secondary" (pressed)="abrirFila()"></geo-button>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="lista.reload()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel #painel storageKey="chamados-dashboard" [activeCount]="lista.activeCount()" [summary]="lista.summary()" [loading]="carregando()"
+    <geo-filter-panel #painel storageKey="chamados-dashboard" [activeCount]="lista.activeCount()" [summary]="lista.summary()" [loading]="carregando()"
       (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="removerFiltro($any($event))">
-      <div class="ces-filter-grid">
-        <ces-datepicker label="Abertos a partir de" inputId="cd-inicio" [value]="dataLocal(lista.filters.periodo().from)"
-          [maxDate]="dataLocal(lista.filters.periodo().to)" (valueChange)="definirPeriodo('from', $any($event))"></ces-datepicker>
-        <ces-datepicker label="Abertos até" inputId="cd-fim" [value]="dataLocal(lista.filters.periodo().to)"
-          [minDate]="dataLocal(lista.filters.periodo().from)" (valueChange)="definirPeriodo('to', $any($event))"></ces-datepicker>
-        <ces-multiselect label="Tópico" inputId="cd-topico" placeholder="Todos" [options]="topicoOpcoes()" [(value)]="lista.filters.topico"></ces-multiselect>
-        <ces-multiselect label="Equipe" inputId="cd-equipe" placeholder="Todas" [options]="equipeOpcoes()" [(value)]="lista.filters.equipe"></ces-multiselect>
-        <ces-multiselect label="Prioridade" inputId="cd-prioridade" placeholder="Todas" [filter]="false" [options]="$any(prioridadeOpcoes)" [(value)]="lista.filters.prioridade"></ces-multiselect>
-        <ces-multiselect label="Status" inputId="cd-status" placeholder="Todos" [filter]="false" [options]="$any(statusOpcoes)" [(value)]="lista.filters.status"></ces-multiselect>
-        <ces-select label="Prazo" inputId="cd-sla" [options]="slaOpcoes" [(value)]="lista.filters.sla"></ces-select>
+      <div class="geo-filter-grid">
+        <geo-datepicker label="Abertos a partir de" inputId="cd-inicio" [value]="dataLocal(lista.filters.periodo().from)"
+          [maxDate]="dataLocal(lista.filters.periodo().to)" (valueChange)="definirPeriodo('from', $any($event))"></geo-datepicker>
+        <geo-datepicker label="Abertos até" inputId="cd-fim" [value]="dataLocal(lista.filters.periodo().to)"
+          [minDate]="dataLocal(lista.filters.periodo().from)" (valueChange)="definirPeriodo('to', $any($event))"></geo-datepicker>
+        <geo-multiselect label="Tópico" inputId="cd-topico" placeholder="Todos" [options]="topicoOpcoes()" [(value)]="lista.filters.topico"></geo-multiselect>
+        <geo-multiselect label="Equipe" inputId="cd-equipe" placeholder="Todas" [options]="equipeOpcoes()" [(value)]="lista.filters.equipe"></geo-multiselect>
+        <geo-multiselect label="Prioridade" inputId="cd-prioridade" placeholder="Todas" [filter]="false" [options]="$any(prioridadeOpcoes)" [(value)]="lista.filters.prioridade"></geo-multiselect>
+        <geo-multiselect label="Status" inputId="cd-status" placeholder="Todos" [filter]="false" [options]="$any(statusOpcoes)" [(value)]="lista.filters.status"></geo-multiselect>
+        <geo-select label="Prazo" inputId="cd-sla" [options]="slaOpcoes" [(value)]="lista.filters.sla"></geo-select>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     @if (carregando() && !carga()) {
-      <ces-async-state state="loading" title="Lendo os chamados" description="Indicadores do período e a fila em aberto agora."></ces-async-state>
+      <geo-async-state state="loading" title="Lendo os chamados" description="Indicadores do período e a fila em aberto agora."></geo-async-state>
     } @else if (erro() && !carga()) {
-      <ces-async-state state="error" title="Não foi possível carregar o dashboard" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="lista.reload()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível carregar o dashboard" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="lista.reload()"></geo-async-state>
     } @else if (d(); as d) {
       @if (erro()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</geo-callout>
       }
       @if (!fila()) {
-        <ces-callout tone="info" icon="pi pi-info-circle" title="A fila em aberto não pôde ser lida">
+        <geo-callout tone="info" icon="pi pi-info-circle" title="A fila em aberto não pôde ser lida">
           Os indicadores do período estão corretos; a lista do que pede ação ficou indisponível e os cartões de fila usam o resumo do servidor.
-        </ces-callout>
+        </geo-callout>
       } @else if (fila()!.truncado) {
-        <ces-callout tone="info" icon="pi pi-info-circle" title="Fila muito grande">
+        <geo-callout tone="info" icon="pi pi-info-circle" title="Fila muito grande">
           Foram lidos os {{ inteiro(fila()!.linhas.length) }} chamados com o prazo mais próximo. Filtre por equipe ou tópico para ver todos.
-        </ces-callout>
+        </geo-callout>
       }
 
       @if (visao(); as vg) {
@@ -54,9 +54,9 @@
       }
 
       @if (semDados()) {
-        <ces-async-state state="empty" title="Nenhum chamado neste recorte" description="Não há chamados abertos no período nem pendentes na fila. Amplie o período ou retire filtros."
+        <geo-async-state state="empty" title="Nenhum chamado neste recorte" description="Não há chamados abertos no período nem pendentes na fila. Amplie o período ou retire filtros."
           actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="lista.reset()"
-          secondaryActionLabel="Ajustar filtros" secondaryActionIcon="pi pi-sliders-h" (secondaryAction)="painel.expandAndFocus()"></ces-async-state>
+          secondaryActionLabel="Ajustar filtros" secondaryActionIcon="pi pi-sliders-h" (secondaryAction)="painel.expandAndFocus()"></geo-async-state>
       } @else {
         <section class="dash-metrics" aria-label="Volume e desfecho do período">
           <app-dashboard-metric-card label="Chamados no período" icon="pi-ticket" tone="primary" [value]="inteiro(d.totalChamados)"
@@ -96,27 +96,27 @@
             <h2 id="cd-agir">Chamados que pedem ação</h2>
             <p>Em aberto agora, de qualquer data de abertura: SLA estourado, 1ª resposta vencida, vencendo nas próximas 24 h, sem responsável ou parados. O mais grave primeiro; abra a linha para ir ao chamado.</p>
           </header>
-          <ces-data-table title="Pede ação" storageKey="cd-pede-acao" exportFileName="chamados-pede-acao" [columns]="colAcao" [rows]="acao()"
+          <geo-data-table title="Pede ação" storageKey="cd-pede-acao" exportFileName="chamados-pede-acao" [columns]="colAcao" [rows]="acao()"
             [rowKey]="chaveLinha" [rowLabel]="rotuloLinha" searchPlaceholder="Filtrar protocolo, assunto, equipe ou responsável"
             rowActionLabel="Abrir o chamado" (rowActivate)="abrirChamado($event)"
             [state]="!fila() ? 'error' : acao().length ? 'ready' : 'empty'"
             [stateTitle]="!fila() ? 'Não foi possível ler a fila em aberto' : 'Nada pede ação agora'"
             [stateDescription]="!fila() ? 'Tente atualizar o dashboard.' : 'Nenhum chamado em aberto com prazo estourado ou a vencer, sem responsável ou parado.'">
-            <ng-template cesCell="situacao" let-l>
+            <ng-template geoCell="situacao" let-l>
               <span class="cd-motivos">
-                <ces-status [tone]="principal(l).tom" [icon]="principal(l).icone">{{ principal(l).curto }}</ces-status>
+                <geo-status [tone]="principal(l).tom" [icon]="principal(l).icone">{{ principal(l).curto }}</geo-status>
                 @if (extras(l) > 0) { <span class="cd-mudo">+{{ extras(l) }}</span> }
               </span>
             </ng-template>
-            <ng-template cesCell="prioridade" let-l>
-              <ces-status [tone]="tomPrioridade(l)" emphasis="outline" icon="pi-flag">{{ rotuloPrioridade(l) }}</ces-status>
+            <ng-template geoCell="prioridade" let-l>
+              <geo-status [tone]="tomPrioridade(l)" emphasis="outline" icon="pi-flag">{{ rotuloPrioridade(l) }}</geo-status>
             </ng-template>
-            <ng-template cesCell="prazo" let-l>
+            <ng-template geoCell="prazo" let-l>
               @if (vencido(l)) {
-                <ces-status tone="danger" emphasis="outline" icon="pi pi-history">{{ prazo(l) }}</ces-status>
+                <geo-status tone="danger" emphasis="outline" icon="pi pi-history">{{ prazo(l) }}</geo-status>
               } @else { <span>{{ prazo(l) }}</span> }
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </section>
 
         <section class="dash-grid cd-espaco" aria-label="Fluxo do período">
@@ -130,9 +130,9 @@
                 </div>
                 <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'fluxo', rotulo: 'Abertura e resolução no período' }" />
               </header>
-              <ces-chart kind="line" title="Abertura e resolução no período" [showTitle]="false" [selectable]="true" selectLabel="Analisar o período"
+              <geo-chart kind="line" title="Abertura e resolução no período" [showTitle]="false" [selectable]="true" selectLabel="Analisar o período"
                 [labels]="fx.rotulos" [series]="fx.series" valueFormat="integer" [height]="300" yAxisLabel="Chamados"
-                (pointSelect)="selecionar(fx.chaves, $event.index, 'periodo')"></ces-chart>
+                (pointSelect)="selecionar(fx.chaves, $event.index, 'periodo')"></geo-chart>
             </article>
           }
           @if (status(); as st) {
@@ -144,9 +144,9 @@
                   <p>Status atual de cada chamado aberto no período. Clique num status.</p>
                 </div>
               </header>
-              <ces-chart kind="bar-horizontal" title="Chamados do período por status" [showTitle]="false" [selectable]="true" selectLabel="Analisar o status"
+              <geo-chart kind="bar-horizontal" title="Chamados do período por status" [showTitle]="false" [selectable]="true" selectLabel="Analisar o status"
                 [labels]="st.rotulos" [series]="st.series" valueFormat="integer" [height]="300"
-                (pointSelect)="selecionar(st.chaves, $event.index, 'status')"></ces-chart>
+                (pointSelect)="selecionar(st.chaves, $event.index, 'status')"></geo-chart>
             </article>
           }
         </section>
@@ -162,9 +162,9 @@
                 </div>
                 <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'idade', rotulo: 'Fila em aberto por tempo desde a abertura' }" />
               </header>
-              <ces-chart kind="bar-stacked" title="Fila em aberto por tempo desde a abertura" [showTitle]="false" [selectable]="true" selectLabel="Analisar a faixa"
+              <geo-chart kind="bar-stacked" title="Fila em aberto por tempo desde a abertura" [showTitle]="false" [selectable]="true" selectLabel="Analisar a faixa"
                 [labels]="id.rotulos" [series]="id.series" valueFormat="integer" [height]="300" yAxisLabel="Chamados em aberto"
-                (pointSelect)="selecionar(id.chaves, $event.index, 'idade')"></ces-chart>
+                (pointSelect)="selecionar(id.chaves, $event.index, 'idade')"></geo-chart>
             </article>
           }
           @if (prioridade(); as pr) {
@@ -176,9 +176,9 @@
                   <p>Chamados por prioridade no período e no período anterior de mesma duração. Clique numa prioridade.</p>
                 </div>
               </header>
-              <ces-chart kind="bar" title="Chamados por prioridade, atual e anterior" [showTitle]="false" [selectable]="true" selectLabel="Analisar a prioridade"
+              <geo-chart kind="bar" title="Chamados por prioridade, atual e anterior" [showTitle]="false" [selectable]="true" selectLabel="Analisar a prioridade"
                 [labels]="pr.rotulos" [series]="pr.series" valueFormat="integer" [height]="300"
-                (pointSelect)="selecionar(pr.chaves, $event.index, 'prioridade')"></ces-chart>
+                (pointSelect)="selecionar(pr.chaves, $event.index, 'prioridade')"></geo-chart>
             </article>
           }
         </section>
@@ -189,9 +189,9 @@
             <h2 id="cd-desempenho">Quem atende e o que mais chega</h2>
             <p>Chamados do período por tópico, equipe ou atendente: resolvidos, em aberto e cancelados, com o SLA de cada um. Clique numa barra ou numa linha para analisar.</p>
           </header>
-          <ces-tabs [tabs]="abasDimensao" [value]="dimensao()" (valueChange)="dimensao.set($any($event) ?? 'topico')" ariaLabel="Agrupar o desempenho por">
+          <geo-tabs [tabs]="abasDimensao" [value]="dimensao()" (valueChange)="dimensao.set($any($event) ?? 'topico')" ariaLabel="Agrupar o desempenho por">
             @for (aba of abasDimensao; track aba.value) {
-              <ng-template [cesTabPanel]="aba.value">
+              <ng-template [geoTabPanel]="aba.value">
                 <div class="dash-grid cd-aba">
                   <article class="dash-panel dash-col-5">
                     <header class="dash-panel__header">
@@ -201,23 +201,23 @@
                       </div>
                       <app-copiloto-perguntar [foco]="{ tipo: 'tabela', id: 'desempenho.' + dimensao(), rotulo: 'Desempenho por ' + dimensoes[dimensao()].singular.toLowerCase() }" />
                     </header>
-                    <ces-chart kind="bar-horizontal" [title]="'Chamados por ' + dimensoes[dimensao()].singular.toLowerCase()" [showTitle]="false"
+                    <geo-chart kind="bar-horizontal" [title]="'Chamados por ' + dimensoes[dimensao()].singular.toLowerCase()" [showTitle]="false"
                       [selectable]="true" [selectLabel]="'Analisar ' + dimensoes[dimensao()].singular.toLowerCase()"
                       [labels]="graficoDimensao().rotulos" [series]="graficoDimensao().series" valueFormat="integer"
                       [height]="Math.max(220, graficoDimensao().chaves.length * 36)"
-                      (pointSelect)="selecionar(graficoDimensao().chaves, $event.index, dimensao())"></ces-chart>
+                      (pointSelect)="selecionar(graficoDimensao().chaves, $event.index, dimensao())"></geo-chart>
                   </article>
                   <div class="dash-col-7">
-                    <ces-data-table [title]="dimensoes[dimensao()].rotulo" [storageKey]="'cd-ranking-' + dimensao()" [exportFileName]="'chamados-por-' + dimensao()"
+                    <geo-data-table [title]="dimensoes[dimensao()].rotulo" [storageKey]="'cd-ranking-' + dimensao()" [exportFileName]="'chamados-por-' + dimensao()"
                       [columns]="colRanking()" [rows]="linhasRanking()" [rowKey]="chaveRanking" [rowLabel]="rotuloRanking"
                       [searchPlaceholder]="'Filtrar ' + dimensoes[dimensao()].singular.toLowerCase()" rowActionLabel="Analisar"
                       (rowActivate)="analisar(dimensao(), $event.chave)"
-                      [state]="linhasRanking().length ? 'ready' : 'empty'" stateTitle="Nada com chamados no período"></ces-data-table>
+                      [state]="linhasRanking().length ? 'ready' : 'empty'" stateTitle="Nada com chamados no período"></geo-data-table>
                   </div>
                 </div>
               </ng-template>
             }
-          </ces-tabs>
+          </geo-tabs>
         </section>
 
         <section class="cd-secao" aria-labelledby="cd-solicitantes">
@@ -226,10 +226,10 @@
             <h2 id="cd-solicitantes">Quem mais abre chamados</h2>
             <p>Os 10 usuários com mais chamados no período. Muita demanda de uma só pessoa pode indicar um problema recorrente. Abra a linha para ver os chamados.</p>
           </header>
-          <ces-data-table title="Solicitantes" storageKey="cd-solicitantes" exportFileName="chamados-solicitantes" [columns]="colSolicitantes"
+          <geo-data-table title="Solicitantes" storageKey="cd-solicitantes" exportFileName="chamados-solicitantes" [columns]="colSolicitantes"
             [rows]="d.rankingSolicitantes" [rowKey]="chaveSolicitante" [searchable]="false" rowActionLabel="Ver os chamados"
             (rowActivate)="analisar('solicitante', $event.id)"
-            [state]="d.rankingSolicitantes.length ? 'ready' : 'empty'" stateTitle="Nenhum solicitante no período"></ces-data-table>
+            [state]="d.rankingSolicitantes.length ? 'ready' : 'empty'" stateTitle="Nenhum solicitante no período"></geo-data-table>
         </section>
       }
     }

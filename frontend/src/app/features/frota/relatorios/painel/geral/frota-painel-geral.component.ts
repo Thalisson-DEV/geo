@@ -2,18 +2,18 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesPageHeaderComponent,
-  CesTone
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoPageHeaderComponent,
+  GeoTone
+} from '@geo/ui';
 import { of } from 'rxjs';
 
 import { FiltroRelatorioFrota } from '../../../../../core/models/frota-relatorios.models';
@@ -43,7 +43,7 @@ interface ItemSituacao {
   id: string;
   rotulo: string;
   valor: string;
-  tom: CesTone;
+  tom: GeoTone;
   painel: string;
   drill: string;
 }
@@ -56,10 +56,10 @@ interface ItemSituacao {
   selector: 'app-frota-painel-geral',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteFrotaService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteFrotaService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent, CesFilterPanelComponent,
-    CesPageHeaderComponent, DashboardMetricCardComponent, DashboardVisaoGerencialComponent, DashboardAnaliseComponent, FrotaPainelTopoComponent,
+    DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent, GeoFilterPanelComponent,
+    GeoPageHeaderComponent, DashboardMetricCardComponent, DashboardVisaoGerencialComponent, DashboardAnaliseComponent, FrotaPainelTopoComponent,
     FrotaRecorteCamposComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
   templateUrl: './frota-painel-geral.component.html',
@@ -75,7 +75,7 @@ export class FrotaPainelGeralComponent extends PainelFrotaBase<boolean> {
   protected readonly numero = numero;
   protected readonly comparacao = comparacao;
   protected readonly limites = LIMITES_FROTA;
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => []);
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => []);
 
   protected readonly modelo = computed<ModeloGeral | null>(() => {
     const g = this.gerencial();
@@ -146,7 +146,7 @@ export class FrotaPainelGeralComponent extends PainelFrotaBase<boolean> {
   protected readonly chaveBase = (b: BaseScore) => b.id;
   protected readonly mesDoGrafico = (x: { mes: string }) => x.mes;
 
-  protected readonly colAtencao: CesDataTableColumn<VeiculoAtencao>[] = [
+  protected readonly colAtencao: GeoDataTableColumn<VeiculoAtencao>[] = [
     { key: 'placa', header: 'Veículo', priority: 1 },
     { key: 'base', header: 'Base', priority: 3, value: (x) => x.v.base ?? '' },
     { key: 'pontos', header: 'Pontos', type: 'integer', priority: 2 },
@@ -167,7 +167,7 @@ export class FrotaPainelGeralComponent extends PainelFrotaBase<boolean> {
     return v < LIMITES_FROTA.preventivaMinima ? 'amber' : v >= LIMITES_FROTA.preventivaBoa ? 'green' : 'primary';
   }
 
-  protected readonly colBases: CesDataTableColumn<BaseScore>[] = [
+  protected readonly colBases: GeoDataTableColumn<BaseScore>[] = [
     { key: 'nome', header: 'Base', priority: 1 },
     { key: 'veiculos', header: 'Veículos', type: 'custom', priority: 2, value: (b) => b.veiculos.length, display: (b) => inteiro(b.veiculos.length) },
     { key: 'custo', header: 'Custo', type: 'currency', priority: 1 },

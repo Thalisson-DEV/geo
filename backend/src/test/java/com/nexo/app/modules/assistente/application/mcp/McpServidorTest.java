@@ -73,7 +73,7 @@ class McpServidorTest {
                 {"jsonrpc":"2.0","id":2,"method":"initialize","params":{"protocolVersion":"2099-01-01"}}""");
 
         assertThat(conhecida.path("result").path("protocolVersion").asText()).isEqualTo("2025-06-18");
-        assertThat(conhecida.path("result").path("serverInfo").path("name").asText()).isEqualTo("ces");
+        assertThat(conhecida.path("result").path("serverInfo").path("name").asText()).isEqualTo("geo");
         assertThat(conhecida.path("result").path("instructions").asText()).contains("Fulano", "somente de consulta");
         assertThat(futura.path("result").path("protocolVersion").asText()).isEqualTo(McpServidor.VERSOES.getFirst());
         verify(conexoes).registrarAplicativo(sessao.acesso().conexaoId(), "claude-ai", "0.1");
@@ -178,8 +178,8 @@ class McpServidorTest {
         JsonNode comEscrita = chamar(servidor(10), sessao(true), corpo).path("result").path("prompts");
 
         assertThat(comEscrita.size()).isEqualTo(soLeitura.size() + 2);
-        assertThat(comEscrita.toString()).contains("cadastrar_no_ces", "aprovar_pendencias");
-        assertThat(soLeitura.toString()).doesNotContain("cadastrar_no_ces", "aprovar_pendencias");
+        assertThat(comEscrita.toString()).contains("cadastrar_no_geo", "aprovar_pendencias");
+        assertThat(soLeitura.toString()).doesNotContain("cadastrar_no_geo", "aprovar_pendencias");
     }
 
     private AgentTool ferramenta(String nome, ToolKind tipo, RiskLevel risco) {

@@ -1,21 +1,21 @@
-<div class="ces-page">
-  <ces-page-header
+<div class="geo-page">
+  <geo-page-header
     title="Conectar sua IA"
     icon="pi pi-link"
     [breadcrumb]="[{ label: 'Bússola' }, { label: 'Conectar sua IA' }]"
     description="Use o GEO dentro do Claude, do ChatGPT ou de outro assistente: pergunte sobre os dados da empresa sem sair da conversa."
   >
-    <ces-button actions variant="outline" icon="pi pi-key" label="Gerar chave de acesso" (pressed)="abrirChave()"></ces-button>
-    <ces-button actions icon="pi pi-plus" label="Conectar uma IA" (pressed)="abrirGuia()"></ces-button>
-  </ces-page-header>
+    <geo-button actions variant="outline" icon="pi pi-key" label="Gerar chave de acesso" (pressed)="abrirChave()"></geo-button>
+    <geo-button actions icon="pi pi-plus" label="Conectar uma IA" (pressed)="abrirGuia()"></geo-button>
+  </geo-page-header>
 
   @if (admin()) {
-    <ces-tabs [tabs]="abas()" [value]="aba()" (valueChange)="trocarAba($any($event))" ariaLabel="Conexões">
-      <ng-template cesTabPanel="minhas">
+    <geo-tabs [tabs]="abas()" [value]="aba()" (valueChange)="trocarAba($any($event))" ariaLabel="Conexões">
+      <ng-template geoTabPanel="minhas">
         <ng-container *ngTemplateOutlet="tabelaMinhas"></ng-container>
       </ng-template>
-      <ng-template cesTabPanel="empresa">
-        <ces-data-table
+      <ng-template geoTabPanel="empresa">
+        <geo-data-table
           title="Conexões da empresa"
           description="Todas as IAs conectadas ao GEO, de todas as pessoas. Desconecte o que não deveria estar ligado."
           storageKey="conexoes-ia-empresa"
@@ -36,43 +36,43 @@
           (clearFilters)="pessoa.set(null)"
           (rowActivate)="abrir($event)"
         >
-          <div table-filters class="ces-quick-filters conexoes-filtros">
-            <ces-select label="Pessoa" [labelVisible]="false" placeholder="Todas as pessoas" [filter]="true" [clearable]="true"
-              [options]="opcoesPessoa()" [(value)]="pessoa"></ces-select>
+          <div table-filters class="geo-quick-filters conexoes-filtros">
+            <geo-select label="Pessoa" [labelVisible]="false" placeholder="Todas as pessoas" [filter]="true" [clearable]="true"
+              [options]="opcoesPessoa()" [(value)]="pessoa"></geo-select>
             @if (desconectadasTodas()) {
-              <button type="button" class="ces-quick-filter" [attr.aria-pressed]="verDesconectadas()" (click)="verDesconectadas.set(!verDesconectadas())">
+              <button type="button" class="geo-quick-filter" [attr.aria-pressed]="verDesconectadas()" (click)="verDesconectadas.set(!verDesconectadas())">
           <i class="pi pi-history" aria-hidden="true"></i>Desconectadas ({{ desconectadasTodas() }})
         </button>
             }
           </div>
-          <ng-template cesCell="usuarioLogin" let-row><span class="ces-cell-strong">{{ row.usuarioLogin }}</span></ng-template>
-          <ng-template cesCell="nome" let-row>
+          <ng-template geoCell="usuarioLogin" let-row><span class="geo-cell-strong">{{ row.usuarioLogin }}</span></ng-template>
+          <ng-template geoCell="nome" let-row>
             <ng-container *ngTemplateOutlet="celulaAplicativo; context: { $implicit: row }"></ng-container>
           </ng-template>
-          <ng-template cesCell="permiteEscrita" let-row>
+          <ng-template geoCell="permiteEscrita" let-row>
             <ng-container *ngTemplateOutlet="celulaPermissao; context: { $implicit: row }"></ng-container>
           </ng-template>
-          <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="sit(row).tom" [icon]="sit(row).icone">{{ sit(row).rotulo }}</ces-status>
+          <ng-template geoCell="situacao" let-row>
+            <geo-status [tone]="sit(row).tom" [icon]="sit(row).icone">{{ sit(row).rotulo }}</geo-status>
           </ng-template>
-          <ng-template cesRowActions let-row>
+          <ng-template geoRowActions let-row>
             @if (row.situacao !== 'DESCONECTADA') {
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-power-off" size="icon-sm" tooltip="Desconectar"
-                [label]="'Desconectar ' + row.nome + ' de ' + row.usuarioLogin" (pressed)="desconectar(row)"></ces-icon-button>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-power-off" size="icon-sm" tooltip="Desconectar"
+                [label]="'Desconectar ' + row.nome + ' de ' + row.usuarioLogin" (pressed)="desconectar(row)"></geo-icon-button>
             </span>
             }
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       </ng-template>
-    </ces-tabs>
+    </geo-tabs>
   } @else {
     <ng-container *ngTemplateOutlet="tabelaMinhas"></ng-container>
   }
 </div>
 
 <ng-template #tabelaMinhas>
-  <ces-data-table
+  <geo-data-table
     title="Suas conexões"
     description="Assistentes que podem usar o GEO com o seu login. Clique numa linha para ver os detalhes."
     storageKey="conexoes-ia-minhas"
@@ -91,38 +91,38 @@
     (rowActivate)="abrir($event)"
   >
     @if (desconectadasMinhas()) {
-      <div table-filters class="ces-quick-filters conexoes-filtros">
-        <button type="button" class="ces-quick-filter" [attr.aria-pressed]="verDesconectadas()" (click)="verDesconectadas.set(!verDesconectadas())">
+      <div table-filters class="geo-quick-filters conexoes-filtros">
+        <button type="button" class="geo-quick-filter" [attr.aria-pressed]="verDesconectadas()" (click)="verDesconectadas.set(!verDesconectadas())">
           <i class="pi pi-history" aria-hidden="true"></i>Desconectadas ({{ desconectadasMinhas() }})
         </button>
       </div>
     }
-    <ng-template cesCell="nome" let-row>
+    <ng-template geoCell="nome" let-row>
       <ng-container *ngTemplateOutlet="celulaAplicativo; context: { $implicit: row }"></ng-container>
     </ng-template>
-    <ng-template cesCell="permiteEscrita" let-row>
+    <ng-template geoCell="permiteEscrita" let-row>
       <ng-container *ngTemplateOutlet="celulaPermissao; context: { $implicit: row }"></ng-container>
     </ng-template>
-    <ng-template cesCell="situacao" let-row>
-      <ces-status [tone]="sit(row).tom" [icon]="sit(row).icone">{{ sit(row).rotulo }}</ces-status>
+    <ng-template geoCell="situacao" let-row>
+      <geo-status [tone]="sit(row).tom" [icon]="sit(row).icone">{{ sit(row).rotulo }}</geo-status>
     </ng-template>
-    <ng-template cesRowActions let-row>
+    <ng-template geoRowActions let-row>
       @if (row.situacao !== 'DESCONECTADA') {
-        <span class="ces-table-actions">
-          <ces-icon-button icon="pi pi-power-off" size="icon-sm" tooltip="Desconectar" [label]="'Desconectar ' + row.nome"
-            (pressed)="desconectar(row)"></ces-icon-button>
+        <span class="geo-table-actions">
+          <geo-icon-button icon="pi pi-power-off" size="icon-sm" tooltip="Desconectar" [label]="'Desconectar ' + row.nome"
+            (pressed)="desconectar(row)"></geo-icon-button>
         </span>
       }
     </ng-template>
-  </ces-data-table>
+  </geo-data-table>
 </ng-template>
 
 <ng-template #celulaAplicativo let-row>
   <span class="conexao-app">
     <span class="conexao-app__icone" aria-hidden="true"><i [class]="icone(row)"></i></span>
     <span class="conexao-app__texto">
-      <span class="ces-cell-strong">{{ row.nome }}</span>
-      <span class="ces-cell-muted">{{ como(row) }}</span>
+      <span class="geo-cell-strong">{{ row.nome }}</span>
+      <span class="geo-cell-muted">{{ como(row) }}</span>
     </span>
   </span>
 </ng-template>
@@ -133,18 +133,18 @@
   </span>
 </ng-template>
 
-<ces-drawer [(visible)]="detalheAberto" [title]="selecionada()?.nome ?? 'Conexão'" eyebrow="Conexão" size="md"
+<geo-drawer [(visible)]="detalheAberto" [title]="selecionada()?.nome ?? 'Conexão'" eyebrow="Conexão" size="md"
   [description]="selecionada() ? como(selecionada()!) : undefined">
   @if (selecionada(); as c) {
-    <section class="ces-sheet-section" aria-labelledby="conexao-acesso">
+    <section class="geo-sheet-section" aria-labelledby="conexao-acesso">
       <h2 id="conexao-acesso"><i class="pi pi-shield" aria-hidden="true"></i>Acesso</h2>
-      <dl class="ces-sheet">
+      <dl class="geo-sheet">
         @if (c.usuarioLogin) {
           <div><dt>Pessoa</dt><dd>{{ c.usuarioLogin }}</dd></div>
         }
         <div>
           <dt>Situação</dt>
-          <dd><ces-status [tone]="sit(c).tom" [icon]="sit(c).icone">{{ sit(c).rotulo }}</ces-status></dd>
+          <dd><geo-status [tone]="sit(c).tom" [icon]="sit(c).icone">{{ sit(c).rotulo }}</geo-status></dd>
         </div>
         <div><dt>O que pode fazer</dt><dd>{{ permissao(c) }}</dd></div>
         <div><dt>Como conectou</dt><dd>{{ como(c) }}</dd></div>
@@ -159,13 +159,13 @@
         }
       </dl>
     </section>
-    <section class="ces-sheet-section" aria-labelledby="conexao-uso">
+    <section class="geo-sheet-section" aria-labelledby="conexao-uso">
       <h2 id="conexao-uso"><i class="pi pi-history" aria-hidden="true"></i>Uso</h2>
-      <dl class="ces-sheet">
-        <div><dt>Conectou</dt><dd>{{ relativo(c.criadaEm) }} <span class="ces-cell-muted">{{ dataHora(c.criadaEm) }}</span></dd></div>
+      <dl class="geo-sheet">
+        <div><dt>Conectou</dt><dd>{{ relativo(c.criadaEm) }} <span class="geo-cell-muted">{{ dataHora(c.criadaEm) }}</span></dd></div>
         <div>
           <dt>Último uso</dt>
-          <dd>{{ relativo(c.ultimoUsoEm) }} @if (c.ultimoUsoEm) { <span class="ces-cell-muted">{{ dataHora(c.ultimoUsoEm) }}</span> }</dd>
+          <dd>{{ relativo(c.ultimoUsoEm) }} @if (c.ultimoUsoEm) { <span class="geo-cell-muted">{{ dataHora(c.ultimoUsoEm) }}</span> }</dd>
         </div>
         <div>
           <dt>Pedidos feitos ao GEO</dt>
@@ -177,24 +177,24 @@
       </dl>
     </section>
     @if (c.situacao === 'VENCIDA') {
-      <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" class="conexao-aviso">
+      <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" class="conexao-aviso">
         A chave venceu e o assistente não consegue mais usar o GEO. Gere uma chave nova e troque no assistente.
-      </ces-callout>
+      </geo-callout>
     } @else if (!c.permiteEscrita && podeEscrever() && !c.usuarioLogin) {
-      <ces-callout tone="info" icon="pi pi-info-circle" [dense]="true" class="conexao-aviso">
+      <geo-callout tone="info" icon="pi pi-info-circle" [dense]="true" class="conexao-aviso">
         Esta conexão só consulta. Para também cadastrar e aprovar, {{ c.tipo === 'CHAVE' ? 'gere uma chave nova com a opção Consultar, cadastrar e aprovar' : 'desconecte e conecte de novo ligando a opção de cadastrar e aprovar' }}.
-      </ces-callout>
+      </geo-callout>
     }
   }
-  <div drawer-footer class="ces-actions-row">
-    <ces-button variant="ghost" label="Fechar" (pressed)="detalheAberto.set(false)"></ces-button>
+  <div drawer-footer class="geo-actions-row">
+    <geo-button variant="ghost" label="Fechar" (pressed)="detalheAberto.set(false)"></geo-button>
     @if (selecionada(); as c) {
       @if (c.situacao !== 'DESCONECTADA') {
-      <ces-button variant="destructive" icon="pi pi-power-off" label="Desconectar" [loading]="desconectando()" (pressed)="desconectar(c)"></ces-button>
+      <geo-button variant="destructive" icon="pi pi-power-off" label="Desconectar" [loading]="desconectando()" (pressed)="desconectar(c)"></geo-button>
       }
     }
   </div>
-</ces-drawer>
+</geo-drawer>
 
 <app-guia-conectar [(visivel)]="guiaAberto" [endereco]="endereco()" [erroEndereco]="erroInfo()" [podeEscrever]="podeEscrever()"
   (gerarChave)="abrirChave()"></app-guia-conectar>

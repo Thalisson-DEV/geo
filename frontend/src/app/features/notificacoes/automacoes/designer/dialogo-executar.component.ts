@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
-import { CesDialogShellComponent, CesButtonComponent, CesCalloutComponent, CesTextareaComponent } from '@ces/ui';
+import { GeoDialogShellComponent, GeoButtonComponent, GeoCalloutComponent, GeoTextareaComponent } from '@geo/ui';
 
 import { Definicao, JsonValue, NoEspec, Opcao } from '../../../../core/models/automacao.models';
 import { AutomacoesService } from '../../../../core/services/automacoes.service';
@@ -16,18 +16,18 @@ interface Pergunta {
 @Component({
   selector: 'aut-dialogo-executar',
   standalone: true,
-  imports: [CesCalloutComponent, CesButtonComponent, CesDialogShellComponent, CesTextareaComponent],
+  imports: [GeoCalloutComponent, GeoButtonComponent, GeoDialogShellComponent, GeoTextareaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-dialog-shell [(visible)]="aberto" [title]="teste() ? 'Testar a automação' : 'Executar agora'" size="md" [loading]="ocupado()" loadingLabel="Iniciando">
+    <geo-dialog-shell [(visible)]="aberto" [title]="teste() ? 'Testar a automação' : 'Executar agora'" size="md" [loading]="ocupado()" loadingLabel="Iniciando">
       <div class="aut" style="display:flex;flex-direction:column;gap:0.875rem">
         @if (teste()) {
-          <ces-callout tone="info" [dense]="true">No teste os e-mails e avisos vão só para você, as esperas são puladas e as aprovações são aprovadas automaticamente.</ces-callout>
+          <geo-callout tone="info" [dense]="true">No teste os e-mails e avisos vão só para você, as esperas são puladas e as aprovações são aprovadas automaticamente.</geo-callout>
         }
         @if (temColaborador()) {
           <div class="aut-field" style="position:relative">
-            <span class="ces-field__label">Colaborador do exemplo</span>
-            <input class="p-inputtext ces-prime-control" placeholder="Busque um colaborador real (ex.: da base de Juazeiro)" (input)="buscarColaborador($any($event.target).value)" />
+            <span class="geo-field__label">Colaborador do exemplo</span>
+            <input class="p-inputtext geo-prime-control" placeholder="Busque um colaborador real (ex.: da base de Juazeiro)" (input)="buscarColaborador($any($event.target).value)" />
             @if (opcoes().length) {
               <div class="aut-rows" style="max-height:12rem;overflow:auto">
                 @for (o of opcoes(); track o.valor) {
@@ -42,26 +42,26 @@ interface Pergunta {
         }
         @for (p of perguntas(); track p.nome) {
           <label class="aut-field">
-            <span class="ces-field__label">{{ p.rotulo }} @if (p.obrigatorio) { <span class="ces-field__required">*</span> }</span>
+            <span class="geo-field__label">{{ p.rotulo }} @if (p.obrigatorio) { <span class="geo-field__required">*</span> }</span>
             @if (p.tipo === 'boolean') {
               <input type="checkbox" [checked]="valores()[p.nome] === true" (change)="definir(p.nome, $any($event.target).checked)" />
             } @else if (p.tipo === 'longtext') {
-              <ces-textarea [label]="p.rotulo" [labelVisible]="false" [rows]="3" (valueChange)="definir(p.nome, $event)"></ces-textarea>
+              <geo-textarea [label]="p.rotulo" [labelVisible]="false" [rows]="3" (valueChange)="definir(p.nome, $event)"></geo-textarea>
             } @else {
-              <input class="p-inputtext ces-prime-control" [type]="p.tipo === 'number' ? 'number' : p.tipo === 'date' ? 'date' : 'text'" (input)="definir(p.nome, $any($event.target).value)" />
+              <input class="p-inputtext geo-prime-control" [type]="p.tipo === 'number' ? 'number' : p.tipo === 'date' ? 'date' : 'text'" (input)="definir(p.nome, $any($event.target).value)" />
             }
           </label>
         }
         @if (!perguntas().length && !temColaborador()) {
           <p class="aut-muted" style="margin:0">Nada a informar: a execução começa com os dados do gatilho.</p>
         }
-        @if (erro()) { <ces-callout tone="danger" [dense]="true">{{ erro() }}</ces-callout> }
+        @if (erro()) { <geo-callout tone="danger" [dense]="true">{{ erro() }}</geo-callout> }
       </div>
       <div dialog-footer>
-        <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="aberto.set(false)"></ces-button>
-        <ces-button [icon]="teste() ? 'pi pi-bolt' : 'pi pi-play'" [label]="teste() ? 'Testar' : 'Executar'" variant="primary" size="sm" [disabled]="ocupado()" (pressed)="confirmar()"></ces-button>
+        <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="aberto.set(false)"></geo-button>
+        <geo-button [icon]="teste() ? 'pi pi-bolt' : 'pi pi-play'" [label]="teste() ? 'Testar' : 'Executar'" variant="primary" size="sm" [disabled]="ocupado()" (pressed)="confirmar()"></geo-button>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `
 })
 export class DialogoExecutarComponent {

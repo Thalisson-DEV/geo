@@ -28,7 +28,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { StepperModule } from 'primeng/stepper';
-import { CesDialogShellComponent, CesDialogSize, CesStatusComponent, NotificationService } from '@ces/ui';
+import { GeoDialogShellComponent, GeoDialogSize, GeoStatusComponent, NotificationService } from '@geo/ui';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import {
   AvisoSaldoNegativoEquipeComponent,
@@ -76,7 +76,7 @@ import {
 } from '../solicitacao-tecnica-presentation';
 import { LookupStore } from '../../../../core/lookup/store/lookup.store';
 import { RemoteLookup as CursorRemoteLookup } from '../../../../core/lookup/store/remote-lookup';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 
 export type TechnicalActionMode = 'reserve' | 'deliver' | 'return' | 'reverse' | 'close';
 
@@ -128,10 +128,10 @@ type ActionRequest =
     DatePickerModule,
     DialogModule,
     StepperModule,
-    CesDialogShellComponent,
-    CesAutocompleteComponent,
+    GeoDialogShellComponent,
+    GeoAutocompleteComponent,
     SolicitacaoPendenciaModalComponent,
-    CesStatusComponent,
+    GeoStatusComponent,
     AvisoSaldoNegativoEquipeComponent,
   ],
   templateUrl: './solicitacao-tecnica-acao.component.html',
@@ -336,7 +336,7 @@ export class SolicitacaoTecnicaAcaoComponent implements OnInit, OnChanges {
         close: 'Finaliza o saldo pendente restante desta solicitação.',
       })[this.mode()],
   );
-  protected readonly dialogSize = computed<CesDialogSize>(() => {
+  protected readonly dialogSize = computed<GeoDialogSize>(() => {
     switch (this.mode()) {
       case 'deliver':
       case 'reserve':

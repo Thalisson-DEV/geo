@@ -38,8 +38,8 @@ import java.util.UUID;
 @Service
 public class OAuthIaService {
 
-    public static final String ESCOPO_LEITURA = "ces.leitura";
-    public static final String ESCOPO_ESCRITA = "ces.escrita";
+    public static final String ESCOPO_LEITURA = "geo.leitura";
+    public static final String ESCOPO_ESCRITA = "geo.escrita";
     public static final Duration VIDA_ACESSO = Duration.ofHours(1);
     public static final Duration VIDA_RENOVACAO = Duration.ofDays(60);
     public static final Duration VIDA_CODIGO = Duration.ofMinutes(5);
@@ -244,9 +244,16 @@ public class OAuthIaService {
     /** Sem escopo, vale o que a pessoa escolher na tela; pedido so de leitura nunca vira escrita. */
     static boolean pedeEscrita(String escopo) {
         if (escopo == null || escopo.isBlank()) return true;
-        List<String> pedidos = List.of(escopo.trim().split("\\s+"));
+        List<String> pedidos = List.of(escopo.trim().split("\\s+")).stream().map(OAuthIaService::escopoAtual).toList();
         return pedidos.contains(ESCOPO_ESCRITA) || !pedidos.contains(ESCOPO_LEITURA);
     }
+
+    /** Clientes conectados antes da troca de nome do produto ainda pedem os escopos com o prefixo antigo. */
+    static String escopoAtual(String escopo) {
+        return escopo.startsWith(PREFIXO_ESCOPO_LEGADO) ? "geo." + escopo.substring(PREFIXO_ESCOPO_LEGADO.length()) : escopo;
+    }
+
+    private static final String PREFIXO_ESCOPO_LEGADO = "ces."; // renomear-geo: manter (escopos de clientes já conectados)
 
     static void validarRetorno(String uri) {
         URI destino;

@@ -2,17 +2,17 @@ import { describe, expect, it } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { UIChart } from 'primeng/chart';
-import { CesChartComponent, formatCesChartValue } from './chart.component';
+import { GeoChartComponent, formatGeoChartValue } from './chart.component';
 
 async function criar(inputs: Record<string, unknown>) {
-  await TestBed.configureTestingModule({ imports: [CesChartComponent] }).compileComponents();
-  const fixture = TestBed.createComponent(CesChartComponent);
+  await TestBed.configureTestingModule({ imports: [GeoChartComponent] }).compileComponents();
+  const fixture = TestBed.createComponent(GeoChartComponent);
   for (const [nome, valor] of Object.entries(inputs)) fixture.componentRef.setInput(nome, valor);
   fixture.detectChanges();
   return fixture;
 }
 
-describe('CesChartComponent', () => {
+describe('GeoChartComponent', () => {
   it('expõe resumo textual acessível com maior e menor valor em pt-BR', async () => {
     const fixture = await criar({
       kind: 'bar',
@@ -21,7 +21,7 @@ describe('CesChartComponent', () => {
       series: [{ name: 'Quantidade', values: [1200, 80, 45.5] }],
       valueFormat: 'number',
     });
-    const canvas = fixture.nativeElement.querySelector('.ces-chart__canvas canvas') as HTMLElement;
+    const canvas = fixture.nativeElement.querySelector('.geo-chart__canvas canvas') as HTMLElement;
     expect(canvas.getAttribute('role')).toBe('img');
     expect(canvas.getAttribute('aria-label')).toBe(
       'Gráfico de barras com 3 categorias; maior valor: Obra A (1.200); menor: Obra C (45,5).',
@@ -30,7 +30,7 @@ describe('CesChartComponent', () => {
   });
 
   it('usa os tokens de série e configura barras horizontais e empilhadas', async () => {
-    document.documentElement.style.setProperty('--ces-chart-1', '#112233');
+    document.documentElement.style.setProperty('--geo-chart-1', '#112233');
     const fixture = await criar({
       kind: 'bar-horizontal',
       title: 'Ranking',
@@ -47,7 +47,7 @@ describe('CesChartComponent', () => {
     fixture.detectChanges();
     const empilhado = fixture.debugElement.query(By.directive(UIChart)).componentInstance as UIChart;
     expect((empilhado.options as { scales: { y: { stacked: boolean } } }).scales.y.stacked).toBe(true);
-    document.documentElement.style.removeProperty('--ces-chart-1');
+    document.documentElement.style.removeProperty('--geo-chart-1');
   });
 
   it('alterna para a tabela de dados equivalente e volta ao gráfico', async () => {
@@ -62,7 +62,7 @@ describe('CesChartComponent', () => {
       valueFormat: 'integer',
       xAxisLabel: 'Dia',
     });
-    const botao = fixture.nativeElement.querySelector('.ces-chart__toggle button') as HTMLButtonElement;
+    const botao = fixture.nativeElement.querySelector('.geo-chart__toggle button') as HTMLButtonElement;
     botao.click();
     fixture.detectChanges();
 
@@ -76,23 +76,23 @@ describe('CesChartComponent', () => {
     expect(tabela.querySelector('tbody tr:nth-child(2) td')?.textContent?.trim()).toBe('—');
     expect(fixture.componentInstance.dataTableVisible()).toBe(true);
 
-    (fixture.nativeElement.querySelector('.ces-chart__toggle button') as HTMLButtonElement).click();
+    (fixture.nativeElement.querySelector('.geo-chart__toggle button') as HTMLButtonElement).click();
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('table')).toBeNull();
   });
 
   it('mostra estado vazio sem canvas quando não há dados', async () => {
     const fixture = await criar({ kind: 'pie', title: 'Composição', labels: [], series: [] });
-    expect(fixture.nativeElement.querySelector('.ces-chart__empty')?.getAttribute('role')).toBe('status');
+    expect(fixture.nativeElement.querySelector('.geo-chart__empty')?.getAttribute('role')).toBe('status');
     expect(fixture.nativeElement.querySelector('p-chart')).toBeNull();
-    expect(fixture.nativeElement.querySelector('.ces-chart__toggle')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.geo-chart__toggle')).toBeNull();
   });
 
   it('formata moeda, percentual e valores compactos no padrão brasileiro', () => {
-    expect(formatCesChartValue(1234.5, 'currency')).toBe('R$ 1.234,50'.replace(' ', '\u00a0'));
-    expect(formatCesChartValue(0.125, 'percent')).toBe('12,5%');
-    expect(formatCesChartValue(2_500_000, 'number', true)).toMatch(/^2,5\s?mi/);
-    expect(formatCesChartValue(Number.NaN, 'number')).toBe('—');
+    expect(formatGeoChartValue(1234.5, 'currency')).toBe('R$ 1.234,50'.replace(' ', '\u00a0'));
+    expect(formatGeoChartValue(0.125, 'percent')).toBe('12,5%');
+    expect(formatGeoChartValue(2_500_000, 'number', true)).toMatch(/^2,5\s?mi/);
+    expect(formatGeoChartValue(Number.NaN, 'number')).toBe('—');
   });
   it('emite a seleção pelo clique no gráfico e pela linha da tabela de dados quando selectable', async () => {
     const fixture = await criar({
@@ -115,7 +115,7 @@ describe('CesChartComponent', () => {
 
     fixture.componentInstance.dataTableVisible.set(true);
     fixture.detectChanges();
-    const botoes = fixture.nativeElement.querySelectorAll('.ces-chart__row-action button');
+    const botoes = fixture.nativeElement.querySelectorAll('.geo-chart__row-action button');
     expect(botoes.length).toBe(2);
     expect(botoes[0].getAttribute('aria-label')).toBe('Detalhar 01/09');
     botoes[0].click();
@@ -147,6 +147,6 @@ describe('CesChartComponent', () => {
     expect((chart.options as { interaction?: unknown }).interaction).toBeUndefined();
     fixture.componentInstance.dataTableVisible.set(true);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.ces-chart__row-action')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.geo-chart__row-action')).toBeNull();
   });
 });

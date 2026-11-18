@@ -2,7 +2,7 @@ import { iconeCondicao } from '../../utils/movimentacao.utils';
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CesButtonComponent, CesStatusComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoStatusComponent } from '@geo/ui';
 
 import { MovimentacaoOperacaoResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -17,30 +17,30 @@ import { SeriesGradeComponent } from '../series-grade/series-grade.component';
 @Component({
   selector: 'app-movimentacao-material-itens',
   standalone: true,
-  imports: [DecimalPipe, CesButtonComponent, CesStatusComponent, SeriesGradeComponent],
+  imports: [DecimalPipe, GeoButtonComponent, GeoStatusComponent, SeriesGradeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="flex flex-col gap-3 py-1" [attr.aria-busy]="carregando()">
       @if (erro()) {
-        <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--ces-foreground-muted)]" role="alert">
+        <div class="flex flex-wrap items-center gap-3 text-xs text-[var(--geo-foreground-muted)]" role="alert">
           <span>{{ erro() }}</span>
-          <ces-button label="Tentar novamente" icon="pi pi-refresh" size="sm" variant="outline" (pressed)="carregar()" />
+          <geo-button label="Tentar novamente" icon="pi pi-refresh" size="sm" variant="outline" (pressed)="carregar()" />
         </div>
       } @else if (carregando()) {
-        <div class="h-9 rounded-lg bg-[var(--ces-surface-muted)] animate-pulse motion-reduce:animate-none" aria-hidden="true"></div>
+        <div class="h-9 rounded-lg bg-[var(--geo-surface-muted)] animate-pulse motion-reduce:animate-none" aria-hidden="true"></div>
         <span class="sr-only">Carregando os itens da operação...</span>
       } @else if (!grupos().length) {
-        <p class="m-0 text-xs text-[var(--ces-foreground-muted)]">Esta operação não tem itens deste material.</p>
+        <p class="m-0 text-xs text-[var(--geo-foreground-muted)]">Esta operação não tem itens deste material.</p>
       } @else {
         @for (grupo of grupos(); track grupo.chave) {
           <div class="flex flex-col gap-2">
             <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-              <span class="font-bold tabular-nums text-[var(--ces-foreground)]">
+              <span class="font-bold tabular-nums text-[var(--geo-foreground)]">
                 {{ grupo.quantidade | number: '1.0-3' }} {{ grupo.material.unidadeMedida || '' }}
               </span>
-              <ces-status [tone]="tomCondicao(grupo.condicao)" [icon]="iconeCondicao(grupo.condicao)">{{ rotuloCondicao(grupo.condicao) }}</ces-status>
+              <geo-status [tone]="tomCondicao(grupo.condicao)" [icon]="iconeCondicao(grupo.condicao)">{{ rotuloCondicao(grupo.condicao) }}</geo-status>
               @if (grupo.series.length) {
-                <span class="text-[var(--ces-foreground-muted)]">
+                <span class="text-[var(--geo-foreground-muted)]">
                   <i class="pi pi-barcode text-[11px]" aria-hidden="true"></i>
                   {{ grupo.series.length }} {{ grupo.series.length === 1 ? 'número de série' : 'números de série' }}
                 </span>

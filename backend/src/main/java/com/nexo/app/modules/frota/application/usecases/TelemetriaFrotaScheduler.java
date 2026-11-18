@@ -17,17 +17,17 @@ public class TelemetriaFrotaScheduler {
 
     private final SincronizacaoTelemetriaUseCases sincronizacao;
 
-    @Scheduled(cron = "${ces.frota.telemetria.veiculos-cron:0 */2 * * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.telemetria.veiculos-cron:0 */2 * * * *}", zone = "America/Sao_Paulo")
     public void veiculos() {
         sincronizacao.sincronizarVeiculos();
     }
 
-    @Scheduled(cron = "${ces.frota.telemetria.eventos-cron:0 5,35 * * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.telemetria.eventos-cron:0 5,35 * * * *}", zone = "America/Sao_Paulo")
     public void eventos() {
         sincronizacao.sincronizarEventos();
     }
 
-    @Scheduled(cron = "${ces.frota.telemetria.limpeza-cron:0 15 3 * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.telemetria.limpeza-cron:0 15 3 * * *}", zone = "America/Sao_Paulo")
     public void limpar() {
         int apagadas = sincronizacao.limparPosicoes();
         if (apagadas > 0) {

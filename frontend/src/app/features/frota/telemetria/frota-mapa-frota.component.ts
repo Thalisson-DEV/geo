@@ -15,13 +15,13 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Params, Router, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesIconButtonComponent,
-  CesMultiSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoIconButtonComponent,
+  GeoMultiSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent
+} from '@geo/ui';
 import { interval } from 'rxjs';
 
 import {
@@ -47,7 +47,7 @@ declare const L: any;
 
 /** O backend lê os rastreadores a cada 2 minutos; a tela confere a cada minuto. */
 const ATUALIZACAO_MS = 60_000;
-const CHAVE_PREFERENCIAS = 'ces_mapa_frota_preferencias';
+const CHAVE_PREFERENCIAS = 'geo_mapa_frota_preferencias';
 /** Abaixo deste zoom, veículos próximos viram grupo com a contagem. */
 const ZOOM_SEM_GRUPOS = 13;
 /** Placas aparecem a partir deste zoom (antes, ficariam umas sobre as outras). */
@@ -79,94 +79,94 @@ interface Preferencias {
   selector: 'app-frota-mapa-frota',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, RouterLink, CesAsyncStateComponent, CesButtonComponent, CesIconButtonComponent, CesMultiSelectComponent,
-    CesStatusComponent, CesTextInputComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, GeoAsyncStateComponent, GeoButtonComponent, GeoIconButtonComponent, GeoMultiSelectComponent,
+    GeoStatusComponent, GeoTextInputComponent],
   styles: `
     .mf { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.75rem; }
     @media (min-width: 64rem) { .mf { grid-template-columns: 21rem minmax(0, 1fr); } }
     @media (min-width: 64rem) { .mf--recolhido { grid-template-columns: minmax(0, 1fr); } }
     .mf-painel__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: -0.25rem 0; }
-    .mf-painel__titulo { margin: 0; font-size: var(--ces-font-control); font-weight: 700; }
-    .mf-painel__titulo span { color: var(--ces-foreground-muted); font-weight: 600; }
+    .mf-painel__titulo { margin: 0; font-size: var(--geo-font-control); font-weight: 700; }
+    .mf-painel__titulo span { color: var(--geo-foreground-muted); font-weight: 600; }
     .mf-abrir { position: absolute; z-index: 500; top: 0.75rem; left: 3.5rem; }
 
-    .mf-painel { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; padding: 0.875rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-lg); background: var(--ces-surface); }
+    .mf-painel { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; padding: 0.875rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
     @media (min-width: 64rem) { .mf-painel { height: var(--mf-altura); } }
     .mf-estados { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.375rem; }
-    .mf-estado { display: flex; align-items: center; gap: 0.5rem; min-width: 0; padding: 0.5rem 0.625rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface); color: var(--ces-foreground-muted); font: inherit;
-      font-size: var(--ces-font-caption); text-align: left; cursor: pointer; }
-    .mf-estado:hover { border-color: var(--ces-border-strong); }
-    .mf-estado:focus-visible, .mf-item:focus-visible, .mf-camada:focus-within { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .mf-estado { display: flex; align-items: center; gap: 0.5rem; min-width: 0; padding: 0.5rem 0.625rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground-muted); font: inherit;
+      font-size: var(--geo-font-caption); text-align: left; cursor: pointer; }
+    .mf-estado:hover { border-color: var(--geo-border-strong); }
+    .mf-estado:focus-visible, .mf-item:focus-visible, .mf-camada:focus-within { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .mf-estado[aria-pressed='false'] { opacity: 0.55; }
-    .mf-estado strong { margin-left: auto; color: var(--ces-foreground); font-size: var(--ces-font-control); font-variant-numeric: tabular-nums; }
+    .mf-estado strong { margin-left: auto; color: var(--geo-foreground); font-size: var(--geo-font-control); font-variant-numeric: tabular-nums; }
     .mf-ponto { flex: none; width: 0.625rem; height: 0.625rem; border-radius: 999px; background: var(--mf-cor); }
 
     .mf-lista { display: grid; align-content: start; gap: 0.25rem; min-height: 0; margin: 0; padding: 0; overflow: auto; list-style: none; }
     @media (max-width: 63.99rem) { .mf-lista { max-height: 22rem; } }
     .mf-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.5rem; width: 100%; padding: 0.5rem 0.625rem;
-      border: 1px solid transparent; border-radius: var(--ces-radius-md); background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-    .mf-item:hover { background: var(--ces-surface-muted); }
-    .mf-item[aria-current='true'] { border-color: var(--ces-brand); background: var(--ces-brand-soft); }
+      border: 1px solid transparent; border-radius: var(--geo-radius-md); background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .mf-item:hover { background: var(--geo-surface-muted); }
+    .mf-item[aria-current='true'] { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
     .mf-item__texto { display: grid; min-width: 0; }
-    .mf-item__placa { font-weight: 700; font-size: var(--ces-font-control); }
-    .mf-item__apoio { overflow: hidden; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); text-overflow: ellipsis; white-space: nowrap; }
-    .mf-item__lado { display: grid; justify-items: end; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); white-space: nowrap; }
-    .mf-rodape { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .mf-item__placa { font-weight: 700; font-size: var(--geo-font-control); }
+    .mf-item__apoio { overflow: hidden; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); text-overflow: ellipsis; white-space: nowrap; }
+    .mf-item__lado { display: grid; justify-items: end; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); white-space: nowrap; }
+    .mf-rodape { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .mf-rodape--acao { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-    .mf-limpar { padding: 0; border: 0; background: none; color: var(--ces-brand); font: inherit; font-weight: 600; cursor: pointer; text-decoration: underline; }
-    .mf-limpar:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .mf-limpar { padding: 0; border: 0; background: none; color: var(--geo-brand); font: inherit; font-weight: 600; cursor: pointer; text-decoration: underline; }
+    .mf-limpar:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
 
-    .mf-mapa-area { position: relative; min-width: 0; height: var(--mf-altura); border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg);
-      overflow: hidden; background: var(--ces-surface-muted); }
+    .mf-mapa-area { position: relative; min-width: 0; height: var(--mf-altura); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg);
+      overflow: hidden; background: var(--geo-surface-muted); }
     .mf-mapa { position: absolute; inset: 0; }
     .mf-camadas { position: absolute; z-index: 500; top: 0.75rem; right: 0.75rem; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.375rem; }
-    .mf-camada { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.625rem; border: 1px solid var(--ces-border);
-      border-radius: 999px; background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); font-size: var(--ces-font-caption); font-weight: 600; cursor: pointer; }
-    .mf-camada input { margin: 0; accent-color: var(--ces-brand); }
+    .mf-camada { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.375rem 0.625rem; border: 1px solid var(--geo-border);
+      border-radius: 999px; background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); font-size: var(--geo-font-caption); font-weight: 600; cursor: pointer; }
+    .mf-camada input { margin: 0; accent-color: var(--geo-brand); }
     .mf-cartao { position: absolute; z-index: 500; left: 0.75rem; bottom: 0.75rem; display: grid; gap: 1rem; width: min(25rem, calc(100% - 1.5rem));
-      max-height: calc(100% - 1.5rem); padding: 1.125rem 1.25rem 1.25rem; overflow: auto; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-lg); background: var(--ces-surface); box-shadow: var(--ces-shadow-lg); }
+      max-height: calc(100% - 1.5rem); padding: 1.125rem 1.25rem 1.25rem; overflow: auto; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-lg); background: var(--geo-surface); box-shadow: var(--geo-shadow-lg); }
     .mf-cartao__topo { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 0.75rem; }
     .mf-cartao__icone { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 999px; background: var(--mf-cor);
-      color: var(--ces-surface); font-size: 1.125rem; }
+      color: var(--geo-surface); font-size: 1.125rem; }
     .mf-cartao__titulo { margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
-    .mf-cartao__sub { margin: 0.125rem 0 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); line-height: 1.4; }
+    .mf-cartao__sub { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); line-height: 1.4; }
     .mf-cartao__selos { display: flex; flex-wrap: wrap; gap: 0.375rem; }
     .mf-cartao dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.875rem 1rem; margin: 0; padding: 0.875rem 1rem;
-      border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
-    .mf-cartao dt { margin-bottom: 0.125rem; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
-    .mf-cartao dd { margin: 0; font-size: var(--ces-font-control); font-weight: 600; overflow-wrap: anywhere; }
+      border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
+    .mf-cartao dt { margin-bottom: 0.125rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .mf-cartao dd { margin: 0; font-size: var(--geo-font-control); font-weight: 600; overflow-wrap: anywhere; }
     .mf-cartao dd.mf-cartao__velocidade { font-size: 1.5rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
-    .mf-cartao dd.mf-cartao__velocidade small { margin-left: 0.25rem; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); font-weight: 600; }
-    .mf-cartao__apoio { display: block; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); font-weight: 400; }
+    .mf-cartao dd.mf-cartao__velocidade small { margin-left: 0.25rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
+    .mf-cartao__apoio { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 400; }
     .mf-cartao__acoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
-    .mf-cartao__trajeto { margin: -0.5rem 0 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
-    .mf-secao__titulo { margin: 0 0 0.5rem; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); font-weight: 600;
+    .mf-cartao__trajeto { margin: -0.5rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .mf-secao__titulo { margin: 0 0 0.5rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600;
       text-transform: uppercase; letter-spacing: 0.04em; }
     .mf-modulos__grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
-    .mf-atalho { display: grid; justify-items: center; gap: 0.375rem; padding: 0.75rem 0.25rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md); color: var(--ces-foreground); font-size: var(--ces-font-caption); font-weight: 600; text-align: center;
+    .mf-atalho { display: grid; justify-items: center; gap: 0.375rem; padding: 0.75rem 0.25rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md); color: var(--geo-foreground); font-size: var(--geo-font-caption); font-weight: 600; text-align: center;
       text-decoration: none; }
-    .mf-atalho .pi { color: var(--ces-brand); font-size: 1rem; }
-    .mf-atalho:hover { border-color: var(--ces-border-strong); background: var(--ces-surface-muted); }
-    .mf-atalho:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .mf-fechar { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border: 0; border-radius: var(--ces-radius-md);
-      background: transparent; color: var(--ces-foreground-muted); cursor: pointer; }
-    .mf-fechar:hover { background: var(--ces-surface-muted); color: var(--ces-foreground); }
-    .mf-fechar:focus-visible { outline: 2px solid var(--ces-focus-ring); }
+    .mf-atalho .pi { color: var(--geo-brand); font-size: 1rem; }
+    .mf-atalho:hover { border-color: var(--geo-border-strong); background: var(--geo-surface-muted); }
+    .mf-atalho:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .mf-fechar { display: inline-grid; place-items: center; width: 2rem; height: 2rem; border: 0; border-radius: var(--geo-radius-md);
+      background: transparent; color: var(--geo-foreground-muted); cursor: pointer; }
+    .mf-fechar:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
+    .mf-fechar:focus-visible { outline: 2px solid var(--geo-focus-ring); }
     .mf-aviso { position: absolute; z-index: 500; top: 0.75rem; left: var(--mf-aviso-esquerda, 3.5rem); right: 0.75rem; max-width: 28rem; display: flex; gap: 0.5rem;
-      align-items: start; padding: 0.5rem 0.75rem; border: 1px solid var(--ces-warning); border-radius: var(--ces-radius-md);
-      background: var(--ces-warning-soft); color: var(--ces-warning-text); font-size: var(--ces-font-caption); box-shadow: var(--ces-shadow-sm); }
+      align-items: start; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-warning); border-radius: var(--geo-radius-md);
+      background: var(--geo-warning-soft); color: var(--geo-warning-text); font-size: var(--geo-font-caption); box-shadow: var(--geo-shadow-sm); }
     .mf-aviso .pi { margin-top: 0.125rem; }
-    .mf-alertas { display: grid; gap: 0.625rem; margin: 0; padding: 0.75rem 0.875rem; border: 1px solid var(--ces-danger);
-      border-radius: var(--ces-radius-md); background: var(--ces-danger-soft); list-style: none; }
-    .mf-alertas li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 0.5rem; font-size: var(--ces-font-control); }
+    .mf-alertas { display: grid; gap: 0.625rem; margin: 0; padding: 0.75rem 0.875rem; border: 1px solid var(--geo-danger);
+      border-radius: var(--geo-radius-md); background: var(--geo-danger-soft); list-style: none; }
+    .mf-alertas li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 0.5rem; font-size: var(--geo-font-control); }
     .mf-alertas li .pi { font-size: 0.875rem; }
-    .mf-alertas__perigo .pi { color: var(--ces-danger); }
-    .mf-alertas__aviso .pi { color: var(--ces-warning); }
-    .mf-alertas a { color: var(--ces-brand); font-size: var(--ces-font-caption); font-weight: 600; white-space: nowrap; }
+    .mf-alertas__perigo .pi { color: var(--geo-danger); }
+    .mf-alertas__aviso .pi { color: var(--geo-warning); }
+    .mf-alertas a { color: var(--geo-brand); font-size: var(--geo-font-caption); font-weight: 600; white-space: nowrap; }
     .mf-vazio { position: absolute; inset: 0; z-index: 400; display: grid; place-items: center; padding: 1rem; }
   `,
   host: { '[style.--mf-altura]': '"max(32rem, calc(100dvh - 17rem))"' },
@@ -176,15 +176,15 @@ interface Preferencias {
       <aside class="mf-painel" aria-label="Veículos no mapa">
         <div class="mf-painel__topo">
           <h2 class="mf-painel__titulo">Veículos <span>{{ visiveis().length }}</span></h2>
-          <ces-icon-button icon="pi pi-angle-double-left" label="Recolher a lista de veículos" tooltip="Recolher a lista" size="icon-sm"
-            (pressed)="alternarPainel()"></ces-icon-button>
+          <geo-icon-button icon="pi pi-angle-double-left" label="Recolher a lista de veículos" tooltip="Recolher a lista" size="icon-sm"
+            (pressed)="alternarPainel()"></geo-icon-button>
         </div>
-        <ces-text-input label="Buscar" [labelVisible]="false" placeholder="Placa, modelo ou condutor" [(value)]="busca"></ces-text-input>
-        <ces-multiselect label="Base" [labelVisible]="false" [options]="bases.opcoes()" [(value)]="idsBase" placeholder="Todas as bases"></ces-multiselect>
+        <geo-text-input label="Buscar" [labelVisible]="false" placeholder="Placa, modelo ou condutor" [(value)]="busca"></geo-text-input>
+        <geo-multiselect label="Base" [labelVisible]="false" [options]="bases.opcoes()" [(value)]="idsBase" placeholder="Todas as bases"></geo-multiselect>
 
         <div class="mf-estados" role="group" aria-label="Mostrar por estado">
           @for (e of estados; track e.value) {
-            <button type="button" class="mf-estado" [style.--mf-cor]="'var(--ces-' + e.token + ')'"
+            <button type="button" class="mf-estado" [style.--mf-cor]="'var(--geo-' + e.token + ')'"
               [attr.aria-pressed]="estadosVisiveis().includes(e.value)" (click)="alternarEstado(e.value)">
               <span class="mf-ponto" aria-hidden="true"></span>{{ e.label }}<strong>{{ contagem()[e.value] }}</strong>
             </button>
@@ -192,8 +192,8 @@ interface Preferencias {
         </div>
 
         @if (erro()) {
-          <ces-async-state state="error" title="Não foi possível carregar o mapa" [description]="erro()!" [compact]="true"
-            actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+          <geo-async-state state="error" title="Não foi possível carregar o mapa" [description]="erro()!" [compact]="true"
+            actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
         } @else {
           <ul class="mf-lista" aria-label="Veículos">
             @for (v of visiveis(); track v.idVeiculo) {
@@ -239,8 +239,8 @@ interface Preferencias {
 
         @if (painelRecolhido()) {
           <div class="mf-abrir">
-            <ces-button size="sm" variant="secondary" icon="pi pi-list" [label]="'Veículos (' + visiveis().length + ')'"
-              ariaLabel="Mostrar a busca e a lista de veículos" (pressed)="alternarPainel()"></ces-button>
+            <geo-button size="sm" variant="secondary" icon="pi pi-list" [label]="'Veículos (' + visiveis().length + ')'"
+              ariaLabel="Mostrar a busca e a lista de veículos" (pressed)="alternarPainel()"></geo-button>
           </div>
         }
 
@@ -258,8 +258,8 @@ interface Preferencias {
 
         @if (!carregando() && !erro() && !veiculos().length) {
           <div class="mf-vazio">
-            <ces-async-state state="empty" title="Nenhum veículo no mapa" [compact]="true"
-              description="Os veículos aparecem aqui assim que o rastreador de cada um manda a primeira posição."></ces-async-state>
+            <geo-async-state state="empty" title="Nenhum veículo no mapa" [compact]="true"
+              description="Os veículos aparecem aqui assim que o rastreador de cada um manda a primeira posição."></geo-async-state>
           </div>
         }
 
@@ -275,9 +275,9 @@ interface Preferencias {
             </div>
 
             <div class="mf-cartao__selos">
-              <ces-status [tone]="tom(v.estado)" [icon]="icone(v.estado)" [emphasis]="v.estado === 'DESLIGADO' ? 'soft' : 'solid'">{{ v.estadoRotulo }}</ces-status>
-              @if (v.situacaoOperacional && v.situacaoOperacional !== 'ATIVO') { <ces-status tone="warning" icon="pi pi-wrench">Na ficha: {{ (v.situacaoOperacionalRotulo ?? '').toLowerCase() }}</ces-status> }
-              @if (v.eventos24h) { <ces-status tone="warning" icon="pi pi-exclamation-triangle">{{ v.eventos24h }} evento{{ v.eventos24h === 1 ? '' : 's' }} em 24 h</ces-status> }
+              <geo-status [tone]="tom(v.estado)" [icon]="icone(v.estado)" [emphasis]="v.estado === 'DESLIGADO' ? 'soft' : 'solid'">{{ v.estadoRotulo }}</geo-status>
+              @if (v.situacaoOperacional && v.situacaoOperacional !== 'ATIVO') { <geo-status tone="warning" icon="pi pi-wrench">Na ficha: {{ (v.situacaoOperacionalRotulo ?? '').toLowerCase() }}</geo-status> }
+              @if (v.eventos24h) { <geo-status tone="warning" icon="pi pi-exclamation-triangle">{{ v.eventos24h }} evento{{ v.eventos24h === 1 ? '' : 's' }} em 24 h</geo-status> }
             </div>
 
             <dl>
@@ -310,9 +310,9 @@ interface Preferencias {
             }
 
             <div class="mf-cartao__acoes">
-              <ces-button size="sm" [fluid]="true" [variant]="trajetoDe() === v.idVeiculo ? 'primary' : 'outline'" icon="pi pi-share-alt"
-                [label]="trajetoDe() === v.idVeiculo ? 'Ocultar trajeto' : 'Trajeto de hoje'" [loading]="carregandoTrajeto()" (pressed)="alternarTrajeto(v)"></ces-button>
-              <ces-button size="sm" [fluid]="true" variant="outline" icon="pi pi-car" label="Ficha do veículo" (pressed)="ir(['/frota/veiculos', v.idVeiculo])"></ces-button>
+              <geo-button size="sm" [fluid]="true" [variant]="trajetoDe() === v.idVeiculo ? 'primary' : 'outline'" icon="pi pi-share-alt"
+                [label]="trajetoDe() === v.idVeiculo ? 'Ocultar trajeto' : 'Trajeto de hoje'" [loading]="carregandoTrajeto()" (pressed)="alternarTrajeto(v)"></geo-button>
+              <geo-button size="sm" [fluid]="true" variant="outline" icon="pi pi-car" label="Ficha do veículo" (pressed)="ir(['/frota/veiculos', v.idVeiculo])"></geo-button>
             </div>
             @if (avisoTrajeto()) { <p class="mf-cartao__trajeto" role="status">{{ avisoTrajeto() }}</p> }
 
@@ -555,7 +555,7 @@ export class FrotaMapaFrotaComponent implements OnDestroy {
   }
 
   protected cor(estado: EstadoMapa): string {
-    return `var(--ces-${ESTADOS_MAPA.find((e) => e.value === estado)!.token})`;
+    return `var(--geo-${ESTADOS_MAPA.find((e) => e.value === estado)!.token})`;
   }
 
   protected tom(estado: EstadoMapa) {
@@ -707,7 +707,7 @@ export class FrotaMapaFrotaComponent implements OnDestroy {
 
   private token(nome: string): string {
     const el = this.elemento()?.nativeElement;
-    return el ? getComputedStyle(el).getPropertyValue(`--ces-${nome}`).trim() : '';
+    return el ? getComputedStyle(el).getPropertyValue(`--geo-${nome}`).trim() : '';
   }
 
   private salvarPreferencias(p: Preferencias): void {

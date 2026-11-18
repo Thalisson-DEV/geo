@@ -63,7 +63,7 @@ public class MontadorEmailHtml {
                 .append("<meta charset=\"utf-8\">")
                 .append("<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">");
         travaDeTemaClaro(html);
-        html.append("</head><body class=\"ces-pagina\" style=\"margin:0;padding:0;")
+        html.append("</head><body class=\"geo-pagina\" style=\"margin:0;padding:0;")
                 .append("background-color:").append(FUNDO_PAGINA).append(";\">");
 
         // Pré-cabeçalho: some na renderização mas é o texto que a caixa de entrada
@@ -71,11 +71,11 @@ public class MontadorEmailHtml {
         html.append("<div style=\"display:none;max-height:0;overflow:hidden;opacity:0;\">")
                 .append(escapar(previa(conteudo))).append("</div>");
 
-        html.append("<div class=\"ces-pagina\" style=\"background-color:").append(FUNDO_PAGINA)
+        html.append("<div class=\"geo-pagina\" style=\"background-color:").append(FUNDO_PAGINA)
                 .append(";margin:0;padding:24px 12px;font-family:").append(FONTE).append(";\">");
 
         html.append("<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" ")
-                .append("width=\"100%\" class=\"ces-cartao\" style=\"max-width:640px;margin:0 auto;")
+                .append("width=\"100%\" class=\"geo-cartao\" style=\"max-width:640px;margin:0 auto;")
                 .append("background-color:#ffffff;border:1px solid ").append(BORDA)
                 .append(";border-radius:8px;overflow:hidden;\">");
 
@@ -117,28 +117,28 @@ public class MontadorEmailHtml {
                 .append("<meta name=\"supported-color-schemes\" content=\"light\">")
                 .append("<style>")
                 .append(":root{color-scheme:light only;supported-color-schemes:light only;}")
-                .append("[data-ogsc] .ces-pagina,[data-ogsb] .ces-pagina")
+                .append("[data-ogsc] .geo-pagina,[data-ogsb] .geo-pagina")
                 .append("{background-color:").append(FUNDO_PAGINA).append(" !important;}")
-                .append("[data-ogsc] .ces-cartao,[data-ogsb] .ces-cartao,")
-                .append("[data-ogsc] .ces-cabecalho,[data-ogsb] .ces-cabecalho")
+                .append("[data-ogsc] .geo-cartao,[data-ogsb] .geo-cartao,")
+                .append("[data-ogsc] .geo-cabecalho,[data-ogsb] .geo-cabecalho")
                 .append("{background-color:#ffffff !important;}")
-                .append("[data-ogsc] .ces-superficie,[data-ogsb] .ces-superficie")
+                .append("[data-ogsc] .geo-superficie,[data-ogsb] .geo-superficie")
                 .append("{background-color:").append(FUNDO_FICHA).append(" !important;}")
-                .append("[data-ogsc] .ces-botao,[data-ogsb] .ces-botao")
+                .append("[data-ogsc] .geo-botao,[data-ogsb] .geo-botao")
                 .append("{background-color:").append(AZUL_MARCA).append(" !important;}")
-                .append("[data-ogsc] .ces-botao a,[data-ogsb] .ces-botao a")
+                .append("[data-ogsc] .geo-botao a,[data-ogsb] .geo-botao a")
                 .append("{color:#ffffff !important;}")
-                .append("[data-ogsc] .ces-forte,[data-ogsb] .ces-forte")
+                .append("[data-ogsc] .geo-forte,[data-ogsb] .geo-forte")
                 .append("{color:").append(TEXTO_FORTE).append(" !important;}")
-                .append("[data-ogsc] .ces-corpo,[data-ogsb] .ces-corpo")
+                .append("[data-ogsc] .geo-corpo,[data-ogsb] .geo-corpo")
                 .append("{color:").append(TEXTO_CORPO).append(" !important;}")
-                .append("[data-ogsc] .ces-suave,[data-ogsb] .ces-suave")
+                .append("[data-ogsc] .geo-suave,[data-ogsb] .geo-suave")
                 .append("{color:").append(TEXTO_SUAVE).append(" !important;}")
-                .append("[data-ogsc] .ces-marca,[data-ogsb] .ces-marca")
+                .append("[data-ogsc] .geo-marca,[data-ogsb] .geo-marca")
                 .append("{color:").append(AZUL_MARCA).append(" !important;}")
                 // Outlook.com escureceu mesmo assim: troca para a logo de formas brancas.
-                .append("[data-ogsc] .ces-logo-claro{display:none !important;}")
-                .append("[data-ogsc] .ces-logo-escuro{display:block !important;max-height:none !important;}")
+                .append("[data-ogsc] .geo-logo-claro{display:none !important;}")
+                .append("[data-ogsc] .geo-logo-escuro{display:block !important;max-height:none !important;}")
                 .append("</style>");
     }
 
@@ -201,7 +201,7 @@ public class MontadorEmailHtml {
      * parece golpe. Com o texto ao lado, a imagem é ganho e não dependência.</p>
      */
     private void cabecalho(StringBuilder html) {
-        html.append("<tr><td class=\"ces-cabecalho\" style=\"background-color:#ffffff;")
+        html.append("<tr><td class=\"geo-cabecalho\" style=\"background-color:#ffffff;")
                 .append("padding:20px 32px 16px;border-bottom:2px solid ")
                 .append(AZUL_MARCA).append(";\">");
 
@@ -214,12 +214,12 @@ public class MontadorEmailHtml {
             // logo legível quando o cliente escurece o e-mail sem avisar (app do Gmail), em
             // vez de deixar um retângulo branco no meio do escuro.
             html.append("<td style=\"vertical-align:middle;width:58px;\">")
-                    .append("<img class=\"ces-logo-claro\" src=\"").append(escapar(logo))
+                    .append("<img class=\"geo-logo-claro\" src=\"").append(escapar(logo))
                     .append("\" alt=\"GEO\" width=\"46\" height=\"36\" ")
                     .append("style=\"display:block;border:0;width:46px;height:36px;\">");
             String escuro = urlLogoEscuro();
             if (escuro != null) {
-                html.append("<img class=\"ces-logo-escuro\" src=\"").append(escapar(escuro))
+                html.append("<img class=\"geo-logo-escuro\" src=\"").append(escapar(escuro))
                         .append("\" alt=\"GEO\" width=\"46\" height=\"36\" ")
                         .append("style=\"display:none;max-height:0;overflow:hidden;mso-hide:all;border:0;width:46px;height:36px;\">");
             }
@@ -227,10 +227,10 @@ public class MontadorEmailHtml {
         }
 
         html.append("<td style=\"vertical-align:middle;\">")
-                .append("<div class=\"ces-marca\" style=\"font-size:16px;font-weight:700;")
+                .append("<div class=\"geo-marca\" style=\"font-size:16px;font-weight:700;")
                 .append("letter-spacing:0.5px;color:").append(AZUL_MARCA)
                 .append(";line-height:1.2;\">GEO</div>")
-                .append("<div class=\"ces-suave\" style=\"font-size:12px;color:").append(TEXTO_SUAVE)
+                .append("<div class=\"geo-suave\" style=\"font-size:12px;color:").append(TEXTO_SUAVE)
                 .append(";line-height:1.4;\">Gestão de Equipes e Operações</div>")
                 .append("</td>");
 
@@ -260,18 +260,18 @@ public class MontadorEmailHtml {
 
         identificacao(html, conteudo);
 
-        html.append("<h1 class=\"ces-forte\" style=\"margin:0 0 16px;font-size:19px;")
+        html.append("<h1 class=\"geo-forte\" style=\"margin:0 0 16px;font-size:19px;")
                 .append("line-height:1.4;font-weight:600;color:").append(TEXTO_FORTE).append(";\">")
                 .append(escapar(conteudo.titulo())).append("</h1>");
 
         for (String paragrafo : conteudo.paragrafos()) {
-            html.append("<p class=\"ces-corpo\" style=\"margin:0 0 12px;font-size:14px;")
+            html.append("<p class=\"geo-corpo\" style=\"margin:0 0 12px;font-size:14px;")
                     .append("line-height:1.65;color:").append(TEXTO_CORPO).append(";\">")
                     .append(escapar(paragrafo)).append("</p>");
         }
 
         if (StringUtils.hasText(conteudo.htmlLivre())) {
-            html.append("<div class=\"ces-corpo\" style=\"font-size:14px;line-height:1.6;color:")
+            html.append("<div class=\"geo-corpo\" style=\"font-size:14px;line-height:1.6;color:")
                     .append(TEXTO_CORPO).append(";\">").append(conteudo.htmlLivre()).append("</div>");
         }
 
@@ -294,7 +294,7 @@ public class MontadorEmailHtml {
         }
         DestaqueEmail destaque = conteudo.destaque();
 
-        html.append("<p class=\"ces-suave\" style=\"margin:0 0 10px;font-size:11px;")
+        html.append("<p class=\"geo-suave\" style=\"margin:0 0 10px;font-size:11px;")
                 .append("font-weight:700;text-transform:uppercase;letter-spacing:1px;color:")
                 .append(TEXTO_SUAVE).append(";\">");
 
@@ -324,7 +324,7 @@ public class MontadorEmailHtml {
             return;
         }
         html.append("<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" ")
-                .append("width=\"100%\" class=\"ces-superficie\" style=\"margin:20px 0;")
+                .append("width=\"100%\" class=\"geo-superficie\" style=\"margin:20px 0;")
                 .append("background-color:").append(FUNDO_FICHA)
                 .append(";border:1px solid ").append(BORDA).append(";border-radius:6px;\">");
 
@@ -332,11 +332,11 @@ public class MontadorEmailHtml {
         for (ConteudoEmail.Dado dado : conteudo.dados()) {
             String separador = primeira ? "" : "border-top:1px solid " + BORDA + ";";
             html.append("<tr>")
-                    .append("<td class=\"ces-suave\" style=\"padding:10px 16px;font-size:12px;")
+                    .append("<td class=\"geo-suave\" style=\"padding:10px 16px;font-size:12px;")
                     .append("color:").append(TEXTO_SUAVE)
                     .append(";white-space:nowrap;vertical-align:top;width:38%;").append(separador)
                     .append("\">").append(escapar(dado.rotulo())).append("</td>")
-                    .append("<td class=\"ces-forte\" style=\"padding:10px 16px;font-size:13px;")
+                    .append("<td class=\"geo-forte\" style=\"padding:10px 16px;font-size:13px;")
                     .append("font-weight:600;color:")
                     .append(TEXTO_FORTE).append(";vertical-align:top;").append(separador)
                     .append("\">").append(escapar(dado.valor())).append("</td>")
@@ -355,7 +355,7 @@ public class MontadorEmailHtml {
         if (conteudo.acoes().isEmpty()) {
             return;
         }
-        html.append("<p class=\"ces-suave\" style=\"margin:24px 0 8px;font-size:12px;font-weight:700;")
+        html.append("<p class=\"geo-suave\" style=\"margin:24px 0 8px;font-size:12px;font-weight:700;")
                 .append("text-transform:uppercase;letter-spacing:0.6px;color:").append(TEXTO_SUAVE)
                 .append(";\">Decida por aqui</p>")
                 .append("<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>");
@@ -377,7 +377,7 @@ public class MontadorEmailHtml {
             primeira = false;
         }
         html.append("</tr></table>")
-                .append("<p class=\"ces-suave\" style=\"margin:8px 0 0;font-size:11px;line-height:1.5;color:")
+                .append("<p class=\"geo-suave\" style=\"margin:8px 0 0;font-size:11px;line-height:1.5;color:")
                 .append(TEXTO_SUAVE).append(";\">")
                 .append(escapar(StringUtils.hasText(conteudo.notaAcoes()) ? conteudo.notaAcoes()
                         : "O botão abre o registro com a decisão pronta para você confirmar no sistema."))
@@ -390,7 +390,7 @@ public class MontadorEmailHtml {
         }
         String url = escapar(conteudo.urlAcao());
         html.append("<table role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" ")
-                .append("style=\"margin:24px 0 10px;\"><tr><td class=\"ces-botao\" ")
+                .append("style=\"margin:24px 0 10px;\"><tr><td class=\"geo-botao\" ")
                 .append("style=\"background-color:").append(AZUL_MARCA).append(";border-radius:6px;\">")
                 .append("<a href=\"").append(url).append("\" style=\"display:inline-block;")
                 .append("padding:13px 30px;font-size:14px;font-weight:600;color:#ffffff;")
@@ -399,7 +399,7 @@ public class MontadorEmailHtml {
 
         // O endereço em texto logo abaixo do botão salva quem lê no celular corporativo,
         // onde o clique às vezes abre o app errado e o caminho é copiar o link.
-        html.append("<p class=\"ces-suave\" style=\"margin:0;font-size:11px;line-height:1.5;color:")
+        html.append("<p class=\"geo-suave\" style=\"margin:0;font-size:11px;line-height:1.5;color:")
                 .append(TEXTO_SUAVE).append(";word-break:break-all;\">")
                 .append("Caso o botão não funcione, copie o endereço: ").append(url).append("</p>");
     }
@@ -410,15 +410,15 @@ public class MontadorEmailHtml {
         }
         html.append("<div style=\"margin-top:26px;padding-top:18px;border-top:1px solid ")
                 .append(BORDA).append(";\">")
-                .append("<p class=\"ces-suave\" style=\"margin:0 0 10px;font-size:11px;")
+                .append("<p class=\"geo-suave\" style=\"margin:0 0 10px;font-size:11px;")
                 .append("font-weight:700;text-transform:uppercase;letter-spacing:1px;color:")
                 .append(TEXTO_SUAVE).append(";\">Anexos</p>");
 
         for (ConteudoEmail.Anexo anexo : conteudo.anexos()) {
-            html.append("<p class=\"ces-corpo\" style=\"margin:0 0 6px;font-size:13px;")
+            html.append("<p class=\"geo-corpo\" style=\"margin:0 0 6px;font-size:13px;")
                     .append("line-height:1.5;color:").append(TEXTO_CORPO).append(";\">")
                     .append(escapar(anexo.nomeArquivo()))
-                    .append("<span class=\"ces-suave\" style=\"color:")
+                    .append("<span class=\"geo-suave\" style=\"color:")
                     .append(TEXTO_SUAVE).append(";\"> &#8212; ")
                     .append(formatarTamanho(anexo.tamanhoBytes()));
             if (!anexo.anexado()) {
@@ -435,11 +435,11 @@ public class MontadorEmailHtml {
      * justifica ter escrito a quem trabalha na empresa; informa o que é e onde ajustar.
      */
     private void rodape(StringBuilder html) {
-        html.append("<tr><td class=\"ces-superficie\" style=\"padding:16px 32px;background-color:")
+        html.append("<tr><td class=\"geo-superficie\" style=\"padding:16px 32px;background-color:")
                 .append(FUNDO_FICHA)
                 .append(";border-top:1px solid ").append(BORDA).append(";\">");
 
-        html.append("<p class=\"ces-suave\" style=\"margin:0;font-size:11px;line-height:1.6;color:")
+        html.append("<p class=\"geo-suave\" style=\"margin:0;font-size:11px;line-height:1.6;color:")
                 .append(TEXTO_SUAVE)
                 .append(";\">Mensagem automática do sistema GEO. Não responda a este e-mail.");
 

@@ -31,7 +31,7 @@ public class Catalogo {
         GRUPOS.put("control", "Controle");
         GRUPOS.put("variables", "Valores guardados");
         GRUPOS.put("data", "Dados");
-        GRUPOS.put("ces", "GEO");
+        GRUPOS.put("geo", "GEO");
         GRUPOS.put("people", "Pessoas e destinatários");
         GRUPOS.put("ai", "Inteligência artificial");
         GRUPOS.put("notify", "Avisos e e-mail");

@@ -34,7 +34,7 @@ test('alterna tema e densidade mantendo foco visível', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Usar tema claro' })).toBeVisible();
 
   await page.getByRole('button', { name: 'Densidade confortável' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-ces-density', 'comfortable');
+  await expect(page.locator('html')).toHaveAttribute('data-geo-density', 'comfortable');
 });
 
 test('abre o diálogo compartilhado durante um processamento', async ({ page }) => {
@@ -56,7 +56,7 @@ test('mantém opções e estado vazio do autocomplete no tema escuro', async ({ 
 
   const colors = await page.locator('.p-autocomplete-overlay').evaluate((overlay) => {
     const surface = document.createElement('div');
-    surface.style.background = 'var(--ces-surface)';
+    surface.style.background = 'var(--geo-surface)';
     document.body.appendChild(surface);
     const result = {
       overlayBackground: getComputedStyle(overlay).backgroundColor,

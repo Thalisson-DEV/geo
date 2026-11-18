@@ -58,7 +58,7 @@ public class AgendadorAutomacoes {
         this.transacao = transacao;
     }
 
-    @Scheduled(fixedDelayString = "${ces.automacao.tick-ms:30000}", initialDelayString = "${ces.automacao.tick-inicial-ms:20000}")
+    @Scheduled(fixedDelayString = "${geo.automacao.tick-ms:30000}", initialDelayString = "${geo.automacao.tick-inicial-ms:20000}")
     public void tick() {
         OffsetDateTime agora = OffsetDateTime.now();
         executarSeguro("agendas", () -> agendas(agora));
@@ -67,7 +67,7 @@ public class AgendadorAutomacoes {
         executarSeguro("tempo limite", () -> tempoLimite(agora));
     }
 
-    @Scheduled(cron = "${ces.automacao.expurgo-cron:0 40 3 * * *}")
+    @Scheduled(cron = "${geo.automacao.expurgo-cron:0 40 3 * * *}")
     public void expurgarArquivos() {
         int removidos = arquivos.expurgar(OffsetDateTime.now().minusDays(30));
         if (removidos > 0) LOGGER.info("{} arquivos de execuções antigas de automação removidos.", removidos);

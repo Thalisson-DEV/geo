@@ -55,12 +55,12 @@ describe('navegação da Bússola', () => {
 
   it('prioriza chaveDestino e usa destino somente para mensagens antigas', () => {
     const canonical = resolveChatNavigation(action({
-      chaveDestino: 'CES_HOME',
+      chaveDestino: 'GEO_HOME',
       destino: 'DESCONTO_NOVO',
       autoridade: 'assistente:chat:use'
     }), ['assistente:chat:use', 'desconto:solicitar']);
     const legacy = resolveChatNavigation(action({
-      destino: 'CES_HOME',
+      destino: 'GEO_HOME',
       autoridade: 'assistente:chat:use'
     }), ['assistente:chat:use']);
 
@@ -98,13 +98,13 @@ describe('navegação da Bússola', () => {
       chaveDestino: 'https://example.com', autoridade: 'assistente:chat:use'
     }), ['assistente:chat:use'])).toBeNull();
     expect(resolveChatNavigation(action({
-      tipo: 'navigate', chaveDestino: 'CES_HOME', autoridade: 'assistente:chat:use'
+      tipo: 'navigate', chaveDestino: 'GEO_HOME', autoridade: 'assistente:chat:use'
     }), ['assistente:chat:use'])).toBeNull();
     expect(resolveChatNavigation(action({
-      chaveDestino: 'CES_HOME', autoridade: 'iam:usuario:read'
+      chaveDestino: 'GEO_HOME', autoridade: 'iam:usuario:read'
     }), ['assistente:chat:use', 'iam:usuario:read'])).toBeNull();
     expect(resolveChatNavigation(action({
-      chaveDestino: 'CES_HOME', autoridade: 'assistente:chat:use'
+      chaveDestino: 'GEO_HOME', autoridade: 'assistente:chat:use'
     }), [])).toBeNull();
   });
 

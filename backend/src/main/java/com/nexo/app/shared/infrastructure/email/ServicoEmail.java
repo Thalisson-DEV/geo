@@ -5,7 +5,7 @@ package com.nexo.app.shared.infrastructure.email;
  * {@code ObjectStorageService} faz com o armazenamento de arquivos.
  *
  * <p>Existe uma implementação por provedor, e apenas uma é registrada como bean, de
- * acordo com {@code ces.email.provedor}. Quem depende desta interface não tem como
+ * acordo com {@code geo.email.provedor}. Quem depende desta interface não tem como
  * saber — nem precisa — se a mensagem saiu pela caixa corporativa da empresa, por um
  * serviço transacional ou por lugar nenhum.</p>
  */

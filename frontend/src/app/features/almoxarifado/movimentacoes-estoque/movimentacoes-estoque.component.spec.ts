@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -89,7 +89,7 @@ describe('MovimentacoesEstoqueComponent', () => {
   it('mostra o ícone do tipo na tag e a nota da aplicação', async () => {
     almox['listarMovimentacoes'].mockReturnValue(paginaTeste([{ ...operacao, tipo: 'APLICACAO', numeroNota: 'NOTA-77' }]));
     const { el } = await abrir();
-    expect(el.querySelector('ces-status .pi-wrench')).toBeTruthy();
+    expect(el.querySelector('geo-status .pi-wrench')).toBeTruthy();
     expect(el.querySelector('.mov-atalhos .pi-wrench')).toBeTruthy();
     expect(el.textContent).toContain('NOTA-77');
   });
@@ -125,7 +125,7 @@ describe('MovimentacoesImportacaoComponent', () => {
       providers: [
         { provide: AlmoxarifadoService, useValue: servico },
         { provide: NotificationService, useValue: { error: vi.fn(), warning: vi.fn(), success: vi.fn(), info: vi.fn() } },
-        { provide: CesConfirmationService, useValue: { confirm: () => Promise.resolve(true) } }
+        { provide: GeoConfirmationService, useValue: { confirm: () => Promise.resolve(true) } }
       ]
     });
     const fixture = TestBed.createComponent(MovimentacoesImportacaoComponent);

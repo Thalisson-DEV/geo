@@ -20,8 +20,8 @@ body {
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: var(--ces-foreground);
-  background-color: var(--ces-canvas);
+  color: var(--geo-foreground);
+  background-color: var(--geo-canvas);
 }
 
 /* Ajuste de densidade global para componentes PrimeNG */
@@ -423,10 +423,10 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .dark .p-button:not(.p-button-text):not(.p-button-link) .p-button-label,
 .app-dark .p-button:not(.p-button-text):not(.p-button-link) .p-button-icon,
 .dark .p-button:not(.p-button-text):not(.p-button-link) .p-button-icon,
-.app-dark .ces-button .p-button:not(.p-button-text):not(.p-button-link),
-.dark .ces-button .p-button:not(.p-button-text):not(.p-button-link),
-.app-dark .ces-button .p-button:not(.p-button-text):not(.p-button-link) *,
-.dark .ces-button .p-button:not(.p-button-text):not(.p-button-link) * {
+.app-dark .geo-button .p-button:not(.p-button-text):not(.p-button-link),
+.dark .geo-button .p-button:not(.p-button-text):not(.p-button-link),
+.app-dark .geo-button .p-button:not(.p-button-text):not(.p-button-link) *,
+.dark .geo-button .p-button:not(.p-button-text):not(.p-button-link) * {
   color: #ffffff !important;
 }
 
@@ -438,7 +438,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .dark .bg-white,
 .app-dark .\!bg-white,
 .dark .\!bg-white {
-  background-color: var(--ces-surface) !important;
+  background-color: var(--geo-surface) !important;
 }
 
 .app-dark .p-button.\!bg-white,
@@ -488,14 +488,14 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .dark .bg-slate-50\/60,
 .app-dark .bg-slate-50\/80,
 .dark .bg-slate-50\/80 {
-  background-color: var(--ces-surface-subtle) !important;
+  background-color: var(--geo-surface-subtle) !important;
 }
 
 .app-dark .bg-slate-100,
 .dark .bg-slate-100,
 .app-dark .\!bg-slate-100,
 .dark .\!bg-slate-100 {
-  background-color: var(--ces-surface-muted) !important;
+  background-color: var(--geo-surface-muted) !important;
 }
 
 .app-dark .border-slate-100,
@@ -510,7 +510,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .dark .\!border-slate-100,
 .dark .\!border-slate-200,
 .dark .\!border-slate-300 {
-  border-color: var(--ces-border) !important;
+  border-color: var(--geo-border) !important;
 }
 
 /* ==========================================================================
@@ -603,7 +603,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .dark .\!text-gray-600,
 .app-dark .\!text-gray-500,
 .dark .\!text-gray-500 {
-  color: var(--ces-foreground-muted) !important;
+  color: var(--geo-foreground-muted) !important;
 }
 
 .app-dark .text-slate-400,
@@ -638,7 +638,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .dark .\!text-neutral-400,
 .app-dark .\!text-neutral-300,
 .dark .\!text-neutral-300 {
-  color: var(--ces-foreground-subtle) !important;
+  color: var(--geo-foreground-subtle) !important;
 }
 
 .app-dark .bg-gray-50,
@@ -646,7 +646,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .bg-neutral-50,
 .app-dark .\!bg-gray-50,
 .app-dark .\!bg-zinc-50 {
-  background-color: var(--ces-surface-subtle) !important;
+  background-color: var(--geo-surface-subtle) !important;
 }
 
 .app-dark .bg-gray-100,
@@ -654,7 +654,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .bg-neutral-100,
 .app-dark .\!bg-gray-100,
 .app-dark .\!bg-zinc-100 {
-  background-color: var(--ces-surface-muted) !important;
+  background-color: var(--geo-surface-muted) !important;
 }
 
 .app-dark .border-gray-100,
@@ -666,7 +666,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .\!border-gray-100,
 .app-dark .\!border-gray-200,
 .app-dark .\!border-gray-300 {
-  border-color: var(--ces-border) !important;
+  border-color: var(--geo-border) !important;
 }
 
 .app-dark .hover\:bg-slate-50:hover,
@@ -675,13 +675,13 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .dark .hover\:bg-slate-50:hover,
 .dark .hover\:bg-slate-100:hover,
 .dark .hover\:bg-white:hover {
-  background-color: var(--ces-surface-muted) !important;
+  background-color: var(--geo-surface-muted) !important;
 }
 
 .app-dark .hover\:bg-primary-50:hover,
 .app-dark .hover\:bg-primary-50\/30:hover,
 .app-dark .hover\:bg-primary-50\/50:hover {
-  background-color: var(--ces-brand-soft) !important;
+  background-color: var(--geo-brand-soft) !important;
 }
 
 /* Universal Import Modals, Headers & Gradients Dark Adaptation */
@@ -694,7 +694,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .bg-gradient-to-tl,
 .app-dark .bg-gradient-to-bl {
   background-image: none !important;
-  background-color: var(--ces-surface-subtle) !important;
+  background-color: var(--geo-surface-subtle) !important;
 }
 
 .app-dark .from-slate-50,
@@ -703,13 +703,13 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .to-slate-50,
 .app-dark .to-slate-100,
 .app-dark .to-white {
-  background-color: var(--ces-surface-subtle) !important;
+  background-color: var(--geo-surface-subtle) !important;
 }
 
 .app-dark .bg-slate-50\/30,
 .app-dark .bg-slate-50\/50,
 .app-dark .bg-slate-100\/50 {
-  background-color: var(--ces-surface-subtle) !important;
+  background-color: var(--geo-surface-subtle) !important;
 }
 
 .app-dark .bg-red-50,
@@ -717,7 +717,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .bg-red-50\/20,
 .app-dark .bg-red-50\/30,
 .app-dark .bg-red-50\/50 {
-  background-color: color-mix(in srgb, #dc2626 15%, var(--ces-surface)) !important;
+  background-color: color-mix(in srgb, #dc2626 15%, var(--geo-surface)) !important;
 }
 
 .app-dark .bg-amber-50,
@@ -726,7 +726,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .bg-amber-50\/30,
 .app-dark .bg-amber-50\/50,
 .app-dark .bg-yellow-50 {
-  background-color: color-mix(in srgb, #d97706 15%, var(--ces-surface)) !important;
+  background-color: color-mix(in srgb, #d97706 15%, var(--geo-surface)) !important;
 }
 
 .app-dark .bg-primary-50,
@@ -736,13 +736,13 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .bg-primary-50\/50,
 .app-dark .bg-blue-50,
 .app-dark .bg-blue-50\/50 {
-  background-color: color-mix(in srgb, var(--ces-brand) 18%, var(--ces-surface)) !important;
+  background-color: color-mix(in srgb, var(--geo-brand) 18%, var(--geo-surface)) !important;
 }
 
 .app-dark .bg-emerald-50,
 .app-dark .bg-green-50,
 .app-dark .bg-green-50\/50 {
-  background-color: color-mix(in srgb, #059669 18%, var(--ces-surface)) !important;
+  background-color: color-mix(in srgb, #059669 18%, var(--geo-surface)) !important;
 }
 
 .app-dark .border-primary-100,
@@ -750,14 +750,14 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .border-primary-300,
 .app-dark .border-blue-100,
 .app-dark .border-blue-200 {
-  border-color: color-mix(in srgb, var(--ces-brand) 35%, var(--ces-border)) !important;
+  border-color: color-mix(in srgb, var(--geo-brand) 35%, var(--geo-border)) !important;
 }
 
 .app-dark .border-green-100,
 .app-dark .border-green-200,
 .app-dark .border-emerald-100,
 .app-dark .border-emerald-200 {
-  border-color: color-mix(in srgb, #059669 35%, var(--ces-border)) !important;
+  border-color: color-mix(in srgb, #059669 35%, var(--geo-border)) !important;
 }
 
 .app-dark .text-primary-700,
@@ -767,7 +767,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .text-blue-500,
 .app-dark .\!text-primary-600,
 .app-dark .\!text-primary-700 {
-  color: var(--ces-brand, var(--p-primary-400)) !important;
+  color: var(--geo-brand, var(--p-primary-400)) !important;
 }
 
 .app-dark .border-primary-700,
@@ -809,22 +809,22 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 
 /* Help Dialog Dark Adaptation */
 .app-dark .help-icon {
-  background-color: var(--ces-surface-subtle) !important;
-  border-color: var(--ces-border) !important;
-  color: var(--ces-foreground-muted) !important;
+  background-color: var(--geo-surface-subtle) !important;
+  border-color: var(--geo-border) !important;
+  color: var(--geo-foreground-muted) !important;
 }
 
 .app-dark .help-section-title {
-  border-color: var(--ces-border) !important;
-  color: var(--ces-brand) !important;
+  border-color: var(--geo-border) !important;
+  color: var(--geo-brand) !important;
 }
 
 .app-dark .help-text-title {
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .app-dark .help-text-desc {
-  color: var(--ces-foreground-muted) !important;
+  color: var(--geo-foreground-muted) !important;
 }
 
 /* ==========================================================================
@@ -833,45 +833,45 @@ p-iconfield[iconPosition="right"] .p-inputtext,
    ========================================================================== */
 .p-dialog,
 .custom-dialog,
-.ces-dialog,
+.geo-dialog,
 .p-confirmdialog,
 .p-confirm-dialog {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .p-dialog .p-dialog-header,
 .p-dialog-header {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
-  border-bottom: 1px solid var(--ces-border) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
+  border-bottom: 1px solid var(--geo-border) !important;
   padding: 1.25rem 1.5rem !important;
 }
 
 .p-dialog .p-dialog-title,
 .p-dialog-title {
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
   font-weight: 700 !important;
 }
 
 .p-dialog .p-dialog-content,
 .p-dialog-content {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
   padding: 1.25rem 1.5rem !important;
 }
 
 .p-dialog .p-dialog-footer,
 .p-dialog-footer {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
-  border-top: 1px solid var(--ces-border) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
+  border-top: 1px solid var(--geo-border) !important;
   padding: 1.25rem 1.5rem !important;
 }
 
-.ces-dialog-shell .p-dialog-footer:not(:has([dialog-footer])),
-.ces-dialog-shell .p-dialog-footer:has(.ces-dialog-shell__footer:empty),
-.ces-dialog .p-dialog-footer:has(.ces-dialog-shell__footer:empty),
+.geo-dialog-shell .p-dialog-footer:not(:has([dialog-footer])),
+.geo-dialog-shell .p-dialog-footer:has(.geo-dialog-shell__footer:empty),
+.geo-dialog .p-dialog-footer:has(.geo-dialog-shell__footer:empty),
 .p-dialog-footer:empty {
   display: none !important;
 }
@@ -879,7 +879,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .p-confirmdialog-message,
 .p-confirm-dialog-message,
 .p-dialog-message {
-  color: var(--ces-foreground-muted, #475569) !important;
+  color: var(--geo-foreground-muted, #475569) !important;
   font-size: 0.875rem !important;
   line-height: 1.6 !important;
   word-break: break-word !important;
@@ -888,37 +888,37 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 /* Modo Escuro específico para diálogos */
 .app-dark .p-dialog,
 .app-dark .custom-dialog,
-.app-dark .ces-dialog,
+.app-dark .geo-dialog,
 .app-dark .p-confirmdialog,
 .app-dark .p-confirm-dialog {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
-  border-color: var(--ces-border) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
+  border-color: var(--geo-border) !important;
 }
 
 .app-dark .p-dialog .p-dialog-header,
 .app-dark .p-dialog-header {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
-  border-color: var(--ces-border) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
+  border-color: var(--geo-border) !important;
 }
 
 .app-dark .p-dialog .p-dialog-title,
 .app-dark .p-dialog-title {
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .app-dark .p-dialog .p-dialog-content,
 .app-dark .p-dialog-content {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .app-dark .p-dialog .p-dialog-footer,
 .app-dark .p-dialog-footer {
-  background-color: var(--ces-surface) !important;
-  color: var(--ces-foreground) !important;
-  border-color: var(--ces-border) !important;
+  background-color: var(--geo-surface) !important;
+  color: var(--geo-foreground) !important;
+  border-color: var(--geo-border) !important;
 }
 
 .app-dark .p-dialog h1,
@@ -927,72 +927,72 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .p-dialog h4,
 .app-dark .p-dialog h5,
 .app-dark .p-dialog h6 {
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .app-dark .p-dialog label,
 .app-dark .p-dialog .filter-label,
 .app-dark .p-dialog .form-label,
 .app-dark .p-dialog label.filter-label {
-  color: var(--ces-foreground-muted) !important;
+  color: var(--geo-foreground-muted) !important;
 }
 
 .app-dark .p-dialog input:not(.p-button):not([type='checkbox']):not([type='radio']),
 .app-dark .p-dialog textarea,
 .app-dark .p-dialog .p-inputtext,
 .app-dark .p-dialog .custom-input {
-  background-color: var(--ces-surface-subtle) !important;
-  border-color: var(--ces-border) !important;
-  color: var(--ces-foreground) !important;
+  background-color: var(--geo-surface-subtle) !important;
+  border-color: var(--geo-border) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .app-dark .p-dialog input::placeholder,
 .app-dark .p-dialog textarea::placeholder {
-  color: var(--ces-foreground-subtle) !important;
+  color: var(--geo-foreground-subtle) !important;
 }
 
 .app-dark .p-dialog .p-select,
 .app-dark .p-dialog .p-multiselect,
 .app-dark .p-dialog .p-datepicker {
-  background-color: var(--ces-surface-subtle) !important;
-  border-color: var(--ces-border) !important;
-  color: var(--ces-foreground) !important;
+  background-color: var(--geo-surface-subtle) !important;
+  border-color: var(--geo-border) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .app-dark .p-dialog .p-select-label,
 .app-dark .p-dialog .p-multiselect-label {
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
 }
 
 .app-dark .p-dialog .minimalist-table .p-datatable-thead > tr > th,
 .app-dark .p-dialog .p-datatable-thead > tr > th {
-  background-color: var(--ces-surface-subtle) !important;
-  color: var(--ces-foreground-subtle) !important;
-  border-color: var(--ces-border) !important;
+  background-color: var(--geo-surface-subtle) !important;
+  color: var(--geo-foreground-subtle) !important;
+  border-color: var(--geo-border) !important;
 }
 
 .app-dark .p-dialog .minimalist-table .p-datatable-tbody > tr,
 .app-dark .p-dialog .p-datatable-tbody > tr {
   background-color: transparent !important;
-  color: var(--ces-foreground) !important;
-  border-color: var(--ces-border) !important;
+  color: var(--geo-foreground) !important;
+  border-color: var(--geo-border) !important;
 }
 
 .app-dark .p-dialog .minimalist-table .p-datatable-tbody > tr:hover,
 .app-dark .p-dialog .p-datatable-tbody > tr:hover {
-  background-color: var(--ces-surface-muted) !important;
+  background-color: var(--geo-surface-muted) !important;
 }
 
 .app-dark .p-dialog .minimalist-table .p-datatable-tbody > tr > td,
 .app-dark .p-dialog .p-datatable-tbody > tr > td {
-  color: var(--ces-foreground) !important;
-  border-color: var(--ces-border) !important;
+  color: var(--geo-foreground) !important;
+  border-color: var(--geo-border) !important;
 }
 
 .app-dark .p-confirmdialog-message,
 .app-dark .p-confirm-dialog-message,
 .app-dark .p-dialog-message {
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
 }
 
 /* Dark Mode Subtle Shadows - Eliminates heavy black halos */
@@ -1018,7 +1018,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .field label,
 .app-dark .dash-field label,
 .app-dark label.form-label {
-  color: var(--ces-foreground-muted) !important;
+  color: var(--geo-foreground-muted) !important;
 }
 
 /* Stepper panels transparent in dark mode */
@@ -1031,7 +1031,7 @@ p-iconfield[iconPosition="right"] .p-inputtext,
 .app-dark .p-step-panel,
 .app-dark .p-stepper-panel {
   background: transparent !important;
-  color: var(--ces-foreground) !important;
+  color: var(--geo-foreground) !important;
 }
 
 /* Universal Logo Dark Mode Replacement (Crisp White Arcs + Brand Red) */
@@ -1066,13 +1066,13 @@ input.p-inputtext,
 }
 
 /* O selo textual identifica a entrada do assistente no menu lateral. */
-.ces-sidebar-destaque { border: 1px solid color-mix(in srgb, var(--ces-brand) 28%, transparent); }
-.ces-sidebar-badge {
+.geo-sidebar-destaque { border: 1px solid color-mix(in srgb, var(--geo-brand) 28%, transparent); }
+.geo-sidebar-badge {
   margin-inline-start: auto;
   padding: 0.0625rem 0.4rem;
   border-radius: 999px;
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -1186,7 +1186,7 @@ input.p-inputtext,
 .dark tfoot > tr > td {
   background: transparent !important;
   background-color: transparent !important;
-  border-color: var(--ces-border) !important;
+  border-color: var(--geo-border) !important;
 }
 
 
@@ -1195,7 +1195,7 @@ input.p-inputtext,
  * do dashboard. Para isso a altura precisa chegar até ela — o componente roteado vira bloco com a altura
  * do <main>, sem depender de cada dashboard declarar `:host { height: 100% }`.
  */
-main.ces-main--full-bleed > :not(router-outlet) {
+main.geo-main--full-bleed > :not(router-outlet) {
   display: block;
   height: 100%;
   min-height: 0;

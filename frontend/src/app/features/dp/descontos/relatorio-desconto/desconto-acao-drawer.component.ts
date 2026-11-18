@@ -11,14 +11,14 @@ import {
   untracked
 } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesNumberInputComponent,
-  CesTextareaComponent
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoNumberInputComponent,
+  GeoTextareaComponent
+} from '@geo/ui';
 import { DescontoResponse, DescontoStatus, MAX_DESCONTO_ANEXO_SIZE_BYTES } from '../../../../core/models/desconto.models';
 
 export type AcaoDesconto = 'VALIDAR' | 'BAIXAR' | 'REJEITAR' | 'DESFAZER' | 'FINALIZAR';
@@ -111,21 +111,21 @@ const MINIMO_MOTIVO = 5;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CurrencyPipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesNumberInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoNumberInputComponent,
+    GeoTextareaComponent
   ],
   template: `
     @if (config(); as c) {
-      <ces-form-drawer [(visible)]="visivel" [title]="c.titulo" [description]="c.descricao"
+      <geo-form-drawer [(visible)]="visivel" [title]="c.titulo" [description]="c.descricao"
         [dirty]="sujo()" [loading]="processando()" size="sm">
         @if (desconto(); as d) {
-          <ces-form-section title="Desconto" icon="pi pi-file">
-            <dl class="ces-sheet">
+          <geo-form-section title="Desconto" icon="pi pi-file">
+            <dl class="geo-sheet">
               <div><dt>Colaborador</dt><dd>{{ nomeColaborador() || '—' }}</dd></div>
               <div><dt>Motivo</dt><dd>{{ d.motivo.descricao || '—' }}</dd></div>
               <div><dt>Valor sugerido</dt><dd>{{ d.valorSugerido | currency: 'BRL' }}</dd></div>
@@ -140,64 +140,64 @@ const MINIMO_MOTIVO = 5;
                 <div><dt>Volta para</dt><dd>{{ x.volta }}</dd></div>
               }
             </dl>
-          </ces-form-section>
+          </geo-form-section>
         }
 
         @switch (acao()) {
           @case ('FINALIZAR') {
-            <ces-form-section title="Termo assinado" icon="pi pi-verified">
-              <div class="ces-form-stack">
-                <ces-file-input label="Arquivo do termo" [required]="true" accept="application/pdf,image/jpeg,image/png,image/webp,image/heic"
+            <geo-form-section title="Termo assinado" icon="pi pi-verified">
+              <div class="geo-form-stack">
+                <geo-file-input label="Arquivo do termo" [required]="true" accept="application/pdf,image/jpeg,image/png,image/webp,image/heic"
                   [maxBytes]="maxBytes" buttonLabel="Selecionar arquivo" emptyLabel="Nenhum arquivo selecionado"
                   description="PDF ou foto legível do termo inteiro, com a assinatura do colaborador. Até 15 MB."
-                  [(file)]="arquivo" [error]="erroArquivo()"></ces-file-input>
-                <ces-callout tone="info" icon="pi pi-info-circle" [dense]="true">
+                  [(file)]="arquivo" [error]="erroArquivo()"></geo-file-input>
+                <geo-callout tone="info" icon="pi pi-info-circle" [dense]="true">
                   O arquivo fica em destaque entre os anexos, identificado como o termo assinado.
-                </ces-callout>
+                </geo-callout>
               </div>
-            </ces-form-section>
+            </geo-form-section>
           }
           @case ('REJEITAR') {
-            <ces-form-section title="Justificativa" icon="pi pi-comment">
-              <div class="ces-form-stack">
-                <ces-textarea label="Motivo da rejeição" [required]="true" [(value)]="motivo" [rows]="4"
+            <geo-form-section title="Justificativa" icon="pi pi-comment">
+              <div class="geo-form-stack">
+                <geo-textarea label="Motivo da rejeição" [required]="true" [(value)]="motivo" [rows]="4"
                   [maxlength]="1000" placeholder="Ex.: o item já tinha sido devolvido; valor fora da tabela."
-                  description="Fica registrado no termo, com seu nome e a data." [error]="erroMotivo()"></ces-textarea>
-                <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true">
+                  description="Fica registrado no termo, com seu nome e a data." [error]="erroMotivo()"></geo-textarea>
+                <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true">
                   Se precisar, a rejeição pode ser desfeita depois, com motivo.
-                </ces-callout>
+                </geo-callout>
               </div>
-            </ces-form-section>
+            </geo-form-section>
           }
           @case ('DESFAZER') {
-            <ces-form-section title="Justificativa" icon="pi pi-comment">
-              <div class="ces-form-stack">
+            <geo-form-section title="Justificativa" icon="pi pi-comment">
+              <div class="geo-form-stack">
                 @if (desfazer(); as x) {
-                  <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true">{{ x.aviso }}</ces-callout>
+                  <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true">{{ x.aviso }}</geo-callout>
                 }
-                <ces-textarea label="Motivo" [required]="true" [(value)]="motivo" [rows]="4" [maxlength]="1000"
+                <geo-textarea label="Motivo" [required]="true" [(value)]="motivo" [rows]="4" [maxlength]="1000"
                   placeholder="Ex.: valor validado com erro de digitação; baixa lançada no colaborador errado."
-                  description="Fica na linha do tempo do desconto, com seu nome e a data." [error]="erroMotivo()"></ces-textarea>
+                  description="Fica na linha do tempo do desconto, com seu nome e a data." [error]="erroMotivo()"></geo-textarea>
               </div>
-            </ces-form-section>
+            </geo-form-section>
           }
           @default {
-            <ces-form-section title="Valor" icon="pi pi-wallet">
-              <div class="ces-form-stack">
-                <ces-number-input [label]="acao() === 'VALIDAR' ? 'Valor validado' : 'Valor baixado'" mode="currency"
+            <geo-form-section title="Valor" icon="pi pi-wallet">
+              <div class="geo-form-stack">
+                <geo-number-input [label]="acao() === 'VALIDAR' ? 'Valor validado' : 'Valor baixado'" mode="currency"
                   [required]="true" [min]="0" [minFractionDigits]="2" [maxFractionDigits]="2"
-                  [(value)]="valor" [error]="erroValor()" [description]="descricaoValor()"></ces-number-input>
+                  [(value)]="valor" [error]="erroValor()" [description]="descricaoValor()"></geo-number-input>
               </div>
-            </ces-form-section>
+            </geo-form-section>
           }
         }
 
-        <div drawer-footer class="ces-actions-row">
-          <ces-button variant="ghost" label="Voltar" (pressed)="visivel.set(false)" [disabled]="processando()"></ces-button>
-          <ces-button [variant]="c.variante" [icon]="c.icone" [label]="c.confirmar" [loading]="processando()"
-            (pressed)="confirmar()"></ces-button>
+        <div drawer-footer class="geo-actions-row">
+          <geo-button variant="ghost" label="Voltar" (pressed)="visivel.set(false)" [disabled]="processando()"></geo-button>
+          <geo-button [variant]="c.variante" [icon]="c.icone" [label]="c.confirmar" [loading]="processando()"
+            (pressed)="confirmar()"></geo-button>
         </div>
-      </ces-form-drawer>
+      </geo-form-drawer>
     }
   `
 })

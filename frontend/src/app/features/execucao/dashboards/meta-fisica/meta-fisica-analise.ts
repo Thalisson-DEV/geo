@@ -1,4 +1,4 @@
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 import { NotaDoRecorte } from '../../../../core/models/dashboard.models';
 import { nomeMes } from '../../../../core/models/meta-fisica.models';
 import { DashboardService } from '../../../../core/services/dashboard.service';
@@ -320,7 +320,7 @@ function graficoHistorico(historico: readonly MesHistorico[]): GraficoAnalise | 
   };
 }
 
-const colunasCelulas = (m: ModeloMetaFisica): CesDataTableColumn<CelulaFisica>[] => [
+const colunasCelulas = (m: ModeloMetaFisica): GeoDataTableColumn<CelulaFisica>[] => [
   { key: 'base', header: 'Base', priority: 1 },
   { key: 'servico', header: 'Serviço', priority: 1 },
   { key: 'situacao', header: 'Situação', priority: 1, value: (c) => SITUACAO_FISICA[c.situacao].rotulo },
@@ -333,8 +333,8 @@ const colunasCelulas = (m: ModeloMetaFisica): CesDataTableColumn<CelulaFisica>[]
         { key: 'saldo', header: 'Saldo', priority: 2, value: (c) => c.saldo, display: (c) => (c.saldo >= 0 ? '+' : '−') + inteiro(Math.abs(c.saldo)) },
         { key: 'necessarioPorDia', header: 'Por dia útil', priority: 2, value: (c) => c.necessarioPorDia, display: (c) => umaCasa(c.necessarioPorDia) },
         { key: 'projecao', header: 'Projeção', priority: 3, value: (c) => c.projecao, display: (c) => inteiro(c.projecao) }
-      ] satisfies CesDataTableColumn<CelulaFisica>[])
-    : [{ key: 'falta', header: 'Faltam', type: 'integer', priority: 2 } satisfies CesDataTableColumn<CelulaFisica>])
+      ] satisfies GeoDataTableColumn<CelulaFisica>[])
+    : [{ key: 'falta', header: 'Faltam', type: 'integer', priority: 2 } satisfies GeoDataTableColumn<CelulaFisica>])
 ];
 
 function tabelaCelulas(m: ModeloMetaFisica, celulas: readonly CelulaFisica[], titulo: string, descricao: string): TabelaAnalise<CelulaFisica> {

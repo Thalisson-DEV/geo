@@ -2,11 +2,11 @@ import { ICONE_STATUS_SOLICITACAO } from '../../../core/models/financeiro.models
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   SolicitacaoFinanceira,
@@ -15,7 +15,7 @@ import {
 } from '../../../core/models/financeiro.models';
 import { FinanceiroService } from '../../../core/services/financeiro.service';
 import { nomeSolicitante } from './solicitacao-financeira.utils';
-import { CesTone } from '../../../design-system/core';
+import { GeoTone } from '../../../design-system/core';
 
 const STATUS_LABELS: Record<StatusSolicitacao, string> = {
   RASCUNHO: 'Rascunho',
@@ -25,7 +25,7 @@ const STATUS_LABELS: Record<StatusSolicitacao, string> = {
   CANCELADO: 'Cancelado'
 };
 
-const STATUS_TONES: Record<StatusSolicitacao, CesTone> = {
+const STATUS_TONES: Record<StatusSolicitacao, GeoTone> = {
   RASCUNHO: 'neutral',
   SOLICITADO: 'warning',
   APROVADO: 'success',
@@ -35,18 +35,18 @@ const STATUS_TONES: Record<StatusSolicitacao, CesTone> = {
 
 @Injectable({ providedIn: 'root' })
 export class FinanceiroReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<SolicitacaoFinanceira>
+  implements GeoReportNavigatorDataSource<SolicitacaoFinanceira>
 {
   private readonly financeiroService = inject(FinanceiroService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'AMBOS',
     status: null,
     sort: 'dataCriacao,desc',
     mine: false
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: (criteria) => {
       if (criteria.scope === 'COMPRA') return 'Solicitações de compra';
       if (criteria.scope === 'PAGAMENTO') return 'Solicitações de pagamento';
@@ -86,7 +86,7 @@ export class FinanceiroReportNavigatorDataSource
     totalLabel: (total) => `${total} ${total === 1 ? 'solicitação' : 'solicitações'}`
   };
 
-  load(criteria: CesReportNavigatorCriteria): Observable<CesReportNavigatorPage<SolicitacaoFinanceira>> {
+  load(criteria: GeoReportNavigatorCriteria): Observable<GeoReportNavigatorPage<SolicitacaoFinanceira>> {
     const scope = (criteria.scope as TipoSolicitacao | 'AMBOS') || 'AMBOS';
     return this.financeiroService
       .listarSolicitacoes(scope, {
@@ -105,7 +105,7 @@ export class FinanceiroReportNavigatorDataSource
       );
   }
 
-  toItem(raw: SolicitacaoFinanceira): CesReportNavigatorItem {
+  toItem(raw: SolicitacaoFinanceira): GeoReportNavigatorItem {
     const isCompra = raw.formulario?.tipoSolicitacao === 'COMPRA';
     return {
       id: raw.id,
@@ -136,8 +136,8 @@ export class FinanceiroReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | SolicitacaoFinanceira): string[] {
-    const raw = (item as CesReportNavigatorItem).raw as SolicitacaoFinanceira | undefined ?? (item as SolicitacaoFinanceira);
+  getRouteForItem(item: GeoReportNavigatorItem | SolicitacaoFinanceira): string[] {
+    const raw = (item as GeoReportNavigatorItem).raw as SolicitacaoFinanceira | undefined ?? (item as SolicitacaoFinanceira);
     const tipo = raw?.formulario?.tipoSolicitacao === 'COMPRA' ? 'compras' : 'pagamentos';
     return ['/financeiro', tipo, String(raw.id || item.id)];
   }

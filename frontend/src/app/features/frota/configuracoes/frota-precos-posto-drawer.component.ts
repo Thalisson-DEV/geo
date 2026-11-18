@@ -1,18 +1,18 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, signal, untracked } from '@angular/core';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesDrawerComponent,
-  CesFormSectionComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoDrawerComponent,
+  GeoFormSectionComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   PostoAbastecimento,
   PrecoPosto,
@@ -35,59 +35,59 @@ import { precoUnitario } from '../abastecimentos/frota-abastecimento.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesDrawerComponent,
-    CesFormSectionComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoDrawerComponent,
+    GeoFormSectionComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent
   ],
   styles: `
     .pp { display: grid; gap: 1.25rem; }
     .pp__vigentes { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.625rem; }
-    .pp__cartao { display: grid; gap: 0.25rem; padding: 0.75rem 0.875rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md, 0.5rem);
-      background: var(--ces-surface); }
+    .pp__cartao { display: grid; gap: 0.25rem; padding: 0.75rem 0.875rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem);
+      background: var(--geo-surface); }
     .pp__cartao strong { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
-    .pp__cartao span { font-size: 0.75rem; color: var(--ces-foreground-muted); }
+    .pp__cartao span { font-size: 0.75rem; color: var(--geo-foreground-muted); }
     .pp__cartao--vazio { border-style: dashed; }
     .pp__form { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0.625rem; align-items: end; }
     @media (max-width: 560px) { .pp__form { grid-template-columns: 1fr; } }
-    .pp__historico { display: grid; margin: 0; padding: 0; list-style: none; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md, 0.5rem); }
+    .pp__historico { display: grid; margin: 0; padding: 0; list-style: none; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem); }
     .pp__linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; padding: 0.625rem 0.875rem; font-size: 0.8125rem; }
-    .pp__linha + .pp__linha { border-top: 1px solid var(--ces-border); }
+    .pp__linha + .pp__linha { border-top: 1px solid var(--geo-border); }
     .pp__linha strong { font-variant-numeric: tabular-nums; }
-    .pp__linha span { color: var(--ces-foreground-muted); }
-    .pp__sugestao { display: grid; gap: 0.5rem; padding: 0.75rem 0.875rem; border: 1px solid var(--ces-warning); border-radius: var(--ces-radius-md, 0.5rem);
-      background: var(--ces-warning-soft); }
+    .pp__linha span { color: var(--geo-foreground-muted); }
+    .pp__sugestao { display: grid; gap: 0.5rem; padding: 0.75rem 0.875rem; border: 1px solid var(--geo-warning); border-radius: var(--geo-radius-md, 0.5rem);
+      background: var(--geo-warning-soft); }
     .pp__acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .pp__titulo { margin: 0; font-size: 0.875rem; font-weight: 700; }
   `,
   template: `
-    <ces-drawer [(visible)]="visible" eyebrow="Preços do posto" [title]="posto()?.nome ?? 'Posto'" size="md">
+    <geo-drawer [(visible)]="visible" eyebrow="Preços do posto" [title]="posto()?.nome ?? 'Posto'" size="md">
       @if (carregando() && !precos().length) {
-        <ces-async-state state="loading" title="Carregando os preços" [compact]="true"></ces-async-state>
+        <geo-async-state state="loading" title="Carregando os preços" [compact]="true"></geo-async-state>
       } @else if (erro()) {
-        <ces-async-state state="error" title="Não foi possível carregar os preços" [description]="erro()!" [compact]="true"
-          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível carregar os preços" [description]="erro()!" [compact]="true"
+          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
       } @else {
         <div class="pp">
-          <ces-callout tone="info" [dense]="true" icon="pi pi-calculator">
+          <geo-callout tone="info" [dense]="true" icon="pi pi-calculator">
             Com o preço cadastrado, quem abastece só confirma os litros e o valor sai calculado. Sem preço, o app pede o valor e o abastecimento ganha o alerta de posto sem preço.
-          </ces-callout>
+          </geo-callout>
 
           @if (sugestoes().length) {
-            <section class="ces-form-stack" aria-label="Preços lidos nos cupons">
+            <section class="geo-form-stack" aria-label="Preços lidos nos cupons">
               <h3 class="pp__titulo">Preços lidos nos cupons pela Bússola</h3>
               @for (s of sugestoes(); track s.id) {
                 <div class="pp__sugestao">
                   <span><strong>{{ s.produto }}</strong>: cadastro {{ s.precoCadastrado == null ? 'sem preço' : preco(s.precoCadastrado) }},
                     cupom de {{ s.dataCupom | date: 'dd/MM' }} {{ preco(s.precoCupom) }}.</span>
                   <div class="pp__acoes">
-                    <ces-button size="sm" icon="pi pi-check" label="Atualizar o preço" [loading]="salvando()" (pressed)="decidir(s, true)"></ces-button>
-                    <ces-button size="sm" variant="ghost" icon="pi pi-times" label="Manter o atual" (pressed)="decidir(s, false)"></ces-button>
+                    <geo-button size="sm" icon="pi pi-check" label="Atualizar o preço" [loading]="salvando()" (pressed)="decidir(s, true)"></geo-button>
+                    <geo-button size="sm" variant="ghost" icon="pi pi-times" label="Manter o atual" (pressed)="decidir(s, false)"></geo-button>
                   </div>
                 </div>
               }
@@ -115,18 +115,18 @@ import { precoUnitario } from '../abastecimentos/frota-abastecimento.util';
           </section>
 
           @if (podeEditar()) {
-            <ces-form-section title="Registrar preço" icon="pi pi-plus" description="O preço novo vale a partir da data; o anterior fica no histórico.">
+            <geo-form-section title="Registrar preço" icon="pi pi-plus" description="O preço novo vale a partir da data; o anterior fica no histórico.">
               <div class="pp__form">
-                <ces-select label="Produto" [options]="opcoesProduto()" [(value)]="idProduto"
-                  [error]="tentou() && !idProduto() ? 'Escolha o produto.' : undefined"></ces-select>
-                <ces-number-input label="Preço" [(value)]="valor" [min]="0.001" [minFractionDigits]="3" [maxFractionDigits]="3" prefix="R$ "
-                  [error]="tentou() && !valor() ? 'Informe o preço.' : undefined"></ces-number-input>
-                <ces-datepicker label="Vale a partir de" [value]="dataLocal(vigenteDesde())" (valueChange)="vigenteDesde.set(dataIso($event))"></ces-datepicker>
+                <geo-select label="Produto" [options]="opcoesProduto()" [(value)]="idProduto"
+                  [error]="tentou() && !idProduto() ? 'Escolha o produto.' : undefined"></geo-select>
+                <geo-number-input label="Preço" [(value)]="valor" [min]="0.001" [minFractionDigits]="3" [maxFractionDigits]="3" prefix="R$ "
+                  [error]="tentou() && !valor() ? 'Informe o preço.' : undefined"></geo-number-input>
+                <geo-datepicker label="Vale a partir de" [value]="dataLocal(vigenteDesde())" (valueChange)="vigenteDesde.set(dataIso($event))"></geo-datepicker>
               </div>
               <div class="pp__acoes">
-                <ces-button icon="pi pi-check" label="Registrar preço" [loading]="salvando()" (pressed)="registrar()"></ces-button>
+                <geo-button icon="pi pi-check" label="Registrar preço" [loading]="salvando()" (pressed)="registrar()"></geo-button>
               </div>
-            </ces-form-section>
+            </geo-form-section>
           }
 
           <section aria-labelledby="pp-historico">
@@ -136,21 +136,21 @@ import { precoUnitario } from '../abastecimentos/frota-abastecimento.util';
                 @for (p of precos(); track p.id) {
                   <li class="pp__linha">
                     <span><strong>{{ p.produto }}</strong> · {{ preco(p.precoUnitario, p.unidade) }}
-                      @if (p.vigente) { <ces-status tone="success" emphasis="soft">Vale hoje</ces-status> }</span>
+                      @if (p.vigente) { <geo-status tone="success" emphasis="soft">Vale hoje</geo-status> }</span>
                     <span>{{ p.vigenteDesde | date: 'dd/MM/yyyy' }} · {{ p.origemRotulo }}{{ p.registradoPor ? ' · ' + p.registradoPor : '' }}</span>
                   </li>
                 }
               </ul>
             } @else {
-              <ces-async-state state="empty" title="Nenhum preço cadastrado" description="Registre o preço de cada produto que o posto vende." [compact]="true"></ces-async-state>
+              <geo-async-state state="empty" title="Nenhum preço cadastrado" description="Registre o preço de cada produto que o posto vende." [compact]="true"></geo-async-state>
             }
           </section>
         </div>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></geo-button>
       </div>
-    </ces-drawer>
+    </geo-drawer>
   `
 })
 export class FrotaPrecosPostoDrawerComponent {
@@ -175,7 +175,7 @@ export class FrotaPrecosPostoDrawerComponent {
   protected readonly dataLocal = dataLocal;
 
   protected readonly produtosAtivos = computed(() => this.produtos().filter((p) => p.ativo));
-  protected readonly opcoesProduto = computed<CesSelectOption<string>[]>(() => this.produtosAtivos().map((p) => ({ label: p.nome, value: p.id })));
+  protected readonly opcoesProduto = computed<GeoSelectOption<string>[]>(() => this.produtosAtivos().map((p) => ({ label: p.nome, value: p.id })));
 
   constructor() {
     effect(() => {

@@ -1,29 +1,29 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -36,7 +36,7 @@ import { SstService } from '../../../core/services/sst.service';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from '../../../shared/listagem/listagem';
 
-const SITUACOES: CesSelectOption<boolean | null>[] = [
+const SITUACOES: GeoSelectOption<boolean | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Ativas', value: true },
   { label: 'Desativadas', value: false }
@@ -55,27 +55,27 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
+      <geo-page-header
         title="Atividades de SST"
         icon="pi pi-briefcase"
         [breadcrumb]="[{ label: 'SST' }, { label: 'Atividades de SST' }]"
@@ -84,22 +84,22 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         (help)="ajuda.show()"
       >
         @if (podeEscrever) {
-          <ces-button actions icon="pi pi-plus" label="Nova atividade" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Nova atividade" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="sst-atividades" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="sst-atividades" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Situação" [options]="situacoes" [(value)]="lista.filters.ativo"></ces-select>
-          <ces-autocomplete label="Gestor" placeholder="Todos" [clearable]="true" [options]="colaboradores()" [loading]="colaboradoresLoading()"
+        <div class="geo-filter-grid">
+          <geo-select label="Situação" [options]="situacoes" [(value)]="lista.filters.ativo"></geo-select>
+          <geo-autocomplete label="Gestor" placeholder="Todos" [clearable]="true" [options]="colaboradores()" [loading]="colaboradoresLoading()"
             [status]="colaboradoresStatus()" [error]="colaboradoresError()" [minLength]="2" [virtualScroll]="true" [virtualScrollItemSize]="38"
             [ngModel]="lista.filters.idGestor()" (ngModelChange)="lista.filters.idGestor.set($event ?? null)"
-            (search)="buscarColaboradores($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></ces-autocomplete>
+            (search)="buscarColaboradores($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></geo-autocomplete>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Atividades de SST"
         mode="server"
         storageKey="sst-atividades"
@@ -129,54 +129,54 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.nome }}</span>
-          <span class="ces-cell-muted">{{ row.descricao || '—' }}</span>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.nome }}</span>
+          <span class="geo-cell-muted">{{ row.descricao || '—' }}</span>
         </ng-template>
-        <ng-template cesCell="gestor" let-row>
+        <ng-template geoCell="gestor" let-row>
           @if (row.nomeGestor) {
             {{ row.nomeGestor }}
           } @else {
-            <ces-status tone="warning" icon="pi-exclamation-circle" emphasis="outline">Definir no evento</ces-status>
+            <geo-status tone="warning" icon="pi-exclamation-circle" emphasis="outline">Definir no evento</geo-status>
           }
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Desativada' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Desativada' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
+        <ng-template geoRowActions let-row>
           @if (podeEscrever) {
-            <span class="ces-table-actions">
-              <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-                size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+            <span class="geo-table-actions">
+              <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+                size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
             </span>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar atividade de SST' : 'Nova atividade de SST'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar atividade de SST' : 'Nova atividade de SST'"
       [description]="emEdicao()?.nome" [dirty]="alterado()" size="md">
-      <ces-form-section title="Atividade" icon="pi pi-briefcase">
-        <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Poda de árvores"
-          description="Use o nome pelo qual a atividade é reconhecida pelas equipes." [error]="tentouSalvar() && !nome().trim() ? 'Informe o nome.' : undefined"></ces-text-input>
-        <ces-textarea label="Descrição" [(value)]="descricao" [rows]="3" [maxlength]="500" [showOptional]="true"
-          placeholder="Descreva brevemente o escopo da atividade"></ces-textarea>
-      </ces-form-section>
-      <ces-form-section title="Sugestões para o evento" icon="pi pi-lightbulb">
-        <ces-autocomplete label="Gestor responsável" placeholder="Selecione o gestor padrão" [clearable]="true" [options]="colaboradores()"
+      <geo-form-section title="Atividade" icon="pi pi-briefcase">
+        <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Poda de árvores"
+          description="Use o nome pelo qual a atividade é reconhecida pelas equipes." [error]="tentouSalvar() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>
+        <geo-textarea label="Descrição" [(value)]="descricao" [rows]="3" [maxlength]="500" [showOptional]="true"
+          placeholder="Descreva brevemente o escopo da atividade"></geo-textarea>
+      </geo-form-section>
+      <geo-form-section title="Sugestões para o evento" icon="pi pi-lightbulb">
+        <geo-autocomplete label="Gestor responsável" placeholder="Selecione o gestor padrão" [clearable]="true" [options]="colaboradores()"
           [loading]="colaboradoresLoading()" [status]="colaboradoresStatus()" [error]="colaboradoresError()" [minLength]="2"
           [virtualScroll]="true" [virtualScrollItemSize]="38" description="Se ficar vazio, o gestor será obrigatório no registro do evento."
           [ngModel]="idGestor()" (ngModelChange)="idGestor.set($event ?? null)"
-          (search)="buscarColaboradores($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></ces-autocomplete>
-        <ces-select label="Processo" [options]="processosOpcoes()" [(value)]="idProcesso" [filter]="true" [clearable]="true" [showOptional]="true"
-          placeholder="Selecione o processo relacionado" description="Sugerido automaticamente nos novos eventos."></ces-select>
-        <ces-callout tone="info" [dense]="true">Mudanças de gestor ou processo valem só para registros futuros; eventos existentes mantêm o contexto original.</ces-callout>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar atividade'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+          (search)="buscarColaboradores($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></geo-autocomplete>
+        <geo-select label="Processo" [options]="processosOpcoes()" [(value)]="idProcesso" [filter]="true" [clearable]="true" [showOptional]="true"
+          placeholder="Selecione o processo relacionado" description="Sugerido automaticamente nos novos eventos."></geo-select>
+        <geo-callout tone="info" [dense]="true">Mudanças de gestor ou processo valem só para registros futuros; eventos existentes mantêm o contexto original.</geo-callout>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar atividade'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Atividades de SST" entidadePlural="atividades" artigoPlural="as" busca="nome ou descrição"
       rotuloNovo="Nova atividade" [podeCriar]="podeEscrever">
@@ -192,18 +192,18 @@ export class AtividadesSstComponent {
   private readonly rh = inject(RhService);
   private readonly lookupStore = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   protected readonly podeEscrever = inject(AuthService).currentUser()?.permissoes?.includes('sst:catalogo:write') ?? false;
 
   protected readonly situacoes = SITUACOES;
   protected readonly processos = signal<ProcessoNegocioResponse[]>([]);
   protected readonly processosOpcoes = computed(() => this.processos().map((p) => ({ label: p.nome, value: p.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'sst-atividades',
     filters: {
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Situação', param: 'situacao', options: () => SITUACOES }),
-      idGestor: cesFilter.value<string | null>(null, {
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Situação', param: 'situacao', options: () => SITUACOES }),
+      idGestor: geoFilter.value<string | null>(null, {
         label: 'Gestor',
         param: 'gestor',
         format: (id): string | null => (id ? this.nomeGestor(id) : null)
@@ -242,7 +242,7 @@ export class AtividadesSstComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.sst.listarAtividadesSst({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<AtividadeSstResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<AtividadeSstResponse>[] = [
     { key: 'nome', header: 'Atividade', type: 'custom', priority: 1, sortField: 'nome', value: (a) => a.nome, display: (a) => `${a.nome} ${a.descricao ?? ''}` },
     { key: 'gestor', header: 'Gestor responsável', type: 'custom', priority: 1, value: (a) => a.nomeGestor, display: (a) => a.nomeGestor ?? 'Definir no evento' },
     { key: 'processo', header: 'Processo', display: (a) => a.nomeProcesso || '—' },

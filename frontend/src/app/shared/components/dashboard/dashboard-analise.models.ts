@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { CesChartKind, CesChartSeries, CesChartValueFormat, CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoChartKind, GeoChartSeries, GeoChartValueFormat, GeoDataTableColumn, GeoTone } from '@geo/ui';
 
 /**
  * Contrato declarativo da análise detalhada (drill-down) dos dashboards. O dashboard descreve o que
@@ -26,7 +26,7 @@ export interface KpiAnalise {
   readonly rotulo: string;
   readonly valor: string;
   readonly detalhe?: string;
-  readonly tom?: CesTone;
+  readonly tom?: GeoTone;
   readonly icone?: string;
 }
 
@@ -34,17 +34,17 @@ export interface KpiAnalise {
 export interface DestaqueAnalise {
   readonly texto: string;
   readonly icone: string;
-  readonly tom: CesTone;
+  readonly tom: GeoTone;
 }
 
 export interface GraficoAnalise {
   readonly id: string;
   readonly titulo: string;
   readonly descricao?: string;
-  readonly tipo: CesChartKind;
+  readonly tipo: GeoChartKind;
   readonly rotulos: readonly string[];
-  readonly series: readonly CesChartSeries[];
-  readonly formato?: CesChartValueFormat;
+  readonly series: readonly GeoChartSeries[];
+  readonly formato?: GeoChartValueFormat;
   readonly altura?: number;
   readonly nota?: string;
   /** Ocupa a largura toda do painel (padrão: metade em telas largas). */
@@ -60,7 +60,7 @@ export interface TabelaAnalise<T = any> {
   readonly titulo: string;
   readonly descricao?: string;
   readonly icone?: string;
-  readonly colunas: readonly CesDataTableColumn<T>[];
+  readonly colunas: readonly GeoDataTableColumn<T>[];
   readonly linhas: readonly T[];
   readonly chaveLinha: (linha: T, indice: number) => string;
   readonly rotuloLinha?: (linha: T) => string;
@@ -117,7 +117,7 @@ export interface OrigemAnalise<T = any> {
   readonly rotuloAba: string;
   readonly descricao?: string;
   readonly icone?: string;
-  readonly colunas: readonly CesDataTableColumn<T>[];
+  readonly colunas: readonly GeoDataTableColumn<T>[];
   readonly carregar: () => Observable<{ linhas: T[]; total: number }>;
   readonly chaveLinha: (linha: T) => string;
   readonly rotuloLinha?: (linha: T) => string;

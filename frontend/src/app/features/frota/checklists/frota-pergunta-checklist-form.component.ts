@@ -13,17 +13,17 @@ import {
   untracked
 } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { AlternativaChecklist, ModoFotoPergunta, PerguntaChecklist, ROTULO_MODO_FOTO, TipoRespostaChecklist } from '../../../core/models/frota-checklist.models';
 import { ROTULO_RESPOSTA, modoFoto as modoFotoDe } from './frota-modelo-checklist.util';
 
@@ -45,95 +45,95 @@ let sequencia = 0;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesTextInputComponent
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent
   ],
   styles: `
     .linhas { display: flex; flex-direction: column; gap: 0.5rem; }
     .linha { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .linha__texto { flex: 1; min-width: 12rem; }
     .sugestoes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; }
-    .sugestoes__rotulo { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); margin-right: 0.25rem; }
+    .sugestoes__rotulo { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); margin-right: 0.25rem; }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visible" [title]="pergunta()?.texto ? 'Editar pergunta' : 'Nova pergunta'"
+    <geo-form-drawer [(visible)]="visible" [title]="pergunta()?.texto ? 'Editar pergunta' : 'Nova pergunta'"
       [description]="pergunta()?.texto || 'O que o condutor confere no veículo.'" [dirty]="alterado()" [loading]="salvando()" size="md">
-      <div class="ces-form-stack">
-        <ces-form-section title="Pergunta" icon="pi pi-question-circle">
-          <ces-text-input label="Pergunta" [required]="true" [(value)]="texto" [maxlength]="300" placeholder="Ex.: Faróis"
-            description="Curta e direta: o condutor lê no celular." [error]="tentou() && !texto().trim() ? 'Escreva a pergunta.' : undefined"></ces-text-input>
-          <ces-text-input label="Grupo" [(value)]="grupo" [maxlength]="80" [showOptional]="true" placeholder="Ex.: Iluminação"
-            description="Perguntas do mesmo grupo aparecem juntas no app."></ces-text-input>
+      <div class="geo-form-stack">
+        <geo-form-section title="Pergunta" icon="pi pi-question-circle">
+          <geo-text-input label="Pergunta" [required]="true" [(value)]="texto" [maxlength]="300" placeholder="Ex.: Faróis"
+            description="Curta e direta: o condutor lê no celular." [error]="tentou() && !texto().trim() ? 'Escreva a pergunta.' : undefined"></geo-text-input>
+          <geo-text-input label="Grupo" [(value)]="grupo" [maxlength]="80" [showOptional]="true" placeholder="Ex.: Iluminação"
+            description="Perguntas do mesmo grupo aparecem juntas no app."></geo-text-input>
           @if (sugestoesGrupo().length) {
             <div class="sugestoes">
               <span class="sugestoes__rotulo">Grupos do modelo:</span>
               @for (g of sugestoesGrupo(); track g) {
-                <ces-button size="sm" variant="ghost" [label]="g" (pressed)="grupo.set(g)"></ces-button>
+                <geo-button size="sm" variant="ghost" [label]="g" (pressed)="grupo.set(g)"></geo-button>
               }
             </div>
           }
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="Resposta" icon="pi pi-check-square">
-          <ces-select label="Como o condutor responde" [required]="true" [options]="tiposResposta" [(value)]="tipoResposta"></ces-select>
-          <ces-select label="Foto" [options]="opcoesFoto()" [(value)]="modoFoto"
-            [description]="modoFoto() === 'SEMPRE' ? 'O app pede a foto em todo checklist (ex.: extintor, macaco, triângulo).' : modoFoto() === 'NAO_OK' ? 'O app não deixa enviar o Não OK sem a foto.' : 'Sem foto obrigatória; a pessoa pode anexar se quiser.'"></ces-select>
-          <ces-callout tone="info" [dense]="true">{{ explicacao() }}</ces-callout>
-        </ces-form-section>
+        <geo-form-section title="Resposta" icon="pi pi-check-square">
+          <geo-select label="Como o condutor responde" [required]="true" [options]="tiposResposta" [(value)]="tipoResposta"></geo-select>
+          <geo-select label="Foto" [options]="opcoesFoto()" [(value)]="modoFoto"
+            [description]="modoFoto() === 'SEMPRE' ? 'O app pede a foto em todo checklist (ex.: extintor, macaco, triângulo).' : modoFoto() === 'NAO_OK' ? 'O app não deixa enviar o Não OK sem a foto.' : 'Sem foto obrigatória; a pessoa pode anexar se quiser.'"></geo-select>
+          <geo-callout tone="info" [dense]="true">{{ explicacao() }}</geo-callout>
+        </geo-form-section>
 
         @if (tipoResposta() === 'OK_NOK') {
-          <ces-form-section title="Motivos do Não OK" icon="pi pi-list" description="Opcional. O condutor escolhe um quando marca Não OK.">
+          <geo-form-section title="Motivos do Não OK" icon="pi pi-list" description="Opcional. O condutor escolhe um quando marca Não OK.">
             <div class="linhas">
               @for (l of motivos(); track l.uid; let i = $index) {
                 <div class="linha">
-                  <ces-text-input class="linha__texto" [inputId]="'linha-' + l.uid" [label]="'Motivo ' + (i + 1)" [labelVisible]="false"
-                    [value]="l.texto" (valueChange)="alterarLinha(motivos, i, { texto: $event })" [maxlength]="120" placeholder="Ex.: Queimado"></ces-text-input>
-                  <ces-icon-button icon="pi pi-trash" [label]="'Remover o motivo ' + (i + 1)" tooltip="Remover" size="icon-sm"
-                    (pressed)="removerLinha(motivos, i)"></ces-icon-button>
+                  <geo-text-input class="linha__texto" [inputId]="'linha-' + l.uid" [label]="'Motivo ' + (i + 1)" [labelVisible]="false"
+                    [value]="l.texto" (valueChange)="alterarLinha(motivos, i, { texto: $event })" [maxlength]="120" placeholder="Ex.: Queimado"></geo-text-input>
+                  <geo-icon-button icon="pi pi-trash" [label]="'Remover o motivo ' + (i + 1)" tooltip="Remover" size="icon-sm"
+                    (pressed)="removerLinha(motivos, i)"></geo-icon-button>
                 </div>
               } @empty {
                 <p class="sugestoes__rotulo">Sem motivos: o condutor só marca Não OK e comenta.</p>
               }
               <div>
-                <ces-button size="sm" variant="outline" icon="pi pi-plus" label="Adicionar motivo" (pressed)="adicionarLinha(motivos)"></ces-button>
+                <geo-button size="sm" variant="outline" icon="pi pi-plus" label="Adicionar motivo" (pressed)="adicionarLinha(motivos)"></geo-button>
               </div>
             </div>
-          </ces-form-section>
+          </geo-form-section>
         } @else if (tipoResposta() === 'OPCOES') {
-          <ces-form-section title="Opções de resposta" icon="pi pi-list" description="Pelo menos duas. Marque as que indicam problema: elas viram pendência para o gestor.">
+          <geo-form-section title="Opções de resposta" icon="pi pi-list" description="Pelo menos duas. Marque as que indicam problema: elas viram pendência para o gestor.">
             <div class="linhas">
               @for (l of opcoes(); track l.uid; let i = $index) {
                 <div class="linha">
-                  <ces-text-input class="linha__texto" [inputId]="'linha-' + l.uid" [label]="'Opção ' + (i + 1)" [labelVisible]="false"
-                    [value]="l.texto" (valueChange)="alterarLinha(opcoes, i, { texto: $event })" [maxlength]="120" placeholder="Ex.: Bom"></ces-text-input>
-                  <ces-boolean-control [inline]="true" label="Indica problema" [value]="l.indicaProblema"
-                    (valueChange)="alterarLinha(opcoes, i, { indicaProblema: $event })"></ces-boolean-control>
-                  <ces-icon-button icon="pi pi-trash" [label]="'Remover a opção ' + (i + 1)" tooltip="Remover" size="icon-sm"
-                    (pressed)="removerLinha(opcoes, i)"></ces-icon-button>
+                  <geo-text-input class="linha__texto" [inputId]="'linha-' + l.uid" [label]="'Opção ' + (i + 1)" [labelVisible]="false"
+                    [value]="l.texto" (valueChange)="alterarLinha(opcoes, i, { texto: $event })" [maxlength]="120" placeholder="Ex.: Bom"></geo-text-input>
+                  <geo-boolean-control [inline]="true" label="Indica problema" [value]="l.indicaProblema"
+                    (valueChange)="alterarLinha(opcoes, i, { indicaProblema: $event })"></geo-boolean-control>
+                  <geo-icon-button icon="pi pi-trash" [label]="'Remover a opção ' + (i + 1)" tooltip="Remover" size="icon-sm"
+                    (pressed)="removerLinha(opcoes, i)"></geo-icon-button>
                 </div>
               }
               @if (tentou() && preenchidas(opcoes()).length < 2) {
-                <p class="ces-field-error" role="alert">Informe pelo menos duas opções.</p>
+                <p class="geo-field-error" role="alert">Informe pelo menos duas opções.</p>
               }
               <div>
-                <ces-button size="sm" variant="outline" icon="pi pi-plus" label="Adicionar opção" (pressed)="adicionarLinha(opcoes)"></ces-button>
+                <geo-button size="sm" variant="outline" icon="pi pi-plus" label="Adicionar opção" (pressed)="adicionarLinha(opcoes)"></geo-button>
               </div>
             </div>
-          </ces-form-section>
+          </geo-form-section>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="pergunta()?.texto ? 'Salvar pergunta' : 'Adicionar pergunta'" [loading]="salvando()"
-          (pressed)="confirmar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="pergunta()?.texto ? 'Salvar pergunta' : 'Adicionar pergunta'" [loading]="salvando()"
+          (pressed)="confirmar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaPerguntaChecklistFormComponent {
@@ -147,7 +147,7 @@ export class FrotaPerguntaChecklistFormComponent {
   readonly salvando = input(false);
   readonly confirmado = output<PerguntaChecklist>();
 
-  protected readonly tiposResposta: CesSelectOption<TipoRespostaChecklist>[] = (Object.keys(ROTULO_RESPOSTA) as TipoRespostaChecklist[])
+  protected readonly tiposResposta: GeoSelectOption<TipoRespostaChecklist>[] = (Object.keys(ROTULO_RESPOSTA) as TipoRespostaChecklist[])
     .map((value) => ({ label: ROTULO_RESPOSTA[value], value }));
 
   protected readonly texto = signal('');

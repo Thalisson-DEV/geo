@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { TipoVinculoSubprojeto } from '../../core/models/obras.models';
 
 /**
@@ -38,9 +38,9 @@ export function sanitizarTituloObra(raw?: string | null): string {
 }
 
 /**
- * Retorna o tom semântico do Design System (CesTone) para o status da obra.
+ * Retorna o tom semântico do Design System (GeoTone) para o status da obra.
  */
-export function statusTone(statusNome?: string | null, concluida?: boolean): CesTone {
+export function statusTone(statusNome?: string | null, concluida?: boolean): GeoTone {
   const norm = (statusNome ?? '').toUpperCase().trim();
 
   if (norm.includes('CONCLU')) return 'success';

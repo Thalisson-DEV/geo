@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { CesStatusComponent } from '@ces/ui';
+import { GeoStatusComponent } from '@geo/ui';
 import { ArquivoAssistente } from '../../../core/models/assistente.models';
 import { EtapaView } from '../copiloto-pacotes';
 import { TIPO_ETAPA, formatarCelula, formatarDuracao, rotuloColuna } from '../copiloto-formatos';
@@ -14,7 +14,7 @@ let sequencia = 0;
 @Component({
   selector: 'app-copiloto-etapas',
   standalone: true,
-  imports: [CesStatusComponent],
+  imports: [GeoStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './copiloto-etapas.component.html',
   styleUrl: './copiloto-etapas.component.css',

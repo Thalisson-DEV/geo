@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { CesStatusComponent } from '@ces/ui';
-import { CesAsyncStateComponent, CesCalloutComponent } from '@ces/ui/feedback';
+import { GeoStatusComponent } from '@geo/ui';
+import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui/feedback';
 import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/assistente.models';
 
 @Component({
   selector: 'app-copiloto-boas-vindas',
   standalone: true,
-  imports: [CesStatusComponent, CesCalloutComponent, CesAsyncStateComponent],
+  imports: [GeoStatusComponent, GeoCalloutComponent, GeoAsyncStateComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="boas-vindas" aria-labelledby="copiloto-boas-vindas-titulo">
@@ -17,17 +17,17 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
       </p>
 
       @if (contexto(); as ctx) {
-        <ces-callout tone="info" icon="pi-map-marker" title="Contexto desta conversa" [dense]="true">
+        <geo-callout tone="info" icon="pi-map-marker" title="Contexto desta conversa" [dense]="true">
           Você abriu a Bússola a partir de {{ ctx.rotulo || ctx.pagina || ctx.entidadeTipo }}. Perguntas como
           “analise isto” usam esse contexto.
-        </ces-callout>
+        </geo-callout>
       }
 
       @if (capacidades(); as cap) {
         @if (!cap.disponivel) {
-          <ces-callout tone="warning" icon="pi-exclamation-triangle" title="Bússola indisponível" [dense]="true">
+          <geo-callout tone="warning" icon="pi-exclamation-triangle" title="Bússola indisponível" [dense]="true">
             {{ cap.motivoIndisponibilidade || 'O provedor de IA não está configurado neste ambiente.' }}
-          </ces-callout>
+          </geo-callout>
         }
         <div class="boas-vindas__recursos" aria-label="Capacidades da Bússola">
           <h2 class="boas-vindas__subtitulo">O que posso fazer</h2>
@@ -35,7 +35,7 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
             <p class="boas-vindas__estado">Disponível agora</p>
             <ul class="boas-vindas__capacidades" aria-label="Capacidades disponíveis agora">
               @for (capacidade of capacidadesDisponiveis(); track capacidade.label) {
-                <li><ces-status tone="brand" [icon]="capacidade.icon">{{ capacidade.label }}</ces-status></li>
+                <li><geo-status tone="brand" [icon]="capacidade.icon">{{ capacidade.label }}</geo-status></li>
               }
             </ul>
           }
@@ -43,7 +43,7 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
             <p class="boas-vindas__estado">Indisponível nesta sessão</p>
             <ul class="boas-vindas__capacidades" aria-label="Capacidades indisponíveis nesta sessão">
               @for (capacidade of capacidadesIndisponiveis(); track capacidade.label) {
-                <li><ces-status tone="neutral" [icon]="capacidade.icon">{{ capacidade.label }}</ces-status></li>
+                <li><geo-status tone="neutral" [icon]="capacidade.icon">{{ capacidade.label }}</geo-status></li>
               }
             </ul>
           }
@@ -65,9 +65,9 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
           </ul>
         }
       } @else if (erro()) {
-        <ces-async-state state="error" [compact]="true" title="Não foi possível carregar as capacidades" [description]="erro() || undefined"></ces-async-state>
+        <geo-async-state state="error" [compact]="true" title="Não foi possível carregar as capacidades" [description]="erro() || undefined"></geo-async-state>
       } @else {
-        <ces-async-state state="loading" [compact]="true" title="Preparando a Bússola"></ces-async-state>
+        <geo-async-state state="loading" [compact]="true" title="Preparando a Bússola"></geo-async-state>
       }
     </section>
   `,
@@ -85,25 +85,25 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
       text-align: center;
     }
     .boas-vindas__avatar { width: 3.25rem; height: 3.25rem; border-radius: 999px; object-fit: cover; }
-    .boas-vindas__titulo { margin: 0.3rem 0 0; font-size: clamp(1.35rem, 2vw, 1.7rem); font-weight: 650; color: var(--ces-foreground); line-height: 1.25; }
-    .boas-vindas__texto { margin: 0; max-width: 34rem; color: var(--ces-foreground-muted); font-size: var(--ces-font-body); line-height: 1.5; }
+    .boas-vindas__titulo { margin: 0.3rem 0 0; font-size: clamp(1.35rem, 2vw, 1.7rem); font-weight: 650; color: var(--geo-foreground); line-height: 1.25; }
+    .boas-vindas__texto { margin: 0; max-width: 34rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-body); line-height: 1.5; }
     .boas-vindas__subtitulo {
       align-self: stretch;
       margin: 1.1rem 0 0;
-      font-size: var(--ces-font-caption);
+      font-size: var(--geo-font-caption);
       font-weight: 600;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      color: var(--ces-foreground-subtle);
+      color: var(--geo-foreground-subtle);
       text-align: left;
     }
-    ces-callout { align-self: stretch; text-align: left; }
+    geo-callout { align-self: stretch; text-align: left; }
     .boas-vindas__recursos { align-self: stretch; margin-top: 0.4rem; }
     .boas-vindas__recursos .boas-vindas__subtitulo { margin: 0 0 0.35rem; }
     .boas-vindas__estado {
       margin: 0.7rem 0 0.4rem;
-      color: var(--ces-foreground-muted);
-      font-size: var(--ces-font-caption);
+      color: var(--geo-foreground-muted);
+      font-size: var(--geo-font-caption);
       text-align: left;
     }
     .boas-vindas__capacidades {
@@ -132,22 +132,22 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
       height: 100%;
       min-height: 3.7rem;
       padding: 0.7rem 0.85rem;
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md);
-      background: var(--ces-surface);
-      color: var(--ces-foreground);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md);
+      background: var(--geo-surface);
+      color: var(--geo-foreground);
       font: inherit;
       text-align: left;
       cursor: pointer;
-      transition: border-color var(--ces-duration-fast) var(--ces-ease-standard), box-shadow var(--ces-duration-fast) var(--ces-ease-standard);
+      transition: border-color var(--geo-duration-fast) var(--geo-ease-standard), box-shadow var(--geo-duration-fast) var(--geo-ease-standard);
     }
-    .sugestao:hover:not(:disabled) { border-color: var(--ces-brand); box-shadow: var(--ces-shadow-sm); }
-    .sugestao:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .sugestao:hover:not(:disabled) { border-color: var(--geo-brand); box-shadow: var(--geo-shadow-sm); }
+    .sugestao:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .sugestao:disabled { cursor: not-allowed; opacity: 0.6; }
-    .sugestao__icone { color: var(--ces-brand); }
-    .sugestao__texto { flex: 1; font-size: var(--ces-font-body); line-height: 1.35; }
+    .sugestao__icone { color: var(--geo-brand); }
+    .sugestao__texto { flex: 1; font-size: var(--geo-font-body); line-height: 1.35; }
     .sugestao__texto strong { font-weight: 550; }
-    .sugestao__seta { font-size: 0.7rem; color: var(--ces-foreground-subtle); }
+    .sugestao__seta { font-size: 0.7rem; color: var(--geo-foreground-subtle); }
     @media (max-width: 640px) {
       .boas-vindas { padding: 0.75rem 0 1.5rem; }
       .sugestoes { grid-template-columns: 1fr; }

@@ -14,30 +14,30 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDialogShellComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesPdfCanvasComponent,
-  CesPdfRegiao,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDialogShellComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoPdfCanvasComponent,
+  GeoPdfRegiao,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesPdfDaTela,
-  cesPdfParaTela,
+  geoPdfDaTela,
+  geoPdfParaTela,
   normalizarRotacao
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable, filter, switchMap, take, takeWhile, timer } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AnexoObraResponse, OrcamentoObraResponse } from '../../../core/models/obras.models';
@@ -78,22 +78,22 @@ const INTERVALO_ANALISE_MS = 3000;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDialogShellComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesPdfCanvasComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDialogShellComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoPdfCanvasComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     PlanejamentoArvoreComponent,
     PlanejamentoKitsComponent,
     PlanejamentoRevisaoComponent,
@@ -110,9 +110,9 @@ export class ObraPlanejamentoComponent {
   private readonly api = inject(ObrasPlanejamentoService);
   private readonly obras = inject(ObrasService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
-  private readonly canvas = viewChild(CesPdfCanvasComponent);
+  private readonly canvas = viewChild(GeoPdfCanvasComponent);
   private readonly overlay = viewChild<ElementRef<HTMLElement>>('overlay');
   private readonly numeroNovo = viewChild('numeroNovo', { read: ElementRef });
 
@@ -123,7 +123,7 @@ export class ObraPlanejamentoComponent {
   protected readonly programarAberto = signal(false);
   protected readonly programacaoAberta = signal(false);
   protected readonly idProgramacao = signal<string | null>(null);
-  protected readonly tiposPonto: CesSelectOption<TipoPontoPlanejamento>[] = TIPOS_PONTO;
+  protected readonly tiposPonto: GeoSelectOption<TipoPontoPlanejamento>[] = TIPOS_PONTO;
   protected readonly moeda = formatarMoeda;
   protected readonly rotuloEstado = ROTULO_ESTADO;
   protected readonly estadosLegenda: EstadoLocal[] = ['sem-kit', 'pendente', 'programado', 'atrasado', 'andamento', 'concluido'];
@@ -186,7 +186,7 @@ export class ObraPlanejamentoComponent {
   // ---- Projeto mestre ----
   protected readonly projetoAberto = signal(false);
   protected readonly anexosPdf = signal<AnexoObraResponse[]>([]);
-  protected readonly tiposAnexo = signal<CesSelectOption<string>[]>([]);
+  protected readonly tiposAnexo = signal<GeoSelectOption<string>[]>([]);
   protected readonly projetoTipo = signal<string | null>(null);
   protected readonly projetoArquivo = signal<File | null>(null);
   protected readonly enviandoProjeto = signal(false);
@@ -220,7 +220,7 @@ export class ObraPlanejamentoComponent {
       .filter((p) => p.pagina === this.pagina())
       .map((ponto) => {
         const base = movendo?.id === ponto.id ? movendo : ponto;
-        const tela = cesPdfParaTela({ x: Number(base.x), y: Number(base.y) }, rotacao);
+        const tela = geoPdfParaTela({ x: Number(base.x), y: Number(base.y) }, rotacao);
         const estado = estadoDoLocal(kitsDoLocal(plano, ponto.id), atrasadas);
         return { ponto, left: tela.x * 100, top: tela.y * 100, estado };
       });
@@ -238,8 +238,8 @@ export class ObraPlanejamentoComponent {
       const a = pontos.get(vao.idPontoA);
       const b = pontos.get(vao.idPontoB);
       if (!a || !b || a.pagina !== pagina || b.pagina !== pagina) continue;
-      const pa = cesPdfParaTela(movendo?.id === a.id ? movendo : { x: Number(a.x), y: Number(a.y) }, rotacao);
-      const pb = cesPdfParaTela(movendo?.id === b.id ? movendo : { x: Number(b.x), y: Number(b.y) }, rotacao);
+      const pa = geoPdfParaTela(movendo?.id === a.id ? movendo : { x: Number(a.x), y: Number(a.y) }, rotacao);
+      const pb = geoPdfParaTela(movendo?.id === b.id ? movendo : { x: Number(b.x), y: Number(b.y) }, rotacao);
       lista.push({
         vao, x1: pa.x, y1: pa.y, x2: pb.x, y2: pb.y,
         mx: ((pa.x + pb.x) / 2) * 100, my: ((pa.y + pb.y) / 2) * 100,
@@ -264,7 +264,7 @@ export class ObraPlanejamentoComponent {
       const aqui = a.pagina === pagina ? a : b.pagina === pagina ? b : null;
       if (!aqui) return [];
       const outro = aqui === a ? b : a;
-      const tela = cesPdfParaTela({ x: Number(aqui.x), y: Number(aqui.y) }, rotacao);
+      const tela = geoPdfParaTela({ x: Number(aqui.x), y: Number(aqui.y) }, rotacao);
       return [{ vao, left: tela.x * 100, top: tela.y * 100, destino: outro }];
     });
   });
@@ -274,7 +274,7 @@ export class ObraPlanejamentoComponent {
     return (this.plano()?.anotacoes ?? [])
       .filter((a) => a.pagina === this.pagina())
       .map((anotacao) => {
-        const tela = cesPdfParaTela({ x: Number(anotacao.x), y: Number(anotacao.y) }, rotacao);
+        const tela = geoPdfParaTela({ x: Number(anotacao.x), y: Number(anotacao.y) }, rotacao);
         return { anotacao, left: tela.x * 100, top: tela.y * 100 };
       });
   });
@@ -285,7 +285,7 @@ export class ObraPlanejamentoComponent {
     const ajustes = this.ajustes();
     return this.sugestoes().map((sugestao) => {
       const posicao = ajustes.get(sugestao.referencia) ?? sugestao;
-      const tela = cesPdfParaTela({ x: Number(posicao.x), y: Number(posicao.y) }, rotacao);
+      const tela = geoPdfParaTela({ x: Number(posicao.x), y: Number(posicao.y) }, rotacao);
       return { sugestao, left: tela.x * 100, top: tela.y * 100 };
     });
   });
@@ -309,8 +309,8 @@ export class ObraPlanejamentoComponent {
       const a = posicoes.get(vao.referenciaA);
       const b = posicoes.get(vao.referenciaB);
       if (!a || !b) return [];
-      const pa = cesPdfParaTela({ x: Number(a.x), y: Number(a.y) }, rotacao);
-      const pb = cesPdfParaTela({ x: Number(b.x), y: Number(b.y) }, rotacao);
+      const pa = geoPdfParaTela({ x: Number(a.x), y: Number(a.y) }, rotacao);
+      const pb = geoPdfParaTela({ x: Number(b.x), y: Number(b.y) }, rotacao);
       return [{ chave: vao.referenciaA + vao.referenciaB, x1: pa.x, y1: pa.y, x2: pb.x, y2: pb.y, aceito: vao.aceito }];
     });
   });
@@ -436,9 +436,9 @@ export class ObraPlanejamentoComponent {
   protected readonly cartaoNaDireita = computed(() => {
     const rotacao = this.rotacao();
     const posicao = this.novoPonto() ?? this.novaAnotacao();
-    if (posicao) return cesPdfParaTela(posicao, rotacao).x < 0.5;
+    if (posicao) return geoPdfParaTela(posicao, rotacao).x < 0.5;
     const ativo = this.pontoAtivo() ?? this.anotacaoAtiva();
-    if (ativo) return cesPdfParaTela({ x: Number(ativo.x), y: Number(ativo.y) }, rotacao).x < 0.5;
+    if (ativo) return geoPdfParaTela({ x: Number(ativo.x), y: Number(ativo.y) }, rotacao).x < 0.5;
     const vao = this.vaosDaPagina().find((t) => t.vao.id === this.vaoAtivo()?.id);
     return !!vao && vao.mx < 50;
   });
@@ -618,7 +618,7 @@ export class ObraPlanejamentoComponent {
       x: Math.min(1, Math.max(0, (evento.clientX - caixa.left) / caixa.width)),
       y: Math.min(1, Math.max(0, (evento.clientY - caixa.top) / caixa.height))
     };
-    return cesPdfDaTela(naTela, this.rotacao());
+    return geoPdfDaTela(naTela, this.rotacao());
   }
 
   private posicaoNaTela(evento: PointerEvent): { x: number; y: number } {
@@ -659,16 +659,16 @@ export class ObraPlanejamentoComponent {
     const atual = this.retangulo();
     this.retangulo.set(null);
     if (!atual || (Math.abs(atual.x1 - atual.x0) < 0.002 && Math.abs(atual.y1 - atual.y0) < 0.002)) return;
-    const a = cesPdfDaTela({ x: atual.x0, y: atual.y0 }, this.rotacao());
-    const b = cesPdfDaTela({ x: atual.x1, y: atual.y1 }, this.rotacao());
-    const regiao: CesPdfRegiao = {
+    const a = geoPdfDaTela({ x: atual.x0, y: atual.y0 }, this.rotacao());
+    const b = geoPdfDaTela({ x: atual.x1, y: atual.y1 }, this.rotacao());
+    const regiao: GeoPdfRegiao = {
       x0: Math.min(a.x, b.x), y0: Math.min(a.y, b.y), x1: Math.max(a.x, b.x), y1: Math.max(a.y, b.y)
     };
     if (this.ferramenta() === 'area') this.selecionarRegiao(regiao);
     else if (this.ferramenta() === 'texto') void this.extrairTexto(regiao);
   }
 
-  private selecionarRegiao(regiao: CesPdfRegiao): void {
+  private selecionarRegiao(regiao: GeoPdfRegiao): void {
     const dentro = (x: number, y: number) => x >= regiao.x0 && x <= regiao.x1 && y >= regiao.y0 && y <= regiao.y1;
     const locais = new Set(this.locaisSelecionados());
     const pontos = this.pontosPorId();
@@ -683,7 +683,7 @@ export class ObraPlanejamentoComponent {
     this.locaisSelecionados.set(locais);
   }
 
-  private async extrairTexto(regiao: CesPdfRegiao): Promise<void> {
+  private async extrairTexto(regiao: GeoPdfRegiao): Promise<void> {
     const texto = (await this.canvas()?.extractText(regiao)) ?? '';
     this.textoExtraido.set(texto);
     this.textoAberto.set(true);
@@ -740,7 +740,7 @@ export class ObraPlanejamentoComponent {
     if (ponto) {
       this.irParaPagina(ponto.pagina);
       this.abrir({ tipo: 'ponto', id });
-      const tela = cesPdfParaTela({ x: Number(ponto.x), y: Number(ponto.y) }, this.plano()?.rotacoes[String(ponto.pagina)] ?? 0);
+      const tela = geoPdfParaTela({ x: Number(ponto.x), y: Number(ponto.y) }, this.plano()?.rotacoes[String(ponto.pagina)] ?? 0);
       this.canvas()?.centralizar(tela.x, tela.y);
       return;
     }

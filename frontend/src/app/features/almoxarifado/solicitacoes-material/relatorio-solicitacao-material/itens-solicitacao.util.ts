@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { paraUnidadeBase } from '../../shared/unidade-material';
 import { EntregaSolicitacaoRequest, ItemSolicitacaoResponse, MaterialResponse } from '../../../../core/models/almoxarifado.models';
@@ -64,7 +64,7 @@ export function situacaoDoGrupo(g: GrupoItemSolicitacao): SituacaoGrupo {
   return g.entregue > 0 ? 'parcial' : 'pendente';
 }
 
-export const SITUACOES: Record<SituacaoGrupo, { rotulo: string; tom: CesTone; icone: string }> = {
+export const SITUACOES: Record<SituacaoGrupo, { rotulo: string; tom: GeoTone; icone: string }> = {
   atendido: { rotulo: 'Atendido', tom: 'success', icone: 'pi pi-check' },
   parcial: { rotulo: 'Parcial', tom: 'warning', icone: 'pi pi-truck' },
   pendente: { rotulo: 'A entregar', tom: 'neutral', icone: 'pi pi-clock' },

@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesActionSize, CesActionVariant, CesButtonComponent } from '@ces/ui';
+import { GeoActionSize, GeoActionVariant, GeoButtonComponent } from '@geo/ui';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-analisar-com-copiloto',
   standalone: true,
-  imports: [CesButtonComponent],
+  imports: [GeoButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (permitido()) {
-      <ces-button [label]="label()" icon="pi pi-compass" [variant]="variant()"
+      <geo-button [label]="label()" icon="pi pi-compass" [variant]="variant()"
         [size]="size()" [className]="className()" (pressed)="abrir()" />
     }
   `,
@@ -27,8 +27,8 @@ export class AnalisarComCopilotoComponent {
   readonly pergunta = input<string>();
   readonly filtros = input<Record<string, string | number | boolean | null | undefined>>({});
   readonly label = input('Analisar com Bússola');
-  readonly variant = input<CesActionVariant>('outline');
-  readonly size = input<CesActionSize>('md');
+  readonly variant = input<GeoActionVariant>('outline');
+  readonly size = input<GeoActionSize>('md');
 
   protected readonly permitido = computed(() =>
     this.auth.currentUser()?.permissoes?.includes('assistente:chat:use') ?? false,
@@ -45,6 +45,6 @@ export class AnalisarComCopilotoComponent {
     for (const [chave, valor] of Object.entries(this.filtros())) {
       if (valor !== undefined && valor !== null && valor !== '') queryParams[`f_${chave}`] = String(valor);
     }
-    void this.router.navigate(['/copiloto'], { queryParams });
+    void this.router.navigate(['/bussola'], { queryParams });
   }
 }

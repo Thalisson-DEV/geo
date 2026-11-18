@@ -1,25 +1,25 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesContentState,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrawerComponent,
-  CesIconButtonComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoContentState,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrawerComponent,
+  GeoIconButtonComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ConexaoIa, ConexaoIaInfo } from '../../../core/models/conexoes-ia.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -47,18 +47,18 @@ function visiveis(lista: ConexaoIa[], comDesconectadas: boolean): ConexaoIa[] {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgTemplateOutlet,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDrawerComponent,
-    CesIconButtonComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDrawerComponent,
+    GeoIconButtonComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
     ChaveAcessoDrawerComponent,
     GuiaConectarComponent
   ],
@@ -68,7 +68,7 @@ function visiveis(lista: ConexaoIa[], comDesconectadas: boolean): ConexaoIa[] {
 export class ConectarIaComponent {
   private readonly service = inject(ConexoesIaService);
   private readonly auth = inject(AuthService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly notificacao = inject(NotificationService);
 
   protected readonly admin = computed(() => !!this.auth.currentUser()?.permissoes?.includes('assistente:conexao:manage'));
@@ -102,12 +102,12 @@ export class ConectarIaComponent {
   protected readonly endereco = computed(() => this.info()?.urlServidor ?? '');
   protected readonly podeEscrever = computed(() => !!this.info()?.podeEscrever);
 
-  protected readonly abas = computed<CesTabItem[]>(() => [
+  protected readonly abas = computed<GeoTabItem[]>(() => [
     { value: 'minhas', label: 'Suas conexões', icon: 'pi pi-user', badge: this.carregandoMinhas() ? undefined : this.minhas().length - this.desconectadasMinhas() },
     { value: 'empresa', label: 'Da empresa', icon: 'pi pi-building' }
   ]);
 
-  protected readonly estadoMinhas = computed<CesContentState>(() =>
+  protected readonly estadoMinhas = computed<GeoContentState>(() =>
     this.carregandoMinhas() ? 'loading' : this.erroMinhas() ? 'error' : this.minhasVisiveis().length ? 'ready' : 'empty'
   );
 
@@ -115,23 +115,23 @@ export class ConectarIaComponent {
     const p = this.pessoa();
     return visiveis(this.todas(), this.verDesconectadas()).filter((c) => !p || c.usuarioLogin === p);
   });
-  protected readonly estadoTodas = computed<CesContentState>(() =>
+  protected readonly estadoTodas = computed<GeoContentState>(() =>
     this.carregandoTodas() ? 'loading' : this.erroTodas() ? 'error' : this.todasFiltradas().length ? 'ready' : 'empty'
   );
-  protected readonly opcoesPessoa = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesPessoa = computed<GeoSelectOption<string>[]>(() =>
     [...new Set(this.todas().map((c) => c.usuarioLogin).filter((l): l is string => !!l))]
       .sort()
       .map((l) => ({ label: l, value: l }))
   );
 
-  protected readonly colunasMinhas: CesDataTableColumn<ConexaoIa>[] = [
+  protected readonly colunasMinhas: GeoDataTableColumn<ConexaoIa>[] = [
     { key: 'nome', header: 'Aplicativo', priority: 1, width: '32%', display: (c) => `${c.nome} ${comoConectou(c)}` },
     { key: 'permiteEscrita', header: 'O que pode fazer', display: rotuloPermissao },
     { key: 'criadaEm', header: 'Conectou', value: (c) => c.criadaEm, display: (c) => tempoRelativo(c.criadaEm) },
     { key: 'ultimoUsoEm', header: 'Último uso', priority: 1, value: (c) => c.ultimoUsoEm ?? '', display: (c) => tempoRelativo(c.ultimoUsoEm) },
     { key: 'situacao', header: 'Situação', priority: 1, display: (c) => SITUACAO[c.situacao].rotulo }
   ];
-  protected readonly colunasTodas: CesDataTableColumn<ConexaoIa>[] = [
+  protected readonly colunasTodas: GeoDataTableColumn<ConexaoIa>[] = [
     { key: 'usuarioLogin', header: 'Pessoa', priority: 1, display: (c) => c.usuarioLogin ?? '' },
     { ...this.colunasMinhas[0], priority: 2 },
     this.colunasMinhas[1],

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -84,7 +84,7 @@ describe('ImportacaoPlanilhaObrasComponent', () => {
     fixture.componentInstance.processada.subscribe(processada);
     tela.idContrato.set('c1');
     tela.enviar(new File(['x'], 'kits.csv'));
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
 
     await tela.importacao.processar();
 

@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { ConfirmationService } from 'primeng/api';
 import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -145,7 +145,7 @@ describe('Visões das OS', () => {
       const { quadro } = await abrirQuadro();
       quadro.agrupar('criticidade');
       expect(quadro.colunas()[0].grupos.map((g) => g.id)).toEqual(['URGENTE', 'MEDIA']);
-      expect(localStorage.getItem('ces_kanban_frota_os_agrupamento')).toBe('criticidade');
+      expect(localStorage.getItem('geo_kanban_frota_os_agrupamento')).toBe('criticidade');
     });
 
     it('soltar em Concluídas abre a conclusão, sem mudar a situação', async () => {
@@ -173,7 +173,7 @@ describe('Visões das OS', () => {
       expect(el.querySelector('[draggable="true"]')).toBeNull();
       quadro.iniciarArraste(porSituacao['PENDENTE'].itens[0], 'A_AGENDAR');
       expect(['AGENDADAS', 'EM_EXECUCAO', 'CONCLUIDAS'].map((c) => quadro.acaoDeSoltar(c))).toEqual([null, null, null]);
-      expect(el.querySelector('ces-icon-button')).toBeNull();
+      expect(el.querySelector('geo-icon-button')).toBeNull();
     });
 
     it('cartão desatualizado não abre a etapa: avisa e recarrega', async () => {
@@ -254,7 +254,7 @@ describe('Visões das OS', () => {
       const { cal } = await abrirCalendario();
       cal.alternarTipo('CNH_VENCIMENTO');
       expect(cal.agendaSelecionada().map((e) => e.tipo)).toEqual(['OS_AGENDADA']);
-      expect(localStorage.getItem('ces_calendario_frota_tipos_ocultos')).toContain('CNH_VENCIMENTO');
+      expect(localStorage.getItem('geo_calendario_frota_tipos_ocultos')).toContain('CNH_VENCIMENTO');
     });
 
     it('arrastar a OS para outro dia abre o agendamento com a nova data e o horário original', async () => {

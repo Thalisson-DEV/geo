@@ -7,7 +7,7 @@ import { CoordenadorMinResponse, SupervisorMinResponse } from '../../../core/mod
 import { ContratoService } from '../../../core/services/contrato.service';
 import { ImportacaoService } from '../../../core/services/importacao.service';
 import { RhService } from '../../../core/services/rh.service';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { abrirListagem, chipsDoPainel, paginaTeste, tecla } from '../../../shared/listagem/listagem-teste';
 import { EquipesComponent, MembroEquipe } from './equipes.component';
 
@@ -69,7 +69,7 @@ describe('EquipesComponent', () => {
       { provide: ImportacaoService, useValue: { baixarModeloCsv: vi.fn() } },
       { provide: LookupStore, useValue: { searchCollaborators: vi.fn(() => of({ items: colaboradores, nextCursor: null, hasMore: false })) } }
     ]);
-    confirmar = vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true) as unknown as ReturnType<typeof vi.fn>;
+    confirmar = vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true) as unknown as ReturnType<typeof vi.fn>;
     return { ...r, tela: r.componente as unknown as Tela };
   };
 

@@ -5,17 +5,17 @@ import { QuantidadeUnidadeComponent } from '../../shared/quantidade-unidade.comp
 import { paraUnidadeBase } from '../../shared/unidade-material';
 import { ChangeDetectionStrategy, Component, Injector, afterNextRender, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { DevolucaoComercialRequest, EstoqueResponse, MaterialResponse, SaldoResponse } from '../../../../core/models/almoxarifado.models';
 import { EquipeResponse } from '../../../../core/models/rh.models';
@@ -63,29 +63,29 @@ function tipoDe(estoque: EstoqueResponse): string {
   imports: [
     QuantidadeUnidadeComponent,
     DecimalPipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextareaComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent,
     DevolucaoSeriesPickerComponent
   ],
   styleUrl: '../../solicitacoes-material/nova-solicitacao/nova-solicitacao.css',
   styles: `
-    .dc-item + .dc-item { border-top: 1px solid var(--ces-border); }
+    .dc-item + .dc-item { border-top: 1px solid var(--geo-border); }
     .dc-item .ns-item { grid-template-columns: minmax(0, 1fr) minmax(9.5rem, auto) auto; }
     .dc-qtd-unidade { max-width: 15rem; }
-    .dc-item--erro { box-shadow: inset 3px 0 0 var(--ces-danger); }
-    .dc-qtd { font-size: var(--ces-font-control); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+    .dc-item--erro { box-shadow: inset 3px 0 0 var(--geo-danger); }
+    .dc-qtd { font-size: var(--geo-font-control); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
     .dc-destino { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0 0.875rem 0.75rem; }
-    .dc-erro { margin: 0; padding: 0 0.875rem 0.75rem; font-size: var(--ces-font-caption); color: var(--ces-danger-text, var(--ces-danger)); }
-    .dc-series { padding: 0.75rem 0.875rem; border-top: 1px dashed var(--ces-border); background: var(--ces-surface-subtle); }
+    .dc-erro { margin: 0; padding: 0 0.875rem 0.75rem; font-size: var(--geo-font-caption); color: var(--geo-danger-text, var(--geo-danger)); }
+    .dc-series { padding: 0.75rem 0.875rem; border-top: 1px dashed var(--geo-border); background: var(--geo-surface-subtle); }
     .dc-resumo { display: flex; flex-wrap: wrap; gap: 0.5rem; }
   `,
   template: `
-    <ces-form-drawer #drawer [visible]="visible()" (visibleChange)="visible.set($event)" title="Devolução comercial (222)"
+    <geo-form-drawer #drawer [visible]="visible()" (visibleChange)="visible.set($event)" title="Devolução comercial (222)"
       description="A equipe devolve o material do estoque de campo e o almoxarifado recebe na hora." size="lg" [resizable]="true"
       [dirty]="alterado()" discardMessage="Os materiais e dados desta devolução serão perdidos.">
       <div class="ns">
@@ -93,13 +93,13 @@ function tipoDe(estoque: EstoqueResponse): string {
           <h3 id="dc-quem" class="ns-secao__titulo"><i class="pi pi-users" aria-hidden="true"></i>Quem devolve e quem recebe</h3>
           <div class="ns-cartao">
             <div class="ns-grade">
-              <ces-select label="Equipe que devolve" placeholder="Selecione" [options]="opcoesEquipe()" [value]="idEquipe()" (valueChange)="trocarEquipe($event)"
+              <geo-select label="Equipe que devolve" placeholder="Selecione" [options]="opcoesEquipe()" [value]="idEquipe()" (valueChange)="trocarEquipe($event)"
                 [loading]="carregandoEquipes()" [filter]="true" [required]="true" [error]="tentou() && !idEquipe() ? 'Escolha a equipe.' : undefined" />
-              <ces-select label="Almoxarifado que recebe" placeholder="Selecione" [options]="opcoesDestino()" [value]="idDestino()" (valueChange)="idDestino.set($event)"
+              <geo-select label="Almoxarifado que recebe" placeholder="Selecione" [options]="opcoesDestino()" [value]="idDestino()" (valueChange)="idDestino.set($event)"
                 [filter]="true" [required]="true" [error]="tentou() && !idDestino() ? 'Escolha o almoxarifado.' : undefined" />
             </div>
             @if (idEquipe() && !estoqueCampo()) {
-              <ces-callout tone="warning" title="Equipe sem estoque de campo">Sem estoque de campo ativo, a devolução não tem de onde sair. Cadastre o estoque da equipe antes.</ces-callout>
+              <geo-callout tone="warning" title="Equipe sem estoque de campo">Sem estoque de campo ativo, a devolução não tem de onde sair. Cadastre o estoque da equipe antes.</geo-callout>
             }
           </div>
         </section>
@@ -116,7 +116,7 @@ function tipoDe(estoque: EstoqueResponse): string {
             </div>
           </div>
 
-          <ces-select label="Incluir material" [placeholder]="estoqueCampo() ? 'Buscar no saldo da equipe' : 'Escolha a equipe primeiro'" [options]="opcoesSaldo()" [value]="escolhido()"
+          <geo-select label="Incluir material" [placeholder]="estoqueCampo() ? 'Buscar no saldo da equipe' : 'Escolha a equipe primeiro'" [options]="opcoesSaldo()" [value]="escolhido()"
             (valueChange)="escolher($event)" [filter]="true" [loading]="carregandoSaldos()" [disabled]="!estoqueCampo()"
             [description]="estoqueCampo() && !carregandoSaldos() && !opcoesSaldo().length ? 'Nada nesta condição para incluir.' : undefined" />
 
@@ -129,7 +129,7 @@ function tipoDe(estoque: EstoqueResponse): string {
                       <span class="ns-item__nome" [title]="linha.material.descricao">{{ linha.material.descricao }}</span>
                       <span class="ns-item__meta">
                         <span>{{ linha.material.codigo }} · {{ unidade(linha) }}</span>
-                        <ces-status [tone]="tomCondicao(linha.condicao)" [icon]="iconeCondicao(linha.condicao)">{{ rotuloCondicao(linha.condicao) }}</ces-status>
+                        <geo-status [tone]="tomCondicao(linha.condicao)" [icon]="iconeCondicao(linha.condicao)">{{ rotuloCondicao(linha.condicao) }}</geo-status>
                         <span [class.ns-item__saldo--falta]="acimaDoSaldo(linha)">Equipe tem {{ saldo(linha) | number: '1.0-3' }}</span>
                       </span>
                     </div>
@@ -141,7 +141,7 @@ function tipoDe(estoque: EstoqueResponse): string {
                         [unidade]="linha.unidade ?? null" (unidadeChange)="alterar(linha, { unidade: $event })"
                         [error]="tentou() && !(quantidade(linha) > 0) ? 'Informe a quantidade.' : undefined" />
                     }
-                    <ces-icon-button icon="pi pi-trash" [label]="'Tirar ' + linha.material.codigo + ' da devolução'" tooltip="Tirar da devolução" size="icon-sm" (pressed)="remover(linha)" />
+                    <geo-icon-button icon="pi pi-trash" [label]="'Tirar ' + linha.material.codigo + ' da devolução'" tooltip="Tirar da devolução" size="icon-sm" (pressed)="remover(linha)" />
                   </div>
                   @if (acimaDoSaldo(linha)) {
                     <p class="dc-erro" role="alert">A quantidade passa do saldo da equipe.</p>
@@ -177,7 +177,7 @@ function tipoDe(estoque: EstoqueResponse): string {
         <section class="ns-secao" aria-labelledby="dc-observacao">
           <h3 id="dc-observacao" class="ns-secao__titulo"><i class="pi pi-comment" aria-hidden="true"></i>Observação</h3>
           <div class="ns-cartao">
-            <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" placeholder="Ex.: sobra do turno, material retirado da rede" />
+            <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" placeholder="Ex.: sobra do turno, material retirado da rede" />
           </div>
         </section>
       </div>
@@ -185,25 +185,25 @@ function tipoDe(estoque: EstoqueResponse): string {
       <div drawer-footer class="ns-rodape">
         <span class="dc-resumo" aria-live="polite">
           @if (linhas().length) {
-            <ces-status tone="info" icon="pi pi-inbox">{{ resumo().guardar }} para guardar</ces-status>
+            <geo-status tone="info" icon="pi pi-inbox">{{ resumo().guardar }} para guardar</geo-status>
             @if (resumo().baixa) {
-              <ces-status tone="neutral" icon="pi pi-trash">{{ resumo().baixa }} em baixa</ces-status>
+              <geo-status tone="neutral" icon="pi pi-trash">{{ resumo().baixa }} em baixa</geo-status>
             }
           }
         </span>
         <span class="ns-rodape__acoes">
-          <ces-button label="Cancelar" variant="ghost" (pressed)="drawer.requestClose()" />
-          <ces-button label="Registrar devolução" icon="pi pi-check-circle" [loading]="salvando()" [disabled]="!linhas().length" (pressed)="registrar()" />
+          <geo-button label="Cancelar" variant="ghost" (pressed)="drawer.requestClose()" />
+          <geo-button label="Registrar devolução" icon="pi pi-check-circle" [loading]="salvando()" [disabled]="!linhas().length" (pressed)="registrar()" />
         </span>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class DevolucaoComercialDrawerComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
   private readonly rh = inject(RhService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly injector = inject(Injector);
 
   readonly visible = model(false);
@@ -252,10 +252,10 @@ export class DevolucaoComercialDrawerComponent {
     }
   });
 
-  protected readonly opcoesEquipe = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesEquipe = computed<GeoSelectOption<string>[]>(() =>
     this.equipes().map((e) => ({ label: `${e.codigo} — ${e.tipoEquipe?.nome || 'Equipe'}`, value: e.id }))
   );
-  protected readonly opcoesDestino = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesDestino = computed<GeoSelectOption<string>[]>(() =>
     this.estoques()
       .filter((e) => e.ativo && tipoDe(e) === 'FISICO')
       .map((e) => ({ label: e.nomeIdentificador, value: e.id }))
@@ -271,7 +271,7 @@ export class DevolucaoComercialDrawerComponent {
     NOVO: this.saldosLivres().filter((s) => condicaoDe(s) === 'NOVO').length,
     SUCATA: this.saldosLivres().filter((s) => condicaoDe(s) === 'SUCATA').length
   }));
-  protected readonly opcoesSaldo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesSaldo = computed<GeoSelectOption<string>[]>(() =>
     this.saldosLivres()
       .filter((s) => condicaoDe(s) === this.condicaoFiltro())
       .map((s) => ({

@@ -40,7 +40,7 @@ describe('atalho Analisar com Bússola', () => {
     expect(botao).not.toBeNull();
     botao.click();
 
-    expect(navegar).toHaveBeenCalledWith(['/copiloto'], { queryParams: {
+    expect(navegar).toHaveBeenCalledWith(['/bussola'], { queryParams: {
       origem: 'Detalhe da obra', rota: '/obras/42', tipo: 'obra', entidade: '42',
       rotulo: 'Obra 42', pergunta: 'Resuma esta obra', f_obra: '42', f_ativo: 'true',
     } });

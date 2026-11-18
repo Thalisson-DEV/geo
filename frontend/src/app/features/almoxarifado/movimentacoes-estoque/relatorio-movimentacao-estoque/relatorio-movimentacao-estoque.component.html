@@ -1,5 +1,5 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative transition-colors duration-200"
+  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200"
   [class.p-4]="!isPrintMode()"
   [class.md:p-8]="!isPrintMode()"
   [class.print:p-0]="isPrintMode()"
@@ -11,24 +11,24 @@
   <!-- Loading State -->
   @if (loading()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state
+      <geo-async-state
         [state]="'loading'"
         title="Carregando movimentação de estoque..."
         description="Consultando detalhes da operação realizada..."
-      ></ces-async-state>
+      ></geo-async-state>
     </div>
   }
 
   <!-- Error State -->
   @else if (error()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state
+      <geo-async-state
         [state]="'error'"
         title="Movimentação indisponível"
         [description]="error() || 'Não foi possível carregar os dados.'"
         actionLabel="Tentar novamente"
         (action)="loadData()"
-      ></ces-async-state>
+      ></geo-async-state>
     </div>
   }
 
@@ -95,7 +95,7 @@
               </strong>
             </span>
             <span>·</span>
-            <ces-status [tone]="getTipoTone(mov.tipo)" [icon]="getTipoIcon(mov.tipo)" [class.ces-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</ces-status>
+            <geo-status [tone]="getTipoTone(mov.tipo)" [icon]="getTipoIcon(mov.tipo)" [class.geo-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</geo-status>
           </div>
         </div>
 
@@ -124,7 +124,7 @@
             </div>
             <div class="kv">
               <span class="kv-l">Tipo</span>
-              <ces-status [tone]="getTipoTone(mov.tipo)" [icon]="getTipoIcon(mov.tipo)" [class.ces-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</ces-status>
+              <geo-status [tone]="getTipoTone(mov.tipo)" [icon]="getTipoIcon(mov.tipo)" [class.geo-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</geo-status>
             </div>
             <div class="kv">
               <span class="kv-l">Contexto</span>
@@ -387,7 +387,7 @@
             </p>
           }
 
-          <ces-data-table
+          <geo-data-table
             caption="Itens da movimentação por material"
             searchPlaceholder="Buscar por código, descrição ou série"
             stateTitle="Operação sem itens"
@@ -400,32 +400,32 @@
             [rowExpandable]="temSeries"
             [pageSizeOptions]="[50, 100, 500]"
           >
-            <ng-template cesCell="codigo" let-g>
+            <ng-template geoCell="codigo" let-g>
               <span class="font-mono font-semibold">{{ g.material.codigo }}</span>
             </ng-template>
-            <ng-template cesCell="descricao" let-g>
+            <ng-template geoCell="descricao" let-g>
               <span class="inline-flex items-center gap-2 flex-wrap">
                 <span class="uppercase">{{ g.material.descricao }}</span>
                 @if (g.series.length) {
-                  <ces-status tone="brand" icon="pi pi-barcode">{{ g.series.length }} {{ g.series.length === 1 ? 'série' : 'séries' }}</ces-status>
+                  <geo-status tone="brand" icon="pi pi-barcode">{{ g.series.length }} {{ g.series.length === 1 ? 'série' : 'séries' }}</geo-status>
                 }
               </span>
             </ng-template>
-            <ng-template cesCell="condicao" let-g>
-              <ces-status [tone]="tomCondicao(g.condicao)" [icon]="iconeCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</ces-status>
+            <ng-template geoCell="condicao" let-g>
+              <geo-status [tone]="tomCondicao(g.condicao)" [icon]="iconeCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</geo-status>
             </ng-template>
-            <ng-template cesCell="quantidade" let-g>
+            <ng-template geoCell="quantidade" let-g>
               <span class="tabular-nums">{{ numero(g.quantidade) }}</span>
               @if (g.unidadeInformada) {
-                <small class="block text-[var(--ces-foreground-muted)]" [title]="'Informado em ' + g.unidadeInformada + ' e convertido para ' + (g.material.unidadeMedida || 'UN')">
+                <small class="block text-[var(--geo-foreground-muted)]" [title]="'Informado em ' + g.unidadeInformada + ' e convertido para ' + (g.material.unidadeMedida || 'UN')">
                   <i class="pi pi-arrow-right-arrow-left text-[10px]" aria-hidden="true"></i> informado {{ numero(g.quantidadeInformada) }} {{ g.unidadeInformada }}
                 </small>
               }
             </ng-template>
-            <ng-template cesRowDetail let-g>
+            <ng-template geoRowDetail let-g>
               <app-series-grade [series]="g.grade" [rotulo]="'Números de série de ' + g.material.descricao" />
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </div>
 
         <!-- 7. TERMO DE CONFERÊNCIA E ASSINATURAS -->
@@ -546,7 +546,7 @@
         icon="pi pi-arrow-left"
         label="VOLTAR"
         (onClick)="voltar()"
-        styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"
+        styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"
       ></p-button>
 
       @if (mov.idSolicitacao) {

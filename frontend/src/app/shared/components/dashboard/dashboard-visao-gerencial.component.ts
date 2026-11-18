@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { AlvoAnalise } from './dashboard-analise.models';
 
 /** Veredito do recorte em uma frase: o que um gestor precisa saber antes de olhar qualquer gráfico. */
 export interface VereditoGerencial {
-  readonly tom: CesTone;
+  readonly tom: GeoTone;
   readonly rotulo: string;
   readonly titulo: string;
   readonly texto: string;
@@ -18,7 +18,7 @@ export interface VereditoGerencial {
  */
 export interface LeituraGerencial {
   readonly id: string;
-  readonly tom: CesTone;
+  readonly tom: GeoTone;
   readonly icone: string;
   readonly titulo: string;
   readonly valor?: string;
@@ -26,9 +26,9 @@ export interface LeituraGerencial {
   readonly acao?: { readonly rotulo: string; readonly alvo: AlvoAnalise };
 }
 
-const CHAVE_RECOLHIDO = 'ces.dashboard.visao-gerencial.recolhida';
+const CHAVE_RECOLHIDO = 'geo.dashboard.visao-gerencial.recolhida';
 
-const ROTULO_TOM: Record<CesTone, string> = {
+const ROTULO_TOM: Record<GeoTone, string> = {
   danger: 'Agir agora',
   warning: 'Acompanhar',
   success: 'Sinal positivo',
@@ -126,7 +126,7 @@ export class DashboardVisaoGerencialComponent {
 
   /** O que pede ação vem primeiro. */
   protected readonly ordenadas = computed(() => {
-    const peso: Record<CesTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
+    const peso: Record<GeoTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
     return [...this.leituras()].sort((a, b) => peso[a.tom] - peso[b.tom]);
   });
 

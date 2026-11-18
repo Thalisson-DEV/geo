@@ -1,7 +1,7 @@
 import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
-import { CesSelectOption } from '@ces/ui';
+import { GeoSelectOption } from '@geo/ui';
 import { RhService } from '../../../core/services/rh.service';
 
 interface ItemRecorte {
@@ -24,15 +24,15 @@ export class RecorteDashboardService {
   readonly carregando = signal(false);
   readonly carregandoEquipes = signal(false);
 
-  readonly opcoesBases = computed<CesSelectOption<string>[]>(() =>
+  readonly opcoesBases = computed<GeoSelectOption<string>[]>(() =>
     this.bases().map((b) => ({ label: b.nome, value: b.id }))
   );
-  readonly opcoesProcessos = computed<CesSelectOption<string>[]>(() =>
+  readonly opcoesProcessos = computed<GeoSelectOption<string>[]>(() =>
     this.processos().map((p) => ({ label: p.nome, value: p.id }))
   );
 
   /** Equipes ativas pelo código, para os filtros das consultas. */
-  readonly opcoesEquipes = computed<CesSelectOption<string>[]>(() =>
+  readonly opcoesEquipes = computed<GeoSelectOption<string>[]>(() =>
     this.equipes().map((e) => ({ label: e.nome, value: e.id }))
   );
 

@@ -1,26 +1,26 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import {
   EstruturaChecklist,
   FinalidadeChecklist,
@@ -45,44 +45,44 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
   selector: 'app-modelos-checklist',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <div class="ces-page">
-      <ces-page-header
+    <div class="geo-page">
+      <geo-page-header
         title="Checklists da documentação"
         icon="pi pi-list-check"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Cadastros' }, { label: 'Checklists da documentação' }]"
         description="Perguntas da visita prévia e da ficha As Built, e as fotos que o book pede em cada ponto."
       >
         @if (podeConfigurar) {
-          <ces-button actions icon="pi pi-plus" label="Novo modelo" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo modelo" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="obras-checklists" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="obras-checklists" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Finalidade" [options]="finalidades" [(value)]="lista.filters.finalidade" [clearable]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Finalidade" [options]="finalidades" [(value)]="lista.filters.finalidade" [clearable]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Modelos"
         mode="server"
         storageKey="obras-checklists"
@@ -112,101 +112,101 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
         (emptyAction)="novo()"
         (rowActivate)="abrir($event)"
       >
-        <ng-template cesCell="titulo" let-row><span class="ces-cell-strong">{{ row.titulo }}</span></ng-template>
-        <ng-template cesCell="uso" let-row>
+        <ng-template geoCell="titulo" let-row><span class="geo-cell-strong">{{ row.titulo }}</span></ng-template>
+        <ng-template geoCell="uso" let-row>
           @if (row.emUso) {
-            <ces-status tone="info" icon="pi-lock">Em uso</ces-status>
+            <geo-status tone="info" icon="pi-lock">Em uso</geo-status>
           } @else {
-            <span class="ces-cell-muted">Ainda não usado</span>
+            <span class="geo-cell-muted">Ainda não usado</span>
           }
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
+        <ng-template geoRowActions let-row>
           @if (podeConfigurar) {
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-copy" [label]="'Duplicar ' + row.titulo" size="icon-sm" (pressed)="duplicar(row)"></ces-icon-button>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-copy" [label]="'Duplicar ' + row.titulo" size="icon-sm" (pressed)="duplicar(row)"></geo-icon-button>
               @if (row.ativo) {
-                <ces-icon-button icon="pi pi-ban" [label]="'Desativar ' + row.titulo" size="icon-sm" (pressed)="desativar(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-ban" [label]="'Desativar ' + row.titulo" size="icon-sm" (pressed)="desativar(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-check-circle" [label]="'Reativar ' + row.titulo" size="icon-sm" (pressed)="ativar(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check-circle" [label]="'Reativar ' + row.titulo" size="icon-sm" (pressed)="ativar(row)"></geo-icon-button>
               }
             </span>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="aberto" [title]="tituloDrawer()" [description]="emEdicao()?.descricao ?? undefined" [dirty]="alterado()" size="xl">
+    <geo-form-drawer [(visible)]="aberto" [title]="tituloDrawer()" [description]="emEdicao()?.descricao ?? undefined" [dirty]="alterado()" size="xl">
       @if (estruturaTravada() && podeConfigurar) {
-        <ces-callout tone="info" icon="pi pi-lock" title="Modelo em uso" [dense]="true">
+        <geo-callout tone="info" icon="pi pi-lock" title="Modelo em uso" [dense]="true">
           Dá para mudar o título e a descrição. Para mudar as perguntas e as fotos pedidas, duplique o modelo: o que já foi lançado continua como foi respondido.
-        </ces-callout>
+        </geo-callout>
       }
-      <ces-form-section title="Modelo" icon="pi pi-file-edit">
-        <div class="ces-form-grid">
-          <ces-select label="Finalidade" [required]="true" [options]="finalidades" [value]="finalidade()" (valueChange)="finalidade.set($event ?? 'VISITA_PREVIA')"
-            [disabled]="!!emEdicao()" [readonly]="somenteLeitura()"></ces-select>
-          <ces-text-input label="Título" [required]="true" [(value)]="titulo" [maxlength]="150" [readonly]="somenteLeitura()" [error]="tentou() && !titulo().trim() ? 'Informe o título.' : undefined"></ces-text-input>
+      <geo-form-section title="Modelo" icon="pi pi-file-edit">
+        <div class="geo-form-grid">
+          <geo-select label="Finalidade" [required]="true" [options]="finalidades" [value]="finalidade()" (valueChange)="finalidade.set($event ?? 'VISITA_PREVIA')"
+            [disabled]="!!emEdicao()" [readonly]="somenteLeitura()"></geo-select>
+          <geo-text-input label="Título" [required]="true" [(value)]="titulo" [maxlength]="150" [readonly]="somenteLeitura()" [error]="tentou() && !titulo().trim() ? 'Informe o título.' : undefined"></geo-text-input>
         </div>
-        <div class="ces-form-stack">
-          <ces-text-input label="Descrição" [(value)]="descricao" [maxlength]="500" [readonly]="somenteLeitura()"></ces-text-input>
+        <div class="geo-form-stack">
+          <geo-text-input label="Descrição" [(value)]="descricao" [maxlength]="500" [readonly]="somenteLeitura()"></geo-text-input>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
       @for (grupo of grupos(); track $index; let g = $index) {
         <section class="mc-grupo" [attr.aria-label]="'Grupo ' + (g + 1)">
           <div class="mc-grupo__topo">
-            <ces-text-input class="mc-grupo__titulo" [label]="'Grupo ' + (g + 1)" [required]="true" placeholder="Ex.: Acesso à obra" [maxlength]="150" [value]="grupo.titulo"
-              [readonly]="estruturaTravada()" (valueChange)="alterarGrupo(g, { titulo: $event })"></ces-text-input>
+            <geo-text-input class="mc-grupo__titulo" [label]="'Grupo ' + (g + 1)" [required]="true" placeholder="Ex.: Acesso à obra" [maxlength]="150" [value]="grupo.titulo"
+              [readonly]="estruturaTravada()" (valueChange)="alterarGrupo(g, { titulo: $event })"></geo-text-input>
             @if (!estruturaTravada()) {
               <span class="mc-acoes">
-                <ces-icon-button icon="pi pi-chevron-up" [label]="'Subir grupo ' + (g + 1)" size="icon-sm" [disabled]="g === 0" (pressed)="moverGrupo(g, -1)"></ces-icon-button>
-                <ces-icon-button icon="pi pi-chevron-down" [label]="'Descer grupo ' + (g + 1)" size="icon-sm" [disabled]="g === grupos().length - 1" (pressed)="moverGrupo(g, 1)"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover grupo ' + (g + 1)" size="icon-sm" (pressed)="removerGrupo(g)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-chevron-up" [label]="'Subir grupo ' + (g + 1)" size="icon-sm" [disabled]="g === 0" (pressed)="moverGrupo(g, -1)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-chevron-down" [label]="'Descer grupo ' + (g + 1)" size="icon-sm" [disabled]="g === grupos().length - 1" (pressed)="moverGrupo(g, 1)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover grupo ' + (g + 1)" size="icon-sm" (pressed)="removerGrupo(g)"></geo-icon-button>
               </span>
             }
           </div>
           @for (p of grupo.perguntas; track p.id; let i = $index) {
             <div class="mc-pergunta">
               <div class="mc-pergunta__linha">
-                <ces-text-input class="mc-pergunta__enunciado" [label]="'Pergunta ' + (i + 1)" [required]="true" [maxlength]="500" [value]="p.enunciado" [readonly]="estruturaTravada()"
-                  (valueChange)="alterarPergunta(g, i, { enunciado: $event })"></ces-text-input>
-                <ces-select class="mc-pergunta__tipo" label="Resposta" [options]="tipos" [value]="p.tipo" [readonly]="estruturaTravada()" (valueChange)="trocarTipo(g, i, $event)"></ces-select>
+                <geo-text-input class="mc-pergunta__enunciado" [label]="'Pergunta ' + (i + 1)" [required]="true" [maxlength]="500" [value]="p.enunciado" [readonly]="estruturaTravada()"
+                  (valueChange)="alterarPergunta(g, i, { enunciado: $event })"></geo-text-input>
+                <geo-select class="mc-pergunta__tipo" label="Resposta" [options]="tipos" [value]="p.tipo" [readonly]="estruturaTravada()" (valueChange)="trocarTipo(g, i, $event)"></geo-select>
                 @if (!estruturaTravada()) {
                   <span class="mc-acoes">
-                    <ces-icon-button icon="pi pi-chevron-up" [label]="'Subir pergunta ' + (i + 1)" size="icon-sm" [disabled]="i === 0" (pressed)="moverPergunta(g, i, -1)"></ces-icon-button>
-                    <ces-icon-button icon="pi pi-chevron-down" [label]="'Descer pergunta ' + (i + 1)" size="icon-sm" [disabled]="i === grupo.perguntas.length - 1" (pressed)="moverPergunta(g, i, 1)"></ces-icon-button>
-                    <ces-icon-button icon="pi pi-trash" [label]="'Remover pergunta ' + (i + 1)" size="icon-sm" (pressed)="removerPergunta(g, i)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-chevron-up" [label]="'Subir pergunta ' + (i + 1)" size="icon-sm" [disabled]="i === 0" (pressed)="moverPergunta(g, i, -1)"></geo-icon-button>
+                    <geo-icon-button icon="pi pi-chevron-down" [label]="'Descer pergunta ' + (i + 1)" size="icon-sm" [disabled]="i === grupo.perguntas.length - 1" (pressed)="moverPergunta(g, i, 1)"></geo-icon-button>
+                    <geo-icon-button icon="pi pi-trash" [label]="'Remover pergunta ' + (i + 1)" size="icon-sm" (pressed)="removerPergunta(g, i)"></geo-icon-button>
                   </span>
                 }
               </div>
               @if (temOpcoes(p.tipo)) {
-                <ces-textarea label="Opções" description="Uma por linha." [rows]="2" [value]="textoDasOpcoes(p)" [readonly]="estruturaTravada()"
-                  (valueChange)="alterarOpcoes(g, i, p.id, $event)"></ces-textarea>
+                <geo-textarea label="Opções" description="Uma por linha." [rows]="2" [value]="textoDasOpcoes(p)" [readonly]="estruturaTravada()"
+                  (valueChange)="alterarOpcoes(g, i, p.id, $event)"></geo-textarea>
               }
               @if (p.tipo === 'ESCOLHA_UNICA') {
-                <ces-select class="mc-pergunta__conforme" label="Resposta conforme" placeholder="Sem resposta esperada" [clearable]="true" [showOptional]="true"
+                <geo-select class="mc-pergunta__conforme" label="Resposta conforme" placeholder="Sem resposta esperada" [clearable]="true" [showOptional]="true"
                   description="A resposta esperada. Outra opção marcada aparece como não conformidade, e o preenchimento oferece marcar as restantes como conforme."
-                  [options]="opcoesConforme(p)" [value]="p.opcaoConforme ?? null" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { opcaoConforme: $event ?? null })"></ces-select>
+                  [options]="opcoesConforme(p)" [value]="p.opcaoConforme ?? null" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { opcaoConforme: $event ?? null })"></geo-select>
               }
               <div class="mc-pergunta__marcas">
-                <ces-boolean-control label="Obrigatória" kind="toggle" [value]="p.obrigatoria" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { obrigatoria: $event })"></ces-boolean-control>
-                <ces-boolean-control label="Aceita &quot;Não se aplica&quot;" kind="toggle" [value]="p.aceitaNaoSeAplica" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { aceitaNaoSeAplica: $event })"></ces-boolean-control>
+                <geo-boolean-control label="Obrigatória" kind="toggle" [value]="p.obrigatoria" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { obrigatoria: $event })"></geo-boolean-control>
+                <geo-boolean-control label="Aceita &quot;Não se aplica&quot;" kind="toggle" [value]="p.aceitaNaoSeAplica" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { aceitaNaoSeAplica: $event })"></geo-boolean-control>
               </div>
             </div>
           }
           @if (!estruturaTravada()) {
-            <div class="ces-actions-row">
-              <ces-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar pergunta" (pressed)="adicionarPergunta(g)"></ces-button>
+            <div class="geo-actions-row">
+              <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar pergunta" (pressed)="adicionarPergunta(g)"></geo-button>
             </div>
           }
         </section>
       }
       @if (!estruturaTravada()) {
-        <div class="ces-actions-row">
-          <ces-button variant="outline" size="sm" icon="pi pi-plus" label="Adicionar grupo" (pressed)="adicionarGrupo()"></ces-button>
+        <div class="geo-actions-row">
+          <geo-button variant="outline" size="sm" icon="pi pi-plus" label="Adicionar grupo" (pressed)="adicionarGrupo()"></geo-button>
         </div>
       }
       @if (finalidade() === 'AS_BUILT') {
@@ -217,14 +217,14 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
           </div>
           @for (item of evidencias(); track item.id; let i = $index) {
             <div class="mc-pergunta__linha">
-              <ces-text-input class="mc-pergunta__enunciado" [label]="'Foto ' + (i + 1)" [required]="true" placeholder="Ex.: Aterramento" [maxlength]="150" [value]="item.titulo" [readonly]="estruturaTravada()"
-                (valueChange)="alterarItem(i, { titulo: $event })"></ces-text-input>
-              <ces-boolean-control class="mc-evidencias__marca" label="Obrigatória" kind="toggle" [value]="item.obrigatoria" [readonly]="estruturaTravada()" (valueChange)="alterarItem(i, { obrigatoria: $event })"></ces-boolean-control>
+              <geo-text-input class="mc-pergunta__enunciado" [label]="'Foto ' + (i + 1)" [required]="true" placeholder="Ex.: Aterramento" [maxlength]="150" [value]="item.titulo" [readonly]="estruturaTravada()"
+                (valueChange)="alterarItem(i, { titulo: $event })"></geo-text-input>
+              <geo-boolean-control class="mc-evidencias__marca" label="Obrigatória" kind="toggle" [value]="item.obrigatoria" [readonly]="estruturaTravada()" (valueChange)="alterarItem(i, { obrigatoria: $event })"></geo-boolean-control>
               @if (!estruturaTravada()) {
                 <span class="mc-acoes">
-                  <ces-icon-button icon="pi pi-chevron-up" [label]="'Subir foto ' + (i + 1)" size="icon-sm" [disabled]="i === 0" (pressed)="moverItem(i, -1)"></ces-icon-button>
-                  <ces-icon-button icon="pi pi-chevron-down" [label]="'Descer foto ' + (i + 1)" size="icon-sm" [disabled]="i === evidencias().length - 1" (pressed)="moverItem(i, 1)"></ces-icon-button>
-                  <ces-icon-button icon="pi pi-trash" [label]="'Remover foto ' + (i + 1)" size="icon-sm" (pressed)="removerItem(i)"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-chevron-up" [label]="'Subir foto ' + (i + 1)" size="icon-sm" [disabled]="i === 0" (pressed)="moverItem(i, -1)"></geo-icon-button>
+                  <geo-icon-button icon="pi pi-chevron-down" [label]="'Descer foto ' + (i + 1)" size="icon-sm" [disabled]="i === evidencias().length - 1" (pressed)="moverItem(i, 1)"></geo-icon-button>
+                  <geo-icon-button icon="pi pi-trash" [label]="'Remover foto ' + (i + 1)" size="icon-sm" (pressed)="removerItem(i)"></geo-icon-button>
                 </span>
               }
             </div>
@@ -232,41 +232,41 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
             <p class="mc-evidencias__ajuda">Nenhuma foto pedida. Quem lança ainda pode anexar fotos avulsas ao ponto.</p>
           }
           @if (!estruturaTravada()) {
-            <div class="ces-actions-row">
-              <ces-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar foto pedida" (pressed)="adicionarItem()"></ces-button>
+            <div class="geo-actions-row">
+              <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar foto pedida" (pressed)="adicionarItem()"></geo-button>
             </div>
           }
         </section>
       }
       @if (tentou() && problema()) {
-        <ces-callout tone="danger" icon="pi pi-exclamation-circle" title="Revise o modelo" [dense]="true">{{ problema() }}</ces-callout>
+        <geo-callout tone="danger" icon="pi pi-exclamation-circle" title="Revise o modelo" [dense]="true">{{ problema() }}</geo-callout>
       }
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" [label]="somenteLeitura() ? 'Fechar' : 'Cancelar'" (pressed)="aberto.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" [label]="somenteLeitura() ? 'Fechar' : 'Cancelar'" (pressed)="aberto.set(false)"></geo-button>
         @if (!somenteLeitura()) {
-          <ces-button icon="pi pi-check" label="Salvar modelo" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+          <geo-button icon="pi pi-check" label="Salvar modelo" [loading]="salvando()" (pressed)="salvar()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
-    .mc-grupo { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; padding: 1rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface-subtle); }
+    .mc-grupo { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface-subtle); }
     .mc-grupo__topo, .mc-pergunta__linha { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 0.75rem; }
     .mc-grupo__titulo, .mc-pergunta__enunciado { flex: 1 1 18rem; min-width: 0; }
     .mc-pergunta__tipo { flex: 0 1 12rem; min-width: 10rem; }
     .mc-acoes { display: inline-flex; gap: 0.125rem; margin-top: 1.5rem; }
-    .mc-pergunta { display: flex; flex-direction: column; gap: 0.625rem; padding: 0.875rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
+    .mc-pergunta { display: flex; flex-direction: column; gap: 0.625rem; padding: 0.875rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .mc-pergunta__marcas { display: flex; flex-wrap: wrap; gap: 1.25rem; }
-    .mc-evidencias__titulo { margin: 0; color: var(--ces-foreground); font-size: 0.875rem; font-weight: 700; }
-    .mc-evidencias__ajuda { margin: 0.125rem 0 0; color: var(--ces-foreground-muted); font-size: 0.8125rem; }
+    .mc-evidencias__titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 700; }
+    .mc-evidencias__ajuda { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .mc-evidencias__marca { margin-top: 1.75rem; }
   `
 })
 export class ModelosChecklistComponent {
   private readonly servico = inject(ObrasDocumentacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   protected readonly podeConfigurar = (inject(AuthService).currentUser()?.permissoes ?? []).includes('obras:documentacao:manage');
   protected readonly finalidades = FINALIDADES;
@@ -276,11 +276,11 @@ export class ModelosChecklistComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly rotulo = (m: ModeloChecklistResponse) => m.titulo;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-checklists',
     filters: {
-      finalidade: cesFilter.value<FinalidadeChecklist | null>(null, { label: 'Finalidade', param: 'finalidade', options: () => FINALIDADES }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      finalidade: geoFilter.value<FinalidadeChecklist | null>(null, { label: 'Finalidade', param: 'finalidade', options: () => FINALIDADES }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'titulo', direction: 'asc' }]
   });
@@ -290,7 +290,7 @@ export class ModelosChecklistComponent {
   );
   protected readonly exportar = exportacaoPadrao((pagina) => this.servico.listarModelos({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<ModeloChecklistResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<ModeloChecklistResponse>[] = [
     { key: 'titulo', header: 'Título', type: 'custom', priority: 1, sortField: 'titulo', value: (m) => m.titulo, display: (m) => m.titulo },
     { key: 'finalidade', header: 'Finalidade', sortField: 'finalidade', width: '10rem', display: (m) => rotuloFinalidade(m.finalidade) },
     { key: 'perguntas', header: 'Perguntas', width: '8rem', display: (m) => `${m.perguntas} em ${m.grupos} ${m.grupos === 1 ? 'grupo' : 'grupos'}` },

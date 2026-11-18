@@ -1,7 +1,7 @@
 import {
   AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, computed, effect, input, output, signal, viewChild
 } from '@angular/core';
-import { CesIconButtonComponent } from '@ces/ui';
+import { GeoIconButtonComponent } from '@geo/ui';
 
 import { descreverExpressao, segmentos } from '../lib/dinamico';
 import { ContextoDinamico, SeletorDinamicoComponent } from './seletor-dinamico.component';
@@ -43,7 +43,7 @@ function serializar(raiz: Node): string {
 @Component({
   selector: 'aut-campo-expressao',
   standalone: true,
-  imports: [CesIconButtonComponent, SeletorDinamicoComponent],
+  imports: [GeoIconButtonComponent, SeletorDinamicoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-tokenfield" [attr.data-invalid]="invalido() || null" [attr.data-multiline]="multilinha() || null">
@@ -52,7 +52,7 @@ function serializar(raiz: Node): string {
            (input)="emitir()" (keyup)="lembrar()" (mouseup)="lembrar()" (blur)="lembrar()"
            (keydown.enter)="enter($event)" (paste)="colar($event)"></div>
       @if (mostrarSeletor()) {
-        <ces-icon-button icon="pi pi-bolt" label="Inserir dado de um passo anterior" variant="ghost" size="icon-sm" data-dyn-trigger (mousedown)="lembrar()" (pressed)="aberto.set(!aberto())"></ces-icon-button>
+        <geo-icon-button icon="pi pi-bolt" label="Inserir dado de um passo anterior" variant="ghost" size="icon-sm" data-dyn-trigger (mousedown)="lembrar()" (pressed)="aberto.set(!aberto())"></geo-icon-button>
       }
       @if (aberto()) {
         <aut-seletor-dinamico [contexto]="contexto()" (escolher)="inserir($event)" (fechar)="aberto.set(false)" />

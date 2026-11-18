@@ -8,7 +8,7 @@ import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
  * <p>Carrega bytes, e não uma referência ao armazenamento, porque a resolução do
  * arquivo é responsabilidade de quem monta a mensagem — o adaptador de envio não pode
  * conhecer o R2. O tamanho é limitado bem antes de chegar aqui
- * ({@code ces.email.limite-anexos-bytes}); um anexo grande vira link no corpo em vez
+ * ({@code geo.email.limite-anexos-bytes}); um anexo grande vira link no corpo em vez
  * de arquivo, que é o que qualquer servidor de e-mail faria de todo modo, só que
  * rejeitando a mensagem inteira.</p>
  */

@@ -10,21 +10,21 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
-  CesTone
-} from '@ces/ui';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
+  GeoTone
+} from '@geo/ui';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 
 import { RhDescontosService } from '../../../../core/services/rh-descontos.service';
 import { RhService } from '../../../../core/services/rh.service';
@@ -58,7 +58,7 @@ import { AcaoDesconto, AcaoDescontoConfirmada, DescontoAcaoDrawerComponent } fro
 import { DescontoHistoricoComponent } from './desconto-historico.component';
 
 interface Destaque {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;
@@ -73,7 +73,7 @@ interface EtapaTermo {
   data: string | null | undefined;
   valor: number | null | undefined;
   pendente: string | null;
-  tom: CesTone;
+  tom: GeoTone;
 }
 
 const ROTULO_STATUS: Record<DescontoStatus, string> = {
@@ -84,7 +84,7 @@ const ROTULO_STATUS: Record<DescontoStatus, string> = {
   REJEITADO: 'Rejeitado'
 };
 
-const TOM_STATUS: Record<DescontoStatus, CesTone> = {
+const TOM_STATUS: Record<DescontoStatus, GeoTone> = {
   SOLICITADO: 'warning',
   VALIDADO: 'info',
   BAIXADO: 'success',
@@ -117,18 +117,18 @@ const ICONE_STATUS: Record<DescontoStatus, string> = {
     AccordionModule,
     DialogModule,
     ProgressSpinnerModule,
-    CesAsyncStateComponent,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     AnalisarComCopilotoComponent,
     DescontoAcaoDrawerComponent,
     DescontoHistoricoComponent
@@ -166,10 +166,10 @@ export class RelatorioDescontoComponent implements OnInit {
   protected readonly motivos = signal<MotivoDescontoResponse[]>([]);
   private readonly colaboradores = signal<ColaboradorResponse[]>([]);
 
-  protected readonly opcoesMotivo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesMotivo = computed<GeoSelectOption<string>[]>(() =>
     this.motivos().map(m => ({ label: m.descricao, value: m.id }))
   );
-  protected readonly opcoesCategoria = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesCategoria = computed<GeoSelectOption<string>[]>(() =>
     this.categorias().map(c => ({ label: c.descricao, value: c.id }))
   );
 

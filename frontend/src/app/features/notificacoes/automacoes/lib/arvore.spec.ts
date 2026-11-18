@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { Definicao, FlowNode } from '../../../../core/models/automacao.models';
 import {
-  buscarNo, definicaoBranca, duplicarNo, idUnico, inserirNo, moverNo, removerNo, slug, todosIds, visivelPara
+  buscarNo, definicaoBranca, duplicarNo, idUnico, inserirNo, moverNo, normalizar, removerNo, slug, todosIds, visivelPara
 } from './arvore';
 import { montarLayout } from './layout';
 
@@ -81,5 +81,25 @@ describe('layout do canvas', () => {
     const n = layout.itens.find((i) => i.id === 'n')!;
     expect(s.y).toBe(n.y);
     expect(s.x).toBeLessThan(n.x);
+  });
+});
+
+describe('automações salvas antes da troca de nome do produto', () => {
+  it('abre os nós do grupo antigo com o tipo atual, inclusive dentro de condições', () => {
+    // renomear-geo: manter a linha seguinte (tipo gravado antes da troca)
+    const antigo = 'ces.query';
+    const bruta = {
+      ...definicaoBranca(),
+      steps: [
+        { id: 'a', type: antigo, label: 'Consultar', params: { texto: antigo } },
+        { id: 'b', type: 'control.if', label: 'Se', params: {}, then: [{ id: 'c', type: antigo, label: 'Outra', params: {} }] }
+      ]
+    } as unknown as Definicao;
+
+    const steps = normalizar(bruta).steps as unknown as { type: string; params: { texto?: string }; then?: { type: string }[] }[];
+
+    expect(steps[0].type).toBe('geo.query');
+    expect(steps[0].params.texto).toBe(antigo);
+    expect(steps[1].then?.[0].type).toBe('geo.query');
   });
 });

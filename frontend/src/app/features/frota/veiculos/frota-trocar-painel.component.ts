@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   LeituraOdometro,
   ROTULO_UNIDADE,
@@ -32,48 +32,48 @@ import { FrotaService } from '../../../core/services/frota.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="visivel" title="Trocar painel"
+    <geo-form-drawer [(visible)]="visivel" title="Trocar painel"
       [description]="'Veículo ' + placa() + '. Use quando o ' + nomeMedidor(unidadeAtual()).toLowerCase() + ' for trocado ou zerado.'"
       [dirty]="alterado()" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
-        <ces-callout tone="info" [dense]="true">
+      <div class="geo-form-stack">
+        <geo-callout tone="info" [dense]="true">
           As leituras depois da troca são comparadas só com o painel novo. O histórico antigo continua valendo
           e o acumulado do veículo soma o que o painel antigo já marcava.
-        </ces-callout>
-        <ces-number-input label="Último valor do painel antigo" [required]="true" [(value)]="fechamento" [min]="0"
+        </geo-callout>
+        <geo-number-input label="Último valor do painel antigo" [required]="true" [(value)]="fechamento" [min]="0"
           [suffix]="' ' + sufixoUnidade(unidadeAtual())" [error]="erroFechamento()"
-          [description]="valorAtual() != null ? 'Última leitura válida: ' + formatarMedicao(valorAtual(), unidadeAtual()) + '.' : undefined"></ces-number-input>
-        <ces-select label="Unidade do painel novo" [options]="unidades" [(value)]="unidadeNova"
-          [description]="mudaUnidade() ? 'O acumulado recomeça na unidade nova.' : undefined"></ces-select>
-        <ces-number-input label="Valor inicial do painel novo" [required]="true" [(value)]="inicial" [min]="0"
-          [suffix]="' ' + sufixoUnidade(unidadeNova())" [error]="erroInicial()"></ces-number-input>
-        <div class="ces-form-grid">
-          <ces-datepicker label="Data da troca" [required]="true" [(value)]="data" [maxDate]="hoje"></ces-datepicker>
-          <ces-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5" [error]="erroHora()"></ces-text-input>
+          [description]="valorAtual() != null ? 'Última leitura válida: ' + formatarMedicao(valorAtual(), unidadeAtual()) + '.' : undefined"></geo-number-input>
+        <geo-select label="Unidade do painel novo" [options]="unidades" [(value)]="unidadeNova"
+          [description]="mudaUnidade() ? 'O acumulado recomeça na unidade nova.' : undefined"></geo-select>
+        <geo-number-input label="Valor inicial do painel novo" [required]="true" [(value)]="inicial" [min]="0"
+          [suffix]="' ' + sufixoUnidade(unidadeNova())" [error]="erroInicial()"></geo-number-input>
+        <div class="geo-form-grid">
+          <geo-datepicker label="Data da troca" [required]="true" [(value)]="data" [maxDate]="hoje"></geo-datepicker>
+          <geo-text-input label="Hora" [required]="true" [(value)]="hora" placeholder="HH:mm" [maxlength]="5" [error]="erroHora()"></geo-text-input>
         </div>
-        <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="300" [showOptional]="true"
-          placeholder="Ex.: painel queimado, trocado na oficina da base"></ces-textarea>
+        <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="300" [showOptional]="true"
+          placeholder="Ex.: painel queimado, trocado na oficina da base"></geo-textarea>
         @if (acumuladoPrevisto() != null) {
-          <ces-callout tone="neutral" [dense]="true">
+          <geo-callout tone="neutral" [dense]="true">
             Depois da troca, o acumulado do veículo será {{ formatarMedicao(acumuladoPrevisto(), unidadeNova()) }}.
-          </ces-callout>
+          </geo-callout>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Registrar troca" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Registrar troca" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaTrocarPainelComponent {
@@ -92,7 +92,7 @@ export class FrotaTrocarPainelComponent {
   protected readonly nomeMedidor = nomeMedidor;
   protected readonly sufixoUnidade = sufixoUnidade;
   protected readonly formatarMedicao = formatarMedicao;
-  protected readonly unidades: CesSelectOption<UnidadeMedicao>[] = (['KM', 'HORAS'] as const).map((u) => ({
+  protected readonly unidades: GeoSelectOption<UnidadeMedicao>[] = (['KM', 'HORAS'] as const).map((u) => ({
     label: ROTULO_UNIDADE[u],
     value: u
   }));

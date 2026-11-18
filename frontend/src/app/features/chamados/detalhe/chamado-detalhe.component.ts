@@ -12,22 +12,22 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesBooleanControlComponent,
-  CesBreadcrumbItem,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDialogShellComponent,
-  CesFieldComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextareaComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoBooleanControlComponent,
+  GeoBreadcrumbItem,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDialogShellComponent,
+  GeoFieldComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextareaComponent,
+  GeoTone,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { SelectModule } from 'primeng/select';
 import { catchError, forkJoin, of } from 'rxjs';
 import {
@@ -118,7 +118,7 @@ interface AcaoCentral {
 }
 
 interface Situacao {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;
@@ -129,7 +129,7 @@ interface CartaoResumo {
   icone: string;
   valor: string;
   legenda: string;
-  tom: CesTone;
+  tom: GeoTone;
 }
 
 interface EventoTimeline {
@@ -160,16 +160,16 @@ interface EventoTimeline {
     LowerCasePipe,
     FormsModule,
     SelectModule,
-    CesAsyncStateComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDialogShellComponent,
-    CesFieldComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDialogShellComponent,
+    GeoFieldComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent,
     MencaoTextareaComponent,
     TextoMarcacoesComponent
   ],
@@ -182,7 +182,7 @@ export class ChamadoDetalheComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
   private readonly arquivoInput = viewChild<ElementRef<HTMLInputElement>>('arquivoInput');
@@ -215,7 +215,7 @@ export class ChamadoDetalheComponent {
 
   protected readonly modoCentral = this.route.snapshot.data['modo'] === 'central';
   protected readonly rotaLista = this.modoCentral ? '/chamados/fila' : '/chamados/meus';
-  protected readonly breadcrumb: CesBreadcrumbItem[] = [
+  protected readonly breadcrumb: GeoBreadcrumbItem[] = [
     { label: 'Chamados' },
     { label: this.modoCentral ? 'Fila da central' : 'Meus chamados', route: this.rotaLista },
     { label: 'Detalhe' }
@@ -251,7 +251,7 @@ export class ChamadoDetalheComponent {
   protected readonly erroSolucao = signal<string | undefined>(undefined);
   protected readonly motivoReabertura = signal('');
 
-  protected readonly prioridadeOptions: CesSelectOption<ChamadoPrioridade>[] = PRIORIDADE_OPTIONS;
+  protected readonly prioridadeOptions: GeoSelectOption<ChamadoPrioridade>[] = PRIORIDADE_OPTIONS;
   protected readonly limiteAnexos = LIMITE_ANEXOS;
   protected readonly limiteMensagem = LIMITE_MENSAGEM;
   protected readonly extensoesAceitas = EXTENSOES_ACEITAS.map((ext) => `.${ext}`).join(',');
@@ -304,7 +304,7 @@ export class ChamadoDetalheComponent {
     () => this.modoCentral && (this.chamado()?.status === 'RESOLVIDO' || this.interno())
   );
 
-  protected readonly statusDisponiveis = computed<CesSelectOption<ChamadoStatus>[]>(() => {
+  protected readonly statusDisponiveis = computed<GeoSelectOption<ChamadoStatus>[]>(() => {
     const status = this.chamado()?.status;
     return (status ? TRANSICOES[status] ?? [] : []).map((value) => ({
       value,

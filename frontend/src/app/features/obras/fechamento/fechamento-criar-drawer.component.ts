@@ -1,15 +1,15 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { forkJoin } from 'rxjs';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
@@ -49,18 +49,18 @@ const ehFisico = (e: EstoqueResponse) => e.ativo && e.tipoEstoque?.nome?.trim().
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     NovaSolicitacaoMateriaisComponent
   ],
   styleUrl: '../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao.css',
   template: `
-    <ces-form-drawer
+    <geo-form-drawer
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       title="Nova solicitação de encerramento"
@@ -70,19 +70,19 @@ const ehFisico = (e: EstoqueResponse) => e.ativo && e.tipoEstoque?.nome?.trim().
     >
       <div class="ns">
         @if (erroApoio()) {
-          <ces-callout tone="danger" title="Não foi possível carregar obras e almoxarifados">
+          <geo-callout tone="danger" title="Não foi possível carregar obras e almoxarifados">
             {{ erroApoio() }}
-            <ces-button label="Tentar de novo" icon="pi pi-refresh" variant="outline" size="sm" (pressed)="carregarApoio()" />
-          </ces-callout>
+            <geo-button label="Tentar de novo" icon="pi pi-refresh" variant="outline" size="sm" (pressed)="carregarApoio()" />
+          </geo-callout>
         }
 
         <section class="ns-secao" aria-labelledby="fc-obra">
           <h3 id="fc-obra" class="ns-secao__titulo"><i class="pi pi-building" aria-hidden="true"></i>Obra e almoxarifado</h3>
           <div class="ns-cartao">
-            <ces-select label="Obra" placeholder="Buscar por número ou título" [options]="opcoesObra()" [(value)]="idObra"
+            <geo-select label="Obra" placeholder="Buscar por número ou título" [options]="opcoesObra()" [(value)]="idObra"
               [filter]="true" [loading]="carregando()" [required]="true"
               [error]="tentou() && !idObra() ? 'Escolha a obra.' : undefined" />
-            <ces-select label="Almoxarifado" placeholder="Selecione o almoxarifado" [options]="opcoesAlmoxarifado()" [(value)]="idAlmoxarifado"
+            <geo-select label="Almoxarifado" placeholder="Selecione o almoxarifado" [options]="opcoesAlmoxarifado()" [(value)]="idAlmoxarifado"
               [filter]="true" [loading]="carregando()" [required]="true"
               description="Na adição, o material sai daqui para a obra; na devolução, volta para cá."
               [error]="tentou() && !idAlmoxarifado() ? 'Escolha o almoxarifado.' : undefined" />
@@ -96,9 +96,9 @@ const ehFisico = (e: EstoqueResponse) => e.ativo && e.tipoEstoque?.nome?.trim().
           </div>
           <div class="ns-cartao">
             <div class="ns-grade">
-              <ces-select label="Encarregado" placeholder="Buscar colaborador" [options]="opcoesColaborador()" [(value)]="idEncarregado"
+              <geo-select label="Encarregado" placeholder="Buscar colaborador" [options]="opcoesColaborador()" [(value)]="idEncarregado"
                 [filter]="true" [loading]="buscandoColaborador()" (search)="buscaColaborador.search($event)" (opened)="abrirBuscaColaborador()" [clearable]="true" />
-              <ces-select label="Supervisor" placeholder="Selecione o supervisor" [options]="opcoesSupervisor()" [(value)]="idSupervisor"
+              <geo-select label="Supervisor" placeholder="Selecione o supervisor" [options]="opcoesSupervisor()" [(value)]="idSupervisor"
                 [filter]="true" [clearable]="true" [loading]="carregando()"
                 [description]="coordenador() ? 'Coordenador: ' + coordenador() : 'O coordenador vem do supervisor.'" />
             </div>
@@ -129,11 +129,11 @@ const ehFisico = (e: EstoqueResponse) => e.ativo && e.tipoEstoque?.nome?.trim().
             </div>
             <div class="ns-cartao">
               <div class="ns-grade">
-                <ces-text-input label="Número da reserva" placeholder="Se já existir no SAP" [value]="b.reserva" (valueChange)="alterarBloco(i, { reserva: $event })"
+                <geo-text-input label="Número da reserva" placeholder="Se já existir no SAP" [value]="b.reserva" (valueChange)="alterarBloco(i, { reserva: $event })"
                   [maxlength]="20"
                   [error]="tentou() && reservaInvalida(b.reserva) ? 'Só números, até 20 dígitos.' : undefined"
                   description="Sem reserva, a solicitação tem 48 horas úteis para recebê-la." />
-                <ces-datepicker label="Data da reserva" [value]="b.dataReserva" (valueChange)="alterarBloco(i, { dataReserva: $any($event) })"
+                <geo-datepicker label="Data da reserva" [value]="b.dataReserva" (valueChange)="alterarBloco(i, { dataReserva: $any($event) })"
                   [maxDate]="hoje" [clearable]="true" [disabled]="!b.reserva.trim()" />
               </div>
             </div>
@@ -149,7 +149,7 @@ const ehFisico = (e: EstoqueResponse) => e.ativo && e.tipoEstoque?.nome?.trim().
           </section>
         }
 
-        <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" placeholder="Informação para o almoxarifado" />
+        <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" placeholder="Informação para o almoxarifado" />
       </div>
 
       <div drawer-footer class="ns-rodape">
@@ -159,11 +159,11 @@ const ehFisico = (e: EstoqueResponse) => e.ativo && e.tipoEstoque?.nome?.trim().
           }
         </span>
         <span class="ns-rodape__acoes">
-          <ces-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
-          <ces-button [label]="rotuloCriar()" [icon]="pendente() ? 'pi pi-refresh' : 'pi pi-send'" [loading]="salvando()" (pressed)="criar()" />
+          <geo-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
+          <geo-button [label]="rotuloCriar()" [icon]="pendente() ? 'pi pi-refresh' : 'pi pi-send'" [loading]="salvando()" (pressed)="criar()" />
         </span>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FechamentoCriarDrawerComponent {
@@ -210,15 +210,15 @@ export class FechamentoCriarDrawerComponent {
   protected readonly buscandoColaborador = this.buscaColaborador.loading;
 
   protected readonly obra = computed(() => this.obras().find((o) => o.id === this.idObra()) ?? null);
-  protected readonly opcoesObra = computed<CesSelectOption<string>[]>(() => this.obras().map((o) => ({ label: `${o.numero} · ${o.titulo}`, value: o.id })));
+  protected readonly opcoesObra = computed<GeoSelectOption<string>[]>(() => this.obras().map((o) => ({ label: `${o.numero} · ${o.titulo}`, value: o.id })));
   private readonly almoxarifados = computed(() => this.estoques().filter(ehFisico));
-  protected readonly opcoesAlmoxarifado = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesAlmoxarifado = computed<GeoSelectOption<string>[]>(() =>
     this.almoxarifados().map((e) => ({ label: e.nomeIdentificador, value: e.id }))
   );
   protected readonly nomeAlmoxarifado = computed(
     () => this.almoxarifados().find((e) => e.id === this.idAlmoxarifado())?.nomeIdentificador ?? 'o almoxarifado'
   );
-  protected readonly opcoesSupervisor = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesSupervisor = computed<GeoSelectOption<string>[]>(() =>
     this.supervisores().map((s) => ({ label: s.nomeColaborador, value: s.id }))
   );
   protected readonly coordenador = computed(() => this.supervisores().find((s) => s.id === this.idSupervisor())?.nomeCoordenador ?? null);

@@ -3,14 +3,14 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output, si
 import { Router } from '@angular/router';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesIconButtonComponent,
-  CesStatusComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoIconButtonComponent,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { EventoAgendaFrota, OrdemServicoDetalhe, TipoEventoAgendaFrota, rotuloOs } from '../../../core/models/frota.models';
@@ -22,12 +22,12 @@ import { FrotaOrdemServicoEtapaComponent } from '../ordens-servico/frota-ordem-s
 const VISIVEIS_POR_DIA = 3;
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 /** Guarda os tipos escondidos: um tipo novo na agenda aparece ligado para quem já usava. */
-const CHAVE_TIPOS_OCULTOS = 'ces_calendario_frota_tipos_ocultos';
+const CHAVE_TIPOS_OCULTOS = 'geo_calendario_frota_tipos_ocultos';
 /** Formato antigo (tipos ligados), convertido na primeira leitura. Só conhecia estes quatro tipos. */
-const CHAVE_TIPOS_ANTIGA = 'ces_calendario_frota_tipos';
+const CHAVE_TIPOS_ANTIGA = 'geo_calendario_frota_tipos';
 const TIPOS_DO_FORMATO_ANTIGO = ['OS_AGENDADA', 'OS_PREVISAO_TERMINO', 'DOCUMENTO_VENCIMENTO', 'CNH_VENCIMENTO'];
 
-const TIPOS: { value: TipoEventoAgendaFrota; label: string; icon: string; tone: CesTone }[] = [
+const TIPOS: { value: TipoEventoAgendaFrota; label: string; icon: string; tone: GeoTone }[] = [
   { value: 'OS_AGENDADA', label: 'OS agendada', icon: 'pi-calendar', tone: 'info' },
   { value: 'OS_PREVISAO_TERMINO', label: 'Previsão de término', icon: 'pi-clock', tone: 'warning' },
   { value: 'DOCUMENTO_VENCIMENTO', label: 'Documento vencendo', icon: 'pi-file', tone: 'neutral' },
@@ -56,69 +56,69 @@ interface DiaCalendario {
   selector: 'app-frota-os-calendario',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent, FrotaOrdemServicoEtapaComponent],
+  imports: [DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent, GeoStatusComponent, FrotaOrdemServicoEtapaComponent],
   styles: `
     :host { display: block; }
     .cal-shell { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) 20rem; align-items: start; }
-    .cal-card { border: 1px solid var(--ces-border); border-radius: var(--ces-radius-xl); background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); overflow: hidden; }
-    .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; padding: 0.75rem 1rem; border-bottom: 1px solid var(--ces-border); }
+    .cal-card { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); overflow: hidden; }
+    .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; padding: 0.75rem 1rem; border-bottom: 1px solid var(--geo-border); }
     .cal-nav { display: flex; align-items: center; gap: 0.25rem; }
-    .cal-title { margin: 0 0.5rem; font-size: var(--ces-font-title); font-weight: 700; color: var(--ces-foreground); min-width: 11rem; }
-    .cal-resumo { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .cal-title { margin: 0 0.5rem; font-size: var(--geo-font-title); font-weight: 700; color: var(--geo-foreground); min-width: 11rem; }
+    .cal-resumo { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .cal-weekdays, .cal-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-    .cal-weekdays { background: var(--ces-surface-subtle); border-bottom: 1px solid var(--ces-border); }
-    .cal-weekdays span { padding: 0.5rem; font-size: var(--ces-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ces-foreground-muted); }
-    .cal-week + .cal-week { border-top: 1px solid var(--ces-border); }
+    .cal-weekdays { background: var(--geo-surface-subtle); border-bottom: 1px solid var(--geo-border); }
+    .cal-weekdays span { padding: 0.5rem; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--geo-foreground-muted); }
+    .cal-week + .cal-week { border-top: 1px solid var(--geo-border); }
     .cal-day { position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-height: 7.25rem; min-width: 0; padding: 0.375rem;
-      border-left: 1px solid var(--ces-border); cursor: pointer; transition: background var(--ces-duration-fast) var(--ces-ease-standard); }
+      border-left: 1px solid var(--geo-border); cursor: pointer; transition: background var(--geo-duration-fast) var(--geo-ease-standard); }
     .cal-day:first-child { border-left: 0; }
-    .cal-day:hover { background: var(--ces-surface-subtle); }
+    .cal-day:hover { background: var(--geo-surface-subtle); }
     /* Fim de semana mais apagado nos dois temas: surface-subtle escurece no escuro e acinzenta no claro. */
-    .cal-day--fds { background: color-mix(in srgb, var(--ces-surface-subtle) 55%, transparent); }
-    .cal-day--fora { background: var(--ces-surface-subtle); }
-    .cal-day--fora .cal-num { color: var(--ces-foreground-subtle); }
-    .cal-day--sel { background: var(--ces-brand-soft); box-shadow: inset 0 0 0 2px var(--ces-brand); }
-    .cal-day--alvo { background: var(--ces-info-soft); box-shadow: inset 0 0 0 2px var(--ces-info); }
+    .cal-day--fds { background: color-mix(in srgb, var(--geo-surface-subtle) 55%, transparent); }
+    .cal-day--fora { background: var(--geo-surface-subtle); }
+    .cal-day--fora .cal-num { color: var(--geo-foreground-subtle); }
+    .cal-day--sel { background: var(--geo-brand-soft); box-shadow: inset 0 0 0 2px var(--geo-brand); }
+    .cal-day--alvo { background: var(--geo-info-soft); box-shadow: inset 0 0 0 2px var(--geo-info); }
     .cal-num { display: inline-flex; align-items: center; justify-content: center; align-self: flex-start; min-width: 1.75rem; height: 1.75rem; padding: 0 0.375rem;
-      border: 0; border-radius: 999px; background: transparent; color: var(--ces-foreground); font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer; }
-    .cal-num:focus-visible, .cal-pill:focus-visible, .cal-mais:focus-visible, .cal-agenda-item:focus-visible, .cal-filtro:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+      border: 0; border-radius: 999px; background: transparent; color: var(--geo-foreground); font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer; }
+    .cal-num:focus-visible, .cal-pill:focus-visible, .cal-mais:focus-visible, .cal-agenda-item:focus-visible, .cal-filtro:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .cal-day--hoje .cal-num { background: var(--p-primary-600); color: #fff; }
-    .cal-pill { display: flex; align-items: center; gap: 0.375rem; width: 100%; min-width: 0; padding: 0.2rem 0.4rem; border: 1px solid var(--ces-status-border);
-      border-radius: var(--ces-radius-sm); background: var(--ces-status-soft); color: var(--ces-status-ink); font: inherit; font-size: 0.72rem; font-weight: 600; text-align: left; cursor: pointer; }
+    .cal-pill { display: flex; align-items: center; gap: 0.375rem; width: 100%; min-width: 0; padding: 0.2rem 0.4rem; border: 1px solid var(--geo-status-border);
+      border-radius: var(--geo-radius-sm); background: var(--geo-status-soft); color: var(--geo-status-ink); font: inherit; font-size: 0.72rem; font-weight: 600; text-align: left; cursor: pointer; }
     .cal-pill[draggable='true'] { cursor: grab; }
-    .cal-pill:hover { filter: brightness(0.97); border-color: var(--ces-status-color); }
+    .cal-pill:hover { filter: brightness(0.97); border-color: var(--geo-status-color); }
     .cal-pill .pi { font-size: 0.65rem; flex: none; }
     .cal-pill__txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .cal-pill--atrasada { box-shadow: inset 3px 0 0 var(--ces-danger); }
-    .cal-mais { align-self: flex-start; padding: 0.1rem 0.3rem; border: 0; border-radius: var(--ces-radius-sm); background: transparent; color: var(--ces-brand);
+    .cal-pill--atrasada { box-shadow: inset 3px 0 0 var(--geo-danger); }
+    .cal-mais { align-self: flex-start; padding: 0.1rem 0.3rem; border: 0; border-radius: var(--geo-radius-sm); background: transparent; color: var(--geo-brand);
       font: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
-    .cal-mais:hover { background: var(--ces-brand-soft); }
+    .cal-mais:hover { background: var(--geo-brand-soft); }
     .cal-dots { display: none; }
-    [data-tone='warning'] { --ces-status-color: var(--ces-warning); --ces-status-soft: var(--ces-warning-soft); --ces-status-ink: var(--ces-warning-text); --ces-status-border: color-mix(in srgb, var(--ces-warning) 35%, transparent); }
-    [data-tone='info'] { --ces-status-color: var(--ces-info); --ces-status-soft: var(--ces-info-soft); --ces-status-ink: var(--ces-info-text); --ces-status-border: color-mix(in srgb, var(--ces-info) 35%, transparent); }
-    [data-tone='success'] { --ces-status-color: var(--ces-success); --ces-status-soft: var(--ces-success-soft); --ces-status-ink: var(--ces-success-text); --ces-status-border: color-mix(in srgb, var(--ces-success) 35%, transparent); }
-    [data-tone='danger'] { --ces-status-color: var(--ces-danger); --ces-status-soft: var(--ces-danger-soft); --ces-status-ink: var(--ces-danger-text); --ces-status-border: color-mix(in srgb, var(--ces-danger) 35%, transparent); }
-    [data-tone='neutral'] { --ces-status-color: var(--ces-foreground-muted); --ces-status-soft: var(--ces-surface-muted); --ces-status-ink: var(--ces-foreground); --ces-status-border: var(--ces-border); }
-    .cal-legenda { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.625rem 1rem; border-top: 1px solid var(--ces-border); font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); align-items: center; }
-    .cal-filtro { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border: 1px solid var(--ces-border); border-radius: 999px;
-      background: var(--ces-surface); color: var(--ces-foreground-muted); font: inherit; font-size: var(--ces-font-caption); font-weight: 600; cursor: pointer; }
-    .cal-filtro .pi { font-size: 0.7rem; color: var(--ces-status-color); }
-    .cal-filtro[aria-pressed='true'] { border-color: var(--ces-status-color); background: var(--ces-status-soft); color: var(--ces-status-ink); }
+    [data-tone='warning'] { --geo-status-color: var(--geo-warning); --geo-status-soft: var(--geo-warning-soft); --geo-status-ink: var(--geo-warning-text); --geo-status-border: color-mix(in srgb, var(--geo-warning) 35%, transparent); }
+    [data-tone='info'] { --geo-status-color: var(--geo-info); --geo-status-soft: var(--geo-info-soft); --geo-status-ink: var(--geo-info-text); --geo-status-border: color-mix(in srgb, var(--geo-info) 35%, transparent); }
+    [data-tone='success'] { --geo-status-color: var(--geo-success); --geo-status-soft: var(--geo-success-soft); --geo-status-ink: var(--geo-success-text); --geo-status-border: color-mix(in srgb, var(--geo-success) 35%, transparent); }
+    [data-tone='danger'] { --geo-status-color: var(--geo-danger); --geo-status-soft: var(--geo-danger-soft); --geo-status-ink: var(--geo-danger-text); --geo-status-border: color-mix(in srgb, var(--geo-danger) 35%, transparent); }
+    [data-tone='neutral'] { --geo-status-color: var(--geo-foreground-muted); --geo-status-soft: var(--geo-surface-muted); --geo-status-ink: var(--geo-foreground); --geo-status-border: var(--geo-border); }
+    .cal-legenda { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.625rem 1rem; border-top: 1px solid var(--geo-border); font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); align-items: center; }
+    .cal-filtro { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border: 1px solid var(--geo-border); border-radius: 999px;
+      background: var(--geo-surface); color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-font-caption); font-weight: 600; cursor: pointer; }
+    .cal-filtro .pi { font-size: 0.7rem; color: var(--geo-status-color); }
+    .cal-filtro[aria-pressed='true'] { border-color: var(--geo-status-color); background: var(--geo-status-soft); color: var(--geo-status-ink); }
     .cal-filtro[aria-pressed='false'] { text-decoration: line-through; opacity: 0.7; }
     .cal-agenda { position: sticky; top: 1rem; display: flex; flex-direction: column; max-height: calc(100vh - 8rem); }
-    .cal-agenda__head { padding: 0.875rem 1rem; border-bottom: 1px solid var(--ces-border); }
-    .cal-agenda__eyebrow { margin: 0; font-size: var(--ces-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ces-foreground-muted); }
-    .cal-agenda__title { margin: 0.125rem 0 0; font-size: var(--ces-font-title); font-weight: 700; color: var(--ces-foreground); }
+    .cal-agenda__head { padding: 0.875rem 1rem; border-bottom: 1px solid var(--geo-border); }
+    .cal-agenda__eyebrow { margin: 0; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground-muted); }
+    .cal-agenda__title { margin: 0.125rem 0 0; font-size: var(--geo-font-title); font-weight: 700; color: var(--geo-foreground); }
     .cal-agenda__list { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; overflow-y: auto; }
-    .cal-agenda__vazio { padding: 2rem 1rem; text-align: center; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); }
-    .cal-agenda__vazio .pi { display: block; margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--ces-foreground-subtle); }
-    .cal-agenda-item { display: grid; gap: 0.3rem; width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--ces-border); border-left: 3px solid var(--ces-status-color);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface); color: var(--ces-foreground); font: inherit; text-align: left; cursor: pointer; }
-    .cal-agenda-item:hover { background: var(--ces-surface-subtle); border-color: var(--ces-border-strong); border-left-color: var(--ces-status-color); }
+    .cal-agenda__vazio { padding: 2rem 1rem; text-align: center; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); }
+    .cal-agenda__vazio .pi { display: block; margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--geo-foreground-subtle); }
+    .cal-agenda-item { display: grid; gap: 0.3rem; width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--geo-border); border-left: 3px solid var(--geo-status-color);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; text-align: left; cursor: pointer; }
+    .cal-agenda-item:hover { background: var(--geo-surface-subtle); border-color: var(--geo-border-strong); border-left-color: var(--geo-status-color); }
     .cal-agenda-item__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem 0.5rem; min-width: 0; }
-    .cal-agenda-item__titulo { min-width: 0; font-weight: 700; font-size: var(--ces-font-control); overflow-wrap: anywhere; }
-    .cal-agenda-item__detalhe { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .cal-agenda-item__meta { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .cal-agenda-item__titulo { min-width: 0; font-weight: 700; font-size: var(--geo-font-control); overflow-wrap: anywhere; }
+    .cal-agenda-item__detalhe { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .cal-agenda-item__meta { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .cal-agenda-item__meta .pi { font-size: 0.7rem; margin-right: 0.2rem; }
     @media (max-width: 64rem) { .cal-shell { grid-template-columns: minmax(0, 1fr); } .cal-agenda { position: static; max-height: none; } }
     @media (max-width: 40rem) {
@@ -126,7 +126,7 @@ interface DiaCalendario {
       .cal-num { align-self: center; }
       .cal-pill, .cal-mais { display: none; }
       .cal-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
-      .cal-dots i { width: 6px; height: 6px; border-radius: 999px; background: var(--ces-status-color); }
+      .cal-dots i { width: 6px; height: 6px; border-radius: 999px; background: var(--geo-status-color); }
       .cal-weekdays span { text-align: center; padding: 0.375rem 0; }
       .cal-title { min-width: 0; }
     }
@@ -134,19 +134,19 @@ interface DiaCalendario {
   `,
   template: `
     @if (erro()) {
-      <ces-async-state state="error" title="Não foi possível carregar o calendário" [description]="erro()!" actionLabel="Tentar novamente" (action)="recarregar()" />
+      <geo-async-state state="error" title="Não foi possível carregar o calendário" [description]="erro()!" actionLabel="Tentar novamente" (action)="recarregar()" />
     } @else {
       @if (truncado()) {
-        <ces-callout tone="warning" title="Mês com muitos eventos">Mostrando os primeiros mil. Escolha uma base ou desligue algum tipo de evento.</ces-callout>
+        <geo-callout tone="warning" title="Mês com muitos eventos">Mostrando os primeiros mil. Escolha uma base ou desligue algum tipo de evento.</geo-callout>
       }
       <div class="cal-shell">
         <section class="cal-card" aria-labelledby="cal-frota-titulo">
           <header class="cal-head">
             <div class="cal-nav">
-              <ces-icon-button icon="pi pi-chevron-left" label="Mês anterior" size="icon-sm" (pressed)="mudarMes(-1)" />
+              <geo-icon-button icon="pi pi-chevron-left" label="Mês anterior" size="icon-sm" (pressed)="mudarMes(-1)" />
               <h2 id="cal-frota-titulo" class="cal-title" aria-live="polite">{{ tituloMes() }}</h2>
-              <ces-icon-button icon="pi pi-chevron-right" label="Próximo mês" size="icon-sm" (pressed)="mudarMes(1)" />
-              <ces-button label="Hoje" variant="outline" size="sm" [disabled]="ehMesAtual()" (pressed)="irParaHoje()" />
+              <geo-icon-button icon="pi pi-chevron-right" label="Próximo mês" size="icon-sm" (pressed)="mudarMes(1)" />
+              <geo-button label="Hoje" variant="outline" size="sm" [disabled]="ehMesAtual()" (pressed)="irParaHoje()" />
             </div>
             <div class="cal-resumo" aria-live="polite">
               @if (carregando()) {
@@ -154,7 +154,7 @@ interface DiaCalendario {
               } @else {
                 <span>{{ totalNoMes() }} {{ totalNoMes() === 1 ? 'evento' : 'eventos' }} no mês</span>
                 @if (atrasadosNoMes() > 0) {
-                  <ces-status tone="danger" icon="pi pi-exclamation-triangle">{{ atrasadosNoMes() }} {{ atrasadosNoMes() === 1 ? 'atrasado ou vencido' : 'atrasados ou vencidos' }}</ces-status>
+                  <geo-status tone="danger" icon="pi pi-exclamation-triangle">{{ atrasadosNoMes() }} {{ atrasadosNoMes() === 1 ? 'atrasado ou vencido' : 'atrasados ou vencidos' }}</geo-status>
                 }
               }
             </div>
@@ -233,7 +233,7 @@ interface DiaCalendario {
               <button type="button" class="cal-agenda-item" [attr.data-tone]="e.tom" (click)="abrirEvento(e, $event)" [attr.aria-label]="rotuloEvento(e)">
                 <span class="cal-agenda-item__top">
                   <span class="cal-agenda-item__titulo">{{ e.titulo }}</span>
-                  <ces-status [tone]="e.tom" [icon]="'pi ' + icone[e.tipo]">{{ e.tipoRotulo }}</ces-status>
+                  <geo-status [tone]="e.tom" [icon]="'pi ' + icone[e.tipo]">{{ e.tipoRotulo }}</geo-status>
                 </span>
                 @if (e.detalhe) {
                   <span class="cal-agenda-item__detalhe">{{ e.detalhe }}</span>

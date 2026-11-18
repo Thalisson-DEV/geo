@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { ContextoTag, TipoAlertaManual } from './central-treinamento.models';
 
 /**
@@ -10,7 +10,7 @@ import { ContextoTag, TipoAlertaManual } from './central-treinamento.models';
  */
 const APRESENTACAO_ALERTA: Record<
   TipoAlertaManual,
-  { tom: CesTone; rotulo: string; icone: string }
+  { tom: GeoTone; rotulo: string; icone: string }
 > = {
   'regra-ouro': { tom: 'brand', rotulo: 'Regra de ouro', icone: 'pi-star' },
   atencao: { tom: 'warning', rotulo: 'Atenção', icone: 'pi-exclamation-triangle' },
@@ -18,7 +18,7 @@ const APRESENTACAO_ALERTA: Record<
   dica: { tom: 'success', rotulo: 'Dica', icone: 'pi-lightbulb' }
 };
 
-export function tomAlerta(tipo: TipoAlertaManual): CesTone {
+export function tomAlerta(tipo: TipoAlertaManual): GeoTone {
   return APRESENTACAO_ALERTA[tipo].tom;
 }
 

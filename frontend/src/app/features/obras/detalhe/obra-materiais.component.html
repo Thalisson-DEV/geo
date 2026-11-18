@@ -17,10 +17,10 @@
   </div>
   <div class="mat-saldo" id="mat-saldo" [attr.data-aberto]="saldoAberto()">
     @switch (carga.estado) {
-      @case ('loading') { <ces-async-state state="loading" [compact]="true" title="Carregando o saldo"></ces-async-state> }
+      @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando o saldo"></geo-async-state> }
       @case ('error') {
-        <ces-async-state state="error" [compact]="true" title="Não foi possível carregar o saldo" [description]="carga.mensagem"
-          actionLabel="Tentar de novo" (action)="recarregarSaldo.emit()"></ces-async-state>
+        <geo-async-state state="error" [compact]="true" title="Não foi possível carregar o saldo" [description]="carga.mensagem"
+          actionLabel="Tentar de novo" (action)="recarregarSaldo.emit()"></geo-async-state>
       }
       @case ('ready') {
         @if (carga.dados.itens.length) {
@@ -40,7 +40,7 @@
                   <tr>
                     <td class="mat-codigo">{{ item.codigo }}</td>
                     <td>{{ item.descricao }}</td>
-                    <td><ces-status [tone]="tomCondicao(item.condicao)">{{ condicaoLabel(item.condicao) }}</ces-status></td>
+                    <td><geo-status [tone]="tomCondicao(item.condicao)">{{ condicaoLabel(item.condicao) }}</geo-status></td>
                     <td class="mat-num" [class.mat-pendente]="item.quantidade < 0">{{ item.quantidade | number: '1.0-3' }} {{ item.unidade }}</td>
                     <td>{{ item.series.length ? item.series.join(', ') : 'Sem série' }}</td>
                   </tr>
@@ -82,7 +82,7 @@
               @if (comPendencia(s); as n) { <span class="mat-pendente">{{ n }} com pendência</span> }
             </span>
           </span>
-          <ces-status [tone]="statusTone(s.status)">{{ statusLabel(s.status) }}</ces-status>
+          <geo-status [tone]="statusTone(s.status)">{{ statusLabel(s.status) }}</geo-status>
           <span class="mat-contagem">{{ s.itens?.length ?? 0 }} {{ s.itens?.length === 1 ? 'material' : 'materiais' }}</span>
           <i class="pi mat-seta" [class.pi-chevron-up]="aberto(s.id)" [class.pi-chevron-down]="!aberto(s.id)" aria-hidden="true"></i>
         </button>
@@ -165,7 +165,7 @@
                   <tr>
                     <td class="mat-codigo">{{ g.codigo }}</td>
                     <td>{{ g.descricao }}</td>
-                    <td><ces-status [tone]="g.condicao === 'Sucata' ? 'warning' : 'neutral'">{{ g.condicao }}</ces-status></td>
+                    <td><geo-status [tone]="g.condicao === 'Sucata' ? 'warning' : 'neutral'">{{ g.condicao }}</geo-status></td>
                     <td class="mat-num">{{ g.quantidade | number: '1.0-3' }} {{ g.unidade }}</td>
                     <td>{{ g.series.length ? g.series.join(', ') : 'Sem série' }}</td>
                   </tr>

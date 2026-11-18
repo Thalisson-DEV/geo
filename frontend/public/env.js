@@ -1,4 +1,4 @@
-globalThis.__CES_CONFIG__ = Object.freeze({
+globalThis.__GEO_CONFIG__ = Object.freeze({
   statusPageUrl: '',
   statusPublicApiUrl: '',
 });

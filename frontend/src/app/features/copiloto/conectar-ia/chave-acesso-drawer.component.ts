@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ChaveIaCriada } from '../../../core/models/conexoes-ia.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ConexoesIaService } from '../../../core/services/conexoes-ia.service';
@@ -23,67 +23,67 @@ import { copiarTexto } from './conectar-ia.util';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesSelectComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent
   ],
   styles: `
     .chave-copiar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem; }
-    .chave-copiar ces-text-input { flex: 1 1 16rem; min-width: 0; }
-    .chave-uso { display: grid; gap: 0.5rem; margin: 0; padding-left: 1.25rem; list-style: decimal; color: var(--ces-foreground); line-height: 1.55; }
+    .chave-copiar geo-text-input { flex: 1 1 16rem; min-width: 0; }
+    .chave-uso { display: grid; gap: 0.5rem; margin: 0; padding-left: 1.25rem; list-style: decimal; color: var(--geo-foreground); line-height: 1.55; }
   `,
   template: `
-    <ces-form-drawer #drawer [(visible)]="visivel" [title]="criada() ? 'Chave de acesso criada' : 'Gerar chave de acesso'"
+    <geo-form-drawer #drawer [(visible)]="visivel" [title]="criada() ? 'Chave de acesso criada' : 'Gerar chave de acesso'"
       [description]="criada() ? criada()!.conexao.nome : 'Para assistentes que pedem uma chave em vez do seu login.'"
       [dirty]="pendente()" [loading]="salvando()" [discardMessage]="aviso()" size="md" (closed)="limpar()">
       @if (criada(); as c) {
-        <ces-form-section title="Sua chave" icon="pi pi-key">
-          <div class="ces-form-stack">
-            <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Copie agora">
+        <geo-form-section title="Sua chave" icon="pi pi-key">
+          <div class="geo-form-stack">
+            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Copie agora">
               Por segurança, a chave aparece só desta vez. Se perder, é só gerar outra.
-            </ces-callout>
+            </geo-callout>
             <div class="chave-copiar">
-              <ces-text-input label="Chave de acesso" [labelVisible]="false" [readonly]="true" [value]="c.chave"></ces-text-input>
-              <ces-button [variant]="copiada() ? 'success' : 'primary'" [icon]="copiada() ? 'pi pi-check' : 'pi pi-copy'"
-                [label]="copiada() ? 'Copiada' : 'Copiar chave'" (pressed)="copiar(c.chave)"></ces-button>
+              <geo-text-input label="Chave de acesso" [labelVisible]="false" [readonly]="true" [value]="c.chave"></geo-text-input>
+              <geo-button [variant]="copiada() ? 'success' : 'primary'" [icon]="copiada() ? 'pi pi-check' : 'pi pi-copy'"
+                [label]="copiada() ? 'Copiada' : 'Copiar chave'" (pressed)="copiar(c.chave)"></geo-button>
             </div>
-            <p class="ces-sr-only" aria-live="polite">{{ copiada() ? 'Chave copiada para a área de transferência.' : '' }}</p>
+            <p class="geo-sr-only" aria-live="polite">{{ copiada() ? 'Chave copiada para a área de transferência.' : '' }}</p>
           </div>
-        </ces-form-section>
-        <ces-form-section title="Como usar" icon="pi pi-list-check">
+        </geo-form-section>
+        <geo-form-section title="Como usar" icon="pi pi-list-check">
           <ol class="chave-uso">
             <li>No seu assistente, adicione o GEO com o endereço <strong>{{ endereco() }}</strong>.</li>
             <li>Quando ele pedir a chave, cole a que você copiou.</li>
             <li>Se ele pedir o nome do campo, use <strong>Authorization</strong> e escreva <strong>Bearer</strong> e um espaço antes da chave.</li>
           </ol>
-        </ces-form-section>
+        </geo-form-section>
       } @else {
-        <ces-form-section title="Sobre a chave" icon="pi pi-key"
+        <geo-form-section title="Sobre a chave" icon="pi pi-key"
           description="Claude e ChatGPT conectam pelo seu login e não precisam de chave.">
-          <div class="ces-form-stack">
-            <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80"
-              placeholder="Ex.: Cursor do notebook" description="Para você reconhecer depois na lista." [error]="erroNome()"></ces-text-input>
-            <div class="ces-form-grid">
-              <ces-select label="O que pode fazer" [options]="permissoes()" [(value)]="escrita"
-                [description]="podeEscrever() ? (escrita() ? 'O assistente vai poder consultar, cadastrar, alterar e aprovar.' : 'O assistente só lê e responde; não cadastra nem aprova nada.') : 'O seu perfil só permite consultar.'"></ces-select>
-              <ces-select label="Vale por" [options]="validades" [(value)]="validade"></ces-select>
+          <div class="geo-form-stack">
+            <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80"
+              placeholder="Ex.: Cursor do notebook" description="Para você reconhecer depois na lista." [error]="erroNome()"></geo-text-input>
+            <div class="geo-form-grid">
+              <geo-select label="O que pode fazer" [options]="permissoes()" [(value)]="escrita"
+                [description]="podeEscrever() ? (escrita() ? 'O assistente vai poder consultar, cadastrar, alterar e aprovar.' : 'O assistente só lê e responde; não cadastra nem aprova nada.') : 'O seu perfil só permite consultar.'"></geo-select>
+              <geo-select label="Vale por" [options]="validades" [(value)]="validade"></geo-select>
             </div>
           </div>
-        </ces-form-section>
+        </geo-form-section>
       }
 
-      <div drawer-footer class="ces-actions-row">
+      <div drawer-footer class="geo-actions-row">
         @if (criada()) {
-          <ces-button icon="pi pi-check" label="Concluir" (pressed)="drawer.requestClose()"></ces-button>
+          <geo-button icon="pi pi-check" label="Concluir" (pressed)="drawer.requestClose()"></geo-button>
         } @else {
-          <ces-button variant="ghost" label="Cancelar" [disabled]="salvando()" (pressed)="drawer.requestClose()"></ces-button>
-          <ces-button icon="pi pi-key" label="Gerar chave" [loading]="salvando()" (pressed)="gerar()"></ces-button>
+          <geo-button variant="ghost" label="Cancelar" [disabled]="salvando()" (pressed)="drawer.requestClose()"></geo-button>
+          <geo-button icon="pi pi-key" label="Gerar chave" [loading]="salvando()" (pressed)="gerar()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class ChaveAcessoDrawerComponent {
@@ -103,11 +103,11 @@ export class ChaveAcessoDrawerComponent {
   protected readonly criada = signal<ChaveIaCriada | null>(null);
   protected readonly copiada = signal(false);
 
-  protected readonly permissoes = computed<CesSelectOption<boolean>[]>(() => [
+  protected readonly permissoes = computed<GeoSelectOption<boolean>[]>(() => [
     { label: 'Só consultar', value: false },
     ...(this.podeEscrever() ? [{ label: 'Consultar, cadastrar e aprovar', value: true }] : [])
   ]);
-  protected readonly validades: CesSelectOption<number>[] = [
+  protected readonly validades: GeoSelectOption<number>[] = [
     { label: '30 dias', value: 30 },
     { label: '90 dias', value: 90 },
     { label: '6 meses', value: 180 },

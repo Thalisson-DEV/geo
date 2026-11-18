@@ -2,28 +2,28 @@ import { CurrencyPipe, SlicePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { FormsModule } from '@angular/forms';
 import { catchError, of } from 'rxjs';
 
@@ -90,7 +90,7 @@ const FILAS: Record<Exclude<ModoConsulta, 'todos'>, Fila> = {
   }
 };
 
-const STATUS_DESCONTO: CesSelectOption<DescontoStatus>[] = [
+const STATUS_DESCONTO: GeoSelectOption<DescontoStatus>[] = [
   { label: 'Solicitado', value: 'SOLICITADO' },
   { label: 'Validado', value: 'VALIDADO' },
   { label: 'Baixado', value: 'BAIXADO' },
@@ -98,7 +98,7 @@ const STATUS_DESCONTO: CesSelectOption<DescontoStatus>[] = [
   { label: 'Rejeitado', value: 'REJEITADO' }
 ];
 const ORDEM_STATUS = STATUS_DESCONTO.map((s) => s.value);
-const TOM_STATUS: Record<DescontoStatus, CesTone> = { SOLICITADO: 'warning', VALIDADO: 'info', BAIXADO: 'success', FINALIZADO: 'success', REJEITADO: 'danger' };
+const TOM_STATUS: Record<DescontoStatus, GeoTone> = { SOLICITADO: 'warning', VALIDADO: 'info', BAIXADO: 'success', FINALIZADO: 'success', REJEITADO: 'danger' };
 /** Finalizado é o verde cheio: o fim do ciclo salta aos olhos e não se confunde com validado nem com baixado. */
 const ENFASE_STATUS: Partial<Record<DescontoStatus, 'soft' | 'solid'>> = { FINALIZADO: 'solid' };
 /** Cor nunca é o único indicador: cada status tem também o seu ícone. */
@@ -111,7 +111,7 @@ const ICONE_STATUS: Record<DescontoStatus, string> = {
 };
 /** Padrão da consulta: criados nos últimos 90 dias (links com parâmetros abrem sem limite). */
 export const DIAS_PADRAO_DESCONTOS = 90;
-const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
+const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
   { label: 'Resumo (um por desconto)', value: 'resumo' },
   { label: 'Detalhado (um por item)', value: 'detalhado' }
 ];
@@ -125,26 +125,26 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
     FormsModule,
     RouterLink,
     SlicePipe,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         [title]="titulo"
         [icon]="fila?.icone ?? 'pi pi-money-bill'"
         [breadcrumb]="breadcrumb"
@@ -154,33 +154,33 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
       >
         <!-- Botões fixos: o slot "actions" do cabeçalho não projeta conteúdo de um @for. -->
         @if (fila) {
-          <ces-button actions variant="ghost" icon="pi pi-arrow-right-arrow-left" [label]="fila.outrasFilas[0].label" [routerLink]="fila.outrasFilas[0].rota"></ces-button>
+          <geo-button actions variant="ghost" icon="pi pi-arrow-right-arrow-left" [label]="fila.outrasFilas[0].label" [routerLink]="fila.outrasFilas[0].rota"></geo-button>
         }
         @if (fila) {
-          <ces-button actions variant="ghost" icon="pi pi-arrow-right-arrow-left" [label]="fila.outrasFilas[1].label" [routerLink]="fila.outrasFilas[1].rota"></ces-button>
+          <geo-button actions variant="ghost" icon="pi pi-arrow-right-arrow-left" [label]="fila.outrasFilas[1].label" [routerLink]="fila.outrasFilas[1].rota"></geo-button>
         }
-        <ces-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="exportacaoAberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo desconto" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="exportacaoAberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo desconto" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel [storageKey]="'dp-descontos-' + modo" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="'dp-descontos-' + modo" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-autocomplete label="Colaborador" placeholder="Digite o nome" [options]="colaboradores.items()" [ngModel]="lista.filters.colaboradorId()"
+        <div class="geo-filter-grid">
+          <geo-autocomplete label="Colaborador" placeholder="Digite o nome" [options]="colaboradores.items()" [ngModel]="lista.filters.colaboradorId()"
             (ngModelChange)="lista.filters.colaboradorId.set($event)" [loading]="colaboradores.loading()" [status]="colaboradores.status()" [clearable]="true"
-            (search)="colaboradores.search($event)" (loadMore)="colaboradores.loadNext()" (retry)="colaboradores.retry()"></ces-autocomplete>
-          <ces-select label="Motivo" [options]="motivosOpcoes()" [(value)]="lista.filters.motivoId" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
+            (search)="colaboradores.search($event)" (loadMore)="colaboradores.loadNext()" (retry)="colaboradores.retry()"></geo-autocomplete>
+          <geo-select label="Motivo" [options]="motivosOpcoes()" [(value)]="lista.filters.motivoId" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
           @if (!fila) {
-            <ces-multiselect label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></ces-multiselect>
+            <geo-multiselect label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></geo-multiselect>
           }
-          <ces-datepicker label="Criados a partir de" [value]="dataLocal(lista.filters.criacao().from)" [clearable]="true" (valueChange)="intervalo('criacao', 'from', $event)"></ces-datepicker>
-          <ces-datepicker label="Criados até" [value]="dataLocal(lista.filters.criacao().to)" [clearable]="true" (valueChange)="intervalo('criacao', 'to', $event)"></ces-datepicker>
-          <ces-datepicker label="Ocorrência a partir de" [value]="dataLocal(lista.filters.ocorrencia().from)" [clearable]="true" (valueChange)="intervalo('ocorrencia', 'from', $event)"></ces-datepicker>
-          <ces-datepicker label="Ocorrência até" [value]="dataLocal(lista.filters.ocorrencia().to)" [clearable]="true" (valueChange)="intervalo('ocorrencia', 'to', $event)"></ces-datepicker>
+          <geo-datepicker label="Criados a partir de" [value]="dataLocal(lista.filters.criacao().from)" [clearable]="true" (valueChange)="intervalo('criacao', 'from', $event)"></geo-datepicker>
+          <geo-datepicker label="Criados até" [value]="dataLocal(lista.filters.criacao().to)" [clearable]="true" (valueChange)="intervalo('criacao', 'to', $event)"></geo-datepicker>
+          <geo-datepicker label="Ocorrência a partir de" [value]="dataLocal(lista.filters.ocorrencia().from)" [clearable]="true" (valueChange)="intervalo('ocorrencia', 'from', $event)"></geo-datepicker>
+          <geo-datepicker label="Ocorrência até" [value]="dataLocal(lista.filters.ocorrencia().to)" [clearable]="true" (valueChange)="intervalo('ocorrencia', 'to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         [title]="titulo"
         mode="server"
         [storageKey]="'dp-descontos-' + modo"
@@ -208,61 +208,61 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
         (rowActivate)="abrir($event.id)"
       >
         @if (!fila) {
-          <div table-filters class="ces-quick-filters" role="group" aria-label="Mostrar só os status escolhidos">
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!statusAplicados().length" (click)="definirStatus([])">
+          <div table-filters class="geo-quick-filters" role="group" aria-label="Mostrar só os status escolhidos">
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!statusAplicados().length" (click)="definirStatus([])">
               <i class="pi pi-list" aria-hidden="true"></i> Todos
             </button>
             @for (s of statusOpcoes; track s.value) {
-              <button type="button" class="ces-quick-filter" [attr.aria-pressed]="statusAplicados().includes(s.value)" (click)="alternarStatus(s.value)">
+              <button type="button" class="geo-quick-filter" [attr.aria-pressed]="statusAplicados().includes(s.value)" (click)="alternarStatus(s.value)">
                 <i [class]="'pi ' + icone(s.value)" aria-hidden="true"></i> {{ s.label }}
               </button>
             }
           </div>
         }
-        <ng-template cesCell="colaborador" let-row>
-          <span class="ces-cell-strong">{{ nomeColaborador(row.colaboradorId) }}</span>
-          <span class="ces-cell-muted">#{{ row.id | slice: 0 : 8 }}</span>
+        <ng-template geoCell="colaborador" let-row>
+          <span class="geo-cell-strong">{{ nomeColaborador(row.colaboradorId) }}</span>
+          <span class="geo-cell-muted">#{{ row.id | slice: 0 : 8 }}</span>
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tom(row.status)" [emphasis]="enfase(row.status)" [icon]="icone(row.status)">{{ rotuloStatus(row.status) }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="tom(row.status)" [emphasis]="enfase(row.status)" [icon]="icone(row.status)">{{ rotuloStatus(row.status) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="sugerido" let-row>
+        <ng-template geoCell="sugerido" let-row>
           <span [title]="'Soma de ' + (row.itens?.length ?? 0) + ' item(ns) lançado(s)'">{{ row.valorSugerido | currency: 'BRL' }}</span>
         </ng-template>
-        <ng-template cesCell="validado" let-row>
+        <ng-template geoCell="validado" let-row>
           @if (row.valorValidado !== null && row.valorValidado !== undefined) {
             <span>{{ row.valorValidado | currency: 'BRL' }}</span>
             @if (divergencia(row, 'validado'); as diff) {
-              <ces-status [tone]="diff > 0 ? 'warning' : 'info'" [icon]="diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'" emphasis="outline">{{ abs(diff) | currency: 'BRL' }}</ces-status>
+              <geo-status [tone]="diff > 0 ? 'warning' : 'info'" [icon]="diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'" emphasis="outline">{{ abs(diff) | currency: 'BRL' }}</geo-status>
             }
           } @else {
-            <span class="ces-cell-muted">—</span>
+            <span class="geo-cell-muted">—</span>
           }
         </ng-template>
-        <ng-template cesCell="baixado" let-row>
+        <ng-template geoCell="baixado" let-row>
           @if (row.valorBaixado !== null && row.valorBaixado !== undefined) {
-            <span class="ces-cell-strong">{{ row.valorBaixado | currency: 'BRL' }}</span>
+            <span class="geo-cell-strong">{{ row.valorBaixado | currency: 'BRL' }}</span>
             @if (divergencia(row, 'baixado'); as diff) {
-              <ces-status [tone]="diff > 0 ? 'warning' : 'info'" [icon]="diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'" emphasis="outline">{{ abs(diff) | currency: 'BRL' }}</ces-status>
+              <geo-status [tone]="diff > 0 ? 'warning' : 'info'" [icon]="diff > 0 ? 'pi-arrow-up' : 'pi-arrow-down'" emphasis="outline">{{ abs(diff) | currency: 'BRL' }}</geo-status>
             }
           } @else {
-            <span class="ces-cell-muted">—</span>
+            <span class="geo-cell-muted">—</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <ces-icon-button icon="pi pi-print" [label]="'Imprimir desconto de ' + nomeColaborador(row.colaboradorId)" size="icon-sm" (pressed)="abrir(row.id, true)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <geo-icon-button icon="pi pi-print" [label]="'Imprimir desconto de ' + nomeColaborador(row.colaboradorId)" size="icon-sm" (pressed)="abrir(row.id, true)"></geo-icon-button>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="exportacaoAberta" title="Exportar descontos (CSV)" description="Exporta o recorte atual da lista, inclusive a busca." size="sm">
-      <ces-select label="Formato" [options]="formatos" [(value)]="formato"></ces-select>
-      <ces-callout tone="info">Limite de 10.000 registros. Se o recorte for maior, reduza o período nos filtros.</ces-callout>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></ces-button>
-        <ces-button icon="pi pi-download" label="Exportar" [loading]="exportando()" (pressed)="exportar()"></ces-button>
+    <geo-form-drawer [(visible)]="exportacaoAberta" title="Exportar descontos (CSV)" description="Exporta o recorte atual da lista, inclusive a busca." size="sm">
+      <geo-select label="Formato" [options]="formatos" [(value)]="formato"></geo-select>
+      <geo-callout tone="info">Limite de 10.000 registros. Se o recorte for maior, reduza o período nos filtros.</geo-callout>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></geo-button>
+        <geo-button icon="pi pi-download" label="Exportar" [loading]="exportando()" (pressed)="exportar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda [titulo]="titulo" entidadePlural="descontos" busca="colaborador, motivo, status, observações ou código" rotuloNovo="Novo desconto">
       <div class="help-section">
@@ -294,7 +294,7 @@ export class DescontosLancamentoComponent {
   protected readonly abs = Math.abs;
 
   protected readonly motivos = signal<MotivoDescontoResponse[]>([]);
-  protected readonly motivosOpcoes = computed<CesSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.descricao, value: m.id })));
+  protected readonly motivosOpcoes = computed<GeoSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.descricao, value: m.id })));
   /** Nomes dos colaboradores da página (a resposta traz só o ID). */
   private readonly nomes = signal<Record<string, string>>({});
   protected readonly colaboradores: RemoteLookup<string> = new RemoteLookup<string>({
@@ -306,21 +306,21 @@ export class DescontosLancamentoComponent {
   /** Sem parâmetros (menu), a consulta abre nos últimos 90 dias; links (painel) abrem sem limite. */
   private readonly comLimite = this.modo === 'todos' && this.rota.snapshot.queryParamMap.keys.length === 0;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: `dp-descontos-${this.modo}`,
     pageSize: 20,
     // A busca é texto livre (pode conter nome de pessoa): não vai para a URL.
     queryParam: false,
     filters: {
-      colaboradorId: cesFilter.value<string | null>(null, { label: 'Colaborador', param: 'colaboradorId', format: (id): string | null => (id ? (this.nomes()[id] ?? 'colaborador selecionado') : null) }),
-      motivoId: cesFilter.value<string | null>(null, {
+      colaboradorId: geoFilter.value<string | null>(null, { label: 'Colaborador', param: 'colaboradorId', format: (id): string | null => (id ? (this.nomes()[id] ?? 'colaborador selecionado') : null) }),
+      motivoId: geoFilter.value<string | null>(null, {
         label: 'Motivo',
         param: 'motivo',
         format: (id): string | null => (id ? (this.motivos().find((m) => m.id === id)?.descricao ?? 'motivo selecionado') : null)
       }),
-      status: cesFilter.list<DescontoStatus>([], { label: 'Status', itemLabel: (s) => STATUS_DESCONTO.find((o) => o.value === s)?.label ?? s }),
-      criacao: cesFilter.range(this.comLimite ? { from: this.inicioPadrao(), to: null } : { from: null, to: null }, { label: 'Criação' }),
-      ocorrencia: cesFilter.range({ from: null, to: null }, { label: 'Ocorrência' })
+      status: geoFilter.list<DescontoStatus>([], { label: 'Status', itemLabel: (s) => STATUS_DESCONTO.find((o) => o.value === s)?.label ?? s }),
+      criacao: geoFilter.range(this.comLimite ? { from: this.inicioPadrao(), to: null } : { from: null, to: null }, { label: 'Criação' }),
+      ocorrencia: geoFilter.range({ from: null, to: null }, { label: 'Ocorrência' })
     },
     // Fila é trabalho a fazer: o mais antigo primeiro. Na consulta, o mais recente.
     sort: [{ key: 'criado', direction: this.fila ? 'asc' : 'desc' }]
@@ -328,7 +328,7 @@ export class DescontosLancamentoComponent {
   protected readonly statusAplicados = computed(() => this.lista.applied().status);
   protected readonly resultado = this.lista.results<DescontoResponse>((pedido) => this.descontos.buscarDescontos(this.filtro(pedido)), { errorMessage: getErrorMessage });
 
-  protected readonly colunas: CesDataTableColumn<DescontoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<DescontoResponse>[] = [
     { key: 'colaborador', header: 'Colaborador', type: 'custom', priority: 1, sortField: 'colaborador', value: (d) => this.nomeColaborador(d.colaboradorId) },
     { key: 'motivo', header: 'Motivo', priority: 1, sortField: 'motivo.descricao', value: (d) => d.motivo?.descricao, display: (d) => d.motivo?.descricao ?? '—' },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (d) => d.status, display: (d) => this.rotuloStatus(d.status) },
@@ -408,7 +408,7 @@ export class DescontosLancamentoComponent {
     return this.nomes()[id] ?? '…';
   }
 
-  protected tom(s: DescontoStatus): CesTone {
+  protected tom(s: DescontoStatus): GeoTone {
     return TOM_STATUS[s] ?? 'neutral';
   }
 

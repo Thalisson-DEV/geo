@@ -3,18 +3,18 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit, OnDestroy, ViewChild, signal, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAsyncStateComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextareaComponent,
-  CesTone
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextareaComponent,
+  GeoTone
+} from '@geo/ui';
 import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -69,16 +69,16 @@ declare var L: any;
     CommonModule,
     FormsModule,
     DatePipe,
-    CesAsyncStateComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent,
     AnalisarComCopilotoComponent,
     ButtonModule,
     ToastModule,
@@ -213,7 +213,7 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
   protected readonly desviosVencidos = computed(() => (this.inspecao()?.desvios ?? []).filter((d) => this.prazoVencido(d)).length);
 
   /** Situação do documento, do ponto de vista dos desvios: é o que interessa a quem lê o relatório. */
-  protected readonly situacao = computed<{ rotulo: string; tom: CesTone; icone: string }>(() => {
+  protected readonly situacao = computed<{ rotulo: string; tom: GeoTone; icone: string }>(() => {
     const r = this.resumo();
     if (!r.desvios) return { rotulo: 'Sem desvios', tom: 'success', icone: 'pi-check-circle' };
     if (this.desviosVencidos()) return { rotulo: 'Desvio vencido', tom: 'danger', icone: 'pi-exclamation-circle' };
@@ -221,7 +221,7 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
     return { rotulo: 'Desvios tratados', tom: 'success', icone: 'pi-check-circle' };
   });
 
-  protected readonly faixa = computed<{ tom: CesTone; icone: string; titulo: string; texto: string }>(() => {
+  protected readonly faixa = computed<{ tom: GeoTone; icone: string; titulo: string; texto: string }>(() => {
     const r = this.resumo();
     const vencidos = this.desviosVencidos();
     if (!r.desvios) {
@@ -249,7 +249,7 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
     const r = form ? this.resumoChecklist(form.grupos) : { conformes: 0, naoConformes: 0, naoAplica: 0 };
     const aplicaveis = r.conformes + r.naoConformes;
     const conformidade = aplicaveis ? Math.round((r.conformes * 100) / aplicaveis) : this.resumo().conformidade;
-    const tom: CesTone = conformidade >= 90 ? 'success' : conformidade >= 70 ? 'warning' : 'danger';
+    const tom: GeoTone = conformidade >= 90 ? 'success' : conformidade >= 70 ? 'warning' : 'danger';
     const temChecklist = aplicaveis + r.naoAplica > 0;
     const res = this.resumo();
     const legenda = temChecklist
@@ -284,7 +284,7 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
     return this.desvioEmTratamento ? this.perguntaEnunciado(this.desvioEmTratamento.idPergunta) : undefined;
   }
 
-  protected tomResposta(p: PerguntaResponse): CesTone {
+  protected tomResposta(p: PerguntaResponse): GeoTone {
     if (this.respostaDesvio(p)) return 'danger';
     if (this.respostaNaoAplica(p)) return 'neutral';
     return this.respostaTexto(p) === '—' ? 'neutral' : 'success';
@@ -298,11 +298,11 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
 
   protected readonly iconeGravidade: Record<string, string> = ICONE_GRAVIDADE_DESVIO;
 
-  protected tomGravidade(g: GravidadeDesvio): CesTone {
+  protected tomGravidade(g: GravidadeDesvio): GeoTone {
     return g === 'BAIXA' ? 'neutral' : g === 'MEDIA' ? 'warning' : 'danger';
   }
 
-  protected tomStatusDesvio(s: StatusDesvio): CesTone {
+  protected tomStatusDesvio(s: StatusDesvio): GeoTone {
     return s === 'RESOLVIDO' ? 'success' : s === 'EM_TRATAMENTO' ? 'warning' : 'danger';
   }
 

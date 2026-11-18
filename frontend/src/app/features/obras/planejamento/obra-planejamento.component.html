@@ -1,13 +1,13 @@
 @if (erro(); as mensagem) {
-  <ces-async-state class="plan-estado" state="error" title="Não foi possível abrir o planejamento" [description]="mensagem"
-    actionLabel="Tentar de novo" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+  <geo-async-state class="plan-estado" state="error" title="Não foi possível abrir o planejamento" [description]="mensagem"
+    actionLabel="Tentar de novo" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
 } @else if (!plano()) {
-  <ces-async-state class="plan-estado" state="loading" title="Abrindo o planejamento"></ces-async-state>
+  <geo-async-state class="plan-estado" state="loading" title="Abrindo o planejamento"></geo-async-state>
 } @else {
   @let p = plano()!;
   <div class="plan" [class.plan--sem-painel]="painelOculto()">
     <header class="plan-topo">
-      <ces-icon-button icon="pi pi-arrow-left" variant="ghost" label="Voltar para a obra" tooltip="Voltar para a obra" (pressed)="voltar()"></ces-icon-button>
+      <geo-icon-button icon="pi pi-arrow-left" variant="ghost" label="Voltar para a obra" tooltip="Voltar para a obra" (pressed)="voltar()"></geo-icon-button>
       <div class="plan-topo__obra">
         <strong>{{ p.numeroObra }}</strong>
         <span [title]="p.tituloObra">{{ p.tituloObra }}</span>
@@ -33,37 +33,37 @@
       <div class="plan-topo__acoes">
         @if (podeEditar && p.projetoMestre) {
           @if (ultimaLeitura() && !revisando() && !analisando()) {
-            <ces-button variant="ghost" size="sm" icon="pi pi-history" label="Ver última leitura" (pressed)="abrirRevisao(ultimaLeitura()!)"></ces-button>
+            <geo-button variant="ghost" size="sm" icon="pi pi-history" label="Ver última leitura" (pressed)="abrirRevisao(ultimaLeitura()!)"></geo-button>
           }
           <span [title]="leituraDisponivel() ? 'A Bússola lê esta página e propõe pontos, vãos e kits para você revisar' : 'A leitura de projetos não está configurada neste ambiente'">
-            <ces-button size="sm" icon="pi pi-compass" label="Planejar com Bússola"
-              [loading]="analisando()" [disabled]="!leituraDisponivel() || revisando()" (pressed)="lerComCopiloto()"></ces-button>
+            <geo-button size="sm" icon="pi pi-compass" label="Planejar com Bússola"
+              [loading]="analisando()" [disabled]="!leituraDisponivel() || revisando()" (pressed)="lerComCopiloto()"></geo-button>
           </span>
-          <ces-button variant="ghost" size="sm" icon="pi pi-file-pdf" label="Projeto" (pressed)="abrirProjeto()"></ces-button>
+          <geo-button variant="ghost" size="sm" icon="pi pi-file-pdf" label="Projeto" (pressed)="abrirProjeto()"></geo-button>
         }
       </div>
     </header>
 
     @if (!p.projetoMestre) {
-      <ces-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
+      <geo-async-state class="plan-estado" state="empty" icon="pi pi-file-pdf" title="Esta obra ainda não tem projeto"
         description="Anexe o PDF do projeto para marcar pontos, vãos e kits sobre a folha."
-        [actionLabel]="podeEditar ? 'Anexar projeto' : undefined" actionIcon="pi pi-upload" (action)="abrirProjeto()"></ces-async-state>
+        [actionLabel]="podeEditar ? 'Anexar projeto' : undefined" actionIcon="pi pi-upload" (action)="abrirProjeto()"></geo-async-state>
     } @else {
       <div class="plan-ferramentas" role="toolbar" aria-label="Ferramentas da folha">
-        <ces-button size="sm" icon="pi pi-arrows-alt" label="Mão" [variant]="ferramenta() === 'mao' ? 'primary' : 'ghost'" keyShortcut="M" (pressed)="escolherFerramenta('mao')"></ces-button>
+        <geo-button size="sm" icon="pi pi-arrows-alt" label="Mão" [variant]="ferramenta() === 'mao' ? 'primary' : 'ghost'" keyShortcut="M" (pressed)="escolherFerramenta('mao')"></geo-button>
         @if (podeEditar) {
           <span class="plan-separador"></span>
-          <ces-button size="sm" icon="pi pi-map-marker" label="Ponto" [variant]="ferramenta() === 'ponto' ? 'primary' : 'ghost'" keyShortcut="P" [disabled]="revisando()" (pressed)="escolherFerramenta('ponto')"></ces-button>
-          <ces-button size="sm" icon="pi pi-share-alt" label="Vão" [variant]="ferramenta() === 'vao' ? 'primary' : 'ghost'" keyShortcut="V" [disabled]="revisando()" (pressed)="escolherFerramenta('vao')"></ces-button>
-          <ces-button size="sm" icon="pi pi-comment" label="Anotar" [variant]="ferramenta() === 'anotar' ? 'primary' : 'ghost'" keyShortcut="N" [disabled]="revisando()" (pressed)="escolherFerramenta('anotar')"></ces-button>
+          <geo-button size="sm" icon="pi pi-map-marker" label="Ponto" [variant]="ferramenta() === 'ponto' ? 'primary' : 'ghost'" keyShortcut="P" [disabled]="revisando()" (pressed)="escolherFerramenta('ponto')"></geo-button>
+          <geo-button size="sm" icon="pi pi-share-alt" label="Vão" [variant]="ferramenta() === 'vao' ? 'primary' : 'ghost'" keyShortcut="V" [disabled]="revisando()" (pressed)="escolherFerramenta('vao')"></geo-button>
+          <geo-button size="sm" icon="pi pi-comment" label="Anotar" [variant]="ferramenta() === 'anotar' ? 'primary' : 'ghost'" keyShortcut="N" [disabled]="revisando()" (pressed)="escolherFerramenta('anotar')"></geo-button>
         }
         <span class="plan-separador"></span>
-        <ces-button size="sm" icon="pi pi-check-square" label="Selecionar" [variant]="ferramenta() === 'selecionar' ? 'primary' : 'ghost'" keyShortcut="S" (pressed)="escolherFerramenta('selecionar')"></ces-button>
-        <ces-button size="sm" icon="pi pi-expand" label="Área" [variant]="ferramenta() === 'area' ? 'primary' : 'ghost'" keyShortcut="A" (pressed)="escolherFerramenta('area')"></ces-button>
-        <ces-button size="sm" icon="pi pi-align-left" label="Ler texto" [variant]="ferramenta() === 'texto' ? 'primary' : 'ghost'" keyShortcut="T" (pressed)="escolherFerramenta('texto')"></ces-button>
+        <geo-button size="sm" icon="pi pi-check-square" label="Selecionar" [variant]="ferramenta() === 'selecionar' ? 'primary' : 'ghost'" keyShortcut="S" (pressed)="escolherFerramenta('selecionar')"></geo-button>
+        <geo-button size="sm" icon="pi pi-expand" label="Área" [variant]="ferramenta() === 'area' ? 'primary' : 'ghost'" keyShortcut="A" (pressed)="escolherFerramenta('area')"></geo-button>
+        <geo-button size="sm" icon="pi pi-align-left" label="Ler texto" [variant]="ferramenta() === 'texto' ? 'primary' : 'ghost'" keyShortcut="T" (pressed)="escolherFerramenta('texto')"></geo-button>
         <span class="plan-ferramentas__fim">
-          <ces-icon-button [icon]="camadasOcultas() ? 'pi pi-eye-slash' : 'pi pi-eye'" size="icon-sm" [label]="camadasOcultas() ? 'Mostrar pontos e trechos' : 'Ocultar pontos e trechos'" [tooltip]="camadasOcultas() ? 'Mostrar pontos e trechos' : 'Ocultar pontos e trechos'" tooltipPosition="bottom" (pressed)="camadasOcultas.set(!camadasOcultas())"></ces-icon-button>
-          <ces-icon-button [icon]="painelOculto() ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'" size="icon-sm" [label]="painelOculto() ? 'Mostrar painel lateral' : 'Ocultar painel lateral'" [tooltip]="painelOculto() ? 'Mostrar painel' : 'Ocultar painel'" tooltipPosition="bottom" (pressed)="painelOculto.set(!painelOculto())"></ces-icon-button>
+          <geo-icon-button [icon]="camadasOcultas() ? 'pi pi-eye-slash' : 'pi pi-eye'" size="icon-sm" [label]="camadasOcultas() ? 'Mostrar pontos e trechos' : 'Ocultar pontos e trechos'" [tooltip]="camadasOcultas() ? 'Mostrar pontos e trechos' : 'Ocultar pontos e trechos'" tooltipPosition="bottom" (pressed)="camadasOcultas.set(!camadasOcultas())"></geo-icon-button>
+          <geo-icon-button [icon]="painelOculto() ? 'pi pi-angle-double-left' : 'pi pi-angle-double-right'" size="icon-sm" [label]="painelOculto() ? 'Mostrar painel lateral' : 'Ocultar painel lateral'" [tooltip]="painelOculto() ? 'Mostrar painel' : 'Ocultar painel'" tooltipPosition="bottom" (pressed)="painelOculto.set(!painelOculto())"></geo-icon-button>
         </span>
       </div>
 
@@ -78,13 +78,13 @@
             }
           </div>
           @if (erroPdf()) {
-            <ces-async-state state="error" title="Não foi possível abrir o PDF do projeto" description="O arquivo pode estar corrompido. Tente substituir o projeto."
-              [actionLabel]="podeEditar ? 'Substituir projeto' : undefined" actionIcon="pi pi-upload" (action)="abrirProjeto()"></ces-async-state>
+            <geo-async-state state="error" title="Não foi possível abrir o PDF do projeto" description="O arquivo pode estar corrompido. Tente substituir o projeto."
+              [actionLabel]="podeEditar ? 'Substituir projeto' : undefined" actionIcon="pi pi-upload" (action)="abrirProjeto()"></geo-async-state>
           } @else {
             @if (carregandoPdf()) {
-              <ces-async-state class="plan-folha__carregando" state="loading" title="Abrindo o PDF" [compact]="true"></ces-async-state>
+              <geo-async-state class="plan-folha__carregando" state="loading" title="Abrindo o PDF" [compact]="true"></geo-async-state>
             }
-            <ces-pdf-canvas [source]="pdf()" [(page)]="pagina" [(zoom)]="zoom" [rotation]="rotacao()" [panMode]="ferramenta() === 'mao' && !modoMover()"
+            <geo-pdf-canvas [source]="pdf()" [(page)]="pagina" [(zoom)]="zoom" [rotation]="rotacao()" [panMode]="ferramenta() === 'mao' && !modoMover()"
               [dim]="esmaecido()" [ariaLabel]="'Projeto da obra ' + p.numeroObra" (pageCount)="totalPaginas.set($event)" (loadError)="aoFalharPdf()">
               <div pdf-overlay #overlay class="plan-sobre" [class.plan-sobre--oculto]="camadasOcultas()">
                 <svg class="plan-trechos" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
@@ -153,16 +153,16 @@
                   </button>
                 }
               </div>
-            </ces-pdf-canvas>
+            </geo-pdf-canvas>
           }
 
           @if (!erroPdf()) {
             <div class="plan-flutuante plan-flutuante--esquerda">
               @if (totalPaginas() > 1) {
                 <div class="plan-pilula" role="group" aria-label="Páginas do projeto">
-                  <ces-icon-button icon="pi pi-chevron-left" size="icon-sm" label="Página anterior" [disabled]="pagina() <= 1" (pressed)="irParaPagina(pagina() - 1)"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-chevron-left" size="icon-sm" label="Página anterior" [disabled]="pagina() <= 1" (pressed)="irParaPagina(pagina() - 1)"></geo-icon-button>
                   <span class="plan-pilula__valor">Página {{ pagina() }} de {{ totalPaginas() }}</span>
-                  <ces-icon-button icon="pi pi-chevron-right" size="icon-sm" label="Próxima página" [disabled]="pagina() >= totalPaginas()" (pressed)="irParaPagina(pagina() + 1)"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-chevron-right" size="icon-sm" label="Próxima página" [disabled]="pagina() >= totalPaginas()" (pressed)="irParaPagina(pagina() + 1)"></geo-icon-button>
                 </div>
               }
               <div class="plan-pilula plan-legenda-folha" [class.plan-legenda-folha--aberta]="legendaAberta()">
@@ -186,14 +186,14 @@
               </div>
               @if (podeEditar) {
                 <div class="plan-pilula" role="group" aria-label="Girar a página">
-                  <ces-icon-button icon="pi pi-replay" size="icon-sm" label="Girar 90° à esquerda" tooltip="Girar à esquerda, para todos" (pressed)="girar(-90)"></ces-icon-button>
-                  <ces-icon-button icon="pi pi-refresh" size="icon-sm" label="Girar 90° à direita" tooltip="Girar à direita, para todos" (pressed)="girar(90)"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-replay" size="icon-sm" label="Girar 90° à esquerda" tooltip="Girar à esquerda, para todos" (pressed)="girar(-90)"></geo-icon-button>
+                  <geo-icon-button icon="pi pi-refresh" size="icon-sm" label="Girar 90° à direita" tooltip="Girar à direita, para todos" (pressed)="girar(90)"></geo-icon-button>
                 </div>
               }
               <div class="plan-pilula" role="group" aria-label="Zoom">
-                <ces-icon-button icon="pi pi-minus" size="icon-sm" label="Reduzir zoom" tooltip="Reduzir (Ctrl + roda)" (pressed)="zoomMenos()"></ces-icon-button>
+                <geo-icon-button icon="pi pi-minus" size="icon-sm" label="Reduzir zoom" tooltip="Reduzir (Ctrl + roda)" (pressed)="zoomMenos()"></geo-icon-button>
                 <button type="button" class="plan-pilula__valor plan-pilula__valor--botao" title="Ajustar à largura" (click)="ajustarLargura()">{{ (zoom() * 100).toFixed(0) }}%</button>
-                <ces-icon-button icon="pi pi-plus" size="icon-sm" label="Aumentar zoom" tooltip="Aumentar (Ctrl + roda)" (pressed)="zoomMais()"></ces-icon-button>
+                <geo-icon-button icon="pi pi-plus" size="icon-sm" label="Aumentar zoom" tooltip="Aumentar (Ctrl + roda)" (pressed)="zoomMais()"></geo-icon-button>
               </div>
             </div>
           }
@@ -202,20 +202,20 @@
           @if (novoPonto()) {
             <form class="plan-cartao" [class.plan-cartao--direita]="cartaoNaDireita()" (submit)="$event.preventDefault(); salvarNovoPonto()">
               <h3>Novo ponto</h3>
-              <ces-text-input #numeroNovo label="Número" [required]="true" [maxlength]="20" [(value)]="novoPontoNumero"></ces-text-input>
-              <ces-select label="Tipo" [options]="tiposPonto" [(value)]="novoPontoTipo"></ces-select>
+              <geo-text-input #numeroNovo label="Número" [required]="true" [maxlength]="20" [(value)]="novoPontoNumero"></geo-text-input>
+              <geo-select label="Tipo" [options]="tiposPonto" [(value)]="novoPontoTipo"></geo-select>
               <div class="plan-cartao__acoes">
-                <ces-button variant="ghost" size="sm" label="Cancelar" (pressed)="novoPonto.set(null)"></ces-button>
-                <ces-button type="submit" size="sm" icon="pi pi-check" label="Adicionar" [loading]="salvando()" [disabled]="!novoPontoNumero().trim()"></ces-button>
+                <geo-button variant="ghost" size="sm" label="Cancelar" (pressed)="novoPonto.set(null)"></geo-button>
+                <geo-button type="submit" size="sm" icon="pi pi-check" label="Adicionar" [loading]="salvando()" [disabled]="!novoPontoNumero().trim()"></geo-button>
               </div>
             </form>
           } @else if (novaAnotacao()) {
             <form class="plan-cartao" [class.plan-cartao--direita]="cartaoNaDireita()" (submit)="$event.preventDefault(); salvarNovaAnotacao()">
               <h3>Nova anotação</h3>
-              <ces-textarea label="Texto" [rows]="3" [maxlength]="1000" [(value)]="novaAnotacaoTexto" placeholder="Ex.: travessia de rodovia"></ces-textarea>
+              <geo-textarea label="Texto" [rows]="3" [maxlength]="1000" [(value)]="novaAnotacaoTexto" placeholder="Ex.: travessia de rodovia"></geo-textarea>
               <div class="plan-cartao__acoes">
-                <ces-button variant="ghost" size="sm" label="Cancelar" (pressed)="novaAnotacao.set(null)"></ces-button>
-                <ces-button type="submit" size="sm" icon="pi pi-check" label="Salvar" [loading]="salvando()" [disabled]="!novaAnotacaoTexto().trim()"></ces-button>
+                <geo-button variant="ghost" size="sm" label="Cancelar" (pressed)="novaAnotacao.set(null)"></geo-button>
+                <geo-button type="submit" size="sm" icon="pi pi-check" label="Salvar" [loading]="salvando()" [disabled]="!novaAnotacaoTexto().trim()"></geo-button>
               </div>
             </form>
           } @else if (pontoAtivo(); as ponto) {
@@ -226,15 +226,15 @@
                   <h3>P{{ ponto.numero }}</h3>
                   <small>{{ ponto.levantador }}@if (ponto.dataCriacao) { · {{ ponto.dataCriacao | date: 'dd/MM/yy HH:mm' }} }</small>
                 </div>
-                @if (ponto.origem === 'COPILOTO') { <ces-status tone="info">Bússola</ces-status> }
-                <ces-icon-button icon="pi pi-times" size="icon-sm" label="Fechar" (pressed)="ativo.set(null)"></ces-icon-button>
+                @if (ponto.origem === 'COPILOTO') { <geo-status tone="info">Bússola</geo-status> }
+                <geo-icon-button icon="pi pi-times" size="icon-sm" label="Fechar" (pressed)="ativo.set(null)"></geo-icon-button>
               </header>
               <div class="plan-cartao__corpo">
                 @if (podeEditar) {
                   <div class="plan-cartao__campos" (focusout)="salvarCamposPonto()" (keydown.enter)="salvarCamposPonto()">
-                    <ces-text-input label="Número" [maxlength]="20" [(value)]="rascunhoNumero"></ces-text-input>
-                    <ces-text-input label="Barramento" [maxlength]="60" [(value)]="rascunhoBarramento" placeholder="Ex.: K051159"></ces-text-input>
-                    <ces-select class="plan-cartao__largo" label="Tipo" [options]="tiposPonto" [value]="ponto.tipo" (valueChange)="$event && alterarPonto({ tipo: $event })"></ces-select>
+                    <geo-text-input label="Número" [maxlength]="20" [(value)]="rascunhoNumero"></geo-text-input>
+                    <geo-text-input label="Barramento" [maxlength]="60" [(value)]="rascunhoBarramento" placeholder="Ex.: K051159"></geo-text-input>
+                    <geo-select class="plan-cartao__largo" label="Tipo" [options]="tiposPonto" [value]="ponto.tipo" (valueChange)="$event && alterarPonto({ tipo: $event })"></geo-select>
                   </div>
                   <div class="plan-execucao" role="group" aria-labelledby="plan-execucao-rotulo">
                     <span id="plan-execucao-rotulo" class="plan-rotulo">Execução</span>
@@ -260,13 +260,13 @@
               </div>
               <footer class="plan-cartao__rodape">
                 @if (podeEditar) {
-                  <ces-button variant="ghost" size="sm" icon="pi pi-arrows-alt" label="Mover" (pressed)="iniciarMover()"></ces-button>
-                  <ces-button variant="ghost" size="sm" icon="pi pi-share-alt" label="Conectar" (pressed)="iniciarConexao(ponto)"></ces-button>
+                  <geo-button variant="ghost" size="sm" icon="pi pi-arrows-alt" label="Mover" (pressed)="iniciarMover()"></geo-button>
+                  <geo-button variant="ghost" size="sm" icon="pi pi-share-alt" label="Conectar" (pressed)="iniciarConexao(ponto)"></geo-button>
                 }
-                <ces-button variant="ghost" size="sm" icon="pi pi-window-maximize" label="Detalhes" (pressed)="abrirDetalhe()"></ces-button>
+                <geo-button variant="ghost" size="sm" icon="pi pi-window-maximize" label="Detalhes" (pressed)="abrirDetalhe()"></geo-button>
                 @if (podeEditar) {
                   <span class="plan-cartao__empurra"></span>
-                  <ces-icon-button icon="pi pi-trash" size="icon-sm" label="Excluir ponto" tooltip="Excluir ponto" (pressed)="excluirPonto(ponto)"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-trash" size="icon-sm" label="Excluir ponto" tooltip="Excluir ponto" (pressed)="excluirPonto(ponto)"></geo-icon-button>
                 }
               </footer>
             </aside>
@@ -278,14 +278,14 @@
                   <h3>{{ tituloAtivo() }}</h3>
                   <small>{{ vao.metragem ? vao.metragem + ' m' : 'Metragem não informada' }}</small>
                 </div>
-                @if (vao.origem === 'COPILOTO') { <ces-status tone="info">Bússola</ces-status> }
-                <ces-icon-button icon="pi pi-times" size="icon-sm" label="Fechar" (pressed)="ativo.set(null)"></ces-icon-button>
+                @if (vao.origem === 'COPILOTO') { <geo-status tone="info">Bússola</geo-status> }
+                <geo-icon-button icon="pi pi-times" size="icon-sm" label="Fechar" (pressed)="ativo.set(null)"></geo-icon-button>
               </header>
               <div class="plan-cartao__corpo">
                 @if (podeEditar) {
                   <div (focusout)="salvarMetragem()" (keydown.enter)="salvarMetragem()">
-                    <ces-number-input label="Metragem" suffix=" m" [min]="0.01" [maxFractionDigits]="2" [(value)]="rascunhoMetragem"
-                      description="Os itens em metro dos kits acompanham a metragem."></ces-number-input>
+                    <geo-number-input label="Metragem" suffix=" m" [min]="0.01" [maxFractionDigits]="2" [(value)]="rascunhoMetragem"
+                      description="Os itens em metro dos kits acompanham a metragem."></geo-number-input>
                   </div>
                 }
                 <section class="plan-cartao__kits">
@@ -296,10 +296,10 @@
                 </section>
               </div>
               <footer class="plan-cartao__rodape">
-                <ces-button variant="ghost" size="sm" icon="pi pi-window-maximize" label="Detalhes" (pressed)="abrirDetalhe()"></ces-button>
+                <geo-button variant="ghost" size="sm" icon="pi pi-window-maximize" label="Detalhes" (pressed)="abrirDetalhe()"></geo-button>
                 @if (podeEditar) {
                   <span class="plan-cartao__empurra"></span>
-                  <ces-icon-button icon="pi pi-trash" size="icon-sm" label="Excluir vão" tooltip="Excluir vão" (pressed)="excluirVao(vao)"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-trash" size="icon-sm" label="Excluir vão" tooltip="Excluir vão" (pressed)="excluirVao(vao)"></geo-icon-button>
                 }
               </footer>
             </aside>
@@ -308,14 +308,14 @@
               <header class="plan-cartao__topo">
                 <h3>Anotação</h3>
                 <span class="plan-cartao__autor">{{ anotacao.autor }}</span>
-                <ces-icon-button icon="pi pi-times" size="icon-sm" label="Fechar" (pressed)="ativo.set(null)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-times" size="icon-sm" label="Fechar" (pressed)="ativo.set(null)"></geo-icon-button>
               </header>
               @if (podeEditar) {
                 <div (focusout)="salvarAnotacao()">
-                  <ces-textarea label="Texto" [rows]="4" [maxlength]="1000" [(value)]="rascunhoAnotacao"></ces-textarea>
+                  <geo-textarea label="Texto" [rows]="4" [maxlength]="1000" [(value)]="rascunhoAnotacao"></geo-textarea>
                 </div>
                 <footer class="plan-cartao__rodape">
-                  <ces-button variant="ghost" size="sm" icon="pi pi-trash" label="Excluir" (pressed)="excluirAnotacao(anotacao)"></ces-button>
+                  <geo-button variant="ghost" size="sm" icon="pi pi-trash" label="Excluir" (pressed)="excluirAnotacao(anotacao)"></geo-button>
                 </footer>
               } @else {
                 <p>{{ anotacao.texto }}</p>
@@ -381,12 +381,12 @@
                     {{ contagemSelecao().itens }} {{ contagemSelecao().itens === 1 ? 'item' : 'itens' }}
                   </span>
                   @if (podeEditar && contagemSelecao().pontos + contagemSelecao().vaos > 0) {
-                    <ces-button size="sm" icon="pi pi-briefcase" label="Aplicar kit" (pressed)="loteAberto.set(true)"></ces-button>
+                    <geo-button size="sm" icon="pi pi-briefcase" label="Aplicar kit" (pressed)="loteAberto.set(true)"></geo-button>
                   }
                   @if (podeProgramar && contagemSelecao().itens > 0) {
-                    <ces-button size="sm" icon="pi pi-calendar-plus" label="Programar" (pressed)="programarAberto.set(true)"></ces-button>
+                    <geo-button size="sm" icon="pi pi-calendar-plus" label="Programar" (pressed)="programarAberto.set(true)"></geo-button>
                   }
-                  <ces-icon-button icon="pi pi-times" size="icon-sm" label="Limpar seleção" tooltip="Limpar seleção (Esc)" (pressed)="limparSelecao()"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-times" size="icon-sm" label="Limpar seleção" tooltip="Limpar seleção (Esc)" (pressed)="limparSelecao()"></geo-icon-button>
                 </footer>
               }
             }
@@ -399,36 +399,36 @@
   <app-programar-drawer [(aberto)]="programarAberto" [idObra]="idObra" [idsItens]="idsSelecionados()" [sugestaoDescricao]="sugestaoDescricao()" (programado)="aoProgramar()"></app-programar-drawer>
   <app-programacao-detalhe [(aberto)]="programacaoAberta" [idProgramacao]="idProgramacao()" (alterada)="carregar()"></app-programacao-detalhe>
 
-  <ces-dialog-shell [(visible)]="loteAberto" title="Aplicar kit à seleção" size="md"
+  <geo-dialog-shell [(visible)]="loteAberto" title="Aplicar kit à seleção" size="md"
     [description]="descricaoLote()">
     <app-planejamento-kits [mostrarAplicados]="false" [kits]="[]" [usadosNaObra]="kitsUsadosNaObra()" [idContrato]="p.idContrato" [classeTensao]="p.classeTensao" (aplicar)="aplicarEmLote($event)"></app-planejamento-kits>
-  </ces-dialog-shell>
+  </geo-dialog-shell>
 
-  <ces-dialog-shell [(visible)]="textoAberto" title="Texto extraído do PDF" size="sm">
+  <geo-dialog-shell [(visible)]="textoAberto" title="Texto extraído do PDF" size="sm">
     @if (textoExtraido()) {
       <pre class="plan-texto">{{ textoExtraido() }}</pre>
     } @else {
-      <ces-callout tone="info" [dense]="true">Não há texto extraível nesta região. O PDF pode ter o texto como desenho ou imagem.</ces-callout>
+      <geo-callout tone="info" [dense]="true">Não há texto extraível nesta região. O PDF pode ter o texto como desenho ou imagem.</geo-callout>
     }
-    <div dialog-footer class="ces-actions-row">
-      <ces-button variant="ghost" size="sm" label="Fechar" (pressed)="textoAberto.set(false)"></ces-button>
+    <div dialog-footer class="geo-actions-row">
+      <geo-button variant="ghost" size="sm" label="Fechar" (pressed)="textoAberto.set(false)"></geo-button>
       @if (textoExtraido()) {
-        <ces-button variant="outline" size="sm" icon="pi pi-copy" label="Copiar" (pressed)="copiarTexto()"></ces-button>
+        <geo-button variant="outline" size="sm" icon="pi pi-copy" label="Copiar" (pressed)="copiarTexto()"></geo-button>
         @if (pontoAtivo() && podeEditar) {
-          <ces-button size="sm" icon="pi pi-check" [label]="'Usar como barramento de P' + pontoAtivo()!.numero" (pressed)="preencherBarramento()"></ces-button>
+          <geo-button size="sm" icon="pi pi-check" [label]="'Usar como barramento de P' + pontoAtivo()!.numero" (pressed)="preencherBarramento()"></geo-button>
         }
       }
     </div>
-  </ces-dialog-shell>
+  </geo-dialog-shell>
 
-  <ces-form-drawer [(visible)]="detalheAberto" [title]="tituloAtivo()" size="lg" [resizable]="true" description="Kits, previsto e executado por item e orçamento da obra">
-    <ces-tabs [tabs]="abasDetalhe" [value]="abaDetalhe()" (valueChange)="abaDetalhe.set($any($event))" ariaLabel="Detalhe do local">
-      <ng-template cesTabPanel="kits">
+  <geo-form-drawer [(visible)]="detalheAberto" [title]="tituloAtivo()" size="lg" [resizable]="true" description="Kits, previsto e executado por item e orçamento da obra">
+    <geo-tabs [tabs]="abasDetalhe" [value]="abaDetalhe()" (valueChange)="abaDetalhe.set($any($event))" ariaLabel="Detalhe do local">
+      <ng-template geoTabPanel="kits">
         <app-planejamento-kits [kits]="kitsDoAtivo()" [emVao]="!!vaoAtivo()" [idContrato]="p.idContrato" [classeTensao]="p.classeTensao" [podeEditar]="podeEditar"
           (aplicar)="aplicarKit($event)" (remover)="removerKit($event)" (alterarQuantidade)="alterarQuantidadeKit($event)"
           (executadoAntes)="marcarExecutadoAntes($event)" (alterarItem)="alterarItem($event)" (removerItem)="removerItem($event)"></app-planejamento-kits>
       </ng-template>
-      <ng-template cesTabPanel="orcamento">
+      <ng-template geoTabPanel="orcamento">
         @if (orcamento()?.itens?.length) {
           <table class="plan-orcamento">
             <thead><tr><th>Código</th><th>Serviço</th><th>Un.</th><th class="numero">Qtd.</th><th class="numero">Valor</th></tr></thead>
@@ -439,39 +439,39 @@
             </tbody>
           </table>
         } @else {
-          <ces-async-state state="empty" [compact]="true" icon="pi pi-inbox" title="Nenhum orçamento importado para esta obra"></ces-async-state>
+          <geo-async-state state="empty" [compact]="true" icon="pi pi-inbox" title="Nenhum orçamento importado para esta obra"></geo-async-state>
         }
       </ng-template>
-    </ces-tabs>
-  </ces-form-drawer>
+    </geo-tabs>
+  </geo-form-drawer>
 
-  <ces-form-drawer [(visible)]="projetoAberto" [title]="p.projetoMestre ? 'Substituir projeto' : 'Anexar projeto'" size="md" [dirty]="!!projetoArquivo()"
+  <geo-form-drawer [(visible)]="projetoAberto" [title]="p.projetoMestre ? 'Substituir projeto' : 'Anexar projeto'" size="md" [dirty]="!!projetoArquivo()"
     [description]="p.projetoMestre ? 'Pontos, vãos e anotações continuam nas mesmas posições. O PDF anterior fica nos anexos da obra.' : 'O PDF será a base do planejamento desta obra.'">
     @if (anexosPdf().length) {
-      <ces-form-section title="Usar um PDF já anexado" icon="pi pi-paperclip">
+      <geo-form-section title="Usar um PDF já anexado" icon="pi pi-paperclip">
         <ul class="plan-anexos">
           @for (anexo of anexosPdf(); track anexo.id) {
             <li>
               <span><strong>{{ anexo.nomeArquivo }}</strong><small>{{ anexo.tipoAnexoNome }}</small></span>
               @if (anexo.id === p.projetoMestre?.idAnexo) {
-                <ces-status tone="success">Atual</ces-status>
+                <geo-status tone="success">Atual</geo-status>
               } @else {
-                <ces-button variant="outline" size="sm" label="Usar este" (pressed)="usarAnexo(anexo)"></ces-button>
+                <geo-button variant="outline" size="sm" label="Usar este" (pressed)="usarAnexo(anexo)"></geo-button>
               }
             </li>
           }
         </ul>
-      </ces-form-section>
+      </geo-form-section>
     }
-    <ces-form-section title="Enviar novo PDF" icon="pi pi-upload">
-      <div class="ces-form-stack">
-        <ces-select label="Tipo de documento" [required]="true" [options]="tiposAnexo()" [(value)]="projetoTipo" [filter]="true"></ces-select>
-        <ces-file-input label="Arquivo PDF" [required]="true" accept="application/pdf,.pdf" [(file)]="projetoArquivo" [maxBytes]="50 * 1024 * 1024" description="Até 50 MB."></ces-file-input>
+    <geo-form-section title="Enviar novo PDF" icon="pi pi-upload">
+      <div class="geo-form-stack">
+        <geo-select label="Tipo de documento" [required]="true" [options]="tiposAnexo()" [(value)]="projetoTipo" [filter]="true"></geo-select>
+        <geo-file-input label="Arquivo PDF" [required]="true" accept="application/pdf,.pdf" [(file)]="projetoArquivo" [maxBytes]="50 * 1024 * 1024" description="Até 50 MB."></geo-file-input>
       </div>
-    </ces-form-section>
-    <div drawer-footer class="ces-actions-row">
-      <ces-button variant="ghost" label="Cancelar" (pressed)="projetoAberto.set(false)"></ces-button>
-      <ces-button icon="pi pi-upload" label="Enviar projeto" [disabled]="!projetoArquivo() || !projetoTipo()" [loading]="enviandoProjeto()" (pressed)="enviarProjeto()"></ces-button>
+    </geo-form-section>
+    <div drawer-footer class="geo-actions-row">
+      <geo-button variant="ghost" label="Cancelar" (pressed)="projetoAberto.set(false)"></geo-button>
+      <geo-button icon="pi pi-upload" label="Enviar projeto" [disabled]="!projetoArquivo() || !projetoTipo()" [loading]="enviandoProjeto()" (pressed)="enviarProjeto()"></geo-button>
     </div>
-  </ces-form-drawer>
+  </geo-form-drawer>
 }

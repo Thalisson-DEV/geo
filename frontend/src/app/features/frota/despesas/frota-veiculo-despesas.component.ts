@@ -2,15 +2,15 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 import { forkJoin } from 'rxjs';
 import { LookupStore } from '../../../core/lookup';
 import { DespesaVeiculo, ResumoDespesas, TipoDespesa, pagamentoDespesa } from '../../../core/models/frota-despesa.models';
@@ -34,12 +34,12 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesIconButtonComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoIconButtonComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
     FrotaDespesaFormComponent
   ],
   styles: `
@@ -50,33 +50,33 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
     <!-- Sem despesa, os cartões zerados só repetem o estado vazio da tabela. -->
     @if (resumo(); as r) {
       @if (r.quantidade) {
-      <div class="ces-kpis" aria-label="Resumo das despesas do veículo">
-        <div class="ces-kpi" data-tone="info">
-          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-wallet"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Total lançado</span>
-            <span class="ces-kpi__value">{{ moeda(r.total) }}</span>
-            <span class="ces-kpi__detail">{{ contar(r.quantidade, 'despesa', 'despesas', 'Nenhuma despesa') }}</span>
+      <div class="geo-kpis" aria-label="Resumo das despesas do veículo">
+        <div class="geo-kpi" data-tone="info">
+          <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-wallet"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Total lançado</span>
+            <span class="geo-kpi__value">{{ moeda(r.total) }}</span>
+            <span class="geo-kpi__detail">{{ contar(r.quantidade, 'despesa', 'despesas', 'Nenhuma despesa') }}</span>
           </span>
         </div>
-        <div class="ces-kpi" [attr.data-tone]="r.aPagarSemSolicitacao ? 'warning' : 'success'">
-          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi" [class.pi-clock]="r.aPagarSemSolicitacao" [class.pi-check-circle]="!r.aPagarSemSolicitacao"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Falta pedir o pagamento</span>
-            <span class="ces-kpi__value">{{ moeda(r.valorAPagarSemSolicitacao) }}</span>
-            <span class="ces-kpi__detail">{{ r.aPagarSemSolicitacao ? contar(r.aPagarSemSolicitacao, 'despesa sem solicitação', 'despesas sem solicitação', '') : 'Tudo o que é a pagar já foi ao financeiro' }}</span>
+        <div class="geo-kpi" [attr.data-tone]="r.aPagarSemSolicitacao ? 'warning' : 'success'">
+          <span class="geo-kpi__icon" aria-hidden="true"><i class="pi" [class.pi-clock]="r.aPagarSemSolicitacao" [class.pi-check-circle]="!r.aPagarSemSolicitacao"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Falta pedir o pagamento</span>
+            <span class="geo-kpi__value">{{ moeda(r.valorAPagarSemSolicitacao) }}</span>
+            <span class="geo-kpi__detail">{{ r.aPagarSemSolicitacao ? contar(r.aPagarSemSolicitacao, 'despesa sem solicitação', 'despesas sem solicitação', '') : 'Tudo o que é a pagar já foi ao financeiro' }}</span>
           </span>
         </div>
-        <div class="ces-kpi" data-tone="info">
-          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-chart-bar"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Maior gasto</span>
+        <div class="geo-kpi" data-tone="info">
+          <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-chart-bar"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Maior gasto</span>
             @if (r.porTipo[0]; as t) {
-              <span class="ces-kpi__value">{{ t.tipo }}</span>
-              <span class="ces-kpi__detail">{{ moeda(t.total) }} · {{ porcento(r.total ? t.total / r.total : 0) }} do total</span>
+              <span class="geo-kpi__value">{{ t.tipo }}</span>
+              <span class="geo-kpi__detail">{{ moeda(t.total) }} · {{ porcento(r.total ? t.total / r.total : 0) }} do total</span>
             } @else {
-              <span class="ces-kpi__value">—</span>
-              <span class="ces-kpi__detail">Sem despesas lançadas</span>
+              <span class="geo-kpi__value">—</span>
+              <span class="geo-kpi__detail">Sem despesas lançadas</span>
             }
           </span>
         </div>
@@ -84,7 +84,7 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
       }
     }
 
-    <ces-data-table title="Despesas do veículo" description="Lavagem, pedágio, estacionamento, mensalidade, taxa e outras, da mais recente para a mais antiga."
+    <geo-data-table title="Despesas do veículo" description="Lavagem, pedágio, estacionamento, mensalidade, taxa e outras, da mais recente para a mais antiga."
       storageKey="frota-veiculo-despesas" exportFileName="despesas-veiculo" searchPlaceholder="Filtrar nesta lista" [rowClickable]="true"
       [columns]="colunas" [rows]="despesas()" [rowKey]="chave" [state]="estado()"
       [stateTitle]="erro() ? 'Não foi possível carregar as despesas' : 'Nenhuma despesa lançada'"
@@ -92,38 +92,38 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
       (rowActivate)="abrir($event)">
       <ng-container table-actions>
         @if (podeLancar()) {
-          <ces-button size="sm" icon="pi pi-plus" label="Lançar despesa" (pressed)="novo()"></ces-button>
+          <geo-button size="sm" icon="pi pi-plus" label="Lançar despesa" (pressed)="novo()"></geo-button>
         }
       </ng-container>
-      <ng-template cesCell="data" let-row>{{ row.data | date: 'dd/MM/yyyy' }}</ng-template>
-      <ng-template cesCell="tipo" let-row>
-        <span class="ces-cell-strong">{{ row.tipo }}{{ row.subtipo ? ' · ' + row.subtipo : '' }}</span>
-        @if (row.descricao) { <span class="ces-cell-muted">{{ row.descricao }}</span> }
+      <ng-template geoCell="data" let-row>{{ row.data | date: 'dd/MM/yyyy' }}</ng-template>
+      <ng-template geoCell="tipo" let-row>
+        <span class="geo-cell-strong">{{ row.tipo }}{{ row.subtipo ? ' · ' + row.subtipo : '' }}</span>
+        @if (row.descricao) { <span class="geo-cell-muted">{{ row.descricao }}</span> }
       </ng-template>
-      <ng-template cesCell="valor" let-row><span class="valor">{{ moeda(row.valor) }}</span></ng-template>
-      <ng-template cesCell="fornecedor" let-row>
+      <ng-template geoCell="valor" let-row><span class="valor">{{ moeda(row.valor) }}</span></ng-template>
+      <ng-template geoCell="fornecedor" let-row>
         {{ row.fornecedorNome ?? '—' }}
-        @if (row.documentoTipoRotulo) { <span class="ces-cell-muted">{{ row.documentoTipoRotulo }} {{ row.documentoNumero }}</span> }
+        @if (row.documentoTipoRotulo) { <span class="geo-cell-muted">{{ row.documentoTipoRotulo }} {{ row.documentoNumero }}</span> }
       </ng-template>
-      <ng-template cesCell="pagamento" let-row>
+      <ng-template geoCell="pagamento" let-row>
         @let p = pagamento(row);
-        <ces-status [tone]="p.tom" [icon]="p.icone">{{ p.rotulo }}</ces-status>
-        @if (row.numeroSolicitacaoFinanceira) { <span class="ces-cell-muted">Solicitação nº {{ row.numeroSolicitacaoFinanceira }}</span> }
+        <geo-status [tone]="p.tom" [icon]="p.icone">{{ p.rotulo }}</geo-status>
+        @if (row.numeroSolicitacaoFinanceira) { <span class="geo-cell-muted">Solicitação nº {{ row.numeroSolicitacaoFinanceira }}</span> }
       </ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
           @if (row.anexos.length) {
-            <ces-icon-button icon="pi pi-paperclip" [label]="row.anexos.length + ' comprovante(s) de ' + rotulo(row)"
-              [tooltip]="row.anexos.length === 1 ? '1 comprovante' : row.anexos.length + ' comprovantes'" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-paperclip" [label]="row.anexos.length + ' comprovante(s) de ' + rotulo(row)"
+              [tooltip]="row.anexos.length === 1 ? '1 comprovante' : row.anexos.length + ' comprovantes'" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
           }
           @if (acesso.solicitarPagamento() && row.podePedirPagamento) {
-            <ces-icon-button icon="pi pi-send" [label]="'Pedir o pagamento de ' + rotulo(row)" tooltip="Pedir pagamento" size="icon-sm"
-              (pressed)="pedirPagamento(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-send" [label]="'Pedir o pagamento de ' + rotulo(row)" tooltip="Pedir pagamento" size="icon-sm"
+              (pressed)="pedirPagamento(row)"></geo-icon-button>
           }
-          <ces-icon-button icon="pi pi-angle-right" [label]="'Abrir ' + rotulo(row)" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
+          <geo-icon-button icon="pi pi-angle-right" [label]="'Abrir ' + rotulo(row)" tooltip="Abrir" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
 
     <app-frota-despesa-form [(visivel)]="formularioAberto" [despesa]="emEdicao()" [idVeiculoFixo]="veiculo().idVeiculo" [veiculos]="[veiculo()]"
       [tipos]="tipos()" [fornecedores]="fornecedores()" [carregandoFornecedores]="carregandoFornecedores()" [bases]="bases.opcoes()"
@@ -155,10 +155,10 @@ export class FrotaVeiculoDespesasComponent {
   protected readonly carregandoFornecedores = signal(true);
   protected readonly formularioAberto = signal(false);
   protected readonly emEdicao = signal<DespesaVeiculo | null>(null);
-  protected readonly processos = computed<CesSelectOption<string>[]>(() => this.lookups.processes().map((p) => ({ label: p.label, value: p.value })));
+  protected readonly processos = computed<GeoSelectOption<string>[]>(() => this.lookups.processes().map((p) => ({ label: p.label, value: p.value })));
   protected readonly estado = computed(() => (this.carregando() ? 'loading' : this.erro() ? 'error' : this.despesas().length ? 'ready' : 'empty'));
 
-  protected readonly colunas: CesDataTableColumn<DespesaVeiculo>[] = [
+  protected readonly colunas: GeoDataTableColumn<DespesaVeiculo>[] = [
     { key: 'data', header: 'Data', type: 'custom', priority: 1, value: (d) => d.data, display: (d) => d.data },
     { key: 'tipo', header: 'Despesa', type: 'custom', priority: 1, value: (d) => d.tipo, display: (d) => `${d.tipo}${d.subtipo ? ' ' + d.subtipo : ''}` },
     { key: 'valor', header: 'Valor', type: 'custom', priority: 1, value: (d) => d.valor, display: (d) => moeda(d.valor) },

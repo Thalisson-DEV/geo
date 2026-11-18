@@ -1,5 +1,5 @@
 import { of } from 'rxjs';
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 import { SolicitacaoDoPainel } from '../../../../../core/models/painel-solicitacoes.models';
 import {
   AlvoAnalise,
@@ -301,7 +301,7 @@ export interface ContextoAnalise {
 
 const navegar = (dimension: string, value: string) => ({ tipo: 'navegar' as const, alvo: { dimension, value } });
 
-function colunas(c: ContextoAnalise): CesDataTableColumn<SolicitacaoDoPainel>[] {
+function colunas(c: ContextoAnalise): GeoDataTableColumn<SolicitacaoDoPainel>[] {
   const hoje = c.r.hoje;
   return [
     { key: 'dataSolicitacao', header: 'Aberta em', priority: 1, width: '8rem', display: (l) => diaHora(l.dataSolicitacao), searchable: false },

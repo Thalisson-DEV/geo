@@ -4,29 +4,29 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterDefs,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTone,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterDefs,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as BuscaColaboradores } from '../../../core/lookup/store/remote-lookup';
@@ -67,22 +67,22 @@ interface CampoLookup extends Campo {
   lookup: LookupKey;
 }
 interface CampoEnum extends Campo {
-  options: readonly CesSelectOption<string>[];
+  options: readonly GeoSelectOption<string>[];
 }
 interface CampoNumero extends Campo {
   modo: 'currency' | 'decimal';
 }
 
-const comTodos = <T,>(opcoes: readonly CesSelectOption<T>[], todos = 'Todos'): CesSelectOption<T | null>[] => [{ label: todos, value: null }, ...opcoes];
+const comTodos = <T,>(opcoes: readonly GeoSelectOption<T>[], todos = 'Todos'): GeoSelectOption<T | null>[] => [{ label: todos, value: null }, ...opcoes];
 const SIM_NAO = comTodos(BOOLEANO_OPTIONS);
 const ATIVOS = comTodos(ATIVO_OPTIONS);
 const STATUS = comTodos(STATUS_OPTIONS);
-const TIPOS: CesSelectOption<TipoSolicitacao | null>[] = [
+const TIPOS: GeoSelectOption<TipoSolicitacao | null>[] = [
   { label: 'Compras e pagamentos', value: null },
   { label: 'Compras', value: 'COMPRA' },
   { label: 'Pagamentos', value: 'PAGAMENTO' }
 ];
-const TOM_STATUS: Record<StatusSolicitacao, CesTone> = { RASCUNHO: 'neutral', SOLICITADO: 'warning', APROVADO: 'success', REJEITADO: 'danger', CANCELADO: 'neutral' };
+const TOM_STATUS: Record<StatusSolicitacao, GeoTone> = { RASCUNHO: 'neutral', SOLICITADO: 'warning', APROVADO: 'success', REJEITADO: 'danger', CANCELADO: 'neutral' };
 
 const LOOKUPS: CampoLookup[] = [
   { key: 'formularioId', label: 'Formulário', lookup: 'formularios' },
@@ -147,7 +147,7 @@ const ENDPOINTS: Record<LookupKey, { url: string; utilizaveis?: boolean }> = {
   usuarios: { url: '/v1/iam/usuarios' },
   compras: { url: '/v1/financeiro/solicitacoes-compra' }
 };
-const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
+const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
   { label: 'Resumido (dados essenciais)', value: 'resumo' },
   { label: 'Detalhado (campos do formulário, auditoria e documentos)', value: 'detalhado' }
 ];
@@ -158,26 +158,26 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeCriar()" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeCriar()" (newRequested)="novo()">
+      <geo-page-header
         [title]="titulo()"
         icon="pi pi-wallet"
         [breadcrumb]="breadcrumb()"
@@ -186,57 +186,57 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
         (help)="ajuda.show()"
       >
         @if (podeExportar()) {
-          <ces-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></geo-button>
         }
         @if (podeCriar()) {
-          <ces-button actions icon="pi pi-plus" [label]="tipoAtual() === 'PAGAMENTO' ? 'Novo pagamento' : 'Nova compra'" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" [label]="tipoAtual() === 'PAGAMENTO' ? 'Novo pagamento' : 'Nova compra'" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
+        <div class="geo-filter-grid">
           @if (tipoDaRota === 'AMBOS') {
-            <ces-select label="Tipo" [options]="tipos" [value]="filtro('tipo')" (valueChange)="definir('tipo', $event)"></ces-select>
+            <geo-select label="Tipo" [options]="tipos" [value]="filtro('tipo')" (valueChange)="definir('tipo', $event)"></geo-select>
           }
           @if (modo !== 'aprovacao') {
-            <ces-select label="Status" [options]="statusOpcoes" [value]="filtro('status')" (valueChange)="definir('status', $event)"></ces-select>
+            <geo-select label="Status" [options]="statusOpcoes" [value]="filtro('status')" (valueChange)="definir('status', $event)"></geo-select>
           }
-          <ces-number-input label="Número" [value]="$any(filtro('numero'))" (valueChange)="definir('numero', $event)" [min]="1"></ces-number-input>
+          <geo-number-input label="Número" [value]="$any(filtro('numero'))" (valueChange)="definir('numero', $event)" [min]="1"></geo-number-input>
           @if (modo !== 'minhas') {
-            <ces-select label="Somente minhas" [options]="simNao" [value]="filtro('apenasMinhas')" (valueChange)="definir('apenasMinhas', $event)"></ces-select>
+            <geo-select label="Somente minhas" [options]="simNao" [value]="filtro('apenasMinhas')" (valueChange)="definir('apenasMinhas', $event)"></geo-select>
           }
-          <ces-select label="Situação do registro" [options]="ativos" [value]="filtro('ativo')" (valueChange)="definir('ativo', $event)"></ces-select>
-          <ces-autocomplete label="Colaborador solicitante" placeholder="Digite o nome" [options]="colaboradores.items()" [ngModel]="filtro('solicitanteColaboradorId')"
+          <geo-select label="Situação do registro" [options]="ativos" [value]="filtro('ativo')" (valueChange)="definir('ativo', $event)"></geo-select>
+          <geo-autocomplete label="Colaborador solicitante" placeholder="Digite o nome" [options]="colaboradores.items()" [ngModel]="filtro('solicitanteColaboradorId')"
             (ngModelChange)="definir('solicitanteColaboradorId', $event)" [loading]="colaboradores.loading()" [status]="colaboradores.status()" [clearable]="true"
-            (search)="colaboradores.search($event)" (loadMore)="colaboradores.loadNext()" (retry)="colaboradores.retry()"></ces-autocomplete>
+            (search)="colaboradores.search($event)" (loadMore)="colaboradores.loadNext()" (retry)="colaboradores.retry()"></geo-autocomplete>
           @for (campo of lookupsVisiveis(); track campo.key) {
-            <ces-select [label]="campo.label" [options]="opcoesLookup(campo.lookup)" [value]="filtro(campo.key)" (valueChange)="definir(campo.key, $event)"
+            <geo-select [label]="campo.label" [options]="opcoesLookup(campo.lookup)" [value]="filtro(campo.key)" (valueChange)="definir(campo.key, $event)"
               [clearable]="true" [filter]="true" placeholder="Todos" [loading]="lookupCarregando(campo.lookup)"
-              (opened)="lookups[campo.lookup].open()" (search)="lookups[campo.lookup].search($event)"></ces-select>
+              (opened)="lookups[campo.lookup].open()" (search)="lookups[campo.lookup].search($event)"></geo-select>
           }
           @for (campo of enumsVisiveis(); track campo.key) {
-            <ces-select [label]="campo.label" [options]="comTodos(campo.options)" [value]="filtro(campo.key)" (valueChange)="definir(campo.key, $event)"></ces-select>
+            <geo-select [label]="campo.label" [options]="comTodos(campo.options)" [value]="filtro(campo.key)" (valueChange)="definir(campo.key, $event)"></geo-select>
           }
           @for (campo of numerosVisiveis(); track campo.key) {
-            <ces-number-input [label]="campo.label" [mode]="campo.modo" [min]="0" [value]="$any(filtro(campo.key))" (valueChange)="definir(campo.key, $event)"></ces-number-input>
+            <geo-number-input [label]="campo.label" [mode]="campo.modo" [min]="0" [value]="$any(filtro(campo.key))" (valueChange)="definir(campo.key, $event)"></geo-number-input>
           }
           @for (campo of booleanosVisiveis(); track campo.key) {
-            <ces-select [label]="campo.label" [options]="simNao" [value]="filtro(campo.key)" (valueChange)="definir(campo.key, $event)"></ces-select>
+            <geo-select [label]="campo.label" [options]="simNao" [value]="filtro(campo.key)" (valueChange)="definir(campo.key, $event)"></geo-select>
           }
           @if (maisFiltros()) {
-            <ces-text-input label="Número da NF" [value]="$any(filtro('numeroNf')) ?? ''" (valueChange)="definir('numeroNf', $event || null)"></ces-text-input>
+            <geo-text-input label="Número da NF" [value]="$any(filtro('numeroNf')) ?? ''" (valueChange)="definir('numeroNf', $event || null)"></geo-text-input>
           }
           @for (campo of datasVisiveis(); track campo.key) {
-            <ces-datepicker [label]="campo.label" [value]="dataLocal($any(filtro(campo.key)))" [clearable]="true" (valueChange)="definir(campo.key, dataIso($event))"></ces-datepicker>
+            <geo-datepicker [label]="campo.label" [value]="dataLocal($any(filtro(campo.key)))" [clearable]="true" (valueChange)="definir(campo.key, dataIso($event))"></geo-datepicker>
           }
         </div>
-        <div class="ces-actions-row">
-          <ces-button variant="link" size="sm" [icon]="maisFiltros() ? 'pi pi-angle-up' : 'pi pi-angle-down'" [label]="maisFiltros() ? 'Menos filtros' : 'Mais filtros'" (pressed)="maisFiltros.set(!maisFiltros())"></ces-button>
+        <div class="geo-actions-row">
+          <geo-button variant="link" size="sm" [icon]="maisFiltros() ? 'pi pi-angle-up' : 'pi pi-angle-down'" [label]="maisFiltros() ? 'Menos filtros' : 'Mais filtros'" (pressed)="maisFiltros.set(!maisFiltros())"></geo-button>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         [title]="titulo()"
         mode="server"
         [storageKey]="chave"
@@ -263,41 +263,41 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
         (emptyAction)="novo()"
         (rowActivate)="abrir($event)"
       >
-        <ng-template cesCell="numero" let-row><span class="ces-cell-strong">#{{ row.numero }}</span></ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tom(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</ces-status>
+        <ng-template geoCell="numero" let-row><span class="geo-cell-strong">#{{ row.numero }}</span></ng-template>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="tom(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="solicitacao" let-row>
+        <ng-template geoCell="solicitacao" let-row>
           <span>{{ valorExibicao(row, 'descricao') || row.formulario?.titulo }}</span>
-          <span class="ces-cell-muted">{{ row.formulario?.tipoSolicitacao === 'COMPRA' ? 'Compra' : 'Pagamento' }}</span>
+          <span class="geo-cell-muted">{{ row.formulario?.tipoSolicitacao === 'COMPRA' ? 'Compra' : 'Pagamento' }}</span>
         </ng-template>
-        <ng-template cesCell="fornecedor" let-row>
+        <ng-template geoCell="fornecedor" let-row>
           <span>{{ fornecedorLabel(row) }}</span>
           @if (fornecedorRazaoSocial(row); as razao) {
-            <span class="ces-cell-muted" [title]="razao">{{ razao }}</span>
+            <span class="geo-cell-muted" [title]="razao">{{ razao }}</span>
           }
           @if (fornecedorEhNaoCadastrado(row)) {
-            <ces-status tone="warning" icon="pi-exclamation-triangle" emphasis="outline">Não cadastrado</ces-status>
+            <geo-status tone="warning" icon="pi-exclamation-triangle" emphasis="outline">Não cadastrado</geo-status>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
+        <ng-template geoRowActions let-row>
           @if (row.acoes?.podeEditar) {
-            <ces-icon-button icon="pi pi-pencil" [label]="'Editar solicitação #' + row.numero" size="icon-sm" (pressed)="editar(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-pencil" [label]="'Editar solicitação #' + row.numero" size="icon-sm" (pressed)="editar(row)"></geo-icon-button>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="exportacaoAberta" title="Exportar solicitações (CSV)" description="Exporta o recorte atual da lista, inclusive a busca." size="sm">
+    <geo-form-drawer [(visible)]="exportacaoAberta" title="Exportar solicitações (CSV)" description="Exporta o recorte atual da lista, inclusive a busca." size="sm">
       @if (opcoesExportacao().length > 1) {
-        <ces-select label="Tipo" [options]="opcoesExportacao()" [(value)]="exportTipo"></ces-select>
+        <geo-select label="Tipo" [options]="opcoesExportacao()" [(value)]="exportTipo"></geo-select>
       }
-      <ces-select label="Formato" [options]="formatos" [(value)]="exportFormato"></ces-select>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></ces-button>
-        <ces-button icon="pi pi-download" label="Exportar" [loading]="exportando()" (pressed)="exportar()"></ces-button>
+      <geo-select label="Formato" [options]="formatos" [(value)]="exportFormato"></geo-select>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></geo-button>
+        <geo-button icon="pi pi-download" label="Exportar" [loading]="exportando()" (pressed)="exportar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda [titulo]="titulo()" artigoPlural="as" entidadePlural="solicitações" busca="fornecedor, descrição, chave PIX ou linha digitável" [podeCriar]="podeCriar()">
       <div class="help-section">
@@ -374,7 +374,7 @@ export class SolicitacoesFinanceirasComponent {
   });
   private readonly lookupStore = inject(LookupStore);
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: this.chave,
     queryParam: 'buscaGlobal',
     filters: this.definicoes(),
@@ -407,7 +407,7 @@ export class SolicitacoesFinanceirasComponent {
     { label: this.tipoAtual() === 'COMPRA' ? 'Compras' : this.tipoAtual() === 'PAGAMENTO' ? 'Pagamentos' : 'Todas' }
   ]);
 
-  protected readonly colunas: CesDataTableColumn<SolicitacaoFinanceira>[] = [
+  protected readonly colunas: GeoDataTableColumn<SolicitacaoFinanceira>[] = [
     { key: 'numero', header: 'Número', type: 'custom', priority: 1, sortField: 'numero', value: (s) => s.numero, display: (s) => `#${s.numero}` },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, value: (s) => s.status, display: (s) => this.rotuloStatus(s.status) },
     { key: 'solicitacao', header: 'Solicitação', type: 'custom', sortField: 'formulario.tipoSolicitacao', value: (s) => this.valorExibicao(s, 'descricao') || s.formulario?.titulo },
@@ -428,7 +428,7 @@ export class SolicitacoesFinanceirasComponent {
   protected readonly exportTipo = signal<TipoSolicitacao>('COMPRA');
   protected readonly exportFormato = signal<'resumo' | 'detalhado'>('resumo');
   protected readonly exportando = signal(false);
-  protected readonly opcoesExportacao = computed<CesSelectOption<TipoSolicitacao>[]>(() => [
+  protected readonly opcoesExportacao = computed<GeoSelectOption<TipoSolicitacao>[]>(() => [
     ...(this.podeExportarCompra ? [{ label: 'Solicitações de compra', value: 'COMPRA' as const }] : []),
     ...(this.podeExportarPagamento ? [{ label: 'Solicitações de pagamento', value: 'PAGAMENTO' as const }] : [])
   ]);
@@ -444,30 +444,30 @@ export class SolicitacoesFinanceirasComponent {
   }
 
   /** Definições do estado da lista, com os nomes de parâmetro já usados pelo painel. */
-  private definicoes(): CesFilterDefs {
-    const defs: CesFilterDefs = {
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Situação', options: () => ATIVOS }),
-      numero: cesFilter.value<number | null>(null, { label: 'Número', type: 'number' }),
-      numeroNf: cesFilter.value<string | null>(null, { label: 'Número da NF' }),
-      solicitanteColaboradorId: cesFilter.value<string | null>(null, {
+  private definicoes(): GeoFilterDefs {
+    const defs: GeoFilterDefs = {
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Situação', options: () => ATIVOS }),
+      numero: geoFilter.value<number | null>(null, { label: 'Número', type: 'number' }),
+      numeroNf: geoFilter.value<string | null>(null, { label: 'Número da NF' }),
+      solicitanteColaboradorId: geoFilter.value<string | null>(null, {
         label: 'Colaborador',
         format: (v): string | null => (v ? (this.colaboradores.items().find((c) => c.value === v)?.label ?? 'colaborador selecionado') : null)
       })
     };
     // Na fila de aprovação o status é fixo (SOLICITADO); em rota de um tipo só, o tipo também.
-    if (this.modo !== 'aprovacao') defs['status'] = cesFilter.value<StatusSolicitacao | null>(null, { label: 'Status', type: 'string', options: () => STATUS });
-    if (this.tipoDaRota === 'AMBOS') defs['tipo'] = cesFilter.value<TipoSolicitacao | null>(null, { label: 'Tipo', type: 'string', options: () => TIPOS });
-    if (this.modo !== 'minhas') defs['apenasMinhas'] = cesFilter.value<boolean | null>(null, { label: 'Somente minhas', options: () => SIM_NAO });
-    for (const c of BOOLEANOS) defs[c.key] = cesFilter.value<boolean | null>(null, { label: c.label, options: () => SIM_NAO });
-    for (const c of NUMEROS) defs[c.key] = cesFilter.value<number | null>(null, { label: c.label, type: 'number' });
-    for (const c of ENUMS) defs[c.key] = cesFilter.value<string | null>(null, { label: c.label, type: 'string', options: () => comTodos(c.options) });
+    if (this.modo !== 'aprovacao') defs['status'] = geoFilter.value<StatusSolicitacao | null>(null, { label: 'Status', type: 'string', options: () => STATUS });
+    if (this.tipoDaRota === 'AMBOS') defs['tipo'] = geoFilter.value<TipoSolicitacao | null>(null, { label: 'Tipo', type: 'string', options: () => TIPOS });
+    if (this.modo !== 'minhas') defs['apenasMinhas'] = geoFilter.value<boolean | null>(null, { label: 'Somente minhas', options: () => SIM_NAO });
+    for (const c of BOOLEANOS) defs[c.key] = geoFilter.value<boolean | null>(null, { label: c.label, options: () => SIM_NAO });
+    for (const c of NUMEROS) defs[c.key] = geoFilter.value<number | null>(null, { label: c.label, type: 'number' });
+    for (const c of ENUMS) defs[c.key] = geoFilter.value<string | null>(null, { label: c.label, type: 'string', options: () => comTodos(c.options) });
     for (const c of LOOKUPS) {
-      defs[c.key] = cesFilter.value<string | null>(null, {
+      defs[c.key] = geoFilter.value<string | null>(null, {
         label: c.label,
         format: (v): string | null => (v ? (this.lookups[c.lookup].items().find((o) => o.id === v)?.label ?? 'selecionado') : null)
       });
     }
-    for (const c of DATAS) defs[c.key] = cesFilter.date(null, { label: c.label });
+    for (const c of DATAS) defs[c.key] = geoFilter.date(null, { label: c.label });
     return defs;
   }
 
@@ -484,7 +484,7 @@ export class SolicitacoesFinanceirasComponent {
     this.lista.filters[chave]?.set(valor);
   }
 
-  protected opcoesLookup(chave: LookupKey): CesSelectOption<string>[] {
+  protected opcoesLookup(chave: LookupKey): GeoSelectOption<string>[] {
     return this.lookups[chave].items().map((o) => ({ label: o.label, value: o.id }));
   }
 
@@ -521,7 +521,7 @@ export class SolicitacoesFinanceirasComponent {
 
   protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_SOLICITACAO;
 
-  protected tom(s: StatusSolicitacao): CesTone {
+  protected tom(s: StatusSolicitacao): GeoTone {
     return TOM_STATUS[s] ?? 'neutral';
   }
 

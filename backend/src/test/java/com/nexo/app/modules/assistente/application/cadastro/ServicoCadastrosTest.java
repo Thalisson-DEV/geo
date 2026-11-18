@@ -260,13 +260,13 @@ class ServicoCadastrosTest {
         AcaoComPrevia.PreviaAcao previa = servico.preparar(json("{\"operacao\": \"acesso\", \"dados\": {\"login\": \"joao.silva\"}}"),
                 comPermissao);
 
-        assertThat(previa.argumentos().toString()).doesNotContain("Ces@");
-        assertThat(previa.exibicao().toString()).doesNotContain("Ces@");
+        assertThat(previa.argumentos().toString()).doesNotContain("Geo@");
+        assertThat(previa.exibicao().toString()).doesNotContain("Geo@");
 
         AcaoComPrevia.ResultadoAcao resultado = servico.confirmar(previa.argumentos(), null, comPermissao);
 
         String senha = ((AcessoTeste) gravados.getFirst()).senha();
-        assertThat(senha).startsWith("Ces@");
+        assertThat(senha).startsWith("Geo@");
         assertThat(resultado.sigiloso().path("senhas").get(0).path("valor").asText()).isEqualTo(senha);
         assertThat(resultado.resultado().toString()).doesNotContain(senha);
         assertThat(resultado.paraModelo()).doesNotContain(senha);

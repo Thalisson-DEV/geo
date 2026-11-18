@@ -198,7 +198,7 @@ public class ModelosAutomacao {
         if (ordenar != null) params.put("order_by", ordenar);
         params.put("desc", true);
         params.put("limit", limite);
-        Map<String, Object> no = no(id, "ces.query", rotulo, params);
+        Map<String, Object> no = no(id, "geo.query", rotulo, params);
         no.put("run_after", new ArrayList<>(List.of("succeeded", "failed")));
         return no;
     }
@@ -221,7 +221,7 @@ public class ModelosAutomacao {
      * ranking por processo, base e pessoa e, na virada do mês, como o mês anterior fechou.
      */
     public Modelo metasInspecaoSemanal() {
-        Map<String, Object> metas = no("metas", "ces.sst_goals", "Metas de inspeção da semana", Map.of("bases", "", "processes", ""));
+        Map<String, Object> metas = no("metas", "geo.sst_goals", "Metas de inspeção da semana", Map.of("bases", "", "processes", ""));
         String corpo = "<p>Bom dia! Segue o acompanhamento das metas de inspeção: como cada processo, base e pessoa está "
                 + "diante da meta e o que foi lançado na semana passada (<span data-expr=\"trigger.outputs.semana_passada_inicio\"></span> a "
                 + "<span data-expr=\"trigger.outputs.semana_passada_fim\"></span>).</p>"
@@ -240,7 +240,7 @@ public class ModelosAutomacao {
 
     /** Toda segunda, cada inspetor com desvio em aberto recebe a lista dos seus desvios. */
     public Modelo desviosDosInspetores() {
-        Map<String, Object> desvios = no("desvios", "ces.sst_open_deviations", "Desvios em aberto", Map.of("bases", "", "processes", ""));
+        Map<String, Object> desvios = no("desvios", "geo.sst_open_deviations", "Desvios em aberto", Map.of("bases", "", "processes", ""));
         String corpo = "<div data-block=\"html\" data-source=\"item.html\"></div>";
         Map<String, Object> enviar = no("enviar", "email.send", "Enviar ao inspetor", Map.of(
                 "to", List.of(Map.of("tipo", "expressao", "valor", "{{ item.usuario_id }}", "rotulo", "O inspetor")),
@@ -272,7 +272,7 @@ public class ModelosAutomacao {
 
     /** Toda segunda, a gestão recebe os desvios em aberto por processo, base e inspetor. */
     public Modelo desviosDaGestao() {
-        Map<String, Object> desvios = no("desvios", "ces.sst_open_deviations", "Desvios em aberto", Map.of("bases", "", "processes", ""));
+        Map<String, Object> desvios = no("desvios", "geo.sst_open_deviations", "Desvios em aberto", Map.of("bases", "", "processes", ""));
         String corpo = "<p>Bom dia! Estes são os desvios de segurança que ainda estão em aberto, por processo, base e inspetor. "
                 + "Cada inspetor recebe também a lista dos próprios desvios.</p>"
                 + "<div data-block=\"html\" data-source=\"steps.desvios.outputs.html\"></div>";

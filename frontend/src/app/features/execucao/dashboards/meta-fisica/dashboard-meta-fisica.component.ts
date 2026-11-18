@@ -3,21 +3,21 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesChartComponent,
-  CesChartPointSelection,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMeterComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoChartComponent,
+  GeoChartPointSelection,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMeterComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { createUrlFilters, qp } from '../../../../core/navigation';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -77,15 +77,15 @@ type OrdemBases = 'atencao' | 'atingimento' | 'nome';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesChartComponent,
-    CesFilterPanelComponent,
-    CesMeterComponent,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoChartComponent,
+    GeoFilterPanelComponent,
+    GeoMeterComponent,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
     DashboardMetricCardComponent,
     DashboardAnaliseComponent,
     DashboardVisaoGerencialComponent,
@@ -93,7 +93,7 @@ type OrdemBases = 'atencao' | 'atingimento' | 'nome';
     CopilotoGatilhoComponent,
     CopilotoPerguntarComponent
   ],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-meta-fisica.component.html',
   styleUrls: ['../execucao-dashboards.css', './dashboard-meta-fisica.component.css']
 })
@@ -150,9 +150,9 @@ export class DashboardMetaFisicaComponent implements OnInit {
     idTipoServico: qp.list('servico')
   });
 
-  protected readonly opcoesMeses = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesMeses = computed<GeoSelectOption<string>[]>(() => {
     const atual = competenciaAtual();
-    const opcoes: CesSelectOption<string>[] = [];
+    const opcoes: GeoSelectOption<string>[] = [];
     for (let i = 3; i >= -18; i--) {
       const comp = deslocarCompetencia(atual, i);
       opcoes.push({ label: nomeMes(comp) + (i === 0 ? ' · atual' : ''), value: comp });
@@ -161,7 +161,7 @@ export class DashboardMetaFisicaComponent implements OnInit {
     return opcoes.some((o) => o.value === escolhido) ? opcoes : [{ label: nomeMes(escolhido), value: escolhido }, ...opcoes];
   });
   /** Tipos de serviço vêm das metas do período; enquanto o painel não carrega, ficam os do recorte aplicado. */
-  protected readonly opcoesTipos = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesTipos = computed<GeoSelectOption<string>[]>(() =>
     (this.data()?.tipos ?? []).map((t) => ({ label: t.codigo ? `${t.codigo} · ${t.descricao}` : t.descricao, value: t.id }))
   );
 
@@ -387,9 +387,9 @@ export class DashboardMetaFisicaComponent implements OnInit {
       });
   }
 
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.aplicado();
-    const chips: CesFilterChip[] = [];
+    const chips: GeoFilterChip[] = [];
     if (f.competencia) chips.push({ key: 'mes', label: `Mês: ${nomeMes(f.competencia)}`, removable: false });
     for (const id of f.idBaseOperacional ?? []) chips.push({ key: `base:${id}`, label: `Base: ${this.recorte.nomeDaBase(id)}` });
     for (const id of f.idTipoServico ?? []) chips.push({ key: `tipo:${id}`, label: `Serviço: ${this.nomeTipo(id)}` });
@@ -430,17 +430,17 @@ export class DashboardMetaFisicaComponent implements OnInit {
     this.analise.aprofundar(alvo, this.vistaAnalise()?.titulo ?? '');
   }
 
-  protected selecionarDia(selecao: CesChartPointSelection): void {
+  protected selecionarDia(selecao: GeoChartPointSelection): void {
     const dia = this.modelo()?.diario[selecao.index];
     if (dia) this.analisar('dia', dia.data);
   }
 
-  protected selecionarBase(selecao: CesChartPointSelection): void {
+  protected selecionarBase(selecao: GeoChartPointSelection): void {
     const base = this.modelo()?.bases[selecao.index];
     if (base) this.analisar('base', base.id);
   }
 
-  protected selecionarMes(selecao: CesChartPointSelection): void {
+  protected selecionarMes(selecao: GeoChartPointSelection): void {
     const mes = this.modelo()?.historico[selecao.index];
     if (mes) this.analisar('mes', mes.competencia);
   }

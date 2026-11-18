@@ -1,33 +1,33 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Uso e produtividade da frota" icon="pi pi-map"
+    <geo-page-header title="Uso e produtividade da frota" icon="pi pi-map"
       [breadcrumb]="[{ label: 'Frota' }, { label: 'Relatórios' }, { label: 'Uso e produtividade' }]"
       description="Quanto a frota roda, quanto ela ajuda a faturar, quem está parado no pátio e se a frota está do tamanho certo.">
       @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
       @if (gerencial(); as g) { <span actions class="dash-updated">Calculado às {{ g.periodo.calculadoEm | date: 'HH:mm' }}</span> }
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="frota-painel-uso" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+    <geo-filter-panel storageKey="frota-painel-uso" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
+      <div class="geo-filter-grid">
         <app-frota-recorte-campos prefixo="fpu" />
-        <ces-multiselect label="Uso do veículo" inputId="fpu-uso" placeholder="Todos" [options]="classes" [filter]="false"
-          description="Ocioso: sem km e sem turno. Subutilizado: menos de 40% da mediana do tipo." [value]="classeSel()" (valueChange)="classeSel.set($event)"></ces-multiselect>
+        <geo-multiselect label="Uso do veículo" inputId="fpu-uso" placeholder="Todos" [options]="classes" [filter]="false"
+          description="Ocioso: sem km e sem turno. Subutilizado: menos de 40% da mediana do tipo." [value]="classeSel()" (valueChange)="classeSel.set($event)"></geo-multiselect>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     <app-frota-painel-topo [dados]="gerencial()" (periodo)="usarPeriodo($event)" />
 
     @if (carregando() && !modelo()) {
-      <ces-async-state state="loading" title="Calculando o uso da frota" description="Somando km, turnos e faturamento do período."></ces-async-state>
+      <geo-async-state state="loading" title="Calculando o uso da frota" description="Somando km, turnos e faturamento do período."></geo-async-state>
     } @else if (erro() && !modelo()) {
-      <ces-async-state state="error" title="Não foi possível calcular o uso" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível calcular o uso" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (modelo(); as m) {
       @if (erro()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</geo-callout>
       }
 
       @if (visao(); as vg) {
@@ -67,51 +67,51 @@
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Rodagem</span><h2>Km rodado por mês</h2><p>Pelas leituras válidas do odômetro.</p></div>
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'km', rotulo: 'Km por mês' }" /></header>
-          <ces-chart kind="bar" title="Km rodado por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+          <geo-chart kind="bar" title="Km rodado por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
             [labels]="graficoMensal().rotulos" [series]="graficoMensal().km" valueFormat="integer" [height]="250"
-            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></ces-chart>
+            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Produção</span><h2>Faturado por mês</h2><p>Notas concluídas nos turnos com veículo.</p></div></header>
-          <ces-chart kind="bar" title="Faturado por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+          <geo-chart kind="bar" title="Faturado por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
             [labels]="graficoMensal().rotulos" [series]="graficoMensal().faturado" valueFormat="currency" [height]="250"
-            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></ces-chart>
+            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></geo-chart>
         </article>
       </section>
 
       <section class="dash-grid pf-grid-espaco">
         <article class="dash-panel dash-col-4">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Distribuição</span><h2>Veículos por faixa de km</h2><p>Clique numa faixa para ver os veículos.</p></div></header>
-          <ces-chart kind="bar" title="Veículos por faixa de km" [showTitle]="false" [selectable]="true" selectLabel="Ver os veículos"
+          <geo-chart kind="bar" title="Veículos por faixa de km" [showTitle]="false" [selectable]="true" selectLabel="Ver os veículos"
             [labels]="graficoFaixas().rotulos" [series]="graficoFaixas().series" valueFormat="integer" [height]="260"
-            (pointSelect)="selecionar(m.faixas, $event.index, 'faixa', chaveFaixa)"></ces-chart>
+            (pointSelect)="selecionar(m.faixas, $event.index, 'faixa', chaveFaixa)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-4">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Onde</span><h2>Km por base</h2><p>Clique numa base para ver os veículos.</p></div></header>
-          <ces-chart kind="bar-horizontal" title="Km por base" [showTitle]="false" [selectable]="true" selectLabel="Analisar a base"
+          <geo-chart kind="bar-horizontal" title="Km por base" [showTitle]="false" [selectable]="true" selectLabel="Analisar a base"
             [labels]="graficoBases().rotulos" [series]="graficoBases().series" valueFormat="integer" [height]="260"
-            (pointSelect)="analisar('grupo', 'base~' + basesGrafico()[$event.index].id)"></ces-chart>
+            (pointSelect)="analisar('grupo', 'base~' + basesGrafico()[$event.index].id)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-4">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Peso</span><h2>Custo/faturamento por processo</h2><p>Quanto da produção de cada processo vai para a frota.</p></div></header>
-          <ces-chart kind="bar-horizontal" title="Custo sobre faturamento por processo" [showTitle]="false" [selectable]="true" selectLabel="Analisar o processo"
+          <geo-chart kind="bar-horizontal" title="Custo sobre faturamento por processo" [showTitle]="false" [selectable]="true" selectLabel="Analisar o processo"
             [labels]="graficoProcessos().rotulos" [series]="graficoProcessos().series" valueFormat="percent" [height]="260"
-            (pointSelect)="analisar('grupo', 'processo~' + processosGrafico()[$event.index].id)"></ces-chart>
+            (pointSelect)="analisar('grupo', 'processo~' + processosGrafico()[$event.index].id)"></geo-chart>
         </article>
       </section>
 
       <section class="pf-secao">
         <div class="dash-grid">
           <div class="dash-col-6">
-            <ces-data-table title="Veículos ociosos" description="Candidatos a remanejamento ou, se locados, a devolução." storageKey="fpu-ociosos"
+            <geo-data-table title="Veículos ociosos" description="Candidatos a remanejamento ou, se locados, a devolução." storageKey="fpu-ociosos"
               exportFileName="frota-ociosos" [columns]="colOciosos" [rows]="m.ociosos" [rowKey]="chaveVeiculo" [searchable]="false"
               rowActionLabel="Analisar" (rowActivate)="analisar('veiculo', $event.idVeiculo)"
-              [state]="m.ociosos.length ? 'ready' : 'empty'" stateTitle="Nenhum veículo ocioso"></ces-data-table>
+              [state]="m.ociosos.length ? 'ready' : 'empty'" stateTitle="Nenhum veículo ocioso"></geo-data-table>
           </div>
           <div class="dash-col-6">
-            <ces-data-table title="Por processo" description="Produção e custo da frota de cada processo." storageKey="fpu-processos"
+            <geo-data-table title="Por processo" description="Produção e custo da frota de cada processo." storageKey="fpu-processos"
               exportFileName="frota-uso-por-processo" [columns]="colGrupos" [rows]="m.porProcesso" [rowKey]="chaveGrupo" [searchable]="false"
-              rowActionLabel="Analisar" (rowActivate)="analisar('grupo', 'processo~' + $event.id)"></ces-data-table>
+              rowActionLabel="Analisar" (rowActivate)="analisar('grupo', 'processo~' + $event.id)"></geo-data-table>
           </div>
         </div>
       </section>
@@ -119,13 +119,13 @@
       <section class="pf-secao" aria-labelledby="fpu-veic">
         <header><span class="dash-eyebrow">Por veículo</span><h2 id="fpu-veic">Uso e produção por veículo</h2>
           <p>Turnos e notas vêm da execução; o custo é o da frota no período. Abra a linha para analisar o veículo.</p></header>
-        <ces-data-table title="Uso e produção por veículo" storageKey="fpu-veiculos" exportFileName="frota-uso-por-veiculo" [columns]="colVeiculos"
+        <geo-data-table title="Uso e produção por veículo" storageKey="fpu-veiculos" exportFileName="frota-uso-por-veiculo" [columns]="colVeiculos"
           [rows]="m.veiculos" [rowKey]="chaveVeiculo" searchPlaceholder="Filtrar placa ou processo" rowActionLabel="Analisar"
           (rowActivate)="analisar('veiculo', $event.idVeiculo)" [state]="m.veiculos.length ? 'ready' : 'empty'" stateTitle="Nenhum veículo no recorte">
-          <ng-template cesCell="classe" let-row>
-            <ces-status [tone]="tomClasse(row.classe)" emphasis="outline">{{ rotuloDaClasse(row.classe) }}</ces-status>
+          <ng-template geoCell="classe" let-row>
+            <geo-status [tone]="tomClasse(row.classe)" emphasis="outline">{{ rotuloDaClasse(row.classe) }}</geo-status>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       </section>
     }
   </div>

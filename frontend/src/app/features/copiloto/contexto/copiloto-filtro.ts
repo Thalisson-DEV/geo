@@ -1,4 +1,4 @@
-import type { CesColumnFilter } from '@ces/ui';
+import type { GeoColumnFilter } from '@geo/ui';
 import {
   AssistenteAcao,
   ColunaPainel,
@@ -32,7 +32,7 @@ function rotuloFiltro(coluna: ColunaPainel, operador: OperadorFiltroPainel, valo
 export interface FiltroSugerido {
   readonly alvo: string;
   readonly rotulo: string;
-  readonly filtros: CesColumnFilter[];
+  readonly filtros: GeoColumnFilter[];
 }
 
 export function tabelaPainel(id: string, rotulo: string, colunas: ColunaPainel[]): TabelaPainel {
@@ -58,7 +58,7 @@ export function resolverFiltroSugerido(acao: AssistenteAcao, tabelas: readonly T
   const tabela = (tabelas ?? []).find((item) => item.id === acao.alvo);
   const propostos = acao.filtros ?? [];
   if (!tabela || !propostos.length || propostos.length > MAX_FILTROS) return null;
-  const filtros: CesColumnFilter[] = [];
+  const filtros: GeoColumnFilter[] = [];
   for (const proposto of propostos) {
     const coluna = tabela.colunas.find((item) => item.campo === proposto?.campo);
     if (!coluna) return null;

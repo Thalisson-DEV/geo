@@ -1,1 +1,1 @@
-export * from './ces-status.component';
+export * from './geo-status.component';

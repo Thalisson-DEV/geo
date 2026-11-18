@@ -1,16 +1,16 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesMultiSelectComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoMultiSelectComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ModeloChecklist, TipoModeloChecklist } from '../../../core/models/frota-checklist.models';
 import { TipoImplemento, TipoVeiculo } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -27,58 +27,58 @@ import { linhas, perguntaNova, requestDe } from './frota-modelo-checklist.util';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesMultiSelectComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoMultiSelectComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="visible" [title]="modelo() ? 'Editar dados do modelo' : 'Novo modelo de checklist'"
+    <geo-form-drawer [(visible)]="visible" [title]="modelo() ? 'Editar dados do modelo' : 'Novo modelo de checklist'"
       [description]="modelo() ? modelo()!.nome : 'Depois de criar, você detalha cada pergunta na página do modelo.'"
       [dirty]="alterado()" [loading]="salvando()" size="md">
-      <div class="ces-form-stack">
-        <ces-form-section title="Identificação" icon="pi pi-id-card">
-          <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Caminhonete"
-            [error]="tentou() && !nome().trim() ? 'Informe o nome.' : undefined"></ces-text-input>
-          <ces-select label="Tipo" [required]="true" [options]="tipos" [(value)]="tipo"
-            [description]="tipo() === 'PRINCIPAL' ? 'O checklist do veículo.' : 'Perguntas extras quando o implemento está acoplado ao veículo.'"></ces-select>
-        </ces-form-section>
+      <div class="geo-form-stack">
+        <geo-form-section title="Identificação" icon="pi pi-id-card">
+          <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Caminhonete"
+            [error]="tentou() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>
+          <geo-select label="Tipo" [required]="true" [options]="tipos" [(value)]="tipo"
+            [description]="tipo() === 'PRINCIPAL' ? 'O checklist do veículo.' : 'Perguntas extras quando o implemento está acoplado ao veículo.'"></geo-select>
+        </geo-form-section>
 
-        <ces-form-section title="A que se aplica" icon="pi pi-car">
+        <geo-form-section title="A que se aplica" icon="pi pi-car">
           @if (tipo() === 'PRINCIPAL') {
-            <ces-multiselect label="Tipos de veículo" [options]="opcoesTiposVeiculo()" [(value)]="idsTiposVeiculo" [showOptional]="true"
-              display="chip" description="Em branco, vale para todos os veículos que não têm modelo próprio."></ces-multiselect>
+            <geo-multiselect label="Tipos de veículo" [options]="opcoesTiposVeiculo()" [(value)]="idsTiposVeiculo" [showOptional]="true"
+              display="chip" description="Em branco, vale para todos os veículos que não têm modelo próprio."></geo-multiselect>
           } @else {
-            <ces-multiselect label="Tipos de implemento" [required]="true" [options]="opcoesTiposImplemento()" [(value)]="idsTiposImplemento"
-              display="chip" [error]="tentou() && !idsTiposImplemento().length ? 'Escolha ao menos um tipo de implemento.' : undefined"></ces-multiselect>
+            <geo-multiselect label="Tipos de implemento" [required]="true" [options]="opcoesTiposImplemento()" [(value)]="idsTiposImplemento"
+              display="chip" [error]="tentou() && !idsTiposImplemento().length ? 'Escolha ao menos um tipo de implemento.' : undefined"></geo-multiselect>
           }
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="No app" icon="pi pi-mobile">
-          <ces-textarea label="Instruções ao condutor" [(value)]="instrucoes" [rows]="2" [maxlength]="2000" [showOptional]="true"
-            placeholder="Ex.: Faça o checklist com o veículo parado e o motor desligado."></ces-textarea>
-          <ces-boolean-control kind="toggle" label="Pedir confirmação de quem preencheu" [(value)]="exigeAssinatura"
-            description="Antes de enviar, o app pede a confirmação com o login."></ces-boolean-control>
-        </ces-form-section>
+        <geo-form-section title="No app" icon="pi pi-mobile">
+          <geo-textarea label="Instruções ao condutor" [(value)]="instrucoes" [rows]="2" [maxlength]="2000" [showOptional]="true"
+            placeholder="Ex.: Faça o checklist com o veículo parado e o motor desligado."></geo-textarea>
+          <geo-boolean-control kind="toggle" label="Pedir confirmação de quem preencheu" [(value)]="exigeAssinatura"
+            description="Antes de enviar, o app pede a confirmação com o login."></geo-boolean-control>
+        </geo-form-section>
 
         @if (!modelo()) {
-          <ces-form-section title="Primeiras perguntas" icon="pi pi-list-check">
-            <ces-textarea label="Perguntas" [required]="true" [(value)]="perguntas" [rows]="6"
+          <geo-form-section title="Primeiras perguntas" icon="pi pi-list-check">
+            <geo-textarea label="Perguntas" [required]="true" [(value)]="perguntas" [rows]="6"
               description="Uma por linha. Todas começam como OK / Não OK; você ajusta cada uma depois."
               placeholder="Faróis&#10;Lanternas&#10;Pneus&#10;Extintor"
-              [error]="tentou() && !linhas(perguntas()).length ? 'Escreva pelo menos uma pergunta.' : undefined"></ces-textarea>
-          </ces-form-section>
+              [error]="tentou() && !linhas(perguntas()).length ? 'Escreva pelo menos uma pergunta.' : undefined"></geo-textarea>
+          </geo-form-section>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="modelo() ? 'Salvar dados' : 'Criar modelo'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="modelo() ? 'Salvar dados' : 'Criar modelo'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaModeloChecklistFormComponent {
@@ -92,7 +92,7 @@ export class FrotaModeloChecklistFormComponent {
   readonly salvo = output<ModeloChecklist>();
 
   protected readonly linhas = linhas;
-  protected readonly tipos: CesSelectOption<TipoModeloChecklist>[] = [
+  protected readonly tipos: GeoSelectOption<TipoModeloChecklist>[] = [
     { label: 'Principal', value: 'PRINCIPAL' },
     { label: 'Adicional por implemento', value: 'ADICIONAL' }
   ];
@@ -110,10 +110,10 @@ export class FrotaModeloChecklistFormComponent {
   protected readonly salvando = signal(false);
   private inicial = '';
 
-  protected readonly opcoesTiposVeiculo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesTiposVeiculo = computed<GeoSelectOption<string>[]>(() =>
     this.tiposVeiculo().filter((t) => t.ativo || this.idsTiposVeiculo().includes(t.id)).map((t) => ({ label: t.nome, value: t.id }))
   );
-  protected readonly opcoesTiposImplemento = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesTiposImplemento = computed<GeoSelectOption<string>[]>(() =>
     this.tiposImplemento().filter((t) => t.ativo || this.idsTiposImplemento().includes(t.id)).map((t) => ({ label: t.nome, value: t.id }))
   );
   protected readonly alterado = computed(() => this.visible() && this.retrato() !== this.inicial);

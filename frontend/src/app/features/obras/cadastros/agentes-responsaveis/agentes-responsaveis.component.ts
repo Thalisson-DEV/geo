@@ -1,24 +1,24 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { AgenteResponsavelResponse } from '../../../../core/models/obras.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -35,25 +35,25 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
+      <geo-page-header
         title="Agentes responsáveis"
         icon="pi pi-id-card"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Cadastros' }, { label: 'Agentes Responsáveis' }]"
@@ -62,20 +62,20 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         (help)="ajuda.show()"
       >
         @if (podeEscrever) {
-          <ces-button actions icon="pi pi-plus" label="Novo agente" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo agente" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="obras-agentes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="obras-agentes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-text-input label="Empresa / órgão" [value]="lista.filters.empresaOrgao() ?? ''" (valueChange)="lista.filters.empresaOrgao.set($event || null)"
-            placeholder="Ex.: Prefeitura"></ces-text-input>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-text-input label="Empresa / órgão" [value]="lista.filters.empresaOrgao() ?? ''" (valueChange)="lista.filters.empresaOrgao.set($event || null)"
+            placeholder="Ex.: Prefeitura"></geo-text-input>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Agentes responsáveis"
         mode="server"
         storageKey="obras-agentes"
@@ -105,46 +105,46 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="email" let-row>
+        <ng-template geoCell="email" let-row>
           @if (row.email) {
-            <a class="ces-cell-strong" [href]="'mailto:' + row.email">{{ row.email }}</a>
+            <a class="geo-cell-strong" [href]="'mailto:' + row.email">{{ row.email }}</a>
           } @else {
-            <span class="ces-cell-muted">Sem e-mail</span>
+            <span class="geo-cell-muted">Sem e-mail</span>
           }
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (podeEscrever && row.ativo) {
-              <ces-icon-button icon="pi pi-ban" [label]="'Desativar ' + row.nome" size="icon-sm" (pressed)="desativar(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-ban" [label]="'Desativar ' + row.nome" size="icon-sm" (pressed)="desativar(row)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar agente' : 'Novo agente'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar agente' : 'Novo agente'"
       [description]="emEdicao()?.nome" [dirty]="alterado()" size="md">
-      <ces-form-section title="Identificação" icon="pi pi-id-card">
-        <div class="ces-form-grid">
-          <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="150" description="Gravado em letras maiúsculas." [error]="erro('nome')"></ces-text-input>
-          <ces-text-input label="Empresa ou órgão" [(value)]="empresaOrgao" [maxlength]="150" [showOptional]="true"></ces-text-input>
+      <geo-form-section title="Identificação" icon="pi pi-id-card">
+        <div class="geo-form-grid">
+          <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="150" description="Gravado em letras maiúsculas." [error]="erro('nome')"></geo-text-input>
+          <geo-text-input label="Empresa ou órgão" [(value)]="empresaOrgao" [maxlength]="150" [showOptional]="true"></geo-text-input>
         </div>
-      </ces-form-section>
-      <ces-form-section title="Contato" icon="pi pi-envelope">
-        <div class="ces-form-grid">
-          <ces-text-input label="E-mail" [(value)]="email" [maxlength]="150" [showOptional]="true" [error]="erro('email')"></ces-text-input>
-          <ces-text-input label="Telefone / celular" [(value)]="telefone" [maxlength]="30" [showOptional]="true"></ces-text-input>
+      </geo-form-section>
+      <geo-form-section title="Contato" icon="pi pi-envelope">
+        <div class="geo-form-grid">
+          <geo-text-input label="E-mail" [(value)]="email" [maxlength]="150" [showOptional]="true" [error]="erro('email')"></geo-text-input>
+          <geo-text-input label="Telefone / celular" [(value)]="telefone" [maxlength]="30" [showOptional]="true"></geo-text-input>
         </div>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar agente'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar agente'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Agentes responsáveis" entidadePlural="agentes" busca="nome, e-mail ou empresa"
@@ -154,16 +154,16 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export class AgentesResponsaveisComponent {
   private readonly servico = inject(ObrasService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
   protected readonly podeEscrever = inject(AuthService).currentUser()?.permissoes?.includes('obras:cadastros:write') ?? false;
 
   protected readonly statusOpcoes = OPCOES_STATUS;
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-agentes',
     filters: {
-      empresaOrgao: cesFilter.value<string | null>(null, { label: 'Empresa', param: 'empresa' }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      empresaOrgao: geoFilter.value<string | null>(null, { label: 'Empresa', param: 'empresa' }),
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
@@ -177,7 +177,7 @@ export class AgentesResponsaveisComponent {
     () => this.lista.request()
   );
 
-  protected readonly colunas: CesDataTableColumn<AgenteResponsavelResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<AgenteResponsavelResponse>[] = [
     { key: 'nome', header: 'Nome', priority: 1, sortField: 'nome' },
     { key: 'empresaOrgao', header: 'Empresa / órgão', sortField: 'empresaOrgao', display: (a) => a.empresaOrgao || '—' },
     { key: 'email', header: 'E-mail', type: 'custom', sortField: 'email', value: (a) => a.email, display: (a) => a.email ?? '' },

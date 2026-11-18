@@ -1,7 +1,7 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Painel do financeiro" icon="pi pi-wallet"
+    <geo-page-header title="Painel do financeiro" icon="pi pi-wallet"
       [breadcrumb]="[{ label: 'Financeiro' }, { label: 'Painel' }]"
       description="O que pede decisão hoje, quanto do pedido sai autorizado, o que vence a seguir e para onde vai o dinheiro. Cada número leva aos registros que o compõem.">
       @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
@@ -10,50 +10,50 @@
       } @else if (atualizadoEm()) {
         <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span>
       }
-      <ces-button actions label="Ver solicitações" icon="pi pi-list" variant="secondary" [disabled]="!data()" (pressed)="verSolicitacoes()"></ces-button>
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Ver solicitações" icon="pi pi-list" variant="secondary" [disabled]="!data()" (pressed)="verSolicitacoes()"></geo-button>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="dash-financeiro" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+    <geo-filter-panel storageKey="dash-financeiro" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
-        <ces-select label="Mostrar" inputId="fin-tipo" [options]="tipoOptions" [value]="filter.tipo ?? null" (valueChange)="filter.tipo = $any($event)"></ces-select>
-        <ces-datepicker label="Aberto a partir de" inputId="fin-inicio" [(value)]="dataInicio" [clearable]="true"></ces-datepicker>
-        <ces-datepicker label="Aberto até" inputId="fin-fim" [(value)]="dataFim" [clearable]="true"></ces-datepicker>
-        <ces-multiselect label="Fornecedor" [options]="opcoesFornecedores()" [value]="$any(filter.idFornecedor ?? [])" (valueChange)="filter.idFornecedor = $event"
-          placeholder="Todos" [loading]="fornecedoresLoading()" (opened)="openFornecedores()" (search)="searchFornecedores({ filter: $event })"></ces-multiselect>
-        <ces-multiselect label="Base operacional" [options]="opcoesBases()" [value]="$any(filter.idBase ?? [])" (valueChange)="filter.idBase = $event"
-          placeholder="Todas" [loading]="basesLoading()" (opened)="openBases()" (search)="searchBases({ filter: $event })"></ces-multiselect>
-        <ces-multiselect label="Centro de custo" [options]="opcoesProcessos()" [value]="$any(filter.idProcesso ?? [])" (valueChange)="filter.idProcesso = $event"
-          placeholder="Todos" [loading]="processosLoading()" (opened)="openProcessos()" (search)="searchProcessos({ filter: $event })"></ces-multiselect>
-        <ces-multiselect label="Obra" [options]="opcoesObras()" [value]="$any(filter.idObra ?? [])" (valueChange)="filter.idObra = $event"
-          placeholder="Todas" [loading]="obrasLoading()" (opened)="openObras()" (search)="searchObras({ filter: $event })"></ces-multiselect>
-        <ces-multiselect label="Tipo de despesa" [options]="tipoDespesaOptions" [value]="$any(filter.tipoDespesa ?? [])" (valueChange)="filter.tipoDespesa = $event" [filter]="false" placeholder="Todos"></ces-multiselect>
-        <ces-multiselect label="Situação" [options]="statusOptions" [value]="$any(filter.status ?? [])" (valueChange)="filter.status = $event" [filter]="false" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Urgência" [options]="prioridadeOptions" [value]="$any(filter.prioridade ?? [])" (valueChange)="filter.prioridade = $event" [filter]="false" placeholder="Todas"></ces-multiselect>
-        <ces-multiselect label="Formulário" [options]="opcoesFormularios()" [value]="$any(filter.idFormulario ?? [])" (valueChange)="filter.idFormulario = $event"
-          placeholder="Todos" [loading]="formulariosLoading()" (opened)="openFormularios()" (search)="searchFormularios({ filter: $event })"></ces-multiselect>
-        <ces-select label="Agrupamento do gráfico" inputId="fin-granularidade" [options]="granularidadeOptions" [value]="filter.granularidade ?? null"
-          (valueChange)="filter.granularidade = $event"></ces-select>
+      <div class="geo-filter-grid">
+        <geo-select label="Mostrar" inputId="fin-tipo" [options]="tipoOptions" [value]="filter.tipo ?? null" (valueChange)="filter.tipo = $any($event)"></geo-select>
+        <geo-datepicker label="Aberto a partir de" inputId="fin-inicio" [(value)]="dataInicio" [clearable]="true"></geo-datepicker>
+        <geo-datepicker label="Aberto até" inputId="fin-fim" [(value)]="dataFim" [clearable]="true"></geo-datepicker>
+        <geo-multiselect label="Fornecedor" [options]="opcoesFornecedores()" [value]="$any(filter.idFornecedor ?? [])" (valueChange)="filter.idFornecedor = $event"
+          placeholder="Todos" [loading]="fornecedoresLoading()" (opened)="openFornecedores()" (search)="searchFornecedores({ filter: $event })"></geo-multiselect>
+        <geo-multiselect label="Base operacional" [options]="opcoesBases()" [value]="$any(filter.idBase ?? [])" (valueChange)="filter.idBase = $event"
+          placeholder="Todas" [loading]="basesLoading()" (opened)="openBases()" (search)="searchBases({ filter: $event })"></geo-multiselect>
+        <geo-multiselect label="Centro de custo" [options]="opcoesProcessos()" [value]="$any(filter.idProcesso ?? [])" (valueChange)="filter.idProcesso = $event"
+          placeholder="Todos" [loading]="processosLoading()" (opened)="openProcessos()" (search)="searchProcessos({ filter: $event })"></geo-multiselect>
+        <geo-multiselect label="Obra" [options]="opcoesObras()" [value]="$any(filter.idObra ?? [])" (valueChange)="filter.idObra = $event"
+          placeholder="Todas" [loading]="obrasLoading()" (opened)="openObras()" (search)="searchObras({ filter: $event })"></geo-multiselect>
+        <geo-multiselect label="Tipo de despesa" [options]="tipoDespesaOptions" [value]="$any(filter.tipoDespesa ?? [])" (valueChange)="filter.tipoDespesa = $event" [filter]="false" placeholder="Todos"></geo-multiselect>
+        <geo-multiselect label="Situação" [options]="statusOptions" [value]="$any(filter.status ?? [])" (valueChange)="filter.status = $event" [filter]="false" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Urgência" [options]="prioridadeOptions" [value]="$any(filter.prioridade ?? [])" (valueChange)="filter.prioridade = $event" [filter]="false" placeholder="Todas"></geo-multiselect>
+        <geo-multiselect label="Formulário" [options]="opcoesFormularios()" [value]="$any(filter.idFormulario ?? [])" (valueChange)="filter.idFormulario = $event"
+          placeholder="Todos" [loading]="formulariosLoading()" (opened)="openFormularios()" (search)="searchFormularios({ filter: $event })"></geo-multiselect>
+        <geo-select label="Agrupamento do gráfico" inputId="fin-granularidade" [options]="granularidadeOptions" [value]="filter.granularidade ?? null"
+          (valueChange)="filter.granularidade = $event"></geo-select>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     @if (periodoInvalido()) {
-      <ces-callout tone="warning" icon="pi pi-calendar-times" title="Período inválido" role="alert">
+      <geo-callout tone="warning" icon="pi pi-calendar-times" title="Período inválido" role="alert">
         A data "Aberto a partir de" precisa ser anterior ou igual a "Aberto até". Ajuste o período e aplique de novo.
-      </ces-callout>
+      </geo-callout>
     }
 
     @if (loading() && !data()) {
-      <ces-async-state state="loading" title="Montando o painel do financeiro" description="Pedidos, fila de aprovação, vencimentos e documentos."></ces-async-state>
+      <geo-async-state state="loading" title="Montando o painel do financeiro" description="Pedidos, fila de aprovação, vencimentos e documentos."></geo-async-state>
     } @else if (erro() && !data()) {
-      <ces-async-state state="error" title="Não foi possível carregar o painel" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível carregar o painel" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (data(); as d) {
       @if (erro()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números podem estar desatualizados">
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números podem estar desatualizados">
           A última atualização falhou ({{ erro() }}). Os dados abaixo são da consulta anterior.
-        </ces-callout>
+        </geo-callout>
       }
 
       <!-- 1. A situação está sob controle? -->
@@ -71,9 +71,9 @@
       </section>
 
       @if (ressalvas().length) {
-        <ces-callout tone="info" icon="pi pi-info-circle" title="Os números têm ressalvas">
+        <geo-callout tone="info" icon="pi pi-info-circle" title="Os números têm ressalvas">
           @for (r of ressalvas(); track r) { <span class="fin-ressalva">{{ r }}</span> }
-        </ces-callout>
+        </geo-callout>
       }
 
       <!-- 3. O que pede ação hoje -->
@@ -83,14 +83,14 @@
           <h2 id="fin-agir">O que pede ação</h2>
           <p>Despesas vencidas sem comprovante, pedidos parados na aprovação, documentação e fornecedores, do mais grave para o menos grave. Abra a linha para ir ao registro ou à lista que o reproduz.</p>
         </header>
-        <ces-data-table title="Pede ação" storageKey="fin-pede-acao" exportFileName="financeiro-pede-acao" [columns]="colunasPendencias" [rows]="pendencias()"
+        <geo-data-table title="Pede ação" storageKey="fin-pede-acao" exportFileName="financeiro-pede-acao" [columns]="colunasPendencias" [rows]="pendencias()"
           [rowKey]="chavePendencia" [rowLabel]="rotuloPendencia" searchPlaceholder="Filtrar pendência, fornecedor ou número" rowActionLabel="Abrir"
           (rowActivate)="abrirPendencia($event)" [state]="estadoPendencias()"
           stateTitle="Nada pede ação neste recorte" stateDescription="Nenhum vencido, pedido parado ou documento faltando. Confira o período e os filtros antes de concluir.">
-          <ng-template cesCell="gravidade" let-p>
-            <ces-status [tone]="pendenciaDe(p).tom" [icon]="pendenciaDe(p).icone">{{ pendenciaDe(p).gravidade }}</ces-status>
+          <ng-template geoCell="gravidade" let-p>
+            <geo-status [tone]="pendenciaDe(p).tom" [icon]="pendenciaDe(p).icone">{{ pendenciaDe(p).gravidade }}</geo-status>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
         @if (registrosCarregando() && pendencias().length) {
           <p class="fin-dica" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Buscando os pedidos parados e as despesas vencidas…</p>
         } @else if (registros() && (!registros()!.parados || !registros()!.vencidas)) {
@@ -122,10 +122,10 @@
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'pedidoAutorizado', rotulo: 'Pedido × autorizado' }" />
           </div>
           @if (d.serieTemporal.length && d.resumo.total) {
-            <ces-chart [kind]="graficoSerie().tipo" title="Pedido × autorizado ao longo do período" [showTitle]="false" [selectable]="true" selectLabel="Analisar o período"
-              [labels]="graficoSerie().rotulos" [series]="graficoSerie().series" valueFormat="currency" [height]="300" (pointSelect)="abrirPeriodo($event.index)"></ces-chart>
+            <geo-chart [kind]="graficoSerie().tipo" title="Pedido × autorizado ao longo do período" [showTitle]="false" [selectable]="true" selectLabel="Analisar o período"
+              [labels]="graficoSerie().rotulos" [series]="graficoSerie().series" valueFormat="currency" [height]="300" (pointSelect)="abrirPeriodo($event.index)"></geo-chart>
           } @else {
-            <ces-async-state state="empty" icon="pi pi-chart-bar" title="Nenhum pedido aberto no período" description="Ajuste o período ou remova filtros para ver a evolução."></ces-async-state>
+            <geo-async-state state="empty" icon="pi pi-chart-bar" title="Nenhum pedido aberto no período" description="Ajuste o período ou remova filtros para ver a evolução."></geo-async-state>
           }
         </article>
 
@@ -139,14 +139,14 @@
           </header>
           @if (fila(); as fl) {
             @if (fl.quantidade) {
-              <ces-chart kind="bar-stacked" title="Pedidos esperando decisão por tempo de espera" [showTitle]="false" [selectable]="true" selectLabel="Ver os pedidos"
-                [labels]="graficoFila().rotulos" [series]="graficoFila().series" valueFormat="integer" [height]="250" (pointSelect)="abrirFaixaFila($event.index)"></ces-chart>
+              <geo-chart kind="bar-stacked" title="Pedidos esperando decisão por tempo de espera" [showTitle]="false" [selectable]="true" selectLabel="Ver os pedidos"
+                [labels]="graficoFila().rotulos" [series]="graficoFila().series" valueFormat="integer" [height]="250" (pointSelect)="abrirFaixaFila($event.index)"></geo-chart>
               <p class="dash-note">
                 Metade das decisões sai em {{ umaCasa(d.ciclo.medianaDiasAteDecisao) }} dia(s);
                 9 em cada 10, em até {{ umaCasa(d.ciclo.p90DiasAteDecisao) }}.
               </p>
             } @else {
-              <ces-async-state state="empty" icon="pi pi-check-circle" title="Fila vazia" description="Nenhum pedido esperando decisão."></ces-async-state>
+              <geo-async-state state="empty" icon="pi pi-check-circle" title="Fila vazia" description="Nenhum pedido esperando decisão."></geo-async-state>
             }
           }
         </article>
@@ -167,14 +167,14 @@
           </div>
         </header>
         @if (graficoRanking().itens.length) {
-          <ces-chart kind="bar-horizontal" [title]="'Autorizado e pedido por ' + rotuloRanking().toLowerCase()" [showTitle]="false" [selectable]="true" selectLabel="Analisar"
+          <geo-chart kind="bar-horizontal" [title]="'Autorizado e pedido por ' + rotuloRanking().toLowerCase()" [showTitle]="false" [selectable]="true" selectLabel="Analisar"
             [labels]="graficoRanking().rotulos" [series]="graficoRanking().series" valueFormat="currency"
-            [height]="Math.max(220, graficoRanking().itens.length * 38 + 60)" (pointSelect)="abrirItemRanking(graficoRanking().itens[$event.index])"></ces-chart>
+            [height]="Math.max(220, graficoRanking().itens.length * 38 + 60)" (pointSelect)="abrirItemRanking(graficoRanking().itens[$event.index])"></geo-chart>
         }
-        <ces-data-table class="fin-tabela" [title]="'Todos os itens · ' + rotuloRanking().toLowerCase()" [storageKey]="'fin-ranking-' + dimensaoRanking()"
+        <geo-data-table class="fin-tabela" [title]="'Todos os itens · ' + rotuloRanking().toLowerCase()" [storageKey]="'fin-ranking-' + dimensaoRanking()"
           [exportFileName]="'financeiro-por-' + dimensaoRanking()" [columns]="colunasRanking()" [rows]="linhasRanking()" [rowKey]="chaveRanking" [rowLabel]="rotuloItemRanking"
           [searchPlaceholder]="'Filtrar ' + rotuloRanking().toLowerCase()" rowActionLabel="Analisar" (rowActivate)="abrirItemRanking($event)"
-          [state]="linhasRanking().length ? 'ready' : 'empty'" [stateTitle]="'Sem dados de ' + rotuloRanking().toLowerCase() + ' no período'"></ces-data-table>
+          [state]="linhasRanking().length ? 'ready' : 'empty'" [stateTitle]="'Sem dados de ' + rotuloRanking().toLowerCase() + ' no período'"></geo-data-table>
       </section>
 
       <!-- 6. O que vence e o que trava a contabilidade -->
@@ -189,10 +189,10 @@
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'vencimentos', rotulo: 'O que vence a seguir' }" />
           </header>
           @if (graficoVencimentos(); as g) {
-            <ces-chart kind="bar-stacked" title="O que vence a seguir" [showTitle]="false" [selectable]="true" selectLabel="Ver as despesas"
-              [labels]="g.rotulos" [series]="g.series" valueFormat="currency" [height]="250" (pointSelect)="abrirVencimento($event.index)"></ces-chart>
+            <geo-chart kind="bar-stacked" title="O que vence a seguir" [showTitle]="false" [selectable]="true" selectLabel="Ver as despesas"
+              [labels]="g.rotulos" [series]="g.series" valueFormat="currency" [height]="250" (pointSelect)="abrirVencimento($event.index)"></geo-chart>
           } @else {
-            <ces-async-state state="empty" icon="pi pi-calendar" title="Nada a pagar em aberto" description="Nenhuma despesa aprovada com vencimento e sem comprovante."></ces-async-state>
+            <geo-async-state state="empty" icon="pi pi-calendar" title="Nada a pagar em aberto" description="Nenhuma despesa aprovada com vencimento e sem comprovante."></geo-async-state>
           }
         </article>
 
@@ -205,21 +205,21 @@
             </div>
           </header>
           @if (graficoDocumentos().itens.length) {
-            <ces-chart kind="bar-horizontal" title="Documentos por situação" [showTitle]="false" [selectable]="true" selectLabel="Abrir os documentos"
+            <geo-chart kind="bar-horizontal" title="Documentos por situação" [showTitle]="false" [selectable]="true" selectLabel="Abrir os documentos"
               [labels]="graficoDocumentos().rotulos" [series]="graficoDocumentos().series" valueFormat="integer"
-              [height]="Math.max(180, graficoDocumentos().itens.length * 40 + 50)" (pointSelect)="abrirSituacaoDocumento($event.index)"></ces-chart>
+              [height]="Math.max(180, graficoDocumentos().itens.length * 40 + 50)" (pointSelect)="abrirSituacaoDocumento($event.index)"></geo-chart>
             <p class="dash-note">
               Espera média de {{ umaCasa(d.conformidade.idadeMediaFilaDias) }} dia(s); o mais antigo está parado há {{ d.conformidade.idadeMaximaFilaDias }}.
               {{ d.conformidade.duplicados }} arquivo(s) repetido(s), {{ d.conformidade.semIdentificacao }} sem número e {{ d.conformidade.avulsosSemVinculo }} sem pedido correspondente.
             </p>
           } @else {
-            <ces-async-state state="empty" icon="pi pi-folder-open" title="Nenhum documento no recorte"></ces-async-state>
+            <geo-async-state state="empty" icon="pi pi-folder-open" title="Nenhum documento no recorte"></geo-async-state>
           }
         </article>
       </section>
     } @else {
-      <ces-async-state state="empty" icon="pi pi-inbox" title="Sem dados para os filtros selecionados" description="Ajuste os filtros ou o período e aplique de novo."
-        actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></ces-async-state>
+      <geo-async-state state="empty" icon="pi pi-inbox" title="Sem dados para os filtros selecionados" description="Ajuste os filtros ou o período e aplique de novo."
+        actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></geo-async-state>
     }
   </div>
 </main>

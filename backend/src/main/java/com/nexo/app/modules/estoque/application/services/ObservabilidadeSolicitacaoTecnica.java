@@ -29,13 +29,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ObservabilidadeSolicitacaoTecnica {
 
-    static final String METRICA_CONFLITOS = "ces.estoque.solicitacao.tecnica.conflitos";
-    static final String METRICA_FILHOS = "ces.estoque.solicitacao.tecnica.filhos";
-    static final String METRICA_RESERVAS_INVALIDAS = "ces.estoque.solicitacao.tecnica.reservas.invalidas";
-    static final String METRICA_CUSTODIA_INSUFICIENTE = "ces.estoque.solicitacao.tecnica.custodia.insuficiente";
-    static final String METRICA_CONCORRENCIA = "ces.estoque.solicitacao.tecnica.concorrencia";
-    static final String METRICA_IMPORTACAO = "ces.estoque.solicitacao.tecnica.importacao";
-    static final String METRICA_INTEGRIDADE = "ces.estoque.solicitacao.tecnica.integridade";
+    static final String METRICA_CONFLITOS = "geo.estoque.solicitacao.tecnica.conflitos";
+    static final String METRICA_FILHOS = "geo.estoque.solicitacao.tecnica.filhos";
+    static final String METRICA_RESERVAS_INVALIDAS = "geo.estoque.solicitacao.tecnica.reservas.invalidas";
+    static final String METRICA_CUSTODIA_INSUFICIENTE = "geo.estoque.solicitacao.tecnica.custodia.insuficiente";
+    static final String METRICA_CONCORRENCIA = "geo.estoque.solicitacao.tecnica.concorrencia";
+    static final String METRICA_IMPORTACAO = "geo.estoque.solicitacao.tecnica.importacao";
+    static final String METRICA_INTEGRIDADE = "geo.estoque.solicitacao.tecnica.integridade";
 
     private final MeterRegistry meterRegistry;
 

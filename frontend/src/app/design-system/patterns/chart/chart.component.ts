@@ -12,9 +12,9 @@ import {
 import { DOCUMENT } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import type { ChartData, ChartOptions, ChartType, TooltipItem } from 'chart.js';
-import { CesButtonComponent } from '../../primitives/button';
+import { GeoButtonComponent } from '../../primitives/button';
 
-export type CesChartKind =
+export type GeoChartKind =
   | 'bar'
   | 'bar-horizontal'
   | 'bar-stacked'
@@ -24,15 +24,15 @@ export type CesChartKind =
   | 'doughnut'
   | 'scatter';
 
-export type CesChartValueFormat = 'number' | 'integer' | 'currency' | 'percent';
+export type GeoChartValueFormat = 'number' | 'integer' | 'currency' | 'percent';
 
-export interface CesChartSeries {
+export interface GeoChartSeries {
   readonly name: string;
   readonly values: readonly (number | null)[];
 }
 
 /** Ponto escolhido pelo usuário num gráfico `selectable` (clique, toque ou linha da tabela de dados). */
-export interface CesChartPointSelection {
+export interface GeoChartPointSelection {
   /** Índice da categoria (ou do ponto, no `scatter`). */
   readonly index: number;
   /** Rótulo da categoria (ou do ponto). */
@@ -41,24 +41,24 @@ export interface CesChartPointSelection {
   readonly seriesIndex: number | null;
 }
 
-export interface CesChartPoint {
+export interface GeoChartPoint {
   readonly x: number;
   readonly y: number;
   readonly label?: string;
 }
 
 const SERIES_TOKENS = [
-  '--ces-chart-1',
-  '--ces-chart-2',
-  '--ces-chart-3',
-  '--ces-chart-4',
-  '--ces-chart-5',
-  '--ces-chart-6',
-  '--ces-chart-7',
-  '--ces-chart-8',
+  '--geo-chart-1',
+  '--geo-chart-2',
+  '--geo-chart-3',
+  '--geo-chart-4',
+  '--geo-chart-5',
+  '--geo-chart-6',
+  '--geo-chart-7',
+  '--geo-chart-8',
 ] as const;
 
-const KIND_LABEL: Record<CesChartKind, string> = {
+const KIND_LABEL: Record<GeoChartKind, string> = {
   bar: 'Gráfico de barras',
   'bar-horizontal': 'Gráfico de barras horizontais',
   'bar-stacked': 'Gráfico de barras empilhadas',
@@ -72,35 +72,35 @@ const KIND_LABEL: Record<CesChartKind, string> = {
 let chartSequence = 0;
 
 /**
- * Gráfico GEO sobre Chart.js (via `primeng/chart`). Cores vêm dos tokens `--ces-chart-*` (tema claro e
+ * Gráfico GEO sobre Chart.js (via `primeng/chart`). Cores vêm dos tokens `--geo-chart-*` (tema claro e
  * escuro), números no padrão pt-BR, resumo textual para leitores de tela e alternativa em tabela de
  * dados acessível por botão — o gráfico nunca é a única forma de ler a informação.
  */
 @Component({
-  selector: 'ces-chart',
+  selector: 'geo-chart',
   standalone: true,
-  imports: [ChartModule, CesButtonComponent],
+  imports: [ChartModule, GeoButtonComponent],
   templateUrl: './chart.component.html',
   styleUrl: './chart.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'ces-chart',
+    class: 'geo-chart',
     '[attr.data-kind]': 'kind()',
   },
 })
-export class CesChartComponent {
+export class GeoChartComponent {
   private readonly document = inject(DOCUMENT);
   private readonly themeVersion = signal(0);
-  protected readonly id = `ces-chart-${++chartSequence}`;
+  protected readonly id = `geo-chart-${++chartSequence}`;
 
-  readonly kind = input<CesChartKind>('bar');
+  readonly kind = input<GeoChartKind>('bar');
   readonly title = input.required<string>();
   readonly showTitle = input(true);
   readonly description = input<string | undefined>();
   readonly labels = input<readonly string[]>([]);
-  readonly series = input<readonly CesChartSeries[]>([]);
-  readonly points = input<readonly CesChartPoint[]>([]);
-  readonly valueFormat = input<CesChartValueFormat>('number');
+  readonly series = input<readonly GeoChartSeries[]>([]);
+  readonly points = input<readonly GeoChartPoint[]>([]);
+  readonly valueFormat = input<GeoChartValueFormat>('number');
   readonly xAxisLabel = input<string | undefined>();
   readonly yAxisLabel = input<string | undefined>();
   readonly height = input(280);
@@ -117,7 +117,7 @@ export class CesChartComponent {
   /** Verbo do botão de cada linha na tabela de dados quando `selectable` (ex.: "Detalhar"). */
   readonly selectLabel = input('Detalhar');
 
-  readonly pointSelect = output<CesChartPointSelection>();
+  readonly pointSelect = output<GeoChartPointSelection>();
 
   protected readonly chartType = computed<ChartType>(() => {
     switch (this.kind()) {
@@ -147,9 +147,9 @@ export class CesChartComponent {
     const read = (token: string, fallback: string) => styles?.getPropertyValue(token).trim() || fallback;
     return {
       series: SERIES_TOKENS.map((token) => read(token, '#2563eb')),
-      grid: read('--ces-border', '#e2e8f0'),
-      text: read('--ces-foreground-muted', '#475569'),
-      surface: read('--ces-surface', '#ffffff'),
+      grid: read('--geo-border', '#e2e8f0'),
+      text: read('--geo-foreground-muted', '#475569'),
+      surface: read('--geo-surface', '#ffffff'),
     };
   });
 
@@ -218,7 +218,7 @@ export class CesChartComponent {
     const multiplas = this.series().length > 1;
     const reduzirMovimento =
       this.document.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-    const tick = (value: number | string) => formatCesChartValue(Number(value), formato, true);
+    const tick = (value: number | string) => formatGeoChartValue(Number(value), formato, true);
     const eixoValor = {
       grid: { color: grid },
       // Contagens não têm meio: sem `precision`, eixos pequenos repetem rótulos ("0, 0, 1, 1, 2").
@@ -266,9 +266,9 @@ export class CesChartComponent {
             label: (item: TooltipItem<ChartType>) => {
               const raw = item.raw as number | { x: number; y: number } | null;
               if (raw && typeof raw === 'object') {
-                return `${formatCesChartValue(raw.x, 'number')} ; ${formatCesChartValue(raw.y, formato)}`;
+                return `${formatGeoChartValue(raw.x, 'number')} ; ${formatGeoChartValue(raw.y, formato)}`;
               }
-              const valor = formatCesChartValue(Number(raw), formato);
+              const valor = formatGeoChartValue(Number(raw), formato);
               return item.dataset.label && !circular ? `${item.dataset.label}: ${valor}` : valor;
             },
           },
@@ -307,11 +307,11 @@ export class CesChartComponent {
     });
     if (maior >= 0) {
       partes.push(
-        `maior valor${series.length > 1 ? ` em ${primeira.name}` : ''}: ${labels[maior]} (${formatCesChartValue(primeira.values[maior] ?? 0, formato)})`,
+        `maior valor${series.length > 1 ? ` em ${primeira.name}` : ''}: ${labels[maior]} (${formatGeoChartValue(primeira.values[maior] ?? 0, formato)})`,
       );
     }
     if (menor >= 0 && menor !== maior) {
-      partes.push(`menor: ${labels[menor]} (${formatCesChartValue(primeira.values[menor] ?? 0, formato)})`);
+      partes.push(`menor: ${labels[menor]} (${formatGeoChartValue(primeira.values[menor] ?? 0, formato)})`);
     }
     return partes.join('; ') + '.';
   });
@@ -326,15 +326,15 @@ export class CesChartComponent {
     const formato = this.valueFormat();
     if (this.kind() === 'scatter') {
       return this.points().map((point) => [
-        point.label ? `${point.label} (${formatCesChartValue(point.x, 'number')})` : formatCesChartValue(point.x, 'number'),
-        formatCesChartValue(point.y, formato),
+        point.label ? `${point.label} (${formatGeoChartValue(point.x, 'number')})` : formatGeoChartValue(point.x, 'number'),
+        formatGeoChartValue(point.y, formato),
       ]);
     }
     return this.labels().map((label, indice) => [
       label,
       ...this.series().map((serie) => {
         const valor = serie.values[indice];
-        return valor === null || valor === undefined ? '—' : formatCesChartValue(valor, formato);
+        return valor === null || valor === undefined ? '—' : formatGeoChartValue(valor, formato);
       }),
     ]);
   });
@@ -352,7 +352,7 @@ export class CesChartComponent {
   protected rowLabel(indice: number): string {
     if (this.kind() === 'scatter') {
       const ponto = this.points()[indice];
-      return ponto?.label ?? formatCesChartValue(ponto?.x ?? Number.NaN, 'number');
+      return ponto?.label ?? formatGeoChartValue(ponto?.x ?? Number.NaN, 'number');
     }
     return this.labels()[indice] ?? '';
   }
@@ -368,7 +368,7 @@ export class CesChartComponent {
 }
 
 /** Formata valores no padrão brasileiro; `compact` abrevia eixos (1,2 mil; 3,4 mi). */
-export function formatCesChartValue(value: number, format: CesChartValueFormat, compact = false): string {
+export function formatGeoChartValue(value: number, format: GeoChartValueFormat, compact = false): string {
   if (!Number.isFinite(value)) return '—';
   const abs = Math.abs(value);
   const compactar = compact && abs >= 10_000;

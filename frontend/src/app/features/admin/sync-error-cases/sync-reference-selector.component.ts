@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, effect, inject, input, model, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { CesAutocompleteComponent } from '@ces/ui/forms';
+import { GeoAutocompleteComponent } from '@geo/ui/forms';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
 import { SyncReferenceCatalogService, SyncReferenceKind } from './sync-reference-catalog.service';
 
 @Component({
   selector: 'app-sync-reference-selector',
   standalone: true,
-  imports: [FormsModule, CesAutocompleteComponent],
+  imports: [FormsModule, GeoAutocompleteComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-autocomplete
+    <geo-autocomplete
       [label]="label()"
       [options]="lookup.options()"
       [ngModel]="value()"

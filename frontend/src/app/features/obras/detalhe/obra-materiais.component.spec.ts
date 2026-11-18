@@ -127,8 +127,8 @@ describe('ObraMateriaisComponent', () => {
     expect(linhas[1].textContent).toContain('Sucata');
     expect(linhas[1].textContent).toContain('S-1, S-2');
     expect(linhas[1].querySelector('.mat-pendente')?.textContent).toContain('-1');
-    expect(linhas[0].querySelector('ces-status')?.textContent).toContain('Novo');
-    expect(linhas[1].querySelector('ces-status')?.textContent).toContain('Sucata');
+    expect(linhas[0].querySelector('geo-status')?.textContent).toContain('Novo');
+    expect(linhas[1].querySelector('geo-status')?.textContent).toContain('Sucata');
 
     const relatorio = el.querySelector('.mat-secao__acoes a') as HTMLAnchorElement;
     expect(relatorio.getAttribute('href')).toContain('/almoxarifado/saldos/relatorio?idEstoque=est-1');
@@ -171,7 +171,7 @@ describe('ObraMateriaisComponent', () => {
     fixture.componentRef.setInput('saldo', { estado: 'error', mensagem: 'Falhou' });
     fixture.detectChanges();
     expect(el.textContent).toContain('Não foi possível carregar o saldo');
-    (el.querySelector('ces-async-state button') as HTMLButtonElement).click();
+    (el.querySelector('geo-async-state button') as HTMLButtonElement).click();
     expect(pedidos).toBe(1);
   });
 

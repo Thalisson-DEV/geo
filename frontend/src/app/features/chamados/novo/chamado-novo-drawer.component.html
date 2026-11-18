@@ -1,4 +1,4 @@
-<ces-form-drawer
+<geo-form-drawer
   #drawer
   [visible]="visible()"
   (visibleChange)="visible.set($event)"
@@ -10,21 +10,21 @@
   discardMessage="O chamado ainda não foi aberto. O que você preencheu será perdido."
 >
   @if (erroCarga(); as mensagem) {
-    <ces-async-state
+    <geo-async-state
       state="error"
       title="Não foi possível carregar os tópicos"
       [description]="mensagem"
       actionLabel="Tentar novamente"
       actionIcon="pi pi-refresh"
       (action)="carregarTopicos()"
-    ></ces-async-state>
+    ></geo-async-state>
   } @else if (criado(); as chamado) {
-    <ces-callout tone="success" title="Chamado aberto">
+    <geo-callout tone="success" title="Chamado aberto">
       <p class="chamado-protocolo">{{ chamado.protocolo }}</p>
       <p>O protocolo já está salvo no servidor e pode ser acompanhado em Meus chamados.</p>
-    </ces-callout>
+    </geo-callout>
 
-    <ces-form-section title="Envio das evidências" icon="pi pi-paperclip">
+    <geo-form-section title="Envio das evidências" icon="pi pi-paperclip">
       @if (arquivos().length) {
         <ul class="chamado-arquivos" aria-live="polite">
           @for (arquivo of arquivos(); track arquivo.file.name + arquivo.file.size; let index = $index) {
@@ -38,10 +38,10 @@
                   <span class="chamado-arquivo__meta">{{ formatarBytes(arquivo.file.size) }}</span>
                 }
               </div>
-              <ces-status [tone]="envio[arquivo.status].tom" [icon]="envio[arquivo.status].icone">{{ envio[arquivo.status].rotulo }}</ces-status>
+              <geo-status [tone]="envio[arquivo.status].tom" [icon]="envio[arquivo.status].icone">{{ envio[arquivo.status].rotulo }}</geo-status>
               @if (arquivo.status === 'erro') {
-                <ces-button variant="ghost" size="sm" icon="pi pi-refresh" label="Tentar novamente"
-                  [ariaLabel]="'Tentar enviar ' + arquivo.file.name + ' novamente'" (pressed)="tentarNovamente(index)"></ces-button>
+                <geo-button variant="ghost" size="sm" icon="pi pi-refresh" label="Tentar novamente"
+                  [ariaLabel]="'Tentar enviar ' + arquivo.file.name + ' novamente'" (pressed)="tentarNovamente(index)"></geo-button>
               }
             </li>
           }
@@ -49,10 +49,10 @@
       } @else {
         <p class="chamado-vazio">O chamado foi aberto sem anexos.</p>
       }
-    </ces-form-section>
+    </geo-form-section>
   } @else {
-    <ces-form-section title="Chamado" icon="pi pi-ticket" description="O tópico define a equipe que atende e os prazos.">
-      <ces-select
+    <geo-form-section title="Chamado" icon="pi pi-ticket" description="O tópico define a equipe que atende e os prazos.">
+      <geo-select
         label="Tópico"
         [required]="true"
         [filter]="true"
@@ -61,7 +61,7 @@
         [(value)]="topicoId"
         [description]="topicoSelecionado()?.descricao || undefined"
         [error]="erro('topico')"
-      ></ces-select>
+      ></geo-select>
       @if (topicoSelecionado(); as topico) {
         <dl class="chamado-topico" aria-label="Atendimento do tópico">
           <div><dt>Equipe padrão</dt><dd>{{ topico.equipePadrao.nome }}</dd></div>
@@ -69,7 +69,7 @@
           <div><dt>Resolução</dt><dd>até {{ topico.slaResolucaoHoras }} h</dd></div>
         </dl>
       }
-      <ces-text-input
+      <geo-text-input
         label="Assunto"
         [required]="true"
         placeholder="Resuma sua necessidade em uma frase"
@@ -77,8 +77,8 @@
         [(value)]="assunto"
         [description]="assunto().length + '/' + limiteAssunto + ' caracteres'"
         [error]="erro('assunto')"
-      ></ces-text-input>
-      <ces-textarea
+      ></geo-text-input>
+      <geo-textarea
         label="Descrição"
         [required]="true"
         [rows]="7"
@@ -86,16 +86,16 @@
         [maxlength]="limiteDescricao"
         [(value)]="descricao"
         [error]="erro('descricao')"
-      ></ces-textarea>
-      <ces-select
+      ></geo-textarea>
+      <geo-select
         label="Prioridade"
         [options]="prioridadeOpcoes()"
         [(value)]="prioridade"
         description="Mude só quando o impacto for diferente do habitual para o tópico."
-      ></ces-select>
-    </ces-form-section>
+      ></geo-select>
+    </geo-form-section>
 
-    <ces-form-section
+    <geo-form-section
       title="Evidências"
       icon="pi pi-paperclip"
       [description]="'Opcional. Até ' + limiteAnexos + ' arquivos de 15 MB: imagens, PDF, TXT/LOG, Word e Excel.'"
@@ -114,33 +114,33 @@
                 <span class="chamado-arquivo__nome" [title]="arquivo.file.name">{{ arquivo.file.name }}</span>
                 <span class="chamado-arquivo__meta">{{ formatarBytes(arquivo.file.size) }}</span>
               </div>
-              <ces-icon-button icon="pi pi-times" size="icon-sm" [label]="'Remover ' + arquivo.file.name"
-                [disabled]="salvando()" (pressed)="removerArquivo(index)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-times" size="icon-sm" [label]="'Remover ' + arquivo.file.name"
+                [disabled]="salvando()" (pressed)="removerArquivo(index)"></geo-icon-button>
             </li>
           }
         </ul>
       } @else {
         <p class="chamado-vazio">Nenhum arquivo selecionado.</p>
       }
-    </ces-form-section>
+    </geo-form-section>
 
-    <ces-callout tone="info" [dense]="true">
+    <geo-callout tone="info" [dense]="true">
       O chamado é criado uma única vez. Depois, cada anexo é enviado separadamente e pode ser reenviado em caso de falha.
-    </ces-callout>
+    </geo-callout>
   }
 
   @if (criado()) {
-    <div drawer-footer class="ces-actions-row chamado-acoes">
-      <ces-button variant="ghost" label="Fechar" (pressed)="fechar()"></ces-button>
-      <ces-button icon="pi pi-arrow-right" iconPosition="right" label="Acompanhar chamado"
-        (pressed)="irParaChamado()"></ces-button>
+    <div drawer-footer class="geo-actions-row chamado-acoes">
+      <geo-button variant="ghost" label="Fechar" (pressed)="fechar()"></geo-button>
+      <geo-button icon="pi pi-arrow-right" iconPosition="right" label="Acompanhar chamado"
+        (pressed)="irParaChamado()"></geo-button>
     </div>
   } @else if (erroCarga()) {
-    <div drawer-footer class="ces-actions-row chamado-acoes">
-      <ces-button variant="ghost" label="Fechar" (pressed)="fechar()"></ces-button>
+    <div drawer-footer class="geo-actions-row chamado-acoes">
+      <geo-button variant="ghost" label="Fechar" (pressed)="fechar()"></geo-button>
     </div>
   } @else {
-    <ces-form-actions
+    <geo-form-actions
       drawer-footer
       submitLabel="Abrir chamado"
       submitIcon="pi pi-send"
@@ -148,6 +148,6 @@
       [saving]="salvando()"
       (save)="salvar()"
       (cancel)="drawer.requestClose()"
-    ></ces-form-actions>
+    ></geo-form-actions>
   }
-</ces-form-drawer>
+</geo-form-drawer>

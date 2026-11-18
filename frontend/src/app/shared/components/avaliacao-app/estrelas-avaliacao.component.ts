@@ -50,22 +50,22 @@ import { ROTULO_ESTRELAS } from '../../../core/models/avaliacao.models';
       display: inline-flex; align-items: center; justify-content: center;
       width: 3rem; height: 3rem; padding: 0; border: 0; border-radius: 999px;
       background: transparent; cursor: pointer; font-size: 2rem; line-height: 1;
-      color: color-mix(in srgb, var(--ces-foreground) 16%, transparent);
+      color: color-mix(in srgb, var(--geo-foreground) 16%, transparent);
       transition: color 140ms ease, transform 140ms ease;
       -webkit-tap-highlight-color: transparent;
     }
     .ea-estrela .pi { font-size: inherit; line-height: 1; }
-    .ea-estrela:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .ea-estrela:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .ea-estrela:active { transform: scale(0.9); }
-    .ea-estrela--acesa { color: var(--ces-warning); }
+    .ea-estrela--acesa { color: var(--geo-warning); }
     .ea-estrela--escolhida { animation: ea-pulo 320ms cubic-bezier(0.34, 1.56, 0.64, 1); }
     @keyframes ea-pulo { 0% { transform: scale(1); } 45% { transform: scale(1.18); } 100% { transform: scale(1); } }
 
     .ea-rotulo {
-      min-height: 1.25rem; font-size: var(--ces-font-body); font-weight: 600; line-height: 1.25rem;
-      color: var(--ces-foreground);
+      min-height: 1.25rem; font-size: var(--geo-font-body); font-weight: 600; line-height: 1.25rem;
+      color: var(--geo-foreground);
     }
-    .ea-rotulo--vazio { font-weight: 400; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .ea-rotulo--vazio { font-weight: 400; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 
     .ea--compacto .ea-estrela { width: 2.5rem; height: 2.5rem; font-size: 1.625rem; }
     .ea--compacto .ea-linha { gap: 0.125rem; }

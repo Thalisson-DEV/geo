@@ -1,7 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CesCalloutComponent, CesDrawerComponent, CesStatusComponent } from '@ces/ui';
+import { GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent } from '@geo/ui';
 
 import {
   EventoTelemetria,
@@ -16,18 +16,18 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
   selector: 'app-frota-evento-telemetria-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, RouterLink, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, FrotaMapaTelemetriaComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent, FrotaMapaTelemetriaComponent],
   styles: `
     .ed { display: grid; gap: 1rem; }
     .ed-topo { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .ed-destaque { margin: 0; font-size: var(--ces-font-title, 1.25rem); font-weight: 700; color: var(--ces-foreground); }
+    .ed-destaque { margin: 0; font-size: var(--geo-font-title, 1.25rem); font-weight: 700; color: var(--geo-foreground); }
   `,
   template: `
-    <ces-drawer [(visible)]="visivel" eyebrow="Evento de condução" [title]="titulo()" size="md">
+    <geo-drawer [(visible)]="visivel" eyebrow="Evento de condução" [title]="titulo()" size="md">
       @if (evento(); as e) {
         <div class="ed">
           <div class="ed-topo">
-            <ces-status [tone]="tom[e.tipo]" [icon]="icone[e.tipo]" emphasis="solid">{{ e.tipoRotulo }}</ces-status>
+            <geo-status [tone]="tom[e.tipo]" [icon]="icone[e.tipo]" emphasis="solid">{{ e.tipoRotulo }}</geo-status>
           </div>
           @if (e.detalhe) {
             <p class="ed-destaque">{{ e.detalhe }}</p>
@@ -37,9 +37,9 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
             [vazio]="e.endereco ? 'Só o endereço deste evento é conhecido.' : 'O local deste evento não foi informado.'">
           </app-frota-mapa-telemetria>
 
-          <section class="ces-sheet-section" aria-labelledby="ed-fatos">
+          <section class="geo-sheet-section" aria-labelledby="ed-fatos">
             <h2 id="ed-fatos"><i class="pi pi-info-circle" aria-hidden="true"></i> Ocorrência</h2>
-            <dl class="ces-sheet">
+            <dl class="geo-sheet">
               <div><dt>Quando</dt><dd>{{ e.ocorridoEm | date: "dd/MM/yyyy 'às' HH:mm" }}</dd></div>
               <div><dt>Veículo</dt>
                 <dd>
@@ -56,26 +56,26 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
                 <div><dt>Duração</dt><dd>{{ duracao(e.duracaoSegundos) }}</dd></div>
               }
               @if (e.endereco) {
-                <div class="ces-sheet__wide"><dt>Endereço</dt><dd>{{ e.endereco }}</dd></div>
+                <div class="geo-sheet__wide"><dt>Endereço</dt><dd>{{ e.endereco }}</dd></div>
               }
             </dl>
           </section>
 
-          <section class="ces-sheet-section" aria-labelledby="ed-condutor">
+          <section class="geo-sheet-section" aria-labelledby="ed-condutor">
             <h2 id="ed-condutor"><i class="pi pi-user" aria-hidden="true"></i> Condutor</h2>
             @if (e.condutor) {
-              <dl class="ces-sheet">
+              <dl class="geo-sheet">
                 <div><dt>Quem dirigia</dt><dd>{{ e.condutor }}</dd></div>
               </dl>
             } @else {
-              <ces-callout tone="warning" [dense]="true">
+              <geo-callout tone="warning" [dense]="true">
                 Não havia condutor vinculado ao veículo nesse horário. Ele passa a ser identificado quando a equipe faz o checklist do veículo.
-              </ces-callout>
+              </geo-callout>
             }
           </section>
         </div>
       }
-    </ces-drawer>
+    </geo-drawer>
   `
 })
 export class FrotaEventoTelemetriaDrawerComponent {

@@ -84,7 +84,7 @@ describe('FrotaOrdemServicoDetalheComponent', () => {
 
   it('quem só lê não vê ações de mudança', async () => {
     const { el } = await abrir();
-    const cabecalho = el.querySelector('ces-page-header')?.textContent ?? '';
+    const cabecalho = el.querySelector('geo-page-header')?.textContent ?? '';
     expect(cabecalho).not.toContain('Concluir');
     expect(cabecalho).not.toContain('Cancelar OS');
     expect(el.textContent).not.toContain('Liberar veículo');
@@ -93,7 +93,7 @@ describe('FrotaOrdemServicoDetalheComponent', () => {
   it('a oficina conclui e altera a previsão; a operação edita e cancela', async () => {
     permissoes = ['frota:os:read', 'frota:os:executar'];
     let tela = await abrir();
-    let cabecalho = tela.el.querySelector('ces-page-header')?.textContent ?? '';
+    let cabecalho = tela.el.querySelector('geo-page-header')?.textContent ?? '';
     expect(cabecalho).toContain('Concluir');
     expect(cabecalho).toContain('Alterar previsão');
     expect(cabecalho).not.toContain('Cancelar OS');
@@ -101,7 +101,7 @@ describe('FrotaOrdemServicoDetalheComponent', () => {
     TestBed.resetTestingModule();
     permissoes = ['frota:os:read', 'frota:os:write'];
     tela = await abrir();
-    cabecalho = tela.el.querySelector('ces-page-header')?.textContent ?? '';
+    cabecalho = tela.el.querySelector('geo-page-header')?.textContent ?? '';
     expect(cabecalho).toContain('Editar');
     expect(cabecalho).toContain('Cancelar OS');
     expect(cabecalho).not.toContain('Concluir');
@@ -111,7 +111,7 @@ describe('FrotaOrdemServicoDetalheComponent', () => {
     permissoes = ['frota:os:read', 'frota:os:write', 'frota:os:executar'];
     frota['detalharOrdemServico'] = vi.fn(() => of(detalhe({ situacao: 'CONCLUIDA', atrasada: false, paradaEmCurso: false })));
     const { el } = await abrir();
-    const cabecalho = el.querySelector('ces-page-header')?.textContent ?? '';
+    const cabecalho = el.querySelector('geo-page-header')?.textContent ?? '';
     expect(cabecalho).not.toContain('Concluir');
     expect(cabecalho).not.toContain('Editar');
   });

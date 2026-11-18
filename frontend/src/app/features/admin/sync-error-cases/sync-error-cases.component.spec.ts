@@ -12,7 +12,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UsuarioLookupService } from '../../../core/services/usuario-lookup.service';
 import { RhService } from '../../../core/services/rh.service';
 import { SyncErrorCaseDetail, SyncErrorCaseSummary } from '../../../core/models/sync-error.models';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 
 describe('SyncErrorCasesComponent', () => {
   let component: SyncErrorCasesComponent;
@@ -109,7 +109,7 @@ describe('SyncErrorCasesComponent', () => {
         { provide: MessageService, useValue: messageService },
         { provide: UsuarioLookupService, useValue: usuarioLookup },
         { provide: RhService, useValue: rhService },
-        { provide: CesConfirmationService, useValue: { confirm: () => Promise.resolve(true) } },
+        { provide: GeoConfirmationService, useValue: { confirm: () => Promise.resolve(true) } },
         {
           provide: SyncReferenceCatalogService,
           useValue: {

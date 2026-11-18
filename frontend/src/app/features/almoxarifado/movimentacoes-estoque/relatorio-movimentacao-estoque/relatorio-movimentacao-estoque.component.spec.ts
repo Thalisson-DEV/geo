@@ -5,7 +5,7 @@ import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 
-import { CesStatusComponent } from '@ces/ui';
+import { GeoStatusComponent } from '@geo/ui';
 import { RelatorioMovimentacaoEstoqueComponent } from './relatorio-movimentacao-estoque.component';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { RhService } from '../../../../core/services/rh.service';
@@ -135,7 +135,7 @@ describe('RelatorioMovimentacaoEstoqueComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [RelatorioMovimentacaoEstoqueComponent, CesStatusComponent],
+      imports: [RelatorioMovimentacaoEstoqueComponent, GeoStatusComponent],
       providers: [
         provideRouter([]),
         { provide: AlmoxarifadoService, useValue: almoxarifadoServiceMock },

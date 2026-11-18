@@ -8,32 +8,32 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
   padding: 0.75rem;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   line-height: 1.5;
 }
 
 .policy-notice--warning {
-  border-color: color-mix(in srgb, var(--ces-warning) 30%, transparent);
-  background: var(--ces-warning-soft);
-  color: var(--ces-warning);
+  border-color: color-mix(in srgb, var(--geo-warning) 30%, transparent);
+  background: var(--geo-warning-soft);
+  color: var(--geo-warning);
 }
 
 .policy-notice--info {
-  border-color: color-mix(in srgb, var(--ces-info) 30%, transparent);
-  background: var(--ces-info-soft);
-  color: var(--ces-info);
+  border-color: color-mix(in srgb, var(--geo-info) 30%, transparent);
+  background: var(--geo-info-soft);
+  color: var(--geo-info);
 }
 
 .policy-form-errors,
 .policy-inline-error {
-  border: 1px solid color-mix(in srgb, var(--ces-danger) 30%, transparent);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-danger-soft);
-  color: var(--ces-danger);
-  font-size: var(--ces-font-caption);
+  border: 1px solid color-mix(in srgb, var(--geo-danger) 30%, transparent);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-danger-soft);
+  color: var(--geo-danger);
+  font-size: var(--geo-font-caption);
 }
 
 .policy-form-errors {
@@ -51,14 +51,14 @@
 }
 
 .route-card {
-  border: 1px solid var(--ces-border);
+  border: 1px solid var(--geo-border);
   border-radius: 0.75rem;
-  background: var(--ces-surface);
+  background: var(--geo-surface);
   padding: 0.85rem;
 }
 
 .route-card--default {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .route-card__header {
@@ -80,7 +80,7 @@
   gap: 0.65rem;
   margin-top: 0.9rem;
   padding-top: 0.8rem;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .condition-row {
@@ -88,9 +88,9 @@
   grid-template-columns: minmax(9rem, 1fr) minmax(11rem, 1fr) minmax(12rem, 1.25fr) auto;
   align-items: end;
   gap: 0.65rem;
-  border: 1px solid var(--ces-border);
+  border: 1px solid var(--geo-border);
   border-radius: 0.65rem;
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
   padding: 0.7rem;
 }
 
@@ -98,12 +98,12 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  border: 1px solid var(--ces-border);
+  border: 1px solid var(--geo-border);
   border-radius: 0.65rem;
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
   padding: 0.75rem;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-caption);
 }
 
 .review-route__order {
@@ -113,15 +113,15 @@
   flex: 0 0 auto;
   place-items: center;
   border-radius: 999px;
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
   font-size: 0.625rem;
   font-weight: 800;
 }
 
 .review-route p {
   margin-top: 0.25rem;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.625rem;
 }
 
@@ -130,15 +130,15 @@
   gap: 0.2rem;
   margin: 0.4rem 0 0;
   padding-left: 1rem;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.625rem;
 }
 
 .review-route code {
   border-radius: 0.2rem;
-  background: var(--ces-surface);
+  background: var(--geo-surface);
   padding: 0.05rem 0.25rem;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-family: ui-monospace, monospace;
   font-size: 0.6rem;
 }
@@ -147,9 +147,9 @@
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--ces-brand) 30%, transparent);
+  border: 1px solid color-mix(in srgb, var(--geo-brand) 30%, transparent);
   border-radius: 0.75rem;
-  background: var(--ces-brand-soft);
+  background: var(--geo-brand-soft);
   padding: 1rem;
 }
 

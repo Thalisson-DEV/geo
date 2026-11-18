@@ -2,14 +2,14 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDrawerComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDrawerComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 
 import {
@@ -33,32 +33,32 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
   selector: 'app-frota-rastreador-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, RouterLink, CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesSelectComponent,
-    CesStatusComponent, FrotaMapaTelemetriaComponent],
+  imports: [DatePipe, DecimalPipe, RouterLink, GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoSelectComponent,
+    GeoStatusComponent, FrotaMapaTelemetriaComponent],
   styles: `
     .rd { display: grid; gap: 1rem; }
     .rd-topo { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .rd-vinculo { display: grid; gap: 0.5rem; padding: 0.875rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg);
-      background: var(--ces-surface-muted); }
-    .rd-vinculo p { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .rd-vinculo { display: grid; gap: 0.5rem; padding: 0.875rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg);
+      background: var(--geo-surface-muted); }
+    .rd-vinculo p { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
   `,
   template: `
-    <ces-drawer [(visible)]="visivel" eyebrow="Rastreador" [title]="titulo()" size="md">
+    <geo-drawer [(visible)]="visivel" eyebrow="Rastreador" [title]="titulo()" size="md">
       @if (rastreador(); as r) {
         <div class="rd">
           <div class="rd-topo">
-            <ces-status [tone]="tom[r.situacao]" emphasis="solid">{{ r.situacaoRotulo }}</ces-status>
-            <ces-status tone="neutral" icon="pi pi-wifi">{{ r.provedorRotulo }}</ces-status>
-            @if (r.vinculoManual) { <ces-status tone="info" icon="pi pi-link">Vínculo manual</ces-status> }
-            @if (r.semComunicacao) { <ces-status tone="warning" icon="pi pi-exclamation-triangle">Sem comunicação há mais de 24 h</ces-status> }
+            <geo-status [tone]="tom[r.situacao]" emphasis="solid">{{ r.situacaoRotulo }}</geo-status>
+            <geo-status tone="neutral" icon="pi pi-wifi">{{ r.provedorRotulo }}</geo-status>
+            @if (r.vinculoManual) { <geo-status tone="info" icon="pi pi-link">Vínculo manual</geo-status> }
+            @if (r.semComunicacao) { <geo-status tone="warning" icon="pi pi-exclamation-triangle">Sem comunicação há mais de 24 h</geo-status> }
           </div>
 
           <app-frota-mapa-telemetria [marcadores]="marcadores()" [descricao]="'Última posição de ' + titulo()"
             vazio="O provedor ainda não mandou posição deste rastreador."></app-frota-mapa-telemetria>
 
-          <section class="ces-sheet-section" aria-labelledby="rd-estado">
+          <section class="geo-sheet-section" aria-labelledby="rd-estado">
             <h2 id="rd-estado"><i class="pi pi-wave-pulse" aria-hidden="true"></i> Último estado</h2>
-            <dl class="ces-sheet">
+            <dl class="geo-sheet">
               <div><dt>Comunicação</dt><dd>{{ r.ultimaComunicacao ? (r.ultimaComunicacao | date: 'dd/MM/yyyy HH:mm') + ' · ' + quanto(r.ultimaComunicacao) : 'Nunca' }}</dd></div>
               <div><dt>Velocidade</dt><dd>{{ r.velocidadeKmh != null ? (r.velocidadeKmh | number: '1.0-0') + ' km/h' : '—' }}</dd></div>
               <div><dt>Ignição</dt><dd>{{ r.ignicao == null ? 'Não informada' : r.ignicao ? 'Ligada' : 'Desligada' }}</dd></div>
@@ -66,14 +66,14 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
               @if (r.horimetroHoras != null) {
                 <div><dt>Horímetro</dt><dd>{{ r.horimetroHoras | number: '1.0-1' }} h</dd></div>
               }
-              <div class="ces-sheet__wide"><dt>Motorista informado</dt>
+              <div class="geo-sheet__wide"><dt>Motorista informado</dt>
                 <dd>{{ r.motoristaNome ?? 'Nenhum' }}{{ r.condutor ? ' · condutor ' + r.condutor : r.motoristaNome ? ' · não casou com um condutor da frota' : '' }}</dd></div>
             </dl>
           </section>
 
-          <section class="ces-sheet-section" aria-labelledby="rd-provedor">
+          <section class="geo-sheet-section" aria-labelledby="rd-provedor">
             <h2 id="rd-provedor"><i class="pi pi-server" aria-hidden="true"></i> No provedor</h2>
-            <dl class="ces-sheet">
+            <dl class="geo-sheet">
               <div><dt>Placa</dt><dd>{{ r.placaProvedor ?? '—' }}</dd></div>
               <div><dt>Nome</dt><dd>{{ r.nomeProvedor ?? '—' }}</dd></div>
               <div><dt>Id do rastreador</dt><dd>{{ r.idExterno }}</dd></div>
@@ -89,7 +89,7 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
 
           @if (acesso.editarTelemetria()) {
             <section class="rd-vinculo" aria-labelledby="rd-vinculo">
-              <h2 id="rd-vinculo" class="ces-sr-only">Vínculo</h2>
+              <h2 id="rd-vinculo" class="geo-sr-only">Vínculo</h2>
               @switch (r.situacao) {
                 @case ('IGNORADO') {
                   <p>Ignorado: a frota não usa os dados deste rastreador. Reative para voltar ao casamento pela placa.</p>
@@ -102,37 +102,37 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
                 }
               }
               @if (r.situacao !== 'IGNORADO') {
-                <ces-select label="Veículo" [options]="opcoesVeiculos()" [(value)]="idVeiculo" [filter]="true" [loading]="carregandoVeiculos()"
-                  placeholder="Escolha o veículo"></ces-select>
+                <geo-select label="Veículo" [options]="opcoesVeiculos()" [(value)]="idVeiculo" [filter]="true" [loading]="carregandoVeiculos()"
+                  placeholder="Escolha o veículo"></geo-select>
               }
             </section>
           }
 
           @if (erroAcao()) {
-            <ces-callout tone="danger" [dense]="true">{{ erroAcao() }}</ces-callout>
+            <geo-callout tone="danger" [dense]="true">{{ erroAcao() }}</geo-callout>
           }
         </div>
       }
 
-      <div drawer-footer class="ces-actions-row">
+      <div drawer-footer class="geo-actions-row">
         @if (rastreador(); as r) {
           @if (acesso.editarTelemetria()) {
             @if (r.situacao === 'IGNORADO') {
-              <ces-button icon="pi pi-replay" label="Reativar" [loading]="processando()" (pressed)="agir(servico.reativar(r.id), 'Rastreador reativado.')"></ces-button>
+              <geo-button icon="pi pi-replay" label="Reativar" [loading]="processando()" (pressed)="agir(servico.reativar(r.id), 'Rastreador reativado.')"></geo-button>
             } @else {
-              <ces-button variant="ghost" icon="pi pi-eye-slash" label="Ignorar" [disabled]="processando()"
-                (pressed)="agir(servico.ignorar(r.id), 'Rastreador ignorado.')"></ces-button>
+              <geo-button variant="ghost" icon="pi pi-eye-slash" label="Ignorar" [disabled]="processando()"
+                (pressed)="agir(servico.ignorar(r.id), 'Rastreador ignorado.')"></geo-button>
               @if (r.vinculoManual) {
-                <ces-button variant="outline" icon="pi pi-undo" label="Desfazer vínculo manual" [disabled]="processando()"
-                  (pressed)="agir(servico.desfazerVinculo(r.id), 'Vínculo desfeito. A placa volta a decidir na próxima sincronização.')"></ces-button>
+                <geo-button variant="outline" icon="pi pi-undo" label="Desfazer vínculo manual" [disabled]="processando()"
+                  (pressed)="agir(servico.desfazerVinculo(r.id), 'Vínculo desfeito. A placa volta a decidir na próxima sincronização.')"></geo-button>
               }
-              <ces-button icon="pi pi-link" label="Vincular" [loading]="processando()" [disabled]="!idVeiculo() || idVeiculo() === r.idVeiculo"
-                (pressed)="agir(servico.vincular(r.id, idVeiculo()!), 'Rastreador vinculado a ' + rotuloVeiculo() + '.')"></ces-button>
+              <geo-button icon="pi pi-link" label="Vincular" [loading]="processando()" [disabled]="!idVeiculo() || idVeiculo() === r.idVeiculo"
+                (pressed)="agir(servico.vincular(r.id, idVeiculo()!), 'Rastreador vinculado a ' + rotuloVeiculo() + '.')"></geo-button>
             }
           }
         }
       </div>
-    </ces-drawer>
+    </geo-drawer>
   `
 })
 export class FrotaRastreadorDrawerComponent {
@@ -153,7 +153,7 @@ export class FrotaRastreadorDrawerComponent {
   protected readonly processando = signal(false);
   protected readonly erroAcao = signal<string | null>(null);
   protected readonly carregandoVeiculos = signal(false);
-  protected readonly opcoesVeiculos = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesVeiculos = signal<GeoSelectOption<string>[]>([]);
 
   protected readonly titulo = computed(() => {
     const r = this.rastreador();

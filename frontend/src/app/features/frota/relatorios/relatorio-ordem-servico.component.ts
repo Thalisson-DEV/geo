@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CesAsyncStateComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
@@ -54,7 +54,7 @@ const ROTULO_CAUSA: Record<CausaManutencao, string> = {
   SUBSTITUICAO_PNEUS: 'Substituição de pneus'
 };
 
-const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
+const EVENTO: Record<string, { icone: string; tom: GeoTone }> = {
   ABERTA: { icone: 'pi-plus', tom: 'brand' },
   EDITADA: { icone: 'pi-pencil', tom: 'neutral' },
   AGENDADA: { icone: 'pi-calendar', tom: 'info' },
@@ -83,8 +83,8 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoStatusComponent,
     AnalisarComCopilotoComponent,
     FrotaRelatorioAnaliseIaComponent,
     FrotaRelatorioCabecalhoComponent,
@@ -95,16 +95,16 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
   template: `
     @if (carregando()) {
       <div class="rel-estado">
-        <ces-async-state state="loading" title="Carregando a ordem de serviço..." description="Consultando execução, orçamentos e notas."></ces-async-state>
+        <geo-async-state state="loading" title="Carregando a ordem de serviço..." description="Consultando execução, orçamentos e notas."></geo-async-state>
       </div>
     } @else if (erro()) {
       <div class="rel-estado">
-        <ces-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></ces-async-state>
+        <geo-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as d) {
       <article class="rel">
         <app-frota-relatorio-cabecalho area="Manutenção" [titulo]="'Ordem de Serviço Nº ' + d.ordem.numero">
-          <ces-status [tone]="tomSituacao[d.ordem.situacao]">{{ rotuloSituacao[d.ordem.situacao] }}</ces-status>
+          <geo-status [tone]="tomSituacao[d.ordem.situacao]">{{ rotuloSituacao[d.ordem.situacao] }}</geo-status>
           <span>·</span>
           <span><strong>{{ rotuloTipo[d.ordem.tipoManutencao] }}</strong></span>
           <span>·</span>
@@ -121,10 +121,10 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
             <div class="kv"><span class="kv-l">Base</span><span class="kv-v">{{ d.ordem.base ?? '—' }}</span></div>
             <div class="kv"><span class="kv-l">Origem</span><span class="kv-v">{{ rotuloOrigem[d.ordem.origem] }}</span></div>
             <div class="kv"><span class="kv-l">Criticidade</span>
-              <ces-status [tone]="tomCriticidade[d.ordem.criticidade]" emphasis="outline">{{ rotuloCriticidade[d.ordem.criticidade] }}</ces-status></div>
+              <geo-status [tone]="tomCriticidade[d.ordem.criticidade]" emphasis="outline">{{ rotuloCriticidade[d.ordem.criticidade] }}</geo-status></div>
             <div class="kv"><span class="kv-l">Motivo</span><span class="kv-v">{{ d.ordem.motivo ? rotuloMotivo[d.ordem.motivo] : '—' }}</span></div>
             <div class="kv"><span class="kv-l">Orçamento</span>
-              <ces-status [tone]="tomAprovacao[d.ordem.situacaoAprovacao]">{{ rotuloAprovacao[d.ordem.situacaoAprovacao] }}</ces-status></div>
+              <geo-status [tone]="tomAprovacao[d.ordem.situacaoAprovacao]">{{ rotuloAprovacao[d.ordem.situacaoAprovacao] }}</geo-status></div>
           </div>
 
           <div class="rel-dados__grupo">
@@ -194,7 +194,7 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
                       <td>{{ i.naturezaRotulo }}</td>
                       <td>
                         @if (i.repeticao; as r) {
-                          <ces-status tone="warning" icon="pi pi-replay">Repetida</ces-status>
+                          <geo-status tone="warning" icon="pi pi-replay">Repetida</geo-status>
                           <span class="rel-tabela__sub">OS {{ r.numeroOsAnterior }} há {{ r.diasDesdeAnterior }} dias (janela de {{ r.janelaDias }})</span>
                         } @else {
                           —
@@ -292,7 +292,7 @@ const EVENTO: Record<string, { icone: string; tom: CesTone }> = {
                       <td><strong>{{ o.tipo === 'COMPRA' ? 'Compra' : 'Pagamento' }} Nº {{ o.numero }}</strong>
                         <span class="rel-tabela__sub">{{ (o.dataSubmissao | date: 'dd/MM/yyyy') || 'Rascunho' }}</span></td>
                       <td>{{ o.fornecedor ?? '—' }}</td>
-                      <td><ces-status [tone]="tomFinanceiro[o.status]">{{ rotuloFinanceiro[o.status] }}</ces-status>
+                      <td><geo-status [tone]="tomFinanceiro[o.status]">{{ rotuloFinanceiro[o.status] }}</geo-status>
                         @if (o.motivoRejeicao) {<span class="rel-tabela__sub">{{ o.motivoRejeicao }}</span>}</td>
                       <td class="num">{{ moeda(o.valor) }}</td>
                       <td class="num">{{ moeda(o.valorAprovado) }}</td>

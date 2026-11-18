@@ -24,15 +24,15 @@ class RateLimitPropertiesTest {
     @Test
     void vinculaAConfiguracaoDoYamlPeloConstrutorDoRecord() {
         var fonte = new org.springframework.boot.context.properties.source.MapConfigurationPropertySource(Map.of(
-                "ces.rate-limit.modo-padrao", "ATIVO",
-                "ces.rate-limit.timeout-armazem", "PT0.2S",
-                "ces.rate-limit.politicas.login-ip.capacidade", "5",
-                "ces.rate-limit.politicas.login-ip.periodo", "PT2M",
-                "ces.rate-limit.politicas.login-ip.modo", "SOMBRA",
-                "ces.rate-limit.politicas.login-ip.falha-armazem", "LOCAL"));
+                "geo.rate-limit.modo-padrao", "ATIVO",
+                "geo.rate-limit.timeout-armazem", "PT0.2S",
+                "geo.rate-limit.politicas.login-ip.capacidade", "5",
+                "geo.rate-limit.politicas.login-ip.periodo", "PT2M",
+                "geo.rate-limit.politicas.login-ip.modo", "SOMBRA",
+                "geo.rate-limit.politicas.login-ip.falha-armazem", "LOCAL"));
 
         RateLimitProperties propriedades = new org.springframework.boot.context.properties.bind.Binder(fonte)
-                .bind("ces.rate-limit", RateLimitProperties.class).get();
+                .bind("geo.rate-limit", RateLimitProperties.class).get();
 
         assertThat(propriedades.modoPadrao()).isEqualTo(ModoRateLimit.ATIVO);
         assertThat(propriedades.timeoutArmazem()).isEqualTo(Duration.ofMillis(200));

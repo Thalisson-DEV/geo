@@ -53,7 +53,7 @@ public class NosSst implements ProvedorNos {
     @Override
     public Collection<EspecNo> nos() {
         List<EspecNo> nos = new ArrayList<>();
-        nos.add(EspecNo.de("ces.sst_goals", "ces", "Metas de inspeção da semana",
+        nos.add(EspecNo.de("geo.sst_goals", "geo", "Metas de inspeção da semana",
                         "O acompanhamento das metas de inspeção pronto para o e-mail: execução, pódio (1º a 3º), ranking por processo, "
                                 + "por base e por pessoa, o que cada um lançou na semana passada e, na virada do período, como o anterior fechou.",
                         "gauge")
@@ -72,7 +72,7 @@ public class NosSst implements ProvedorNos {
                 .executor(this::metas)
                 .palavras("sst", "meta", "metas", "inspeção", "inspeções", "ranking", "pódio", "segurança", "semanal")
                 .criar());
-        nos.add(EspecNo.de("ces.sst_open_deviations", "ces", "Desvios em aberto",
+        nos.add(EspecNo.de("geo.sst_open_deviations", "geo", "Desvios em aberto",
                         "Os desvios de segurança ainda não resolvidos: o resumo da gestão por processo, base e inspetor e, "
                                 + "para cada inspetor com pendência, o e-mail com os desvios dele (use 'Para cada' na lista de inspetores).",
                         "alert")

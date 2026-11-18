@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { of } from 'rxjs';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { SolicitacaoPendenciasComponent } from './solicitacao-pendencias.component';
 

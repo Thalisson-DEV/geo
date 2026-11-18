@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   SituacaoDocumental,
   SituacaoGrupoComparativo,
@@ -9,7 +9,7 @@ import { EtapaEvidencia, EvidenciaPonto, PontoDocumentacao } from '../../../core
 
 export interface Aparencia {
   label: string;
-  tone: CesTone;
+  tone: GeoTone;
   icon: string;
 }
 

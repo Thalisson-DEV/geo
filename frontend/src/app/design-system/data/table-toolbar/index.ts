@@ -1,1 +1,1 @@
-export * from './ces-table-toolbar.component';
+export * from './geo-table-toolbar.component';

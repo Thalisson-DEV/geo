@@ -1,5 +1,5 @@
 import { map } from 'rxjs';
-import { CesDataTableColumn } from '@ces/ui';
+import { GeoDataTableColumn } from '@geo/ui';
 import { NotaDoRecorte, NotasDoRecorteFiltros, ProducaoPorTipoServico } from '../../../../core/models/dashboard.models';
 import { DashboardService } from '../../../../core/services/dashboard.service';
 import {
@@ -74,7 +74,7 @@ export function fatia(parte: number, total: number): number {
   return total > 0 ? Math.round((parte / total) * 1000) / 10 : 0;
 }
 
-export function colunasNotas(opcoes: { equipe?: boolean } = {}): CesDataTableColumn<NotaDoRecorte>[] {
+export function colunasNotas(opcoes: { equipe?: boolean } = {}): GeoDataTableColumn<NotaDoRecorte>[] {
   return [
     {
       key: 'dataLancamento',

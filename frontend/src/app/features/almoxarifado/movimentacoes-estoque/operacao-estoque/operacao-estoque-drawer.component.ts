@@ -5,18 +5,18 @@ import { paraUnidadeBase } from '../../shared/unidade-material';
 import { ChangeDetectionStrategy, Component, DestroyRef, Injector, afterNextRender, computed, effect, inject, input, model, output, signal, untracked, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesConfirmationService,
-  CesDialogShellComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextareaComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoConfirmationService,
+  GeoDialogShellComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 
 import { RemoteLookup } from '../../../../core/lookup/store/remote-lookup';
@@ -71,7 +71,7 @@ const TEXTOS: Record<TipoOperacaoEstoque, { titulo: string; descricao: string; a
     sucesso: 'Transferência registrada.'
   }
 };
-const CONDICOES: CesSelectOption<Condicao>[] = [
+const CONDICOES: GeoSelectOption<Condicao>[] = [
   { label: 'Novo', value: 'NOVO' },
   { label: 'Sucata', value: 'SUCATA' }
 ];
@@ -86,14 +86,14 @@ const TAMANHO_OBSERVACAO = 1000;
     QuantidadeUnidadeComponent,
     DecimalPipe,
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesDialogShellComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextareaComponent,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoDialogShellComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent,
     SolicitacaoTecnicaAssinaturaComponent
   ],
   styleUrl: '../../solicitacoes-material/nova-solicitacao/nova-solicitacao.css',
@@ -102,16 +102,16 @@ const TAMANHO_OBSERVACAO = 1000;
     .op-estoques--dois { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: end; }
     .op-inverter { padding-bottom: 0.25rem; }
     .op-acoes { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .op-item + .op-item { border-top: 1px solid var(--ces-border); }
+    .op-item + .op-item { border-top: 1px solid var(--geo-border); }
     .op-item .ns-item { grid-template-columns: minmax(0, 1fr) minmax(9.5rem, auto) auto; }
     .op-qtd-unidade { max-width: 15rem; }
-    .op-item--erro { box-shadow: inset 3px 0 0 var(--ces-danger); }
+    .op-item--erro { box-shadow: inset 3px 0 0 var(--geo-danger); }
     .op-saldo { display: inline-flex; align-items: center; gap: 0.25rem; font-variant-numeric: tabular-nums; }
     .op-saldo .pi { font-size: 0.625rem; }
-    .op-saldo strong { color: var(--ces-foreground); }
-    .op-qtd { font-size: var(--ces-font-control); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
-    .op-erro { margin: 0; padding: 0 0.875rem 0.75rem; font-size: var(--ces-font-caption); color: var(--ces-danger-text, var(--ces-danger)); }
-    .op-series { display: grid; gap: 0.625rem; padding: 0.75rem 0.875rem; border-top: 1px dashed var(--ces-border); background: var(--ces-surface-subtle); }
+    .op-saldo strong { color: var(--geo-foreground); }
+    .op-qtd { font-size: var(--geo-font-control); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+    .op-erro { margin: 0; padding: 0 0.875rem 0.75rem; font-size: var(--geo-font-caption); color: var(--geo-danger-text, var(--geo-danger)); }
+    .op-series { display: grid; gap: 0.625rem; padding: 0.75rem 0.875rem; border-top: 1px dashed var(--geo-border); background: var(--geo-surface-subtle); }
     .op-series__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
     .op-chips { display: flex; flex-wrap: wrap; gap: 0.375rem; max-height: 10rem; overflow-y: auto; }
     .op-chips .pi { font-size: 0.7rem; }
@@ -123,7 +123,7 @@ const TAMANHO_OBSERVACAO = 1000;
     }
   `,
   template: `
-    <ces-form-drawer #drawer [visible]="visible()" (visibleChange)="visible.set($event)" [title]="textos().titulo" [description]="textos().descricao"
+    <geo-form-drawer #drawer [visible]="visible()" (visibleChange)="visible.set($event)" [title]="textos().titulo" [description]="textos().descricao"
       size="lg" [resizable]="true" [dirty]="alterado()" discardMessage="Os materiais e dados desta operação serão perdidos.">
       <div class="ns">
         <section class="ns-secao" aria-labelledby="op-estoque">
@@ -131,16 +131,16 @@ const TAMANHO_OBSERVACAO = 1000;
           <div class="ns-cartao">
             <div class="op-estoques" [class.op-estoques--dois]="tipo() === 'TRANSFERENCIA'">
               @if (tipo() !== 'ENTRADA') {
-                <ces-select [label]="tipo() === 'BAIXA' ? 'Estoque' : 'Estoque de origem'" placeholder="Selecione" [options]="opcoesEstoque()" [value]="idOrigem()"
+                <geo-select [label]="tipo() === 'BAIXA' ? 'Estoque' : 'Estoque de origem'" placeholder="Selecione" [options]="opcoesEstoque()" [value]="idOrigem()"
                   (valueChange)="trocarOrigem($event)" [filter]="true" [required]="true" [error]="tentou() && !idOrigem() ? 'Escolha o estoque.' : undefined" />
               }
               @if (tipo() === 'TRANSFERENCIA') {
                 <span class="op-inverter">
-                  <ces-icon-button icon="pi pi-arrow-right-arrow-left" label="Inverter origem e destino" tooltip="Inverter origem e destino" [disabled]="!idOrigem() || !idDestino()" (pressed)="inverter()" />
+                  <geo-icon-button icon="pi pi-arrow-right-arrow-left" label="Inverter origem e destino" tooltip="Inverter origem e destino" [disabled]="!idOrigem() || !idDestino()" (pressed)="inverter()" />
                 </span>
               }
               @if (tipo() !== 'BAIXA') {
-                <ces-select [label]="tipo() === 'ENTRADA' ? 'Estoque' : 'Estoque de destino'" placeholder="Selecione" [options]="opcoesDestino()" [value]="idDestino()"
+                <geo-select [label]="tipo() === 'ENTRADA' ? 'Estoque' : 'Estoque de destino'" placeholder="Selecione" [options]="opcoesDestino()" [value]="idDestino()"
                   (valueChange)="idDestino.set($event)" [filter]="true" [required]="true" [error]="tentou() && !idDestino() ? 'Escolha o estoque.' : undefined" />
               }
             </div>
@@ -152,17 +152,17 @@ const TAMANHO_OBSERVACAO = 1000;
             <h3 id="op-materiais" class="ns-secao__titulo"><i class="pi pi-box" aria-hidden="true"></i>Materiais</h3>
             <span class="op-acoes">
               @if (tipo() === 'TRANSFERENCIA') {
-                <ces-button label="Transferir tudo" icon="pi pi-clone" variant="outline" size="sm" [disabled]="!opcoesSaldo().length" (pressed)="transferirTudo()" />
+                <geo-button label="Transferir tudo" icon="pi pi-clone" variant="outline" size="sm" [disabled]="!opcoesSaldo().length" (pressed)="transferirTudo()" />
               }
-              <ces-button label="Importar planilha" icon="pi pi-upload" variant="ghost" size="sm" (pressed)="importar.emit()" />
+              <geo-button label="Importar planilha" icon="pi pi-upload" variant="ghost" size="sm" (pressed)="importar.emit()" />
             </span>
           </div>
 
           @if (tipo() === 'ENTRADA') {
-            <ces-autocomplete label="Incluir material" placeholder="Digite o código ou a descrição" [options]="busca.items()" [ngModel]="escolhido()" (ngModelChange)="escolherMaterial($event)"
-              [loading]="busca.loading() || buscandoMaterial()" [status]="busca.status()" [minLength]="2" [clearable]="true" (search)="busca.search($event)" (loadMore)="busca.loadNext()" (retry)="busca.retry()"></ces-autocomplete>
+            <geo-autocomplete label="Incluir material" placeholder="Digite o código ou a descrição" [options]="busca.items()" [ngModel]="escolhido()" (ngModelChange)="escolherMaterial($event)"
+              [loading]="busca.loading() || buscandoMaterial()" [status]="busca.status()" [minLength]="2" [clearable]="true" (search)="busca.search($event)" (loadMore)="busca.loadNext()" (retry)="busca.retry()"></geo-autocomplete>
           } @else {
-            <ces-select label="Incluir material" [placeholder]="idOrigem() ? 'Buscar no saldo do estoque' : 'Escolha o estoque primeiro'" [options]="opcoesSaldo()" [value]="escolhido()"
+            <geo-select label="Incluir material" [placeholder]="idOrigem() ? 'Buscar no saldo do estoque' : 'Escolha o estoque primeiro'" [options]="opcoesSaldo()" [value]="escolhido()"
               (valueChange)="escolherSaldo($event)" [filter]="true" [loading]="carregandoSaldos()" [disabled]="!idOrigem()"
               [description]="idOrigem() && !carregandoSaldos() && !saldos().length ? 'Este estoque não tem saldo.' : undefined" />
           }
@@ -177,7 +177,7 @@ const TAMANHO_OBSERVACAO = 1000;
                       <span class="ns-item__meta">
                         <span>{{ linha.material.codigo }} · {{ unidade(linha) }}</span>
                         @if (tipo() !== 'ENTRADA') {
-                          <ces-status [tone]="tomCondicao(linha.condicao)" [icon]="iconeCondicao(linha.condicao)">{{ rotuloCondicao(linha.condicao) }}</ces-status>
+                          <geo-status [tone]="tomCondicao(linha.condicao)" [icon]="iconeCondicao(linha.condicao)">{{ rotuloCondicao(linha.condicao) }}</geo-status>
                         }
                         <span class="op-saldo" [class.ns-item__saldo--falta]="acimaDoSaldo(linha)">
                           Saldo {{ saldo(linha) | number: '1.0-3' }} <i class="pi pi-arrow-right" aria-label="fica"></i> <strong>{{ saldoDepois(linha) | number: '1.0-3' }}</strong>
@@ -199,7 +199,7 @@ const TAMANHO_OBSERVACAO = 1000;
                         [unidade]="linha.unidade ?? null" (unidadeChange)="alterar(linha, { unidade: $event })"
                         [error]="tentou() && !(quantidade(linha) > 0) ? 'Informe a quantidade.' : undefined" />
                     }
-                    <ces-icon-button icon="pi pi-trash" [label]="'Tirar ' + linha.material.codigo + ' da operação'" tooltip="Tirar da operação" size="icon-sm" (pressed)="remover(linha)" />
+                    <geo-icon-button icon="pi pi-trash" [label]="'Tirar ' + linha.material.codigo + ' da operação'" tooltip="Tirar da operação" size="icon-sm" (pressed)="remover(linha)" />
                   </div>
                   @if (acimaDoSaldo(linha)) {
                     <p class="op-erro" role="alert">A quantidade passa do saldo disponível.</p>
@@ -220,7 +220,7 @@ const TAMANHO_OBSERVACAO = 1000;
                       } @else {
                         <div class="op-series__topo">
                           <span class="ns-secao__dica"><strong>{{ linha.series.length }}</strong> de {{ disponiveis(linha).length }} {{ disponiveis(linha).length === 1 ? 'série' : 'séries' }}</span>
-                          <ces-button [label]="linha.series.length === disponiveis(linha).length ? 'Limpar' : 'Marcar todas'" variant="ghost" size="sm" [disabled]="!disponiveis(linha).length" (pressed)="marcarTodas(linha)" />
+                          <geo-button [label]="linha.series.length === disponiveis(linha).length ? 'Limpar' : 'Marcar todas'" variant="ghost" size="sm" [disabled]="!disponiveis(linha).length" (pressed)="marcarTodas(linha)" />
                         </div>
                         <div class="op-chips" role="group" [attr.aria-label]="'Séries de ' + linha.material.codigo">
                           @for (serie of disponiveis(linha); track serie) {
@@ -231,9 +231,9 @@ const TAMANHO_OBSERVACAO = 1000;
                         </div>
                       }
                       <div class="op-colar">
-                        <ces-textarea [label]="tipo() === 'ENTRADA' ? 'Números de série' : 'Colar séries'" [rows]="2" placeholder="Uma por linha, ou separadas por vírgula" [value]="textoSeries()[linha.chave] ?? ''" (valueChange)="digitarSeries(linha, $event)"
+                        <geo-textarea [label]="tipo() === 'ENTRADA' ? 'Números de série' : 'Colar séries'" [rows]="2" placeholder="Uma por linha, ou separadas por vírgula" [value]="textoSeries()[linha.chave] ?? ''" (valueChange)="digitarSeries(linha, $event)"
                           [error]="tentou() && !linha.series.length ? 'Informe ao menos uma série.' : undefined" />
-                        <ces-button [label]="tipo() === 'ENTRADA' ? 'Incluir' : 'Marcar'" icon="pi pi-plus" variant="outline" [disabled]="!(textoSeries()[linha.chave] ?? '').trim()" (pressed)="incluirSeries(linha)" />
+                        <geo-button [label]="tipo() === 'ENTRADA' ? 'Incluir' : 'Marcar'" icon="pi pi-plus" variant="outline" [disabled]="!(textoSeries()[linha.chave] ?? '').trim()" (pressed)="incluirSeries(linha)" />
                       </div>
                     </div>
                   }
@@ -252,10 +252,10 @@ const TAMANHO_OBSERVACAO = 1000;
           <h3 id="op-motivo" class="ns-secao__titulo"><i class="pi pi-comment" aria-hidden="true"></i>{{ tipo() === 'TRANSFERENCIA' ? 'Observação' : 'Motivo e observação' }}</h3>
           <div class="ns-cartao">
             @if (tipo() !== 'TRANSFERENCIA') {
-              <ces-select label="Motivo" placeholder="Selecione" [options]="motivos()" [value]="motivo()" (valueChange)="motivo.set($event)" [required]="true"
+              <geo-select label="Motivo" placeholder="Selecione" [options]="motivos()" [value]="motivo()" (valueChange)="motivo.set($event)" [required]="true"
                 [error]="tentou() && !motivo() ? 'Escolha o motivo.' : undefined" />
             }
-            <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="tamanhoObservacao" [required]="tipo() === 'BAIXA'"
+            <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="tamanhoObservacao" [required]="tipo() === 'BAIXA'"
               [placeholder]="tipo() === 'BAIXA' ? 'O que aconteceu com o material' : 'Nota fiscal, processo ou outro detalhe'"
               [error]="tentou() && tipo() === 'BAIXA' && !observacao().trim() ? 'Conte o que aconteceu com o material.' : undefined" />
           </div>
@@ -269,35 +269,35 @@ const TAMANHO_OBSERVACAO = 1000;
           }
         </span>
         <span class="ns-rodape__acoes">
-          <ces-button label="Cancelar" variant="ghost" (pressed)="drawer.requestClose()" />
-          <ces-button label="Registrar e fazer outra" variant="outline" [disabled]="!linhas().length || salvando()" (pressed)="registrar(true)" />
-          <ces-button [label]="textos().acao" icon="pi pi-check-circle" [loading]="salvando()" [disabled]="!linhas().length" (pressed)="registrar(false)" />
+          <geo-button label="Cancelar" variant="ghost" (pressed)="drawer.requestClose()" />
+          <geo-button label="Registrar e fazer outra" variant="outline" [disabled]="!linhas().length || salvando()" (pressed)="registrar(true)" />
+          <geo-button [label]="textos().acao" icon="pi pi-check-circle" [loading]="salvando()" [disabled]="!linhas().length" (pressed)="registrar(false)" />
         </span>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-dialog-shell title="Assinaturas da transferência" size="md" [visible]="assinando()" (visibleChange)="assinando.set($event)">
+    <geo-dialog-shell title="Assinaturas da transferência" size="md" [visible]="assinando()" (visibleChange)="assinando.set($event)">
       @if (assinando()) {
         <div class="op-assinaturas">
           <app-solicitacao-tecnica-assinatura label="Quem entrega" [value]="assinaturaEntregador()" (valueChanged)="assinaturaEntregador.set($event)" />
           <app-solicitacao-tecnica-assinatura label="Quem recebe" [value]="assinaturaRecebedor()" (valueChanged)="assinaturaRecebedor.set($event)" />
         </div>
       }
-      <div dialog-footer class="ces-actions-row">
-        <ces-button label="Voltar" variant="ghost" size="sm" (pressed)="assinando.set(false)" />
-        <ces-button label="Confirmar transferência" icon="pi pi-check-circle" size="sm" [loading]="salvando()" [disabled]="!assinaturaEntregador() || !assinaturaRecebedor()" (pressed)="enviar()" />
+      <div dialog-footer class="geo-actions-row">
+        <geo-button label="Voltar" variant="ghost" size="sm" (pressed)="assinando.set(false)" />
+        <geo-button label="Confirmar transferência" icon="pi pi-check-circle" size="sm" [loading]="salvando()" [disabled]="!assinaturaEntregador() || !assinaturaRecebedor()" (pressed)="enviar()" />
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `
 })
 export class OperacaoEstoqueDrawerComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
   private readonly lookupStore = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
-  private readonly drawer = viewChild(CesFormDrawerComponent);
+  private readonly drawer = viewChild(GeoFormDrawerComponent);
 
   readonly visible = model(false);
   readonly tipo = input<TipoOperacaoEstoque>('ENTRADA');
@@ -367,12 +367,12 @@ export class OperacaoEstoqueDrawerComponent {
 
   protected readonly textos = computed(() => TEXTOS[this.tipo()]);
   protected readonly motivos = computed(() => (this.tipo() === 'BAIXA' ? MOTIVOS_BAIXA : MOTIVOS_ENTRADA));
-  protected readonly opcoesEstoque = computed<CesSelectOption<string>[]>(() => this.estoques().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
+  protected readonly opcoesEstoque = computed<GeoSelectOption<string>[]>(() => this.estoques().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
   protected readonly opcoesDestino = computed(() => this.opcoesEstoque().filter((o) => this.tipo() !== 'TRANSFERENCIA' || o.value !== this.idOrigem()));
   /** O saldo mostrado é o do estoque que perde (baixa e transferência) ou ganha (entrada) material. */
   private readonly idEstoqueDoSaldo = computed(() => (this.tipo() === 'ENTRADA' ? this.idDestino() : this.idOrigem()));
   /** Saldos com quantidade que ainda não estão na operação. */
-  protected readonly opcoesSaldo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesSaldo = computed<GeoSelectOption<string>[]>(() =>
     this.saldos()
       .filter((s) => s.quantidade > 0 && !this.temLinha(s.material.id, condicaoDe(s)))
       .map((s) => ({ label: `${s.material.codigo} — ${s.material.descricao} · ${rotuloCondicao(s.condicao)} · saldo ${formatar(s.quantidade)}`, value: s.id }))

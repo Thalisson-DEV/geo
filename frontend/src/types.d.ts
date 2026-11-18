@@ -1,6 +1,6 @@
-interface CesRuntimeConfig {
+interface GeoRuntimeConfig {
   readonly statusPageUrl?: string;
   readonly statusPublicApiUrl?: string;
 }
 
-declare var __CES_CONFIG__: CesRuntimeConfig | undefined;
+declare var __GEO_CONFIG__: GeoRuntimeConfig | undefined;

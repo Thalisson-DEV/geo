@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
-import { NotificationService } from '@ces/ui/feedback';
+import { NotificationService } from '@geo/ui/feedback';
 import { AssistenteService } from '../../../core/services/assistente.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CopilotoDashboardContext } from '../contexto/copiloto-contexto';

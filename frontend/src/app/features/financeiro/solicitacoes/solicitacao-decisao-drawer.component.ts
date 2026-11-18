@@ -11,13 +11,13 @@ import {
   untracked
 } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesNumberInputComponent,
-  CesTextareaComponent
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoNumberInputComponent,
+  GeoTextareaComponent
+} from '@geo/ui';
 import { SolicitacaoFinanceira } from '../../../core/models/financeiro.models';
 
 export type AcaoDecisao = 'APROVAR' | 'REJEITAR' | 'CANCELAR' | 'DESFAZER';
@@ -101,20 +101,20 @@ const CONFIGURACAO: Record<AcaoDecisao, ConfiguracaoAcao> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CurrencyPipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesNumberInputComponent,
-    CesTextareaComponent
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoNumberInputComponent,
+    GeoTextareaComponent
   ],
   template: `
     @if (config(); as c) {
-      <ces-form-drawer [(visible)]="visivel" [title]="c.titulo" [description]="c.descricao"
+      <geo-form-drawer [(visible)]="visivel" [title]="c.titulo" [description]="c.descricao"
         [dirty]="!!texto().trim()" [loading]="processando()" size="sm">
         @if (solicitacao(); as s) {
-          <ces-form-section title="Solicitação" icon="pi pi-file">
-            <dl class="ces-sheet">
+          <geo-form-section title="Solicitação" icon="pi pi-file">
+            <dl class="geo-sheet">
               <div><dt>Número</dt><dd>nº {{ s.numero }}</dd></div>
               <div><dt>Valor solicitado</dt><dd>{{ s.valor | currency: 'BRL' }}</dd></div>
               @if (s.fornecedor) {
@@ -127,42 +127,42 @@ const CONFIGURACAO: Record<AcaoDecisao, ConfiguracaoAcao> = {
                 </div>
               }
             </dl>
-          </ces-form-section>
+          </geo-form-section>
         }
 
-        <ces-form-section [title]="acao() === 'APROVAR' ? 'Autorização' : 'Justificativa'"
+        <geo-form-section [title]="acao() === 'APROVAR' ? 'Autorização' : 'Justificativa'"
           [icon]="acao() === 'APROVAR' ? 'pi pi-check-square' : 'pi pi-comment'">
-          <div class="ces-form-stack">
+          <div class="geo-form-stack">
             @if (acao() === 'APROVAR') {
-              <ces-number-input label="Valor autorizado" mode="currency" [required]="true"
+              <geo-number-input label="Valor autorizado" mode="currency" [required]="true"
                 [min]="0.01" [max]="solicitacao()?.valor" [minFractionDigits]="2" [maxFractionDigits]="2"
                 [(value)]="valor" [error]="erroValor()"
-                [description]="descricaoValor()"></ces-number-input>
+                [description]="descricaoValor()"></geo-number-input>
               @if (solicitacao()?.documentos?.length) {
-                <ces-callout tone="info" icon="pi pi-file-check" [dense]="true">
+                <geo-callout tone="info" icon="pi pi-file-check" [dense]="true">
                   Os documentos anexados ainda em conferência passam a constar como conferidos.
-                </ces-callout>
+                </geo-callout>
               }
             }
 
             @if (acao() === 'DESFAZER' && solicitacao()?.status === 'APROVADO') {
-              <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true">
+              <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true">
                 Se a compra ou o pagamento já foi feito com base nesta aprovação, registre isso no motivo.
-              </ces-callout>
+              </geo-callout>
             }
 
-            <ces-textarea [label]="c.rotuloTexto" [required]="c.textoObrigatorio" [(value)]="texto" [rows]="4"
+            <geo-textarea [label]="c.rotuloTexto" [required]="c.textoObrigatorio" [(value)]="texto" [rows]="4"
               [maxlength]="1000" [placeholder]="c.placeholder" [description]="c.dicaTexto"
-              [error]="erroTexto()"></ces-textarea>
+              [error]="erroTexto()"></geo-textarea>
           </div>
-        </ces-form-section>
+        </geo-form-section>
 
-        <div drawer-footer class="ces-actions-row">
-          <ces-button variant="ghost" label="Voltar" (pressed)="visivel.set(false)" [disabled]="processando()"></ces-button>
-          <ces-button [variant]="c.variante" [icon]="c.icone" [label]="c.confirmar" [loading]="processando()"
-            (pressed)="confirmar()"></ces-button>
+        <div drawer-footer class="geo-actions-row">
+          <geo-button variant="ghost" label="Voltar" (pressed)="visivel.set(false)" [disabled]="processando()"></geo-button>
+          <geo-button [variant]="c.variante" [icon]="c.icone" [label]="c.confirmar" [loading]="processando()"
+            (pressed)="confirmar()"></geo-button>
         </div>
-      </ces-form-drawer>
+      </geo-form-drawer>
     }
   `
 })

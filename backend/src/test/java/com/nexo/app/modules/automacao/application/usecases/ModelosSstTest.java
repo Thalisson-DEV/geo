@@ -18,14 +18,14 @@ class ModelosSstTest {
     @Test
     void metasSaemTodaSegundaParaAGestao() {
         String json = json(modelos.metasInspecaoSemanal());
-        assertThat(json).contains("ces.sst_goals").contains("steps.metas.outputs.html")
+        assertThat(json).contains("geo.sst_goals").contains("steps.metas.outputs.html")
                 .contains("\"weekdays\":[0]").contains("/sst/metas-inspecao/acompanhamento");
     }
 
     @Test
     void cadaInspetorRecebeSoOsProprios() {
         String json = json(modelos.desviosDosInspetores());
-        assertThat(json).contains("ces.sst_open_deviations").contains("steps.desvios.outputs.inspectors")
+        assertThat(json).contains("geo.sst_open_deviations").contains("steps.desvios.outputs.inspectors")
                 .contains("{{ item.usuario_id }}").contains("item.html").contains("/sst/meus-desvios")
                 .contains("item.tem_email").contains("notify.people");
     }

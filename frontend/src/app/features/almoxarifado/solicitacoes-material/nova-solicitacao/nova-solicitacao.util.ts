@@ -1,4 +1,4 @@
-import { CesSelectOption } from '@ces/ui';
+import { GeoSelectOption } from '@geo/ui';
 
 import { EquipeResponse } from '../../../../core/models/rh.models';
 
@@ -25,7 +25,7 @@ export function foraDoPrazo(data: Date | null): boolean {
 }
 
 /** Membros ativos da equipe, com o responsável marcado. */
-export function membrosDaEquipe(equipe: EquipeResponse | null | undefined): CesSelectOption<string>[] {
+export function membrosDaEquipe(equipe: EquipeResponse | null | undefined): GeoSelectOption<string>[] {
   return (equipe?.membros ?? [])
     .filter((m) => m.vinculoAtivo)
     .map((m) => ({ label: m.funcao === 'RESPONSAVEL' ? `${m.nomeColaborador} (responsável)` : m.nomeColaborador, value: m.idColaborador }));

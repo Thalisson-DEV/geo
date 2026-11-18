@@ -77,7 +77,7 @@ describe('FrotaDocumentosComponent', () => {
 
   it('filtro rápido equivale ao campo do painel e "Limpar" volta ao padrão', async () => {
     const { el, harness, componente } = await abrir();
-    const rapido = Array.from(el.querySelectorAll('.ces-quick-filter')).find((b) => b.textContent!.includes('A vencer')) as HTMLButtonElement;
+    const rapido = Array.from(el.querySelectorAll('.geo-quick-filter')).find((b) => b.textContent!.includes('A vencer')) as HTMLButtonElement;
     rapido.click();
     harness.detectChanges();
     await harness.fixture.whenStable();

@@ -42,25 +42,25 @@ import { AlvoAnalise, VistaAnalise } from '../../../shared/components/dashboard/
 import { NavegacaoAnaliseService } from '../../../shared/components/dashboard/dashboard-analise.navegacao';
 import { DashboardVisaoGerencialComponent } from '../../../shared/components/dashboard/dashboard-visao-gerencial.component';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesColumnFilter,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesMeterComponent,
-  CesRankBadgeComponent,
-  CesStatusComponent,
-  CesBooleanControlComponent,
-  CesDatepickerComponent,
-  CesFilterChip,
-  CesFormDrawerComponent,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoColumnFilter,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoMeterComponent,
+  GeoRankBadgeComponent,
+  GeoStatusComponent,
+  GeoBooleanControlComponent,
+  GeoDatepickerComponent,
+  GeoFilterChip,
+  GeoFormDrawerComponent,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { chipsDoRecorte, opcoesDe } from '../../../shared/components/dashboard/dashboard-filtros';
 import { ColaboradorInspecionadoItem, EquipeInspecaoItem, InspetorMetaItem } from '../../../core/models/sst-dashboard.models';
 import { GrupoInspecao, vistaInspecoes } from './analise/analise-inspecoes';
@@ -106,11 +106,11 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent, CesFormDrawerComponent, CesDatepickerComponent, CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, CesSelectComponent,
+    GeoBooleanControlComponent, GeoFormDrawerComponent, GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoSelectComponent,
     CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, DashboardMetricCardComponent,
-    CesButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, CesCellDirective, CesDataTableComponent, CesMeterComponent, CesRankBadgeComponent,
-    CesStatusComponent, CopilotoPerguntarComponent, DashboardAnaliseComponent, DashboardVisaoGerencialComponent],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+    GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent, GeoCellDirective, GeoDataTableComponent, GeoMeterComponent, GeoRankBadgeComponent,
+    GeoStatusComponent, CopilotoPerguntarComponent, DashboardAnaliseComponent, DashboardVisaoGerencialComponent],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-inspecoes.component.html',
   styles: [`
     :host .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
@@ -136,15 +136,15 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
       font-size: .7rem;
       font-weight: 650;
     }
-    .dash-badge--success { background: var(--ces-success-soft); color: var(--ces-success-text); }
-    .dash-badge--warning { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .dash-badge--danger { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
+    .dash-badge--success { background: var(--geo-success-soft); color: var(--geo-success-text); }
+    .dash-badge--warning { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .dash-badge--danger { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
     .dash-badge i { font-size: .6rem; }
 
     :host-context(.app-dark), :host-context(.dark) {
       .dash-cell-name { color: #e2e8f0; }
-      .dash-pct-pill { background: var(--ces-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge { background: var(--ces-surface-muted, #334155); color: #cbd5e1; }
+      .dash-pct-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
+      .dash-badge { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
     }
 
     .dash-drill-bar {
@@ -155,7 +155,7 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
       gap: .75rem;
       margin-top: .75rem;
     }
-    .dash-drill-bar ces-select { min-width: 16rem; }
+    .dash-drill-bar geo-select { min-width: 16rem; }
     .dash-chart--drill { cursor: pointer; }
 
     @media (max-width: 1080px) {
@@ -246,7 +246,7 @@ export class DashboardInspecoesComponent implements OnInit {
     formularios: computed(() => opcoesDe(this.formularios(), 'titulo'))
   };
   /** Recorte aplicado como chips (cada um remove o próprio filtro); o agrupamento do gráfico não recorta. */
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.filtrosAplicados();
     return chipsDoRecorte(f as Record<string, unknown>, [
       { chave: 'idProcesso', rotulo: 'Processo da inspeção', opcoes: this.opcoes.processos() },
@@ -336,7 +336,7 @@ export class DashboardInspecoesComponent implements OnInit {
     (this.data()?.serieTemporal ?? []).map((p) => ({ label: `${p.rotulo} — ${p.realizado} inspeç${p.realizado === 1 ? 'ão' : 'ões'}`, value: p.inicio }))
   );
 
-  protected readonly colunasEquipes: CesDataTableColumn<EquipeInspecaoItem>[] = [
+  protected readonly colunasEquipes: GeoDataTableColumn<EquipeInspecaoItem>[] = [
     { key: 'nomeEquipe', header: 'Equipe', priority: 1, value: (e) => this.nomeOuPlaceholder(e.nomeEquipe) },
     { key: 'inspecoes', header: 'Inspeções', type: 'integer', priority: 1 },
     { key: 'percentualDoTotal', header: '% do total', type: 'percent', priority: 3 },
@@ -346,7 +346,7 @@ export class DashboardInspecoesComponent implements OnInit {
     { key: 'colaboradoresInspecionados', header: 'Colaboradores', type: 'integer', priority: 3 },
     { key: 'diasSemInspecao', header: 'Dias s/ insp.', type: 'custom', value: (e) => e.diasSemInspecao, priority: 2 }
   ];
-  protected readonly colunasColaboradores: CesDataTableColumn<ColaboradorInspecionadoItem>[] = [
+  protected readonly colunasColaboradores: GeoDataTableColumn<ColaboradorInspecionadoItem>[] = [
     { key: 'nomeColaborador', header: 'Colaborador', priority: 1, value: (c) => this.nomeOuPlaceholder(c.nomeColaborador) },
     { key: 'vezesInspecionado', header: 'Inspeções', type: 'integer', priority: 1 },
     { key: 'desviosRecebidos', header: 'Desvios', type: 'custom', value: (c) => c.desviosRecebidos, priority: 1 },
@@ -358,7 +358,7 @@ export class DashboardInspecoesComponent implements OnInit {
   protected readonly chaveColaborador = (c: ColaboradorInspecionadoItem) => c.idColaborador;
   protected readonly rotuloColaborador = (c: ColaboradorInspecionadoItem) => this.nomeOuPlaceholder(c.nomeColaborador);
 
-  protected readonly colunasInspetores: CesDataTableColumn<InspetorMetaItem & { posicao: number }>[] = [
+  protected readonly colunasInspetores: GeoDataTableColumn<InspetorMetaItem & { posicao: number }>[] = [
     { key: 'posicao', header: 'Posição', type: 'custom', value: (item) => item.posicao, width: '5.5rem', priority: 1 },
     { key: 'nomeInspetor', header: 'Inspetor', priority: 1, value: (item) => item.nomeInspetor ?? 'Sem nome' },
     { key: 'realizado', header: 'Realizado', type: 'integer', width: '6.5rem', priority: 1 },
@@ -372,7 +372,7 @@ export class DashboardInspecoesComponent implements OnInit {
     (this.data()?.porInspetor ?? []).map((item, indice) => ({ ...item, posicao: indice + 1 }))
   );
   /** Filtros da tabela de inspetores (chips) — do usuário ou sugeridos pela Bússola e confirmados. */
-  protected readonly filtrosInspetores = signal<CesColumnFilter[]>([]);
+  protected readonly filtrosInspetores = signal<GeoColumnFilter[]>([]);
   protected readonly chaveInspetor = (item: InspetorMetaItem) => item.idInspetor;
   protected readonly rotuloInspetor = (item: InspetorMetaItem) => this.nomeOuPlaceholder(item.nomeInspetor);
 

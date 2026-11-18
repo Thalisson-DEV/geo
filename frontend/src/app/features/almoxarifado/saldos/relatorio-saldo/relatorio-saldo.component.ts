@@ -5,16 +5,16 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Observable, Subject, catchError, forkJoin, map, of, switchMap } from 'rxjs';
-import { CesAsyncStateComponent, CesContentState, CesIconButtonComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoContentState, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import {
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesLazyLoadEvent,
-  CesRowActionsDirective,
-  CesRowDetailDirective,
-  CesSortRule
-} from '@ces/ui/data';
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoLazyLoadEvent,
+  GeoRowActionsDirective,
+  GeoRowDetailDirective,
+  GeoSortRule
+} from '@geo/ui/data';
 
 import { NavigationHistoryService } from '../../../../core/navigation/navigation-history.service';
 import { createUrlFilters, qp } from '../../../../core/navigation';
@@ -49,7 +49,7 @@ export interface ProcessoComSaldo {
 }
 
 interface PontoDeAtencao {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;
@@ -69,13 +69,13 @@ const ORDENACAO_PADRAO = 'material.descricao,asc';
   imports: [
     CommonModule,
     ButtonModule,
-    CesAsyncStateComponent,
-    CesStatusComponent,
-    CesIconButtonComponent,
-    CesDataTableComponent,
-    CesCellDirective,
-    CesRowDetailDirective,
-    CesRowActionsDirective,
+    GeoAsyncStateComponent,
+    GeoStatusComponent,
+    GeoIconButtonComponent,
+    GeoDataTableComponent,
+    GeoCellDirective,
+    GeoRowDetailDirective,
+    GeoRowActionsDirective,
     MovimentacoesMaterialDialogComponent,
     SaldoSeriaisPainelComponent,
     SeriesAConferirComponent
@@ -105,7 +105,7 @@ export class RelatorioSaldoComponent implements OnInit {
 
   protected readonly saldos = signal<SaldoResponse[]>([]);
   protected readonly totalRecords = signal(0);
-  protected readonly tableState = signal<CesContentState>('loading');
+  protected readonly tableState = signal<GeoContentState>('loading');
   protected readonly tableError = signal<string | undefined>(undefined);
 
   protected readonly recorte = signal<RecorteSaldo>('todos');
@@ -116,7 +116,7 @@ export class RelatorioSaldoComponent implements OnInit {
   protected readonly busca = signal('');
   protected readonly pagina = signal(0);
   protected readonly tamanho = signal(TAMANHO_PADRAO);
-  protected readonly ordenacao = signal<CesSortRule[]>([]);
+  protected readonly ordenacao = signal<GeoSortRule[]>([]);
   protected readonly pageSizeOptions = [25, 50, 100, 500];
 
   protected idEstoque = '';
@@ -141,10 +141,10 @@ export class RelatorioSaldoComponent implements OnInit {
     ordenacao: qp.text('ord')
   });
 
-  private readonly cargas = new Subject<CesLazyLoadEvent>();
-  private ultimaCarga: CesLazyLoadEvent | null = null;
+  private readonly cargas = new Subject<GeoLazyLoadEvent>();
+  private ultimaCarga: GeoLazyLoadEvent | null = null;
 
-  protected readonly colunas: CesDataTableColumn<SaldoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<SaldoResponse>[] = [
     { key: 'codigo', header: 'Código', priority: 1, width: '7rem', value: (s) => s.material.codigo, sortField: 'material.codigo' },
     { key: 'descricao', header: 'Descrição', priority: 1, value: (s) => s.material.descricao, sortField: 'material.descricao' },
     { key: 'processo', header: 'Processo', type: 'custom', priority: 2, value: (s) => s.material.processo?.nome, sortable: false },
@@ -160,7 +160,7 @@ export class RelatorioSaldoComponent implements OnInit {
   protected readonly rotuloSaldo = (saldo: SaldoResponse) => `${saldo.material.codigo} ${saldo.material.descricao}`;
   protected readonly ehSeriado = (saldo: SaldoResponse) => !!saldo.material.detalhaSerie;
 
-  protected readonly situacao = computed<{ tom: CesTone; rotulo: string; icone: string } | null>(() => {
+  protected readonly situacao = computed<{ tom: GeoTone; rotulo: string; icone: string } | null>(() => {
     const r = this.resumo();
     if (!r || r.negativos === null) return null;
     if (r.negativos > 0) return { tom: 'danger', rotulo: 'Com saldo negativo', icone: 'pi-exclamation-circle' };
@@ -368,7 +368,7 @@ export class RelatorioSaldoComponent implements OnInit {
     this.recarregarTabela();
   }
 
-  protected onLazyLoad(evento: CesLazyLoadEvent): void {
+  protected onLazyLoad(evento: GeoLazyLoadEvent): void {
     this.ultimaCarga = evento;
     this.busca.set(evento.query);
     if (!this.saldos().length) this.tableState.set('loading');
@@ -405,7 +405,7 @@ export class RelatorioSaldoComponent implements OnInit {
     if (this.ultimaCarga) this.onLazyLoad(this.ultimaCarga);
   }
 
-  private parametros(evento: CesLazyLoadEvent): Record<string, unknown> {
+  private parametros(evento: GeoLazyLoadEvent): Record<string, unknown> {
     const regra = evento.sort[0];
     return {
       idEstoque: this.idEstoque,
@@ -419,7 +419,7 @@ export class RelatorioSaldoComponent implements OnInit {
     };
   }
 
-  private salvarEstadoNaUrl(evento: CesLazyLoadEvent): void {
+  private salvarEstadoNaUrl(evento: GeoLazyLoadEvent): void {
     const regra = evento.sort[0];
     this.estadoUrl.write({
       buscaGlobal: evento.query.trim(),
@@ -434,7 +434,7 @@ export class RelatorioSaldoComponent implements OnInit {
 
   protected readonly iconeCondicao = iconeCondicao;
 
-  protected tomCondicao(condicao: string | undefined): CesTone {
+  protected tomCondicao(condicao: string | undefined): GeoTone {
     return condicao === 'SUCATA' ? 'warning' : 'neutral';
   }
 

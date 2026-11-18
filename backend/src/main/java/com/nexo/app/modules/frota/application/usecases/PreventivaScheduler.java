@@ -21,7 +21,7 @@ public class PreventivaScheduler {
 
     private final PreventivaUseCases useCases;
 
-    @Scheduled(cron = "${ces.frota.preventiva-cron:0 40 4 * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.preventiva-cron:0 40 4 * * *}", zone = "America/Sao_Paulo")
     public void processar() {
         processar(LocalDate.now(LiberacaoCnhUseCases.FUSO));
     }

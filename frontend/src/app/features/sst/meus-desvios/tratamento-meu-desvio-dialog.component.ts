@@ -1,14 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesStatusComponent,
-  CesTextareaComponent,
-  CesTone
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoStatusComponent,
+  GeoTextareaComponent,
+  GeoTone
+} from '@geo/ui';
 
 import { TratarMeuDesvioRequest } from '../../../core/models/meu-desvio.models';
 import { GRAVIDADE_LABELS, GravidadeDesvio, StatusDesvio } from '../../../core/models/sst.models';
@@ -26,7 +26,7 @@ export interface DesvioEmTratamento {
   vencido?: boolean | null;
 }
 
-type Situacao = { valor: StatusDesvio; rotulo: string; detalhe: string; icone: string; tom: CesTone };
+type Situacao = { valor: StatusDesvio; rotulo: string; detalhe: string; icone: string; tom: GeoTone };
 
 const SITUACOES: Situacao[] = [
   { valor: 'RESOLVIDO', rotulo: 'Já corrigido', detalhe: 'O problema foi resolvido.', icone: 'pi pi-check-circle', tom: 'success' },
@@ -41,15 +41,15 @@ const LIMITE_LOTE = 100;
   selector: 'app-tratamento-meu-desvio-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesCalloutComponent, CesDatepickerComponent, CesFormDrawerComponent, CesStatusComponent, CesTextareaComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoCalloutComponent, GeoDatepickerComponent, GeoFormDrawerComponent, GeoStatusComponent, GeoTextareaComponent],
   styles: `
     .td-resumo {
       display: grid;
       gap: 0.375rem;
       padding: 0.75rem 0.875rem;
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md);
-      background: var(--ces-surface-subtle);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md);
+      background: var(--geo-surface-subtle);
     }
     .td-resumo__topo {
       display: flex;
@@ -59,16 +59,16 @@ const LIMITE_LOTE = 100;
     }
     .td-resumo__pergunta {
       margin: 0;
-      color: var(--ces-foreground);
-      font-size: var(--ces-font-body);
+      color: var(--geo-foreground);
+      font-size: var(--geo-font-body);
       font-weight: 700;
       line-height: 1.35;
     }
     .td-resumo__texto,
     .td-resumo__prazo {
       margin: 0;
-      color: var(--ces-foreground-muted);
-      font-size: var(--ces-font-caption);
+      color: var(--geo-foreground-muted);
+      font-size: var(--geo-font-caption);
       line-height: 1.45;
     }
     .td-resumo__prazo {
@@ -79,8 +79,8 @@ const LIMITE_LOTE = 100;
     }
     .td-pergunta {
       margin: 0 0 0.5rem;
-      color: var(--ces-foreground);
-      font-size: var(--ces-font-control);
+      color: var(--geo-foreground);
+      font-size: var(--geo-font-control);
       font-weight: 600;
     }
     .td-situacoes {
@@ -94,56 +94,56 @@ const LIMITE_LOTE = 100;
       }
     }
     .td-situacao {
-      --td-tom: var(--ces-foreground-subtle);
+      --td-tom: var(--geo-foreground-subtle);
       display: grid;
       gap: 0.25rem;
       align-content: start;
-      min-height: var(--ces-touch-target, 2.75rem);
+      min-height: var(--geo-touch-target, 2.75rem);
       padding: 0.625rem 0.75rem;
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md);
-      background: var(--ces-surface);
-      color: var(--ces-foreground);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md);
+      background: var(--geo-surface);
+      color: var(--geo-foreground);
       font: inherit;
       text-align: left;
       cursor: pointer;
       transition:
-        border-color var(--ces-duration-fast) var(--ces-ease-standard),
-        background-color var(--ces-duration-fast) var(--ces-ease-standard);
+        border-color var(--geo-duration-fast) var(--geo-ease-standard),
+        background-color var(--geo-duration-fast) var(--geo-ease-standard);
     }
-    .td-situacao[data-tone='success'] { --td-tom: var(--ces-success); }
-    .td-situacao[data-tone='warning'] { --td-tom: var(--ces-warning); }
-    .td-situacao[data-tone='danger'] { --td-tom: var(--ces-danger); }
+    .td-situacao[data-tone='success'] { --td-tom: var(--geo-success); }
+    .td-situacao[data-tone='warning'] { --td-tom: var(--geo-warning); }
+    .td-situacao[data-tone='danger'] { --td-tom: var(--geo-danger); }
     .td-situacao:hover {
-      border-color: color-mix(in srgb, var(--td-tom) 55%, var(--ces-border));
+      border-color: color-mix(in srgb, var(--td-tom) 55%, var(--geo-border));
     }
     .td-situacao:focus-visible {
-      outline: 2px solid var(--ces-focus-ring);
+      outline: 2px solid var(--geo-focus-ring);
       outline-offset: 2px;
     }
     .td-situacao[aria-checked='true'] {
       border-color: var(--td-tom);
-      background: color-mix(in srgb, var(--td-tom) 12%, var(--ces-surface));
+      background: color-mix(in srgb, var(--td-tom) 12%, var(--geo-surface));
       box-shadow: inset 0 0 0 1px var(--td-tom);
     }
     .td-situacao__rotulo {
       display: flex;
       align-items: center;
       gap: 0.375rem;
-      font-size: var(--ces-font-control);
+      font-size: var(--geo-font-control);
       font-weight: 700;
     }
     .td-situacao__rotulo .pi {
       color: var(--td-tom);
     }
     .td-situacao__detalhe {
-      color: var(--ces-foreground-muted);
-      font-size: var(--ces-font-caption);
+      color: var(--geo-foreground-muted);
+      font-size: var(--geo-font-caption);
       line-height: 1.35;
     }
   `,
   template: `
-    <ces-form-drawer
+    <geo-form-drawer
       [(visible)]="visible"
       [title]="modoLote() ? 'Tratar ' + quantidade() + ' desvios' : 'Tratar desvio'"
       [description]="modoLote() ? 'O mesmo status, ação e prazo valem para todos os selecionados.' : 'Conte o que foi feito ou o que será feito para corrigir.'"
@@ -155,7 +155,7 @@ const LIMITE_LOTE = 100;
           <div class="td-resumo__topo">
             <p class="td-resumo__pergunta">{{ d.pergunta || 'Pergunta não identificada' }}</p>
             @if (d.gravidade) {
-              <ces-status [tone]="gravidadeTom(d.gravidade)" [icon]="gravidadeIcone(d.gravidade)">{{ gravidadeLabel(d.gravidade) }}</ces-status>
+              <geo-status [tone]="gravidadeTom(d.gravidade)" [icon]="gravidadeIcone(d.gravidade)">{{ gravidadeLabel(d.gravidade) }}</geo-status>
             }
           </div>
           @if (d.descricao) {
@@ -165,7 +165,7 @@ const LIMITE_LOTE = 100;
             <p class="td-resumo__prazo">
               <i class="pi pi-calendar" aria-hidden="true"></i> Prazo atual: <strong>{{ d.prazo | date: 'dd/MM/yyyy' }}</strong>
               @if (d.vencido) {
-                <ces-status tone="danger" icon="pi-clock">Vencido</ces-status>
+                <geo-status tone="danger" icon="pi-clock">Vencido</geo-status>
               }
             </p>
           }
@@ -195,8 +195,8 @@ const LIMITE_LOTE = 100;
 
       @switch (status()) {
         @case ('RESOLVIDO') {
-          <ces-callout tone="success" label="Ao salvar" [dense]="true">O desvio é encerrado com a data e a hora de agora.</ces-callout>
-          <ces-textarea
+          <geo-callout tone="success" label="Ao salvar" [dense]="true">O desvio é encerrado com a data e a hora de agora.</geo-callout>
+          <geo-textarea
             label="O que foi feito"
             [required]="true"
             [rows]="4"
@@ -204,42 +204,42 @@ const LIMITE_LOTE = 100;
             placeholder="Ex.: o cinto foi trocado e a equipe foi orientada."
             [error]="tentouSalvar() && !acao().trim() ? 'Descreva o que foi feito.' : undefined"
             [(value)]="acao"
-          ></ces-textarea>
+          ></geo-textarea>
         }
         @case ('EM_TRATAMENTO') {
-          <ces-textarea
+          <geo-textarea
             label="Plano de correção"
             [showOptional]="true"
             [rows]="4"
             [autoResize]="true"
             placeholder="Ex.: comprar luvas novas e trocar na próxima saída da equipe."
             [(value)]="acao"
-          ></ces-textarea>
-          <ces-datepicker
+          ></geo-textarea>
+          <geo-datepicker
             label="Prazo para corrigir"
             [(value)]="prazo"
             [clearable]="true"
             description="Data limite para concluir a correção."
-          ></ces-datepicker>
+          ></geo-datepicker>
         }
         @default {
-          <ces-callout tone="info" label="Ao salvar" [dense]="true">O desvio continua na lista de pendências até alguém começar a tratar.</ces-callout>
-          <ces-textarea label="Anotações" [showOptional]="true" [rows]="3" [autoResize]="true" [(value)]="acao"></ces-textarea>
-          <ces-datepicker label="Prazo estimado" [showOptional]="true" [(value)]="prazo" [clearable]="true"></ces-datepicker>
+          <geo-callout tone="info" label="Ao salvar" [dense]="true">O desvio continua na lista de pendências até alguém começar a tratar.</geo-callout>
+          <geo-textarea label="Anotações" [showOptional]="true" [rows]="3" [autoResize]="true" [(value)]="acao"></geo-textarea>
+          <geo-datepicker label="Prazo estimado" [showOptional]="true" [(value)]="prazo" [clearable]="true"></geo-datepicker>
         }
       }
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="close()"></ces-button>
-        <ces-button
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="close()"></geo-button>
+        <geo-button
           icon="pi pi-check"
           [label]="modoLote() ? 'Salvar nos ' + quantidade() : 'Salvar tratamento'"
           [loading]="loading()"
           [disabled]="loteInvalido()"
           (pressed)="confirmar()"
-        ></ces-button>
+        ></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class TratamentoMeuDesvioDialogComponent {

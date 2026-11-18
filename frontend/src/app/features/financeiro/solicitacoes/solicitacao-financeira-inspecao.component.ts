@@ -17,11 +17,11 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTone
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTone
+} from '@geo/ui';
 import {
   InspecaoContexto,
   SolicitacaoFinanceira,
@@ -39,7 +39,7 @@ type EscopoTipoSolicitacao = TipoSolicitacao | 'AMBOS';
 interface StatusFilterChip {
   label: string;
   value: StatusSolicitacao | null;
-  tone?: CesTone;
+  tone?: GeoTone;
   icon?: string;
 }
 
@@ -66,9 +66,9 @@ const QUICK_STATUS_CHIPS: readonly StatusFilterChip[] = [
     CommonModule,
     CurrencyPipe,
     DatePipe,
-    CesAsyncStateComponent,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoAsyncStateComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   styleUrl: './solicitacao-financeira-inspecao.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -144,13 +144,13 @@ const QUICK_STATUS_CHIPS: readonly StatusFilterChip[] = [
 
             <!-- Busca Rápida -->
             <div class="finance-inspect-search">
-              <ces-text-input
+              <geo-text-input
                 label="Buscar neste histórico"
                 inputId="solicitacao-inspecao-busca"
                 placeholder="Busca rápida..."
                 [value]="busca()"
                 (valueChange)="alterarBusca($event)"
-              ></ces-text-input>
+              ></geo-text-input>
             </div>
 
             <!-- Chips Rápidos de Status -->
@@ -224,7 +224,7 @@ const QUICK_STATUS_CHIPS: readonly StatusFilterChip[] = [
               </div>
             } @else if (erro() && itensVisiveis().length === 0) {
               <div class="p-4">
-                <ces-async-state
+                <geo-async-state
                   state="error"
                   [compact]="true"
                   title="Não foi possível carregar o histórico"
@@ -232,11 +232,11 @@ const QUICK_STATUS_CHIPS: readonly StatusFilterChip[] = [
                   actionLabel="Tentar novamente"
                   actionIcon="pi pi-refresh"
                   (action)="carregar()"
-                ></ces-async-state>
+                ></geo-async-state>
               </div>
             } @else if (itensVisiveis().length === 0) {
               <div class="p-4">
-                <ces-async-state
+                <geo-async-state
                   state="empty"
                   [compact]="true"
                   title="Nenhuma solicitação encontrada"
@@ -244,7 +244,7 @@ const QUICK_STATUS_CHIPS: readonly StatusFilterChip[] = [
                   actionLabel="Limpar filtros"
                   actionIcon="pi pi-filter-slash"
                   (action)="limparFiltros()"
-                ></ces-async-state>
+                ></geo-async-state>
               </div>
             } @else {
               <!-- Indicador de Carregamento em Segundo Plano -->
@@ -295,9 +295,9 @@ const QUICK_STATUS_CHIPS: readonly StatusFilterChip[] = [
 
                       <!-- Linha 3: Bottom (Status + Solicitante + Data + Atual) -->
                       <div class="finance-inspect-item__row-bottom">
-                        <ces-status [tone]="statusTone(item.status)" [icon]="iconeStatus[item.status]" emphasis="soft">
+                        <geo-status [tone]="statusTone(item.status)" [icon]="iconeStatus[item.status]" emphasis="soft">
                           {{ statusLabel(item.status) }}
-                        </ces-status>
+                        </geo-status>
 
                         <div class="finance-inspect-item__meta-group">
                           <span class="finance-inspect-item__requester" [title]="'Solicitante: ' + nomeSolicitante(item)">
@@ -512,14 +512,14 @@ export class SolicitacaoFinanceiraInspecaoComponent {
 
   protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_SOLICITACAO;
 
-  protected statusTone(status: StatusSolicitacao): CesTone {
+  protected statusTone(status: StatusSolicitacao): GeoTone {
     return {
       RASCUNHO: 'neutral',
       SOLICITADO: 'warning',
       APROVADO: 'success',
       REJEITADO: 'danger',
       CANCELADO: 'neutral'
-    }[status] as CesTone;
+    }[status] as GeoTone;
   }
 
   private sortParam(): string {

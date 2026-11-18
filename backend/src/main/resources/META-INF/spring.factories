@@ -1,0 +1,2 @@
+org.springframework.boot.EnvironmentPostProcessor=\
+com.nexo.app.shared.infrastructure.config.PrefixoConfiguracaoLegadoGuard

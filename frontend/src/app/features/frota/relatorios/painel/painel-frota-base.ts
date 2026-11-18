@@ -1,6 +1,6 @@
 import { Directive, Signal, computed, effect, inject, signal } from '@angular/core';
 import { ParamMap } from '@angular/router';
-import { CesFilterChip } from '@ces/ui';
+import { GeoFilterChip } from '@geo/ui';
 import { Observable, forkJoin, of } from 'rxjs';
 
 import { FiltroRelatorioFrota, RelatorioGerencialFrota } from '../../../../core/models/frota-relatorios.models';
@@ -15,7 +15,7 @@ import { PeriodoFrota, RecorteFrotaService } from './recorte-frota.service';
  * Base dos dashboards da frota: recorte comum + filtros próprios, carga do relatório gerencial com os
  * registros de origem do painel, análise detalhada (`?drill=`) e perguntas à Bússola.
  *
- * Cada painel fornece `providers: [RecorteFrotaService, CesDrillStateService, NavegacaoAnaliseService]`.
+ * Cada painel fornece `providers: [RecorteFrotaService, GeoDrillStateService, NavegacaoAnaliseService]`.
  */
 @Directive()
 export abstract class PainelFrotaBase<D> {
@@ -33,7 +33,7 @@ export abstract class PainelFrotaBase<D> {
   /** Vista da análise aberta (resolvida pelo painel). */
   protected abstract readonly vistaAnalise: Signal<VistaAnalise | null>;
   /** Chips dos filtros próprios aplicados. */
-  protected abstract readonly chipsProprios: Signal<CesFilterChip[]>;
+  protected abstract readonly chipsProprios: Signal<GeoFilterChip[]>;
 
   protected readonly chips = computed(() => [...this.recorte.chips(), ...this.chipsProprios()]);
 

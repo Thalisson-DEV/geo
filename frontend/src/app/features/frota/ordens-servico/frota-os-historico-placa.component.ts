@@ -2,12 +2,12 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesStatusComponent,
-  CesTone
-} from '@ces/ui';
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoStatusComponent,
+  GeoTone
+} from '@geo/ui';
 import {
   OrdemServico,
   ROTULO_SITUACAO_OS,
@@ -30,9 +30,9 @@ const LIMITE = 200;
   selector: 'app-frota-os-historico-placa',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CurrencyPipe, DatePipe, CesCellDirective, CesDataTableComponent, CesStatusComponent],
+  imports: [CurrencyPipe, DatePipe, GeoCellDirective, GeoDataTableComponent, GeoStatusComponent],
   template: `
-    <ces-data-table
+    <geo-data-table
       [title]="'Manutenções de ' + placa()"
       [description]="descricao()"
       storageKey="frota-os-historico-placa"
@@ -46,33 +46,33 @@ const LIMITE = 200;
       [stateDescription]="erro() ?? 'Nenhuma outra OS foi aberta para este veículo.'"
       (rowActivate)="abrir($event)"
     >
-      <ng-template cesCell="numero" let-row>
-        <span class="ces-cell-strong">{{ rotuloOs(row.numero) }}</span>
-        <span class="ces-cell-muted">{{ rotuloTipo[row.tipoManutencao] }}</span>
+      <ng-template geoCell="numero" let-row>
+        <span class="geo-cell-strong">{{ rotuloOs(row.numero) }}</span>
+        <span class="geo-cell-muted">{{ rotuloTipo[row.tipoManutencao] }}</span>
       </ng-template>
-      <ng-template cesCell="quando" let-row>
+      <ng-template geoCell="quando" let-row>
         {{ (row.fimReal ?? row.abertaEm) | date: 'dd/MM/yyyy' }}
-        <span class="ces-cell-muted">{{ row.fimReal ? 'Concluída' : 'Aberta' }} há {{ diasDesde(row.fimReal ?? row.abertaEm) }}</span>
+        <span class="geo-cell-muted">{{ row.fimReal ? 'Concluída' : 'Aberta' }} há {{ diasDesde(row.fimReal ?? row.abertaEm) }}</span>
       </ng-template>
-      <ng-template cesCell="itens" let-row>
+      <ng-template geoCell="itens" let-row>
         {{ row.itens.join(', ') || '—' }}
         @if (emComum(row).length) {
-          <ces-status tone="warning" icon="pi-replay">Mesmo item desta OS: {{ emComum(row).join(', ') }}</ces-status>
+          <geo-status tone="warning" icon="pi-replay">Mesmo item desta OS: {{ emComum(row).join(', ') }}</geo-status>
         }
       </ng-template>
-      <ng-template cesCell="servico" let-row>
+      <ng-template geoCell="servico" let-row>
         {{ row.descricaoServico ?? row.descricao }}
         @if (row.itensSubstituidos) {
-          <span class="ces-cell-muted">Substituídos: {{ row.itensSubstituidos }}</span>
+          <span class="geo-cell-muted">Substituídos: {{ row.itensSubstituidos }}</span>
         }
       </ng-template>
-      <ng-template cesCell="situacao" let-row>
-        <ces-status [tone]="tomSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
+      <ng-template geoCell="situacao" let-row>
+        <geo-status [tone]="tomSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</geo-status>
       </ng-template>
-      <ng-template cesCell="valorTotal" let-row>
-        <span class="ces-cell-num">{{ row.valorTotal != null ? (row.valorTotal | currency: 'BRL') : '—' }}</span>
+      <ng-template geoCell="valorTotal" let-row>
+        <span class="geo-cell-num">{{ row.valorTotal != null ? (row.valorTotal | currency: 'BRL') : '—' }}</span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
   `
 })
 export class FrotaOsHistoricoPlacaComponent {
@@ -88,7 +88,7 @@ export class FrotaOsHistoricoPlacaComponent {
   protected readonly rotuloOs = rotuloOs;
   protected readonly rotuloTipo: Record<string, string> = ROTULO_TIPO_MANUTENCAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO_OS;
-  protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO_OS;
+  protected readonly tomSituacao: Record<string, GeoTone> = TOM_SITUACAO_OS;
 
   private readonly ordens = signal<OrdemServico[] | null>(null);
   protected readonly erro = signal<string | null>(null);
@@ -106,7 +106,7 @@ export class FrotaOsHistoricoPlacaComponent {
     return `${doAno.length} ${doAno.length === 1 ? 'manutenção concluída' : 'manutenções concluídas'} nos últimos 12 meses (${moeda}). Busque pelo item para conferir garantia antes de trocar de novo.`;
   });
 
-  protected readonly colunas: CesDataTableColumn<OrdemServico>[] = [
+  protected readonly colunas: GeoDataTableColumn<OrdemServico>[] = [
     { key: 'numero', header: 'OS', type: 'custom', priority: 1, value: (r) => r.numero, display: (r) => rotuloOs(r.numero) },
     { key: 'quando', header: 'Data', type: 'custom', priority: 1, value: (r) => r.fimReal ?? r.abertaEm, display: (r) => r.fimReal ?? r.abertaEm },
     { key: 'itens', header: 'Itens', type: 'custom', priority: 1, value: (r) => r.itens.join(', '), display: (r) => r.itens.join(', ') },

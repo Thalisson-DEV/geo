@@ -29,32 +29,32 @@ test('ordena, busca e pagina a tabela analítica', async ({ page, isMobile }) =>
   const busca = page.getByRole('searchbox', { name: 'Pesquisar' });
   await busca.fill('joao');
   if (isMobile) {
-    await expect(page.locator('.ces-data-table__card')).toHaveCount(1);
-    await expect(page.locator('.ces-data-table__card')).toContainText('João Teles');
+    await expect(page.locator('.geo-data-table__card')).toHaveCount(1);
+    await expect(page.locator('.geo-data-table__card')).toContainText('João Teles');
     return;
   }
-  await expect(page.locator('.ces-data-table__table tbody tr')).toHaveCount(1);
+  await expect(page.locator('.geo-data-table__table tbody tr')).toHaveCount(1);
   await busca.fill('');
 
   const realizado = page.getByRole('columnheader', { name: /Realizado/ });
   await realizado.getByRole('button').click();
   await expect(realizado).toHaveAttribute('aria-sort', 'ascending');
-  await expect(page.locator('.ces-data-table__table tbody tr').first()).toContainText('Luís Pires');
+  await expect(page.locator('.geo-data-table__table tbody tr').first()).toContainText('Luís Pires');
 
-  await expect(page.locator('.ces-data-table__range')).toContainText('1–10 de 12');
+  await expect(page.locator('.geo-data-table__range')).toContainText('1–10 de 12');
   await page.getByRole('button', { name: 'Próxima página' }).click();
-  await expect(page.locator('.ces-data-table__range')).toContainText('11–12 de 12');
+  await expect(page.locator('.geo-data-table__range')).toContainText('11–12 de 12');
 });
 
 test('em telas compactas mostra cards, ordenação por seletor e folha inferior', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'comportamento exclusivo de telas compactas');
-  await expect(page.locator('.ces-data-table__table')).toHaveCount(0);
-  await expect(page.locator('.ces-data-table__card')).toHaveCount(10);
+  await expect(page.locator('.geo-data-table__table')).toHaveCount(0);
+  await expect(page.locator('.geo-data-table__card')).toHaveCount(10);
   await page.getByRole('button', { name: 'Carregar mais' }).click();
-  await expect(page.locator('.ces-data-table__card')).toHaveCount(12);
+  await expect(page.locator('.geo-data-table__card')).toHaveCount(12);
 
   await page.getByLabel('Ordenar por').selectOption({ label: 'Inspetor ↓' });
-  await expect(page.locator('.ces-data-table__card').first()).toContainText('Luís Pires');
+  await expect(page.locator('.geo-data-table__card').first()).toContainText('Luís Pires');
 
   await page.getByRole('button', { name: 'Ver histórico: Luís Pires' }).click();
   const painel = page.locator('.p-drawer');

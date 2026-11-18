@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, forwardRef, input, output, signal } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
 
 import { CampoEspec, JsonValue } from '../../../../core/models/automacao.models';
 import { objetos, texto } from '../lib/arvore';
@@ -14,7 +14,7 @@ type Linha = Record<string, JsonValue>;
 @Component({
   selector: 'aut-rotas',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, DestinatariosComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, DestinatariosComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-rows">
@@ -23,7 +23,7 @@ type Linha = Record<string, JsonValue>;
           <div class="aut-row-fields">
             <label class="aut-row-cell aut-row-wide aut-route-when">
               <span style="white-space:nowrap">Quando for</span>
-              <input class="p-inputtext ces-prime-control" [value]="texto(r['when'])" placeholder="Juazeiro; Juazeiro II"
+              <input class="p-inputtext geo-prime-control" [value]="texto(r['when'])" placeholder="Juazeiro; Juazeiro II"
                      (input)="alterar(i, 'when', $any($event.target).value)" [attr.aria-label]="'Valor da regra ' + (i + 1)" />
             </label>
             <div class="aut-row-cell aut-row-wide">
@@ -31,10 +31,10 @@ type Linha = Record<string, JsonValue>;
                                  (mudou)="alterar(i, 'recipients', $event)" />
             </div>
           </div>
-          <ces-icon-button icon="pi pi-trash" label="Remover regra" variant="ghost" size="icon-sm" (pressed)="remover(i)"></ces-icon-button>
+          <geo-icon-button icon="pi pi-trash" label="Remover regra" variant="ghost" size="icon-sm" (pressed)="remover(i)"></geo-icon-button>
         </div>
       }
-      <div><ces-button icon="pi pi-plus" label="Adicionar regra" variant="secondary" size="sm" (pressed)="adicionar()"></ces-button></div>
+      <div><geo-button icon="pi pi-plus" label="Adicionar regra" variant="secondary" size="sm" (pressed)="adicionar()"></geo-button></div>
     </div>
   `
 })
@@ -62,7 +62,7 @@ export class RotasComponent {
 @Component({
   selector: 'aut-linhas',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CampoExpressaoComponent],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, CampoExpressaoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-rows">
@@ -72,7 +72,7 @@ export class RotasComponent {
             @for (c of campos(); track c.chave) {
               @switch (c.tipo) {
                 @case ('select') {
-                  <select class="p-inputtext ces-prime-control aut-select aut-row-cell" [attr.aria-label]="c.rotulo" [value]="texto(r[c.chave]) || c.opcoes[0]?.[0]"
+                  <select class="p-inputtext geo-prime-control aut-select aut-row-cell" [attr.aria-label]="c.rotulo" [value]="texto(r[c.chave]) || c.opcoes[0]?.[0]"
                           (change)="alterar(i, c.chave, $any($event.target).value)">
                     @for (o of c.opcoes; track o[0]) { <option [value]="o[0]" [selected]="(texto(r[c.chave]) || c.opcoes[0]?.[0]) === o[0]">{{ o[1] }}</option> }
                   </select>
@@ -88,16 +88,16 @@ export class RotasComponent {
                   </div>
                 }
                 @default {
-                  <input class="p-inputtext ces-prime-control aut-row-cell" [attr.aria-label]="c.rotulo" [placeholder]="c.placeholder ?? c.rotulo"
+                  <input class="p-inputtext geo-prime-control aut-row-cell" [attr.aria-label]="c.rotulo" [placeholder]="c.placeholder ?? c.rotulo"
                          [value]="texto(r[c.chave])" (input)="alterar(i, c.chave, $any($event.target).value)" />
                 }
               }
             }
           </div>
-          <ces-icon-button icon="pi pi-trash" label="Remover linha" variant="ghost" size="icon-sm" (pressed)="remover(i)"></ces-icon-button>
+          <geo-icon-button icon="pi pi-trash" label="Remover linha" variant="ghost" size="icon-sm" (pressed)="remover(i)"></geo-icon-button>
         </div>
       }
-      <div><ces-button icon="pi pi-plus" label="Adicionar" variant="secondary" size="sm" (pressed)="adicionar()"></ces-button></div>
+      <div><geo-button icon="pi pi-plus" label="Adicionar" variant="secondary" size="sm" (pressed)="adicionar()"></geo-button></div>
     </div>
   `
 })
@@ -130,7 +130,7 @@ export class LinhasComponent {
 @Component({
   selector: 'aut-fichas',
   standalone: true,
-  imports: [CesIconButtonComponent, SeletorDinamicoComponent],
+  imports: [GeoIconButtonComponent, SeletorDinamicoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-chips">
@@ -143,7 +143,7 @@ export class LinhasComponent {
       <input #entrada class="aut-chips-input" [placeholder]="valores().length ? '' : (placeholder() ?? '')" [attr.aria-label]="rotulo()"
              (keydown)="tecla($event, entrada)" (blur)="confirmar(entrada)" />
       @if (contexto().noId !== 'trigger') {
-        <ces-icon-button icon="pi pi-bolt" label="Inserir dado" variant="ghost" size="icon-sm" data-dyn-trigger (pressed)="aberto.set(!aberto())"></ces-icon-button>
+        <geo-icon-button icon="pi pi-bolt" label="Inserir dado" variant="ghost" size="icon-sm" data-dyn-trigger (pressed)="aberto.set(!aberto())"></geo-icon-button>
       }
       @if (aberto()) {
         <aut-seletor-dinamico [contexto]="contexto()" (escolher)="inserir($event)" (fechar)="aberto.set(false)" />
@@ -235,7 +235,7 @@ function deGrupo(g: Grupo): JsonValue {
 @Component({
   selector: 'aut-condicao',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CampoExpressaoComponent, forwardRef(() => CondicaoComponent)],
+  imports: [GeoButtonComponent, GeoIconButtonComponent, CampoExpressaoComponent, forwardRef(() => CondicaoComponent)],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-cond-group" [attr.data-depth]="nivel()">
@@ -255,7 +255,7 @@ function deGrupo(g: Grupo): JsonValue {
             <div class="aut-cond-fields">
               <aut-campo-expressao [valor]="r.left" [contexto]="contexto()" rotulo="Valor" placeholder="Escolha o dado"
                                    (mudou)="trocarRegra(i, { left: $event })" />
-              <select class="p-inputtext ces-prime-control aut-select" aria-label="Comparação" [value]="r.operator" (change)="trocarRegra(i, { operator: $any($event.target).value })">
+              <select class="p-inputtext geo-prime-control aut-select" aria-label="Comparação" [value]="r.operator" (change)="trocarRegra(i, { operator: $any($event.target).value })">
                 @for (o of opcoes(); track o[0]) { <option [value]="o[0]" [selected]="o[0] === r.operator">{{ o[1] }}</option> }
               </select>
               @if (!unario(r.operator)) {
@@ -263,17 +263,17 @@ function deGrupo(g: Grupo): JsonValue {
                                      (mudou)="trocarRegra(i, { right: $event })" />
               }
             </div>
-            <ces-icon-button icon="pi pi-trash" label="Remover regra" variant="ghost" size="icon-sm" (pressed)="remover(i)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-trash" label="Remover regra" variant="ghost" size="icon-sm" (pressed)="remover(i)"></geo-icon-button>
           </div>
         }
       }
       <div style="display:flex;flex-wrap:wrap;gap:0.25rem">
-        <ces-button icon="pi pi-plus" label="Regra" variant="secondary" size="sm" (pressed)="adicionarRegra()"></ces-button>
+        <geo-button icon="pi pi-plus" label="Regra" variant="secondary" size="sm" (pressed)="adicionarRegra()"></geo-button>
         @if (nivel() < 3) {
-          <ces-button icon="pi pi-plus" label="Grupo" variant="ghost" size="sm" (pressed)="adicionarGrupo()"></ces-button>
+          <geo-button icon="pi pi-plus" label="Grupo" variant="ghost" size="sm" (pressed)="adicionarGrupo()"></geo-button>
         }
         @if (nivel() > 0) {
-          <ces-button label="Remover grupo" variant="destructive" size="sm" (pressed)="removerGrupo.emit()"></ces-button>
+          <geo-button label="Remover grupo" variant="destructive" size="sm" (pressed)="removerGrupo.emit()"></geo-button>
         }
       </div>
     </div>

@@ -268,12 +268,29 @@ export function definicaoBranca(): Definicao {
   };
 }
 
+// renomear-geo: manter a linha seguinte (tipos gravados nas automações antes da troca de nome)
+const PREFIXO_TIPO_LEGADO = 'ces.';
+
+/** Automações salvas antes da troca de nome do produto guardam nós do grupo antigo. */
+function tiposAtuais<T>(valor: T): T {
+  if (Array.isArray(valor)) return valor.map((item) => tiposAtuais(item)) as T;
+  if (!valor || typeof valor !== 'object') return valor;
+  const copia: Record<string, unknown> = {};
+  for (const [chave, item] of Object.entries(valor)) {
+    copia[chave] =
+      chave === 'type' && typeof item === 'string' && item.startsWith(PREFIXO_TIPO_LEGADO)
+        ? 'geo.' + item.slice(PREFIXO_TIPO_LEGADO.length)
+        : chave === 'params' ? item : tiposAtuais(item);
+  }
+  return copia as T;
+}
+
 export function normalizar(bruta: Definicao): Definicao {
   return {
     ...bruta,
     schema: 3,
     variables: bruta.variables ?? [],
-    steps: bruta.steps ?? [],
+    steps: tiposAtuais(bruta.steps ?? []),
     settings: bruta.settings ?? { notify_on_failure: [], timeout_hours: 168 },
     layout: bruta.layout ?? {}
   };

@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.time.Duration;
 
 /** Configuração do limite fixo aplicado somente aos endpoints de lookup. */
-@ConfigurationProperties(prefix = "ces.lookup.rate-limit")
+@ConfigurationProperties(prefix = "geo.lookup.rate-limit")
 public record LookupRateLimitProperties(
         boolean enabled,
         int requestsPerMinute,

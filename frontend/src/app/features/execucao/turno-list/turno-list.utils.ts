@@ -1,9 +1,9 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { TurnoConsulta } from '../../../core/models/dashboard.models';
 
 export interface SituacaoTurnoLista {
   rotulo: string;
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
 }
 

@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import {
   DashboardFinanceiroFilter,
@@ -182,10 +182,10 @@ export function cartoesFinanceiros(d: DashboardFinanceiroResponse): CartaoFinanc
 
 // ------------------------------------------------------------------ leituras e veredito
 
-const PESO_TOM: Record<CesTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
+const PESO_TOM: Record<GeoTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
 
 /** Ordena pelo que pede ação primeiro (estável) e corta no limite. */
-export function priorizar<T extends { tom: CesTone }>(itens: readonly T[], limite = 6): T[] {
+export function priorizar<T extends { tom: GeoTone }>(itens: readonly T[], limite = 6): T[] {
   return itens.map((item, i) => ({ item, i }))
     .sort((a, b) => PESO_TOM[a.item.tom] - PESO_TOM[b.item.tom] || a.i - b.i)
     .slice(0, limite)
@@ -449,7 +449,7 @@ export type DestinoPendencia =
 
 export interface PendenciaFinanceira {
   readonly chave: string;
-  readonly tom: CesTone;
+  readonly tom: GeoTone;
   /** Ordem de gravidade: 0 crítica … 3 baixa. */
   readonly peso: number;
   readonly gravidade: string;
@@ -473,7 +473,7 @@ export interface RegistrosAcao {
 
 const PESO_SEVERIDADE: Record<SeveridadePrioridade, number> = { CRITICA: 0, ALTA: 1, MEDIA: 2, BAIXA: 3 };
 const GRAVIDADE = ['Crítica', 'Alta', 'Média', 'Baixa'] as const;
-const TOM_PESO: CesTone[] = ['danger', 'warning', 'warning', 'info'];
+const TOM_PESO: GeoTone[] = ['danger', 'warning', 'warning', 'info'];
 const ICONE_PESO = ['pi pi-exclamation-circle', 'pi pi-exclamation-triangle', 'pi pi-info-circle', 'pi pi-info-circle'];
 
 interface ComoAgir {

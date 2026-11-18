@@ -1,5 +1,5 @@
 import { computed, inject } from '@angular/core';
-import { CesListRequest, CesSelectOption } from '@ces/ui';
+import { GeoListRequest, GeoSelectOption } from '@geo/ui';
 import { Observable, map } from 'rxjs';
 import { LookupStore } from '../../../core/lookup';
 import { PagedResponse } from '../../../core/models/shared.models';
@@ -11,16 +11,16 @@ import { PaginaFrota } from '../../../core/services/frota.service';
  */
 export const LIMITE_EXPORTACAO_FROTA = 2000;
 
-/** Busca o recorte inteiro (até o limite) para o CSV do `ces-data-table` em modo servidor. */
+/** Busca o recorte inteiro (até o limite) para o CSV do `geo-data-table` em modo servidor. */
 export function exportacaoFrota<T>(
   buscar: (pagina: PaginaFrota) => Observable<PagedResponse<T>>,
-  pedido: () => Pick<CesListRequest<unknown>, 'page' | 'size' | 'sort'>
+  pedido: () => Pick<GeoListRequest<unknown>, 'page' | 'size' | 'sort'>
 ): (evento: unknown, limite: number) => Observable<T[]> {
   return (_evento, limite) => buscar({ ...paginaFrota(pedido()), page: 0, size: limite }).pipe(map((pagina) => pagina.content));
 }
 
 /** Página, tamanho e ordenação do pedido da listagem no formato dos endpoints da frota. */
-export function paginaFrota(pedido: Pick<CesListRequest<unknown>, 'page' | 'size' | 'sort'>): PaginaFrota {
+export function paginaFrota(pedido: Pick<GeoListRequest<unknown>, 'page' | 'size' | 'sort'>): PaginaFrota {
   return {
     page: pedido.page,
     size: pedido.size,
@@ -32,7 +32,7 @@ export function paginaFrota(pedido: Pick<CesListRequest<unknown>, 'page' | 'size
 export function basesFrota() {
   const lookups = inject(LookupStore);
   lookups.loadBootstrap().subscribe({ error: () => undefined });
-  const opcoes = computed<CesSelectOption<string>[]>(() =>
+  const opcoes = computed<GeoSelectOption<string>[]>(() =>
     lookups.operationalBases().map((b) => ({ label: b.label, value: b.value }))
   );
   return {
@@ -42,7 +42,7 @@ export function basesFrota() {
 }
 
 /** Opções do filtro de cadastro (ativo) usado em veículos, implementos e condutores. */
-export const OPCOES_CADASTRO: CesSelectOption<boolean | null>[] = [
+export const OPCOES_CADASTRO: GeoSelectOption<boolean | null>[] = [
   { label: 'Somente ativos', value: true },
   { label: 'Somente desativados', value: false },
   { label: 'Todos', value: null }

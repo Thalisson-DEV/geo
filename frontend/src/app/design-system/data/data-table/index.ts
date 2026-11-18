@@ -1,3 +1,3 @@
-export * from './ces-data-table.component';
-export * from './ces-data-table.directives';
-export * from './ces-data-table.utils';
+export * from './geo-data-table.component';
+export * from './geo-data-table.directives';
+export * from './geo-data-table.utils';

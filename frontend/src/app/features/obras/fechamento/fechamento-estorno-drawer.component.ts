@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CesButtonComponent, CesFormDrawerComponent, CesNumberInputComponent, CesTextareaComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoFormDrawerComponent, GeoNumberInputComponent, GeoTextareaComponent, NotificationService } from '@geo/ui';
 import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 
 import { FechamentoDetalhe, MovimentacaoFechamento, PreviaSaldo } from '../../../core/models/fechamento-obra.models';
@@ -16,10 +16,10 @@ import { FechamentoPreviaSaldoComponent } from './fechamento-previa-saldo.compon
   selector: 'app-fechamento-estorno-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent, CesFormDrawerComponent, CesNumberInputComponent, CesTextareaComponent, FechamentoPreviaSaldoComponent],
+  imports: [GeoButtonComponent, GeoFormDrawerComponent, GeoNumberInputComponent, GeoTextareaComponent, FechamentoPreviaSaldoComponent],
   styleUrl: './fechamento.css',
   template: `
-    <ces-form-drawer [visible]="visible()" (visibleChange)="visible.set($event)" title="Estornar movimentação" size="md"
+    <geo-form-drawer [visible]="visible()" (visibleChange)="visible.set($event)" title="Estornar movimentação" size="md"
       [description]="descricao()" [dirty]="true">
       @if (movimentacao(); as m) {
         <div class="fx-form">
@@ -33,7 +33,7 @@ import { FechamentoPreviaSaldoComponent } from './fechamento-previa-saldo.compon
                     <span class="fx-linha__desc" [title]="item.descricaoMaterial">{{ item.descricaoMaterial }}</span>
                     <span class="fx-linha__meta">Pode estornar até {{ quantidade(item.quantidadeEstornavel) }}</span>
                   </span>
-                  <ces-number-input class="fx-linha__qtd" [label]="'Estornar de ' + item.codigoMaterial" [labelVisible]="false"
+                  <geo-number-input class="fx-linha__qtd" [label]="'Estornar de ' + item.codigoMaterial" [labelVisible]="false"
                     [min]="0" [max]="item.quantidadeEstornavel" [maxFractionDigits]="3"
                     [value]="quantidades()[item.id] ?? null" (valueChange)="definir(item.id, $event)"
                     [error]="(quantidades()[item.id] ?? 0) > item.quantidadeEstornavel ? 'Até ' + quantidade(item.quantidadeEstornavel) + '.' : undefined" />
@@ -42,7 +42,7 @@ import { FechamentoPreviaSaldoComponent } from './fechamento-previa-saldo.compon
             </ul>
             <p class="fx-dica">A quantidade estornada volta a ficar pendente na solicitação.</p>
           </section>
-          <ces-textarea label="Motivo" [(value)]="motivo" [rows]="3" [maxlength]="500" [required]="true"
+          <geo-textarea label="Motivo" [(value)]="motivo" [rows]="3" [maxlength]="500" [required]="true"
             placeholder="Ex.: lançado em dobro no SAP" [error]="tentou() && !motivo().trim() ? 'Informe o motivo do estorno.' : undefined" />
           @if (m.efeitoEstoque === 'FISICO') {
             <app-fechamento-previa-saldo [previa]="previa()" [carregando]="carregandoPrevia()" acao="estornar" />
@@ -51,11 +51,11 @@ import { FechamentoPreviaSaldoComponent } from './fechamento-previa-saldo.compon
           }
         </div>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)" />
-        <ces-button variant="destructive" icon="pi pi-undo" [label]="pendenteEnvio() ? 'Tentar novamente' : 'Estornar'" [loading]="salvando()" (pressed)="confirmar()" />
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)" />
+        <geo-button variant="destructive" icon="pi pi-undo" [label]="pendenteEnvio() ? 'Tentar novamente' : 'Estornar'" [loading]="salvando()" (pressed)="confirmar()" />
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FechamentoEstornoDrawerComponent {

@@ -4,12 +4,12 @@ import { Router } from '@angular/router';
 import { providePrimeNG } from 'primeng/config';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CesReportNavigatorComponent } from './report-navigator.component';
+import { GeoReportNavigatorComponent } from './report-navigator.component';
 import {
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from './report-navigator.models';
 
 interface TestRecord {
@@ -21,7 +21,7 @@ interface TestRecord {
   amount: number;
 }
 
-class MockDataSource implements CesReportNavigatorDataSource<TestRecord> {
+class MockDataSource implements GeoReportNavigatorDataSource<TestRecord> {
   readonly config = {
     title: 'Registros de Teste',
     icon: 'pi pi-folder',
@@ -41,7 +41,7 @@ class MockDataSource implements CesReportNavigatorDataSource<TestRecord> {
     searchPlaceholder: 'Buscar registros...'
   };
 
-  mockPage: CesReportNavigatorPage<TestRecord> = {
+  mockPage: GeoReportNavigatorPage<TestRecord> = {
     items: [
       { id: '1', code: '#001', name: 'Item Um', status: 'ACTIVE', category: 'A', amount: 100 },
       { id: '2', code: '#002', name: 'Item Dois', status: 'PENDING', category: 'A', amount: 250 }
@@ -49,13 +49,13 @@ class MockDataSource implements CesReportNavigatorDataSource<TestRecord> {
     totalElements: 2
   };
 
-  loadFn = vi.fn((_c: CesReportNavigatorCriteria) => of(this.mockPage));
+  loadFn = vi.fn((_c: GeoReportNavigatorCriteria) => of(this.mockPage));
 
-  load(criteria: CesReportNavigatorCriteria) {
+  load(criteria: GeoReportNavigatorCriteria) {
     return this.loadFn(criteria);
   }
 
-  toItem(raw: TestRecord): CesReportNavigatorItem {
+  toItem(raw: TestRecord): GeoReportNavigatorItem {
     return {
       id: raw.id,
       number: raw.code,
@@ -68,7 +68,7 @@ class MockDataSource implements CesReportNavigatorDataSource<TestRecord> {
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | TestRecord) {
+  getRouteForItem(item: GeoReportNavigatorItem | TestRecord) {
     return ['/test', (item as any).id];
   }
 
@@ -77,9 +77,9 @@ class MockDataSource implements CesReportNavigatorDataSource<TestRecord> {
   }
 }
 
-describe('CesReportNavigatorComponent', () => {
-  let component: CesReportNavigatorComponent;
-  let fixture: ComponentFixture<CesReportNavigatorComponent>;
+describe('GeoReportNavigatorComponent', () => {
+  let component: GeoReportNavigatorComponent;
+  let fixture: ComponentFixture<GeoReportNavigatorComponent>;
   let dataSource: MockDataSource;
   let mockRouter: { navigate: ReturnType<typeof vi.fn>; navigateByUrl: ReturnType<typeof vi.fn> };
 
@@ -91,7 +91,7 @@ describe('CesReportNavigatorComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [CesReportNavigatorComponent],
+      imports: [GeoReportNavigatorComponent],
       providers: [
         provideNoopAnimations(),
         providePrimeNG(),
@@ -99,7 +99,7 @@ describe('CesReportNavigatorComponent', () => {
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CesReportNavigatorComponent);
+    fixture = TestBed.createComponent(GeoReportNavigatorComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('dataSource', dataSource);
     fixture.detectChanges();
@@ -108,19 +108,19 @@ describe('CesReportNavigatorComponent', () => {
   it('deve inicializar em estado recolhido por padrão', () => {
     expect(component).toBeTruthy();
     expect(component.opened()).toBe(false);
-    const rail = fixture.nativeElement.querySelector('.ces-report-nav-rail');
+    const rail = fixture.nativeElement.querySelector('.geo-report-nav-rail');
     expect(rail).not.toBeNull();
   });
 
   it('deve expandir ao clicar no rail e carregar itens', () => {
-    const rail = fixture.nativeElement.querySelector('.ces-report-nav-rail') as HTMLButtonElement;
+    const rail = fixture.nativeElement.querySelector('.geo-report-nav-rail') as HTMLButtonElement;
     rail.click();
     fixture.detectChanges();
 
     expect(component.opened()).toBe(true);
     expect(dataSource.loadFn).toHaveBeenCalled();
 
-    const items = fixture.nativeElement.querySelectorAll('.ces-report-nav-item');
+    const items = fixture.nativeElement.querySelectorAll('.geo-report-nav-item');
     expect(items.length).toBe(2);
     expect(fixture.nativeElement.querySelector('h2')?.textContent).toContain('Registros de Teste');
   });
@@ -182,7 +182,7 @@ describe('CesReportNavigatorComponent', () => {
     component.open();
     fixture.detectChanges();
 
-    let itemEmitido: CesReportNavigatorItem | undefined;
+    let itemEmitido: GeoReportNavigatorItem | undefined;
     component.itemSelected.subscribe((i) => (itemEmitido = i));
 
     const item = dataSource.toItem(dataSource.mockPage.items[0]);
@@ -211,7 +211,7 @@ describe('CesReportNavigatorComponent', () => {
   });
 
   it('deve incluir item atual no topo se não estiver na página carregada', () => {
-    const currentItem: CesReportNavigatorItem = {
+    const currentItem: GeoReportNavigatorItem = {
       id: '99',
       number: '#099',
       title: 'Item Atual Injetado'
@@ -222,7 +222,7 @@ describe('CesReportNavigatorComponent', () => {
     component.open();
     fixture.detectChanges();
 
-    const items = fixture.nativeElement.querySelectorAll('.ces-report-nav-item');
+    const items = fixture.nativeElement.querySelectorAll('.geo-report-nav-item');
     expect(items.length).toBe(3);
     expect(fixture.nativeElement.querySelector('[aria-current="page"]')?.textContent).toContain('#099');
   });

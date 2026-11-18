@@ -1,26 +1,26 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { StatusObraResponse } from '../../../../core/models/obras.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -42,27 +42,27 @@ const OPCOES_CONCLUSAO = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="podeEscrever" (newRequested)="novo()">
+      <geo-page-header
         title="Status de obras"
         icon="pi pi-flag"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Cadastros' }, { label: 'Status de Obras' }]"
@@ -71,19 +71,19 @@ const OPCOES_CONCLUSAO = [
         (help)="ajuda.show()"
       >
         @if (podeEscrever) {
-          <ces-button actions icon="pi pi-plus" label="Novo status" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Novo status" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="obras-status" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="obras-status" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Tipo de status" [options]="conclusaoOpcoes" [(value)]="lista.filters.concluida"></ces-select>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Tipo de status" [options]="conclusaoOpcoes" [(value)]="lista.filters.concluida"></geo-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Status de obras"
         mode="server"
         storageKey="obras-status"
@@ -113,38 +113,38 @@ const OPCOES_CONCLUSAO = [
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="concluida" let-row>
-          <ces-status [tone]="row.concluida ? 'success' : 'info'" [icon]="row.concluida ? 'pi-check-circle' : 'pi-spinner'">
+        <ng-template geoCell="concluida" let-row>
+          <geo-status [tone]="row.concluida ? 'success' : 'info'" [icon]="row.concluida ? 'pi-check-circle' : 'pi-spinner'">
             {{ row.concluida ? 'Concluída / finalizada' : 'Em andamento' }}
-          </ces-status>
+          </geo-status>
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (podeEscrever && row.ativo) {
-              <ces-icon-button icon="pi pi-ban" [label]="'Desativar ' + row.nome" size="icon-sm" (pressed)="desativar(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-ban" [label]="'Desativar ' + row.nome" size="icon-sm" (pressed)="desativar(row)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nome" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar status' : 'Novo status'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar status' : 'Novo status'"
       [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
-      <ces-form-section title="Dados do status" icon="pi pi-flag">
-        <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="100" description="Gravado em letras maiúsculas." [error]="erro('nome')"></ces-text-input>
-        <ces-number-input label="Ordem de exibição" [(value)]="ordem" [min]="0" [useGrouping]="false" description="Posição do status no painel de obras."></ces-number-input>
-        <ces-boolean-control label="Este status conclui a obra" [(value)]="concluida"
-          description="Obras neste status contam como concluídas/finalizadas."></ces-boolean-control>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar status'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <geo-form-section title="Dados do status" icon="pi pi-flag">
+        <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="100" description="Gravado em letras maiúsculas." [error]="erro('nome')"></geo-text-input>
+        <geo-number-input label="Ordem de exibição" [(value)]="ordem" [min]="0" [useGrouping]="false" description="Posição do status no painel de obras."></geo-number-input>
+        <geo-boolean-control label="Este status conclui a obra" [(value)]="concluida"
+          description="Obras neste status contam como concluídas/finalizadas."></geo-boolean-control>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar status'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Status de obras" entidadePlural="status" busca="nome do status"
@@ -154,17 +154,17 @@ const OPCOES_CONCLUSAO = [
 export class StatusObrasComponent {
   private readonly servico = inject(ObrasService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
   protected readonly podeEscrever = inject(AuthService).currentUser()?.permissoes?.includes('obras:cadastros:write') ?? false;
 
   protected readonly statusOpcoes = OPCOES_STATUS;
   protected readonly conclusaoOpcoes = OPCOES_CONCLUSAO;
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-status',
     filters: {
-      concluida: cesFilter.value<boolean | null>(null, { label: 'Tipo', param: 'tipo', options: () => OPCOES_CONCLUSAO }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      concluida: geoFilter.value<boolean | null>(null, { label: 'Tipo', param: 'tipo', options: () => OPCOES_CONCLUSAO }),
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'ordem', direction: 'asc' }]
   });
@@ -178,7 +178,7 @@ export class StatusObrasComponent {
     () => this.lista.request()
   );
 
-  protected readonly colunas: CesDataTableColumn<StatusObraResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<StatusObraResponse>[] = [
     { key: 'ordem', header: 'Ordem', type: 'integer', sortField: 'ordem', width: '6rem' },
     { key: 'nome', header: 'Nome', priority: 1, sortField: 'nome' },
     { key: 'concluida', header: 'Tipo de status', type: 'custom', sortField: 'concluida', value: (s) => s.concluida, display: (s) => (s.concluida ? 'Concluída / finalizada' : 'Em andamento') },

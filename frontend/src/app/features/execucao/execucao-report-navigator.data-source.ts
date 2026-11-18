@@ -1,11 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   ExecucaoComercialResponse,
@@ -13,7 +13,7 @@ import {
   StatusExecucao
 } from '../../core/models/execucao.models';
 import { ExecucaoService } from '../../core/services/execucao.service';
-import { CesTone } from '../../design-system/core';
+import { GeoTone } from '../../design-system/core';
 
 const STATUS_LABELS: Record<StatusExecucao, string> = {
   INICIADO: 'Em andamento',
@@ -27,7 +27,7 @@ const STATUS_ICONES: Record<StatusExecucao, string> = {
   EDITADO: 'pi-pencil'
 };
 
-const STATUS_TONES: Record<StatusExecucao, CesTone> = {
+const STATUS_TONES: Record<StatusExecucao, GeoTone> = {
   INICIADO: 'warning',
   CONCLUIDO: 'success',
   EDITADO: 'info'
@@ -35,16 +35,16 @@ const STATUS_TONES: Record<StatusExecucao, CesTone> = {
 
 @Injectable({ providedIn: 'root' })
 export class ExecucaoReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<ExecucaoComercialResponse>
+  implements GeoReportNavigatorDataSource<ExecucaoComercialResponse>
 {
   private readonly service = inject(ExecucaoService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODAS',
     sort: 'dataLancamento,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Execuções Comerciais',
     icon: 'pi pi-bolt',
     eyebrow: 'Navegador',
@@ -65,8 +65,8 @@ export class ExecucaoReportNavigatorDataSource
   };
 
   load(
-    criteria: CesReportNavigatorCriteria
-  ): Observable<CesReportNavigatorPage<ExecucaoComercialResponse>> {
+    criteria: GeoReportNavigatorCriteria
+  ): Observable<GeoReportNavigatorPage<ExecucaoComercialResponse>> {
     const filtros: ExecucaoFilters = {
       page: 0,
       size: 50,
@@ -86,7 +86,7 @@ export class ExecucaoReportNavigatorDataSource
     );
   }
 
-  toItem(raw: ExecucaoComercialResponse): CesReportNavigatorItem {
+  toItem(raw: ExecucaoComercialResponse): GeoReportNavigatorItem {
     const status = raw.statusExecucao;
     const equipeNome = raw.equipe?.codigo || 'Equipe';
 
@@ -118,7 +118,7 @@ export class ExecucaoReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | ExecucaoComercialResponse): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | ExecucaoComercialResponse): any[] {
     const id = (item as any).id;
     return ['/execucao', 'comercial', id];
   }

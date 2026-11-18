@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -30,7 +30,7 @@ describe('OperacaoEstoqueDrawerComponent', () => {
         provideRouter([]),
         { provide: AlmoxarifadoService, useValue: almox },
         { provide: NotificationService, useValue: notificacoes },
-        { provide: CesConfirmationService, useValue: { confirm: confirmar } },
+        { provide: GeoConfirmationService, useValue: { confirm: confirmar } },
         { provide: LookupStore, useValue: { searchMaterials: () => of({ items: [], nextCursor: null, hasMore: false }) } }
       ]
     });

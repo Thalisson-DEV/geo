@@ -4,60 +4,60 @@
   cinza para o canvas ficar calmo. Só tokens: claro e escuro saem do mesmo CSS.
 */
 .aut [data-group], .aut[data-group] {
-  --node-hue: var(--ces-brand);
-  --node-accent: color-mix(in srgb, var(--node-hue) 78%, var(--ces-foreground-muted));
-  --node-soft: color-mix(in srgb, var(--node-hue) 10%, var(--ces-surface));
-  --node-line: color-mix(in srgb, var(--node-hue) 30%, var(--ces-border));
+  --node-hue: var(--geo-brand);
+  --node-accent: color-mix(in srgb, var(--node-hue) 78%, var(--geo-foreground-muted));
+  --node-soft: color-mix(in srgb, var(--node-hue) 10%, var(--geo-surface));
+  --node-line: color-mix(in srgb, var(--node-hue) 30%, var(--geo-border));
 }
-.aut [data-group="trigger"], .aut[data-group="trigger"] { --node-hue: var(--ces-brand); }
-.aut [data-group="control"], .aut[data-group="control"] { --node-hue: var(--ces-chart-4); }
-.aut [data-group="variables"], .aut[data-group="variables"] { --node-hue: var(--ces-chart-6); }
-.aut [data-group="data"], .aut[data-group="data"] { --node-hue: var(--ces-chart-2); }
-.aut [data-group="ces"], .aut[data-group="ces"] { --node-hue: var(--ces-chart-7); }
-.aut [data-group="people"], .aut[data-group="people"] { --node-hue: var(--ces-chart-3); }
-.aut [data-group="ai"], .aut[data-group="ai"] { --node-hue: var(--ces-chart-8); }
-.aut [data-group="notify"], .aut[data-group="notify"] { --node-hue: var(--ces-chart-1); }
-.aut [data-group="approval"], .aut[data-group="approval"] { --node-hue: var(--ces-chart-5); }
-.aut [data-group="integration"], .aut[data-group="integration"] { --node-hue: var(--ces-chart-2); }
+.aut [data-group="trigger"], .aut[data-group="trigger"] { --node-hue: var(--geo-brand); }
+.aut [data-group="control"], .aut[data-group="control"] { --node-hue: var(--geo-chart-4); }
+.aut [data-group="variables"], .aut[data-group="variables"] { --node-hue: var(--geo-chart-6); }
+.aut [data-group="data"], .aut[data-group="data"] { --node-hue: var(--geo-chart-2); }
+.aut [data-group="geo"], .aut[data-group="geo"] { --node-hue: var(--geo-chart-7); }
+.aut [data-group="people"], .aut[data-group="people"] { --node-hue: var(--geo-chart-3); }
+.aut [data-group="ai"], .aut[data-group="ai"] { --node-hue: var(--geo-chart-8); }
+.aut [data-group="notify"], .aut[data-group="notify"] { --node-hue: var(--geo-chart-1); }
+.aut [data-group="approval"], .aut[data-group="approval"] { --node-hue: var(--geo-chart-5); }
+.aut [data-group="integration"], .aut[data-group="integration"] { --node-hue: var(--geo-chart-2); }
 
-.aut { color: var(--ces-foreground); }
+.aut { color: var(--geo-foreground); }
 :where(.aut) :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
-:where(.aut) :focus-visible { outline: 2px solid var(--ces-brand); outline-offset: 2px; }
-.aut-muted { color: var(--ces-foreground-muted); font-size: var(--ces-font-body); }
-.aut-link { color: var(--ces-brand); font-size: var(--ces-font-body); font-weight: 600; cursor: pointer; }
+:where(.aut) :focus-visible { outline: 2px solid var(--geo-brand); outline-offset: 2px; }
+.aut-muted { color: var(--geo-foreground-muted); font-size: var(--geo-font-body); }
+.aut-link { color: var(--geo-brand); font-size: var(--geo-font-body); font-weight: 600; cursor: pointer; }
 .aut-link:hover { text-decoration: underline; }
 
 /* -------------------------------------------------------------- controles nativos
-   Os campos usam as classes de controle do GEO (p-inputtext/p-textarea + ces-prime-control). */
+   Os campos usam as classes de controle do GEO (p-inputtext/p-textarea + geo-prime-control). */
 .aut-select { appearance: auto; }
-textarea.ces-prime-control { min-height: 4.5rem; resize: vertical; }
-.aut-check { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--ces-font-control); cursor: pointer; }
-.aut-check input { width: 1rem; height: 1rem; accent-color: var(--ces-brand); }
+textarea.geo-prime-control { min-height: 4.5rem; resize: vertical; }
+.aut-check { display: inline-flex; align-items: center; gap: 0.5rem; font-size: var(--geo-font-control); cursor: pointer; }
+.aut-check input { width: 1rem; height: 1rem; accent-color: var(--geo-brand); }
 
-.aut-dot { width: 0.5rem; height: 0.5rem; flex-shrink: 0; border-radius: 999px; background: var(--ces-border-strong); }
-[data-status="SUCESSO"] > .aut-dot { background: var(--ces-success); }
-[data-status="FALHA"] > .aut-dot, [data-status="TEMPO_ESGOTADO"] > .aut-dot { background: var(--ces-danger); }
-[data-status="EXECUTANDO"] > .aut-dot, [data-status="AGUARDANDO"] > .aut-dot, [data-status="NA_FILA"] > .aut-dot { background: var(--ces-warning); }
+.aut-dot { width: 0.5rem; height: 0.5rem; flex-shrink: 0; border-radius: 999px; background: var(--geo-border-strong); }
+[data-status="SUCESSO"] > .aut-dot { background: var(--geo-success); }
+[data-status="FALHA"] > .aut-dot, [data-status="TEMPO_ESGOTADO"] > .aut-dot { background: var(--geo-danger); }
+[data-status="EXECUTANDO"] > .aut-dot, [data-status="AGUARDANDO"] > .aut-dot, [data-status="NA_FILA"] > .aut-dot { background: var(--geo-warning); }
 
 /* -------------------------------------------------------------- lista */
 .aut-page { display: flex; flex-direction: column; gap: 1rem; }
 .aut-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 .aut-search { flex: 1 1 14rem; max-width: 22rem; }
-.aut-card { border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); overflow: hidden; }
-.aut-list-name { color: var(--ces-foreground); font-size: var(--ces-font-body); font-weight: 600; }
-.aut-list-desc { overflow: hidden; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); text-overflow: ellipsis; }
+.aut-card { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); overflow: hidden; }
+.aut-list-name { color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 600; }
+.aut-list-desc { overflow: hidden; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); text-overflow: ellipsis; }
 .aut-list-run { display: inline-flex; align-items: center; gap: 0.4rem; }
 
 .aut-templates { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 0.625rem; }
 .aut-template {
-  display: flex; gap: 0.75rem; padding: 0.875rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface);
+  display: flex; gap: 0.75rem; padding: 0.875rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface);
   text-align: start; transition: border-color 120ms ease, box-shadow 120ms ease;
 }
-.aut-template:hover { border-color: var(--ces-border-strong); }
-.aut-template[aria-pressed="true"] { border-color: var(--ces-brand); box-shadow: none; }
+.aut-template:hover { border-color: var(--geo-border-strong); }
+.aut-template[aria-pressed="true"] { border-color: var(--geo-brand); box-shadow: none; }
 .aut-template .aut-node-icon { flex-shrink: 0; }
-.aut-template-title { font-weight: 600; font-size: var(--ces-font-body); }
-.aut-template-desc { color: var(--ces-foreground-muted); font-size: var(--ces-font-body); line-height: 1.4; margin-top: 0.25rem; }
+.aut-template-title { font-weight: 600; font-size: var(--geo-font-body); }
+.aut-template-desc { color: var(--geo-foreground-muted); font-size: var(--geo-font-body); line-height: 1.4; margin-top: 0.25rem; }
 
 /* célula "Automação" da tabela */
 .aut-list-main { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; }

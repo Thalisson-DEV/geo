@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -74,7 +74,7 @@ describe('FrotaMapaFrotaComponent', () => {
     parado.click();
     fixture.detectChanges();
     expect(el.querySelectorAll('.mf-item')).toHaveLength(2);
-    expect(localStorage.getItem('ces_mapa_frota_preferencias')).toContain('"estados"');
+    expect(localStorage.getItem('geo_mapa_frota_preferencias')).toContain('"estados"');
   });
 
   it('busca por placa sem hífen e por condutor', async () => {
@@ -109,7 +109,7 @@ describe('FrotaMapaFrotaComponent', () => {
     fixture.detectChanges();
     expect(el.querySelector('.mf-painel')).toBeNull();
     expect(el.querySelector('.mf')!.classList).toContain('mf--recolhido');
-    expect(localStorage.getItem('ces_mapa_frota_preferencias')).toContain('"painelRecolhido":true');
+    expect(localStorage.getItem('geo_mapa_frota_preferencias')).toContain('"painelRecolhido":true');
     const abrirLista = el.querySelector<HTMLButtonElement>('.mf-abrir button')!;
     expect(abrirLista.textContent).toContain('Veículos (3)');
     abrirLista.click();

@@ -2,11 +2,11 @@ import { ICONE_STATUS_INSPECAO } from '../../../core/models/sst.models';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   InspecaoFilters,
@@ -14,7 +14,7 @@ import {
   StatusInspecao
 } from '../../../core/models/sst.models';
 import { SstService } from '../../../core/services/sst.service';
-import { CesTone } from '../../../design-system/core';
+import { GeoTone } from '../../../design-system/core';
 
 const STATUS_LABELS: Record<StatusInspecao, string> = {
   EM_ANDAMENTO: 'Em andamento',
@@ -22,7 +22,7 @@ const STATUS_LABELS: Record<StatusInspecao, string> = {
   CANCELADA: 'Cancelada'
 };
 
-const STATUS_TONES: Record<StatusInspecao, CesTone> = {
+const STATUS_TONES: Record<StatusInspecao, GeoTone> = {
   EM_ANDAMENTO: 'warning',
   CONCLUIDA: 'success',
   CANCELADA: 'danger'
@@ -30,16 +30,16 @@ const STATUS_TONES: Record<StatusInspecao, CesTone> = {
 
 @Injectable({ providedIn: 'root' })
 export class InspecaoSstReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<InspecaoSegurancaResponse>
+  implements GeoReportNavigatorDataSource<InspecaoSegurancaResponse>
 {
   private readonly service = inject(SstService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODAS',
     sort: 'dataRealizacao,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Inspeções de SST',
     icon: 'pi pi-shield',
     eyebrow: 'Navegador',
@@ -59,8 +59,8 @@ export class InspecaoSstReportNavigatorDataSource
   };
 
   load(
-    criteria: CesReportNavigatorCriteria
-  ): Observable<CesReportNavigatorPage<InspecaoSegurancaResponse>> {
+    criteria: GeoReportNavigatorCriteria
+  ): Observable<GeoReportNavigatorPage<InspecaoSegurancaResponse>> {
     const page = 0;
     const size = 50;
 
@@ -88,7 +88,7 @@ export class InspecaoSstReportNavigatorDataSource
     );
   }
 
-  toItem(raw: InspecaoSegurancaResponse): CesReportNavigatorItem {
+  toItem(raw: InspecaoSegurancaResponse): GeoReportNavigatorItem {
     const status = raw.status;
     const titleEquipe =
       raw.equipe?.codigo || raw.veiculo?.placa || raw.processo?.nome || 'Inspeção';
@@ -120,7 +120,7 @@ export class InspecaoSstReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | InspecaoSegurancaResponse): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | InspecaoSegurancaResponse): any[] {
     const id = (item as any).id;
     return ['/sst', 'inspecoes', id];
   }

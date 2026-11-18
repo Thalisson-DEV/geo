@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import { IndicadorFrota, RelatorioGerencialFrota } from '../../../core/models/frota-relatorios.models';
 import { LeituraGerencial, VereditoGerencial } from '../../../shared/components/dashboard/dashboard-visao-gerencial.component';
 
@@ -61,7 +61,7 @@ export function comparacao(ind: IndicadorFrota | null | undefined, formato: 'moe
   return `${v > 0 ? '+' : '−'}${pct(Math.abs(v))} sobre o período anterior`;
 }
 
-const PESO: Record<CesTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
+const PESO: Record<GeoTone, number> = { danger: 0, warning: 1, info: 2, brand: 2, neutral: 3, success: 4 };
 
 export interface VisaoRelatorioFrota {
   veredito: VereditoGerencial;

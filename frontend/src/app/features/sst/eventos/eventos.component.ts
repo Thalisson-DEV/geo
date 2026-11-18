@@ -2,24 +2,24 @@ import { ICONE_STATUS_EVENTO, ICONE_TIPO_EVENTO } from '../../../core/models/sst
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as BuscaColaboradores } from '../../../core/lookup/store/remote-lookup';
@@ -45,7 +45,7 @@ import { EventosImportacaoComponent } from './eventos-importacao.component';
 import { EventosLookups, EventosLookupsService } from './eventos-lookups.service';
 import { EventosFiltrosView, baixarCsv, montarEventoFiltro, montarEventoFiltroExportacao } from './eventos.utils';
 
-const SIM_NAO: CesSelectOption<boolean | null>[] = [
+const SIM_NAO: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Sim', value: true },
   { label: 'Não', value: false }
@@ -56,19 +56,19 @@ const EVIDENCIAS = opcoesDe(REGISTRO_EVIDENCIA_LABELS);
 const VAZIO = { from: null, to: null };
 type Catalogo = 'classificacoes' | 'atividades' | 'processos' | 'bases' | 'centrosCusto' | 'locaisLesao';
 
-const TOM_TIPO: Record<TipoEventoSst, CesTone> = {
+const TOM_TIPO: Record<TipoEventoSst, GeoTone> = {
   ACIDENTE_TIPICO: 'danger',
   ACIDENTE_TRAJETO: 'warning',
   INCIDENTE_SEM_LESAO: 'neutral',
   DANO_MATERIAL: 'info',
   DOENCA_OCUPACIONAL: 'danger'
-} as Record<TipoEventoSst, CesTone>;
-const TOM_STATUS: Record<StatusEventoSst, CesTone> = {
+} as Record<TipoEventoSst, GeoTone>;
+const TOM_STATUS: Record<StatusEventoSst, GeoTone> = {
   REGISTRADO: 'danger',
   EM_TRATATIVA: 'warning',
   CONCLUIDO: 'success',
   CANCELADO: 'neutral'
-} as Record<StatusEventoSst, CesTone>;
+} as Record<StatusEventoSst, GeoTone>;
 
 /**
  * Listagem de eventos de segurança — a visão do SESMT sobre a acidentalidade.
@@ -82,23 +82,23 @@ const TOM_STATUS: Record<StatusEventoSst, CesTone> = {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent,
     EventosImportacaoComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="canWrite" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="canWrite" (newRequested)="novo()">
+      <geo-page-header
         title="Eventos de segurança"
         icon="pi pi-exclamation-triangle"
         [breadcrumb]="[{ label: 'Segurança (SST)' }, { label: 'Eventos de segurança' }]"
@@ -106,50 +106,50 @@ const TOM_STATUS: Record<StatusEventoSst, CesTone> = {
         helpLabel="Ajuda sobre eventos de segurança"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" [loading]="exportando()" (pressed)="exportar()"></ces-button>
+        <geo-button actions variant="outline" icon="pi pi-download" label="Exportar CSV" [loading]="exportando()" (pressed)="exportar()"></geo-button>
         @if (canWrite) {
-          <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></geo-button>
         }
         @if (canWrite) {
-          <ces-button actions icon="pi pi-plus" label="Registrar evento" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Registrar evento" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="sst-eventos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="sst-eventos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Tipo de ocorrência" [options]="tipos" [(value)]="lista.filters.tipo" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Classificação" [options]="opcoes('classificacoes')" [(value)]="lista.filters.idClassificacao" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Atividade" [options]="opcoes('atividades')" [(value)]="lista.filters.idAtividade" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Base operacional" [options]="opcoes('bases')" [(value)]="lista.filters.idBaseOperacional" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Centro de custo" [options]="opcoes('centrosCusto')" [(value)]="lista.filters.idCentroCusto" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Processo" [options]="opcoes('processos')" [(value)]="lista.filters.idProcesso" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.idEquipe" placeholder="Todas"
-            [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></ces-multiselect>
-          <ces-multiselect label="Veículo" [options]="veiculosOpcoes()" [(value)]="lista.filters.idVeiculo" placeholder="Todos"
-            [loading]="veiculos.loading()" (opened)="veiculos.open()" (search)="veiculos.search($event)"></ces-multiselect>
-          <ces-multiselect label="Gestor responsável" [options]="colaboradores.items()" [(value)]="lista.filters.idGestor" placeholder="Todos"
-            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)" description="Digite ao menos 2 letras do nome."></ces-multiselect>
-          <ces-multiselect label="Técnico de segurança" [options]="colaboradores.items()" [(value)]="lista.filters.idTecnico" placeholder="Todos"
-            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></ces-multiselect>
-          <ces-multiselect label="Colaborador envolvido" [options]="colaboradores.items()" [(value)]="lista.filters.idColaboradorEnvolvido" placeholder="Todos"
-            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></ces-multiselect>
-          <ces-multiselect label="Local da lesão" [options]="opcoes('locaisLesao')" [(value)]="lista.filters.idLocalLesao" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Lesão" [options]="simNao" [(value)]="lista.filters.comLesao"></ces-select>
-          <ces-select label="CAT emitida" [options]="simNao" [(value)]="lista.filters.possuiCat"></ces-select>
-          <ces-multiselect label="Telemetria" [options]="evidencias" [(value)]="lista.filters.telemetria" [filter]="false" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Filmagem" [options]="evidencias" [(value)]="lista.filters.filmagem" [filter]="false" placeholder="Todas"></ces-multiselect>
-          <ces-text-input label="Nome do colaborador" [(value)]="lista.filters.nomeColaborador"></ces-text-input>
-          <ces-text-input label="Nome do terceiro" [(value)]="lista.filters.nomeTerceiro"></ces-text-input>
-          <ces-datepicker label="Ocorridos a partir de" [value]="dataLocal(lista.filters.ocorrencia().from)" [clearable]="true" (valueChange)="periodo('ocorrencia', 'from', $event)"></ces-datepicker>
-          <ces-datepicker label="Ocorridos até" [value]="dataLocal(lista.filters.ocorrencia().to)" [clearable]="true" (valueChange)="periodo('ocorrencia', 'to', $event)"></ces-datepicker>
-          <ces-datepicker label="Comunicados a partir de" [value]="dataLocal(lista.filters.comunicacao().from)" [clearable]="true" (valueChange)="periodo('comunicacao', 'from', $event)"></ces-datepicker>
-          <ces-datepicker label="Comunicados até" [value]="dataLocal(lista.filters.comunicacao().to)" [clearable]="true" (valueChange)="periodo('comunicacao', 'to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Tipo de ocorrência" [options]="tipos" [(value)]="lista.filters.tipo" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Classificação" [options]="opcoes('classificacoes')" [(value)]="lista.filters.idClassificacao" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Atividade" [options]="opcoes('atividades')" [(value)]="lista.filters.idAtividade" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Base operacional" [options]="opcoes('bases')" [(value)]="lista.filters.idBaseOperacional" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Centro de custo" [options]="opcoes('centrosCusto')" [(value)]="lista.filters.idCentroCusto" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Processo" [options]="opcoes('processos')" [(value)]="lista.filters.idProcesso" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.idEquipe" placeholder="Todas"
+            [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></geo-multiselect>
+          <geo-multiselect label="Veículo" [options]="veiculosOpcoes()" [(value)]="lista.filters.idVeiculo" placeholder="Todos"
+            [loading]="veiculos.loading()" (opened)="veiculos.open()" (search)="veiculos.search($event)"></geo-multiselect>
+          <geo-multiselect label="Gestor responsável" [options]="colaboradores.items()" [(value)]="lista.filters.idGestor" placeholder="Todos"
+            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)" description="Digite ao menos 2 letras do nome."></geo-multiselect>
+          <geo-multiselect label="Técnico de segurança" [options]="colaboradores.items()" [(value)]="lista.filters.idTecnico" placeholder="Todos"
+            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></geo-multiselect>
+          <geo-multiselect label="Colaborador envolvido" [options]="colaboradores.items()" [(value)]="lista.filters.idColaboradorEnvolvido" placeholder="Todos"
+            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></geo-multiselect>
+          <geo-multiselect label="Local da lesão" [options]="opcoes('locaisLesao')" [(value)]="lista.filters.idLocalLesao" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Lesão" [options]="simNao" [(value)]="lista.filters.comLesao"></geo-select>
+          <geo-select label="CAT emitida" [options]="simNao" [(value)]="lista.filters.possuiCat"></geo-select>
+          <geo-multiselect label="Telemetria" [options]="evidencias" [(value)]="lista.filters.telemetria" [filter]="false" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Filmagem" [options]="evidencias" [(value)]="lista.filters.filmagem" [filter]="false" placeholder="Todas"></geo-multiselect>
+          <geo-text-input label="Nome do colaborador" [(value)]="lista.filters.nomeColaborador"></geo-text-input>
+          <geo-text-input label="Nome do terceiro" [(value)]="lista.filters.nomeTerceiro"></geo-text-input>
+          <geo-datepicker label="Ocorridos a partir de" [value]="dataLocal(lista.filters.ocorrencia().from)" [clearable]="true" (valueChange)="periodo('ocorrencia', 'from', $event)"></geo-datepicker>
+          <geo-datepicker label="Ocorridos até" [value]="dataLocal(lista.filters.ocorrencia().to)" [clearable]="true" (valueChange)="periodo('ocorrencia', 'to', $event)"></geo-datepicker>
+          <geo-datepicker label="Comunicados a partir de" [value]="dataLocal(lista.filters.comunicacao().from)" [clearable]="true" (valueChange)="periodo('comunicacao', 'from', $event)"></geo-datepicker>
+          <geo-datepicker label="Comunicados até" [value]="dataLocal(lista.filters.comunicacao().to)" [clearable]="true" (valueChange)="periodo('comunicacao', 'to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Eventos"
         mode="server"
         storageKey="sst-eventos"
@@ -176,33 +176,33 @@ const TOM_STATUS: Record<StatusEventoSst, CesTone> = {
         (emptyAction)="novo()"
         (rowActivate)="abrir($event)"
       >
-        <ng-template cesCell="registro" let-row>
-          <span class="ces-cell-strong">{{ row.numeroRegistro }}</span>
+        <ng-template geoCell="registro" let-row>
+          <span class="geo-cell-strong">{{ row.numeroRegistro }}</span>
           @if (row.comunicacaoAtrasada) {
-            <ces-status tone="danger" icon="pi-clock" emphasis="outline">{{ row.horasAteComunicacao }}h para comunicar</ces-status>
+            <geo-status tone="danger" icon="pi-clock" emphasis="outline">{{ row.horasAteComunicacao }}h para comunicar</geo-status>
           } @else {
-            <span class="ces-cell-muted">Comunicado em {{ row.horasAteComunicacao }}h</span>
+            <span class="geo-cell-muted">Comunicado em {{ row.horasAteComunicacao }}h</span>
           }
         </ng-template>
-        <ng-template cesCell="tipo" let-row><ces-status [tone]="tipoTone(row.tipo)" [icon]="iconeTipo[row.tipo]">{{ tipoLabel(row.tipo) }}</ces-status></ng-template>
-        <ng-template cesCell="status" let-row><ces-status [tone]="statusTone(row.status)" [icon]="iconeStatus[row.status]">{{ statusLabel(row.status) }}</ces-status></ng-template>
-        <ng-template cesCell="atividade" let-row>
+        <ng-template geoCell="tipo" let-row><geo-status [tone]="tipoTone(row.tipo)" [icon]="iconeTipo[row.tipo]">{{ tipoLabel(row.tipo) }}</geo-status></ng-template>
+        <ng-template geoCell="status" let-row><geo-status [tone]="statusTone(row.status)" [icon]="iconeStatus[row.status]">{{ statusLabel(row.status) }}</geo-status></ng-template>
+        <ng-template geoCell="atividade" let-row>
           <span [title]="row.atividadeNome">{{ row.atividadeNome }}</span>
-          <span class="ces-cell-muted">{{ row.classificacaoNome || 'Sem classificação' }}</span>
+          <span class="geo-cell-muted">{{ row.classificacaoNome || 'Sem classificação' }}</span>
         </ng-template>
-        <ng-template cesCell="local" let-row>
+        <ng-template geoCell="local" let-row>
           <span [title]="row.baseNome">{{ row.baseNome }}</span>
-          <span class="ces-cell-muted">{{ row.equipeCodigo || 'Sem equipe' }}{{ row.veiculoPlaca ? ' · ' + row.veiculoPlaca : '' }}</span>
+          <span class="geo-cell-muted">{{ row.equipeCodigo || 'Sem equipe' }}{{ row.veiculoPlaca ? ' · ' + row.veiculoPlaca : '' }}</span>
         </ng-template>
-        <ng-template cesCell="lesao" let-row>
+        <ng-template geoCell="lesao" let-row>
           @if (row.comLesao) {
-            <ces-status tone="danger" icon="pi-exclamation-triangle">{{ row.quantidadeAcidentados }} acidentado(s){{ row.diasPerdidos ? ' · ' + row.diasPerdidos + 'd perdidos' : '' }}</ces-status>
+            <geo-status tone="danger" icon="pi-exclamation-triangle">{{ row.quantidadeAcidentados }} acidentado(s){{ row.diasPerdidos ? ' · ' + row.diasPerdidos + 'd perdidos' : '' }}</geo-status>
           } @else {
-            <span class="ces-cell-muted">Sem lesão</span>
+            <span class="geo-cell-muted">Sem lesão</span>
           }
-          @if (row.possuiCat) { <ces-status tone="brand" icon="pi-file">CAT emitida</ces-status> }
+          @if (row.possuiCat) { <geo-status tone="brand" icon="pi-file">CAT emitida</geo-status> }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-eventos-importacao [(visible)]="importacaoAberta" [lookups]="lookups()" (processado)="lista.reload()"></app-eventos-importacao>
@@ -253,7 +253,7 @@ export class EventosComponent {
     },
     this.destroyRef
   );
-  protected readonly equipesOpcoes = computed<CesSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
+  protected readonly equipesOpcoes = computed<GeoSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
   protected readonly veiculos = new RemoteLookup<VeiculoResponse>(
     {
       identify: (v) => v.id,
@@ -262,32 +262,32 @@ export class EventosComponent {
     },
     this.destroyRef
   );
-  protected readonly veiculosOpcoes = computed<CesSelectOption<string>[]>(() => this.veiculos.items().map((v) => ({ label: v.placa, value: v.id })));
+  protected readonly veiculosOpcoes = computed<GeoSelectOption<string>[]>(() => this.veiculos.items().map((v) => ({ label: v.placa, value: v.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'sst-eventos',
     filters: {
-      tipo: cesFilter.list<TipoEventoSst>([], { label: 'Tipo', itemLabel: (t) => TIPO_EVENTO_LABELS[t] ?? t }),
-      status: cesFilter.list<StatusEventoSst>([], { label: 'Status', itemLabel: (s) => STATUS_EVENTO_LABELS[s] ?? s }),
-      idClassificacao: cesFilter.list<string>([], { label: 'Classificação', itemLabel: (id) => this.nome('classificacoes', id) }),
-      idAtividade: cesFilter.list<string>([], { label: 'Atividade', itemLabel: (id) => this.nome('atividades', id) }),
-      idBaseOperacional: cesFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.nome('bases', id), countLabel: (n) => `${n} selecionadas` }),
-      idCentroCusto: cesFilter.list<string>([], { label: 'Centro de custo', itemLabel: (id) => this.nome('centrosCusto', id) }),
-      idProcesso: cesFilter.list<string>([], { label: 'Processo', itemLabel: (id) => this.nome('processos', id) }),
-      idEquipe: cesFilter.list<string>([], { label: 'Equipe', itemLabel: (id) => this.rotulo_(id, 'equipe selecionada'), countLabel: (n) => `${n} selecionadas` }),
-      idVeiculo: cesFilter.list<string>([], { label: 'Veículo', itemLabel: (id) => this.rotulo_(id, 'veículo selecionado') }),
-      idGestor: cesFilter.list<string>([], { label: 'Gestor', itemLabel: (id) => this.rotulo_(id, 'gestor selecionado') }),
-      idTecnico: cesFilter.list<string>([], { label: 'Técnico', itemLabel: (id) => this.rotulo_(id, 'técnico selecionado') }),
-      idColaboradorEnvolvido: cesFilter.list<string>([], { label: 'Envolvido', itemLabel: (id) => this.rotulo_(id, 'colaborador selecionado') }),
-      idLocalLesao: cesFilter.list<string>([], { label: 'Local da lesão', itemLabel: (id) => this.nome('locaisLesao', id) }),
-      telemetria: cesFilter.list<RegistroEvidencia>([], { label: 'Telemetria', itemLabel: (v) => REGISTRO_EVIDENCIA_LABELS[v] ?? v }),
-      filmagem: cesFilter.list<RegistroEvidencia>([], { label: 'Filmagem', itemLabel: (v) => REGISTRO_EVIDENCIA_LABELS[v] ?? v }),
-      comLesao: cesFilter.value<boolean | null>(null, { label: 'Lesão', options: () => SIM_NAO }),
-      possuiCat: cesFilter.value<boolean | null>(null, { label: 'CAT', options: () => SIM_NAO }),
-      nomeColaborador: cesFilter.value<string>('', { label: 'Colaborador' }),
-      nomeTerceiro: cesFilter.value<string>('', { label: 'Terceiro' }),
-      ocorrencia: cesFilter.range({ ...VAZIO }, { label: 'Ocorrência' }),
-      comunicacao: cesFilter.range({ ...VAZIO }, { label: 'Comunicação' })
+      tipo: geoFilter.list<TipoEventoSst>([], { label: 'Tipo', itemLabel: (t) => TIPO_EVENTO_LABELS[t] ?? t }),
+      status: geoFilter.list<StatusEventoSst>([], { label: 'Status', itemLabel: (s) => STATUS_EVENTO_LABELS[s] ?? s }),
+      idClassificacao: geoFilter.list<string>([], { label: 'Classificação', itemLabel: (id) => this.nome('classificacoes', id) }),
+      idAtividade: geoFilter.list<string>([], { label: 'Atividade', itemLabel: (id) => this.nome('atividades', id) }),
+      idBaseOperacional: geoFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.nome('bases', id), countLabel: (n) => `${n} selecionadas` }),
+      idCentroCusto: geoFilter.list<string>([], { label: 'Centro de custo', itemLabel: (id) => this.nome('centrosCusto', id) }),
+      idProcesso: geoFilter.list<string>([], { label: 'Processo', itemLabel: (id) => this.nome('processos', id) }),
+      idEquipe: geoFilter.list<string>([], { label: 'Equipe', itemLabel: (id) => this.rotulo_(id, 'equipe selecionada'), countLabel: (n) => `${n} selecionadas` }),
+      idVeiculo: geoFilter.list<string>([], { label: 'Veículo', itemLabel: (id) => this.rotulo_(id, 'veículo selecionado') }),
+      idGestor: geoFilter.list<string>([], { label: 'Gestor', itemLabel: (id) => this.rotulo_(id, 'gestor selecionado') }),
+      idTecnico: geoFilter.list<string>([], { label: 'Técnico', itemLabel: (id) => this.rotulo_(id, 'técnico selecionado') }),
+      idColaboradorEnvolvido: geoFilter.list<string>([], { label: 'Envolvido', itemLabel: (id) => this.rotulo_(id, 'colaborador selecionado') }),
+      idLocalLesao: geoFilter.list<string>([], { label: 'Local da lesão', itemLabel: (id) => this.nome('locaisLesao', id) }),
+      telemetria: geoFilter.list<RegistroEvidencia>([], { label: 'Telemetria', itemLabel: (v) => REGISTRO_EVIDENCIA_LABELS[v] ?? v }),
+      filmagem: geoFilter.list<RegistroEvidencia>([], { label: 'Filmagem', itemLabel: (v) => REGISTRO_EVIDENCIA_LABELS[v] ?? v }),
+      comLesao: geoFilter.value<boolean | null>(null, { label: 'Lesão', options: () => SIM_NAO }),
+      possuiCat: geoFilter.value<boolean | null>(null, { label: 'CAT', options: () => SIM_NAO }),
+      nomeColaborador: geoFilter.value<string>('', { label: 'Colaborador' }),
+      nomeTerceiro: geoFilter.value<string>('', { label: 'Terceiro' }),
+      ocorrencia: geoFilter.range({ ...VAZIO }, { label: 'Ocorrência' }),
+      comunicacao: geoFilter.range({ ...VAZIO }, { label: 'Comunicação' })
     },
     sort: [{ key: 'ocorrencia', direction: 'desc' }]
   });
@@ -299,7 +299,7 @@ export class EventosComponent {
     { errorMessage: getErrorMessage }
   );
 
-  protected readonly colunas: CesDataTableColumn<EventoSstResumoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<EventoSstResumoResponse>[] = [
     { key: 'registro', header: 'Registro', type: 'custom', priority: 1, sortField: 'numeroRegistro', value: (e) => e.numeroRegistro },
     { key: 'tipo', header: 'Tipo', type: 'custom', priority: 1, sortField: 'tipo', value: (e) => TIPO_EVENTO_LABELS[e.tipo] ?? e.tipo },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (e) => STATUS_EVENTO_LABELS[e.status] ?? e.status },
@@ -335,7 +335,7 @@ export class EventosComponent {
       });
   }
 
-  protected opcoes(catalogo: Catalogo): CesSelectOption<string>[] {
+  protected opcoes(catalogo: Catalogo): GeoSelectOption<string>[] {
     return ((this.lookups()?.[catalogo] ?? []) as { id: string; nome?: string; codigo?: string }[]).map((i) => ({ label: i.nome ?? i.codigo ?? i.id, value: i.id }));
   }
 
@@ -414,7 +414,7 @@ export class EventosComponent {
   protected readonly iconeTipo: Record<string, string> = ICONE_TIPO_EVENTO;
   protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_EVENTO;
 
-  protected tipoTone(value: TipoEventoSst): CesTone {
+  protected tipoTone(value: TipoEventoSst): GeoTone {
     return TOM_TIPO[value] ?? 'neutral';
   }
 
@@ -422,7 +422,7 @@ export class EventosComponent {
     return STATUS_EVENTO_LABELS[value] ?? value;
   }
 
-  protected statusTone(value: StatusEventoSst): CesTone {
+  protected statusTone(value: StatusEventoSst): GeoTone {
     return TOM_STATUS[value] ?? 'neutral';
   }
 }

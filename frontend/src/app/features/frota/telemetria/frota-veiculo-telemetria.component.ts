@@ -1,7 +1,7 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CesAsyncStateComponent, CesCalloutComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoCalloutComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 
 import {
   EventoTelemetria,
@@ -33,59 +33,59 @@ const PERIODOS = [7, 30, 90] as const;
   selector: 'app-frota-veiculo-telemetria',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, DecimalPipe, RouterLink, CesAsyncStateComponent, CesCalloutComponent, CesStatusComponent,
+  imports: [DatePipe, DecimalPipe, RouterLink, GeoAsyncStateComponent, GeoCalloutComponent, GeoStatusComponent,
     FrotaMapaTelemetriaComponent, FrotaEventoTelemetriaDrawerComponent],
   styles: `
     :host { display: grid; gap: 1.25rem; }
     .vu-topo { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
-    .vu-topo p { margin: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .vu-seg { display: inline-flex; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
-    .vu-seg button { min-height: calc(var(--ces-control-height-sm) - 4px); padding: 0 0.75rem; border: 0; border-radius: calc(var(--ces-radius-md) - 2px);
-      background: transparent; color: var(--ces-foreground-muted); font: inherit; font-size: var(--ces-font-caption); font-weight: 600; cursor: pointer; }
-    .vu-seg button:hover { color: var(--ces-foreground); }
-    .vu-seg button[aria-pressed='true'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
-    .vu-seg button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .vu-topo p { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .vu-seg { display: inline-flex; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+    .vu-seg button { min-height: calc(var(--geo-control-height-sm) - 4px); padding: 0 0.75rem; border: 0; border-radius: calc(var(--geo-radius-md) - 2px);
+      background: transparent; color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-font-caption); font-weight: 600; cursor: pointer; }
+    .vu-seg button:hover { color: var(--geo-foreground); }
+    .vu-seg button[aria-pressed='true'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
+    .vu-seg button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .vu-avisos { display: grid; gap: 0.5rem; }
     .vu-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 0.75rem; }
-    .vu-card { display: grid; gap: 0.125rem; align-content: start; padding: 0.875rem 1rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-lg); background: var(--ces-surface); }
-    .vu-card__rotulo { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .vu-card { display: grid; gap: 0.125rem; align-content: start; padding: 0.875rem 1rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
+    .vu-card__rotulo { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .vu-card__valor { font-size: 1.375rem; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
-    .vu-card__apoio { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .vu-card__apoio { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .vu-secao-topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
     .vu-secao-topo h2 { margin: 0; }
-    .vu-agora { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .vu-agora { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .vu-saidas { display: grid; grid-template-columns: minmax(0, 16rem) minmax(0, 1fr); gap: 0.75rem; align-items: start; }
     @media (max-width: 48rem) { .vu-saidas { grid-template-columns: 1fr; } }
     .vu-saidas ul { display: grid; gap: 0.375rem; margin: 0; padding: 0; list-style: none; max-height: 20rem; overflow: auto; }
-    .vu-saida { display: grid; gap: 0.125rem; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface); color: inherit; font: inherit; text-align: left; cursor: pointer; }
-    .vu-saida:hover { background: var(--ces-surface-subtle); }
-    .vu-saida[aria-pressed='true'] { border-color: var(--ces-brand); box-shadow: inset 3px 0 0 var(--ces-brand); }
-    .vu-saida:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
-    .vu-saida strong { font-size: var(--ces-font-control); font-weight: 600; }
-    .vu-saida span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); font-variant-numeric: tabular-nums; }
-    .vu-nota { margin: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .vu-saida { display: grid; gap: 0.125rem; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .vu-saida:hover { background: var(--geo-surface-subtle); }
+    .vu-saida[aria-pressed='true'] { border-color: var(--geo-brand); box-shadow: inset 3px 0 0 var(--geo-brand); }
+    .vu-saida:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
+    .vu-saida strong { font-size: var(--geo-font-control); font-weight: 600; }
+    .vu-saida span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); font-variant-numeric: tabular-nums; }
+    .vu-nota { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .vu-tipos { display: flex; flex-wrap: wrap; gap: 0.375rem; }
     .vu-eventos { display: grid; gap: 0.375rem; margin: 0; padding: 0; list-style: none; }
     .vu-evento { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.5rem; width: 100%; padding: 0.625rem 0.75rem;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); color: inherit; font: inherit;
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: inherit; font: inherit;
       text-align: left; cursor: pointer; }
-    .vu-evento:hover { border-color: var(--ces-border-strong); }
-    .vu-evento:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .vu-evento__texto { display: grid; gap: 0.125rem; min-width: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .vu-evento__quando { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); white-space: nowrap; }
-    .vu-skeleton { height: 18rem; border-radius: var(--ces-radius-lg); background: var(--ces-surface-muted); }
+    .vu-evento:hover { border-color: var(--geo-border-strong); }
+    .vu-evento:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .vu-evento__texto { display: grid; gap: 0.125rem; min-width: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .vu-evento__quando { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); white-space: nowrap; }
+    .vu-skeleton { height: 18rem; border-radius: var(--geo-radius-lg); background: var(--geo-surface-muted); }
   `,
   template: `
     @if (erro()) {
-      <ces-async-state state="error" title="Não foi possível carregar o uso" [description]="erro()!" [compact]="true"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível carregar o uso" [description]="erro()!" [compact]="true"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
     } @else if (!uso() || !telemetria()) {
       <div class="vu-skeleton" role="status" aria-label="Carregando o uso do veículo"></div>
     } @else if (!uso()!.rastreado) {
-      <ces-async-state state="empty" title="Veículo sem rastreador" [compact]="true"
-        description="O uso aparece aqui sozinho assim que o rastreador deste veículo mandar a primeira posição."></ces-async-state>
+      <geo-async-state state="empty" title="Veículo sem rastreador" [compact]="true"
+        description="O uso aparece aqui sozinho assim que o rastreador deste veículo mandar a primeira posição."></geo-async-state>
     } @else {
       @let u = uso()!;
       @let t = telemetria()!;
@@ -101,15 +101,15 @@ const PERIODOS = [7, 30, 90] as const;
       @if (u.rodaPouco || u.diasForaExpediente) {
         <div class="vu-avisos" aria-live="polite">
           @if (u.rodaPouco) {
-            <ces-callout tone="warning" icon="pi pi-arrow-down-right" title="Roda pouco">
+            <geo-callout tone="warning" icon="pi pi-arrow-down-right" title="Roda pouco">
               Média de {{ u.kmPorDiaUtil | number: '1.0-1' }} km por dia útil, abaixo de {{ u.kmDiaRodaPouco }} km.
               {{ u.custo.locacao ? 'O aluguel no período foi ' + moeda(u.custo.locacao) + ': candidato a devolver ou remanejar.' : 'Candidato a remanejar para outra equipe.' }}
-            </ces-callout>
+            </geo-callout>
           }
           @if (u.diasForaExpediente) {
-            <ces-callout tone="warning" icon="pi pi-moon" title="Usado fora do expediente">
+            <geo-callout tone="warning" icon="pi pi-moon" title="Usado fora do expediente">
               {{ u.kmForaExpediente | number: '1.0-1' }} km em {{ u.diasForaExpediente }} {{ u.diasForaExpediente === 1 ? 'dia' : 'dias' }}. As saídas estão logo abaixo, com o trajeto.
-            </ces-callout>
+            </geo-callout>
           }
         </div>
       }
@@ -137,7 +137,7 @@ const PERIODOS = [7, 30, 90] as const;
         </div>
       </div>
 
-      <section class="ces-sheet-section" aria-labelledby="vu-mapa">
+      <section class="geo-sheet-section" aria-labelledby="vu-mapa">
         <div class="vu-secao-topo">
           <h2 id="vu-mapa"><i class="pi pi-map-marker" aria-hidden="true"></i> Onde está</h2>
           <div class="vu-seg" role="group" aria-label="Trajeto">
@@ -157,7 +157,7 @@ const PERIODOS = [7, 30, 90] as const;
       </section>
 
       @if (u.saidas.length) {
-        <section class="ces-sheet-section" aria-labelledby="vu-saidas">
+        <section class="geo-sheet-section" aria-labelledby="vu-saidas">
           <h2 id="vu-saidas"><i class="pi pi-moon" aria-hidden="true"></i> Saídas fora do expediente</h2>
           @if (u.saidasRecortadas) { <p class="vu-nota">Mostrando as saídas dos últimos 31 dias.</p> }
           <div class="vu-saidas">
@@ -178,9 +178,9 @@ const PERIODOS = [7, 30, 90] as const;
       }
 
       @if (u.custo.total) {
-        <section class="ces-sheet-section" aria-labelledby="vu-custo">
+        <section class="geo-sheet-section" aria-labelledby="vu-custo">
           <h2 id="vu-custo"><i class="pi pi-calculator" aria-hidden="true"></i> Custo no período</h2>
-          <dl class="ces-sheet">
+          <dl class="geo-sheet">
             <div><dt>Combustível</dt><dd>{{ moeda(u.custo.combustivel) }}</dd></div>
             <div><dt>Manutenção</dt><dd>{{ moeda(u.custo.manutencao) }}</dd></div>
             <div><dt>Despesas</dt><dd>{{ moeda(u.custo.despesas) }}</dd></div>
@@ -191,12 +191,12 @@ const PERIODOS = [7, 30, 90] as const;
         </section>
       }
 
-      <section class="ces-sheet-section" aria-labelledby="vu-eventos">
+      <section class="geo-sheet-section" aria-labelledby="vu-eventos">
         <h2 id="vu-eventos"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i> Eventos de condução</h2>
         @if (t.eventos30d.length) {
           <div class="vu-tipos" aria-label="Eventos nos últimos 30 dias">
             @for (c of t.eventos30d; track c.tipo) {
-              <ces-status [tone]="tom[c.tipo]" [icon]="icone[c.tipo]">{{ c.total }} · {{ c.rotulo }}</ces-status>
+              <geo-status [tone]="tom[c.tipo]" [icon]="icone[c.tipo]">{{ c.total }} · {{ c.rotulo }}</geo-status>
             }
           </div>
           <ul class="vu-eventos">
@@ -204,7 +204,7 @@ const PERIODOS = [7, 30, 90] as const;
               <li>
                 <button type="button" class="vu-evento" (click)="abrirEvento(e)" [attr.aria-label]="e.tipoRotulo + ' em ' + (e.ocorridoEm | date: 'dd/MM HH:mm')">
                   <span class="vu-evento__texto">
-                    <ces-status [tone]="tom[e.tipo]" [icon]="icone[e.tipo]">{{ e.tipoRotulo }}</ces-status>
+                    <geo-status [tone]="tom[e.tipo]" [icon]="icone[e.tipo]">{{ e.tipoRotulo }}</geo-status>
                     <span>{{ e.detalhe }}{{ e.condutor ? ' · ' + e.condutor : ' · condutor não identificado' }}</span>
                   </span>
                   <span class="vu-evento__quando">{{ e.ocorridoEm | date: 'dd/MM HH:mm' }}</span>
@@ -229,7 +229,7 @@ export class FrotaVeiculoTelemetriaComponent {
   readonly placa = input<string | null>(null);
 
   protected readonly periodos = PERIODOS;
-  protected readonly tom: Record<string, CesTone> = TOM_TIPO_EVENTO;
+  protected readonly tom: Record<string, GeoTone> = TOM_TIPO_EVENTO;
   protected readonly icone: Record<string, string> = ICONE_TIPO_EVENTO;
   protected readonly quanto = haQuanto;
   protected readonly horas = formatarMinutos;

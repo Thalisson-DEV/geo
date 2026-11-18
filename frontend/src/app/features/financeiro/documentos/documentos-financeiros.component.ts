@@ -9,31 +9,31 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFileInputComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFileInputComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
-import { CES_FORM_KIT } from '@ces/ui/forms';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
+import { GEO_FORM_KIT } from '@geo/ui/forms';
 
 import {
   DocumentoFinanceiro,
@@ -51,16 +51,16 @@ import { DateMaskDirective } from '../../../shared/directives/date-mask.directiv
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 
-const TOM_SITUACAO: Record<SituacaoDocumento, CesTone> = { PENDENTE: 'warning', CONFERIDO: 'success', COM_PENDENCIA: 'danger', ARQUIVADO: 'neutral' };
-const TIPOS: CesSelectOption<TipoDocumentoFinanceiro>[] = (Object.keys(ROTULO_TIPO_DOCUMENTO) as TipoDocumentoFinanceiro[]).map((value) => ({
+const TOM_SITUACAO: Record<SituacaoDocumento, GeoTone> = { PENDENTE: 'warning', CONFERIDO: 'success', COM_PENDENCIA: 'danger', ARQUIVADO: 'neutral' };
+const TIPOS: GeoSelectOption<TipoDocumentoFinanceiro>[] = (Object.keys(ROTULO_TIPO_DOCUMENTO) as TipoDocumentoFinanceiro[]).map((value) => ({
   label: ROTULO_TIPO_DOCUMENTO[value],
   value
 }));
-const SITUACOES: CesSelectOption<SituacaoDocumento>[] = (Object.keys(ROTULO_SITUACAO_DOCUMENTO) as SituacaoDocumento[]).map((value) => ({
+const SITUACOES: GeoSelectOption<SituacaoDocumento>[] = (Object.keys(ROTULO_SITUACAO_DOCUMENTO) as SituacaoDocumento[]).map((value) => ({
   label: ROTULO_SITUACAO_DOCUMENTO[value],
   value
 }));
-const ORIGENS: CesSelectOption<'COMPRA' | 'PAGAMENTO' | null>[] = [
+const ORIGENS: GeoSelectOption<'COMPRA' | 'PAGAMENTO' | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Veio de uma compra', value: 'COMPRA' },
   { label: 'Veio de um pagamento', value: 'PAGAMENTO' }
@@ -90,29 +90,29 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
     InputTextModule,
     SelectModule,
     TextareaModule,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFileInputComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
-    ...CES_FORM_KIT,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFileInputComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
+    ...GEO_FORM_KIT,
     AjudaListagemComponent,
     DateMaskDirective
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhosTeclado="cesListShortcuts" [newAction]="podeEnviar" (newRequested)="abrirEnvio()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhosTeclado="geoListShortcuts" [newAction]="podeEnviar" (newRequested)="abrirEnvio()">
+      <geo-page-header
         title="Documentos do financeiro"
         icon="pi pi-folder-open"
         [breadcrumb]="[{ label: 'Financeiro' }, { label: 'Documentos' }]"
@@ -121,24 +121,24 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
         (help)="ajuda.show()"
       >
         @if (podeEnviar) {
-          <ces-button actions icon="pi pi-plus" label="Adicionar documento" [keyShortcut]="atalhosTeclado.newShortcut()" (pressed)="abrirEnvio()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Adicionar documento" [keyShortcut]="atalhosTeclado.newShortcut()" (pressed)="abrirEnvio()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="fin-documentos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="fin-documentos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Situação" [options]="situacoes" [(value)]="lista.filters.situacao" [filter]="false" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Origem" [options]="origens" [(value)]="lista.filters.origem"></ces-select>
-          <ces-text-input label="Número" [value]="lista.filters.numero() ?? ''" (valueChange)="lista.filters.numero.set($event || null)" placeholder="Nº da nota ou do boleto"></ces-text-input>
-          <ces-text-input label="Chave de acesso" [value]="lista.filters.chaveAcesso() ?? ''" (valueChange)="lista.filters.chaveAcesso.set($event || null)" placeholder="44 dígitos"></ces-text-input>
-          <ces-datepicker label="Vencimento a partir de" [value]="dataLocal(lista.filters.vencimento().from)" [clearable]="true" (valueChange)="vencimento('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Vencimento até" [value]="dataLocal(lista.filters.vencimento().to)" [clearable]="true" (valueChange)="vencimento('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Situação" [options]="situacoes" [(value)]="lista.filters.situacao" [filter]="false" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Origem" [options]="origens" [(value)]="lista.filters.origem"></geo-select>
+          <geo-text-input label="Número" [value]="lista.filters.numero() ?? ''" (valueChange)="lista.filters.numero.set($event || null)" placeholder="Nº da nota ou do boleto"></geo-text-input>
+          <geo-text-input label="Chave de acesso" [value]="lista.filters.chaveAcesso() ?? ''" (valueChange)="lista.filters.chaveAcesso.set($event || null)" placeholder="44 dígitos"></geo-text-input>
+          <geo-datepicker label="Vencimento a partir de" [value]="dataLocal(lista.filters.vencimento().from)" [clearable]="true" (valueChange)="vencimento('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Vencimento até" [value]="dataLocal(lista.filters.vencimento().to)" [clearable]="true" (valueChange)="vencimento('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Documentos"
         mode="server"
         storageKey="fin-documentos"
@@ -165,128 +165,128 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
         (emptyAction)="abrirEnvio()"
         (rowActivate)="podeEnviar && abrirEdicao($event)"
       >
-        <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos da contabilidade">
+        <div table-filters class="geo-quick-filters" role="group" aria-label="Atalhos da contabilidade">
           @for (atalho of atalhos; track atalho.chave) {
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="atalhoAtivo() === atalho.chave" (click)="alternarAtalho(atalho.chave)">
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="atalhoAtivo() === atalho.chave" (click)="alternarAtalho(atalho.chave)">
               <i [class]="atalho.icone" aria-hidden="true"></i> {{ atalho.rotulo }}
             </button>
           }
         </div>
-        <ng-template cesCell="documento" let-row>
-          <span class="ces-cell-strong"><i [class]="icone(row)" aria-hidden="true"></i> {{ row.nomeArquivo }}</span>
-          <span class="ces-cell-muted">{{ row.tipoRotulo }}{{ row.numeroDocumento ? ' · nº ' + row.numeroDocumento : '' }}</span>
-          <span class="ces-cell-chips">
+        <ng-template geoCell="documento" let-row>
+          <span class="geo-cell-strong"><i [class]="icone(row)" aria-hidden="true"></i> {{ row.nomeArquivo }}</span>
+          <span class="geo-cell-muted">{{ row.tipoRotulo }}{{ row.numeroDocumento ? ' · nº ' + row.numeroDocumento : '' }}</span>
+          <span class="geo-cell-chips">
             @if (row.duplicado) {
-              <ces-status tone="warning" icon="pi-copy">Arquivo repetido</ces-status>
+              <geo-status tone="warning" icon="pi-copy">Arquivo repetido</geo-status>
             }
             @if (row.identificacaoPendente) {
-              <ces-status tone="neutral" icon="pi-hashtag" emphasis="outline">Falta o número</ces-status>
+              <geo-status tone="neutral" icon="pi-hashtag" emphasis="outline">Falta o número</geo-status>
             }
             @if (row.vencido) {
-              <ces-status tone="danger" icon="pi-clock">Vencido</ces-status>
+              <geo-status tone="danger" icon="pi-clock">Vencido</geo-status>
             }
           </span>
         </ng-template>
-        <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tom(row.situacao)" [icon]="iconeSituacao[row.situacao]">{{ row.situacaoRotulo }}</ces-status>
-          <span class="ces-cell-muted">{{ row.diasNaSituacao }} dia(s) nesta situação</span>
+        <ng-template geoCell="situacao" let-row>
+          <geo-status [tone]="tom(row.situacao)" [icon]="iconeSituacao[row.situacao]">{{ row.situacaoRotulo }}</geo-status>
+          <span class="geo-cell-muted">{{ row.diasNaSituacao }} dia(s) nesta situação</span>
           @if (row.motivoPendencia) {
-            <span class="ces-cell-muted" [title]="row.motivoPendencia"><i class="pi pi-comment" aria-hidden="true"></i> {{ row.motivoPendencia }}</span>
+            <span class="geo-cell-muted" [title]="row.motivoPendencia"><i class="pi pi-comment" aria-hidden="true"></i> {{ row.motivoPendencia }}</span>
           }
         </ng-template>
-        <ng-template cesCell="origem" let-row>
+        <ng-template geoCell="origem" let-row>
           @if (row.origemSolicitacaoId) {
             <a [routerLink]="rotaOrigem(row)">{{ row.origemTipo === 'COMPRA' ? 'Compra' : 'Pagamento' }} nº {{ row.origemNumero }}</a>
           } @else {
-            <span class="ces-cell-muted">Documento avulso</span>
+            <span class="geo-cell-muted">Documento avulso</span>
           }
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (podeVisualizar(row)) {
-              <ces-icon-button icon="pi pi-eye" [label]="'Abrir ' + row.nomeArquivo + ' em nova aba'" size="icon-sm" [loading]="ocupadoId() === row.id" (pressed)="visualizar(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-eye" [label]="'Abrir ' + row.nomeArquivo + ' em nova aba'" size="icon-sm" [loading]="ocupadoId() === row.id" (pressed)="visualizar(row)"></geo-icon-button>
             }
-            <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + row.nomeArquivo" size="icon-sm" [loading]="ocupadoId() === row.id" (pressed)="baixar(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + row.nomeArquivo" size="icon-sm" [loading]="ocupadoId() === row.id" (pressed)="baixar(row)"></geo-icon-button>
             @if (podeConferir && row.situacao === 'PENDENTE') {
-              <ces-icon-button icon="pi pi-exclamation-circle" [label]="'Devolver com pendência: ' + row.nomeArquivo" size="icon-sm" (pressed)="abrirPendencia(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-exclamation-circle" [label]="'Devolver com pendência: ' + row.nomeArquivo" size="icon-sm" (pressed)="abrirPendencia(row)"></geo-icon-button>
             }
             @if (podeConferir && row.situacao === 'CONFERIDO') {
-              <ces-icon-button icon="pi pi-inbox" [label]="'Arquivar ' + row.nomeArquivo" size="icon-sm" (pressed)="arquivar(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-inbox" [label]="'Arquivar ' + row.nomeArquivo" size="icon-sm" (pressed)="arquivar(row)"></geo-icon-button>
             }
             @if (podeConferir && (row.situacao === 'COM_PENDENCIA' || row.situacao === 'ARQUIVADO')) {
-              <ces-icon-button icon="pi pi-replay" [label]="(row.situacao === 'ARQUIVADO' ? 'Desarquivar ' : 'Voltar para a conferência: ') + row.nomeArquivo" size="icon-sm" (pressed)="reabrir(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-replay" [label]="(row.situacao === 'ARQUIVADO' ? 'Desarquivar ' : 'Voltar para a conferência: ') + row.nomeArquivo" size="icon-sm" (pressed)="reabrir(row)"></geo-icon-button>
             }
             @if (podeEnviar) {
-              <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + row.nomeArquivo" size="icon-sm" (pressed)="remover(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + row.nomeArquivo" size="icon-sm" (pressed)="remover(row)"></geo-icon-button>
             }
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <ng-template #campos>
       <form [formGroup]="form">
-        <ces-form-section title="Dados do documento" icon="pi pi-file" description="Todos opcionais: podem ser completados na conferência.">
-          <ces-form-field label="Tipo" size="md">
+        <geo-form-section title="Dados do documento" icon="pi pi-file" description="Todos opcionais: podem ser completados na conferência.">
+          <geo-form-field label="Tipo" size="md">
             <p-select formControlName="tipo" [options]="tipos" optionLabel="label" optionValue="value" appendTo="body" size="small"></p-select>
-          </ces-form-field>
-          <ces-form-field label="Número" size="md">
+          </geo-form-field>
+          <geo-form-field label="Número" size="md">
             <input pInputText formControlName="numeroDocumento" placeholder="Como está impresso" pSize="small" />
-          </ces-form-field>
-          <ces-form-field label="Valor" size="md">
+          </geo-form-field>
+          <geo-form-field label="Valor" size="md">
             <p-inputNumber formControlName="valor" mode="currency" currency="BRL" locale="pt-BR" size="small"></p-inputNumber>
-          </ces-form-field>
-          <ces-form-field label="Emissão" size="md">
+          </geo-form-field>
+          <geo-form-field label="Emissão" size="md">
             <p-datepicker formControlName="dataEmissao" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showClear]="true" appendTo="body" size="small"></p-datepicker>
-          </ces-form-field>
-          <ces-form-field label="Vencimento" size="md">
+          </geo-form-field>
+          <geo-form-field label="Vencimento" size="md">
             <p-datepicker formControlName="dataVencimento" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showClear]="true" appendTo="body" size="small"></p-datepicker>
-          </ces-form-field>
-          <ces-form-field label="Competência" size="md" hint="Vazio: usamos o mês do vencimento.">
+          </geo-form-field>
+          <geo-form-field label="Competência" size="md" hint="Vazio: usamos o mês do vencimento.">
             <p-datepicker formControlName="competencia" view="month" dateFormat="mm/yy" [showIcon]="true" iconDisplay="input" [showClear]="true" appendTo="body" size="small"></p-datepicker>
-          </ces-form-field>
-          <ces-form-field label="Emissor" size="lg">
+          </geo-form-field>
+          <geo-form-field label="Emissor" size="lg">
             <input pInputText formControlName="emissorNome" placeholder="Nome do fornecedor ou da empresa" pSize="small" />
-          </ces-form-field>
-          <ces-form-field label="Chave de acesso" size="lg">
+          </geo-form-field>
+          <geo-form-field label="Chave de acesso" size="lg">
             <input pInputText formControlName="chaveAcesso" placeholder="44 dígitos, com ou sem pontuação" pSize="small" />
-          </ces-form-field>
-          <ces-form-field label="Descrição" size="full">
+          </geo-form-field>
+          <geo-form-field label="Descrição" size="full">
             <textarea pTextarea formControlName="descricao" rows="2" placeholder="Uma linha que ajude a encontrar este documento depois"></textarea>
-          </ces-form-field>
-        </ces-form-section>
+          </geo-form-field>
+        </geo-form-section>
       </form>
     </ng-template>
 
-    <ces-form-drawer #envio [(visible)]="envioAberto" title="Adicionar documento" description="Guarde o arquivo primeiro; os dados podem ser completados depois." [dirty]="!!arquivo()" size="md">
-      <ces-form-section title="Arquivo" icon="pi pi-upload">
-        <ces-file-input label="Arquivo" [required]="true" [accept]="aceitos" [maxBytes]="15 * 1024 * 1024" [file]="arquivo()" (fileChange)="escolherArquivo($event)"
-          description="Imagem, PDF, XML da nota, Word ou Excel, até 15 MB."></ces-file-input>
-      </ces-form-section>
+    <geo-form-drawer #envio [(visible)]="envioAberto" title="Adicionar documento" description="Guarde o arquivo primeiro; os dados podem ser completados depois." [dirty]="!!arquivo()" size="md">
+      <geo-form-section title="Arquivo" icon="pi pi-upload">
+        <geo-file-input label="Arquivo" [required]="true" [accept]="aceitos" [maxBytes]="15 * 1024 * 1024" [file]="arquivo()" (fileChange)="escolherArquivo($event)"
+          description="Imagem, PDF, XML da nota, Word ou Excel, até 15 MB."></geo-file-input>
+      </geo-form-section>
       <ng-container [ngTemplateOutlet]="campos"></ng-container>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="envio.requestClose()"></ces-button>
-        <ces-button icon="pi pi-check" label="Guardar documento" [disabled]="!arquivo()" [loading]="salvando()" (pressed)="enviar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="envio.requestClose()"></geo-button>
+        <geo-button icon="pi pi-check" label="Guardar documento" [disabled]="!arquivo()" [loading]="salvando()" (pressed)="enviar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer #edicao [(visible)]="edicaoAberta" title="Dados do documento" [description]="editando()?.nomeArquivo" [dirty]="form.dirty" size="md">
-      <ces-callout tone="info">Corrija ou complete o que ficou faltando. Documentos arquivados precisam ser reabertos antes.</ces-callout>
+    <geo-form-drawer #edicao [(visible)]="edicaoAberta" title="Dados do documento" [description]="editando()?.nomeArquivo" [dirty]="form.dirty" size="md">
+      <geo-callout tone="info">Corrija ou complete o que ficou faltando. Documentos arquivados precisam ser reabertos antes.</geo-callout>
       <ng-container [ngTemplateOutlet]="campos"></ng-container>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="edicao.requestClose()"></ces-button>
-        <ces-button icon="pi pi-check" label="Salvar alterações" [loading]="salvando()" (pressed)="salvarEdicao()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="edicao.requestClose()"></geo-button>
+        <geo-button icon="pi pi-check" label="Salvar alterações" [loading]="salvando()" (pressed)="salvarEdicao()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-form-drawer [(visible)]="pendenciaAberta" title="Devolver com pendência" [description]="emPendencia()?.nomeArquivo" [dirty]="!!motivo().trim()" size="sm">
-      <ces-callout tone="info">Quem enviou o documento verá esta mensagem e poderá corrigir.</ces-callout>
-      <ces-textarea label="O que está pendente?" [required]="true" [(value)]="motivo" [rows]="4" placeholder="Ex.: a nota está sem o número e não confere com o boleto"></ces-textarea>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Voltar" (pressed)="pendenciaAberta.set(false)"></ces-button>
-        <ces-button icon="pi pi-exclamation-circle" label="Devolver" [disabled]="!motivo().trim()" [loading]="salvando()" (pressed)="apontarPendencia()"></ces-button>
+    <geo-form-drawer [(visible)]="pendenciaAberta" title="Devolver com pendência" [description]="emPendencia()?.nomeArquivo" [dirty]="!!motivo().trim()" size="sm">
+      <geo-callout tone="info">Quem enviou o documento verá esta mensagem e poderá corrigir.</geo-callout>
+      <geo-textarea label="O que está pendente?" [required]="true" [(value)]="motivo" [rows]="4" placeholder="Ex.: a nota está sem o número e não confere com o boleto"></geo-textarea>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Voltar" (pressed)="pendenciaAberta.set(false)"></geo-button>
+        <geo-button icon="pi pi-exclamation-circle" label="Devolver" [disabled]="!motivo().trim()" [loading]="salvando()" (pressed)="apontarPendencia()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Documentos do financeiro" entidadePlural="documentos" busca="arquivo, número, emissor ou descrição" rotuloNovo="Adicionar documento" [podeCriar]="podeEnviar">
       <div class="help-section">
@@ -303,7 +303,7 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
 export class DocumentosFinanceirosComponent {
   private readonly service = inject(FinanceiroService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auth = inject(AuthService);
 
   protected readonly podeEnviar = this.temPermissao('financeiro:documento:write');
@@ -315,20 +315,20 @@ export class DocumentosFinanceirosComponent {
   protected readonly aceitos = EXTENSOES.map((e) => `.${e}`).join(',');
   protected readonly dataLocal = dataLocal;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'fin-documentos',
     pageSize: 20,
     filters: {
-      tipo: cesFilter.list<TipoDocumentoFinanceiro>([], { label: 'Tipo', itemLabel: (t) => ROTULO_TIPO_DOCUMENTO[t] ?? t }),
-      situacao: cesFilter.list<SituacaoDocumento>([], { label: 'Situação', itemLabel: (s) => ROTULO_SITUACAO_DOCUMENTO[s] ?? s, countLabel: (n) => `${n} selecionadas` }),
-      origem: cesFilter.value<'COMPRA' | 'PAGAMENTO' | null>(null, { label: 'Origem', type: 'string', options: () => ORIGENS }),
-      numero: cesFilter.value<string | null>(null, { label: 'Número' }),
-      chaveAcesso: cesFilter.value<string | null>(null, { label: 'Chave', param: 'chave' }),
-      vencimento: cesFilter.range({ from: null, to: null }, { label: 'Vencimento' }),
-      vencidos: cesFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'vencidos' : null) }),
-      aguardando: cesFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'aguardando conferência' : null) }),
-      semIdentificacao: cesFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'sem número' : null) }),
-      avulsos: cesFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'sem solicitação' : null) })
+      tipo: geoFilter.list<TipoDocumentoFinanceiro>([], { label: 'Tipo', itemLabel: (t) => ROTULO_TIPO_DOCUMENTO[t] ?? t }),
+      situacao: geoFilter.list<SituacaoDocumento>([], { label: 'Situação', itemLabel: (s) => ROTULO_SITUACAO_DOCUMENTO[s] ?? s, countLabel: (n) => `${n} selecionadas` }),
+      origem: geoFilter.value<'COMPRA' | 'PAGAMENTO' | null>(null, { label: 'Origem', type: 'string', options: () => ORIGENS }),
+      numero: geoFilter.value<string | null>(null, { label: 'Número' }),
+      chaveAcesso: geoFilter.value<string | null>(null, { label: 'Chave', param: 'chave' }),
+      vencimento: geoFilter.range({ from: null, to: null }, { label: 'Vencimento' }),
+      vencidos: geoFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'vencidos' : null) }),
+      aguardando: geoFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'aguardando conferência' : null) }),
+      semIdentificacao: geoFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'sem número' : null) }),
+      avulsos: geoFilter.value<boolean>(false, { label: 'Atalho', format: (v): string | null => (v ? 'sem solicitação' : null) })
     },
     sort: [{ key: 'documento', direction: 'desc' }]
   });
@@ -358,7 +358,7 @@ export class DocumentosFinanceirosComponent {
   );
   protected readonly atalhoAtivo = computed<Atalho | null>(() => ATALHOS.find((a) => this.lista.applied()[a.chave])?.chave ?? null);
 
-  protected readonly colunas: CesDataTableColumn<DocumentoFinanceiro>[] = [
+  protected readonly colunas: GeoDataTableColumn<DocumentoFinanceiro>[] = [
     { key: 'documento', header: 'Documento', type: 'custom', priority: 1, sortField: 'dataCriacao', value: (d) => d.nomeArquivo },
     { key: 'emissor', header: 'Emissor', value: (d) => d.emissorNome, display: (d) => d.emissorNome || '—' },
     { key: 'competencia', header: 'Competência', value: (d) => d.competencia, display: (d) => this.mesContabil(d.competencia) },
@@ -566,7 +566,7 @@ export class DocumentosFinanceirosComponent {
 
   protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO_DOCUMENTO;
 
-  protected tom(s: SituacaoDocumento): CesTone {
+  protected tom(s: SituacaoDocumento): GeoTone {
     return TOM_SITUACAO[s] ?? 'neutral';
   }
 

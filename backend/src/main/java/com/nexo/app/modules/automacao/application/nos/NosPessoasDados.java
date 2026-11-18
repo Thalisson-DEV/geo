@@ -79,7 +79,7 @@ public class NosPessoasDados implements ProvedorNos {
                 .executor(this::rotear)
                 .palavras("rotear", "roteamento", "base", "destinatário", "quem recebe", "política", "rh", "regional")
                 .criar());
-        nos.add(EspecNo.de("ces.collaborator", "ces", "Buscar colaborador",
+        nos.add(EspecNo.de("geo.collaborator", "geo", "Buscar colaborador",
                         "Traz nome, base, função, centro de custo e o usuário (e-mail) de um colaborador ou de um usuário.", "user")
                 .params(EspecParam.de("by", "Buscar por", "select").padrao("colaborador").estatico()
                                 .opcoes(List.of(List.of("colaborador", "Id do colaborador"), List.of("usuario", "Id do usuário"),
@@ -89,7 +89,7 @@ public class NosPessoasDados implements ProvedorNos {
                 .executor(this::buscarColaborador)
                 .palavras("colaborador", "pessoa", "usuário", "base", "função", "funcionário")
                 .criar());
-        nos.add(EspecNo.de("ces.people", "ces", "Listar pessoas",
+        nos.add(EspecNo.de("geo.people", "geo", "Listar pessoas",
                         "Lista as pessoas com uma permissão, de um perfil ou de uma base — com e-mail, base e função.", "users")
                 .params(EspecParam.de("recipients", "Quem", "recipients").obrigatorio().padrao(List.of()).criar())
                 .saidas(EspecSaida.lista("people", "Pessoas", Pessoa.CAMPOS), EspecSaida.de("emails", "E-mails", "array"),
@@ -105,7 +105,7 @@ public class NosPessoasDados implements ProvedorNos {
                 })
                 .palavras("pessoas", "usuários", "equipe", "lista", "permissão", "perfil")
                 .criar());
-        nos.add(EspecNo.de("ces.query", "ces", "Consultar dados do GEO",
+        nos.add(EspecNo.de("geo.query", "geo", "Consultar dados do GEO",
                         "Consulta estruturada às bases de dados do GEO (descontos, execução, estoque, SST…), com as permissões do responsável.", "database")
                 .params(
                         EspecParam.de("source", "Fonte de dados", "source").obrigatorio().estatico().criar(),

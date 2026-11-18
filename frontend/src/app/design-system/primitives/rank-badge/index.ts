@@ -1,1 +1,1 @@
-export * from './ces-rank-badge.component';
+export * from './geo-rank-badge.component';

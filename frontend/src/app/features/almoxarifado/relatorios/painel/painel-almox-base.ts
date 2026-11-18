@@ -1,6 +1,6 @@
 import { Directive, Signal, computed, effect, inject, signal } from '@angular/core';
 import { ParamMap } from '@angular/router';
-import { CesFilterChip } from '@ces/ui';
+import { GeoFilterChip } from '@geo/ui';
 import { Observable, Subscription } from 'rxjs';
 
 import { RecorteAlmox } from '../../../../core/models/almoxarifado-relatorios.models';
@@ -17,7 +17,7 @@ export type FiltroAlmox = Required<Pick<RecorteAlmox, 'de' | 'ate'>> & RecorteAl
  * Base dos relatórios do almoxarifado: recorte comum + filtros próprios, carga dos dados de origem,
  * análise detalhada (`?drill=`) e perguntas à Bússola.
  *
- * Cada relatório fornece `providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService]`.
+ * Cada relatório fornece `providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService]`.
  */
 @Directive()
 export abstract class PainelAlmoxBase<D> {
@@ -35,7 +35,7 @@ export abstract class PainelAlmoxBase<D> {
   /** Vista da análise aberta (resolvida pelo relatório). */
   protected abstract readonly vistaAnalise: Signal<VistaAnalise | null>;
   /** Chips dos filtros próprios aplicados. */
-  protected abstract readonly chipsProprios: Signal<CesFilterChip[]>;
+  protected abstract readonly chipsProprios: Signal<GeoFilterChip[]>;
 
   protected readonly chips = computed(() => [...this.recorte.chips(), ...this.chipsProprios()]);
 

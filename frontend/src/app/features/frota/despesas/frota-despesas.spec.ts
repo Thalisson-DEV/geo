@@ -108,7 +108,7 @@ describe('FrotaVeiculoDespesasComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(el.querySelector('.ces-kpis')).toBeNull();
+    expect(el.querySelector('.geo-kpis')).toBeNull();
     expect(el.textContent).toContain('Nenhuma despesa lançada');
     expect(el.textContent).toContain('Lançar despesa');
   });

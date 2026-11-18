@@ -1,4 +1,4 @@
-import { CesSelectOption, CesTone } from '@ces/ui';
+import { GeoSelectOption, GeoTone } from '@geo/ui';
 
 import {
   EfeitoEstoque,
@@ -16,7 +16,7 @@ import {
 
 export interface Rotulo {
   label: string;
-  tone: CesTone;
+  tone: GeoTone;
   icon: string;
 }
 
@@ -32,7 +32,7 @@ export function iconeTipo(tipo: TipoFechamento): string {
   return tipoFechamento(tipo).adicao ? 'pi pi-shopping-cart' : 'pi pi-trash';
 }
 
-export const OPCOES_TIPO: CesSelectOption<TipoFechamento>[] = TIPOS_FECHAMENTO.map((t) => ({
+export const OPCOES_TIPO: GeoSelectOption<TipoFechamento>[] = TIPOS_FECHAMENTO.map((t) => ({
   label: `${t.value} · ${t.nome}`,
   value: t.value
 }));
@@ -49,7 +49,7 @@ export const SITUACOES: Record<SituacaoFechamento, Rotulo> = {
   CANCELADA: { label: 'Cancelada', tone: 'neutral', icon: 'pi pi-ban' }
 };
 
-export const OPCOES_SITUACAO: CesSelectOption<SituacaoFechamento>[] = (Object.keys(SITUACOES) as SituacaoFechamento[]).map((s) => ({
+export const OPCOES_SITUACAO: GeoSelectOption<SituacaoFechamento>[] = (Object.keys(SITUACOES) as SituacaoFechamento[]).map((s) => ({
   label: SITUACOES[s].label,
   value: s
 }));
@@ -59,7 +59,7 @@ export interface AtalhoFechamento {
   value: string;
   atalho: string;
   descricao: string;
-  tone: CesTone;
+  tone: GeoTone;
   icon: string;
   situacoes?: SituacaoFechamento[];
   prazo?: 'ATRASADO';
@@ -93,7 +93,7 @@ export const AGENDA = {
   MOVIMENTAR: { value: 'MOVIMENTAR', label: 'Prazo de movimentação', tone: 'warning', icon: 'pi-clock' },
   PARCIAL: { value: 'PARCIAL', label: 'Restante a movimentar', tone: 'info', icon: 'pi-percentage' },
   CONCLUIDA: { value: 'CONCLUIDA', label: 'Movimentada', tone: 'success', icon: 'pi-check-circle' }
-} as const satisfies Record<string, { value: string; label: string; tone: CesTone; icon: string }>;
+} as const satisfies Record<string, { value: string; label: string; tone: GeoTone; icon: string }>;
 
 export type ItemAgenda = (typeof AGENDA)[keyof typeof AGENDA];
 
@@ -117,7 +117,7 @@ export const SITUACOES_OBRA: Record<SituacaoFechamentoObra, Rotulo> = {
   FINALIZADO: { label: 'Encerramento finalizado', tone: 'success', icon: 'pi pi-check-circle' }
 };
 
-export const OPCOES_SITUACAO_OBRA: CesSelectOption<SituacaoFechamentoObra>[] = (['PENDENTE', 'PARCIAL', 'FINALIZADO'] as const).map((s) => ({
+export const OPCOES_SITUACAO_OBRA: GeoSelectOption<SituacaoFechamentoObra>[] = (['PENDENTE', 'PARCIAL', 'FINALIZADO'] as const).map((s) => ({
   label: SITUACOES_OBRA[s].label,
   value: s
 }));
@@ -130,7 +130,7 @@ export const PRAZOS: Record<SituacaoPrazo, Rotulo> = {
   CUMPRIDO_COM_ATRASO: { label: 'Cumprido com atraso', tone: 'warning', icon: 'pi pi-check' }
 };
 
-export const OPCOES_PRAZO: CesSelectOption<'NO_PRAZO' | 'VENCE_EM_BREVE' | 'ATRASADO'>[] = [
+export const OPCOES_PRAZO: GeoSelectOption<'NO_PRAZO' | 'VENCE_EM_BREVE' | 'ATRASADO'>[] = [
   { label: PRAZOS.NO_PRAZO.label, value: 'NO_PRAZO' },
   { label: PRAZOS.VENCE_EM_BREVE.label, value: 'VENCE_EM_BREVE' },
   { label: PRAZOS.ATRASADO.label, value: 'ATRASADO' }

@@ -24,7 +24,7 @@ npm run pwa:start    # build + serve a partir de dist via http-server na :8081 (
 - Scaffold: `npx ng generate component features/<dominio>/<nome>` (prefixo `app`, standalone por padrão).
 
 Observações:
-- O test runner é o **Vitest** (builder `@angular/build:unit-test`), não Karma/Jasmine. A cobertura de testes hoje é mínima — só existe `src/app/app.spec.ts`, e ele ainda valida o template padrão `Hello, ces-frontend` (defasado; o componente raiz real renderiza o shell da aplicação).
+- O test runner é o **Vitest** (builder `@angular/build:unit-test`), não Karma/Jasmine. A cobertura de testes hoje é mínima — só existe `src/app/app.spec.ts`, e ele ainda valida o template padrão `Hello, geo-frontend` (defasado; o componente raiz real renderiza o shell da aplicação).
 - O service worker fica desabilitado em dev (`isDevMode()`); use `npm run pwa:start` para exercitar o comportamento offline.
 - `environment.ts` e `environment.development.ts` apontam ambos `apiUrl` para `http://localhost:8080/api`. Não há URL de API de homologação/produção configurada — defina quando existir.
 
@@ -44,14 +44,14 @@ Este é o ponto mais importante a entender. Não chame o `HttpClient` diretament
 
 1. **`BaseService`** (`core/services/base.service.ts`) — classe abstrata que todo serviço de domínio estende. Fornece `getList` / `getOne` / `createSync` / `updateSync` / `deleteSync`. As leituras fazem fallback para o cache IndexedDB em falha de rede (quando uma `Table` Dexie é passada); as escritas passam pelo `SyncService`.
 2. **`SyncService`** — executa mutações quando online; quando offline (ou em erro 5xx/rede) enfileira-as na tabela Dexie `syncQueue` e as reprocessa automaticamente via um `effect()` que observa `ConnectivityService.isOnline()`.
-3. **`DatabaseService`** — o banco Dexie (`CesDatabase`). Hoje só `colaboradores` é cacheado como tabela real, além de `syncQueue`. Adicionar cache offline para uma nova entidade exige uma nova tabela + um schema com versão incrementada em `this.version(n).stores({...})`.
+3. **`DatabaseService`** — o banco Dexie, cujo nome no aparelho continua `CesDatabase` (trocar apagaria a fila offline). Hoje só `colaboradores` é cacheado como tabela real, além de `syncQueue`. Adicionar cache offline para uma nova entidade exige uma nova tabela + um schema com versão incrementada em `this.version(n).stores({...})`. <!-- renomear-geo: manter -->
 4. **`ConnectivityService`** — um signal que envolve `navigator.onLine`.
 
 Os serviços de domínio (`rh.service.ts`, `almoxarifado.service.ts`, `contrato.service.ts`, `execucao.service.ts`, etc.) estendem `BaseService`, montam URLs a partir de `environment.apiUrl` + `/v1/...` e passam a tabela Dexie correspondente para habilitar o cache. Novos endpoints seguem o padrão por método já existente nesses arquivos.
 
 ### Autenticação e autorização
 - **Regra central:** a sessão local só termina por logout explícito. Token vencido, falta de rede e 5xx nunca deslogam — a equipe de campo precisa abrir o PWA e lançar sem sinal.
-- `AuthService` — guarda a sessão no `localStorage` (`ces_session_enc`, ofuscação base64 + reverse, *não* é criptografia) com o token de acesso (JWT ~1h). O refresh token fica **só** no cookie HttpOnly `ces_sessao` (path `/api/v1/auth`), invisível ao JS. `renovarToken()` faz um único `POST /v1/auth/refresh` por vez, inclusive entre abas (Web Locks). `reautenticacaoNecessaria` sinaliza que o servidor encerrou a sessão: o app segue funcionando e a sincronização espera novo login (`/login?retorno=`, com o login preenchido). A renovação respeita o `ConnectivityService` (não sai pelo 4G bloqueado) e é tentada ao reabrir o PWA ou ao voltar a rede. Pede `navigator.storage.persist()` no login.
+- `AuthService` — guarda a sessão no `localStorage` (`geo_session_enc`, ofuscação base64 + reverse, *não* é criptografia) com o token de acesso (JWT ~1h). O refresh token fica **só** no cookie HttpOnly `geo_sessao` (path `/api/v1/auth`), invisível ao JS. `renovarToken()` faz um único `POST /v1/auth/refresh` por vez, inclusive entre abas (Web Locks). `reautenticacaoNecessaria` sinaliza que o servidor encerrou a sessão: o app segue funcionando e a sincronização espera novo login (`/login?retorno=`, com o login preenchido). A renovação respeita o `ConnectivityService` (não sai pelo 4G bloqueado) e é tentada ao reabrir o PWA ou ao voltar a rede. Pede `navigator.storage.persist()` no login.
 - `authInterceptor` — anexa o Bearer (nunca nas rotas `/v1/auth/login|refresh|logout`, que vão com cookie). Em 401 usa `classificar401` (`auth.models.ts`): `token` → renova e repete uma vez; `sessao-invalida` (`code: SESSAO_INVALIDA`) → marca reautenticação; `acesso-negado` → toast. Se a renovação falha, devolve o 401 original.
 - `SyncService`/`AnexoSyncService` — 0, 401, 408, 425 e 429 são transitórios: o item fica na fila sem queimar tentativas. Cada item guarda `usuarioId` e só é enviado com a sessão do mesmo usuário.
 - `authGuard` — verifica autenticação e depois `route.data.permission` (ex.: `rh:colaborador:read`) contra `permissoes`; redireciona para `/home` com toast se faltar.
@@ -64,19 +64,19 @@ Os serviços de domínio (`rh.service.ts`, `almoxarifado.service.ts`, `contrato.
 `App` (`app.ts`) renderiza header/sidebar/footer ao redor do `<router-outlet>`. Os `menuItems` de navegação são um **signal estático** em `app.ts` — ainda não são filtrados pelas permissões do usuário (o guard impõe o acesso na navegação; o menu não esconde entradas — ver Parte II §8.2/§9 "Menu Dinâmico", pendente). `hideLayout` é alternado em rotas de relatório/detalhe em tela cheia.
 
 ### Tratamento de erros
-O backend retorna Problem Details RFC 7807. Use `getErrorMessage(error)` de `core/models/shared.models.ts` para extrair uma mensagem amigável e exiba-a com o `NotificationService` do `@ces/ui` (host global de toasts; telas não declaram `p-toast` nem `MessageService` próprios). Endpoints de listagem retornam `PagedResponse<T>` (`{ content, page }`).
+O backend retorna Problem Details RFC 7807. Use `getErrorMessage(error)` de `core/models/shared.models.ts` para extrair uma mensagem amigável e exiba-a com o `NotificationService` do `@geo/ui` (host global de toasts; telas não declaram `p-toast` nem `MessageService` próprios). Endpoints de listagem retornam `PagedResponse<T>` (`{ content, page }`).
 
 ## Convenções
 
 - **Componentes standalone**, `inject()` em vez de injeção por construtor, signals (`signal`, `computed`, `input`, `model`, `output`) para estado e IO de componente.
 - Tema: preset `Lara` do PrimeNG customizado em `app.config.ts` (primária azul, superfície slate); modo escuro via o seletor `.app-dark` controlado pelo `ThemeService`.
-- Telas de listagem/CRUD seguem o padrão "tabela primeiro" (`docs/design-system/components/list-page.md`): `ces-page-header` + `ces-filter-panel` (recolhido, com chips do recorte) + `ces-data-table` em `mode="server"` + `ces-form-drawer`/`ces-import-drawer`, com `cesListState` guardando filtros, busca, página, tamanho e ordenação na URL. A tela abre já nos dados (padrão restritivo mostrado como chip quando a consulta aberta for cara); atalhos `/`, `F` e `N` via `cesListShortcuts`; ações da linha em `cesRowActions`. `TableModule` em listagem é barrado pelo `ds:check`.
+- Telas de listagem/CRUD seguem o padrão "tabela primeiro" (`docs/design-system/components/list-page.md`): `geo-page-header` + `geo-filter-panel` (recolhido, com chips do recorte) + `geo-data-table` em `mode="server"` + `geo-form-drawer`/`geo-import-drawer`, com `geoListState` guardando filtros, busca, página, tamanho e ordenação na URL. A tela abre já nos dados (padrão restritivo mostrado como chip quando a consulta aberta for cara); atalhos `/`, `F` e `N` via `geoListShortcuts`; ações da linha em `geoRowActions`. `TableModule` em listagem é barrado pelo `ds:check`.
 - Prettier: `printWidth` 100, aspas simples; HTML usa o parser Angular (configurado em `package.json`).
 - `docs/api-docs*.json` são os specs OpenAPI do backend por módulo — consulte-os para contratos de endpoint e formatos de DTO.
 
 ### Design System Nexo
 
-Antes de criar ou alterar UI, leia `docs/design-system/README.md` e o registro `docs/design-system/prime-ng-coverage.md`. O contrato-alvo é source-owned e consumido por `@ces/ui`; novos imports diretos de PrimeNG dependem da disposição registrada. Não introduza `::ng-deep`, hosts locais de toast/confirmação ou cores semânticas hardcoded. Mudanças de componente/pattern devem atualizar catálogo, cobertura, documentação e testes em conjunto e executar `npm run verify:design-system` (se o script ainda não existir na branch, registre o bloqueio explicitamente).
+Antes de criar ou alterar UI, leia `docs/design-system/README.md` e o registro `docs/design-system/prime-ng-coverage.md`. O contrato-alvo é source-owned e consumido por `@geo/ui`; novos imports diretos de PrimeNG dependem da disposição registrada. Não introduza `::ng-deep`, hosts locais de toast/confirmação ou cores semânticas hardcoded. Mudanças de componente/pattern devem atualizar catálogo, cobertura, documentação e testes em conjunto e executar `npm run verify:design-system` (se o script ainda não existir na branch, registre o bloqueio explicitamente).
 
 ---
 

@@ -39,19 +39,19 @@ import {
   DashboardMetricCardComponent
 } from '../../../../shared/components/dashboard/dashboard-ui.components';
 import {
-  CesButtonComponent,
-  CesDataTableColumn,
-  CesDatepickerComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
+  GeoButtonComponent,
+  GeoDataTableColumn,
+  GeoDatepickerComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { DashboardDrillComponent, DrillRecorte } from '../../../../shared/components/dashboard/dashboard-drill.component';
 import { DescontoResponse, getValorEfetivo } from '../../../../core/models/desconto.models';
 
@@ -130,11 +130,11 @@ const CORES_CATEGORICAS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, DecimalPipe, ChartModule, SkeletonModule, TableModule, TooltipModule,
-    DashboardInsightPanelComponent, DashboardMetricCardComponent, CesButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
-    DashboardDrillComponent, CesIconButtonComponent, CesDatepickerComponent, CesFilterPanelComponent, CesMultiSelectComponent,
-    CesPageHeaderComponent, CesSelectComponent
+    DashboardInsightPanelComponent, DashboardMetricCardComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
+    DashboardDrillComponent, GeoIconButtonComponent, GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent,
+    GeoPageHeaderComponent, GeoSelectComponent
   ],
-  providers: [CesDrillStateService],
+  providers: [GeoDrillStateService],
   templateUrl: './dashboard-descontos.component.html'
 })
 export class DashboardDescontosComponent implements OnInit {
@@ -143,7 +143,7 @@ export class DashboardDescontosComponent implements OnInit {
   private readonly centrosCustoLookup = inject(CentrosCustoLookupService);
   private readonly notificacoes = inject(NotificationService);
   private readonly router = inject(Router);
-  protected readonly drill = inject(CesDrillStateService);
+  protected readonly drill = inject(GeoDrillStateService);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly loading = signal(false);
@@ -173,16 +173,16 @@ export class DashboardDescontosComponent implements OnInit {
 
   private readonly chavesDeSelecao = DIMENSOES_FILTRO_DESCONTO;
 
-  protected readonly opcoesMotivos = computed<CesSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.descricao, value: m.id })));
-  protected readonly opcoesTipos = computed<CesSelectOption<string>[]>(() => this.tiposEquipamento().map((t) => ({ label: t.descricao, value: t.id })));
-  protected readonly opcoesCentros = computed<CesSelectOption<string>[]>(() => this.centrosCusto().map((c) => ({ label: c.nome, value: c.id })));
-  protected readonly opcoesBases = computed<CesSelectOption<string>[]>(() => this.basesOperacionais().map((b) => ({ label: b.nome, value: b.id })));
-  protected readonly opcoesFuncoes = computed<CesSelectOption<string>[]>(() => this.funcoes().map((f) => ({ label: f.nome, value: f.id })));
+  protected readonly opcoesMotivos = computed<GeoSelectOption<string>[]>(() => this.motivos().map((m) => ({ label: m.descricao, value: m.id })));
+  protected readonly opcoesTipos = computed<GeoSelectOption<string>[]>(() => this.tiposEquipamento().map((t) => ({ label: t.descricao, value: t.id })));
+  protected readonly opcoesCentros = computed<GeoSelectOption<string>[]>(() => this.centrosCusto().map((c) => ({ label: c.nome, value: c.id })));
+  protected readonly opcoesBases = computed<GeoSelectOption<string>[]>(() => this.basesOperacionais().map((b) => ({ label: b.nome, value: b.id })));
+  protected readonly opcoesFuncoes = computed<GeoSelectOption<string>[]>(() => this.funcoes().map((f) => ({ label: f.nome, value: f.id })));
 
   /** Recorte aplicado como chips; o agrupamento do gráfico não recorta e fica fora. */
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.filtrosAplicados();
-    const chips: CesFilterChip[] = [];
+    const chips: GeoFilterChip[] = [];
     const criacao = !!(f.inicioCriacao || f.fimCriacao);
     const de = criacao ? f.inicioCriacao : f.inicio;
     const ate = criacao ? f.fimCriacao : f.fim;
@@ -191,7 +191,7 @@ export class DashboardDescontosComponent implements OnInit {
       const rotulo = criacao ? 'Lançamento' : 'Ocorrência';
       chips.push({ key: 'periodo', label: `${rotulo}: ${de && ate ? `${dia(de)} a ${dia(ate)}` : de ? `a partir de ${dia(de)}` : `até ${dia(ate!)}`}` });
     }
-    const grupos: [keyof DescontoDashboardFilter, string, CesSelectOption<string>[]][] = [
+    const grupos: [keyof DescontoDashboardFilter, string, GeoSelectOption<string>[]][] = [
       ['idMotivo', 'Motivo', this.opcoesMotivos()],
       ['idTipoEquipamento', 'Tipo de equipamento', this.opcoesTipos()],
       ['idCentroCusto', 'Centro de custo', this.opcoesCentros()],
@@ -761,7 +761,7 @@ export class DashboardDescontosComponent implements OnInit {
     this.router.navigate(['/dp/descontos/lancamento'], { queryParams: { colaboradorId: idColaborador } });
   }
 
-  private readonly colunasDrill: CesDataTableColumn<LinhaDescontoDrill>[] = [
+  private readonly colunasDrill: GeoDataTableColumn<LinhaDescontoDrill>[] = [
     { key: 'ocorrencia', header: 'Ocorrência', type: 'date', priority: 1 },
     { key: 'motivo', header: 'Motivo', priority: 1 },
     { key: 'itens', header: 'Itens', priority: 2 },

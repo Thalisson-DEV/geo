@@ -2,28 +2,28 @@ import { ICONE_STATUS_INSPECAO } from '../../../core/models/sst.models';
 import { ChangeDetectionStrategy, Component, DestroyRef, Signal, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesDrawerComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTone,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoDrawerComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTone,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { InspecaoFilters, InspecaoSegurancaResponse, STATUS_INSPECAO_LABELS, StatusInspecao } from '../../../core/models/sst.models';
 import { EquipeResponse } from '../../../core/models/rh.models';
@@ -36,25 +36,25 @@ import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.
 import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { InspecaoSegurancaHistoricoComponent } from './inspecao-seguranca-historico/inspecao-seguranca-historico.component';
 
-const TOM_STATUS: Record<StatusInspecao, CesTone> = { EM_ANDAMENTO: 'warning', CONCLUIDA: 'success', CANCELADA: 'neutral' };
-const OPCOES_STATUS: CesSelectOption<StatusInspecao>[] = (Object.keys(STATUS_INSPECAO_LABELS) as StatusInspecao[]).map((value) => ({
+const TOM_STATUS: Record<StatusInspecao, GeoTone> = { EM_ANDAMENTO: 'warning', CONCLUIDA: 'success', CANCELADA: 'neutral' };
+const OPCOES_STATUS: GeoSelectOption<StatusInspecao>[] = (Object.keys(STATUS_INSPECAO_LABELS) as StatusInspecao[]).map((value) => ({
   label: STATUS_INSPECAO_LABELS[value],
   value
 }));
-const OPCOES_DESVIOS: CesSelectOption<boolean | null>[] = [
+const OPCOES_DESVIOS: GeoSelectOption<boolean | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Com desvios', value: true },
   { label: 'Sem desvios', value: false }
 ];
-const EXPORTACOES: CesSelectOption<'inspecoes' | 'desvios'>[] = [
+const EXPORTACOES: GeoSelectOption<'inspecoes' | 'desvios'>[] = [
   { label: 'Inspeções', value: 'inspecoes' },
   { label: 'Desvios', value: 'desvios' }
 ];
-const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
+const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
   { label: 'Resumo', value: 'resumo' },
   { label: 'Detalhado', value: 'detalhado' }
 ];
-const ARQUIVOS: CesSelectOption<ArquivoExportacao>[] = [
+const ARQUIVOS: GeoSelectOption<ArquivoExportacao>[] = [
   { label: 'Excel (.xlsx)', value: 'xlsx' },
   { label: 'CSV (.csv)', value: 'csv' }
 ];
@@ -66,27 +66,27 @@ export const DIAS_PADRAO_INSPECOES = 90;
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesDrawerComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoDrawerComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     AjudaListagemComponent,
     InspecaoSegurancaHistoricoComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="nova()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="nova()">
+      <geo-page-header
         title="Inspeções"
         icon="pi pi-shield"
         [breadcrumb]="[{ label: 'SST' }, { label: 'Inspeções' }]"
@@ -94,29 +94,29 @@ export const DIAS_PADRAO_INSPECOES = 90;
         helpLabel="Ajuda sobre inspeções"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-download" label="Exportar" (pressed)="exportacaoAberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Nova inspeção" [keyShortcut]="atalhos.newShortcut()" (pressed)="nova()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-download" label="Exportar" (pressed)="exportacaoAberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Nova inspeção" [keyShortcut]="atalhos.newShortcut()" (pressed)="nova()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="sst-inspecoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="sst-inspecoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Tipo de inspeção" [options]="tipos()" [(value)]="lista.filters.tipo" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Formulário" [options]="formularios()" [(value)]="lista.filters.formulario" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Processo da inspeção" [options]="processos()" [(value)]="lista.filters.processo" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Processo do inspetor" [options]="processos()" [(value)]="lista.filters.processoInspetor" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Base operacional" [options]="bases()" [(value)]="lista.filters.base" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Centro de custo" [options]="centros()" [(value)]="lista.filters.centroCusto" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.equipe" placeholder="Todas"
-            [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></ces-multiselect>
-          <ces-multiselect label="Status" [options]="opcoesStatus" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Desvios" [options]="opcoesDesvios" [(value)]="lista.filters.comDesvios"></ces-select>
-          <ces-datepicker label="Realizadas a partir de" [value]="dataLocal(lista.filters.realizacao().from)" [clearable]="true" (valueChange)="realizacao('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Realizadas até" [value]="dataLocal(lista.filters.realizacao().to)" [clearable]="true" (valueChange)="realizacao('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Tipo de inspeção" [options]="tipos()" [(value)]="lista.filters.tipo" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Formulário" [options]="formularios()" [(value)]="lista.filters.formulario" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Processo da inspeção" [options]="processos()" [(value)]="lista.filters.processo" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Processo do inspetor" [options]="processos()" [(value)]="lista.filters.processoInspetor" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Base operacional" [options]="bases()" [(value)]="lista.filters.base" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Centro de custo" [options]="centros()" [(value)]="lista.filters.centroCusto" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.equipe" placeholder="Todas"
+            [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></geo-multiselect>
+          <geo-multiselect label="Status" [options]="opcoesStatus" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Desvios" [options]="opcoesDesvios" [(value)]="lista.filters.comDesvios"></geo-select>
+          <geo-datepicker label="Realizadas a partir de" [value]="dataLocal(lista.filters.realizacao().from)" [clearable]="true" (valueChange)="realizacao('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Realizadas até" [value]="dataLocal(lista.filters.realizacao().to)" [clearable]="true" (valueChange)="realizacao('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Inspeções"
         mode="server"
         storageKey="sst-inspecoes"
@@ -143,57 +143,57 @@ export const DIAS_PADRAO_INSPECOES = 90;
         (emptyAction)="nova()"
         (rowActivate)="verDetalhe($event)"
       >
-        <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de inspeções">
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().minhas" (click)="lista.set('minhas', !lista.applied().minhas)">
+        <div table-filters class="geo-quick-filters" role="group" aria-label="Atalhos de inspeções">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().minhas" (click)="lista.set('minhas', !lista.applied().minhas)">
             <i class="pi pi-user" aria-hidden="true"></i> Só as minhas
           </button>
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().comDesvios === true" (click)="lista.set('comDesvios', lista.applied().comDesvios === true ? null : true)">
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().comDesvios === true" (click)="lista.set('comDesvios', lista.applied().comDesvios === true ? null : true)">
             <i class="pi pi-exclamation-triangle" aria-hidden="true"></i> Com desvios
           </button>
         </div>
-        <ng-template cesCell="formulario" let-row>
-          <span class="ces-cell-strong">{{ row.formulario?.titulo || '—' }}</span>
-          <span class="ces-cell-muted">{{ row.tipoInspecao?.nome || 'Sem tipo' }}</span>
+        <ng-template geoCell="formulario" let-row>
+          <span class="geo-cell-strong">{{ row.formulario?.titulo || '—' }}</span>
+          <span class="geo-cell-muted">{{ row.tipoInspecao?.nome || 'Sem tipo' }}</span>
         </ng-template>
-        <ng-template cesCell="local" let-row>
+        <ng-template geoCell="local" let-row>
           <span>{{ row.baseOperacional?.nome || '—' }}</span>
-          <span class="ces-cell-muted">{{ row.processo?.nome || '' }}</span>
+          <span class="geo-cell-muted">{{ row.processo?.nome || '' }}</span>
         </ng-template>
-        <ng-template cesCell="desvios" let-row>
+        <ng-template geoCell="desvios" let-row>
           @if (row.desvios?.length) {
-            <ces-status [tone]="emAberto(row) ? 'warning' : 'success'" [icon]="emAberto(row) ? 'pi-exclamation-triangle' : 'pi-check-circle'">{{ row.desvios.length }}</ces-status>
-            <span class="ces-cell-muted">{{ emAberto(row) ? (emAberto(row) === 1 ? '1 em aberto' : emAberto(row) + ' em aberto') : 'Todos resolvidos' }}</span>
+            <geo-status [tone]="emAberto(row) ? 'warning' : 'success'" [icon]="emAberto(row) ? 'pi-exclamation-triangle' : 'pi-check-circle'">{{ row.desvios.length }}</geo-status>
+            <span class="geo-cell-muted">{{ emAberto(row) ? (emAberto(row) === 1 ? '1 em aberto' : emAberto(row) + ' em aberto') : 'Todos resolvidos' }}</span>
           } @else {
-            <span class="ces-cell-muted">Nenhum</span>
+            <span class="geo-cell-muted">Nenhum</span>
           }
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tom(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="tom(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações da inspeção de ' + rotulo(row)" size="icon-sm" (pressed)="historico.set(row.id)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da inspeção de ' + rotulo(row)" size="icon-sm" (pressed)="historico.set(row.id)"></geo-icon-button>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="exportacaoAberta" title="Exportar dados de SST" description="Exporta o recorte atual da lista." size="sm">
-      <ces-select label="O que exportar" [options]="exportacoes" [(value)]="exportTipo"></ces-select>
-      <ces-select label="Formato" [options]="formatos" [(value)]="exportFormato"></ces-select>
-      <ces-select label="Arquivo" [options]="arquivos" [(value)]="exportArquivo"></ces-select>
+    <geo-form-drawer [(visible)]="exportacaoAberta" title="Exportar dados de SST" description="Exporta o recorte atual da lista." size="sm">
+      <geo-select label="O que exportar" [options]="exportacoes" [(value)]="exportTipo"></geo-select>
+      <geo-select label="Formato" [options]="formatos" [(value)]="exportFormato"></geo-select>
+      <geo-select label="Arquivo" [options]="arquivos" [(value)]="exportArquivo"></geo-select>
       @if (lista.applied().minhas) {
-        <ces-callout tone="info">Só as suas inspeções, como na lista.</ces-callout>
+        <geo-callout tone="info">Só as suas inspeções, como na lista.</geo-callout>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></ces-button>
-        <ces-button icon="pi pi-download" [label]="exportArquivo() === 'xlsx' ? 'Baixar Excel' : 'Baixar CSV'" [loading]="exportando()" (pressed)="exportar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="exportacaoAberta.set(false)"></geo-button>
+        <geo-button icon="pi pi-download" [label]="exportArquivo() === 'xlsx' ? 'Baixar Excel' : 'Baixar CSV'" [loading]="exportando()" (pressed)="exportar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-drawer [visible]="!!historico()" (visibleChange)="!$event && historico.set(null)" title="Histórico da inspeção" size="lg">
+    <geo-drawer [visible]="!!historico()" (visibleChange)="!$event && historico.set(null)" title="Histórico da inspeção" size="lg">
       @if (historico(); as id) {
         <app-inspecao-seguranca-historico [idInspecao]="id"></app-inspecao-seguranca-historico>
       }
-    </ces-drawer>
+    </geo-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Inspeções" artigoPlural="as" entidadePlural="inspeções" busca="formulário, inspetor ou local" rotuloNovo="Nova inspeção">
       <div class="help-section">
@@ -218,11 +218,11 @@ export class InspecoesComponent {
   protected readonly diasPadrao = DIAS_PADRAO_INSPECOES;
   protected readonly dataLocal = dataLocal;
 
-  protected readonly tipos = signal<CesSelectOption<string>[]>([]);
-  protected readonly formularios = signal<CesSelectOption<string>[]>([]);
-  protected readonly processos = signal<CesSelectOption<string>[]>([]);
-  protected readonly bases = signal<CesSelectOption<string>[]>([]);
-  protected readonly centros = signal<CesSelectOption<string>[]>([]);
+  protected readonly tipos = signal<GeoSelectOption<string>[]>([]);
+  protected readonly formularios = signal<GeoSelectOption<string>[]>([]);
+  protected readonly processos = signal<GeoSelectOption<string>[]>([]);
+  protected readonly bases = signal<GeoSelectOption<string>[]>([]);
+  protected readonly centros = signal<GeoSelectOption<string>[]>([]);
   /** Nome do inspetor vindo do drill de um painel (`?idInspetor=&inspetor=`). */
   private readonly nomeInspetor = this.rota.snapshot.queryParamMap.get('inspetor');
 
@@ -234,25 +234,25 @@ export class InspecoesComponent {
     },
     inject(DestroyRef)
   );
-  protected readonly equipesOpcoes: Signal<CesSelectOption<string>[]> = computed(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
+  protected readonly equipesOpcoes: Signal<GeoSelectOption<string>[]> = computed(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
 
   private readonly comLimite = this.rota.snapshot.queryParamMap.keys.length === 0;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'sst-inspecoes',
     filters: {
-      tipo: cesFilter.list<string>([], { label: 'Tipo', param: 'idTipoInspecao', itemLabel: (id) => this.nome(this.tipos(), id) }),
-      formulario: cesFilter.list<string>([], { label: 'Formulário', param: 'idFormulario', itemLabel: (id) => this.nome(this.formularios(), id) }),
-      processo: cesFilter.list<string>([], { label: 'Processo', param: 'idProcesso', itemLabel: (id) => this.nome(this.processos(), id) }),
-      processoInspetor: cesFilter.list<string>([], { label: 'Processo do inspetor', param: 'idProcessoInspetor', itemLabel: (id) => this.nome(this.processos(), id) }),
-      base: cesFilter.list<string>([], { label: 'Base', param: 'idBaseOperacional', itemLabel: (id) => this.nome(this.bases(), id), countLabel: (n) => `${n} selecionadas` }),
-      centroCusto: cesFilter.list<string>([], { label: 'Centro de custo', param: 'idCentroCusto', itemLabel: (id) => this.nome(this.centros(), id) }),
-      equipe: cesFilter.list<string>([], { label: 'Equipe', param: 'idEquipe', itemLabel: (id) => this.nome(this.equipesOpcoes(), id), countLabel: (n) => `${n} selecionadas` }),
-      inspetor: cesFilter.list<string>([], { label: 'Inspetor', param: 'idInspetor', itemLabel: () => this.nomeInspetor || 'inspetor selecionado' }),
-      status: cesFilter.list<StatusInspecao>([], { label: 'Status', itemLabel: (s) => STATUS_INSPECAO_LABELS[s] ?? s }),
-      comDesvios: cesFilter.value<boolean | null>(null, { label: 'Desvios', param: 'desvios', options: () => OPCOES_DESVIOS }),
-      minhas: cesFilter.value<boolean>(false, { label: 'Inspetor', param: 'minhas', format: (v): string | null => (v ? 'só as minhas' : null) }),
-      realizacao: cesFilter.range(this.comLimite ? { from: this.inicioPadrao(), to: null } : { from: null, to: null }, { label: 'Realização' })
+      tipo: geoFilter.list<string>([], { label: 'Tipo', param: 'idTipoInspecao', itemLabel: (id) => this.nome(this.tipos(), id) }),
+      formulario: geoFilter.list<string>([], { label: 'Formulário', param: 'idFormulario', itemLabel: (id) => this.nome(this.formularios(), id) }),
+      processo: geoFilter.list<string>([], { label: 'Processo', param: 'idProcesso', itemLabel: (id) => this.nome(this.processos(), id) }),
+      processoInspetor: geoFilter.list<string>([], { label: 'Processo do inspetor', param: 'idProcessoInspetor', itemLabel: (id) => this.nome(this.processos(), id) }),
+      base: geoFilter.list<string>([], { label: 'Base', param: 'idBaseOperacional', itemLabel: (id) => this.nome(this.bases(), id), countLabel: (n) => `${n} selecionadas` }),
+      centroCusto: geoFilter.list<string>([], { label: 'Centro de custo', param: 'idCentroCusto', itemLabel: (id) => this.nome(this.centros(), id) }),
+      equipe: geoFilter.list<string>([], { label: 'Equipe', param: 'idEquipe', itemLabel: (id) => this.nome(this.equipesOpcoes(), id), countLabel: (n) => `${n} selecionadas` }),
+      inspetor: geoFilter.list<string>([], { label: 'Inspetor', param: 'idInspetor', itemLabel: () => this.nomeInspetor || 'inspetor selecionado' }),
+      status: geoFilter.list<StatusInspecao>([], { label: 'Status', itemLabel: (s) => STATUS_INSPECAO_LABELS[s] ?? s }),
+      comDesvios: geoFilter.value<boolean | null>(null, { label: 'Desvios', param: 'desvios', options: () => OPCOES_DESVIOS }),
+      minhas: geoFilter.value<boolean>(false, { label: 'Inspetor', param: 'minhas', format: (v): string | null => (v ? 'só as minhas' : null) }),
+      realizacao: geoFilter.range(this.comLimite ? { from: this.inicioPadrao(), to: null } : { from: null, to: null }, { label: 'Realização' })
     },
     sort: [{ key: 'data', direction: 'desc' }]
   });
@@ -264,7 +264,7 @@ export class InspecoesComponent {
     { errorMessage: getErrorMessage }
   );
 
-  protected readonly colunas: CesDataTableColumn<InspecaoSegurancaResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<InspecaoSegurancaResponse>[] = [
     { key: 'formulario', header: 'Formulário', type: 'custom', priority: 1, value: (i) => i.formulario?.titulo, display: (i) => i.formulario?.titulo ?? '—' },
     { key: 'local', header: 'Base / processo', type: 'custom', value: (i) => i.baseOperacional?.nome },
     { key: 'inspetor', header: 'Inspetor', priority: 1, value: (i) => i.nomeInspetor, display: (i) => i.nomeInspetor || '—' },
@@ -298,7 +298,7 @@ export class InspecoesComponent {
     return dataIso(d)!;
   }
 
-  private nome(opcoes: readonly CesSelectOption<string>[], id: string): string {
+  private nome(opcoes: readonly GeoSelectOption<string>[], id: string): string {
     return opcoes.find((o) => o.value === id)?.label ?? 'selecionado';
   }
 
@@ -334,7 +334,7 @@ export class InspecoesComponent {
 
   protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_INSPECAO;
 
-  protected tom(s: StatusInspecao): CesTone {
+  protected tom(s: StatusInspecao): GeoTone {
     return TOM_STATUS[s] ?? 'neutral';
   }
 

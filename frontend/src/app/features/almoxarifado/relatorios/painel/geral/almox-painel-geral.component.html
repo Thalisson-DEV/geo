@@ -1,33 +1,33 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Relatórios do almoxarifado" icon="pi pi-compass"
+    <geo-page-header title="Relatórios do almoxarifado" icon="pi pi-compass"
       [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Visão geral' }]"
       description="O que pede ação hoje em todas as áreas do almoxarifado. Cada número leva ao relatório da área, com o mesmo recorte.">
       @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
       @if (carregando()) { <span actions class="dash-updated">Atualizando…</span> }
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="almox-rel-geral" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+    <geo-filter-panel storageKey="almox-rel-geral" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
+      <div class="geo-filter-grid">
         <app-almox-recorte-campos prefixo="apg" />
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     <app-almox-painel-topo [descricao]="dados()?.mov ? recorte.descricaoPeriodo(dados()!.mov) : ''" (periodo)="usarPeriodo($event)" />
 
     @if (carregando() && !modelo()) {
-      <ces-async-state state="loading" title="Reunindo as áreas do almoxarifado" description="Solicitações, fechamento, movimentações e estoque."></ces-async-state>
+      <geo-async-state state="loading" title="Reunindo as áreas do almoxarifado" description="Solicitações, fechamento, movimentações e estoque."></geo-async-state>
     } @else if (erro() && !modelo()) {
-      <ces-async-state state="error" title="Não foi possível montar a visão geral" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível montar a visão geral" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (modelo(); as m) {
       @if (semAcesso().length) {
-        <ces-callout tone="info" icon="pi pi-lock" title="Algumas áreas ficaram de fora">
+        <geo-callout tone="info" icon="pi pi-lock" title="Algumas áreas ficaram de fora">
           Seu perfil não lê {{ semAcesso().map(a => areas[a].rotulo.toLowerCase()).join(', ') }}. Os números consideram só o que você pode ver.
-        </ces-callout>
+        </geo-callout>
       }
 
       @if (veredito(); as v) {
@@ -71,21 +71,21 @@
       <section class="pf-secao" aria-labelledby="apg-agir">
         <header><span class="dash-eyebrow">Agir hoje</span><h2 id="apg-agir">O que pede ação</h2>
           <p>Solicitações e encerramentos atrasados e materiais em falta ou acabando, do mais grave para o menos grave. Abra a linha para ir ao registro.</p></header>
-        <ces-data-table title="Pede ação" storageKey="apg-agir" exportFileName="almoxarifado-pede-acao" [columns]="colPendencias" [rows]="m.pendencias"
+        <geo-data-table title="Pede ação" storageKey="apg-agir" exportFileName="almoxarifado-pede-acao" [columns]="colPendencias" [rows]="m.pendencias"
           [rowKey]="chavePendencia" searchPlaceholder="Filtrar área, equipe, obra ou material" rowActionLabel="Abrir" (rowActivate)="abrirPendencia($event)"
           [state]="m.pendencias.length ? 'ready' : 'empty'" stateTitle="Nada atrasado nem em falta" stateDescription="Todas as áreas estão em dia neste recorte.">
-          <ng-template cesCell="area" let-p>
-            <ces-status tone="neutral" [icon]="areaDe(p).icone">{{ areaDe(p).curto }}</ces-status>
+          <ng-template geoCell="area" let-p>
+            <geo-status tone="neutral" [icon]="areaDe(p).icone">{{ areaDe(p).curto }}</geo-status>
           </ng-template>
-          <ng-template cesCell="situacao" let-p>
-            <ces-status [tone]="$any(p).tom" [icon]="$any(p).icone">{{ $any(p).situacao }}</ces-status>
+          <ng-template geoCell="situacao" let-p>
+            <geo-status [tone]="$any(p).tom" [icon]="$any(p).icone">{{ $any(p).situacao }}</geo-status>
           </ng-template>
-          <ng-template cesCell="atraso" let-p>
+          <ng-template geoCell="atraso" let-p>
             @if ($any(p).atraso) {
-              <ces-status tone="danger" emphasis="outline" icon="pi pi-history">{{ plural($any(p).atraso, 'dia', 'dias') }}</ces-status>
+              <geo-status tone="danger" emphasis="outline" icon="pi pi-history">{{ plural($any(p).atraso, 'dia', 'dias') }}</geo-status>
             } @else { <span class="pf-mudo">—</span> }
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       </section>
 
       <section class="dash-grid pf-grid-espaco" aria-label="Fila e fluxo">
@@ -95,17 +95,17 @@
               <div><span class="dash-eyebrow">Fila</span><h2>Em aberto por processo</h2><p>No prazo e atrasadas. Clique para abrir a fila do processo.</p></div>
               <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'filas', rotulo: 'Em aberto por processo' }" />
             </header>
-            <ces-chart kind="bar-stacked" title="Em aberto por processo" [showTitle]="false" [selectable]="true" selectLabel="Abrir a fila"
-              [labels]="fl.rotulos" [series]="fl.series" valueFormat="integer" [height]="280" (pointSelect)="abrirFila($event.index)"></ces-chart>
+            <geo-chart kind="bar-stacked" title="Em aberto por processo" [showTitle]="false" [selectable]="true" selectLabel="Abrir a fila"
+              [labels]="fl.rotulos" [series]="fl.series" valueFormat="integer" [height]="280" (pointSelect)="abrirFila($event.index)"></geo-chart>
           </article>
         }
         @if (m.fluxo; as fx) {
           <article class="dash-panel dash-col-7">
             <header class="dash-panel__header"><div><span class="dash-eyebrow">Balcão</span><h2>Entradas e saídas do almoxarifado</h2>
               <p>Itens que chegaram (abastecimento, retornos, sucata) e que saíram (atendimento, baixas). Clique para ver o período.</p></div></header>
-            <ces-chart kind="bar" title="Entradas e saídas" [showTitle]="false" [selectable]="true" selectLabel="Analisar o período"
+            <geo-chart kind="bar" title="Entradas e saídas" [showTitle]="false" [selectable]="true" selectLabel="Analisar o período"
               [labels]="fx.rotulos" [series]="[{ name: 'Entradas', values: fx.entradas }, { name: 'Saídas', values: fx.saidas }]" valueFormat="integer" [height]="280"
-              (pointSelect)="abrirFluxo($event.index)"></ces-chart>
+              (pointSelect)="abrirFluxo($event.index)"></geo-chart>
           </article>
         }
       </section>

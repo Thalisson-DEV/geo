@@ -2,23 +2,23 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, u
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { BarraGantt, GanttProgramacao, LinhaGantt, ObraAProgramar, SituacaoIntervencao, SituacaoProgramacao, TurnoProgramacao } from '../../../core/models/obras-programacao.models';
@@ -55,26 +55,26 @@ const VISOES: { value: VisaoProgramacao; label: string; icon: string; rota: stri
 ];
 
 type FiltroEquipes = 'COM_PROGRAMACAO' | 'LIVRES';
-const OPCOES_EQUIPES: CesSelectOption<FiltroEquipes | null>[] = [
+const OPCOES_EQUIPES: GeoSelectOption<FiltroEquipes | null>[] = [
   { label: 'Todas as equipes', value: null },
   { label: 'Com programação', value: 'COM_PROGRAMACAO' },
   { label: 'Livres no período', value: 'LIVRES' }
 ];
 const SITUACOES: SituacaoProgramacao[] = ['PROGRAMADA', 'EM_ANDAMENTO', 'ATRASADA', 'CONCLUIDA', 'CANCELADA'];
-const OPCOES_SITUACAO: CesSelectOption<SituacaoProgramacao>[] = SITUACOES.map((value) => ({ value, label: SITUACAO_PROGRAMACAO[value].rotulo }));
+const OPCOES_SITUACAO: GeoSelectOption<SituacaoProgramacao>[] = SITUACOES.map((value) => ({ value, label: SITUACAO_PROGRAMACAO[value].rotulo }));
 
-const OPCOES_PRIORIDADE: CesSelectOption<string | null>[] = [
+const OPCOES_PRIORIDADE: GeoSelectOption<string | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Urgente', value: 'URGENTE' },
   { label: 'Alta', value: 'ALTA' },
   { label: 'Normal', value: 'NORMAL' },
   { label: 'Baixa', value: 'BAIXA' }
 ];
-const OPCOES_TURNO: CesSelectOption<TurnoProgramacao | null>[] = [{ label: 'Todos', value: null }, ...TURNOS];
-const OPCOES_SIM_NAO: CesSelectOption<boolean | null>[] = [{ label: 'Todas', value: null }, ...SIM_NAO];
-const OPCOES_INTERVENCAO: CesSelectOption<SituacaoIntervencao | null>[] = [{ label: 'Todas', value: null }, ...SITUACOES_INTERVENCAO];
+const OPCOES_TURNO: GeoSelectOption<TurnoProgramacao | null>[] = [{ label: 'Todos', value: null }, ...TURNOS];
+const OPCOES_SIM_NAO: GeoSelectOption<boolean | null>[] = [{ label: 'Todas', value: null }, ...SIM_NAO];
+const OPCOES_INTERVENCAO: GeoSelectOption<SituacaoIntervencao | null>[] = [{ label: 'Todas', value: null }, ...SITUACOES_INTERVENCAO];
 
-function opcoesDe(valores: readonly (string | null | undefined)[]): CesSelectOption<string>[] {
+function opcoesDe(valores: readonly (string | null | undefined)[]): GeoSelectOption<string>[] {
   return [...new Set(valores.filter((v): v is string => !!v))].sort((a, b) => a.localeCompare(b, 'pt-BR')).map((value) => ({ value, label: value }));
 }
 
@@ -97,76 +97,76 @@ function dataDaUrl(valor: string | null): Date | null {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     ProgramacaoDetalheComponent,
     ProgramacaoLinhaTempoComponent,
     ProgramarDrawerComponent
   ],
   template: `
-    <div class="ces-page">
-      <ces-page-header title="Programação" icon="pi pi-calendar" [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação' }]"
+    <div class="geo-page">
+      <geo-page-header title="Programação" icon="pi pi-calendar" [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação' }]"
         description="Quem faz o quê e quando. Programe aqui ou pela seleção de itens no planejamento da obra.">
         @if (podeEditar) {
-          <ces-button actions icon="pi pi-plus" label="Nova programação" (pressed)="novaProgramacao()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Nova programação" (pressed)="novaProgramacao()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
 
-      <ces-filter-panel #painel [storageKey]="'obras-programacao'" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="'obras-programacao'" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="estado().carregando" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Obra" [options]="opcoesObra()" [(value)]="lista.filters.idObra" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Município" [options]="opcoesMunicipio()" [(value)]="lista.filters.municipio" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Prioridade da obra" [options]="opcoesPrioridade" [(value)]="lista.filters.prioridade"></ces-select>
-          <ces-select label="Base operacional" [options]="bases()" [(value)]="lista.filters.idBase" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Tipo de equipe" [options]="tipos()" [(value)]="lista.filters.idTipoEquipe" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Equipe" [options]="opcoesEquipe()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Supervisor" [options]="opcoesSupervisor()" [(value)]="lista.filters.supervisor" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Coordenador" [options]="opcoesCoordenador()" [(value)]="lista.filters.coordenador" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Disponibilidade" [options]="opcoesEquipes" [(value)]="lista.filters.equipes"></ces-select>
-          <ces-multiselect label="Situação" [options]="opcoesSituacao" [(value)]="lista.filters.situacoes" [filter]="false" placeholder="Ativas (sem canceladas)"></ces-multiselect>
-          <ces-select label="Turno" [options]="opcoesTurno" [(value)]="lista.filters.turno"></ces-select>
-          <ces-select label="Linha viva" [options]="opcoesSimNao" [(value)]="lista.filters.linhaViva"></ces-select>
-          <ces-select label="Desligamento" [options]="opcoesSimNao" [(value)]="lista.filters.desligamento"></ces-select>
-          <ces-select label="Finaliza obra" [options]="opcoesSimNao" [(value)]="lista.filters.finalizaObra"></ces-select>
-          <ces-select label="Situação da intervenção" [options]="opcoesIntervencao" [(value)]="lista.filters.intervencao"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Obra" [options]="opcoesObra()" [(value)]="lista.filters.idObra" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Município" [options]="opcoesMunicipio()" [(value)]="lista.filters.municipio" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Prioridade da obra" [options]="opcoesPrioridade" [(value)]="lista.filters.prioridade"></geo-select>
+          <geo-select label="Base operacional" [options]="bases()" [(value)]="lista.filters.idBase" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Tipo de equipe" [options]="tipos()" [(value)]="lista.filters.idTipoEquipe" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Equipe" [options]="opcoesEquipe()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Supervisor" [options]="opcoesSupervisor()" [(value)]="lista.filters.supervisor" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Coordenador" [options]="opcoesCoordenador()" [(value)]="lista.filters.coordenador" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Disponibilidade" [options]="opcoesEquipes" [(value)]="lista.filters.equipes"></geo-select>
+          <geo-multiselect label="Situação" [options]="opcoesSituacao" [(value)]="lista.filters.situacoes" [filter]="false" placeholder="Ativas (sem canceladas)"></geo-multiselect>
+          <geo-select label="Turno" [options]="opcoesTurno" [(value)]="lista.filters.turno"></geo-select>
+          <geo-select label="Linha viva" [options]="opcoesSimNao" [(value)]="lista.filters.linhaViva"></geo-select>
+          <geo-select label="Desligamento" [options]="opcoesSimNao" [(value)]="lista.filters.desligamento"></geo-select>
+          <geo-select label="Finaliza obra" [options]="opcoesSimNao" [(value)]="lista.filters.finalizaObra"></geo-select>
+          <geo-select label="Situação da intervenção" [options]="opcoesIntervencao" [(value)]="lista.filters.intervencao"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <section class="ces-kpis prog-kpis" aria-label="Indicadores do período" aria-live="polite">
-        <div class="ces-kpi" data-tone="info">
-          <span class="ces-kpi__icon"><i class="pi pi-calendar" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Programações no período</span>
-            <span class="ces-kpi__value">{{ indicadores().programacoes }}</span>
-            <span class="ces-kpi__detail">{{ moeda(indicadores().valor) }} em serviços</span></span>
+      <section class="geo-kpis prog-kpis" aria-label="Indicadores do período" aria-live="polite">
+        <div class="geo-kpi" data-tone="info">
+          <span class="geo-kpi__icon"><i class="pi pi-calendar" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Programações no período</span>
+            <span class="geo-kpi__value">{{ indicadores().programacoes }}</span>
+            <span class="geo-kpi__detail">{{ moeda(indicadores().valor) }} em serviços</span></span>
         </div>
-        <button type="button" class="ces-kpi" [attr.data-tone]="indicadores().atrasadas ? 'danger' : 'neutral'" [attr.aria-pressed]="soAtrasadas()" (click)="alternarAtrasadas()">
-          <span class="ces-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Atrasadas</span>
-            <span class="ces-kpi__value">{{ indicadores().atrasadas }}</span>
-            <span class="ces-kpi__detail">{{ soAtrasadas() ? 'Mostrar todas' : 'Passaram do fim sem concluir' }}</span></span>
+        <button type="button" class="geo-kpi" [attr.data-tone]="indicadores().atrasadas ? 'danger' : 'neutral'" [attr.aria-pressed]="soAtrasadas()" (click)="alternarAtrasadas()">
+          <span class="geo-kpi__icon"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Atrasadas</span>
+            <span class="geo-kpi__value">{{ indicadores().atrasadas }}</span>
+            <span class="geo-kpi__detail">{{ soAtrasadas() ? 'Mostrar todas' : 'Passaram do fim sem concluir' }}</span></span>
         </button>
-        <div class="ces-kpi" [attr.data-tone]="indicadores().livres ? 'success' : 'neutral'">
-          <span class="ces-kpi__icon"><i class="pi pi-users" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Equipes livres</span>
-            <span class="ces-kpi__value">{{ indicadores().livres }} de {{ indicadores().equipes }}</span>
-            <span class="ces-kpi__detail">Sem programação no período</span></span>
+        <div class="geo-kpi" [attr.data-tone]="indicadores().livres ? 'success' : 'neutral'">
+          <span class="geo-kpi__icon"><i class="pi pi-users" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Equipes livres</span>
+            <span class="geo-kpi__value">{{ indicadores().livres }} de {{ indicadores().equipes }}</span>
+            <span class="geo-kpi__detail">Sem programação no período</span></span>
         </div>
-        <a class="ces-kpi" href="#obras-a-programar" (click)="irParaObras($event)" [attr.data-tone]="obras().length ? 'warning' : 'neutral'">
-          <span class="ces-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body"><span class="ces-kpi__label">Obras a programar</span>
-            <span class="ces-kpi__value">{{ obras().length }}</span>
-            <span class="ces-kpi__detail">{{ moeda(pendenteTotal()) }} pendentes</span></span>
+        <a class="geo-kpi" href="#obras-a-programar" (click)="irParaObras($event)" [attr.data-tone]="obras().length ? 'warning' : 'neutral'">
+          <span class="geo-kpi__icon"><i class="pi pi-building" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body"><span class="geo-kpi__label">Obras a programar</span>
+            <span class="geo-kpi__value">{{ obras().length }}</span>
+            <span class="geo-kpi__detail">{{ moeda(pendenteTotal()) }} pendentes</span></span>
         </a>
       </section>
 
@@ -180,16 +180,16 @@ function dataDaUrl(valor: string | null): Date | null {
         </section>
       }
 
-      <div class="ces-quick-filters prog-atalhos" role="group" aria-label="Mostrar só as situações escolhidas">
-        <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!situacoesAplicadas().length" (click)="definirSituacoes([])" title="Tudo, menos as canceladas">
+      <div class="geo-quick-filters prog-atalhos" role="group" aria-label="Mostrar só as situações escolhidas">
+        <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!situacoesAplicadas().length" (click)="definirSituacoes([])" title="Tudo, menos as canceladas">
           Ativas <span class="prog-contagem">{{ contagemAtivas() }}</span>
         </button>
-        <button type="button" class="ces-quick-filter" [attr.aria-pressed]="emAbertoAtivo()" (click)="definirSituacoes(emAberto)" title="Programadas, em execução e atrasadas: o que ainda pede ação">
+        <button type="button" class="geo-quick-filter" [attr.aria-pressed]="emAbertoAtivo()" (click)="definirSituacoes(emAberto)" title="Programadas, em execução e atrasadas: o que ainda pede ação">
           <i class="pi pi-inbox" aria-hidden="true"></i> Em aberto <span class="prog-contagem" [class.prog-contagem--alerta]="contagemAberto() > 0">{{ contagemAberto() }}</span>
         </button>
         <span class="prog-divisor" aria-hidden="true"></span>
         @for (s of legenda; track s) {
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="situacoesAplicadas().includes(s)" [attr.data-tone]="situacoes[s].tom" (click)="alternarSituacao(s)"
+          <button type="button" class="geo-quick-filter" [attr.aria-pressed]="situacoesAplicadas().includes(s)" [attr.data-tone]="situacoes[s].tom" (click)="alternarSituacao(s)"
             [attr.aria-label]="situacoes[s].rotulo + ': ' + contagens()[s]">
             <i [class]="situacoes[s].icone" aria-hidden="true"></i> {{ situacoes[s].rotulo }} <span class="prog-contagem">{{ contagens()[s] }}</span>
           </button>
@@ -205,20 +205,20 @@ function dataDaUrl(valor: string | null): Date | null {
           }
         </nav>
         <div class="prog-periodo">
-          <ces-icon-button icon="pi pi-chevron-left" [label]="visao === 'semana' ? 'Semana anterior' : 'Mês anterior'" variant="ghost" (pressed)="navegar(-1)"></ces-icon-button>
+          <geo-icon-button icon="pi pi-chevron-left" [label]="visao === 'semana' ? 'Semana anterior' : 'Mês anterior'" variant="ghost" (pressed)="navegar(-1)"></geo-icon-button>
           <h2 class="prog-periodo__titulo" aria-live="polite">{{ titulo() }}</h2>
-          <ces-icon-button icon="pi pi-chevron-right" [label]="visao === 'semana' ? 'Próxima semana' : 'Próximo mês'" variant="ghost" (pressed)="navegar(1)"></ces-icon-button>
-          <ces-button variant="outline" size="sm" label="Hoje" (pressed)="irParaHoje()"></ces-button>
+          <geo-icon-button icon="pi pi-chevron-right" [label]="visao === 'semana' ? 'Próxima semana' : 'Próximo mês'" variant="ghost" (pressed)="navegar(1)"></geo-icon-button>
+          <geo-button variant="outline" size="sm" label="Hoje" (pressed)="irParaHoje()"></geo-button>
         </div>
         @if (visao !== 'tabela') {
-          <ces-text-input class="prog-busca" label="Buscar" [labelVisible]="false" placeholder="Buscar obra ou equipe" [(value)]="busca"></ces-text-input>
+          <geo-text-input class="prog-busca" label="Buscar" [labelVisible]="false" placeholder="Buscar obra ou equipe" [(value)]="busca"></geo-text-input>
         }
       </div>
 
       @if (estado().erro; as mensagem) {
-        <ces-async-state state="error" title="Não foi possível carregar a programação" [description]="mensagem"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível carregar a programação" [description]="mensagem"></geo-async-state>
       } @else if (visao === 'tabela') {
-        <ces-data-table
+        <geo-data-table
           title="Programações"
           storageKey="obras-programacao"
           exportFileName="programacoes"
@@ -239,21 +239,21 @@ function dataDaUrl(valor: string | null): Date | null {
           (clearFilters)="lista.reset()"
           (rowActivate)="abrir($event.id)"
         >
-          <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="situacaoDe(row).tom" [icon]="situacaoDe(row).icone">{{ situacaoDe(row).rotulo }}</ces-status>
+          <ng-template geoCell="situacao" let-row>
+            <geo-status [tone]="situacaoDe(row).tom" [icon]="situacaoDe(row).icone">{{ situacaoDe(row).rotulo }}</geo-status>
           </ng-template>
-          <ng-template cesCell="obra" let-row>
+          <ng-template geoCell="obra" let-row>
             <strong>{{ row.numeroObra }}</strong>
-            <span class="ces-cell-muted">{{ row.tituloObra }}</span>
+            <span class="geo-cell-muted">{{ row.tituloObra }}</span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       } @else {
         <section class="prog-card">
           @if (estado().carregando && !estado().gantt) {
-            <ces-async-state state="loading" title="Carregando a programação"></ces-async-state>
+            <geo-async-state state="loading" title="Carregando a programação"></geo-async-state>
           } @else if (!linhasTempo().length) {
-            <ces-async-state state="empty" icon="pi pi-calendar" title="Nenhuma equipe com esse recorte"
-              description="Mude a busca ou os filtros para ver as equipes."></ces-async-state>
+            <geo-async-state state="empty" icon="pi pi-calendar" title="Nenhuma equipe com esse recorte"
+              description="Mude a busca ou os filtros para ver as equipes."></geo-async-state>
           } @else {
             <app-programacao-linha-tempo [linhas]="linhasTempo()" [inicio]="periodo().inicio" [fim]="periodo().fim" [modo]="$any(visao)" [podeEditar]="podeEditar" (abrir)="abrir($event)" (arrastada)="reprogramarArrastando($event)"></app-programacao-linha-tempo>
           }
@@ -269,7 +269,7 @@ function dataDaUrl(valor: string | null): Date | null {
           <p>As de prazo mais curto primeiro. Programe direto daqui ou abra o planejamento para escolher item a item.</p>
         </header>
         @if (!obras().length) {
-          <ces-async-state state="empty" icon="pi pi-check-circle" title="Nenhuma obra com serviço por programar" [compact]="true"></ces-async-state>
+          <geo-async-state state="empty" icon="pi pi-check-circle" title="Nenhuma obra com serviço por programar" [compact]="true"></geo-async-state>
         } @else {
           <ul class="prog-obras__lista">
             @for (o of obras(); track o.idObra) {
@@ -290,8 +290,8 @@ function dataDaUrl(valor: string | null): Date | null {
                   <i class="pi pi-arrow-right prog-obra__seta" aria-hidden="true"></i>
                 </a>
                 @if (podeEditar) {
-                  <ces-button class="prog-obra__programar" size="sm" variant="outline" icon="pi pi-calendar-plus" label="Programar"
-                    [ariaLabel]="'Programar a obra ' + o.numero" (pressed)="novaProgramacao(o.idObra)"></ces-button>
+                  <geo-button class="prog-obra__programar" size="sm" variant="outline" icon="pi pi-calendar-plus" label="Programar"
+                    [ariaLabel]="'Programar a obra ' + o.numero" (pressed)="novaProgramacao(o.idObra)"></geo-button>
                 }
               </li>
             }
@@ -307,57 +307,57 @@ function dataDaUrl(valor: string | null): Date | null {
   `,
   styles: [`
     .prog-kpis { margin-bottom: 1rem; }
-    button.ces-kpi { width: 100%; font: inherit; text-align: left; color: inherit; }
-    button.ces-kpi[aria-pressed='true'] { box-shadow: inset 0 0 0 2px var(--ces-danger); }
-    .prog-atrasadas { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--ces-danger); border-radius: var(--ces-radius-md); background: var(--ces-danger-soft); color: var(--ces-danger-text); font-size: var(--ces-font-control); }
-    .prog-atrasadas button { padding: 0.125rem 0.5rem; border: 1px solid currentColor; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: var(--ces-font-caption); font-weight: 600; cursor: pointer; }
+    button.geo-kpi { width: 100%; font: inherit; text-align: left; color: inherit; }
+    button.geo-kpi[aria-pressed='true'] { box-shadow: inset 0 0 0 2px var(--geo-danger); }
+    .prog-atrasadas { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; margin-bottom: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-danger); border-radius: var(--geo-radius-md); background: var(--geo-danger-soft); color: var(--geo-danger-text); font-size: var(--geo-font-control); }
+    .prog-atrasadas button { padding: 0.125rem 0.5rem; border: 1px solid currentColor; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: var(--geo-font-caption); font-weight: 600; cursor: pointer; }
     .prog-atrasadas button:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
-    .prog-atrasadas button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .prog-atrasadas button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .prog-barra { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; margin-bottom: 0.75rem; }
-    .prog-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
-    .prog-visoes button { display: inline-flex; gap: 0.375rem; align-items: center; min-height: calc(var(--ces-control-height-sm) - 2px); padding: 0 0.75rem; border: 0; border-radius: calc(var(--ces-radius-md) - 2px); background: transparent; color: var(--ces-foreground-muted); font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer; }
-    .prog-visoes button:hover { color: var(--ces-foreground); }
-    .prog-visoes button[aria-current='page'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
-    .prog-visoes button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .prog-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
+    .prog-visoes button { display: inline-flex; gap: 0.375rem; align-items: center; min-height: calc(var(--geo-control-height-sm) - 2px); padding: 0 0.75rem; border: 0; border-radius: calc(var(--geo-radius-md) - 2px); background: transparent; color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer; }
+    .prog-visoes button:hover { color: var(--geo-foreground); }
+    .prog-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
+    .prog-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .prog-visoes .pi { font-size: 0.8rem; }
     .prog-periodo { display: flex; gap: 0.25rem; align-items: center; }
-    .prog-periodo__titulo { min-width: 13rem; margin: 0; color: var(--ces-foreground); font-size: var(--ces-font-title); font-weight: 700; text-align: center; }
-    .prog-periodo ces-button { margin-left: 0.5rem; }
+    .prog-periodo__titulo { min-width: 13rem; margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-title); font-weight: 700; text-align: center; }
+    .prog-periodo geo-button { margin-left: 0.5rem; }
     .prog-busca { width: 16rem; margin-left: auto; }
-    .prog-card { overflow: hidden; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-xl); background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); }
-    .prog-dica { display: flex; gap: 0.375rem; align-items: center; margin: 0; padding: 0.5rem 0.75rem 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .prog-card { overflow: hidden; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
+    .prog-dica { display: flex; gap: 0.375rem; align-items: center; margin: 0; padding: 0.5rem 0.75rem 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .prog-atalhos { margin-bottom: 0.75rem; }
-    .prog-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .ces-quick-filter[aria-pressed='true'] .prog-contagem { background: var(--ces-surface); color: var(--ces-foreground); }
-    .prog-contagem--alerta { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .prog-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--ces-border); }
-    .prog-atalhos [data-tone='info'] .pi { color: var(--ces-info); }
-    .prog-atalhos [data-tone='warning'] .pi { color: var(--ces-warning); }
-    .prog-atalhos [data-tone='danger'] .pi { color: var(--ces-danger); }
-    .prog-atalhos [data-tone='success'] .pi { color: var(--ces-success); }
+    .prog-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .geo-quick-filter[aria-pressed='true'] .prog-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
+    .prog-contagem--alerta { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .prog-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--geo-border); }
+    .prog-atalhos [data-tone='info'] .pi { color: var(--geo-info); }
+    .prog-atalhos [data-tone='warning'] .pi { color: var(--geo-warning); }
+    .prog-atalhos [data-tone='danger'] .pi { color: var(--geo-danger); }
+    .prog-atalhos [data-tone='success'] .pi { color: var(--geo-success); }
     .prog-atalhos .pi { font-size: 0.75rem; }
     .prog-dica { padding-bottom: 0.5rem; }
     .prog-obras { margin-top: 1rem; scroll-margin-top: 1rem; }
-    .prog-obras__topo { padding: 0.875rem 1rem; border-bottom: 1px solid var(--ces-border); }
-    .prog-obras__topo h2 { margin: 0; color: var(--ces-foreground); font-size: var(--ces-font-title); font-weight: 700; }
-    .prog-obras__topo p { margin: 0.125rem 0 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .prog-obras__topo { padding: 0.875rem 1rem; border-bottom: 1px solid var(--geo-border); }
+    .prog-obras__topo h2 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-title); font-weight: 700; }
+    .prog-obras__topo p { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .prog-obras__lista { margin: 0; padding: 0; list-style: none; }
-    .prog-obras__lista li + li { border-top: 1px solid var(--ces-border); }
+    .prog-obras__lista li + li { border-top: 1px solid var(--geo-border); }
     .prog-obras__item { display: flex; align-items: center; }
     .prog-obras__item .prog-obra { flex: 1; min-width: 0; }
     .prog-obra__programar { flex: none; margin-right: 1rem; }
-    .prog-obra { display: grid; grid-template-columns: minmax(14rem, 1fr) 11rem 8rem 6rem 7rem 1rem; gap: 0.75rem; align-items: center; padding: 0.625rem 1rem; color: var(--ces-foreground); font-size: var(--ces-font-control); text-decoration: none; }
-    .prog-obra:hover { background: var(--ces-surface-subtle); }
-    .prog-obra:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
+    .prog-obra { display: grid; grid-template-columns: minmax(14rem, 1fr) 11rem 8rem 6rem 7rem 1rem; gap: 0.75rem; align-items: center; padding: 0.625rem 1rem; color: var(--geo-foreground); font-size: var(--geo-font-control); text-decoration: none; }
+    .prog-obra:hover { background: var(--geo-surface-subtle); }
+    .prog-obra:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .prog-obra__nome strong { margin-right: 0.5rem; }
     .prog-obra__nome { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .prog-obra__nome span { color: var(--ces-foreground-muted); }
-    .prog-obra__prazo { display: inline-flex; gap: 0.375rem; align-items: center; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
-    .prog-obra__prazo[data-vencido='true'] { color: var(--ces-danger-text); font-weight: 600; }
+    .prog-obra__nome span { color: var(--geo-foreground-muted); }
+    .prog-obra__prazo { display: inline-flex; gap: 0.375rem; align-items: center; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .prog-obra__prazo[data-vencido='true'] { color: var(--geo-danger-text); font-weight: 600; }
     .prog-obra__dado { display: flex; flex-direction: column; font-variant-numeric: tabular-nums; font-weight: 600; }
-    .prog-obra__dado small { color: var(--ces-foreground-muted); font-size: 0.6875rem; font-weight: 400; }
-    .prog-obra__aviso { display: inline-flex; gap: 0.25rem; align-items: center; color: var(--ces-warning-text); font-size: var(--ces-font-caption); }
-    .prog-obra__seta { color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .prog-obra__dado small { color: var(--geo-foreground-muted); font-size: 0.6875rem; font-weight: 400; }
+    .prog-obra__aviso { display: inline-flex; gap: 0.25rem; align-items: center; color: var(--geo-warning-text); font-size: var(--geo-font-caption); }
+    .prog-obra__seta { color: var(--geo-foreground-muted); font-size: 0.75rem; }
     @media (max-width: 60rem) {
       .prog-obra { grid-template-columns: 1fr auto; }
       .prog-obra__aviso--vazio, .prog-obra__seta { display: none; }
@@ -367,7 +367,7 @@ function dataDaUrl(valor: string | null): Date | null {
       .prog-visoes { width: 100%; }
       .prog-visoes button { flex: 1; justify-content: center; }
       .prog-periodo { width: 100%; justify-content: space-between; }
-      .prog-periodo__titulo { min-width: 0; font-size: var(--ces-font-control); }
+      .prog-periodo__titulo { min-width: 0; font-size: var(--geo-font-control); }
     }
   `]
 })
@@ -389,16 +389,16 @@ export class ProgramacaoComponent {
   protected readonly numero = formatarNumero;
 
   // Antes da lista: ela lê as opções ao interpretar os filtros da URL, já na criação.
-  protected readonly bases = signal<CesSelectOption<string>[]>([]);
-  protected readonly tipos = signal<CesSelectOption<string>[]>([]);
+  protected readonly bases = signal<GeoSelectOption<string>[]>([]);
+  protected readonly tipos = signal<GeoSelectOption<string>[]>([]);
   protected readonly estado = signal<{ carregando: boolean; erro: string | null; gantt: GanttProgramacao | null }>({ carregando: true, erro: null, gantt: null });
   private readonly linhasDoPeriodo = computed(() => this.estado().gantt?.equipes ?? []);
   private readonly barrasDoPeriodo = computed(() => [...this.linhasDoPeriodo().flatMap((l) => l.programacoes), ...(this.estado().gantt?.atrasadasAntes ?? [])]);
-  protected readonly opcoesEquipe = computed<CesSelectOption<string>[]>(() => this.linhasDoPeriodo().map((l) => ({ value: l.idEquipe, label: l.codigo })));
+  protected readonly opcoesEquipe = computed<GeoSelectOption<string>[]>(() => this.linhasDoPeriodo().map((l) => ({ value: l.idEquipe, label: l.codigo })));
   protected readonly opcoesSupervisor = computed(() => opcoesDe(this.linhasDoPeriodo().map((l) => l.supervisor)));
   protected readonly opcoesCoordenador = computed(() => opcoesDe(this.linhasDoPeriodo().map((l) => l.coordenador)));
   protected readonly opcoesMunicipio = computed(() => opcoesDe(this.barrasDoPeriodo().map((b) => b.municipio)));
-  protected readonly opcoesObra = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesObra = computed<GeoSelectOption<string>[]>(() => {
     const obras = new Map(this.barrasDoPeriodo().map((b) => [b.idObra, `${b.numeroObra} · ${b.tituloObra}`]));
     return [...obras].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
   });
@@ -408,24 +408,24 @@ export class ProgramacaoComponent {
   protected readonly opcoesIntervencao = OPCOES_INTERVENCAO;
   protected readonly emAberto = SITUACOES_EM_ABERTO;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'obras-programacao',
     filters: {
-      idBase: cesFilter.value<string | null>(null, { label: 'Base', param: 'base', options: () => this.bases() }),
-      idTipoEquipe: cesFilter.value<string | null>(null, { label: 'Tipo de equipe', param: 'tipo', options: () => this.tipos() }),
-      situacoes: cesFilter.list<SituacaoProgramacao>([], { label: 'Situação', param: 'situacao', itemLabel: (s) => SITUACAO_PROGRAMACAO[s].rotulo }),
-      equipes: cesFilter.value<FiltroEquipes | null>(null, { label: 'Disponibilidade', param: 'equipes', options: () => OPCOES_EQUIPES }),
-      idEquipe: cesFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', options: () => this.opcoesEquipe() }),
-      supervisor: cesFilter.value<string | null>(null, { label: 'Supervisor', param: 'supervisor' }),
-      coordenador: cesFilter.value<string | null>(null, { label: 'Coordenador', param: 'coordenador' }),
-      idObra: cesFilter.value<string | null>(null, { label: 'Obra', param: 'obra', options: () => this.opcoesObra() }),
-      municipio: cesFilter.value<string | null>(null, { label: 'Município', param: 'municipio' }),
-      prioridade: cesFilter.value<string | null>(null, { label: 'Prioridade', param: 'prioridade', options: () => OPCOES_PRIORIDADE }),
-      turno: cesFilter.value<TurnoProgramacao | null>(null, { label: 'Turno', param: 'turno', options: () => OPCOES_TURNO }),
-      linhaViva: cesFilter.value<boolean | null>(null, { label: 'Linha viva', param: 'linhaViva', options: () => OPCOES_SIM_NAO }),
-      desligamento: cesFilter.value<boolean | null>(null, { label: 'Desligamento', param: 'desligamento', options: () => OPCOES_SIM_NAO }),
-      finalizaObra: cesFilter.value<boolean | null>(null, { label: 'Finaliza obra', param: 'finaliza', options: () => OPCOES_SIM_NAO }),
-      intervencao: cesFilter.value<SituacaoIntervencao | null>(null, { label: 'Intervenção', param: 'intervencao', options: () => OPCOES_INTERVENCAO })
+      idBase: geoFilter.value<string | null>(null, { label: 'Base', param: 'base', options: () => this.bases() }),
+      idTipoEquipe: geoFilter.value<string | null>(null, { label: 'Tipo de equipe', param: 'tipo', options: () => this.tipos() }),
+      situacoes: geoFilter.list<SituacaoProgramacao>([], { label: 'Situação', param: 'situacao', itemLabel: (s) => SITUACAO_PROGRAMACAO[s].rotulo }),
+      equipes: geoFilter.value<FiltroEquipes | null>(null, { label: 'Disponibilidade', param: 'equipes', options: () => OPCOES_EQUIPES }),
+      idEquipe: geoFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', options: () => this.opcoesEquipe() }),
+      supervisor: geoFilter.value<string | null>(null, { label: 'Supervisor', param: 'supervisor' }),
+      coordenador: geoFilter.value<string | null>(null, { label: 'Coordenador', param: 'coordenador' }),
+      idObra: geoFilter.value<string | null>(null, { label: 'Obra', param: 'obra', options: () => this.opcoesObra() }),
+      municipio: geoFilter.value<string | null>(null, { label: 'Município', param: 'municipio' }),
+      prioridade: geoFilter.value<string | null>(null, { label: 'Prioridade', param: 'prioridade', options: () => OPCOES_PRIORIDADE }),
+      turno: geoFilter.value<TurnoProgramacao | null>(null, { label: 'Turno', param: 'turno', options: () => OPCOES_TURNO }),
+      linhaViva: geoFilter.value<boolean | null>(null, { label: 'Linha viva', param: 'linhaViva', options: () => OPCOES_SIM_NAO }),
+      desligamento: geoFilter.value<boolean | null>(null, { label: 'Desligamento', param: 'desligamento', options: () => OPCOES_SIM_NAO }),
+      finalizaObra: geoFilter.value<boolean | null>(null, { label: 'Finaliza obra', param: 'finaliza', options: () => OPCOES_SIM_NAO }),
+      intervencao: geoFilter.value<SituacaoIntervencao | null>(null, { label: 'Intervenção', param: 'intervencao', options: () => OPCOES_INTERVENCAO })
     }
   });
 
@@ -539,7 +539,7 @@ export class ProgramacaoComponent {
     };
   });
 
-  protected readonly colunas: CesDataTableColumn<LinhaTabela>[] = [
+  protected readonly colunas: GeoDataTableColumn<LinhaTabela>[] = [
     { key: 'numero', header: 'Nº', type: 'integer', width: '5rem', priority: 1, value: (p) => p.numero, display: (p) => `#${p.numero}` },
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (p) => `${p.numeroObra} ${p.tituloObra}` },
     { key: 'codigoEquipe', header: 'Equipe', priority: 1, value: (p) => p.codigoEquipe },

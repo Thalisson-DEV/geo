@@ -36,7 +36,7 @@ function target(
  * backend (navigation-actions.yaml); chaves sem rota no frontend são descartadas pelo resolvedor.
  */
 export const COPILOTO_DESTINOS: Record<string, NavigationTarget> = {
-  CES_HOME: target('/home', 'assistente:chat:use'),
+  GEO_HOME: target('/home', 'assistente:chat:use'),
   IAM_USUARIOS: target('/admin/cadastros/usuarios', 'iam:usuario:read'),
   IAM_PERFIS_ACESSO: target('/admin/cadastros/perfis-acesso', 'iam:perfil:read'),
   IAM_PERMISSOES: target('/admin/cadastros/permissoes', 'iam:permissao:read'),

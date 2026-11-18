@@ -40,7 +40,7 @@ class R2SmokeTest {
         ObjectStorageService storage = new R2ObjectStorageService(client, props);
 
         String chave = "sst/_smoke-test/" + UUID.randomUUID() + ".txt";
-        byte[] conteudo = ("ces-r2-smoke " + Instant.now()).getBytes(StandardCharsets.UTF_8);
+        byte[] conteudo = ("geo-r2-smoke " + Instant.now()).getBytes(StandardCharsets.UTF_8);
 
         try {
             storage.enviar(chave, new ByteArrayInputStream(conteudo), conteudo.length, "text/plain");

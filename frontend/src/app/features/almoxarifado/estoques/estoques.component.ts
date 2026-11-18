@@ -1,28 +1,28 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked, viewChild } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesImportStatus,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoImportStatus,
+  geoListState
+} from '@geo/ui';
 import { Observable, catchError, of, switchMap } from 'rxjs';
 
 import { EstoqueImportacaoDTO, EstoqueRequest, EstoqueResponse, TipoEstoqueResponse } from '../../../core/models/almoxarifado.models';
@@ -42,27 +42,27 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="novo()">
+      <geo-page-header
         title="Estoques"
         icon="pi pi-database"
         [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Estoques' }]"
@@ -70,19 +70,19 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
         helpLabel="Ajuda sobre estoques"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Novo estoque" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacao.aberta.set(true)"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Novo estoque" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="almox-estoques" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="almox-estoques" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Tipo de estoque" [options]="tiposOpcoes()" [(value)]="lista.filters.idTipoEstoque" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Tipo de estoque" [options]="tiposOpcoes()" [(value)]="lista.filters.idTipoEstoque" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Estoques"
         mode="server"
         storageKey="almox-estoques"
@@ -112,79 +112,79 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
         (emptyAction)="novo()"
         (rowActivate)="editar($event)"
       >
-        <ng-template cesCell="nome" let-row><span class="ces-cell-strong">{{ row.nomeIdentificador }}</span></ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="nome" let-row><span class="geo-cell-strong">{{ row.nomeIdentificador }}</span></ng-template>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nomeIdentificador" size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nomeIdentificador" size="icon-sm" (pressed)="logs(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nomeIdentificador" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.nomeIdentificador" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar estoque' : 'Novo estoque'" [description]="emEdicao()?.nomeIdentificador"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar estoque' : 'Novo estoque'" [description]="emEdicao()?.nomeIdentificador"
       [dirty]="alterado()" size="md">
-      <ces-form-section title="Estoque" icon="pi pi-database">
-        <ces-text-input label="Identificador" [required]="true" [(value)]="identificador" [maxlength]="100" placeholder="Ex.: Almoxarifado Central" [error]="erro('nome')"></ces-text-input>
-        <div class="ces-form-grid">
-          <ces-select label="Tipo de estoque" [required]="true" [options]="tiposOpcoes()" [(value)]="idTipo" [error]="erro('tipo')"></ces-select>
-          <ces-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true" [error]="erro('base')"></ces-select>
-          <ces-select label="Equipe" [options]="equipesOpcoes()" [(value)]="idEquipe" [filter]="true" [clearable]="true" [showOptional]="true"
+      <geo-form-section title="Estoque" icon="pi pi-database">
+        <geo-text-input label="Identificador" [required]="true" [(value)]="identificador" [maxlength]="100" placeholder="Ex.: Almoxarifado Central" [error]="erro('nome')"></geo-text-input>
+        <div class="geo-form-grid">
+          <geo-select label="Tipo de estoque" [required]="true" [options]="tiposOpcoes()" [(value)]="idTipo" [error]="erro('tipo')"></geo-select>
+          <geo-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true" [error]="erro('base')"></geo-select>
+          <geo-select label="Equipe" [options]="equipesOpcoes()" [(value)]="idEquipe" [filter]="true" [clearable]="true" [showOptional]="true"
             [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)" placeholder="Pesquise pelo código"
-            description="Só para estoques de equipe."></ces-select>
+            description="Só para estoques de equipe."></geo-select>
         </div>
         @if (emEdicao()) {
-          <ces-boolean-control label="Estoque ativo" kind="toggle" [(value)]="ativo"></ces-boolean-control>
+          <geo-boolean-control label="Estoque ativo" kind="toggle" [(value)]="ativo"></geo-boolean-control>
         }
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar estoque'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar estoque'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
-    <ces-import-drawer [(visible)]="importacao.aberta" title="Importar estoques" description="Planilha CSV com identificador, tipo de estoque e código da equipe."
+    <geo-import-drawer [(visible)]="importacao.aberta" title="Importar estoques" description="Planilha CSV com identificador, tipo de estoque e código da equipe."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunasImportacao"
           [rows]="importacao.linhas()" [rowKey]="chaveImportacao" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="nome" let-row>
-            @if (row.editing) { <ces-text-input label="Identificador" [labelVisible]="false" [(value)]="row.nomeIdentificador"></ces-text-input> } @else { {{ row.nomeIdentificador }} }
+          <ng-template geoCell="nome" let-row>
+            @if (row.editing) { <geo-text-input label="Identificador" [labelVisible]="false" [(value)]="row.nomeIdentificador"></geo-text-input> } @else { {{ row.nomeIdentificador }} }
           </ng-template>
-          <ng-template cesCell="tipo" let-row>
+          <ng-template geoCell="tipo" let-row>
             @if (row.editing) {
-              <ces-select label="Tipo" [labelVisible]="false" [options]="tiposPorNome()" [(value)]="row.nomeTipoEstoque"></ces-select>
+              <geo-select label="Tipo" [labelVisible]="false" [options]="tiposPorNome()" [(value)]="row.nomeTipoEstoque"></geo-select>
             } @else {
               {{ row.nomeTipoEstoque || '—' }}
             }
           </ng-template>
-          <ng-template cesCell="equipe" let-row>
-            @if (row.editing) { <ces-text-input label="Equipe" [labelVisible]="false" [(value)]="row.codigoEquipe"></ces-text-input> } @else { {{ row.codigoEquipe || '—' }} }
+          <ng-template geoCell="equipe" let-row>
+            @if (row.editing) { <geo-text-input label="Equipe" [labelVisible]="false" [(value)]="row.codigoEquipe"></geo-text-input> } @else { {{ row.codigoEquipe || '—' }} }
           </ng-template>
-          <ng-template cesCell="status" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
+          <ng-template geoCell="status" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="geo-cell-muted">{{ row.mensagemErro }}</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="importacao.concluirCorrecao(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="row.editing = true"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-ajuda-listagem #ajuda titulo="Estoques" entidadePlural="estoques" busca="identificador do estoque" rotuloNovo="Novo estoque" [importacao]="true"></app-ajuda-listagem>
@@ -195,7 +195,7 @@ export class EstoquesComponent {
   private readonly rh = inject(RhService);
   private readonly importacaoService = inject(ImportacaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly statusOpcoes = OPCOES_STATUS;
@@ -203,9 +203,9 @@ export class EstoquesComponent {
   protected readonly bases = signal<BaseOperacionalResponse[]>([]);
   /** Códigos de equipe e nomes de base já conhecidos (a resposta traz só os IDs). */
   private readonly nomes = signal<Record<string, string>>({});
-  protected readonly tiposOpcoes = computed<CesSelectOption<string>[]>(() => this.tipos().map((t) => ({ label: t.nome, value: t.id })));
-  protected readonly tiposPorNome = computed<CesSelectOption<string>[]>(() => this.tipos().map((t) => ({ label: t.nome, value: t.nome })));
-  protected readonly basesOpcoes = computed<CesSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
+  protected readonly tiposOpcoes = computed<GeoSelectOption<string>[]>(() => this.tipos().map((t) => ({ label: t.nome, value: t.id })));
+  protected readonly tiposPorNome = computed<GeoSelectOption<string>[]>(() => this.tipos().map((t) => ({ label: t.nome, value: t.nome })));
+  protected readonly basesOpcoes = computed<GeoSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
 
   protected readonly equipes = new RemoteLookup<EquipeResponse>(
     {
@@ -215,17 +215,17 @@ export class EstoquesComponent {
     },
     inject(DestroyRef)
   );
-  protected readonly equipesOpcoes = computed<CesSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
+  protected readonly equipesOpcoes = computed<GeoSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'almox-estoques',
     filters: {
-      idTipoEstoque: cesFilter.value<string | null>(null, {
+      idTipoEstoque: geoFilter.value<string | null>(null, {
         label: 'Tipo',
         param: 'tipo',
         format: (id): string | null => (id ? (this.tipos().find((t) => t.id === id)?.nome ?? 'tipo selecionado') : null)
       }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'nome', direction: 'asc' }]
   });
@@ -236,7 +236,7 @@ export class EstoquesComponent {
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
   protected readonly exportar = exportacaoPadrao((pagina) => this.almoxarifado.listarEstoques({ ...this.filtro(), ...pagina }), () => this.lista.request());
 
-  protected readonly colunas: CesDataTableColumn<EstoqueResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<EstoqueResponse>[] = [
     { key: 'nome', header: 'Identificador', type: 'custom', priority: 1, sortField: 'nomeIdentificador', value: (e) => e.nomeIdentificador, display: (e) => e.nomeIdentificador },
     { key: 'tipo', header: 'Tipo', priority: 1, sortField: 'tipoEstoque.nome', value: (e) => e.tipoEstoque?.nome, display: (e) => e.tipoEstoque?.nome ?? '—' },
     { key: 'equipe', header: 'Equipe', value: (e) => this.nomeDe(e.idEquipe), display: (e) => this.nomeDe(e.idEquipe) },
@@ -280,9 +280,9 @@ export class EstoquesComponent {
     modelo: () => this.importacaoService.baixarModeloCsv('/v1/estoques/importar/modelo', 'modelo-estoques.csv'),
     aoProcessar: () => this.lista.reload()
   });
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveImportacao = CHAVE_LINHA_IMPORTACAO;
-  protected readonly colunasImportacao: CesDataTableColumn<EstoqueImportacaoDTO>[] = [
+  protected readonly colunasImportacao: GeoDataTableColumn<EstoqueImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'nome', header: 'Identificador', type: 'custom', priority: 1, value: (r) => r.nomeIdentificador },
     { key: 'tipo', header: 'Tipo', type: 'custom', value: (r) => r.nomeTipoEstoque },

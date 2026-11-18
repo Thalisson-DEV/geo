@@ -12,7 +12,7 @@
   flex-direction: column;
   width: 100%;
   min-height: 0;
-  background: var(--ces-surface);
+  background: var(--geo-surface);
 }
 
 .painel__cabecalho {
@@ -20,7 +20,7 @@
   align-items: center;
   gap: 0.7rem;
   padding: 0.75rem 0.9rem;
-  border-bottom: 1px solid var(--ces-border);
+  border-bottom: 1px solid var(--geo-border);
 }
 
 .painel__icone {
@@ -30,9 +30,9 @@
   flex: 0 0 auto;
   width: 2.2rem;
   height: 2.2rem;
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }
 
 .painel__titulos {
@@ -42,9 +42,9 @@
 
 .painel__titulo {
   margin: 0;
-  font-size: var(--ces-font-title);
+  font-size: var(--geo-font-title);
   font-weight: 650;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -52,8 +52,8 @@
 
 .painel__subtitulo {
   margin: 0.1rem 0 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-subtle);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -66,8 +66,8 @@
 }
 
 .painel__posicao {
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -88,23 +88,23 @@
   flex-wrap: wrap;
   gap: 0.6rem;
   padding: 0.65rem 0.8rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface-subtle);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
 }
 
 .painel__arquivo-nome {
   flex: 1;
   min-width: 8rem;
-  font-size: var(--ces-font-body);
-  color: var(--ces-foreground);
+  font-size: var(--geo-font-body);
+  color: var(--geo-foreground);
   overflow-wrap: anywhere;
 }
 
 .painel__meta {
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .bloco {
@@ -116,16 +116,16 @@
 .bloco h3,
 .texto h3 {
   margin: 0;
-  font-size: var(--ces-font-title);
+  font-size: var(--geo-font-title);
   font-weight: 650;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .bloco--destaque {
   padding: 0.8rem 0.9rem;
-  border-left: 3px solid var(--ces-brand);
-  border-radius: 0 var(--ces-radius-md) var(--ces-radius-md) 0;
-  background: var(--ces-brand-soft);
+  border-left: 3px solid var(--geo-brand);
+  border-radius: 0 var(--geo-radius-md) var(--geo-radius-md) 0;
+  background: var(--geo-brand-soft);
 }
 
 .kpis {
@@ -140,30 +140,30 @@
   gap: 0.35rem;
   align-items: flex-start;
   padding: 0.75rem 0.85rem;
-  border: 1px solid var(--ces-border);
-  border-top: 3px solid var(--ces-brand);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-top: 3px solid var(--geo-brand);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
 }
 
 .kpi__titulo {
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .kpi__valor {
   font-size: 1.45rem;
   line-height: 1.2;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-variant-numeric: tabular-nums;
 }
 
 .kpi__descricao {
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .componentes {
@@ -176,9 +176,9 @@
   grid-column: 1 / -1;
   min-width: 0;
   padding: 0.85rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
 }
 
 .componente--metade {
@@ -199,35 +199,35 @@
 }
 
 .tabela__titulo {
-  font-size: var(--ces-font-title);
+  font-size: var(--geo-font-title);
   font-weight: 600;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .tabela__rolagem {
   max-height: 26rem;
   overflow: auto;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
 }
 
 .tabela__rolagem:focus-visible,
 .procedencia__botao:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
 }
 
 .tabela table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--ces-font-body);
+  font-size: var(--geo-font-body);
   font-variant-numeric: tabular-nums;
 }
 
 .tabela th,
 .tabela td {
   padding: 0.4rem 0.65rem;
-  border-bottom: 1px solid var(--ces-border);
+  border-bottom: 1px solid var(--geo-border);
   text-align: left;
   white-space: nowrap;
 }
@@ -239,19 +239,19 @@
 .tabela thead th {
   position: sticky;
   top: 0;
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
   font-weight: 600;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .tabela tbody tr:nth-child(even) {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .tabela__rodape {
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-subtle);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
 }
 
 .texto {
@@ -274,18 +274,18 @@
   flex-wrap: wrap;
   gap: 0.5rem;
   padding: 0.55rem 0.7rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
-  font-size: var(--ces-font-body);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  font-size: var(--geo-font-body);
 }
 
 .abas span {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .procedencia {
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
   padding-top: 0.6rem;
 }
 
@@ -295,16 +295,16 @@
   gap: 0.45rem;
   padding: 0.3rem 0.4rem;
   border: 0;
-  border-radius: var(--ces-radius-sm);
+  border-radius: var(--geo-radius-sm);
   background: transparent;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font: inherit;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   cursor: pointer;
 }
 
 .procedencia__botao:hover {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .procedencia__lista {
@@ -319,16 +319,16 @@
   display: flex;
   gap: 0.55rem;
   align-items: baseline;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
 }
 
 .procedencia__codigo {
   flex: 0 0 auto;
   padding: 0 0.35rem;
   border-radius: 0.3rem;
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .procedencia__texto {
@@ -338,11 +338,11 @@
 }
 
 .procedencia__texto span {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .procedencia__nota {
   margin: 0.5rem 0 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-subtle);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
 }

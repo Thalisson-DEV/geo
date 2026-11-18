@@ -1,52 +1,52 @@
-<ces-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova solicitação comercial" description="Do estoque físico para o estoque de campo da equipe." size="lg" [resizable]="true"
+<geo-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova solicitação comercial" description="Do estoque físico para o estoque de campo da equipe." size="lg" [resizable]="true"
   [dirty]="alterado()" [loading]="loadingLookups()">
   @if (lookupError()) {
-    <ces-async-state state="error" title="Não foi possível preparar o formulário" [description]="lookupError()" actionLabel="Tentar de novo" (action)="loadLookups()"></ces-async-state>
+    <geo-async-state state="error" title="Não foi possível preparar o formulário" [description]="lookupError()" actionLabel="Tentar de novo" (action)="loadLookups()"></geo-async-state>
   } @else {
     <div class="sol-form">
-      <ces-form-section title="Origem e equipe" icon="pi pi-building">
-        <ces-select label="Equipe de saque" [required]="true" [options]="equipeOptions()" [value]="idEquipe()" (valueChange)="onEquipeChange($event)" [filter]="true" [error]="fieldError('idEquipe')"></ces-select>
-        <div class="ces-form-grid">
+      <geo-form-section title="Origem e equipe" icon="pi pi-building">
+        <geo-select label="Equipe de saque" [required]="true" [options]="equipeOptions()" [value]="idEquipe()" (valueChange)="onEquipeChange($event)" [filter]="true" [error]="fieldError('idEquipe')"></geo-select>
+        <div class="geo-form-grid">
           <div class="sol-campo-acao">
-            <ces-select label="Estoque de origem" [required]="true" [options]="stockOptions()" [(value)]="idEstoqueOrigem" [filter]="true" [error]="fieldError('idEstoqueOrigem')"></ces-select>
+            <geo-select label="Estoque de origem" [required]="true" [options]="stockOptions()" [(value)]="idEstoqueOrigem" [filter]="true" [error]="fieldError('idEstoqueOrigem')"></geo-select>
             @if (idEstoqueOrigem()) {
-              <ces-icon-button icon="pi pi-box" label="Ver saldo do estoque de origem" (pressed)="abrirSaldo(idEstoqueOrigem())"></ces-icon-button>
+              <geo-icon-button icon="pi pi-box" label="Ver saldo do estoque de origem" (pressed)="abrirSaldo(idEstoqueOrigem())"></geo-icon-button>
             }
           </div>
           <div class="sol-campo-acao">
-            <ces-text-input label="Estoque de destino" [value]="destinoRotulo()" [readonly]="true"></ces-text-input>
+            <geo-text-input label="Estoque de destino" [value]="destinoRotulo()" [readonly]="true"></geo-text-input>
             @if (selectedEstoqueDestino(); as destino) {
-              <ces-icon-button icon="pi pi-box" label="Ver saldo do estoque da equipe" (pressed)="abrirSaldo(destino.id)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-box" label="Ver saldo do estoque da equipe" (pressed)="abrirSaldo(destino.id)"></geo-icon-button>
             }
           </div>
         </div>
-        <div class="ces-form-grid">
+        <div class="geo-form-grid">
           @if (!saqueForaEquipe()) {
-            <ces-select label="Responsável pelo saque" [options]="colaboradorSaqueOptions()" [value]="idColaboradorSaque()" (valueChange)="onColaboradorSaqueChange($event)"
-              [clearable]="true" [disabled]="!idEquipe()" [showOptional]="true" description="Pode ser definido agora ou na entrega."></ces-select>
+            <geo-select label="Responsável pelo saque" [options]="colaboradorSaqueOptions()" [value]="idColaboradorSaque()" (valueChange)="onColaboradorSaqueChange($event)"
+              [clearable]="true" [disabled]="!idEquipe()" [showOptional]="true" description="Pode ser definido agora ou na entrega."></geo-select>
           } @else {
-            <ces-autocomplete inputId="responsavelSaque" label="Responsável pelo saque" [showSearchInstruction]="false" [options]="colaboradorSaqueOptions()" [ngModel]="idColaboradorSaque()"
+            <geo-autocomplete inputId="responsavelSaque" label="Responsável pelo saque" [showSearchInstruction]="false" [options]="colaboradorSaqueOptions()" [ngModel]="idColaboradorSaque()"
               (ngModelChange)="onColaboradorSaqueChange($event)" [loading]="collaboratorsLoading()" [status]="collaboratorsStatus()" [error]="collaboratorsError()" [minLength]="2"
               [forceSelection]="true" [virtualScroll]="true" [virtualScrollItemSize]="38" [disabled]="!idEquipe()" placeholder="Pesquise o colaborador" appendTo="body"
-              (search)="searchColaboradores($event)" (loadMore)="loadMoreColaboradores()" (retry)="retryColaboradores()"></ces-autocomplete>
+              (search)="searchColaboradores($event)" (loadMore)="loadMoreColaboradores()" (retry)="retryColaboradores()"></geo-autocomplete>
           }
-          <ces-datepicker label="Data prevista de saque" [required]="true" [(value)]="dataPrevista" [clearable]="true" [error]="fieldError('dataPrevista')"
-            description="Recomendado: 48 horas. Menos que isso é sinalizado no atendimento."></ces-datepicker>
+          <geo-datepicker label="Data prevista de saque" [required]="true" [(value)]="dataPrevista" [clearable]="true" [error]="fieldError('dataPrevista')"
+            description="Recomendado: 48 horas. Menos que isso é sinalizado no atendimento."></geo-datepicker>
         </div>
-        <ces-boolean-control label="Saque fora da equipe" description="Permite escolher um colaborador que não pertence à equipe." kind="toggle"
-          [value]="saqueForaEquipe()" (valueChange)="onSaqueForaEquipeChange($event)"></ces-boolean-control>
-      </ces-form-section>
+        <geo-boolean-control label="Saque fora da equipe" description="Permite escolher um colaborador que não pertence à equipe." kind="toggle"
+          [value]="saqueForaEquipe()" (valueChange)="onSaqueForaEquipeChange($event)"></geo-boolean-control>
+      </geo-form-section>
 
-      <ces-form-section title="Materiais" icon="pi pi-box">
+      <geo-form-section title="Materiais" icon="pi pi-box">
         <div class="sol-novo-item">
           <div class="sol-novo-item__material">
-            <ces-autocomplete inputId="materialInput" label="Material" [showSearchInstruction]="false" [options]="materials()" [ngModel]="selectedMaterialId()" (ngModelChange)="onMaterialChange($event)"
+            <geo-autocomplete inputId="materialInput" label="Material" [showSearchInstruction]="false" [options]="materials()" [ngModel]="selectedMaterialId()" (ngModelChange)="onMaterialChange($event)"
               [loading]="materialsLoading()" [status]="materialsStatus()" [error]="materialsError()" placeholder="Pesquise por código ou descrição" [minLength]="2" appendTo="body"
-              (search)="searchMaterials($event)" (loadMore)="loadMoreMaterials()" (retry)="retryMaterials()"></ces-autocomplete>
+              (search)="searchMaterials($event)" (loadMore)="loadMoreMaterials()" (retry)="retryMaterials()"></geo-autocomplete>
           </div>
-          <ces-number-input label="Quantidade" [(value)]="quantidade" [min]="0.001" [step]="0.001" [maxFractionDigits]="3" placeholder="1"></ces-number-input>
+          <geo-number-input label="Quantidade" [(value)]="quantidade" [min]="0.001" [step]="0.001" [maxFractionDigits]="3" placeholder="1"></geo-number-input>
           <div class="sol-novo-item__botao">
-            <ces-button variant="outline" icon="pi pi-plus" label="Adicionar" [disabled]="!selectedMaterial()" (pressed)="addItem()"></ces-button>
+            <geo-button variant="outline" icon="pi pi-plus" label="Adicionar" [disabled]="!selectedMaterial()" (pressed)="addItem()"></geo-button>
           </div>
         </div>
         @if (fieldError('itens')) {
@@ -60,21 +60,21 @@
                   <span class="sol-item__codigo">{{ item.material.codigo }}</span>
                   <span class="sol-item__descricao" [title]="item.material.descricao">{{ item.material.descricao }}</span>
                 </span>
-                <ces-number-input [label]="'Quantidade de ' + item.material.codigo" [labelVisible]="false" [value]="item.quantidade" (valueChange)="updateItemQuantidade(i, $event)"
-                  [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></ces-number-input>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + item.material.codigo" size="icon-sm" (pressed)="removeItem(i)"></ces-icon-button>
+                <geo-number-input [label]="'Quantidade de ' + item.material.codigo" [labelVisible]="false" [value]="item.quantidade" (valueChange)="updateItemQuantidade(i, $event)"
+                  [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></geo-number-input>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + item.material.codigo" size="icon-sm" (pressed)="removeItem(i)"></geo-icon-button>
               </li>
             }
           </ul>
         } @else {
           <p class="sol-vazio">Nenhum material adicionado.</p>
         }
-      </ces-form-section>
+      </geo-form-section>
     </div>
   }
-  <ces-form-actions drawer-footer submitLabel="Enviar solicitação" submitIcon="pi pi-send" savingLabel="Enviando…" [saving]="saving()" [disabled]="!!lookupError() || loadingLookups()" (save)="onSave()" (cancel)="gaveta.requestClose()">
+  <geo-form-actions drawer-footer submitLabel="Enviar solicitação" submitIcon="pi pi-send" savingLabel="Enviando…" [saving]="saving()" [disabled]="!!lookupError() || loadingLookups()" (save)="onSave()" (cancel)="gaveta.requestClose()">
     <span actions-start class="sol-resumo">{{ items().length }} {{ items().length === 1 ? 'material' : 'materiais' }}</span>
-  </ces-form-actions>
-</ces-form-drawer>
+  </geo-form-actions>
+</geo-form-drawer>
 
 <app-saldo-estoque-dialog #saldoDialog></app-saldo-estoque-dialog>

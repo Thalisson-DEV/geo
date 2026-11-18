@@ -31,7 +31,7 @@ final class McpPrompts {
                     false,
                     "Analise {area} no GEO {periodo}. Compare com o período anterior, aponte o que mudou, o que está "
                             + "fora do normal e o que eu deveria fazer. Use só números das ferramentas do GEO."),
-            new Prompt("cadastrar_no_ces", "Cadastrar no GEO",
+            new Prompt("cadastrar_no_geo", "Cadastrar no GEO",
                     "Cadastra ou altera algo no GEO, conferindo os dados com a pessoa antes de gravar.",
                     List.of(new Argumento("pedido", "O que cadastrar ou alterar, com os detalhes que você já tem", true)),
                     true,

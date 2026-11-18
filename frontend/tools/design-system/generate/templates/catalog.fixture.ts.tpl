@@ -20,7 +20,7 @@ export const {{CLASS_NAME}}CatalogFixture: {{CLASS_NAME}}CatalogFixture = {
   name: '{{CLASS_NAME}}',
   group: '{{CATALOG_GROUP}}',
   status: 'experimental',
-  selector: 'ces-{{NAME}}',
+  selector: 'geo-{{NAME}}',
   entrypoint: '{{PUBLIC_ENTRYPOINT}}',
   objective: 'TODO: describe the user outcome this {{KIND}} standardizes.',
   documentationPath: 'docs/design-system/components/{{NAME}}.md',

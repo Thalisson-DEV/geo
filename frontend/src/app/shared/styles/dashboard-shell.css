@@ -32,10 +32,10 @@
 
 /* Cabeçalho e painel de filtros do design system no lugar de .dash-header/.dash-filterbar:
    mesmo respiro que os blocos do painel (1.5rem). */
-.dash-shell > ces-page-header,
-.dash-shell > ces-filter-panel,
-.dashboard-container > ces-page-header,
-.dashboard-container > ces-filter-panel {
+.dash-shell > geo-page-header,
+.dash-shell > geo-filter-panel,
+.dashboard-container > geo-page-header,
+.dashboard-container > geo-filter-panel {
   display: block;
   margin-bottom: 1.5rem;
 }
@@ -148,13 +148,13 @@
 .dash-metric__corner { display: inline-flex; align-items: center; gap: 0.25rem; }
 .dash-metric__extra { position: relative; z-index: 2; display: inline-flex; }
 .dash-metric__extra:empty { display: none; }
-.dash-metric--interativo { padding-bottom: 2.1rem; transition: border-color var(--ces-duration-fast) var(--ces-ease-standard), box-shadow var(--ces-duration-fast) var(--ces-ease-standard), transform var(--ces-duration-fast) var(--ces-ease-standard); }
+.dash-metric--interativo { padding-bottom: 2.1rem; transition: border-color var(--geo-duration-fast) var(--geo-ease-standard), box-shadow var(--geo-duration-fast) var(--geo-ease-standard), transform var(--geo-duration-fast) var(--geo-ease-standard); }
 .dash-metric__hit { position: absolute; inset: 0; z-index: 1; width: 100%; padding: 0; border: 0; border-radius: inherit; background: transparent; cursor: pointer; }
-.dash-metric__hit:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
-.dash-metric__cta { position: absolute; right: 1.25rem; bottom: 0.8rem; left: 1.25rem; display: flex; align-items: center; gap: 0.35rem; color: var(--ces-foreground-muted); font-size: 0.72rem; font-weight: 700; pointer-events: none; transition: color var(--ces-duration-fast) var(--ces-ease-standard); }
-.dash-metric__cta i { font-size: 0.65rem; transition: transform var(--ces-duration-fast) var(--ces-ease-standard); }
-.dash-metric--interativo:hover { border-color: color-mix(in srgb, var(--ces-brand) 45%, var(--ces-border)); box-shadow: var(--ces-shadow-md); }
-.dash-metric--interativo:hover .dash-metric__cta, .dash-metric--interativo:focus-within .dash-metric__cta { color: var(--ces-brand); }
+.dash-metric__hit:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
+.dash-metric__cta { position: absolute; right: 1.25rem; bottom: 0.8rem; left: 1.25rem; display: flex; align-items: center; gap: 0.35rem; color: var(--geo-foreground-muted); font-size: 0.72rem; font-weight: 700; pointer-events: none; transition: color var(--geo-duration-fast) var(--geo-ease-standard); }
+.dash-metric__cta i { font-size: 0.65rem; transition: transform var(--geo-duration-fast) var(--geo-ease-standard); }
+.dash-metric--interativo:hover { border-color: color-mix(in srgb, var(--geo-brand) 45%, var(--geo-border)); box-shadow: var(--geo-shadow-md); }
+.dash-metric--interativo:hover .dash-metric__cta, .dash-metric--interativo:focus-within .dash-metric__cta { color: var(--geo-brand); }
 .dash-metric--interativo:hover .dash-metric__cta i { transform: translateX(3px); }
 .dash-metric--interativo:active { transform: translateY(1px); }
 @media (prefers-reduced-motion: reduce) {
@@ -164,7 +164,7 @@
 
 /* Painéis de gráfico clicáveis e atalho discreto da Bússola no cabeçalho do painel. */
 .dash-panel__tools { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem; }
-.dash-drill-hint { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--ces-foreground-muted); font-size: 0.7rem; font-weight: 600; }
+.dash-drill-hint { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--geo-foreground-muted); font-size: 0.7rem; font-weight: 600; }
 
 .dash-quality { display: flex; align-items: flex-start; gap: 0.75rem; margin: -0.25rem 0 1.5rem; padding: 0.9rem 1rem; border: 1px solid #fde68a; border-radius: 0.75rem; background: #fffbeb; color: #92400e; }
 .dash-quality > i { margin-top: 0.1rem; }
@@ -421,49 +421,49 @@
    DASHBOARD SHELL - DARK MODE ADAPTATIONS
    ========================================================================== */
 .app-dark .dash-page {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   background:
     linear-gradient(90deg, rgba(59, 130, 246, 0.035) 1px, transparent 1px),
     linear-gradient(rgba(59, 130, 246, 0.035) 1px, transparent 1px),
-    var(--ces-canvas);
+    var(--geo-canvas);
   background-size: 32px 32px;
 }
 
 .app-dark .dash-header h1 {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .app-dark .dash-header p,
 .app-dark .dash-updated {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-header__mark {
-  background: var(--ces-brand-soft);
-  border-color: color-mix(in srgb, var(--ces-brand) 30%, transparent);
+  background: var(--geo-brand-soft);
+  border-color: color-mix(in srgb, var(--geo-brand) 30%, transparent);
 }
 
 .app-dark .dash-filterbar {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .app-dark .dash-field label {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .app-dark .dash-metric,
 .app-dark .dash-panel {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .app-dark .dash-metric__label,
 .app-dark .dash-metric__detail,
 .app-dark .dash-panel__header p {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-metric__value,
@@ -471,31 +471,31 @@
 .app-dark .dash-number,
 .app-dark .dash-summary__total strong,
 .app-dark .dash-summary__item strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .app-dark .dash-metric__icon {
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground-muted);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-metric__track,
 .app-dark .dash-progress__track {
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .app-dark .dash-kpi,
 .app-dark .dash-age-row,
 .app-dark .dash-gauge__legend > div {
-  border-color: var(--ces-border);
-  background: var(--ces-surface-subtle);
+  border-color: var(--geo-border);
+  background: var(--geo-surface-subtle);
 }
 
 .app-dark .dash-kpi__label,
 .app-dark .dash-age-range span,
 .app-dark .dash-age-total span,
 .app-dark .dash-gauge__legend span {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .app-dark .dash-kpi__value,
@@ -503,131 +503,131 @@
 .app-dark .dash-age-total strong,
 .app-dark .dash-gauge__legend strong,
 .app-dark .dash-table-name strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .app-dark .dash-table-name span {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .app-dark .dash-table-rank {
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }
 
 .app-dark .dash-severity {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
 }
 
 .app-dark .dash-severity span {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-severity strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .app-dark .dash-tabs {
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .app-dark .dash-tab {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-tab:hover {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .app-dark .dash-tab.is-active {
-  background: var(--ces-surface);
-  color: var(--ces-brand);
-  box-shadow: var(--ces-shadow-sm);
+  background: var(--geo-surface);
+  color: var(--geo-brand);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .app-dark .dash-toggle {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  color: var(--ces-foreground-muted);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-toggle:hover {
-  border-color: var(--ces-border-strong);
-  color: var(--ces-foreground);
+  border-color: var(--geo-border-strong);
+  color: var(--geo-foreground);
 }
 
 .app-dark .dash-gauge {
-  background: conic-gradient(var(--ces-brand) calc(var(--dash-gauge-pct, 0) * 1%), var(--ces-surface-muted) 0);
+  background: conic-gradient(var(--geo-brand) calc(var(--dash-gauge-pct, 0) * 1%), var(--geo-surface-muted) 0);
 }
 
 .app-dark .dash-gauge__inner {
-  background: var(--ces-surface);
+  background: var(--geo-surface);
 }
 
 .app-dark .dash-gauge__inner strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .app-dark .dash-gauge__inner span {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .app-dark .dash-empty,
 .app-dark .dash-note {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .app-dark .dash-summary__total {
-  border-bottom-color: var(--ces-border);
+  border-bottom-color: var(--geo-border);
 }
 
 .app-dark .dash-summary__total span,
 .app-dark .dash-summary__item span {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-days,
 .app-dark .dash-tag {
-  background: var(--ces-surface-muted);
-  color: var(--ces-foreground-muted);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-page .dash-table .p-datatable-thead > tr > th {
-  border-color: var(--ces-border);
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground-muted);
+  border-color: var(--geo-border);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-page .dash-table .p-datatable-tbody > tr > td {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  color: var(--ces-foreground-muted);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-page .dash-table .p-datatable-tbody > tr:hover > td {
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .app-dark .dash-page .dash-table--polished .p-datatable-thead > tr > th {
-  border-color: var(--ces-border);
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground-muted);
+  border-color: var(--geo-border);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-page .dash-table--polished .p-datatable-tbody > tr > td {
-  border-color: var(--ces-border);
-  background: var(--ces-surface);
-  color: var(--ces-foreground-muted);
+  border-color: var(--geo-border);
+  background: var(--geo-surface);
+  color: var(--geo-foreground-muted);
 }
 
 .app-dark .dash-page .dash-table--polished .p-datatable-tbody > tr:nth-child(even) > td {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .app-dark .dash-page .dash-table--polished .p-datatable-tbody > tr:hover > td {
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 /* Zero discreto nas colunas de contagem (vencidos, críticos) das tabelas dos painéis. */
-.dash-zero { color: var(--ces-foreground-subtle); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.dash-zero { color: var(--geo-foreground-subtle); font-size: 0.75rem; font-variant-numeric: tabular-nums; }

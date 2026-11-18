@@ -2,18 +2,18 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   CampanhaAvaliacao,
   FacilidadeAvaliacao,
@@ -54,21 +54,21 @@ type FiltroOrigem = OrigemAvaliacao | null;
   imports: [
     DatePipe,
     DecimalPipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     DashboardMetricCardComponent
   ],
   styleUrls: ['../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao.css', './avaliacoes-painel.component.css'],
   template: `
     <main class="dash-page">
       <div class="dash-shell">
-        <ces-page-header
+        <geo-page-header
           title="Avaliação do aplicativo"
           icon="pi pi-star"
           [breadcrumb]="[{ label: 'Admin' }, { label: 'Sistema' }, { label: 'Avaliação do app' }]"
@@ -76,23 +76,23 @@ type FiltroOrigem = OrigemAvaliacao | null;
         >
           @if (podeGerenciar()) {
             @if (campanha()?.aberta) {
-              <ces-button actions label="Encerrar pesquisa" icon="pi pi-stop-circle" variant="secondary" (pressed)="encerrar()" />
+              <geo-button actions label="Encerrar pesquisa" icon="pi pi-stop-circle" variant="secondary" (pressed)="encerrar()" />
             }
-            <ces-button actions label="Nova pesquisa" icon="pi pi-plus" (pressed)="abrirNova()" />
+            <geo-button actions label="Nova pesquisa" icon="pi pi-plus" (pressed)="abrirNova()" />
           }
-        </ces-page-header>
+        </geo-page-header>
 
         @if (carregandoCampanhas() && !campanhas().length) {
-          <ces-async-state state="loading" title="Carregando as avaliações" description="Pesquisas, notas e comentários." />
+          <geo-async-state state="loading" title="Carregando as avaliações" description="Pesquisas, notas e comentários." />
         } @else if (erro()) {
-          <ces-async-state state="error" title="Não foi possível carregar as avaliações" [description]="erro()!"
+          <geo-async-state state="error" title="Não foi possível carregar as avaliações" [description]="erro()!"
             actionLabel="Tentar de novo" actionIcon="pi pi-refresh" (action)="carregarCampanhas()" />
         } @else if (!campanhas().length) {
-          <ces-async-state state="empty" icon="pi pi-star" title="Nenhuma pesquisa de avaliação ainda"
+          <geo-async-state state="empty" icon="pi pi-star" title="Nenhuma pesquisa de avaliação ainda"
             description="Abra uma pesquisa para convidar quem usa o GEO a dar uma nota e contar o que acha." />
         } @else {
           <section class="ap-barra" aria-label="Pesquisa e filtros">
-            <ces-select class="ap-barra__pesquisa" label="Pesquisa" [options]="opcoesCampanha()" [value]="campanhaId()"
+            <geo-select class="ap-barra__pesquisa" label="Pesquisa" [options]="opcoesCampanha()" [value]="campanhaId()"
               (valueChange)="trocarCampanha($event)" [loading]="carregandoCampanhas()" />
             <div class="ap-barra__origem">
               <span class="ap-barra__rotulo" id="ap-origem">Onde respondeu</span>
@@ -106,16 +106,16 @@ type FiltroOrigem = OrigemAvaliacao | null;
             </div>
             @if (campanha(); as c) {
               <div class="ap-barra__periodo">
-                <ces-status [tone]="c.aberta ? 'success' : 'neutral'" [icon]="c.aberta ? 'pi pi-circle-fill' : 'pi pi-lock'">
+                <geo-status [tone]="c.aberta ? 'success' : 'neutral'" [icon]="c.aberta ? 'pi pi-circle-fill' : 'pi pi-lock'">
                   {{ c.aberta ? 'Aberta' : 'Encerrada' }}
-                </ces-status>
+                </geo-status>
                 <span>{{ c.inicio | date: 'dd/MM' }} a {{ (c.encerradaEm ?? c.fim) | date: 'dd/MM/yyyy' }}</span>
               </div>
             }
           </section>
 
           @if (carregando() || !resumo()) {
-            <ces-async-state state="loading" title="Lendo as respostas" />
+            <geo-async-state state="loading" title="Lendo as respostas" />
           } @else if (resumo(); as r) {
             <div class="dash-metrics">
               <app-dashboard-metric-card label="Respostas" icon="pi-users" tone="primary" [value]="r.respostas"
@@ -132,7 +132,7 @@ type FiltroOrigem = OrigemAvaliacao | null;
             </div>
 
             @if (!r.respostas) {
-              <ces-async-state state="empty" icon="pi pi-inbox" title="Ninguém respondeu ainda"
+              <geo-async-state state="empty" icon="pi pi-inbox" title="Ninguém respondeu ainda"
                 description="O convite aparece para cada pessoa depois de alguns minutos de uso, no web e no app de campo. As respostas chegam aqui na hora." />
             } @else {
               <section class="dash-grid" aria-label="Distribuições">
@@ -236,14 +236,14 @@ type FiltroOrigem = OrigemAvaliacao | null;
                             <span class="ap-resposta__meta">{{ rotuloEstrelas[r.estrelas] }} · {{ r.respondidaEm | date: 'dd/MM/yyyy' }}</span>
                           </div>
                           <div class="ap-resposta__tags">
-                            <ces-status [tone]="r.origem === 'CAMPO' ? 'info' : 'brand'" [icon]="r.origem === 'CAMPO' ? 'pi pi-mobile' : 'pi pi-desktop'">
+                            <geo-status [tone]="r.origem === 'CAMPO' ? 'info' : 'brand'" [icon]="r.origem === 'CAMPO' ? 'pi pi-mobile' : 'pi pi-desktop'">
                               {{ rotuloOrigem[r.origem] }}
-                            </ces-status>
+                            </geo-status>
                             @if (r.facilidade) {
-                              <ces-status [tone]="tomFacilidade(r.facilidade)" icon="pi pi-compass">{{ rotuloFacilidade[r.facilidade] }}</ces-status>
+                              <geo-status [tone]="tomFacilidade(r.facilidade)" icon="pi pi-compass">{{ rotuloFacilidade[r.facilidade] }}</geo-status>
                             }
                             @for (p of r.problemas; track p) {
-                              <ces-status tone="warning" icon="pi pi-exclamation-circle">{{ rotuloProblema[p] }}</ces-status>
+                              <geo-status tone="warning" icon="pi pi-exclamation-circle">{{ rotuloProblema[p] }}</geo-status>
                             }
                           </div>
                           @if (r.problemaDetalhe) {
@@ -264,7 +264,7 @@ type FiltroOrigem = OrigemAvaliacao | null;
       </div>
     </main>
 
-    <ces-form-drawer
+    <geo-form-drawer
       [visible]="novaAberta()"
       (visibleChange)="novaAberta.set($event)"
       title="Nova pesquisa de avaliação"
@@ -275,12 +275,12 @@ type FiltroOrigem = OrigemAvaliacao | null;
         <section class="ns-secao" aria-labelledby="ap-nova-dados">
           <h3 id="ap-nova-dados" class="ns-secao__titulo"><i class="pi pi-calendar" aria-hidden="true"></i>Período</h3>
           <div class="ns-cartao">
-            <ces-text-input label="Nome" [(value)]="novoTitulo" [maxlength]="120" [required]="true"
+            <geo-text-input label="Nome" [(value)]="novoTitulo" [maxlength]="120" [required]="true"
               [error]="tentouNova() && !novoTitulo().trim() ? 'Dê um nome para a pesquisa.' : undefined" />
             <div class="ns-grade">
-              <ces-datepicker label="Começa em" [(value)]="novoInicio" [required]="true"
+              <geo-datepicker label="Começa em" [(value)]="novoInicio" [required]="true"
                 [error]="tentouNova() && !novoInicio() ? 'Informe o início.' : undefined" />
-              <ces-datepicker label="Termina em" [(value)]="novoFim" [required]="true"
+              <geo-datepicker label="Termina em" [(value)]="novoFim" [required]="true"
                 [error]="tentouNova() ? (erroFim() ?? undefined) : undefined" />
             </div>
             <p class="ns-info"><i class="pi pi-info-circle" aria-hidden="true"></i><span>Quem respondeu uma pesquisa anterior é convidado de novo na nova.</span></p>
@@ -289,18 +289,18 @@ type FiltroOrigem = OrigemAvaliacao | null;
       </div>
       <div drawer-footer class="ns-rodape">
         <span class="ns-rodape__acoes">
-          <ces-button label="Cancelar" variant="ghost" (pressed)="novaAberta.set(false)" />
-          <ces-button label="Abrir pesquisa" icon="pi pi-check" [loading]="salvandoNova()" (pressed)="salvarNova()" />
+          <geo-button label="Cancelar" variant="ghost" (pressed)="novaAberta.set(false)" />
+          <geo-button label="Abrir pesquisa" icon="pi pi-check" [loading]="salvandoNova()" (pressed)="salvarNova()" />
         </span>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class AvaliacoesPainelComponent {
   private readonly api = inject(AvaliacaoService);
   private readonly auth = inject(AuthService);
   private readonly notificacao = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   protected readonly rotuloEstrelas = ROTULO_ESTRELAS;
   protected readonly rotuloFacilidade = ROTULO_FACILIDADE;
@@ -333,7 +333,7 @@ export class AvaliacoesPainelComponent {
   protected readonly podeGerenciar = computed(() => !!this.auth.currentUser()?.permissoes?.includes('avaliacao:manage'));
   protected readonly campanha = computed(() => this.campanhas().find((c) => c.id === this.campanhaId()) ?? null);
 
-  protected readonly opcoesCampanha = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesCampanha = computed<GeoSelectOption<string>[]>(() =>
     this.campanhas().map((c) => ({
       label: `${c.titulo} · ${c.respostas} ${c.respostas === 1 ? 'resposta' : 'respostas'}${c.aberta ? ' · aberta' : ''}`,
       value: c.id

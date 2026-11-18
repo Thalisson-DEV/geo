@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 
 import {
   AcompanhamentoMetaItem,
@@ -32,7 +32,7 @@ export interface ContextoAnaliseMetas {
   readonly sst: SstService;
 }
 
-const TOM_STATUS: Record<StatusMeta, CesTone> = { NAO_ATINGIDA: 'danger', EM_ANDAMENTO: 'warning', ATINGIDA: 'success' };
+const TOM_STATUS: Record<StatusMeta, GeoTone> = { NAO_ATINGIDA: 'danger', EM_ANDAMENTO: 'warning', ATINGIDA: 'success' };
 /** Inspeções que contam para a meta (as canceladas não contam). */
 const STATUS_QUE_CONTAM = ['EM_ANDAMENTO', 'CONCLUIDA'] as const;
 const DIA_MS = 86_400_000;
@@ -44,7 +44,7 @@ export const chavePessoa = (i: AcompanhamentoMetaItem): string => `${i.idMeta}~$
 const nomePessoa = (i: AcompanhamentoMetaItem): string => nomeOu(i.nomeColaborador, 'Cadastro não disponível');
 const SEM_GRUPO = 'sem';
 
-function tomPercentual(valor: number): CesTone {
+function tomPercentual(valor: number): GeoTone {
   return valor >= 100 ? 'success' : valor >= 80 ? 'warning' : 'danger';
 }
 
@@ -78,7 +78,7 @@ function ritmo(i: AcompanhamentoMetaItem, referencia: string) {
   return { totalDias, decorridos, restantes, porDia, necessarioPorDia, projecao, encerrado };
 }
 
-const COLUNAS_PESSOAS: CesDataTableColumn<AcompanhamentoMetaItem>[] = [
+const COLUNAS_PESSOAS: GeoDataTableColumn<AcompanhamentoMetaItem>[] = [
   { key: 'nome', header: 'Pessoa', priority: 1, value: (i) => nomePessoa(i) },
   { key: 'realizado', header: 'Realizado', type: 'integer', priority: 1 },
   { key: 'meta', header: 'Meta', type: 'integer', priority: 2 },

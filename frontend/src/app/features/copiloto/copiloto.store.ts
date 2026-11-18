@@ -1,7 +1,7 @@
 import { HttpEventType } from '@angular/common/http';
 import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { NotificationService } from '@ces/ui/feedback';
+import { NotificationService } from '@geo/ui/feedback';
 import {
   AcaoCartao,
   ArquivoAssistente,

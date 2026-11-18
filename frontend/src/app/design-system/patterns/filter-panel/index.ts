@@ -1,1 +1,1 @@
-export * from './ces-filter-panel.component';
+export * from './geo-filter-panel.component';

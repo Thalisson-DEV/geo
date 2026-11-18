@@ -1,34 +1,34 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Conformidade e risco da frota" icon="pi pi-shield"
+    <geo-page-header title="Conformidade e risco da frota" icon="pi pi-shield"
       [breadcrumb]="[{ label: 'Frota' }, { label: 'Relatórios' }, { label: 'Conformidade e risco' }]"
       description="O que pode gerar multa, apreensão ou acidente: documentos, CNH, seguro, checklist, sinistros e condução.">
       @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
       @if (gerencial(); as g) { <span actions class="dash-updated">Calculado às {{ g.periodo.calculadoEm | date: 'HH:mm' }}</span> }
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="frota-painel-conformidade" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+    <geo-filter-panel storageKey="frota-painel-conformidade" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
+      <div class="geo-filter-grid">
         <app-frota-recorte-campos prefixo="fpr" />
-        <ces-select label="Vencimentos" inputId="fpr-horizonte" [options]="horizontes" [value]="horizonteSel()" (valueChange)="horizonteSel.set($event)"
-          description="Até quando olhar documentos e CNH a vencer. Vencidos sempre aparecem."></ces-select>
+        <geo-select label="Vencimentos" inputId="fpr-horizonte" [options]="horizontes" [value]="horizonteSel()" (valueChange)="horizonteSel.set($event)"
+          description="Até quando olhar documentos e CNH a vencer. Vencidos sempre aparecem."></geo-select>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     <app-frota-painel-topo [dados]="gerencial()" (periodo)="usarPeriodo($event)" />
 
     @if (carregando() && !modelo()) {
-      <ces-async-state state="loading" title="Conferindo a conformidade da frota" description="Documentos, CNH, seguro, checklist, sinistros e condução."></ces-async-state>
+      <geo-async-state state="loading" title="Conferindo a conformidade da frota" description="Documentos, CNH, seguro, checklist, sinistros e condução."></geo-async-state>
     } @else if (erro() && !modelo()) {
-      <ces-async-state state="error" title="Não foi possível conferir a conformidade" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível conferir a conformidade" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (modelo(); as m) {
       @let c = m.r.conformidade;
       @if (erro()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</geo-callout>
       }
 
       @if (visao(); as vg) {
@@ -75,56 +75,56 @@
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Agenda</span><h2>Vencimentos por semana</h2>
             <p>Documentos e CNH que vencem a partir de hoje. Clique numa semana para ver o que renovar.</p></div>
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'semanas', rotulo: 'Vencimentos por semana' }" /></header>
-          <ces-chart kind="bar-stacked" title="Vencimentos por semana" [showTitle]="false" [selectable]="true" selectLabel="Ver a semana"
+          <geo-chart kind="bar-stacked" title="Vencimentos por semana" [showTitle]="false" [selectable]="true" selectLabel="Ver a semana"
             [labels]="graficoSemanas().rotulos" [series]="graficoSemanas().series" valueFormat="integer" [height]="260"
-            (pointSelect)="selecionar(m.semanas, $event.index, 'semana', chaveSemana)"></ces-chart>
+            (pointSelect)="selecionar(m.semanas, $event.index, 'semana', chaveSemana)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-4">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">O quê</span><h2>Por tipo de documento</h2><p>Vencidos e a vencer no horizonte.</p></div></header>
-          <ces-chart kind="bar-stacked" title="Documentos por tipo" [showTitle]="false" [selectable]="true" selectLabel="Ver os documentos"
+          <geo-chart kind="bar-stacked" title="Documentos por tipo" [showTitle]="false" [selectable]="true" selectLabel="Ver os documentos"
             [labels]="graficoTipos().rotulos" [series]="graficoTipos().series" valueFormat="integer" [height]="260"
-            (pointSelect)="selecionar(m.docsPorTipo, $event.index, 'tipo-doc', chaveGrupo)"></ces-chart>
+            (pointSelect)="selecionar(m.docsPorTipo, $event.index, 'tipo-doc', chaveGrupo)"></geo-chart>
         </article>
       </section>
 
       <section class="dash-grid pf-grid-espaco">
         <div class="dash-col-6">
-          <ces-data-table title="Documentos a tratar" description="Vencidos primeiro. Abra a linha para analisar o veículo." storageKey="fpr-docs"
+          <geo-data-table title="Documentos a tratar" description="Vencidos primeiro. Abra a linha para analisar o veículo." storageKey="fpr-docs"
             exportFileName="frota-documentos-vencendo" [columns]="colDocs" [rows]="m.documentos ?? []" [rowKey]="chaveId" searchPlaceholder="Filtrar placa"
             rowActionLabel="Analisar o veículo" (rowActivate)="analisar('veiculo', $event.idVeiculo)"
             [state]="m.documentos?.length ? 'ready' : 'empty'" [stateTitle]="m.documentos ? 'Nada vencido ou vencendo' : 'Seu perfil não lê documentos'">
-            <ng-template cesCell="dias" let-row>
+            <ng-template geoCell="dias" let-row>
               @let s = situacao(row.dias);
-              <ces-status [tone]="s.tom" [icon]="row.dias < 0 ? 'pi-times-circle' : 'pi-clock'">{{ s.texto }}</ces-status>
+              <geo-status [tone]="s.tom" [icon]="row.dias < 0 ? 'pi-times-circle' : 'pi-clock'">{{ s.texto }}</geo-status>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </div>
         <div class="dash-col-6">
-          <ces-data-table title="CNH a tratar" description="Vencidas primeiro, com o veículo que o condutor usa hoje." storageKey="fpr-cnh"
+          <geo-data-table title="CNH a tratar" description="Vencidas primeiro, com o veículo que o condutor usa hoje." storageKey="fpr-cnh"
             exportFileName="frota-cnh-vencendo" [columns]="colCnh" [rows]="m.cnh ?? []" [rowKey]="chaveCondutor" searchPlaceholder="Filtrar condutor"
             rowActionLabel="Ver as CNH" (rowActivate)="analisar('kpi', 'cnh')"
             [state]="m.cnh?.length ? 'ready' : 'empty'" [stateTitle]="m.cnh ? 'Nenhuma CNH vencendo' : 'Seu perfil não lê condutores'">
-            <ng-template cesCell="dias" let-row>
+            <ng-template geoCell="dias" let-row>
               @let s = situacao(row.dias);
-              <ces-status [tone]="s.tom" [icon]="row.dias != null && row.dias < 0 ? 'pi-times-circle' : 'pi-clock'">{{ s.texto }}</ces-status>
+              <geo-status [tone]="s.tom" [icon]="row.dias != null && row.dias < 0 ? 'pi-times-circle' : 'pi-clock'">{{ s.texto }}</geo-status>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </div>
       </section>
 
       <section class="dash-grid pf-grid-espaco">
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Checklist</span><h2>Cobertura por base</h2><p>Dias úteis com checklist sobre os dias úteis do período.</p></div></header>
-          <ces-chart kind="bar-horizontal" title="Cobertura de checklist por base" [showTitle]="false" [selectable]="true" selectLabel="Analisar a base"
+          <geo-chart kind="bar-horizontal" title="Cobertura de checklist por base" [showTitle]="false" [selectable]="true" selectLabel="Analisar a base"
             [labels]="graficoBases().rotulos" [series]="graficoBases().series" valueFormat="percent" [height]="240"
-            (pointSelect)="selecionar(m.checklistBases, $event.index, 'base', chaveBase)"></ces-chart>
+            (pointSelect)="selecionar(m.checklistBases, $event.index, 'base', chaveBase)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-6">
           <header class="dash-panel__header"><div><span class="dash-eyebrow">Pendências</span><h2>Itens mais apontados</h2><p>Problemas do checklist ainda abertos.</p></div></header>
           @if (itensPend().length) {
-            <ces-chart kind="bar-horizontal" title="Pendências por item" [showTitle]="false" [selectable]="true" selectLabel="Ver as pendências"
+            <geo-chart kind="bar-horizontal" title="Pendências por item" [showTitle]="false" [selectable]="true" selectLabel="Ver as pendências"
               [labels]="graficoItens().rotulos" [series]="graficoItens().series" valueFormat="integer" [height]="240"
-              (pointSelect)="selecionar(itensPend(), $event.index, 'item', chaveGrupo)"></ces-chart>
+              (pointSelect)="selecionar(itensPend(), $event.index, 'item', chaveGrupo)"></geo-chart>
           } @else {
             <div class="dash-empty"><i class="pi pi-check-circle"></i>Nenhuma pendência aberta.</div>
           }
@@ -133,20 +133,20 @@
 
       <section class="dash-grid pf-grid-espaco">
         <div class="dash-col-6">
-          <ces-data-table title="Checklist por veículo" description="Do pior para o melhor." storageKey="fpr-checklist" exportFileName="frota-checklist-por-veiculo"
+          <geo-data-table title="Checklist por veículo" description="Do pior para o melhor." storageKey="fpr-checklist" exportFileName="frota-checklist-por-veiculo"
             [columns]="colChecklist" [rows]="m.checklistVeiculos" [rowKey]="chaveVeiculo" searchPlaceholder="Filtrar placa"
             rowActionLabel="Analisar" (rowActivate)="analisar('veiculo', $event.idVeiculo)"
             [state]="m.checklistVeiculos.length ? 'ready' : 'empty'" stateTitle="Sem leitura de checklist">
-            <ng-template cesCell="coberturaChecklist" let-row>
-              <ces-status [tone]="(row.coberturaChecklist ?? 0) < limites.checklistMeta ? 'warning' : 'success'" emphasis="outline">{{ pct(row.coberturaChecklist) }}</ces-status>
+            <ng-template geoCell="coberturaChecklist" let-row>
+              <geo-status [tone]="(row.coberturaChecklist ?? 0) < limites.checklistMeta ? 'warning' : 'success'" emphasis="outline">{{ pct(row.coberturaChecklist) }}</geo-status>
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </div>
         <div class="dash-col-6">
-          <ces-data-table title="Pendências abertas" description="Da mais antiga para a mais nova." storageKey="fpr-pendencias" exportFileName="frota-pendencias-checklist"
+          <geo-data-table title="Pendências abertas" description="Da mais antiga para a mais nova." storageKey="fpr-pendencias" exportFileName="frota-pendencias-checklist"
             [columns]="colPend" [rows]="m.pendencias ?? []" [rowKey]="chaveId" searchPlaceholder="Filtrar placa ou item"
             rowActionLabel="Ver as pendências" (rowActivate)="analisar('kpi', 'pendencias')"
-            [state]="m.pendencias?.length ? 'ready' : 'empty'" stateTitle="Nenhuma pendência aberta"></ces-data-table>
+            [state]="m.pendencias?.length ? 'ready' : 'empty'" stateTitle="Nenhuma pendência aberta"></geo-data-table>
         </div>
       </section>
 
@@ -155,9 +155,9 @@
           <article class="dash-panel dash-col-12">
             <header class="dash-panel__header"><div><span class="dash-eyebrow">Sinistros</span><h2>Sinistros por tipo</h2><p>{{ textoVariacao(c.sinistros.total.atual, c.sinistros.total.anterior) }}. Clique num tipo para ver os sinistros.</p></div></header>
             @if (tiposSinistro().length) {
-              <ces-chart kind="bar-horizontal" title="Sinistros por tipo" [showTitle]="false" [selectable]="true" selectLabel="Ver os sinistros"
+              <geo-chart kind="bar-horizontal" title="Sinistros por tipo" [showTitle]="false" [selectable]="true" selectLabel="Ver os sinistros"
                 [labels]="graficoSinistros().rotulos" [series]="graficoSinistros().series" valueFormat="integer" [height]="200"
-                (pointSelect)="selecionar(tiposSinistro(), $event.index, 'tipo-sinistro', chaveGrupo)"></ces-chart>
+                (pointSelect)="selecionar(tiposSinistro(), $event.index, 'tipo-sinistro', chaveGrupo)"></geo-chart>
             } @else {
               <div class="dash-empty"><i class="pi pi-check-circle"></i>Nenhum sinistro no período.</div>
             }

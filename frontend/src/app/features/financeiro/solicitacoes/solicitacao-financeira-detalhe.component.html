@@ -1,16 +1,16 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0"
+  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0"
 >
   @if (carregando() && !solicitacao()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state state="loading" title="Carregando a solicitação..."
-        description="Consultando dados, documentos e histórico de decisões..."></ces-async-state>
+      <geo-async-state state="loading" title="Carregando a solicitação..."
+        description="Consultando dados, documentos e histórico de decisões..."></geo-async-state>
     </div>
   } @else if (erro()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state state="error" title="Solicitação indisponível" [description]="erro()!"
+      <geo-async-state state="error" title="Solicitação indisponível" [description]="erro()!"
         actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"
-        secondaryActionLabel="Voltar" secondaryActionIcon="pi pi-arrow-left" (secondaryAction)="voltar()"></ces-async-state>
+        secondaryActionLabel="Voltar" secondaryActionIcon="pi pi-arrow-left" (secondaryAction)="voltar()"></geo-async-state>
     </div>
   } @else if (solicitacao(); as item) {
     <app-solicitacao-financeira-inspecao
@@ -48,9 +48,9 @@
           <span>·</span>
           <span>Aberta em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ item.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>·</span>
-          <ces-status [tone]="tomStatus[item.status]" [icon]="iconeStatus[item.status]">{{ rotuloStatus[item.status] }}</ces-status>
+          <geo-status [tone]="tomStatus[item.status]" [icon]="iconeStatus[item.status]">{{ rotuloStatus[item.status] }}</geo-status>
           @if (decisaoDesfeita()) {
-            <ces-status tone="warning" icon="pi-undo">Decisão desfeita</ces-status>
+            <geo-status tone="warning" icon="pi-undo">Decisão desfeita</geo-status>
           }
         </div>
         <div class="mt-3 print:hidden">
@@ -110,9 +110,9 @@
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="kv-v" [title]="f.nome">{{ f.nome }}</span>
                 @if (!f.cadastrado) {
-                  <ces-status tone="warning" icon="pi-exclamation-circle">Não cadastrado</ces-status>
+                  <geo-status tone="warning" icon="pi-exclamation-circle">Não cadastrado</geo-status>
                 }
-                <ces-icon-button icon="pi pi-search" [label]="'Ver outras solicitações de ' + f.nome" tooltip="Outras solicitações deste fornecedor"
+                <geo-icon-button icon="pi pi-search" [label]="'Ver outras solicitações de ' + f.nome" tooltip="Outras solicitações deste fornecedor"
                   size="icon-sm" class="print:hidden" (pressed)="inspecionarFornecedor(item)" />
               </div>
             } @else {
@@ -248,7 +248,7 @@
                     <button type="button" (click)="abrirCompra(compra.id)" class="font-mono font-bold text-primary-600 dark:text-primary-400 print:text-black hover:underline cursor-pointer">nº {{ compra.numero }}</button>
                   </td>
                   <td class="py-2.5 px-3 text-slate-800 dark:text-slate-200 print:text-black font-medium">{{ compra.descricao || '—' }}</td>
-                  <td class="py-2.5 px-3 text-center"><ces-status [tone]="tomStatus[compra.status]" [icon]="iconeStatus[compra.status]">{{ rotuloStatus[compra.status] }}</ces-status></td>
+                  <td class="py-2.5 px-3 text-center"><geo-status [tone]="tomStatus[compra.status]" [icon]="iconeStatus[compra.status]">{{ rotuloStatus[compra.status] }}</geo-status></td>
                   <td class="py-2.5 px-3 text-right font-mono text-slate-900 dark:text-slate-100 print:text-black">{{ compra.valorAprovado == null ? '—' : (compra.valorAprovado | currency: 'BRL') }}</td>
                   <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 dark:text-slate-100 print:text-black">{{ item.valor | currency: 'BRL' }}</td>
                 </tr>
@@ -349,7 +349,7 @@
                     <span class="text-xs text-slate-600 dark:text-slate-300 font-normal">Abertura, envio, decisões e decisões desfeitas: quem, quando e por quê.</span>
                   </div>
                 </div>
-                <ces-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : 'pi-history'">{{ resumoHistorico() }}</ces-status>
+                <geo-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : 'pi-history'">{{ resumoHistorico() }}</geo-status>
               </div>
             </p-accordion-header>
             <p-accordion-content>
@@ -386,16 +386,16 @@
     <!-- No celular só ficam as ações sobre a solicitação; voltar e imprimir são do navegador. -->
     <div class="barra-acoes fixed inset-x-0 bottom-0 px-4 pb-4 pt-6 md:inset-x-auto md:bottom-8 md:right-12 md:p-0 flex items-center justify-end flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
       <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
         styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
       @if (item.acoes.podeEditar) {
         <p-button icon="pi pi-pencil" label="EDITAR" (onClick)="editar()"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
       }
       @if (item.acoes.podeCancelar) {
         <p-button icon="pi pi-ban" label="CANCELAR SOLICITAÇÃO" (onClick)="abrirAcao('CANCELAR')"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-danger)] !text-[var(--ces-danger-text)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-danger-soft)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-danger)] !text-[var(--geo-danger-text)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-soft)] cursor-pointer"></p-button>
       }
       @if (item.acoes.podeSubmeter) {
         <p-button icon="pi pi-send" label="ENVIAR PARA APROVAÇÃO" [loading]="processando()" (onClick)="submeter()"
@@ -403,16 +403,16 @@
       }
       @if (item.acoes.podeDesfazerDecisao && podeDecidir) {
         <p-button icon="pi pi-undo" label="DESFAZER DECISÃO" (onClick)="abrirAcao('DESFAZER')"
-          styleClass="!rounded-lg !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-warning-hover)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"></p-button>
       }
       @if (item.acoes.podeDecidir && podeDecidir) {
         <p-button icon="pi pi-times" label="REJEITAR" (onClick)="abrirAcao('REJEITAR')"
-          styleClass="!rounded-lg !bg-[var(--ces-danger)] !border-[var(--ces-danger)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-danger-hover)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"></p-button>
         <p-button icon="pi pi-check" label="APROVAR" (onClick)="abrirAcao('APROVAR')"
-          styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"></p-button>
+          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"></p-button>
       }
       @if (item.acoes.podeDecidir && !podeDecidir) {
-        <ces-status tone="warning" icon="pi-lock">Sem permissão para decidir</ces-status>
+        <geo-status tone="warning" icon="pi-lock">Sem permissão para decidir</geo-status>
       }
     </div>
 

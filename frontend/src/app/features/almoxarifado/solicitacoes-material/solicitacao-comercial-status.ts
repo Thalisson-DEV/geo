@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { SolicitacaoStatus } from '../../../core/models/almoxarifado.models';
 
@@ -8,7 +8,7 @@ export interface StatusComercialDef {
   label: string;
   /** Rótulo do atalho: diz o que falta fazer, não só o estado. */
   atalho: string;
-  tone: CesTone;
+  tone: GeoTone;
   icon: string;
 }
 

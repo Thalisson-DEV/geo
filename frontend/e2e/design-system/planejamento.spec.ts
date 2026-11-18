@@ -90,7 +90,7 @@ async function entrar(page: Page): Promise<void> {
     const sessao = {
       id: 'u1', tema: 'light', corPrimaria: 'blue', animacoesAtivadas: false, token: `x.${carga}.y`, login: 'teste', nome: 'Teste', permissoes: ['obras:planejamento:read', 'obras:planejamento:write', 'obras:obra:read', 'obras:kit:read']
     };
-    localStorage.setItem('ces_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
+    localStorage.setItem('geo_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
   });
 }
 
@@ -110,7 +110,7 @@ test('anexa o projeto, marca pontos, lança vão e aplica kit', async ({ page, i
   await gaveta.getByRole('button', { name: 'Enviar projeto' }).click();
 
   const folha = page.locator('.plan-sobre');
-  await expect(page.locator('ces-pdf-canvas canvas')).toBeVisible();
+  await expect(page.locator('geo-pdf-canvas canvas')).toBeVisible();
   await expect.poll(async () => (await folha.boundingBox())?.width ?? 0, { timeout: 15_000 }).toBeGreaterThan(100);
 
   // O número sugerido segue a sequência e o Enter confirma.

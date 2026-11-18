@@ -7,15 +7,15 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { StepperModule } from 'primeng/stepper';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { catchError, firstValueFrom, forkJoin, of } from 'rxjs';
 import { UsuarioResponse } from '../../../../core/models/iam.models';
 import {
@@ -49,13 +49,13 @@ import {
     ButtonModule,
     ProgressSpinnerModule,
     StepperModule,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   templateUrl: './politica-roteamento-form.component.html',
   styleUrl: './politica-roteamento-form.component.css'

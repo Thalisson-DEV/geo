@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { CesAsyncStateComponent, CesCalloutComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui';
 
 import { PreviaSaldo } from '../../../core/models/fechamento-obra.models';
 import { formatarAlmoxarifado } from '../../almoxarifado/solicitacoes-material/solicitacao-tecnica-presentation';
@@ -10,18 +10,18 @@ import { quantidade } from './fechamento-ui';
   selector: 'app-fechamento-previa-saldo',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, CesCalloutComponent],
+  imports: [GeoAsyncStateComponent, GeoCalloutComponent],
   styleUrl: './fechamento.css',
   template: `
     <section class="fx-previa" aria-labelledby="fx-previa-titulo" aria-live="polite">
       <h3 id="fx-previa-titulo" class="fx-form__titulo">Como o saldo fica</h3>
       @if (carregando() && !previa()) {
-        <ces-async-state state="loading" [compact]="true" title="Calculando o saldo" />
+        <geo-async-state state="loading" [compact]="true" title="Calculando o saldo" />
       } @else if (previa(); as p) {
         @if (p.deixaSaldoNegativo) {
-          <ces-callout tone="warning" title="Algum estoque vai ficar negativo">
+          <geo-callout tone="warning" title="Algum estoque vai ficar negativo">
             A {{ rotuloAcao() }} segue mesmo assim e o material entra no alerta de saldo negativo.
-          </ces-callout>
+          </geo-callout>
         }
         <table class="fx-tabela">
           <caption class="fx-sr">Saldo atual e resultante por material e estoque</caption>

@@ -162,7 +162,7 @@ public class RateLimiter {
     static String resumo(String chave) {
         try {
             byte[] hash = MessageDigest.getInstance("SHA-256")
-                    .digest(("ces-rate-limit|" + chave.strip()).getBytes(StandardCharsets.UTF_8));
+                    .digest(("geo-rate-limit|" + chave.strip()).getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(hash, 0, 16);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("SHA-256 indisponível na JVM", e);
@@ -178,7 +178,7 @@ public class RateLimiter {
             var periodo = politica.periodoPadrao();
             ModoRateLimit modo = propriedades.modoPadrao();
             if (politica == PoliticaRateLimit.LOOKUP) {
-                // Compatível com ces.lookup.rate-limit, que já barrava antes desta configuração.
+                // Compatível com geo.lookup.rate-limit, que já barrava antes desta configuração.
                 capacidade = lookup.requestsPerMinute();
                 periodo = lookup.window();
                 modo = lookup.enabled() ? ModoRateLimit.ATIVO : ModoRateLimit.DESLIGADO;

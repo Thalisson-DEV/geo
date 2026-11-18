@@ -1,5 +1,5 @@
 import { DestroyRef, inject } from '@angular/core';
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -8,7 +8,7 @@ import { dataLocal } from '../../../shared/listagem/listagem';
 import { formatarCpf } from '../colaboradores/colaboradores.component';
 
 /** Situação de uma designação com vigência (coordenador, supervisor). */
-export function situacaoVigencia(v: { ativo: boolean; dataFim: string | null }): { label: string; tone: CesTone; icon: string } {
+export function situacaoVigencia(v: { ativo: boolean; dataFim: string | null }): { label: string; tone: GeoTone; icon: string } {
   if (!v.ativo) return { label: 'Inativo', tone: 'neutral', icon: 'pi-ban' };
   const fim = dataLocal(v.dataFim);
   if (!fim) return { label: 'Vigente', tone: 'success', icon: 'pi-check-circle' };

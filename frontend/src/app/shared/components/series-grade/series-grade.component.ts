@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
-import { CesStatusComponent, NotificationService } from '@ces/ui';
+import { GeoStatusComponent, NotificationService } from '@geo/ui';
 
 /** Um número de série na grade; `indisponivel` marca a série que não está mais no estoque. */
 export interface SerieGradeItem {
@@ -14,7 +14,7 @@ export interface SerieGradeItem {
 @Component({
   selector: 'app-series-grade',
   standalone: true,
-  imports: [CesStatusComponent],
+  imports: [GeoStatusComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './series-grade.component.css',
   template: `
@@ -23,7 +23,7 @@ export interface SerieGradeItem {
         <li class="grade__item" [class.grade__item--inativo]="serie.indisponivel">
           <span class="grade__numero" [title]="serie.numSerie">{{ serie.numSerie }}</span>
           @if (serie.indisponivel) {
-            <ces-status tone="warning" icon="pi pi-ban">Indisponível</ces-status>
+            <geo-status tone="warning" icon="pi pi-ban">Indisponível</geo-status>
           }
           @if (copiavel()) {
             <button

@@ -2,25 +2,25 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, Signal, computed, inject, signal, viewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { MeuDesvioResponse, TratarMeuDesvioRequest } from '../../../core/models/meu-desvio.models';
 import { CentroFaturamentoResponse, EquipeResponse } from '../../../core/models/rh.models';
@@ -68,55 +68,55 @@ const ATALHOS: Atalho[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     AjudaListagemComponent,
     DesvioDetalheDialogComponent,
     TratamentoMeuDesvioDialogComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts>
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts>
+      <geo-page-header
         title="Meus desvios"
         icon="pi pi-exclamation-circle"
         [breadcrumb]="[{ label: 'SST' }, { label: 'Meus desvios' }]"
         description="Desvios que você apontou nas suas inspeções: registre a ação corretiva, o prazo e a resolução, um a um ou em lote."
         helpLabel="Ajuda sobre meus desvios"
         (help)="ajuda.show()"
-      ></ces-page-header>
+      ></geo-page-header>
 
-      <ces-filter-panel #painel storageKey="sst-meus-desvios" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="sst-meus-desvios" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-multiselect label="Status" [options]="opcoesStatus" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Gravidade" [options]="opcoesGravidade" [(value)]="lista.filters.gravidade" [filter]="false" placeholder="Todas"></ces-multiselect>
-          <ces-select label="Prazo" [options]="opcoesPrazo" [(value)]="lista.filters.prazoSituacao"></ces-select>
-          <ces-multiselect label="Processo" [options]="processos()" [(value)]="lista.filters.processo" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Centro de custo" [options]="centros()" [(value)]="lista.filters.centroCusto" placeholder="Todos"></ces-multiselect>
-          <ces-multiselect label="Base operacional" [options]="bases()" [(value)]="lista.filters.base" placeholder="Todas"></ces-multiselect>
-          <ces-multiselect label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.equipe" placeholder="Todas"
-            [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></ces-multiselect>
-          <ces-datepicker label="Inspeção de" [value]="dataLocal(lista.filters.inspecao().from)" [clearable]="true" (valueChange)="intervalo('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Inspeção até" [value]="dataLocal(lista.filters.inspecao().to)" [clearable]="true" (valueChange)="intervalo('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-multiselect label="Status" [options]="opcoesStatus" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Gravidade" [options]="opcoesGravidade" [(value)]="lista.filters.gravidade" [filter]="false" placeholder="Todas"></geo-multiselect>
+          <geo-select label="Prazo" [options]="opcoesPrazo" [(value)]="lista.filters.prazoSituacao"></geo-select>
+          <geo-multiselect label="Processo" [options]="processos()" [(value)]="lista.filters.processo" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Centro de custo" [options]="centros()" [(value)]="lista.filters.centroCusto" placeholder="Todos"></geo-multiselect>
+          <geo-multiselect label="Base operacional" [options]="bases()" [(value)]="lista.filters.base" placeholder="Todas"></geo-multiselect>
+          <geo-multiselect label="Equipe" [options]="equipesOpcoes()" [(value)]="lista.filters.equipe" placeholder="Todas"
+            [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></geo-multiselect>
+          <geo-datepicker label="Inspeção de" [value]="dataLocal(lista.filters.inspecao().from)" [clearable]="true" (valueChange)="intervalo('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Inspeção até" [value]="dataLocal(lista.filters.inspecao().to)" [clearable]="true" (valueChange)="intervalo('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
       @if (contextoPrioridade) {
-        <ces-callout tone="info" title="Contexto da prioridade">{{ contextoPrioridade }}</ces-callout>
+        <geo-callout tone="info" title="Contexto da prioridade">{{ contextoPrioridade }}</geo-callout>
       }
 
-      <ces-data-table
+      <geo-data-table
         title="Meus desvios"
         mode="server"
         storageKey="sst-meus-desvios"
@@ -144,51 +144,51 @@ const ATALHOS: Atalho[] = [
         (clearFilters)="lista.reset()"
         (rowActivate)="detalhe.open($event.id)"
       >
-        <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos de situação">
+        <div table-filters class="geo-quick-filters" role="group" aria-label="Atalhos de situação">
           @for (atalho of atalhos; track atalho.chave) {
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="atalhoAtivo() === atalho.chave" (click)="alternarAtalho(atalho)">
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="atalhoAtivo() === atalho.chave" (click)="alternarAtalho(atalho)">
               <i [class]="atalho.icone" aria-hidden="true"></i> {{ atalho.rotulo }}
             </button>
           }
         </div>
-        <ces-button selection-actions size="sm" icon="pi pi-check-square" label="Tratar selecionados" (pressed)="abrirTratamentoEmLote()"></ces-button>
-        <ng-template cesRowActions let-row>
+        <geo-button selection-actions size="sm" icon="pi pi-check-square" label="Tratar selecionados" (pressed)="abrirTratamentoEmLote()"></geo-button>
+        <ng-template geoRowActions let-row>
           @if (podeTratar) {
-            <ces-icon-button icon="pi pi-wrench" [label]="'Tratar desvio: ' + (row.pergunta || row.id)" size="icon-sm" (pressed)="abrirTratamento(row)"></ces-icon-button>
+            <geo-icon-button icon="pi pi-wrench" [label]="'Tratar desvio: ' + (row.pergunta || row.id)" size="icon-sm" (pressed)="abrirTratamento(row)"></geo-icon-button>
           }
         </ng-template>
-        <ng-template cesCell="gravidade" let-row>
-          <ces-status [tone]="gravidadeTom(row.gravidade)" [icon]="gravidadeIcone(row.gravidade)">{{ gravidadeLabel(row.gravidade) }}</ces-status>
+        <ng-template geoCell="gravidade" let-row>
+          <geo-status [tone]="gravidadeTom(row.gravidade)" [icon]="gravidadeIcone(row.gravidade)">{{ gravidadeLabel(row.gravidade) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="statusTom(row.status)" [icon]="statusIcone(row.status)" emphasis="outline">{{ statusLabel(row.status) }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="statusTom(row.status)" [icon]="statusIcone(row.status)" emphasis="outline">{{ statusLabel(row.status) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="desvio" let-row>
-          <span class="ces-cell-strong" [title]="row.pergunta ?? ''">{{ row.pergunta || 'Pergunta não informada' }}</span>
+        <ng-template geoCell="desvio" let-row>
+          <span class="geo-cell-strong" [title]="row.pergunta ?? ''">{{ row.pergunta || 'Pergunta não informada' }}</span>
           @if (row.descricao) {
-            <span class="ces-cell-muted">{{ row.descricao }}</span>
+            <span class="geo-cell-muted">{{ row.descricao }}</span>
           }
           @if (row.acaoCorretiva) {
-            <span class="ces-cell-muted"><i class="pi pi-wrench" aria-hidden="true"></i> {{ row.acaoCorretiva }}</span>
+            <span class="geo-cell-muted"><i class="pi pi-wrench" aria-hidden="true"></i> {{ row.acaoCorretiva }}</span>
           }
         </ng-template>
-        <ng-template cesCell="local" let-row>
+        <ng-template geoCell="local" let-row>
           <span>{{ row.baseOperacional?.nome || '—' }}</span>
-          <span class="ces-cell-muted">{{ row.equipe?.codigo || 'Sem equipe' }}</span>
+          <span class="geo-cell-muted">{{ row.equipe?.codigo || 'Sem equipe' }}</span>
         </ng-template>
-        <ng-template cesCell="prazo" let-row>
+        <ng-template geoCell="prazo" let-row>
           @if (row.prazo) {
             <span>{{ row.prazo | date: 'dd/MM/yyyy' }}</span>
           } @else {
-            <span class="ces-cell-muted">Sem prazo</span>
+            <span class="geo-cell-muted">Sem prazo</span>
           }
           @if (row.vencido) {
-            <ces-status tone="danger" icon="pi-clock">Vencido</ces-status>
+            <geo-status tone="danger" icon="pi-clock">Vencido</geo-status>
           } @else if (row.status === 'RESOLVIDO' && row.dataResolucao) {
-            <span class="ces-cell-muted">Resolvido em {{ row.dataResolucao | date: 'dd/MM/yyyy' }}</span>
+            <span class="geo-cell-muted">Resolvido em {{ row.dataResolucao | date: 'dd/MM/yyyy' }}</span>
           }
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-desvio-detalhe-dialog #detalhe [canWrite]="podeTratar" (alterado)="lista.reload()" />
@@ -231,9 +231,9 @@ export class MeusDesviosComponent {
   /** Texto do painel de desvios quando a pessoa chega por uma prioridade. */
   protected readonly contextoPrioridade: string = (globalThis.history?.state as { contextoPrioridade?: string } | null)?.contextoPrioridade ?? '';
 
-  protected readonly processos = signal<CesSelectOption<string>[]>([]);
-  protected readonly bases = signal<CesSelectOption<string>[]>([]);
-  protected readonly centros = signal<CesSelectOption<string>[]>([]);
+  protected readonly processos = signal<GeoSelectOption<string>[]>([]);
+  protected readonly bases = signal<GeoSelectOption<string>[]>([]);
+  protected readonly centros = signal<GeoSelectOption<string>[]>([]);
   protected readonly equipes: RemoteLookup<EquipeResponse> = new RemoteLookup<EquipeResponse>(
     {
       identify: (e) => e.id,
@@ -242,23 +242,23 @@ export class MeusDesviosComponent {
     },
     this.destroyRef
   );
-  protected readonly equipesOpcoes: Signal<CesSelectOption<string>[]> = computed<CesSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
+  protected readonly equipesOpcoes: Signal<GeoSelectOption<string>[]> = computed<GeoSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'sst-meus-desvios',
     filters: {
-      status: cesFilter.list<StatusDesvio>([...DESVIOS_EM_ABERTO], {
+      status: geoFilter.list<StatusDesvio>([...DESVIOS_EM_ABERTO], {
         label: 'Status',
         itemLabel: (s) => STATUS_DESVIO_LABELS[s] ?? s,
         format: (v): string | null => (!v.length ? null : v.length === 2 && DESVIOS_EM_ABERTO.every((s) => v.includes(s)) ? 'Em aberto' : v.map((s) => STATUS_DESVIO_LABELS[s] ?? s).join(', '))
       }),
-      gravidade: cesFilter.list<GravidadeDesvio>([], { label: 'Gravidade', itemLabel: (g) => GRAVIDADE_LABELS[g] ?? g, countLabel: (n) => `${n} selecionadas` }),
-      prazoSituacao: cesFilter.value<SituacaoPrazo | null>(null, { label: 'Prazo', param: 'situacaoPrazo', type: 'string', options: () => OPCOES_PRAZO }),
-      processo: cesFilter.list<string>([], { label: 'Processo', itemLabel: (id) => this.nomeEm(this.processos(), id) }),
-      centroCusto: cesFilter.list<string>([], { label: 'Centro de custo', param: 'centro', itemLabel: (id) => this.nomeEm(this.centros(), id) }),
-      base: cesFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.nomeEm(this.bases(), id), countLabel: (n) => `${n} selecionadas` }),
-      equipe: cesFilter.list<string>([], { label: 'Equipe', itemLabel: (id) => this.nomeEm(this.equipesOpcoes(), id), countLabel: (n) => `${n} selecionadas` }),
-      inspecao: cesFilter.range({ from: null, to: null }, { label: 'Inspeção' })
+      gravidade: geoFilter.list<GravidadeDesvio>([], { label: 'Gravidade', itemLabel: (g) => GRAVIDADE_LABELS[g] ?? g, countLabel: (n) => `${n} selecionadas` }),
+      prazoSituacao: geoFilter.value<SituacaoPrazo | null>(null, { label: 'Prazo', param: 'situacaoPrazo', type: 'string', options: () => OPCOES_PRAZO }),
+      processo: geoFilter.list<string>([], { label: 'Processo', itemLabel: (id) => this.nomeEm(this.processos(), id) }),
+      centroCusto: geoFilter.list<string>([], { label: 'Centro de custo', param: 'centro', itemLabel: (id) => this.nomeEm(this.centros(), id) }),
+      base: geoFilter.list<string>([], { label: 'Base', itemLabel: (id) => this.nomeEm(this.bases(), id), countLabel: (n) => `${n} selecionadas` }),
+      equipe: geoFilter.list<string>([], { label: 'Equipe', itemLabel: (id) => this.nomeEm(this.equipesOpcoes(), id), countLabel: (n) => `${n} selecionadas` }),
+      inspecao: geoFilter.range({ from: null, to: null }, { label: 'Inspeção' })
     },
     sort: [{ key: 'prazo', direction: 'asc' }]
   });
@@ -284,7 +284,7 @@ export class MeusDesviosComponent {
     return f.status.length === 1 && f.prazoSituacao === null ? f.status[0] : null;
   });
 
-  protected readonly colunas: CesDataTableColumn<MeuDesvioResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MeuDesvioResponse>[] = [
     { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
     { key: 'gravidade', header: 'Gravidade', type: 'custom', priority: 1, sortField: 'gravidade', value: (d) => d.gravidade, display: (d) => GRAVIDADE_LABELS[d.gravidade] },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, value: (d) => d.status, display: (d) => STATUS_DESVIO_LABELS[d.status] },
@@ -319,7 +319,7 @@ export class MeusDesviosComponent {
     }
   }
 
-  private nomeEm(opcoes: readonly CesSelectOption<string>[], id: string): string {
+  private nomeEm(opcoes: readonly GeoSelectOption<string>[], id: string): string {
     return opcoes.find((o) => o.value === id)?.label ?? 'selecionado';
   }
 

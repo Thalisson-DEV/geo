@@ -14,8 +14,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
-import { CesButtonComponent, CesIconButtonComponent } from '@ces/ui';
-import { CesAsyncStateComponent, CesCalloutComponent } from '@ces/ui/feedback';
+import { GeoButtonComponent, GeoIconButtonComponent } from '@geo/ui';
+import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui/feedback';
 import { AssistenteContexto } from '../../core/models/assistente.models';
 import { CopilotoStore } from './copiloto.store';
 import { CopilotoArtefatoComponent } from './componentes/copiloto-artefato.component';
@@ -51,10 +51,10 @@ export function contextoDaUrl(query: ParamMap): AssistenteContexto | null {
   selector: 'app-copiloto-workspace',
   standalone: true,
   imports: [
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesAsyncStateComponent,
-    CesCalloutComponent,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoAsyncStateComponent,
+    GeoCalloutComponent,
     CopilotoArtefatoComponent,
     CopilotoBoasVindasComponent,
     CopilotoCompositorComponent,
@@ -96,7 +96,7 @@ export class CopilotoWorkspaceComponent {
       const id = this.store.conversaId();
       untracked(() => {
         if (id && this.route.snapshot.paramMap.get('id') !== id) {
-          void this.router.navigate(['/copiloto', id], { replaceUrl: true });
+          void this.router.navigate(['/bussola', id], { replaceUrl: true });
         }
       });
     });
@@ -124,26 +124,26 @@ export class CopilotoWorkspaceComponent {
   // ---------------------------------------------------------------------------------- navegação
 
   protected conectarIa(): void {
-    void this.router.navigate(['/copiloto/conectar-ia']);
+    void this.router.navigate(['/bussola/conectar-ia']);
   }
 
   protected nova(): void {
     this.store.novaConversa();
     this.rascunho.set('');
     if (!this.desktop()) this.listaAberta.set(false);
-    void this.router.navigate(['/copiloto']);
+    void this.router.navigate(['/bussola']);
     setTimeout(() => this.compositor()?.focar());
   }
 
   protected abrirConversa(id: string): void {
     if (!this.desktop()) this.listaAberta.set(false);
-    void this.router.navigate(['/copiloto', id]);
+    void this.router.navigate(['/bussola', id]);
   }
 
   protected async excluir(id: string): Promise<void> {
     const eraAtual = this.store.conversaId() === id;
     const excluida = await this.store.excluir(id);
-    if (excluida && eraAtual) void this.router.navigate(['/copiloto']);
+    if (excluida && eraAtual) void this.router.navigate(['/bussola']);
   }
 
   protected alternarLista(): void {

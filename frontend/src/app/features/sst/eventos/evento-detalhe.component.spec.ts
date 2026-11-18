@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -82,7 +82,7 @@ describe('EventoDetalheComponent', { timeout: 15000 }, () => {
         MessageService,
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: () => 'ev-1' } } } },
         { provide: AuthService, useValue: { currentUser: signal({ id: 'u1', permissoes }) } },
-        { provide: CesConfirmationService, useValue: { confirm: vi.fn() } },
+        { provide: GeoConfirmationService, useValue: { confirm: vi.fn() } },
         {
           provide: SstService,
           useValue: {

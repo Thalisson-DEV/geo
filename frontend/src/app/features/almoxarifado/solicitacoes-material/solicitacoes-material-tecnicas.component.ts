@@ -4,26 +4,26 @@ import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-i
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
 import {
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { EstoqueResponse, MaterialResponse } from '../../../core/models/almoxarifado.models';
 import { AgenteResponsavelResponse, ObraResumoResponse } from '../../../core/models/obras.models';
@@ -54,7 +54,7 @@ import { SolicitacoesTecnicasImportacaoComponent } from './solicitacoes-tecnicas
 import { SolicitacoesTecnicasCalendarioComponent } from './solicitacoes-tecnicas-calendario/solicitacoes-tecnicas-calendario.component';
 import { SolicitacoesTecnicasKanbanComponent } from './solicitacoes-tecnicas-kanban/solicitacoes-tecnicas-kanban.component';
 
-const comTodos = <T,>(opcoes: CesSelectOption<T>[], todos = 'Todos'): CesSelectOption<T | null>[] => [{ label: todos, value: null }, ...opcoes];
+const comTodos = <T,>(opcoes: GeoSelectOption<T>[], todos = 'Todos'): GeoSelectOption<T | null>[] => [{ label: todos, value: null }, ...opcoes];
 
 const TIPOS_OBRA = comTodos<TipoObraSolicitacao>([
   { label: 'Obra', value: 'OBRA' },
@@ -93,7 +93,7 @@ function lerVisao(modo: unknown): VisaoTecnica {
   return modo === 'kanban' || modo === 'calendario' ? modo : 'tabela';
 }
 
-const STATUS: CesSelectOption<StatusSolicitacaoMaterial>[] = (
+const STATUS: GeoSelectOption<StatusSolicitacaoMaterial>[] = (
   ['PENDENTE', 'APROVADO', 'REJEITADO', 'ENTREGUE_PARCIAL', 'ENTREGUE', 'DEVOLVIDO_PARCIAL', 'DEVOLVIDO', 'ESTORNADO', 'CANCELADO'] as const
 ).map((value) => ({ label: statusLabel(value), value }));
 const SEPARACAO = comTodos<StatusSeparacao>(
@@ -110,27 +110,27 @@ const SEPARACAO = comTodos<StatusSeparacao>(
     .sol-atalhos { flex: 1 1 auto; min-width: 0; }
     .sol-contagem {
       display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem;
-      border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted);
+      border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
       font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
     }
-    .ces-quick-filter[aria-pressed='true'] .sol-contagem { background: var(--ces-surface); color: var(--ces-foreground); }
-    .sol-contagem--alerta { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .sol-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--ces-border); }
+    .geo-quick-filter[aria-pressed='true'] .sol-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
+    .sol-contagem--alerta { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .sol-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--geo-border); }
     .sol-tom { width: 0.5rem; height: 0.5rem; border-radius: 999px; background: var(--sol-tom); flex: none; }
-    [data-tone='warning'] { --sol-tom: var(--ces-warning); }
-    [data-tone='info'] { --sol-tom: var(--ces-info); }
-    [data-tone='success'] { --sol-tom: var(--ces-success); }
-    [data-tone='danger'] { --sol-tom: var(--ces-danger); }
-    [data-tone='neutral'] { --sol-tom: var(--ces-foreground-subtle); }
-    .sol-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
+    [data-tone='warning'] { --sol-tom: var(--geo-warning); }
+    [data-tone='info'] { --sol-tom: var(--geo-info); }
+    [data-tone='success'] { --sol-tom: var(--geo-success); }
+    [data-tone='danger'] { --sol-tom: var(--geo-danger); }
+    [data-tone='neutral'] { --sol-tom: var(--geo-foreground-subtle); }
+    .sol-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     .sol-visoes button {
-      display: inline-flex; align-items: center; gap: 0.375rem; min-height: calc(var(--ces-control-height-sm) - 2px); padding: 0 0.75rem;
-      border: 0; border-radius: calc(var(--ces-radius-md) - 2px); background: transparent; color: var(--ces-foreground-muted);
-      font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 0.375rem; min-height: calc(var(--geo-control-height-sm) - 2px); padding: 0 0.75rem;
+      border: 0; border-radius: calc(var(--geo-radius-md) - 2px); background: transparent; color: var(--geo-foreground-muted);
+      font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer;
     }
-    .sol-visoes button:hover { color: var(--ces-foreground); }
-    .sol-visoes button[aria-current='page'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
-    .sol-visoes button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .sol-visoes button:hover { color: var(--geo-foreground); }
+    .sol-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
+    .sol-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .sol-visoes .pi { font-size: 0.8rem; }
     @media (max-width: 40rem) {
       .sol-visoes { width: 100%; }
@@ -142,28 +142,28 @@ const SEPARACAO = comTodos<StatusSeparacao>(
     SolicitacaoTecnicaFormComponent,
     SolicitacoesTecnicasCalendarioComponent,
     DatePipe,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesMultiSelectComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoMultiSelectComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     AjudaListagemComponent,
     ExportarSolicitacoesDialogComponent,
     SolicitacoesTecnicasImportacaoComponent,
     SolicitacoesTecnicasKanbanComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="canCreate" (newRequested)="createRequest()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="canCreate" (newRequested)="createRequest()">
+      <geo-page-header
         [title]="titulo"
         icon="pi pi-wrench"
         [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Solicitações técnicas' }]"
@@ -171,55 +171,55 @@ const SEPARACAO = comTodos<StatusSeparacao>(
         helpLabel="Ajuda sobre solicitações técnicas"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-download" label="Exportar" (pressed)="exportacaoAberta.set(true)"></ces-button>
+        <geo-button actions variant="outline" icon="pi pi-download" label="Exportar" (pressed)="exportacaoAberta.set(true)"></geo-button>
         @if (canImport) {
-          <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></geo-button>
         }
         @if (podeDevolver) {
-          <ces-button actions variant="outline" icon="pi pi-undo" label="Nova devolução" (pressed)="createDevolucao()"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-undo" label="Nova devolução" (pressed)="createDevolucao()"></geo-button>
         }
         @if (canCreate) {
-          <ces-button actions icon="pi pi-plus" label="Nova solicitação" [keyShortcut]="atalhos.newShortcut()" (pressed)="createRequest()"></ces-button>
+          <geo-button actions icon="pi pi-plus" label="Nova solicitação" [keyShortcut]="atalhos.newShortcut()" (pressed)="createRequest()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
       @if (!isOnline()) {
-        <ces-callout tone="warning" icon="pi pi-wifi" title="Sem conexão">Os dados podem estar desatualizados. Criar solicitações exige reconexão.</ces-callout>
+        <geo-callout tone="warning" icon="pi pi-wifi" title="Sem conexão">Os dados podem estar desatualizados. Criar solicitações exige reconexão.</geo-callout>
       }
 
-      <ces-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Obra" [options]="obraOptions()" [(value)]="lista.filters.idObra" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Almoxarifado de atendimento" [options]="almoxarifadoOptions()" [(value)]="lista.filters.idAlmoxarifado" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Equipe" [options]="equipeOptions()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-          <ces-select label="Tipo de obra" [options]="tiposObra" [(value)]="lista.filters.tipoObra"></ces-select>
-          <ces-select label="Tipo de solicitação" [options]="tiposTecnicos" [(value)]="lista.filters.tipoTecnico"></ces-select>
-          <ces-multiselect label="Status do atendimento" [options]="statusOpcoes" [(value)]="lista.filters.statuses" [filter]="false" placeholder="Todos"></ces-multiselect>
-          <ces-select label="Etapa de separação" [options]="separacaoOpcoes" [(value)]="lista.filters.statusSeparacao"></ces-select>
-          <ces-text-input label="Ocorrência (OC/OS)" [(value)]="lista.filters.ocorrencia"></ces-text-input>
-          <ces-text-input label="Número da reserva" [(value)]="lista.filters.numeroReserva"></ces-text-input>
-          <ces-select label="Agente da reserva" [options]="agenteOptions()" [(value)]="lista.filters.idAgenteReserva" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
-          <ces-text-input label="Referência" [(value)]="lista.filters.referencia"></ces-text-input>
-          <ces-text-input label="Número de série" [(value)]="lista.filters.numSerie" [maxlength]="120" hint="Não fica salvo no endereço da página."></ces-text-input>
-          <ces-datepicker label="Solicitadas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></ces-datepicker>
-          <ces-datepicker label="Solicitadas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></ces-datepicker>
+        <div class="geo-filter-grid">
+          <geo-select label="Obra" [options]="obraOptions()" [(value)]="lista.filters.idObra" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Almoxarifado de atendimento" [options]="almoxarifadoOptions()" [(value)]="lista.filters.idAlmoxarifado" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Equipe" [options]="equipeOptions()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+          <geo-select label="Tipo de obra" [options]="tiposObra" [(value)]="lista.filters.tipoObra"></geo-select>
+          <geo-select label="Tipo de solicitação" [options]="tiposTecnicos" [(value)]="lista.filters.tipoTecnico"></geo-select>
+          <geo-multiselect label="Status do atendimento" [options]="statusOpcoes" [(value)]="lista.filters.statuses" [filter]="false" placeholder="Todos"></geo-multiselect>
+          <geo-select label="Etapa de separação" [options]="separacaoOpcoes" [(value)]="lista.filters.statusSeparacao"></geo-select>
+          <geo-text-input label="Ocorrência (OC/OS)" [(value)]="lista.filters.ocorrencia"></geo-text-input>
+          <geo-text-input label="Número da reserva" [(value)]="lista.filters.numeroReserva"></geo-text-input>
+          <geo-select label="Agente da reserva" [options]="agenteOptions()" [(value)]="lista.filters.idAgenteReserva" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
+          <geo-text-input label="Referência" [(value)]="lista.filters.referencia"></geo-text-input>
+          <geo-text-input label="Número de série" [(value)]="lista.filters.numSerie" [maxlength]="120" hint="Não fica salvo no endereço da página."></geo-text-input>
+          <geo-datepicker label="Solicitadas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></geo-datepicker>
+          <geo-datepicker label="Solicitadas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></geo-datepicker>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
       <div class="sol-toolbar">
         @if (visao !== 'kanban') {
-          <div class="ces-quick-filters sol-atalhos" role="group" aria-label="Mostrar só os status escolhidos">
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!statusAplicados().length" (click)="definirStatus([])">
+          <div class="geo-quick-filters sol-atalhos" role="group" aria-label="Mostrar só os status escolhidos">
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="!statusAplicados().length" (click)="definirStatus([])">
               Todas <span class="sol-contagem">{{ contagemTotal() ?? '–' }}</span>
             </button>
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="emAbertoAtivo()" (click)="definirStatus(emAberto)"
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="emAbertoAtivo()" (click)="definirStatus(emAberto)"
               title="Pendentes, aprovadas e entregues em parte: tudo o que ainda exige ação">
               <i class="pi pi-inbox" aria-hidden="true"></i> Em aberto <span class="sol-contagem" [class.sol-contagem--alerta]="(contagemAbertas() ?? 0) > 0">{{ contagemAbertas() ?? '–' }}</span>
             </button>
             <span class="sol-divisor" aria-hidden="true"></span>
             @for (s of atalhosVisiveis(); track s.value) {
-              <button type="button" class="ces-quick-filter" [attr.aria-pressed]="statusAplicados().includes(s.value)" [attr.data-tone]="tomStatus(s.value)" (click)="alternarStatus(s.value)"
+              <button type="button" class="geo-quick-filter" [attr.aria-pressed]="statusAplicados().includes(s.value)" [attr.data-tone]="tomStatus(s.value)" (click)="alternarStatus(s.value)"
                 [attr.aria-label]="s.atalho + ': ' + (contagens()[s.value] ?? 'contagem indisponível')">
                 <span class="sol-tom" aria-hidden="true"></span> {{ s.atalho }} <span class="sol-contagem">{{ contagens()[s.value] ?? '–' }}</span>
               </button>
@@ -240,7 +240,7 @@ const SEPARACAO = comTodos<StatusSeparacao>(
       } @else if (visao === 'calendario') {
         <app-solicitacoes-tecnicas-calendario [filtros]="calendarioFiltros()" [rotuloObra]="rotuloObra" (abrir)="abrirDetalhe($event)"></app-solicitacoes-tecnicas-calendario>
       } @else {
-        <ces-data-table
+        <geo-data-table
           title="Solicitações técnicas"
           mode="server"
           [storageKey]="chave"
@@ -267,59 +267,59 @@ const SEPARACAO = comTodos<StatusSeparacao>(
           (emptyAction)="createRequest()"
           (rowActivate)="abrirDetalhe($event)"
         >
-          <ng-template cesCell="solicitacao" let-row>
-            <span class="ces-cell-strong">#{{ row.id.slice(0, 8) }}</span>
+          <ng-template geoCell="solicitacao" let-row>
+            <span class="geo-cell-strong">#{{ row.id.slice(0, 8) }}</span>
             <span>{{ row.dataSolicitacao | date: 'dd/MM/yyyy HH:mm' }}</span>
-            @if (row.referencia || row.numSerie) { <span class="ces-cell-muted">{{ row.referencia || row.numSerie }}</span> }
+            @if (row.referencia || row.numSerie) { <span class="geo-cell-muted">{{ row.referencia || row.numSerie }}</span> }
           </ng-template>
-          <ng-template cesCell="obra" let-row>
+          <ng-template geoCell="obra" let-row>
             <span [title]="obraLabel(row.idObra)">{{ obraLabel(row.idObra) }}</span>
-            <span class="ces-cell-muted">{{ row.tipoObra || 'Tipo não informado' }}</span>
+            <span class="geo-cell-muted">{{ row.tipoObra || 'Tipo não informado' }}</span>
           </ng-template>
-          <ng-template cesCell="tipo" let-row>
+          <ng-template geoCell="tipo" let-row>
             @if (row.tipo) {
-              <ces-status [tone]="tipoTecnicoEhAdicao(row.tipo) ? 'info' : 'neutral'" [icon]="tipoTecnicoIcon(row.tipo)">{{ tipoTecnicoLabel(row.tipo) }}</ces-status>
+              <geo-status [tone]="tipoTecnicoEhAdicao(row.tipo) ? 'info' : 'neutral'" [icon]="tipoTecnicoIcon(row.tipo)">{{ tipoTecnicoLabel(row.tipo) }}</geo-status>
             } @else {
-              <span class="ces-cell-muted">—</span>
+              <span class="geo-cell-muted">—</span>
             }
           </ng-template>
-          <ng-template cesCell="equipe" let-row>
+          <ng-template geoCell="equipe" let-row>
             <span>{{ equipeLabel(row.idEquipe) }}</span>
             @if (row.saqueForaEquipe) {
-              <span class="ces-cell-muted">Saque fora da equipe</span>
+              <span class="geo-cell-muted">Saque fora da equipe</span>
             } @else if (row.idColaboradorSaque) {
-              <span class="ces-cell-muted">Responsável definido</span>
+              <span class="geo-cell-muted">Responsável definido</span>
             }
           </ng-template>
-          <ng-template cesCell="planejamento" let-row>
-            <ces-status [tone]="planejamentoTone(row)" [icon]="row.dataPrevista ? 'pi-calendar' : 'pi-calendar-minus'">{{ planejamentoLabel(row) }}</ces-status>
-            <span class="ces-cell-muted">Prevista: {{ row.dataPrevista ? (row.dataPrevista | date: 'dd/MM/yyyy' : 'UTC') : 'não definida' }}</span>
-            @if (row.atrasada) { <ces-status tone="danger" icon="pi-exclamation-triangle">Atrasada</ces-status> }
+          <ng-template geoCell="planejamento" let-row>
+            <geo-status [tone]="planejamentoTone(row)" [icon]="row.dataPrevista ? 'pi-calendar' : 'pi-calendar-minus'">{{ planejamentoLabel(row) }}</geo-status>
+            <span class="geo-cell-muted">Prevista: {{ row.dataPrevista ? (row.dataPrevista | date: 'dd/MM/yyyy' : 'UTC') : 'não definida' }}</span>
+            @if (row.atrasada) { <geo-status tone="danger" icon="pi-exclamation-triangle">Atrasada</geo-status> }
           </ng-template>
-          <ng-template cesCell="separacao" let-row>
+          <ng-template geoCell="separacao" let-row>
             @if (tipoTecnicoEhAdicao(row.tipo)) {
-              <ces-status [tone]="separacaoTone(row.statusSeparacao)">{{ separacaoLabel(row.statusSeparacao) }}</ces-status>
+              <geo-status [tone]="separacaoTone(row.statusSeparacao)">{{ separacaoLabel(row.statusSeparacao) }}</geo-status>
             } @else {
-              <span class="ces-cell-muted">Não se aplica</span>
+              <span class="geo-cell-muted">Não se aplica</span>
             }
           </ng-template>
-          <ng-template cesCell="status" let-row>
-            <ces-status [tone]="statusTone(row.status)">{{ statusLabel(row.status) }}</ces-status>
-            @if (row.possuiPendencia) { <ces-status tone="warning" icon="pi-exclamation-triangle">Com pendência</ces-status> }
+          <ng-template geoCell="status" let-row>
+            <geo-status [tone]="statusTone(row.status)">{{ statusLabel(row.status) }}</geo-status>
+            @if (row.possuiPendencia) { <geo-status tone="warning" icon="pi-exclamation-triangle">Com pendência</geo-status> }
           </ng-template>
-          <ng-template cesCell="reserva" let-row>
+          <ng-template geoCell="reserva" let-row>
             @if (row.numeroReserva) {
-              <span class="ces-cell-strong">{{ row.numeroReserva }}</span>
-              <span class="ces-cell-muted">{{ row.nomeAgenteReserva || 'Agente não informado' }}</span>
-              @if (row.dataCriacaoReserva) { <span class="ces-cell-muted">Criada em {{ row.dataCriacaoReserva | date: 'dd/MM/yyyy' : 'UTC' }}</span> }
+              <span class="geo-cell-strong">{{ row.numeroReserva }}</span>
+              <span class="geo-cell-muted">{{ row.nomeAgenteReserva || 'Agente não informado' }}</span>
+              @if (row.dataCriacaoReserva) { <span class="geo-cell-muted">Criada em {{ row.dataCriacaoReserva | date: 'dd/MM/yyyy' : 'UTC' }}</span> }
             } @else {
-              <span class="ces-cell-muted">Sem reserva</span>
+              <span class="geo-cell-muted">Sem reserva</span>
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <ces-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="imprimirRelatorio(row)"></ces-icon-button>
+          <ng-template geoRowActions let-row>
+            <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + row.id.slice(0, 8)" size="icon-sm" (pressed)="imprimirRelatorio(row)"></geo-icon-button>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
     </div>
 
@@ -406,31 +406,31 @@ export class SolicitacoesMaterialTecnicasComponent {
   protected readonly almoxarifadoOptions = computed(() => this.almoxarifados().map((e) => ({ label: e.nomeIdentificador, value: e.id })));
   protected readonly agenteOptions = computed(() => this.agentes().map((a) => ({ label: a.nome, value: a.id })));
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: this.chave,
     filters: {
-      idObra: cesFilter.value<string | null>(null, { label: 'Obra', param: 'obra', format: (id): string | null => (id ? this.obraLabel(id) : null) }),
-      idAlmoxarifado: cesFilter.value<string | null>(null, {
+      idObra: geoFilter.value<string | null>(null, { label: 'Obra', param: 'obra', format: (id): string | null => (id ? this.obraLabel(id) : null) }),
+      idAlmoxarifado: geoFilter.value<string | null>(null, {
         label: 'Almoxarifado',
         param: 'almoxarifado',
         format: (id): string | null => (id ? (this.almoxarifados().find((e) => e.id === id)?.nomeIdentificador ?? 'selecionado') : null)
       }),
-      idEquipe: cesFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.equipeLabel(id) : null) }),
-      tipoObra: cesFilter.value<TipoObraSolicitacao | null>(null, { label: 'Tipo de obra', options: () => TIPOS_OBRA }),
-      tipoTecnico: cesFilter.value<TipoSolicitacaoTecnica | null>(null, { label: 'Tipo', options: () => TIPOS_TECNICOS }),
-      statuses: cesFilter.list<StatusSolicitacaoMaterial>([], { label: 'Status', param: 'status', itemLabel: (s) => statusLabel(s) }),
-      statusSeparacao: cesFilter.value<StatusSeparacao | null>(null, { label: 'Separação', param: 'separacao', options: () => SEPARACAO }),
-      ocorrencia: cesFilter.value<string>('', { label: 'Ocorrência' }),
-      numeroReserva: cesFilter.value<string>('', { label: 'Reserva', param: 'reserva' }),
-      idAgenteReserva: cesFilter.value<string | null>(null, {
+      idEquipe: geoFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.equipeLabel(id) : null) }),
+      tipoObra: geoFilter.value<TipoObraSolicitacao | null>(null, { label: 'Tipo de obra', options: () => TIPOS_OBRA }),
+      tipoTecnico: geoFilter.value<TipoSolicitacaoTecnica | null>(null, { label: 'Tipo', options: () => TIPOS_TECNICOS }),
+      statuses: geoFilter.list<StatusSolicitacaoMaterial>([], { label: 'Status', param: 'status', itemLabel: (s) => statusLabel(s) }),
+      statusSeparacao: geoFilter.value<StatusSeparacao | null>(null, { label: 'Separação', param: 'separacao', options: () => SEPARACAO }),
+      ocorrencia: geoFilter.value<string>('', { label: 'Ocorrência' }),
+      numeroReserva: geoFilter.value<string>('', { label: 'Reserva', param: 'reserva' }),
+      idAgenteReserva: geoFilter.value<string | null>(null, {
         label: 'Agente',
         param: 'agenteReserva',
         format: (id): string | null => (id ? (this.agentes().find((a) => a.id === id)?.nome ?? 'selecionado') : null)
       }),
-      referencia: cesFilter.value<string>('', { label: 'Referência', param: 'ref' }),
+      referencia: geoFilter.value<string>('', { label: 'Referência', param: 'ref' }),
       // Nº de série é dado sensível: fica fora da URL.
-      numSerie: cesFilter.value<string>('', { label: 'Nº de série', url: false }),
-      periodo: cesFilter.range({ from: null, to: null }, { label: 'Solicitação' })
+      numSerie: geoFilter.value<string>('', { label: 'Nº de série', url: false }),
+      periodo: geoFilter.range({ from: null, to: null }, { label: 'Solicitação' })
     },
     sort: [{ key: 'solicitacao', direction: 'desc' }]
   });
@@ -512,7 +512,7 @@ export class SolicitacoesMaterialTecnicasComponent {
     return { ...f, dataInicio: dataLocal(f.dataInicio ?? null), dataFim: dataLocal(f.dataFim ?? null) };
   });
 
-  protected readonly colunas: CesDataTableColumn<SolicitacaoMaterialSummaryResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<SolicitacaoMaterialSummaryResponse>[] = [
     { key: 'solicitacao', header: 'Solicitação', type: 'custom', priority: 1, sortField: 'dataSolicitacao', value: (s) => s.dataSolicitacao },
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (s) => this.obraLabel(s.idObra) },
     { key: 'tipo', header: 'Tipo', type: 'custom', value: (s) => (s.tipo ? tipoTecnicoLabel(s.tipo) : '') },

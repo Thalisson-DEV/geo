@@ -9,15 +9,15 @@ import {
 import { Router, RouterLink } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesIconButtonComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoIconButtonComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { HelpDialogComponent } from '../../shared/components/help-dialog/help-dialog.component';
 import { ManualTreinamentoDocumentoComponent } from './manual-treinamento-documento.component';
 import { iconeAlerta, iconeContexto, rotuloAlerta, tomAlerta } from './central-treinamento-ui';
@@ -29,13 +29,13 @@ import { AlertaManual, ContextoTag, ManualModulo } from './central-treinamento.m
   standalone: true,
   imports: [
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
-    CesPageHeaderComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
+    GeoPageHeaderComponent,
+    GeoTextInputComponent,
     HelpDialogComponent,
     ManualTreinamentoDocumentoComponent
   ],

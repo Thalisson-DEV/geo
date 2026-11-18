@@ -1,5 +1,5 @@
-<div class="ces-page print:hidden">
-  <ces-page-header
+<div class="geo-page print:hidden">
+  <geo-page-header
     title="Central de treinamento"
     icon="pi pi-book"
     [breadcrumb]="breadcrumb"
@@ -7,34 +7,34 @@
     helpLabel="Ajuda sobre a central de treinamento"
     (help)="ajuda.show()"
   >
-    <ces-button actions
+    <geo-button actions
       [label]="todosAbertos() ? 'Recolher tudo' : 'Expandir tudo'"
       [icon]="todosAbertos() ? 'pi pi-angle-double-up' : 'pi pi-angle-double-down'"
       variant="secondary"
       (pressed)="alternarTodos()"
-    ></ces-button>
-    <ces-button actions
+    ></geo-button>
+    <geo-button actions
       label="Imprimir manual"
       icon="pi pi-print"
       variant="secondary"
       (pressed)="imprimir()"
-    ></ces-button>
-    <ces-icon-button actions
+    ></geo-button>
+    <geo-icon-button actions
       icon="pi pi-link"
       label="Copiar link do manual"
       tooltip="Copiar link do manual"
       size="icon-sm"
       (pressed)="copiarLink()"
-    ></ces-icon-button>
-  </ces-page-header>
+    ></geo-icon-button>
+  </geo-page-header>
 
-  <ces-text-input
+  <geo-text-input
     label="Buscar no manual"
     [labelVisible]="false"
     placeholder="Buscar no manual: código, checklist, senha, desvio, offline, atalho..."
     [value]="termoBusca()"
     (valueChange)="digitarBusca($event)"
-  ></ces-text-input>
+  ></geo-text-input>
 
   <div>
     <article class="manual">
@@ -48,14 +48,14 @@
       </header>
 
       @if (modulosFiltrados().length === 0) {
-        <ces-async-state
+        <geo-async-state
           state="empty"
           title="Nenhum módulo encontrado"
           description="Nenhum conteúdo corresponde à busca. Tente termos como senha, desvio, offline ou GPS."
           actionLabel="Limpar busca"
           actionIcon="pi pi-filter-slash"
           (action)="limparBusca()"
-        ></ces-async-state>
+        ></geo-async-state>
       } @else {
         <nav class="indice" aria-label="Sumário do manual">
           <p class="indice__titulo">
@@ -143,19 +143,19 @@
 
             @if (estaAberto(modulo.id)) {
             <div class="modulo__conteudo" [id]="'conteudo-' + modulo.id">
-            <ces-callout tone="brand" label="Objetivo" icon="pi-bullseye">
+            <geo-callout tone="brand" label="Objetivo" icon="pi-bullseye">
               {{ modulo.objetivo }}
-            </ces-callout>
+            </geo-callout>
 
             @for (alerta of modulo.alertasPrincipais; track alerta.titulo) {
-              <ces-callout
+              <geo-callout
                 [tone]="tomAlerta(alerta)"
                 [label]="rotuloAlerta(alerta.tipo)"
                 [icon]="iconeAlerta(alerta.tipo, alerta.icone)"
                 [title]="alerta.titulo"
               >
                 {{ alerta.mensagem }}
-              </ces-callout>
+              </geo-callout>
             }
 
             <figure class="video">
@@ -212,7 +212,7 @@
                             <span class="passo__numero">{{ secao.numero }}.{{ p + 1 }}</span>
                             {{ item.rotulo }}
                             @if (item.badge) {
-                              <ces-status tone="warning">{{ item.badge }}</ces-status>
+                              <geo-status tone="warning">{{ item.badge }}</geo-status>
                             }
                           </h5>
 
@@ -246,7 +246,7 @@
                 }
 
                 @if (secao.alerta) {
-                  <ces-callout
+                  <geo-callout
                     [tone]="tomAlerta(secao.alerta)"
                     [label]="rotuloAlerta(secao.alerta.tipo)"
                     [icon]="iconeAlerta(secao.alerta.tipo, secao.alerta.icone)"
@@ -254,7 +254,7 @@
                     [dense]="true"
                   >
                     {{ secao.alerta.mensagem }}
-                  </ces-callout>
+                  </geo-callout>
                 }
               </section>
             }
@@ -277,12 +277,12 @@
               </p>
             </div>
 
-            <ces-button
+            <geo-button
               label="Abrir chamado"
               icon="pi pi-plus-circle"
               size="sm"
               (pressed)="abrirChamado()"
-            ></ces-button>
+            ></geo-button>
           </section>
 
           <p class="suporte__alternativa">

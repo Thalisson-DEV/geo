@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -53,7 +53,7 @@ describe('SeriesSelecaoComponent', () => {
         provideNoopAnimations(),
         { provide: AlmoxarifadoService, useValue: almox },
         { provide: NotificationService, useValue: avisos },
-        { provide: CesConfirmationService, useValue: { confirm: confirmar } },
+        { provide: GeoConfirmationService, useValue: { confirm: confirmar } },
         { provide: AuthService, useValue: { currentUser: () => ({ permissoes }) } }
       ]
     });

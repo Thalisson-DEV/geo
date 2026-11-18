@@ -70,7 +70,7 @@ async function entrar(page: Page): Promise<void> {
   await page.addInitScript((v) => {
     if (!sessionStorage.getItem('e2e-sessao')) {
       localStorage.clear();
-      localStorage.setItem('ces_session_enc', v);
+      localStorage.setItem('geo_session_enc', v);
       sessionStorage.setItem('e2e-sessao', '1');
     }
   }, valor);
@@ -106,7 +106,7 @@ test.describe('listagens críticas', () => {
     await page.goto('/admin/cadastros/colaboradores?status=false');
     await expect(page.getByText('MARIA DA SILVA')).toBeVisible({ timeout: 20_000 });
     await expect.poll(() => chamadas.at(-1)?.searchParams.get('ativo')).toBe('false');
-    await expect(page.locator('.ces-filter-panel__chip').first()).toBeVisible();
+    await expect(page.locator('.geo-filter-panel__chip').first()).toBeVisible();
   });
 
   test('materiais: abre nos dados com ordenação padrão', async ({ page }) => {
@@ -147,6 +147,6 @@ test.describe('listagens críticas', () => {
     });
     await page.goto('/almoxarifado/movimentacoes');
     await expect(page.getByText('#op123456').first()).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('ces-data-table').getByText('Transferência')).toBeVisible();
+    await expect(page.locator('geo-data-table').getByText('Transferência')).toBeVisible();
   });
 });

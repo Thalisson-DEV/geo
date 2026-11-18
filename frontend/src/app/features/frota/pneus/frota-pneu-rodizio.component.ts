@@ -1,17 +1,17 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { EventoPneu, Pneu, VeiculoPneus, erroKmMovimentacao, formatarKm, rotuloPosicao } from '../../../core/models/frota-pneu.models';
 import { formatarPlaca, paraInstanteIso } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -29,40 +29,40 @@ import { FrotaPneuDiagramaComponent, PosicaoDiagrama } from './frota-pneu-diagra
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
     FrotaPneuDiagramaComponent
   ],
   styles: `
     :host { display: block; }
     .topo { display: grid; grid-template-columns: minmax(14rem, 22rem) repeat(2, minmax(10rem, 14rem)) 1fr; gap: 0.75rem; align-items: start; }
-    .ultimo { justify-self: end; padding-top: 1.35rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); text-align: right; }
-    .ultimo strong { color: var(--ces-foreground); }
+    .ultimo { justify-self: end; padding-top: 1.35rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); text-align: right; }
+    .ultimo strong { color: var(--geo-foreground); }
     .area { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(15rem, 20rem); gap: 1rem; margin-top: 1rem; align-items: start; }
-    .painel { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface);
-      box-shadow: var(--ces-shadow-sm); min-width: 0; }
-    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--ces-font-body); font-weight: 700; }
-    .painel__sub { margin: 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .seta { align-self: center; color: var(--ces-brand); font-size: 1.5rem; }
+    .painel { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface);
+      box-shadow: var(--geo-shadow-sm); min-width: 0; }
+    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--geo-font-body); font-weight: 700; }
+    .painel__sub { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .seta { align-self: center; color: var(--geo-brand); font-size: 1.5rem; }
     .trocas { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
-    .trocas li { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.65rem; border: 1px solid var(--ces-border); border-left: 3px solid var(--ces-brand);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); font-size: var(--ces-font-caption); }
-    .trocas strong { display: block; font-size: var(--ces-font-body); }
-    .guia { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; min-height: 2rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .guia--ativa { padding: 0.35rem 0.35rem 0.35rem 0.7rem; border-radius: var(--ces-radius-md); background: var(--ces-brand-soft); color: var(--ces-foreground); font-weight: 600; }
+    .trocas li { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.5rem 0.65rem; border: 1px solid var(--geo-border); border-left: 3px solid var(--geo-brand);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); font-size: var(--geo-font-caption); }
+    .trocas strong { display: block; font-size: var(--geo-font-body); }
+    .guia { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; min-height: 2rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .guia--ativa { padding: 0.35rem 0.35rem 0.35rem 0.7rem; border-radius: var(--geo-radius-md); background: var(--geo-brand-soft); color: var(--geo-foreground); font-weight: 600; }
     /* Telas estreitas empilham os painéis: a gravação fica sempre à mão enquanto há mudança. */
     .barra-salvar { display: none; }
     @media (max-width: 1200px) {
       .barra-salvar { position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 1rem; padding: 0.6rem 0.75rem;
-        border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); box-shadow: var(--ces-shadow-md); }
-      .barra-salvar span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+        border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); box-shadow: var(--geo-shadow-md); }
+      .barra-salvar span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     }
-    .estado { margin-top: 1rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); }
+    .estado { margin-top: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
     .rodape { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: flex-end; }
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     @media (max-width: 1300px) { .area { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); } .area__trocas { grid-column: 1 / -1; } }
@@ -74,11 +74,11 @@ import { FrotaPneuDiagramaComponent, PosicaoDiagrama } from './frota-pneu-diagra
   `,
   template: `
     <div class="topo">
-      <ces-select label="Veículo" [options]="veiculos()" [value]="idVeiculo()" (valueChange)="escolherVeiculo($event)" [filter]="true" placeholder="Escolha a placa" [loading]="carregandoVeiculos()"></ces-select>
+      <geo-select label="Veículo" [options]="veiculos()" [value]="idVeiculo()" (valueChange)="escolherVeiculo($event)" [filter]="true" placeholder="Escolha a placa" [loading]="carregandoVeiculos()"></geo-select>
       @if (veiculo()?.eixos) {
-        <ces-number-input [label]="veiculo()!.unidade === 'HORAS' ? 'Horímetro' : 'Km do veículo'" [(value)]="km" [min]="0" [error]="erroKm() ? 'Menor que o último registrado.' : undefined"
-          [description]="veiculo()!.kmAtual != null ? 'Último registrado: ' + formatarKm(veiculo()!.kmAtual, veiculo()!.unidade) : 'Sem leitura registrada'"></ces-number-input>
-        <ces-datepicker label="Quando" [(value)]="quando" [showTime]="true" [maxDate]="agora" description="Vazio: agora."></ces-datepicker>
+        <geo-number-input [label]="veiculo()!.unidade === 'HORAS' ? 'Horímetro' : 'Km do veículo'" [(value)]="km" [min]="0" [error]="erroKm() ? 'Menor que o último registrado.' : undefined"
+          [description]="veiculo()!.kmAtual != null ? 'Último registrado: ' + formatarKm(veiculo()!.kmAtual, veiculo()!.unidade) : 'Sem leitura registrada'"></geo-number-input>
+        <geo-datepicker label="Quando" [(value)]="quando" [showTime]="true" [maxDate]="agora" description="Vazio: agora."></geo-datepicker>
         <p class="ultimo">
           @if (ultimo(); as u) {
             Último rodízio em <strong>{{ u.ocorridoEm | date: 'dd/MM/yyyy' }}</strong>
@@ -93,55 +93,55 @@ import { FrotaPneuDiagramaComponent, PosicaoDiagrama } from './frota-pneu-diagra
     <p class="sr" aria-live="polite">{{ anuncio() }}</p>
 
     @if (!idVeiculo()) {
-      <ces-async-state class="estado" state="empty" icon="pi-sync" title="Escolha um veículo" description="O rodízio mostra como os pneus estão e como vão ficar."></ces-async-state>
+      <geo-async-state class="estado" state="empty" icon="pi-sync" title="Escolha um veículo" description="O rodízio mostra como os pneus estão e como vão ficar."></geo-async-state>
     } @else if (carregando() && !veiculo()) {
-      <ces-async-state class="estado" state="loading" title="Carregando os pneus do veículo" description="Só um instante."></ces-async-state>
+      <geo-async-state class="estado" state="loading" title="Carregando os pneus do veículo" description="Só um instante."></geo-async-state>
     } @else if (erro()) {
-      <ces-async-state class="estado" state="error" title="Não foi possível carregar os pneus do veículo" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+      <geo-async-state class="estado" state="error" title="Não foi possível carregar os pneus do veículo" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
     } @else if (veiculo(); as v) {
       @if (!v.eixos) {
-        <ces-async-state class="estado" state="empty" icon="pi-sitemap" title="Este veículo ainda não tem diagrama"
-          description="Defina os eixos na aba Montagem e monte os pneus antes do rodízio." actionLabel="Ir para a montagem" actionIcon="pi pi-sitemap" (action)="irParaMontagem.emit()"></ces-async-state>
+        <geo-async-state class="estado" state="empty" icon="pi-sitemap" title="Este veículo ainda não tem diagrama"
+          description="Defina os eixos na aba Montagem e monte os pneus antes do rodízio." actionLabel="Ir para a montagem" actionIcon="pi pi-sitemap" (action)="irParaMontagem.emit()"></geo-async-state>
       } @else if (!temPneus()) {
-        <ces-async-state class="estado" state="empty" icon="pi-info-circle" title="Nenhum pneu montado neste veículo"
-          description="Monte os pneus antes do rodízio." actionLabel="Ir para a montagem" actionIcon="pi pi-sitemap" (action)="irParaMontagem.emit()"></ces-async-state>
+        <geo-async-state class="estado" state="empty" icon="pi-info-circle" title="Nenhum pneu montado neste veículo"
+          description="Monte os pneus antes do rodízio." actionLabel="Ir para a montagem" actionIcon="pi pi-sitemap" (action)="irParaMontagem.emit()"></geo-async-state>
       } @else {
         <div class="area">
           <section class="painel area__antes" aria-label="Antes do rodízio">
-            <h3 class="painel__titulo">Antes <ces-status tone="neutral">Como está hoje</ces-status></h3>
+            <h3 class="painel__titulo">Antes <geo-status tone="neutral">Como está hoje</geo-status></h3>
             <app-frota-pneu-diagrama [eixos]="v.eixos" [posicoes]="antes()" [sulcoMinimo]="v.sulcoMinimoMm" [interativo]="false" [legenda]="false" [titulo]="placa(v.placa) + ', antes'"></app-frota-pneu-diagrama>
           </section>
           <i class="pi pi-arrow-right seta" aria-hidden="true"></i>
           <section class="painel area__depois" aria-label="Depois do rodízio">
-            <h3 class="painel__titulo">Depois <ces-status [tone]="trocas().length ? 'info' : 'neutral'">{{ trocas().length ? (trocas().length === 1 ? '1 pneu muda' : trocas().length + ' pneus mudam') : 'Arraste para trocar' }}</ces-status></h3>
+            <h3 class="painel__titulo">Depois <geo-status [tone]="trocas().length ? 'info' : 'neutral'">{{ trocas().length ? (trocas().length === 1 ? '1 pneu muda' : trocas().length + ' pneus mudam') : 'Arraste para trocar' }}</geo-status></h3>
             <app-frota-pneu-diagrama [eixos]="v.eixos" [posicoes]="depois()" [sulcoMinimo]="v.sulcoMinimoMm" [arrastavel]="podeEditar()" [interativo]="podeEditar()"
               [selecionado]="selecionado()" [destacarDestinos]="!!selecionado() || !!arrastando()" [titulo]="placa(v.placa) + ', depois'" (posicaoAcionada)="acionar($event)" (soltoNaPosicao)="soltar($event)"
               (arrasteIniciado)="arrastando.set($event)" (arrasteTerminado)="arrastando.set(null)"></app-frota-pneu-diagrama>
             <div class="guia" [class.guia--ativa]="!!selecionado()">
               <span>{{ guia() }}</span>
               @if (selecionado()) {
-                <ces-button size="sm" variant="ghost" label="Cancelar" ariaLabel="Cancelar a escolha (Esc)" (pressed)="cancelarEscolha()"></ces-button>
+                <geo-button size="sm" variant="ghost" label="Cancelar" ariaLabel="Cancelar a escolha (Esc)" (pressed)="cancelarEscolha()"></geo-button>
               }
             </div>
           </section>
           <section class="painel area__trocas" aria-label="Trocas do rodízio">
-            <h3 class="painel__titulo">Trocas <ces-status [tone]="trocas().length ? 'info' : 'neutral'">{{ trocas().length }}</ces-status></h3>
+            <h3 class="painel__titulo">Trocas <geo-status [tone]="trocas().length ? 'info' : 'neutral'">{{ trocas().length }}</geo-status></h3>
             @if (trocas().length) {
               <ul class="trocas">
                 @for (t of trocas(); track t.pneu.id) {
                   <li>
                     <span><strong>{{ t.pneu.marcaFogo }}</strong>{{ rotulo(t.de) }} → {{ rotulo(t.para) }}</span>
-                    <ces-button size="sm" variant="ghost" icon="pi pi-undo" [ariaLabel]="'Desfazer a troca do pneu ' + t.pneu.marcaFogo" (pressed)="desfazerTroca(t.pneu.id)"></ces-button>
+                    <geo-button size="sm" variant="ghost" icon="pi pi-undo" [ariaLabel]="'Desfazer a troca do pneu ' + t.pneu.marcaFogo" (pressed)="desfazerTroca(t.pneu.id)"></geo-button>
                   </li>
                 }
               </ul>
               @if (erroKm()) {
-                <ces-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Confira o km do veículo">{{ erroKm() }}</ces-callout>
+                <geo-callout tone="danger" icon="pi pi-exclamation-triangle" [dense]="true" title="Confira o km do veículo">{{ erroKm() }}</geo-callout>
               }
               <div class="rodape">
-                <ces-button variant="ghost" icon="pi pi-undo" label="Desfazer tudo" (pressed)="desfazer()"></ces-button>
-                <ces-button icon="pi pi-check" label="Salvar rodízio" [loading]="salvando()" [disabled]="!podeEditar() || !!erroKm()" (pressed)="salvar()"></ces-button>
+                <geo-button variant="ghost" icon="pi pi-undo" label="Desfazer tudo" (pressed)="desfazer()"></geo-button>
+                <geo-button icon="pi pi-check" label="Salvar rodízio" [loading]="salvando()" [disabled]="!podeEditar() || !!erroKm()" (pressed)="salvar()"></geo-button>
               </div>
             } @else {
               <p class="painel__sub">Nenhuma troca ainda. As trocas aparecem aqui antes de gravar.</p>
@@ -151,7 +151,7 @@ import { FrotaPneuDiagramaComponent, PosicaoDiagrama } from './frota-pneu-diagra
         @if (trocas().length) {
           <div class="barra-salvar">
             <span>{{ erroKm() ? 'Confira o km do veículo' : 'Trocas ainda não salvas' }}</span>
-            <ces-button size="sm" icon="pi pi-check" label="Salvar rodízio" [disabled]="!podeEditar() || !!erroKm()" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+            <geo-button size="sm" icon="pi pi-check" label="Salvar rodízio" [disabled]="!podeEditar() || !!erroKm()" [loading]="salvando()" (pressed)="salvar()"></geo-button>
           </div>
         }
       }
@@ -161,9 +161,9 @@ import { FrotaPneuDiagramaComponent, PosicaoDiagrama } from './frota-pneu-diagra
 export class FrotaPneuRodizioComponent {
   private readonly servico = inject(FrotaPneuService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
-  readonly veiculos = input<CesSelectOption<string>[]>([]);
+  readonly veiculos = input<GeoSelectOption<string>[]>([]);
   readonly carregandoVeiculos = input(false);
   /** A outra aba (montagem) tem mudanças não salvas deste veículo. */
   readonly rascunhoEmOutraAba = input(false);

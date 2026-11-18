@@ -2,18 +2,18 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, signal } from '@angular/core';
 import { ParamMap } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption
+} from '@geo/ui';
 
 import { MovimentacoesRelatorioResponse } from '../../../../../core/models/almoxarifado-relatorios.models';
 import { VistaAnalise } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -67,10 +67,10 @@ import {
   selector: 'app-almox-painel-movimentacoes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, AlmoxPainelTopoComponent, AlmoxRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -91,18 +91,18 @@ export class AlmoxPainelMovimentacoesComponent extends PainelAlmoxBase<Movimenta
   protected readonly materiaisSel = signal<string[]>([]);
   private readonly proprios = signal<FiltrosMov>({ naturezas: [], tipos: [], condicoes: [], materiais: [] });
 
-  protected readonly opcoesNatureza: CesSelectOption<string>[] = NATUREZAS.map((n) => ({ label: ROTULO_NATUREZA[n], value: n }));
-  protected readonly opcoesTipo: CesSelectOption<string>[] = Object.entries(ROTULO_TIPO_MOV).map(([value, label]) => ({ label, value }));
-  protected readonly opcoesCondicao: CesSelectOption<string>[] = Object.entries(ROTULO_CONDICAO).map(([value, label]) => ({ label, value }));
-  protected readonly opcoesMaterial = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesNatureza: GeoSelectOption<string>[] = NATUREZAS.map((n) => ({ label: ROTULO_NATUREZA[n], value: n }));
+  protected readonly opcoesTipo: GeoSelectOption<string>[] = Object.entries(ROTULO_TIPO_MOV).map(([value, label]) => ({ label, value }));
+  protected readonly opcoesCondicao: GeoSelectOption<string>[] = Object.entries(ROTULO_CONDICAO).map(([value, label]) => ({ label, value }));
+  protected readonly opcoesMaterial = computed<GeoSelectOption<string>[]>(() => {
     const vistos = new Map<string, string>();
     for (const m of this.dados()?.movimentacoes ?? []) vistos.set(m.idMaterial, `${m.codigo} · ${m.descricao}`);
     return [...vistos.entries()].map(([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
   });
 
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const f = this.proprios();
-    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): CesFilterChip[] =>
+    const chip = (key: string, rotulo: string, sel: string[], nome: (v: string) => string): GeoFilterChip[] =>
       sel.length ? [{ key, label: `${rotulo}: ${sel.length === 1 ? nome(sel[0]) : `${sel.length} selecionados`}` }] : [];
     return [
       ...chip('natureza', 'Natureza', f.naturezas, (v) => ROTULO_NATUREZA[v as keyof typeof ROTULO_NATUREZA] ?? v),

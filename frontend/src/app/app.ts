@@ -17,8 +17,8 @@ import { filter } from 'rxjs';
 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
-import { CesButtonComponent, NotificationService } from '@ces/ui';
-import { CesReportNavigatorComponent } from './design-system/patterns/report-navigator';
+import { GeoButtonComponent, NotificationService } from '@geo/ui';
+import { GeoReportNavigatorComponent } from './design-system/patterns/report-navigator';
 import { ReportNavigatorRegistryService } from './core/services/report-navigator-registry.service';
 import { ScrollMemoryDirective } from './shared/directives/scroll-memory.directive';
 
@@ -38,14 +38,14 @@ const ICONES_AVISO: Record<string, string> = {
     HeaderComponent,
     SidebarComponent,
     ToastModule,
-    CesButtonComponent,
+    GeoButtonComponent,
     ConfirmDialogModule,
     MuralHostComponent,
     AtualizacaoDisponivelComponent,
     AvaliacaoConviteComponent,
     AvaliacaoDrawerComponent,
     SessaoReautenticacaoComponent,
-    CesReportNavigatorComponent,
+    GeoReportNavigatorComponent,
     ScrollMemoryDirective
   ],
   templateUrl: './app.html',
@@ -81,7 +81,7 @@ export class App {
    * (O restante do menu ainda é estático — ver CLAUDE.md §9 "Menu Dinâmico".)
    */
   private readonly permissaoPorRota: Record<string, string> = {
-    '/copiloto': 'assistente:chat:use',
+    '/bussola': 'assistente:chat:use',
     '/execucao/metas-fisicas': 'execucao:meta-fisica:read',
     '/execucao/dashboard-meta-fisica': 'execucao:meta-fisica:read',
     '/sst/governanca/painel': 'sst:governanca:read',
@@ -217,15 +217,15 @@ export class App {
     // preservando a preferência explicitamente salva no navegador pelo usuário
     effect(() => {
       const user = this.auth.currentUser();
-      const savedMode = localStorage.getItem('ces_theme_mode');
+      const savedMode = localStorage.getItem('geo_theme_mode');
       const isDark = savedMode ? savedMode === 'dark' : user?.tema === 'dark';
       this.theme.setDarkMode(isDark);
 
-      const savedColor = localStorage.getItem('ces_primary_color');
+      const savedColor = localStorage.getItem('geo_primary_color');
       const color = savedColor || user?.corPrimaria;
       if (color) this.theme.updatePrimaryColor(color);
 
-      const savedRipple = localStorage.getItem('ces_ripple_enabled');
+      const savedRipple = localStorage.getItem('geo_ripple_enabled');
       const ripple = savedRipple !== null ? savedRipple !== 'false' : (user?.animacoesAtivadas ?? true);
       this.theme.setRipple(ripple);
     });
@@ -283,7 +283,7 @@ export class App {
   }
 
   protected readonly menuItems = signal<MenuItem[]>(removerModulosOcultos([
-    { label: 'Bússola', icon: 'pi pi-compass', routerLink: '/copiloto', badge: 'IA', styleClass: 'ces-sidebar-destaque' },
+    { label: 'Bússola', icon: 'pi pi-compass', routerLink: '/bussola', badge: 'IA', styleClass: 'geo-sidebar-destaque' },
     // Admin guarda só o que é transversal ao sistema inteiro — quem entra e o que
     // cada um pode. Cadastro de domínio mora no módulo a que pertence: quem cadastra
     // colaborador é o DP, quem cadastra material é o almoxarifado. Ninguém precisa
@@ -434,7 +434,7 @@ export class App {
           items: [
             { label: 'Ordens de serviço', icon: 'pi pi-list', routerLink: '/frota/ordens-servico', routerLinkActiveOptions: { exact: true } },
             { label: 'Preventiva', icon: 'pi pi-calendar-clock', routerLink: '/frota/preventiva' },
-            { label: 'Pneus', icon: 'ces-icon-pneu', routerLink: '/frota/pneus' },
+            { label: 'Pneus', icon: 'geo-icon-pneu', routerLink: '/frota/pneus' },
             { label: 'Estoque da oficina', icon: 'pi pi-warehouse', routerLink: '/frota/estoque' },
             { label: 'Quadro de OS', icon: 'pi pi-objects-column', routerLink: '/frota/ordens-servico/quadro' },
             { label: 'Agenda da frota', icon: 'pi pi-calendar', routerLink: '/frota/ordens-servico/calendario' }

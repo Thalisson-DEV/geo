@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, CesTone, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent, GeoTone, NotificationService } from '@geo/ui';
 
 import { DesvioDetalhadoResponse, ResumoColaborador } from '../../../core/models/desvio.models';
 import { TratarMeuDesvioRequest } from '../../../core/models/meu-desvio.models';
@@ -31,10 +31,10 @@ function diasAte(data: string): number {
   selector: 'app-desvio-detalhe-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, DesvioAnexosComponent, TratamentoMeuDesvioDialogComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoCalloutComponent, GeoDrawerComponent, GeoStatusComponent, DesvioAnexosComponent, TratamentoMeuDesvioDialogComponent],
   styleUrl: './desvio-detalhe-dialog.component.css',
   template: `
-    <ces-drawer
+    <geo-drawer
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       [eyebrow]="desvio() ? 'Desvio nº ' + numero() : 'Desvio'"
@@ -46,15 +46,15 @@ function diasAte(data: string): number {
           <span></span><span></span><span></span><span></span>
         </div>
       } @else if (erro()) {
-        <ces-callout tone="danger" title="Não foi possível abrir o desvio">{{ erro() }}</ces-callout>
+        <geo-callout tone="danger" title="Não foi possível abrir o desvio">{{ erro() }}</geo-callout>
       } @else if (desvio(); as d) {
         <div class="dv">
           <section class="dv-hero" [attr.data-tone]="statusTom(d.status)" aria-label="Resumo do desvio">
             <div class="dv-hero__topo">
-              <ces-status [tone]="statusTom(d.status)" [icon]="statusIcone(d.status)" emphasis="solid">{{ statusLabel(d.status) }}</ces-status>
-              <ces-status [tone]="gravidadeTom(d.gravidade)" [icon]="gravidadeIcone(d.gravidade)">Gravidade {{ gravidadeLabel(d.gravidade).toLowerCase() }}</ces-status>
+              <geo-status [tone]="statusTom(d.status)" [icon]="statusIcone(d.status)" emphasis="solid">{{ statusLabel(d.status) }}</geo-status>
+              <geo-status [tone]="gravidadeTom(d.gravidade)" [icon]="gravidadeIcone(d.gravidade)">Gravidade {{ gravidadeLabel(d.gravidade).toLowerCase() }}</geo-status>
               @if (d.vencido) {
-                <ces-status tone="danger" icon="pi-clock">{{ d.diasEmAtraso ? 'Atrasado há ' + d.diasEmAtraso + (d.diasEmAtraso === 1 ? ' dia' : ' dias') : 'Prazo vencido' }}</ces-status>
+                <geo-status tone="danger" icon="pi-clock">{{ d.diasEmAtraso ? 'Atrasado há ' + d.diasEmAtraso + (d.diasEmAtraso === 1 ? ' dia' : ' dias') : 'Prazo vencido' }}</geo-status>
               }
             </div>
             @if (d.grupo) {
@@ -67,9 +67,9 @@ function diasAte(data: string): number {
           </section>
 
           @if (somenteLeitura() && d.status !== 'RESOLVIDO') {
-            <ces-callout tone="info" title="Você está acompanhando este desvio">
+            <geo-callout tone="info" title="Você está acompanhando este desvio">
               Quem trata é {{ d.inspetor || 'o inspetor que registrou a inspeção' }}. Ação corretiva, prazo e evidências só podem ser alterados por quem registrou a inspeção.
-            </ces-callout>
+            </geo-callout>
           }
 
           <section class="dv-fatos" aria-label="Prazo e resolução">
@@ -98,7 +98,7 @@ function diasAte(data: string): number {
           <section class="dv-secao" aria-labelledby="dv-encontrado">
             <h3 class="dv-titulo" id="dv-encontrado"><i class="pi pi-search" aria-hidden="true"></i> O que foi encontrado</h3>
             @if (d.opcaoResposta) {
-              <p class="dv-resposta"><span class="dv-label">Resposta marcada</span><ces-status tone="danger" icon="pi-times-circle" emphasis="outline">{{ d.opcaoResposta }}</ces-status></p>
+              <p class="dv-resposta"><span class="dv-label">Resposta marcada</span><geo-status tone="danger" icon="pi-times-circle" emphasis="outline">{{ d.opcaoResposta }}</geo-status></p>
             }
             @if (d.descricao) {
               <blockquote class="dv-texto">{{ d.descricao }}</blockquote>
@@ -128,7 +128,7 @@ function diasAte(data: string): number {
                       <span class="dv-muted">{{ funcaoEBase(c) }}</span>
                     </span>
                     @if (!c.ativo) {
-                      <ces-status tone="neutral" icon="pi-ban">Inativo</ces-status>
+                      <geo-status tone="neutral" icon="pi-ban">Inativo</geo-status>
                     }
                   </li>
                 }
@@ -156,15 +156,15 @@ function diasAte(data: string): number {
         </div>
       }
 
-      <div drawer-footer class="ces-actions-row">
+      <div drawer-footer class="geo-actions-row">
         @if (desvio(); as d) {
-          <ces-button variant="ghost" icon="pi pi-external-link" label="Abrir inspeção" (pressed)="abrirInspecao(d.idInspecao)"></ces-button>
+          <geo-button variant="ghost" icon="pi pi-external-link" label="Abrir inspeção" (pressed)="abrirInspecao(d.idInspecao)"></geo-button>
           @if (podeTratar()) {
-            <ces-button icon="pi pi-wrench" [label]="d.status === 'RESOLVIDO' ? 'Reabrir ou editar' : 'Tratar desvio'" (pressed)="abrirTratamento()"></ces-button>
+            <geo-button icon="pi pi-wrench" [label]="d.status === 'RESOLVIDO' ? 'Reabrir ou editar' : 'Tratar desvio'" (pressed)="abrirTratamento()"></geo-button>
           }
         }
       </div>
-    </ces-drawer>
+    </geo-drawer>
 
     <app-tratamento-meu-desvio-dialog #tratamento [loading]="salvando()" (salvar)="salvarTratamento($event)" />
   `
@@ -205,10 +205,10 @@ export class DesvioDetalheDialogComponent {
     return dias === -1 ? 'Venceu ontem.' : `Venceu há ${-dias} dias.`;
   });
 
-  protected readonly gravidadeTom = (g: GravidadeDesvio): CesTone => GRAVIDADE_TOM[g];
+  protected readonly gravidadeTom = (g: GravidadeDesvio): GeoTone => GRAVIDADE_TOM[g];
   protected readonly gravidadeIcone = (g: GravidadeDesvio) => GRAVIDADE_ICONE[g];
   protected readonly gravidadeLabel = (g: GravidadeDesvio) => GRAVIDADE_LABELS[g] ?? g;
-  protected readonly statusTom = (s: StatusDesvio): CesTone => STATUS_DESVIO_TOM[s];
+  protected readonly statusTom = (s: StatusDesvio): GeoTone => STATUS_DESVIO_TOM[s];
   protected readonly statusIcone = (s: StatusDesvio) => STATUS_DESVIO_ICONE[s];
   protected readonly statusLabel = (s: StatusDesvio) => STATUS_DESVIO_LABELS[s] ?? s;
 

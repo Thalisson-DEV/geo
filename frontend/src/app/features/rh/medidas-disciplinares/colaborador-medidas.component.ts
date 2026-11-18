@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CesButtonComponent, CesCalloutComponent, CesStatusComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent } from '@geo/ui';
 import {
   MedidaDisciplinar,
   MotivoMedidaDisciplinar,
@@ -22,37 +22,37 @@ import { MedidaDisciplinarDrawerComponent } from './medida-disciplinar-drawer.co
   selector: 'app-colaborador-medidas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, RouterLink, CesButtonComponent, CesCalloutComponent, CesStatusComponent, MedidaDisciplinarDrawerComponent],
+  imports: [DatePipe, RouterLink, GeoButtonComponent, GeoCalloutComponent, GeoStatusComponent, MedidaDisciplinarDrawerComponent],
   styles: `
     .topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
-    .topo p { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .topo p { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
     .medida { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.25rem 0.75rem; width: 100%; padding: 0.625rem 0.75rem;
-      border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); color: inherit;
+      border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: inherit;
       font: inherit; text-align: start; cursor: pointer; }
-    .medida:hover { background: var(--ces-surface-subtle); }
-    .medida:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .medida:hover { background: var(--geo-surface-subtle); }
+    .medida:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .medida strong { font-weight: 600; }
-    .medida span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .medida span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,
   template: `
     <div class="topo">
       <p>{{ resumo() }}</p>
-      <span class="ces-actions-row">
-        <ces-button size="sm" variant="ghost" label="Ver na lista" icon="pi pi-external-link" routerLink="/rh/medidas-disciplinares"
-          [queryParams]="{ colaborador: idColaborador() }"></ces-button>
+      <span class="geo-actions-row">
+        <geo-button size="sm" variant="ghost" label="Ver na lista" icon="pi pi-external-link" routerLink="/rh/medidas-disciplinares"
+          [queryParams]="{ colaborador: idColaborador() }"></geo-button>
         @if (podeEditar()) {
-          <ces-button size="sm" icon="pi pi-plus" label="Lançar medida" (pressed)="nova()"></ces-button>
+          <geo-button size="sm" icon="pi pi-plus" label="Lançar medida" (pressed)="nova()"></geo-button>
         }
       </span>
     </div>
 
     @if (erro(); as e) {
-      <ces-callout tone="danger" icon="pi pi-exclamation-circle" [dense]="true" title="Não foi possível carregar as medidas">{{ e }}</ces-callout>
+      <geo-callout tone="danger" icon="pi pi-exclamation-circle" [dense]="true" title="Não foi possível carregar as medidas">{{ e }}</geo-callout>
     } @else if (carregando()) {
-      <p class="ces-cell-muted" role="status">Carregando medidas…</p>
+      <p class="geo-cell-muted" role="status">Carregando medidas…</p>
     } @else if (!medidas().length) {
-      <ces-callout tone="info" icon="pi pi-check-circle" [dense]="true" title="Nenhuma medida disciplinar">Este colaborador não tem medidas registradas.</ces-callout>
+      <geo-callout tone="info" icon="pi pi-check-circle" [dense]="true" title="Nenhuma medida disciplinar">Este colaborador não tem medidas registradas.</geo-callout>
     } @else {
       <ul class="lista">
         @for (m of medidas(); track m.id) {
@@ -60,7 +60,7 @@ import { MedidaDisciplinarDrawerComponent } from './medida-disciplinar-drawer.co
           <li>
             <button type="button" class="medida" (click)="abrir(m)" [attr.aria-label]="'Abrir ' + m.tipoNome + ' de ' + (m.dataFato | date: 'dd/MM/yyyy')">
               <strong>{{ m.tipoNome }} · {{ m.motivoNome }}</strong>
-              <ces-status [tone]="s.tom" [icon]="'pi ' + s.icone">{{ s.rotulo }}</ces-status>
+              <geo-status [tone]="s.tom" [icon]="'pi ' + s.icone">{{ s.rotulo }}</geo-status>
               <span>Fato em {{ m.dataFato | date: 'dd/MM/yyyy' }} · aplicada em {{ m.dataAplicacao | date: 'dd/MM/yyyy' }}</span>
             </button>
           </li>

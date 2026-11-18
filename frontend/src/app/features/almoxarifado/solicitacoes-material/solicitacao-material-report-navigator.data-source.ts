@@ -2,18 +2,18 @@ import { statusComercial } from './solicitacao-comercial-status';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   SolicitacaoStatus,
   SolicitacaoSummaryResponse
 } from '../../../core/models/almoxarifado.models';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
-import { CesTone } from '../../../design-system/core';
+import { GeoTone } from '../../../design-system/core';
 
 const STATUS_LABELS: Record<SolicitacaoStatus, string> = {
   PENDENTE: 'Pendente',
@@ -24,7 +24,7 @@ const STATUS_LABELS: Record<SolicitacaoStatus, string> = {
   ESTORNADO: 'Estornado'
 };
 
-const STATUS_TONES: Record<SolicitacaoStatus, CesTone> = {
+const STATUS_TONES: Record<SolicitacaoStatus, GeoTone> = {
   PENDENTE: 'warning',
   APROVADO: 'info',
   REJEITADO: 'danger',
@@ -35,16 +35,16 @@ const STATUS_TONES: Record<SolicitacaoStatus, CesTone> = {
 
 @Injectable({ providedIn: 'root' })
 export class SolicitacaoMaterialReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<SolicitacaoSummaryResponse>
+  implements GeoReportNavigatorDataSource<SolicitacaoSummaryResponse>
 {
   private readonly service = inject(AlmoxarifadoService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODAS',
     sort: 'dataSolicitacao,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Solicitações de Material',
     icon: 'pi pi-box',
     eyebrow: 'Navegador',
@@ -66,8 +66,8 @@ export class SolicitacaoMaterialReportNavigatorDataSource
   };
 
   load(
-    criteria: CesReportNavigatorCriteria
-  ): Observable<CesReportNavigatorPage<SolicitacaoSummaryResponse>> {
+    criteria: GeoReportNavigatorCriteria
+  ): Observable<GeoReportNavigatorPage<SolicitacaoSummaryResponse>> {
     const params: any = {
       page: 0,
       size: 50,
@@ -84,7 +84,7 @@ export class SolicitacaoMaterialReportNavigatorDataSource
     );
   }
 
-  toItem(raw: SolicitacaoSummaryResponse): CesReportNavigatorItem {
+  toItem(raw: SolicitacaoSummaryResponse): GeoReportNavigatorItem {
     const status = raw.status;
 
     return {
@@ -114,7 +114,7 @@ export class SolicitacaoMaterialReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | SolicitacaoSummaryResponse): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | SolicitacaoSummaryResponse): any[] {
     const id = (item as any).id;
     return ['/almoxarifado', 'solicitacoes', id];
   }

@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class McpServidor {
 
     public static final List<String> VERSOES = List.of("2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05");
-    static final String RECURSO_FONTES = "ces://fontes-de-dados";
+    static final String RECURSO_FONTES = "geo://fontes-de-dados";
 
     static final int PARSE_ERROR = -32700;
     static final int INVALID_REQUEST = -32600;
@@ -48,7 +48,7 @@ public class McpServidor {
     private final Map<UUID, Deque<Instant>> janelas = new ConcurrentHashMap<>();
 
     public McpServidor(McpCatalogo catalogo, McpExecutor executor, ConexaoIaService conexoes, SemanticCatalog fontes,
-            ObjectMapper objectMapper, @Value("${ces.conexoes-ia.chamadas-por-minuto:120}") int chamadasPorMinuto) {
+            ObjectMapper objectMapper, @Value("${geo.conexoes-ia.chamadas-por-minuto:120}") int chamadasPorMinuto) {
         this.catalogo = catalogo;
         this.executor = executor;
         this.conexoes = conexoes;
@@ -116,7 +116,7 @@ public class McpServidor {
         capacidades.putObject("prompts").put("listChanged", false);
         capacidades.putObject("logging");
         ObjectNode servidor = resultado.putObject("serverInfo");
-        servidor.put("name", "ces");
+        servidor.put("name", "geo");
         servidor.put("title", "GEO — Gestão de Equipes e Operações");
         servidor.put("version", "1.0.0");
         resultado.put("instructions", instrucoes(sessao));

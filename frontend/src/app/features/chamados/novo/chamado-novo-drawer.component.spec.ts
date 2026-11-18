@@ -75,12 +75,12 @@ describe('ChamadoNovoDrawerComponent', () => {
     servico['listarTopicosAtivos'].mockReturnValueOnce(throwError(() => new Error('offline')));
     const { el, atualizar } = await montar();
     expect(el.textContent).toContain('Não foi possível carregar os tópicos');
-    expect(el.querySelector('ces-form-actions')).toBeNull();
+    expect(el.querySelector('geo-form-actions')).toBeNull();
     const repetir = Array.from(el.querySelectorAll('button')).find((b) => b.textContent?.includes('Tentar novamente'))!;
     repetir.click();
     await atualizar();
     expect(servico['listarTopicosAtivos']).toHaveBeenCalledTimes(2);
-    expect(el.querySelector('ces-form-actions')).not.toBeNull();
+    expect(el.querySelector('geo-form-actions')).not.toBeNull();
   });
 
   it('não envia com campos inválidos e mostra os erros só depois da tentativa', async () => {
@@ -156,7 +156,7 @@ describe('ChamadoNovoDrawerComponent', () => {
     await atualizar();
     expect(tela['criado']()).toBeNull();
     expect(tela['salvando']()).toBe(false);
-    expect(el.querySelector('ces-form-actions')).not.toBeNull();
+    expect(el.querySelector('geo-form-actions')).not.toBeNull();
   });
 
   it('anexo com falha mostra o motivo e pode ser reenviado sozinho', async () => {

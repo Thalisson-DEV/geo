@@ -1,8 +1,8 @@
 :host {
   display: block;
   min-height: 100%;
-  background: var(--ces-canvas, var(--ces-surface-subtle));
-  color: var(--ces-foreground);
+  background: var(--geo-canvas, var(--geo-surface-subtle));
+  color: var(--geo-foreground);
 }
 
 .obra-estado {
@@ -28,14 +28,14 @@
 
 /* Mesmo padrão da barra flutuante dos relatórios de saldo e de movimentação. */
 :host {
-  --report-action-strong-bg: var(--ces-foreground);
-  --report-action-strong-bg-hover: var(--ces-foreground-muted);
+  --report-action-strong-bg: var(--geo-foreground);
+  --report-action-strong-bg-hover: var(--geo-foreground-muted);
 }
 
 :host-context(.app-dark),
 :host-context(.dark) {
-  --report-action-strong-bg: var(--ces-surface-muted);
-  --report-action-strong-bg-hover: var(--ces-border-strong);
+  --report-action-strong-bg: var(--geo-surface-muted);
+  --report-action-strong-bg-hover: var(--geo-border-strong);
 }
 
 .obra-acoes {
@@ -50,12 +50,12 @@
   gap: 1.5rem;
   margin-bottom: 1rem;
   padding: 1.5rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
   background:
-    radial-gradient(120% 140% at 100% 0%, var(--ces-brand-soft) 0%, transparent 55%),
-    var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+    radial-gradient(120% 140% at 100% 0%, var(--geo-brand-soft) 0%, transparent 55%),
+    var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 @media (min-width: 1024px) {
@@ -71,8 +71,8 @@
   flex-wrap: wrap;
   gap: 0.25rem;
   margin: 0 0 0.375rem;
-  color: var(--ces-brand);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-brand);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -80,7 +80,7 @@
 
 .obra-hero__titulo {
   margin: 0 0 0.875rem;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: clamp(1.25rem, 1rem + 1.2vw, 1.875rem);
   font-weight: 750;
   line-height: 1.2;
@@ -97,8 +97,8 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  color: var(--ces-brand);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-brand);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   text-decoration: none;
 }
@@ -107,8 +107,8 @@
 .obra-hero__observacao {
   max-width: 70ch;
   margin: 1rem 0 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-body);
   line-height: 1.55;
 }
 
@@ -116,10 +116,10 @@
   display: flex;
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
-  border-left: 3px solid var(--ces-brand);
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface-subtle);
-  color: var(--ces-foreground);
+  border-left: 3px solid var(--geo-brand);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground);
 }
 
 /* Prazo */
@@ -128,9 +128,9 @@
   display: grid;
   gap: 0.875rem;
   padding: 1rem 1.125rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-surface);
 }
 
 .obra-prazo__topo {
@@ -141,8 +141,8 @@
 }
 
 .obra-prazo__rotulo {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -153,26 +153,26 @@
   height: 0.5rem;
   margin: 0.375rem 0.375rem 0;
   border-radius: 999px;
-  background: var(--ces-surface-muted);
+  background: var(--geo-surface-muted);
 }
 
 .obra-prazo__preenchido {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: inherit;
-  background: var(--ces-brand);
+  background: var(--geo-brand);
 }
 
 .obra-prazo__preenchido[data-tom='danger'] {
-  background: var(--ces-danger-text);
+  background: var(--geo-danger-text);
 }
 
 .obra-prazo__preenchido[data-tom='warning'] {
-  background: var(--ces-warning-text);
+  background: var(--geo-warning-text);
 }
 
 .obra-prazo__preenchido[data-tom='success'] {
-  background: var(--ces-success-text);
+  background: var(--geo-success-text);
 }
 
 .obra-prazo__marco {
@@ -180,28 +180,28 @@
   top: 50%;
   width: 0.875rem;
   height: 0.875rem;
-  border: 2px solid var(--ces-surface);
+  border: 2px solid var(--geo-surface);
   border-radius: 999px;
-  background: var(--ces-foreground-muted);
-  box-shadow: 0 0 0 1px var(--ces-border-strong);
+  background: var(--geo-foreground-muted);
+  box-shadow: 0 0 0 1px var(--geo-border-strong);
   transform: translate(-50%, -50%);
 }
 
 .obra-prazo__marco[data-tipo='hoje'],
 .obra-prazo__legenda [data-tipo='hoje'] .obra-prazo__ponto {
-  background: var(--ces-brand);
+  background: var(--geo-brand);
 }
 
 .obra-prazo__marco[data-tipo='regulado'],
 .obra-prazo__legenda [data-tipo='regulado'] .obra-prazo__ponto {
-  background: var(--ces-warning-text);
+  background: var(--geo-warning-text);
   border-radius: 0.125rem;
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .obra-prazo__marco[data-tipo='conclusao'],
 .obra-prazo__legenda [data-tipo='conclusao'] .obra-prazo__ponto {
-  background: var(--ces-success-text);
+  background: var(--geo-success-text);
 }
 
 .obra-prazo__legenda {
@@ -211,8 +211,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .obra-prazo__legenda li {
@@ -223,7 +223,7 @@
 
 .obra-prazo__legenda strong {
   margin-left: auto;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -232,13 +232,13 @@
   width: 0.5rem;
   height: 0.5rem;
   border-radius: 999px;
-  background: var(--ces-foreground-muted);
+  background: var(--geo-foreground-muted);
 }
 
 .obra-prazo__decorrido {
   margin: 0;
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
 }
 
 /* ── Indicadores ────────────────────────────────────────────────── */
@@ -260,19 +260,19 @@
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   padding-left: 0.75rem;
-  border-left: 2px solid var(--ces-brand);
+  border-left: 2px solid var(--geo-brand);
 }
 
 .obra-atencao__cabecalho h2 {
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 0.9375rem;
   font-weight: 700;
 }
 
 .obra-atencao__resumo {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .obra-atencao__mais,
@@ -280,9 +280,9 @@
   padding: 0;
   border: 0;
   background: none;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font: inherit;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 650;
   cursor: pointer;
 }
@@ -298,9 +298,9 @@
 
 .obra-atencao__mais:focus-visible,
 .obra-destaque__acao:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--ces-radius-sm);
+  border-radius: var(--geo-radius-sm);
 }
 
 .obra-atencao__lista {
@@ -317,34 +317,34 @@
   align-items: flex-start;
   gap: 0.75rem;
   padding: 0.875rem;
-  border: 1px solid var(--tom, var(--ces-border));
-  border-radius: var(--ces-radius-lg);
-  background: var(--tom-fundo, var(--ces-surface));
-  color: var(--ces-foreground);
+  border: 1px solid var(--tom, var(--geo-border));
+  border-radius: var(--geo-radius-lg);
+  background: var(--tom-fundo, var(--geo-surface));
+  color: var(--geo-foreground);
 }
 
 .obra-destaque[data-tone='success'] {
-  --tom: var(--ces-success);
-  --tom-fundo: var(--ces-success-soft);
-  --tom-texto: var(--ces-success-text);
+  --tom: var(--geo-success);
+  --tom-fundo: var(--geo-success-soft);
+  --tom-texto: var(--geo-success-text);
 }
 
 .obra-destaque[data-tone='warning'] {
-  --tom: var(--ces-warning);
-  --tom-fundo: var(--ces-warning-soft);
-  --tom-texto: var(--ces-warning-text);
+  --tom: var(--geo-warning);
+  --tom-fundo: var(--geo-warning-soft);
+  --tom-texto: var(--geo-warning-text);
 }
 
 .obra-destaque[data-tone='danger'] {
-  --tom: var(--ces-danger);
-  --tom-fundo: var(--ces-danger-soft);
-  --tom-texto: var(--ces-danger-text);
+  --tom: var(--geo-danger);
+  --tom-fundo: var(--geo-danger-soft);
+  --tom-texto: var(--geo-danger-text);
 }
 
 .obra-destaque[data-tone='info'] {
-  --tom: var(--ces-info);
-  --tom-fundo: var(--ces-info-soft);
-  --tom-texto: var(--ces-info-text);
+  --tom: var(--geo-info);
+  --tom-fundo: var(--geo-info-soft);
+  --tom-texto: var(--geo-info-text);
 }
 
 .obra-destaque__icone {
@@ -354,7 +354,7 @@
   height: 2rem;
   place-items: center;
   border: 1px solid currentColor;
-  border-radius: var(--ces-radius-md);
+  border-radius: var(--geo-radius-md);
   color: var(--tom-texto);
 }
 
@@ -366,12 +366,12 @@
 }
 
 .obra-destaque__titulo {
-  font-size: var(--ces-font-body);
+  font-size: var(--geo-font-body);
   font-weight: 700;
 }
 
 .obra-destaque__texto {
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   line-height: 1.45;
   opacity: 0.9;
 }
@@ -408,28 +408,28 @@
 .obra-card {
   min-width: 0;
   padding: 1.125rem 1.25rem 1.25rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .obra-card--sutil {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
   box-shadow: none;
 }
 
-.obra-programacao__acao { display: inline-flex; gap: 0.375rem; align-items: center; color: var(--ces-brand); font-size: 0.8125rem; font-weight: 600; text-decoration: none; }
-.obra-programacao__avanco { display: flex; overflow: hidden; height: 0.5rem; margin-top: 0.5rem; border-radius: 999px; background: var(--ces-surface-muted); }
-.obra-programacao__parte[data-tipo='concluido'] { background: var(--ces-success); }
-.obra-programacao__parte[data-tipo='programado'] { background: var(--ces-info); }
-.obra-programacao__legenda { margin: 0.375rem 0 0.75rem; color: var(--ces-foreground-muted); font-size: 0.75rem; }
+.obra-programacao__acao { display: inline-flex; gap: 0.375rem; align-items: center; color: var(--geo-brand); font-size: 0.8125rem; font-weight: 600; text-decoration: none; }
+.obra-programacao__avanco { display: flex; overflow: hidden; height: 0.5rem; margin-top: 0.5rem; border-radius: 999px; background: var(--geo-surface-muted); }
+.obra-programacao__parte[data-tipo='concluido'] { background: var(--geo-success); }
+.obra-programacao__parte[data-tipo='programado'] { background: var(--geo-info); }
+.obra-programacao__legenda { margin: 0.375rem 0 0.75rem; color: var(--geo-foreground-muted); font-size: 0.75rem; }
 .obra-programacao__lista { margin: 0; padding: 0; list-style: none; }
-.obra-programacao__lista li + li { border-top: 1px solid var(--ces-border); }
-.obra-programacao__linha { display: grid; grid-template-columns: 3.5rem 7rem minmax(0, 1fr) 6.5rem auto; gap: 0.75rem; align-items: center; width: 100%; padding: 0.5rem 0.25rem; border: 0; background: transparent; color: var(--ces-foreground); font: inherit; font-size: 0.8125rem; text-align: left; cursor: pointer; }
-.obra-programacao__linha:hover { background: var(--ces-surface-subtle); }
-.obra-programacao__linha:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
-.obra-programacao__periodo { color: var(--ces-foreground-muted); }
+.obra-programacao__lista li + li { border-top: 1px solid var(--geo-border); }
+.obra-programacao__linha { display: grid; grid-template-columns: 3.5rem 7rem minmax(0, 1fr) 6.5rem auto; gap: 0.75rem; align-items: center; width: 100%; padding: 0.5rem 0.25rem; border: 0; background: transparent; color: var(--geo-foreground); font: inherit; font-size: 0.8125rem; text-align: left; cursor: pointer; }
+.obra-programacao__linha:hover { background: var(--geo-surface-subtle); }
+.obra-programacao__linha:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
+.obra-programacao__periodo { color: var(--geo-foreground-muted); }
 .obra-programacao__valor { font-variant-numeric: tabular-nums; text-align: right; }
 
 .obra-card__cabecalho {
@@ -446,13 +446,13 @@
   align-items: center;
   gap: 0.5rem;
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 0.9375rem;
   font-weight: 700;
 }
 
 .obra-card__cabecalho h2 > .pi {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-size: 0.875rem;
 }
 
@@ -460,16 +460,16 @@
   min-width: 1.5rem;
   padding: 0.0625rem 0.4375rem;
   border-radius: 999px;
-  background: var(--ces-surface-muted);
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
 
 .obra-card__meta {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .obra-card__filtro {
@@ -479,22 +479,22 @@
 .obra-card__vazio {
   margin: 0;
   padding: 0.75rem;
-  border: 1px dashed var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-body);
+  border: 1px dashed var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-body);
   text-align: center;
 }
 
 .obra-card__rodape {
   margin: 0.75rem 0 0;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-body);
   text-align: right;
 }
 
 .obra-card__rodape strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -520,9 +520,9 @@
 
 .obra-dados__titulo {
   padding-bottom: 0.375rem;
-  border-bottom: 1px solid var(--ces-border);
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  border-bottom: 1px solid var(--geo-border);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -534,29 +534,29 @@
 }
 
 .obra-dados__grupo > div dt {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .obra-dados__grupo dd {
   display: grid;
   gap: 0.125rem;
   margin: 0;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 
 .obra-dados__nota {
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
   font-weight: 400;
 }
 
 .obra-dados__link {
-  color: var(--ces-brand);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-brand);
+  font-size: var(--geo-font-caption);
   font-weight: 500;
 }
 
@@ -574,7 +574,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 0;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .obra-lista__item:first-child {
@@ -592,19 +592,19 @@
   width: 2rem;
   height: 2rem;
   place-items: center;
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface-muted);
-  color: var(--ces-foreground-muted);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .obra-lista__icone[data-tom='success'] {
-  background: var(--ces-success-soft);
-  color: var(--ces-success-text);
+  background: var(--geo-success-soft);
+  color: var(--geo-success-text);
 }
 
 .obra-lista__icone[data-tom='danger'] {
-  background: var(--ces-danger-soft);
-  color: var(--ces-danger-text);
+  background: var(--geo-danger-soft);
+  color: var(--geo-danger-text);
 }
 
 .obra-lista__corpo {
@@ -615,8 +615,8 @@
 }
 
 .obra-lista__titulo {
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 650;
   text-decoration: none;
 }
@@ -624,22 +624,22 @@
 a.obra-lista__titulo:hover,
 .obra-hero__vinculo:hover,
 .obra-subprojeto__numero:hover {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   text-decoration: underline;
 }
 
 .obra-lista__detalhe {
   overflow: hidden;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .obra-lista__valor {
   flex-shrink: 0;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
@@ -660,15 +660,15 @@ a.obra-lista__titulo:hover,
   align-items: center;
   gap: 0.25rem;
   padding: 0.5rem 0.5rem 0.5rem 0.625rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
   transition: border-color 120ms ease, background-color 120ms ease;
 }
 
 .obra-anexo:hover {
-  border-color: color-mix(in srgb, var(--ces-brand) 40%, var(--ces-border));
-  background: var(--ces-surface-subtle);
+  border-color: color-mix(in srgb, var(--geo-brand) 40%, var(--geo-border));
+  background: var(--geo-surface-subtle);
 }
 
 .obra-anexo__abrir {
@@ -687,9 +687,9 @@ a.obra-lista__titulo:hover,
 }
 
 .obra-anexo__abrir:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--ces-radius-sm);
+  border-radius: var(--geo-radius-sm);
 }
 
 .obra-anexo__icone {
@@ -698,9 +698,9 @@ a.obra-lista__titulo:hover,
   width: 2.25rem;
   height: 2.25rem;
   place-items: center;
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }
 
 .obra-anexo__texto {
@@ -710,16 +710,16 @@ a.obra-lista__titulo:hover,
 
 .obra-anexo__nome {
   overflow: hidden;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .obra-anexo__meta {
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .obra-anexo__acoes {
@@ -742,8 +742,8 @@ a.obra-lista__titulo:hover,
   display: grid;
   gap: 0.375rem;
   padding: 0.75rem 0.875rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
 }
 
 .obra-subprojeto__topo {
@@ -755,15 +755,15 @@ a.obra-lista__titulo:hover,
 
 .obra-subprojeto__numero {
   margin-right: auto;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-weight: 700;
   text-decoration: none;
 }
 
 .obra-subprojeto__titulo {
   overflow: hidden;
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -773,13 +773,13 @@ a.obra-lista__titulo:hover,
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--ces-foreground-muted);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption);
 }
 
 .obra-subprojeto__rodape strong {
   margin-left: auto;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-variant-numeric: tabular-nums;
 }
 
@@ -789,9 +789,9 @@ a.obra-lista__titulo:hover,
   isolation: isolate;
   height: 15rem;
   overflow: hidden;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface-muted);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-muted);
 }
 
 .obra-mapa__coordenadas {
@@ -829,7 +829,7 @@ a.obra-lista__titulo:hover,
   bottom: 0;
   left: 0.4375rem;
   width: 2px;
-  background: var(--ces-border);
+  background: var(--geo-border);
 }
 
 .obra-linha-tempo__item:last-child::before {
@@ -843,15 +843,15 @@ a.obra-lista__titulo:hover,
   width: 1rem;
   height: 1rem;
   margin-top: 0.125rem;
-  border: 2px solid var(--ces-surface);
+  border: 2px solid var(--geo-surface);
   border-radius: 999px;
-  background: var(--ces-border-strong);
-  box-shadow: 0 0 0 1px var(--ces-border-strong);
+  background: var(--geo-border-strong);
+  box-shadow: 0 0 0 1px var(--geo-border-strong);
 }
 
 .obra-linha-tempo__item--atual .obra-linha-tempo__marca {
-  background: var(--ces-brand);
-  box-shadow: 0 0 0 3px var(--ces-brand-soft);
+  background: var(--geo-brand);
+  box-shadow: 0 0 0 3px var(--geo-brand-soft);
 }
 
 .obra-linha-tempo__corpo {
@@ -861,26 +861,26 @@ a.obra-lista__titulo:hover,
 }
 
 .obra-linha-tempo__titulo {
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-body);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-body);
   font-weight: 650;
 }
 
 .obra-linha-tempo__titulo .pi {
   margin: 0 0.125rem;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
   font-size: 0.625rem;
 }
 
 .obra-linha-tempo__observacao {
-  color: var(--ces-foreground);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground);
+  font-size: var(--geo-font-caption);
   line-height: 1.45;
 }
 
 .obra-linha-tempo__meta {
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
 }
 
 /* Equipes */
@@ -906,8 +906,8 @@ a.obra-lista__titulo:hover,
   height: 2rem;
   place-items: center;
   border-radius: 999px;
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
   font-size: 0.6875rem;
   font-weight: 700;
 }
@@ -918,7 +918,7 @@ a.obra-lista__titulo:hover,
   display: grid;
   gap: 0.5rem;
   margin: 0;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
 }
 
 .obra-registro > div {
@@ -928,12 +928,12 @@ a.obra-lista__titulo:hover,
 }
 
 .obra-registro dt {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .obra-registro dd {
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   text-align: right;
 }
 
@@ -949,8 +949,8 @@ a.obra-lista__titulo:hover,
   min-height: 22rem;
   max-height: 75vh;
   overflow: hidden;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface-muted);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-muted);
 }
 
 .obra-preview__pdf {
@@ -976,17 +976,17 @@ a.obra-lista__titulo:hover,
 @media print {
   /* Sai sempre claro, mesmo com o tema escuro ligado na tela. */
   :host {
-    --ces-canvas: #ffffff;
-    --ces-surface: #ffffff;
-    --ces-surface-subtle: #ffffff;
-    --ces-surface-muted: #e2e8f0;
-    --ces-foreground: #0f172a;
-    --ces-foreground-muted: #475569;
-    --ces-foreground-subtle: #64748b;
-    --ces-border: #cbd5e1;
-    --ces-border-strong: #94a3b8;
-    --ces-brand: #1d4ed8;
-    --ces-brand-soft: #eff6ff;
+    --geo-canvas: #ffffff;
+    --geo-surface: #ffffff;
+    --geo-surface-subtle: #ffffff;
+    --geo-surface-muted: #e2e8f0;
+    --geo-foreground: #0f172a;
+    --geo-foreground-muted: #475569;
+    --geo-foreground-subtle: #64748b;
+    --geo-border: #cbd5e1;
+    --geo-border-strong: #94a3b8;
+    --geo-brand: #1d4ed8;
+    --geo-brand-soft: #eff6ff;
     background: #ffffff;
     color: #0f172a;
   }
@@ -997,11 +997,11 @@ a.obra-lista__titulo:hover,
   }
 
   .obra-acoes,
-  .obra-card__cabecalho ces-button,
-  .obra-card__cabecalho ces-icon-button,
+  .obra-card__cabecalho geo-button,
+  .obra-card__cabecalho geo-icon-button,
   .obra-card__filtro,
   .obra-anexo__acoes,
-  .obra-subprojeto__rodape ces-icon-button,
+  .obra-subprojeto__rodape geo-icon-button,
   .obra-destaque__acao,
   .obra-atencao__mais,
   .obra-mapa {

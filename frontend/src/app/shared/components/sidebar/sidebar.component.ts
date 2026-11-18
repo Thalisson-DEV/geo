@@ -23,7 +23,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
   ],
   template: `
     <aside
-      class="fixed inset-y-0 left-0 z-50 flex flex-col bg-[var(--ces-surface)] text-[var(--ces-foreground)] border-r border-[var(--ces-border)] transition-all duration-180 ease-in-out lg:relative lg:z-40 h-full"
+      class="fixed inset-y-0 left-0 z-50 flex flex-col bg-[var(--geo-surface)] text-[var(--geo-foreground)] border-r border-[var(--geo-border)] transition-all duration-180 ease-in-out lg:relative lg:z-40 h-full"
       [class.w-90]="menuVisible() || isMobile()"
       [class.lg:w-20]="!menuVisible() && !isMobile()"
       [class.max-lg:-translate-x-full]="!menuVisible() && isMobile()"
@@ -39,14 +39,14 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
               [text]="true"
               (onClick)="toggleMenu.emit()"
               [styleClass]="menuVisible()
-                ? '!text-[var(--ces-foreground-muted)] hover:!bg-[var(--ces-brand-soft)] hover:!text-[var(--ces-brand)] !w-full !h-11 !p-0 !rounded-xl !flex !justify-center !items-center !border-0 transition-all'
-                : '!text-[var(--ces-foreground-muted)] hover:!bg-[var(--ces-brand-soft)] hover:!text-[var(--ces-brand)] !w-full !h-12 !p-0 !rounded-xl !flex !justify-center !items-center !border-0 transition-all'"
+                ? '!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-full !h-11 !p-0 !rounded-xl !flex !justify-center !items-center !border-0 transition-all'
+                : '!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-full !h-12 !p-0 !rounded-xl !flex !justify-center !items-center !border-0 transition-all'"
             ></p-button>
           </div>
 
           <!-- Aligned Separator -->
           <div class="px-6 mb-4">
-            <div class="h-px bg-[var(--ces-border)] w-full"></div>
+            <div class="h-px bg-[var(--geo-border)] w-full"></div>
           </div>
         }
 
@@ -56,12 +56,12 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
             @if (copilotoItem(); as item) {
               <a pRipple
                  [routerLink]="item.routerLink"
-                 class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--ces-foreground-muted)] hover:bg-[var(--ces-surface-muted)] hover:text-[var(--ces-foreground)] ces-sidebar-destaque"
-                 [class.ces-sidebar-active-link]="isItemActive(item)"
+                 class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)] geo-sidebar-destaque"
+                 [class.geo-sidebar-active-link]="isItemActive(item)"
                  (click)="onItemClick(item)">
-                <i [class]="item.icon + ' text-[var(--ces-foreground-subtle)] group-hover:text-[var(--ces-brand)] transition-colors'" [class.!text-[var(--ces-brand)]]="isItemActive(item)"></i>
+                <i [class]="item.icon + ' text-[var(--geo-foreground-subtle)] group-hover:text-[var(--geo-brand)] transition-colors'" [class.!text-[var(--geo-brand)]]="isItemActive(item)"></i>
                 <span class="ms-3 text-[11px] font-medium">{{ item.label }}</span>
-                @if (item.badge) { <span class="ces-sidebar-badge">{{ item.badge }}</span> }
+                @if (item.badge) { <span class="geo-sidebar-badge">{{ item.badge }}</span> }
               </a>
             }
             <p-panelmenu [model]="panelItems()" class="!border-0 !w-full custom-panelmenu">
@@ -70,31 +70,31 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
                   <a pRipple
                      [routerLink]="item.routerLink"
                      [queryParams]="item.queryParams"
-                     class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--ces-foreground-muted)] hover:bg-[var(--ces-surface-muted)] hover:text-[var(--ces-foreground)]"
-                     [class.ces-sidebar-active-link]="isItemActive(item)"
-                     [class.ces-sidebar-destaque]="item.styleClass === 'ces-sidebar-destaque'"
+                     class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)]"
+                     [class.geo-sidebar-active-link]="isItemActive(item)"
+                     [class.geo-sidebar-destaque]="item.styleClass === 'geo-sidebar-destaque'"
                      (click)="onItemClick(item)">
-                    <i [class]="item.icon + ' text-[var(--ces-foreground-subtle)] group-hover:text-[var(--ces-brand)] transition-colors'" [class.!text-[var(--ces-brand)]]="isItemActive(item)"></i>
-                    <span class="ms-3 text-[11px] font-medium text-[var(--ces-foreground-muted)] group-hover:text-[var(--ces-foreground)]" [class.!text-[var(--ces-brand)]]="isItemActive(item)" [class.!font-bold]="isItemActive(item)">{{ item.label }}</span>
-                    @if (item.badge) { <span class="ces-sidebar-badge">{{ item.badge }}</span> }
+                    <i [class]="item.icon + ' text-[var(--geo-foreground-subtle)] group-hover:text-[var(--geo-brand)] transition-colors'" [class.!text-[var(--geo-brand)]]="isItemActive(item)"></i>
+                    <span class="ms-3 text-[11px] font-medium text-[var(--geo-foreground-muted)] group-hover:text-[var(--geo-foreground)]" [class.!text-[var(--geo-brand)]]="isItemActive(item)" [class.!font-bold]="isItemActive(item)">{{ item.label }}</span>
+                    @if (item.badge) { <span class="geo-sidebar-badge">{{ item.badge }}</span> }
                   </a>
                 } @else if (item.url) {
                   <a pRipple
                      [href]="item.url"
                      [target]="item.target || '_self'"
-                     class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--ces-foreground-muted)] hover:bg-[var(--ces-surface-muted)] hover:text-[var(--ces-foreground)]"
+                     class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)]"
                      (click)="onItemClick(item)">
-                    <i [class]="item.icon + ' text-[var(--ces-foreground-subtle)] group-hover:text-[var(--ces-brand)] transition-colors'"></i>
-                    <span class="ms-3 text-[11px] font-medium text-[var(--ces-foreground-muted)] group-hover:text-[var(--ces-foreground)]">{{ item.label }}</span>
+                    <i [class]="item.icon + ' text-[var(--geo-foreground-subtle)] group-hover:text-[var(--geo-brand)] transition-colors'"></i>
+                    <span class="ms-3 text-[11px] font-medium text-[var(--geo-foreground-muted)] group-hover:text-[var(--geo-foreground)]">{{ item.label }}</span>
                   </a>
                 } @else {
                   <a pRipple
-                     class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--ces-foreground-muted)] hover:bg-[var(--ces-surface-muted)] hover:text-[var(--ces-foreground)]"
+                     class="flex items-center px-3.5 py-2.5 my-0.5 cursor-pointer group rounded-xl transition-all duration-150 text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-muted)] hover:text-[var(--geo-foreground)]"
                      (click)="onItemClick(item)">
-                    <i [class]="item.icon + ' text-[var(--ces-foreground-subtle)] group-hover:text-[var(--ces-brand)] transition-colors'"></i>
-                    <span class="ms-3 text-[11px] font-medium text-[var(--ces-foreground-muted)] group-hover:text-[var(--ces-foreground)]">{{ item.label }}</span>
+                    <i [class]="item.icon + ' text-[var(--geo-foreground-subtle)] group-hover:text-[var(--geo-brand)] transition-colors'"></i>
+                    <span class="ms-3 text-[11px] font-medium text-[var(--geo-foreground-muted)] group-hover:text-[var(--geo-foreground)]">{{ item.label }}</span>
                     @if (item.items && item.items.length > 0) {
-                      <i class="pi pi-chevron-down ms-auto text-[10px] text-[var(--ces-foreground-subtle)] group-hover:text-[var(--ces-brand)] transition-transform"
+                      <i class="pi pi-chevron-down ms-auto text-[10px] text-[var(--geo-foreground-subtle)] group-hover:text-[var(--geo-brand)] transition-transform"
                         [class.rotate-180]="item.expanded"></i>
                     }
                   </a>
@@ -116,8 +116,8 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
                   (onClick)="onExpandAndFocus(item)"
                   [styleClass]="'!w-12 !h-12 !p-0 !rounded-xl !text-xl transition-all ' +
                     (isItemActive(item)
-                      ? '!bg-[var(--ces-brand-soft)] !text-[var(--ces-brand)]'
-                      : '!text-[var(--ces-foreground-muted)] hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)]')"
+                      ? '!bg-[var(--geo-brand-soft)] !text-[var(--geo-brand)]'
+                      : '!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)]')"
                 ></p-button>
               </div>
               }
@@ -135,8 +135,8 @@ export class SidebarComponent {
   isMobile = input<boolean>(false);
   menuVisible = input<boolean>(false);
   menuItems = model<MenuItem[]>([]);
-  protected readonly copilotoItem = computed(() => this.menuItems().find((item) => item.routerLink === '/copiloto' && item.visible !== false));
-  protected readonly panelItems = computed(() => this.menuItems().filter((item) => item.routerLink !== '/copiloto'));
+  protected readonly copilotoItem = computed(() => this.menuItems().find((item) => item.routerLink === '/bussola' && item.visible !== false));
+  protected readonly panelItems = computed(() => this.menuItems().filter((item) => item.routerLink !== '/bussola'));
 
   toggleMenu = output<void>();
   expandAndFocus = output<MenuItem>();

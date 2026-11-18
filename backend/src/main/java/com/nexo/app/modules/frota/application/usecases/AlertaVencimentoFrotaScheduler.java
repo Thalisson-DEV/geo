@@ -14,7 +14,7 @@ public class AlertaVencimentoFrotaScheduler {
 
     private final AlertaVencimentoFrotaUseCases useCases;
 
-    @Scheduled(cron = "${ces.frota.vencimentos-cron:0 20 4 * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.vencimentos-cron:0 20 4 * * *}", zone = "America/Sao_Paulo")
     public void processar() {
         useCases.processar(LocalDate.now(ZoneId.of("America/Sao_Paulo")));
     }

@@ -96,7 +96,7 @@ describe('ChamadosListaComponent', () => {
       ])
     );
     const { el } = await abrir('central');
-    const prazos = Array.from(el.querySelectorAll('ces-status[data-emphasis="outline"]')).map((s) => s.textContent!.trim());
+    const prazos = Array.from(el.querySelectorAll('geo-status[data-emphasis="outline"]')).map((s) => s.textContent!.trim());
     expect(prazos).toEqual(expect.arrayContaining(['Vencido', 'No prazo']));
   });
 

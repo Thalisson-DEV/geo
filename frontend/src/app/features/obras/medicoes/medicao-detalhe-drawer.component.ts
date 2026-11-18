@@ -3,18 +3,18 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesStatusComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoStatusComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ItemMedido, MedicaoDetalhe } from '../../../core/models/obras-medicoes.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -29,27 +29,27 @@ import { STATUS_MEDICAO, TIPO_MEDICAO, rotuloCompetencia } from './medicoes.logi
   imports: [
     DatePipe,
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesStatusComponent,
-    CesTextareaComponent
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="aberto" [title]="m() ? 'Medição #' + m()!.medicao.numero : 'Medição'"
+    <geo-form-drawer [(visible)]="aberto" [title]="m() ? 'Medição #' + m()!.medicao.numero : 'Medição'"
       [description]="m() ? m()!.medicao.numeroObra + ' — ' + m()!.medicao.tituloObra : undefined" [dirty]="estornando() && !!justificativa().trim()" size="lg">
       @if (erro(); as mensagem) {
-        <ces-async-state state="error" title="Não foi possível abrir a medição" [description]="mensagem"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível abrir a medição" [description]="mensagem"></geo-async-state>
       } @else if (!m()) {
-        <ces-async-state state="loading" title="Abrindo a medição" [compact]="true"></ces-async-state>
+        <geo-async-state state="loading" title="Abrindo a medição" [compact]="true"></geo-async-state>
       } @else {
         @let medicao = m()!.medicao;
         <div class="medicao__topo">
-          <ces-status [tone]="status[medicao.status].tom" [icon]="status[medicao.status].icone">{{ status[medicao.status].rotulo }}</ces-status>
+          <geo-status [tone]="status[medicao.status].tom" [icon]="status[medicao.status].icone">{{ status[medicao.status].rotulo }}</geo-status>
           <a class="medicao__link" [routerLink]="['/obras', medicao.idObra]"><i class="pi pi-building" aria-hidden="true"></i> Ficha da obra</a>
         </div>
         <dl class="medicao__dados">
@@ -61,47 +61,47 @@ import { STATUS_MEDICAO, TIPO_MEDICAO, rotuloCompetencia } from './medicoes.logi
           @if (medicao.observacao) { <div class="medicao__larga"><dt>Observação</dt><dd>{{ medicao.observacao }}</dd></div> }
         </dl>
         @if (medicao.status === 'ESTORNADA') {
-          <ces-callout tone="neutral" icon="pi pi-undo" [dense]="true"
+          <geo-callout tone="neutral" icon="pi pi-undo" [dense]="true"
             [title]="'Estornada em ' + (medicao.dataEstorno | date: 'dd/MM/yyyy HH:mm') + ' por ' + medicao.usuarioEstorno">
             {{ medicao.justificativaEstorno }}. Os serviços voltaram a concluídos e podem entrar em outra medição.
-          </ces-callout>
+          </geo-callout>
         }
 
-        <ces-form-section title="Serviços medidos" icon="pi pi-list-check">
-          <ces-data-table caption="Serviços medidos" [columns]="colunas" [rows]="m()!.itens" [rowKey]="chave" [rowLabel]="rotulo"
+        <geo-form-section title="Serviços medidos" icon="pi pi-list-check">
+          <geo-data-table caption="Serviços medidos" [columns]="colunas" [rows]="m()!.itens" [rowKey]="chave" [rowLabel]="rotulo"
             [pageSizeOptions]="[25, 50, 100]" [pageSize]="25" [exportFileName]="'medicao-' + medicao.numero">
-            <ng-template cesCell="servico" let-row>
-              <span class="ces-cell-strong">{{ row.descricao }}</span>
-              <span class="ces-cell-muted">{{ row.codigo }} · {{ row.codigoKit }}</span>
+            <ng-template geoCell="servico" let-row>
+              <span class="geo-cell-strong">{{ row.descricao }}</span>
+              <span class="geo-cell-muted">{{ row.codigo }} · {{ row.codigoKit }}</span>
             </ng-template>
-          </ces-data-table>
-        </ces-form-section>
+          </geo-data-table>
+        </geo-form-section>
 
         @if (estornando()) {
-          <ces-form-section title="Estornar a medição" icon="pi pi-undo" description="Os serviços voltam a concluídos e a medição fica no histórico como estornada.">
-            <ces-textarea label="Justificativa" [required]="true" [rows]="3" [maxlength]="1000" [(value)]="justificativa"
-              placeholder="Ex.: valor contestado pela fiscalização" [error]="tentou() && !justificativa().trim() ? 'Informe a justificativa do estorno.' : undefined"></ces-textarea>
-          </ces-form-section>
+          <geo-form-section title="Estornar a medição" icon="pi pi-undo" description="Os serviços voltam a concluídos e a medição fica no histórico como estornada.">
+            <geo-textarea label="Justificativa" [required]="true" [rows]="3" [maxlength]="1000" [(value)]="justificativa"
+              placeholder="Ex.: valor contestado pela fiscalização" [error]="tentou() && !justificativa().trim() ? 'Informe a justificativa do estorno.' : undefined"></geo-textarea>
+          </geo-form-section>
         }
       }
-      <div drawer-footer class="ces-actions-row">
+      <div drawer-footer class="geo-actions-row">
         @if (estornando()) {
-          <ces-button variant="ghost" label="Voltar" (pressed)="estornando.set(false)"></ces-button>
-          <ces-button variant="destructive" icon="pi pi-undo" label="Estornar medição" [loading]="salvando()" (pressed)="estornar()"></ces-button>
+          <geo-button variant="ghost" label="Voltar" (pressed)="estornando.set(false)"></geo-button>
+          <geo-button variant="destructive" icon="pi pi-undo" label="Estornar medição" [loading]="salvando()" (pressed)="estornar()"></geo-button>
         } @else {
-          <ces-button variant="ghost" label="Fechar" (pressed)="aberto.set(false)"></ces-button>
+          <geo-button variant="ghost" label="Fechar" (pressed)="aberto.set(false)"></geo-button>
           @if (podeEstornar()) {
-            <ces-button variant="outline" icon="pi pi-undo" label="Estornar" (pressed)="iniciarEstorno()"></ces-button>
+            <geo-button variant="outline" icon="pi pi-undo" label="Estornar" (pressed)="iniciarEstorno()"></geo-button>
           }
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
     .medicao__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
-    .medicao__link { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--ces-brand); font-size: var(--ces-font-body); }
+    .medicao__link { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--geo-brand); font-size: var(--geo-font-body); }
     .medicao__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem 1rem; margin: 0 0 1rem; }
-    .medicao__dados dt { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .medicao__dados dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .medicao__dados dd { margin: 0.15rem 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
     .medicao__larga { grid-column: 1 / -1; }
   `
@@ -129,7 +129,7 @@ export class MedicaoDetalheDrawerComponent {
   protected readonly salvando = signal(false);
   protected readonly podeEstornar = computed(() => this.podeGravar && this.m()?.medicao.status === 'GERADA');
 
-  protected readonly colunas: CesDataTableColumn<ItemMedido>[] = [
+  protected readonly colunas: GeoDataTableColumn<ItemMedido>[] = [
     { key: 'servico', header: 'Serviço', type: 'custom', priority: 1, value: (i) => i.descricao, display: (i) => `${i.descricao ?? ''} (${i.codigo ?? ''})` },
     { key: 'local', header: 'Local', value: (i) => i.local },
     { key: 'quantidade', header: 'Qtd.', type: 'number', value: (i) => i.quantidade, display: (i) => `${i.quantidade.toLocaleString('pt-BR')} ${i.unidade ?? ''}`.trim() },

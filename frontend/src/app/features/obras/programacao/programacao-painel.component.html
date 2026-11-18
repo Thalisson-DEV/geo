@@ -1,14 +1,14 @@
-<div class="ces-page">
-  <ces-page-header title="Programação" icon="pi pi-calendar" [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação', route: '/obras/programacao' }, { label: 'Painel' }]"
+<div class="geo-page">
+  <geo-page-header title="Programação" icon="pi pi-calendar" [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação', route: '/obras/programacao' }, { label: 'Painel' }]"
     description="Se o programado virou execução, o que mudou e por quê, quem está livre e o que falta programar.">
     @if (d(); as p) {
       <span actions class="pp-atualizado">Atualizado às {{ p.geradoEm | date: 'HH:mm' }}</span>
     }
-    <ces-button actions variant="outline" icon="pi pi-refresh" label="Atualizar" [loading]="estado().carregando" (pressed)="atualizar()"></ces-button>
+    <geo-button actions variant="outline" icon="pi pi-refresh" label="Atualizar" [loading]="estado().carregando" (pressed)="atualizar()"></geo-button>
     @if (podeEditar) {
-      <ces-button actions icon="pi pi-plus" label="Nova programação" (pressed)="novaProgramacao()"></ces-button>
+      <geo-button actions icon="pi pi-plus" label="Nova programação" (pressed)="novaProgramacao()"></geo-button>
     }
-  </ces-page-header>
+  </geo-page-header>
 
 
   <section class="pp-recorte" aria-label="Recorte do painel">
@@ -19,17 +19,17 @@
       }
     </div>
     <div class="pp-recorte__campos">
-      <ces-datepicker label="De" [value]="inicio()" (valueChange)="definirData('inicio', $any($event))"></ces-datepicker>
-      <ces-datepicker label="Até" [value]="fim()" [minDate]="inicio()" (valueChange)="definirData('fim', $any($event))"></ces-datepicker>
-      <ces-select label="Base operacional" [options]="bases()" [value]="idBase()" (valueChange)="definirBase($any($event))" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
-      <ces-select label="Tipo de equipe" [options]="tipos()" [value]="idTipoEquipe()" (valueChange)="definirTipo($any($event))" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
+      <geo-datepicker label="De" [value]="inicio()" (valueChange)="definirData('inicio', $any($event))"></geo-datepicker>
+      <geo-datepicker label="Até" [value]="fim()" [minDate]="inicio()" (valueChange)="definirData('fim', $any($event))"></geo-datepicker>
+      <geo-select label="Base operacional" [options]="bases()" [value]="idBase()" (valueChange)="definirBase($any($event))" [clearable]="true" [filter]="true" placeholder="Todas"></geo-select>
+      <geo-select label="Tipo de equipe" [options]="tipos()" [value]="idTipoEquipe()" (valueChange)="definirTipo($any($event))" [clearable]="true" [filter]="true" placeholder="Todos"></geo-select>
     </div>
   </section>
 
   @if (estado().carregando && !d()) {
-    <ces-async-state state="loading" title="Montando o painel da programação" description="Lendo programações, execução, mudanças e a agenda dos próximos dias."></ces-async-state>
+    <geo-async-state state="loading" title="Montando o painel da programação" description="Lendo programações, execução, mudanças e a agenda dos próximos dias."></geo-async-state>
   } @else if (estado().erro && !d()) {
-    <ces-async-state state="error" title="Não foi possível montar o painel" [description]="estado().erro!" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="atualizar()"></ces-async-state>
+    <geo-async-state state="error" title="Não foi possível montar o painel" [description]="estado().erro!" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="atualizar()"></geo-async-state>
   } @else if (d(); as p) {
     @let t = p.totais;
     <div class="pp-conteudo" [attr.aria-busy]="estado().carregando">
@@ -68,8 +68,8 @@
               <p>Valor das programações pelo dia em que começam, e quanto delas já foi executado. Clique numa barra para abrir a agenda.</p>
             </div>
           </header>
-          <ces-chart kind="bar" title="Programado e realizado no tempo" [showTitle]="false" [labels]="serieTempo().rotulos" [series]="serieTempo().series"
-            valueFormat="currency" [height]="280" [selectable]="true" selectLabel="Abrir agenda" (pointSelect)="selecionarDiaDaSerie($event)"></ces-chart>
+          <geo-chart kind="bar" title="Programado e realizado no tempo" [showTitle]="false" [labels]="serieTempo().rotulos" [series]="serieTempo().series"
+            valueFormat="currency" [height]="280" [selectable]="true" selectLabel="Abrir agenda" (pointSelect)="selecionarDiaDaSerie($event)"></geo-chart>
         </article>
         <article class="dash-panel dash-col-4">
           <header class="dash-panel__header">
@@ -78,8 +78,8 @@
               <p>Todas as programações do período, inclusive as canceladas.</p>
             </div>
           </header>
-          <ces-chart kind="doughnut" title="Programações por situação" [showTitle]="false" [labels]="serieSituacao().rotulos" [series]="serieSituacao().series"
-            valueFormat="integer" [height]="240"></ces-chart>
+          <geo-chart kind="doughnut" title="Programações por situação" [showTitle]="false" [labels]="serieSituacao().rotulos" [series]="serieSituacao().series"
+            valueFormat="integer" [height]="240"></geo-chart>
           <ul class="pp-flags">
             <li><i class="pi pi-bolt" aria-hidden="true"></i> {{ t.linhaViva }} em linha viva</li>
             <li><i class="pi pi-power-off" aria-hidden="true"></i> {{ t.desligamentos }} com desligamento</li>
@@ -160,15 +160,15 @@
                       <td class="pp-num">{{ e.programacoes }}</td>
                       <td>
                         <span class="pp-sinais">
-                          @if (e.atrasadas) { <ces-status tone="danger" icon="pi pi-exclamation-triangle">{{ e.atrasadas }} atrasada{{ e.atrasadas === 1 ? '' : 's' }}</ces-status> }
-                          @if (e.sobreposicoes) { <ces-status tone="warning" icon="pi pi-clone">{{ e.sobreposicoes }} dia{{ e.sobreposicoes === 1 ? '' : 's' }} sobreposto{{ e.sobreposicoes === 1 ? '' : 's' }}</ces-status> }
-                          @if (e.reprogramacoes) { <ces-status tone="info" icon="pi pi-calendar-clock">{{ e.reprogramacoes }} reprog.</ces-status> }
-                          @if (!e.programacoes) { <ces-status tone="neutral" icon="pi pi-pause">Livre</ces-status> }
+                          @if (e.atrasadas) { <geo-status tone="danger" icon="pi pi-exclamation-triangle">{{ e.atrasadas }} atrasada{{ e.atrasadas === 1 ? '' : 's' }}</geo-status> }
+                          @if (e.sobreposicoes) { <geo-status tone="warning" icon="pi pi-clone">{{ e.sobreposicoes }} dia{{ e.sobreposicoes === 1 ? '' : 's' }} sobreposto{{ e.sobreposicoes === 1 ? '' : 's' }}</geo-status> }
+                          @if (e.reprogramacoes) { <geo-status tone="info" icon="pi pi-calendar-clock">{{ e.reprogramacoes }} reprog.</geo-status> }
+                          @if (!e.programacoes) { <geo-status tone="neutral" icon="pi pi-pause">Livre</geo-status> }
                         </span>
                       </td>
                       <td>
                         @if (podeEditar && (!e.programacoes || (e.ocupacao ?? 0) < 50)) {
-                          <ces-button size="sm" variant="ghost" icon="pi pi-calendar-plus" label="Programar" (pressed)="novaProgramacao({ idEquipe: e.idEquipe })"></ces-button>
+                          <geo-button size="sm" variant="ghost" icon="pi pi-calendar-plus" label="Programar" (pressed)="novaProgramacao({ idEquipe: e.idEquipe })"></geo-button>
                         }
                       </td>
                     </tr>
@@ -185,7 +185,7 @@
               <h2><i class="pi pi-comments pp-icone" aria-hidden="true"></i> Por que a agenda muda</h2>
               <p>Motivos informados nas reprogramações, cancelamentos e exclusões do período.</p>
             </div>
-            <ces-button size="sm" variant="ghost" icon="pi pi-history" label="Histórico" (pressed)="irParaHistorico()"></ces-button>
+            <geo-button size="sm" variant="ghost" icon="pi pi-history" label="Histórico" (pressed)="irParaHistorico()"></geo-button>
           </header>
           @if (!p.motivos.length) {
             <div class="dash-empty dash-empty--tight"><i class="pi pi-check-circle" aria-hidden="true"></i>Nenhuma reprogramação ou cancelamento no período.</div>
@@ -233,7 +233,7 @@
                 <li>
                   <button type="button" (click)="abrir(a.id)">
                     <span class="pp-lista__principal"><strong>#{{ a.numero }} · {{ a.numeroObra }}</strong><small>{{ a.tituloObra }}</small></span>
-                    <span class="pp-lista__lado"><ces-status tone="danger" icon="pi pi-clock">{{ diasDeAtraso(a) }} {{ diasDeAtraso(a) === 1 ? 'dia' : 'dias' }}</ces-status><small>{{ a.codigoEquipe }} · até {{ a.fim }}</small></span>
+                    <span class="pp-lista__lado"><geo-status tone="danger" icon="pi pi-clock">{{ diasDeAtraso(a) }} {{ diasDeAtraso(a) === 1 ? 'dia' : 'dias' }}</geo-status><small>{{ a.codigoEquipe }} · até {{ a.fim }}</small></span>
                   </button>
                 </li>
               }
@@ -258,7 +258,7 @@
                     <a class="pp-lista__principal" [routerLink]="['/obras', o.idObra, 'planejamento']"><strong>{{ o.numero }}</strong><small>{{ o.titulo }}</small></a>
                     <span class="pp-lista__lado"><strong>{{ moeda(o.valorPendente) }}</strong><small>{{ (o.prazoRegulado ?? o.prazoPrevisto) ? 'Prazo ' + (o.prazoRegulado ?? o.prazoPrevisto) : 'Sem prazo' }} · {{ numero(o.percentualProgramado) }}% programado</small></span>
                     @if (podeEditar) {
-                      <ces-button size="sm" variant="outline" icon="pi pi-calendar-plus" label="Programar" (pressed)="novaProgramacao({ idObra: o.idObra })"></ces-button>
+                      <geo-button size="sm" variant="outline" icon="pi pi-calendar-plus" label="Programar" (pressed)="novaProgramacao({ idObra: o.idObra })"></geo-button>
                     }
                   </div>
                 </li>
@@ -277,8 +277,8 @@
                 <p>Valor programado e realizado em cada base. Clique numa base para filtrar o painel.</p>
               </div>
             </header>
-            <ces-chart kind="bar-horizontal" title="Programado e realizado por base" [showTitle]="false" [labels]="serieBases().rotulos" [series]="serieBases().series"
-              valueFormat="currency" [height]="alturaBases()" [selectable]="true" selectLabel="Filtrar base" (pointSelect)="selecionarBase($event)"></ces-chart>
+            <geo-chart kind="bar-horizontal" title="Programado e realizado por base" [showTitle]="false" [labels]="serieBases().rotulos" [series]="serieBases().series"
+              valueFormat="currency" [height]="alturaBases()" [selectable]="true" selectLabel="Filtrar base" (pointSelect)="selecionarBase($event)"></geo-chart>
           </article>
         </section>
       }

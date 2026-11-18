@@ -12,7 +12,7 @@ public class AlertaDocumentoSstScheduler {
 
     private final DocumentoSstUseCases useCases;
 
-    @Scheduled(cron = "${ces.sst.governanca.documentos.alertas-cron:0 10 4 * * *}")
+    @Scheduled(cron = "${geo.sst.governanca.documentos.alertas-cron:0 10 4 * * *}")
     public void processar() {
         useCases.processarAlertas(LocalDate.now());
     }

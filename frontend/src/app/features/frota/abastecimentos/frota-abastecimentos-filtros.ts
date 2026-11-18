@@ -1,11 +1,11 @@
 import { inject, signal } from '@angular/core';
-import { CesSelectOption, cesFilter, cesListState } from '@ces/ui';
+import { GeoSelectOption, geoFilter, geoListState } from '@geo/ui';
 import { of } from 'rxjs';
 import { OrigemAbastecimento, SituacaoAbastecimento } from '../../../core/models/frota-abastecimento.models';
 import { FrotaAbastecimentoService } from '../../../core/services/frota-abastecimento.service';
 import { basesFrota } from '../shared/frota-lista';
 
-export const SITUACOES_ABASTECIMENTO: CesSelectOption<SituacaoAbastecimento>[] = [
+export const SITUACOES_ABASTECIMENTO: GeoSelectOption<SituacaoAbastecimento>[] = [
   { label: 'Aguardando aprovação', value: 'AGUARDANDO_APROVACAO' },
   { label: 'Aprovada', value: 'APROVADA' },
   { label: 'Liberada', value: 'LIBERADA' },
@@ -15,13 +15,13 @@ export const SITUACOES_ABASTECIMENTO: CesSelectOption<SituacaoAbastecimento>[] =
   { label: 'Vencida', value: 'VENCIDA' }
 ];
 
-export const OPCOES_ORIGEM: CesSelectOption<OrigemAbastecimento | null>[] = [
+export const OPCOES_ORIGEM: GeoSelectOption<OrigemAbastecimento | null>[] = [
   { label: 'Todas', value: null },
   { label: 'Pedido pelo app', value: 'APP' },
   { label: 'Avulso', value: 'AVULSA' }
 ];
 
-export const OPCOES_ALERTA: CesSelectOption<boolean | null>[] = [
+export const OPCOES_ALERTA: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Com alerta', value: true },
   { label: 'Sem alerta', value: false }
@@ -35,29 +35,29 @@ export const OPCOES_ALERTA: CesSelectOption<boolean | null>[] = [
 export function filtrosAbastecimento() {
   const servico = inject(FrotaAbastecimentoService);
   const bases = basesFrota();
-  const opcoesPosto = signal<CesSelectOption<string | null>[]>([]);
+  const opcoesPosto = signal<GeoSelectOption<string | null>[]>([]);
   servico.postos(true).subscribe({
     next: (p) =>
       opcoesPosto.set(p.content.filter((x) => x.ativo).map((x) => ({ label: x.baseNome ? `${x.nome} · ${x.baseNome}` : x.nome, value: x.id }))),
     error: () => undefined
   });
 
-  const estado = cesListState({
+  const estado = geoListState({
     storageKey: 'frota-abastecimentos',
     rememberFilters: 'frota-abastecimentos',
     filters: {
-      situacoes: cesFilter.list<SituacaoAbastecimento>([], {
+      situacoes: geoFilter.list<SituacaoAbastecimento>([], {
         label: 'Situação',
         param: 'situacao',
         itemLabel: (s) => SITUACOES_ABASTECIMENTO.find((o) => o.value === s)?.label ?? s,
         countLabel: (n) => `${n} selecionadas`
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
-      idPosto: cesFilter.value<string | null>(null, { label: 'Posto', param: 'posto', options: () => opcoesPosto() }),
-      de: cesFilter.date(null, { label: 'De' }),
-      ate: cesFilter.date(null, { label: 'Até' }),
-      comAlerta: cesFilter.value<boolean | null>(null, { label: 'Alertas', param: 'alerta', options: () => OPCOES_ALERTA }),
-      origem: cesFilter.value<OrigemAbastecimento | null>(null, { label: 'Origem', param: 'origem', options: () => OPCOES_ORIGEM })
+      idsBase: geoFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idPosto: geoFilter.value<string | null>(null, { label: 'Posto', param: 'posto', options: () => opcoesPosto() }),
+      de: geoFilter.date(null, { label: 'De' }),
+      ate: geoFilter.date(null, { label: 'Até' }),
+      comAlerta: geoFilter.value<boolean | null>(null, { label: 'Alertas', param: 'alerta', options: () => OPCOES_ALERTA }),
+      origem: geoFilter.value<OrigemAbastecimento | null>(null, { label: 'Origem', param: 'origem', options: () => OPCOES_ORIGEM })
     }
   });
   // Sem consulta própria: a "carga" vazia só grava o recorte aplicado na URL; as abas consultam.

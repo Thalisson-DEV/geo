@@ -36,8 +36,8 @@ public class SenhaAdministradorPadraoService {
     public SenhaAdministradorPadraoService(UsuarioRepository repository,
                                            PasswordEncoder passwordEncoder,
                                            SessaoAutenticacaoUseCases sessoes,
-                                           @Value("${ces.security.admin-padrao.login:USRADMIN}") String login,
-                                           @Value("${ces.security.admin-padrao.senha:}") String senha) {
+                                           @Value("${geo.security.admin-padrao.login:USRADMIN}") String login,
+                                           @Value("${geo.security.admin-padrao.senha:}") String senha) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.sessoes = sessoes;

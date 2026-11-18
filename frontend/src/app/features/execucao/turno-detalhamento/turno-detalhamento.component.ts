@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { CesAsyncStateComponent, CesChartComponent, CesStatusComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoChartComponent, GeoStatusComponent } from '@geo/ui';
 
 import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
@@ -44,9 +44,9 @@ import { imprimirSempreNoTemaClaro } from '../relatorios/relatorio-impressao';
   imports: [
     CommonModule,
     ButtonModule,
-    CesAsyncStateComponent,
-    CesChartComponent,
-    CesStatusComponent
+    GeoAsyncStateComponent,
+    GeoChartComponent,
+    GeoStatusComponent
   ],
   templateUrl: './turno-detalhamento.component.html',
   styleUrl: '../relatorios/relatorio.css'

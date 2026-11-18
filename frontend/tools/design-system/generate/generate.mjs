@@ -16,19 +16,19 @@ const HELP_FLAGS = new Set(['--help', '-h']);
 const KIND_CONFIG = Object.freeze({
   primitive: {
     sourceArea: 'primitives',
-    publicEntrypoint: '@ces/ui',
+    publicEntrypoint: '@geo/ui',
     catalogGroup: 'Primitives',
     coverage: 'Primitive simples: unitário + axe + visual + teclado.',
   },
   form: {
     sourceArea: 'forms',
-    publicEntrypoint: '@ces/ui/forms',
+    publicEntrypoint: '@geo/ui/forms',
     catalogGroup: 'Forms',
     coverage: 'Form: unitário + interação + axe + foco manual.',
   },
   pattern: {
     sourceArea: 'patterns',
-    publicEntrypoint: '@ces/ui/patterns',
+    publicEntrypoint: '@geo/ui/patterns',
     catalogGroup: 'Patterns',
     coverage: 'Pattern offline, quando aplicável: unitário + integração de fila + E2E do fluxo.',
   },
@@ -193,7 +193,7 @@ export const buildPlan = ({ kind, name, repositoryRoot = DEFAULT_REPOSITORY_ROOT
   validateRequest(kind, name);
 
   const config = KIND_CONFIG[kind];
-  const className = `Ces${toPascalCase(name)}`;
+  const className = `Geo${toPascalCase(name)}`;
   const componentDir = resolve(
     repositoryRoot,
     'src',
@@ -218,7 +218,7 @@ export const buildPlan = ({ kind, name, repositoryRoot = DEFAULT_REPOSITORY_ROOT
     kind,
     name,
     className,
-    selector: `ces-${name}`,
+    selector: `geo-${name}`,
     repositoryRoot,
     componentDir,
     files: GENERATED_FILES.map(({ template, suffix, fixedName }) => ({
@@ -256,7 +256,7 @@ export const generate = async ({
   if (!dryRun) {
     const temporaryDir = join(
       dirname(plan.componentDir),
-      `.${basename(plan.componentDir)}.ces-generate-${randomUUID()}`,
+      `.${basename(plan.componentDir)}.geo-generate-${randomUUID()}`,
     );
     assertInsideRepository(plan.repositoryRoot, temporaryDir);
 

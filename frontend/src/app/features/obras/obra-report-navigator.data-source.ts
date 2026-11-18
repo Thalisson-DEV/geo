@@ -1,27 +1,27 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../design-system/patterns/report-navigator/report-navigator.models';
 import { ObraResumoResponse } from '../../core/models/obras.models';
 import { ObrasService } from '../../core/services/obras.service';
 
 @Injectable({ providedIn: 'root' })
 export class ObraReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<ObraResumoResponse>
+  implements GeoReportNavigatorDataSource<ObraResumoResponse>
 {
   private readonly service = inject(ObrasService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODAS',
     sort: 'dataInicio,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Obras e Projetos',
     icon: 'pi pi-building',
     eyebrow: 'Navegador',
@@ -42,8 +42,8 @@ export class ObraReportNavigatorDataSource
   };
 
   load(
-    criteria: CesReportNavigatorCriteria
-  ): Observable<CesReportNavigatorPage<ObraResumoResponse>> {
+    criteria: GeoReportNavigatorCriteria
+  ): Observable<GeoReportNavigatorPage<ObraResumoResponse>> {
     const page = 0;
     const size = 50;
 
@@ -68,7 +68,7 @@ export class ObraReportNavigatorDataSource
     );
   }
 
-  toItem(raw: ObraResumoResponse): CesReportNavigatorItem {
+  toItem(raw: ObraResumoResponse): GeoReportNavigatorItem {
     return {
       id: raw.id,
       number: raw.numero || `#${raw.id.substring(0, 8)}`,
@@ -97,7 +97,7 @@ export class ObraReportNavigatorDataSource
     };
   }
 
-  getRouteForItem(item: CesReportNavigatorItem | ObraResumoResponse): any[] {
+  getRouteForItem(item: GeoReportNavigatorItem | ObraResumoResponse): any[] {
     const id = (item as any).id;
     return ['/obras', id];
   }

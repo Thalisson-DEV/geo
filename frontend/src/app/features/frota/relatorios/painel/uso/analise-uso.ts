@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 
 import { DetalheUsoFrota, RelatorioGerencialFrota, VeiculoRelatorioFrota } from '../../../../../core/models/frota-relatorios.models';
 import { DestaqueAnalise, KpiAnalise, TabelaAnalise, VistaAnalise, chaveDoAlvo } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -180,7 +180,7 @@ export function visaoUso(m: ModeloUso): { veredito: VereditoGerencial; leituras:
     l.push({ id: 'km', tom: 'info', icone: varKm > 0 ? 'pi pi-arrow-up-right' : 'pi pi-arrow-down-right', titulo: varKm > 0 ? 'A frota rodou mais' : 'A frota rodou menos',
       valor: `${varKm > 0 ? '+' : '−'}${pct(Math.abs(varKm), 0)}`, texto: 'Comparado ao período anterior. Confira se a produção acompanhou.', acao: { rotulo: 'Ver por mês', alvo: alvo('kpi', 'km') } });
   }
-  const tom: CesTone = m.ociosos.length > 2 || (m.custoSobreFaturamento ?? 0) > LIMITES_FROTA.custoSobreFaturamentoAtencao ? 'warning' : 'success';
+  const tom: GeoTone = m.ociosos.length > 2 || (m.custoSobreFaturamento ?? 0) > LIMITES_FROTA.custoSobreFaturamentoAtencao ? 'warning' : 'success';
   return {
     veredito: {
       tom, rotulo: tom === 'warning' ? 'Acompanhar' : 'Sob controle',
@@ -195,7 +195,7 @@ export function visaoUso(m: ModeloUso): { veredito: VereditoGerencial; leituras:
 
 // ── Análises ─────────────────────────────────────────────────────────────────────────────────────
 
-const colVeiculos: CesDataTableColumn<VeiculoUso>[] = [
+const colVeiculos: GeoDataTableColumn<VeiculoUso>[] = [
   { key: 'placa', header: 'Veículo', priority: 1 },
   { key: 'tipo', header: 'Tipo', priority: 3, value: (v) => v.tipo ?? '' },
   { key: 'classe', header: 'Uso', priority: 2, value: (v) => ROTULO_CLASSE[v.classe] },
@@ -297,7 +297,7 @@ function vistaKpi(qual: string, m: ModeloUso, chave: string): VistaAnalise | nul
     case 'producao':
     case 'custo-faturamento': {
       const proc = m.porProcesso.filter((g) => g.custoSobreFaturamento != null);
-      const colunas: CesDataTableColumn<GrupoUso>[] = [
+      const colunas: GeoDataTableColumn<GrupoUso>[] = [
         { key: 'nome', header: 'Processo', priority: 1 },
         { key: 'turnos', header: 'Turnos', type: 'integer', priority: 2 },
         { key: 'faturado', header: 'Faturado', type: 'currency', priority: 1 },
@@ -332,7 +332,7 @@ function vistaKpi(qual: string, m: ModeloUso, chave: string): VistaAnalise | nul
     case 'telemetria': {
       const tel = m.veiculos.filter((v) => v.horasLigadoParado != null).sort((a, b) => (b.horasLigadoParado ?? 0) - (a.horasLigadoParado ?? 0));
       const fora = [...tel].sort((a, b) => (b.kmForaExpediente ?? 0) - (a.kmForaExpediente ?? 0)).slice(0, 15);
-      const colunas: CesDataTableColumn<VeiculoUso>[] = [
+      const colunas: GeoDataTableColumn<VeiculoUso>[] = [
         { key: 'placa', header: 'Veículo', priority: 1 },
         { key: 'horasLigadoParado', header: 'Motor ligado parado (h)', type: 'number', priority: 1 },
         { key: 'kmForaExpediente', header: 'Km fora do expediente', type: 'number', priority: 1 },

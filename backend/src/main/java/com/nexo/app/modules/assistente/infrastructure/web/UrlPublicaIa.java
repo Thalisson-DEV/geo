@@ -8,7 +8,7 @@ import java.util.Locale;
 
 /**
  * Enderecos publicos das conexoes de IA. O GEO e servido num endereco so: o app encaminha {@code /api}
- * e {@code /.well-known} ao backend. A base vem de {@code CES_URL_PUBLICA} ou, sem ela, da requisicao
+ * e {@code /.well-known} ao backend. A base vem de {@code GEO_URL_PUBLICA} ou, sem ela, da requisicao
  * (X-Forwarded-* do proxy). Fora de localhost a base e sempre https: o proxy do app recebe http do edge.
  * Em localhost, sem configuracao, vale o endereco do app liberado no CORS.
  */
@@ -20,8 +20,8 @@ public class UrlPublicaIa {
     private final String configurada;
     private final String appLocal;
 
-    public UrlPublicaIa(@Value("${ces.conexoes-ia.url-publica:}") String configurada,
-            @Value("${ces.cors.allowed-origins:}") String origens) {
+    public UrlPublicaIa(@Value("${geo.conexoes-ia.url-publica:}") String configurada,
+            @Value("${geo.cors.allowed-origins:}") String origens) {
         this.configurada = configurada == null ? "" : configurada.strip().replaceAll("/+$", "");
         this.appLocal = primeiraOrigemLocal(origens);
     }

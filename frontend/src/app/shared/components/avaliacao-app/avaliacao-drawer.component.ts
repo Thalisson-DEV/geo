@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesFormDrawerComponent,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoFormDrawerComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import {
   FacilidadeAvaliacao,
   ProblemaAvaliacao,
@@ -37,23 +37,23 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
   selector: 'app-avaliacao-drawer',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [EstrelasAvaliacaoComponent, CesBooleanControlComponent, CesButtonComponent, CesCalloutComponent, CesFormDrawerComponent, CesTextareaComponent],
+  imports: [EstrelasAvaliacaoComponent, GeoBooleanControlComponent, GeoButtonComponent, GeoCalloutComponent, GeoFormDrawerComponent, GeoTextareaComponent],
   styleUrls: ['../../../features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao.css'],
   styles: `
     .av-nota { padding-block: 1.25rem 1rem; }
-    .av-erro { margin: 0; text-align: center; font-size: var(--ces-font-caption); color: var(--ces-danger-text); }
+    .av-erro { margin: 0; text-align: center; font-size: var(--geo-font-caption); color: var(--geo-danger-text); }
     .av-agradecimento {
       display: grid; justify-items: center; gap: 0.75rem; padding: 2.5rem 1rem; text-align: center;
     }
     .av-agradecimento__icone {
       display: inline-flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem;
-      border-radius: 999px; background: var(--ces-success-soft); color: var(--ces-success-text); font-size: 1.5rem;
+      border-radius: 999px; background: var(--geo-success-soft); color: var(--geo-success-text); font-size: 1.5rem;
     }
-    .av-agradecimento h3 { margin: 0; font-size: var(--ces-font-body); font-weight: 700; color: var(--ces-foreground); }
-    .av-agradecimento p { margin: 0; max-width: 22rem; font-size: var(--ces-font-caption); line-height: 1.6; color: var(--ces-foreground-muted); }
+    .av-agradecimento h3 { margin: 0; font-size: var(--geo-font-body); font-weight: 700; color: var(--geo-foreground); }
+    .av-agradecimento p { margin: 0; max-width: 22rem; font-size: var(--geo-font-caption); line-height: 1.6; color: var(--geo-foreground-muted); }
   `,
   template: `
-    <ces-form-drawer
+    <geo-form-drawer
       [visible]="convite.formularioAberto()"
       (visibleChange)="convite.formularioAberto.set($event)"
       title="Avaliar o GEO"
@@ -112,7 +112,7 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
               }
             </div>
             @if (problemas().length) {
-              <ces-textarea
+              <geo-textarea
                 label="Detalhes"
                 placeholder="Conte o que acontece. Ex.: a lista de notas demora para abrir de manhã"
                 [value]="problemaDetalhe()"
@@ -129,7 +129,7 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
               <h3 id="av-sec-sugestao" class="ns-secao__titulo"><i class="pi pi-lightbulb" aria-hidden="true"></i>Sugestão</h3>
               <span class="ns-secao__dica">Opcional</span>
             </div>
-            <ces-textarea
+            <geo-textarea
               label="Sugestão"
               [labelVisible]="false"
               placeholder="O que deixaria o GEO melhor para você? Uma tela, um botão, um relatório..."
@@ -143,7 +143,7 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
           <section class="ns-secao" aria-labelledby="av-sec-identificacao">
             <h3 id="av-sec-identificacao" class="ns-secao__titulo"><i class="pi pi-eye-slash" aria-hidden="true"></i>Identificação</h3>
             <div class="ns-cartao">
-              <ces-boolean-control
+              <geo-boolean-control
                 kind="toggle"
                 label="Anônimo"
                 [value]="anonima()"
@@ -156,7 +156,7 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
           </section>
 
           @if (!connectivity.isOnline()) {
-            <ces-callout tone="warning" title="Sem conexão">A avaliação precisa de internet para ser enviada. O que você preencheu continua aqui.</ces-callout>
+            <geo-callout tone="warning" title="Sem conexão">A avaliação precisa de internet para ser enviada. O que você preencheu continua aqui.</geo-callout>
           }
         </div>
       }
@@ -171,17 +171,17 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
             }
           </span>
           <span class="ns-rodape__acoes">
-            <ces-button label="Cancelar" variant="ghost" (pressed)="convite.formularioAberto.set(false)" />
-            <ces-button label="Enviar avaliação" icon="pi pi-send" [loading]="enviando()"
+            <geo-button label="Cancelar" variant="ghost" (pressed)="convite.formularioAberto.set(false)" />
+            <geo-button label="Enviar avaliação" icon="pi pi-send" [loading]="enviando()"
               [disabled]="!connectivity.isOnline()" (pressed)="enviar()" />
           </span>
         } @else {
           <span class="ns-rodape__acoes">
-            <ces-button label="Fechar" variant="ghost" (pressed)="convite.formularioAberto.set(false)" />
+            <geo-button label="Fechar" variant="ghost" (pressed)="convite.formularioAberto.set(false)" />
           </span>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class AvaliacaoDrawerComponent {

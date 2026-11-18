@@ -3,15 +3,15 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, u
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesIconButtonComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoIconButtonComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTone,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ComunicadoMuralResponse, TipoComunicado } from '../../../core/models/notificacao.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { MuralStore } from '../../../core/services/mural-store.service';
@@ -31,19 +31,19 @@ type Recorte = 'TODOS' | 'NAO_LIDOS' | 'CONFIRMAR';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgTemplateOutlet,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesPageHeaderComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoPageHeaderComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     ComunicadoDetalheDialogComponent,
     HelpDialogComponent
   ],
   styleUrl: './mural.component.css',
   template: `
-    <div class="ces-page">
-      <ces-page-header
+    <div class="geo-page">
+      <geo-page-header
         title="Mural de comunicados"
         icon="pi pi-megaphone"
         [breadcrumb]="[{ label: 'Comunicação' }, { label: 'Mural' }]"
@@ -51,35 +51,35 @@ type Recorte = 'TODOS' | 'NAO_LIDOS' | 'CONFIRMAR';
         helpLabel="Ajuda sobre o mural"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="ghost" icon="pi pi-refresh" label="Atualizar" [loading]="mural.carregando()" (pressed)="mural.carregar(true)"></ces-button>
+        <geo-button actions variant="ghost" icon="pi pi-refresh" label="Atualizar" [loading]="mural.carregando()" (pressed)="mural.carregar(true)"></geo-button>
         @if (podeGerenciar) {
-          <ces-button actions variant="outline" icon="pi pi-cog" label="Gerenciar comunicados" (pressed)="gerenciar()"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-cog" label="Gerenciar comunicados" (pressed)="gerenciar()"></geo-button>
         }
-      </ces-page-header>
+      </geo-page-header>
 
-      <section class="ces-kpis mu-kpis" aria-label="Resumo do mural" aria-live="polite">
-        <button type="button" class="ces-kpi" data-tone="info" [attr.aria-pressed]="recorte() === 'TODOS' && !tipo()" (click)="limpar()">
-          <span class="ces-kpi__icon"><i class="pi pi-megaphone" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">No ar para você</span>
-            <span class="ces-kpi__value">{{ mural.itens().length }}</span>
-            <span class="ces-kpi__detail">{{ fixados().length }} {{ fixados().length === 1 ? 'fixado' : 'fixados' }} no topo</span>
+      <section class="geo-kpis mu-kpis" aria-label="Resumo do mural" aria-live="polite">
+        <button type="button" class="geo-kpi" data-tone="info" [attr.aria-pressed]="recorte() === 'TODOS' && !tipo()" (click)="limpar()">
+          <span class="geo-kpi__icon"><i class="pi pi-megaphone" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">No ar para você</span>
+            <span class="geo-kpi__value">{{ mural.itens().length }}</span>
+            <span class="geo-kpi__detail">{{ fixados().length }} {{ fixados().length === 1 ? 'fixado' : 'fixados' }} no topo</span>
           </span>
         </button>
-        <button type="button" class="ces-kpi" [attr.data-tone]="naoLidos() ? 'info' : 'neutral'" [attr.aria-pressed]="recorte() === 'NAO_LIDOS'" (click)="alternar('NAO_LIDOS')">
-          <span class="ces-kpi__icon"><i class="pi pi-envelope" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Não lidos</span>
-            <span class="ces-kpi__value">{{ naoLidos() }}</span>
-            <span class="ces-kpi__detail">Mostra só os que você não abriu</span>
+        <button type="button" class="geo-kpi" [attr.data-tone]="naoLidos() ? 'info' : 'neutral'" [attr.aria-pressed]="recorte() === 'NAO_LIDOS'" (click)="alternar('NAO_LIDOS')">
+          <span class="geo-kpi__icon"><i class="pi pi-envelope" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Não lidos</span>
+            <span class="geo-kpi__value">{{ naoLidos() }}</span>
+            <span class="geo-kpi__detail">Mostra só os que você não abriu</span>
           </span>
         </button>
-        <button type="button" class="ces-kpi" [attr.data-tone]="mural.pendentesConfirmacao() ? 'warning' : 'success'" [attr.aria-pressed]="recorte() === 'CONFIRMAR'" (click)="alternar('CONFIRMAR')">
-          <span class="ces-kpi__icon"><i [class]="mural.pendentesConfirmacao() ? 'pi pi-exclamation-circle' : 'pi pi-verified'" aria-hidden="true"></i></span>
-          <span class="ces-kpi__body">
-            <span class="ces-kpi__label">Aguardando sua confirmação</span>
-            <span class="ces-kpi__value">{{ mural.pendentesConfirmacao() }}</span>
-            <span class="ces-kpi__detail">{{ mural.pendentesConfirmacao() ? 'Leia e confirme com "Li e entendi"' : 'Nenhuma leitura pendente' }}</span>
+        <button type="button" class="geo-kpi" [attr.data-tone]="mural.pendentesConfirmacao() ? 'warning' : 'success'" [attr.aria-pressed]="recorte() === 'CONFIRMAR'" (click)="alternar('CONFIRMAR')">
+          <span class="geo-kpi__icon"><i [class]="mural.pendentesConfirmacao() ? 'pi pi-exclamation-circle' : 'pi pi-verified'" aria-hidden="true"></i></span>
+          <span class="geo-kpi__body">
+            <span class="geo-kpi__label">Aguardando sua confirmação</span>
+            <span class="geo-kpi__value">{{ mural.pendentesConfirmacao() }}</span>
+            <span class="geo-kpi__detail">{{ mural.pendentesConfirmacao() ? 'Leia e confirme com "Li e entendi"' : 'Nenhuma leitura pendente' }}</span>
           </span>
         </button>
       </section>
@@ -95,7 +95,7 @@ type Recorte = 'TODOS' | 'NAO_LIDOS' | 'CONFIRMAR';
             </button>
           }
         </div>
-        <ces-text-input class="mu-busca" label="Buscar no mural" [labelVisible]="false" placeholder="Buscar por título ou resumo" [(value)]="busca"></ces-text-input>
+        <geo-text-input class="mu-busca" label="Buscar no mural" [labelVisible]="false" placeholder="Buscar por título ou resumo" [(value)]="busca"></geo-text-input>
       </div>
 
       @if (mural.carregando() && !mural.carregado()) {
@@ -105,11 +105,11 @@ type Recorte = 'TODOS' | 'NAO_LIDOS' | 'CONFIRMAR';
           }
         </div>
       } @else if (!mural.itens().length) {
-        <ces-async-state state="empty" icon="pi pi-megaphone" title="Nenhum comunicado no ar"
-          description="Quando um aviso for publicado para o seu acesso, ele aparece aqui e no sino."></ces-async-state>
+        <geo-async-state state="empty" icon="pi pi-megaphone" title="Nenhum comunicado no ar"
+          description="Quando um aviso for publicado para o seu acesso, ele aparece aqui e no sino."></geo-async-state>
       } @else if (!visiveis().length) {
-        <ces-async-state state="empty" icon="pi pi-filter-slash" title="Nenhum comunicado neste recorte"
-          description="Troque o filtro ou limpe a busca para ver todos os comunicados." actionLabel="Ver todos" actionIcon="pi pi-filter-slash" (action)="limpar()"></ces-async-state>
+        <geo-async-state state="empty" icon="pi pi-filter-slash" title="Nenhum comunicado neste recorte"
+          description="Troque o filtro ou limpe a busca para ver todos os comunicados." actionLabel="Ver todos" actionIcon="pi pi-filter-slash" (action)="limpar()"></geo-async-state>
       } @else {
         @if (destaques().length) {
           <section class="mu-secao" aria-labelledby="mu-destaques">
@@ -142,7 +142,7 @@ type Recorte = 'TODOS' | 'NAO_LIDOS' | 'CONFIRMAR';
           <span class="mu-card__tipo">{{ item.tipoRotulo }}</span>
           <span class="mu-card__marcas">
             @if (!item.visualizado) {
-              <ces-status tone="brand" emphasis="solid">Novo</ces-status>
+              <geo-status tone="brand" emphasis="solid">Novo</geo-status>
             }
             @if (item.fixado) {
               <i class="pi pi-thumbtack mu-card__fixado" aria-label="Fixado no topo" title="Fixado no topo"></i>
@@ -170,19 +170,19 @@ type Recorte = 'TODOS' | 'NAO_LIDOS' | 'CONFIRMAR';
         <footer class="mu-card__rodape">
           @if (item.exigeConfirmacao) {
             @if (item.confirmado) {
-              <ces-status tone="success" icon="pi pi-verified">Leitura confirmada</ces-status>
+              <geo-status tone="success" icon="pi pi-verified">Leitura confirmada</geo-status>
             } @else {
-              <ces-status tone="warning" icon="pi pi-exclamation-circle">Confirmação pendente</ces-status>
+              <geo-status tone="warning" icon="pi pi-exclamation-circle">Confirmação pendente</geo-status>
             }
           } @else {
             <span class="mu-card__dica">{{ item.visualizado ? 'Lido' : 'Ainda não lido' }}</span>
           }
           <span class="mu-card__acoes">
             @if (item.exigeConfirmacao && !item.confirmado) {
-              <ces-button size="sm" variant="success" icon="pi pi-check" label="Li e entendi" (pressed)="mural.confirmar(item)"></ces-button>
+              <geo-button size="sm" variant="success" icon="pi pi-check" label="Li e entendi" (pressed)="mural.confirmar(item)"></geo-button>
             } @else {
-              <ces-icon-button icon="pi pi-eye-slash" size="icon-sm" [label]="'Não exibir mais ' + item.titulo" tooltip="Não exibir mais" (pressed)="mural.dispensar(item)"></ces-icon-button>
-              <ces-button size="sm" variant="ghost" icon="pi pi-book" label="Ler" (pressed)="abrir(item)"></ces-button>
+              <geo-icon-button icon="pi pi-eye-slash" size="icon-sm" [label]="'Não exibir mais ' + item.titulo" tooltip="Não exibir mais" (pressed)="mural.dispensar(item)"></geo-icon-button>
+              <geo-button size="sm" variant="ghost" icon="pi pi-book" label="Ler" (pressed)="abrir(item)"></geo-button>
             }
           </span>
         </footer>
@@ -330,7 +330,7 @@ export class MuralComponent {
     return TIPO_COMUNICADO_ICONES[tipo] ?? 'pi pi-megaphone';
   }
 
-  protected tom(tipo: TipoComunicado): CesTone {
+  protected tom(tipo: TipoComunicado): GeoTone {
     return TOM_TIPO_COMUNICADO[tipo] ?? 'neutral';
   }
 }

@@ -7,7 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
-import { CesAsyncStateComponent, CesButtonComponent, CesConfirmationService, CesDialogShellComponent, CesStatusComponent, CesTone, NotificationService } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoButtonComponent, GeoConfirmationService, GeoDialogShellComponent, GeoStatusComponent, GeoTone, NotificationService } from '@geo/ui';
 import { EstoqueResponse, MotivoRejeicaoResponse, RejeitarSolicitacaoRequest } from '../../../../core/models/almoxarifado.models';
 import { ObraResponse } from '../../../../core/models/obras.models';
 import { EquipeResponse } from '../../../../core/models/rh.models';
@@ -39,14 +39,14 @@ export interface WorkflowStage {
   icon: string;
   state: 'completed' | 'current' | 'waiting';
   badge?: string;
-  tone?: CesTone;
+  tone?: GeoTone;
 }
 
 interface PendingSeparation { kind: 'start' | 'finish' | 'skip'; request: AlterarSeparacaoTecnicaRequest; key: string; }
 
-@Component({ selector: 'app-solicitacao-tecnica-detalhe', standalone: true, imports: [CommonModule, FormsModule, RouterLink, ButtonModule, TooltipModule, SelectModule, TextareaModule, Accordion, AccordionPanel, AccordionHeader, AccordionContent, CesAsyncStateComponent, CesButtonComponent, CesDialogShellComponent, CesStatusComponent, SolicitacaoTecnicaAcaoComponent, SolicitacaoTecnicaEquipeComponent, SolicitacaoTecnicaHistoricoComponent, SolicitacaoTecnicaPlanejamentoComponent, SolicitacaoPendenciasComponent, SolicitacaoPendenciaModalComponent], templateUrl: './solicitacao-tecnica-detalhe.component.html', styleUrl: './solicitacao-tecnica-detalhe.component.css', changeDetection: ChangeDetectionStrategy.OnPush })
+@Component({ selector: 'app-solicitacao-tecnica-detalhe', standalone: true, imports: [CommonModule, FormsModule, RouterLink, ButtonModule, TooltipModule, SelectModule, TextareaModule, Accordion, AccordionPanel, AccordionHeader, AccordionContent, GeoAsyncStateComponent, GeoButtonComponent, GeoDialogShellComponent, GeoStatusComponent, SolicitacaoTecnicaAcaoComponent, SolicitacaoTecnicaEquipeComponent, SolicitacaoTecnicaHistoricoComponent, SolicitacaoTecnicaPlanejamentoComponent, SolicitacaoPendenciasComponent, SolicitacaoPendenciaModalComponent], templateUrl: './solicitacao-tecnica-detalhe.component.html', styleUrl: './solicitacao-tecnica-detalhe.component.css', changeDetection: ChangeDetectionStrategy.OnPush })
 export class SolicitacaoTecnicaDetalheComponent implements OnInit, OnDestroy {
-  private readonly route = inject(ActivatedRoute); private readonly router = inject(Router); private readonly navegacao = inject(NavigationHistoryService); private readonly service = inject(SolicitacaoMaterialTecnicaService); private readonly obrasService = inject(ObrasService); private readonly almoxarifadoService = inject(AlmoxarifadoService); private readonly rhService = inject(RhService); private readonly connectivity = inject(ConnectivityService); private readonly notifications = inject(NotificationService); private readonly confirmations = inject(CesConfirmationService); private readonly userLookup = inject(UsuarioLookupService); private readonly cdr = inject(ChangeDetectorRef);
+  private readonly route = inject(ActivatedRoute); private readonly router = inject(Router); private readonly navegacao = inject(NavigationHistoryService); private readonly service = inject(SolicitacaoMaterialTecnicaService); private readonly obrasService = inject(ObrasService); private readonly almoxarifadoService = inject(AlmoxarifadoService); private readonly rhService = inject(RhService); private readonly connectivity = inject(ConnectivityService); private readonly notifications = inject(NotificationService); private readonly confirmations = inject(GeoConfirmationService); private readonly userLookup = inject(UsuarioLookupService); private readonly cdr = inject(ChangeDetectorRef);
   protected readonly state = signal<'loading' | 'ready' | 'error'>('loading'); protected readonly isOnline = this.connectivity.isOnline; protected readonly detail = signal<SolicitacaoMaterialDetalheResponse | null>(null); protected readonly obraInfo = signal<ObraResponse | null>(null); protected readonly warehouses = signal<EstoqueResponse[]>([]); protected readonly teams = signal<EquipeResponse[]>([]); protected readonly dataEmissao = new Date(); protected readonly selectedAction = signal<TechnicalActionMode | null>(null); protected readonly actionVisible = signal(false); protected readonly planningVisible = signal(false); protected readonly teamVisible = signal(false); protected readonly pendingSeparation = signal<PendingSeparation | null>(null); protected readonly commandLoading = signal(false);  protected readonly conflictVisible = signal(false);
   protected readonly displayRejectModal = signal(false);
   protected readonly motivosRejeicaoOptions = signal<MotivoRejeicaoResponse[]>([]);
@@ -369,7 +369,7 @@ export class SolicitacaoTecnicaDetalheComponent implements OnInit, OnDestroy {
     let stage2State: WorkflowStage['state'] = 'completed';
     let stage2Desc = 'Planejamento com data de saque';
     let stage2Badge = 'Planejado';
-    let stage2Tone: CesTone = 'success';
+    let stage2Tone: GeoTone = 'success';
 
     if (isDevolucao) {
       stage2State = 'completed';
@@ -402,7 +402,7 @@ export class SolicitacaoTecnicaDetalheComponent implements OnInit, OnDestroy {
     let stage3Label = isAdicao ? 'Separação' : 'Triagem';
     let stage3Desc = 'Aguardando agendamento';
     let stage3Badge = 'Aguardando';
-    let stage3Tone: CesTone = 'neutral';
+    let stage3Tone: GeoTone = 'neutral';
 
     if (isAdicao) {
       if (!hasData) {
@@ -446,7 +446,7 @@ export class SolicitacaoTecnicaDetalheComponent implements OnInit, OnDestroy {
     let stage4State: WorkflowStage['state'] = 'waiting';
     let stage4Desc = 'Aguardando separação';
     let stage4Badge = 'Aguardando';
-    let stage4Tone: CesTone = 'neutral';
+    let stage4Tone: GeoTone = 'neutral';
 
     if (solStatus === 'REJEITADO') {
       stage4State = 'completed';
@@ -580,7 +580,7 @@ export class SolicitacaoTecnicaDetalheComponent implements OnInit, OnDestroy {
   protected reconcile(): void { this.conflictVisible.set(false); this.reload(); }
   protected statusLabel = statusLabel; protected statusTone = statusTone; protected separacaoLabel = separacaoLabel; protected separacaoTone = separacaoTone; protected typeLabel = tipoTecnicoLabel; protected typeIcon = tipoTecnicoIcon; protected typeIsAdicao = tipoTecnicoEhAdicao;
   protected formatUser(idOuAutor?: string | { id?: string; nome?: string } | null): string { return this.userLookup.resolverNome(idOuAutor, 'Não informado'); }
-  protected toneForOperation(type: string): CesTone { return type === 'ESTORNO' ? 'warning' : type === 'ENTREGA' ? 'success' : 'info'; }
+  protected toneForOperation(type: string): GeoTone { return type === 'ESTORNO' ? 'warning' : type === 'ENTREGA' ? 'success' : 'info'; }
   protected number(value: number | undefined | null): string { return (value ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }); }
   private load(id: string): void { if (!id) { this.state.set('error'); this.cdr.markForCheck(); return; } this.state.set('loading'); this.cdr.markForCheck(); this.service.buscarPorId(id).subscribe({ next: (detail) => { const technical = detail.tecnico; if (!technical) { this.state.set('error'); this.cdr.markForCheck(); return; } this.detail.set(detail); this.obrasService.buscarObraPorId(technical.idObra).subscribe({ next: (obra) => { this.obraInfo.set(obra); this.cdr.markForCheck(); }, error: () => { this.obraInfo.set(null); this.cdr.markForCheck(); } }); this.resolveWithdrawalResponsible(); this.loadReportSignatures(id); this.state.set('ready'); this.cdr.markForCheck(); }, error: (error) => { this.state.set('error'); this.cdr.markForCheck(); this.notifications.error(getErrorMessage(error)); } }); }
   private loadLookups(): void { this.almoxarifadoService.listarEstoquesAtivos().subscribe({ next: (res) => { this.warehouses.set(res.content ?? []); this.cdr.markForCheck(); }, error: () => {} }); this.rhService.listarEquipes({ ativo: true, size: 500 }).subscribe({ next: (res) => { this.teams.set(res.content ?? []); this.cdr.markForCheck(); }, error: () => {} }); }

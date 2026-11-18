@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 /** Um passo do registro: quem fez o quê e quando. */
 export interface EventoRelatorio {
@@ -9,7 +9,7 @@ export interface EventoRelatorio {
   usuario?: string | null;
   quando: string;
   icone: string;
-  tom: CesTone;
+  tom: GeoTone;
 }
 
 /**
@@ -23,33 +23,33 @@ export interface EventoRelatorio {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe],
   styles: `
-    .lt { border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg, 0.75rem); background: var(--ces-surface); overflow: hidden; }
+    .lt { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg, 0.75rem); background: var(--geo-surface); overflow: hidden; }
     .lt__topo { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem;
       border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-    .lt__topo:hover { background: var(--ces-surface-subtle); }
-    .lt__topo:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
+    .lt__topo:hover { background: var(--geo-surface-subtle); }
+    .lt__topo:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .lt__marca { display: flex; width: 2.25rem; height: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center;
-      border-radius: var(--ces-radius-md, 0.5rem); background: var(--ces-brand-soft); color: var(--ces-brand); }
+      border-radius: var(--geo-radius-md, 0.5rem); background: var(--geo-brand-soft); color: var(--geo-brand); }
     .lt__cab { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
     .lt__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 700; }
-    .lt__contagem { padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--ces-surface-muted); font-size: 0.75rem; font-weight: 600; }
-    .lt__resumo { font-size: 0.75rem; color: var(--ces-foreground-muted); }
-    .lt__abrir { flex-shrink: 0; font-size: 0.75rem; font-weight: 600; color: var(--ces-brand); }
-    .lt__lista { margin: 0; padding: 1rem 1rem 1rem 1.25rem; list-style: none; border-top: 1px solid var(--ces-border); background: var(--ces-surface-subtle); }
+    .lt__contagem { padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface-muted); font-size: 0.75rem; font-weight: 600; }
+    .lt__resumo { font-size: 0.75rem; color: var(--geo-foreground-muted); }
+    .lt__abrir { flex-shrink: 0; font-size: 0.75rem; font-weight: 600; color: var(--geo-brand); }
+    .lt__lista { margin: 0; padding: 1rem 1rem 1rem 1.25rem; list-style: none; border-top: 1px solid var(--geo-border); background: var(--geo-surface-subtle); }
     .lt__item { position: relative; display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.75rem; padding-bottom: 1rem; }
     .lt__item:last-child { padding-bottom: 0; }
-    .lt__item:not(:last-child)::before { content: ''; position: absolute; top: 2rem; bottom: 0; left: 0.9375rem; width: 2px; background: var(--ces-border); }
+    .lt__item:not(:last-child)::before { content: ''; position: absolute; top: 2rem; bottom: 0; left: 0.9375rem; width: 2px; background: var(--geo-border); }
     .lt__ponto { display: flex; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 999px;
-      border: 1px solid var(--ces-border); background: var(--ces-surface); font-size: 0.75rem; }
-    .lt__ponto[data-tom='success'] { background: var(--ces-success-soft); color: var(--ces-success-text); }
-    .lt__ponto[data-tom='warning'] { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .lt__ponto[data-tom='danger'] { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
-    .lt__ponto[data-tom='info'] { background: var(--ces-info-soft); color: var(--ces-info-text); }
-    .lt__ponto[data-tom='brand'] { background: var(--ces-brand-soft); color: var(--ces-brand); }
+      border: 1px solid var(--geo-border); background: var(--geo-surface); font-size: 0.75rem; }
+    .lt__ponto[data-tom='success'] { background: var(--geo-success-soft); color: var(--geo-success-text); }
+    .lt__ponto[data-tom='warning'] { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
+    .lt__ponto[data-tom='danger'] { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+    .lt__ponto[data-tom='info'] { background: var(--geo-info-soft); color: var(--geo-info-text); }
+    .lt__ponto[data-tom='brand'] { background: var(--geo-brand-soft); color: var(--geo-brand); }
     .lt__corpo { display: grid; gap: 0.125rem; padding-top: 0.25rem; min-width: 0; }
     .lt__evento { font-size: 0.8125rem; font-weight: 700; }
-    .lt__meta { display: flex; flex-wrap: wrap; gap: 0.375rem; font-size: 0.75rem; color: var(--ces-foreground-muted); }
-    .lt__meta strong { color: var(--ces-foreground); font-weight: 600; }
+    .lt__meta { display: flex; flex-wrap: wrap; gap: 0.375rem; font-size: 0.75rem; color: var(--geo-foreground-muted); }
+    .lt__meta strong { color: var(--geo-foreground); font-weight: 600; }
     .lt__descricao { margin: 0.25rem 0 0; font-size: 0.75rem; line-height: 1.5; white-space: pre-line; }
     @media print { .lt__lista { display: block !important; background: transparent; } .lt__abrir { display: none; } }
   `,

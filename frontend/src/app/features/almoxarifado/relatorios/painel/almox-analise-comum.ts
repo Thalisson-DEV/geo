@@ -1,4 +1,4 @@
-import { CesChartSeries, CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoChartSeries, GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { of } from 'rxjs';
 
 import { MovimentacaoRelatorio, SaldoRelatorio, TipoMovimentacao } from '../../../../core/models/almoxarifado-relatorios.models';
@@ -345,7 +345,7 @@ export const alvo = (dimension: string, value: string): AlvoAnalise => ({ dimens
 export const navegar = (dimension: string, value: string): AcaoAnalise => ({ tipo: 'navegar', alvo: alvo(dimension, value) });
 
 export function grafico(id: string, titulo: string, tipo: GraficoAnalise['tipo'], rotulos: readonly string[],
-                        series: readonly CesChartSeries[], extra: Partial<GraficoAnalise> = {}): GraficoAnalise {
+                        series: readonly GeoChartSeries[], extra: Partial<GraficoAnalise> = {}): GraficoAnalise {
   const altura = extra.altura ?? (tipo === 'bar-horizontal' ? Math.max(200, rotulos.length * 30) : undefined);
   // Contagens sem formato explícito: eixo e rótulos inteiros.
   const contagem = !extra.formato && series.every((x) => x.values.every((v) => v == null || Number.isInteger(v)));
@@ -362,14 +362,14 @@ export function graficoGrupos<T>(id: string, titulo: string, grupos: readonly Gr
   });
 }
 
-/** Rótulos e uma série a partir de grupos (para `ces-chart`). */
+/** Rótulos e uma série a partir de grupos (para `geo-chart`). */
 export function serieDeGrupos<T>(grupos: readonly Grupo<T>[], nome: string, valor: (g: Grupo<T>) => number, limite = 12) {
   const g = grupos.filter((x) => valor(x) > 0).slice(0, limite);
-  return { rotulos: g.map((x) => x.rotulo), series: [{ name: nome, values: g.map(valor) }] as CesChartSeries[], grupos: g };
+  return { rotulos: g.map((x) => x.rotulo), series: [{ name: nome, values: g.map(valor) }] as GeoChartSeries[], grupos: g };
 }
 
 /** Tom de um número contra uma referência ("menor é melhor" por padrão). */
-export function tomContra(valor: number | null, referencia: number | null, tolerancia = 0.15, menorMelhor = true): CesTone {
+export function tomContra(valor: number | null, referencia: number | null, tolerancia = 0.15, menorMelhor = true): GeoTone {
   if (valor == null || referencia == null || referencia === 0) return 'neutral';
   const desvio = valor / referencia - 1;
   const ruim = menorMelhor ? desvio > tolerancia : desvio < -tolerancia;
@@ -378,8 +378,8 @@ export function tomContra(valor: number | null, referencia: number | null, toler
 }
 
 /** Leituras da visão gerencial: o que pede ação primeiro, até `limite`. */
-export function priorizar<T extends { tom: CesTone }>(leituras: readonly T[], limite = 6): T[] {
-  const peso: Partial<Record<CesTone, number>> = { danger: 0, warning: 1, success: 3 };
+export function priorizar<T extends { tom: GeoTone }>(leituras: readonly T[], limite = 6): T[] {
+  const peso: Partial<Record<GeoTone, number>> = { danger: 0, warning: 1, success: 3 };
   return [...leituras].sort((a, b) => (peso[a.tom] ?? 2) - (peso[b.tom] ?? 2)).slice(0, limite);
 }
 
@@ -398,7 +398,7 @@ export const linkMovimentacoesMaterial = (codigo: string): LinkAnalise =>
 
 // ── Origem: movimentações ────────────────────────────────────────────────────────────────────────
 
-export const colMovimentacoes: CesDataTableColumn<MovimentacaoRelatorio>[] = [
+export const colMovimentacoes: GeoDataTableColumn<MovimentacaoRelatorio>[] = [
   { key: 'dataHora', header: 'Data', priority: 1, type: 'custom', value: (m) => m.dataHora, display: (m) => diaHora(m.dataHora) },
   { key: 'tipo', header: 'Tipo', priority: 1, value: (m) => ROTULO_TIPO_MOV[m.tipo] ?? m.tipo },
   { key: 'material', header: 'Material', priority: 1, value: (m) => `${m.codigo} · ${m.descricao}` },

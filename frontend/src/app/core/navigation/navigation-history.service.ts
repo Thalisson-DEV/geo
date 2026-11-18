@@ -9,8 +9,8 @@ import {
   Router,
 } from '@angular/router';
 
-const STORAGE_KEY = 'ces.nav';
-const ENTRY_STATE_KEY = 'cesEntry';
+const STORAGE_KEY = 'geo.nav';
+const ENTRY_STATE_KEY = 'geoEntry';
 
 export interface HistoryEntry {
   readonly id: string;
@@ -32,7 +32,7 @@ interface PersistedStack {
 /**
  * Pilha de navegação interna da aplicação.
  *
- * Cada entrada do histórico do navegador recebe um id (`history.state.cesEntry`). O Router
+ * Cada entrada do histórico do navegador recebe um id (`history.state.geoEntry`). O Router
  * preserva chaves extras do `history.state` em popstate e no F5, então o id permite saber,
  * com segurança, se existe uma entrada anterior DENTRO do app — inclusive após recarregar.
  * A pilha é espelhada em `sessionStorage` (por aba).

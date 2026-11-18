@@ -46,9 +46,9 @@ import { RegiaoCorpo } from './evento-relatorio.util';
     :host { display: block; }
     .corpo { margin: 0; display: flex; justify-content: center; }
     svg { width: 100%; max-width: 4.75rem; height: auto; overflow: visible; }
-    .r { fill: var(--ces-surface-muted); stroke: var(--ces-border-strong); stroke-width: 1; transition: fill 0.2s ease; }
-    .r--on { fill: var(--ces-danger); stroke: var(--ces-danger-text); stroke-width: 1.5; }
-    .lado { font-size: 15px; font-weight: 700; fill: var(--ces-foreground-muted); }
+    .r { fill: var(--geo-surface-muted); stroke: var(--geo-border-strong); stroke-width: 1; transition: fill 0.2s ease; }
+    .r--on { fill: var(--geo-danger); stroke: var(--geo-danger-text); stroke-width: 1.5; }
+    .lado { font-size: 15px; font-weight: 700; fill: var(--geo-foreground-muted); }
     @media print {
       .r { fill: #f1f5f9; stroke: #94a3b8; }
       .r--on { fill: #dc2626; stroke: #7f1d1d; }

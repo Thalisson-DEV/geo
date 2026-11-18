@@ -109,7 +109,7 @@ async function entrar(page: Page): Promise<void> {
       id: 'u1', tema: 'light', corPrimaria: 'blue', animacoesAtivadas: false, token: `x.${carga}.y`, login: 'teste', nome: 'Teste',
       permissoes: ['obras:planejamento:read', 'obras:planejamento:write', 'obras:obra:read', 'obras:programacao:read', 'obras:programacao:write']
     };
-    localStorage.setItem('ces_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
+    localStorage.setItem('geo_session_enc', btoa(encodeURIComponent(JSON.stringify(sessao)).split('').reverse().join('')));
   });
 }
 

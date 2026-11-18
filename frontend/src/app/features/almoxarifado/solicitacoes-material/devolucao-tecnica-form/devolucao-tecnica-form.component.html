@@ -1,56 +1,56 @@
-<ces-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova devolução de material" [description]="obraFixa() ? obraRotulo() : 'Da obra para o almoxarifado; o saldo é movimentado na hora.'"
+<geo-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova devolução de material" [description]="obraFixa() ? obraRotulo() : 'Da obra para o almoxarifado; o saldo é movimentado na hora.'"
   size="lg" [resizable]="true" [dirty]="alterado()" [loading]="carregando()">
   @if (erroCatalogos()) {
-    <ces-async-state state="error" title="Não foi possível preparar o formulário" [description]="erroCatalogos()" actionLabel="Tentar de novo" (action)="carregarCatalogos()"></ces-async-state>
+    <geo-async-state state="error" title="Não foi possível preparar o formulário" [description]="erroCatalogos()" actionLabel="Tentar de novo" (action)="carregarCatalogos()"></geo-async-state>
   } @else {
     <div class="sol-form">
-      <ces-form-section title="Origem e destino" icon="pi pi-building">
+      <geo-form-section title="Origem e destino" icon="pi pi-building">
         @if (!obraFixa()) {
-          <ces-select label="Obra" [required]="true" [options]="obraOpcoes()" [value]="idObra()" (valueChange)="selecionarObra($event)" [filter]="true"
-            placeholder="Pesquisar por número ou título" [error]="erro('idObra')"></ces-select>
+          <geo-select label="Obra" [required]="true" [options]="obraOpcoes()" [value]="idObra()" (valueChange)="selecionarObra($event)" [filter]="true"
+            placeholder="Pesquisar por número ou título" [error]="erro('idObra')"></geo-select>
         }
-        <div class="ces-form-grid">
-          <ces-select label="Equipe responsável" [required]="true" [options]="equipeOpcoes()" [(value)]="idEquipe" [filter]="true" [error]="erro('idEquipe')"></ces-select>
-          <ces-select label="Almoxarifado de destino" [required]="true" [options]="destinoOpcoes()" [(value)]="idEstoqueDestino" [filter]="true" [error]="erro('idEstoqueDestino')"></ces-select>
+        <div class="geo-form-grid">
+          <geo-select label="Equipe responsável" [required]="true" [options]="equipeOpcoes()" [(value)]="idEquipe" [filter]="true" [error]="erro('idEquipe')"></geo-select>
+          <geo-select label="Almoxarifado de destino" [required]="true" [options]="destinoOpcoes()" [(value)]="idEstoqueDestino" [filter]="true" [error]="erro('idEstoqueDestino')"></geo-select>
         </div>
         @if (ocorrenciaObrigatoria()) {
-          <ces-text-input label="Ocorrência (OC/OS)" [required]="true" [(value)]="ocorrencia" [maxlength]="100" placeholder="Número da OC/OS" [error]="erro('ocorrencia')"></ces-text-input>
+          <geo-text-input label="Ocorrência (OC/OS)" [required]="true" [(value)]="ocorrencia" [maxlength]="100" placeholder="Número da OC/OS" [error]="erro('ocorrencia')"></geo-text-input>
         }
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Materiais" icon="pi pi-box">
+      <geo-form-section title="Materiais" icon="pi pi-box">
         @if (estoqueObra()) {
           <div section-actions>
-            <ces-button variant="ghost" size="sm" icon="pi pi-box" label="Ver saldo da obra" (pressed)="abrirSaldoObra()"></ces-button>
+            <geo-button variant="ghost" size="sm" icon="pi pi-box" label="Ver saldo da obra" (pressed)="abrirSaldoObra()"></geo-button>
           </div>
         }
         <div class="sol-novo-item">
           <div class="sol-novo-item__material">
-            <ces-autocomplete inputId="materialDevolucao" label="Material" [showSearchInstruction]="false" [options]="materiais()" [ngModel]="idMaterial()" (ngModelChange)="aoEscolherMaterial($event)"
+            <geo-autocomplete inputId="materialDevolucao" label="Material" [showSearchInstruction]="false" [options]="materiais()" [ngModel]="idMaterial()" (ngModelChange)="aoEscolherMaterial($event)"
               [loading]="materiaisCarregando()" [status]="materiaisStatus()" [error]="materiaisErro()" placeholder="Pesquise por código ou descrição" [minLength]="2" appendTo="body"
-              (search)="buscarMateriais($event)" (loadMore)="carregarMaisMateriais()" (retry)="tentarMateriaisDeNovo()"></ces-autocomplete>
+              (search)="buscarMateriais($event)" (loadMore)="carregarMaisMateriais()" (retry)="tentarMateriaisDeNovo()"></geo-autocomplete>
           </div>
-          <div class="sol-novo-item__material ces-form-grid">
-            <ces-select label="Tipo" [options]="tipos" [(value)]="tipo"></ces-select>
-            <ces-select label="Condição" [options]="condicoes" [value]="condicao()" (valueChange)="aoMudarCondicao($event!)"></ces-select>
+          <div class="sol-novo-item__material geo-form-grid">
+            <geo-select label="Tipo" [options]="tipos" [(value)]="tipo"></geo-select>
+            <geo-select label="Condição" [options]="condicoes" [value]="condicao()" (valueChange)="aoMudarCondicao($event!)"></geo-select>
             @if (!controlaSerie()) {
-              <ces-number-input label="Quantidade" [(value)]="quantidade" [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></ces-number-input>
+              <geo-number-input label="Quantidade" [(value)]="quantidade" [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></geo-number-input>
             }
           </div>
           @if (controlaSerie()) {
             <div class="sol-novo-item__material">
-              <ces-textarea label="Números de série" [(value)]="seriesTexto" [rows]="2" description="Um por linha. Série que não está na obra também pode ser informada."></ces-textarea>
+              <geo-textarea label="Números de série" [(value)]="seriesTexto" [rows]="2" description="Um por linha. Série que não está na obra também pode ser informada."></geo-textarea>
               @if (seriesDaObra().length) {
                 <div class="sol-opcoes" role="group" aria-label="Séries nesta obra">
                   @for (serie of seriesDaObra(); track serie) {
-                    <ces-button variant="ghost" size="sm" [label]="serie" (pressed)="adicionarSerie(serie)"></ces-button>
+                    <geo-button variant="ghost" size="sm" [label]="serie" (pressed)="adicionarSerie(serie)"></geo-button>
                   }
                 </div>
               }
             </div>
           }
           <div class="sol-novo-item__material">
-            <ces-boolean-control label="Guardar no almoxarifado" description="Desligado, o material é devolvido e baixado na mesma operação." kind="toggle" [(value)]="guardar"></ces-boolean-control>
+            <geo-boolean-control label="Guardar no almoxarifado" description="Desligado, o material é devolvido e baixado na mesma operação." kind="toggle" [(value)]="guardar"></geo-boolean-control>
           </div>
           @if (material()) {
             <p class="sol-novo-item__material sol-resumo" aria-live="polite">
@@ -59,7 +59,7 @@
             </p>
           }
           <div class="sol-novo-item__botao">
-            <ces-button variant="outline" icon="pi pi-plus" label="Adicionar" [disabled]="!podeIncluir()" (pressed)="adicionarItem()"></ces-button>
+            <geo-button variant="outline" icon="pi pi-plus" label="Adicionar" [disabled]="!podeIncluir()" (pressed)="adicionarItem()"></geo-button>
           </div>
         </div>
         @if (erro('itens')) {
@@ -80,16 +80,16 @@
                   }
                 </span>
                 <span class="sol-opcoes">
-                  <ces-status tone="neutral">{{ rotuloTipo(item.tipo) }}</ces-status>
-                  <ces-status [tone]="item.condicao === 'SUCATA' ? 'warning' : 'success'">{{ item.condicao === 'SUCATA' ? 'Sucata' : 'Novo' }}</ces-status>
-                  <ces-button variant="ghost" size="sm" [icon]="item.guardarNoEstoque ? 'pi pi-inbox' : 'pi pi-trash'" [label]="item.guardarNoEstoque ? 'Guardar' : 'Baixar'" (pressed)="alternarDestino(i)"></ces-button>
+                  <geo-status tone="neutral">{{ rotuloTipo(item.tipo) }}</geo-status>
+                  <geo-status [tone]="item.condicao === 'SUCATA' ? 'warning' : 'success'">{{ item.condicao === 'SUCATA' ? 'Sucata' : 'Novo' }}</geo-status>
+                  <geo-button variant="ghost" size="sm" [icon]="item.guardarNoEstoque ? 'pi pi-inbox' : 'pi pi-trash'" [label]="item.guardarNoEstoque ? 'Guardar' : 'Baixar'" (pressed)="alternarDestino(i)"></geo-button>
                 </span>
                 @if (item.numSeries?.length) {
                   <span>{{ item.quantidade }}</span>
                 } @else {
-                  <ces-number-input [label]="'Quantidade de ' + item.codigo" [labelVisible]="false" [value]="item.quantidade" (valueChange)="ajustarQuantidade(i, $event)" [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></ces-number-input>
+                  <geo-number-input [label]="'Quantidade de ' + item.codigo" [labelVisible]="false" [value]="item.quantidade" (valueChange)="ajustarQuantidade(i, $event)" [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></geo-number-input>
                 }
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + item.codigo" size="icon-sm" (pressed)="removerItem(i)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + item.codigo" size="icon-sm" (pressed)="removerItem(i)"></geo-icon-button>
               </li>
             }
           </ul>
@@ -97,14 +97,14 @@
           <p class="sol-vazio">Nenhum material adicionado.</p>
         }
         @if (itensForaDoEstoque().length) {
-          <ces-callout tone="info" title="Material fora do saldo da obra">A diferença será lançada como entrada avulsa na obra, para o saldo não ficar negativo.</ces-callout>
+          <geo-callout tone="info" title="Material fora do saldo da obra">A diferença será lançada como entrada avulsa na obra, para o saldo não ficar negativo.</geo-callout>
         }
-      </ces-form-section>
+      </geo-form-section>
     </div>
   }
-  <ces-form-actions drawer-footer submitLabel="Registrar devolução" submitIcon="pi pi-undo" savingLabel="Registrando…" [saving]="salvando()" [disabled]="!!erroCatalogos() || carregando()" (save)="enviar()" (cancel)="gaveta.requestClose()">
+  <geo-form-actions drawer-footer submitLabel="Registrar devolução" submitIcon="pi pi-undo" savingLabel="Registrando…" [saving]="salvando()" [disabled]="!!erroCatalogos() || carregando()" (save)="enviar()" (cancel)="gaveta.requestClose()">
     <span actions-start class="sol-resumo">{{ itens().length }} {{ itens().length === 1 ? 'material' : 'materiais' }}</span>
-  </ces-form-actions>
-</ces-form-drawer>
+  </geo-form-actions>
+</geo-form-drawer>
 
 <app-saldo-estoque-dialog #saldoDialog></app-saldo-estoque-dialog>

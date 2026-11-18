@@ -29,10 +29,10 @@ public class ExpurgoNotificacoesService {
 
     private final NotificacaoRepository repository;
 
-    @Value("${ces.notificacao.retencao-dias:90}")
+    @Value("${geo.notificacao.retencao-dias:90}")
     private int retencaoDias;
 
-    @Scheduled(cron = "${ces.notificacao.expurgo-cron:0 30 3 * * *}")
+    @Scheduled(cron = "${geo.notificacao.expurgo-cron:0 30 3 * * *}")
     @Transactional
     public void expurgar() {
         OffsetDateTime agora = OffsetDateTime.now();

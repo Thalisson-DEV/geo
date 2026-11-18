@@ -1,9 +1,9 @@
 /**
  * Exceções da guarda do padrão de listagem (docs/design-system/components/list-page.md).
  *
- * Listagens usam `ces-data-table`. Os arquivos abaixo importam `TableModule` de `primeng/table`
+ * Listagens usam `geo-data-table`. Os arquivos abaixo importam `TableModule` de `primeng/table`
  * para tabelas que NÃO são listagens — por isso não migram — e cada grupo diz por quê. Uma tela de
- * listagem nova não entra aqui: use `ces-data-table` (modo servidor para dados paginados).
+ * listagem nova não entra aqui: use `geo-data-table` (modo servidor para dados paginados).
  */
 export const TABLE_MODULE_EXCEPTIONS = {
   /** Itens editáveis dentro de formulários de movimentação e solicitação (linha a linha, sem paginação de servidor). */

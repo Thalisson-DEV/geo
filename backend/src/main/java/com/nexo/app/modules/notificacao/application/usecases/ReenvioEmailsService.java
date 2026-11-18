@@ -49,10 +49,10 @@ public class ReenvioEmailsService {
     private final EnvioEmailNotificacao envio;
 
     /** Corte que separa um PENDENTE abandonado de um que está sendo enviado agora. */
-    @Value("${ces.email.pendente-abandonado-minutos:10}")
+    @Value("${geo.email.pendente-abandonado-minutos:10}")
     private int pendenteAbandonadoMinutos;
 
-    @Scheduled(cron = "${ces.email.reenvio-cron:0 */10 * * * *}")
+    @Scheduled(cron = "${geo.email.reenvio-cron:0 */10 * * * *}")
     public void reenviar() {
         OffsetDateTime agora = OffsetDateTime.now();
         List<LogEmail> candidatos = logRepository.buscarParaReenvio(

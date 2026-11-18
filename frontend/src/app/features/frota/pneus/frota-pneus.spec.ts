@@ -6,7 +6,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 
 import { MovimentacaoPneusRequest, Pneu, VeiculoPneus, erroKmMovimentacao, formatarCustoKm, rotuloPosicao, tomSulco } from '../../../core/models/frota-pneu.models';
 import { AuthService } from '../../../core/services/auth.service';
@@ -126,7 +126,7 @@ describe('Montagem de pneus', () => {
   it('descarte exige motivo e confirmação antes de salvar, e o lote leva o destino de cada pneu', async () => {
     const movimentar = vi.fn((_: MovimentacaoPneusRequest) => of(VEICULO));
     const { tela } = montagem({ movimentar } as never);
-    const confirmar = vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    const confirmar = vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValueOnce(false).mockResolvedValueOnce(true);
     tela['arrastando'].set('a');
     tela['soltarEm']('DESCARTE');
     expect(tela['podeSalvar']()).toBe(false);
@@ -269,7 +269,7 @@ describe('Rodízio de pneus', () => {
     const { tela } = rodizio();
     tela['arrastando'].set('a');
     tela['soltar']('1D');
-    const confirmar = vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(false);
+    const confirmar = vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(false);
     await tela['escolherVeiculo']('v2');
     await new Promise((r) => setTimeout(r, 60));
     expect(confirmar).toHaveBeenCalledTimes(1);

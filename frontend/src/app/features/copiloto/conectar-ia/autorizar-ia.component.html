@@ -1,6 +1,6 @@
 <main class="autorizar">
-  <ces-icon-button class="autorizar__tema" variant="outline" [icon]="escuro() ? 'pi pi-moon' : 'pi pi-sun'"
-    [label]="escuro() ? 'Usar tema claro' : 'Usar tema escuro'" (pressed)="alternarTema()"></ces-icon-button>
+  <geo-icon-button class="autorizar__tema" variant="outline" [icon]="escuro() ? 'pi pi-moon' : 'pi pi-sun'"
+    [label]="escuro() ? 'Usar tema claro' : 'Usar tema escuro'" (pressed)="alternarTema()"></geo-icon-button>
 
   <section class="autorizar__cartao" [attr.aria-busy]="carregando()" aria-labelledby="autorizar-titulo">
     <header class="autorizar__marca">
@@ -9,12 +9,12 @@
     </header>
 
     @if (carregando()) {
-      <ces-async-state state="loading" title="Conferindo o pedido de conexão"></ces-async-state>
+      <geo-async-state state="loading" title="Conferindo o pedido de conexão"></geo-async-state>
     } @else if (erro()) {
       <h1 id="autorizar-titulo">Não deu para conectar</h1>
-      <ces-callout tone="danger" icon="pi pi-times-circle">{{ erro() }}</ces-callout>
+      <geo-callout tone="danger" icon="pi pi-times-circle">{{ erro() }}</geo-callout>
       <p class="autorizar__nota">Volte ao seu assistente e tente conectar de novo. Se continuar, avise o administrador do GEO.</p>
-      <ces-button variant="outline" icon="pi pi-home" label="Ir para o GEO" [fluid]="true" (pressed)="irParaInicio()"></ces-button>
+      <geo-button variant="outline" icon="pi pi-home" label="Ir para o GEO" [fluid]="true" (pressed)="irParaInicio()"></geo-button>
     } @else if (previa(); as p) {
       <div class="autorizar__titulo">
         <h1 id="autorizar-titulo"><strong>{{ p.aplicativo }}</strong> quer se conectar ao GEO</h1>
@@ -27,7 +27,7 @@
           <span>Vai usar a conta de</span>
           <strong>{{ usuario() }}</strong>
         </span>
-        <ces-button variant="link" size="sm" label="Trocar" ariaLabel="Entrar com outra conta" (pressed)="trocarConta()"></ces-button>
+        <geo-button variant="link" size="sm" label="Trocar" ariaLabel="Entrar com outra conta" (pressed)="trocarConta()"></geo-button>
       </div>
 
       <div class="autorizar__copiloto">
@@ -54,13 +54,13 @@
       </div>
 
       @if (p.podeEscrever) {
-        <ces-boolean-control kind="toggle" label="Também deixar cadastrar e aprovar" [(value)]="escrever"
-          [description]="escrever() ? p.aplicativo + ' vai poder consultar, cadastrar, alterar e aprovar.' : 'Sem esta opção, ' + p.aplicativo + ' só consulta.'"></ces-boolean-control>
+        <geo-boolean-control kind="toggle" label="Também deixar cadastrar e aprovar" [(value)]="escrever"
+          [description]="escrever() ? p.aplicativo + ' vai poder consultar, cadastrar, alterar e aprovar.' : 'Sem esta opção, ' + p.aplicativo + ' só consulta.'"></geo-boolean-control>
       }
 
       <div class="autorizar__acoes">
-        <ces-button label="Autorizar" icon="pi pi-check" [fluid]="true" [loading]="enviando()" (pressed)="decidir(true)"></ces-button>
-        <ces-button variant="ghost" label="Agora não" [fluid]="true" [disabled]="enviando()" (pressed)="decidir(false)"></ces-button>
+        <geo-button label="Autorizar" icon="pi pi-check" [fluid]="true" [loading]="enviando()" (pressed)="decidir(true)"></geo-button>
+        <geo-button variant="ghost" label="Agora não" [fluid]="true" [disabled]="enviando()" (pressed)="decidir(false)"></geo-button>
       </div>
 
       <p class="autorizar__nota">

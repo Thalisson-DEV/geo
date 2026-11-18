@@ -13,7 +13,7 @@ public final class AssistenteModuleHealthAdapter implements ModuleHealthAdapter 
     private final ConversaAssistenteRepository repository;
     private final boolean enabled;
     public AssistenteModuleHealthAdapter(ConversaAssistenteRepository repository,
-                                         @Value("${ces.assistente.enabled:false}") boolean enabled) {
+                                         @Value("${geo.assistente.enabled:false}") boolean enabled) {
         this.repository = repository;
         this.enabled = enabled;
     }

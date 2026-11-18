@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { ObraResponse, OrcamentoObraResponse } from '../../../core/models/obras.models';
 import { formatarMoeda, parseDataBrParaDate } from '../obras-ui';
@@ -15,7 +15,7 @@ export type AcaoInsightObra = 'carteira' | 'cadastro' | 'anexo' | 'solicitar' | 
 
 /** Um ponto de atenção da obra: tom e ícone (nunca só cor) e, quando há, a ação que resolve. */
 export interface InsightObra {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;

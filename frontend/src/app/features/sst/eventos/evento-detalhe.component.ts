@@ -4,15 +4,15 @@ import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesStatusComponent,
-  CesTextareaComponent,
-  CesTone,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoStatusComponent,
+  GeoTextareaComponent,
+  GeoTone,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { getErrorMessage } from '../../../core/models/shared.models';
 import {
@@ -55,7 +55,7 @@ interface MarcoEvento {
   data: string | null;
   texto: string;
   icone: string;
-  tom: CesTone;
+  tom: GeoTone;
   /** Distância do fato ("+ 6 h"), como se lê numa investigação. */
   relativo: string;
   /** Marco sem hora (emissão da CAT): mostra só a data. */
@@ -76,12 +76,12 @@ interface MarcoEvento {
     CommonModule,
     DatePipe,
     ButtonModule,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesStatusComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent,
     AnalisarComCopilotoComponent,
     EventoAnexosComponent,
     EventoCorpoComponent
@@ -144,9 +144,9 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
   protected readonly consumoPrazo = computed(() => {
     const e = this.evento();
     const prazo = this.prazoHoras();
-    if (!e || !prazo) return { percentual: 0, tom: 'success' as CesTone };
+    if (!e || !prazo) return { percentual: 0, tom: 'success' as GeoTone };
     const percentual = Math.round((e.horasAteComunicacao / prazo) * 100);
-    return { percentual, tom: (e.comunicacaoAtrasada ? 'danger' : percentual >= 75 ? 'warning' : 'success') as CesTone };
+    return { percentual, tom: (e.comunicacaoAtrasada ? 'danger' : percentual >= 75 ? 'warning' : 'success') as GeoTone };
   });
 
   protected readonly prazoHoras = computed(() => {
@@ -155,7 +155,7 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
   });
 
   /** Situação do documento no título: o andamento da tratativa. */
-  protected readonly situacao = computed<{ rotulo: string; tom: CesTone; icone: string }>(() => {
+  protected readonly situacao = computed<{ rotulo: string; tom: GeoTone; icone: string }>(() => {
     const status = this.evento()?.status ?? 'REGISTRADO';
     return {
       rotulo: STATUS_EVENTO_LABELS[status],
@@ -165,7 +165,7 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
   });
 
   /** Faixa de destaque: o que falta fazer, ou como o evento terminou. */
-  protected readonly faixa = computed<{ tom: CesTone; icone: string; titulo: string; texto: string } | null>(() => {
+  protected readonly faixa = computed<{ tom: GeoTone; icone: string; titulo: string; texto: string } | null>(() => {
     const e = this.evento();
     if (!e) return null;
     switch (e.status) {
@@ -370,7 +370,7 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
     return TIPO_EVENTO_LABELS[tipo];
   }
 
-  protected tipoTone(tipo: TipoEventoSst): CesTone {
+  protected tipoTone(tipo: TipoEventoSst): GeoTone {
     switch (tipo) {
       case 'ACIDENTE_TIPICO':
       case 'DOENCA_OCUPACIONAL':
@@ -384,7 +384,7 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected statusTone(status: StatusEventoSst): CesTone {
+  protected statusTone(status: StatusEventoSst): GeoTone {
     switch (status) {
       case 'REGISTRADO':
         return 'warning';
@@ -416,7 +416,7 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
     return PAPEL_ENVOLVIDO_LABELS[papel];
   }
 
-  protected papelTone(papel: PapelEnvolvido): CesTone {
+  protected papelTone(papel: PapelEnvolvido): GeoTone {
     switch (papel) {
       case 'ACIDENTADO':
         return 'danger';
@@ -439,7 +439,7 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
     return REGISTRO_EVIDENCIA_LABELS[valor];
   }
 
-  protected evidenciaTone(valor: RegistroEvidencia): CesTone {
+  protected evidenciaTone(valor: RegistroEvidencia): GeoTone {
     return valor === 'SIM' ? 'success' : valor === 'NAO' ? 'warning' : 'neutral';
   }
 

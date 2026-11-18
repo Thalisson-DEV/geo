@@ -1,24 +1,24 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { CategoriaNotificacao, NotificacaoResponse, PrioridadeNotificacao } from '../../../core/models/notificacao.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -28,30 +28,30 @@ import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.
 import { paginaPadrao } from '../../../shared/listagem/listagem';
 import { CATEGORIA_ICONES, CATEGORIA_OPTIONS, PRIORIDADE_OPTIONS, PRIORIDADE_TOM, formatarDataHora, tempoRelativo } from '../notificacoes-ui';
 
-const CATEGORIAS: CesSelectOption<CategoriaNotificacao | null>[] = [{ label: 'Todas', value: null }, ...CATEGORIA_OPTIONS];
-const PRIORIDADES: CesSelectOption<PrioridadeNotificacao | null>[] = [{ label: 'Todas', value: null }, ...PRIORIDADE_OPTIONS];
+const CATEGORIAS: GeoSelectOption<CategoriaNotificacao | null>[] = [{ label: 'Todas', value: null }, ...CATEGORIA_OPTIONS];
+const PRIORIDADES: GeoSelectOption<PrioridadeNotificacao | null>[] = [{ label: 'Todas', value: null }, ...PRIORIDADE_OPTIONS];
 
 @Component({
   selector: 'app-minhas-notificacoes',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts>
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts>
+      <geo-page-header
         title="Minhas notificações"
         icon="pi pi-bell"
         [breadcrumb]="[{ label: 'Comunicação' }, { label: 'Minhas notificações' }]"
@@ -60,22 +60,22 @@ const PRIORIDADES: CesSelectOption<PrioridadeNotificacao | null>[] = [{ label: '
         (help)="ajuda.show()"
       >
         @if (store.temNaoLidas()) {
-          <ces-button actions variant="outline" icon="pi pi-check-circle" label="Marcar todas como lidas" (pressed)="marcarTodasLidas()"></ces-button>
+          <geo-button actions variant="outline" icon="pi pi-check-circle" label="Marcar todas como lidas" (pressed)="marcarTodasLidas()"></geo-button>
         }
-        <ces-button actions variant="ghost" icon="pi pi-inbox" label="Arquivar lidas" (pressed)="arquivarLidas()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="ghost" icon="pi pi-inbox" label="Arquivar lidas" (pressed)="arquivarLidas()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="minhas-notificacoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="minhas-notificacoes" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Categoria" [options]="categorias" [(value)]="lista.filters.categoria"></ces-select>
-          <ces-select label="Prioridade" [options]="prioridades" [(value)]="lista.filters.prioridade"></ces-select>
-          <ces-boolean-control label="Apenas não lidas" kind="toggle" [inline]="true" [value]="lista.filters.naoLidas()" (valueChange)="lista.filters.naoLidas.set($event)"></ces-boolean-control>
-          <ces-boolean-control label="Incluir arquivadas" kind="toggle" [inline]="true" [value]="lista.filters.arquivadas()" (valueChange)="lista.filters.arquivadas.set($event)"></ces-boolean-control>
+        <div class="geo-filter-grid">
+          <geo-select label="Categoria" [options]="categorias" [(value)]="lista.filters.categoria"></geo-select>
+          <geo-select label="Prioridade" [options]="prioridades" [(value)]="lista.filters.prioridade"></geo-select>
+          <geo-boolean-control label="Apenas não lidas" kind="toggle" [inline]="true" [value]="lista.filters.naoLidas()" (valueChange)="lista.filters.naoLidas.set($event)"></geo-boolean-control>
+          <geo-boolean-control label="Incluir arquivadas" kind="toggle" [inline]="true" [value]="lista.filters.arquivadas()" (valueChange)="lista.filters.arquivadas.set($event)"></geo-boolean-control>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Notificações"
         mode="server"
         storageKey="minhas-notificacoes"
@@ -100,40 +100,40 @@ const PRIORIDADES: CesSelectOption<PrioridadeNotificacao | null>[] = [{ label: '
         (rowActivate)="abrir($event)"
       >
         @if (resumoCategorias().length) {
-          <div table-filters class="ces-quick-filters" role="group" aria-label="Não lidas por categoria">
+          <div table-filters class="geo-quick-filters" role="group" aria-label="Não lidas por categoria">
             @for (chip of resumoCategorias(); track chip.categoria) {
-              <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().categoria === chip.categoria" (click)="filtrarCategoria(chip.categoria)">
+              <button type="button" class="geo-quick-filter" [attr.aria-pressed]="lista.applied().categoria === chip.categoria" (click)="filtrarCategoria(chip.categoria)">
                 <i [class]="chip.icone" aria-hidden="true"></i> {{ chip.rotulo }} · {{ chip.quantidade }}
               </button>
             }
           </div>
         }
-        <ng-template cesCell="notificacao" let-row>
-          <span class="ces-cell-strong">
+        <ng-template geoCell="notificacao" let-row>
+          <span class="geo-cell-strong">
             @if (!lida(row)) {
-              <ces-status tone="brand" emphasis="solid" icon="pi-bell">Nova</ces-status>
+              <geo-status tone="brand" emphasis="solid" icon="pi-bell">Nova</geo-status>
             }
             {{ row.titulo }}
           </span>
           <span>{{ row.corpo }}</span>
-          <span class="ces-cell-muted" [title]="dataCompleta(row)">
+          <span class="geo-cell-muted" [title]="dataCompleta(row)">
             <i [class]="icone(row)" aria-hidden="true"></i> {{ row.categoriaRotulo }} · {{ quando(row) }}{{ row.deeplink ? ' · abrir registro' : '' }}
           </span>
         </ng-template>
-        <ng-template cesCell="prioridade" let-row>
-          <ces-status [tone]="tom(row.prioridade)" icon="pi-flag">{{ row.prioridadeRotulo }}</ces-status>
+        <ng-template geoCell="prioridade" let-row>
+          <geo-status [tone]="tom(row.prioridade)" icon="pi-flag">{{ row.prioridadeRotulo }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
             @if (row.deeplink) {
-              <ces-icon-button icon="pi pi-external-link" [label]="'Abrir registro: ' + row.titulo" tooltip="Abrir registro" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
+              <geo-icon-button icon="pi pi-external-link" [label]="'Abrir registro: ' + row.titulo" tooltip="Abrir registro" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
             }
-            <ces-icon-button [icon]="lida(row) ? 'pi pi-envelope' : 'pi pi-check'" [label]="(lida(row) ? 'Marcar como não lida: ' : 'Marcar como lida: ') + row.titulo"
-              size="icon-sm" (pressed)="alternarLeitura(row)"></ces-icon-button>
-            <ces-icon-button icon="pi pi-inbox" [label]="'Arquivar: ' + row.titulo" size="icon-sm" (pressed)="arquivar(row)"></ces-icon-button>
+            <geo-icon-button [icon]="lida(row) ? 'pi pi-envelope' : 'pi pi-check'" [label]="(lida(row) ? 'Marcar como não lida: ' : 'Marcar como lida: ') + row.titulo"
+              size="icon-sm" (pressed)="alternarLeitura(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-inbox" [label]="'Arquivar: ' + row.titulo" size="icon-sm" (pressed)="arquivar(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
     <app-ajuda-listagem #ajuda titulo="Minhas notificações" artigoPlural="as" entidadePlural="notificações" busca="título ou texto" [podeCriar]="false">
@@ -155,20 +155,20 @@ const PRIORIDADES: CesSelectOption<PrioridadeNotificacao | null>[] = [{ label: '
 export class MinhasNotificacoesComponent {
   private readonly service = inject(NotificacoesService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
   protected readonly store = inject(NotificacoesStore);
 
   protected readonly categorias = CATEGORIAS;
   protected readonly prioridades = PRIORIDADES;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'minhas-notificacoes',
     filters: {
-      categoria: cesFilter.value<CategoriaNotificacao | null>(null, { label: 'Categoria', type: 'string', options: () => CATEGORIAS }),
-      prioridade: cesFilter.value<PrioridadeNotificacao | null>(null, { label: 'Prioridade', type: 'string', options: () => PRIORIDADES }),
-      naoLidas: cesFilter.value<boolean>(false, { label: 'Leitura', param: 'naoLidas', format: (v): string | null => (v ? 'apenas não lidas' : null) }),
-      arquivadas: cesFilter.value<boolean>(false, { label: 'Arquivadas', format: (v): string | null => (v ? 'incluídas' : null) })
+      categoria: geoFilter.value<CategoriaNotificacao | null>(null, { label: 'Categoria', type: 'string', options: () => CATEGORIAS }),
+      prioridade: geoFilter.value<PrioridadeNotificacao | null>(null, { label: 'Prioridade', type: 'string', options: () => PRIORIDADES }),
+      naoLidas: geoFilter.value<boolean>(false, { label: 'Leitura', param: 'naoLidas', format: (v): string | null => (v ? 'apenas não lidas' : null) }),
+      arquivadas: geoFilter.value<boolean>(false, { label: 'Arquivadas', format: (v): string | null => (v ? 'incluídas' : null) })
     },
     sort: [{ key: 'data', direction: 'desc' }]
   });
@@ -187,7 +187,7 @@ export class MinhasNotificacoesComponent {
     { errorMessage: getErrorMessage }
   );
 
-  protected readonly colunas: CesDataTableColumn<NotificacaoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<NotificacaoResponse>[] = [
     { key: 'notificacao', header: 'Notificação', type: 'custom', priority: 1, value: (n) => n.titulo, display: (n) => n.titulo },
     { key: 'prioridade', header: 'Prioridade', type: 'custom', width: '8rem', value: (n) => n.prioridade, display: (n) => n.prioridadeRotulo },
     { key: 'data', header: 'Recebida', type: 'date', sortField: 'dataCriacao', width: '8rem', value: (n) => n.dataCriacao }

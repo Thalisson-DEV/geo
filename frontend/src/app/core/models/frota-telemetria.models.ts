@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 /** Contratos de `/v1/frota/telemetria`. */
 
@@ -252,13 +252,13 @@ export const ROTULO_SITUACAO_RASTREADOR: Record<SituacaoRastreador, string> = {
   IGNORADO: 'Ignorado'
 };
 
-export const TOM_SITUACAO_RASTREADOR: Record<SituacaoRastreador, CesTone> = {
+export const TOM_SITUACAO_RASTREADOR: Record<SituacaoRastreador, GeoTone> = {
   VINCULADO: 'success',
   SEM_VEICULO: 'warning',
   IGNORADO: 'neutral'
 };
 
-export const TOM_SINCRONIZACAO: Record<SituacaoSincronizacao, CesTone> = { OK: 'success', ERRO: 'danger', NAO_CONFIGURADO: 'neutral' };
+export const TOM_SINCRONIZACAO: Record<SituacaoSincronizacao, GeoTone> = { OK: 'success', ERRO: 'danger', NAO_CONFIGURADO: 'neutral' };
 
 export const ROTULO_TIPO_EVENTO: Record<TipoEventoTelemetria, string> = {
   EXCESSO_VELOCIDADE: 'Excesso de velocidade',
@@ -284,7 +284,7 @@ export const ICONE_TIPO_EVENTO: Record<TipoEventoTelemetria, string> = {
   DESCONEXAO_BATERIA: 'pi pi-bolt'
 };
 
-export const TOM_TIPO_EVENTO: Record<TipoEventoTelemetria, CesTone> = {
+export const TOM_TIPO_EVENTO: Record<TipoEventoTelemetria, GeoTone> = {
   EXCESSO_VELOCIDADE: 'danger',
   FRENAGEM_BRUSCA: 'warning',
   ACELERACAO_BRUSCA: 'warning',

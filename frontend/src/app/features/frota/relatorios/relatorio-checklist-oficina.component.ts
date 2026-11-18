@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CesAsyncStateComponent, CesStatusComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
 import { map } from 'rxjs/operators';
 import {
   OrdemServicoDetalhe,
@@ -33,25 +33,25 @@ interface TarefaRoteiro {
   selector: 'app-relatorio-checklist-oficina',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesAsyncStateComponent, CesStatusComponent, FrotaRelatorioCabecalhoComponent],
+  imports: [DatePipe, GeoAsyncStateComponent, GeoStatusComponent, FrotaRelatorioCabecalhoComponent],
   styleUrls: ['./frota-relatorio.css'],
   styles: `
     .chk-tabela th.chk-col, .chk-tabela td.chk-col { width: 3.25rem; text-align: center; }
-    .chk-tabela td.chk-num { width: 2rem; color: var(--ces-foreground-muted); font-variant-numeric: tabular-nums; }
+    .chk-tabela td.chk-num { width: 2rem; color: var(--geo-foreground-muted); font-variant-numeric: tabular-nums; }
     .chk-tabela td.chk-obs { min-width: 9rem; }
     .chk-tabela td { vertical-align: middle; }
     .chk-caixa {
       display: inline-block; width: 1.05rem; height: 1.05rem;
-      border: 1.5px solid var(--ces-border-strong); border-radius: 0.2rem; background: var(--ces-surface);
+      border: 1.5px solid var(--geo-border-strong); border-radius: 0.2rem; background: var(--geo-surface);
     }
-    .chk-linha { display: block; height: 1.25rem; border-bottom: 1px dotted var(--ces-border-strong); }
+    .chk-linha { display: block; height: 1.25rem; border-bottom: 1px dotted var(--geo-border-strong); }
     .chk-campos { display: grid; gap: 0.75rem; }
     @media (min-width: 768px) { .chk-campos { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    .chk-campo { display: grid; gap: 0.25rem; font-size: 0.75rem; color: var(--ces-foreground-muted); }
+    .chk-campo { display: grid; gap: 0.25rem; font-size: 0.75rem; color: var(--geo-foreground-muted); }
     .chk-campo .chk-linha { height: 1.5rem; }
     .chk-anotacoes { display: grid; gap: 0.25rem; }
     .chk-anotacoes .chk-linha { height: 1.75rem; }
-    .chk-plano { font-weight: 700; color: var(--ces-foreground); }
+    .chk-plano { font-weight: 700; color: var(--geo-foreground); }
     @media print {
       .chk-campos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .chk-tabela tr { break-inside: avoid; }
@@ -60,18 +60,18 @@ interface TarefaRoteiro {
   template: `
     @if (carregando()) {
       <div class="rel-estado">
-        <ces-async-state state="loading" title="Montando o checklist da oficina..." description="Consultando o roteiro e os itens da OS."></ces-async-state>
+        <geo-async-state state="loading" title="Montando o checklist da oficina..." description="Consultando o roteiro e os itens da OS."></geo-async-state>
       </div>
     } @else if (erro()) {
       <div class="rel-estado">
-        <ces-async-state state="error" title="Checklist indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></ces-async-state>
+        <geo-async-state state="error" title="Checklist indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as d) {
       <article class="rel">
         <app-frota-relatorio-cabecalho area="Oficina" [titulo]="'Checklist da ' + rotuloOs(d.ordem.numero)">
           <span><strong>{{ rotuloTipo[d.ordem.tipoManutencao] }}</strong></span>
           <span>·</span>
-          <ces-status [tone]="tomCriticidade[d.ordem.criticidade]" emphasis="outline">{{ rotuloCriticidade[d.ordem.criticidade] }}</ces-status>
+          <geo-status [tone]="tomCriticidade[d.ordem.criticidade]" emphasis="outline">{{ rotuloCriticidade[d.ordem.criticidade] }}</geo-status>
           <span>·</span>
           <span>Emitido em <strong>{{ emitidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
         </app-frota-relatorio-cabecalho>

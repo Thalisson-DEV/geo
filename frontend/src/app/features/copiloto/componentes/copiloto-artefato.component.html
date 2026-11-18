@@ -12,11 +12,11 @@
     </div>
     <div class="painel__acoes">
       @if (artefatos().length > 1) {
-        <ces-icon-button icon="pi pi-angle-left" label="Artefato anterior" size="icon-sm" [disabled]="indice() <= 0" (pressed)="anterior()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-angle-left" label="Artefato anterior" size="icon-sm" [disabled]="indice() <= 0" (pressed)="anterior()"></geo-icon-button>
         <span class="painel__posicao">{{ indice() + 1 }}/{{ artefatos().length }}</span>
-        <ces-icon-button icon="pi pi-angle-right" label="Próximo artefato" size="icon-sm" [disabled]="indice() >= artefatos().length - 1" (pressed)="proximo()"></ces-icon-button>
+        <geo-icon-button icon="pi pi-angle-right" label="Próximo artefato" size="icon-sm" [disabled]="indice() >= artefatos().length - 1" (pressed)="proximo()"></geo-icon-button>
       }
-      <ces-icon-button icon="pi pi-times" label="Fechar painel de artefatos" size="icon-sm" (pressed)="fechar.emit()"></ces-icon-button>
+      <geo-icon-button icon="pi pi-times" label="Fechar painel de artefatos" size="icon-sm" (pressed)="fechar.emit()"></geo-icon-button>
     </div>
   </header>
 
@@ -26,9 +26,9 @@
         <i [class]="artefato().tipo === 'RELATORIO' ? 'pi pi-file-pdf' : 'pi pi-file-excel'" aria-hidden="true"></i>
         <span class="painel__arquivo-nome">{{ arq.nome }}</span>
         @if (artefato().tipo === 'RELATORIO') {
-          <ces-button variant="outline" size="sm" icon="pi pi-external-link" label="Abrir PDF" (pressed)="abrirPdf()"></ces-button>
+          <geo-button variant="outline" size="sm" icon="pi pi-external-link" label="Abrir PDF" (pressed)="abrirPdf()"></geo-button>
         }
-        <ces-button size="sm" icon="pi pi-download" label="Baixar" (pressed)="baixar()"></ces-button>
+        <geo-button size="sm" icon="pi pi-download" label="Baixar" (pressed)="baixar()"></geo-button>
       </div>
     }
 
@@ -72,7 +72,7 @@
             }
           </ul>
           @for (aviso of spec().avisos ?? []; track $index) {
-            <ces-callout tone="warning" icon="pi-info-circle" [dense]="true">{{ aviso }}</ces-callout>
+            <geo-callout tone="warning" icon="pi-info-circle" [dense]="true">{{ aviso }}</geo-callout>
           }
         </section>
       }
@@ -115,7 +115,7 @@
           <span class="kpi__titulo">{{ kpi.titulo }}</span>
           <strong class="kpi__valor">{{ formatarValor(kpi.valor, kpi.formato) }}</strong>
           @if (variacao(kpi); as v) {
-            <ces-status [tone]="v.tom" [icon]="v.icone" emphasis="soft">{{ v.texto }}</ces-status>
+            <geo-status [tone]="v.tom" [icon]="v.icone" emphasis="soft">{{ v.texto }}</geo-status>
           }
           @if (kpi.descricao) {
             <span class="kpi__descricao">{{ kpi.descricao }}</span>
@@ -129,7 +129,7 @@
       <div class="componente" [class.componente--metade]="componente.largura === 'metade'">
         @switch (componente.tipo) {
           @case ('grafico') {
-            <ces-chart
+            <geo-chart
               [kind]="tipoGrafico($any(componente))"
               [title]="componente.titulo || 'Gráfico'"
               [description]="componente.descricao"
@@ -140,7 +140,7 @@
               [xAxisLabel]="$any(componente).eixoX"
               [yAxisLabel]="$any(componente).eixoY"
               [note]="$any(componente).observacao"
-            ></ces-chart>
+            ></geo-chart>
           }
           @case ('tabela') {
             <figure class="tabela">

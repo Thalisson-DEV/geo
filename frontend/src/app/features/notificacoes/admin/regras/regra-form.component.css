@@ -15,16 +15,16 @@
 .policy-hint {
   display: block;
   margin-top: 0.25rem;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   line-height: 1.4;
 }
 
 .policy-warning {
-  color: var(--ces-warning);
+  color: var(--geo-warning);
 }
 
 .policy-hint {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 :host-context(.app-dark) .hint-box,
 :host-context(.dark) .hint-box {

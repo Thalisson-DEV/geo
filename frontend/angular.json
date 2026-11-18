@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "ces-frontend": {
+    "geo-frontend": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -86,10 +86,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "ces-frontend:build:production"
+              "buildTarget": "geo-frontend:build:production"
             },
             "development": {
-              "buildTarget": "ces-frontend:build:development"
+              "buildTarget": "geo-frontend:build:development"
             }
           },
           "defaultConfiguration": "development"

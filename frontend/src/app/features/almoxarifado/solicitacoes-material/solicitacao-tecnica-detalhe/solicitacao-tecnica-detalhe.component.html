@@ -1,27 +1,27 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] p-4 md:p-8 print:p-0 print:min-h-0 print:bg-white print:dark:bg-white print:text-black"
+  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] p-4 md:p-8 print:p-0 print:min-h-0 print:bg-white print:dark:bg-white print:text-black"
 >
   <!-- LOADING -->
   @if (state() === 'loading') {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state
+      <geo-async-state
         [state]="'loading'"
         title="Carregando relatório da solicitação técnica..."
         description="Consultando informações da solicitação..."
-      ></ces-async-state>
+      ></geo-async-state>
     </div>
   }
 
   <!-- ERRO -->
   @else if (state() === 'error') {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <ces-async-state
+      <geo-async-state
         [state]="'error'"
         title="Solicitação indisponível"
         description="Não foi possível carregar o detalhe técnico."
         actionLabel="Tentar novamente"
         (action)="reload()"
-      ></ces-async-state>
+      ></geo-async-state>
     </div>
   }
 
@@ -97,8 +97,8 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <ces-button label="Tentar Novamente" size="sm" variant="primary" (pressed)="separation(sep.kind, true)" />
-              <ces-button label="Descartar" size="sm" variant="ghost" (pressed)="discardSeparationRetry()" />
+              <geo-button label="Tentar Novamente" size="sm" variant="primary" (pressed)="separation(sep.kind, true)" />
+              <geo-button label="Descartar" size="sm" variant="ghost" (pressed)="discardSeparationRetry()" />
             </div>
           </div>
         }
@@ -409,12 +409,12 @@
             </div>
             <div class="kv">
               <span class="kv-l">Status Operacional</span>
-              <ces-status [tone]="statusTone(request.status)">{{ statusLabel(request.status) }}</ces-status>
+              <geo-status [tone]="statusTone(request.status)">{{ statusLabel(request.status) }}</geo-status>
             </div>
             <div class="kv">
               <span class="kv-l">Status Separação</span>
               @if (typeIsAdicao(tech.tipoTecnico)) {
-                <ces-status [tone]="separacaoTone(tech.statusSeparacao)">{{ separacaoLabel(tech.statusSeparacao) }}</ces-status>
+                <geo-status [tone]="separacaoTone(tech.statusSeparacao)">{{ separacaoLabel(tech.statusSeparacao) }}</geo-status>
               } @else {
                 <span class="kv-v text-slate-500 dark:text-slate-400">Não se aplica</span>
               }
@@ -422,7 +422,7 @@
             <div class="kv">
               <span class="kv-l">Situação Cronológica</span>
               @if (tech.atrasada) {
-                <ces-status tone="danger" icon="pi pi-clock">Atrasada</ces-status>
+                <geo-status tone="danger" icon="pi pi-clock">Atrasada</geo-status>
               } @else {
                 <span class="kv-v text-emerald-600 dark:text-emerald-400 font-semibold">No prazo</span>
               }
@@ -430,7 +430,7 @@
             @if (tech.foraPrazoSaque) {
               <div class="kv items-start">
                 <span class="kv-l">Prazo de Solicitação</span>
-                <ces-status tone="warning" icon="pi pi-exclamation-triangle">Solicitada fora do prazo</ces-status>
+                <geo-status tone="warning" icon="pi pi-exclamation-triangle">Solicitada fora do prazo</geo-status>
               </div>
             }
             @if (tech.encerrada || tech.encerradaEm) {
@@ -1087,7 +1087,7 @@
           icon="pi pi-arrow-left"
           label="VOLTAR"
           (onClick)="voltar()"
-          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"
+          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"
         ></p-button>
 
         <p-button
@@ -1106,7 +1106,7 @@
             [styleClass]="
               isInitialPlanning()
                 ? '!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer'
-                : '!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer'
+                : '!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer'
             "
           ></p-button>
         }
@@ -1128,7 +1128,7 @@
             label="PENDÊNCIA"
             (onClick)="abrirModalPendenciaSolicitacao()"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-warning-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -1138,7 +1138,7 @@
             label="REJEITAR"
             (onClick)="rejectSolicitacao()"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-danger)] !border-[var(--ces-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-danger-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -1149,7 +1149,7 @@
             (onClick)="separation('skip')"
             [loading]="commandLoading()"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-amber-500 !text-amber-600 dark:!text-amber-400 !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-amber-50 dark:hover:!bg-amber-950/30 cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-amber-500 !text-amber-600 dark:!text-amber-400 !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-amber-50 dark:hover:!bg-amber-950/30 cursor-pointer"
           ></p-button>
         }
 
@@ -1160,7 +1160,7 @@
             (onClick)="separation('finish')"
             [loading]="commandLoading()"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -1170,7 +1170,7 @@
             label="CONFIRMAR ENTREGA"
             (onClick)="openAction('deliver')"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -1180,7 +1180,7 @@
             label="RECEBER DEVOLUÇÃO"
             (onClick)="openAction('return')"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -1190,7 +1190,7 @@
             label="ESTORNAR OPERAÇÃO"
             (onClick)="openAction('reverse')"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-warning-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
           ></p-button>
         }
 
@@ -1200,7 +1200,7 @@
             label="ENCERRAR SALDO"
             (onClick)="openAction('close')"
             [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--ces-danger)] !border-[var(--ces-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-danger-hover)] cursor-pointer"
+            styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"
           ></p-button>
         }
       </div>
@@ -1254,7 +1254,7 @@
 </div>
 
 <!-- MODAL DE CONFLITO DE VERSÃO (409) -->
-<ces-dialog-shell
+<geo-dialog-shell
   [title]="'Conflito de versão'"
   description="Esta solicitação foi atualizada recentemente no servidor."
   size="sm"
@@ -1283,13 +1283,13 @@
     </div>
   </div>
   <div dialog-footer>
-    <ces-button label="Fechar" variant="ghost" size="sm" (pressed)="conflictVisible.set(false)" />
-    <ces-button label="Recarregar e atualizar" icon="pi pi-refresh" variant="primary" size="sm" (pressed)="reconcile()" />
+    <geo-button label="Fechar" variant="ghost" size="sm" (pressed)="conflictVisible.set(false)" />
+    <geo-button label="Recarregar e atualizar" icon="pi pi-refresh" variant="primary" size="sm" (pressed)="reconcile()" />
   </div>
-</ces-dialog-shell>
+</geo-dialog-shell>
 
 <!-- MODAL DE REJEIÇÃO -->
-<ces-dialog-shell
+<geo-dialog-shell
   [title]="'Rejeitar Solicitação Técnica'"
   description="A rejeição cancelará permanentemente a solicitação técnica de material."
   size="md"
@@ -1373,8 +1373,8 @@
   </div>
 
   <div dialog-footer>
-    <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="displayRejectModal.set(false)" />
-    <ces-button
+    <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="displayRejectModal.set(false)" />
+    <geo-button
       label="Confirmar Rejeição"
       icon="pi pi-times-circle"
       variant="destructive"
@@ -1384,4 +1384,4 @@
       (pressed)="confirmRejection()"
     />
   </div>
-</ces-dialog-shell>
+</geo-dialog-shell>

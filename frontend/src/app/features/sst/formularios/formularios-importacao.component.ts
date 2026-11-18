@@ -1,35 +1,35 @@
 import { ChangeDetectionStrategy, Component, inject, model, output, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  cesImportStatus
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  geoImportStatus
+} from '@geo/ui';
 
 import { FormularioInspecaoImportacaoDTO } from '../../../core/models/sst.models';
 import { ImportacaoService } from '../../../core/services/importacao.service';
 import { SstService } from '../../../core/services/sst.service';
 import { CHAVE_LINHA_IMPORTACAO, importacaoListagem } from '../../../shared/listagem/importacao-listagem';
 
-const TIPOS: CesSelectOption<string>[] = [
+const TIPOS: GeoSelectOption<string>[] = [
   { label: 'Checklist (Conforme / Não conforme / Não se aplica)', value: 'Checklist' },
   { label: 'Escolha', value: 'Escolha' },
   { label: 'Texto', value: 'Texto' },
   { label: 'Número', value: 'Número' },
   { label: 'Data', value: 'Data' }
 ];
-const GRAVIDADES: CesSelectOption<string>[] = ['Baixa', 'Média', 'Alta', 'Crítica'].map((g) => ({ label: g, value: g }));
-const SIM_NAO: CesSelectOption<string>[] = [
+const GRAVIDADES: GeoSelectOption<string>[] = ['Baixa', 'Média', 'Alta', 'Crítica'].map((g) => ({ label: g, value: g }));
+const SIM_NAO: GeoSelectOption<string>[] = [
   { label: 'Sim', value: 'Sim' },
   { label: 'Não', value: 'Não' }
 ];
@@ -42,7 +42,7 @@ function ehChecklist(tipo: string | null | undefined): boolean {
 
 /**
  * Importação de formulários de inspeção por planilha: cada linha é uma pergunta; linhas com o
- * mesmo formulário e grupo se juntam na ordem do arquivo. Pré-visualização no `ces-import-drawer`
+ * mesmo formulário e grupo se juntam na ordem do arquivo. Pré-visualização no `geo-import-drawer`
  * e correção de uma linha por vez, como nas demais importações.
  */
 @Component({
@@ -50,78 +50,78 @@ function ehChecklist(tipo: string | null | undefined): boolean {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   template: `
-    <ces-import-drawer [(visible)]="visible" title="Importar formulários de inspeção"
+    <geo-import-drawer [(visible)]="visible" title="Importar formulários de inspeção"
       description="Planilha CSV com uma pergunta por linha: formulário, grupo, pergunta, orientação, tipo de resposta, gravidade da não conformidade e se o desvio aponta colaborador."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunas"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunas"
           [rows]="importacao.linhas()" [rowKey]="chaveLinha" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="pergunta" let-row>
-            <span class="ces-cell-strong">{{ row.pergunta || '—' }}</span>
-            @if (row.orientacao) { <span class="ces-cell-muted">{{ row.orientacao }}</span> }
+          <ng-template geoCell="pergunta" let-row>
+            <span class="geo-cell-strong">{{ row.pergunta || '—' }}</span>
+            @if (row.orientacao) { <span class="geo-cell-muted">{{ row.orientacao }}</span> }
           </ng-template>
-          <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
-            @if (row.mensagemErro) { <span class="ces-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span> }
+          <ng-template geoCell="situacao" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
+            @if (row.mensagemErro) { <span class="geo-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span> }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="corrigir(row)"></ces-icon-button>
-              <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="corrigir(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
-    <ces-form-drawer [visible]="!!editando()" (visibleChange)="!$event && concluir()" [title]="'Corrigir linha ' + (editando()?.linha ?? '')"
+    <geo-form-drawer [visible]="!!editando()" (visibleChange)="!$event && concluir()" [title]="'Corrigir linha ' + (editando()?.linha ?? '')"
       [description]="editando()?.mensagemErro ?? undefined" size="md">
       @if (editando(); as row) {
-        <ces-form-section title="Onde fica" icon="pi pi-list-check">
-          <div class="ces-form-grid">
-            <ces-text-input label="Formulário" [required]="true" [(value)]="row.formulario"></ces-text-input>
-            <ces-text-input label="Grupo" [required]="true" [(value)]="row.grupo"></ces-text-input>
+        <geo-form-section title="Onde fica" icon="pi pi-list-check">
+          <div class="geo-form-grid">
+            <geo-text-input label="Formulário" [required]="true" [(value)]="row.formulario"></geo-text-input>
+            <geo-text-input label="Grupo" [required]="true" [(value)]="row.grupo"></geo-text-input>
           </div>
-          <ces-text-input label="Descrição do formulário" [(value)]="row.descricao"></ces-text-input>
-        </ces-form-section>
-        <ces-form-section title="Pergunta" icon="pi pi-question-circle">
-          <ces-text-input label="Pergunta" [required]="true" [(value)]="row.pergunta"></ces-text-input>
-          <ces-text-input label="Orientação" hint="Quantidade esperada ou observação, mostrada abaixo da pergunta." [(value)]="row.orientacao"></ces-text-input>
-          <div class="ces-form-grid">
-            <ces-select label="Tipo de resposta" [options]="tipos" [value]="tipoDe(row)" (valueChange)="row.tipoResposta = $event ?? ''"></ces-select>
-            <ces-select label="Obrigatória" [options]="simNao" [value]="row.obrigatoria || 'Sim'" (valueChange)="row.obrigatoria = $event ?? ''"></ces-select>
+          <geo-text-input label="Descrição do formulário" [(value)]="row.descricao"></geo-text-input>
+        </geo-form-section>
+        <geo-form-section title="Pergunta" icon="pi pi-question-circle">
+          <geo-text-input label="Pergunta" [required]="true" [(value)]="row.pergunta"></geo-text-input>
+          <geo-text-input label="Orientação" hint="Quantidade esperada ou observação, mostrada abaixo da pergunta." [(value)]="row.orientacao"></geo-text-input>
+          <div class="geo-form-grid">
+            <geo-select label="Tipo de resposta" [options]="tipos" [value]="tipoDe(row)" (valueChange)="row.tipoResposta = $event ?? ''"></geo-select>
+            <geo-select label="Obrigatória" [options]="simNao" [value]="row.obrigatoria || 'Sim'" (valueChange)="row.obrigatoria = $event ?? ''"></geo-select>
           </div>
           @if (checklist(row)) {
-            <div class="ces-form-grid">
-              <ces-select label="Gravidade da não conformidade" [options]="gravidades" [(value)]="row.gravidade" [clearable]="true"></ces-select>
-              <ces-select label="Desvio por colaborador" hint="Não para itens da equipe ou do veículo." [options]="simNao"
-                [value]="row.desvioPorColaborador || 'Sim'" (valueChange)="row.desvioPorColaborador = $event ?? ''"></ces-select>
+            <div class="geo-form-grid">
+              <geo-select label="Gravidade da não conformidade" [options]="gravidades" [(value)]="row.gravidade" [clearable]="true"></geo-select>
+              <geo-select label="Desvio por colaborador" hint="Não para itens da equipe ou do veículo." [options]="simNao"
+                [value]="row.desvioPorColaborador || 'Sim'" (valueChange)="row.desvioPorColaborador = $event ?? ''"></geo-select>
             </div>
           }
           @if (tipoDe(row) === 'Escolha') {
-            <ces-text-input label="Opções" hint="Separe por |. Exemplo: Sim|Não" [(value)]="row.opcoes"></ces-text-input>
+            <geo-text-input label="Opções" hint="Separe por |. Exemplo: Sim|Não" [(value)]="row.opcoes"></geo-text-input>
           }
-        </ces-form-section>
+        </geo-form-section>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button icon="pi pi-check" label="Concluir correção" (pressed)="concluir()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button icon="pi pi-check" label="Concluir correção" (pressed)="concluir()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FormulariosImportacaoComponent {
@@ -134,7 +134,7 @@ export class FormulariosImportacaoComponent {
   protected readonly tipos = TIPOS;
   protected readonly gravidades = GRAVIDADES;
   protected readonly simNao = SIM_NAO;
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveLinha = CHAVE_LINHA_IMPORTACAO;
   protected readonly editando = signal<FormularioInspecaoImportacaoDTO | null>(null, { equal: () => false });
 
@@ -145,7 +145,7 @@ export class FormulariosImportacaoComponent {
     aoProcessar: () => this.processado.emit()
   });
 
-  protected readonly colunas: CesDataTableColumn<FormularioInspecaoImportacaoDTO>[] = [
+  protected readonly colunas: GeoDataTableColumn<FormularioInspecaoImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'formulario', header: 'Formulário', priority: 1, value: (r) => r.formulario, display: (r) => r.formulario || '—' },
     { key: 'grupo', header: 'Grupo', value: (r) => r.grupo, display: (r) => r.grupo || '—' },

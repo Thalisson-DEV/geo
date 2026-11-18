@@ -1,8 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent, CesStatusComponent } from '@ces/ui';
-import { CesCalloutComponent } from '@ces/ui/feedback';
-import { CesChartComponent, CesChartPoint, CesChartSeries } from '@ces/ui/patterns';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoCalloutComponent } from '@geo/ui/feedback';
+import { GeoChartComponent, GeoChartPoint, GeoChartSeries } from '@geo/ui/patterns';
 import {
   ArquivoAssistente,
   ArtefatoAssistente,
@@ -32,11 +32,11 @@ import { CopilotoMarkdownComponent } from './copiloto-markdown.component';
   standalone: true,
   imports: [
     NgTemplateOutlet,
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesStatusComponent,
-    CesCalloutComponent,
-    CesChartComponent,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent,
+    GeoCalloutComponent,
+    GeoChartComponent,
     CopilotoMarkdownComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -100,11 +100,11 @@ export class CopilotoArtefatoComponent {
     return FORMATO_GRAFICO[grafico.formato] ?? 'number';
   }
 
-  protected series(grafico: GraficoArtefato): CesChartSeries[] {
+  protected series(grafico: GraficoArtefato): GeoChartSeries[] {
     return (grafico.series ?? []).map((serie) => ({ name: serie.nome, values: serie.valores }));
   }
 
-  protected pontos(grafico: GraficoArtefato): CesChartPoint[] {
+  protected pontos(grafico: GraficoArtefato): GeoChartPoint[] {
     return (grafico.pontos ?? []).map((ponto) => ({ x: ponto.x, y: ponto.y, label: ponto.rotulo }));
   }
 

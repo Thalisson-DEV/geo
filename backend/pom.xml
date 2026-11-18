@@ -9,10 +9,10 @@
         <relativePath/>
     </parent>
     <groupId>com.nexo</groupId>
-    <artifactId>ces</artifactId>
+    <artifactId>geo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ces</name>
-    <description>ces</description>
+    <name>geo</name>
+    <description>geo</description>
     <properties>
         <java.version>21</java.version>
         <spring-cloud.version>2025.1.0</spring-cloud.version>

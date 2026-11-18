@@ -68,7 +68,7 @@ describe('FrotaVeiculosComponent', () => {
   }
 
   function chips(el: HTMLElement): string[] {
-    return Array.from(el.querySelectorAll('.ces-filter-panel__chip')).map((c) => c.textContent!.trim());
+    return Array.from(el.querySelectorAll('.geo-filter-panel__chip')).map((c) => c.textContent!.trim());
   }
 
   beforeEach(() => {
@@ -98,7 +98,7 @@ describe('FrotaVeiculosComponent', () => {
     expect(texto).toContain('12.400 km');
     expect(texto).toContain('2 leituras a conferir');
     // Painel recolhido, com o padrão como chip não removível e sem contar como filtro ativo.
-    expect(el.querySelector('.ces-filter-panel__content')).toBeNull();
+    expect(el.querySelector('.geo-filter-panel__content')).toBeNull();
     expect(chips(el)).toEqual(['Cadastro: Somente ativos']);
     expect(el.textContent).not.toContain('filtro ativo');
     expect(el.textContent).not.toContain('Pesquisar');

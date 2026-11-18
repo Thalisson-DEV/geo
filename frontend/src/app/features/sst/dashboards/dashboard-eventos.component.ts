@@ -6,7 +6,7 @@ import { ChartModule } from 'primeng/chart';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 
-import { ThemeService, CesPrimaryColor } from '../../../core/services/theme.service';
+import { ThemeService, GeoPrimaryColor } from '../../../core/services/theme.service';
 
 import { getErrorMessage } from '../../../core/models/shared.models';
 import {
@@ -34,15 +34,15 @@ import { NavegacaoAnaliseService } from '../../../shared/components/dashboard/da
 import { DashboardVisaoGerencialComponent } from '../../../shared/components/dashboard/dashboard-visao-gerencial.component';
 import { visaoEventos, vistaEventos } from './analise/analise-eventos';
 import { diaCivil } from './analise/analise-sst-comum';
-import { CesButtonComponent, CesCellDirective, CesDataTableColumn, CesDataTableComponent, CesDrillStateService, CesStatusComponent,
-  CesDatepickerComponent,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
+import { GeoButtonComponent, GeoCellDirective, GeoDataTableColumn, GeoDataTableComponent, GeoDrillStateService, GeoStatusComponent,
+  GeoDatepickerComponent,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { chipsDoRecorte, opcoesDe as opcoesDoCadastro } from '../../../shared/components/dashboard/dashboard-filtros';
 import { DiasSemAcidenteItem, TipoEventoSst } from '../../../core/models/sst-evento.models';
 import {
@@ -80,11 +80,11 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesDatepickerComponent, CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, CesSelectComponent,
-    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, CesCellDirective, CesDataTableComponent, CesStatusComponent,
-    DashboardMetricCardComponent, MapaCorpoLesoesComponent, PiramideBirdComponent, CesButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
+    GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoSelectComponent,
+    CommonModule, DecimalPipe, ChartModule, SkeletonModule, TooltipModule, GeoCellDirective, GeoDataTableComponent, GeoStatusComponent,
+    DashboardMetricCardComponent, MapaCorpoLesoesComponent, PiramideBirdComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
     CopilotoPerguntarComponent, DashboardAnaliseComponent, DashboardVisaoGerencialComponent],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-eventos.component.html',
   styles: [`
     :host .dash-filterbar--eventos { grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -122,7 +122,7 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       background: transparent; cursor: pointer;
     }
     .backlog-card__hit:disabled { cursor: default; }
-    .backlog-card__hit:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
+    .backlog-card__hit:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .backlog-card.is-vazia { opacity: .5; }
     .backlog-card__header {
       padding: .6rem .85rem;
@@ -202,18 +202,18 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
 
     /* --- Dark mode --- */
     :host-context(.app-dark), :host-context(.dark) {
-      .backlog-card { background: var(--ces-surface, #1e293b); border-color: var(--ces-border, #334155); }
-      .backlog-card:hover { border-color: color-mix(in srgb, var(--ces-brand, #3b82f6) 40%, transparent); }
-      .backlog-card__header { background: var(--ces-surface-subtle, #0f172a); border-color: var(--ces-border, #334155); }
+      .backlog-card { background: var(--geo-surface, #1e293b); border-color: var(--geo-border, #334155); }
+      .backlog-card:hover { border-color: color-mix(in srgb, var(--geo-brand, #3b82f6) 40%, transparent); }
+      .backlog-card__header { background: var(--geo-surface-subtle, #0f172a); border-color: var(--geo-border, #334155); }
       .backlog-card__faixa, .backlog-card__total { color: #fff !important; }
       .backlog-card__status span { color: #cbd5e1; }
 
-      .dash-pct-pill { background: var(--ces-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge { background: var(--ces-surface-muted, #334155); color: #cbd5e1; }
+      .dash-pct-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
+      .dash-badge { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
       .dash-badge--success { background: rgba(34,197,94,.12); color: #4ade80; }
       .dash-badge--danger { background: rgba(239,68,68,.12); color: #f87171; }
       .dash-badge--danger-text { color: #f87171; }
-      .dash-empty--compact { border-color: var(--ces-border, #334155); color: var(--ces-foreground-subtle, #94a3b8); }
+      .dash-empty--compact { border-color: var(--geo-border, #334155); color: var(--geo-foreground-subtle, #94a3b8); }
       .dash-empty--compact strong { color: #cbd5e1; }
     }
 
@@ -306,18 +306,18 @@ export class DashboardEventosComponent implements OnInit {
     return vistaEventos(alvo, { d, filtros: this.filtrosAplicados(), sst: this.sst });
   });
 
-  protected readonly colunasComposicao: CesDataTableColumn<{ tipo: TipoEventoSst; rotulo: string; total: number; percentual: number }>[] = [
+  protected readonly colunasComposicao: GeoDataTableColumn<{ tipo: TipoEventoSst; rotulo: string; total: number; percentual: number }>[] = [
     { key: 'rotulo', header: 'Tipo', priority: 1 },
     { key: 'total', header: 'Total', type: 'integer', priority: 1 },
     { key: 'percentual', header: '%', type: 'percent', priority: 1 }
   ];
-  protected readonly colunasDiasSem: CesDataTableColumn<DiasSemAcidenteItem>[] = [
+  protected readonly colunasDiasSem: GeoDataTableColumn<DiasSemAcidenteItem>[] = [
     { key: 'baseNome', header: 'Base', priority: 1 },
     { key: 'diasSemAcidente', header: 'Dias sem lesão', type: 'custom', priority: 1, value: (b) => b.diasSemAcidente ?? 99999 },
     { key: 'ultimaOcorrencia', header: 'Última ocorrência', priority: 2, value: (b) => b.ultimaOcorrencia ?? '', display: (b) => (b.ultimaOcorrencia ? new Date(b.ultimaOcorrencia).toLocaleDateString('pt-BR') : '—') },
     { key: 'comLesaoNoPeriodo', header: 'Com lesão', type: 'custom', priority: 1, value: (b) => b.comLesaoNoPeriodo }
   ];
-  protected readonly colunasRanking: CesDataTableColumn<RankingEventoItem>[] = [
+  protected readonly colunasRanking: GeoDataTableColumn<RankingEventoItem>[] = [
     { key: 'nome', header: 'Item', priority: 1 },
     { key: 'total', header: 'Eventos', type: 'integer', priority: 1 },
     { key: 'percentual', header: '% do período', type: 'percent', priority: 1 }
@@ -384,7 +384,7 @@ export class DashboardEventosComponent implements OnInit {
     processos: computed(() => opcoesDoCadastro(this.processos(), 'nome'))
   };
   /** Recorte aplicado como chips (cada um remove o próprio filtro); o agrupamento do gráfico não recorta. */
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.filtrosAplicados();
     return chipsDoRecorte(f as Record<string, unknown>, [
       { chave: 'tipo', rotulo: 'Tipo', opcoes: this.tipoOptions },
@@ -643,7 +643,7 @@ export class DashboardEventosComponent implements OnInit {
   }
 
   /** Total em barras e lesões em linha: séries coincidentes continuam distinguíveis. */
-  private prepararGrafico(data: DashboardEventosSstResponse, corPrimaria?: CesPrimaryColor): void {
+  private prepararGrafico(data: DashboardEventosSstResponse, corPrimaria?: GeoPrimaryColor): void {
     const cor = corPrimaria ?? this.themeService.primaryColor();
     this.serieChartData = montarDadosGraficoEvolucao(data.serie ?? [], cor);
   }

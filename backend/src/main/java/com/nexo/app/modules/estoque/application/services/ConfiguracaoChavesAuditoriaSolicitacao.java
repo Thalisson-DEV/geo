@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Component
-@ConfigurationProperties(prefix = "ces.auditoria-solicitacao")
+@ConfigurationProperties(prefix = "geo.auditoria-solicitacao")
 @Getter
 @Setter
 public class ConfiguracaoChavesAuditoriaSolicitacao implements InitializingBean {

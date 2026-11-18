@@ -10,8 +10,8 @@ Antes de analisar, planejar ou alterar este repositório:
 
 ## Regras do Design System Nexo
 
-- O Design System Nexo é **source-owned**, Angular 21 e PrimeNG 21. Nas features, consuma somente os entrypoints públicos `@ces/ui`, `@ces/ui/*` e os tokens/contratos documentados.
-- Antes de qualquer import direto de `primeng/*`, consulte o [registro de cobertura](./docs/design-system/prime-ng-coverage.md). Import direto só é permitido quando a disposição do item for `direto permitido`, dentro das condições registradas. Caso contrário, use ou evolua `@ces/ui`.
+- O Design System Nexo é **source-owned**, Angular 21 e PrimeNG 21. Nas features, consuma somente os entrypoints públicos `@geo/ui`, `@geo/ui/*` e os tokens/contratos documentados.
+- Antes de qualquer import direto de `primeng/*`, consulte o [registro de cobertura](./docs/design-system/prime-ng-coverage.md). Import direto só é permitido quando a disposição do item for `direto permitido`, dentro das condições registradas. Caso contrário, use ou evolua `@geo/ui`.
 - Não adicione novo `::ng-deep`, nem hosts locais de Toast, ConfirmDialog ou ConfirmPopup. Toasts e confirmações pertencem aos hosts globais do shell.
 - Não use cores semânticas hardcoded (`red-*`, `green-*`, hex/RGB equivalentes etc.) para comunicar estado. Use variantes e tokens semânticos do Nexo; cor nunca deve ser o único indicador.
 - Toda interface deve cobrir, quando aplicável: repouso, hover, focus-visible, active/pressed, selected, disabled, read-only, loading, skeleton, vazio, erro, sucesso, aviso, informação, offline, enfileirado, sincronizando, sincronizado e conflito.
@@ -21,7 +21,7 @@ Antes de analisar, planejar ou alterar este repositório:
 
 ## Checklist mínimo de contribuição
 
-- API pública acessada por `@ces/ui` e sem dependência de internals do PrimeNG.
+- API pública acessada por `@geo/ui` e sem dependência de internals do PrimeNG.
 - Variantes semânticas e estados documentados e testados.
 - Tema claro/escuro, responsividade mobile-first, teclado, leitor de tela, contraste e redução de movimento verificados.
 - Catálogo e `docs/design-system/prime-ng-coverage.md` atualizados.

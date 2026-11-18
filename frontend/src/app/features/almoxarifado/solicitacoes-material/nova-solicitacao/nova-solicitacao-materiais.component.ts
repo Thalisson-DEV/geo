@@ -1,6 +1,6 @@
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, signal, untracked } from '@angular/core';
-import { CesButtonComponent, CesIconButtonComponent, CesNumberInputComponent, CesSelectComponent, CesStatusComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoIconButtonComponent, GeoNumberInputComponent, GeoSelectComponent, GeoStatusComponent, NotificationService } from '@geo/ui';
 
 import { LookupStore } from '../../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../../core/lookup/store/remote-lookup';
@@ -34,12 +34,12 @@ let proximaChave = 1;
   selector: 'app-nova-solicitacao-materiais',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DecimalPipe, CesButtonComponent, CesIconButtonComponent, CesNumberInputComponent, CesSelectComponent, CesStatusComponent],
+  imports: [DecimalPipe, GeoButtonComponent, GeoIconButtonComponent, GeoNumberInputComponent, GeoSelectComponent, GeoStatusComponent],
   styleUrl: './nova-solicitacao.css',
   template: `
     <div class="ns-secao">
       <div class="ns-incluir">
-        <ces-select
+        <geo-select
           label="Material"
           placeholder="Buscar por código ou descrição"
           [options]="opcoes()"
@@ -52,7 +52,7 @@ let proximaChave = 1;
           (search)="buscar($event)"
           (opened)="abrirBusca()"
         />
-        <ces-number-input
+        <geo-number-input
           label="Quantidade"
           [min]="0"
           [maxFractionDigits]="3"
@@ -60,7 +60,7 @@ let proximaChave = 1;
           (valueChange)="quantidade.set($event)"
           [suffix]="escolhido() ? ' ' + unidade(escolhido()!) : undefined"
         />
-        <ces-button label="Incluir" icon="pi pi-plus" variant="outline" [disabled]="!escolhido() || !((quantidade() ?? 0) > 0) || !!foraDoProcesso()" (pressed)="incluir()" />
+        <geo-button label="Incluir" icon="pi pi-plus" variant="outline" [disabled]="!escolhido() || !((quantidade() ?? 0) > 0) || !!foraDoProcesso()" (pressed)="incluir()" />
       </div>
 
       @if (comTipo()) {
@@ -100,7 +100,7 @@ let proximaChave = 1;
                 <span class="ns-item__meta">
                   <span>{{ l.material.codigo }} · {{ unidade(l.material) }}</span>
                   @if (l.tipo) {
-                    <ces-status tone="brand" icon="pi pi-cart-plus">{{ codigoTipo(l.tipo) }}</ces-status>
+                    <geo-status tone="brand" icon="pi pi-cart-plus">{{ codigoTipo(l.tipo) }}</geo-status>
                   }
                   @if (mostrarSaldo() && idEstoque() && saldo(l.material.id) !== undefined) {
                     <span [class.ns-item__saldo--falta]="falta(l)">
@@ -109,7 +109,7 @@ let proximaChave = 1;
                   }
                 </span>
               </div>
-              <ces-number-input
+              <geo-number-input
                 class="ns-item__qtd"
                 [label]="'Quantidade de ' + l.material.codigo"
                 [labelVisible]="false"
@@ -120,7 +120,7 @@ let proximaChave = 1;
                 (valueChange)="alterar(i, $event)"
                 [error]="!((l.quantidade ?? 0) > 0) ? 'Informe a quantidade.' : undefined"
               />
-              <ces-icon-button icon="pi pi-trash" [label]="'Tirar ' + l.material.codigo + ' da solicitação'" tooltip="Tirar da solicitação" size="icon-sm" (pressed)="remover(i)" />
+              <geo-icon-button icon="pi pi-trash" [label]="'Tirar ' + l.material.codigo + ' da solicitação'" tooltip="Tirar da solicitação" size="icon-sm" (pressed)="remover(i)" />
             </li>
           }
         </ul>

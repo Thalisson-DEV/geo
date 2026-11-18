@@ -1,7 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LookupStore } from '../../../../core/lookup/store/lookup.store';
@@ -34,7 +34,7 @@ describe('DevolucaoTecnicaFormComponent', () => {
       providers: [
         provideRouter([]),
         { provide: NotificationService, useValue: notificacoes },
-        { provide: CesConfirmationService, useValue: { confirm: confirmar } },
+        { provide: GeoConfirmationService, useValue: { confirm: confirmar } },
         { provide: LookupStore, useValue: { searchMaterials: () => of({ items: [], nextCursor: null, hasMore: false }) } },
         {
           provide: AlmoxarifadoService,

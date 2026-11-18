@@ -13,7 +13,7 @@ public class PrazoOrdemServicoScheduler {
 
     private final OrdemServicoUseCases ordens;
 
-    @Scheduled(cron = "${ces.frota.os-prazo-cron:0 */30 * * * *}", zone = "America/Sao_Paulo")
+    @Scheduled(cron = "${geo.frota.os-prazo-cron:0 */30 * * * *}", zone = "America/Sao_Paulo")
     public void processar() {
         ordens.avisarPrazosEstourados(OffsetDateTime.now());
     }

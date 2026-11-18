@@ -2,11 +2,11 @@ import { statusTecnicoDef } from './solicitacao-tecnica-situacao';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
-  CesReportNavigatorConfig,
-  CesReportNavigatorCriteria,
-  CesReportNavigatorDataSource,
-  CesReportNavigatorItem,
-  CesReportNavigatorPage
+  GeoReportNavigatorConfig,
+  GeoReportNavigatorCriteria,
+  GeoReportNavigatorDataSource,
+  GeoReportNavigatorItem,
+  GeoReportNavigatorPage
 } from '../../../design-system/patterns/report-navigator/report-navigator.models';
 import {
   SolicitacaoMaterialFilter,
@@ -14,7 +14,7 @@ import {
   StatusSolicitacaoMaterial
 } from '../../../core/models/solicitacao-material-tecnica.models';
 import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solicitacao-material-tecnica.service';
-import { CesTone } from '../../../design-system/core';
+import { GeoTone } from '../../../design-system/core';
 
 const STATUS_LABELS: Record<StatusSolicitacaoMaterial, string> = {
   PENDENTE: 'Pendente',
@@ -28,7 +28,7 @@ const STATUS_LABELS: Record<StatusSolicitacaoMaterial, string> = {
   CANCELADO: 'Cancelado'
 };
 
-const STATUS_TONES: Record<StatusSolicitacaoMaterial, CesTone> = {
+const STATUS_TONES: Record<StatusSolicitacaoMaterial, GeoTone> = {
   PENDENTE: 'warning',
   APROVADO: 'info',
   REJEITADO: 'danger',
@@ -42,16 +42,16 @@ const STATUS_TONES: Record<StatusSolicitacaoMaterial, CesTone> = {
 
 @Injectable({ providedIn: 'root' })
 export class SolicitacaoTecnicaReportNavigatorDataSource
-  implements CesReportNavigatorDataSource<SolicitacaoMaterialSummaryResponse>
+  implements GeoReportNavigatorDataSource<SolicitacaoMaterialSummaryResponse>
 {
   private readonly service = inject(SolicitacaoMaterialTecnicaService);
 
-  readonly initialCriteria: Partial<CesReportNavigatorCriteria> = {
+  readonly initialCriteria: Partial<GeoReportNavigatorCriteria> = {
     scope: 'TODAS',
     sort: 'dataSolicitacao,desc'
   };
 
-  readonly config: CesReportNavigatorConfig = {
+  readonly config: GeoReportNavigatorConfig = {
     title: 'Solicitações Técnicas',
     icon: 'pi pi-wrench',
     eyebrow: 'Navegador',
@@ -73,8 +73,8 @@ export class SolicitacaoTecnicaReportNavigatorDataSource
   };
 
   load(
-    criteria: CesReportNavigatorCriteria
-  ): Observable<CesReportNavigatorPage<SolicitacaoMaterialSummaryResponse>> {
+    criteria: GeoReportNavigatorCriteria
+  ): Observable<GeoReportNavigatorPage<SolicitacaoMaterialSummaryResponse>> {
     const filtros: SolicitacaoMaterialFilter = {
       page: 0,
       size: 50,
@@ -91,7 +91,7 @@ export class SolicitacaoTecnicaReportNavigatorDataSource
     );
   }
 
-  toItem(raw: SolicitacaoMaterialSummaryResponse): CesReportNavigatorItem {
+  toItem(raw: SolicitacaoMaterialSummaryResponse): GeoReportNavigatorItem {
     const status = raw.status;
 
     return {
@@ -122,7 +122,7 @@ export class SolicitacaoTecnicaReportNavigatorDataSource
   }
 
   getRouteForItem(
-    item: CesReportNavigatorItem | SolicitacaoMaterialSummaryResponse
+    item: GeoReportNavigatorItem | SolicitacaoMaterialSummaryResponse
   ): any[] {
     const id = (item as any).id;
     return ['/almoxarifado', 'solicitacoes-tecnicas', id];

@@ -6,7 +6,7 @@ package com.nexo.app.shared.infrastructure.email;
  * <p>A escolha é de implantação, não de código: nenhum módulo de negócio sabe por onde
  * o e-mail sai. Trocar o e-mail corporativo por um serviço transacional — ou o
  * contrário, no dia em que a caixa da GoDaddy passar a bastar — é mudar
- * {@code ces.email.provedor} e reiniciar.</p>
+ * {@code geo.email.provedor} e reiniciar.</p>
  */
 public enum ProvedorEmail {
 

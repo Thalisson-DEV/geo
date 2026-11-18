@@ -8,27 +8,27 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFilterPanelComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFilterPanelComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
-import { CES_FORM_KIT } from '@ces/ui/forms';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
+import { GEO_FORM_KIT } from '@geo/ui/forms';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -59,12 +59,12 @@ import { DateMaskDirective } from '../../../shared/directives/date-mask.directiv
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { OPCOES_STATUS, dataIso, dataLocal } from '../../../shared/listagem/listagem';
 
-const ESCOPOS: CesSelectOption<EscopoMeta | null>[] = [
+const ESCOPOS: GeoSelectOption<EscopoMeta | null>[] = [
   { label: 'Todos', value: null },
   { label: ESCOPO_META_LABELS.FUNCAO, value: 'FUNCAO' },
   { label: ESCOPO_META_LABELS.COLABORADOR, value: 'COLABORADOR' }
 ];
-const PERIODICIDADES: CesSelectOption<PeriodicidadeMeta | null>[] = [{ label: 'Todas', value: null }, ...(PERIODICIDADE_OPTIONS as CesSelectOption<PeriodicidadeMeta>[])];
+const PERIODICIDADES: GeoSelectOption<PeriodicidadeMeta | null>[] = [{ label: 'Todas', value: null }, ...(PERIODICIDADE_OPTIONS as GeoSelectOption<PeriodicidadeMeta>[])];
 
 @Component({
   selector: 'app-sst-metas-inspecao',
@@ -77,26 +77,26 @@ const PERIODICIDADES: CesSelectOption<PeriodicidadeMeta | null>[] = [{ label: 'T
     InputNumberModule,
     InputTextModule,
     SelectModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    ...CES_FORM_KIT,
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    ...GEO_FORM_KIT,
     AjudaListagemComponent,
     DateMaskDirective
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="showAddDialog()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="showAddDialog()">
+      <geo-page-header
         title="Metas de inspeção"
         icon="pi pi-flag"
         [breadcrumb]="[{ label: 'SST' }, { label: 'Metas de inspeção' }]"
@@ -104,22 +104,22 @@ const PERIODICIDADES: CesSelectOption<PeriodicidadeMeta | null>[] = [{ label: 'T
         helpLabel="Ajuda sobre metas de inspeção"
         (help)="ajuda.show()"
       >
-        <ces-button actions variant="outline" icon="pi pi-chart-bar" label="Acompanhamento" (pressed)="abrirAcompanhamento()"></ces-button>
-        <ces-button actions icon="pi pi-plus" label="Nova meta" [keyShortcut]="atalhos.newShortcut()" (pressed)="showAddDialog()"></ces-button>
-      </ces-page-header>
+        <geo-button actions variant="outline" icon="pi pi-chart-bar" label="Acompanhamento" (pressed)="abrirAcompanhamento()"></geo-button>
+        <geo-button actions icon="pi pi-plus" label="Nova meta" [keyShortcut]="atalhos.newShortcut()" (pressed)="showAddDialog()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="sst-metas" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="sst-metas" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-select label="Tipo de inspeção" [options]="tiposOpcoes()" [(value)]="lista.filters.idTipoInspecao" [clearable]="true" placeholder="Todos"></ces-select>
-          <ces-select label="Alvo" [options]="escopos" [(value)]="lista.filters.escopo"></ces-select>
-          <ces-select label="Periodicidade" [options]="periodicidades" [(value)]="lista.filters.periodicidade"></ces-select>
-          <ces-datepicker label="Vigente em" [value]="dataLocal(lista.filters.vigenteEm())" [clearable]="true" (valueChange)="lista.filters.vigenteEm.set(dataIso($event))"></ces-datepicker>
-          <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Tipo de inspeção" [options]="tiposOpcoes()" [(value)]="lista.filters.idTipoInspecao" [clearable]="true" placeholder="Todos"></geo-select>
+          <geo-select label="Alvo" [options]="escopos" [(value)]="lista.filters.escopo"></geo-select>
+          <geo-select label="Periodicidade" [options]="periodicidades" [(value)]="lista.filters.periodicidade"></geo-select>
+          <geo-datepicker label="Vigente em" [value]="dataLocal(lista.filters.vigenteEm())" [clearable]="true" (valueChange)="lista.filters.vigenteEm.set(dataIso($event))"></geo-datepicker>
+          <geo-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Metas"
         mode="server"
         storageKey="sst-metas"
@@ -146,103 +146,103 @@ const PERIODICIDADES: CesSelectOption<PeriodicidadeMeta | null>[] = [{ label: 'T
         (emptyAction)="showAddDialog()"
         (rowActivate)="showEditDialog($event)"
       >
-        <ng-template cesCell="alvo" let-row>
-          <span class="ces-cell-strong">{{ nomeAlvo(row) }}</span>
-          <span class="ces-cell-muted">{{ rotuloEscopo(row) }}{{ row.descricao ? ' · ' + row.descricao : '' }}</span>
+        <ng-template geoCell="alvo" let-row>
+          <span class="geo-cell-strong">{{ nomeAlvo(row) }}</span>
+          <span class="geo-cell-muted">{{ rotuloEscopo(row) }}{{ row.descricao ? ' · ' + row.descricao : '' }}</span>
         </ng-template>
-        <ng-template cesCell="meta" let-row>
-          <span class="ces-cell-strong">{{ row.quantidade }} {{ row.quantidade === 1 ? 'inspeção' : 'inspeções' }}</span>
-          <span class="ces-cell-muted">{{ rotuloPeriodicidade(row) }}</span>
+        <ng-template geoCell="meta" let-row>
+          <span class="geo-cell-strong">{{ row.quantidade }} {{ row.quantidade === 1 ? 'inspeção' : 'inspeções' }}</span>
+          <span class="geo-cell-muted">{{ rotuloPeriodicidade(row) }}</span>
         </ng-template>
-        <ng-template cesCell="janela" let-row>
+        <ng-template geoCell="janela" let-row>
           @if (row.janelaAtualInicio && row.janelaAtualFim) {
             {{ formatarData(row.janelaAtualInicio) }} a {{ formatarData(row.janelaAtualFim) }}
           } @else {
-            <span class="ces-cell-muted">Fora da vigência</span>
+            <span class="geo-cell-muted">Fora da vigência</span>
           }
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar meta de ' : 'Reativar meta de ') + nomeAlvo(row)" size="icon-sm" (pressed)="toggleStatus(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar meta de ' : 'Reativar meta de ') + nomeAlvo(row)" size="icon-sm" (pressed)="toggleStatus(row)"></geo-icon-button>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer #drawer [(visible)]="formularioAberto" [title]="editingId() ? 'Editar meta' : 'Nova meta'" [dirty]="metaForm.dirty" size="md">
+    <geo-form-drawer #drawer [(visible)]="formularioAberto" [title]="editingId() ? 'Editar meta' : 'Nova meta'" [dirty]="metaForm.dirty" size="md">
       <form [formGroup]="metaForm" (ngSubmit)="onSave()">
-        <ces-form-section title="Alvo" icon="pi pi-users">
+        <geo-form-section title="Alvo" icon="pi pi-users">
           @if (editingId()) {
-            <ces-callout tone="info">O tipo e o alvo não podem ser alterados. Para mudá-los, cadastre outra meta.</ces-callout>
+            <geo-callout tone="info">O tipo e o alvo não podem ser alterados. Para mudá-los, cadastre outra meta.</geo-callout>
           }
-          <ces-form-field label="Tipo de inspeção" size="lg">
+          <geo-form-field label="Tipo de inspeção" size="lg">
             <p-select formControlName="idTipoInspecao" [options]="tiposInspecao()" optionLabel="nome" optionValue="id" placeholder="Selecione" appendTo="body" size="small"></p-select>
-          </ces-form-field>
-          <ces-form-field label="A meta vale para" size="lg">
+          </geo-form-field>
+          <geo-form-field label="A meta vale para" size="lg">
             <p-select formControlName="escopo" [options]="escoposFormulario" optionLabel="label" optionValue="value" appendTo="body" size="small" (onChange)="onEscopoChange()"></p-select>
-          </ces-form-field>
+          </geo-form-field>
           @if (escopoAtual() === 'COLABORADOR') {
-            <ces-autocomplete label="Colaborador" formControlName="idColaborador" [options]="colaboradores()" [loading]="colaboradoresLoading()"
+            <geo-autocomplete label="Colaborador" formControlName="idColaborador" [options]="colaboradores()" [loading]="colaboradoresLoading()"
               [status]="colaboradorLookupStatus()" placeholder="Digite o nome" description="Exceção individual: prevalece sobre a meta da função dele."
-              (search)="searchColaboradores($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></ces-autocomplete>
+              (search)="searchColaboradores($event)" (loadMore)="colaboradorLookup.loadNext()" (retry)="colaboradorLookup.retry()"></geo-autocomplete>
           } @else {
-            <ces-form-field label="Função" size="lg" hint="Vale para todos os colaboradores ativos nessa função.">
+            <geo-form-field label="Função" size="lg" hint="Vale para todos os colaboradores ativos nessa função.">
               <p-select formControlName="idFuncao" [options]="funcoes()" optionLabel="nome" optionValue="id" [filter]="true" filterBy="nome" placeholder="Selecione"
                 emptyFilterMessage="Nenhuma função encontrada" appendTo="body" size="small"></p-select>
-            </ces-form-field>
+            </geo-form-field>
           }
-          <ces-form-field label="Quantidade de inspeções" size="sm">
+          <geo-form-field label="Quantidade de inspeções" size="sm">
             <p-inputnumber formControlName="quantidade" [min]="minQuantidade" [max]="maxQuantidade" [showButtons]="true" buttonLayout="horizontal"
               incrementButtonIcon="pi pi-plus" decrementButtonIcon="pi pi-minus" size="small"></p-inputnumber>
-          </ces-form-field>
-        </ces-form-section>
+          </geo-form-field>
+        </geo-form-section>
 
-        <ces-form-section title="Período" icon="pi pi-calendar">
-          <ces-form-field label="Periodicidade" size="lg">
+        <geo-form-section title="Período" icon="pi pi-calendar">
+          <geo-form-field label="Periodicidade" size="lg">
             <p-select formControlName="periodicidade" [options]="periodicidadesFormulario" optionLabel="label" optionValue="value" appendTo="body" size="small" (onChange)="onPeriodicidadeChange()"></p-select>
-          </ces-form-field>
-          <ces-form-field label="Início da vigência" size="md">
+          </geo-form-field>
+          <geo-form-field label="Início da vigência" size="md">
             <p-datepicker formControlName="vigenciaInicio" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small"></p-datepicker>
-          </ces-form-field>
+          </geo-form-field>
           @if (!semPrazo()) {
-            <ces-form-field label="Fim da vigência" size="md">
+            <geo-form-field label="Fim da vigência" size="md">
               <p-datepicker formControlName="vigenciaFim" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small"></p-datepicker>
-            </ces-form-field>
+            </geo-form-field>
           }
-          <ces-form-field label="Sem prazo definido" size="lg" [hint]="periodicidadeAtual() === 'PERSONALIZADO' ? 'Campanha pontual: a janela é única e a data de fim é obrigatória.' : undefined">
+          <geo-form-field label="Sem prazo definido" size="lg" [hint]="periodicidadeAtual() === 'PERSONALIZADO' ? 'Campanha pontual: a janela é única e a data de fim é obrigatória.' : undefined">
             <p-checkbox formControlName="semPrazo" [binary]="true" (onChange)="onSemPrazoChange()"></p-checkbox>
-          </ces-form-field>
-          <ces-form-field label="Descrição" size="lg">
+          </geo-form-field>
+          <geo-form-field label="Descrição" size="lg">
             <input pInputText formControlName="descricao" [maxlength]="maxDescricao" placeholder="Ex.: Meta trimestral dos encarregados" pSize="small" />
-          </ces-form-field>
+          </geo-form-field>
           @if (previa(); as texto) {
-            <ces-callout tone="info" title="Prévia">
+            <geo-callout tone="info" title="Prévia">
               {{ texto }}
               @if (janelaPrevia(); as janela) {
                 Janela atual: {{ formatarData(janela.inicio) }} a {{ formatarData(janela.fim) }}.
               } @else {
                 Fora da vigência hoje: a primeira janela ainda vai começar ou já terminou.
               }
-            </ces-callout>
+            </geo-callout>
           }
           @if (erroFormulario(); as erro) {
-            <ces-callout tone="danger">{{ erro }}</ces-callout>
+            <geo-callout tone="danger">{{ erro }}</geo-callout>
           }
           @if (conflito(); as detalhe) {
-            <ces-callout tone="warning" title="Já existe meta para este alvo">
+            <geo-callout tone="warning" title="Já existe meta para este alvo">
               {{ detalhe }}
-              <ces-button size="sm" variant="link" icon="pi pi-arrow-right" iconPosition="right" label="Ver metas deste alvo" (pressed)="filtrarPorAlvoEmConflito()"></ces-button>
-            </ces-callout>
+              <geo-button size="sm" variant="link" icon="pi pi-arrow-right" iconPosition="right" label="Ver metas deste alvo" (pressed)="filtrarPorAlvoEmConflito()"></geo-button>
+            </geo-callout>
           }
-        </ces-form-section>
+        </geo-form-section>
         <button type="submit" hidden aria-hidden="true" tabindex="-1"></button>
       </form>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="drawer.requestClose()"></ces-button>
-        <ces-button icon="pi pi-check" [label]="editingId() ? 'Salvar alterações' : 'Cadastrar meta'" [loading]="saving()" (pressed)="onSave()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="drawer.requestClose()"></geo-button>
+        <geo-button icon="pi pi-check" [label]="editingId() ? 'Salvar alterações' : 'Cadastrar meta'" [loading]="saving()" (pressed)="onSave()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Metas de inspeção" artigoPlural="as" entidadePlural="metas" busca="descrição" rotuloNovo="Nova meta">
       <div class="help-section">
@@ -259,7 +259,7 @@ const PERIODICIDADES: CesSelectOption<PeriodicidadeMeta | null>[] = [{ label: 'T
 export class MetasInspecaoComponent {
   private readonly metasService = inject(MetasInspecaoService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly lookupStore = inject(LookupStore);
@@ -278,7 +278,7 @@ export class MetasInspecaoComponent {
 
   protected readonly funcoes = signal<FuncaoResponse[]>([]);
   protected readonly tiposInspecao = signal<TipoInspecaoResponse[]>([]);
-  protected readonly tiposOpcoes = computed<CesSelectOption<string>[]>(() => this.tiposInspecao().map((t) => ({ label: t.nome, value: t.id })));
+  protected readonly tiposOpcoes = computed<GeoSelectOption<string>[]>(() => this.tiposInspecao().map((t) => ({ label: t.nome, value: t.id })));
 
   protected readonly metaForm = this.fb.group({
     idTipoInspecao: [null as string | null, Validators.required],
@@ -310,20 +310,20 @@ export class MetasInspecaoComponent {
   protected readonly colaboradoresLoading = this.colaboradorLookup.loading;
   protected readonly colaboradorLookupStatus = this.colaboradorLookup.status;
 
-  protected readonly lista = cesListState({
+  protected readonly lista = geoListState({
     storageKey: 'sst-metas',
     filters: {
-      idTipoInspecao: cesFilter.value<string | null>(null, { label: 'Tipo', param: 'tipo', format: (id): string | null => (id ? (this.tiposInspecao().find((t) => t.id === id)?.nome ?? 'tipo selecionado') : null) }),
-      escopo: cesFilter.value<EscopoMeta | null>(null, { label: 'Alvo', type: 'string', options: () => ESCOPOS }),
-      idFuncao: cesFilter.value<string | null>(null, { label: 'Função', param: 'funcao', format: (id): string | null => (id ? (this.funcoes().find((f) => f.id === id)?.nome ?? 'função selecionada') : null) }),
-      idColaborador: cesFilter.value<string | null>(null, {
+      idTipoInspecao: geoFilter.value<string | null>(null, { label: 'Tipo', param: 'tipo', format: (id): string | null => (id ? (this.tiposInspecao().find((t) => t.id === id)?.nome ?? 'tipo selecionado') : null) }),
+      escopo: geoFilter.value<EscopoMeta | null>(null, { label: 'Alvo', type: 'string', options: () => ESCOPOS }),
+      idFuncao: geoFilter.value<string | null>(null, { label: 'Função', param: 'funcao', format: (id): string | null => (id ? (this.funcoes().find((f) => f.id === id)?.nome ?? 'função selecionada') : null) }),
+      idColaborador: geoFilter.value<string | null>(null, {
         label: 'Colaborador',
         param: 'colaborador',
         format: (id): string | null => (id ? (this.colaboradores().find((c) => c.value === id)?.label ?? 'colaborador selecionado') : null)
       }),
-      periodicidade: cesFilter.value<PeriodicidadeMeta | null>(null, { label: 'Periodicidade', type: 'string', options: () => PERIODICIDADES }),
-      vigenteEm: cesFilter.date(null, { label: 'Vigente em', param: 'vigente' }),
-      ativo: cesFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
+      periodicidade: geoFilter.value<PeriodicidadeMeta | null>(null, { label: 'Periodicidade', type: 'string', options: () => PERIODICIDADES }),
+      vigenteEm: geoFilter.date(null, { label: 'Vigente em', param: 'vigente' }),
+      ativo: geoFilter.value<boolean | null>(null, { label: 'Status', param: 'status', options: () => OPCOES_STATUS })
     },
     sort: [{ key: 'vigencia', direction: 'desc' }]
   });
@@ -341,7 +341,7 @@ export class MetasInspecaoComponent {
     { errorMessage: getErrorMessage }
   );
 
-  protected readonly colunas: CesDataTableColumn<MetaInspecaoResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MetaInspecaoResponse>[] = [
     { key: 'alvo', header: 'Alvo', type: 'custom', priority: 1, value: (m) => this.nomeAlvo(m) },
     { key: 'tipo', header: 'Tipo', value: (m) => m.nomeTipoInspecao, display: (m) => m.nomeTipoInspecao || 'Campo' },
     { key: 'meta', header: 'Meta', type: 'custom', priority: 1, value: (m) => m.quantidade, display: (m) => `${m.quantidade} / ${PERIODICIDADE_LABELS[m.periodicidade]}` },

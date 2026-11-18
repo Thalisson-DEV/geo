@@ -19,7 +19,7 @@ public final class AgentRunContext {
     private final AgentRun run;
     private final SemanticQueryContext security;
     private final String nomeUsuario;
-    private final ContextoCes contexto;
+    private final ContextoGeo contexto;
     private final List<UUID> arquivosDaMensagem;
     private final Instant inicio = Instant.now();
     private final Duration duracaoMaxima;
@@ -40,7 +40,7 @@ public final class AgentRunContext {
     private Integer maxCiclos;
     private Integer maxChamadas;
 
-    public AgentRunContext(AgentRun run, SemanticQueryContext security, String nomeUsuario, ContextoCes contexto,
+    public AgentRunContext(AgentRun run, SemanticQueryContext security, String nomeUsuario, ContextoGeo contexto,
             List<UUID> arquivosDaMensagem, Duration duracaoMaxima, int resultadosExistentes,
             int artefatosExistentes, int arquivosExistentes) {
         this.run = Objects.requireNonNull(run);
@@ -176,7 +176,7 @@ public final class AgentRunContext {
         return nomeUsuario;
     }
 
-    public ContextoCes contexto() {
+    public ContextoGeo contexto() {
         return contexto;
     }
 

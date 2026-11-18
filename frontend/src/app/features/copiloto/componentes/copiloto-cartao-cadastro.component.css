@@ -8,15 +8,15 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 1.1rem 0.9rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .cartao--decidido {
   gap: 0.75rem;
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
   box-shadow: none;
 }
 
@@ -33,9 +33,9 @@
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }
 
 .cartao__icone i {
@@ -49,17 +49,17 @@
 
 .cartao__titulo {
   margin: 0;
-  font-size: var(--ces-font-body);
+  font-size: var(--geo-font-body);
   font-weight: 700;
   line-height: 1.35;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .cartao__subtitulo {
   margin: 0.1rem 0 0;
   overflow: hidden;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -70,7 +70,7 @@
 
 /* Campos */
 .cartao__corpo {
-  transition: opacity var(--ces-duration-normal) var(--ces-ease-standard);
+  transition: opacity var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .cartao__corpo--revisando {
@@ -80,23 +80,23 @@
 .campos {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--ces-form-field-gap, 1rem) 1rem;
+  gap: var(--geo-form-field-gap, 1rem) 1rem;
 }
 
 .campos__aviso {
   grid-column: 1 / -1;
   margin: 0;
   padding: 0.5rem 0.75rem;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-warning-soft);
-  color: var(--ces-warning-text);
-  font-size: var(--ces-font-caption);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-warning-soft);
+  color: var(--geo-warning-text);
+  font-size: var(--geo-font-caption);
 }
 
 .cartao__vazio {
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 /* Lote: vários registros revisáveis um a um */
@@ -105,18 +105,18 @@
   flex-direction: column;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
   list-style: none;
   overflow: hidden;
 }
 
 .lote__registro + .lote__registro {
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .lote__registro--aberto {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .lote__registro--aberto .campos {
@@ -136,11 +136,11 @@
   align-items: center;
   gap: 0.65rem;
   min-width: 0;
-  min-height: var(--ces-touch-target, 2.75rem);
+  min-height: var(--geo-touch-target, 2.75rem);
   padding: 0.5rem 0.85rem;
   border: 0;
   background: transparent;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -148,7 +148,7 @@
 
 .lote__alternar:focus-visible {
   outline: none;
-  box-shadow: inset var(--ces-focus-ring);
+  box-shadow: inset var(--geo-focus-ring);
 }
 
 .lote__numero {
@@ -158,8 +158,8 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 999px;
-  background: var(--ces-surface-muted);
-  color: var(--ces-foreground-muted);
+  background: var(--geo-surface-muted);
+  color: var(--geo-foreground-muted);
   font-size: 0.72rem;
   font-weight: 700;
 }
@@ -168,7 +168,7 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -179,13 +179,13 @@
   flex: none;
   align-items: center;
   gap: 0.3rem;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
-  color: var(--ces-warning-text);
+  color: var(--geo-warning-text);
 }
 
 .lote__estado--pronto {
-  color: var(--ces-success-text);
+  color: var(--geo-success-text);
 }
 
 .lote__estado i,
@@ -194,7 +194,7 @@
 }
 
 .lote__seta {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 /* Rodapé com a decisão */
@@ -205,7 +205,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding-top: 0.85rem;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .cartao__resumo {
@@ -213,8 +213,8 @@
   align-items: center;
   gap: 0.4rem;
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .cartao__botoes {
@@ -232,8 +232,8 @@
 
 .desfecho__texto {
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .desfecho__lista {
@@ -251,15 +251,15 @@
   align-items: center;
   gap: 0.25rem 0.5rem;
   min-height: 2rem;
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
 }
 
 .desfecho__ok {
-  color: var(--ces-success);
+  color: var(--geo-success);
 }
 
 .desfecho__falha {
-  color: var(--ces-danger);
+  color: var(--geo-danger);
 }
 
 .desfecho__nome {
@@ -271,8 +271,8 @@
 .desfecho__motivo {
   flex-basis: 100%;
   padding-left: 1.5rem;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-danger-text);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-danger-text);
 }
 
 .senhas {
@@ -280,9 +280,9 @@
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.75rem 0.85rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
 }
 
 .senhas__titulo {
@@ -290,14 +290,14 @@
   align-items: center;
   gap: 0.4rem;
   margin: 0;
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
   font-weight: 700;
 }
 
 .senhas__ajuda {
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .senhas__linha {
@@ -310,15 +310,15 @@
 .senhas__dono {
   flex: 1 1 10rem;
   min-width: 0;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 
 .senhas__valor {
   padding: 0.2rem 0.55rem;
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface-muted);
-  font-size: var(--ces-font-control);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface-muted);
+  font-size: var(--geo-font-control);
   letter-spacing: 0.04em;
   user-select: all;
 }

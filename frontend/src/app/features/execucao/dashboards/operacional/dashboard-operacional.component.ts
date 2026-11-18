@@ -3,20 +3,20 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesChartComponent,
-  CesChartPointSelection,
-  CesDatepickerComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMeterComponent,
-  CesPageHeaderComponent,
-  CesMultiSelectComponent,
-  CesStatusComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoChartComponent,
+  GeoChartPointSelection,
+  GeoDatepickerComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMeterComponent,
+  GeoPageHeaderComponent,
+  GeoMultiSelectComponent,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { createUrlFilters, qp } from '../../../../core/navigation';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -81,15 +81,15 @@ type PeriodoRapido = 'mes' | 'mes-anterior' | '7-dias';
   imports: [
     DatePipe,
     RouterLink,
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesChartComponent,
-    CesDatepickerComponent,
-    CesFilterPanelComponent,
-    CesMeterComponent,
-    CesPageHeaderComponent,
-    CesMultiSelectComponent,
-    CesStatusComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoChartComponent,
+    GeoDatepickerComponent,
+    GeoFilterPanelComponent,
+    GeoMeterComponent,
+    GeoPageHeaderComponent,
+    GeoMultiSelectComponent,
+    GeoStatusComponent,
     DashboardMetricCardComponent,
     CopilotoAreaComponent,
     CopilotoGatilhoComponent,
@@ -97,7 +97,7 @@ type PeriodoRapido = 'mes' | 'mes-anterior' | '7-dias';
     DashboardAnaliseComponent,
     DashboardVisaoGerencialComponent
   ],
-  providers: [CesDrillStateService, NavegacaoAnaliseService],
+  providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-operacional.component.html',
   styleUrl: '../execucao-dashboards.css'
 })
@@ -386,9 +386,9 @@ export class DashboardOperacionalComponent implements OnInit {
   }
 
   /** Recorte aplicado como chips: o período sempre vale (não removível); cada base e processo sai pelo seu chip. */
-  protected readonly chips = computed<CesFilterChip[]>(() => {
+  protected readonly chips = computed<GeoFilterChip[]>(() => {
     const f = this.aplicado();
-    const chips: CesFilterChip[] = [];
+    const chips: GeoFilterChip[] = [];
     if (f.inicio && f.fim) chips.push({ key: 'periodo', label: `Período: ${dataCurta(f.inicio)} a ${dataCurta(f.fim)}`, removable: false });
     for (const id of f.idBaseOperacional ?? []) chips.push({ key: `base:${id}`, label: `Base: ${this.recorte.nomeDaBase(id)}` });
     for (const id of f.idProcesso ?? []) chips.push({ key: `processo:${id}`, label: `Processo: ${this.recorte.nomeDoProcesso(id)}` });
@@ -448,7 +448,7 @@ export class DashboardOperacionalComponent implements OnInit {
   }
 
   /** Clique num ponto do gráfico de produção × meta: o dia (ou o mês) daquele ponto. */
-  protected selecionarSerie(selecao: CesChartPointSelection): void {
+  protected selecionarSerie(selecao: GeoChartPointSelection): void {
     const dias = this.data()?.producaoDiaria ?? [];
     if (this.visaoSerie() === 'dia') {
       const dia = dias[selecao.index];
@@ -459,7 +459,7 @@ export class DashboardOperacionalComponent implements OnInit {
     if (meses[selecao.index]) this.analisar('mes', meses[selecao.index]);
   }
 
-  protected selecionarEquipe(selecao: CesChartPointSelection): void {
+  protected selecionarEquipe(selecao: GeoChartPointSelection): void {
     const codigo = this.seriePorEquipe().rotulos[selecao.index];
     const equipe = this.data()?.equipes.find((e) => e.codigo === codigo);
     if (equipe) this.analisar('equipe', equipe.idEquipe);

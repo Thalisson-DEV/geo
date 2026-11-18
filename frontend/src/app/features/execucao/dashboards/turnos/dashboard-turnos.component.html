@@ -1,36 +1,36 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Dashboard de turnos" icon="pi pi-clock"
+    <geo-page-header title="Dashboard de turnos" icon="pi pi-clock"
       [breadcrumb]="[{ label: 'Execução' }, { label: 'Dashboard de turnos' }]"
       description="Quem está em campo, com qual composição, quanto já lançou no dia e quem está há muito tempo sem lançar uma nota.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
       @if (data(); as d) {
         <span actions class="dash-updated" [title]="d.hoje ? 'Atualiza sozinho a cada 2 minutos' : ''">Atualizado às {{ d.geradoEm | date: 'HH:mm' }}</span>
       }
-      <ces-button actions label="Hoje" icon="pi pi-calendar" variant="outline" (pressed)="hoje()"></ces-button>
-      <ces-button actions label="Produção do mês" icon="pi pi-chart-line" variant="secondary" (pressed)="abrirOperacional()"></ces-button>
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Hoje" icon="pi pi-calendar" variant="outline" (pressed)="hoje()"></geo-button>
+      <geo-button actions label="Produção do mês" icon="pi pi-chart-line" variant="secondary" (pressed)="abrirOperacional()"></geo-button>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="dash-turnos" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+    <geo-filter-panel storageKey="dash-turnos" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
-        <ces-datepicker label="Dia" inputId="turnos-dia" [value]="dia()" (valueChange)="dia.set($event)" [maxDate]="hojeLocal"></ces-datepicker>
-        <ces-multiselect label="Base operacional" inputId="turnos-base" placeholder="Todas" [clearable]="true"
+      <div class="geo-filter-grid">
+        <geo-datepicker label="Dia" inputId="turnos-dia" [value]="dia()" (valueChange)="dia.set($event)" [maxDate]="hojeLocal"></geo-datepicker>
+        <geo-multiselect label="Base operacional" inputId="turnos-base" placeholder="Todas" [clearable]="true"
           selectedItemsLabel="{0} bases" [maxSelectedLabels]="2"
-          [options]="recorte.opcoesBases()" [loading]="recorte.carregando()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></ces-multiselect>
-        <ces-multiselect label="Processo" inputId="turnos-processo" placeholder="Todos" [clearable]="true"
+          [options]="recorte.opcoesBases()" [loading]="recorte.carregando()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></geo-multiselect>
+        <geo-multiselect label="Processo" inputId="turnos-processo" placeholder="Todos" [clearable]="true"
           selectedItemsLabel="{0} processos" [maxSelectedLabels]="2"
-          [options]="recorte.opcoesProcessos()" [loading]="recorte.carregando()" [value]="idsProcesso()" (valueChange)="idsProcesso.set($event)"></ces-multiselect>
+          [options]="recorte.opcoesProcessos()" [loading]="recorte.carregando()" [value]="idsProcesso()" (valueChange)="idsProcesso.set($event)"></geo-multiselect>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     @if (loading() && !data()) {
-      <ces-async-state state="loading" title="Lendo os turnos das equipes" description="Abertura, composição e lançamentos do dia."></ces-async-state>
+      <geo-async-state state="loading" title="Lendo os turnos das equipes" description="Abertura, composição e lançamentos do dia."></geo-async-state>
     } @else if (erro() && !data()) {
-      <ces-async-state state="error" title="Não foi possível carregar os turnos" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível carregar os turnos" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (data(); as d) {
       @if (visaoGerencial(); as vg) {
         <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
@@ -86,9 +86,9 @@
               </div>
               <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'producaoDoDia', rotulo: 'Produção do dia × meta diária por equipe' }" />
             </header>
-            <ces-chart kind="bar" title="Produção do dia e meta diária por equipe" [showTitle]="false"
+            <geo-chart kind="bar" title="Produção do dia e meta diária por equipe" [showTitle]="false"
               [labels]="serieDoDia().rotulos" [series]="serieDoDia().series" valueFormat="currency" [height]="280"
-              [selectable]="true" selectLabel="Analisar equipe" (pointSelect)="selecionarEquipe($event)"></ces-chart>
+              [selectable]="true" selectLabel="Analisar equipe" (pointSelect)="selecionarEquipe($event)"></geo-chart>
           </article>
         </section>
       }
@@ -238,9 +238,9 @@
                           <span class="ed-team__eyebrow">Equipe</span>
                           <h3 [id]="'tu-equipe-' + equipe.idEquipe">{{ equipe.codigo }}</h3>
                         </div>
-                        <ces-status [tone]="situacaoTurno[equipe.situacao].tom" [icon]="situacaoTurno[equipe.situacao].icone">
+                        <geo-status [tone]="situacaoTurno[equipe.situacao].tom" [icon]="situacaoTurno[equipe.situacao].icone">
                           {{ rotuloSituacao(equipe, d) }}
-                        </ces-status>
+                        </geo-status>
                       </header>
 
                       <ul class="ed-team__tags" aria-label="Dados da equipe">
@@ -277,8 +277,8 @@
                               <span class="ed-goal__label"><i class="pi pi-flag" aria-hidden="true"></i> Meta do dia</span>
                               <strong class="ed-goal__pct">{{ percentual(equipe.percentualMetaDiaria) }}</strong>
                             </div>
-                            <ces-meter [value]="equipe.percentualMetaDiaria ?? 0" [label]="'Meta diária da equipe ' + equipe.codigo"
-                              [detail]="moedaCompacta(equipe.producao) + ' de ' + moedaCompacta(equipe.metaDiaria)"></ces-meter>
+                            <geo-meter [value]="equipe.percentualMetaDiaria ?? 0" [label]="'Meta diária da equipe ' + equipe.codigo"
+                              [detail]="moedaCompacta(equipe.producao) + ' de ' + moedaCompacta(equipe.metaDiaria)"></geo-meter>
                             <ul class="ed-goal__rows">
                               @if (equipe.metaDiaria - equipe.producao > 0) {
                                 <li><i class="pi pi-arrow-up" aria-hidden="true"></i>Faltam <strong>{{ moedaCompacta(equipe.metaDiaria - equipe.producao) }}</strong> hoje</li>

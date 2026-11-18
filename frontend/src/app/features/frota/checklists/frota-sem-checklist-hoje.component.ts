@@ -2,14 +2,14 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoStatusComponent
+} from '@geo/ui';
 import { VeiculoSemChecklist } from '../../../core/models/frota-checklist.models';
 import { formatarPlaca } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -23,9 +23,9 @@ import { FrotaChecklistService } from '../../../core/services/frota-checklist.se
   selector: 'app-frota-sem-checklist-hoje',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesCellDirective, CesDataTableComponent, CesIconButtonComponent, CesRowActionsDirective, CesStatusComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoCellDirective, GeoDataTableComponent, GeoIconButtonComponent, GeoRowActionsDirective, GeoStatusComponent],
   template: `
-    <ces-data-table title="Sem checklist hoje"
+    <geo-data-table title="Sem checklist hoje"
       description="Usados hoje (KM lançado, OS ou troca de condutor) sem o checklist do dia. Não bloqueia nada; às 10h cada base recebe o aviso."
       storageKey="frota-sem-checklist" searchPlaceholder="Filtrar nesta lista" [(query)]="busca" [columns]="colunas" [rows]="veiculos()" [rowKey]="chave"
       [state]="carregando() ? 'loading' : erro() ? 'error' : veiculos().length ? 'ready' : 'empty'"
@@ -33,28 +33,28 @@ import { FrotaChecklistService } from '../../../core/services/frota-checklist.se
       [stateDescription]="erro() ?? 'Nenhum veículo foi usado hoje sem o checklist do dia.'"
       [rowClickable]="true" (rowActivate)="verVeiculo($event)">
       <ng-container table-actions>
-        <ces-button size="sm" variant="outline" icon="pi pi-refresh" label="Atualizar" [loading]="carregando()" (pressed)="carregar()"></ces-button>
+        <geo-button size="sm" variant="outline" icon="pi pi-refresh" label="Atualizar" [loading]="carregando()" (pressed)="carregar()"></geo-button>
       </ng-container>
-      <ng-template cesCell="placa" let-row>
-        <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
-        <span class="ces-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
+      <ng-template geoCell="placa" let-row>
+        <span class="geo-cell-strong">{{ placa(row.placa) }}</span>
+        <span class="geo-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
       </ng-template>
-      <ng-template cesCell="motivo" let-row>
-        <ces-status tone="warning" icon="pi-exclamation-triangle">{{ row.motivo }}</ces-status>
+      <ng-template geoCell="motivo" let-row>
+        <geo-status tone="warning" icon="pi-exclamation-triangle">{{ row.motivo }}</geo-status>
       </ng-template>
-      <ng-template cesCell="ultimoChecklistEm" let-row>
+      <ng-template geoCell="ultimoChecklistEm" let-row>
         @if (row.ultimoChecklistEm) {
           {{ row.ultimoChecklistEm | date: 'HH:mm' }}
         } @else {
-          <span class="ces-cell-muted">Nenhum hoje</span>
+          <span class="geo-cell-muted">Nenhum hoje</span>
         }
       </ng-template>
-      <ng-template cesRowActions let-row>
-        <span class="ces-table-actions">
-          <ces-icon-button icon="pi pi-external-link" [label]="'Abrir o veículo ' + placa(row.placa)" tooltip="Abrir o veículo" size="icon-sm" (pressed)="verVeiculo(row)"></ces-icon-button>
+      <ng-template geoRowActions let-row>
+        <span class="geo-table-actions">
+          <geo-icon-button icon="pi pi-external-link" [label]="'Abrir o veículo ' + placa(row.placa)" tooltip="Abrir o veículo" size="icon-sm" (pressed)="verVeiculo(row)"></geo-icon-button>
         </span>
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
   `
 })
 export class FrotaSemChecklistHojeComponent {
@@ -70,7 +70,7 @@ export class FrotaSemChecklistHojeComponent {
   protected readonly carregando = signal(false);
   protected readonly erro = signal<string | null>(null);
 
-  protected readonly colunas: CesDataTableColumn<VeiculoSemChecklist>[] = [
+  protected readonly colunas: GeoDataTableColumn<VeiculoSemChecklist>[] = [
     { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (v) => v.placa, display: (v) => `${formatarPlaca(v.placa)} ${v.baseNome ?? ''}` },
     { key: 'motivo', header: 'Situação', type: 'custom', priority: 1, value: (v) => v.motivo, display: (v) => v.motivo },
     { key: 'condutorAtualNome', header: 'Condutor agora', priority: 1, display: (v) => v.condutorAtualNome ?? 'Sem condutor vinculado' },

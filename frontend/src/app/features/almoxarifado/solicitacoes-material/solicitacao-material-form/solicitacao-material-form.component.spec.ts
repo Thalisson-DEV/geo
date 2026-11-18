@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { RhService } from '../../../../core/services/rh.service';
 import { SolicitacaoMaterialFormComponent } from './solicitacao-material-form.component';

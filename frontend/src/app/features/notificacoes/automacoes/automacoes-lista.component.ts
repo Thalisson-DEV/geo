@@ -3,10 +3,10 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
-  CesButtonComponent, CesCalloutComponent, CesCellDirective, CesContentState, CesDataTableColumn, CesDataTableComponent,
-  CesDialogShellComponent, CesFilterChip, CesFilterPanelComponent, CesPageHeaderComponent, CesSelectComponent, CesSelectOption,
-  CesStatusComponent, CesTextareaComponent, CesTone, NotificationService
-} from '@ces/ui';
+  GeoButtonComponent, GeoCalloutComponent, GeoCellDirective, GeoContentState, GeoDataTableColumn, GeoDataTableComponent,
+  GeoDialogShellComponent, GeoFilterChip, GeoFilterPanelComponent, GeoPageHeaderComponent, GeoSelectComponent, GeoSelectOption,
+  GeoStatusComponent, GeoTextareaComponent, GeoTone, NotificationService
+} from '@geo/ui';
 
 import {
   Aprovacao, AutomacaoResumo, Modelo, OrigemAutomacao, StatusAutomacao, STATUS_EXECUCAO_ROTULO, STATUS_ROTULO, TIPO_ROTULO, TipoAutomacao
@@ -44,67 +44,67 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
 @Component({
   selector: 'app-automacoes-lista',
   standalone: true,
-  imports: [CesTextareaComponent, CesStatusComponent, CesCalloutComponent, CesButtonComponent, CesDataTableComponent, CesCellDirective, CesSelectComponent, CesFilterPanelComponent, RouterLink, DatePipe, CesPageHeaderComponent, CesDialogShellComponent],
+  imports: [GeoTextareaComponent, GeoStatusComponent, GeoCalloutComponent, GeoButtonComponent, GeoDataTableComponent, GeoCellDirective, GeoSelectComponent, GeoFilterPanelComponent, RouterLink, DatePipe, GeoPageHeaderComponent, GeoDialogShellComponent],
   styleUrls: ['./automacoes.css', './automacoes-campos.css'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut aut-page">
-      <ces-page-header title="Automações" icon="pi pi-sitemap"
+      <geo-page-header title="Automações" icon="pi pi-sitemap"
                        description="Quando algo acontece (ou numa agenda), o GEO executa os passos: condições, avisos, e-mails, aprovações, consultas e análises da Bússola.">
         <div actions style="display:flex;gap:0.5rem">
-          <ces-button icon="pi pi-plus" label="Nova automação" variant="primary" size="sm" (pressed)="novoAberto.set(true)"></ces-button>
+          <geo-button icon="pi pi-plus" label="Nova automação" variant="primary" size="sm" (pressed)="novoAberto.set(true)"></geo-button>
         </div>
-      </ces-page-header>
+      </geo-page-header>
 
       @if (aprovacoes().length) {
-        <ces-callout tone="warning" [dense]="true"><span>{{ aprovacoes().length }} aprovação(ões) aguardando você.</span>
+        <geo-callout tone="warning" [dense]="true"><span>{{ aprovacoes().length }} aprovação(ões) aguardando você.</span>
           @for (a of aprovacoes().slice(0, 3); track a.id) {
             <a class="aut-link" [routerLink]="['/notificacoes/automacoes/aprovacoes', a.id]">{{ a.titulo }}</a>
           }
-        </ces-callout>
+        </geo-callout>
       }
 
-      <ces-filter-panel storageKey="automacoes-filtros" [activeCount]="resumoFiltros().length" [summary]="resumoFiltros()"
+      <geo-filter-panel storageKey="automacoes-filtros" [activeCount]="resumoFiltros().length" [summary]="resumoFiltros()"
                         (applied)="aplicarFiltros()" (cleared)="limparFiltros()" (chipRemoved)="removerFiltro($event)">
-        <div class="ces-filter-grid">
-          <ces-select label="Tipo" placeholder="Todos" [clearable]="true" [options]="opcoesTipo()" [(value)]="rascunho.tipo"></ces-select>
-          <ces-select label="Situação" placeholder="Todas" [clearable]="true" [options]="opcoesStatus" [(value)]="rascunho.status"></ces-select>
-          <ces-select label="Origem" placeholder="Todas" [clearable]="true" [options]="opcoesOrigem" [(value)]="rascunho.origem"></ces-select>
-          <ces-select label="Última execução" placeholder="Qualquer" [clearable]="true" [options]="opcoesExecucao" [(value)]="rascunho.execucao"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-select label="Tipo" placeholder="Todos" [clearable]="true" [options]="opcoesTipo()" [(value)]="rascunho.tipo"></geo-select>
+          <geo-select label="Situação" placeholder="Todas" [clearable]="true" [options]="opcoesStatus" [(value)]="rascunho.status"></geo-select>
+          <geo-select label="Origem" placeholder="Todas" [clearable]="true" [options]="opcoesOrigem" [(value)]="rascunho.origem"></geo-select>
+          <geo-select label="Última execução" placeholder="Qualquer" [clearable]="true" [options]="opcoesExecucao" [(value)]="rascunho.execucao"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table title="Automações" storageKey="automacoes-lista" searchPlaceholder="Buscar automação"
+      <geo-data-table title="Automações" storageKey="automacoes-lista" searchPlaceholder="Buscar automação"
                       [columns]="colunas" [rows]="filtradas()" [rowKey]="chave" [state]="estado()" [rowClickable]="true" [filtered]="resumoFiltros().length > 0"
                       noResultsTitle="Nenhuma automação com esse recorte." (clearFilters)="limparFiltros()"
                       stateTitle="Nenhuma automação aqui" stateDescription="Crie uma em branco, a partir de um modelo, ou peça à Bússola."
                       emptyActionLabel="Nova automação" (emptyAction)="novoAberto.set(true)" (rowActivate)="abrir($event)">
-        <ng-template cesCell="nome" let-row>
+        <ng-template geoCell="nome" let-row>
           <span class="aut-list-main">
             <strong class="aut-list-name">{{ row.nome }}</strong>
             <span class="aut-list-desc">{{ row.descricao || row.gatilhoRotulo }}</span>
           </span>
         </ng-template>
-        <ng-template cesCell="ultima" let-row>
+        <ng-template geoCell="ultima" let-row>
           @if (row.ultimaExecucao; as u) {
             <span class="aut-list-run" [attr.data-status]="u.status"><span class="aut-dot"></span>{{ rotuloExecucao(u.status) }} · {{ u.criadaEm | date: 'dd/MM HH:mm' }}</span>
           } @else { <span class="aut-muted">Nunca rodou</span> }
         </ng-template>
-        <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tomStatus(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</ces-status>
+        <ng-template geoCell="status" let-row>
+          <geo-status [tone]="tomStatus(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</geo-status>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-dialog-shell [(visible)]="novoAberto" title="Nova automação" size="lg" [loading]="criando()" loadingLabel="Criando">
+    <geo-dialog-shell [(visible)]="novoAberto" title="Nova automação" size="lg" [loading]="criando()" loadingLabel="Criando">
       <div class="aut" style="display:flex;flex-direction:column;gap:1rem">
         <label class="aut-field">
-          <span class="ces-field__label">Nome</span>
-          <input class="p-inputtext ces-prime-control" [value]="nome()" (input)="nome.set($any($event.target).value)" placeholder="Ex.: Desconto validado → RH da base" />
+          <span class="geo-field__label">Nome</span>
+          <input class="p-inputtext geo-prime-control" [value]="nome()" (input)="nome.set($any($event.target).value)" placeholder="Ex.: Desconto validado → RH da base" />
         </label>
         <div class="aut-field">
-          <span class="ces-field__label">Como começar</span>
+          <span class="geo-field__label">Como começar</span>
           <div class="aut-templates">
             <button type="button" class="aut-template" [attr.aria-pressed]="escolha() === 'branco'" (click)="escolha.set('branco')" data-group="data">
               <span class="aut-node-icon"><i class="pi pi-file" aria-hidden="true"></i></span>
@@ -123,16 +123,16 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
           </div>
         </div>
         @if (escolha() === 'pedir') {
-          <ces-textarea label="O que a automação deve fazer?" [rows]="4" [value]="pedido()" (valueChange)="pedido.set($event)"
-                        placeholder="Quando um desconto for validado, avise por e-mail o RH da base do colaborador: Juazeiro é a Maria, Petrolina é o João; nas outras bases, quem tem a permissão desconto:baixar."></ces-textarea>
+          <geo-textarea label="O que a automação deve fazer?" [rows]="4" [value]="pedido()" (valueChange)="pedido.set($event)"
+                        placeholder="Quando um desconto for validado, avise por e-mail o RH da base do colaborador: Juazeiro é a Maria, Petrolina é o João; nas outras bases, quem tem a permissão desconto:baixar."></geo-textarea>
         }
-        @if (erroCriar()) { <ces-callout tone="danger" [dense]="true">{{ erroCriar() }}</ces-callout> }
+        @if (erroCriar()) { <geo-callout tone="danger" [dense]="true">{{ erroCriar() }}</geo-callout> }
       </div>
       <div dialog-footer>
-        <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="novoAberto.set(false)"></ces-button>
-        <ces-button [label]="escolha() === 'pedir' ? 'Montar com a Bússola' : 'Criar e abrir o editor'" variant="primary" size="sm" [disabled]="criando() || (escolha() === 'pedir' ? !pedido().trim() : !nome().trim())" (pressed)="criar()"></ces-button>
+        <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="novoAberto.set(false)"></geo-button>
+        <geo-button [label]="escolha() === 'pedir' ? 'Montar com a Bússola' : 'Criar e abrir o editor'" variant="primary" size="sm" [disabled]="criando() || (escolha() === 'pedir' ? !pedido().trim() : !nome().trim())" (pressed)="criar()"></geo-button>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `
 })
 export class AutomacoesListaComponent {
@@ -148,11 +148,11 @@ export class AutomacoesListaComponent {
   protected readonly filtros = signal<Filtros>(SEM_FILTROS);
   /** O que está nos campos do painel; vale ao clicar em "Aplicar filtros". */
   protected rascunho: { -readonly [K in keyof Filtros]: Filtros[K] } = { ...SEM_FILTROS };
-  protected readonly opcoesStatus: CesSelectOption<StatusAutomacao>[] = (['ATIVA', 'PAUSADA', 'RASCUNHO', 'ARQUIVADA'] as StatusAutomacao[])
+  protected readonly opcoesStatus: GeoSelectOption<StatusAutomacao>[] = (['ATIVA', 'PAUSADA', 'RASCUNHO', 'ARQUIVADA'] as StatusAutomacao[])
     .map((v) => ({ label: STATUS_ROTULO[v], value: v }));
-  protected readonly opcoesOrigem: CesSelectOption<OrigemAutomacao>[] = (Object.keys(ORIGEM_ROTULO) as OrigemAutomacao[])
+  protected readonly opcoesOrigem: GeoSelectOption<OrigemAutomacao>[] = (Object.keys(ORIGEM_ROTULO) as OrigemAutomacao[])
     .map((v) => ({ label: ORIGEM_ROTULO[v], value: v }));
-  protected readonly opcoesExecucao: CesSelectOption<FiltroExecucao>[] = (Object.keys(EXECUCAO_FILTRO_ROTULO) as FiltroExecucao[])
+  protected readonly opcoesExecucao: GeoSelectOption<FiltroExecucao>[] = (Object.keys(EXECUCAO_FILTRO_ROTULO) as FiltroExecucao[])
     .map((v) => ({ label: EXECUCAO_FILTRO_ROTULO[v], value: v }));
   protected readonly novoAberto = signal(false);
   protected readonly escolha = signal<string>('branco');
@@ -163,7 +163,7 @@ export class AutomacoesListaComponent {
   protected readonly tipos: TipoAutomacao[] = ['ALERTA', 'EMAIL', 'ROTINA', 'APROVACAO', 'DADOS_IA', 'GERAL'];
   protected readonly icone = icone;
 
-  protected readonly colunas: CesDataTableColumn<AutomacaoResumo>[] = [
+  protected readonly colunas: GeoDataTableColumn<AutomacaoResumo>[] = [
     { key: 'nome', header: 'Automação', priority: 1, width: '40%', value: (a) => a.nome, display: (a) => `${a.nome} ${a.descricao ?? ''}` },
     { key: 'tipo', header: 'Tipo', width: '7rem', display: (a) => TIPO_ROTULO[a.tipo] },
     { key: 'gatilho', header: 'Quando', display: (a) => a.gatilhoRotulo },
@@ -172,8 +172,8 @@ export class AutomacoesListaComponent {
     { key: 'status', header: 'Situação', priority: 1, display: (a) => STATUS_ROTULO[a.status] }
   ];
   protected readonly chave = (a: AutomacaoResumo) => a.id;
-  protected readonly estado = computed<CesContentState>(() => this.carregando() ? 'loading' : this.erro() ? 'error' : this.filtradas().length ? 'ready' : 'empty');
-  protected readonly opcoesTipo = computed<CesSelectOption<TipoAutomacao>[]>(() =>
+  protected readonly estado = computed<GeoContentState>(() => this.carregando() ? 'loading' : this.erro() ? 'error' : this.filtradas().length ? 'ready' : 'empty');
+  protected readonly opcoesTipo = computed<GeoSelectOption<TipoAutomacao>[]>(() =>
     this.tipos.filter((t) => this.contagem()[t]).map((t) => ({ label: `${TIPO_ROTULO[t]} (${this.contagem()[t]})`, value: t })));
 
   protected readonly contagem = computed(() => {
@@ -190,9 +190,9 @@ export class AutomacoesListaComponent {
       && (!f.execucao || casaExecucao(a, f.execucao)));
   });
 
-  protected readonly resumoFiltros = computed<CesFilterChip[]>(() => {
+  protected readonly resumoFiltros = computed<GeoFilterChip[]>(() => {
     const f = this.filtros();
-    const chips: CesFilterChip[] = [];
+    const chips: GeoFilterChip[] = [];
     if (f.tipo) chips.push({ key: 'tipo', label: `Tipo: ${TIPO_ROTULO[f.tipo]}` });
     if (f.status) chips.push({ key: 'status', label: `Situação: ${STATUS_ROTULO[f.status]}` });
     if (f.origem) chips.push({ key: 'origem', label: `Origem: ${ORIGEM_ROTULO[f.origem]}` });
@@ -249,7 +249,7 @@ export class AutomacoesListaComponent {
 
   protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_AUTOMACAO;
 
-  protected tomStatus(s: AutomacaoResumo['status']): CesTone {
+  protected tomStatus(s: AutomacaoResumo['status']): GeoTone {
     return s === 'ATIVA' ? 'success' : s === 'PAUSADA' ? 'warning' : 'neutral';
   }
 

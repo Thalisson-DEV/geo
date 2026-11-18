@@ -97,7 +97,7 @@ describe('MovimentacoesMaterialDialogComponent', () => {
 
   it('expande a operação com a quantidade e as séries movidas do material', async () => {
     const fixture = await abrir();
-    document.body.querySelector<HTMLButtonElement>('.ces-data-table__expander')!.click();
+    document.body.querySelector<HTMLButtonElement>('.geo-data-table__expander')!.click();
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();

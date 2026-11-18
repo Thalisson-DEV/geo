@@ -8,15 +8,15 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1rem 1.1rem 0.9rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
 }
 
 .cartao--decidido {
   gap: 0.75rem;
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
   box-shadow: none;
 }
 
@@ -33,9 +33,9 @@
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }
 
 .cartao__icone i {
@@ -49,17 +49,17 @@
 
 .cartao__titulo {
   margin: 0;
-  font-size: var(--ces-font-body);
+  font-size: var(--geo-font-body);
   font-weight: 700;
   line-height: 1.35;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
 }
 
 .cartao__subtitulo {
   margin: 0.1rem 0 0;
   overflow: hidden;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -72,7 +72,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  transition: opacity var(--ces-duration-normal) var(--ces-ease-standard);
+  transition: opacity var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .cartao__corpo--revisando {
@@ -85,8 +85,8 @@
   flex-direction: column;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
   list-style: none;
   overflow: hidden;
 }
@@ -99,11 +99,11 @@
 }
 
 .item + .item {
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .item--rejeitar {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .item__linha {
@@ -120,13 +120,13 @@
   height: 1.5rem;
   margin-top: 0.05rem;
   border-radius: 999px;
-  background: var(--ces-success-soft);
-  color: var(--ces-success-text);
+  background: var(--geo-success-soft);
+  color: var(--geo-success-text);
 }
 
 .item--rejeitar .item__marca {
-  background: var(--ces-danger-soft);
-  color: var(--ces-danger-text);
+  background: var(--geo-danger-soft);
+  color: var(--geo-danger-text);
 }
 
 .item__marca i {
@@ -145,27 +145,27 @@
   align-items: baseline;
   gap: 0 0.45rem;
   margin: 0;
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
   line-height: 1.4;
 }
 
 .item__numero {
   font-weight: 700;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   white-space: nowrap;
 }
 
 .item__fornecedor {
   min-width: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   overflow-wrap: anywhere;
 }
 
 .item__detalhe,
 .item__descricao {
   margin: 0.1rem 0 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
   overflow-wrap: anywhere;
 }
 
@@ -174,7 +174,7 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .item__valor {
@@ -188,26 +188,26 @@
 }
 
 .item__valor strong {
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
   font-weight: 700;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   white-space: nowrap;
 }
 
 .item__pedido {
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
   white-space: nowrap;
 }
 
 .item__acao {
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
-  color: var(--ces-success-text);
+  color: var(--geo-success-text);
 }
 
 .item--rejeitar .item__acao {
-  color: var(--ces-danger-text);
+  color: var(--geo-danger-text);
 }
 
 .item__botoes {
@@ -226,8 +226,8 @@
   gap: 0.35rem;
   margin: 0;
   padding-left: 2.15rem;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .item__observacao i {
@@ -240,8 +240,8 @@
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.65rem 0.85rem;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-warning-soft);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-warning-soft);
 }
 
 .fora__titulo {
@@ -249,9 +249,9 @@
   align-items: center;
   gap: 0.4rem;
   margin: 0;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 700;
-  color: var(--ces-warning-text);
+  color: var(--geo-warning-text);
 }
 
 .fora__lista {
@@ -266,17 +266,17 @@
 .fora__item {
   display: flex;
   flex-direction: column;
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
 }
 
 .fora__nome {
   font-weight: 600;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   overflow-wrap: anywhere;
 }
 
 .fora__motivo {
-  color: var(--ces-warning-text);
+  color: var(--geo-warning-text);
 }
 
 /* Rodapé com a decisão */
@@ -287,7 +287,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   padding-top: 0.85rem;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .cartao__resumo {
@@ -295,8 +295,8 @@
   align-items: center;
   gap: 0.4rem;
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .cartao__botoes {
@@ -314,8 +314,8 @@
 
 .desfecho__texto {
   margin: 0;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-foreground-muted);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-muted);
 }
 
 .desfecho__lista {
@@ -333,20 +333,20 @@
   align-items: center;
   gap: 0.25rem 0.5rem;
   min-height: 2rem;
-  font-size: var(--ces-font-control);
+  font-size: var(--geo-font-control);
 }
 
 .desfecho__ok {
-  color: var(--ces-success);
+  color: var(--geo-success);
 }
 
 .desfecho__rejeitada,
 .desfecho__falha {
-  color: var(--ces-danger);
+  color: var(--geo-danger);
 }
 
 .desfecho__fora {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .desfecho__nome {
@@ -362,20 +362,20 @@
 }
 
 .desfecho__status {
-  font-size: var(--ces-font-caption);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 .desfecho__motivo {
   flex-basis: 100%;
   padding-left: 1.5rem;
-  font-size: var(--ces-font-caption);
-  color: var(--ces-danger-text);
+  font-size: var(--geo-font-caption);
+  color: var(--geo-danger-text);
 }
 
 .desfecho__motivo--fora {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
 }
 
 @media (max-width: 40rem) {

@@ -1,5 +1,5 @@
 # Configurações para testes
-ces:
+geo:
   frota:
     analises:
       # As tabelas JDBC da telemetria não existem no H2 (create-drop pelas entidades).

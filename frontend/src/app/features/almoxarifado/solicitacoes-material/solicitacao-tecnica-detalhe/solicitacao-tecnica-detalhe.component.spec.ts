@@ -6,7 +6,7 @@ import { ActivatedRoute, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { describe, beforeEach, it, expect, vi } from 'vitest';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { NotificationService } from '@ces/ui';
+import { NotificationService } from '@geo/ui';
 import { SolicitacaoTecnicaDetalheComponent } from './solicitacao-tecnica-detalhe.component';
 import { SolicitacaoMaterialTecnicaService } from '../../../../core/services/solicitacao-material-tecnica.service';
 import { ObrasService } from '../../../../core/services/obras.service';

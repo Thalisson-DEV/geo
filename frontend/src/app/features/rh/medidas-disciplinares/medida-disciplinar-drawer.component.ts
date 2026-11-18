@@ -2,22 +2,22 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAutocompleteComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesDatepickerComponent,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAutocompleteComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoDatepickerComponent,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable, catchError, concat, last, map, of, switchMap, toArray } from 'rxjs';
 import { LookupStore } from '../../../core/lookup';
 import {
@@ -80,82 +80,82 @@ function tamanho(bytes: number): string {
   imports: [
     DatePipe,
     FormsModule,
-    CesAutocompleteComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoAutocompleteComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   styles: `
     .resumo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 1rem; margin: 0; }
     @media (max-width: 640px) { .resumo { grid-template-columns: minmax(0, 1fr); } }
-    .resumo dt { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .resumo dd { margin: 0; font-weight: 600; color: var(--ces-foreground); }
+    .resumo dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .resumo dd { margin: 0; font-weight: 600; color: var(--geo-foreground); }
     .resumo__largo { grid-column: 1 / -1; }
     .resumo dd.resumo__fatos { white-space: pre-line; font-weight: 400; }
     .anteriores { list-style: none; margin: 0.375rem 0 0; padding: 0; display: grid; gap: 0.25rem; }
-    .anteriores li { display: flex; justify-content: space-between; gap: 0.75rem; font-size: var(--ces-font-caption); }
+    .anteriores li { display: flex; justify-content: space-between; gap: 0.75rem; font-size: var(--geo-font-caption); }
     .lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
-    .anexo { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-    .anexo .pi-file { color: var(--ces-brand); }
+    .anexo { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+    .anexo .pi-file { color: var(--geo-brand); }
     .anexo__texto { flex: 1; min-width: 0; display: grid; }
     .anexo__texto strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .anexo__texto span { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
-    .evento { display: grid; gap: 0.125rem; padding-left: 0.75rem; border-left: 2px solid var(--ces-border); }
+    .anexo__texto span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .evento { display: grid; gap: 0.125rem; padding-left: 0.75rem; border-left: 2px solid var(--geo-border); }
     .evento strong { font-weight: 600; }
-    .evento span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .evento span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; }
     .rodape { display: flex; align-items: center; gap: 0.5rem; width: 100%; flex-wrap: wrap; }
     .rodape__espaco { flex: 1; }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricaoDrawer()" [dirty]="alterado()" [loading]="salvando()" size="lg">
+    <geo-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricaoDrawer()" [dirty]="alterado()" [loading]="salvando()" size="lg">
 
       @if (medida(); as m) {
         @if (corrigindo()) {
-          <ces-callout tone="info" icon="pi pi-pencil" [dense]="true" title="Corrigindo os dados lançados">
+          <geo-callout tone="info" icon="pi pi-pencil" [dense]="true" title="Corrigindo os dados lançados">
             A correção fica no histórico da medida.
-          </ces-callout>
+          </geo-callout>
         } @else if (m.situacao === 'CANCELADA') {
           @let s = situacao(m);
-          <ces-callout tone="info" [icon]="'pi ' + s.icone" [dense]="true" [title]="s.rotulo">
+          <geo-callout tone="info" [icon]="'pi ' + s.icone" [dense]="true" [title]="s.rotulo">
             Cancelada em {{ m.canceladaEm | date: 'dd/MM/yyyy' }}: {{ m.justificativaCancelamento }} Não conta para a reincidência.
-          </ces-callout>
+          </geo-callout>
         }
       }
 
       @if (origem(); as o) {
-        <ces-callout tone="info" icon="pi pi-link" [dense]="true" [title]="'Pedida pela ' + rotuloOrigem(o.tipo).toLowerCase()">
+        <geo-callout tone="info" icon="pi pi-link" [dense]="true" [title]="'Pedida pela ' + rotuloOrigem(o.tipo).toLowerCase()">
           {{ preenchimentoIndisponivel() ? 'Os dados da origem não puderam ser carregados; preencha a medida manualmente.' : 'Os dados vieram da origem; confira antes de lançar.' }}
           Ao lançar, a medida fica vinculada a ela.
-        </ces-callout>
+        </geo-callout>
       }
 
       @if (formulario()) {
-        <ces-form-section title="Colaborador e medida" icon="pi pi-user">
+        <geo-form-section title="Colaborador e medida" icon="pi pi-user">
           @if (colaboradorTravado()) {
-            <ces-text-input label="Colaborador" [value]="nomeColaborador()" [readonly]="true"></ces-text-input>
+            <geo-text-input label="Colaborador" [value]="nomeColaborador()" [readonly]="true"></geo-text-input>
           } @else {
-            <ces-autocomplete label="Colaborador" [required]="true" [options]="opcoesColaborador()" [status]="statusBusca()"
+            <geo-autocomplete label="Colaborador" [required]="true" [options]="opcoesColaborador()" [status]="statusBusca()"
               [loading]="statusBusca() === 'loading'" [ngModel]="idColaborador()" (ngModelChange)="trocarColaborador($event)"
-              (search)="buscarColaborador($event)" [error]="erro('colaborador')"></ces-autocomplete>
+              (search)="buscarColaborador($event)" [error]="erro('colaborador')"></geo-autocomplete>
           }
-          <div class="ces-form-grid">
-            <ces-select label="Motivo" [required]="true" [options]="opcoesMotivo()" [(value)]="idMotivo" [error]="erro('motivo')"
-              (valueChange)="carregarReincidencia()"></ces-select>
-            <ces-select label="Tipo de medida" [required]="true" [options]="opcoesTipo()" [(value)]="idTipo" [error]="erro('tipo')"></ces-select>
+          <div class="geo-form-grid">
+            <geo-select label="Motivo" [required]="true" [options]="opcoesMotivo()" [(value)]="idMotivo" [error]="erro('motivo')"
+              (valueChange)="carregarReincidencia()"></geo-select>
+            <geo-select label="Tipo de medida" [required]="true" [options]="opcoesTipo()" [(value)]="idTipo" [error]="erro('tipo')"></geo-select>
           </div>
           @if (reincidencia(); as r) {
             @if (r.anteriores.length) {
-              <ces-callout tone="warning" icon="pi pi-history" [dense]="true"
+              <geo-callout tone="warning" icon="pi pi-history" [dense]="true"
                 [title]="'Reincidência: ' + (r.anteriores.length === 1 ? '1 medida' : r.anteriores.length + ' medidas') + ' pelo mesmo motivo em ' + r.janelaMeses + ' meses'">
                 <ul class="anteriores">
                   @for (a of r.anteriores; track a.id) {
@@ -166,47 +166,47 @@ function tamanho(bytes: number): string {
                   <div class="acoes">
                     <span>Sugestão: <strong>{{ r.tipoSugeridoNome }}</strong> (acima da última). A decisão é do RH.</span>
                     @if (idTipo() !== r.idTipoSugerido) {
-                      <ces-button size="sm" variant="outline" label="Usar a sugestão" (pressed)="idTipo.set(r.idTipoSugerido)"></ces-button>
+                      <geo-button size="sm" variant="outline" label="Usar a sugestão" (pressed)="idTipo.set(r.idTipoSugerido)"></geo-button>
                     }
                   </div>
                 } @else {
                   <span>A última já foi do tipo mais grave.</span>
                 }
-              </ces-callout>
+              </geo-callout>
             }
           }
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="Fato e aplicação" icon="pi pi-file-edit">
-          <div class="ces-form-grid">
-            <ces-datepicker label="Data do fato" [required]="true" [(value)]="dataFato" [maxDate]="hoje" [error]="erro('dataFato')"
-              (valueChange)="carregarReincidencia()"></ces-datepicker>
-            <ces-datepicker label="Data da aplicação" [required]="true" [(value)]="dataAplicacao" [minDate]="dataFato()" [maxDate]="hoje"
-              description="Dia em que a medida foi aplicada ao colaborador." [error]="erro('dataAplicacao')"></ces-datepicker>
+        <geo-form-section title="Fato e aplicação" icon="pi pi-file-edit">
+          <div class="geo-form-grid">
+            <geo-datepicker label="Data do fato" [required]="true" [(value)]="dataFato" [maxDate]="hoje" [error]="erro('dataFato')"
+              (valueChange)="carregarReincidencia()"></geo-datepicker>
+            <geo-datepicker label="Data da aplicação" [required]="true" [(value)]="dataAplicacao" [minDate]="dataFato()" [maxDate]="hoje"
+              description="Dia em que a medida foi aplicada ao colaborador." [error]="erro('dataAplicacao')"></geo-datepicker>
           </div>
           @if (avisoImediatidade(); as dias) {
-            <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Aplicação longe do fato">
+            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Aplicação longe do fato">
               {{ dias }} dias entre o fato e a aplicação, acima do prazo de {{ prazoImediatidade() }} dias. A demora pode ser entendida como perdão tácito; registre nos fatos o motivo (ex.: apuração, ciência tardia da multa).
-            </ces-callout>
+            </geo-callout>
           }
-          <ces-textarea label="Descrição dos fatos" [required]="true" [(value)]="descricao" [rows]="5" [maxlength]="4000"
-            placeholder="O que aconteceu, onde, quando e como a empresa soube." [error]="erro('descricao')"></ces-textarea>
-        </ces-form-section>
+          <geo-textarea label="Descrição dos fatos" [required]="true" [(value)]="descricao" [rows]="5" [maxlength]="4000"
+            placeholder="O que aconteceu, onde, quando e como a empresa soube." [error]="erro('descricao')"></geo-textarea>
+        </geo-form-section>
 
         @if (tipoSelecionado()?.exigePeriodo) {
-          <ces-form-section title="Suspensão" icon="pi pi-calendar-times" description="Dias corridos, de 1 a 30 (CLT, art. 474).">
-            <div class="ces-form-grid">
-              <ces-number-input label="Dias" [required]="true" [(value)]="diasSuspensao" [min]="1" [max]="maximoDias" [error]="erro('dias')"></ces-number-input>
-              <ces-datepicker label="Início" [required]="true" [(value)]="inicioSuspensao" [minDate]="dataFato()" [error]="erro('inicio')"></ces-datepicker>
+          <geo-form-section title="Suspensão" icon="pi pi-calendar-times" description="Dias corridos, de 1 a 30 (CLT, art. 474).">
+            <div class="geo-form-grid">
+              <geo-number-input label="Dias" [required]="true" [(value)]="diasSuspensao" [min]="1" [max]="maximoDias" [error]="erro('dias')"></geo-number-input>
+              <geo-datepicker label="Início" [required]="true" [(value)]="inicioSuspensao" [minDate]="dataFato()" [error]="erro('inicio')"></geo-datepicker>
             </div>
             @if (fimSuspensao(); as fim) {
-              <ces-callout tone="info" icon="pi pi-calendar" [dense]="true">Termina em {{ fim | date: 'dd/MM/yyyy' }}; o colaborador volta no dia seguinte.</ces-callout>
+              <geo-callout tone="info" icon="pi pi-calendar" [dense]="true">Termina em {{ fim | date: 'dd/MM/yyyy' }}; o colaborador volta no dia seguinte.</geo-callout>
             }
-          </ces-form-section>
+          </geo-form-section>
         }
 
         @if (!medida()) {
-          <ces-form-section title="Anexos" icon="pi pi-paperclip" description="Opcional. O documento assinado, fotos ou outros arquivos; dá para anexar depois.">
+          <geo-form-section title="Anexos" icon="pi pi-paperclip" description="Opcional. O documento assinado, fotos ou outros arquivos; dá para anexar depois.">
             @if (anexosPendentes().length) {
               <ul class="lista">
                 @for (a of anexosPendentes(); track $index) {
@@ -216,18 +216,18 @@ function tamanho(bytes: number): string {
                       <strong>{{ a.name }}</strong>
                       <span>{{ tamanho(a.size) }} · enviado ao lançar</span>
                     </span>
-                    <ces-icon-button icon="pi pi-times" [label]="'Tirar ' + a.name" tooltip="Tirar da lista" size="icon-sm" (pressed)="tirarAnexo($index)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-times" [label]="'Tirar ' + a.name" tooltip="Tirar da lista" size="icon-sm" (pressed)="tirarAnexo($index)"></geo-icon-button>
                   </li>
                 }
               </ul>
             }
-            <ces-file-input [label]="anexosPendentes().length ? 'Outro anexo' : 'Anexo'" [showOptional]="true"
+            <geo-file-input [label]="anexosPendentes().length ? 'Outro anexo' : 'Anexo'" [showOptional]="true"
               description="PDF ou imagem (JPG, PNG, WebP), até 15 MB cada." accept="application/pdf,image/jpeg,image/png,image/webp"
-              [maxBytes]="limiteArquivo" [file]="null" (fileChange)="incluirAnexo($event)"></ces-file-input>
-          </ces-form-section>
+              [maxBytes]="limiteArquivo" [file]="null" (fileChange)="incluirAnexo($event)"></geo-file-input>
+          </geo-form-section>
         }
       } @else if (medida(); as m) {
-        <ces-form-section title="Medida" icon="pi pi-user">
+        <geo-form-section title="Medida" icon="pi pi-user">
           <dl class="resumo">
             <div><dt>Colaborador</dt><dd>{{ m.colaboradorNome ?? '—' }}</dd></div>
             <div><dt>Função · base</dt><dd>{{ m.colaboradorFuncao ?? '—' }} · {{ m.baseNome ?? 'sem base' }}</dd></div>
@@ -241,17 +241,17 @@ function tamanho(bytes: number): string {
             <div class="resumo__largo"><dt>Fatos</dt><dd class="resumo__fatos">{{ m.descricao }}</dd></div>
           </dl>
           @if (m.foraDaImediatidade) {
-            <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Aplicação longe do fato">
+            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Aplicação longe do fato">
               {{ m.diasDesdeOFato }} dias entre o fato e a aplicação.
-            </ces-callout>
+            </geo-callout>
           }
-        </ces-form-section>
+        </geo-form-section>
       }
 
       @if (medida(); as m) {
         @if (!corrigindo()) {
           @if (m.situacao !== 'CANCELADA' || m.anexos.length) {
-            <ces-form-section title="Anexos" icon="pi pi-paperclip"
+            <geo-form-section title="Anexos" icon="pi pi-paperclip"
               [description]="m.situacao !== 'CANCELADA' ? 'Opcional. O documento assinado, fotos ou outros arquivos da medida.' : undefined">
               @if (m.anexos.length) {
                 <ul class="lista">
@@ -262,39 +262,39 @@ function tamanho(bytes: number): string {
                         <strong>{{ a.nome }}</strong>
                         <span>Enviado em {{ a.enviadoEm | date: "dd/MM/yyyy 'às' HH:mm" }} · SHA-256 {{ a.sha256.substring(0, 12) }}…</span>
                       </span>
-                      <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + a.nome" tooltip="Baixar" size="icon-sm" (pressed)="baixarAnexo(a.id, a.nome)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + a.nome" tooltip="Baixar" size="icon-sm" (pressed)="baixarAnexo(a.id, a.nome)"></geo-icon-button>
                       @if (podeEditar() && m.situacao !== 'CANCELADA') {
-                        <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + a.nome" tooltip="Remover" size="icon-sm" (pressed)="removerAnexo(a.id, a.nome)"></ces-icon-button>
+                        <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + a.nome" tooltip="Remover" size="icon-sm" (pressed)="removerAnexo(a.id, a.nome)"></geo-icon-button>
                       }
                     </li>
                   }
                 </ul>
               }
               @if (podeEditar() && m.situacao !== 'CANCELADA') {
-                <ces-file-input label="Anexo" description="PDF ou imagem (JPG, PNG, WebP), até 15 MB."
-                  accept="application/pdf,image/jpeg,image/png,image/webp" [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></ces-file-input>
+                <geo-file-input label="Anexo" description="PDF ou imagem (JPG, PNG, WebP), até 15 MB."
+                  accept="application/pdf,image/jpeg,image/png,image/webp" [maxBytes]="limiteArquivo" [(file)]="arquivo" [showOptional]="true"></geo-file-input>
                 @if (arquivo()) {
                   <div class="acoes">
-                    <ces-button size="sm" icon="pi pi-upload" label="Enviar anexo" [loading]="salvando()" (pressed)="enviarAnexo()"></ces-button>
+                    <geo-button size="sm" icon="pi pi-upload" label="Enviar anexo" [loading]="salvando()" (pressed)="enviarAnexo()"></geo-button>
                   </div>
                 }
               }
-            </ces-form-section>
+            </geo-form-section>
           }
 
           @if (cancelando()) {
-            <ces-form-section title="Cancelar medida" icon="pi pi-ban" description="A medida fica no histórico e deixa de contar para a reincidência.">
-              <ces-textarea label="Justificativa" [required]="true" [(value)]="justificativa" [rows]="3" [maxlength]="500"
-                placeholder="Ex.: multa anulada pelo órgão de trânsito." [error]="tentouCancelar() && !justificativa().trim() ? 'Informe a justificativa.' : undefined"></ces-textarea>
+            <geo-form-section title="Cancelar medida" icon="pi pi-ban" description="A medida fica no histórico e deixa de contar para a reincidência.">
+              <geo-textarea label="Justificativa" [required]="true" [(value)]="justificativa" [rows]="3" [maxlength]="500"
+                placeholder="Ex.: multa anulada pelo órgão de trânsito." [error]="tentouCancelar() && !justificativa().trim() ? 'Informe a justificativa.' : undefined"></geo-textarea>
               <div class="acoes">
-                <ces-button variant="ghost" label="Voltar" (pressed)="cancelando.set(false)"></ces-button>
-                <ces-button variant="destructive" icon="pi pi-ban" label="Confirmar cancelamento" [loading]="salvando()" (pressed)="cancelar()"></ces-button>
+                <geo-button variant="ghost" label="Voltar" (pressed)="cancelando.set(false)"></geo-button>
+                <geo-button variant="destructive" icon="pi pi-ban" label="Confirmar cancelamento" [loading]="salvando()" (pressed)="cancelar()"></geo-button>
               </div>
-            </ces-form-section>
+            </geo-form-section>
           }
 
           @if (m.historico.length) {
-            <ces-form-section title="Histórico" icon="pi pi-history">
+            <geo-form-section title="Histórico" icon="pi pi-history">
               <ul class="lista">
                 @for (e of m.historico; track $index) {
                   <li class="evento">
@@ -304,7 +304,7 @@ function tamanho(bytes: number): string {
                   </li>
                 }
               </ul>
-            </ces-form-section>
+            </geo-form-section>
           }
         }
       }
@@ -313,34 +313,34 @@ function tamanho(bytes: number): string {
         @if (medida(); as m) {
           @if (corrigindo()) {
             <span class="rodape__espaco"></span>
-            <ces-button variant="ghost" label="Descartar correção" (pressed)="descartarCorrecao()"></ces-button>
-            <ces-button icon="pi pi-check" label="Salvar correção" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+            <geo-button variant="ghost" label="Descartar correção" (pressed)="descartarCorrecao()"></geo-button>
+            <geo-button icon="pi pi-check" label="Salvar correção" [loading]="salvando()" (pressed)="salvar()"></geo-button>
           } @else {
             @if (podeCancelar() && m.situacao !== 'CANCELADA' && !cancelando()) {
-              <ces-button variant="ghost" icon="pi pi-ban" label="Cancelar medida" (pressed)="cancelando.set(true)"></ces-button>
+              <geo-button variant="ghost" icon="pi pi-ban" label="Cancelar medida" (pressed)="cancelando.set(true)"></geo-button>
             }
             <span class="rodape__espaco"></span>
             @if (podeEditar() && m.situacao !== 'CANCELADA') {
-              <ces-button variant="outline" icon="pi pi-pencil" label="Corrigir dados" (pressed)="corrigir()"></ces-button>
+              <geo-button variant="outline" icon="pi pi-pencil" label="Corrigir dados" (pressed)="corrigir()"></geo-button>
             }
-            <ces-button variant="ghost" label="Fechar" (pressed)="visivel.set(false)"></ces-button>
+            <geo-button variant="ghost" label="Fechar" (pressed)="visivel.set(false)"></geo-button>
           }
         } @else {
           <span class="rodape__espaco"></span>
-          <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
+          <geo-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></geo-button>
           @if (podeEditar()) {
-            <ces-button icon="pi pi-check" label="Lançar medida" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+            <geo-button icon="pi pi-check" label="Lançar medida" [loading]="salvando()" (pressed)="salvar()"></geo-button>
           }
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class MedidaDisciplinarDrawerComponent {
   private readonly servico = inject(RhMedidaDisciplinarService);
   private readonly lookups = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   readonly visivel = model(false);
   /** Detalhe da medida aberta; nulo = lançamento. */
@@ -366,7 +366,7 @@ export class MedidaDisciplinarDrawerComponent {
 
   protected readonly idColaborador = signal<string | null>(null);
   protected readonly nomeColaborador = signal('');
-  protected readonly opcoesColaborador = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesColaborador = signal<GeoSelectOption<string>[]>([]);
   protected readonly statusBusca = signal<'idle' | 'loading' | 'success' | 'empty' | 'error'>('idle');
   protected readonly idTipo = signal<string | null>(null);
   protected readonly idMotivo = signal<string | null>(null);
@@ -403,9 +403,9 @@ export class MedidaDisciplinarDrawerComponent {
     return `${m.motivoNome} · fato em ${m.dataFato.split('-').reverse().join('/')}${m.origem === 'MANUAL' ? '' : ' · ' + m.origemRotulo.toLowerCase()}`;
   });
   protected readonly tipoSelecionado = computed(() => this.tipos().find((t) => t.id === this.idTipo()) ?? null);
-  protected readonly opcoesTipo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesTipo = computed<GeoSelectOption<string>[]>(() =>
     this.tipos().filter((t) => t.ativo || t.id === this.medida()?.idTipo).map((t) => ({ label: t.nome, value: t.id })));
-  protected readonly opcoesMotivo = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesMotivo = computed<GeoSelectOption<string>[]>(() =>
     this.motivos().filter((m) => m.ativo || m.id === this.medida()?.idMotivo).map((m) => ({ label: m.nome, value: m.id })));
   protected readonly fimSuspensao = computed(() => {
     const inicio = this.inicioSuspensao();

@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-        properties = "ces.estoque.solicitacoes-tecnicas.enabled=true")
+        properties = "geo.estoque.solicitacoes-tecnicas.enabled=true")
 class SolicitacaoTecnicaOpenApiContractTest {
 
     private static final Map<OperacaoApi, String> OPERACOES_TECNICAS = operacoesTecnicas();

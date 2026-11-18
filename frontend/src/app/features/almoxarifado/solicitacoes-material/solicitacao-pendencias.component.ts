@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output, signal } from '@angular/core';
-import { CesButtonComponent, CesStatusComponent, NotificationService } from '@ces/ui';
+import { GeoButtonComponent, GeoStatusComponent, NotificationService } from '@geo/ui';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { MaterialResponse, MotivoPendenciaResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -21,7 +21,7 @@ export interface PendenciaDetalhe {
 @Component({
   selector: 'app-solicitacao-pendencias',
   standalone: true,
-  imports: [CesButtonComponent, CesStatusComponent],
+  imports: [GeoButtonComponent, GeoStatusComponent],
   template: `
     @if (temPendenciaGeral(); as current) {
       <section
@@ -33,7 +33,7 @@ export interface PendenciaDetalhe {
             <i class="pi pi-exclamation-triangle text-amber-600 dark:text-amber-400"></i>
             <h3 class="font-bold text-xs uppercase tracking-wider text-amber-900 dark:text-amber-200">Pendência Geral da Solicitação</h3>
           </div>
-          <ces-status tone="warning" icon="pi pi-exclamation-triangle">Com pendência</ces-status>
+          <geo-status tone="warning" icon="pi pi-exclamation-triangle">Com pendência</geo-status>
         </div>
 
         @if (current.motivoPendencia; as motivo) {
@@ -43,7 +43,7 @@ export interface PendenciaDetalhe {
                 Motivo: {{ motivo.nome }}
               </span>
               @if (podeEditar()) {
-                <ces-button
+                <geo-button
                   label="Resolver pendência"
                   icon="pi pi-check"
                   variant="ghost"

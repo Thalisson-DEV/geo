@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { CesButtonComponent } from '@ces/ui';
+import { GeoButtonComponent } from '@geo/ui';
 
 import { SolicitacaoMaterialSummaryResponse } from '../../../../core/models/solicitacao-material-tecnica.models';
 import { UsuarioLookupService } from '../../../../core/services/usuario-lookup.service';
@@ -16,7 +16,7 @@ export type AcaoCardComercial = 'APROVAR' | 'ENTREGAR' | 'REJEITAR' | 'DETALHAR'
   selector: 'app-solicitacao-comercial-kanban-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent],
+  imports: [DatePipe, GeoButtonComponent],
   styleUrl: './solicitacao-comercial-kanban-card.component.css',
   template: `
     <article
@@ -75,9 +75,9 @@ export type AcaoCardComercial = 'APROVAR' | 'ENTREGAR' | 'REJEITAR' | 'DETALHAR'
           <span>{{ requisitante() }}</span>
         </span>
         @if (podeAprovar()) {
-          <ces-button label="Aprovar" icon="pi pi-check" size="sm" variant="outline" [ariaLabel]="'Aprovar solicitação #' + idCurto()" (pressed)="disparar('APROVAR')" (click)="$event.stopPropagation()" />
+          <geo-button label="Aprovar" icon="pi pi-check" size="sm" variant="outline" [ariaLabel]="'Aprovar solicitação #' + idCurto()" (pressed)="disparar('APROVAR')" (click)="$event.stopPropagation()" />
         } @else if (podeEntregar()) {
-          <ces-button label="Entregar" icon="pi pi-truck" size="sm" variant="outline" [ariaLabel]="'Registrar entrega da solicitação #' + idCurto()" (pressed)="disparar('ENTREGAR')" (click)="$event.stopPropagation()" />
+          <geo-button label="Entregar" icon="pi pi-truck" size="sm" variant="outline" [ariaLabel]="'Registrar entrega da solicitação #' + idCurto()" (pressed)="disparar('ENTREGAR')" (click)="$event.stopPropagation()" />
         }
       </div>
     </article>

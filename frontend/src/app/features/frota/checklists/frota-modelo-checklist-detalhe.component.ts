@@ -1,27 +1,27 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesBreadcrumbItem,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesStatusComponent,
-  CesTabItem,
-  CesTabPanelDirective,
-  CesTabsComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoBreadcrumbItem,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoStatusComponent,
+  GeoTabItem,
+  GeoTabPanelDirective,
+  GeoTabsComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesUrlParam
-} from '@ces/ui';
+  geoUrlParam
+} from '@geo/ui';
 import { FotoRecebimentoChecklist, ModeloChecklist, PerguntaChecklist, ROTULO_MODO_FOTO } from '../../../core/models/frota-checklist.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaChecklistService } from '../../../core/services/frota-checklist.service';
@@ -46,102 +46,102 @@ const SUGESTAO_FOTOS = ['Frente', 'Traseira', 'Lateral esquerda', 'Lateral direi
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     FrotaModeloChecklistFormComponent,
     FrotaPerguntaChecklistFormComponent
   ],
   template: `
-    <div class="ces-page">
+    <div class="geo-page">
       @if (carregando() && !modelo()) {
-        <ces-async-state state="loading" title="Carregando o modelo de checklist"></ces-async-state>
+        <geo-async-state state="loading" title="Carregando o modelo de checklist"></geo-async-state>
       } @else if (erro()) {
-        <ces-async-state state="error" title="Não foi possível carregar o modelo" [description]="erro()!"
-          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível carregar o modelo" [description]="erro()!"
+          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
       } @else if (modelo(); as m) {
-        <ces-page-header [title]="m.nome" icon="pi pi-list-check" [breadcrumb]="trilha(m)" [description]="descricao(m)">
+        <geo-page-header [title]="m.nome" icon="pi pi-list-check" [breadcrumb]="trilha(m)" [description]="descricao(m)">
           <ng-container status>
-            <ces-status [tone]="m.ativo ? 'success' : 'neutral'" [emphasis]="m.ativo ? 'soft' : 'outline'">{{ m.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
-            <ces-status tone="info" emphasis="outline">{{ m.tipoRotulo }}</ces-status>
+            <geo-status [tone]="m.ativo ? 'success' : 'neutral'" [emphasis]="m.ativo ? 'soft' : 'outline'">{{ m.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
+            <geo-status tone="info" emphasis="outline">{{ m.tipoRotulo }}</geo-status>
             @if (m.exigeAssinatura) {
-              <ces-status tone="neutral" emphasis="outline" icon="pi-user-edit">Pede confirmação</ces-status>
+              <geo-status tone="neutral" emphasis="outline" icon="pi-user-edit">Pede confirmação</geo-status>
             }
           </ng-container>
           <ng-container actions>
             @if (podeEditar()) {
-              <ces-button variant="outline" icon="pi pi-pencil" label="Editar dados" (pressed)="dadosAbertos.set(true)"></ces-button>
-              <ces-button variant="ghost" [icon]="m.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="m.ativo ? 'Desativar' : 'Reativar'"
-                (pressed)="alternar(m)"></ces-button>
+              <geo-button variant="outline" icon="pi pi-pencil" label="Editar dados" (pressed)="dadosAbertos.set(true)"></geo-button>
+              <geo-button variant="ghost" [icon]="m.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="m.ativo ? 'Desativar' : 'Reativar'"
+                (pressed)="alternar(m)"></geo-button>
             }
           </ng-container>
-        </ces-page-header>
+        </geo-page-header>
 
         @if (!m.ativo) {
-          <ces-callout tone="warning" [dense]="true">Modelo desativado: o app não oferece este checklist. Reative para voltar a usar.</ces-callout>
+          <geo-callout tone="warning" [dense]="true">Modelo desativado: o app não oferece este checklist. Reative para voltar a usar.</geo-callout>
         }
         @if (m.instrucoes) {
-          <ces-callout tone="info" [dense]="true" title="Instruções ao condutor">{{ m.instrucoes }}</ces-callout>
+          <geo-callout tone="info" [dense]="true" title="Instruções ao condutor">{{ m.instrucoes }}</geo-callout>
         }
 
-        <ces-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções do modelo de checklist">
-          <ng-template cesTabPanel="perguntas">
-            <ces-data-table title="Perguntas" description="Na ordem em que aparecem no app. Clique numa pergunta para editar."
+        <geo-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções do modelo de checklist">
+          <ng-template geoTabPanel="perguntas">
+            <geo-data-table title="Perguntas" description="Na ordem em que aparecem no app. Clique numa pergunta para editar."
               storageKey="frota-checklist-perguntas" searchPlaceholder="Filtrar nesta lista"
               [columns]="colunasPerguntas" [rows]="linhasPerguntas()" [rowKey]="chave" [state]="m.perguntas.length ? 'ready' : 'empty'"
               stateTitle="Nenhuma pergunta" stateDescription="Adicione o que o condutor deve conferir antes de usar o veículo."
               [rowClickable]="podeEditar()" (rowActivate)="editarPergunta($event)">
               <ng-container table-actions>
                 @if (podeEditar()) {
-                  <ces-button size="sm" variant="outline" icon="pi pi-clone" label="Colar várias" (pressed)="abrirColar()"></ces-button>
-                  <ces-button size="sm" icon="pi pi-plus" label="Adicionar pergunta" (pressed)="novaPergunta()"></ces-button>
+                  <geo-button size="sm" variant="outline" icon="pi pi-clone" label="Colar várias" (pressed)="abrirColar()"></geo-button>
+                  <geo-button size="sm" icon="pi pi-plus" label="Adicionar pergunta" (pressed)="novaPergunta()"></geo-button>
                 }
               </ng-container>
-              <ng-template cesCell="texto" let-row>
-                <span class="ces-cell-strong">{{ row.texto }}</span>
+              <ng-template geoCell="texto" let-row>
+                <span class="geo-cell-strong">{{ row.texto }}</span>
               </ng-template>
-              <ng-template cesCell="grupo" let-row>
+              <ng-template geoCell="grupo" let-row>
                 @if (row.grupo) {
                   {{ row.grupo }}
                 } @else {
-                  <span class="ces-cell-muted">Sem grupo</span>
+                  <span class="geo-cell-muted">Sem grupo</span>
                 }
               </ng-template>
-              <ng-template cesCell="foto" let-row>
+              <ng-template geoCell="foto" let-row>
                 @if (modoFoto(row) !== 'NUNCA') {
-                  <ces-status [tone]="modoFoto(row) === 'SEMPRE' ? 'brand' : 'info'" icon="pi-camera">{{ rotuloModoFoto[modoFoto(row)] }}</ces-status>
+                  <geo-status [tone]="modoFoto(row) === 'SEMPRE' ? 'brand' : 'info'" icon="pi-camera">{{ rotuloModoFoto[modoFoto(row)] }}</geo-status>
                 } @else {
-                  <span class="ces-cell-muted">—</span>
+                  <span class="geo-cell-muted">—</span>
                 }
               </ng-template>
-              <ng-template cesRowActions let-row>
+              <ng-template geoRowActions let-row>
                 @if (podeEditar()) {
-                  <span class="ces-table-actions">
-                    <ces-icon-button icon="pi pi-arrow-up" [label]="'Subir ' + row.texto" tooltip="Subir" size="icon-sm"
-                      [disabled]="row.indice === 0 || salvando()" (pressed)="moverPergunta(row.indice, -1)"></ces-icon-button>
-                    <ces-icon-button icon="pi pi-arrow-down" [label]="'Descer ' + row.texto" tooltip="Descer" size="icon-sm"
-                      [disabled]="row.indice === m.perguntas.length - 1 || salvando()" (pressed)="moverPergunta(row.indice, 1)"></ces-icon-button>
-                    <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + row.texto" tooltip="Remover" size="icon-sm"
-                      [disabled]="salvando()" (pressed)="removerPergunta(row)"></ces-icon-button>
+                  <span class="geo-table-actions">
+                    <geo-icon-button icon="pi pi-arrow-up" [label]="'Subir ' + row.texto" tooltip="Subir" size="icon-sm"
+                      [disabled]="row.indice === 0 || salvando()" (pressed)="moverPergunta(row.indice, -1)"></geo-icon-button>
+                    <geo-icon-button icon="pi pi-arrow-down" [label]="'Descer ' + row.texto" tooltip="Descer" size="icon-sm"
+                      [disabled]="row.indice === m.perguntas.length - 1 || salvando()" (pressed)="moverPergunta(row.indice, 1)"></geo-icon-button>
+                    <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + row.texto" tooltip="Remover" size="icon-sm"
+                      [disabled]="salvando()" (pressed)="removerPergunta(row)"></geo-icon-button>
                   </span>
                 }
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           </ng-template>
 
-          <ng-template cesTabPanel="fotos">
-            <ces-data-table title="Fotos de recebimento"
+          <ng-template geoTabPanel="fotos">
+            <geo-data-table title="Fotos de recebimento"
               description="Pedidas quando o condutor recebe o veículo de outra pessoa. O app não deixa pular."
               storageKey="frota-checklist-fotos" [columns]="colunasFotos" [rows]="linhasFotos()" [rowKey]="chaveFoto"
               [state]="m.fotosRecebimento.length ? 'ready' : 'empty'" stateTitle="Nenhuma foto de recebimento"
@@ -150,53 +150,53 @@ const SUGESTAO_FOTOS = ['Frente', 'Traseira', 'Lateral esquerda', 'Lateral direi
               <ng-container table-actions>
                 @if (podeEditar()) {
                   @if (!m.fotosRecebimento.length) {
-                    <ces-button size="sm" variant="outline" icon="pi pi-images" label="Usar a sugestão" [loading]="salvando()" (pressed)="usarSugestao()"></ces-button>
+                    <geo-button size="sm" variant="outline" icon="pi pi-images" label="Usar a sugestão" [loading]="salvando()" (pressed)="usarSugestao()"></geo-button>
                   }
-                  <ces-button size="sm" icon="pi pi-plus" label="Adicionar foto" (pressed)="editarFoto(null)"></ces-button>
+                  <geo-button size="sm" icon="pi pi-plus" label="Adicionar foto" (pressed)="editarFoto(null)"></geo-button>
                 }
               </ng-container>
-              <ng-template cesRowActions let-row>
+              <ng-template geoRowActions let-row>
                 @if (podeEditar()) {
-                  <span class="ces-table-actions">
-                    <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + row.descricao" tooltip="Remover" size="icon-sm"
-                      [disabled]="salvando()" (pressed)="removerFoto(row)"></ces-icon-button>
+                  <span class="geo-table-actions">
+                    <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + row.descricao" tooltip="Remover" size="icon-sm"
+                      [disabled]="salvando()" (pressed)="removerFoto(row)"></geo-icon-button>
                   </span>
                 }
               </ng-template>
-            </ces-data-table>
+            </geo-data-table>
           </ng-template>
-        </ces-tabs>
+        </geo-tabs>
 
         <app-frota-modelo-checklist-form [(visible)]="dadosAbertos" [modelo]="m" (salvo)="modelo.set($event)"></app-frota-modelo-checklist-form>
 
         <app-frota-pergunta-checklist-form [(visible)]="perguntaAberta" [pergunta]="perguntaEmEdicao()" [grupos]="grupos()"
           [salvando]="salvando()" (confirmado)="salvarPergunta($event)"></app-frota-pergunta-checklist-form>
 
-        <ces-form-drawer [(visible)]="colarAberto" title="Colar várias perguntas"
+        <geo-form-drawer [(visible)]="colarAberto" title="Colar várias perguntas"
           description="Uma por linha. Entram como OK / Não OK no fim da lista; depois você ajusta cada uma." [dirty]="!!textoColado().trim()"
           [loading]="salvando()" size="sm">
-          <div class="ces-form-stack">
-            <ces-text-input label="Grupo" [(value)]="grupoColado" [maxlength]="80" [showOptional]="true" placeholder="Ex.: Iluminação"></ces-text-input>
-            <ces-textarea label="Perguntas" [required]="true" [(value)]="textoColado" [rows]="10" placeholder="Faróis&#10;Lanternas&#10;Setas"></ces-textarea>
+          <div class="geo-form-stack">
+            <geo-text-input label="Grupo" [(value)]="grupoColado" [maxlength]="80" [showOptional]="true" placeholder="Ex.: Iluminação"></geo-text-input>
+            <geo-textarea label="Perguntas" [required]="true" [(value)]="textoColado" [rows]="10" placeholder="Faróis&#10;Lanternas&#10;Setas"></geo-textarea>
           </div>
-          <div drawer-footer class="ces-actions-row">
-            <ces-button variant="ghost" label="Cancelar" (pressed)="colarAberto.set(false)"></ces-button>
-            <ces-button icon="pi pi-check" [label]="'Adicionar ' + linhas(textoColado()).length" [disabled]="!linhas(textoColado()).length"
-              [loading]="salvando()" (pressed)="colar()"></ces-button>
+          <div drawer-footer class="geo-actions-row">
+            <geo-button variant="ghost" label="Cancelar" (pressed)="colarAberto.set(false)"></geo-button>
+            <geo-button icon="pi pi-check" [label]="'Adicionar ' + linhas(textoColado()).length" [disabled]="!linhas(textoColado()).length"
+              [loading]="salvando()" (pressed)="colar()"></geo-button>
           </div>
-        </ces-form-drawer>
+        </geo-form-drawer>
 
-        <ces-form-drawer [(visible)]="fotoAberta" [title]="fotoEmEdicao() ? 'Editar foto de recebimento' : 'Nova foto de recebimento'"
+        <geo-form-drawer [(visible)]="fotoAberta" [title]="fotoEmEdicao() ? 'Editar foto de recebimento' : 'Nova foto de recebimento'"
           [dirty]="descricaoFoto().trim() !== (fotoEmEdicao()?.descricao ?? '')" [loading]="salvando()" size="sm">
-          <div class="ces-form-stack">
-            <ces-text-input label="O que fotografar" [required]="true" [(value)]="descricaoFoto" [maxlength]="120" placeholder="Ex.: Lateral esquerda"
-              description="Aparece como instrução no app." [error]="tentouFoto() && !descricaoFoto().trim() ? 'Descreva a foto.' : undefined"></ces-text-input>
+          <div class="geo-form-stack">
+            <geo-text-input label="O que fotografar" [required]="true" [(value)]="descricaoFoto" [maxlength]="120" placeholder="Ex.: Lateral esquerda"
+              description="Aparece como instrução no app." [error]="tentouFoto() && !descricaoFoto().trim() ? 'Descreva a foto.' : undefined"></geo-text-input>
           </div>
-          <div drawer-footer class="ces-actions-row">
-            <ces-button variant="ghost" label="Cancelar" (pressed)="fotoAberta.set(false)"></ces-button>
-            <ces-button icon="pi pi-check" label="Salvar foto" [loading]="salvando()" (pressed)="salvarFoto()"></ces-button>
+          <div drawer-footer class="geo-actions-row">
+            <geo-button variant="ghost" label="Cancelar" (pressed)="fotoAberta.set(false)"></geo-button>
+            <geo-button icon="pi pi-check" label="Salvar foto" [loading]="salvando()" (pressed)="salvarFoto()"></geo-button>
           </div>
-        </ces-form-drawer>
+        </geo-form-drawer>
       }
     </div>
   `
@@ -204,12 +204,12 @@ const SUGESTAO_FOTOS = ['Frente', 'Traseira', 'Lateral esquerda', 'Lateral direi
 export class FrotaModeloChecklistDetalheComponent {
   private readonly checklist = inject(FrotaChecklistService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly id = inject(ActivatedRoute).snapshot.paramMap.get('id')!;
 
   protected readonly podeEditar = acessoFrota().configurarChecklist;
   protected readonly linhas = linhas;
-  protected readonly aba = cesUrlParam<Aba>({ values: ABAS, default: 'perguntas' });
+  protected readonly aba = geoUrlParam<Aba>({ values: ABAS, default: 'perguntas' });
 
   protected readonly modelo = signal<ModeloChecklist | null>(null);
   protected readonly carregando = signal(false);
@@ -231,7 +231,7 @@ export class FrotaModeloChecklistDetalheComponent {
   protected readonly grupos = computed(() => gruposDe(this.modelo()?.perguntas ?? []));
   protected readonly linhasPerguntas = computed<LinhaPergunta[]>(() => (this.modelo()?.perguntas ?? []).map((p, indice) => ({ ...p, indice })));
   protected readonly linhasFotos = computed<LinhaFoto[]>(() => (this.modelo()?.fotosRecebimento ?? []).map((f, indice) => ({ ...f, indice })));
-  protected readonly abas = computed<CesTabItem[]>(() => {
+  protected readonly abas = computed<GeoTabItem[]>(() => {
     const m = this.modelo();
     return [
       { value: 'perguntas', label: 'Perguntas', icon: 'pi pi-check-square', badge: m?.perguntas.length || undefined },
@@ -243,7 +243,7 @@ export class FrotaModeloChecklistDetalheComponent {
 
   protected readonly modoFoto = modoFoto;
   protected readonly rotuloModoFoto = ROTULO_MODO_FOTO;
-  protected readonly colunasPerguntas: CesDataTableColumn<LinhaPergunta>[] = [
+  protected readonly colunasPerguntas: GeoDataTableColumn<LinhaPergunta>[] = [
     { key: 'indice', header: 'Nº', type: 'number', sortable: false, width: '4rem', priority: 3, display: (p) => String(p.indice + 1) },
     { key: 'texto', header: 'Pergunta', priority: 1, sortable: false },
     { key: 'grupo', header: 'Grupo', priority: 1, sortable: false, value: (p) => p.grupo ?? '', display: (p) => p.grupo ?? 'Sem grupo' },
@@ -251,7 +251,7 @@ export class FrotaModeloChecklistDetalheComponent {
     { key: 'foto', header: 'Foto', type: 'custom', sortable: false, value: (p) => modoFoto(p),
       display: (p) => (modoFoto(p) === 'NUNCA' ? '' : ROTULO_MODO_FOTO[modoFoto(p)]) }
   ];
-  protected readonly colunasFotos: CesDataTableColumn<LinhaFoto>[] = [
+  protected readonly colunasFotos: GeoDataTableColumn<LinhaFoto>[] = [
     { key: 'indice', header: 'Nº', type: 'number', sortable: false, width: '4rem', priority: 3, display: (f) => String(f.indice + 1) },
     { key: 'descricao', header: 'O que fotografar', priority: 1, sortable: false }
   ];
@@ -277,7 +277,7 @@ export class FrotaModeloChecklistDetalheComponent {
     });
   }
 
-  protected trilha(m: ModeloChecklist): CesBreadcrumbItem[] {
+  protected trilha(m: ModeloChecklist): GeoBreadcrumbItem[] {
     return [
       { label: 'Frota' },
       { label: 'Modelos de checklist', route: '/frota/cadastros/modelos-checklist' },

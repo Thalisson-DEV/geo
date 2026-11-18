@@ -76,7 +76,7 @@ describe('SolicitacoesComerciaisCalendarioComponent', () => {
 
   it('navega entre meses e volta para hoje', async () => {
     const { fixture, el } = await abrir([]);
-    el.querySelector<HTMLElement>('[aria-label="Próximo mês"] button, ces-icon-button[label="Próximo mês"] button')?.click();
+    el.querySelector<HTMLElement>('[aria-label="Próximo mês"] button, geo-icon-button[label="Próximo mês"] button')?.click();
     fixture.detectChanges();
     expect(el.querySelector('.cal-title')?.textContent).toContain('Novembro de 2026');
     expect(listar).toHaveBeenLastCalledWith(expect.objectContaining({ previstaDe: '2026-11-01' }));

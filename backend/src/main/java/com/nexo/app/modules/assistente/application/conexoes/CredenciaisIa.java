@@ -20,7 +20,7 @@ public final class CredenciaisIa {
     public static final String PREFIXO_RENOVACAO = AcessoExterno.PREFIXO + "rt_";
     public static final String PREFIXO_CHAVE = AcessoExterno.PREFIXO + "key_";
     public static final String PREFIXO_CODIGO = AcessoExterno.PREFIXO + "code_";
-    public static final String PREFIXO_CLIENTE = "ces-app-";
+    public static final String PREFIXO_CLIENTE = "geo-app-";
 
     private static final SecureRandom RANDOM = new SecureRandom();
 

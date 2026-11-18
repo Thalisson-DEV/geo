@@ -1,43 +1,43 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <ces-page-header title="Consumo de materiais" icon="pi pi-chart-bar"
+    <geo-page-header title="Consumo de materiais" icon="pi pi-chart-bar"
       [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Consumo de materiais' }]"
       description="Quanto cada equipe, obra e processo consome, quem foge da curva, quem não aplica em nota e a sucata que não volta.">
       @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
       @if (dados(); as d) { <span actions class="dash-updated">Calculado às {{ d.geradoEm | date: 'HH:mm' }}</span> }
-      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
-    </ces-page-header>
+      <geo-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></geo-button>
+    </geo-page-header>
 
-    <ces-filter-panel storageKey="almox-rel-consumo" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+    <geo-filter-panel storageKey="almox-rel-consumo" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
       (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
-      <div class="ces-filter-grid">
+      <div class="geo-filter-grid">
         <app-almox-recorte-campos prefixo="apco" />
-        <ces-multiselect label="Destino" inputId="apco-destino" placeholder="Equipes e obras" [options]="opcoesDestino" [filter]="false"
-          [value]="destinosSel()" (valueChange)="destinosSel.set($event)"></ces-multiselect>
-        <ces-multiselect label="Material" inputId="apco-material" placeholder="Todos" [options]="opcoesMaterial()" [virtualScroll]="true"
-          [value]="materiaisSel()" (valueChange)="materiaisSel.set($event)"></ces-multiselect>
+        <geo-multiselect label="Destino" inputId="apco-destino" placeholder="Equipes e obras" [options]="opcoesDestino" [filter]="false"
+          [value]="destinosSel()" (valueChange)="destinosSel.set($event)"></geo-multiselect>
+        <geo-multiselect label="Material" inputId="apco-material" placeholder="Todos" [options]="opcoesMaterial()" [virtualScroll]="true"
+          [value]="materiaisSel()" (valueChange)="materiaisSel.set($event)"></geo-multiselect>
       </div>
-    </ces-filter-panel>
+    </geo-filter-panel>
 
     <app-almox-painel-topo [descricao]="recorte.descricaoPeriodo(dados())" (periodo)="usarPeriodo($event)" />
 
     @if (carregando() && !modelo()) {
-      <ces-async-state state="loading" title="Calculando o consumo" description="Saídas, retornos, aplicações e sucata do período e do anterior."></ces-async-state>
+      <geo-async-state state="loading" title="Calculando o consumo" description="Saídas, retornos, aplicações e sucata do período e do anterior."></geo-async-state>
     } @else if (erro() && !modelo()) {
-      <ces-async-state state="error" title="Não foi possível calcular o consumo" [description]="erro()!"
-        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+      <geo-async-state state="error" title="Não foi possível calcular o consumo" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></geo-async-state>
     } @else if (modelo(); as m) {
       @if (erro()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</geo-callout>
       }
       @if (visao(); as vg) {
         <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
           (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
       }
       @if (!m.saidas.length) {
-        <ces-async-state state="empty" title="Nenhuma saída de material neste recorte" description="Amplie o período ou retire filtros."
-          actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></ces-async-state>
+        <geo-async-state state="empty" title="Nenhuma saída de material neste recorte" description="Amplie o período ou retire filtros."
+          actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></geo-async-state>
       } @else {
         <section class="dash-metrics" aria-label="Consumo">
           <app-dashboard-metric-card label="Saídas" icon="pi-send" tone="primary" [value]="inteiro(m.saidas.length)"
@@ -58,13 +58,13 @@
               <div><span class="dash-eyebrow">Tendência</span><h2>Saídas e retornos por {{ m.unidadeSerie }}</h2><p>Clique numa barra para ver o que saiu.</p></div>
               <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'serie', rotulo: 'Saídas e retornos' }" />
             </header>
-            <ces-chart kind="bar" title="Saídas e retornos" [showTitle]="false" [selectable]="true" [selectLabel]="'Analisar o ' + m.unidadeSerie"
-              [labels]="graficoSerie().rotulos" [series]="graficoSerie().series" valueFormat="integer" [height]="300" (pointSelect)="analisarPeriodo($event.index)"></ces-chart>
+            <geo-chart kind="bar" title="Saídas e retornos" [showTitle]="false" [selectable]="true" [selectLabel]="'Analisar o ' + m.unidadeSerie"
+              [labels]="graficoSerie().rotulos" [series]="graficoSerie().series" valueFormat="integer" [height]="300" (pointSelect)="analisarPeriodo($event.index)"></geo-chart>
           </article>
           <article class="dash-panel dash-col-4">
             <header class="dash-panel__header"><div><span class="dash-eyebrow">Curva ABC</span><h2>Onde está o volume</h2><p>Saídas por classe. Clique numa classe.</p></div></header>
-            <ces-chart kind="doughnut" title="Saídas por classe ABC" [showTitle]="false" [selectable]="true" selectLabel="Analisar a classe"
-              [labels]="graficoAbc().rotulos" [series]="graficoAbc().series" valueFormat="integer" [height]="300" (pointSelect)="analisar('abc', classes[$event.index])"></ces-chart>
+            <geo-chart kind="doughnut" title="Saídas por classe ABC" [showTitle]="false" [selectable]="true" selectLabel="Analisar a classe"
+              [labels]="graficoAbc().rotulos" [series]="graficoAbc().series" valueFormat="integer" [height]="300" (pointSelect)="analisar('abc', classes[$event.index])"></geo-chart>
           </article>
         </section>
 
@@ -72,19 +72,19 @@
           <article class="dash-panel dash-col-7">
             <header class="dash-panel__header"><div><span class="dash-eyebrow">Equipes</span><h2>Quem mais consome</h2>
               <p>{{ m.paretoEquipes.itens }} de {{ m.paretoEquipes.total }} equipes levam 80% do material. Clique numa equipe.</p></div></header>
-            <ces-chart kind="bar-horizontal" title="Saídas e retornos por equipe" [showTitle]="false" [selectable]="true" selectLabel="Analisar a equipe"
+            <geo-chart kind="bar-horizontal" title="Saídas e retornos por equipe" [showTitle]="false" [selectable]="true" selectLabel="Analisar a equipe"
               [labels]="graficoEquipes().rotulos" [series]="graficoEquipes().series" valueFormat="integer" [height]="Math.max(240, equipesTop().length * 34)"
-              (pointSelect)="analisarEquipe($event.index)"></ces-chart>
+              (pointSelect)="analisarEquipe($event.index)"></geo-chart>
           </article>
           <article class="dash-panel dash-col-5">
             <header class="dash-panel__header"><div><span class="dash-eyebrow">Aplicação</span><h2>Recebido × aplicado em nota</h2>
               <p>Parte do que a equipe recebeu que foi aplicada nas notas. Baixo = material no carro ou usado sem registro.</p></div></header>
             @if (comAplicacao().length) {
-              <ces-chart kind="bar-horizontal" title="Aplicado em nota por equipe" [showTitle]="false" [selectable]="true" selectLabel="Analisar a equipe"
+              <geo-chart kind="bar-horizontal" title="Aplicado em nota por equipe" [showTitle]="false" [selectable]="true" selectLabel="Analisar a equipe"
                 [labels]="graficoAplicacao().rotulos" [series]="graficoAplicacao().series" valueFormat="percent" [height]="Math.max(240, comAplicacao().length * 34)"
-                (pointSelect)="analisarAplicacao($event.index)"></ces-chart>
+                (pointSelect)="analisarAplicacao($event.index)"></geo-chart>
             } @else {
-              <ces-async-state state="empty" title="Sem aplicações em nota no recorte" description="A aplicação em nota vem das equipes comerciais."></ces-async-state>
+              <geo-async-state state="empty" title="Sem aplicações em nota no recorte" description="A aplicação em nota vem das equipes comerciais."></geo-async-state>
             }
           </article>
         </section>
@@ -93,26 +93,26 @@
           <section class="pf-secao" aria-labelledby="apco-fora">
             <header><span class="dash-eyebrow">Cobrar</span><h2 id="apco-fora">Consumo fora da curva</h2>
               <p>Equipe que levou um material 2× ou mais a mediana das outras equipes do mesmo processo. Abra a linha para analisar a equipe.</p></header>
-            <ces-data-table title="Casos fora da curva" storageKey="apco-fora" exportFileName="consumo-fora-da-curva" [columns]="colFora" [rows]="m.foraDaCurva"
-              [rowKey]="chaveFora" searchPlaceholder="Filtrar equipe ou material" rowActionLabel="Analisar a equipe" (rowActivate)="analisar('equipe', $event.idEquipe)"></ces-data-table>
+            <geo-data-table title="Casos fora da curva" storageKey="apco-fora" exportFileName="consumo-fora-da-curva" [columns]="colFora" [rows]="m.foraDaCurva"
+              [rowKey]="chaveFora" searchPlaceholder="Filtrar equipe ou material" rowActionLabel="Analisar a equipe" (rowActivate)="analisar('equipe', $event.idEquipe)"></geo-data-table>
           </section>
         }
 
         <section class="dash-grid pf-grid-espaco" aria-label="Processos e obras">
           <article class="dash-panel dash-col-5">
             <header class="dash-panel__header"><div><span class="dash-eyebrow">Processo</span><h2>Por processo</h2><p>Pela equipe envolvida. Clique para analisar.</p></div></header>
-            <ces-chart kind="doughnut" title="Saídas por processo" [showTitle]="false" [selectable]="true" selectLabel="Analisar o processo"
+            <geo-chart kind="doughnut" title="Saídas por processo" [showTitle]="false" [selectable]="true" selectLabel="Analisar o processo"
               [labels]="rotulos(processosTop())" [series]="[{ name: 'Saídas', values: totais(processosTop()) }]" valueFormat="integer" [height]="280"
-              (pointSelect)="analisarProcesso($event.index)"></ces-chart>
+              (pointSelect)="analisarProcesso($event.index)"></geo-chart>
           </article>
           <article class="dash-panel dash-col-7">
             <header class="dash-panel__header"><div><span class="dash-eyebrow">Obras</span><h2>Obras que mais consomem</h2><p>Saídas para os estoques de obra. Clique numa obra.</p></div></header>
             @if (obrasTop().length) {
-              <ces-chart kind="bar-horizontal" title="Saídas por obra" [showTitle]="false" [selectable]="true" selectLabel="Analisar a obra"
+              <geo-chart kind="bar-horizontal" title="Saídas por obra" [showTitle]="false" [selectable]="true" selectLabel="Analisar a obra"
                 [labels]="rotulos(obrasTop())" [series]="[{ name: 'Saídas', values: totais(obrasTop()) }]" valueFormat="integer" [height]="280"
-                (pointSelect)="analisarObra($event.index)"></ces-chart>
+                (pointSelect)="analisarObra($event.index)"></geo-chart>
             } @else {
-              <ces-async-state state="empty" title="Sem saídas para obras no recorte"></ces-async-state>
+              <geo-async-state state="empty" title="Sem saídas para obras no recorte"></geo-async-state>
             }
           </article>
         </section>
@@ -120,17 +120,17 @@
         <section class="pf-secao" aria-labelledby="apco-materiais">
           <header><span class="dash-eyebrow">Materiais</span><h2 id="apco-materiais">Consumo por material</h2>
             <p>Classe ABC, entregue, o que voltou e o consumo líquido, na unidade de cada material. Abra a linha para ver quem consome.</p></header>
-          <ces-data-table title="Materiais" storageKey="apco-materiais" exportFileName="consumo-por-material" [columns]="colMateriais" [rows]="m.materiais"
+          <geo-data-table title="Materiais" storageKey="apco-materiais" exportFileName="consumo-por-material" [columns]="colMateriais" [rows]="m.materiais"
             [rowKey]="chaveMaterial" searchPlaceholder="Filtrar código ou material" rowActionLabel="Analisar" (rowActivate)="analisar('material', $event.idMaterial)">
-            <ng-template cesCell="classe" let-x><ces-status [tone]="$any(x).classe === 'A' ? 'brand' : 'neutral'" [icon]="$any(x).classe === 'A' ? 'pi pi-star-fill' : $any(x).classe === 'B' ? 'pi pi-star' : 'pi pi-circle'">Classe {{ $any(x).classe }}</ces-status></ng-template>
-          </ces-data-table>
+            <ng-template geoCell="classe" let-x><geo-status [tone]="$any(x).classe === 'A' ? 'brand' : 'neutral'" [icon]="$any(x).classe === 'A' ? 'pi pi-star-fill' : $any(x).classe === 'B' ? 'pi pi-star' : 'pi pi-circle'">Classe {{ $any(x).classe }}</geo-status></ng-template>
+          </geo-data-table>
         </section>
 
         <section class="pf-secao" aria-labelledby="apco-equipes">
           <header><span class="dash-eyebrow">Equipes</span><h2 id="apco-equipes">Consumo por equipe</h2>
             <p>Saídas, devolução, aplicação em nota, sucata e casos fora da curva.</p></header>
-          <ces-data-table title="Equipes" storageKey="apco-equipes" exportFileName="consumo-por-equipe" [columns]="colEquipes" [rows]="m.equipes"
-            [rowKey]="chaveEquipe" searchPlaceholder="Filtrar equipe" rowActionLabel="Analisar" (rowActivate)="analisar('equipe', $event.chave)"></ces-data-table>
+          <geo-data-table title="Equipes" storageKey="apco-equipes" exportFileName="consumo-por-equipe" [columns]="colEquipes" [rows]="m.equipes"
+            [rowKey]="chaveEquipe" searchPlaceholder="Filtrar equipe" rowActionLabel="Analisar" (rowActivate)="analisar('equipe', $event.chave)"></geo-data-table>
         </section>
       }
     }

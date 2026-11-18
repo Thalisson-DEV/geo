@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 /** Registro da frota que a IA analisa no relatório. */
 export type AlvoAnaliseIa = 'ORDEM_SERVICO' | 'CHECKLIST' | 'ABASTECIMENTO';
@@ -50,7 +50,7 @@ export interface EstadoAnaliseIa {
   ultima: AnaliseIa | null;
 }
 
-export const TOM_PARECER_IA: Record<ParecerAnaliseIa, CesTone> = {
+export const TOM_PARECER_IA: Record<ParecerAnaliseIa, GeoTone> = {
   SEM_RESSALVAS: 'success',
   ATENCAO: 'warning',
   CRITICO: 'danger'
@@ -62,7 +62,7 @@ export const ICONE_PARECER_IA: Record<ParecerAnaliseIa, string> = {
   CRITICO: 'pi-times-circle'
 };
 
-export const TOM_GRAVIDADE_IA: Record<GravidadePontoIa, CesTone> = {
+export const TOM_GRAVIDADE_IA: Record<GravidadePontoIa, GeoTone> = {
   INFO: 'info',
   ATENCAO: 'warning',
   CRITICO: 'danger'
@@ -74,7 +74,7 @@ export const ROTULO_GRAVIDADE_IA: Record<GravidadePontoIa, string> = {
   CRITICO: 'Crítico'
 };
 
-export const TOM_RESULTADO_FOTO_IA: Record<ResultadoFotoIa, CesTone> = {
+export const TOM_RESULTADO_FOTO_IA: Record<ResultadoFotoIa, GeoTone> = {
   CONFERE: 'success',
   DIVERGE: 'danger',
   ILEGIVEL: 'warning',

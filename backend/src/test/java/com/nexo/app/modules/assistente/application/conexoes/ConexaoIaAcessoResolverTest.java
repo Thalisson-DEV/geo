@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 /** Qual credencial abre o MCP: so acesso ou chave validos, de conexao ainda conectada. */
 class ConexaoIaAcessoResolverTest {
 
-    private static final String CHAVE = "ces_key_teste";
+    private static final String CHAVE = "geo_key_teste";
 
     private final CredencialConexaoIaRepository credenciais = mock(CredencialConexaoIaRepository.class);
     private final ConexaoIaRepository conexoes = mock(ConexaoIaRepository.class);
@@ -66,7 +66,7 @@ class ConexaoIaAcessoResolverTest {
     @Test
     void credencialDesconhecidaOuVaziaNaoAbre() {
         when(credenciais.findByHash(any())).thenReturn(Optional.empty());
-        assertThat(resolver.resolver("ces_key_outra", null)).isEmpty();
+        assertThat(resolver.resolver("geo_key_outra", null)).isEmpty();
         assertThat(resolver.resolver("  ", null)).isEmpty();
         assertThat(resolver.resolver(null, null)).isEmpty();
     }
@@ -82,7 +82,7 @@ class ConexaoIaAcessoResolverTest {
     }
 
     private ConexaoIa conexao(boolean escrita) {
-        ConexaoIa conexao = ConexaoIa.porChave(UUID.randomUUID(), "Cursor", escrita, "ces_key_ab",
+        ConexaoIa conexao = ConexaoIa.porChave(UUID.randomUUID(), "Cursor", escrita, "geo_key_ab",
                 OffsetDateTime.now().plusDays(30));
         ReflectionTestUtils.setField(conexao, "id", UUID.randomUUID());
         when(conexoes.findByIdAndAtivoTrue(conexao.getId())).thenReturn(Optional.of(conexao));

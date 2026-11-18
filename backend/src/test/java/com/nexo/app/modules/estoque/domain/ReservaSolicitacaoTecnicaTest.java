@@ -38,7 +38,7 @@ class ReservaSolicitacaoTecnicaTest {
     }
 
     @Test
-    void mantemDataRealSeparadaDoInstanteDeRegistroNoCes() {
+    void mantemDataRealSeparadaDoInstanteDeRegistroNoGeo() {
         LocalDate dataReal = LocalDate.of(2026, 8, 1);
         OffsetDateTime antesDoRegistro = OffsetDateTime.now().minusSeconds(1);
 

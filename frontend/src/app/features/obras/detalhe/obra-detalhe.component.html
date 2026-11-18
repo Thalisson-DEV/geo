@@ -1,10 +1,10 @@
 @if (carregando()) {
   <div class="obra-estado">
-    <ces-async-state state="loading" title="Carregando a obra" description="Cadastro, carteira, solicitações, orçamento e anexos."></ces-async-state>
+    <geo-async-state state="loading" title="Carregando a obra" description="Cadastro, carteira, solicitações, orçamento e anexos."></geo-async-state>
   </div>
 } @else if (erro()) {
   <div class="obra-estado">
-    <ces-async-state state="error" title="Não foi possível abrir a obra" [description]="erro()!" actionLabel="Voltar para as obras" (action)="voltar()"></ces-async-state>
+    <geo-async-state state="error" title="Não foi possível abrir a obra" [description]="erro()!" actionLabel="Voltar para as obras" (action)="voltar()"></geo-async-state>
   </div>
 } @else if (obra(); as o) {
   <div class="obra">
@@ -18,17 +18,17 @@
         </p>
         <h1 id="obra-titulo" class="obra-hero__titulo">{{ o.titulo }}</h1>
         <div class="obra-hero__chips">
-          <ces-status [tone]="statusTone(o.statusNome, o.statusConcluida)" [icon]="statusIcon(o.statusNome)">{{ o.statusNome }}</ces-status>
+          <geo-status [tone]="statusTone(o.statusNome, o.statusConcluida)" [icon]="statusIcon(o.statusNome)">{{ o.statusNome }}</geo-status>
           @if (carteira()?.classeTensaoRotulo) {
-            <ces-status tone="brand" icon="pi-bolt">{{ carteira()!.classeTensaoRotulo }}</ces-status>
+            <geo-status tone="brand" icon="pi-bolt">{{ carteira()!.classeTensaoRotulo }}</geo-status>
           } @else {
-            <ces-status tone="warning" emphasis="outline" icon="pi-bolt">Tensão não informada</ces-status>
+            <geo-status tone="warning" emphasis="outline" icon="pi-bolt">Tensão não informada</geo-status>
           }
           @if (rotuloPrioridade()) {
-            <ces-status [tone]="tomPrioridade()" icon="pi-flag">Prioridade {{ rotuloPrioridade()!.toLowerCase() }}</ces-status>
+            <geo-status [tone]="tomPrioridade()" icon="pi-flag">Prioridade {{ rotuloPrioridade()!.toLowerCase() }}</geo-status>
           }
           @if (nomeContrato()) {
-            <ces-status tone="neutral" emphasis="outline" icon="pi-briefcase">{{ nomeContrato() }}</ces-status>
+            <geo-status tone="neutral" emphasis="outline" icon="pi-briefcase">{{ nomeContrato() }}</geo-status>
           }
           @if (o.obraPaiId) {
             <a class="obra-hero__vinculo" [routerLink]="['/obras', o.obraPaiId]"><i class="pi pi-link" aria-hidden="true"></i> Subprojeto de {{ o.obraPaiNumero }}</a>
@@ -46,7 +46,7 @@
         <div class="obra-prazo" aria-label="Prazo da obra">
           <div class="obra-prazo__topo">
             <span class="obra-prazo__rotulo">Prazo</span>
-            <ces-status [tone]="p.situacao.tom" [icon]="p.situacao.icone">{{ p.situacao.texto }}</ces-status>
+            <geo-status [tone]="p.situacao.tom" [icon]="p.situacao.icone">{{ p.situacao.texto }}</geo-status>
           </div>
           <div class="obra-prazo__trilho" role="img" [attr.aria-label]="p.decorrido + '% do prazo previsto decorrido'">
             <div class="obra-prazo__preenchido" [style.width.%]="p.preenchimento" [attr.data-tom]="p.situacao.tom"></div>
@@ -65,28 +65,28 @@
     </section>
 
     <!-- Indicadores -->
-    <section class="ces-kpis obra-kpis" aria-label="Indicadores da obra">
-      <div class="ces-kpi" data-tone="info">
-        <span class="ces-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
-        <span class="ces-kpi__body"><span class="ces-kpi__label">Valor de projeto</span><span class="ces-kpi__value">{{ moeda(o.valorProjeto) }}</span></span>
+    <section class="geo-kpis obra-kpis" aria-label="Indicadores da obra">
+      <div class="geo-kpi" data-tone="info">
+        <span class="geo-kpi__icon"><i class="pi pi-wallet" aria-hidden="true"></i></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Valor de projeto</span><span class="geo-kpi__value">{{ moeda(o.valorProjeto) }}</span></span>
       </div>
-      <div class="ces-kpi">
-        <span class="ces-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
-        <span class="ces-kpi__body"><span class="ces-kpi__label">Material previsto</span><span class="ces-kpi__value">{{ moeda(carteira()?.valorMaterialPrevisto) }}</span></span>
+      <div class="geo-kpi">
+        <span class="geo-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Material previsto</span><span class="geo-kpi__value">{{ moeda(carteira()?.valorMaterialPrevisto) }}</span></span>
       </div>
-      <div class="ces-kpi">
-        <span class="ces-kpi__icon"><i class="pi pi-wrench" aria-hidden="true"></i></span>
-        <span class="ces-kpi__body"><span class="ces-kpi__label">Serviço previsto</span><span class="ces-kpi__value">{{ moeda(carteira()?.valorServicoPrevisto) }}</span>
+      <div class="geo-kpi">
+        <span class="geo-kpi__icon"><i class="pi pi-wrench" aria-hidden="true"></i></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span><span class="geo-kpi__value">{{ moeda(carteira()?.valorServicoPrevisto) }}</span>
           @if (dados(orcamento())?.importado) {
-            <span class="ces-kpi__detail">{{ moeda(dados(orcamento())!.totalServicosImportados) }} no orçamento importado</span>
+            <span class="geo-kpi__detail">{{ moeda(dados(orcamento())!.totalServicosImportados) }} no orçamento importado</span>
           }
         </span>
       </div>
-      <div class="ces-kpi" [attr.data-tone]="carteira()?.deslocamentoEstimado ? 'warning' : 'neutral'">
-        <span class="ces-kpi__icon"><i class="pi pi-car" aria-hidden="true"></i></span>
-        <span class="ces-kpi__body"><span class="ces-kpi__label">Deslocamento da base</span>
-          <span class="ces-kpi__value">{{ carteira()?.distanciaBaseKm != null ? km(carteira()!.distanciaBaseKm) : '—' }}</span>
-          <span class="ces-kpi__detail">
+      <div class="geo-kpi" [attr.data-tone]="carteira()?.deslocamentoEstimado ? 'warning' : 'neutral'">
+        <span class="geo-kpi__icon"><i class="pi pi-car" aria-hidden="true"></i></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Deslocamento da base</span>
+          <span class="geo-kpi__value">{{ carteira()?.distanciaBaseKm != null ? km(carteira()!.distanciaBaseKm) : '—' }}</span>
+          <span class="geo-kpi__detail">
             @if (carteira()?.distanciaBaseKm != null) {
               {{ duracao(carteira()!.tempoDeslocamentoMin) }} de {{ o.baseOperacionalNome }}{{ carteira()!.deslocamentoEstimado ? ' · estimado' : '' }}
             } @else if (!temCoordenadas()) {
@@ -97,10 +97,10 @@
           </span>
         </span>
       </div>
-      <div class="ces-kpi">
-        <span class="ces-kpi__icon"><i class="pi pi-cart-plus" aria-hidden="true"></i></span>
-        <span class="ces-kpi__body"><span class="ces-kpi__label">Solicitações de material</span><span class="ces-kpi__value">{{ listaSolicitacoes().length }}</span>
-          <span class="ces-kpi__detail">{{ o.anexos.length }} {{ o.anexos.length === 1 ? 'anexo' : 'anexos' }} · {{ o.subprojetos.length }} {{ o.subprojetos.length === 1 ? 'subprojeto' : 'subprojetos' }}</span>
+      <div class="geo-kpi">
+        <span class="geo-kpi__icon"><i class="pi pi-cart-plus" aria-hidden="true"></i></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Solicitações de material</span><span class="geo-kpi__value">{{ listaSolicitacoes().length }}</span>
+          <span class="geo-kpi__detail">{{ o.anexos.length }} {{ o.anexos.length === 1 ? 'anexo' : 'anexos' }} · {{ o.subprojetos.length }} {{ o.subprojetos.length === 1 ? 'subprojeto' : 'subprojetos' }}</span>
         </span>
       </div>
     </section>
@@ -143,7 +143,7 @@
           <header class="obra-card__cabecalho">
             <h2 id="dados-titulo"><i class="pi pi-id-card" aria-hidden="true"></i> Dados da obra</h2>
             @if (podeEscrever) {
-              <ces-button variant="ghost" size="sm" icon="pi pi-pencil" label="Editar carteira" (pressed)="abrirCarteira()"></ces-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-pencil" label="Editar carteira" (pressed)="abrirCarteira()"></geo-button>
             }
           </header>
           <div class="obra-dados">
@@ -185,18 +185,18 @@
         <section class="obra-card" aria-labelledby="solicitacoes-titulo">
           <header class="obra-card__cabecalho">
             <h2 id="solicitacoes-titulo"><i class="pi pi-cart-plus" aria-hidden="true"></i> Materiais da obra</h2>
-            <span class="ces-actions-row">
+            <span class="geo-actions-row">
               @if (podeDevolver) {
-                <ces-button variant="ghost" size="sm" icon="pi pi-undo" label="Nova devolução" (pressed)="devolvendo.set(true)"></ces-button>
+                <geo-button variant="ghost" size="sm" icon="pi pi-undo" label="Nova devolução" (pressed)="devolvendo.set(true)"></geo-button>
               }
-              <ces-button variant="ghost" size="sm" icon="pi pi-plus" label="Nova solicitação" (pressed)="solicitarMateriais()"></ces-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Nova solicitação" (pressed)="solicitarMateriais()"></geo-button>
             </span>
           </header>
           @switch (solicitacoes().estado) {
-            @case ('loading') { <ces-async-state state="loading" [compact]="true" title="Carregando os materiais"></ces-async-state> }
+            @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando os materiais"></geo-async-state> }
             @case ('error') {
-              <ces-async-state state="error" [compact]="true" title="Não foi possível carregar os materiais" [description]="mensagem(solicitacoes())"
-                actionLabel="Tentar de novo" (action)="carregarSolicitacoes()"></ces-async-state>
+              <geo-async-state state="error" [compact]="true" title="Não foi possível carregar os materiais" [description]="mensagem(solicitacoes())"
+                actionLabel="Tentar de novo" (action)="carregarSolicitacoes()"></geo-async-state>
             }
             @default {
               <app-obra-materiais [solicitacoes]="listaSolicitacoes()" [movimentacoes]="listaMovimentacoes()" [truncadas]="movimentacoesTruncadas()" [saldo]="saldoObra()" (recarregarSaldo)="carregarSaldo()"></app-obra-materiais>
@@ -209,10 +209,10 @@
           <section class="obra-card" aria-labelledby="encerramento-titulo">
             <header class="obra-card__cabecalho">
               <h2 id="encerramento-titulo"><i class="pi pi-flag" aria-hidden="true"></i> Encerramento</h2>
-              <span class="ces-actions-row">
-                <ces-button variant="ghost" size="sm" icon="pi pi-external-link" label="Ver no encerramento" (pressed)="verEncerramento()"></ces-button>
+              <span class="geo-actions-row">
+                <geo-button variant="ghost" size="sm" icon="pi pi-external-link" label="Ver no encerramento" (pressed)="verEncerramento()"></geo-button>
                 @if (podeCriarEncerramento) {
-                  <ces-button variant="ghost" size="sm" icon="pi pi-plus" label="Nova solicitação" (pressed)="novoEncerramento()"></ces-button>
+                  <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Nova solicitação" (pressed)="novoEncerramento()"></geo-button>
                 }
               </span>
             </header>
@@ -251,13 +251,13 @@
                       <span>{{ p.codigoEquipe }}</span>
                       <span class="obra-programacao__periodo">{{ p.inicio }} a {{ p.fim }} · {{ rotuloTurno[p.turno] }}</span>
                       <span class="obra-programacao__valor">{{ moeda(p.valor) }}</span>
-                      <ces-status [tone]="situacaoProgramacao[p.situacao].tom" [icon]="situacaoProgramacao[p.situacao].icone">{{ situacaoProgramacao[p.situacao].rotulo }}</ces-status>
+                      <geo-status [tone]="situacaoProgramacao[p.situacao].tom" [icon]="situacaoProgramacao[p.situacao].icone">{{ situacaoProgramacao[p.situacao].rotulo }}</geo-status>
                     </button>
                   </li>
                 }
               </ul>
             } @else {
-              <ces-async-state state="empty" icon="pi pi-calendar" [compact]="true" title="Nada programado nesta obra" description="Selecione os itens no planejamento para programar uma equipe."></ces-async-state>
+              <geo-async-state state="empty" icon="pi pi-calendar" [compact]="true" title="Nada programado nesta obra" description="Selecione os itens no planejamento para programar uma equipe."></geo-async-state>
             }
           </section>
         }
@@ -271,28 +271,28 @@
             }
           </header>
           @switch (orcamento().estado) {
-            @case ('loading') { <ces-async-state state="loading" [compact]="true" title="Carregando o orçamento"></ces-async-state> }
+            @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando o orçamento"></geo-async-state> }
             @case ('error') {
-              <ces-async-state state="error" [compact]="true" title="Não foi possível carregar o orçamento" [description]="mensagem(orcamento())"
-                actionLabel="Tentar de novo" (action)="carregarOrcamento()"></ces-async-state>
+              <geo-async-state state="error" [compact]="true" title="Não foi possível carregar o orçamento" [description]="mensagem(orcamento())"
+                actionLabel="Tentar de novo" (action)="carregarOrcamento()"></geo-async-state>
             }
             @default {
               @if (dados(orcamento()); as orc) {
                 @if (orc.importado) {
-                  <ces-data-table caption="Serviços previstos" [columns]="colunasOrcamento" [rows]="orc.itens" [rowKey]="chave"
+                  <geo-data-table caption="Serviços previstos" [columns]="colunasOrcamento" [rows]="orc.itens" [rowKey]="chave"
                     searchPlaceholder="Código ou descrição do serviço" [pageSizeOptions]="[10, 25, 50]">
-                    <ng-template cesCell="codigo" let-row>
-                      <span class="ces-cell-strong">{{ row.codigo }}</span>
-                      <span class="ces-cell-muted">{{ row.descricao }}</span>
+                    <ng-template geoCell="codigo" let-row>
+                      <span class="geo-cell-strong">{{ row.codigo }}</span>
+                      <span class="geo-cell-muted">{{ row.descricao }}</span>
                       @if (!row.idAcao) {
-                        <ces-status tone="warning" icon="pi-exclamation-triangle">Sem ação no contrato</ces-status>
+                        <geo-status tone="warning" icon="pi-exclamation-triangle">Sem ação no contrato</geo-status>
                       }
                     </ng-template>
-                  </ces-data-table>
+                  </geo-data-table>
                   <p class="obra-card__rodape">Total dos serviços importados: <strong>{{ moeda(orc.totalServicosImportados) }}</strong></p>
                 } @else {
-                  <ces-async-state state="empty" [compact]="true" icon="pi pi-calculator" title="Não há orçamento importado"
-                    description="Importe os serviços previstos pela listagem de obras (Importar · Serviços e orçamento previstos)."></ces-async-state>
+                  <geo-async-state state="empty" [compact]="true" icon="pi pi-calculator" title="Não há orçamento importado"
+                    description="Importe os serviços previstos pela listagem de obras (Importar · Serviços e orçamento previstos)."></geo-async-state>
                 }
               }
             }
@@ -313,7 +313,7 @@
           <header class="obra-card__cabecalho">
             <h2 id="anexos-titulo"><i class="pi pi-paperclip" aria-hidden="true"></i> Anexos <span class="obra-card__contagem">{{ o.anexos.length }}</span></h2>
             @if (podeAnexar) {
-              <ces-button variant="ghost" size="sm" icon="pi pi-upload" label="Adicionar anexo" (pressed)="abrirAnexo()"></ces-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-upload" label="Adicionar anexo" (pressed)="abrirAnexo()"></geo-button>
             }
           </header>
           @if (o.anexos.length) {
@@ -328,17 +328,17 @@
                     </span>
                   </button>
                   <span class="obra-anexo__acoes">
-                    <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + a.nomeArquivo" size="icon-sm" (pressed)="baixarAnexo(a)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + a.nomeArquivo" size="icon-sm" (pressed)="baixarAnexo(a)"></geo-icon-button>
                     @if (podeAnexar) {
-                      <ces-icon-button icon="pi pi-trash" [label]="'Remover ' + a.nomeArquivo" size="icon-sm" (pressed)="removerAnexo(a)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + a.nomeArquivo" size="icon-sm" (pressed)="removerAnexo(a)"></geo-icon-button>
                     }
                   </span>
                 </li>
               }
             </ul>
           } @else {
-            <ces-async-state state="empty" [compact]="true" icon="pi pi-paperclip" title="Nenhum anexo"
-              description="Projetos, plantas, memoriais e fotos da obra ficam aqui."></ces-async-state>
+            <geo-async-state state="empty" [compact]="true" icon="pi pi-paperclip" title="Nenhum anexo"
+              description="Projetos, plantas, memoriais e fotos da obra ficam aqui."></geo-async-state>
           }
         </section>
 
@@ -347,7 +347,7 @@
           <header class="obra-card__cabecalho">
             <h2 id="subprojetos-titulo"><i class="pi pi-sitemap" aria-hidden="true"></i> Subprojetos <span class="obra-card__contagem">{{ o.subprojetos.length }}</span></h2>
             @if (podeEscrever && !o.obraPaiId) {
-              <ces-button variant="ghost" size="sm" icon="pi pi-link" label="Vincular subprojeto" (pressed)="abrirVinculo()"></ces-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-link" label="Vincular subprojeto" (pressed)="abrirVinculo()"></geo-button>
             }
           </header>
           @if (o.subprojetos.length) {
@@ -356,23 +356,23 @@
                 <li class="obra-subprojeto">
                   <div class="obra-subprojeto__topo">
                     <a class="obra-subprojeto__numero" [routerLink]="['/obras', sub.id]">{{ sub.numero }}</a>
-                    <ces-status tone="neutral" emphasis="outline">{{ sub.tipoVinculo }}</ces-status>
-                    <ces-status [tone]="statusTone(sub.statusNome)">{{ sub.statusNome }}</ces-status>
+                    <geo-status tone="neutral" emphasis="outline">{{ sub.tipoVinculo }}</geo-status>
+                    <geo-status [tone]="statusTone(sub.statusNome)">{{ sub.statusNome }}</geo-status>
                   </div>
                   <span class="obra-subprojeto__titulo" [title]="sub.titulo">{{ sub.titulo }}</span>
                   <div class="obra-subprojeto__rodape">
                     <span>{{ sub.dataInicio }} → {{ sub.dataPrevisaoFim }}</span>
                     <strong>{{ moeda(sub.valorProjeto) }}</strong>
                     @if (podeEscrever) {
-                      <ces-icon-button icon="pi pi-times" [label]="'Desvincular ' + sub.numero" size="icon-sm" (pressed)="desvincular(sub)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-times" [label]="'Desvincular ' + sub.numero" size="icon-sm" (pressed)="desvincular(sub)"></geo-icon-button>
                     }
                   </div>
                 </li>
               }
             </ul>
           } @else {
-            <ces-async-state state="empty" [compact]="true" icon="pi pi-sitemap" title="Nenhum subprojeto"
-              [description]="o.obraPaiId ? 'Esta obra já é subprojeto de outra.' : 'Kits e medidores ligados a esta obra aparecem aqui.'"></ces-async-state>
+            <geo-async-state state="empty" [compact]="true" icon="pi pi-sitemap" title="Nenhum subprojeto"
+              [description]="o.obraPaiId ? 'Esta obra já é subprojeto de outra.' : 'Kits e medidores ligados a esta obra aparecem aqui.'"></geo-async-state>
           }
         </section>
       </main>
@@ -383,15 +383,15 @@
           <header class="obra-card__cabecalho">
             <h2 id="local-titulo"><i class="pi pi-map-marker" aria-hidden="true"></i> Localização</h2>
             @if (podeEscrever && temCoordenadas()) {
-              <ces-icon-button icon="pi pi-refresh" label="Recalcular o deslocamento da base" size="icon-sm" [loading]="recalculando()" (pressed)="recalcularDeslocamento()"></ces-icon-button>
+              <geo-icon-button icon="pi pi-refresh" label="Recalcular o deslocamento da base" size="icon-sm" [loading]="recalculando()" (pressed)="recalcularDeslocamento()"></geo-icon-button>
             }
           </header>
           @if (temCoordenadas()) {
             <div #mapa class="obra-mapa" role="img" [attr.aria-label]="'Mapa da obra ' + o.numero + ' e das obras próximas'"></div>
             <p class="obra-card__meta obra-mapa__coordenadas"><i class="pi pi-compass" aria-hidden="true"></i> {{ o.latitude!.toFixed(5) }}, {{ o.longitude!.toFixed(5) }}</p>
           } @else {
-            <ces-async-state state="empty" [compact]="true" icon="pi pi-map-marker" title="Sem coordenadas"
-              description="Informe latitude e longitude no cadastro para ver o mapa, o deslocamento e as obras próximas."></ces-async-state>
+            <geo-async-state state="empty" [compact]="true" icon="pi pi-map-marker" title="Sem coordenadas"
+              description="Informe latitude e longitude no cadastro para ver o mapa, o deslocamento e as obras próximas."></geo-async-state>
           }
         </section>
 
@@ -401,14 +401,14 @@
             <header class="obra-card__cabecalho">
               <h2 id="proximas-titulo"><i class="pi pi-th-large" aria-hidden="true"></i> Obras próximas</h2>
               <div class="obra-card__filtro">
-                <ces-select label="Raio" [labelVisible]="false" [options]="raios" [value]="raio()" (valueChange)="raio.set($event ?? 10)"></ces-select>
+                <geo-select label="Raio" [labelVisible]="false" [options]="raios" [value]="raio()" (valueChange)="raio.set($event ?? 10)"></geo-select>
               </div>
             </header>
             @switch (proximas().estado) {
-              @case ('loading') { <ces-async-state state="loading" [compact]="true" title="Buscando obras próximas"></ces-async-state> }
+              @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Buscando obras próximas"></geo-async-state> }
               @case ('error') {
-                <ces-async-state state="error" [compact]="true" title="Não foi possível buscar" [description]="mensagem(proximas())"
-                  actionLabel="Tentar de novo" (action)="carregarProximas()"></ces-async-state>
+                <geo-async-state state="error" [compact]="true" title="Não foi possível buscar" [description]="mensagem(proximas())"
+                  actionLabel="Tentar de novo" (action)="carregarProximas()"></geo-async-state>
               }
               @default {
                 @if (dados(proximas())?.length) {
@@ -438,10 +438,10 @@
             <h2 id="historico-titulo"><i class="pi pi-history" aria-hidden="true"></i> Histórico do status</h2>
           </header>
           @switch (historico().estado) {
-            @case ('loading') { <ces-async-state state="loading" [compact]="true" title="Carregando o histórico"></ces-async-state> }
+            @case ('loading') { <geo-async-state state="loading" [compact]="true" title="Carregando o histórico"></geo-async-state> }
             @case ('error') {
-              <ces-async-state state="error" [compact]="true" title="Não foi possível carregar" [description]="mensagem(historico())"
-                actionLabel="Tentar de novo" (action)="carregarHistorico()"></ces-async-state>
+              <geo-async-state state="error" [compact]="true" title="Não foi possível carregar" [description]="mensagem(historico())"
+                actionLabel="Tentar de novo" (action)="carregarHistorico()"></geo-async-state>
             }
             @default {
               @if (dados(historico())?.length) {
@@ -477,7 +477,7 @@
           <header class="obra-card__cabecalho">
             <h2 id="equipes-titulo"><i class="pi pi-users" aria-hidden="true"></i> Equipes <span class="obra-card__contagem">{{ o.equipes.length }}</span></h2>
             @if (podeEscrever) {
-              <ces-icon-button icon="pi pi-pencil" label="Gerenciar equipes na edição da obra" size="icon-sm" (pressed)="editar()"></ces-icon-button>
+              <geo-icon-button icon="pi pi-pencil" label="Gerenciar equipes na edição da obra" size="icon-sm" (pressed)="editar()"></geo-icon-button>
             }
           </header>
           @if (equipes().length) {
@@ -512,32 +512,32 @@
 
     <!-- Ações da obra: fixas no canto inferior direito, como nos demais relatórios -->
     <div class="obra-acoes fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50" role="toolbar" aria-label="Ações da obra">
-      <ces-button variant="outline" size="sm" icon="pi pi-arrow-left" label="VOLTAR" (pressed)="voltar()"
-        className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></ces-button>
+      <geo-button variant="outline" size="sm" icon="pi pi-arrow-left" label="VOLTAR" (pressed)="voltar()"
+        className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
       @if (podePlanejar) {
-        <ces-button variant="outline" size="sm" icon="pi pi-map" label="PLANEJAR" (pressed)="planejar()"
-          className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></ces-button>
+        <geo-button variant="outline" size="sm" icon="pi pi-map" label="PLANEJAR" (pressed)="planejar()"
+          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
       }
       <app-analisar-com-copiloto origem="Detalhe da obra" tipo="obra" [entidade]="o.id" [rotulo]="o.numero" [filtros]="{ obra: o.id }" size="sm" variant="outline" label="COPILOTO"
-        className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"
+        className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"
         pergunta="Faça um resumo desta obra: situação, prazo, carteira, materiais solicitados e pendências."></app-analisar-com-copiloto>
       @if (podeDevolver) {
-        <ces-button variant="outline" size="sm" icon="pi pi-undo" label="DEVOLVER MATERIAIS" (pressed)="devolvendo.set(true)"
-          className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></ces-button>
+        <geo-button variant="outline" size="sm" icon="pi pi-undo" label="DEVOLVER MATERIAIS" (pressed)="devolvendo.set(true)"
+          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
       }
       @if (!o.statusConcluida) {
-        <ces-button variant="outline" size="sm" icon="pi pi-cart-plus" label="SOLICITAR MATERIAIS" (pressed)="solicitarMateriais()"
-          className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></ces-button>
+        <geo-button variant="outline" size="sm" icon="pi pi-cart-plus" label="SOLICITAR MATERIAIS" (pressed)="solicitarMateriais()"
+          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
       }
       @if (podeCriarEncerramento) {
-        <ces-button variant="outline" size="sm" icon="pi pi-flag" label="ENCERRAMENTO" (pressed)="novoEncerramento()"
-          className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></ces-button>
+        <geo-button variant="outline" size="sm" icon="pi pi-flag" label="ENCERRAMENTO" (pressed)="novoEncerramento()"
+          className="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></geo-button>
       }
       <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
         styleClass="!rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
       @if (acoesAtualizar().length) {
         <span (click)="menuAtualizar.toggle($event)">
-          <ces-button size="sm" icon="pi pi-chevron-up" label="Atualizar obra"></ces-button>
+          <geo-button size="sm" icon="pi pi-chevron-up" label="Atualizar obra"></geo-button>
         </span>
         <p-menu #menuAtualizar [model]="acoesAtualizar()" [popup]="true" appendTo="body"></p-menu>
       }
@@ -545,85 +545,85 @@
   </div>
 
   <!-- Drawer: status operacional -->
-  <ces-form-drawer [(visible)]="statusAberto" title="Alterar status" [description]="o.numero + ' · status atual ' + o.statusNome" size="sm"
+  <geo-form-drawer [(visible)]="statusAberto" title="Alterar status" [description]="o.numero + ' · status atual ' + o.statusNome" size="sm"
     [dirty]="novoStatusId() !== o.statusId || !!observacaoStatus().trim()">
-    <ces-form-section title="Status operacional" icon="pi pi-sync">
-      <div class="ces-form-stack">
-        <ces-select label="Novo status" [required]="true" [options]="opcoesStatus()" [(value)]="novoStatusId" [filter]="true"></ces-select>
+    <geo-form-section title="Status operacional" icon="pi pi-sync">
+      <div class="geo-form-stack">
+        <geo-select label="Novo status" [required]="true" [options]="opcoesStatus()" [(value)]="novoStatusId" [filter]="true"></geo-select>
         @if (statusConcluido()) {
-          <ces-datepicker label="Data de conclusão" [(value)]="novaDataFim" [clearable]="true" description="Em branco, vale a data de hoje."></ces-datepicker>
+          <geo-datepicker label="Data de conclusão" [(value)]="novaDataFim" [clearable]="true" description="Em branco, vale a data de hoje."></geo-datepicker>
         }
-        <ces-textarea label="Observação" [(value)]="observacaoStatus" [rows]="3" [maxlength]="1000"
-          description="Fica no histórico do status. Pode ser registrada mesmo sem trocar o status."></ces-textarea>
+        <geo-textarea label="Observação" [(value)]="observacaoStatus" [rows]="3" [maxlength]="1000"
+          description="Fica no histórico do status. Pode ser registrada mesmo sem trocar o status."></geo-textarea>
       </div>
-    </ces-form-section>
-    <div drawer-footer class="ces-actions-row">
-      <ces-button variant="ghost" label="Cancelar" (pressed)="statusAberto.set(false)"></ces-button>
-      <ces-button icon="pi pi-check" label="Registrar status" [disabled]="!novoStatusId()" [loading]="salvandoStatus()" (pressed)="salvarStatus()"></ces-button>
+    </geo-form-section>
+    <div drawer-footer class="geo-actions-row">
+      <geo-button variant="ghost" label="Cancelar" (pressed)="statusAberto.set(false)"></geo-button>
+      <geo-button icon="pi pi-check" label="Registrar status" [disabled]="!novoStatusId()" [loading]="salvandoStatus()" (pressed)="salvarStatus()"></geo-button>
     </div>
-  </ces-form-drawer>
+  </geo-form-drawer>
 
   <!-- Drawer: carteira -->
-  <ces-form-drawer [(visible)]="carteiraAberta" title="Editar carteira" [description]="o.numero + ' · ' + o.titulo" [dirty]="carteiraAlterada()" size="md">
-    <ces-form-section title="Enquadramento" icon="pi pi-briefcase">
-      <div class="ces-form-grid">
-        <ces-select label="Contrato" [options]="contratoOpcoes()" [(value)]="cIdContrato" [filter]="true" [clearable]="true"
-          description="Define os kits disponíveis no planejamento."></ces-select>
-        <ces-select label="Classe de tensão" [options]="tensoes" [(value)]="cTensao" [clearable]="true"
-          description="Guarda quem informou e quando; filtra os kits aplicáveis."></ces-select>
-        <ces-select label="Prioridade" [options]="prioridades" [(value)]="cPrioridade" [clearable]="true"></ces-select>
-        <ces-datepicker label="Prazo regulado" [(value)]="cPrazoRegulado" [clearable]="true"></ces-datepicker>
-        <ces-text-input label="Lote previsto" [(value)]="cLote" [maxlength]="40"></ces-text-input>
+  <geo-form-drawer [(visible)]="carteiraAberta" title="Editar carteira" [description]="o.numero + ' · ' + o.titulo" [dirty]="carteiraAlterada()" size="md">
+    <geo-form-section title="Enquadramento" icon="pi pi-briefcase">
+      <div class="geo-form-grid">
+        <geo-select label="Contrato" [options]="contratoOpcoes()" [(value)]="cIdContrato" [filter]="true" [clearable]="true"
+          description="Define os kits disponíveis no planejamento."></geo-select>
+        <geo-select label="Classe de tensão" [options]="tensoes" [(value)]="cTensao" [clearable]="true"
+          description="Guarda quem informou e quando; filtra os kits aplicáveis."></geo-select>
+        <geo-select label="Prioridade" [options]="prioridades" [(value)]="cPrioridade" [clearable]="true"></geo-select>
+        <geo-datepicker label="Prazo regulado" [(value)]="cPrazoRegulado" [clearable]="true"></geo-datepicker>
+        <geo-text-input label="Lote previsto" [(value)]="cLote" [maxlength]="40"></geo-text-input>
       </div>
-    </ces-form-section>
-    <ces-form-section title="Valores previstos" icon="pi pi-wallet">
-      <div class="ces-form-grid">
-        <ces-number-input label="Valor de projeto" mode="currency" [min]="0" [(value)]="cValorProjeto"></ces-number-input>
-        <ces-number-input label="Material previsto" mode="currency" [min]="0" [(value)]="cMaterial"></ces-number-input>
-        <ces-number-input label="Serviço previsto" mode="currency" [min]="0" [(value)]="cServico"></ces-number-input>
+    </geo-form-section>
+    <geo-form-section title="Valores previstos" icon="pi pi-wallet">
+      <div class="geo-form-grid">
+        <geo-number-input label="Valor de projeto" mode="currency" [min]="0" [(value)]="cValorProjeto"></geo-number-input>
+        <geo-number-input label="Material previsto" mode="currency" [min]="0" [(value)]="cMaterial"></geo-number-input>
+        <geo-number-input label="Serviço previsto" mode="currency" [min]="0" [(value)]="cServico"></geo-number-input>
       </div>
-    </ces-form-section>
-    <div drawer-footer class="ces-actions-row">
-      <ces-button variant="ghost" label="Cancelar" (pressed)="carteiraAberta.set(false)"></ces-button>
-      <ces-button icon="pi pi-check" label="Salvar carteira" [loading]="salvandoCarteira()" (pressed)="salvarCarteira()"></ces-button>
+    </geo-form-section>
+    <div drawer-footer class="geo-actions-row">
+      <geo-button variant="ghost" label="Cancelar" (pressed)="carteiraAberta.set(false)"></geo-button>
+      <geo-button icon="pi pi-check" label="Salvar carteira" [loading]="salvandoCarteira()" (pressed)="salvarCarteira()"></geo-button>
     </div>
-  </ces-form-drawer>
+  </geo-form-drawer>
 
   <!-- Drawer: anexo -->
-  <ces-form-drawer [(visible)]="anexoAberto" title="Adicionar anexo" [description]="'Obra ' + o.numero" size="md" [dirty]="!!anexoArquivo()">
-    <ces-form-section title="Documento" icon="pi pi-paperclip">
-      <div class="ces-form-stack">
-        <ces-select label="Tipo de documento" [required]="true" [options]="tiposAnexo()" [(value)]="anexoTipo" [filter]="true"></ces-select>
-        <ces-file-input label="Arquivo" [required]="true" [(file)]="anexoArquivo" [maxBytes]="50 * 1024 * 1024"
-          description="PDF, CAD, imagens ou documentos técnicos, até 50 MB."></ces-file-input>
-        <ces-textarea label="Observação" [(value)]="anexoObservacao" [rows]="3" [maxlength]="500"
-          placeholder="Ex.: revisão aprovada pelo engenheiro responsável"></ces-textarea>
+  <geo-form-drawer [(visible)]="anexoAberto" title="Adicionar anexo" [description]="'Obra ' + o.numero" size="md" [dirty]="!!anexoArquivo()">
+    <geo-form-section title="Documento" icon="pi pi-paperclip">
+      <div class="geo-form-stack">
+        <geo-select label="Tipo de documento" [required]="true" [options]="tiposAnexo()" [(value)]="anexoTipo" [filter]="true"></geo-select>
+        <geo-file-input label="Arquivo" [required]="true" [(file)]="anexoArquivo" [maxBytes]="50 * 1024 * 1024"
+          description="PDF, CAD, imagens ou documentos técnicos, até 50 MB."></geo-file-input>
+        <geo-textarea label="Observação" [(value)]="anexoObservacao" [rows]="3" [maxlength]="500"
+          placeholder="Ex.: revisão aprovada pelo engenheiro responsável"></geo-textarea>
       </div>
-    </ces-form-section>
-    <div drawer-footer class="ces-actions-row">
-      <ces-button variant="ghost" label="Cancelar" (pressed)="anexoAberto.set(false)"></ces-button>
-      <ces-button icon="pi pi-upload" label="Enviar anexo" [disabled]="!anexoArquivo() || !anexoTipo()" [loading]="enviandoAnexo()" (pressed)="salvarAnexo()"></ces-button>
+    </geo-form-section>
+    <div drawer-footer class="geo-actions-row">
+      <geo-button variant="ghost" label="Cancelar" (pressed)="anexoAberto.set(false)"></geo-button>
+      <geo-button icon="pi pi-upload" label="Enviar anexo" [disabled]="!anexoArquivo() || !anexoTipo()" [loading]="enviandoAnexo()" (pressed)="salvarAnexo()"></geo-button>
     </div>
-  </ces-form-drawer>
+  </geo-form-drawer>
 
   <!-- Drawer: vincular subprojeto -->
-  <ces-form-drawer [(visible)]="vinculoAberto" title="Vincular subprojeto" [description]="'Obra principal ' + o.numero" size="md" [dirty]="!!obraFilha()">
-    <ces-form-section title="Subprojeto" icon="pi pi-sitemap">
-      <div class="ces-form-stack">
-        <ces-select label="Obra" [required]="true" [options]="opcoesObrasVinculo()" [(value)]="obraFilha" [filter]="true"
+  <geo-form-drawer [(visible)]="vinculoAberto" title="Vincular subprojeto" [description]="'Obra principal ' + o.numero" size="md" [dirty]="!!obraFilha()">
+    <geo-form-section title="Subprojeto" icon="pi pi-sitemap">
+      <div class="geo-form-stack">
+        <geo-select label="Obra" [required]="true" [options]="opcoesObrasVinculo()" [(value)]="obraFilha" [filter]="true"
           placeholder="Busque pelo número ou título" [loading]="buscandoObras()" (search)="buscarObrasVinculo($event)"
-          description="Só obras principais que ainda não são subprojeto desta."></ces-select>
-        <ces-select label="Tipo de vínculo" [required]="true" [options]="tiposVinculo" [(value)]="tipoVinculo"></ces-select>
+          description="Só obras principais que ainda não são subprojeto desta."></geo-select>
+        <geo-select label="Tipo de vínculo" [required]="true" [options]="tiposVinculo" [(value)]="tipoVinculo"></geo-select>
       </div>
-    </ces-form-section>
-    <div drawer-footer class="ces-actions-row">
-      <ces-button variant="ghost" label="Cancelar" (pressed)="vinculoAberto.set(false)"></ces-button>
-      <ces-button icon="pi pi-link" label="Vincular" [disabled]="!obraFilha()" [loading]="vinculando()" (pressed)="vincular()"></ces-button>
+    </geo-form-section>
+    <div drawer-footer class="geo-actions-row">
+      <geo-button variant="ghost" label="Cancelar" (pressed)="vinculoAberto.set(false)"></geo-button>
+      <geo-button icon="pi pi-link" label="Vincular" [disabled]="!obraFilha()" [loading]="vinculando()" (pressed)="vincular()"></geo-button>
     </div>
-  </ces-form-drawer>
+  </geo-form-drawer>
 
   <!-- Pré-visualização de anexo -->
-  <ces-dialog-shell [visible]="previewAberto()" (visibleChange)="!$event && fecharPreview()" [title]="previewNome()"
+  <geo-dialog-shell [visible]="previewAberto()" (visibleChange)="!$event && fecharPreview()" [title]="previewNome()"
     description="Pré-visualização do anexo da obra." size="xl" [loading]="carregandoPreview()" loadingLabel="Carregando o arquivo">
     <div class="obra-preview">
       @if (previewUrl()) {
@@ -632,16 +632,16 @@
         } @else if (previewTipo() === 'image') {
           <img [src]="previewUrl()" [alt]="previewNome()" class="obra-preview__imagem" />
         } @else {
-          <ces-async-state state="empty" icon="pi pi-file" title="Sem pré-visualização para este formato"
-            description="Abra o arquivo em outra aba ou baixe-o." actionLabel="Abrir em nova aba" (action)="abrirPreviewNovaAba()"></ces-async-state>
+          <geo-async-state state="empty" icon="pi pi-file" title="Sem pré-visualização para este formato"
+            description="Abra o arquivo em outra aba ou baixe-o." actionLabel="Abrir em nova aba" (action)="abrirPreviewNovaAba()"></geo-async-state>
         }
       }
     </div>
     <div dialog-footer>
-      <ces-button variant="ghost" size="sm" icon="pi pi-external-link" label="Abrir em nova aba" (pressed)="abrirPreviewNovaAba()"></ces-button>
-      <ces-button variant="secondary" size="sm" label="Fechar" (pressed)="fecharPreview()"></ces-button>
+      <geo-button variant="ghost" size="sm" icon="pi pi-external-link" label="Abrir em nova aba" (pressed)="abrirPreviewNovaAba()"></geo-button>
+      <geo-button variant="secondary" size="sm" label="Fechar" (pressed)="fecharPreview()"></geo-button>
     </div>
-  </ces-dialog-shell>
+  </geo-dialog-shell>
 }
 
 @if (editando()) {

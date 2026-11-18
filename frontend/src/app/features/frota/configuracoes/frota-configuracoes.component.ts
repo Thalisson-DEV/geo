@@ -1,25 +1,25 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesRowActionsDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesSurfaceComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoRowActionsDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoSurfaceComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable } from 'rxjs';
 import { CategoriaCnh, OpcoesFrota, TipoImplemento, TipoVeiculo } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -64,20 +64,20 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesRowActionsDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesSurfaceComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoRowActionsDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoSurfaceComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     FrotaConfigAbastecimentoComponent,
     FrotaTiposDespesaComponent,
     FrotaItensManutencaoComponent,
@@ -85,65 +85,65 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
     FrotaPlanosPreventivaComponent
   ],
   template: `
-    <div class="ces-page">
-      <ces-page-header
+    <div class="geo-page">
+      <geo-page-header
         [title]="info.titulo"
         [icon]="info.icone"
         [breadcrumb]="[{ label: 'Frota' }, { label: 'Cadastros' }, { label: info.titulo }]"
         [description]="info.descricao"
-      ></ces-page-header>
+      ></geo-page-header>
 
       @switch (secao) {
         @case ('veiculo') {
-          <ces-data-table title="Tipos de veículo" description="Definem a CNH mínima e agrupam planos de manutenção e checklists."
+          <geo-data-table title="Tipos de veículo" description="Definem a CNH mínima e agrupam planos de manutenção e checklists."
             storageKey="frota-tipos-veiculo" searchPlaceholder="Filtrar nesta lista" [columns]="colunasVeiculo" [rows]="tiposVeiculo()"
             [rowKey]="chave" [state]="estado(tiposVeiculo())" stateTitle="Nenhum tipo de veículo cadastrado"
             stateDescription="Cadastre tipos como Picape, Caminhão cesto ou Moto para classificar os veículos."
             [rowClickable]="acesso.configurar()" (rowActivate)="abrir('veiculo', $event)">
             <ng-container table-actions>
               @if (acesso.configurar()) {
-                <ces-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrir('veiculo', null)"></ces-button>
+                <geo-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrir('veiculo', null)"></geo-button>
               }
             </ng-container>
-            <ng-template cesCell="ativo" let-row>
-              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+            <ng-template geoCell="ativo" let-row>
+              <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
             </ng-template>
-            <ng-template cesRowActions let-row>
+            <ng-template geoRowActions let-row>
               @if (acesso.configurar()) {
-                <span class="ces-table-actions">
-                  <ces-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar tipo" size="icon-sm" (pressed)="abrir('veiculo', row)"></ces-icon-button>
-                  <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-                    [tooltip]="row.ativo ? 'Desativar tipo' : 'Reativar tipo'" size="icon-sm" (pressed)="alternar('veiculo', row)"></ces-icon-button>
+                <span class="geo-table-actions">
+                  <geo-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar tipo" size="icon-sm" (pressed)="abrir('veiculo', row)"></geo-icon-button>
+                  <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+                    [tooltip]="row.ativo ? 'Desativar tipo' : 'Reativar tipo'" size="icon-sm" (pressed)="alternar('veiculo', row)"></geo-icon-button>
                 </span>
               }
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         }
 
         @case ('implemento') {
-          <ces-data-table title="Tipos de implemento" description="Classificam os equipamentos acopláveis, como cesto aéreo e guindauto."
+          <geo-data-table title="Tipos de implemento" description="Classificam os equipamentos acopláveis, como cesto aéreo e guindauto."
             storageKey="frota-tipos-implemento" searchPlaceholder="Filtrar nesta lista" [columns]="colunasImplemento" [rows]="tiposImplemento()"
             [rowKey]="chave" [state]="estado(tiposImplemento())" stateTitle="Nenhum tipo de implemento cadastrado"
             stateDescription="Cadastre os tipos antes de incluir os implementos."
             [rowClickable]="acesso.configurar()" (rowActivate)="abrir('implemento', $event)">
             <ng-container table-actions>
               @if (acesso.configurar()) {
-                <ces-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrir('implemento', null)"></ces-button>
+                <geo-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrir('implemento', null)"></geo-button>
               }
             </ng-container>
-            <ng-template cesCell="ativo" let-row>
-              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+            <ng-template geoCell="ativo" let-row>
+              <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
             </ng-template>
-            <ng-template cesRowActions let-row>
+            <ng-template geoRowActions let-row>
               @if (acesso.configurar()) {
-                <span class="ces-table-actions">
-                  <ces-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar tipo" size="icon-sm" (pressed)="abrir('implemento', row)"></ces-icon-button>
-                  <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-                    [tooltip]="row.ativo ? 'Desativar tipo' : 'Reativar tipo'" size="icon-sm" (pressed)="alternar('implemento', row)"></ces-icon-button>
+                <span class="geo-table-actions">
+                  <geo-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar tipo" size="icon-sm" (pressed)="abrir('implemento', row)"></geo-icon-button>
+                  <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+                    [tooltip]="row.ativo ? 'Desativar tipo' : 'Reativar tipo'" size="icon-sm" (pressed)="alternar('implemento', row)"></geo-icon-button>
                 </span>
               }
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         }
 
         @case ('itens') {
@@ -175,66 +175,66 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
         }
 
         @case ('parametros') {
-          <ces-surface>
-            <section class="ces-sheet-section" aria-labelledby="parametros-titulo">
+          <geo-surface>
+            <section class="geo-sheet-section" aria-labelledby="parametros-titulo">
             <h2 id="parametros-titulo"><i class="pi pi-sliders-h" aria-hidden="true"></i> Avisos, KM, horímetro e repetição</h2>
-            <div class="ces-form-grid">
-              <ces-text-input label="Faixas de aviso de vencimento (dias)" [(value)]="faixas" [disabled]="!acesso.configurar()"
-                description="Separadas por vírgula. Ex.: 30, 15, 7, 0 — 0 avisa no dia do vencimento." [error]="erroFaixas()"></ces-text-input>
-              <ces-number-input label="Limite de km por dia" [(value)]="limiteKmDia" [min]="1" [max]="5000" suffix=" km"
-                [disabled]="!acesso.configurar()" description="Acima disso, a média diária entre duas leituras marca a leitura para conferência."></ces-number-input>
-              <ces-number-input label="Limite de horas por dia" [(value)]="limiteHorasDia" [min]="1" [max]="24" suffix=" h"
-                [disabled]="!acesso.configurar()" description="Para veículos com horímetro (compressores, retroescavadeiras). Acima disso, a leitura vai para conferência."></ces-number-input>
-              <ces-number-input label="Trava de KM no campo" [(value)]="limiteSaltoKm" [min]="1" [max]="100000" suffix=" km"
-                [disabled]="!acesso.configurar()" description="No checklist e no abastecimento, o KM nunca é menor que o último nem passa dele mais que isto. Evita a casa decimal do painel virar milhões de km."></ces-number-input>
-              <ces-number-input label="Trava de horas no campo" [(value)]="limiteSaltoHoras" [min]="0" [max]="10000" suffix=" h" [showOptional]="true"
-                [disabled]="!acesso.configurar()" description="Mesma trava para o horímetro. Vazio ou zero: só recusa valor menor que o último."></ces-number-input>
-              <ces-number-input label="Janela de repetição de manutenção" [(value)]="janelaRepeticao" [min]="1" [max]="730" suffix=" dias"
-                [disabled]="!acesso.configurar()" description="O mesmo item na mesma placa dentro desse prazo conta como manutenção repetida. Cada item pode ter a sua."></ces-number-input>
+            <div class="geo-form-grid">
+              <geo-text-input label="Faixas de aviso de vencimento (dias)" [(value)]="faixas" [disabled]="!acesso.configurar()"
+                description="Separadas por vírgula. Ex.: 30, 15, 7, 0 — 0 avisa no dia do vencimento." [error]="erroFaixas()"></geo-text-input>
+              <geo-number-input label="Limite de km por dia" [(value)]="limiteKmDia" [min]="1" [max]="5000" suffix=" km"
+                [disabled]="!acesso.configurar()" description="Acima disso, a média diária entre duas leituras marca a leitura para conferência."></geo-number-input>
+              <geo-number-input label="Limite de horas por dia" [(value)]="limiteHorasDia" [min]="1" [max]="24" suffix=" h"
+                [disabled]="!acesso.configurar()" description="Para veículos com horímetro (compressores, retroescavadeiras). Acima disso, a leitura vai para conferência."></geo-number-input>
+              <geo-number-input label="Trava de KM no campo" [(value)]="limiteSaltoKm" [min]="1" [max]="100000" suffix=" km"
+                [disabled]="!acesso.configurar()" description="No checklist e no abastecimento, o KM nunca é menor que o último nem passa dele mais que isto. Evita a casa decimal do painel virar milhões de km."></geo-number-input>
+              <geo-number-input label="Trava de horas no campo" [(value)]="limiteSaltoHoras" [min]="0" [max]="10000" suffix=" h" [showOptional]="true"
+                [disabled]="!acesso.configurar()" description="Mesma trava para o horímetro. Vazio ou zero: só recusa valor menor que o último."></geo-number-input>
+              <geo-number-input label="Janela de repetição de manutenção" [(value)]="janelaRepeticao" [min]="1" [max]="730" suffix=" dias"
+                [disabled]="!acesso.configurar()" description="O mesmo item na mesma placa dentro desse prazo conta como manutenção repetida. Cada item pode ter a sua."></geo-number-input>
             </div>
             </section>
-            <section class="ces-sheet-section" aria-labelledby="parametros-expediente-titulo">
+            <section class="geo-sheet-section" aria-labelledby="parametros-expediente-titulo">
             <h2 id="parametros-expediente-titulo"><i class="pi pi-clock" aria-hidden="true"></i> Expediente da frota</h2>
-            <div class="ces-form-grid">
-              <ces-select label="Início" [options]="horarios" [(value)]="expedienteInicio" [disabled]="!acesso.configurar()"
-                description="Andar fora do horário (e no domingo) aparece como uso fora do expediente."></ces-select>
-              <ces-select label="Fim" [options]="horarios" [(value)]="expedienteFim" [disabled]="!acesso.configurar()" [error]="erroExpediente()"></ces-select>
-              <ces-boolean-control kind="toggle" label="Sábado é dia de expediente" [(value)]="sabadoExpediente" [disabled]="!acesso.configurar()"
-                description="Feriados não são descontados."></ces-boolean-control>
+            <div class="geo-form-grid">
+              <geo-select label="Início" [options]="horarios" [(value)]="expedienteInicio" [disabled]="!acesso.configurar()"
+                description="Andar fora do horário (e no domingo) aparece como uso fora do expediente."></geo-select>
+              <geo-select label="Fim" [options]="horarios" [(value)]="expedienteFim" [disabled]="!acesso.configurar()" [error]="erroExpediente()"></geo-select>
+              <geo-boolean-control kind="toggle" label="Sábado é dia de expediente" [(value)]="sabadoExpediente" [disabled]="!acesso.configurar()"
+                description="Feriados não são descontados."></geo-boolean-control>
             </div>
             @if (acesso.configurar()) {
-              <div class="ces-actions-row ces-actions-row--separated">
-                <ces-button icon="pi pi-check" label="Salvar parâmetros" [loading]="salvandoParametros()" (pressed)="salvarParametros()"></ces-button>
+              <div class="geo-actions-row geo-actions-row--separated">
+                <geo-button icon="pi pi-check" label="Salvar parâmetros" [loading]="salvandoParametros()" (pressed)="salvarParametros()"></geo-button>
               </div>
             }
             </section>
-          </ces-surface>
+          </geo-surface>
         }
       }
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="(emEdicao() ? 'Editar ' : 'Novo ') + (catalogo() === 'veiculo' ? 'tipo de veículo' : 'tipo de implemento')"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="(emEdicao() ? 'Editar ' : 'Novo ') + (catalogo() === 'veiculo' ? 'tipo de veículo' : 'tipo de implemento')"
       [description]="emEdicao() ? emEdicao()!.nome : undefined" [dirty]="!!nome().trim() && nome() !== (emEdicao()?.nome ?? '')"
       [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
-        <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80" [error]="tentouSalvar() && !nome().trim() ? 'Informe o nome.' : undefined"></ces-text-input>
-        <ces-textarea label="Descrição" [(value)]="descricao" [rows]="2" [maxlength]="255" [showOptional]="true"></ces-textarea>
+      <div class="geo-form-stack">
+        <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80" [error]="tentouSalvar() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>
+        <geo-textarea label="Descrição" [(value)]="descricao" [rows]="2" [maxlength]="255" [showOptional]="true"></geo-textarea>
         @if (catalogo() === 'veiculo') {
-          <ces-select label="CNH mínima para conduzir" [options]="categorias()" [(value)]="categoria" [clearable]="true" [showOptional]="true"
-            description="Impede vincular condutor com categoria insuficiente."></ces-select>
+          <geo-select label="CNH mínima para conduzir" [options]="categorias()" [(value)]="categoria" [clearable]="true" [showOptional]="true"
+            description="Impede vincular condutor com categoria insuficiente."></geo-select>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar tipo'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar tipo'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaConfiguracoesComponent {
   private readonly frota = inject(FrotaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   protected readonly acesso = acessoFrota();
 
   /** Qual cadastro esta rota mostra (`data.secao`). */
@@ -266,7 +266,7 @@ export class FrotaConfiguracoesComponent {
   protected readonly expedienteFim = signal<string | null>('19:00');
   protected readonly sabadoExpediente = signal(false);
   /** De meia em meia hora; o expediente não precisa de minuto quebrado. */
-  protected readonly horarios: CesSelectOption<string>[] = Array.from({ length: 48 }, (_, i) => {
+  protected readonly horarios: GeoSelectOption<string>[] = Array.from({ length: 48 }, (_, i) => {
     const hora = String(Math.floor(i / 2)).padStart(2, '0') + (i % 2 ? ':30' : ':00');
     return { label: hora, value: hora };
   });
@@ -276,7 +276,7 @@ export class FrotaConfiguracoesComponent {
     return inicio && fim && fim <= inicio ? 'O fim deve ser depois do início.' : undefined;
   });
 
-  protected readonly categorias = computed<CesSelectOption<CategoriaCnh>[]>(() =>
+  protected readonly categorias = computed<GeoSelectOption<CategoriaCnh>[]>(() =>
     (this.opcoes()?.categoriasCnh ?? []).map((c) => ({ label: c.rotulo, value: c.valor }))
   );
   protected readonly faixasConvertidas = computed(() =>
@@ -293,13 +293,13 @@ export class FrotaConfiguracoesComponent {
     return undefined;
   });
 
-  protected readonly colunasVeiculo: CesDataTableColumn<TipoVeiculo>[] = [
+  protected readonly colunasVeiculo: GeoDataTableColumn<TipoVeiculo>[] = [
     { key: 'nome', header: 'Nome', priority: 1 },
     { key: 'descricao', header: 'Descrição', display: (t) => t.descricao ?? '' },
     { key: 'categoriaCnhMinima', header: 'CNH mínima', display: (t) => t.categoriaCnhMinima ?? '—' },
     { key: 'ativo', header: 'Situação', type: 'custom', value: (t) => t.ativo, display: (t) => (t.ativo ? 'Ativo' : 'Inativo') }
   ];
-  protected readonly colunasImplemento: CesDataTableColumn<TipoImplemento>[] = [
+  protected readonly colunasImplemento: GeoDataTableColumn<TipoImplemento>[] = [
     { key: 'nome', header: 'Nome', priority: 1 },
     { key: 'descricao', header: 'Descrição', display: (t) => t.descricao ?? '' },
     { key: 'ativo', header: 'Situação', type: 'custom', value: (t) => t.ativo, display: (t) => (t.ativo ? 'Ativo' : 'Inativo') }

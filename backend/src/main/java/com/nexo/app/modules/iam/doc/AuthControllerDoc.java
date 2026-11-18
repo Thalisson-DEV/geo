@@ -15,7 +15,7 @@ public interface AuthControllerDoc {
 
     @Operation(summary = "Entrar",
             description = "Abre uma sessão para o aparelho. Devolve o token de acesso no corpo e o "
-                    + "refresh token no cookie HttpOnly `ces_sessao`.")
+                    + "refresh token no cookie HttpOnly `geo_sessao`.")
     @ApiResponse(responseCode = "200", description = "Sessão aberta")
     @ApiResponse(responseCode = "403", description = "Credenciais inválidas")
     ResponseEntity<TokenResponse> login(LoginRequest request, HttpServletRequest http);

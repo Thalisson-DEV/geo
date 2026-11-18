@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { GeoConfirmationService, NotificationService } from '@geo/ui';
 import { ConfirmationService } from 'primeng/api';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -39,7 +39,7 @@ describe('SolicitacoesComerciaisImportacaoComponent', () => {
     fixture.componentRef.setInput('estoques', estoques);
     fixture.componentRef.setInput('materiais', materiais);
     tela = fixture.componentInstance;
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
   });
 
   const linha = (extra: Partial<SolicitacaoComercialImportRow> = {}): SolicitacaoComercialImportRow =>

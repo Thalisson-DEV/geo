@@ -57,7 +57,7 @@ public class ContextAssembler {
      * de tela daquele momento (snapshot). Assim "e agora?" depois de trocar de filtro nao herda o recorte antigo.
      */
     public List<LlmMessage> montar(String promptSistema, List<MensagemAssistente> historico, String pergunta,
-            List<ArquivoAssistente> anexos, ContextoCes contextoAtual) {
+            List<ArquivoAssistente> anexos, ContextoGeo contextoAtual) {
         int orcamento = (int) ((Math.max(16_000, properties.getLlm().getMaxInputTokens()) - RESERVA_TOKENS) * CARACTERES_POR_TOKEN);
         String atual = comRecorte(perguntaComAnexos(pergunta, anexos), contextoAtual, "agora");
         int usado = promptSistema.length() + atual.length();
@@ -149,16 +149,16 @@ public class ContextAssembler {
     }
 
     /** Prefixa a pergunta com o recorte do painel (periodo, filtros, foco) quando ela veio de um dashboard. */
-    static String comRecorte(String conteudo, ContextoCes contexto, String quando) {
+    static String comRecorte(String conteudo, ContextoGeo contexto, String quando) {
         if (contexto == null || contexto.painel() == null) return conteudo;
         return "[Recorte do painel " + quando + ": " + contexto.painel().assinatura() + "]\n" + conteudo;
     }
 
-    private ContextoCes snapshot(MensagemAssistente mensagem) {
+    private ContextoGeo snapshot(MensagemAssistente mensagem) {
         String json = mensagem.getContextoJson();
         if (json == null || json.isBlank()) return null;
         try {
-            return objectMapper.readValue(json, ContextoCes.class);
+            return objectMapper.readValue(json, ContextoGeo.class);
         } catch (JsonProcessingException | IllegalArgumentException exception) {
             return null;
         }

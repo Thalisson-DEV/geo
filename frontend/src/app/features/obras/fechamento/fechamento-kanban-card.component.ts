@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { CesButtonComponent } from '@ces/ui';
+import { GeoButtonComponent } from '@geo/ui';
 
 import { FechamentoResumo } from '../../../core/models/fechamento-obra.models';
 import { formatarAlmoxarifado } from '../../almoxarifado/solicitacoes-material/solicitacao-tecnica-presentation';
@@ -12,7 +12,7 @@ export type AcaoFechamento = 'RESERVA' | 'MOVIMENTAR';
   selector: 'app-fechamento-kanban-card',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesButtonComponent],
+  imports: [GeoButtonComponent],
   styleUrl: '../../almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacao-comercial-kanban-card.component.css',
   template: `
     <article
@@ -65,10 +65,10 @@ export type AcaoFechamento = 'RESERVA' | 'MOVIMENTAR';
           <span>{{ solicitante() }}</span>
         </span>
         @if (item().acoes.registrarReserva) {
-          <ces-button label="Reserva" icon="pi pi-hashtag" size="sm" variant="outline" [ariaLabel]="'Registrar reserva da solicitação #' + idCurto()"
+          <geo-button label="Reserva" icon="pi pi-hashtag" size="sm" variant="outline" [ariaLabel]="'Registrar reserva da solicitação #' + idCurto()"
             (pressed)="actionTriggered.emit({ item: item(), action: 'RESERVA' })" (click)="$event.stopPropagation()" />
         } @else if (item().acoes.movimentar) {
-          <ces-button label="Movimentar" icon="pi pi-check-square" size="sm" variant="outline" [ariaLabel]="'Marcar como movimentado a solicitação #' + idCurto()"
+          <geo-button label="Movimentar" icon="pi pi-check-square" size="sm" variant="outline" [ariaLabel]="'Marcar como movimentado a solicitação #' + idCurto()"
             (pressed)="actionTriggered.emit({ item: item(), action: 'MOVIMENTAR' })" (click)="$event.stopPropagation()" />
         }
       </div>

@@ -29,7 +29,7 @@ spring:
   datasource:
     # Em deploy, DB_* tem precedencia. No desenvolvimento local, reutiliza as
     # mesmas POSTGRES_* carregadas do .env pelo Docker Compose.
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/${POSTGRES_DB:ces-db}}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/${POSTGRES_DB:ces-db}} # renomear-geo: manter (banco local ces-db)
     username: ${DB_USER:${POSTGRES_USER:postgres}}
     password: ${DB_PASSWORD:${POSTGRES_PASSWORD}}
     driver-class-name: org.postgresql.Driver
@@ -97,107 +97,107 @@ spring:
           parallel-tool-calls: false
 
 # CONFIGURACOES DE SEGURANCA E NEGOCIO
-ces:
+geo:
   turno:
     # Turno esquecido aberto no horario de corte e encerrado pelo servidor; o fim vira o do ultimo lancamento.
     encerramento-automatico:
-      habilitado: ${CES_TURNO_ENCERRAMENTO_AUTOMATICO_HABILITADO:true}
-      horario-corte: ${CES_TURNO_HORARIO_CORTE:22:00}
-      zona: ${CES_TURNO_ZONA:America/Sao_Paulo}
-      cron: ${CES_TURNO_ENCERRAMENTO_CRON:0 */10 * * * *}
+      habilitado: ${GEO_TURNO_ENCERRAMENTO_AUTOMATICO_HABILITADO:true}
+      horario-corte: ${GEO_TURNO_HORARIO_CORTE:22:00}
+      zona: ${GEO_TURNO_ZONA:America/Sao_Paulo}
+      cron: ${GEO_TURNO_ENCERRAMENTO_CRON:0 */10 * * * *}
   lookup:
     rate-limit:
-      enabled: ${CES_LOOKUP_RATE_LIMIT_ENABLED:true}
-      requests-per-minute: ${CES_LOOKUP_RATE_LIMIT_REQUESTS_PER_MINUTE:300}
-      window: ${CES_LOOKUP_RATE_LIMIT_WINDOW:PT1M}
+      enabled: ${GEO_LOOKUP_RATE_LIMIT_ENABLED:true}
+      requests-per-minute: ${GEO_LOOKUP_RATE_LIMIT_REQUESTS_PER_MINUTE:300}
+      window: ${GEO_LOOKUP_RATE_LIMIT_WINDOW:PT1M}
   # Rate limit (token bucket no Redis via Bucket4j). Cada politica tem capacidade, periodo
   # (o balde reenche ao longo dele), modo (DESLIGADO | SOMBRA | ATIVO) e o que fazer sem Redis
   # (LIBERAR | LOCAL). SOMBRA conta e registra quem seria barrado, sem barrar: as politicas
   # novas nascem assim para calibrar com o trafego real antes de ativar.
-  # A politica de lookup continua vindo de ces.lookup.rate-limit (ja ativa).
+  # A politica de lookup continua vindo de geo.lookup.rate-limit (ja ativa).
   rate-limit:
-    habilitado: ${CES_RATE_LIMIT_HABILITADO:true}
-    modo-padrao: ${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}
-    timeout-armazem: ${CES_RATE_LIMIT_TIMEOUT_ARMAZEM:PT0.5S}
-    pausa-apos-falha: ${CES_RATE_LIMIT_PAUSA_APOS_FALHA:PT30S}
+    habilitado: ${GEO_RATE_LIMIT_HABILITADO:true}
+    modo-padrao: ${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}
+    timeout-armazem: ${GEO_RATE_LIMIT_TIMEOUT_ARMAZEM:PT0.5S}
+    pausa-apos-falha: ${GEO_RATE_LIMIT_PAUSA_APOS_FALHA:PT30S}
     politicas:
       login-ip:
-        capacidade: ${CES_RATE_LIMIT_LOGIN_IP_CAPACIDADE:30}
-        periodo: ${CES_RATE_LIMIT_LOGIN_IP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_LOGIN_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_LOGIN_IP_CAPACIDADE:30}
+        periodo: ${GEO_RATE_LIMIT_LOGIN_IP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_LOGIN_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LOCAL
       login-falhas-conta-ip:
-        capacidade: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_CAPACIDADE:10}
-        periodo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_PERIODO:PT15M}
-        modo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_CAPACIDADE:10}
+        periodo: ${GEO_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_PERIODO:PT15M}
+        modo: ${GEO_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LOCAL
       login-falhas-conta:
-        capacidade: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_CAPACIDADE:50}
-        periodo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_PERIODO:PT1H}
-        modo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_LOGIN_FALHAS_CONTA_CAPACIDADE:50}
+        periodo: ${GEO_RATE_LIMIT_LOGIN_FALHAS_CONTA_PERIODO:PT1H}
+        modo: ${GEO_RATE_LIMIT_LOGIN_FALHAS_CONTA_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LOCAL
       sessao-ip:
-        capacidade: ${CES_RATE_LIMIT_SESSAO_IP_CAPACIDADE:120}
-        periodo: ${CES_RATE_LIMIT_SESSAO_IP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_SESSAO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_SESSAO_IP_CAPACIDADE:120}
+        periodo: ${GEO_RATE_LIMIT_SESSAO_IP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_SESSAO_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
       publico-ip:
-        capacidade: ${CES_RATE_LIMIT_PUBLICO_IP_CAPACIDADE:60}
-        periodo: ${CES_RATE_LIMIT_PUBLICO_IP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_PUBLICO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_PUBLICO_IP_CAPACIDADE:60}
+        periodo: ${GEO_RATE_LIMIT_PUBLICO_IP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_PUBLICO_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LOCAL
       verificacao-ip:
-        capacidade: ${CES_RATE_LIMIT_VERIFICACAO_IP_CAPACIDADE:30}
-        periodo: ${CES_RATE_LIMIT_VERIFICACAO_IP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_VERIFICACAO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_VERIFICACAO_IP_CAPACIDADE:30}
+        periodo: ${GEO_RATE_LIMIT_VERIFICACAO_IP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_VERIFICACAO_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LOCAL
       oauth-ip:
-        capacidade: ${CES_RATE_LIMIT_OAUTH_IP_CAPACIDADE:30}
-        periodo: ${CES_RATE_LIMIT_OAUTH_IP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_OAUTH_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_OAUTH_IP_CAPACIDADE:30}
+        periodo: ${GEO_RATE_LIMIT_OAUTH_IP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_OAUTH_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LOCAL
       mcp:
-        capacidade: ${CES_RATE_LIMIT_MCP_CAPACIDADE:240}
-        periodo: ${CES_RATE_LIMIT_MCP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_MCP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_MCP_CAPACIDADE:240}
+        periodo: ${GEO_RATE_LIMIT_MCP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_MCP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
       websocket-ip:
-        capacidade: ${CES_RATE_LIMIT_WEBSOCKET_IP_CAPACIDADE:600}
-        periodo: ${CES_RATE_LIMIT_WEBSOCKET_IP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_WEBSOCKET_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_WEBSOCKET_IP_CAPACIDADE:600}
+        periodo: ${GEO_RATE_LIMIT_WEBSOCKET_IP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_WEBSOCKET_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
       anonimo-ip:
-        capacidade: ${CES_RATE_LIMIT_ANONIMO_IP_CAPACIDADE:300}
-        periodo: ${CES_RATE_LIMIT_ANONIMO_IP_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_ANONIMO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_ANONIMO_IP_CAPACIDADE:300}
+        periodo: ${GEO_RATE_LIMIT_ANONIMO_IP_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_ANONIMO_IP_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
       usuario:
-        capacidade: ${CES_RATE_LIMIT_USUARIO_CAPACIDADE:1200}
-        periodo: ${CES_RATE_LIMIT_USUARIO_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_USUARIO_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_USUARIO_CAPACIDADE:1200}
+        periodo: ${GEO_RATE_LIMIT_USUARIO_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_USUARIO_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
       usuario-pesado:
-        capacidade: ${CES_RATE_LIMIT_USUARIO_PESADO_CAPACIDADE:30}
-        periodo: ${CES_RATE_LIMIT_USUARIO_PESADO_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_USUARIO_PESADO_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_USUARIO_PESADO_CAPACIDADE:30}
+        periodo: ${GEO_RATE_LIMIT_USUARIO_PESADO_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_USUARIO_PESADO_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
       upload:
-        capacidade: ${CES_RATE_LIMIT_UPLOAD_CAPACIDADE:120}
-        periodo: ${CES_RATE_LIMIT_UPLOAD_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_UPLOAD_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_UPLOAD_CAPACIDADE:120}
+        periodo: ${GEO_RATE_LIMIT_UPLOAD_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_UPLOAD_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
       copiloto:
-        capacidade: ${CES_RATE_LIMIT_COPILOTO_CAPACIDADE:20}
-        periodo: ${CES_RATE_LIMIT_COPILOTO_PERIODO:PT1M}
-        modo: ${CES_RATE_LIMIT_COPILOTO_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        capacidade: ${GEO_RATE_LIMIT_COPILOTO_CAPACIDADE:20}
+        periodo: ${GEO_RATE_LIMIT_COPILOTO_PERIODO:PT1M}
+        modo: ${GEO_RATE_LIMIT_COPILOTO_MODO:${GEO_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
         falha-armazem: LIBERAR
   auditoria-solicitacao:
-    versao-ativa: ${CES_AUDITORIA_SOLICITACAO_VERSAO_ATIVA}
+    versao-ativa: ${GEO_AUDITORIA_SOLICITACAO_VERSAO_ATIVA}
     chaves:
-      v1: ${CES_AUDITORIA_SOLICITACAO_CHAVE_V1}
+      v1: ${GEO_AUDITORIA_SOLICITACAO_CHAVE_V1}
   estoque:
     solicitacoes-tecnicas:
-      enabled: ${CES_ESTOQUE_SOLICITACOES_TECNICAS_ENABLED:false}
+      enabled: ${GEO_ESTOQUE_SOLICITACOES_TECNICAS_ENABLED:false}
   assistente:
     enabled: ${AI_ENABLED:false}
     max-history-messages: ${AI_MAX_HISTORY_MESSAGES:40}
@@ -286,8 +286,8 @@ ces:
   # cola no Claude/ChatGPT (o mesmo do app, que encaminha /api e /.well-known ao backend).
   # Vazio: deduzida da requisição (Host e X-Forwarded-*).
   conexoes-ia:
-    url-publica: ${CES_URL_PUBLICA:}
-    chamadas-por-minuto: ${CES_MCP_CHAMADAS_POR_MINUTO:120}
+    url-publica: ${GEO_URL_PUBLICA:}
+    chamadas-por-minuto: ${GEO_MCP_CHAMADAS_POR_MINUTO:120}
 
   # Execução única de escritas carimbadas com o header Idempotency-Key.
   idempotencia:
@@ -334,7 +334,7 @@ ces:
   observability:
     # Dedicated technical credential for private health probes. It is never a
     # fallback for the user JWT and is intentionally empty by default.
-    technical-token: ${CES_OBSERVABILITY_TECHNICAL_TOKEN:}
+    technical-token: ${GEO_OBSERVABILITY_TECHNICAL_TOKEN:}
 
   storage:
     type: local
@@ -368,7 +368,7 @@ ces:
     redirecionar-para: ${EMAIL_REDIRECIONAR_PARA:}
     # Raiz do frontend: é o que transforma o deeplink da notificação no botão do
     # e-mail. Sem ela o e-mail sai sem link rápido.
-    url-base: ${CES_URL_BASE:}
+    url-base: ${GEO_URL_BASE:}
     # Opcional: URL pública e absoluta de um logo. Vazio usa a marca em texto, que é
     # o padrão — imagem em e-mail depende de o cliente aceitar carregar remoto.
     logo-url: ${EMAIL_LOGO_URL:}

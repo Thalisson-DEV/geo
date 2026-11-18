@@ -870,7 +870,7 @@ public class MotorCadastro {
         return () -> {
             String letras = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
             java.security.SecureRandom aleatorio = new java.security.SecureRandom();
-            StringBuilder senha = new StringBuilder("Ces@");
+            StringBuilder senha = new StringBuilder("Geo@");
             for (int i = 0; i < 8; i++) senha.append(letras.charAt(aleatorio.nextInt(letras.length())));
             return senha.toString();
         };

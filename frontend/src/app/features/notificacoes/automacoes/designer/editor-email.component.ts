@@ -4,8 +4,8 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import DOMPurify from 'dompurify';
 import { Subject, catchError, debounceTime, of, switchMap } from 'rxjs';
 import {
-  CesButtonComponent, CesDialogShellComponent, CesIconButtonComponent, CesSelectComponent, CesSelectOption, CesTextInputComponent
-} from '@ces/ui';
+  GeoButtonComponent, GeoDialogShellComponent, GeoIconButtonComponent, GeoSelectComponent, GeoSelectOption, GeoTextInputComponent
+} from '@geo/ui';
 
 import { JsonValue, Params } from '../../../../core/models/automacao.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -36,7 +36,7 @@ const CORES: { nome: string; valor: string }[] = [
   { nome: 'Vermelho', valor: '#991b1b' }
 ];
 
-const DESTAQUES: CesSelectOption<string>[] = [
+const DESTAQUES: GeoSelectOption<string>[] = [
   { label: 'Neutro', value: 'NEUTRO' },
   { label: 'Informativo', value: 'INFORMATIVO' },
   { label: 'Atenção', value: 'ATENCAO' },
@@ -65,29 +65,29 @@ export type CamposEmail = Params;
 @Component({
   selector: 'aut-editor-email',
   standalone: true,
-  imports: [CesButtonComponent, CesIconButtonComponent, CesDialogShellComponent, CesSelectComponent, CesTextInputComponent,
+  imports: [GeoButtonComponent, GeoIconButtonComponent, GeoDialogShellComponent, GeoSelectComponent, GeoTextInputComponent,
     CampoExpressaoComponent, SeletorDinamicoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-dialog-shell [(visible)]="aberto" title="E-mail" size="full"
+    <geo-dialog-shell [(visible)]="aberto" title="E-mail" size="full"
                       description="Escreva no e-mail da empresa; ao lado está a prévia de como ele chega, com o layout real do envio.">
       <div class="aut aut-mail">
         <section class="aut-mail-compose" aria-label="Escrever o e-mail">
           <div class="aut-mail-fields">
             <div class="aut-mail-field-wide">
-              <span class="ces-field__label">Assunto <span class="ces-field__required" aria-hidden="true">*</span></span>
+              <span class="geo-field__label">Assunto <span class="geo-field__required" aria-hidden="true">*</span></span>
               <aut-campo-expressao [valor]="assunto()" [contexto]="contexto()" rotulo="Assunto" placeholder="Ex.: Desconto validado aguardando baixa"
                                    (mudou)="assunto.set($event); mexeu()" />
             </div>
             <div>
-              <span class="ces-field__label">Área (linha acima do título)</span>
+              <span class="geo-field__label">Área (linha acima do título)</span>
               <aut-campo-expressao [valor]="area()" [contexto]="contexto()" rotulo="Área" placeholder="Ex.: Recursos Humanos"
                                    (mudou)="area.set($event); mexeu()" />
             </div>
-            <ces-select label="Destaque" [options]="destaques" [value]="tom()" (valueChange)="tom.set($event ?? 'NEUTRO'); mexeu()"></ces-select>
-            <ces-text-input label="Texto do botão" placeholder="Abrir no GEO" [value]="botaoTexto()" (valueChange)="botaoTexto.set($event); mexeu()"></ces-text-input>
+            <geo-select label="Destaque" [options]="destaques" [value]="tom()" (valueChange)="tom.set($event ?? 'NEUTRO'); mexeu()"></geo-select>
+            <geo-text-input label="Texto do botão" placeholder="Abrir no GEO" [value]="botaoTexto()" (valueChange)="botaoTexto.set($event); mexeu()"></geo-text-input>
             <div>
-              <span class="ces-field__label">Link do botão</span>
+              <span class="geo-field__label">Link do botão</span>
               <aut-campo-expressao [valor]="botaoLink()" [contexto]="contexto()" rotulo="Link do botão" placeholder="Ex.: /dp/descontos (vazio: sem botão)"
                                    (mudou)="botaoLink.set($event); mexeu()" />
             </div>
@@ -98,15 +98,15 @@ export type CamposEmail = Params;
             <button type="button" class="aut-mail-tool" title="Itálico" aria-label="Itálico" (mousedown)="$event.preventDefault()" (click)="cmd('italic')"><em>I</em></button>
             <button type="button" class="aut-mail-tool" title="Sublinhado" aria-label="Sublinhado" (mousedown)="$event.preventDefault()" (click)="cmd('underline')"><u>S</u></button>
             <span class="aut-topbar-sep" aria-hidden="true"></span>
-            <ces-button label="Título" variant="ghost" size="sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('formatBlock', 'h2')"></ces-button>
-            <ces-button label="Subtítulo" variant="ghost" size="sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('formatBlock', 'h3')"></ces-button>
-            <ces-button label="Texto" variant="ghost" size="sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('formatBlock', 'p')"></ces-button>
+            <geo-button label="Título" variant="ghost" size="sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('formatBlock', 'h2')"></geo-button>
+            <geo-button label="Subtítulo" variant="ghost" size="sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('formatBlock', 'h3')"></geo-button>
+            <geo-button label="Texto" variant="ghost" size="sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('formatBlock', 'p')"></geo-button>
             <span class="aut-topbar-sep" aria-hidden="true"></span>
-            <ces-icon-button icon="pi pi-list" label="Lista com marcadores" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('insertUnorderedList')"></ces-icon-button>
-            <ces-icon-button icon="pi pi-sort-numeric-down" label="Lista numerada" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('insertOrderedList')"></ces-icon-button>
-            <ces-icon-button icon="pi pi-align-left" label="Alinhar à esquerda" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('justifyLeft')"></ces-icon-button>
-            <ces-icon-button icon="pi pi-align-center" label="Centralizar" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('justifyCenter')"></ces-icon-button>
-            <ces-icon-button icon="pi pi-align-right" label="Alinhar à direita" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('justifyRight')"></ces-icon-button>
+            <geo-icon-button icon="pi pi-list" label="Lista com marcadores" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('insertUnorderedList')"></geo-icon-button>
+            <geo-icon-button icon="pi pi-sort-numeric-down" label="Lista numerada" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('insertOrderedList')"></geo-icon-button>
+            <geo-icon-button icon="pi pi-align-left" label="Alinhar à esquerda" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('justifyLeft')"></geo-icon-button>
+            <geo-icon-button icon="pi pi-align-center" label="Centralizar" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('justifyCenter')"></geo-icon-button>
+            <geo-icon-button icon="pi pi-align-right" label="Alinhar à direita" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="cmd('justifyRight')"></geo-icon-button>
             <span class="aut-topbar-sep" aria-hidden="true"></span>
             <span class="aut-mail-colors" role="group" aria-label="Cor do texto">
               @for (c of cores; track c.valor) {
@@ -115,12 +115,12 @@ export type CamposEmail = Params;
               }
             </span>
             <span class="aut-topbar-sep" aria-hidden="true"></span>
-            <ces-icon-button icon="pi pi-link" label="Link" variant="ghost" size="icon-sm" (mousedown)="lembrar()" (pressed)="pedirLink()"></ces-icon-button>
-            <ces-icon-button icon="pi pi-image" label="Imagem" variant="ghost" size="icon-sm" (mousedown)="lembrar()" (pressed)="pedirImagem()"></ces-icon-button>
-            <ces-icon-button icon="pi pi-eraser" label="Limpar formatação" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="limparFormatacao()"></ces-icon-button>
+            <geo-icon-button icon="pi pi-link" label="Link" variant="ghost" size="icon-sm" (mousedown)="lembrar()" (pressed)="pedirLink()"></geo-icon-button>
+            <geo-icon-button icon="pi pi-image" label="Imagem" variant="ghost" size="icon-sm" (mousedown)="lembrar()" (pressed)="pedirImagem()"></geo-icon-button>
+            <geo-icon-button icon="pi pi-eraser" label="Limpar formatação" variant="ghost" size="icon-sm" (mousedown)="$event.preventDefault()" (pressed)="limparFormatacao()"></geo-icon-button>
             <span style="flex:1"></span>
             <span style="position:relative">
-              <ces-button icon="pi pi-th-large" label="Bloco" variant="secondary" size="sm" data-dyn-trigger (mousedown)="lembrar()" (pressed)="alternarMenuBlocos()"></ces-button>
+              <geo-button icon="pi pi-th-large" label="Bloco" variant="secondary" size="sm" data-dyn-trigger (mousedown)="lembrar()" (pressed)="alternarMenuBlocos()"></geo-button>
               @if (menuBlocos()) {
                 <div class="aut-dyn aut-mail-blocks" role="menu">
                   @for (b of blocos(); track b[0]) {
@@ -135,7 +135,7 @@ export type CamposEmail = Params;
               }
             </span>
             <span style="position:relative">
-              <ces-button icon="pi pi-bolt" label="Inserir dado" variant="secondary" size="sm" data-dyn-trigger (mousedown)="lembrar()" (pressed)="seletor.set(seletor() === 'dado' ? null : 'dado')"></ces-button>
+              <geo-button icon="pi pi-bolt" label="Inserir dado" variant="secondary" size="sm" data-dyn-trigger (mousedown)="lembrar()" (pressed)="seletor.set(seletor() === 'dado' ? null : 'dado')"></geo-button>
               @if (seletor() === 'dado') {
                 <aut-seletor-dinamico [contexto]="contexto()" (escolher)="inserirDado($event)" (fechar)="seletor.set(null)" />
               }
@@ -146,24 +146,24 @@ export type CamposEmail = Params;
             <form class="aut-email-ask" (submit)="$event.preventDefault(); confirmarPedido()">
               @switch (p.tipo) {
                 @case ('link') {
-                  <ces-text-input label="Endereço do link" placeholder="https://…" [value]="p.url" (valueChange)="pedido.set({ tipo: 'link', texto: p.texto, url: $event })"
-                                  [error]="erroEndereco(p.url) ? 'Use um endereço que comece com https://' : undefined"></ces-text-input>
-                  <ces-text-input label="Texto do link" description="Em branco: usa o texto selecionado ou o próprio endereço." [value]="p.texto"
-                                  (valueChange)="pedido.set({ tipo: 'link', texto: $event, url: p.url })"></ces-text-input>
+                  <geo-text-input label="Endereço do link" placeholder="https://…" [value]="p.url" (valueChange)="pedido.set({ tipo: 'link', texto: p.texto, url: $event })"
+                                  [error]="erroEndereco(p.url) ? 'Use um endereço que comece com https://' : undefined"></geo-text-input>
+                  <geo-text-input label="Texto do link" description="Em branco: usa o texto selecionado ou o próprio endereço." [value]="p.texto"
+                                  (valueChange)="pedido.set({ tipo: 'link', texto: $event, url: p.url })"></geo-text-input>
                 }
                 @case ('imagem') {
-                  <ces-text-input label="Endereço da imagem" placeholder="https://…/imagem.png" [value]="p.url" (valueChange)="pedido.set({ tipo: 'imagem', url: $event, descricao: p.descricao })"
-                                  [error]="erroEndereco(p.url) ? 'Use um endereço público que comece com https://' : undefined"></ces-text-input>
-                  <ces-text-input label="Descrição (para quem não carrega imagens)" [value]="p.descricao"
-                                  (valueChange)="pedido.set({ tipo: 'imagem', url: p.url, descricao: $event })"></ces-text-input>
+                  <geo-text-input label="Endereço da imagem" placeholder="https://…/imagem.png" [value]="p.url" (valueChange)="pedido.set({ tipo: 'imagem', url: $event, descricao: p.descricao })"
+                                  [error]="erroEndereco(p.url) ? 'Use um endereço público que comece com https://' : undefined"></geo-text-input>
+                  <geo-text-input label="Descrição (para quem não carrega imagens)" [value]="p.descricao"
+                                  (valueChange)="pedido.set({ tipo: 'imagem', url: p.url, descricao: $event })"></geo-text-input>
                 }
                 @case ('botao') {
-                  <ces-text-input label="Texto do botão" [value]="p.texto" (valueChange)="pedido.set({ tipo: 'botao', fonte: p.fonte, texto: $event })"></ces-text-input>
+                  <geo-text-input label="Texto do botão" [value]="p.texto" (valueChange)="pedido.set({ tipo: 'botao', fonte: p.fonte, texto: $event })"></geo-text-input>
                 }
               }
               <div class="aut-email-ask-actions">
-                <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="pedido.set(null)"></ces-button>
-                <ces-button label="Inserir" variant="primary" size="sm" type="submit" [disabled]="!pedidoValido()"></ces-button>
+                <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="pedido.set(null)"></geo-button>
+                <geo-button label="Inserir" variant="primary" size="sm" type="submit" [disabled]="!pedidoValido()"></geo-button>
               </div>
             </form>
           }
@@ -192,9 +192,9 @@ export type CamposEmail = Params;
           <div class="aut-mail-preview-bar">
             <strong>Prévia do envio</strong>
             <span style="flex:1"></span>
-            <ces-button icon="pi pi-desktop" label="Computador" size="sm" [variant]="largura() === 'desktop' ? 'secondary' : 'ghost'" (pressed)="largura.set('desktop')"></ces-button>
-            <ces-button icon="pi pi-mobile" label="Celular" size="sm" [variant]="largura() === 'mobile' ? 'secondary' : 'ghost'" (pressed)="largura.set('mobile')"></ces-button>
-            <ces-icon-button icon="pi pi-refresh" label="Atualizar prévia" variant="ghost" size="icon-sm" [loading]="carregandoPrevia()" (pressed)="atualizarPrevia()"></ces-icon-button>
+            <geo-button icon="pi pi-desktop" label="Computador" size="sm" [variant]="largura() === 'desktop' ? 'secondary' : 'ghost'" (pressed)="largura.set('desktop')"></geo-button>
+            <geo-button icon="pi pi-mobile" label="Celular" size="sm" [variant]="largura() === 'mobile' ? 'secondary' : 'ghost'" (pressed)="largura.set('mobile')"></geo-button>
+            <geo-icon-button icon="pi pi-refresh" label="Atualizar prévia" variant="ghost" size="icon-sm" [loading]="carregandoPrevia()" (pressed)="atualizarPrevia()"></geo-icon-button>
           </div>
           <div class="aut-mail-subject"><span class="aut-muted">Assunto:</span> {{ previa()?.assunto || '—' }}</div>
           @if (erroPrevia()) { <p class="aut-muted" role="alert" style="margin:0">{{ erroPrevia() }}</p> }
@@ -207,10 +207,10 @@ export type CamposEmail = Params;
         </aside>
       </div>
       <div dialog-footer>
-        <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="aberto.set(false)"></ces-button>
-        <ces-button label="Usar este e-mail" variant="primary" size="sm" (pressed)="salvar()"></ces-button>
+        <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="aberto.set(false)"></geo-button>
+        <geo-button label="Usar este e-mail" variant="primary" size="sm" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-dialog-shell>
+    </geo-dialog-shell>
   `
 })
 export class EditorEmailComponent {

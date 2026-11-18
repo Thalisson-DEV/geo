@@ -23,8 +23,8 @@ import {
   VersaoObsoletaErrorHandler
 } from './core/versao-obsoleta';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { cesPreset } from './design-system/core';
-import { CES_PAGE_FAVORITES } from './design-system/patterns/page-header';
+import { geoPreset } from './design-system/core';
+import { GEO_PAGE_FAVORITES } from './design-system/patterns/page-header';
 import { FavoritosService } from './core/services/favoritos.service';
 import { NavigationHistoryService } from './core/navigation/navigation-history.service';
 
@@ -53,9 +53,9 @@ export const appConfig: ApplicationConfig = {
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     MessageService,
     ConfirmationService,
-    // O cabeçalho de página do DS (ces-page-header) favorita sem depender de core/.
+    // O cabeçalho de página do DS (geo-page-header) favorita sem depender de core/.
     {
-      provide: CES_PAGE_FAVORITES,
+      provide: GEO_PAGE_FAVORITES,
       useFactory: () => {
         const favoritos = inject(FavoritosService);
         return {
@@ -74,12 +74,12 @@ export const appConfig: ApplicationConfig = {
         }
       },
       theme: {
-        preset: cesPreset,
+        preset: geoPreset,
         options: {
           darkModeSelector: '.app-dark',
           cssLayer: {
             name: 'primeng',
-            order: 'theme, base, primeng, ces.tokens, ces.base, ces.components, utilities, ces.legacy'
+            order: 'theme, base, primeng, geo.tokens, geo.base, geo.components, utilities, geo.legacy'
           }
         }
       },

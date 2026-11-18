@@ -1,19 +1,19 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesCellDirective,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoCellDirective,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import { DashboardAnaliseComponent } from '../../../../../shared/components/dashboard/dashboard-analise.component';
 import { NavegacaoAnaliseService } from '../../../../../shared/components/dashboard/dashboard-analise.navegacao';
@@ -33,10 +33,10 @@ import { LinhaRanking, SEM_CHAVE, TIPOS_OBRA, ehDevolucao, ranking, rotuloTipo }
   selector: 'app-almox-painel-tecnicas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteAlmoxService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteAlmoxService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesCellDirective, CesStatusComponent, CesButtonComponent, CesCalloutComponent, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoCellDirective, GeoStatusComponent, GeoButtonComponent, GeoCalloutComponent, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, AlmoxPainelTopoComponent, AlmoxRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -81,8 +81,8 @@ export class AlmoxPainelTecnicasComponent extends PainelSolicitacoesBase {
   }));
   protected readonly devolucoesPendentes = computed(() => this.r()?.abertas.filter((l) => l.etapa === 'PENDENTE_DEVOLUCAO').length ?? 0);
   protected readonly naSeparacao = computed(() => this.r()?.abertas.filter((l) => l.etapa === 'PRONTO_PARA_SEPARACAO' || l.etapa === 'EM_SEPARACAO').length ?? 0);
-  protected readonly colObras: CesDataTableColumn<LinhaRanking & { adicoes: number; devolucoes: number }>[] = [
-    ...(this.colRanking.filter((c) => c.key !== 'detalhe' && c.key !== 'atendimento') as CesDataTableColumn<LinhaRanking & { adicoes: number; devolucoes: number }>[]),
+  protected readonly colObras: GeoDataTableColumn<LinhaRanking & { adicoes: number; devolucoes: number }>[] = [
+    ...(this.colRanking.filter((c) => c.key !== 'detalhe' && c.key !== 'atendimento') as GeoDataTableColumn<LinhaRanking & { adicoes: number; devolucoes: number }>[]),
     { key: 'detalhe', header: 'Tipo de obra', priority: 3, value: (l) => l.detalhe ?? '—' },
     { key: 'adicoes', header: 'Adições', type: 'integer', priority: 2 },
     { key: 'devolucoes', header: 'Devoluções', type: 'integer', priority: 2 }

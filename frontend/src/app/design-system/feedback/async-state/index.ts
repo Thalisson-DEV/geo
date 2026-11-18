@@ -1,1 +1,1 @@
-export * from './ces-async-state.component';
+export * from './geo-async-state.component';

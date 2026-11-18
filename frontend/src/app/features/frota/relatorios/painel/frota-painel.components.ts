@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { CesDatepickerComponent, CesMultiSelectComponent } from '@ces/ui';
+import { GeoDatepickerComponent, GeoMultiSelectComponent } from '@geo/ui';
 
 import { RelatorioGerencialFrota } from '../../../../core/models/frota-relatorios.models';
 import { PeriodoFrota, RecorteFrotaService } from './recorte-frota.service';
@@ -16,40 +16,40 @@ export const PAINEIS_FROTA = [
 ] as const;
 
 /**
- * Campos do recorte comum, dentro do `ces-filter-grid` do painel (o host some do layout). O painel
+ * Campos do recorte comum, dentro do `geo-filter-grid` do painel (o host some do layout). O painel
  * acrescenta depois os filtros próprios.
  */
 @Component({
   selector: 'app-frota-recorte-campos',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesDatepickerComponent, CesMultiSelectComponent],
+  imports: [GeoDatepickerComponent, GeoMultiSelectComponent],
   host: { style: 'display: contents' },
   template: `
     @let r = recorte;
-    <ces-datepicker label="Início" [inputId]="prefixo() + '-inicio'" [value]="r.inicio()" (valueChange)="r.mudarData('inicio', $event)" [maxDate]="r.fim()"></ces-datepicker>
-    <ces-datepicker label="Fim" [inputId]="prefixo() + '-fim'" [value]="r.fim()" (valueChange)="r.mudarData('fim', $event)" [minDate]="r.inicio()"></ces-datepicker>
-    <ces-multiselect label="Base operacional" [inputId]="prefixo() + '-base'" placeholder="Todas" [options]="r.bases.opcoes()"
-      [value]="r.idsBase()" (valueChange)="r.idsBase.set($event)"></ces-multiselect>
+    <geo-datepicker label="Início" [inputId]="prefixo() + '-inicio'" [value]="r.inicio()" (valueChange)="r.mudarData('inicio', $event)" [maxDate]="r.fim()"></geo-datepicker>
+    <geo-datepicker label="Fim" [inputId]="prefixo() + '-fim'" [value]="r.fim()" (valueChange)="r.mudarData('fim', $event)" [minDate]="r.inicio()"></geo-datepicker>
+    <geo-multiselect label="Base operacional" [inputId]="prefixo() + '-base'" placeholder="Todas" [options]="r.bases.opcoes()"
+      [value]="r.idsBase()" (valueChange)="r.idsBase.set($event)"></geo-multiselect>
     @if (campos().includes('processo')) {
-      <ces-multiselect label="Processo" [inputId]="prefixo() + '-processo'" placeholder="Todos" [options]="r.processos()"
-        description="Pela equipe vinculada ao veículo." [value]="r.idsProcesso()" (valueChange)="r.idsProcesso.set($event)"></ces-multiselect>
+      <geo-multiselect label="Processo" [inputId]="prefixo() + '-processo'" placeholder="Todos" [options]="r.processos()"
+        description="Pela equipe vinculada ao veículo." [value]="r.idsProcesso()" (valueChange)="r.idsProcesso.set($event)"></geo-multiselect>
     }
     @if (campos().includes('tipo')) {
-      <ces-multiselect label="Tipo de veículo" [inputId]="prefixo() + '-tipo'" placeholder="Todos" [options]="r.tipos()"
-        [value]="r.idsTipo()" (valueChange)="r.idsTipo.set($event)"></ces-multiselect>
+      <geo-multiselect label="Tipo de veículo" [inputId]="prefixo() + '-tipo'" placeholder="Todos" [options]="r.tipos()"
+        [value]="r.idsTipo()" (valueChange)="r.idsTipo.set($event)"></geo-multiselect>
     }
     @if (campos().includes('regime')) {
-      <ces-multiselect label="Regime" [inputId]="prefixo() + '-regime'" placeholder="Próprios e locados" [options]="r.regimes" [filter]="false"
-        [value]="r.regimesSel()" (valueChange)="r.regimesSel.set($event)"></ces-multiselect>
+      <geo-multiselect label="Regime" [inputId]="prefixo() + '-regime'" placeholder="Próprios e locados" [options]="r.regimes" [filter]="false"
+        [value]="r.regimesSel()" (valueChange)="r.regimesSel.set($event)"></geo-multiselect>
     }
     @if (campos().includes('situacao')) {
-      <ces-multiselect label="Situação do veículo" [inputId]="prefixo() + '-situacao'" placeholder="Todas" [options]="r.situacoes" [filter]="false"
-        [value]="r.situacoesSel()" (valueChange)="r.situacoesSel.set($event)"></ces-multiselect>
+      <geo-multiselect label="Situação do veículo" [inputId]="prefixo() + '-situacao'" placeholder="Todas" [options]="r.situacoes" [filter]="false"
+        [value]="r.situacoesSel()" (valueChange)="r.situacoesSel.set($event)"></geo-multiselect>
     }
     @if (campos().includes('veiculo')) {
-      <ces-multiselect label="Veículos" [inputId]="prefixo() + '-veiculo'" placeholder="Todos" [options]="r.veiculosOpcoes()" [virtualScroll]="true"
-        [value]="r.idsVeiculo()" (valueChange)="r.idsVeiculo.set($event)"></ces-multiselect>
+      <geo-multiselect label="Veículos" [inputId]="prefixo() + '-veiculo'" placeholder="Todos" [options]="r.veiculosOpcoes()" [virtualScroll]="true"
+        [value]="r.idsVeiculo()" (valueChange)="r.idsVeiculo.set($event)"></geo-multiselect>
     }
   `
 })
@@ -72,17 +72,17 @@ export class FrotaRecorteCamposComponent {
     :host { display: block; margin-bottom: 1rem; }
     .fpt-linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
     .fpt-periodos { width: fit-content; max-width: 100%; }
-    .fpt-recorte { margin: 0.5rem 0 0; color: var(--ces-foreground-muted); font-size: 0.8rem; }
+    .fpt-recorte { margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8rem; }
     .fpt-paineis { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0 0 0.875rem; padding: 0; list-style: none; }
     .fpt-painel {
       display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.25rem; padding: 0.35rem 0.8rem;
-      border: 1px solid var(--ces-border); border-radius: 999px; color: var(--ces-foreground-muted);
-      font-size: 0.8125rem; font-weight: 600; text-decoration: none; background: var(--ces-surface);
+      border: 1px solid var(--geo-border); border-radius: 999px; color: var(--geo-foreground-muted);
+      font-size: 0.8125rem; font-weight: 600; text-decoration: none; background: var(--geo-surface);
       transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
     }
-    .fpt-painel:hover { color: var(--ces-foreground); border-color: var(--ces-border-strong); }
-    .fpt-painel:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .fpt-painel.is-ativo { color: var(--ces-brand); background: var(--ces-brand-soft); border-color: var(--ces-brand); }
+    .fpt-painel:hover { color: var(--geo-foreground); border-color: var(--geo-border-strong); }
+    .fpt-painel:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .fpt-painel.is-ativo { color: var(--geo-brand); background: var(--geo-brand-soft); border-color: var(--geo-brand); }
     .fpt-painel i { font-size: 0.8rem; }
     @media (prefers-reduced-motion: reduce) { .fpt-painel { transition: none; } }
   `,

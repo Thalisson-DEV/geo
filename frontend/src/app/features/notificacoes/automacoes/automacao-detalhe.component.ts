@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, ViewEncapsulation, comp
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { CesAsyncStateComponent, CesConfirmationService, CesPageHeaderComponent, NotificationService, CesButtonComponent, CesIconButtonComponent, CesStatusComponent, CesCalloutComponent } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoConfirmationService, GeoPageHeaderComponent, NotificationService, GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent, GeoCalloutComponent } from '@geo/ui';
 
 import {
   AutomacaoDetalhe, Catalogo, ExecucaoResumo, JsonValue, MODO_ROTULO, ModoExecucao, NoEspec, STATUS_EXECUCAO_ROTULO, STATUS_ROTULO,
@@ -20,7 +20,7 @@ import { mapaEspecs } from './lib/dinamico';
 @Component({
   selector: 'app-automacao-detalhe',
   standalone: true,
-  imports: [CesStatusComponent, CesCalloutComponent, CesButtonComponent, CesIconButtonComponent, DatePipe, CesPageHeaderComponent, CesAsyncStateComponent, CanvasComponent, DialogoExecutarComponent],
+  imports: [GeoStatusComponent, GeoCalloutComponent, GeoButtonComponent, GeoIconButtonComponent, DatePipe, GeoPageHeaderComponent, GeoAsyncStateComponent, CanvasComponent, DialogoExecutarComponent],
   styleUrls: ['./automacoes.css', './automacoes-canvas.css', './automacoes-campos.css', './automacoes-email.css', './automacoes-execucao.css'],
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,37 +28,37 @@ import { mapaEspecs } from './lib/dinamico';
     <div class="aut aut-page">
       @if (!detalhe() || !catalogo()) {
         @if (erro()) {
-          <ces-async-state state="error" title="Não foi possível carregar" [description]="erro()!" actionLabel="Tentar de novo" (action)="carregar()" />
-        } @else { <ces-async-state state="loading" title="Carregando automação" /> }
+          <geo-async-state state="error" title="Não foi possível carregar" [description]="erro()!" actionLabel="Tentar de novo" (action)="carregar()" />
+        } @else { <geo-async-state state="loading" title="Carregando automação" /> }
       } @else {
         @let a = detalhe()!.resumo;
-        <ces-page-header [title]="a.nome" icon="pi pi-sitemap" [description]="a.descricao ?? undefined"
+        <geo-page-header [title]="a.nome" icon="pi pi-sitemap" [description]="a.descricao ?? undefined"
                          [breadcrumb]="[{ label: 'Automações', route: '/notificacoes/automacoes' }, { label: a.nome }]">
           <div status style="display:flex;gap:0.375rem;flex-wrap:wrap">
-            <ces-status [tone]="$any(a.status === 'ATIVA' ? 'success' : a.status === 'PAUSADA' ? 'warning' : null) ?? 'neutral'" [icon]="iconeStatus[a.status]">{{ statusRotulo(a.status) }}</ces-status>
-            <ces-status tone="neutral" icon="pi-bolt">{{ tipoRotulo(a.tipo) }}</ces-status>
-            @if (a.origem === 'REGRA_CONVERTIDA') { <ces-status tone="info" icon="pi-sync">Convertida de regra de notificação</ces-status> }
-            @if (a.origem === 'COPILOTO') { <ces-status tone="brand" icon="pi-sparkles">Montada pela Bússola</ces-status> }
+            <geo-status [tone]="$any(a.status === 'ATIVA' ? 'success' : a.status === 'PAUSADA' ? 'warning' : null) ?? 'neutral'" [icon]="iconeStatus[a.status]">{{ statusRotulo(a.status) }}</geo-status>
+            <geo-status tone="neutral" icon="pi-bolt">{{ tipoRotulo(a.tipo) }}</geo-status>
+            @if (a.origem === 'REGRA_CONVERTIDA') { <geo-status tone="info" icon="pi-sync">Convertida de regra de notificação</geo-status> }
+            @if (a.origem === 'COPILOTO') { <geo-status tone="brand" icon="pi-sparkles">Montada pela Bússola</geo-status> }
           </div>
           <div actions style="display:flex;gap:0.5rem;flex-wrap:wrap">
-            <ces-button icon="pi pi-pencil" label="Abrir no editor" variant="primary" size="sm" (pressed)="ir(['/notificacoes/automacoes', a.id, 'editar'])"></ces-button>
-            <ces-button icon="pi pi-bolt" label="Testar" variant="outline" size="sm" (pressed)="abrir(true)"></ces-button>
+            <geo-button icon="pi pi-pencil" label="Abrir no editor" variant="primary" size="sm" (pressed)="ir(['/notificacoes/automacoes', a.id, 'editar'])"></geo-button>
+            <geo-button icon="pi pi-bolt" label="Testar" variant="outline" size="sm" (pressed)="abrir(true)"></geo-button>
             @if (podeExecutar()) {
-              <ces-button icon="pi pi-play" label="Executar agora" variant="outline" size="sm" (pressed)="abrir(false)"></ces-button>
+              <geo-button icon="pi pi-play" label="Executar agora" variant="outline" size="sm" (pressed)="abrir(false)"></geo-button>
             }
             @if (a.status === 'ATIVA') {
-              <ces-button icon="pi pi-pause" label="Pausar" variant="outline" size="sm" [disabled]="ocupado()" (pressed)="status('PAUSADA')"></ces-button>
+              <geo-button icon="pi pi-pause" label="Pausar" variant="outline" size="sm" [disabled]="ocupado()" (pressed)="status('PAUSADA')"></geo-button>
             } @else {
-              <ces-button icon="pi pi-check" label="Ativar" variant="outline" size="sm" [disabled]="ocupado() || detalhe()!.problemasAtivacao.length > 0" (pressed)="status('ATIVA')"></ces-button>
+              <geo-button icon="pi pi-check" label="Ativar" variant="outline" size="sm" [disabled]="ocupado() || detalhe()!.problemasAtivacao.length > 0" (pressed)="status('ATIVA')"></geo-button>
             }
-            <ces-icon-button icon="pi pi-copy" label="Duplicar" variant="ghost" size="icon-sm" (pressed)="duplicar()"></ces-icon-button>
-            <ces-icon-button icon="pi pi-trash" label="Arquivar" variant="destructive" size="icon-sm" (pressed)="arquivar()"></ces-icon-button>
+            <geo-icon-button icon="pi pi-copy" label="Duplicar" variant="ghost" size="icon-sm" (pressed)="duplicar()"></geo-icon-button>
+            <geo-icon-button icon="pi pi-trash" label="Arquivar" variant="destructive" size="icon-sm" (pressed)="arquivar()"></geo-icon-button>
           </div>
-        </ces-page-header>
+        </geo-page-header>
 
         @if (detalhe()!.problemasAtivacao.length && a.status !== 'ATIVA') {
-          <ces-callout tone="warning" [dense]="true"><span>Para ativar, corrija: {{ detalhe()!.problemasAtivacao.slice(0, 3).join('; ') }}{{ detalhe()!.problemasAtivacao.length > 3 ? '…' : '' }}</span>
-          </ces-callout>
+          <geo-callout tone="warning" [dense]="true"><span>Para ativar, corrija: {{ detalhe()!.problemasAtivacao.slice(0, 3).join('; ') }}{{ detalhe()!.problemasAtivacao.length > 3 ? '…' : '' }}</span>
+          </geo-callout>
         }
 
         <div class="aut-kpis">
@@ -75,9 +75,9 @@ import { mapaEspecs } from './lib/dinamico';
         </div>
 
         <section class="aut-card">
-          <div style="display:flex;align-items:center;padding:0.875rem 1rem;border-bottom:1px solid var(--ces-border)">
+          <div style="display:flex;align-items:center;padding:0.875rem 1rem;border-bottom:1px solid var(--geo-border)">
             <strong style="flex:1">Histórico de execuções</strong>
-            <ces-button icon="pi pi-refresh" label="Atualizar" variant="ghost" size="sm" (pressed)="carregarExecucoes()"></ces-button>
+            <geo-button icon="pi pi-refresh" label="Atualizar" variant="ghost" size="sm" (pressed)="carregarExecucoes()"></geo-button>
           </div>
           @if (!execucoes().length) {
             <p class="aut-muted" style="padding:1rem;margin:0">Ainda não rodou. Use "Testar" para ver o fluxo funcionando sem incomodar ninguém.</p>
@@ -126,7 +126,7 @@ export class AutomacaoDetalheComponent {
   }
   private readonly service = inject(AutomacoesService);
   private readonly notificacao = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_AUTOMACAO;

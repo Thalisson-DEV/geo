@@ -6,7 +6,7 @@ import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { ImportacaoService } from '../../../core/services/importacao.service';
 import { RhService } from '../../../core/services/rh.service';
 import { UsuariosService } from '../../../core/services/usuarios.service';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { abrirListagem, chipsDoPainel, paginaTeste, tecla } from '../../../shared/listagem/listagem-teste';
 import { UsuariosComponent } from './usuarios.component';
 
@@ -35,7 +35,7 @@ describe('UsuariosComponent', () => {
       { provide: LookupStore, useValue: { searchCollaborators: vi.fn(() => of({ items: [], hasMore: false })) } },
       { provide: ImportacaoService, useValue: { baixarModeloCsv: vi.fn() } }
     ]);
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     return { ...r, tela: r.componente as unknown as Record<string, Sinal<unknown>> & { salvar(): void; editar(u: unknown): void } };
   };
 

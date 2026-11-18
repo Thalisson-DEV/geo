@@ -1,22 +1,22 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, model, output, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesMultiSelectComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  cesImportStatus
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoMultiSelectComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  geoImportStatus
+} from '@geo/ui';
 import { map } from 'rxjs';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
@@ -47,7 +47,7 @@ interface Envolvido {
   empresa?: string;
 }
 
-const SIM_NAO: CesSelectOption<string>[] = [
+const SIM_NAO: GeoSelectOption<string>[] = [
   { label: 'Sim', value: 'Sim' },
   { label: 'Não', value: 'Não' }
 ];
@@ -69,7 +69,7 @@ export function dataParaPlanilha(data: Date | null, comHora: boolean): string {
 }
 
 /**
- * Importação de eventos de SST por planilha: pré-visualização no `ces-import-drawer` e correção
+ * Importação de eventos de SST por planilha: pré-visualização no `geo-import-drawer` e correção
  * de uma linha por vez num drawer com todos os campos (a planilha casa os cadastros pelo nome).
  */
 @Component({
@@ -77,110 +77,110 @@ export function dataParaPlanilha(data: Date | null, comHora: boolean): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesMultiSelectComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoMultiSelectComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   template: `
-    <ces-import-drawer [(visible)]="visible" title="Importar eventos de segurança"
+    <geo-import-drawer [(visible)]="visible" title="Importar eventos de segurança"
       description="Planilha CSV com tipo, datas de ocorrência e comunicação, atividade, gestor, base, equipe, veículo, lesão, CAT, técnicos e envolvidos."
       [rows]="importacao.linhas()" [uploading]="importacao.enviando()" [processing]="importacao.processando()"
       (templateRequested)="importacao.baixarModelo()" (fileSelected)="importacao.enviarArquivo($event)"
       (processed)="importacao.processar()" (cleared)="importacao.limpar()">
       @if (importacao.linhas().length) {
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunas"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunas"
           [rows]="importacao.linhas()" [rowKey]="chaveLinha" [pageSizeOptions]="[25, 50, 100]">
-          <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
-            @if (row.mensagemErro) { <span class="ces-cell-muted">{{ row.mensagemErro }}</span> }
+          <ng-template geoCell="situacao" let-row>
+            <geo-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</geo-status>
+            @if (row.mensagemErro) { <span class="geo-cell-muted">{{ row.mensagemErro }}</span> }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
-              <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="corrigir(row)"></ces-icon-button>
-              <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></ces-icon-button>
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
+              <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="corrigir(row)"></geo-icon-button>
+              <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="importacao.remover(row)"></geo-icon-button>
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
-    <ces-form-drawer [visible]="!!editando()" (visibleChange)="!$event && concluir()" [title]="'Corrigir linha ' + (editando()?.linha ?? '')"
+    <geo-form-drawer [visible]="!!editando()" (visibleChange)="!$event && concluir()" [title]="'Corrigir linha ' + (editando()?.linha ?? '')"
       [description]="editando()?.mensagemErro ?? undefined" size="lg">
       @if (editando(); as row) {
-        <ces-form-section title="Ocorrência" icon="pi pi-exclamation-triangle">
-          <div class="ces-form-grid">
-            <ces-select label="Tipo" [options]="tipos" [(value)]="row.tipo"></ces-select>
-            <ces-select label="Atividade" [options]="porNome('atividades', row.atividade)" [(value)]="row.atividade" [filter]="true" [clearable]="true"></ces-select>
-            <ces-datepicker label="Data da ocorrência" [showTime]="true" [value]="data(row.dataOcorrencia)" (valueChange)="row.dataOcorrencia = paraTexto($event, true)"></ces-datepicker>
-            <ces-datepicker label="Data da comunicação" [showTime]="true" [value]="data(row.dataComunicacao)" (valueChange)="row.dataComunicacao = paraTexto($event, true)"></ces-datepicker>
-            <ces-select label="Classificação" [options]="porNome('classificacoes', row.classificacao)" [(value)]="row.classificacao" [filter]="true" [clearable]="true"></ces-select>
-            <ces-select label="Processo" [options]="porNome('processos', row.processo)" [(value)]="row.processo" [filter]="true" [clearable]="true"></ces-select>
+        <geo-form-section title="Ocorrência" icon="pi pi-exclamation-triangle">
+          <div class="geo-form-grid">
+            <geo-select label="Tipo" [options]="tipos" [(value)]="row.tipo"></geo-select>
+            <geo-select label="Atividade" [options]="porNome('atividades', row.atividade)" [(value)]="row.atividade" [filter]="true" [clearable]="true"></geo-select>
+            <geo-datepicker label="Data da ocorrência" [showTime]="true" [value]="data(row.dataOcorrencia)" (valueChange)="row.dataOcorrencia = paraTexto($event, true)"></geo-datepicker>
+            <geo-datepicker label="Data da comunicação" [showTime]="true" [value]="data(row.dataComunicacao)" (valueChange)="row.dataComunicacao = paraTexto($event, true)"></geo-datepicker>
+            <geo-select label="Classificação" [options]="porNome('classificacoes', row.classificacao)" [(value)]="row.classificacao" [filter]="true" [clearable]="true"></geo-select>
+            <geo-select label="Processo" [options]="porNome('processos', row.processo)" [(value)]="row.processo" [filter]="true" [clearable]="true"></geo-select>
           </div>
-          <ces-text-input label="Descrição" [(value)]="row.descricao"></ces-text-input>
-        </ces-form-section>
-        <ces-form-section title="Local e responsáveis" icon="pi pi-map-marker">
-          <div class="ces-form-grid">
-            <ces-select label="Gestor" [options]="comAtual(colaboradores.items(), row.gestor)" [(value)]="row.gestor" [filter]="true" [clearable]="true"
-              [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></ces-select>
-            <ces-select label="Base operacional" [options]="porNome('bases', row.baseOperacional)" [(value)]="row.baseOperacional" [filter]="true" [clearable]="true"></ces-select>
-            <ces-select label="Equipe" [options]="comAtual(opcoesEquipes(), row.equipe)" [(value)]="row.equipe" [filter]="true" [clearable]="true"
-              [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></ces-select>
-            <ces-select label="Veículo" [options]="comAtual(opcoesVeiculos(), row.veiculo)" [(value)]="row.veiculo" [filter]="true" [clearable]="true"
-              [loading]="veiculos.loading()" (opened)="veiculos.open()" (search)="veiculos.search($event)"></ces-select>
-            <ces-text-input label="Local da ocorrência" [(value)]="row.localOcorrencia"></ces-text-input>
-            <ces-select label="Telemetria" [options]="evidencias" [(value)]="row.telemetria" [clearable]="true"></ces-select>
-            <ces-text-input label="Latitude" [(value)]="row.latitude"></ces-text-input>
-            <ces-text-input label="Longitude" [(value)]="row.longitude"></ces-text-input>
-            <ces-select label="Filmagem" [options]="evidencias" [(value)]="row.filmagem" [clearable]="true"></ces-select>
+          <geo-text-input label="Descrição" [(value)]="row.descricao"></geo-text-input>
+        </geo-form-section>
+        <geo-form-section title="Local e responsáveis" icon="pi pi-map-marker">
+          <div class="geo-form-grid">
+            <geo-select label="Gestor" [options]="comAtual(colaboradores.items(), row.gestor)" [(value)]="row.gestor" [filter]="true" [clearable]="true"
+              [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></geo-select>
+            <geo-select label="Base operacional" [options]="porNome('bases', row.baseOperacional)" [(value)]="row.baseOperacional" [filter]="true" [clearable]="true"></geo-select>
+            <geo-select label="Equipe" [options]="comAtual(opcoesEquipes(), row.equipe)" [(value)]="row.equipe" [filter]="true" [clearable]="true"
+              [loading]="equipes.loading()" (opened)="equipes.open()" (search)="equipes.search($event)"></geo-select>
+            <geo-select label="Veículo" [options]="comAtual(opcoesVeiculos(), row.veiculo)" [(value)]="row.veiculo" [filter]="true" [clearable]="true"
+              [loading]="veiculos.loading()" (opened)="veiculos.open()" (search)="veiculos.search($event)"></geo-select>
+            <geo-text-input label="Local da ocorrência" [(value)]="row.localOcorrencia"></geo-text-input>
+            <geo-select label="Telemetria" [options]="evidencias" [(value)]="row.telemetria" [clearable]="true"></geo-select>
+            <geo-text-input label="Latitude" [(value)]="row.latitude"></geo-text-input>
+            <geo-text-input label="Longitude" [(value)]="row.longitude"></geo-text-input>
+            <geo-select label="Filmagem" [options]="evidencias" [(value)]="row.filmagem" [clearable]="true"></geo-select>
           </div>
-          <ces-multiselect label="Técnicos de segurança" [options]="comAtuais(colaboradores.items(), row._tecnicosArray ?? [])" [value]="row._tecnicosArray ?? []" (valueChange)="row._tecnicosArray = $event"
-            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)" placeholder="Nenhum"></ces-multiselect>
-        </ces-form-section>
-        <ces-form-section title="Lesão e CAT" icon="pi pi-heart">
-          <div class="ces-form-grid">
-            <ces-select label="Local da lesão" [options]="porNome('locaisLesao', row.localLesao)" [(value)]="row.localLesao" [filter]="true" [clearable]="true"></ces-select>
-            <ces-select label="Natureza da lesão" [options]="porNome('naturezasLesao', row.naturezaLesao)" [(value)]="row.naturezaLesao" [filter]="true" [clearable]="true"></ces-select>
-            <ces-select label="Agente causador" [options]="porNome('agentesCausadores', row.agenteCausador)" [(value)]="row.agenteCausador" [filter]="true" [clearable]="true"></ces-select>
-            <ces-text-input label="Dias perdidos" [(value)]="row.diasPerdidos"></ces-text-input>
-            <ces-select label="Possui CAT" [options]="simNao" [(value)]="row.possuiCat" [clearable]="true"></ces-select>
-            <ces-select label="Tipo de CAT" [options]="tiposCat" [(value)]="row.tipoCat" [clearable]="true"></ces-select>
-            <ces-text-input label="Número da CAT" [(value)]="row.numeroCat"></ces-text-input>
-            <ces-datepicker label="Emissão da CAT" [value]="data(row.dataEmissaoCat)" (valueChange)="row.dataEmissaoCat = paraTexto($event, false)"></ces-datepicker>
+          <geo-multiselect label="Técnicos de segurança" [options]="comAtuais(colaboradores.items(), row._tecnicosArray ?? [])" [value]="row._tecnicosArray ?? []" (valueChange)="row._tecnicosArray = $event"
+            [loading]="colaboradores.loading()" (search)="colaboradores.search($event)" placeholder="Nenhum"></geo-multiselect>
+        </geo-form-section>
+        <geo-form-section title="Lesão e CAT" icon="pi pi-heart">
+          <div class="geo-form-grid">
+            <geo-select label="Local da lesão" [options]="porNome('locaisLesao', row.localLesao)" [(value)]="row.localLesao" [filter]="true" [clearable]="true"></geo-select>
+            <geo-select label="Natureza da lesão" [options]="porNome('naturezasLesao', row.naturezaLesao)" [(value)]="row.naturezaLesao" [filter]="true" [clearable]="true"></geo-select>
+            <geo-select label="Agente causador" [options]="porNome('agentesCausadores', row.agenteCausador)" [(value)]="row.agenteCausador" [filter]="true" [clearable]="true"></geo-select>
+            <geo-text-input label="Dias perdidos" [(value)]="row.diasPerdidos"></geo-text-input>
+            <geo-select label="Possui CAT" [options]="simNao" [(value)]="row.possuiCat" [clearable]="true"></geo-select>
+            <geo-select label="Tipo de CAT" [options]="tiposCat" [(value)]="row.tipoCat" [clearable]="true"></geo-select>
+            <geo-text-input label="Número da CAT" [(value)]="row.numeroCat"></geo-text-input>
+            <geo-datepicker label="Emissão da CAT" [value]="data(row.dataEmissaoCat)" (valueChange)="row.dataEmissaoCat = paraTexto($event, false)"></geo-datepicker>
           </div>
-        </ces-form-section>
-        <ces-form-section title="Envolvidos" icon="pi pi-users">
+        </geo-form-section>
+        <geo-form-section title="Envolvidos" icon="pi pi-users">
           @for (env of row._envolvidosArray ?? []; track $index) {
-            <div class="ces-form-grid">
-              <ces-select label="Tipo" [options]="tiposEnvolvido" [(value)]="env.tipo"></ces-select>
-              <ces-select label="Papel" [options]="papeis" [(value)]="env.papel"></ces-select>
+            <div class="geo-form-grid">
+              <geo-select label="Tipo" [options]="tiposEnvolvido" [(value)]="env.tipo"></geo-select>
+              <geo-select label="Papel" [options]="papeis" [(value)]="env.papel"></geo-select>
               @if (env.tipo === 'COLABORADOR') {
-                <ces-select label="Colaborador" [options]="comAtual(colaboradores.items(), env.identificacao)" [(value)]="env.identificacao" [filter]="true"
-                  [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></ces-select>
+                <geo-select label="Colaborador" [options]="comAtual(colaboradores.items(), env.identificacao)" [(value)]="env.identificacao" [filter]="true"
+                  [loading]="colaboradores.loading()" (search)="colaboradores.search($event)"></geo-select>
               } @else {
-                <ces-text-input label="Nome" [(value)]="env.identificacao"></ces-text-input>
-                <ces-text-input label="Função" [(value)]="env.funcao"></ces-text-input>
-                <ces-text-input label="Empresa" [(value)]="env.empresa"></ces-text-input>
+                <geo-text-input label="Nome" [(value)]="env.identificacao"></geo-text-input>
+                <geo-text-input label="Função" [(value)]="env.funcao"></geo-text-input>
+                <geo-text-input label="Empresa" [(value)]="env.empresa"></geo-text-input>
               }
-              <ces-button variant="ghost" size="sm" icon="pi pi-trash" [label]="'Remover envolvido ' + ($index + 1)" (pressed)="removerEnvolvido(row, $index)"></ces-button>
+              <geo-button variant="ghost" size="sm" icon="pi pi-trash" [label]="'Remover envolvido ' + ($index + 1)" (pressed)="removerEnvolvido(row, $index)"></geo-button>
             </div>
           }
-          <ces-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar envolvido" (pressed)="adicionarEnvolvido(row)"></ces-button>
-        </ces-form-section>
+          <geo-button variant="ghost" size="sm" icon="pi pi-plus" label="Adicionar envolvido" (pressed)="adicionarEnvolvido(row)"></geo-button>
+        </geo-form-section>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button icon="pi pi-check" label="Concluir correção" (pressed)="concluir()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button icon="pi pi-check" label="Concluir correção" (pressed)="concluir()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class EventosImportacaoComponent {
@@ -200,7 +200,7 @@ export class EventosImportacaoComponent {
   protected readonly papeis = opcoesDe(PAPEL_ENVOLVIDO_LABELS);
   protected readonly tiposEnvolvido = opcoesDe(TIPO_ENVOLVIDO_LABELS);
   protected readonly simNao = SIM_NAO;
-  protected readonly situacao = cesImportStatus;
+  protected readonly situacao = geoImportStatus;
   protected readonly chaveLinha = CHAVE_LINHA_IMPORTACAO;
   /** Linha em correção (editada no lugar; `equal` sempre falso para redesenhar após mudar as listas). */
   protected readonly editando = signal<EventoSstImportacaoDTO | null>(null, { equal: () => false });
@@ -234,10 +234,10 @@ export class EventosImportacaoComponent {
     },
     this.destroyRef
   );
-  protected readonly opcoesEquipes = computed<CesSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.codigo })));
-  protected readonly opcoesVeiculos = computed<CesSelectOption<string>[]>(() => this.veiculos.items().map((v) => ({ label: v.placa, value: v.placa })));
+  protected readonly opcoesEquipes = computed<GeoSelectOption<string>[]>(() => this.equipes.items().map((e) => ({ label: e.codigo, value: e.codigo })));
+  protected readonly opcoesVeiculos = computed<GeoSelectOption<string>[]>(() => this.veiculos.items().map((v) => ({ label: v.placa, value: v.placa })));
 
-  protected readonly colunas: CesDataTableColumn<EventoSstImportacaoDTO>[] = [
+  protected readonly colunas: GeoDataTableColumn<EventoSstImportacaoDTO>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'tipo', header: 'Tipo', priority: 1, value: (r) => r.tipo, display: (r) => TIPO_EVENTO_LABELS[r.tipo as TipoEventoSst] ?? r.tipo ?? '—' },
     { key: 'ocorrencia', header: 'Ocorrência', value: (r) => r.dataOcorrencia, display: (r) => r.dataOcorrencia || '—' },
@@ -257,16 +257,16 @@ export class EventosImportacaoComponent {
   }
 
   /** Opções de um catálogo por nome (a planilha casa pelo nome), mantendo o valor atual visível. */
-  protected porNome(catalogo: 'atividades' | 'classificacoes' | 'processos' | 'bases' | 'locaisLesao' | 'naturezasLesao' | 'agentesCausadores', atual: string): CesSelectOption<string>[] {
+  protected porNome(catalogo: 'atividades' | 'classificacoes' | 'processos' | 'bases' | 'locaisLesao' | 'naturezasLesao' | 'agentesCausadores', atual: string): GeoSelectOption<string>[] {
     const itens = (this.lookups()?.[catalogo] ?? []) as { nome: string }[];
     return this.comAtual(itens.map((i) => ({ label: i.nome, value: i.nome })), atual);
   }
 
-  protected comAtual(opcoes: readonly CesSelectOption<string>[], atual: string | null | undefined): CesSelectOption<string>[] {
+  protected comAtual(opcoes: readonly GeoSelectOption<string>[], atual: string | null | undefined): GeoSelectOption<string>[] {
     return atual && !opcoes.some((o) => o.value === atual) ? [{ label: atual, value: atual }, ...opcoes] : [...opcoes];
   }
 
-  protected comAtuais(opcoes: readonly CesSelectOption<string>[], atuais: readonly string[]): CesSelectOption<string>[] {
+  protected comAtuais(opcoes: readonly GeoSelectOption<string>[], atuais: readonly string[]): GeoSelectOption<string>[] {
     return atuais.reduce((acc, nome) => this.comAtual(acc, nome), [...opcoes]);
   }
 

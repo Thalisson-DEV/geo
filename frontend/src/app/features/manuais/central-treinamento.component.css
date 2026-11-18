@@ -20,8 +20,8 @@
 }
 
 /* Callouts do design system acompanham o corpo de leitura do manual. */
-ces-callout {
-  --ces-callout-font-size: var(--doc-apoio);
+geo-callout {
+  --geo-callout-font-size: var(--doc-apoio);
 }
 
 .manual {
@@ -44,8 +44,8 @@ ces-callout {
 
 .manual__eyebrow {
   margin: 0;
-  color: var(--ces-brand);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-brand);
+  font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-forte);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -53,7 +53,7 @@ ces-callout {
 
 .manual__titulo {
   margin: 0.6rem 0 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 2.15rem;
   font-weight: var(--doc-peso-forte);
   letter-spacing: -0.03em;
@@ -63,7 +63,7 @@ ces-callout {
 
 .manual__lead {
   margin: 0.85rem 0 0;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: 1.0625rem;
   font-weight: var(--doc-peso-medio);
   line-height: 1.65;
@@ -75,9 +75,9 @@ ces-callout {
 
 .indice {
   padding: 1.25rem 1.25rem 0.75rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-canvas);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-canvas);
 }
 
 .indice__titulo {
@@ -87,15 +87,15 @@ ces-callout {
   justify-content: space-between;
   gap: 0.5rem;
   margin: 0 0 0.5rem;
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-forte);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .indice__filtro {
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-weight: var(--doc-peso-medio);
   letter-spacing: 0.02em;
   text-transform: none;
@@ -117,13 +117,13 @@ ces-callout {
   width: 100%;
   padding: 0.6rem 0.35rem;
   border: 0;
-  border-top: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
+  border-top: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
   background: transparent;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   cursor: pointer;
   text-align: left;
-  transition: background-color var(--ces-duration-fast) var(--ces-ease-standard);
+  transition: background-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
 
 .indice__lista li:first-child .indice__item {
@@ -131,17 +131,17 @@ ces-callout {
 }
 
 .indice__item:hover {
-  background: var(--ces-surface);
+  background: var(--geo-surface);
 }
 
 .indice__item:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: -2px;
 }
 
 .indice__ordem {
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
   font-variant-numeric: tabular-nums;
   font-weight: var(--doc-peso-forte);
   text-align: center;
@@ -152,10 +152,10 @@ ces-callout {
   place-items: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface);
-  color: var(--ces-brand);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface);
+  color: var(--geo-brand);
   font-size: 0.85rem;
 }
 
@@ -172,27 +172,27 @@ ces-callout {
 }
 
 .indice__texto small {
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
   line-height: 1.35;
 }
 
 .indice__item:hover .indice__texto strong {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .indice__acao {
   display: grid;
   place-items: center;
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
   font-size: 0.7rem;
   transition:
-    color var(--ces-duration-fast) var(--ces-ease-standard),
-    transform var(--ces-duration-normal) var(--ces-ease-standard);
+    color var(--geo-duration-fast) var(--geo-ease-standard),
+    transform var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .indice__item:hover .indice__acao {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   transform: translateY(0.1rem);
 }
 
@@ -202,19 +202,19 @@ ces-callout {
 
 .modulo {
   min-width: 0;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
   /* Superfície recuada: o módulo fica um degrau abaixo do cartão da página. */
-  background: var(--ces-canvas);
-  transition: border-color var(--ces-duration-normal) var(--ces-ease-standard);
+  background: var(--geo-canvas);
+  transition: border-color var(--geo-duration-normal) var(--geo-ease-standard);
 }
 
 .modulo:hover {
-  border-color: var(--ces-border-strong);
+  border-color: var(--geo-border-strong);
 }
 
 .modulo--aberto {
-  border-color: color-mix(in srgb, var(--ces-brand) 32%, var(--ces-border));
+  border-color: color-mix(in srgb, var(--geo-brand) 32%, var(--geo-border));
 }
 
 .modulo__cabecalho {
@@ -231,20 +231,20 @@ ces-callout {
   width: 100%;
   padding: 1.1rem 1.25rem;
   border: 0;
-  border-radius: var(--ces-radius-lg);
+  border-radius: var(--geo-radius-lg);
   background: transparent;
   color: inherit;
   cursor: pointer;
   text-align: left;
-  transition: background-color var(--ces-duration-fast) var(--ces-ease-standard);
+  transition: background-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
 
 .modulo__gatilho:hover {
-  background: var(--ces-surface-subtle);
+  background: var(--geo-surface-subtle);
 }
 
 .modulo__gatilho:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: -2px;
 }
 
@@ -261,15 +261,15 @@ ces-callout {
   align-items: center;
   gap: 0.4rem;
   margin: 0;
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-forte);
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .modulo__codigo {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-variant-numeric: tabular-nums;
   font-weight: var(--doc-peso-forte);
 }
@@ -283,7 +283,7 @@ ces-callout {
 .modulo__titulo {
   display: block;
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 1.35rem;
   font-weight: var(--doc-peso-forte);
   letter-spacing: -0.02em;
@@ -292,13 +292,13 @@ ces-callout {
 }
 
 .modulo--aberto .modulo__titulo {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .modulo__resumo {
   display: block;
   margin: 0;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: var(--doc-corpo);
   font-weight: var(--doc-peso-medio);
   line-height: 1.55;
@@ -310,8 +310,8 @@ ces-callout {
   align-items: center;
   gap: 0.35rem 1rem;
   margin-top: 0.15rem;
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-medio);
 }
 
@@ -326,21 +326,21 @@ ces-callout {
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
-  color: var(--ces-foreground-muted);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
+  color: var(--geo-foreground-muted);
   font-size: 0.8rem;
   transition:
-    transform var(--ces-duration-normal) var(--ces-ease-standard),
-    color var(--ces-duration-fast) var(--ces-ease-standard),
-    border-color var(--ces-duration-fast) var(--ces-ease-standard);
+    transform var(--geo-duration-normal) var(--geo-ease-standard),
+    color var(--geo-duration-fast) var(--geo-ease-standard),
+    border-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
 
 .modulo--aberto .modulo__chevron {
-  border-color: color-mix(in srgb, var(--ces-brand) 40%, var(--ces-border));
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  border-color: color-mix(in srgb, var(--geo-brand) 40%, var(--geo-border));
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
   transform: rotate(180deg);
 }
 
@@ -350,7 +350,7 @@ ces-callout {
   gap: 1.5rem;
   min-width: 0;
   padding: 1.5rem 1.5rem 1.75rem;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 /* ---------------------------------------------------------------------------
@@ -370,9 +370,9 @@ ces-callout {
   width: 100%;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-surface-muted);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-surface-muted);
 }
 
 .video__moldura iframe {
@@ -389,8 +389,8 @@ ces-callout {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
 }
 
 .video__legenda span {
@@ -403,7 +403,7 @@ ces-callout {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-weight: var(--doc-peso-forte);
   text-decoration: none;
 }
@@ -413,9 +413,9 @@ ces-callout {
 }
 
 .video__legenda a:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--ces-radius-sm);
+  border-radius: var(--geo-radius-sm);
 }
 
 /* ---------------------------------------------------------------------------
@@ -441,8 +441,8 @@ ces-callout {
   gap: 0.75rem;
   margin: 0;
   padding-bottom: 0.9rem;
-  border-bottom: 2px solid var(--ces-border-strong);
-  color: var(--ces-foreground);
+  border-bottom: 2px solid var(--geo-border-strong);
+  color: var(--geo-foreground);
   font-size: 1.625rem;
   font-weight: var(--doc-peso-forte);
   letter-spacing: -0.03em;
@@ -456,8 +456,8 @@ ces-callout {
   min-width: 2.15rem;
   height: 2.15rem;
   padding-inline: 0.4rem;
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-brand);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-brand);
   color: #fff;
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
@@ -465,14 +465,14 @@ ces-callout {
 }
 
 .secao__icone {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
   font-size: 1.05rem;
 }
 
 .secao__subtitulo,
 .secao__texto {
   margin: 0;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: var(--doc-apoio);
   font-weight: var(--doc-peso-medio);
   line-height: 1.6;
@@ -495,7 +495,7 @@ ces-callout {
   grid-template-columns: 2.15rem minmax(0, 1fr);
   gap: 0.9rem;
   padding: 0.9rem 0;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 .passo:first-child {
@@ -512,10 +512,10 @@ ces-callout {
   place-items: center;
   width: 2.15rem;
   height: 2.15rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-md);
-  background: var(--ces-surface);
-  color: var(--ces-brand);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
+  color: var(--geo-brand);
   font-size: 0.9rem;
 }
 
@@ -532,14 +532,14 @@ ces-callout {
   align-items: center;
   gap: 0.45rem;
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 0.9375rem;
   font-weight: var(--doc-peso-forte);
   line-height: 1.4;
 }
 
 .passo__numero {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
   font-weight: var(--doc-peso-forte);
@@ -548,7 +548,7 @@ ces-callout {
 
 .passo__descricao {
   margin: 0;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: var(--doc-apoio);
   font-weight: var(--doc-peso-medio);
   line-height: 1.6;
@@ -560,7 +560,7 @@ ces-callout {
   gap: 0.2rem;
   margin: 0.2rem 0 0;
   padding-left: 1.15rem;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: var(--doc-apoio);
   line-height: 1.55;
 }
@@ -575,10 +575,10 @@ ces-callout {
 
 .chip {
   padding: 0.15rem 0.45rem;
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-sm);
-  background: var(--ces-surface);
-  color: var(--ces-foreground);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.75rem;
   font-weight: var(--doc-peso-forte);
@@ -586,13 +586,13 @@ ces-callout {
 }
 
 .chip--valor {
-  border-color: color-mix(in srgb, var(--ces-brand) 28%, transparent);
-  background: var(--ces-brand-soft);
-  color: var(--ces-brand);
+  border-color: color-mix(in srgb, var(--geo-brand) 28%, transparent);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
 }
 
 .passo__destaque {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
   font-size: var(--doc-apoio);
 }
 
@@ -605,7 +605,7 @@ ces-callout {
   flex-direction: column;
   gap: 0.85rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--ces-border);
+  border-top: 1px solid var(--geo-border);
 }
 
 /* Abrir chamado é o caminho principal de dúvida: ganha superfície, título e ação primária. */
@@ -616,9 +616,9 @@ ces-callout {
   justify-content: space-between;
   gap: 1rem;
   padding: 1.1rem 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--ces-brand) 28%, var(--ces-border));
-  border-radius: var(--ces-radius-lg);
-  background: var(--ces-brand-soft);
+  border: 1px solid color-mix(in srgb, var(--geo-brand) 28%, var(--geo-border));
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-brand-soft);
 }
 
 .suporte__texto {
@@ -634,19 +634,19 @@ ces-callout {
   align-items: center;
   gap: 0.45rem;
   margin: 0;
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-size: 1.0625rem;
   font-weight: var(--doc-peso-forte);
   letter-spacing: -0.01em;
 }
 
 .suporte__titulo i {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
 }
 
 .suporte__descricao {
   margin: 0;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: var(--doc-apoio);
   font-weight: var(--doc-peso-medio);
   line-height: 1.6;
@@ -658,17 +658,17 @@ ces-callout {
   gap: 0.45rem;
   margin: 0;
   padding-inline: 0.15rem;
-  color: var(--ces-foreground-muted);
+  color: var(--geo-foreground-muted);
   font-size: var(--doc-apoio);
   line-height: 1.6;
 }
 
 .suporte__alternativa i {
-  color: var(--ces-foreground-subtle);
+  color: var(--geo-foreground-subtle);
 }
 
 .suporte__alternativa strong {
-  color: var(--ces-foreground);
+  color: var(--geo-foreground);
   font-weight: var(--doc-peso-forte);
 }
 
@@ -679,13 +679,13 @@ ces-callout {
   gap: 0.5rem;
   margin: 0;
   padding-top: 0.35rem;
-  border-top: 1px solid var(--ces-border);
-  color: var(--ces-foreground-subtle);
-  font-size: var(--ces-font-caption);
+  border-top: 1px solid var(--geo-border);
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption);
 }
 
 .manual__rodape-links a {
-  color: var(--ces-brand);
+  color: var(--geo-brand);
   font-weight: var(--doc-peso-forte);
   text-decoration: none;
 }
@@ -695,9 +695,9 @@ ces-callout {
 }
 
 .manual__rodape-links a:focus-visible {
-  outline: 2px solid var(--ces-focus-ring);
+  outline: 2px solid var(--geo-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--ces-radius-sm);
+  border-radius: var(--geo-radius-sm);
 }
 
 /* ---------------------------------------------------------------------------

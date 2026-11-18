@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-const STORAGE_PREFIX = 'ces.vs.';
+const STORAGE_PREFIX = 'geo.vs.';
 
 interface Entry {
   value: unknown;

@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextareaComponent,
+  GeoButtonComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -36,17 +36,17 @@ interface LinhaExistente {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesTextareaComponent,
+    GeoButtonComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoTextareaComponent,
     NovaSolicitacaoMateriaisComponent
   ],
   styleUrl: './fechamento.css',
   template: `
-    <ces-form-drawer [visible]="visible()" (visibleChange)="visible.set($event)" title="Editar solicitação" size="lg" [resizable]="true"
+    <geo-form-drawer [visible]="visible()" (visibleChange)="visible.set($event)" title="Editar solicitação" size="lg" [resizable]="true"
       [description]="descricao()" [dirty]="true">
       @if (solicitacao(); as s) {
         <div class="fx-form">
@@ -63,11 +63,11 @@ interface LinhaExistente {
                     </span>
                   </span>
                   <span class="fx-linha__acoes">
-                    <ces-number-input [label]="'Quantidade de ' + l.item.codigoMaterial" [labelVisible]="false" [min]="0" [maxFractionDigits]="3"
+                    <geo-number-input [label]="'Quantidade de ' + l.item.codigoMaterial" [labelVisible]="false" [min]="0" [maxFractionDigits]="3"
                       [suffix]="' ' + (l.item.unidade || 'UN')" [value]="l.quantidade" (valueChange)="alterar(i, { quantidade: $event })"
                       [disabled]="l.remover" [error]="erroQuantidade(l)" />
                     @if (l.item.removivel) {
-                      <ces-icon-button [icon]="l.remover ? 'pi pi-undo' : 'pi pi-trash'" size="icon-sm"
+                      <geo-icon-button [icon]="l.remover ? 'pi pi-undo' : 'pi pi-trash'" size="icon-sm"
                         [label]="(l.remover ? 'Manter ' : 'Tirar ') + l.item.codigoMaterial" (pressed)="alterar(i, { remover: !l.remover })" />
                     }
                   </span>
@@ -82,19 +82,19 @@ interface LinhaExistente {
           </section>
           <section aria-labelledby="fed-resp">
             <h3 id="fed-resp" class="fx-form__titulo">Responsáveis e observação</h3>
-            <ces-select label="Encarregado" placeholder="Buscar colaborador" [options]="opcoesColaborador()" [(value)]="idEncarregado"
+            <geo-select label="Encarregado" placeholder="Buscar colaborador" [options]="opcoesColaborador()" [(value)]="idEncarregado"
               [filter]="true" [loading]="buscandoColaborador()" (search)="buscaColaborador.search($event)" (opened)="abrirBusca()" [clearable]="true" />
-            <ces-select label="Supervisor" [options]="opcoesSupervisor()" [(value)]="idSupervisor" [filter]="true" [clearable]="true"
+            <geo-select label="Supervisor" [options]="opcoesSupervisor()" [(value)]="idSupervisor" [filter]="true" [clearable]="true"
               [description]="coordenador() ? 'Coordenador: ' + coordenador() : 'O coordenador vem do supervisor.'" />
-            <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" />
+            <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="1000" />
           </section>
         </div>
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)" />
-        <ces-button icon="pi pi-check" label="Salvar" [loading]="salvando()" (pressed)="salvar()" />
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)" />
+        <geo-button icon="pi pi-check" label="Salvar" [loading]="salvando()" (pressed)="salvar()" />
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
     .fx-linha__acoes { display: flex; gap: 0.5rem; align-items: center; }
@@ -129,7 +129,7 @@ export class FechamentoEditarDrawerComponent {
     destroyRef: this.destroyRef
   });
   protected readonly buscandoColaborador = this.buscaColaborador.loading;
-  protected readonly opcoesColaborador = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesColaborador = computed<GeoSelectOption<string>[]>(() => {
     const s = this.solicitacao();
     const itens = this.buscaColaborador.items();
     const atual = s?.encarregado;
@@ -137,7 +137,7 @@ export class FechamentoEditarDrawerComponent {
       ? [{ label: atual.nome ?? 'Encarregado atual', value: atual.id }, ...itens]
       : itens;
   });
-  protected readonly opcoesSupervisor = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesSupervisor = computed<GeoSelectOption<string>[]>(() =>
     this.supervisores().map((s) => ({ label: s.nomeColaborador, value: s.id }))
   );
   protected readonly coordenador = computed(() => this.supervisores().find((s) => s.id === this.idSupervisor())?.nomeCoordenador ?? null);

@@ -1,98 +1,98 @@
 :host { display: block; }
 .cal-shell { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) 20rem; align-items: start; }
 .cal-card {
-  border: 1px solid var(--ces-border);
-  border-radius: var(--ces-radius-xl);
-  background: var(--ces-surface);
-  box-shadow: var(--ces-shadow-sm);
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-xl);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
   overflow: hidden;
 }
 .cal-head {
   display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
-  padding: 0.75rem 1rem; border-bottom: 1px solid var(--ces-border);
+  padding: 0.75rem 1rem; border-bottom: 1px solid var(--geo-border);
 }
 .cal-nav { display: flex; align-items: center; gap: 0.25rem; }
-.cal-title { margin: 0 0.5rem; font-size: var(--ces-font-title); font-weight: 700; color: var(--ces-foreground); min-width: 11rem; }
-.cal-resumo { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+.cal-title { margin: 0 0.5rem; font-size: var(--geo-font-title); font-weight: 700; color: var(--geo-foreground); min-width: 11rem; }
+.cal-resumo { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 .cal-weekdays, .cal-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.cal-weekdays { background: var(--ces-surface-subtle); border-bottom: 1px solid var(--ces-border); }
+.cal-weekdays { background: var(--geo-surface-subtle); border-bottom: 1px solid var(--geo-border); }
 .cal-weekdays span {
-  padding: 0.5rem; font-size: var(--ces-font-caption); font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.04em; color: var(--ces-foreground-muted); text-align: left;
+  padding: 0.5rem; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--geo-foreground-muted); text-align: left;
 }
-.cal-week + .cal-week { border-top: 1px solid var(--ces-border); }
+.cal-week + .cal-week { border-top: 1px solid var(--geo-border); }
 .cal-day {
   position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-height: 7.25rem; min-width: 0;
-  padding: 0.375rem; border-left: 1px solid var(--ces-border); cursor: pointer;
-  transition: background var(--ces-duration-fast) var(--ces-ease-standard);
+  padding: 0.375rem; border-left: 1px solid var(--geo-border); cursor: pointer;
+  transition: background var(--geo-duration-fast) var(--geo-ease-standard);
 }
 .cal-day:first-child { border-left: 0; }
-.cal-day:hover { background: var(--ces-surface-subtle); }
-.cal-day--fds { background: color-mix(in srgb, var(--ces-surface-muted) 45%, transparent); }
-.cal-day--fora { background: var(--ces-surface-subtle); }
-.cal-day--fora .cal-num { color: var(--ces-foreground-subtle); }
-.cal-day--sel { background: var(--ces-brand-soft); box-shadow: inset 0 0 0 2px var(--ces-brand); }
+.cal-day:hover { background: var(--geo-surface-subtle); }
+.cal-day--fds { background: color-mix(in srgb, var(--geo-surface-muted) 45%, transparent); }
+.cal-day--fora { background: var(--geo-surface-subtle); }
+.cal-day--fora .cal-num { color: var(--geo-foreground-subtle); }
+.cal-day--sel { background: var(--geo-brand-soft); box-shadow: inset 0 0 0 2px var(--geo-brand); }
 .cal-num {
   display: inline-flex; align-items: center; justify-content: center; align-self: flex-start;
   min-width: 1.75rem; height: 1.75rem; padding: 0 0.375rem; border: 0; border-radius: 999px;
-  background: transparent; color: var(--ces-foreground); font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer;
+  background: transparent; color: var(--geo-foreground); font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer;
 }
-.cal-num:focus-visible, .cal-pill:focus-visible, .cal-mais:focus-visible, .cal-agenda-item:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-.cal-day--hoje .cal-num { background: var(--ces-brand); color: #fff; }
+.cal-num:focus-visible, .cal-pill:focus-visible, .cal-mais:focus-visible, .cal-agenda-item:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+.cal-day--hoje .cal-num { background: var(--geo-brand); color: #fff; }
 .cal-pill {
   display: flex; align-items: center; gap: 0.375rem; width: 100%; min-width: 0; padding: 0.2rem 0.4rem;
-  border: 1px solid var(--ces-status-border); border-radius: var(--ces-radius-sm);
-  background: var(--ces-status-soft); color: var(--ces-status-ink);
+  border: 1px solid var(--geo-status-border); border-radius: var(--geo-radius-sm);
+  background: var(--geo-status-soft); color: var(--geo-status-ink);
   font: inherit; font-size: 0.72rem; font-weight: 600; text-align: left; cursor: pointer;
 }
-.cal-pill:hover { filter: brightness(0.97); border-color: var(--ces-status-color); }
+.cal-pill:hover { filter: brightness(0.97); border-color: var(--geo-status-color); }
 .cal-pill .pi { font-size: 0.65rem; flex: none; }
 .cal-pill__txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cal-pill__tag, .cal-agenda-item__tag {
   flex: none; padding: 0 0.25rem; border-radius: 3px; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.02em;
   font-variant-numeric: tabular-nums; background: color-mix(in srgb, currentColor 14%, transparent);
 }
-.cal-agenda-item__tag { font-size: var(--ces-font-caption); padding: 0.05rem 0.35rem; color: var(--ces-foreground-muted); }
+.cal-agenda-item__tag { font-size: var(--geo-font-caption); padding: 0.05rem 0.35rem; color: var(--geo-foreground-muted); }
 .cal-agenda-item__codigo { display: inline-flex; align-items: center; gap: 0.375rem; min-width: 0; }
-.cal-agenda-item__titulo { font-size: var(--ces-font-control); font-weight: 600; color: var(--ces-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cal-agenda-item__alerta { color: var(--ces-danger-text); }
-.cal-pill--atrasada { box-shadow: inset 3px 0 0 var(--ces-danger); }
+.cal-agenda-item__titulo { font-size: var(--geo-font-control); font-weight: 600; color: var(--geo-foreground); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-agenda-item__alerta { color: var(--geo-danger-text); }
+.cal-pill--atrasada { box-shadow: inset 3px 0 0 var(--geo-danger); }
 .cal-mais {
-  align-self: flex-start; padding: 0.1rem 0.3rem; border: 0; border-radius: var(--ces-radius-sm); background: transparent;
-  color: var(--ces-brand); font: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer;
+  align-self: flex-start; padding: 0.1rem 0.3rem; border: 0; border-radius: var(--geo-radius-sm); background: transparent;
+  color: var(--geo-brand); font: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer;
 }
-.cal-mais:hover { background: var(--ces-brand-soft); }
+.cal-mais:hover { background: var(--geo-brand-soft); }
 .cal-dots { display: none; }
 
-[data-tone='warning'] { --ces-status-color: var(--ces-warning); --ces-status-soft: var(--ces-warning-soft); --ces-status-ink: var(--ces-warning-text); --ces-status-border: color-mix(in srgb, var(--ces-warning) 35%, transparent); }
-[data-tone='info'] { --ces-status-color: var(--ces-info); --ces-status-soft: var(--ces-info-soft); --ces-status-ink: var(--ces-info-text); --ces-status-border: color-mix(in srgb, var(--ces-info) 35%, transparent); }
-[data-tone='success'] { --ces-status-color: var(--ces-success); --ces-status-soft: var(--ces-success-soft); --ces-status-ink: var(--ces-success-text); --ces-status-border: color-mix(in srgb, var(--ces-success) 35%, transparent); }
-[data-tone='danger'] { --ces-status-color: var(--ces-danger); --ces-status-soft: var(--ces-danger-soft); --ces-status-ink: var(--ces-danger-text); --ces-status-border: color-mix(in srgb, var(--ces-danger) 35%, transparent); }
-[data-tone='neutral'] { --ces-status-color: var(--ces-foreground-muted); --ces-status-soft: var(--ces-surface-muted); --ces-status-ink: var(--ces-foreground); --ces-status-border: var(--ces-border); }
+[data-tone='warning'] { --geo-status-color: var(--geo-warning); --geo-status-soft: var(--geo-warning-soft); --geo-status-ink: var(--geo-warning-text); --geo-status-border: color-mix(in srgb, var(--geo-warning) 35%, transparent); }
+[data-tone='info'] { --geo-status-color: var(--geo-info); --geo-status-soft: var(--geo-info-soft); --geo-status-ink: var(--geo-info-text); --geo-status-border: color-mix(in srgb, var(--geo-info) 35%, transparent); }
+[data-tone='success'] { --geo-status-color: var(--geo-success); --geo-status-soft: var(--geo-success-soft); --geo-status-ink: var(--geo-success-text); --geo-status-border: color-mix(in srgb, var(--geo-success) 35%, transparent); }
+[data-tone='danger'] { --geo-status-color: var(--geo-danger); --geo-status-soft: var(--geo-danger-soft); --geo-status-ink: var(--geo-danger-text); --geo-status-border: color-mix(in srgb, var(--geo-danger) 35%, transparent); }
+[data-tone='neutral'] { --geo-status-color: var(--geo-foreground-muted); --geo-status-soft: var(--geo-surface-muted); --geo-status-ink: var(--geo-foreground); --geo-status-border: var(--geo-border); }
 
-.cal-legenda { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 0.625rem 1rem; border-top: 1px solid var(--ces-border); font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+.cal-legenda { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 0.625rem 1rem; border-top: 1px solid var(--geo-border); font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 .cal-legenda span { display: inline-flex; align-items: center; gap: 0.3rem; }
-.cal-legenda .pi { font-size: 0.7rem; color: var(--ces-status-color); }
-.cal-legenda strong { color: var(--ces-foreground); font-variant-numeric: tabular-nums; }
+.cal-legenda .pi { font-size: 0.7rem; color: var(--geo-status-color); }
+.cal-legenda strong { color: var(--geo-foreground); font-variant-numeric: tabular-nums; }
 
 .cal-agenda { position: sticky; top: 1rem; display: flex; flex-direction: column; max-height: calc(100vh - 8rem); }
-.cal-agenda__head { padding: 0.875rem 1rem; border-bottom: 1px solid var(--ces-border); }
-.cal-agenda__eyebrow { margin: 0; font-size: var(--ces-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ces-foreground-muted); }
-.cal-agenda__title { margin: 0.125rem 0 0; font-size: var(--ces-font-title); font-weight: 700; color: var(--ces-foreground); }
+.cal-agenda__head { padding: 0.875rem 1rem; border-bottom: 1px solid var(--geo-border); }
+.cal-agenda__eyebrow { margin: 0; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground-muted); }
+.cal-agenda__title { margin: 0.125rem 0 0; font-size: var(--geo-font-title); font-weight: 700; color: var(--geo-foreground); }
 .cal-agenda__list { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; overflow-y: auto; }
-.cal-agenda__vazio { padding: 2rem 1rem; text-align: center; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); }
-.cal-agenda__vazio .pi { display: block; margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--ces-foreground-subtle); }
+.cal-agenda__vazio { padding: 2rem 1rem; text-align: center; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); }
+.cal-agenda__vazio .pi { display: block; margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--geo-foreground-subtle); }
 .cal-agenda-item {
-  display: grid; gap: 0.3rem; width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--ces-border);
-  border-left: 3px solid var(--ces-status-color); border-radius: var(--ces-radius-md);
-  background: var(--ces-surface); color: var(--ces-foreground); font: inherit; text-align: left; cursor: pointer;
+  display: grid; gap: 0.3rem; width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--geo-border);
+  border-left: 3px solid var(--geo-status-color); border-radius: var(--geo-radius-md);
+  background: var(--geo-surface); color: var(--geo-foreground); font: inherit; text-align: left; cursor: pointer;
 }
-.cal-agenda-item:hover { background: var(--ces-surface-subtle); border-color: var(--ces-border-strong); border-left-color: var(--ces-status-color); }
+.cal-agenda-item:hover { background: var(--geo-surface-subtle); border-color: var(--geo-border-strong); border-left-color: var(--geo-status-color); }
 .cal-agenda-item__top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.cal-agenda-item__id { font-weight: 700; font-size: var(--ces-font-control); font-variant-numeric: tabular-nums; }
-.cal-agenda-item__rota { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cal-agenda-item__rota strong { color: var(--ces-foreground); font-weight: 600; }
-.cal-agenda-item__meta { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+.cal-agenda-item__id { font-weight: 700; font-size: var(--geo-font-control); font-variant-numeric: tabular-nums; }
+.cal-agenda-item__rota { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-agenda-item__rota strong { color: var(--geo-foreground); font-weight: 600; }
+.cal-agenda-item__meta { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 .cal-agenda-item__meta .pi { font-size: 0.7rem; margin-right: 0.2rem; }
 
 @media (max-width: 64rem) {
@@ -104,7 +104,7 @@
   .cal-num { align-self: center; }
   .cal-pill, .cal-mais { display: none; }
   .cal-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
-  .cal-dots i { width: 6px; height: 6px; border-radius: 999px; background: var(--ces-status-color); }
+  .cal-dots i { width: 6px; height: 6px; border-radius: 999px; background: var(--geo-status-color); }
   .cal-weekdays span { text-align: center; padding: 0.375rem 0; }
   .cal-title { min-width: 0; }
 }

@@ -3,21 +3,21 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesConfirmationService,
-  CesFileInputComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoAsyncStateComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoConfirmationService,
+  GeoFileInputComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Observable, filter, take, timer } from 'rxjs';
 import {
   DocumentacaoObra,
@@ -47,13 +47,13 @@ const PONTOS_PARA_FILTRAR = 6;
 
 type FiltroPontos = 'TODOS' | 'EXECUTADOS' | 'FALTANDO';
 
-const FILTROS_PONTOS: CesSelectOption<FiltroPontos>[] = [
+const FILTROS_PONTOS: GeoSelectOption<FiltroPontos>[] = [
   { label: 'Todos os pontos', value: 'TODOS' },
   { label: 'Executados', value: 'EXECUTADOS' },
   { label: 'Com foto faltando', value: 'FALTANDO' }
 ];
 
-const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
+const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
   { label: 'Religador', value: 'RELIGADOR' },
   { label: 'Regulador', value: 'REGULADOR' }
 ];
@@ -66,17 +66,17 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
     DatePipe,
     NgTemplateOutlet,
     RouterLink,
-    CesAsyncStateComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesFileInputComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
+    GeoAsyncStateComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoFileInputComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
     ChecklistRespostasComponent,
     EvidenciaMiniaturaComponent,
     EvidenciaVisualizadorComponent,
@@ -84,9 +84,9 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
   ],
   template: `
     @if (erro()) {
-      <ces-async-state state="error" [compact]="true" title="Não foi possível carregar a documentação" [description]="erro()!" actionLabel="Tentar de novo" (action)="carregar()"></ces-async-state>
+      <geo-async-state state="error" [compact]="true" title="Não foi possível carregar a documentação" [description]="erro()!" actionLabel="Tentar de novo" (action)="carregar()"></geo-async-state>
     } @else if (!dados()) {
-      <ces-async-state state="loading" [compact]="true" title="Carregando a documentação"></ces-async-state>
+      <geo-async-state state="loading" [compact]="true" title="Carregando a documentação"></geo-async-state>
     } @else {
       @let d = dados()!;
       <div class="od">
@@ -94,15 +94,15 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
         <section class="od-bloco" aria-labelledby="od-visita">
           <header class="od-bloco__topo">
             <h3 id="od-visita">Visita prévia</h3>
-            <ces-status [tone]="d.visitaRealizada ? 'success' : 'warning'" [icon]="d.visitaRealizada ? 'pi-check-circle' : 'pi-clock'">{{ d.visitaRealizada ? 'Realizada' : 'Não realizada' }}</ces-status>
+            <geo-status [tone]="d.visitaRealizada ? 'success' : 'warning'" [icon]="d.visitaRealizada ? 'pi-check-circle' : 'pi-clock'">{{ d.visitaRealizada ? 'Realizada' : 'Não realizada' }}</geo-status>
             @if (podeEscrever) {
-              <ces-button class="od-bloco__acao" variant="ghost" size="sm" icon="pi pi-plus" label="Registrar visita" (pressed)="novaVisita()"></ces-button>
+              <geo-button class="od-bloco__acao" variant="ghost" size="sm" icon="pi pi-plus" label="Registrar visita" (pressed)="novaVisita()"></geo-button>
             }
           </header>
           @if (!d.visitaRealizada) {
-            <ces-callout tone="info" icon="pi pi-info-circle" title="Visita prévia não realizada" [dense]="true">
+            <geo-callout tone="info" icon="pi pi-info-circle" title="Visita prévia não realizada" [dense]="true">
               Recomendada antes de iniciar a execução, para levantar acesso, interferências e necessidades da obra. Não impede programar nem executar.
-            </ces-callout>
+            </geo-callout>
           }
           @if (d.visitas.length) {
             <ul class="od-lista">
@@ -113,20 +113,20 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
                     <span>{{ v.tituloModelo }}@if (v.observacoes) { · {{ v.observacoes }} }</span>
                     <span class="od-visita__selos">
                       @if (v.naoConformidades) {
-                        <ces-status tone="warning" icon="pi-exclamation-triangle">{{ v.naoConformidades === 1 ? '1 não conformidade' : v.naoConformidades + ' não conformidades' }}</ces-status>
+                        <geo-status tone="warning" icon="pi-exclamation-triangle">{{ v.naoConformidades === 1 ? '1 não conformidade' : v.naoConformidades + ' não conformidades' }}</geo-status>
                       } @else {
-                        <ces-status tone="success" emphasis="outline" icon="pi-check">Sem não conformidades</ces-status>
+                        <geo-status tone="success" emphasis="outline" icon="pi-check">Sem não conformidades</geo-status>
                       }
                       @if (v.evidencias.length) {
-                        <ces-status tone="neutral" emphasis="outline" icon="pi-paperclip">{{ v.evidencias.length === 1 ? '1 evidência' : v.evidencias.length + ' evidências' }}</ces-status>
+                        <geo-status tone="neutral" emphasis="outline" icon="pi-paperclip">{{ v.evidencias.length === 1 ? '1 evidência' : v.evidencias.length + ' evidências' }}</geo-status>
                       }
                     </span>
                   </div>
                   <span class="od-lista__acoes">
-                    <ces-icon-button icon="pi pi-file-pdf" [label]="'Baixar PDF da visita de ' + dataBr(v.dataVisita)" size="icon-sm" (pressed)="baixarVisita(v)"></ces-icon-button>
+                    <geo-icon-button icon="pi pi-file-pdf" [label]="'Baixar PDF da visita de ' + dataBr(v.dataVisita)" size="icon-sm" (pressed)="baixarVisita(v)"></geo-icon-button>
                     @if (podeEscrever) {
-                      <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir a visita de ' + dataBr(v.dataVisita)" size="icon-sm" (pressed)="editarVisita(v)"></ces-icon-button>
-                      <ces-icon-button icon="pi pi-trash" [label]="'Remover a visita de ' + dataBr(v.dataVisita)" size="icon-sm" (pressed)="removerVisita(v)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir a visita de ' + dataBr(v.dataVisita)" size="icon-sm" (pressed)="editarVisita(v)"></geo-icon-button>
+                      <geo-icon-button icon="pi pi-trash" [label]="'Remover a visita de ' + dataBr(v.dataVisita)" size="icon-sm" (pressed)="removerVisita(v)"></geo-icon-button>
                     }
                   </span>
                 </li>
@@ -143,17 +143,17 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
               <span class="od-contagem">{{ d.asBuilt.fichasCompletas }} de {{ d.asBuilt.pontosExecutados }} {{ d.asBuilt.pontosExecutados === 1 ? 'ficha completa' : 'fichas completas' }}</span>
             }
             @if (podeEscrever && d.asBuilt.pontosExecutados) {
-              <ces-button class="od-bloco__acao" variant="outline" size="sm" icon="pi pi-file-export" [label]="'Gerar versão ' + proximaVersao()" [loading]="gerando() || processando()" (pressed)="gerar()"></ces-button>
+              <geo-button class="od-bloco__acao" variant="outline" size="sm" icon="pi pi-file-export" [label]="'Gerar versão ' + proximaVersao()" [loading]="gerando() || processando()" (pressed)="gerar()"></geo-button>
             }
           </header>
           @if (!d.temProjetoMestre && d.asBuilt.pontosExecutados) {
-            <ces-callout tone="warning" [dense]="true">Anexe o projeto mestre da obra para gerar o As Built.</ces-callout>
+            <geo-callout tone="warning" [dense]="true">Anexe o projeto mestre da obra para gerar o As Built.</geo-callout>
           }
           @if (pontosPendentesDaGeracao().length) {
-            <ces-callout tone="danger" icon="pi pi-exclamation-circle" title="Fichas pendentes" [dense]="true">Complete as fichas dos pontos {{ pontosPendentesDaGeracao().join(', ') }} para gerar o documento.</ces-callout>
+            <geo-callout tone="danger" icon="pi pi-exclamation-circle" title="Fichas pendentes" [dense]="true">Complete as fichas dos pontos {{ pontosPendentesDaGeracao().join(', ') }} para gerar o documento.</geo-callout>
           }
           @if (d.pontos.length > pontosParaFiltrar) {
-            <ces-select class="od-filtro" label="Mostrar" [options]="filtrosPontos" [value]="filtroPontos()" (valueChange)="filtroPontos.set($event ?? 'TODOS')"></ces-select>
+            <geo-select class="od-filtro" label="Mostrar" [options]="filtrosPontos" [value]="filtroPontos()" (valueChange)="filtroPontos.set($event ?? 'TODOS')"></geo-select>
           }
           @if (pontosDoBook().length) {
             <ul class="od-book">
@@ -164,7 +164,7 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
                       <strong>Ponto {{ p.numero }}</strong>
                       <span>Folha {{ p.pagina }}{{ p.executado ? ' · Executado' : ' · Sem execução' }}</span>
                     </div>
-                    <ces-button variant="ghost" size="sm" label="Abrir" [ariaLabel]="'Abrir o ponto ' + p.numero" (pressed)="abrirFicha(p)"></ces-button>
+                    <geo-button variant="ghost" size="sm" label="Abrir" [ariaLabel]="'Abrir o ponto ' + p.numero" (pressed)="abrirFicha(p)"></geo-button>
                   </div>
                   @if (p.evidencias.length) {
                     <div class="od-ponto__fotos">
@@ -180,18 +180,18 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
                   }
                   <div class="od-ponto__estados">
                     @if (!p.evidencias.length) {
-                      <ces-status tone="neutral" emphasis="outline" icon="pi-camera">Sem fotos</ces-status>
+                      <geo-status tone="neutral" emphasis="outline" icon="pi-camera">Sem fotos</geo-status>
                     } @else if (faltando(p).length) {
-                      <ces-status tone="warning" icon="pi-camera">{{ faltando(p).length === 1 ? 'Falta 1 foto' : 'Faltam ' + faltando(p).length + ' fotos' }}</ces-status>
+                      <geo-status tone="warning" icon="pi-camera">{{ faltando(p).length === 1 ? 'Falta 1 foto' : 'Faltam ' + faltando(p).length + ' fotos' }}</geo-status>
                     } @else {
-                      <ces-status tone="success" icon="pi-camera">{{ p.evidencias.length === 1 ? '1 foto' : p.evidencias.length + ' fotos' }}</ces-status>
+                      <geo-status tone="success" icon="pi-camera">{{ p.evidencias.length === 1 ? '1 foto' : p.evidencias.length + ' fotos' }}</geo-status>
                     }
                     @if (p.ficha?.completa) {
-                      <ces-status tone="success" icon="pi-check-circle">Ficha completa</ces-status>
+                      <geo-status tone="success" icon="pi-check-circle">Ficha completa</geo-status>
                     } @else if (p.ficha) {
-                      <ces-status tone="warning" icon="pi-pencil">Ficha: faltam {{ p.ficha.pendencias.length }}</ces-status>
+                      <geo-status tone="warning" icon="pi-pencil">Ficha: faltam {{ p.ficha.pendencias.length }}</geo-status>
                     } @else if (p.executado) {
-                      <ces-status tone="neutral" emphasis="outline" icon="pi-minus-circle">Sem ficha</ces-status>
+                      <geo-status tone="neutral" emphasis="outline" icon="pi-minus-circle">Sem ficha</geo-status>
                     }
                   </div>
                 </li>
@@ -213,10 +213,10 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
                     @if (doc.mensagemErro) { <span class="od-erro">{{ doc.mensagemErro }}</span> }
                   </div>
                   @switch (doc.status) {
-                    @case ('PROCESSANDO') { <ces-status tone="info" icon="pi-spinner">Gerando</ces-status> }
-                    @case ('ERRO') { <ces-status tone="danger" icon="pi-times-circle">Falhou</ces-status> }
+                    @case ('PROCESSANDO') { <geo-status tone="info" icon="pi-spinner">Gerando</geo-status> }
+                    @case ('ERRO') { <geo-status tone="danger" icon="pi-times-circle">Falhou</geo-status> }
                     @default {
-                      <ces-icon-button icon="pi pi-download" [label]="'Baixar a versão ' + doc.numeroVersao" size="icon-sm" (pressed)="baixarDocumento(doc)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-download" [label]="'Baixar a versão ' + doc.numeroVersao" size="icon-sm" (pressed)="baixarDocumento(doc)"></geo-icon-button>
                     }
                   }
                 </li>
@@ -230,7 +230,7 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
           <header class="od-bloco__topo">
             <h3 id="od-book">Equipamentos</h3>
             @if (podeEscrever && d.pontos.length) {
-              <ces-button class="od-bloco__acao" variant="ghost" size="sm" icon="pi pi-plus" label="Marcar equipamento" (pressed)="novoEquipamento()"></ces-button>
+              <geo-button class="od-bloco__acao" variant="ghost" size="sm" icon="pi pi-plus" label="Marcar equipamento" (pressed)="novoEquipamento()"></geo-button>
             }
           </header>
           @if (d.equipamentos.length) {
@@ -243,8 +243,8 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
                   </div>
                   @if (podeEscrever) {
                     <span class="od-lista__acoes">
-                      <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir o equipamento do ponto ' + e.numeroPonto" size="icon-sm" (pressed)="editarEquipamento(e)"></ces-icon-button>
-                      <ces-icon-button icon="pi pi-trash" [label]="'Retirar o ponto ' + e.numeroPonto + ' da lista'" size="icon-sm" (pressed)="removerEquipamento(e)"></ces-icon-button>
+                      <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir o equipamento do ponto ' + e.numeroPonto" size="icon-sm" (pressed)="editarEquipamento(e)"></geo-icon-button>
+                      <geo-icon-button icon="pi pi-trash" [label]="'Retirar o ponto ' + e.numeroPonto + ' da lista'" size="icon-sm" (pressed)="removerEquipamento(e)"></geo-icon-button>
                     </span>
                   }
                 </li>
@@ -258,19 +258,19 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
     }
 
     <!-- Checklist: visita ou ficha -->
-    <ces-form-drawer [(visible)]="checklistAberto" [title]="tituloChecklist()" [dirty]="alterado()" size="lg">
+    <geo-form-drawer [(visible)]="checklistAberto" [title]="tituloChecklist()" [dirty]="alterado()" size="lg">
       @if (!modelosAtivos().length && !modelo()) {
-        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Nenhum modelo ativo" [dense]="true">
+        <geo-callout tone="warning" icon="pi pi-exclamation-triangle" title="Nenhum modelo ativo" [dense]="true">
           Cadastre um modelo em
           @if (podeVerModelos) { <a routerLink="/obras/cadastros/checklists">Checklists da documentação</a> } @else { Checklists da documentação }
           para poder lançar{{ pontoDaFicha() ? ' a ficha e as fotos pedidas' : '' }}.
-        </ces-callout>
+        </geo-callout>
       } @else {
-        <ces-form-section title="Modelo do ponto" icon="pi pi-file-edit">
-          <div class="ces-form-grid">
-            <ces-select label="Modelo" [required]="true" [options]="opcoesModelo()" [value]="modelo()?.id ?? null" [disabled]="modeloFixo()" (valueChange)="escolherModelo($event)"></ces-select>
+        <geo-form-section title="Modelo do ponto" icon="pi pi-file-edit">
+          <div class="geo-form-grid">
+            <geo-select label="Modelo" [required]="true" [options]="opcoesModelo()" [value]="modelo()?.id ?? null" [disabled]="modeloFixo()" (valueChange)="escolherModelo($event)"></geo-select>
           </div>
-        </ces-form-section>
+        </geo-form-section>
       }
       @if (pontoAtual(); as p) {
         <section class="od-evidencias" aria-labelledby="od-evidencias-titulo">
@@ -280,7 +280,7 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
               <div class="od-item__topo">
                 <strong>{{ item.titulo }}</strong>
                 @if (item.obrigatoria) {
-                  <ces-status [tone]="fotosDoItem(p, item.id).length ? 'success' : 'warning'" emphasis="outline">{{ fotosDoItem(p, item.id).length ? 'Fotografado' : 'Obrigatória' }}</ces-status>
+                  <geo-status [tone]="fotosDoItem(p, item.id).length ? 'success' : 'warning'" emphasis="outline">{{ fotosDoItem(p, item.id).length ? 'Fotografado' : 'Obrigatória' }}</geo-status>
                 }
               </div>
               <ng-container [ngTemplateOutlet]="galeria" [ngTemplateOutletContext]="{ ponto: p, fotos: fotosDoItem(p, item.id), idItem: item.id }"></ng-container>
@@ -311,13 +311,13 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
           <app-checklist-respostas class="od-respostas" [estrutura]="m.estrutura" [(respostas)]="respostas" [mostrarPendencias]="tentou()"></app-checklist-respostas>
         }
       }
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" [label]="podeSalvarChecklist() ? 'Cancelar' : 'Fechar'" (pressed)="checklistAberto.set(false)"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" [label]="podeSalvarChecklist() ? 'Cancelar' : 'Fechar'" (pressed)="checklistAberto.set(false)"></geo-button>
         @if (podeSalvarChecklist()) {
-          <ces-button icon="pi pi-check" label="Salvar ficha" [loading]="salvando()" (pressed)="salvarChecklist()"></ces-button>
+          <geo-button icon="pi pi-check" label="Salvar ficha" [loading]="salvando()" (pressed)="salvarChecklist()"></geo-button>
         }
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <ng-template #galeria let-ponto="ponto" let-fotos="fotos" let-idItem="idItem">
       @if (fotos.length) {
@@ -331,8 +331,8 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
       }
       @if (podeEscrever) {
         @for (rodada of [envios()]; track rodada) {
-          <ces-file-input label="Adicionar foto" buttonLabel="Escolher foto" emptyLabel="JPG ou PNG, até 15 MB" accept="image/jpeg,image/png" [maxBytes]="limiteFoto"
-            [disabled]="!!enviandoItem()" (fileChange)="enviarFoto(ponto, idItem, $event)"></ces-file-input>
+          <geo-file-input label="Adicionar foto" buttonLabel="Escolher foto" emptyLabel="JPG ou PNG, até 15 MB" accept="image/jpeg,image/png" [maxBytes]="limiteFoto"
+            [disabled]="!!enviandoItem()" (fileChange)="enviarFoto(ponto, idItem, $event)"></geo-file-input>
         }
         @if (enviandoItem() === chaveDoItem(idItem)) {
           <span class="od-vazio" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Enviando a foto</span>
@@ -347,58 +347,58 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
       [indice]="fotoAberta()?.indice ?? 0" [podeEscrever]="podeEscrever" (navegar)="irParaFoto($event)" (fechar)="fotoAberta.set(null)" (alterado)="carregar()"></app-evidencia-visualizador>
 
     <!-- Equipamento -->
-    <ces-form-drawer [(visible)]="equipamentoAberto" title="Equipamento do ponto" size="sm">
-      <div class="ces-form-stack">
-        <ces-select label="Ponto" [required]="true" [options]="opcoesPonto()" [filter]="true" [disabled]="equipamentoEmEdicao()" [(value)]="idPontoEquipamento" [error]="tentouEquipamento() && !idPontoEquipamento() ? 'Escolha o ponto.' : undefined"></ces-select>
-        <ces-select label="Equipamento" [required]="true" [options]="tiposEquipamento" [value]="tipoEquipamento()" (valueChange)="trocarTipoEquipamento($event)"></ces-select>
+    <geo-form-drawer [(visible)]="equipamentoAberto" title="Equipamento do ponto" size="sm">
+      <div class="geo-form-stack">
+        <geo-select label="Ponto" [required]="true" [options]="opcoesPonto()" [filter]="true" [disabled]="equipamentoEmEdicao()" [(value)]="idPontoEquipamento" [error]="tentouEquipamento() && !idPontoEquipamento() ? 'Escolha o ponto.' : undefined"></geo-select>
+        <geo-select label="Equipamento" [required]="true" [options]="tiposEquipamento" [value]="tipoEquipamento()" (valueChange)="trocarTipoEquipamento($event)"></geo-select>
         @if (tipoEquipamento() === 'RELIGADOR') {
-          <ces-boolean-control label="Tem trafo auxiliar" kind="toggle" [(value)]="trafoAuxiliar"></ces-boolean-control>
+          <geo-boolean-control label="Tem trafo auxiliar" kind="toggle" [(value)]="trafoAuxiliar"></geo-boolean-control>
         }
-        <ces-text-input label="Observação" [maxlength]="500" [(value)]="observacaoEquipamento"></ces-text-input>
+        <geo-text-input label="Observação" [maxlength]="500" [(value)]="observacaoEquipamento"></geo-text-input>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="equipamentoAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Salvar" [loading]="salvando()" (pressed)="salvarEquipamento()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="equipamentoAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" label="Salvar" [loading]="salvando()" (pressed)="salvarEquipamento()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: `
     .od { display: flex; flex-direction: column; gap: 1.25rem; }
     .od-bloco { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; }
-    .od-bloco + .od-bloco { padding-top: 1.25rem; border-top: 1px solid var(--ces-border); }
+    .od-bloco + .od-bloco { padding-top: 1.25rem; border-top: 1px solid var(--geo-border); }
     .od-bloco__topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.625rem; }
-    .od-bloco__topo h3 { margin: 0; color: var(--ces-foreground); font-size: 0.875rem; font-weight: 700; }
+    .od-bloco__topo h3 { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 700; }
     .od-bloco__acao { margin-left: auto; }
-    .od-contagem { color: var(--ces-foreground-muted); font-size: 0.8125rem; }
-    .od-subtitulo { margin: 0.375rem 0 0; color: var(--ces-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
+    .od-contagem { color: var(--geo-foreground-muted); font-size: 0.8125rem; }
+    .od-subtitulo { margin: 0.375rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
     .od-lista { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
     .od-lista li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; padding: 0.5rem 0; }
-    .od-lista li + li { border-top: 1px solid var(--ces-border); }
+    .od-lista li + li { border-top: 1px solid var(--geo-border); }
     .od-lista__texto { display: flex; flex: 1 1 14rem; flex-direction: column; gap: 0.125rem; min-width: 0; overflow-wrap: anywhere; }
-    .od-lista__texto strong { color: var(--ces-foreground); font-size: 0.875rem; font-weight: 600; }
-    .od-lista__texto span { color: var(--ces-foreground-muted); font-size: 0.8125rem; }
-    .od-lista__texto .od-erro { color: var(--ces-danger); }
+    .od-lista__texto strong { color: var(--geo-foreground); font-size: 0.875rem; font-weight: 600; }
+    .od-lista__texto span { color: var(--geo-foreground-muted); font-size: 0.8125rem; }
+    .od-lista__texto .od-erro { color: var(--geo-danger); }
     .od-lista__acoes { display: inline-flex; gap: 0.125rem; }
-    .od-vazio { margin: 0; color: var(--ces-foreground-muted); font-size: 0.8125rem; }
+    .od-vazio { margin: 0; color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .od-respostas { display: block; margin-top: 1rem; }
     .od-filtro { display: block; width: 100%; max-width: 16rem; }
     .od-book { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
-    .od-ponto { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; padding: 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); }
+    .od-ponto { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
     .od-ponto__topo { display: flex; align-items: flex-start; gap: 0.5rem; }
     .od-ponto__fotos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.375rem; }
-    .od-ponto__mais { align-self: flex-start; padding: 0; border: 0; background: transparent; color: var(--ces-brand); font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
-    .od-ponto__mais:focus-visible { outline: 3px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .od-ponto__semfoto { display: flex; align-items: center; gap: 0.375rem; margin: 0; padding: 0.875rem 0.75rem; border: 1px dashed var(--ces-border-strong); border-radius: var(--ces-radius-md); color: var(--ces-foreground-muted); font-size: 0.8125rem; }
+    .od-ponto__mais { align-self: flex-start; padding: 0; border: 0; background: transparent; color: var(--geo-brand); font-size: 0.8125rem; font-weight: 600; cursor: pointer; }
+    .od-ponto__mais:focus-visible { outline: 3px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .od-ponto__semfoto { display: flex; align-items: center; gap: 0.375rem; margin: 0; padding: 0.875rem 0.75rem; border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-md); color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .od-ponto__estados { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: auto; }
     .od-evidencias { display: flex; flex-direction: column; gap: 0.875rem; margin-top: 1rem; }
-    .od-evidencias h3, .od-ficha-titulo { margin: 0; color: var(--ces-foreground); font-size: 0.875rem; font-weight: 700; }
+    .od-evidencias h3, .od-ficha-titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 700; }
     .od-ficha-titulo { margin-top: 1.25rem; margin-bottom: 0.25rem; }
-    .od-item { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
-    .od-item__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; color: var(--ces-foreground); font-size: 0.875rem; }
+    .od-item { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+    .od-item__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; color: var(--geo-foreground); font-size: 0.875rem; }
     .od-galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: 0.5rem; }
     .od-ficha { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.25rem 0 0; }
-    .od-ficha dt { color: var(--ces-foreground-muted); font-size: 0.8125rem; }
-    .od-ficha dd { margin: 0; color: var(--ces-foreground); font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
+    .od-ficha dt { color: var(--geo-foreground-muted); font-size: 0.8125rem; }
+    .od-ficha dd { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
     .od-visita__selos { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.25rem; }
   `
 })
@@ -406,7 +406,7 @@ export class ObraDocumentacaoComponent {
   private readonly servico = inject(ObrasDocumentacaoService);
   private readonly obras = inject(ObrasService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly permissoes = inject(AuthService).currentUser()?.permissoes ?? [];
 
@@ -473,7 +473,7 @@ export class ObraDocumentacaoComponent {
   });
   protected readonly itensDoPonto = computed(() => this.modelo()?.estrutura.evidencias ?? this.pontoAtual()?.itensEvidencia ?? []);
   protected readonly podeSalvarChecklist = computed(() => !!this.modelo() && this.podeEscrever && !!this.pontoAtual()?.executado);
-  protected readonly opcoesModelo = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesModelo = computed<GeoSelectOption<string>[]>(() => {
     const atual = this.modelo();
     const ativos = this.modelosAtivos().map((m) => ({ label: m.titulo, value: m.id }));
     return atual && !ativos.some((o) => o.value === atual.id) ? [{ label: atual.titulo, value: atual.id }, ...ativos] : ativos;
@@ -491,7 +491,7 @@ export class ObraDocumentacaoComponent {
   protected readonly trafoAuxiliar = signal(false);
   protected readonly observacaoEquipamento = signal('');
   protected readonly tentouEquipamento = signal(false);
-  protected readonly opcoesPonto = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesPonto = computed<GeoSelectOption<string>[]>(() => {
     const marcados = new Set(this.dados()?.equipamentos.map((e) => e.idPonto));
     return (this.dados()?.pontos ?? [])
       .filter((p) => this.equipamentoEmEdicao() || !marcados.has(p.id))

@@ -260,7 +260,7 @@ BEGIN
     END;
 
     -- A role da aplicacao nao pode liberar mutacoes por configuracao de sessao.
-    PERFORM set_config('ces.audit.allow_event_mutation', 'true', TRUE);
+    PERFORM set_config('geo.audit.allow_event_mutation', 'true', TRUE);
     BEGIN
         UPDATE eventos_solicitacao_material
         SET justificativa = 'bypass proibido'
@@ -269,7 +269,7 @@ BEGIN
     EXCEPTION
         WHEN SQLSTATE '55000' THEN NULL;
     END;
-    PERFORM set_config('ces.audit.allow_event_mutation', 'false', TRUE);
+    PERFORM set_config('geo.audit.allow_event_mutation', 'false', TRUE);
 END;
 $$;
 

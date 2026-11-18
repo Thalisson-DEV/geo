@@ -18,9 +18,9 @@ import { ObrasDocumentacaoService } from '../../../core/services/obras-documenta
   `,
   styles: `
     :host { display: block; min-width: 0; }
-    .em { display: grid; place-items: center; width: 100%; aspect-ratio: 1; overflow: hidden; padding: 0; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); color: var(--ces-foreground-muted); cursor: zoom-in; }
-    .em:hover { border-color: var(--ces-brand); }
-    .em:focus-visible { outline: 3px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .em { display: grid; place-items: center; width: 100%; aspect-ratio: 1; overflow: hidden; padding: 0; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); color: var(--geo-foreground-muted); cursor: zoom-in; }
+    .em:hover { border-color: var(--geo-brand); }
+    .em:focus-visible { outline: 3px solid var(--geo-focus-ring); outline-offset: 2px; }
     .em img { display: block; width: 100%; height: 100%; object-fit: cover; }
   `
 })

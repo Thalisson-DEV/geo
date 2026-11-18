@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { CesButtonComponent, CesPageHeaderComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoButtonComponent, GeoPageHeaderComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { PublicStatusComponent, PublicStatus } from '../../../core/models/status.models';
 import { PublicStatusStore } from '../../../core/services/public-status.store';
 
@@ -9,16 +9,16 @@ import { PublicStatusStore } from '../../../core/services/public-status.store';
   selector: 'app-status',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, CesButtonComponent, CesPageHeaderComponent, CesStatusComponent],
+  imports: [DatePipe, GeoButtonComponent, GeoPageHeaderComponent, GeoStatusComponent],
   template: `
-    <div class="ces-page">
-      <ces-page-header title="Status do ecossistema" icon="pi pi-heart" [breadcrumb]="breadcrumbItems"
+    <div class="geo-page">
+      <geo-page-header title="Status do ecossistema" icon="pi pi-heart" [breadcrumb]="breadcrumbItems"
         description="Saúde dos serviços publicada pelo monitor independente (somente leitura).">
         @if (status.statusPageConfigured) {
-          <ces-button actions label="Página pública" icon="pi-external-link" variant="outline" (pressed)="status.openStatusPage()"></ces-button>
+          <geo-button actions label="Página pública" icon="pi-external-link" variant="outline" (pressed)="status.openStatusPage()"></geo-button>
         }
-        <ces-button actions label="Atualizar" icon="pi-refresh" variant="secondary" [loading]="status.refreshing()" (pressed)="status.refresh()"></ces-button>
-      </ces-page-header>
+        <geo-button actions label="Atualizar" icon="pi-refresh" variant="secondary" [loading]="status.refreshing()" (pressed)="status.refresh()"></geo-button>
+      </geo-page-header>
 
       <div class="status-page">
         <header class="status-page__header">
@@ -27,9 +27,9 @@ import { PublicStatusStore } from '../../../core/services/public-status.store';
             <h1>Saúde dos serviços</h1>
             <p>Dados sanitizados publicados pelo Gatus. Esta tela é somente leitura.</p>
           </div>
-          <ces-status [tone]="overallTone()" emphasis="solid" [icon]="overallIcon()">
+          <geo-status [tone]="overallTone()" emphasis="solid" [icon]="overallIcon()">
             {{ overallLabel() }}
-          </ces-status>
+          </geo-status>
         </header>
 
         @if (status.sourceState() === 'loading' && !status.projection()) {
@@ -60,9 +60,9 @@ import { PublicStatusStore } from '../../../core/services/public-status.store';
               <article class="status-page__component">
                 <div class="status-page__component-heading">
                   <span class="status-page__component-name">{{ component.label }}</span>
-                  <ces-status [tone]="componentTone(component.status)" [icon]="componentIcon(component.status)">
+                  <geo-status [tone]="componentTone(component.status)" [icon]="componentIcon(component.status)">
                     {{ statusLabel(component.status) }}
-                  </ces-status>
+                  </geo-status>
                 </div>
                 <p>{{ component.message }}</p>
                 <time [dateTime]="component.observedAt">Evidência em {{ component.observedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</time>
@@ -88,23 +88,23 @@ import { PublicStatusStore } from '../../../core/services/public-status.store';
       :host { display: block; }
       .status-page { display: flex; flex-direction: column; gap: 1.25rem; }
       .status-page__header, .status-page__section-heading, .status-page__component-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-      .status-page__header { padding: 1.25rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-lg); background: var(--ces-surface); }
-      .status-page__eyebrow { display: block; color: var(--ces-foreground-subtle); font-size: var(--ces-font-caption); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-      .status-page h1, .status-page h2 { margin: 0.35rem 0 0; color: var(--ces-foreground); font-weight: 800; }
+      .status-page__header { padding: 1.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
+      .status-page__eyebrow { display: block; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+      .status-page h1, .status-page h2 { margin: 0.35rem 0 0; color: var(--geo-foreground); font-weight: 800; }
       .status-page h1 { font-size: 1.1rem; }
       .status-page h2 { font-size: 0.95rem; }
-      .status-page__header p { margin: 0.35rem 0 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-body); }
+      .status-page__header p { margin: 0.35rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-body); }
       .status-page__section-heading { align-items: flex-end; padding: 0 0.25rem; }
-      .status-page__updated, .status-page__component time { color: var(--ces-foreground-subtle); font-size: var(--ces-font-caption); }
+      .status-page__updated, .status-page__component time { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); }
       .status-page__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
-      .status-page__component { min-width: 0; padding: 1rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
-      .status-page__component-name { min-width: 0; overflow: hidden; color: var(--ces-foreground); font-size: var(--ces-font-body); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
-      .status-page__component p { min-height: 2.2rem; margin: 0.75rem 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); line-height: 1.5; }
-      .status-page__state, .status-page__empty, .status-page__footer { display: flex; align-items: center; gap: 0.65rem; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); }
-      .status-page__state { padding: 0.85rem 1rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
-      .status-page__state--attention { color: var(--ces-warning); }
-      .status-page__empty { justify-content: center; grid-column: 1 / -1; min-height: 8rem; padding: 1rem; border: 1px dashed var(--ces-border-strong); border-radius: var(--ces-radius-md); }
-      .status-page__footer { padding: 0.75rem 0.25rem; border-top: 1px solid var(--ces-border); }
+      .status-page__component { min-width: 0; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
+      .status-page__component-name { min-width: 0; overflow: hidden; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+      .status-page__component p { min-height: 2.2rem; margin: 0.75rem 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); line-height: 1.5; }
+      .status-page__state, .status-page__empty, .status-page__footer { display: flex; align-items: center; gap: 0.65rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); }
+      .status-page__state { padding: 0.85rem 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+      .status-page__state--attention { color: var(--geo-warning); }
+      .status-page__empty { justify-content: center; grid-column: 1 / -1; min-height: 8rem; padding: 1rem; border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-md); }
+      .status-page__footer { padding: 0.75rem 0.25rem; border-top: 1px solid var(--geo-border); }
       @media (max-width: 640px) {
         .status-page__header, .status-page__section-heading { align-items: flex-start; flex-direction: column; }
         .status-page__header { padding: 1rem; }
@@ -128,7 +128,7 @@ export class StatusComponent {
     return this.statusLabel(this.status.projection()?.overallStatus ?? 'UNKNOWN');
   }
 
-  protected overallTone(): CesTone {
+  protected overallTone(): GeoTone {
     if (this.status.sourceError()) return 'neutral';
     return this.componentTone(this.status.projection()?.overallStatus ?? 'UNKNOWN');
   }
@@ -155,7 +155,7 @@ export class StatusComponent {
     }
   }
 
-  protected componentTone(status: PublicStatus): CesTone {
+  protected componentTone(status: PublicStatus): GeoTone {
     switch (status) {
       case 'UP': return 'success';
       case 'DOWN': return 'danger';

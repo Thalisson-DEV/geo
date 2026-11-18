@@ -78,7 +78,7 @@ import java.util.UUID;
 @RequestMapping("/v1/solicitacoes-material")
 @RequiredArgsConstructor
 @ConditionalOnProperty(
-        prefix = "ces.estoque.solicitacoes-tecnicas",
+        prefix = "geo.estoque.solicitacoes-tecnicas",
         name = "enabled",
         havingValue = "true",
         matchIfMissing = false)

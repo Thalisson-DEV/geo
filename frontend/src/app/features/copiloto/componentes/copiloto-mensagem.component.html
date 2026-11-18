@@ -39,13 +39,13 @@
         <strong>Bússola</strong>
         @switch (r.status) {
           @case ('CANCELADA') {
-            <ces-status tone="warning" icon="pi-stop-circle">Interrompida</ces-status>
+            <geo-status tone="warning" icon="pi-stop-circle">Interrompida</geo-status>
           }
           @case ('FALHOU') {
-            <ces-status tone="danger" icon="pi-exclamation-triangle">Não concluída</ces-status>
+            <geo-status tone="danger" icon="pi-exclamation-triangle">Não concluída</geo-status>
           }
           @case ('INDISPONIVEL') {
-            <ces-status tone="danger" icon="pi-ban">Indisponível</ces-status>
+            <geo-status tone="danger" icon="pi-ban">Indisponível</geo-status>
           }
         }
       </div>
@@ -83,7 +83,7 @@
               }
               <figcaption>
                 <span>{{ imagem.nome }}</span>
-                <ces-icon-button icon="pi pi-download" [label]="'Baixar ' + imagem.nome" size="icon-sm" (pressed)="baixar(imagem)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-download" [label]="'Baixar ' + imagem.nome" size="icon-sm" (pressed)="baixar(imagem)"></geo-icon-button>
               </figcaption>
             </figure>
           }
@@ -140,7 +140,7 @@
       @if (acoes().length) {
         <div class="acoes" role="group" aria-label="Atalhos sugeridos no GEO">
           @for (item of acoes(); track $index) {
-            <ces-button variant="outline" size="sm" icon="pi pi-arrow-up-right" [label]="item.acao.rotulo" (pressed)="navegar(item.acao)"></ces-button>
+            <geo-button variant="outline" size="sm" icon="pi pi-arrow-up-right" [label]="item.acao.rotulo" (pressed)="navegar(item.acao)"></geo-button>
           }
         </div>
       }
@@ -148,8 +148,8 @@
       @if (filtrosSugeridos().length) {
         <div class="acoes" role="group" aria-label="Filtros sugeridos para a tabela em tela">
           @for (item of filtrosSugeridos(); track $index) {
-            <ces-button variant="outline" size="sm" icon="pi pi-filter" [label]="'Aplicar: ' + item.filtro.rotulo"
-              [ariaLabel]="'Aplicar filtro na tabela: ' + item.resumo" (pressed)="aplicarFiltro(item.filtro)"></ces-button>
+            <geo-button variant="outline" size="sm" icon="pi pi-filter" [label]="'Aplicar: ' + item.filtro.rotulo"
+              [ariaLabel]="'Aplicar filtro na tabela: ' + item.resumo" (pressed)="aplicarFiltro(item.filtro)"></geo-button>
           }
         </div>
       }
@@ -160,16 +160,16 @@
         } @else if (ehCadastro(proposta)) {
           <app-copiloto-cartao-cadastro [proposta]="proposta" />
         } @else {
-          <ces-callout tone="warning" [title]="proposta.titulo" icon="pi-shield" [dense]="true">
+          <geo-callout tone="warning" [title]="proposta.titulo" icon="pi-shield" [dense]="true">
             Esta ação altera dados e precisa da sua confirmação explícita. Nada foi executado.
-          </ces-callout>
+          </geo-callout>
         }
       }
 
       @if (r.erro) {
-        <ces-callout tone="danger" title="Resposta não concluída" icon="pi-exclamation-triangle" [dense]="true">
+        <geo-callout tone="danger" title="Resposta não concluída" icon="pi-exclamation-triangle" [dense]="true">
           {{ r.erro }}
-        </ces-callout>
+        </geo-callout>
       }
 
       @if (r.concluida) {
@@ -181,7 +181,7 @@
             <span>{{ rodape() }}</span>
           }
           @if (texto()) {
-            <ces-icon-button icon="pi pi-copy" label="Copiar resposta" size="icon-sm" (pressed)="copiar()"></ces-icon-button>
+            <geo-icon-button icon="pi pi-copy" label="Copiar resposta" size="icon-sm" (pressed)="copiar()"></geo-icon-button>
           }
         </div>
       }

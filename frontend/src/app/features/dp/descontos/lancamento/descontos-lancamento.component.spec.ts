@@ -74,7 +74,7 @@ describe('DescontosLancamentoComponent', () => {
     const { el } = await abrir('/lista', 'validar');
     expect(servico['buscarDescontos']).toHaveBeenCalledWith(expect.objectContaining({ status: 'SOLICITADO', sort: 'dataCriacao,asc' }));
     expect(el.textContent).toContain('Fila de baixa');
-    expect(el.querySelector('ces-multiselect')).toBeNull();
+    expect(el.querySelector('geo-multiselect')).toBeNull();
   });
 
   it('exportação leva o recorte atual no formato escolhido', async () => {

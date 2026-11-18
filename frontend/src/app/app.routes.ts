@@ -1,4 +1,4 @@
-import { cesUnsavedChangesGuard } from './design-system/forms/form-kit/unsaved-changes.guard';
+import { geoUnsavedChangesGuard } from './design-system/forms/form-kit/unsaved-changes.guard';
 import { inject } from '@angular/core';
 import { Params, RedirectFunction, Router, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
@@ -67,14 +67,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent)
   },
   {
-    path: 'copiloto',
+    path: 'bussola',
     canActivate: [authGuard],
     data: { permission: 'assistente:chat:use', workspace: true },
     title: 'Bússola',
     loadComponent: () => import('./features/copiloto/copiloto-workspace.component').then(m => m.CopilotoWorkspaceComponent)
   },
   {
-    path: 'copiloto/conectar-ia',
+    path: 'bussola/conectar-ia',
     canActivate: [authGuard],
     data: { permission: 'assistente:conexao:use' },
     title: 'Conectar sua IA - GEO',
@@ -89,12 +89,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/copiloto/conectar-ia/autorizar-ia.component').then(m => m.AutorizarIaComponent)
   },
   {
-    path: 'copiloto/:id',
+    path: 'bussola/:id',
     canActivate: [authGuard],
     data: { permission: 'assistente:chat:use', workspace: true },
     title: 'Bússola',
     loadComponent: () => import('./features/copiloto/copiloto-workspace.component').then(m => m.CopilotoWorkspaceComponent)
   },
+  // Endereços de antes da troca de nome da assistente (favoritos, e-mails e notificações antigos).
+  { path: 'copiloto', redirectTo: 'bussola', pathMatch: 'full' },
+  { path: 'copiloto/conectar-ia', redirectTo: 'bussola/conectar-ia', pathMatch: 'full' },
+  { path: 'copiloto/:id', redirectTo: 'bussola/:id', pathMatch: 'full' },
   {
     path: 'admin/cadastros',
     canActivate: [authGuard],
@@ -619,7 +623,7 @@ export const routes: Routes = [
       {
         path: 'pneus',
         data: { permission: 'frota:pneu:read' },
-        canDeactivate: [cesUnsavedChangesGuard],
+        canDeactivate: [geoUnsavedChangesGuard],
         loadComponent: () => import('./features/frota/pneus/frota-pneus.component').then(m => m.FrotaPneusComponent)
       },
       {

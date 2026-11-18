@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, injec
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { Subject, catchError, forkJoin, of, switchMap, tap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ObraAProgramar, PreviaProgramacao, ResultadoProgramacao, SituacaoIntervencao, TurnoProgramacao } from '../../../core/models/obras-programacao.models';
@@ -36,38 +36,38 @@ import { locaisProgramaveis } from './programar.logic';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
     CondicoesProgramacaoComponent,
     EquipesProjecaoComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="aberto" [title]="livre() ? 'Nova programação' : 'Programar'" [description]="descricaoDrawer()" [dirty]="alterado()" size="lg">
+    <geo-form-drawer [(visible)]="aberto" [title]="livre() ? 'Nova programação' : 'Programar'" [description]="descricaoDrawer()" [dirty]="alterado()" size="lg">
       @if (livre()) {
-        <ces-form-section title="Obra e pontos" icon="pi pi-building" description="As obras com serviço por programar aparecem primeiro, com o valor pendente.">
-          <ces-select label="Obra" [required]="true" [options]="opcoesObra()" [value]="obraEscolhida()" (valueChange)="escolherObra($any($event))"
+        <geo-form-section title="Obra e pontos" icon="pi pi-building" description="As obras com serviço por programar aparecem primeiro, com o valor pendente.">
+          <geo-select label="Obra" [required]="true" [options]="opcoesObra()" [value]="obraEscolhida()" (valueChange)="escolherObra($any($event))"
             [filter]="true" [clearable]="true" [loading]="carregandoObras()" placeholder="Busque pelo número ou título"
-            [error]="tentou() && !obraEscolhida() ? 'Escolha a obra.' : undefined"></ces-select>
+            [error]="tentou() && !obraEscolhida() ? 'Escolha a obra.' : undefined"></geo-select>
           @if (erroPlano(); as mensagem) {
-            <ces-callout tone="danger" [dense]="true">{{ mensagem }}</ces-callout>
+            <geo-callout tone="danger" [dense]="true">{{ mensagem }}</geo-callout>
           } @else if (carregandoPlano()) {
             <p class="programar__resumo programar__muted" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Lendo o planejamento da obra…</p>
           } @else if (plano(); as pl) {
             @if (!pl.kits.length) {
-              <ces-callout tone="warning" [dense]="true">
+              <geo-callout tone="warning" [dense]="true">
                 Esta obra ainda não tem planejamento: sem kits nos pontos, não há o que programar.
                 <a class="programar__link" [routerLink]="['/obras', pl.idObra, 'planejamento']" (click)="aberto.set(false)">Abrir o planejamento</a>
-              </ces-callout>
+              </geo-callout>
             } @else if (!locais().length) {
-              <ces-callout tone="info" [dense]="true">
+              <geo-callout tone="info" [dense]="true">
                 Todos os serviços planejados desta obra já estão programados ou concluídos. Para mudar uma programação, abra-a na agenda e use Reprogramar.
-              </ces-callout>
+              </geo-callout>
             } @else {
               <div class="programar__locais-topo">
                 <span><strong>{{ locaisMarcados().size }}</strong> de {{ locais().length }} {{ locais().length === 1 ? 'local' : 'locais' }} com serviço pendente</span>
@@ -79,24 +79,24 @@ import { locaisProgramaveis } from './programar.logic';
               <ul class="programar__locais" aria-label="Pontos e vãos a programar">
                 @for (l of locais(); track l.id) {
                   <li>
-                    <ces-boolean-control [label]="l.rotulo + ' · ' + l.kits.join(', ')" [description]="l.servicos + (l.servicos === 1 ? ' serviço pendente' : ' serviços pendentes')"
-                      [value]="locaisMarcados().has(l.id)" (valueChange)="marcarLocal(l.id, $event)"></ces-boolean-control>
+                    <geo-boolean-control [label]="l.rotulo + ' · ' + l.kits.join(', ')" [description]="l.servicos + (l.servicos === 1 ? ' serviço pendente' : ' serviços pendentes')"
+                      [value]="locaisMarcados().has(l.id)" (valueChange)="marcarLocal(l.id, $event)"></geo-boolean-control>
                   </li>
                 }
               </ul>
               @if (tentou() && !idsEfetivos().length) {
-                <ces-callout tone="danger" [dense]="true">Marque ao menos um ponto ou vão.</ces-callout>
+                <geo-callout tone="danger" [dense]="true">Marque ao menos um ponto ou vão.</geo-callout>
               }
             }
           }
-        </ces-form-section>
+        </geo-form-section>
       }
 
-      <ces-form-section title="O que será programado" icon="pi pi-list-check">
-        <ces-text-input label="Descrição do planejamento" [required]="true" [maxlength]="500" [value]="descricao()" (valueChange)="editarDescricao($event)"
-          [error]="tentou() && !descricao().trim() ? 'Informe a descrição do planejamento.' : undefined"></ces-text-input>
+      <geo-form-section title="O que será programado" icon="pi pi-list-check">
+        <geo-text-input label="Descrição do planejamento" [required]="true" [maxlength]="500" [value]="descricao()" (valueChange)="editarDescricao($event)"
+          [error]="tentou() && !descricao().trim() ? 'Informe a descrição do planejamento.' : undefined"></geo-text-input>
         @if (erroPrevia(); as mensagem) {
-          <ces-callout tone="danger" [dense]="true">{{ mensagem }}</ces-callout>
+          <geo-callout tone="danger" [dense]="true">{{ mensagem }}</geo-callout>
         }
         @if (previa(); as p) {
           <p class="programar__resumo">
@@ -104,64 +104,64 @@ import { locaisProgramaveis } from './programar.logic';
             {{ p.servicos }} {{ p.servicos === 1 ? 'serviço' : 'serviços' }} e {{ p.materiais }} {{ p.materiais === 1 ? 'material' : 'materiais' }}, {{ moeda(p.valor) }} pelo valor vigente no início.
           </p>
           @if (p.ignoradosProgramados || p.ignoradosConcluidos) {
-            <ces-callout tone="warning" [dense]="true">
+            <geo-callout tone="warning" [dense]="true">
               {{ foraDaProgramacao(p) }}
-            </ces-callout>
+            </geo-callout>
           }
           @if (p.materiaisIncluidos) {
-            <ces-callout tone="info" [dense]="true">{{ p.materiaisIncluidos }} {{ p.materiaisIncluidos === 1 ? 'material acompanha' : 'materiais acompanham' }} os serviços selecionados.</ces-callout>
+            <geo-callout tone="info" [dense]="true">{{ p.materiaisIncluidos }} {{ p.materiaisIncluidos === 1 ? 'material acompanha' : 'materiais acompanham' }} os serviços selecionados.</geo-callout>
           }
           @if (p.servicosSemValor) {
-            <ces-callout tone="warning" [dense]="true">Sem valor vigente no início, fora da soma: {{ p.nomesServicosSemValor.join(', ') }}. Confira as Ações do contrato.</ces-callout>
+            <geo-callout tone="warning" [dense]="true">Sem valor vigente no início, fora da soma: {{ p.nomesServicosSemValor.join(', ') }}. Confira as Ações do contrato.</geo-callout>
           }
           @if (!p.itens) {
-            <ces-callout tone="danger" [dense]="true">Nenhum item pendente nesta seleção.</ces-callout>
+            <geo-callout tone="danger" [dense]="true">Nenhum item pendente nesta seleção.</geo-callout>
           }
         } @else if (livre() && !obraEscolhida()) {
           <p class="programar__resumo programar__muted">Escolha a obra para ver os itens, o valor e as equipes.</p>
         }
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Período" icon="pi pi-calendar">
-        <div class="ces-form-grid">
-          <ces-datepicker label="Início" [required]="true" [value]="inicio()" (valueChange)="definirInicio($any($event))" [error]="erroPeriodo('inicio')"></ces-datepicker>
-          <ces-datepicker label="Fim" [required]="true" [value]="fim()" (valueChange)="definirFim($any($event))" [minDate]="inicio()" [error]="erroPeriodo('fim')"></ces-datepicker>
+      <geo-form-section title="Período" icon="pi pi-calendar">
+        <div class="geo-form-grid">
+          <geo-datepicker label="Início" [required]="true" [value]="inicio()" (valueChange)="definirInicio($any($event))" [error]="erroPeriodo('inicio')"></geo-datepicker>
+          <geo-datepicker label="Fim" [required]="true" [value]="fim()" (valueChange)="definirFim($any($event))" [minDate]="inicio()" [error]="erroPeriodo('fim')"></geo-datepicker>
         </div>
         @if (semDiaUtil()) {
-          <ces-callout tone="warning" [dense]="true">Este período não tem dia útil: só fim de semana ou feriado.</ces-callout>
+          <geo-callout tone="warning" [dense]="true">Este período não tem dia útil: só fim de semana ou feriado.</geo-callout>
         }
         @if (passaDoPrazo(); as aviso) {
-          <ces-callout tone="warning" [dense]="true">{{ aviso }}</ces-callout>
+          <geo-callout tone="warning" [dense]="true">{{ aviso }}</geo-callout>
         }
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Condições da intervenção" icon="pi pi-bolt" description="Linha viva e desligamento precisam de resposta a cada programação.">
+      <geo-form-section title="Condições da intervenção" icon="pi pi-bolt" description="Linha viva e desligamento precisam de resposta a cada programação.">
         <app-condicoes-programacao [validar]="tentou()" [(linhaViva)]="linhaViva" [(desligamento)]="desligamento"
           [(finalizaObra)]="finalizaObra" [(turno)]="turno" [(situacaoIntervencao)]="situacaoIntervencao" [(observacao)]="observacao"></app-condicoes-programacao>
-      </ces-form-section>
+      </geo-form-section>
 
-      <ces-form-section title="Equipe" icon="pi pi-users">
+      <geo-form-section title="Equipe" icon="pi pi-users">
         <app-equipes-projecao [equipes]="previa()?.equipes ?? []" [carregando]="carregando()" [turno]="turno()" [(selecionada)]="idEquipe"></app-equipes-projecao>
         @if (tentou() && !idEquipe()) {
-          <ces-callout tone="danger" [dense]="true">Escolha a equipe.</ces-callout>
+          <geo-callout tone="danger" [dense]="true">Escolha a equipe.</geo-callout>
         }
-      </ces-form-section>
+      </geo-form-section>
 
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="aberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-calendar-plus" label="Programar" [loading]="salvando()" [disabled]="!previa()?.itens" (pressed)="confirmar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="aberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-calendar-plus" label="Programar" [loading]="salvando()" [disabled]="!previa()?.itens" (pressed)="confirmar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `,
   styles: [`
     .programar__resumo { margin: 0; font-size: 0.875rem; }
-    .programar__muted { display: flex; gap: 0.5rem; align-items: center; color: var(--ces-foreground-muted); }
-    .programar__locais-topo { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; font-size: var(--ces-font-control); }
+    .programar__muted { display: flex; gap: 0.5rem; align-items: center; color: var(--geo-foreground-muted); }
+    .programar__locais-topo { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; font-size: var(--geo-font-control); }
     .programar__locais-acoes { display: inline-flex; gap: 0.75rem; }
-    .programar__link { padding: 0; border: 0; background: transparent; color: var(--ces-brand); font: inherit; font-weight: 600; cursor: pointer; }
-    .programar__link:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .programar__link { padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; font-weight: 600; cursor: pointer; }
+    .programar__link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .programar__locais { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; max-height: 16rem; margin: 0;
-      padding: 0.5rem 0.75rem; overflow-y: auto; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); list-style: none; }
+      padding: 0.5rem 0.75rem; overflow-y: auto; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); list-style: none; }
   `]
 })
 export class ProgramarDrawerComponent {
@@ -202,7 +202,7 @@ export class ProgramarDrawerComponent {
 
   protected readonly livre = computed(() => !this.idObra());
   protected readonly obraEscolhida = signal<string | null>(null);
-  protected readonly opcoesObra = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesObra = signal<GeoSelectOption<string>[]>([]);
   protected readonly carregandoObras = signal(false);
   protected readonly plano = signal<PlanejamentoObra | null>(null);
   protected readonly carregandoPlano = signal(false);
@@ -327,7 +327,7 @@ export class ProgramarDrawerComponent {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ pendentes, todas }) => {
       this.carregandoObras.set(false);
       const comPendencia = new Set(pendentes.map((o) => o.idObra));
-      const opcoes: CesSelectOption<string>[] = pendentes.map((o) => ({ value: o.idObra, label: `${o.numero} · ${o.titulo} — ${formatarMoeda(o.valorPendente)} a programar` }));
+      const opcoes: GeoSelectOption<string>[] = pendentes.map((o) => ({ value: o.idObra, label: `${o.numero} · ${o.titulo} — ${formatarMoeda(o.valorPendente)} a programar` }));
       for (const o of todas?.content ?? []) {
         if (!comPendencia.has(o.id) && !o.statusConcluida) opcoes.push({ value: o.id, label: `${o.numero} · ${o.titulo} — nada pendente` });
       }

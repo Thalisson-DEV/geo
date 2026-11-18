@@ -34,7 +34,7 @@
       }
       <p class="sd-dica">Materiais com série abrem na própria linha com os números de série do estoque.</p>
 
-      <ces-data-table
+      <geo-data-table
         mode="server"
         caption="Materiais em saldo no estoque"
         searchPlaceholder="Buscar por código ou descrição"
@@ -54,21 +54,21 @@
         [(query)]="busca"
         (lazyLoad)="onLazyLoad($event)"
       >
-        <ng-template cesCell="codigo" let-row>
+        <ng-template geoCell="codigo" let-row>
           <span class="font-mono font-semibold">{{ row.material.codigo }}</span>
         </ng-template>
-        <ng-template cesCell="descricao" let-row>
+        <ng-template geoCell="descricao" let-row>
           <span class="sd-material">
             <span class="uppercase">{{ row.material.descricao }}</span>
             @if (row.material.detalhaSerie) {
-              <ces-status tone="brand" icon="pi pi-barcode">Seriado</ces-status>
+              <geo-status tone="brand" icon="pi pi-barcode">Seriado</geo-status>
             }
           </span>
         </ng-template>
-        <ng-template cesCell="condicao" let-row>
-          <ces-status [tone]="tomCondicao(row.condicao)" [icon]="iconeCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</ces-status>
+        <ng-template geoCell="condicao" let-row>
+          <geo-status [tone]="tomCondicao(row.condicao)" [icon]="iconeCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="quantidade" let-row>
+        <ng-template geoCell="quantidade" let-row>
           <span class="sd-quantidade" [attr.data-tone]="row.negativo ? 'danger' : row.quantidade === 0 ? 'zero' : null">
             @if (row.negativo) {
               <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
@@ -77,10 +77,10 @@
             {{ row.quantidade | number: '1.0-3' }}
           </span>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <ces-icon-button icon="pi pi-history" [label]="'Ver movimentações de ' + row.material.codigo" tooltip="Movimentações" size="icon-sm" (pressed)="abrirMovimentacoes(row)" />
+        <ng-template geoRowActions let-row>
+          <geo-icon-button icon="pi pi-history" [label]="'Ver movimentações de ' + row.material.codigo" tooltip="Movimentações" size="icon-sm" (pressed)="abrirMovimentacoes(row)" />
         </ng-template>
-        <ng-template cesRowDetail let-row>
+        <ng-template geoRowDetail let-row>
           <app-saldo-seriais-painel
             [idEstoque]="estoqueId!"
             [idMaterial]="row.material.id"
@@ -89,10 +89,10 @@
             [quantidade]="row.quantidade"
           />
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
 
       <div class="sd-rodape">
-        <ces-button label="Abrir relatório de saldo" icon="pi pi-external-link" variant="ghost" size="sm" (pressed)="abrirRelatorio()" />
+        <geo-button label="Abrir relatório de saldo" icon="pi pi-external-link" variant="ghost" size="sm" (pressed)="abrirRelatorio()" />
       </div>
     </div>
   }

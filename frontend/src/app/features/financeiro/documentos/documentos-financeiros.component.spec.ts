@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CesConfirmationService } from '@ces/ui';
+import { GeoConfirmationService } from '@geo/ui';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -62,14 +62,14 @@ describe('DocumentosFinanceirosComponent', () => {
   it('links do painel (?situacao=, ?vencidos=true) aplicam o recorte e o atalho fica marcado', async () => {
     const { el } = await abrir('/lista?vencidos=true&situacao=PENDENTE');
     expect(servico['listarDocumentos']).toHaveBeenLastCalledWith(expect.objectContaining({ apenasVencidos: true, situacao: ['PENDENTE'] }));
-    const vencidos = Array.from(el.querySelectorAll('.ces-quick-filter')).find((b) => b.textContent!.includes('Vencidos'))!;
+    const vencidos = Array.from(el.querySelectorAll('.geo-quick-filter')).find((b) => b.textContent!.includes('Vencidos'))!;
     expect(vencidos.getAttribute('aria-pressed')).toBe('true');
     expect(chipsDoPainel(el)).toContain('Atalho: vencidos');
   });
 
   it('um atalho por vez; "aguardando" vira situação PENDENTE', async () => {
     const { el } = await abrir('/lista?vencidos=true');
-    const aguardando = Array.from(el.querySelectorAll('.ces-quick-filter')).find((b) => b.textContent!.includes('Aguardando')) as HTMLButtonElement;
+    const aguardando = Array.from(el.querySelectorAll('.geo-quick-filter')).find((b) => b.textContent!.includes('Aguardando')) as HTMLButtonElement;
     aguardando.click();
     await new Promise((r) => setTimeout(r));
     const params = servico['listarDocumentos'].mock.lastCall![0];
@@ -107,7 +107,7 @@ describe('DocumentosFinanceirosComponent', () => {
     tela.motivo.set('Sem número');
     tela.apontarPendencia();
     expect(servico['apontarPendenciaDocumento']).toHaveBeenCalledWith('doc1', 'Sem número');
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
+    vi.spyOn(TestBed.inject(GeoConfirmationService), 'confirm').mockResolvedValue(true);
     await tela.remover(documento);
     expect(servico['removerDocumento']).toHaveBeenCalledWith('doc1');
   });

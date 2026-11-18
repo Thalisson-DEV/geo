@@ -8,7 +8,7 @@
         <h3 class="cartao__titulo">{{ p.titulo }}</h3>
         <p class="cartao__subtitulo">{{ subtitulo() }}</p>
       </div>
-      <ces-status class="cartao__selo" [tone]="selo().tom" [icon]="selo().icone">{{ selo().texto }}</ces-status>
+      <geo-status class="cartao__selo" [tone]="selo().tom" [icon]="selo().icone">{{ selo().texto }}</geo-status>
     </header>
 
     @if (pendente()) {
@@ -28,8 +28,8 @@
                     </span>
                     <i class="pi lote__seta" [class.pi-chevron-down]="aberto() !== i" [class.pi-chevron-up]="aberto() === i" aria-hidden="true"></i>
                   </button>
-                  <ces-icon-button icon="pi pi-trash" size="icon-sm" [label]="'Tirar ' + registro.titulo + ' do cadastro'"
-                    [disabled]="ocupado() !== null" (pressed)="removerRegistro(i)"></ces-icon-button>
+                  <geo-icon-button icon="pi pi-trash" size="icon-sm" [label]="'Tirar ' + registro.titulo + ' do cadastro'"
+                    [disabled]="ocupado() !== null" (pressed)="removerRegistro(i)"></geo-icon-button>
                 </div>
                 @if (aberto() === i) {
                   <div class="campos" [id]="'reg-' + p.chave + '-' + i">
@@ -61,10 +61,10 @@
       </div>
 
       @if (erro()) {
-        <ces-callout tone="danger" icon="pi-exclamation-triangle" [dense]="true" title="Não foi possível concluir">{{ erro() }}</ces-callout>
+        <geo-callout tone="danger" icon="pi-exclamation-triangle" [dense]="true" title="Não foi possível concluir">{{ erro() }}</geo-callout>
       }
       @if (aviso()) {
-        <ces-callout tone="warning" icon="pi-pencil" [dense]="true">{{ aviso() }}</ces-callout>
+        <geo-callout tone="warning" icon="pi-pencil" [dense]="true">{{ aviso() }}</geo-callout>
       }
 
       <footer class="cartao__rodape">
@@ -76,11 +76,11 @@
           }
         </p>
         <div class="cartao__botoes">
-          <ces-button variant="ghost" size="sm" label="Cancelar" [disabled]="ocupado() !== null"
-            [loading]="ocupado() === 'cancelando'" (pressed)="cancelar()"></ces-button>
-          <ces-button variant="primary" size="sm" icon="pi pi-check" [label]="rotuloConfirmar()"
+          <geo-button variant="ghost" size="sm" label="Cancelar" [disabled]="ocupado() !== null"
+            [loading]="ocupado() === 'cancelando'" (pressed)="cancelar()"></geo-button>
+          <geo-button variant="primary" size="sm" icon="pi pi-check" [label]="rotuloConfirmar()"
             [disabled]="!p.pronta || !p.registros.length || (ocupado() !== null && ocupado() !== 'confirmando')"
-            [loading]="ocupado() === 'confirmando'" (pressed)="confirmar()"></ces-button>
+            [loading]="ocupado() === 'confirmando'" (pressed)="confirmar()"></geo-button>
         </div>
       </footer>
     } @else {
@@ -100,8 +100,8 @@
                     <i class="pi pi-check-circle desfecho__ok" aria-hidden="true"></i>
                     <span class="desfecho__nome">{{ registro.rotulo || registro.titulo }}</span>
                     @if (registro.link; as link) {
-                      <ces-button variant="link" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" [label]="link.rotulo"
-                        [ariaLabel]="link.rotulo + ': ' + (registro.rotulo || registro.titulo)" (pressed)="abrir(link)"></ces-button>
+                      <geo-button variant="link" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" [label]="link.rotulo"
+                        [ariaLabel]="link.rotulo + ': ' + (registro.rotulo || registro.titulo)" (pressed)="abrir(link)"></geo-button>
                     }
                   </li>
                 }
@@ -126,9 +126,9 @@
                   <div class="senhas__linha">
                     <span class="senhas__dono">{{ senha.registro }}</span>
                     <code class="senhas__valor">{{ senhaVisivel()[i] ? senha.valor : '••••••••••' }}</code>
-                    <ces-icon-button [icon]="senhaVisivel()[i] ? 'pi pi-eye-slash' : 'pi pi-eye'" size="icon-sm"
-                      [label]="senhaVisivel()[i] ? 'Ocultar senha' : 'Mostrar senha'" (pressed)="alternarSenha(i)"></ces-icon-button>
-                    <ces-icon-button icon="pi pi-copy" size="icon-sm" label="Copiar senha" (pressed)="copiarSenha(senha.valor)"></ces-icon-button>
+                    <geo-icon-button [icon]="senhaVisivel()[i] ? 'pi pi-eye-slash' : 'pi pi-eye'" size="icon-sm"
+                      [label]="senhaVisivel()[i] ? 'Ocultar senha' : 'Mostrar senha'" (pressed)="alternarSenha(i)"></geo-icon-button>
+                    <geo-icon-button icon="pi pi-copy" size="icon-sm" label="Copiar senha" (pressed)="copiarSenha(senha.valor)"></geo-icon-button>
                   </div>
                 }
               </div>

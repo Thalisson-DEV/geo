@@ -1,1 +1,1 @@
-export * from './ces-list-shortcuts.directive';
+export * from './geo-list-shortcuts.directive';

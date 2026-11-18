@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CesButtonComponent, CesPageHeaderComponent, CesTabItem, CesTabPanelDirective, CesTabsComponent, cesUrlParam } from '@ces/ui';
+import { GeoButtonComponent, GeoPageHeaderComponent, GeoTabItem, GeoTabPanelDirective, GeoTabsComponent, geoUrlParam } from '@geo/ui';
 import { FrotaAbastecimentoService } from '../../../core/services/frota-abastecimento.service';
 import {
   CopilotoAreaComponent,
@@ -28,11 +28,11 @@ type Aba = (typeof ABAS)[number];
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesPageHeaderComponent,
+    GeoButtonComponent,
+    GeoPageHeaderComponent,
     FrotaAbastecimentoAvulsoDrawerComponent,
-    CesTabPanelDirective,
-    CesTabsComponent,
+    GeoTabPanelDirective,
+    GeoTabsComponent,
     FrotaAbastecimentoDetalheDrawerComponent,
     FrotaAbastecimentosListaComponent,
     FrotaFaturasPostoComponent,
@@ -41,20 +41,20 @@ type Aba = (typeof ABAS)[number];
   ],
   template: `
     <app-copiloto-area [contexto]="contextoAssistente()">
-      <div class="ces-page">
-        <ces-page-header title="Abastecimentos" icon="pi pi-gauge" [breadcrumb]="[{ label: 'Frota' }, { label: 'Abastecimentos' }]"
+      <div class="geo-page">
+        <geo-page-header title="Abastecimentos" icon="pi pi-gauge" [breadcrumb]="[{ label: 'Frota' }, { label: 'Abastecimentos' }]"
           description="Pedidos feitos pelo app: o gestor da placa aprova com a quantidade, o administrativo libera e avisa o posto, a equipe registra o abastecimento.">
           @if (acesso.aprovarAbastecimento()) {
-            <ces-button actions variant="outline" icon="pi pi-bolt" label="Lançar avulso" (pressed)="avulsoAberto.set(true)"></ces-button>
+            <geo-button actions variant="outline" icon="pi pi-bolt" label="Lançar avulso" (pressed)="avulsoAberto.set(true)"></geo-button>
           }
           @if (assistenteDisponivel) {
             <app-copiloto-gatilho actions></app-copiloto-gatilho>
           }
-        </ces-page-header>
+        </geo-page-header>
 
-        <ces-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções do abastecimento">
+        <geo-tabs [tabs]="abas()" [(value)]="aba" ariaLabel="Seções do abastecimento">
           @for (a of abasVisiveis(); track a) {
-            <ng-template [cesTabPanel]="a">
+            <ng-template [geoTabPanel]="a">
               @if (a === 'faturas') {
                 <app-frota-faturas-posto [filtros]="filtros" [assistente]="assistenteDisponivel" (analisar)="analisarFatura($event)"></app-frota-faturas-posto>
               } @else {
@@ -62,7 +62,7 @@ type Aba = (typeof ABAS)[number];
               }
             </ng-template>
           }
-        </ces-tabs>
+        </geo-tabs>
       </div>
     </app-copiloto-area>
 
@@ -93,9 +93,9 @@ export class FrotaAbastecimentosComponent {
     'todos',
     ...(this.acesso.liberarAbastecimento() ? (['faturas'] as Aba[]) : [])
   ]);
-  protected readonly aba = cesUrlParam<Aba>({ values: ABAS, default: this.abaPadrao() });
-  protected readonly abas = computed<CesTabItem[]>(() => {
-    const todas: Record<Aba, CesTabItem> = {
+  protected readonly aba = geoUrlParam<Aba>({ values: ABAS, default: this.abaPadrao() });
+  protected readonly abas = computed<GeoTabItem[]>(() => {
+    const todas: Record<Aba, GeoTabItem> = {
       aprovar: { value: 'aprovar', label: 'Para aprovar', icon: 'pi pi-check-square', badge: this.paraAprovar() || undefined },
       liberar: { value: 'liberar', label: 'Para liberar', icon: 'pi pi-send', badge: this.paraLiberar() || undefined },
       liberados: { value: 'liberados', label: 'Liberados', icon: 'pi pi-whatsapp', badge: this.liberados() || undefined },

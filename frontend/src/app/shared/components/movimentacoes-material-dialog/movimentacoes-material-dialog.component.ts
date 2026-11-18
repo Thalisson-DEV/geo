@@ -4,26 +4,26 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Subject, catchError, debounceTime, map, merge, of, skip, switchMap } from 'rxjs';
 import {
-  CesButtonComponent,
-  CesContentState,
-  CesDatepickerComponent,
-  CesIconButtonComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTone
-} from '@ces/ui';
+  GeoButtonComponent,
+  GeoContentState,
+  GeoDatepickerComponent,
+  GeoIconButtonComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTone
+} from '@geo/ui';
 import {
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesCellDirective,
-  CesLazyLoadEvent,
-  CesRowActionsDirective,
-  CesRowDetailDirective,
-  CesSortRule
-} from '@ces/ui/data';
-import { CesDrawerComponent } from '@ces/ui/overlays';
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoCellDirective,
+  GeoLazyLoadEvent,
+  GeoRowActionsDirective,
+  GeoRowDetailDirective,
+  GeoSortRule
+} from '@geo/ui/data';
+import { GeoDrawerComponent } from '@geo/ui/overlays';
 
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import {
@@ -39,7 +39,7 @@ import { MovimentacaoMaterialItensComponent } from './movimentacao-material-iten
 /** Sentido da operação para o estoque consultado. */
 interface Sentido {
   rotulo: string;
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   contraparte: string;
 }
@@ -56,17 +56,17 @@ const TAMANHO_PADRAO = 25;
   standalone: true,
   imports: [
     CommonModule,
-    CesDrawerComponent,
-    CesDataTableComponent,
-    CesCellDirective,
-    CesRowDetailDirective,
-    CesRowActionsDirective,
-    CesStatusComponent,
-    CesButtonComponent,
-    CesIconButtonComponent,
-    CesSelectComponent,
-    CesDatepickerComponent,
-    CesTextInputComponent,
+    GeoDrawerComponent,
+    GeoDataTableComponent,
+    GeoCellDirective,
+    GeoRowDetailDirective,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoSelectComponent,
+    GeoDatepickerComponent,
+    GeoTextInputComponent,
     MovimentacaoMaterialItensComponent
   ],
   styles: [
@@ -76,9 +76,9 @@ const TAMANHO_PADRAO = 25;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.75rem;
         padding: 0.75rem;
-        border: 1px solid var(--ces-border);
+        border: 1px solid var(--geo-border);
         border-radius: 0.75rem;
-        background: var(--ces-surface-subtle);
+        background: var(--geo-surface-subtle);
       }
 
       @media (min-width: 40rem) {
@@ -94,12 +94,12 @@ const TAMANHO_PADRAO = 25;
         justify-content: space-between;
         gap: 0.5rem;
         font-size: 0.75rem;
-        color: var(--ces-foreground-muted);
+        color: var(--geo-foreground-muted);
       }
     `
   ],
   template: `
-    <ces-drawer
+    <geo-drawer
       [(visible)]="visible"
       eyebrow="Histórico do material"
       [title]="materialNome() || 'Material'"
@@ -110,27 +110,27 @@ const TAMANHO_PADRAO = 25;
       @if (visible()) {
         <div class="flex flex-col gap-4">
           <div class="filtros" role="group" aria-label="Filtros do histórico">
-            <ces-select label="Tipo" [options]="tipos" [(value)]="tipo" placeholder="Todos os tipos" [clearable]="true" />
-            <ces-text-input label="Nº de série" placeholder="Buscar série..." [(value)]="numSerie" />
-            <ces-datepicker label="De" [(value)]="dataInicio" [maxDate]="dataFim()" [clearable]="true" />
-            <ces-datepicker label="Até" [(value)]="dataFim" [minDate]="dataInicio()" [clearable]="true" />
+            <geo-select label="Tipo" [options]="tipos" [(value)]="tipo" placeholder="Todos os tipos" [clearable]="true" />
+            <geo-text-input label="Nº de série" placeholder="Buscar série..." [(value)]="numSerie" />
+            <geo-datepicker label="De" [(value)]="dataInicio" [maxDate]="dataFim()" [clearable]="true" />
+            <geo-datepicker label="Até" [(value)]="dataFim" [minDate]="dataInicio()" [clearable]="true" />
           </div>
 
           <div class="resumo" aria-live="polite">
             <span>
               @if (estado() === 'ready') {
-                <strong class="text-[var(--ces-foreground)]">{{ total() }}</strong> {{ total() === 1 ? 'operação' : 'operações' }}
+                <strong class="text-[var(--geo-foreground)]">{{ total() }}</strong> {{ total() === 1 ? 'operação' : 'operações' }}
                 {{ filtrado() ? 'no recorte' : 'no histórico' }}
               } @else {
                 Consultando o histórico...
               }
             </span>
             @if (filtrado()) {
-              <ces-button label="Limpar filtros" icon="pi pi-filter-slash" size="sm" variant="ghost" (pressed)="limparFiltros()" />
+              <geo-button label="Limpar filtros" icon="pi pi-filter-slash" size="sm" variant="ghost" (pressed)="limparFiltros()" />
             }
           </div>
 
-          <ces-data-table
+          <geo-data-table
             mode="server"
             caption="Movimentações do material"
             [searchable]="false"
@@ -151,38 +151,38 @@ const TAMANHO_PADRAO = 25;
             (lazyLoad)="carregar($event)"
             (clearFilters)="limparFiltros()"
           >
-            <ng-template cesCell="dataHora" let-op>
+            <ng-template geoCell="dataHora" let-op>
               <span class="flex flex-col leading-tight">
                 <span class="font-semibold tabular-nums">{{ op.dataHora | date: 'dd/MM/yyyy' }}</span>
-                <span class="text-[11px] text-[var(--ces-foreground-muted)] tabular-nums">{{ op.dataHora | date: 'HH:mm' }}</span>
+                <span class="text-[11px] text-[var(--geo-foreground-muted)] tabular-nums">{{ op.dataHora | date: 'HH:mm' }}</span>
               </span>
             </ng-template>
-            <ng-template cesCell="tipo" let-op>
-              <ces-status [tone]="tomTipo(op.tipo)" [icon]="iconeTipo(op.tipo)">{{ rotuloTipo(op.tipo) }}</ces-status>
+            <ng-template geoCell="tipo" let-op>
+              <geo-status [tone]="tomTipo(op.tipo)" [icon]="iconeTipo(op.tipo)">{{ rotuloTipo(op.tipo) }}</geo-status>
             </ng-template>
-            <ng-template cesCell="sentido" let-op>
+            <ng-template geoCell="sentido" let-op>
               @let s = sentido(op);
               <span class="flex flex-col gap-0.5 min-w-0">
-                <ces-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</ces-status>
-                <span class="text-[11px] text-[var(--ces-foreground-muted)] truncate" [title]="s.contraparte">{{ s.contraparte }}</span>
+                <geo-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</geo-status>
+                <span class="text-[11px] text-[var(--geo-foreground-muted)] truncate" [title]="s.contraparte">{{ s.contraparte }}</span>
               </span>
             </ng-template>
-            <ng-template cesRowActions let-op>
-              <ces-icon-button
+            <ng-template geoRowActions let-op>
+              <geo-icon-button
                 icon="pi pi-external-link"
                 [label]="'Abrir comprovante da operação #' + op.idReferenciaOperacao.slice(0, 8)"
                 size="icon-sm"
                 (pressed)="abrirComprovante(op)"
-              ></ces-icon-button>
+              ></geo-icon-button>
             </ng-template>
-            <ng-template cesRowDetail let-op>
+            <ng-template geoRowDetail let-op>
               <app-movimentacao-material-itens [idReferenciaOperacao]="op.idReferenciaOperacao" [idMaterial]="materialId()!" />
             </ng-template>
-          </ces-data-table>
+          </geo-data-table>
         </div>
       }
-      <ces-button drawer-footer label="Fechar" variant="secondary" (pressed)="visible.set(false)" />
-    </ces-drawer>
+      <geo-button drawer-footer label="Fechar" variant="secondary" (pressed)="visible.set(false)" />
+    </geo-drawer>
   `
 })
 export class MovimentacoesMaterialDialogComponent {
@@ -201,13 +201,13 @@ export class MovimentacoesMaterialDialogComponent {
 
   protected readonly operacoes = signal<MovimentacaoOperacaoSummaryResponse[]>([]);
   protected readonly total = signal(0);
-  protected readonly estado = signal<CesContentState>('loading');
+  protected readonly estado = signal<GeoContentState>('loading');
   protected readonly erro = signal<string | null>(null);
   protected readonly pagina = signal(0);
   protected readonly tamanho = signal(TAMANHO_PADRAO);
-  protected readonly ordenacao = signal<CesSortRule[]>([]);
+  protected readonly ordenacao = signal<GeoSortRule[]>([]);
 
-  protected readonly tipos: CesSelectOption<TipoMovimentacao | null>[] = (Object.keys(TIPOS_MOVIMENTACAO) as TipoMovimentacao[]).map(
+  protected readonly tipos: GeoSelectOption<TipoMovimentacao | null>[] = (Object.keys(TIPOS_MOVIMENTACAO) as TipoMovimentacao[]).map(
     (valor) => ({ label: TIPOS_MOVIMENTACAO[valor].rotulo, value: valor })
   );
 
@@ -218,7 +218,7 @@ export class MovimentacoesMaterialDialogComponent {
   protected readonly rotuloLinha = (op: MovimentacaoOperacaoSummaryResponse) =>
     `${rotuloTipoMovimentacao(op.tipo)} de ${new Date(op.dataHora).toLocaleDateString('pt-BR')}`;
 
-  protected readonly colunas: CesDataTableColumn<MovimentacaoOperacaoSummaryResponse>[] = [
+  protected readonly colunas: GeoDataTableColumn<MovimentacaoOperacaoSummaryResponse>[] = [
     { key: 'dataHora', header: 'Data', type: 'custom', priority: 1, width: '7rem', value: (op) => op.dataHora, sortField: 'dataHora' },
     { key: 'tipo', header: 'Tipo', type: 'custom', priority: 1, value: (op) => rotuloTipoMovimentacao(op.tipo), sortField: 'tipo' },
     { key: 'sentido', header: 'Sentido', type: 'custom', priority: 1, value: (op) => this.sentido(op).rotulo, sortable: false },
@@ -229,8 +229,8 @@ export class MovimentacoesMaterialDialogComponent {
     () => !!this.tipo() || !!this.numSerie().trim() || !!this.dataInicio() || !!this.dataFim()
   );
 
-  private readonly cargas = new Subject<CesLazyLoadEvent>();
-  private ultimaCarga: CesLazyLoadEvent | null = null;
+  private readonly cargas = new Subject<GeoLazyLoadEvent>();
+  private ultimaCarga: GeoLazyLoadEvent | null = null;
 
   constructor() {
     this.cargas
@@ -291,7 +291,7 @@ export class MovimentacoesMaterialDialogComponent {
     this.operacoes.set([]);
   }
 
-  protected carregar(evento: CesLazyLoadEvent): void {
+  protected carregar(evento: GeoLazyLoadEvent): void {
     if (!this.estoqueId() || !this.materialId()) return;
     this.ultimaCarga = evento;
     if (!this.operacoes().length) this.estado.set('loading');
@@ -312,7 +312,7 @@ export class MovimentacoesMaterialDialogComponent {
     this.carregar({ ...base, page: 0 });
   }
 
-  private parametros(evento: CesLazyLoadEvent): MovimentacaoEstoqueFilter & Record<string, unknown> {
+  private parametros(evento: GeoLazyLoadEvent): MovimentacaoEstoqueFilter & Record<string, unknown> {
     const regra = evento.sort[0];
     const inicio = this.dataInicio();
     const fim = this.dataFim();

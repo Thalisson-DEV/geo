@@ -1,23 +1,23 @@
 import { DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, input, model, output, signal } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDatepickerComponent,
-  CesIconButtonComponent,
-  CesImportDrawerComponent,
-  CesNumberInputComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoBooleanControlComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDatepickerComponent,
+  GeoIconButtonComponent,
+  GeoImportDrawerComponent,
+  GeoNumberInputComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 
 import { EstoqueResponse, MaterialResponse } from '../../../../core/models/almoxarifado.models';
 import { AgenteResponsavelResponse, ObraResumoResponse } from '../../../../core/models/obras.models';
@@ -37,7 +37,7 @@ import { parseImportDate } from '../import-date.util';
 import { contarSolicitacoesTecnicasPrevistas } from '../solicitacao-tecnica-importacao-contagem.util';
 import { normalizarTipoTecnico } from '../solicitacao-tecnica-tipo.util';
 
-const TIPOS_MOVIMENTACAO: CesSelectOption<CodigoTipoTecnico>[] = [
+const TIPOS_MOVIMENTACAO: GeoSelectOption<CodigoTipoTecnico>[] = [
   { label: '221 — Saída direta / obra', value: '221' },
   { label: '921 — Saída indireta / concreto', value: '921' },
   { label: '222 — Devolução / obra', value: '222' },
@@ -45,7 +45,7 @@ const TIPOS_MOVIMENTACAO: CesSelectOption<CodigoTipoTecnico>[] = [
 ];
 
 /**
- * Importação de solicitações técnicas por planilha (`ces-import-drawer`): o backend valida e
+ * Importação de solicitações técnicas por planilha (`geo-import-drawer`): o backend valida e
  * agrupa por obra + tipo; as linhas podem ser corrigidas aqui e são revalidadas no servidor
  * (o CSV corrigido é reenviado) antes de processar as combinações.
  */
@@ -56,138 +56,138 @@ const TIPOS_MOVIMENTACAO: CesSelectOption<CodigoTipoTecnico>[] = [
   imports: [
     DecimalPipe,
     NgTemplateOutlet,
-    CesBooleanControlComponent,
-    CesCalloutComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesDatepickerComponent,
-    CesIconButtonComponent,
-    CesImportDrawerComponent,
-    CesNumberInputComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoBooleanControlComponent,
+    GeoCalloutComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoDatepickerComponent,
+    GeoIconButtonComponent,
+    GeoImportDrawerComponent,
+    GeoNumberInputComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   template: `
-    <ces-import-drawer [(visible)]="visible" title="Importar solicitações técnicas"
+    <geo-import-drawer [(visible)]="visible" title="Importar solicitações técnicas"
       description="Planilha CSV com obra, ocorrência, almoxarifado, equipe, data prevista, tipo (221/222/921/922), material, quantidade e reserva."
       [rows]="registrosImport()" [uploading]="enviando()" [processing]="processando() || sincronizando()"
       (templateRequested)="downloadTemplate()" (fileSelected)="onFileSelected($event)"
       (processed)="onProcessImport()" (cleared)="onClearImport()">
       @if (previewData() && registrosImport().length) {
-        <p class="ces-cell-muted">
+        <p class="geo-cell-muted">
           {{ contagemTecnica().totalValidos }} de {{ contagemTecnica().totalItens }} itens válidos formarão
           {{ contagemTecnica().totalSolicitacoes }} {{ contagemTecnica().totalSolicitacoes === 1 ? 'solicitação técnica' : 'solicitações técnicas' }}
           ({{ contagemTecnica().totalGrupos }} {{ contagemTecnica().totalGrupos === 1 ? 'grupo' : 'grupos' }} de movimentação).
           Confira obra, almoxarifado, equipe e data antes de processar.
         </p>
-        <ces-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunas"
+        <geo-data-table caption="Pré-visualização da importação" [searchable]="false" [columns]="colunas"
           [rows]="registrosExibidosImport()" [rowKey]="chaveLinha" [pageSizeOptions]="[25, 50, 100]">
-          <div table-filters class="ces-quick-filters">
+          <div table-filters class="geo-quick-filters">
           @if (contagemTecnica().totalComErro > 0) {
-            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="filtroApenasErros()" (click)="filtroApenasErros.set(!filtroApenasErros())">
+            <button type="button" class="geo-quick-filter" [attr.aria-pressed]="filtroApenasErros()" (click)="filtroApenasErros.set(!filtroApenasErros())">
               <i class="pi pi-filter" aria-hidden="true"></i> Só as {{ contagemTecnica().totalComErro }} com erro
             </button>
           }
           </div>
-          <ng-template cesCell="obra" let-row>
+          <ng-template geoCell="obra" let-row>
             @if (row.editing) {
-              <ces-select label="Obra" [labelVisible]="false" [options]="opcoesObras()" [value]="row.numeroObra || null" (valueChange)="onObraChange(row, $event)" [filter]="true" [clearable]="true"></ces-select>
-              <ces-text-input label="Ocorrência" placeholder="Ocorrência (OC/OS)" [labelVisible]="false" [(value)]="row.ocorrencia"></ces-text-input>
+              <geo-select label="Obra" [labelVisible]="false" [options]="opcoesObras()" [value]="row.numeroObra || null" (valueChange)="onObraChange(row, $event)" [filter]="true" [clearable]="true"></geo-select>
+              <geo-text-input label="Ocorrência" placeholder="Ocorrência (OC/OS)" [labelVisible]="false" [(value)]="row.ocorrencia"></geo-text-input>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.numeroObra, erro: temErroNoCampo(row, 'numeroObra') }"></ng-container>
-              @if (row.ocorrencia) { <span class="ces-cell-muted">OC/OS {{ row.ocorrencia }}</span> }
+              @if (row.ocorrencia) { <span class="geo-cell-muted">OC/OS {{ row.ocorrencia }}</span> }
             }
           </ng-template>
-          <ng-template cesCell="almoxarifado" let-row>
+          <ng-template geoCell="almoxarifado" let-row>
             @if (row.editing) {
-              <ces-select label="Almoxarifado" [labelVisible]="false" [options]="opcoesAlmoxarifados()" [value]="row.almoxarifado || null" (valueChange)="onAlmoxarifadoChange(row, $event)" [filter]="true" [clearable]="true"></ces-select>
+              <geo-select label="Almoxarifado" [labelVisible]="false" [options]="opcoesAlmoxarifados()" [value]="row.almoxarifado || null" (valueChange)="onAlmoxarifadoChange(row, $event)" [filter]="true" [clearable]="true"></geo-select>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.almoxarifado, erro: temErroNoCampo(row, 'almoxarifado') }"></ng-container>
             }
           </ng-template>
-          <ng-template cesCell="equipe" let-row>
+          <ng-template geoCell="equipe" let-row>
             @if (row.editing) {
-              <ces-select label="Equipe" [labelVisible]="false" [options]="opcoesEquipes()" [value]="row.codigoEquipe || null" (valueChange)="onEquipeChange(row, $event)" [filter]="true" [clearable]="true"></ces-select>
+              <geo-select label="Equipe" [labelVisible]="false" [options]="opcoesEquipes()" [value]="row.codigoEquipe || null" (valueChange)="onEquipeChange(row, $event)" [filter]="true" [clearable]="true"></geo-select>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.codigoEquipe, erro: temErroNoCampo(row, 'codigoEquipe') }"></ng-container>
             }
           </ng-template>
-          <ng-template cesCell="dataPrevista" let-row>
+          <ng-template geoCell="dataPrevista" let-row>
             @if (row.editing) {
-              <ces-datepicker label="Data prevista" [labelVisible]="false" [value]="parseImportDate(row.dataPrevista)"
-                (valueChange)="row.dataPrevista = toLocalDate($event) ?? ''; recalcularParesETotaisImport()"></ces-datepicker>
+              <geo-datepicker label="Data prevista" [labelVisible]="false" [value]="parseImportDate(row.dataPrevista)"
+                (valueChange)="row.dataPrevista = toLocalDate($event) ?? ''; recalcularParesETotaisImport()"></geo-datepicker>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.dataPrevista, erro: temErroNoCampo(row, 'dataPrevista') }"></ng-container>
             }
           </ng-template>
-          <ng-template cesCell="tipo" let-row>
+          <ng-template geoCell="tipo" let-row>
             @if (row.editing) {
-              <ces-select label="Tipo de movimentação" [labelVisible]="false" [options]="tiposMovimentacao" [(value)]="row.tipoMovimentacao" (valueChange)="recalcularParesETotaisImport()"></ces-select>
+              <geo-select label="Tipo de movimentação" [labelVisible]="false" [options]="tiposMovimentacao" [(value)]="row.tipoMovimentacao" (valueChange)="recalcularParesETotaisImport()"></geo-select>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: formatCodigoTipoTecnico(row.tipoMovimentacao), erro: temErroNoCampo(row, 'tipoMovimentacao') }"></ng-container>
             }
           </ng-template>
-          <ng-template cesCell="material" let-row>
+          <ng-template geoCell="material" let-row>
             @if (row.editing) {
-              <ces-select label="Material" [labelVisible]="false" [options]="opcoesMateriais()" [value]="row.codigoMaterial || null" (valueChange)="onMaterialChange(row, $event)" [filter]="true" [clearable]="true"></ces-select>
+              <geo-select label="Material" [labelVisible]="false" [options]="opcoesMateriais()" [value]="row.codigoMaterial || null" (valueChange)="onMaterialChange(row, $event)" [filter]="true" [clearable]="true"></geo-select>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.codigoMaterial, erro: temErroNoCampo(row, 'codigoMaterial') }"></ng-container>
-              @if (row.nomeMaterial) { <span class="ces-cell-muted" [title]="row.nomeMaterial">{{ row.nomeMaterial }}</span> }
+              @if (row.nomeMaterial) { <span class="geo-cell-muted" [title]="row.nomeMaterial">{{ row.nomeMaterial }}</span> }
             }
           </ng-template>
-          <ng-template cesCell="quantidade" let-row>
+          <ng-template geoCell="quantidade" let-row>
             @if (row.editing) {
-              <ces-number-input label="Quantidade" [labelVisible]="false" mode="decimal" [min]="0.001" [maxFractionDigits]="3" [(value)]="row.quantidade"></ces-number-input>
+              <geo-number-input label="Quantidade" [labelVisible]="false" mode="decimal" [min]="0.001" [maxFractionDigits]="3" [(value)]="row.quantidade"></geo-number-input>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.quantidade != null ? (row.quantidade | number: '1.3-3') : '', erro: temErroNoCampo(row, 'quantidade') }"></ng-container>
             }
           </ng-template>
-          <ng-template cesCell="reserva" let-row>
+          <ng-template geoCell="reserva" let-row>
             @if (row.editing) {
-              <ces-text-input label="Número da reserva" placeholder="Nº da reserva" [labelVisible]="false" [(value)]="row.numeroReserva"></ces-text-input>
+              <geo-text-input label="Número da reserva" placeholder="Nº da reserva" [labelVisible]="false" [(value)]="row.numeroReserva"></geo-text-input>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.numeroReserva, erro: temErroNoCampo(row, 'numeroReserva') }"></ng-container>
             }
           </ng-template>
-          <ng-template cesCell="situacao" let-row>
+          <ng-template geoCell="situacao" let-row>
             @if (row.status === 'COM_ERRO') {
-              <ces-status tone="danger" icon="pi-times-circle">Erro em {{ obterNomeCampoAmigavel(row.campoErro, row.mensagemErro) }}</ces-status>
-              <span class="ces-cell-muted" [title]="row.mensagemErro || ''">{{ row.mensagemErro }}</span>
+              <geo-status tone="danger" icon="pi-times-circle">Erro em {{ obterNomeCampoAmigavel(row.campoErro, row.mensagemErro) }}</geo-status>
+              <span class="geo-cell-muted" [title]="row.mensagemErro || ''">{{ row.mensagemErro }}</span>
             } @else if (row.status === 'CONCLUIDO') {
-              <ces-status tone="success" icon="pi-check">Processado</ces-status>
+              <geo-status tone="success" icon="pi-check">Processado</geo-status>
             } @else if (row.mensagemErro) {
-              <ces-status tone="warning" icon="pi-info-circle">Aviso</ces-status>
-              <span class="ces-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span>
+              <geo-status tone="warning" icon="pi-info-circle">Aviso</geo-status>
+              <span class="geo-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span>
             } @else {
-              <ces-status tone="info" icon="pi-check-circle">Pronta</ces-status>
-              @if (row.observacao) { <span class="ces-cell-muted" [title]="row.observacao">{{ row.observacao }}</span> }
+              <geo-status tone="info" icon="pi-check-circle">Pronta</geo-status>
+              @if (row.observacao) { <span class="geo-cell-muted" [title]="row.observacao">{{ row.observacao }}</span> }
             }
           </ng-template>
-          <ng-template cesRowActions let-row>
-            <span class="ces-table-actions">
+          <ng-template geoRowActions let-row>
+            <span class="geo-table-actions">
               @if (row.editing) {
-                <ces-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="finishImportEdit(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-check" [label]="'Concluir correção da linha ' + row.linha" size="icon-sm" (pressed)="finishImportEdit(row)"></geo-icon-button>
               } @else {
-                <ces-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="startImportEdit(row)"></ces-icon-button>
-                <ces-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="removeImportRecord(row)"></ces-icon-button>
+                <geo-icon-button icon="pi pi-pencil" [label]="'Corrigir linha ' + row.linha" size="icon-sm" (pressed)="startImportEdit(row)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-trash" [label]="'Remover linha ' + row.linha" size="icon-sm" (pressed)="removeImportRecord(row)"></geo-icon-button>
               }
             </span>
           </ng-template>
-        </ces-data-table>
+        </geo-data-table>
 
         @if (hasSelectedWarnings()) {
-          <ces-callout tone="warning" title="A planilha tem avisos">
-            <ces-boolean-control label="Reconheço os avisos das combinações selecionadas para prosseguir com a criação." [(value)]="reconhecerAvisos"></ces-boolean-control>
-          </ces-callout>
+          <geo-callout tone="warning" title="A planilha tem avisos">
+            <geo-boolean-control label="Reconheço os avisos das combinações selecionadas para prosseguir com a criação." [(value)]="reconhecerAvisos"></geo-boolean-control>
+          </geo-callout>
         }
       }
-    </ces-import-drawer>
+    </geo-import-drawer>
 
     <ng-template #valor let-texto let-erro="erro">
       @if (erro) {
-        <ces-status tone="danger" emphasis="outline" icon="pi-exclamation-circle">{{ texto || 'vazio' }}</ces-status>
+        <geo-status tone="danger" emphasis="outline" icon="pi-exclamation-circle">{{ texto || 'vazio' }}</geo-status>
       } @else {
         <span>{{ texto || '—' }}</span>
       }
@@ -199,7 +199,7 @@ export class SolicitacoesTecnicasImportacaoComponent {
   protected readonly toLocalDate = toLocalDate;
   private readonly service = inject(SolicitacaoMaterialTecnicaService);
   private readonly notifications = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   readonly visible = model(false);
   readonly obras = input<ObraResumoResponse[]>([]);
@@ -222,13 +222,13 @@ export class SolicitacoesTecnicasImportacaoComponent {
   protected readonly tiposMovimentacao = TIPOS_MOVIMENTACAO;
   protected readonly chaveLinha = (r: SolicitacaoTecnicaImportRow, i: number) => String(r.linha ?? i);
 
-  protected readonly opcoesObras = computed<CesSelectOption<string>[]>(() => this.obras().map((o) => ({ label: `${o.numero} — ${o.titulo}`, value: o.numero })));
-  protected readonly opcoesAlmoxarifados = computed<CesSelectOption<string>[]>(() => this.almoxarifados().map((e) => ({ label: e.nomeIdentificador, value: e.nomeIdentificador })));
-  protected readonly opcoesEquipes = computed<CesSelectOption<string>[]>(() => this.equipes().map((e) => ({ label: e.codigo, value: e.codigo })));
-  protected readonly opcoesMateriais = computed<CesSelectOption<string>[]>(() => this.materiaisList().map((m) => ({ label: `${m.codigo} - ${m.descricao}`, value: m.codigo })));
-  protected readonly opcoesAgentes = computed<CesSelectOption<string>[]>(() => this.agentesList().map((a) => ({ label: a.nome, value: a.nome })));
+  protected readonly opcoesObras = computed<GeoSelectOption<string>[]>(() => this.obras().map((o) => ({ label: `${o.numero} — ${o.titulo}`, value: o.numero })));
+  protected readonly opcoesAlmoxarifados = computed<GeoSelectOption<string>[]>(() => this.almoxarifados().map((e) => ({ label: e.nomeIdentificador, value: e.nomeIdentificador })));
+  protected readonly opcoesEquipes = computed<GeoSelectOption<string>[]>(() => this.equipes().map((e) => ({ label: e.codigo, value: e.codigo })));
+  protected readonly opcoesMateriais = computed<GeoSelectOption<string>[]>(() => this.materiaisList().map((m) => ({ label: `${m.codigo} - ${m.descricao}`, value: m.codigo })));
+  protected readonly opcoesAgentes = computed<GeoSelectOption<string>[]>(() => this.agentesList().map((a) => ({ label: a.nome, value: a.nome })));
 
-  protected readonly colunas: CesDataTableColumn<SolicitacaoTecnicaImportRow>[] = [
+  protected readonly colunas: GeoDataTableColumn<SolicitacaoTecnicaImportRow>[] = [
     { key: 'linha', header: 'Linha', type: 'integer', width: '4.5rem' },
     { key: 'obra', header: 'Obra', type: 'custom', priority: 1, value: (r) => r.numeroObra },
     { key: 'almoxarifado', header: 'Almoxarifado', type: 'custom', value: (r) => r.almoxarifado },

@@ -1,18 +1,18 @@
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFormDrawerComponent,
-  CesIconButtonComponent,
-  CesRowActionsDirective,
-  CesStatusComponent,
-  CesTextInputComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFormDrawerComponent,
+  GeoIconButtonComponent,
+  GeoRowActionsDirective,
+  GeoStatusComponent,
+  GeoTextInputComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { TipoDespesa } from '../../../core/models/frota-despesa.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaDespesaService } from '../../../core/services/frota-despesa.service';
@@ -33,25 +33,25 @@ interface SubtipoEditavel {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFormDrawerComponent,
-    CesIconButtonComponent,
-    CesRowActionsDirective,
-    CesStatusComponent,
-    CesTextInputComponent
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFormDrawerComponent,
+    GeoIconButtonComponent,
+    GeoRowActionsDirective,
+    GeoStatusComponent,
+    GeoTextInputComponent
   ],
   styles: `
     .subtipos { display: grid; gap: 0.5rem; }
     .subtipos__linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; align-items: start; }
-    .subtipos__linha ces-icon-button { margin-top: 0.25rem; }
+    .subtipos__linha geo-icon-button { margin-top: 0.25rem; }
     .subtipos__cabecalho { display: grid; gap: 0.125rem; }
-    .subtipos__titulo { font-size: var(--ces-font-label, 0.875rem); font-weight: 600; color: var(--ces-foreground); }
-    .subtipos__ajuda { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .subtipos__titulo { font-size: var(--geo-font-label, 0.875rem); font-weight: 600; color: var(--geo-foreground); }
+    .subtipos__ajuda { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,
   template: `
-    <ces-data-table title="Tipos de despesa"
+    <geo-data-table title="Tipos de despesa"
       description="Os tipos e subtipos que aparecem ao lançar uma despesa do veículo e na planilha de importação. Desativar não apaga as despesas já lançadas."
       storageKey="frota-tipos-despesa" exportFileName="tipos-despesa" searchPlaceholder="Filtrar nesta lista"
       [columns]="colunas" [rows]="tipos()" [rowKey]="chave" [state]="estado()"
@@ -60,36 +60,36 @@ interface SubtipoEditavel {
       [rowClickable]="acesso.editarDespesa()" (rowActivate)="abrir($event)">
       <ng-container table-actions>
         @if (acesso.editarDespesa()) {
-          <ces-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrir(null)"></ces-button>
+          <geo-button size="sm" icon="pi pi-plus" label="Novo tipo" (pressed)="abrir(null)"></geo-button>
         }
       </ng-container>
-      <ng-template cesCell="nome" let-row><span class="ces-cell-strong">{{ row.nome }}</span></ng-template>
-      <ng-template cesCell="subtipos" let-row>
+      <ng-template geoCell="nome" let-row><span class="geo-cell-strong">{{ row.nome }}</span></ng-template>
+      <ng-template geoCell="subtipos" let-row>
         @if (row.subtipos.length) {
           {{ nomesSubtipos(row) }}
         } @else {
-          <span class="ces-cell-muted">Sem subtipos</span>
+          <span class="geo-cell-muted">Sem subtipos</span>
         }
       </ng-template>
-      <ng-template cesCell="ativo" let-row>
-        <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+      <ng-template geoCell="ativo" let-row>
+        <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
       </ng-template>
-      <ng-template cesRowActions let-row>
+      <ng-template geoRowActions let-row>
         @if (acesso.editarDespesa()) {
-          <span class="ces-table-actions">
-            <ces-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar tipo" size="icon-sm" (pressed)="abrir(row)"></ces-icon-button>
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
-              [tooltip]="row.ativo ? 'Desativar tipo' : 'Reativar tipo'" size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+          <span class="geo-table-actions">
+            <geo-icon-button icon="pi pi-pencil" [label]="'Editar ' + row.nome" tooltip="Editar tipo" size="icon-sm" (pressed)="abrir(row)"></geo-icon-button>
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Reativar ') + row.nome"
+              [tooltip]="row.ativo ? 'Desativar tipo' : 'Reativar tipo'" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
           </span>
         }
       </ng-template>
-    </ces-data-table>
+    </geo-data-table>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de despesa' : 'Novo tipo de despesa'"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de despesa' : 'Novo tipo de despesa'"
       [description]="emEdicao()?.nome" [dirty]="alterado()" [loading]="salvando()" size="sm">
-      <div class="ces-form-stack">
-        <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80"
-          placeholder="Ex.: Lavagem" [error]="tentou() && !nome().trim() ? 'Informe o nome.' : undefined"></ces-text-input>
+      <div class="geo-form-stack">
+        <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80"
+          placeholder="Ex.: Lavagem" [error]="tentou() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>
 
         <div class="subtipos" role="group" aria-labelledby="subtipos-titulo">
           <span class="subtipos__cabecalho">
@@ -98,29 +98,29 @@ interface SubtipoEditavel {
           </span>
           @for (s of subtipos(); track s.chave; let i = $index) {
             <div class="subtipos__linha">
-              <ces-text-input [label]="'Subtipo ' + (i + 1)" [labelVisible]="false" [value]="s.nome" [maxlength]="80"
+              <geo-text-input [label]="'Subtipo ' + (i + 1)" [labelVisible]="false" [value]="s.nome" [maxlength]="80"
                 placeholder="Nome do subtipo" (valueChange)="renomear(s.chave, $event)"
-                [error]="tentou() && repetido(s) ? 'Subtipo repetido.' : undefined"></ces-text-input>
-              <ces-icon-button icon="pi pi-times" [label]="'Tirar o subtipo ' + (s.nome || (i + 1))" tooltip="Tirar subtipo" size="icon-sm"
-                (pressed)="remover(s.chave)"></ces-icon-button>
+                [error]="tentou() && repetido(s) ? 'Subtipo repetido.' : undefined"></geo-text-input>
+              <geo-icon-button icon="pi pi-times" [label]="'Tirar o subtipo ' + (s.nome || (i + 1))" tooltip="Tirar subtipo" size="icon-sm"
+                (pressed)="remover(s.chave)"></geo-icon-button>
             </div>
           }
           <div>
-            <ces-button size="sm" variant="outline" icon="pi pi-plus" label="Adicionar subtipo" (pressed)="adicionar()"></ces-button>
+            <geo-button size="sm" variant="outline" icon="pi pi-plus" label="Adicionar subtipo" (pressed)="adicionar()"></geo-button>
           </div>
         </div>
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar tipo'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar tipo'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaTiposDespesaComponent {
   private readonly servico = inject(FrotaDespesaService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
   protected readonly acesso = acessoFrota();
   private readonly documento = inject(DOCUMENT);
 
@@ -144,7 +144,7 @@ export class FrotaTiposDespesaComponent {
     return this.nome() !== (e?.nome ?? '') || antes.length !== agora.length || antes.some((n, i) => n !== agora[i]);
   });
 
-  protected readonly colunas: CesDataTableColumn<TipoDespesa>[] = [
+  protected readonly colunas: GeoDataTableColumn<TipoDespesa>[] = [
     { key: 'nome', header: 'Tipo', type: 'custom', priority: 1, value: (t) => t.nome, display: (t) => t.nome },
     { key: 'subtipos', header: 'Subtipos', type: 'custom', priority: 1, value: (t) => t.subtipos.length, display: (t) => this.nomesSubtipos(t) },
     { key: 'ativo', header: 'Situação', type: 'custom', priority: 1, value: (t) => t.ativo, display: (t) => (t.ativo ? 'Ativo' : 'Inativo') }

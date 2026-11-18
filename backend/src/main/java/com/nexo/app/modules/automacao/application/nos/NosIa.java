@@ -337,7 +337,7 @@ public class NosIa implements ProvedorNos {
         r.put("html", MarkdownHtml.converter(analise.texto()));
         r.put("files", refs);
         r.put("pdf", pdfRef);
-        r.put("conversation_link", analise.conversaId() == null ? null : emailProperties.resolverUrl("/copiloto/" + analise.conversaId()));
+        r.put("conversation_link", analise.conversaId() == null ? null : emailProperties.resolverUrl("/bussola/" + analise.conversaId()));
         r.put("duracao_ms", analise.duracaoMs());
         return r;
     }

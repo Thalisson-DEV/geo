@@ -7,13 +7,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.math.BigDecimal;
 
 /**
- * Configuracao da Bússola (prefixo {@code ces.assistente}). Todos os limites existem para proteger o
+ * Configuracao da Bússola (prefixo {@code geo.assistente}). Todos os limites existem para proteger o
  * servidor e o usuario (loops, explosao de contexto, custo), nunca para reduzir artificialmente a
  * capacidade do agente: os padroes sao generosos e ajustaveis por variavel de ambiente.
  */
 @Getter
 @Setter
-@ConfigurationProperties(prefix = "ces.assistente")
+@ConfigurationProperties(prefix = "geo.assistente")
 public class AssistenteProperties {
 
     private boolean enabled;

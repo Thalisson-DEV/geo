@@ -2,15 +2,15 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDrawerComponent,
-  CesIconButtonComponent,
-  CesStatusComponent,
+  GeoAsyncStateComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDrawerComponent,
+  GeoIconButtonComponent,
+  GeoStatusComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { ConferenciaFatura, FaturaPosto } from '../../../core/models/frota-abastecimento.models';
 import { formatarPlaca } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -28,39 +28,39 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
-    CesAsyncStateComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDrawerComponent,
-    CesIconButtonComponent,
-    CesStatusComponent
+    GeoAsyncStateComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDrawerComponent,
+    GeoIconButtonComponent,
+    GeoStatusComponent
   ],
   styleUrls: ['./frota-abastecimento-detalhe-drawer.component.css'],
   styles: `
     .fat-linha { grid-template-columns: 2rem minmax(0, 1fr) 7rem !important; cursor: pointer; }
-    .fat-linha--fora { background: var(--ces-surface-subtle); }
-    .fat-linha--fora .dd-material strong { color: var(--ces-foreground-muted); }
+    .fat-linha--fora { background: var(--geo-surface-subtle); }
+    .fat-linha--fora .dd-material strong { color: var(--geo-foreground-muted); }
     .fat-cab { grid-template-columns: 2rem minmax(0, 1fr) 7rem !important; }
     .fat-acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem; }
-    .fat-diferenca--ok strong { color: var(--ces-success-text, var(--ces-success)); }
-    .fat-diferenca--aviso strong { color: var(--ces-warning-text); }
+    .fat-diferenca--ok strong { color: var(--geo-success-text, var(--geo-success)); }
+    .fat-diferenca--aviso strong { color: var(--geo-warning-text); }
   `,
   template: `
-    <ces-drawer [(visible)]="visible" eyebrow="Fatura do posto" [title]="titulo()" size="lg">
+    <geo-drawer [(visible)]="visible" eyebrow="Fatura do posto" [title]="titulo()" size="lg">
       @if (carregando() && !conferencia()) {
         <div class="dd-skeleton" role="status" aria-label="Carregando a fatura"><span></span><span></span><span></span></div>
       } @else if (erro()) {
-        <ces-async-state state="error" title="Não foi possível carregar a fatura" [description]="erro()!" [compact]="true"
-          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></ces-async-state>
+        <geo-async-state state="error" title="Não foi possível carregar a fatura" [description]="erro()!" [compact]="true"
+          actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="carregar()"></geo-async-state>
       } @else if (conferencia(); as c) {
         @let f = c.fatura;
         <div class="dd">
           <section class="dd-hero" [attr.data-tone]="tom[f.situacao]" aria-label="Resumo">
             <div class="dd-hero__topo">
-              <ces-status [tone]="tom[f.situacao]" [icon]="'pi ' + icone[f.situacao]" emphasis="solid">{{ rotulo(f) }}</ces-status>
+              <geo-status [tone]="tom[f.situacao]" [icon]="'pi ' + icone[f.situacao]" emphasis="solid">{{ rotulo(f) }}</geo-status>
               @if (alterou()) {
-                <ces-status tone="warning" icon="pi pi-pencil">Conferência não salva</ces-status>
+                <geo-status tone="warning" icon="pi pi-pencil">Conferência não salva</geo-status>
               }
             </div>
             <p class="dd-hero__rota">
@@ -96,15 +96,15 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
           </section>
 
           @if (f.situacao === 'CONFERIDA' && !bate() && !alterou()) {
-            <ces-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Vai ao financeiro com diferença">
+            <geo-callout tone="warning" icon="pi pi-exclamation-triangle" [dense]="true" title="Vai ao financeiro com diferença">
               O pagamento sai com o valor cobrado ({{ dinheiro(f.valor) }}), {{ dinheiro(abs(diferenca())) }} {{ diferenca() > 0 ? 'acima' : 'abaixo' }} do que foi conferido. Se não concordar, peça ao posto uma fatura corrigida e edite o valor antes de enviar.
-            </ces-callout>
+            </geo-callout>
           }
 
           @if (foraDoPeriodo()) {
-            <ces-callout tone="info" icon="pi pi-info-circle" [dense]="true">
+            <geo-callout tone="info" icon="pi pi-info-circle" [dense]="true">
               {{ foraDoPeriodo() === 1 ? '1 abastecimento realizado' : foraDoPeriodo() + ' abastecimentos realizados' }} neste posto no período não {{ foraDoPeriodo() === 1 ? 'está marcado' : 'estão marcados' }}. Se não {{ foraDoPeriodo() === 1 ? 'entrar' : 'entrarem' }} nesta fatura, {{ foraDoPeriodo() === 1 ? 'fica' : 'ficam' }} para a próxima.
-            </ces-callout>
+            </geo-callout>
           }
 
           <section aria-labelledby="fat-abastecimentos">
@@ -113,15 +113,15 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
               <span class="dd-muted">Realizados no posto, sem outra fatura</span>
             </h3>
             @if (!c.abastecimentos.length) {
-              <ces-async-state state="empty" [compact]="true" title="Nenhum abastecimento no período"
-                description="Não há abastecimento realizado neste posto entre as datas da fatura. Confira o período ou o posto."></ces-async-state>
+              <geo-async-state state="empty" [compact]="true" title="Nenhum abastecimento no período"
+                description="Não há abastecimento realizado neste posto entre as datas da fatura. Confira o período ou o posto."></geo-async-state>
             } @else {
               @if (editavel()) {
                 <div class="fat-acoes">
                   <span class="dd-muted"><strong class="dd-forte">{{ marcados().length }}</strong> marcados</span>
                   <span class="dd-linha-botoes">
-                    <ces-button variant="ghost" size="sm" icon="pi pi-check-square" label="Marcar todos" (pressed)="marcarTodos(true)"></ces-button>
-                    <ces-button variant="ghost" size="sm" icon="pi pi-stop" label="Desmarcar" (pressed)="marcarTodos(false)"></ces-button>
+                    <geo-button variant="ghost" size="sm" icon="pi pi-check-square" label="Marcar todos" (pressed)="marcarTodos(true)"></geo-button>
+                    <geo-button variant="ghost" size="sm" icon="pi pi-stop" label="Desmarcar" (pressed)="marcarTodos(false)"></geo-button>
                   </span>
                 </div>
               }
@@ -134,8 +134,8 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
                 @for (a of c.abastecimentos; track a.id) {
                   <div class="dd-tabela__linha fat-linha" role="row" [class.fat-linha--fora]="!selecao().has(a.id)" (click)="editavel() && alternar(a.id)">
                     <span role="cell" (click)="$event.stopPropagation()">
-                      <ces-boolean-control [label]="'Incluir na fatura: ' + placa(a.placa) + ' de ' + (a.realizadoEm | date: 'dd/MM')"
-                        [value]="selecao().has(a.id)" [disabled]="!editavel()" (valueChange)="marcar(a.id, $event)"></ces-boolean-control>
+                      <geo-boolean-control [label]="'Incluir na fatura: ' + placa(a.placa) + ' de ' + (a.realizadoEm | date: 'dd/MM')"
+                        [value]="selecao().has(a.id)" [disabled]="!editavel()" (valueChange)="marcar(a.id, $event)"></geo-boolean-control>
                     </span>
                     <span role="cell" class="dd-material">
                       <strong>{{ placa(a.placa) }} · {{ a.realizadoEm | date: "dd/MM 'às' HH:mm" }}</strong>
@@ -153,26 +153,26 @@ import { ICONE_FATURA, TOM_FATURA, moeda, rotuloFatura, textoDiferenca } from '.
       <div drawer-footer class="dd-rodape">
         <span class="dd-linha-botoes">
           @if (conferencia() && assistente()) {
-            <ces-icon-button icon="pi pi-compass" label="Analisar esta fatura com a Bússola" tooltip="Analisar com a Bússola" (pressed)="analisarComAssistente()"></ces-icon-button>
+            <geo-icon-button icon="pi pi-compass" label="Analisar esta fatura com a Bússola" tooltip="Analisar com a Bússola" (pressed)="analisarComAssistente()"></geo-icon-button>
           }
           @if (conferencia() && editavel()) {
-            <ces-button variant="ghost" icon="pi pi-pencil" label="Editar fatura" (pressed)="editar.emit(conferencia()!.fatura)"></ces-button>
+            <geo-button variant="ghost" icon="pi pi-pencil" label="Editar fatura" (pressed)="editar.emit(conferencia()!.fatura)"></geo-button>
           }
         </span>
         <span class="dd-linha-botoes">
           @if (conferencia(); as c) {
             @if (editavel() && (c.fatura.situacao === 'RASCUNHO' || alterou())) {
-              <ces-button icon="pi pi-check" [label]="c.fatura.situacao === 'RASCUNHO' ? 'Concluir conferência' : 'Salvar conferência'"
-                [loading]="salvando()" [disabled]="!marcados().length" (pressed)="conferir()"></ces-button>
+              <geo-button icon="pi pi-check" [label]="c.fatura.situacao === 'RASCUNHO' ? 'Concluir conferência' : 'Salvar conferência'"
+                [loading]="salvando()" [disabled]="!marcados().length" (pressed)="conferir()"></geo-button>
             } @else if (c.fatura.situacao === 'CONFERIDA') {
-              <ces-button icon="pi pi-send" label="Enviar ao financeiro" (pressed)="enviarAoFinanceiro()"></ces-button>
+              <geo-button icon="pi pi-send" label="Enviar ao financeiro" (pressed)="enviarAoFinanceiro()"></geo-button>
             } @else {
-              <ces-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></ces-button>
+              <geo-button variant="ghost" label="Fechar" (pressed)="visible.set(false)"></geo-button>
             }
           }
         </span>
       </div>
-    </ces-drawer>
+    </geo-drawer>
   `
 })
 export class FrotaFaturaPostoDrawerComponent {

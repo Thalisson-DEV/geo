@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  CesAutocompleteComponent,
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesMultiSelectComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoAutocompleteComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoMultiSelectComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { LookupStore } from '../../../core/lookup';
 import { PendenciaChecklist } from '../../../core/models/frota-checklist.models';
 import { FornecedorFrota, ItemManutencao, OpcoesFrota, OrdemServicoDetalhe, formatarPlaca } from '../../../core/models/frota.models';
@@ -33,25 +33,25 @@ export type ModoDecisao = 'os' | 'hora';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    CesAutocompleteComponent,
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesMultiSelectComponent,
-    CesSelectComponent,
-    CesTextInputComponent,
-    CesTextareaComponent
+    GeoAutocompleteComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoMultiSelectComponent,
+    GeoSelectComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent
   ],
   styles: `
     .problemas { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.25rem; }
-    .problemas__comentario { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .problemas__comentario { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
   `,
   template: `
-    <ces-form-drawer [(visible)]="visible" [title]="modo() === 'os' ? 'Abrir OS' : 'Resolvido na hora'"
+    <geo-form-drawer [(visible)]="visible" [title]="modo() === 'os' ? 'Abrir OS' : 'Resolvido na hora'"
       [description]="descricao()" [dirty]="alterado()" [loading]="salvando()" size="md">
-      <div class="ces-form-stack">
-        <ces-form-section [title]="pendencias().length === 1 ? 'Problema apontado' : pendencias().length + ' problemas apontados'" icon="pi pi-exclamation-triangle">
+      <div class="geo-form-stack">
+        <geo-form-section [title]="pendencias().length === 1 ? 'Problema apontado' : pendencias().length + ' problemas apontados'" icon="pi pi-exclamation-triangle">
           <ul class="problemas">
             @for (p of pendencias(); track p.id) {
               <li>
@@ -62,57 +62,57 @@ export type ModoDecisao = 'os' | 'hora';
               </li>
             }
           </ul>
-        </ces-form-section>
+        </geo-form-section>
 
-        <ces-form-section title="Manutenção" icon="pi pi-wrench">
-          <ces-multiselect label="Itens de manutenção" [required]="true" [options]="opcoesItens()" [(value)]="idsItem" display="chip"
+        <geo-form-section title="Manutenção" icon="pi pi-wrench">
+          <geo-multiselect label="Itens de manutenção" [required]="true" [options]="opcoesItens()" [(value)]="idsItem" display="chip"
             [loading]="!itens().length" [error]="tentou() && !idsItem().length ? 'Escolha ao menos um item.' : undefined"
-            description="O que a OS registra no histórico do veículo."></ces-multiselect>
+            description="O que a OS registra no histórico do veículo."></geo-multiselect>
           @if (modo() === 'os') {
-            <ces-select label="Criticidade" [options]="opcoesCriticidade()" [(value)]="criticidade"></ces-select>
-            <ces-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="500" [showOptional]="true"
-              description="Entra na descrição da OS, depois dos problemas apontados."></ces-textarea>
+            <geo-select label="Criticidade" [options]="opcoesCriticidade()" [(value)]="criticidade"></geo-select>
+            <geo-textarea label="Observação" [(value)]="observacao" [rows]="2" [maxlength]="500" [showOptional]="true"
+              description="Entra na descrição da OS, depois dos problemas apontados."></geo-textarea>
           }
-        </ces-form-section>
+        </geo-form-section>
 
         @if (modo() === 'os') {
-          <ces-form-section title="Oficina e fornecedor" icon="pi pi-building" description="Opcional: informe já se o fornecedor é conhecido.">
-            <ces-select label="Onde será feito" [options]="opcoesOficina()" [(value)]="tipoOficina"></ces-select>
+          <geo-form-section title="Oficina e fornecedor" icon="pi pi-building" description="Opcional: informe já se o fornecedor é conhecido.">
+            <geo-select label="Onde será feito" [options]="opcoesOficina()" [(value)]="tipoOficina"></geo-select>
             @if (tipoOficina() === 'EXTERNA') {
-              <ces-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="idFornecedor" [filter]="true" [clearable]="true"
-                [showOptional]="true" description="Cadastro de fornecedores do financeiro."></ces-select>
+              <geo-select label="Fornecedor" [options]="opcoesFornecedor()" [(value)]="idFornecedor" [filter]="true" [clearable]="true"
+                [showOptional]="true" description="Cadastro de fornecedores do financeiro."></geo-select>
             }
-            <ces-text-input [label]="tipoOficina() === 'EXTERNA' ? 'Oficina não cadastrada' : 'Oficina'" [(value)]="oficinaNome" [maxlength]="150"
-              [showOptional]="true"></ces-text-input>
-          </ces-form-section>
+            <geo-text-input [label]="tipoOficina() === 'EXTERNA' ? 'Oficina não cadastrada' : 'Oficina'" [(value)]="oficinaNome" [maxlength]="150"
+              [showOptional]="true"></geo-text-input>
+          </geo-form-section>
         }
 
         @if (modo() === 'hora') {
-          <ces-form-section title="O que foi feito" icon="pi pi-check-circle">
-            <ces-textarea label="Serviço feito" [required]="true" [(value)]="servico" [rows]="2" [maxlength]="1000"
-              placeholder="Ex.: Lâmpada do farol trocada pelo condutor." [error]="tentou() && !servico().trim() ? 'Descreva o que foi feito.' : undefined"></ces-textarea>
-            <ces-boolean-control kind="toggle" label="Feito por um colaborador" [(value)]="porColaborador"
-              [description]="porColaborador() ? 'Fica como serviço da oficina interna, em nome dele.' : 'Fica como oficina externa, com o nome de quem fez.'"></ces-boolean-control>
+          <geo-form-section title="O que foi feito" icon="pi pi-check-circle">
+            <geo-textarea label="Serviço feito" [required]="true" [(value)]="servico" [rows]="2" [maxlength]="1000"
+              placeholder="Ex.: Lâmpada do farol trocada pelo condutor." [error]="tentou() && !servico().trim() ? 'Descreva o que foi feito.' : undefined"></geo-textarea>
+            <geo-boolean-control kind="toggle" label="Feito por um colaborador" [(value)]="porColaborador"
+              [description]="porColaborador() ? 'Fica como serviço da oficina interna, em nome dele.' : 'Fica como oficina externa, com o nome de quem fez.'"></geo-boolean-control>
             @if (porColaborador()) {
-              <ces-autocomplete label="Quem fez" [required]="true" [options]="opcoesColaborador()" [status]="statusBusca()"
+              <geo-autocomplete label="Quem fez" [required]="true" [options]="opcoesColaborador()" [status]="statusBusca()"
                 [loading]="statusBusca() === 'loading'" [ngModel]="idExecutor()" (ngModelChange)="idExecutor.set($event)"
-                (search)="buscarColaborador($event)" [error]="tentou() && !idExecutor() ? 'Escolha quem fez.' : undefined"></ces-autocomplete>
+                (search)="buscarColaborador($event)" [error]="tentou() && !idExecutor() ? 'Escolha quem fez.' : undefined"></geo-autocomplete>
             } @else {
-              <ces-text-input label="Quem fez" [required]="true" [(value)]="executorNome" [maxlength]="120" placeholder="Ex.: Borracharia do posto"
-                [error]="tentou() && !executorNome().trim() ? 'Informe quem fez.' : undefined"></ces-text-input>
+              <geo-text-input label="Quem fez" [required]="true" [(value)]="executorNome" [maxlength]="120" placeholder="Ex.: Borracharia do posto"
+                [error]="tentou() && !executorNome().trim() ? 'Informe quem fez.' : undefined"></geo-text-input>
             }
-            <ces-select label="Base onde foi feito" [options]="bases.opcoes()" [(value)]="idBase" [clearable]="true" [showOptional]="true"></ces-select>
-            <ces-select label="Causa" [options]="opcoesCausa()" [(value)]="causa" [clearable]="true" [showOptional]="true"
-              description="Em branco, fica como serviço corretivo."></ces-select>
-          </ces-form-section>
+            <geo-select label="Base onde foi feito" [options]="bases.opcoes()" [(value)]="idBase" [clearable]="true" [showOptional]="true"></geo-select>
+            <geo-select label="Causa" [options]="opcoesCausa()" [(value)]="causa" [clearable]="true" [showOptional]="true"
+              description="Em branco, fica como serviço corretivo."></geo-select>
+          </geo-form-section>
         }
       </div>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></ces-button>
-        <ces-button [icon]="modo() === 'os' ? 'pi pi-wrench' : 'pi pi-check'" [label]="modo() === 'os' ? 'Abrir OS' : 'Registrar e concluir OS'"
-          [loading]="salvando()" (pressed)="salvar()"></ces-button>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="visible.set(false)"></geo-button>
+        <geo-button [icon]="modo() === 'os' ? 'pi pi-wrench' : 'pi pi-check'" [label]="modo() === 'os' ? 'Abrir OS' : 'Registrar e concluir OS'"
+          [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
   `
 })
 export class FrotaPendenciaDecisaoDrawerComponent {
@@ -138,7 +138,7 @@ export class FrotaPendenciaDecisaoDrawerComponent {
   protected readonly executorNome = signal('');
   protected readonly idBase = signal<string | null>(null);
   protected readonly causa = signal<string | null>(null);
-  protected readonly opcoesColaborador = signal<CesSelectOption<string>[]>([]);
+  protected readonly opcoesColaborador = signal<GeoSelectOption<string>[]>([]);
   protected readonly statusBusca = signal<'idle' | 'loading' | 'success' | 'empty' | 'error'>('idle');
   protected readonly tentou = signal(false);
   protected readonly salvando = signal(false);
@@ -146,16 +146,16 @@ export class FrotaPendenciaDecisaoDrawerComponent {
   protected readonly idFornecedor = signal<string | null>(null);
   protected readonly oficinaNome = signal('');
   private readonly fornecedores = signal<FornecedorFrota[]>([]);
-  protected readonly opcoesFornecedor = computed<CesSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nome, value: f.id })));
-  protected readonly opcoesOficina = computed<CesSelectOption<'INTERNA' | 'EXTERNA'>[]>(() =>
+  protected readonly opcoesFornecedor = computed<GeoSelectOption<string>[]>(() => this.fornecedores().map((f) => ({ label: f.nome, value: f.id })));
+  protected readonly opcoesOficina = computed<GeoSelectOption<'INTERNA' | 'EXTERNA'>[]>(() =>
     (this.opcoes()?.tiposOficina ?? []).map((o) => ({ label: o.rotulo, value: o.valor as 'INTERNA' | 'EXTERNA' }))
   );
 
-  protected readonly opcoesItens = computed<CesSelectOption<string>[]>(() => this.itens().map((i) => ({ label: i.nome, value: i.id })));
-  protected readonly opcoesCriticidade = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesItens = computed<GeoSelectOption<string>[]>(() => this.itens().map((i) => ({ label: i.nome, value: i.id })));
+  protected readonly opcoesCriticidade = computed<GeoSelectOption<string>[]>(() =>
     (this.opcoes()?.criticidades ?? []).map((c) => ({ label: c.rotulo, value: c.valor }))
   );
-  protected readonly opcoesCausa = computed<CesSelectOption<string>[]>(() =>
+  protected readonly opcoesCausa = computed<GeoSelectOption<string>[]>(() =>
     (this.opcoes()?.causasManutencao ?? []).map((c) => ({ label: c.rotulo, value: c.valor }))
   );
   protected readonly descricao = computed(() => {

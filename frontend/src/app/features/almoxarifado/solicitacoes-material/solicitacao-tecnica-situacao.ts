@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 
 import { StatusSolicitacaoMaterial } from '../../../core/models/solicitacao-material-tecnica.models';
 import { statusLabel, statusTone } from './solicitacao-tecnica-presentation';
@@ -14,7 +14,7 @@ export interface SituacaoTecnicaDef {
   value: string;
   atalho: string;
   descricao: string;
-  tone: CesTone;
+  tone: GeoTone;
   icon: string;
   etapa?: EtapaTecnica;
   statuses?: StatusSolicitacaoMaterial[];
@@ -50,7 +50,7 @@ const ICONES: Record<string, string> = {
 };
 
 /** Status técnico no formato que o calendário usa. */
-export function statusTecnicoDef(valor: string): { value: string; label: string; tone: CesTone; icon: string } {
+export function statusTecnicoDef(valor: string): { value: string; label: string; tone: GeoTone; icon: string } {
   return { value: valor, label: statusLabel(valor), tone: statusTone(valor), icon: ICONES[valor] ?? 'pi-circle' };
 }
 
@@ -65,7 +65,7 @@ const SIT_CAL = {
   PARCIAL: { value: 'PARCIAL', label: 'Retirada parcial', tone: 'warning', icon: 'pi-hourglass' },
   ENTREGUE: { value: 'ENTREGUE', label: 'Entregue na obra', tone: 'success', icon: 'pi-check-circle' },
   FORA: { value: 'FORA', label: 'Rejeitada ou estornada', tone: 'danger', icon: 'pi-times-circle' }
-} as const satisfies Record<string, { value: string; label: string; tone: CesTone; icon: string }>;
+} as const satisfies Record<string, { value: string; label: string; tone: GeoTone; icon: string }>;
 
 export type SituacaoCalendarioTecnico = (typeof SIT_CAL)[keyof typeof SIT_CAL];
 
@@ -97,7 +97,7 @@ export function situacaoAtual(
   status: string | null | undefined,
   dataPrevista: string | null | undefined,
   statusSeparacao: string | null | undefined
-): { label: string; tone: CesTone; icon: string } {
+): { label: string; tone: GeoTone; icon: string } {
   if (status !== 'APROVADO' && status !== 'PENDENTE') {
     const def = statusTecnicoDef(status ?? '');
     return { label: def.label, tone: def.tone, icon: def.icon };

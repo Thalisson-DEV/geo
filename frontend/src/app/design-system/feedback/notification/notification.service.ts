@@ -1,16 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { MessageService, ToastMessageOptions } from 'primeng/api';
 
-export type CesNotificationVariant = 'success' | 'info' | 'warning' | 'error';
+export type GeoNotificationVariant = 'success' | 'info' | 'warning' | 'error';
 
 /** Botão dentro da notificação: um atalho para o próximo passo, nunca a única forma de fazê-lo. */
-export interface CesNotificationAction {
+export interface GeoNotificationAction {
   label: string;
   run: () => void;
 }
 
-export interface CesNotification {
-  variant: CesNotificationVariant;
+export interface GeoNotification {
+  variant: GeoNotificationVariant;
   title?: string;
   message: string;
   life?: number;
@@ -18,10 +18,10 @@ export interface CesNotification {
   closable?: boolean;
   key?: string;
   data?: unknown;
-  action?: CesNotificationAction;
+  action?: GeoNotificationAction;
 }
 
-const DEFAULT_TITLES: Record<CesNotificationVariant, string> = {
+const DEFAULT_TITLES: Record<GeoNotificationVariant, string> = {
   success: 'Concluído',
   info: 'Informação',
   warning: 'Atenção',
@@ -32,7 +32,7 @@ const DEFAULT_TITLES: Record<CesNotificationVariant, string> = {
 export class NotificationService {
   private readonly messages = inject(MessageService);
 
-  show(notification: CesNotification): void {
+  show(notification: GeoNotification): void {
     const message: ToastMessageOptions = {
       severity: notification.variant === 'warning' ? 'warn' : notification.variant,
       summary: notification.title ?? DEFAULT_TITLES[notification.variant],
@@ -41,30 +41,30 @@ export class NotificationService {
       sticky: notification.sticky,
       closable: notification.closable,
       key: notification.key,
-      data: notification.action ? { ...(notification.data as object | undefined), cesAction: notification.action } : notification.data
+      data: notification.action ? { ...(notification.data as object | undefined), geoAction: notification.action } : notification.data
     };
 
     this.messages.add(message);
   }
 
-  success(message: string, options: Omit<CesNotification, 'variant' | 'message'> = {}): void {
+  success(message: string, options: Omit<GeoNotification, 'variant' | 'message'> = {}): void {
     this.show({ ...options, variant: 'success', message });
   }
 
-  info(message: string, options: Omit<CesNotification, 'variant' | 'message'> = {}): void {
+  info(message: string, options: Omit<GeoNotification, 'variant' | 'message'> = {}): void {
     this.show({ ...options, variant: 'info', message });
   }
 
-  warning(message: string, options: Omit<CesNotification, 'variant' | 'message'> = {}): void {
+  warning(message: string, options: Omit<GeoNotification, 'variant' | 'message'> = {}): void {
     this.show({ ...options, variant: 'warning', message });
   }
 
-  error(message: string, options: Omit<CesNotification, 'variant' | 'message'> = {}): void {
+  error(message: string, options: Omit<GeoNotification, 'variant' | 'message'> = {}): void {
     this.show({ ...options, variant: 'error', message });
   }
 
   /** Usado pelo host global ao clicar no botão da notificação. */
-  runAction(action: CesNotificationAction): void {
+  runAction(action: GeoNotificationAction): void {
     this.messages.clear();
     action.run();
   }

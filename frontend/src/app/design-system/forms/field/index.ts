@@ -1,1 +1,1 @@
-export * from './ces-field.component';
+export * from './geo-field.component';

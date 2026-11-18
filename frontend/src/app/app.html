@@ -1,12 +1,12 @@
-<div class="flex flex-col h-screen overflow-hidden bg-[var(--ces-canvas)] text-[var(--ces-foreground)] font-sans print:h-auto print:overflow-visible" [class.!bg-white]="hideLayout()" [class.dark:!bg-[var(--ces-canvas)]]="hideLayout()">
+<div class="flex flex-col h-screen overflow-hidden bg-[var(--geo-canvas)] text-[var(--geo-foreground)] font-sans print:h-auto print:overflow-visible" [class.!bg-white]="hideLayout()" [class.dark:!bg-[var(--geo-canvas)]]="hideLayout()">
   <p-toast class="print:hidden">
     <ng-template #message let-aviso>
       <i [class]="iconeAviso(aviso.severity)" aria-hidden="true"></i>
       <div class="p-toast-message-text">
         <div class="p-toast-summary">{{ aviso.summary }}</div>
         <div class="p-toast-detail">{{ aviso.detail }}</div>
-        @if (aviso.data?.cesAction; as acao) {
-          <ces-button class="mt-2 block" variant="outline" size="sm" [label]="acao.label" (pressed)="notificacoes.runAction(acao)"></ces-button>
+        @if (aviso.data?.geoAction; as acao) {
+          <geo-button class="mt-2 block" variant="outline" size="sm" [label]="acao.label" (pressed)="notificacoes.runAction(acao)"></geo-button>
         }
       </div>
     </ng-template>
@@ -15,7 +15,7 @@
     <p-confirmDialog
       class="print:hidden"
       header="Confirmação"
-      styleClass="ces-dialog ces-confirm-dialog"
+      styleClass="geo-dialog geo-confirm-dialog"
     ></p-confirmDialog>
   }
   @if (auth.isAuthenticated() && !hideLayout()) {
@@ -48,20 +48,20 @@
       ></app-sidebar>
 
       <div class="flex-grow flex flex-col min-w-0 overflow-hidden relative print:overflow-visible">
-        <main appScrollMemory="main" class="flex-grow overflow-y-auto bg-[var(--ces-canvas)] p-4 lg:p-6 custom-scrollbar print:overflow-visible print:h-auto print:p-0" [class.ces-main--full-bleed]="layoutFullBleed()" [class.!p-0]="layoutFullBleed()" [class.!overflow-hidden]="layoutFullBleed()">
+        <main appScrollMemory="main" class="flex-grow overflow-y-auto bg-[var(--geo-canvas)] p-4 lg:p-6 custom-scrollbar print:overflow-visible print:h-auto print:p-0" [class.geo-main--full-bleed]="layoutFullBleed()" [class.!p-0]="layoutFullBleed()" [class.!overflow-hidden]="layoutFullBleed()">
           <router-outlet></router-outlet>
         </main>
       </div>
     </div>
   } @else {
-    <main appScrollMemory="tela-cheia" class="w-full h-full overflow-y-auto bg-white dark:bg-[var(--ces-canvas)] print:h-auto print:overflow-visible relative">
+    <main appScrollMemory="tela-cheia" class="w-full h-full overflow-y-auto bg-white dark:bg-[var(--geo-canvas)] print:h-auto print:overflow-visible relative">
       @if (activeDataSource(); as ds) {
-        <ces-report-navigator
+        <geo-report-navigator
           [dataSource]="ds"
           [currentId]="currentRouteId()"
           [opened]="reportNavigatorOpen()"
           (openedChange)="reportNavigatorOpen.set($event)"
-        ></ces-report-navigator>
+        ></geo-report-navigator>
         <div class="report-content-container md:pl-14 print:pl-0">
           <router-outlet></router-outlet>
         </div>

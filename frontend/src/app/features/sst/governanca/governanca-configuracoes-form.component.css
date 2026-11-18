@@ -1,5 +1,5 @@
 .form-shell{max-width:68rem;margin-inline:auto}.form-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;padding:1.5rem 1.75rem;border-bottom:1px solid #f1f5f9}
-:host-context(.app-dark) .form-header,:host-context(.dark) .form-header{border-bottom-color:var(--ces-border,#334155)}
+:host-context(.app-dark) .form-header,:host-context(.dark) .form-header{border-bottom-color:var(--geo-border,#334155)}
 .context-badge{display:flex;min-width:13rem;align-items:center;gap:.65rem;border:1px solid var(--p-primary-100);border-radius:.75rem;background:var(--p-primary-50);padding:.65rem .8rem;color:var(--p-primary-600)}
 :host-context(.app-dark) .context-badge,:host-context(.dark) .context-badge{border-color:#334155;background:#1e293b;color:var(--p-primary-400)}
 .context-badge.brigada{border-color:#fed7aa;background:#fff7ed;color:#c2410c}

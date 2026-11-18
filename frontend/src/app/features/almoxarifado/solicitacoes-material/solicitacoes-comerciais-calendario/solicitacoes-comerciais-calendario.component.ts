@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent, CesTone } from '@ces/ui';
+import { GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { SolicitacaoSummaryResponse } from '../../../../core/models/almoxarifado.models';
@@ -16,7 +16,7 @@ const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 /** Situação de um cartão (cor, ícone e rótulo). */
 export interface SituacaoCalendario {
   label: string;
-  tone: CesTone;
+  tone: GeoTone;
   icon: string;
 }
 
@@ -46,25 +46,25 @@ interface DiaCalendario {
   selector: 'app-solicitacoes-comerciais-calendario',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent],
+  imports: [GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent, GeoStatusComponent],
   styleUrl: './solicitacoes-comerciais-calendario.component.css',
   template: `
     @if (erro()) {
-      <ces-async-state type="error" title="Não foi possível carregar o calendário" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
+      <geo-async-state type="error" title="Não foi possível carregar o calendário" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
     } @else {
       @if (truncado()) {
-        <ces-callout tone="warning" title="Mês com muitas solicitações">
+        <geo-callout tone="warning" title="Mês com muitas solicitações">
           Mostrando {{ limite }} de {{ total() }}. Use os filtros ou os atalhos de status para reduzir o recorte.
-        </ces-callout>
+        </geo-callout>
       }
       <div class="cal-shell">
         <section class="cal-card" aria-labelledby="cal-titulo">
           <header class="cal-head">
             <div class="cal-nav">
-              <ces-icon-button icon="pi pi-chevron-left" label="Mês anterior" size="icon-sm" (pressed)="mudarMes(-1)" />
+              <geo-icon-button icon="pi pi-chevron-left" label="Mês anterior" size="icon-sm" (pressed)="mudarMes(-1)" />
               <h2 id="cal-titulo" class="cal-title" aria-live="polite">{{ tituloMes() }}</h2>
-              <ces-icon-button icon="pi pi-chevron-right" label="Próximo mês" size="icon-sm" (pressed)="mudarMes(1)" />
-              <ces-button label="Hoje" variant="outline" size="sm" [disabled]="ehMesAtual()" (pressed)="irParaHoje()" />
+              <geo-icon-button icon="pi pi-chevron-right" label="Próximo mês" size="icon-sm" (pressed)="mudarMes(1)" />
+              <geo-button label="Hoje" variant="outline" size="sm" [disabled]="ehMesAtual()" (pressed)="irParaHoje()" />
             </div>
             <div class="cal-resumo" aria-live="polite">
               @if (carregando()) {
@@ -72,7 +72,7 @@ interface DiaCalendario {
               } @else {
                 <span>{{ totalNoMes() }} {{ totalNoMes() === 1 ? 'saque previsto' : 'saques previstos' }} no mês</span>
                 @if (atrasadasNoMes() > 0) {
-                  <ces-status tone="danger" icon="pi pi-exclamation-triangle">{{ atrasadasNoMes() }} {{ atrasadasNoMes() === 1 ? 'atrasada' : 'atrasadas' }}</ces-status>
+                  <geo-status tone="danger" icon="pi pi-exclamation-triangle">{{ atrasadasNoMes() }} {{ atrasadasNoMes() === 1 ? 'atrasada' : 'atrasadas' }}</geo-status>
                 }
               }
             </div>
@@ -149,7 +149,7 @@ interface DiaCalendario {
                       @if (d.etiqueta) { <span class="cal-agenda-item__tag">{{ d.etiqueta }}</span> }
                       <span class="cal-agenda-item__id">{{ d.codigo }}</span>
                     </span>
-                    <ces-status [tone]="situacao(s).tone" [icon]="'pi ' + situacao(s).icon">{{ situacao(s).label }}</ces-status>
+                    <geo-status [tone]="situacao(s).tone" [icon]="'pi ' + situacao(s).icon">{{ situacao(s).label }}</geo-status>
                   </span>
                   <span class="cal-agenda-item__titulo">{{ d.titulo }}</span>
                   @if (d.linha) { <span class="cal-agenda-item__rota">{{ d.linha }}</span> }
@@ -169,7 +169,7 @@ interface DiaCalendario {
               <button type="button" class="cal-agenda-item" [attr.data-tone]="status(s.status).tone" (click)="abrir.emit(s)" [attr.aria-label]="rotuloSolicitacao(s)">
                 <span class="cal-agenda-item__top">
                   <span class="cal-agenda-item__id">#{{ s.id.substring(0, 8) }}</span>
-                  <ces-status [tone]="status(s.status).tone" [icon]="'pi ' + status(s.status).icon">{{ status(s.status).label }}</ces-status>
+                  <geo-status [tone]="status(s.status).tone" [icon]="'pi ' + status(s.status).icon">{{ status(s.status).label }}</geo-status>
                 </span>
                 <span class="cal-agenda-item__rota">{{ s.estoqueOrigemNome }} → <strong>{{ nomeItem()(s) }}</strong></span>
                 <span class="cal-agenda-item__meta">
@@ -203,9 +203,9 @@ export class SolicitacoesComerciaisCalendarioComponent {
   protected readonly visiveis = VISIVEIS_POR_DIA;
   protected readonly limite = LIMITE_CALENDARIO;
   /** Status de cada solicitação; o técnico passa o próprio vocabulário. */
-  readonly statusDe = input<(valor: string) => { label: string; tone: CesTone; icon: string }>((v) => statusComercial(v));
+  readonly statusDe = input<(valor: string) => { label: string; tone: GeoTone; icon: string }>((v) => statusComercial(v));
   /** Legenda do rodapé. */
-  readonly legendaItens = input<readonly { value: string; label: string; tone: CesTone; icon: string }[]>(STATUS_COMERCIAIS);
+  readonly legendaItens = input<readonly { value: string; label: string; tone: GeoTone; icon: string }[]>(STATUS_COMERCIAIS);
   /** Texto curto do cartão no dia (comercial: equipe de destino; técnico: obra). */
   readonly nomeItem = input<(s: SolicitacaoSummaryResponse) => string>((s) => s.estoqueDestinoNome || '#' + s.id.substring(0, 8));
   /** Situação do cartão a partir da solicitação inteira (o técnico usa a etapa: separar, retirar...). */

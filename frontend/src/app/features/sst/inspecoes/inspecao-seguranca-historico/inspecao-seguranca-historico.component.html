@@ -9,9 +9,9 @@
   }
 
   @if (loading()) {
-    <ces-async-state [state]="'loading'" title="Carregando histórico..." />
+    <geo-async-state [state]="'loading'" title="Carregando histórico..." />
   } @else if (error()) {
-    <ces-async-state
+    <geo-async-state
       [state]="'error'"
       [description]="error()"
       actionLabel="Tentar novamente"
@@ -126,7 +126,7 @@
 
       @if (totalPages() > 1) {
         <nav class="timeline-pagination" aria-label="Paginação do histórico">
-          <ces-button
+          <geo-button
             variant="secondary"
             size="sm"
             [disabled]="page() === 0"
@@ -137,7 +137,7 @@
           <span class="pagination-info">
             Página {{ page() + 1 }} de {{ totalPages() }}
           </span>
-          <ces-button
+          <geo-button
             variant="secondary"
             size="sm"
             [disabled]="page() + 1 >= totalPages()"
@@ -148,7 +148,7 @@
         </nav>
       }
     } @else {
-      <ces-async-state
+      <geo-async-state
         [state]="'empty'"
         title="Nenhum evento registrado"
         description="Esta inspeção ainda não possui eventos históricos registrados."

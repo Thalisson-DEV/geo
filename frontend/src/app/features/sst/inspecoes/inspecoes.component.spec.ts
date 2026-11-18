@@ -74,7 +74,7 @@ describe('InspecoesComponent (SST)', () => {
 
   it('"Só as minhas" usa o endpoint próprio sem enviar inspetor', async () => {
     const { el } = await abrir('/lista?realizacao=~&idInspetor=u1');
-    const minhas = Array.from(el.querySelectorAll('.ces-quick-filter')).find((b) => b.textContent!.includes('Só as minhas')) as HTMLButtonElement;
+    const minhas = Array.from(el.querySelectorAll('.geo-quick-filter')).find((b) => b.textContent!.includes('Só as minhas')) as HTMLButtonElement;
     minhas.click();
     await new Promise((r) => setTimeout(r));
     expect(sst['listarMinhasInspecoes']).toHaveBeenCalled();

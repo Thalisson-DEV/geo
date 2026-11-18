@@ -1,4 +1,4 @@
-import { CesDataTableColumn, CesTone } from '@ces/ui';
+import { GeoDataTableColumn, GeoTone } from '@geo/ui';
 import { DashboardInspecoesResponse, DashboardSstFilter, RankingItem } from '../../../../core/models/sst.models';
 import { ColaboradorInspecionadoItem, EquipeInspecaoItem, GranularidadeDashboard, InspetorMetaItem } from '../../../../core/models/sst-dashboard.models';
 import { SstService } from '../../../../core/services/sst.service';
@@ -57,7 +57,7 @@ const navegar = (dimension: string, value: string) => ({ tipo: 'navegar' as cons
 const DIMENSAO_GRANULARIDADE: Record<GranularidadeDashboard, string> = { DIA: 'dia', MES: 'mes', ANO: 'ano' };
 const GRANULARIDADE_DIMENSAO: Record<string, GranularidadeDashboard> = { dia: 'DIA', mes: 'MES', ano: 'ANO' };
 
-function tomPercentual(valor: number | null | undefined): CesTone {
+function tomPercentual(valor: number | null | undefined): GeoTone {
   if (valor == null) return 'neutral';
   return valor >= 100 ? 'success' : valor >= 80 ? 'warning' : 'danger';
 }
@@ -126,7 +126,7 @@ function graficoRanking(id: string, titulo: string, itens: readonly RankingItem[
   };
 }
 
-const colunasInspetores: CesDataTableColumn<InspetorMetaItem>[] = [
+const colunasInspetores: GeoDataTableColumn<InspetorMetaItem>[] = [
   { key: 'nomeInspetor', header: 'Inspetor', priority: 1, value: (i) => nomeOu(i.nomeInspetor) },
   { key: 'realizado', header: 'Realizadas', type: 'integer', priority: 1 },
   { key: 'meta', header: 'Meta', type: 'number', priority: 2 },
@@ -151,7 +151,7 @@ function tabelaInspetores(d: DashboardInspecoesResponse) {
   };
 }
 
-const colunasEquipes: CesDataTableColumn<EquipeInspecaoItem>[] = [
+const colunasEquipes: GeoDataTableColumn<EquipeInspecaoItem>[] = [
   { key: 'nomeEquipe', header: 'Equipe', priority: 1, value: (e) => nomeOu(e.nomeEquipe) },
   { key: 'inspecoes', header: 'Inspeções', type: 'integer', priority: 1 },
   { key: 'desvios', header: 'Desvios', type: 'integer', priority: 2 },
@@ -159,7 +159,7 @@ const colunasEquipes: CesDataTableColumn<EquipeInspecaoItem>[] = [
   { key: 'diasSemInspecao', header: 'Dias sem inspeção', type: 'integer', priority: 2 }
 ];
 
-const colunasColaboradores: CesDataTableColumn<ColaboradorInspecionadoItem>[] = [
+const colunasColaboradores: GeoDataTableColumn<ColaboradorInspecionadoItem>[] = [
   { key: 'nomeColaborador', header: 'Colaborador', priority: 1, value: (c) => nomeOu(c.nomeColaborador) },
   { key: 'vezesInspecionado', header: 'Inspeções', type: 'integer', priority: 1 },
   { key: 'desviosRecebidos', header: 'Desvios', type: 'integer', priority: 1 },

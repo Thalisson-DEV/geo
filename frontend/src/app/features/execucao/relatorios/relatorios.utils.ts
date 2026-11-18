@@ -1,4 +1,4 @@
-import { CesTone } from '@ces/ui';
+import { GeoTone } from '@geo/ui';
 import {
   ContextoExecucaoResponse,
   HistoricoEquipeTurno,
@@ -10,7 +10,7 @@ import { duracao, horaCurta, moeda, percentual } from '../dashboards/execucao-da
 
 /** Um destaque do relatório: o que o gestor precisa notar, com tom e ícone (nunca só cor). */
 export interface Insight {
-  tom: CesTone;
+  tom: GeoTone;
   icone: string;
   titulo: string;
   texto: string;
@@ -141,7 +141,7 @@ export function insightsDoTurno(ind: IndicadoresTurno, historico: HistoricoEquip
   return [...alertas.sort(porGravidade), ...positivos, ...informativos];
 }
 
-const GRAVIDADE: Record<CesTone, number> = {
+const GRAVIDADE: Record<GeoTone, number> = {
   danger: 0,
   warning: 1,
   info: 2,

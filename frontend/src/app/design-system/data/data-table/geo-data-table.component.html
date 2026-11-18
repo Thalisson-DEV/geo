@@ -1,0 +1,378 @@
+<ng-template #toolbar>
+    <geo-table-toolbar
+      [showSearch]="searchable()"
+      [searchPlaceholder]="searchPlaceholder()"
+      [searchLabel]="searchPlaceholder()"
+      [keyShortcut]="searchShortcut()"
+      [(query)]="query"
+      (searchChanged)="onSearchChanged()"
+    >
+      <ng-container ngProjectAs="[table-filters]">
+        <ng-content select="[table-filters]"></ng-content>
+        @if (filterChips().length) {
+          <ul class="geo-data-table__chips" aria-label="Filtros aplicados na tabela">
+            @for (chip of filterChips(); track chip.index) {
+              <li class="geo-data-table__chip">
+                <i class="pi pi-filter" aria-hidden="true"></i>
+                <span>{{ chip.label }}</span>
+                <button type="button" [attr.aria-label]="'Remover filtro ' + chip.label" (click)="removeFilter(chip.index)">
+                  <i class="pi pi-times" aria-hidden="true"></i>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </ng-container>
+      @if (compact() && sortableColumns().length) {
+        <label class="geo-data-table__sort-select">
+          <span>Ordenar por</span>
+          <select [value]="sortSelectValue()" (change)="onSortSelect($any($event.target).value)">
+            <option value="">Padrão</option>
+            @for (column of sortableColumns(); track column.key) {
+              <option [value]="column.key + ':asc'">{{ column.header }} ↑</option>
+              <option [value]="column.key + ':desc'">{{ column.header }} ↓</option>
+            }
+          </select>
+        </label>
+      }
+      <ng-content select="[table-actions]"></ng-content>
+      @if (exportFileName()) {
+        <geo-button
+          size="sm"
+          variant="outline"
+          icon="pi pi-download"
+          [label]="exportLabel()"
+          [ariaLabel]="exportAriaLabel()"
+          [loading]="exporting()"
+          [disabled]="!total()"
+          (pressed)="exportCsv()"
+        ></geo-button>
+      }
+    </geo-table-toolbar>
+</ng-template>
+
+<geo-table-shell
+  [title]="title()"
+  [description]="description()"
+  [state]="shellState()"
+  [density]="density()"
+  [stateTitle]="stateTitle()"
+  [stateDescription]="stateDescription()"
+  [stateActionLabel]="shellActionLabel()"
+  [stateActionIcon]="shellActionIcon()"
+  (stateAction)="onShellAction()"
+>
+  @if (hasToolbar() && hasHeading()) {
+    <div table-toolbar class="geo-data-table__toolbar-slot">
+      <ng-container *ngTemplateOutlet="toolbar"></ng-container>
+    </div>
+  }
+
+  @if (hasToolbar() && !hasHeading()) {
+    <div class="geo-data-table__toolbar-bar">
+      <ng-container *ngTemplateOutlet="toolbar"></ng-container>
+    </div>
+  }
+
+  @if (refreshing()) {
+    <div class="geo-data-table__progress" role="progressbar" aria-label="Atualizando registros"></div>
+  }
+
+  @if (noResults()) {
+    <geo-async-state
+      class="geo-data-table__no-results"
+      state="empty"
+      [icon]="filtered() ? 'pi-filter-slash' : 'pi-search'"
+      [title]="noResultsTitle() || 'Nenhum registro encontrado'"
+      [description]="noResultsDescription()"
+      [actionLabel]="filtered() ? 'Ajustar filtros' : undefined"
+      actionIcon="pi pi-sliders-h"
+      [secondaryActionLabel]="noResultsClearLabel()"
+      secondaryActionIcon="pi pi-filter-slash"
+      (action)="adjustFilters.emit()"
+      (secondaryAction)="clearNarrowing()"
+    ></geo-async-state>
+  } @else if (compact()) {
+    <ul class="geo-data-table__cards" [attr.aria-label]="caption() || title() || 'Registros'" [attr.aria-busy]="refreshing() || null">
+      @for (row of pageRows(); track key(row, $index); let i = $index) {
+        <li class="geo-data-table__card" [class.is-selected]="selectable() && isSelected(row, i)" [class.is-clickable]="clickable()" (click)="activateFromClick($event, row)">
+          @if (selectable()) {
+            <label class="geo-data-table__check">
+              <input type="checkbox" [checked]="isSelected(row, i)" [disabled]="!isSelected(row, i) && selectionFull()" (change)="toggleRow(row, i)" />
+              <span>Selecionar {{ labelOf(row) }}</span>
+            </label>
+          }
+          <div class="geo-data-table__card-main">
+            @for (column of cardPrimary(); track column.key) {
+              <div class="geo-data-table__card-field" [class.geo-data-table__card-field--lead]="$first">
+                @if (!$first) {
+                  <span class="geo-data-table__card-label">{{ column.header }}</span>
+                }
+                <span class="geo-data-table__card-value">
+                  @if (templates().get(column.key); as tpl) {
+                    <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row, index: i }"></ng-container>
+                  } @else {
+                    {{ text(column, row) }}
+                  }
+                </span>
+              </div>
+            }
+          </div>
+
+          @if (cardSecondary().length || canExpand(row)) {
+            <button
+              type="button"
+              class="geo-data-table__card-toggle"
+              [attr.aria-expanded]="isExpanded(row, i)"
+              [attr.aria-controls]="id + '-card-' + i"
+              (click)="toggleExpanded(row, i)"
+            >
+              <i class="pi" [class.pi-chevron-down]="!isExpanded(row, i)" [class.pi-chevron-up]="isExpanded(row, i)" aria-hidden="true"></i>
+              {{ isExpanded(row, i) ? 'Menos detalhes' : 'Mais detalhes' }}
+            </button>
+            @if (isExpanded(row, i)) {
+              <div class="geo-data-table__card-more" [id]="id + '-card-' + i">
+                <dl>
+                  @for (column of cardSecondary(); track column.key) {
+                    <div>
+                      <dt>{{ column.header }}</dt>
+                      <dd>
+                        @if (templates().get(column.key); as tpl) {
+                          <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row, index: i }"></ng-container>
+                        } @else {
+                          {{ text(column, row) }}
+                        }
+                      </dd>
+                    </div>
+                  }
+                </dl>
+                @if (canExpand(row)) {
+                  <ng-container *ngTemplateOutlet="detailTemplate()!.template; context: { $implicit: row, index: i }"></ng-container>
+                }
+              </div>
+            }
+          }
+
+          @if (hasActions()) {
+            <div class="geo-data-table__card-actions">
+              @if (actionsTemplate(); as acoes) {
+                <span class="geo-data-table__row-actions">
+                  <ng-container *ngTemplateOutlet="acoes.template; context: { $implicit: row, index: i }"></ng-container>
+                </span>
+              }
+              @if (rowActionLabel()) {
+                <geo-button
+                  class="geo-data-table__card-action"
+                  size="sm"
+                  variant="ghost"
+                  [icon]="rowActionIcon()"
+                  iconPosition="right"
+                  [label]="rowActionLabel()!"
+                  [ariaLabel]="rowActionLabel() + ': ' + labelOf(row)"
+                  (pressed)="rowActivate.emit(row)"
+                ></geo-button>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <table class="geo-data-table__table" [attr.aria-describedby]="id + '-range'" [attr.aria-busy]="refreshing() || null">
+      @if (caption() || title()) {
+        <caption class="geo-sr-only">{{ caption() || title() }}</caption>
+      }
+      <thead>
+        <tr>
+          @if (selectable()) {
+            <th scope="col" class="geo-data-table__select-col">
+              <input
+                type="checkbox"
+                class="geo-data-table__checkbox"
+                aria-label="Selecionar todos desta página"
+                [checked]="pageSelection().all"
+                [indeterminate]="pageSelection().some"
+                [disabled]="!pageRows().length"
+                (change)="togglePage()"
+              />
+            </th>
+          }
+          @if (detailTemplate()) {
+            <th scope="col" class="geo-data-table__expander-col"><span class="geo-sr-only">Expandir</span></th>
+          }
+          @for (column of columns(); track column.key) {
+            <th
+              scope="col"
+              [style.width]="column.width"
+              [style.min-width]="minWidth(column)"
+              [class.geo-data-table__numeric]="isNumeric(column)"
+              [attr.aria-sort]="ariaSort(column.key)"
+            >
+              @if (sortableColumns().includes(column)) {
+                <button
+                  type="button"
+                  class="geo-data-table__sort"
+                  [title]="'Ordenar por ' + column.header + ' (Shift+clique adiciona critério)'"
+                  (click)="toggleSort(column.key, $event)"
+                >
+                  <span>{{ column.header }}</span>
+                  @if (sortState(column.key); as estado) {
+                    <i
+                      class="pi"
+                      [class.pi-sort-amount-up-alt]="estado.direction === 'asc'"
+                      [class.pi-sort-amount-down]="estado.direction === 'desc'"
+                      aria-hidden="true"
+                    ></i>
+                    @if (sort().length > 1) {
+                      <span class="geo-data-table__sort-order" aria-hidden="true">{{ estado.order }}</span>
+                    }
+                  } @else {
+                    <i class="pi pi-sort-alt geo-data-table__sort-idle" aria-hidden="true"></i>
+                  }
+                </button>
+              } @else {
+                {{ column.header }}
+              }
+            </th>
+          }
+          @if (hasActions()) {
+            <th scope="col" class="geo-data-table__action-col">Ações</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of pageRows(); track key(row, $index); let i = $index) {
+          <tr
+            [class.is-expanded]="canExpand(row) && isExpanded(row, i)"
+            [class.is-selected]="selectable() && isSelected(row, i)"
+            [class.is-clickable]="clickable()"
+            (click)="activateFromClick($event, row)"
+          >
+            @if (selectable()) {
+              <td class="geo-data-table__select-col">
+                <input
+                  type="checkbox"
+                  class="geo-data-table__checkbox"
+                  [attr.aria-label]="'Selecionar ' + labelOf(row)"
+                  [checked]="isSelected(row, i)"
+                  [disabled]="!isSelected(row, i) && selectionFull()"
+                  (change)="toggleRow(row, i)"
+                />
+              </td>
+            }
+            @if (detailTemplate()) {
+              <td class="geo-data-table__expander-col">
+                @if (canExpand(row)) {
+                  <button
+                    type="button"
+                    class="geo-data-table__expander"
+                    [attr.aria-expanded]="isExpanded(row, i)"
+                    [attr.aria-controls]="id + '-detail-' + i"
+                    [attr.aria-label]="(isExpanded(row, i) ? 'Recolher ' : 'Expandir ') + labelOf(row)"
+                    (click)="toggleExpanded(row, i)"
+                  >
+                    <i class="pi" [class.pi-chevron-right]="!isExpanded(row, i)" [class.pi-chevron-down]="isExpanded(row, i)" aria-hidden="true"></i>
+                  </button>
+                }
+              </td>
+            }
+            @for (column of columns(); track column.key) {
+              <td [class.geo-data-table__numeric]="isNumeric(column)">
+                @if (templates().get(column.key); as tpl) {
+                  <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row, index: i }"></ng-container>
+                } @else if (fit()) {
+                  <span class="geo-data-table__clamp" [attr.title]="text(column, row)">{{ text(column, row) }}</span>
+                } @else {
+                  {{ text(column, row) }}
+                }
+              </td>
+            }
+            @if (hasActions()) {
+              <td class="geo-data-table__action-col">
+                <span class="geo-data-table__row-actions">
+                  @if (actionsTemplate(); as acoes) {
+                    <ng-container *ngTemplateOutlet="acoes.template; context: { $implicit: row, index: i }"></ng-container>
+                  }
+                  @if (rowActionLabel()) {
+                    <geo-button
+                      size="sm"
+                      variant="ghost"
+                      [icon]="rowActionIcon()"
+                      iconPosition="right"
+                      [label]="rowActionLabel()!"
+                      [ariaLabel]="rowActionLabel() + ': ' + labelOf(row)"
+                      (pressed)="rowActivate.emit(row)"
+                    ></geo-button>
+                  }
+                </span>
+              </td>
+            }
+          </tr>
+          @if (canExpand(row) && isExpanded(row, i)) {
+            <tr class="geo-data-table__detail-row">
+              <td [attr.colspan]="columnCount()" [id]="id + '-detail-' + i">
+                <ng-container *ngTemplateOutlet="detailTemplate()!.template; context: { $implicit: row, index: i }"></ng-container>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  }
+
+  <!-- Flutuante no rodapé da tela: marcar a primeira linha não desloca as demais e as ações ficam à vista. -->
+  @if (selectable() && selection().length) {
+    <div class="geo-data-table__selection" role="status">
+      <strong>{{ selection().length }} {{ selection().length === 1 ? 'selecionado' : 'selecionados' }}</strong>
+      @if (selectionFull()) {
+        <span class="geo-data-table__selection-limit">limite de {{ selectionLimit() }}</span>
+      }
+      <ng-content select="[selection-actions]"></ng-content>
+      <geo-button size="sm" variant="ghost" icon="pi pi-times" label="Limpar seleção" (pressed)="clearSelection()"></geo-button>
+    </div>
+  }
+
+  @if (shellState() === 'ready' && !noResults()) {
+    <footer table-footer class="geo-data-table__footer">
+      <span class="geo-data-table__range" [id]="id + '-range'" aria-live="polite">{{ rangeLabel() }}</span>
+      @if (compact()) {
+        @if (hasMore()) {
+          <geo-button size="sm" variant="outline" label="Carregar mais" icon="pi pi-angle-down" [loading]="refreshing()" (pressed)="loadMore()"></geo-button>
+        }
+      } @else {
+        <label class="geo-data-table__page-size">
+          <span>Linhas por página</span>
+          <select [value]="pageSize()" (change)="setPageSize($any($event.target).value)">
+            @for (opcao of pageSizeOptions(); track opcao) {
+              <option [value]="opcao" [selected]="opcao === pageSize()">{{ opcao }}</option>
+            }
+          </select>
+        </label>
+        <nav class="geo-data-table__pager" [attr.aria-label]="'Paginação de ' + (title() || 'registros')">
+          <geo-button size="icon-sm" variant="ghost" icon="pi pi-angle-double-left" ariaLabel="Primeira página" [disabled]="safePageIndex() === 0" (pressed)="goTo(0)"></geo-button>
+          <geo-button size="icon-sm" variant="ghost" icon="pi pi-angle-left" ariaLabel="Página anterior" [disabled]="safePageIndex() === 0" (pressed)="goTo(safePageIndex() - 1)"></geo-button>
+          <ol class="geo-data-table__pages">
+            @for (item of pageNumbers(); track $index) {
+              <li>
+                @if (item === null) {
+                  <span class="geo-data-table__page-gap" aria-hidden="true">…</span>
+                } @else {
+                  <button
+                    type="button"
+                    class="geo-data-table__page"
+                    [attr.aria-current]="item === safePageIndex() ? 'page' : null"
+                    [attr.aria-label]="'Página ' + (item + 1)"
+                    (click)="goTo(item)"
+                  >{{ item + 1 }}</button>
+                }
+              </li>
+            }
+          </ol>
+          <span class="geo-data-table__page-label">Página {{ safePageIndex() + 1 }} de {{ pageCount() }}</span>
+          <geo-button size="icon-sm" variant="ghost" icon="pi pi-angle-right" ariaLabel="Próxima página" [disabled]="safePageIndex() >= pageCount() - 1" (pressed)="goTo(safePageIndex() + 1)"></geo-button>
+          <geo-button size="icon-sm" variant="ghost" icon="pi pi-angle-double-right" ariaLabel="Última página" [disabled]="safePageIndex() >= pageCount() - 1" (pressed)="goTo(pageCount() - 1)"></geo-button>
+        </nav>
+      }
+    </footer>
+  }
+</geo-table-shell>

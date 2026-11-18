@@ -1,28 +1,28 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import {
-  CesBooleanControlComponent,
-  CesButtonComponent,
-  CesCellDirective,
-  CesConfirmationService,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesFilterPanelComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesIconButtonComponent,
-  CesListShortcutsDirective,
-  CesNumberInputComponent,
-  CesPageHeaderComponent,
-  CesRowActionsDirective,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextInputComponent,
-  CesTextareaComponent,
+  GeoBooleanControlComponent,
+  GeoButtonComponent,
+  GeoCellDirective,
+  GeoConfirmationService,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoFilterPanelComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoIconButtonComponent,
+  GeoListShortcutsDirective,
+  GeoNumberInputComponent,
+  GeoPageHeaderComponent,
+  GeoRowActionsDirective,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextInputComponent,
+  GeoTextareaComponent,
   NotificationService,
-  cesFilter,
-  cesListState
-} from '@ces/ui';
+  geoFilter,
+  geoListState
+} from '@geo/ui';
 
 import { ChamadoPrioridade, EquipeChamado, TopicoChamado, TopicoChamadoRequest } from '../../../../core/models/chamado.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
@@ -32,7 +32,7 @@ import { AjudaListagemComponent } from '../../../../shared/listagem/ajuda-listag
 import { LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from '../../../../shared/listagem/listagem';
 import { CHAMADO_PRIORIDADE_LABELS, PRIORIDADE_OPTIONS } from '../../chamados-ui';
 
-const SITUACOES: CesSelectOption<boolean | null>[] = [
+const SITUACOES: GeoSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
   { label: 'Ativos', value: true },
   { label: 'Inativos', value: false }
@@ -43,27 +43,27 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesBooleanControlComponent,
-    CesButtonComponent,
-    CesCellDirective,
-    CesDataTableComponent,
-    CesFilterPanelComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesIconButtonComponent,
-    CesListShortcutsDirective,
-    CesNumberInputComponent,
-    CesPageHeaderComponent,
-    CesRowActionsDirective,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextInputComponent,
-    CesTextareaComponent,
+    GeoBooleanControlComponent,
+    GeoButtonComponent,
+    GeoCellDirective,
+    GeoDataTableComponent,
+    GeoFilterPanelComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoIconButtonComponent,
+    GeoListShortcutsDirective,
+    GeoNumberInputComponent,
+    GeoPageHeaderComponent,
+    GeoRowActionsDirective,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextInputComponent,
+    GeoTextareaComponent,
     AjudaListagemComponent
   ],
   template: `
-    <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="abrir()">
-      <ces-page-header
+    <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="abrir()">
+      <geo-page-header
         title="Tópicos de chamados"
         icon="pi pi-tags"
         [breadcrumb]="[{ label: 'Admin' }, { label: 'Chamados' }, { label: 'Tópicos' }]"
@@ -71,20 +71,20 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         helpLabel="Ajuda sobre tópicos de chamados"
         (help)="ajuda.show()"
       >
-        <ces-button actions icon="pi pi-plus" label="Novo tópico" [keyShortcut]="atalhos.newShortcut()" (pressed)="abrir()"></ces-button>
-      </ces-page-header>
+        <geo-button actions icon="pi pi-plus" label="Novo tópico" [keyShortcut]="atalhos.newShortcut()" (pressed)="abrir()"></geo-button>
+      </geo-page-header>
 
-      <ces-filter-panel #painel storageKey="chamados-topicos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
+      <geo-filter-panel #painel storageKey="chamados-topicos" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
-        <div class="ces-filter-grid">
-          <ces-text-input label="Código" [value]="lista.filters.codigo() ?? ''" (valueChange)="lista.filters.codigo.set($event || null)" placeholder="Ex.: SISTEMA_ERRO"></ces-text-input>
-          <ces-select label="Equipe padrão" [options]="equipesOpcoes()" [(value)]="lista.filters.equipePadraoId" [filter]="true" [clearable]="true"
-            placeholder="Todas as equipes" [loading]="equipeLookup.loading()" (opened)="equipeLookup.open()" (search)="equipeLookup.search($event)"></ces-select>
-          <ces-select label="Status" [options]="situacoes" [(value)]="lista.filters.ativo"></ces-select>
+        <div class="geo-filter-grid">
+          <geo-text-input label="Código" [value]="lista.filters.codigo() ?? ''" (valueChange)="lista.filters.codigo.set($event || null)" placeholder="Ex.: SISTEMA_ERRO"></geo-text-input>
+          <geo-select label="Equipe padrão" [options]="equipesOpcoes()" [(value)]="lista.filters.equipePadraoId" [filter]="true" [clearable]="true"
+            placeholder="Todas as equipes" [loading]="equipeLookup.loading()" (opened)="equipeLookup.open()" (search)="equipeLookup.search($event)"></geo-select>
+          <geo-select label="Status" [options]="situacoes" [(value)]="lista.filters.ativo"></geo-select>
         </div>
-      </ces-filter-panel>
+      </geo-filter-panel>
 
-      <ces-data-table
+      <geo-data-table
         title="Tópicos"
         mode="server"
         storageKey="chamados-topicos"
@@ -114,54 +114,54 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
         (emptyAction)="abrir()"
         (rowActivate)="abrir($event)"
       >
-        <ng-template cesCell="nome" let-row>
-          <span class="ces-cell-strong">{{ row.nome }}</span>
-          <code class="ces-cell-muted">{{ row.codigo }}</code>
+        <ng-template geoCell="nome" let-row>
+          <span class="geo-cell-strong">{{ row.nome }}</span>
+          <code class="geo-cell-muted">{{ row.codigo }}</code>
         </ng-template>
-        <ng-template cesCell="prioridade" let-row>
-          <ces-status tone="info" emphasis="outline" icon="pi-flag">{{ prioridade(row.prioridadePadrao) }}</ces-status>
+        <ng-template geoCell="prioridade" let-row>
+          <geo-status tone="info" emphasis="outline" icon="pi-flag">{{ prioridade(row.prioridadePadrao) }}</geo-status>
         </ng-template>
-        <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+        <ng-template geoCell="ativo" let-row>
+          <geo-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</geo-status>
         </ng-template>
-        <ng-template cesRowActions let-row>
-          <span class="ces-table-actions">
-            <ces-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
-              size="icon-sm" (pressed)="alternar(row)"></ces-icon-button>
+        <ng-template geoRowActions let-row>
+          <span class="geo-table-actions">
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.nome"
+              size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
           </span>
         </ng-template>
-      </ces-data-table>
+      </geo-data-table>
     </div>
 
-    <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tópico' : 'Novo tópico'" [description]="emEdicao()?.nome"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tópico' : 'Novo tópico'" [description]="emEdicao()?.nome"
       [dirty]="alterado()" size="md">
-      <ces-form-section title="Tópico" icon="pi pi-tags">
-        <div class="ces-form-grid">
-          <ces-text-input label="Código" [required]="true" [value]="codigo()" (valueChange)="codigo.set($event.toUpperCase())" [maxlength]="80"
-            placeholder="SISTEMA_ERRO" [error]="erro('codigo')"></ces-text-input>
-          <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="150" placeholder="Erro em sistema" [error]="erro('nome')"></ces-text-input>
+      <geo-form-section title="Tópico" icon="pi pi-tags">
+        <div class="geo-form-grid">
+          <geo-text-input label="Código" [required]="true" [value]="codigo()" (valueChange)="codigo.set($event.toUpperCase())" [maxlength]="80"
+            placeholder="SISTEMA_ERRO" [error]="erro('codigo')"></geo-text-input>
+          <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="150" placeholder="Erro em sistema" [error]="erro('nome')"></geo-text-input>
         </div>
-        <ces-textarea label="Descrição" [(value)]="descricao" [rows]="3" [maxlength]="1000" [showOptional]="true"></ces-textarea>
-        <div class="ces-form-grid">
-          <ces-select label="Equipe padrão" [required]="true" [options]="equipesOpcoes()" [(value)]="equipePadraoId" [filter]="true"
-            [loading]="equipeLookup.loading()" (opened)="equipeLookup.open()" (search)="equipeLookup.search($event)" [error]="erro('equipe')"></ces-select>
-          <ces-select label="Prioridade padrão" [required]="true" [options]="prioridades" [(value)]="prioridadePadrao"></ces-select>
-          <ces-number-input label="Ordem de exibição" [required]="true" [(value)]="ordemExibicao" [min]="0" [useGrouping]="false"></ces-number-input>
+        <geo-textarea label="Descrição" [(value)]="descricao" [rows]="3" [maxlength]="1000" [showOptional]="true"></geo-textarea>
+        <div class="geo-form-grid">
+          <geo-select label="Equipe padrão" [required]="true" [options]="equipesOpcoes()" [(value)]="equipePadraoId" [filter]="true"
+            [loading]="equipeLookup.loading()" (opened)="equipeLookup.open()" (search)="equipeLookup.search($event)" [error]="erro('equipe')"></geo-select>
+          <geo-select label="Prioridade padrão" [required]="true" [options]="prioridades" [(value)]="prioridadePadrao"></geo-select>
+          <geo-number-input label="Ordem de exibição" [required]="true" [(value)]="ordemExibicao" [min]="0" [useGrouping]="false"></geo-number-input>
         </div>
-      </ces-form-section>
-      <ces-form-section title="Prazos (SLA)" icon="pi pi-clock">
-        <div class="ces-form-grid">
-          <ces-number-input label="Primeira resposta (horas)" [required]="true" [(value)]="slaPrimeiraResposta" [min]="1" [useGrouping]="false" [error]="erro('sla1')"></ces-number-input>
-          <ces-number-input label="Resolução (horas)" [required]="true" [(value)]="slaResolucao" [min]="1" [useGrouping]="false" [error]="erro('sla2')"></ces-number-input>
-          <ces-number-input label="Prazo para reabertura (horas)" [required]="true" [(value)]="prazoReabertura" [min]="1" [useGrouping]="false"></ces-number-input>
+      </geo-form-section>
+      <geo-form-section title="Prazos (SLA)" icon="pi pi-clock">
+        <div class="geo-form-grid">
+          <geo-number-input label="Primeira resposta (horas)" [required]="true" [(value)]="slaPrimeiraResposta" [min]="1" [useGrouping]="false" [error]="erro('sla1')"></geo-number-input>
+          <geo-number-input label="Resolução (horas)" [required]="true" [(value)]="slaResolucao" [min]="1" [useGrouping]="false" [error]="erro('sla2')"></geo-number-input>
+          <geo-number-input label="Prazo para reabertura (horas)" [required]="true" [(value)]="prazoReabertura" [min]="1" [useGrouping]="false"></geo-number-input>
         </div>
-        <ces-boolean-control label="Pausar o SLA de resolução enquanto aguarda o solicitante" [(value)]="pausarSla"></ces-boolean-control>
-      </ces-form-section>
-      <div drawer-footer class="ces-actions-row">
-        <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar tópico'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        <geo-boolean-control label="Pausar o SLA de resolução enquanto aguarda o solicitante" [(value)]="pausarSla"></geo-boolean-control>
+      </geo-form-section>
+      <div drawer-footer class="geo-actions-row">
+        <geo-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></geo-button>
+        <geo-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar tópico'" [loading]="salvando()" (pressed)="salvar()"></geo-button>
       </div>
-    </ces-form-drawer>
+    </geo-form-drawer>
 
     <app-ajuda-listagem #ajuda titulo="Tópicos de chamados" entidadePlural="tópicos" busca="nome, código ou descrição" rotuloNovo="Novo tópico">
       <div class="help-section">
@@ -174,16 +174,16 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
 export class ChamadosTopicosComponent {
   private readonly servico = inject(ChamadosService);
   private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
+  private readonly confirmacao = inject(GeoConfirmationService);
 
   protected readonly situacoes = SITUACOES;
-  protected readonly prioridades = PRIORIDADE_OPTIONS as CesSelectOption<ChamadoPrioridade>[];
-  protected readonly lista = cesListState({
+  protected readonly prioridades = PRIORIDADE_OPTIONS as GeoSelectOption<ChamadoPrioridade>[];
+  protected readonly lista = geoListState({
     storageKey: 'chamados-topicos',
     filters: {
-      codigo: cesFilter.value<string | null>(null, { label: 'Código' }),
-      equipePadraoId: cesFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nomeEquipe(id) : null) }),
-      ativo: cesFilter.value<boolean | null>(true, { label: 'Status', options: () => SITUACOES })
+      codigo: geoFilter.value<string | null>(null, { label: 'Código' }),
+      equipePadraoId: geoFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nomeEquipe(id) : null) }),
+      ativo: geoFilter.value<boolean | null>(true, { label: 'Status', options: () => SITUACOES })
     },
     sort: [{ key: 'ordemExibicao', direction: 'asc' }]
   });
@@ -211,7 +211,7 @@ export class ChamadosTopicosComponent {
     },
     inject(DestroyRef)
   );
-  protected readonly equipesOpcoes = computed<CesSelectOption<string>[]>(() => this.equipeLookup.items().map((e) => ({ label: e.nome, value: e.id })));
+  protected readonly equipesOpcoes = computed<GeoSelectOption<string>[]>(() => this.equipeLookup.items().map((e) => ({ label: e.nome, value: e.id })));
 
   protected readonly resultado = this.lista.results<TopicoChamado>(
     (pedido) => this.servico.listarTopicos({ ...this.filtro(), ...(paginaPadrao(pedido) as { page: number; size: number; sort?: string }) }),
@@ -223,7 +223,7 @@ export class ChamadosTopicosComponent {
     () => this.lista.request()
   );
 
-  protected readonly colunas: CesDataTableColumn<TopicoChamado>[] = [
+  protected readonly colunas: GeoDataTableColumn<TopicoChamado>[] = [
     { key: 'nome', header: 'Tópico', type: 'custom', priority: 1, sortField: 'nome', value: (t) => t.nome, display: (t) => `${t.nome} (${t.codigo})` },
     { key: 'equipe', header: 'Equipe padrão', value: (t) => t.equipePadrao?.nome, display: (t) => t.equipePadrao?.nome ?? '—' },
     { key: 'prioridade', header: 'Prioridade', type: 'custom', value: (t) => t.prioridadePadrao, display: (t) => this.prioridade(t.prioridadePadrao) },

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { CesButtonComponent, CesCalloutComponent } from '@ces/ui';
+import { GeoButtonComponent, GeoCalloutComponent } from '@geo/ui';
 import { catchError, of } from 'rxjs';
 
 import { Catalogo, Definicao, FlowNode, JsonValue, NoEspec, ParamEspec, Params, Problema } from '../../../../core/models/automacao.models';
@@ -21,7 +21,7 @@ const DIAS: [string, string][] = [['0', 'Seg'], ['1', 'Ter'], ['2', 'Qua'], ['3'
 @Component({
   selector: 'aut-form-parametros',
   standalone: true,
-  imports: [CesCalloutComponent, CesButtonComponent, NgTemplateOutlet, CampoExpressaoComponent, DestinatariosComponent, CondicaoComponent, FichasComponent, LinhasComponent, RotasComponent, EditorEmailComponent],
+  imports: [GeoCalloutComponent, GeoButtonComponent, NgTemplateOutlet, CampoExpressaoComponent, DestinatariosComponent, CondicaoComponent, FichasComponent, LinhasComponent, RotasComponent, EditorEmailComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="aut-section">
@@ -29,7 +29,7 @@ const DIAS: [string, string][] = [['0', 'Seg'], ['1', 'Ter'], ['2', 'Qua'], ['3'
         <ng-container *ngTemplateOutlet="campo; context: { $implicit: p }" />
       }
       @if (avancados().length) {
-        <ces-button [icon]="mostrarAvancado() ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" label="Opções avançadas" variant="ghost" size="sm" style="align-self:flex-start" (pressed)="mostrarAvancado.set(!mostrarAvancado())" [attr.aria-expanded]="mostrarAvancado()"></ces-button>
+        <geo-button [icon]="mostrarAvancado() ? 'pi pi-chevron-down' : 'pi pi-chevron-right'" label="Opções avançadas" variant="ghost" size="sm" style="align-self:flex-start" (pressed)="mostrarAvancado.set(!mostrarAvancado())" [attr.aria-expanded]="mostrarAvancado()"></geo-button>
         @if (mostrarAvancado()) {
           @for (p of avancados(); track p.chave) {
             <ng-container *ngTemplateOutlet="campo; context: { $implicit: p }" />
@@ -37,28 +37,28 @@ const DIAS: [string, string][] = [['0', 'Seg'], ['1', 'Ter'], ['2', 'Qua'], ['3'
         }
       }
       @if (espec().tipo === 'email.send' && !catalogo().emailPronto) {
-        <ces-callout tone="warning" [dense]="true">O envio de e-mail está desligado neste ambiente: a execução monta o e-mail e o guarda, sem enviar.</ces-callout>
+        <geo-callout tone="warning" [dense]="true">O envio de e-mail está desligado neste ambiente: a execução monta o e-mail e o guarda, sem enviar.</geo-callout>
       }
       @if (espec().ia && !catalogo().iaPronta) {
-        <ces-callout tone="warning" [dense]="true">O provedor de IA não está configurado: este passo vai falhar até ele ser configurado.</ces-callout>
+        <geo-callout tone="warning" [dense]="true">O provedor de IA não está configurado: este passo vai falhar até ele ser configurado.</geo-callout>
       }
     </div>
 
     <ng-template #campo let-p>
       <div class="aut-field">
-        <span class="ces-field__label">{{ p.rotulo }} @if (p.obrigatorio) { <span class="ces-field__required" aria-label="obrigatório">*</span> }</span>
+        <span class="geo-field__label">{{ p.rotulo }} @if (p.obrigatorio) { <span class="geo-field__required" aria-label="obrigatório">*</span> }</span>
         @switch (p.tipo) {
           @case ('boolean') {
             <label class="aut-check"><input type="checkbox" [checked]="valor(p) === true" (change)="alterar(p, $any($event.target).checked)" /> Sim</label>
           }
           @case ('select') {
-            <select class="p-inputtext ces-prime-control aut-select" [attr.aria-label]="p.rotulo" (change)="alterar(p, $any($event.target).value)">
+            <select class="p-inputtext geo-prime-control aut-select" [attr.aria-label]="p.rotulo" (change)="alterar(p, $any($event.target).value)">
               @if (!texto(valor(p))) { <option value="" selected>Selecione</option> }
               @for (o of opcoesDe(p); track o[0]) { <option [value]="o[0]" [selected]="texto(valor(p)) === o[0]">{{ o[1] }}</option> }
             </select>
           }
           @case ('source') {
-            <select class="p-inputtext ces-prime-control aut-select" [attr.aria-label]="p.rotulo" (change)="alterar(p, $any($event.target).value)">
+            <select class="p-inputtext geo-prime-control aut-select" [attr.aria-label]="p.rotulo" (change)="alterar(p, $any($event.target).value)">
               <option value="" [selected]="!texto(valor(p))">Selecione a fonte</option>
               @for (f of fontes(); track f.valor) { <option [value]="f.valor" [selected]="texto(valor(p)) === f.valor">{{ f.rotulo }}</option> }
             </select>
@@ -78,7 +78,7 @@ const DIAS: [string, string][] = [['0', 'Seg'], ['1', 'Ter'], ['2', 'Qua'], ['3'
             </div>
           }
           @case ('time') {
-            <input class="p-inputtext ces-prime-control" type="time" [value]="texto(valor(p))" (change)="alterar(p, $any($event.target).value)" [attr.aria-label]="p.rotulo" />
+            <input class="p-inputtext geo-prime-control" type="time" [value]="texto(valor(p))" (change)="alterar(p, $any($event.target).value)" [attr.aria-label]="p.rotulo" />
           }
           @case ('recipients') {
             <aut-destinatarios [valor]="valor(p)" [contexto]="contexto()" (mudou)="alterar(p, $event)" />
@@ -110,7 +110,7 @@ const DIAS: [string, string][] = [['0', 'Seg'], ['1', 'Ter'], ['2', 'Qua'], ['3'
           @case ('html') {
             <div class="aut-html-preview">
               <span>{{ previa(p) || 'Mensagem ainda vazia.' }}</span>
-              <ces-button icon="pi pi-envelope" label="Abrir o editor de e-mail" variant="outline" size="sm" (pressed)="emailAberto.set(true)"></ces-button>
+              <geo-button icon="pi pi-envelope" label="Abrir o editor de e-mail" variant="outline" size="sm" (pressed)="emailAberto.set(true)"></geo-button>
             </div>
             <aut-editor-email [(aberto)]="emailAberto" [params]="params()" [contexto]="contexto()" (mudou)="alterarVarios($event)" />
           }
@@ -123,7 +123,7 @@ const DIAS: [string, string][] = [['0', 'Seg'], ['1', 'Ter'], ['2', 'Qua'], ['3'
               <aut-campo-expressao [valor]="texto(valor(p))" [contexto]="contexto()" [rotulo]="p.rotulo" [placeholder]="p.placeholder"
                                    [invalido]="!!erro(p)" (mudou)="alterarNumero(p, $event)" />
             } @else {
-              <input class="p-inputtext ces-prime-control" type="number" [attr.min]="p.minimo" [attr.max]="p.maximo" [value]="texto(valor(p))"
+              <input class="p-inputtext geo-prime-control" type="number" [attr.min]="p.minimo" [attr.max]="p.maximo" [value]="texto(valor(p))"
                      [attr.aria-label]="p.rotulo" (input)="alterarNumero(p, $any($event.target).value)" />
             }
           }
@@ -132,7 +132,7 @@ const DIAS: [string, string][] = [['0', 'Seg'], ['1', 'Ter'], ['2', 'Qua'], ['3'
               <aut-campo-expressao [valor]="texto(valor(p))" [contexto]="ctxParam(p)" [rotulo]="p.rotulo" [placeholder]="p.placeholder"
                                    [invalido]="!!erro(p)" (mudou)="alterar(p, $event)" />
             } @else {
-              <input class="p-inputtext ces-prime-control" [value]="texto(valor(p))" [placeholder]="p.placeholder ?? ''" [attr.aria-label]="p.rotulo"
+              <input class="p-inputtext geo-prime-control" [value]="texto(valor(p))" [placeholder]="p.placeholder ?? ''" [attr.aria-label]="p.rotulo"
                      (input)="alterar(p, $any($event.target).value)" />
             }
           }

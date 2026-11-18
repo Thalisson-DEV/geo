@@ -1,19 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesDatepickerComponent,
-  CesFormActionsComponent,
-  CesFormDrawerComponent,
-  CesFormSectionComponent,
-  CesNumberInputComponent,
-  CesSelectComponent,
-  CesSelectOption,
-  CesStatusComponent,
-  CesTextareaComponent,
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoDatepickerComponent,
+  GeoFormActionsComponent,
+  GeoFormDrawerComponent,
+  GeoFormSectionComponent,
+  GeoNumberInputComponent,
+  GeoSelectComponent,
+  GeoSelectOption,
+  GeoStatusComponent,
+  GeoTextareaComponent,
   NotificationService
-} from '@ces/ui';
+} from '@geo/ui';
 import { InspecaoPneu, VeiculoPneus, formatarKm, formatarSulco, tomSulco } from '../../../core/models/frota-pneu.models';
 import { formatarPlaca, paraInstanteIso } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -39,86 +39,86 @@ interface Linha {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CesAsyncStateComponent,
-    CesButtonComponent,
-    CesCalloutComponent,
-    CesDatepickerComponent,
-    CesFormActionsComponent,
-    CesFormDrawerComponent,
-    CesFormSectionComponent,
-    CesNumberInputComponent,
-    CesSelectComponent,
-    CesStatusComponent,
-    CesTextareaComponent
+    GeoAsyncStateComponent,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoDatepickerComponent,
+    GeoFormActionsComponent,
+    GeoFormDrawerComponent,
+    GeoFormSectionComponent,
+    GeoNumberInputComponent,
+    GeoSelectComponent,
+    GeoStatusComponent,
+    GeoTextareaComponent
   ],
   styles: `
     .linhas { display: grid; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
     .linha { display: grid; grid-template-columns: minmax(9rem, 1.3fr) minmax(7rem, 1fr) minmax(7rem, 1fr); gap: 0.5rem 0.75rem; align-items: start;
-      padding: 0.6rem 0.7rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
+      padding: 0.6rem 0.7rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .linha__pneu { display: grid; gap: 0.1rem; }
-    .linha__pneu strong { font-size: var(--ces-font-body); }
-    .linha__pneu span { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .linha__pneu strong { font-size: var(--geo-font-body); }
+    .linha__pneu span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .linha__avisos { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.35rem; }
     .atalhos { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     @media (max-width: 640px) { .linha { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .linha__pneu { grid-column: 1 / -1; } }
   `,
   template: `
-    <ces-form-drawer #drawer [(visible)]="visivel" title="Inspeção de pneus" size="lg" [dirty]="preenchidas() > 0" [loading]="salvando()"
+    <geo-form-drawer #drawer [(visible)]="visivel" title="Inspeção de pneus" size="lg" [dirty]="preenchidas() > 0" [loading]="salvando()"
       description="Calibragem e sulco de cada pneu montado. O sulco medido passa a ser o sulco atual do pneu.">
-      <ces-form-section title="Veículo" icon="pi pi-car">
-        <div class="ces-form-grid">
-          <ces-select label="Veículo" [required]="true" [options]="veiculos()" [value]="idVeiculo()" (valueChange)="trocar($event)" [filter]="true"></ces-select>
-          <ces-datepicker label="Quando" [(value)]="quando" [showTime]="true" [maxDate]="agora" description="Vazio: agora."></ces-datepicker>
-          <ces-number-input [label]="veiculo()?.unidade === 'HORAS' ? 'Horímetro' : 'Km'" [(value)]="km" [min]="0" [showOptional]="true"
-            [description]="veiculo()?.kmAtual != null ? 'Último: ' + formatarKm(veiculo()!.kmAtual, veiculo()!.unidade) : undefined"></ces-number-input>
+      <geo-form-section title="Veículo" icon="pi pi-car">
+        <div class="geo-form-grid">
+          <geo-select label="Veículo" [required]="true" [options]="veiculos()" [value]="idVeiculo()" (valueChange)="trocar($event)" [filter]="true"></geo-select>
+          <geo-datepicker label="Quando" [(value)]="quando" [showTime]="true" [maxDate]="agora" description="Vazio: agora."></geo-datepicker>
+          <geo-number-input [label]="veiculo()?.unidade === 'HORAS' ? 'Horímetro' : 'Km'" [(value)]="km" [min]="0" [showOptional]="true"
+            [description]="veiculo()?.kmAtual != null ? 'Último: ' + formatarKm(veiculo()!.kmAtual, veiculo()!.unidade) : undefined"></geo-number-input>
         </div>
-      </ces-form-section>
+      </geo-form-section>
 
       @if (carregando()) {
-        <ces-async-state state="loading" [compact]="true" title="Carregando os pneus" description="Só um instante."></ces-async-state>
+        <geo-async-state state="loading" [compact]="true" title="Carregando os pneus" description="Só um instante."></geo-async-state>
       } @else if (!idVeiculo()) {
-        <ces-async-state state="empty" [compact]="true" icon="pi-car" title="Escolha o veículo" description="Os pneus montados aparecem aqui, um por posição."></ces-async-state>
+        <geo-async-state state="empty" [compact]="true" icon="pi-car" title="Escolha o veículo" description="Os pneus montados aparecem aqui, um por posição."></geo-async-state>
       } @else if (veiculo(); as v) {
         @if (!linhas().length) {
-          <ces-callout tone="info" icon="pi pi-info-circle" title="Nenhum pneu montado neste veículo">
+          <geo-callout tone="info" icon="pi pi-info-circle" title="Nenhum pneu montado neste veículo">
             Monte os pneus na aba Montagem para inspecionar.
-          </ces-callout>
+          </geo-callout>
         } @else {
-          <ces-form-section title="Pneus" icon="pi pi-gauge" [description]="'Sulco mínimo da frota: ' + v.sulcoMinimoMm + ' mm. Deixe em branco o que não mediu.'">
+          <geo-form-section title="Pneus" icon="pi pi-gauge" [description]="'Sulco mínimo da frota: ' + v.sulcoMinimoMm + ' mm. Deixe em branco o que não mediu.'">
             <div class="atalhos">
-              <ces-button size="sm" variant="outline" icon="pi pi-check" label="Calibrados na pressão recomendada" (pressed)="calibrarTodos()"
-                [disabled]="!temRecomendada()"></ces-button>
+              <geo-button size="sm" variant="outline" icon="pi pi-check" label="Calibrados na pressão recomendada" (pressed)="calibrarTodos()"
+                [disabled]="!temRecomendada()"></geo-button>
             </div>
             <ul class="linhas">
               @for (l of linhas(); track l.idPneu) {
                 <li class="linha">
                   <span class="linha__pneu"><strong>{{ l.marcaFogo }}</strong><span>{{ l.rotulo }}</span>
                     <span>Sulco anterior {{ sulco(l.sulcoAnterior) }}{{ l.recomendada ? ' · recomendado ' + l.recomendada + ' psi' : '' }}</span></span>
-                  <ces-number-input label="Pressão (psi)" [value]="l.pressao" (valueChange)="alterar(l.idPneu, 'pressao', $event)" [min]="0" [max]="200"></ces-number-input>
-                  <ces-number-input label="Sulco (mm)" [value]="l.sulco" (valueChange)="alterar(l.idPneu, 'sulco', $event)" [min]="0" [max]="40"
-                    [minFractionDigits]="1" [maxFractionDigits]="1"></ces-number-input>
+                  <geo-number-input label="Pressão (psi)" [value]="l.pressao" (valueChange)="alterar(l.idPneu, 'pressao', $event)" [min]="0" [max]="200"></geo-number-input>
+                  <geo-number-input label="Sulco (mm)" [value]="l.sulco" (valueChange)="alterar(l.idPneu, 'sulco', $event)" [min]="0" [max]="40"
+                    [minFractionDigits]="1" [maxFractionDigits]="1"></geo-number-input>
                   @if (fora(l) || baixo(l) || sulcoMaior(l)) {
                     <span class="linha__avisos">
-                      @if (fora(l)) { <ces-status tone="warning" icon="pi pi-gauge">Pressão fora da faixa ({{ l.recomendada }} psi ±10%)</ces-status> }
-                      @if (baixo(l)) { <ces-status tone="danger" icon="pi pi-exclamation-triangle">Sulco no limite: programe a troca</ces-status> }
-                      @if (sulcoMaior(l)) { <ces-status tone="info" icon="pi pi-info-circle">Maior que o sulco anterior: confira a medida</ces-status> }
+                      @if (fora(l)) { <geo-status tone="warning" icon="pi pi-gauge">Pressão fora da faixa ({{ l.recomendada }} psi ±10%)</geo-status> }
+                      @if (baixo(l)) { <geo-status tone="danger" icon="pi pi-exclamation-triangle">Sulco no limite: programe a troca</geo-status> }
+                      @if (sulcoMaior(l)) { <geo-status tone="info" icon="pi pi-info-circle">Maior que o sulco anterior: confira a medida</geo-status> }
                     </span>
                   }
                 </li>
               }
             </ul>
-          </ces-form-section>
-          <ces-form-section title="Observação" icon="pi pi-comment">
-            <ces-textarea label="Observação" [labelVisible]="false" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></ces-textarea>
-          </ces-form-section>
+          </geo-form-section>
+          <geo-form-section title="Observação" icon="pi pi-comment">
+            <geo-textarea label="Observação" [labelVisible]="false" [(value)]="observacao" [rows]="2" [maxlength]="1000" [showOptional]="true"></geo-textarea>
+          </geo-form-section>
         }
       }
 
-      <ces-form-actions drawer-footer submitLabel="Registrar inspeção" savingLabel="Registrando…" [saving]="salvando()" [disabled]="!preenchidas()"
+      <geo-form-actions drawer-footer submitLabel="Registrar inspeção" savingLabel="Registrando…" [saving]="salvando()" [disabled]="!preenchidas()"
         (save)="salvar()" (cancel)="drawer.requestClose()">
-        <span actions-start class="ces-cell-muted">{{ preenchidas() }} de {{ linhas().length }} pneus medidos</span>
-      </ces-form-actions>
-    </ces-form-drawer>
+        <span actions-start class="geo-cell-muted">{{ preenchidas() }} de {{ linhas().length }} pneus medidos</span>
+      </geo-form-actions>
+    </geo-form-drawer>
   `
 })
 export class FrotaPneuInspecaoDrawerComponent {
@@ -126,7 +126,7 @@ export class FrotaPneuInspecaoDrawerComponent {
   private readonly notificacoes = inject(NotificationService);
 
   readonly visivel = model(false);
-  readonly veiculos = input<CesSelectOption<string>[]>([]);
+  readonly veiculos = input<GeoSelectOption<string>[]>([]);
   readonly idVeiculoInicial = input<string | null>(null);
   readonly registrada = output<InspecaoPneu>();
 

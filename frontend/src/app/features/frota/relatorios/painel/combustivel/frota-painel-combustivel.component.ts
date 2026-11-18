@@ -2,21 +2,21 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ParamMap, Router } from '@angular/router';
 import {
-  CesAsyncStateComponent,
-  CesButtonComponent,
-  CesCalloutComponent,
-  CesCellDirective,
-  CesChartComponent,
-  CesDataTableColumn,
-  CesDataTableComponent,
-  CesDrillStateService,
-  CesFilterChip,
-  CesFilterPanelComponent,
-  CesMultiSelectComponent,
-  CesPageHeaderComponent,
-  CesSelectOption,
-  CesStatusComponent
-} from '@ces/ui';
+  GeoAsyncStateComponent,
+  GeoButtonComponent,
+  GeoCalloutComponent,
+  GeoCellDirective,
+  GeoChartComponent,
+  GeoDataTableColumn,
+  GeoDataTableComponent,
+  GeoDrillStateService,
+  GeoFilterChip,
+  GeoFilterPanelComponent,
+  GeoMultiSelectComponent,
+  GeoPageHeaderComponent,
+  GeoSelectOption,
+  GeoStatusComponent
+} from '@geo/ui';
 
 import { AbastecimentoDetalheFrota, DetalheCombustivelFrota, FiltroRelatorioFrota } from '../../../../../core/models/frota-relatorios.models';
 import { VistaAnalise } from '../../../../../shared/components/dashboard/dashboard-analise.models';
@@ -49,7 +49,7 @@ import {
   visaoCombustivel
 } from './analise-combustivel';
 
-const ALERTAS: CesSelectOption<string>[] = Object.entries(ROTULO_ALERTA).map(([value, label]) => ({ label, value }));
+const ALERTAS: GeoSelectOption<string>[] = Object.entries(ROTULO_ALERTA).map(([value, label]) => ({ label, value }));
 
 /**
  * Painel de combustível: litros, preço, consumo contra a referência, postos, alertas, condutores e
@@ -59,10 +59,10 @@ const ALERTAS: CesSelectOption<string>[] = Object.entries(ROTULO_ALERTA).map(([v
   selector: 'app-frota-painel-combustivel',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [RecorteFrotaService, CesDrillStateService, NavegacaoAnaliseService],
+  providers: [RecorteFrotaService, GeoDrillStateService, NavegacaoAnaliseService],
   imports: [
-    DatePipe, CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesCellDirective, CesChartComponent, CesDataTableComponent,
-    CesFilterPanelComponent, CesMultiSelectComponent, CesPageHeaderComponent, CesStatusComponent, DashboardMetricCardComponent,
+    DatePipe, GeoAsyncStateComponent, GeoButtonComponent, GeoCalloutComponent, GeoCellDirective, GeoChartComponent, GeoDataTableComponent,
+    GeoFilterPanelComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoStatusComponent, DashboardMetricCardComponent,
     DashboardVisaoGerencialComponent, DashboardAnaliseComponent, FrotaPainelTopoComponent, FrotaRecorteCamposComponent,
     CopilotoAreaComponent, CopilotoGatilhoComponent, CopilotoPerguntarComponent
   ],
@@ -86,18 +86,18 @@ export class FrotaPainelCombustivelComponent extends PainelFrotaBase<DetalheComb
   private readonly proprios = signal<FiltrosCombustivel>({ postos: [], alertas: [], condutores: [] });
 
   /** Postos e condutores que aparecem nos abastecimentos do recorte. */
-  protected readonly opcoesPosto = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesPosto = computed<GeoSelectOption<string>[]>(() => {
     const mapa = new Map((this.detalhe()?.atual ?? []).map((a) => [a.idPosto, a.posto]));
     return [...mapa].map(([value, label]) => ({ label, value })).sort((a, b) => a.label.localeCompare(b.label));
   });
-  protected readonly opcoesCondutor = computed<CesSelectOption<string>[]>(() => {
+  protected readonly opcoesCondutor = computed<GeoSelectOption<string>[]>(() => {
     const mapa = new Map((this.detalhe()?.atual ?? []).filter((a) => a.idCondutor).map((a) => [a.idCondutor!, a.condutor ?? 'Condutor']));
     return [...mapa].map(([value, label]) => ({ label, value })).sort((a, b) => a.label.localeCompare(b.label));
   });
 
-  protected readonly chipsProprios = computed<CesFilterChip[]>(() => {
+  protected readonly chipsProprios = computed<GeoFilterChip[]>(() => {
     const f = this.proprios();
-    const chip = (key: string, nome: string, sel: string[], ops: CesSelectOption<string>[]) =>
+    const chip = (key: string, nome: string, sel: string[], ops: GeoSelectOption<string>[]) =>
       sel.length ? [{ key, label: `${nome}: ${sel.length === 1 ? (ops.find((o) => o.value === sel[0])?.label ?? 'selecionado') : `${sel.length} selecionados`}` }] : [];
     return [...chip('posto', 'Posto', f.postos, this.opcoesPosto()), ...chip('alerta', 'Alerta', f.alertas, ALERTAS),
       ...chip('condutor', 'Condutor', f.condutores, this.opcoesCondutor())];
@@ -141,7 +141,7 @@ export class FrotaPainelCombustivelComponent extends PainelFrotaBase<DetalheComb
   protected readonly mesDoGrafico = (x: { mes: string }) => x.mes;
   protected readonly identidade = (v: string) => v;
 
-  protected readonly colVeiculos: CesDataTableColumn<VeiculoCombustivel>[] = [
+  protected readonly colVeiculos: GeoDataTableColumn<VeiculoCombustivel>[] = [
     { key: 'placa', header: 'Veículo', priority: 1 },
     { key: 'tipo', header: 'Tipo', priority: 3, value: (x) => x.v.tipo ?? '' },
     { key: 'abastecimentos', header: 'Abastecimentos', type: 'custom', priority: 2, value: (x) => x.linhas.length, display: (x) => inteiro(x.linhas.length) },
@@ -153,7 +153,7 @@ export class FrotaPainelCombustivelComponent extends PainelFrotaBase<DetalheComb
     { key: 'custoKm', header: 'R$/km', type: 'custom', priority: 3, value: (x) => x.custoKm ?? -1, display: (x) => moeda(x.custoKm) },
     { key: 'alertas', header: 'Com alerta', type: 'integer', priority: 2 }
   ];
-  protected readonly colPostos: CesDataTableColumn<PostoCombustivel>[] = [
+  protected readonly colPostos: GeoDataTableColumn<PostoCombustivel>[] = [
     { key: 'nome', header: 'Posto', priority: 1 },
     { key: 'abastecimentos', header: 'Abastecimentos', type: 'custom', priority: 2, value: (p) => p.linhas.length, display: (p) => inteiro(p.linhas.length) },
     { key: 'litros', header: 'Litros', type: 'number', priority: 2 },
@@ -162,14 +162,14 @@ export class FrotaPainelCombustivelComponent extends PainelFrotaBase<DetalheComb
     { key: 'sobrepreco', header: 'Contra a média', type: 'custom', priority: 1, value: (p) => p.sobrepreco,
       display: (p) => `${p.sobrepreco >= 0 ? '+' : '−'}${moeda(Math.abs(p.sobrepreco))}` }
   ];
-  protected readonly colCondutores: CesDataTableColumn<CondutorCombustivel>[] = [
+  protected readonly colCondutores: GeoDataTableColumn<CondutorCombustivel>[] = [
     { key: 'nome', header: 'Condutor', priority: 1 },
     { key: 'abastecimentos', header: 'Abastecimentos', type: 'custom', priority: 1, value: (c) => c.linhas.length, display: (c) => inteiro(c.linhas.length) },
     { key: 'litros', header: 'Litros', type: 'number', priority: 2 },
     { key: 'veiculos', header: 'Veículos', type: 'integer', priority: 3 },
     { key: 'alertas', header: 'Com alerta', type: 'integer', priority: 1 }
   ];
-  protected readonly colAbastecimentos: CesDataTableColumn<AbastecimentoDetalheFrota>[] = [
+  protected readonly colAbastecimentos: GeoDataTableColumn<AbastecimentoDetalheFrota>[] = [
     { key: 'realizadoEm', header: 'Data', type: 'date', priority: 1 },
     { key: 'placa', header: 'Veículo', priority: 1, value: (a) => a.placa ?? '—' },
     { key: 'posto', header: 'Posto', priority: 2 },
