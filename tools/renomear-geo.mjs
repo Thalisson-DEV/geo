@@ -37,6 +37,9 @@ export const ISENCOES = [
   /(^|\/)package-lock\.json$/,
   // Este script e seus testes descrevem os nomes antigos.
   /^tools\/renomear-geo(\.test)?\.mjs$/,
+  // Testes da compatibilidade com os nomes antigos (chaves do navegador e variáveis de ambiente).
+  /^frontend\/src\/app\/core\/migracao\/migrar-chaves-geo\.spec\.ts$/,
+  /^backend\/src\/test\/java\/com\/nexo\/app\/shared\/infrastructure\/config\/PrefixoConfiguracaoLegadoGuardTest\.java$/,
 ];
 
 const BINARIOS = /\.(png|jpe?g|gif|webp|ico|woff2?|ttf|otf|eot|pdf|mp4|webm|mp3|zip|jar|gz|xlsx?|docx?)$/i;
