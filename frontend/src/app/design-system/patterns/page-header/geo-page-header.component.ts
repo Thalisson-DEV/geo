@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, InjectionToken, Signal, computed, inject, input, output } from '@angular/core';
-import { Params, RouterLink } from '@angular/router';
+import { Params } from '@angular/router';
+import { publicarTrilhaDaPagina } from './geo-trilha-da-pagina';
 import { GeoIconButtonComponent } from '../../primitives/button';
 
-/** Trecho da trilha acima do título. O primeiro item é o módulo; o último é a página atual. */
+/** Trecho da trilha "você está em", mostrada no cabeçalho do app. O último é a página atual. */
 export interface GeoBreadcrumbItem {
   readonly label: string;
   /** Rota do trecho. Sem rota, o trecho é texto (o último sempre é a página atual). */
@@ -30,7 +31,7 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
 @Component({
   selector: 'geo-page-header',
   standalone: true,
-  imports: [RouterLink, GeoIconButtonComponent],
+  imports: [GeoIconButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'geo-page-header' },
   styles: `
@@ -68,45 +69,6 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
       flex-direction: column;
       gap: 0.125rem;
       min-width: 0;
-    }
-
-    .geo-page-header__trail ol {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.25rem;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      font-size: var(--geo-font-caption);
-      font-weight: 600;
-      color: var(--geo-foreground-subtle);
-    }
-
-    .geo-page-header__trail li {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
-
-    .geo-page-header__trail a {
-      color: inherit;
-      text-decoration: none;
-      border-radius: var(--geo-radius-sm);
-    }
-
-    .geo-page-header__trail a:hover {
-      color: var(--geo-brand);
-      text-decoration: underline;
-    }
-
-    .geo-page-header__trail a:focus-visible {
-      outline: 2px solid var(--geo-focus-ring);
-      outline-offset: 2px;
-    }
-
-    .geo-page-header__trail .pi {
-      font-size: 0.625rem;
     }
 
     .geo-page-header__title-row {
@@ -167,26 +129,6 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
         <span class="geo-page-header__mark" aria-hidden="true"><i [class]="icon()"></i></span>
       }
       <div class="geo-page-header__text">
-        @if (breadcrumb().length) {
-          <nav class="geo-page-header__trail" aria-label="Você está em">
-            <ol>
-              @for (item of breadcrumb(); track $index; let last = $last) {
-                <li>
-                  @if ($index > 0) {
-                    <i class="pi pi-angle-right" aria-hidden="true"></i>
-                  }
-                  @if (last) {
-                    <span aria-current="page">{{ item.label }}</span>
-                  } @else if (item.route) {
-                    <a [routerLink]="item.route" [queryParams]="item.queryParams ?? null">{{ item.label }}</a>
-                  } @else {
-                    <span>{{ item.label }}</span>
-                  }
-                </li>
-              }
-            </ol>
-          </nav>
-        }
         <div class="geo-page-header__title-row">
           <h1>{{ title() }}</h1>
           @if (showFavorite()) {
@@ -225,7 +167,15 @@ export class GeoPageHeaderComponent {
   readonly description = input<string | undefined>();
   /** Classe do ícone do assunto (PrimeIcons), por exemplo `pi pi-car`. */
   readonly icon = input<string | undefined>();
+  /**
+   * Trilha da página. Não aparece aqui: vai para o cabeçalho do app, que mostra o caminho do menu
+   * e acrescenta o que só a página conhece (o registro aberto, o recorte da lista de origem).
+   */
   readonly breadcrumb = input<readonly GeoBreadcrumbItem[]>([]);
+
+  constructor() {
+    publicarTrilhaDaPagina(() => this.breadcrumb());
+  }
   /** Mostra a estrela de favoritos quando o app provê `GEO_PAGE_FAVORITES`. */
   readonly favoritable = input(true);
   /** Rótulo do botão de ajuda; sem rótulo, o botão não aparece. */

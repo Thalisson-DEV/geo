@@ -18,6 +18,7 @@ import {
   ThemeService
 } from '../../../core/services/theme.service';
 import { GeoIconButtonComponent, GeoIconComponent, GeoLogoComponent, GeoShortcutsPreference } from '@geo/ui';
+import { GeoTrechoDaTrilha, GeoTrilhaDaPagina } from '@geo/ui/patterns';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 import { NotificacoesStore } from '../../../core/services/notificacoes-store.service';
 import { ConnectivityService } from '../../../core/services/connectivity.service';
@@ -36,6 +37,9 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
     .geo-topo__marca { display: inline-flex; }
     .geo-topo__trilha { display: flex; align-items: center; gap: 0.35rem; min-inline-size: 0; color: var(--geo-foreground-subtle); font-size: var(--geo-text-body-sm); white-space: nowrap; overflow: hidden; }
     .geo-topo__trilha > span { overflow: hidden; text-overflow: ellipsis; }
+    .geo-topo__trilha-link { flex: none; border-radius: var(--geo-radius-sm); color: inherit; text-decoration: none; }
+    .geo-topo__trilha-link:hover { color: var(--geo-brand-text); text-decoration: underline; }
+    .geo-topo__trilha-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .geo-topo__trilha-atual { color: var(--geo-foreground); font-weight: var(--geo-font-weight-semibold); }
     .geo-topo__trilha-sep { color: var(--geo-border-strong); }
     @media (max-width: 639px) { .geo-topo__trilha { display: none; } }
@@ -66,7 +70,13 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
         }
         <nav class="geo-topo__trilha" aria-label="Você está em">
           @for (parte of trilha(); track $index; let ultimo = $last) {
-            <span [attr.aria-current]="ultimo ? 'page' : null" [class.geo-topo__trilha-atual]="ultimo">{{ parte }}</span>
+            @if (ultimo) {
+              <span aria-current="page" class="geo-topo__trilha-atual">{{ parte.label }}</span>
+            } @else if (parte.route) {
+              <a class="geo-topo__trilha-link" [routerLink]="parte.route" [queryParams]="parte.queryParams ?? null">{{ parte.label }}</a>
+            } @else {
+              <span>{{ parte.label }}</span>
+            }
             @if (!ultimo) { <geo-icon name="chevron-right" size="sm" class="geo-topo__trilha-sep" /> }
           }
         </nav>
@@ -425,8 +435,12 @@ export class HeaderComponent {
     { initialValue: '' }
   );
 
-  /** Trilha "Grupo › Tela" a partir do menu e da rota atual. */
-  protected readonly trilha = computed(() => trilhaDoMenu(this.menuItems(), this.urlAtual() ?? ''));
+  private readonly trilhaDaPagina = inject(GeoTrilhaDaPagina);
+
+  /** Trilha "Grupo › Tela" do menu, completada pelo que a página informa (registro aberto, recorte). */
+  protected readonly trilha = computed(() =>
+    montarTrilha(this.menuItems(), this.urlAtual() ?? '', this.trilhaDaPagina.trechos())
+  );
 
   protected readonly iniciais = computed(() => {
     const usuario = this.auth.currentUser();
@@ -561,10 +575,10 @@ export class HeaderComponent {
   }
 }
 
-/** Caminho de rótulos do menu até o item cuja rota mais se aproxima da URL atual. */
-export function trilhaDoMenu(itens: MenuItem[], url: string): string[] {
+/** Caminho do menu até o item cuja rota mais se aproxima da URL atual. */
+function caminhoDoMenu(itens: MenuItem[], url: string): { rotulos: string[]; alvo: string } | undefined {
   const caminho = url.split('?')[0].split('#')[0];
-  let melhor: { rotulos: string[]; tamanho: number } | undefined;
+  let melhor: { rotulos: string[]; alvo: string } | undefined;
   const visitar = (lista: MenuItem[], acima: string[]) => {
     for (const item of lista) {
       if (item.visible === false) continue;
@@ -573,11 +587,44 @@ export function trilhaDoMenu(itens: MenuItem[], url: string): string[] {
       if (typeof link === 'string') {
         const alvo = link.split('?')[0];
         const casa = caminho === alvo || caminho.startsWith(alvo + '/');
-        if (casa && (!melhor || alvo.length > melhor.tamanho)) melhor = { rotulos, tamanho: alvo.length };
+        if (casa && (!melhor || alvo.length > melhor.alvo.length)) melhor = { rotulos: rotulos.filter(Boolean), alvo };
       }
       if (item.items?.length) visitar(item.items, rotulos);
     }
   };
   visitar(itens, []);
-  return melhor?.rotulos.filter(Boolean) ?? [];
+  return melhor;
+}
+
+/** Rótulos do menu até a tela atual. */
+export function trilhaDoMenu(itens: MenuItem[], url: string): string[] {
+  return caminhoDoMenu(itens, url)?.rotulos ?? [];
+}
+
+const rotaComoTexto = (rota: GeoTrechoDaTrilha['route']): string | undefined =>
+  rota == null ? undefined : (Array.isArray(rota) ? rota.join('/') : String(rota)).split('?')[0];
+
+/**
+ * Trilha única do app. Na tela do próprio menu, é o caminho do menu. Numa tela mais funda
+ * (ficha, formulário), o último trecho do menu vira link de volta, com o recorte que a página
+ * informou, e o último trecho da página (o registro aberto) fecha a trilha. Fora do menu, vale a
+ * trilha da página.
+ */
+export function montarTrilha(
+  itens: MenuItem[],
+  url: string,
+  pagina: readonly GeoTrechoDaTrilha[]
+): GeoTrechoDaTrilha[] {
+  const menu = caminhoDoMenu(itens, url);
+  if (!menu) return [...pagina];
+  const caminho = url.split('?')[0].split('#')[0];
+  const trechos: GeoTrechoDaTrilha[] = menu.rotulos.map((label) => ({ label }));
+  const ultimaDaPagina = pagina.at(-1);
+  if (caminho === menu.alvo || !ultimaDaPagina || ultimaDaPagina.label === menu.rotulos.at(-1)) return trechos;
+
+  const origem = pagina.find((t) => rotaComoTexto(t.route) === menu.alvo) ?? pagina.at(-2);
+  const queryParams = origem?.route ? origem.queryParams ?? null : null;
+  trechos[trechos.length - 1] = { label: menu.rotulos.at(-1) ?? '', route: menu.alvo, queryParams };
+  trechos.push({ label: ultimaDaPagina.label });
+  return trechos;
 }

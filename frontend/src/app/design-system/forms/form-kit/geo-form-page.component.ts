@@ -9,7 +9,7 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { publicarTrilhaDaPagina } from '../../patterns/page-header/geo-trilha-da-pagina';
 import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 import { GeoFormRegistry } from './form-kit.registry';
 
@@ -21,7 +21,7 @@ export interface GeoFormBreadcrumb {
 export type GeoFormPageWidth = 'md' | 'lg' | 'xl';
 
 /**
- * Shell de formulário em página (tipos B, C e D): breadcrumb, Voltar único, cabeçalho com ícone em
+ * Shell de formulário em página (tipos B, C e D): trilha (mostrada no cabeçalho do app), Voltar único, cabeçalho com ícone em
  * caixa + título + descrição + ajuda, corpo, painel lateral opcional e rodapé fixo de ações.
  *
  * ```html
@@ -40,7 +40,7 @@ export type GeoFormPageWidth = 'md' | 'lg' | 'xl';
 @Component({
   selector: 'geo-form-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [GeoFormRegistry],
   host: {
@@ -51,22 +51,6 @@ export type GeoFormPageWidth = 'md' | 'lg' | 'xl';
   },
   template: `
     <div class="geo-form-page__top">
-      @if (breadcrumb().length) {
-        <nav class="geo-form-page__breadcrumb" aria-label="Você está em">
-          <ol>
-            <li><a routerLink="/home" aria-label="Início"><i class="pi pi-home" aria-hidden="true"></i></a></li>
-            @for (item of breadcrumb(); track $index; let last = $last) {
-              <li [attr.aria-current]="last ? 'page' : null">
-                @if (item.link && !last) {
-                  <a [routerLink]="item.link">{{ item.label }}</a>
-                } @else {
-                  <span>{{ item.label }}</span>
-                }
-              </li>
-            }
-          </ol>
-        </nav>
-      }
       @if (showBack()) {
         <button type="button" class="geo-form-page__back" (click)="voltar()">
           <i class="pi pi-arrow-left" aria-hidden="true"></i>
@@ -178,6 +162,7 @@ export class GeoFormPageComponent {
   protected readonly showNav = () => this.sectionNav() && this.registry.sections().length > 1;
 
   constructor() {
+    publicarTrilhaDaPagina(() => this.breadcrumb().map((item) => ({ label: item.label, route: item.link })));
     this.observarSecoes();
     afterNextRender(() => this.focarPrimeiroCampo());
   }
