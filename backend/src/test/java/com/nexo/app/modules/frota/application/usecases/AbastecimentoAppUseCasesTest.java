@@ -50,6 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
@@ -386,17 +387,29 @@ class AbastecimentoAppUseCasesTest {
         repository.saveAndFlush(a);
     }
 
+    /**
+     * Instante de hoje (no fuso do abastecimento) até o recuo pedido, sem passar da meia-noite: logo
+     * depois da virada do dia, "uma hora atrás" cairia ontem e o pedido ficaria sem o checklist do dia.
+     */
+    private static OffsetDateTime hojeAntesDe(Duration recuo) {
+        var agora = OffsetDateTime.now();
+        var inicioDoDia = agora.atZoneSameInstant(com.nexo.app.modules.frota.domain.Abastecimento.FUSO)
+                .toLocalDate().atStartOfDay(com.nexo.app.modules.frota.domain.Abastecimento.FUSO).toOffsetDateTime();
+        var alvo = agora.minus(recuo);
+        return alvo.isBefore(inicioDoDia) ? inicioDoDia.plusSeconds(recuo.toSeconds() > 600 ? 1 : 2) : alvo;
+    }
+
     private void fazerChecklist() {
         var farois = modelo.perguntas().getFirst();
         checklists.registrar(new RegistrarChecklistRequest(UUID.randomUUID(), idVeiculo, modelo.id(), null, null, ana,
-                OffsetDateTime.now().minusHours(1), 15_000L, null, null,
+                hojeAntesDe(Duration.ofHours(1)), 15_000L, null, null,
                 List.of(new RegistrarChecklistRequest.Resposta(farois.id(), true, null, null, null, null)), null));
         entityManager.flush();
     }
 
     private SolicitarAbastecimentoRequest pedido(UUID idAparelho, UUID idFoto) {
         return new SolicitarAbastecimentoRequest(idAparelho, idVeiculo, ana, idPosto, new BigDecimal("15050"), "Juazeiro → Sobradinho",
-                null, OffsetDateTime.now().minusMinutes(10), List.of(
+                null, hojeAntesDe(Duration.ofMinutes(10)), List.of(
                 new SolicitarAbastecimentoRequest.Item(diesel),
                 new SolicitarAbastecimentoRequest.Item(arla)), idFoto);
     }
