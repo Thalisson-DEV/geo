@@ -38,10 +38,10 @@
 
 ## 2. Frente B: Guardas de conformidade
 
-- [ ] 2.1 Criar `tools/design-system/check-visual-rules.mjs` (cor literal/paleta Tailwind, `!important`, `::ng-deep`, `<p-button>`/PrimeNG não liberado, `transition`/`animation` sem token, termos proibidos) com testes `node --test`
-- [ ] 2.2 Gerar `visual-rules-baseline.json` com as contagens atuais por arquivo e regra; implementar a catraca (falha se subir, pede atualização se descer)
-- [ ] 2.3 Lista comentada de arquivos isentos (logo, avatar, templates de e-mail) e lista de marcas proibidas
-- [ ] 2.4 Incluir o script no `ds:check`, com cada mensagem de erro indicando a forma única que substitui o código barrado (ex.: "use `<geo-icon name=\"check\">`")
+- [x] 2.1 Criar `tools/design-system/check-visual-rules.mjs` (cor literal/paleta Tailwind, `!important`, `::ng-deep`, `<p-button>`/PrimeNG não liberado, `transition`/`animation` sem token, termos proibidos) com testes `node --test`
+- [x] 2.2 Gerar `visual-rules-baseline.json` com as contagens atuais por arquivo e regra; implementar a catraca (falha se subir, pede atualização se descer)
+- [x] 2.3 Lista comentada de arquivos isentos (logo, avatar, templates de e-mail) e lista de marcas proibidas
+- [x] 2.4 Incluir o script no `ds:check`, com cada mensagem de erro indicando a forma única que substitui o código barrado (ex.: "use `<geo-icon name=\"check\">`")
 - [ ] 2.5 Definir as telas de referência e criar baselines visuais nos temas claro e escuro e na largura de 390 px; axe nos dois temas e com movimento reduzido
 
 ## 3. Frente C: Componentes do Design System

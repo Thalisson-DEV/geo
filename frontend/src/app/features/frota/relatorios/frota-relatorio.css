@@ -2,7 +2,7 @@
  * Relatórios da frota (OS, checklist e abastecimento), no desenho do relatório da
  * solicitação de material: cabeçalho institucional, faixa do título, dados em três
  * colunas, seções com barra lateral, movimentações, assinaturas e barra de ações flutuante.
- * Só tokens do C.E.S; a impressão força papel branco.
+ * Só tokens do GEO; a impressão força papel branco.
  */
 :host {
   display: block;

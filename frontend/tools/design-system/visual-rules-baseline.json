@@ -1,0 +1,2221 @@
+{
+  "src/app/features/admin/sync-error-cases/sync-error-cases.component.ts": {
+    "icone-primeicons": 55,
+    "important": 1,
+    "movimento-tailwind": 9,
+    "ng-deep": 1,
+    "p-button": 7,
+    "paleta-tailwind": 211,
+    "primeng-direto": 7
+  },
+  "src/app/features/almoxarifado/avaliacoes-material/avaliacoes-material.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/almoxarifado/centros-investimento/centros-investimento.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/almoxarifado/estoques/estoques.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/almoxarifado/materiais/materiais.component.ts": {
+    "icone-primeicons": 22
+  },
+  "src/app/features/almoxarifado/motivos-pendencia/motivos-pendencia.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/almoxarifado/motivos-rejeicao/motivos-rejeicao.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/devolucao-comercial/devolucao-comercial-drawer.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/devolucao-comercial/devolucao-series-picker.component.ts": {
+    "paleta-tailwind": 12
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/movimentacao-estoque-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/movimentacoes-estoque.component.ts": {
+    "icone-primeicons": 20
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/movimentacoes-importacao.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/operacao-estoque/operacao-estoque-drawer.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/relatorio-movimentacao-estoque/relatorio-movimentacao-estoque.component.css": {
+    "cor-literal": 12,
+    "important": 33,
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/relatorio-movimentacao-estoque/relatorio-movimentacao-estoque.component.html": {
+    "icone-primeicons": 19,
+    "movimento-tailwind": 2,
+    "p-button": 4,
+    "paleta-tailwind": 240
+  },
+  "src/app/features/almoxarifado/movimentacoes-estoque/relatorio-movimentacao-estoque/relatorio-movimentacao-estoque.component.ts": {
+    "primeng-direto": 2
+  },
+  "src/app/features/almoxarifado/relatorios/painel/almox-analise-comum.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/almoxarifado/relatorios/painel/almox-painel.components.ts": {
+    "icone-primeicons": 7,
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/relatorios/painel/consumo/almox-painel-consumo.component.html": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/almoxarifado/relatorios/painel/consumo/almox-painel-consumo.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/almoxarifado/relatorios/painel/consumo/analise-consumo.ts": {
+    "icone-primeicons": 19
+  },
+  "src/app/features/almoxarifado/relatorios/painel/estoque/almox-painel-estoque.component.html": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/almoxarifado/relatorios/painel/estoque/almox-painel-estoque.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/almoxarifado/relatorios/painel/estoque/analise-estoque.ts": {
+    "icone-primeicons": 33
+  },
+  "src/app/features/almoxarifado/relatorios/painel/fechamento/almox-painel-fechamento.component.html": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/almoxarifado/relatorios/painel/fechamento/almox-painel-fechamento.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/almoxarifado/relatorios/painel/fechamento/analise-fechamento.ts": {
+    "icone-primeicons": 45
+  },
+  "src/app/features/almoxarifado/relatorios/painel/geral/almox-painel-geral.component.html": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/almoxarifado/relatorios/painel/geral/almox-painel-geral.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/almoxarifado/relatorios/painel/geral/analise-geral.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/almoxarifado/relatorios/painel/movimentacoes/almox-painel-movimentacoes.component.html": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/almoxarifado/relatorios/painel/movimentacoes/almox-painel-movimentacoes.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/almoxarifado/relatorios/painel/movimentacoes/analise-movimentacoes.ts": {
+    "icone-primeicons": 37
+  },
+  "src/app/features/almoxarifado/relatorios/painel/painel-almox.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/relatorios/painel/solicitacoes/almox-painel-comerciais.component.html": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/almoxarifado/relatorios/painel/solicitacoes/almox-painel-tecnicas.component.html": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/almoxarifado/relatorios/painel/solicitacoes/analise-solicitacoes.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/almoxarifado/relatorios/painel/solicitacoes/painel-solicitacoes-base.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/almoxarifado/relatorios/painel/solicitacoes/solicitacoes-calculos.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/almoxarifado/relatorios/painel/solicitacoes/solicitacoes-vistas.ts": {
+    "icone-primeicons": 65
+  },
+  "src/app/features/almoxarifado/saldos/relatorio-saldo/relatorio-saldo.component.css": {
+    "cor-literal": 13,
+    "important": 34,
+    "movimento-literal": 2
+  },
+  "src/app/features/almoxarifado/saldos/relatorio-saldo/relatorio-saldo.component.html": {
+    "icone-primeicons": 16,
+    "movimento-tailwind": 2,
+    "p-button": 2,
+    "paleta-tailwind": 131
+  },
+  "src/app/features/almoxarifado/saldos/relatorio-saldo/relatorio-saldo.component.ts": {
+    "icone-primeicons": 5,
+    "primeng-direto": 1
+  },
+  "src/app/features/almoxarifado/saldos/relatorio-saldo/series-a-conferir.component.ts": {
+    "icone-primeicons": 5,
+    "paleta-tailwind": 20
+  },
+  "src/app/features/almoxarifado/saldos/saldo-estoque-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/almoxarifado/saldos/saldos.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/almoxarifado/shared/processo-material.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/almoxarifado/shared/quantidade-unidade.component.ts": {
+    "icone-primeicons": 1,
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/devolucao-tecnica-form/devolucao-tecnica-form.component.html": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/exportar-solicitacoes-dialog.component.ts": {
+    "icone-primeicons": 33,
+    "paleta-tailwind": 58,
+    "primeng-direto": 7
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-materiais.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/relatorio-solicitacao-material/itens-solicitacao.util.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/relatorio-solicitacao-material/relatorio-solicitacao-material.component.css": {
+    "cor-literal": 17,
+    "important": 35,
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/relatorio-solicitacao-material/relatorio-solicitacao-material.component.html": {
+    "icone-primeicons": 61,
+    "movimento-tailwind": 6,
+    "p-button": 14,
+    "paleta-tailwind": 248
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/relatorio-solicitacao-material/relatorio-solicitacao-material.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 12,
+    "paleta-tailwind": 6,
+    "primeng-direto": 13
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/series-selecao/series-selecao.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-comercial-detalhe.component.css": {
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-comercial-detalhe.component.ts": {
+    "icone-primeicons": 42
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-consumo-anterior/consumo-anterior.util.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-consumo-anterior/solicitacao-consumo-anterior.component.ts": {
+    "icone-primeicons": 3,
+    "paleta-tailwind": 6
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-consumo-anterior/solicitacao-consumo-operacoes.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-material-form/solicitacao-material-form.component.html": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-material-report-navigator.data-source.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-operacoes-historico/solicitacao-operacoes-historico.component.html": {
+    "icone-primeicons": 7,
+    "movimento-tailwind": 2
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-operacoes-historico/solicitacao-operacoes-historico.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-pendencia-modal.component.ts": {
+    "icone-primeicons": 8,
+    "movimento-tailwind": 2
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-pendencias.component.ts": {
+    "icone-primeicons": 3,
+    "paleta-tailwind": 18
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-rejeicao-dialog.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-acao/solicitacao-tecnica-acao.component.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-acao/solicitacao-tecnica-acao.component.html": {
+    "icone-primeicons": 66,
+    "movimento-tailwind": 7,
+    "p-button": 24,
+    "paleta-tailwind": 457
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-acao/solicitacao-tecnica-acao.component.ts": {
+    "cor-literal": 1,
+    "primeng-direto": 10
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-assinatura/solicitacao-tecnica-assinatura.component.css": {
+    "cor-literal": 2
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-assinatura/solicitacao-tecnica-assinatura.component.html": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component.css": {
+    "cor-literal": 12,
+    "important": 32,
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component.html": {
+    "icone-primeicons": 41,
+    "movimento-tailwind": 6,
+    "p-button": 12,
+    "paleta-tailwind": 595
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component.ts": {
+    "icone-primeicons": 12,
+    "primeng-direto": 5
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-equipe/solicitacao-tecnica-equipe.component.html": {
+    "icone-primeicons": 7,
+    "p-button": 2,
+    "paleta-tailwind": 30
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-equipe/solicitacao-tecnica-equipe.component.ts": {
+    "primeng-direto": 3
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-form/solicitacao-tecnica-form.component.html": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-historico/solicitacao-tecnica-historico.component.css": {
+    "cor-literal": 38
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-historico/solicitacao-tecnica-historico.component.html": {
+    "icone-primeicons": 11,
+    "movimento-tailwind": 2,
+    "paleta-tailwind": 14
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-planejamento/solicitacao-tecnica-planejamento.component.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-planejamento/solicitacao-tecnica-planejamento.component.html": {
+    "cor-literal": 2,
+    "icone-primeicons": 29,
+    "movimento-tailwind": 1,
+    "paleta-tailwind": 242
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-planejamento/solicitacao-tecnica-planejamento.component.ts": {
+    "primeng-direto": 10
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-presentation.ts": {
+    "icone-primeicons": 28,
+    "paleta-tailwind": 82
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-report-navigator.data-source.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-calendario/solicitacoes-comerciais-calendario.component.css": {
+    "cor-literal": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-calendario/solicitacoes-comerciais-calendario.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-importacao/solicitacoes-comerciais-importacao.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacao-comercial-kanban-card.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacoes-comerciais-kanban.component.css": {
+    "cor-literal": 8,
+    "movimento-literal": 3,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacoes-comerciais-kanban.component.ts": {
+    "icone-primeicons": 18
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-material-tecnicas.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-material.component.ts": {
+    "icone-primeicons": 22
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-calendario/solicitacoes-tecnicas-calendario.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 8
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-importacao/solicitacoes-tecnicas-importacao.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-kanban/solicitacao-tecnica-kanban-card.component.ts": {
+    "cor-literal": 2,
+    "icone-primeicons": 20,
+    "movimento-tailwind": 1,
+    "paleta-tailwind": 60,
+    "primeng-direto": 4
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-kanban/solicitacao-tecnica-kanban-detail.component.ts": {
+    "icone-primeicons": 33,
+    "movimento-tailwind": 1,
+    "primeng-direto": 1
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-kanban/solicitacoes-tecnicas-kanban.component.ts": {
+    "icone-primeicons": 9,
+    "paleta-tailwind": 59,
+    "primeng-direto": 2
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/troca-ocorrencia-drawer.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/almoxarifado/tipos-estoque/tipos-estoque.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/chamados/admin/equipes/chamados-equipes.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/chamados/admin/topicos/chamados-topicos.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/chamados/chamados-ui.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/chamados/dashboard/analise-chamados.ts": {
+    "icone-primeicons": 22
+  },
+  "src/app/features/chamados/dashboard/chamados-dashboard.component.html": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/chamados/dashboard/chamados-dashboard.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/chamados/dashboard/vistas-chamados.ts": {
+    "icone-primeicons": 23
+  },
+  "src/app/features/chamados/detalhe/chamado-detalhe.component.html": {
+    "icone-primeicons": 21
+  },
+  "src/app/features/chamados/detalhe/chamado-detalhe.component.ts": {
+    "icone-primeicons": 24,
+    "primeng-direto": 1
+  },
+  "src/app/features/chamados/lista/chamados-lista.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/chamados/novo/chamado-novo-drawer.component.html": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/chamados/novo/chamado-novo-drawer.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/contrato/acoes-valores/acoes-valores.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/contrato/acoes/acoes.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/contrato/contratos/contratos.component.ts": {
+    "icone-primeicons": 16,
+    "primeng-direto": 3
+  },
+  "src/app/features/copiloto/componentes/copiloto-artefato.component.html": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/copiloto/componentes/copiloto-boas-vindas.component.ts": {
+    "icone-primeicons": 13
+  },
+  "src/app/features/copiloto/componentes/copiloto-campo-cadastro.component.html": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/copiloto/componentes/copiloto-cartao-aprovacao.component.html": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/copiloto/componentes/copiloto-cartao-aprovacao.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/copiloto/componentes/copiloto-cartao-cadastro.component.html": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/copiloto/componentes/copiloto-cartao-cadastro.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/copiloto/componentes/copiloto-compositor.component.ts": {
+    "icone-primeicons": 4,
+    "movimento-literal": 1
+  },
+  "src/app/features/copiloto/componentes/copiloto-conversas.component.ts": {
+    "icone-primeicons": 7,
+    "movimento-literal": 1
+  },
+  "src/app/features/copiloto/componentes/copiloto-etapas.component.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/copiloto/componentes/copiloto-etapas.component.html": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/copiloto/componentes/copiloto-etapas.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/copiloto/componentes/copiloto-mensagem.component.css": {
+    "movimento-literal": 2,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/copiloto/componentes/copiloto-mensagem.component.html": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/copiloto/componentes/copiloto-mensagem.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/copiloto/conectar-ia/autorizar-ia.component.html": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/copiloto/conectar-ia/chave-acesso-drawer.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/copiloto/conectar-ia/conectar-ia.component.html": {
+    "icone-primeicons": 17
+  },
+  "src/app/features/copiloto/conectar-ia/conectar-ia.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/copiloto/conectar-ia/conectar-ia.util.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/copiloto/conectar-ia/guia-conectar.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/copiloto/contexto/copiloto-contexto.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/copiloto/copiloto-formatos.ts": {
+    "icone-primeicons": 22
+  },
+  "src/app/features/copiloto/copiloto-workspace.component.css": {
+    "important": 1
+  },
+  "src/app/features/copiloto/copiloto-workspace.component.html": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/copiloto/painel/copiloto-area.component.ts": {
+    "important": 1
+  },
+  "src/app/features/copiloto/painel/copiloto-gatilhos.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/copiloto/painel/copiloto-painel.component.html": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/dp/descontos/dashboard/dashboard-descontos.component.html": {
+    "cor-literal": 6,
+    "icone-primeicons": 19,
+    "paleta-tailwind": 1
+  },
+  "src/app/features/dp/descontos/dashboard/dashboard-descontos.component.ts": {
+    "cor-literal": 31,
+    "icone-primeicons": 2,
+    "primeng-direto": 4
+  },
+  "src/app/features/dp/descontos/desconto-form/desconto-form.component.html": {
+    "icone-primeicons": 28,
+    "movimento-tailwind": 1,
+    "p-button": 10,
+    "paleta-tailwind": 254
+  },
+  "src/app/features/dp/descontos/desconto-form/desconto-form.component.ts": {
+    "cor-literal": 8,
+    "icone-primeicons": 3,
+    "important": 6,
+    "movimento-literal": 1,
+    "primeng-direto": 14
+  },
+  "src/app/features/dp/descontos/desconto-report-navigator.data-source.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/dp/descontos/lancamento/descontos-lancamento.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/dp/descontos/manual-descontos/manual-descontos.component.html": {
+    "cor-literal": 3,
+    "icone-primeicons": 24,
+    "important": 24,
+    "paleta-tailwind": 146
+  },
+  "src/app/features/dp/descontos/manual-descontos/manual-descontos.component.ts": {
+    "paleta-tailwind": 9,
+    "primeng-direto": 5
+  },
+  "src/app/features/dp/descontos/relatorio-desconto/desconto-acao-drawer.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/dp/descontos/relatorio-desconto/desconto-historico.component.ts": {
+    "cor-literal": 4,
+    "icone-primeicons": 14,
+    "important": 4
+  },
+  "src/app/features/dp/descontos/relatorio-desconto/relatorio-desconto.component.css": {
+    "cor-literal": 6,
+    "important": 5
+  },
+  "src/app/features/dp/descontos/relatorio-desconto/relatorio-desconto.component.html": {
+    "icone-primeicons": 41,
+    "movimento-tailwind": 2,
+    "p-button": 8,
+    "paleta-tailwind": 252
+  },
+  "src/app/features/dp/descontos/relatorio-desconto/relatorio-desconto.component.ts": {
+    "icone-primeicons": 17,
+    "primeng-direto": 5
+  },
+  "src/app/features/execucao/dashboards/analise/analise-comum.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/execucao/dashboards/analise/analise-operacional.ts": {
+    "icone-primeicons": 73
+  },
+  "src/app/features/execucao/dashboards/analise/analise-turnos.ts": {
+    "icone-primeicons": 52
+  },
+  "src/app/features/execucao/dashboards/analise/visao-gerencial.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/execucao/dashboards/execucao-dashboards.utils.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/execucao/dashboards/meta-fisica/dashboard-meta-fisica.component.css": {
+    "important": 1,
+    "movimento-literal": 1
+  },
+  "src/app/features/execucao/dashboards/meta-fisica/dashboard-meta-fisica.component.html": {
+    "icone-primeicons": 31
+  },
+  "src/app/features/execucao/dashboards/meta-fisica/dashboard-meta-fisica.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/execucao/dashboards/meta-fisica/meta-fisica-analise.ts": {
+    "icone-primeicons": 37
+  },
+  "src/app/features/execucao/dashboards/meta-fisica/meta-fisica-calculos.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/execucao/dashboards/operacional/dashboard-operacional.component.html": {
+    "icone-primeicons": 34
+  },
+  "src/app/features/execucao/dashboards/operacional/dashboard-operacional.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/execucao/dashboards/turnos/dashboard-turnos.component.html": {
+    "icone-primeicons": 38
+  },
+  "src/app/features/execucao/dashboards/turnos/dashboard-turnos.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/execucao/execucao-list/execucao-list.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/execucao/execucao-list/execucao-list.utils.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/execucao/execucao-list/numero-oficial-dialog.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/execucao/execucao-relatorio/alterar-nota-drawer.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/execucao/execucao-relatorio/execucao-relatorio.component.html": {
+    "icone-primeicons": 15,
+    "movimento-tailwind": 2,
+    "p-button": 5,
+    "paleta-tailwind": 331
+  },
+  "src/app/features/execucao/execucao-relatorio/execucao-relatorio.component.ts": {
+    "primeng-direto": 3
+  },
+  "src/app/features/execucao/execucao-relatorio/historico-nota.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/execucao/execucao-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/execucao/metas-fisicas/metas-fisicas.component.css": {
+    "important": 1
+  },
+  "src/app/features/execucao/metas-fisicas/metas-fisicas.component.ts": {
+    "icone-primeicons": 27
+  },
+  "src/app/features/execucao/relatorios/relatorio.css": {
+    "cor-literal": 12,
+    "important": 33,
+    "movimento-literal": 1
+  },
+  "src/app/features/execucao/relatorios/relatorios.utils.ts": {
+    "icone-primeicons": 19
+  },
+  "src/app/features/execucao/tipos-servico/tipos-servico.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/execucao/turno-detalhamento/turno-detalhamento.component.html": {
+    "icone-primeicons": 10,
+    "movimento-tailwind": 2,
+    "p-button": 3,
+    "paleta-tailwind": 410
+  },
+  "src/app/features/execucao/turno-detalhamento/turno-detalhamento.component.ts": {
+    "icone-primeicons": 1,
+    "primeng-direto": 1
+  },
+  "src/app/features/execucao/turno-list/turno-list.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/execucao/turno-list/turno-list.utils.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/execucao/turno-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/financeiro/dashboard/analise-financeiro.ts": {
+    "icone-primeicons": 24
+  },
+  "src/app/features/financeiro/dashboard/dashboard-financeiro.component.html": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/financeiro/dashboard/dashboard-financeiro.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/financeiro/dashboard/vistas-financeiro.ts": {
+    "icone-primeicons": 65
+  },
+  "src/app/features/financeiro/decisao-email/decisao-email.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/financeiro/documentos/documentos-financeiros.component.ts": {
+    "icone-primeicons": 26,
+    "primeng-direto": 5
+  },
+  "src/app/features/financeiro/formularios/formulario-financeiro-builder.component.ts": {
+    "cor-literal": 9,
+    "icone-primeicons": 10,
+    "important": 11,
+    "ng-deep": 1,
+    "p-button": 5,
+    "paleta-tailwind": 56,
+    "primeng-direto": 9
+  },
+  "src/app/features/financeiro/formularios/formularios-financeiros.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/financeiro/fornecedores/fornecedores.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/financeiro/shared/financeiro-form.component.ts": {
+    "cor-literal": 29,
+    "icone-primeicons": 1,
+    "important": 34,
+    "movimento-literal": 1,
+    "movimento-tailwind": 1,
+    "ng-deep": 3,
+    "paleta-tailwind": 13,
+    "primeng-direto": 6
+  },
+  "src/app/features/financeiro/solicitacoes/financeiro-report-navigator.data-source.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-decisao-drawer.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-documentos.component.ts": {
+    "cor-literal": 9,
+    "icone-primeicons": 31,
+    "important": 3,
+    "movimento-literal": 1,
+    "movimento-tailwind": 3,
+    "paleta-tailwind": 88
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-atencao.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-detalhe.component.css": {
+    "cor-literal": 5,
+    "important": 6
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-detalhe.component.html": {
+    "icone-primeicons": 18,
+    "movimento-tailwind": 2,
+    "p-button": 8,
+    "paleta-tailwind": 142
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-detalhe.component.ts": {
+    "icone-primeicons": 18,
+    "primeng-direto": 2
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-form.component.ts": {
+    "cor-literal": 18,
+    "icone-primeicons": 28,
+    "important": 15,
+    "movimento-literal": 1,
+    "p-button": 11,
+    "paleta-tailwind": 110,
+    "primeng-direto": 7
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-historico.component.ts": {
+    "cor-literal": 4,
+    "icone-primeicons": 8,
+    "important": 4
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-inspecao.component.css": {
+    "cor-literal": 3,
+    "important": 1,
+    "movimento-literal": 2,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacao-financeira-inspecao.component.ts": {
+    "icone-primeicons": 18
+  },
+  "src/app/features/financeiro/solicitacoes/solicitacoes-financeiras.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/frota/abastecimentos/frota-abastecimento-avulso-drawer.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/frota/abastecimentos/frota-abastecimento-detalhe-drawer.component.css": {
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/frota/abastecimentos/frota-abastecimento-detalhe-drawer.component.ts": {
+    "icone-primeicons": 45
+  },
+  "src/app/features/frota/abastecimentos/frota-abastecimentos-lista.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/frota/abastecimentos/frota-abastecimentos.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/frota/abastecimentos/frota-fatura-posto-drawer.component.ts": {
+    "icone-primeicons": 12,
+    "important": 2
+  },
+  "src/app/features/frota/abastecimentos/frota-faturas-posto.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/frota/checklists/frota-checklist-detalhe-drawer.component.ts": {
+    "icone-primeicons": 21
+  },
+  "src/app/features/frota/checklists/frota-checklists.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/checklists/frota-liberacoes-cnh.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/checklists/frota-modelo-checklist-detalhe.component.ts": {
+    "icone-primeicons": 17
+  },
+  "src/app/features/frota/checklists/frota-modelo-checklist-form.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/checklists/frota-pendencia-decisao-drawer.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/checklists/frota-pendencias-checklist.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/frota/checklists/frota-pergunta-checklist-form.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/frota/checklists/frota-sem-checklist-hoje.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/condutores/frota-condutores.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/frota/configuracoes/frota-config-abastecimento.component.ts": {
+    "icone-primeicons": 20
+  },
+  "src/app/features/frota/configuracoes/frota-configuracoes.component.ts": {
+    "icone-primeicons": 26
+  },
+  "src/app/features/frota/configuracoes/frota-itens-manutencao.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/configuracoes/frota-modelos-checklist.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/configuracoes/frota-precos-posto-drawer.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/configuracoes/frota-tipos-despesa.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/frota/despesas/frota-despesa-form.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/frota/despesas/frota-despesas.component.ts": {
+    "icone-primeicons": 12,
+    "movimento-literal": 1
+  },
+  "src/app/features/frota/despesas/frota-veiculo-despesas.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/documentos/frota-documento-form.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/frota/documentos/frota-documentos-tabela.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/frota/documentos/frota-documentos.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/estoque/frota-estoque-movimento-detalhe.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/estoque/frota-estoque-movimento-drawer.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/frota/estoque/frota-estoque.component.ts": {
+    "icone-primeicons": 36
+  },
+  "src/app/features/frota/estoque/frota-peca-drawer.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/frota/implementos/frota-implementos.component.ts": {
+    "icone-primeicons": 13
+  },
+  "src/app/features/frota/odometro/frota-odometro.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/frota/ordens-servico/frota-ordem-servico-conclusao.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/ordens-servico/frota-ordem-servico-detalhe.component.ts": {
+    "icone-primeicons": 36
+  },
+  "src/app/features/frota/ordens-servico/frota-ordem-servico-etapa.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/ordens-servico/frota-ordem-servico-form.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/ordens-servico/frota-ordens-servico.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/frota/ordens-servico/frota-os-anexos.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/ordens-servico/frota-os-documentos-fiscais.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/ordens-servico/frota-os-execucao.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/frota/ordens-servico/frota-os-lancamento.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/pneus/frota-pneu-diagrama.component.ts": {
+    "icone-primeicons": 2,
+    "primeng-direto": 1
+  },
+  "src/app/features/frota/pneus/frota-pneu-drawer.component.ts": {
+    "icone-primeicons": 18
+  },
+  "src/app/features/frota/pneus/frota-pneu-inspecao-detalhe.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/pneus/frota-pneu-inspecao-drawer.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/frota/pneus/frota-pneu-montagem.component.ts": {
+    "icone-primeicons": 20,
+    "primeng-direto": 1
+  },
+  "src/app/features/frota/pneus/frota-pneu-rodizio.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/frota/pneus/frota-pneus.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/frota/pneus/frota-veiculo-pneus.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/preventiva/frota-acompanhamento-preventiva.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/preventiva/frota-informar-realizacao-drawer.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/preventiva/frota-planos-preventiva.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/frota/preventiva/frota-preventiva.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/preventiva/frota-veiculo-preventiva.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/relatorios/frota-corretivas-servico.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/relatorios/frota-relatorio-analise-ia.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 6,
+    "important": 2,
+    "movimento-literal": 2,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/frota/relatorios/frota-relatorio-fotos.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 1,
+    "movimento-literal": 1
+  },
+  "src/app/features/frota/relatorios/frota-relatorio-linha-tempo.component.ts": {
+    "icone-primeicons": 3,
+    "important": 1
+  },
+  "src/app/features/frota/relatorios/frota-relatorio-navegador.data-source.ts": {
+    "icone-primeicons": 21
+  },
+  "src/app/features/frota/relatorios/frota-relatorio.css": {
+    "cor-literal": 8,
+    "important": 2,
+    "movimento-literal": 2
+  },
+  "src/app/features/frota/relatorios/frota-relatorios-gerenciais.visao.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/frota/relatorios/painel/combustivel/analise-combustivel.ts": {
+    "icone-primeicons": 24
+  },
+  "src/app/features/frota/relatorios/painel/combustivel/frota-painel-combustivel.component.html": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/relatorios/painel/combustivel/frota-painel-combustivel.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/relatorios/painel/conformidade/analise-conformidade.ts": {
+    "icone-primeicons": 39
+  },
+  "src/app/features/frota/relatorios/painel/conformidade/frota-painel-conformidade.component.html": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/relatorios/painel/conformidade/frota-painel-conformidade.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/relatorios/painel/custos/analise-custos.ts": {
+    "icone-primeicons": 32
+  },
+  "src/app/features/frota/relatorios/painel/custos/frota-painel-custos.component.html": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/relatorios/painel/custos/frota-painel-custos.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/relatorios/painel/frota-analise-comum.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/relatorios/painel/frota-painel.components.ts": {
+    "icone-primeicons": 6,
+    "movimento-literal": 1
+  },
+  "src/app/features/frota/relatorios/painel/geral/analise-geral.ts": {
+    "icone-primeicons": 13
+  },
+  "src/app/features/frota/relatorios/painel/geral/frota-painel-geral.component.html": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/frota/relatorios/painel/geral/frota-painel-geral.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/relatorios/painel/manutencao/analise-manutencao.ts": {
+    "icone-primeicons": 31
+  },
+  "src/app/features/frota/relatorios/painel/manutencao/frota-painel-manutencao.component.html": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/relatorios/painel/manutencao/frota-painel-manutencao.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/relatorios/painel/painel-frota.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/frota/relatorios/painel/uso/analise-uso.ts": {
+    "icone-primeicons": 24
+  },
+  "src/app/features/frota/relatorios/painel/uso/frota-painel-uso.component.html": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/relatorios/painel/uso/frota-painel-uso.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/relatorios/relatorio-abastecimento.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/relatorios/relatorio-checklist-oficina.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/frota/relatorios/relatorio-checklist.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/frota/relatorios/relatorio-ordem-servico.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/frota/seguros/frota-anexos.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/seguros/frota-apolice-drawer.component.ts": {
+    "icone-primeicons": 26
+  },
+  "src/app/features/frota/seguros/frota-seguradoras-cadastro.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/frota/seguros/frota-seguros.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/frota/seguros/frota-sinistro-drawer.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/frota/seguros/frota-sinistros.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/frota/seguros/frota-veiculo-seguro.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/frota/seguros/frota-veiculo-sinistros.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/shared/frota-justificativa-drawer.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/shared/frota-resumo-assistente.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/frota/shared/frota-teste.ts": {
+    "primeng-direto": 1
+  },
+  "src/app/features/frota/telemetria/frota-evento-telemetria-drawer.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/telemetria/frota-mapa-atencao.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/frota/telemetria/frota-mapa-frota.component.ts": {
+    "cor-literal": 9,
+    "icone-primeicons": 18
+  },
+  "src/app/features/frota/telemetria/frota-mapa-telemetria.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/telemetria/frota-rastreador-drawer.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/frota/telemetria/frota-telemetria-rastreadores.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/frota/telemetria/frota-telemetria.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/frota/telemetria/frota-veiculo-telemetria.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/frota/veiculos/frota-lancar-km.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/frota/veiculos/frota-trocar-painel.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/veiculos/frota-veiculo-detalhe.component.ts": {
+    "icone-primeicons": 36
+  },
+  "src/app/features/frota/veiculos/frota-veiculo-form.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/frota/veiculos/frota-veiculos.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/frota/veiculos/frota-vincular-condutor.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/frota/visoes/frota-os-calendario.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 8
+  },
+  "src/app/features/frota/visoes/frota-os-kanban-card.component.ts": {
+    "cor-literal": 6,
+    "icone-primeicons": 19
+  },
+  "src/app/features/frota/visoes/frota-os-kanban.component.css": {
+    "cor-literal": 20,
+    "movimento-literal": 3,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/frota/visoes/frota-os-kanban.component.ts": {
+    "icone-primeicons": 21
+  },
+  "src/app/features/home/home.component.css": {
+    "cor-literal": 1
+  },
+  "src/app/features/home/home.component.html": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/home/home.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/iam/avaliacoes/avaliacoes-painel.component.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/iam/avaliacoes/avaliacoes-painel.component.ts": {
+    "icone-primeicons": 26
+  },
+  "src/app/features/iam/login/login.component.ts": {
+    "cor-literal": 14,
+    "icone-primeicons": 6,
+    "important": 19,
+    "movimento-tailwind": 13,
+    "ng-deep": 13,
+    "p-button": 2,
+    "paleta-tailwind": 37,
+    "primeng-direto": 8
+  },
+  "src/app/features/iam/perfis-acesso/perfis-acesso.component.ts": {
+    "icone-primeicons": 17
+  },
+  "src/app/features/iam/perfis-acesso/permissoes-catalogo.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/iam/perfis-acesso/permissoes-perfil-editor.component.css": {
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/iam/perfis-acesso/permissoes-perfil-editor.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/iam/permissoes/permissoes.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/iam/status/status.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/iam/usuarios/usuarios.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/manuais/central-treinamento.component.css": {
+    "cor-literal": 1
+  },
+  "src/app/features/manuais/central-treinamento.component.html": {
+    "icone-primeicons": 22
+  },
+  "src/app/features/manuais/central-treinamento.data.ts": {
+    "icone-primeicons": 82
+  },
+  "src/app/features/manuais/manual-treinamento-documento.component.css": {
+    "cor-literal": 48
+  },
+  "src/app/features/manuais/manual-treinamento-documento.component.html": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/notificacoes/admin/comunicados/comunicado-form.component.css": {
+    "important": 8,
+    "movimento-literal": 2
+  },
+  "src/app/features/notificacoes/admin/comunicados/comunicado-form.component.html": {
+    "icone-primeicons": 33,
+    "p-button": 17,
+    "paleta-tailwind": 98
+  },
+  "src/app/features/notificacoes/admin/comunicados/comunicado-form.component.ts": {
+    "icone-primeicons": 5,
+    "paleta-tailwind": 3,
+    "primeng-direto": 10
+  },
+  "src/app/features/notificacoes/admin/comunicados/comunicados.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/notificacoes/admin/politicas/politica-roteamento-form.component.html": {
+    "icone-primeicons": 23,
+    "p-button": 8,
+    "paleta-tailwind": 21
+  },
+  "src/app/features/notificacoes/admin/politicas/politica-roteamento-form.component.ts": {
+    "primeng-direto": 5
+  },
+  "src/app/features/notificacoes/admin/politicas/politicas-roteamento.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/notificacoes/admin/regras/regra-form.component.css": {
+    "cor-literal": 18,
+    "important": 16
+  },
+  "src/app/features/notificacoes/admin/regras/regra-form.component.html": {
+    "icone-primeicons": 30,
+    "p-button": 16,
+    "paleta-tailwind": 45
+  },
+  "src/app/features/notificacoes/admin/regras/regra-form.component.ts": {
+    "icone-primeicons": 3,
+    "primeng-direto": 12
+  },
+  "src/app/features/notificacoes/admin/regras/regras-notificacao.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/notificacoes/automacoes/aprovacao-automacao.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/notificacoes/automacoes/automacao-detalhe.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/notificacoes/automacoes/automacao-execucao.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 8
+  },
+  "src/app/features/notificacoes/automacoes/automacoes-campos.css": {
+    "important": 11,
+    "movimento-literal": 2,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/notificacoes/automacoes/automacoes-canvas.css": {
+    "movimento-literal": 4
+  },
+  "src/app/features/notificacoes/automacoes/automacoes-email.css": {
+    "important": 4
+  },
+  "src/app/features/notificacoes/automacoes/automacoes-lista.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/notificacoes/automacoes/automacoes.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/notificacoes/automacoes/designer/automacao-designer.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/notificacoes/automacoes/designer/campo-expressao.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/notificacoes/automacoes/designer/canvas.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/notificacoes/automacoes/designer/destinatarios.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/notificacoes/automacoes/designer/dialogo-executar.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/notificacoes/automacoes/designer/editor-email.component.ts": {
+    "cor-literal": 6,
+    "icone-primeicons": 14
+  },
+  "src/app/features/notificacoes/automacoes/designer/editores.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/notificacoes/automacoes/designer/form-parametros.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/notificacoes/automacoes/designer/paineis.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/notificacoes/automacoes/designer/seletor-dinamico.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/notificacoes/automacoes/lib/dinamico.ts": {
+    "icone-primeicons": 42
+  },
+  "src/app/features/notificacoes/minhas-notificacoes/minhas-notificacoes.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/notificacoes/mural/mural.component.css": {
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/notificacoes/mural/mural.component.ts": {
+    "icone-primeicons": 28
+  },
+  "src/app/features/notificacoes/notificacoes-form.shared.css": {
+    "cor-literal": 61,
+    "important": 53,
+    "movimento-literal": 2,
+    "paleta-tailwind": 2
+  },
+  "src/app/features/notificacoes/notificacoes-ui.ts": {
+    "icone-primeicons": 12,
+    "paleta-tailwind": 45
+  },
+  "src/app/features/notificacoes/preferencias/preferencias-notificacao.component.ts": {
+    "cor-literal": 20,
+    "icone-primeicons": 11,
+    "movimento-tailwind": 4,
+    "p-button": 3,
+    "paleta-tailwind": 38,
+    "primeng-direto": 6
+  },
+  "src/app/features/obras/cadastros/agentes-responsaveis/agentes-responsaveis.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/obras/cadastros/status-obras/status-obras.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/obras/cadastros/tipos-anexos/tipos-anexos.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/obras/cadastros/tipos-obra/tipos-obra.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/obras/detalhe/obra-detalhe.component.css": {
+    "cor-literal": 15,
+    "important": 5,
+    "movimento-literal": 1
+  },
+  "src/app/features/obras/detalhe/obra-detalhe.component.html": {
+    "icone-primeicons": 58,
+    "movimento-tailwind": 1,
+    "p-button": 1,
+    "paleta-tailwind": 1
+  },
+  "src/app/features/obras/detalhe/obra-detalhe.component.ts": {
+    "icone-primeicons": 5,
+    "primeng-direto": 3
+  },
+  "src/app/features/obras/detalhe/obra-insights.ts": {
+    "icone-primeicons": 19
+  },
+  "src/app/features/obras/detalhe/obra-materiais.component.html": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/obras/detalhe/obra-materiais.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/obras/documentacao/checklist-respostas.component.ts": {
+    "icone-primeicons": 2,
+    "movimento-literal": 2,
+    "movimento-tailwind": 3
+  },
+  "src/app/features/obras/documentacao/evidencia-miniatura.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/obras/documentacao/evidencia-visualizador.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/obras/documentacao/modelos-checklist.component.ts": {
+    "icone-primeicons": 23
+  },
+  "src/app/features/obras/documentacao/obra-documentacao.component.ts": {
+    "icone-primeicons": 17
+  },
+  "src/app/features/obras/documentacao/visita-evidencias.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/obras/documentacao/visita-previa-drawer.component.ts": {
+    "icone-primeicons": 8,
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/obras/fechamento/fechamento-calendario.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/obras/fechamento/fechamento-criar-drawer.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/obras/fechamento/fechamento-detalhe-drawer.component.ts": {
+    "icone-primeicons": 24
+  },
+  "src/app/features/obras/fechamento/fechamento-editar-drawer.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/obras/fechamento/fechamento-estorno-drawer.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/obras/fechamento/fechamento-importacao.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/obras/fechamento/fechamento-kanban-card.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/obras/fechamento/fechamento-lista.component.ts": {
+    "icone-primeicons": 21
+  },
+  "src/app/features/obras/fechamento/fechamento-movimentar-painel.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/obras/fechamento/fechamento-operacoes-historico.component.ts": {
+    "icone-primeicons": 7,
+    "movimento-tailwind": 2
+  },
+  "src/app/features/obras/fechamento/fechamento-previa-saldo.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/features/obras/fechamento/fechamento-quadro.component.ts": {
+    "icone-primeicons": 20
+  },
+  "src/app/features/obras/fechamento/fechamento-relatorio.component.html": {
+    "icone-primeicons": 18,
+    "p-button": 5,
+    "paleta-tailwind": 4
+  },
+  "src/app/features/obras/fechamento/fechamento-relatorio.component.ts": {
+    "icone-primeicons": 6,
+    "primeng-direto": 2
+  },
+  "src/app/features/obras/fechamento/fechamento-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/obras/fechamento/fechamento-ui.ts": {
+    "icone-primeicons": 29
+  },
+  "src/app/features/obras/fechamento/fechamento.css": {
+    "important": 1,
+    "movimento-literal": 1
+  },
+  "src/app/features/obras/fechamento/obra-fechamentos.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/obras/form/obra-form.component.html": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/obras/importacao/importacao-planilha-obras.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/obras/kits/kits-construtivos.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/obras/lista/obras-lista.component.ts": {
+    "icone-primeicons": 30
+  },
+  "src/app/features/obras/medicoes/fechamento-obra.component.ts": {
+    "icone-primeicons": 18
+  },
+  "src/app/features/obras/medicoes/medicao-detalhe-drawer.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/obras/medicoes/medicoes.component.ts": {
+    "icone-primeicons": 13
+  },
+  "src/app/features/obras/medicoes/medir-obra-drawer.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/obras/medicoes/pre-fechamento.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/obras/medicoes/relatorio-medicao-detalhado.component.ts": {
+    "icone-primeicons": 13
+  },
+  "src/app/features/obras/obra-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/obras/obras-controle.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/obras/obras-ui.ts": {
+    "icone-primeicons": 6,
+    "paleta-tailwind": 30
+  },
+  "src/app/features/obras/planejamento/obra-planejamento-cartao.component.css": {
+    "cor-literal": 1
+  },
+  "src/app/features/obras/planejamento/obra-planejamento.component.css": {
+    "cor-literal": 4,
+    "movimento-literal": 1
+  },
+  "src/app/features/obras/planejamento/obra-planejamento.component.html": {
+    "icone-primeicons": 59
+  },
+  "src/app/features/obras/planejamento/obra-planejamento.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/obras/planejamento/planejamento-arvore.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/obras/planejamento/planejamento-kits.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/obras/planejamento/planejamento-revisao.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/obras/programacao/equipes-projecao.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/features/obras/programacao/programacao-detalhe.component.ts": {
+    "icone-primeicons": 30
+  },
+  "src/app/features/obras/programacao/programacao-historico.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/obras/programacao/programacao-linha-tempo.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 2
+  },
+  "src/app/features/obras/programacao/programacao-painel.component.css": {
+    "movimento-literal": 1
+  },
+  "src/app/features/obras/programacao/programacao-painel.component.html": {
+    "icone-primeicons": 28
+  },
+  "src/app/features/obras/programacao/programacao.component.ts": {
+    "icone-primeicons": 20
+  },
+  "src/app/features/obras/programacao/programacao.logic.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/obras/programacao/programar-drawer.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/obras/turnos/apr-drawer.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/obras/turnos/boletim-obra.component.ts": {
+    "icone-primeicons": 39
+  },
+  "src/app/features/obras/turnos/boletim-obra.logic.ts": {
+    "icone-primeicons": 24
+  },
+  "src/app/features/obras/turnos/turno-obra-detalhe.component.ts": {
+    "icone-primeicons": 19
+  },
+  "src/app/features/obras/turnos/turnos-obra.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/obras/turnos/turnos-obra.logic.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/rh/bases-operacionais/bases-operacionais.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/rh/centros-faturamento/centros-faturamento.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/rh/colaboradores/colaboradores.component.ts": {
+    "icone-primeicons": 22
+  },
+  "src/app/features/rh/coordenadores/coordenadores.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/rh/equipes/equipes.component.ts": {
+    "icone-primeicons": 24
+  },
+  "src/app/features/rh/funcoes/funcoes.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/rh/medidas-disciplinares/cadastros-medidas-disciplinares.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/rh/medidas-disciplinares/colaborador-medidas.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/rh/medidas-disciplinares/medida-disciplinar-drawer.component.ts": {
+    "icone-primeicons": 25
+  },
+  "src/app/features/rh/medidas-disciplinares/medidas-disciplinares.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/rh/metas-faturamento/metas-faturamento.component.ts": {
+    "icone-primeicons": 13
+  },
+  "src/app/features/rh/motivos-desconto/motivos-desconto.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/rh/municipios/municipios.component.ts": {
+    "icone-primeicons": 19
+  },
+  "src/app/features/rh/processos/processos.component.ts": {
+    "icone-primeicons": 14
+  },
+  "src/app/features/rh/supervisores/supervisores.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/rh/tipos-equipamento-desconto/tipos-equipamento-desconto.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/rh/tipos-equipe/tipos-equipe.component.ts": {
+    "icone-primeicons": 15
+  },
+  "src/app/features/rh/veiculos/veiculos.component.ts": {
+    "icone-primeicons": 16
+  },
+  "src/app/features/sst/cadastros/atividades-sst.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/sst/cadastros/catalogo-sst-page.config.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/features/sst/cadastros/catalogos-sst.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/sst/cadastros/tipos-inspecao.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/sst/dashboards/analise/analise-desvios.ts": {
+    "icone-primeicons": 58
+  },
+  "src/app/features/sst/dashboards/analise/analise-eventos.ts": {
+    "icone-primeicons": 67
+  },
+  "src/app/features/sst/dashboards/analise/analise-inspecoes.ts": {
+    "icone-primeicons": 66
+  },
+  "src/app/features/sst/dashboards/analise/analise-sst-comum.ts": {
+    "icone-primeicons": 21
+  },
+  "src/app/features/sst/dashboards/analise/visao-inspecoes.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/sst/dashboards/dashboard-desvios-chart.config.ts": {
+    "cor-literal": 9
+  },
+  "src/app/features/sst/dashboards/dashboard-desvios.component.html": {
+    "cor-literal": 2,
+    "icone-primeicons": 19,
+    "paleta-tailwind": 16
+  },
+  "src/app/features/sst/dashboards/dashboard-desvios.component.ts": {
+    "cor-literal": 93,
+    "icone-primeicons": 6,
+    "movimento-literal": 2,
+    "primeng-direto": 3
+  },
+  "src/app/features/sst/dashboards/dashboard-eventos-chart.config.ts": {
+    "cor-literal": 28
+  },
+  "src/app/features/sst/dashboards/dashboard-eventos.component.html": {
+    "cor-literal": 3,
+    "icone-primeicons": 18,
+    "paleta-tailwind": 3
+  },
+  "src/app/features/sst/dashboards/dashboard-eventos.component.ts": {
+    "cor-literal": 49,
+    "icone-primeicons": 3,
+    "important": 2,
+    "movimento-literal": 1,
+    "primeng-direto": 3
+  },
+  "src/app/features/sst/dashboards/dashboard-inspecoes.component.html": {
+    "cor-literal": 3,
+    "icone-primeicons": 21,
+    "paleta-tailwind": 4
+  },
+  "src/app/features/sst/dashboards/dashboard-inspecoes.component.ts": {
+    "cor-literal": 47,
+    "icone-primeicons": 4,
+    "primeng-direto": 3
+  },
+  "src/app/features/sst/dashboards/mapa-corpo-lesoes.component.css": {
+    "cor-literal": 60,
+    "important": 1,
+    "movimento-literal": 3
+  },
+  "src/app/features/sst/dashboards/mapa-corpo-lesoes.component.html": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/sst/dashboards/mapa-corpo-lesoes.component.ts": {
+    "cor-literal": 6
+  },
+  "src/app/features/sst/dashboards/mapa-corpo-lesoes.config.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/sst/dashboards/piramide-bird.component.ts": {
+    "cor-literal": 18,
+    "icone-primeicons": 1,
+    "movimento-literal": 2
+  },
+  "src/app/features/sst/desvios/desvio-detalhe-dialog.component.css": {
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/sst/desvios/desvio-detalhe-dialog.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/sst/desvios/desvios.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/features/sst/eventos/evento-anexos.component.ts": {
+    "cor-literal": 3,
+    "icone-primeicons": 11,
+    "important": 3,
+    "movimento-literal": 1,
+    "movimento-tailwind": 2,
+    "paleta-tailwind": 54,
+    "primeng-direto": 2
+  },
+  "src/app/features/sst/eventos/evento-corpo.component.ts": {
+    "cor-literal": 5,
+    "movimento-literal": 1
+  },
+  "src/app/features/sst/eventos/evento-detalhe.component.css": {
+    "cor-literal": 8,
+    "important": 8
+  },
+  "src/app/features/sst/eventos/evento-detalhe.component.html": {
+    "icone-primeicons": 17,
+    "movimento-tailwind": 2,
+    "p-button": 7,
+    "paleta-tailwind": 263
+  },
+  "src/app/features/sst/eventos/evento-detalhe.component.ts": {
+    "cor-literal": 2,
+    "icone-primeicons": 8,
+    "primeng-direto": 1
+  },
+  "src/app/features/sst/eventos/evento-form.component.css": {
+    "cor-literal": 46,
+    "movimento-literal": 1,
+    "ng-deep": 5
+  },
+  "src/app/features/sst/eventos/evento-form.component.html": {
+    "icone-primeicons": 31,
+    "p-button": 13,
+    "paleta-tailwind": 84
+  },
+  "src/app/features/sst/eventos/evento-form.component.ts": {
+    "primeng-direto": 14
+  },
+  "src/app/features/sst/eventos/evento-sst-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/sst/eventos/eventos-importacao.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/sst/eventos/eventos.component.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/sst/formularios/formulario-builder.component.ts": {
+    "cor-literal": 4,
+    "icone-primeicons": 22,
+    "important": 7,
+    "ng-deep": 1,
+    "p-button": 13,
+    "paleta-tailwind": 54,
+    "primeng-direto": 11
+  },
+  "src/app/features/sst/formularios/formularios-importacao.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/sst/formularios/formularios.component.ts": {
+    "icone-primeicons": 11
+  },
+  "src/app/features/sst/governanca/governanca-cadastro.component.css": {
+    "cor-literal": 37,
+    "important": 21,
+    "movimento-literal": 2,
+    "ng-deep": 22
+  },
+  "src/app/features/sst/governanca/governanca-cadastro.component.html": {
+    "icone-primeicons": 18,
+    "p-button": 8,
+    "paleta-tailwind": 1
+  },
+  "src/app/features/sst/governanca/governanca-cadastro.component.ts": {
+    "icone-primeicons": 10,
+    "primeng-direto": 10
+  },
+  "src/app/features/sst/governanca/governanca-composicao-form.component.css": {
+    "cor-literal": 16,
+    "movimento-literal": 1,
+    "ng-deep": 15
+  },
+  "src/app/features/sst/governanca/governanca-composicao-form.component.html": {
+    "icone-primeicons": 15,
+    "p-button": 9,
+    "paleta-tailwind": 71
+  },
+  "src/app/features/sst/governanca/governanca-composicao-form.component.ts": {
+    "icone-primeicons": 4,
+    "primeng-direto": 9
+  },
+  "src/app/features/sst/governanca/governanca-configuracoes-checklists.component.css": {
+    "cor-literal": 34,
+    "important": 12,
+    "ng-deep": 25
+  },
+  "src/app/features/sst/governanca/governanca-configuracoes-form.component.css": {
+    "cor-literal": 48,
+    "important": 20,
+    "ng-deep": 28
+  },
+  "src/app/features/sst/governanca/governanca-configuracoes-table.component.css": {
+    "cor-literal": 15,
+    "important": 14,
+    "ng-deep": 46
+  },
+  "src/app/features/sst/governanca/governanca-configuracoes.component.css": {
+    "cor-literal": 65,
+    "movimento-literal": 1
+  },
+  "src/app/features/sst/governanca/governanca-configuracoes.component.html": {
+    "icone-primeicons": 31,
+    "p-button": 14,
+    "paleta-tailwind": 8
+  },
+  "src/app/features/sst/governanca/governanca-configuracoes.component.ts": {
+    "icone-primeicons": 7,
+    "primeng-direto": 12
+  },
+  "src/app/features/sst/governanca/governanca-contexto.component.css": {
+    "cor-literal": 38
+  },
+  "src/app/features/sst/governanca/governanca-membros-etapa.component.css": {
+    "cor-literal": 37,
+    "important": 2,
+    "ng-deep": 19
+  },
+  "src/app/features/sst/governanca/governanca-membros-etapa.component.html": {
+    "icone-primeicons": 19,
+    "p-button": 9,
+    "paleta-tailwind": 34
+  },
+  "src/app/features/sst/governanca/governanca-membros-etapa.component.ts": {
+    "primeng-direto": 9
+  },
+  "src/app/features/sst/governanca/governanca-state.ts": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/sst/governanca/governanca-table.css": {
+    "cor-literal": 24,
+    "important": 16,
+    "movimento-literal": 1,
+    "ng-deep": 15
+  },
+  "src/app/features/sst/governanca/governanca.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/features/sst/governanca/reuniao-governanca-fields.component.css": {
+    "cor-literal": 2,
+    "ng-deep": 17
+  },
+  "src/app/features/sst/governanca/reuniao-governanca.component.css": {
+    "cor-literal": 22,
+    "important": 15,
+    "movimento-literal": 2
+  },
+  "src/app/features/sst/governanca/reuniao-governanca.component.html": {
+    "icone-primeicons": 53,
+    "p-button": 27,
+    "paleta-tailwind": 30
+  },
+  "src/app/features/sst/governanca/reuniao-governanca.component.ts": {
+    "primeng-direto": 12
+  },
+  "src/app/features/sst/inspecoes/desvio-anexos.component.ts": {
+    "icone-primeicons": 9,
+    "paleta-tailwind": 45,
+    "primeng-direto": 6
+  },
+  "src/app/features/sst/inspecoes/evidencias-inspecao-upload.component.ts": {
+    "icone-primeicons": 6,
+    "movimento-tailwind": 1,
+    "paleta-tailwind": 55,
+    "primeng-direto": 2
+  },
+  "src/app/features/sst/inspecoes/evidencias-inspecao.component.ts": {
+    "icone-primeicons": 14,
+    "movimento-tailwind": 1,
+    "paleta-tailwind": 84,
+    "primeng-direto": 5
+  },
+  "src/app/features/sst/inspecoes/inspecao-detalhe.component.css": {
+    "cor-literal": 8,
+    "important": 7
+  },
+  "src/app/features/sst/inspecoes/inspecao-detalhe.component.html": {
+    "icone-primeicons": 20,
+    "movimento-tailwind": 2,
+    "p-button": 4,
+    "paleta-tailwind": 231
+  },
+  "src/app/features/sst/inspecoes/inspecao-detalhe.component.ts": {
+    "cor-literal": 7,
+    "icone-primeicons": 7,
+    "paleta-tailwind": 30,
+    "primeng-direto": 5
+  },
+  "src/app/features/sst/inspecoes/inspecao-form.component.ts": {
+    "cor-literal": 34,
+    "icone-primeicons": 62,
+    "important": 20,
+    "movimento-literal": 1,
+    "movimento-tailwind": 6,
+    "ng-deep": 2,
+    "p-button": 6,
+    "paleta-tailwind": 273,
+    "primeng-direto": 13
+  },
+  "src/app/features/sst/inspecoes/inspecao-seguranca-historico/inspecao-seguranca-historico.component.css": {
+    "cor-literal": 27
+  },
+  "src/app/features/sst/inspecoes/inspecao-seguranca-historico/inspecao-seguranca-historico.component.html": {
+    "icone-primeicons": 7
+  },
+  "src/app/features/sst/inspecoes/inspecao-seguranca-historico/inspecao-seguranca-historico.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/features/sst/inspecoes/inspecao-sst-report-navigator.data-source.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/features/sst/inspecoes/inspecoes.component.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/features/sst/inspecoes/manual-inspecoes/manual-inspecoes.component.html": {
+    "cor-literal": 3,
+    "icone-primeicons": 11,
+    "important": 24,
+    "paleta-tailwind": 109
+  },
+  "src/app/features/sst/inspecoes/manual-inspecoes/manual-inspecoes.component.ts": {
+    "paleta-tailwind": 9,
+    "primeng-direto": 2
+  },
+  "src/app/features/sst/metas-inspecoes/acompanhamento-metas.component.css": {
+    "important": 2,
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/features/sst/metas-inspecoes/acompanhamento-metas.component.ts": {
+    "icone-primeicons": 10
+  },
+  "src/app/features/sst/metas-inspecoes/analise-metas.ts": {
+    "icone-primeicons": 29
+  },
+  "src/app/features/sst/metas-inspecoes/metas-inspecao.component.ts": {
+    "icone-primeicons": 16,
+    "primeng-direto": 5
+  },
+  "src/app/features/sst/meus-desvios/meus-desvios.component.ts": {
+    "icone-primeicons": 12
+  },
+  "src/app/features/sst/meus-desvios/tratamento-meu-desvio-dialog.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/shared/components/analisar-com-copiloto/analisar-com-copiloto.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/shared/components/atualizacao-disponivel/atualizacao-disponivel.component.ts": {
+    "cor-literal": 2,
+    "icone-primeicons": 3,
+    "movimento-literal": 1,
+    "ng-deep": 1,
+    "p-button": 2,
+    "paleta-tailwind": 9,
+    "primeng-direto": 1
+  },
+  "src/app/shared/components/audit-dialog/audit-dialog.component.ts": {
+    "icone-primeicons": 8,
+    "important": 6,
+    "ng-deep": 1,
+    "p-button": 1,
+    "paleta-tailwind": 20,
+    "primeng-direto": 4
+  },
+  "src/app/shared/components/avaliacao-app/avaliacao-convite.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 2,
+    "movimento-literal": 1
+  },
+  "src/app/shared/components/avaliacao-app/avaliacao-drawer.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/shared/components/avaliacao-app/estrelas-avaliacao.component.ts": {
+    "icone-primeicons": 1,
+    "movimento-literal": 2
+  },
+  "src/app/shared/components/busca-telas/busca-telas.component.ts": {
+    "icone-primeicons": 9,
+    "important": 3,
+    "movimento-tailwind": 5,
+    "ng-deep": 2,
+    "p-button": 1,
+    "primeng-direto": 3
+  },
+  "src/app/shared/components/change-password-dialog/change-password-dialog.component.ts": {
+    "icone-primeicons": 4,
+    "important": 1,
+    "movimento-tailwind": 5,
+    "ng-deep": 1,
+    "p-button": 3,
+    "paleta-tailwind": 2,
+    "primeng-direto": 6
+  },
+  "src/app/shared/components/chatbot/assistant-rich-content.component.css": {
+    "cor-literal": 14,
+    "movimento-literal": 1,
+    "ng-deep": 1
+  },
+  "src/app/shared/components/chatbot/assistant-rich-content.component.html": {
+    "icone-primeicons": 5
+  },
+  "src/app/shared/components/chatbot/assistant-rich-content.component.ts": {
+    "cor-literal": 27,
+    "primeng-direto": 1
+  },
+  "src/app/shared/components/chatbot/chatbot-controls.css": {
+    "cor-literal": 10,
+    "important": 6,
+    "movimento-literal": 7,
+    "ng-deep": 8
+  },
+  "src/app/shared/components/chatbot/chatbot-conversation.css": {
+    "cor-literal": 15,
+    "movimento-literal": 2,
+    "movimento-tailwind": 1,
+    "ng-deep": 4
+  },
+  "src/app/shared/components/chatbot/chatbot-messages.css": {
+    "cor-literal": 11,
+    "movimento-literal": 1,
+    "movimento-tailwind": 1,
+    "ng-deep": 2
+  },
+  "src/app/shared/components/chatbot/chatbot-mobile.css": {
+    "cor-literal": 2,
+    "important": 1,
+    "ng-deep": 4
+  },
+  "src/app/shared/components/chatbot/chatbot-welcome.css": {
+    "cor-literal": 12,
+    "important": 9,
+    "movimento-literal": 2,
+    "ng-deep": 10
+  },
+  "src/app/shared/components/chatbot/chatbot.component.css": {
+    "cor-literal": 16,
+    "important": 3,
+    "movimento-literal": 1,
+    "ng-deep": 5
+  },
+  "src/app/shared/components/chatbot/chatbot.component.html": {
+    "icone-primeicons": 19,
+    "p-button": 9
+  },
+  "src/app/shared/components/chatbot/chatbot.component.ts": {
+    "icone-primeicons": 1,
+    "primeng-direto": 7
+  },
+  "src/app/shared/components/comunicado-conteudo/comunicado-conteudo.component.ts": {
+    "cor-literal": 17,
+    "icone-primeicons": 5,
+    "ng-deep": 56,
+    "p-button": 1,
+    "paleta-tailwind": 29,
+    "primeng-direto": 2
+  },
+  "src/app/shared/components/comunicado-detalhe-dialog/comunicado-detalhe-dialog.component.ts": {
+    "icone-primeicons": 8
+  },
+  "src/app/shared/components/dashboard/dashboard-analise.component.css": {
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/shared/components/dashboard/dashboard-analise.component.ts": {
+    "icone-primeicons": 17
+  },
+  "src/app/shared/components/dashboard/dashboard-drill.component.ts": {
+    "icone-primeicons": 3
+  },
+  "src/app/shared/components/dashboard/dashboard-ui.components.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/shared/components/dashboard/dashboard-visao-gerencial.component.ts": {
+    "icone-primeicons": 2
+  },
+  "src/app/shared/components/footer/footer.component.ts": {
+    "movimento-tailwind": 1,
+    "paleta-tailwind": 9
+  },
+  "src/app/shared/components/header/header.component.ts": {
+    "icone-primeicons": 35,
+    "movimento-tailwind": 22,
+    "p-button": 15,
+    "paleta-tailwind": 38,
+    "primeng-direto": 6
+  },
+  "src/app/shared/components/help-dialog/help-dialog.component.ts": {
+    "icone-primeicons": 2,
+    "p-button": 1,
+    "primeng-direto": 2
+  },
+  "src/app/shared/components/location-picker-dialog/location-picker-dialog.component.ts": {
+    "cor-literal": 1,
+    "icone-primeicons": 5,
+    "important": 3,
+    "ng-deep": 3,
+    "p-button": 1,
+    "paleta-tailwind": 11,
+    "primeng-direto": 3
+  },
+  "src/app/shared/components/map-dialog/map-dialog.component.ts": {
+    "cor-literal": 2,
+    "icone-primeicons": 1,
+    "paleta-tailwind": 3,
+    "primeng-direto": 1
+  },
+  "src/app/shared/components/mencoes/mencao-textarea.component.ts": {
+    "icone-primeicons": 3,
+    "paleta-tailwind": 10,
+    "primeng-direto": 1
+  },
+  "src/app/shared/components/movimentacoes-material-dialog/movimentacao-material-itens.component.ts": {
+    "icone-primeicons": 2,
+    "movimento-tailwind": 1
+  },
+  "src/app/shared/components/movimentacoes-material-dialog/movimentacoes-material-dialog.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/shared/components/mural-host/mural-host.component.ts": {
+    "cor-literal": 14,
+    "icone-primeicons": 9,
+    "movimento-literal": 1,
+    "movimento-tailwind": 1,
+    "ng-deep": 3,
+    "p-button": 7,
+    "paleta-tailwind": 13,
+    "primeng-direto": 3
+  },
+  "src/app/shared/components/notificacoes-panel/notificacoes-panel.component.ts": {
+    "icone-primeicons": 10,
+    "movimento-tailwind": 1,
+    "p-button": 5,
+    "paleta-tailwind": 6,
+    "primeng-direto": 2
+  },
+  "src/app/shared/components/saldo-estoque-dialog/saldo-estoque-dialog.component.html": {
+    "icone-primeicons": 6
+  },
+  "src/app/shared/components/saldo-estoque-dialog/saldo-estoque-dialog.component.ts": {
+    "primeng-direto": 1
+  },
+  "src/app/shared/components/saldo-seriais-painel/saldo-seriais-painel.component.css": {
+    "cor-literal": 2,
+    "important": 3,
+    "movimento-literal": 1,
+    "movimento-tailwind": 1
+  },
+  "src/app/shared/components/saldo-seriais-painel/saldo-seriais-painel.component.ts": {
+    "icone-primeicons": 4
+  },
+  "src/app/shared/components/series-grade/series-grade.component.css": {
+    "cor-literal": 2,
+    "important": 3
+  },
+  "src/app/shared/components/series-grade/series-grade.component.ts": {
+    "icone-primeicons": 1
+  },
+  "src/app/shared/components/sessao-reautenticacao/sessao-reautenticacao.component.ts": {
+    "icone-primeicons": 1,
+    "p-button": 1,
+    "primeng-direto": 1
+  },
+  "src/app/shared/components/sidebar/sidebar.component.ts": {
+    "icone-primeicons": 2,
+    "movimento-tailwind": 17,
+    "p-button": 2,
+    "primeng-direto": 5
+  },
+  "src/app/shared/listagem/ajuda-listagem.component.ts": {
+    "icone-primeicons": 6
+  },
+  "src/app/shared/listagem/exportacao-csv-drawer.component.ts": {
+    "icone-primeicons": 5
+  },
+  "src/app/shared/listagem/listagem-teste.ts": {
+    "primeng-direto": 1
+  },
+  "src/app/shared/styles/dashboard-shell.css": {
+    "cor-literal": 162,
+    "important": 3,
+    "movimento-literal": 3
+  },
+  "src/app/shared/utils/movimentacao.utils.ts": {
+    "icone-primeicons": 9
+  },
+  "src/app/shared/utils/trajeto-mapa.ts": {
+    "cor-literal": 4
+  }
+}
