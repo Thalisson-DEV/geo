@@ -109,6 +109,17 @@ public class Programacao extends BaseEntity {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    /**
+     * Quanto do valor congelado já foi executado: cada serviço conta pelo que a equipe apontou, até a quantidade
+     * programada, ao valor unitário congelado. Material não tem valor e serviço sem valor vigente fica fora.
+     */
+    public BigDecimal valorRealizado() {
+        return getItensAtivos().stream()
+                .filter(v -> v.getValorUnitario() != null)
+                .map(v -> v.getValorUnitario().multiply(v.getItemPlanejado().getQuantidadeExecutada().min(v.getQuantidade())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
     public SituacaoProgramacao situacaoEm(LocalDate hoje) {
         if (status == StatusProgramacao.CANCELADA) {
             return SituacaoProgramacao.CANCELADA;
@@ -123,6 +134,11 @@ public class Programacao extends BaseEntity {
         return planejados.stream().anyMatch(ItemPlanejado::temExecucao)
                 ? SituacaoProgramacao.EM_ANDAMENTO
                 : SituacaoProgramacao.PROGRAMADA;
+    }
+
+    /** Evento de criação: abre o histórico com a equipe e o período em que a programação nasceu. */
+    public EventoProgramacao registrarCriacao() {
+        return new EventoProgramacao(this, TipoEventoProgramacao.CRIADA, new EventoProgramacao.Origem(null, null, null), descricao);
     }
 
     /** @return o evento, ou vazio quando nada mudou */

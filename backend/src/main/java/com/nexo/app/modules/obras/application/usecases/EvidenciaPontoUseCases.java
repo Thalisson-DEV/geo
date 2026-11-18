@@ -39,6 +39,13 @@ public class EvidenciaPontoUseCases {
 
     @Transactional
     public UUID registrar(UUID idObra, UUID idPonto, UUID idModelo, String idItem, String legenda, MultipartFile arquivo) {
+        return registrar(idObra, idPonto, idModelo, idItem, legenda, arquivo, EvidenciaPonto.Captura.VAZIA);
+    }
+
+    /** Com a captura, guarda a etapa, as coordenadas e o momento informados pelo app. */
+    @Transactional
+    public UUID registrar(UUID idObra, UUID idPonto, UUID idModelo, String idItem, String legenda, MultipartFile arquivo,
+                          EvidenciaPonto.Captura captura) {
         pontoRepository.findByIdAndIdObraAndAtivoTrue(idPonto, idObra)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Ponto não encontrado nesta obra."));
         if (arquivo == null || arquivo.isEmpty()) {
@@ -57,7 +64,14 @@ public class EvidenciaPontoUseCases {
         objectStorage.enviar(chaveMiniatura, new ByteArrayInputStream(miniatura), miniatura.length, "image/jpeg");
 
         return repository.save(new EvidenciaPonto(idObra, idPonto, item, legenda,
-                new EvidenciaPonto.Arquivo(nome, contentType, conteudo.length, chave, chaveMiniatura))).getId();
+                new EvidenciaPonto.Arquivo(nome, contentType, conteudo.length, chave, chaveMiniatura), captura)).getId();
+    }
+
+    @Transactional
+    public void classificarEtapa(UUID idObra, UUID idEvidencia, EvidenciaPonto.Etapa etapa) {
+        EvidenciaPonto evidencia = buscar(idObra, idEvidencia);
+        evidencia.classificarEtapa(etapa);
+        repository.save(evidencia);
     }
 
     @Transactional

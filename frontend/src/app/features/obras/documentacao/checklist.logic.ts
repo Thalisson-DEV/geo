@@ -59,6 +59,7 @@ export function problemaDaEstrutura(estrutura: EstruturaChecklist): string | nul
       if (temOpcoes(pergunta.tipo)) {
         const opcoes = pergunta.opcoes ?? [];
         if (opcoes.length < 2 || new Set(opcoes).size !== opcoes.length) return `"${pergunta.enunciado}" precisa de ao menos duas opções diferentes.`;
+        if (pergunta.opcaoConforme && !opcoes.includes(pergunta.opcaoConforme)) return `A resposta conforme de "${pergunta.enunciado}" não está entre as opções.`;
       }
     }
   }
@@ -137,4 +138,47 @@ export function pendentes(estrutura: EstruturaChecklist, respostas: RespostasEmE
 export function alternarOpcao(pergunta: PerguntaChecklist, atuais: string[], opcao: string): string[] {
   if (atuais.includes(opcao)) return atuais.filter((o) => o !== opcao);
   return pergunta.tipo === 'ESCOLHA_UNICA' ? [opcao] : [...atuais, opcao];
+}
+
+/** Respondida com uma opção diferente da resposta conforme do modelo. Sem resposta conforme, nunca é não conformidade. */
+export function naoConforme(pergunta: PerguntaChecklist, r: RespostaEmEdicao | undefined): boolean {
+  const esperada = pergunta.opcaoConforme;
+  if (!esperada || !r || r.naoSeAplica || !r.selecionadas.length) return false;
+  return !r.selecionadas.includes(esperada);
+}
+
+export interface ProgressoChecklist {
+  respondidas: number;
+  total: number;
+}
+
+export function progresso(perguntas: PerguntaChecklist[], respostas: RespostasEmEdicao): ProgressoChecklist {
+  return { respondidas: perguntas.filter((p) => respondida(p, respostas[p.id])).length, total: perguntas.length };
+}
+
+/** Perguntas ainda sem resposta que o modelo sabe responder como conforme. */
+export function restantesConformes(perguntas: PerguntaChecklist[], respostas: RespostasEmEdicao): PerguntaChecklist[] {
+  return perguntas.filter((p) => !!p.opcaoConforme && p.tipo === 'ESCOLHA_UNICA' && !respondida(p, respostas[p.id]));
+}
+
+/** Marca a resposta conforme nas perguntas sem resposta; o que já foi respondido fica como está. */
+export function marcarRestantesComoConforme(perguntas: PerguntaChecklist[], respostas: RespostasEmEdicao): RespostasEmEdicao {
+  const novas = { ...respostas };
+  for (const p of restantesConformes(perguntas, respostas)) {
+    novas[p.id] = { ...(respostas[p.id] ?? respostaVazia()), selecionadas: [p.opcaoConforme!], naoSeAplica: false };
+  }
+  return novas;
+}
+
+export interface NaoConformidade {
+  grupo: string;
+  pergunta: PerguntaChecklist;
+  resposta: string;
+}
+
+/** Não conformidades na ordem do checklist, para o resumo da visita. */
+export function naoConformidades(estrutura: EstruturaChecklist, respostas: RespostasEmEdicao): NaoConformidade[] {
+  return estrutura.grupos.flatMap((g) =>
+    g.perguntas.filter((p) => naoConforme(p, respostas[p.id])).map((p) => ({ grupo: g.titulo, pergunta: p, resposta: respostas[p.id].selecionadas.join(', ') }))
+  );
 }

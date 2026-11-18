@@ -125,6 +125,7 @@ public class ProgramacaoObraUseCases {
         }
         obra.vincularEquipeSeAusente(request.idEquipe());
         Programacao salva = repository.saveAndFlush(programacao);
+        registrar(salva.registrarCriacao(), obra);
         return new ProgramacaoResponses.Resultado(detalhar(salva, obra), selecao.ignoradosProgramados(),
                 selecao.ignoradosConcluidos(), selecao.materiaisIncluidos(), semValor);
     }

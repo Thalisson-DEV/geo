@@ -5,7 +5,7 @@ import { TipoItemKit } from './obras-kit.models';
 export type TurnoProgramacao = 'DIA_TODO' | 'MANHA' | 'TARDE';
 export type SituacaoIntervencao = 'CRIADO' | 'PENDENTE' | 'NAO_SE_APLICA';
 export type SituacaoProgramacao = 'PROGRAMADA' | 'ATRASADA' | 'EM_ANDAMENTO' | 'CONCLUIDA' | 'CANCELADA';
-export type TipoEventoProgramacao = 'EDITADA' | 'REPROGRAMADA' | 'CANCELADA' | 'EXCLUIDA';
+export type TipoEventoProgramacao = 'CRIADA' | 'EDITADA' | 'REPROGRAMADA' | 'CANCELADA' | 'EXCLUIDA';
 
 export interface EquipeProjetada {
   id: string;
@@ -196,4 +196,111 @@ export interface EventoProgramacao {
   fimNovo?: string | null;
   usuario?: string | null;
   observacao?: string | null;
+}
+
+/** Painel da programação no período (GET /programacoes/painel). Percentuais nulos quando não há base de cálculo. */
+export interface TotaisPainelProgramacao {
+  programacoes: number;
+  programadas: number;
+  emAndamento: number;
+  atrasadas: number;
+  concluidas: number;
+  canceladas: number;
+  /** Já deviam ter terminado (fim antes de hoje), sem contar as canceladas. */
+  vencidas: number;
+  taxaCumprimento?: number | null;
+  valorProgramado: number;
+  valorRealizado: number;
+  percentualRealizado?: number | null;
+  criadas: number;
+  edicoes: number;
+  reprogramacoes: number;
+  cancelamentos: number;
+  exclusoes: number;
+  equipes: number;
+  equipesLivres: number;
+  diasUteis: number;
+  ocupacaoMedia?: number | null;
+  linhaViva: number;
+  desligamentos: number;
+}
+
+export interface EquipePainelProgramacao {
+  idEquipe: string;
+  codigo: string;
+  tipoEquipe?: string | null;
+  base?: string | null;
+  programacoes: number;
+  concluidas: number;
+  atrasadas: number;
+  canceladas: number;
+  reprogramacoes: number;
+  valorProgramado: number;
+  valorRealizado: number;
+  diasOcupados: number;
+  ocupacao?: number | null;
+  percentualMeta?: number | null;
+  sobreposicoes: number;
+}
+
+export interface BasePainelProgramacao {
+  base: string;
+  equipes: number;
+  equipesLivres: number;
+  programacoes: number;
+  atrasadas: number;
+  valorProgramado: number;
+  valorRealizado: number;
+  ocupacaoMedia?: number | null;
+}
+
+export interface PontoSeriePainelProgramacao {
+  data: string; // dd/MM/yyyy
+  programacoes: number;
+  concluidas: number;
+  valorProgramado: number;
+  valorRealizado: number;
+}
+
+export interface DiaPainelProgramacao {
+  data: string; // dd/MM/yyyy
+  diaUtil: boolean;
+  programacoes: number;
+  equipesOcupadas: number;
+  equipesLivres: number;
+  linhaViva: number;
+  desligamentos: number;
+  obras: number;
+}
+
+export interface MotivoPainelProgramacao {
+  tipo: TipoEventoProgramacao;
+  motivo: string;
+  quantidade: number;
+}
+
+export interface ObraInstavelPainelProgramacao {
+  idObra: string;
+  numeroObra?: string | null;
+  reprogramacoes: number;
+  cancelamentos: number;
+  trocasDeEquipe: number;
+}
+
+export interface PainelProgramacao {
+  inicio: string;
+  fim: string;
+  geradoEm: string;
+  totais: TotaisPainelProgramacao;
+  equipes: EquipePainelProgramacao[];
+  bases: BasePainelProgramacao[];
+  agrupamentoSerie: 'DIA' | 'SEMANA';
+  serie: PontoSeriePainelProgramacao[];
+  proximosDias: DiaPainelProgramacao[];
+  motivos: MotivoPainelProgramacao[];
+  obrasInstaveis: ObraInstavelPainelProgramacao[];
+  atrasadas: BarraGantt[];
+  obrasAProgramar: number;
+  valorAProgramar: number;
+  obrasAProgramarPrimeiras: ObraAProgramar[];
 }

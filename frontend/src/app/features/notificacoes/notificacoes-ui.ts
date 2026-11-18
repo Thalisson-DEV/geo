@@ -191,6 +191,15 @@ export const TIPO_COMUNICADO_ICONES: Record<TipoComunicado, string> = {
   URGENTE: 'pi pi-exclamation-triangle'
 };
 
+/** Tom do Design System por tipo de comunicado (mural, detalhe e cadastro usam o mesmo). */
+export const TOM_TIPO_COMUNICADO: Record<TipoComunicado, CesTone> = {
+  DICA: 'warning',
+  CHANGELOG: 'brand',
+  AVISO: 'info',
+  MANUTENCAO: 'neutral',
+  URGENTE: 'danger'
+};
+
 export const TIPO_COMUNICADO_CLASSES: Record<TipoComunicado, string> = {
   DICA: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60',
   CHANGELOG: 'bg-violet-50 text-violet-800 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800/60',

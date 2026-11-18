@@ -186,6 +186,11 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
                 <ces-textarea label="Opções" description="Uma por linha." [rows]="2" [value]="textoDasOpcoes(p)" [readonly]="estruturaTravada()"
                   (valueChange)="alterarOpcoes(g, i, p.id, $event)"></ces-textarea>
               }
+              @if (p.tipo === 'ESCOLHA_UNICA') {
+                <ces-select class="mc-pergunta__conforme" label="Resposta conforme" placeholder="Sem resposta esperada" [clearable]="true" [showOptional]="true"
+                  description="A resposta esperada. Outra opção marcada aparece como não conformidade, e o preenchimento oferece marcar as restantes como conforme."
+                  [options]="opcoesConforme(p)" [value]="p.opcaoConforme ?? null" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { opcaoConforme: $event ?? null })"></ces-select>
+              }
               <div class="mc-pergunta__marcas">
                 <ces-boolean-control label="Obrigatória" kind="toggle" [value]="p.obrigatoria" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { obrigatoria: $event })"></ces-boolean-control>
                 <ces-boolean-control label="Aceita &quot;Não se aplica&quot;" kind="toggle" [value]="p.aceitaNaoSeAplica" [readonly]="estruturaTravada()" (valueChange)="alterarPergunta(g, i, { aceitaNaoSeAplica: $event })"></ces-boolean-control>
@@ -367,7 +372,13 @@ export class ModelosChecklistComponent {
   /** Guarda o texto como foi digitado: a linha em branco no fim é a próxima opção sendo escrita. */
   protected alterarOpcoes(g: number, i: number, id: string, texto: string): void {
     this.textosDeOpcoes.update((textos) => ({ ...textos, [id]: texto }));
-    this.alterarPergunta(g, i, { opcoes: opcoesDoTexto(texto) });
+    const opcoes = opcoesDoTexto(texto);
+    const conforme = this.grupos()[g].perguntas[i].opcaoConforme;
+    this.alterarPergunta(g, i, { opcoes, opcaoConforme: conforme && opcoes.includes(conforme) ? conforme : null });
+  }
+
+  protected opcoesConforme(p: PerguntaChecklist): { label: string; value: string }[] {
+    return (p.opcoes ?? []).map((o) => ({ label: o, value: o }));
   }
 
   protected textoDasOpcoes(p: PerguntaChecklist): string {
@@ -377,7 +388,8 @@ export class ModelosChecklistComponent {
   protected trocarTipo(g: number, i: number, tipo: TipoPerguntaChecklist | null): void {
     if (!tipo) return;
     const atuais = this.grupos()[g].perguntas[i].opcoes;
-    this.alterarPergunta(g, i, { tipo, opcoes: temOpcoes(tipo) ? (atuais?.length ? atuais : ['Sim', 'Não']) : null });
+    const conforme = tipo === 'ESCOLHA_UNICA' ? this.grupos()[g].perguntas[i].opcaoConforme ?? null : null;
+    this.alterarPergunta(g, i, { tipo, opcoes: temOpcoes(tipo) ? (atuais?.length ? atuais : ['Sim', 'Não']) : null, opcaoConforme: conforme });
   }
 
   protected adicionarItem(): void {

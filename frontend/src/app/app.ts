@@ -124,6 +124,7 @@ export class App {
     '/obras/programacao/semana': 'obras:programacao:read',
     '/obras/programacao/mes': 'obras:programacao:read',
     '/obras/programacao/historico': 'obras:programacao:read',
+    '/obras/programacao/painel': 'obras:programacao:read',
     '/obras/pre-fechamento': 'obras:medicao:read',
     '/obras/medicoes': 'obras:medicao:read',
     '/obras/fechamento': 'obras:medicao:read',
@@ -369,7 +370,8 @@ export class App {
           label: 'Programação e Campo',
           icon: 'pi pi-calendar',
           items: [
-            { label: 'Programação', icon: 'pi pi-calendar', routerLink: '/obras/programacao' },
+            { label: 'Agenda de Programação', icon: 'pi pi-calendar', routerLink: '/obras/programacao' },
+            { label: 'Histórico de Programação', icon: 'pi pi-history', routerLink: '/obras/programacao/historico' },
             { label: 'Turnos', icon: 'pi pi-calendar-clock', routerLink: '/obras/turnos' }
           ]
         },
@@ -389,7 +391,8 @@ export class App {
           items: [
             { label: 'Dashboard Operacional', icon: 'pi pi-chart-line', routerLink: '/execucao/dashboard-operacional' },
             { label: 'Boletim das Equipes', icon: 'pi pi-th-large', routerLink: '/obras/boletim' },
-            { label: 'Painel da Meta Física', icon: 'pi pi-bullseye', routerLink: '/execucao/dashboard-meta-fisica' }
+            { label: 'Painel da Meta Física', icon: 'pi pi-bullseye', routerLink: '/execucao/dashboard-meta-fisica' },
+            { label: 'Painel de Programação', icon: 'pi pi-chart-bar', routerLink: '/obras/programacao/painel' }
           ]
         },
         {

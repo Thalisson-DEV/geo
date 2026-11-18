@@ -1,103 +1,85 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, model } from '@angular/core';
 import { Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
+import { CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, CesTone } from '@ces/ui';
 import { ComunicadoMuralResponse } from '../../../core/models/notificacao.models';
 import { MuralStore } from '../../../core/services/mural-store.service';
-import {
-  TIPO_COMUNICADO_CLASSES,
-  TIPO_COMUNICADO_ICONES
-} from '../../../features/notificacoes/notificacoes-ui';
+import { TIPO_COMUNICADO_ICONES, TOM_TIPO_COMUNICADO, formatarDataHora } from '../../../features/notificacoes/notificacoes-ui';
 import { ComunicadoConteudoComponent } from '../comunicado-conteudo/comunicado-conteudo.component';
 
 /**
- * Leitura de um comunicado fora do fluxo de modal-ao-entrar (banner expandido, card do mural).
+ * Leitura de um comunicado fora do fluxo de modal-ao-entrar (banner expandido, cartão do mural).
  * Fechar aqui não dispensa nada: a dispensa é sempre uma ação rotulada.
  */
 @Component({
   selector: 'app-comunicado-detalhe-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ButtonModule, DialogModule, ComunicadoConteudoComponent],
+  imports: [CesButtonComponent, CesCalloutComponent, CesDrawerComponent, CesStatusComponent, ComunicadoConteudoComponent],
+  styles: `
+    .cd { display: grid; gap: 1rem; }
+    .cd-hero {
+      display: grid;
+      gap: 0.5rem;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--ces-border);
+      border-radius: var(--ces-radius-lg);
+      background: var(--ces-surface-subtle);
+    }
+    .cd-hero__topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; }
+    .cd-hero__resumo { margin: 0; color: var(--ces-foreground); font-size: var(--ces-font-body); font-weight: 500; line-height: 1.5; }
+    .cd-hero__meta { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .cd-hero__meta span { display: inline-flex; align-items: center; gap: 0.3rem; }
+    .cd-rodape { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.5rem; width: 100%; }
+  `,
   template: `
     @if (comunicado(); as item) {
-      <p-dialog
-        [visible]="true"
-        (visibleChange)="comunicado.set(null)"
-        [modal]="true"
-        [draggable]="false"
-        [resizable]="false"
-        [style]="{ width: '92vw', maxWidth: '880px' }"
-        styleClass="custom-dialog"
-        appendTo="body"
-      >
-        <ng-template pTemplate="header">
-          <div class="flex w-full items-center gap-3">
-            <div class="flex h-9 w-9 items-center justify-center rounded-xl border" [ngClass]="classesTipo(item)">
-              <i [class]="iconeTipo(item)" class="text-sm"></i>
-            </div>
-            <div class="flex min-w-0 flex-col">
-              <span class="truncate text-sm font-bold text-slate-800">{{ item.titulo }}</span>
-              <div class="flex items-center gap-2">
-                <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                  {{ item.tipoRotulo }}
-                </span>
-                @if (item.fixado) {
-                  <span class="text-[9px] font-bold uppercase tracking-widest text-amber-500">
-                    <i class="pi pi-bookmark-fill text-[8px]"></i> Fixado
-                  </span>
+      <ces-drawer [visible]="true" (visibleChange)="!$event && comunicado.set(null)" [eyebrow]="item.tipoRotulo" [title]="item.titulo" size="lg">
+        <div class="cd">
+          <section class="cd-hero" aria-label="Resumo do comunicado">
+            <div class="cd-hero__topo">
+              <ces-status [tone]="tom(item)" [icon]="icone(item)" emphasis="solid">{{ item.tipoRotulo }}</ces-status>
+              @if (item.fixado) {
+                <ces-status tone="neutral" icon="pi pi-thumbtack">Fixado</ces-status>
+              }
+              @if (item.exigeConfirmacao) {
+                @if (item.confirmado) {
+                  <ces-status tone="success" icon="pi pi-verified">Leitura confirmada</ces-status>
+                } @else {
+                  <ces-status tone="warning" icon="pi pi-exclamation-circle">Exige confirmação de leitura</ces-status>
                 }
-              </div>
+              }
             </div>
-          </div>
-        </ng-template>
+            @if (item.resumo) {
+              <p class="cd-hero__resumo">{{ item.resumo }}</p>
+            }
+            <p class="cd-hero__meta">
+              @if (item.dataInicio) {
+                <span><i class="pi pi-calendar" aria-hidden="true"></i>Publicado em {{ quando(item.dataInicio) }}</span>
+              }
+              @if (item.dataFim) {
+                <span><i class="pi pi-hourglass" aria-hidden="true"></i>No ar até {{ quando(item.dataFim) }}</span>
+              }
+            </p>
+          </section>
 
-        <div class="flex flex-col gap-4 pt-2">
-          @if (item.resumo) {
-            <p class="text-[13px] font-medium leading-relaxed text-slate-700 dark:text-slate-300">{{ item.resumo }}</p>
-          }
           <app-comunicado-conteudo [comunicado]="item"></app-comunicado-conteudo>
 
-          @if (item.exigeConfirmacao && item.confirmado) {
-            <div class="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-3">
-              <i class="pi pi-check-circle text-xs text-green-600"></i>
-              <span class="text-[10px] font-medium text-green-700">
-                Você já confirmou a leitura deste comunicado.
-              </span>
-            </div>
+          @if (item.exigeConfirmacao && !item.confirmado) {
+            <ces-callout tone="warning" [dense]="true">Ao confirmar, sua leitura fica registrada como prova de comunicação.</ces-callout>
           }
         </div>
 
-        <ng-template pTemplate="footer">
-          <div class="flex w-full flex-wrap items-center justify-end gap-2">
-            @if (item.acaoRotulo && item.acaoDeeplink) {
-              <p-button
-                [label]="item.acaoRotulo"
-                icon="pi pi-arrow-up-right"
-                [text]="true"
-                (onClick)="executarAcao(item)"
-                styleClass="!text-primary-600 !font-bold !text-[10px]"
-              ></p-button>
-            }
-            @if (item.exigeConfirmacao && !item.confirmado) {
-              <p-button
-                label="LI E ENTENDI"
-                icon="pi pi-check"
-                (onClick)="confirmar(item)"
-                styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !py-2.5 !px-8 !font-bold !text-[10px]"
-              ></p-button>
-            } @else {
-              <p-button
-                label="FECHAR"
-                [text]="true"
-                (onClick)="comunicado.set(null)"
-                styleClass="!text-primary-600 !font-bold !text-[10px]"
-              ></p-button>
-            }
-          </div>
-        </ng-template>
-      </p-dialog>
+        <div drawer-footer class="cd-rodape">
+          @if (item.acaoRotulo && item.acaoDeeplink) {
+            <ces-button variant="outline" icon="pi pi-arrow-up-right" [label]="item.acaoRotulo" (pressed)="executarAcao(item)"></ces-button>
+          }
+          @if (item.exigeConfirmacao && !item.confirmado) {
+            <ces-button variant="success" icon="pi pi-check" label="Li e entendi" (pressed)="confirmar(item)"></ces-button>
+          } @else {
+            <ces-button variant="ghost" label="Fechar" (pressed)="comunicado.set(null)"></ces-button>
+          }
+        </div>
+      </ces-drawer>
     }
   `
 })
@@ -115,14 +97,18 @@ export class ComunicadoDetalheDialogComponent {
   protected executarAcao(item: ComunicadoMuralResponse): void {
     if (!item.acaoDeeplink) return;
     this.comunicado.set(null);
-    this.router.navigateByUrl(item.acaoDeeplink);
+    void this.router.navigateByUrl(item.acaoDeeplink);
   }
 
-  protected iconeTipo(item: ComunicadoMuralResponse): string {
+  protected icone(item: ComunicadoMuralResponse): string {
     return TIPO_COMUNICADO_ICONES[item.tipo] ?? 'pi pi-megaphone';
   }
 
-  protected classesTipo(item: ComunicadoMuralResponse): string {
-    return TIPO_COMUNICADO_CLASSES[item.tipo] ?? 'bg-slate-100 text-slate-600 border-slate-200';
+  protected tom(item: ComunicadoMuralResponse): CesTone {
+    return TOM_TIPO_COMUNICADO[item.tipo] ?? 'neutral';
+  }
+
+  protected quando(valor: string | null): string {
+    return formatarDataHora(valor);
   }
 }

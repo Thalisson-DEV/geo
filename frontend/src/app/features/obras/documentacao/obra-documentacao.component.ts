@@ -8,7 +8,6 @@ import {
   CesButtonComponent,
   CesCalloutComponent,
   CesConfirmationService,
-  CesDatepickerComponent,
   CesFileInputComponent,
   CesFormDrawerComponent,
   CesFormSectionComponent,
@@ -17,7 +16,6 @@ import {
   CesSelectOption,
   CesStatusComponent,
   CesTextInputComponent,
-  CesTextareaComponent,
   NotificationService
 } from '@ces/ui';
 import { Observable, filter, take, timer } from 'rxjs';
@@ -36,11 +34,11 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { AuthService } from '../../../core/services/auth.service';
 import { ObrasDocumentacaoService } from '../../../core/services/obras-documentacao.service';
 import { ObrasService } from '../../../core/services/obras.service';
-import { dataIso } from '../../../shared/listagem/listagem';
 import { ChecklistRespostasComponent } from './checklist-respostas.component';
 import { RespostasEmEdicao, itensFaltando, paraInformadas, pendentes, respostasIniciais } from './checklist.logic';
 import { EvidenciaMiniaturaComponent } from './evidencia-miniatura.component';
 import { EvidenciaVisualizadorComponent } from './evidencia-visualizador.component';
+import { VisitaPreviaDrawerComponent } from './visita-previa-drawer.component';
 
 const INTERVALO_GERACAO_MS = 3000;
 const LIMITE_FOTO_BYTES = 15 * 1024 * 1024;
@@ -72,7 +70,6 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
     CesBooleanControlComponent,
     CesButtonComponent,
     CesCalloutComponent,
-    CesDatepickerComponent,
     CesFileInputComponent,
     CesFormDrawerComponent,
     CesFormSectionComponent,
@@ -80,10 +77,10 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
     CesSelectComponent,
     CesStatusComponent,
     CesTextInputComponent,
-    CesTextareaComponent,
     ChecklistRespostasComponent,
     EvidenciaMiniaturaComponent,
-    EvidenciaVisualizadorComponent
+    EvidenciaVisualizadorComponent,
+    VisitaPreviaDrawerComponent
   ],
   template: `
     @if (erro()) {
@@ -102,6 +99,11 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
               <ces-button class="od-bloco__acao" variant="ghost" size="sm" icon="pi pi-plus" label="Registrar visita" (pressed)="novaVisita()"></ces-button>
             }
           </header>
+          @if (!d.visitaRealizada) {
+            <ces-callout tone="info" icon="pi pi-info-circle" title="Visita prévia não realizada" [dense]="true">
+              Recomendada antes de iniciar a execução, para levantar acesso, interferências e necessidades da obra. Não impede programar nem executar.
+            </ces-callout>
+          }
           @if (d.visitas.length) {
             <ul class="od-lista">
               @for (v of d.visitas; track v.id) {
@@ -109,6 +111,16 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
                   <div class="od-lista__texto">
                     <strong>{{ dataBr(v.dataVisita) }} · {{ v.responsavel }}</strong>
                     <span>{{ v.tituloModelo }}@if (v.observacoes) { · {{ v.observacoes }} }</span>
+                    <span class="od-visita__selos">
+                      @if (v.naoConformidades) {
+                        <ces-status tone="warning" icon="pi-exclamation-triangle">{{ v.naoConformidades === 1 ? '1 não conformidade' : v.naoConformidades + ' não conformidades' }}</ces-status>
+                      } @else {
+                        <ces-status tone="success" emphasis="outline" icon="pi-check">Sem não conformidades</ces-status>
+                      }
+                      @if (v.evidencias.length) {
+                        <ces-status tone="neutral" emphasis="outline" icon="pi-paperclip">{{ v.evidencias.length === 1 ? '1 evidência' : v.evidencias.length + ' evidências' }}</ces-status>
+                      }
+                    </span>
                   </div>
                   <span class="od-lista__acoes">
                     <ces-icon-button icon="pi pi-file-pdf" [label]="'Baixar PDF da visita de ' + dataBr(v.dataVisita)" size="icon-sm" (pressed)="baixarVisita(v)"></ces-icon-button>
@@ -120,8 +132,6 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
                 </li>
               }
             </ul>
-          } @else {
-            <p class="od-vazio">Nenhuma pré-vistoria registrada nesta obra.</p>
           }
         </section>
 
@@ -256,18 +266,10 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
           para poder lançar{{ pontoDaFicha() ? ' a ficha e as fotos pedidas' : '' }}.
         </ces-callout>
       } @else {
-        <ces-form-section [title]="pontoDaFicha() ? 'Modelo do ponto' : 'Visita'" icon="pi pi-file-edit">
+        <ces-form-section title="Modelo do ponto" icon="pi pi-file-edit">
           <div class="ces-form-grid">
             <ces-select label="Modelo" [required]="true" [options]="opcoesModelo()" [value]="modelo()?.id ?? null" [disabled]="modeloFixo()" (valueChange)="escolherModelo($event)"></ces-select>
-            @if (!pontoDaFicha()) {
-              <ces-datepicker label="Data da visita" [required]="true" [maxDate]="hoje" [(value)]="dataVisita" [error]="tentou() && !dataVisita() ? 'Informe a data.' : undefined"></ces-datepicker>
-            }
           </div>
-          @if (!pontoDaFicha()) {
-            <div class="ces-form-stack">
-              <ces-text-input label="Responsável" [required]="true" [maxlength]="150" [(value)]="responsavel" [error]="tentou() && !responsavel().trim() ? 'Informe o responsável.' : undefined"></ces-text-input>
-            </div>
-          }
         </ces-form-section>
       }
       @if (pontoAtual(); as p) {
@@ -305,19 +307,14 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
         }
       }
       @if (modelo(); as m) {
-        @if (!pontoDaFicha() || (podeEscrever && pontoAtual()?.executado)) {
+        @if (podeEscrever && pontoAtual()?.executado) {
           <app-checklist-respostas class="od-respostas" [estrutura]="m.estrutura" [(respostas)]="respostas" [mostrarPendencias]="tentou()"></app-checklist-respostas>
         }
-      }
-      @if (!pontoDaFicha() && (modelosAtivos().length || modelo())) {
-        <div class="ces-form-stack od-observacoes">
-          <ces-textarea label="Observações" [rows]="3" [maxlength]="2000" [(value)]="observacoes"></ces-textarea>
-        </div>
       }
       <div drawer-footer class="ces-actions-row">
         <ces-button variant="ghost" [label]="podeSalvarChecklist() ? 'Cancelar' : 'Fechar'" (pressed)="checklistAberto.set(false)"></ces-button>
         @if (podeSalvarChecklist()) {
-          <ces-button icon="pi pi-check" [label]="pontoDaFicha() ? 'Salvar ficha' : 'Salvar visita'" [loading]="salvando()" (pressed)="salvarChecklist()"></ces-button>
+          <ces-button icon="pi pi-check" label="Salvar ficha" [loading]="salvando()" (pressed)="salvarChecklist()"></ces-button>
         }
       </div>
     </ces-form-drawer>
@@ -342,6 +339,9 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
         }
       }
     </ng-template>
+
+    <app-visita-previa-drawer [idObra]="idObra()" [visita]="visitaEmEdicao()" [podeEscrever]="podeEscrever" [podeVerModelos]="podeVerModelos"
+      [(aberto)]="visitaAberta" (alterada)="carregar()"></app-visita-previa-drawer>
 
     <app-evidencia-visualizador [idObra]="idObra()" [aberto]="!!fotoAberta()" [tituloPonto]="'Ponto ' + (pontoDaFoto()?.numero ?? '')" [evidencias]="pontoDaFoto()?.evidencias ?? []"
       [indice]="fotoAberta()?.indice ?? 0" [podeEscrever]="podeEscrever" (navegar)="irParaFoto($event)" (fechar)="fotoAberta.set(null)" (alterado)="carregar()"></app-evidencia-visualizador>
@@ -399,7 +399,7 @@ const TIPOS_EQUIPAMENTO: CesSelectOption<TipoEquipamento>[] = [
     .od-ficha { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.25rem 0 0; }
     .od-ficha dt { color: var(--ces-foreground-muted); font-size: 0.8125rem; }
     .od-ficha dd { margin: 0; color: var(--ces-foreground); font-size: 0.875rem; font-weight: 600; overflow-wrap: anywhere; }
-    .od-observacoes { margin-top: 1rem; }
+    .od-visita__selos { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: 0.25rem; }
   `
 })
 export class ObraDocumentacaoComponent {
@@ -413,6 +413,8 @@ export class ObraDocumentacaoComponent {
   readonly idObra = input.required<string>();
   /** Um novo As Built entrou nos anexos da obra. */
   readonly anexoGerado = output<void>();
+  /** Se a obra já tem visita prévia, a cada consulta; a tela da obra usa no aviso de "não realizada". */
+  readonly visitaRealizada = output<boolean>();
 
   protected readonly podeEscrever = this.permissoes.includes('obras:documentacao:write');
   protected readonly podeVerModelos = this.permissoes.includes('obras:documentacao:read');
@@ -422,7 +424,6 @@ export class ObraDocumentacaoComponent {
   protected readonly miniaturasNoCartao = MINIATURAS_NO_CARTAO;
   protected readonly pontosParaFiltrar = PONTOS_PARA_FILTRAR;
   protected readonly faltando = itensFaltando;
-  protected readonly hoje = new Date(new Date().setHours(23, 59, 59, 999));
 
   protected readonly dados = signal<DocumentacaoObra | null>(null);
   protected readonly erro = signal<string | null>(null);
@@ -460,10 +461,8 @@ export class ObraDocumentacaoComponent {
   protected readonly modeloFixo = signal(false);
   protected readonly respostas = signal<RespostasEmEdicao>({});
   protected readonly visitaEmEdicao = signal<VisitaPrevia | null>(null);
+  protected readonly visitaAberta = signal(false);
   protected readonly pontoDaFicha = signal<PontoDocumentacao | null>(null);
-  protected readonly dataVisita = signal<Date | null>(null);
-  protected readonly responsavel = signal('');
-  protected readonly observacoes = signal('');
   protected readonly tentou = signal(false);
   private readonly original = signal('');
   protected readonly alterado = computed(() => this.instantaneo() !== this.original());
@@ -473,10 +472,7 @@ export class ObraDocumentacaoComponent {
     return aberto ? (this.dados()?.pontos.find((p) => p.id === aberto.id) ?? aberto) : null;
   });
   protected readonly itensDoPonto = computed(() => this.modelo()?.estrutura.evidencias ?? this.pontoAtual()?.itensEvidencia ?? []);
-  protected readonly podeSalvarChecklist = computed(() => {
-    if (!this.modelo()) return false;
-    return !this.pontoDaFicha() || (this.podeEscrever && !!this.pontoAtual()?.executado);
-  });
+  protected readonly podeSalvarChecklist = computed(() => !!this.modelo() && this.podeEscrever && !!this.pontoAtual()?.executado);
   protected readonly opcoesModelo = computed<CesSelectOption<string>[]>(() => {
     const atual = this.modelo();
     const ativos = this.modelosAtivos().map((m) => ({ label: m.titulo, value: m.id }));
@@ -484,8 +480,7 @@ export class ObraDocumentacaoComponent {
   });
   protected readonly tituloChecklist = computed(() => {
     const ponto = this.pontoDaFicha();
-    if (ponto) return `Ponto ${ponto.numero} · Folha ${ponto.pagina}`;
-    return this.visitaEmEdicao() ? 'Corrigir visita prévia' : 'Registrar visita prévia';
+    return ponto ? `Ponto ${ponto.numero} · Folha ${ponto.pagina}` : '';
   });
 
   // Equipamento
@@ -520,6 +515,7 @@ export class ObraDocumentacaoComponent {
       next: (dados) => {
         const terminou = acompanhandoGeracao && !dados.documentos.some((d) => d.status === 'PROCESSANDO');
         this.dados.set(dados);
+        this.visitaRealizada.emit(dados.visitaRealizada);
         if (terminou) {
           const ultimo = dados.documentos[0];
           if (ultimo?.status === 'CONCLUIDO') {
@@ -546,23 +542,17 @@ export class ObraDocumentacaoComponent {
   // ---- Visita e ficha ----
 
   protected novaVisita(): void {
-    this.prepararChecklist(null, null);
-    this.dataVisita.set(new Date());
-    this.responsavel.set('');
-    this.observacoes.set('');
-    this.carregarModelos('VISITA_PREVIA', null, []);
+    this.visitaEmEdicao.set(null);
+    this.visitaAberta.set(true);
   }
 
   protected editarVisita(visita: VisitaPrevia): void {
-    this.prepararChecklist(visita, null);
-    this.dataVisita.set(new Date(`${visita.dataVisita}T00:00:00`));
-    this.responsavel.set(visita.responsavel);
-    this.observacoes.set(visita.observacoes ?? '');
-    this.carregarModelos('VISITA_PREVIA', visita.idModelo, visita.respostas.itens);
+    this.visitaEmEdicao.set(visita);
+    this.visitaAberta.set(true);
   }
 
   protected abrirFicha(ponto: PontoDocumentacao): void {
-    this.prepararChecklist(null, ponto);
+    this.prepararChecklist(ponto);
     this.carregarModelos('AS_BUILT', ponto.idModelo, ponto.ficha?.respostas.itens ?? []);
   }
 
@@ -608,8 +598,7 @@ export class ObraDocumentacaoComponent {
     });
   }
 
-  private prepararChecklist(visita: VisitaPrevia | null, ponto: PontoDocumentacao | null): void {
-    this.visitaEmEdicao.set(visita);
+  private prepararChecklist(ponto: PontoDocumentacao): void {
     this.pontoDaFicha.set(ponto);
     this.modelo.set(null);
     this.modelosAtivos.set([]);
@@ -653,25 +642,15 @@ export class ObraDocumentacaoComponent {
     const modelo = this.modelo();
     if (!modelo) return;
     const ponto = this.pontoDaFicha();
+    if (!ponto) return;
     const informadas = paraInformadas(modelo.estrutura, this.respostas());
-    if (ponto) {
-      // A ficha pode ficar pela metade: o pendente só impede de gerar o documento.
-      this.tentou.set(true);
-      this.executar(this.servico.preencherFicha(this.idObra(), ponto.id, modelo.id, informadas), () => {
-        this.checklistAberto.set(false);
-        this.pontosPendentesDaGeracao.set([]);
-        const faltam = pendentes(modelo.estrutura, this.respostas()).length;
-        this.notificacoes.success(faltam ? `Ficha salva. Faltam ${faltam} ${faltam === 1 ? 'resposta' : 'respostas'} para completá-la.` : 'Ficha completa.');
-      });
-      return;
-    }
+    // A ficha pode ficar pela metade: o pendente só impede de gerar o documento.
     this.tentou.set(true);
-    const data = dataIso(this.dataVisita());
-    if (!data || !this.responsavel().trim() || pendentes(modelo.estrutura, this.respostas()).length) return;
-    const request = { idModelo: modelo.id, dataVisita: data, responsavel: this.responsavel().trim(), observacoes: this.observacoes().trim() || null, respostas: informadas };
-    this.executar(this.servico.salvarVisita(this.idObra(), this.visitaEmEdicao()?.id ?? null, request), () => {
+    this.executar(this.servico.preencherFicha(this.idObra(), ponto.id, modelo.id, informadas), () => {
       this.checklistAberto.set(false);
-      this.notificacoes.success('Visita prévia salva.');
+      this.pontosPendentesDaGeracao.set([]);
+      const faltam = pendentes(modelo.estrutura, this.respostas()).length;
+      this.notificacoes.success(faltam ? `Ficha salva. Faltam ${faltam} ${faltam === 1 ? 'resposta' : 'respostas'} para completá-la.` : 'Ficha completa.');
     });
   }
 
@@ -786,6 +765,6 @@ export class ObraDocumentacaoComponent {
   }
 
   private instantaneo(): string {
-    return JSON.stringify([this.modelo()?.id, this.respostas(), this.dataVisita(), this.responsavel(), this.observacoes()]);
+    return JSON.stringify([this.modelo()?.id, this.respostas(), ]);
   }
 }

@@ -37,8 +37,20 @@ public record EstruturaChecklist(List<Grupo> grupos, List<ItemEvidencia> evidenc
     public record Grupo(String titulo, List<Pergunta> perguntas) {
     }
 
+    /**
+     * {@code opcaoConforme}, opcional e só na escolha única, é a resposta esperada: qualquer outra opção marcada vira não
+     * conformidade no resumo da visita, e o "marcar restantes como conforme" usa essa opção.
+     */
     public record Pergunta(String id, String enunciado, TipoPergunta tipo, boolean obrigatoria, boolean aceitaNaoSeAplica,
-                           List<String> opcoes) {
+                           List<String> opcoes, String opcaoConforme) {
+
+        public Pergunta {
+            opcaoConforme = opcaoConforme == null || opcaoConforme.isBlank() ? null : opcaoConforme;
+        }
+
+        public Pergunta(String id, String enunciado, TipoPergunta tipo, boolean obrigatoria, boolean aceitaNaoSeAplica, List<String> opcoes) {
+            this(id, enunciado, tipo, obrigatoria, aceitaNaoSeAplica, opcoes, null);
+        }
     }
 
     public record ItemEvidencia(String id, String titulo, boolean obrigatoria) {
@@ -86,6 +98,9 @@ public record EstruturaChecklist(List<Grupo> grupos, List<ItemEvidencia> evidenc
         if (pergunta.tipo() == null) {
             throw new InvarianteVioladaException("Informe o tipo de resposta de \"" + pergunta.enunciado() + "\".");
         }
+        if (pergunta.opcaoConforme() != null && pergunta.tipo() != TipoPergunta.ESCOLHA_UNICA) {
+            throw new InvarianteVioladaException("Só a escolha única tem resposta conforme (\"" + pergunta.enunciado() + "\").");
+        }
         if (!pergunta.tipo().temOpcoes()) {
             return;
         }
@@ -95,6 +110,9 @@ public record EstruturaChecklist(List<Grupo> grupos, List<ItemEvidencia> evidenc
         }
         if (opcoes.size() < 2 || new HashSet<>(opcoes).size() != opcoes.size()) {
             throw new InvarianteVioladaException("\"" + pergunta.enunciado() + "\" precisa de ao menos duas opções diferentes.");
+        }
+        if (pergunta.opcaoConforme() != null && !opcoes.contains(pergunta.opcaoConforme())) {
+            throw new InvarianteVioladaException("A resposta conforme de \"" + pergunta.enunciado() + "\" não está entre as opções.");
         }
     }
 }

@@ -60,6 +60,21 @@ class ProgramacaoTest {
     }
 
     @Test
+    void criacaoAbreOHistoricoSemOrigem() {
+        Programacao programacao = comKit(kit());
+
+        EventoProgramacao evento = programacao.registrarCriacao();
+
+        assertThat(evento.getTipo()).isEqualTo(TipoEventoProgramacao.CRIADA);
+        assertThat(evento.getIdEquipeOrigem()).isNull();
+        assertThat(evento.getInicioOriginal()).isNull();
+        assertThat(evento.getIdEquipeDestino()).isEqualTo(EQUIPE);
+        assertThat(evento.getInicioNovo()).isEqualTo(INICIO);
+        assertThat(evento.getFimNovo()).isEqualTo(FIM);
+        assertThat(evento.getObservacao()).isEqualTo("Implantar rede");
+    }
+
+    @Test
     void valorCongeladoNaoMudaAoReprogramar() {
         Programacao programacao = comKit(kit());
         UUID outraEquipe = UUID.randomUUID();

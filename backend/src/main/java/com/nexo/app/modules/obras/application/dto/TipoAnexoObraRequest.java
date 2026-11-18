@@ -9,6 +9,13 @@ public record TipoAnexoObraRequest(
         String nome,
 
         @Size(max = 255, message = "A descrição deve ter no máximo 255 caracteres")
-        String descricao
+        String descricao,
+
+        /** Nulo mantém como está. */
+        Boolean exigidoNaEntrega
 ) {
+    public TipoAnexoObraRequest(String nome, String descricao) {
+        this(nome, descricao, null);
+    }
+
 }

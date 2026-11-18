@@ -4,6 +4,7 @@ import com.nexo.app.modules.obras.application.dto.EventoProgramacaoFilter;
 import com.nexo.app.modules.obras.application.dto.ProgramacaoRequests;
 import com.nexo.app.modules.obras.application.dto.ProgramacaoResponses;
 import com.nexo.app.modules.obras.application.usecases.ConsultarProgramacoesObra;
+import com.nexo.app.modules.obras.application.usecases.PainelProgramacaoObras;
 import com.nexo.app.modules.obras.application.usecases.ProgramacaoObraUseCases;
 import com.nexo.app.modules.obras.doc.ProgramacaoObraControllerDoc;
 import com.nexo.app.modules.obras.domain.TipoEventoProgramacao;
@@ -34,6 +35,7 @@ public class ProgramacaoObraController implements ProgramacaoObraControllerDoc {
 
     private final ProgramacaoObraUseCases useCases;
     private final ConsultarProgramacoesObra consultas;
+    private final PainelProgramacaoObras painelProgramacao;
 
     @Override
     @PostMapping("/{idObra}/programacoes/previa")
@@ -84,8 +86,20 @@ public class ProgramacaoObraController implements ProgramacaoObraControllerDoc {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate de,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ate,
             @RequestParam(required = false) String q,
+            @RequestParam(required = false) Long programacao,
             @ParameterObject @PageableDefault(size = 20, sort = "dataCriacao", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(consultas.historico(new EventoProgramacaoFilter(tipos, idObra, idProgramacao, obra, equipe, usuario, mudou, de, ate, q), pageable));
+        return ResponseEntity.ok(consultas.historico(new EventoProgramacaoFilter(tipos, idObra, idProgramacao, obra, equipe, usuario, mudou, de, ate, q, programacao), pageable));
+    }
+
+    @Override
+    @GetMapping("/programacoes/painel")
+    @PreAuthorize(LER)
+    public ResponseEntity<ProgramacaoResponses.Painel> painel(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fim,
+            @RequestParam(required = false) UUID idBase,
+            @RequestParam(required = false) UUID idTipoEquipe) {
+        return ResponseEntity.ok(painelProgramacao.painel(inicio, fim, idBase, idTipoEquipe));
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.nexo.app.modules.obras.application.dto;
 
 import com.nexo.app.modules.obras.domain.EquipamentoObra;
 import com.nexo.app.modules.obras.domain.RespostasChecklist;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -15,10 +14,15 @@ public final class DocumentacaoTecnicaRequests {
     private DocumentacaoTecnicaRequests() {
     }
 
+    /**
+     * O responsável é o colaborador ({@code idColaborador}); o nome é resolvido no cadastro. {@code responsavel} só vale
+     * sem colaborador, para corrigir um registro antigo que ficou apenas com o nome.
+     */
     public record Visita(
             @NotNull(message = "Escolha o modelo") UUID idModelo,
             @NotNull(message = "Informe a data da visita") LocalDate dataVisita,
-            @NotBlank(message = "Informe o responsável") @Size(max = 150) String responsavel,
+            UUID idColaborador,
+            @Size(max = 150) String responsavel,
             @Size(max = 2000) String observacoes,
             @NotNull List<RespostasChecklist.Informada> respostas) {
     }
@@ -29,6 +33,10 @@ public final class DocumentacaoTecnicaRequests {
     }
 
     public record LegendaEvidencia(@Size(max = 500) String legenda) {
+    }
+
+    /** Etapa nula tira a classificação da foto. */
+    public record EtapaEvidencia(com.nexo.app.modules.obras.domain.EvidenciaPonto.Etapa etapa) {
     }
 
     public record Equipamento(

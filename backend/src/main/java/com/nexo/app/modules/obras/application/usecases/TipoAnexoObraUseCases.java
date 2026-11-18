@@ -40,6 +40,9 @@ public class TipoAnexoObraUseCases {
             throw new InvarianteVioladaException("Já existe um tipo de anexo com o nome informado.");
         }
         TipoAnexoObra tipo = new TipoAnexoObra(nome, request.descricao());
+        if (request.exigidoNaEntrega() != null) {
+            tipo.definirExigenciaNaEntrega(request.exigidoNaEntrega());
+        }
         return mapper.toResponse(repository.save(tipo));
     }
 
@@ -52,6 +55,9 @@ public class TipoAnexoObraUseCases {
             throw new InvarianteVioladaException("Já existe outro tipo de anexo com o nome informado.");
         }
         tipo.atualizar(nome, request.descricao());
+        if (request.exigidoNaEntrega() != null) {
+            tipo.definirExigenciaNaEntrega(request.exigidoNaEntrega());
+        }
         return mapper.toResponse(repository.save(tipo));
     }
 

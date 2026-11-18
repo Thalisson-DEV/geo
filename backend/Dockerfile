@@ -9,7 +9,7 @@ RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
 # Codigo-fonte
 COPY src src
-RUN ./mvnw clean package -DskipTests -B
+RUN ./mvnw clean package -Dmaven.test.skip=true -B
 
 # ---- Runtime ----
 FROM eclipse-temurin:21-jre-alpine

@@ -318,10 +318,13 @@ export class ObraDetalheComponent {
       totalSolicitacoes: this.solicitacoes().estado === 'ready' ? this.listaSolicitacoes().length : null,
       totalProximas: this.dados(this.proximas())?.length ?? null,
       raioKm: this.raio(),
-      dataUltimoStatus: this.dados(this.historico())?.[0]?.data ?? null
+      dataUltimoStatus: this.dados(this.historico())?.[0]?.data ?? null,
+      visitaRealizada: this.visitaRealizada()
     }).map((i) => (i.acao && !this.podeAcionar(i.acao.tipo) ? { ...i, acao: undefined } : i));
   });
   protected readonly todosInsights = signal(false);
+  /** Vem do card de documentação técnica quando ele carrega. */
+  protected readonly visitaRealizada = signal<boolean | null>(null);
   protected readonly insightsExibidos = computed(() => (this.todosInsights() ? this.insights() : this.insights().slice(0, INSIGHTS_VISIVEIS)));
   protected readonly insightsOcultos = computed(() => this.insights().length - INSIGHTS_VISIVEIS);
   protected readonly resumoInsights = computed(() => {
@@ -654,6 +657,7 @@ export class ObraDetalheComponent {
 
   private podeAcionar(tipo: AcaoInsightObra): boolean {
     if (tipo === 'anexo') return this.podeAnexar;
+    if (tipo === 'visita') return this.podeVerDocumentacao;
     return tipo === 'solicitar' || this.podeEscrever;
   }
 
@@ -669,6 +673,8 @@ export class ObraDetalheComponent {
         return this.solicitarMateriais();
       case 'status':
         return this.abrirStatus();
+      case 'visita':
+        return this.irParaDocumentacao();
     }
   }
 
@@ -841,6 +847,11 @@ export class ObraDetalheComponent {
   // ═══════════════════════════════════════════════════════════════════════
   // Anexos
   // ═══════════════════════════════════════════════════════════════════════
+
+  private irParaDocumentacao(): void {
+    const alvo = document.getElementById('documentacao-titulo');
+    alvo?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  }
 
   protected abrirAnexo(): void {
     this.anexoArquivo.set(null);

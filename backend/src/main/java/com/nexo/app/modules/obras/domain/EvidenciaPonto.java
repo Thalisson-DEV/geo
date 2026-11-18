@@ -1,13 +1,19 @@
 package com.nexo.app.modules.obras.domain;
 
 import com.nexo.app.shared.domain.BaseEntity;
+import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -23,6 +29,18 @@ public class EvidenciaPonto extends BaseEntity {
 
     /** Item do modelo a que a foto responde. */
     public record ItemRespondido(UUID idModelo, String idItem, String titulo) {
+    }
+
+    /** Momento da foto em relação à execução do ponto. */
+    public enum Etapa {
+        ANTES,
+        DURANTE,
+        DEPOIS
+    }
+
+    /** Onde e quando a foto foi tirada, como o app informou. Tudo opcional. */
+    public record Captura(Etapa etapa, BigDecimal latitude, BigDecimal longitude, OffsetDateTime data) {
+        public static final Captura VAZIA = new Captura(null, null, null, null);
     }
 
     /** O arquivo já guardado no armazenamento. */
@@ -62,7 +80,24 @@ public class EvidenciaPonto extends BaseEntity {
     @Column(name = "chave_miniatura", nullable = false, length = 500, updatable = false)
     private String chaveMiniatura;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "etapa", length = 10)
+    private Etapa etapa;
+
+    @Column(name = "latitude", precision = 9, scale = 6, updatable = false)
+    private BigDecimal latitude;
+
+    @Column(name = "longitude", precision = 9, scale = 6, updatable = false)
+    private BigDecimal longitude;
+
+    @Column(name = "data_captura", updatable = false)
+    private OffsetDateTime dataCaptura;
+
     public EvidenciaPonto(UUID idObra, UUID idPonto, ItemRespondido item, String legenda, Arquivo arquivo) {
+        this(idObra, idPonto, item, legenda, arquivo, Captura.VAZIA);
+    }
+
+    public EvidenciaPonto(UUID idObra, UUID idPonto, ItemRespondido item, String legenda, Arquivo arquivo, Captura captura) {
         this.idObra = Objects.requireNonNull(idObra);
         this.idPonto = Objects.requireNonNull(idPonto);
         if (item != null) {
@@ -76,6 +111,37 @@ public class EvidenciaPonto extends BaseEntity {
         this.chaveStorage = arquivo.chaveStorage();
         this.chaveMiniatura = arquivo.chaveMiniatura();
         alterarLegenda(legenda);
+        Captura dados = captura != null ? captura : Captura.VAZIA;
+        if ((dados.latitude() == null) != (dados.longitude() == null)) {
+            throw new InvarianteVioladaException("Informe a latitude e a longitude juntas.");
+        }
+        if (dados.latitude() != null) {
+            validarCoordenada(dados.latitude(), 90, "latitude");
+            validarCoordenada(dados.longitude(), 180, "longitude");
+            this.latitude = dados.latitude().setScale(6, RoundingMode.HALF_UP);
+            this.longitude = dados.longitude().setScale(6, RoundingMode.HALF_UP);
+        }
+        if (dados.data() != null && dados.data().isAfter(OffsetDateTime.now().plusMinutes(10))) {
+            throw new InvarianteVioladaException("A data da foto não pode estar no futuro.");
+        }
+        this.dataCaptura = dados.data();
+        this.etapa = dados.etapa();
+    }
+
+    /** A etapa pode ser corrigida depois, por quem analisa o book. */
+    public void classificarEtapa(Etapa etapa) {
+        this.etapa = etapa;
+    }
+
+    /** Quando a foto foi tirada; sem a informação do app, vale o lançamento. */
+    public OffsetDateTime momentoDaFoto() {
+        return dataCaptura != null ? dataCaptura : getDataCriacao();
+    }
+
+    private static void validarCoordenada(BigDecimal valor, int limite, String nome) {
+        if (valor.abs().compareTo(BigDecimal.valueOf(limite)) > 0) {
+            throw new InvarianteVioladaException("A " + nome + " da foto está fora do intervalo válido.");
+        }
     }
 
     public void alterarLegenda(String legenda) {

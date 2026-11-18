@@ -30,8 +30,11 @@ public interface ProgramacaoObraControllerDoc {
     @Operation(summary = "Linha do tempo por equipe", description = "Período de até 186 dias, com filtros opcionais por base, tipo de equipe e equipe.")
     ResponseEntity<ProgramacaoResponses.Gantt> gantt(LocalDate inicio, LocalDate fim, UUID idBase, UUID idTipoEquipe, UUID idEquipe);
 
-    @Operation(summary = "Histórico de edições, reprogramações, cancelamentos e exclusões")
-    ResponseEntity<PageResponse<ProgramacaoResponses.Evento>> historico(List<TipoEventoProgramacao> tipos, UUID idObra, UUID idProgramacao, String obra, String equipe, String usuario, String mudou, LocalDate de, LocalDate ate, String q, Pageable pageable);
+    @Operation(summary = "Histórico de criações, edições, reprogramações, cancelamentos e exclusões")
+    ResponseEntity<PageResponse<ProgramacaoResponses.Evento>> historico(List<TipoEventoProgramacao> tipos, UUID idObra, UUID idProgramacao, String obra, String equipe, String usuario, String mudou, LocalDate de, LocalDate ate, String q, Long programacao, Pageable pageable);
+
+    @Operation(summary = "Painel da programação", description = "Cumprimento, valor programado e realizado, reprogramações e motivos, ocupação por equipe e base, série no tempo, próximos 14 dias e obras a programar. Período de até 186 dias.")
+    ResponseEntity<ProgramacaoResponses.Painel> painel(LocalDate inicio, LocalDate fim, UUID idBase, UUID idTipoEquipe);
 
     @Operation(summary = "Obras abertas com serviço por programar", description = "Até 50 obras, as de prazo mais curto primeiro. O prazo regulado manda sobre o previsto.")
     ResponseEntity<List<ProgramacaoResponses.ObraAProgramar>> obrasAProgramar(UUID idBase);

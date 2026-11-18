@@ -58,11 +58,39 @@ public class DocumentoTecnicoPdf {
                                Map<UUID, List<Foto>> fotos) {
     }
 
-    /** Foto do book, já em JPEG no tamanho do documento. */
-    public record Foto(String item, String legenda, String autoria, byte[] jpeg) {
+    /** Foto do book, já em JPEG no tamanho do documento. {@code etapa} é o rótulo (Antes, Durante, Depois) ou nulo. */
+    public record Foto(String item, String legenda, String autoria, byte[] jpeg, String etapa) {
+        public Foto(String item, String legenda, String autoria, byte[] jpeg) {
+            this(item, legenda, autoria, jpeg, null);
+        }
     }
 
+    /** Book fotográfico: capa com o resumo, sumário e uma seção por ponto. */
+    public record DadosBook(Obra obra, int numeroVersao, String geradoPor, List<PontoBook> pontos, int pontosExecutados, int fichasCompletas) {
+    }
+
+    /**
+     * Um ponto do book. {@code ficha} é a situação já escrita ("Completa", "Faltam 2 respostas", "Sem ficha"); {@code respostas}
+     * só vem quando há ficha; {@code fotosFaltando} são os itens obrigatórios do modelo ainda sem foto.
+     */
+    public record PontoBook(String numero, int pagina, boolean executado, String ficha, String equipamento, RespostasChecklist respostas,
+                            List<String> fotosFaltando, List<Foto> fotos) {
+    }
+
+    private record EntradaSumario(String titulo, String detalhe, int pagina) {
+    }
+
+    private static final String[] ETAPAS = {"Antes", "Durante", "Depois"};
+    private static final int LINHAS_DO_SUMARIO = 34;
+    private static final Color CAPA_FUNDO = new Color(0x1e, 0x29, 0x3b);
+    private static final Color CAPA_DESTAQUE = new Color(0x93, 0xc5, 0xfd);
+
     public byte[] visita(Obra obra, VisitaPreviaObra visita) {
+        return visita(obra, visita, new EvidenciaVisitaPreviaUseCases.ParaDocumento(List.of(), List.of()));
+    }
+
+    /** Dados da visita, resumo das não conformidades, respostas, observações e as evidências (fotos e lista de PDFs). */
+    public byte[] visita(Obra obra, VisitaPreviaObra visita, EvidenciaVisitaPreviaUseCases.ParaDocumento evidencias) {
         try (PDDocument documento = new PDDocument()) {
             Escrita escrita = new Escrita(documento, "Visita prévia · Obra " + obra.getNumero());
             escrita.titulo("Visita prévia da obra " + obra.getNumero());
@@ -70,10 +98,32 @@ public class DocumentoTecnicoPdf {
             escrita.campo("Modelo", visita.getTituloModelo());
             escrita.campo("Data da visita", visita.getDataVisita().format(DATA));
             escrita.campo("Responsável", visita.getResponsavel());
+            List<RespostasChecklist.Item> naoConformes = visita.getRespostas().naoConformidades();
+            escrita.secao("Resumo");
+            if (naoConformes.isEmpty()) {
+                escrita.paragrafo("Nenhuma não conformidade apontada.");
+            } else {
+                escrita.paragrafo(naoConformes.size() == 1 ? "1 não conformidade apontada:" : naoConformes.size() + " não conformidades apontadas:");
+                for (RespostasChecklist.Item item : naoConformes) {
+                    escrita.campo(item.grupo() + " · " + item.enunciado(), item.resposta() + " (esperado: " + item.opcaoConforme() + ")");
+                }
+            }
+            int totalEvidencias = evidencias.fotos().size() + evidencias.pdfs().size();
+            escrita.nota(totalEvidencias == 0 ? "Sem evidências anexadas." : totalEvidencias == 1 ? "1 evidência anexada." : totalEvidencias + " evidências anexadas.");
             respostas(escrita, visita.getRespostas());
             if (visita.getObservacoes() != null) {
                 escrita.secao("Observações");
                 escrita.paragrafo(visita.getObservacoes());
+            }
+            if (totalEvidencias > 0) {
+                escrita.secao("Evidências");
+                escrita.fotos(evidencias.fotos());
+                if (!evidencias.pdfs().isEmpty()) {
+                    escrita.grupo("Documentos em PDF");
+                    for (String pdf : evidencias.pdfs()) {
+                        escrita.paragrafo(pdf);
+                    }
+                }
             }
             escrita.fechar();
             return salvar(documento);
@@ -85,21 +135,267 @@ public class DocumentoTecnicoPdf {
     public byte[] asBuilt(DadosAsBuilt dados) {
         try (PDDocument documento = Loader.loadPDF(dados.projeto())) {
             marcarFolhas(documento, dados);
+            int folhasDoProjeto = documento.getNumberOfPages();
             Map<UUID, PontoPlanejamento> pontos = dados.pontos().stream().collect(Collectors.toMap(PontoPlanejamento::getId, Function.identity()));
-            Escrita escrita = new Escrita(documento, "As Built v" + dados.numeroVersao() + " · Obra " + dados.obra().getNumero());
+            String rotulo = "As Built v" + dados.numeroVersao() + " · Obra " + dados.obra().getNumero();
+            Escrita escrita = new Escrita(documento, rotulo);
+            List<EntradaSumario> entradas = new ArrayList<>();
+            if (folhasDoProjeto > 0) {
+                entradas.add(new EntradaSumario("Folhas do projeto com o executado", folhasDoProjeto == 1 ? "1 folha" : folhasDoProjeto + " folhas", 1));
+            }
+            entradas.add(new EntradaSumario("Book da obra", null, escrita.paginaAtual()));
             escrita.titulo("Book da obra " + dados.obra().getNumero());
             escrita.paragrafo(dados.obra().getTitulo());
             escrita.campo("Versão", String.valueOf(dados.numeroVersao()));
-            dados.fichas().stream()
+            List<FichaAsBuilt> fichas = dados.fichas().stream()
                     .filter(f -> pontos.containsKey(f.getIdPonto()))
                     .sorted(Comparator.comparing((FichaAsBuilt f) -> pontos.get(f.getIdPonto()).getPagina()).thenComparing(f -> pontos.get(f.getIdPonto()).getNumero()))
-                    .forEach(f -> ficha(escrita, pontos.get(f.getIdPonto()), f, dados.fotos().getOrDefault(f.getIdPonto(), List.of())));
-            equipamentos(escrita, dados.equipamentos(), pontos);
+                    .toList();
+            int fotos = 0;
+            for (FichaAsBuilt f : fichas) {
+                PontoPlanejamento ponto = pontos.get(f.getIdPonto());
+                List<Foto> doPonto = dados.fotos().getOrDefault(f.getIdPonto(), List.of());
+                fotos += doPonto.size();
+                int pagina = ficha(escrita, ponto, f, doPonto);
+                entradas.add(new EntradaSumario("Ponto " + ponto.getNumero() + " · folha " + ponto.getPagina(), quantas(doPonto.size()), pagina));
+            }
+            if (equipamentos(escrita, dados.equipamentos(), pontos)) {
+                entradas.add(new EntradaSumario("Equipamentos", null, escrita.paginaUltimaSecao()));
+            }
             escrita.fechar();
+
+            // Capa e sumário entram na frente; as páginas do sumário já contam com elas.
+            int paginasDoSumario = paginasDoSumario(entradas.size());
+            PDPage capa = new PDPage(PDRectangle.A4);
+            documento.getPages().insertBefore(capa, documento.getPage(0));
+            List<PDPage> sumario = new ArrayList<>();
+            PDPage anterior = capa;
+            for (int i = 0; i < paginasDoSumario; i++) {
+                PDPage pagina = new PDPage(PDRectangle.A4);
+                documento.getPages().insertAfter(pagina, anterior);
+                sumario.add(pagina);
+                anterior = pagina;
+            }
+            int deslocamento = 1 + paginasDoSumario;
+            capa(documento, capa, "AS BUILT", "Obra " + dados.obra().getNumero(), dados.obra().getTitulo(), List.of(
+                    new String[]{"Versão", String.valueOf(dados.numeroVersao())},
+                    new String[]{"Gerado em", OffsetDateTime.now(ApontamentoExecucaoUseCases.FUSO).format(DATA_HORA)},
+                    new String[]{"Pontos executados", String.valueOf(dados.pontosExecutados().size())},
+                    new String[]{"Fichas no documento", String.valueOf(fichas.size())},
+                    new String[]{"Fotos do book", String.valueOf(fotos)},
+                    new String[]{"Folhas do projeto", String.valueOf(folhasDoProjeto)}));
+            sumario(documento, sumario, entradas.stream().map(e -> new EntradaSumario(e.titulo(), e.detalhe(), e.pagina() + deslocamento)).toList());
+            numerarPaginas(documento, rotulo);
             return salvar(documento);
         } catch (IOException e) {
             throw new UncheckedIOException("Falha ao gerar o PDF do As Built", e);
         }
+    }
+
+    /**
+     * Book fotográfico da obra: capa com o resumo, sumário e, a partir daí, uma seção por ponto (começando em página nova),
+     * com a situação da ficha, as fotos agrupadas por etapa e as respostas da ficha.
+     */
+    public byte[] book(DadosBook dados) {
+        try (PDDocument documento = new PDDocument()) {
+            String rotulo = "Book v" + dados.numeroVersao() + " · Obra " + dados.obra().getNumero();
+            PDPage capa = new PDPage(PDRectangle.A4);
+            documento.addPage(capa);
+            List<PDPage> sumario = new ArrayList<>();
+            for (int i = 0; i < paginasDoSumario(Math.max(1, dados.pontos().size())); i++) {
+                PDPage pagina = new PDPage(PDRectangle.A4);
+                documento.addPage(pagina);
+                sumario.add(pagina);
+            }
+            Escrita escrita = new Escrita(documento, rotulo);
+            List<EntradaSumario> entradas = new ArrayList<>();
+            int fotos = 0;
+            if (dados.pontos().isEmpty()) {
+                escrita.paragrafo("Nenhum ponto com foto ou execução nesta obra.");
+            }
+            for (int i = 0; i < dados.pontos().size(); i++) {
+                PontoBook ponto = dados.pontos().get(i);
+                if (i > 0) {
+                    escrita.quebrarPagina();
+                }
+                String detalhe = quantas(ponto.fotos().size()) + (ponto.ficha() != null ? " · ficha: " + ponto.ficha().toLowerCase(PT_BR) : "");
+                entradas.add(new EntradaSumario("Ponto " + ponto.numero() + " · folha " + ponto.pagina(), detalhe, escrita.paginaAtual()));
+                fotos += ponto.fotos().size();
+                pontoDoBook(escrita, ponto);
+            }
+            escrita.fechar();
+            capa(documento, capa, "BOOK DE OBRA", "Obra " + dados.obra().getNumero(), dados.obra().getTitulo(), List.of(
+                    new String[]{"Versão", String.valueOf(dados.numeroVersao())},
+                    new String[]{"Gerado em", OffsetDateTime.now(ApontamentoExecucaoUseCases.FUSO).format(DATA_HORA)},
+                    new String[]{"Gerado por", dados.geradoPor() != null ? dados.geradoPor() : "Sistema"},
+                    new String[]{"Pontos no book", String.valueOf(dados.pontos().size())},
+                    new String[]{"Fotos", String.valueOf(fotos)},
+                    new String[]{"Fichas completas", dados.fichasCompletas() + " de " + dados.pontosExecutados()}));
+            sumario(documento, sumario, entradas);
+            numerarPaginas(documento, rotulo);
+            return salvar(documento);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Falha ao gerar o PDF do Book", e);
+        }
+    }
+
+    private static void pontoDoBook(Escrita escrita, PontoBook ponto) throws IOException {
+        escrita.faixa("Ponto " + ponto.numero(), "Folha " + ponto.pagina() + " · " + (ponto.executado() ? "Executado" : "Sem execução"));
+        List<String> situacao = new ArrayList<>();
+        if (ponto.ficha() != null) {
+            situacao.add("Ficha As Built: " + ponto.ficha());
+        }
+        if (ponto.equipamento() != null) {
+            situacao.add("Equipamento: " + ponto.equipamento());
+        }
+        situacao.add(quantas(ponto.fotos().size()));
+        escrita.nota(String.join("  ·  ", situacao));
+        if (!ponto.fotosFaltando().isEmpty()) {
+            escrita.nota("Atenção: falta foto de " + String.join(", ", ponto.fotosFaltando()) + ".");
+        }
+        if (ponto.fotos().isEmpty()) {
+            escrita.paragrafo("Nenhuma foto lançada neste ponto.");
+        }
+        for (String etapa : ETAPAS) {
+            List<Foto> daEtapa = ponto.fotos().stream().filter(f -> etapa.equals(f.etapa())).toList();
+            if (!daEtapa.isEmpty()) {
+                escrita.grupo(etapa + " da execução (" + daEtapa.size() + ")");
+                escrita.fotos(daEtapa);
+            }
+        }
+        List<Foto> semEtapa = ponto.fotos().stream().filter(f -> f.etapa() == null).toList();
+        if (!semEtapa.isEmpty()) {
+            escrita.grupo(semEtapa.size() == ponto.fotos().size() ? "Fotos do ponto" : "Sem etapa informada (" + semEtapa.size() + ")");
+            escrita.fotos(semEtapa);
+        }
+        if (ponto.respostas() != null && !ponto.respostas().itens().isEmpty()) {
+            escrita.grupo("Ficha As Built");
+            escrita.tabela(new String[]{"Pergunta", "Resposta"}, new float[]{300, 199}, new boolean[]{false, false},
+                    ponto.respostas().itens().stream().map(item -> new String[]{item.enunciado(), resposta(item)}).toList(), null);
+        }
+    }
+
+    private static String quantas(int fotos) {
+        return fotos == 1 ? "1 foto" : fotos + " fotos";
+    }
+
+    private static int paginasDoSumario(int entradas) {
+        return Math.max(1, (entradas + LINHAS_DO_SUMARIO - 1) / LINHAS_DO_SUMARIO);
+    }
+
+    /** Capa: faixa escura com o tipo, a obra e o título, e o resumo em duas colunas. */
+    private static void capa(PDDocument documento, PDPage pagina, String tipo, String titulo, String subtitulo, List<String[]> campos) throws IOException {
+        PDType1Font normal = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+        PDType1Font negrito = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+        float largura = PDRectangle.A4.getWidth();
+        float altura = PDRectangle.A4.getHeight();
+        float margem = 56;
+        try (PDPageContentStream cs = new PDPageContentStream(documento, pagina, PDPageContentStream.AppendMode.APPEND, true, true)) {
+            cs.setNonStrokingColor(CAPA_FUNDO);
+            cs.addRect(0, altura - 330, largura, 330);
+            cs.fill();
+            texto(cs, negrito, 11, CAPA_DESTAQUE, margem, altura - 110, tipo);
+            float y = altura - 160;
+            for (String linha : Escrita.quebrar(seguro(negrito, titulo), negrito, 30, largura - 2 * margem)) {
+                texto(cs, negrito, 30, Color.WHITE, margem, y, linha);
+                y -= 36;
+            }
+            if (subtitulo != null) {
+                for (String linha : Escrita.quebrar(seguro(normal, subtitulo), normal, 13, largura - 2 * margem)) {
+                    if (y < altura - 315) {
+                        break;
+                    }
+                    texto(cs, normal, 13, new Color(0xe2, 0xe8, 0xf0), margem, y, linha);
+                    y -= 18;
+                }
+            }
+            float coluna = (largura - 2 * margem) / 2;
+            float topo = altura - 390;
+            for (int i = 0; i < campos.size(); i++) {
+                float x = margem + (i % 2) * coluna;
+                float base = topo - (i / 2) * 58f;
+                texto(cs, normal, 9, Escrita.SUAVE, x, base, campos.get(i)[0].toUpperCase(PT_BR));
+                texto(cs, negrito, 15, Escrita.TEXTO, x, base - 20, campos.get(i)[1]);
+            }
+            cs.setStrokingColor(Escrita.DIVISOR);
+            cs.setLineWidth(0.6f);
+            cs.moveTo(margem, 90);
+            cs.lineTo(largura - margem, 90);
+            cs.stroke();
+            texto(cs, normal, 8, Escrita.SUAVE, margem, 72, "Documento gerado a partir das fichas e das fotos lançadas pelas equipes de campo e pelo escritório.");
+        }
+    }
+
+    /** Sumário com o título de cada seção, um detalhe e a página, em quantas páginas forem reservadas. */
+    private static void sumario(PDDocument documento, List<PDPage> paginas, List<EntradaSumario> entradas) throws IOException {
+        PDType1Font normal = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+        PDType1Font negrito = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
+        float margem = 48;
+        float direita = PDRectangle.A4.getWidth() - margem;
+        for (int p = 0; p < paginas.size(); p++) {
+            try (PDPageContentStream cs = new PDPageContentStream(documento, paginas.get(p), PDPageContentStream.AppendMode.APPEND, true, true)) {
+                float y = PDRectangle.A4.getHeight() - 70;
+                texto(cs, negrito, 18, Escrita.TEXTO, margem, y, p == 0 ? "Sumário" : "Sumário (continuação)");
+                y -= 34;
+                int de = Math.min(p * LINHAS_DO_SUMARIO, entradas.size());
+                int ate = Math.min((p + 1) * LINHAS_DO_SUMARIO, entradas.size());
+                for (EntradaSumario entrada : entradas.subList(de, ate)) {
+                    String titulo = seguro(negrito, entrada.titulo());
+                    String numero = String.valueOf(entrada.pagina());
+                    float largoNumero = negrito.getStringWidth(numero) / 1000f * 10;
+                    texto(cs, negrito, 10, Escrita.TEXTO, margem, y, titulo);
+                    float fimDoTitulo = margem + negrito.getStringWidth(titulo) / 1000f * 10;
+                    float fimDoPontilhado = direita - largoNumero - 8;
+                    if (entrada.detalhe() != null) {
+                        String detalhe = seguro(normal, entrada.detalhe());
+                        float largoDetalhe = normal.getStringWidth(detalhe) / 1000f * 9;
+                        float inicioDoDetalhe = direita - largoNumero - 16 - largoDetalhe;
+                        texto(cs, normal, 9, Escrita.SUAVE, inicioDoDetalhe, y, detalhe);
+                        fimDoPontilhado = inicioDoDetalhe - 6;
+                    }
+                    if (fimDoPontilhado - fimDoTitulo > 12) {
+                        cs.setStrokingColor(Escrita.DIVISOR);
+                        cs.setLineWidth(0.6f);
+                        cs.setLineDashPattern(new float[]{1, 2.5f}, 0);
+                        cs.moveTo(fimDoTitulo + 6, y + 1);
+                        cs.lineTo(fimDoPontilhado, y + 1);
+                        cs.stroke();
+                        cs.setLineDashPattern(new float[]{}, 0);
+                    }
+                    texto(cs, negrito, 10, Escrita.TEXTO, direita - largoNumero, y, numero);
+                    y -= 20;
+                }
+            }
+        }
+    }
+
+    /** "Página x de y" no rodapé das páginas A4 do documento; a capa e as folhas do projeto ficam como estão. */
+    private static void numerarPaginas(PDDocument documento, String rotulo) throws IOException {
+        PDType1Font normal = new PDType1Font(Standard14Fonts.FontName.HELVETICA);
+        int total = documento.getNumberOfPages();
+        for (int i = 1; i < total; i++) {
+            PDPage pagina = documento.getPage(i);
+            PDRectangle caixa = pagina.getMediaBox();
+            boolean a4 = Math.abs(caixa.getWidth() - PDRectangle.A4.getWidth()) < 1 && Math.abs(caixa.getHeight() - PDRectangle.A4.getHeight()) < 1;
+            if (!a4 || pagina.getRotation() != 0) {
+                continue;
+            }
+            try (PDPageContentStream cs = new PDPageContentStream(documento, pagina, PDPageContentStream.AppendMode.APPEND, true, true)) {
+                String numero = "Página " + (i + 1) + " de " + total;
+                float largo = normal.getStringWidth(numero) / 1000f * 8;
+                texto(cs, normal, 8, Escrita.SUAVE, 48, 24, rotulo);
+                texto(cs, normal, 8, Escrita.SUAVE, PDRectangle.A4.getWidth() - 48 - largo, 24, numero);
+            }
+        }
+    }
+
+    private static void texto(PDPageContentStream cs, PDType1Font fonte, float tamanho, Color cor, float x, float y, String texto) throws IOException {
+        cs.beginText();
+        cs.setFont(fonte, tamanho);
+        cs.setNonStrokingColor(cor);
+        cs.newLineAtOffset(x, y);
+        cs.showText(seguro(fonte, texto));
+        cs.endText();
     }
 
     /** Relatório de medição detalhado: resumo, comparativos, faturado a conferir, medições, fotos por ponto e assinaturas. */
@@ -228,24 +524,26 @@ public class DocumentoTecnicoPdf {
         return formato.format(valor);
     }
 
-    private static void ficha(Escrita escrita, PontoPlanejamento ponto, FichaAsBuilt ficha, List<Foto> fotos) {
+    private static int ficha(Escrita escrita, PontoPlanejamento ponto, FichaAsBuilt ficha, List<Foto> fotos) {
         try {
             escrita.secao("Ponto " + ponto.getNumero() + " · folha " + ponto.getPagina());
+            int pagina = escrita.paginaUltimaSecao();
             respostas(escrita, ficha.getRespostas());
             escrita.grupo("Evidências");
             if (fotos.isEmpty()) {
                 escrita.paragrafo("Nenhuma foto lançada neste ponto.");
             }
             escrita.fotos(fotos);
+            return pagina;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static void equipamentos(Escrita escrita, List<EquipamentoObra> equipamentos, Map<UUID, PontoPlanejamento> pontos) throws IOException {
+    private static boolean equipamentos(Escrita escrita, List<EquipamentoObra> equipamentos, Map<UUID, PontoPlanejamento> pontos) throws IOException {
         List<EquipamentoObra> daObra = equipamentos.stream().filter(e -> pontos.containsKey(e.getIdPonto())).toList();
         if (daObra.isEmpty()) {
-            return;
+            return false;
         }
         escrita.secao("Equipamentos");
         for (EquipamentoObra e : daObra) {
@@ -253,6 +551,14 @@ public class DocumentoTecnicoPdf {
                     ? (e.isTrafoAuxiliar() ? "Religador com trafo auxiliar" : "Religador sem trafo auxiliar") : "Regulador";
             escrita.campo("Ponto " + pontos.get(e.getIdPonto()).getNumero(), e.getObservacao() != null ? tipo + " · " + e.getObservacao() : tipo);
         }
+        return true;
+    }
+
+    /** Religador (com ou sem trafo auxiliar) ou regulador, por extenso. */
+    public static String descreverEquipamento(EquipamentoObra e) {
+        String tipo = e.getTipo() == EquipamentoObra.Tipo.RELIGADOR
+                ? (e.isTrafoAuxiliar() ? "Religador com trafo auxiliar" : "Religador sem trafo auxiliar") : "Regulador";
+        return e.getObservacao() != null ? tipo + " · " + e.getObservacao() : tipo;
     }
 
     private static void respostas(Escrita escrita, RespostasChecklist respostas) throws IOException {
@@ -270,7 +576,7 @@ public class DocumentoTecnicoPdf {
         if (item.tipo() == com.nexo.app.modules.obras.domain.EstruturaChecklist.TipoPergunta.DATA && item.valor() != null && !item.naoSeAplica()) {
             return LocalDate.parse(item.valor()).format(DATA);
         }
-        return item.resposta();
+        return item.naoConforme() ? item.resposta() + " · não conforme" : item.resposta();
     }
 
     /** Fica só com as folhas que têm algo executado, e desenha nelas pontos e vãos. */
@@ -398,11 +704,11 @@ public class DocumentoTecnicoPdf {
         private static final float BASE = 48;
         private static final float ALTURA_FOTO = 190;
         private static final float ALTURA_LEGENDA = 34;
-        private static final Color TEXTO = new Color(0x0f, 0x17, 0x2a);
-        private static final Color SUAVE = new Color(0x47, 0x55, 0x69);
+        static final Color TEXTO = new Color(0x0f, 0x17, 0x2a);
+        static final Color SUAVE = new Color(0x47, 0x55, 0x69);
         private static final Color FUNDO_CABECALHO = new Color(0xe2, 0xe8, 0xf0);
         private static final Color FUNDO_TOTAL = new Color(0xf1, 0xf5, 0xf9);
-        private static final Color DIVISOR = new Color(0xcb, 0xd5, 0xe1);
+        static final Color DIVISOR = new Color(0xcb, 0xd5, 0xe1);
         private static final float FONTE_TABELA = 7;
         private static final float ALTURA_LINHA = 12;
 
@@ -412,6 +718,7 @@ public class DocumentoTecnicoPdf {
         private final PDType1Font negrito = new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD);
         private PDPageContentStream cs;
         private float y;
+        private int paginaDaSecao;
 
         Escrita(PDDocument documento, String cabecalho) throws IOException {
             this.documento = documento;
@@ -424,8 +731,52 @@ public class DocumentoTecnicoPdf {
             y -= 4;
         }
 
+        /** Número (a partir de 1) da página em que se escreve agora. */
+        int paginaAtual() {
+            return documento.getNumberOfPages();
+        }
+
+        /** Página em que começou a última seção ou faixa. */
+        int paginaUltimaSecao() {
+            return paginaDaSecao;
+        }
+
+        void quebrarPagina() throws IOException {
+            cs.close();
+            novaPagina();
+        }
+
+        /** Faixa de destaque que abre a seção de um ponto, com o título e um complemento à direita. */
+        void faixa(String titulo, String complemento) throws IOException {
+            garantir(60);
+            paginaDaSecao = paginaAtual();
+            float altura = 30;
+            cs.setNonStrokingColor(FUNDO_CABECALHO);
+            cs.addRect(MARGEM, y - altura, LARGURA, altura);
+            cs.fill();
+            cs.setNonStrokingColor(TEXTO);
+            cs.addRect(MARGEM, y - altura, 4, altura);
+            cs.fill();
+            cs.beginText();
+            cs.setFont(negrito, 13);
+            cs.setNonStrokingColor(TEXTO);
+            cs.newLineAtOffset(MARGEM + 14, y - 20);
+            cs.showText(seguro(negrito, titulo));
+            cs.endText();
+            String extra = seguro(normal, complemento);
+            float largo = normal.getStringWidth(extra) / 1000f * 9;
+            cs.beginText();
+            cs.setFont(normal, 9);
+            cs.setNonStrokingColor(SUAVE);
+            cs.newLineAtOffset(MARGEM + LARGURA - 10 - largo, y - 19);
+            cs.showText(extra);
+            cs.endText();
+            y -= altura + 10;
+        }
+
         void secao(String texto) throws IOException {
             garantir(60);
+            paginaDaSecao = paginaAtual();
             y -= 12;
             linhas(texto, negrito, 12, TEXTO, MARGEM, LARGURA, 16);
             y -= 2;
@@ -598,7 +949,7 @@ public class DocumentoTecnicoPdf {
             }
         }
 
-        private static List<String> quebrar(String texto, PDType1Font fonte, float tamanho, float largura) throws IOException {
+        static List<String> quebrar(String texto, PDType1Font fonte, float tamanho, float largura) throws IOException {
             List<String> linhas = new ArrayList<>();
             StringBuilder atual = new StringBuilder();
             for (String palavra : texto.split(" ")) {

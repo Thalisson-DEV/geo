@@ -31,3 +31,7 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Worktrees locais dos agentes e cache do Python
+.claude/worktrees/
+__pycache__/

@@ -113,4 +113,63 @@ public final class ProgramacaoResponses {
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate fimNovo,
                          String usuario, String observacao) {
     }
+
+    /**
+     * Painel da programação no período: cumprimento, valor programado e realizado, mudanças e motivos, ocupação
+     * por equipe e base, série no tempo, próximos dias e o que falta programar. Canceladas ficam fora dos totais
+     * de valor e de ocupação e entram só na contagem de canceladas.
+     */
+    public record Painel(@JsonFormat(pattern = "dd/MM/yyyy") LocalDate inicio,
+                         @JsonFormat(pattern = "dd/MM/yyyy") LocalDate fim,
+                         OffsetDateTime geradoEm,
+                         TotaisPainel totais,
+                         List<EquipePainel> equipes,
+                         List<BasePainel> bases,
+                         String agrupamentoSerie,
+                         List<PontoSeriePainel> serie,
+                         List<DiaPainel> proximosDias,
+                         List<MotivoPainel> motivos,
+                         List<ObraInstavelPainel> obrasInstaveis,
+                         List<BarraGantt> atrasadas,
+                         int obrasAProgramar,
+                         BigDecimal valorAProgramar,
+                         List<ObraAProgramar> obrasAProgramarPrimeiras) {
+    }
+
+    /**
+     * {@code taxaCumprimento}: das programações que já deviam ter terminado (fim antes de hoje), quantas estão
+     * concluídas. {@code percentualRealizado}: valor executado sobre o programado. Nulos quando não há base.
+     */
+    public record TotaisPainel(int programacoes, int programadas, int emAndamento, int atrasadas, int concluidas, int canceladas,
+                               int vencidas, BigDecimal taxaCumprimento,
+                               BigDecimal valorProgramado, BigDecimal valorRealizado, BigDecimal percentualRealizado,
+                               int criadas, int edicoes, int reprogramacoes, int cancelamentos, int exclusoes,
+                               int equipes, int equipesLivres, int diasUteis, BigDecimal ocupacaoMedia,
+                               int linhaViva, int desligamentos) {
+    }
+
+    /** {@code ocupacao}: dias úteis com programação sobre os dias úteis do período. {@code sobreposicoes}: dias com duas programações no mesmo turno. */
+    public record EquipePainel(UUID idEquipe, String codigo, String tipoEquipe, String base, int programacoes, int concluidas,
+                               int atrasadas, int canceladas, int reprogramacoes, BigDecimal valorProgramado, BigDecimal valorRealizado,
+                               int diasOcupados, BigDecimal ocupacao, BigDecimal percentualMeta, int sobreposicoes) {
+    }
+
+    public record BasePainel(String base, int equipes, int equipesLivres, int programacoes, int atrasadas,
+                             BigDecimal valorProgramado, BigDecimal valorRealizado, BigDecimal ocupacaoMedia) {
+    }
+
+    /** Programações que começam no dia ou na semana de {@code data}. */
+    public record PontoSeriePainel(@JsonFormat(pattern = "dd/MM/yyyy") LocalDate data, int programacoes, int concluidas,
+                                   BigDecimal valorProgramado, BigDecimal valorRealizado) {
+    }
+
+    public record DiaPainel(@JsonFormat(pattern = "dd/MM/yyyy") LocalDate data, boolean diaUtil, int programacoes,
+                            int equipesOcupadas, int equipesLivres, int linhaViva, int desligamentos, int obras) {
+    }
+
+    public record MotivoPainel(TipoEventoProgramacao tipo, String motivo, int quantidade) {
+    }
+
+    public record ObraInstavelPainel(UUID idObra, String numeroObra, int reprogramacoes, int cancelamentos, int trocasDeEquipe) {
+    }
 }

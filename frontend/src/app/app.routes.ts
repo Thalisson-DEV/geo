@@ -839,6 +839,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/obras/programacao/programacao.component').then(m => m.ProgramacaoComponent)
       },
       {
+        path: 'programacao/painel',
+        data: { permission: 'obras:programacao:read' },
+        loadComponent: () => import('./features/obras/programacao/programacao-painel.component').then(m => m.ProgramacaoPainelComponent)
+      },
+      {
         path: 'programacao/historico',
         data: { permission: 'obras:programacao:read' },
         loadComponent: () => import('./features/obras/programacao/programacao-historico.component').then(m => m.ProgramacaoHistoricoComponent)

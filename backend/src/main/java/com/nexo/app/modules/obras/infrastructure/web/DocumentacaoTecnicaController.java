@@ -5,9 +5,12 @@ import com.nexo.app.modules.obras.application.dto.DocumentacaoTecnicaResponses;
 import com.nexo.app.modules.obras.application.dto.DownloadEvidenciaDTO;
 import com.nexo.app.modules.obras.application.usecases.DocumentacaoTecnicaUseCases;
 import com.nexo.app.modules.obras.application.usecases.EvidenciaPontoUseCases;
+import com.nexo.app.modules.obras.application.usecases.EvidenciaVisitaPreviaUseCases;
 import com.nexo.app.modules.obras.doc.DocumentacaoTecnicaControllerDoc;
+import com.nexo.app.modules.obras.domain.EvidenciaPonto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,7 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @RestController
@@ -32,6 +37,7 @@ public class DocumentacaoTecnicaController implements DocumentacaoTecnicaControl
 
     private final DocumentacaoTecnicaUseCases useCases;
     private final EvidenciaPontoUseCases evidenciaUseCases;
+    private final EvidenciaVisitaPreviaUseCases evidenciaVisitaUseCases;
 
     @Override
     @GetMapping
@@ -94,8 +100,69 @@ public class DocumentacaoTecnicaController implements DocumentacaoTecnicaControl
                                                    @RequestParam(required = false) UUID idModelo,
                                                    @RequestParam(required = false) String idItem,
                                                    @RequestParam(required = false) String legenda,
-                                                   @RequestParam MultipartFile arquivo) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(evidenciaUseCases.registrar(id, idPonto, idModelo, idItem, legenda, arquivo));
+                                                   @RequestParam MultipartFile arquivo,
+                                                   @RequestParam(required = false) EvidenciaPonto.Etapa etapa,
+                                                   @RequestParam(required = false) BigDecimal latitude,
+                                                   @RequestParam(required = false) BigDecimal longitude,
+                                                   @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime dataCaptura) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(evidenciaUseCases.registrar(id, idPonto, idModelo, idItem, legenda, arquivo,
+                new EvidenciaPonto.Captura(etapa, latitude, longitude, dataCaptura)));
+    }
+
+    @Override
+    @PutMapping("/evidencias/{idEvidencia}/etapa")
+    @PreAuthorize(ESCREVER)
+    public ResponseEntity<Void> classificarEtapaDaEvidencia(@PathVariable UUID id, @PathVariable UUID idEvidencia, @RequestBody DocumentacaoTecnicaRequests.EtapaEvidencia request) {
+        evidenciaUseCases.classificarEtapa(id, idEvidencia, request.etapa());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @PostMapping("/book")
+    @PreAuthorize(ESCREVER)
+    public ResponseEntity<DocumentacaoTecnicaResponses.Documento> gerarBook(@PathVariable UUID id) {
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(useCases.gerarBook(id));
+    }
+
+    @Override
+    @PostMapping(value = "/visitas/{idVisita}/evidencias", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize(ESCREVER)
+    public ResponseEntity<DocumentacaoTecnicaResponses.EvidenciaVisita> registrarEvidenciaDaVisita(@PathVariable UUID id, @PathVariable UUID idVisita,
+                                                                                                 @RequestParam(required = false) String idPergunta,
+                                                                                                 @RequestParam(required = false) String legenda,
+                                                                                                 @RequestParam MultipartFile arquivo) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(evidenciaVisitaUseCases.registrar(id, idVisita, idPergunta, legenda, arquivo));
+    }
+
+    @Override
+    @PutMapping("/visitas/{idVisita}/evidencias/{idEvidencia}/legenda")
+    @PreAuthorize(ESCREVER)
+    public ResponseEntity<Void> alterarLegendaDaEvidenciaDaVisita(@PathVariable UUID id, @PathVariable UUID idVisita, @PathVariable UUID idEvidencia,
+                                                                  @Valid @RequestBody DocumentacaoTecnicaRequests.LegendaEvidencia request) {
+        evidenciaVisitaUseCases.alterarLegenda(id, idVisita, idEvidencia, request.legenda());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @DeleteMapping("/visitas/{idVisita}/evidencias/{idEvidencia}")
+    @PreAuthorize(ESCREVER)
+    public ResponseEntity<Void> removerEvidenciaDaVisita(@PathVariable UUID id, @PathVariable UUID idVisita, @PathVariable UUID idEvidencia) {
+        evidenciaVisitaUseCases.remover(id, idVisita, idEvidencia);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @GetMapping("/visitas/{idVisita}/evidencias/{idEvidencia}/arquivo")
+    @PreAuthorize(LER)
+    public ResponseEntity<StreamingResponseBody> baixarEvidenciaDaVisita(@PathVariable UUID id, @PathVariable UUID idVisita, @PathVariable UUID idEvidencia) {
+        return imagem(evidenciaVisitaUseCases.baixar(id, idVisita, idEvidencia));
+    }
+
+    @Override
+    @GetMapping("/visitas/{idVisita}/evidencias/{idEvidencia}/miniatura")
+    @PreAuthorize(LER)
+    public ResponseEntity<StreamingResponseBody> baixarMiniaturaDaEvidenciaDaVisita(@PathVariable UUID id, @PathVariable UUID idVisita, @PathVariable UUID idEvidencia) {
+        return imagem(evidenciaVisitaUseCases.baixarMiniatura(id, idVisita, idEvidencia));
     }
 
     @Override

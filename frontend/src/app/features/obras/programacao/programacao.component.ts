@@ -28,6 +28,7 @@ import { RhService } from '../../../core/services/rh.service';
 import { dataIso } from '../../../shared/listagem/listagem';
 import { formatarMoeda, parseDataBrParaDate } from '../obras-ui';
 import { ProgramacaoDetalheComponent } from './programacao-detalhe.component';
+import { ProgramarDrawerComponent } from './programar-drawer.component';
 import { ArrasteProgramacao, ProgramacaoLinhaTempoComponent } from './programacao-linha-tempo.component';
 import {
   FiltrosBarra,
@@ -108,14 +109,18 @@ function dataDaUrl(valor: string | null): Date | null {
     CesStatusComponent,
     CesTextInputComponent,
     ProgramacaoDetalheComponent,
-    ProgramacaoLinhaTempoComponent
+    ProgramacaoLinhaTempoComponent,
+    ProgramarDrawerComponent
   ],
   template: `
     <div class="ces-page">
       <ces-page-header title="Programação" icon="pi pi-calendar" [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação' }]"
-        description="Quem faz o quê e quando. Novas programações nascem da seleção de itens no planejamento da obra.">
-        <ces-button actions variant="outline" icon="pi pi-history" label="Histórico" (pressed)="abrirHistorico()"></ces-button>
+        description="Quem faz o quê e quando. Programe aqui ou pela seleção de itens no planejamento da obra.">
+        @if (podeEditar) {
+          <ces-button actions icon="pi pi-plus" label="Nova programação" (pressed)="novaProgramacao()"></ces-button>
+        }
       </ces-page-header>
+
 
       <ces-filter-panel #painel [storageKey]="'obras-programacao'" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="estado().carregando" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
@@ -261,14 +266,14 @@ function dataDaUrl(valor: string | null): Date | null {
       <section id="obras-a-programar" class="prog-card prog-obras" aria-labelledby="obras-titulo">
         <header class="prog-obras__topo">
           <h2 id="obras-titulo">Obras a programar</h2>
-          <p>As de prazo mais curto primeiro. Abra o planejamento, selecione os itens e programe.</p>
+          <p>As de prazo mais curto primeiro. Programe direto daqui ou abra o planejamento para escolher item a item.</p>
         </header>
         @if (!obras().length) {
           <ces-async-state state="empty" icon="pi pi-check-circle" title="Nenhuma obra com serviço por programar" [compact]="true"></ces-async-state>
         } @else {
           <ul class="prog-obras__lista">
             @for (o of obras(); track o.idObra) {
-              <li>
+              <li class="prog-obras__item">
                 <a [routerLink]="['/obras', o.idObra, 'planejamento']" class="prog-obra">
                   <span class="prog-obra__nome"><strong>{{ o.numero }}</strong> <span>{{ o.titulo }}</span></span>
                   <span class="prog-obra__prazo" [attr.data-vencido]="vencida(o)">
@@ -284,6 +289,10 @@ function dataDaUrl(valor: string | null): Date | null {
                   }
                   <i class="pi pi-arrow-right prog-obra__seta" aria-hidden="true"></i>
                 </a>
+                @if (podeEditar) {
+                  <ces-button class="prog-obra__programar" size="sm" variant="outline" icon="pi pi-calendar-plus" label="Programar"
+                    [ariaLabel]="'Programar a obra ' + o.numero" (pressed)="novaProgramacao(o.idObra)"></ces-button>
+                }
               </li>
             }
           </ul>
@@ -292,6 +301,9 @@ function dataDaUrl(valor: string | null): Date | null {
     </div>
 
     <app-programacao-detalhe [(aberto)]="detalheAberto" [idProgramacao]="idDetalhe()" (alterada)="recarregar()"></app-programacao-detalhe>
+    @if (podeEditar) {
+      <app-programar-drawer [(aberto)]="programarAberto" [idObraInicial]="obraSugerida()" [idEquipeInicial]="lista.applied().idEquipe" (programado)="recarregar()"></app-programar-drawer>
+    }
   `,
   styles: [`
     .prog-kpis { margin-bottom: 1rem; }
@@ -331,6 +343,9 @@ function dataDaUrl(valor: string | null): Date | null {
     .prog-obras__topo p { margin: 0.125rem 0 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
     .prog-obras__lista { margin: 0; padding: 0; list-style: none; }
     .prog-obras__lista li + li { border-top: 1px solid var(--ces-border); }
+    .prog-obras__item { display: flex; align-items: center; }
+    .prog-obras__item .prog-obra { flex: 1; min-width: 0; }
+    .prog-obra__programar { flex: none; margin-right: 1rem; }
     .prog-obra { display: grid; grid-template-columns: minmax(14rem, 1fr) 11rem 8rem 6rem 7rem 1rem; gap: 0.75rem; align-items: center; padding: 0.625rem 1rem; color: var(--ces-foreground); font-size: var(--ces-font-control); text-decoration: none; }
     .prog-obra:hover { background: var(--ces-surface-subtle); }
     .prog-obra:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: -2px; }
@@ -588,8 +603,13 @@ export class ProgramacaoComponent {
     void this.router.navigate([VISOES.find((v) => v.value === visao)!.rota], { queryParams: { ...this.lista.queryParams(), data: dataIso(this.data()) } });
   }
 
-  protected abrirHistorico(): void {
-    void this.router.navigate(['/obras/programacao/historico']);
+  protected readonly programarAberto = signal(false);
+  protected readonly obraSugerida = signal<string | null>(null);
+
+  /** Programação direta: abre o drawer na obra escolhida (ou para escolher) e, se houver, na equipe filtrada. */
+  protected novaProgramacao(idObra: string | null = null): void {
+    this.obraSugerida.set(idObra);
+    this.programarAberto.set(true);
   }
 
   protected alternarAtrasadas(): void {

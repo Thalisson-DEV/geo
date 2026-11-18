@@ -1,6 +1,7 @@
 import { CesSelectOption, CesTone } from '@ces/ui';
 import {
   BarraGantt,
+  EventoProgramacao,
   SituacaoIntervencao,
   SituacaoProgramacao,
   TipoEventoProgramacao,
@@ -43,6 +44,7 @@ export const SITUACAO_PROGRAMACAO: Record<SituacaoProgramacao, { rotulo: string;
 };
 
 export const TIPO_EVENTO: Record<TipoEventoProgramacao, { rotulo: string; tom: CesTone; icone: string }> = {
+  CRIADA: { rotulo: 'Criada', tom: 'success', icone: 'pi pi-calendar-plus' },
   EDITADA: { rotulo: 'Editada', tom: 'info', icone: 'pi pi-pencil' },
   REPROGRAMADA: { rotulo: 'Reprogramada', tom: 'warning', icone: 'pi pi-calendar-clock' },
   CANCELADA: { rotulo: 'Cancelada', tom: 'neutral', icone: 'pi pi-ban' },
@@ -243,4 +245,42 @@ export function mesDe(data: Date): { inicio: Date; fim: Date } {
     inicio: new Date(data.getFullYear(), data.getMonth(), 1),
     fim: new Date(data.getFullYear(), data.getMonth() + 1, 0)
   };
+}
+
+/** Uma mudança legível de um evento do histórico: o campo, como estava e como ficou. */
+export interface MudancaEvento {
+  campo: string;
+  antes?: string | null;
+  depois?: string | null;
+}
+
+function textoPeriodo(inicio?: string | null, fim?: string | null): string | null {
+  if (!inicio) return null;
+  return !fim || fim === inicio ? inicio : `${inicio} a ${fim}`;
+}
+
+/**
+ * O que o evento mudou, campo a campo. Equipe e período vêm das colunas do evento; a edição grava as mudanças das
+ * condições no texto ("Turno: Manhã → Dia todo; ..."), que é desmontado aqui. O resto do texto é o motivo.
+ */
+export function lerEvento(e: EventoProgramacao): { mudancas: MudancaEvento[]; motivo: string | null } {
+  const mudancas: MudancaEvento[] = [];
+  if (e.tipo === 'CRIADA') {
+    mudancas.push({ campo: 'Equipe', depois: e.equipeDestino }, { campo: 'Período', depois: textoPeriodo(e.inicioNovo, e.fimNovo) });
+    return { mudancas, motivo: e.observacao ?? null };
+  }
+  if ((e.equipeOrigem || e.equipeDestino) && e.equipeOrigem !== e.equipeDestino) {
+    mudancas.push({ campo: 'Equipe', antes: e.equipeOrigem, depois: e.equipeDestino });
+  }
+  if (e.inicioOriginal !== e.inicioNovo || e.fimOriginal !== e.fimNovo) {
+    mudancas.push({ campo: 'Período', antes: textoPeriodo(e.inicioOriginal, e.fimOriginal), depois: textoPeriodo(e.inicioNovo, e.fimNovo) });
+  }
+  if (e.tipo !== 'EDITADA' || !e.observacao) return { mudancas, motivo: e.observacao ?? null };
+  const soltos: string[] = [];
+  for (const parte of e.observacao.split('; ')) {
+    const m = /^([^:→]{2,40}): (.*) → (.*)$/.exec(parte.trim());
+    if (m) mudancas.push({ campo: m[1], antes: m[2] === 'vazio' ? null : m[2], depois: m[3] === 'vazio' ? null : m[3] });
+    else soltos.push(parte);
+  }
+  return { mudancas, motivo: soltos.join('; ') || null };
 }

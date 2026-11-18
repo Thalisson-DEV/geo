@@ -1,14 +1,18 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { CarteiraBook, ComparativoBook, PainelBook } from '../models/obras-book.models';
 import {
   DocumentacaoObra,
   DocumentoAsBuilt,
+  EtapaEvidencia,
   EquipamentoRequest,
   ModeloChecklistFilter,
   ModeloChecklistRequest,
   ModeloChecklistResponse,
   RespostaInformada,
+  EvidenciaVisita,
+  VisitaPrevia,
   VisitaPreviaRequest
 } from '../models/obras-documentacao.models';
 import { PagedResponse } from '../models/shared.models';
@@ -52,10 +56,10 @@ export class ObrasDocumentacaoService extends BaseService {
     return this.http.get<DocumentacaoObra>(this.url(idObra));
   }
 
-  salvarVisita(idObra: string, idVisita: string | null, request: VisitaPreviaRequest): Observable<unknown> {
+  salvarVisita(idObra: string, idVisita: string | null, request: VisitaPreviaRequest): Observable<VisitaPrevia> {
     return idVisita
-      ? this.http.put(`${this.url(idObra)}/visitas/${idVisita}`, request)
-      : this.http.post(`${this.url(idObra)}/visitas`, request);
+      ? this.http.put<VisitaPrevia>(`${this.url(idObra)}/visitas/${idVisita}`, request)
+      : this.http.post<VisitaPrevia>(`${this.url(idObra)}/visitas`, request);
   }
 
   removerVisita(idObra: string, idVisita: string): Observable<void> {
@@ -64,6 +68,31 @@ export class ObrasDocumentacaoService extends BaseService {
 
   baixarPdfDaVisita(idObra: string, idVisita: string): Observable<Blob> {
     return this.http.get(`${this.url(idObra)}/visitas/${idVisita}/pdf`, { responseType: 'blob' });
+  }
+
+  /** Foto (JPG/PNG) ou PDF da visita; sem pergunta, é evidência geral. */
+  enviarEvidenciaDaVisita(idObra: string, idVisita: string, arquivo: File, idPergunta: string | null, legenda: string | null = null): Observable<EvidenciaVisita> {
+    const corpo = new FormData();
+    corpo.append('arquivo', arquivo);
+    if (idPergunta) corpo.append('idPergunta', idPergunta);
+    if (legenda) corpo.append('legenda', legenda);
+    return this.http.post<EvidenciaVisita>(`${this.url(idObra)}/visitas/${idVisita}/evidencias`, corpo);
+  }
+
+  alterarLegendaDaEvidenciaDaVisita(idObra: string, idVisita: string, idEvidencia: string, legenda: string | null): Observable<void> {
+    return this.http.put<void>(`${this.url(idObra)}/visitas/${idVisita}/evidencias/${idEvidencia}/legenda`, { legenda });
+  }
+
+  removerEvidenciaDaVisita(idObra: string, idVisita: string, idEvidencia: string): Observable<void> {
+    return this.http.delete<void>(`${this.url(idObra)}/visitas/${idVisita}/evidencias/${idEvidencia}`);
+  }
+
+  miniaturaDaEvidenciaDaVisita(idObra: string, idVisita: string, idEvidencia: string): Observable<Blob> {
+    return this.http.get(`${this.url(idObra)}/visitas/${idVisita}/evidencias/${idEvidencia}/miniatura`, { responseType: 'blob' });
+  }
+
+  arquivoDaEvidenciaDaVisita(idObra: string, idVisita: string, idEvidencia: string): Observable<Blob> {
+    return this.http.get(`${this.url(idObra)}/visitas/${idVisita}/evidencias/${idEvidencia}/arquivo`, { responseType: 'blob' });
   }
 
   preencherFicha(idObra: string, idPonto: string, idModelo: string, respostas: RespostaInformada[]): Observable<void> {
@@ -98,6 +127,30 @@ export class ObrasDocumentacaoService extends BaseService {
 
   gerarAsBuilt(idObra: string): Observable<DocumentoAsBuilt> {
     return this.http.post<DocumentoAsBuilt>(`${this.url(idObra)}/as-built`, {});
+  }
+
+  /** Book fotográfico: capa, sumário e as fotos de cada ponto por etapa. Não exige ficha completa nem projeto mestre. */
+  gerarBook(idObra: string): Observable<DocumentoAsBuilt> {
+    return this.http.post<DocumentoAsBuilt>(`${this.url(idObra)}/book`, {});
+  }
+
+  classificarEtapa(idObra: string, idEvidencia: string, etapa: EtapaEvidencia | null): Observable<void> {
+    return this.http.put<void>(`${this.url(idObra)}/evidencias/${idEvidencia}/etapa`, { etapa });
+  }
+
+  /** Completude do book, semáforo, pendências, auditoria de entrega e versões. */
+  painel(idObra: string): Observable<PainelBook> {
+    return this.http.get<PainelBook>(`${this.url(idObra)}/painel`);
+  }
+
+  /** Previsto x realizado por ponto e vão, com as divergências da documentação. */
+  comparativo(idObra: string): Observable<ComparativoBook> {
+    return this.http.get<ComparativoBook>(`${this.url(idObra)}/comparativo`);
+  }
+
+  /** Situação documental de todas as obras ativas. */
+  carteira(): Observable<CarteiraBook> {
+    return this.http.get<CarteiraBook>(`${this.obrasUrl}/book/consolidado`);
   }
 
   definirEquipamento(idObra: string, idPonto: string, request: EquipamentoRequest): Observable<void> {

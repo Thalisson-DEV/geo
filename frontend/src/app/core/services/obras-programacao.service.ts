@@ -8,6 +8,7 @@ import {
   EventoProgramacao,
   GanttProgramacao,
   ObraAProgramar,
+  PainelProgramacao,
   PreviaProgramacao,
   ProgramacaoDetalhe,
   ProgramarRequest,
@@ -33,6 +34,8 @@ export interface FiltroHistorico {
   de?: string | null; // yyyy-MM-dd
   ate?: string | null; // yyyy-MM-dd
   q?: string | null;
+  /** Número da programação (#), para ver só o histórico dela. */
+  programacao?: number | null;
   page: number;
   size: number;
   sort?: string | string[];
@@ -83,6 +86,13 @@ export class ObrasProgramacaoService extends BaseService {
     return this.http.get<GanttProgramacao>(`${this.base}/programacoes/gantt`, { params });
   }
 
+  painel(filtro: FiltroGantt): Observable<PainelProgramacao> {
+    let params = new HttpParams().set('inicio', filtro.inicio).set('fim', filtro.fim);
+    if (filtro.idBase) params = params.set('idBase', filtro.idBase);
+    if (filtro.idTipoEquipe) params = params.set('idTipoEquipe', filtro.idTipoEquipe);
+    return this.http.get<PainelProgramacao>(`${this.base}/programacoes/painel`, { params });
+  }
+
   obrasAProgramar(idBase?: string | null): Observable<ObraAProgramar[]> {
     const params = idBase ? new HttpParams().set('idBase', idBase) : undefined;
     return this.http.get<ObraAProgramar[]>(`${this.base}/programacoes/a-programar`, { params });
@@ -108,6 +118,7 @@ export class ObrasProgramacaoService extends BaseService {
       const valor = filtro[campo];
       if (valor) params = params.set(campo, valor);
     }
+    if (filtro.programacao) params = params.set('programacao', filtro.programacao);
     for (const regra of [filtro.sort ?? []].flat()) params = params.append('sort', regra);
     return this.http.get<PagedResponse<EventoProgramacao>>(`${this.base}/programacoes/historico`, { params });
   }

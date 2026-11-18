@@ -20,4 +20,12 @@ public interface DocumentoAsBuiltRepository extends JpaRepository<DocumentoAsBui
             where d.idObra = :idObra and d.status <> com.nexo.app.modules.obras.domain.DocumentoAsBuilt.Status.ERRO
             """)
     int ultimaVersao(@Param("idObra") UUID idObra);
+
+    /** Cada tipo de documento numera as suas versões; tentativa que falhou não consome o número. */
+    @Query("""
+            select coalesce(max(d.numeroVersao), 0) from DocumentoAsBuilt d
+            where d.idObra = :idObra and d.tipo = :tipo
+              and d.status <> com.nexo.app.modules.obras.domain.DocumentoAsBuilt.Status.ERRO
+            """)
+    int ultimaVersao(@Param("idObra") UUID idObra, @Param("tipo") DocumentoAsBuilt.Tipo tipo);
 }

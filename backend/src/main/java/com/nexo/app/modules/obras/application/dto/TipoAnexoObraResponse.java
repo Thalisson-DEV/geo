@@ -7,6 +7,7 @@ public record TipoAnexoObraResponse(
         UUID id,
         String nome,
         String descricao,
+        boolean exigidoNaEntrega,
         boolean ativo,
         OffsetDateTime dataCriacao,
         OffsetDateTime dataUltimaAlteracao

@@ -60,6 +60,9 @@ public final class EventoProgramacaoSpecification {
                 if (filter.idProgramacao() != null) {
                     predicates.add(cb.equal(root.get("idProgramacao"), filter.idProgramacao()));
                 }
+                if (filter.numeroProgramacao() != null) {
+                    predicates.add(cb.equal(root.get("numeroProgramacao"), filter.numeroProgramacao()));
+                }
                 if (filter.q() != null && !filter.q().isBlank()) {
                     String texto = filter.q().trim();
                     String termo = "%" + texto.toLowerCase() + "%";

@@ -63,11 +63,37 @@ class DocumentoTecnicoPdfTest {
                 Map.of(idPonto, List.of(new DocumentoTecnicoPdf.Foto("Aterramento", "Vista da haste", "01/11/2026 10:00 · ANA", foto), new DocumentoTecnicoPdf.Foto("Outras evidências", null, "01/11/2026 10:05", foto)))));
 
         try (PDDocument gerado = Loader.loadPDF(pdf)) {
-            assertThat(gerado.getNumberOfPages()).isEqualTo(2);
+            // Capa, sumário, a folha executada do projeto e o book.
+            assertThat(gerado.getNumberOfPages()).isEqualTo(4);
             String texto = new PDFTextStripper().getText(gerado);
             assertThat(texto).contains("D381272", "Não se aplica", "Versão", "Religador com trafo auxiliar", "Aterramento · Vista da haste", "01/11/2026 10:00 · ANA", "Outras evidências");
-            assertThat(gerado.getPage(1).getResources().getXObjectNames()).hasSize(2);
-            assertThat(gerado.getPage(1).getResources().getXObject(gerado.getPage(1).getResources().getXObjectNames().iterator().next())).isInstanceOf(PDImageXObject.class);
+            assertThat(texto).contains("AS BUILT", "Sumário", "Folhas do projeto com o executado", "Página 4 de 4");
+            assertThat(gerado.getPage(3).getResources().getXObjectNames()).hasSize(2);
+            assertThat(gerado.getPage(3).getResources().getXObject(gerado.getPage(3).getResources().getXObjectNames().iterator().next())).isInstanceOf(PDImageXObject.class);
+        }
+    }
+
+    @Test
+    void bookTemCapaSumarioEUmaSecaoPorPontoComAsFotosPorEtapa() throws IOException {
+        byte[] foto = FotoEvidencia.jpeg(new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB), FotoEvidencia.LADO_DOCUMENTO, 0.78f);
+        Obra obra = Mockito.mock(Obra.class);
+        Mockito.when(obra.getNumero()).thenReturn("7000002");
+        Mockito.when(obra.getTitulo()).thenReturn("Extensão de rede");
+        List<DocumentoTecnicoPdf.PontoBook> pontos = List.of(
+                new DocumentoTecnicoPdf.PontoBook("P01", 1, true, "Completa", "Regulador", null, List.of(),
+                        List.of(new DocumentoTecnicoPdf.Foto("Vista geral", null, "01/11/2026 09:00 · ANA", foto, "Antes"),
+                                new DocumentoTecnicoPdf.Foto("Estrutura montada", "Poste novo", "01/11/2026 15:00 · ANA", foto, "Depois"))),
+                new DocumentoTecnicoPdf.PontoBook("P02", 2, false, null, null, null, List.of("Aterramento"), List.of()));
+
+        byte[] pdf = new DocumentoTecnicoPdf().book(new DocumentoTecnicoPdf.DadosBook(obra, 3, "ANA", pontos, 1, 1));
+
+        try (PDDocument gerado = Loader.loadPDF(pdf)) {
+            // Capa, sumário e uma página por ponto.
+            assertThat(gerado.getNumberOfPages()).isEqualTo(4);
+            String texto = new PDFTextStripper().getText(gerado);
+            assertThat(texto).contains("BOOK DE OBRA", "Obra 7000002", "Sumário", "Ponto P01", "Antes da execução (1)", "Depois da execução (1)",
+                    "Equipamento: Regulador", "Atenção: falta foto de Aterramento", "Página 4 de 4");
+            assertThat(gerado.getPage(2).getResources().getXObjectNames()).hasSize(2);
         }
     }
 }

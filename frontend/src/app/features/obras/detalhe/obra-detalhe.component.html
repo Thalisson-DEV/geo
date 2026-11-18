@@ -304,7 +304,7 @@
             <header class="obra-card__cabecalho">
               <h2 id="documentacao-titulo"><i class="pi pi-file-check" aria-hidden="true"></i> Documentação técnica</h2>
             </header>
-            <app-obra-documentacao [idObra]="o.id" (anexoGerado)="recarregar()"></app-obra-documentacao>
+            <app-obra-documentacao [idObra]="o.id" (anexoGerado)="recarregar()" (visitaRealizada)="visitaRealizada.set($event)"></app-obra-documentacao>
           </section>
         }
 

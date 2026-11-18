@@ -22,11 +22,23 @@ import { ObrasProgramacaoService } from '../../../core/services/obras-programaca
 import { formatarDataHora, formatarDataParaApi, formatarMoeda, parseDataBrParaDate } from '../obras-ui';
 import { CondicoesProgramacaoComponent } from './condicoes-programacao.component';
 import { EquipesProjecaoComponent } from './equipes-projecao.component';
-import { ROTULO_INTERVENCAO, ROTULO_TURNO, SITUACAO_PROGRAMACAO, TIPO_EVENTO, formatarNumero } from './programacao.logic';
+import { ROTULO_INTERVENCAO, ROTULO_TURNO, SITUACAO_PROGRAMACAO, TIPO_EVENTO, formatarNumero, lerEvento } from './programacao.logic';
 
 type Modo = 'ver' | 'editar' | 'reprogramar' | 'cancelar';
 
-/** Detalhe de uma programação, com editar, reprogramar, cancelar, excluir e retirar item no mesmo painel. */
+const UM_DIA_MS = 86_400_000;
+const EVENTOS_NO_RESUMO = 4;
+
+/** Valor de um item que já virou execução: o apontado até a quantidade programada, ao valor congelado. */
+function realizadoDo(item: ItemProgramado): number {
+  return item.valorUnitario == null ? 0 : item.valorUnitario * Math.min(item.quantidadeExecutada, item.quantidade);
+}
+
+/**
+ * Detalhe de uma programação. A leitura vem primeiro: obra, situação, equipe, período e valor no topo; depois o
+ * realizado contra o programado, os itens por local e o resumo do histórico. Editar, reprogramar, cancelar,
+ * excluir e retirar item acontecem no mesmo painel.
+ */
 @Component({
   selector: 'app-programacao-detalhe',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,8 +58,7 @@ type Modo = 'ver' | 'editar' | 'reprogramar' | 'cancelar';
     EquipesProjecaoComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="aberto" [title]="p() ? 'Programação #' + p()!.numero : 'Programação'" [description]="p() ? p()!.numeroObra + ' — ' + p()!.tituloObra : undefined"
-      [dirty]="modo() !== 'ver'" size="lg">
+    <ces-form-drawer [(visible)]="aberto" [title]="tituloDrawer()" [description]="descricaoDrawer()" [dirty]="modo() !== 'ver'" size="lg">
       @if (erro(); as mensagem) {
         <ces-async-state state="error" title="Não foi possível abrir a programação" [description]="mensagem"></ces-async-state>
       } @else if (!p()) {
@@ -64,6 +75,7 @@ type Modo = 'ver' | 'editar' | 'reprogramar' | 'cancelar';
             </ces-form-section>
           }
           @case ('reprogramar') {
+            <ces-callout tone="info" [dense]="true">Hoje: {{ programacao.codigoEquipe }}, {{ periodoDe(programacao) }}. A mudança fica no histórico com o motivo.</ces-callout>
             <ces-form-section title="Novo período" icon="pi pi-calendar">
               <div class="ces-form-grid">
                 <ces-datepicker label="Início" [required]="true" [value]="inicio()" (valueChange)="inicio.set($any($event)); projetar()"></ces-datepicker>
@@ -71,73 +83,136 @@ type Modo = 'ver' | 'editar' | 'reprogramar' | 'cancelar';
               </div>
             </ces-form-section>
             <ces-form-section title="Equipe" icon="pi pi-users" description="O valor congelado na confirmação não muda.">
-              <app-equipes-projecao [equipes]="equipes()" [carregando]="carregandoEquipes()" [(selecionada)]="idEquipe"></app-equipes-projecao>
+              <app-equipes-projecao [equipes]="equipes()" [carregando]="carregandoEquipes()" [turno]="programacao.turno" [(selecionada)]="idEquipe"></app-equipes-projecao>
             </ces-form-section>
             <ces-form-section title="Motivo" icon="pi pi-comment">
-              <ces-textarea label="Observação" [required]="true" [rows]="2" [maxlength]="1000" [(value)]="motivo" placeholder="Ex.: turma errada"
-                [error]="tentou() && !motivo().trim() ? 'Informe a observação da reprogramação.' : undefined"></ces-textarea>
+              <ces-textarea label="Motivo da reprogramação" [required]="true" [rows]="2" [maxlength]="1000" [(value)]="motivo" placeholder="Ex.: desligamento negado na data original"
+                [error]="tentou() && !motivo().trim() ? 'Informe o motivo da reprogramação.' : undefined"></ces-textarea>
             </ces-form-section>
           }
           @case ('cancelar') {
-            <ces-form-section title="Cancelar a programação" icon="pi pi-ban" description="Os itens sem execução voltam a pendentes.">
-              <ces-textarea label="Observação" [required]="true" [rows]="3" [maxlength]="1000" [(value)]="motivo"
-                [error]="tentou() && !motivo().trim() ? 'Informe a observação do cancelamento.' : undefined"></ces-textarea>
+            <ces-form-section title="Cancelar a programação" icon="pi pi-ban" description="Os itens sem execução voltam a pendentes e a obra volta para a lista do que falta programar.">
+              <ces-textarea label="Motivo do cancelamento" [required]="true" [rows]="3" [maxlength]="1000" [(value)]="motivo"
+                [error]="tentou() && !motivo().trim() ? 'Informe o motivo do cancelamento.' : undefined"></ces-textarea>
             </ces-form-section>
           }
           @default {
-            <div class="detalhe__situacao">
-              <ces-status [tone]="situacao().tom" [icon]="situacao().icone">{{ situacao().rotulo }}</ces-status>
-              <span class="detalhe__atalhos">
-                <button type="button" class="detalhe__link" (click)="copiarResumo(programacao)"><i class="pi pi-copy" aria-hidden="true"></i> Copiar para a equipe</button>
-                <a class="detalhe__link" [routerLink]="['/obras', programacao.idObra]"><i class="pi pi-building" aria-hidden="true"></i> Ficha da obra</a>
-                <a class="detalhe__link" [routerLink]="['/obras', programacao.idObra, 'planejamento']"><i class="pi pi-map" aria-hidden="true"></i> Planejamento</a>
-              </span>
-            </div>
-            <dl class="detalhe__dados">
-              <div><dt>Equipe</dt><dd>{{ programacao.codigoEquipe }}</dd></div>
-              <div><dt>Período</dt><dd>{{ programacao.inicio }} a {{ programacao.fim }}</dd></div>
-              <div><dt>Valor congelado</dt><dd>{{ moeda(programacao.valor) }}</dd></div>
-              <div><dt>Turno</dt><dd>{{ rotuloTurno[programacao.turno] }}</dd></div>
-              <div><dt>Linha viva</dt><dd>{{ programacao.linhaViva ? 'Sim' : 'Não' }}</dd></div>
-              <div><dt>Desligamento</dt><dd>{{ programacao.desligamento ? 'Sim' : 'Não' }}</dd></div>
-              <div><dt>Finaliza obra</dt><dd>{{ programacao.finalizaObra ? 'Sim' : 'Não' }}</dd></div>
-              <div><dt>Situação da intervenção</dt><dd>{{ rotuloIntervencao[programacao.situacaoIntervencao] }}</dd></div>
-              <div class="detalhe__larga"><dt>Descrição</dt><dd>{{ programacao.descricao }}</dd></div>
-              @if (programacao.observacao) { <div class="detalhe__larga"><dt>Observação</dt><dd>{{ programacao.observacao }}</dd></div> }
-            </dl>
-            @if (eventos().length) {
-              <ces-form-section title="O que mudou" icon="pi pi-history">
-                <ol class="detalhe__eventos">
-                  @for (e of eventos(); track e.id) {
-                    <li>
-                      <strong>{{ tipoEvento[e.tipo].rotulo }}</strong>
-                      <small>{{ dataHora(e.data) }} · {{ e.usuario }}</small>
-                      @if (e.equipeOrigem !== e.equipeDestino) { <span>{{ e.equipeOrigem }} → {{ e.equipeDestino }}</span> }
-                      @if (e.inicioOriginal !== e.inicioNovo || e.fimOriginal !== e.fimNovo) { <span>{{ e.inicioOriginal }} a {{ e.fimOriginal }} → {{ e.inicioNovo }} a {{ e.fimNovo }}</span> }
-                      @if (e.observacao) { <span>{{ e.observacao }}</span> }
-                    </li>
-                  }
-                </ol>
-              </ces-form-section>
+            <section class="pd-hero" [attr.data-tone]="situacao().tom" aria-label="Resumo da programação">
+              <div class="pd-hero__topo">
+                <ces-status [tone]="situacao().tom" [icon]="situacao().icone">{{ situacao().rotulo }}</ces-status>
+                @if (programacao.criadoPor || programacao.criadoEm) {
+                  <span class="pd-hero__autor">Programada{{ programacao.criadoPor ? ' por ' + programacao.criadoPor : '' }}{{ programacao.criadoEm ? ' em ' + dataHora(programacao.criadoEm) : '' }}</span>
+                }
+              </div>
+              <a class="pd-hero__obra" [routerLink]="['/obras', programacao.idObra]">
+                <strong>{{ programacao.numeroObra }}</strong>
+                <span>{{ programacao.tituloObra }}</span>
+                <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
+              </a>
+              <dl class="pd-fatos">
+                <div><dt><i class="pi pi-users" aria-hidden="true"></i> Equipe</dt><dd>{{ programacao.codigoEquipe ?? '—' }}</dd></div>
+                <div><dt><i class="pi pi-calendar" aria-hidden="true"></i> Período</dt><dd>{{ periodoDe(programacao) }}<small>{{ duracao() }} · {{ rotuloTurno[programacao.turno] }}</small></dd></div>
+                <div><dt><i class="pi pi-wallet" aria-hidden="true"></i> Valor congelado</dt><dd>{{ moeda(programacao.valor) }}<small>{{ execucao().servicos }} {{ execucao().servicos === 1 ? 'serviço' : 'serviços' }}</small></dd></div>
+              </dl>
+              <ul class="pd-tags" aria-label="Condições da intervenção">
+                <li [attr.data-ativo]="programacao.linhaViva"><i class="pi pi-bolt" aria-hidden="true"></i> {{ programacao.linhaViva ? 'Linha viva' : 'Sem linha viva' }}</li>
+                <li [attr.data-ativo]="programacao.desligamento"><i class="pi pi-power-off" aria-hidden="true"></i> {{ programacao.desligamento ? 'Com desligamento' : 'Sem desligamento' }}</li>
+                @if (programacao.finalizaObra) { <li data-ativo="true"><i class="pi pi-flag" aria-hidden="true"></i> Finaliza a obra</li> }
+                <li><i class="pi pi-file-check" aria-hidden="true"></i> Intervenção: {{ rotuloIntervencao[programacao.situacaoIntervencao] }}</li>
+              </ul>
+            </section>
+
+            <nav class="pd-atalhos" aria-label="Atalhos da programação">
+              <a class="pd-atalho" [routerLink]="['/obras', programacao.idObra]"><i class="pi pi-building" aria-hidden="true"></i> Abrir obra</a>
+              <a class="pd-atalho" [routerLink]="['/obras', programacao.idObra, 'planejamento']"><i class="pi pi-map" aria-hidden="true"></i> Planejamento</a>
+              <a class="pd-atalho" routerLink="/obras/programacao/historico" [queryParams]="{ programacao: programacao.numero }" (click)="aberto.set(false)"><i class="pi pi-history" aria-hidden="true"></i> Histórico completo</a>
+              <button type="button" class="pd-atalho" (click)="copiarResumo(programacao)"><i class="pi pi-copy" aria-hidden="true"></i> Copiar para a equipe</button>
+            </nav>
+
+            @if (situacao().tom === 'danger') {
+              <ces-callout tone="danger" [dense]="true">O período terminou em {{ programacao.fim }} sem a execução concluída. Reprograme ou cancele com o motivo.</ces-callout>
             }
-            <ces-form-section title="Itens" icon="pi pi-list">
+
+            <ces-form-section title="Programado × realizado" icon="pi pi-chart-line" description="O realizado conta o que a equipe apontou pelo aplicativo, ao valor congelado.">
+              @let ex = execucao();
+              <div class="pd-execucao">
+                <div class="pd-execucao__numeros">
+                  <div><span>Realizado</span><strong>{{ moeda(ex.realizado) }}</strong></div>
+                  <div><span>Programado</span><strong>{{ moeda(ex.programado) }}</strong></div>
+                  <div><span>Serviços concluídos</span><strong>{{ ex.servicosConcluidos }} de {{ ex.servicos }}</strong></div>
+                </div>
+                <div class="pd-barra" role="meter" aria-label="Realizado sobre o programado" [attr.aria-valuenow]="ex.percentual" aria-valuemin="0" aria-valuemax="100"
+                  [attr.aria-valuetext]="numero(ex.percentual) + '%'">
+                  <span [style.width.%]="ex.percentual"></span>
+                </div>
+                <p class="pd-execucao__legenda">{{ numero(ex.percentual) }}% executado{{ ex.itensComExecucao ? ' · ' + ex.itensComExecucao + (ex.itensComExecucao === 1 ? ' item com apontamento' : ' itens com apontamento') : ' · nenhum apontamento ainda' }}</p>
+              </div>
+            </ces-form-section>
+
+            <ces-form-section [title]="'Itens programados (' + programacao.itens.length + ')'" icon="pi pi-list">
               @if (!programacao.itens.length) {
                 <ces-callout tone="info" [dense]="true">Os itens voltaram a pendentes.</ces-callout>
               }
-              <ul class="detalhe__itens">
-                @for (item of programacao.itens; track item.idItem) {
-                  <li>
-                    <span class="detalhe__tipo" [attr.data-material]="item.tipo === 'MATERIAL'">{{ item.tipo === 'MATERIAL' ? 'M' : 'S' }}</span>
-                    <span class="detalhe__item">
-                      <strong>{{ item.descricao }}</strong>
-                      <small>{{ item.local }} · {{ numero(item.quantidade) }} {{ item.unidade }}@if (item.valorTotal != null) { · {{ moeda(item.valorTotal) }} }@if (item.quantidadeExecutada > 0) { · {{ numero(item.quantidadeExecutada) }} executado }</small>
-                    </span>
-                    @if (podeEditar && aberta() && !item.quantidadeExecutada) {
-                      <ces-icon-button icon="pi pi-minus-circle" size="icon-sm" [label]="'Retirar ' + item.descricao + ' da programação'" tooltip="Retirar da programação" (pressed)="retirar(item)"></ces-icon-button>
+              @for (g of grupos(); track g.local) {
+                <div class="pd-grupo">
+                  <h4 class="pd-grupo__titulo"><i class="pi pi-map-marker" aria-hidden="true"></i> {{ g.local }}<small>{{ moeda(g.valor) }}</small></h4>
+                  <ul class="pd-itens">
+                    @for (item of g.itens; track item.idItem) {
+                      <li>
+                        <span class="pd-tipo" [attr.data-material]="item.tipo === 'MATERIAL'" [title]="item.tipo === 'MATERIAL' ? 'Material' : 'Serviço'">{{ item.tipo === 'MATERIAL' ? 'M' : 'S' }}</span>
+                        <span class="pd-item">
+                          <strong>{{ item.descricao }}</strong>
+                          <small>{{ numero(item.quantidade) }} {{ item.unidade }}@if (item.valorTotal != null) { · {{ moeda(item.valorTotal) }} }</small>
+                          @if (item.quantidade > 0 && item.tipo === 'SERVICO') {
+                            <span class="pd-item__progresso" [attr.aria-label]="numero(item.quantidadeExecutada) + ' de ' + numero(item.quantidade) + ' executado'">
+                              <span class="pd-mini"><span [style.width.%]="progressoItem(item)"></span></span>
+                              <small>{{ numero(item.quantidadeExecutada) }}/{{ numero(item.quantidade) }}</small>
+                            </span>
+                          }
+                        </span>
+                        @if (podeEditar && aberta() && !item.quantidadeExecutada) {
+                          <ces-icon-button icon="pi pi-minus-circle" size="icon-sm" [label]="'Retirar ' + item.descricao + ' da programação'" tooltip="Retirar da programação" (pressed)="retirar(item)"></ces-icon-button>
+                        }
+                      </li>
                     }
-                  </li>
+                  </ul>
+                </div>
+              }
+            </ces-form-section>
+
+            <ces-form-section title="Notas" icon="pi pi-align-left">
+              <dl class="pd-notas">
+                <div><dt>Descrição</dt><dd>{{ programacao.descricao }}</dd></div>
+                @if (programacao.observacao) { <div><dt>Observação</dt><dd>{{ programacao.observacao }}</dd></div> }
+              </dl>
+            </ces-form-section>
+
+            <ces-form-section title="Histórico" icon="pi pi-history">
+              @if (!eventos().length) {
+                <p class="pd-vazio">Sem mudanças registradas.</p>
+              } @else {
+                <ol class="pd-linha">
+                  @for (ev of eventosResumo(); track ev.e.id) {
+                    <li [attr.data-tone]="tipoEvento[ev.e.tipo].tom">
+                      <span class="pd-linha__marca" aria-hidden="true"><i [class]="tipoEvento[ev.e.tipo].icone"></i></span>
+                      <div class="pd-linha__corpo">
+                        <p class="pd-linha__titulo"><strong>{{ tipoEvento[ev.e.tipo].rotulo }}</strong> <small>{{ dataHora(ev.e.data) }}{{ ev.e.usuario ? ' · ' + ev.e.usuario : '' }}</small></p>
+                        @for (m of ev.mudancas; track m.campo) {
+                          <p class="pd-linha__mudanca"><span>{{ m.campo }}:</span>
+                            @if (m.antes) { <del>{{ m.antes }}</del> <i class="pi pi-arrow-right" aria-label="para"></i> }
+                            <ins>{{ m.depois ?? 'vazio' }}</ins></p>
+                        }
+                        @if (ev.motivo && ev.e.tipo !== 'CRIADA') { <p class="pd-linha__motivo">“{{ ev.motivo }}”</p> }
+                      </div>
+                    </li>
+                  }
+                </ol>
+                @if (eventos().length > eventosNoResumo) {
+                  <a class="pd-mais" routerLink="/obras/programacao/historico" [queryParams]="{ programacao: programacao.numero }" (click)="aberto.set(false)">
+                    Ver os {{ eventos().length }} eventos no histórico <i class="pi pi-arrow-right" aria-hidden="true"></i>
+                  </a>
                 }
-              </ul>
+              }
             </ces-form-section>
           }
         }
@@ -161,23 +236,83 @@ type Modo = 'ver' | 'editar' | 'reprogramar' | 'cancelar';
     </ces-form-drawer>
   `,
   styles: [`
-    .detalhe__situacao { display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; }
-    .detalhe__atalhos { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: flex-end; }
-    .detalhe__link { display: inline-flex; gap: 0.375rem; align-items: center; padding: 0; border: 0; background: transparent; color: var(--ces-brand); font: inherit; font-size: 0.8125rem; cursor: pointer; }
-    .detalhe__link:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .detalhe__eventos { display: flex; flex-direction: column; gap: 0.625rem; margin: 0; padding: 0; list-style: none; }
-    .detalhe__eventos li { display: flex; flex-direction: column; gap: 0.0625rem; padding-left: 0.625rem; border-left: 2px solid var(--ces-border); font-size: 0.8125rem; }
-    .detalhe__eventos small { color: var(--ces-foreground-muted); font-size: 0.75rem; }
-    .detalhe__dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.625rem 1rem; margin: 0; }
-    .detalhe__dados dt { color: var(--ces-foreground-muted); font-size: 0.6875rem; }
-    .detalhe__dados dd { margin: 0; font-size: 0.875rem; }
-    .detalhe__larga { grid-column: 1 / -1; }
-    .detalhe__itens { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
-    .detalhe__itens li { display: flex; gap: 0.5rem; align-items: center; padding: 0.375rem 0; border-bottom: 1px solid var(--ces-border); }
-    .detalhe__tipo { flex: none; width: 1rem; border-radius: var(--ces-radius-sm); background: var(--ces-success-soft); color: var(--ces-success-text); font-size: 0.625rem; font-weight: 700; line-height: 1rem; text-align: center; }
-    .detalhe__tipo[data-material='true'] { background: var(--ces-info-soft); color: var(--ces-info-text); }
-    .detalhe__item { display: flex; flex: 1; flex-direction: column; min-width: 0; font-size: 0.8125rem; }
-    .detalhe__item small { color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .pd-hero { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; border: 1px solid var(--ces-border); border-left-width: 4px; border-radius: var(--ces-radius-lg);
+      background: var(--ces-surface-subtle); }
+    .pd-hero[data-tone='info'] { border-left-color: var(--ces-info); }
+    .pd-hero[data-tone='warning'] { border-left-color: var(--ces-warning); }
+    .pd-hero[data-tone='danger'] { border-left-color: var(--ces-danger); }
+    .pd-hero[data-tone='success'] { border-left-color: var(--ces-success); }
+    .pd-hero[data-tone='neutral'] { border-left-color: var(--ces-border-strong, var(--ces-border)); }
+    .pd-hero__topo { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: center; justify-content: space-between; }
+    .pd-hero__autor { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .pd-hero__obra { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: baseline; color: var(--ces-foreground); font-size: 1.0625rem; line-height: 1.35; text-decoration: none; }
+    .pd-hero__obra span { color: var(--ces-foreground-muted); font-weight: 500; }
+    .pd-hero__obra .pi { color: var(--ces-brand); font-size: 0.75rem; }
+    .pd-hero__obra:hover span { color: var(--ces-foreground); text-decoration: underline; }
+    .pd-hero__obra:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; border-radius: var(--ces-radius-sm); }
+    .pd-fatos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; margin: 0; }
+    .pd-fatos > div { padding: 0.5rem 0.625rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
+    .pd-fatos dt { display: flex; gap: 0.375rem; align-items: center; color: var(--ces-foreground-muted); font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+    .pd-fatos dt .pi { font-size: 0.7rem; }
+    .pd-fatos dd { display: flex; flex-direction: column; margin: 0.125rem 0 0; color: var(--ces-foreground); font-size: 0.9375rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .pd-fatos dd small { color: var(--ces-foreground-muted); font-size: 0.75rem; font-weight: 400; }
+    .pd-tags { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0; padding: 0; list-style: none; }
+    .pd-tags li { display: inline-flex; gap: 0.375rem; align-items: center; padding: 0.1875rem 0.5rem; border: 1px solid var(--ces-border); border-radius: 999px;
+      background: var(--ces-surface); color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .pd-tags li[data-ativo='true'] { border-color: var(--ces-warning); background: var(--ces-warning-soft); color: var(--ces-warning-text); font-weight: 600; }
+    .pd-tags .pi { font-size: 0.7rem; }
+    .pd-atalhos { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+    .pd-atalho { display: inline-flex; gap: 0.375rem; align-items: center; min-height: 2rem; padding: 0 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md);
+      background: var(--ces-surface); color: var(--ces-foreground); font: inherit; font-size: var(--ces-font-control); font-weight: 600; text-decoration: none; cursor: pointer; }
+    .pd-atalho:hover { border-color: var(--ces-brand); color: var(--ces-brand); }
+    .pd-atalho:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .pd-atalho .pi { font-size: 0.8rem; }
+    .pd-execucao { display: flex; flex-direction: column; gap: 0.5rem; }
+    .pd-execucao__numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+    .pd-execucao__numeros span { display: block; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .pd-execucao__numeros strong { font-size: 1rem; font-variant-numeric: tabular-nums; }
+    .pd-barra { height: 0.625rem; overflow: hidden; border-radius: 999px; background: var(--ces-surface-muted); }
+    .pd-barra span { display: block; height: 100%; border-radius: inherit; background: var(--ces-success); }
+    .pd-execucao__legenda { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .pd-grupo + .pd-grupo { margin-top: 0.75rem; }
+    .pd-grupo__titulo { display: flex; gap: 0.375rem; align-items: center; margin: 0 0 0.25rem; color: var(--ces-foreground); font-size: var(--ces-font-control); font-weight: 700; }
+    .pd-grupo__titulo .pi { color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .pd-grupo__titulo small { margin-left: auto; color: var(--ces-foreground-muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .pd-itens { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+    .pd-itens li { display: flex; gap: 0.5rem; align-items: center; padding: 0.375rem 0; border-bottom: 1px solid var(--ces-border); }
+    .pd-tipo { flex: none; width: 1.125rem; border-radius: var(--ces-radius-sm); background: var(--ces-success-soft); color: var(--ces-success-text); font-size: 0.625rem; font-weight: 700; line-height: 1.125rem; text-align: center; }
+    .pd-tipo[data-material='true'] { background: var(--ces-info-soft); color: var(--ces-info-text); }
+    .pd-item { display: flex; flex: 1; flex-direction: column; min-width: 0; font-size: 0.8125rem; }
+    .pd-item small { color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .pd-item__progresso { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.125rem; }
+    .pd-mini { width: 6rem; height: 0.3125rem; overflow: hidden; border-radius: 999px; background: var(--ces-surface-muted); }
+    .pd-mini span { display: block; height: 100%; background: var(--ces-success); }
+    .pd-notas { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; }
+    .pd-notas dt { color: var(--ces-foreground-muted); font-size: 0.6875rem; }
+    .pd-notas dd { margin: 0; font-size: 0.875rem; white-space: pre-line; }
+    .pd-vazio { margin: 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); }
+    .pd-linha { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+    .pd-linha li { position: relative; display: flex; gap: 0.625rem; padding-bottom: 0.875rem; }
+    .pd-linha li:not(:last-child)::before { position: absolute; top: 1.75rem; bottom: 0; left: 0.8125rem; width: 1px; background: var(--ces-border); content: ''; }
+    .pd-linha__marca { display: grid; flex: none; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .pd-linha li[data-tone='info'] .pd-linha__marca { background: var(--ces-info-soft); color: var(--ces-info-text); }
+    .pd-linha li[data-tone='warning'] .pd-linha__marca { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
+    .pd-linha li[data-tone='danger'] .pd-linha__marca { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
+    .pd-linha li[data-tone='success'] .pd-linha__marca { background: var(--ces-success-soft); color: var(--ces-success-text); }
+    .pd-linha__corpo { display: flex; flex-direction: column; gap: 0.125rem; min-width: 0; font-size: 0.8125rem; }
+    .pd-linha__titulo { margin: 0.25rem 0 0; }
+    .pd-linha__titulo small { color: var(--ces-foreground-muted); font-size: 0.75rem; }
+    .pd-linha__mudanca { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; margin: 0; }
+    .pd-linha__mudanca > span { color: var(--ces-foreground-muted); }
+    .pd-linha__mudanca del { color: var(--ces-foreground-muted); }
+    .pd-linha__mudanca ins { font-weight: 600; text-decoration: none; }
+    .pd-linha__mudanca .pi { color: var(--ces-foreground-muted); font-size: 0.625rem; }
+    .pd-linha__motivo { margin: 0; color: var(--ces-foreground-muted); font-style: italic; }
+    .pd-mais { display: inline-flex; gap: 0.375rem; align-items: center; color: var(--ces-brand); font-size: var(--ces-font-control); font-weight: 600; text-decoration: none; }
+    .pd-mais:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    @media (max-width: 40rem) {
+      .pd-fatos, .pd-execucao__numeros { grid-template-columns: 1fr; }
+    }
   `]
 })
 export class ProgramacaoDetalheComponent {
@@ -197,6 +332,7 @@ export class ProgramacaoDetalheComponent {
   protected readonly numero = formatarNumero;
   protected readonly dataHora = formatarDataHora;
   protected readonly tipoEvento = TIPO_EVENTO;
+  protected readonly eventosNoResumo = EVENTOS_NO_RESUMO;
   protected readonly eventos = signal<EventoProgramacao[]>([]);
 
   protected readonly p = signal<ProgramacaoDetalhe | null>(null);
@@ -222,6 +358,55 @@ export class ProgramacaoDetalheComponent {
 
   protected readonly situacao = computed(() => SITUACAO_PROGRAMACAO[this.p()?.situacao ?? 'PROGRAMADA']);
   protected readonly aberta = computed(() => this.p()?.situacao !== 'CANCELADA' && this.p()?.situacao !== 'CONCLUIDA');
+  protected readonly tituloDrawer = computed(() => {
+    const p = this.p();
+    if (!p) return 'Programação';
+    switch (this.modo()) {
+      case 'editar': return `Editar a programação #${p.numero}`;
+      case 'reprogramar': return `Reprogramar #${p.numero}`;
+      case 'cancelar': return `Cancelar #${p.numero}`;
+      default: return `Programação #${p.numero}`;
+    }
+  });
+  protected readonly descricaoDrawer = computed(() => {
+    const p = this.p();
+    return p ? `${p.codigoEquipe ?? 'Sem equipe'} · ${this.periodoDe(p)}` : undefined;
+  });
+  protected readonly duracao = computed(() => {
+    const p = this.p();
+    const inicio = parseDataBrParaDate(p?.inicio);
+    const fim = parseDataBrParaDate(p?.fim);
+    if (!inicio || !fim) return '';
+    const dias = Math.round((fim.getTime() - inicio.getTime()) / UM_DIA_MS) + 1;
+    return `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+  });
+  protected readonly execucao = computed(() => {
+    const itens = this.p()?.itens ?? [];
+    const servicos = itens.filter((i) => i.tipo === 'SERVICO');
+    const programado = servicos.reduce((soma, i) => soma + (i.valorTotal ?? 0), 0);
+    const realizado = servicos.reduce((soma, i) => soma + realizadoDo(i), 0);
+    return {
+      programado,
+      realizado,
+      percentual: programado ? Math.min(100, Math.round((realizado / programado) * 1000) / 10) : 0,
+      servicos: servicos.length,
+      servicosConcluidos: servicos.filter((i) => i.status === 'CONCLUIDO' || i.status === 'MEDIDO').length,
+      itensComExecucao: itens.filter((i) => i.quantidadeExecutada > 0).length
+    };
+  });
+  /** Itens por local, na ordem em que aparecem: é assim que a equipe percorre a obra. */
+  protected readonly grupos = computed(() => {
+    const grupos = new Map<string, { local: string; itens: ItemProgramado[]; valor: number }>();
+    for (const item of this.p()?.itens ?? []) {
+      const local = item.local ?? 'Sem local';
+      const grupo = grupos.get(local) ?? { local, itens: [], valor: 0 };
+      grupo.itens.push(item);
+      grupo.valor += item.valorTotal ?? 0;
+      grupos.set(local, grupo);
+    }
+    return [...grupos.values()];
+  });
+  protected readonly eventosResumo = computed(() => this.eventos().slice(0, EVENTOS_NO_RESUMO).map((e) => ({ e, ...lerEvento(e) })));
   protected readonly rotuloConfirmar = computed(() => {
     switch (this.modo()) {
       case 'editar': return 'Salvar alterações';
@@ -235,6 +420,14 @@ export class ProgramacaoDetalheComponent {
       const id = this.idProgramacao();
       if (this.aberto() && id) untracked(() => this.carregar(id));
     });
+  }
+
+  protected periodoDe(p: ProgramacaoDetalhe): string {
+    return p.inicio === p.fim ? p.inicio : `${p.inicio} a ${p.fim}`;
+  }
+
+  protected progressoItem(item: ItemProgramado): number {
+    return item.quantidade > 0 ? Math.min(100, (item.quantidadeExecutada / item.quantidade) * 100) : 0;
   }
 
   private carregar(id: string): void {
@@ -341,6 +534,10 @@ export class ProgramacaoDetalheComponent {
   private salvarReprogramacao(p: ProgramacaoDetalhe): void {
     const [inicio, fim, idEquipe] = [this.inicio(), this.fim(), this.idEquipe()];
     if (!inicio || !fim || fim < inicio || !idEquipe || !this.motivo().trim()) return;
+    if (idEquipe === p.idEquipe && formatarDataParaApi(inicio) === p.inicio && formatarDataParaApi(fim) === p.fim) {
+      this.notificacoes.warning('Nada mudou: escolha outra equipe ou outro período para reprogramar.');
+      return;
+    }
     this.gravar(this.api.reprogramar(p.id, {
       idEquipe, inicio: formatarDataParaApi(inicio)!, fim: formatarDataParaApi(fim)!, observacao: this.motivo().trim(), versao: p.versao
     }), 'Programação reprogramada.');

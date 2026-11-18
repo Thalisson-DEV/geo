@@ -72,6 +72,16 @@ describe('insightsDaObra', () => {
     expect(primeiro).toMatchObject({ tom: 'danger', titulo: 'Obra urgente sem equipe' });
   });
 
+  it('recomenda a visita prévia sem bloquear: aviso perto do início, informação antes, nada quando concluída', () => {
+    const perto = insightsDaObra(contexto({ visitaRealizada: false, obra: obra({ dataInicio: '05/11/2026' }) }));
+    expect(perto.find((i) => i.titulo === 'Visita prévia não realizada')?.tom).toBe('warning');
+    const longe = insightsDaObra(contexto({ visitaRealizada: false }));
+    expect(longe.find((i) => i.titulo === 'Visita prévia não realizada')?.tom).toBe('info');
+    expect(insightsDaObra(contexto({ visitaRealizada: true })).some((i) => i.titulo.includes('Visita prévia'))).toBe(false);
+    expect(insightsDaObra(contexto({ visitaRealizada: null })).some((i) => i.titulo.includes('Visita prévia'))).toBe(false);
+    expect(insightsDaObra(contexto({ visitaRealizada: false, obra: obra({ statusConcluida: true }) })).some((i) => i.titulo.includes('Visita prévia'))).toBe(false);
+  });
+
   it('dados ainda não carregados não geram insight', () => {
     const lista = titulos({ orcamento: null, totalSolicitacoes: null, totalProximas: null, hoje: new Date(2026, 11, 25) });
     expect(lista).not.toContain('Sem orçamento importado');

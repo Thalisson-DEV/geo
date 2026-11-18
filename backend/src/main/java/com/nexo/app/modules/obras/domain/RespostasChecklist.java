@@ -20,8 +20,19 @@ public record RespostasChecklist(List<Item> itens) {
     public record Informada(String idPergunta, String valor, List<String> selecionadas, Boolean naoSeAplica) {
     }
 
+    /** {@code opcaoConforme} é a do modelo no momento da resposta; registro antigo vem sem ela. */
     public record Item(String idPergunta, String grupo, String enunciado, EstruturaChecklist.TipoPergunta tipo, boolean obrigatoria,
-                       String valor, List<String> selecionadas, boolean naoSeAplica) {
+                       String valor, List<String> selecionadas, boolean naoSeAplica, String opcaoConforme) {
+
+        public Item(String idPergunta, String grupo, String enunciado, EstruturaChecklist.TipoPergunta tipo, boolean obrigatoria,
+                    String valor, List<String> selecionadas, boolean naoSeAplica) {
+            this(idPergunta, grupo, enunciado, tipo, obrigatoria, valor, selecionadas, naoSeAplica, null);
+        }
+
+        /** Respondida com uma opção diferente da esperada pelo modelo. */
+        public boolean naoConforme() {
+            return opcaoConforme != null && !naoSeAplica && selecionadas != null && !selecionadas.isEmpty() && !selecionadas.contains(opcaoConforme);
+        }
 
         boolean respondido() {
             return naoSeAplica || (valor != null && !valor.isBlank()) || (selecionadas != null && !selecionadas.isEmpty());
@@ -58,7 +69,8 @@ public record RespostasChecklist(List<Item> itens) {
         List<String> selecionadas = informada == null || naoSeAplica || informada.selecionadas() == null ? List.of() : List.copyOf(informada.selecionadas());
         validar(pergunta, valor, selecionadas);
         return new Item(pergunta.id(), grupo.titulo(), pergunta.enunciado(), pergunta.tipo(), pergunta.obrigatoria(),
-                pergunta.tipo().temOpcoes() ? null : valor, pergunta.tipo().temOpcoes() ? selecionadas : List.of(), naoSeAplica);
+                pergunta.tipo().temOpcoes() ? null : valor, pergunta.tipo().temOpcoes() ? selecionadas : List.of(), naoSeAplica,
+                pergunta.opcaoConforme());
     }
 
     private static void validar(EstruturaChecklist.Pergunta pergunta, String valor, List<String> selecionadas) {
@@ -84,6 +96,11 @@ public record RespostasChecklist(List<Item> itens) {
         if (valor.length() > 2000) {
             throw new InvarianteVioladaException("A resposta de \"" + pergunta.enunciado() + "\" excede 2000 caracteres.");
         }
+    }
+
+    /** Respostas diferentes da esperada pelo modelo, na ordem do checklist. */
+    public List<Item> naoConformidades() {
+        return itens.stream().filter(Item::naoConforme).toList();
     }
 
     /** Perguntas obrigatórias ainda sem resposta. */

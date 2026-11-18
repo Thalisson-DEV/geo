@@ -15,12 +15,16 @@ import com.nexo.app.modules.obras.domain.VisitaPreviaObra;
 import com.nexo.app.modules.obras.infrastructure.persistence.DocumentoAsBuiltRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.EquipamentoObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.EvidenciaPontoRepository;
+import com.nexo.app.modules.obras.infrastructure.persistence.EvidenciaVisitaPreviaRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.FichaAsBuiltRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ItemPlanejadoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.PlanejamentoObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.PontoPlanejamentoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.VisitaPreviaObraRepository;
+import com.nexo.app.modules.obras.domain.EvidenciaVisitaPrevia;
+import com.nexo.app.modules.rh.ColaboradorApi;
+import com.nexo.app.modules.rh.ResumoColaborador;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +64,9 @@ public class DocumentacaoTecnicaUseCases {
     private final ModeloChecklistObraUseCases modeloUseCases;
     private final GeracaoAsBuiltService geracaoService;
     private final DocumentoTecnicoPdf documentoPdf;
+    private final EvidenciaVisitaPreviaRepository evidenciaVisitaRepository;
+    private final EvidenciaVisitaPreviaUseCases evidenciaVisitaUseCases;
+    private final ColaboradorApi colaboradorApi;
 
     @Transactional(readOnly = true)
     public DocumentacaoTecnicaResponses.Documentacao consultar(UUID idObra) {
@@ -85,7 +92,11 @@ public class DocumentacaoTecnicaUseCases {
         Map<UUID, ModeloChecklistObra> modeloDoPonto = idsDosModelos.entrySet().stream()
                 .collect(Collectors.toMap(Map.Entry::getKey, e -> modelos.get(e.getValue())));
 
-        return new DocumentacaoTecnicaResponses.Documentacao(!visitas.isEmpty(), visitas.stream().map(DocumentacaoTecnicaUseCases::paraVisita).toList(),
+        Map<UUID, List<EvidenciaVisitaPrevia>> evidenciasDasVisitas = visitas.isEmpty() ? Map.of()
+                : evidenciaVisitaRepository.findByIdVisitaInAndAtivoTrueOrderByDataCriacaoAsc(visitas.stream().map(VisitaPreviaObra::getId).toList()).stream()
+                        .collect(Collectors.groupingBy(EvidenciaVisitaPrevia::getIdVisita));
+        return new DocumentacaoTecnicaResponses.Documentacao(!visitas.isEmpty(),
+                visitas.stream().map(v -> paraVisita(v, evidenciasDasVisitas.getOrDefault(v.getId(), List.of()))).toList(),
                 planejamentoRepository.findByIdObraAndAtivoTrue(idObra).map(p -> p.getIdAnexoMestre() != null).orElse(false),
                 pontos.stream().map(p -> paraPonto(p, executados.contains(p.getId()), fichas.get(p.getId()), modeloDoPonto.get(p.getId()),
                         evidencias.getOrDefault(p.getId(), List.of()))).toList(),
@@ -107,16 +118,39 @@ public class DocumentacaoTecnicaUseCases {
     public DocumentacaoTecnicaResponses.Visita registrarVisita(UUID idObra, DocumentacaoTecnicaRequests.Visita request) {
         buscarObra(idObra);
         ModeloChecklistObra modelo = modeloUseCases.buscarEntidade(request.idModelo());
-        return paraVisita(visitaRepository.save(new VisitaPreviaObra(idObra, modelo, request.dataVisita(), request.responsavel(), request.observacoes(),
-                RespostasChecklist.de(modelo.getEstrutura(), request.respostas()))));
+        return paraVisita(visitaRepository.save(new VisitaPreviaObra(idObra, modelo, request.dataVisita(), responsavel(request, null), request.observacoes(),
+                RespostasChecklist.de(modelo.getEstrutura(), request.respostas()))), List.of());
     }
 
     @Transactional
     public DocumentacaoTecnicaResponses.Visita alterarVisita(UUID idObra, UUID idVisita, DocumentacaoTecnicaRequests.Visita request) {
         VisitaPreviaObra visita = buscarVisita(idObra, idVisita);
         ModeloChecklistObra modelo = modeloUseCases.buscarEntidade(request.idModelo());
-        visita.informar(modelo, request.dataVisita(), request.responsavel(), request.observacoes(), RespostasChecklist.de(modelo.getEstrutura(), request.respostas()));
-        return paraVisita(visitaRepository.save(visita));
+        visita.informar(modelo, request.dataVisita(), responsavel(request, visita), request.observacoes(), RespostasChecklist.de(modelo.getEstrutura(), request.respostas()));
+        return paraVisita(visitaRepository.save(visita), evidenciaVisitaRepository.findByIdVisitaAndAtivoTrueOrderByDataCriacaoAsc(idVisita));
+    }
+
+    /**
+     * O nome vem do cadastro do colaborador. Escolhido agora, ele precisa estar ativo; o que já era o responsável continua
+     * valendo mesmo desligado, para a correção de um registro antigo não travar. Sem colaborador, só registro antigo com nome.
+     */
+    private VisitaPreviaObra.Responsavel responsavel(DocumentacaoTecnicaRequests.Visita request, VisitaPreviaObra atual) {
+        if (request.idColaborador() == null) {
+            if (atual == null || atual.getIdColaborador() != null) {
+                throw new InvarianteVioladaException("Escolha o colaborador responsável pela visita.");
+            }
+            String nome = request.responsavel() != null && !request.responsavel().isBlank() ? request.responsavel() : atual.getResponsavel();
+            return new VisitaPreviaObra.Responsavel(null, nome);
+        }
+        ResumoColaborador pessoa = colaboradorApi.buscarResumosPorIds(Set.of(request.idColaborador())).get(request.idColaborador());
+        if (pessoa == null) {
+            throw new RecursoNaoEncontradoException("Colaborador não encontrado.");
+        }
+        boolean mesmo = atual != null && request.idColaborador().equals(atual.getIdColaborador());
+        if (!pessoa.ativo() && !mesmo) {
+            throw new InvarianteVioladaException("O colaborador " + pessoa.nomeCompleto() + " está inativo.");
+        }
+        return new VisitaPreviaObra.Responsavel(pessoa.id(), mesmo && !pessoa.ativo() ? atual.getResponsavel() : pessoa.nomeCompleto());
     }
 
     @Transactional
@@ -128,7 +162,8 @@ public class DocumentacaoTecnicaUseCases {
 
     @Transactional(readOnly = true)
     public byte[] pdfDaVisita(UUID idObra, UUID idVisita) {
-        return documentoPdf.visita(buscarObra(idObra), buscarVisita(idObra, idVisita));
+        VisitaPreviaObra visita = buscarVisita(idObra, idVisita);
+        return documentoPdf.visita(buscarObra(idObra), visita, evidenciaVisitaUseCases.paraDocumento(visita));
     }
 
     @Transactional
@@ -171,11 +206,28 @@ public class DocumentacaoTecnicaUseCases {
         if (!pendentes.isEmpty()) {
             throw new InvarianteVioladaException("Complete as fichas dos pontos " + String.join(", ", pendentes) + " antes de gerar o As Built.");
         }
+        return iniciarGeracao(idObra, DocumentoAsBuilt.Tipo.AS_BUILT);
+    }
+
+    /**
+     * Book fotográfico: capa, sumário e as fotos de cada ponto, agrupadas por etapa. Não depende do projeto mestre nem
+     * de ficha completa (a ficha pendente só aparece marcada), mas precisa de ao menos uma foto lançada.
+     */
+    @Transactional
+    public DocumentacaoTecnicaResponses.Documento gerarBook(UUID idObra) {
+        buscarObra(idObra);
+        if (evidenciaRepository.findByIdObraAndAtivoTrueOrderByDataCriacaoAsc(idObra).isEmpty()) {
+            throw new InvarianteVioladaException("A obra ainda não tem nenhuma foto no book.");
+        }
+        return iniciarGeracao(idObra, DocumentoAsBuilt.Tipo.BOOK);
+    }
+
+    private DocumentacaoTecnicaResponses.Documento iniciarGeracao(UUID idObra, DocumentoAsBuilt.Tipo tipo) {
         documentoRepository.findByIdObraAndAtivoTrueOrderByDataCriacaoDesc(idObra).stream()
-                .filter(d -> d.getStatus() == DocumentoAsBuilt.Status.PROCESSANDO)
+                .filter(d -> d.getTipo() == tipo && d.getStatus() == DocumentoAsBuilt.Status.PROCESSANDO)
                 .forEach(this::exigirGeracaoParada);
 
-        DocumentoAsBuilt documento = documentoRepository.save(new DocumentoAsBuilt(idObra, documentoRepository.ultimaVersao(idObra) + 1));
+        DocumentoAsBuilt documento = documentoRepository.save(new DocumentoAsBuilt(idObra, tipo, documentoRepository.ultimaVersao(idObra, tipo) + 1));
         UUID id = documento.getId();
         // Só processa depois do commit: o processamento roda em outra thread e precisa enxergar o registro.
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
@@ -210,10 +262,14 @@ public class DocumentacaoTecnicaUseCases {
     /** Geração que parou sem resposta (o servidor reiniciou, por exemplo) não pode travar a obra. */
     private void exigirGeracaoParada(DocumentoAsBuilt documento) {
         if (documento.getDataCriacao().isAfter(OffsetDateTime.now().minusMinutes(MINUTOS_PARA_DESISTIR_DA_GERACAO))) {
-            throw new InvarianteVioladaException("A versão " + documento.getNumeroVersao() + " do As Built ainda está sendo gerada.");
+            throw new InvarianteVioladaException("A versão " + documento.getNumeroVersao() + " do " + nomeDoTipo(documento.getTipo()) + " ainda está sendo gerada.");
         }
         documento.falhar("A geração foi interrompida. Gere de novo.");
         documentoRepository.saveAndFlush(documento);
+    }
+
+    static String nomeDoTipo(DocumentoAsBuilt.Tipo tipo) {
+        return tipo == DocumentoAsBuilt.Tipo.BOOK ? "Book" : "As Built";
     }
 
     private static List<String> pontosPendentes(List<PontoPlanejamento> pontos, Map<UUID, FichaAsBuilt> fichas) {
@@ -231,7 +287,7 @@ public class DocumentacaoTecnicaUseCases {
     }
 
     /** Falta foto quando o ponto não tem nenhuma ou quando um item obrigatório do modelo ficou sem. */
-    static boolean faltaEvidencia(ModeloChecklistObra modelo, List<EvidenciaPonto> evidencias) {
+    public static boolean faltaEvidencia(ModeloChecklistObra modelo, List<EvidenciaPonto> evidencias) {
         if (evidencias.isEmpty()) {
             return true;
         }
@@ -246,22 +302,31 @@ public class DocumentacaoTecnicaUseCases {
         List<EstruturaChecklist.ItemEvidencia> itens = modelo == null ? List.of() : modelo.getEstrutura().evidencias();
         return new DocumentacaoTecnicaResponses.Ponto(p.getId(), p.getNumero(), p.getPagina(), p.getTipo(), executado, paraFicha(ficha),
                 modelo == null ? null : modelo.getId(), modelo == null ? null : modelo.getTitulo(), itens,
-                evidencias.stream().map(e -> new DocumentacaoTecnicaResponses.Evidencia(e.getId(), e.getIdItem(), e.getTituloItem(), e.getLegenda(), e.getNomeArquivo(),
-                        e.getUsuarioCriacao(), e.getDataCriacao())).toList());
+                evidencias.stream().map(DocumentacaoTecnicaUseCases::paraEvidencia).toList());
     }
 
-    /** Tentativa com erro só aparece se for a última: depois de gerar de novo, deixa de interessar. */
-    private static List<DocumentacaoTecnicaResponses.Documento> documentosVisiveis(List<DocumentoAsBuilt> documentos) {
-        return java.util.stream.IntStream.range(0, documentos.size())
-                .filter(i -> i == 0 || documentos.get(i).getStatus() != DocumentoAsBuilt.Status.ERRO)
-                .mapToObj(documentos::get)
-                .map(DocumentacaoTecnicaUseCases::paraDocumento)
-                .toList();
+    static DocumentacaoTecnicaResponses.Evidencia paraEvidencia(EvidenciaPonto e) {
+        return new DocumentacaoTecnicaResponses.Evidencia(e.getId(), e.getIdItem(), e.getTituloItem(), e.getLegenda(), e.getNomeArquivo(),
+                e.getUsuarioCriacao(), e.getDataCriacao(), e.getEtapa(), e.getLatitude(), e.getLongitude(), e.getDataCaptura(), e.getTamanhoBytes());
     }
 
-    private static DocumentacaoTecnicaResponses.Visita paraVisita(VisitaPreviaObra v) {
-        return new DocumentacaoTecnicaResponses.Visita(v.getId(), v.getIdModelo(), v.getTituloModelo(), v.getDataVisita(), v.getResponsavel(), v.getObservacoes(),
-                v.getRespostas(), v.getUsuarioCriacao(), v.getDataCriacao());
+    /** Tentativa com erro só aparece se for a última do seu tipo: depois de gerar de novo, deixa de interessar. */
+    static List<DocumentacaoTecnicaResponses.Documento> documentosVisiveis(List<DocumentoAsBuilt> documentos) {
+        Set<DocumentoAsBuilt.Tipo> vistos = java.util.EnumSet.noneOf(DocumentoAsBuilt.Tipo.class);
+        List<DocumentacaoTecnicaResponses.Documento> visiveis = new java.util.ArrayList<>();
+        for (DocumentoAsBuilt documento : documentos) {
+            boolean primeiroDoTipo = vistos.add(documento.getTipo());
+            if (primeiroDoTipo || documento.getStatus() != DocumentoAsBuilt.Status.ERRO) {
+                visiveis.add(paraDocumento(documento));
+            }
+        }
+        return visiveis;
+    }
+
+    private static DocumentacaoTecnicaResponses.Visita paraVisita(VisitaPreviaObra v, List<EvidenciaVisitaPrevia> evidencias) {
+        return new DocumentacaoTecnicaResponses.Visita(v.getId(), v.getIdModelo(), v.getTituloModelo(), v.getDataVisita(), v.getIdColaborador(), v.getResponsavel(),
+                v.getObservacoes(), v.getRespostas(), v.getRespostas().naoConformidades().size(),
+                evidencias.stream().map(EvidenciaVisitaPreviaUseCases::paraResposta).toList(), v.getUsuarioCriacao(), v.getDataCriacao());
     }
 
     private static DocumentacaoTecnicaResponses.Ficha paraFicha(FichaAsBuilt f) {
@@ -273,8 +338,9 @@ public class DocumentacaoTecnicaUseCases {
                 f.getDataUltimaAlteracao() != null ? f.getDataUltimaAlteracao() : f.getDataCriacao());
     }
 
-    private static DocumentacaoTecnicaResponses.Documento paraDocumento(DocumentoAsBuilt d) {
-        return new DocumentacaoTecnicaResponses.Documento(d.getId(), d.getNumeroVersao(), d.getStatus(), d.getIdAnexo(), d.getMensagemErro(), d.getUsuarioCriacao(), d.getDataCriacao());
+    static DocumentacaoTecnicaResponses.Documento paraDocumento(DocumentoAsBuilt d) {
+        return new DocumentacaoTecnicaResponses.Documento(d.getId(), d.getTipo(), d.getNumeroVersao(), d.getStatus(), d.getIdAnexo(), d.getMensagemErro(),
+                d.getUsuarioCriacao(), d.getDataCriacao(), d.getTotalPaginas(), d.getTotalFotos());
     }
 
     private Obra buscarObra(UUID idObra) {

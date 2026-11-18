@@ -18,6 +18,7 @@ import java.util.UUID;
 
 /**
  * Pré-vistoria da obra, lançada pelo supervisor. O primeiro registro faz a obra passar a "visita realizada".
+ * O responsável é um colaborador; o nome fica gravado junto para o histórico e o PDF. Registro antigo pode ter só o nome.
  */
 @Entity
 @Table(name = "visitas_previas_obra")
@@ -37,6 +38,9 @@ public class VisitaPreviaObra extends BaseEntity {
     @Column(name = "data_visita", nullable = false)
     private LocalDate dataVisita;
 
+    @Column(name = "id_colaborador")
+    private UUID idColaborador;
+
     @Column(name = "responsavel", nullable = false, length = 150)
     private String responsavel;
 
@@ -47,20 +51,24 @@ public class VisitaPreviaObra extends BaseEntity {
     @Column(name = "respostas", nullable = false, columnDefinition = "jsonb")
     private RespostasChecklist respostas;
 
-    public VisitaPreviaObra(UUID idObra, ModeloChecklistObra modelo, LocalDate dataVisita, String responsavel,
+    /** Quem fez a visita: o colaborador e o nome dele naquele momento. Sem colaborador, vale só o nome (registro antigo). */
+    public record Responsavel(UUID idColaborador, String nome) {
+    }
+
+    public VisitaPreviaObra(UUID idObra, ModeloChecklistObra modelo, LocalDate dataVisita, Responsavel responsavel,
                             String observacoes, RespostasChecklist respostas) {
         this.idObra = Objects.requireNonNull(idObra);
         informar(modelo, dataVisita, responsavel, observacoes, respostas);
     }
 
-    public void informar(ModeloChecklistObra modelo, LocalDate dataVisita, String responsavel, String observacoes, RespostasChecklist respostas) {
+    public void informar(ModeloChecklistObra modelo, LocalDate dataVisita, Responsavel responsavel, String observacoes, RespostasChecklist respostas) {
         if (modelo.getFinalidade() != ModeloChecklistObra.Finalidade.VISITA_PREVIA) {
             throw new InvarianteVioladaException("O modelo escolhido não é de visita prévia.");
         }
         if (dataVisita == null) {
             throw new InvarianteVioladaException("Informe a data da visita.");
         }
-        if (responsavel == null || responsavel.isBlank()) {
+        if (responsavel == null || responsavel.nome() == null || responsavel.nome().isBlank()) {
             throw new InvarianteVioladaException("Informe o responsável pela visita.");
         }
         List<String> pendencias = respostas.pendencias();
@@ -70,7 +78,9 @@ public class VisitaPreviaObra extends BaseEntity {
         this.idModelo = modelo.getId();
         this.tituloModelo = modelo.getTitulo();
         this.dataVisita = dataVisita;
-        this.responsavel = responsavel.trim();
+        String nome = responsavel.nome().trim();
+        this.idColaborador = responsavel.idColaborador();
+        this.responsavel = nome.length() > 150 ? nome.substring(0, 150) : nome;
         this.observacoes = observacoes != null && !observacoes.isBlank() ? observacoes.trim() : null;
         this.respostas = respostas;
     }

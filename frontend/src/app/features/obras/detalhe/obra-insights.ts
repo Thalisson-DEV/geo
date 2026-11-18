@@ -11,7 +11,7 @@ const DESLOCAMENTO_LONGO_MIN = 90;
 const DIVERGENCIA_RELEVANTE = 0.1;
 
 /** O que a tela faz ao acionar o insight. */
-export type AcaoInsightObra = 'carteira' | 'cadastro' | 'anexo' | 'solicitar' | 'status';
+export type AcaoInsightObra = 'carteira' | 'cadastro' | 'anexo' | 'solicitar' | 'status' | 'visita';
 
 /** Um ponto de atenção da obra: tom e ícone (nunca só cor) e, quando há, a ação que resolve. */
 export interface InsightObra {
@@ -31,6 +31,8 @@ export interface ContextoInsightsObra {
   totalProximas: number | null;
   raioKm: number;
   dataUltimoStatus: string | null;
+  /** Se a obra tem visita prévia; `null` enquanto a documentação não carregou (ou sem permissão para vê-la). */
+  visitaRealizada?: boolean | null;
 }
 
 const dias = (n: number) => `${n} ${n === 1 ? 'dia' : 'dias'}`;
@@ -134,6 +136,21 @@ export function insightsDaObra(ctx: ContextoInsightsObra): InsightObra[] {
       titulo: 'Previsão depois do prazo regulado',
       texto: `A previsão de fim passa ${dias(excesso)} do prazo regulado (${carteira!.prazoRegulado}).`,
       acao: { tipo: 'cadastro', rotulo: 'Ajustar previsão' }
+    });
+  }
+
+  // Visita prévia: recomendada antes de iniciar, nunca bloqueia. Perto do início vira aviso; antes disso, informação.
+  if (ctx.visitaRealizada === false) {
+    const faltam = inicio ? diferencaDias(hoje, inicio) : null;
+    const perto = faltam !== null && faltam <= INICIO_PROXIMO_DIAS;
+    (perto ? avisos : informativos).push({
+      tom: perto ? 'warning' : 'info',
+      icone: 'pi pi-map-marker',
+      titulo: 'Visita prévia não realizada',
+      texto: perto
+        ? `${faltam! > 0 ? `O início é em ${dias(faltam!)}` : faltam === 0 ? 'O início é hoje' : 'A obra já começou'}. A pré-vistoria é recomendada antes de executar; ela não bloqueia a obra.`
+        : 'A pré-vistoria é recomendada antes de iniciar, para levantar acesso, interferências e necessidades. Ela não bloqueia a obra.',
+      acao: { tipo: 'visita', rotulo: 'Ver documentação' }
     });
   }
 

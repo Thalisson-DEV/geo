@@ -1,41 +1,99 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { RouterLink } from '@angular/router';
 import {
+  CesBooleanControlComponent,
   CesButtonComponent,
   CesCalloutComponent,
   CesDatepickerComponent,
   CesFormDrawerComponent,
   CesFormSectionComponent,
+  CesSelectComponent,
+  CesSelectOption,
   CesTextInputComponent,
   NotificationService
 } from '@ces/ui';
-import { Subject, catchError, of, switchMap, tap } from 'rxjs';
+import { Subject, catchError, forkJoin, of, switchMap, tap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
-import { PreviaProgramacao, ResultadoProgramacao, SituacaoIntervencao, TurnoProgramacao } from '../../../core/models/obras-programacao.models';
+import { ObraAProgramar, PreviaProgramacao, ResultadoProgramacao, SituacaoIntervencao, TurnoProgramacao } from '../../../core/models/obras-programacao.models';
+import { PlanejamentoObra } from '../../../core/models/obras-planejamento.models';
+import { ObrasPlanejamentoService } from '../../../core/services/obras-planejamento.service';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
+import { ObrasService } from '../../../core/services/obras.service';
 import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate } from '../obras-ui';
 import { CondicoesProgramacaoComponent } from './condicoes-programacao.component';
 import { EquipesProjecaoComponent } from './equipes-projecao.component';
-import { proximoDiaDeSemana } from './programacao.logic';
+import { proximoDiaDeSemana, sugerirDescricao } from './programacao.logic';
+import { locaisProgramaveis } from './programar.logic';
 
-/** Programa os itens selecionados no planejamento: período, equipe com projeção e condições da intervenção. */
+/**
+ * Programa itens do planejamento: período, equipe com projeção e condições da intervenção. Aberto pelo planejamento,
+ * recebe a obra e os itens marcados; aberto pela tela de programação ("Nova programação"), a obra e os pontos são
+ * escolhidos aqui mesmo. As regras são as mesmas nos dois caminhos: prévia e gravação passam pelo mesmo serviço.
+ */
 @Component({
   selector: 'app-programar-drawer',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
+    CesBooleanControlComponent,
     CesButtonComponent,
     CesCalloutComponent,
     CesDatepickerComponent,
     CesFormDrawerComponent,
     CesFormSectionComponent,
+    CesSelectComponent,
     CesTextInputComponent,
     CondicoesProgramacaoComponent,
     EquipesProjecaoComponent
   ],
   template: `
-    <ces-form-drawer [(visible)]="aberto" title="Programar" [description]="descricaoDrawer()" [dirty]="alterado()" size="lg">
+    <ces-form-drawer [(visible)]="aberto" [title]="livre() ? 'Nova programação' : 'Programar'" [description]="descricaoDrawer()" [dirty]="alterado()" size="lg">
+      @if (livre()) {
+        <ces-form-section title="Obra e pontos" icon="pi pi-building" description="As obras com serviço por programar aparecem primeiro, com o valor pendente.">
+          <ces-select label="Obra" [required]="true" [options]="opcoesObra()" [value]="obraEscolhida()" (valueChange)="escolherObra($any($event))"
+            [filter]="true" [clearable]="true" [loading]="carregandoObras()" placeholder="Busque pelo número ou título"
+            [error]="tentou() && !obraEscolhida() ? 'Escolha a obra.' : undefined"></ces-select>
+          @if (erroPlano(); as mensagem) {
+            <ces-callout tone="danger" [dense]="true">{{ mensagem }}</ces-callout>
+          } @else if (carregandoPlano()) {
+            <p class="programar__resumo programar__muted" role="status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Lendo o planejamento da obra…</p>
+          } @else if (plano(); as pl) {
+            @if (!pl.kits.length) {
+              <ces-callout tone="warning" [dense]="true">
+                Esta obra ainda não tem planejamento: sem kits nos pontos, não há o que programar.
+                <a class="programar__link" [routerLink]="['/obras', pl.idObra, 'planejamento']" (click)="aberto.set(false)">Abrir o planejamento</a>
+              </ces-callout>
+            } @else if (!locais().length) {
+              <ces-callout tone="info" [dense]="true">
+                Todos os serviços planejados desta obra já estão programados ou concluídos. Para mudar uma programação, abra-a na agenda e use Reprogramar.
+              </ces-callout>
+            } @else {
+              <div class="programar__locais-topo">
+                <span><strong>{{ locaisMarcados().size }}</strong> de {{ locais().length }} {{ locais().length === 1 ? 'local' : 'locais' }} com serviço pendente</span>
+                <span class="programar__locais-acoes">
+                  <button type="button" class="programar__link" (click)="marcarTodos(true)">Marcar todos</button>
+                  <button type="button" class="programar__link" (click)="marcarTodos(false)">Desmarcar</button>
+                </span>
+              </div>
+              <ul class="programar__locais" aria-label="Pontos e vãos a programar">
+                @for (l of locais(); track l.id) {
+                  <li>
+                    <ces-boolean-control [label]="l.rotulo + ' · ' + l.kits.join(', ')" [description]="l.servicos + (l.servicos === 1 ? ' serviço pendente' : ' serviços pendentes')"
+                      [value]="locaisMarcados().has(l.id)" (valueChange)="marcarLocal(l.id, $event)"></ces-boolean-control>
+                  </li>
+                }
+              </ul>
+              @if (tentou() && !idsEfetivos().length) {
+                <ces-callout tone="danger" [dense]="true">Marque ao menos um ponto ou vão.</ces-callout>
+              }
+            }
+          }
+        </ces-form-section>
+      }
+
       <ces-form-section title="O que será programado" icon="pi pi-list-check">
-        <ces-text-input label="Descrição do planejamento" [required]="true" [maxlength]="500" [(value)]="descricao"
+        <ces-text-input label="Descrição do planejamento" [required]="true" [maxlength]="500" [value]="descricao()" (valueChange)="editarDescricao($event)"
           [error]="tentou() && !descricao().trim() ? 'Informe a descrição do planejamento.' : undefined"></ces-text-input>
         @if (erroPrevia(); as mensagem) {
           <ces-callout tone="danger" [dense]="true">{{ mensagem }}</ces-callout>
@@ -59,6 +117,8 @@ import { proximoDiaDeSemana } from './programacao.logic';
           @if (!p.itens) {
             <ces-callout tone="danger" [dense]="true">Nenhum item pendente nesta seleção.</ces-callout>
           }
+        } @else if (livre() && !obraEscolhida()) {
+          <p class="programar__resumo programar__muted">Escolha a obra para ver os itens, o valor e as equipes.</p>
         }
       </ces-form-section>
 
@@ -93,18 +153,34 @@ import { proximoDiaDeSemana } from './programacao.logic';
       </div>
     </ces-form-drawer>
   `,
-  styles: [`.programar__resumo { margin: 0; font-size: 0.875rem; }`]
+  styles: [`
+    .programar__resumo { margin: 0; font-size: 0.875rem; }
+    .programar__muted { display: flex; gap: 0.5rem; align-items: center; color: var(--ces-foreground-muted); }
+    .programar__locais-topo { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; justify-content: space-between; font-size: var(--ces-font-control); }
+    .programar__locais-acoes { display: inline-flex; gap: 0.75rem; }
+    .programar__link { padding: 0; border: 0; background: transparent; color: var(--ces-brand); font: inherit; font-weight: 600; cursor: pointer; }
+    .programar__link:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .programar__locais { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.25rem 1rem; max-height: 16rem; margin: 0;
+      padding: 0.5rem 0.75rem; overflow-y: auto; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); list-style: none; }
+  `]
 })
 export class ProgramarDrawerComponent {
   private readonly api = inject(ObrasProgramacaoService);
+  private readonly obrasApi = inject(ObrasService);
+  private readonly planejamentoApi = inject(ObrasPlanejamentoService);
   private readonly notificacoes = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly aberto = model(false);
-  readonly idObra = input.required<string>();
-  readonly idsItens = input.required<readonly string[]>();
+  /** Sem obra, o drawer vira "Nova programação": a obra e os pontos são escolhidos nele. */
+  readonly idObra = input<string | null>(null);
+  readonly idsItens = input<readonly string[]>([]);
   /** Texto inicial da descrição, montado com o que foi selecionado. */
   readonly sugestaoDescricao = input('');
+  /** Sugestões ao abrir, vindas de onde o usuário clicou (equipe livre, obra a programar, dia da agenda). */
+  readonly idEquipeInicial = input<string | null>(null);
+  readonly dataInicial = input<Date | null>(null);
+  readonly idObraInicial = input<string | null>(null);
   readonly programado = output<ResultadoProgramacao>();
 
   protected readonly inicio = signal<Date | null>(null);
@@ -124,18 +200,45 @@ export class ProgramarDrawerComponent {
   protected readonly salvando = signal(false);
   protected readonly tentou = signal(false);
 
+  protected readonly livre = computed(() => !this.idObra());
+  protected readonly obraEscolhida = signal<string | null>(null);
+  protected readonly opcoesObra = signal<CesSelectOption<string>[]>([]);
+  protected readonly carregandoObras = signal(false);
+  protected readonly plano = signal<PlanejamentoObra | null>(null);
+  protected readonly carregandoPlano = signal(false);
+  protected readonly erroPlano = signal<string | null>(null);
+  protected readonly locais = computed(() => {
+    const plano = this.plano();
+    return plano ? locaisProgramaveis(plano) : [];
+  });
+  protected readonly locaisMarcados = signal<ReadonlySet<string>>(new Set());
+  private readonly obraEfetiva = computed(() => this.idObra() ?? this.obraEscolhida());
+  protected readonly idsEfetivos = computed<string[]>(() => {
+    if (!this.livre()) return [...this.idsItens()];
+    const marcados = this.locaisMarcados();
+    return this.locais().filter((l) => marcados.has(l.id)).flatMap((l) => l.idsItens);
+  });
+  private readonly descricaoSugerida = computed(() => {
+    if (!this.livre()) return this.sugestaoDescricao();
+    const marcados = this.locais().filter((l) => this.locaisMarcados().has(l.id));
+    return sugerirDescricao(marcados.map((l) => l.rotulo), marcados.flatMap((l) => l.kits));
+  });
+  /** A descrição acompanha a seleção de pontos até o usuário escrever a dele. */
+  private descricaoEditada = false;
+
   /** A data ainda é a sugerida pela tela, não a escolhida pelo usuário. */
   private dataSugerida = false;
-  private readonly pedidos = new Subject<{ idsItens: string[]; inicio: string; fim: string }>();
+  private readonly pedidos = new Subject<{ idObra: string; idsItens: string[]; inicio: string; fim: string }>();
 
   protected readonly periodoValido = computed(() => {
     const inicio = this.inicio();
     const fim = this.fim();
     return !!inicio && !!fim && fim >= inicio;
   });
-  protected readonly alterado = computed(() => !!(this.idEquipe() || this.linhaViva() !== null || this.desligamento() !== null));
+  protected readonly alterado = computed(() => !!(this.idEquipe() || this.linhaViva() !== null || this.desligamento() !== null || this.obraEscolhida()));
   protected readonly descricaoDrawer = computed(() => {
-    const total = this.idsItens().length;
+    if (this.livre() && !this.obraEscolhida()) return 'Escolha a obra, os pontos do planejamento, o período e a equipe.';
+    const total = this.idsEfetivos().length;
     return `${total} ${total === 1 ? 'item selecionado' : 'itens selecionados'} no planejamento`;
   });
   protected readonly moeda = formatarMoeda;
@@ -157,8 +260,8 @@ export class ProgramarDrawerComponent {
           this.carregando.set(true);
           this.erroPrevia.set(null);
         }),
-        switchMap((pedido) =>
-          this.api.previa(this.idObra(), pedido).pipe(
+        switchMap(({ idObra, ...pedido }) =>
+          this.api.previa(idObra, pedido).pipe(
             catchError((e) => {
               this.erroPrevia.set(getErrorMessage(e));
               return of(null);
@@ -174,21 +277,33 @@ export class ProgramarDrawerComponent {
       });
 
     effect(() => {
-      if (this.aberto()) this.limpar();
+      if (this.aberto()) untracked(() => this.limpar());
     });
     effect(() => {
-      if (!this.aberto() || !this.periodoValido()) return;
-      this.pedidos.next({ idsItens: [...this.idsItens()], inicio: formatarDataParaApi(this.inicio())!, fim: formatarDataParaApi(this.fim())! });
+      const idObra = this.obraEfetiva();
+      const ids = this.idsEfetivos();
+      if (!this.aberto() || !this.periodoValido() || !idObra) return;
+      if (this.livre() && !ids.length) {
+        untracked(() => this.previa.set(null));
+        return;
+      }
+      this.pedidos.next({ idObra, idsItens: ids, inicio: formatarDataParaApi(this.inicio())!, fim: formatarDataParaApi(this.fim())! });
+    });
+    effect(() => {
+      const sugestao = this.descricaoSugerida();
+      if (this.livre() && !this.descricaoEditada) untracked(() => this.descricao.set(sugestao));
     });
   }
 
   private limpar(): void {
-    const dia = proximoDiaDeSemana(new Date());
+    const dataInicial = this.dataInicial();
+    const dia = dataInicial ?? proximoDiaDeSemana(new Date());
     this.inicio.set(dia);
     this.fim.set(dia);
-    this.dataSugerida = true;
-    this.idEquipe.set(null);
-    this.descricao.set(untracked(this.sugestaoDescricao));
+    this.dataSugerida = !dataInicial;
+    this.idEquipe.set(this.idEquipeInicial());
+    this.descricao.set(this.sugestaoDescricao());
+    this.descricaoEditada = false;
     this.linhaViva.set(null);
     this.desligamento.set(null);
     this.finalizaObra.set(false);
@@ -197,6 +312,72 @@ export class ProgramarDrawerComponent {
     this.observacao.set('');
     this.tentou.set(false);
     this.previa.set(null);
+    if (this.livre()) {
+      if (!this.opcoesObra().length) this.carregarObras();
+      this.escolherObra(this.idObraInicial());
+    }
+  }
+
+  /** Obras abertas para escolher: as com serviço pendente primeiro, com o valor que falta programar. */
+  private carregarObras(): void {
+    this.carregandoObras.set(true);
+    forkJoin({
+      pendentes: this.api.obrasAProgramar().pipe(catchError(() => of([] as ObraAProgramar[]))),
+      todas: this.obrasApi.listarObras({ page: 0, size: 500, sort: 'numero,asc' }).pipe(catchError(() => of(null)))
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ pendentes, todas }) => {
+      this.carregandoObras.set(false);
+      const comPendencia = new Set(pendentes.map((o) => o.idObra));
+      const opcoes: CesSelectOption<string>[] = pendentes.map((o) => ({ value: o.idObra, label: `${o.numero} · ${o.titulo} — ${formatarMoeda(o.valorPendente)} a programar` }));
+      for (const o of todas?.content ?? []) {
+        if (!comPendencia.has(o.id) && !o.statusConcluida) opcoes.push({ value: o.id, label: `${o.numero} · ${o.titulo} — nada pendente` });
+      }
+      this.opcoesObra.set(opcoes);
+    });
+  }
+
+  protected escolherObra(idObra: string | null): void {
+    this.obraEscolhida.set(idObra);
+    this.plano.set(null);
+    this.erroPlano.set(null);
+    this.previa.set(null);
+    this.locaisMarcados.set(new Set());
+    this.descricaoEditada = false;
+    if (!idObra) {
+      this.carregandoPlano.set(false);
+      return;
+    }
+    this.carregandoPlano.set(true);
+    this.planejamentoApi.buscar(idObra).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: (plano) => {
+        if (this.obraEscolhida() !== idObra) return;
+        this.carregandoPlano.set(false);
+        this.plano.set(plano);
+        this.locaisMarcados.set(new Set(locaisProgramaveis(plano).map((l) => l.id)));
+      },
+      error: (e) => {
+        if (this.obraEscolhida() !== idObra) return;
+        this.carregandoPlano.set(false);
+        this.erroPlano.set(e?.status === 404
+          ? 'Esta obra ainda não tem planejamento. Abra o planejamento para lançar os pontos e os kits.'
+          : getErrorMessage(e));
+      }
+    });
+  }
+
+  protected marcarLocal(id: string, marcado: boolean): void {
+    const proximos = new Set(this.locaisMarcados());
+    if (marcado) proximos.add(id);
+    else proximos.delete(id);
+    this.locaisMarcados.set(proximos);
+  }
+
+  protected marcarTodos(marcar: boolean): void {
+    this.locaisMarcados.set(new Set(marcar ? this.locais().map((l) => l.id) : []));
+  }
+
+  protected editarDescricao(texto: string): void {
+    if (texto !== this.descricao()) this.descricaoEditada = true;
+    this.descricao.set(texto);
   }
 
   /** A tela não conhece os feriados, o servidor sim: se o dia sugerido caiu num, passa para o seguinte. */
@@ -242,13 +423,15 @@ export class ProgramarDrawerComponent {
     const turno = this.turno();
     const situacao = this.situacaoIntervencao();
     const idEquipe = this.idEquipe();
-    if (!this.periodoValido() || !idEquipe || !this.descricao().trim() || linhaViva === null || desligamento === null
-      || finalizaObra === null || !turno || !situacao) {
+    const idObra = this.obraEfetiva();
+    const idsItens = this.idsEfetivos();
+    if (!idObra || !idsItens.length || !this.periodoValido() || !idEquipe || !this.descricao().trim() || linhaViva === null
+      || desligamento === null || finalizaObra === null || !turno || !situacao) {
       return;
     }
     this.salvando.set(true);
-    this.api.programar(this.idObra(), {
-      idsItens: [...this.idsItens()],
+    this.api.programar(idObra, {
+      idsItens,
       idEquipe,
       inicio: formatarDataParaApi(this.inicio())!,
       fim: formatarDataParaApi(this.fim())!,

@@ -2,6 +2,10 @@ export type FinalidadeChecklist = 'VISITA_PREVIA' | 'AS_BUILT';
 export type TipoPerguntaChecklist = 'ESCOLHA_UNICA' | 'MULTIPLA_ESCOLHA' | 'TEXTO' | 'NUMERO' | 'DATA';
 export type TipoEquipamento = 'RELIGADOR' | 'REGULADOR';
 export type StatusDocumentoAsBuilt = 'PROCESSANDO' | 'CONCLUIDO' | 'ERRO';
+/** As Built: plantas marcadas, fichas e fotos. Book: capa, sumário e as fotos de cada ponto. */
+export type TipoDocumentoEntrega = 'AS_BUILT' | 'BOOK';
+/** Momento da foto em relação à execução do ponto. */
+export type EtapaEvidencia = 'ANTES' | 'DURANTE' | 'DEPOIS';
 
 export interface PerguntaChecklist {
   id: string;
@@ -10,6 +14,8 @@ export interface PerguntaChecklist {
   obrigatoria: boolean;
   aceitaNaoSeAplica: boolean;
   opcoes: string[] | null;
+  /** Só na escolha única: a resposta esperada. Outra opção marcada é não conformidade. */
+  opcaoConforme?: string | null;
 }
 
 export interface GrupoChecklist {
@@ -69,10 +75,26 @@ export interface ItemResposta extends RespostaInformada {
   enunciado: string;
   tipo: TipoPerguntaChecklist;
   obrigatoria: boolean;
+  /** Resposta esperada quando a visita foi feita; registro antigo vem sem ela. */
+  opcaoConforme?: string | null;
 }
 
 export interface RespostasChecklist {
   itens: ItemResposta[];
+}
+
+/** Foto ou PDF da visita prévia. Sem pergunta, é evidência geral. Sempre opcional. */
+export interface EvidenciaVisita {
+  id: string;
+  idPergunta: string | null;
+  enunciadoPergunta: string | null;
+  legenda: string | null;
+  nomeArquivo: string;
+  contentType: string;
+  tamanhoBytes: number;
+  foto: boolean;
+  usuario: string | null;
+  data: string;
 }
 
 export interface VisitaPrevia {
@@ -80,9 +102,14 @@ export interface VisitaPrevia {
   idModelo: string;
   tituloModelo: string;
   dataVisita: string;
+  /** Nulo em registro antigo, que ficou só com o nome. */
+  idColaborador: string | null;
+  /** Nome do responsável no momento da visita. */
   responsavel: string;
   observacoes: string | null;
   respostas: RespostasChecklist;
+  naoConformidades: number;
+  evidencias: EvidenciaVisita[];
   usuario: string | null;
   data: string;
 }
@@ -90,7 +117,9 @@ export interface VisitaPrevia {
 export interface VisitaPreviaRequest {
   idModelo: string;
   dataVisita: string;
-  responsavel: string;
+  idColaborador: string | null;
+  /** Só vale sem colaborador, para manter o nome de um registro antigo. */
+  responsavel: string | null;
   observacoes: string | null;
   respostas: RespostaInformada[];
 }
@@ -114,7 +143,14 @@ export interface EvidenciaPonto {
   legenda: string | null;
   nomeArquivo: string;
   usuario: string | null;
+  /** Quando foi lançada no sistema. */
   data: string;
+  etapa: EtapaEvidencia | null;
+  latitude: number | null;
+  longitude: number | null;
+  /** Quando foi tirada, se o app informou. */
+  dataCaptura: string | null;
+  tamanhoBytes: number;
 }
 
 export interface PontoDocumentacao {
@@ -133,12 +169,15 @@ export interface PontoDocumentacao {
 
 export interface DocumentoAsBuilt {
   id: string;
+  tipo: TipoDocumentoEntrega;
   numeroVersao: number;
   status: StatusDocumentoAsBuilt;
   idAnexo: string | null;
   mensagemErro: string | null;
   usuario: string | null;
   data: string;
+  totalPaginas: number | null;
+  totalFotos: number | null;
 }
 
 export interface EquipamentoObra {

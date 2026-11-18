@@ -30,6 +30,10 @@ public class TipoAnexoObra extends BaseEntity {
     @Column(name = "descricao", length = 255)
     private String descricao;
 
+    /** A auditoria documental cobra um anexo deste tipo para entregar a obra. */
+    @Column(name = "exigido_na_entrega", nullable = false)
+    private boolean exigidoNaEntrega;
+
     public TipoAnexoObra(String nome, String descricao) {
         validarNome(nome);
         this.nome = nome.trim().toUpperCase(Locale.ROOT);
@@ -43,6 +47,10 @@ public class TipoAnexoObra extends BaseEntity {
         validarNome(novoNome);
         this.nome = novoNome.trim().toUpperCase(Locale.ROOT);
         this.descricao = novaDescricao != null && !novaDescricao.isBlank() ? novaDescricao.trim() : null;
+    }
+
+    public void definirExigenciaNaEntrega(boolean exigido) {
+        this.exigidoNaEntrega = exigido;
     }
 
     private void validarNome(String nome) {

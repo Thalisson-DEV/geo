@@ -1,6 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
+  CesAsyncStateComponent,
+  CesButtonComponent,
   CesCellDirective,
   CesDataTableColumn,
   CesDataTableComponent,
@@ -15,19 +18,21 @@ import {
   cesFilter,
   cesListState
 } from '@ces/ui';
-import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { EventoProgramacao, TipoEventoProgramacao } from '../../../core/models/obras-programacao.models';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { LIMITE_EXPORTACAO, dataIso, dataLocal, exportacaoPadrao, paginaPadrao } from '../../../shared/listagem/listagem';
 import { formatarDataHora } from '../obras-ui';
 import { ProgramacaoDetalheComponent } from './programacao-detalhe.component';
-import { TIPO_EVENTO } from './programacao.logic';
+import { MudancaEvento, TIPO_EVENTO, lerEvento } from './programacao.logic';
 
-const ORDEM_TIPOS: TipoEventoProgramacao[] = ['REPROGRAMADA', 'EDITADA', 'CANCELADA', 'EXCLUIDA'];
+const ORDEM_TIPOS: TipoEventoProgramacao[] = ['CRIADA', 'REPROGRAMADA', 'EDITADA', 'CANCELADA', 'EXCLUIDA'];
 const TIPOS: CesSelectOption<TipoEventoProgramacao>[] = ORDEM_TIPOS.map((value) => ({ value, label: TIPO_EVENTO[value].rotulo }));
+const POR_PAGINA_LINHA = 30;
 
 type MudouFiltro = 'EQUIPE' | 'PERIODO';
+type VisaoHistorico = 'linha' | 'tabela';
 const OPCOES_MUDOU: CesSelectOption<MudouFiltro | null>[] = [
   { label: 'Qualquer mudança', value: null },
   { label: 'Trocou de equipe', value: 'EQUIPE' },
@@ -35,14 +40,48 @@ const OPCOES_MUDOU: CesSelectOption<MudouFiltro | null>[] = [
 ];
 
 function periodo(inicio?: string | null, fim?: string | null): string {
-  return inicio ? `${inicio} a ${fim}` : '—';
+  return inicio ? (fim && fim !== inicio ? `${inicio} a ${fim}` : inicio) : '—';
 }
 
-/** Tudo o que mudou nas programações depois de criadas. */
+interface EventoLido {
+  e: EventoProgramacao;
+  mudancas: MudancaEvento[];
+  motivo: string | null;
+  hora: string;
+}
+
+interface DiaDaLinha {
+  dia: string;
+  eventos: EventoLido[];
+}
+
+/** "04/11/2026 09:12" → dia e hora separados, para agrupar a linha do tempo por dia. */
+function separarDataHora(iso: string): { dia: string; hora: string } {
+  const texto = formatarDataHora(iso);
+  const [dia, hora] = texto.split(' ');
+  return { dia: dia ?? texto, hora: hora ?? '' };
+}
+
+function rotuloDia(dia: string): string {
+  const hoje = new Date();
+  const ontem = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 1);
+  const fmt = (d: Date) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  if (dia === fmt(hoje)) return `Hoje · ${dia}`;
+  if (dia === fmt(ontem)) return `Ontem · ${dia}`;
+  return dia;
+}
+
+/**
+ * Histórico da programação: da criação ao cancelamento, quem mudou o quê, quando e por quê. A linha do tempo lê
+ * como uma conversa (o que mudou, antes → depois, e o motivo); a tabela serve para filtrar, ordenar e exportar.
+ */
 @Component({
   selector: 'app-programacao-historico',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
+    CesAsyncStateComponent,
+    CesButtonComponent,
     CesCellDirective,
     CesDataTableComponent,
     CesDatepickerComponent,
@@ -56,90 +95,215 @@ function periodo(inicio?: string | null, fim?: string | null): string {
   ],
   template: `
     <div class="ces-page">
-      <ces-page-header title="Histórico de reprogramações" icon="pi pi-history"
+      <ces-page-header title="Programação" icon="pi pi-calendar"
         [breadcrumb]="[{ label: 'Obras' }, { label: 'Programação', route: '/obras/programacao' }, { label: 'Histórico' }]"
-        description="Edições, reprogramações, cancelamentos e exclusões de programações."></ces-page-header>
+        description="Criações, edições, reprogramações, cancelamentos e exclusões: o que mudou, antes e depois, quem e por quê."></ces-page-header>
+
 
       <ces-filter-panel #painel storageKey="obras-programacao-historico" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
-        [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
+        [loading]="resultado.loading() || linha().carregando" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
         <div class="ces-filter-grid">
-          <ces-multiselect label="Tipo" [options]="tipos" [(value)]="lista.filters.tipos" [filter]="false" placeholder="Todos"></ces-multiselect>
+          <ces-multiselect label="Tipo de evento" [options]="tipos" [(value)]="lista.filters.tipos" [filter]="false" placeholder="Todos"></ces-multiselect>
           <ces-select label="O que mudou" [options]="opcoesMudou" [(value)]="lista.filters.mudou"></ces-select>
           <ces-text-input label="Obra" [(value)]="lista.filters.obra" placeholder="Número da obra"></ces-text-input>
           <ces-text-input label="Equipe" [(value)]="lista.filters.equipe" placeholder="De origem ou de destino"></ces-text-input>
           <ces-text-input label="Usuário" [(value)]="lista.filters.usuario" placeholder="Quem alterou"></ces-text-input>
-          <ces-datepicker label="Alteradas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $any($event))"></ces-datepicker>
-          <ces-datepicker label="Alteradas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $any($event))"></ces-datepicker>
+          <ces-text-input label="Programação nº" [value]="lista.filters.programacao() ? '' + lista.filters.programacao() : ''" (valueChange)="definirProgramacao($event)" placeholder="Ex.: 1687"></ces-text-input>
+          <ces-datepicker label="Alteradas a partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="definirPeriodo('from', $any($event))"></ces-datepicker>
+          <ces-datepicker label="Alteradas até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="definirPeriodo('to', $any($event))"></ces-datepicker>
         </div>
       </ces-filter-panel>
 
-      <div class="ces-quick-filters hist-atalhos" role="group" aria-label="Mostrar só os tipos escolhidos">
-        <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!tiposAplicados().length" (click)="definirTipos([])">
-          Todos <span class="hist-contagem">{{ contagemTotal() ?? '–' }}</span>
-        </button>
-        <span class="hist-divisor" aria-hidden="true"></span>
-        @for (t of ordemTipos; track t) {
-          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="tiposAplicados().includes(t)" (click)="alternarTipo(t)" [attr.aria-label]="tipoEvento[t].rotulo + ': ' + (contagens()[t] ?? 'contagem indisponível')">
-            <i [class]="tipoEvento[t].icone" aria-hidden="true"></i> {{ tipoEvento[t].rotulo }} <span class="hist-contagem">{{ contagens()[t] ?? '–' }}</span>
+      <div class="hist-barra">
+        <div class="ces-quick-filters" role="group" aria-label="Mostrar só os tipos escolhidos">
+          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!tiposAplicados().length" (click)="definirTipos([])">
+            Todos <span class="hist-contagem">{{ contagemTotal() ?? '–' }}</span>
           </button>
-        }
+          <span class="hist-divisor" aria-hidden="true"></span>
+          @for (t of ordemTipos; track t) {
+            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="tiposAplicados().includes(t)" [attr.data-tone]="tipoEvento[t].tom" (click)="alternarTipo(t)"
+              [attr.aria-label]="tipoEvento[t].rotulo + ': ' + (contagens()[t] ?? 'contagem indisponível')">
+              <i [class]="tipoEvento[t].icone" aria-hidden="true"></i> {{ tipoEvento[t].rotulo }} <span class="hist-contagem">{{ contagens()[t] ?? '–' }}</span>
+            </button>
+          }
+        </div>
+        <nav class="hist-visoes" aria-label="Forma de visualizar">
+          <button type="button" [attr.aria-current]="visao() === 'linha' ? 'page' : null" (click)="trocarVisao('linha')"><i class="pi pi-list" aria-hidden="true"></i>Linha do tempo</button>
+          <button type="button" [attr.aria-current]="visao() === 'tabela' ? 'page' : null" (click)="trocarVisao('tabela')"><i class="pi pi-table" aria-hidden="true"></i>Tabela</button>
+        </nav>
       </div>
 
-      <ces-data-table
-        title="Eventos"
-        mode="server"
-        storageKey="obras-programacao-historico"
-        exportFileName="historico-programacoes"
-        searchPlaceholder="Obra, equipe, programação, usuário ou observação"
-        rowActionLabel="Abrir programação"
-        rowActionIcon="pi pi-eye"
-        noResultsTitle="Nenhum evento com esse recorte."
-        [columns]="colunas"
-        [rows]="resultado.rows()"
-        [totalRecords]="resultado.total()"
-        [rowLabel]="rotulo"
-        [state]="resultado.state()"
-        [stateTitle]="resultado.error() ? 'Não foi possível carregar o histórico' : 'Nenhuma programação foi alterada ainda'"
-        [stateDescription]="resultado.error() ?? 'Edições, reprogramações, cancelamentos e exclusões aparecem aqui.'"
-        [filtered]="lista.filtered()"
-        [exportRows]="exportar"
-        [exportLimit]="limiteExportacao"
-        [(page)]="lista.page"
-        [(pageSize)]="lista.pageSize"
-        [(sort)]="lista.sort"
-        [(query)]="lista.query"
-        (lazyLoad)="lista.load($event)"
-        (adjustFilters)="painel.expandAndFocus()"
-        (clearFilters)="lista.reset()"
-        (rowActivate)="abrir($event)"
-      >
-        <ng-template cesCell="tipo" let-row>
-          <ces-status [tone]="tipoDe(row).tom" [icon]="tipoDe(row).icone">{{ tipoDe(row).rotulo }}</ces-status>
-        </ng-template>
-      </ces-data-table>
+      @if (visao() === 'linha') {
+        <section class="hist-card" aria-label="Linha do tempo das mudanças">
+          <div class="hist-card__topo">
+            <ces-text-input class="hist-busca" label="Buscar" [labelVisible]="false" placeholder="Obra, equipe, nº da programação, usuário ou motivo" [(value)]="lista.query"></ces-text-input>
+            <span class="hist-card__total" aria-live="polite">{{ linha().total }} {{ linha().total === 1 ? 'evento' : 'eventos' }}</span>
+          </div>
+          @if (linha().erro; as mensagem) {
+            <ces-async-state state="error" title="Não foi possível carregar o histórico" [description]="mensagem" actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="recarregarLinha()"></ces-async-state>
+          } @else if (linha().carregando && !linha().eventos.length) {
+            <ces-async-state state="loading" title="Carregando o histórico" [compact]="true"></ces-async-state>
+          } @else if (!linha().eventos.length) {
+            <ces-async-state state="empty" icon="pi pi-history" [title]="lista.filtered() ? 'Nenhum evento com esse recorte' : 'Nenhuma programação foi registrada ainda'"
+              [description]="lista.filtered() ? 'Ajuste ou limpe os filtros para ver mais eventos.' : 'Criações, edições, reprogramações e cancelamentos aparecem aqui.'"></ces-async-state>
+          } @else {
+            @for (grupo of dias(); track grupo.dia) {
+              <h3 class="hist-dia">{{ rotuloDia(grupo.dia) }}</h3>
+              <ol class="hist-linha">
+                @for (ev of grupo.eventos; track ev.e.id) {
+                  <li class="hist-evento" [attr.data-tone]="tipoEvento[ev.e.tipo].tom">
+                    <span class="hist-evento__marca" aria-hidden="true"><i [class]="tipoEvento[ev.e.tipo].icone"></i></span>
+                    <article class="hist-evento__corpo">
+                      <header class="hist-evento__topo">
+                        <ces-status [tone]="tipoEvento[ev.e.tipo].tom" [icon]="tipoEvento[ev.e.tipo].icone">{{ tipoEvento[ev.e.tipo].rotulo }}</ces-status>
+                        @if (ev.e.tipo !== 'EXCLUIDA') {
+                          <button type="button" class="hist-link" (click)="abrir(ev.e)">Programação #{{ ev.e.numeroProgramacao }}</button>
+                        } @else {
+                          <span class="hist-numero">Programação #{{ ev.e.numeroProgramacao }}</span>
+                        }
+                        <span class="hist-sep" aria-hidden="true">·</span>
+                        <a class="hist-link" [routerLink]="['/obras', ev.e.idObra]">Obra {{ ev.e.numeroObra }}</a>
+                        <span class="hist-evento__quem"><i class="pi pi-user" aria-hidden="true"></i> {{ ev.e.usuario ?? 'Sistema' }} · {{ ev.hora }}</span>
+                      </header>
+                      @if (ev.mudancas.length) {
+                        <dl class="hist-mudancas">
+                          @for (m of ev.mudancas; track m.campo) {
+                            <div>
+                              <dt>{{ m.campo }}</dt>
+                              <dd>
+                                @if (m.antes !== undefined) {
+                                  <del>{{ m.antes ?? 'vazio' }}</del>
+                                  <i class="pi pi-arrow-right" aria-label="para"></i>
+                                }
+                                <ins>{{ m.depois ?? 'vazio' }}</ins>
+                              </dd>
+                            </div>
+                          }
+                        </dl>
+                      }
+                      @if (ev.motivo) {
+                        <p class="hist-motivo"><span>{{ ev.e.tipo === 'CRIADA' ? 'Descrição' : 'Motivo' }}:</span> {{ ev.motivo }}</p>
+                      }
+                    </article>
+                  </li>
+                }
+              </ol>
+            }
+            @if (linha().eventos.length < linha().total) {
+              <div class="hist-mais">
+                <ces-button variant="outline" icon="pi pi-angle-down" [label]="'Carregar mais ' + Math.min(porPagina, linha().total - linha().eventos.length)" [loading]="linha().carregando" (pressed)="carregarMais()"></ces-button>
+              </div>
+            }
+          }
+        </section>
+      } @else {
+        <ces-data-table
+          title="Eventos"
+          mode="server"
+          storageKey="obras-programacao-historico"
+          exportFileName="historico-programacoes"
+          searchPlaceholder="Obra, equipe, programação, usuário ou motivo"
+          rowActionLabel="Abrir programação"
+          rowActionIcon="pi pi-eye"
+          noResultsTitle="Nenhum evento com esse recorte."
+          [columns]="colunas"
+          [rows]="resultado.rows()"
+          [totalRecords]="resultado.total()"
+          [rowLabel]="rotulo"
+          [state]="resultado.state()"
+          [stateTitle]="resultado.error() ? 'Não foi possível carregar o histórico' : 'Nenhuma programação foi registrada ainda'"
+          [stateDescription]="resultado.error() ?? 'Criações, edições, reprogramações, cancelamentos e exclusões aparecem aqui.'"
+          [filtered]="lista.filtered()"
+          [exportRows]="exportar"
+          [exportLimit]="limiteExportacao"
+          [(page)]="lista.page"
+          [(pageSize)]="lista.pageSize"
+          [(sort)]="lista.sort"
+          [(query)]="lista.query"
+          (lazyLoad)="lista.load($event)"
+          (adjustFilters)="painel.expandAndFocus()"
+          (clearFilters)="lista.reset()"
+          (rowActivate)="abrir($event)"
+        >
+          <ng-template cesCell="tipo" let-row>
+            <ces-status [tone]="tipoDe(row).tom" [icon]="tipoDe(row).icone">{{ tipoDe(row).rotulo }}</ces-status>
+          </ng-template>
+        </ces-data-table>
+      }
     </div>
 
-    <app-programacao-detalhe [(aberto)]="detalheAberto" [idProgramacao]="idDetalhe()" (alterada)="lista.reload()"></app-programacao-detalhe>
+    <app-programacao-detalhe [(aberto)]="detalheAberto" [idProgramacao]="idDetalhe()" (alterada)="recarregarTudo()"></app-programacao-detalhe>
   `,
   styles: [`
-    .hist-atalhos { margin-bottom: 0.75rem; }
+    .hist-barra { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
     .hist-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     .ces-quick-filter[aria-pressed='true'] .hist-contagem { background: var(--ces-surface); color: var(--ces-foreground); }
     .hist-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--ces-border); }
-    .hist-atalhos .pi { font-size: 0.75rem; }
+    .ces-quick-filters .pi { font-size: 0.75rem; }
+    .ces-quick-filters [data-tone='info'] .pi { color: var(--ces-info); }
+    .ces-quick-filters [data-tone='warning'] .pi { color: var(--ces-warning); }
+    .ces-quick-filters [data-tone='danger'] .pi { color: var(--ces-danger); }
+    .ces-quick-filters [data-tone='success'] .pi { color: var(--ces-success); }
+    .hist-visoes { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-muted); }
+    .hist-visoes button { display: inline-flex; gap: 0.375rem; align-items: center; min-height: calc(var(--ces-control-height-sm) - 2px); padding: 0 0.75rem; border: 0; border-radius: calc(var(--ces-radius-md) - 2px); background: transparent; color: var(--ces-foreground-muted); font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer; }
+    .hist-visoes button:hover { color: var(--ces-foreground); }
+    .hist-visoes button[aria-current='page'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
+    .hist-visoes button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    .hist-visoes .pi { font-size: 0.8rem; }
+    .hist-card { padding: 1rem 1.25rem 1.25rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-xl); background: var(--ces-surface); box-shadow: var(--ces-shadow-sm); }
+    .hist-card__topo { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
+    .hist-busca { width: min(28rem, 100%); }
+    .hist-card__total { color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); font-variant-numeric: tabular-nums; }
+    .hist-dia { position: sticky; top: 0; z-index: 1; margin: 1rem 0 0.5rem; padding: 0.25rem 0; background: var(--ces-surface); color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    .hist-linha { margin: 0; padding: 0; list-style: none; }
+    .hist-evento { position: relative; display: flex; gap: 0.75rem; padding-bottom: 0.75rem; }
+    .hist-evento:not(:last-child)::before { position: absolute; top: 2rem; bottom: 0; left: 0.9375rem; width: 1px; background: var(--ces-border); content: ''; }
+    .hist-evento__marca { display: grid; flex: none; width: 2rem; height: 2rem; place-items: center; border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted); font-size: 0.8rem; }
+    .hist-evento[data-tone='info'] .hist-evento__marca { background: var(--ces-info-soft); color: var(--ces-info-text); }
+    .hist-evento[data-tone='warning'] .hist-evento__marca { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
+    .hist-evento[data-tone='danger'] .hist-evento__marca { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
+    .hist-evento[data-tone='success'] .hist-evento__marca { background: var(--ces-success-soft); color: var(--ces-success-text); }
+    .hist-evento__corpo { flex: 1; min-width: 0; padding: 0.625rem 0.75rem; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface); }
+    .hist-evento__topo { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; font-size: var(--ces-font-control); }
+    .hist-evento__quem { display: inline-flex; gap: 0.375rem; align-items: center; margin-left: auto; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+    .hist-evento__quem .pi { font-size: 0.7rem; }
+    .hist-link { padding: 0; border: 0; background: transparent; color: var(--ces-brand); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .hist-link:hover { text-decoration: underline; }
+    .hist-link:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
+    .hist-numero { font-weight: 700; }
+    .hist-sep { color: var(--ces-foreground-muted); }
+    .hist-mudancas { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.375rem 1rem; margin: 0.5rem 0 0; }
+    .hist-mudancas dt { color: var(--ces-foreground-muted); font-size: 0.6875rem; font-weight: 600; }
+    .hist-mudancas dd { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; margin: 0; font-size: var(--ces-font-control); }
+    .hist-mudancas del { color: var(--ces-foreground-muted); }
+    .hist-mudancas ins { font-weight: 600; text-decoration: none; }
+    .hist-mudancas .pi { color: var(--ces-foreground-muted); font-size: 0.625rem; }
+    .hist-motivo { margin: 0.5rem 0 0; padding: 0.375rem 0.625rem; border-left: 3px solid var(--ces-border); background: var(--ces-surface-subtle); font-size: var(--ces-font-control); }
+    .hist-motivo span { color: var(--ces-foreground-muted); font-weight: 600; }
+    .hist-mais { display: flex; justify-content: center; margin-top: 0.5rem; }
+    @media (max-width: 40rem) {
+      .hist-evento__quem { margin-left: 0; width: 100%; }
+      .hist-card { padding: 0.75rem; }
+    }
   `]
 })
 export class ProgramacaoHistoricoComponent {
   private readonly api = inject(ObrasProgramacaoService);
+  private readonly rota = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   protected readonly tipos = TIPOS;
   protected readonly ordemTipos = ORDEM_TIPOS;
   protected readonly tipoEvento = TIPO_EVENTO;
   protected readonly opcoesMudou = OPCOES_MUDOU;
   protected readonly dataLocal = dataLocal;
+  protected readonly rotuloDia = rotuloDia;
   protected readonly limiteExportacao = LIMITE_EXPORTACAO;
+  protected readonly porPagina = POR_PAGINA_LINHA;
+  protected readonly Math = Math;
   protected readonly detalheAberto = signal(false);
   protected readonly idDetalhe = signal<string | null>(null);
+  protected readonly visao = signal<VisaoHistorico>(this.rota.snapshot.queryParamMap.get('visao') === 'tabela' ? 'tabela' : 'linha');
 
   protected readonly lista = cesListState({
     storageKey: 'obras-programacao-historico',
@@ -149,7 +313,8 @@ export class ProgramacaoHistoricoComponent {
       obra: cesFilter.value<string>('', { label: 'Obra', param: 'obra' }),
       equipe: cesFilter.value<string>('', { label: 'Equipe', param: 'equipe' }),
       usuario: cesFilter.value<string>('', { label: 'Usuário', param: 'usuario' }),
-      periodo: cesFilter.range({ from: null, to: null }, { label: 'Alteração' })
+      programacao: cesFilter.value<number | null>(null, { label: 'Programação', param: 'programacao', type: 'number', format: (n) => (n ? `#${n}` : null) }),
+      periodo: cesFilter.range({ from: null, to: null }, { label: 'Alteração', param: 'periodo' })
     },
     sort: [{ key: 'dataCriacao', direction: 'desc' }]
   });
@@ -169,7 +334,7 @@ export class ProgramacaoHistoricoComponent {
     { key: 'periodoOriginal', header: 'Período original', value: (e) => periodo(e.inicioOriginal, e.fimOriginal) },
     { key: 'periodoNovo', header: 'Período novo', value: (e) => periodo(e.inicioNovo, e.fimNovo) },
     { key: 'usuario', header: 'Usuário', sortField: 'usuarioCriacao', value: (e) => e.usuario },
-    { key: 'observacao', header: 'Observação', value: (e) => e.observacao }
+    { key: 'observacao', header: 'Motivo ou mudança', value: (e) => e.observacao }
   ];
 
   protected readonly rotulo = (e: EventoProgramacao): string => `Programação ${e.numeroProgramacao}, ${TIPO_EVENTO[e.tipo].rotulo}`;
@@ -180,6 +345,21 @@ export class ProgramacaoHistoricoComponent {
   protected readonly contagemTotal = computed(() => {
     const c = this.contagens();
     return ORDEM_TIPOS.every((t) => c[t] !== undefined) ? ORDEM_TIPOS.reduce((soma, t) => soma + (c[t] ?? 0), 0) : null;
+  });
+
+  /** Linha do tempo: páginas acumuladas ("Carregar mais"), recomeçando a cada mudança do recorte ou da busca. */
+  protected readonly linha = signal<{ eventos: EventoProgramacao[]; total: number; pagina: number; carregando: boolean; erro: string | null }>(
+    { eventos: [], total: 0, pagina: 0, carregando: true, erro: null }
+  );
+  private readonly recargaLinha = signal(0);
+  protected readonly dias = computed<DiaDaLinha[]>(() => {
+    const grupos = new Map<string, EventoLido[]>();
+    for (const e of this.linha().eventos) {
+      const { dia, hora } = separarDataHora(e.data);
+      const lido = { e, hora, ...lerEvento(e) };
+      grupos.set(dia, [...(grupos.get(dia) ?? []), lido]);
+    }
+    return [...grupos].map(([dia, eventos]) => ({ dia, eventos }));
   });
 
   constructor() {
@@ -198,20 +378,61 @@ export class ProgramacaoHistoricoComponent {
         takeUntilDestroyed()
       )
       .subscribe((pares) => this.contagens.set(Object.fromEntries(pares.filter(([, n]) => n !== undefined))));
+
+    const consultaLinha = computed(() => ({ filtro: this.filtro(), recarga: this.recargaLinha() }), {
+      equal: (a, b) => JSON.stringify(a) === JSON.stringify(b)
+    });
+    toObservable(consultaLinha)
+      .pipe(
+        debounceTime(250),
+        tap(() => this.linha.update((l) => ({ ...l, carregando: true, erro: null }))),
+        switchMap(({ filtro }) => this.api.historico({ ...filtro, page: 0, size: POR_PAGINA_LINHA, sort: 'dataCriacao,desc' }).pipe(
+          map((r) => ({ eventos: r.content ?? [], total: r.page?.totalElements ?? 0, pagina: 0, carregando: false, erro: null as string | null })),
+          catchError((e) => of({ eventos: [] as EventoProgramacao[], total: 0, pagina: 0, carregando: false, erro: getErrorMessage(e) }))
+        )),
+        takeUntilDestroyed()
+      )
+      .subscribe((estado) => this.linha.set(estado));
   }
 
+  /** Filtros aplicados e busca. A busca vale nas duas visões: a tabela e a linha do tempo leem o mesmo campo. */
   private filtro() {
-    const { filters: f, query } = this.lista.request();
+    const f = this.lista.applied();
     return {
       tipos: f.tipos,
       mudou: f.mudou,
       obra: f.obra.trim() || null,
       equipe: f.equipe.trim() || null,
       usuario: f.usuario.trim() || null,
+      programacao: f.programacao,
       de: f.periodo.from,
       ate: f.periodo.to,
-      q: query || null
+      q: this.lista.query().trim() || null
     };
+  }
+
+  protected carregarMais(): void {
+    const atual = this.linha();
+    const proxima = atual.pagina + 1;
+    this.linha.set({ ...atual, carregando: true });
+    this.api.historico({ ...this.filtro(), page: proxima, size: POR_PAGINA_LINHA, sort: 'dataCriacao,desc' }).subscribe({
+      next: (r) => this.linha.update((l) => ({ ...l, eventos: [...l.eventos, ...(r.content ?? [])], total: r.page?.totalElements ?? l.total, pagina: proxima, carregando: false })),
+      error: (e) => this.linha.update((l) => ({ ...l, carregando: false, erro: getErrorMessage(e) }))
+    });
+  }
+
+  protected recarregarLinha(): void {
+    this.recargaLinha.update((n) => n + 1);
+  }
+
+  protected recarregarTudo(): void {
+    this.lista.reload();
+    this.recarregarLinha();
+  }
+
+  protected trocarVisao(visao: VisaoHistorico): void {
+    this.visao.set(visao);
+    void this.router.navigate([], { relativeTo: this.rota, queryParams: { visao: visao === 'tabela' ? 'tabela' : null }, queryParamsHandling: 'merge', replaceUrl: true });
   }
 
   protected definirTipos(tipos: readonly TipoEventoProgramacao[]): void {
@@ -225,7 +446,12 @@ export class ProgramacaoHistoricoComponent {
     this.definirTipos(ORDEM_TIPOS.filter((t) => proximos.includes(t)));
   }
 
-  protected periodo(ponta: 'from' | 'to', data: Date | null): void {
+  protected definirProgramacao(texto: string): void {
+    const numero = Number(texto.replace(/\D/g, ''));
+    this.lista.filters.programacao.set(numero > 0 ? numero : null);
+  }
+
+  protected definirPeriodo(ponta: 'from' | 'to', data: Date | null): void {
     const atual = this.lista.filters.periodo();
     const valor = dataIso(data);
     if (atual[ponta] !== valor) this.lista.filters.periodo.set({ ...atual, [ponta]: valor });
