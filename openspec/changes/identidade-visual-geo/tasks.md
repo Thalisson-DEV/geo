@@ -62,10 +62,10 @@
 ## 4. Frente D: Shell da aplicação
 
 - [ ] 4.1 Login novo (painel de marca, formulário, aviso de offline), responsivo até 390 px
-- [ ] 4.2 Menu lateral azul-marinho: logo, Bússola em destaque, grupos, item ativo âmbar com `aria-current`, rodapé de sincronização, recolher só ícones (com a escolha salva) e gaveta no celular
+- [x] 4.2 Menu lateral azul-marinho: logo, Bússola em destaque, grupos, item ativo âmbar com `aria-current`, rodapé de sincronização, recolher só ícones (com a escolha salva) e gaveta no celular
 - [ ] 4.3 Cabeçalho: trilha, busca global com atalho `/`, notificações com contador acessível, menu da conta com tema, densidade e movimento, e "Sair"
 - [ ] 4.4 Início: saudação, data, indicadores por perfil, cartão "A Bússola notou" condicionado à permissão, atalhos
-- [ ] 4.5 Transição de navegação com `withViewTransitions()` (menu e cabeçalho fixos)
+- [x] 4.5 Transição de navegação com `withViewTransitions()` (menu e cabeçalho fixos)
 - [ ] 4.6 Telas globais: carregamento inicial, 404, sem permissão, sem conexão, atualização disponível, com o guia de voz
 - [ ] 4.7 Bússola (workspace e painel lateral) com o avatar animado, entrada da resposta em blocos e o cartão de confirmação no novo visual
 - [ ] 4.8 Testes unitários e e2e do shell, baselines claro/escuro e celular; **Release 1**

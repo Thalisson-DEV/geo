@@ -2110,10 +2110,10 @@
     "paleta-tailwind": 9
   },
   "src/app/shared/components/header/header.component.ts": {
-    "icone-primeicons": 35,
-    "movimento-tailwind": 22,
-    "p-button": 15,
-    "paleta-tailwind": 38,
+    "icone-primeicons": 29,
+    "movimento-tailwind": 17,
+    "p-button": 10,
+    "paleta-tailwind": 34,
     "primeng-direto": 6
   },
   "src/app/shared/components/help-dialog/help-dialog.component.ts": {
@@ -2193,10 +2193,7 @@
     "primeng-direto": 1
   },
   "src/app/shared/components/sidebar/sidebar.component.ts": {
-    "icone-primeicons": 2,
-    "movimento-tailwind": 17,
-    "p-button": 2,
-    "primeng-direto": 5
+    "primeng-direto": 3
   },
   "src/app/shared/listagem/ajuda-listagem.component.ts": {
     "icone-primeicons": 6

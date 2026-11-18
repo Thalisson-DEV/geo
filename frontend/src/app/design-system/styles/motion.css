@@ -92,15 +92,22 @@
     100% { background-color: transparent; }
   }
 
-  /* Transição de navegação (withViewTransitions): conteúdo troca, menu e cabeçalho ficam. */
-  ::view-transition-old(root) {
+  /*
+   * Transição de navegação (withViewTransitions): só a área de conteúdo
+   * (view-transition-name: geo-conteudo) troca; menu e cabeçalho ficam parados.
+   */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+  ::view-transition-old(geo-conteudo) {
     animation: geo-fade-out var(--geo-motion-exit) var(--geo-ease-in) both;
   }
-  ::view-transition-new(root) {
+  ::view-transition-new(geo-conteudo) {
     animation: geo-rise-in var(--geo-motion-base) var(--geo-ease-out) both;
   }
-  :root[data-motion='reduced']::view-transition-old(root),
-  :root[data-motion='reduced']::view-transition-new(root) {
+  :root[data-motion='reduced']::view-transition-old(geo-conteudo),
+  :root[data-motion='reduced']::view-transition-new(geo-conteudo) {
     animation: none;
   }
 }

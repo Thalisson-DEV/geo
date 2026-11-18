@@ -6,7 +6,7 @@ import {
   inject,
   provideAppInitializer
 } from '@angular/core';
-import { provideRouter, withInMemoryScrolling, withNavigationErrorHandler } from '@angular/router';
+import { provideRouter, withInMemoryScrolling, withNavigationErrorHandler, withViewTransitions } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
@@ -41,7 +41,14 @@ export const appConfig: ApplicationConfig = {
       withNavigationErrorHandler(tratarErroDeNavegacao),
       // A janela não rola (o shell rola dentro de <main>, ver appScrollMemory em app.html);
       // isto cobre telas que rolam a janela e as âncoras.
-      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' })
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
+      // Transição curta só no conteúdo (motion.css); sem suporte no navegador, troca direto.
+      withViewTransitions({
+        skipInitialTransition: true,
+        onViewTransitionCreated: ({ transition }) => {
+          if (document.documentElement.dataset['motion'] === 'reduced') transition.skipTransition();
+        }
+      })
     ),
     // Precisa existir antes da navegação inicial para reconhecer F5 e deep links.
     provideAppInitializer(() => inject(NavigationHistoryService).start()),
