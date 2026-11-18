@@ -1,3 +1,4 @@
+import { ICONE_STATUS_SOLICITACAO } from '../../../core/models/financeiro.models';
 import { HttpResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -264,7 +265,7 @@ const FORMATOS: CesSelectOption<'resumo' | 'detalhado'>[] = [
       >
         <ng-template cesCell="numero" let-row><span class="ces-cell-strong">#{{ row.numero }}</span></ng-template>
         <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tom(row.status)">{{ rotuloStatus(row.status) }}</ces-status>
+          <ces-status [tone]="tom(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</ces-status>
         </ng-template>
         <ng-template cesCell="solicitacao" let-row>
           <span>{{ valorExibicao(row, 'descricao') || row.formulario?.titulo }}</span>
@@ -517,6 +518,8 @@ export class SolicitacoesFinanceirasComponent {
   protected rotuloStatus(s: StatusSolicitacao): string {
     return STATUS_OPTIONS.find((o) => o.value === s)?.label ?? s;
   }
+
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_SOLICITACAO;
 
   protected tom(s: StatusSolicitacao): CesTone {
     return TOM_STATUS[s] ?? 'neutral';

@@ -5,6 +5,7 @@ import { Observable, shareReplay } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   AbrirOrdemServicoRequest,
+  BaixaOrdemServicoRequest,
   ConcluirOrdemServicoRequest,
   EditarOrdemServicoRequest,
   FiltroOrdensServico,
@@ -33,6 +34,7 @@ import {
   OpcoesFrota,
   ParametrosFrota,
   AgendaFrota,
+  AnexoOrdemServico,
   DocumentoFiscalOrdemServico,
   DocumentoFiscalOrdemServicoRequest,
   TipoEventoAgendaFrota,
@@ -389,12 +391,41 @@ export class FrotaService {
     return this.http.get(`${this.url}/ordens-servico/${id}/documentos-fiscais/${idDocumento}/arquivo`, { responseType: 'blob' });
   }
 
+  anexosOs(id: string): Observable<AnexoOrdemServico[]> {
+    return this.http.get<AnexoOrdemServico[]>(`${this.url}/ordens-servico/${id}/anexos`);
+  }
+
+  anexarOs(id: string, arquivo: File, descricao?: string | null): Observable<AnexoOrdemServico[]> {
+    const corpo = new FormData();
+    corpo.append('arquivo', arquivo);
+    if (descricao?.trim()) corpo.append('descricao', descricao.trim());
+    return this.http.post<AnexoOrdemServico[]>(`${this.url}/ordens-servico/${id}/anexos`, corpo);
+  }
+
+  baixarAnexoOs(id: string, idAnexo: string): Observable<Blob> {
+    return this.http.get(`${this.url}/ordens-servico/${id}/anexos/${idAnexo}`, { responseType: 'blob' });
+  }
+
+  removerAnexoOs(id: string, idAnexo: string): Observable<AnexoOrdemServico[]> {
+    return this.http.delete<AnexoOrdemServico[]>(`${this.url}/ordens-servico/${id}/anexos/${idAnexo}`);
+  }
+
   excluirDocumentoFiscalOs(id: string, idDocumento: string): Observable<void> {
     return this.http.delete<void>(`${this.url}/ordens-servico/${id}/documentos-fiscais/${idDocumento}`);
   }
 
   concluirOrdemServico(id: string, request: ConcluirOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
     return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/conclusao`, request);
+  }
+
+  /** Completa a OS concluída com valores pendentes; sem mais nada faltando, ela fica finalizada. */
+  completarConclusaoOrdemServico(id: string, request: BaixaOrdemServicoRequest): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/baixa`, request);
+  }
+
+  /** A OS concluída volta para em andamento (ex.: deu problema no teste). */
+  reabrirOrdemServico(id: string, justificativa: string): Observable<OrdemServicoDetalhe> {
+    return this.http.post<OrdemServicoDetalhe>(`${this.url}/ordens-servico/${id}/reabertura`, { justificativa });
   }
 
   cancelarOrdemServico(id: string, justificativa: string): Observable<OrdemServicoDetalhe> {

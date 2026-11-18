@@ -67,4 +67,18 @@ public interface EventoSstRepository
             @Param("cancelado") StatusEventoSst cancelado,
             @Param("inicio") OffsetDateTime inicio,
             @Param("fim") OffsetDateTime fim);
+
+    @Query("""
+            SELECT e FROM EventoSst e
+            WHERE e.ativo = true
+              AND e.status <> :cancelado
+              AND e.idVeiculo IS NOT NULL
+              AND e.dataOcorrencia >= :inicio
+              AND e.dataOcorrencia < :fim
+            ORDER BY e.dataOcorrencia
+            """)
+    List<EventoSst> listarComVeiculoNoPeriodo(
+            @Param("cancelado") StatusEventoSst cancelado,
+            @Param("inicio") OffsetDateTime inicio,
+            @Param("fim") OffsetDateTime fim);
 }

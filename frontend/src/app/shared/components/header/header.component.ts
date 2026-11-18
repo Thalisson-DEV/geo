@@ -15,6 +15,7 @@ import { UsuariosService } from '../../../core/services/usuarios.service';
 import { NotificacoesStore } from '../../../core/services/notificacoes-store.service';
 import { ConnectivityService } from '../../../core/services/connectivity.service';
 import { MenuItem, MessageService } from 'primeng/api';
+import { AvaliacaoConviteService } from '../../../core/services/avaliacao-convite.service';
 import { NotificacoesPanelComponent } from '../notificacoes-panel/notificacoes-panel.component';
 import { BuscaTelasComponent } from '../busca-telas/busca-telas.component';
 import { ViewStateStore } from '../../../core/navigation/view-state.store';
@@ -48,23 +49,16 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
         <!-- Busca rápida de telas (Ctrl+K) -->
         <app-busca-telas [menuItems]="menuItems()"></app-busca-telas>
 
-        <!-- Botão dedicado de alternar tema (Claro / Escuro) com aviso sutil de Beta -->
-        <div class="relative">
-          <p-button
-            [icon]="theme.isDarkMode() ? 'pi pi-sun text-amber-500 text-base' : 'pi pi-moon text-[var(--ces-foreground-muted)] text-sm'"
-            [text]="true"
-            (onClick)="toggleTheme()"
-            [pTooltip]="theme.isDarkMode() ? 'Mudar para Tema Claro' : 'Mudar para Tema Escuro (Beta)'"
-            tooltipPosition="bottom"
-            aria-label="Alternar tema claro e escuro"
-            styleClass="!text-[var(--ces-foreground-muted)] hover:!bg-[var(--ces-brand-soft)] hover:!text-[var(--ces-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all"
-          ></p-button>
-          <span
-            class="absolute -top-1 -right-1 text-[8px] font-extrabold uppercase tracking-wider px-1 py-0.2 rounded-full bg-amber-500/15 text-amber-600 dark:bg-amber-400/20 dark:text-amber-300 border border-amber-500/30 pointer-events-none select-none"
-          >
-            Beta
-          </span>
-        </div>
+        <!-- Botão dedicado de alternar tema (Claro / Escuro) -->
+        <p-button
+          [icon]="theme.isDarkMode() ? 'pi pi-sun text-amber-500 text-base' : 'pi pi-moon text-[var(--ces-foreground-muted)] text-sm'"
+          [text]="true"
+          (onClick)="toggleTheme()"
+          [pTooltip]="theme.isDarkMode() ? 'Mudar para Tema Claro' : 'Mudar para Tema Escuro'"
+          tooltipPosition="bottom"
+          aria-label="Alternar tema claro e escuro"
+          styleClass="!text-[var(--ces-foreground-muted)] hover:!bg-[var(--ces-brand-soft)] hover:!text-[var(--ces-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all"
+        ></p-button>
 
         <!-- Favorites Button -->
         <p-button
@@ -182,12 +176,7 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
             <div class="flex items-center justify-between p-2 mb-3 bg-[var(--ces-surface-subtle)] rounded-xl border border-[var(--ces-border)]">
               <div class="flex items-center gap-2">
                 <i [class]="theme.isDarkMode() ? 'pi pi-moon text-primary-400' : 'pi pi-sun text-amber-500'" class="text-sm"></i>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-xs font-semibold text-[var(--ces-foreground-muted)]">Modo Escuro</span>
-                  <span class="text-[8px] font-extrabold uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-600 dark:bg-amber-400/20 dark:text-amber-300 border border-amber-500/30 select-none">
-                    Beta
-                  </span>
-                </div>
+                <span class="text-xs font-semibold text-[var(--ces-foreground-muted)]">Modo Escuro</span>
               </div>
               <p-button
                 [icon]="theme.isDarkMode() ? 'pi pi-check' : 'pi pi-circle'"
@@ -316,6 +305,15 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
               (onClick)="showManuaisDialog.set(true); op.hide()"
               styleClass="!w-full !justify-start !text-[var(--ces-foreground-muted)] !text-[11px] !py-2.5 hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] !border-0 transition-all !rounded-xl"
             ></p-button>
+            @if (avaliacao.haPesquisa()) {
+              <p-button
+                label="Avaliar o GEO"
+                icon="pi pi-star"
+                [text]="true"
+                (onClick)="avaliacao.abrir(); op.hide()"
+                styleClass="!w-full !justify-start !text-[var(--ces-foreground-muted)] !text-[11px] !py-2.5 hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] !border-0 transition-all !rounded-xl"
+              ></p-button>
+            }
             @if (auth.currentUser()?.permissoes?.includes('assistente:conexao:use')) {
               <p-button
                 label="Conectar sua IA"
@@ -424,6 +422,7 @@ export class HeaderComponent {
   protected messageService = inject(MessageService);
   protected notificacoes = inject(NotificacoesStore);
   protected router = inject(Router);
+  protected readonly avaliacao = inject(AvaliacaoConviteService);
   private readonly viewState = inject(ViewStateStore);
 
   /** Navegação intencional: o favorito abre a tela limpa. */

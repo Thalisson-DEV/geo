@@ -25,6 +25,8 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MovimentacaoEstoque extends BaseEntity {
 
+    private static final int TAMANHO_OBSERVACAO = 1000;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_estoque_origem")
     private Estoque estoqueOrigem;
@@ -41,6 +43,13 @@ public class MovimentacaoEstoque extends BaseEntity {
     @NotNull(message = "A quantidade é obrigatória")
     @Column(name = "quantidade", nullable = false, precision = 12, scale = 3)
     private BigDecimal quantidade;
+
+    /** O que a pessoa digitou, quando usou uma unidade equivalente; {@link #quantidade} é o convertido. */
+    @Column(name = "quantidade_informada", precision = 14, scale = 6)
+    private BigDecimal quantidadeInformada;
+
+    @Column(name = "unidade_informada", length = 10)
+    private String unidadeInformada;
 
     @NotNull(message = "O tipo de movimentação é obrigatório")
     @Enumerated(EnumType.STRING)
@@ -101,6 +110,13 @@ public class MovimentacaoEstoque extends BaseEntity {
     @Column(name = "condicao", nullable = false, length = 20)
     private CondicaoMaterial condicao;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "motivo", length = 30)
+    private MotivoMovimentacao motivo;
+
+    @Column(name = "observacao", length = 1000)
+    private String observacao;
+
     @AuditIgnore
     @Convert(converter = CryptoConverterImpl.class)
     @Column(name = "assinatura_entregador", columnDefinition = "TEXT")
@@ -114,6 +130,27 @@ public class MovimentacaoEstoque extends BaseEntity {
     public void registrarAssinaturas(String assinaturaEntregador, String assinaturaRecebedor) {
         this.assinaturaEntregador = assinaturaEntregador;
         this.assinaturaRecebedor = assinaturaRecebedor;
+    }
+
+    /** Guarda o que foi digitado em outra unidade; a quantidade da movimentação já é a convertida. */
+    public void registrarQuantidadeInformada(QuantidadeConvertida convertida) {
+        if (convertida == null || !convertida.convertida()) {
+            return;
+        }
+        if (convertida.base().compareTo(quantidade) != 0) {
+            throw new InvarianteVioladaException("A quantidade convertida não confere com a movimentação.");
+        }
+        this.quantidadeInformada = convertida.informada();
+        this.unidadeInformada = convertida.unidadeInformada();
+    }
+
+    public void registrarJustificativa(MotivoMovimentacao motivo, String observacao) {
+        String texto = observacao == null || observacao.isBlank() ? null : observacao.trim();
+        if (texto != null && texto.length() > TAMANHO_OBSERVACAO) {
+            throw new InvarianteVioladaException("A observação deve ter até 1000 caracteres.");
+        }
+        this.motivo = motivo;
+        this.observacao = texto;
     }
 
     public enum TipoMovimentacao {
@@ -183,6 +220,44 @@ public class MovimentacaoEstoque extends BaseEntity {
         movimentacao.itemOperacao = itemOperacao;
         movimentacao.idObra = operacao.getIdObra();
         movimentacao.idEquipe = operacao.getIdEquipe();
+        return movimentacao;
+    }
+
+    /**
+     * Movimentação de fechamento: como a técnica, mas com a quantidade explícita, porque a
+     * troca de efeito move só o que sobrou da movimentação depois dos estornos.
+     */
+    public static MovimentacaoEstoque criarFechamento(
+            Estoque origem,
+            Estoque destino,
+            ItemOperacaoSolicitacao itemOperacao,
+            java.math.BigDecimal quantidade,
+            TipoMovimentacao tipo,
+            UUID idUsuarioOperador
+    ) {
+        OperacaoSolicitacaoMaterial operacao = Objects.requireNonNull(
+                itemOperacao, "O item operacional e obrigatorio").getOperacao();
+        if (quantidade == null || quantidade.signum() <= 0) {
+            throw new IllegalArgumentException("A quantidade deve ser positiva");
+        }
+        // Fechamento regulariza quantidade: não rastreia número de série, nem em material seriado.
+        MovimentacaoEstoque movimentacao = new MovimentacaoEstoque();
+        movimentacao.estoqueOrigem = origem;
+        movimentacao.estoqueDestino = destino;
+        movimentacao.material = itemOperacao.getMaterial();
+        movimentacao.quantidade = quantidade;
+        movimentacao.tipo = Objects.requireNonNull(tipo, "O tipo e obrigatorio");
+        movimentacao.condicao = CondicaoMaterial.NOVO;
+        movimentacao.idUsuarioOperador = Objects.requireNonNull(idUsuarioOperador, "O operador e obrigatorio");
+        movimentacao.idReferenciaOperacao = operacao.getId();
+        movimentacao.dataHora = OffsetDateTime.now();
+        movimentacao.solicitacao = operacao.getSolicitacao();
+        movimentacao.tipoTecnico = operacao.getTipoTecnico();
+        movimentacao.tipoObraSnapshot = operacao.getTipoObraSnapshot();
+        movimentacao.reserva = operacao.getReserva();
+        movimentacao.operacaoSolicitacao = operacao;
+        movimentacao.itemOperacao = itemOperacao;
+        movimentacao.idObra = operacao.getIdObra();
         return movimentacao;
     }
 
@@ -338,14 +413,12 @@ public class MovimentacaoEstoque extends BaseEntity {
     @Column(name = "valor_unitario", precision = 14, scale = 4)
     private BigDecimal valorUnitario;
 
-    @Column(name = "motivo", length = 40)
-    private String motivo;
+    /** Motivo próprio da frota; o {@code motivo} acima é o das entradas e baixas avulsas. */
+    @Column(name = "motivo_frota", length = 40)
+    private String motivoFrota;
 
     @Column(name = "documento", length = 60)
     private String documento;
-
-    @Column(name = "observacao", length = 500)
-    private String observacao;
 
     /** Veículo que recebeu a peça (módulo frota). */
     @Column(name = "id_veiculo")
@@ -363,7 +436,7 @@ public class MovimentacaoEstoque extends BaseEntity {
         var movimentacao = new MovimentacaoEstoque(origem, destino, material, quantidade, tipo, CondicaoMaterial.NOVO,
                 idUsuarioOperador, contexto.idReferencia(), null, dataHora);
         movimentacao.valorUnitario = valorUnitario;
-        movimentacao.motivo = contexto.motivo();
+        movimentacao.motivoFrota = contexto.motivo();
         movimentacao.documento = texto(contexto.documento(), 60);
         movimentacao.observacao = texto(contexto.observacao(), 500);
         movimentacao.idVeiculo = contexto.idVeiculo();

@@ -207,7 +207,7 @@
                               <h2 class="text-[11px] font-bold text-slate-700">
                                 {{ rota.padrao ? 'Caso contrário' : 'Rota condicional ' + (exibida + 1) }}
                               </h2>
-                              <ces-status [tone]="rota.padrao ? 'info' : 'brand'">
+                              <ces-status [tone]="rota.padrao ? 'info' : 'brand'" [icon]="rota.padrao ? 'pi-star' : 'pi-sort-numeric-down'">
                                 {{ rota.padrao ? 'Padrão' : 'Ordem ' + rota.ordem }}
                               </ces-status>
                             </div>

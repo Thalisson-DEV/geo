@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, output, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CesButtonComponent,
@@ -22,6 +22,35 @@ import { FrotaJustificativaDrawerComponent } from '../shared/frota-justificativa
 import { FrotaChecklistDetalheDrawerComponent, ROTULO_PENDENCIA, TOM_PENDENCIA } from './frota-checklist-detalhe-drawer.component';
 import { recorrente, textoHistorico } from './frota-checklist.util';
 import { FrotaPendenciaDecisaoDrawerComponent, ModoDecisao } from './frota-pendencia-decisao-drawer.component';
+
+/** Um checklist com Não OK: os problemas apontados juntos, decididos de uma vez. */
+interface GrupoChecklist {
+  idChecklist: string;
+  idVeiculo: string;
+  placa: string | null;
+  baseNome: string | null;
+  preenchidoEm: string;
+  condutorNome: string | null;
+  pendencias: PendenciaChecklist[];
+  recorrentes: number;
+  fotos: number;
+  fotosAChegar: number;
+}
+
+type Agrupamento = 'checklist' | 'problema';
+const AGRUPAMENTOS: CesSelectOption<Agrupamento>[] = [
+  { label: 'Por checklist', value: 'checklist' },
+  { label: 'Por problema', value: 'problema' }
+];
+const CHAVE_AGRUPAMENTO = 'frota-checklist-pendencias-agrupamento';
+
+function lerAgrupamento(): Agrupamento {
+  try {
+    return localStorage.getItem(CHAVE_AGRUPAMENTO) === 'problema' ? 'problema' : 'checklist';
+  } catch {
+    return 'checklist';
+  }
+}
 
 const SITUACOES: CesSelectOption<SituacaoPendenciaChecklist>[] = [
   { label: 'Aguardando o gestor', value: 'ABERTA' },
@@ -52,6 +81,55 @@ const SITUACOES: CesSelectOption<SituacaoPendenciaChecklist>[] = [
     FrotaPendenciaDecisaoDrawerComponent
   ],
   template: `
+    @if (agrupamento() === 'checklist') {
+      <ces-data-table title="Pendências do checklist" [description]="descricaoGrupos()" storageKey="frota-checklist-pendencias-grupos"
+        searchPlaceholder="Filtrar nesta lista" [(query)]="busca" [columns]="colunasGrupo" [rows]="grupos()" [rowKey]="chaveGrupo"
+        [state]="carregando() ? 'loading' : erro() ? 'error' : grupos().length ? 'ready' : 'empty'"
+        [stateTitle]="erro() ? 'Não foi possível carregar as pendências' : situacao() === 'ABERTA' ? 'Nenhum checklist esperando decisão' : 'Nenhuma pendência nessa situação'"
+        [stateDescription]="erro() ?? (situacao() === 'ABERTA' ? 'Os checklists com Não OK aparecem aqui para você abrir a OS, registrar o que foi resolvido ou descartar.' : undefined)"
+        rowActionLabel="Ver o checklist" (rowActivate)="verChecklistDoGrupo($event)">
+        <ng-container table-actions>
+          <ces-select label="Agrupar" [labelVisible]="false" [options]="agrupamentos" [value]="agrupamento()" (valueChange)="agrupar($event)"></ces-select>
+          <ces-select label="Situação" [labelVisible]="false" [options]="situacoes" [value]="situacao()" (valueChange)="situacao.set($event ?? 'ABERTA')"></ces-select>
+        </ng-container>
+        <ng-template cesCell="placa" let-row>
+          <span class="ces-cell-strong">{{ placa(row.placa) }}</span>
+          <span class="ces-cell-muted">{{ row.baseNome ?? 'Sem base' }}</span>
+        </ng-template>
+        <ng-template cesCell="problemas" let-row>
+          <span class="ces-cell-strong">{{ row.pendencias.length }} {{ row.pendencias.length === 1 ? 'problema' : 'problemas' }}</span>
+          <span class="ces-cell-muted">{{ resumos(row) }}</span>
+          @if (row.recorrentes) {
+            <ces-status tone="danger" emphasis="outline" icon="pi-history">{{ row.recorrentes === 1 ? '1 recorrente' : row.recorrentes + ' recorrentes' }}</ces-status>
+          }
+        </ng-template>
+        <ng-template cesCell="preenchidoEm" let-row>
+          {{ row.preenchidoEm | date: 'dd/MM HH:mm' }}
+          <span class="ces-cell-muted">{{ row.condutorNome ?? '—' }}</span>
+        </ng-template>
+        <ng-template cesCell="fotos" let-row>
+          @if (row.fotosAChegar) {
+            <ces-status tone="info" icon="pi-mobile">{{ row.fotosAChegar === 1 ? '1 no celular' : row.fotosAChegar + ' no celular' }}</ces-status>
+          } @else if (row.fotos) {
+            <ces-status tone="neutral" icon="pi-camera">{{ row.fotos }}</ces-status>
+          } @else {
+            <span class="ces-cell-muted">—</span>
+          }
+        </ng-template>
+        <ng-template cesRowActions let-row>
+          <span class="ces-table-actions">
+            @if (abertas(row).length && acesso.editarOs()) {
+              <ces-icon-button icon="pi pi-wrench" [label]="'Abrir uma OS para os problemas de ' + placa(row.placa)" tooltip="Abrir uma OS para todos" size="icon-sm"
+                (pressed)="decidir(abertas(row), 'os')"></ces-icon-button>
+              <ces-icon-button icon="pi pi-check" [label]="'Resolvidos na hora: problemas de ' + placa(row.placa)" tooltip="Todos resolvidos na hora" size="icon-sm"
+                (pressed)="decidir(abertas(row), 'hora')"></ces-icon-button>
+            }
+            <ces-icon-button icon="pi pi-list" [label]="'Ver cada problema de ' + placa(row.placa)" tooltip="Ver cada problema" size="icon-sm"
+              (pressed)="verProblemas(row)"></ces-icon-button>
+          </span>
+        </ng-template>
+      </ces-data-table>
+    } @else {
     <ces-data-table title="Pendências do checklist" [description]="descricao()" storageKey="frota-checklist-pendencias"
       searchPlaceholder="Filtrar nesta lista" [(query)]="busca" [columns]="colunasVisiveis()" [rows]="pendencias()" [rowKey]="chave"
       [state]="carregando() ? 'loading' : erro() ? 'error' : pendencias().length ? 'ready' : 'empty'"
@@ -60,6 +138,7 @@ const SITUACOES: CesSelectOption<SituacaoPendenciaChecklist>[] = [
       [selectable]="situacao() === 'ABERTA' && acesso.editarOs()" [(selection)]="selecionadas"
       [rowClickable]="true" (rowActivate)="verChecklist($event)">
       <ng-container table-actions>
+        <ces-select label="Agrupar" [labelVisible]="false" [options]="agrupamentos" [value]="agrupamento()" (valueChange)="agrupar($event)"></ces-select>
         <ces-select label="Situação" [labelVisible]="false" [options]="situacoes" [value]="situacao()" (valueChange)="situacao.set($event ?? 'ABERTA')"></ces-select>
       </ng-container>
       <ces-button selection-actions size="sm" icon="pi pi-wrench" label="Abrir uma OS" (pressed)="decidirSelecionadas('os')"></ces-button>
@@ -114,6 +193,7 @@ const SITUACOES: CesSelectOption<SituacaoPendenciaChecklist>[] = [
         </span>
       </ng-template>
     </ces-data-table>
+    }
 
     <app-frota-pendencia-decisao-drawer [(visible)]="decisaoAberta" [modo]="modo()" [pendencias]="emDecisao()" (concluido)="aposDecidir()"></app-frota-pendencia-decisao-drawer>
 
@@ -131,8 +211,13 @@ export class FrotaPendenciasChecklistComponent {
   protected readonly acesso = acessoFrota();
   /** A fila mudou (decisão tomada): a página reconta o que pede atenção. */
   readonly alterou = output<void>();
+  /** Bases escolhidas no topo da página; vazio é todas. */
+  readonly idsBase = input<string[]>([]);
 
   protected readonly situacoes = SITUACOES;
+  protected readonly agrupamentos = AGRUPAMENTOS;
+  /** Por checklist (padrão): o gestor decide o checklist inteiro; por problema, item a item. */
+  protected readonly agrupamento = signal<Agrupamento>(lerAgrupamento());
   protected readonly rotuloDe = (s: SituacaoPendenciaChecklist) => ROTULO_PENDENCIA[s];
   protected readonly tomDe = (s: SituacaoPendenciaChecklist) => TOM_PENDENCIA[s];
   protected readonly placa = formatarPlaca;
@@ -176,10 +261,84 @@ export class FrotaPendenciasChecklistComponent {
     this.situacao() === 'ABERTA' ? this.colunas.filter((c) => c.key !== 'decisao') : this.colunas
   );
   protected readonly chave = (p: PendenciaChecklist) => p.id;
+  protected readonly chaveGrupo = (g: GrupoChecklist) => g.idChecklist;
+
+  protected readonly grupos = computed<GrupoChecklist[]>(() => {
+    const porChecklist = new Map<string, GrupoChecklist>();
+    for (const p of this.pendencias()) {
+      let g = porChecklist.get(p.idChecklist);
+      if (!g) {
+        g = {
+          idChecklist: p.idChecklist,
+          idVeiculo: p.idVeiculo,
+          placa: p.placa,
+          baseNome: p.baseNome ?? null,
+          preenchidoEm: p.preenchidoEm,
+          condutorNome: p.condutorNome ?? null,
+          pendencias: [],
+          recorrentes: 0,
+          fotos: 0,
+          fotosAChegar: 0
+        };
+        porChecklist.set(p.idChecklist, g);
+      }
+      g.pendencias.push(p);
+      if (recorrente(p.historico)) g.recorrentes++;
+      g.fotos += p.fotos.length;
+      g.fotosAChegar += p.fotosAChegar ?? 0;
+    }
+    return [...porChecklist.values()];
+  });
+
+  protected readonly descricaoGrupos = computed(() => {
+    if (this.carregando() && !this.pendencias().length) return undefined;
+    const g = this.grupos().length;
+    const n = this.pendencias().length;
+    return g ? `${g} ${g === 1 ? 'checklist' : 'checklists'} · ${n} ${n === 1 ? 'problema' : 'problemas'}` : 'Nenhum checklist';
+  });
+
+  protected readonly colunasGrupo: CesDataTableColumn<GrupoChecklist>[] = [
+    { key: 'placa', header: 'Veículo', type: 'custom', priority: 1, value: (g) => g.placa, display: (g) => `${formatarPlaca(g.placa)} ${g.baseNome ?? ''}` },
+    { key: 'problemas', header: 'Problemas apontados', type: 'custom', priority: 1, value: (g) => g.pendencias.length, display: (g) => this.resumos(g) },
+    { key: 'preenchidoEm', header: 'Checklist de', type: 'custom', priority: 1, value: (g) => g.preenchidoEm, display: (g) => `${g.preenchidoEm} ${g.condutorNome ?? ''}` },
+    { key: 'fotos', header: 'Fotos', type: 'custom', value: (g) => g.fotos, display: (g) => String(g.fotos) }
+  ];
+
+  protected resumos(g: GrupoChecklist): string {
+    return g.pendencias.map((p) => p.resumo).join(' · ');
+  }
+
+  /** Só os ainda sem decisão entram na OS ou no "resolvido na hora". */
+  protected abertas(g: GrupoChecklist): PendenciaChecklist[] {
+    return g.pendencias.filter((p) => p.situacao === 'ABERTA');
+  }
+
+  protected agrupar(valor: Agrupamento | null): void {
+    const escolhido = valor ?? 'checklist';
+    this.agrupamento.set(escolhido);
+    this.selecionadas.set([]);
+    try {
+      localStorage.setItem(CHAVE_AGRUPAMENTO, escolhido);
+    } catch {
+      // Sem armazenamento (aba anônima): a escolha vale só nesta visita.
+    }
+  }
+
+  /** Abre a lista item a item já filtrada pela placa do checklist. */
+  protected verProblemas(g: GrupoChecklist): void {
+    this.busca.set(formatarPlaca(g.placa));
+    this.agrupar('problema');
+  }
+
+  protected verChecklistDoGrupo(g: GrupoChecklist): void {
+    this.idChecklist.set(g.idChecklist);
+    this.checklistAberto.set(true);
+  }
 
   constructor() {
     effect(() => {
       this.situacao();
+      this.idsBase();
       untracked(() => this.carregar());
     });
   }
@@ -188,7 +347,7 @@ export class FrotaPendenciasChecklistComponent {
     this.carregando.set(true);
     this.erro.set(null);
     this.selecionadas.set([]);
-    this.checklist.pendencias(this.situacao(), [], { page: 0, size: 200, sort: ['dataCriacao,desc'] }).subscribe({
+    this.checklist.pendencias(this.situacao(), this.idsBase(), { page: 0, size: 200, sort: ['dataCriacao,desc'] }).subscribe({
       next: (p) => {
         this.pendencias.set(p.content);
         this.carregando.set(false);

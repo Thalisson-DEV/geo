@@ -1,0 +1,153 @@
+<ces-form-drawer
+  #drawer
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  title="Novo chamado"
+  [description]="criado() ? 'O chamado foi registrado. Acompanhe abaixo o envio das evidências.' : 'Descreva a necessidade e inclua evidências. A equipe de atendimento do tópico recebe o chamado na hora.'"
+  size="md"
+  [loading]="carregando()"
+  [dirty]="alterado()"
+  discardMessage="O chamado ainda não foi aberto. O que você preencheu será perdido."
+>
+  @if (erroCarga(); as mensagem) {
+    <ces-async-state
+      state="error"
+      title="Não foi possível carregar os tópicos"
+      [description]="mensagem"
+      actionLabel="Tentar novamente"
+      actionIcon="pi pi-refresh"
+      (action)="carregarTopicos()"
+    ></ces-async-state>
+  } @else if (criado(); as chamado) {
+    <ces-callout tone="success" title="Chamado aberto">
+      <p class="chamado-protocolo">{{ chamado.protocolo }}</p>
+      <p>O protocolo já está salvo no servidor e pode ser acompanhado em Meus chamados.</p>
+    </ces-callout>
+
+    <ces-form-section title="Envio das evidências" icon="pi pi-paperclip">
+      @if (arquivos().length) {
+        <ul class="chamado-arquivos" aria-live="polite">
+          @for (arquivo of arquivos(); track arquivo.file.name + arquivo.file.size; let index = $index) {
+            <li class="chamado-arquivo">
+              <i class="pi pi-file chamado-arquivo__icone" aria-hidden="true"></i>
+              <div class="chamado-arquivo__texto">
+                <span class="chamado-arquivo__nome" [title]="arquivo.file.name">{{ arquivo.file.name }}</span>
+                @if (arquivo.status === 'erro') {
+                  <span class="chamado-arquivo__erro">{{ arquivo.erro || 'Falha no envio' }}</span>
+                } @else {
+                  <span class="chamado-arquivo__meta">{{ formatarBytes(arquivo.file.size) }}</span>
+                }
+              </div>
+              <ces-status [tone]="envio[arquivo.status].tom" [icon]="envio[arquivo.status].icone">{{ envio[arquivo.status].rotulo }}</ces-status>
+              @if (arquivo.status === 'erro') {
+                <ces-button variant="ghost" size="sm" icon="pi pi-refresh" label="Tentar novamente"
+                  [ariaLabel]="'Tentar enviar ' + arquivo.file.name + ' novamente'" (pressed)="tentarNovamente(index)"></ces-button>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="chamado-vazio">O chamado foi aberto sem anexos.</p>
+      }
+    </ces-form-section>
+  } @else {
+    <ces-form-section title="Chamado" icon="pi pi-ticket" description="O tópico define a equipe que atende e os prazos.">
+      <ces-select
+        label="Tópico"
+        [required]="true"
+        [filter]="true"
+        placeholder="Selecione o assunto principal"
+        [options]="topicosOpcoes()"
+        [(value)]="topicoId"
+        [description]="topicoSelecionado()?.descricao || undefined"
+        [error]="erro('topico')"
+      ></ces-select>
+      @if (topicoSelecionado(); as topico) {
+        <dl class="chamado-topico" aria-label="Atendimento do tópico">
+          <div><dt>Equipe padrão</dt><dd>{{ topico.equipePadrao.nome }}</dd></div>
+          <div><dt>Primeira resposta</dt><dd>até {{ topico.slaPrimeiraRespostaHoras }} h</dd></div>
+          <div><dt>Resolução</dt><dd>até {{ topico.slaResolucaoHoras }} h</dd></div>
+        </dl>
+      }
+      <ces-text-input
+        label="Assunto"
+        [required]="true"
+        placeholder="Resuma sua necessidade em uma frase"
+        [maxlength]="limiteAssunto"
+        [(value)]="assunto"
+        [description]="assunto().length + '/' + limiteAssunto + ' caracteres'"
+        [error]="erro('assunto')"
+      ></ces-text-input>
+      <ces-textarea
+        label="Descrição"
+        [required]="true"
+        [rows]="7"
+        placeholder="Explique o contexto, o resultado esperado, o que ocorreu e quando começou."
+        [maxlength]="limiteDescricao"
+        [(value)]="descricao"
+        [error]="erro('descricao')"
+      ></ces-textarea>
+      <ces-select
+        label="Prioridade"
+        [options]="prioridadeOpcoes()"
+        [(value)]="prioridade"
+        description="Mude só quando o impacto for diferente do habitual para o tópico."
+      ></ces-select>
+    </ces-form-section>
+
+    <ces-form-section
+      title="Evidências"
+      icon="pi pi-paperclip"
+      [description]="'Opcional. Até ' + limiteAnexos + ' arquivos de 15 MB: imagens, PDF, TXT/LOG, Word e Excel.'"
+    >
+      <label class="chamado-upload">
+        <input type="file" multiple class="chamado-upload__input" [accept]="aceitos" (change)="selecionarArquivos($event)" />
+        <i class="pi pi-upload" aria-hidden="true"></i>
+        <span>Selecionar arquivos</span>
+      </label>
+      @if (arquivos().length) {
+        <ul class="chamado-arquivos" aria-label="Arquivos selecionados">
+          @for (arquivo of arquivos(); track arquivo.file.name + arquivo.file.size; let index = $index) {
+            <li class="chamado-arquivo">
+              <i class="pi pi-file chamado-arquivo__icone" aria-hidden="true"></i>
+              <div class="chamado-arquivo__texto">
+                <span class="chamado-arquivo__nome" [title]="arquivo.file.name">{{ arquivo.file.name }}</span>
+                <span class="chamado-arquivo__meta">{{ formatarBytes(arquivo.file.size) }}</span>
+              </div>
+              <ces-icon-button icon="pi pi-times" size="icon-sm" [label]="'Remover ' + arquivo.file.name"
+                [disabled]="salvando()" (pressed)="removerArquivo(index)"></ces-icon-button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="chamado-vazio">Nenhum arquivo selecionado.</p>
+      }
+    </ces-form-section>
+
+    <ces-callout tone="info" [dense]="true">
+      O chamado é criado uma única vez. Depois, cada anexo é enviado separadamente e pode ser reenviado em caso de falha.
+    </ces-callout>
+  }
+
+  @if (criado()) {
+    <div drawer-footer class="ces-actions-row chamado-acoes">
+      <ces-button variant="ghost" label="Fechar" (pressed)="fechar()"></ces-button>
+      <ces-button icon="pi pi-arrow-right" iconPosition="right" label="Acompanhar chamado"
+        (pressed)="irParaChamado()"></ces-button>
+    </div>
+  } @else if (erroCarga()) {
+    <div drawer-footer class="ces-actions-row chamado-acoes">
+      <ces-button variant="ghost" label="Fechar" (pressed)="fechar()"></ces-button>
+    </div>
+  } @else {
+    <ces-form-actions
+      drawer-footer
+      submitLabel="Abrir chamado"
+      submitIcon="pi pi-send"
+      savingLabel="Abrindo chamado…"
+      [saving]="salvando()"
+      (save)="salvar()"
+      (cancel)="drawer.requestClose()"
+    ></ces-form-actions>
+  }
+</ces-form-drawer>

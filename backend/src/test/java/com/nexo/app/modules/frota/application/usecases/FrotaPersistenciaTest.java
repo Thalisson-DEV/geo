@@ -87,8 +87,8 @@ class FrotaPersistenciaTest {
     @BeforeEach
     void setUp() {
         entityManager.createNativeQuery("""
-                INSERT INTO frota_parametros (id, faixas_alerta_dias, limite_km_dia, versao, data_criacao, ativo)
-                VALUES ('00000000-0000-0000-0000-00000000f001', '30,15,7,0', 1500, 0, CURRENT_TIMESTAMP, TRUE)
+                INSERT INTO frota_parametros (id, faixas_alerta_dias, limite_km_dia, limite_horas_dia, janela_repeticao_dias, limite_salto_km, versao, data_criacao, ativo)
+                VALUES ('00000000-0000-0000-0000-00000000f001', '30,15,7,0', 1500, 16, 90, 2000, 0, CURRENT_TIMESTAMP, TRUE)
                 """).executeUpdate();
         var centro = centroRepository.save(new CentroFaturamento("REGIONAL TESTE"));
         BaseOperacional base = baseRepository.save(new BaseOperacional("BASE FROTA", "BA", "Rua A, 1", centro));

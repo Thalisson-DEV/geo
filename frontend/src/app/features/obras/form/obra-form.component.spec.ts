@@ -23,6 +23,7 @@ describe('ObraFormComponent', () => {
     dataInicio: '01/03/2026',
     dataPrevisaoFim: '30/09/2026',
     statusId: 'st-1',
+    tipoObraId: 'tipo-1',
     statusNome: 'EM EXECUÇÃO',
     statusConcluida: false,
     supervisorId: 'sup-1',
@@ -43,6 +44,7 @@ describe('ObraFormComponent', () => {
       criarObra: vi.fn().mockReturnValue(of(mockObra)),
       atualizarObra: vi.fn().mockReturnValue(of(mockObra)),
       listarStatusAtivos: vi.fn().mockReturnValue(of([{ id: 'st-1', nome: 'EM EXECUÇÃO', concluida: false, ativo: true }])),
+      listarTiposObraAtivos: vi.fn().mockReturnValue(of([{ id: 'tipo-1', codigo: 'COMUM', nome: 'COMUM', controleExecucao: 'OBRA', subtipo: false, classeOperacional: 'OBRA', ativo: true }])),
       listarAgentesAtivos: vi.fn().mockReturnValue(of([])),
       listarObras: vi.fn().mockReturnValue(of({ content: [] }))
     };
@@ -133,6 +135,7 @@ describe('ObraFormComponent', () => {
         idSupervisor: 'sup-1',
         idCoordenador: 'coord-1',
         idStatusObra: 'st-1',
+        idTipoObra: 'tipo-1',
         idObraPai: null,
         tipoVinculoPai: null
       })

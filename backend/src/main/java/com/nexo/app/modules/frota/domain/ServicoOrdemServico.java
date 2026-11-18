@@ -50,6 +50,10 @@ public class ServicoOrdemServico extends BaseEntity {
     @Column(name = "subtotal", nullable = false, precision = 14, scale = 2)
     private BigDecimal subtotal;
 
+    /** Valor zero de propósito (garantia, cortesia): não deixa a OS com valores pendentes. */
+    @Column(name = "sem_custo", nullable = false)
+    private boolean semCusto;
+
     ServicoOrdemServico(OrdemServico ordem) {
         this.ordem = ordem;
     }
@@ -61,6 +65,17 @@ public class ServicoOrdemServico extends BaseEntity {
         this.quantidade = LancamentoOrdemServico.quantidade(dados.quantidade());
         this.valorUnitario = LancamentoOrdemServico.valorUnitario(dados.valorUnitario());
         this.subtotal = LancamentoOrdemServico.subtotal(quantidade, valorUnitario);
+        if (subtotal.signum() > 0) this.semCusto = false;
+    }
+
+    /** "Sem custo" só vale para o lançamento de valor zero. */
+    void definirSemCusto(boolean semCusto) {
+        this.semCusto = semCusto && subtotal.signum() == 0;
+    }
+
+    /** Valor zero sem a marca de "sem custo": falta lançar o valor. */
+    boolean isSemValor() {
+        return subtotal.signum() == 0 && !semCusto;
     }
 
     void definirMecanico(UUID idMecanico, String nome) {

@@ -41,6 +41,8 @@ interface BuilderPergunta {
   tipoResposta: TipoResposta;
   obrigatoria: boolean;
   opcoes: BuilderOpcao[];
+  orientacao: string;
+  desvioPorColaborador: boolean;
 }
 interface BuilderGrupo {
   id?: string;
@@ -146,7 +148,11 @@ function uid(): string {
                     <div class="rounded-xl border border-slate-100 bg-slate-50/30 px-4 py-4 flex flex-col gap-3">
                       <div class="flex items-start gap-3">
                         <span class="text-[10px] font-medium text-gray-400 mt-2.5 shrink-0">{{ gi + 1 }}.{{ pi + 1 }}</span>
-                        <input pInputText placeholder="Enunciado da pergunta" class="doc-input flex-grow" [(ngModel)]="pergunta.enunciado" [disabled]="emUso()" />
+                        <div class="flex flex-col gap-1.5 flex-grow min-w-0">
+                          <input pInputText placeholder="Enunciado da pergunta" class="doc-input w-full" [(ngModel)]="pergunta.enunciado" [disabled]="emUso()" [attr.aria-label]="'Enunciado da pergunta ' + (gi + 1) + '.' + (pi + 1)" />
+                          <input pInputText placeholder="Orientação (opcional): quantidade esperada ou observação, ex.: Individual · Por escada" class="doc-input w-full"
+                            [(ngModel)]="pergunta.orientacao" [disabled]="emUso()" maxlength="300" [attr.aria-label]="'Orientação da pergunta ' + (gi + 1) + '.' + (pi + 1)" />
+                        </div>
                         <div class="flex items-center gap-0.5 shrink-0">
                           <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" pTooltip="Subir" [disabled]="pi === 0" (onClick)="moverPergunta(grupo, pi, -1)" styleClass="!text-slate-400 !w-7 !h-7"></p-button>
                           <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" pTooltip="Descer" [disabled]="pi === grupo.perguntas.length - 1" (onClick)="moverPergunta(grupo, pi, 1)" styleClass="!text-slate-400 !w-7 !h-7"></p-button>
@@ -175,11 +181,24 @@ function uid(): string {
                           <p-checkbox [binary]="true" size="small" [(ngModel)]="pergunta.obrigatoria" [disabled]="emUso()"></p-checkbox>
                           <span class="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Obrigatória</span>
                         </label>
+                        @if (temDesvio(pergunta)) {
+                          <label class="flex items-center gap-2 h-[34px] cursor-pointer" pTooltip="Desmarque em itens da equipe ou do veículo (pneu, extintor, ferramenta): o desvio poderá ser lançado sem apontar ninguém.">
+                            <p-checkbox [binary]="true" size="small" [(ngModel)]="pergunta.desvioPorColaborador" [disabled]="emUso()"></p-checkbox>
+                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Desvio aponta colaborador</span>
+                          </label>
+                        }
                       </div>
 
                       @if (isObjetivo(pergunta.tipoResposta)) {
                         <div class="md:pl-7 flex flex-col gap-2 mt-1">
-                          <span class="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Opções de resposta</span>
+                          <div class="flex flex-wrap items-center justify-between gap-2">
+                            <span class="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Opções de resposta</span>
+                            @if (!emUso() && pergunta.tipoResposta === 'MULTIPLA_ESCOLHA' && !ehChecklist(pergunta)) {
+                              <button type="button" (click)="aplicarChecklist(pergunta)" class="flex items-center gap-1.5 text-[10px] font-medium text-primary-700 uppercase tracking-widest w-fit">
+                                <i class="pi pi-list-check text-[9px]"></i> Usar Conforme / Não conforme / Não se aplica
+                              </button>
+                            }
+                          </div>
                           @for (opcao of pergunta.opcoes; track opcao.uid; let oi = $index) {
                             <div class="flex items-center gap-2">
                               <i class="pi pi-circle text-[7px] text-slate-300"></i>
@@ -359,6 +378,8 @@ export class FormularioBuilderComponent implements OnInit {
               enunciado: p.enunciado,
               tipoResposta: p.tipoResposta,
               obrigatoria: p.obrigatoria,
+              orientacao: p.orientacao ?? '',
+              desvioPorColaborador: p.desvioPorColaborador ?? true,
               opcoes: (p.opcoes ?? [])
                 .slice()
                 .sort((a, b) => a.ordem - b.ordem)
@@ -378,8 +399,25 @@ export class FormularioBuilderComponent implements OnInit {
       enunciado: '',
       tipoResposta: 'MULTIPLA_ESCOLHA',
       obrigatoria: true,
-      opcoes: [this.novaOpcao('Sim', false, null, true), this.novaOpcao('Não', true)]
+      orientacao: '',
+      desvioPorColaborador: true,
+      opcoes: this.opcoesChecklist()
     };
+  }
+  /** Padrão das inspeções de campo: Conforme já marcado, Não conforme gera desvio, Não se aplica neutro. */
+  private opcoesChecklist(gravidade: GravidadeDesvio = 'MEDIA'): BuilderOpcao[] {
+    return [this.novaOpcao('Conforme', false, null, true), this.novaOpcao('Não conforme', true, gravidade), this.novaOpcao('Não se aplica')];
+  }
+  protected ehChecklist(p: BuilderPergunta): boolean {
+    const textos = p.opcoes.map((o) => o.texto.trim().toLowerCase());
+    return textos.length === 3 && textos[0] === 'conforme' && textos[1] === 'não conforme' && textos[2] === 'não se aplica';
+  }
+  protected aplicarChecklist(p: BuilderPergunta): void {
+    const gravidade = p.opcoes.find((o) => o.geraDesvio)?.gravidade ?? 'MEDIA';
+    p.opcoes = this.opcoesChecklist(gravidade);
+  }
+  protected temDesvio(p: BuilderPergunta): boolean {
+    return isTipoObjetivo(p.tipoResposta) && p.opcoes.some((o) => o.geraDesvio);
   }
   private novaOpcao(texto = '', geraDesvio = false, gravidade: GravidadeDesvio | null = null, padrao = false): BuilderOpcao {
     return { uid: uid(), texto, geraDesvio, gravidade: geraDesvio ? (gravidade || 'MEDIA') : null, padrao: geraDesvio ? false : padrao };
@@ -531,6 +569,8 @@ export class FormularioBuilderComponent implements OnInit {
           enunciado: p.enunciado.trim(),
           tipoResposta: p.tipoResposta,
           obrigatoria: p.obrigatoria,
+          orientacao: p.orientacao.trim() || null,
+          desvioPorColaborador: p.desvioPorColaborador,
           opcoes: isTipoObjetivo(p.tipoResposta)
             ? p.opcoes.map((o) => ({
                 texto: o.texto.trim(),

@@ -18,6 +18,12 @@ public class TelemetriaFrotaProperties {
 
     private Provedor ubicaly = new Provedor("https://panel.ubicaly.com");
     private Provedor zuq = new Provedor("https://app.zuq.com.br");
+    /**
+     * Grava o km estimado pela telemetria no livro-razão do odômetro. Desligado: a gestão da frota
+     * usa só o km de painel (checklist e abastecimento); o odômetro do rastreador deriva com o tempo
+     * e gerava inconsistências falsas na conferência de KM.
+     */
+    private boolean registrarKm = false;
     /** Intervalo mínimo entre duas leituras de km da telemetria no livro-razão, por veículo. */
     private Duration intervaloLeitura = Duration.ofHours(6);
     /** Veículo parado grava posição no máximo nesse intervalo (andando, grava a cada leitura). */

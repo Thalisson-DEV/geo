@@ -33,5 +33,8 @@ public record MovimentacaoEstoqueResponse(
     UUID idOperacao,
     UUID idItemOperacao,
     UUID idObra,
-    UUID idEquipe
+    UUID idEquipe,
+    @Schema(description = "Quantidade como foi digitada, quando a pessoa usou outra unidade; nula sem conversão")
+    BigDecimal quantidadeInformada,
+    String unidadeInformada
 ) {}

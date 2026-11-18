@@ -95,7 +95,7 @@
               </strong>
             </span>
             <span>·</span>
-            <ces-status [tone]="getTipoTone(mov.tipo)" [class.ces-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</ces-status>
+            <ces-status [tone]="getTipoTone(mov.tipo)" [icon]="getTipoIcon(mov.tipo)" [class.ces-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</ces-status>
           </div>
         </div>
 
@@ -124,7 +124,7 @@
             </div>
             <div class="kv">
               <span class="kv-l">Tipo</span>
-              <ces-status [tone]="getTipoTone(mov.tipo)" [class.ces-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</ces-status>
+              <ces-status [tone]="getTipoTone(mov.tipo)" [icon]="getTipoIcon(mov.tipo)" [class.ces-status--devolucao]="mov.tipo === 'DEVOLUCAO'">{{ getTipoLabel(mov.tipo) }}</ces-status>
             </div>
             <div class="kv">
               <span class="kv-l">Contexto</span>
@@ -144,6 +144,24 @@
                 #{{ mov.idReferenciaOperacao.slice(0, 8) }}
               </span>
             </div>
+            @if (mov.numeroNota) {
+              <div class="kv">
+                <span class="kv-l">Nota</span>
+                <span class="kv-v font-mono text-slate-700 dark:text-slate-300">{{ mov.numeroNota }}</span>
+              </div>
+            }
+            @if (mov.motivo) {
+              <div class="kv">
+                <span class="kv-l">Motivo</span>
+                <span class="kv-v text-slate-700 dark:text-slate-300">{{ rotuloMotivo(mov.motivo) }}</span>
+              </div>
+            }
+            @if (mov.observacao) {
+              <div class="kv">
+                <span class="kv-l">Observação</span>
+                <span class="kv-v text-slate-700 dark:text-slate-300">{{ mov.observacao }}</span>
+              </div>
+            }
             @if (mov.ocorrencia) {
               <div class="kv">
                 <span class="kv-l">Ocorrência</span>
@@ -394,7 +412,15 @@
               </span>
             </ng-template>
             <ng-template cesCell="condicao" let-g>
-              <ces-status [tone]="tomCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</ces-status>
+              <ces-status [tone]="tomCondicao(g.condicao)" [icon]="iconeCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</ces-status>
+            </ng-template>
+            <ng-template cesCell="quantidade" let-g>
+              <span class="tabular-nums">{{ numero(g.quantidade) }}</span>
+              @if (g.unidadeInformada) {
+                <small class="block text-[var(--ces-foreground-muted)]" [title]="'Informado em ' + g.unidadeInformada + ' e convertido para ' + (g.material.unidadeMedida || 'UN')">
+                  <i class="pi pi-arrow-right-arrow-left text-[10px]" aria-hidden="true"></i> informado {{ numero(g.quantidadeInformada) }} {{ g.unidadeInformada }}
+                </small>
+              }
             </ng-template>
             <ng-template cesRowDetail let-g>
               <app-series-grade [series]="g.grade" [rotulo]="'Números de série de ' + g.material.descricao" />

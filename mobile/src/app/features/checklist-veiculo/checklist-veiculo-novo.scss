@@ -1,0 +1,57 @@
+// Checklist do veículo: estrutura, passos, escolha do veículo e medição.
+.chips { display: flex; flex-wrap: wrap; gap: var(--ces-e2); padding: 0 var(--ces-e4) var(--ces-e2); }
+.chip { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: var(--ces-r-pilula);
+  border: 1px solid var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-2); font: 500 .9375rem/1 var(--ces-fonte); cursor: pointer; }
+.chip[aria-checked='true'] { background: var(--ces-destaque-suave); border-color: transparent; color: var(--ces-destaque); font-weight: 600; }
+:host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+:host > * { flex-shrink: 0; }
+.tela { flex: 1; padding-bottom: var(--ces-e5); }
+.auto-salvo { display: inline-flex; align-items: center; gap: 4px; font: 500 .75rem/1.2 var(--ces-fonte); color: var(--ces-ok); white-space: nowrap; }
+.passos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 0 var(--ces-e5) var(--ces-e3); }
+.passos i { height: 4px; border-radius: var(--ces-r-pilula); background: var(--ces-linha); transition: background-color var(--ces-m-entrar); }
+.passos i.feito { background: var(--ces-destaque); }
+.conteudo { animation: entrar var(--ces-m-entrar) var(--ces-curva); }
+@keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
+.campos { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--ces-e2); padding: 0 var(--ces-e3); }
+.ces-faixa-estado { margin: var(--ces-e3) var(--ces-e3) 0; }
+.campos .ces-faixa-estado { margin: 0; }
+.bloqueio { align-items: flex-start; }
+.bloqueio__texto { flex: 1; min-width: 0; display: grid; justify-items: start; gap: 2px; }
+.bloqueio__texto p { margin: 0; font: var(--ces-t-apoio); font-size: .875rem; color: var(--ces-texto); }
+.bloqueio__texto .ces-btn { margin-left: -12px; color: var(--ces-erro); }
+.ces-faixa-estado span { flex: 1; font: var(--ces-t-apoio); font-size: .875rem; }
+.apoio, .dica { margin: 0; padding: 0 var(--ces-e1); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+.dica { display: flex; gap: var(--ces-e2); margin: var(--ces-e5) var(--ces-e5) 0; padding: 0; }
+.falta { display: flex; align-items: center; gap: 4px; margin: 0; padding: 0 var(--ces-e1); color: var(--ces-erro); font: var(--ces-t-apoio); font-weight: 600; }
+.estado { display: flex; align-items: center; gap: 6px; margin: 0; padding: 0 var(--ces-e1); font: var(--ces-t-apoio); font-weight: 500; }
+.estado--ok { color: var(--ces-ok); }
+.estado--bloco { margin: var(--ces-e4) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo); background: var(--ces-ok-suave); font-size: .875rem; }
+
+/* Veículo */
+.busca { display: flex; align-items: center; gap: var(--ces-e2); margin: var(--ces-e2) var(--ces-e3) 0; padding: 0 var(--ces-e4); min-height: 52px;
+  background: var(--ces-superficie); border-radius: var(--ces-r-campo); color: var(--ces-texto-2); }
+.busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+.busca input:focus { outline: none; }
+.veiculo { min-height: 72px; }
+.veiculo .ces-linha__titulo { font-size: 1rem; font-weight: 600; letter-spacing: .02em; }
+.veiculo[aria-selected='true'] { background: var(--ces-destaque-suave); }
+.marca { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; flex: none; border: 2px solid var(--ces-linha-forte); color: transparent; }
+.veiculo[aria-selected='true'] .marca { background: var(--ces-destaque); border-color: var(--ces-destaque); color: var(--ces-destaque-texto); }
+
+/* Cartão do veículo escolhido */
+.cartao { display: flex; align-items: center; gap: var(--ces-e3); margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
+  background: var(--ces-superficie); border-radius: var(--ces-r-grupo); }
+.cartao__texto { flex: 1; min-width: 0; display: grid; gap: 1px; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+.cartao__texto strong { font: 600 1.0625rem/1.3 var(--ces-fonte); letter-spacing: .02em; color: var(--ces-texto); }
+.cartao .ces-etiqueta { max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
+
+/* Medição */
+.medida { display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e4); min-height: 64px; background: var(--ces-superficie);
+  border: 1.5px solid var(--ces-linha); border-radius: var(--ces-r-campo); cursor: text; }
+.medida:focus-within { border-color: var(--ces-destaque); box-shadow: 0 0 0 3px var(--ces-destaque-suave); }
+.medida--erro { border-color: var(--ces-erro); }
+.medida--atencao { border-color: var(--ces-atencao); }
+.medida__valor { flex: 1; min-width: 0; width: 100%; align-self: stretch; padding: 0; border: 0; background: transparent; color: var(--ces-texto); font: 600 1.75rem/1 var(--ces-fonte); }
+.medida__valor:focus { outline: none; }
+.medida__valor::placeholder { color: var(--ces-texto-3); }
+.medida__unidade { font: 500 1rem/1 var(--ces-fonte); color: var(--ces-texto-2); }

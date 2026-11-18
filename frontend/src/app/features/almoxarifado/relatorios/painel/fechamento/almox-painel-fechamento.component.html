@@ -1,0 +1,134 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Encerramento de obras" icon="pi pi-flag"
+      [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Encerramento de obras' }]"
+      description="Os prazos de 48 horas úteis da reserva e da movimentação, as obras que travam o encerramento, quem atrasa e as pendências.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (dados(); as d) { <span actions class="dash-updated">Calculado às {{ d.geradoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="almox-rel-fechamento" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-almox-recorte-campos prefixo="apf" [campos]="['periodo', 'almox']" />
+        <ces-multiselect label="Tipo" inputId="apf-tipo" placeholder="Adições e devoluções" [options]="opcoesTipo" [filter]="false"
+          [value]="tiposSel()" (valueChange)="tiposSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Situação" inputId="apf-situacao" placeholder="Todas" [options]="opcoesSituacao" [filter]="false"
+          [value]="situacoesSel()" (valueChange)="situacoesSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Prazo" inputId="apf-prazo" placeholder="Todos" [options]="opcoesPrazo" [filter]="false"
+          [value]="prazosSel()" (valueChange)="prazosSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Tipo de obra" inputId="apf-tipo-obra" placeholder="Todos" [options]="opcoesTipoObra" [filter]="false"
+          [value]="tiposObraSel()" (valueChange)="tiposObraSel.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <app-almox-painel-topo [descricao]="dados() ? recorte.descricaoPeriodo({ de: dados()!.de, ate: dados()!.ate }) + ' · pela abertura, mais as em andamento de antes' : ''"
+      (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !modelo()) {
+      <ces-async-state state="loading" title="Lendo o encerramento de obras" description="Solicitações do período, prazos e obras."></ces-async-state>
+    } @else if (erro() && !modelo()) {
+      <ces-async-state state="error" title="Não foi possível ler o fechamento" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (modelo(); as m) {
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+      }
+
+      @if (!m.todas.length) {
+        <ces-async-state state="empty" title="Nenhum encerramento neste recorte" description="Amplie o período ou retire filtros."
+          actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></ces-async-state>
+      } @else {
+        <section class="dash-metrics" aria-label="Fila">
+          <app-dashboard-metric-card label="Solicitações no período" icon="pi-inbox" tone="primary" [value]="inteiro(m.periodo.length)"
+            [detail]="inteiro(m.adicoes) + ' adições e ' + inteiro(m.devolucoes) + ' devoluções'" actionLabel="Analisar" (activate)="analisar('kpi', 'periodo')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'periodo', rotulo: 'Solicitações no período' }" />
+          </app-dashboard-metric-card>
+          <app-dashboard-metric-card label="Em andamento" icon="pi-clock" tone="slate" [value]="inteiro(m.abertas.length)"
+            [detail]="inteiro(m.venceEmBreve.length) + ' vencem nas próximas horas'" actionLabel="Ver a fila" (activate)="analisar('kpi', 'abertas')" />
+          <app-dashboard-metric-card label="Prazo vencido" icon="pi-exclamation-triangle" [tone]="m.atrasadas.length ? 'red' : 'green'" [value]="inteiro(m.atrasadas.length)"
+            detail="Passaram das 48 horas úteis" actionLabel="Ver as atrasadas" (activate)="analisar('kpi', 'atrasadas')" />
+          <app-dashboard-metric-card label="Obras finalizadas" icon="pi-flag" tone="slate" [value]="inteiro(m.obrasFinalizadas) + ' de ' + inteiro(m.obras.length)"
+            [detail]="inteiro(m.obrasEmAberto) + ' com encerramento em andamento'" actionLabel="Ver as obras" (activate)="analisar('kpi', 'obras')" />
+        </section>
+        <section class="dash-metrics" aria-label="Prazos">
+          <app-dashboard-metric-card label="Reserva no prazo" icon="pi-bookmark" [tone]="tom(m.reserva.taxa)" [value]="pct(m.reserva.taxa, 0)"
+            [detail]="'Mediana de ' + tempo(m.reserva.mediana) + ' até registrar'" [progress]="m.reserva.taxa == null ? null : m.reserva.taxa * 100"
+            actionLabel="Analisar o prazo" (activate)="analisar('kpi', 'reserva')" />
+          <app-dashboard-metric-card label="Movimentação no prazo" icon="pi-arrow-right-arrow-left" [tone]="tom(m.movimentacao.taxa)" [value]="pct(m.movimentacao.taxa, 0)"
+            [detail]="'Mediana de ' + tempo(m.movimentacao.mediana) + ' após a reserva'" [progress]="m.movimentacao.taxa == null ? null : m.movimentacao.taxa * 100"
+            actionLabel="Analisar o prazo" (activate)="analisar('kpi', 'movimentacao')" />
+          <app-dashboard-metric-card label="Ciclo completo" icon="pi-stopwatch" tone="slate" [value]="tempo(m.cicloMediana)"
+            detail="Mediana da abertura à movimentação concluída" actionLabel="Analisar" (activate)="analisar('situacao', 'MOVIMENTADA')" />
+          <app-dashboard-metric-card label="Com pendência" icon="pi-flag-fill" [tone]="m.pendencias.length ? 'amber' : 'green'" [value]="inteiro(m.pendencias.length)"
+            [detail]="inteiro(m.canceladas.length) + ' canceladas no período'" actionLabel="Ver as pendências" (activate)="analisar('kpi', 'pendencias')" />
+        </section>
+
+        <section class="dash-grid" aria-label="Prazos no tempo">
+          <article class="dash-panel dash-col-8">
+            <header class="dash-panel__header">
+              <div><span class="dash-eyebrow">Prazo</span><h2>Cumprimento das 48 horas úteis por mês</h2>
+                <p>Parte das reservas e das movimentações feitas dentro do prazo, pelo mês de abertura. Clique num mês.</p></div>
+              <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'prazos', rotulo: 'Cumprimento dos prazos' }" />
+            </header>
+            <ces-chart kind="line" title="Prazos cumpridos por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+              [labels]="graficoPrazos().rotulos" [series]="graficoPrazos().series" valueFormat="percent" [height]="300" (pointSelect)="analisarMes($event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-4">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Situação</span><h2>Onde estão</h2><p>Clique numa situação.</p></div></header>
+            <ces-chart kind="doughnut" title="Solicitações por situação" [showTitle]="false" [selectable]="true" selectLabel="Analisar a situação"
+              [labels]="graficoSituacoes().rotulos" [series]="graficoSituacoes().series" valueFormat="integer" [height]="300" (pointSelect)="analisarSituacao($event.index)"></ces-chart>
+          </article>
+        </section>
+
+        <section class="pf-secao" aria-labelledby="apf-fila">
+          <header><span class="dash-eyebrow">Agir</span><h2 id="apf-fila">Fila do encerramento</h2>
+            <p>Em andamento, das atrasadas para as que vencem depois. Abra a linha para ir à solicitação.</p></header>
+          <ces-data-table title="Em andamento" storageKey="apf-fila" exportFileName="fechamento-em-andamento" [columns]="colFechamento" [rows]="fila()"
+            [rowKey]="chaveLinha" searchPlaceholder="Filtrar obra, reserva ou pessoa" rowActionLabel="Abrir o fechamento" (rowActivate)="abrir($event)"
+            [state]="fila().length ? 'ready' : 'empty'" stateTitle="Nenhum encerramento em andamento">
+            <ng-template cesCell="tipo" let-s><ces-status tone="neutral" [icon]="devolucao(s) ? 'pi pi-trash' : 'pi pi-shopping-cart'">{{ $any(s).tipo }}</ces-status></ng-template>
+            <ng-template cesCell="situacao" let-s><ces-status [tone]="tagSituacao(s).tom" [icon]="tagSituacao(s).icone">{{ rotuloSituacao(s) }}</ces-status></ng-template>
+            <ng-template cesCell="prazo" let-s>
+              @if (tagPrazo(s); as t) { <ces-status [tone]="t.tom" [icon]="t.icone">{{ rotuloPrazo(s) }}</ces-status> } @else { <span class="pf-mudo">—</span> }
+            </ng-template>
+          </ces-data-table>
+        </section>
+
+        <section class="dash-grid pf-grid-espaco" aria-label="Obras e responsáveis">
+          <article class="dash-panel dash-col-7">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Obras</span><h2>Encerramento por obra</h2><p>Concluídas, em andamento e atrasadas. Clique numa obra.</p></div></header>
+            <ces-chart kind="bar-horizontal" title="Solicitações por obra" [showTitle]="false" [selectable]="true" selectLabel="Analisar a obra"
+              [labels]="graficoObras().rotulos" [series]="graficoObras().series" valueFormat="integer" [height]="Math.max(220, obrasTop().length * 40)"
+              (pointSelect)="analisarObra($event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-5">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Responsáveis</span><h2>Por supervisor</h2><p>A reserva é registrada pela equipe da obra. Clique para analisar.</p></div></header>
+            <ces-chart kind="bar-stacked" title="Solicitações por supervisor" [showTitle]="false" [selectable]="true" selectLabel="Analisar o supervisor"
+              [labels]="graficoSupervisores().rotulos" [series]="graficoSupervisores().series" valueFormat="integer" [height]="Math.max(220, obrasTop().length * 40)"
+              (pointSelect)="analisarSupervisor($event.index)"></ces-chart>
+          </article>
+        </section>
+
+        <section class="pf-secao" aria-labelledby="apf-obras">
+          <header><span class="dash-eyebrow">Obras</span><h2 id="apf-obras">Situação de cada obra</h2><p>Obra só encerra com todas as solicitações movimentadas.</p></header>
+          <ces-data-table title="Obras" storageKey="apf-obras" exportFileName="fechamento-por-obra" [columns]="colObras" [rows]="m.obras" [rowKey]="chaveObra"
+            searchPlaceholder="Filtrar obra" rowActionLabel="Analisar" (rowActivate)="analisar('obra', $event.chave)">
+            <ng-template cesCell="situacaoObra" let-o><ces-status [tone]="tagObra(o).tom" [icon]="tagObra(o).icone">{{ tagObra(o).rotulo }}</ces-status></ng-template>
+          </ces-data-table>
+        </section>
+      }
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

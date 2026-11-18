@@ -3,6 +3,7 @@ package com.nexo.app.modules.frota.application.usecases;
 import com.nexo.app.modules.frota.FrotaCondutorApi;
 import com.nexo.app.modules.frota.FrotaOdometroApi;
 import com.nexo.app.modules.frota.application.TelemetriaFrotaProperties;
+import com.nexo.app.modules.frota.application.events.MotoristaIdentificadoNaTelemetria;
 import com.nexo.app.modules.frota.domain.EventoTelemetria;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.FonteTelemetria;
@@ -174,6 +175,7 @@ public class SincronizacaoTelemetriaUseCases {
         r.vincularAutomaticamente(idVeiculo);
         var motorista = lido.leitura() == null ? null : lido.leitura().motorista();
         Boolean ignicaoAnterior = r.getIgnicao();
+        UUID motoristaAnterior = r.getIdColaboradorMotorista();
         boolean nova = r.registrarLeitura(lido.leitura(), rodada.colaborador(motorista).orElse(null));
         boolean gravarPosicao = nova && r.deveGravarPosicao(lido.leitura(), ignicaoAnterior, properties.getIntervaloPosicaoParado());
         if (gravarPosicao) {
@@ -196,6 +198,11 @@ public class SincronizacaoTelemetriaUseCases {
         if (nova) {
             if (r.isVinculado()) {
                 registrarKm(r, agora);
+                // Outro motorista no cartão do rastreador: ele passa a ser o condutor do veículo.
+                if (r.getIdColaboradorMotorista() != null && !r.getIdColaboradorMotorista().equals(motoristaAnterior)) {
+                    eventPublisher.publishEvent(new MotoristaIdentificadoNaTelemetria(r.getIdVeiculo(),
+                            r.getIdColaboradorMotorista(), lido.leitura().lidoEm(), r.getId()));
+                }
             }
         }
     }
@@ -205,7 +212,7 @@ public class SincronizacaoTelemetriaUseCases {
      * desde ela. Só grava quando avança o km atual, no máximo a cada intervalo configurado.
      */
     void registrarKm(RastreadorTelemetria r, OffsetDateTime agora) {
-        if (!r.podeRegistrarLeitura(agora, properties.getIntervaloLeitura())) {
+        if (!properties.isRegistrarKm() || !r.podeRegistrarLeitura(agora, properties.getIntervaloLeitura())) {
             return;
         }
         var ficha = fichas.findByIdVeiculo(r.getIdVeiculo()).orElse(null);

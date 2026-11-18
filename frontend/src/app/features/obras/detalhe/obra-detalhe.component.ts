@@ -94,6 +94,7 @@ import { ProgramacaoDetalhe, ResumoPlanejamentoObra } from '../../../core/models
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { ProgramacaoDetalheComponent } from '../programacao/programacao-detalhe.component';
 import { ROTULO_TURNO, SITUACAO_PROGRAMACAO, formatarNumero } from '../programacao/programacao.logic';
+import { ObraFechamentosComponent } from '../fechamento/obra-fechamentos.component';
 
 declare var L: any;
 
@@ -129,6 +130,7 @@ interface MarcoPrazo {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     ObraDocumentacaoComponent,
+    ObraFechamentosComponent,
     DevolucaoTecnicaFormComponent,
     ObraFormComponent,
     SolicitacaoTecnicaFormComponent,
@@ -182,6 +184,8 @@ export class ObraDetalheComponent {
   protected readonly podePlanejar = this.permissoes.includes('obras:planejamento:read');
   protected readonly podeVerProgramacao = this.permissoes.includes('obras:programacao:read');
   protected readonly podeVerDocumentacao = this.permissoes.includes('obras:documentacao:read');
+  protected readonly podeVerEncerramento = this.permissoes.includes('obras:fechamento:read');
+  protected readonly podeCriarEncerramento = this.podeVerEncerramento && this.permissoes.includes('obras:fechamento:create');
   private readonly apiProgramacao = inject(ObrasProgramacaoService);
   protected readonly programacoes = signal<ProgramacaoDetalhe[]>([]);
   protected readonly resumoPlanejamento = signal<ResumoPlanejamentoObra | null>(null);
@@ -617,6 +621,27 @@ export class ObraDetalheComponent {
 
   protected voltar(): void {
     void this.router.navigate(['/obras']);
+  }
+
+  /** Lista do encerramento já no recorte desta obra. */
+  protected verEncerramento(): void {
+    const o = this.obra();
+    if (o) void this.router.navigate(['/obras/encerramento'], { queryParams: { obra: o.id } });
+  }
+
+  /** Nova solicitação de encerramento com a obra já escolhida. */
+  protected novoEncerramento(): void {
+    const o = this.obra();
+    if (o) void this.router.navigate(['/obras/encerramento'], { queryParams: { obra: o.id, novaParaObra: o.id } });
+  }
+
+  protected abrirEncerramento(id: string): void {
+    const o = this.obra();
+    void this.router.navigate(['/obras/encerramento'], { queryParams: { obra: o?.id, abrir: id } });
+  }
+
+  protected imprimirEncerramento(id: string): void {
+    void this.router.navigate(['/obras/encerramento', id]);
   }
 
   protected solicitarMateriais(): void {

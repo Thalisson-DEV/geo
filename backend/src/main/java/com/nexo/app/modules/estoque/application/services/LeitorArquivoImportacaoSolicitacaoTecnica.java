@@ -58,6 +58,14 @@ public class LeitorArquivoImportacaoSolicitacaoTecnica {
             "Numero Reserva", "Data Criacao Reserva", "Agente Responsavel"
     );
 
+    /** Modelo anterior, com data e agente da reserva: continua aceito, mas só o número é lido. */
+    public static final List<String> CABECALHOS_COM_DATA_AGENTE = List.of(
+            "Numero Obra", "Ocorrencia OC OS",
+            "Almoxarifado Atendimento", "Codigo Equipe", "Data Prevista",
+            "Observacao", "Tipo Movimentacao", "Codigo Material", "Quantidade",
+            "Numero Reserva", "Data Criacao Reserva", "Agente Responsavel"
+    );
+
     private ArquivoLido lerCsv(byte[] bytes) {
         String conteudo = decodificarUtf8(bytes);
         if (conteudo.startsWith("\uFEFF")) {
@@ -110,6 +118,9 @@ public class LeitorArquivoImportacaoSolicitacaoTecnica {
         }
         if (CABECALHOS_LEGADO.equals(normalizados)) {
             return CABECALHOS_LEGADO;
+        }
+        if (CABECALHOS_COM_DATA_AGENTE.equals(normalizados)) {
+            return CABECALHOS_COM_DATA_AGENTE;
         }
         throw erroArquivo("Cabecalhos invalidos. Use o modelo oficial sem renomear ou reordenar colunas.");
     }

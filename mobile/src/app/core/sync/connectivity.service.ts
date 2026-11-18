@@ -1,4 +1,4 @@
-import { Injectable, signal, PLATFORM_ID, inject, effect, computed } from '@angular/core';
+import { Injectable, signal, PLATFORM_ID, inject, effect, computed, untracked, DestroyRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { SyncService } from './sync.service';
 import { TokenService } from '../auth/token.service';
@@ -61,15 +61,21 @@ export class ConnectivityService {
 
     // Gatilho automático para sincronizar o outbox ao voltar a ficar online
     effect(() => {
-      const isOnline = this.isOnline();
-      const token = this.tokenService?.token();
-      const aguardandoLogin = this.tokenService?.reautenticacaoNecessaria() ?? true;
-      if (isOnline && token && !aguardandoLogin && this.syncService) {
-        this.syncService.syncOutbox().catch(err => {
-          console.error('Erro ao sincronizar outbox automaticamente:', err);
-        });
-      }
+      this.isOnline();
+      this.tokenService?.token();
+      this.tokenService?.reautenticacaoNecessaria?.();
+      untracked(() => this.enviarFilaSePuder());
     });
+
+    // O Android congela o app em segundo plano e, ao voltar, `isOnline` costuma
+    // continuar igual: sem este gatilho a fila só saía com "Sincronizar".
+    if (isPlatformBrowser(this.platformId) && typeof document !== 'undefined') {
+      const aoVoltarAoApp = () => {
+        if (document.visibilityState === 'visible') this.enviarFilaSePuder();
+      };
+      document.addEventListener('visibilitychange', aoVoltarAoApp);
+      inject(DestroyRef).onDestroy(() => document.removeEventListener('visibilitychange', aoVoltarAoApp));
+    }
 
     // Se o usuário logar e não houver preferência gravada, aplica o default para CAMPO (false)
     if (this.tokenService) {
@@ -84,6 +90,17 @@ export class ConnectivityService {
             this.atualizarStatus();
           }
         }
+      });
+    }
+  }
+
+  /** Envia a fila quando há rede liberada e sessão válida; senão, espera o próximo gatilho. */
+  private enviarFilaSePuder(): void {
+    const token = this.tokenService?.token();
+    const aguardandoLogin = this.tokenService?.reautenticacaoNecessaria?.() ?? true;
+    if (this.isOnline() && token && !aguardandoLogin && this.syncService) {
+      this.syncService.syncOutbox().catch(err => {
+        console.error('Erro ao sincronizar outbox automaticamente:', err);
       });
     }
   }

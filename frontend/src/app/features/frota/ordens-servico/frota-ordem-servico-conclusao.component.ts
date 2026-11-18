@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked, viewChild } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import {
   CesButtonComponent,
   CesCalloutComponent,
@@ -30,8 +31,14 @@ import { fimDeHoje } from './frota-ordem-servico.util';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
 
+/** Concluir a OS ou completar a conclusão de uma OS concluída com valores pendentes. */
+export type ModoConclusao = 'concluir' | 'completar';
+
 /**
- * Encerramento da OS: datas reais, serviço feito, peças trocadas, valor, oficina e KM (ou horímetro).
+ * Encerramento da OS: datas reais, KM (ou horímetro), causa, serviço feito, peças trocadas, oficina
+ * e valor. Se algum serviço ou peça da execução estiver sem valor (ou, sem lançamentos, o valor ficar
+ * em branco), a OS fica "Concluída · valores pendentes" e finaliza sozinha quando o último valor entra.
+ * O modo "completar" ajusta causa, serviço, oficina e valor depois de concluída.
  * Uma OS pendente ou agendada também pode ser concluída aqui (serviço já realizado).
  */
 @Component({
@@ -39,6 +46,7 @@ import { FrotaService } from '../../../core/services/frota.service';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DatePipe,
     CesButtonComponent,
     CesCalloutComponent,
     CesDatepickerComponent,
@@ -51,8 +59,7 @@ import { FrotaService } from '../../../core/services/frota.service';
     CesTextareaComponent
   ],
   template: `
-    <ces-form-drawer #drawer [(visible)]="visivel" [title]="'Concluir ' + rotuloOs(ordem()?.ordem?.numero)"
-      [description]="(ordem()?.ordem?.veicular === false ? 'Sem veículo: ' + ordem()?.ordem?.descricaoEquipamento : 'Veículo ' + (ordem()?.ordem?.placa ?? '')) + '. As datas reais e o tempo parado alimentam os indicadores de manutenção.'"
+    <ces-form-drawer #drawer [(visible)]="visivel" [title]="titulo()" [description]="subtitulo()"
       [dirty]="alterado()" [loading]="salvando()" size="lg">
       <!-- Só com o drawer aberto: fechar destrói os datepickers e o painel que eles anexam ao body. -->
       @if (visivel()) {
@@ -61,27 +68,35 @@ import { FrotaService } from '../../../core/services/frota.service';
           Orçamentos aprovados no financeiro somam {{ moeda(valorAprovado()!) }}.
         </ces-callout>
       }
-      <ces-form-section title="Execução" icon="pi pi-clock">
-        <div class="ces-form-grid">
-          <ces-datepicker label="Início real" [required]="true" [(value)]="inicio" [showTime]="true" [maxDate]="agora"
-            [error]="erros()['inicio']"></ces-datepicker>
-          <ces-datepicker label="Fim real" [required]="true" [(value)]="fim" [showTime]="true" [maxDate]="agora"
-            [error]="erros()['fim']"></ces-datepicker>
-          @if (ordem()?.ordem?.veicular !== false) {
-            <ces-number-input [label]="horas() ? 'Horímetro na entrega' : 'KM na entrega'" [(value)]="km" [min]="0"
-              [suffix]="horas() ? ' h' : ' km'" [showOptional]="!preventiva()" [required]="preventiva()" [description]="kmDescricao()"
-              [error]="erros()['km']"></ces-number-input>
-          }
-          <ces-select label="Causa" [required]="true" [options]="causas()" [(value)]="causa" [error]="erros()['causa']"
-            [description]="causaSugerida() ? 'Sugerida pelo motivo informado na abertura.' : 'Por que a manutenção aconteceu.'"></ces-select>
-        </div>
-      </ces-form-section>
+      @if (modo() === 'concluir') {
+        <ces-form-section title="Execução" icon="pi pi-clock">
+          <div class="ces-form-grid">
+            <ces-datepicker label="Início real" [required]="true" [(value)]="inicio" [showTime]="true" [maxDate]="agora"
+              [error]="erros()['inicio']"></ces-datepicker>
+            <ces-datepicker label="Fim real" [required]="true" [(value)]="fim" [showTime]="true" [maxDate]="agora"
+              [error]="erros()['fim']"></ces-datepicker>
+            @if (ordem()?.ordem?.veicular !== false) {
+              <ces-number-input [label]="horas() ? 'Horímetro na entrega' : 'KM na entrega'" [(value)]="km" [min]="0"
+                [suffix]="horas() ? ' h' : ' km'" [showOptional]="!preventiva()" [required]="preventiva()" [description]="kmDescricao()"
+                [error]="erros()['km']"></ces-number-input>
+            }
+          </div>
+        </ces-form-section>
+      } @else if (ordem()?.ordem; as os) {
+        <ces-callout tone="neutral" icon="pi pi-check-circle" [dense]="true">
+          Serviço de {{ os.inicioReal | date: 'dd/MM/yyyy HH:mm' }} a {{ os.fimReal | date: 'dd/MM/yyyy HH:mm' }}.
+          Peças e serviços lançados na aba Execução entram no valor.
+        </ces-callout>
+      }
 
       <ces-form-section title="Serviço realizado" icon="pi pi-wrench">
+        <ces-select label="Causa" [required]="true" [options]="causas()" [(value)]="causa" [error]="erros()['causa']"
+          [description]="causaSugerida() ? 'Sugerida pelo motivo informado na abertura.' : 'Por que a manutenção aconteceu.'"></ces-select>
         <ces-multiselect label="Itens de manutenção" [required]="true" [options]="itensOpcoes()" [(value)]="idsItem" display="chip"
           [maxSelectedLabels]="6" description="Ajuste se o serviço feito foi diferente do previsto na abertura."
           [error]="erros()['idsItem']"></ces-multiselect>
         <ces-textarea label="Descrição do serviço" [required]="true" [(value)]="descricaoServico" [rows]="3" [maxlength]="4000"
+          [description]="descricaoVeioDaAbertura() ? 'Veio da abertura da OS. Ajuste só se o serviço foi diferente.' : undefined"
           [error]="erros()['descricaoServico']"></ces-textarea>
         <ces-textarea label="Itens substituídos" [(value)]="itensSubstituidos" [rows]="2" [maxlength]="4000" [showOptional]="true"
           placeholder="Peças trocadas, quantidades, marcas"></ces-textarea>
@@ -103,15 +118,23 @@ import { FrotaService } from '../../../core/services/frota.service';
               description="Calculado pelos serviços e peças da aba Execução."></ces-number-input>
           } @else {
             <ces-number-input label="Valor total" mode="currency" [(value)]="valorTotal" [min]="0" [showOptional]="true"
-              description="Sem serviços nem peças lançados, vale o valor informado aqui."></ces-number-input>
+              description="Sem serviços nem peças lançados, vale este valor. Em branco, a OS fica com valores pendentes."></ces-number-input>
           }
         </div>
       </ces-form-section>
+
+      @if (faltaValor().length) {
+        <ces-callout tone="warning" icon="pi pi-hourglass" [dense]="true"
+          [title]="modo() === 'concluir' ? 'A OS vai ficar com valores pendentes' : 'Ainda faltam valores'">
+          Falta o valor de: {{ faltaValor().join('; ') }}. Lance na aba Execução quando tiver
+          (ou marque como sem custo). Com o último valor, a OS fica finalizada sozinha.
+        </ces-callout>
+      }
       }
 
       <div drawer-footer class="ces-actions-row">
         <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" label="Concluir OS" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        <ces-button icon="pi pi-check" [label]="rotuloSalvar()" [loading]="salvando()" (pressed)="salvar()"></ces-button>
       </div>
     </ces-form-drawer>
   `
@@ -123,6 +146,7 @@ export class FrotaOrdemServicoConclusaoComponent {
   readonly visivel = model(false);
   readonly ordem = input<OrdemServicoDetalhe | null>(null);
   readonly opcoes = input<OpcoesFrota | null>(null);
+  readonly modo = input<ModoConclusao>('concluir');
   readonly salvo = output<OrdemServicoDetalhe>();
 
   protected readonly rotuloOs = rotuloOs;
@@ -144,7 +168,33 @@ export class FrotaOrdemServicoConclusaoComponent {
   protected readonly oficinaNome = signal('');
   protected readonly valorTotal = signal<number | null>(null);
   protected readonly causa = signal<CausaManutencao | null>(null);
+  protected readonly descricaoVeioDaAbertura = signal(false);
+  protected readonly titulo = computed(() =>
+    (this.modo() === 'completar' ? 'Completar a ' : 'Concluir ') + rotuloOs(this.ordem()?.ordem?.numero));
+  protected readonly subtitulo = computed(() => {
+    const os = this.ordem()?.ordem;
+    const alvo = os?.veicular === false ? 'Sem veículo: ' + os?.descricaoEquipamento : 'Veículo ' + (os?.placa ?? '');
+    return this.modo() === 'completar'
+      ? `${alvo}. Com todos os valores lançados, a OS fica finalizada e a execução não muda mais.`
+      : `${alvo}. As datas reais e o tempo parado alimentam os indicadores de manutenção.`;
+  });
+  protected readonly rotuloSalvar = computed(() => this.modo() === 'completar' ? 'Salvar' : 'Concluir OS');
   protected readonly totais = computed(() => this.ordem()?.totais ?? null);
+  /**
+   * O que vai deixar a OS com valores pendentes (a mesma regra do servidor): serviço ou peça com
+   * valor zero sem a marca "sem custo" (a mão de obra da oficina interna pode ficar zerada) ou,
+   * sem lançamentos, o valor em branco.
+   */
+  protected readonly faltaValor = computed(() => {
+    const d = this.ordem();
+    if (!d) return [];
+    if (!d.servicos.length && !d.pecas.length) return this.valorTotal() == null ? ['valor da OS'] : [];
+    const interna = this.tipoOficina() === 'INTERNA';
+    return [
+      ...d.servicos.filter((s) => !s.subtotal && !s.semCusto && !interna).map((s) => s.descricao),
+      ...d.pecas.filter((p) => !p.subtotal && !p.semCusto).map((p) => p.descricao)
+    ];
+  });
   private readonly drawer = viewChild.required<CesFormDrawerComponent>('drawer');
   /** Na preventiva o KM da entrega recomeça o ciclo do plano: vem preenchido com a leitura atual e é obrigatório. */
   protected readonly preventiva = computed(() => this.ordem()?.ordem.tipoManutencao === 'PREVENTIVA' && this.ordem()?.ordem.veicular !== false);
@@ -195,15 +245,17 @@ export class FrotaOrdemServicoConclusaoComponent {
 
   protected salvar(): void {
     const erros: Record<string, string> = {};
-    if (!this.inicio()) erros['inicio'] = 'Informe o início real.';
-    if (!this.fim()) erros['fim'] = 'Informe o fim real.';
-    if (this.inicio() && this.fim() && this.fim()! < this.inicio()!) erros['fim'] = 'O fim não pode ser antes do início.';
+    if (this.modo() === 'concluir') {
+      if (!this.inicio()) erros['inicio'] = 'Informe o início real.';
+      if (!this.fim()) erros['fim'] = 'Informe o fim real.';
+      if (this.inicio() && this.fim() && this.fim()! < this.inicio()!) erros['fim'] = 'O fim não pode ser antes do início.';
+      if (this.preventiva() && this.km() == null) {
+        erros['km'] = `Informe o ${this.horas() ? 'horímetro' : 'KM'} da entrega: o ciclo do plano recomeça por ele.`;
+      }
+    }
     if (!this.idsItem().length) erros['idsItem'] = 'Escolha ao menos um item.';
     if (!this.descricaoServico().trim()) erros['descricaoServico'] = 'Descreva o serviço realizado.';
     if (!this.causa()) erros['causa'] = 'Escolha a causa da manutenção.';
-    if (this.preventiva() && this.km() == null) {
-      erros['km'] = `Informe o ${this.horas() ? 'horímetro' : 'KM'} da entrega: o ciclo do plano recomeça por ele.`;
-    }
     if (this.tipoOficina() === 'EXTERNA' && !this.idFornecedor() && !this.oficinaNome().trim()) {
       erros['oficina'] = 'Escolha o fornecedor ou informe o nome da oficina.';
     }
@@ -212,24 +264,36 @@ export class FrotaOrdemServicoConclusaoComponent {
     if (Object.keys(erros).length) this.drawer().focusFirstError();
     if (Object.keys(erros).length || !os) return;
 
-    this.salvando.set(true);
-    this.frota.concluirOrdemServico(os.id, {
-      inicioReal: paraInstanteIso(this.inicio()!),
-      fimReal: paraInstanteIso(this.fim()!),
+    const dadosBaixa = {
       descricaoServico: this.descricaoServico().trim(),
       itensSubstituidos: this.itensSubstituidos().trim() || null,
       valorTotal: this.totais()?.calculado ? null : this.valorTotal(),
-      kmEncerramento: os.veicular ? this.km() : null,
       causa: this.causa(),
       tipoOficina: this.tipoOficina(),
       idFornecedor: this.tipoOficina() === 'EXTERNA' ? this.idFornecedor() : null,
       oficinaNome: this.oficinaNome().trim() || null,
       idsItem: this.idsItem()
-    }).subscribe({
+    };
+    this.salvando.set(true);
+    const requisicao = this.modo() === 'completar'
+      ? this.frota.completarConclusaoOrdemServico(os.id, { ...dadosBaixa, causa: this.causa()! })
+      : this.frota.concluirOrdemServico(os.id, {
+        inicioReal: paraInstanteIso(this.inicio()!),
+        fimReal: paraInstanteIso(this.fim()!),
+        kmEncerramento: os.veicular ? this.km() : null,
+        ...dadosBaixa
+      });
+    requisicao.subscribe({
       next: (detalhe) => {
         this.salvando.set(false);
         this.inicial.set(this.assinatura());
-        this.notificacoes.success(`${rotuloOs(detalhe.ordem.numero)} concluída.`);
+        const rotulo = rotuloOs(detalhe.ordem.numero);
+        const pendente = !!detalhe.ordem.baixaPendente;
+        if (this.modo() === 'completar') {
+          this.notificacoes.success(pendente ? `${rotulo} atualizada. Ainda faltam valores.` : `${rotulo} finalizada.`);
+        } else {
+          this.notificacoes.success(pendente ? `${rotulo} concluída, com valores pendentes.` : `${rotulo} concluída e finalizada.`);
+        }
         for (const aviso of detalhe.avisos) this.notificacoes.warning(aviso);
         this.visivel.set(false);
         this.salvo.emit(detalhe);
@@ -252,14 +316,17 @@ export class FrotaOrdemServicoConclusaoComponent {
     this.fim.set(agora);
     this.km.set(this.preventiva() ? (detalhe?.kmAtualVeiculo ?? null) : null);
     this.idsItem.set(detalhe?.itens.map((i) => i.idItem) ?? []);
+    // A descrição do serviço quase sempre repete a da abertura: vem preenchida para não digitar duas vezes.
     const planos = detalhe?.preventivas.map((p) => p.plano) ?? [];
-    this.descricaoServico.set(planos.length ? `${planos.join(', ')} conforme o roteiro.` : '');
-    this.itensSubstituidos.set('');
+    const daAbertura = planos.length ? `${planos.join(', ')} conforme o roteiro.` : (os?.descricao ?? '');
+    this.descricaoServico.set(os?.descricaoServico ?? daAbertura);
+    this.descricaoVeioDaAbertura.set(!os?.descricaoServico && !!daAbertura);
+    this.itensSubstituidos.set(os?.itensSubstituidos ?? '');
     this.tipoOficina.set(os?.tipoOficina ?? 'EXTERNA');
     this.idFornecedor.set(os?.idFornecedor ?? null);
     // O local do agendamento costuma ser a oficina: não pede para digitar de novo.
     this.oficinaNome.set(os?.oficinaNome ?? (os?.idFornecedor ? '' : (os?.localAgendamento ?? '')));
-    this.valorTotal.set(this.valorAprovado());
+    this.valorTotal.set(os?.valorTotal ?? this.valorAprovado());
     // Preventiva sugere a causa; corretiva parte do motivo da abertura, quando há equivalente.
     const sugerida = os?.causa ? null : os?.tipoManutencao === 'PREVENTIVA' ? 'SERVICO_PREVENTIVO' : causaDoMotivo(os?.motivo ?? null);
     this.causa.set(os?.causa ?? sugerida);

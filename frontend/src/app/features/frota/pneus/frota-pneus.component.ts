@@ -356,6 +356,7 @@ export class FrotaPneusComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-pneus',
+    rememberFilters: 'frota-pneus',
     filters: {
       situacoes: cesFilter.list<SituacaoPneu>(ATIVOS, {
         label: 'Situação', param: 'situacao',

@@ -204,6 +204,7 @@ export class FrotaSegurosComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-seguros',
+    rememberFilters: 'frota-seguros',
     filters: {
       situacao: cesFilter.value<Vigencia | null>(null, { label: 'Vigência', options: () => VIGENCIAS }),
       idsSeguradora: cesFilter.list<string>([], {
@@ -214,7 +215,7 @@ export class FrotaSegurosComponent {
         label: 'Veículo', param: 'veiculo',
         options: () => this.opcoesVeiculo()
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` })
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` })
     },
     sort: [{ key: 'vigenciaFim', direction: 'asc' }]
   });

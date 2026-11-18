@@ -35,6 +35,7 @@ public class AcaoUseCases {
             throw new InvarianteVioladaException("Já existe uma ação com este código: " + request.codigo());
         }
         Acao acao = new Acao(request.codigo(), request.nome());
+        acao.definirImprodutiva(Boolean.TRUE.equals(request.improdutiva()));
         return mapper.toResponse(repository.save(acao));
     }
 
@@ -48,6 +49,9 @@ public class AcaoUseCases {
         });
 
         acao.atualizar(request.codigo(), request.nome());
+        if (request.improdutiva() != null) {
+            acao.definirImprodutiva(request.improdutiva());
+        }
         return mapper.toResponse(repository.save(acao));
     }
 

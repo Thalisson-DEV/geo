@@ -5,6 +5,7 @@ import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MessageService } from 'primeng/api';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
+import { FechamentoObraService } from '../../../core/services/fechamento-obra.service';
 import { ExportarSolicitacoesDialogComponent } from './exportar-solicitacoes-dialog.component';
 
 try {
@@ -18,6 +19,7 @@ describe('ExportarSolicitacoesDialogComponent', () => {
     exportarSolicitacoesResumo: ReturnType<typeof vi.fn>;
     exportarSolicitacoesDetalhado: ReturnType<typeof vi.fn>;
   };
+  let mockFechamentoService: { exportar: ReturnType<typeof vi.fn> };
   let mockMessageService: {
     add: ReturnType<typeof vi.fn>;
   };
@@ -32,10 +34,13 @@ describe('ExportarSolicitacoesDialogComponent', () => {
       add: vi.fn(),
     };
 
+    mockFechamentoService = { exportar: vi.fn().mockReturnValue(of(new Blob(['csv'], { type: 'text/csv' }))) };
+
     await TestBed.configureTestingModule({
       imports: [ExportarSolicitacoesDialogComponent],
       providers: [
         { provide: AlmoxarifadoService, useValue: mockAlmoxarifadoService },
+        { provide: FechamentoObraService, useValue: mockFechamentoService },
         { provide: MessageService, useValue: mockMessageService },
       ],
     }).compileComponents();
@@ -223,5 +228,23 @@ describe('ExportarSolicitacoesDialogComponent', () => {
         summary: 'Erro ao exportar',
       })
     );
+  });
+  it('no fechamento abre com o recorte da lista e exporta pelo serviço do fechamento', () => {
+    component.contextoInicial = 'FECHAMENTO';
+    component.filtrosAtivos = { minhas: true, idObra: 'obra-1', situacoes: ['AGUARDANDO_RESERVA'], prazo: 'ATRASADO', reserva: '123', criadaDe: '2026-11-01' };
+    component.sincronizarFiltros();
+    component.formatoSelecionado = 'detalhado';
+    vi.spyOn(window.URL, 'createObjectURL').mockReturnValue('blob:x');
+    vi.spyOn(window.URL, 'revokeObjectURL').mockImplementation(() => undefined);
+
+    expect(component.ehFechamento).toBe(true);
+    expect(component.statusSelecionados).toEqual(['AGUARDANDO_RESERVA']);
+    component.filtroTiposFechamento = ['221'];
+    component.executarExportacao();
+
+    expect(mockAlmoxarifadoService.exportarSolicitacoesDetalhado).not.toHaveBeenCalled();
+    expect(mockFechamentoService.exportar).toHaveBeenCalledWith('detalhado', expect.objectContaining({
+      minhas: true, idObra: 'obra-1', situacoes: ['AGUARDANDO_RESERVA'], tipos: ['221'], prazo: 'ATRASADO', reserva: '123', criadaDe: '2026-11-01', idSolicitante: undefined,
+    }));
   });
 });

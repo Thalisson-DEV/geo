@@ -20,4 +20,10 @@ public interface FinanceiroApi {
 
     /** Nome de exibição dos fornecedores informados, por id. */
     Map<UUID, String> nomesFornecedores(Collection<UUID> ids);
+
+    /** Local de aquisição e forma de pagamento da compra mais recente com o fornecedor, se houver. */
+    java.util.Optional<CondicoesCompraFornecedor> ultimasCondicoesFornecedor(UUID idFornecedor);
+
+    /** Setor / centro de custo (processo) da compra mais recente do veículo, se houver. */
+    java.util.Optional<UUID> ultimoProcessoDoVeiculo(UUID idVeiculo);
 }

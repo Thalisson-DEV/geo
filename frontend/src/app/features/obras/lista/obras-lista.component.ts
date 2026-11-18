@@ -57,6 +57,9 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { ImportacaoPlanilhaObrasComponent } from '../importacao/importacao-planilha-obras.component';
 import { COLUNAS_CARTEIRA, COLUNAS_ORCAMENTO, fonteCarteira, fonteOrcamento } from '../importacao/importacoes-obras';
 import { ObrasKitService } from '../../../core/services/obras-kit.service';
+import { FechamentoObraService } from '../../../core/services/fechamento-obra.service';
+import { SituacaoFechamentoObra } from '../../../core/models/fechamento-obra.models';
+import { SITUACOES_OBRA } from '../fechamento/fechamento-ui';
 import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate, sanitizarNumeroObra, sanitizarTituloObra, statusIcon, statusTone } from '../obras-ui';
 
 export type ObraImportRow = ObraImportacaoDTO & { editing?: boolean };
@@ -99,6 +102,8 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
       white-space: nowrap;
     }
 
+    .obra-encerramento { display: inline-flex; margin-top: 0.25rem; padding: 0; border: 0; background: none; cursor: pointer; border-radius: var(--ces-radius-sm); }
+    .obra-encerramento:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
     .obra-titulo {
       display: block;
       min-width: 16rem;
@@ -235,6 +240,11 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         <ng-template cesCell="titulo" let-row><span class="obra-titulo" [title]="row.titulo">{{ row.titulo }}</span></ng-template>
         <ng-template cesCell="status" let-row>
           <ces-status [tone]="statusTone(row.statusNome, row.statusConcluida)" [icon]="statusIcon(row.statusNome)">{{ row.statusNome }}</ces-status>
+          @if (encerramentoDe(row); as enc) {
+            <button type="button" class="obra-encerramento" [title]="'Ver o encerramento da obra ' + row.numero" (click)="verEncerramento(row); $event.stopPropagation()">
+              <ces-status [tone]="enc.tone" [icon]="enc.icon">{{ enc.label }}</ces-status>
+            </button>
+          }
         </ng-template>
         <ng-template cesCell="planejado" let-row>
           @if (resumoDe(row); as r) {
@@ -271,6 +281,9 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">
             <ces-icon-button icon="pi pi-cart-plus" [label]="'Solicitar materiais para ' + row.numero" size="icon-sm" (pressed)="solicitarMateriais(row)"></ces-icon-button>
+            @if (podeCriarEncerramento) {
+              <ces-icon-button icon="pi pi-flag" [label]="'Nova solicitação de encerramento da obra ' + row.numero" size="icon-sm" (pressed)="novoEncerramento(row)"></ces-icon-button>
+            }
             @if (podeDevolver) {
               <ces-icon-button icon="pi pi-undo" [label]="'Devolver materiais de ' + row.numero" size="icon-sm" (pressed)="devolvendoObra.set(row.id)"></ces-icon-button>
             }
@@ -495,6 +508,28 @@ export class ObrasListComponent {
     if (!this.podeVerPlanejamento || !ids.length) return;
     untracked(() => this.programacoes.resumos(ids).pipe(catchError(() => of([]))).subscribe((lista) => this.resumos.set(new Map(lista.map((r) => [r.idObra, r])))));
   });
+  // Situação do encerramento das obras da página (solicitações para regularizar o material depois de finalizada).
+  private readonly encerramentos = inject(FechamentoObraService);
+  private readonly podeVerEncerramento = this.permissoes.includes('obras:fechamento:read');
+  protected readonly podeCriarEncerramento = this.podeVerEncerramento && this.permissoes.includes('obras:fechamento:create');
+  private readonly situacoesEncerramento = signal<Record<string, SituacaoFechamentoObra>>({});
+  private readonly carregaEncerramentos = effect(() => {
+    const ids = this.resultado.rows().map((o) => o.id);
+    if (!this.podeVerEncerramento || !ids.length) return;
+    untracked(() => this.encerramentos.situacoesObras(ids).pipe(catchError(() => of({}))).subscribe((s) => this.situacoesEncerramento.set(s)));
+  });
+  /** Só mostra quando a obra já tem solicitação de encerramento. */
+  protected encerramentoDe(obra: ObraResumoResponse) {
+    const situacao = this.situacoesEncerramento()[obra.id];
+    return situacao && situacao !== 'SEM_SOLICITACOES' ? SITUACOES_OBRA[situacao] : null;
+  }
+  protected verEncerramento(obra: ObraResumoResponse): void {
+    void this.router.navigate(['/obras/encerramento'], { queryParams: { obra: obra.id } });
+  }
+  protected novoEncerramento(obra: ObraResumoResponse): void {
+    void this.router.navigate(['/obras/encerramento'], { queryParams: { obra: obra.id, novaParaObra: obra.id } });
+  }
+
   protected resumoDe(obra: ObraResumoResponse): ResumoPlanejamentoObra | undefined {
     return this.resumos().get(obra.id);
   }

@@ -11,7 +11,8 @@ import { RascunhoService, VinculoRascunho } from '../../../core/sessao/rascunho.
 import { RascunhoStore } from '../../../core/sessao/rascunho.store';
 import { SessaoService } from '../../../core/sessao/sessao.service';
 import {
-  BaseOperacionalLocal, ColaboradorLocal, EquipeLocal, FormularioLocal, InspecaoLocal, ProcessoLocal, TipoInspecaoLocal, VeiculoLocal,
+  BaseOperacionalLocal, ColaboradorLocal, EquipeLocal, FormularioLocal, GrupoPerguntaLocal, InspecaoLocal, PerguntaLocal, ProcessoLocal,
+  TipoInspecaoLocal, VeiculoLocal,
 } from '../../../core/db/models';
 import { BaseOperacionalService } from '../../../core/sst/base-operacional.service';
 import {
@@ -142,19 +143,47 @@ const PREFIXO_BRUTO = 'bruto:';
 
           @if (currentStep() === 2) {
             @if (formularioAtivo(); as form) {
+              @let pg = progresso();
+              <div class="progresso" role="status">
+                <div class="progresso__linha">
+                  <span class="ces-num">{{ pg.respondidas }} de {{ pg.total }}</span>
+                  @if (pg.naoConformes) {
+                    <span class="progresso__nc"><ces-icone nome="desvio" [tamanho]="14" />{{ pg.naoConformes }} não {{ pg.naoConformes === 1 ? 'conforme' : 'conformes' }}</span>
+                  } @else {
+                    <span class="progresso__ok"><ces-icone nome="check" [tamanho]="14" />Tudo conforme até aqui</span>
+                  }
+                </div>
+                <div class="progresso__trilho" aria-hidden="true"><i [style.width.%]="pg.total ? (pg.respondidas * 100) / pg.total : 0"></i></div>
+              </div>
               @for (grupo of form.grupos; track grupo.id) {
-                <h2 class="ces-secao">{{ grupo.titulo }}</h2>
+                @let rg = resumoGrupo(grupo);
+                <div class="grupo-topo">
+                  <button type="button" class="grupo-titulo" (click)="alternarGrupo(grupo.id)" [attr.aria-expanded]="!grupoRecolhido(grupo.id)">
+                    <ces-icone [nome]="grupoRecolhido(grupo.id) ? 'expandir' : 'recolher'" [tamanho]="18" />
+                    <span class="grupo-titulo__texto">{{ grupo.titulo }}</span>
+                    <span class="grupo-titulo__conta ces-num">{{ rg.respondidas }}/{{ rg.total }}</span>
+                    @if (rg.naoConformes) { <span class="grupo-titulo__nc ces-num">{{ rg.naoConformes }} NC</span> }
+                  </button>
+                  @if (rg.checklist && !grupoRecolhido(grupo.id)) {
+                    <div class="grupo-acoes">
+                      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto" (click)="marcarGrupo(grupo, 'conforme')"><ces-icone nome="check" [tamanho]="16" />Tudo conforme</button>
+                      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto" (click)="marcarGrupo(grupo, 'não se aplica')"><ces-icone nome="menos" [tamanho]="16" />Não se aplica</button>
+                    </div>
+                  }
+                </div>
+                @if (!grupoRecolhido(grupo.id)) {
                 <div class="perguntas">
                   @for (p of grupo.perguntas; track p.id) {
-                    <fieldset class="pergunta" [class.pendente]="tentou() && p.obrigatoria && !respondida(p)">
+                    <fieldset class="pergunta" [class.pendente]="tentou() && p.obrigatoria && !respondida(p)" [class.nc]="temNaoConforme(p)">
                       <legend>{{ p.enunciado }}@if (p.obrigatoria) {<span aria-hidden="true"> *</span>}</legend>
+                      @if (p.orientacao) { <p class="orientacao"><ces-icone nome="info" [tamanho]="14" />{{ p.orientacao }}</p> }
                       @switch (p.tipoResposta) {
                         @case ('MULTIPLA_ESCOLHA') {
-                          <div class="opcoes" role="radiogroup" [attr.aria-label]="p.enunciado">
+                          <div class="opcoes" [class.segmento]="ehChecklist(p)" role="radiogroup" [attr.aria-label]="p.enunciado">
                             @for (o of p.opcoes; track o.id) {
                               <button type="button" role="radio" class="opcao" [attr.aria-checked]="isOpcaoSelecionada(p.id, o.id)"
                                 [class.gera-desvio]="o.geraDesvio && isOpcaoSelecionada(p.id, o.id)" (click)="setOpcaoRespostaUnica(p.id, o.id)">
-                                <span class="radio" aria-hidden="true"></span>{{ o.texto }}
+                                @if (!ehChecklist(p)) { <span class="radio" aria-hidden="true"></span> }{{ o.texto }}
                               </button>
                             }
                           </div>
@@ -184,6 +213,7 @@ const PREFIXO_BRUTO = 'bruto:';
                     </fieldset>
                   }
                 </div>
+                }
               }
             }
           }
@@ -207,7 +237,7 @@ const PREFIXO_BRUTO = 'bruto:';
                     [attr.aria-invalid]="tentou() && !d.acaoCorretiva.trim() ? 'true' : null"></textarea>
                 </div>
                 <div class="ces-campo">
-                  <span class="ces-campo__rotulo">Pessoas envolvidas *</span>
+                  <span class="ces-campo__rotulo">{{ exigeColaborador(d.idPergunta) ? 'Pessoas envolvidas *' : 'Pessoas envolvidas (opcional, item da equipe)' }}</span>
                   <div class="opcoes">
                     @for (c of getColaboradoresInspecionadosList(); track c.id) {
                       <button type="button" role="checkbox" class="opcao" [attr.aria-checked]="d.colaboradores.includes(c.id)"
@@ -323,6 +353,28 @@ const PREFIXO_BRUTO = 'bruto:';
     .intro { margin: var(--ces-e2) var(--ces-e5) var(--ces-e3); color: var(--ces-texto-2); }
     .dica { margin: var(--ces-e4) var(--ces-e5) 0; color: var(--ces-texto-2); }
     .perguntas { display: grid; gap: var(--ces-e2); padding: 0 var(--ces-e3); }
+    .progresso { position: sticky; top: 0; z-index: 4; display: grid; gap: var(--ces-e2); margin: 0 0 var(--ces-e2); padding: var(--ces-e3) var(--ces-e5);
+      background: var(--ces-fundo); border-bottom: 1px solid var(--ces-linha); }
+    .progresso__linha { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e3); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .progresso__linha > span:first-child, .progresso__nc { font-weight: 600; color: var(--ces-texto); }
+    .progresso__nc, .progresso__ok { display: inline-flex; align-items: center; gap: 4px; }
+    .progresso__nc ces-icone { color: var(--ces-atencao); }
+    .progresso__ok ces-icone { color: var(--ces-ok); }
+    .progresso__trilho { height: 4px; border-radius: var(--ces-r-pilula); background: var(--ces-linha); overflow: hidden; }
+    .progresso__trilho i { display: block; height: 100%; background: var(--ces-destaque); }
+    .grupo-topo { display: grid; gap: var(--ces-e2); padding: var(--ces-e4) var(--ces-e3) var(--ces-e2); }
+    .grupo-titulo { display: flex; align-items: center; gap: var(--ces-e2); min-height: 44px; padding: 0 var(--ces-e2); border: 0; background: transparent;
+      color: var(--ces-texto); text-align: left; cursor: pointer; font: var(--ces-t-secao); }
+    .grupo-titulo__texto { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .grupo-titulo__conta { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .grupo-titulo__nc { padding: 2px 8px; border-radius: var(--ces-r-pilula); background: var(--ces-atencao-suave); color: var(--ces-texto); font: 600 .75rem/1.4 var(--ces-fonte); }
+    .grupo-acoes { display: flex; gap: var(--ces-e2); padding: 0 var(--ces-e2); }
+    .grupo-acoes .ces-btn { flex: 1; }
+    .orientacao { display: flex; align-items: flex-start; gap: 6px; margin: calc(var(--ces-e2) * -1) 0 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .orientacao ces-icone { flex: none; margin-top: 2px; }
+    .pergunta.nc { box-shadow: inset 4px 0 0 var(--ces-atencao); }
+    .segmento { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+    .segmento .opcao { justify-content: center; text-align: center; padding: var(--ces-e2) 6px; font-size: .875rem; line-height: 1.2; }
     .pergunta { margin: 0; border: 0; padding: var(--ces-e4); background: var(--ces-superficie); border-radius: var(--ces-r-grupo); display: grid; gap: var(--ces-e3); min-width: 0; }
     .pergunta.pendente { box-shadow: inset 0 0 0 1.5px var(--ces-erro); }
     legend { float: left; width: 100%; padding: 0; font: var(--ces-t-corpo-forte); }
@@ -584,7 +636,7 @@ export class NovaInspecaoComponent implements OnInit, OnDestroy {
     if (draft.idEquipe) this.idEquipe.set(draft.idEquipe);
     if (draft.idBaseOperacional) this.idBaseOperacional.set(draft.idBaseOperacional);
     if (draft.idVeiculo) this.idVeiculo.set(draft.idVeiculo);
-    if (draft.idColaboradoresInspecionados) this.idColaboradoresInspecionados.set(draft.idColaboradoresInspecionados);
+    if (draft.idColaboradoresInspecionados) this.idColaboradoresInspecionados.set([...new Set(draft.idColaboradoresInspecionados)]);
     if (draft.observacoes) this.observacoes.set(draft.observacoes);
     if (draft.draftData) {
       try {
@@ -651,7 +703,7 @@ export class NovaInspecaoComponent implements OnInit, OnDestroy {
     if (v.nomeEquipe) this.nomeEquipe.set(v.nomeEquipe);
     this.idBaseOperacional.set(v.idBaseOperacional);
     this.idVeiculo.set(v.idVeiculo);
-    this.idColaboradoresInspecionados.set(v.idColaboradores ?? []);
+    this.idColaboradoresInspecionados.set([...new Set(v.idColaboradores ?? [])]);
     this.observacoes.set(v.observacoes ?? '');
     this.respostas.set(v.respostas ?? []);
     this.desviosGerados.set(v.desvios ?? []);
@@ -728,7 +780,7 @@ export class NovaInspecaoComponent implements OnInit, OnDestroy {
       return form.grupos.every(g => g.perguntas.every(p => !p.obrigatoria || this.respondida(p)));
     }
     if (this.hasDesvios() && step === 3) {
-      return this.desviosGerados().every(d => d.acaoCorretiva?.trim().length > 0 && d.colaboradores?.length > 0);
+      return this.desviosGerados().every(d => d.acaoCorretiva?.trim().length > 0 && (d.colaboradores?.length > 0 || !this.exigeColaborador(d.idPergunta)));
     }
     // Nenhuma inspeção é aceita sem foto: o bloqueio acontece aqui, e não num 400 do backend.
     if (step === this.stepEvidencias()) return this.evidencias().length > 0 && !this.isPreparandoEvidencia();
@@ -771,7 +823,7 @@ export class NovaInspecaoComponent implements OnInit, OnDestroy {
     this.nomeEquipe.set(e.codigo || 'Equipe');
     this.idVeiculo.set(e.idVeiculo || null);
     if (e.idBaseOperacional) this.idBaseOperacional.set(e.idBaseOperacional);
-    if (e.membrosIds && e.membrosIds.length > 0) this.idColaboradoresInspecionados.set(e.membrosIds);
+    if (e.membrosIds && e.membrosIds.length > 0) this.idColaboradoresInspecionados.set([...new Set(e.membrosIds)]);
   }
 
   onFormularioChange(id: string): void {
@@ -787,6 +839,76 @@ export class NovaInspecaoComponent implements OnInit, OnDestroy {
     }
     this.respostas.set(iniciais);
     this.desviosGerados.set([]);
+  }
+
+  // ---------- navegação do questionário ----------
+  private readonly recolhidos = signal<ReadonlySet<string>>(new Set());
+
+  grupoRecolhido(id: string): boolean {
+    return this.recolhidos().has(id);
+  }
+
+  alternarGrupo(id: string): void {
+    const novo = new Set(this.recolhidos());
+    if (novo.has(id)) novo.delete(id);
+    else novo.add(id);
+    this.recolhidos.set(novo);
+  }
+
+  /** Checklist C/NC/NA: até três opções, uma "Conforme" e outra gerando desvio. */
+  ehChecklist(p: PerguntaLocal): boolean {
+    return p.tipoResposta === 'MULTIPLA_ESCOLHA' && p.opcoes.length <= 3 && p.opcoes.some(o => o.geraDesvio)
+      && p.opcoes.some(o => o.texto.trim().toLowerCase() === 'conforme');
+  }
+
+  temNaoConforme(p: PerguntaLocal): boolean {
+    return p.opcoes.some(o => o.geraDesvio && this.isOpcaoSelecionada(p.id, o.id));
+  }
+
+  resumoGrupo(g: GrupoPerguntaLocal): { total: number; respondidas: number; naoConformes: number; checklist: boolean } {
+    let respondidas = 0;
+    let naoConformes = 0;
+    for (const p of g.perguntas) {
+      if (this.respondida(p)) respondidas++;
+      if (this.temNaoConforme(p)) naoConformes++;
+    }
+    return { total: g.perguntas.length, respondidas, naoConformes, checklist: g.perguntas.filter(p => this.ehChecklist(p)).length > 1 };
+  }
+
+  readonly progresso = computed(() => {
+    this.respostas();
+    const total = { total: 0, respondidas: 0, naoConformes: 0 };
+    for (const g of this.formularioAtivo()?.grupos ?? []) {
+      const r = this.resumoGrupo(g);
+      total.total += r.total;
+      total.respondidas += r.respondidas;
+      total.naoConformes += r.naoConformes;
+    }
+    return total;
+  });
+
+  /** Mesma resposta em todos os itens de checklist do grupo; "conforme" preserva as não conformidades já marcadas. */
+  marcarGrupo(g: GrupoPerguntaLocal, texto: 'conforme' | 'não se aplica'): void {
+    const mudancas = new Map<string, string>();
+    for (const p of g.perguntas) {
+      if (!this.ehChecklist(p) || (texto === 'conforme' && this.temNaoConforme(p))) continue;
+      const opcao = p.opcoes.find(o => o.texto.trim().toLowerCase() === texto);
+      if (opcao) mudancas.set(p.id, opcao.id);
+    }
+    if (!mudancas.size) return;
+    this.respostas.set([
+      ...this.respostas().filter(r => !mudancas.has(r.idPergunta)),
+      ...[...mudancas].map(([idPergunta, idOpcao]) => ({ idPergunta, opcoesSelecionadas: [idOpcao] })),
+    ]);
+    this.avaliarDesvios();
+  }
+
+  exigeColaborador(idPergunta: string): boolean {
+    for (const g of this.formularioAtivo()?.grupos ?? []) {
+      const p = g.perguntas.find(x => x.id === idPergunta);
+      if (p) return p.desvioPorColaborador !== false;
+    }
+    return true;
   }
 
   // ---------- respostas e desvios ----------

@@ -1,3 +1,4 @@
+import { ICONE_STATUS_SOLICITACAO } from '../../../core/models/financeiro.models';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
@@ -118,7 +119,8 @@ export class FinanceiroReportNavigatorDataSource
       title: raw.valores?.['descricao']?.exibicao || raw.formulario?.titulo || 'Solicitação sem descrição',
       status: {
         label: STATUS_LABELS[raw.status] || raw.status,
-        tone: STATUS_TONES[raw.status] || 'neutral'
+        tone: STATUS_TONES[raw.status] || 'neutral',
+        icon: ICONE_STATUS_SOLICITACAO[raw.status]
       },
       metaAuthor: {
         label: nomeSolicitante(raw),

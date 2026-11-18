@@ -62,7 +62,7 @@ class ConsultarNotasDoRecorteUseCaseTest {
     @SuppressWarnings("unchecked")
     void usaHojeEEquipesDoRecorte() {
         PageResponse<NotaDoRecorteResponse> pagina = useCase.executar(
-                new NotasDoRecorteFilter(null, null, null, null, null, null, null), PageRequest.of(0, 50));
+                new NotasDoRecorteFilter(null, null, null, null, null, null, null, null), PageRequest.of(0, 50));
 
         ArgumentCaptor<Collection<UUID>> equipes = ArgumentCaptor.forClass(Collection.class);
         verify(execucaoApi).listarConcluidasDasEquipes(equipes.capture(),
@@ -83,7 +83,7 @@ class ConsultarNotasDoRecorteUseCaseTest {
     void restringeEquipe() {
         UUID foraDoRecorte = UUID.randomUUID();
         useCase.executar(new NotasDoRecorteFilter(LocalDate.parse("2026-10-01"), LocalDate.parse("2026-10-09"),
-                null, null, foraDoRecorte, null, true), PageRequest.of(0, 50));
+                null, null, foraDoRecorte, null, true, null), PageRequest.of(0, 50));
 
         ArgumentCaptor<Collection<UUID>> equipes = ArgumentCaptor.forClass(Collection.class);
         verify(execucaoApi).listarConcluidasDasEquipes(equipes.capture(), any(), any(), eq(null), eq(true), any());
@@ -108,7 +108,7 @@ class ConsultarNotasDoRecorteUseCaseTest {
     @DisplayName("Período invertido é recusado")
     void periodoInvertido() {
         assertThatThrownBy(() -> useCase.executar(new NotasDoRecorteFilter(LocalDate.parse("2026-10-09"),
-                LocalDate.parse("2026-10-01"), null, null, null, null, null), PageRequest.of(0, 50)))
+                LocalDate.parse("2026-10-01"), null, null, null, null, null, null), PageRequest.of(0, 50)))
                 .isInstanceOf(InvarianteVioladaException.class);
     }
 

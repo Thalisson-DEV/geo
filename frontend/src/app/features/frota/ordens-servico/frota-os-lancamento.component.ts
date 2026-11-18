@@ -1,9 +1,10 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
   CesAutocompleteComponent,
+  CesBooleanControlComponent,
   CesButtonComponent,
   CesCalloutComponent,
   CesFormDrawerComponent,
@@ -16,6 +17,7 @@ import {
 import { LookupStore } from '../../../core/lookup';
 import { SaldoPecaFrota } from '../../../core/models/frota-pneu.models';
 import {
+  ItemManutencao,
   OpcoesFrota,
   OrdemServicoDetalhe,
   OrigemPeca,
@@ -46,22 +48,34 @@ const UNIDADES = ['UN', 'L', 'KG', 'M', 'JG', 'PC', 'CX', 'KIT'];
     FormsModule,
     RouterLink,
     CesAutocompleteComponent,
+    CesBooleanControlComponent,
     CesButtonComponent,
     CesCalloutComponent,
     CesFormDrawerComponent,
     CesNumberInputComponent,
     CesSelectComponent,
-    CesTextInputComponent
+    CesTextInputComponent,
+    NgTemplateOutlet
   ],
+  styles: `
+    .catalogo-acao { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; margin-top: -0.5rem;
+      font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+  `,
   template: `
     <ces-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()"
       [dirty]="alterado()" [loading]="salvando()" size="sm">
       <div class="ces-form-stack">
         @if (tipo() === 'servico') {
-          <ces-text-input label="Serviço" [required]="true" [(value)]="nome" [maxlength]="300"
-            placeholder="Ex.: troca das pastilhas dianteiras" [error]="erro('nome')"></ces-text-input>
-          <ces-select label="Item da OS" [options]="itensOpcoes()" [(value)]="idItem" [clearable]="true" [showOptional]="true"
-            description="Liga a mão de obra ao item de manutenção, para o custo por item."></ces-select>
+          @if (usaCatalogo()) {
+            <!-- Mão de obra da lista de itens de manutenção: o mesmo serviço não ganha nomes diferentes. -->
+            <ces-select label="Serviço" [required]="true" [options]="opcoesItens()" [(value)]="idItemCatalogo" [filter]="true"
+              filterPlaceholder="Procurar serviço" [loading]="carregandoItens()" [error]="erro('catalogo')"
+              description="Itens de manutenção do tipo mão de obra."></ces-select>
+            <ng-container *ngTemplateOutlet="naoAchou"></ng-container>
+          } @else {
+            <ces-text-input label="Serviço" [required]="true" [(value)]="nome" [maxlength]="300" [error]="erro('nome')"
+              description="Lançado antes da lista de itens: o nome fica como foi digitado."></ces-text-input>
+          }
           @if (interna()) {
             <ces-autocomplete label="Mecânico" [required]="true" [options]="opcoesMecanico()" [status]="statusBusca()"
               [loading]="statusBusca() === 'loading'" [ngModel]="idMecanico()" (ngModelChange)="idMecanico.set($event)"
@@ -91,9 +105,24 @@ const UNIDADES = ['UN', 'L', 'KG', 'M', 'JG', 'PC', 'CX', 'KIT'];
               filterPlaceholder="Código, nome ou almoxarifado" [loading]="carregandoSaldos()" [error]="erro('saldo')" [description]="descricaoSaldo()"></ces-select>
             <ces-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
               [maxFractionDigits]="casasSaldo()" [suffix]="saldoAtual() ? ' ' + saldoAtual()!.unidade : ''" [error]="erroQuantidadeSaldo()"></ces-number-input>
+          } @else if (usaCatalogo()) {
+            <!-- Peça da lista de itens de manutenção: a mesma peça não ganha cinco nomes diferentes. -->
+            <ces-select label="Peça ou consumível" [required]="true" [options]="opcoesItens()" [(value)]="idItemCatalogo" [filter]="true"
+              filterPlaceholder="Procurar peça" [loading]="carregandoItens()" [error]="erro('catalogo')"
+              description="Itens de manutenção do tipo peça ou consumível."></ces-select>
+            <ng-container *ngTemplateOutlet="naoAchou"></ng-container>
+            <div class="ces-form-grid">
+              <ces-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
+                [maxFractionDigits]="3" [error]="erro('quantidade')"></ces-number-input>
+              <ces-select label="Unidade" [required]="true" [options]="unidades()" [(value)]="unidade" [filter]="true"
+                [error]="erro('unidade')"></ces-select>
+            </div>
+            <ces-number-input label="Valor unitário" mode="currency" [required]="true" [(value)]="valorUnitario" [min]="0"
+              [maxFractionDigits]="4" [error]="erro('valor')"></ces-number-input>
           } @else {
             <ces-text-input label="Peça ou consumível" [required]="true" [(value)]="nome" [maxlength]="300"
-              placeholder="Ex.: filtro de óleo" [error]="erro('nome')"></ces-text-input>
+              placeholder="Ex.: filtro de óleo" [error]="erro('nome')"
+              description="Lançada antes da lista de itens: o nome fica como foi digitado."></ces-text-input>
             <ces-text-input label="Código" [(value)]="codigo" [maxlength]="60" [showOptional]="true"></ces-text-input>
             <div class="ces-form-grid">
               <ces-number-input label="Quantidade" [required]="true" [(value)]="quantidade" [min]="0"
@@ -108,6 +137,10 @@ const UNIDADES = ['UN', 'L', 'KG', 'M', 'JG', 'PC', 'CX', 'KIT'];
         @if (subtotal() !== null) {
           <ces-callout tone="neutral" [dense]="true">Subtotal: {{ subtotal() | currency: 'BRL' }}</ces-callout>
         }
+        @if (pedeSemCusto()) {
+          <ces-boolean-control kind="toggle" label="Sem custo" [(value)]="semCusto"
+            [description]="semCusto() ? 'Garantia, cortesia ou doação: o valor zero é de propósito.' : 'Sem valor ainda: a OS concluída fica com valores pendentes até lançar o valor.'"></ces-boolean-control>
+        }
         @if (erroServidor()) {
           <ces-callout tone="danger" [dense]="true">{{ erroServidor() }}</ces-callout>
         }
@@ -118,6 +151,35 @@ const UNIDADES = ['UN', 'L', 'KG', 'M', 'JG', 'PC', 'CX', 'KIT'];
           [loading]="salvando()" (pressed)="salvar()"></ces-button>
       </div>
     </ces-form-drawer>
+
+    <ng-template #naoAchou>
+      <div class="catalogo-acao">
+        @if (acesso.configurar()) {
+          <span>Não achou?</span>
+          <ces-button variant="link" size="sm" icon="pi pi-plus" [label]="tipo() === 'servico' ? 'Cadastrar mão de obra' : 'Cadastrar peça'"
+            (pressed)="abrirCadastroItem()"></ces-button>
+        } @else {
+          <span>Não achou? Peça o cadastro a quem administra a frota.</span>
+        }
+      </div>
+    </ng-template>
+
+    <ces-form-drawer [(visible)]="cadastroItemAberto" [title]="tipo() === 'servico' ? 'Cadastrar mão de obra' : 'Cadastrar peça'"
+      description="Entra nos itens de manutenção da frota e já fica escolhido aqui." [dirty]="!!novoItemNome().trim()"
+      [loading]="salvandoItem()" size="sm">
+      <div class="ces-form-stack">
+        <ces-text-input label="Nome" [required]="true" [(value)]="novoItemNome" [maxlength]="120"
+          [placeholder]="tipo() === 'servico' ? 'Ex.: Alinhamento e balanceamento' : 'Ex.: Fluido de freio DOT 4'"
+          [error]="tentouItem() && !novoItemNome().trim() ? 'Informe o nome.' : undefined"
+          description="Confira na lista antes: o mesmo item com outro nome atrapalha os relatórios."></ces-text-input>
+        <ces-select label="Natureza" [required]="true" [options]="naturezas()" [(value)]="novoItemNatureza" [filter]="true"
+          [error]="tentouItem() && !novoItemNatureza() ? 'Escolha a natureza.' : undefined"></ces-select>
+      </div>
+      <div drawer-footer class="ces-actions-row">
+        <ces-button variant="ghost" label="Cancelar" (pressed)="cadastroItemAberto.set(false)"></ces-button>
+        <ces-button icon="pi pi-check" label="Cadastrar" [loading]="salvandoItem()" (pressed)="cadastrarItem()"></ces-button>
+      </div>
+    </ces-form-drawer>
   `
 })
 export class FrotaOsLancamentoComponent {
@@ -125,7 +187,7 @@ export class FrotaOsLancamentoComponent {
   private readonly lookups = inject(LookupStore);
   private readonly notificacoes = inject(NotificationService);
   private readonly estoque = inject(FrotaPneuService);
-  private readonly acesso = acessoFrota();
+  protected readonly acesso = acessoFrota();
 
   readonly visivel = model(false);
   readonly tipo = input<TipoLancamento>('servico');
@@ -152,6 +214,8 @@ export class FrotaOsLancamentoComponent {
   protected readonly unidade = signal<string | null>('UN');
   protected readonly quantidade = signal<number | null>(1);
   protected readonly valorUnitario = signal<number | null>(null);
+  /** Valor zero de propósito (garantia, cortesia): não deixa a OS com valores pendentes. */
+  protected readonly semCusto = signal(false);
   protected readonly opcoesMecanico = signal<CesSelectOption<string>[]>([]);
   private readonly saldos = signal<SaldoPecaFrota[]>([]);
   protected readonly carregandoSaldos = signal(false);
@@ -163,12 +227,41 @@ export class FrotaOsLancamentoComponent {
   protected readonly erroServidor = signal<string | null>(null);
   private readonly snapshot = signal('');
 
+  /** Itens de manutenção ativos: peça ou mão de obra, conforme o lançamento. */
+  private readonly itensCadastro = signal<ItemManutencao[]>([]);
+  protected readonly carregandoItens = signal(false);
+  protected readonly idItemCatalogo = signal<string | null>(null);
+  protected readonly itemCatalogo = computed(() => this.itensCadastro().find((i) => i.id === this.idItemCatalogo()) ?? null);
+  protected readonly opcoesItens = computed<CesSelectOption<string>[]>(() => {
+    const tipo = this.tipo() === 'servico' ? 'MAO_DE_OBRA' : 'PECA';
+    return this.itensCadastro()
+      .filter((i) => (i.tipo ?? 'MAO_DE_OBRA') === tipo && (i.ativo || i.id === this.idItemCatalogo()))
+      .map((i) => ({ label: i.nome, value: i.id }));
+  });
+  /** Lançamento novo escolhe da lista; o antigo, sem item, segue com o nome digitado. */
+  protected readonly usaCatalogo = computed(() => {
+    if (this.tipo() === 'servico') {
+      const atual = this.servico();
+      return !atual || !!atual.idItemManutencao;
+    }
+    if (this.usaAlmoxarifado()) return false;
+    const atual = this.peca();
+    return !atual || !!atual.idItemManutencao;
+  });
+  protected readonly cadastroItemAberto = signal(false);
+  protected readonly novoItemNome = signal('');
+  protected readonly novoItemNatureza = signal<string | null>(null);
+  protected readonly salvandoItem = signal(false);
+  protected readonly tentouItem = signal(false);
+  protected readonly naturezas = computed<CesSelectOption<string>[]>(() =>
+    (this.opcoes()?.naturezasServico ?? []).map((n) => ({ label: n.rotulo, value: n.valor })));
+
   protected readonly saldoAtual = computed(() => this.saldos().find((s) => this.chaveSaldo(s) === this.saldoEscolhido()) ?? null);
   /** Peça do estoque sai do almoxarifado; o lançamento antigo, sem peça do catálogo, continua livre. */
   protected readonly usaAlmoxarifado = computed(() => {
     if (this.tipo() !== 'peca' || this.origem() !== 'ESTOQUE' || !this.acesso.verEstoque()) return false;
     const atual = this.peca();
-    if (atual && !atual.idMaterial) return false;
+    if (atual && !atual.idEstoque) return false;
     return this.saldos().length > 0 || this.carregandoSaldos() || !!atual;
   });
   /** Escolheu Estoque, mas não há nada para baixar: a pessoa precisa saber antes de lançar. */
@@ -222,6 +315,13 @@ export class FrotaOsLancamentoComponent {
     return q !== null && v !== null ? Math.round(q * v * 100) / 100 : null;
   });
 
+  /**
+   * "Sem custo" só aparece no lançamento de valor zero. A mão de obra da oficina interna pode ficar
+   * zerada sem pendência (é da casa), então ali não pergunta.
+   */
+  protected readonly pedeSemCusto = computed(() =>
+    this.subtotal() === 0 && !(this.tipo() === 'servico' && this.interna()));
+
   private readonly erros = computed<Record<string, string>>(() => {
     const e: Record<string, string> = {};
     if (this.usaAlmoxarifado()) {
@@ -232,7 +332,11 @@ export class FrotaOsLancamentoComponent {
       else if (saldo && qtd > this.disponivel(saldo)) e['quantidade'] = `Maior que o saldo (${this.disponivel(saldo).toLocaleString('pt-BR')} ${saldo.unidade}).`;
       return e;
     }
-    if (!this.nome().trim()) e['nome'] = this.tipo() === 'servico' ? 'Informe o serviço.' : 'Informe a peça.';
+    if (this.usaCatalogo()) {
+      if (!this.itemCatalogo()) e['catalogo'] = this.tipo() === 'servico' ? 'Escolha o serviço na lista.' : 'Escolha a peça na lista.';
+    } else if (!this.nome().trim()) {
+      e['nome'] = this.tipo() === 'servico' ? 'Informe o serviço.' : 'Informe a peça.';
+    }
     if (this.tipo() === 'servico' && this.interna() && !this.idMecanico()) e['mecanico'] = 'Escolha o mecânico.';
     const q = this.quantidade();
     if (q === null || q <= 0) e['quantidade'] = 'A quantidade deve ser maior que zero.';
@@ -266,6 +370,47 @@ export class FrotaOsLancamentoComponent {
     });
   }
 
+  protected abrirCadastroItem(): void {
+    this.novoItemNome.set('');
+    this.novoItemNatureza.set(null);
+    this.tentouItem.set(false);
+    this.cadastroItemAberto.set(true);
+  }
+
+  /** Item novo: entra no cadastro da frota com o tipo deste lançamento e já fica escolhido. */
+  protected cadastrarItem(): void {
+    this.tentouItem.set(true);
+    if (!this.novoItemNome().trim() || !this.novoItemNatureza()) return;
+    this.salvandoItem.set(true);
+    this.frota.salvarItemManutencao({
+      nome: this.novoItemNome().trim(),
+      natureza: this.novoItemNatureza()!,
+      descricao: null,
+      diasRepeticao: null,
+      tipo: this.tipo() === 'servico' ? 'MAO_DE_OBRA' : 'PECA'
+    }).subscribe({
+      next: (item) => {
+        this.salvandoItem.set(false);
+        this.itensCadastro.update((lista) => [...lista, item].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')));
+        this.idItemCatalogo.set(item.id);
+        this.cadastroItemAberto.set(false);
+        this.notificacoes.success(`${item.nome} cadastrado nos itens de manutenção.`);
+      },
+      error: (e) => {
+        this.salvandoItem.set(false);
+        this.notificacoes.error(getErrorMessage(e));
+      }
+    });
+  }
+
+  private carregarItens(): void {
+    this.carregandoItens.set(true);
+    this.frota.itensManutencao().subscribe({
+      next: (p) => (this.itensCadastro.set(p.content), this.carregandoItens.set(false)),
+      error: () => (this.itensCadastro.set([]), this.carregandoItens.set(false))
+    });
+  }
+
   protected salvar(): void {
     this.tentouSalvar.set(true);
     this.erroServidor.set(null);
@@ -279,7 +424,8 @@ export class FrotaOsLancamentoComponent {
     requisicao.subscribe({
       next: (atualizada) => {
         this.salvando.set(false);
-        this.notificacoes.success(this.mensagemSucesso());
+        const finalizou = !!os.baixaPendente && atualizada.ordem.situacao === 'CONCLUIDA' && !atualizada.ordem.baixaPendente;
+        this.notificacoes.success(finalizou ? 'Último valor lançado: OS finalizada.' : this.mensagemSucesso());
         this.snapshot.set(this.estado());
         this.visivel.set(false);
         this.salvo.emit(atualizada);
@@ -299,13 +445,15 @@ export class FrotaOsLancamentoComponent {
   }
 
   private salvarServico(idOs: string) {
+    const item = this.usaCatalogo() ? this.itemCatalogo() : null;
     const request = {
-      descricao: this.nome().trim(),
-      idItemManutencao: this.idItem(),
+      descricao: item ? item.nome : this.nome().trim(),
+      idItemManutencao: item ? item.id : this.idItem(),
       idMecanico: this.interna() ? this.idMecanico() : null,
       mecanicoNome: this.interna() ? null : this.mecanicoNome().trim() || null,
       quantidade: this.quantidade()!,
-      valorUnitario: this.valorUnitario()!
+      valorUnitario: this.valorUnitario()!,
+      semCusto: this.pedeSemCusto() && this.semCusto()
     };
     const atual = this.servico();
     return atual ? this.frota.alterarServicoOs(idOs, atual.id, request) : this.frota.lancarServicoOs(idOs, request);
@@ -337,7 +485,16 @@ export class FrotaOsLancamentoComponent {
 
   private salvarPeca(idOs: string) {
     const saldo = this.usaAlmoxarifado() ? this.saldoAtual() : null;
-    const request = saldo ? {
+    const item = !saldo && this.usaCatalogo() ? this.itemCatalogo() : null;
+    const request = item ? {
+      descricao: item.nome,
+      codigo: null,
+      origem: this.origem() ?? 'COMPRA',
+      quantidade: this.quantidade()!,
+      unidade: this.unidade()!,
+      valorUnitario: this.valorUnitario()!,
+      idItemManutencao: item.id
+    } : saldo ? {
       descricao: saldo.descricao,
       codigo: saldo.codigo,
       origem: 'ESTOQUE' as OrigemPeca,
@@ -355,7 +512,8 @@ export class FrotaOsLancamentoComponent {
       valorUnitario: this.valorUnitario()!
     };
     const atual = this.peca();
-    return atual ? this.frota.alterarPecaOs(idOs, atual.id, request) : this.frota.lancarPecaOs(idOs, request);
+    const comMarca = { ...request, semCusto: this.pedeSemCusto() && this.semCusto() };
+    return atual ? this.frota.alterarPecaOs(idOs, atual.id, comMarca) : this.frota.lancarPecaOs(idOs, comMarca);
   }
 
   private preencher(): void {
@@ -364,7 +522,9 @@ export class FrotaOsLancamentoComponent {
     this.statusBusca.set('idle');
     const s = this.servico();
     const p = this.peca();
+    this.carregarItens();
     if (this.tipo() === 'servico') {
+      this.idItemCatalogo.set(s?.idItemManutencao ?? null);
       this.nome.set(s?.descricao ?? '');
       this.idItem.set(s?.idItemManutencao ?? (this.detalhe().itens.length === 1 ? this.detalhe().itens[0].idItem : null));
       this.idMecanico.set(s?.idMecanico ?? null);
@@ -372,23 +532,26 @@ export class FrotaOsLancamentoComponent {
       this.opcoesMecanico.set(s?.idMecanico ? [{ label: s.mecanico ?? 'Mecânico', value: s.idMecanico }] : []);
       this.quantidade.set(s?.quantidade ?? 1);
       this.valorUnitario.set(s?.valorUnitario ?? null);
+      this.semCusto.set(!!s?.semCusto);
     } else {
       this.carregarSaldos();
       this.saldoEscolhido.set(p?.idMaterial && p.idEstoque ? `${p.idEstoque}:${p.idMaterial}` : null);
+      this.idItemCatalogo.set(p?.idItemManutencao ?? null);
       this.nome.set(p?.descricao ?? '');
       this.codigo.set(p?.codigo ?? '');
       this.origem.set(p?.origem ?? 'ESTOQUE');
       this.unidade.set(p?.unidade ?? 'UN');
       this.quantidade.set(p?.quantidade ?? 1);
       this.valorUnitario.set(p?.valorUnitario ?? null);
+      this.semCusto.set(!!p?.semCusto);
     }
     this.snapshot.set(this.estado());
   }
 
   private estado(): string {
     return JSON.stringify([
-      this.saldoEscolhido(), this.nome(), this.idItem(), this.idMecanico(), this.mecanicoNome(), this.codigo(), this.origem(),
-      this.unidade(), this.quantidade(), this.valorUnitario()
+      this.saldoEscolhido(), this.idItemCatalogo(), this.nome(), this.idItem(), this.idMecanico(), this.mecanicoNome(), this.codigo(), this.origem(),
+      this.unidade(), this.quantidade(), this.valorUnitario(), this.semCusto()
     ]);
   }
 }

@@ -110,6 +110,40 @@ public class OperacaoSolicitacaoMaterial {
     @OneToMany(mappedBy = "operacao", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemOperacaoSolicitacao> itens = new ArrayList<>();
 
+    /**
+     * Fechamento: efeito no saldo. Desde 11/2026 toda movimentação de fechamento é física
+     * (almoxarifado ↔ obra); o valor fica gravado para o estorno seguir o mesmo caminho.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "efeito_estoque", length = 10)
+    private EfeitoEstoque efeitoEstoque;
+
+    /** Movimentação de fechamento ou estorno dela, com o efeito escolhido. */
+    public static OperacaoSolicitacaoMaterial criarFechamento(
+            SolicitacaoMaterial solicitacao,
+            TipoOperacaoSolicitacao tipo,
+            EfeitoEstoque efeito,
+            UUID idUsuarioOperador,
+            String motivo,
+            OperacaoSolicitacaoMaterial operacaoOriginal
+    ) {
+        if (solicitacao == null || !solicitacao.isFechamento()) {
+            throw new InvarianteVioladaException("A operacao exige uma solicitacao de encerramento.");
+        }
+        if (tipo != TipoOperacaoSolicitacao.MOVIMENTACAO && tipo != TipoOperacaoSolicitacao.ESTORNO) {
+            throw new InvarianteVioladaException("O encerramento so registra movimentacao e estorno.");
+        }
+        OperacaoSolicitacaoMaterial operacao = new OperacaoSolicitacaoMaterial(
+                solicitacao, tipo, null, null, false, idUsuarioOperador, motivo,
+                null, null, OrigemComandoTecnico.UI, operacaoOriginal);
+        operacao.efeitoEstoque = Objects.requireNonNull(efeito, "O efeito no estoque e obrigatorio");
+        return operacao;
+    }
+
+    public boolean isFisica() {
+        return efeitoEstoque == EfeitoEstoque.FISICO;
+    }
+
     public OperacaoSolicitacaoMaterial(
             SolicitacaoMaterial solicitacao,
             TipoOperacaoSolicitacao tipo,
@@ -124,9 +158,13 @@ public class OperacaoSolicitacaoMaterial {
             OperacaoSolicitacaoMaterial operacaoOriginal
     ) {
         this.solicitacao = Objects.requireNonNull(solicitacao, "A solicitacao e obrigatoria");
-        if (solicitacao.getContexto() != ContextoSolicitacaoMaterial.TECNICO
+        boolean fechamento = solicitacao.getContexto() == ContextoSolicitacaoMaterial.FECHAMENTO;
+        if ((solicitacao.getContexto() != ContextoSolicitacaoMaterial.TECNICO && !fechamento)
                 || solicitacao.getTipoTecnico() == null) {
             throw new InvarianteVioladaException("Operacoes exigem uma solicitacao tecnica tipada.");
+        }
+        if (!fechamento && tipo == TipoOperacaoSolicitacao.MOVIMENTACAO) {
+            throw new InvarianteVioladaException("A movimentacao de encerramento exige solicitacao de encerramento.");
         }
         this.tipo = Objects.requireNonNull(tipo, "O tipo da operacao e obrigatorio");
         this.tipoTecnico = solicitacao.getTipoTecnico();
@@ -146,7 +184,8 @@ public class OperacaoSolicitacaoMaterial {
         this.operacaoOriginal = operacaoOriginal;
         validarReferenciaOriginal();
         boolean dispensaReservaObrigatoria = tipo == TipoOperacaoSolicitacao.ENCERRAMENTO
-                || (solicitacao.getTipoTecnico() != null && solicitacao.getTipoTecnico().isDevolucao());
+                || (fechamento && tipo == TipoOperacaoSolicitacao.ESTORNO)
+                || (!fechamento && solicitacao.getTipoTecnico() != null && solicitacao.getTipoTecnico().isDevolucao());
         this.reserva = dispensaReservaObrigatoria
                 ? solicitacao.getReserva()
                 : solicitacao.exigirReservaParaMovimentacaoTecnica();
@@ -208,7 +247,7 @@ public class OperacaoSolicitacaoMaterial {
         }
         if (tipo == TipoOperacaoSolicitacao.ESTORNO) {
             if (operacaoOriginal == null || operacaoOriginal.tipo == TipoOperacaoSolicitacao.ESTORNO) {
-                throw new InvarianteVioladaException("O estorno deve referenciar uma entrega ou devolucao original.");
+                throw new InvarianteVioladaException("O estorno deve referenciar a operacao original.");
             }
             if (motivo == null) {
                 throw new InvarianteVioladaException("O motivo e obrigatorio para estorno.");

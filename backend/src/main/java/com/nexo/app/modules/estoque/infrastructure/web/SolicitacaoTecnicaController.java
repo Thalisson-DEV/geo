@@ -1,5 +1,8 @@
 package com.nexo.app.modules.estoque.infrastructure.web;
 
+import com.nexo.app.modules.estoque.application.dto.TrocaOcorrenciaTecnicaResponse;
+import com.nexo.app.modules.estoque.application.dto.TrocarOcorrenciaTecnicaRequest;
+import com.nexo.app.modules.estoque.application.usecases.TrocaOcorrenciaTecnicaUseCase;
 import com.nexo.app.modules.estoque.application.dto.AlterarSeparacaoTecnicaRequest;
 import com.nexo.app.modules.estoque.application.dto.ConfirmarDevolucaoTecnicaRequest;
 import com.nexo.app.modules.estoque.application.dto.ConfirmarEntregaTecnicaRequest;
@@ -84,7 +87,7 @@ import java.util.UUID;
         description = "Workflow tecnico por obra e ocorrencia OC/OS. O cliente informa "
                 + "221/222/921/922 por item; o backend cria solicitacoes independentes por tipo "
                 + "e controla versoes e idempotencia. "
-                + "Entregas transferem a responsabilidade para o estoque CAMPO da equipe; devolucoes retornam ao almoxarifado de atendimento.")
+                + "Entregas levam do almoxarifado de atendimento ao estoque da obra; devolucoes fazem o caminho inverso. A equipe fica registrada como quem sacou.")
 @SecurityRequirement(name = "bearerAuth")
 @ApiResponses({
         @ApiResponse(responseCode = "400", description = "Preenchimento ou referencia invalida",
@@ -110,6 +113,7 @@ public class SolicitacaoTecnicaController {
     private final SolicitacaoTecnicaUseCases solicitacoes;
     private final SolicitacaoMaterialUseCases consultas;
     private final ReservaSolicitacaoTecnicaUseCases reservas;
+    private final TrocaOcorrenciaTecnicaUseCase trocaOcorrencia;
     private final SeparacaoSolicitacaoTecnicaUseCases separacao;
     private final OperacaoSolicitacaoTecnicaUseCases operacoes;
     private final EncerramentoSaldoTecnicoUseCases encerramentos;
@@ -280,6 +284,21 @@ public class SolicitacaoTecnicaController {
                 OrigemComandoTecnico.UI, chaveIdempotencia));
     }
 
+    @PutMapping("/tecnicas/{idSolicitacao}/ocorrencia")
+    @Operation(summary = "Trocar o número da OS/OC",
+            description = "Vale a qualquer momento, inclusive depois da entrega. Só muda a referência: saldos e "
+                    + "operações ficam como estão. Quem pode: o almoxarifado ou quem abriu a solicitação. Motivo obrigatório.")
+    @ApiResponse(responseCode = "200", description = "OS/OC anterior e nova")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<TrocaOcorrenciaTecnicaResponse> trocarOcorrencia(
+            @PathVariable UUID idSolicitacao,
+            @Valid @RequestBody TrocarOcorrenciaTecnicaRequest request,
+            @RequestHeader(value = "Idempotency-Key", required = false) String chaveIdempotencia
+    ) {
+        return ResponseEntity.ok(trocaOcorrencia.trocar(
+                idSolicitacao, request, SecurityUtils.getUsuarioLogadoId(), chaveIdempotencia));
+    }
+
     @PostMapping("/tecnicas/{idSolicitacao}/separacao/iniciar")
     @Operation(summary = "Iniciar separacao de adicao",
             description = "Somente tipos 221/921 com data prevista; devolucoes 222/922 nunca passam por separacao. "
@@ -328,7 +347,7 @@ public class SolicitacaoTecnicaController {
 
     @PostMapping("/tecnicas/{idSolicitacao}/entregas")
     @Operation(summary = "Confirmar entrega tecnica",
-            description = "Somente 221/921 separados e com reserva. Transfere material novo do estoque de atendimento para o estoque CAMPO da equipe. "
+            description = "Somente 221/921 separados e com reserva. Transfere material novo do estoque de atendimento para o estoque da obra. "
                     + "Autoridade: estoque:solicitacao:deliver.")
     @ApiResponse(responseCode = "200", description = "Identificador da operacao de entrega")
     @PreAuthorize("hasAuthority('estoque:solicitacao:deliver')")

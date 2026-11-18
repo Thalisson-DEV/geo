@@ -5,7 +5,7 @@ import { CesButtonComponent, CesIconButtonComponent } from '@ces/ui';
 import { OrdemServico, ROTULO_CRITICIDADE, identificacaoOs, rotuloOs } from '../../../core/models/frota.models';
 
 /** Ação do cartão: abre o formulário da etapa ou o detalhe. */
-export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR' | 'DETALHAR' | 'RELATORIO';
+export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'LANCAR_VALORES' | 'REABRIR' | 'CANCELAR' | 'DETALHAR' | 'RELATORIO';
 
 /**
  * Cartão do quadro de OS, no desenho do cartão do quadro comercial. Arrastar é atalho: toda
@@ -30,7 +30,14 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR' | 'DETA
     [draggable='true'].kc { cursor: grab; }
     [draggable='true'].kc:active { cursor: grabbing; }
     .kc:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .kc--urgente { box-shadow: inset 3px 0 0 var(--ces-danger); }
+    /* Faixa da criticidade (vermelho, laranja, amarelo, verde), para separar de relance numa lista longa. */
+    .kc[data-crit] { box-shadow: inset 4px 0 0 var(--kc-crit); }
+    .kc[data-crit]:hover { box-shadow: inset 4px 0 0 var(--kc-crit), var(--ces-shadow-md); }
+    [data-crit='URGENTE'] { --kc-crit: var(--ces-danger); --kc-crit-soft: var(--ces-danger-soft); --kc-crit-ink: var(--ces-danger-text); }
+    [data-crit='ALTA'] { --kc-crit: #ea580c; --kc-crit-soft: color-mix(in srgb, #ea580c 14%, var(--ces-surface)); --kc-crit-ink: color-mix(in srgb, #ea580c 70%, var(--ces-foreground)); }
+    [data-crit='MEDIA'] { --kc-crit: #eab308; --kc-crit-soft: color-mix(in srgb, #eab308 18%, var(--ces-surface)); --kc-crit-ink: color-mix(in srgb, #a16207 75%, var(--ces-foreground)); }
+    [data-crit='BAIXA'] { --kc-crit: var(--ces-success); --kc-crit-soft: var(--ces-success-soft); --kc-crit-ink: var(--ces-success-text); }
+    .kc__tag.kc__tag--crit { background: var(--kc-crit-soft); color: var(--kc-crit-ink); }
     .kc__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.125rem 0.5rem; align-items: baseline; }
     .kc__titulo { overflow: hidden; font-size: var(--ces-font-control); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
     .kc__id { font-size: var(--ces-font-caption); color: var(--ces-foreground-subtle); font-variant-numeric: tabular-nums; }
@@ -64,7 +71,7 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR' | 'DETA
       class="kc"
       tabindex="0"
       role="button"
-      [class.kc--urgente]="item().criticidade === 'URGENTE' && item().situacao !== 'CONCLUIDA'"
+      [attr.data-crit]="item().situacao !== 'CONCLUIDA' ? item().criticidade : null"
       [attr.aria-label]="ariaLabel()"
       [attr.draggable]="arrastavel() ? 'true' : null"
       [class.kc--arrastando]="arrastando()"
@@ -82,7 +89,7 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR' | 'DETA
 
       <div class="kc__tags">
         @if (item().situacao !== 'CONCLUIDA') {
-          <span class="kc__tag" [class.kc__tag--perigo]="item().criticidade === 'URGENTE'" [class.kc__tag--aviso]="item().criticidade === 'ALTA'">
+          <span class="kc__tag kc__tag--crit" [attr.data-crit]="item().criticidade">
             <i class="pi pi-flag" aria-hidden="true"></i>{{ rotuloCriticidade[item().criticidade] }}
           </span>
         }
@@ -103,6 +110,9 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR' | 'DETA
           }
           @case ('CONCLUIDA') {
             <span class="kc__tag kc__tag--ok"><i class="pi pi-check" aria-hidden="true"></i>Concluída {{ item().fimReal | date: 'dd/MM HH:mm' }}</span>
+            @if (item().baixaPendente) {
+              <span class="kc__tag kc__tag--aviso"><i class="pi pi-hourglass" aria-hidden="true"></i>Valores pendentes</span>
+            }
           }
         }
         @if (item().paradaEmCurso) {
@@ -129,6 +139,10 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'CANCELAR' | 'DETA
             <ces-icon-button icon="pi pi-ban" [label]="'Cancelar ' + rotuloOs(item().numero)" tooltip="Cancelar OS" size="icon-sm"
               (pressed)="actionTriggered.emit({ item: item(), action: 'CANCELAR' })" (click)="$event.stopPropagation()" />
           }
+          @if (podeReabrir() && item().situacao === 'CONCLUIDA') {
+            <ces-icon-button icon="pi pi-replay" [label]="'Voltar ' + rotuloOs(item().numero) + ' para em andamento'" tooltip="Voltar para em andamento" size="icon-sm"
+              (pressed)="actionTriggered.emit({ item: item(), action: 'REABRIR' })" (click)="$event.stopPropagation()" />
+          }
           @if (acao(); as a) {
             <ces-button [label]="a.rotulo" [icon]="a.icone" size="sm" variant="outline" [ariaLabel]="a.rotulo + ' a ' + rotuloOs(item().numero)"
               (pressed)="actionTriggered.emit({ item: item(), action: a.acao })" (click)="$event.stopPropagation()" />
@@ -146,6 +160,8 @@ export class FrotaOsKanbanCardComponent {
   readonly podeAgir = input(false);
   /** Mostra o cancelamento (quem edita a OS). Cancelar nunca é por arraste. */
   readonly podeCancelar = input(false);
+  /** Mostra "voltar para em andamento" na OS concluída (quem executa). */
+  readonly podeReabrir = input(false);
 
   readonly cardClicked = output<OrdemServico>();
   readonly dragStarted = output<OrdemServico>();
@@ -171,7 +187,9 @@ export class FrotaOsKanbanCardComponent {
       case 'EM_ANDAMENTO':
         return { acao: 'CONCLUIR', rotulo: 'Concluir', icone: 'pi pi-check' };
       case 'CONCLUIDA':
-        return { acao: 'RELATORIO', rotulo: 'Relatório', icone: 'pi pi-file' };
+        return this.item().baixaPendente
+          ? { acao: 'LANCAR_VALORES', rotulo: 'Lançar valores', icone: 'pi pi-dollar' }
+          : { acao: 'RELATORIO', rotulo: 'Relatório', icone: 'pi pi-file' };
       default:
         return null;
     }
@@ -182,6 +200,7 @@ export class FrotaOsKanbanCardComponent {
     const partes = [`${rotuloOs(it.numero)} ${this.identificacao()}`, it.descricao, `criticidade ${ROTULO_CRITICIDADE[it.criticidade].toLowerCase()}`];
     if (it.atrasada) partes.push('prazo estourado');
     if (it.paradaEmCurso) partes.push('veículo parado');
+    if (it.baixaPendente) partes.push('valores pendentes');
     return `${partes.join(', ')}. Enter abre a OS.`;
   });
 

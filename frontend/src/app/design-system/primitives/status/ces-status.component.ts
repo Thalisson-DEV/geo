@@ -1,6 +1,20 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { CesTone } from '../../core';
 
+/**
+ * Ícone usado quando a tag não informa um próprio. Toda tag do GEO tem ícone:
+ * prefira passar um ícone que diga o significado (ex.: `pi-truck` para "Em trânsito");
+ * na falta dele, o tom define o ícone para a cor nunca ser o único indicador.
+ */
+export const CES_STATUS_ICONE_PADRAO: Readonly<Record<CesTone, string>> = {
+  neutral: 'pi-circle',
+  brand: 'pi-bookmark',
+  info: 'pi-info-circle',
+  success: 'pi-check-circle',
+  warning: 'pi-exclamation-triangle',
+  danger: 'pi-times-circle'
+};
+
 @Component({
   selector: 'ces-status',
   standalone: true,
@@ -11,22 +25,18 @@ import { CesTone } from '../../core';
     '[attr.data-emphasis]': 'emphasis()'
   },
   template: `
-    @if (primeIcon()) {
-      <i [class]="'ces-status__icon ' + primeIcon()" aria-hidden="true"></i>
-    }
+    <i [class]="'ces-status__icon ' + primeIcon()" aria-hidden="true"></i>
     <span><ng-content></ng-content></span>
   `
 })
 export class CesStatusComponent {
   readonly tone = input<CesTone>('neutral');
   readonly emphasis = input<'soft' | 'outline' | 'solid'>('soft');
-  readonly icon = input<string | undefined>();
+  /** Ícone PrimeIcons (`pi-check` ou `pi pi-check`). Sem ele, vale o ícone padrão do tom. */
+  readonly icon = input<string | null | undefined>();
 
   protected readonly primeIcon = computed(() => {
-    const icon = this.icon()?.trim();
-    if (!icon) return '';
-    if (icon.startsWith('pi ')) return icon;
-    if (icon.startsWith('pi-')) return `pi ${icon}`;
-    return `pi ${icon}`;
+    const icon = this.icon()?.trim() || CES_STATUS_ICONE_PADRAO[this.tone()] || CES_STATUS_ICONE_PADRAO.neutral;
+    return icon.startsWith('pi ') ? icon : `pi ${icon}`;
   });
 }

@@ -154,6 +154,13 @@ public class Usuario extends BaseEntity implements UserDetails {
     }
 
     /**
+     * Liga o acesso a um colaborador do RH, ou desfaz o vínculo quando {@code null}.
+     */
+    public void vincularColaborador(UUID novoIdColaborador) {
+        this.idColaborador = novoIdColaborador;
+    }
+
+    /**
      * Atualiza a credencial de acesso. 
      * @param novaSenhaHash Deve ser o hash gerado pelo PasswordEncoder.
      */

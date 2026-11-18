@@ -165,7 +165,7 @@ const CORES: CesSelectOption<string>[] = [
           }
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">
@@ -195,12 +195,17 @@ const CORES: CesSelectOption<string>[] = [
       <ces-form-section title="Colaborador" icon="pi pi-user">
         @if (emEdicao(); as u) {
           @if (u.colaborador; as c) {
-            <ces-callout [tone]="c.ativo ? 'info' : 'warning'" [title]="c.nomeCompleto">
-              {{ c.funcao || 'Sem função' }} · {{ c.baseOperacional || 'sem base' }}{{ c.ativo ? '' : ' · colaborador desligado' }}
-            </ces-callout>
-          } @else {
-            <ces-callout tone="neutral">Este acesso não está vinculado a um colaborador. O vínculo é feito pela tela de colaboradores.</ces-callout>
+            @if (idColaborador() === u.idColaborador) {
+              <ces-callout [tone]="c.ativo ? 'info' : 'warning'" [title]="c.nomeCompleto">
+                {{ c.funcao || 'Sem função' }} · {{ c.baseOperacional || 'sem base' }}{{ c.ativo ? '' : ' · colaborador desligado' }}
+              </ces-callout>
+            }
           }
+          <ces-autocomplete label="Colaborador vinculado" placeholder="Digite o nome" [options]="colaboradores.items()"
+            [ngModel]="idColaborador()" (ngModelChange)="idColaborador.set($event)" [loading]="colaboradores.loading()"
+            [status]="colaboradores.status()" [clearable]="true"
+            [description]="descricaoVinculoEdicao()"
+            (search)="colaboradores.search($event)" (loadMore)="colaboradores.loadNext()" (retry)="colaboradores.retry()"></ces-autocomplete>
         } @else {
           <ces-select label="Vínculo" [options]="vinculos" [(value)]="vinculo"></ces-select>
           @if (vinculo() === 'EXISTENTE') {
@@ -246,7 +251,7 @@ const CORES: CesSelectOption<string>[] = [
           <ng-template cesCell="status" let-row>
             <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="ces-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span>
             }
           </ng-template>
           <ng-template cesRowActions let-row>
@@ -259,7 +264,7 @@ const CORES: CesSelectOption<string>[] = [
     <app-ajuda-listagem #ajuda titulo="Usuários" entidadePlural="usuários" busca="nome do colaborador, login ou e-mail" rotuloNovo="Novo usuário" [importacao]="true">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-user"></i> Vínculo com colaborador</h4>
-        <p class="help-text-desc">No cadastro, o acesso pode ficar sem colaborador, ser ligado a um colaborador existente ou criar o colaborador junto. "Colaborador desligado" indica que a pessoa saiu, mesmo com o acesso ativo.</p>
+        <p class="help-text-desc">No cadastro, o acesso pode ficar sem colaborador, ser ligado a um colaborador existente ou criar o colaborador junto. Na edição, é possível vincular um acesso já existente a um colaborador, trocar o colaborador ou limpar o campo para desfazer o vínculo. Cada colaborador tem no máximo um acesso. "Colaborador desligado" indica que a pessoa saiu, mesmo com o acesso ativo.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-lock"></i> Importação</h4>
@@ -350,6 +355,16 @@ export class UsuariosComponent {
   private readonly fotografia = signal('');
   protected readonly colaboradores = buscaColaboradores(() => this.idColaborador());
 
+  protected readonly descricaoVinculoEdicao = computed(() => {
+    const atual = this.emEdicao();
+    if (!atual) return undefined;
+    const escolhido = this.idColaborador();
+    if (escolhido === (atual.idColaborador ?? null)) {
+      return escolhido ? 'Escolha outro colaborador para trocar, ou limpe o campo para desfazer o vínculo.' : 'Escolha um colaborador existente para vincular a este acesso.';
+    }
+    return escolhido ? 'O vínculo será gravado ao salvar.' : 'O vínculo com o colaborador será desfeito ao salvar.';
+  });
+
   protected readonly alterado = computed(() => this.formularioAberto() && this.estadoFormulario() !== this.fotografia());
   private readonly erros = computed<Record<string, string>>(() => {
     const e: Record<string, string> = {};
@@ -438,7 +453,7 @@ export class UsuariosComponent {
     this.cor.set(u?.corPrimaria || 'primary');
     this.animacoes.set(u?.animacoesAtivadas ?? true);
     this.vinculo.set('NENHUM');
-    this.idColaborador.set(null);
+    this.idColaborador.set(u?.idColaborador ?? null);
     this.primeiroNome.set('');
     this.ultimoNome.set('');
     this.cpf.set('');
@@ -497,13 +512,19 @@ export class UsuariosComponent {
       const ativo = this.ativo();
       const { senha, ...dados } = this.dadosUsuario();
       const request: UsuarioUpdateRequest = senha ? { ...dados, senha } : dados;
+      const idColaborador = this.idColaborador();
+      const trocaColaborador = idColaborador !== (atual.idColaborador ?? null);
+      const situacao = () => {
+        if (ativo === atual.ativo) return this.concluir('Usuário atualizado.');
+        (ativo ? this.usuarios.ativarUsuario(atual.id) : this.usuarios.desativarUsuario(atual.id)).subscribe({
+          next: () => this.concluir('Usuário atualizado.'),
+          error: (e) => this.falhar(e)
+        });
+      };
       this.usuarios.atualizarUsuario(atual.id, request).subscribe({
         next: () => {
-          if (ativo === atual.ativo) return this.concluir('Usuário atualizado.');
-          (ativo ? this.usuarios.ativarUsuario(atual.id) : this.usuarios.desativarUsuario(atual.id)).subscribe({
-            next: () => this.concluir('Usuário atualizado.'),
-            error: (e) => this.falhar(e)
-          });
+          if (!trocaColaborador) return situacao();
+          this.usuarios.vincularColaborador(atual.id, idColaborador).subscribe({ next: situacao, error: (e) => this.falhar(e) });
         },
         error: (e) => this.falhar(e)
       });
@@ -539,7 +560,14 @@ export class UsuariosComponent {
   }
 
   private vincular(colaboradorId: string, usuario: UsuarioRequest): void {
-    this.executar(this.rh.gerarAcesso({ colaboradorId, usuario }), 'Usuário cadastrado e vinculado ao colaborador.');
+    this.rh.gerarAcesso({ colaboradorId, usuario }).subscribe({
+      next: () =>
+        this.rh.aguardarAcessoColaborador(colaboradorId).subscribe((confirmado) => {
+          this.concluir(confirmado ? 'Usuário cadastrado e vinculado ao colaborador.' : null);
+          if (!confirmado) this.notificacoes.warning('O acesso ainda não foi confirmado. Confira a lista em instantes.');
+        }),
+      error: (e) => this.falhar(e)
+    });
   }
 
   private executar(requisicao: Observable<unknown>, mensagem: string): void {

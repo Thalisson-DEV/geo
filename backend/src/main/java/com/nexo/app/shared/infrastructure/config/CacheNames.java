@@ -18,7 +18,7 @@ public final class CacheNames {
     public static final String CBF = "contratos-base-faturamento";
     public static final String PERMISSOES = "permissoes";
     // A versao impede que uma lista de authorities anterior a uma migration seja reutilizada no login.
-    public static final String PERMISSOES_PERFIL = "permissoes-perfil-v5";
+    public static final String PERMISSOES_PERFIL = "permissoes-perfil-v6";
 
     // Estoque e Materiais
     public static final String TIPOS_ESTOQUE = "tipos-estoque";
@@ -45,7 +45,7 @@ public final class CacheNames {
 
     // Saúde e Segurança do Trabalho (SST)
     // A versao evita reutilizar formularios serializados antes do backfill de gravidades da V137.
-    public static final String FORMULARIOS_INSPECAO = "formularios-inspecao-v2";
+    public static final String FORMULARIOS_INSPECAO = "formularios-inspecao-v3";
     public static final String INSPECOES_SEGURANCA = "inspecoes-seguranca";
     public static final String METAS_INSPECAO = "metas-inspecao";
     // Vocabulários e atividades da governança de eventos: mudam pouco e são lidos
@@ -73,6 +73,7 @@ public final class CacheNames {
     public static final String OBRAS_STATUS = "obras-status";
     public static final String OBRAS_AGENTES = "obras-agentes";
     public static final String OBRAS_TIPOS_ANEXOS = "obras-tipos-anexos";
+    public static final String OBRAS_TIPOS_OBRA = "obras-tipos-obra";
     public static final String OBRAS_KITS = "obras-kits";
     public static final String OBRAS_ROTAS = "obras-rotas";
 

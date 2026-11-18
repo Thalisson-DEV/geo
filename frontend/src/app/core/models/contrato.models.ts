@@ -51,11 +51,14 @@ export interface AcaoResponse {
   ativo: boolean;
   dataCriacao?: string;
   dataDesativacao?: string;
+  /** Serviço não efetuado: nota só com ações improdutivas não conta para a meta física. */
+  improdutiva?: boolean;
 }
 
 export interface AcaoRequest {
   codigo: string;
   nome: string;
+  improdutiva?: boolean;
 }
 
 export interface AcaoImportacaoDTO {

@@ -140,7 +140,7 @@ export const COPILOTO_DESTINOS: Record<string, NavigationTarget> = {
     '/almoxarifado/solicitacoes-tecnicas/:id', 'estoque:solicitacao:read', [ID_PATH]
   ),
   ALMOX_DASHBOARD_SOLICITACOES: target(
-    '/almoxarifado/dashboard/solicitacoes', 'estoque:solicitacao:read'
+    '/almoxarifado/relatorios', 'estoque:solicitacao:read'
   ),
   ALMOX_SALDOS: target('/almoxarifado/saldos', 'estoque:saldo:read'),
   ALMOX_SALDOS_RELATORIO: target('/almoxarifado/saldos/relatorio', 'estoque:saldo:read'),

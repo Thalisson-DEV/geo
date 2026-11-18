@@ -1,0 +1,139 @@
+/* Somente tokens --ces-*: o tema claro/escuro vem do preset central. */
+.chamado-topico {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+  margin: 0;
+}
+.chamado-topico > div {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--ces-border);
+  border-radius: var(--ces-radius-sm);
+  background: var(--ces-surface-subtle);
+}
+.chamado-topico dt {
+  color: var(--ces-foreground-muted);
+  font-size: var(--ces-font-caption);
+}
+.chamado-topico dd {
+  margin: 0;
+  color: var(--ces-foreground);
+  font-size: var(--ces-font-body);
+  font-weight: 600;
+}
+
+.chamado-upload {
+  position: relative;
+  display: flex;
+  min-height: var(--ces-touch-target);
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed var(--ces-border-strong);
+  border-radius: var(--ces-radius-md);
+  background: var(--ces-surface-subtle);
+  color: var(--ces-brand);
+  font-size: var(--ces-font-control);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--ces-duration-fast) var(--ces-ease-standard),
+    border-color var(--ces-duration-fast) var(--ces-ease-standard);
+}
+.chamado-upload:hover {
+  border-color: var(--ces-brand);
+  background: var(--ces-brand-soft);
+}
+.chamado-upload:active {
+  background: var(--ces-surface-muted);
+}
+.chamado-upload:focus-within {
+  outline: 3px solid var(--ces-focus-ring);
+  outline-offset: 2px;
+}
+.chamado-upload__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.chamado-arquivos {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chamado-arquivo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.65rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--ces-border);
+  border-radius: var(--ces-radius-md);
+  background: var(--ces-surface);
+}
+.chamado-arquivo__icone {
+  color: var(--ces-brand);
+}
+.chamado-arquivo__texto {
+  display: grid;
+  flex: 1 1 10rem;
+  min-width: 0;
+  gap: 0.1rem;
+}
+.chamado-arquivo__nome {
+  overflow: hidden;
+  color: var(--ces-foreground);
+  font-size: var(--ces-font-body);
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chamado-arquivo__meta {
+  color: var(--ces-foreground-muted);
+  font-size: var(--ces-font-caption);
+}
+.chamado-arquivo__erro {
+  color: var(--ces-danger-text);
+  font-size: var(--ces-font-caption);
+}
+
+.chamado-vazio {
+  margin: 0;
+  padding: 1rem;
+  border: 1px dashed var(--ces-border);
+  border-radius: var(--ces-radius-md);
+  color: var(--ces-foreground-muted);
+  font-size: var(--ces-font-body);
+  text-align: center;
+}
+
+.chamado-protocolo {
+  margin: 0 0 0.25rem;
+  color: var(--ces-foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--ces-font-title);
+  font-weight: 700;
+}
+
+.chamado-acoes {
+  justify-content: flex-end;
+}
+
+@media (min-width: 40rem) {
+  .chamado-topico {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chamado-upload {
+    transition: none;
+  }
+}

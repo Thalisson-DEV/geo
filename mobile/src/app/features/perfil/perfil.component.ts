@@ -10,6 +10,7 @@ import { ConnectivityService } from '../../core/sync/connectivity.service';
 import { SessaoService } from '../../core/sessao/sessao.service';
 import { DbService } from '../../core/db/db.service';
 import { environment } from '../../../environments/environment';
+import { AvaliacaoService } from '../../core/avaliacao/avaliacao.service';
 import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, SegmentadoComponent, TituloGrandeComponent } from '../../ui';
 
 /**
@@ -84,6 +85,16 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
 
     <h2 class="ces-secao">Aplicativo</h2>
     <ul class="ces-grupo">
+      @if (avaliacao.haPesquisa()) {
+        <li><button type="button" class="ces-linha ces-linha--acao" (click)="avaliacao.abrir()">
+          <span class="ces-selo ces-selo--destaque"><ces-icone nome="estrela" /></span>
+          <span class="ces-linha__texto">
+            <span class="ces-linha__titulo">Avaliar o app</span>
+            <span class="ces-linha__apoio quebra">{{ avaliacao.convite()?.jaRespondeu ? 'Você já avaliou. Obrigado!' : 'Conte o que você está achando' }}</span>
+          </span>
+          <ces-icone nome="avancar" [tamanho]="18" />
+        </button></li>
+      }
       <li><button type="button" class="ces-linha ces-linha--acao" (click)="buscarAtualizacao()" [disabled]="checkingUpdate()">
         <span class="ces-selo"><ces-icone nome="baixar" /></span>
         <span class="ces-linha__texto">
@@ -153,6 +164,7 @@ export class PerfilComponent implements OnInit {
   readonly sync = inject(SyncService);
   readonly rede = inject(ConnectivityService);
   readonly tema = inject(TemaService);
+  readonly avaliacao = inject(AvaliacaoService);
   private readonly toast = inject(ToastService);
   private readonly appUpdate = inject(AppUpdateService);
   private readonly sessao = inject(SessaoService);

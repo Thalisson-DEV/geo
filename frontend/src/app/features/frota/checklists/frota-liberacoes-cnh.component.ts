@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import {
   CesButtonComponent,
   CesCalloutComponent,
@@ -144,8 +144,14 @@ export class FrotaLiberacoesCnhComponent {
   ];
   protected readonly chave = (l: LiberacaoCnh) => l.id;
 
+  /** Bases escolhidas no topo da página; vazio é todas. */
+  readonly idsBase = input<string[]>([]);
+
   constructor() {
-    this.carregar();
+    effect(() => {
+      this.idsBase();
+      untracked(() => this.carregar());
+    });
     effect(() => {
       const idCondutor = this.idCondutor();
       const idVeiculo = this.idVeiculo();
@@ -158,7 +164,7 @@ export class FrotaLiberacoesCnhComponent {
   protected carregar(): void {
     this.carregando.set(true);
     this.erro.set(null);
-    this.checklist.liberacoesCnh({ page: 0, size: 200 }).subscribe({
+    this.checklist.liberacoesCnh({ page: 0, size: 200 }, this.idsBase()).subscribe({
       next: (p) => {
         this.liberacoes.set(p.content);
         this.carregando.set(false);

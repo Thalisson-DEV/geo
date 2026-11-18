@@ -48,6 +48,9 @@ public class AutomacoesIniciais {
         try {
             criarRelatorioComercial();
             atualizarRelatorioComercial();
+            criarRascunho(modelos.metasInspecaoSemanal(), "Criada pelo GEO: falta indicar quem da gestão recebe");
+            criarRascunho(modelos.desviosDosInspetores(), "Criada pelo GEO: cada inspetor recebe os próprios desvios; falta ativar");
+            criarRascunho(modelos.desviosDaGestao(), "Criada pelo GEO: falta indicar quem da gestão recebe");
         } catch (RuntimeException e) {
             LOGGER.error("Não foi possível criar as automações iniciais", e);
         }
@@ -63,6 +66,19 @@ public class AutomacoesIniciais {
         ModelosAutomacao.Modelo modelo = modelos.relatorioComercialPorBase();
         transacao.executeWithoutResult(s -> useCases.criarInterno(new AutomacaoRequest(modelo.nome(), modelo.descricao(), modelo.tipo(),
                 modelo.definicao(), "Criada pelo GEO: falta indicar quem recebe cada base"), OrigemAutomacao.SISTEMA, dono.get(), null));
+        LOGGER.info("Automação '{}' criada em rascunho.", modelo.nome());
+    }
+
+    /** Cria o modelo em rascunho, uma única vez (pelo nome), com um responsável que gerencia automações. */
+    void criarRascunho(ModelosAutomacao.Modelo modelo, String observacao) {
+        if (automacoes.existsByNome(modelo.nome())) return;
+        Optional<UUID> dono = responsavelPadrao();
+        if (dono.isEmpty()) {
+            LOGGER.warn("Nenhum usuário com 'automacao:manage' para ser responsável por '{}'; criação adiada.", modelo.nome());
+            return;
+        }
+        transacao.executeWithoutResult(s -> useCases.criarInterno(new AutomacaoRequest(modelo.nome(), modelo.descricao(), modelo.tipo(),
+                modelo.definicao(), observacao), OrigemAutomacao.SISTEMA, dono.get(), null));
         LOGGER.info("Automação '{}' criada em rascunho.", modelo.nome());
     }
 

@@ -8,6 +8,7 @@ import com.nexo.app.modules.frota.domain.PlanoPreventivo;
 import com.nexo.app.modules.frota.domain.TipoImplemento;
 import com.nexo.app.modules.frota.domain.TipoVeiculo;
 import com.nexo.app.modules.frota.infrastructure.persistence.ControlePreventivoRepository;
+import com.nexo.app.modules.frota.infrastructure.persistence.FichaVeiculoRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.PlanoPreventivoRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.TipoImplementoRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.TipoVeiculoRepository;
@@ -41,6 +42,7 @@ public class PlanoPreventivoUseCases {
     private final TipoImplementoRepository tiposImplemento;
     private final ItemManutencaoUseCases itens;
     private final SincronizacaoPreventiva sincronizacao;
+    private final FichaVeiculoRepository fichas;
 
     @Transactional(readOnly = true)
     public List<PlanoPreventivoResponse> listar(PlanoPreventivoFilter filtro) {
@@ -110,7 +112,7 @@ public class PlanoPreventivoUseCases {
         return new PlanoPreventivo.Dados(request.nome(), request.descricao(), request.idsTiposVeiculo(),
                 request.idsTiposImplemento(), request.intervaloKm(), request.intervaloHoras(), request.intervaloDias(),
                 request.antecedenciaKm(), request.antecedenciaHoras(), request.antecedenciaDias(), request.criticidade(),
-                request.abrirOsAutomaticamente(), itensPlano, request.tarefas());
+                request.abrirOsAutomaticamente(), itensPlano, request.tarefas(), request.idsVeiculos());
     }
 
     private void validarTipos(PlanoPreventivoRequest request) {
@@ -123,6 +125,10 @@ public class PlanoPreventivoUseCases {
         var encontradosImplemento = tiposImplemento.findAllById(idsImplemento);
         if (encontradosImplemento.size() != idsImplemento.size()) {
             throw new InvarianteVioladaException("Algum tipo de implemento informado não existe.");
+        }
+        var placas = request.idsVeiculos() == null ? Set.<UUID>of() : request.idsVeiculos();
+        if (!placas.isEmpty() && fichas.findAllByIdVeiculoIn(placas).size() != placas.size()) {
+            throw new InvarianteVioladaException("Alguma placa informada não está na frota.");
         }
     }
 
@@ -139,10 +145,18 @@ public class PlanoPreventivoUseCases {
         tiposImplemento.findAllById(idsImplemento).forEach((TipoImplemento t) ->
                 tipos.put(t.getId(), new PlanoPreventivoResponse.Referencia(t.getId(), t.getNome(), t.isAtivo())));
         Comparator<PlanoPreventivoResponse.Referencia> porNome = Comparator.comparing(PlanoPreventivoResponse.Referencia::nome);
+        var idsPlacas = new HashSet<UUID>();
+        planos.forEach(p -> idsPlacas.addAll(p.getIdsVeiculos()));
+        Map<UUID, PlanoPreventivoResponse.Referencia> placas = new HashMap<>();
+        if (!idsPlacas.isEmpty()) {
+            fichas.findAllByIdVeiculoIn(idsPlacas).forEach(f -> placas.put(f.getIdVeiculo(),
+                    new PlanoPreventivoResponse.Referencia(f.getIdVeiculo(), f.getPlaca(), f.isAtivo())));
+        }
         return planos.stream().map(p -> new PlanoPreventivoResponse(
                 p.getId(), p.getNome(), p.getDescricao(),
                 p.getIdsTiposVeiculo().stream().map(tipos::get).filter(java.util.Objects::nonNull).sorted(porNome).toList(),
                 p.getIdsTiposImplemento().stream().map(tipos::get).filter(java.util.Objects::nonNull).sorted(porNome).toList(),
+                p.getIdsVeiculos().stream().map(placas::get).filter(java.util.Objects::nonNull).sorted(porNome).toList(),
                 p.getIntervaloKm(), p.getIntervaloHoras(), p.getIntervaloDias(),
                 p.getAntecedenciaKm(), p.getAntecedenciaHoras(), p.getAntecedenciaDias(),
                 p.frequenciaDescrita(), p.getCriticidade(), p.getCriticidade().getRotulo(), p.isAbrirOsAutomaticamente(),

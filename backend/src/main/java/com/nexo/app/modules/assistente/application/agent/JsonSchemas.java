@@ -76,6 +76,13 @@ public final class JsonSchemas {
         return node;
     }
 
+    /** Objeto de chaves livres ({campo: valor}). Clientes MCP descartam objeto enviado num parametro escalar. */
+    public static ObjectNode anyObject(String description) {
+        ObjectNode node = F.objectNode().put("type", "object").put("additionalProperties", true);
+        if (description != null) node.put("description", description);
+        return node;
+    }
+
     public static final class ObjectBuilder {
         private final ObjectNode node = F.objectNode().put("type", "object");
         private final ObjectNode properties = node.putObject("properties");

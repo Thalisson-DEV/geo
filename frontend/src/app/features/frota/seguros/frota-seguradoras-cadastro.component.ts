@@ -215,6 +215,7 @@ export class FrotaSeguradorasCadastroComponent {
   protected readonly statusOpcoes = OPCOES_STATUS;
   protected readonly lista = cesListState({
     storageKey: 'frota-seguradoras',
+    rememberFilters: 'frota-seguradoras',
     filters: {
       papel: cesFilter.value<PapelSeguradora | null>(null, { label: 'Papel', param: 'papel', options: () => FILTRO_PAPEL }),
       assistencia: cesFilter.value<Assistencia | null>(null, { label: 'Assistência 24h', param: 'assistencia', options: () => FILTRO_ASSISTENCIA }),

@@ -66,7 +66,7 @@ describe('aparenciaPreventiva', () => {
 });
 
 describe('FrotaAcompanhamentoPreventivaComponent', () => {
-  afterEach(() => TestBed.resetTestingModule());
+  afterEach(() => (TestBed.resetTestingModule(), localStorage.clear()));
 
   it('abre nas vencidas, sem a que já tem OS, e mostra a contagem de cada situação', () => {
     const { tela, el } = montarAcompanhamento(['frota:preventiva:read']);
@@ -168,7 +168,8 @@ describe('FrotaPlanosPreventivaComponent', () => {
           useValue: {
             tiposVeiculo: () => of({ content: [] }),
             tiposImplemento: () => of({ content: [] }),
-            itensManutencao: () => of({ content: [] })
+            itensManutencao: () => of({ content: [] }),
+            listarVeiculos: () => of({ content: [] })
           }
         },
         { provide: AuthService, useValue: { currentUser: signal({ permissoes: ['frota:preventiva:write'] }) } }

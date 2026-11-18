@@ -20,12 +20,16 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageService } from 'primeng/api';
 import { CesButtonComponent } from '@ces/ui';
 import { DateMaskDirective } from '../../../shared/directives/date-mask.directive';
+import { FechamentoObraService } from '../../../core/services/fechamento-obra.service';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { BaseOperacionalResponse } from '../../../core/models/rh.models';
 import { EstoqueResponse } from '../../../core/models/almoxarifado.models';
+import { FechamentoFiltro } from '../../../core/models/fechamento-obra.models';
+import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
+import { OPCOES_PRAZO, OPCOES_SITUACAO, OPCOES_SITUACAO_OBRA, OPCOES_TIPO } from '../../obras/fechamento/fechamento-ui';
 
-export type ProcessoExportacao = 'TODOS' | 'COMERCIAL' | 'TECNICO';
+export type ProcessoExportacao = 'TODOS' | 'COMERCIAL' | 'TECNICO' | 'FECHAMENTO';
 export type FormatoExportacao = 'resumo' | 'detalhado';
 export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
 
@@ -46,7 +50,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
   ],
   template: `
     <p-dialog
-      [header]="processoSelecionado === 'TODOS' && tipoArquivo === 'ZIP' ? 'Exportar Solicitações de Material (.ZIP)' : 'Exportar Solicitações de Material (CSV)'"
+      [header]="ehFechamento ? 'Exportar Solicitações de Fechamento (CSV)' : processoSelecionado === 'TODOS' && tipoArquivo === 'ZIP' ? 'Exportar Solicitações de Material (.ZIP)' : 'Exportar Solicitações de Material (CSV)'"
       [visible]="visible"
       (visibleChange)="onVisibleChange($event)"
       [modal]="true"
@@ -58,26 +62,28 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
       <div class="flex flex-col gap-4 mt-2">
         <!-- SELEÇÃO DE TIPO E FORMATO -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="flex flex-col gap-1">
-            <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
-              <i class="pi pi-database text-primary-700"></i> O que deseja exportar? (Processo)
-            </label>
-            <p-select
-              [options]="processoOptions"
-              [(ngModel)]="processoSelecionado"
-              optionLabel="label"
-              optionValue="value"
-              class="custom-select w-full"
-              appendTo="body"
-              size="small"
-            ></p-select>
-          </div>
-          <div class="flex flex-col gap-1">
+          @if (!ehFechamento) {
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-database text-primary-700"></i> O que deseja exportar? (Processo)
+              </label>
+              <p-select
+                [options]="processoOptions"
+                [(ngModel)]="processoSelecionado"
+                optionLabel="label"
+                optionValue="value"
+                class="custom-select w-full"
+                appendTo="body"
+                size="small"
+              ></p-select>
+            </div>
+          }
+          <div class="flex flex-col gap-1" [ngClass]="{ 'sm:col-span-2': ehFechamento }">
             <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
               <i class="pi pi-file-excel text-primary-700"></i> Formato de Exportação
             </label>
             <p-select
-              [options]="formatoOptions"
+              [options]="ehFechamento ? formatoFechamentoOptions : formatoOptions"
               [(ngModel)]="formatoSelecionado"
               optionLabel="label"
               optionValue="value"
@@ -169,24 +175,24 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
           <!-- Status -->
           <div class="flex flex-col gap-1 sm:col-span-2">
             <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
-              <i class="pi pi-flag text-slate-400"></i> Status
+              <i class="pi pi-flag text-slate-400"></i> {{ ehFechamento ? 'Situação' : 'Status' }}
             </label>
             <p-multiSelect
-              [options]="statusOptions"
+              [options]="ehFechamento ? situacaoFechamentoOptions : statusOptions"
               [(ngModel)]="statusSelecionados"
               optionLabel="label"
               optionValue="value"
-              placeholder="Todos os status"
+              [placeholder]="ehFechamento ? 'Todas as situações' : 'Todos os status'"
               [showClear]="true"
               [maxSelectedLabels]="2"
-              selectedItemsLabel="{0} status selecionados"
+              [selectedItemsLabel]="ehFechamento ? '{0} situações selecionadas' : '{0} status selecionados'"
               appendTo="body"
               class="custom-multiselect w-full"
               size="small"
             ></p-multiSelect>
           </div>
 
-          <!-- Filtros de Obra e Almoxarifado (Técnico / Todos) -->
+          <!-- Filtros de Obra e Almoxarifado (Técnico / Todos / Fechamento) -->
           @if (processoSelecionado !== 'COMERCIAL') {
             @if (obraOptions.length > 0) {
               <div class="flex flex-col gap-1">
@@ -228,7 +234,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
               </div>
             }
 
-            @if (equipeOptions.length > 0) {
+            @if (!ehFechamento && equipeOptions.length > 0) {
               <div class="flex flex-col gap-1">
                 <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
                   <i class="pi pi-users text-slate-400"></i> Equipe de Saque
@@ -248,6 +254,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
               </div>
             }
 
+            @if (!ehFechamento) {
             <div class="flex flex-col gap-1">
               <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
                 <i class="pi pi-tags text-slate-400"></i> Tipo Técnico
@@ -294,10 +301,152 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
                 size="small"
               />
             </div>
+            }
+          }
+
+          <!-- Filtros do encerramento de obras -->
+          @if (ehFechamento) {
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-tags text-slate-400"></i> Tipo
+              </label>
+              <p-multiSelect
+                [options]="tipoFechamentoOptions"
+                [(ngModel)]="filtroTiposFechamento"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Todos os tipos"
+                [showClear]="true"
+                [maxSelectedLabels]="2"
+                selectedItemsLabel="{0} tipos selecionados"
+                appendTo="body"
+                class="custom-multiselect w-full"
+                size="small"
+              ></p-multiSelect>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-clock text-slate-400"></i> Prazo
+              </label>
+              <p-select
+                [options]="prazoFechamentoOptions"
+                [(ngModel)]="filtroPrazo"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Todos"
+                [showClear]="true"
+                appendTo="body"
+                class="custom-select w-full"
+                size="small"
+              ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-flag text-slate-400"></i> Pendência
+              </label>
+              <p-select
+                [options]="pendenciaOptions"
+                [(ngModel)]="filtroPendencia"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Todas"
+                [showClear]="true"
+                appendTo="body"
+                class="custom-select w-full"
+                size="small"
+              ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-check-square text-slate-400"></i> Fechamento da Obra
+              </label>
+              <p-select
+                [options]="situacaoObraOptions"
+                [(ngModel)]="filtroSituacaoObra"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Todos"
+                [showClear]="true"
+                appendTo="body"
+                class="custom-select w-full"
+                size="small"
+              ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-user text-slate-400"></i> Solicitante
+              </label>
+              <p-select
+                [options]="solicitanteOptions"
+                [(ngModel)]="filtroSolicitante"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Todos"
+                [showClear]="true"
+                [filter]="true"
+                [disabled]="apenasMinhas"
+                appendTo="body"
+                class="custom-select w-full"
+                size="small"
+              ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-user text-slate-400"></i> Supervisor
+              </label>
+              <p-select
+                [options]="supervisorOptions"
+                [(ngModel)]="filtroSupervisor"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Todos"
+                [showClear]="true"
+                [filter]="true"
+                appendTo="body"
+                class="custom-select w-full"
+                size="small"
+              ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-users text-slate-400"></i> Coordenador
+              </label>
+              <p-select
+                [options]="coordenadorOptions"
+                [(ngModel)]="filtroCoordenador"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Todos"
+                [showClear]="true"
+                [filter]="true"
+                appendTo="body"
+                class="custom-select w-full"
+                size="small"
+              ></p-select>
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
+                <i class="pi pi-hashtag text-slate-400"></i> Número da Reserva
+              </label>
+              <input
+                pInputText
+                [(ngModel)]="filtroReserva"
+                placeholder="Número da reserva"
+                class="custom-input w-full"
+                size="small"
+              />
+            </div>
           }
 
           <!-- Filtros de Estoques Comerciais (Comercial / Todos) -->
-          @if (processoSelecionado !== 'TECNICO') {
+          @if (processoSelecionado === 'COMERCIAL' || processoSelecionado === 'TODOS') {
             @if (estoqueOptions.length > 0) {
               <div class="flex flex-col gap-1">
                 <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
@@ -378,7 +527,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
             <input
               pInputText
               [(ngModel)]="filtroBuscaGlobal"
-              placeholder="Buscar por obra, ocorrência, reserva ou número de série"
+              [placeholder]="ehFechamento ? 'Buscar por obra ou número da reserva' : 'Buscar por obra, ocorrência, reserva ou número de série'"
               class="custom-input w-full"
               size="small"
             />
@@ -420,6 +569,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
 })
 export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
   private readonly almoxarifado = inject(AlmoxarifadoService);
+  private readonly fechamento = inject(FechamentoObraService);
   private readonly messageService = inject(MessageService);
 
   @Input() visible = false;
@@ -432,6 +582,9 @@ export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
   @Input() obraOptions: { label: string; value: string }[] = [];
   @Input() almoxarifadoOptions: { label: string; value: string }[] = [];
   @Input() equipeOptions: { label: string; value: string }[] = [];
+  @Input() solicitanteOptions: { label: string; value: string }[] = [];
+  @Input() supervisorOptions: { label: string; value: string }[] = [];
+  @Input() coordenadorOptions: { label: string; value: string }[] = [];
 
   exportando = signal<boolean>(false);
 
@@ -459,6 +612,34 @@ export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
   filtroNumSerie: string = '';
   filtroBuscaGlobal: string = '';
   apenasMinhas: boolean = false;
+  /** Atalho "Em aberto" da lista comercial: saldo encerrado não entra. */
+  private saldoAberto = false;
+
+  filtroTiposFechamento: string[] = [];
+  filtroPrazo: string | null = null;
+  filtroPendencia: boolean | null = null;
+  filtroSituacaoObra: string | null = null;
+  filtroSolicitante: string | null = null;
+  filtroSupervisor: string | null = null;
+  filtroCoordenador: string | null = null;
+  filtroReserva: string = '';
+
+  readonly tipoFechamentoOptions = OPCOES_TIPO;
+  readonly situacaoFechamentoOptions = OPCOES_SITUACAO;
+  readonly prazoFechamentoOptions = OPCOES_PRAZO;
+  readonly situacaoObraOptions = OPCOES_SITUACAO_OBRA;
+  readonly pendenciaOptions = [
+    { label: 'Com pendência', value: true },
+    { label: 'Sem pendência', value: false },
+  ];
+  readonly formatoFechamentoOptions = [
+    { label: 'Resumo (1 linha por solicitação)', value: 'resumo' },
+    { label: 'Completo / Detalhado (1 linha por material)', value: 'detalhado' },
+  ];
+
+  get ehFechamento(): boolean {
+    return this.processoSelecionado === 'FECHAMENTO';
+  }
 
   readonly processoOptions = [
     { label: 'Todos os Processos (Comercial e Técnico)', value: 'TODOS' },
@@ -523,6 +704,12 @@ export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
     const ativos = this.filtrosAtivos;
     if (!ativos) return;
 
+    if (this.ehFechamento) {
+      this.sincronizarFechamento(ativos);
+      return;
+    }
+
+    this.saldoAberto = !!ativos.saldoAberto;
     if (ativos.dataInicio) this.dataDe = new Date(ativos.dataInicio);
     if (ativos.dataFim) this.dataAte = new Date(ativos.dataFim);
 
@@ -546,7 +733,55 @@ export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
     if (ativos.apenasMinhas !== undefined) this.apenasMinhas = !!ativos.apenasMinhas;
   }
 
+  /** Abre com o recorte da lista, que pode ser ajustado aqui sem mexer na tela. */
+  private sincronizarFechamento(ativos: FechamentoFiltro) {
+    this.dataDe = ativos.criadaDe ? dataLocal(ativos.criadaDe) : null;
+    this.dataAte = ativos.criadaAte ? dataLocal(ativos.criadaAte) : null;
+    this.statusSelecionados = [...(ativos.situacoes ?? [])];
+    this.filtroObra = ativos.idObra ?? null;
+    this.filtroAlmoxarifado = ativos.idAlmoxarifado ?? null;
+    this.filtroTiposFechamento = [...(ativos.tipos ?? [])];
+    this.filtroPrazo = ativos.prazo ?? null;
+    this.filtroPendencia = ativos.comPendencia ?? null;
+    this.filtroSituacaoObra = ativos.situacaoObra ?? null;
+    this.filtroSolicitante = ativos.idSolicitante ?? null;
+    this.filtroSupervisor = ativos.idSupervisor ?? null;
+    this.filtroCoordenador = ativos.idCoordenador ?? null;
+    this.filtroReserva = ativos.reserva ?? '';
+    this.filtroBuscaGlobal = ativos.busca ?? '';
+    this.apenasMinhas = !!ativos.minhas;
+  }
+
+  private filtroFechamento(): FechamentoFiltro {
+    return {
+      minhas: this.apenasMinhas || undefined,
+      idSolicitante: this.apenasMinhas ? undefined : (this.filtroSolicitante ?? undefined),
+      idObra: this.filtroObra ?? undefined,
+      idAlmoxarifado: this.filtroAlmoxarifado ?? undefined,
+      tipos: this.filtroTiposFechamento.length ? ([...this.filtroTiposFechamento] as FechamentoFiltro['tipos']) : undefined,
+      situacoes: this.statusSelecionados.length ? ([...this.statusSelecionados] as FechamentoFiltro['situacoes']) : undefined,
+      prazo: (this.filtroPrazo as FechamentoFiltro['prazo']) ?? undefined,
+      comPendencia: this.filtroPendencia ?? undefined,
+      situacaoObra: (this.filtroSituacaoObra as FechamentoFiltro['situacaoObra']) ?? undefined,
+      idSupervisor: this.filtroSupervisor ?? undefined,
+      idCoordenador: this.filtroCoordenador ?? undefined,
+      reserva: this.filtroReserva.trim() || undefined,
+      criadaDe: dataIso(this.dataDe) ?? undefined,
+      criadaAte: dataIso(this.dataAte) ?? undefined,
+      busca: this.filtroBuscaGlobal.trim() || undefined,
+    };
+  }
+
   executarExportacao() {
+    if (this.ehFechamento) {
+      this.exportando.set(true);
+      this.fechamento.exportar(this.formatoSelecionado, this.filtroFechamento()).subscribe({
+        next: (blob) => this.concluirExportacao(blob, `fechamento_obras_${this.formatoSelecionado}.csv`),
+        error: (err) => this.falharExportacao(err),
+      });
+      return;
+    }
+
     const params: Record<string, any> = {};
 
     if (this.processoSelecionado !== 'TODOS') {
@@ -590,6 +825,10 @@ export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
       params['apenasMinhas'] = true;
     }
 
+    if (this.saldoAberto) {
+      params['saldoAberto'] = true;
+    }
+
     this.exportando.set(true);
 
     const call$ =
@@ -599,42 +838,48 @@ export class ExportarSolicitacoesDialogComponent implements OnInit, OnChanges {
 
     call$.subscribe({
       next: (blob) => {
-        this.exportando.set(false);
-        this.fechar();
-
-        const url = window.URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        if (this.processoSelecionado === 'TODOS' && this.tipoArquivo === 'ZIP') {
-          anchor.download = `solicitacoes_material_${this.formatoSelecionado}.zip`;
-        } else {
+        let nome = `solicitacoes_material_${this.formatoSelecionado}.zip`;
+        if (this.processoSelecionado !== 'TODOS' || this.tipoArquivo !== 'ZIP') {
           const prefixo =
             this.processoSelecionado === 'TECNICO'
               ? 'solicitacoes_tecnicas'
               : this.processoSelecionado === 'COMERCIAL'
                 ? 'solicitacoes_comerciais'
                 : 'solicitacoes_consolidado';
-          anchor.download = `${prefixo}_${this.formatoSelecionado}.csv`;
+          nome = `${prefixo}_${this.formatoSelecionado}.csv`;
         }
-        document.body.appendChild(anchor);
-        anchor.click();
-        document.body.removeChild(anchor);
-        window.URL.revokeObjectURL(url);
+        this.concluirExportacao(blob, nome);
+      },
+      error: (err) => this.falharExportacao(err),
+    });
+  }
 
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Exportação concluída',
-          detail: 'O download foi iniciado com sucesso.',
-        });
-      },
-      error: (err) => {
-        this.exportando.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erro ao exportar',
-          detail: getErrorMessage(err),
-        });
-      },
+  private concluirExportacao(blob: Blob, nome: string) {
+    this.exportando.set(false);
+    this.fechar();
+
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = nome;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+    window.URL.revokeObjectURL(url);
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Exportação concluída',
+      detail: 'O download foi iniciado com sucesso.',
+    });
+  }
+
+  private falharExportacao(err: unknown) {
+    this.exportando.set(false);
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro ao exportar',
+      detail: getErrorMessage(err),
     });
   }
 

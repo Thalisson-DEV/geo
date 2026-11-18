@@ -204,6 +204,23 @@
           }
         </section>
 
+        <!-- Encerramento: solicitações para regularizar o material da obra depois de finalizada -->
+        @if (podeVerEncerramento) {
+          <section class="obra-card" aria-labelledby="encerramento-titulo">
+            <header class="obra-card__cabecalho">
+              <h2 id="encerramento-titulo"><i class="pi pi-flag" aria-hidden="true"></i> Encerramento</h2>
+              <span class="ces-actions-row">
+                <ces-button variant="ghost" size="sm" icon="pi pi-external-link" label="Ver no encerramento" (pressed)="verEncerramento()"></ces-button>
+                @if (podeCriarEncerramento) {
+                  <ces-button variant="ghost" size="sm" icon="pi pi-plus" label="Nova solicitação" (pressed)="novoEncerramento()"></ces-button>
+                }
+              </span>
+            </header>
+            <app-obra-fechamentos [idObra]="o.id" [podeCriar]="podeCriarEncerramento" [compacta]="true"
+              (abrir)="abrirEncerramento($event.id)" (nova)="novoEncerramento()" (imprimir)="imprimirEncerramento($event.id)"></app-obra-fechamentos>
+          </section>
+        }
+
         <!-- Programação -->
         @if (podeVerProgramacao) {
           <section class="obra-card" aria-labelledby="programacao-titulo">
@@ -510,6 +527,10 @@
       }
       @if (!o.statusConcluida) {
         <ces-button variant="outline" size="sm" icon="pi pi-cart-plus" label="SOLICITAR MATERIAIS" (pressed)="solicitarMateriais()"
+          className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></ces-button>
+      }
+      @if (podeCriarEncerramento) {
+        <ces-button variant="outline" size="sm" icon="pi pi-flag" label="ENCERRAMENTO" (pressed)="novoEncerramento()"
           className="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></ces-button>
       }
       <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"

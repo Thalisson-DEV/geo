@@ -108,8 +108,14 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
         (rowActivate)="editar($event)"
       >
         <ng-template cesCell="codigo" let-row><span class="ces-cell-strong">{{ row.codigo }}</span></ng-template>
+        <ng-template cesCell="nome" let-row>
+          {{ row.nome }}
+          @if (row.improdutiva) {
+            <ces-status tone="warning" icon="pi pi-times-circle" emphasis="soft">Improdutivo: não conta na meta física</ces-status>
+          }
+        </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">
@@ -128,6 +134,10 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
           <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="255" [error]="erro('nome')"></ces-text-input>
         </div>
         <ces-boolean-control [label]="emEdicao() ? 'Ação ativa' : 'Cadastrar já ativa'" kind="toggle" [(value)]="ativo"></ces-boolean-control>
+      </ces-form-section>
+      <ces-form-section title="Meta física" icon="pi pi-bullseye">
+        <ces-boolean-control label="Serviço improdutivo" kind="toggle" [(value)]="improdutiva"
+          description="Serviço não efetuado (sem acesso ao padrão, defeito técnico, não executado). A nota em que todos os serviços são improdutivos não conta para a meta física da Concessionária; basta um serviço produtivo para a nota contar."></ces-boolean-control>
       </ces-form-section>
       <div drawer-footer class="ces-actions-row">
         <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
@@ -197,7 +207,7 @@ export class AcoesComponent {
 
   protected readonly colunas: CesDataTableColumn<AcaoResponse>[] = [
     { key: 'codigo', header: 'Código', type: 'custom', priority: 1, sortField: 'codigo', width: '10rem', value: (a) => a.codigo, display: (a) => a.codigo },
-    { key: 'nome', header: 'Nome', priority: 1, sortField: 'nome' },
+    { key: 'nome', header: 'Nome', type: 'custom', priority: 1, sortField: 'nome', value: (a) => a.nome, display: (a) => (a.improdutiva ? `${a.nome} (improdutivo)` : a.nome) },
     { key: 'ativo', header: 'Status', type: 'custom', sortField: 'ativo', value: (a) => a.ativo, display: (a) => (a.ativo ? 'Ativa' : 'Inativa') }
   ];
   protected readonly rotulo = (a: AcaoResponse) => a.codigo;
@@ -207,12 +217,13 @@ export class AcoesComponent {
   protected readonly codigo = signal('');
   protected readonly nome = signal('');
   protected readonly ativo = signal(true);
+  protected readonly improdutiva = signal(false);
   protected readonly salvando = signal(false);
   private readonly tentouSalvar = signal(false);
   protected readonly alterado = computed(() => {
     const a = this.emEdicao();
-    if (!a) return !!(this.codigo() + this.nome()).trim() || !this.ativo();
-    return this.codigo() !== a.codigo || this.nome() !== a.nome || this.ativo() !== a.ativo;
+    if (!a) return !!(this.codigo() + this.nome()).trim() || !this.ativo() || this.improdutiva();
+    return this.codigo() !== a.codigo || this.nome() !== a.nome || this.ativo() !== a.ativo || this.improdutiva() !== !!a.improdutiva;
   });
   private readonly erros = computed<Record<string, string>>(() => {
     const e: Record<string, string> = {};
@@ -260,6 +271,7 @@ export class AcoesComponent {
     this.codigo.set(a?.codigo ?? '');
     this.nome.set(a?.nome ?? '');
     this.ativo.set(a?.ativo ?? true);
+    this.improdutiva.set(!!a?.improdutiva);
     this.tentouSalvar.set(false);
   }
 
@@ -268,7 +280,7 @@ export class AcoesComponent {
     if (Object.keys(this.erros()).length) return;
     const atual = this.emEdicao();
     const ativo = this.ativo();
-    const request = { codigo: this.codigo().trim(), nome: this.nome().trim() };
+    const request = { codigo: this.codigo().trim(), nome: this.nome().trim(), improdutiva: this.improdutiva() };
     this.salvando.set(true);
     const alternar = (id: string, era: boolean): Observable<unknown> =>
       era === ativo ? of(null) : ativo ? this.contratos.ativarAcao(id) : this.contratos.desativarAcao(id);

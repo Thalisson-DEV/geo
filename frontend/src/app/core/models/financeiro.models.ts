@@ -698,3 +698,16 @@ export interface InspecaoContexto {
   filtros: SolicitacaoFinanceiraFilter;
 }
 
+export const ICONE_STATUS_SOLICITACAO: Record<StatusSolicitacao, string> = {
+  RASCUNHO: 'pi-file-edit',
+  SOLICITADO: 'pi-clock',
+  APROVADO: 'pi-check-circle',
+  REJEITADO: 'pi-times-circle',
+  CANCELADO: 'pi-ban'
+};
+export const ICONE_SITUACAO_DOCUMENTO: Record<SituacaoDocumento, string> = {
+  PENDENTE: 'pi-clock',
+  CONFERIDO: 'pi-check-circle',
+  COM_PENDENCIA: 'pi-exclamation-circle',
+  ARQUIVADO: 'pi-inbox'
+};

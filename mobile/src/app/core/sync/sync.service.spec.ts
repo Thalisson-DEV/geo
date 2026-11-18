@@ -1,10 +1,15 @@
+import { ChecklistVeiculoService } from '../frota/checklist-veiculo.service';
+import { AbastecimentoService } from '../frota/abastecimento.service';
 import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import {
   SyncService,
   INSPECAO_ANEXO_ENDPOINT,
   INSPECAO_LANCAR_ENDPOINT,
+  esperaPedidaMs,
+  RETOMADA_SEM_REDE_BASE_MS,
+  RETOMADA_SEM_REDE_MAX_MS,
 } from './sync.service';
 import { TRAVA_FILA } from './sync.service';
 import { AuthService } from '../auth/auth.service';
@@ -73,7 +78,7 @@ describe('SyncService', () => {
 
     mockOutboxService = jasmine.createSpyObj('OutboxService', [
       'getPendingItems', 'getErrorItems', 'discard', 'updateStatus', 'incrementAttempt',
-      'updateEndpoint', 'updatePayload', 'enqueue', 'adiarNovaTentativa', 'proximoReenvioAgendado',
+      'updateEndpoint', 'updatePayload', 'enqueue', 'adiarNovaTentativa', 'adiarPor', 'proximoReenvioAgendado',
       'reivindicarParaEnvio'
     ]);
     // Por padrão a reivindicação devolve o item como a última leitura da fila o listou.
@@ -82,6 +87,7 @@ describe('SyncService', () => {
       return (listados as OutboxItem[] | undefined)?.find(i => i.id === id);
     });
     mockOutboxService.adiarNovaTentativa.and.returnValue(Promise.resolve(0));
+    mockOutboxService.adiarPor.and.returnValue(Promise.resolve(0));
     mockOutboxService.proximoReenvioAgendado.and.returnValue(Promise.resolve(null));
     mockOutboxService.getPendingItems.and.returnValue(Promise.resolve([]));
     mockOutboxService.getErrorItems.and.returnValue(Promise.resolve([]));
@@ -120,6 +126,9 @@ describe('SyncService', () => {
           }
         },
         { provide: TurnoService, useValue: mockTurnoService },
+        // Os catálogos do checklist e do abastecimento têm o próprio spec; aqui só a etapa existir já basta.
+        { provide: ChecklistVeiculoService, useValue: { sincronizarCatalogo: () => Promise.resolve(), processarEnvio: () => Promise.resolve() } },
+        { provide: AbastecimentoService, useValue: { sincronizarCatalogo: () => Promise.resolve(), processarEnvio: () => Promise.resolve() } },
         { provide: ExecucoesService, useValue: mockExecucoesService },
         { provide: BaseOperacionalService, useValue: mockBaseOperacionalService }
       ]
@@ -599,6 +608,71 @@ describe('SyncService', () => {
       expect(mockOutboxService.incrementAttempt).not.toHaveBeenCalled();
     }));
 
+    it('429 mantém o item pendente, adia pelo Retry-After e para a rodada sem marcar erro', fakeAsync(() => {
+      spyOn<any>(service, 'pullParcialData').and.returnValue(Promise.resolve());
+      const item = (id: string) => ({
+        id, endpoint: `/v1/${id}`, method: 'POST', payload: {}, status: 'PENDENTE', tentativas: 0, criadoEm: new Date()
+      });
+      mockOutboxService.getPendingItems.and.returnValue(Promise.resolve([item('lim-1'), item('lim-2')]));
+
+      service.syncOutbox();
+      tick();
+
+      httpMock.expectOne(`${environment.apiBaseUrl}/v1/lim-1`).flush(
+        { detail: 'Muitas requisições em pouco tempo. Tente de novo em 40 segundos.', retryAfter: 40 },
+        { status: 429, statusText: 'Too Many Requests', headers: { 'Retry-After': '40' } });
+      tick();
+
+      httpMock.expectNone(`${environment.apiBaseUrl}/v1/lim-2`);
+      expect(mockOutboxService.updateStatus).toHaveBeenCalledWith('lim-1', 'PENDENTE',
+        'Muitos envios em pouco tempo. O app tenta de novo sozinho em instantes.');
+      expect(mockOutboxService.adiarPor).toHaveBeenCalledWith('lim-1', 40_000);
+      expect(mockOutboxService.updateStatus).not.toHaveBeenCalledWith('lim-1', 'ERRO', jasmine.anything());
+      expect(mockOutboxService.incrementAttempt).not.toHaveBeenCalled();
+    }));
+
+    it('falha por rede agenda nova rodada sozinha, com espera crescente', fakeAsync(() => {
+      spyOn<any>(service, 'pullParcialData').and.returnValue(Promise.resolve());
+      const pendente = {
+        id: 'rede-1', endpoint: '/v1/rede-1', method: 'POST', payload: {}, status: 'PENDENTE', tentativas: 0, criadoEm: new Date()
+      };
+      mockOutboxService.getPendingItems.and.returnValue(Promise.resolve([pendente]));
+      // Sem rede: o envio cai e a consulta de recebimento também não acha o item.
+      const falharPorRede = () => {
+        httpMock.expectOne(`${environment.apiBaseUrl}/v1/rede-1`).error(new ProgressEvent('error'), { status: 0 });
+        tick();
+        httpMock.expectOne(r => r.url.endsWith('/operacoes/rede-1')).flush(null, { status: 404, statusText: 'Not Found' });
+        tick();
+      };
+
+      service.syncOutbox();
+      tick();
+      falharPorRede();
+      expect(mockOutboxService.updateStatus).toHaveBeenCalledWith('rede-1', 'PENDENTE', jasmine.any(String));
+
+      // Primeira retomada em 15 s, sem ninguém tocar em "Sincronizar".
+      tick(RETOMADA_SEM_REDE_BASE_MS - 1);
+      httpMock.expectNone(`${environment.apiBaseUrl}/v1/rede-1`);
+      tick(1);
+      falharPorRede();
+
+      // A segunda espera dobra; quando o envio passa, nada mais é agendado.
+      tick(2 * RETOMADA_SEM_REDE_BASE_MS);
+      httpMock.expectOne(`${environment.apiBaseUrl}/v1/rede-1`).flush({ id: 'srv-1' });
+      tick();
+      expect(mockOutboxService.updateStatus).toHaveBeenCalledWith('rede-1', 'SINCRONIZADO');
+      tick(RETOMADA_SEM_REDE_MAX_MS);
+      httpMock.expectNone(`${environment.apiBaseUrl}/v1/rede-1`);
+    }));
+
+    it('lê a espera do 429 no corpo ou no header e ignora valores inválidos', () => {
+      expect(esperaPedidaMs({ status: 429, retryAfter: 12 })).toBe(12_000);
+      expect(esperaPedidaMs({ headers: { get: () => '5' } })).toBe(5_000);
+      expect(esperaPedidaMs({ retryAfter: 999_999 })).toBe(15 * 60 * 1000);
+      expect(esperaPedidaMs({ retryAfter: 'amanhã' })).toBeUndefined();
+      expect(esperaPedidaMs(null)).toBeUndefined();
+    });
+
     it('retém o item com mensagem acionável e sem retry quando recebe 403', fakeAsync(() => {
       spyOn<any>(service, 'pullParcialData').and.returnValue(Promise.resolve());
 
@@ -627,6 +701,29 @@ describe('SyncService', () => {
         'Seu perfil de acesso não permite enviar esta operação. Fale com o administrador do sistema.'
       );
       expect(mockOutboxService.incrementAttempt).not.toHaveBeenCalled();
+    }));
+
+    it('sair da conta no meio do envio deixa a fila pendente, sem erro de perfil', fakeAsync(() => {
+      const pull = spyOn<any>(service, 'pullParcialData').and.returnValue(Promise.resolve());
+      const token = TestBed.inject(TokenService).token as unknown as WritableSignal<string | null>;
+      const item = (id: string) => ({
+        id, endpoint: `/v1/${id}`, method: 'POST', payload: {}, status: 'PENDENTE', tentativas: 0, criadoEm: new Date()
+      });
+      mockOutboxService.getPendingItems.and.returnValue(Promise.resolve([item('nota-1'), item('nota-2')]));
+
+      service.syncOutbox();
+      tick();
+
+      // Logout: o token some enquanto o primeiro envio está no ar e o servidor responde 403 sem corpo.
+      token.set(null);
+      httpMock.expectOne(`${environment.apiBaseUrl}/v1/nota-1`).flush(null, { status: 403, statusText: 'Forbidden' });
+      tick();
+
+      expect(mockOutboxService.updateStatus).toHaveBeenCalledWith('nota-1', 'PENDENTE', jasmine.any(String));
+      expect(mockOutboxService.updateStatus).not.toHaveBeenCalledWith('nota-1', 'ERRO', jasmine.any(String));
+      httpMock.expectNone(`${environment.apiBaseUrl}/v1/nota-2`);
+      expect(pull).not.toHaveBeenCalled();
+      token.set('token-valido');
     }));
   });
 

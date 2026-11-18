@@ -20,6 +20,10 @@ public interface MovimentacaoEstoqueControllerDoc {
                description = "Retorna uma lista paginada de operações de estoque. Cada operação contém o resumo e o id de referência.")
     ResponseEntity<PageResponse<MovimentacaoOperacaoSummaryResponse>> listar(@ParameterObject MovimentacaoEstoqueFilter filter, @ParameterObject Pageable pageable);
 
+    @Operation(summary = "Contar operações do recorte por tipo",
+               description = "Aplica os filtros da listagem, menos o tipo, e devolve o total e a quantidade de operações de cada tipo.")
+    ResponseEntity<MovimentacaoContagensResponse> contar(@ParameterObject MovimentacaoEstoqueFilter filter);
+
     @Operation(summary = "Buscar detalhamento completo de uma operação (Lote)", 
                description = "Retorna todos os materiais movimentados em uma única operação a partir do ID de referência.")
     ResponseEntity<MovimentacaoOperacaoResponse> buscarOperacaoPorIdReferencia(UUID idReferencia);

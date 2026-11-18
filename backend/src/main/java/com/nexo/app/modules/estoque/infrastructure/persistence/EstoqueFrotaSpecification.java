@@ -67,7 +67,7 @@ public final class EstoqueFrotaSpecification {
                 predicates.add(cb.equal(root.get("idReferenciaOperacao"), idReferencia));
             }
             if (tipos != null && !tipos.isEmpty()) {
-                predicates.add(cb.or(tipos.stream().map(t -> tipo(cb, root.get("tipo"), root.get("motivo"), t)).toArray(Predicate[]::new)));
+                predicates.add(cb.or(tipos.stream().map(t -> tipo(cb, root.get("tipo"), root.get("motivoFrota"), t)).toArray(Predicate[]::new)));
             }
             if (busca != null && !busca.isBlank()) {
                 String termo = "%" + busca.trim().toLowerCase(Locale.ROOT) + "%";

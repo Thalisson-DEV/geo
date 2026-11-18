@@ -1,0 +1,149 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Visão geral da frota" icon="pi pi-compass"
+      [breadcrumb]="[{ label: 'Frota' }, { label: 'Relatórios' }, { label: 'Visão geral' }]"
+      description="O retrato do período em uma tela: quanto a frota custa, se está disponível, onde está o risco e o que pede decisão.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (gerencial(); as g) { <span actions class="dash-updated">Calculado às {{ g.periodo.calculadoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="frota-painel-geral" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-frota-recorte-campos prefixo="fpg" [campos]="['processo', 'tipo', 'regime', 'situacao']" />
+      </div>
+    </ces-filter-panel>
+
+    <app-frota-painel-topo [dados]="gerencial()" (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !gerencial()) {
+      <ces-async-state state="loading" title="Montando a visão geral da frota" description="Custos, manutenção, combustível, uso e conformidade do período."></ces-async-state>
+    } @else if (erro() && !gerencial()) {
+      <ces-async-state state="error" title="Não foi possível montar a visão geral" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (gerencial(); as d) {
+      @if (d.partesOmitidas.length) {
+        <ces-callout tone="info" icon="pi pi-lock" title="Custo total sem algumas partes">
+          Seu perfil não lê {{ d.partesOmitidas.join(', ').toLowerCase() }}. O custo total e o R$/km consideram só o que você pode ver.
+        </ces-callout>
+      }
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="abrirLeitura($event)" (perguntar)="perguntarVisao('Faça a leitura gerencial da frota neste período e diga as 3 decisões mais importantes para a próxima semana.')" />
+      }
+
+      <section class="dash-metrics" aria-label="Custo e disponibilidade">
+        <app-dashboard-metric-card label="Custo total" icon="pi-wallet" [tone]="tomCusto()" [value]="moedaCurta(d.resumo.custoTotal.atual)"
+          [detail]="comparacao(d.resumo.custoTotal, 'moeda')" actionLabel="Analisar custos" (activate)="abrirPainel('custos', 'kpi:total')">
+          <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'custoTotal', rotulo: 'Custo total' }" />
+        </app-dashboard-metric-card>
+        <app-dashboard-metric-card label="Custo por km" icon="pi-directions" tone="slate" [value]="moeda(d.resumo.custoPorKm.atual)"
+          [detail]="moeda(d.resumo.custoVeiculoMes.atual) + ' por veículo/mês · ' + comparacao(d.resumo.custoPorKm, 'moeda')"
+          actionLabel="Ver eficiência" (activate)="abrirPainel('custos', 'kpi:km')" />
+        <app-dashboard-metric-card label="Disponibilidade" icon="pi-check-circle" [tone]="tomDisponibilidade(d.resumo.disponibilidade?.atual)"
+          [value]="pct(d.resumo.disponibilidade?.atual)" [progress]="percentual(d.resumo.disponibilidade?.atual)"
+          [detail]="'Meta 95% · ' + (d.manutencao?.paradosAgora?.length ?? 0) + ' parados agora'" actionLabel="Ver os parados" (activate)="abrirPainel('manutencao', 'kpi:parados')" />
+        <app-dashboard-metric-card label="OS preventivas" icon="pi-calendar-clock" [tone]="tomPreventiva(d.resumo.percentualPreventiva?.atual)"
+          [value]="pct(d.resumo.percentualPreventiva?.atual)" [progress]="percentual(d.resumo.percentualPreventiva?.atual)"
+          [detail]="'Referência 70% · ' + (d.manutencao?.preventivasVencidas ?? 0) + ' vencidas hoje'" actionLabel="Ver a preventiva" (activate)="abrirPainel('manutencao', 'kpi:preventiva')" />
+      </section>
+      <section class="dash-metrics" aria-label="Combustível, uso e risco">
+        <app-dashboard-metric-card label="Consumo médio" icon="pi-gauge" [tone]="d.combustivel?.veiculosForaDoPadrao ? 'amber' : 'green'"
+          [value]="d.combustivel?.kmPorLitro?.atual == null ? '—' : numero(d.combustivel?.kmPorLitro?.atual, 2) + ' km/l'"
+          [detail]="(d.combustivel?.veiculosForaDoPadrao ?? 0) + ' fora do padrão · ' + moeda(d.combustivel?.precoMedio?.atual) + '/l'"
+          actionLabel="Ver o consumo" (activate)="abrirPainel('combustivel', 'kpi:consumo')" />
+        <app-dashboard-metric-card label="Custo sobre o faturamento" icon="pi-percentage"
+          [tone]="(d.resumo.custoSobreFaturamento.atual ?? 0) > limites.custoSobreFaturamentoAtencao ? 'amber' : 'green'"
+          [value]="pct(d.resumo.custoSobreFaturamento.atual)" [detail]="moedaCurta(d.uso.faturado.atual) + ' faturados pelas equipes com veículo'"
+          actionLabel="Ver a produção" (activate)="abrirPainel('uso', 'kpi:custo-faturamento')" />
+        <app-dashboard-metric-card label="Ociosos" icon="pi-pause-circle" [tone]="d.uso.ociosos.length ? 'amber' : 'green'" [value]="inteiro(d.uso.ociosos.length)"
+          [detail]="'Sem km e sem turno · ' + inteiro(d.uso.km.atual) + ' km rodados'" actionLabel="Ver os ociosos" (activate)="abrirPainel('uso', 'kpi:ociosos')" />
+        <app-dashboard-metric-card label="Irregularidades" icon="pi-shield" [tone]="irregularidades() ? 'red' : 'green'" [value]="inteiro(irregularidades())"
+          detail="Documento ou CNH vencidos e veículo sem seguro" actionLabel="Ver o risco" (activate)="abrirPainel('conformidade')" />
+      </section>
+
+      <section class="dash-grid" aria-label="Custo no tempo e situação da frota">
+        <article class="dash-panel dash-col-8">
+          <header class="dash-panel__header">
+            <div><span class="dash-eyebrow">Tendência</span><h2>Custo mensal por categoria</h2>
+              <p>Clique num mês para abrir os lançamentos dele no painel de custos.</p></div>
+            <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'mensal', rotulo: 'Custo mensal por categoria' }" />
+          </header>
+          <ces-chart kind="bar-stacked" title="Custo mensal por categoria" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+            [labels]="graficoMensal().rotulos" [series]="graficoMensal().series" valueFormat="currency" [height]="300"
+            (pointSelect)="abrirMes($event.index)"></ces-chart>
+        </article>
+        <aside class="dash-panel dash-col-4">
+          <header class="dash-panel__header">
+            <div><span class="dash-eyebrow">Agora</span><h2>Situação da frota</h2><p>Hoje, independente do período. Clique para ver os veículos.</p></div>
+          </header>
+          <div class="dash-summary">
+            <div class="dash-summary__total">
+              <strong>{{ d.recorte.emOperacao }}<span class="dash-summary__de">de {{ d.recorte.veiculos }}</span></strong>
+              <span>veículos em operação no recorte</span>
+            </div>
+            <ul class="dash-summary__items pf-situacao">
+              @for (s of situacao(); track s.id) {
+                <li>
+                  <button type="button" class="dash-summary__item pf-situacao__item" (click)="abrirPainel(s.painel, s.drill)"
+                    [attr.aria-label]="s.rotulo + ': ' + s.valor">
+                    <i class="dash-summary__dot" [attr.data-tone]="s.tom"></i>
+                    <span>{{ s.rotulo }}</span>
+                    <strong>{{ s.valor }}</strong>
+                  </button>
+                </li>
+              }
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <section class="dash-grid pf-grid-espaco" aria-label="Bases e composição do custo">
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Comparação</span><h2>R$ por km em cada base</h2>
+            <p>Mesma frota, custos diferentes. Clique numa base para ver custo, disponibilidade, checklist e os veículos dela.</p></div></header>
+          <ces-chart kind="bar-horizontal" title="Custo por km por base" [showTitle]="false" [selectable]="true" selectLabel="Analisar a base"
+            [labels]="graficoBases().rotulos" [series]="graficoBases().series" valueFormat="currency" [height]="260"
+            (pointSelect)="selecionar(basesGrafico(), $event.index, 'base', chaveBase)"></ces-chart>
+        </article>
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Composição</span><h2>Para onde vai o dinheiro</h2>
+            <p>Clique numa categoria para analisá-la no painel de custos.</p></div></header>
+          <ces-chart kind="doughnut" title="Custo por categoria" [showTitle]="false" [selectable]="true" selectLabel="Analisar a categoria"
+            [labels]="graficoCategorias().rotulos" [series]="graficoCategorias().series" valueFormat="currency" [height]="260"
+            (pointSelect)="abrirCategoria($event.index)"></ces-chart>
+        </article>
+      </section>
+
+      @if (modelo(); as m) {
+        <section class="dash-panel pf-grid-espaco" aria-labelledby="fpg-atencao">
+          <header class="dash-panel__header">
+            <div><span class="dash-eyebrow">Decisão</span><h2 id="fpg-atencao">Veículos que pedem decisão</h2>
+              <p>Somamos documento vencido, falta de seguro, parada, corretivas, consumo, custo por km, ociosidade e checklist.</p></div>
+            @if (m.atencao.length > 8) {
+              <ces-button size="sm" variant="outline" icon="pi pi-list" [label]="'Ver os ' + m.atencao.length" (pressed)="analisar('kpi', 'atencao')"></ces-button>
+            }
+          </header>
+          @if (m.atencao.length) {
+            <ces-data-table caption="Veículos que pedem decisão" storageKey="fpg-atencao" exportFileName="frota-veiculos-atencao" [columns]="colAtencao"
+              [rows]="m.atencao.slice(0, 8)" [rowKey]="chaveVeiculo" [searchable]="false" rowActionLabel="Raio-x do veículo"
+              (rowActivate)="analisar('veiculo', $event.idVeiculo)"></ces-data-table>
+          } @else {
+            <div class="dash-empty"><i class="pi pi-check-circle"></i>Nenhum veículo pedindo decisão no recorte.</div>
+          }
+        </section>
+      }
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

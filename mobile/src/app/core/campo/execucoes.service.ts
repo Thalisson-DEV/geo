@@ -359,12 +359,14 @@ export class ExecucoesService {
       latitude: execucao.latitude,
       longitude: execucao.longitude,
       acoes: execucao.acoes,
+      // Lançado em outra unidade (ex.: metros de fita): vai como foi digitado e o servidor converte.
       materiais: execucao.materiais.map(m => ({
         idMaterial: m.idMaterial,
-        quantidade: m.quantidade,
+        quantidade: m.unidadeInformada && m.quantidadeInformada ? m.quantidadeInformada : m.quantidade,
         operacao: m.operacao,
         numSerie: m.numSerie ?? null,
-        origem: m.origem ?? 'EQUIPE'
+        origem: m.origem ?? 'EQUIPE',
+        ...(m.unidadeInformada && m.quantidadeInformada ? { unidade: m.unidadeInformada } : {})
       }))
     };
   }

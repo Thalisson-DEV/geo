@@ -25,6 +25,9 @@ class SaldoSpecificationTest {
         CriteriaQuery<?> query = mock(CriteriaQuery.class);
         @SuppressWarnings("unchecked") Path<BigDecimal> quantidade = mock(Path.class);
         when(root.<BigDecimal>get("quantidade")).thenReturn(quantidade);
+        // A busca de saldo sempre restringe ao catálogo operacional (a oficina da frota fica de fora).
+        @SuppressWarnings("unchecked") Path<Object> material = mock(Path.class);
+        when(root.get("material")).thenReturn(material);
         when(cb.lessThan(quantidade, BigDecimal.ZERO)).thenReturn(mock(Predicate.class));
         when(cb.and(any(Predicate[].class))).thenReturn(mock(Predicate.class));
 
@@ -40,6 +43,9 @@ class SaldoSpecificationTest {
         CriteriaQuery<?> query = mock(CriteriaQuery.class);
         @SuppressWarnings("unchecked") Path<BigDecimal> quantidade = mock(Path.class);
         when(root.<BigDecimal>get("quantidade")).thenReturn(quantidade);
+        // A busca de saldo sempre restringe ao catálogo operacional (a oficina da frota fica de fora).
+        @SuppressWarnings("unchecked") Path<Object> material = mock(Path.class);
+        when(root.get("material")).thenReturn(material);
         when(cb.greaterThanOrEqualTo(quantidade, BigDecimal.ZERO)).thenReturn(mock(Predicate.class));
         when(cb.and(any(Predicate[].class))).thenReturn(mock(Predicate.class));
 
@@ -49,6 +55,6 @@ class SaldoSpecificationTest {
     }
 
     private SaldoFilter filtro(Boolean negativo) {
-        return new SaldoFilter(null, null, null, null, null, null, null, null, null, negativo);
+        return new SaldoFilter(null, null, null, null, null, null, null, null, null, negativo, null);
     }
 }

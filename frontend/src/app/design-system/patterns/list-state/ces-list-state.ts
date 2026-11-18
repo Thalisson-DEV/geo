@@ -16,6 +16,11 @@ export interface CesFilterDef<V> {
   readonly param?: string;
   /** `false` para dados sensíveis (CPF, CNH): o filtro não vai para a URL. Padrão `true`. */
   readonly url: boolean;
+  /**
+   * Chave de um filtro comum a várias telas (ex.: `frota.base`): escolher em uma tela vale
+   * para as outras que usam a mesma chave, até a pessoa trocar.
+   */
+  readonly shared?: string;
   /** Texto do valor no chip; `null` esconde o chip (ex.: "sem restrição"). */
   readonly format: (value: V) => string | null;
   readonly serialize: (value: V) => string | null;
@@ -28,6 +33,7 @@ interface CommonOptions<V> {
   readonly label: string;
   readonly param?: string;
   readonly url?: boolean;
+  readonly shared?: string;
   readonly format?: (value: V) => string | null;
 }
 
@@ -84,6 +90,7 @@ export const cesFilter = {
       label: options.label,
       param: options.param,
       url: options.url ?? true,
+      shared: options.shared,
       format: options.format ?? ((value) => rotuloDe(value) ?? (value === null || value === '' ? null : String(value))),
       serialize: (value) => (value === null ? 'null' : String(value)),
       parse: (raw) => {
@@ -107,6 +114,7 @@ export const cesFilter = {
       label: options.label,
       param: options.param,
       url: options.url ?? true,
+      shared: options.shared,
       format:
         options.format ??
         ((value) => {
@@ -131,6 +139,7 @@ export const cesFilter = {
       label: options.label,
       param: options.param,
       url: options.url ?? true,
+      shared: options.shared,
       format: options.format ?? ((value) => (value ? formatDate(value) : null)),
       serialize: (value) => value ?? 'null',
       parse: (raw) => (raw === 'null' ? null : ISO_DATE.test(raw) ? raw : undefined),
@@ -145,6 +154,7 @@ export const cesFilter = {
       label: options.label,
       param: options.param,
       url: options.url ?? true,
+      shared: options.shared,
       format:
         options.format ??
         ((value) => {
@@ -181,6 +191,11 @@ export interface CesListStateConfig<D extends CesFilterDefs> {
   readonly queryParam?: string | false;
   /** `false` desliga a sincronização com a URL. */
   readonly url?: boolean;
+  /**
+   * Chave para lembrar os filtros aplicados no aparelho (`ces.filtros.<chave>`): ao voltar à tela
+   * sem filtros na URL, a lista abre no último recorte usado. Busca, página e ordenação não entram.
+   */
+  readonly rememberFilters?: string;
 }
 
 /** O que a tela envia ao service: filtros aplicados + página, tamanho, ordenação e busca. */
@@ -267,6 +282,7 @@ export class CesListState<D extends CesFilterDefs> {
   private readonly defaultSort: readonly CesSortRule[];
   private readonly queryParam: string | false;
   private readonly syncUrl: boolean;
+  private readonly rememberKey: string | null;
   private readonly appliedState: WritableSignal<CesFilterValues<D>>;
   /** Ordenação já traduzida para o backend (vinda do último `lazyLoad`). */
   private backendSort: readonly CesSortRule[] | null = null;
@@ -296,11 +312,19 @@ export class CesListState<D extends CesFilterDefs> {
     this.syncUrl = config.url ?? true;
     const opcoesTamanho = config.pageSizeOptions ?? [10, 25, 50, 100];
     const url = this.syncUrl ? this.route.snapshot.queryParamMap : null;
+    this.rememberKey = config.rememberFilters ?? null;
+    // A URL manda (link compartilhado, "voltar ao recorte"); sem filtro nela, vale o último recorte usado.
+    const filtroNaUrl = !!url && this.keys.some((chave) => this.defs[chave].url && url.has(this.defs[chave].param ?? chave));
+    const lembrados = this.rememberKey && !filtroNaUrl ? readRememberedFilters(this.rememberKey) : null;
 
     const iniciais = {} as CesFilterValues<D>;
     for (const chave of this.keys) {
       const def = this.defs[chave];
-      const bruto = def.url && url ? url.get(def.param ?? chave) : null;
+      const param = def.param ?? chave;
+      // URL > filtro comum entre telas (o último escolhido em qualquer uma) > memória desta tela.
+      const compartilhado = !filtroNaUrl && def.shared ? readSharedFilter(def.shared) : undefined;
+      const bruto = def.url && url && url.has(param) ? url.get(param)
+        : compartilhado !== undefined ? compartilhado : (lembrados?.[param] ?? null);
       const lido = bruto === null ? undefined : def.parse(bruto);
       iniciais[chave] = lido === undefined ? def.default : lido;
     }
@@ -466,7 +490,36 @@ export class CesListState<D extends CesFilterDefs> {
 
   private restart(): void {
     this.page.set(0);
+    this.remember();
+    this.shareFilters();
     this.trigger$.next();
+  }
+
+  /** Grava os filtros comuns: o padrão também é gravado ("Todas"), para as outras telas seguirem. */
+  private shareFilters(): void {
+    const aplicados = this.applied();
+    for (const chave of this.keys) {
+      const def = this.defs[chave];
+      if (def.shared) writeSharedFilter(def.shared, def.serialize(aplicados[chave]));
+    }
+  }
+
+  /** Guarda só o que difere do padrão; "Limpar filtros" grava vazio e a tela volta ao padrão. */
+  private remember(): void {
+    if (!this.rememberKey) return;
+    const aplicados = this.applied();
+    const valores: Record<string, string> = {};
+    for (const chave of this.keys) {
+      const def = this.defs[chave];
+      if (def.equals(aplicados[chave], def.default)) continue;
+      const serializado = def.serialize(aplicados[chave]);
+      if (serializado !== null) valores[def.param ?? chave] = serializado;
+    }
+    try {
+      localStorage.setItem(`ces.filtros.${this.rememberKey}`, JSON.stringify(valores));
+    } catch {
+      /* preferência opcional: sem armazenamento, a lista só não lembra o recorte */
+    }
   }
 
   private urlParams(): Record<string, string | null> {
@@ -497,6 +550,40 @@ export class CesListState<D extends CesFilterDefs> {
       queryParamsHandling: 'merge',
       replaceUrl: true,
     });
+  }
+}
+
+const SHARED_KEY = 'ces.filtros.compartilhados';
+
+/** Valor serializado de um filtro comum entre telas; `undefined` quando nunca foi escolhido. */
+export function readSharedFilter(key: string): string | undefined {
+  try {
+    const mapa = JSON.parse(localStorage.getItem(SHARED_KEY) ?? '{}') as Record<string, unknown>;
+    const valor = mapa?.[key];
+    return typeof valor === 'string' ? valor : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function writeSharedFilter(key: string, value: string | null): void {
+  try {
+    const mapa = JSON.parse(localStorage.getItem(SHARED_KEY) ?? '{}') as Record<string, unknown>;
+    mapa[key] = value ?? '';
+    localStorage.setItem(SHARED_KEY, JSON.stringify(mapa));
+  } catch {
+    /* preferência opcional */
+  }
+}
+
+function readRememberedFilters(key: string): Record<string, string> | null {
+  try {
+    const bruto = localStorage.getItem(`ces.filtros.${key}`);
+    const valor = bruto ? (JSON.parse(bruto) as unknown) : null;
+    if (!valor || typeof valor !== 'object' || Array.isArray(valor)) return null;
+    return Object.fromEntries(Object.entries(valor).filter(([, v]) => typeof v === 'string')) as Record<string, string>;
+  } catch {
+    return null;
   }
 }
 

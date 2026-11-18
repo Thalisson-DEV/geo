@@ -25,6 +25,9 @@ public class SaldoSpecification {
                 predicates.add(cb.equal(root.get("estoque").get("id"), filter.idEstoque()));
             }
 
+            if (filter.idProcesso() != null) {
+                predicates.add(cb.equal(root.get("material").get("idProcesso"), filter.idProcesso()));
+            }
             if (filter.idEquipe() != null) {
                 predicates.add(cb.equal(root.get("estoque").get("idEquipe"), filter.idEquipe()));
             }

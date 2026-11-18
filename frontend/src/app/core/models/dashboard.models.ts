@@ -284,6 +284,8 @@ export interface NotasDoRecorteFiltros extends DashboardRecorte {
   idEquipe?: string;
   idTipoServico?: string;
   semTipoServico?: boolean;
+  /** Deixa de fora as notas só com serviços improdutivos (regra da meta física). */
+  apenasProdutivas?: boolean;
   page?: number;
   /** Até 500. */
   size?: number;

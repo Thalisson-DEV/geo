@@ -9,6 +9,7 @@ import com.nexo.app.modules.iam.application.usecases.AutenticarUseCase.Credencia
 import com.nexo.app.modules.iam.application.usecases.SessaoAutenticacaoUseCases;
 import com.nexo.app.modules.iam.doc.AuthControllerDoc;
 import com.nexo.app.shared.domain.exception.SessaoInvalidaException;
+import com.nexo.app.shared.infrastructure.web.ClienteIp;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class AuthController implements AuthControllerDoc {
     @Override
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest request, HttpServletRequest http) {
-        return comCookie(autenticarUseCase.login(request, http.getHeader(HttpHeaders.USER_AGENT)), http);
+        return comCookie(autenticarUseCase.login(request, http.getHeader(HttpHeaders.USER_AGENT), ClienteIp.de(http)), http);
     }
 
     @Override

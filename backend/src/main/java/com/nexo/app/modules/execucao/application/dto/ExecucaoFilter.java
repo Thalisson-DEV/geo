@@ -2,11 +2,13 @@ package com.nexo.app.modules.execucao.application.dto;
 
 import com.nexo.app.modules.execucao.domain.StatusExecucao;
 import com.nexo.app.modules.execucao.domain.TipoNota;
+import com.nexo.app.shared.application.SelecaoMultipla;
 import com.nexo.app.shared.application.dto.OperacaoMaterial;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -48,6 +50,13 @@ public record ExecucaoFilter(
     Boolean aguardandoNumeroOficial,
 
     @Parameter(description = "Apenas notas alteradas depois de sincronizadas")
-    Boolean alterada
+    Boolean alterada,
+
+    @Parameter(description = "Bases operacionais das equipes (repetir o parâmetro ou separar por vírgula)")
+    List<UUID> idBaseOperacional
 ) {
+
+    public ExecucaoFilter {
+        idBaseOperacional = SelecaoMultipla.normalizar(idBaseOperacional);
+    }
 }

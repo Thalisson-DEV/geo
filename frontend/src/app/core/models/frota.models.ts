@@ -27,7 +27,16 @@ export type SituacaoLeituraOdometro = 'VALIDA' | 'INCONSISTENTE' | 'ANULADA';
 /** Odômetro em km ou horímetro em horas. */
 export type UnidadeMedicao = 'KM' | 'HORAS';
 export type TipoLeituraOdometro = 'LEITURA' | 'TROCA_PAINEL';
-export type OrigemVinculoCondutor = 'MANUAL' | 'CHECKLIST' | 'TURNO' | 'IMPORTACAO';
+export type OrigemVinculoCondutor = 'MANUAL' | 'CHECKLIST' | 'TURNO' | 'IMPORTACAO' | 'TELEMETRIA';
+
+/** De onde veio a troca de condutor do veículo. */
+export const ROTULO_ORIGEM_VINCULO: Record<OrigemVinculoCondutor, string> = {
+  MANUAL: 'Manual',
+  CHECKLIST: 'Checklist',
+  TURNO: 'Abertura de turno',
+  IMPORTACAO: 'Importação',
+  TELEMETRIA: 'Cartão no rastreador'
+};
 
 export interface OpcaoFrota<T extends string = string> {
   valor: T;
@@ -601,14 +610,25 @@ export interface ItemManutencao {
   naturezaRotulo: string;
   descricao: string | null;
   diasRepeticao: number | null;
+  /** Peça ou consumível (óleo, filtro) ou mão de obra (revisão): decide a lista da execução. */
+  tipo?: TipoItemManutencao;
+  tipoRotulo?: string;
   ativo: boolean;
 }
+
+export type TipoItemManutencao = 'PECA' | 'MAO_DE_OBRA';
+
+export const ROTULO_TIPO_ITEM: Record<TipoItemManutencao, string> = {
+  PECA: 'Peça ou consumível',
+  MAO_DE_OBRA: 'Mão de obra'
+};
 
 export interface ItemManutencaoRequest {
   nome: string;
   natureza: string;
   descricao: string | null;
   diasRepeticao: number | null;
+  tipo?: TipoItemManutencao;
 }
 
 export interface FiltroOrdensServico {
@@ -626,6 +646,8 @@ export interface FiltroOrdensServico {
   /** Período de conclusão (fim real): o quadro mostra as concluídas da última semana. */
   concluidaDe?: string | null;
   concluidaAte?: string | null;
+  /** Concluídas com valores pendentes (verdadeiro) ou já finalizadas (falso). */
+  baixaPendente?: boolean | null;
   atrasadas?: boolean | null;
   veiculoParado?: boolean | null;
   comRepeticao?: boolean | null;
@@ -664,6 +686,10 @@ export interface OrdemServico {
   inicioReal: string | null;
   previsaoTermino: string | null;
   fimReal: string | null;
+  /** Quando a OS ficou com todos os valores lançados; nula na aberta ou com valores pendentes. */
+  finalizadaEm?: string | null;
+  /** Concluída com valores pendentes: falta o valor de algum serviço ou peça (ver pendencias no detalhe). */
+  baixaPendente?: boolean;
   atrasada: boolean;
   veiculoParado: boolean;
   paradoDesde: string | null;
@@ -733,6 +759,11 @@ export interface OrdemServicoDetalhe {
   preventivas: PreventivaOrdemServico[];
   /** Sinistro que abriu a OS de reparo (origem SINISTRO). */
   sinistro?: { id: string; numero: number; tipo: string; situacao: string } | null;
+  /**
+   * O que falta para a OS ficar finalizada ("Peça: Lâmpada H4", "Valor da OS", "Causa e serviço
+   * realizado"). Na concluída, não vazia = valores pendentes.
+   */
+  pendencias?: string[];
 }
 
 /** Por que a manutenção aconteceu (obrigatória para concluir). */
@@ -759,6 +790,8 @@ export interface ServicoOrdemServico {
   quantidade: number;
   valorUnitario: number;
   subtotal: number;
+  /** Valor zero de propósito (garantia, cortesia): não deixa a OS com valores pendentes. */
+  semCusto?: boolean;
 }
 
 export interface PecaOrdemServico {
@@ -775,6 +808,8 @@ export interface PecaOrdemServico {
   idEstoque?: string | null;
   estoque?: string | null;
   baixadaNoEstoque?: boolean;
+  idItemManutencao?: string | null;
+  semCusto?: boolean;
 }
 
 export interface TotaisOrdemServico {
@@ -785,6 +820,21 @@ export interface TotaisOrdemServico {
   total: number | null;
   /** Verdadeiro quando o total vem dos lançamentos; falso quando vale o valor digitado. */
   calculado: boolean;
+  /** Peças que saíram do estoque da oficina: já compradas, ficam fora da compra no financeiro. */
+  pecasEstoque?: number;
+  /** O que a compra no financeiro precisa cobrir (total sem as peças do estoque). */
+  aComprar?: number | null;
+}
+
+/** Evidência da OS: checklist da oficina assinado, foto de antes e depois, laudo. */
+export interface AnexoOrdemServico {
+  id: string;
+  descricao?: string | null;
+  arquivoNome: string;
+  arquivoContentType?: string | null;
+  arquivoTamanhoBytes?: number | null;
+  enviadoEm: string;
+  enviadoPor?: string | null;
 }
 
 export type TipoDocumentoFiscal = 'NFE' | 'NFSE' | 'CUPOM' | 'RECIBO' | 'OUTRO';
@@ -832,6 +882,8 @@ export interface ServicoOrdemServicoRequest {
   mecanicoNome: string | null;
   quantidade: number;
   valorUnitario: number;
+  /** Valor zero de propósito (garantia, cortesia). */
+  semCusto?: boolean;
 }
 
 export interface PecaOrdemServicoRequest {
@@ -844,6 +896,10 @@ export interface PecaOrdemServicoRequest {
   valorUnitario: number | null;
   idMaterial?: string | null;
   idEstoque?: string | null;
+  /** Item de manutenção (tipo peça) de onde saiu o nome da peça. */
+  idItemManutencao?: string | null;
+  /** Valor zero de propósito (garantia, cortesia). */
+  semCusto?: boolean;
 }
 
 export interface PainelOrdensServico {
@@ -856,6 +912,8 @@ export interface PainelOrdensServico {
   concluidasUltimos30Dias: number;
   veiculosParados: number;
   aguardandoAprovacao: number;
+  /** Concluídas com valores pendentes. */
+  baixaPendente?: number;
 }
 
 export interface AbrirOrdemServicoRequest {
@@ -886,7 +944,7 @@ export type EditarOrdemServicoRequest = Omit<
 export interface ConcluirOrdemServicoRequest {
   inicioReal: string | null;
   fimReal: string;
-  descricaoServico: string;
+  descricaoServico: string | null;
   itensSubstituidos: string | null;
   valorTotal: number | null;
   kmEncerramento: number | null;
@@ -895,6 +953,18 @@ export interface ConcluirOrdemServicoRequest {
   oficinaNome: string | null;
   idsItem: string[] | null;
   causa: CausaManutencao | null;
+}
+
+/** Completa a OS concluída com valores pendentes (causa, serviço, oficina e valor). */
+export interface BaixaOrdemServicoRequest {
+  causa: CausaManutencao;
+  descricaoServico: string;
+  itensSubstituidos: string | null;
+  valorTotal: number | null;
+  tipoOficina: TipoOficina;
+  idFornecedor: string | null;
+  oficinaNome: string | null;
+  idsItem: string[] | null;
 }
 
 export interface PreviaRepeticao {
@@ -933,6 +1003,19 @@ export const ROTULO_SITUACAO_OS: Record<SituacaoOrdemServico, string> = {
   CANCELADA: 'Cancelada'
 };
 
+/**
+ * Situação como a gestão fala: a OS concluída com algum valor faltando fica "Concluída · valores
+ * pendentes"; com todos os valores, "Finalizada".
+ */
+export function rotuloSituacaoOs(os: Pick<OrdemServico, 'situacao' | 'baixaPendente'>): string {
+  if (os.situacao !== 'CONCLUIDA') return ROTULO_SITUACAO_OS[os.situacao];
+  return os.baixaPendente ? 'Concluída · valores pendentes' : 'Finalizada';
+}
+
+export function tomSituacaoOs(os: Pick<OrdemServico, 'situacao' | 'baixaPendente'>): CesTone {
+  return os.situacao === 'CONCLUIDA' && os.baixaPendente ? 'warning' : TOM_SITUACAO_OS[os.situacao];
+}
+
 export const ICONE_SITUACAO_OS: Record<SituacaoOrdemServico, string> = {
   PENDENTE: 'pi-inbox',
   AGENDADA: 'pi-calendar',
@@ -945,7 +1028,7 @@ export const TOM_CRITICIDADE: Record<Criticidade, CesTone> = {
   URGENTE: 'danger',
   ALTA: 'warning',
   MEDIA: 'info',
-  BAIXA: 'neutral'
+  BAIXA: 'success'
 };
 
 export const ROTULO_CRITICIDADE: Record<Criticidade, string> = {
@@ -1051,3 +1134,21 @@ export interface AgendaFrota {
   eventos: EventoAgendaFrota[];
   truncado: boolean;
 }
+export const ICONE_SITUACAO: Record<SituacaoOperacional, string> = {
+  ATIVO: 'pi-check-circle',
+  EM_MANUTENCAO: 'pi-wrench',
+  PARADO: 'pi-pause-circle',
+  RESERVA: 'pi-bookmark',
+  BAIXADO: 'pi-ban'
+};
+export const ICONE_VENCIMENTO: Record<SituacaoVencimento, string> = {
+  SEM_VENCIMENTO: 'pi-minus-circle',
+  VIGENTE: 'pi-check-circle',
+  A_VENCER: 'pi-clock',
+  VENCIDO: 'pi-calendar-times'
+};
+export const ICONE_LEITURA: Record<SituacaoLeituraOdometro, string> = {
+  VALIDA: 'pi-check-circle',
+  INCONSISTENTE: 'pi-exclamation-triangle',
+  ANULADA: 'pi-ban'
+};

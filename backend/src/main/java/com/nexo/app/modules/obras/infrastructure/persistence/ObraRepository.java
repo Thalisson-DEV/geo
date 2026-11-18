@@ -33,6 +33,10 @@ public interface ObraRepository
 
     long countByStatusObraIdAndAtivoTrue(UUID idStatusObra);
 
+    @Query("SELECT o.id FROM Obra o WHERE LOWER(o.numero) LIKE LOWER(CONCAT('%', :trecho, '%')) "
+            + "OR LOWER(o.titulo) LIKE LOWER(CONCAT('%', :trecho, '%'))")
+    List<UUID> buscarIdsPorNumeroOuTitulo(@Param("trecho") String trecho);
+
     @Query("SELECT o FROM Obra o LEFT JOIN FETCH o.statusObra LEFT JOIN FETCH o.agenteResponsavel LEFT JOIN FETCH o.obraPai WHERE o.id = :id")
     Optional<Obra> findByIdWithDetails(@Param("id") UUID id);
 

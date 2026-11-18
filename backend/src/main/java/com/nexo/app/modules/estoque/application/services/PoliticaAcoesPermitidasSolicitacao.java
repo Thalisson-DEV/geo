@@ -41,6 +41,9 @@ public class PoliticaAcoesPermitidasSolicitacao {
         if (tem("estoque:solicitacao:reverse") && solicitacao.possuiFatoOperacional()) {
             acoes.add(AcaoPermitidaSolicitacao.ESTORNAR);
         }
+        if (podeTrocarOcorrencia(solicitacao)) {
+            acoes.add(AcaoPermitidaSolicitacao.TROCAR_OCORRENCIA);
+        }
         if ((tem("estoque:solicitacao:plan") || tem("estoque:solicitacao:write"))
                 && !solicitacao.estaEncerrada()
                 && solicitacao.getStatus() == SolicitacaoMaterial.StatusSolicitacao.APROVADO
@@ -123,6 +126,21 @@ public class PoliticaAcoesPermitidasSolicitacao {
         if (tem("estoque:solicitacao:audit:read")) {
             acoes.add(AcaoPermitidaSolicitacao.VER_HISTORICO);
         }
+    }
+
+    /**
+     * A OS/OC pode mudar a qualquer momento (a equipe já pode estar com o material): troca o
+     * almoxarifado ou quem abriu a solicitação. Saldos não mudam.
+     */
+    public boolean podeTrocarOcorrencia(SolicitacaoMaterial solicitacao) {
+        if (solicitacao.getContexto() != ContextoSolicitacaoMaterial.TECNICO
+                || solicitacao.getStatus() == SolicitacaoMaterial.StatusSolicitacao.CANCELADO
+                || solicitacao.getOcorrencia() == null || solicitacao.getOcorrencia().isBlank()) {
+            return false;
+        }
+        java.util.UUID usuario = SecurityUtils.getUsuarioLogadoId();
+        boolean solicitante = usuario != null && usuario.equals(solicitacao.getIdRequisitante());
+        return solicitante || tem("estoque:solicitacao:deliver") || tem("estoque:solicitacao:return");
     }
 
     private boolean tem(String autoridade) {

@@ -27,4 +27,18 @@ public class VeiculoAppFrotaController implements VeiculoAppFrotaControllerDoc {
     public ResponseEntity<SituacaoVeiculoAppResponse> situacao(@PathVariable UUID idVeiculo) {
         return ResponseEntity.ok(useCases.situacao(idVeiculo));
     }
+
+    @Override
+    @GetMapping("/{idVeiculo}/documentos/{idDocumento}/arquivo")
+    public ResponseEntity<org.springframework.core.io.Resource> arquivoDocumento(@PathVariable UUID idVeiculo,
+                                                                                 @PathVariable UUID idDocumento) {
+        var arquivo = useCases.arquivo(idVeiculo, idDocumento);
+        String disposition = org.springframework.http.ContentDisposition.inline()
+                .filename(arquivo.nome(), java.nio.charset.StandardCharsets.UTF_8).build().toString();
+        return ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.parseMediaType(arquivo.contentType()))
+                .contentLength(arquivo.tamanhoBytes())
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, disposition)
+                .body(new org.springframework.core.io.InputStreamResource(arquivo.conteudo()));
+    }
 }

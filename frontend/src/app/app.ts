@@ -6,6 +6,8 @@ import { HeaderComponent } from './shared/components/header/header.component';
 import { SidebarComponent } from './shared/components/sidebar/sidebar.component';
 import { MuralHostComponent } from './shared/components/mural-host/mural-host.component';
 import { AtualizacaoDisponivelComponent } from './shared/components/atualizacao-disponivel/atualizacao-disponivel.component';
+import { AvaliacaoConviteComponent } from './shared/components/avaliacao-app/avaliacao-convite.component';
+import { AvaliacaoDrawerComponent } from './shared/components/avaliacao-app/avaliacao-drawer.component';
 import { SessaoReautenticacaoComponent } from './shared/components/sessao-reautenticacao/sessao-reautenticacao.component';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
@@ -40,6 +42,8 @@ const ICONES_AVISO: Record<string, string> = {
     ConfirmDialogModule,
     MuralHostComponent,
     AtualizacaoDisponivelComponent,
+    AvaliacaoConviteComponent,
+    AvaliacaoDrawerComponent,
     SessaoReautenticacaoComponent,
     CesReportNavigatorComponent,
     ScrollMemoryDirective
@@ -78,6 +82,8 @@ export class App {
    */
   private readonly permissaoPorRota: Record<string, string> = {
     '/copiloto': 'assistente:chat:use',
+    '/execucao/metas-fisicas': 'execucao:meta-fisica:read',
+    '/execucao/dashboard-meta-fisica': 'execucao:meta-fisica:read',
     '/sst/governanca/painel': 'sst:governanca:read',
     '/sst/governanca/composicoes': 'sst:governanca:read',
     '/sst/governanca/reunioes': 'sst:governanca:read',
@@ -105,6 +111,10 @@ export class App {
     '/admin/cadastros/supervisores': 'rh:supervisor:read',
     '/rh/coordenadores': 'rh:coordenador:read',
     '/rh/supervisores': 'rh:supervisor:read',
+    '/rh/medidas-disciplinares': 'rh:medida-disciplinar:read',
+    '/rh/medidas-disciplinares/cadastros/tipos': 'rh:medida-disciplinar:read',
+    '/rh/medidas-disciplinares/cadastros/motivos': 'rh:medida-disciplinar:read',
+    '/rh/medidas-disciplinares/cadastros/parametros': 'rh:medida-disciplinar:read',
     '/obras': 'obras:obra:read',
     '/obras/nova': 'obras:obra:write',
     '/obras/turnos': 'obras:turno:read',
@@ -118,8 +128,12 @@ export class App {
     '/obras/medicoes': 'obras:medicao:read',
     '/obras/fechamento': 'obras:medicao:read',
     '/obras/relatorio-medicao': 'obras:medicao:read',
+    '/obras/encerramento': 'obras:fechamento:read',
+    '/obras/encerramento/kanban': 'obras:fechamento:read',
+    '/obras/encerramento/calendario': 'obras:fechamento:read',
+    '/obras/encerramento/nova': 'obras:fechamento:create',
     '/obras/cadastros/status': 'obras:cadastros:read',
-    '/obras/cadastros/agentes': 'obras:cadastros:read',
+    '/obras/cadastros/tipos-obra': 'obras:cadastros:read',
     '/obras/cadastros/tipos-anexos': 'obras:cadastros:read',
     '/obras/cadastros/kits': 'obras:kit:read',
     '/obras/cadastros/checklists': 'obras:documentacao:read',
@@ -142,6 +156,7 @@ export class App {
     '/frota/veiculos': 'frota:veiculo:read',
     '/frota/ordens-servico': 'frota:os:read',
     '/frota/preventiva': 'frota:preventiva:read',
+    '/frota/relatorios': 'frota:veiculo:read',
     '/frota/relatorios/corretivas-servico': 'frota:preventiva:read',
     '/frota/implementos': 'frota:veiculo:read',
     '/frota/condutores': 'frota:condutor:read',
@@ -171,6 +186,7 @@ export class App {
     '/frota/cadastros/tipos-despesa': 'frota:despesa:read',
     '/frota/cadastros/parametros': 'frota:veiculo:read',
     '/admin/cadastros/status': 'iam:status:read',
+    '/admin/cadastros/avaliacoes': 'avaliacao:read',
     '/admin/cadastros/tratamento-erros': 'sincronizacao:read',
     '/admin/cadastros/tipos-servico': 'execucao:tipo-servico:read',
   };
@@ -289,7 +305,8 @@ export class App {
           label: 'Sistema',
           icon: 'pi pi-server',
           items: [
-            { label: 'Status do Sistema', icon: 'pi pi-server', routerLink: '/admin/cadastros/status'}
+            { label: 'Status do Sistema', icon: 'pi pi-server', routerLink: '/admin/cadastros/status'},
+            { label: 'Avaliação do app', icon: 'pi pi-star', routerLink: '/admin/cadastros/avaliacoes' }
           ]
         }
       ]
@@ -332,7 +349,8 @@ export class App {
           icon: 'pi pi-briefcase',
           items: [
             { label: 'Execuções Comerciais', icon: 'pi pi-list', routerLink: '/execucao/comercial' },
-            { label: 'Turnos', icon: 'pi pi-calendar-clock', routerLink: '/execucao/turnos' }
+            { label: 'Turnos', icon: 'pi pi-calendar-clock', routerLink: '/execucao/turnos' },
+            { label: 'Meta física', icon: 'pi pi-bullseye', routerLink: '/execucao/metas-fisicas' }
           ]
         },
         // Obras segue o caminho da obra: carteira, programação e campo, medição e
@@ -343,7 +361,8 @@ export class App {
           items: [
             { label: 'Painel de Obras', icon: 'pi pi-list', routerLink: '/obras', routerLinkActiveOptions: { exact: true } },
             { label: 'Nova Obra', icon: 'pi pi-plus-circle', routerLink: '/obras/nova' },
-            { label: 'Solicitar Materiais', icon: 'pi pi-cart-plus', routerLink: '/almoxarifado/solicitacoes-tecnicas/nova' }
+            { label: 'Solicitar Materiais', icon: 'pi pi-cart-plus', routerLink: '/almoxarifado/solicitacoes-tecnicas/nova' },
+            { label: 'Encerramento', icon: 'pi pi-flag', routerLink: '/obras/encerramento' }
           ]
         },
         {
@@ -369,7 +388,8 @@ export class App {
           icon: 'pi pi-chart-bar',
           items: [
             { label: 'Dashboard Operacional', icon: 'pi pi-chart-line', routerLink: '/execucao/dashboard-operacional' },
-            { label: 'Boletim das Equipes', icon: 'pi pi-th-large', routerLink: '/obras/boletim' }
+            { label: 'Boletim das Equipes', icon: 'pi pi-th-large', routerLink: '/obras/boletim' },
+            { label: 'Painel da Meta Física', icon: 'pi pi-bullseye', routerLink: '/execucao/dashboard-meta-fisica' }
           ]
         },
         {
@@ -377,6 +397,7 @@ export class App {
           icon: 'pi pi-sliders-h',
           items: [
             { label: 'Status de Obras', icon: 'pi pi-tag', routerLink: '/obras/cadastros/status' },
+            { label: 'Tipos de Obra', icon: 'pi pi-tags', routerLink: '/obras/cadastros/tipos-obra' },
             { label: 'Agentes Responsáveis', icon: 'pi pi-users', routerLink: '/obras/cadastros/agentes' },
             { label: 'Tipos de Anexos', icon: 'pi pi-paperclip', routerLink: '/obras/cadastros/tipos-anexos' },
             { label: 'Kits Construtivos', icon: 'pi pi-box', routerLink: '/obras/cadastros/kits' },
@@ -444,6 +465,12 @@ export class App {
           label: 'Relatórios',
           icon: 'pi pi-chart-bar',
           items: [
+            { label: 'Visão geral', icon: 'pi pi-compass', routerLink: '/frota/relatorios', routerLinkActiveOptions: { exact: true } },
+            { label: 'Custos', icon: 'pi pi-wallet', routerLink: '/frota/relatorios/custos' },
+            { label: 'Manutenção', icon: 'pi pi-wrench', routerLink: '/frota/relatorios/manutencao' },
+            { label: 'Combustível', icon: 'pi pi-gauge', routerLink: '/frota/relatorios/combustivel' },
+            { label: 'Uso e produtividade', icon: 'pi pi-map', routerLink: '/frota/relatorios/uso' },
+            { label: 'Conformidade e risco', icon: 'pi pi-shield', routerLink: '/frota/relatorios/conformidade' },
             { label: 'Corretivas por serviço', icon: 'pi pi-chart-bar', routerLink: '/frota/relatorios/corretivas-servico' }
           ]
         },
@@ -494,6 +521,16 @@ export class App {
           ]
         },
         {
+          label: 'Encerramento de Obras',
+          icon: 'pi pi-flag',
+          items: [
+            { label: 'Gerenciar Solicitações', icon: 'pi pi-list', routerLink: '/obras/encerramento', routerLinkActiveOptions: { exact: true } },
+            { label: 'Nova Solicitação', icon: 'pi pi-plus-circle', routerLink: '/obras/encerramento/nova' },
+            { label: 'Quadro', icon: 'pi pi-objects-column', routerLink: '/obras/encerramento/kanban' },
+            { label: 'Calendário de prazos', icon: 'pi pi-calendar', routerLink: '/obras/encerramento/calendario' },
+          ]
+        },
+        {
           label: 'Operações de Estoque',
           icon: 'pi pi-shopping-bag',
           items: [
@@ -507,11 +544,14 @@ export class App {
           label: 'Relatórios',
           icon: 'pi pi-chart-bar',
           items: [
-            { label: 'Relatório de Movimentações', icon: 'pi pi-chart-line', routerLink: '/almoxarifado/dashboard/movimentacoes' },
-            { label: 'Painel de Solicitações', icon: 'pi pi-chart-pie', routerLink: '/almoxarifado/dashboard/solicitacoes' },
-            { label: 'Solicitações Comerciais', icon: 'pi pi-shopping-cart', routerLink: '/almoxarifado/dashboard/solicitacoes/comercial' },
-            { label: 'Solicitações Técnicas', icon: 'pi pi-wrench', routerLink: '/almoxarifado/dashboard/solicitacoes/tecnico' },
-            { label: 'Saldos', icon: 'pi pi-search-plus', routerLink: '/almoxarifado/saldos' }
+            { label: 'Visão geral', icon: 'pi pi-compass', routerLink: '/almoxarifado/relatorios', routerLinkActiveOptions: { exact: true } },
+            { label: 'Solicitações comerciais', icon: 'pi pi-shopping-cart', routerLink: '/almoxarifado/relatorios/solicitacoes-comerciais' },
+            { label: 'Solicitações técnicas', icon: 'pi pi-wrench', routerLink: '/almoxarifado/relatorios/solicitacoes-tecnicas' },
+            { label: 'Encerramento de obras', icon: 'pi pi-flag', routerLink: '/almoxarifado/relatorios/fechamento' },
+            { label: 'Movimentações', icon: 'pi pi-arrow-right-arrow-left', routerLink: '/almoxarifado/relatorios/movimentacoes' },
+            { label: 'Estoque e saldos', icon: 'pi pi-box', routerLink: '/almoxarifado/relatorios/estoque' },
+            { label: 'Consumo de materiais', icon: 'pi pi-chart-bar', routerLink: '/almoxarifado/relatorios/consumo' },
+            { label: 'Consulta de saldos', icon: 'pi pi-search-plus', routerLink: '/almoxarifado/saldos' }
           ]
         },
         {
@@ -603,6 +643,13 @@ export class App {
           ]
         },
         {
+          label: 'Medidas Disciplinares',
+          icon: 'pi pi-exclamation-triangle',
+          items: [
+            { label: 'Medidas', icon: 'pi pi-list', routerLink: '/rh/medidas-disciplinares', routerLinkActiveOptions: { exact: true } }
+          ]
+        },
+        {
           label: 'Cadastros',
           icon: 'pi pi-cog',
           items: [
@@ -610,7 +657,10 @@ export class App {
             { label: 'Funções', icon: 'pi pi-briefcase', routerLink: '/admin/cadastros/funcoes'},
             { label: 'Processos', icon: 'pi pi-list-check', routerLink: '/admin/cadastros/processos' },
             { label: 'Motivos de Desconto', icon: 'pi pi-exclamation-triangle', routerLink: '/admin/cadastros/motivos-desconto' },
-            { label: 'Tipos Equipamento', icon: 'pi pi-box', routerLink: '/admin/cadastros/tipos-equipamento-desconto' }
+            { label: 'Tipos Equipamento', icon: 'pi pi-box', routerLink: '/admin/cadastros/tipos-equipamento-desconto' },
+            { label: 'Tipos de Medida Disciplinar', icon: 'pi pi-tag', routerLink: '/rh/medidas-disciplinares/cadastros/tipos' },
+            { label: 'Motivos de Medida Disciplinar', icon: 'pi pi-list', routerLink: '/rh/medidas-disciplinares/cadastros/motivos' },
+            { label: 'Parâmetros das Medidas', icon: 'pi pi-sliders-h', routerLink: '/rh/medidas-disciplinares/cadastros/parametros' }
           ]
         }
       ]

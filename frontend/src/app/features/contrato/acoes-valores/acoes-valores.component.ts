@@ -120,7 +120,7 @@ const REAIS = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
           <span class="ces-cell-muted">{{ row.acao?.nome }}</span>
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">

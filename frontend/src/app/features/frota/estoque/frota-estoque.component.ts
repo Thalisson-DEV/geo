@@ -453,6 +453,7 @@ export class FrotaEstoqueComponent {
 
   protected readonly listaMovimentos = cesListState({
     storageKey: 'frota-estoque-movimentos',
+    rememberFilters: 'frota-estoque-movimentos',
     queryParam: 'buscaMovimento',
     filters: {
       de: cesFilter.date(null, { label: 'De' }),

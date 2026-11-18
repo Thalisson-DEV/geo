@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from '../../../core/services/auth.service';
@@ -85,6 +85,7 @@ describe('InspecaoDetalheComponent', { timeout: 15000 }, () => {
     await TestBed.configureTestingModule({
       imports: [InspecaoDetalheComponent],
       providers: [
+        ConfirmationService,
         provideRouter([]),
         MessageService,
         {

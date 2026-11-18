@@ -14,6 +14,7 @@ public record ObraFilter(
         String titulo,
         String notaObra,
         TipoObra tipoObra,
+        UUID tipoObraId,
         UUID statusId,
         List<UUID> statusIds,
         UUID processoId,

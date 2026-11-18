@@ -275,8 +275,10 @@ public enum GatilhoNotificacao {
             "Dispara quando uma ordem de serviço é agendada ou reagendada.",
             ModoGatilho.POR_OCORRENCIA,
             CategoriaNotificacao.OPERACIONAL,
-            List.of("numero", "placa", "base", "dataAgendamento", "local", "localTexto", "link"),
-            List.of()),
+            List.of("numero", "placa", "base", "dataAgendamento", "local", "localTexto", "link", "oficina",
+                    "criticidade", "descricao"),
+            // Supervisor e coordenador da equipe que usa o veículo: os gestores avisados do agendamento.
+            List.of("supervisorVeiculo", "coordenadorVeiculo")),
 
     FROTA_OS_ORCAMENTO_DECIDIDO(
             "frota.os_orcamento_decidido",

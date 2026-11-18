@@ -29,6 +29,16 @@ public record PlanoPreventivoRequest(
         Criticidade criticidade,
         boolean abrirOsAutomaticamente,
         @NotEmpty(message = "Inclua ao menos um item de manutenção no plano.") @Size(max = 30) List<@NotNull UUID> idsItem,
-        @Size(max = 50, message = "O roteiro aceita no máximo 50 tarefas.") List<@Size(max = 300) String> tarefas
+        @Size(max = 50, message = "O roteiro aceita no máximo 50 tarefas.") List<@Size(max = 300) String> tarefas,
+        /** Placas escolhidas: com alguma, o plano vale só para elas e os tipos são ignorados. */
+        @Size(max = 500) Set<@NotNull UUID> idsVeiculos
 ) {
+    public PlanoPreventivoRequest(String nome, String descricao, Set<UUID> idsTiposVeiculo, Set<UUID> idsTiposImplemento,
+                                  Long intervaloKm, Long intervaloHoras, Integer intervaloDias, Long antecedenciaKm,
+                                  Long antecedenciaHoras, Integer antecedenciaDias, Criticidade criticidade,
+                                  boolean abrirOsAutomaticamente, List<UUID> idsItem, List<String> tarefas) {
+        this(nome, descricao, idsTiposVeiculo, idsTiposImplemento, intervaloKm, intervaloHoras, intervaloDias,
+                antecedenciaKm, antecedenciaHoras, antecedenciaDias, criticidade, abrirOsAutomaticamente, idsItem,
+                tarefas, null);
+    }
 }

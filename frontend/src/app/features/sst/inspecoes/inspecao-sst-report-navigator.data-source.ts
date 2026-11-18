@@ -1,3 +1,4 @@
+import { ICONE_STATUS_INSPECAO } from '../../../core/models/sst.models';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
@@ -103,7 +104,8 @@ export class InspecaoSstReportNavigatorDataSource
       title: `${titleEquipe}${raw.processo?.nome ? ' · ' + raw.processo.nome : ''}`,
       status: {
         label: STATUS_LABELS[status] || status,
-        tone: STATUS_TONES[status] || 'neutral'
+        tone: STATUS_TONES[status] || 'neutral',
+        icon: ICONE_STATUS_INSPECAO[status]
       },
       metaAuthor: {
         label: raw.nomeInspetor || 'Inspetor',

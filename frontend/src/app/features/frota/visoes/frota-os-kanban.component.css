@@ -47,6 +47,37 @@
   --kb-tone-solid: #475569;
 }
 
+/* Criticidade (pedido do gestor da frota): vermelho, laranja, amarelo e verde, iguais à faixa do cartão. */
+[data-tone='crit-urgente'] {
+  --kb-tone: var(--ces-danger);
+  --kb-tone-soft: var(--ces-danger-soft);
+  --kb-tone-ink: var(--ces-danger-text);
+  --kb-tone-solid: color-mix(in srgb, var(--ces-danger) 82%, #000);
+}
+
+[data-tone='crit-alta'] {
+  --kb-tone: #ea580c;
+  --kb-tone-soft: color-mix(in srgb, #ea580c 14%, var(--ces-surface));
+  --kb-tone-ink: color-mix(in srgb, #ea580c 70%, var(--ces-foreground));
+  --kb-tone-solid: #c2410c;
+}
+
+/* Amarelo não segura texto branco: o cabeçalho usa texto escuro. */
+[data-tone='crit-media'] {
+  --kb-tone: #eab308;
+  --kb-tone-soft: color-mix(in srgb, #eab308 18%, var(--ces-surface));
+  --kb-tone-ink: color-mix(in srgb, #a16207 75%, var(--ces-foreground));
+  --kb-tone-solid: #facc15;
+  --kb-tone-on: #422006;
+}
+
+[data-tone='crit-baixa'] {
+  --kb-tone: var(--ces-success);
+  --kb-tone-soft: var(--ces-success-soft);
+  --kb-tone-ink: var(--ces-success-text);
+  --kb-tone-solid: color-mix(in srgb, var(--ces-success) 76%, #000);
+}
+
 .kb-sr {
   position: absolute;
   width: 1px;
@@ -349,7 +380,7 @@
   padding: 0.5rem 0.75rem;
   border: 0;
   background: var(--kb-tone-solid);
-  color: #fff;
+  color: var(--kb-tone-on, #fff);
   font: inherit;
   text-align: left;
   cursor: pointer;

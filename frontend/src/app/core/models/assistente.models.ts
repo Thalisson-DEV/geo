@@ -461,6 +461,63 @@ export interface ResultadoCadastro {
   registros: RegistroGravado[];
 }
 
+export type DecisaoAprovacao = 'APROVAR' | 'REJEITAR';
+
+/** Uma solicitação no cartão de aprovação; `problema` tira da decisão, `falta` impede confirmar. */
+export interface ItemAprovacao {
+  indice: number;
+  decisao: DecisaoAprovacao;
+  tipo?: string;
+  rotuloTipo?: string;
+  numero?: number;
+  id?: string;
+  titulo: string;
+  situacao?: string;
+  solicitante?: string;
+  fornecedor?: string;
+  descricao?: string;
+  base?: string;
+  valor?: number;
+  valorAprovado?: number;
+  enviadaEm?: string;
+  caminho?: string;
+  observacao?: string;
+  problema?: string;
+  falta?: string;
+}
+
+export interface PreviaAprovacao {
+  tipo: 'aprovacao';
+  chave: string;
+  titulo: string;
+  modulo: string;
+  pronta: boolean;
+  total: number;
+  aprovar: number;
+  rejeitar: number;
+  valorAprovar: number;
+  itens: ItemAprovacao[];
+}
+
+export interface ItemDecidido {
+  indice: number;
+  titulo: string;
+  status: 'APROVADA' | 'REJEITADA' | 'FALHOU' | 'FORA';
+  fornecedor?: string;
+  solicitante?: string;
+  valor?: number;
+  valorAprovado?: number;
+  caminho?: string;
+  mensagem?: string;
+}
+
+export interface ResultadoAprovacao {
+  tipo: 'aprovacao_resultado';
+  decididas: number;
+  falhas: number;
+  itens: ItemDecidido[];
+}
+
 export type StatusAcaoCartao = 'PENDENTE' | 'CONFIRMADA' | 'FALHOU' | 'REJEITADA' | 'EXPIRADA';
 
 export interface AcaoCartao {

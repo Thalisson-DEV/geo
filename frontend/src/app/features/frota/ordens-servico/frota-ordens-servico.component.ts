@@ -15,6 +15,7 @@ import {
   CesSelectOption,
   CesStatusComponent,
   CesTone,
+  NotificationService,
   cesFilter,
   cesListState
 } from '@ces/ui';
@@ -30,6 +31,8 @@ import {
   ROTULO_CRITICIDADE,
   ROTULO_ORIGEM_OS,
   ROTULO_SITUACAO_OS,
+  rotuloSituacaoOs,
+  tomSituacaoOs,
   ROTULO_TIPO_MANUTENCAO,
   SituacaoOrdemServico,
   TOM_APROVACAO,
@@ -48,6 +51,8 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { acessoFrota } from '../shared/frota-acesso';
 import { LIMITE_EXPORTACAO_FROTA, basesFrota, exportacaoFrota, paginaFrota } from '../shared/frota-lista';
 import { FrotaOrdemServicoFormComponent } from './frota-ordem-servico-form.component';
+import { colunasPlanilhaOs } from './frota-ordem-servico.util';
+import { baixarPlanilha } from '../shared/frota-planilha';
 import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
 import { FrotaOsCalendarioComponent } from '../visoes/frota-os-calendario.component';
 import { FrotaOsKanbanComponent } from '../visoes/frota-os-kanban.component';
@@ -115,6 +120,9 @@ const SIM_NAO: CesSelectOption<boolean | null>[] = [
         [breadcrumb]="[{ label: 'Frota' }, { label: 'Ordens de serviço' }]"
         description="Manutenções pendentes, agendadas, em andamento e concluídas. Os indicadores filtram a lista. Atalhos: / busca, F filtros, N nova OS."
       >
+        <!-- Uma linha por OS com datas, horas e valor, para calcular indicadores no Excel. -->
+        <ces-button actions variant="outline" icon="pi pi-file-excel" label="Planilha detalhada" [loading]="exportando()"
+          (pressed)="exportarDetalhado()"></ces-button>
         @if (acesso.editarOs()) {
           <ces-button actions icon="pi pi-plus" label="Abrir OS" [keyShortcut]="atalhos.newShortcut()" (pressed)="formularioAberto.set(true)"></ces-button>
         }
@@ -166,7 +174,7 @@ const SIM_NAO: CesSelectOption<boolean | null>[] = [
           <span class="ces-kpi__body">
             <span class="ces-kpi__label">Concluídas</span>
             <span class="ces-kpi__value">{{ valor(painel()?.concluidasUltimos30Dias) }}</span>
-            <span class="ces-kpi__detail">Nos últimos 30 dias</span>
+            <span class="ces-kpi__detail">{{ painel()?.baixaPendente ? 'Nos últimos 30 dias · ' + contar(painel()!.baixaPendente!, 'com valores pendentes', 'com valores pendentes', '') : 'Nos últimos 30 dias' }}</span>
           </span>
           <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
         </button>
@@ -192,6 +200,8 @@ const SIM_NAO: CesSelectOption<boolean | null>[] = [
           <ces-select label="Prazo estourado" [options]="simNao" [(value)]="lista.filters.atrasadas"></ces-select>
           <ces-select label="Veículo parado" [options]="simNao" [(value)]="lista.filters.veiculoParado"></ces-select>
           <ces-select label="Manutenção repetida" [options]="simNao" [(value)]="lista.filters.comRepeticao"></ces-select>
+          <ces-select label="Valores pendentes" [options]="simNao" [(value)]="lista.filters.baixaPendente"
+            description="Concluídas que ainda esperam causa, serviço e valores."></ces-select>
           <ces-datepicker label="Concluída de" [value]="dataLocal(lista.filters.concluida().from)" [clearable]="true"
             (valueChange)="lista.filters.concluida.set({ from: dataIso($event), to: lista.filters.concluida().to })"></ces-datepicker>
           <ces-datepicker label="Concluída até" [value]="dataLocal(lista.filters.concluida().to)" [clearable]="true"
@@ -214,7 +224,7 @@ const SIM_NAO: CesSelectOption<boolean | null>[] = [
 
       @switch (visao) {
         @case ('kanban') {
-          <app-frota-os-kanban #quadro [filtros]="filtroVisao()" [opcoes]="opcoes()" (abrir)="abrir($event)" (relatorio)="abrirRelatorio($event.id)"
+          <app-frota-os-kanban #quadro [filtros]="filtroVisao()" [opcoes]="opcoes()" (abrir)="abrir($event)" (lancarValores)="lancarValores($event)" (relatorio)="abrirRelatorio($event.id)"
             (verNaTabela)="verNaTabela($event)" (alterado)="carregarPainel(lista.applied().idsBase)"></app-frota-os-kanban>
         }
         @case ('calendario') {
@@ -264,7 +274,7 @@ const SIM_NAO: CesSelectOption<boolean | null>[] = [
         </ng-template>
         <ng-template cesCell="situacao" let-row>
           <span class="ces-cell-chips">
-            <ces-status [tone]="tomSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
+            <ces-status [tone]="tomSituacaoOs(row)">{{ rotuloSituacaoOs(row) }}</ces-status>
             @if (row.atrasada) {
               <ces-status tone="danger" icon="pi-clock">Prazo estourado</ces-status>
             }
@@ -336,6 +346,8 @@ export class FrotaOrdensServicoComponent {
   protected readonly itens = signal<ItemManutencao[]>([]);
   protected readonly painel = signal<PainelOrdensServico | null>(null);
   protected readonly formularioAberto = signal(false);
+  protected readonly exportando = signal(false);
+  private readonly notificacoes = inject(NotificationService);
 
   protected readonly situacoesOpcoes = computed(() => this.paraOpcoes(this.opcoes()?.situacoesOrdemServico));
   protected readonly criticidadesOpcoes = computed(() => this.paraOpcoes(this.opcoes()?.criticidades));
@@ -343,10 +355,15 @@ export class FrotaOrdensServicoComponent {
   protected readonly origensOpcoes = computed(() => this.paraOpcoes(this.opcoes()?.origensOrdemServico));
   protected readonly itensOpcoes = computed(() => this.itens().map((i) => ({ label: i.nome, value: i.id })));
 
+  protected readonly rotuloSituacaoOs = rotuloSituacaoOs;
+  protected readonly tomSituacaoOs = tomSituacaoOs;
+
   protected readonly lista = cesListState({
     storageKey: 'frota-ordens-servico',
+    // Os filtros ficam guardados no aparelho: voltar à tela (ou trocar de visão) mantém o recorte.
+    rememberFilters: 'frota-ordens-servico',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       situacoes: cesFilter.list<SituacaoOrdemServico>(ABERTAS, {
         label: 'Situação',
         param: 'situacao',
@@ -364,6 +381,7 @@ export class FrotaOrdensServicoComponent {
       atrasadas: cesFilter.value<boolean | null>(null, { label: 'Prazo estourado', param: 'atrasadas', options: () => SIM_NAO }),
       veiculoParado: cesFilter.value<boolean | null>(null, { label: 'Veículo parado', param: 'parado', options: () => SIM_NAO }),
       comRepeticao: cesFilter.value<boolean | null>(null, { label: 'Repetição', param: 'repeticao', options: () => SIM_NAO }),
+      baixaPendente: cesFilter.value<boolean | null>(null, { label: 'Valores pendentes', param: 'baixa', options: () => SIM_NAO }),
       concluida: cesFilter.range({ from: null, to: null }, { label: 'Concluída', param: 'concluida' })
     },
     // Gravidade primeiro: veículo parado, depois urgente → baixa (o backend ordena "criticidade" assim).
@@ -429,13 +447,15 @@ export class FrotaOrdensServicoComponent {
     f.veiculoParado.set(recorte.veiculoParado ?? null);
     f.criticidades.set([]);
     f.comRepeticao.set(null);
+    f.baixaPendente.set(null);
     this.lista.apply();
   }
 
   /** Recorte aplicado para o quadro (a situação vem das colunas). */
   protected readonly filtroVisao = computed(() => {
     // O quadro usa o próprio período das concluídas.
-    const { concluida: _periodo, ...resto } = this.lista.applied();
+    // Valores pendentes só existem nas concluídas: no quadro ela aparece como grupo da coluna.
+    const { concluida: _periodo, baixaPendente: _baixa, ...resto } = this.lista.applied();
     return { ...resto, busca: null };
   });
 
@@ -478,12 +498,42 @@ export class FrotaOrdensServicoComponent {
     void this.router.navigate(['/frota/ordens-servico', os.id]);
   }
 
+  protected lancarValores(os: OrdemServico): void {
+    void this.router.navigate(['/frota/ordens-servico', os.id], { queryParams: { aba: 'execucao' } });
+  }
+
   protected aoAbrir(os: OrdemServicoDetalhe): void {
     navegarAposFecharDrawer(this.router, ['/frota/ordens-servico', os.ordem.id]);
   }
 
   protected carregarPainel(idsBase: string[]): void {
     this.frota.painelOrdensServico(idsBase).subscribe({ next: (p) => this.painel.set(p), error: () => this.painel.set(null) });
+  }
+
+  /** Planilha com o recorte filtrado (até o limite de exportação), uma linha por OS. */
+  protected exportarDetalhado(): void {
+    this.exportando.set(true);
+    this.frota.listarOrdensServico(this.filtro(), { page: 0, size: LIMITE_EXPORTACAO_FROTA, sort: ['abertaEm,desc'] }).subscribe({
+      next: (pagina) => {
+        this.exportando.set(false);
+        if (!pagina.content.length) {
+          this.notificacoes.info('Nenhuma OS no recorte para exportar.');
+          return;
+        }
+        const motivos = new Map((this.opcoes()?.motivosServico ?? []).map((m) => [m.valor as string, m.rotulo]));
+        baixarPlanilha('frota-ordens-servico-detalhado', pagina.content, colunasPlanilhaOs(motivos));
+        const total = pagina.page?.totalElements ?? pagina.content.length;
+        if (total > pagina.content.length) {
+          this.notificacoes.warning(`Exportadas as ${pagina.content.length} OS mais recentes de ${total}. Refine os filtros para exportar o restante.`);
+        } else {
+          this.notificacoes.success(`${pagina.content.length} OS exportadas.`);
+        }
+      },
+      error: (e) => {
+        this.exportando.set(false);
+        this.notificacoes.error(getErrorMessage(e));
+      }
+    });
   }
 
   private filtro() {

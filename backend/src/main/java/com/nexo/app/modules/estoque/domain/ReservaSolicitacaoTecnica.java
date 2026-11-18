@@ -110,9 +110,10 @@ public class ReservaSolicitacaoTecnica {
             String empresaAgenteSnapshot,
             UUID idUsuarioAtualizacao
     ) {
-        if (solicitacao.possuiFatoOperacional()) {
-            throw new InvarianteVioladaException(
-                    "A reserva nao pode ser alterada depois do primeiro fato operacional.");
+        if (solicitacao.reservaBloqueadaParaAlteracao()) {
+            throw new InvarianteVioladaException(solicitacao.isFechamento()
+                    ? "A reserva não pode mudar depois de uma movimentação. Estorne as movimentações antes."
+                    : "A reserva nao pode ser alterada depois do primeiro fato operacional.");
         }
         this.numero = validarNumero(numero);
         this.dataCriacao = Objects.requireNonNull(dataCriacao, "Data real de criacao da reserva e obrigatoria");

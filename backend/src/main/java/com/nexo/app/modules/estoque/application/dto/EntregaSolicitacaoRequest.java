@@ -57,17 +57,28 @@ public record EntregaSolicitacaoRequest(
                 idColaboradorSaque, saqueForaEquipe, null);
     }
 
+    /** {@code unidade}: em que a quantidade entregue foi informada; vazia = unidade do material. */
     public record ItemEntregaRequest(
         UUID idItemSolicitacao,
         BigDecimal quantidade,
         BigDecimal novaQuantidadeSolicitada,
-        String numSerie
-    ) {}
+        String numSerie,
+        String unidade
+    ) {
+        public ItemEntregaRequest(UUID idItemSolicitacao, BigDecimal quantidade, BigDecimal novaQuantidadeSolicitada, String numSerie) {
+            this(idItemSolicitacao, quantidade, novaQuantidadeSolicitada, numSerie, null);
+        }
+    }
 
     public record NovoItemEntregaRequest(
         UUID idMaterial,
         BigDecimal quantidade,
         BigDecimal quantidadeSolicitada,
-        String numSerie
-    ) {}
+        String numSerie,
+        String unidade
+    ) {
+        public NovoItemEntregaRequest(UUID idMaterial, BigDecimal quantidade, BigDecimal quantidadeSolicitada, String numSerie) {
+            this(idMaterial, quantidade, quantidadeSolicitada, numSerie, null);
+        }
+    }
 }

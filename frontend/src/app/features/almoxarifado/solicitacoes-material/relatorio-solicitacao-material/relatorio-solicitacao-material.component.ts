@@ -1,3 +1,9 @@
+import { statusComercial } from '../solicitacao-comercial-status';
+import { CesFormDrawerComponent } from '@ces/ui';
+import { QuantidadeUnidadeComponent } from '../../shared/quantidade-unidade.component';
+import { daUnidadeBase } from '../../shared/unidade-material';
+import { AbaDetalheComercial, SolicitacaoComercialDetalheComponent } from '../solicitacao-comercial-detalhe.component';
+import { SolicitacaoRejeicaoDialogComponent } from '../solicitacao-rejeicao-dialog.component';
 import {
   Component,
   DestroyRef,
@@ -95,6 +101,10 @@ interface FaixaSituacao {
   selector: 'app-relatorio-solicitacao-material',
   standalone: true,
   imports: [
+    QuantidadeUnidadeComponent,
+    CesFormDrawerComponent,
+    SolicitacaoComercialDetalheComponent,
+    SolicitacaoRejeicaoDialogComponent,
     CommonModule,
     FormsModule,
     TableModule,
@@ -137,6 +147,16 @@ interface FaixaSituacao {
   styleUrls: ['./relatorio-solicitacao-material.component.css'],
 })
 export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewInit, OnDestroy {
+  /** Ações em painel lateral (mesmo detalhe das listas): aprovar, entregar e rejeitar. */
+  protected readonly painelAberto = signal(false);
+  protected readonly painelAba = signal<AbaDetalheComercial>('itens');
+  protected readonly rejeicaoAberta = signal(false);
+
+  protected abrirPainel(aba: AbaDetalheComercial): void {
+    this.painelAba.set(aba);
+    this.painelAberto.set(true);
+  }
+
   protected readonly Math = Math;
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -575,6 +595,10 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
     return this.usersMap.get(id) || id?.substring(0, 8);
   }
 
+  protected getStatusIcon(status: SolicitacaoStatus | undefined): string {
+    return statusComercial(status).icon;
+  }
+
   protected getStatusTone(status: SolicitacaoStatus | undefined): CesTone {
     if (!status) return 'neutral';
     switch (status) {
@@ -882,7 +906,22 @@ export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewI
 
   protected definirQuantidadeEntrega(indice: number, valor: number | null) {
     this.entregaRascunho.update((linhas) =>
-      linhas.map((l, i) => (i !== indice ? l : { ...l, quantidade: valor, ...(l.idItem ? {} : { solicitada: valor ?? 0, pendente: valor ?? 0 }) })),
+      linhas.map((l, i) => {
+        if (i !== indice) return l;
+        const nova = { ...l, quantidade: valor };
+        return l.idItem ? nova : { ...nova, solicitada: quantidadeDaLinha(nova), pendente: quantidadeDaLinha(nova) };
+      }),
+    );
+  }
+
+  protected definirUnidadeEntrega(indice: number, unidade: string | null) {
+    this.entregaRascunho.update((linhas) =>
+      linhas.map((l, i) => {
+        if (i !== indice) return l;
+        const base = quantidadeDaLinha(l);
+        const nova = { ...l, unidade, quantidade: l.quantidade ? daUnidadeBase(l.material, base, unidade) : l.quantidade };
+        return l.idItem ? nova : { ...nova, solicitada: quantidadeDaLinha(nova), pendente: quantidadeDaLinha(nova) };
+      }),
     );
   }
 

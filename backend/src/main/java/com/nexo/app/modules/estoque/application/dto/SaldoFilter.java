@@ -14,5 +14,7 @@ public record SaldoFilter(
     Boolean ativo,
     String buscaGlobal,
     String numSerie,
-    Boolean negativo
+    Boolean negativo,
+    /** Processo do material no cadastro (ex.: Comercial ou Obras). */
+    UUID idProcesso
 ) {}

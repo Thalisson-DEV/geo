@@ -14,5 +14,7 @@ public enum AcaoPermitidaSolicitacao {
     CONFIRMAR_DEVOLUCAO,
     ENCERRAR_SALDO,
     ESTORNAR,
+    /** Trocar o número da OS/OC, inclusive depois da entrega. */
+    TROCAR_OCORRENCIA,
     VER_HISTORICO
 }

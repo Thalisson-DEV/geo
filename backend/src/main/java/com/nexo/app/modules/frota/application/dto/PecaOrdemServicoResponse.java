@@ -19,6 +19,9 @@ public record PecaOrdemServicoResponse(
         UUID idMaterial,
         UUID idEstoque,
         String estoque,
-        boolean baixadaNoEstoque
+        boolean baixadaNoEstoque,
+        /** Item de manutenção (tipo peça) de onde saiu o nome. */
+        UUID idItemManutencao,
+        boolean semCusto
 ) {
 }

@@ -39,4 +39,6 @@ public interface DocumentoFrotaRepository extends JpaRepository<DocumentoFrota, 
     List<DocumentoFrota> findAllByAtivoTrueAndDataVencimentoBetween(LocalDate de, LocalDate ate);
 
     List<DocumentoFrota> findAllByIdVeiculoAndAtivoTrueOrderByDataVencimentoAsc(UUID idVeiculo);
+
+    List<DocumentoFrota> findAllByIdImplementoInAndAtivoTrue(Collection<UUID> idsImplemento);
 }

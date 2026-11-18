@@ -51,6 +51,7 @@ const ATIVOS: CesSelectOption<boolean | null>[] = [
   { label: 'Inativos', value: false }
 ];
 const TOM_CURADORIA: Record<Curadoria, CesTone> = { PENDENTE: 'warning', HOMOLOGADO: 'success', BLOQUEADO: 'danger' };
+const ICONE_CURADORIA: Record<Curadoria, string> = { PENDENTE: 'pi-hourglass', HOMOLOGADO: 'pi-verified', BLOQUEADO: 'pi-lock' };
 
 /** `00000000000` / `00000000000000` → CPF / CNPJ formatado. */
 export function formatarDocumento(valor?: string | null): string {
@@ -142,7 +143,7 @@ export function formatarDocumento(valor?: string | null): string {
           <span class="ces-cell-muted">{{ row.razaoSocial || 'Razão social não informada' }}</span>
         </ng-template>
         <ng-template cesCell="curadoria" let-row>
-          <ces-status [tone]="tom(row.status)">{{ rotuloCuradoria(row.status) }}</ces-status>
+          <ces-status [tone]="tom(row.status)" [icon]="iconeCuradoria[row.status]">{{ rotuloCuradoria(row.status) }}</ces-status>
           @if (row.motivoBloqueio) {
             <span class="ces-cell-muted">{{ row.motivoBloqueio }}</span>
           }
@@ -287,6 +288,8 @@ export class FornecedoresComponent {
       ativo: filters.ativo ?? undefined
     };
   }
+
+  protected readonly iconeCuradoria: Record<string, string> = ICONE_CURADORIA;
 
   protected tom(status: Curadoria): CesTone {
     return TOM_CURADORIA[status] ?? 'neutral';

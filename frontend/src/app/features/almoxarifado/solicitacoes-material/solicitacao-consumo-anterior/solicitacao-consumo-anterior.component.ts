@@ -138,7 +138,7 @@ interface LinhaConsumo {
                   <strong>{{ l.material.descricao }}</strong>
                 </button>
                 <span>{{ l.material.codigo }} · {{ l.material.unidadeMedida || 'UN' }}</span>
-                @if (l.leitura.tom !== 'neutral') { <ces-status [tone]="l.leitura.tom" class="ca-dica">{{ l.leitura.dica }}</ces-status> }
+                @if (l.leitura.tom !== 'neutral') { <ces-status [tone]="l.leitura.tom" [icon]="iconeDaLeitura(l.leitura.tom)" class="ca-dica">{{ l.leitura.dica }}</ces-status> }
               </span>
               @if (l.consumo?.ultimaSolicitacao; as u) {
                 <span role="cell" data-rotulo="Último pedido">{{ u.dataEntrega | date: 'dd/MM/yyyy' }}</span>
@@ -210,6 +210,7 @@ interface LinhaConsumo {
   `]
 })
 export class ConsumoAnteriorTabelaComponent {
+  protected readonly iconeDaLeitura = iconeDaLeitura;
   private readonly almoxarifado = inject(AlmoxarifadoService);
 
   readonly idSolicitacao = input<string | null>(null);

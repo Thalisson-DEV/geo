@@ -1,6 +1,7 @@
 package com.nexo.app.modules.estoque.application.dto;
 
 import com.nexo.app.modules.estoque.domain.CondicaoMaterial;
+import com.nexo.app.modules.estoque.domain.MotivoMovimentacao;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
@@ -23,11 +24,23 @@ public record MovimentacaoBulkRequest(
     String assinaturaEntregador,
 
     @Schema(description = "Assinatura do estoque recebedor (destino). 'FISICA' ou Base64 PNG ('data:image/png;base64,...')", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-    String assinaturaRecebedor
+    String assinaturaRecebedor,
+
+    @Schema(description = "Motivo da entrada ou da baixa avulsa", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    MotivoMovimentacao motivo,
+
+    @Schema(description = "Observação da operação, até 1000 caracteres", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    String observacao
 ) {
     public MovimentacaoBulkRequest(UUID idEstoqueOrigem, UUID idEstoqueDestino, List<ItemMovimentacaoRequest> itens) {
-        this(idEstoqueOrigem, idEstoqueDestino, itens, null, null);
+        this(idEstoqueOrigem, idEstoqueDestino, itens, null, null, null, null);
     }
+
+    public MovimentacaoBulkRequest(UUID idEstoqueOrigem, UUID idEstoqueDestino, List<ItemMovimentacaoRequest> itens,
+                                   String assinaturaEntregador, String assinaturaRecebedor) {
+        this(idEstoqueOrigem, idEstoqueDestino, itens, assinaturaEntregador, assinaturaRecebedor, null, null);
+    }
+
     @Schema(description = "Item individual da movimentação")
     public record ItemMovimentacaoRequest(
         @Schema(description = "ID do material", example = "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -41,6 +54,14 @@ public record MovimentacaoBulkRequest(
         String numSerie,
 
         @Schema(description = "Condição do material. Padrão: NOVO", example = "SUCATA", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-        CondicaoMaterial condicao
-    ) {}
+        CondicaoMaterial condicao,
+
+        @Schema(description = "Unidade em que a quantidade foi informada (ex.: KG). Vazia = unidade do material; o servidor converte.",
+                example = "KG", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        String unidade
+    ) {
+        public ItemMovimentacaoRequest(UUID idMaterial, BigDecimal quantidade, String numSerie, CondicaoMaterial condicao) {
+            this(idMaterial, quantidade, numSerie, condicao, null);
+        }
+    }
 }

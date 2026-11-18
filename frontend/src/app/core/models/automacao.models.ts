@@ -354,3 +354,10 @@ export const RUN_AFTER_ROTULO: Record<RunAfter, string> = {
   skipped: 'Foi ignorado',
   timed_out: 'Passou do tempo'
 };
+
+export const ICONE_STATUS_AUTOMACAO: Record<StatusAutomacao, string> = {
+  RASCUNHO: 'pi-pencil',
+  ATIVA: 'pi-play',
+  PAUSADA: 'pi-pause',
+  ARQUIVADA: 'pi-inbox'
+};

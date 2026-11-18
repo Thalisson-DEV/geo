@@ -47,6 +47,12 @@ public class EmailProperties {
      */
     private String logoUrl;
 
+    /**
+     * Endereços que recebem todo e-mail no lugar dos destinatários reais (homologação).
+     * Vazio na produção.
+     */
+    private String redirecionarPara;
+
     /** Teto de bytes somados dos anexos de um e-mail. Acima disso, viram só links. */
     private long limiteAnexosBytes = 8L * 1024 * 1024;
 

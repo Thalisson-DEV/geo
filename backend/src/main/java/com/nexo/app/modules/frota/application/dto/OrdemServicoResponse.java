@@ -52,6 +52,10 @@ public record OrdemServicoResponse(
         OffsetDateTime inicioReal,
         OffsetDateTime previsaoTermino,
         OffsetDateTime fimReal,
+        /** Quando a OS ficou com todos os valores lançados; nula na aberta ou com valores pendentes. */
+        OffsetDateTime finalizadaEm,
+        /** Concluída com valores pendentes: falta o valor de algum serviço ou peça (ver pendencias no detalhe). */
+        boolean baixaPendente,
         boolean atrasada,
         boolean veiculoParado,
         OffsetDateTime paradoDesde,

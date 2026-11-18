@@ -1,4 +1,5 @@
 import { DecimalPipe } from '@angular/common';
+import { ICONE_SITUACAO } from '../../../core/models/frota.models';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -148,9 +149,9 @@ import { navegarAposFecharDrawer } from '../shared/frota-navegacao';
           <span class="ces-cell-muted">{{ row.fabricante }} {{ row.modelo }}{{ row.anoModelo ? ' · ' + row.anoModelo : '' }}</span>
         </ng-template>
         <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tomSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
+          <ces-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
           @if (!row.ativo) {
-            <ces-status tone="neutral" emphasis="outline">Desativado</ces-status>
+            <ces-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</ces-status>
           }
         </ng-template>
         <ng-template cesCell="kmAtual" let-row>
@@ -208,6 +209,7 @@ export class FrotaVeiculosComponent {
   protected readonly bases = basesFrota();
 
   protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO;
+  protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO;
   protected readonly placa = formatarPlaca;
   protected readonly medida = formatarMedida;
@@ -229,8 +231,9 @@ export class FrotaVeiculosComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-veiculos',
+    rememberFilters: 'frota-veiculos',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       idsTipoVeiculo: cesFilter.list<string>([], {
         label: 'Tipo',
         param: 'tipo',

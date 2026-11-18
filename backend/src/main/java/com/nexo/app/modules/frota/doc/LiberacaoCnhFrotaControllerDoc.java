@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Frota — Liberação de CNH", description = "Situação da CNH para conduzir e liberação do gestor para o dia")
@@ -23,5 +24,5 @@ public interface LiberacaoCnhFrotaControllerDoc {
     ResponseEntity<LiberacaoCnhResponse> liberar(LiberacaoCnhRequest request);
 
     @Operation(summary = "Listar liberações", description = "Mais recentes primeiro.")
-    ResponseEntity<PageResponse<LiberacaoCnhResponse>> listar(Pageable pageable);
+    ResponseEntity<PageResponse<LiberacaoCnhResponse>> listar(List<UUID> idsBase, Pageable pageable);
 }

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
@@ -50,10 +51,22 @@ public record CriarFormularioRequest(
             boolean obrigatoria,
 
             @Valid
-            List<OpcaoRequest> opcoes
+            List<OpcaoRequest> opcoes,
+
+            /** Quantidade esperada ou observação do item, exibida abaixo do enunciado. */
+            @Size(max = 300, message = "A orientação deve ter no máximo 300 caracteres")
+            String orientacao,
+
+            /** Nulo = verdadeiro: o desvio aponta colaborador. Falso = item da equipe/veículo. */
+            Boolean desvioPorColaborador
     ) {
         public PerguntaRequest {
             opcoes = opcoes == null ? List.of() : opcoes;
+            desvioPorColaborador = desvioPorColaborador == null ? Boolean.TRUE : desvioPorColaborador;
+        }
+
+        public PerguntaRequest(String enunciado, TipoResposta tipoResposta, boolean obrigatoria, List<OpcaoRequest> opcoes) {
+            this(enunciado, tipoResposta, obrigatoria, opcoes, null, null);
         }
     }
 

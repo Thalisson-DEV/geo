@@ -12,7 +12,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -64,6 +71,15 @@ public class Material extends BaseEntity {
 
     @Column(name = "detalha_serie")
     private boolean detalhaSerie = false;
+
+    /** Outras unidades em que a quantidade pode ser informada; o saldo segue em {@link #unidadeMedida}. */
+    @OneToMany(mappedBy = "material", cascade = CascadeType.ALL)
+    @org.hibernate.annotations.BatchSize(size = 100)
+    private List<UnidadeEquivalenteMaterial> equivalencias = new ArrayList<>();
+
+    /** Uma linha do cadastro de equivalências: "1 KG = 4,2 MT". */
+    public record Equivalencia(String unidade, BigDecimal quantidadeUnidade, BigDecimal quantidadeBase) {
+    }
 
     /** Compatibilidade de leitura durante a migração; classificação não é persistida. */
     @Deprecated
@@ -134,6 +150,67 @@ public class Material extends BaseEntity {
         this.unidadeMedida = unidadeMedida != null ? unidadeMedida.toUpperCase().trim() : null;
         this.suprMatrFlag = suprMatrFlag != null ? suprMatrFlag.toUpperCase().trim() : null;
         this.detalhaSerie = detalhaSerie;
+    }
+
+    public List<UnidadeEquivalenteMaterial> getEquivalencias() {
+        return equivalencias.stream().filter(UnidadeEquivalenteMaterial::isAtivo).toList();
+    }
+
+    /**
+     * Substitui as equivalências pelas informadas: mesma unidade é atualizada, a que saiu é
+     * desativada (nunca apagada) e a nova é criada. Não aceita a própria unidade do material.
+     */
+    public void definirEquivalencias(List<Equivalencia> novas) {
+        validarStatus();
+        List<Equivalencia> lista = novas == null ? List.of() : novas;
+        String base = unidadeMedida == null ? "UN" : unidadeMedida;
+        Set<String> vistas = new HashSet<>();
+        for (Equivalencia nova : lista) {
+            String unidade = UnidadeEquivalenteMaterial.normalizar(nova.unidade());
+            if (unidade.equals(base)) {
+                throw new InvarianteVioladaException("A unidade " + unidade + " já é a unidade do material; escolha outra para a equivalência.");
+            }
+            if (!vistas.add(unidade)) {
+                throw new InvarianteVioladaException("A unidade " + unidade + " aparece duas vezes nas equivalências.");
+            }
+        }
+        for (UnidadeEquivalenteMaterial atual : getEquivalencias()) {
+            if (!vistas.contains(atual.getUnidade())) {
+                atual.desativar();
+            }
+        }
+        for (Equivalencia nova : lista) {
+            String unidade = UnidadeEquivalenteMaterial.normalizar(nova.unidade());
+            Optional<UnidadeEquivalenteMaterial> existente = getEquivalencias().stream()
+                    .filter(e -> e.getUnidade().equals(unidade)).findFirst();
+            if (existente.isPresent()) {
+                existente.get().redefinir(nova.quantidadeUnidade(), nova.quantidadeBase());
+            } else {
+                equivalencias.add(new UnidadeEquivalenteMaterial(this, unidade, nova.quantidadeUnidade(), nova.quantidadeBase()));
+            }
+        }
+    }
+
+    /**
+     * Converte a quantidade informada para a unidade do material. Unidade vazia ou igual à do
+     * material passa direto; unidade sem equivalência cadastrada é recusada.
+     */
+    public QuantidadeConvertida converterParaBase(BigDecimal quantidade, String unidade) {
+        Objects.requireNonNull(quantidade, "A quantidade e obrigatoria");
+        String base = unidadeMedida == null ? "UN" : unidadeMedida;
+        if (unidade == null || unidade.isBlank() || unidade.trim().equalsIgnoreCase(base)) {
+            return QuantidadeConvertida.semConversao(quantidade);
+        }
+        UnidadeEquivalenteMaterial equivalencia = getEquivalencias().stream()
+                .filter(e -> e.mesmaUnidade(unidade)).findFirst()
+                .orElseThrow(() -> new InvarianteVioladaException("O material " + codigo + " não tem equivalência em "
+                        + unidade.trim().toUpperCase() + ". Cadastre a equivalência no material ou informe em " + base + "."));
+        BigDecimal convertida = equivalencia.paraUnidadeBase(quantidade);
+        if (convertida.signum() <= 0) {
+            throw new InvarianteVioladaException("A quantidade em " + equivalencia.getUnidade()
+                    + " é pequena demais para virar " + base + ".");
+        }
+        return new QuantidadeConvertida(convertida, quantidade, equivalencia.getUnidade());
     }
 
     public void vincularAvaliacao(AvaliacaoMaterial avaliacao) {

@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import {
   CesBooleanControlComponent,
   CesButtonComponent,
@@ -19,13 +20,16 @@ import {
   CesSelectComponent,
   CesSelectOption,
   CesStatusComponent,
+  CesTabItem,
+  CesTabPanelDirective,
+  CesTabsComponent,
   CesTextInputComponent,
   NotificationService,
   cesFilter,
   cesImportStatus,
   cesListState
 } from '@ces/ui';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, of, Subscription, switchMap } from 'rxjs';
 
 import {
   BaseOperacionalResponse,
@@ -36,17 +40,23 @@ import {
   PerfilAcessoResponse,
   ProcessoNegocioResponse
 } from '../../../core/models/rh.models';
+import { UsuarioResponse } from '../../../core/models/iam.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ImportacaoService } from '../../../core/services/importacao.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { RhService } from '../../../core/services/rh.service';
+import { UsuariosService } from '../../../core/services/usuarios.service';
+import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 import { AuditDialogComponent } from '../../../shared/components/audit-dialog/audit-dialog.component';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { CHAVE_LINHA_IMPORTACAO, importacaoListagem } from '../../../shared/listagem/importacao-listagem';
+import { ColaboradorMedidasComponent } from '../medidas-disciplinares/colaborador-medidas.component';
 import { LIMITE_EXPORTACAO, OPCOES_STATUS, dataIso, dataLocal, exportacaoPadrao, paginaPadrao } from '../../../shared/listagem/listagem';
 
 type TipoUsuario = 'ADMINISTRATIVO' | 'CAMPO';
 
 const LOGIN_VALIDO = /^[uU][sS][rR]\d{6}$/;
+type ModoAcesso = 'NENHUM' | 'NOVO' | 'EXISTENTE';
 
 /** `00000000000` → `000.000.000-00`, aceitando digitação parcial. */
 export function formatarCpf(valor: string | null | undefined): string {
@@ -62,6 +72,7 @@ export function formatarCpf(valor: string | null | undefined): string {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    NgTemplateOutlet,
     CesBooleanControlComponent,
     CesButtonComponent,
     CesCellDirective,
@@ -78,8 +89,11 @@ export function formatarCpf(valor: string | null | undefined): string {
     CesRowActionsDirective,
     CesSelectComponent,
     CesStatusComponent,
+    CesTabPanelDirective,
+    CesTabsComponent,
     CesTextInputComponent,
     AuditDialogComponent,
+    ColaboradorMedidasComponent,
     AjudaListagemComponent
   ],
   template: `
@@ -149,7 +163,7 @@ export function formatarCpf(valor: string | null | undefined): string {
           }
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">
@@ -162,48 +176,74 @@ export function formatarCpf(valor: string | null | undefined): string {
 
     <ces-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar colaborador' : 'Novo colaborador'" [description]="emEdicao()?.nomeCompleto"
       [dirty]="alterado()" size="lg">
-      <ces-form-section title="Dados pessoais" icon="pi pi-user">
-        <div class="ces-form-grid">
-          <ces-text-input label="Primeiro nome" [required]="true" [(value)]="primeiroNome" [maxlength]="100" [error]="erro('primeiroNome')"></ces-text-input>
-          <ces-text-input label="Último nome" [required]="true" [(value)]="ultimoNome" [maxlength]="100" [error]="erro('ultimoNome')"></ces-text-input>
-        </div>
-        <ces-text-input label="Nome completo" [required]="true" [(value)]="nomeCompleto" [maxlength]="200" [error]="erro('nomeCompleto')"></ces-text-input>
-        <div class="ces-form-grid">
-          <ces-text-input label="CPF" [required]="true" [value]="cpf()" (valueChange)="cpf.set(formatarCpf($event))" [maxlength]="14"
-            placeholder="000.000.000-00" [readonly]="!!emEdicao()" [description]="emEdicao() ? 'O CPF não pode ser alterado.' : undefined"
-            [error]="erro('cpf')"></ces-text-input>
-          <ces-datepicker label="Data de contratação" [required]="true" [(value)]="dataContratacao" [readonly]="!!emEdicao()" [error]="erro('dataContratacao')"></ces-datepicker>
-        </div>
-        @if (emEdicao()) {
-          <ces-boolean-control label="Colaborador ativo" kind="toggle" [(value)]="ativo"></ces-boolean-control>
-        }
-      </ces-form-section>
+      @if (emEdicao() && verMedidas()) {
+        <ces-tabs [(value)]="abaColaborador" [tabs]="abasColaborador" ariaLabel="Seções do colaborador">
+          <ng-template cesTabPanel="cadastro"><ng-container *ngTemplateOutlet="cadastro" /></ng-template>
+          <ng-template cesTabPanel="medidas">
+            <app-colaborador-medidas [idColaborador]="emEdicao()!.id" [nomeColaborador]="emEdicao()!.nomeCompleto"></app-colaborador-medidas>
+          </ng-template>
+        </ces-tabs>
+      } @else {
+        <ng-container *ngTemplateOutlet="cadastro" />
+      }
 
-      <ces-form-section title="Vínculo" icon="pi pi-sitemap">
-        <div class="ces-form-grid">
-          <ces-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true" [error]="erro('base')"></ces-select>
-          <ces-select label="Processo" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso" [filter]="true" [error]="erro('processo')"></ces-select>
-          <ces-select label="Função" [required]="true" [options]="funcoesOpcoes()" [(value)]="idFuncao" [filter]="true" [error]="erro('funcao')"></ces-select>
-        </div>
-      </ces-form-section>
-
-      @if (!emEdicao()?.idUsuario) {
-        <ces-form-section title="Acesso ao sistema" icon="pi pi-key" description="Opcional. Cria o usuário de login junto com o cadastro.">
-          <ces-boolean-control label="Gerar acesso ao sistema" kind="toggle" [(value)]="gerarAcesso"></ces-boolean-control>
-          @if (gerarAcesso()) {
-            <div class="ces-form-grid">
-              <ces-text-input label="Login" [required]="true" [value]="login()" (valueChange)="login.set($event.toUpperCase())" [maxlength]="9"
-                placeholder="USR000000" description="USR seguido de 6 dígitos." [error]="erro('login')"></ces-text-input>
-              <ces-password-input label="Senha inicial" [required]="true" [(value)]="senha" [minlength]="6" [error]="erro('senha')"></ces-password-input>
-              <ces-select label="Perfil de acesso" [required]="true" [options]="perfisOpcoes()" [(value)]="idPerfil" [filter]="true" [error]="erro('perfil')"></ces-select>
-              <ces-select label="Tipo de usuário" [required]="true" [options]="tiposUsuario" [(value)]="tipo"></ces-select>
-            </div>
+      <ng-template #cadastro>
+        <ces-form-section title="Dados pessoais" icon="pi pi-user">
+          <div class="ces-form-grid">
+            <ces-text-input label="Primeiro nome" [required]="true" [(value)]="primeiroNome" [maxlength]="100" [error]="erro('primeiroNome')"></ces-text-input>
+            <ces-text-input label="Último nome" [required]="true" [(value)]="ultimoNome" [maxlength]="100" [error]="erro('ultimoNome')"></ces-text-input>
+          </div>
+          <ces-text-input label="Nome completo" [required]="true" [(value)]="nomeCompleto" [maxlength]="200" [error]="erro('nomeCompleto')"></ces-text-input>
+          <div class="ces-form-grid">
+            <ces-text-input label="CPF" [required]="true" [value]="cpf()" (valueChange)="cpf.set(formatarCpf($event))" [maxlength]="14"
+              placeholder="000.000.000-00" [readonly]="!!emEdicao()" [description]="emEdicao() ? 'O CPF não pode ser alterado.' : undefined"
+              [error]="erro('cpf')"></ces-text-input>
+            <ces-datepicker label="Data de contratação" [required]="true" [(value)]="dataContratacao" [readonly]="!!emEdicao()" [error]="erro('dataContratacao')"></ces-datepicker>
+          </div>
+          @if (emEdicao()) {
+            <ces-boolean-control label="Colaborador ativo" kind="toggle" [(value)]="ativo"></ces-boolean-control>
           }
         </ces-form-section>
-      }
+
+        <ces-form-section title="Vínculo" icon="pi pi-sitemap">
+          <div class="ces-form-grid">
+            <ces-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true" [error]="erro('base')"></ces-select>
+            <ces-select label="Processo" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso" [filter]="true" [error]="erro('processo')"></ces-select>
+            <ces-select label="Função" [required]="true" [options]="funcoesOpcoes()" [(value)]="idFuncao" [filter]="true" [error]="erro('funcao')"></ces-select>
+          </div>
+        </ces-form-section>
+
+        @if (emEdicao()?.idUsuario) {
+          <ces-form-section title="Acesso ao sistema" icon="pi pi-key" description="Usuário de login ligado a este colaborador.">
+            <ces-text-input label="Usuário vinculado" [readonly]="true" [value]="usuarioVinculadoRotulo()"
+              [placeholder]="usuarioVinculado.loading() ? 'Carregando usuário…' : ''"
+              [description]="usuarioVinculadoDescricao()" [error]="usuarioVinculado.error()"></ces-text-input>
+          </ces-form-section>
+        } @else {
+          <ces-form-section title="Acesso ao sistema" icon="pi pi-key" description="Opcional. Cria um usuário de login ou liga um usuário que já existe e não tem colaborador.">
+            <ces-select label="Acesso" [options]="opcoesAcesso" [(value)]="acesso"></ces-select>
+            @if (acesso() === 'EXISTENTE') {
+              <ces-select label="Usuário" [required]="true" [options]="usuariosOpcoes()" [(value)]="idUsuarioExistente" [filter]="true" [clearable]="true"
+                [loading]="usuariosSemColaborador.loading()" (opened)="usuariosSemColaborador.open()" (search)="usuariosSemColaborador.search($event)"
+                placeholder="Pesquise pelo login ou e-mail" description="Só aparecem usuários ativos sem colaborador vinculado." [error]="erro('usuario') ?? erroUsuarios()"></ces-select>
+            }
+            @if (acesso() === 'NOVO') {
+              <div class="ces-form-grid">
+                <ces-text-input label="Login" [required]="true" [value]="login()" (valueChange)="login.set($event.toUpperCase())" [maxlength]="9"
+                  placeholder="USR000000" description="USR seguido de 6 dígitos." [error]="erro('login')"></ces-text-input>
+                <ces-password-input label="Senha inicial" [required]="true" [(value)]="senha" [minlength]="6" [error]="erro('senha')"></ces-password-input>
+                <ces-select label="Perfil de acesso" [required]="true" [options]="perfisOpcoes()" [(value)]="idPerfil" [filter]="true" [error]="erro('perfil')"></ces-select>
+                <ces-select label="Tipo de usuário" [required]="true" [options]="tiposUsuario" [(value)]="tipo"></ces-select>
+              </div>
+            }
+          </ces-form-section>
+        }
+      </ng-template>
       <div drawer-footer class="ces-actions-row">
         <ces-button variant="ghost" label="Cancelar" (pressed)="formularioAberto.set(false)"></ces-button>
-        <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar colaborador'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        @if (abaColaborador() === 'cadastro' || !emEdicao() || !verMedidas()) {
+          <ces-button icon="pi pi-check" [label]="emEdicao() ? 'Salvar alterações' : 'Cadastrar colaborador'" [loading]="salvando()" (pressed)="salvar()"></ces-button>
+        }
       </div>
     </ces-form-drawer>
 
@@ -256,7 +296,7 @@ export function formatarCpf(valor: string | null | undefined): string {
           <ng-template cesCell="status" let-row>
             <ces-status [tone]="situacao(row.status).tone" [icon]="situacao(row.status).icon">{{ situacao(row.status).label }}</ces-status>
             @if (row.mensagemErro) {
-              <span class="ces-cell-muted">{{ row.mensagemErro }}</span>
+              <span class="ces-cell-muted" [title]="row.mensagemErro">{{ row.mensagemErro }}</span>
             }
           </ng-template>
           <ng-template cesRowActions let-row>
@@ -278,7 +318,7 @@ export function formatarCpf(valor: string | null | undefined): string {
       [importacao]="true" video="https://www.youtube.com/embed/ZSV3YnVRH2o">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-key"></i> Acesso ao sistema</h4>
-        <p class="help-text-desc">Ao cadastrar (ou editar quem ainda não tem usuário), ligue "Gerar acesso ao sistema" e informe login (USR + 6 dígitos), senha inicial, perfil e tipo.</p>
+        <p class="help-text-desc">Ao cadastrar (ou editar quem ainda não tem usuário), escolha em "Acesso": "Gerar novo acesso" pede login (USR + 6 dígitos), senha inicial, perfil e tipo; "Vincular a usuário existente" liga um usuário ativo que ainda não tem colaborador.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-id-card"></i> Busca por CPF</h4>
@@ -289,9 +329,11 @@ export function formatarCpf(valor: string | null | undefined): string {
 })
 export class ColaboradoresComponent {
   private readonly rh = inject(RhService);
+  private readonly usuarios = inject(UsuariosService);
   private readonly importacaoService = inject(ImportacaoService);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(CesConfirmationService);
+  private readonly auth = inject(AuthService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly formatarCpf = formatarCpf;
@@ -348,6 +390,13 @@ export class ColaboradoresComponent {
 
   protected readonly formularioAberto = signal(false);
   protected readonly emEdicao = signal<ColaboradorResponse | null>(null);
+  /** Medida disciplinar é dado restrito: a aba só existe com a permissão própria, não com rh:colaborador:read. */
+  protected readonly verMedidas = computed(() => this.auth.currentUser()?.permissoes?.includes('rh:medida-disciplinar:read') ?? false);
+  protected readonly abaColaborador = signal<'cadastro' | 'medidas'>('cadastro');
+  protected readonly abasColaborador: CesTabItem[] = [
+    { value: 'cadastro', label: 'Cadastro', icon: 'pi pi-user' },
+    { value: 'medidas', label: 'Medidas disciplinares', icon: 'pi pi-exclamation-triangle' }
+  ];
   protected readonly primeiroNome = signal('');
   protected readonly ultimoNome = signal('');
   protected readonly nomeCompleto = signal('');
@@ -357,17 +406,54 @@ export class ColaboradoresComponent {
   protected readonly idProcesso = signal<string | null>(null);
   protected readonly idFuncao = signal<string | null>(null);
   protected readonly ativo = signal(true);
-  protected readonly gerarAcesso = signal(false);
+  protected readonly opcoesAcesso: CesSelectOption<ModoAcesso>[] = [
+    { label: 'Sem acesso', value: 'NENHUM' },
+    { label: 'Gerar novo acesso', value: 'NOVO' },
+    { label: 'Vincular a usuário existente', value: 'EXISTENTE' }
+  ];
+  protected readonly acesso = signal<ModoAcesso>('NENHUM');
+  protected readonly idUsuarioExistente = signal<string | null>(null);
+  protected readonly usuariosSemColaborador = new RemoteLookup<UsuarioResponse, string>(
+    {
+      identify: (u) => u.id,
+      selectedKeys: () => (this.idUsuarioExistente() ? [this.idUsuarioExistente()!] : []),
+      load: ({ query, page, size }) =>
+        this.usuarios.listarUsuarios({ vinculadoAColaborador: false, ativo: true, buscaGlobal: query || undefined, page, size, sort: 'login,asc' })
+    },
+    inject(DestroyRef)
+  );
+  protected readonly usuariosOpcoes = computed<CesSelectOption<string>[]>(() =>
+    this.usuariosSemColaborador.items().map((u) => ({ label: u.email ? `${u.login} · ${u.email}` : u.login, value: u.id }))
+  );
+  protected readonly erroUsuarios = computed(() => {
+    const erro = this.usuariosSemColaborador.error();
+    return erro ? `Não foi possível carregar os usuários: ${getErrorMessage(erro)}` : undefined;
+  });
   protected readonly login = signal('');
   protected readonly senha = signal('');
   protected readonly idPerfil = signal<string | null>(null);
+  protected readonly usuarioVinculado = {
+    dados: signal<UsuarioResponse | null>(null),
+    loading: signal(false),
+    error: signal<string | undefined>(undefined)
+  };
+  protected readonly usuarioVinculadoRotulo = computed(() => {
+    const u = this.usuarioVinculado.dados();
+    return u ? (u.email ? `${u.login} · ${u.email}` : u.login) : '';
+  });
+  protected readonly usuarioVinculadoDescricao = computed(() => {
+    const u = this.usuarioVinculado.dados();
+    const perfil = u ? `Perfil ${u.perfil?.nome ?? '—'}${u.ativo ? '' : ' · usuário inativo'}. ` : '';
+    return `${perfil}Para trocar ou desfazer o vínculo, use a tela de Usuários.`;
+  });
+  private carregamentoUsuarioVinculado?: Subscription;
   protected readonly tipo = signal<TipoUsuario>('CAMPO');
   protected readonly salvando = signal(false);
   private readonly tentouSalvar = signal(false);
 
   protected readonly alterado = computed(() => {
     const c = this.emEdicao();
-    const acesso = this.gerarAcesso() && !!(this.login() + this.senha()).trim();
+    const acesso = (this.acesso() === 'NOVO' && !!(this.login() + this.senha()).trim()) || (this.acesso() === 'EXISTENTE' && !!this.idUsuarioExistente());
     if (!c) {
       return acesso || !!(this.primeiroNome() + this.ultimoNome() + this.nomeCompleto() + this.cpf()).trim() || !!this.dataContratacao() || !!this.idBase() || !!this.idProcesso() || !!this.idFuncao();
     }
@@ -397,6 +483,7 @@ export class ColaboradoresComponent {
       if (this.senha().length < 6) e['senha'] = 'A senha precisa de pelo menos 6 caracteres.';
       if (!this.idPerfil()) e['perfil'] = 'Escolha o perfil de acesso.';
     }
+    if (this.vinculaUsuarioExistente() && !this.idUsuarioExistente()) e['usuario'] = 'Escolha o usuário.';
     return e;
   });
 
@@ -458,7 +545,11 @@ export class ColaboradoresComponent {
   }
 
   private criaAcesso(): boolean {
-    return this.gerarAcesso() && !this.emEdicao()?.idUsuario;
+    return this.acesso() === 'NOVO' && !this.emEdicao()?.idUsuario;
+  }
+
+  private vinculaUsuarioExistente(): boolean {
+    return this.acesso() === 'EXISTENTE' && !this.emEdicao()?.idUsuario;
   }
 
   protected erro(campo: string): string | undefined {
@@ -477,6 +568,7 @@ export class ColaboradoresComponent {
 
   private preencher(c: ColaboradorResponse | null): void {
     this.emEdicao.set(c);
+    this.abaColaborador.set('cadastro');
     this.primeiroNome.set(c?.primeiroNome ?? '');
     this.ultimoNome.set(c?.ultimoNome ?? '');
     this.nomeCompleto.set(c?.nomeCompleto ?? '');
@@ -486,12 +578,35 @@ export class ColaboradoresComponent {
     this.idProcesso.set(c?.processo?.id ?? null);
     this.idFuncao.set(c?.funcao?.id ?? null);
     this.ativo.set(c?.ativo ?? true);
-    this.gerarAcesso.set(false);
+    this.acesso.set('NENHUM');
+    this.idUsuarioExistente.set(null);
+    // Quem foi vinculado no cadastro anterior não pode continuar na lista de usuários livres.
+    this.usuariosSemColaborador.reset();
+    this.carregarUsuarioVinculado(c?.idUsuario);
     this.login.set('');
     this.senha.set('');
     this.idPerfil.set(null);
     this.tipo.set('CAMPO');
     this.tentouSalvar.set(false);
+  }
+
+  private carregarUsuarioVinculado(idUsuario: string | undefined): void {
+    // Cancela a consulta do colaborador aberto antes, para não mostrar o usuário de outra pessoa.
+    this.carregamentoUsuarioVinculado?.unsubscribe();
+    this.usuarioVinculado.dados.set(null);
+    this.usuarioVinculado.error.set(undefined);
+    this.usuarioVinculado.loading.set(!!idUsuario);
+    if (!idUsuario) return;
+    this.carregamentoUsuarioVinculado = this.usuarios.buscarUsuarioPorId(idUsuario).subscribe({
+      next: (u) => {
+        this.usuarioVinculado.dados.set(u);
+        this.usuarioVinculado.loading.set(false);
+      },
+      error: () => {
+        this.usuarioVinculado.error.set('Não foi possível carregar o usuário vinculado.');
+        this.usuarioVinculado.loading.set(false);
+      }
+    });
   }
 
   protected salvar(): void {
@@ -500,6 +615,7 @@ export class ColaboradoresComponent {
     const atual = this.emEdicao();
     const ativo = this.ativo();
     const criaAcesso = this.criaAcesso();
+    const idUsuarioExistente = this.vinculaUsuarioExistente() ? this.idUsuarioExistente() : null;
     const request: ColaboradorRequest = {
       primeiroNome: this.primeiroNome().trim(),
       ultimoNome: this.ultimoNome().trim(),
@@ -527,12 +643,22 @@ export class ColaboradoresComponent {
           this.rh
             .gerarAcesso({ colaboradorId: salvo.id, usuario: { login: this.login().toUpperCase(), senha: this.senha(), idPerfil: this.idPerfil()!, tipo: this.tipo() } })
             .subscribe({
-              next: () => this.concluir(atual ? 'Colaborador atualizado e acesso gerado.' : 'Colaborador cadastrado e acesso gerado.'),
+              next: () => this.confirmarAcesso(salvo.id, undefined, atual ? 'Colaborador atualizado e acesso gerado.' : 'Colaborador cadastrado e acesso gerado.'),
               error: (e) => {
                 this.concluir(null);
                 this.notificacoes.warning(`Colaborador salvo, mas o acesso não foi gerado: ${getErrorMessage(e)}`);
               }
             });
+          return;
+        }
+        if (idUsuarioExistente && salvo) {
+          this.usuarios.vincularColaborador(idUsuarioExistente, salvo.id).subscribe({
+            next: () => this.confirmarAcesso(salvo.id, idUsuarioExistente, atual ? 'Colaborador atualizado e vinculado ao usuário.' : 'Colaborador cadastrado e vinculado ao usuário.'),
+            error: (e) => {
+              this.concluir(null);
+              this.notificacoes.warning(`Colaborador salvo, mas o usuário não foi vinculado: ${getErrorMessage(e)}`);
+            }
+          });
           return;
         }
         this.concluir(atual ? 'Colaborador atualizado.' : 'Colaborador cadastrado.');
@@ -541,6 +667,13 @@ export class ColaboradoresComponent {
         this.salvando.set(false);
         this.notificacoes.error(getErrorMessage(e));
       }
+    });
+  }
+
+  private confirmarAcesso(idColaborador: string, idUsuario: string | undefined, mensagem: string): void {
+    this.rh.aguardarAcessoColaborador(idColaborador, idUsuario).subscribe((confirmado) => {
+      this.concluir(confirmado ? mensagem : null);
+      if (!confirmado) this.notificacoes.warning('Colaborador salvo, mas o acesso ainda não foi confirmado. Confira a lista em instantes.');
     });
   }
 

@@ -17,63 +17,7 @@ export type AcaoCardComercial = 'APROVAR' | 'ENTREGAR' | 'REJEITAR' | 'DETALHAR'
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, CesButtonComponent],
-  styles: `
-    :host { display: block; }
-    .kc {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      min-width: 0;
-      overflow: hidden;
-      gap: 0.625rem;
-      padding: 0.75rem;
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-lg);
-      background: var(--ces-surface);
-      color: var(--ces-foreground);
-      cursor: pointer;
-      outline: none;
-      transition: border-color var(--ces-duration-fast) var(--ces-ease-standard), box-shadow var(--ces-duration-fast) var(--ces-ease-standard), transform var(--ces-duration-fast) var(--ces-ease-standard), opacity var(--ces-duration-fast) var(--ces-ease-standard);
-    }
-    .kc:hover { border-color: var(--ces-border-strong); box-shadow: var(--ces-shadow-md); transform: translateY(-1px); }
-    .kc--arrastando { opacity: 0.4; transform: scale(0.98); box-shadow: none; }
-    [draggable='true'].kc { cursor: grab; }
-    [draggable='true'].kc:active { cursor: grabbing; }
-    .kc:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-
-    .kc__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.125rem 0.5rem; align-items: baseline; }
-    .kc__titulo {
-      display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
-      font-size: var(--ces-font-control); font-weight: 600; line-height: 1.3; word-break: break-word;
-    }
-    .kc__id { font-size: var(--ces-font-caption); color: var(--ces-foreground-subtle); font-variant-numeric: tabular-nums; }
-    .kc__origem {
-      grid-column: 1 / -1; overflow: hidden; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted);
-      text-overflow: ellipsis; white-space: nowrap;
-    }
-
-    .kc__tags { display: flex; flex-wrap: wrap; gap: 0.25rem; min-width: 0; }
-    .kc__foot ces-button { flex: none; }
-    .kc__tag {
-      display: inline-flex; max-width: 100%; overflow: hidden; text-overflow: ellipsis; align-items: center; gap: 0.3rem; height: 1.375rem; padding: 0 0.5rem;
-      border-radius: var(--ces-radius-sm); background: var(--ces-surface-muted); color: var(--ces-foreground-muted);
-      font-size: 0.72rem; font-weight: 600; white-space: nowrap;
-    }
-    .kc__tag .pi { font-size: 0.65rem; }
-    .kc__tag--perigo { background: var(--ces-danger-soft); color: var(--ces-danger-text); }
-    .kc__tag--aviso { background: var(--ces-warning-soft); color: var(--ces-warning-text); }
-    .kc__tag--ok { background: var(--ces-success-soft); color: var(--ces-success-text); }
-    .kc__tag--info { background: var(--ces-info-soft); color: var(--ces-info-text); }
-
-    .kc__foot { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 0.5rem; min-height: 1.75rem; }
-    .kc__pessoa { display: inline-flex; flex: 1 1 auto; align-items: center; gap: 0.4rem; min-width: 0; overflow: hidden; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .kc__pessoa span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .kc__avatar {
-      display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem;
-      border-radius: 999px; background: var(--ces-brand-soft); color: var(--ces-brand);
-      font-size: 0.625rem; font-weight: 700; letter-spacing: 0.02em;
-    }
-    @media (prefers-reduced-motion: reduce) { .kc { transition: none; } .kc:hover { transform: none; } }
-  `,
+  styleUrl: './solicitacao-comercial-kanban-card.component.css',
   template: `
     <article
       class="kc"

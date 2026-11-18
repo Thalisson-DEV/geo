@@ -11,9 +11,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -59,6 +62,26 @@ public class TurnoVeiculoUseCases implements TurnoVeiculoApi {
         }
         return execucoes.findByIdTurnoInAndAtivoTrueOrderByDataLancamentoAsc(idsTurnos).stream()
                 .map(TurnoVeiculoUseCases::nota).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProducaoDoVeiculo> producaoPorVeiculo(OffsetDateTime inicio, OffsetDateTime fim) {
+        Map<UUID, Long> notas = new HashMap<>();
+        Map<UUID, BigDecimal> valores = new HashMap<>();
+        for (Object[] linha : execucoes.somarConcluidasPorVeiculoDoTurno(StatusExecucao.CONCLUIDO, inicio, fim)) {
+            notas.put((UUID) linha[0], ((Number) linha[1]).longValue());
+            valores.put((UUID) linha[0], (BigDecimal) linha[2]);
+        }
+        Map<UUID, Long> porVeiculo = new HashMap<>();
+        for (Object[] linha : turnos.contarComVeiculoPorVeiculo(inicio, fim)) {
+            porVeiculo.put((UUID) linha[0], ((Number) linha[1]).longValue());
+        }
+        notas.keySet().forEach(id -> porVeiculo.putIfAbsent(id, 0L));
+        return porVeiculo.entrySet().stream()
+                .map(e -> new ProducaoDoVeiculo(e.getKey(), e.getValue(), notas.getOrDefault(e.getKey(), 0L),
+                        valores.getOrDefault(e.getKey(), BigDecimal.ZERO)))
+                .toList();
     }
 
     private static TurnoDoVeiculo turno(Turno t) {

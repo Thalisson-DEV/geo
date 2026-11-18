@@ -12,6 +12,10 @@ public record TotaisOrdemServicoResponse(
         BigDecimal desconto,
         BigDecimal acrescimo,
         BigDecimal total,
-        boolean calculado
+        boolean calculado,
+        /** Peças que saíram do estoque da oficina (já compradas): ficam fora da compra no financeiro. */
+        BigDecimal pecasEstoque,
+        /** O que a compra no financeiro precisa cobrir: o total sem as peças do estoque. */
+        BigDecimal aComprar
 ) {
 }

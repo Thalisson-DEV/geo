@@ -74,6 +74,7 @@ public class OperacaoSolicitacaoTecnicaUseCases {
     private final ComandoIdempotenteSolicitacaoRepository comandoRepository;
     private final SaldoRepository saldoRepository;
     private final SaldoSerieRepository saldoSerieRepository;
+    private final com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
     private final MovimentacaoEstoqueRepository movimentacaoRepository;
     private final ReferenciaTecnicaValidator referenciaValidator;
     private final ReservaSolicitacaoTecnicaUseCases reservaUseCases;
@@ -963,6 +964,7 @@ public class OperacaoSolicitacaoTecnicaUseCases {
             ItemOperacaoSolicitacao itemOperacao,
             CondicaoMaterial condicao
     ) {
+        java.time.OffsetDateTime instante = java.time.OffsetDateTime.now();
         debitoSaldoService.debitar(
                 origem, itemOperacao.getMaterial(), condicao, itemOperacao.getQuantidade());
         Saldo saldoDestino = saldoRepository.findByEstoqueIdAndMaterialIdAndCondicao(
@@ -980,6 +982,8 @@ public class OperacaoSolicitacaoTecnicaUseCases {
                             "A serie informada nao esta no estoque e na condicao de origem."));
             serie.transferirPara(destino);
             saldoSerieRepository.save(serie);
+            // A equipe pode ter aplicado a série antes de recebê-la: chega já aplicada.
+            conciliacaoSerieAplicada.conciliarChegada(serie, instante);
         }
     }
 

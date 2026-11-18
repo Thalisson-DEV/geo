@@ -38,9 +38,22 @@ class LeitorArquivoImportacaoSolicitacaoTecnicaTest {
     }
 
     @Test
+    @DisplayName("Aceita o modelo anterior com data e agente da reserva, lendo só o número")
+    void leModeloAnteriorComDataEAgenteDaReserva() {
+        String csv = String.join(";", LeitorArquivoImportacaoSolicitacaoTecnica.CABECALHOS_COM_DATA_AGENTE)
+                + "\nOBRA-1;;ALMOX;;;;221;MAT-1;5.000;4500123987;2026-08-20;FULANO\n";
+        var lido = leitor.ler(arquivo("anterior.csv", csv.getBytes(StandardCharsets.UTF_8)));
+
+        assertThat(lido.linhas()).singleElement().satisfies(linha -> {
+            assertThat(linha.valor("Numero Reserva")).isEqualTo("4500123987");
+            assertThat(linha.valor("Quantidade")).isEqualTo("5.000");
+        });
+    }
+
+    @Test
     void marcaFormulaTextualSemAvaliaLa() {
         String csv = String.join(";", ModeloImportacaoSolicitacaoTecnicaService.CABECALHOS)
-                + "\nOBRA-1;;ALMOX;;;;221;MAT-1;=1+1;;;\n";
+                + "\nOBRA-1;;ALMOX;;;;221;MAT-1;=1+1;\n";
         var lido = leitor.ler(arquivo("formula.csv", csv.getBytes(StandardCharsets.UTF_8)));
         assertThat(lido.linhas().getFirst().camposFormula()).containsExactly("Quantidade");
     }
@@ -70,7 +83,7 @@ class LeitorArquivoImportacaoSolicitacaoTecnicaTest {
         StringBuilder csv = new StringBuilder(String.join(";",
                 ModeloImportacaoSolicitacaoTecnicaService.CABECALHOS)).append('\n');
         for (int indice = 0; indice <= LeitorArquivoImportacaoSolicitacaoTecnica.MAXIMO_LINHAS; indice++) {
-            csv.append("OBRA-1;;ALMOX;;;;221;MAT-1;1;;;\n");
+            csv.append("OBRA-1;;ALMOX;;;;221;MAT-1;1;\n");
         }
         assertThatThrownBy(() -> leitor.ler(arquivo(
                 "linhas.csv", csv.toString().getBytes(StandardCharsets.UTF_8))))
@@ -81,13 +94,13 @@ class LeitorArquivoImportacaoSolicitacaoTecnicaTest {
     @Test
     void rejeitaCsvComSeparadorIncorretoEFormulaTextual() {
         String virgula = String.join(",", ModeloImportacaoSolicitacaoTecnicaService.CABECALHOS)
-                + "\nOBRA-1,,ALMOX,,,,221,MAT-1,1,,,\n";
+                + "\nOBRA-1,,ALMOX,,,,221,MAT-1,1,\n";
         assertThatThrownBy(() -> leitor.ler(arquivo(
                 "virgula.csv", virgula.getBytes(StandardCharsets.UTF_8))))
                 .isInstanceOf(PreenchimentoInvalidoException.class);
 
         String formula = String.join(";", ModeloImportacaoSolicitacaoTecnicaService.CABECALHOS)
-                + "\nOBRA-1;;ALMOX;;;;221;MAT-1;=1+1;;;\n";
+                + "\nOBRA-1;;ALMOX;;;;221;MAT-1;=1+1;\n";
         var lido = leitor.ler(arquivo("formula.csv", formula.getBytes(StandardCharsets.UTF_8)));
         assertThat(lido.linhas().getFirst().camposFormula()).containsExactly("Quantidade");
     }

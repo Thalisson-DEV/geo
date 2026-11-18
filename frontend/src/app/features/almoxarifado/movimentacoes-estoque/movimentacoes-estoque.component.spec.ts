@@ -36,6 +36,7 @@ describe('MovimentacoesEstoqueComponent', () => {
     TestBed.resetTestingModule();
     almox = {
       listarMovimentacoes: vi.fn(() => paginaTeste([operacao])),
+      contarMovimentacoes: vi.fn(() => of({ total: 7, porTipo: { TRANSFERENCIA: 4, APLICACAO: 3 } })),
       listarEstoquesAtivos: vi.fn(() => paginaTeste([{ id: 'e1', nomeIdentificador: 'ALMOX CENTRAL', ativo: true }])),
       listarMateriais: vi.fn(() => paginaTeste([])),
       buscarOperacaoPorIdReferencia: vi.fn(() =>
@@ -62,6 +63,37 @@ describe('MovimentacoesEstoqueComponent', () => {
     expect(chipsDoPainel(el)).toEqual(expect.arrayContaining(['Estoque: ALMOX CENTRAL', 'Tipo: Transferência']));
   });
 
+  it('atalhos de tipo e processo filtram a lista, combinam e mantêm as contagens do recorte', async () => {
+    const { el, harness } = await abrir();
+    const clicar = async (grupo: string, texto: string) => {
+      const botoes = [...el.querySelectorAll<HTMLButtonElement>(`${grupo} button`)];
+      botoes.find((b) => b.textContent!.includes(texto))!.click();
+      harness.detectChanges();
+      await harness.fixture.whenStable();
+      harness.detectChanges();
+    };
+    expect(el.querySelector('.mov-atalhos')!.textContent).toContain('Transferência');
+    expect(el.querySelector('.mov-atalhos button .mov-contagem')!.textContent).toBe('7');
+
+    await clicar('.mov-atalhos', 'Aplicação');
+    await clicar('.mov-processos', 'Comercial');
+    expect(ultimaConsulta()).toMatchObject({ tipo: 'APLICACAO', processo: 'COMERCIAL' });
+    const contagem = almox['contarMovimentacoes'].mock.lastCall![0];
+    expect(contagem).toMatchObject({ processo: 'COMERCIAL' });
+    expect(contagem).not.toHaveProperty('tipo');
+
+    await clicar('.mov-atalhos', 'Aplicação');
+    expect(ultimaConsulta()).not.toHaveProperty('tipo');
+  });
+
+  it('mostra o ícone do tipo na tag e a nota da aplicação', async () => {
+    almox['listarMovimentacoes'].mockReturnValue(paginaTeste([{ ...operacao, tipo: 'APLICACAO', numeroNota: 'NOTA-77' }]));
+    const { el } = await abrir();
+    expect(el.querySelector('ces-status .pi-wrench')).toBeTruthy();
+    expect(el.querySelector('.mov-atalhos .pi-wrench')).toBeTruthy();
+    expect(el.textContent).toContain('NOTA-77');
+  });
+
   it('prévia carrega os itens e soma o total; nova operação navega ou abre a importação', async () => {
     const { componente } = await abrir();
     const tela = componente as unknown as {
@@ -73,8 +105,8 @@ describe('MovimentacoesEstoqueComponent', () => {
     tela.verDetalhes(operacao);
     expect(tela.totalSelecionado()).toBe(5.5);
     const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
-    tela.navigateToOperation('/almoxarifado/entrada-avulsa');
-    expect(navegar).toHaveBeenCalledWith(['/almoxarifado/entrada-avulsa']);
+    tela.navigateToOperation('/almoxarifado/devolucao-comercial');
+    expect(navegar).toHaveBeenCalledWith(['/almoxarifado/devolucao-comercial']);
     tela.navigateToOperation('IMPORT_MODAL');
     expect(tela.importacaoAberta()).toBe(true);
   });

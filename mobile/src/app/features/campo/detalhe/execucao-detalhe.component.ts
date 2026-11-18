@@ -25,6 +25,8 @@ interface MaterialLinha {
   operacao: 'APLICADO' | 'RETIRADO';
   condicao: 'NOVO' | 'SUCATA';
   numSeries: string[];
+  /** Lançado em outra unidade (ex.: 2,5 M de fita em UN); nulo quando não houve ou se misturou. */
+  informada?: { quantidade: number; unidade: string } | null;
   origem: OrigemMaterial;
 }
 
@@ -123,7 +125,7 @@ interface MaterialLinha {
               <span class="ces-linha__apoio ces-num">@if (m.origem === 'CONCESSIONARIA') {<span class="ces-cond ces-cond--sucata">Concessionária</span>} @else {<span class="ces-cond" [class.ces-cond--sucata]="m.condicao !== 'NOVO'">{{ m.condicao === 'NOVO' ? 'Novo' : 'Sucata' }}</span>}
                 · {{ m.numSeries.length ? 'Série ' + m.numSeries.join(', ') : 'Cód. ' + m.codigo }}</span>
             </span>
-            <span class="ces-qtd">{{ m.numSeries.length || num(m.quantidade) }}<small>{{ m.unidadeMedida }}</small></span></div></li>
+            <span class="ces-qtd">{{ m.numSeries.length || num(m.quantidade) }}<small>{{ m.unidadeMedida }}</small>@if (m.informada) {<small class="informado">{{ num(m.informada.quantidade) }} {{ m.informada.unidade }} lançados</small>}</span></div></li>
           } @empty {
             <li><div class="ces-linha"><span class="ces-linha__apoio">{{ g.vazio }}</span></div></li>
           }
@@ -191,6 +193,7 @@ interface MaterialLinha {
   `,
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    .informado { display: block; font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); text-align: right; }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .esqueletos { display: grid; gap: var(--ces-e3); padding: var(--ces-e4); }
@@ -328,11 +331,15 @@ export class ExecucaoDetalheComponent implements OnInit {
       if (existente) {
         existente.quantidade += em.quantidade;
         if (em.numSerie) existente.numSeries.push(em.numSerie);
+        existente.informada = existente.informada && em.unidadeInformada === existente.informada.unidade
+          ? { unidade: existente.informada.unidade, quantidade: existente.informada.quantidade + (em.quantidadeInformada ?? 0) }
+          : null;
       } else {
         grupos.set(chave, {
           idMaterial: em.idMaterial, descricao: m?.descricao || 'Material', codigo: m?.codigo || 'N/A',
           unidadeMedida: m?.unidadeMedida || 'UN', quantidade: em.quantidade, operacao: em.operacao, condicao: em.condicao,
           numSeries: em.numSerie ? [em.numSerie] : [], origem,
+          informada: em.unidadeInformada ? { unidade: em.unidadeInformada, quantidade: em.quantidadeInformada ?? 0 } : null,
         });
       }
     }

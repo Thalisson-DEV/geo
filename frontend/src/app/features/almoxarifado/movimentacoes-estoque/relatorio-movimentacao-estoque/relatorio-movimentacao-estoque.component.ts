@@ -1,4 +1,6 @@
+import { iconeCondicao } from '../../../../shared/utils/movimentacao.utils';
 import { Component, OnInit, signal, inject, ViewChild, AfterViewInit, OnDestroy, computed } from '@angular/core';
+import { numero, quantidadeComInformada } from '../../shared/unidade-material';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -25,6 +27,7 @@ import {
   agruparItensPorMaterial,
   iconeTipoMovimentacao,
   rotuloCondicao,
+  rotuloMotivo,
   rotuloTipoMovimentacao,
   tomCondicao,
   tomTipoMovimentacao,
@@ -82,7 +85,10 @@ export class RelatorioMovimentacaoEstoqueComponent implements OnInit, AfterViewI
   protected idCopiado = signal(false);
 
   protected readonly rotuloCondicao = rotuloCondicao;
+  protected readonly rotuloMotivo = rotuloMotivo;
   protected readonly tomCondicao = tomCondicao;
+  protected readonly iconeCondicao = iconeCondicao;
+  protected readonly numero = numero;
 
   /** Um material por linha (o backend devolve uma linha por série). */
   protected readonly itensAgrupados = computed<GrupoItens[]>(() =>
@@ -112,7 +118,15 @@ export class RelatorioMovimentacaoEstoqueComponent implements OnInit, AfterViewI
     },
     { key: 'condicao', header: 'Condição', type: 'custom', priority: 2, value: (g) => rotuloCondicao(g.condicao) },
     { key: 'unidade', header: 'Un.', priority: 2, width: '4rem', value: (g) => g.material.unidadeMedida },
-    { key: 'quantidade', header: 'Quantidade', type: 'number', priority: 1, width: '8rem', value: (g) => g.quantidade },
+    {
+      key: 'quantidade',
+      header: 'Quantidade',
+      type: 'custom',
+      priority: 1,
+      width: '10rem',
+      value: (g) => g.quantidade,
+      display: (g) => quantidadeComInformada(g.quantidade, g.material.unidadeMedida, g.quantidadeInformada, g.unidadeInformada),
+    },
   ];
 
   ngOnInit() {

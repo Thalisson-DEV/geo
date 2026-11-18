@@ -1,3 +1,4 @@
+import { ICONE_STATUS_AUTOMACAO } from '../../../core/models/automacao.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -91,7 +92,7 @@ function casaExecucao(a: AutomacaoResumo, f: FiltroExecucao): boolean {
           } @else { <span class="aut-muted">Nunca rodou</span> }
         </ng-template>
         <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tomStatus(row.status)">{{ rotuloStatus(row.status) }}</ces-status>
+          <ces-status [tone]="tomStatus(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</ces-status>
         </ng-template>
       </ces-data-table>
     </div>
@@ -245,6 +246,8 @@ export class AutomacoesListaComponent {
   protected abrir(a: AutomacaoResumo): void {
     void this.router.navigate(['/notificacoes/automacoes', a.id]);
   }
+
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_AUTOMACAO;
 
   protected tomStatus(s: AutomacaoResumo['status']): CesTone {
     return s === 'ATIVA' ? 'success' : s === 'PAUSADA' ? 'warning' : 'neutral';

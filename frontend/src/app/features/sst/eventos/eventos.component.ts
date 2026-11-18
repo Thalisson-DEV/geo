@@ -1,3 +1,4 @@
+import { ICONE_STATUS_EVENTO, ICONE_TIPO_EVENTO } from '../../../core/models/sst-evento.models';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -183,8 +184,8 @@ const TOM_STATUS: Record<StatusEventoSst, CesTone> = {
             <span class="ces-cell-muted">Comunicado em {{ row.horasAteComunicacao }}h</span>
           }
         </ng-template>
-        <ng-template cesCell="tipo" let-row><ces-status [tone]="tipoTone(row.tipo)">{{ tipoLabel(row.tipo) }}</ces-status></ng-template>
-        <ng-template cesCell="status" let-row><ces-status [tone]="statusTone(row.status)">{{ statusLabel(row.status) }}</ces-status></ng-template>
+        <ng-template cesCell="tipo" let-row><ces-status [tone]="tipoTone(row.tipo)" [icon]="iconeTipo[row.tipo]">{{ tipoLabel(row.tipo) }}</ces-status></ng-template>
+        <ng-template cesCell="status" let-row><ces-status [tone]="statusTone(row.status)" [icon]="iconeStatus[row.status]">{{ statusLabel(row.status) }}</ces-status></ng-template>
         <ng-template cesCell="atividade" let-row>
           <span [title]="row.atividadeNome">{{ row.atividadeNome }}</span>
           <span class="ces-cell-muted">{{ row.classificacaoNome || 'Sem classificação' }}</span>
@@ -195,11 +196,11 @@ const TOM_STATUS: Record<StatusEventoSst, CesTone> = {
         </ng-template>
         <ng-template cesCell="lesao" let-row>
           @if (row.comLesao) {
-            <ces-status tone="danger">{{ row.quantidadeAcidentados }} acidentado(s){{ row.diasPerdidos ? ' · ' + row.diasPerdidos + 'd perdidos' : '' }}</ces-status>
+            <ces-status tone="danger" icon="pi-exclamation-triangle">{{ row.quantidadeAcidentados }} acidentado(s){{ row.diasPerdidos ? ' · ' + row.diasPerdidos + 'd perdidos' : '' }}</ces-status>
           } @else {
             <span class="ces-cell-muted">Sem lesão</span>
           }
-          @if (row.possuiCat) { <ces-status tone="brand">CAT emitida</ces-status> }
+          @if (row.possuiCat) { <ces-status tone="brand" icon="pi-file">CAT emitida</ces-status> }
         </ng-template>
       </ces-data-table>
     </div>
@@ -409,6 +410,9 @@ export class EventosComponent {
   protected tipoLabel(value: TipoEventoSst): string {
     return TIPO_EVENTO_LABELS[value] ?? value;
   }
+
+  protected readonly iconeTipo: Record<string, string> = ICONE_TIPO_EVENTO;
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_EVENTO;
 
   protected tipoTone(value: TipoEventoSst): CesTone {
     return TOM_TIPO[value] ?? 'neutral';

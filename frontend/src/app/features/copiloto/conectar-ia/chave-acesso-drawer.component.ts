@@ -68,7 +68,7 @@ import { copiarTexto } from './conectar-ia.util';
               placeholder="Ex.: Cursor do notebook" description="Para você reconhecer depois na lista." [error]="erroNome()"></ces-text-input>
             <div class="ces-form-grid">
               <ces-select label="O que pode fazer" [options]="permissoes()" [(value)]="escrita"
-                [description]="podeEscrever() ? (escrita() ? 'O assistente vai poder consultar, cadastrar e alterar.' : 'O assistente só lê e responde; não cadastra nada.') : 'O seu perfil só permite consultar.'"></ces-select>
+                [description]="podeEscrever() ? (escrita() ? 'O assistente vai poder consultar, cadastrar, alterar e aprovar.' : 'O assistente só lê e responde; não cadastra nem aprova nada.') : 'O seu perfil só permite consultar.'"></ces-select>
               <ces-select label="Vale por" [options]="validades" [(value)]="validade"></ces-select>
             </div>
           </div>
@@ -105,7 +105,7 @@ export class ChaveAcessoDrawerComponent {
 
   protected readonly permissoes = computed<CesSelectOption<boolean>[]>(() => [
     { label: 'Só consultar', value: false },
-    ...(this.podeEscrever() ? [{ label: 'Consultar e cadastrar', value: true }] : [])
+    ...(this.podeEscrever() ? [{ label: 'Consultar, cadastrar e aprovar', value: true }] : [])
   ]);
   protected readonly validades: CesSelectOption<number>[] = [
     { label: '30 dias', value: 30 },

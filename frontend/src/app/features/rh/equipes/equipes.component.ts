@@ -166,11 +166,11 @@ const FUNCOES_MEMBRO: CesSelectOption<FuncaoMembro>[] = [
           @if (row.idContrato) {
             {{ numeroContrato(row.idContrato) }}
           } @else {
-            <ces-status tone="neutral" emphasis="outline">Sem contrato</ces-status>
+            <ces-status tone="neutral" emphasis="outline" icon="pi-minus-circle">Sem contrato</ces-status>
           }
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">
@@ -233,7 +233,7 @@ const FUNCOES_MEMBRO: CesSelectOption<FuncaoMembro>[] = [
         <ces-data-table caption="Membros da equipe" [searchable]="false" [columns]="colunasMembros" [rows]="membros()" [rowKey]="chaveMembro"
           [state]="membros().length ? 'ready' : 'empty'" stateTitle="Nenhum membro adicionado" stateDescription="Adicione o responsável e os parceiros.">
           <ng-template cesCell="funcao" let-row>
-            <ces-status [tone]="row.funcao === 'RESPONSAVEL' ? 'brand' : 'neutral'" [icon]="row.funcao === 'RESPONSAVEL' ? 'pi pi-star' : undefined">
+            <ces-status [tone]="row.funcao === 'RESPONSAVEL' ? 'brand' : 'neutral'" [icon]="row.funcao === 'RESPONSAVEL' ? 'pi pi-star' : 'pi pi-user'">
               {{ row.funcao === 'RESPONSAVEL' ? 'Responsável' : 'Parceiro' }}
             </ces-status>
           </ng-template>

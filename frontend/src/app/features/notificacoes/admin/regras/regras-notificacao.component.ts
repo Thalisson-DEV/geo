@@ -125,7 +125,7 @@ const TOM_PRIORIDADE: Record<PrioridadeNotificacao, CesTone> = { BAIXA: 'neutral
           <code class="ces-cell-muted">{{ row.chaveGatilho }}</code>
         </ng-template>
         <ng-template cesCell="prioridade" let-row>
-          <ces-status [tone]="tomPrioridade[row.prioridade]">{{ row.prioridade }}</ces-status>
+          <ces-status [tone]="tomPrioridade[row.prioridade]" icon="pi-flag">{{ row.prioridade }}</ces-status>
         </ng-template>
         <ng-template cesCell="canais" let-row>
           <span [title]="rotuloCanalEmail(row)">{{ row.enviarEmail ? 'Sininho + e-mail' : 'Sininho' }}</span>
@@ -136,7 +136,7 @@ const TOM_PRIORIDADE: Record<PrioridadeNotificacao, CesTone> = { BAIXA: 'neutral
         <ng-template cesCell="avisa" let-row>
           <span class="ces-cell-chips">
             @for (alvo of destinatarios(row); track $index) {
-              <ces-status tone="neutral" emphasis="outline">{{ alvo }}</ces-status>
+              <ces-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo }}</ces-status>
             }
           </span>
         </ng-template>
@@ -145,7 +145,7 @@ const TOM_PRIORIDADE: Record<PrioridadeNotificacao, CesTone> = { BAIXA: 'neutral
           <span class="ces-cell-muted">{{ silencio(row.cooldownMinutos) }}{{ row.condicoes.length ? ' · ' + row.condicoes.length + ' condição(ões)' : '' }}</span>
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">

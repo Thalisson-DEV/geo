@@ -8,6 +8,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -173,6 +174,29 @@ public class Turno extends BaseEntity {
             this.dataFim = dataLancamento;
         }
     }
+
+    /**
+     * O turno já fechado ainda recebe uma nota que estava na fila do aparelho? Sim quando
+     * ela foi lançada enquanto ele estava aberto. Fechado pelo sistema, vale até o corte
+     * da noite; fechado pela equipe, até o fechamento, com folga para o relógio do aparelho.
+     *
+     * <p>Caso real: uma equipe encerrou o turno com 15 notas ainda na fila e todas foram
+     * recusadas por "sem turno aberto", embora lançadas dentro do turno.</p>
+     */
+    public boolean recebeLancamentoTardio(OffsetDateTime dataLancamento, OffsetDateTime corte) {
+        if (isAberto() || dataLancamento == null) {
+            return false;
+        }
+        if (this.encerradoAutomaticamente) {
+            return corte != null && !dataLancamento.isAfter(corte);
+        }
+        return this.dataFim != null
+                && !dataLancamento.isBefore(this.dataInicio.minus(FOLGA_RELOGIO_APARELHO))
+                && !dataLancamento.isAfter(this.dataFim.plus(FOLGA_RELOGIO_APARELHO));
+    }
+
+    /** Diferença tolerada entre o relógio do aparelho e o do servidor. */
+    private static final Duration FOLGA_RELOGIO_APARELHO = Duration.ofMinutes(5);
 
     public boolean isAberto() {
         return this.status == StatusTurno.ABERTO;

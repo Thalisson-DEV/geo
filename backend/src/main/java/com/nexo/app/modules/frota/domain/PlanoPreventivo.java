@@ -78,6 +78,12 @@ public class PlanoPreventivo extends BaseEntity {
     @Column(name = "id_tipo_veiculo", nullable = false)
     private Set<UUID> idsTiposVeiculo = new HashSet<>();
 
+    /** Placas escolhidas: quando há alguma, o plano vale só para elas. */
+    @ElementCollection
+    @CollectionTable(name = "frota_plano_preventivo_veiculos", joinColumns = @JoinColumn(name = "id_plano"))
+    @Column(name = "id_veiculo", nullable = false)
+    private Set<UUID> idsVeiculos = new HashSet<>();
+
     @ElementCollection
     @CollectionTable(name = "frota_plano_preventivo_tipos_implemento", joinColumns = @JoinColumn(name = "id_plano"))
     @Column(name = "id_tipo_implemento", nullable = false)
@@ -110,8 +116,17 @@ public class PlanoPreventivo extends BaseEntity {
             Criticidade criticidade,
             boolean abrirOsAutomaticamente,
             List<ItemManutencao> itens,
-            List<String> tarefas
+            List<String> tarefas,
+            Set<UUID> idsVeiculos
     ) {
+        public Dados(String nome, String descricao, Set<UUID> idsTiposVeiculo, Set<UUID> idsTiposImplemento,
+                     Long intervaloKm, Long intervaloHoras, Integer intervaloDias, Long antecedenciaKm,
+                     Long antecedenciaHoras, Integer antecedenciaDias, Criticidade criticidade,
+                     boolean abrirOsAutomaticamente, List<ItemManutencao> itens, List<String> tarefas) {
+            this(nome, descricao, idsTiposVeiculo, idsTiposImplemento, intervaloKm, intervaloHoras, intervaloDias,
+                    antecedenciaKm, antecedenciaHoras, antecedenciaDias, criticidade, abrirOsAutomaticamente, itens,
+                    tarefas, null);
+        }
     }
 
     public PlanoPreventivo(Dados dados) {
@@ -129,6 +144,12 @@ public class PlanoPreventivo extends BaseEntity {
     public boolean aplicaA(UUID idTipoVeiculo, Set<UUID> idsTiposImplementoAcoplados) {
         return (idTipoVeiculo != null && idsTiposVeiculo.contains(idTipoVeiculo))
                 || idsTiposImplementoAcoplados.stream().anyMatch(idsTiposImplemento::contains);
+    }
+
+    /** Com placas escolhidas, vale só para elas; sem placas, pelos tipos. */
+    public boolean aplicaA(UUID idVeiculo, UUID idTipoVeiculo, Set<UUID> idsTiposImplementoAcoplados) {
+        if (!idsVeiculos.isEmpty()) return idsVeiculos.contains(idVeiculo);
+        return aplicaA(idTipoVeiculo, idsTiposImplementoAcoplados);
     }
 
     /** Frequência de uso na unidade do veículo; nula quando o plano não mede por ela. */
@@ -180,8 +201,9 @@ public class PlanoPreventivo extends BaseEntity {
     private void preencher(Dados dados, List<ItemManutencao> atuais) {
         var tiposVeiculo = dados.idsTiposVeiculo() == null ? Set.<UUID>of() : dados.idsTiposVeiculo();
         var tiposImplemento = dados.idsTiposImplemento() == null ? Set.<UUID>of() : dados.idsTiposImplemento();
-        if (tiposVeiculo.isEmpty() && tiposImplemento.isEmpty()) {
-            throw new InvarianteVioladaException("Escolha ao menos um tipo de veículo ou de implemento para o plano.");
+        var veiculos = dados.idsVeiculos() == null ? Set.<UUID>of() : dados.idsVeiculos();
+        if (veiculos.isEmpty() && tiposVeiculo.isEmpty() && tiposImplemento.isEmpty()) {
+            throw new InvarianteVioladaException("Escolha as placas (ou os tipos de veículo) para as quais o plano vale.");
         }
         if (dados.intervaloKm() == null && dados.intervaloHoras() == null && dados.intervaloDias() == null) {
             throw new InvarianteVioladaException("Informe ao menos uma frequência: km, horas ou dias.");
@@ -220,10 +242,15 @@ public class PlanoPreventivo extends BaseEntity {
 
         this.nome = Textos.obrigatorio(dados.nome(), "nome do plano", 120);
         this.descricao = Textos.opcional(dados.descricao(), 1000);
+        // Placas e tipos não se misturam: com placas, os tipos ficam vazios.
+        this.idsVeiculos.clear();
+        this.idsVeiculos.addAll(veiculos);
         this.idsTiposVeiculo.clear();
-        this.idsTiposVeiculo.addAll(tiposVeiculo);
         this.idsTiposImplemento.clear();
-        this.idsTiposImplemento.addAll(tiposImplemento);
+        if (veiculos.isEmpty()) {
+            this.idsTiposVeiculo.addAll(tiposVeiculo);
+            this.idsTiposImplemento.addAll(tiposImplemento);
+        }
         this.intervaloKm = dados.intervaloKm();
         this.intervaloHoras = dados.intervaloHoras();
         this.intervaloDias = dados.intervaloDias();

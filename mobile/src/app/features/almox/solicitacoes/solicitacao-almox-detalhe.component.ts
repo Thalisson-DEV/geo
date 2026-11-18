@@ -380,7 +380,13 @@ export class SolicitacaoAlmoxDetalheComponent {
     this.carregando.set(true);
     this.erro.set(null);
     this.almox.obterSolicitacao(this.id()).subscribe({
-      next: d => { this.det.set(d); this.carregando.set(false); },
+      next: d => {
+        // Link antigo ou de aviso para uma técnica: abre no detalhe técnico.
+        if (d.contexto === 'TECNICO') { void this.router.navigate(['/almox/tecnicas', d.id], { replaceUrl: true }); return; }
+        if (d.contexto === 'FECHAMENTO') { void this.router.navigate(['/almox/fechamento', d.id], { replaceUrl: true }); return; }
+        this.det.set(d);
+        this.carregando.set(false);
+      },
       error: (e: ApiError) => {
         this.carregando.set(false);
         this.erro.set(e.status === 404 ? 'Esta solicitação não existe mais.' : e.status === 0 ? 'Sem conexão com o servidor.' : e.detail || 'Tente de novo.');

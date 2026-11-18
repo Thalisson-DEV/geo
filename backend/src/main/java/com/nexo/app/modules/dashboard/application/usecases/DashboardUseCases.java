@@ -2,6 +2,8 @@ package com.nexo.app.modules.dashboard.application.usecases;
 
 import com.nexo.app.modules.dashboard.application.dto.ConsultaTurnosFilter;
 import com.nexo.app.modules.dashboard.application.dto.ContextoExecucaoResponse;
+import com.nexo.app.modules.dashboard.application.dto.DashboardMetaFisicaFilter;
+import com.nexo.app.modules.dashboard.application.dto.DashboardMetaFisicaResponse;
 import com.nexo.app.modules.dashboard.application.dto.DashboardOperacionalFilter;
 import com.nexo.app.modules.dashboard.application.dto.DashboardOperacionalResponse;
 import com.nexo.app.modules.dashboard.application.dto.DashboardTurnosFilter;
@@ -28,9 +30,14 @@ public class DashboardUseCases {
     private final DetalharTurnoUseCase detalhamentoTurno;
     private final ContextualizarExecucaoUseCase contextoExecucao;
     private final ConsultarNotasDoRecorteUseCase notasDoRecorte;
+    private final GerarDashboardMetaFisicaUseCase dashboardMetaFisica;
 
     public DashboardOperacionalResponse gerarDashboardOperacional(DashboardOperacionalFilter filter) {
         return dashboardOperacional.executar(filter);
+    }
+
+    public DashboardMetaFisicaResponse gerarDashboardMetaFisica(DashboardMetaFisicaFilter filter) {
+        return dashboardMetaFisica.executar(filter);
     }
 
     public DashboardTurnosResponse gerarDashboardTurnos(DashboardTurnosFilter filter) {

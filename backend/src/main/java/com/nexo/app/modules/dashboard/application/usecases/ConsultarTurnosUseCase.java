@@ -55,7 +55,7 @@ import static com.nexo.app.modules.dashboard.domain.CalendarioOperacional.percen
 public class ConsultarTurnosUseCase {
 
     /** Colunas que o banco ordena; as demais são calculadas e não ordenam no servidor. */
-    static final Set<String> ORDENAVEIS = Set.of("dataInicio", "dataFim", "status");
+    static final Set<String> ORDENAVEIS = Set.of("dataInicio", "dataFim", "status", "id");
 
     private static final Sort ORDEM_PADRAO = Sort.by(Sort.Direction.DESC, "dataInicio");
 

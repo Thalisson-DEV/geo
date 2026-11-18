@@ -8,6 +8,8 @@ import { ConnectivityService } from '../../core/sync/connectivity.service';
 import { rotaInternaSegura } from '../../core/sessao/snapshot';
 import { ROTA_INICIO } from '../../core/sessao/retomada.guard';
 import { IconeComponent } from '../../ui';
+import { AppUpdateService } from '../../core/sync/app-update.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -51,7 +53,7 @@ import { IconeComponent } from '../../ui';
         @if (erro()) {
           <p id="erro-login" class="erro" role="alert"><ces-icone nome="alerta" [tamanho]="18" />{{ erro() }}</p>
         }
-        @if (!rede.isOnline()) {
+        @if (!rede.hardwareOnline()) {
           <p class="aviso"><ces-icone nome="sem_rede" [tamanho]="18" />Sem internet. Entrar precisa de conexão.</p>
         }
 
@@ -59,6 +61,17 @@ import { IconeComponent } from '../../ui';
           @if (carregando()) { <span class="giro" aria-hidden="true"></span> Entrando… } @else { Entrar }
         </button>
       </form>
+
+      <footer class="rodape">
+        <span class="ces-num">Versão {{ versao }}</span>
+        <span aria-hidden="true">·</span>
+        <button type="button" class="atualizar" (click)="buscarAtualizacao()" [disabled]="atualizando()">
+          {{ atualizando() ? 'Procurando…' : 'Buscar atualização' }}
+        </button>
+        @if (situacaoAtualizacao()) {
+          <p class="situacao" role="status">{{ situacaoAtualizacao() }}</p>
+        }
+      </footer>
     </main>
   `,
   styles: [`
@@ -77,6 +90,12 @@ import { IconeComponent } from '../../ui';
     .erro, .aviso { margin: 0; display: flex; gap: var(--ces-e2); align-items: flex-start; font: var(--ces-t-corpo); }
     .erro { color: var(--ces-erro); }
     .aviso { color: var(--ces-atencao); }
+    .rodape { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 var(--ces-e2);
+      color: var(--ces-texto-2); font: var(--ces-t-apoio); }
+    .atualizar { min-height: 44px; padding: 0 var(--ces-e2); border: 0; background: transparent; color: var(--ces-destaque);
+      font: 600 .875rem/1 var(--ces-fonte); border-radius: var(--ces-r-campo); cursor: pointer; }
+    .atualizar:disabled { color: var(--ces-texto-2); cursor: default; }
+    .situacao { flex-basis: 100%; margin: 0; text-align: center; }
     .giro { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid currentColor; border-right-color: transparent; animation: g .8s linear infinite; }
     @keyframes g { to { transform: rotate(360deg); } }
   `],
@@ -88,6 +107,7 @@ export class LoginComponent {
   private readonly sync = inject(SyncService);
   readonly rede = inject(ConnectivityService);
   private readonly router = inject(Router);
+  private readonly appUpdate = inject(AppUpdateService);
 
   /** Para onde voltar depois de entrar (sessão expirada no meio do trabalho). */
   readonly volta = rotaInternaSegura(inject(ActivatedRoute).snapshot.queryParamMap.get('volta'));
@@ -96,10 +116,35 @@ export class LoginComponent {
   readonly erro = signal<string | null>(null);
   readonly mostrarSenha = signal(false);
 
+  /** Versão e atualização à mão: com o login travado, a Conta (onde isso fica) não abre. */
+  readonly versao = environment.versaoApp;
+  readonly atualizando = signal(false);
+  readonly situacaoAtualizacao = signal<string | null>(null);
+
   readonly form = this.fb.nonNullable.group({
     login: ['', [Validators.required]],
     senha: ['', [Validators.required]],
   });
+
+  async buscarAtualizacao(): Promise<void> {
+    if (this.atualizando()) return;
+    this.atualizando.set(true);
+    this.situacaoAtualizacao.set(null);
+    switch (await this.appUpdate.checkForUpdateManual()) {
+      case 'updated':
+        this.situacaoAtualizacao.set('Versão nova encontrada. Reabrindo…');
+        setTimeout(() => void this.appUpdate.aplicar(), 800);
+        break;
+      case 'current':
+        this.situacaoAtualizacao.set('O app já está na versão mais recente.');
+        this.atualizando.set(false);
+        break;
+      default:
+        // Sem service worker ou falha na busca: limpa o cache e recarrega, como na Conta.
+        this.situacaoAtualizacao.set('Limpando o cache e recarregando…');
+        await this.appUpdate.hardReset();
+    }
+  }
 
   entrar(): void {
     if (this.form.invalid) {

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 /** Dados imutáveis de uma confirmação de entrega técnica. */
-@Schema(description = "Entrega de adicao 221/921; transfere material novo para a custodia da equipe")
+@Schema(description = "Entrega de adicao 221/921; leva material novo do almoxarifado para o estoque da obra")
 public record ConfirmarEntregaTecnicaRequest(
         @NotNull Long versaoEsperada,
         @NotNull UUID idEquipe,
@@ -48,10 +48,21 @@ public record ConfirmarEntregaTecnicaRequest(
     ) {
         this(versaoEsperada, idEquipe, null, null, assinaturaAlmox, assinaturaEquipe, itens, null, null, null);
     }
+    /** Copia com os itens já convertidos para a unidade do material. */
+    public ConfirmarEntregaTecnicaRequest comItens(List<ItemEntregaTecnicaRequest> novos) {
+        return new ConfirmarEntregaTecnicaRequest(versaoEsperada, idEquipe, idColaboradorSaque, saqueForaEquipe,
+                assinaturaAlmox, assinaturaEquipe, novos, numeroReserva, dataReserva, idAgenteReserva);
+    }
+
     public record ItemEntregaTecnicaRequest(
             @NotNull UUID idItemSolicitacao,
             @NotNull @Positive BigDecimal quantidade,
-            String numeroSerie
+            String numeroSerie,
+            @Schema(description = "Unidade em que a quantidade foi informada; vazia = unidade do material")
+            String unidade
     ) {
+        public ItemEntregaTecnicaRequest(UUID idItemSolicitacao, BigDecimal quantidade, String numeroSerie) {
+            this(idItemSolicitacao, quantidade, numeroSerie, null);
+        }
     }
 }

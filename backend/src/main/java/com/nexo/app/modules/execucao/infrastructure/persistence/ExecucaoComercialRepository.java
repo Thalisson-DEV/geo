@@ -32,6 +32,20 @@ public interface ExecucaoComercialRepository extends JpaRepository<ExecucaoComer
                                                         @Param("idsEquipes") Collection<UUID> idsEquipes,
                                                         @Param("status") StatusExecucao status);
 
+    /** Notas concluídas do período cujos serviços são todos improdutivos (e há ao menos um). */
+    @Query(value = "SELECT e.id FROM execucoes_comercial e "
+           + "WHERE e.ativo = true AND e.status_execucao = 'CONCLUIDO' "
+           + "AND e.data_lancamento >= :inicio AND e.data_lancamento < :fim "
+           + "AND e.id_equipe IN (:idsEquipes) "
+           + "AND EXISTS (SELECT 1 FROM execucoes_acoes ea JOIN acoes a ON a.id = ea.id_acao "
+           + "            WHERE ea.id_execucao = e.id AND a.improdutiva = true) "
+           + "AND NOT EXISTS (SELECT 1 FROM execucoes_acoes ea JOIN acoes a ON a.id = ea.id_acao "
+           + "                WHERE ea.id_execucao = e.id AND a.improdutiva = false)",
+           nativeQuery = true)
+    List<UUID> listarIdsSoImprodutivas(@Param("inicio") OffsetDateTime inicio,
+                                       @Param("fim") OffsetDateTime fim,
+                                       @Param("idsEquipes") Collection<UUID> idsEquipes);
+
     List<ExecucaoComercial> findByIdTurnoAndAtivoTrueOrderByDataLancamentoAsc(UUID idTurno);
 
     List<ExecucaoComercial> findByIdTurnoInAndAtivoTrueOrderByDataLancamentoAsc(Collection<UUID> idsTurnos);
@@ -50,4 +64,14 @@ public interface ExecucaoComercialRepository extends JpaRepository<ExecucaoComer
            + "WHERE e.ativo = true AND e.idTurno IN :idsTurnos "
            + "GROUP BY e.idTurno")
     List<UltimoLancamentoDoTurno> buscarUltimosLancamentos(@Param("idsTurnos") Collection<UUID> idsTurnos);
+
+    /** Por veículo do turno: notas no status lançadas em {@code [inicio, fim)} e o valor faturado. */
+    @Query("SELECT t.idVeiculo, COUNT(e), COALESCE(SUM(e.valorTotalFaturado), 0) "
+           + "FROM ExecucaoComercial e, Turno t "
+           + "WHERE t.id = e.idTurno AND t.idVeiculo IS NOT NULL AND e.ativo = true AND e.statusExecucao = :status "
+           + "AND e.dataLancamento >= :inicio AND e.dataLancamento < :fim "
+           + "GROUP BY t.idVeiculo")
+    List<Object[]> somarConcluidasPorVeiculoDoTurno(@Param("status") StatusExecucao status,
+                                                   @Param("inicio") OffsetDateTime inicio,
+                                                   @Param("fim") OffsetDateTime fim);
 }

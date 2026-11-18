@@ -15,6 +15,8 @@ public record PainelOrdensServicoResponse(
         long atrasadas,
         long concluidasUltimos30Dias,
         long veiculosParados,
-        long aguardandoAprovacao
+        long aguardandoAprovacao,
+        /** Concluídas só com as datas, esperando a causa, o serviço realizado e os valores. */
+        long baixaPendente
 ) {
 }

@@ -94,7 +94,7 @@ export const SITUACAO: Record<SituacaoConexaoIa, { rotulo: string; tom: CesTone;
 };
 
 export function rotuloPermissao(c: Pick<ConexaoIa, 'permiteEscrita'>): string {
-  return c.permiteEscrita ? 'Consultar e cadastrar' : 'Só consultar';
+  return c.permiteEscrita ? 'Consultar, cadastrar e aprovar' : 'Só consultar';
 }
 
 /** Ícone do aplicativo: provedor conhecido pelo nome, ou chave para conexões por chave. */

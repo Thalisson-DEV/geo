@@ -78,7 +78,7 @@
             }}</strong></span
           >
           <span>·</span>
-          <ces-status [tone]="getStatusTone(sol.status)">{{ getStatusLabel(sol.status) }}</ces-status>
+          <ces-status [tone]="getStatusTone(sol.status)" [icon]="getStatusIcon(sol.status)">{{ getStatusLabel(sol.status) }}</ces-status>
         </div>
       </div>
 
@@ -140,7 +140,7 @@
           </div>
           <div class="kv">
             <span class="kv-l">Status Atual</span>
-            <ces-status [tone]="getStatusTone(sol.status)">{{ getStatusLabel(sol.status) }}</ces-status>
+            <ces-status [tone]="getStatusTone(sol.status)" [icon]="getStatusIcon(sol.status)">{{ getStatusLabel(sol.status) }}</ces-status>
           </div>
           <div class="kv">
             <span class="kv-l">Tipo</span>
@@ -547,7 +547,7 @@
                     <ces-status tone="danger" icon="pi pi-trash">Sai da solicitação</ces-status>
                   }
                   @if (saldoNegativoDoMaterial(l.material.id); as negativo) {
-                    <ces-status tone="warning">Saldo {{ negativo.quantidade | number: '1.0-3' }} {{ negativo.unidadeMedida }} na equipe</ces-status>
+                    <ces-status tone="warning" icon="pi-exclamation-triangle">Saldo {{ negativo.quantidade | number: '1.0-3' }} {{ negativo.unidadeMedida }} na equipe</ces-status>
                   }
                 </span>
                 <span role="cell" class="entrega__num">{{ l.solicitada | number: '1.0-3' }}</span>
@@ -564,15 +564,16 @@
                     <strong>{{ l.series.length }}</strong>
                     <small class="block text-[var(--ces-foreground-muted)]">{{ l.series.length === 1 ? 'série' : 'séries' }}</small>
                   } @else {
-                    <ces-number-input
+                    <app-quantidade-unidade
                       [label]="'Quantidade de ' + l.material.codigo + ' que sai agora'"
                       [labelVisible]="false"
-                      [min]="0"
-                      [max]="l.idItem ? l.pendente : 999999"
-                      [maxFractionDigits]="3"
+                      [material]="l.material"
+                      [maxBase]="l.idItem ? l.pendente : undefined"
                       [value]="l.quantidade"
                       (valueChange)="definirQuantidadeEntrega(i, $event)"
-                      [error]="l.idItem && (l.quantidade ?? 0) > l.pendente ? 'Máximo ' + l.pendente : undefined"
+                      [unidade]="l.unidade ?? null"
+                      (unidadeChange)="definirUnidadeEntrega(i, $event)"
+                      [error]="l.idItem && quantidadeDaLinha(l) > l.pendente ? 'Máximo ' + l.pendente : undefined"
                     />
                   }
                 </span>
@@ -993,23 +994,23 @@
           <p-button
             [label]="rotuloRejeicao().toUpperCase()"
             icon="pi pi-times"
-            (onClick)="rejectSolicitacao()"
+            (onClick)="rejeicaoAberta.set(true)"
             styleClass="!rounded-lg !bg-[var(--ces-danger)] !border-[var(--ces-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-danger-hover)] cursor-pointer"
           ></p-button>
         }
 
         @if (pode('APROVAR')) {
           <p-button
-            label="INICIAR APROVAÇÃO"
-            icon="pi pi-pencil"
-            (onClick)="startApproval()"
+            label="APROVAR"
+            icon="pi pi-check"
+            (onClick)="abrirPainel('aprovacao')"
             styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"
           ></p-button>
         } @else if (pode('ENTREGAR')) {
           <p-button
             label="REGISTRAR ENTREGA"
             icon="pi pi-box"
-            (onClick)="startDelivery()"
+            (onClick)="abrirPainel('entrega')"
             styleClass="!rounded-lg !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-success-hover)] cursor-pointer"
           ></p-button>
         }
@@ -1273,89 +1274,18 @@
   </div>
 </p-dialog>
 
-<!-- Modal de Rejeição -->
-<p-dialog
-  [visible]="displayRejectModal()"
-  (visibleChange)="displayRejectModal.set($event)"
-  [modal]="true"
-  [header]="rotuloRejeicao() + ' solicitação'"
-  [style]="{ width: '95vw', maxWidth: '500px' }"
-  [draggable]="false"
-  [resizable]="false"
-  styleClass="custom-dialog"
-  appendTo="body"
->
-  <div class="flex flex-col gap-5 p-2">
-    <div class="bg-rose-50/70 dark:bg-rose-950/40 p-4 rounded-xl border border-rose-200 dark:border-rose-900/60 flex items-start gap-3">
-      <i class="pi pi-exclamation-circle text-rose-600 dark:text-rose-400 mt-0.5 text-lg"></i>
-      <div class="flex flex-col gap-1">
-        <span class="text-xs font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">Atenção</span>
-        <p class="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
-          A rejeição é irreversível e cancelará permanentemente esta solicitação de material.
-        </p>
-      </div>
-    </div>
-
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Motivo da Rejeição</label>
-        <p-select
-          [(ngModel)]="rejectionData.idMotivoRejeicao"
-          [options]="motivosRejeicaoOptions()"
-          optionLabel="nome"
-          size="small"
-          optionValue="id"
-          placeholder="Selecione o motivo..."
-          class="w-full text-xs"
-          appendTo="body"
-        >
-          <ng-template let-motivo pTemplate="item">
-            <div class="flex flex-col gap-0.5">
-              <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">{{ motivo.nome }}</span>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">{{ motivo.descricao }}</span>
-            </div>
-          </ng-template>
-        </p-select>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">Justificativa Detalhada</label>
-        <textarea
-          pTextarea
-          [(ngModel)]="rejectionData.justificativa"
-          rows="4"
-          placeholder="Descreva detalhadamente o porquê desta rejeição..."
-          class="w-full text-xs rounded-xl border-slate-300 dark:border-slate-700 focus:border-rose-500 bg-white dark:bg-slate-900"
-        ></textarea>
-        <span class="text-[10px] text-slate-500 dark:text-slate-400 italic">* Mínimo de 5 caracteres.</span>
-      </div>
-    </div>
-
-    <div class="mt-4 flex justify-end gap-2.5">
-      <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="displayRejectModal.set(false)" />
-      <ces-button
-        label="Confirmar Rejeição"
-        icon="pi pi-times-circle"
-        variant="destructive"
-        size="sm"
-        [loading]="saving()"
-        [disabled]="!rejectionData.idMotivoRejeicao || !rejectionData.justificativa || rejectionData.justificativa.length < 5"
-        (pressed)="confirmRejection()"
-      />
-    </div>
-  </div>
-</p-dialog>
+<!-- Rejeição em painel lateral (mesmo das listas) -->
+@if (solicitacao(); as sol) {
+  <app-solicitacao-rejeicao-dialog [(visible)]="rejeicaoAberta" [idSolicitacao]="sol.id" [reprovar]="sol.status === 'PENDENTE'" (rejeitada)="loadData()" />
+  <app-solicitacao-comercial-detalhe [(visible)]="painelAberto" [solicitacaoId]="sol.id" [abaInicial]="painelAba()" (alterado)="loadData()" />
+}
 
 <!-- Modal de Estorno Parcial -->
-<p-dialog
+<ces-form-drawer
   [(visible)]="displayEstornoParcialModal"
-  [modal]="true"
-  header="Estorno Parcial de Materiais"
-  [style]="{ width: '95vw', maxWidth: '600px' }"
-  [draggable]="false"
-  [resizable]="false"
-  styleClass="custom-dialog"
-  appendTo="body"
+  title="Estorno parcial de materiais"
+  description="Os itens selecionados voltam ao estoque de origem."
+  size="md"
 >
   <div class="flex flex-col gap-4">
     <div class="bg-amber-50/70 dark:bg-amber-950/40 p-4 rounded-xl border border-amber-200 dark:border-amber-900/60 flex items-start gap-3">
@@ -1430,18 +1360,12 @@
       </p-table>
     </div>
 
-    <div class="flex items-center justify-end gap-2.5 pt-2">
-      <ces-button label="Cancelar" variant="ghost" size="sm" (pressed)="displayEstornoParcialModal.set(false)" />
-      <p-button
-        label="Confirmar Estorno"
-        icon="pi pi-check"
-        [loading]="saving()"
-        (onClick)="confirmarEstornoParcial()"
-        styleClass="!rounded-lg !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white !font-medium !text-xs !px-6 !py-2 hover:!bg-[var(--ces-warning-hover)] cursor-pointer"
-      ></p-button>
-    </div>
   </div>
-</p-dialog>
+  <div drawer-footer class="ces-actions-row">
+    <ces-button label="Cancelar" variant="ghost" (pressed)="displayEstornoParcialModal.set(false)" />
+    <ces-button label="Confirmar estorno" icon="pi pi-replay" variant="destructive" [loading]="saving()" (pressed)="confirmarEstornoParcial()" />
+  </div>
+</ces-form-drawer>
 
 <app-saldo-estoque-dialog #saldoDialog></app-saldo-estoque-dialog>
 

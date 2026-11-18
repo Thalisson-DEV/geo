@@ -20,6 +20,7 @@ import { resolveChatNavigation } from '../navegacao/copiloto-navegacao';
 import { resumoRecorte } from '../contexto/copiloto-contexto';
 import { FiltroSugerido, resolverFiltroSugerido } from '../contexto/copiloto-filtro';
 import { CopilotoPainelService } from '../painel/copiloto-painel.service';
+import { CopilotoCartaoAprovacaoComponent } from './copiloto-cartao-aprovacao.component';
 import { CopilotoCartaoCadastroComponent } from './copiloto-cartao-cadastro.component';
 import { CopilotoEtapasComponent } from './copiloto-etapas.component';
 import { CopilotoMarkdownComponent } from './copiloto-markdown.component';
@@ -32,6 +33,7 @@ import { CopilotoMarkdownComponent } from './copiloto-markdown.component';
     CesIconButtonComponent,
     CesStatusComponent,
     CesCalloutComponent,
+    CopilotoCartaoAprovacaoComponent,
     CopilotoCartaoCadastroComponent,
     CopilotoEtapasComponent,
     CopilotoMarkdownComponent,
@@ -143,6 +145,11 @@ export class CopilotoMensagemComponent {
       return !chave || !lista.slice(i + 1).some((p) => (p.previa as { chave?: string } | null)?.chave === chave);
     });
   });
+
+  protected ehAprovacao(proposta: PropostaAcaoView): boolean {
+    const previa = (this.store.acoesCartao()[proposta.acaoId]?.previa ?? proposta.previa) as { tipo?: string } | null | undefined;
+    return previa?.tipo === 'aprovacao';
+  }
 
   protected ehCadastro(proposta: PropostaAcaoView): boolean {
     const previa = proposta.previa as { tipo?: string } | null | undefined;

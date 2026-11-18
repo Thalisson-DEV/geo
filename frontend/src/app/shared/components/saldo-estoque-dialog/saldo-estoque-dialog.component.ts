@@ -1,3 +1,4 @@
+import { iconeCondicao } from '../../utils/movimentacao.utils';
 import { Component, ViewChild, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
@@ -135,6 +136,8 @@ export class SaldoEstoqueDialogComponent {
     const url = this.router.serializeUrl(this.router.createUrlTree(['/almoxarifado/saldos/relatorio'], { queryParams: { idEstoque: this.estoqueId } }));
     window.open(url, '_blank', 'noopener');
   }
+
+  protected readonly iconeCondicao = iconeCondicao;
 
   protected tomCondicao(condicao: string | undefined): CesTone {
     return condicao === 'SUCATA' ? 'warning' : 'neutral';

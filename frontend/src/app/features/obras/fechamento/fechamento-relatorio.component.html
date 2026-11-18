@@ -1,0 +1,420 @@
+<div class="relatorio min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] p-4 md:p-8 print:p-0 print:min-h-0">
+  @if (state() === 'loading') {
+    <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
+      <ces-async-state state="loading" title="Carregando solicitação de encerramento..." description="Consultando informações da solicitação..." />
+    </div>
+  } @else if (state() === 'error') {
+    <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
+      <ces-async-state state="error" title="Solicitação indisponível" [description]="erro() || 'Não foi possível carregar os dados.'"
+        actionLabel="Tentar novamente" (action)="reload()" />
+    </div>
+  } @else if (detail(); as sol) {
+    @let sit = situacoes[sol.situacao];
+    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+      <!-- 1. CABEÇALHO INSTITUCIONAL -->
+      <div class="grid grid-cols-3 items-center border-b border-[var(--ces-border)] pb-6 mb-6 print:pb-2 print:mb-2" aria-label="Cabeçalho institucional">
+        <div class="flex justify-start">
+          <img src="logo_vertical.svg" alt="Logo" class="h-16 print:h-14" onerror="this.style.display = 'none'" />
+        </div>
+        <div class="text-center flex flex-col gap-1">
+          <h1 class="text-xs md:text-sm font-bold uppercase tracking-wider">NOME DA EMPRESA</h1>
+          <p class="text-[11px] text-[var(--ces-foreground-muted)] font-bold uppercase tracking-widest">Almoxarifado Central &amp; Gestão de Materiais</p>
+          <p class="text-[11px] text-[var(--ces-foreground-muted)] font-medium">Serviços prestados à Concessionária</p>
+        </div>
+        <div class="flex justify-end">
+          <img src="logo_vertical.svg" alt="Logo Cliente" class="h-16 print:h-14 grayscale opacity-25" onerror="this.style.display = 'none'" />
+        </div>
+      </div>
+
+      <!-- 2. TÍTULO -->
+      <div class="py-4 text-center border-y border-[var(--ces-border)] my-4 print:py-2 print:my-2">
+        <h2 class="text-base md:text-lg font-bold tracking-tight uppercase">Solicitação de Encerramento #{{ sol.id.substring(0, 8) }}@if (sol.reserva; as r) { · Reserva {{ r.numero }}}</h2>
+        <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-xs text-[var(--ces-foreground-muted)] font-medium">
+          <span class="font-bold text-[var(--ces-foreground)]">ID {{ sol.id.substring(0, 8) }}</span>
+          <span aria-hidden="true">·</span>
+          <span>Emissão: <strong class="text-[var(--ces-foreground)]">{{ (sol.criadaEm | date: 'dd/MM/yyyy HH:mm') || '--/--/----' }}</strong></span>
+          <span aria-hidden="true">·</span>
+          <ces-status [tone]="sit.tone" [icon]="sit.icon">{{ sit.label }}</ces-status>
+        </div>
+      </div>
+
+      <!-- FAIXA DA SITUAÇÃO -->
+      @let f = faixa();
+      <div class="destaque rounded-xl border p-3.5 mb-6 flex items-center gap-3 print:hidden" [attr.data-tone]="f.tom">
+        <div class="destaque__icone w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border">
+          <i class="text-sm" [class]="f.icone" aria-hidden="true"></i>
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span class="text-xs font-bold uppercase tracking-wider">{{ f.titulo }}</span>
+          <span class="text-[11px] font-medium opacity-90">{{ f.texto }}</span>
+        </div>
+      </div>
+
+      <!-- 3. DADOS GERAIS (3 COLUNAS) -->
+      <div class="quadro grid grid-cols-1 md:grid-cols-3 gap-5 mb-6 p-4 md:p-5 rounded-xl border print:grid-cols-3 print:gap-3 print:mb-2 print:p-2">
+        <!-- Obra & Atendimento -->
+        <div class="flex flex-col gap-3">
+          <div class="quadro__titulo"><i class="pi pi-building" aria-hidden="true"></i><span>Obra &amp; Atendimento</span></div>
+          <div class="kv items-start">
+            <span class="kv-l">Obra</span>
+            <a class="kv-v kv-link font-semibold" [routerLink]="['/obras', sol.obra.id]" [title]="rotuloObra(sol.obra)">{{ rotuloObra(sol.obra) }}</a>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Tipo</span>
+            <ces-status [tone]="tipo(sol.tipo).adicao ? 'info' : 'neutral'" [icon]="iconeTipo(sol.tipo)" [title]="tipo(sol.tipo).descricao">{{ sol.tipo }} · {{ tipo(sol.tipo).nome }}</ces-status>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Almoxarifado</span>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="kv-v font-semibold" [title]="nomeAlmoxarifado(sol.almoxarifadoAtendimento.nome)">{{ nomeAlmoxarifado(sol.almoxarifadoAtendimento.nome) }}</span>
+              @if (podeVerSaldo) {
+                <ces-icon-button icon="pi pi-search" [label]="'Consultar o saldo de ' + nomeAlmoxarifado(sol.almoxarifadoAtendimento.nome)" tooltip="Consultar saldo do almoxarifado"
+                  size="icon-sm" class="print:hidden" (pressed)="abrirSaldo(sol.almoxarifadoAtendimento.id, nomeAlmoxarifado(sol.almoxarifadoAtendimento.nome))" />
+              }
+            </div>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Estoque da obra</span>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="kv-v font-semibold" [title]="sol.estoqueObra.nome">{{ sol.estoqueObra.nome }}</span>
+              @if (podeVerSaldo) {
+                <ces-icon-button icon="pi pi-search" [label]="'Consultar o saldo de ' + sol.estoqueObra.nome" tooltip="Consultar saldo da obra"
+                  size="icon-sm" class="print:hidden" (pressed)="abrirSaldo(sol.estoqueObra.id, sol.estoqueObra.nome)" />
+              }
+            </div>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Situação atual</span>
+            <ces-status [tone]="sit.tone" [icon]="sit.icon">{{ sit.label }}</ces-status>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Encerramento da obra</span>
+            <ces-status [tone]="situacoesObra[sol.situacaoObra].tone" [icon]="situacoesObra[sol.situacaoObra].icon">{{ situacoesObra[sol.situacaoObra].label }}</ces-status>
+          </div>
+        </div>
+
+        <!-- Cronograma -->
+        <div class="flex flex-col gap-3 md:border-x md:border-[var(--ces-border)] md:px-6">
+          <div class="quadro__titulo"><i class="pi pi-calendar" aria-hidden="true"></i><span>Cronograma</span></div>
+          <div class="kv">
+            <span class="kv-l">Solicitação</span>
+            <span class="kv-v">{{ (sol.criadaEm | date: 'dd/MM/yyyy HH:mm') || '—' }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Reserva até</span>
+            <span class="kv-v">{{ (sol.prazoReserva.limite | date: 'dd/MM/yyyy HH:mm') || '—' }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Reserva</span>
+            <span class="kv-v" [class.kv-v--muted]="!sol.reserva">{{ sol.reserva?.numero || 'Sem reserva' }}</span>
+          </div>
+          @if (sol.reserva; as r) {
+            <div class="kv">
+              <span class="kv-l">Data da reserva</span>
+              <span class="kv-v">{{ r.dataCriacao | date: 'dd/MM/yyyy' : 'UTC' }}</span>
+            </div>
+          }
+          <div class="kv">
+            <span class="kv-l">Movimentar até</span>
+            <span class="kv-v" [class.kv-v--muted]="!sol.prazoMovimentacao?.limite">{{ (sol.prazoMovimentacao?.limite | date: 'dd/MM/yyyy HH:mm') || 'Após a reserva' }}</span>
+          </div>
+          @if (prazo(sol.prazoVigente.situacao); as p) {
+            <div class="kv">
+              <span class="kv-l">Prazo</span>
+              <ces-status [tone]="p.tone" [icon]="p.icon">{{ p.label }}</ces-status>
+            </div>
+          }
+          <div class="kv">
+            <span class="kv-l">Concluída</span>
+            <span class="kv-v" [class.kv-v--success]="!!sol.movimentacaoConcluidaEm" [class.kv-v--muted]="!sol.movimentacaoConcluidaEm">{{ sol.movimentacaoConcluidaEm ? (sol.movimentacaoConcluidaEm | date: 'dd/MM/yyyy HH:mm') : 'Pendente' }}</span>
+          </div>
+          @if (sol.canceladaEm) {
+            <div class="kv">
+              <span class="kv-l">Cancelada</span>
+              <span class="kv-v">{{ sol.canceladaEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Envolvidos -->
+        <div class="flex flex-col gap-3">
+          <div class="quadro__titulo"><i class="pi pi-users" aria-hidden="true"></i><span>Envolvidos</span></div>
+          <div class="kv">
+            <span class="kv-l">Solicitante</span>
+            <span class="kv-v font-semibold uppercase" [title]="nomePessoa(sol.solicitante)">{{ nomePessoa(sol.solicitante) }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Encarregado</span>
+            <span class="kv-v font-semibold uppercase" [class.kv-v--muted]="!sol.encarregado" [title]="nomePessoa(sol.encarregado)">{{ nomePessoa(sol.encarregado) }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Supervisor</span>
+            <span class="kv-v font-semibold uppercase" [class.kv-v--muted]="!sol.supervisor" [title]="nomePessoa(sol.supervisor)">{{ nomePessoa(sol.supervisor) }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Coordenador</span>
+            <span class="kv-v font-semibold uppercase" [class.kv-v--muted]="!sol.coordenador" [title]="nomePessoa(sol.coordenador)">{{ nomePessoa(sol.coordenador) }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Almoxarife</span>
+            <span class="kv-v font-semibold uppercase" [class.kv-v--muted]="!ultimoOperador()" [title]="ultimoOperador() ?? ''">{{ ultimoOperador() ?? '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if (sol.observacao) {
+        <div class="observacao rounded-xl border p-3.5 mb-6 flex items-start gap-3">
+          <i class="pi pi-comment text-sm mt-0.5" aria-hidden="true"></i>
+          <div class="flex flex-col gap-0.5 min-w-0">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--ces-foreground-muted)]">Observação</span>
+            <span class="text-xs">{{ sol.observacao }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- PENDÊNCIAS -->
+      @if (sol.pendenciaGeral || itensComPendencia().length) {
+        <div class="destaque rounded-xl border p-3.5 mb-6 flex items-start gap-3" data-tone="warning">
+          <div class="destaque__icone w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border">
+            <i class="pi pi-flag text-sm" aria-hidden="true"></i>
+          </div>
+          <div class="flex flex-col gap-1 min-w-0">
+            <span class="text-xs font-bold uppercase tracking-wider">Pendências</span>
+            @if (sol.pendenciaGeral; as p) {
+              <span class="text-[11px] font-medium"><strong>Geral · {{ p.motivo }}</strong>@if (p.justificativa) { · {{ p.justificativa }}}</span>
+            }
+            @for (item of itensComPendencia(); track item.id) {
+              <span class="text-[11px] font-medium"><strong>{{ item.codigoMaterial }} · {{ item.pendencia!.motivo }}</strong>@if (item.pendencia!.justificativa) { · {{ item.pendencia!.justificativa }}}</span>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- CANCELAMENTO -->
+      @if (sol.situacao === 'CANCELADA') {
+        <div class="rejeicao mb-6 p-4 rounded-xl border">
+          <div class="flex items-start gap-4">
+            <div class="rejeicao__icone w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border">
+              <i class="pi pi-ban text-base" aria-hidden="true"></i>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <span class="rejeicao__titulo text-xs font-bold uppercase tracking-wider">Informações do cancelamento — {{ sol.canceladaEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <div class="rejeicao__justificativa p-3 rounded-lg border">
+                <p class="text-xs leading-relaxed">"{{ sol.motivoCancelamento || 'Sem motivo registrado' }}"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- 4. RESUMO -->
+      @let t = totais();
+      @let movResumo = resumoMovimentacoes();
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-6 print:hidden">
+        <div class="resumo">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Materiais</span>
+            <span class="resumo__icone"><i class="pi pi-box" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ sol.itens.length }}</span>
+            <span class="resumo__legenda">{{ sol.itens.length === 1 ? 'material distinto' : 'materiais distintos' }} · {{ quantidade(t.solicitada) }} solicitados</span>
+          </div>
+        </div>
+        <div class="resumo">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Movimentado</span>
+            <span class="resumo__icone"><i class="pi pi-check-square" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ quantidade(t.movimentada) }}</span>
+            <span class="resumo__legenda">{{ t.movimentada > 0 ? 'unidades movimentadas' : 'nada movimentado ainda' }}</span>
+          </div>
+        </div>
+        <div class="resumo">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Movimentações</span>
+            <span class="resumo__icone"><i class="pi pi-arrow-right-arrow-left" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ movResumo.movimentacoes }}</span>
+            <span class="resumo__legenda">
+              @if (movResumo.movimentacoes + movResumo.estornos === 0) {
+                nenhuma registrada
+              } @else {
+                saldo da obra atualizado@if (movResumo.estornos) { · {{ movResumo.estornos }} {{ movResumo.estornos === 1 ? 'estorno' : 'estornos' }}}
+              }
+            </span>
+          </div>
+        </div>
+        <div class="resumo resumo--destaque">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Saldo pendente</span>
+            <span class="resumo__icone"><i class="pi pi-hourglass" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ quantidade(t.pendente) }}</span>
+            <span class="resumo__legenda">
+              @if (sol.situacao === 'CANCELADA') {
+                não será movimentado
+              } @else {
+                {{ t.pendente > 0 ? 'a movimentar em ' + materiaisPendentes() + (materiaisPendentes() === 1 ? ' material' : ' materiais') : 'solicitação atendida' }}
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. ITENS -->
+      <div class="mb-8 print:mb-4">
+        <div class="flex items-center justify-between gap-2 mb-3 border-l-2 border-[var(--ces-brand)] pl-3">
+          <span class="secao__titulo">Itens da solicitação <span class="secao__contagem">({{ sol.itens.length }} {{ sol.itens.length === 1 ? 'material' : 'materiais' }})</span></span>
+          <span class="text-xs text-[var(--ces-foreground-muted)]">Total solicitado: <strong class="text-[var(--ces-foreground)]">{{ quantidade(t.solicitada) }}</strong></span>
+        </div>
+        <ces-data-table
+          class="print:hidden"
+          caption="Itens da solicitação de encerramento"
+          searchPlaceholder="Buscar por código ou descrição"
+          stateTitle="Solicitação sem itens"
+          stateDescription="Nenhum material nesta solicitação."
+          noResultsTitle="Nenhum material encontrado nesta solicitação."
+          [columns]="colunasItens"
+          [rows]="sol.itens"
+          [rowKey]="chaveItem"
+          [rowLabel]="rotuloItem"
+          [pageSizeOptions]="[50, 100, 500]"
+        >
+          <ng-template cesCell="descricao" let-i>
+            <span class="uppercase">{{ i.descricaoMaterial }}</span>
+          </ng-template>
+          <ng-template cesCell="situacao" let-i>
+            @let s = situacaoDoItem(i);
+            <ces-status [tone]="s.tone" [icon]="s.icon">{{ s.label }}</ces-status>
+          </ng-template>
+        </ces-data-table>
+
+        <!-- No papel: a mesma tabela, sem os controles da tela. -->
+        <table class="tabela-documento" aria-hidden="true">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Material / Descrição</th>
+              <th>Un.</th>
+              <th class="tabela-documento__num">Solicitado</th>
+              <th class="tabela-documento__num">Movimentado</th>
+              <th class="tabela-documento__num">Pendente</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (i of sol.itens; track i.id) {
+              <tr>
+                <td class="font-mono font-semibold">{{ i.codigoMaterial }}</td>
+                <td class="uppercase">{{ i.descricaoMaterial }}</td>
+                <td>{{ i.unidade || 'UN' }}</td>
+                <td class="tabela-documento__num">{{ quantidade(i.quantidade) }}</td>
+                <td class="tabela-documento__num">{{ quantidade(i.quantidadeMovimentada) }}</td>
+                <td class="tabela-documento__num">{{ quantidade(i.quantidadePendente) }}</td>
+                <td>{{ situacaoDoItem(i).label }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6. HISTÓRICO DE OPERAÇÕES -->
+      <div class="mb-6 px-1 print:hidden">
+        <app-fechamento-operacoes-historico [movimentacoes]="sol.movimentacoes" [acoes]="true" (estornar)="abrirEstorno($event)" />
+      </div>
+
+      <!-- No papel: as movimentações em tabela, já que aqui não há termo nem assinaturas. -->
+      <div class="hidden print:block print:mb-4">
+        <div class="flex items-center gap-2 mb-3 border-l-2 border-[var(--ces-brand)] pl-3">
+          <span class="secao__titulo">Movimentações <span class="secao__contagem">({{ sol.movimentacoes.length }})</span></span>
+        </div>
+        @if (sol.movimentacoes.length) {
+          <table class="tabela-documento" aria-hidden="true">
+            <thead>
+              <tr>
+                <th>Quando</th>
+                <th>O quê</th>
+                <th>Materiais</th>
+                <th>Por</th>
+                <th>Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of movimentacoes(); track m.id) {
+                <tr>
+                  <td>{{ m.realizadaEm | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ m.tipo === 'ESTORNO' ? 'Estorno' : 'Movimentação' }}</td>
+                  <td>{{ resumoItens(m) }}</td>
+                  <td>{{ nomePessoa(m.operador) }}</td>
+                  <td>{{ m.motivo || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+
+      <!-- 7. LINHA DO TEMPO -->
+      <div class="mb-6 px-1 print:hidden">
+        <p-accordion [value]="timelineValue()" (valueChange)="timelineValue.set($event)">
+          <p-accordion-panel value="timeline">
+            <p-accordion-header>
+              <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                <div class="linha-tempo__icone w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
+                  <i class="pi pi-history text-sm" aria-hidden="true"></i>
+                </div>
+                <div class="flex flex-col gap-0.5 min-w-0 text-left">
+                  <span class="text-xs md:text-sm font-bold">Linha do tempo de alterações</span>
+                  <span class="text-xs text-[var(--ces-foreground-muted)] font-normal">Veja todas as ações realizadas nesta solicitação em ordem cronológica.</span>
+                </div>
+              </div>
+            </p-accordion-header>
+            <p-accordion-content>
+              @if (isTimelineOpen()) {
+                <div class="pt-3">
+                  <app-solicitacao-tecnica-historico [idSolicitacao]="sol.id" [ocultarObra]="true" [fonte]="fonteHistorico" [versao]="sol.versao" />
+                </div>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+        </p-accordion>
+      </div>
+
+      <!-- 8. RODAPÉ DE EMISSÃO -->
+      <footer class="border-t border-[var(--ces-border)] pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-[var(--ces-foreground-muted)] print:mt-4 print:pt-2">
+        <div class="flex flex-col gap-0.5">
+          <span>Criado em: <strong class="text-[var(--ces-foreground)]">{{ (sol.criadaEm | date: 'dd/MM/yyyy HH:mm') || '—' }}</strong></span>
+          @if (sol.movimentacaoConcluidaEm) {
+            <span>Concluído em: <strong class="text-[var(--ces-foreground)]">{{ sol.movimentacaoConcluidaEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
+          }
+        </div>
+        <div class="font-semibold text-[10px] uppercase tracking-wider">Documento emitido eletronicamente via Sistema GEO · EMPRESA Almoxarifado</div>
+      </footer>
+    </div>
+
+    <!-- 9. AÇÕES FLUTUANTES (mesma barra dos relatórios comercial e técnico) -->
+    <div class="acoes fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap justify-end gap-2.5 print:hidden z-50">
+      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)]" />
+      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white hover:!bg-[var(--report-action-strong-bg-hover)]" />
+
+      @if (sol.acoes.pendencias) {
+        <p-button label="PENDÊNCIA" icon="pi pi-exclamation-triangle" (onClick)="abrirPainel('itens')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--ces-warning)] !border-[var(--ces-warning)] !text-white hover:!bg-[var(--ces-warning-hover)]" />
+      }
+      <!-- O próximo passo: um botão principal por vez -->
+      @if (sol.acoes.registrarReserva) {
+        <p-button label="REGISTRAR RESERVA" icon="pi pi-hashtag" (onClick)="abrirPainel('reserva')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-primary-600 !border-primary-600 !text-white hover:!bg-primary-700" />
+      } @else if (sol.acoes.movimentar) {
+        <p-button label="MARCAR MOVIMENTADO" icon="pi pi-check-square" (onClick)="abrirPainel('movimentar')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--ces-success)] !border-[var(--ces-success)] !text-white hover:!bg-[var(--ces-success-hover)]" />
+      }
+    </div>
+
+    <app-fechamento-detalhe-drawer [(visible)]="painelAberto" [solicitacaoId]="sol.id" [abaInicial]="painelAba()" (alterado)="reload()" />
+    <app-fechamento-estorno-drawer [(visible)]="estornoAberto" [solicitacao]="sol" [movimentacao]="movimentacaoSelecionada()" (estornada)="detail.set($event)" (conflito)="reload()" />
+  }
+</div>
+
+<app-saldo-estoque-dialog #saldoDialog />

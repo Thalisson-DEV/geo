@@ -329,8 +329,9 @@ export class LoginComponent {
         error: (err) => {
           this.isLoading.set(false);
           this.messageService.add({
-            severity: 'error',
-            summary: 'Acesso Negado',
+            severity: err?.status === 429 ? 'warn' : 'error',
+            // 429: muitas tentativas seguidas; o detalhe do servidor já diz quanto esperar.
+            summary: err?.status === 429 ? 'Muitas tentativas' : 'Acesso Negado',
             detail:
               err?.status === 0
                 ? 'Sem conexão com o servidor. O login precisa de internet; tente quando houver sinal.'

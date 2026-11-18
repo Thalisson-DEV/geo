@@ -11,7 +11,8 @@ import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { StepperModule } from 'primeng/stepper';
 import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
+import { CesStatusComponent } from '@ces/ui';
+import { iconeGovernanca } from './governanca.component';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
@@ -33,7 +34,7 @@ type Transcricao = { id: string; numero: number; origem: string; conteudo: strin
   selector: 'app-reuniao-governanca',
   standalone: true,
   imports: [CommonModule, FormsModule, BreadcrumbModule, ButtonModule, FileUploadModule, InputTextModule, SelectModule,
-    SkeletonModule, StepperModule, TableModule, TagModule, TextareaModule, ToastModule, TooltipModule],
+    SkeletonModule, StepperModule, TableModule, CesStatusComponent, TextareaModule, ToastModule, TooltipModule],
   providers: [MessageService],
   templateUrl: './reuniao-governanca.component.html',
   styleUrls: ['./reuniao-governanca.component.css'],
@@ -294,6 +295,8 @@ export class ReuniaoGovernancaComponent implements OnInit, OnDestroy {
   irParaEtapa(etapa: number): void { if (etapa <= this.etapaAtual()) this.activeStep.set(etapa); }
 
   selecionada(): VersaoAtaGovernanca | undefined { return this.atas().find(item => item.id === this.ataSelecionada); }
+
+  protected readonly iconeStatus = iconeGovernanca;
 
   rotulo(valor?: string): string {
     if (!valor) return 'Não informado';

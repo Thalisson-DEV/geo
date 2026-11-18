@@ -30,6 +30,7 @@ public interface MovimentacaoEstoqueMapper {
     @Mapping(target = "estoqueOrigem", source = "estoqueOrigem")
     @Mapping(target = "estoqueDestino", source = "estoqueDestino")
     @Mapping(target = "operadorNome", ignore = true)
+    @Mapping(target = "numeroNota", ignore = true)
     @Mapping(target = "contexto", source = "solicitacao.contexto")
     @Mapping(target = "idSolicitacao", source = "solicitacao.id")
     @Mapping(target = "tipoObra", source = "tipoObraSnapshot")

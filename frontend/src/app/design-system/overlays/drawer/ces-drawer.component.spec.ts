@@ -66,4 +66,18 @@ describe('CesDrawerComponent', () => {
     expect(drawer.className).toContain('p-drawer-bottom');
     expect(drawer.querySelector('.ces-drawer__handle')).not.toBeNull();
   });
+
+  it('fechar e sair da tela no mesmo instante não deixa a máscara presa na página', async () => {
+    mockMatchMedia(false);
+    const fixture = await montar();
+    expect(document.body.querySelector('.p-drawer-mask')).not.toBeNull();
+
+    // "Abrir completa": fecha o drawer e navega antes de a animação de saída terminar.
+    fixture.componentInstance.aberto.set(false);
+    fixture.detectChanges();
+    fixture.destroy();
+
+    expect(document.body.querySelector('.p-drawer-mask')).toBeNull();
+    expect(document.body.classList.contains('p-overflow-hidden')).toBe(false);
+  });
 });

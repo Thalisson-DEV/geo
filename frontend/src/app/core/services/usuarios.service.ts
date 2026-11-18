@@ -41,6 +41,11 @@ export class UsuariosService extends BaseService {
     return this.deleteSync(`${this.apiUrl}/v1/iam/usuarios`, id);
   }
 
+  /** Liga o acesso a um colaborador existente, troca o colaborador ou, com `null`, desfaz o vínculo. */
+  vincularColaborador(id: string, idColaborador: string | null): Observable<UsuarioResponse | null> {
+    return this.updateSync<UsuarioResponse>(`${this.apiUrl}/v1/iam/usuarios`, `${id}/colaborador`, { idColaborador });
+  }
+
   ativarUsuario(id: string): Observable<void | null> {
     return this.updateSync<void>(`${this.apiUrl}/v1/iam/usuarios`, `${id}/ativar`, {});
   }

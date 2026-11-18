@@ -52,6 +52,10 @@ public class PecaOrdemServico extends BaseEntity {
     @Column(name = "subtotal", nullable = false, precision = 14, scale = 2)
     private BigDecimal subtotal;
 
+    /** Valor zero de propósito (garantia, cortesia): não deixa a OS com valores pendentes. */
+    @Column(name = "sem_custo", nullable = false)
+    private boolean semCusto;
+
     /** Peça do catálogo da frota (módulo estoque); só com origem ESTOQUE. */
     @Column(name = "id_material")
     private UUID idMaterial;
@@ -61,6 +65,9 @@ public class PecaOrdemServico extends BaseEntity {
     private UUID idEstoque;
 
     /** Saída no estoque; é estornada quando a peça sai da OS ou muda. */
+    @Column(name = "id_item_manutencao")
+    private UUID idItemManutencao;
+
     @Column(name = "id_movimentacao_estoque")
     private UUID idMovimentacaoEstoque;
 
@@ -75,6 +82,11 @@ public class PecaOrdemServico extends BaseEntity {
         this.idMaterial = idMaterial;
         this.idEstoque = idEstoque;
         this.idMovimentacaoEstoque = idMovimentacao;
+    }
+
+    /** Item de manutenção (tipo peça) de onde saiu o nome: a mesma peça não ganha nomes diferentes. */
+    void vincularItem(UUID idItemManutencao) {
+        this.idItemManutencao = idItemManutencao;
     }
 
     void desvincularEstoque() {
@@ -98,5 +110,16 @@ public class PecaOrdemServico extends BaseEntity {
         this.quantidade = LancamentoOrdemServico.quantidade(dados.quantidade());
         this.valorUnitario = LancamentoOrdemServico.valorUnitario(dados.valorUnitario());
         this.subtotal = LancamentoOrdemServico.subtotal(quantidade, valorUnitario);
+        if (subtotal.signum() > 0) this.semCusto = false;
+    }
+
+    /** "Sem custo" só vale para o lançamento de valor zero. */
+    void definirSemCusto(boolean semCusto) {
+        this.semCusto = semCusto && subtotal.signum() == 0;
+    }
+
+    /** Valor zero sem a marca de "sem custo": falta lançar o valor. */
+    boolean isSemValor() {
+        return subtotal.signum() == 0 && !semCusto;
     }
 }

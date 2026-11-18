@@ -5,6 +5,7 @@ import com.nexo.app.modules.rh.ColaboradorApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,16 @@ public class ResolvedorAutorEventoSolicitacao {
                         .filter(ResolvedorAutorEventoSolicitacao::textoValido)
                         .map(String::trim))
                 .orElseGet(() -> snapshotUtil(snapshotExistente, idUsuario));
+    }
+
+    /** Nome do colaborador vinculado ao usuário; nunca o login, que não deve aparecer na tela. */
+    public Optional<String> nomeDoColaborador(UUID idUsuario) {
+        if (idUsuario == null) {
+            return Optional.empty();
+        }
+        return colaboradorApi.buscarNomeCompletoPorUsuario(idUsuario)
+                .filter(ResolvedorAutorEventoSolicitacao::textoValido)
+                .map(String::trim);
     }
 
     private static String snapshotUtil(String snapshot, UUID idUsuario) {

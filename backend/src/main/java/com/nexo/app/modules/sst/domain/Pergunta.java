@@ -48,17 +48,36 @@ public class Pergunta extends BaseEntity {
     @Column(name = "ordem", nullable = false)
     private int ordem;
 
+    /** Quantidade esperada ou observação do item ("IND", "5", "Por escada"), mostrada abaixo do enunciado. */
+    @Column(name = "orientacao", length = 300)
+    private String orientacao;
+
+    /**
+     * Verdadeiro quando o desvio gerado aponta quem o cometeu (EPI, conduta).
+     * Falso para itens da equipe ou do veículo (pneu, extintor, ferramenta): o
+     * desvio pode ser lançado sem colaborador.
+     */
+    @Column(name = "desvio_por_colaborador", nullable = false)
+    private boolean desvioPorColaborador = true;
+
     @JsonManagedReference
     @OrderBy("ordem ASC")
     @OneToMany(mappedBy = "pergunta", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OpcaoResposta> opcoes = new ArrayList<>();
 
     Pergunta(GrupoPergunta grupo, String enunciado, TipoResposta tipoResposta, boolean obrigatoria, int ordem) {
+        this(grupo, enunciado, tipoResposta, obrigatoria, ordem, null, true);
+    }
+
+    Pergunta(GrupoPergunta grupo, String enunciado, TipoResposta tipoResposta, boolean obrigatoria, int ordem,
+             String orientacao, boolean desvioPorColaborador) {
         this.grupo = Objects.requireNonNull(grupo, "Grupo é obrigatório");
         this.enunciado = exigirEnunciado(enunciado);
         this.tipoResposta = Objects.requireNonNull(tipoResposta, "Tipo de resposta é obrigatório");
         this.obrigatoria = obrigatoria;
         this.ordem = ordem;
+        this.orientacao = normalizarOrientacao(orientacao);
+        this.desvioPorColaborador = desvioPorColaborador;
     }
 
     /**
@@ -103,6 +122,17 @@ public class Pergunta extends BaseEntity {
             porId.get(idsNaOrdem.get(i)).atualizarOrdem(i);
         }
         opcoes.sort(Comparator.comparingInt(OpcaoResposta::getOrdem));
+    }
+
+    private static String normalizarOrientacao(String orientacao) {
+        if (orientacao == null || orientacao.isBlank()) {
+            return null;
+        }
+        String limpa = orientacao.strip();
+        if (limpa.length() > 300) {
+            throw new InvarianteVioladaException("A orientação da pergunta deve ter no máximo 300 caracteres.");
+        }
+        return limpa;
     }
 
     private static String exigirEnunciado(String enunciado) {

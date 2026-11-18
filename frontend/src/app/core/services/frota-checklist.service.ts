@@ -104,8 +104,8 @@ export class FrotaChecklistService {
     });
   }
 
-  liberacoesCnh(pagina: PaginaFrota): Observable<PagedResponse<LiberacaoCnh>> {
-    return this.http.get<PagedResponse<LiberacaoCnh>>(`${this.url}/liberacoes-cnh`, { params: this.params({}, pagina) });
+  liberacoesCnh(pagina: PaginaFrota, idsBase: string[] = []): Observable<PagedResponse<LiberacaoCnh>> {
+    return this.http.get<PagedResponse<LiberacaoCnh>>(`${this.url}/liberacoes-cnh`, { params: this.params({ idsBase }, pagina) });
   }
 
   liberarCnh(request: LiberacaoCnhRequest): Observable<LiberacaoCnh> {

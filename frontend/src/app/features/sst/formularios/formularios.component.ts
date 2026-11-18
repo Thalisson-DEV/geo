@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   CesButtonComponent,
@@ -22,6 +22,7 @@ import { FormularioInspecaoResumoResponse } from '../../../core/models/sst.model
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { SstService } from '../../../core/services/sst.service';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
+import { FormulariosImportacaoComponent } from './formularios-importacao.component';
 import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from '../../../shared/listagem/listagem';
 
 @Component({
@@ -39,7 +40,8 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     CesRowActionsDirective,
     CesSelectComponent,
     CesStatusComponent,
-    AjudaListagemComponent
+    AjudaListagemComponent,
+    FormulariosImportacaoComponent
   ],
   template: `
     <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
@@ -51,6 +53,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
         helpLabel="Ajuda sobre formulários de inspeção"
         (help)="ajuda.show()"
       >
+        <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></ces-button>
         <ces-button actions icon="pi pi-plus" label="Novo formulário" [keyShortcut]="atalhos.newShortcut()" (pressed)="novo()"></ces-button>
       </ces-page-header>
 
@@ -98,7 +101,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
           }
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">
@@ -109,10 +112,16 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       </ces-data-table>
     </div>
 
+    <app-formularios-importacao [(visible)]="importacaoAberta" (processado)="lista.reload()"></app-formularios-importacao>
+
     <app-ajuda-listagem #ajuda titulo="Formulários de inspeção" entidadePlural="formulários" busca="título" rotuloNovo="Novo formulário">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-copy"></i> Duplicar</h4>
         <p class="help-text-desc">Duplicar cria uma cópia editável e abre o construtor nela: útil para variar um checklist sem mexer no original, que pode já ter inspeções respondidas.</p>
+      </div>
+      <div class="help-section">
+        <h4 class="help-section-title"><i class="pi pi-upload"></i> Importar</h4>
+        <p class="help-text-desc">Uma pergunta por linha. Linhas com o mesmo formulário viram um formulário, e com o mesmo grupo, um grupo. O tipo padrão é o checklist Conforme / Não conforme / Não se aplica, com Conforme já marcado.</p>
       </div>
     </app-ajuda-listagem>
   `
@@ -124,6 +133,7 @@ export class FormulariosComponent {
   private readonly confirmacao = inject(CesConfirmationService);
 
   protected readonly statusOpcoes = OPCOES_STATUS;
+  protected readonly importacaoAberta = signal(false);
 
   protected readonly lista = cesListState({
     storageKey: 'sst-formularios',

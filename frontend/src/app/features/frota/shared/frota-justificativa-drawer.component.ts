@@ -10,7 +10,7 @@ import { CesButtonComponent, CesFormDrawerComponent, CesTextareaComponent } from
   template: `
     <ces-form-drawer [(visible)]="visivel" [title]="titulo()" [description]="descricao()" [dirty]="!!texto().trim()"
       [loading]="processando()" size="sm">
-      <ces-textarea label="Justificativa" [required]="true" [(value)]="texto" [rows]="4" [maxlength]="400"
+      <ces-textarea [label]="rotuloCampo()" [required]="true" [(value)]="texto" [rows]="4" [maxlength]="400" [placeholder]="placeholder() ?? ''"
         description="Fica registrada com seu usuário e a data." [error]="erro()"></ces-textarea>
       <div drawer-footer class="ces-actions-row">
         <ces-button variant="ghost" label="Cancelar" (pressed)="visivel.set(false)"></ces-button>
@@ -25,6 +25,8 @@ export class FrotaJustificativaDrawerComponent {
   readonly titulo = input.required<string>();
   readonly descricao = input<string | undefined>();
   readonly rotuloConfirmar = input('Confirmar');
+  readonly rotuloCampo = input('Justificativa');
+  readonly placeholder = input<string | undefined>();
   readonly destrutivo = input(false);
   readonly processando = input(false);
   readonly confirmado = output<string>();

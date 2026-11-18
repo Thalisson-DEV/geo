@@ -1,0 +1,115 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Relatórios do almoxarifado" icon="pi pi-compass"
+      [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Visão geral' }]"
+      description="O que pede ação hoje em todas as áreas do almoxarifado. Cada número leva ao relatório da área, com o mesmo recorte.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (carregando()) { <span actions class="dash-updated">Atualizando…</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="almox-rel-geral" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-almox-recorte-campos prefixo="apg" />
+      </div>
+    </ces-filter-panel>
+
+    <app-almox-painel-topo [descricao]="dados()?.mov ? recorte.descricaoPeriodo(dados()!.mov) : ''" (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !modelo()) {
+      <ces-async-state state="loading" title="Reunindo as áreas do almoxarifado" description="Solicitações, fechamento, movimentações e estoque."></ces-async-state>
+    } @else if (erro() && !modelo()) {
+      <ces-async-state state="error" title="Não foi possível montar a visão geral" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (modelo(); as m) {
+      @if (semAcesso().length) {
+        <ces-callout tone="info" icon="pi pi-lock" title="Algumas áreas ficaram de fora">
+          Seu perfil não lê {{ semAcesso().map(a => areas[a].rotulo.toLowerCase()).join(', ') }}. Os números consideram só o que você pode ver.
+        </ces-callout>
+      }
+
+      @if (veredito(); as v) {
+        <app-dashboard-visao-gerencial [veredito]="v" [leituras]="m.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="abrirLeitura($event)" (perguntar)="perguntarVisao('Quais são as prioridades do almoxarifado agora, em todas as áreas, e o que fazer primeiro?')" />
+      }
+
+      <section class="dash-metrics pf-metricas-3" aria-label="Situação de cada área">
+        @if (m.comercial; as r) {
+          <app-dashboard-metric-card label="Solicitações comerciais" icon="pi-shopping-cart" [tone]="filas()?.linhas?.[0]?.atrasadas ? 'amber' : 'green'"
+            [value]="inteiro(r.abertas.length) + ' em aberto'" [detail]="plural(filas()!.linhas[0].atrasadas, 'atrasada', 'atrasadas') + ' · ' + plural(r.periodo.length, 'pedido', 'pedidos') + ' no período'"
+            actionLabel="Abrir o relatório" (activate)="ir('comerciais')" />
+        }
+        @if (m.tecnico; as r) {
+          <app-dashboard-metric-card label="Solicitações técnicas" icon="pi-wrench" [tone]="filas()?.linhas?.[1]?.atrasadas ? 'amber' : 'green'"
+            [value]="inteiro(r.abertas.length) + ' em aberto'" [detail]="plural(filas()!.linhas[1].atrasadas, 'atrasada', 'atrasadas') + ' · ' + plural(r.periodo.length, 'solicitação', 'solicitações') + ' no período'"
+            actionLabel="Abrir o relatório" (activate)="ir('tecnicas')" />
+        }
+        @if (m.fechamento; as f) {
+          <app-dashboard-metric-card label="Encerramento de obras" icon="pi-flag" [tone]="f.atrasadas.length ? 'red' : 'green'"
+            [value]="inteiro(f.abertas.length) + ' em andamento'" [detail]="plural(f.atrasadas.length, 'com prazo vencido', 'com prazo vencido') + ' · reserva no prazo ' + pct(f.reserva.taxa, 0)"
+            actionLabel="Abrir o relatório" (activate)="ir('fechamento')" />
+        }
+        @if (m.estoque; as e) {
+          <app-dashboard-metric-card label="Estoque" icon="pi-box" [tone]="e.porFaixa.ruptura.length ? 'red' : e.porFaixa.critica.length ? 'amber' : 'green'"
+            [value]="plural(e.porFaixa.ruptura.length, 'em falta', 'em falta')" [detail]="inteiro(e.porFaixa.critica.length) + ' acabam em 7 dias · ' + inteiro(e.porFaixa.parado.length) + ' parados'"
+            actionLabel="Abrir o relatório" (activate)="ir('estoque')" />
+        }
+        @if (m.mov; as mv) {
+          <app-dashboard-metric-card label="Movimentações" icon="pi-arrow-right-arrow-left" [tone]="mv.perdas.length ? 'amber' : 'slate'"
+            [value]="inteiro(mv.operacoes) + ' operações'" [detail]="plural(mv.perdas.length, 'perda', 'perdas') + ' · ' + plural(mv.estornos.length, 'estorno', 'estornos') + ' · ' + plural(mv.ajustes.length, 'ajuste', 'ajustes')"
+            actionLabel="Abrir o relatório" (activate)="ir('movimentacoes')" />
+        }
+        @if (m.consumo; as c) {
+          <app-dashboard-metric-card label="Consumo" icon="pi-chart-bar" [tone]="c.foraDaCurva.length ? 'amber' : 'slate'"
+            [value]="inteiro(c.saidas.length) + ' saídas'" [detail]="plural(c.foraDaCurva.length, 'caso fora da curva', 'casos fora da curva') + ' · ' + pct(c.taxaRetorno, 0) + ' volta'"
+            actionLabel="Abrir o relatório" (activate)="ir('consumo')" />
+        }
+      </section>
+
+      <section class="pf-secao" aria-labelledby="apg-agir">
+        <header><span class="dash-eyebrow">Agir hoje</span><h2 id="apg-agir">O que pede ação</h2>
+          <p>Solicitações e encerramentos atrasados e materiais em falta ou acabando, do mais grave para o menos grave. Abra a linha para ir ao registro.</p></header>
+        <ces-data-table title="Pede ação" storageKey="apg-agir" exportFileName="almoxarifado-pede-acao" [columns]="colPendencias" [rows]="m.pendencias"
+          [rowKey]="chavePendencia" searchPlaceholder="Filtrar área, equipe, obra ou material" rowActionLabel="Abrir" (rowActivate)="abrirPendencia($event)"
+          [state]="m.pendencias.length ? 'ready' : 'empty'" stateTitle="Nada atrasado nem em falta" stateDescription="Todas as áreas estão em dia neste recorte.">
+          <ng-template cesCell="area" let-p>
+            <ces-status tone="neutral" [icon]="areaDe(p).icone">{{ areaDe(p).curto }}</ces-status>
+          </ng-template>
+          <ng-template cesCell="situacao" let-p>
+            <ces-status [tone]="$any(p).tom" [icon]="$any(p).icone">{{ $any(p).situacao }}</ces-status>
+          </ng-template>
+          <ng-template cesCell="atraso" let-p>
+            @if ($any(p).atraso) {
+              <ces-status tone="danger" emphasis="outline" icon="pi pi-history">{{ plural($any(p).atraso, 'dia', 'dias') }}</ces-status>
+            } @else { <span class="pf-mudo">—</span> }
+          </ng-template>
+        </ces-data-table>
+      </section>
+
+      <section class="dash-grid pf-grid-espaco" aria-label="Fila e fluxo">
+        @if (filas(); as fl) {
+          <article class="dash-panel dash-col-5">
+            <header class="dash-panel__header">
+              <div><span class="dash-eyebrow">Fila</span><h2>Em aberto por processo</h2><p>No prazo e atrasadas. Clique para abrir a fila do processo.</p></div>
+              <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'filas', rotulo: 'Em aberto por processo' }" />
+            </header>
+            <ces-chart kind="bar-stacked" title="Em aberto por processo" [showTitle]="false" [selectable]="true" selectLabel="Abrir a fila"
+              [labels]="fl.rotulos" [series]="fl.series" valueFormat="integer" [height]="280" (pointSelect)="abrirFila($event.index)"></ces-chart>
+          </article>
+        }
+        @if (m.fluxo; as fx) {
+          <article class="dash-panel dash-col-7">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Balcão</span><h2>Entradas e saídas do almoxarifado</h2>
+              <p>Itens que chegaram (abastecimento, retornos, sucata) e que saíram (atendimento, baixas). Clique para ver o período.</p></div></header>
+            <ces-chart kind="bar" title="Entradas e saídas" [showTitle]="false" [selectable]="true" selectLabel="Analisar o período"
+              [labels]="fx.rotulos" [series]="[{ name: 'Entradas', values: fx.entradas }, { name: 'Saídas', values: fx.saidas }]" valueFormat="integer" [height]="280"
+              (pointSelect)="abrirFluxo($event.index)"></ces-chart>
+          </article>
+        }
+      </section>
+    }
+  </div>
+</main>
+</app-copiloto-area>

@@ -233,6 +233,39 @@ class PoliticaAcoesPermitidasSolicitacaoTest {
                 .doesNotContain(AcaoPermitidaSolicitacao.REJEITAR);
     }
 
+    @Test
+    void trocaDaOcValeParaAlmoxarifadoEQuemAbriuMesmoDepoisDaEntrega() {
+        UUID solicitante = UUID.randomUUID();
+        SolicitacaoMaterial entregue = tecnica(TipoSolicitacaoTecnica.ADICAO_COMUM, StatusSeparacao.SEPARADO);
+        when(entregue.getOcorrencia()).thenReturn("OC-88412");
+        when(entregue.getIdRequisitante()).thenReturn(solicitante);
+        when(entregue.getStatus()).thenReturn(SolicitacaoMaterial.StatusSolicitacao.ENTREGUE);
+        when(entregue.possuiFatoOperacional()).thenReturn(true);
+
+        autenticar("estoque:solicitacao:deliver");
+        assertThat(politica.calcular(entregue)).contains(AcaoPermitidaSolicitacao.TROCAR_OCORRENCIA);
+
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                solicitante.toString(), "n/a", List.of()));
+        assertThat(politica.podeTrocarOcorrencia(entregue)).isTrue();
+
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                UUID.randomUUID().toString(), "n/a", List.of(new SimpleGrantedAuthority("estoque:solicitacao:plan"))));
+        assertThat(politica.podeTrocarOcorrencia(entregue)).isFalse();
+    }
+
+    @Test
+    void semOcOuCanceladaNaoOfereceTroca() {
+        autenticar("estoque:solicitacao:deliver");
+        SolicitacaoMaterial semOc = tecnica(TipoSolicitacaoTecnica.ADICAO_COMUM, StatusSeparacao.SEPARADO);
+        assertThat(politica.podeTrocarOcorrencia(semOc)).isFalse();
+
+        SolicitacaoMaterial cancelada = tecnica(TipoSolicitacaoTecnica.ADICAO_COMUM, StatusSeparacao.SEPARADO);
+        when(cancelada.getOcorrencia()).thenReturn("OC-1");
+        when(cancelada.getStatus()).thenReturn(SolicitacaoMaterial.StatusSolicitacao.CANCELADO);
+        assertThat(politica.podeTrocarOcorrencia(cancelada)).isFalse();
+    }
+
     private SolicitacaoMaterial tecnica(TipoSolicitacaoTecnica tipo, StatusSeparacao separacao) {
         SolicitacaoMaterial solicitacao = mock(SolicitacaoMaterial.class);
         when(solicitacao.getContexto()).thenReturn(ContextoSolicitacaoMaterial.TECNICO);

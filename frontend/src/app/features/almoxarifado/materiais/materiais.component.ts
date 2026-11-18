@@ -24,15 +24,29 @@ import {
   cesListState
 } from '@ces/ui';
 import { Observable, of, switchMap } from 'rxjs';
+import { CesNumberInputComponent } from '@ces/ui';
 
 import { AvaliacaoMaterialResponse, CentroInvestimentoResponse, MaterialImportacaoDTO, MaterialRequest, MaterialResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { ImportacaoService } from '../../../core/services/importacao.service';
+import { RhService } from '../../../core/services/rh.service';
+import { ProcessoNegocioResponse } from '../../../core/models/rh.models';
+import { PROCESSO_OBRAS, ondeOMaterialEntra, processoMaterial } from '../shared/processo-material';
+import { fraseEquivalencia, numero, unidadeBase } from '../shared/unidade-material';
 import { AuditDialogComponent } from '../../../shared/components/audit-dialog/audit-dialog.component';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { CHAVE_LINHA_IMPORTACAO, importacaoListagem } from '../../../shared/listagem/importacao-listagem';
 import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from '../../../shared/listagem/listagem';
+
+interface LinhaEquivalencia {
+  chave: number;
+  unidade: string;
+  quantidadeUnidade: number | null;
+  quantidadeBase: number | null;
+}
+
+let proximaChave = 1;
 
 const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
@@ -54,6 +68,7 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
     CesFormSectionComponent,
     CesIconButtonComponent,
     CesImportDrawerComponent,
+    CesNumberInputComponent,
     CesListShortcutsDirective,
     CesPageHeaderComponent,
     CesRowActionsDirective,
@@ -63,13 +78,25 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
     AuditDialogComponent,
     AjudaListagemComponent
   ],
+  styles: `
+    .mat-unidade { display: inline-flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; }
+    .mat-eq { display: grid; gap: 0.625rem; margin: 0 0 0.75rem; padding: 0; list-style: none; }
+    .mat-eq__linha { display: grid; grid-template-columns: minmax(0, 6.5rem) minmax(0, 6rem) auto minmax(0, 8rem) auto; gap: 0.5rem; align-items: start; }
+    .mat-eq__igual { padding-top: 0.5rem; font-weight: 600; color: var(--ces-foreground-muted); }
+    .mat-eq__exemplo { grid-column: 1 / -1; margin: -0.125rem 0 0; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    .mat-eq__vazio { margin: 0 0 0.75rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
+    @media (max-width: 30rem) {
+      .mat-eq__linha { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+      .mat-eq__igual { display: none; }
+    }
+  `,
   template: `
     <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novo()">
       <ces-page-header
         title="Materiais"
         icon="pi pi-box"
         [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Materiais' }]"
-        description="Catálogo de materiais: unidade, avaliação técnica, centro de investimento e controle de número de série."
+        description="Catálogo de materiais: processo, unidade e equivalências, avaliação técnica, centro de investimento e controle de número de série."
         helpLabel="Ajuda sobre materiais"
         (help)="ajuda.show()"
       >
@@ -80,6 +107,7 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
       <ces-filter-panel #painel storageKey="almox-materiais" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
         <div class="ces-filter-grid">
+          <ces-select label="Processo" [options]="processosOpcoes()" [(value)]="lista.filters.idProcesso" [clearable]="true" placeholder="Todos"></ces-select>
           <ces-select label="Avaliação técnica" [options]="avaliacoesOpcoes()" [(value)]="lista.filters.idAvaliacaoTecnica" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
           <ces-select label="Controla nº de série" [options]="opcoesSerie" [(value)]="lista.filters.detalhaSerie"></ces-select>
           <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.ativo"></ces-select>
@@ -117,6 +145,21 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
         (rowActivate)="editar($event)"
       >
         <ng-template cesCell="codigo" let-row><span class="ces-cell-strong">{{ row.codigo }}</span></ng-template>
+        <ng-template cesCell="processo" let-row>
+          @if (visualProcesso(row.processo?.nome); as p) {
+            <ces-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</ces-status>
+          } @else {
+            <span class="ces-cell-muted">—</span>
+          }
+        </ng-template>
+        <ng-template cesCell="unidade" let-row>
+          <span class="mat-unidade">
+            <span>{{ row.unidadeMedida || 'UN' }}</span>
+            @if (row.equivalencias?.length) {
+              <ces-status tone="info" icon="pi pi-arrow-right-arrow-left" [title]="frasesDe(row)">{{ row.equivalencias.length === 1 ? '1 equivalência' : row.equivalencias.length + ' equivalências' }}</ces-status>
+            }
+          </span>
+        </ng-template>
         <ng-template cesCell="serie" let-row>
           @if (row.detalhaSerie) {
             <ces-status tone="info" icon="pi-hashtag">Controla</ces-status>
@@ -125,7 +168,7 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
           }
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">
@@ -145,6 +188,35 @@ const OPCOES_SERIE: CesSelectOption<boolean | null>[] = [
         </div>
         <ces-text-input label="Descrição" [required]="true" [(value)]="descricao" [maxlength]="255" placeholder="Ex.: Cabo de cobre 16mm" [error]="erro('descricao')"></ces-text-input>
         <ces-text-input label="SUPR/MATR" [(value)]="suprMatr" [maxlength]="10" placeholder="Ex.: SUPR" [showOptional]="true"></ces-text-input>
+      </ces-form-section>
+      <ces-form-section title="Processo" icon="pi pi-sitemap" description="Define em quais solicitações o material pode ser pedido e separa o saldo do comercial e de obras.">
+        <ces-select label="Processo do material" [required]="true" [options]="processosOpcoes()" [(value)]="idProcesso"
+          [description]="dicaProcesso()" [error]="erro('idProcesso')"></ces-select>
+      </ces-form-section>
+      <ces-form-section title="Unidades equivalentes" icon="pi pi-arrow-right-arrow-left"
+        [description]="'O saldo fica sempre em ' + base() + '. Cadastre outras unidades para receber, entregar ou lançar nas notas e o GEO converte.'">
+        @if (equivalencias().length) {
+          <ul class="mat-eq" aria-label="Unidades equivalentes">
+            @for (e of equivalencias(); track e.chave; let i = $index) {
+              <li class="mat-eq__linha">
+                <ces-number-input class="mat-eq__qtd" [label]="'Quantidade na outra unidade, linha ' + (i + 1)" [labelVisible]="false" [min]="0" [maxFractionDigits]="6"
+                  [value]="e.quantidadeUnidade" (valueChange)="alterarEquivalencia(i, { quantidadeUnidade: $event })" [error]="erroEquivalencia(e, 'quantidadeUnidade')"></ces-number-input>
+                <ces-text-input class="mat-eq__unidade" [label]="'Outra unidade, linha ' + (i + 1)" [labelVisible]="false" [maxlength]="10" placeholder="Ex.: KG"
+                  [value]="e.unidade" (valueChange)="alterarEquivalencia(i, { unidade: $event.toUpperCase() })" [error]="erroEquivalencia(e, 'unidade')"></ces-text-input>
+                <span class="mat-eq__igual" aria-hidden="true">=</span>
+                <ces-number-input class="mat-eq__qtd" [label]="'Quantidade em ' + base() + ', linha ' + (i + 1)" [labelVisible]="false" [min]="0" [maxFractionDigits]="6"
+                  [suffix]="' ' + base()" [value]="e.quantidadeBase" (valueChange)="alterarEquivalencia(i, { quantidadeBase: $event })" [error]="erroEquivalencia(e, 'quantidadeBase')"></ces-number-input>
+                <ces-icon-button icon="pi pi-trash" [label]="'Tirar a equivalência ' + (e.unidade || (i + 1))" tooltip="Tirar" size="icon-sm" (pressed)="removerEquivalencia(i)"></ces-icon-button>
+                @if (exemplo(e); as ex) {
+                  <p class="mat-eq__exemplo"><i class="pi pi-info-circle" aria-hidden="true"></i> {{ ex }}</p>
+                }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="mat-eq__vazio">Nenhuma equivalência. Ex.: cabo controlado em MT e recebido em KG (1 KG = 4,2 MT), ou rolo de fita em UN usado em metros nas notas (20 M = 1 UN).</p>
+        }
+        <ces-button variant="outline" size="sm" icon="pi pi-plus" label="Adicionar equivalência" (pressed)="adicionarEquivalencia()"></ces-button>
       </ces-form-section>
       <ces-form-section title="Classificação" icon="pi pi-sliders-h">
         <div class="ces-form-grid">
@@ -219,18 +291,28 @@ export class MateriaisComponent {
   private readonly importacaoService = inject(ImportacaoService);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(CesConfirmationService);
+  private readonly rh = inject(RhService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
 
   protected readonly statusOpcoes = OPCOES_STATUS;
   protected readonly opcoesSerie = OPCOES_SERIE;
   protected readonly avaliacoes = signal<AvaliacaoMaterialResponse[]>([]);
   protected readonly centros = signal<CentroInvestimentoResponse[]>([]);
+  protected readonly processos = signal<ProcessoNegocioResponse[]>([]);
+  protected readonly processosOpcoes = computed<CesSelectOption<string>[]>(() =>
+    this.processos().map((p) => ({ label: processoMaterial(p.nome)?.rotulo ?? p.nome, value: p.id })));
+  protected readonly visualProcesso = processoMaterial;
   protected readonly avaliacoesOpcoes = computed<CesSelectOption<string>[]>(() => this.avaliacoes().map((a) => ({ label: a.nome, value: a.id })));
   protected readonly centrosOpcoes = computed<CesSelectOption<string>[]>(() => this.centros().map((c) => ({ label: c.codigo, value: c.id })));
 
   protected readonly lista = cesListState({
     storageKey: 'almox-materiais',
     filters: {
+      idProcesso: cesFilter.value<string | null>(null, {
+        label: 'Processo',
+        param: 'processo',
+        format: (id): string | null => (id ? (processoMaterial(this.processos().find((p) => p.id === id)?.nome)?.rotulo ?? 'processo selecionado') : null)
+      }),
       idAvaliacaoTecnica: cesFilter.value<string | null>(null, {
         label: 'Avaliação',
         param: 'avaliacao',
@@ -251,7 +333,8 @@ export class MateriaisComponent {
   protected readonly colunas: CesDataTableColumn<MaterialResponse>[] = [
     { key: 'codigo', header: 'Código', type: 'custom', priority: 1, sortField: 'codigo', width: '9rem', value: (m) => m.codigo, display: (m) => m.codigo },
     { key: 'descricao', header: 'Descrição', priority: 1, sortField: 'descricao' },
-    { key: 'unidade', header: 'Unidade', sortField: 'unidadeMedida', width: '7rem', value: (m) => m.unidadeMedida, display: (m) => m.unidadeMedida || '—' },
+    { key: 'processo', header: 'Processo', type: 'custom', sortable: false, width: '9rem', value: (m) => m.processo?.nome, display: (m) => processoMaterial(m.processo?.nome)?.rotulo ?? '—' },
+    { key: 'unidade', header: 'Unidade', type: 'custom', sortField: 'unidadeMedida', width: '11rem', value: (m) => m.unidadeMedida, display: (m) => m.unidadeMedida || '—' },
     { key: 'avaliacao', header: 'Avaliação', sortField: 'avaliacaoTecnica.nome', value: (m) => m.avaliacaoTecnica?.nome, display: (m) => m.avaliacaoTecnica?.nome ?? '—' },
     { key: 'serie', header: 'Nº de série', type: 'custom', sortField: 'detalhaSerie', value: (m) => m.detalhaSerie, display: (m) => (m.detalhaSerie ? 'Sim' : 'Não') },
     { key: 'ativo', header: 'Status', type: 'custom', sortField: 'ativo', value: (m) => m.ativo, display: (m) => (m.ativo ? 'Ativo' : 'Inativo') }
@@ -267,21 +350,41 @@ export class MateriaisComponent {
   protected readonly idAvaliacao = signal<string | null>(null);
   protected readonly idCentro = signal<string | null>(null);
   protected readonly detalhaSerie = signal(false);
+  protected readonly idProcesso = signal<string | null>(null);
+  protected readonly equivalencias = signal<LinhaEquivalencia[]>([]);
   protected readonly ativo = signal(true);
+  protected readonly base = computed(() => unidadeBase({ unidadeMedida: this.unidade().trim() }));
+  protected readonly dicaProcesso = computed(() => {
+    const nome = this.processos().find((p) => p.id === this.idProcesso())?.nome;
+    return nome ? ondeOMaterialEntra(nome) + '.' : 'Obras atende a solicitação técnica e o fechamento; os demais, a comercial.';
+  });
   protected readonly salvando = signal(false);
   private readonly tentouSalvar = signal(false);
   protected readonly alterado = computed(() => {
     const m = this.emEdicao();
-    const atual = [this.codigo(), this.descricao(), this.unidade(), this.suprMatr(), this.idAvaliacao(), this.idCentro(), this.detalhaSerie(), this.ativo()];
+    const atual = [this.codigo(), this.descricao(), this.unidade(), this.suprMatr(), this.idAvaliacao(), this.idCentro(), this.detalhaSerie(), this.ativo(),
+      this.idProcesso(), JSON.stringify(this.equivalencias().map(({ chave, ...e }) => e))];
     const original = m
-      ? [m.codigo, m.descricao, m.unidadeMedida ?? '', m.suprMatrFlag ?? '', m.avaliacaoTecnica?.id ?? null, m.centroInvestimento?.id ?? null, m.detalhaSerie, m.ativo]
-      : ['', '', '', '', null, null, false, true];
+      ? [m.codigo, m.descricao, m.unidadeMedida ?? '', m.suprMatrFlag ?? '', m.avaliacaoTecnica?.id ?? null, m.centroInvestimento?.id ?? null, m.detalhaSerie, m.ativo,
+        m.processo?.id ?? this.idComercial(), JSON.stringify((m.equivalencias ?? []).map((e) => ({ unidade: e.unidade, quantidadeUnidade: e.quantidadeUnidade, quantidadeBase: e.quantidadeBase })))]
+      : ['', '', '', '', null, null, false, true, this.idComercial(), '[]'];
     return atual.some((v, i) => v !== original[i]);
   });
   private readonly erros = computed<Record<string, string>>(() => {
     const e: Record<string, string> = {};
     if (!this.codigo().trim()) e['codigo'] = 'Informe o código.';
     if (!this.descricao().trim()) e['descricao'] = 'Informe a descrição.';
+    if (!this.idProcesso()) e['idProcesso'] = 'Escolha o processo.';
+    const vistas = new Set<string>();
+    this.equivalencias().forEach((l) => {
+      const u = l.unidade.trim().toUpperCase();
+      if (!u) e[`eq-${l.chave}-unidade`] = 'Informe a unidade.';
+      else if (u === this.base()) e[`eq-${l.chave}-unidade`] = `${u} já é a unidade do material.`;
+      else if (vistas.has(u)) e[`eq-${l.chave}-unidade`] = `${u} já está na lista.`;
+      vistas.add(u);
+      if (!((l.quantidadeUnidade ?? 0) > 0)) e[`eq-${l.chave}-quantidadeUnidade`] = 'Maior que zero.';
+      if (!((l.quantidadeBase ?? 0) > 0)) e[`eq-${l.chave}-quantidadeBase`] = 'Maior que zero.';
+    });
     return e;
   });
 
@@ -305,6 +408,7 @@ export class MateriaisComponent {
   ];
 
   constructor() {
+    this.rh.listarProcessosAtivos().subscribe({ next: (r) => this.processos.set(r.content ?? []), error: () => undefined });
     this.almoxarifado.listarAvaliacoesAtivas().subscribe({ next: (r) => this.avaliacoes.set(r.content ?? []), error: () => undefined });
     this.almoxarifado.listarCentrosInvestimentoAtivos().subscribe({ next: (r) => this.centros.set(r.content ?? []), error: () => undefined });
   }
@@ -313,6 +417,7 @@ export class MateriaisComponent {
     const { filters, query } = this.lista.request();
     return {
       idAvaliacaoTecnica: filters.idAvaliacaoTecnica ?? undefined,
+      idProcesso: filters.idProcesso ?? undefined,
       detalhaSerie: filters.detalhaSerie ?? undefined,
       ativo: filters.ativo ?? undefined,
       buscaGlobal: query || undefined
@@ -342,6 +447,8 @@ export class MateriaisComponent {
     this.idAvaliacao.set(m?.avaliacaoTecnica?.id ?? null);
     this.idCentro.set(m?.centroInvestimento?.id ?? null);
     this.detalhaSerie.set(m?.detalhaSerie ?? false);
+    this.idProcesso.set(m?.processo?.id ?? this.idComercial());
+    this.equivalencias.set((m?.equivalencias ?? []).map((e) => ({ chave: proximaChave++, unidade: e.unidade, quantidadeUnidade: e.quantidadeUnidade, quantidadeBase: e.quantidadeBase })));
     this.ativo.set(m?.ativo ?? true);
     this.tentouSalvar.set(false);
   }
@@ -358,7 +465,13 @@ export class MateriaisComponent {
       suprMatrFlag: this.suprMatr().trim() || undefined,
       idAvaliacaoTecnica: this.idAvaliacao() ?? undefined,
       idCentroInvestimento: this.idCentro() ?? undefined,
-      detalhaSerie: this.detalhaSerie()
+      detalhaSerie: this.detalhaSerie(),
+      idProcesso: this.idProcesso() ?? undefined,
+      equivalencias: this.equivalencias().map((l) => ({
+        unidade: l.unidade.trim().toUpperCase(),
+        quantidadeUnidade: l.quantidadeUnidade as number,
+        quantidadeBase: l.quantidadeBase as number
+      }))
     };
     this.salvando.set(true);
     const alternar = (id: string, era: boolean): Observable<unknown> =>
@@ -378,6 +491,40 @@ export class MateriaisComponent {
         this.notificacoes.error(getErrorMessage(e));
       }
     });
+  }
+
+  private idComercial(): string | null {
+    return this.processos().find((p) => p.nome.trim().toUpperCase() === 'COMERCIAL')?.id ?? null;
+  }
+
+  protected frasesDe(m: MaterialResponse): string {
+    const base = unidadeBase(m);
+    return (m.equivalencias ?? []).map((e) => fraseEquivalencia(e, base)).join(' · ');
+  }
+
+  protected adicionarEquivalencia(): void {
+    this.equivalencias.update((l) => [...l, { chave: proximaChave++, unidade: '', quantidadeUnidade: 1, quantidadeBase: null }]);
+  }
+
+  protected alterarEquivalencia(indice: number, mudanca: Partial<Omit<LinhaEquivalencia, 'chave'>>): void {
+    this.equivalencias.update((l) => l.map((e, i) => (i === indice ? { ...e, ...mudanca } : e)));
+  }
+
+  protected removerEquivalencia(indice: number): void {
+    this.equivalencias.update((l) => l.filter((_, i) => i !== indice));
+  }
+
+  protected erroEquivalencia(l: LinhaEquivalencia, campo: 'unidade' | 'quantidadeUnidade' | 'quantidadeBase'): string | undefined {
+    return this.tentouSalvar() ? this.erros()[`eq-${l.chave}-${campo}`] : undefined;
+  }
+
+  /** Mostra a conta com um número redondo, para a pessoa conferir se a equivalência está certa. */
+  protected exemplo(l: LinhaEquivalencia): string | null {
+    const u = l.unidade.trim().toUpperCase();
+    if (!u || !((l.quantidadeUnidade ?? 0) > 0) || !((l.quantidadeBase ?? 0) > 0) || u === this.base()) return null;
+    const fator = (l.quantidadeBase as number) / (l.quantidadeUnidade as number);
+    const amostra = fator >= 1 ? 10 : Math.max(1, Math.round((l.quantidadeUnidade as number) / 2));
+    return `Ex.: ${numero(amostra)} ${u} entram no saldo como ${numero(Math.round(amostra * fator * 1000) / 1000)} ${this.base()}.`;
   }
 
   protected async alternar(m: MaterialResponse): Promise<void> {

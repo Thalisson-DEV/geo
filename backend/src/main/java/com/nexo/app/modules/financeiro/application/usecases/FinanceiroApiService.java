@@ -1,5 +1,6 @@
 package com.nexo.app.modules.financeiro.application.usecases;
 
+import com.nexo.app.modules.financeiro.CondicoesCompraFornecedor;
 import com.nexo.app.modules.financeiro.FinanceiroApi;
 import com.nexo.app.modules.financeiro.FornecedorResumo;
 import com.nexo.app.modules.financeiro.ResumoSolicitacaoFinanceira;
@@ -79,6 +80,24 @@ class FinanceiroApiService implements FinanceiroApi {
         if (validos.isEmpty()) return Map.of();
         return fornecedores.findAllById(validos).stream()
                 .collect(Collectors.toMap(Fornecedor::getId, FinanceiroApiService::nome));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.Optional<CondicoesCompraFornecedor> ultimasCondicoesFornecedor(UUID idFornecedor) {
+        if (idFornecedor == null) return java.util.Optional.empty();
+        return compras.buscarRecentesDoFornecedor(idFornecedor, org.springframework.data.domain.PageRequest.of(0, 1))
+                .stream().findFirst().map(s -> new CondicoesCompraFornecedor(
+                        s.getNucleo().getLocalAquisicao() == null ? null : s.getNucleo().getLocalAquisicao().name(),
+                        s.getNucleo().getFormaPagamento().name()));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public java.util.Optional<UUID> ultimoProcessoDoVeiculo(UUID idVeiculo) {
+        if (idVeiculo == null) return java.util.Optional.empty();
+        return compras.buscarRecentesDoVeiculo(idVeiculo, org.springframework.data.domain.PageRequest.of(0, 1))
+                .stream().findFirst().map(s -> s.getNucleo().getProcessoId());
     }
 
     private static String nome(Fornecedor fornecedor) {

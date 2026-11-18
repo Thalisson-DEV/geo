@@ -19,6 +19,7 @@ export function cesImportStatus(status: string | undefined): { label: string; to
       return { label: 'Pronta', tone: 'success', icon: 'pi-check' };
     case 'COM_ERRO':
       return { label: 'Com erro', tone: 'danger', icon: 'pi-times' };
+    case 'CONCLUIDO':
     case 'PROCESSADO':
     case 'SUCESSO':
       return { label: 'Processada', tone: 'success', icon: 'pi-check-circle' };

@@ -11,5 +11,7 @@ public record PerguntaResponse(
         TipoResposta tipoResposta,
         boolean obrigatoria,
         int ordem,
-        List<OpcaoRespostaResponse> opcoes
+        List<OpcaoRespostaResponse> opcoes,
+        String orientacao,
+        boolean desvioPorColaborador
 ) {}

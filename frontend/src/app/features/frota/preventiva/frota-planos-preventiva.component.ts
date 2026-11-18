@@ -21,10 +21,10 @@ import {
   NotificationService
 } from '@ces/ui';
 import { PlanoPreventivo, PlanoPreventivoRequest } from '../../../core/models/frota-preventiva.models';
-import { Criticidade, ROTULO_CRITICIDADE, contar } from '../../../core/models/frota.models';
+import { Criticidade, ROTULO_CRITICIDADE, contar, formatarPlaca } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaPreventivaService } from '../../../core/services/frota-preventiva.service';
-import { FrotaService } from '../../../core/services/frota.service';
+import { FrotaService, PAGINA_OPCOES } from '../../../core/services/frota.service';
 import { acessoFrota } from '../shared/frota-acesso';
 
 const CRITICIDADES: CesSelectOption<Criticidade>[] = (['BAIXA', 'MEDIA', 'ALTA', 'URGENTE'] as Criticidade[])
@@ -36,7 +36,12 @@ interface Tarefa {
 }
 
 /** Abrangência legível: os tipos de veículo e, com implemento, "com MUNCK". */
-export function valePara(p: Pick<PlanoPreventivo, 'tiposVeiculo' | 'tiposImplemento'>): string {
+export function valePara(p: Pick<PlanoPreventivo, 'tiposVeiculo' | 'tiposImplemento' | 'placas'>): string {
+  const placas = p.placas ?? [];
+  if (placas.length) {
+    const nomes = placas.map((v) => formatarPlaca(v.nome));
+    return nomes.length > 4 ? `${nomes.slice(0, 3).join(', ')} e mais ${nomes.length - 3} placas` : nomes.join(', ');
+  }
   const partes = [...p.tiposVeiculo.map((t) => t.nome), ...p.tiposImplemento.map((t) => `com ${t.nome}`)];
   return partes.join(', ');
 }
@@ -74,7 +79,7 @@ export function valePara(p: Pick<PlanoPreventivo, 'tiposVeiculo' | 'tiposImpleme
   `,
   template: `
     <ces-data-table title="Planos de preventiva"
-      description="Cada plano vale para tipos de veículo (ou para quem estiver com um implemento) e vence pelo que chegar primeiro: km, horas ou dias."
+      description="Cada plano vale para as placas escolhidas (ou para tipos de veículo e implementos) e vence pelo que chegar primeiro: km, horas ou dias."
       storageKey="frota-planos-preventiva" exportFileName="planos-preventiva" searchPlaceholder="Filtrar nesta lista"
       [columns]="colunas" [rows]="planos()" [rowKey]="chave" [state]="estado()"
       stateTitle="Nenhum plano de preventiva"
@@ -124,11 +129,19 @@ export function valePara(p: Pick<PlanoPreventivo, 'tiposVeiculo' | 'tiposImpleme
           <ces-textarea label="Descrição" [(value)]="descricao" [rows]="2" [maxlength]="1000" [showOptional]="true"></ces-textarea>
         </ces-form-section>
 
-        <ces-form-section title="Vale para" icon="pi pi-car" description="Os veículos dos tipos escolhidos e os que estiverem com um dos implementos acoplado.">
-          <ces-multiselect label="Tipos de veículo" [options]="opcoesTipoVeiculo()" [(value)]="idsTiposVeiculo" placeholder="Nenhum"
-            [error]="tentou() && semAbrangencia() ? 'Escolha ao menos um tipo de veículo ou de implemento.' : undefined"></ces-multiselect>
-          <ces-multiselect label="Implementos acoplados" [options]="opcoesTipoImplemento()" [(value)]="idsTiposImplemento" placeholder="Nenhum"
-            [showOptional]="true" description="Ex.: um plano do munck vale para o caminhão que estiver com ele, medido pelo próprio caminhão."></ces-multiselect>
+        <ces-form-section title="Vale para" icon="pi pi-car"
+          [description]="porPlaca() ? 'Só as placas escolhidas entram no acompanhamento.' : 'Os veículos dos tipos escolhidos e os que estiverem com um dos implementos acoplado.'">
+          <ces-select label="Escolher por" [options]="formasAbrangencia" [(value)]="abrangencia"></ces-select>
+          @if (porPlaca()) {
+            <ces-multiselect label="Placas" [options]="opcoesPlaca()" [(value)]="idsVeiculos" placeholder="Escolha as placas" display="chip"
+              [maxSelectedLabels]="8" filterPlaceholder="Placa, modelo ou tipo"
+              [error]="tentou() && semAbrangencia() ? 'Escolha ao menos uma placa.' : undefined"></ces-multiselect>
+          } @else {
+            <ces-multiselect label="Tipos de veículo" [options]="opcoesTipoVeiculo()" [(value)]="idsTiposVeiculo" placeholder="Nenhum"
+              [error]="tentou() && semAbrangencia() ? 'Escolha ao menos um tipo de veículo ou de implemento.' : undefined"></ces-multiselect>
+            <ces-multiselect label="Implementos acoplados" [options]="opcoesTipoImplemento()" [(value)]="idsTiposImplemento" placeholder="Nenhum"
+              [showOptional]="true" description="Ex.: um plano do munck vale para o caminhão que estiver com ele, medido pelo próprio caminhão."></ces-multiselect>
+          }
         </ces-form-section>
 
         <ces-form-section title="De quanto em quanto" icon="pi pi-replay"
@@ -201,6 +214,14 @@ export class FrotaPlanosPreventivaComponent {
   protected readonly descricao = signal('');
   protected readonly idsTiposVeiculo = signal<string[]>([]);
   protected readonly idsTiposImplemento = signal<string[]>([]);
+  protected readonly idsVeiculos = signal<string[]>([]);
+  protected readonly abrangencia = signal<'PLACAS' | 'TIPOS'>('PLACAS');
+  protected readonly porPlaca = computed(() => this.abrangencia() === 'PLACAS');
+  protected readonly formasAbrangencia: CesSelectOption<'PLACAS' | 'TIPOS'>[] = [
+    { label: 'Placas escolhidas', value: 'PLACAS' },
+    { label: 'Tipos de veículo (inclui os que chegarem depois)', value: 'TIPOS' }
+  ];
+  protected readonly opcoesPlaca = signal<CesSelectOption<string>[]>([]);
   protected readonly intervaloKm = signal<number | null>(null);
   protected readonly intervaloHoras = signal<number | null>(null);
   protected readonly intervaloDias = signal<number | null>(null);
@@ -217,7 +238,8 @@ export class FrotaPlanosPreventivaComponent {
   private original = '';
 
   protected readonly estado = computed(() => (this.carregando() ? 'loading' : this.planos().length ? 'ready' : 'empty'));
-  protected readonly semAbrangencia = computed(() => !this.idsTiposVeiculo().length && !this.idsTiposImplemento().length);
+  protected readonly semAbrangencia = computed(() =>
+    this.porPlaca() ? !this.idsVeiculos().length : !this.idsTiposVeiculo().length && !this.idsTiposImplemento().length);
   protected readonly semFrequencia = computed(() => !this.intervaloKm() && !this.intervaloHoras() && !this.intervaloDias());
   protected readonly alterado = computed(() => this.formularioAberto() && JSON.stringify(this.pedido()) !== this.original);
 
@@ -238,6 +260,13 @@ export class FrotaPlanosPreventivaComponent {
     });
     this.frota.tiposImplemento(true).subscribe({
       next: (p) => this.opcoesTipoImplemento.set(p.content.map((t) => ({ label: t.nome, value: t.id }))),
+      error: () => undefined
+    });
+    this.frota.listarVeiculos({ ativo: true }, { ...PAGINA_OPCOES, sort: ['placa'] }).subscribe({
+      next: (p) => this.opcoesPlaca.set(p.content.map((v) => ({
+        label: `${formatarPlaca(v.placa)}${v.modelo ? ' · ' + v.modelo : ''}${v.tipoVeiculo ? ' · ' + v.tipoVeiculo : ''}`,
+        value: v.idVeiculo
+      }))),
       error: () => undefined
     });
     this.frota.itensManutencao(true).subscribe({
@@ -266,6 +295,9 @@ export class FrotaPlanosPreventivaComponent {
     this.descricao.set(p?.descricao ?? '');
     this.idsTiposVeiculo.set(p?.tiposVeiculo.map((t) => t.id) ?? []);
     this.idsTiposImplemento.set(p?.tiposImplemento.map((t) => t.id) ?? []);
+    this.idsVeiculos.set(p?.placas?.map((v) => v.id) ?? []);
+    // Plano antigo, só por tipo, abre por tipo; o novo, por placa.
+    this.abrangencia.set(p && !p.placas?.length ? 'TIPOS' : 'PLACAS');
     this.intervaloKm.set(p?.intervaloKm ?? null);
     this.intervaloHoras.set(p?.intervaloHoras ?? null);
     this.intervaloDias.set(p?.intervaloDias ?? null);
@@ -347,8 +379,9 @@ export class FrotaPlanosPreventivaComponent {
     return {
       nome: this.nome().trim(),
       descricao: this.descricao().trim() || null,
-      idsTiposVeiculo: this.idsTiposVeiculo(),
-      idsTiposImplemento: this.idsTiposImplemento(),
+      idsTiposVeiculo: this.porPlaca() ? [] : this.idsTiposVeiculo(),
+      idsTiposImplemento: this.porPlaca() ? [] : this.idsTiposImplemento(),
+      idsVeiculos: this.porPlaca() ? this.idsVeiculos() : [],
       intervaloKm: this.intervaloKm(),
       intervaloHoras: this.intervaloHoras(),
       intervaloDias: this.intervaloDias(),

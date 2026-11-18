@@ -138,6 +138,7 @@ test.describe('listagens críticas', () => {
       '/v1/movimentacoes-estoque': pagina([
         { idReferenciaOperacao: 'op123456-xyz', tipo: 'TRANSFERENCIA', dataHora: '2026-09-10T10:00:00Z', operadorNome: 'Carlos', estoqueOrigem: { id: 'e1', nomeIdentificador: 'ALMOX CENTRAL' } }
       ]),
+      '/movimentacoes-estoque/contagens': { total: 1, porTipo: { TRANSFERENCIA: 1 } },
       '/operacao/op123456-xyz': {
         idReferenciaOperacao: 'op123456-xyz',
         tipo: 'TRANSFERENCIA',

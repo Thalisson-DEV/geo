@@ -5,6 +5,7 @@ import com.nexo.app.modules.obras.application.mappers.ObraMapper;
 import com.nexo.app.modules.obras.domain.AgenteResponsavel;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.StatusObra;
+import com.nexo.app.modules.obras.domain.TipoDeObra;
 import com.nexo.app.modules.obras.domain.TipoVinculoProjeto;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.ObraSpecification;
@@ -40,6 +41,7 @@ public class ObraUseCases {
 
     private final ObraRepository repository;
     private final StatusObraUseCases statusUseCases;
+    private final TipoDeObraUseCases tipoDeObraUseCases;
     private final AgenteResponsavelUseCases agenteUseCases;
     private final NormalizadorObraService normalizador;
     private final ProcessoNegocioApi processoNegocioApi;
@@ -74,6 +76,7 @@ public class ObraUseCases {
                 ? agenteUseCases.buscarEntidade(request.idAgenteResponsavel())
                 : null;
 
+        TipoDeObra tipo = tipoDeObraUseCases.resolver(request.idTipoObra(), request.tipoObra(), null);
         Obra obra = new Obra(
                 numeroNormalizado,
                 tituloNormalizado,
@@ -93,8 +96,9 @@ public class ObraUseCases {
                 status,
                 agente,
                 request.equipes(),
-                com.nexo.app.modules.obras.domain.TipoObra.ouPadrao(request.tipoObra())
+                tipo.classeOperacional()
         );
+        obra.definirTipo(tipo);
 
         if (request.dataFimEfetiva() != null || status.isConcluida()) {
             obra.alterarStatus(status, request.dataFimEfetiva());
@@ -141,6 +145,10 @@ public class ObraUseCases {
                 ? agenteUseCases.buscarEntidade(request.idAgenteResponsavel())
                 : null;
 
+        TipoDeObra tipo = request.idTipoObra() == null && request.tipoObra() == null && obra.getTipoDeObra() != null
+                ? obra.getTipoDeObra()
+                : tipoDeObraUseCases.resolver(request.idTipoObra(),
+                        request.tipoObra() != null ? request.tipoObra() : obra.getTipoObra(), null);
         obra.atualizarDados(
                 numeroNormalizado,
                 tituloNormalizado,
@@ -160,8 +168,9 @@ public class ObraUseCases {
                 status,
                 agente,
                 request.equipes(),
-                request.tipoObra() != null ? request.tipoObra() : obra.getTipoObra()
+                tipo.classeOperacional()
         );
+        obra.definirTipo(tipo);
 
         if (request.dataFimEfetiva() != null || status.isConcluida()) {
             obra.alterarStatus(status, request.dataFimEfetiva());

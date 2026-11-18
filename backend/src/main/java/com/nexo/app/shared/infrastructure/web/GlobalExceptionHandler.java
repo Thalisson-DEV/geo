@@ -9,7 +9,8 @@ import com.nexo.app.shared.domain.exception.EncriptografiaException;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.PreenchimentoInvalidoException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
-import com.nexo.app.shared.infrastructure.lookup.LookupRateLimitExceededException;
+import com.nexo.app.shared.infrastructure.ratelimit.DecisaoRateLimit;
+import com.nexo.app.shared.infrastructure.ratelimit.RateLimitExcedidoException;
 import jakarta.persistence.RollbackException;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ValidationException;
@@ -45,17 +46,37 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(LookupRateLimitExceededException.class)
-    public ResponseEntity<ProblemDetail> handleLookupRateLimitExceeded(
-            LookupRateLimitExceededException ex) {
+    /**
+     * 429 com {@code Retry-After} (RFC 9110) e os campos {@code RateLimit-Policy} e
+     * {@code RateLimit} do draft da IETF. O texto fala com a pessoa e diz quanto esperar;
+     * {@code retryAfter} no corpo é lido pelo app de campo, que reenvia sozinho depois disso.
+     */
+    @ExceptionHandler(RateLimitExcedidoException.class)
+    public ResponseEntity<ProblemDetail> handleRateLimitExcedido(RateLimitExcedidoException ex) {
+        DecisaoRateLimit decisao = ex.getDecisao();
+        long espera = decisao.retryAfterSegundos();
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.TOO_MANY_REQUESTS, ex.getMessage());
-        problemDetail.setTitle("Too Many Requests");
+                HttpStatus.TOO_MANY_REQUESTS, ex.getMessage() + " Tente de novo em " + tempoDeEspera(espera) + ".");
+        problemDetail.setTitle("Muitas requisições");
         problemDetail.setType(URI.create("https://app.exemplo.com/errors/rate-limit-exceeded"));
-        problemDetail.setProperty("retryAfter", ex.getRetryAfter());
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("code", "RATE_LIMIT");
+        problemDetail.setProperty("retryAfter", espera);
+        String politica = decisao.politica().nome();
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                .header(HttpHeaders.RETRY_AFTER, Long.toString(ex.getRetryAfter()))
+                .header(HttpHeaders.RETRY_AFTER, Long.toString(espera))
+                .header("RateLimit-Policy", "\"" + politica + "\";q=" + decisao.capacidade()
+                        + ";w=" + Math.max(1, decisao.periodo().toSeconds()))
+                .header("RateLimit", "\"" + politica + "\";r=0;t=" + espera)
                 .body(problemDetail);
+    }
+
+    static String tempoDeEspera(long segundos) {
+        if (segundos < 60) {
+            return segundos == 1 ? "1 segundo" : segundos + " segundos";
+        }
+        long minutos = (segundos + 59) / 60;
+        return minutos == 1 ? "1 minuto" : minutos + " minutos";
     }
 
     @ExceptionHandler(ConflitoVersaoException.class)

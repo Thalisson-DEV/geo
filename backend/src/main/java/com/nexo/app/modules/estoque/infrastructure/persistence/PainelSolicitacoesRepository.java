@@ -26,7 +26,8 @@ import java.util.UUID;
 public interface PainelSolicitacoesRepository extends JpaRepository<SolicitacaoMaterial, UUID> {
 
     String RECORTE = """
-              AND (CAST(:contexto AS VARCHAR) IS NULL OR s.contexto = CAST(:contexto AS VARCHAR))
+              AND ((CAST(:contexto AS VARCHAR) IS NULL AND s.contexto IS DISTINCT FROM 'FECHAMENTO')
+                   OR s.contexto = CAST(:contexto AS VARCHAR))
               AND (:filtrarPorEquipes = FALSE OR COALESCE(s.id_equipe_saque, ed.id_equipe) IN :idsEquipes)
               AND (CAST(:idAlmoxarifado AS VARCHAR) IS NULL
                    OR COALESCE(s.id_almoxarifado_atendimento, s.id_estoque_origem) = CAST(:idAlmoxarifado AS UUID))

@@ -56,14 +56,45 @@ export function statusSeverity(status: ChamadoStatus): 'info' | 'warn' | 'succes
   return severities[status];
 }
 
+/**
+ * Classes de texto e fundo suave por tom, com os tokens semânticos do GEO (tema claro/escuro).
+ * Os literais ficam completos para o Tailwind gerar as utilities.
+ */
+const TOM_TEXTO: Record<CesTone, string> = {
+  neutral: 'text-[var(--ces-foreground-muted)]',
+  brand: 'text-[var(--ces-brand)]',
+  info: 'text-[var(--ces-info-text)]',
+  success: 'text-[var(--ces-success-text)]',
+  warning: 'text-[var(--ces-warning-text)]',
+  danger: 'text-[var(--ces-danger-text)]'
+};
+
+const TOM_TEXTO_FORCADO: Record<CesTone, string> = {
+  neutral: '!text-[var(--ces-foreground-muted)]',
+  brand: '!text-[var(--ces-brand)]',
+  info: '!text-[var(--ces-info-text)]',
+  success: '!text-[var(--ces-success-text)]',
+  warning: '!text-[var(--ces-warning-text)]',
+  danger: '!text-[var(--ces-danger-text)]'
+};
+
+const TOM_FUNDO: Record<CesTone, string> = {
+  neutral: 'bg-[var(--ces-surface-muted)]',
+  brand: 'bg-[var(--ces-brand-soft)]',
+  info: 'bg-[var(--ces-info-soft)]',
+  success: 'bg-[var(--ces-success-soft)]',
+  warning: 'bg-[var(--ces-warning-soft)]',
+  danger: 'bg-[var(--ces-danger-soft)]'
+};
+
+/** Texto + fundo suave do tom (selos montados à mão; prefira `ces-status`). */
+export function tomClass(tom: CesTone): string {
+  return `${TOM_TEXTO[tom]} ${TOM_FUNDO[tom]}`;
+}
+
+/** Classes do selo de prioridade (mesma regra de `prioridadeTom`). */
 export function prioridadeClass(prioridade: ChamadoPrioridade): string {
-  const classes: Record<ChamadoPrioridade, string> = {
-    BAIXA: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
-    NORMAL: 'bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300',
-    ALTA: 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300',
-    CRITICA: 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-300'
-  };
-  return classes[prioridade];
+  return tomClass(prioridadeTom(prioridade));
 }
 
 export function formatarBytes(bytes: number): string {
@@ -78,73 +109,74 @@ export function fimDoDiaIso(date: Date, fim: boolean): string {
   return value.toISOString();
 }
 
-export function contagemSlaLabel(
-  chamado: Pick<Chamado, 'status' | 'slaPausado' | 'slaResolucaoVencido'>
-): string {
-  if (chamado.status === 'CANCELADO') {
-    return 'Cancelada';
-  }
-  if (chamado.status === 'RESOLVIDO' || chamado.status === 'FECHADO') {
+type SituacaoSla = Pick<Chamado, 'status' | 'slaPausado' | 'slaResolucaoVencido'>;
+type SituacaoPrazo = SituacaoSla & Pick<Chamado, 'dataLimiteResolucao'>;
+
+/** Antecedência (em horas) em que o prazo de resolução passa a ser destacado como "vence em breve". */
+export const PRAZO_ALERTA_HORAS = 4;
+
+function concluido(status: ChamadoStatus): boolean {
+  return status === 'RESOLVIDO' || status === 'FECHADO';
+}
+
+function venceEmBreve(chamado: Pick<Chamado, 'dataLimiteResolucao'>): boolean {
+  const horas = (new Date(chamado.dataLimiteResolucao).getTime() - Date.now()) / 3_600_000;
+  return horas <= PRAZO_ALERTA_HORAS;
+}
+
+export function contagemSlaLabel(chamado: SituacaoSla): string {
+  if (chamado.status === 'CANCELADO') return 'Cancelada';
+  if (concluido(chamado.status)) {
     return chamado.slaResolucaoVencido ? 'Concluída fora do prazo' : 'Concluída no prazo';
   }
-  if (chamado.slaPausado) {
-    return 'Pausada';
-  }
+  if (chamado.slaPausado) return 'Pausada';
   return chamado.slaResolucaoVencido ? 'Vencida' : 'Em andamento';
 }
 
-export function contagemSlaClass(
-  chamado: Pick<Chamado, 'status' | 'slaPausado' | 'slaResolucaoVencido'>
-): string {
-  if (chamado.status === 'CANCELADO') {
-    return '!text-slate-500 dark:!text-slate-400';
-  }
-  if (chamado.status === 'RESOLVIDO' || chamado.status === 'FECHADO') {
-    return chamado.slaResolucaoVencido
-      ? '!text-red-600 dark:!text-red-400'
-      : '!text-emerald-600 dark:!text-emerald-400';
-  }
-  if (chamado.slaPausado) {
-    return '!text-slate-500 dark:!text-slate-400';
-  }
-  return chamado.slaResolucaoVencido
-    ? '!text-red-600 dark:!text-red-400'
-    : '!text-blue-600 dark:!text-blue-400';
+/** Tom da contagem do SLA de resolução (acompanha `contagemSlaLabel`). */
+export function contagemSlaTom(chamado: SituacaoSla): CesTone {
+  if (chamado.status === 'CANCELADO') return 'neutral';
+  if (concluido(chamado.status)) return chamado.slaResolucaoVencido ? 'danger' : 'success';
+  if (chamado.slaPausado) return 'neutral';
+  return chamado.slaResolucaoVencido ? 'danger' : 'info';
 }
 
-export function prazoClass(
-  chamado: Pick<Chamado, 'status' | 'slaResolucaoVencido' | 'slaPausado' | 'dataLimiteResolucao'>
-): string {
-  if (chamado.status === 'CANCELADO') {
-    return 'text-slate-500 bg-slate-100 dark:bg-slate-800 dark:text-slate-400';
-  }
-  if (chamado.status === 'RESOLVIDO' || chamado.status === 'FECHADO') {
-    return chamado.slaResolucaoVencido
-      ? 'text-red-700 bg-red-50 dark:bg-red-950/50 dark:text-red-300'
-      : 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300';
-  }
-  if (chamado.slaResolucaoVencido) {
-    return 'text-red-700 bg-red-50 dark:bg-red-950/50 dark:text-red-300';
-  }
-  if (chamado.slaPausado) {
-    return 'text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300';
-  }
-  const horas = (new Date(chamado.dataLimiteResolucao).getTime() - Date.now()) / 3_600_000;
-  return horas <= 4
-    ? 'text-amber-700 bg-amber-50 dark:bg-amber-950/50 dark:text-amber-300'
-    : 'text-emerald-700 bg-emerald-50 dark:bg-emerald-950/50 dark:text-emerald-300';
+/** Cor do texto da contagem (com `!` para vencer o estilo do contêiner). */
+export function contagemSlaClass(chamado: SituacaoSla): string {
+  return TOM_TEXTO_FORCADO[contagemSlaTom(chamado)];
 }
 
-export function prazoIcon(
-  chamado: Pick<Chamado, 'status' | 'slaResolucaoVencido' | 'slaPausado'>
-): string {
+/** Classes do selo de prazo (mesma regra de `prazoTom`). */
+export function prazoClass(chamado: SituacaoPrazo): string {
+  return tomClass(prazoTom(chamado));
+}
+
+/**
+ * Ícone do prazo de resolução. Cada situação tem ícone próprio para que a cor não seja o único
+ * indicador; sem `dataLimiteResolucao`, o prazo em curso usa o relógio.
+ */
+export function prazoIcon(chamado: SituacaoSla & Partial<Pick<Chamado, 'dataLimiteResolucao'>>): string {
   if (chamado.status === 'CANCELADO') return 'pi pi-times-circle';
-  if (chamado.status === 'RESOLVIDO' || chamado.status === 'FECHADO') {
+  if (concluido(chamado.status)) {
     return chamado.slaResolucaoVencido ? 'pi pi-exclamation-circle' : 'pi pi-check-circle';
   }
   if (chamado.slaResolucaoVencido) return 'pi pi-exclamation-circle';
   if (chamado.slaPausado) return 'pi pi-pause-circle';
+  if (chamado.dataLimiteResolucao && venceEmBreve({ dataLimiteResolucao: chamado.dataLimiteResolucao })) {
+    return 'pi pi-hourglass';
+  }
   return 'pi pi-clock';
+}
+
+/** Situação do prazo de resolução em texto (acompanha `prazoTom` e `prazoIcon`). */
+export function prazoLabel(chamado: SituacaoPrazo): string {
+  if (chamado.status === 'CANCELADO') return 'Cancelado';
+  if (concluido(chamado.status)) {
+    return chamado.slaResolucaoVencido ? 'Concluído fora do prazo' : 'Concluído no prazo';
+  }
+  if (chamado.slaResolucaoVencido) return 'Vencido';
+  if (chamado.slaPausado) return 'Pausado';
+  return venceEmBreve(chamado) ? 'Vence em breve' : 'No prazo';
 }
 
 /** Tom do DS (`ces-status`) para o status do chamado. */
@@ -160,20 +192,30 @@ export function statusTom(status: ChamadoStatus): CesTone {
   return tons[status];
 }
 
+/** Ícone da tag de status do chamado. */
+export function statusIcone(status: ChamadoStatus): string {
+  const icones: Record<ChamadoStatus, string> = {
+    ABERTO: 'pi-inbox',
+    EM_ATENDIMENTO: 'pi-comments',
+    AGUARDANDO_SOLICITANTE: 'pi-hourglass',
+    RESOLVIDO: 'pi-check-circle',
+    FECHADO: 'pi-lock',
+    CANCELADO: 'pi-ban'
+  };
+  return icones[status];
+}
+
 /** Tom do DS (`ces-status`) para a prioridade. */
 export function prioridadeTom(prioridade: ChamadoPrioridade): CesTone {
   const tons: Record<ChamadoPrioridade, CesTone> = { BAIXA: 'neutral', NORMAL: 'info', ALTA: 'warning', CRITICA: 'danger' };
   return tons[prioridade];
 }
 
-/** Tom do DS para o prazo de resolução (mesma regra de `prazoClass`). */
-export function prazoTom(
-  chamado: Pick<Chamado, 'status' | 'slaResolucaoVencido' | 'slaPausado' | 'dataLimiteResolucao'>
-): CesTone {
+/** Tom do DS para o prazo de resolução (`prazoClass`, `prazoIcon` e `prazoLabel` seguem a mesma regra). */
+export function prazoTom(chamado: SituacaoPrazo): CesTone {
   if (chamado.status === 'CANCELADO') return 'neutral';
-  if (chamado.status === 'RESOLVIDO' || chamado.status === 'FECHADO') return chamado.slaResolucaoVencido ? 'danger' : 'success';
+  if (concluido(chamado.status)) return chamado.slaResolucaoVencido ? 'danger' : 'success';
   if (chamado.slaResolucaoVencido) return 'danger';
   if (chamado.slaPausado) return 'neutral';
-  const horas = (new Date(chamado.dataLimiteResolucao).getTime() - Date.now()) / 3_600_000;
-  return horas <= 4 ? 'warning' : 'success';
+  return venceEmBreve(chamado) ? 'warning' : 'success';
 }

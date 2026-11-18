@@ -31,6 +31,7 @@ export const ICONES = {
   subir: '<path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 20h14"/>',
   atualizar: '<path d="M20 12a8 8 0 0 1-14 5.3M4 12a8 8 0 0 1 14-5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>',
   alerta: '<path d="M12 3.5 2.5 20h19z"/><path d="M12 10v4.5M12 17.5v.01"/>',
+  estrela: '<path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1 6L12 17l-5.4 2.85 1-6L3.3 9.6l6-.9z"/>',
   info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8v.01"/>',
   busca: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
   filtro: '<path d="M4 6h16M7 12h10M10 18h4"/>',
@@ -39,6 +40,8 @@ export const ICONES = {
   editar: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
   relogio: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
   caminhao: '<path d="M3 6.5h11v9H3zM14 9.5h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/>',
+  // Bomba de combustível: corpo com visor, mangueira saindo pela direita até o bico.
+  combustivel: '<path d="M5 20.5V5.5A2 2 0 0 1 7 3.5h6a2 2 0 0 1 2 2v15M3.5 20.5h13M7.5 7.5h5v3.5h-5z"/><path d="M15 9.5h1.5a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 0 3 0V8.5L18.5 6"/>',
   pessoas: '<circle cx="9" cy="9" r="3.2"/><path d="M3 19a6 6 0 0 1 12 0"/><circle cx="17" cy="10" r="2.5"/><path d="M15.5 14.2A5 5 0 0 1 21 19"/>',
   sair: '<path d="M10 4H6a1.5 1.5 0 0 0-1.5 1.5v13A1.5 1.5 0 0 0 6 20h4M15 8l4 4-4 4M19 12H9.5"/>',
   sol: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
@@ -67,6 +70,8 @@ export const ICONES = {
   expandir: '<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>',
   recolher: '<path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/>',
   assinatura: '<path d="M3.5 17.5c2.5 0 3.5-9 6-9s.5 7 3 7 2-3 3.5-3 1.5 2 4.5 2"/><path d="M3.5 20.5h17"/>',
+  fechamento: '<path d="M3.5 7a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="m8.5 13.5 2.4 2.4 4.6-4.6"/>',
+  carrinho: '<circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17.5" cy="19.5" r="1.4"/><path d="M3 4h2.5l2.4 11.5h10.4L20.5 8H6.5"/>',
   pessoa_fora: '<circle cx="10" cy="8.5" r="3.6"/><path d="M3 20a7 7 0 0 1 11.5-5.3M16 15.5h5.5M19 13l2.5 2.5L19 18"/>',
 } as const;
 

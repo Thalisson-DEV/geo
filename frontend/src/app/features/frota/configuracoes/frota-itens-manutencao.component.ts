@@ -16,7 +16,7 @@ import {
   CesTextareaComponent,
   NotificationService
 } from '@ces/ui';
-import { ItemManutencao, OpcoesFrota } from '../../../core/models/frota.models';
+import { ItemManutencao, OpcoesFrota, ROTULO_TIPO_ITEM, TipoItemManutencao } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
 import { acessoFrota } from '../shared/frota-acesso';
@@ -44,7 +44,7 @@ import { acessoFrota } from '../shared/frota-acesso';
   ],
   template: `
     <ces-data-table title="Itens de manutenção"
-      [description]="'Serviços e peças das OS. A mesma placa com o mesmo item dentro da janela conta como repetição (padrão: ' + janelaPadrao() + ' dias).'"
+      [description]="'Peças e mão de obra das OS. A mesma placa com o mesmo item dentro da janela conta como repetição (padrão: ' + janelaPadrao() + ' dias).'"
       storageKey="frota-itens-manutencao" exportFileName="itens-manutencao" searchPlaceholder="Filtrar nesta lista"
       [columns]="colunas" [rows]="itens()" [rowKey]="chave" [state]="estado()"
       stateTitle="Nenhum item de manutenção cadastrado"
@@ -81,6 +81,8 @@ import { acessoFrota } from '../shared/frota-acesso';
       <div class="ces-form-stack">
         <ces-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120"
           placeholder="Ex.: Pastilha de freio dianteira" [error]="tentou() && !nome().trim() ? 'Informe o nome.' : undefined"></ces-text-input>
+        <ces-select label="Tipo" [required]="true" [options]="tipos" [(value)]="tipo"
+          description="Peça entra em Peças e consumíveis da execução; mão de obra, em Serviços. A OS do plano preventivo já nasce com os dois."></ces-select>
         <ces-select label="Natureza" [required]="true" [options]="naturezas()" [(value)]="natureza" [filter]="true"
           description="A mesma lista do financeiro: entra pré-preenchida na compra." [error]="tentou() && !natureza() ? 'Escolha a natureza.' : undefined"></ces-select>
         <ces-number-input label="Janela de repetição" [(value)]="diasRepeticao" [min]="1" [max]="730" suffix=" dias" [showOptional]="true"
@@ -111,6 +113,11 @@ export class FrotaItensManutencaoComponent {
   protected readonly natureza = signal<string | null>(null);
   protected readonly descricao = signal('');
   protected readonly diasRepeticao = signal<number | null>(null);
+  protected readonly tipo = signal<TipoItemManutencao | null>('MAO_DE_OBRA');
+  protected readonly tipos: CesSelectOption<TipoItemManutencao>[] = [
+    { label: ROTULO_TIPO_ITEM.PECA, value: 'PECA' },
+    { label: ROTULO_TIPO_ITEM.MAO_DE_OBRA, value: 'MAO_DE_OBRA' }
+  ];
   protected readonly salvando = signal(false);
   protected readonly tentou = signal(false);
 
@@ -124,12 +131,14 @@ export class FrotaItensManutencaoComponent {
       this.nome() !== (e?.nome ?? '') ||
       this.natureza() !== (e?.natureza ?? null) ||
       this.descricao() !== (e?.descricao ?? '') ||
-      this.diasRepeticao() !== (e?.diasRepeticao ?? null)
+      this.diasRepeticao() !== (e?.diasRepeticao ?? null) ||
+      this.tipo() !== (e?.tipo ?? 'MAO_DE_OBRA')
     );
   });
 
   protected readonly colunas: CesDataTableColumn<ItemManutencao>[] = [
     { key: 'nome', header: 'Item', priority: 1 },
+    { key: 'tipoRotulo', header: 'Tipo', priority: 1, display: (i) => ROTULO_TIPO_ITEM[i.tipo ?? 'MAO_DE_OBRA'] },
     { key: 'naturezaRotulo', header: 'Natureza', priority: 1 },
     { key: 'diasRepeticao', header: 'Janela de repetição', type: 'custom', value: (i) => i.diasRepeticao ?? 0, display: (i) => (i.diasRepeticao ? `${i.diasRepeticao} dias` : 'Padrão') },
     { key: 'descricao', header: 'Descrição', display: (i) => i.descricao ?? '' },
@@ -161,6 +170,7 @@ export class FrotaItensManutencaoComponent {
     this.natureza.set(item?.natureza ?? null);
     this.descricao.set(item?.descricao ?? '');
     this.diasRepeticao.set(item?.diasRepeticao ?? null);
+    this.tipo.set(item?.tipo ?? 'MAO_DE_OBRA');
     this.tentou.set(false);
     this.formularioAberto.set(true);
   }
@@ -173,7 +183,8 @@ export class FrotaItensManutencaoComponent {
       nome: this.nome().trim(),
       natureza: this.natureza()!,
       descricao: this.descricao().trim() || null,
-      diasRepeticao: this.diasRepeticao()
+      diasRepeticao: this.diasRepeticao(),
+      tipo: this.tipo() ?? 'MAO_DE_OBRA'
     }, this.emEdicao()?.id).subscribe({
       next: (item) => {
         this.salvando.set(false);

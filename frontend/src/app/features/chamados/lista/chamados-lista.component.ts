@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CesButtonComponent,
@@ -8,12 +8,15 @@ import {
   CesDataTableComponent,
   CesDatepickerComponent,
   CesFilterPanelComponent,
+  CesIconButtonComponent,
   CesListShortcutsDirective,
   CesPageHeaderComponent,
+  CesRowActionsDirective,
   CesSelectComponent,
   CesSelectOption,
   CesStatusComponent,
   CesTextInputComponent,
+  NotificationService,
   cesFilter,
   cesListState
 } from '@ces/ui';
@@ -21,6 +24,7 @@ import { catchError, map, of } from 'rxjs';
 
 import { Chamado, ChamadoFiltros, ChamadoPrioridade, ChamadoStatus, EquipeChamado, TopicoChamado } from '../../../core/models/chamado.models';
 import { UsuarioResponse } from '../../../core/models/iam.models';
+import { bindDrawerToUrl } from '../../../core/navigation';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ChamadosService } from '../../../core/services/chamados.service';
 import { UsuariosService } from '../../../core/services/usuarios.service';
@@ -34,10 +38,13 @@ import {
   STATUS_OPTIONS,
   fimDoDiaIso,
   prazoIcon,
+  prazoLabel,
   prazoTom,
   prioridadeTom,
+  statusIcone,
   statusTom
 } from '../chamados-ui';
+import { ChamadoNovoDrawerComponent } from '../novo/chamado-novo-drawer.component';
 
 const SIM_NAO: CesSelectOption<boolean | null>[] = [
   { label: 'Todos', value: null },
@@ -58,12 +65,15 @@ const PRIORIDADES: CesSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
     CesDataTableComponent,
     CesDatepickerComponent,
     CesFilterPanelComponent,
+    CesIconButtonComponent,
     CesListShortcutsDirective,
     CesPageHeaderComponent,
+    CesRowActionsDirective,
     CesSelectComponent,
     CesStatusComponent,
     CesTextInputComponent,
-    AjudaListagemComponent
+    AjudaListagemComponent,
+    ChamadoNovoDrawerComponent
   ],
   template: `
     <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="!modoCentral" (newRequested)="novo()">
@@ -146,33 +156,43 @@ const PRIORIDADES: CesSelectOption<ChamadoPrioridade | null>[] = [{ label: 'Toda
           }
         </ng-template>
         <ng-template cesCell="prioridade" let-row>
-          <ces-status [tone]="prioridadeTom(row.prioridade)">{{ prioridadeLabel(row.prioridade) }}</ces-status>
+          <ces-status [tone]="prioridadeTom(row.prioridade)" icon="pi-flag">{{ prioridadeLabel(row.prioridade) }}</ces-status>
         </ng-template>
         <ng-template cesCell="status" let-row>
-          <ces-status [tone]="statusTom(row.status)">{{ statusLabel(row.status) }}</ces-status>
+          <ces-status [tone]="statusTom(row.status)" [icon]="statusIcone(row.status)">{{ statusLabel(row.status) }}</ces-status>
         </ng-template>
         <ng-template cesCell="prazo" let-row>
-          <ces-status [tone]="prazoTom(row)" [icon]="prazoIcone(row)" emphasis="outline">{{ row.dataLimiteResolucao | date: 'dd/MM/yy HH:mm' }}</ces-status>
+          <ces-status [tone]="prazoTom(row)" [icon]="prazoIcon(row)" emphasis="outline">{{ prazoLabel(row) }}</ces-status>
+          <span class="ces-cell-muted">{{ row.dataLimiteResolucao | date: 'dd/MM/yy HH:mm' }}</span>
+        </ng-template>
+        <ng-template cesRowActions let-row>
+          <ces-icon-button icon="pi pi-copy" [label]="'Copiar protocolo ' + row.protocolo" size="icon-sm" (pressed)="copiarProtocolo(row)"></ces-icon-button>
         </ng-template>
       </ces-data-table>
     </div>
 
+    @if (!modoCentral) {
+      <!-- Abertura de chamado (drawer, ?novo=1) -->
+      <app-chamado-novo-drawer [visible]="drawerUrl.open()" (visibleChange)="!$event && drawerUrl.close()" (chamadoAberto)="lista.reload()" />
+    }
+
     <app-ajuda-listagem #ajuda [titulo]="titulo" entidadePlural="chamados" busca="protocolo, assunto ou descrição" rotuloNovo="Novo chamado" [podeCriar]="!modoCentral">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-clock"></i> Prazo (SLA)</h4>
-        <p class="help-text-desc">A coluna Prazo mostra o limite de resolução: verde no prazo, amarelo a menos de 4 horas, vermelho vencido, cinza pausado ou cancelado. Os filtros "1ª resposta vencida" e "Resolução vencida" isolam os atrasados.</p>
+        <p class="help-text-desc">A coluna Prazo de resolução mostra a situação em texto e ícone (No prazo, Vence em breve — a menos de 4 horas —, Vencido, Pausado, Concluído no prazo ou fora dele, Cancelado) e a data limite. Os filtros "1ª resposta vencida" e "Resolução vencida" isolam os atrasados.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-arrow-right"></i> Detalhes</h4>
-        <p class="help-text-desc">Abrir o chamado mostra a linha do tempo, os anexos e as ações disponíveis.</p>
+        <p class="help-text-desc">Clique na linha (ou em Abrir) para ver a linha do tempo, os anexos e as ações disponíveis. O botão de cópia ao lado copia o protocolo.</p>
       </div>
     </app-ajuda-listagem>
   `
 })
-export class ChamadosListaComponent {
+export class ChamadosListaComponent implements OnInit {
   private readonly service = inject(ChamadosService);
   private readonly usuariosService = inject(UsuariosService);
   private readonly router = inject(Router);
+  private readonly notificacoes = inject(NotificationService);
 
   protected readonly modoCentral = inject(ActivatedRoute).snapshot.data['modo'] === 'central';
   protected readonly titulo = this.modoCentral ? 'Fila de chamados' : 'Meus chamados';
@@ -182,8 +202,11 @@ export class ChamadosListaComponent {
   protected readonly simNao = SIM_NAO;
   protected readonly dataLocal = dataLocal;
   protected readonly statusTom = statusTom;
+  protected readonly statusIcone = statusIcone;
   protected readonly prioridadeTom = prioridadeTom;
   protected readonly prazoTom = prazoTom;
+  protected readonly prazoIcon = prazoIcon;
+  protected readonly prazoLabel = prazoLabel;
   protected readonly statusLabel = (s: ChamadoStatus) => CHAMADO_STATUS_LABELS[s];
   protected readonly prioridadeLabel = (p: ChamadoPrioridade) => CHAMADO_PRIORIDADE_LABELS[p];
 
@@ -192,6 +215,7 @@ export class ChamadosListaComponent {
   /** Logins de usuários já conhecidos (filtros e coluna de responsável). */
   private readonly logins = signal<Record<string, string>>({});
   private readonly destroyRef = inject(DestroyRef);
+  protected readonly drawerUrl = bindDrawerToUrl();
 
   protected readonly equipes = new RemoteLookup<EquipeChamado>(
     {
@@ -247,7 +271,7 @@ export class ChamadosListaComponent {
     { key: 'atendimento', header: 'Atendimento', type: 'custom', value: (c) => c.equipeAtendimento?.nome, display: (c) => c.equipeAtendimento?.nome ?? '—' },
     { key: 'prioridade', header: 'Prioridade', type: 'custom', sortField: 'prioridade', value: (c) => c.prioridade, display: (c) => CHAMADO_PRIORIDADE_LABELS[c.prioridade] },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (c) => c.status, display: (c) => CHAMADO_STATUS_LABELS[c.status] },
-    { key: 'prazo', header: 'Prazo de resolução', type: 'custom', sortField: 'dataLimiteResolucao', value: (c) => c.dataLimiteResolucao, display: (c) => new Date(c.dataLimiteResolucao).toLocaleString('pt-BR') },
+    { key: 'prazo', header: 'Prazo de resolução', type: 'custom', sortField: 'dataLimiteResolucao', value: (c) => c.dataLimiteResolucao, display: (c) => `${new Date(c.dataLimiteResolucao).toLocaleString('pt-BR')} (${prazoLabel(c)})` },
     { key: 'ultima', header: 'Última interação', type: 'date', sortField: 'dataUltimaInteracao', value: (c) => c.dataUltimaInteracao }
   ];
   protected readonly rotulo = (c: Chamado) => c.protocolo;
@@ -263,6 +287,11 @@ export class ChamadosListaComponent {
       ];
       untracked(() => this.carregarLogins(ids));
     });
+  }
+
+  ngOnInit(): void {
+    // A fila não abre chamados: um ?novo=1 nela é ignorado.
+    if (!this.modoCentral) this.drawerUrl.connect(() => undefined);
   }
 
   private listar(filtros: ChamadoFiltros) {
@@ -309,10 +338,6 @@ export class ChamadosListaComponent {
     return this.logins()[id] ?? this.usuarios.items().find((u) => u.id === id)?.login ?? '…';
   }
 
-  protected prazoIcone(c: Chamado): string {
-    return prazoIcon(c).replace('pi ', '');
-  }
-
   protected abertura(limite: 'from' | 'to', data: Date | null): void {
     this.lista.filters.abertura.update((atual) => ({ ...atual, [limite]: dataIso(data) }));
   }
@@ -321,7 +346,17 @@ export class ChamadosListaComponent {
     void this.router.navigate([this.modoCentral ? '/chamados/fila' : '/chamados/meus', c.id]);
   }
 
+  protected copiarProtocolo(c: Chamado): void {
+    const clipboard = typeof navigator === 'undefined' ? undefined : navigator.clipboard;
+    const manual = () => this.notificacoes.warning(`Copie manualmente: ${c.protocolo}`, { title: 'Não foi possível copiar' });
+    if (!clipboard) {
+      manual();
+      return;
+    }
+    clipboard.writeText(c.protocolo).then(() => this.notificacoes.success(`Protocolo ${c.protocolo} copiado.`), manual);
+  }
+
   protected novo(): void {
-    if (!this.modoCentral) void this.router.navigate(['/chamados/novo']);
+    if (!this.modoCentral) this.drawerUrl.openNew();
   }
 }

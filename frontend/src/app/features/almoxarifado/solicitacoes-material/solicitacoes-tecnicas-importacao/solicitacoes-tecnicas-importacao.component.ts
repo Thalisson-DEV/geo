@@ -147,17 +147,8 @@ const TIPOS_MOVIMENTACAO: CesSelectOption<CodigoTipoTecnico>[] = [
           <ng-template cesCell="reserva" let-row>
             @if (row.editing) {
               <ces-text-input label="Número da reserva" placeholder="Nº da reserva" [labelVisible]="false" [(value)]="row.numeroReserva"></ces-text-input>
-              <ces-datepicker label="Data de criação da reserva" [labelVisible]="false" [value]="parseImportDate(row.dataCriacaoReserva)"
-                (valueChange)="row.dataCriacaoReserva = toLocalDate($event) ?? ''; recalcularParesETotaisImport()"></ces-datepicker>
-              <ces-select label="Agente responsável" placeholder="Agente" [labelVisible]="false" [options]="opcoesAgentes()" [value]="row.agenteResponsavel || null" (valueChange)="onAgenteChange(row, $event)" [filter]="true" [clearable]="true"></ces-select>
             } @else {
               <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.numeroReserva, erro: temErroNoCampo(row, 'numeroReserva') }"></ng-container>
-              @if (row.dataCriacaoReserva || temErroNoCampo(row, 'dataCriacaoReserva')) {
-                <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.dataCriacaoReserva, erro: temErroNoCampo(row, 'dataCriacaoReserva') }"></ng-container>
-              }
-              @if (row.agenteResponsavel || temErroNoCampo(row, 'agenteResponsavel')) {
-                <ng-container *ngTemplateOutlet="valor; context: { $implicit: row.agenteResponsavel, erro: temErroNoCampo(row, 'agenteResponsavel') }"></ng-container>
-              }
             }
           </ng-template>
           <ng-template cesCell="situacao" let-row>

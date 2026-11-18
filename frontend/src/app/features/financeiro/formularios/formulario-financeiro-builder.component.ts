@@ -10,7 +10,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TagModule } from 'primeng/tag';
+import { CesStatusComponent } from '@ces/ui';
 import { TooltipModule } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
 import {
@@ -47,7 +47,7 @@ interface BlocoBuilder extends GrupoDeCampos {
     InputTextModule,
     SelectModule,
     SkeletonModule,
-    TagModule,
+    CesStatusComponent,
     TooltipModule
   ],
   template: `
@@ -72,7 +72,7 @@ interface BlocoBuilder extends GrupoDeCampos {
                 Formulário de {{ doc.tipoSolicitacao === 'COMPRA' ? 'compra' : 'pagamento' }}
               </span>
               <code class="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded px-1.5 py-0.5">{{ doc.codigo }}</code>
-              @if (doc.padrao) { <p-tag value="Padrão" icon="pi pi-star-fill" [severity]="doc.tipoSolicitacao === 'COMPRA' ? 'success' : 'warn'" /> }
+              @if (doc.padrao) { <ces-status [tone]="doc.tipoSolicitacao === 'COMPRA' ? 'success' : 'warning'" icon="pi-star-fill">Padrão</ces-status> }
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="field md:col-span-1">

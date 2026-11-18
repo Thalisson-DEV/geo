@@ -1,0 +1,20 @@
+/* Layout vem de shared/styles/dashboard-shell.css (dash-*); aqui só o que é próprio do painel do financeiro. Só tokens --ces-*. */
+ces-callout { display: block; margin-bottom: 1rem; }
+ces-data-table { display: block; }
+.fin-tabela { margin-top: 1rem; }
+
+.fin-secao { margin-top: 1.5rem; }
+.fin-secao > header { margin-bottom: 0.75rem; }
+.fin-secao > header h2 { margin: 0.15rem 0 0; font-size: 1.05rem; color: var(--ces-foreground); }
+.fin-secao > header p { margin: 0.25rem 0 0; max-width: 60rem; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); line-height: 1.5; }
+
+.fin-grid-espaco { margin-top: 1.5rem; }
+
+.fin-dica { display: flex; align-items: center; gap: 0.4rem; margin: 0.5rem 0 0; color: var(--ces-foreground-muted); font-size: var(--ces-font-caption); }
+
+.fin-ressalva { display: block; }
+.fin-ressalva + .fin-ressalva { margin-top: 0.25rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fin-dica .pi-spin { animation: none; }
+}

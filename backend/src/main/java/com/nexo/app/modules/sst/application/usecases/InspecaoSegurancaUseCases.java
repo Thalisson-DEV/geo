@@ -346,7 +346,8 @@ public class InspecaoSegurancaUseCases {
             inspecao.sincronizarDesvio(
                     item.idPergunta(), item.idOpcaoResposta(), opcao.getGravidade(),
                     item.descricao(), item.acaoCorretiva(), item.prazo(),
-                    item.colaboradores(), item.status()
+                    item.colaboradores(), item.status(),
+                    perguntasPorId.get(item.idPergunta()).isDesvioPorColaborador()
             );
             chavesDesviosAtuais.add(chave);
         }
@@ -601,7 +602,8 @@ public class InspecaoSegurancaUseCases {
             }
 
             inspecao.registrarDesvio(item.idPergunta(), item.idOpcaoResposta(), opcao.getGravidade(),
-                    item.descricao(), item.acaoCorretiva(), item.prazo(), item.colaboradores(), item.status());
+                    item.descricao(), item.acaoCorretiva(), item.prazo(), item.colaboradores(), item.status(),
+                    pergunta.isDesvioPorColaborador());
         }
     }
 

@@ -16,7 +16,11 @@ public enum TipoEventoOrdemServico {
     ORCAMENTO_REPROVADO("Orçamento reprovado"),
     EXECUCAO_ALTERADA("Execução alterada"),
     DOCUMENTO_FISCAL_INCLUIDO("Documento fiscal incluído"),
-    DOCUMENTO_FISCAL_EXCLUIDO("Documento fiscal excluído");
+    DOCUMENTO_FISCAL_EXCLUIDO("Documento fiscal excluído"),
+    ANEXO_INCLUIDO("Anexo incluído"),
+    ANEXO_EXCLUIDO("Anexo excluído"),
+    REABERTA("Voltou para em andamento"),
+    BAIXA_REGISTRADA("OS finalizada");
 
     private final String rotulo;
 

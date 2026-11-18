@@ -56,7 +56,7 @@ const ETAPA_DESFEITA: Partial<Record<DescontoStatus, string>> = {
               <div class="cabeca">
                 <span class="titulo">{{ automatico(ev) ? 'Finalizado pelo sistema' : ev.rotulo }}</span>
                 @if (ev.tipo === 'DECISAO_DESFEITA' && ev.statusAnterior) {
-                  <ces-status tone="warning">{{ etapaDesfeita(ev.statusAnterior) }}</ces-status>
+                  <ces-status tone="warning" icon="pi-undo">{{ etapaDesfeita(ev.statusAnterior) }}</ces-status>
                 }
                 <time class="quando" [attr.datetime]="ev.ocorridoEm">{{ ev.ocorridoEm | date: 'dd/MM/yyyy · HH:mm' }}</time>
               </div>

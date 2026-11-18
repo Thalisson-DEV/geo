@@ -5,6 +5,7 @@ import com.nexo.app.modules.estoque.application.dto.MovimentacaoBulkRequest;
 import com.nexo.app.modules.estoque.application.dto.MovimentacaoEstoqueFilter;
 import com.nexo.app.modules.estoque.application.dto.MovimentacaoItemResponse;
 import com.nexo.app.modules.estoque.application.dto.MovimentacaoOperacaoResponse;
+import com.nexo.app.modules.estoque.application.dto.MovimentacaoOperacaoSummaryResponse;
 import com.nexo.app.modules.estoque.application.mappers.EstoqueMapper;
 import com.nexo.app.modules.estoque.application.mappers.MovimentacaoEstoqueMapper;
 import com.nexo.app.modules.estoque.domain.*;
@@ -15,6 +16,8 @@ import com.nexo.app.modules.estoque.infrastructure.persistence.SaldoRepository;
 import com.nexo.app.modules.estoque.infrastructure.persistence.SaldoSerieRepository;
 import com.nexo.app.modules.estoque.application.services.AssinaturaTransferenciaService;
 import com.nexo.app.modules.estoque.application.services.DebitoSaldoService;
+import com.nexo.app.modules.execucao.ExecucaoComercialApi;
+import com.nexo.app.modules.execucao.NotaResumida;
 import com.nexo.app.modules.iam.UsuarioApi;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import org.junit.jupiter.api.Test;
@@ -24,6 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -64,8 +68,100 @@ class MovimentacaoEstoqueUseCasesTest {
     @Mock
     private AssinaturaTransferenciaService assinaturaTransferenciaService;
 
+    @Mock private com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
+    @Mock
+    private ExecucaoComercialApi execucaoComercialApi;
     @InjectMocks
     private MovimentacaoEstoqueUseCases useCases;
+
+    @Test
+    void listar_InformaANotaDaAplicacaoENaoConsultaNotaDeOutrasOperacoes() {
+        UUID idExecucao = UUID.randomUUID();
+        UUID idTransferencia = UUID.randomUUID();
+        MovimentacaoEstoque aplicacao = movimentacao(idExecucao, MovimentacaoEstoque.TipoMovimentacao.APLICACAO);
+        MovimentacaoEstoque transferencia = movimentacao(idTransferencia, MovimentacaoEstoque.TipoMovimentacao.BAIXA_AVULSA);
+        when(repository.findUniqueOperacoesIds(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(idExecucao, idTransferencia)));
+        when(repository.findAllByIdReferenciaOperacaoInOrderByDataHoraDesc(any())).thenReturn(List.of(aplicacao, transferencia));
+        when(mapper.toOperacaoSummaryResponse(any())).thenAnswer(i -> new MovimentacaoOperacaoSummaryResponse());
+        when(usuarioApi.buscarNomePorId(any())).thenReturn(Optional.of("Ana"));
+        when(execucaoComercialApi.resumirNotas(List.of(idExecucao)))
+                .thenReturn(List.of(new NotaResumida(idExecucao, "NOTA-77", null, null)));
+
+        var operacoes = useCases.listar(filtroVazio(null), PageRequest.of(0, 10)).getContent();
+
+        assertEquals("NOTA-77", operacoes.get(0).getNumeroNota());
+        assertNull(operacoes.get(1).getNumeroNota());
+    }
+
+    @Test
+    void listar_ComTipoFiltradoMostraEsseTipoNaNotaQueAplicaERetira() {
+        UUID idExecucao = UUID.randomUUID();
+        MovimentacaoEstoque aplicacao = movimentacao(idExecucao, MovimentacaoEstoque.TipoMovimentacao.APLICACAO);
+        MovimentacaoEstoque retirada = movimentacao(idExecucao, MovimentacaoEstoque.TipoMovimentacao.RETIRADA);
+        when(repository.findUniqueOperacoesIds(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(new PageImpl<>(List.of(idExecucao)));
+        when(repository.findAllByIdReferenciaOperacaoInOrderByDataHoraDesc(any())).thenReturn(List.of(aplicacao, retirada));
+        when(mapper.toOperacaoSummaryResponse(any())).thenAnswer(i -> new MovimentacaoOperacaoSummaryResponse());
+        when(usuarioApi.buscarNomePorId(any())).thenReturn(Optional.of("Ana"));
+
+        useCases.listar(filtroVazio(MovimentacaoEstoque.TipoMovimentacao.RETIRADA), PageRequest.of(0, 10));
+
+        verify(mapper).toOperacaoSummaryResponse(retirada);
+    }
+
+    @Test
+    void contar_IgnoraOTipoFiltradoESeparaOTotalDosTipos() {
+        when(repository.contarOperacoesPorTipo(any(), any(), any(), isNull(), any(), any(), any(), any(), any(), any(), any(), any(),
+                any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), eq("COMERCIAL"), isNull()))
+                .thenReturn(List.of(new Object[] {"APLICACAO", 3L}, new Object[] {"RETIRADA", 2L}, new Object[] {null, 4L}));
+        MovimentacaoEstoqueFilter filtro = new MovimentacaoEstoqueFilter(null, null, null, null, null,
+                MovimentacaoEstoque.TipoMovimentacao.RETIRADA, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null, ContextoSolicitacaoMaterial.COMERCIAL, null, null);
+
+        var contagens = useCases.contar(filtro);
+
+        assertEquals(4, contagens.total());
+        assertEquals(3, contagens.porTipo().get(MovimentacaoEstoque.TipoMovimentacao.APLICACAO));
+        assertEquals(2, contagens.porTipo().get(MovimentacaoEstoque.TipoMovimentacao.RETIRADA));
+    }
+
+    @Test
+    void baixaLote_GuardaMotivoEObservacaoEmCadaLinhaDaOperacao() {
+        UUID idEstoque = UUID.randomUUID();
+        UUID idMaterial = UUID.randomUUID();
+        Material material = materialSemEquivalencia();
+        when(estoqueRepository.findById(idEstoque)).thenReturn(Optional.of(mock(Estoque.class)));
+        when(materialRepository.findById(idMaterial)).thenReturn(Optional.of(material));
+
+        useCases.baixaLote(new MovimentacaoBulkRequest(idEstoque, null,
+                List.of(new MovimentacaoBulkRequest.ItemMovimentacaoRequest(idMaterial, BigDecimal.TEN, null, CondicaoMaterial.NOVO)),
+                null, null, MotivoMovimentacao.PERDA_AVARIA, "  caiu do caminhão  "), UUID.randomUUID());
+
+        ArgumentCaptor<MovimentacaoEstoque> salva = ArgumentCaptor.forClass(MovimentacaoEstoque.class);
+        verify(repository).save(salva.capture());
+        assertEquals(MotivoMovimentacao.PERDA_AVARIA, salva.getValue().getMotivo());
+        assertEquals("caiu do caminhão", salva.getValue().getObservacao());
+    }
+
+    @Test
+    void registrarJustificativa_RecusaObservacaoLonga() {
+        MovimentacaoEstoque movimentacao = movimentacao(UUID.randomUUID(), MovimentacaoEstoque.TipoMovimentacao.BAIXA_AVULSA);
+
+        assertThrows(InvarianteVioladaException.class,
+                () -> movimentacao.registrarJustificativa(MotivoMovimentacao.OUTROS, "x".repeat(1001)));
+    }
+
+    private static MovimentacaoEstoqueFilter filtroVazio(MovimentacaoEstoque.TipoMovimentacao tipo) {
+        return new MovimentacaoEstoqueFilter(null, null, null, null, null, tipo, null, null, null, null, null, null);
+    }
+
+    private static MovimentacaoEstoque movimentacao(UUID idReferencia, MovimentacaoEstoque.TipoMovimentacao tipo) {
+        Estoque estoque = mock(Estoque.class);
+        Material material = materialSemEquivalencia();
+        return new MovimentacaoEstoque(estoque, estoque, material, BigDecimal.ONE, tipo, CondicaoMaterial.NOVO,
+                UUID.randomUUID(), idReferencia, null);
+    }
 
     @Test
     void listar_DeveRemoverSortDoPageableAoChamarRepositorio() {
@@ -110,7 +206,7 @@ class MovimentacaoEstoqueUseCasesTest {
                 idSolicitacao, TipoSolicitacaoTecnica.ADICAO_COMUM, TipoObraSnapshot.CORRETIVA,
                 idObra, " oc   1042 ", idEquipe, idReserva, "000123", idAgente,
                 SolicitacaoMaterial.StatusSolicitacao.ENTREGUE_PARCIAL, StatusSeparacao.SEPARADO,
-                "  material  ");
+                ContextoSolicitacaoMaterial.FECHAMENTO, MotivoMovimentacao.PERDA_AVARIA, "  material  ");
         Pageable pageable = PageRequest.of(2, 7, Sort.by("tipo").ascending());
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
 
@@ -123,7 +219,7 @@ class MovimentacaoEstoqueUseCasesTest {
                 eq("%material%"), eq("TECNICO"), eq(idSolicitacao),
                 eq("221"), eq("CORRETIVA"), eq(idObra), eq("OC 1042"), eq(idEquipe),
                 eq(idReserva), eq("000123"), eq(idAgente), eq("ENTREGUE_PARCIAL"),
-                eq("SEPARADO"), eq("tipo"), eq("ASC"), any(Pageable.class)))
+                eq("SEPARADO"), eq("FECHAMENTO"), eq("PERDA_AVARIA"), eq("tipo"), eq("ASC"), any(Pageable.class)))
                 .thenReturn(Page.empty());
 
         useCases.listar(filter, pageable);
@@ -137,7 +233,7 @@ class MovimentacaoEstoqueUseCasesTest {
                 eq("%material%"), eq("TECNICO"), eq(idSolicitacao),
                 eq("221"), eq("CORRETIVA"), eq(idObra), eq("OC 1042"), eq(idEquipe),
                 eq(idReserva), eq("000123"), eq(idAgente), eq("ENTREGUE_PARCIAL"),
-                eq("SEPARADO"), eq("tipo"), eq("ASC"), pageableCaptor.capture());
+                eq("SEPARADO"), eq("FECHAMENTO"), eq("PERDA_AVARIA"), eq("tipo"), eq("ASC"), pageableCaptor.capture());
         assertAll(
                 () -> assertEquals(2, pageableCaptor.getValue().getPageNumber()),
                 () -> assertEquals(7, pageableCaptor.getValue().getPageSize()),
@@ -163,7 +259,7 @@ class MovimentacaoEstoqueUseCasesTest {
         OperacaoSolicitacaoMaterial operacao = mock(OperacaoSolicitacaoMaterial.class);
         MovimentacaoItemResponse item = new MovimentacaoItemResponse(
                 UUID.randomUUID(), null, CondicaoMaterial.NOVO, BigDecimal.ONE, null,
-                idItemOperacao, idItemSolicitacao);
+                idItemOperacao, idItemSolicitacao, null, null);
 
         when(repository.findAllByIdReferenciaOperacaoInOrderByDataHoraDesc(List.of(idReferencia)))
                 .thenReturn(List.of(base));
@@ -216,7 +312,7 @@ class MovimentacaoEstoqueUseCasesTest {
         when(destinoFisico.isAtivo()).thenReturn(true);
         when(destinoFisico.getTipoEstoque()).thenReturn(tipoFisico);
 
-        Material material = mock(Material.class);
+        Material material = materialSemEquivalencia();
         when(material.getId()).thenReturn(idMaterial);
         when(material.isAtivo()).thenReturn(true);
         when(material.isDetalhaSerie()).thenReturn(false);
@@ -262,7 +358,7 @@ class MovimentacaoEstoqueUseCasesTest {
 
         Estoque origemCampo = mock(Estoque.class);
         Estoque destinoFisico = destinoFisicoAtivo(idEstoqueDestino);
-        Material material = mock(Material.class);
+        Material material = materialSemEquivalencia();
         when(material.isDetalhaSerie()).thenReturn(false);
 
         when(estoqueCampoEquipeService.resolver(idEquipe)).thenReturn(origemCampo);
@@ -306,7 +402,7 @@ class MovimentacaoEstoqueUseCasesTest {
         Estoque origemCampo = mock(Estoque.class);
         when(origemCampo.getId()).thenReturn(idOrigem);
         Estoque destinoFisico = destinoFisicoAtivo(idEstoqueDestino);
-        Material material = mock(Material.class);
+        Material material = materialSemEquivalencia();
         when(material.getId()).thenReturn(idMaterial);
         when(material.isDetalhaSerie()).thenReturn(true);
         SaldoSerie serie = mock(SaldoSerie.class);
@@ -408,7 +504,7 @@ class MovimentacaoEstoqueUseCasesTest {
 
         Estoque origem = mock(Estoque.class);
         Estoque destino = mock(Estoque.class);
-        Material material = mock(Material.class);
+        Material material = materialSemEquivalencia();
 
         when(destino.isAtivo()).thenReturn(true);
         when(material.isAtivo()).thenReturn(true);
@@ -445,5 +541,12 @@ class MovimentacaoEstoqueUseCasesTest {
         assertEquals(origem, salva.getEstoqueOrigem());
         assertEquals(destino, salva.getEstoqueDestino());
     }
-}
 
+    /** Material simulado que, como um real sem equivalência, devolve a quantidade como veio. */
+    private static Material materialSemEquivalencia() {
+        Material material = mock(Material.class);
+        org.mockito.Mockito.lenient().when(material.converterParaBase(org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.any()))
+                .thenAnswer(inv -> com.nexo.app.modules.estoque.domain.QuantidadeConvertida.semConversao(inv.getArgument(0)));
+        return material;
+    }
+}

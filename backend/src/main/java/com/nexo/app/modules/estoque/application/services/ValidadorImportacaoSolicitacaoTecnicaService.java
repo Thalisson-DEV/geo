@@ -1,5 +1,6 @@
 package com.nexo.app.modules.estoque.application.services;
 
+import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
 import com.nexo.app.modules.estoque.application.dto.PreviaImportacaoSolicitacaoTecnica;
 import com.nexo.app.modules.estoque.application.dto.PreviaImportacaoSolicitacaoTecnica.SolicitacaoPrevista;
 import com.nexo.app.modules.estoque.application.dto.PreviaImportacaoSolicitacaoTecnica.Item;
@@ -49,6 +50,7 @@ public class ValidadorImportacaoSolicitacaoTecnicaService {
     private final AgenteResponsavelApi agenteResponsavelApi;
     private final EstoqueRepository estoqueRepository;
     private final MaterialRepository materialRepository;
+    private final ProcessoMaterialService processoMaterial;
 
     @Transactional(readOnly = true)
     public PreviaImportacaoSolicitacaoTecnica validar(
@@ -159,6 +161,13 @@ public class ValidadorImportacaoSolicitacaoTecnicaService {
                 resultado.erro("Codigo Material", "MATERIAL_INVALIDO", resultado.codigoMaterial,
                         "O material deve existir e estar ativo.");
                 resultado.material = null;
+            } else {
+                String incompativel = processoMaterial
+                        .incompatibilidade(ContextoSolicitacaoMaterial.TECNICO, resultado.material).orElse(null);
+                if (incompativel != null) {
+                    resultado.erro("Codigo Material", "MATERIAL_OUTRO_PROCESSO", resultado.codigoMaterial, incompativel);
+                    resultado.material = null;
+                }
             }
         }
         resultado.quantidade = quantidade(linha.valor("Quantidade"), resultado);

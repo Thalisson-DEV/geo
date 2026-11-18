@@ -1,5 +1,7 @@
 package com.nexo.app.modules.estoque.application.usecases;
 
+import com.nexo.app.modules.estoque.application.services.ProcessoMaterialService;
+import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
 import com.nexo.app.modules.estoque.application.dto.*;
 import com.nexo.app.modules.estoque.SolicitacaoMaterialApi;
 import com.nexo.app.modules.estoque.application.mappers.SolicitacaoMapper;
@@ -47,9 +49,11 @@ public class SolicitacaoMaterialUseCases implements SolicitacaoMaterialApi {
     private final SolicitacaoMaterialRepository repository;
     private final SaldoRepository saldoRepository;
     private final SaldoSerieRepository serieRepository;
+    private final com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
     private final MovimentacaoEstoqueRepository movimentacaoRepository;
     private final EstoqueRepository estoqueRepository;
     private final MaterialRepository materialRepository;
+    private final ProcessoMaterialService processoMaterial;
     private final SolicitacaoMapper mapper;
     private final MotivoRejeicaoUseCases motivoRejeicaoUseCases;
     private final ApplicationEventPublisher eventPublisher;
@@ -175,6 +179,7 @@ public class SolicitacaoMaterialUseCases implements SolicitacaoMaterialApi {
                 for (AprovarSolicitacaoRequest.NovoItemAprovacaoRequest novo : request.itensAdicionados()) {
                     Material material = materialRepository.findById(novo.idMaterial())
                             .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado: " + novo.idMaterial()));
+                    processoMaterial.exigirCompativel(ContextoSolicitacaoMaterial.COMERCIAL, material);
                     solicitacao.adicionarItem(material, novo.quantidade());
                 }
             }
@@ -414,6 +419,7 @@ public class SolicitacaoMaterialUseCases implements SolicitacaoMaterialApi {
         for (SolicitacaoRequest.ItemRequest itemReq : request.itens()) {
             Material material = materialRepository.findById(itemReq.idMaterial())
                     .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado: " + itemReq.idMaterial()));
+            processoMaterial.exigirCompativel(ContextoSolicitacaoMaterial.COMERCIAL, material);
             solicitacao.adicionarItem(material, itemReq.quantidade());
         }
         return solicitacao;
@@ -476,6 +482,7 @@ public class SolicitacaoMaterialUseCases implements SolicitacaoMaterialApi {
     private void processarMovimentacaoFisica(SolicitacaoMaterial solicitacao, Material material, BigDecimal qtd, UUID idOperador, boolean isEstorno, String numSerie, UUID idOperacao) {
         Estoque origem = isEstorno ? solicitacao.getEstoqueDestino() : solicitacao.getEstoqueOrigem();
         Estoque destino = isEstorno ? solicitacao.getEstoqueOrigem() : solicitacao.getEstoqueDestino();
+        java.time.OffsetDateTime instante = java.time.OffsetDateTime.now();
 
         debitoSaldoService.debitar(origem, material, CondicaoMaterial.NOVO, qtd);
 
@@ -491,6 +498,8 @@ public class SolicitacaoMaterialUseCases implements SolicitacaoMaterialApi {
             serie.cumprirReservaDa(solicitacao);
             serie.transferirPara(destino);
             serieRepository.save(serie);
+            // A equipe pode ter aplicado a série antes da entrega: chega já aplicada.
+            conciliacaoSerieAplicada.conciliarChegada(serie, instante);
         }
 
         MovimentacaoEstoque mov = new MovimentacaoEstoque(

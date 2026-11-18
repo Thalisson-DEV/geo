@@ -1,3 +1,4 @@
+import { ICONE_STATUS_SOLICITACAO } from '../../../core/models/financeiro.models';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -294,7 +295,7 @@ const QUICK_STATUS_CHIPS: readonly StatusFilterChip[] = [
 
                       <!-- Linha 3: Bottom (Status + Solicitante + Data + Atual) -->
                       <div class="finance-inspect-item__row-bottom">
-                        <ces-status [tone]="statusTone(item.status)" emphasis="soft">
+                        <ces-status [tone]="statusTone(item.status)" [icon]="iconeStatus[item.status]" emphasis="soft">
                           {{ statusLabel(item.status) }}
                         </ces-status>
 
@@ -508,6 +509,8 @@ export class SolicitacaoFinanceiraInspecaoComponent {
   protected statusLabel(status: StatusSolicitacao): string {
     return STATUS_OPTIONS.find((option) => option.value === status)?.label ?? status;
   }
+
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_SOLICITACAO;
 
   protected statusTone(status: StatusSolicitacao): CesTone {
     return {

@@ -17,7 +17,7 @@ export type EtapaOrdemServico = 'agendar' | 'iniciar' | 'previsao';
 const TEXTOS: Record<EtapaOrdemServico, { titulo: string; descricao: string; botao: string; sucesso: string }> = {
   agendar: {
     titulo: 'Agendar manutenção',
-    descricao: 'A oficina é avisada do agendamento. Reagendar substitui a data anterior.',
+    descricao: 'A oficina e os gestores do veículo (supervisor e coordenador da equipe) recebem o aviso por e-mail. Reagendar substitui a data anterior.',
     botao: 'Agendar',
     sucesso: 'Manutenção agendada.'
   },

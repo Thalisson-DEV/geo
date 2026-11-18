@@ -1,11 +1,16 @@
 import { DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
+import { QuantidadeUnidadeComponent } from '../shared/quantidade-unidade.component';
+import { daUnidadeBase } from '../shared/unidade-material';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 
 import {
   CesBooleanControlComponent,
   CesButtonComponent,
   CesCalloutComponent,
+  CesDatepickerComponent,
   CesDrawerComponent,
   CesIconButtonComponent,
   CesNumberInputComponent,
@@ -17,15 +22,39 @@ import {
   CesTabsComponent,
   NotificationService
 } from '@ces/ui';
+import { CesAutocompleteComponent } from '@ces/ui/forms';
 
-import { ConsumoAnteriorItem, EntregaSolicitacaoRequest, ItemSolicitacaoResponse, MotivoPendenciaResponse, SolicitacaoResponse } from '../../../core/models/almoxarifado.models';
+import { LookupStore } from '../../../core/lookup/store/lookup.store';
+import { RemoteLookup as CursorRemoteLookup } from '../../../core/lookup/store/remote-lookup';
+import {
+  ConsumoAnteriorItem,
+  EntregaSolicitacaoRequest,
+  ItemSolicitacaoResponse,
+  MaterialResponse,
+  MotivoPendenciaResponse,
+  SolicitacaoResponse
+} from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { RhService } from '../../../core/services/rh.service';
 import { UsuarioLookupService } from '../../../core/services/usuario-lookup.service';
 import { prazoRelativo, saqueAtrasado, statusComercial } from './solicitacao-comercial-status';
+import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { navegarSaindoDoDrawer } from '../../../shared/utils/drawer-navegacao.utils';
-import { montarItensEntrega } from './series-selecao/entrega-series.util';
+import {
+  ItemEntregaRascunho,
+  montarEntregaDoRelatorio,
+  quantidadeDaLinha,
+  rascunhoDaEntrega
+} from './relatorio-solicitacao-material/itens-solicitacao.util';
+import {
+  LinhaAprovacao,
+  QUANTIDADE_MINIMA,
+  linhaAlterada,
+  montarAjustesAprovacao,
+  problemaDaAprovacao,
+  rascunhoDaAprovacao
+} from './aprovacao-ajustes.util';
 import { SeriesSelecaoComponent } from './series-selecao/series-selecao.component';
 import { ConsumoAnteriorLinhaComponent } from './solicitacao-consumo-anterior/solicitacao-consumo-anterior.component';
 import { ConsumoAnteriorOperacoesComponent } from './solicitacao-consumo-anterior/solicitacao-consumo-operacoes.component';
@@ -36,22 +65,8 @@ import { SolicitacaoTecnicaAssinaturaComponent } from './solicitacao-tecnica-ass
 
 const ehImagem = (valor: string) => valor.startsWith('data:image/');
 
-export type AbaDetalheComercial = 'itens' | 'entrega' | 'historico';
-
-export interface ItemEntregaDraft {
-  idItemSolicitacao: string;
-  codigo: string;
-  descricao: string;
-  unidade: string;
-  detalhaSerie: boolean;
-  quantidadeSolicitada: number;
-  jaEntregue: number;
-  quantidadePendente: number;
-  quantidadeAEntregar: number | null;
-  /** Séries que saem nesta entrega (material com série); começa com as reservadas. */
-  series: string[];
-  idMaterial: string;
-}
+/** `aprovacao` abre nos materiais, já ajustando o que a equipe pediu antes de aprovar. */
+export type AbaDetalheComercial = 'itens' | 'entrega' | 'historico' | 'aprovacao';
 
 interface EtapaFluxo {
   rotulo: string;
@@ -70,12 +85,16 @@ interface EtapaFluxo {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    QuantidadeUnidadeComponent,
     DatePipe,
     DecimalPipe,
     NgTemplateOutlet,
+    FormsModule,
+    CesAutocompleteComponent,
     CesBooleanControlComponent,
     CesButtonComponent,
     CesCalloutComponent,
+    CesDatepickerComponent,
     CesDrawerComponent,
     CesIconButtonComponent,
     CesNumberInputComponent,
@@ -134,7 +153,7 @@ interface EtapaFluxo {
             <p class="dd-hero__meta"><span class="dd-hero__id">#{{ idCurto() }}</span> · Pedida por <strong>{{ nome(det.idRequisitante) }}</strong> em {{ det.dataSolicitacao | date: "dd/MM/yyyy 'às' HH:mm" }}</p>
           </section>
 
-          @if (aba() !== 'entrega') {
+          @if (aba() !== 'entrega' && !ajustando()) {
           <ol class="dd-fluxo" aria-label="Andamento">
             @for (etapa of fluxo(); track etapa.rotulo) {
               <li class="dd-fluxo__etapa" [attr.data-estado]="etapa.estado">
@@ -244,52 +263,74 @@ interface EtapaFluxo {
                     </div>
 
                     <div class="dd-secao-topo">
-                      <span class="dd-muted"><strong class="dd-forte">{{ itensMarcados() }}</strong> de {{ itensEntrega().length }} itens nesta entrega</span>
+                      <span class="dd-muted">{{ resumoEntrega() }}</span>
                       <span class="dd-linha-botoes">
                         <ces-button label="Entregar tudo o que falta" icon="pi pi-check-square" variant="ghost" size="sm" (pressed)="preencherTudo()" />
                         <ces-button label="Zerar" icon="pi pi-eraser" variant="ghost" size="sm" (pressed)="zerarTudo()" />
                       </span>
                     </div>
 
-                    <ul class="dd-entrega__lista">
-                      @for (item of itensEntrega(); track item.idItemSolicitacao; let i = $index) {
-                        <li class="dd-entrega__item" [class.dd-entrega__item--ok]="item.quantidadePendente <= 0">
+                    <ul class="dd-entrega__lista" aria-label="Materiais desta entrega">
+                      @for (l of itensEntrega(); track l.chave; let i = $index) {
+                        <li class="dd-entrega__item dd-aprov__item" [class.dd-aprov__item--removido]="l.removido">
                           <div class="dd-material">
-                            <strong>{{ item.descricao }}</strong>
-                            <span class="dd-muted">{{ item.codigo }} · falta {{ item.quantidadePendente | number: '1.0-3' }} {{ item.unidade }} de {{ item.quantidadeSolicitada | number: '1.0-3' }}</span>
-                          </div>
-                          @if (item.quantidadePendente > 0) {
-                            @if (item.detalhaSerie) {
-                              <div class="dd-entrega__series">
-                                <app-series-selecao
-                                  [idSolicitacao]="det.id"
-                                  [origem]="origemEntrega()"
-                                  [material]="{ id: item.idMaterial, codigo: item.codigo, descricao: item.descricao }"
-                                  [maximo]="item.quantidadePendente"
-                                  [selecionadas]="item.series"
-                                  (selecionadasChange)="definirSeries(i, $event)"
-                                />
-                              </div>
-                            } @else {
-                              <div class="dd-entrega__campos">
-                                <ces-number-input
-                                  label="Entregar agora"
-                                  [suffix]="' ' + item.unidade"
-                                  [min]="0"
-                                  [max]="item.quantidadePendente"
-                                  [maxFractionDigits]="3"
-                                  [value]="item.quantidadeAEntregar"
-                                  (valueChange)="definirQuantidade(i, $event)"
-                                  [error]="(item.quantidadeAEntregar ?? 0) > item.quantidadePendente ? 'Máximo ' + item.quantidadePendente : undefined"
-                                />
-                              </div>
+                            <strong>{{ l.material.descricao }}</strong>
+                            <span class="dd-muted">
+                              {{ l.material.codigo }}
+                              @if (l.idItem) { · falta {{ l.pendente | number: '1.0-3' }} {{ l.material.unidadeMedida || 'UN' }} de {{ l.solicitada | number: '1.0-3' }} }
+                              @else { · {{ l.material.unidadeMedida || 'UN' }} }
+                              @if (l.material.detalhaSerie) { · com nº de série }
+                            </span>
+                            @if (!l.idItem) {
+                              <ces-status tone="brand" icon="pi pi-plus">Incluído nesta entrega</ces-status>
+                            } @else if (l.removido) {
+                              <ces-status tone="danger" icon="pi pi-trash">Sai da solicitação</ces-status>
                             }
-                          } @else {
-                            <ces-status tone="success" icon="pi pi-check">Já entregue</ces-status>
+                          </div>
+                          <div class="dd-aprov__campos">
+                            @if (!l.removido && !l.material.detalhaSerie) {
+                              <app-quantidade-unidade
+                                class="dd-aprov__quantidade"
+                                [label]="'Quantidade de ' + l.material.codigo + ' que sai agora'"
+                                [labelVisible]="false"
+                                [material]="l.material"
+                                [maxBase]="l.idItem ? l.pendente : undefined"
+                                [value]="l.quantidade"
+                                (valueChange)="definirQuantidade(i, $event)"
+                                [unidade]="l.unidade ?? null"
+                                (unidadeChange)="definirUnidade(i, $event)"
+                                [error]="l.idItem && quantidadeDaLinha(l) > l.pendente ? 'Máximo ' + l.pendente + ' ' + (l.material.unidadeMedida || 'UN') : undefined"
+                              />
+                            }
+                            @if (!l.idItem || podeTirarDaSolicitacao(l)) {
+                              <ces-icon-button
+                                [icon]="l.removido ? 'pi pi-undo' : 'pi pi-trash'"
+                                [label]="(l.removido ? 'Manter ' : l.idItem ? 'Tirar da solicitação ' : 'Descartar ') + l.material.codigo"
+                                [tooltip]="l.removido ? 'Manter na solicitação' : l.idItem ? 'Tirar da solicitação' : 'Descartar'"
+                                size="icon-sm"
+                                (pressed)="alternarRemocaoEntrega(i)"
+                              />
+                            }
+                          </div>
+                          @if (l.material.detalhaSerie && !l.removido) {
+                            <div class="dd-entrega__series">
+                              <app-series-selecao
+                                [idSolicitacao]="det.id"
+                                [origem]="origemEntrega()"
+                                [material]="{ id: l.material.id, codigo: l.material.codigo, descricao: l.material.descricao }"
+                                [maximo]="l.idItem ? l.pendente : (l.quantidade ?? 1)"
+                                [selecionadas]="l.series"
+                                (selecionadasChange)="definirSeries(i, $event)"
+                              />
+                            </div>
                           }
                         </li>
+                      } @empty {
+                        <li class="dd-muted">Nada falta entregar. Inclua um material abaixo para entregar a mais.</li>
                       }
                     </ul>
+
+                    <ng-container *ngTemplateOutlet="adicionar; context: { $implicit: 'Sai junto nesta entrega e entra na solicitação.' }" />
                   </div>
                 </ng-template>
               }
@@ -308,12 +349,153 @@ interface EtapaFluxo {
           }
 
           <ng-template #materiais>
+            @if (ajustando()) {
+              <div class="dd-entrega__quem dd-aprov__data">
+                <ces-datepicker
+                  label="Data prevista do saque"
+                  [value]="dataPrevistaAprovacao()"
+                  (valueChange)="dataPrevistaAprovacao.set($event)"
+                  [description]="dataAlterada() ? 'Antes: ' + (det.dataPrevista ? (det.dataPrevista | date: 'dd/MM/yyyy' : 'UTC') : 'não agendado') : 'Quando a equipe retira o material no almoxarifado.'"
+                />
+              </div>
+              <div class="dd-secao-topo">
+                <span class="dd-muted">{{ resumoAjustes() }}</span>
+                <span class="dd-linha-botoes">
+                  <ces-button label="Desfazer ajustes" icon="pi pi-undo" variant="ghost" size="sm" [disabled]="!temAjustes()" (pressed)="iniciarAjustes()" />
+                  @if (podeRegistrarPendencia() && !det.motivoPendencia) {
+                    <ces-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendenciaGeral()" />
+                  }
+                </span>
+              </div>
+              <ul class="dd-entrega__lista" aria-label="Materiais em aprovação">
+                @for (linha of rascunhoAprovacao(); track linha.chave; let i = $index) {
+                  <li class="dd-entrega__item dd-aprov__item" [class.dd-aprov__item--removido]="linha.removido">
+                    <div class="dd-material">
+                      <strong>{{ linha.material.descricao }}</strong>
+                      <span class="dd-muted">
+                        {{ linha.material.codigo }} · {{ linha.material.unidadeMedida || 'UN' }}
+                        @if (linha.material.detalhaSerie) { · com nº de série }
+                        @if (linha.idItem) { · pedido {{ linha.pedido | number: '1.0-3' }} }
+                      </span>
+                      @if (!linha.idItem) {
+                        <ces-status tone="brand" icon="pi pi-plus">Incluído na aprovação</ces-status>
+                      } @else if (linha.removido) {
+                        <ces-status tone="danger" icon="pi pi-trash">Sai da solicitação</ces-status>
+                      } @else if (linha.quantidade !== linha.pedido) {
+                        <ces-status tone="warning" icon="pi pi-pencil">Quantidade ajustada</ces-status>
+                      }
+                      @if (linha.idItem && !erroConsumo()) {
+                        <app-consumo-anterior-linha
+                          [consumo]="consumoPorMaterial()[linha.material.id] ?? null"
+                          [unidade]="linha.material.unidadeMedida || 'UN'"
+                          [carregando]="carregandoConsumo()"
+                          [idControlado]="'dd-aprov-ops-' + linha.chave"
+                          [aberto]="consumoAberto().has(linha.material.id)"
+                          (alternar)="alternarConsumo(linha.material.id)"
+                        />
+                      }
+                    </div>
+                    <div class="dd-aprov__campos">
+                      @if (!linha.removido) {
+                        <ces-number-input
+                          class="dd-aprov__quantidade"
+                          [label]="'Quantidade aprovada de ' + linha.material.codigo"
+                          [labelVisible]="false"
+                          [suffix]="' ' + (linha.material.unidadeMedida || 'UN')"
+                          [min]="0"
+                          [maxFractionDigits]="3"
+                          [value]="linha.quantidade"
+                          (valueChange)="definirQuantidadeAprovada(i, $event)"
+                          [error]="tentouAprovar() && (linha.quantidade ?? 0) < quantidadeMinima ? 'Informe a quantidade' : undefined"
+                        />
+                      }
+                      <ces-icon-button
+                        [icon]="linha.removido ? 'pi pi-undo' : 'pi pi-trash'"
+                        [label]="(linha.removido ? 'Manter ' : 'Tirar da solicitação ') + linha.material.codigo"
+                        [tooltip]="linha.removido ? 'Manter na solicitação' : 'Tirar da solicitação'"
+                        size="icon-sm"
+                        (pressed)="alternarRemocao(i)"
+                      />
+                    </div>
+                    @if (linha.idItem && consumoAberto().has(linha.material.id)) {
+                      <div class="dd-consumo-ops" [id]="'dd-aprov-ops-' + linha.chave">
+                        <app-consumo-anterior-operacoes [idSolicitacao]="det.id" [idMaterial]="linha.material.id" [unidade]="linha.material.unidadeMedida || 'UN'" />
+                      </div>
+                    }
+                  </li>
+                }
+              </ul>
+
+              <ng-container *ngTemplateOutlet="adicionar; context: { $implicit: 'Entra na solicitação ao aprovar.' }" />
+            } @else {
               <div class="dd-secao-topo">
                 <span class="dd-muted">{{ det.itens.length }} {{ det.itens.length === 1 ? 'material' : 'materiais' }}</span>
-                @if (podeRegistrarPendencia() && !det.motivoPendencia) {
-                  <ces-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendenciaGeral()" />
+                <span class="dd-linha-botoes">
+                  @if (podeAprovar()) {
+                    <ces-button label="Ajustar materiais e data" icon="pi pi-pencil" variant="ghost" size="sm" (pressed)="iniciarAjustes()" />
+                  }
+                  @if (podeRegistrarPendencia() && !det.motivoPendencia) {
+                    <ces-button label="Apontar pendência geral" icon="pi pi-flag" variant="ghost" size="sm" (pressed)="abrirPendenciaGeral()" />
+                  }
+                </span>
+              </div>
+              <ng-container *ngTemplateOutlet="tabelaMateriais" />
+            }
+          </ng-template>
+
+          <!-- Incluir material: o mesmo bloco na aprovação e na entrega -->
+          <ng-template #adicionar let-dica>
+              <div class="dd-aprov__adicionar">
+                <span class="dd-label"><i class="pi pi-plus-circle" aria-hidden="true"></i> Adicionar material <span class="dd-aprov__dica">· {{ dica }}</span></span>
+                <div class="dd-aprov__adicionar-campos">
+                  <ces-autocomplete
+                    class="dd-aprov__material"
+                    label="Material a adicionar"
+                    [labelVisible]="false"
+                    [(ngModel)]="materialNovoId"
+                    (ngModelChange)="selecionarMaterialNovo($event)"
+                    [options]="materiaisOpcoes()"
+                    [loading]="materiaisCarregando()"
+                    [status]="materiaisStatus()"
+                    [error]="materiaisErro()"
+                    [minLength]="2"
+                    [virtualScroll]="true"
+                    [virtualScrollItemSize]="42"
+                    [clearable]="true"
+                    placeholder="Código ou descrição do material"
+                    appendTo="body"
+                    (search)="buscarMateriais($event)"
+                    (loadMore)="carregarMaisMateriais()"
+                    (retry)="tentarMateriaisDeNovo()"
+                  />
+                  <ces-number-input
+                    class="dd-aprov__quantidade"
+                    label="Quantidade a adicionar"
+                    [labelVisible]="false"
+                    placeholder="Qtd."
+                    [min]="0"
+                    [maxFractionDigits]="3"
+                    [suffix]="materialNovo() ? ' ' + (materialNovo()!.unidadeMedida || 'UN') : ''"
+                    [value]="quantidadeNova()"
+                    (valueChange)="quantidadeNova.set($event)"
+                  />
+                  <ces-button label="Adicionar" icon="pi pi-plus" size="sm" variant="outline" [disabled]="!materialNovo() || (quantidadeNova() ?? 0) < quantidadeMinima" (pressed)="adicionarMaterial()" />
+                </div>
+                @if (materialNovo(); as m) {
+                  <span class="dd-muted" aria-live="polite">
+                    {{ m.codigo }} · {{ m.descricao }}
+                    @if (saldoOrigemNovo() === undefined) {
+                      · consultando o saldo em {{ origemDaInclusao().nome }}…
+                    } @else if (saldoOrigemNovo() !== null) {
+                      · {{ origemDaInclusao().nome }} tem <strong class="dd-forte">{{ saldoOrigemNovo() | number: '1.0-3' }} {{ m.unidadeMedida || 'UN' }}</strong>
+                    }
+                    @if (m.detalhaSerie && !ajustando()) { · escolha as séries na linha do material }
+                  </span>
                 }
               </div>
+          </ng-template>
+
+          <ng-template #tabelaMateriais>
               <div class="dd-tabela" role="table" aria-label="Materiais solicitados">
                 <div class="dd-tabela__linha dd-tabela__cab" role="row">
                   <span role="columnheader">Material</span>
@@ -399,7 +581,7 @@ interface EtapaFluxo {
                   </div>
                 }
               </div>
-            </ng-template>
+          </ng-template>
         </div>
       }
 
@@ -421,6 +603,9 @@ interface EtapaFluxo {
               [disabled]="!itensMarcados()"
               (pressed)="confirmarEntrega()"
             />
+          } @else if (ajustando()) {
+            <ces-button label="Cancelar ajustes" variant="ghost" [disabled]="executando()" (pressed)="sairDosAjustes()" />
+            <ces-button [label]="temAjustes() ? 'Aprovar com ajustes' : 'Aprovar'" icon="pi pi-check" [loading]="executando()" (pressed)="aprovar()" />
           } @else {
             @if (podeRejeitar()) {
               <ces-button [label]="detalhe()?.status === 'PENDENTE' ? 'Reprovar' : 'Rejeitar'" icon="pi pi-times" variant="outline" [disabled]="executando()" (pressed)="rejeicaoAberta.set(true)" />
@@ -459,6 +644,8 @@ export class SolicitacaoComercialDetalheComponent {
   private readonly usuarios = inject(UsuarioLookupService);
   private readonly notificacoes = inject(NotificationService);
   private readonly router = inject(Router);
+  private readonly lookupStore = inject(LookupStore);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly visible = model(false);
   readonly solicitacaoId = input<string | null>(null);
@@ -482,6 +669,54 @@ export class SolicitacaoComercialDetalheComponent {
   protected readonly pendenciaItemRotulo = signal<string | null>(null);
   protected readonly pendenciaMotivo = signal<MotivoPendenciaResponse | null>(null);
   protected readonly pendenciaJustificativa = signal<string | null>(null);
+
+  /** Gestor ajustando o que a equipe pediu antes de aprovar. */
+  protected readonly ajustando = signal(false);
+  /** Aberto pelo "Aprovar" do quadro ou do relatório: entra direto nos ajustes. */
+  private ajustarAoCarregar = false;
+  /** Data prevista do saque escolhida na aprovação. */
+  protected readonly dataPrevistaAprovacao = signal<Date | null>(null);
+  protected readonly dataAlterada = computed(() => {
+    const escolhida = dataIso(this.dataPrevistaAprovacao());
+    return !!escolhida && escolhida !== (this.detalhe()?.dataPrevista?.substring(0, 10) ?? null);
+  });
+  protected readonly rascunhoAprovacao = signal<LinhaAprovacao[]>([]);
+  protected readonly tentouAprovar = signal(false);
+  protected readonly quantidadeMinima = QUANTIDADE_MINIMA;
+  protected readonly materialNovoId = signal<string | null>(null);
+  protected readonly materialNovo = signal<MaterialResponse | null>(null);
+  protected readonly quantidadeNova = signal<number | null>(null);
+  /** Saldo do material escolhido na origem; `undefined` enquanto consulta, `null` se falhou. */
+  protected readonly saldoOrigemNovo = signal<number | null | undefined>(undefined);
+  protected readonly temAjustes = computed(() => this.dataAlterada() || this.rascunhoAprovacao().some(linhaAlterada));
+  protected readonly resumoAjustes = computed(() => {
+    const linhas = this.rascunhoAprovacao();
+    const partes: string[] = [];
+    const ajustadas = linhas.filter((l) => l.idItem && !l.removido && l.quantidade !== l.pedido).length;
+    const incluidas = linhas.filter((l) => !l.idItem).length;
+    const retiradas = linhas.filter((l) => l.removido).length;
+    if (ajustadas) partes.push(`${ajustadas} ${ajustadas === 1 ? 'quantidade ajustada' : 'quantidades ajustadas'}`);
+    if (incluidas) partes.push(`${incluidas} ${incluidas === 1 ? 'material incluído' : 'materiais incluídos'}`);
+    if (retiradas) partes.push(`${retiradas} ${retiradas === 1 ? 'material retirado' : 'materiais retirados'}`);
+    if (this.dataAlterada()) partes.push('data do saque alterada');
+    const resumo = partes.join(' · ');
+    return resumo ? resumo.charAt(0).toUpperCase() + resumo.slice(1) : 'Antes de aprovar, mude a data ou a quantidade, tire um material pela lixeira ou inclua outro abaixo.';
+  });
+  private readonly materialLookup = new CursorRemoteLookup<string>({
+    loader: ({ query, cursor }) => this.lookupStore.searchMaterials({ query, cursor }),
+    selectedValues: () => {
+      const id = this.materialNovoId();
+      return id ? [id] : [];
+    },
+    destroyRef: this.destroyRef
+  });
+  protected readonly materiaisOpcoes = this.materialLookup.items;
+  protected readonly materiaisCarregando = this.materialLookup.loading;
+  protected readonly materiaisStatus = this.materialLookup.status;
+  protected readonly materiaisErro = computed(() => {
+    const erro = this.materialLookup.error();
+    return erro ? getErrorMessage(erro) : undefined;
+  });
 
   /** Consumo de cada material desde a última solicitação do mesmo estoque (por id do material). */
   protected readonly consumoPorMaterial = signal<Record<string, ConsumoAnteriorItem>>({});
@@ -528,7 +763,9 @@ export class SolicitacaoComercialDetalheComponent {
   /** Materiais com as operações do consumo abertas abaixo do item. */
   protected readonly consumoAberto = signal<ReadonlySet<string>>(new Set());
 
-  protected readonly itensEntrega = signal<ItemEntregaDraft[]>([]);
+  /** O que sai nesta entrega: o que falta de cada material, mais o que o almoxarifado incluir. */
+  protected readonly itensEntrega = signal<ItemEntregaRascunho[]>([]);
+  protected readonly quantidadeDaLinha = quantidadeDaLinha;
   protected readonly responsavelId = signal<string | null>(null);
   protected readonly saqueForaEquipe = signal(false);
   protected readonly assinatura = signal<'FISICA' | 'DIGITAL'>('FISICA');
@@ -583,7 +820,7 @@ export class SolicitacaoComercialDetalheComponent {
     if (!id || id === this.origemEntrega().id) return;
     this.idOrigemEntrega.set(id);
     // As séries escolhidas eram da origem anterior.
-    this.itensEntrega.update((itens) => itens.map((it) => (it.detalhaSerie && it.series.length ? { ...it, series: [], quantidadeAEntregar: 0 } : it)));
+    this.itensEntrega.update((itens) => itens.map((it) => (it.series.length ? { ...it, series: [] } : it)));
   }
 
   protected trocarAssinatura(tipo: 'FISICA' | 'DIGITAL' | null): void {
@@ -611,7 +848,22 @@ export class SolicitacaoComercialDetalheComponent {
     const total = this.totalSolicitado();
     return total > 0 ? Math.min(100, Math.round((this.totalEntregue() / total) * 100)) : 0;
   });
-  protected readonly itensMarcados = computed(() => this.itensEntrega().filter((i) => (i.quantidadeAEntregar ?? 0) > 0).length);
+  protected readonly itensMarcados = computed(() => this.itensEntrega().filter((l) => quantidadeDaLinha(l) > 0).length);
+  protected readonly resumoEntrega = computed(() => {
+    const linhas = this.itensEntrega();
+    const naLista = linhas.filter((l) => !l.removido).length;
+    const partes = [`${this.itensMarcados()} de ${naLista} ${naLista === 1 ? 'material sai' : 'materiais saem'} agora`];
+    const incluidos = linhas.filter((l) => !l.idItem).length;
+    const retirados = linhas.filter((l) => l.removido).length;
+    if (incluidos) partes.push(`${incluidos} ${incluidos === 1 ? 'incluído' : 'incluídos'}`);
+    if (retirados) partes.push(`${retirados} ${retirados === 1 ? 'tirado' : 'tirados'} da solicitação`);
+    return partes.join(' · ');
+  });
+  /** De onde sai o material incluído: a origem da solicitação na aprovação, a da entrega no balcão. */
+  protected readonly origemDaInclusao = computed(() => {
+    const origem = this.detalhe()?.estoqueOrigem;
+    return this.ajustando() ? { id: origem?.id ?? '', nome: origem?.nomeIdentificador ?? '' } : this.origemEntrega();
+  });
 
   /** A política de ações do backend é a fonte de verdade; sem ela, cai na regra pelo status. */
   private pode(acao: string, status: string[]): boolean {
@@ -676,7 +928,8 @@ export class SolicitacaoComercialDetalheComponent {
       if (!this.visible() || !id) return;
       const aba = this.abaInicial();
       untracked(() => {
-        this.aba.set(aba);
+        this.ajustarAoCarregar = aba === 'aprovacao';
+        this.aba.set(aba === 'aprovacao' ? 'itens' : aba);
         this.carregar(id);
       });
     });
@@ -693,6 +946,8 @@ export class SolicitacaoComercialDetalheComponent {
         this.carregando.set(false);
         // A aba de entrega só existe enquanto há saldo a entregar.
         if (this.aba() === 'entrega' && !this.podeEntregar()) this.aba.set('itens');
+        if (this.ajustarAoCarregar && this.podeAprovar()) this.iniciarAjustes();
+        this.ajustarAoCarregar = false;
       },
       error: (err) => {
         this.carregando.set(false);
@@ -743,22 +998,7 @@ export class SolicitacaoComercialDetalheComponent {
     this.tentouEntregar.set(false);
     this.idOrigemEntrega.set(null);
     this.trocarAssinatura('FISICA');
-    this.itensEntrega.set(
-      (det.itens ?? []).map((i) => ({
-        idItemSolicitacao: i.id,
-        codigo: i.material.codigo,
-        descricao: i.material.descricao,
-        unidade: i.material.unidadeMedida || 'UN',
-        detalhaSerie: !!i.material.detalhaSerie,
-        quantidadeSolicitada: i.quantidade,
-        jaEntregue: this.entregue(i),
-        quantidadePendente: this.pendente(i),
-        // Com série: sai o que tiver série escolhida; as reservadas já vêm escolhidas, só confirmar.
-        quantidadeAEntregar: i.material.detalhaSerie ? (i.seriesReservadas?.length ?? 0) : this.pendente(i),
-        series: [...(i.seriesReservadas ?? [])],
-        idMaterial: i.material.id
-      }))
-    );
+    this.itensEntrega.set(rascunhoDaEntrega(det.itens));
     this.responsavelId.set(det.idColaboradorSaque ?? null);
     const equipe = det.idEquipe || det.estoqueDestino?.idEquipe;
     this.saqueForaEquipe.set(!!det.saqueForaEquipe || !equipe);
@@ -771,22 +1011,50 @@ export class SolicitacaoComercialDetalheComponent {
   }
 
   protected definirQuantidade(indice: number, valor: number | null): void {
-    this.itensEntrega.update((itens) => itens.map((it, i) => (i === indice ? { ...it, quantidadeAEntregar: valor } : it)));
+    this.itensEntrega.update((itens) =>
+      itens.map((l, i) => {
+        if (i !== indice) return l;
+        const nova = { ...l, quantidade: valor };
+        return l.idItem ? nova : { ...nova, solicitada: quantidadeDaLinha(nova), pendente: quantidadeDaLinha(nova) };
+      })
+    );
+  }
+
+  protected definirUnidade(indice: number, unidade: string | null): void {
+    this.itensEntrega.update((itens) =>
+      itens.map((l, i) => {
+        if (i !== indice) return l;
+        // A mesma quantidade física, mostrada na nova unidade.
+        const base = quantidadeDaLinha(l);
+        const nova = { ...l, unidade, quantidade: l.quantidade ? daUnidadeBase(l.material, base, unidade) : l.quantidade };
+        return l.idItem ? nova : { ...nova, solicitada: quantidadeDaLinha(nova), pendente: quantidadeDaLinha(nova) };
+      })
+    );
   }
 
   protected definirSeries(indice: number, series: string[]): void {
-    this.itensEntrega.update((itens) => itens.map((it, i) => (i === indice ? { ...it, series, quantidadeAEntregar: series.length } : it)));
+    this.itensEntrega.update((itens) => itens.map((l, i) => (i === indice ? { ...l, series } : l)));
   }
 
   /** Entrega todo o saldo do material comum; o material com série sai com as séries já escolhidas. */
   protected preencherTudo(): void {
-    this.itensEntrega.update((itens) =>
-      itens.map((it) => (it.quantidadePendente <= 0 || it.detalhaSerie ? it : { ...it, quantidadeAEntregar: it.quantidadePendente }))
-    );
+    this.itensEntrega.update((itens) => itens.map((l) => (l.material.detalhaSerie || l.removido || !l.idItem ? l : { ...l, quantidade: l.pendente })));
   }
 
   protected zerarTudo(): void {
-    this.itensEntrega.update((itens) => itens.map((it) => ({ ...it, quantidadeAEntregar: 0, series: [] })));
+    this.itensEntrega.update((itens) => itens.map((l) => (l.idItem ? { ...l, quantidade: 0, series: [] } : l)));
+  }
+
+  /** Só sai da solicitação o material que ainda não teve entrega nenhuma. */
+  protected podeTirarDaSolicitacao(l: ItemEntregaRascunho): boolean {
+    return !!l.idItem && l.jaEntregue <= 0;
+  }
+
+  /** O incluído na hora sai da lista; o que a equipe pediu fica marcado e pode voltar. */
+  protected alternarRemocaoEntrega(indice: number): void {
+    this.itensEntrega.update((itens) =>
+      itens[indice]?.idItem ? itens.map((l, i) => (i === indice ? { ...l, removido: !l.removido } : l)) : itens.filter((_, i) => i !== indice)
+    );
   }
 
   protected alternarForaEquipe(fora: boolean): void {
@@ -832,14 +1100,141 @@ export class SolicitacaoComercialDetalheComponent {
     });
   }
 
+  // --- Aprovação com ajustes: quantidades, inclusão e retirada de materiais ---
+
+  protected iniciarAjustes(): void {
+    this.rascunhoAprovacao.set(rascunhoDaAprovacao(this.detalhe()?.itens));
+    this.dataPrevistaAprovacao.set(dataLocal(this.detalhe()?.dataPrevista));
+    this.tentouAprovar.set(false);
+    this.limparMaterialNovo();
+    this.ajustando.set(true);
+  }
+
+  protected sairDosAjustes(): void {
+    this.ajustando.set(false);
+    this.rascunhoAprovacao.set([]);
+    this.dataPrevistaAprovacao.set(null);
+    this.tentouAprovar.set(false);
+    this.limparMaterialNovo();
+  }
+
+  protected definirQuantidadeAprovada(indice: number, valor: number | null): void {
+    this.rascunhoAprovacao.update((linhas) => linhas.map((l, i) => (i === indice ? { ...l, quantidade: valor } : l)));
+  }
+
+  /** O incluído na hora sai da lista; o que a equipe pediu fica marcado e pode voltar. */
+  protected alternarRemocao(indice: number): void {
+    this.rascunhoAprovacao.update((linhas) =>
+      linhas[indice]?.idItem ? linhas.map((l, i) => (i === indice ? { ...l, removido: !l.removido } : l)) : linhas.filter((_, i) => i !== indice)
+    );
+  }
+
+  protected selecionarMaterialNovo(id: string | null): void {
+    this.materialNovo.set(null);
+    this.saldoOrigemNovo.set(undefined);
+    const origem = this.origemDaInclusao().id;
+    if (!id) return;
+    this.almoxarifado.buscarMaterialPorId(id).subscribe({
+      next: (material) => {
+        if (this.materialNovoId() === id) this.materialNovo.set(material);
+      },
+      error: () => {
+        if (this.materialNovoId() === id) this.materialNovo.set(null);
+      }
+    });
+    if (!origem) return this.saldoOrigemNovo.set(null);
+    this.almoxarifado
+      .listarSaldos({ idEstoque: origem, idMaterial: id, condicao: 'NOVO', ativo: true, size: 1 })
+      .pipe(
+        map((res) => Number(res.content?.[0]?.quantidade ?? 0)),
+        catchError(() => of(null))
+      )
+      .subscribe((saldo) => {
+        if (this.materialNovoId() === id) this.saldoOrigemNovo.set(saldo);
+      });
+  }
+
+  protected adicionarMaterial(): void {
+    const material = this.materialNovo();
+    const quantidade = this.quantidadeNova();
+    if (!material || quantidade === null || quantidade < QUANTIDADE_MINIMA) {
+      return this.notificacoes.warning('Escolha o material e informe a quantidade.');
+    }
+    if (!this.ajustando()) return this.incluirNaEntrega(material, quantidade);
+    const existente = this.rascunhoAprovacao().find((l) => l.material.id === material.id);
+    if (existente && !existente.removido) {
+      return this.notificacoes.warning(`${material.codigo} já está na solicitação: ajuste a quantidade na linha dele.`);
+    }
+    if (existente) {
+      // Estava marcado para sair: volta com a quantidade informada.
+      this.rascunhoAprovacao.update((linhas) => linhas.map((l) => (l === existente ? { ...l, removido: false, quantidade } : l)));
+    } else {
+      this.rascunhoAprovacao.update((linhas) => [
+        ...linhas,
+        { chave: `novo-${material.id}`, idItem: null, material, pedido: 0, quantidade, removido: false }
+      ]);
+    }
+    this.limparMaterialNovo();
+  }
+
+  private incluirNaEntrega(material: MaterialResponse, quantidade: number): void {
+    const existente = this.itensEntrega().find((l) => l.material.id === material.id);
+    if (existente && !existente.removido) {
+      return this.notificacoes.warning(`${material.codigo} já está na entrega: ajuste a quantidade na linha dele.`);
+    }
+    if (existente) {
+      // Estava marcado para sair da solicitação: volta com a quantidade informada.
+      this.itensEntrega.update((itens) => itens.map((l) => (l === existente ? { ...l, removido: false, quantidade: Math.min(quantidade, l.pendente) } : l)));
+    } else {
+      this.itensEntrega.update((itens) => [
+        ...itens,
+        { chave: `novo-${material.id}`, idItem: null, material, solicitada: quantidade, jaEntregue: 0, pendente: quantidade, quantidade, series: [] }
+      ]);
+    }
+    this.limparMaterialNovo();
+  }
+
+  private limparMaterialNovo(): void {
+    this.materialNovoId.set(null);
+    this.materialNovo.set(null);
+    this.quantidadeNova.set(null);
+    this.saldoOrigemNovo.set(undefined);
+  }
+
+  protected buscarMateriais(termo: string): void {
+    this.materialLookup.search(termo);
+  }
+
+  protected carregarMaisMateriais(): void {
+    this.materialLookup.loadNext();
+  }
+
+  protected tentarMateriaisDeNovo(): void {
+    this.materialLookup.retry();
+  }
+
   protected aprovar(): void {
     const det = this.detalhe();
     if (!det || this.executando()) return;
+    const comAjustes = this.ajustando() && this.temAjustes();
+    if (this.ajustando()) {
+      this.tentouAprovar.set(true);
+      const problema = problemaDaAprovacao(this.rascunhoAprovacao());
+      if (problema) return this.notificacoes.warning(problema);
+    }
     this.executando.set(true);
-    this.almoxarifado.aprovarSolicitacao(det.id, {}).subscribe({
+    const pedido = comAjustes
+      ? { ...montarAjustesAprovacao(this.rascunhoAprovacao()), ...(this.dataAlterada() ? { dataPrevista: dataIso(this.dataPrevistaAprovacao())! } : {}) }
+      : {};
+    this.almoxarifado.aprovarSolicitacao(det.id, pedido).subscribe({
       next: () => {
         this.executando.set(false);
-        this.notificacoes.success(`Solicitação #${this.idCurto()} aprovada. Ela agora aguarda retirada.`);
+        this.sairDosAjustes();
+        this.notificacoes.success(
+          comAjustes
+            ? `Solicitação #${this.idCurto()} aprovada com os ajustes. Ela agora aguarda retirada.`
+            : `Solicitação #${this.idCurto()} aprovada. Ela agora aguarda retirada.`
+        );
         this.aoAlterar();
       },
       error: (err) => {
@@ -853,11 +1248,17 @@ export class SolicitacaoComercialDetalheComponent {
     const det = this.detalhe();
     if (!det || this.salvandoEntrega()) return;
     this.tentouEntregar.set(true);
-    const itens = this.itensEntrega().filter((i) => (i.quantidadeAEntregar ?? 0) > 0);
+    const linhas = this.itensEntrega();
     if (!this.responsavelId()) return this.notificacoes.warning('Escolha quem retira o material.');
-    if (!itens.length) return this.notificacoes.warning('Informe a quantidade de ao menos um item.');
-    const excedido = itens.find((i) => (i.quantidadeAEntregar ?? 0) > i.quantidadePendente);
-    if (excedido) return this.notificacoes.warning(`${excedido.codigo}: a quantidade passa do que falta entregar.`);
+    const incluidoVazio = linhas.find((l) => !l.idItem && quantidadeDaLinha(l) <= 0);
+    if (incluidoVazio) {
+      return this.notificacoes.warning(
+        `${incluidoVazio.material.codigo}: ${incluidoVazio.material.detalhaSerie ? 'escolha as séries' : 'informe a quantidade'} ou descarte o material incluído.`
+      );
+    }
+    if (!this.itensMarcados()) return this.notificacoes.warning('Informe a quantidade de ao menos um item.');
+    const excedido = linhas.find((l) => l.idItem && quantidadeDaLinha(l) > l.pendente);
+    if (excedido) return this.notificacoes.warning(`${excedido.material.codigo}: a quantidade passa do que falta entregar.`);
 
     const digital = this.assinatura() === 'DIGITAL';
     if (digital && !(ehImagem(this.assinaturaAlmox()) && ehImagem(this.assinaturaEquipe())))
@@ -868,24 +1269,14 @@ export class SolicitacaoComercialDetalheComponent {
       assinaturaEquipe: digital ? this.assinaturaEquipe() : 'FISICA',
       idColaboradorSaque: this.responsavelId()!,
       saqueForaEquipe: this.saqueForaEquipe(),
-      ...montarItensEntrega(
-        itens.map((i) => ({
-          idItemSolicitacao: i.idItemSolicitacao,
-          idMaterial: i.idMaterial,
-          detalhaSerie: i.detalhaSerie,
-          quantidadeSolicitada: i.quantidadeSolicitada,
-          jaEntregue: i.jaEntregue,
-          quantidade: i.quantidadeAEntregar ?? 0,
-          series: i.series
-        }))
-      ),
+      ...montarEntregaDoRelatorio(linhas),
       ...(this.origemTrocada() ? { idEstoqueOrigem: this.origemEntrega().id } : {})
     };
     this.salvandoEntrega.set(true);
     this.almoxarifado.registrarEntrega(det.id, pedido).subscribe({
       next: () => {
         this.salvandoEntrega.set(false);
-        const completa = itens.length === this.itensEntrega().filter((i) => i.quantidadePendente > 0).length && itens.every((i) => i.quantidadeAEntregar === i.quantidadePendente);
+        const completa = linhas.filter((l) => l.idItem && !l.removido).every((l) => quantidadeDaLinha(l) >= l.pendente);
         this.notificacoes.success(completa ? 'Entrega registrada. A solicitação foi concluída.' : 'Entrega parcial registrada. O saldo continua aguardando retirada.');
         this.aba.set('itens');
         this.aoAlterar();
@@ -959,6 +1350,7 @@ export class SolicitacaoComercialDetalheComponent {
   }
 
   protected aoFechar(): void {
+    this.sairDosAjustes();
     this.detalhe.set(null);
     this.consumoPorMaterial.set({});
     this.consumoAberto.set(new Set());

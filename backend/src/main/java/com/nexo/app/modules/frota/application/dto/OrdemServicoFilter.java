@@ -34,7 +34,9 @@ public record OrdemServicoFilter(
         Boolean semVeiculo,
         /** Período de conclusão (fim real): o quadro mostra as concluídas da última semana. */
         OffsetDateTime concluidaDe,
-        OffsetDateTime concluidaAte
+        OffsetDateTime concluidaAte,
+        /** Concluídas com a baixa pendente (verdadeiro) ou já finalizadas (falso). */
+        Boolean baixaPendente
 ) {
     public OrdemServicoFilter(String busca, List<UUID> idsBase, List<SituacaoOrdemServico> situacoes,
                               List<Criticidade> criticidades, List<TipoManutencao> tiposManutencao,
@@ -42,7 +44,7 @@ public record OrdemServicoFilter(
                               OffsetDateTime abertaDe, OffsetDateTime abertaAte, Boolean atrasadas,
                               Boolean veiculoParado, Boolean comRepeticao) {
         this(busca, idsBase, situacoes, criticidades, tiposManutencao, origens, idsItem, idVeiculo, idCondutor,
-                abertaDe, abertaAte, atrasadas, veiculoParado, comRepeticao, null, null, null);
+                abertaDe, abertaAte, atrasadas, veiculoParado, comRepeticao, null, null, null, null);
     }
 
     public OrdemServicoFilter {

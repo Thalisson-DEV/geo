@@ -8,7 +8,10 @@ import { Aba, BarraAbasComponent } from '../../ui';
 import { AvisoSessaoComponent } from '../../ui/aviso-sessao.component';
 
 /** Telas de topo: mostram a barra de abas. Lançamentos e detalhes ocupam a tela toda. */
-const TELAS_DE_TOPO = /^\/(hoje|campo|material|solicitacoes|solicitacoes\/estoque|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/movimentacoes)(\?|$)/;
+const TELAS_DE_TOPO = /^\/(hoje|campo|material|frota|solicitacoes|solicitacoes\/estoque|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
+
+/** Checklist e abastecimento valem para todos os perfis do app (campo e administrativo). */
+const ABA_FROTA: Aba = { rota: '/frota', rotulo: 'Frota', icone: 'caminhao', ativaEm: ['/checklist', '/abastecimento'] };
 
 /**
  * Casca do app: conteúdo rolável + barra de abas inferior.
@@ -17,16 +20,18 @@ const TELAS_DE_TOPO = /^\/(hoje|campo|material|solicitacoes|solicitacoes\/estoqu
  * rolagem e ao sair) e devolvida ao voltar — inclusive depois de o sistema
  * matar o app — esperando a lista ter altura suficiente.
  */
+import { AvaliacaoFolhaComponent } from '../avaliacao/avaliacao-folha.component';
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, BarraAbasComponent, AvisoSessaoComponent],
+  imports: [RouterOutlet, BarraAbasComponent, AvisoSessaoComponent, AvaliacaoFolhaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="casca">
       <main #rolagem class="conteudo" (scroll)="aoRolar()">
         <ces-aviso-sessao />
         <router-outlet />
+        <app-avaliacao-folha />
       </main>
       @if (mostrarAbas()) {
         <ces-barra-abas [abas]="abas()" />
@@ -38,7 +43,9 @@ const TELAS_DE_TOPO = /^\/(hoje|campo|material|solicitacoes|solicitacoes\/estoqu
     .casca { display: flex; flex-direction: column; height: 100dvh; background: var(--ces-fundo); }
     .conteudo { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
       display: flex; flex-direction: column; }
-    .conteudo > :not(router-outlet) { flex: 1 0 auto; }
+    /* Só a tela cresce até o fim; o aviso de sessão fica do tamanho dele (vazio, crescia e empurrava a tela curta para baixo no tablet). */
+    .conteudo > :not(router-outlet):not(ces-aviso-sessao) { flex: 1 0 auto; }
+    .conteudo > ces-aviso-sessao { flex: none; }
   `],
 })
 export class AppShellComponent implements AfterViewInit {
@@ -61,6 +68,16 @@ export class AppShellComponent implements AfterViewInit {
         { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
         { rota: '/almox', rotulo: 'Almoxarifado', icone: 'almox', ativaEm: ['/almox'] },
         { rota: '/inspecoes', rotulo: 'Segurança', icone: 'escudo', ativaEm: ['/desvios'] },
+        ABA_FROTA,
+        { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
+      ];
+    }
+    const fechamento: Aba[] = this.auth.podeCriarFechamento() ? [{ rota: '/fechamento', rotulo: 'Encerramento', icone: 'fechamento' }] : [];
+    if (this.auth.isAdministrativo() && fechamento.length) {
+      return [
+        { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
+        ...fechamento,
+        { rota: '/inspecoes', rotulo: 'Segurança', icone: 'escudo', ativaEm: ['/desvios'] },
         { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
       ];
     }
@@ -69,6 +86,7 @@ export class AppShellComponent implements AfterViewInit {
         { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
         { rota: '/inspecoes', rotulo: 'Inspeções', icone: 'inspecao' },
         { rota: '/desvios', rotulo: 'Desvios', icone: 'desvio' },
+        ABA_FROTA,
         { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
       ];
     }
@@ -76,6 +94,7 @@ export class AppShellComponent implements AfterViewInit {
       { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
       { rota: '/campo', rotulo: 'Serviços', icone: 'servicos' },
       { rota: '/material', rotulo: 'Material', icone: 'material', ativaEm: ['/solicitacoes', '/transferencias'] },
+      ABA_FROTA,
       { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
     ];
   });

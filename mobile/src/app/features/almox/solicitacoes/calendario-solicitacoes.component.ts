@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output, si
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { catchError, combineLatest, of, switchMap, tap } from 'rxjs';
 import { AlmoxService } from '../../../core/almox/almox.service';
-import { FiltroSolicitacoes, ResumoSolicitacao } from '../../../core/almox/almox.models';
+import { Estoque, FiltroSolicitacoes, FiltroTecnicas, ResumoSolicitacao } from '../../../core/almox/almox.models';
 import { EM_ABERTO, dataCivil, isoCivil, saqueAtrasado } from '../../../core/almox/almox-status';
+import { nomeEquipe } from '../../../core/almox/almox-tecnico';
 import { IconeComponent, VazioComponent } from '../../../ui';
+import { AcaoTecnica, CartaoTecnicaComponent } from '../tecnicas/cartao-tecnica.component';
 import { AcaoCartao, CartaoSolicitacaoComponent } from './cartao-solicitacao.component';
 
 const LIMITE = 500;
@@ -24,7 +26,14 @@ interface Dia {
   marcas: Marca[];
 }
 
-const marcaDe = (s: ResumoSolicitacao): Marca => (saqueAtrasado(s) ? 'atraso' : EM_ABERTO.includes(s.status) && !s.encerrada ? 'aberta' : 'encerrada');
+const marcaDe = (s: ResumoSolicitacao): Marca => {
+  if (s.contexto === 'TECNICO') {
+    const etapa = s.etapaOperacional ?? s.tecnico?.etapaOperacional;
+    const aberta = !s.encerrada && etapa !== 'CONCLUIDA' && s.status !== 'REJEITADO' && s.status !== 'CANCELADO';
+    return aberta && s.tecnico?.atrasada ? 'atraso' : aberta ? 'aberta' : 'encerrada';
+  }
+  return saqueAtrasado(s) ? 'atraso' : EM_ABERTO.includes(s.status) && !s.encerrada ? 'aberta' : 'encerrada';
+};
 
 /**
  * Agenda de saques previstos: o mês em grade (cada dia mostra pontos coloridos — em aberto,
@@ -34,7 +43,7 @@ const marcaDe = (s: ResumoSolicitacao): Marca => (saqueAtrasado(s) ? 'atraso' : 
 @Component({
   selector: 'app-calendario-solicitacoes',
   standalone: true,
-  imports: [CartaoSolicitacaoComponent, IconeComponent, VazioComponent],
+  imports: [CartaoSolicitacaoComponent, CartaoTecnicaComponent, IconeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="mes" aria-label="Calendário de saques">
@@ -101,7 +110,12 @@ const marcaDe = (s: ResumoSolicitacao): Marca => (saqueAtrasado(s) ? 'atraso' : 
       } @else if (doDia().length) {
         <div class="cartoes">
           @for (s of doDia(); track s.id) {
-            <app-cartao-solicitacao [item]="s" [semData]="true" [acoes]="acoes()" [ocupado]="ocupado()?.id === s.id ? ocupado()!.acao : null" (abrir)="abrir.emit($event)" (agir)="agir.emit($event)" />
+            @if (tecnico()) {
+              <app-cartao-tecnica [item]="s" [equipe]="equipe(s)" [acoes]="acoes()" [ocupado]="ocupado()?.id === s.id ? $any(ocupado()!.acao) : null"
+                (abrir)="abrir.emit($event)" (agir)="agir.emit($event)" />
+            } @else {
+              <app-cartao-solicitacao [item]="s" [semData]="true" [acoes]="acoes()" [ocupado]="ocupado()?.id === s.id ? $any(ocupado()!.acao) : null" (abrir)="abrir.emit($event)" (agir)="agir.emit($event)" />
+            }
           }
         </div>
       } @else if (proximos().length) {
@@ -173,11 +187,15 @@ const marcaDe = (s: ResumoSolicitacao): Marca => (saqueAtrasado(s) ? 'atraso' : 
 })
 export class CalendarioSolicitacoesComponent {
   private readonly almox = inject(AlmoxService);
-  readonly filtro = input.required<FiltroSolicitacoes>();
+  readonly filtro = input<FiltroSolicitacoes>({});
+  /** Modo técnico: busca as técnicas e mostra o cartão com a OC/OS em destaque. */
+  readonly tecnico = input(false);
+  readonly filtroTecnico = input<FiltroTecnicas>({});
   readonly acoes = input(false);
-  readonly ocupado = input<{ id: string; acao: AcaoCartao } | null>(null);
+  readonly ocupado = input<{ id: string; acao: AcaoCartao | AcaoTecnica } | null>(null);
   readonly abrir = output<ResumoSolicitacao>();
-  readonly agir = output<{ acao: AcaoCartao; item: ResumoSolicitacao }>();
+  readonly agir = output<{ acao: any; item: ResumoSolicitacao }>();
+  private readonly estoques = signal<Estoque[]>([]);
 
   readonly semana = SEMANA;
   readonly limite = LIMITE;
@@ -265,11 +283,14 @@ export class CalendarioSolicitacoesComponent {
     }));
 
   constructor() {
-    combineLatest([toObservable(this.filtro), toObservable(this.inicioGrade), toObservable(this.versao)]).pipe(
+    this.almox.estoques().subscribe(e => this.estoques.set(e));
+    combineLatest([toObservable(this.filtro), toObservable(this.filtroTecnico), toObservable(this.inicioGrade), toObservable(this.versao)]).pipe(
       tap(() => { this.carregando.set(true); this.erro.set(null); }),
-      switchMap(([f]) => this.almox.listarSolicitacoes({
-        ...f, previstaDe: isoCivil(this.inicioGrade()), previstaAte: isoCivil(this.fimGrade()), page: 0, size: LIMITE, sort: 'dataPrevistaRetirada,asc',
-      }).pipe(catchError(e => { this.erro.set(e?.detail || 'Verifique a conexão e tente de novo.'); return of(null); }))),
+      switchMap(([f, ft]) => {
+        const periodo = { previstaDe: isoCivil(this.inicioGrade()), previstaAte: isoCivil(this.fimGrade()), page: 0, size: LIMITE, sort: 'dataPrevistaRetirada,asc' };
+        const busca = this.tecnico() ? this.almox.listarTecnicas({ ...ft, ...periodo }) : this.almox.listarSolicitacoes({ ...f, ...periodo });
+        return busca.pipe(catchError(e => { this.erro.set(e?.detail || 'Verifique a conexão e tente de novo.'); return of(null); }));
+      }),
       takeUntilDestroyed(),
     ).subscribe(r => {
       this.carregando.set(false);
@@ -282,6 +303,10 @@ export class CalendarioSolicitacoesComponent {
 
   recarregar(): void {
     this.versao.update(v => v + 1);
+  }
+
+  equipe(s: ResumoSolicitacao): string | null {
+    return nomeEquipe(this.estoques(), s.tecnico?.idEquipe ?? s.idEquipe);
   }
 
   mover(delta: number): void {

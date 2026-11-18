@@ -69,8 +69,83 @@ public record SolicitacaoFilter(
 
     @Schema(description = "Saque previsto até esta data (inclusive)", example = "2026-10-31")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    LocalDate previstaAte
+    LocalDate previstaAte,
+
+    @Schema(description = "Restringe aos tipos tecnicos informados (ex.: somente adicoes 221 e 921)")
+    List<TipoSolicitacaoTecnica> tiposTecnicos,
+
+    @Schema(description = "Quando verdadeiro, deixa de fora as solicitacoes com saldo pendente encerrado")
+    Boolean saldoAberto
 ) {
+    /** Mantem compatibilidade com consumidores que montam o filtro sem o recorte de saldo aberto. */
+    public SolicitacaoFilter(
+            UUID idEstoqueOrigem,
+            UUID idEstoqueDestino,
+            UUID idBaseOrigem,
+            UUID idBaseDestino,
+            UUID idRequisitante,
+            StatusSolicitacao status,
+            List<StatusSolicitacao> statuses,
+            ContextoSolicitacaoMaterial contexto,
+            TipoSolicitacaoTecnica tipoTecnico,
+            TipoObraSnapshot tipoObra,
+            UUID idObra,
+            String ocorrencia,
+            UUID idEquipe,
+            UUID idAlmoxarifado,
+            String numeroReserva,
+            UUID idAgenteReserva,
+            StatusSeparacao statusSeparacao,
+            EtapaSolicitacaoTecnica etapa,
+            OffsetDateTime dataInicio,
+            OffsetDateTime dataFim,
+            String referencia,
+            String numSerie,
+            String buscaGlobal,
+            LocalDate previstaDe,
+            LocalDate previstaAte,
+            List<TipoSolicitacaoTecnica> tiposTecnicos
+    ) {
+        this(idEstoqueOrigem, idEstoqueDestino, idBaseOrigem, idBaseDestino, idRequisitante,
+                status, statuses, contexto, tipoTecnico, tipoObra, idObra, ocorrencia, idEquipe,
+                idAlmoxarifado, numeroReserva, idAgenteReserva, statusSeparacao, etapa, dataInicio,
+                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, null);
+    }
+
+    /** Mantem compatibilidade com consumidores que montam o filtro sem a lista de tipos tecnicos. */
+    public SolicitacaoFilter(
+            UUID idEstoqueOrigem,
+            UUID idEstoqueDestino,
+            UUID idBaseOrigem,
+            UUID idBaseDestino,
+            UUID idRequisitante,
+            StatusSolicitacao status,
+            List<StatusSolicitacao> statuses,
+            ContextoSolicitacaoMaterial contexto,
+            TipoSolicitacaoTecnica tipoTecnico,
+            TipoObraSnapshot tipoObra,
+            UUID idObra,
+            String ocorrencia,
+            UUID idEquipe,
+            UUID idAlmoxarifado,
+            String numeroReserva,
+            UUID idAgenteReserva,
+            StatusSeparacao statusSeparacao,
+            EtapaSolicitacaoTecnica etapa,
+            OffsetDateTime dataInicio,
+            OffsetDateTime dataFim,
+            String referencia,
+            String numSerie,
+            String buscaGlobal,
+            LocalDate previstaDe,
+            LocalDate previstaAte
+    ) {
+        this(idEstoqueOrigem, idEstoqueDestino, idBaseOrigem, idBaseDestino, idRequisitante,
+                status, statuses, contexto, tipoTecnico, tipoObra, idObra, ocorrencia, idEquipe,
+                idAlmoxarifado, numeroReserva, idAgenteReserva, statusSeparacao, etapa, dataInicio,
+                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, null);
+    }
+
     /** Mantem compatibilidade com consumidores que montam o filtro sem o recorte de saque previsto. */
     public SolicitacaoFilter(
             UUID idEstoqueOrigem,
@@ -139,7 +214,7 @@ public record SolicitacaoFilter(
                 idEstoqueOrigem, idEstoqueDestino, idBaseOrigem, idBaseDestino, idRequisitante,
                 status, statuses, novoContexto, tipoTecnico, tipoObra, idObra, ocorrencia, idEquipe,
                 idAlmoxarifado, numeroReserva, idAgenteReserva, statusSeparacao, etapa, dataInicio,
-                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte);
+                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, saldoAberto);
     }
 
     public SolicitacaoFilter comRequisitante(UUID novoRequisitante) {
@@ -147,6 +222,6 @@ public record SolicitacaoFilter(
                 idEstoqueOrigem, idEstoqueDestino, idBaseOrigem, idBaseDestino, novoRequisitante,
                 status, statuses, contexto, tipoTecnico, tipoObra, idObra, ocorrencia, idEquipe,
                 idAlmoxarifado, numeroReserva, idAgenteReserva, statusSeparacao, etapa, dataInicio,
-                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte);
+                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, saldoAberto);
     }
 }

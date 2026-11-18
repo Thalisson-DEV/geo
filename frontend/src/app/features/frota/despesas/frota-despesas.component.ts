@@ -331,10 +331,11 @@ export class FrotaDespesasComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-despesas',
+    rememberFilters: 'frota-despesas',
     filters: {
       de: cesFilter.date(inicioDoMes(), { label: 'De' }),
       ate: cesFilter.date(null, { label: 'Até' }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       idsTipo: cesFilter.list<string>([], { label: 'Tipo', param: 'tipo', itemLabel: (id) => this.tipos().find((t) => t.id === id)?.nome ?? 'tipo', countLabel: (n) => `${n} selecionados` }),
       forma: cesFilter.value<FormaPagamentoDespesa | null>(null, { label: 'Forma', options: () => FORMAS }),
       pagamento: cesFilter.value<Pagamento | null>(null, { label: 'Pagamento', options: () => PAGAMENTOS })

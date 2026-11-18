@@ -174,9 +174,11 @@ const mesmo = (a: readonly string[], b: readonly string[]) => a.length === b.len
   styles: [`
     :host { display: block; min-height: 100%; }
     .filtro { gap: 6px; }
-    .visoes { padding: var(--ces-e3) var(--ces-e3) 0; }
-    .atalhos { display: flex; gap: var(--ces-e2); overflow-x: auto; padding: var(--ces-e3) var(--ces-e3) var(--ces-e1); scrollbar-width: none; overscroll-behavior-x: contain;
-      scroll-snap-type: x proximity; }
+    .visoes { padding: var(--ces-e3) var(--ces-e4) 0; }
+    /* Os chips rolam de lado sem encostar na borda da tela (início e fim com o mesmo respiro). */
+    .atalhos { display: flex; gap: var(--ces-e2); overflow-x: auto; padding: var(--ces-e3) var(--ces-e4) var(--ces-e2); scrollbar-width: none; overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity; scroll-padding-inline: var(--ces-e4); }
+    .atalhos::after { content: ''; flex: 0 0 1px; }
     .atalhos::-webkit-scrollbar { display: none; }
     .chip { flex: none; scroll-snap-align: start; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 6px 0 14px; border-radius: var(--ces-r-pilula);
       border: 1px solid var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-2); font: 500 .875rem/1 var(--ces-fonte); cursor: pointer; white-space: nowrap; }
@@ -192,7 +194,7 @@ const mesmo = (a: readonly string[], b: readonly string[]) => a.length === b.len
     [data-tom='ok'] .ponto { background: var(--ces-ok); }
     [data-tom='erro'] .ponto { background: var(--ces-erro); }
     .divisor { flex: none; width: 1px; align-self: stretch; margin: 6px 2px; background: var(--ces-linha-forte); }
-    .recorte { display: flex; align-items: center; gap: var(--ces-e2); margin: var(--ces-e2) var(--ces-e3) 0; padding: 0 0 0 var(--ces-e4); min-height: 44px;
+    .recorte { display: flex; align-items: center; gap: var(--ces-e2); margin: var(--ces-e2) var(--ces-e4) 0; padding: 0 0 0 var(--ces-e4); min-height: 44px;
       border-radius: var(--ces-r-grupo); background: var(--ces-superficie); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
     .recorte span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ces-texto); }
     .grupos { transition: opacity var(--ces-m-entrar); }

@@ -150,8 +150,9 @@ export class FrotaDocumentosComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-documentos',
+    rememberFilters: 'frota-documentos',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       tipos: cesFilter.list<TipoDocumentoFrota>([], {
         label: 'Tipo',
         param: 'tipo',

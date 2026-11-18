@@ -1,0 +1,359 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Painel da meta física" icon="pi pi-bullseye"
+      [breadcrumb]="[{ label: 'Execução' }, { label: 'Painel da meta física' }]"
+      description="Notas produtivas por base e serviço contra a meta da Concessionária, distribuída nos dias úteis do mês. Notas só com serviço não efetuado não contam.">
+      <app-copiloto-gatilho actions></app-copiloto-gatilho>
+      @if (data(); as d) {
+        <span actions class="dash-updated">Atualizado às {{ d.geradoEm | date: 'HH:mm' }}</span>
+      }
+      <ces-button actions label="Metas cadastradas" icon="pi pi-bullseye" variant="secondary" (pressed)="cadastrar()"></ces-button>
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="dash-meta-fisica" [activeCount]="chips().length" [summary]="chips()" [loading]="loading()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <ces-select label="Mês" inputId="meta-fisica-mes" [options]="opcoesMeses()" [value]="competencia()"
+          (valueChange)="$event && competencia.set($event)" [filter]="true"></ces-select>
+        <ces-multiselect label="Base operacional" inputId="meta-fisica-base" placeholder="Todas com meta" [clearable]="true"
+          selectedItemsLabel="{0} bases" [maxSelectedLabels]="2"
+          [options]="recorte.opcoesBases()" [loading]="recorte.carregando()" [value]="idsBase()" (valueChange)="idsBase.set($event)"></ces-multiselect>
+        <ces-multiselect label="Tipo de serviço" inputId="meta-fisica-tipo" placeholder="Todos com meta" [clearable]="true"
+          selectedItemsLabel="{0} serviços" [maxSelectedLabels]="2"
+          [options]="opcoesTipos()" [value]="idsTipo()" (valueChange)="idsTipo.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <div class="dash-tabs ed-periodos" role="group" aria-label="Mês rápido">
+      @for (mes of mesesRapidos; track mes.valor) {
+        <button type="button" class="dash-tab" [class.is-active]="mesAtivo() === mes.valor"
+          [attr.aria-pressed]="mesAtivo() === mes.valor" (click)="usarMes(mes.valor)">{{ mes.rotulo }}</button>
+      }
+    </div>
+
+    @if (loading() && !data()) {
+      <ces-async-state state="loading" title="Apurando a meta física" description="Contando as notas de cada base e serviço."></ces-async-state>
+    } @else if (erro() && !data()) {
+      <ces-async-state state="error" title="Não foi possível carregar o painel" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (modelo(); as m) {
+      @if (!m.celulas.length) {
+        <ces-async-state state="empty" icon="pi pi-bullseye" [title]="'Nenhuma meta física em ' + nomeMes(m.d.competencia).toLowerCase()"
+          description="Cadastre a meta de cada base com as quantidades de corte, enlace e baixa que a Concessionária enviou para acompanhar o ritmo aqui."
+          actionLabel="Cadastrar meta" actionIcon="pi pi-plus" (action)="cadastrar()"></ces-async-state>
+      } @else {
+        @if (visaoGerencial(); as vg) {
+          <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+            (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+        }
+
+        <section class="dash-metrics" aria-label="Resumo do mês" [attr.aria-busy]="loading()">
+          <app-dashboard-metric-card label="Notas executadas" icon="pi-file-check" tone="primary"
+            [value]="inteiro(m.geral.realizado) + ' de ' + inteiro(m.geral.meta)" [progress]="m.geral.pct" [detail]="detalheExecutadas(m)"
+            actionLabel="Analisar notas executadas" (activate)="analisar('kpi', 'executadas')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'executadas', rotulo: 'Notas executadas' }" />
+          </app-dashboard-metric-card>
+
+          <app-dashboard-metric-card [label]="m.estado === 'encerrado' ? 'Média do mês' : 'Ritmo atual'" icon="pi-gauge"
+            [tone]="m.geral.ritmo != null && m.geral.necessarioPorDia != null && m.geral.ritmo < m.geral.necessarioPorDia ? 'amber' : 'green'"
+            [value]="m.estado === 'futuro' ? '—' : umaCasa(m.estado === 'encerrado' ? (m.d.diasUteis ? m.geral.realizado / m.d.diasUteis : null) : m.geral.ritmo) + ' por dia'"
+            [detail]="detalheRitmo(m)"
+            actionLabel="Analisar o ritmo" (activate)="analisar('kpi', 'ritmo')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'ritmo', rotulo: 'Ritmo atual' }" />
+          </app-dashboard-metric-card>
+
+          <app-dashboard-metric-card [label]="m.estado === 'encerrado' ? 'Fechamento do mês' : 'Projeção do mês'" icon="pi-chart-line"
+            [tone]="m.geral.pctProjecao == null ? 'slate' : m.geral.pctProjecao >= 100 ? 'green' : 'amber'"
+            [value]="m.geral.projecao == null ? '—' : inteiro(m.geral.projecao) + ' notas'" [detail]="detalheProjecao(m)"
+            actionLabel="Analisar a projeção" (activate)="analisar('kpi', 'projecao')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'projecao', rotulo: 'Projeção do mês' }" />
+          </app-dashboard-metric-card>
+
+          <app-dashboard-metric-card [label]="m.estado === 'encerrado' ? 'Sem meta batida' : 'Abaixo do ritmo'" icon="pi-exclamation-triangle"
+            [tone]="abaixoDoRitmo(m).length ? 'amber' : 'green'"
+            [value]="abaixoDoRitmo(m).length + ' de ' + m.celulas.length"
+            detail="Combinações de base e serviço"
+            actionLabel="Ver quem e quanto falta" (activate)="analisar('kpi', 'ritmo')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'tabela', id: 'matriz', rotulo: 'Base e serviço' }" />
+          </app-dashboard-metric-card>
+        </section>
+
+        <section class="mf-servicos" aria-label="Meta por serviço">
+          @for (s of m.servicos; track s.id) {
+            <article class="mf-servico" [attr.data-tone]="situacao[s.situacao].tom">
+              <header class="mf-servico__topo">
+                <span class="mf-servico__icone" aria-hidden="true"><i class="pi pi-tag"></i></span>
+                <div class="mf-servico__titulo">
+                  <span class="mf-servico__codigo">{{ s.codigo ?? 'Serviço' }}</span>
+                  <h2>{{ s.nome }}</h2>
+                </div>
+                <ces-status [tone]="situacao[s.situacao].tom" [icon]="situacao[s.situacao].icone">{{ situacao[s.situacao].rotulo }}</ces-status>
+              </header>
+              <div class="mf-servico__numeros">
+                <strong>{{ inteiro(s.realizado) }}</strong>
+                <span>de {{ notas(s.meta) }}</span>
+              </div>
+              <ces-meter [value]="s.pct ?? 0" [label]="'Meta de ' + s.nome" [detail]="percentual(s.pct) + ' da meta do mês'"></ces-meter>
+              <ul class="ed-goal__rows">
+                @if (m.estado === 'andamento') {
+                  <li><i class="pi pi-calendar-clock" aria-hidden="true"></i>Esperado até ontem <strong>{{ inteiro(s.esperado) }}</strong>
+                    <span class="mf-saldo" [attr.data-negativo]="s.saldo < 0">({{ s.saldo >= 0 ? '+' : '−' }}{{ inteiro(s.saldo < 0 ? -s.saldo : s.saldo) }})</span></li>
+                  @if (s.falta > 0) {
+                    <li><i class="pi pi-gauge" aria-hidden="true"></i>Precisa de <strong>{{ umaCasa(s.necessarioPorDia) }}</strong> por dia útil</li>
+                  }
+                  @if (s.projecao != null) {
+                    <li><i class="pi pi-chart-line" aria-hidden="true"></i>Projeção <strong>{{ inteiro(s.projecao) }}</strong> ({{ percentual(s.pctProjecao) }})</li>
+                  }
+                } @else if (m.estado === 'encerrado') {
+                  <li><i class="pi pi-flag" aria-hidden="true"></i>{{ s.falta > 0 ? 'Faltaram' : 'Acima da meta' }} <strong>{{ notas(s.falta > 0 ? s.falta : s.realizado - s.meta) }}</strong></li>
+                } @else {
+                  <li><i class="pi pi-calendar" aria-hidden="true"></i><strong>{{ umaCasa(m.d.diasUteis ? s.meta / m.d.diasUteis : null) }}</strong> por dia útil</li>
+                }
+              </ul>
+              <button type="button" class="ed-analisar" (click)="analisar('servico', s.id)">
+                <i class="pi pi-chart-bar" aria-hidden="true"></i> Analisar {{ s.nome.toLowerCase() }}
+              </button>
+            </article>
+          }
+        </section>
+
+        <section class="dash-grid" aria-label="Gráficos da meta física">
+          <article class="dash-panel dash-col-8">
+            <header class="dash-panel__header">
+              <div>
+                <h2><i class="pi pi-chart-line ed-panel-icon" aria-hidden="true"></i> Executado × meta distribuída</h2>
+                <p>{{ visaoSerie() === 'acumulado'
+                  ? 'A meta sobe só nos dias úteis. A distância entre as linhas é o atraso (ou a folga) do mês.'
+                  : 'Notas executadas em cada dia contra a meta do dia útil.' }}</p>
+              </div>
+              <div class="dash-panel__tools">
+                <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'acumulado', rotulo: 'Executado × meta distribuída' }" />
+                <div class="dash-tabs" role="group" aria-label="Visão do gráfico">
+                  <button type="button" class="dash-tab" [class.is-active]="visaoSerie() === 'acumulado'" [attr.aria-pressed]="visaoSerie() === 'acumulado'"
+                    (click)="visaoSerie.set('acumulado')">Acumulado</button>
+                  <button type="button" class="dash-tab" [class.is-active]="visaoSerie() === 'dia'" [attr.aria-pressed]="visaoSerie() === 'dia'"
+                    (click)="visaoSerie.set('dia')">Por dia</button>
+                </div>
+              </div>
+            </header>
+            <ces-chart [kind]="visaoSerie() === 'acumulado' ? 'line' : 'bar'" title="Executado e meta do mês" [showTitle]="false"
+              [labels]="serieMes().rotulos" [series]="serieMes().series" valueFormat="number" [height]="300"
+              [note]="m.d.diasUteis + ' dias úteis no mês · ' + umaCasa(m.d.diasUteis ? m.geral.meta / m.d.diasUteis : null) + ' notas por dia útil'"
+              [selectable]="true" selectLabel="Analisar dia" (pointSelect)="selecionarDia($event)"></ces-chart>
+          </article>
+
+          <article class="dash-panel dash-col-4">
+            <header class="dash-panel__header">
+              <div>
+                <h2><i class="pi pi-building ed-panel-icon" aria-hidden="true"></i> Atingimento por base</h2>
+                <p>{{ m.estado === 'andamento' ? 'Executado, esperado até ontem e projeção, em % da meta do mês.' : 'Executado em % da meta do mês.' }}</p>
+              </div>
+              <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'bases', rotulo: 'Atingimento por base' }" />
+            </header>
+            <ces-chart kind="bar-horizontal" title="Atingimento por base" [showTitle]="false"
+              [labels]="serieBases().rotulos" [series]="serieBases().series" valueFormat="percent"
+              [height]="300" [selectable]="true" selectLabel="Analisar base" (pointSelect)="selecionarBase($event)"></ces-chart>
+          </article>
+        </section>
+
+        @if (matriz(); as mz) {
+          <section class="dash-grid" aria-label="Base e serviço">
+            <article class="dash-panel dash-col-12">
+              <header class="dash-panel__header">
+                <div>
+                  <h2><i class="pi pi-table ed-panel-icon" aria-hidden="true"></i> Base e serviço</h2>
+                  <p>Executado de cada base em cada serviço contra a meta do mês. Clique numa base, num serviço ou numa célula para analisar.</p>
+                </div>
+                <app-copiloto-perguntar [foco]="{ tipo: 'tabela', id: 'matriz', rotulo: 'Base e serviço' }" />
+              </header>
+              <div class="dash-table-wrap">
+                <table class="mf-matriz">
+                  <caption class="ed-sr-only">Meta física por base e serviço</caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Base</th>
+                      @for (s of mz.servicos; track s.id) {
+                        <th scope="col">
+                          <button type="button" class="mf-matriz__abrir" (click)="analisar('servico', s.id)" [attr.aria-label]="'Analisar o serviço ' + s.nome">
+                            {{ s.nome }} <i class="pi pi-angle-right" aria-hidden="true"></i>
+                          </button>
+                        </th>
+                      }
+                      <th scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (linha of mz.linhas; track linha.base.id) {
+                      <tr>
+                        <th scope="row">
+                          <button type="button" class="mf-matriz__abrir" (click)="analisar('base', linha.base.id)" [attr.aria-label]="'Analisar a base ' + linha.base.nome">
+                            {{ linha.base.nome }} <i class="pi pi-angle-right" aria-hidden="true"></i>
+                          </button>
+                        </th>
+                        @for (c of linha.celulas; track $index) {
+                          <td>
+                            @if (c) {
+                              <button type="button" class="mf-celula" [attr.data-tone]="situacao[c.situacao].tom" (click)="analisar('celula', c.chave)" [attr.aria-label]="rotuloCelula(c)">
+                                <span class="mf-celula__valor"><strong>{{ inteiro(c.realizado) }}</strong> / {{ inteiro(c.meta) }}</span>
+                                <span class="dash-progress__track mf-celula__barra" aria-hidden="true"><span [style.width.%]="(c.pct ?? 0) > 100 ? 100 : (c.pct ?? 0)"></span>
+                                  @if (m.estado === 'andamento' && c.pctEsperado != null) { <i class="mf-celula__marca" [style.left.%]="c.pctEsperado"></i> }
+                                </span>
+                                <span class="mf-celula__rodape"><i [class]="situacao[c.situacao].icone" aria-hidden="true"></i>{{ percentual(c.pct) }}
+                                  @if (m.estado === 'andamento' && c.falta > 0) { · {{ umaCasa(c.necessarioPorDia) }}/dia }
+                                </span>
+                              </button>
+                            } @else {
+                              <span class="mf-celula mf-celula--vazia">Sem meta</span>
+                            }
+                          </td>
+                        }
+                        <td>
+                          <button type="button" class="mf-celula mf-celula--total" [attr.data-tone]="situacao[linha.base.situacao].tom" (click)="analisar('base', linha.base.id)"
+                            [attr.aria-label]="'Total de ' + linha.base.nome + ': ' + inteiro(linha.base.realizado) + ' de ' + notas(linha.base.meta) + '. Analisar base.'">
+                            <span class="mf-celula__valor"><strong>{{ inteiro(linha.base.realizado) }}</strong> / {{ inteiro(linha.base.meta) }}</span>
+                            <span class="dash-progress__track mf-celula__barra" aria-hidden="true"><span [style.width.%]="(linha.base.pct ?? 0) > 100 ? 100 : (linha.base.pct ?? 0)"></span></span>
+                            <span class="mf-celula__rodape"><i [class]="situacao[linha.base.situacao].icone" aria-hidden="true"></i>{{ percentual(linha.base.pct) }}</span>
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <th scope="row">Total</th>
+                      @for (s of mz.servicos; track s.id) {
+                        <td><span class="mf-total"><strong>{{ inteiro(s.realizado) }}</strong> / {{ inteiro(s.meta) }} · {{ percentual(s.pct) }}</span></td>
+                      }
+                      <td><span class="mf-total"><strong>{{ inteiro(m.geral.realizado) }}</strong> / {{ inteiro(m.geral.meta) }} · {{ percentual(m.geral.pct) }}</span></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </article>
+          </section>
+        }
+
+        <section class="ed-section" aria-labelledby="meta-fisica-bases-titulo">
+          <header class="ed-section__header">
+            <div>
+              <h2 id="meta-fisica-bases-titulo"><i class="pi pi-building ed-panel-icon" aria-hidden="true"></i> Bases</h2>
+              <p>{{ diaMes(m.d.inicio) }} a {{ diaMes(m.d.fim) }} · {{ m.d.diasUteis }} dias úteis
+                @if (m.estado === 'andamento') { · {{ m.d.diasUteisEncerrados }} encerrados, {{ m.d.diasUteisRestantes }} pela frente (contando hoje) }.
+                O ritmo compara o executado com o esperado até o último dia útil encerrado.</p>
+            </div>
+            <div class="ed-toolbar">
+              <div class="dash-tabs" role="group" aria-label="Ordenar bases">
+                @for (o of ordens; track o.valor) {
+                  <button type="button" class="dash-tab" [class.is-active]="ordemBases() === o.valor" [attr.aria-pressed]="ordemBases() === o.valor"
+                    (click)="ordemBases.set(o.valor)">{{ o.rotulo }}</button>
+                }
+              </div>
+            </div>
+          </header>
+
+          <div class="ed-grid">
+            @for (base of basesOrdenadas(); track base.id) {
+              <article class="ed-team" [attr.aria-labelledby]="'mf-base-' + base.id" [attr.data-atencao]="base.situacao === 'ABAIXO' || base.situacao === 'NAO_ATINGIDA'">
+                <header class="ed-team__head">
+                  <span class="ed-team__avatar" aria-hidden="true"><i class="pi pi-building"></i></span>
+                  <div class="ed-team__title">
+                    <span class="ed-team__eyebrow">Base</span>
+                    <h3 [id]="'mf-base-' + base.id">{{ base.nome }}</h3>
+                  </div>
+                  <ces-status [tone]="situacao[base.situacao].tom" [icon]="situacao[base.situacao].icone">{{ situacao[base.situacao].rotulo }}</ces-status>
+                </header>
+
+                <section class="ed-goal" [attr.data-tone]="tomDaMeta(base.pct)" [attr.aria-label]="'Meta do mês da base ' + base.nome">
+                  <div class="ed-goal__head">
+                    <span class="ed-goal__label"><i class="pi pi-bullseye" aria-hidden="true"></i> Meta do mês</span>
+                    <strong class="ed-goal__pct">{{ percentual(base.pct) }}</strong>
+                  </div>
+                  <ces-meter [value]="base.pct ?? 0" [label]="'Meta do mês da base ' + base.nome" [detail]="inteiro(base.realizado) + ' de ' + notas(base.meta)"></ces-meter>
+                  <ul class="ed-goal__rows">
+                    @if (m.estado === 'andamento') {
+                      @if (base.falta > 0) {
+                        <li><i class="pi pi-arrow-up" aria-hidden="true"></i>Faltam <strong>{{ notas(base.falta) }}</strong>, {{ umaCasa(base.necessarioPorDia) }} por dia útil</li>
+                      } @else {
+                        <li><i class="pi pi-check" aria-hidden="true"></i>Meta batida com <strong>{{ notas(base.realizado - base.meta) }}</strong> a mais</li>
+                      }
+                      <li><i class="pi pi-calendar-clock" aria-hidden="true"></i>Esperado até ontem <strong>{{ inteiro(base.esperado) }}</strong></li>
+                      @if (base.projecao != null) {
+                        <li><i class="pi pi-chart-line" aria-hidden="true"></i>Projeção <strong>{{ inteiro(base.projecao) }}</strong> ({{ percentual(base.pctProjecao) }})</li>
+                      }
+                    } @else if (m.estado === 'encerrado') {
+                      <li><i class="pi pi-flag" aria-hidden="true"></i>{{ base.falta > 0 ? 'Faltaram' : 'Acima da meta' }} <strong>{{ notas(base.falta > 0 ? base.falta : base.realizado - base.meta) }}</strong></li>
+                    } @else {
+                      <li><i class="pi pi-calendar" aria-hidden="true"></i><strong>{{ umaCasa(m.d.diasUteis ? base.meta / m.d.diasUteis : null) }}</strong> notas por dia útil</li>
+                    }
+                  </ul>
+                </section>
+
+                <div>
+                  <span class="ed-subtitle"><i class="pi pi-tags" aria-hidden="true"></i> Serviços</span>
+                  <ul class="mf-mini-servicos" [attr.aria-label]="'Serviços da base ' + base.nome">
+                    @for (c of base.celulas; track c.chave) {
+                      <li>
+                        <button type="button" class="mf-mini" [attr.data-tone]="situacao[c.situacao].tom" (click)="analisar('celula', c.chave)" [attr.aria-label]="rotuloCelula(c)">
+                          <span class="mf-mini__topo"><span>{{ c.servico }}</span><strong>{{ inteiro(c.realizado) }}/{{ inteiro(c.meta) }}</strong></span>
+                          <span class="dash-progress__track mf-celula__barra" aria-hidden="true"><span [style.width.%]="(c.pct ?? 0) > 100 ? 100 : (c.pct ?? 0)"></span></span>
+                        </button>
+                      </li>
+                    }
+                  </ul>
+                </div>
+
+                <div>
+                  <span class="ed-subtitle"><i class="pi pi-chart-bar" aria-hidden="true"></i> Notas por dia</span>
+                  <div class="mf-barras">
+                    <ul class="ed-bars" [attr.aria-label]="'Notas por dia da base ' + base.nome">
+                      @for (barra of barrasBase(m, base); track barra.data) {
+                        <li [attr.data-vazio]="barra.vazio" [attr.data-folga]="!barra.util" [title]="barra.rotulo">
+                          <span [style.height.%]="barra.altura"></span>
+                          <span class="ed-sr-only">{{ barra.rotulo }}</span>
+                        </li>
+                      }
+                    </ul>
+                    <span class="mf-barras__meta" [style.bottom.%]="linhaMetaDia(m, base)" aria-hidden="true"></span>
+                  </div>
+                  <div class="ed-bars__axis" aria-hidden="true">
+                    <span>{{ diaMes(m.d.inicio) }}</span><span>linha: meta do dia útil</span><span>{{ diaMes(m.d.fim) }}</span>
+                  </div>
+                </div>
+
+                <div class="ed-team__actions">
+                  <button type="button" class="ed-analisar" (click)="analisar('base', base.id)">
+                    <i class="pi pi-chart-bar" aria-hidden="true"></i> Analisar base
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        </section>
+
+        @if (m.historico.length > 1) {
+          <section class="dash-grid" aria-label="Meses anteriores">
+            <article class="dash-panel dash-col-12">
+              <header class="dash-panel__header">
+                <div>
+                  <h2><i class="pi pi-history ed-panel-icon" aria-hidden="true"></i> Meses anteriores</h2>
+                  <p>Meta e executado de cada mês com meta cadastrada, no mesmo recorte. Clique num mês para comparar base e serviço.</p>
+                </div>
+                <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'historico', rotulo: 'Meses anteriores' }" />
+              </header>
+              <ces-chart kind="bar" title="Meta e executado por mês" [showTitle]="false"
+                [labels]="serieHistorico().rotulos" [series]="serieHistorico().series" valueFormat="integer" [height]="260"
+                [selectable]="true" selectLabel="Analisar mês" (pointSelect)="selecionarMes($event)"></ces-chart>
+            </article>
+          </section>
+        }
+      }
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

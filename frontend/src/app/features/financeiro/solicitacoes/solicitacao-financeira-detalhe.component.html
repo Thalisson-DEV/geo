@@ -48,7 +48,7 @@
           <span>·</span>
           <span>Aberta em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ item.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>·</span>
-          <ces-status [tone]="tomStatus[item.status]">{{ rotuloStatus[item.status] }}</ces-status>
+          <ces-status [tone]="tomStatus[item.status]" [icon]="iconeStatus[item.status]">{{ rotuloStatus[item.status] }}</ces-status>
           @if (decisaoDesfeita()) {
             <ces-status tone="warning" icon="pi-undo">Decisão desfeita</ces-status>
           }
@@ -110,7 +110,7 @@
               <div class="flex items-center gap-1.5 min-w-0">
                 <span class="kv-v" [title]="f.nome">{{ f.nome }}</span>
                 @if (!f.cadastrado) {
-                  <ces-status tone="warning">Não cadastrado</ces-status>
+                  <ces-status tone="warning" icon="pi-exclamation-circle">Não cadastrado</ces-status>
                 }
                 <ces-icon-button icon="pi pi-search" [label]="'Ver outras solicitações de ' + f.nome" tooltip="Outras solicitações deste fornecedor"
                   size="icon-sm" class="print:hidden" (pressed)="inspecionarFornecedor(item)" />
@@ -248,7 +248,7 @@
                     <button type="button" (click)="abrirCompra(compra.id)" class="font-mono font-bold text-primary-600 dark:text-primary-400 print:text-black hover:underline cursor-pointer">nº {{ compra.numero }}</button>
                   </td>
                   <td class="py-2.5 px-3 text-slate-800 dark:text-slate-200 print:text-black font-medium">{{ compra.descricao || '—' }}</td>
-                  <td class="py-2.5 px-3 text-center"><ces-status [tone]="tomStatus[compra.status]">{{ rotuloStatus[compra.status] }}</ces-status></td>
+                  <td class="py-2.5 px-3 text-center"><ces-status [tone]="tomStatus[compra.status]" [icon]="iconeStatus[compra.status]">{{ rotuloStatus[compra.status] }}</ces-status></td>
                   <td class="py-2.5 px-3 text-right font-mono text-slate-900 dark:text-slate-100 print:text-black">{{ compra.valorAprovado == null ? '—' : (compra.valorAprovado | currency: 'BRL') }}</td>
                   <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 dark:text-slate-100 print:text-black">{{ item.valor | currency: 'BRL' }}</td>
                 </tr>
@@ -349,7 +349,7 @@
                     <span class="text-xs text-slate-600 dark:text-slate-300 font-normal">Abertura, envio, decisões e decisões desfeitas: quem, quando e por quê.</span>
                   </div>
                 </div>
-                <ces-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : undefined">{{ resumoHistorico() }}</ces-status>
+                <ces-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : 'pi-history'">{{ resumoHistorico() }}</ces-status>
               </div>
             </p-accordion-header>
             <p-accordion-content>

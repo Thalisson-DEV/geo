@@ -1,12 +1,15 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.financeiro.FinanceiroApi;
 import com.nexo.app.modules.frota.domain.AlertaVencimento;
+import com.nexo.app.modules.frota.domain.Apolice;
 import com.nexo.app.modules.frota.domain.DocumentoFrota;
 import com.nexo.app.modules.frota.domain.FichaVeiculo;
 import com.nexo.app.modules.frota.domain.ParametrosFrota;
 import com.nexo.app.modules.frota.domain.TipoAlvoAlerta;
 import com.nexo.app.modules.frota.domain.TipoDocumentoFrota;
 import com.nexo.app.modules.frota.infrastructure.persistence.AlertaVencimentoRepository;
+import com.nexo.app.modules.frota.infrastructure.persistence.ApoliceRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.CondutorRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.DocumentoFrotaRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.FichaVeiculoRepository;
@@ -22,8 +25,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +61,12 @@ class AlertaVencimentoFrotaUseCasesTest {
     private ReferenciasFrota referencias;
     @Mock
     private ApplicationEventPublisher eventPublisher;
+    @Mock
+    private ApoliceRepository apoliceRepository;
+    @Mock
+    private FinanceiroApi financeiro;
+    @Mock
+    private ApoliceUseCases apolices;
     @InjectMocks
     private AlertaVencimentoFrotaUseCases useCases;
 
@@ -96,6 +107,45 @@ class AlertaVencimentoFrotaUseCasesTest {
         assertThat(evento.getValue().referencia()).isEqualTo("ABC1D23");
         assertThat(evento.getValue().prazo()).isEqualTo("vence em 5 dias");
         assertThat(evento.getValue().link()).isEqualTo("/frota/veiculos/" + idVeiculo);
+    }
+
+    @Test
+    void apoliceVencendoAvisaComASeguradora() {
+        when(documentoRepository.findAllByAtivoTrueAndDataVencimentoLessThanEqual(HOJE.plusDays(30))).thenReturn(List.of());
+        var idSeguradora = UUID.randomUUID();
+        var apolice = Apolice.cadastrar(new Apolice.Dados("555/2026", idSeguradora, null, null, null, null,
+                HOJE.minusMonths(11), HOJE.plusDays(20), new BigDecimal("12000"), null, null));
+        ReflectionTestUtils.setField(apolice, "id", UUID.randomUUID());
+        when(apoliceRepository.findAllByAtivoTrueAndVigenciaFimLessThanEqual(HOJE.plusDays(30))).thenReturn(List.of(apolice));
+        when(financeiro.nomesFornecedores(List.of(idSeguradora))).thenReturn(Map.of(idSeguradora, "SEGURADORA TESTE"));
+
+        assertThat(useCases.processar(HOJE)).isEqualTo(1);
+
+        var alerta = ArgumentCaptor.forClass(AlertaVencimento.class);
+        verify(alertaRepository).save(alerta.capture());
+        assertThat(alerta.getValue().getTipoAlvo()).isEqualTo(TipoAlvoAlerta.APOLICE);
+        assertThat(alerta.getValue().getDiasAntecedencia()).as("faixa de 30 dias").isEqualTo(30);
+        var evento = ArgumentCaptor.forClass(FrotaVencimentoProximoEvent.class);
+        verify(eventPublisher).publishEvent(evento.capture());
+        assertThat(evento.getValue().tipoAlvo()).isEqualTo("APOLICE");
+        assertThat(evento.getValue().descricao()).isEqualTo("Apólice 555/2026");
+        assertThat(evento.getValue().referencia()).isEqualTo("SEGURADORA TESTE");
+        assertThat(evento.getValue().link()).isEqualTo("/frota/seguros?apolice=" + apolice.getId());
+    }
+
+    @Test
+    void apoliceJaRenovadaNaoAvisa() {
+        when(documentoRepository.findAllByAtivoTrueAndDataVencimentoLessThanEqual(HOJE.plusDays(30))).thenReturn(List.of());
+        var apolice = Apolice.cadastrar(new Apolice.Dados("556/2026", UUID.randomUUID(), null, null, null, null,
+                HOJE.minusMonths(11), HOJE.plusDays(20), new BigDecimal("12000"), null, null));
+        ReflectionTestUtils.setField(apolice, "id", UUID.randomUUID());
+        var renovacao = Apolice.cadastrar(new Apolice.Dados("557/2027", UUID.randomUUID(), null, null, null, null,
+                HOJE.plusDays(21), HOJE.plusDays(386), new BigDecimal("13000"), null, null));
+        when(apoliceRepository.findAllByAtivoTrueAndVigenciaFimLessThanEqual(HOJE.plusDays(30))).thenReturn(List.of(apolice));
+        when(apolices.renovacoes(List.of(apolice))).thenReturn(Map.of(apolice.getId(), renovacao));
+
+        assertThat(useCases.processar(HOJE)).isZero();
+        verify(eventPublisher, org.mockito.Mockito.never()).publishEvent(org.mockito.ArgumentMatchers.any());
     }
 
     @Test

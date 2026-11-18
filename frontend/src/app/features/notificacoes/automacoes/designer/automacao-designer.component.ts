@@ -1,3 +1,4 @@
+import { ICONE_STATUS_AUTOMACAO } from '../../../../core/models/automacao.models';
 import {
   ChangeDetectionStrategy, Component, DestroyRef, HostListener, ViewEncapsulation, computed, effect, inject, signal
 } from '@angular/core';
@@ -66,7 +67,7 @@ function iguais(a: unknown, b: unknown): boolean {
           <div class="aut-topbar-title">
             <input class="aut-name" aria-label="Nome da automação" maxlength="120" [value]="estado().nome" (input)="commit({ nome: $any($event.target).value })" />
             <span class="aut-topbar-meta">
-              <ces-status [tone]="$any(tomStatus()) ?? 'neutral'">{{ statusRotulo() }}</ces-status>
+              <ces-status [tone]="$any(tomStatus()) ?? 'neutral'" [icon]="iconeStatus[detalhe()?.resumo?.status ?? 'RASCUNHO']">{{ statusRotulo() }}</ces-status>
               <span class="aut-save-state" [attr.data-dirty]="sujo() || null">{{ ocupado() === 'salvar' ? 'Salvando…' : sujo() ? 'Alterações não salvas' : 'Salvo' }}</span>
             </span>
           </div>
@@ -201,6 +202,7 @@ export class AutomacaoDesignerComponent {
   });
   protected readonly statusRotulo = computed(() => STATUS_ROTULO[this.detalhe()?.resumo.status ?? 'RASCUNHO']);
   protected readonly tomStatus = computed(() => ({ ATIVA: 'success', PAUSADA: 'warning', RASCUNHO: 'neutral', ARQUIVADA: 'neutral' } as const)[this.detalhe()?.resumo.status ?? 'RASCUNHO']);
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_AUTOMACAO;
 
   constructor() {
     this.validar$.pipe(

@@ -1,6 +1,7 @@
 package com.nexo.app.modules.obras.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nexo.app.modules.obras.domain.ControleExecucaoObra;
 import com.nexo.app.modules.obras.domain.TipoObra;
 import com.nexo.app.modules.obras.domain.TipoVinculoSubprojeto;
 
@@ -13,6 +14,10 @@ public record ObraResumoResponse(
         String numero,
         String titulo,
         TipoObra tipoObra,
+        UUID tipoObraId,
+        String tipoObraNome,
+        ControleExecucaoObra controleExecucao,
+        boolean tipoObraSubtipo,
         String notaObra,
         BigDecimal valorProjeto,
         @JsonFormat(pattern = "dd/MM/yyyy") LocalDate dataInicio,

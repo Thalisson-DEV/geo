@@ -100,7 +100,8 @@ public class FormularioInspecaoUseCases {
             GrupoPergunta novoGrupo = copia.adicionarGrupo(grupo.getTitulo());
             grupo.getPerguntas().forEach(pergunta -> {
                 var novaPergunta = novoGrupo.adicionarPergunta(
-                        pergunta.getEnunciado(), pergunta.getTipoResposta(), pergunta.isObrigatoria());
+                        pergunta.getEnunciado(), pergunta.getTipoResposta(), pergunta.isObrigatoria(),
+                        pergunta.getOrientacao(), pergunta.isDesvioPorColaborador());
                 pergunta.getOpcoes().forEach(opcao ->
                         novaPergunta.adicionarOpcao(opcao.getTexto(), opcao.isGeraDesvio(), opcao.getGravidade(), opcao.isPadrao()));
             });
@@ -174,7 +175,8 @@ public class FormularioInspecaoUseCases {
             GrupoPergunta grupo = formulario.adicionarGrupo(grupoReq.titulo());
             grupoReq.perguntas().forEach(perguntaReq -> {
                 var pergunta = grupo.adicionarPergunta(
-                        perguntaReq.enunciado(), perguntaReq.tipoResposta(), perguntaReq.obrigatoria());
+                        perguntaReq.enunciado(), perguntaReq.tipoResposta(), perguntaReq.obrigatoria(),
+                        perguntaReq.orientacao(), perguntaReq.desvioPorColaborador());
                 perguntaReq.opcoes().forEach(opcaoReq ->
                         pergunta.adicionarOpcao(opcaoReq.texto(), opcaoReq.geraDesvio(), opcaoReq.gravidade(), opcaoReq.padrao()));
             });

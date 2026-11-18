@@ -65,6 +65,20 @@ public class ReferenciaTecnicaValidator {
     }
 
     @Transactional(readOnly = true)
+    /** Nova OS/OC para uma solicitação já existente: obrigatória e válida para o tipo da obra. */
+    public OcorrenciaPublica validarNovaOcorrencia(UUID idObra, String ocorrencia) {
+        Map<String, String> erros = new LinkedHashMap<>();
+        ObraPublica obra = resolverObra(idObra, erros);
+        String normalizada = validarOcorrencia(obra, ocorrencia, erros);
+        if (erros.isEmpty() && normalizada == null) {
+            erros.put("ocorrencia", "Informe o novo número da OS/OC.");
+        }
+        if (!erros.isEmpty()) {
+            throw new PreenchimentoInvalidoException(erros);
+        }
+        return obraApi.resolverOuCriarOcorrencia(obra.id(), normalizada);
+    }
+
     public AgenteResponsavelPublico validarAgente(UUID idAgenteResponsavel) {
         Map<String, String> erros = new LinkedHashMap<>();
         AgenteResponsavelPublico agente = resolverAgente(idAgenteResponsavel, erros);

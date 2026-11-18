@@ -125,7 +125,7 @@ import { buscaColaboradores, resumoColaborador, rotuloColaborador, situacaoVigen
           <span class="ces-cell-muted">{{ formatarCpf(row.colaborador?.cpf) }}</span>
         </ng-template>
         <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="vigencia(row).tone">{{ vigencia(row).label }}</ces-status>
+          <ces-status [tone]="vigencia(row).tone" [icon]="vigencia(row).icon">{{ vigencia(row).label }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">

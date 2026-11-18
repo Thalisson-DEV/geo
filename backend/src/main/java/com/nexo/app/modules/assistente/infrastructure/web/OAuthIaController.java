@@ -1,5 +1,6 @@
 package com.nexo.app.modules.assistente.infrastructure.web;
 
+import com.nexo.app.shared.infrastructure.web.ClienteIp;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nexo.app.modules.assistente.application.conexoes.OAuthErro;
 import com.nexo.app.modules.assistente.application.conexoes.OAuthIaService;
@@ -131,8 +132,7 @@ public class OAuthIaController {
     }
 
     private static String ip(HttpServletRequest request) {
-        String encaminhado = request.getHeader("X-Forwarded-For");
-        String ip = encaminhado != null && !encaminhado.isBlank() ? encaminhado.split(",")[0].strip() : request.getRemoteAddr();
+        String ip = ClienteIp.de(request);
         return ip == null ? null : ip.length() <= 64 ? ip : ip.substring(0, 64);
     }
 }

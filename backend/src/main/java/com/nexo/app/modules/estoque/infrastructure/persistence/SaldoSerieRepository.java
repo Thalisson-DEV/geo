@@ -26,6 +26,9 @@ public interface SaldoSerieRepository extends JpaRepository<SaldoSerie, UUID>, J
 
     @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"material"})
     java.util.List<SaldoSerie> findByEstoqueIdAndAtivoTrue(UUID estoqueId);
+    /** Séries ativas do estoque numa condição, com o material. */
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = {"material"})
+    java.util.List<SaldoSerie> findAllByEstoqueIdAndCondicaoAndAtivoTrueOrderByNumSerieAsc(UUID estoqueId, CondicaoMaterial condicao);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""

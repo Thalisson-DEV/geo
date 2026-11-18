@@ -22,7 +22,7 @@ export interface AbaSecao {
   imports: [RouterLink, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="abas" [attr.aria-label]="rotulo()">
+    <nav class="abas" [class.muitas]="abas().length > 2" [attr.aria-label]="rotulo()">
       @for (a of abas(); track a.rota) {
         <a class="aba" [routerLink]="a.rota" [replaceUrl]="true" [class.ativa]="ativa(a)" [attr.aria-current]="ativa(a) ? 'page' : null">
           @if (a.icone) { <ces-icone [nome]="a.icone" [tamanho]="18" /> }
@@ -42,6 +42,11 @@ export interface AbaSecao {
     .aba.ativa { color: var(--ces-destaque); }
     .aba.ativa::after { transform: scaleX(1); }
     .aba:active { background: var(--ces-superficie-2); }
+    /* Três abas ou mais no celular: sem ícone, para o rótulo caber inteiro. */
+    @media (max-width: 430px) {
+      .abas.muitas .aba { padding: 0 4px; gap: 4px; font-size: .875rem; }
+      .abas.muitas .aba ces-icone { display: none; }
+    }
     .conta { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; display: inline-grid; place-items: center;
       background: var(--ces-atencao-suave); color: var(--ces-atencao); font: 700 .75rem/1 var(--ces-fonte); }
   `],

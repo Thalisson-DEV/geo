@@ -66,7 +66,9 @@ class SolicitacaoTecnicaControllerTest {
         importacoes = mock(ImportacaoSolicitacaoTecnicaUseCases.class);
         kanban = mock(KanbanSolicitacaoTecnicaUseCases.class);
         mockMvc = MockMvcBuilders.standaloneSetup(new SolicitacaoTecnicaController(
-                solicitacoes, consultas, reservas, mock(SeparacaoSolicitacaoTecnicaUseCases.class),
+                solicitacoes, consultas, reservas,
+                mock(com.nexo.app.modules.estoque.application.usecases.TrocaOcorrenciaTecnicaUseCase.class),
+                mock(SeparacaoSolicitacaoTecnicaUseCases.class),
                 operacoes, encerramentos, importacoes, kanban))
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .setControllerAdvice(new GlobalExceptionHandler())

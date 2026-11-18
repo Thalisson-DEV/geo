@@ -7,6 +7,7 @@ import com.nexo.app.modules.frota.FrotaOdometroApi;
 import com.nexo.app.modules.frota.application.events.AnaliseIaPedida;
 import com.nexo.app.modules.frota.application.dto.AbrirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.AgendarOrdemServicoRequest;
+import com.nexo.app.modules.frota.application.dto.BaixaOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.ConcluirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.EditarOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.FornecedorFrotaResponse;
@@ -163,8 +164,10 @@ public class OrdemServicoUseCases {
                 .and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("fimReal"), agora.minusDays(30))));
 
         long aguardando = contarAguardandoAprovacao(abertas);
+        long baixaPendente = repository.count(OrdemServicoSpecification.of(filtroConcluidas, agora)
+                .and((root, query, cb) -> cb.isNull(root.get("finalizadaEm"))));
         return new PainelOrdensServicoResponse(pendentes, porCriticidade, agendadas, agendadasVencidas, emAndamento,
-                atrasadas, concluidas, parados, aguardando);
+                atrasadas, concluidas, parados, aguardando, baixaPendente);
     }
 
     /** Para a tela de abertura: itens já feitos recentemente na placa. */
@@ -200,10 +203,17 @@ public class OrdemServicoUseCases {
         }
         Map<String, Object> valores = new LinkedHashMap<>();
         Map<String, String> rotulos = new LinkedHashMap<>();
+        // Quem clicou é o solicitante; se vier errado, a pessoa troca no formulário.
+        UUID colaborador = referencias.colaboradorDoUsuario(SecurityUtils.getUsuarioLogadoId());
+        if (colaborador != null) {
+            valores.put("solicitanteColaboradorId", colaborador);
+            rotulos.put("solicitanteColaboradorId", referencias.nomesColaboradores(List.of(colaborador)).get(colaborador));
+        }
         if (os.isVeicular()) {
             valores.put("veiculoId", os.getIdVeiculo());
             rotulos.put("veiculoId", os.getPlaca());
             valores.put("regimeVeiculo", buscarFicha(os.getIdVeiculo()).getRegime().name());
+            preencherSetor(os.getIdVeiculo(), valores, rotulos);
         }
         if (os.getIdBaseOperacional() != null) {
             valores.put("baseId", os.getIdBaseOperacional());
@@ -214,9 +224,15 @@ public class OrdemServicoUseCases {
         if (os.getMotivo() != null) {
             valores.put("motivoServico", os.getMotivo().name());
         }
+        valores.put("prioridade", prioridade(os.getCriticidade()));
         if (os.getIdFornecedor() != null) {
             valores.put("fornecedorId", os.getIdFornecedor());
             rotulos.put("fornecedorId", financeiro.nomesFornecedores(List.of(os.getIdFornecedor())).get(os.getIdFornecedor()));
+            // O fornecedor costuma vender sempre do mesmo jeito: repete a última compra com ele.
+            financeiro.ultimasCondicoesFornecedor(os.getIdFornecedor()).ifPresent(c -> {
+                if (c.localAquisicao() != null) valores.put("localAquisicao", c.localAquisicao());
+                if (c.formaPagamento() != null) valores.put("formaPagamento", c.formaPagamento());
+            });
         } else if (os.getTipoOficina() == TipoOficina.EXTERNA && os.getOficinaNome() != null) {
             valores.put("fornecedorNome", os.getOficinaNome());
         }
@@ -230,9 +246,10 @@ public class OrdemServicoUseCases {
             descricao += "\nPeças a comprar:\n- " + String.join("\n- ", pecasCompra);
         }
         valores.put("descricao", descricao);
-        // Com lançamentos, a compra já nasce com o total calculado da execução.
-        if (os.temLancamentos()) {
-            valores.put("valor", os.totais().total());
+        // Com lançamentos, a compra nasce com o total da execução sem as peças do estoque,
+        // que já foram pagas quando entraram no almoxarifado.
+        if (os.temLancamentos() && os.totais().aComprar().signum() > 0) {
+            valores.put("valor", os.totais().aComprar());
             valores.put("quantidade", 1);
         }
         valores.put("observacoes", "Aberta pela OS " + os.getNumero() + " da frota.");
@@ -240,6 +257,27 @@ public class OrdemServicoUseCases {
         // A variante FROTA exige veículo e regime; a OS sem veículo compra pela variante padrão.
         return new PreenchimentoFinanceiroResponse(ORIGEM_FINANCEIRO, "OS " + os.getNumero() + " — " + os.identificacao(),
                 os.isVeicular() ? "FROTA" : "PADRAO", valores, rotulos);
+    }
+
+    /** Setor / centro de custo: o processo da equipe que usa o veículo; sem equipe, o da última compra da placa. */
+    private void preencherSetor(UUID idVeiculo, Map<String, Object> valores, Map<String, String> rotulos) {
+        var processo = referencias.equipeDoVeiculo(idVeiculo).map(e -> e.processo()).filter(p -> p != null && p.ativo());
+        if (processo.isPresent()) {
+            valores.put("processoId", processo.get().id());
+            rotulos.put("processoId", processo.get().nome());
+            return;
+        }
+        financeiro.ultimoProcessoDoVeiculo(idVeiculo).ifPresent(id -> valores.put("processoId", id));
+    }
+
+    /** A criticidade da OS é a prioridade da compra (média vira normal). */
+    private static String prioridade(Criticidade criticidade) {
+        return switch (criticidade) {
+            case URGENTE -> "URGENTE";
+            case ALTA -> "ALTA";
+            case MEDIA -> "NORMAL";
+            case BAIXA -> "BAIXA";
+        };
     }
 
     // ── Ciclo de vida ──────────────────────────────────────────────────────────────
@@ -274,6 +312,10 @@ public class OrdemServicoUseCases {
                         request.kmAbertura(), request.tipoOficina(), request.idFornecedor(), request.oficinaNome(),
                         request.veiculoParado()),
                 itens.buscarEntidades(request.idsItem()), usuario);
+        // A OS do plano preventivo já nasce com as peças e a mão de obra do plano, com valor zero.
+        if (request.origem() == OrigemOrdemServico.PREVENTIVA) {
+            os.preLancarItens(os.itensManutencao());
+        }
         os = repository.saveAndFlush(os);
 
         List<String> avisos = new ArrayList<>();
@@ -339,7 +381,9 @@ public class OrdemServicoUseCases {
     public OrdemServicoDetalheResponse incluirPreventiva(UUID id, List<UUID> idsItem, String descricao,
                                                        Criticidade criticidade, String planos) {
         OrdemServico os = buscarEntidade(id);
-        os.incluirPreventiva(itens.buscarEntidades(idsItem), descricao, criticidade);
+        List<com.nexo.app.modules.frota.domain.ItemManutencao> novos = itens.buscarEntidades(idsItem);
+        os.incluirPreventiva(novos, descricao, criticidade);
+        os.preLancarItens(novos);
         repository.save(os);
         registrar(os, TipoEventoOrdemServico.EDITADA, "Incluído na OS: " + planos + ".", SecurityUtils.getUsuarioLogadoId());
         return montador.detalhar(os, List.of());
@@ -355,19 +399,29 @@ public class OrdemServicoUseCases {
         registrar(os, TipoEventoOrdemServico.AGENDADA, (reagendamento ? "Reagendada para " : "Agendada para ")
                 + quando + (os.getLocalAgendamento() == null ? "" : " em " + os.getLocalAgendamento()) + ".",
                 SecurityUtils.getUsuarioLogadoId());
+        var gestores = os.isVeicular() ? referencias.gestoresDoVeiculo(os.getIdVeiculo())
+                : ReferenciasFrota.GestoresVeiculo.NENHUM;
         eventPublisher.publishEvent(new FrotaOrdemServicoAgendadaEvent(os.getId(), os.getNumero(), os.identificacao(),
-                nomeBase(os), quando, os.getLocalAgendamento(), link(os)));
+                nomeBase(os), quando, os.getLocalAgendamento(), link(os), nomeOficina(os),
+                os.getCriticidade().getRotulo(), os.getDescricao(), gestores.supervisores(), gestores.coordenadores()));
         return montador.detalhar(os, List.of());
     }
 
     @Transactional
     public OrdemServicoDetalheResponse iniciar(UUID id, IniciarOrdemServicoRequest request) {
         OrdemServico os = buscarEntidade(id);
+        boolean estavaParado = os.isParadaEmCurso();
+        UUID usuario = SecurityUtils.getUsuarioLogadoId();
         os.iniciar(request.inicioReal(), request.previsaoTermino());
         repository.save(os);
         registrar(os, TipoEventoOrdemServico.INICIADA, "Serviço iniciado em " + formatar(os.getInicioReal())
                 + (os.getPrevisaoTermino() == null ? "." : ", previsão de término " + formatar(os.getPrevisaoTermino()) + "."),
-                SecurityUtils.getUsuarioLogadoId());
+                usuario);
+        if (!estavaParado && os.isParadaEmCurso()) {
+            registrar(os, TipoEventoOrdemServico.VEICULO_PARADO, "Veículo parado desde " + formatar(os.getParadoDesde())
+                    + ": OS em andamento conta como veículo parado.", usuario);
+            sincronizarSituacaoVeiculo(os, null);
+        }
         return montador.detalhar(os, List.of());
     }
 
@@ -392,9 +446,11 @@ public class OrdemServicoUseCases {
                     itens.buscarEntidades(request.idsItem()));
         }
         boolean estavaParado = os.isParadaEmCurso();
-        os.concluir(new OrdemServico.Encerramento(request.inicioReal(), request.fimReal(), request.descricaoServico(),
-                request.itensSubstituidos(), request.valorTotal(), request.kmEncerramento(), request.tipoOficina(),
-                request.idFornecedor(), request.oficinaNome(), request.causa()));
+        OrdemServico.Baixa baixa = new OrdemServico.Baixa(request.descricaoServico(), request.itensSubstituidos(),
+                request.valorTotal(), request.tipoOficina(), request.idFornecedor(), request.oficinaNome(), request.causa());
+        os.concluir(new OrdemServico.Encerramento(request.inicioReal(), request.fimReal(), request.kmEncerramento(), baixa));
+        os.registrarFinalizacao(usuario);
+        boolean finalizada = !os.isBaixaPendente();
         List<ItemOrdemServico> repetidos = repeticoes.registrar(os);
         repository.save(os);
         preventivas.aoConcluir(os);
@@ -403,7 +459,8 @@ public class OrdemServicoUseCases {
         List<String> avisos = new ArrayList<>();
         registrarKm(os, os.getKmEncerramento(), os.getFimReal(), os.getIdLeituraEncerramento(), "encerramento", avisos);
         registrar(os, TipoEventoOrdemServico.CONCLUIDA, "Serviço de " + formatar(os.getInicioReal()) + " a "
-                + formatar(os.getFimReal()) + ": " + os.getDescricaoServico(), usuario);
+                + formatar(os.getFimReal()) + ": " + os.getDescricaoServico()
+                + (finalizada ? "" : " Valores pendentes: " + String.join("; ", os.pendencias()) + "."), usuario);
         if (estavaParado) {
             registrar(os, TipoEventoOrdemServico.VEICULO_LIBERADO, "Veículo liberado no encerramento.", usuario);
         }
@@ -419,6 +476,65 @@ public class OrdemServicoUseCases {
             }
         }
         return montador.detalhar(os, avisos);
+    }
+
+    /**
+     * Completa a OS concluída com valores pendentes: causa, serviço realizado, oficina e, sem
+     * lançamentos na execução, o valor. Sem mais nada faltando, ela fica finalizada.
+     */
+    @Transactional
+    public OrdemServicoDetalheResponse completarConclusao(UUID id, BaixaOrdemServicoRequest request) {
+        OrdemServico os = buscarEntidade(id);
+        UUID usuario = SecurityUtils.getUsuarioLogadoId();
+        if (!os.isBaixaPendente()) {
+            throw new InvarianteVioladaException("Esta OS não está com valores pendentes.");
+        }
+        if (request.idsItem() != null && !request.idsItem().isEmpty()) {
+            os.trocarItensNaBaixa(itens.buscarEntidades(request.idsItem()));
+        }
+        boolean finalizada = os.completarConclusao(new OrdemServico.Baixa(request.descricaoServico(),
+                request.itensSubstituidos(), request.valorTotal(), request.tipoOficina(), request.idFornecedor(),
+                request.oficinaNome(), request.causa()), usuario);
+        repeticoes.registrar(os);
+        repository.save(os);
+        eventPublisher.publishEvent(new AnaliseIaPedida(AlvoAnaliseIa.ORDEM_SERVICO, os.getId()));
+        registrar(os, TipoEventoOrdemServico.EDITADA, "Conclusão completada: " + (os.getCausa() == null
+                ? os.getDescricaoServico() : os.getCausa().getRotulo() + ": " + os.getDescricaoServico()), usuario);
+        registrarFinalizacao(os, finalizada, usuario);
+        return montador.detalhar(os, List.of());
+    }
+
+    /** Histórico da OS que acabou de ficar sem valores pendentes. */
+    void registrarFinalizacao(OrdemServico os, boolean finalizada, UUID usuario) {
+        if (finalizada) {
+            registrar(os, TipoEventoOrdemServico.BAIXA_REGISTRADA,
+                    "Todos os valores lançados: OS finalizada (" + moedaTotal(os) + ").", usuario);
+        }
+    }
+
+    private static String moedaTotal(OrdemServico os) {
+        var valor = os.getValorTotal() == null ? java.math.BigDecimal.ZERO : os.getValorTotal();
+        return java.text.NumberFormat.getCurrencyInstance(java.util.Locale.forLanguageTag("pt-BR"))
+                .format(valor).replace('\u00a0', ' ');
+    }
+
+    /** A OS concluída volta para em andamento (deu problema no teste); a parada volta a contar. */
+    @Transactional
+    public OrdemServicoDetalheResponse reabrir(UUID id, String motivo) {
+        OrdemServico os = buscarEntidade(id);
+        UUID usuario = SecurityUtils.getUsuarioLogadoId();
+        if (motivo == null || motivo.isBlank()) {
+            throw new InvarianteVioladaException("Conte por que a OS voltou para em andamento.");
+        }
+        String justificativa = motivo.strip();
+        os.reabrir();
+        repository.save(os);
+        registrar(os, TipoEventoOrdemServico.REABERTA, justificativa, usuario);
+        if (os.isParadaEmCurso()) {
+            registrar(os, TipoEventoOrdemServico.VEICULO_PARADO, "Veículo parado de novo: a OS voltou para em andamento.", usuario);
+        }
+        sincronizarSituacaoVeiculo(os, null);
+        return montador.detalhar(os, List.of());
     }
 
     @Transactional
@@ -558,6 +674,14 @@ public class OrdemServicoUseCases {
                 .map(SolicitacaoOrdemServico::getIdOrdemServico)
                 .distinct()
                 .count();
+    }
+
+    private String nomeOficina(OrdemServico os) {
+        if (os.getIdFornecedor() != null) {
+            String nome = financeiro.nomesFornecedores(List.of(os.getIdFornecedor())).get(os.getIdFornecedor());
+            if (nome != null) return nome;
+        }
+        return os.getOficinaNome() != null ? os.getOficinaNome() : os.getTipoOficina().getRotulo();
     }
 
     private String nomeBase(OrdemServico os) {

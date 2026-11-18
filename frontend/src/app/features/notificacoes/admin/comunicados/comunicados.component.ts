@@ -55,6 +55,7 @@ const SITUACAO: CesSelectOption<boolean | null>[] = [
 ];
 const TOM_STATUS: Record<StatusComunicado, CesTone> = { RASCUNHO: 'neutral', PUBLICADO: 'success', ARQUIVADO: 'neutral' };
 const TOM_TIPO: Record<TipoComunicado, CesTone> = { DICA: 'warning', CHANGELOG: 'brand', AVISO: 'info', MANUTENCAO: 'neutral', URGENTE: 'danger' };
+const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', PUBLICADO: 'pi-megaphone', ARQUIVADO: 'pi-inbox' };
 
 @Component({
   selector: 'app-comunicados',
@@ -144,13 +145,13 @@ const TOM_TIPO: Record<TipoComunicado, CesTone> = { DICA: 'warning', CHANGELOG: 
           @if (row.resumo) {
             <span class="ces-cell-muted">{{ row.resumo }}</span>
           }
-          <span class="ces-cell-chips"><ces-status [tone]="tomTipo(row.tipo)">{{ row.tipoRotulo }}</ces-status></span>
+          <span class="ces-cell-chips"><ces-status [tone]="tomTipo(row.tipo)" [icon]="iconeTipo[row.tipo]">{{ row.tipoRotulo }}</ces-status></span>
         </ng-template>
         <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tomStatus(row.status)" [emphasis]="row.status === 'ARQUIVADO' ? 'outline' : 'soft'">{{ row.statusRotulo }}</ces-status>
+          <ces-status [tone]="tomStatus(row.status)" [icon]="iconeStatus[row.status]" [emphasis]="row.status === 'ARQUIVADO' ? 'outline' : 'soft'">{{ row.statusRotulo }}</ces-status>
         </ng-template>
         <ng-template cesCell="vigencia" let-row>
-          <ces-status [tone]="vigencia(row).tom" emphasis="outline">{{ vigencia(row).rotulo }}</ces-status>
+          <ces-status [tone]="vigencia(row).tom" emphasis="outline" [icon]="vigencia(row).icone">{{ vigencia(row).rotulo }}</ces-status>
           @if (row.dataInicio) {
             <span class="ces-cell-muted">de {{ quando(row.dataInicio) }}</span>
           }
@@ -161,7 +162,7 @@ const TOM_TIPO: Record<TipoComunicado, CesTone> = { DICA: 'warning', CHANGELOG: 
         <ng-template cesCell="publico" let-row>
           <span class="ces-cell-chips">
             @for (segmento of row.segmentos; track segmento.id) {
-              <ces-status tone="neutral" emphasis="outline">{{ alvo(segmento) }}</ces-status>
+              <ces-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo(segmento) }}</ces-status>
             }
           </span>
         </ng-template>
@@ -202,7 +203,7 @@ const TOM_TIPO: Record<TipoComunicado, CesTone> = { DICA: 'warning', CHANGELOG: 
         <p class="ces-cell-muted">Será entregue a:</p>
         <span class="ces-cell-chips">
           @for (segmento of selecionado()!.segmentos; track segmento.id) {
-            <ces-status tone="neutral" emphasis="outline">{{ alvo(segmento) }}</ces-status>
+            <ces-status tone="neutral" emphasis="outline" icon="pi-users">{{ alvo(segmento) }}</ces-status>
           }
         </span>
       }
@@ -229,9 +230,9 @@ const TOM_TIPO: Record<TipoComunicado, CesTone> = { DICA: 'warning', CHANGELOG: 
           [rows]="dados.pendentes" [rowKey]="chavePessoa" [state]="dados.pendentes.length ? 'ready' : 'empty'" stateTitle="Todos confirmaram">
           <ng-template cesCell="situacao" let-row>
             @if (row.visualizadoEm) {
-              <ces-status tone="warning" [title]="'Abriu em ' + quando(row.visualizadoEm)">Abriu, não confirmou</ces-status>
+              <ces-status tone="warning" [title]="'Abriu em ' + quando(row.visualizadoEm)" icon="pi-eye">Abriu, não confirmou</ces-status>
             } @else {
-              <ces-status tone="neutral" emphasis="outline">Nunca abriu</ces-status>
+              <ces-status tone="neutral" emphasis="outline" icon="pi-eye-slash">Nunca abriu</ces-status>
             }
           </ng-template>
         </ces-data-table>
@@ -363,6 +364,9 @@ export class ComunicadosComponent {
     return TIPO_COMUNICADO_ICONES[c.tipo] ?? 'pi pi-megaphone';
   }
 
+  protected readonly iconeTipo: Record<string, string> = TIPO_COMUNICADO_ICONES;
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS;
+
   protected tomTipo(t: TipoComunicado): CesTone {
     return TOM_TIPO[t] ?? 'neutral';
   }
@@ -372,11 +376,11 @@ export class ComunicadosComponent {
   }
 
   /** Não existe status "agendado": os indicadores vêm prontos do servidor. */
-  protected vigencia(c: ComunicadoResponse): { rotulo: string; tom: CesTone } {
-    if (c.status !== 'PUBLICADO') return { rotulo: '—', tom: 'neutral' };
-    if (c.agendado) return { rotulo: 'Agendado', tom: 'warning' };
-    if (c.vigente) return { rotulo: 'No ar', tom: 'success' };
-    return { rotulo: 'Fora do ar', tom: 'neutral' };
+  protected vigencia(c: ComunicadoResponse): { rotulo: string; tom: CesTone; icone: string } {
+    if (c.status !== 'PUBLICADO') return { rotulo: '—', tom: 'neutral', icone: 'pi-minus' };
+    if (c.agendado) return { rotulo: 'Agendado', tom: 'warning', icone: 'pi-calendar-clock' };
+    if (c.vigente) return { rotulo: 'No ar', tom: 'success', icone: 'pi-eye' };
+    return { rotulo: 'Fora do ar', tom: 'neutral', icone: 'pi-eye-slash' };
   }
 
   protected alvo(s: SegmentoComunicadoResponse): string {

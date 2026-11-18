@@ -118,6 +118,29 @@ describe('InspecaoFormComponent', () => {
     expect(component.colaboradorParaAdicionarId).toBeNull();
   });
 
+  it('sem evidencia, registrar avisa o motivo e leva ate as fotos em vez de nao fazer nada', () => {
+    const fixture = TestBed.createComponent(InspecaoFormComponent);
+    fixture.detectChanges();
+    const component = fixture.componentInstance as any;
+    const add = vi.spyOn(fixture.debugElement.injector.get(MessageService), 'add');
+    const scrollIntoView = vi.fn();
+    component.evidenciasUpload = { temEvidencia: () => false, enviando: () => false };
+    component.evidenciasEl = { nativeElement: { scrollIntoView } };
+    component.validar = () => component.motivoBloqueioLancamento();
+
+    component.lancar();
+
+    expect(add).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'warn',
+        summary: 'Inspeção ainda não registrada',
+        detail: expect.stringContaining('evidência fotográfica'),
+      }),
+    );
+    expect(scrollIntoView).toHaveBeenCalled();
+    expect(sstServiceMock.registrarInspecao).not.toHaveBeenCalled();
+  });
+
   it('hidrata as opcoes ao adicionar os membros de uma equipe', () => {
     const fixture = TestBed.createComponent(InspecaoFormComponent);
     fixture.detectChanges();

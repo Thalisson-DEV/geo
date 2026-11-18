@@ -14,7 +14,7 @@
       <header class="wizard-header">
         <div class="flex items-center justify-between gap-3 mb-3">
           <div class="flex items-center gap-2"><i [class]="reuniao()!.tipoCorpo === 'CIPA' ? 'pi pi-users text-primary-700 text-xs' : 'pi pi-shield text-primary-700 text-xs'"></i><span class="eyebrow">{{ reuniao()!.tipoCorpo === 'CIPA' ? 'Reunião da CIPA' : 'Reunião da Brigada' }}</span></div>
-          <p-tag [value]="rotulo(reuniao()!.status)" [severity]="reuniao()!.status === 'FINALIZADA' ? 'success' : 'info'" />
+          <ces-status [tone]="reuniao()!.status === 'FINALIZADA' ? 'success' : 'info'" [icon]="iconeStatus(reuniao()!.status)">{{ rotulo(reuniao()!.status) }}</ces-status>
         </div>
         <h1>{{ reuniao()!.tipo }} · {{ reuniao()!.dataHora | date:'dd/MM/yyyy HH:mm' }}</h1>
         <p>{{ reuniao()!.localOuMeio }} · duração prevista de {{ reuniao()!.duracaoMinutos }} minutos</p>
@@ -125,14 +125,14 @@
                 @if(podeEditar()){
                   <div class="flex flex-wrap items-center gap-2"><p-button [label]="gravando()?'Parar ditado':'Ditar reunião'" [icon]="gravando()?'pi pi-stop-circle':'pi pi-microphone'" severity="secondary" [outlined]="true" (onClick)="ditar()"/><span class="flex-1"></span><p-button label="Salvar nova revisão" icon="pi pi-save" [disabled]="!transcricao.trim()" [loading]="processando()==='transcricao'" (onClick)="salvarTranscricao()"/></div>
                 }
-                @if(transcricoes().length){<div class="subsection"><div class="subsection-title"><i class="pi pi-history"></i>Revisões salvas <b>{{transcricoes().length}}</b></div><div class="revision-list">@for(item of transcricoes();track item.id){<div><span><b>Revisão {{item.numero}}</b><small>{{item.dataCriacao|date:'dd/MM/yyyy HH:mm'}} · {{item.origem}}</small></span>@if(item.confirmada){<p-tag value="Confirmada" severity="success"/>}@else if(podeEditar()){<p-button label="Confirmar texto" icon="pi pi-check" [text]="true" size="small" (onClick)="confirmarTranscricao(item)"/>}</div>}</div></div>}
+                @if(transcricoes().length){<div class="subsection"><div class="subsection-title"><i class="pi pi-history"></i>Revisões salvas <b>{{transcricoes().length}}</b></div><div class="revision-list">@for(item of transcricoes();track item.id){<div><span><b>Revisão {{item.numero}}</b><small>{{item.dataCriacao|date:'dd/MM/yyyy HH:mm'}} · {{item.origem}}</small></span>@if(item.confirmada){<ces-status tone="success" icon="pi-verified">Confirmada</ces-status>}@else if(podeEditar()){<p-button label="Confirmar texto" icon="pi pi-check" [text]="true" size="small" (onClick)="confirmarTranscricao(item)"/>}</div>}</div></div>}
                 @if(capabilities().normalizacaoIaDisponivel){
                   <div class="subsection"><div class="subsection-head"><div><div class="subsection-title"><i class="pi pi-compass"></i>Organização assistida</div><p class="help">Separa tópicos, decisões, ações candidatas e dúvidas sem produzir a ata final.</p></div>@if(podeEditar()){<p-button label="Organizar transcrição" icon="pi pi-compass" [loading]="processando()==='normalizar'" (onClick)="normalizar()"/>}</div>
                     @for(item of normalizacoes();track item.id){
                       <div class="flex flex-col gap-1">
                         <div class="normalization-row">
                           <p-button [icon]="expandedNormalizacao() === item.id ? 'pi pi-eye-slash' : 'pi pi-eye'" [text]="true" [rounded]="true" (onClick)="toggleNormalizacao(item.id)" pTooltip="Ver detalhes" styleClass="shrink-0" />
-                          <span><b>Normalização {{item.numero}}</b>@if(item.conteudo){<small>{{item.conteudo.topicos.length}} tópicos · {{item.conteudo.decisoesCandidatas.length}} decisões · {{item.conteudo.incertezas.length}} pontos a conferir</small>}</span><p-tag [value]="rotulo(item.status)" [severity]="item.status==='CONFIRMADA'?'success':item.status==='FALHA'?'danger':'info'"/>
+                          <span><b>Normalização {{item.numero}}</b>@if(item.conteudo){<small>{{item.conteudo.topicos.length}} tópicos · {{item.conteudo.decisoesCandidatas.length}} decisões · {{item.conteudo.incertezas.length}} pontos a conferir</small>}</span><ces-status [tone]="item.status==='CONFIRMADA'?'success':item.status==='FALHA'?'danger':'info'" [icon]="item.status==='CONFIRMADA'?'pi-verified':item.status==='FALHA'?'pi-times-circle':item.status==='EM_PROCESSAMENTO'?'pi-spin pi-spinner':'pi-pencil'">{{ rotulo(item.status) }}</ces-status>
                         @if(item.status==='RASCUNHO' && podeEditar()){<p-button label="Conferi" icon="pi pi-check" [text]="true" (onClick)="confirmarNormalizacao(item)"/>}</div>
                         @if(expandedNormalizacao() === item.id && item.conteudo){
                           <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-3 bg-slate-50 dark:bg-slate-900 text-xs">

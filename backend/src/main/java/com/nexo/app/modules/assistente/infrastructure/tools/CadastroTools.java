@@ -94,7 +94,7 @@ public class CadastroTools {
                         + "muda conforme o tipo), envie em 'dados_parciais' o que ja sabe para receber os campos especificos.",
                 JsonSchemas.object()
                         .required("operacao", JsonSchemas.string("Chave da operacao (de cadastros_disponiveis)"))
-                        .prop("dados_parciais", JsonSchemas.anyValue("Dados ja conhecidos, no formato de 'dados' de cadastrar"))
+                        .prop("dados_parciais", JsonSchemas.anyObject("Dados ja conhecidos, no formato de 'dados' de cadastrar"))
                         .build(),
                 ToolKind.CATALOG, Set.of(), TEMPO) {
             @Override
@@ -192,9 +192,9 @@ public class CadastroTools {
                 JsonSchemas.object()
                         .required("operacao", JsonSchemas.string("Chave da operacao, de cadastros_disponiveis (ex.: colaborador, equipe, "
                                 + "solicitacao_material, solicitacao_compra, desconto, editar_colaborador)"))
-                        .prop("dados", JsonSchemas.anyValue("Campos de UM registro, {campo: valor}, como em formulario_cadastro"))
+                        .prop("dados", JsonSchemas.anyObject("Campos de UM registro, {campo: valor}, como em formulario_cadastro"))
                         .prop("lote", JsonSchemas.array("Varios registros do mesmo tipo (ate 50), cada um no formato de 'dados'",
-                                JsonSchemas.anyValue("Registro")))
+                                JsonSchemas.anyObject("Registro, {campo: valor}")))
                         .prop("registro", JsonSchemas.string("So nas operacoes editar_*: qual registro editar (nome, codigo ou id)"))
                         .build(),
                 servico, null);
@@ -303,10 +303,12 @@ public class CadastroTools {
         public ToolResult execute(JsonNode arguments, ToolContext context) {
             PreviaAcao previa = preparar(arguments, context.security());
             if (!previa.pronta()) {
-                return ToolResult.of(previa.paraModelo(), previa.resumo()).asFailure();
+                return ToolResult.of(servico.pendenciasParaIntegracao(previa), previa.resumo()).asFailure();
             }
             ResultadoAcao resultado = confirmar(previa.argumentos(), null, context.security());
-            if (resultado.pendente()) return ToolResult.of(resultado.previa().paraModelo(), resultado.previa().resumo()).asFailure();
+            if (resultado.pendente()) {
+                return ToolResult.of(servico.pendenciasParaIntegracao(resultado.previa()), resultado.previa().resumo()).asFailure();
+            }
             ObjectNode conteudo = resultado.resultado().deepCopy();
             if (resultado.sigiloso() != null) conteudo.set("sigiloso", resultado.sigiloso());
             ToolResult saida = ToolResult.of(conteudo.toString(), resultado.paraModelo());

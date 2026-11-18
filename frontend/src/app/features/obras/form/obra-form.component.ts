@@ -20,6 +20,7 @@ import {
   ObraResponse,
   ObraResumoResponse,
   StatusObraResponse,
+  TipoDeObraResponse,
   TipoVinculoSubprojeto
 } from '../../../core/models/obras.models';
 import {
@@ -33,6 +34,7 @@ import {
 } from '../../../core/models/rh.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { ObrasService } from '../../../core/services/obras.service';
+import { controleObra } from '../obras-controle';
 import { RhService } from '../../../core/services/rh.service';
 import { saidaDoDrawer } from '../../../shared/utils/drawer-navegacao.utils';
 import { LocationPickerDialogComponent, LocalSelecionado } from '../../../shared/components/location-picker-dialog/location-picker-dialog.component';
@@ -106,6 +108,7 @@ export class ObraFormComponent implements OnInit {
   protected readonly idCoordenador = signal<string | null>(null);
   protected readonly idAgenteResponsavel = signal<string | null>(null);
   protected readonly idStatusObra = signal<string | null>(null);
+  protected readonly idTipoObra = signal<string | null>(null);
   protected readonly valorProjeto = signal<number | null>(null);
   protected readonly dataInicio = signal<Date | null>(null);
   protected readonly dataPrevisaoFim = signal<Date | null>(null);
@@ -118,6 +121,7 @@ export class ObraFormComponent implements OnInit {
   protected readonly longitude = signal<number | null>(null);
 
   private readonly statusLista = signal<StatusObraResponse[]>([]);
+  private readonly tiposObra = signal<TipoDeObraResponse[]>([]);
   private readonly bases = signal<BaseOperacionalResponse[]>([]);
   private readonly processos = signal<ProcessoNegocioResponse[]>([]);
   private readonly municipios = signal<MunicipioResponse[]>([]);
@@ -129,6 +133,12 @@ export class ObraFormComponent implements OnInit {
   private readonly obrasPrincipais = signal<ObraResumoResponse[]>([]);
 
   protected readonly tipoVinculoOpcoes = TIPO_VINCULO_OPTIONS;
+  protected readonly tiposObraOpcoes = computed(() => this.tiposObra().map((t) => ({ label: t.nome, value: t.id })));
+  /** Diz para onde vai o material do tipo escolhido (obra, OS ou OC). */
+  protected readonly descricaoTipo = computed(() => {
+    const tipo = this.tiposObra().find((t) => t.id === this.idTipoObra());
+    return tipo ? controleObra(tipo.controleExecucao).texto : undefined;
+  });
   protected readonly statusOpcoes = computed(() => this.statusLista().map((s) => ({ label: s.nome, value: s.id })));
   protected readonly basesOpcoes = computed(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));
   protected readonly processosOpcoes = computed(() => this.processos().map((p) => ({ label: p.nome, value: p.id })));
@@ -160,6 +170,7 @@ export class ObraFormComponent implements OnInit {
     obrigatorio('idSupervisor', this.idSupervisor(), 'Selecione o supervisor.');
     obrigatorio('idCoordenador', this.idCoordenador(), 'Selecione o coordenador.');
     obrigatorio('idStatusObra', this.idStatusObra(), 'Selecione o status.');
+    obrigatorio('idTipoObra', this.idTipoObra(), 'Selecione o tipo de obra.');
     obrigatorio('dataInicio', this.dataInicio(), 'Informe a data de início.');
     obrigatorio('dataPrevisaoFim', this.dataPrevisaoFim(), 'Informe a previsão de término.');
     if (this.ehSubprojeto()) {
@@ -173,7 +184,7 @@ export class ObraFormComponent implements OnInit {
     JSON.stringify([
       this.numero(), this.titulo(), this.notaObra(), this.descricao(), this.idProcesso(), this.idBaseOperacional(),
       this.idMunicipio(), this.idCentroCusto(), this.idSupervisor(), this.idCoordenador(), this.idAgenteResponsavel(),
-      this.idStatusObra(), this.valorProjeto(), this.dataInicio(), this.dataPrevisaoFim(), this.dataFimEfetiva(),
+      this.idStatusObra(), this.idTipoObra(), this.valorProjeto(), this.dataInicio(), this.dataPrevisaoFim(), this.dataFimEfetiva(),
       this.equipes(), this.ehSubprojeto(), this.idObraPai(), this.tipoVinculoPai(), this.latitude(), this.longitude()
     ])
   );
@@ -246,6 +257,7 @@ export class ObraFormComponent implements OnInit {
       idSupervisor: this.idSupervisor()!,
       idCoordenador: this.idCoordenador()!,
       idStatusObra: this.idStatusObra()!,
+      idTipoObra: this.idTipoObra(),
       idAgenteResponsavel: this.idAgenteResponsavel() || undefined,
       idObraPai: this.ehSubprojeto() ? this.idObraPai() : null,
       tipoVinculoPai: this.ehSubprojeto() ? this.tipoVinculoPai() : null,
@@ -279,6 +291,7 @@ export class ObraFormComponent implements OnInit {
         this.notaObra.set(obra.notaObra || '');
         this.descricao.set(obra.descricao || '');
         this.idStatusObra.set(obra.statusId);
+        this.idTipoObra.set(obra.tipoObraId || null);
         this.valorProjeto.set(obra.valorProjeto ?? null);
         this.dataInicio.set(parseDataBrParaDate(obra.dataInicio));
         this.dataPrevisaoFim.set(parseDataBrParaDate(obra.dataPrevisaoFim));
@@ -325,6 +338,17 @@ export class ObraFormComponent implements OnInit {
       if (!this.editando() && lista.length && !this.idStatusObra()) {
         this.idStatusObra.set(lista[0].id);
         this.original.set(this.retrato());
+      }
+    });
+    this.service.listarTiposObraAtivos().subscribe((lista) => {
+      this.tiposObra.set(lista);
+      // O tipo Comum é sugestão para obra nova: não conta como alteração ao fechar.
+      if (!this.editando() && !this.idTipoObra()) {
+        const comum = lista.find((t) => t.codigo === 'COMUM') ?? lista.find((t) => !t.subtipo);
+        if (comum) {
+          this.idTipoObra.set(comum.id);
+          this.original.set(this.retrato());
+        }
       }
     });
     this.service.listarAgentesAtivos().subscribe((lista) => this.agentes.set(lista));

@@ -128,7 +128,7 @@ function diasAte(data: string): number {
                       <span class="dv-muted">{{ funcaoEBase(c) }}</span>
                     </span>
                     @if (!c.ativo) {
-                      <ces-status tone="neutral">Inativo</ces-status>
+                      <ces-status tone="neutral" icon="pi-ban">Inativo</ces-status>
                     }
                   </li>
                 }

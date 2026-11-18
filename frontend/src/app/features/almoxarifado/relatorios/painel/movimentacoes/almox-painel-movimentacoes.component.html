@@ -1,0 +1,173 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Movimentações do almoxarifado" icon="pi pi-arrow-right-arrow-left"
+      [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Movimentações' }]"
+      description="O que entrou, saiu, voltou e foi baixado; onde há perda, ajuste e retrabalho; e quem carrega a operação.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (dados(); as d) { <span actions class="dash-updated">Calculado às {{ d.geradoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="almox-rel-movimentacoes" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-almox-recorte-campos prefixo="apm" />
+        <ces-multiselect label="Natureza" inputId="apm-natureza" placeholder="Todas" [options]="opcoesNatureza" [filter]="false"
+          description="O que a movimentação significa para o almoxarifado." [value]="naturezasSel()" (valueChange)="naturezasSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Tipo de movimentação" inputId="apm-tipo" placeholder="Todos" [options]="opcoesTipo" [filter]="false"
+          [value]="tiposSel()" (valueChange)="tiposSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Condição" inputId="apm-condicao" placeholder="Novo e sucata" [options]="opcoesCondicao" [filter]="false"
+          [value]="condicoesSel()" (valueChange)="condicoesSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Material" inputId="apm-material" placeholder="Todos" [options]="opcoesMaterial()" [virtualScroll]="true"
+          [value]="materiaisSel()" (valueChange)="materiaisSel.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <app-almox-painel-topo [descricao]="recorte.descricaoPeriodo(dados())" (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !modelo()) {
+      <ces-async-state state="loading" title="Lendo as movimentações" description="Entradas, saídas, retornos e baixas do período e do anterior."></ces-async-state>
+    } @else if (erro() && !modelo()) {
+      <ces-async-state state="error" title="Não foi possível ler as movimentações" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (modelo(); as m) {
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+      @if (m.r.truncado) {
+        <ces-callout tone="info" icon="pi pi-info-circle" title="Período grande demais">
+          O período tem mais de {{ inteiro(m.r.limite) }} movimentações; os números consideram as mais recentes. Reduza o período para ver tudo.
+        </ces-callout>
+      }
+
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+      }
+
+      @if (!m.linhas.length) {
+        <ces-async-state state="empty" title="Nenhuma movimentação neste recorte"
+          description="Amplie o período ou retire filtros para ver o fluxo do almoxarifado."
+          actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></ces-async-state>
+      } @else {
+        <section class="dash-metrics" aria-label="Volume">
+          <app-dashboard-metric-card label="Operações" icon="pi-file" tone="primary" [value]="inteiro(m.operacoes)"
+            [detail]="textoVariacao(m.operacoes, m.operacoesAnt)" actionLabel="Analisar" (activate)="analisar('kpi', 'operacoes')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'operacoes', rotulo: 'Operações' }" />
+          </app-dashboard-metric-card>
+          <app-dashboard-metric-card label="Atendimento às equipes" icon="pi-send" tone="slate" [value]="inteiro(m.porNatureza.atendimento.length)"
+            [detail]="'Itens que saíram · ' + textoVariacao(m.porNatureza.atendimento.length, m.porNaturezaAnt.atendimento)"
+            actionLabel="Ver as saídas" (activate)="analisar('natureza', 'atendimento')" />
+          <app-dashboard-metric-card label="Retornos" icon="pi-undo" [tone]="m.taxaRetorno != null && m.taxaRetorno >= 0.3 ? 'amber' : 'slate'"
+            [value]="inteiro(m.porNatureza.retorno.length)"
+            [detail]="m.taxaRetorno != null ? pct(m.taxaRetorno, 0) + ' do que saiu voltou' : 'Material novo que voltou'"
+            actionLabel="Ver os retornos" (activate)="analisar('natureza', 'retorno')" />
+          <app-dashboard-metric-card label="Abastecimento" icon="pi-download" tone="slate" [value]="inteiro(m.porNatureza.abastecimento.length)"
+            [detail]="'Entradas avulsas · ' + textoVariacao(m.porNatureza.abastecimento.length, m.porNaturezaAnt.abastecimento)"
+            actionLabel="Ver as entradas" (activate)="analisar('natureza', 'abastecimento')" />
+        </section>
+        <section class="dash-metrics" aria-label="Controle">
+          <app-dashboard-metric-card label="Estornos" icon="pi-replay" [tone]="tomEstorno(m)" [value]="inteiro(m.estornos.length)"
+            [detail]="m.taxaEstorno != null ? pct(m.taxaEstorno, 1) + ' das entregas' : 'Sem entregas no período'"
+            actionLabel="Ver os estornos" (activate)="analisar('kpi', 'estornos')" />
+          <app-dashboard-metric-card label="Perdas" icon="pi-exclamation-circle" [tone]="m.perdas.length ? 'red' : 'green'" [value]="inteiro(m.perdas.length)"
+            [detail]="'Perda, avaria, dano ou obsolescência · ' + inteiro(m.porNatureza.baixa.length) + ' baixas no total'"
+            actionLabel="Ver as perdas" (activate)="analisar('kpi', 'perdas')" />
+          <app-dashboard-metric-card label="Ajustes de inventário" icon="pi-sliders-h" [tone]="m.ajustes.length ? 'amber' : 'green'" [value]="inteiro(m.ajustes.length)"
+            [detail]="m.avulsasSemMotivo.length ? inteiro(m.avulsasSemMotivo.length) + ' avulsas sem motivo' : 'Toda avulsa tem motivo'"
+            actionLabel="Ver os ajustes" (activate)="analisar('motivo', 'AJUSTE_INVENTARIO')" />
+          <app-dashboard-metric-card label="Fora do horário" icon="pi-moon" [tone]="m.foraDoHorario.length ? 'amber' : 'slate'" [value]="inteiro(m.foraDoHorario.length)"
+            detail="Balcão à noite, de madrugada ou no fim de semana" actionLabel="Ver os lançamentos" (activate)="analisar('kpi', 'fora-horario')" />
+        </section>
+
+        <section class="dash-grid" aria-label="Fluxo no tempo">
+          <article class="dash-panel dash-col-8">
+            <header class="dash-panel__header">
+              <div><span class="dash-eyebrow">Tendência</span><h2>Fluxo do almoxarifado</h2>
+                <p>Itens movimentados por {{ m.eixo.unidade }}, pela natureza. Clique numa barra para ver o {{ m.eixo.unidade }}.</p></div>
+              <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'fluxo', rotulo: 'Fluxo do almoxarifado' }" />
+            </header>
+            <ces-chart kind="bar-stacked" title="Itens movimentados por natureza" [showTitle]="false" [selectable]="true" [selectLabel]="'Analisar o ' + m.eixo.unidade"
+              [labels]="serie().rotulos" [series]="serie().series" valueFormat="integer" [height]="320" (pointSelect)="analisarPeriodo($event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-4">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Composição</span><h2>Por natureza</h2><p>Clique numa fatia para analisá-la.</p></div></header>
+            <ces-chart kind="doughnut" title="Itens por natureza" [showTitle]="false" [selectable]="true" selectLabel="Analisar a natureza"
+              [labels]="graficoNatureza().rotulos" [series]="graficoNatureza().series" valueFormat="integer" [height]="320"
+              (pointSelect)="analisarNatureza($event.index)"></ces-chart>
+          </article>
+        </section>
+
+        <section class="dash-grid pf-grid-espaco" aria-label="Onde e quem">
+          <article class="dash-panel dash-col-6">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Onde</span><h2>Por almoxarifado</h2><p>Itens que chegaram e que saíram de cada um.</p></div></header>
+            <ces-chart kind="bar-horizontal" title="Entradas e saídas por almoxarifado" [showTitle]="false" [selectable]="true" selectLabel="Analisar o almoxarifado"
+              [labels]="graficoAlmox().rotulos" [series]="graficoAlmox().series" valueFormat="integer" [height]="260"
+              (pointSelect)="analisarAlmox($event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-6">
+            <header class="dash-panel__header">
+              <div><span class="dash-eyebrow">Quem</span><h2>Por operador</h2>
+                <p>Operações lançadas por pessoa{{ m.concentracaoOperador != null ? '; a primeira faz ' + pct(m.concentracaoOperador, 0) : '' }}.</p></div>
+            </header>
+            <ces-chart kind="bar-horizontal" title="Operações por operador" [showTitle]="false" [selectable]="true" selectLabel="Analisar o operador"
+              [labels]="graficoOperadores().rotulos" [series]="graficoOperadores().series" valueFormat="integer" [height]="260"
+              (pointSelect)="analisarOperador($event.index)"></ces-chart>
+          </article>
+        </section>
+
+        <section class="dash-grid pf-grid-espaco" aria-label="Carga de trabalho">
+          <article class="dash-panel dash-col-7">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Carga</span><h2>Hora do dia</h2><p>Itens que passaram pelo balcão, por hora. Use para escalar pessoas no pico.</p></div></header>
+            <ces-chart kind="bar" title="Itens por hora do dia" [showTitle]="false" [selectable]="true" selectLabel="Analisar a hora"
+              [labels]="horas" [series]="[{ name: 'Itens', values: m.porHora }]" valueFormat="integer" [height]="240"
+              (pointSelect)="analisar('hora', '' + $event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-5">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Carga</span><h2>Dia da semana</h2><p>Itens que passaram pelo balcão em cada dia.</p></div></header>
+            <ces-chart kind="bar" title="Itens por dia da semana" [showTitle]="false" [selectable]="true" selectLabel="Analisar o dia"
+              [labels]="nomesDia" [series]="[{ name: 'Itens', values: m.porDiaSemana }]" valueFormat="integer" [height]="240"
+              (pointSelect)="analisar('semana', '' + $event.index)"></ces-chart>
+          </article>
+        </section>
+
+        @if (motivosComValor().length) {
+          <section class="dash-grid pf-grid-espaco">
+            <article class="dash-panel dash-col-12">
+              <header class="dash-panel__header"><div><span class="dash-eyebrow">Avulsas</span><h2>Entradas e baixas avulsas por motivo</h2>
+                <p>Motivo é o rastro da auditoria: ajuste repetido aponta divergência de registro. Clique num motivo para ver os lançamentos.</p></div></header>
+              <ces-chart kind="bar-horizontal" title="Avulsas por motivo" [showTitle]="false" [selectable]="true" selectLabel="Ver os lançamentos"
+                [labels]="graficoMotivos().rotulos" [series]="graficoMotivos().series" valueFormat="integer" [height]="Math.max(200, motivosComValor().length * 34)"
+                (pointSelect)="analisarMotivo($event.index)"></ces-chart>
+            </article>
+          </section>
+        }
+
+        <section class="pf-secao" aria-labelledby="apm-materiais">
+          <header><span class="dash-eyebrow">Materiais</span><h2 id="apm-materiais">O que mais gira</h2>
+            <p>{{ m.paretoMateriais.itens }} de {{ m.paretoMateriais.total }} materiais fazem 80% das movimentações. Quantidades na unidade de cada material.</p></header>
+          <ces-data-table title="Materiais movimentados" storageKey="apm-materiais" exportFileName="almoxarifado-materiais-movimentados"
+            [columns]="colMateriais" [rows]="m.materiais" [rowKey]="chaveMaterial" [rowLabel]="rotuloMaterial"
+            searchPlaceholder="Filtrar código ou descrição" rowActionLabel="Analisar" (rowActivate)="analisar('material', $event.idMaterial)"
+            [state]="m.materiais.length ? 'ready' : 'empty'" stateTitle="Nenhum material no recorte"></ces-data-table>
+        </section>
+
+        @if (equipesTabela().length) {
+          <section class="pf-secao" aria-labelledby="apm-equipes">
+            <header><span class="dash-eyebrow">Equipes</span><h2 id="apm-equipes">Movimentações por equipe</h2>
+              <p>Entregas, retornos, estornos e baixas ligados a cada equipe. Abra a linha para analisar.</p></header>
+            <ces-data-table title="Por equipe" storageKey="apm-equipes" exportFileName="almoxarifado-movimentacoes-por-equipe"
+              [columns]="colGrupo" [rows]="equipesTabela()" [rowKey]="chaveGrupo" searchPlaceholder="Filtrar equipe"
+              rowActionLabel="Analisar" (rowActivate)="analisar('equipe', $event.chave)"></ces-data-table>
+          </section>
+        }
+      }
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

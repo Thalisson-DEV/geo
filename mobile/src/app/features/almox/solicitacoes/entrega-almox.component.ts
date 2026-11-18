@@ -4,9 +4,12 @@ import { catchError, forkJoin, map, of } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { TokenService } from '../../../core/auth/token.service';
 import { AlmoxService } from '../../../core/almox/almox.service';
-import { Solicitacao } from '../../../core/almox/almox.models';
+import { Estoque, Solicitacao } from '../../../core/almox/almox.models';
 import { idCurto, pode } from '../../../core/almox/almox-status';
+import { nomeEstoque, tituloTecnica } from '../../../core/almox/almox-tecnico';
 import { extrairSerie, normalizarSerie } from '../../../core/almox/series';
+import { ComUnidade, Equivalencia, daBase, paraBase } from '../../../core/almox/unidade-material';
+import { QuantidadeUnidadeComponent } from '../../../ui/quantidade-unidade.component';
 import { ApiError } from '../../../core/http/error.interceptor';
 import { RascunhoService, VinculoRascunho } from '../../../core/sessao/rascunho.service';
 import { ConnectivityService } from '../../../core/sync/connectivity.service';
@@ -25,16 +28,23 @@ interface ItemEntrega {
   detalhaSerie: boolean;
   pedido: number;
   pendente: number;
-  /** Quanto sai nesta entrega (com série: 0 ou 1). */
+  /** Quanto sai nesta entrega, na unidade do material (com série: 0 ou 1). */
   quantidade: number;
   serie: string;
+  equivalencias: Equivalencia[];
+  /** Digitado em outra unidade (ex.: 30 KG de cabo em MT); {@link quantidade} já vem convertida. */
+  unidadeInformada: string | null;
+  quantidadeInformada?: number;
 }
 
 interface RascunhoEntrega {
   passo: number;
-  itens: { id: string; quantidade: number; serie: string }[];
+  itens: { id: string; quantidade: number; serie: string; unidadeInformada?: string | null; quantidadeInformada?: number }[];
   foraEquipe: boolean;
   responsavel: string | null;
+  /** Entrega técnica: reserva digitada e equipe escolhida (quando a solicitação não tem). */
+  reserva?: string;
+  equipe?: string | null;
 }
 
 const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
@@ -48,11 +58,11 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
 @Component({
   selector: 'app-entrega-almox',
   standalone: true,
-  imports: [AssinaturaComponent, BarraTopoComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, LeitorCodigoComponent, QuantidadeComponent, SeletorComponent, VazioComponent],
+  imports: [AssinaturaComponent, BarraTopoComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, LeitorCodigoComponent, QuantidadeComponent, QuantidadeUnidadeComponent, SeletorComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <ces-barra-topo titulo="Registrar entrega" [subtitulo]="'#' + idCurto() + ' · ' + PASSOS[passo() - 1] + ' · ' + passo() + ' de 4'" navegacao="fechar"
+      <ces-barra-topo titulo="Registrar entrega" [subtitulo]="referencia() + ' · ' + PASSOS[passo() - 1] + ' · ' + passo() + ' de 4'" navegacao="fechar"
         rotuloFechar="Fechar a entrega" (voltar)="fechar()">
         <ces-indicador-rede />
       </ces-barra-topo>
@@ -68,7 +78,16 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
         <section class="conteudo" [attr.aria-label]="PASSOS[passo() - 1]">
           @switch (passo()) {
             @case (1) {
-              <div class="rota"><span class="origem">{{ d.estoqueOrigem.nomeIdentificador }}</span><ces-icone nome="seta" [tamanho]="16" /><strong class="destino">{{ d.estoqueDestino.nomeIdentificador }}</strong></div>
+              <div class="rota"><span class="origem">{{ nomeOrigem() }}</span><ces-icone nome="seta" [tamanho]="16" /><strong class="destino">{{ nomeDestino() }}</strong></div>
+              @if (pedeReserva()) {
+                <label class="ces-campo reserva">
+                  <span class="ces-campo__rotulo">Número da reserva *</span>
+                  <input class="ces-input mono" [value]="reserva()" (input)="reserva.set(soDigitos($any($event.target)))" inputmode="numeric" maxlength="20" autocomplete="off"
+                    placeholder="Só números, até 20 dígitos" [attr.aria-invalid]="tentou() && !reserva().trim()">
+                  @if (tentou() && !reserva().trim()) { <span class="ces-campo__erro"><ces-icone nome="alerta" [tamanho]="16" />A entrega técnica precisa do número da reserva.</span> }
+                  @else { <span class="ces-campo__ajuda">A solicitação ainda não tem reserva: ela é registrada junto com a entrega.</span> }
+                </label>
+              }
               <div class="barra-itens">
                 <span class="ces-num"><strong>{{ marcados() }}</strong> de {{ itens().length }} {{ itens().length === 1 ? 'material' : 'materiais' }} nesta entrega</span>
                 <span class="botoes">
@@ -95,8 +114,15 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
                       </button>
                       <span class="nota">Sai 1 unidade por entrega · {{ (series()[it.idMaterial] ?? []).length }} na origem</span>
                     } @else {
-                      <ces-quantidade [valor]="it.quantidade" (valorChange)="definirQuantidade(i, $event)" [minimo]="0" [grande]="true" [unidade]="it.unidade"
-                        [rotulo]="'quantidade de ' + it.descricao + ' nesta entrega'" />
+                      @if (it.equivalencias.length) {
+                        <ces-quantidade-unidade [material]="{ unidadeMedida: it.unidade, equivalencias: it.equivalencias }" [minimo]="0"
+                          [valor]="it.unidadeInformada ? (it.quantidadeInformada ?? 0) : it.quantidade" (valorChange)="definirQuantidade(i, $event)"
+                          [unidade]="it.unidadeInformada" (unidadeChange)="definirUnidade(i, $event)"
+                          [rotulo]="'quantidade de ' + it.descricao + ' nesta entrega'" />
+                      } @else {
+                        <ces-quantidade [valor]="it.quantidade" (valorChange)="definirQuantidade(i, $event)" [minimo]="0" [grande]="true" [unidade]="it.unidade"
+                          [rotulo]="'quantidade de ' + it.descricao + ' nesta entrega'" />
+                      }
                     }
                   </li>
                 }
@@ -104,6 +130,11 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
             }
             @case (2) {
               <div class="campos">
+                @if (escolheEquipe()) {
+                  <ces-seletor rotulo="Equipe que retira o material" [obrigatorio]="true" [opcoes]="opcoesEquipe()" [valor]="equipeEscolhida()"
+                    (valorChange)="escolherEquipe($event)" [invalido]="tentou() && !idEquipe()" placeholder="Escolher" />
+                  <p class="ajuda">A solicitação não tem equipe definida. O material vai para o estoque da obra; a equipe fica registrada como quem retirou.</p>
+                }
                 <button type="button" class="alternar" role="switch" [attr.aria-checked]="foraEquipe()" (click)="alternarForaEquipe()" [disabled]="!idEquipe()">
                   <span class="txt"><strong>Retirada por alguém de fora da equipe</strong>
                     <span>{{ idEquipe() ? 'Ligue quando quem retira não é da equipe de destino.' : 'O estoque de destino não tem equipe: escolha qualquer colaborador.' }}</span></span>
@@ -137,8 +168,10 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
               </div>
             }
             @case (4) {
-              <div class="rota"><span class="origem">{{ d.estoqueOrigem.nomeIdentificador }}</span><ces-icone nome="seta" [tamanho]="16" /><strong class="destino">{{ d.estoqueDestino.nomeIdentificador }}</strong></div>
+              <div class="rota"><span class="origem">{{ nomeOrigem() }}</span><ces-icone nome="seta" [tamanho]="16" /><strong class="destino">{{ nomeDestino() }}</strong></div>
               <dl class="ces-dados">
+                @if (tecnica() && ocorrencia()) { <div><dt>Ocorrência</dt><dd class="ces-num">{{ ocorrencia() }}</dd></div> }
+                @if (pedeReserva()) { <div><dt>Reserva</dt><dd class="ces-num">{{ reserva().trim() }}</dd></div> }
                 <div><dt>Quem retira</dt><dd>{{ nomeResponsavel() }}{{ foraEquipe() ? ' · de fora da equipe' : '' }}</dd></div>
                 <div><dt>Resultado</dt><dd>{{ completa() ? 'Entrega total: a solicitação será concluída' : 'Entrega parcial: o saldo continua aguardando retirada' }}</dd></div>
               </dl>
@@ -147,7 +180,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
                 @for (it of itensMarcados(); track it.id) {
                   <li class="ces-linha"><span class="ces-linha__texto"><span class="ces-linha__titulo">{{ it.descricao }}</span>
                     <span class="ces-linha__apoio ces-num">{{ it.serie ? 'Série ' + it.serie : 'Cód. ' + it.codigo }}{{ it.quantidade < it.pendente ? ' · fica faltando ' + num(it.pendente - it.quantidade) : '' }}</span></span>
-                    <span class="ces-qtd">{{ num(it.quantidade) }}<small>{{ it.unidade }}</small></span></li>
+                    <span class="ces-qtd">{{ num(it.quantidade) }}<small>{{ it.unidade }}</small>@if (it.unidadeInformada) {<small class="informado">{{ num(it.quantidadeInformada ?? 0) }} {{ it.unidadeInformada }} informados</small>}</span></li>
                 }
               </ul>
               <div class="assinadas">
@@ -228,6 +261,8 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
       border-radius: var(--ces-r-grupo); background: var(--ces-superficie); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
     .rota ces-icone { color: var(--ces-texto-3); }
     .rota .destino { font: 600 .9375rem/1.3 var(--ces-fonte); color: var(--ces-texto); }
+    .reserva { margin: var(--ces-e3) var(--ces-e3) 0; }
+    .reserva .ces-campo__rotulo, .reserva .ces-campo__erro, .reserva .ces-campo__ajuda { padding-left: var(--ces-e4); }
     .barra-itens { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e2); flex-wrap: wrap; padding: var(--ces-e3) var(--ces-e3) var(--ces-e2) var(--ces-e5);
       font: var(--ces-t-apoio); color: var(--ces-texto-2); }
     .barra-itens strong { color: var(--ces-texto); }
@@ -241,6 +276,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
     .serie.escolhida { border-style: solid; border-color: var(--ces-ok); color: var(--ces-texto); font-family: var(--ces-fonte-mono); }
     .serie.escolhida ces-icone { color: var(--ces-ok); }
     .nota { flex-basis: 100%; font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); }
+    .informado { display: block; font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); text-align: right; }
     .campos { display: grid; gap: var(--ces-e3); padding: var(--ces-e2) var(--ces-e3); }
     .alternar { display: flex; align-items: center; gap: var(--ces-e3); width: 100%; padding: var(--ces-e3) var(--ces-e4); min-height: 72px; border: 0; border-radius: var(--ces-r-grupo);
       background: var(--ces-superficie); color: var(--ces-texto); text-align: left; font: inherit; cursor: pointer; }
@@ -313,8 +349,25 @@ export class EntregaAlmoxComponent {
   readonly digitada = signal('');
   private rascunho: VinculoRascunho | null = null;
 
+  /** A mesma tela atende a entrega técnica (221/921): muda a origem, a equipe e o comando enviado. */
+  readonly base = this.router.url.startsWith('/almox/tecnicas') ? '/almox/tecnicas' : '/almox/solicitacoes';
+  readonly estoques = signal<Estoque[]>([]);
+  readonly reserva = signal('');
   readonly idCurto = computed(() => idCurto(this.id()));
-  readonly idEquipe = computed(() => this.det()?.idEquipe || this.det()?.estoqueDestino?.idEquipe || null);
+  readonly tecnica = computed(() => this.det()?.contexto === 'TECNICO');
+  readonly ocorrencia = computed(() => this.det()?.tecnico?.ocorrencia?.codigo ?? null);
+  readonly referencia = computed(() => (this.tecnica() && this.ocorrencia() ? this.ocorrencia()! : '#' + this.idCurto()));
+  readonly pedeReserva = computed(() => this.tecnica() && !this.det()?.tecnico?.reserva?.numero);
+  readonly idOrigem = computed(() => (this.tecnica() ? this.det()?.tecnico?.idAlmoxarifadoAtendimento ?? null : this.det()?.estoqueOrigem?.id ?? null));
+  readonly nomeOrigem = computed(() => (this.tecnica() ? nomeEstoque(this.estoques(), this.idOrigem()) ?? 'Almoxarifado' : this.det()?.estoqueOrigem?.nomeIdentificador ?? ''));
+  readonly nomeDestino = computed(() => (this.tecnica() && this.det() ? tituloTecnica(this.det()!).obra : this.det()?.estoqueDestino?.nomeIdentificador ?? ''));
+  readonly equipeEscolhida = signal<string | null>(null);
+  /** Técnica sem equipe definida: quem entrega escolhe para qual equipe o material vai. */
+  readonly escolheEquipe = computed(() => this.tecnica() && !this.det()?.tecnico?.idEquipe && !this.det()?.idEquipe);
+  readonly opcoesEquipe = computed<OpcaoSeletor[]>(() => this.estoques().filter(e => !!e.idEquipe && e.ativo !== false)
+    .map(e => ({ valor: e.idEquipe!, rotulo: e.nomeIdentificador })));
+  readonly idEquipe = computed(() => (this.tecnica() ? this.det()?.tecnico?.idEquipe || this.equipeEscolhida() : null)
+    || this.det()?.idEquipe || (this.tecnica() ? null : this.det()?.estoqueDestino?.idEquipe) || null);
   readonly marcados = computed(() => this.itens().filter(i => i.quantidade > 0).length);
   readonly itensMarcados = computed(() => this.itens().filter(i => i.quantidade > 0));
   readonly temSerie = computed(() => this.itens().some(i => i.detalhaSerie));
@@ -342,6 +395,7 @@ export class EntregaAlmoxComponent {
 
   constructor() {
     this.almox.carregarNomes();
+    this.almox.estoques().subscribe(e => this.estoques.set(e));
     queueMicrotask(() => this.carregar());
   }
 
@@ -351,8 +405,9 @@ export class EntregaAlmoxComponent {
     this.almox.obterSolicitacao(this.id()).subscribe({
       next: d => {
         if (!pode(d, 'ENTREGAR')) {
-          this.toast.info(`A solicitação #${this.idCurto()} não aceita entrega agora (${d.status === 'PENDENTE' ? 'falta aprovar' : 'sem saldo a entregar'}).`);
-          void this.router.navigate(['/almox/solicitacoes', d.id], { replaceUrl: true });
+          const motivo = d.contexto === 'TECNICO' ? 'falta separar ou não há saldo a entregar' : d.status === 'PENDENTE' ? 'falta aprovar' : 'sem saldo a entregar';
+          this.toast.info(`A solicitação #${this.idCurto()} não aceita entrega agora (${motivo}).`);
+          void this.router.navigate([this.base, d.id], { replaceUrl: true });
           return;
         }
         this.det.set(d);
@@ -363,6 +418,7 @@ export class EntregaAlmoxComponent {
             id: i.id, idMaterial: i.material.id, codigo: i.material.codigo, descricao: i.material.descricao, unidade: i.material.unidadeMedida || 'UN',
             detalhaSerie: !!i.material.detalhaSerie, pedido: Number(i.quantidade), pendente,
             quantidade: i.material.detalhaSerie ? 0 : pendente, serie: '',
+            equivalencias: i.material.detalhaSerie ? [] : (i.material.equivalencias ?? []), unidadeInformada: null,
           };
         }).filter(i => i.pendente > 0));
         this.carregarSeries(d);
@@ -380,36 +436,47 @@ export class EntregaAlmoxComponent {
       chave: `almox:entrega:${this.id()}`,
       injector: this.injector,
       // Assinaturas não entram no rascunho: são colhidas de novo se o app fechar.
-      ler: () => ({ passo: Math.min(this.passo(), 2), itens: this.itens().map(i => ({ id: i.id, quantidade: i.quantidade, serie: i.serie })), foraEquipe: this.foraEquipe(), responsavel: this.responsavel() }),
+      ler: () => ({
+        passo: Math.min(this.passo(), 2), itens: this.itens().map(i => ({ id: i.id, quantidade: i.quantidade, serie: i.serie, unidadeInformada: i.unidadeInformada, quantidadeInformada: i.quantidadeInformada })), foraEquipe: this.foraEquipe(),
+        responsavel: this.responsavel(), reserva: this.reserva(), equipe: this.equipeEscolhida(),
+      }),
       aplicar: r => {
+        this.reserva.set(r.reserva ?? '');
+        if (r.equipe && this.escolheEquipe()) this.escolherEquipe(r.equipe);
         const porId = new Map(r.itens.map(i => [i.id, i]));
         this.itens.update(l => l.map(i => {
           const s = porId.get(i.id);
           if (!s) return i;
-          return i.detalhaSerie ? { ...i, serie: s.serie, quantidade: s.serie ? 1 : 0 } : { ...i, quantidade: Math.min(i.pendente, Math.max(0, s.quantidade)) };
+          if (i.detalhaSerie) return { ...i, serie: s.serie, quantidade: s.serie ? 1 : 0 };
+          const quantidade = Math.min(i.pendente, Math.max(0, s.quantidade));
+          const manteve = !!s.unidadeInformada && i.equivalencias.some(e => e.unidade === s.unidadeInformada) && quantidade === s.quantidade;
+          return manteve
+            ? { ...i, quantidade, unidadeInformada: s.unidadeInformada!, quantidadeInformada: s.quantidadeInformada ?? daBase(this.materialDe(i), quantidade, s.unidadeInformada) }
+            : { ...i, quantidade, unidadeInformada: null, quantidadeInformada: undefined };
         }));
         if (r.foraEquipe !== this.foraEquipe()) this.alternarForaEquipe();
         this.responsavel.set(r.responsavel);
         this.passo.set(Math.min(Math.max(1, r.passo || 1), 2));
       },
-      titulo: () => `Entrega da solicitação #${this.idCurto()}`,
-      rota: () => `/almox/solicitacoes/${this.id()}/entrega`,
+      titulo: () => `Entrega da solicitação ${this.referencia()}`,
+      rota: () => `${this.base}/${this.id()}/entrega`,
       vazio: r => r.passo === 1 && !r.responsavel,
     });
     await this.rascunho.restaurado;
   }
 
-  private carregarSeries(d: Solicitacao): void {
+  private carregarSeries(_d: Solicitacao): void {
     const materiais = [...new Set(this.itens().filter(i => i.detalhaSerie).map(i => i.idMaterial))];
-    if (!materiais.length) return;
-    forkJoin(materiais.map(m => this.almox.listarSeries(d.estoqueOrigem.id, m, 'NOVO').pipe(
+    const origem = this.idOrigem();
+    if (!materiais.length || !origem) return;
+    forkJoin(materiais.map(m => this.almox.listarSeries(origem, m, 'NOVO').pipe(
       map(r => [m, r.map(s => s.numSerie)] as const), catchError(() => of([m, [] as string[]] as const)),
     ))).subscribe(pares => this.series.set(Object.fromEntries(pares)));
   }
 
   private prepararPessoas(d: Solicitacao): void {
-    this.responsavel.set(d.idColaboradorSaque ?? null);
-    const fora = !!d.saqueForaEquipe || !this.idEquipe();
+    this.responsavel.set(d.idColaboradorSaque ?? d.tecnico?.idColaboradorSaque ?? null);
+    const fora = !!d.saqueForaEquipe || !!d.tecnico?.saqueForaEquipe || !this.idEquipe();
     this.foraEquipe.set(fora);
     if (fora) this.carregarColaboradores();
     else this.carregarMembros();
@@ -439,6 +506,20 @@ export class EntregaAlmoxComponent {
     });
   }
 
+  /** Reserva é só número (1 a 20 dígitos, regra do backend): o campo descarta o resto. */
+  soDigitos(campo: HTMLInputElement): string {
+    const limpo = campo.value.replace(/\D/g, '').slice(0, 20);
+    if (campo.value !== limpo) campo.value = limpo;
+    return limpo;
+  }
+
+  escolherEquipe(id: string | null): void {
+    this.equipeEscolhida.set(id);
+    this.responsavel.set(null);
+    this.membros.set([]);
+    if (id) { this.foraEquipe.set(false); this.carregarMembros(); }
+  }
+
   alternarForaEquipe(): void {
     if (!this.idEquipe()) return;
     const fora = !this.foraEquipe();
@@ -452,10 +533,34 @@ export class EntregaAlmoxComponent {
     return numeroBr(n);
   }
 
+  /** Com outra unidade escolhida, {@code q} vem nela; o que sai do saldo é o convertido. */
   definirQuantidade(i: number, q: number): void {
     const it = this.itens()[i];
-    if (q > it.pendente) { this.toast.warning(`No máximo ${numeroBr(it.pendente)} ${it.unidade}: é o que falta entregar.`); return; }
-    this.itens.update(l => l.map((x, k) => (k === i ? { ...x, quantidade: Math.max(0, q) } : x)));
+    const base = it.unidadeInformada ? paraBase(this.materialDe(it), q, it.unidadeInformada) : q;
+    if (base > it.pendente) {
+      const naUnidade = it.unidadeInformada ? ` (${numeroBr(daBase(this.materialDe(it), it.pendente, it.unidadeInformada))} ${it.unidadeInformada})` : '';
+      this.toast.warning(`No máximo ${numeroBr(it.pendente)} ${it.unidade}${naUnidade}: é o que falta entregar.`);
+      return;
+    }
+    this.itens.update(l => l.map((x, k) => (k !== i ? x : x.unidadeInformada
+      ? { ...x, quantidade: Math.max(0, base), quantidadeInformada: Math.max(0, q) }
+      : { ...x, quantidade: Math.max(0, q), quantidadeInformada: undefined })));
+  }
+
+  /** Troca a unidade mantendo a mesma quantidade física (ex.: 126 MT viram 30 KG). */
+  definirUnidade(i: number, unidade: string | null): void {
+    this.itens.update(l => l.map((x, k) => (k !== i ? x : unidade
+      ? { ...x, unidadeInformada: unidade, quantidadeInformada: daBase(this.materialDe(x), x.quantidade, unidade) }
+      : { ...x, unidadeInformada: null, quantidadeInformada: undefined })));
+  }
+
+  private materialDe(it: ItemEntrega): ComUnidade {
+    return { unidadeMedida: it.unidade, equivalencias: it.equivalencias };
+  }
+
+  /** O que foi digitado em outra unidade vai como foi digitado; o servidor converte e guarda os dois. */
+  private informado(i: ItemEntrega): { quantidade: number; unidade?: string } {
+    return i.unidadeInformada && i.quantidadeInformada ? { quantidade: i.quantidadeInformada, unidade: i.unidadeInformada } : { quantidade: i.quantidade };
   }
 
   escolherSerie(i: number): void {
@@ -486,7 +591,7 @@ export class EntregaAlmoxComponent {
   preencherTudo(): void {
     const usadas = new Set<string>();
     this.itens.update(l => l.map(it => {
-      if (!it.detalhaSerie) return { ...it, quantidade: it.pendente };
+      if (!it.detalhaSerie) return { ...it, quantidade: it.pendente, ...(it.unidadeInformada ? { quantidadeInformada: daBase(this.materialDe(it), it.pendente, it.unidadeInformada) } : {}) };
       const s = it.serie || (this.series()[it.idMaterial] ?? []).find(n => !usadas.has(n)) || '';
       if (s) usadas.add(s);
       return { ...it, serie: s, quantidade: s ? 1 : 0 };
@@ -494,15 +599,18 @@ export class EntregaAlmoxComponent {
   }
 
   zerar(): void {
-    this.itens.update(l => l.map(i => ({ ...i, quantidade: 0, serie: '' })));
+    this.itens.update(l => l.map(i => ({ ...i, quantidade: 0, serie: '', ...(i.unidadeInformada ? { quantidadeInformada: 0 } : {}) })));
   }
 
   avancar(): void {
     this.tentou.set(true);
     const p = this.passo();
     if (p === 1 && !this.marcados()) { this.toast.warning('Informe ao menos um material para entregar.'); return; }
+    if (p === 1 && this.pedeReserva() && !this.reserva().trim()) { this.toast.warning('Informe o número da reserva.'); return; }
+    if (p === 2 && this.tecnica() && !this.idEquipe()) { this.toast.warning('Escolha a equipe que recebe o material.'); return; }
     if (p === 2 && !this.responsavel()) { this.toast.warning('Escolha quem retira o material.'); return; }
     if (p === 3 && !(this.assinaturaAlmox() && this.assinaturaEquipe())) { this.toast.warning('Colha as duas assinaturas para continuar.'); return; }
+    if (p === 4 && this.pedeReserva() && !this.reserva().trim()) { this.toast.warning('Informe o número da reserva.'); this.passo.set(1); return; }
     if (p === 4) { this.confirmar(); return; }
     this.tentou.set(false);
     this.passo.set(p + 1);
@@ -513,18 +621,30 @@ export class EntregaAlmoxComponent {
     if (!d || this.enviando()) return;
     const itens = this.itensMarcados();
     this.enviando.set(true);
-    this.almox.entregar(d.id, {
-      assinaturaAlmox: this.assinaturaAlmox()!,
-      assinaturaEquipe: this.assinaturaEquipe()!,
-      idColaboradorSaque: this.responsavel()!,
-      saqueForaEquipe: this.foraEquipe(),
-      itens: itens.map(i => ({ idItemSolicitacao: i.id, quantidade: i.quantidade, novaQuantidadeSolicitada: i.pedido, numSerie: i.serie || undefined })),
-    }).subscribe({
+    const chamada = this.tecnica()
+      ? this.almox.entregarTecnica(d.id, {
+        versaoEsperada: d.tecnico?.versao ?? d.versao ?? 0,
+        idEquipe: this.idEquipe()!,
+        idColaboradorSaque: this.responsavel()!,
+        saqueForaEquipe: this.foraEquipe(),
+        assinaturaAlmox: this.assinaturaAlmox()!,
+        assinaturaEquipe: this.assinaturaEquipe()!,
+        itens: itens.map(i => ({ idItemSolicitacao: i.id, ...this.informado(i), numeroSerie: i.serie || null })),
+        numeroReserva: this.pedeReserva() ? this.reserva().trim() : null,
+      })
+      : this.almox.entregar(d.id, {
+        assinaturaAlmox: this.assinaturaAlmox()!,
+        assinaturaEquipe: this.assinaturaEquipe()!,
+        idColaboradorSaque: this.responsavel()!,
+        saqueForaEquipe: this.foraEquipe(),
+        itens: itens.map(i => ({ idItemSolicitacao: i.id, ...this.informado(i), novaQuantidadeSolicitada: i.pedido, numSerie: i.serie || undefined })),
+      });
+    chamada.subscribe({
       next: async () => {
         this.enviando.set(false);
         await this.rascunho?.concluir();
         this.toast.success(this.completa() ? 'Entrega registrada. A solicitação foi concluída.' : 'Entrega parcial registrada. O saldo continua aguardando retirada.');
-        void this.router.navigate(['/almox/solicitacoes', d.id], { replaceUrl: true });
+        void this.router.navigate([this.base, d.id], { replaceUrl: true });
       },
       error: (e: ApiError) => {
         this.enviando.set(false);
@@ -536,7 +656,7 @@ export class EntregaAlmoxComponent {
 
   fechar(): void {
     void this.rascunho?.gravarEstadoAtual();
-    void this.router.navigate(['/almox/solicitacoes', this.id()], { replaceUrl: true });
+    void this.router.navigate([this.base, this.id()], { replaceUrl: true });
   }
 
   protected readonly podeGerir = this.auth.podeGerirSolicitacoesAlmox;

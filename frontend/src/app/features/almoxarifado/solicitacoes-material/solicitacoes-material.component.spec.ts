@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SolicitacaoSummaryResponse } from '../../../core/models/almoxarifado.models';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { RhService } from '../../../core/services/rh.service';
 import { UsuarioLookupService } from '../../../core/services/usuario-lookup.service';
 import { UsuariosService } from '../../../core/services/usuarios.service';
@@ -36,7 +37,8 @@ describe('SolicitacoesMaterialComponent', () => {
         { provide: AlmoxarifadoService, useValue: almox },
         { provide: RhService, useValue: { listarBasesOperacionais: () => paginaTeste([]), listarColaboradores: () => paginaTeste([]), listarMembrosAtivos: () => of([]) } },
         { provide: UsuariosService, useValue: { listarUsuarios: () => paginaTeste([]) } },
-        { provide: UsuarioLookupService, useValue: { resolverNome: () => 'Usuário' } }
+        { provide: UsuarioLookupService, useValue: { resolverNome: () => 'Usuário' } },
+        { provide: AuthService, useValue: { currentUser: () => ({ id: 'usuario-1', permissoes: [] }) } }
       ],
       data
     );
@@ -126,14 +128,18 @@ describe('SolicitacoesMaterialComponent', () => {
 
   it('atalhos mostram a contagem de cada status no recorte e somam status ao clicar', async () => {
     almox['listarSolicitacoes'].mockImplementation((p: { statuses?: string[]; size: number }) =>
-      p.size === 1 ? paginaTeste([], p.statuses?.[0] === 'PENDENTE' ? 3 : 1) : paginaTeste([solicitacao])
+      p.size === 1 ? paginaTeste([], p.statuses?.length === 3 ? 4 : p.statuses?.[0] === 'PENDENTE' ? 3 : 1) : paginaTeste([solicitacao])
     );
     const { el, harness } = await abrir();
     const atalhos = () => Array.from(el.querySelectorAll<HTMLButtonElement>('.sol-atalhos .ces-quick-filter'));
     expect(atalhos()[0].textContent).toContain('Todas');
     expect(atalhos()[0].textContent).toContain('8');
     expect(atalhos()[1].textContent).toContain('Em aberto');
-    expect(atalhos()[1].textContent).toContain('5');
+    // Vem de consulta própria: entrega parcial com saldo encerrado não conta.
+    expect(atalhos()[1].textContent).toContain('4');
+    expect(almox['listarSolicitacoes'].mock.calls.map(([p]) => p)).toContainEqual(
+      expect.objectContaining({ statuses: ['PENDENTE', 'APROVADO', 'ENTREGUE_PARCIAL'], saldoAberto: true, size: 1 })
+    );
 
     atalhos().find((b) => b.textContent!.includes('Aguardando aprovação'))!.click();
     harness.detectChanges();
@@ -148,7 +154,20 @@ describe('SolicitacoesMaterialComponent', () => {
     atalhos()[1].click();
     harness.detectChanges();
     expect(ultimaConsulta().statuses).toEqual(['PENDENTE', 'APROVADO', 'ENTREGUE_PARCIAL']);
+    expect(ultimaConsulta().saldoAberto).toBe(true);
     expect(atalhos()[1].getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('Só as minhas filtra pelo usuário logado e entra na exportação', async () => {
+    const { el, harness, componente } = await abrir();
+    expect(ultimaConsulta().idRequisitante).toBeUndefined();
+    const botao = Array.from(el.querySelectorAll<HTMLButtonElement>('.ces-quick-filter')).find((b) => b.textContent!.includes('Só as minhas'))!;
+    botao.click();
+    harness.detectChanges();
+    await harness.fixture.whenStable();
+    expect(ultimaConsulta().idRequisitante).toBe('usuario-1');
+    const tela = componente as unknown as { filtrosExportacao(): { apenasMinhas: boolean } };
+    expect(tela.filtrosExportacao().apenasMinhas).toBe(true);
   });
 
   it('trocar de visualização leva o recorte junto na URL', async () => {

@@ -1,5 +1,5 @@
 import { DestroyRef, Injectable, Injector, inject, computed, effect, untracked } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, firstValueFrom, from, map, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -9,6 +9,7 @@ import { SessaoService } from '../sessao/sessao.service';
 import { RascunhoService } from '../sessao/rascunho.service';
 import { rotaInternaSegura } from '../sessao/snapshot';
 import { ConnectivityService } from '../sync/connectivity.service';
+import { IGNORAR_MODO_OFFLINE } from '../http/http-context';
 
 /** Uma aba renova por vez: o refresh token gira a cada uso. */
 const TRAVA_RENOVACAO = 'ces-renovacao-sessao';
@@ -232,6 +233,20 @@ export class AuthService {
     }
   }
 
+  /**
+   * O login acabou de passar pela rede atual, então ela funciona: desfaz o que travaria a
+   * primeira carga logo em seguida. "Trabalhar sem internet" volta a desligado e, se o
+   * login saiu pelo 4G, os dados móveis passam a valer.
+   */
+  private liberarRedeAposLogin(): void {
+    const conectividade = this.conectividade();
+    if (!conectividade) return;
+    if (conectividade.forcarOffline()) conectividade.setForcarOffline(false);
+    // Grava mesmo quando já valia: sem preferência salva, o padrão da equipe de campo
+    // desligaria os dados móveis logo depois deste login.
+    if (conectividade.isCellular()) conectividade.setUsarRedesMoveis(true);
+  }
+
   /** Pede ao Android que não apague sessão e fila do app quando faltar espaço. */
   private solicitarArmazenamentoPersistente(): void {
     const storage = typeof navigator !== 'undefined' ? navigator.storage : undefined;
@@ -296,7 +311,22 @@ export class AuthService {
   readonly podeGerirSolicitacoesAlmox = computed(() => this.podeVerSolicitacoesAlmox() && this.temPermissao('estoque:solicitacao:write'));
   readonly podeVerMovimentacoes = computed(() => this.isAdministrativo() && this.temPermissao('estoque:movimentacao:read'));
   readonly podeMovimentarEstoque = computed(() => this.isAdministrativo() && this.temPermissao('estoque:movimentacao:write') && this.temPermissao('estoque:saldo:read'));
-  readonly podeAcessarAlmoxarifado = computed(() => this.podeVerSolicitacoesAlmox() || this.podeVerMovimentacoes());
+  /**
+   * Encerramento de obras. Só o perfil administrativo (técnico de obras, almoxarifado): a equipe de
+   * campo não vê o fechamento, mesmo que o perfil dela tenha a permissão. Quem cria usa a seção
+   * própria (`/fechamento`); quem tem almoxarifado vê a aba Fechamento lá dentro.
+   */
+  readonly podeVerFechamento = computed(() => this.isAdministrativo() && this.temPermissao('obras:fechamento:read'));
+  readonly podeCriarFechamento = computed(() => this.podeVerFechamento() && this.temPermissao('obras:fechamento:create'));
+  readonly podeMovimentarFechamento = computed(() => this.podeVerFechamento() && this.temPermissao('obras:fechamento:movimentar'));
+  readonly podeVerFechamentoAlmox = computed(() => this.isAdministrativo() && this.podeVerFechamento());
+  readonly podeAcessarAlmoxarifado = computed(() => this.podeVerSolicitacoesAlmox() || this.podeVerMovimentacoes()
+    || (this.podeVerFechamentoAlmox() && !this.podeCriarFechamento()));
+  /**
+   * Aprovação do abastecimento: só o administrativo com a permissão aprova (como as solicitações
+   * do almoxarifado). O usuário de campo só pede, mesmo que o perfil tenha a permissão.
+   */
+  readonly podeAprovarAbastecimento = computed(() => this.isAdministrativo() && this.temPermissao('frota:abastecimento:aprovar'));
   readonly podeConsultarDesvios = computed(() => this.isAdministrativo());
   readonly podeTratarDesvios = computed(() => this.isAdministrativo());
 
@@ -314,8 +344,12 @@ export class AuthService {
     // Um logout pendente termina antes: a resposta dele apaga o cookie, e chegando depois
     // do login apagaria o cookie da sessão nova.
     return from(this.concluirLogoutPendente()).pipe(
+      // Tocar em "Entrar" é pedir rede: o login sai mesmo com "Trabalhar sem internet" ou
+      // dados móveis desligados. Bloqueado, o aparelho ficava preso no login, onde essas
+      // opções não aparecem.
       switchMap(() => this.http.post<TokenResponse>(
-        `${environment.apiBaseUrl}/v1/auth/login`, credentials, { withCredentials: true })),
+        `${environment.apiBaseUrl}/v1/auth/login`, credentials,
+        { withCredentials: true, context: new HttpContext().set(IGNORAR_MODO_OFFLINE, true) })),
       switchMap(response => {
         const nextUserId = this.tokenService.decodeToken(response.token)?.sub;
         if (!nextUserId) throw new Error('O servidor retornou um token sem usuário identificado.');
@@ -324,6 +358,7 @@ export class AuthService {
             localStorage.removeItem(LOGOUT_PENDENTE_KEY);
             localStorage.removeItem(SAIU_KEY);
             this.tokenService.setToken(response.token);
+            this.liberarRedeAposLogin();
             this.solicitarArmazenamentoPersistente();
             return response;
           })

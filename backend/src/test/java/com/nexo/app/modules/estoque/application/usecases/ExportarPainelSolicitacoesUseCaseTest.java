@@ -59,7 +59,7 @@ class ExportarPainelSolicitacoesUseCaseTest {
         return new Solicitacao(UUID.randomUUID(), "COMERCIAL", "PENDENTE", etapa, null, null, null, null, null, null,
                 null, AGORA.minusDays(2), null, entrega, prevista, null, null, null, "Almox", "Destino", UUID.randomUUID(),
                 "Almox Central", UUID.randomUUID(), equipe, "Salvador", "Comercial", null, false, null, false, false,
-                false, 2, new BigDecimal("10"), new BigDecimal("4"), false);
+                false, 2, new BigDecimal("10"), new BigDecimal("4"), false, null, null);
     }
 
     private static ItemAnaliticoProjection item(UUID solicitacao, String codigo, String qtd, String atendida) {

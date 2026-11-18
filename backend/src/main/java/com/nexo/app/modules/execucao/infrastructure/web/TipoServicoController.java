@@ -47,11 +47,11 @@ public class TipoServicoController implements TipoServicoControllerDoc {
         return ResponseEntity.ok(useCases.listar(filter, pageable));
     }
 
-    // Quem lança ou consulta execuções precisa das opções, mesmo sem acesso ao cadastro.
+    // Quem lança ou consulta execuções (ou cadastra a meta física) precisa das opções, mesmo sem acesso ao cadastro.
     @Override
     @GetMapping("/opcoes")
     @PreAuthorize("hasAuthority('execucao:tipo-servico:read') or hasAuthority('execucao:comercial:read') "
-            + "or hasAuthority('execucao:comercial:write')")
+            + "or hasAuthority('execucao:comercial:write') or hasAuthority('execucao:meta-fisica:write')")
     public ResponseEntity<List<TipoServicoResponse>> listarOpcoes() {
         return ResponseEntity.ok(useCases.listarOpcoes());
     }

@@ -42,7 +42,7 @@
           <span>Posição em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ emitidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           @if (situacao(); as s) {
             <span>·</span>
-            <ces-status [tone]="s.tom">{{ s.rotulo }}</ces-status>
+            <ces-status [tone]="s.tom" [icon]="s.icone">{{ s.rotulo }}</ces-status>
           }
         </div>
       </div>
@@ -164,7 +164,14 @@
         </div>
       }
 
-      <!-- 6. MATERIAIS EM ESTOQUE -->
+      <!-- 6. SÉRIES A CONFERIR (só quando a equipe aplicou séries fora do caminhão) -->
+      @if (seriesAConferir(); as conferir) {
+        @if (conferir.materiais.length) {
+          <app-series-a-conferir [idEstoque]="e.id" [dados]="conferir" (atualizado)="onSeriesConferidas($event)" />
+        }
+      }
+
+      <!-- 7. MATERIAIS EM ESTOQUE -->
       <div class="mb-8 print:mb-4">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
           <div class="flex items-center gap-2 border-l-2 border-primary-500 pl-3">
@@ -183,7 +190,23 @@
             </button>
           </div>
         </div>
+        @if (processos().length > 1) {
+          <div class="flex flex-wrap items-center gap-2 mb-3 print:hidden">
+            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400" id="rs-processo">Processo do material</span>
+            <div class="recorte" role="group" aria-labelledby="rs-processo">
+              <button type="button" class="recorte__opcao" [attr.aria-pressed]="!processo()" (click)="aplicarProcesso(null)">
+                <i class="pi pi-th-large text-[11px]" aria-hidden="true"></i> Todos
+              </button>
+              @for (p of processos(); track p.id) {
+                <button type="button" class="recorte__opcao" [attr.aria-pressed]="processo() === p.id" (click)="aplicarProcesso(p.id)">
+                  <i [class]="p.icone + ' text-[11px]'" aria-hidden="true"></i> {{ p.rotulo }} <span class="recorte__contagem">{{ p.total }}</span>
+                </button>
+              }
+            </div>
+          </div>
+        }
         <p class="text-[11px] text-slate-500 dark:text-slate-400 mb-3 print:hidden">
+          O processo vem do cadastro do material: Obras atende a solicitação técnica e o fechamento; Comercial, a solicitação comercial.
           Materiais seriados (<i class="pi pi-barcode text-[10px]" aria-hidden="true"></i>) abrem na própria linha com os números de série.
         </p>
 
@@ -198,7 +221,7 @@
           [rows]="saldos()"
           [totalRecords]="totalRecords()"
           [state]="tableState()"
-          [filtered]="recorte() !== 'todos'"
+          [filtered]="filtrado()"
           [rowKey]="chaveSaldo"
           [rowLabel]="rotuloSaldo"
           [rowExpandable]="ehSeriado"
@@ -222,9 +245,16 @@
               }
             </span>
           </ng-template>
+          <ng-template cesCell="processo" let-row>
+            @if (processoVisual(row.material.processo?.nome); as p) {
+              <ces-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</ces-status>
+            } @else {
+              —
+            }
+          </ng-template>
           <ng-template cesCell="condicao" let-row>
             @if (row.condicao) {
-              <ces-status [tone]="tomCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</ces-status>
+              <ces-status [tone]="tomCondicao(row.condicao)" [icon]="iconeCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</ces-status>
             } @else {
               —
             }
@@ -253,7 +283,7 @@
         </ces-data-table>
       </div>
 
-      <!-- 7. RODAPÉ DE EMISSÃO -->
+      <!-- 8. RODAPÉ DE EMISSÃO -->
       <footer class="border-t border-slate-200 dark:border-slate-800 pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 print:mt-4 print:pt-2">
         <div class="flex flex-col gap-0.5">
           <span>Posição do saldo em: <strong class="text-slate-900 dark:text-slate-100">{{ emitidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
@@ -265,7 +295,7 @@
       </footer>
     </div>
 
-    <!-- 8. AÇÕES FLUTUANTES -->
+    <!-- 9. AÇÕES FLUTUANTES -->
     <div class="fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
       <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
         styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>

@@ -20,6 +20,7 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
+import { CesButtonComponent } from '@ces/ui';
 
 import { SstService } from '../../../core/services/sst.service';
 import {
@@ -85,28 +86,18 @@ interface ItemGaleria {
 @Component({
   selector: 'app-evidencias-inspecao',
   standalone: true,
-  imports: [CommonModule, DatePipe, ButtonModule, ConfirmPopupModule, DialogModule, TooltipModule],
+  imports: [CommonModule, DatePipe, ButtonModule, CesButtonComponent, ConfirmPopupModule, DialogModule, TooltipModule],
   providers: [ConfirmationService],
   template: `
-    <div class="mb-8 px-1">
-      <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
-        <div class="flex items-center gap-2 border-l-2 border-primary-700 dark:border-primary-500 pl-3">
-          <span class="text-sm font-bold uppercase tracking-tight text-gray-800 dark:text-slate-100 print:text-xs">Evidências e Anexos</span>
-          @if (itens().length) {
-            <span class="text-xs font-semibold text-primary-700 bg-primary-50 dark:text-primary-300 dark:bg-primary-950/60 dark:border-primary-800/60 px-2.5 py-0.5 rounded-full border border-primary-100 print:border-slate-300">
-              {{ itens().length }} {{ itens().length === 1 ? 'arquivo' : 'arquivos' }}
-            </span>
-          }
+    <div class="mb-8 print:mb-3">
+      <div class="flex items-center justify-between gap-3 mb-3 print:mb-2 flex-wrap">
+        <div class="flex items-center gap-2 border-l-2 border-primary-500 pl-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Fotos &amp; Evidências</span>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ itens().length }})</span>
         </div>
         @if (canWrite()) {
-          <button type="button" (click)="escolherArquivos()" [disabled]="enviando() > 0"
-            class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary-700 bg-primary-50 hover:bg-primary-100 dark:text-primary-300 dark:bg-primary-950/60 dark:hover:bg-primary-900/60 dark:border dark:border-primary-800/60 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-40 print:hidden">
-            @if (enviando() > 0) {
-              <i class="pi pi-spin pi-spinner text-[11px]"></i> Enviando...
-            } @else {
-              <i class="pi pi-camera text-[11px]"></i> Acrescentar foto da inspeção
-            }
-          </button>
+          <ces-button class="print:hidden" variant="outline" size="sm" icon="pi pi-camera" label="Acrescentar foto"
+            [loading]="enviando() > 0" (pressed)="escolherArquivos()"></ces-button>
         }
       </div>
 

@@ -4,8 +4,9 @@ import { Observable, catchError, forkJoin, map, of, shareReplay } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { silentContext } from '../http/http-context';
 import {
-  Colaborador, EntregaRequest, Estoque, EstornoParcialRequest, FiltroMovimentacoes, FiltroSolicitacoes, Material,
-  MembroEquipe, Motivo, Movimentacao, MovimentacaoRequest, Pagina, PendenciaRequest, ResumoMovimentacao, ResumoSolicitacao,
+  Colaborador, DevolucaoComercialRequest, DevolucaoTecnicaRequest, EntregaRequest, EntregaTecnicaRequest, Estoque, EstornoParcialRequest,
+  EstornoTecnicoRequest, FiltroMovimentacoes, FiltroSolicitacoes, FiltroTecnicas, KanbanTecnico, Material, MembroEquipe, Motivo, Movimentacao,
+  MovimentacaoRequest, ObraResumo, Pagina, PendenciaRequest, RegistroDevolucaoTecnicaRequest, ResumoMovimentacao, ResumoSolicitacao,
   Saldo, SaldoSerie, Solicitacao, StatusSolicitacao, Usuario,
 } from './almox.models';
 
@@ -22,6 +23,7 @@ export class AlmoxService {
   private estoques$?: Observable<Estoque[]>;
   private motivosRejeicao$?: Observable<Motivo[]>;
   private motivosPendencia$?: Observable<Motivo[]>;
+  private obras$?: Observable<ObraResumo[]>;
   private nomesCarregados = false;
   /** id de usuário ou colaborador → nome de exibição. */
   readonly nomes = signal<ReadonlyMap<string, string>>(new Map());
@@ -72,6 +74,79 @@ export class AlmoxService {
 
   estornarParcial(id: string, pedido: EstornoParcialRequest): Observable<void> {
     return this.http.patch<void>(`${this.api}/solicitacoes-material/${encodeURIComponent(id)}/estorno-parcial`, pedido, { context: silentContext() });
+  }
+
+  // ---------- solicitações técnicas ----------
+
+  /** Quadro técnico do backend: etapas com as contagens e até 30 solicitações em cada. */
+  quadroTecnico(filtro: FiltroTecnicas): Observable<KanbanTecnico> {
+    return this.http.get<KanbanTecnico>(`${this.api}/solicitacoes-material/tecnicas/kanban`, { params: params({ ...filtro }) });
+  }
+
+  /** Lista técnica (usada pelo calendário: saques previstos num período). */
+  listarTecnicas(filtro: FiltroTecnicas & { previstaDe?: string; previstaAte?: string; page?: number; size?: number; sort?: string }): Observable<Pagina<ResumoSolicitacao>> {
+    const { idAlmoxarifado, ...resto } = filtro;
+    return this.http.get<Pagina<ResumoSolicitacao>>(`${this.api}/solicitacoes-material`, {
+      params: params({ contexto: 'TECNICO', idAlmoxarifado, ...resto }),
+    });
+  }
+
+  iniciarSeparacao(id: string, versaoEsperada: number): Observable<unknown> {
+    return this.comandoTecnico(id, 'separacao/iniciar', { versaoEsperada });
+  }
+
+  concluirSeparacao(id: string, versaoEsperada: number): Observable<unknown> {
+    return this.comandoTecnico(id, 'separacao/concluir', { versaoEsperada });
+  }
+
+  pularSeparacao(id: string, versaoEsperada: number): Observable<unknown> {
+    return this.comandoTecnico(id, 'separacao/pular', { versaoEsperada });
+  }
+
+  entregarTecnica(id: string, pedido: EntregaTecnicaRequest): Observable<unknown> {
+    return this.comandoTecnico(id, 'entregas', pedido);
+  }
+
+  receberDevolucaoTecnica(id: string, pedido: DevolucaoTecnicaRequest): Observable<unknown> {
+    return this.comandoTecnico(id, 'devolucoes', pedido);
+  }
+
+  estornarTecnica(id: string, pedido: EstornoTecnicoRequest): Observable<unknown> {
+    return this.comandoTecnico(id, 'estornos', pedido);
+  }
+
+  /**
+   * Devolução 222/922 direta: o material sai do estoque da obra e o almoxarifado recebe na mesma
+   * operação (guarda ou dá baixa por item). Material com série vai um item por número de série.
+   */
+  registrarDevolucaoTecnica(pedido: RegistroDevolucaoTecnicaRequest): Observable<unknown> {
+    const itens = pedido.itens.flatMap((item) => {
+      const base = { idMaterial: item.idMaterial, tipo: item.tipoMovimentacao, condicao: item.condicao, guardarNoEstoque: item.guardarNoEstoque };
+      return item.numerosSerie?.length
+        ? item.numerosSerie.map((numSerie) => ({ ...base, quantidade: 1, numSerie }))
+        : [{ ...base, quantidade: item.quantidade }];
+    });
+    const corpo = { idObra: pedido.idObra, ocorrencia: pedido.ocorrencia ?? null, idEquipe: pedido.idEquipe, idEstoqueDestino: pedido.idAlmoxarifado, itens };
+    return this.http.post(`${this.api}/movimentacoes-estoque/devolucao-tecnica`, corpo, { context: silentContext() });
+  }
+
+  registrarDevolucaoComercial(pedido: DevolucaoComercialRequest): Observable<unknown> {
+    return this.http.post(`${this.api}/movimentacoes-estoque/devolucao-comercial`, pedido, { context: silentContext() });
+  }
+
+  /** Obras ativas (lista de apoio para a devolução técnica). */
+  obras(): Observable<ObraResumo[]> {
+    this.obras$ ??= this.http.get<Pagina<ObraResumo>>(`${this.api}/obras`, {
+      params: params({ ativo: true, size: 1000, sort: 'numero,asc' }), context: silentContext(),
+    }).pipe(map(r => r.content ?? []), catchError(() => { this.obras$ = undefined; return of([]); }), shareReplay(1));
+    return this.obras$;
+  }
+
+  /** Comandos técnicos exigem chave idempotente: repetir o toque não duplica a operação. */
+  private comandoTecnico(id: string, acao: string, corpo: unknown): Observable<unknown> {
+    return this.http.post(`${this.api}/solicitacoes-material/tecnicas/${encodeURIComponent(id)}/${acao}`, corpo, {
+      headers: { 'Idempotency-Key': chaveIdempotente() }, context: silentContext(),
+    });
   }
 
   // ---------- movimentações ----------
@@ -187,8 +262,13 @@ export class AlmoxService {
   }
 }
 
+export function chaveIdempotente(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+  return `k-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
 /** Monta HttpParams sem vazios; listas viram parâmetros repetidos (`statuses=A&statuses=B`). */
-function params(valores: Record<string, unknown>): HttpParams {
+export function params(valores: Record<string, unknown>): HttpParams {
   let p = new HttpParams();
   for (const [chave, valor] of Object.entries(valores)) {
     if (valor === null || valor === undefined || valor === '') continue;

@@ -20,3 +20,10 @@ export const SILENT_ERROR = new HttpContextToken<boolean>(() => false);
 export function silentContext(context: HttpContext = new HttpContext()): HttpContext {
   return context.set(SILENT_ERROR, true);
 }
+
+/**
+ * A requisição sai mesmo com o app em modo offline ("Trabalhar sem internet" ou dados
+ * móveis desligados). Só para ação explícita da pessoa que precisa de rede, como o login:
+ * bloquear aí prende o aparelho na tela de login, onde essas opções não existem.
+ */
+export const IGNORAR_MODO_OFFLINE = new HttpContextToken<boolean>(() => false);

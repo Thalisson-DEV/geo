@@ -42,6 +42,11 @@ public class ItemManutencao extends BaseEntity {
     @Column(name = "dias_repeticao")
     private Integer diasRepeticao;
 
+    /** Peça ou mão de obra: decide em que lista da execução o item aparece. */
+    @jakarta.persistence.Enumerated(jakarta.persistence.EnumType.STRING)
+    @Column(name = "tipo", nullable = false, length = 20)
+    private TipoItemManutencao tipo = TipoItemManutencao.MAO_DE_OBRA;
+
     /** Preenchida só no que veio de importação (ex.: OS do EXP). */
     @Embedded
     private ReferenciaExterna referenciaExterna;
@@ -55,6 +60,14 @@ public class ItemManutencao extends BaseEntity {
             throw new InvarianteVioladaException("Não é possível alterar um item de manutenção desativado.");
         }
         preencher(nome, natureza, descricao, diasRepeticao);
+    }
+
+    public void definirTipo(TipoItemManutencao tipo) {
+        this.tipo = tipo == null ? TipoItemManutencao.MAO_DE_OBRA : tipo;
+    }
+
+    public boolean isPeca() {
+        return tipo == TipoItemManutencao.PECA;
     }
 
     /** Janela de repetição deste item, caindo na padrão quando não há uma própria. */

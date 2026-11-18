@@ -326,13 +326,31 @@
     font-size: var(--ces-font-caption);
     font-weight: 700;
     letter-spacing: 0.055em;
-    text-transform: capitalize;
+    /* Rótulos já vêm em caixa de frase ("Quando foi feita"); capitalize deturpava siglas e preposições. */
+    text-transform: none;
   }
 
   .ces-field__required { color: var(--ces-danger-text); }
   .ces-field__optional,
   .ces-field__counter { color: var(--ces-foreground-subtle); font-size: var(--ces-font-caption); font-weight: 600; text-transform: none; }
   .ces-field__control { min-width: 0; }
+
+  /* Toast global com ação (NotificationService `action`): ícone em fonte do mesmo tamanho do SVG padrão. */
+  .p-toast-message-icon.pi { font-size: 1.125rem; line-height: 1; }
+  .ces-toast-action {
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.625rem;
+    border: 1px solid currentColor;
+    border-radius: var(--ces-radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: var(--ces-font-caption);
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .ces-toast-action:hover { background: color-mix(in srgb, currentColor 12%, transparent); }
+  .ces-toast-action:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
   .ces-field__message { margin: 0; color: var(--ces-foreground-subtle); font-size: var(--ces-font-caption); line-height: 1.45; }
   .ces-field__message--error { display: flex; align-items: flex-start; gap: 0.35rem; color: var(--ces-danger-text); }
   .ces-field--disabled { opacity: 0.62; }
@@ -838,6 +856,32 @@
   .p-tab.p-tab-active {
     color: var(--ces-brand) !important;
     border-color: var(--ces-brand) !important;
+  }
+
+  /* Abas roláveis: o tema do PrimeNG pinta as setas e o esmaecimento de branco, inclusive no modo escuro.
+     `--ces-tabs-nav-bg` acompanha o fundo onde as abas estão (padrão: superfície de cards e drawers). */
+  .p-tablist-nav-button {
+    background: var(--ces-tabs-nav-bg, var(--ces-surface)) !important;
+    color: var(--ces-foreground-muted) !important;
+    box-shadow: 0 0 12px 16px var(--ces-tabs-nav-bg, var(--ces-surface)) !important;
+  }
+
+  .p-tablist-nav-button:hover {
+    color: var(--ces-foreground) !important;
+  }
+
+  .p-tablist-nav-button:focus-visible {
+    outline: 2px solid var(--ces-brand) !important;
+    outline-offset: -2px !important;
+  }
+
+  /* O scrollbar global (`* { scrollbar-width: thin }`) reaparecia sob as abas; as setas já fazem a rolagem. */
+  .p-tablist-viewport {
+    scrollbar-width: none !important;
+  }
+
+  .p-tablist-viewport::-webkit-scrollbar {
+    display: none !important;
   }
 
   .p-tabpanels,
@@ -1707,6 +1751,8 @@
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
+    /* Com padding e largura 100%, o cabeçalho passava do painel; ao abrir, o painel rolava de lado e o conteúdo ficava torto. */
+    box-sizing: border-box !important;
     flex-wrap: nowrap !important;
   }
 

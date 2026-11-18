@@ -18,6 +18,7 @@ import java.util.UUID;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpecificationExecutor<Usuario> {
 
+
     /** Probe limitado: o banco só precisa provar que existe uma linha ativa. */
     Optional<Usuario> findFirstByAtivoTrueOrderByIdAsc();
 
@@ -78,4 +79,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID>, JpaSpec
     boolean existsByEmailIgnoreCase(String email);
     boolean existsByLoginIgnoreCaseAndIdNot(String login, UUID id);
     boolean existsByEmailIgnoreCaseAndIdNot(String email, UUID id);
+    Optional<Usuario> findFirstByIdColaboradorAndIdNot(UUID idColaborador, UUID id);
 }

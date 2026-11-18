@@ -2,6 +2,7 @@ package com.nexo.app.modules.estoque.application.dto;
 
 import com.nexo.app.modules.estoque.domain.CondicaoMaterial;
 import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
+import com.nexo.app.modules.estoque.domain.MotivoMovimentacao;
 import com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao;
 import com.nexo.app.modules.estoque.domain.SolicitacaoMaterial.StatusSolicitacao;
 import com.nexo.app.modules.estoque.domain.StatusSeparacao;
@@ -41,6 +42,12 @@ public record MovimentacaoEstoqueFilter(
     StatusSolicitacao statusSolicitacao,
     StatusSeparacao statusSeparacao,
 
+    @Parameter(description = "Processo da operação; o comercial inclui aplicação, retirada e devolução, que não têm solicitação")
+    ContextoSolicitacaoMaterial processo,
+
+    @Parameter(description = "Motivo da entrada ou da baixa avulsa")
+    MotivoMovimentacao motivo,
+
     @Parameter(description = "Busca rápida (LIKE, case/accent-insensitive)")
     String buscaGlobal
 ) {
@@ -60,6 +67,6 @@ public record MovimentacaoEstoqueFilter(
     ) {
         this(idEstoque, idBaseOrigem, idBaseDestino, idMaterial, condicao, tipo, dataInicio, dataFim,
                 referencia, idUsuarioOperador, numSerie, null, null, null, null, null, null, null, null,
-                null, null, null, null, buscaGlobal);
+                null, null, null, null, null, null, buscaGlobal);
     }
 }

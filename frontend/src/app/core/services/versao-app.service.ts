@@ -45,7 +45,7 @@ export class VersaoAppService {
   private readonly destroyRef = inject(DestroyRef);
 
   /** Identidade do build que ESTA aba carregou. `null` desliga o serviço. */
-  private readonly versaoEmExecucao = identidadeDoBundleEmExecucao();
+  readonly versaoEmExecucao = identidadeDoBundleEmExecucao();
 
   /** Verdadeiro quando há build novo no ar e o usuário ainda não pediu para adiar. */
   readonly atualizacaoDisponivel = signal(false);

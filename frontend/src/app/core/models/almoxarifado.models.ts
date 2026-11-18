@@ -79,6 +79,21 @@ export interface MaterialRequest {
   idAvaliacaoTecnica?: string;
   idCentroInvestimento?: string;
   detalhaSerie?: boolean;
+  idProcesso?: string;
+  /** Ausente mantém as atuais; lista vazia tira todas. */
+  equivalencias?: EquivalenciaMaterialRequest[];
+}
+
+/** "quantidadeUnidade unidade = quantidadeBase (unidade do material)", como "1 KG = 4,2 MT". */
+export interface EquivalenciaMaterialRequest {
+  unidade: string;
+  quantidadeUnidade: number;
+  quantidadeBase: number;
+}
+
+export interface UnidadeEquivalente extends EquivalenciaMaterialRequest {
+  /** Quanto 1 unidade vale na unidade do material. */
+  fator: number;
 }
 
 export interface MaterialResponse {
@@ -93,6 +108,7 @@ export interface MaterialResponse {
   classificacaoTecnica?: 'COMUM' | 'CONCRETO';
   detalhaSerie: boolean;
   ativo: boolean;
+  equivalencias?: UnidadeEquivalente[];
 }
 
 export interface MaterialImportacaoDTO {
@@ -474,6 +490,8 @@ export interface ItemEntregaRequest {
   quantidade: number;
   novaQuantidadeSolicitada?: number;
   numSerie?: string;
+  /** Unidade da quantidade entregue; vazia = unidade do material. */
+  unidade?: string;
 }
 
 export interface NovoItemEntregaRequest {
@@ -481,6 +499,7 @@ export interface NovoItemEntregaRequest {
   quantidade: number;
   quantidadeSolicitada?: number;
   numSerie?: string;
+  unidade?: string;
 }
 
 export interface EntregaSolicitacaoRequest {
@@ -531,7 +550,20 @@ export interface ItemMovimentacaoRequest {
   quantidade: number;
   numSerie?: string;
   condicao?: string;
+  /** Unidade em que a quantidade foi informada; o servidor converte para a do material. */
+  unidade?: string;
 }
+
+export type MotivoMovimentacao =
+  | 'AJUSTE_INVENTARIO'
+  | 'DEVOLUCAO_CAMPO'
+  | 'AQUISICAO_EXTRA'
+  | 'DOACAO_BONIFICACAO'
+  | 'PERDA_AVARIA'
+  | 'DANIFICACAO'
+  | 'SUCATEAMENTO'
+  | 'OBSOLESCENCIA'
+  | 'OUTROS';
 
 export interface MovimentacaoBulkRequest {
   idEstoqueOrigem?: string;
@@ -539,6 +571,8 @@ export interface MovimentacaoBulkRequest {
   itens: ItemMovimentacaoRequest[];
   assinaturaEntregador?: string;
   assinaturaRecebedor?: string;
+  motivo?: MotivoMovimentacao;
+  observacao?: string;
 }
 
 export interface ItemDevolucaoComercialRequest {
@@ -548,6 +582,8 @@ export interface ItemDevolucaoComercialRequest {
   numSerie?: string;
   /** Falso: o destino não guarda o material e ele é baixado na mesma operação. */
   guardarNoEstoque?: boolean;
+  /** Unidade em que a quantidade foi informada; vazia = unidade do material. */
+  unidade?: string;
 }
 
 export interface DevolucaoComercialRequest {
@@ -594,6 +630,17 @@ export interface MovimentacaoOperacaoSummaryResponse extends MetadadosSolicitaca
   operadorNome: string;
   estoqueOrigem?: EstoqueResponse;
   estoqueDestino?: EstoqueResponse;
+  /** Nota que gerou a aplicação, a retirada ou o estorno. */
+  numeroNota?: string | null;
+  motivo?: MotivoMovimentacao | null;
+}
+
+export type ProcessoMovimentacao = 'COMERCIAL' | 'TECNICO' | 'FECHAMENTO';
+
+export interface MovimentacaoContagensResponse {
+  /** Não é a soma dos tipos: uma nota pode aplicar e retirar na mesma operação. */
+  total: number;
+  porTipo: Partial<Record<TipoMovimentacao, number>>;
 }
 
 export interface MovimentacaoItemResponse {
@@ -604,6 +651,9 @@ export interface MovimentacaoItemResponse {
   condicao?: string;
   idItemOperacao?: string | null;
   idItemSolicitacao?: string | null;
+  /** O que foi digitado em outra unidade; quantidade já está na unidade do material. */
+  quantidadeInformada?: number | null;
+  unidadeInformada?: string | null;
 }
 
 export interface MovimentacaoOperacaoResponse extends MetadadosSolicitacaoMovimentacao {
@@ -616,6 +666,9 @@ export interface MovimentacaoOperacaoResponse extends MetadadosSolicitacaoMovime
   itens: MovimentacaoItemResponse[];
   assinaturaEntregador?: string;
   assinaturaRecebedor?: string;
+  numeroNota?: string | null;
+  motivo?: MotivoMovimentacao | null;
+  observacao?: string | null;
   _links?: Links;
 }
 
@@ -636,6 +689,8 @@ export interface MovimentacaoEstoqueResponse extends MetadadosSolicitacaoMovimen
   dataHora: string;
   condicao?: string | null;
   idItemOperacao?: string | null;
+  quantidadeInformada?: number | null;
+  unidadeInformada?: string | null;
 }
 
 export interface MovimentacaoEstoqueFilter {
@@ -663,6 +718,8 @@ export interface MovimentacaoEstoqueFilter {
   idAgenteReserva?: string | null;
   statusSolicitacao?: string | null;
   statusSeparacao?: string | null;
+  processo?: ProcessoMovimentacao | null;
+  motivo?: MotivoMovimentacao | null;
   buscaGlobal?: string | null;
   page?: number;
   size?: number;
@@ -747,6 +804,38 @@ export interface SaldoSerieResponse {
   ativo: boolean;
   /** Solicitação para a qual a série está reservada; ausente quando está livre. */
   reservadaParaSolicitacao?: string | null;
+}
+
+/** Série aplicada em campo que nunca entrou no caminhão da equipe. */
+export interface AplicacaoForaDoSaldo {
+  idMovimentacao: string;
+  numSerie: string;
+  dataHora: string;
+  /** Série do caminhão parecida com a aplicada (provável erro de digitação). */
+  sugestao?: string | null;
+}
+
+/** Material seriado com mais séries no caminhão do que saldo. */
+export interface MaterialAConferir {
+  idMaterial: string;
+  codigo: string;
+  descricao: string;
+  quantidadeSaldo: number;
+  seriesNoSaldo: number;
+  seriesSobrando: number;
+  aplicadas: AplicacaoForaDoSaldo[];
+  seriesDisponiveis: string[];
+}
+
+export interface SeriesAConferirResponse {
+  idEstoque: string;
+  materiais: MaterialAConferir[];
+}
+
+export interface ConciliarSerieAplicadaRequest {
+  idMovimentacaoAplicacao: string;
+  /** Série do caminhão que era a aplicada; ausente quando nenhuma corresponde. */
+  numSerieDoEstoque?: string | null;
 }
 
 export interface PageResponseSaldoSerieResponse {

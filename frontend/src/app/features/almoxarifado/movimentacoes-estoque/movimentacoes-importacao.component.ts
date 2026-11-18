@@ -43,6 +43,7 @@ const CONDICOES: CesSelectOption<CondicaoMaterial>[] = [
   { label: 'Sucata', value: 'SUCATA' }
 ];
 const TOM_TIPO: Record<string, CesTone> = { ENTRADA: 'success', SAIDA: 'danger', TRANSFERENCIA: 'brand' };
+const ICONE_TIPO: Record<string, string> = { ENTRADA: 'pi-plus-circle', SAIDA: 'pi-minus-circle', TRANSFERENCIA: 'pi-arrow-right-arrow-left' };
 const CAMPOS: Record<string, string> = {
   tipo: 'tipo',
   origem: 'estoque de origem',
@@ -99,7 +100,7 @@ const CAMPOS: Record<string, string> = {
             @if (row.editing) {
               <ces-select label="Tipo" [labelVisible]="false" [options]="tipos" [value]="row.tipo" (valueChange)="onTipoChange(row, $event)"></ces-select>
             } @else {
-              <ces-status [tone]="tomTipo(row.tipo)">{{ rotuloTipo(row.tipo) }}</ces-status>
+              <ces-status [tone]="tomTipo(row.tipo)" [icon]="iconeTipo(row.tipo)">{{ rotuloTipo(row.tipo) }}</ces-status>
             }
           </ng-template>
           <ng-template cesCell="origem" let-row>
@@ -221,6 +222,10 @@ export class MovimentacoesImportacaoComponent {
 
   protected tomTipo(tipo?: string): CesTone {
     return (tipo && TOM_TIPO[tipo]) || 'neutral';
+  }
+
+  protected iconeTipo(tipo?: string): string {
+    return (tipo && ICONE_TIPO[tipo]) || 'pi-question-circle';
   }
 
   protected rotuloTipo(tipo?: string): string {

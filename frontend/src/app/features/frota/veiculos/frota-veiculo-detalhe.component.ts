@@ -1,3 +1,5 @@
+import { ICONE_LEITURA } from '../../../core/models/frota.models';
+import { ICONE_SITUACAO } from '../../../core/models/frota.models';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -51,7 +53,8 @@ import {
   formatarMedida,
   formatarPlaca,
   rotuloOrigemLeitura,
-  rotuloValorAtual
+  rotuloValorAtual,
+  ROTULO_ORIGEM_VINCULO
 } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { NavigationHistoryService } from '../../../core/navigation';
@@ -126,7 +129,7 @@ type Aba = (typeof ABAS)[number];
           [description]="(v.baseOperacional ?? 'Sem base') + ' · ' + (v.tipoVeiculo?.nome ?? 'Tipo não informado') + ' · ' + rotuloRegime[v.regime]"
         >
           <ng-container status>
-            <ces-status [tone]="tomSituacao[v.situacao]">{{ rotuloSituacao[v.situacao] }}</ces-status>
+            <ces-status [tone]="tomSituacao[v.situacao]" [icon]="iconeSituacao[v.situacao]">{{ rotuloSituacao[v.situacao] }}</ces-status>
             @if (!v.ativo) {
               <ces-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado no cadastro</ces-status>
             }
@@ -323,7 +326,7 @@ type Aba = (typeof ABAS)[number];
                 @if (row.fim) {
                   {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
                 } @else {
-                  <ces-status tone="success">Atual</ces-status>
+                  <ces-status tone="success" icon="pi-check-circle">Atual</ces-status>
                 }
               </ng-template>
             </ces-data-table>
@@ -350,7 +353,7 @@ type Aba = (typeof ABAS)[number];
                 @if (row.fim) {
                   {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
                 } @else {
-                  <ces-status tone="success">Acoplado</ces-status>
+                  <ces-status tone="success" icon="pi-link">Acoplado</ces-status>
                 }
               </ng-template>
             </ces-data-table>
@@ -402,7 +405,7 @@ type Aba = (typeof ABAS)[number];
                 }
               </ng-template>
               <ng-template cesCell="situacao" let-row>
-                <ces-status [tone]="tomLeitura[row.situacao]">{{ rotuloLeitura[row.situacao] }}</ces-status>
+                <ces-status [tone]="tomLeitura[row.situacao]" [icon]="iconeLeitura[row.situacao]">{{ rotuloLeitura[row.situacao] }}</ces-status>
                 @if (row.motivoSituacao || row.justificativaAnulacao) {
                   <span class="ces-cell-muted">{{ row.justificativaAnulacao ?? row.motivoSituacao }}</span>
                 }
@@ -468,10 +471,12 @@ export class FrotaVeiculoDetalheComponent {
   protected readonly id = toSignal(this.route.paramMap.pipe(map((p) => p.get('id') ?? '')), { initialValue: '' });
 
   protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO;
+  protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO;
   protected readonly rotuloRegime = ROTULO_REGIME;
   protected readonly rotuloUnidade = ROTULO_UNIDADE;
   protected readonly tomLeitura: Record<string, CesTone> = TOM_LEITURA;
+  protected readonly iconeLeitura: Record<string, string> = ICONE_LEITURA;
   protected readonly rotuloLeitura: Record<string, string> = ROTULO_LEITURA;
   protected readonly placa = formatarPlaca;
   protected readonly medida = formatarMedida;
@@ -561,7 +566,7 @@ export class FrotaVeiculoDetalheComponent {
     { key: 'condutor', header: 'Condutor', priority: 1, display: (r) => r.condutor ?? '—' },
     { key: 'inicio', header: 'Início', type: 'custom', priority: 1, value: (r) => r.inicio, display: (r) => r.inicio },
     { key: 'fim', header: 'Fim', type: 'custom', value: (r) => r.fim ?? '9999', display: (r) => r.fim ?? 'Atual' },
-    { key: 'origem', header: 'Origem' },
+    { key: 'origem', header: 'Origem', display: (r) => ROTULO_ORIGEM_VINCULO[r.origem] ?? r.origem },
     { key: 'observacao', header: 'Observação', display: (r) => r.observacao ?? '' }
   ];
 

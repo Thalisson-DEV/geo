@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -26,6 +27,15 @@ public class ObraApiAdapter implements ObraApi {
     private final OcorrenciaObraRepository ocorrenciaRepository;
     private final RelacionamentoProjetoUseCases relacionamentoProjetoUseCases;
     private final ProcessoNegocioApi processoNegocioApi;
+
+    @Override
+    @Transactional(readOnly = true)
+    public Set<UUID> buscarIdsPorNumeroOuTitulo(String trecho) {
+        if (trecho == null || trecho.isBlank()) {
+            return Set.of();
+        }
+        return Set.copyOf(repository.buscarIdsPorNumeroOuTitulo(trecho.trim()));
+    }
 
     @Override
     @Transactional(readOnly = true)

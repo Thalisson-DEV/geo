@@ -119,10 +119,10 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
           <code class="ces-cell-muted">{{ row.codigo }}</code>
         </ng-template>
         <ng-template cesCell="prioridade" let-row>
-          <ces-status tone="info" emphasis="outline">{{ prioridade(row.prioridadePadrao) }}</ces-status>
+          <ces-status tone="info" emphasis="outline" icon="pi-flag">{{ prioridade(row.prioridadePadrao) }}</ces-status>
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">

@@ -38,6 +38,15 @@ public interface TurnoVeiculoApi {
     ) {
     }
 
+    /** Produção dos turnos de um veículo num período, para custo da frota sobre o faturamento. */
+    record ProducaoDoVeiculo(
+            UUID idVeiculo,
+            long turnos,
+            long notasConcluidas,
+            BigDecimal valorFaturado
+    ) {
+    }
+
     /** Turnos com veículo que estiveram abertos em algum momento de {@code [inicio, fim)}, em ordem de abertura. */
     List<TurnoDoVeiculo> listarComVeiculo(OffsetDateTime inicio, OffsetDateTime fim);
 
@@ -51,4 +60,10 @@ public interface TurnoVeiculoApi {
 
     /** Notas ativas (concluídas ou não) dos turnos informados, em ordem de lançamento. */
     List<NotaGeorreferenciada> listarNotas(Collection<UUID> idsTurnos);
+
+    /**
+     * Por veículo: turnos abertos em {@code [inicio, fim)} e as notas concluídas desses veículos
+     * lançadas no mesmo intervalo, com o valor faturado. Veículo sem turno não aparece.
+     */
+    List<ProducaoDoVeiculo> producaoPorVeiculo(OffsetDateTime inicio, OffsetDateTime fim);
 }

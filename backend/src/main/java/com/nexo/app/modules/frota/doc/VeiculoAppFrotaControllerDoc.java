@@ -14,4 +14,9 @@ public interface VeiculoAppFrotaControllerDoc {
             description = "Situação operacional, medição atual, OS abertas e as últimas concluídas, problemas de checklist "
                     + "ainda sem solução e documentos com vencimento.")
     ResponseEntity<SituacaoVeiculoAppResponse> situacao(UUID idVeiculo);
+
+    @Operation(summary = "Arquivo de um documento do veículo",
+            description = "CRLV, tacógrafo, laudo e demais documentos do veículo ou de um implemento acoplado a ele, "
+                    + "para o app guardar e mostrar na fiscalização sem sinal.")
+    ResponseEntity<org.springframework.core.io.Resource> arquivoDocumento(UUID idVeiculo, UUID idDocumento);
 }

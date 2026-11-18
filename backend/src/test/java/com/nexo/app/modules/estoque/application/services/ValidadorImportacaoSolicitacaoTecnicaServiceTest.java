@@ -46,7 +46,7 @@ class ValidadorImportacaoSolicitacaoTecnicaServiceTest {
     @BeforeEach
     void setUp() {
         service = new ValidadorImportacaoSolicitacaoTecnicaService(
-                obraApi, equipeApi, agenteApi, estoqueRepository, materialRepository);
+                obraApi, equipeApi, agenteApi, estoqueRepository, materialRepository, org.mockito.Mockito.mock(com.nexo.app.modules.estoque.application.services.ProcessoMaterialService.class));
         UUID idEquipe = UUID.randomUUID();
         obra = new ObraPublica(UUID.randomUUID(), "OBRA-1", "Corretiva", TipoObraPublico.CORRETIVA,
                 true, UUID.randomUUID(), "TECNICO", true, UUID.randomUUID(), Set.of(idEquipe), null, List.of());

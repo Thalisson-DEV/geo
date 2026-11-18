@@ -98,7 +98,7 @@ public record RegistrarInspecaoRequest(
             String acaoCorretiva,
             LocalDate prazo,
 
-            @NotEmpty(message = "Atribua o desvio a pelo menos um colaborador")
+            /** Obrigatório só quando a pergunta tem desvio por colaborador (validado no domínio). */
             List<UUID> colaboradores,
 
             StatusDesvio status

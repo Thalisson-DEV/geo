@@ -17,4 +17,7 @@ public interface LiberacaoCnhRepository extends JpaRepository<LiberacaoCnh, UUID
     List<LiberacaoCnh> findAllByDiaAndAtivoTrue(LocalDate dia);
 
     Page<LiberacaoCnh> findAllByAtivoTrueOrderByDiaDescDataCriacaoDesc(Pageable pageable);
+
+    Page<LiberacaoCnh> findAllByAtivoTrueAndIdVeiculoInOrderByDiaDescDataCriacaoDesc(java.util.Collection<UUID> idsVeiculo,
+                                                                                     Pageable pageable);
 }

@@ -68,6 +68,8 @@ interface FriendlyMaterialItem {
   numSerie?: string;
   quantidade?: number | string;
   operacao?: string;
+  /** Unidade em que a equipe digitou (ex.: M de fita); vazia = unidade do material. */
+  unidade?: string;
 }
 
 interface EditableMaterial {
@@ -515,7 +517,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
                                 }
                               </div>
                               <div class="text-right shrink-0">
-                                <span class="font-bold text-primary-700 dark:text-primary-400">{{ mat.quantidade ?? 1 }}</span>
+                                <span class="font-bold text-primary-700 dark:text-primary-400">{{ mat.quantidade ?? 1 }}{{ mat.unidade ? ' ' + mat.unidade : '' }}</span>
                                 @if (mat.operacao) {
                                   <span class="text-[11px] text-slate-500 dark:text-slate-400 block">{{ operationLabel(mat.operacao) }}</span>
                                 }
@@ -1185,7 +1187,11 @@ export class SyncErrorCasesComponent {
   /** Só os campos que fazem sentido corrigir; o resto do item segue como veio do aparelho. */
   private materialEditavel(item: Record<string, unknown>, original: Record<string, unknown>, execucao: boolean): EditableMaterial {
     const keys = MATERIAL_KEYS.filter(key => key in item || (execucao && (key === 'operacao' || key === 'numSerie')));
-    return { base: { ...item }, fields: keys.map(key => this.campoMaterial(key, item[key], original[key])) };
+    const unidade = typeof item['unidade'] === 'string' && item['unidade'] ? item['unidade'] : null;
+    // Digitado em outra unidade (ex.: metros de fita): a correção continua nela; o servidor converte.
+    const fields = keys.map(key => this.campoMaterial(key, item[key], original[key]))
+      .map(f => (unidade && f.key === 'quantidade' ? { ...f, label: `Quantidade (em ${unidade})` } : f));
+    return { base: { ...item }, fields };
   }
 
   private campoMaterial(key: string, val: unknown, originalVal: unknown): FriendlyField {
@@ -1442,7 +1448,7 @@ export class SyncErrorCasesComponent {
     const itens = this.getComplexItems(payload);
     const servicos = itens.acoes.map(a => this.nomeDaReferencia(a, 'Serviço'));
     const materiais = itens.materiais.map(m =>
-      `${this.getMaterialLabel(m)} (${[this.operationLabel(m.operacao), m.numSerie ? 'série ' + m.numSerie : '', `qtd ${m.quantidade ?? 1}`].filter(Boolean).join(', ')})`);
+      `${this.getMaterialLabel(m)} (${[this.operationLabel(m.operacao), m.numSerie ? 'série ' + m.numSerie : '', `qtd ${m.quantidade ?? 1}${m.unidade ? " " + m.unidade : ""}`].filter(Boolean).join(', ')})`);
     const registro = [this.getOperationLabel(item.operationType), this.getRecordBusinessLabel(item)].filter(Boolean).join(' · ');
     const recebido = item.receivedAt ? new Date(item.receivedAt).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '';
     const pergunta = [
@@ -1912,7 +1918,8 @@ export class SyncErrorCasesComponent {
       codigo: typeof m['codigo'] === 'string' ? m['codigo'] : undefined,
       numSerie: typeof m['numSerie'] === 'string' ? m['numSerie'] : undefined,
       quantidade: (m['quantidade'] ?? m['qtd']) as number | string | undefined,
-      operacao: typeof m['operacao'] === 'string' ? m['operacao'] : undefined
+      operacao: typeof m['operacao'] === 'string' ? m['operacao'] : undefined,
+      unidade: typeof m['unidade'] === 'string' && m['unidade'] ? m['unidade'] : undefined
     }));
     const acoes = Array.isArray(p['acoes']) ? (p['acoes'] as Array<unknown>) : [];
     return { materiais, acoes };

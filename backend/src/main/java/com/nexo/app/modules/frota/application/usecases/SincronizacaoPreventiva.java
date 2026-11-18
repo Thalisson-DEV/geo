@@ -81,7 +81,7 @@ public class SincronizacaoPreventiva {
             var medicao = medicoes.get(ficha.getIdVeiculo());
             Long atual = medicao != null && medicao.unidade() == ficha.getUnidadeMedicao() ? medicao.acumulado() : null;
             for (PlanoPreventivo plano : ativos) {
-                if (!plano.aplicaA(tipo, tiposImplemento) || !plano.mede(ficha.getUnidadeMedicao())) continue;
+                if (!plano.aplicaA(ficha.getIdVeiculo(), tipo, tiposImplemento) || !plano.mede(ficha.getUnidadeMedicao())) continue;
                 String chave = chave(ficha.getIdVeiculo(), plano.getId());
                 devidos.add(chave);
                 ControlePreventivo controle = porChave.get(chave);

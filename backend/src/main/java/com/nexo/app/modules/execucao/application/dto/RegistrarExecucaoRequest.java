@@ -91,10 +91,17 @@ public record RegistrarExecucaoRequest(
 
             String numSerie,
 
-            OrigemMaterial origem
+            OrigemMaterial origem,
+
+            /** Unidade em que a quantidade foi lançada (ex.: M de fita); vazia = unidade do material. */
+            String unidade
     ) {
         public MaterialItem {
             origem = origem == null ? OrigemMaterial.EQUIPE : origem;
+        }
+
+        public MaterialItem(UUID idMaterial, BigDecimal quantidade, OperacaoMaterial operacao, String numSerie, OrigemMaterial origem) {
+            this(idMaterial, quantidade, operacao, numSerie, origem, null);
         }
     }
 }

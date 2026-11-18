@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, Injector, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { QuantidadeUnidadeComponent } from '../../../ui/quantidade-unidade.component';
+import { Equivalencia, daBase, paraBase } from '../../../core/almox/unidade-material';
 import { CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -22,6 +24,7 @@ import {
   chaveSerie,
   diferencaDaNota,
   linhaComSerie,
+  serieParecida,
   podeAlterarNoCampo,
   preverFaltasDeSaldo,
   rotuloNota
@@ -42,6 +45,7 @@ interface MaterialCatalogo {
   detalhaSerie: boolean;
   /** Saldo NOVO da equipe no aparelho (0 quando fora do saldo). */
   saldo: number;
+  equivalencias?: Equivalencia[];
 }
 
 interface SelectedMaterial {
@@ -56,6 +60,10 @@ interface SelectedMaterial {
   detalhaSerie: boolean;
   /** Só na ocorrência pode ser CONCESSIONARIA (Concessionária); ausente em rascunhos antigos vale EQUIPE. */
   origem?: OrigemMaterial;
+  equivalencias?: Equivalencia[];
+  /** Lançado em outra unidade (ex.: M de fita): {@link quantidade} segue na unidade do material. */
+  unidadeInformada?: string | null;
+  quantidadeInformada?: number;
 }
 
 /** Tudo que o encarregado já fez neste lançamento — gravado no aparelho a cada toque. */
@@ -109,7 +117,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CurrencyPipe, BarraTopoComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, QuantidadeComponent,
+    CurrencyPipe, BarraTopoComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, QuantidadeComponent, QuantidadeUnidadeComponent,
     SegmentadoComponent, SeletorComponent, VazioComponent,
   ],
   template: `
@@ -300,7 +308,13 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
                                 <ces-icone nome="avancar" [tamanho]="16" />
                               </button>
                             } @else {
-                              <ces-quantidade [grande]="true" [unidade]="m.unidadeMedida" [valor]="m.quantidade" (valorChange)="definirQuantidade(m, $event)" [rotulo]="'quantidade de ' + m.descricao" />
+                              @if (m.equivalencias?.length) {
+                                <ces-quantidade-unidade [material]="m" [valor]="m.unidadeInformada ? (m.quantidadeInformada ?? m.quantidade) : m.quantidade"
+                                  (valorChange)="definirQuantidade(m, $event)" [unidade]="m.unidadeInformada ?? null" (unidadeChange)="definirUnidade(m, $event)"
+                                  [rotulo]="'quantidade de ' + m.descricao" />
+                              } @else {
+                                <ces-quantidade [grande]="true" [unidade]="m.unidadeMedida" [valor]="m.quantidade" (valorChange)="definirQuantidade(m, $event)" [rotulo]="'quantidade de ' + m.descricao" />
+                              }
                             }
                           </div>
                           @if (m.detalhaSerie && m.numSeries.length) {
@@ -384,7 +398,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
                   @for (m of g.itens; track chave(m)) {
                     <li><div class="ces-linha"><span class="ces-linha__texto"><span class="ces-linha__titulo">{{ m.descricao }}</span>
                       <span class="ces-linha__apoio ces-num">@if (ehOcorrencia()) {<span class="ces-cond" [class.ces-cond--sucata]="origem(m) === 'CONCESSIONARIA'">{{ origem(m) === 'CONCESSIONARIA' ? 'Concessionária' : 'Equipe' }}</span> · }{{ m.detalhaSerie ? m.numSeries.join(' · ') : 'Cód. ' + m.codigo }}</span></span>
-                      <span class="qtd-fixa ces-num">{{ m.detalhaSerie ? m.numSeries.length : num(m.quantidade) }} <small>{{ m.unidadeMedida }}</small></span>
+                      <span class="qtd-fixa ces-num">{{ m.detalhaSerie ? m.numSeries.length : num(m.quantidade) }} <small>{{ m.unidadeMedida }}</small>@if (m.unidadeInformada && !m.detalhaSerie) {<small class="informado">{{ num(m.quantidadeInformada ?? 0) }} {{ m.unidadeInformada }} lançados</small>}</span>
                     </div></li>
                   } @empty { <li><div class="ces-linha"><span class="ces-linha__apoio">{{ g.operacao === 'APLICADO' ? 'Nenhum material aplicado' : 'Nenhum material retirado' }}</span></div></li> }
                 </ul>
@@ -463,6 +477,24 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
               placeholder="Digitar série" aria-label="Digitar número de série" [value]="serieDigitada()" (input)="serieDigitada.set($any($event.target).value)">
             <button type="submit" class="ces-btn ces-btn--tonal" [disabled]="!serieDigitada().trim()">Incluir</button>
           </form>
+          @if (serieForaPendente(); as p) {
+            <div class="fora-saldo" role="alert">
+              <p class="fora-saldo__titulo">A série <span class="ces-num">{{ p.numSerie }}</span> não está no seu caminhão.</p>
+              @if (p.sugestao) {
+                <p class="fora-saldo__texto">Você quis dizer <strong class="ces-num">{{ p.sugestao }}</strong>? Confira na etiqueta.</p>
+                <div class="fora-saldo__botoes">
+                  <button type="button" class="ces-btn ces-btn--principal" (click)="usarSugestao(m)">Usar {{ p.sugestao }}</button>
+                  <button type="button" class="ces-btn ces-btn--tonal" (click)="manterDigitada(m)">Manter {{ p.numSerie }}</button>
+                </div>
+              } @else {
+                <p class="fora-saldo__texto">Confira o número na etiqueta. Se estiver certo, inclua assim mesmo e avise o almoxarifado.</p>
+                <div class="fora-saldo__botoes">
+                  <button type="button" class="ces-btn ces-btn--principal" (click)="corrigirDigitada()">Corrigir o número</button>
+                  <button type="button" class="ces-btn ces-btn--tonal" (click)="manterDigitada(m)">Incluir assim mesmo</button>
+                </div>
+              }
+            </div>
+          }
           @if (seriesForaDoSaldo(m).length) {
             <ul class="chips" aria-label="Séries digitadas">
               @for (s of seriesForaDoSaldo(m); track s) {
@@ -541,6 +573,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     .mat--retirado { border-left-color: var(--ces-atencao); }
     .qtd-fixa { font: 700 1.5rem/1 var(--ces-fonte); white-space: nowrap; }
     .qtd-fixa small { font: 600 .875rem/1 var(--ces-fonte); color: var(--ces-texto-2); }
+    .qtd-fixa .informado { display: block; margin-top: 4px; font: var(--ces-t-apoio); font-size: .75rem; text-align: right; }
     .series-txt { margin: 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); overflow-wrap: anywhere; }
     .saldo { display: grid; justify-items: end; font: 600 .875rem/1.2 var(--ces-fonte); color: var(--ces-texto-2); white-space: nowrap; }
     .saldo strong { font: 700 1.25rem/1.1 var(--ces-fonte); color: var(--ces-texto); }
@@ -583,6 +616,12 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     .serie-lista [data-tom='erro'] { color: var(--ces-erro); font-weight: 600; }
     .digitar { display: flex; gap: var(--ces-e2); padding: 0 var(--ces-e4); }
     .digitar .ces-input { flex: 1; min-height: var(--ces-alvo); }
+    .fora-saldo { margin: 0 var(--ces-e4); padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo); background: var(--ces-atencao-suave); display: grid; gap: var(--ces-e2); }
+    .fora-saldo p { margin: 0; overflow-wrap: anywhere; }
+    .fora-saldo__titulo { font: var(--ces-t-corpo-forte); color: var(--ces-atencao); }
+    .fora-saldo__texto { font: var(--ces-t-apoio); font-size: .875rem; color: var(--ces-texto); }
+    .fora-saldo__botoes { display: grid; gap: var(--ces-e2); padding-top: var(--ces-e1); }
+    .fora-saldo__botoes .ces-btn { min-height: var(--ces-alvo); }
     .chips { list-style: none; margin: 0; padding: 0 var(--ces-e4); display: flex; flex-wrap: wrap; gap: var(--ces-e2); }
     .chips li { display: inline-flex; align-items: center; gap: 2px; padding-left: 12px; border-radius: var(--ces-r-pilula); background: var(--ces-superficie-2); font: var(--ces-t-corpo-forte); }
     .chips .ces-btn-icone { width: 40px; height: 40px; }
@@ -671,6 +710,8 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
   readonly buscaAcao = signal('');
   readonly buscaMaterial = signal('');
   readonly serieDigitada = signal('');
+  /** Série digitada que não está no caminhão: espera a pessoa confirmar ou corrigir. */
+  readonly serieForaPendente = signal<{ numSerie: string; sugestao: string | null } | null>(null);
   private watchId: number | null = null;
   private rascunho: VinculoRascunho | null = null;
 
@@ -743,9 +784,10 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
     return this.abaMaterial() === 'saldo' ? todos.filter(m => m.saldo > 0) : todos.slice(0, 50);
   });
 
-  readonly materiaisPayload = computed<ExecucaoMaterialLocal[]>(() => this.materiais().flatMap(m => m.detalhaSerie
+  readonly materiaisPayload = computed<ExecucaoMaterialLocal[]>(() => this.materiais().flatMap<ExecucaoMaterialLocal>(m => m.detalhaSerie
     ? m.numSeries.map(numSerie => ({ idMaterial: m.idMaterial, quantidade: 1, operacao: m.operacao, condicao: m.condicao, numSerie, origem: origemDe(m) }))
-    : [{ idMaterial: m.idMaterial, quantidade: m.quantidade, operacao: m.operacao, condicao: m.condicao, origem: origemDe(m) }]));
+    : [{ idMaterial: m.idMaterial, quantidade: m.quantidade, operacao: m.operacao, condicao: m.condicao, origem: origemDe(m),
+      ...(m.unidadeInformada && m.quantidadeInformada ? { quantidadeInformada: m.quantidadeInformada, unidadeInformada: m.unidadeInformada } : {}) }]));
 
   /** Linhas da caixa "O que muda", com os nomes do catálogo do aparelho. */
   readonly mudancas = computed<{ texto: string; sai: boolean }[]>(() => {
@@ -872,7 +914,7 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
     this.catalogo.set(materiais
       .map((m: MaterialLocal) => ({
         idMaterial: m.id, codigo: m.codigo, descricao: m.descricao, unidadeMedida: m.unidadeMedida || 'UN',
-        detalhaSerie: !!m.detalhaSerie, saldo: snapshot.novoPorMaterial.get(m.id) ?? 0,
+        detalhaSerie: !!m.detalhaSerie, saldo: snapshot.novoPorMaterial.get(m.id) ?? 0, equivalencias: m.equivalencias ?? [],
       }))
       .sort((a, b) => (a.descricao || '').localeCompare(b.descricao || '')));
   }
@@ -964,12 +1006,16 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
       if (existente) {
         if (em.numSerie) existente.numSeries.push(em.numSerie);
         existente.quantidade = detalhaSerie ? existente.numSeries.length : existente.quantidade + em.quantidade;
+        existente.unidadeInformada = null;
+        existente.quantidadeInformada = undefined;
       } else {
         grupos.set(chave, {
           idMaterial: em.idMaterial, codigo: cat?.codigo || 'N/A', descricao: cat?.descricao || 'Material',
           unidadeMedida: cat?.unidadeMedida || 'UN', detalhaSerie,
           quantidade: detalhaSerie ? (em.numSerie ? 1 : 0) : em.quantidade,
           operacao: em.operacao, condicao: em.condicao, numSeries: em.numSerie ? [em.numSerie] : [], origem: em.origem ?? 'EQUIPE',
+          equivalencias: cat?.equivalencias ?? [],
+          ...(em.unidadeInformada ? { unidadeInformada: em.unidadeInformada, quantidadeInformada: em.quantidadeInformada } : {}),
         });
       }
     }
@@ -1126,7 +1172,7 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
       if (!destino) return l.map(x => (mesmaLinha(x, m) ? { ...x, origem } : x));
       const numSeries = [...new Set([...destino.numSeries, ...m.numSeries])];
       const quantidade = destino.detalhaSerie ? numSeries.length : destino.quantidade + m.quantidade;
-      return l.filter(x => !mesmaLinha(x, m)).map(x => (x === destino ? { ...x, numSeries, quantidade } : x));
+      return l.filter(x => !mesmaLinha(x, m)).map(x => (x === destino ? { ...x, numSeries, quantidade, unidadeInformada: null, quantidadeInformada: undefined } : x));
     });
   }
 
@@ -1135,7 +1181,7 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
     const novo: SelectedMaterial = {
       idMaterial: c.idMaterial, codigo: c.codigo, descricao: c.descricao, unidadeMedida: c.unidadeMedida, detalhaSerie: c.detalhaSerie,
       quantidade: c.detalhaSerie ? 0 : 1, operacao, condicao: operacao === 'APLICADO' ? 'NOVO' : 'SUCATA', numSeries: [],
-      origem: this.origemPadrao(),
+      origem: this.origemPadrao(), equivalencias: c.equivalencias ?? [],
     };
     this.materiais.update(l => [...l, novo]);
     if (c.detalhaSerie) {
@@ -1161,7 +1207,7 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
       return semAntiga.map(x => (mesmaLinha(x, alvo)
         ? (x.detalhaSerie
           ? { ...x, numSeries: [...new Set([...x.numSeries, ...m.numSeries])], quantidade: new Set([...x.numSeries, ...m.numSeries]).size }
-          : { ...x, quantidade: x.quantidade + m.quantidade })
+          : { ...x, quantidade: x.quantidade + m.quantidade, unidadeInformada: null, quantidadeInformada: undefined })
         : x));
     });
     if (operacao === 'APLICADO' && m.detalhaSerie) void this.carregarSeriais(m.idMaterial);
@@ -1171,9 +1217,25 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
     this.materiais.update(l => l.filter(x => !mesmaLinha(x, m)));
   }
 
+  /** Com unidade equivalente escolhida, {@code qtd} vem nela e o saldo recebe o convertido. */
   definirQuantidade(m: SelectedMaterial, qtd: number): void {
     if (!Number.isFinite(qtd) || qtd <= 0) return;
-    this.materiais.update(l => l.map(x => (mesmaLinha(x, m) && !x.detalhaSerie ? { ...x, quantidade: qtd } : x)));
+    this.materiais.update(l => l.map(x => {
+      if (!mesmaLinha(x, m) || x.detalhaSerie) return x;
+      return x.unidadeInformada
+        ? { ...x, quantidadeInformada: qtd, quantidade: paraBase(x, qtd, x.unidadeInformada) }
+        : { ...x, quantidade: qtd, quantidadeInformada: undefined };
+    }));
+  }
+
+  /** Troca a unidade mantendo a mesma quantidade física (ex.: 0,125 UN viram 2,5 M). */
+  definirUnidade(m: SelectedMaterial, unidade: string | null): void {
+    this.materiais.update(l => l.map(x => {
+      if (!mesmaLinha(x, m) || x.detalhaSerie) return x;
+      return unidade
+        ? { ...x, unidadeInformada: unidade, quantidadeInformada: daBase(x, x.quantidade, unidade) }
+        : { ...x, unidadeInformada: null, quantidadeInformada: undefined };
+    }));
   }
 
   avisoSaldo(m: SelectedMaterial): string | null {
@@ -1190,11 +1252,13 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
   // ---------- séries ----------
   abrirSeries(m: SelectedMaterial): void {
     this.serieDigitada.set('');
+    this.serieForaPendente.set(null);
     this.folhaSerie.set(chaveLinha(m));
   }
 
   fecharSeries(): void {
     this.folhaSerie.set(null);
+    this.serieForaPendente.set(null);
   }
 
   /** Há quanto tempo a série está no caminhão: a mais antiga aparece primeiro e deve sair antes. */
@@ -1238,8 +1302,39 @@ export class NovaExecucaoComponent implements OnInit, OnDestroy {
     const doSaldo = this.seriaisDisponiveis(m.idMaterial).find(s => chaveSerie(m.idMaterial, s.numSerie) === chaveSerie(m.idMaterial, valor));
     const numSerie = doSaldo?.numSerie ?? valor;
     const atual = this.materiais().find(x => mesmaLinha(x, m));
-    if (atual && !atual.numSeries.includes(numSerie)) this.alternarSerie(m, numSerie);
     this.serieDigitada.set('');
+    if (!atual || atual.numSeries.includes(numSerie)) return;
+    // Aplicação do caminhão com série que não está nele: quase sempre é número digitado errado.
+    // Não bloqueia (a nota é fato consumado), mas pede confirmação e sugere a série parecida.
+    if (!doSaldo && m.operacao === 'APLICADO' && origemDe(m) === 'EQUIPE') {
+      const livres = this.seriaisDisponiveis(m.idMaterial).map(s => s.numSerie).filter(s => !atual.numSeries.includes(s));
+      this.serieForaPendente.set({ numSerie, sugestao: serieParecida(numSerie, livres) });
+      return;
+    }
+    this.serieForaPendente.set(null);
+    this.alternarSerie(m, numSerie);
+  }
+
+  usarSugestao(m: SelectedMaterial): void {
+    const sugestao = this.serieForaPendente()?.sugestao;
+    this.serieForaPendente.set(null);
+    const atual = this.materiais().find(x => mesmaLinha(x, m));
+    if (sugestao && atual && !atual.numSeries.includes(sugestao)) this.alternarSerie(m, sugestao);
+  }
+
+  manterDigitada(m: SelectedMaterial): void {
+    const numSerie = this.serieForaPendente()?.numSerie;
+    this.serieForaPendente.set(null);
+    const atual = this.materiais().find(x => mesmaLinha(x, m));
+    if (numSerie && atual && !atual.numSeries.includes(numSerie)) this.alternarSerie(m, numSerie);
+  }
+
+  /** Volta o número para o campo para a pessoa corrigir. */
+  corrigirDigitada(): void {
+    const numSerie = this.serieForaPendente()?.numSerie ?? '';
+    this.serieForaPendente.set(null);
+    this.serieDigitada.set(numSerie);
+    queueMicrotask(() => (document.querySelector('.digitar .ces-input') as HTMLInputElement | null)?.focus());
   }
 
   private async carregarSeriais(idMaterial: string): Promise<void> {

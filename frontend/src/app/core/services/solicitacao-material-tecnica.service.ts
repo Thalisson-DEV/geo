@@ -28,6 +28,8 @@ import {
   ProjecaoObraSolicitacoesResponse,
   ProjetoRelacionadoSolicitacao,
   RegistrarReservaTecnicaRequest,
+  TrocaOcorrenciaTecnicaResponse,
+  TrocarOcorrenciaTecnicaRequest,
   ReservaTecnicaResponse,
   SolicitacaoMaterialDetalheApiResponse,
   SolicitacaoMaterialListaItemResponse,
@@ -131,6 +133,19 @@ export class SolicitacaoMaterialTecnicaService {
   ): Observable<ReservaTecnicaResponse> {
     return this.http.put<ReservaTecnicaResponse>(
       `${this.baseUrl}/tecnicas/${idSolicitacao}/reserva`,
+      request,
+      { headers: this.headers(chaveIdempotencia) },
+    );
+  }
+
+  /** Troca a OS/OC a qualquer momento, até depois da entrega; o saldo não muda. */
+  trocarOcorrencia(
+    idSolicitacao: string,
+    request: TrocarOcorrenciaTecnicaRequest,
+    chaveIdempotencia = novaChaveIdempotencia(),
+  ): Observable<TrocaOcorrenciaTecnicaResponse> {
+    return this.http.put<TrocaOcorrenciaTecnicaResponse>(
+      `${this.baseUrl}/tecnicas/${idSolicitacao}/ocorrencia`,
       request,
       { headers: this.headers(chaveIdempotencia) },
     );

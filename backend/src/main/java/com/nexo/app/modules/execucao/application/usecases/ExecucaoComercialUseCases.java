@@ -41,6 +41,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -58,6 +59,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -131,13 +134,17 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
             } else if (estoqueApi.buscarMaterialPorIdResponse(material.idMaterial()).isEmpty()) {
                 throw new RecursoNaoEncontradoException("Material não encontrado: " + material.idMaterial());
             }
+            var convertida = estoqueApi.converterParaUnidadeDoMaterial(
+                    material.idMaterial(), material.quantidade(), material.unidade());
             execucao.adicionarMaterial(
                     material.idMaterial(),
-                    material.quantidade(),
+                    convertida.quantidade(),
                     material.operacao(),
                     material.numSerie(),
                     material.origem()
             );
+            execucao.registrarQuantidadeInformada(material.idMaterial(), material.numSerie(),
+                    convertida.informada(), convertida.unidadeInformada());
         }
 
         BigDecimal valorTotal = calcularValorFaturado(execucao, request.dataLancamento());
@@ -353,7 +360,16 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
     @Transactional(readOnly = true)
     @Cacheable(key = "{#filter.toString(), #pageable.pageNumber, #pageable.pageSize, #pageable.sort.toString()}")
     public PageResponse<ExecucaoComercialResponse> listar(ExecucaoFilter filter, Pageable pageable) {
-        Page<ExecucaoComercial> pagina = repository.findAll(ExecucaoSpecification.filterBy(filter), pageable);
+        Specification<ExecucaoComercial> especificacao = ExecucaoSpecification.filterBy(filter);
+        // A nota guarda só a equipe: a base é a atual das equipes escolhidas.
+        if (filter != null && !filter.idBaseOperacional().isEmpty()) {
+            List<UUID> equipesDasBases = equipeApi.buscarIdsPorBases(filter.idBaseOperacional());
+            if (equipesDasBases.isEmpty()) {
+                return PageResponse.fromPage(Page.empty(pageable));
+            }
+            especificacao = especificacao.and((root, query, cb) -> root.get("idEquipe").in(equipesDasBases));
+        }
+        Page<ExecucaoComercial> pagina = repository.findAll(especificacao, pageable);
         return PageResponse.fromPage(
                 new PageImpl<>(hidratar(pagina.getContent()), pagina.getPageable(), pagina.getTotalElements()));
     }
@@ -384,7 +400,8 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
                 filter.buscaGlobal(),
                 filter.tipoNota(),
                 filter.aguardandoNumeroOficial(),
-                filter.alterada()
+                filter.alterada(),
+                filter.idBaseOperacional()
         );
 
         return listar(filtroComEquipe, pageable);
@@ -447,7 +464,9 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
                         m.getQuantidade(),
                         m.getOperacao(),
                         m.getNumSerie(),
-                        m.getOrigem()
+                        m.getOrigem(),
+                        m.getQuantidadeInformada(),
+                        m.getUnidadeInformada()
                 )).toList();
 
         return new ExecucaoComercialResponse(
@@ -478,9 +497,33 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
     public List<ExecucaoComercialResponse> listarPorTurno(UUID idTurno) {
         ExecucaoFilter filter = new ExecucaoFilter(
                 null, null, null, idTurno, null,
-                null, null, false, null, null, null, null, null, null, null, null, null, null, null
+                null, null, false, null, null, null, null, null, null, null, null, null, null, null, null
         );
         return hidratar(repository.findAll(ExecucaoSpecification.filterBy(filter)));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExecucaoComercialResponse> listarPorTurnos(Collection<UUID> idsTurnos) {
+        if (idsTurnos == null || idsTurnos.isEmpty()) {
+            return List.of();
+        }
+        ExecucaoFilter filter = new ExecucaoFilter(
+                null, null, null, null, null,
+                null, null, false, null, null, null, null, null, null, null, null, null, null, null, null
+        );
+        Specification<ExecucaoComercial> dosTurnos = (root, query, cb) -> root.get("idTurno").in(idsTurnos);
+        return hidratar(repository.findAll(ExecucaoSpecification.filterBy(filter).and(dosTurnos),
+                Sort.by(Sort.Order.asc("dataLancamento"), Sort.Order.asc("id"))));
+    }
+
+    /**
+     * Uma página para a exportação em CSV. Fica fora do cache da listagem: são páginas grandes,
+     * lidas uma vez só.
+     */
+    @Transactional(readOnly = true)
+    public List<ExecucaoComercialResponse> listarParaExportacao(ExecucaoFilter filter, Pageable pageable) {
+        return hidratar(repository.findAll(ExecucaoSpecification.filterBy(filter), pageable).getContent());
     }
 
     @Override
@@ -495,12 +538,31 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
 
     @Override
     @Transactional(readOnly = true)
+    public Set<UUID> listarIdsSoImprodutivas(OffsetDateTime inicio, OffsetDateTime fim, Collection<UUID> idsEquipes) {
+        if (idsEquipes == null || idsEquipes.isEmpty()) {
+            return Set.of();
+        }
+        return new HashSet<>(repository.listarIdsSoImprodutivas(inicio, fim, idsEquipes));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Page<ExecucaoComercialResponse> listarConcluidasDasEquipes(Collection<UUID> idsEquipes, OffsetDateTime inicio,
                                                                      OffsetDateTime fim, UUID idTipoServico,
                                                                      boolean semTipoServico, Pageable pageable) {
+        return listarConcluidasDasEquipes(idsEquipes, inicio, fim, idTipoServico, semTipoServico, false, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ExecucaoComercialResponse> listarConcluidasDasEquipes(Collection<UUID> idsEquipes, OffsetDateTime inicio,
+                                                                     OffsetDateTime fim, UUID idTipoServico,
+                                                                     boolean semTipoServico, boolean apenasProdutivas,
+                                                                     Pageable pageable) {
         if (idsEquipes == null || idsEquipes.isEmpty()) {
             return Page.empty(pageable);
         }
+        Set<UUID> improdutivas = apenasProdutivas ? listarIdsSoImprodutivas(inicio, fim, idsEquipes) : Set.of();
         Specification<ExecucaoComercial> spec = (root, query, cb) -> {
             var predicados = new ArrayList<Predicate>();
             predicados.add(cb.isTrue(root.get("ativo")));
@@ -513,6 +575,9 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
             } else if (semTipoServico) {
                 predicados.add(cb.isNull(root.get("idTipoServico")));
             }
+            if (!improdutivas.isEmpty()) {
+                predicados.add(cb.not(root.get("id").in(improdutivas)));
+            }
             return cb.and(predicados.toArray(Predicate[]::new));
         };
         return repository.findAll(spec, pageable).map(this::hidratar);
@@ -520,15 +585,17 @@ public class ExecucaoComercialUseCases implements ExecucaoComercialApi {
 
     /**
      * Turno aberto para a equipe continua sendo pré-requisito do lançamento. A exceção é
-     * o lançamento feito antes do corte num turno que o servidor encerrou sozinho: ele
-     * estava na fila do aparelho e pertence àquele turno, não ao turno aberto agora.
+     * a nota lançada com o turno aberto que só chegou depois de ele fechar (pela equipe ou
+     * pelo sistema): ela estava na fila do aparelho e pertence àquele turno, não ao turno
+     * aberto agora.
      */
     private Turno turnoDoLancamento(RegistrarExecucaoRequest request) {
         if (request.idTurno() != null) {
             var encerrado = turnoRepository.findById(request.idTurno())
-                    .filter(t -> t.isAtivo() && t.isEncerradoAutomaticamente())
+                    .filter(Turno::isAtivo)
                     .filter(t -> t.getIdEquipe().equals(request.idEquipe()))
-                    .filter(t -> !request.dataLancamento().isAfter(corteDiario.corteDoTurno(t.getDataInicio())));
+                    .filter(t -> t.recebeLancamentoTardio(request.dataLancamento(),
+                            corteDiario.corteDoTurno(t.getDataInicio())));
             if (encerrado.isPresent()) {
                 encerrado.get().registrarLancamentoTardio(request.dataLancamento());
                 return turnoRepository.save(encerrado.get());

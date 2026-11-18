@@ -37,14 +37,14 @@ class ReferenciasFrota {
 
     Map<UUID, String> nomesBases(Collection<UUID> ids) {
         var validos = semNulos(ids);
-        if (validos.isEmpty()) return Map.of();
+        if (validos.isEmpty()) return new java.util.HashMap<>();
         return baseApi.buscarPorIdsResponse(validos).entrySet().stream()
                 .collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, e -> e.getValue().nome()));
     }
 
     Map<UUID, ResumoColaborador> colaboradores(Collection<UUID> ids) {
         var validos = semNulos(ids);
-        return validos.isEmpty() ? Map.of() : colaboradorApi.buscarResumosPorIds(validos);
+        return validos.isEmpty() ? new java.util.HashMap<>() : new java.util.HashMap<>(colaboradorApi.buscarResumosPorIds(validos));
     }
 
     Map<UUID, String> nomesColaboradores(Collection<UUID> ids) {
@@ -54,19 +54,20 @@ class ReferenciasFrota {
 
     Map<UUID, VeiculoResponse> veiculos(Collection<UUID> ids) {
         var validos = semNulos(ids);
-        return validos.isEmpty() ? Map.of() : veiculoApi.buscarPorIdsResponse(validos);
+        return validos.isEmpty() ? new java.util.HashMap<>() : new java.util.HashMap<>(veiculoApi.buscarPorIdsResponse(validos));
     }
 
     Map<UUID, String> loginsUsuarios(Collection<UUID> ids) {
         var validos = semNulos(ids);
-        return validos.isEmpty() ? Map.of() : usuarioApi.buscarLoginsPorIds(validos);
+        // Mapa que aceita get(null): a OS aberta pela rotina não tem usuário de abertura.
+        return validos.isEmpty() ? new java.util.HashMap<>() : new java.util.HashMap<>(usuarioApi.buscarLoginsPorIds(validos));
     }
 
     /** Nome da pessoa por trás do usuário (o colaborador vinculado); sem vínculo, o login. */
     Map<UUID, String> nomesPessoasUsuarios(Collection<UUID> ids) {
         var validos = semNulos(ids);
         if (validos.isEmpty()) {
-            return Map.of();
+            return new java.util.HashMap<>();
         }
         var contatos = usuarioApi.buscarContatos(validos);
         var nomes = nomesColaboradores(contatos.values().stream().map(c -> c.idColaborador()).filter(Objects::nonNull).toList());
@@ -103,6 +104,12 @@ class ReferenciasFrota {
         return veiculoApi.buscarIdsPorTrecho(trecho);
     }
 
+    /** Veículos ativos das bases; lista com um id impossível quando não há nenhum (o IN vazio não filtra). */
+    List<UUID> idsVeiculosAtivosDasBases(Collection<UUID> idsBase) {
+        var ids = veiculoApi.listarIdsVeiculosAtivos(List.copyOf(semNulos(idsBase)));
+        return ids.isEmpty() ? List.of(new UUID(0, 0)) : ids;
+    }
+
     List<UUID> idsVeiculosAtivosDaBase(UUID idBase) {
         return idBase == null ? List.of() : veiculoApi.listarIdsVeiculosAtivos(List.of(idBase));
     }
@@ -115,7 +122,7 @@ class ReferenciasFrota {
     /** Nome de quem usa o sistema: o do colaborador ligado ao usuário ou, sem ele, o login. */
     Map<UUID, String> nomesPessoas(Collection<UUID> idsUsuario) {
         var validos = semNulos(idsUsuario);
-        if (validos.isEmpty()) return Map.of();
+        if (validos.isEmpty()) return new java.util.HashMap<>();
         var contatos = usuarioApi.buscarContatos(validos);
         var nomes = nomesColaboradores(contatos.values().stream().map(c -> c.idColaborador()).filter(Objects::nonNull).toList());
         var resultado = new HashMap<UUID, String>();
@@ -161,13 +168,47 @@ class ReferenciasFrota {
     /** Equipes informadas: as ativas numa consulta; as desativadas (turnos antigos) uma a uma. */
     Map<UUID, EquipeComBase> equipesComBase(Collection<UUID> ids) {
         var validos = semNulos(ids);
-        if (validos.isEmpty()) return Map.of();
+        if (validos.isEmpty()) return new java.util.HashMap<>();
         var resultado = new HashMap<UUID, EquipeComBase>();
         equipeApi.listarEquipesAtivas().stream().filter(e -> validos.contains(e.id()))
                 .forEach(e -> resultado.put(e.id(), new EquipeComBase(e.id(), e.codigo(), e.baseOperacional())));
         validos.stream().filter(id -> !resultado.containsKey(id)).forEach(id -> equipeApi.buscarPublicaPorId(id)
                 .ifPresent(e -> resultado.put(id, new EquipeComBase(id, e.codigo(), base(e.idBaseOperacional())))));
         return resultado;
+    }
+
+    /** Equipe ativa que usa o veículo, com processo, supervisor e coordenador; vazio se nenhuma. */
+    java.util.Optional<com.nexo.app.modules.rh.EquipeResponse> equipeDoVeiculo(UUID idVeiculo) {
+        if (idVeiculo == null) return java.util.Optional.empty();
+        var vinculo = veiculoApi.listarVinculosEquipeAtivos().get(idVeiculo);
+        return vinculo == null || vinculo.equipeId() == null ? java.util.Optional.empty()
+                : equipeApi.buscarPorIdResponse(vinculo.equipeId());
+    }
+
+    /**
+     * Usuários de quem responde pelo veículo: supervisor e coordenador da equipe que o usa
+     * (o coordenador vem do supervisor quando a equipe não tem um próprio). Vazio sem equipe.
+     */
+    record GestoresVeiculo(java.util.Set<UUID> supervisores, java.util.Set<UUID> coordenadores) {
+        static final GestoresVeiculo NENHUM = new GestoresVeiculo(java.util.Set.of(), java.util.Set.of());
+    }
+
+    GestoresVeiculo gestoresDoVeiculo(UUID idVeiculo) {
+        var equipe = equipeDoVeiculo(idVeiculo).orElse(null);
+        if (equipe == null) return GestoresVeiculo.NENHUM;
+        var supervisores = new java.util.HashSet<UUID>();
+        var coordenadores = new java.util.HashSet<UUID>();
+        if (equipe.supervisor() != null && equipe.supervisor().ativo() && equipe.supervisor().colaborador() != null
+                && equipe.supervisor().colaborador().idUsuario() != null) {
+            supervisores.add(equipe.supervisor().colaborador().idUsuario());
+        }
+        var coordenador = equipe.coordenador() != null ? equipe.coordenador()
+                : equipe.supervisor() != null ? equipe.supervisor().coordenador() : null;
+        if (coordenador != null && coordenador.ativo() && coordenador.colaborador() != null
+                && coordenador.colaborador().idUsuario() != null) {
+            coordenadores.add(coordenador.colaborador().idUsuario());
+        }
+        return new GestoresVeiculo(java.util.Set.copyOf(supervisores), java.util.Set.copyOf(coordenadores));
     }
 
     private static List<UUID> semNulos(Collection<UUID> ids) {

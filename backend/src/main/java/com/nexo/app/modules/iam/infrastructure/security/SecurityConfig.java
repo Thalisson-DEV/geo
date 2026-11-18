@@ -7,9 +7,9 @@ import com.nexo.app.shared.infrastructure.security.ObservabilityTechnicalTokenFi
 import com.nexo.app.shared.infrastructure.security.ObservabilityTechnicalTokenProperties;
 import com.nexo.app.shared.infrastructure.security.TokenService;
 import com.nexo.app.shared.infrastructure.web.IdempotenciaFilter;
-import com.nexo.app.shared.infrastructure.web.LookupRateLimitFilter;
+import com.nexo.app.shared.infrastructure.web.RateLimitFilter;
 import com.nexo.app.shared.infrastructure.lookup.LookupMetrics;
-import com.nexo.app.shared.infrastructure.lookup.LookupRateLimiter;
+import com.nexo.app.shared.infrastructure.ratelimit.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;
@@ -42,7 +42,7 @@ public class SecurityConfig {
     private final PerfilPermissaoCacheService perfilPermissaoCacheService;
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final IdempotenciaService idempotenciaService;
-    private final LookupRateLimiter lookupRateLimiter;
+    private final RateLimiter rateLimiter;
     private final LookupMetrics lookupMetrics;
     private final ObservabilityTechnicalTokenProperties observabilityTokenProperties;
     private final ObjectProvider<AcessoExternoResolver> acessoExternoResolver;
@@ -87,7 +87,10 @@ public class SecurityConfig {
                 })
                 .addFilterBefore(new ObservabilityTechnicalTokenFilter(observabilityTokenProperties), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new SecurityFilter(tokenService, usuarioRepository, perfilPermissaoCacheService, handlerExceptionResolver, acessoExternoResolver), UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(new LookupRateLimitFilter(lookupRateLimiter, lookupMetrics, handlerExceptionResolver), SecurityFilter.class)
+                // Logo depois da identificação: rotas públicas contam por IP e as autenticadas
+                // pelo usuário. Antes do IdempotenciaFilter, para uma requisição barrada não
+                // reservar chave de idempotência.
+                .addFilterAfter(new RateLimitFilter(rateLimiter, lookupMetrics, handlerExceptionResolver), SecurityFilter.class)
                 // Depois da autorização de propósito: a chave de idempotência é escopada por
                 // usuário, então reservá-la antes de saber quem pede permitiria a um anônimo
                 // emperrar chaves alheias. Montado aqui, e não como @Component, porque o Boot

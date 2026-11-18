@@ -30,6 +30,42 @@ export function chaveSerie(idMaterial: string, numSerie: string): string {
 }
 
 /**
+ * Série do caminhão parecida com a digitada (até dois caracteres diferentes): quase sempre a
+ * série foi digitada errada. Nula quando nenhuma é parecida ou quando duas empatam.
+ */
+export function serieParecida(digitada: string, candidatas: readonly string[]): string | null {
+  const alvo = digitada.trim().toUpperCase();
+  if (!alvo) return null;
+  let melhor: string | null = null;
+  let menor = Number.POSITIVE_INFINITY;
+  let empate = false;
+  for (const candidata of candidatas) {
+    const d = distanciaEdicao(alvo, candidata.trim().toUpperCase());
+    if (d < menor) {
+      menor = d;
+      melhor = candidata;
+      empate = false;
+    } else if (d === menor) {
+      empate = true;
+    }
+  }
+  return menor > 0 && menor <= 2 && !empate ? melhor : null;
+}
+
+function distanciaEdicao(a: string, b: string): number {
+  let anterior = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const atual = [i];
+    for (let j = 1; j <= b.length; j++) {
+      const custo = a[i - 1] === b[j - 1] ? 0 : 1;
+      atual[j] = Math.min(atual[j - 1] + 1, anterior[j] + 1, anterior[j - 1] + custo);
+    }
+    anterior = atual;
+  }
+  return anterior[b.length];
+}
+
+/**
  * Calcula o que o lançamento aplica além do saldo da equipe (quantidade acima do
  * saldo ou série que não está no saldo). Retirada não entra: o material vai no
  * veículo e a equipe o devolve quando puder.

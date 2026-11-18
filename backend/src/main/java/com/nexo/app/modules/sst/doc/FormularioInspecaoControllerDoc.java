@@ -1,6 +1,8 @@
 package com.nexo.app.modules.sst.doc;
 
 import com.nexo.app.modules.sst.application.dto.AtualizarFormularioDadosRequest;
+import com.nexo.app.modules.sst.application.dto.ConfirmarImportacaoFormularioInspecaoRequest;
+import com.nexo.app.modules.sst.application.dto.ImportacaoFormularioInspecaoResponse;
 import com.nexo.app.modules.sst.application.dto.CriarFormularioRequest;
 import com.nexo.app.modules.sst.application.dto.FormularioInspecaoFilter;
 import com.nexo.app.modules.sst.application.dto.FormularioInspecaoResponse;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -65,4 +68,20 @@ public interface FormularioInspecaoControllerDoc {
 
     @Operation(summary = "Reativar um formulário")
     ResponseEntity<Void> ativar(UUID id);
+
+    @Operation(
+            summary = "Validar importação de formulários de inspeção",
+            description = """
+                    Valida um CSV UTF-8 separado por ponto e vírgula sem persistir. Cada linha é uma
+                    pergunta; linhas com o mesmo formulário e grupo se juntam na ordem da planilha.
+                    O tipo padrão é o checklist Conforme / Não conforme / Não se aplica.""")
+    ResponseEntity<ImportacaoFormularioInspecaoResponse> importar(MultipartFile arquivo);
+
+    @Operation(
+            summary = "Confirmar importação de formulários de inspeção",
+            description = "Revalida as linhas e cria cada formulário cujas linhas estão todas válidas.")
+    ResponseEntity<ImportacaoFormularioInspecaoResponse> confirmarImportacao(ConfirmarImportacaoFormularioInspecaoRequest request);
+
+    @Operation(summary = "Baixar modelo CSV de formulários de inspeção")
+    ResponseEntity<byte[]> baixarModeloImportacao();
 }

@@ -1,6 +1,8 @@
 package com.nexo.app.shared.infrastructure.web;
 
-import com.nexo.app.shared.infrastructure.lookup.LookupRateLimitExceededException;
+import com.nexo.app.shared.infrastructure.ratelimit.DecisaoRateLimit;
+import com.nexo.app.shared.infrastructure.ratelimit.PoliticaRateLimit;
+import com.nexo.app.shared.infrastructure.ratelimit.RateLimitExcedidoException;
 import com.nexo.app.shared.domain.exception.ConflitoVersaoException;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.PreenchimentoInvalidoException;
@@ -17,12 +19,29 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void rateLimitRetornaRfc7807429ERetryAfter() {
-        var response = handler.handleLookupRateLimitExceeded(new LookupRateLimitExceededException(3));
+        var decisao = new DecisaoRateLimit(PoliticaRateLimit.LOOKUP, DecisaoRateLimit.Resultado.BLOQUEADA,
+                300, java.time.Duration.ofMinutes(1), 3);
+        var response = handler.handleRateLimitExcedido(new RateLimitExcedidoException(decisao));
 
         org.assertj.core.api.Assertions.assertThat(response.getStatusCode().value()).isEqualTo(429);
         org.assertj.core.api.Assertions.assertThat(response.getHeaders().getFirst("Retry-After")).isEqualTo("3");
+        org.assertj.core.api.Assertions.assertThat(response.getHeaders().getFirst("RateLimit-Policy"))
+                .isEqualTo("\"lookup\";q=300;w=60");
+        org.assertj.core.api.Assertions.assertThat(response.getHeaders().getFirst("RateLimit"))
+                .isEqualTo("\"lookup\";r=0;t=3");
         org.assertj.core.api.Assertions.assertThat(response.getBody().getProperties())
-                .containsEntry("retryAfter", 3L);
+                .containsEntry("retryAfter", 3L)
+                .containsEntry("code", "RATE_LIMIT");
+        org.assertj.core.api.Assertions.assertThat(response.getBody().getDetail())
+                .isEqualTo("Muitas buscas em pouco tempo. Tente de novo em 3 segundos.");
+    }
+
+    @Test
+    void tempoDeEsperaEmLinguagemDePessoa() {
+        org.assertj.core.api.Assertions.assertThat(GlobalExceptionHandler.tempoDeEspera(1)).isEqualTo("1 segundo");
+        org.assertj.core.api.Assertions.assertThat(GlobalExceptionHandler.tempoDeEspera(59)).isEqualTo("59 segundos");
+        org.assertj.core.api.Assertions.assertThat(GlobalExceptionHandler.tempoDeEspera(60)).isEqualTo("1 minuto");
+        org.assertj.core.api.Assertions.assertThat(GlobalExceptionHandler.tempoDeEspera(61)).isEqualTo("2 minutos");
     }
 
     @Test

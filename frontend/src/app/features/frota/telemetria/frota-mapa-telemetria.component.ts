@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, effect, inpu
 
 import { desenharTrajeto } from '../../../shared/utils/trajeto-mapa';
 
-// Leaflet é carregado globalmente (index.html), como nos demais mapas do CES.
+// Leaflet é carregado globalmente (index.html), como nos demais mapas do GEO.
 declare const L: any;
 
 export interface MarcadorMapa {

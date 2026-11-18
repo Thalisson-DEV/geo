@@ -41,6 +41,8 @@ export interface PerguntaInspecao {
   obrigatoria: boolean;
   ordem: number;
   opcoes: OpcaoResposta[];
+  orientacao?: string | null;
+  desvioPorColaborador?: boolean;
 }
 
 export interface GrupoPergunta {
@@ -284,7 +286,7 @@ export function sanitizarRegistrarInspecao(
     observacoes: request.observacoes ?? null,
     latitude: request.latitude ?? null,
     longitude: request.longitude ?? null,
-    colaboradoresInspecionados: [...request.colaboradoresInspecionados],
+    colaboradoresInspecionados: [...new Set(request.colaboradoresInspecionados)],
     respostas: request.respostas.map(resposta => ({
       idPergunta: resposta.idPergunta,
       opcoesSelecionadas: [...resposta.opcoesSelecionadas],
@@ -379,7 +381,7 @@ export function validarRegistrarInspecao(
     const pergunta = perguntas.get(desvio.idPergunta);
     const opcao = pergunta?.opcoes.find(item => item.id === desvio.idOpcaoResposta);
     if (!opcao?.geraDesvio) erros.push('Há um desvio sem uma opção geradora válida.');
-    if (desvio.colaboradores.length === 0) erros.push('Atribua ao menos um colaborador a cada desvio.');
+    if (desvio.colaboradores.length === 0 && pergunta?.desvioPorColaborador !== false) erros.push('Atribua ao menos um colaborador a cada desvio.');
     if (desvio.colaboradores.some(id => !colaboradores.has(id))) {
       erros.push('Todo colaborador atribuído a um desvio deve estar entre os inspecionados.');
     }

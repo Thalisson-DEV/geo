@@ -565,3 +565,22 @@ export const TIPO_CATALOGO_LABELS: Record<TipoCatalogoSst, string> = {
 export function opcoesDe<T extends string>(labels: Record<T, string>): { label: string; value: T }[] {
   return (Object.keys(labels) as T[]).map((value) => ({ label: labels[value], value }));
 }
+
+export const ICONE_TIPO_EVENTO: Record<TipoEventoSst, string> = {
+  ACIDENTE_TIPICO: 'pi-exclamation-triangle',
+  ACIDENTE_TRAJETO: 'pi-car',
+  INCIDENTE_SEM_LESAO: 'pi-info-circle',
+  DANO_MATERIAL: 'pi-box',
+  DOENCA_OCUPACIONAL: 'pi-heart'
+};
+export const ICONE_STATUS_EVENTO: Record<StatusEventoSst, string> = {
+  REGISTRADO: 'pi-flag',
+  EM_TRATATIVA: 'pi-sync',
+  CONCLUIDO: 'pi-check-circle',
+  CANCELADO: 'pi-ban'
+};
+export const ICONE_PAPEL_ENVOLVIDO: Record<PapelEnvolvido, string> = {
+  ACIDENTADO: 'pi-exclamation-circle',
+  TESTEMUNHA: 'pi-eye',
+  ENVOLVIDO: 'pi-user'
+};

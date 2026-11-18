@@ -100,15 +100,29 @@ describe('FrotaChecklistsComponent', () => {
     expect(painel).toContain('Folha do checklist');
   });
 
-  it('abre na fila de pendências com o histórico, os contadores das abas e as ações do gestor', async () => {
+  it('abre na fila de pendências agrupada por checklist, com os contadores das abas e as ações do gestor', async () => {
     const { el } = await abrir();
     expect(checklist['pendencias']).toHaveBeenCalledWith('ABERTA', [], expect.anything());
     expect(el.textContent).toContain('Faróis — Queimado');
-    expect(el.textContent).toContain('Recorrente');
+    expect(el.textContent).toContain('1 recorrente');
     expect(el.textContent).toContain('1 no celular');
+    expect(el.querySelector('[aria-label^="Abrir uma OS para os problemas de"]')).not.toBeNull();
+  });
+
+  it('por problema mostra item a item, com as ações de cada um', async () => {
+    localStorage.setItem('frota-checklist-pendencias-agrupamento', 'problema');
+    const { el } = await abrir();
+    expect(el.textContent).toContain('Recorrente');
     expect(Array.from(el.querySelectorAll('th')).map((th) => th.textContent!.trim())).not.toContain('Decisão');
     expect(el.querySelector('[aria-label="Abrir OS para Faróis — Queimado"]')).not.toBeNull();
     expect(el.querySelector('[aria-label="Descartar Faróis — Queimado"]')).not.toBeNull();
+  });
+
+  it('a base escolhida no topo filtra as pendências e fica guardada', async () => {
+    localStorage.setItem('ces.filtros.compartilhados', JSON.stringify({ 'frota.base': 'b1' }));
+    await abrir();
+    expect(checklist['pendencias']).toHaveBeenCalledWith('ABERTA', ['b1'], expect.anything());
+    expect(checklist['semChecklistHoje']).toHaveBeenCalledWith(['b1']);
   });
 
   it('a aba sem checklist hoje mostra o motivo', async () => {

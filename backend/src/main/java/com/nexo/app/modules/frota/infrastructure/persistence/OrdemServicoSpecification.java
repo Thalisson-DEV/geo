@@ -71,6 +71,10 @@ public final class OrdemServicoSpecification {
                 predicates.add(cb.equal(root.get("situacao"), SituacaoOrdemServico.EM_ANDAMENTO));
                 predicates.add(cb.lessThan(root.get("previsaoTermino"), agora));
             }
+            if (filtro.baixaPendente() != null) {
+                predicates.add(cb.equal(root.get("situacao"), SituacaoOrdemServico.CONCLUIDA));
+                predicates.add(filtro.baixaPendente() ? cb.isNull(root.get("finalizadaEm")) : cb.isNotNull(root.get("finalizadaEm")));
+            }
             if (Boolean.TRUE.equals(filtro.semVeiculo())) {
                 predicates.add(cb.isFalse(root.get("veicular")));
             }

@@ -1,3 +1,4 @@
+import { statusComercial } from './solicitacao-comercial-status';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
@@ -97,7 +98,8 @@ export class SolicitacaoMaterialReportNavigatorDataSource
       title: `${raw.estoqueOrigemNomeIdentificador || 'Origem'} → ${raw.estoqueDestinoNomeIdentificador || 'Destino'}`,
       status: {
         label: STATUS_LABELS[status] || status,
-        tone: STATUS_TONES[status] || 'neutral'
+        tone: STATUS_TONES[status] || 'neutral',
+        icon: statusComercial(status).icon
       },
       metaAuthor: {
         label: 'Requisitante',

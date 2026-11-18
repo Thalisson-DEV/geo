@@ -182,7 +182,7 @@
       </ces-callout>
     } @else if (!c.permiteEscrita && podeEscrever() && !c.usuarioLogin) {
       <ces-callout tone="info" icon="pi pi-info-circle" [dense]="true" class="conexao-aviso">
-        Esta conexão só consulta. Para também cadastrar, {{ c.tipo === 'CHAVE' ? 'gere uma chave nova com a opção Consultar e cadastrar' : 'desconecte e conecte de novo ligando a opção de cadastrar' }}.
+        Esta conexão só consulta. Para também cadastrar e aprovar, {{ c.tipo === 'CHAVE' ? 'gere uma chave nova com a opção Consultar, cadastrar e aprovar' : 'desconecte e conecte de novo ligando a opção de cadastrar e aprovar' }}.
       </ces-callout>
     }
   }

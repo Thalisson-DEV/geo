@@ -1,5 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { DashboardService } from '../../../core/services/dashboard.service';
@@ -74,5 +76,33 @@ describe('TurnoListComponent', () => {
     emTurno.click();
     await new Promise((r) => setTimeout(r));
     expect(dashboard['consultarTurnos']).toHaveBeenLastCalledWith(expect.objectContaining({ status: 'ABERTO', idEquipe: 'q1' }));
+  });
+
+  it('exporta pelo drawer: abre no recorte da lista, conta e manda o formato escolhido sem mexer na tela', async () => {
+    dashboard['exportarTurnos'] = vi.fn(() => of(new HttpResponse<Blob>({ body: null })));
+    const { el, componente } = await abrir('/lista?equipe=q1&abertura=~');
+    const botao = Array.from(el.querySelectorAll('button')).find((b) => b.textContent!.includes('Exportar CSV'));
+    expect(botao).toBeDefined();
+
+    const tela = componente as unknown as {
+      abrirExportacao(): void;
+      mudar(chave: string, valor: unknown): void;
+      exportarCsv(formato: 'resumo' | 'detalhado'): void;
+      totalExportacao(): number | null;
+      lista: { applied(): { status: string | null } };
+    };
+    tela.abrirExportacao();
+    tela.mudar('status', 'FECHADO');
+    dashboard['consultarTurnos'].mockReturnValue(paginaTeste([turno], 45_210));
+    await new Promise((r) => setTimeout(r, 400));
+    expect(dashboard['consultarTurnos']).toHaveBeenLastCalledWith(expect.objectContaining({ idEquipe: 'q1', status: 'FECHADO', page: 0, size: 1 }));
+    expect(tela.totalExportacao()).toBe(45_210);
+
+    tela.exportarCsv('detalhado');
+    const [formato, filtro] = dashboard['exportarTurnos'].mock.lastCall!;
+    expect(formato).toBe('detalhado');
+    expect(filtro).toMatchObject({ idEquipe: 'q1', status: 'FECHADO' });
+    expect(filtro).not.toHaveProperty('page');
+    expect(tela.lista.applied().status).toBeNull();
   });
 });

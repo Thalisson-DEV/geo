@@ -1,0 +1,158 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Estoque e saldos" icon="pi pi-box"
+      [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Estoque e saldos' }]"
+      description="O que vai faltar, o que sobra ou está parado, o que está esquecido com equipes e obras e a sucata a destinar.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (dados(); as d) { <span actions class="dash-updated">Posição às {{ d.e.geradoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="almox-rel-estoque" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-almox-recorte-campos prefixo="ape" />
+        <ces-multiselect label="Tipo de estoque" inputId="ape-tipo" placeholder="Almoxarifado, equipe e obra" [options]="opcoesTipo" [filter]="false"
+          [value]="tiposSel()" (valueChange)="tiposSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Condição" inputId="ape-condicao" placeholder="Novo e sucata" [options]="opcoesCondicao" [filter]="false"
+          [value]="condicoesSel()" (valueChange)="condicoesSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Situação da cobertura" inputId="ape-situacao" placeholder="Todas" [options]="opcoesFaixa" [filter]="false"
+          description="Vale para os almoxarifados." [value]="faixasSel()" (valueChange)="faixasSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Material" inputId="ape-material" placeholder="Todos" [options]="opcoesMaterial()" [virtualScroll]="true"
+          [value]="materiaisSel()" (valueChange)="materiaisSel.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <app-almox-painel-topo [descricao]="dados() ? 'Saldo de agora · ritmo de saída de ' + recorte.descricaoPeriodo({ de: dados()!.mov.de, ate: dados()!.mov.ate }) : ''"
+      (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !modelo()) {
+      <ces-async-state state="loading" title="Lendo a posição do estoque" description="Saldos de almoxarifados, equipes e obras e o ritmo de saída do período."></ces-async-state>
+    } @else if (erro() && !modelo()) {
+      <ces-async-state state="error" title="Não foi possível ler o estoque" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (modelo(); as m) {
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+      @if (m.e.truncado || m.mov.truncado) {
+        <ces-callout tone="info" icon="pi pi-info-circle" title="Recorte grande demais">
+          Há mais registros que o limite de leitura; os números consideram os mais recentes. Filtre por base ou almoxarifado.
+        </ces-callout>
+      }
+
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+      }
+
+      <section class="dash-metrics" aria-label="Risco de falta">
+        <app-dashboard-metric-card label="Em falta" icon="pi-ban" [tone]="m.porFaixa.ruptura.length ? 'red' : 'green'" [value]="inteiro(m.porFaixa.ruptura.length)"
+          detail="Saiu no período e está sem saldo" actionLabel="Ver as faltas" (activate)="analisar('faixa', 'ruptura')">
+          <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'ruptura', rotulo: 'Itens em falta' }" />
+        </app-dashboard-metric-card>
+        <app-dashboard-metric-card label="Acaba em 7 dias" icon="pi-hourglass" [tone]="m.porFaixa.critica.length ? 'red' : 'green'" [value]="inteiro(m.porFaixa.critica.length)"
+          [detail]="inteiro(m.porFaixa.baixa.length) + ' com 7 a 15 dias'" actionLabel="Ver os itens" (activate)="analisar('faixa', 'critica')" />
+        <app-dashboard-metric-card label="Parado" icon="pi-pause-circle" [tone]="m.porFaixa.parado.length ? 'amber' : 'green'" [value]="inteiro(m.porFaixa.parado.length)"
+          [detail]="'Sem saída há mais de ' + diasParado + ' dias'" actionLabel="Ver o parado" (activate)="analisar('faixa', 'parado')" />
+        <app-dashboard-metric-card label="Excesso" icon="pi-database" [tone]="m.porFaixa.excesso.length ? 'amber' : 'slate'" [value]="inteiro(m.porFaixa.excesso.length)"
+          detail="Saldo para mais de 90 dias" actionLabel="Ver o excesso" (activate)="analisar('faixa', 'excesso')" />
+      </section>
+      <section class="dash-metrics" aria-label="Fora do almoxarifado">
+        <app-dashboard-metric-card label="Com as equipes" icon="pi-users" [tone]="m.campoEsquecido.length ? 'amber' : 'slate'" [value]="inteiro(m.campo.length)"
+          [detail]="inteiro(m.campoEsquecido.length) + ' sem movimento há +' + diasEmCampo + ' dias'" actionLabel="Ver com as equipes" (activate)="analisar('kpi', 'campo')" />
+        <app-dashboard-metric-card label="Nas obras" icon="pi-building" tone="slate" [value]="inteiro(m.porObra.length)"
+          [detail]="plural(m.obras.length, 'item em custódia', 'itens em custódia')" actionLabel="Ver as obras" (activate)="analisar('kpi', 'obras')" />
+        <app-dashboard-metric-card label="Sucata retida em campo" icon="pi-trash" [tone]="m.sucataCampo.length ? 'amber' : 'green'" [value]="inteiro(m.sucataCampo.length)"
+          [detail]="inteiro(m.sucataAlmox.length) + ' aguardando baixa no almoxarifado'" actionLabel="Ver a sucata" (activate)="analisar('kpi', 'sucata-campo')" />
+        <app-dashboard-metric-card label="Séries em estoque" icon="pi-qrcode" tone="slate" [value]="inteiro(m.series)"
+          [detail]="inteiro(m.seriesReservadas) + ' reservadas para solicitações'" actionLabel="Ver as séries" (activate)="analisar('kpi', 'series')" />
+      </section>
+
+      <section class="dash-grid" aria-label="Cobertura">
+        <article class="dash-panel dash-col-7">
+          <header class="dash-panel__header">
+            <div><span class="dash-eyebrow">Cobertura</span><h2>Quanto tempo o saldo dura</h2>
+              <p>Itens dos almoxarifados pela cobertura no ritmo de saída do período. Clique numa faixa para ver os itens.</p></div>
+            <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'faixas', rotulo: 'Cobertura do estoque' }" />
+          </header>
+          <ces-chart kind="bar-stacked" title="Itens por situação de cobertura" [showTitle]="false" [selectable]="true" selectLabel="Analisar a situação"
+            [labels]="graficoFaixas().rotulos" [series]="graficoFaixas().series" valueFormat="integer" [height]="300"
+            (pointSelect)="analisarFaixa($event.index)"></ces-chart>
+        </article>
+        <article class="dash-panel dash-col-5">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Onde</span><h2>Saúde por almoxarifado</h2><p>Clique para ver a posição de cada um.</p></div></header>
+          <ces-chart kind="bar-stacked" title="Situação dos itens por almoxarifado" [showTitle]="false" [selectable]="true" selectLabel="Analisar o almoxarifado"
+            [labels]="graficoAlmox().rotulos" [series]="graficoAlmox().series" valueFormat="integer" [height]="300"
+            (pointSelect)="analisarAlmox($event.index)"></ces-chart>
+        </article>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="ape-repor">
+        <header><span class="dash-eyebrow">Repor</span><h2 id="ape-repor">O que vai faltar</h2>
+          <p>Em falta, acabando em 7 dias e com 7 a 15 dias de cobertura. Abra a linha para ver para quem saiu e se outro almoxarifado tem sobra.</p></header>
+        <ces-data-table title="Itens para repor" storageKey="ape-repor" exportFileName="almoxarifado-itens-para-repor"
+          [columns]="colPosicao" [rows]="repor()" [rowKey]="chavePosicao" [rowLabel]="rotuloPosicao" searchPlaceholder="Filtrar código, material ou almoxarifado"
+          rowActionLabel="Analisar" (rowActivate)="analisar('posicao', $event.chave)"
+          [state]="repor().length ? 'ready' : 'empty'" stateTitle="Nada perto de faltar" stateDescription="Todos os itens que giraram têm mais de 15 dias de cobertura.">
+          <ng-template cesCell="faixa" let-p><ces-status [tone]="faixaDe(p).tom" [icon]="faixaDe(p).icone">{{ faixaDe(p).rotulo }}</ces-status></ng-template>
+          </ces-data-table>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="ape-sobra">
+        <header><span class="dash-eyebrow">Sobra</span><h2 id="ape-sobra">O que está parado ou em excesso</h2>
+          <p>Sem saída há mais de {{ diasParado }} dias ou com saldo para mais de 90. Candidatos a remanejamento, devolução ou baixa.</p></header>
+        <ces-data-table title="Parado e excesso" storageKey="ape-sobra" exportFileName="almoxarifado-parado-e-excesso"
+          [columns]="colPosicao" [rows]="sobrando()" [rowKey]="chavePosicao" [rowLabel]="rotuloPosicao" searchPlaceholder="Filtrar código, material ou almoxarifado"
+          rowActionLabel="Analisar" (rowActivate)="analisar('posicao', $event.chave)"
+          [state]="sobrando().length ? 'ready' : 'empty'" stateTitle="Nada parado nem em excesso">
+          <ng-template cesCell="faixa" let-p><ces-status [tone]="faixaDe(p).tom" [icon]="faixaDe(p).icone">{{ faixaDe(p).rotulo }}</ces-status></ng-template>
+          </ces-data-table>
+      </section>
+
+      <section class="dash-grid pf-grid-espaco" aria-label="Fora do almoxarifado">
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Equipes</span><h2>Material em poder das equipes</h2>
+            <p>Itens novos com cada equipe, separando os parados há mais de {{ diasEmCampo }} dias.</p></div></header>
+          <ces-chart kind="bar-stacked" title="Itens com as equipes" [showTitle]="false" [selectable]="true" selectLabel="Analisar a equipe"
+            [labels]="graficoEquipes().rotulos" [series]="graficoEquipes().series" valueFormat="integer" [height]="280"
+            (pointSelect)="analisarEquipe($event.index)"></ces-chart>
+        </article>
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Obras</span><h2>Material em custódia das obras</h2>
+            <p>Itens nos estoques de obra, ainda não aplicados nem devolvidos.</p></div></header>
+          <ces-chart kind="bar-horizontal" title="Itens por obra" [showTitle]="false" [selectable]="true" selectLabel="Analisar a obra"
+            [labels]="graficoObras().rotulos" [series]="graficoObras().series" valueFormat="integer" [height]="280"
+            (pointSelect)="analisarObra($event.index)"></ces-chart>
+        </article>
+      </section>
+
+      @if (m.campoEsquecido.length) {
+        <section class="pf-secao" aria-labelledby="ape-campo">
+          <header><span class="dash-eyebrow">Cobrar</span><h2 id="ape-campo">Esquecido com as equipes</h2>
+            <p>Sem movimento há mais de {{ diasEmCampo }} dias: cobre a aplicação em nota ou a devolução.</p></header>
+          <ces-data-table title="Itens parados com as equipes" storageKey="ape-campo" exportFileName="almoxarifado-esquecido-com-equipes"
+            [columns]="colCampo" [rows]="m.campoEsquecido" [rowKey]="chaveCampo" searchPlaceholder="Filtrar equipe ou material"
+            rowActionLabel="Analisar a equipe" (rowActivate)="analisar('equipe', $event.saldo.idEstoque)"></ces-data-table>
+        </section>
+      }
+
+      <section class="pf-secao" aria-labelledby="ape-posicao">
+        <header><span class="dash-eyebrow">Posição</span><h2 id="ape-posicao">Posição completa dos almoxarifados</h2>
+          <p>Saldo, saída no período, cobertura e situação de cada material em cada almoxarifado.</p></header>
+        <ces-data-table title="Posição por material" storageKey="ape-posicao" exportFileName="almoxarifado-posicao"
+          [columns]="colPosicao" [rows]="m.almox" [rowKey]="chavePosicao" [rowLabel]="rotuloPosicao" searchPlaceholder="Filtrar código, material ou almoxarifado"
+          rowActionLabel="Analisar" (rowActivate)="analisar('posicao', $event.chave)"
+          [state]="m.almox.length ? 'ready' : 'empty'" stateTitle="Nenhum saldo neste recorte">
+          <ng-template cesCell="faixa" let-p><ces-status [tone]="faixaDe(p).tom" [icon]="faixaDe(p).icone">{{ faixaDe(p).rotulo }}</ces-status></ng-template>
+          </ces-data-table>
+      </section>
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

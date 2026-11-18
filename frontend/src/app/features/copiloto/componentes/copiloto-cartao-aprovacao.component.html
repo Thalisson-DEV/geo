@@ -1,0 +1,156 @@
+@let p = previa();
+@if (p) {
+  <section class="cartao" [class.cartao--decidido]="!pendente()" [attr.aria-busy]="ocupado() !== null"
+    [attr.aria-label]="p.titulo + ', ' + selo().texto">
+    <header class="cartao__cabecalho">
+      <span class="cartao__icone" aria-hidden="true"><i class="pi pi-check-square"></i></span>
+      <div class="cartao__titulos">
+        <h3 class="cartao__titulo">{{ p.titulo }}</h3>
+        <p class="cartao__subtitulo">{{ subtitulo() }}</p>
+      </div>
+      <ces-status class="cartao__selo" [tone]="selo().tom" [icon]="selo().icone">{{ selo().texto }}</ces-status>
+    </header>
+
+    @if (pendente()) {
+      <div class="cartao__corpo" [class.cartao__corpo--revisando]="ocupado() === 'revisando'">
+        @if (entram().length) {
+          <ol class="itens" aria-label="Solicitações desta decisão">
+            @for (item of entram(); track item.indice) {
+              <li class="item" [class.item--rejeitar]="item.decisao === 'REJEITAR'">
+                <div class="item__linha">
+                  <span class="item__marca" [attr.aria-label]="item.decisao === 'APROVAR' ? 'Aprovar' : 'Rejeitar'">
+                    <i class="pi" [class.pi-check]="item.decisao === 'APROVAR'" [class.pi-times]="item.decisao === 'REJEITAR'"
+                      aria-hidden="true"></i>
+                  </span>
+                  <div class="item__texto">
+                    <p class="item__titulo">
+                      <span class="item__numero">{{ item.titulo }}</span>
+                      @if (item.fornecedor) {
+                        <span class="item__fornecedor">{{ item.fornecedor }}</span>
+                      }
+                    </p>
+                    @if (detalhes(item); as d) {
+                      <p class="item__detalhe">{{ d }}</p>
+                    }
+                    @if (item.descricao) {
+                      <p class="item__descricao">{{ item.descricao }}</p>
+                    }
+                  </div>
+                  <div class="item__valor">
+                    @if (parcial(item)) {
+                      <strong>{{ moeda(item.valorAprovado) }}</strong>
+                      <span class="item__pedido">de {{ moeda(item.valor) }}</span>
+                    } @else {
+                      <strong>{{ moeda(item.valor) }}</strong>
+                    }
+                    <span class="item__acao">{{ item.decisao === 'APROVAR' ? 'Aprovar' : 'Rejeitar' }}</span>
+                  </div>
+                  <div class="item__botoes">
+                    <ces-icon-button [icon]="item.decisao === 'APROVAR' ? 'pi pi-times' : 'pi pi-check'" size="icon-sm"
+                      [label]="(item.decisao === 'APROVAR' ? 'Rejeitar ' : 'Aprovar ') + item.titulo + ' em vez disso'"
+                      [disabled]="ocupado() !== null" (pressed)="trocarDecisao(item)"></ces-icon-button>
+                    @if (item.caminho) {
+                      <ces-icon-button icon="pi pi-arrow-up-right" size="icon-sm" [label]="'Abrir ' + item.titulo"
+                        [disabled]="ocupado() !== null" (pressed)="abrir(item.caminho)"></ces-icon-button>
+                    }
+                    <ces-icon-button icon="pi pi-trash" size="icon-sm" [label]="'Tirar ' + item.titulo + ' da decisão'"
+                      [disabled]="ocupado() !== null" (pressed)="tirar(item)"></ces-icon-button>
+                  </div>
+                </div>
+                @if (item.decisao === 'REJEITAR') {
+                  <div class="item__motivo">
+                    <ces-textarea label="Motivo da rejeição" [inputId]="'motivo-' + p.chave + '-' + item.indice" [required]="true"
+                      [rows]="2" [autoResize]="true" [value]="motivo(item)" (valueChange)="digitarMotivo(item, $event)"
+                      [disabled]="ocupado() === 'confirmando'" [error]="motivos()[item.indice]?.trim() ? undefined : item.falta"
+                      description="Quem pediu vê este motivo."></ces-textarea>
+                  </div>
+                } @else if (item.observacao) {
+                  <p class="item__observacao"><i class="pi pi-comment" aria-hidden="true"></i> {{ item.observacao }}</p>
+                }
+              </li>
+            }
+          </ol>
+        }
+
+        @if (fora().length) {
+          <div class="fora" role="note">
+            <p class="fora__titulo"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+              {{ fora().length === 1 ? 'Ficou de fora desta decisão' : 'Ficaram de fora desta decisão' }}</p>
+            <ul class="fora__lista">
+              @for (item of fora(); track item.indice) {
+                <li class="fora__item">
+                  <span class="fora__nome">{{ item.titulo }}@if (item.fornecedor) { · {{ item.fornecedor }} }</span>
+                  <span class="fora__motivo">{{ item.problema }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      @if (erro()) {
+        <ces-callout tone="danger" icon="pi-exclamation-triangle" [dense]="true" title="Não foi possível concluir">{{ erro() }}</ces-callout>
+      }
+
+      <footer class="cartao__rodape">
+        <p class="cartao__resumo" aria-live="polite">
+          @if (ocupado() === 'revisando') {
+            <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Conferindo...
+          } @else {
+            {{ resumo() }}
+          }
+        </p>
+        <div class="cartao__botoes">
+          <ces-button variant="ghost" size="sm" label="Cancelar" [disabled]="ocupado() !== null"
+            [loading]="ocupado() === 'cancelando'" (pressed)="cancelar()"></ces-button>
+          <ces-button variant="primary" size="sm" icon="pi pi-check" [label]="rotuloConfirmar()"
+            [disabled]="!entram().length || faltam() > 0 || (ocupado() !== null && ocupado() !== 'confirmando')"
+            [loading]="ocupado() === 'confirmando'" (pressed)="confirmar()"></ces-button>
+        </div>
+      </footer>
+    } @else {
+      <div class="desfecho">
+        @switch (status()) {
+          @case ('REJEITADA') {
+            <p class="desfecho__texto">Cancelado. Nenhuma solicitação foi aprovada ou rejeitada.</p>
+          }
+          @case ('EXPIRADA') {
+            <p class="desfecho__texto">Substituído por um cartão mais recente ou expirado sem confirmação. Nada foi decidido.</p>
+          }
+          @default {
+            <ul class="desfecho__lista" aria-label="O que foi decidido">
+              @for (item of decididos(); track item.indice) {
+                <li class="desfecho__item" [class.desfecho__item--falha]="item.status === 'FALHOU'">
+                  <i class="pi" aria-hidden="true"
+                    [class.pi-check-circle]="item.status === 'APROVADA'"
+                    [class.pi-times-circle]="item.status !== 'APROVADA'"
+                    [class.desfecho__ok]="item.status === 'APROVADA'"
+                    [class.desfecho__rejeitada]="item.status === 'REJEITADA'"
+                    [class.desfecho__falha]="item.status === 'FALHOU'"></i>
+                  <span class="desfecho__nome">{{ item.titulo }}@if (item.fornecedor) { · {{ item.fornecedor }} }</span>
+                  <span class="desfecho__valor">{{ moeda(item.valor) }}</span>
+                  <span class="desfecho__status">{{ rotuloStatus(item) }}</span>
+                  @if (item.caminho) {
+                    <ces-button variant="link" size="sm" icon="pi pi-arrow-up-right" iconPosition="right" label="Abrir"
+                      [ariaLabel]="'Abrir ' + item.titulo" (pressed)="abrir(item.caminho)"></ces-button>
+                  }
+                  @if (item.mensagem) {
+                    <span class="desfecho__motivo">{{ item.mensagem }}</span>
+                  }
+                </li>
+              }
+              @for (item of foraDoResultado(); track item.indice) {
+                <li class="desfecho__item desfecho__item--fora">
+                  <i class="pi pi-minus-circle desfecho__fora" aria-hidden="true"></i>
+                  <span class="desfecho__nome">{{ item.titulo }}</span>
+                  <span class="desfecho__status">Ficou de fora</span>
+                  <span class="desfecho__motivo desfecho__motivo--fora">{{ item.mensagem }}</span>
+                </li>
+              }
+            </ul>
+          }
+        }
+      </div>
+    }
+  </section>
+}

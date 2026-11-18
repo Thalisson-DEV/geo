@@ -4,6 +4,8 @@ import com.nexo.app.modules.obras.application.dto.*;
 import com.nexo.app.modules.obras.application.mappers.ObraMapper;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.StatusObra;
+import com.nexo.app.modules.obras.domain.ControleExecucaoObra;
+import com.nexo.app.modules.obras.domain.TipoDeObra;
 import com.nexo.app.modules.obras.domain.TipoObra;
 import com.nexo.app.modules.obras.domain.TipoVinculoSubprojeto;
 import com.nexo.app.modules.obras.domain.TipoVinculoProjeto;
@@ -63,6 +65,9 @@ class ObraUseCasesTest {
     @Mock
     private RelacionamentoProjetoUseCases relacionamentoProjetoUseCases;
 
+    @Mock
+    private TipoDeObraUseCases tipoDeObraUseCases;
+
     private NormalizadorObraService normalizador;
     private ObraUseCases useCases;
 
@@ -72,6 +77,7 @@ class ObraUseCasesTest {
         useCases = new ObraUseCases(
                 repository,
                 statusUseCases,
+                tipoDeObraUseCases,
                 agenteUseCases,
                 normalizador,
                 processoNegocioApi,
@@ -83,6 +89,8 @@ class ObraUseCasesTest {
                 mapper,
                 relacionamentoProjetoUseCases
         );
+        lenient().when(tipoDeObraUseCases.resolver(any(), any(), any()))
+                .thenReturn(new TipoDeObra("COMUM", null, ControleExecucaoObra.OBRA, false));
     }
 
     @Test
@@ -129,6 +137,7 @@ class ObraUseCasesTest {
 
         ObraResponse mockResponse = new ObraResponse(
                 UUID.randomUUID(), "1228694", "REDE PEDAGOGICA REMANSO (CONCESSIONARIA)", TipoObra.OBRA,
+                null, null, ControleExecucaoObra.OBRA, false,
                 "Descricao", "9101923953", new BigDecimal("150000.00"),
                 LocalDate.of(2025, 11, 3), LocalDate.of(2025, 11, 30), null,
                 -9.439007, -41.968228,

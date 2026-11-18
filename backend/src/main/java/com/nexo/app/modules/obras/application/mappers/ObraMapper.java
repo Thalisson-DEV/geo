@@ -19,6 +19,10 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ObraMapper {
 
+    @Mapping(target = "tipoObraId", source = "obra.tipoDeObra.id")
+    @Mapping(target = "tipoObraNome", source = "obra.tipoDeObra.nome")
+    @Mapping(target = "controleExecucao", expression = "java(obra.controleExecucao())")
+    @Mapping(target = "tipoObraSubtipo", expression = "java(obra.getTipoDeObra() != null && obra.getTipoDeObra().isSubtipo())")
     @Mapping(target = "statusId", source = "obra.statusObra.id")
     @Mapping(target = "statusNome", source = "obra.statusObra.nome")
     @Mapping(target = "statusConcluida", source = "obra.statusObra.concluida")
@@ -49,6 +53,10 @@ public interface ObraMapper {
                             String supervisorNome, String coordenadorNome,
                             List<ProjetoRelacionadoResponse> projetosRelacionados);
 
+    @Mapping(target = "tipoObraId", source = "obra.tipoDeObra.id")
+    @Mapping(target = "tipoObraNome", source = "obra.tipoDeObra.nome")
+    @Mapping(target = "controleExecucao", expression = "java(obra.controleExecucao())")
+    @Mapping(target = "tipoObraSubtipo", expression = "java(obra.getTipoDeObra() != null && obra.getTipoDeObra().isSubtipo())")
     @Mapping(target = "statusId", source = "obra.statusObra.id")
     @Mapping(target = "statusNome", source = "obra.statusObra.nome")
     @Mapping(target = "statusConcluida", source = "obra.statusObra.concluida")

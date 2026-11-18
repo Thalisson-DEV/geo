@@ -16,6 +16,9 @@ public interface SupervisorRepository extends JpaRepository<Supervisor, UUID>, J
 
     boolean existsByColaboradorIdAndAtivoTrue(UUID idColaborador);
 
+    @Query("select s.id from Supervisor s where s.coordenador.id = :idCoordenador")
+    java.util.List<UUID> findIdsByCoordenadorId(@Param("idCoordenador") UUID idCoordenador);
+
     boolean existsByColaboradorIdAndCoordenadorIdAndAtivoTrue(UUID idColaborador, UUID idCoordenador);
 
     boolean existsByColaboradorIdAndAtivoTrueAndIdNot(UUID idColaborador, UUID id);

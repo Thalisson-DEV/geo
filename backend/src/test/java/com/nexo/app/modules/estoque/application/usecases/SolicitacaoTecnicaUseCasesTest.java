@@ -47,6 +47,7 @@ class SolicitacaoTecnicaUseCasesTest {
     @Mock private EstoqueObraProvisioningService estoqueObraProvisioningService;
     @Mock private EstoqueRepository estoqueRepository;
     @Mock private MaterialRepository materialRepository;
+    @Mock private com.nexo.app.modules.estoque.application.services.ProcessoMaterialService processoMaterial;
     @Mock private SolicitacaoMaterialRepository solicitacaoRepository;
     @Mock private ItemSolicitacaoRepository itemRepository;
     @Mock private GravadorEventoSolicitacaoService gravadorEvento;

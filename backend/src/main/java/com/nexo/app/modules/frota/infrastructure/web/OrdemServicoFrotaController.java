@@ -2,6 +2,7 @@ package com.nexo.app.modules.frota.infrastructure.web;
 
 import com.nexo.app.modules.frota.application.dto.AbrirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.AgendarOrdemServicoRequest;
+import com.nexo.app.modules.frota.application.dto.BaixaOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.ConcluirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.EditarOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.FornecedorFrotaResponse;
@@ -115,6 +116,22 @@ public class OrdemServicoFrotaController implements OrdemServicoFrotaControllerD
     public ResponseEntity<OrdemServicoDetalheResponse> concluir(@PathVariable UUID id,
                                                                 @Valid @RequestBody ConcluirOrdemServicoRequest request) {
         return ResponseEntity.ok(ordens.concluir(id, request));
+    }
+
+    @Override
+    @PostMapping("/{id}/baixa")
+    @PreAuthorize(EXECUCAO)
+    public ResponseEntity<OrdemServicoDetalheResponse> completarConclusao(@PathVariable UUID id,
+                                                                @Valid @RequestBody BaixaOrdemServicoRequest request) {
+        return ResponseEntity.ok(ordens.completarConclusao(id, request));
+    }
+
+    @Override
+    @PostMapping("/{id}/reabertura")
+    @PreAuthorize(EXECUCAO)
+    public ResponseEntity<OrdemServicoDetalheResponse> reabrir(@PathVariable UUID id,
+                                                               @Valid @RequestBody JustificativaRequest request) {
+        return ResponseEntity.ok(ordens.reabrir(id, request.justificativa()));
     }
 
     @Override

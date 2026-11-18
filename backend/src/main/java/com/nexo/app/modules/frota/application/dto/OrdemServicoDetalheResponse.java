@@ -22,7 +22,13 @@ public record OrdemServicoDetalheResponse(
         /** Planos preventivos que a OS cobre, com o roteiro de inspeção copiado na abertura. */
         List<PreventivaOrdemServicoResponse> preventivas,
         /** Sinistro que abriu a OS de reparo (origem SINISTRO); nulo nas demais. */
-        SinistroDaOrdem sinistro
+        SinistroDaOrdem sinistro,
+        /**
+         * O que falta para a OS ficar finalizada (valor de serviço ou peça, valor da OS, causa e
+         * serviço realizado). Na concluída, não vazia = valores pendentes; na aberta, é o que vai
+         * ficar pendente se concluir agora.
+         */
+        List<String> pendencias
 ) {
     public record SinistroDaOrdem(java.util.UUID id, Long numero, String tipo, String situacao) {
     }

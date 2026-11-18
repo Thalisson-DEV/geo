@@ -10,6 +10,9 @@ import { OutboxService } from './outbox.service';
 import { TurnoService } from '../turno/turno.service';
 import { ExecucoesService, EXECUCAO_ALTERAR_ENDPOINT, EXECUCAO_LANCAR_ENDPOINT } from '../campo/execucoes.service';
 import { silentContext } from '../http/http-context';
+import { CHECKLIST_LANCAR_ENDPOINT, ChecklistVeiculoService } from '../frota/checklist-veiculo.service';
+import { DocumentosVeiculoService } from '../frota/documentos-veiculo.service';
+import { ABASTECIMENTO_ENDPOINT, AbastecimentoService } from '../frota/abastecimento.service';
 import { BaseOperacionalService } from '../sst/base-operacional.service';
 import {
   EquipeLocal,
@@ -58,6 +61,27 @@ const SEM_EVIDENCIA_DETALHE =
  * seria tratada como envio de inspeção com resultado incerto.
  */
 const FASE_EVIDENCIA = '__faseEvidenciaInspecao';
+
+/** Espera usada quando o 429 não diz quanto aguardar. */
+const ESPERA_PADRAO_LIMITE_MS = 30_000;
+export const RETOMADA_SEM_REDE_BASE_MS = 15_000;
+export const RETOMADA_SEM_REDE_MAX_MS = 5 * 60_000;
+
+/**
+ * Quanto o servidor pediu para esperar num 429, em milissegundos. Vem em `retryAfter` no
+ * corpo (já normalizado pelo errorInterceptor) ou no header `Retry-After` da resposta crua.
+ * O teto de 15 minutos protege contra um valor absurdo travar a fila.
+ */
+export function esperaPedidaMs(error: unknown): number | undefined {
+  const e = error as {
+    retryAfter?: unknown;
+    error?: { retryAfter?: unknown } | null;
+    headers?: { get?: (nome: string) => string | null };
+  } | null;
+  const bruto = e?.retryAfter ?? e?.error?.retryAfter ?? e?.headers?.get?.('Retry-After');
+  const segundos = Number(bruto);
+  return Number.isFinite(segundos) && segundos > 0 ? Math.min(segundos, 15 * 60) * 1000 : undefined;
+}
 
 interface PageResponse<T> {
   content: T[];
@@ -108,6 +132,19 @@ export const TRAVA_FILA = new InjectionToken<ExecutorComTrava>('TRAVA_FILA', {
   },
 });
 
+/**
+ * IDs dos membros com vínculo ativo, sem repetição. A API da equipe devolve o
+ * histórico de vínculos: cada troca de responsável encerra o vínculo antigo e
+ * cria outro para a mesma pessoa, então sem o filtro ela aparece duas vezes.
+ */
+export function idsMembrosAtivos(membros: any[] | null | undefined): string[] {
+  const ids = (membros ?? [])
+    .filter((m: any) => m?.vinculoAtivo !== false)
+    .map((m: any) => m.idColaborador || m.id)
+    .filter(Boolean);
+  return [...new Set<string>(ids)];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -120,6 +157,9 @@ export class SyncService {
   private readonly execucoesService = inject(ExecucoesService);
   private readonly turnoService = inject(TurnoService);
   private readonly baseOperacionalService = inject(BaseOperacionalService);
+  private readonly checklistVeiculo = inject(ChecklistVeiculoService);
+  private readonly documentosVeiculo = inject(DocumentosVeiculoService);
+  private readonly abastecimento = inject(AbastecimentoService);
 
   readonly isSyncing = signal(false);
   readonly lastSyncAt = signal<Date | null>(null);
@@ -283,6 +323,13 @@ export class SyncService {
       await this.runStep('Municípios e bases', 'map-pin', () => this.syncMunicipios(), falhas);
       await this.runStep('Frota de veículos', 'truck', () => this.syncVeiculos(), falhas);
       await this.runStep('Catálogo de processos', 'clipboard-list', () => this.syncProcessos(), falhas);
+      // Todo usuário do app preenche o checklist do veículo (campo e administrativo).
+      await this.runStep('Checklist do veículo', 'clipboard-check', () => this.checklistVeiculo.sincronizarCatalogo(), falhas);
+      // Documentos do veículo (CRLV, tacógrafo) guardados para a fiscalização sem sinal; em segundo
+      // plano, porque arquivo grande não pode segurar a sincronização nem virar falha dela.
+      void this.documentosVeiculo.guardarDoMeuVeiculo().catch(() => undefined);
+      // Abastecimento também é de todo usuário do app: postos, produtos e a situação dos pedidos.
+      await this.runStep('Abastecimento', 'truck', () => this.abastecimento.sincronizarCatalogo(), falhas);
 
       if (this.authService.podeAcessarInspecoes()) {
         await this.runStep('Bases operacionais', 'map-pin', async () => {
@@ -376,6 +423,11 @@ export class SyncService {
     };
   }
 
+  /** Há token e a sessão não foi encerrada: só assim vale a pena enviar a fila. */
+  private sessaoAtiva(): boolean {
+    return !!this.tokenService.token() && !this.tokenService.reautenticacaoNecessaria();
+  }
+
   private extrairStatus(error: unknown): number | undefined {
     return (error as { status?: number } | null)?.status;
   }
@@ -436,7 +488,7 @@ export class SyncService {
       idBaseOperacional: equipeData.baseOperacional?.id,
       nomeBaseOperacional: equipeData.baseOperacional?.nome,
       idVeiculo: equipeData.veiculo?.id,
-      membrosIds: equipeData.membros?.map((m: any) => m.idColaborador || m.id) || [],
+      membrosIds: idsMembrosAtivos(equipeData.membros),
       metaFaturamentoMensal: equipeData.metaFaturamentoMensal != null ? Number(equipeData.metaFaturamentoMensal) : null,
       metaFaturamentoDiaria: equipeData.metaFaturamentoDiaria != null ? Number(equipeData.metaFaturamentoDiaria) : null
     };
@@ -475,7 +527,7 @@ export class SyncService {
       idBaseOperacional: e.baseOperacional?.id,
       nomeBaseOperacional: e.baseOperacional?.nome,
       idVeiculo: e.veiculo?.id,
-      membrosIds: e.membros?.map((m: any) => m.idColaborador || m.id) || []
+      membrosIds: idsMembrosAtivos(e.membros)
     }));
     await this.dbService.replaceEquipes(equipesLocais);
   }
@@ -546,6 +598,31 @@ export class SyncService {
         void this.syncOutbox().catch(() => {});
       }
     }, Math.max(0, proximo - Date.now()) + 50);
+  }
+
+  private retomadaSemRede: ReturnType<typeof setTimeout> | null = null;
+  private rodadasSemRede = 0;
+
+  /**
+   * Depois de uma rodada que falhou por rede, agenda outra com espera crescente
+   * (15 s, 30 s, 1 min… até 5 min). Não usa `proximaTentativaEm` de propósito:
+   * o item continua elegível para "Sincronizar agora" e para a volta da rede.
+   */
+  private agendarRetomadaSemRede(falhouPorRede: boolean): void {
+    if (this.retomadaSemRede) clearTimeout(this.retomadaSemRede);
+    this.retomadaSemRede = null;
+    if (!falhouPorRede) {
+      this.rodadasSemRede = 0;
+      return;
+    }
+    this.rodadasSemRede++;
+    const espera = Math.min(RETOMADA_SEM_REDE_MAX_MS, RETOMADA_SEM_REDE_BASE_MS * 2 ** (this.rodadasSemRede - 1));
+    this.retomadaSemRede = setTimeout(() => {
+      this.retomadaSemRede = null;
+      if (this.tokenService.token() && !this.tokenService.reautenticacaoNecessaria()) {
+        void this.syncOutbox().catch(() => {});
+      }
+    }, espera);
   }
 
   private async registrarOperacaoParaBackoffice(item: OutboxItem, motivo: string): Promise<boolean> {
@@ -649,6 +726,17 @@ export class SyncService {
     const processados = new Set<string>();
     let sincronizados = 0;
     let erros = 0;
+    // 429: o servidor pediu para esperar. Os demais itens ficam para a próxima rodada,
+    // que o despertador agenda pelo prazo do item adiado.
+    let limiteDoServidor = false;
+    // Falha por rede não muda `isOnline` quando o aparelho tem sinal sem internet
+    // (navigator.onLine mente): sem uma nova rodada agendada, o item ficava parado
+    // até alguém tocar em "Sincronizar".
+    let falhouPorRede = false;
+    // A pessoa saiu da conta (ou a sessão caiu) no meio do envio: sem token o servidor
+    // responde 403 a tudo, e cada item virava erro definitivo de "perfil de acesso".
+    // Isso já prendeu notas de uma equipe na fila. A fila para e espera o próximo login.
+    let semSessao = false;
 
     try {
       for (const item of await this.outboxService.getErrorItems()) {
@@ -683,6 +771,10 @@ export class SyncService {
         if (pendingItems.length === 0) break;
 
         for (const listado of pendingItems) {
+          if (!this.sessaoAtiva()) {
+            semSessao = true;
+            break;
+          }
           processados.add(listado.id);
           // A lista foi lida antes: o item pode ter sido corrigido ou descartado desde
           // então. Reivindicar relê e trava a correção, para nunca enviar uma versão
@@ -700,6 +792,10 @@ export class SyncService {
               await this.processarInspecaoLancamento(item);
             } else if (item.endpoint === INSPECAO_ANEXO_ENDPOINT) {
               await this.processarAnexoInspecao(item);
+            } else if (item.endpoint === CHECKLIST_LANCAR_ENDPOINT) {
+              await this.checklistVeiculo.processarEnvio(item);
+            } else if (item.endpoint === ABASTECIMENTO_ENDPOINT) {
+              await this.abastecimento.processarEnvio(item);
             } else if (item.endpoint?.includes('eventos')) {
               // Itens legados de eventos de turno nunca são descartados: o payload
               // original precisa permanecer disponível para o tratamento administrativo.
@@ -792,6 +888,18 @@ export class SyncService {
               : false;
             if (reconciliado) continue;
 
+            if (status === 429) {
+              // Limite de envios: o servidor recusou antes de gravar qualquer coisa. Não é erro
+              // do lançamento nem conta como tentativa; o item volta sozinho depois da espera.
+              await this.outboxService.updateStatus(item.id, 'PENDENTE',
+                'Muitos envios em pouco tempo. O app tenta de novo sozinho em instantes.');
+              await this.outboxService.adiarPor(item.id, esperaPedidaMs(error) ?? ESPERA_PADRAO_LIMITE_MS);
+              limiteDoServidor = true;
+              break;
+            }
+
+            if (isNetworkOrTimeout) falhouPorRede = true;
+
             if (isNetworkOrTimeout && item.endpoint === INSPECAO_LANCAR_ENDPOINT
               && !falhouAntesDoLancamento) {
               await this.outboxService.incrementAttempt(item.id);
@@ -816,6 +924,10 @@ export class SyncService {
             } else if (status === 401) {
               await this.outboxService.updateStatus(item.id, 'PENDENTE', 'Entre novamente com a mesma conta para sincronizar.');
               throw error;
+            } else if (status === 403 && !this.sessaoAtiva()) {
+              await this.outboxService.updateStatus(item.id, 'PENDENTE', 'Entre novamente com a mesma conta para sincronizar.');
+              semSessao = true;
+              break;
             } else if (status === 403) {
               // Sem permissão para esta operação: reenviar não resolve. O item fica
               // retido com uma mensagem acionável em vez de tentar 5 vezes em vão.
@@ -845,18 +957,20 @@ export class SyncService {
             }
           }
         }
+        if (limiteDoServidor || semSessao) break;
       }
 
       // Reconciliação operacional bidirecional simplificada.
       // Só faz sentido quando o chamador não vai puxar os dados logo em seguida.
       const online = typeof navigator === 'undefined' || navigator.onLine;
-      if (reconciliar && online) {
+      if (reconciliar && online && !semSessao) {
         await this.pullParcialData();
       }
     } finally {
       this.outboxSyncVersion.update(v => v + 1);
     }
 
+    this.agendarRetomadaSemRede(falhouPorRede);
     return { sincronizados, erros, falhas: [] };
   }
 
@@ -1020,7 +1134,10 @@ export class SyncService {
       codigo: m.codigo,
       descricao: m.descricao,
       unidadeMedida: m.unidadeMedida,
-      detalhaSerie: m.detalhaSerie
+      detalhaSerie: m.detalhaSerie,
+      equivalencias: (m.equivalencias ?? []).map((e: any) => ({
+        unidade: e.unidade, quantidadeUnidade: Number(e.quantidadeUnidade), quantidadeBase: Number(e.quantidadeBase)
+      }))
     }));
     await this.dbService.replaceMateriais(local);
   }
@@ -1243,7 +1360,8 @@ export class SyncService {
         numSerie: m.numSerie,
         // O servidor não devolve a condição: aplicado sai como novo e retirado volta como sucata.
         condicao: m.condicao ?? (m.operacao === 'APLICADO' ? 'NOVO' : 'SUCATA'),
-        origem: m.origem ?? 'EQUIPE'
+        origem: m.origem ?? 'EQUIPE',
+        ...(m.unidadeInformada ? { quantidadeInformada: Number(m.quantidadeInformada), unidadeInformada: m.unidadeInformada } : {})
       } as ExecucaoMaterialLocal)),
       statusSync: 'SINCRONIZADO',
       valorTotalFaturado: item.valorTotalFaturado,

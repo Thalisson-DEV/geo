@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -52,7 +53,8 @@ public class LiberacaoCnhFrotaController implements LiberacaoCnhFrotaControllerD
     @Override
     @GetMapping("/v1/frota/liberacoes-cnh")
     @PreAuthorize(LEITURA)
-    public ResponseEntity<PageResponse<LiberacaoCnhResponse>> listar(@ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(useCases.listar(pageable));
+    public ResponseEntity<PageResponse<LiberacaoCnhResponse>> listar(@RequestParam(required = false) List<UUID> idsBase,
+                                                                     @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(useCases.listar(idsBase, pageable));
     }
 }

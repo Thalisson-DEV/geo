@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { contagemSlaClass, contagemSlaLabel, prazoClass, prazoIcon } from './chamados-ui';
+import {
+  contagemSlaClass,
+  contagemSlaLabel,
+  contagemSlaTom,
+  prazoClass,
+  prazoIcon,
+  prazoLabel,
+  prazoTom,
+  prioridadeClass
+} from './chamados-ui';
 
 describe('chamados-ui SLA helpers', () => {
   describe('contagemSlaLabel', () => {
@@ -90,7 +99,7 @@ describe('chamados-ui SLA helpers', () => {
           slaResolucaoVencido: false,
           slaPausado: false
         })
-      ).toContain('!text-emerald-600');
+      ).toBe('!text-[var(--ces-success-text)]');
     });
 
     it('deve retornar classe de erro para resolvido/fechado fora do prazo', () => {
@@ -100,7 +109,7 @@ describe('chamados-ui SLA helpers', () => {
           slaResolucaoVencido: true,
           slaPausado: false
         })
-      ).toContain('!text-red-600');
+      ).toBe('!text-[var(--ces-danger-text)]');
     });
 
     it('deve retornar classe neutra para cancelado', () => {
@@ -110,7 +119,7 @@ describe('chamados-ui SLA helpers', () => {
           slaResolucaoVencido: false,
           slaPausado: false
         })
-      ).toContain('!text-slate-500');
+      ).toBe('!text-[var(--ces-foreground-muted)]');
     });
   });
 
@@ -122,7 +131,7 @@ describe('chamados-ui SLA helpers', () => {
         slaPausado: false,
         dataLimiteResolucao: new Date(Date.now() - 3600000).toISOString()
       };
-      expect(prazoClass(chamado)).toContain('text-slate-500');
+      expect(prazoClass(chamado)).toBe('text-[var(--ces-foreground-muted)] bg-[var(--ces-surface-muted)]');
       expect(prazoIcon(chamado)).toBe('pi pi-times-circle');
     });
 
@@ -133,7 +142,7 @@ describe('chamados-ui SLA helpers', () => {
         slaPausado: false,
         dataLimiteResolucao: new Date(Date.now() - 3600000).toISOString()
       };
-      expect(prazoClass(chamado)).toContain('text-emerald-700');
+      expect(prazoClass(chamado)).toBe('text-[var(--ces-success-text)] bg-[var(--ces-success-soft)]');
       expect(prazoIcon(chamado)).toBe('pi pi-check-circle');
     });
 
@@ -144,8 +153,43 @@ describe('chamados-ui SLA helpers', () => {
         slaPausado: false,
         dataLimiteResolucao: new Date(Date.now() - 3600000).toISOString()
       };
-      expect(prazoClass(chamado)).toContain('text-red-700');
+      expect(prazoClass(chamado)).toBe('text-[var(--ces-danger-text)] bg-[var(--ces-danger-soft)]');
       expect(prazoIcon(chamado)).toBe('pi pi-exclamation-circle');
     });
+  });
+
+  describe('situação do prazo em curso', () => {
+    const emCurso = (horas: number, extra: Partial<{ slaPausado: boolean; slaResolucaoVencido: boolean }> = {}) => ({
+      status: 'EM_ATENDIMENTO' as const,
+      slaResolucaoVencido: false,
+      slaPausado: false,
+      dataLimiteResolucao: new Date(Date.now() + horas * 3_600_000).toISOString(),
+      ...extra
+    });
+
+    it('distingue "no prazo" e "vence em breve" por tom, ícone e texto', () => {
+      expect([prazoTom(emCurso(10)), prazoIcon(emCurso(10)), prazoLabel(emCurso(10))]).toEqual(['success', 'pi pi-clock', 'No prazo']);
+      expect([prazoTom(emCurso(2)), prazoIcon(emCurso(2)), prazoLabel(emCurso(2))]).toEqual(['warning', 'pi pi-hourglass', 'Vence em breve']);
+    });
+
+    it('vencido prevalece sobre pausado no prazo; pausado prevalece na contagem', () => {
+      const chamado = emCurso(-1, { slaResolucaoVencido: true, slaPausado: true });
+      expect([prazoTom(chamado), prazoLabel(chamado)]).toEqual(['danger', 'Vencido']);
+      expect([contagemSlaTom(chamado), contagemSlaLabel(chamado)]).toEqual(['neutral', 'Pausada']);
+    });
+
+    it('pausado sem vencimento fica neutro com ícone de pausa', () => {
+      const chamado = emCurso(1, { slaPausado: true });
+      expect([prazoTom(chamado), prazoIcon(chamado), prazoLabel(chamado)]).toEqual(['neutral', 'pi pi-pause-circle', 'Pausado']);
+    });
+
+    it('prazoIcon segue aceitando chamados sem a data limite', () => {
+      expect(prazoIcon({ status: 'ABERTO', slaResolucaoVencido: false, slaPausado: false })).toBe('pi pi-clock');
+    });
+  });
+
+  it('prioridadeClass usa tokens semânticos (sem paleta fixa)', () => {
+    expect(prioridadeClass('CRITICA')).toBe('text-[var(--ces-danger-text)] bg-[var(--ces-danger-soft)]');
+    expect(prioridadeClass('BAIXA')).toBe('text-[var(--ces-foreground-muted)] bg-[var(--ces-surface-muted)]');
   });
 });

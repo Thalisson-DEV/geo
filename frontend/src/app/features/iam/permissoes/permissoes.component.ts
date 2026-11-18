@@ -130,7 +130,7 @@ function separar(p: PermissaoResponse): PermissaoLinha {
           <code class="ces-cell-strong">{{ row.nome }}</code>
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo !== false ? 'success' : 'neutral'" [emphasis]="row.ativo !== false ? 'soft' : 'outline'">
+          <ces-status [tone]="row.ativo !== false ? 'success' : 'neutral'" [emphasis]="row.ativo !== false ? 'soft' : 'outline'" [icon]="row.ativo !== false ? 'pi pi-check-circle' : 'pi pi-ban'">
             {{ row.ativo !== false ? 'Ativa' : 'Inativa' }}
           </ces-status>
         </ng-template>

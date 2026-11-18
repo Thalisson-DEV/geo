@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CesAutocompleteComponent,
+  CesButtonComponent,
   CesBooleanControlComponent,
   CesCellDirective,
   CesDataTableColumn,
@@ -11,16 +13,18 @@ import {
   CesFilterPanelComponent,
   CesIconButtonComponent,
   CesListShortcutsDirective,
+  CesMultiSelectComponent,
   CesPageHeaderComponent,
   CesRowActionsDirective,
   CesSelectComponent,
   CesSelectOption,
   CesStatusComponent,
   CesTextInputComponent,
+  NotificationService,
   cesFilter,
   cesListState
 } from '@ces/ui';
-import { map } from 'rxjs';
+import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
 
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../core/lookup/store/remote-lookup';
@@ -39,10 +43,15 @@ import { ContratoService } from '../../../core/services/contrato.service';
 import { ExecucaoService } from '../../../core/services/execucao.service';
 import { AuditDialogComponent } from '../../../shared/components/audit-dialog/audit-dialog.component';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
-import { LIMITE_EXPORTACAO, dataIso, dataLocal } from '../../../shared/listagem/listagem';
+import { baixarCsv, mensagemDoErroDeExportacao } from '../../../shared/listagem/exportacao-csv';
+import { ExportacaoCsvDrawerComponent, FormatoExportacao } from '../../../shared/listagem/exportacao-csv-drawer.component';
+import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { RecorteDashboardService } from '../dashboards/recorte-dashboard.service';
 import { STATUS_EXECUCAO } from './execucao-list.utils';
 import { NumeroOficialDialogComponent } from './numero-oficial-dialog.component';
+
+/** As notas exportam bem mais que o padrão das listagens: o mês inteiro cabe numa planilha. */
+const LIMITE_EXPORTACAO_NOTAS = 30_000;
 
 const STATUS: CesSelectOption<StatusExecucao | null>[] = [
   { label: 'Todos', value: null },
@@ -83,6 +92,7 @@ function inicioPadrao(): string {
     CesFilterPanelComponent,
     CesIconButtonComponent,
     CesListShortcutsDirective,
+    CesMultiSelectComponent,
     CesPageHeaderComponent,
     CesRowActionsDirective,
     CesSelectComponent,
@@ -90,6 +100,8 @@ function inicioPadrao(): string {
     CesTextInputComponent,
     AuditDialogComponent,
     AjudaListagemComponent,
+    CesButtonComponent,
+    ExportacaoCsvDrawerComponent,
     NumeroOficialDialogComponent
   ],
   template: `
@@ -107,10 +119,13 @@ function inicioPadrao(): string {
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
         <div class="ces-filter-grid">
           <ces-text-input label="Nota" [value]="lista.filters.referenciaNota() ?? ''" (valueChange)="lista.filters.referenciaNota.set($event || null)" placeholder="Ex.: 123456"></ces-text-input>
+          <ces-text-input label="Nº de série do material" [value]="lista.filters.numSerie() ?? ''" (valueChange)="filtrarSerie($event)" placeholder="Ex.: 12345678"></ces-text-input>
           <ces-select label="Tipo de lançamento" [options]="tiposLancamento" [(value)]="lista.filters.tipoNota"></ces-select>
           <ces-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
           <ces-select label="Equipe" [options]="recorte.opcoesEquipes()" [(value)]="lista.filters.idEquipe" [clearable]="true" [filter]="true"
             [loading]="recorte.carregandoEquipes()" placeholder="Todas"></ces-select>
+          <ces-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [(value)]="lista.filters.idBaseOperacional" [clearable]="true"
+            selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></ces-multiselect>
           <ces-select label="Tipo de serviço" [options]="tiposServico()" [(value)]="lista.filters.tipoServico" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
           <ces-select label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status"></ces-select>
           <ces-select label="Ação" [options]="acoes()" [(value)]="lista.filters.idAcao" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
@@ -122,7 +137,7 @@ function inicioPadrao(): string {
           <ces-datepicker label="Lançadas até" [value]="dataLocal(lista.filters.lancamento().to)" [clearable]="true" [minDate]="dataLocal(lista.filters.lancamento().from)"
             (valueChange)="lancamento('to', $event)"></ces-datepicker>
           <ces-boolean-control label="Só as lançadas hoje" kind="toggle" [inline]="true" [value]="lista.filters.apenasHoje()" (valueChange)="lista.filters.apenasHoje.set($event)"></ces-boolean-control>
-          <ces-boolean-control label="Só avulsas sem número oficial" kind="toggle" [inline]="true" [value]="lista.filters.semNumeroOficial()" (valueChange)="lista.filters.semNumeroOficial.set($event)"></ces-boolean-control>
+          <ces-boolean-control class="ces-filter-grid__wide" label="Só avulsas sem número oficial" kind="toggle" [inline]="true" [value]="lista.filters.semNumeroOficial()" (valueChange)="lista.filters.semNumeroOficial.set($event)"></ces-boolean-control>
           <ces-boolean-control label="Só notas alteradas" kind="toggle" [inline]="true" [value]="lista.filters.alterada()" (valueChange)="lista.filters.alterada.set($event)"></ces-boolean-control>
         </div>
       </ces-filter-panel>
@@ -131,7 +146,6 @@ function inicioPadrao(): string {
         title="Execuções"
         mode="server"
         storageKey="execucao-comercial"
-        exportFileName="execucoes"
         searchPlaceholder="Nº de poste ou posto"
         rowActionLabel="Ver nota"
         rowActionIcon="pi pi-external-link"
@@ -144,8 +158,6 @@ function inicioPadrao(): string {
         [stateTitle]="resultado.error() ? 'Não foi possível carregar as execuções' : 'Nenhuma execução lançada'"
         [stateDescription]="resultado.error() ?? 'As notas aparecem aqui quando as equipes as lançam no aplicativo de campo.'"
         [filtered]="lista.filtered()"
-        [exportRows]="exportar"
-        [exportLimit]="limiteExportacao"
         [(page)]="lista.page"
         [(pageSize)]="lista.pageSize"
         [(sort)]="lista.sort"
@@ -155,13 +167,14 @@ function inicioPadrao(): string {
         (clearFilters)="lista.reset()"
         (rowActivate)="verNota($event)"
       >
+        <ces-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></ces-button>
         <ng-template cesCell="nota" let-row>
           <span class="nota-cel">
             <span class="ces-cell-strong">{{ row.referenciaNota }}</span>
             @if (row.aguardandoNumeroOficial) {
               <ces-status tone="warning" icon="pi-clock">Sem nº oficial</ces-status>
             } @else if (tipoDe(row); as tipo) {
-              <ces-status [tone]="tipo.tom">{{ tipo.rotulo }}</ces-status>
+              <ces-status [tone]="tipo.tom" [icon]="tipo.icone">{{ tipo.rotulo }}</ces-status>
             }
             @if (row.alterada) {
               <ces-status tone="warning" icon="pi-pencil" [attr.title]="'Alterada ' + (row.totalAlteracoes === 1 ? '1 vez' : row.totalAlteracoes + ' vezes') + ' depois de sincronizada'">Alterada</ces-status>
@@ -188,6 +201,36 @@ function inicioPadrao(): string {
 
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-numero-oficial-dialog [(visible)]="numeroOficialAberto" [execucao]="avulsaEscolhida()" (informado)="lista.reload()"></app-numero-oficial-dialog>
+    <app-exportacao-csv-drawer [(visible)]="exportacaoAberta" [(formato)]="exportFormato" titulo="Exportar notas (CSV)"
+      [resumo]="formatoResumo" [detalhado]="formatoDetalhado" singular="nota" plural="notas" [feminino]="true"
+      [total]="totalExportacao()" [contando]="contandoExportacao()" [limite]="limiteExportacao" [exportando]="exportando()"
+      (exportar)="exportarCsv($event)">
+      @if (exportacaoAberta()) {
+        <ces-text-input label="Nota" [value]="exp().referenciaNota ?? ''" (valueChange)="mudar('referenciaNota', $event || null)" placeholder="Ex.: 123456"></ces-text-input>
+        <ces-text-input label="Nº de poste ou posto" [value]="expBusca()" (valueChange)="expBusca.set($event)"></ces-text-input>
+        <ces-datepicker label="Lançadas a partir de" [value]="dataLocal(exp().lancamento.from)" [clearable]="true" (valueChange)="periodoExportacao('from', $event)"></ces-datepicker>
+        <ces-datepicker label="Lançadas até" [value]="dataLocal(exp().lancamento.to)" [clearable]="true" [minDate]="dataLocal(exp().lancamento.from)"
+          (valueChange)="periodoExportacao('to', $event)"></ces-datepicker>
+        <ces-select label="Equipe" [options]="recorte.opcoesEquipes()" [value]="exp().idEquipe" (valueChange)="mudar('idEquipe', $event)" [clearable]="true" [filter]="true"
+          [loading]="recorte.carregandoEquipes()" placeholder="Todas"></ces-select>
+        <ces-select label="Status" [options]="statusOpcoes" [value]="exp().status" (valueChange)="mudar('status', $event)"></ces-select>
+        <ces-select label="Tipo de serviço" [options]="tiposServico()" [value]="exp().tipoServico" (valueChange)="mudar('tipoServico', $event)" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
+        <ces-select label="Tipo de lançamento" [options]="tiposLancamento" [value]="exp().tipoNota" (valueChange)="mudar('tipoNota', $event)"></ces-select>
+        <ces-select label="Ação" [options]="acoes()" [value]="exp().idAcao" (valueChange)="mudar('idAcao', $event)" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
+        <ces-select label="Referência" [options]="referencias" [value]="exp().referencia" (valueChange)="mudar('referencia', $event)" [clearable]="true" [filter]="true" placeholder="Todas"></ces-select>
+        <ces-autocomplete label="Material" placeholder="Código ou descrição" [options]="materiais.items()" [ngModel]="exp().idMaterial"
+          (ngModelChange)="escolherMaterialExportacao($event)" [loading]="materiais.loading()" [status]="materiais.status()" [clearable]="true"
+          (search)="materiais.search($event)" (loadMore)="materiais.loadNext()" (retry)="materiais.retry()"></ces-autocomplete>
+        <ces-select label="Operação do material" [options]="operacoes" [value]="exp().operacaoMaterial" (valueChange)="mudar('operacaoMaterial', $event)"></ces-select>
+        <ces-text-input label="Nº de série do material" [value]="exp().numSerie ?? ''" (valueChange)="mudar('numSerie', $event || null)" placeholder="Ex.: 12345678"></ces-text-input>
+        @if (exp().idTurno) {
+          <ces-boolean-control label="Só as notas do turno" kind="toggle" [inline]="true" [value]="true" (valueChange)="mudar('idTurno', $event ? exp().idTurno : null)"></ces-boolean-control>
+        }
+        <ces-boolean-control label="Só as lançadas hoje" kind="toggle" [inline]="true" [value]="exp().apenasHoje" (valueChange)="mudar('apenasHoje', $event)"></ces-boolean-control>
+        <ces-boolean-control label="Só avulsas sem número oficial" kind="toggle" [inline]="true" [value]="exp().semNumeroOficial" (valueChange)="mudar('semNumeroOficial', $event)"></ces-boolean-control>
+        <ces-boolean-control label="Só notas alteradas" kind="toggle" [inline]="true" [value]="exp().alterada" (valueChange)="mudar('alterada', $event)"></ces-boolean-control>
+      }
+    </app-exportacao-csv-drawer>
     <app-ajuda-listagem #ajuda titulo="Execuções" artigoPlural="as" entidadePlural="execuções" busca="nº de poste ou posto" [podeCriar]="false">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-filter"></i> Recorte inicial</h4>
@@ -204,6 +247,7 @@ function inicioPadrao(): string {
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-box"></i> Material</h4>
         <p class="help-text-desc">Filtrar por material traz as notas que usaram aquele material; combine com "Operação do material" para separar aplicados de retirados.</p>
+        <p class="help-text-desc">"Nº de série do material" acha as notas em que um medidor (ou outro material com série) foi aplicado ou retirado, em todo o histórico; basta parte da série. A Bússola também responde, para várias séries de uma vez: "em quais notas foram aplicados os medidores 123 e 456?".</p>
       </div>
     </app-ajuda-listagem>
   `,
@@ -214,6 +258,7 @@ function inicioPadrao(): string {
 export class ExecucaoListComponent {
   private readonly execucoes = inject(ExecucaoService);
   private readonly router = inject(Router);
+  private readonly notificacoes = inject(NotificationService);
   private readonly lookupStore = inject(LookupStore);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
   protected readonly recorte = inject(RecorteDashboardService);
@@ -244,11 +289,13 @@ export class ExecucaoListComponent {
     filters: {
       idTurno: cesFilter.value<string | null>(null, { label: 'Turno', param: 'idTurno', format: (id): string | null => (id ? 'notas do turno' : null) }),
       referenciaNota: cesFilter.value<string | null>(null, { label: 'Nota', param: 'nota' }),
+      numSerie: cesFilter.value<string | null>(null, { label: 'Nº de série', param: 'serie' }),
       tipoNota: cesFilter.value<TipoNota | null>(null, { label: 'Tipo de lançamento', param: 'tipoNota', type: 'string', options: () => TIPOS_LANCAMENTO }),
       semNumeroOficial: cesFilter.value<boolean>(false, { label: 'Avulsas', param: 'semNumero', format: (v): string | null => (v ? 'sem número oficial' : null) }),
       alterada: cesFilter.value<boolean>(false, { label: 'Notas', param: 'alterada', format: (v): string | null => (v ? 'alteradas' : null) }),
       referencia: cesFilter.value<string | null>(null, { label: 'Referência', param: 'ref' }),
       idEquipe: cesFilter.value<string | null>(null, { label: 'Equipe', param: 'equipe', format: (id): string | null => (id ? this.nome(this.recorte.opcoesEquipes(), id) : null) }),
+      idBaseOperacional: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.nome(this.recorte.opcoesBases(), id), countLabel: (n) => `${n} bases` }),
       tipoServico: cesFilter.value<string | null>(null, { label: 'Tipo de serviço', param: 'tipo', format: (id): string | null => (id ? this.nome(this.tiposServico(), id) : null) }),
       status: cesFilter.value<StatusExecucao | null>(null, { label: 'Status', type: 'string', options: () => STATUS }),
       idAcao: cesFilter.value<string | null>(null, { label: 'Ação', param: 'acao', format: (id): string | null => (id ? this.nome(this.acoes(), id) : null) }),
@@ -260,9 +307,25 @@ export class ExecucaoListComponent {
     sort: [{ key: 'lancamento', direction: 'desc' }]
   });
   protected readonly resultado = this.lista.results<ExecucaoComercialResponse>((pedido) => this.execucoes.listarExecucoes(this.filtro(pedido)), { errorMessage: getErrorMessage });
-  protected readonly limiteExportacao = LIMITE_EXPORTACAO;
-  protected readonly exportar = (_evento: unknown, limite: number) =>
-    this.execucoes.listarExecucoes({ ...this.filtro(this.lista.request()), page: 0, size: limite }).pipe(map((r) => r.content));
+  /*
+   * Exportação no desenho das solicitações: o drawer abre com o recorte da lista e deixa
+   * ajustá-lo sem mexer na tela; o servidor gera o CSV (resumido ou detalhado).
+   */
+  protected readonly limiteExportacao = LIMITE_EXPORTACAO_NOTAS;
+  protected readonly formatoResumo = { rotulo: 'Resumido', dica: 'Uma linha por nota, com o faturado e quantos serviços e materiais ela tem.' };
+  protected readonly formatoDetalhado = {
+    rotulo: 'Detalhado',
+    dica: 'Uma linha por serviço e por material de cada nota: código, descrição, quantidade, operação, série e origem.'
+  };
+  protected readonly exportacaoAberta = signal(false);
+  protected readonly exportFormato = signal<FormatoExportacao>('resumo');
+  protected readonly exportando = signal(false);
+  /** Rascunho dos filtros da exportação; começa igual ao da lista. */
+  protected readonly exp = signal(this.lista.applied());
+  protected readonly expBusca = signal('');
+  protected readonly totalExportacao = signal<number | null>(null);
+  protected readonly contandoExportacao = signal(false);
+  private readonly recorteExportacao = computed(() => this.paraApi(this.exp(), this.expBusca()));
 
   protected readonly colunas: CesDataTableColumn<ExecucaoComercialResponse>[] = [
     { key: 'nota', header: 'Nota', type: 'custom', priority: 1, sortField: 'referenciaNota', value: (e) => e.referenciaNota, display: (e) => e.referenciaNota },
@@ -280,7 +343,28 @@ export class ExecucaoListComponent {
   protected readonly rotulo = (e: ExecucaoComercialResponse) => e.referenciaNota;
 
   constructor() {
-    this.recorte.carregarEquipes(inject(DestroyRef));
+    // Quantas notas vão no arquivo: recontado a cada ajuste do recorte, só com o drawer aberto.
+    toObservable(computed(() => (this.exportacaoAberta() ? this.recorteExportacao() : null)))
+      .pipe(
+        debounceTime(300),
+        tap((r) => {
+          this.contandoExportacao.set(!!r);
+          if (!r) this.totalExportacao.set(null);
+        }),
+        switchMap((r) =>
+          r
+            ? this.execucoes.listarExecucoes({ ...r, page: 0, size: 1 }).pipe(map((p) => p.page.totalElements), catchError(() => of(null)))
+            : of(null)
+        ),
+        takeUntilDestroyed()
+      )
+      .subscribe((total) => {
+        this.contandoExportacao.set(false);
+        if (this.exportacaoAberta()) this.totalExportacao.set(total);
+      });
+    const destroyRef = inject(DestroyRef);
+    this.recorte.carregar(destroyRef);
+    this.recorte.carregarEquipes(destroyRef);
     inject(ContratoService)
       .listarAcoesAtivas()
       .subscribe({ next: (r) => this.acoes.set(r.content.map((a) => ({ label: a.nome, value: a.id }))), error: () => undefined });
@@ -300,7 +384,17 @@ export class ExecucaoListComponent {
   }
 
   private filtro(pedido: { page: number; size: number; sort: readonly { key: string; direction: string }[] }): ExecucaoFilters {
-    const { filters: f, query } = this.lista.request();
+    const { filters, query } = this.lista.request();
+    return {
+      ...this.paraApi(filters, query),
+      page: pedido.page,
+      size: pedido.size,
+      sort: pedido.sort.length ? pedido.sort.map((r) => `${r.key},${r.direction}`) : ['dataLancamento,desc']
+    };
+  }
+
+  /** Filtros da tela (ou do drawer de exportação) no formato da API, sem paginação. */
+  private paraApi(f = this.lista.applied(), query = ''): ExecucaoFilters {
     const de = dataLocal(f.lancamento.from);
     const ate = dataLocal(f.lancamento.to);
     // "Até" inclui o dia inteiro escolhido.
@@ -310,6 +404,7 @@ export class ExecucaoListComponent {
       referenciaNota: f.referenciaNota?.trim() || undefined,
       referencia: f.referencia ?? undefined,
       idEquipe: f.idEquipe ?? undefined,
+      idBaseOperacional: f.idBaseOperacional.length ? f.idBaseOperacional : undefined,
       idTipoServico: f.tipoServico && f.tipoServico !== SEM_TIPO_SERVICO ? f.tipoServico : undefined,
       semTipoServico: f.tipoServico === SEM_TIPO_SERVICO || undefined,
       tipoNota: f.tipoNota ?? undefined,
@@ -319,20 +414,71 @@ export class ExecucaoListComponent {
       idAcao: f.idAcao ?? undefined,
       idMaterial: f.idMaterial ?? undefined,
       operacaoMaterial: f.operacaoMaterial ?? undefined,
+      numSerieMaterial: f.numSerie?.trim() || undefined,
       apenasHoje: f.apenasHoje || undefined,
       dataLancamentoDe: de?.toISOString(),
       dataLancamentoAte: ate?.toISOString(),
-      buscaGlobal: query || undefined,
-      page: pedido.page,
-      size: pedido.size,
-      sort: pedido.sort.length ? pedido.sort.map((r) => `${r.key},${r.direction}`) : ['dataLancamento,desc']
+      buscaGlobal: query.trim() || undefined
     };
+  }
+
+  protected abrirExportacao(): void {
+    const { filters, query } = this.lista.request();
+    this.exp.set({ ...filters, lancamento: { ...filters.lancamento } });
+    this.expBusca.set(query ?? '');
+    this.exportFormato.set('resumo');
+    this.exportacaoAberta.set(true);
+  }
+
+  /** Ajusta um filtro só na exportação. */
+  protected mudar<K extends keyof ReturnType<typeof this.exp>>(chave: K, valor: ReturnType<typeof this.exp>[K]): void {
+    this.exp.update((f) => ({ ...f, [chave]: valor }));
+  }
+
+  protected periodoExportacao(limite: 'from' | 'to', data: Date | null): void {
+    this.exp.update((f) => ({ ...f, lancamento: { ...f.lancamento, [limite]: dataIso(data) } }));
+  }
+
+  protected escolherMaterialExportacao(id: string | null): void {
+    const opcao = this.materiais.items().find((m) => m.value === id);
+    if (opcao) this.nomeMaterial.update((n) => ({ ...n, [opcao.value]: opcao.label }));
+    this.mudar('idMaterial', id);
+  }
+
+  protected exportarCsv(formato: FormatoExportacao): void {
+    if (this.exportando()) return;
+    this.exportando.set(true);
+    this.execucoes.exportarExecucoes(formato, this.recorteExportacao()).subscribe({
+      next: (resposta) => {
+        this.exportando.set(false);
+        this.exportacaoAberta.set(false);
+        if (baixarCsv(resposta, `notas_${formato}.csv`)) {
+          this.notificacoes.success(`CSV das notas (${formato === 'resumo' ? 'resumido' : 'detalhado'}) gerado.`);
+        }
+      },
+      error: async (erro: unknown) => {
+        this.exportando.set(false);
+        this.notificacoes.error(await mensagemDoErroDeExportacao(erro), { title: 'Não foi possível exportar' });
+      }
+    });
   }
 
   protected escolherMaterial(id: string | null): void {
     const opcao = this.materiais.items().find((m) => m.value === id);
     if (opcao) this.nomeMaterial.update((n) => ({ ...n, [opcao.value]: opcao.label }));
     this.lista.filters.idMaterial.set(id);
+  }
+
+  /**
+   * Quem procura uma série (ex.: em que nota o medidor foi aplicado) quer o histórico inteiro:
+   * o recorte padrão dos últimos dias sai, e o chip de data some junto. Data escolhida pelo usuário fica.
+   */
+  protected filtrarSerie(valor: string): void {
+    this.lista.filters.numSerie.set(valor.trim() || null);
+    const { from, to } = this.lista.filters.lancamento();
+    if (valor.trim() && from === inicioPadrao() && !to) {
+      this.lista.filters.lancamento.set({ from: null, to: null });
+    }
   }
 
   protected lancamento(limite: 'from' | 'to', data: Date | null): void {

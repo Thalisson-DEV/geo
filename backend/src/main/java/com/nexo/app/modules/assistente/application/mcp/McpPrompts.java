@@ -36,7 +36,13 @@ final class McpPrompts {
                     List.of(new Argumento("pedido", "O que cadastrar ou alterar, com os detalhes que você já tem", true)),
                     true,
                     "Quero cadastrar no GEO: {pedido}. Descubra no GEO o que mais é necessário, me mostre um resumo "
-                            + "do que será gravado e só grave depois que eu confirmar."));
+                            + "do que será gravado e só grave depois que eu confirmar."),
+            new Prompt("aprovar_pendencias", "Aprovar pendências",
+                    "Mostra o que espera a sua aprovação no GEO e aprova ou rejeita, conferindo cada solicitação antes.",
+                    List.of(), true,
+                    "Me mostre o que está esperando a minha aprovação no GEO, numa tabela com número, fornecedor, "
+                            + "solicitante, valor e há quantos dias espera. Depois eu digo quais aprovar ou rejeitar; antes de "
+                            + "decidir, me mostre a lista exata e só decida depois que eu confirmar."));
 
     private McpPrompts() {
     }

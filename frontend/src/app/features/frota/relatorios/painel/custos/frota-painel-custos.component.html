@@ -1,0 +1,171 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Custos da frota" icon="pi pi-wallet"
+      [breadcrumb]="[{ label: 'Frota' }, { label: 'Relatórios' }, { label: 'Custos' }]"
+      description="Quanto a frota custa, para onde vai o dinheiro, quais veículos fogem da curva e o que mudou em relação ao período anterior.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (gerencial(); as g) { <span actions class="dash-updated">Calculado às {{ g.periodo.calculadoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="frota-painel-custos" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-frota-recorte-campos prefixo="fpc" />
+        <ces-multiselect label="Categoria de custo" inputId="fpc-categoria" placeholder="Todas" [options]="opcoesCategoria()" [filter]="false"
+          description="Os números passam a considerar só as categorias escolhidas." [value]="categoriasSel()" (valueChange)="categoriasSel.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <app-frota-painel-topo [dados]="gerencial()" (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !modelo()) {
+      <ces-async-state state="loading" title="Calculando os custos da frota" description="Somando manutenção, combustível, despesas, seguro, locação e franquias."></ces-async-state>
+    } @else if (erro() && !modelo()) {
+      <ces-async-state state="error" title="Não foi possível calcular os custos" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (modelo(); as m) {
+      @if (m.r.partesOmitidas.length) {
+        <ces-callout tone="info" icon="pi pi-lock" title="Custo sem algumas partes">
+          Seu perfil não lê {{ m.r.partesOmitidas.join(', ').toLowerCase() }}. Os números consideram só o que você pode ver.
+        </ces-callout>
+      }
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+      }
+
+      <section class="dash-metrics" aria-label="Indicadores de custo">
+        <app-dashboard-metric-card label="Custo total" icon="pi-wallet" [tone]="tomCusto(m)" [value]="moedaCurta(m.total)"
+          [detail]="textoVariacao(m.total, m.anterior || null, 'moeda')" actionLabel="Analisar" (activate)="analisar('kpi', 'total')">
+          <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'custoTotal', rotulo: 'Custo total' }" />
+        </app-dashboard-metric-card>
+        <app-dashboard-metric-card label="Custo por km" icon="pi-directions" tone="slate" [value]="moeda(m.custoKm)"
+          [detail]="textoVariacao(m.custoKm, m.custoKmAnterior, 'moeda')" actionLabel="Ver eficiência" (activate)="analisar('kpi', 'km')" />
+        <app-dashboard-metric-card label="Custo por veículo/mês" icon="pi-car" tone="slate" [value]="moeda(m.veiculoMes)"
+          [detail]="textoVariacao(m.veiculoMes, m.veiculoMesAnterior, 'moeda')" actionLabel="Ver por veículo" (activate)="analisar('kpi', 'veiculo-mes')" />
+        <app-dashboard-metric-card label="Concentração" icon="pi-chart-pie" [tone]="m.concentracao.fracao <= 0.2 ? 'amber' : 'slate'"
+          [value]="m.concentracao.itens + ' de ' + m.concentracao.total" detail="Veículos que fazem 80% do custo"
+          actionLabel="Ver concentração" (activate)="analisar('kpi', 'concentracao')" />
+      </section>
+      <section class="dash-metrics" aria-label="Indicadores complementares">
+        <app-dashboard-metric-card label="Fora da curva" icon="pi-exclamation-triangle" [tone]="m.foraDaCurva.length ? 'amber' : 'green'"
+          [value]="inteiro(m.foraDaCurva.length)" detail="R$/km 50% acima da mediana do próprio tipo"
+          actionLabel="Ver os veículos" (activate)="analisar('kpi', 'fora-da-curva')" />
+        <app-dashboard-metric-card label="Veículos que subiram" icon="pi-arrow-up-right" [tone]="m.maioresAltas.length ? 'amber' : 'slate'"
+          [value]="m.todas ? inteiro(m.maioresAltas.length) : '—'"
+          [detail]="m.todas ? (m.maioresAltas[0] ? 'Maior alta: ' + m.maioresAltas[0].placa + ' (+' + moedaCurta(m.maioresAltas[0].delta) + ')' : 'Nenhum subiu') : 'Só com todas as categorias'"
+          actionLabel="Ver as altas" (activate)="analisar('kpi', 'altas')" />
+        <app-dashboard-metric-card label="Lançamentos" icon="pi-list" tone="slate" [value]="inteiro(m.lancamentos.length)"
+          detail="OS, despesas, abastecimentos e franquias" actionLabel="Ver todos" (activate)="analisar('kpi', 'total')" />
+        <app-dashboard-metric-card label="Aguardando o financeiro" icon="pi-hourglass" tone="slate" [value]="moedaCurta(m.r.resumo.aguardandoFinanceiro)"
+          detail="Pagamento solicitado, ainda sem decisão" actionLabel="Abrir despesas" (activate)="verDespesasAguardando()" />
+      </section>
+
+      <section class="dash-grid" aria-label="Custo no tempo e por categoria">
+        <article class="dash-panel dash-col-8">
+          <header class="dash-panel__header">
+            <div><span class="dash-eyebrow">Tendência</span><h2>Custo mensal por categoria</h2>
+              <p>Manutenção pela conclusão da OS, combustível pelo abastecimento, seguro e locação rateados por dia.</p></div>
+            <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'mensal', rotulo: 'Custo mensal por categoria' }" />
+          </header>
+          <ces-chart kind="bar-stacked" title="Custo mensal da frota por categoria" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+            [labels]="mensal().rotulos" [series]="mensal().series" valueFormat="currency" [height]="320" (pointSelect)="analisarMes($event.index)"></ces-chart>
+        </article>
+        <article class="dash-panel dash-col-4">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Composição</span><h2>Para onde vai o dinheiro</h2><p>Clique numa categoria para analisá-la.</p></div></header>
+          <ces-chart kind="doughnut" title="Custo por categoria" [showTitle]="false" [selectable]="true" selectLabel="Analisar a categoria"
+            [labels]="graficoCategorias().rotulos" [series]="graficoCategorias().series"
+            valueFormat="currency" [height]="320" (pointSelect)="analisarCategoria($event.index)"></ces-chart>
+        </article>
+      </section>
+
+      <section class="dash-grid pf-grid-espaco" aria-label="Custo por grupo">
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Onde</span><h2>Por base operacional</h2><p>Clique numa base para ver os veículos e lançamentos dela.</p></div></header>
+          <ces-chart kind="bar-horizontal" title="Custo por base" [showTitle]="false" [selectable]="true" selectLabel="Analisar a base"
+            [labels]="rotulosGrupo(gruposBase())" [series]="serieGrupo(gruposBase())" valueFormat="currency" [height]="260"
+            (pointSelect)="analisarGrupo('base', gruposBase()[$event.index])"></ces-chart>
+        </article>
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Para quem</span><h2>Por processo</h2><p>Pela equipe vinculada ao veículo; sem equipe aparece à parte.</p></div></header>
+          <ces-chart kind="bar-horizontal" title="Custo por processo" [showTitle]="false" [selectable]="true" selectLabel="Analisar o processo"
+            [labels]="rotulosGrupo(gruposProcesso())" [series]="serieGrupo(gruposProcesso())" valueFormat="currency" [height]="260"
+            (pointSelect)="analisarGrupo('processo', gruposProcesso()[$event.index])"></ces-chart>
+        </article>
+      </section>
+
+      <section class="dash-grid pf-grid-espaco">
+        <div class="dash-col-6">
+          <ces-data-table title="Por tipo de veículo" description="R$/km compara tipos com o mesmo uso." storageKey="fpc-tipo"
+            exportFileName="frota-custo-por-tipo" [columns]="colGrupos" [rows]="m.grupos.tipo" [rowKey]="chaveGrupo" [searchable]="false"
+            rowActionLabel="Analisar" (rowActivate)="analisarGrupo('tipo', $event)"></ces-data-table>
+        </div>
+        <div class="dash-col-6">
+          <ces-data-table title="Próprios × locados" description="A locação entra pelo valor mensal da ficha, rateado por dia." storageKey="fpc-regime"
+            exportFileName="frota-custo-por-regime" [columns]="colGrupos" [rows]="m.grupos.regime" [rowKey]="chaveGrupo" [searchable]="false"
+            rowActionLabel="Analisar" (rowActivate)="analisarGrupo('regime', $event)"></ces-data-table>
+        </div>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="fpc-atencao">
+        <header><span class="dash-eyebrow">Atenção</span><h2 id="fpc-atencao">Veículos que pedem decisão</h2>
+          <p>Quem custa demais para o próprio tipo e quem mais subiu sobre o período anterior.</p></header>
+        <div class="dash-grid">
+          <div class="dash-col-6">
+            <ces-data-table title="Fora da curva" description="R$/km 50% ou mais acima da mediana do tipo, com ao menos 300 km."
+              storageKey="fpc-fora" exportFileName="frota-fora-da-curva" [columns]="colForaCurva" [rows]="m.foraDaCurva" [rowKey]="chaveVeiculo"
+              [rowLabel]="rotuloVeiculo" [searchable]="false" rowActionLabel="Analisar" (rowActivate)="analisar('veiculo', $event.idVeiculo)"
+              [state]="m.foraDaCurva.length ? 'ready' : 'empty'" stateTitle="Nenhum veículo fora da curva"></ces-data-table>
+          </div>
+          <div class="dash-col-6">
+            <ces-data-table title="Maiores altas" description="Diferença do custo total sobre o período anterior." storageKey="fpc-altas"
+              exportFileName="frota-maiores-altas" [columns]="colAltas" [rows]="m.maioresAltas.slice(0, 15)" [rowKey]="chaveVeiculo"
+              [rowLabel]="rotuloVeiculo" [searchable]="false" rowActionLabel="Analisar" (rowActivate)="analisar('veiculo', $event.idVeiculo)"
+              [state]="m.maioresAltas.length ? 'ready' : 'empty'" [stateTitle]="m.todas ? 'Nenhum veículo subiu' : 'Disponível só com todas as categorias'"></ces-data-table>
+          </div>
+        </div>
+      </section>
+
+      @if (despesasTipo().length) {
+        <section class="dash-grid pf-grid-espaco">
+          <article class="dash-panel dash-col-12">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Despesas</span><h2>Despesas por tipo</h2>
+              <p>Lavagem, pedágio, estacionamento, IPVA e outras, menos as reprovadas. Clique num tipo para ver os lançamentos.</p></div></header>
+            <ces-chart kind="bar-horizontal" title="Despesas por tipo" [showTitle]="false" [selectable]="true" selectLabel="Ver os lançamentos"
+              [labels]="rotulosDespesas()" [series]="seriesDespesas()" valueFormat="currency" [height]="240"
+              (pointSelect)="analisarDespesa($event.index)"></ces-chart>
+          </article>
+        </section>
+      }
+
+      <section class="pf-secao" aria-labelledby="fpc-lanc">
+        <header><span class="dash-eyebrow">Origem</span><h2 id="fpc-lanc">Maiores lançamentos</h2>
+          <p>Os 25 maiores valores do período. Abra a linha para ir ao registro (OS, abastecimento, despesa ou sinistro).</p></header>
+        <ces-data-table title="Maiores lançamentos" storageKey="fpc-lancamentos" exportFileName="frota-maiores-lancamentos"
+          [columns]="colLancamentos" [rows]="maioresLancamentos()" [rowKey]="chaveLancamento" [searchable]="false"
+          rowActionLabel="Abrir o registro" (rowActivate)="abrirLancamento($event)"
+          [state]="maioresLancamentos().length ? 'ready' : 'empty'" stateTitle="Sem lançamentos no período"></ces-data-table>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="fpc-veic">
+        <header><span class="dash-eyebrow">Por veículo</span><h2 id="fpc-veic">Custo por veículo</h2>
+          <p>Todas as partes do custo, km, R$/km e a variação. Abra a linha para analisar o veículo.</p></header>
+        <ces-data-table title="Custo por veículo" storageKey="fpc-veiculos" exportFileName="frota-custo-por-veiculo" [columns]="colVeiculos"
+          [rows]="m.veiculos" [rowKey]="chaveVeiculo" [rowLabel]="rotuloVeiculo" searchPlaceholder="Filtrar placa, base ou tipo"
+          rowActionLabel="Analisar" (rowActivate)="analisar('veiculo', $event.idVeiculo)"
+          [state]="m.veiculos.length ? 'ready' : 'empty'" stateTitle="Nenhum veículo no recorte"></ces-data-table>
+      </section>
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

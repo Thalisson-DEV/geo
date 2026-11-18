@@ -81,7 +81,8 @@ export class ObraReportNavigatorDataSource
       value: raw.valorProjeto != null ? raw.valorProjeto : null,
       status: {
         label: raw.statusNome || (raw.statusConcluida ? 'Concluída' : 'Em andamento'),
-        tone: raw.statusConcluida ? 'success' : 'brand'
+        tone: raw.statusConcluida ? 'success' : 'brand',
+        icon: raw.statusConcluida ? 'pi-check-circle' : 'pi-play-circle'
       },
       metaAuthor: {
         label: raw.municipioNome || raw.agenteResponsavelNome || 'Local não informado',

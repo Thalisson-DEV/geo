@@ -51,7 +51,7 @@ describe('AcoesComponent', () => {
     tela['nome'].set('Religação');
     tela['ativo'].set(false);
     tela.salvar();
-    expect(servico['criarAcao']).toHaveBeenCalledWith({ codigo: 'serv02', nome: 'Religação' });
+    expect(servico['criarAcao']).toHaveBeenCalledWith({ codigo: 'serv02', nome: 'Religação', improdutiva: false });
     expect(servico['desativarAcao']).toHaveBeenCalledWith('nova');
   });
 });

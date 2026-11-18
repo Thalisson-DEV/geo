@@ -64,8 +64,12 @@ public class LiberacaoCnhUseCases {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<LiberacaoCnhResponse> listar(Pageable pageable) {
-        var pagina = repository.findAllByAtivoTrueOrderByDiaDescDataCriacaoDesc(pageable);
+    public PageResponse<LiberacaoCnhResponse> listar(List<UUID> idsBase, Pageable pageable) {
+        // Com base, só as liberações dos veículos dela: cada gestor vê a sua frota.
+        var pagina = idsBase == null || idsBase.isEmpty()
+                ? repository.findAllByAtivoTrueOrderByDiaDescDataCriacaoDesc(pageable)
+                : repository.findAllByAtivoTrueAndIdVeiculoInOrderByDiaDescDataCriacaoDesc(
+                        referencias.idsVeiculosAtivosDasBases(idsBase), pageable);
         return PageResponse.fromPage(new PageImpl<>(montar(pagina.getContent()), pageable, pagina.getTotalElements()));
     }
 

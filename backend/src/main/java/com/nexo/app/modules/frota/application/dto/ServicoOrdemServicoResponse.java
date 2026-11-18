@@ -13,6 +13,7 @@ public record ServicoOrdemServicoResponse(
         String mecanico,
         BigDecimal quantidade,
         BigDecimal valorUnitario,
-        BigDecimal subtotal
+        BigDecimal subtotal,
+        boolean semCusto
 ) {
 }

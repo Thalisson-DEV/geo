@@ -170,6 +170,7 @@ export class FrotaTelemetriaRastreadoresComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-telemetria-rastreadores',
+    rememberFilters: 'frota-telemetria-rastreadores',
     filters: {
       situacoes: cesFilter.list<SituacaoRastreador>([], {
         label: 'Situação', param: 'situacao', itemLabel: (s) => ROTULO_SITUACAO_RASTREADOR[s], countLabel: (n) => `${n} selecionadas`
@@ -177,7 +178,7 @@ export class FrotaTelemetriaRastreadoresComponent {
       provedores: cesFilter.list<ProvedorTelemetria>([], {
         label: 'Provedor', param: 'provedor', itemLabel: (p) => ROTULO_PROVEDOR[p], countLabel: (n) => `${n} selecionados`
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       semComunicacao: cesFilter.value<boolean | null>(null, { label: 'Comunicação', param: 'semComunicacao', options: () => SIM })
     },
     sort: [{ key: 'situacao', direction: 'asc' }]

@@ -21,10 +21,16 @@ import {
   EstadoEnvio, FolhaComponent, IconeComponent, IndicadorRedeComponent, StatusEnvioComponent, TituloGrandeComponent, VazioComponent,
 } from '../../ui';
 import { FolhaEnviosComponent } from './folha-envios.component';
+import { AvaliacaoConviteComponent } from '../avaliacao/avaliacao-convite.component';
 import { catchError, forkJoin, map, of } from 'rxjs';
 import { AlmoxService } from '../../core/almox/almox.service';
 import { FiltroSolicitacoes, StatusSolicitacao } from '../../core/almox/almox.models';
 import { isoCivil } from '../../core/almox/almox-status';
+import { ChecklistVeiculoService } from '../../core/frota/checklist-veiculo.service';
+import { diaLocal, formatarPlaca } from '../../core/frota/checklist-veiculo.models';
+import { emAndamento, ordenarParaEquipe, podeRegistrarRealizado, situacaoParaEquipe } from '../../core/frota/abastecimento.models';
+import { AbastecimentoService } from '../../core/frota/abastecimento.service';
+import { AprovacaoAbastecimentoService } from '../../core/frota/aprovacao-abastecimento.service';
 
 interface LancamentoHoje {
   id: string;
@@ -47,7 +53,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
   standalone: true,
   imports: [
     CurrencyPipe, RouterLink, TituloGrandeComponent, IndicadorRedeComponent, IconeComponent, StatusEnvioComponent,
-    VazioComponent, FolhaComponent, FolhaEnviosComponent,
+    VazioComponent, FolhaComponent, FolhaEnviosComponent, AvaliacaoConviteComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -247,10 +253,37 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
             <ces-icone nome="avancar" [tamanho]="18" /></a></li>
         </ul>
       }
+      @if (auth.podeAprovarAbastecimento()) {
+        <h2 class="ces-secao"><span>Abastecimento</span>
+          @if (!rede.isOnline()) { <span>precisa de internet</span> }</h2>
+        <ul class="ces-grupo" aria-label="Aprovação de abastecimento">
+          <li><a class="ces-linha ces-linha--acao" routerLink="/abastecimento/aprovacoes">
+            <span class="ces-selo" [class.ces-selo--atencao]="(paraAprovar() ?? 0) > 0"><ces-icone nome="combustivel" /></span>
+            <span class="ces-linha__texto"><span class="ces-linha__titulo">Aguardando aprovação</span>
+              <span class="ces-linha__apoio">Pedidos das placas da sua carteira</span></span>
+            <span class="ces-qtd">{{ paraAprovar() ?? '–' }}</span></a></li>
+        </ul>
+      }
+      <h2 class="ces-secao">Veículo</h2>
+      <ul class="ces-grupo">
+        <li><a class="ces-linha ces-linha--acao" routerLink="/checklist">
+          <span class="ces-selo" [class.ces-selo--ok]="!!checklistHoje()" [class.ces-selo--atencao]="!checklistHoje()"><ces-icone [nome]="checklistHoje() ? 'check' : 'caminhao'" /></span>
+          <span class="ces-linha__texto"><span class="ces-linha__titulo">Checklist do veículo</span>
+            <span class="ces-linha__apoio">{{ checklistHoje() ?? 'Faça antes de usar o veículo hoje' }}</span></span>
+          <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+        <li><a class="ces-linha ces-linha--acao" routerLink="/abastecimento">
+          <span class="ces-selo" [class.ces-selo--ok]="abastecimento().tom === 'ok'" [class.ces-selo--atencao]="abastecimento().tom === 'atencao'"
+            [class.ces-selo--erro]="abastecimento().tom === 'erro'"><ces-icone nome="combustivel" /></span>
+          <span class="ces-linha__texto"><span class="ces-linha__titulo">Abastecimento</span>
+            <span class="ces-linha__apoio">{{ abastecimento().texto }}</span></span>
+          <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+      </ul>
       @if (auth.isCampo() && carregado() && !lancamentos().length && fila.total() === 0) {
         <ces-vazio icone="servicos" titulo="Nenhuma execução hoje"
           [texto]="turno.turnoAtivo() ? 'Toque em Nova execução para lançar a primeira.' : 'Abra o turno para começar.'" />
       }
+      <!-- A avaliação sobe como folha só nesta tela; com lançamento pela metade, retomar vem antes e ela espera. -->
+      <app-avaliacao-convite [ativo]="!rascunho()" />
       <div class="respiro"></div>
     </div>
 
@@ -336,6 +369,16 @@ export class HojeComponent implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
   private readonly almoxService = inject(AlmoxService);
+  private readonly checklistVeiculo = inject(ChecklistVeiculoService);
+  /** "Feito hoje às 07:12 · ABC1D23", ou nulo se ainda não houve checklist hoje neste aparelho. */
+  readonly checklistHoje = signal<string | null>(null);
+  private readonly abastecimentoServico = inject(AbastecimentoService);
+  /** O pedido que pede atenção agora: liberado para abastecer, recusado ou esperando decisão. */
+  readonly abastecimento = signal<{ texto: string; tom: 'ok' | 'atencao' | 'erro' | 'neutro' }>({ texto: 'Peça pelo app com a foto do painel', tom: 'neutro' });
+
+  private readonly aprovacoes = inject(AprovacaoAbastecimentoService);
+  /** Abastecimentos esperando o administrativo aprovar (o campo só pede). */
+  readonly paraAprovar = signal<number | null>(null);
 
   /** Fila do almoxarifado para o administrativo: o que aprovar e o que entregar. */
   readonly almox = signal<{ aprovar?: number; entregar?: number; atrasadas?: number; hoje?: number }>({});
@@ -363,6 +406,8 @@ export class HojeComponent implements OnInit {
   });
 
   async ngOnInit(): Promise<void> {
+    void this.carregarChecklistHoje();
+    void this.carregarAbastecimento();
     const dono = this.tokens.ownerId();
     const [lista] = await Promise.all([
       dono ? this.rascunhos.listar(dono) : Promise.resolve([]),
@@ -378,6 +423,9 @@ export class HojeComponent implements OnInit {
     }
     this.carregado.set(true);
     if (!this.auth.isCampo() && this.auth.podeVerSolicitacoesAlmox() && this.rede.isOnline()) this.carregarAlmox();
+    if (this.auth.podeAprovarAbastecimento() && this.rede.isOnline()) {
+      void this.aprovacoes.fila().then((f) => this.paraAprovar.set(f.length)).catch(() => undefined);
+    }
   }
 
   abrirSolicitacoes(statuses: StatusSolicitacao[]): void {
@@ -474,5 +522,25 @@ export class HojeComponent implements OnInit {
           estado: estadoEnvioExecucao(e, filaPorExec.get(e.id), enviando),
         })),
     );
+  }
+
+  private async carregarAbastecimento(): Promise<void> {
+    const abertos = ordenarParaEquipe((await this.abastecimentoServico.listar()).filter((a) => emAndamento(a) || (a.statusSync === 'ERRO' && !a.registrado)));
+    const primeiro = abertos[0];
+    if (!primeiro) return;
+    const s = situacaoParaEquipe(primeiro);
+    const texto = podeRegistrarRealizado(primeiro)
+      ? `Liberado no ${primeiro.servidor!.posto} · registre depois de abastecer`
+      : `${s.rotulo} · ${formatarPlaca(primeiro.placa)}`;
+    this.abastecimento.set({ texto, tom: podeRegistrarRealizado(primeiro) ? 'ok' : s.tom === 'erro' ? 'erro' : 'atencao' });
+  }
+
+  private async carregarChecklistHoje(): Promise<void> {
+    const hoje = diaLocal();
+    const feito = (await this.checklistVeiculo.listar())
+      .find((c) => c.statusSync !== 'RASCUNHO' && c.preenchidoEm && diaLocal(new Date(c.preenchidoEm)) === hoje);
+    this.checklistHoje.set(feito
+      ? `Feito hoje às ${new Date(feito.preenchidoEm!).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · ${feito.placa}`
+      : null);
   }
 }

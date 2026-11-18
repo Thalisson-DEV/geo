@@ -52,6 +52,12 @@ public interface UsuarioControllerDoc {
     @Operation(summary = "Atualizar dados do usuário")
     ResponseEntity<UsuarioResponse> atualizar(UUID id, UsuarioUpdateRequest request);
 
+    @Operation(
+            summary = "Vincular usuário a um colaborador existente",
+            description = "Liga o acesso a um colaborador ativo do RH, troca o colaborador vinculado ou, com idColaborador nulo, desfaz o vínculo."
+    )
+    ResponseEntity<UsuarioResponse> vincularColaborador(UUID id, VincularColaboradorRequest request);
+
     @Operation(summary = "Desativar usuário (Soft Delete)")
     ResponseEntity<Void> desativar(UUID id);
 

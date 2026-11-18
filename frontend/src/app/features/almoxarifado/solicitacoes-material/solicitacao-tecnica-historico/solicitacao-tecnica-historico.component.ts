@@ -10,6 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { CesAsyncStateComponent, CesButtonComponent, CesTone, NotificationService } from '@ces/ui';
+import { Observable } from 'rxjs';
 import { getErrorMessage } from '../../../../core/models/shared.models';
 import {
   HistoricoAlteracaoItem,
@@ -102,6 +103,18 @@ export class SolicitacaoTecnicaHistoricoComponent implements OnInit {
   }
   protected readonly _ocultarObra = signal<boolean>(false);
 
+  /** De onde vêm os eventos quando não é a solicitação técnica ou comercial (ex.: encerramento de obras). */
+  @Input() fonte?: (idSolicitacao: string, page: number) => Observable<HistoricoSolicitacaoResponse>;
+
+  /** Muda a cada alteração da solicitação: a linha do tempo busca os eventos novos. */
+  @Input()
+  set versao(val: number | undefined) {
+    const mudou = this._versao !== undefined && val !== this._versao;
+    this._versao = val;
+    if (mudou) this.load();
+  }
+  private _versao?: number;
+
   protected readonly page = signal(0);
   protected readonly response = signal<HistoricoSolicitacaoResponse | null>(null);
   protected readonly loading = signal(false);
@@ -134,7 +147,7 @@ export class SolicitacaoTecnicaHistoricoComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadLookups();
+    if (!this.fonte) this.loadLookups();
     this.load();
   }
 
@@ -654,7 +667,8 @@ export class SolicitacaoTecnicaHistoricoComponent implements OnInit {
     if (!id) return;
     this.loading.set(true);
     this.error.set('');
-    this.service.historico(id, this.page()).subscribe({
+    const busca = this.fonte ? this.fonte(id, this.page()) : this.service.historico(id, this.page());
+    busca.subscribe({
       next: (response) => {
         this.response.set(response);
         this.loading.set(false);

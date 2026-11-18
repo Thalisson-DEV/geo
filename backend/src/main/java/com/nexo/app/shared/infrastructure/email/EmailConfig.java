@@ -34,10 +34,16 @@ public class EmailConfig {
 
         log.info("Envio de e-mail ativo pelo provedor {} como '{}'.",
                 propriedades.getProvedor(), propriedades.getRemetente());
-        return switch (propriedades.getProvedor()) {
+        ServicoEmail servico = switch (propriedades.getProvedor()) {
             case SMTP -> new SmtpEmailService(propriedades);
             case RESEND -> new ResendEmailService(propriedades, builder);
             case NENHUM -> new EmailDesabilitadoService();
         };
+        var redirecionar = RedirecionamentoEmailService.enderecos(propriedades.getRedirecionarPara());
+        if (!redirecionar.isEmpty()) {
+            log.warn("E-mails redirecionados para {} (ambiente de teste): ninguém mais recebe.", redirecionar);
+            return new RedirecionamentoEmailService(servico, redirecionar);
+        }
+        return servico;
     }
 }

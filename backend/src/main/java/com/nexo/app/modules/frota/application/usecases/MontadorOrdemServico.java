@@ -20,6 +20,7 @@ import com.nexo.app.modules.frota.domain.OrdemServico;
 import com.nexo.app.modules.frota.domain.OrigemOrdemServico;
 import com.nexo.app.modules.frota.domain.ServicoOrdemServico;
 import com.nexo.app.modules.frota.domain.SituacaoAprovacaoOrcamento;
+import com.nexo.app.modules.frota.domain.SituacaoOrdemServico;
 import com.nexo.app.modules.frota.domain.SolicitacaoOrdemServico;
 import com.nexo.app.modules.frota.infrastructure.persistence.EventoOrdemServicoRepository;
 import com.nexo.app.modules.frota.infrastructure.persistence.OrdemServicoRepository;
@@ -108,6 +109,8 @@ class MontadorOrdemServico {
                     os.getInicioReal(),
                     os.getPrevisaoTermino(),
                     os.getFimReal(),
+                    os.getFinalizadaEm(),
+                    os.isBaixaPendente(),
                     os.isAtrasada(agora),
                     os.isVeiculoParado(),
                     os.getParadoDesde(),
@@ -140,7 +143,8 @@ class MontadorOrdemServico {
         return new OrdemServicoDetalheResponse(ordem, itens(os), orcamentos, historico(os.getId()),
                 os.isVeicular() ? odometro.kmAtual(os.getIdVeiculo()).orElse(null) : null,
                 avisos == null ? List.of() : avisos,
-                servicos(os), pecas(os), totais(os), preventivas(os), sinistro(os));
+                servicos(os), pecas(os), totais(os), preventivas(os), sinistro(os),
+                os.getSituacao() == SituacaoOrdemServico.CANCELADA ? List.of() : os.pendencias());
     }
 
     private OrdemServicoDetalheResponse.SinistroDaOrdem sinistro(OrdemServico os) {
@@ -198,14 +202,16 @@ class MontadorOrdemServico {
                 s.getIdMecanico() != null ? mecanicos.get(s.getIdMecanico()) : s.getMecanicoNome(),
                 s.getQuantidade(),
                 s.getValorUnitario(),
-                s.getSubtotal())).toList();
+                s.getSubtotal(),
+                s.isSemCusto())).toList();
     }
 
     private static TotaisOrdemServicoResponse totais(OrdemServico os) {
         var t = os.totais();
         boolean calculado = os.temLancamentos();
         return new TotaisOrdemServicoResponse(t.servicos(), t.pecas(), t.desconto(), t.acrescimo(),
-                calculado ? t.total() : os.getValorTotal(), calculado);
+                calculado ? t.total() : os.getValorTotal(), calculado, t.pecasEstoque(),
+                calculado ? t.aComprar() : os.getValorTotal());
     }
 
     private List<PecaOrdemServicoResponse> pecas(OrdemServico os) {
@@ -225,7 +231,9 @@ class MontadorOrdemServico {
                 p.getIdMaterial(),
                 p.getIdEstoque(),
                 p.getIdEstoque() == null ? null : almoxarifados.get(p.getIdEstoque()),
-                p.isBaixadaNoEstoque())).toList();
+                p.isBaixadaNoEstoque(),
+                p.getIdItemManutencao(),
+                p.isSemCusto())).toList();
     }
 
     static RepeticaoManutencaoResponse toResponse(RepeticoesManutencao.Anterior a) {

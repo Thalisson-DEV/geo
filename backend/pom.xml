@@ -20,6 +20,7 @@
         <spring-ai.version>2.0.0</spring-ai.version>
         <aws-sdk.version>2.46.18</aws-sdk.version>
         <flyway.version>11.14.1</flyway.version>
+        <bucket4j.version>8.21.0</bucket4j.version>
         <!-- Propriedades para o plugin do Flyway -->
         <flyway.url>${env.DB_URL}</flyway.url>
         <flyway.user>${env.DB_USER}</flyway.user>
@@ -114,6 +115,18 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>3.0.2</version>
+        </dependency>
+
+        <!-- Rate limit: token bucket distribuído no Redis (via Lettuce do Spring Data Redis) -->
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j_jdk17-core</artifactId>
+            <version>${bucket4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j_jdk17-lettuce</artifactId>
+            <version>${bucket4j.version}</version>
         </dependency>
 
         <!-- Modulith & Resilience -->

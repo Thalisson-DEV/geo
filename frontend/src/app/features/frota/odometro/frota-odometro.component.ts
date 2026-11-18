@@ -1,3 +1,4 @@
+import { ICONE_LEITURA } from '../../../core/models/frota.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -119,7 +120,7 @@ import { FrotaJustificativaDrawerComponent } from '../shared/frota-justificativa
           }
         </ng-template>
         <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tom[row.situacao]">{{ rotulo[row.situacao] }}</ces-status>
+          <ces-status [tone]="tom[row.situacao]" [icon]="icone[row.situacao]">{{ rotulo[row.situacao] }}</ces-status>
           @if (row.justificativaAnulacao || row.motivoSituacao) {
             <span class="ces-cell-muted">{{ row.justificativaAnulacao ?? row.motivoSituacao }}</span>
           }
@@ -155,6 +156,7 @@ export class FrotaOdometroComponent {
   protected readonly acesso = acessoFrota();
 
   protected readonly tom: Record<string, CesTone> = TOM_LEITURA;
+  protected readonly icone: Record<string, string> = ICONE_LEITURA;
   protected readonly rotulo: Record<string, string> = ROTULO_LEITURA;
   protected readonly placa = formatarPlaca;
   protected readonly medida = formatarMedida;
@@ -177,8 +179,9 @@ export class FrotaOdometroComponent {
   /** Fila de conferência: abre nas inconsistentes (padrão), mostrado como chip. */
   protected readonly lista = cesListState({
     storageKey: 'frota-odometro',
+    rememberFilters: 'frota-odometro',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       situacoes: cesFilter.list<SituacaoLeituraOdometro>(['INCONSISTENTE'], {
         label: 'Situação',
         param: 'situacao',

@@ -110,6 +110,87 @@ ces:
       enabled: ${CES_LOOKUP_RATE_LIMIT_ENABLED:true}
       requests-per-minute: ${CES_LOOKUP_RATE_LIMIT_REQUESTS_PER_MINUTE:300}
       window: ${CES_LOOKUP_RATE_LIMIT_WINDOW:PT1M}
+  # Rate limit (token bucket no Redis via Bucket4j). Cada politica tem capacidade, periodo
+  # (o balde reenche ao longo dele), modo (DESLIGADO | SOMBRA | ATIVO) e o que fazer sem Redis
+  # (LIBERAR | LOCAL). SOMBRA conta e registra quem seria barrado, sem barrar: as politicas
+  # novas nascem assim para calibrar com o trafego real antes de ativar.
+  # A politica de lookup continua vindo de ces.lookup.rate-limit (ja ativa).
+  rate-limit:
+    habilitado: ${CES_RATE_LIMIT_HABILITADO:true}
+    modo-padrao: ${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}
+    timeout-armazem: ${CES_RATE_LIMIT_TIMEOUT_ARMAZEM:PT0.5S}
+    pausa-apos-falha: ${CES_RATE_LIMIT_PAUSA_APOS_FALHA:PT30S}
+    politicas:
+      login-ip:
+        capacidade: ${CES_RATE_LIMIT_LOGIN_IP_CAPACIDADE:30}
+        periodo: ${CES_RATE_LIMIT_LOGIN_IP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_LOGIN_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LOCAL
+      login-falhas-conta-ip:
+        capacidade: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_CAPACIDADE:10}
+        periodo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_PERIODO:PT15M}
+        modo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LOCAL
+      login-falhas-conta:
+        capacidade: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_CAPACIDADE:50}
+        periodo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_PERIODO:PT1H}
+        modo: ${CES_RATE_LIMIT_LOGIN_FALHAS_CONTA_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LOCAL
+      sessao-ip:
+        capacidade: ${CES_RATE_LIMIT_SESSAO_IP_CAPACIDADE:120}
+        periodo: ${CES_RATE_LIMIT_SESSAO_IP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_SESSAO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
+      publico-ip:
+        capacidade: ${CES_RATE_LIMIT_PUBLICO_IP_CAPACIDADE:60}
+        periodo: ${CES_RATE_LIMIT_PUBLICO_IP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_PUBLICO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LOCAL
+      verificacao-ip:
+        capacidade: ${CES_RATE_LIMIT_VERIFICACAO_IP_CAPACIDADE:30}
+        periodo: ${CES_RATE_LIMIT_VERIFICACAO_IP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_VERIFICACAO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LOCAL
+      oauth-ip:
+        capacidade: ${CES_RATE_LIMIT_OAUTH_IP_CAPACIDADE:30}
+        periodo: ${CES_RATE_LIMIT_OAUTH_IP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_OAUTH_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LOCAL
+      mcp:
+        capacidade: ${CES_RATE_LIMIT_MCP_CAPACIDADE:240}
+        periodo: ${CES_RATE_LIMIT_MCP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_MCP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
+      websocket-ip:
+        capacidade: ${CES_RATE_LIMIT_WEBSOCKET_IP_CAPACIDADE:600}
+        periodo: ${CES_RATE_LIMIT_WEBSOCKET_IP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_WEBSOCKET_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
+      anonimo-ip:
+        capacidade: ${CES_RATE_LIMIT_ANONIMO_IP_CAPACIDADE:300}
+        periodo: ${CES_RATE_LIMIT_ANONIMO_IP_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_ANONIMO_IP_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
+      usuario:
+        capacidade: ${CES_RATE_LIMIT_USUARIO_CAPACIDADE:1200}
+        periodo: ${CES_RATE_LIMIT_USUARIO_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_USUARIO_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
+      usuario-pesado:
+        capacidade: ${CES_RATE_LIMIT_USUARIO_PESADO_CAPACIDADE:30}
+        periodo: ${CES_RATE_LIMIT_USUARIO_PESADO_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_USUARIO_PESADO_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
+      upload:
+        capacidade: ${CES_RATE_LIMIT_UPLOAD_CAPACIDADE:120}
+        periodo: ${CES_RATE_LIMIT_UPLOAD_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_UPLOAD_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
+      copiloto:
+        capacidade: ${CES_RATE_LIMIT_COPILOTO_CAPACIDADE:20}
+        periodo: ${CES_RATE_LIMIT_COPILOTO_PERIODO:PT1M}
+        modo: ${CES_RATE_LIMIT_COPILOTO_MODO:${CES_RATE_LIMIT_MODO_PADRAO:SOMBRA}}
+        falha-armazem: LIBERAR
   auditoria-solicitacao:
     versao-ativa: ${CES_AUDITORIA_SOLICITACAO_VERSAO_ATIVA}
     chaves:
@@ -282,6 +363,9 @@ ces:
     remetente: ${EMAIL_REMETENTE:nao-responda@exemplo.com.br}
     remetente-nome: ${EMAIL_REMETENTE_NOME:Nexo — Gestão Operacional}
     responder-para: ${EMAIL_RESPONDER_PARA:}
+    # Ambiente de teste (homologação): todo e-mail vai só para estes endereços (vírgula
+    # separa), com o assunto marcado e os destinatários originais no corpo. Vazio na produção.
+    redirecionar-para: ${EMAIL_REDIRECIONAR_PARA:}
     # Raiz do frontend: é o que transforma o deeplink da notificação no botão do
     # e-mail. Sem ela o e-mail sai sem link rápido.
     url-base: ${CES_URL_BASE:}

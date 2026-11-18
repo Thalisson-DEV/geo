@@ -14,10 +14,10 @@ export type TipoNota = 'COMUM' | 'AVULSA' | 'OCORRENCIA';
 /** EQUIPE movimenta o saldo da equipe; CONCESSIONARIA (Concessionária) é só registro. */
 export type OrigemMaterial = 'EQUIPE' | 'CONCESSIONARIA';
 
-export const TIPOS_NOTA: Record<TipoNota, { rotulo: string; tom: 'neutral' | 'info' | 'warning' }> = {
-  COMUM: { rotulo: 'Comum', tom: 'neutral' },
-  AVULSA: { rotulo: 'Avulsa', tom: 'info' },
-  OCORRENCIA: { rotulo: 'Ocorrência', tom: 'info' }
+export const TIPOS_NOTA: Record<TipoNota, { rotulo: string; tom: 'neutral' | 'info' | 'warning'; icone: string }> = {
+  COMUM: { rotulo: 'Comum', tom: 'neutral', icone: 'pi-file' },
+  AVULSA: { rotulo: 'Avulsa', tom: 'info', icone: 'pi-file-edit' },
+  OCORRENCIA: { rotulo: 'Ocorrência', tom: 'info', icone: 'pi-bolt' }
 };
 
 export const ORIGENS_MATERIAL: Record<OrigemMaterial, string> = {
@@ -81,6 +81,9 @@ export interface ExecucaoMaterialResponse {
   operacao: OperacaoMaterial;
   numSerie?: string;
   origem: OrigemMaterial;
+  /** O que a equipe digitou em outra unidade (ex.: 2,5 M de fita); {@link quantidade} está na unidade do material. */
+  quantidadeInformada?: number | null;
+  unidadeInformada?: string | null;
 }
 
 export interface ExecucaoComercialResponse {
@@ -193,6 +196,8 @@ export interface ExecucaoFilters {
   referenciaNota?: string;
   referencia?: string;
   idEquipe?: string;
+  /** Bases operacionais das equipes (a base atual de cada equipe). */
+  idBaseOperacional?: string[];
   idMunicipio?: string;
   dataLancamentoDe?: string;
   dataLancamentoAte?: string;

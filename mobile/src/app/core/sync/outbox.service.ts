@@ -252,6 +252,17 @@ export class OutboxService {
     return em;
   }
 
+  /**
+   * Adia pelo tempo que o servidor pediu (429 com Retry-After). A folga de até 20% evita que
+   * os aparelhos barrados juntos voltem todos no mesmo instante.
+   */
+  async adiarPor(id: string, esperaMs: number, agora = Date.now(), aleatorio = Math.random()): Promise<number> {
+    const base = Math.min(ESPERA_MAX_MS, Math.max(1_000, Number.isFinite(esperaMs) ? esperaMs : ESPERA_BASE_MS));
+    const em = agora + Math.round(base * (1 + Math.min(1, Math.max(0, aleatorio)) * 0.2));
+    await db.outbox.update(id, { proximaTentativaEm: em });
+    return em;
+  }
+
   /** Menor instante agendado entre os pendentes adiados (para acordar a fila na hora certa). */
   async proximoReenvioAgendado(): Promise<number | null> {
     const agora = Date.now();
@@ -327,6 +338,12 @@ export class OutboxService {
       status, erroDetalhes,
       ...(status === 'SINCRONIZADO' ? { receiptStatus: 'RESOLVED', proximaTentativaEm: undefined } : {}),
     });
+    await this.updatePendingCount();
+  }
+
+  /** Volta um item recusado para a fila (depois de corrigida a causa), do zero. */
+  async reenviar(id: string): Promise<void> {
+    await db.outbox.update(id, { status: 'PENDENTE', erroDetalhes: undefined, tentativas: 0, proximaTentativaEm: undefined });
     await this.updatePendingCount();
   }
 
@@ -452,7 +469,8 @@ export class OutboxService {
   /**
    * Atualiza o valor do signal pendingCount.
    */
-  private async updatePendingCount(): Promise<void> {
+  /** Reconta a fila; público para quem grava item e registro local na mesma transação. */
+  async updatePendingCount(): Promise<void> {
     const [total, errors] = await Promise.all([
       db.outbox.where('status').anyOf(['PENDENTE', 'ERRO', 'RESULTADO_INCERTO']).count(),
       db.outbox.where('status').equals('ERRO').count()

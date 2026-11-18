@@ -27,7 +27,10 @@ import {
   SubprojetoVinculoRequest,
   TipoAnexoObraFilter,
   TipoAnexoObraRequest,
-  TipoAnexoObraResponse
+  TipoAnexoObraResponse,
+  TipoDeObraFilter,
+  TipoDeObraRequest,
+  TipoDeObraResponse
 } from '../models/obras.models';
 import { PagedResponse } from '../models/shared.models';
 import { toHttpParams } from '../utils/http-params.util';
@@ -43,6 +46,7 @@ export class ObrasService extends BaseService {
   private statusAtivos$?: Observable<StatusObraResponse[]>;
   private agentesAtivos$?: Observable<AgenteResponsavelResponse[]>;
   private tiposAnexosAtivos$?: Observable<TipoAnexoObraResponse[]>;
+  private tiposObraAtivos$?: Observable<TipoDeObraResponse[]>;
 
   // ═══════════════════════════════════════════════════════════════════════
   // Obras Principais (CRUD + Operações de Domínio)
@@ -277,6 +281,43 @@ export class ObrasService extends BaseService {
   desativarAgente(id: string): Observable<void | null> {
     this.agentesAtivos$ = undefined;
     return this.deleteSync(`${this.baseUrl}/agentes`, id);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // Cadastros Auxiliares: Tipos de Obra (/v1/obras/tipos-obra)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  listarTiposObraAtivos(forceRefresh = false): Observable<TipoDeObraResponse[]> {
+    if (!this.tiposObraAtivos$ || forceRefresh) {
+      this.tiposObraAtivos$ = this.http.get<TipoDeObraResponse[]>(`${this.baseUrl}/tipos-obra/todos-ativos`).pipe(
+        shareReplay({ bufferSize: 1, refCount: false })
+      );
+    }
+    return this.tiposObraAtivos$;
+  }
+
+  listarTiposObra(filter: TipoDeObraFilter = {}): Observable<PagedResponse<TipoDeObraResponse>> {
+    return this.getList<TipoDeObraResponse>(`${this.baseUrl}/tipos-obra`, filter);
+  }
+
+  criarTipoObra(request: TipoDeObraRequest): Observable<TipoDeObraResponse | null> {
+    this.tiposObraAtivos$ = undefined;
+    return this.createSync<TipoDeObraResponse>(`${this.baseUrl}/tipos-obra`, request);
+  }
+
+  atualizarTipoObra(id: string, request: TipoDeObraRequest): Observable<TipoDeObraResponse | null> {
+    this.tiposObraAtivos$ = undefined;
+    return this.updateSync<TipoDeObraResponse>(`${this.baseUrl}/tipos-obra`, id, request);
+  }
+
+  desativarTipoObra(id: string): Observable<void | null> {
+    this.tiposObraAtivos$ = undefined;
+    return this.deleteSync(`${this.baseUrl}/tipos-obra`, id);
+  }
+
+  reativarTipoObra(id: string): Observable<void> {
+    this.tiposObraAtivos$ = undefined;
+    return this.http.patch<void>(`${this.baseUrl}/tipos-obra/${id}/reativar`, {});
   }
 
   // ═══════════════════════════════════════════════════════════════════════

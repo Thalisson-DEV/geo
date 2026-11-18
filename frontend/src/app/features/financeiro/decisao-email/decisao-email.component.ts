@@ -203,7 +203,7 @@ const MINIMO_MOTIVO = 5;
         <section class="cartao" aria-labelledby="titulo-solicitacao">
           <div class="linha-titulo">
             <h1 id="titulo-solicitacao">{{ d.titulo }}</h1>
-            <ces-status [tone]="d.situacao === 'DISPONIVEL' ? 'warning' : 'neutral'">{{ d.situacaoSolicitacao }}</ces-status>
+            <ces-status [tone]="d.situacao === 'DISPONIVEL' ? 'warning' : 'neutral'" [icon]="d.situacao === 'DISPONIVEL' ? 'pi-hourglass' : d.situacao === 'EXPIRADO' ? 'pi-calendar-times' : d.situacao === 'SEM_PERMISSAO' ? 'pi-lock' : 'pi-check-circle'">{{ d.situacaoSolicitacao }}</ces-status>
           </div>
           @if (d.valorSolicitado != null) {
             <div>

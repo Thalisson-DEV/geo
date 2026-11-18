@@ -32,7 +32,7 @@ const os = (id: string, situacao: SituacaoOrdemServico, extra: Partial<OrdemServ
 } as OrdemServico);
 
 type Quadro = {
-  colunas(): { def: { id: string }; total: number; carregados: number; atrasadas: number; grupos: { id: string; total: number }[] }[];
+  colunas(): { def: { id: string }; total: number; carregados: number; atrasadas: number; grupos: { id: string; total: number; tone: string }[] }[];
   agrupar(v: string): void;
   acaoDeSoltar(c: string): { acao: string } | null;
   iniciarArraste(item: OrdemServico, de: string): void;
@@ -124,8 +124,10 @@ describe('Visões das OS', () => {
     it('agrupa pela próxima ação e conta as atrasadas de cada coluna', async () => {
       const { quadro } = await abrirQuadro();
       const [aAgendar, agendadas, emExecucao] = quadro.colunas();
-      expect(aAgendar.grupos.map((g) => g.id)).toEqual(['URGENTES', 'ORCAMENTO', 'DEMAIS']);
-      expect(agendadas.grupos.map((g) => g.id)).toEqual(['PASSADA', 'SEMANA']);
+      // Uma faixa por criticidade nas pendentes; nas agendadas, hoje, amanhã e demais.
+      expect(aAgendar.grupos.map((g) => g.id)).toEqual(['URGENTE', 'MEDIA']);
+      expect(aAgendar.grupos.map((g) => g.tone)).toEqual(['crit-urgente', 'crit-media']);
+      expect(agendadas.grupos.map((g) => g.id)).toEqual(['PASSADA', 'DEMAIS']);
       expect(agendadas.atrasadas).toBe(1);
       expect(emExecucao.grupos.map((g) => g.id)).toEqual(['ESTOURADO']);
       expect(emExecucao.atrasadas).toBe(1);

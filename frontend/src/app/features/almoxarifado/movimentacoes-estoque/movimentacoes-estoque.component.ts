@@ -1,7 +1,10 @@
+import { iconeCondicao } from '../../../shared/utils/movimentacao.utils';
+import { DevolucaoComercialDrawerComponent } from './devolucao-comercial/devolucao-comercial-drawer.component';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   CesAutocompleteComponent,
   CesButtonComponent,
@@ -24,14 +27,18 @@ import {
   cesFilter,
   cesListState
 } from '@ces/ui';
+import { catchError, of, switchMap } from 'rxjs';
 
 import { RemoteLookup as BuscaMateriais } from '../../../core/lookup/store/remote-lookup';
 import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import {
   EstoqueResponse,
   MaterialResponse,
+  MotivoMovimentacao,
+  MovimentacaoContagensResponse,
   MovimentacaoOperacaoResponse,
   MovimentacaoOperacaoSummaryResponse,
+  ProcessoMovimentacao,
   TipoMovimentacao
 } from '../../../core/models/almoxarifado.models';
 import { BaseOperacionalResponse } from '../../../core/models/rh.models';
@@ -39,17 +46,36 @@ import { generateReferenceOptions, getErrorMessage } from '../../../core/models/
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { RhService } from '../../../core/services/rh.service';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
-import { AnalisarComCopilotoComponent } from '../../../shared/components/analisar-com-copiloto/analisar-com-copiloto.component';
 import { AuditDialogComponent } from '../../../shared/components/audit-dialog/audit-dialog.component';
 import { SaldoEstoqueDialogComponent } from '../../../shared/components/saldo-estoque-dialog/saldo-estoque-dialog.component';
 import { SeriesGradeComponent, SerieGradeItem } from '../../../shared/components/series-grade/series-grade.component';
-import { ItemMovimentacaoAgrupado, agruparItensPorMaterial, rotuloCondicao, tomCondicao } from '../../../shared/utils/movimentacao.utils';
+import {
+  ItemMovimentacaoAgrupado,
+  MOTIVOS_MOVIMENTACAO,
+  agruparItensPorMaterial,
+  iconeTipoMovimentacao,
+  rotuloCondicao,
+  rotuloMotivo,
+  tomCondicao,
+  tomTipoMovimentacao
+} from '../../../shared/utils/movimentacao.utils';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
 import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
+import {
+  CopilotoAreaComponent,
+  CopilotoDashboardContext,
+  CopilotoGatilhoComponent,
+  CopilotoPainelService,
+  filtroPainel,
+  graficoPainel,
+  metricaPainel,
+  periodoPainel
+} from '../../copiloto/painel';
 import { MovimentacoesImportacaoComponent } from './movimentacoes-importacao.component';
+import { OperacaoEstoqueDrawerComponent, TipoOperacaoEstoque } from './operacao-estoque/operacao-estoque-drawer.component';
 
 export interface OperacaoCardOption {
-  tipo: TipoMovimentacao | 'DEVOLUCAO_TECNICA' | 'IMPORTACAO';
+  tipo: TipoMovimentacao | 'DEVOLUCAO_COMERCIAL' | 'DEVOLUCAO_TECNICA' | 'IMPORTACAO';
   titulo: string;
   subtitulo: string;
   tag: string;
@@ -57,6 +83,8 @@ export interface OperacaoCardOption {
   rota: string;
   icone: string;
   badgeTone: CesTone;
+  /** Ícone da tag do cartão; complementa o ícone grande da operação. */
+  tagIcone: string;
 }
 
 const TIPOS: CesSelectOption<TipoMovimentacao | null>[] = [
@@ -70,18 +98,13 @@ const TIPOS: CesSelectOption<TipoMovimentacao | null>[] = [
   { label: 'Retirada', value: 'RETIRADA' },
   { label: 'Aplicação', value: 'APLICACAO' }
 ];
-const TOM_TIPO: Record<string, CesTone> = {
-  ENTRADA: 'success',
-  ENTRADA_AVULSA: 'success',
-  SAIDA: 'danger',
-  BAIXA_AVULSA: 'danger',
-  TRANSFERENCIA: 'brand',
-  ENTREGA: 'info',
-  DEVOLUCAO: 'brand',
-  ESTORNO: 'warning',
-  RETIRADA: 'info',
-  APLICACAO: 'neutral'
-};
+const OPERACAO_DA_URL: Record<string, TipoOperacaoEstoque> = { entrada: 'ENTRADA', baixa: 'BAIXA', transferencia: 'TRANSFERENCIA' };
+const PROCESSOS: CesSelectOption<ProcessoMovimentacao | null>[] = [
+  { label: 'Todos', value: null },
+  { label: 'Comercial', value: 'COMERCIAL' },
+  { label: 'Técnico', value: 'TECNICO' },
+  { label: 'Fechamento', value: 'FECHAMENTO' }
+];
 const OPERACOES: OperacaoCardOption[] = [
   {
     tipo: 'TRANSFERENCIA',
@@ -89,9 +112,10 @@ const OPERACOES: OperacaoCardOption[] = [
     subtitulo: 'Movimentação',
     tag: 'Transferência',
     descricao: 'Remanejamento de materiais entre bases ou almoxarifados, com conferência física e validação de saldos.',
-    rota: '/almoxarifado/transferencia-lote',
+    rota: 'TRANSFERENCIA',
     icone: 'pi pi-arrow-right-arrow-left',
-    badgeTone: 'brand'
+    badgeTone: 'brand',
+    tagIcone: 'pi-sync'
   },
   {
     tipo: 'ENTRADA_AVULSA',
@@ -99,9 +123,10 @@ const OPERACOES: OperacaoCardOption[] = [
     subtitulo: 'Ajuste positivo',
     tag: 'Entrada',
     descricao: 'Incorporação extraordinária por ajuste de inventário, devolução de equipe, suprimento emergencial ou bonificação.',
-    rota: '/almoxarifado/entrada-avulsa',
+    rota: 'ENTRADA',
     icone: 'pi pi-plus-circle',
-    badgeTone: 'success'
+    badgeTone: 'success',
+    tagIcone: 'pi-plus'
   },
   {
     tipo: 'BAIXA_AVULSA',
@@ -109,9 +134,21 @@ const OPERACOES: OperacaoCardOption[] = [
     subtitulo: 'Ajuste negativo',
     tag: 'Baixa / descarte',
     descricao: 'Desincorporação definitiva por sucateamento, perda, avaria irreparável ou correção de inventário.',
-    rota: '/almoxarifado/baixa-avulsa',
+    rota: 'BAIXA',
     icone: 'pi pi-trash',
-    badgeTone: 'danger'
+    badgeTone: 'danger',
+    tagIcone: 'pi-minus'
+  },
+  {
+    tipo: 'DEVOLUCAO_COMERCIAL',
+    titulo: 'Devolução comercial',
+    subtitulo: 'Processo comercial',
+    tag: '222 — Comercial',
+    descricao: 'Devolução do estoque de campo de uma equipe comercial para o almoxarifado físico (novo ou sucata).',
+    rota: 'DEVOLUCAO_COMERCIAL',
+    icone: 'pi pi-undo',
+    badgeTone: 'brand',
+    tagIcone: 'pi-briefcase'
   },
   {
     tipo: 'DEVOLUCAO_TECNICA',
@@ -121,7 +158,8 @@ const OPERACOES: OperacaoCardOption[] = [
     descricao: 'Devolução de material da obra para o almoxarifado físico (novo ou sucata), mesmo que não esteja no saldo da obra.',
     rota: '/almoxarifado/solicitacoes-tecnicas/devolucao',
     icone: 'pi pi-undo',
-    badgeTone: 'brand'
+    badgeTone: 'brand',
+    tagIcone: 'pi-cog'
   },
   {
     tipo: 'IMPORTACAO',
@@ -131,7 +169,8 @@ const OPERACOES: OperacaoCardOption[] = [
     descricao: 'Movimentações em lote por planilha CSV, com vários números de série na mesma linha e conferência prévia.',
     rota: 'IMPORT_MODAL',
     icone: 'pi pi-file-import',
-    badgeTone: 'info'
+    badgeTone: 'info',
+    tagIcone: 'pi-table'
   }
 ];
 
@@ -140,6 +179,7 @@ const OPERACOES: OperacaoCardOption[] = [
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    DevolucaoComercialDrawerComponent,
     DatePipe,
     DecimalPipe,
     FormsModule,
@@ -158,14 +198,17 @@ const OPERACOES: OperacaoCardOption[] = [
     CesSelectComponent,
     CesStatusComponent,
     CesTextInputComponent,
-    AnalisarComCopilotoComponent,
+    CopilotoAreaComponent,
+    CopilotoGatilhoComponent,
     AuditDialogComponent,
     SaldoEstoqueDialogComponent,
     SeriesGradeComponent,
     AjudaListagemComponent,
-    MovimentacoesImportacaoComponent
+    MovimentacoesImportacaoComponent,
+    OperacaoEstoqueDrawerComponent
   ],
   template: `
+    <app-copiloto-area [contexto]="contextoCopiloto()">
     <div class="ces-page" cesListShortcuts #atalhos="cesListShortcuts" [newAction]="true" (newRequested)="novaOperacaoAberta.set(true)">
       <ces-page-header
         title="Movimentações de estoque"
@@ -175,8 +218,7 @@ const OPERACOES: OperacaoCardOption[] = [
         helpLabel="Ajuda sobre movimentações de estoque"
         (help)="ajuda.show()"
       >
-        <app-analisar-com-copiloto actions origem="Movimentações de estoque" tipo="movimentacoes" size="md" [filtros]="filtrosCopiloto()"
-          pergunta="Quais materiais tiveram mais saídas neste mês? Compare com o mês anterior." />
+        <app-copiloto-gatilho actions></app-copiloto-gatilho>
         <ces-button actions variant="outline" icon="pi pi-upload" label="Importar" (pressed)="importacaoAberta.set(true)"></ces-button>
         <ces-button actions icon="pi pi-plus" label="Nova movimentação" [keyShortcut]="atalhos.newShortcut()" (pressed)="novaOperacaoAberta.set(true)"></ces-button>
       </ces-page-header>
@@ -193,12 +235,33 @@ const OPERACOES: OperacaoCardOption[] = [
           <ces-select label="Base de destino" [options]="baseOptions()" [(value)]="lista.filters.idBaseDestino" [clearable]="true" [filter]="true" placeholder="Todas"
             [loading]="bases.loading()" (opened)="bases.open()" (search)="bases.search($event)"></ces-select>
           <ces-select label="Tipo" [options]="tipos" [(value)]="lista.filters.tipo"></ces-select>
+          <ces-select label="Motivo" [options]="motivos" [(value)]="lista.filters.motivo" [clearable]="true" placeholder="Todos"></ces-select>
           <ces-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Mês/ano"></ces-select>
           <ces-text-input label="Número de série" [(value)]="lista.filters.numSerie" hint="Não fica salvo no endereço da página."></ces-text-input>
           <ces-datepicker label="A partir de" [value]="dataLocal(lista.filters.periodo().from)" [clearable]="true" (valueChange)="periodo('from', $event)"></ces-datepicker>
           <ces-datepicker label="Até" [value]="dataLocal(lista.filters.periodo().to)" [clearable]="true" (valueChange)="periodo('to', $event)"></ces-datepicker>
         </div>
       </ces-filter-panel>
+
+      <div class="mov-toolbar">
+        <div class="ces-quick-filters mov-atalhos" role="group" aria-label="Mostrar só o tipo escolhido">
+          <button type="button" class="ces-quick-filter" [attr.aria-pressed]="!lista.applied().tipo" (click)="definirTipo(null)">
+            Todas <span class="mov-contagem">{{ contagens()?.total ?? '–' }}</span>
+          </button>
+          <span class="mov-divisor" aria-hidden="true"></span>
+          @for (t of atalhosTipo; track t.value) {
+            <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().tipo === t.value" [attr.data-tone]="tipoTone(t.value)" (click)="definirTipo(t.value)"
+              [attr.aria-label]="t.label + ': ' + contagemTipo(t.value)">
+              <i [class]="tipoIcone(t.value)" aria-hidden="true"></i> {{ t.label }} <span class="mov-contagem">{{ contagemTipo(t.value) }}</span>
+            </button>
+          }
+        </div>
+        <div class="mov-processos" role="group" aria-label="Mostrar só o processo escolhido">
+          @for (p of processos; track p.value) {
+            <button type="button" [attr.aria-pressed]="lista.applied().processo === p.value" (click)="lista.set('processo', p.value)">{{ p.label }}</button>
+          }
+        </div>
+      </div>
 
       <ces-data-table
         title="Operações"
@@ -228,7 +291,7 @@ const OPERACOES: OperacaoCardOption[] = [
         (rowActivate)="verDetalhes($event)"
       >
         <ng-template cesCell="operacao" let-mov><span class="ces-cell-strong">#{{ mov.idReferenciaOperacao?.substring(0, 8) }}</span></ng-template>
-        <ng-template cesCell="tipo" let-mov><ces-status [tone]="tipoTone(mov.tipo)">{{ tipoLabel(mov.tipo) }}</ces-status></ng-template>
+        <ng-template cesCell="tipo" let-mov><ces-status [tone]="tipoTone(mov.tipo)" [icon]="tipoIcone(mov.tipo)">{{ tipoLabel(mov.tipo) }}</ces-status></ng-template>
         <ng-template cesRowActions let-mov>
           <span class="ces-table-actions">
             <ces-icon-button icon="pi pi-print" [label]="'Imprimir relatório da operação #' + mov.idReferenciaOperacao?.substring(0, 8)" size="icon-sm" (pressed)="imprimir(mov)"></ces-icon-button>
@@ -237,6 +300,7 @@ const OPERACOES: OperacaoCardOption[] = [
         </ng-template>
       </ces-data-table>
     </div>
+    </app-copiloto-area>
 
     <ces-dialog-shell title="Nova operação de estoque" size="lg" [visible]="novaOperacaoAberta()" (visibleChange)="novaOperacaoAberta.set($event)">
       <div class="ces-card-grid">
@@ -244,7 +308,7 @@ const OPERACOES: OperacaoCardOption[] = [
           <button type="button" class="ces-choice-card" (click)="navigateToOperation(op.rota)">
             <span class="ces-choice-card__head">
               <i [class]="op.icone" aria-hidden="true"></i>
-              <ces-status [tone]="op.badgeTone">{{ op.tag }}</ces-status>
+              <ces-status [tone]="op.badgeTone" [icon]="op.tagIcone">{{ op.tag }}</ces-status>
             </span>
             <span class="ces-cell-muted">{{ op.subtitulo }}</span>
             <strong>{{ op.titulo }}</strong>
@@ -263,7 +327,13 @@ const OPERACOES: OperacaoCardOption[] = [
         <dl class="ces-details-grid">
           <div><dt>Operação</dt><dd class="ces-cell-strong">#{{ op.idReferenciaOperacao.slice(0, 8) }}</dd></div>
           <div><dt>Data</dt><dd>{{ op.dataHora | date: 'dd/MM/yyyy HH:mm:ss' }}</dd></div>
-          <div><dt>Tipo</dt><dd><ces-status [tone]="tipoTone(op.tipo)">{{ tipoLabel(op.tipo) }}</ces-status></dd></div>
+          <div><dt>Tipo</dt><dd><ces-status [tone]="tipoTone(op.tipo)" [icon]="tipoIcone(op.tipo)">{{ tipoLabel(op.tipo) }}</ces-status></dd></div>
+          @if (op.numeroNota) {
+            <div><dt>Nota</dt><dd class="ces-cell-strong">{{ op.numeroNota }}</dd></div>
+          }
+          @if (op.motivo) {
+            <div><dt>Motivo</dt><dd>{{ rotuloMotivo(op.motivo) }}</dd></div>
+          }
           <div><dt>Operador</dt><dd>{{ op.operadorNome || 'Não identificado' }}</dd></div>
           <div>
             <dt>Origem</dt>
@@ -284,6 +354,9 @@ const OPERACOES: OperacaoCardOption[] = [
             </dd>
           </div>
         </dl>
+        @if (op.observacao) {
+          <p class="ces-detalhe-observacao"><strong>Observação:</strong> {{ op.observacao }}</p>
+        }
         <ces-data-table [caption]="itensAgrupados().length + (itensAgrupados().length === 1 ? ' material' : ' materiais') + ' · total ' + (totalSelecionado() | number: '1.0-3')"
           searchPlaceholder="Buscar por código, material ou série" [searchable]="itensAgrupados().length > 8"
           [columns]="colunasItens" [rows]="itensAgrupados()" [rowKey]="chaveItem" [rowExpandable]="temSeries" [pageSizeOptions]="[25, 50, 100]">
@@ -293,7 +366,7 @@ const OPERACOES: OperacaoCardOption[] = [
               <ces-status tone="brand" icon="pi pi-barcode">{{ g.series.length }} {{ g.series.length === 1 ? 'série' : 'séries' }}</ces-status>
             }
           </ng-template>
-          <ng-template cesCell="condicao" let-g><ces-status [tone]="tomCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</ces-status></ng-template>
+          <ng-template cesCell="condicao" let-g><ces-status [tone]="tomCondicao(g.condicao)" [icon]="iconeCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</ces-status></ng-template>
           <ng-template cesRowDetail let-g>
             <app-series-grade [series]="g.grade" [rotulo]="'Números de série de ' + g.material?.descricao" />
           </ng-template>
@@ -307,7 +380,9 @@ const OPERACOES: OperacaoCardOption[] = [
       </div>
     </ces-dialog-shell>
 
-    <app-movimentacoes-importacao [(visible)]="importacaoAberta" [estoques]="estoques()" [materiais]="materiais()" (processado)="lista.reload()"></app-movimentacoes-importacao>
+    <app-operacao-estoque-drawer [(visible)]="operacaoAberta" [tipo]="tipoOperacao()" [estoques]="estoques()" (registrada)="atualizar()" (importar)="abrirImportacao()" />
+    <app-devolucao-comercial-drawer [(visible)]="devolucaoComercialAberta" [estoques]="estoques()" (registrada)="atualizar()" />
+    <app-movimentacoes-importacao [(visible)]="importacaoAberta" [estoques]="estoques()" [materiais]="materiais()" (processado)="atualizar()"></app-movimentacoes-importacao>
     <app-audit-dialog #auditoria></app-audit-dialog>
     <app-saldo-estoque-dialog #saldo></app-saldo-estoque-dialog>
     <app-ajuda-listagem #ajuda titulo="Movimentações de estoque" artigoPlural="as" entidadePlural="movimentações" busca="operação, material ou número de série"
@@ -316,9 +391,47 @@ const OPERACOES: OperacaoCardOption[] = [
         <h4 class="help-section-title"><i class="pi pi-bolt"></i> Operações</h4>
         <p class="help-text-desc">"Nova movimentação" leva à transferência entre estoques, entrada avulsa, baixa avulsa, devolução comercial ou à importação em lote.</p>
       </div>
+      <div class="help-section">
+        <h4 class="help-section-title"><i class="pi pi-filter"></i> Atalhos de tipo e processo</h4>
+        <p class="help-text-desc">Abaixo dos filtros, escolha um tipo à esquerda e um processo à direita; os dois se combinam. O comercial reúne também as aplicações, retiradas e devoluções, que não têm solicitação. Ajustes avulsos e transferências aparecem só em "Todos".</p>
+      </div>
     </app-ajuda-listagem>
   `,
   styles: `
+    .mov-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+    .mov-atalhos { flex: 1 1 auto; min-width: 0; }
+    .mov-atalhos .pi { font-size: 0.75rem; color: var(--mov-tom, currentColor); }
+    .ces-quick-filter[aria-pressed='true'] .pi { color: inherit; }
+    .mov-contagem {
+      display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem;
+      border-radius: 999px; background: var(--ces-surface-muted); color: var(--ces-foreground-muted);
+      font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+    }
+    .ces-quick-filter[aria-pressed='true'] .mov-contagem { background: var(--ces-surface); color: var(--ces-foreground); }
+    .mov-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--ces-border); }
+    [data-tone='warning'] { --mov-tom: var(--ces-warning); }
+    [data-tone='info'] { --mov-tom: var(--ces-info); }
+    [data-tone='success'] { --mov-tom: var(--ces-success); }
+    [data-tone='danger'] { --mov-tom: var(--ces-danger); }
+    [data-tone='brand'] { --mov-tom: var(--ces-primary); }
+    [data-tone='neutral'] { --mov-tom: var(--ces-foreground-subtle); }
+    .mov-processos { display: inline-flex; flex: none; padding: 2px; border: 1px solid var(--ces-border); border-radius: var(--ces-radius-md); background: var(--ces-surface-subtle); }
+    .mov-processos button {
+      display: inline-flex; align-items: center; min-height: calc(var(--ces-control-height-sm) - 2px); padding: 0 0.75rem;
+      border: 0; border-radius: calc(var(--ces-radius-md) - 2px); background: transparent; color: var(--ces-foreground-muted);
+      font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer;
+    }
+    .mov-processos button:hover { color: var(--ces-foreground); }
+    .mov-processos button[aria-pressed='true'] { background: var(--ces-surface); color: var(--ces-foreground); box-shadow: var(--ces-shadow-sm); }
+    .mov-processos button:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 1px; }
+    @media (max-width: 40rem) {
+      .mov-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.625rem; }
+      .mov-atalhos { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
+      .mov-atalhos::-webkit-scrollbar { display: none; }
+      .mov-atalhos .ces-quick-filter { flex: none; scroll-snap-align: start; }
+      .mov-processos { width: 100%; }
+      .mov-processos button { flex: 1; justify-content: center; }
+    }
     .ces-card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
@@ -347,6 +460,7 @@ const OPERACOES: OperacaoCardOption[] = [
       margin-bottom: var(--ces-space-2, 0.5rem);
       font-size: 1.25rem;
     }
+    .ces-detalhe-observacao { margin: 0 0 var(--ces-space-4, 1rem); white-space: pre-line; }
     .ces-details-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
@@ -369,17 +483,26 @@ export class MovimentacoesEstoqueComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
   private readonly rh = inject(RhService);
   private readonly router = inject(Router);
+  private readonly rota = inject(ActivatedRoute);
   private readonly lookupStore = inject(LookupStore);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly copiloto = inject(CopilotoPainelService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
   private readonly saldo = viewChild.required<SaldoEstoqueDialogComponent>('saldo');
 
   protected readonly operacoes = OPERACOES;
   protected readonly tipos = TIPOS;
+  protected readonly atalhosTipo = TIPOS.filter((t) => t.value);
+  protected readonly processos = PROCESSOS;
+  protected readonly motivos = MOTIVOS_MOVIMENTACAO;
+  protected readonly rotuloMotivo = rotuloMotivo;
   protected readonly referencias: CesSelectOption<string>[] = generateReferenceOptions(24);
   protected readonly dataLocal = dataLocal;
   protected readonly novaOperacaoAberta = signal(false);
   protected readonly importacaoAberta = signal(false);
+  protected readonly devolucaoComercialAberta = signal(false);
+  protected readonly operacaoAberta = signal(false);
+  protected readonly tipoOperacao = signal<TipoOperacaoEstoque>('ENTRADA');
 
   protected readonly estoques = signal<EstoqueResponse[]>([]);
   protected readonly materiais = signal<MaterialResponse[]>([]);
@@ -415,6 +538,8 @@ export class MovimentacoesEstoqueComponent {
       idBaseOrigem: cesFilter.value<string | null>(null, { label: 'Base de origem', param: 'baseOrigem', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
       idBaseDestino: cesFilter.value<string | null>(null, { label: 'Base de destino', param: 'baseDestino', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
       tipo: cesFilter.value<TipoMovimentacao | null>(null, { label: 'Tipo', options: () => TIPOS }),
+      processo: cesFilter.value<ProcessoMovimentacao | null>(null, { label: 'Processo', options: () => PROCESSOS }),
+      motivo: cesFilter.value<MotivoMovimentacao | null>(null, { label: 'Motivo', options: () => MOTIVOS_MOVIMENTACAO }),
       referencia: cesFilter.value<string | null>(null, { label: 'Referência', param: 'ref', type: 'string' }),
       // Nº de série é dado sensível: fica fora da URL.
       numSerie: cesFilter.value<string>('', { label: 'Nº de série', url: false }),
@@ -432,9 +557,44 @@ export class MovimentacoesEstoqueComponent {
       } as never),
     { errorMessage: getErrorMessage }
   );
-  protected readonly filtrosCopiloto = computed(() => {
+  /** Quantas operações há de cada tipo no recorte, ignorando o tipo escolhido (para o número não sumir ao filtrar). */
+  protected readonly contagens = signal<MovimentacaoContagensResponse | null>(null);
+  private readonly versaoContagens = signal(0);
+
+  /** O que a Bússola recebe: o recorte em tela e a contagem de cada tipo. */
+  protected readonly contextoCopiloto = computed<CopilotoDashboardContext | null>(() => {
     const f = this.lista.applied();
-    return { estoque: f.idEstoque, tipo: f.tipo, inicio: dataLocal(f.periodo.from)?.toISOString(), fim: dataLocal(f.periodo.to)?.toISOString() };
+    const c = this.contagens();
+    const tipos = this.atalhosTipo.filter((t) => c?.porTipo?.[t.value!] !== undefined);
+    return {
+      id: 'almoxarifado.movimentacoes',
+      nome: 'Movimentações de estoque',
+      modulo: 'Almoxarifado',
+      descricao: 'Operações de estoque: entradas e baixas avulsas, transferências, entregas, devoluções, estornos e o que as equipes aplicam e retiram nas notas.',
+      rota: '/almoxarifado/movimentacoes',
+      periodo: periodoPainel(f.periodo.from ? dataLocal(f.periodo.from) : null, f.periodo.to ? dataLocal(f.periodo.to) : null),
+      filtros: [
+        filtroPainel('tipo', 'Tipo', f.tipo ? this.tipoLabel(f.tipo) : null, f.tipo),
+        filtroPainel('processo', 'Processo', f.processo ? PROCESSOS.find((p) => p.value === f.processo)?.label : null, f.processo),
+        filtroPainel('motivo', 'Motivo', f.motivo ? rotuloMotivo(f.motivo) : null, f.motivo),
+        filtroPainel('estoque', 'Estoque', f.idEstoque ? this.estoques().find((e) => e.id === f.idEstoque)?.nomeIdentificador : null, f.idEstoque),
+        filtroPainel('baseOrigem', 'Base de origem', f.idBaseOrigem ? this.nomeBase(f.idBaseOrigem) : null, f.idBaseOrigem),
+        filtroPainel('baseDestino', 'Base de destino', f.idBaseDestino ? this.nomeBase(f.idBaseDestino) : null, f.idBaseDestino),
+        filtroPainel('referencia', 'Referência', f.referencia, f.referencia)
+      ],
+      metricas: [
+        metricaPainel('total', 'Operações no recorte', c?.total, 'inteiro'),
+        ...tipos.map((t) => metricaPainel(`tipo.${t.value}`, t.label, c?.porTipo?.[t.value!], 'inteiro'))
+      ],
+      graficos: tipos.length
+        ? [graficoPainel('porTipo', 'rosca', 'Operações por tipo', tipos.map((t) => t.label), tipos.map((t) => c?.porTipo?.[t.value!] ?? 0), { metrica: 'operações', dimensao: 'tipo', formato: 'inteiro' })]
+        : [],
+      datasets: ['movimentacoes', 'materiais', 'estoques'],
+      sugestoes: [
+        { rotulo: 'Maiores saídas', icone: 'pi pi-sort-amount-down', requer: ['dados'], pergunta: 'Quais materiais tiveram mais saídas neste mês? Compare com o mês anterior.' },
+        { rotulo: 'Resumo do recorte', icone: 'pi pi-list', requer: ['dados'], pergunta: 'Resuma as movimentações deste recorte por tipo e aponte o que foge do normal.' }
+      ]
+    };
   });
 
   protected readonly colunas: CesDataTableColumn<MovimentacaoOperacaoSummaryResponse>[] = [
@@ -449,6 +609,7 @@ export class MovimentacoesEstoqueComponent {
       display: (m) => new Date(m.dataHora).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
     },
     { key: 'tipo', header: 'Tipo', type: 'custom', priority: 1, sortField: 'tipo', value: (m) => this.tipoLabel(m.tipo) },
+    { key: 'nota', header: 'Nota', value: (m) => m.numeroNota, display: (m) => m.numeroNota ?? '—' },
     { key: 'origem', header: 'Origem', value: (m) => m.estoqueOrigem?.nomeIdentificador, display: (m) => m.estoqueOrigem?.nomeIdentificador ?? '—' },
     { key: 'destino', header: 'Destino', value: (m) => m.estoqueDestino?.nomeIdentificador, display: (m) => m.estoqueDestino?.nomeIdentificador ?? '—' },
     { key: 'operador', header: 'Operador', sortField: 'operadorNome', value: (m) => m.operadorNome, display: (m) => m.operadorNome || '—' }
@@ -462,6 +623,7 @@ export class MovimentacoesEstoqueComponent {
   protected readonly totalSelecionado = computed(() => (this.operacaoSelecionada()?.itens ?? []).reduce((total, item) => total + (item.quantidade || 0), 0));
   protected readonly rotuloCondicao = rotuloCondicao;
   protected readonly tomCondicao = tomCondicao;
+  protected readonly iconeCondicao = iconeCondicao;
   /** Um material por linha; os seriados expandem com as séries (o backend manda uma linha por série). */
   protected readonly itensAgrupados = computed<(ItemMovimentacaoAgrupado & { grade: SerieGradeItem[] })[]>(() =>
     agruparItensPorMaterial(this.operacaoSelecionada()?.itens).map((g) => ({ ...g, grade: g.series.map((numSerie) => ({ numSerie })) }))
@@ -486,6 +648,60 @@ export class MovimentacoesEstoqueComponent {
   constructor() {
     this.almoxarifado.listarEstoquesAtivos().subscribe({ next: (r) => this.estoques.set(r?.content ?? []), error: () => undefined });
     this.almoxarifado.listarMateriais({ page: 0, size: 1000, ativo: true }).subscribe({ next: (r) => this.materiais.set(r?.content ?? []), error: () => undefined });
+
+    const consultaContagens = computed(
+      () => {
+        const { tipo: _tipo, ...recorte } = this.filtro();
+        return { recorte, versao: this.versaoContagens() };
+      },
+      { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) }
+    );
+    toObservable(consultaContagens)
+      .pipe(
+        switchMap(({ recorte }) => this.almoxarifado.contarMovimentacoes(recorte).pipe(catchError(() => of(null)))),
+        takeUntilDestroyed()
+      )
+      .subscribe((contagens) => this.contagens.set(contagens));
+
+    // Menu, favoritos e notificações chegam aqui pelas rotas antigas de cada operação.
+    this.rota.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const operacao = params.get('operacao');
+      const tipo = OPERACAO_DA_URL[operacao ?? ''];
+      if (!tipo && operacao !== 'devolucao-comercial') return;
+      if (tipo) this.abrirOperacao(tipo);
+      else this.devolucaoComercialAberta.set(true);
+      void this.router.navigate([], { relativeTo: this.rota, queryParams: { operacao: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    });
+  }
+
+  private abrirOperacao(tipo: TipoOperacaoEstoque): void {
+    this.tipoOperacao.set(tipo);
+    this.operacaoAberta.set(true);
+  }
+
+  protected abrirImportacao(): void {
+    this.operacaoAberta.set(false);
+    this.importacaoAberta.set(true);
+  }
+
+  /** Atalho de tipo: um por vez; clicar no escolhido volta para todas. */
+  protected definirTipo(tipo: TipoMovimentacao | null | undefined): void {
+    this.lista.set('tipo', this.lista.applied().tipo === tipo ? null : (tipo ?? null));
+  }
+
+  protected contagemTipo(tipo: TipoMovimentacao | null | undefined): number | string {
+    const c = this.contagens();
+    return c ? (c.porTipo?.[tipo!] ?? 0) : '–';
+  }
+
+  protected tipoIcone(tipo?: string | null): string {
+    return iconeTipoMovimentacao(tipo);
+  }
+
+  /** Algo foi lançado (importação, devolução): atualiza a lista e as contagens. */
+  protected atualizar(): void {
+    this.lista.reload();
+    this.versaoContagens.update((v) => v + 1);
   }
 
   private filtro(): Record<string, unknown> {
@@ -496,6 +712,8 @@ export class MovimentacoesEstoqueComponent {
     if (f.idBaseOrigem) params['idBaseOrigem'] = f.idBaseOrigem;
     if (f.idBaseDestino) params['idBaseDestino'] = f.idBaseDestino;
     if (f.tipo) params['tipo'] = f.tipo;
+    if (f.processo) params['processo'] = f.processo;
+    if (f.motivo) params['motivo'] = f.motivo;
     if (f.numSerie.trim()) params['numSerie'] = f.numSerie.trim();
     if (f.referencia) params['referencia'] = f.referencia;
     if (f.periodo.from) params['dataInicio'] = dataLocal(f.periodo.from)!.toISOString();
@@ -513,7 +731,7 @@ export class MovimentacoesEstoqueComponent {
   }
 
   protected tipoTone(tipo?: string | null): CesTone {
-    return (tipo && TOM_TIPO[tipo]) || 'neutral';
+    return tomTipoMovimentacao(tipo);
   }
 
   protected tipoLabel(tipo?: string | null): string {
@@ -521,6 +739,8 @@ export class MovimentacoesEstoqueComponent {
   }
 
   protected verDetalhes(mov: MovimentacaoOperacaoSummaryResponse): void {
+    // Abaixo de 1280px a Bússola sobrepõe a tela: não deixa os dois painéis empilhados.
+    if (typeof matchMedia === 'function' && !matchMedia('(min-width: 1280px)').matches) this.copiloto.fechar();
     this.operacaoSelecionada.set(null);
     this.loadingDetalhe.set(true);
     this.detalheVisible.set(true);
@@ -540,6 +760,14 @@ export class MovimentacoesEstoqueComponent {
     this.novaOperacaoAberta.set(false);
     if (rota === 'IMPORT_MODAL') {
       this.importacaoAberta.set(true);
+      return;
+    }
+    if (rota === 'ENTRADA' || rota === 'BAIXA' || rota === 'TRANSFERENCIA') {
+      this.abrirOperacao(rota);
+      return;
+    }
+    if (rota === 'DEVOLUCAO_COMERCIAL') {
+      this.devolucaoComercialAberta.set(true);
       return;
     }
     void this.router.navigate([rota]);

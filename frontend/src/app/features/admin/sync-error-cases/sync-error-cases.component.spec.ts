@@ -6,6 +6,7 @@ import { provideRouter } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { SyncErrorCasesComponent } from './sync-error-cases.component';
+import { SyncReferenceCatalogService } from './sync-reference-catalog.service';
 import { SyncErrorCasesService } from '../../../core/services/sync-error-cases.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { UsuarioLookupService } from '../../../core/services/usuario-lookup.service';
@@ -108,7 +109,14 @@ describe('SyncErrorCasesComponent', () => {
         { provide: MessageService, useValue: messageService },
         { provide: UsuarioLookupService, useValue: usuarioLookup },
         { provide: RhService, useValue: rhService },
-        { provide: CesConfirmationService, useValue: { confirm: () => Promise.resolve(true) } }
+        { provide: CesConfirmationService, useValue: { confirm: () => Promise.resolve(true) } },
+        {
+          provide: SyncReferenceCatalogService,
+          useValue: {
+            search: () => of({ items: [], nextCursor: null, hasMore: false }),
+            resolve: () => of(null)
+          }
+        }
       ]
     }).compileComponents();
 

@@ -132,13 +132,18 @@ public class McpServidor {
                 Voce age em nome de %s e enxerga somente o que essa pessoa enxerga no GEO.
                 - Para perguntas sobre dados, prefira as consultas de dominio e os indicadores; para algo especifico, \
                 use listar_fontes_dados e descrever_fonte_dados antes de consultar_fonte ou consultar_sql.
+                - Para saber em que nota um numero de serie (ex.: medidor) foi aplicado ou retirado, use \
+                notas_por_numero_serie com todas as series de uma vez; o numero da nota nao aparece nas fontes de dados.
                 - Consultas devolvem um codigo de resultado (r1, r2...). As ferramentas de analise reutilizam esse codigo \
                 sem repetir a consulta. Nunca invente numeros: use so o que as ferramentas devolverem.
                 - %s
                 - Responda em portugues do Brasil, em linguagem de negocio, sem expor nomes internos de tabelas ou colunas.
                 """.formatted(quem, sessao.permiteEscrita()
-                ? "Esta conexao pode cadastrar e alterar registros. Antes de gravar, mostre a pessoa o que sera feito e "
-                        + "peca confirmacao; depois informe o que foi gravado (com o identificador devolvido)."
+                ? "Esta conexao pode cadastrar, alterar registros e aprovar ou rejeitar solicitacoes (se o perfil da pessoa "
+                        + "permitir). Antes de gravar, mostre a pessoa o que sera feito e peca confirmacao; depois informe o que "
+                        + "foi gravado (com o identificador devolvido). Em aprovacoes, identifique cada solicitacao pelo tipo e "
+                        + "numero, fornecedor e valor, nunca deduza numeros (use aprovacoes_pendentes) e, ao final, diga "
+                        + "exatamente quais foram aprovadas ou rejeitadas e quais nao."
                 : "Esta conexao e somente de consulta: nao ha ferramentas de cadastro. Se a pessoa pedir para gravar algo, "
                         + "explique que ela pode permitir cadastros reconectando o GEO ou fazer pela tela do GEO.");
     }

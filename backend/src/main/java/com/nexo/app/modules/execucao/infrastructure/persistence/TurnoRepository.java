@@ -38,6 +38,12 @@ public interface TurnoRepository extends JpaRepository<Turno, UUID>, JpaSpecific
            + "ORDER BY t.dataInicio")
     List<Turno> listarComVeiculoSobrepostos(@Param("inicio") OffsetDateTime inicio, @Param("fim") OffsetDateTime fim);
 
+    /** Turnos com veículo abertos em {@code [inicio, fim)}, contados por veículo. */
+    @Query("SELECT t.idVeiculo, COUNT(t) FROM Turno t "
+           + "WHERE t.ativo = true AND t.idVeiculo IS NOT NULL AND t.dataInicio >= :inicio AND t.dataInicio < :fim "
+           + "GROUP BY t.idVeiculo")
+    List<Object[]> contarComVeiculoPorVeiculo(@Param("inicio") OffsetDateTime inicio, @Param("fim") OffsetDateTime fim);
+
     @Query("SELECT t FROM Turno t "
            + "WHERE t.ativo = true AND t.idVeiculo IS NOT NULL AND t.dataFim IS NOT NULL "
            + "AND t.dataFim >= :inicio AND t.dataFim < :fim "

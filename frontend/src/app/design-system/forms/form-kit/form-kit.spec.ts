@@ -257,6 +257,18 @@ describe('kit de formulário', () => {
       expect(fixture.componentInstance.aberto()).toBe(true);
     });
 
+    it('focusFirstError rola até o primeiro campo inválido e o foca', async () => {
+      const { fixture } = await montar(DrawerHost);
+      const input = document.body.querySelector('.p-drawer input') as HTMLInputElement;
+      input.setAttribute('aria-invalid', 'true');
+      const rolar = vi.fn();
+      input.scrollIntoView = rolar;
+      fixture.componentInstance.drawer().focusFirstError();
+      await tick();
+      expect(rolar).toHaveBeenCalledWith(expect.objectContaining({ block: 'center' }));
+      expect(document.activeElement).toBe(input);
+    });
+
     it('Esc dentro do drawer pede para fechar', async () => {
       const { fixture, confirm } = await montar(DrawerHost, true);
       fixture.componentInstance.form.markAsDirty();

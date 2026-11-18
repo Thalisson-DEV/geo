@@ -1,5 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { toHttpParams } from '../utils/http-params.util';
 import { environment } from '../../../environments/environment';
 import { BaseService } from './base.service';
 import { PagedResponse } from '../models/shared.models';
@@ -15,6 +17,7 @@ import {
   NotasDoRecorteFiltros,
   TurnoConsulta
 } from '../models/dashboard.models';
+import { DashboardMetaFisicaFiltros, DashboardMetaFisicaResponse } from '../models/meta-fisica.models';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +28,11 @@ export class DashboardService extends BaseService {
   /** Produção das equipes no período, comparada à meta proporcional e ao ritmo. */
   gerarDashboardOperacional(filtros: DashboardOperacionalFiltros): Observable<DashboardOperacionalResponse> {
     return this.http.get<DashboardOperacionalResponse>(`${this.apiUrl}/operacional`, { params: semVazios(filtros) });
+  }
+
+  /** Meta física da Concessionária no mês: metas por base e tipo de serviço e notas concluídas por dia. */
+  gerarDashboardMetaFisica(filtros: DashboardMetaFisicaFiltros): Observable<DashboardMetaFisicaResponse> {
+    return this.http.get<DashboardMetaFisicaResponse>(`${this.apiUrl}/meta-fisica`, { params: semVazios(filtros) });
   }
 
   /** Situação dos turnos das equipes em um dia (padrão: hoje). */
@@ -40,6 +48,12 @@ export class DashboardService extends BaseService {
   /** Consulta paginada de turnos; ordena só por dataInicio, dataFim e status. */
   consultarTurnos(filtros: ConsultaTurnosFiltros): Observable<PagedResponse<TurnoConsulta>> {
     return this.getList<TurnoConsulta>(`${this.apiUrl}/turnos/consulta`, filtros);
+  }
+
+  /** CSV dos turnos do recorte (no máximo 30 mil, os mais recentes), resumido ou detalhado. */
+  exportarTurnos(formato: 'resumo' | 'detalhado', filtros: ConsultaTurnosFiltros): Observable<HttpResponse<Blob>> {
+    const params = toHttpParams({ ...filtros }, { ignorar: ['page', 'size', 'sort'] });
+    return this.http.get(`${this.apiUrl}/turnos/consulta/exportar/${formato}`, { params, responseType: 'blob', observe: 'response' });
   }
 
   /** Notas concluídas que compõem os números dos dashboards (mesmo escopo, para o drill-down fechar a conta). */

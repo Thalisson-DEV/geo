@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, from, map, shareReplay, catchError, tap } from 'rxjs';
+import { Observable, concatMap, first, from, map, of, shareReplay, catchError, take, tap, timer } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { BaseService } from './base.service';
 import { DatabaseService } from './database.service';
@@ -68,6 +68,9 @@ import {
 } from '../models/rh.models';
 import { PagedResponse } from '../models/shared.models';
 import { LookupCacheService } from '../lookup/services/lookup-cache.service';
+
+const ESPERA_ACESSO_INTERVALO_MS = 400;
+const ESPERA_ACESSO_TENTATIVAS = 8;
 
 @Injectable({
   providedIn: 'root',
@@ -164,6 +167,24 @@ export class RhService extends BaseService {
       `${this.apiUrl}/v1/rh/colaboradores`,
       id,
       this.db.colaboradores,
+    );
+  }
+
+  /**
+   * O RH grava o vínculo do acesso de forma assíncrona, depois de o backend já ter respondido.
+   * Espera o colaborador refletir o acesso (o usuário informado, ou qualquer um) para a tela
+   * não recarregar a lista antes disso; emite `false` se o vínculo não aparecer a tempo.
+   */
+  aguardarAcessoColaborador(id: string, idUsuario?: string): Observable<boolean> {
+    return timer(ESPERA_ACESSO_INTERVALO_MS, ESPERA_ACESSO_INTERVALO_MS).pipe(
+      take(ESPERA_ACESSO_TENTATIVAS),
+      concatMap(() =>
+        this.buscarColaboradorPorId(id).pipe(
+          map((c) => (idUsuario ? c.idUsuario === idUsuario : !!c.idUsuario)),
+          catchError(() => of(false)),
+        ),
+      ),
+      first((confirmado) => confirmado, false),
     );
   }
 
@@ -631,9 +652,13 @@ export class RhService extends BaseService {
 
   listarPerfisAcessoAtivos(forceRefresh = false): Observable<PerfilAcessoResponse[]> {
     if (!this.perfisAtivos$ || forceRefresh) {
-      this.perfisAtivos$ = this.http
-        .get<PerfilAcessoResponse[]>(`${this.apiUrl}/v1/iam/perfis`)
-        .pipe(shareReplay({ bufferSize: 1, refCount: false }));
+      this.perfisAtivos$ = this.getList<PerfilAcessoResponse>(`${this.apiUrl}/v1/iam/perfis`, {
+        ativo: true,
+        size: 1000,
+      }).pipe(
+        map((pagina) => pagina.content),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
     }
     return this.perfisAtivos$;
   }

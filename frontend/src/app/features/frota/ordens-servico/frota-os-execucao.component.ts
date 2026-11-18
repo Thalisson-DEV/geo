@@ -15,7 +15,6 @@ import {
   CesRowActionsDirective,
   CesSelectOption,
   CesStatusComponent,
-  CesSurfaceComponent,
   CesTextInputComponent,
   NotificationService
 } from '@ces/ui';
@@ -37,7 +36,8 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
 
 /**
  * Execução da OS: mão de obra com mecânico, peças com origem e os totais. Enquanto a OS
- * está aberta, quem executa ou opera inclui, edita e exclui; depois, a aba só mostra.
+ * está aberta ou concluída com valores pendentes, quem executa ou opera inclui, edita e exclui;
+ * com o último valor lançado ela fica finalizada e a aba só mostra.
  */
 @Component({
   selector: 'app-frota-os-execucao',
@@ -57,7 +57,6 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
     CesNumberInputComponent,
     CesRowActionsDirective,
     CesStatusComponent,
-    CesSurfaceComponent,
     CesTextInputComponent,
     FrotaOsLancamentoComponent
   ],
@@ -65,11 +64,64 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
     @let d = detalhe();
     <div class="ces-form-stack">
       <!-- != null: o backend omite o total nulo (non_null), então ele chega como undefined. -->
+      @if (valoresPendentes().length) {
+        <ces-callout tone="warning" icon="pi pi-hourglass" title="Valores pendentes">
+          Falta o valor de: {{ valoresPendentes().join('; ') }}. Edite a linha e informe o valor (ou marque como sem
+          custo). Com o último valor, a OS fica finalizada sozinha.
+        </ces-callout>
+      }
       @if (!d.totais.calculado && d.totais.total != null) {
         <ces-callout tone="info" [dense]="true">
           Esta OS foi encerrada com o valor digitado ({{ d.totais.total | currency: 'BRL' }}), sem serviços nem peças lançados.
         </ces-callout>
       }
+
+      <!-- Totais no topo: o valor da OS é o que mais se consulta na execução. -->
+      <div class="ces-kpis" role="group" aria-label="Totais da execução">
+        <div class="ces-kpi" data-tone="info">
+          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-wrench"></i></span>
+          <span class="ces-kpi__body">
+            <span class="ces-kpi__label">Mão de obra</span>
+            <span class="ces-kpi__value">{{ d.totais.servicos | currency: 'BRL' }}</span>
+            <span class="ces-kpi__detail">{{ d.servicos.length }} {{ d.servicos.length === 1 ? 'serviço' : 'serviços' }}</span>
+          </span>
+        </div>
+        <div class="ces-kpi" data-tone="info">
+          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-box"></i></span>
+          <span class="ces-kpi__body">
+            <span class="ces-kpi__label">Peças</span>
+            <span class="ces-kpi__value">{{ d.totais.pecas | currency: 'BRL' }}</span>
+            <span class="ces-kpi__detail">{{ (d.totais.pecasEstoque ?? 0) > 0 ? moeda(d.totais.pecasEstoque) + ' do estoque, já comprado' : d.pecas.length + (d.pecas.length === 1 ? ' peça' : ' peças') }}</span>
+          </span>
+        </div>
+        @if (editavel() && temLancamentos()) {
+          <button type="button" class="ces-kpi" data-tone="neutral" (click)="abrirAjustes()">
+            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-percentage"></i></span>
+            <span class="ces-kpi__body">
+              <span class="ces-kpi__label">Desconto e acréscimo</span>
+              <span class="ces-kpi__value">{{ ajusteTexto() }}</span>
+              <span class="ces-kpi__detail">Toque para ajustar</span>
+            </span>
+            <i class="pi pi-angle-right ces-kpi__go" aria-hidden="true"></i>
+          </button>
+        } @else if (d.totais.desconto || d.totais.acrescimo) {
+          <div class="ces-kpi" data-tone="neutral">
+            <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-percentage"></i></span>
+            <span class="ces-kpi__body">
+              <span class="ces-kpi__label">Desconto e acréscimo</span>
+              <span class="ces-kpi__value">{{ ajusteTexto() }}</span>
+            </span>
+          </div>
+        }
+        <div class="ces-kpi" data-tone="success">
+          <span class="ces-kpi__icon" aria-hidden="true"><i class="pi pi-calculator"></i></span>
+          <span class="ces-kpi__body">
+            <span class="ces-kpi__label">Total da OS</span>
+            <span class="ces-kpi__value">{{ moeda(d.totais.total) }}</span>
+            <span class="ces-kpi__detail">{{ (d.totais.pecasEstoque ?? 0) > 0 ? 'A comprar no financeiro: ' + moeda(d.totais.aComprar) : 'Vai inteiro para a compra no financeiro' }}</span>
+          </span>
+        </div>
+      </div>
 
       <ces-data-table
         title="Serviços (mão de obra)"
@@ -108,7 +160,15 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
         </ng-template>
         <ng-template cesCell="quantidade" let-row><span class="ces-cell-num">{{ row.quantidade | number: '1.0-3' }}</span></ng-template>
         <ng-template cesCell="valorUnitario" let-row><span class="ces-cell-num">{{ row.valorUnitario | currency: 'BRL' }}</span></ng-template>
-        <ng-template cesCell="subtotal" let-row><span class="ces-cell-num ces-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span></ng-template>
+        <ng-template cesCell="subtotal" let-row>
+          @if (!row.subtotal && row.semCusto) {
+            <ces-status tone="neutral" emphasis="outline">Sem custo</ces-status>
+          } @else if (!row.subtotal && !interna()) {
+            <ces-status tone="warning" icon="pi-hourglass">Sem valor</ces-status>
+          } @else {
+            <span class="ces-cell-num ces-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span>
+          }
+        </ng-template>
         <ng-template cesRowActions let-row>
           @if (editavel()) {
             <span class="ces-table-actions">
@@ -123,7 +183,7 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
 
       <ces-data-table
         title="Peças e consumíveis"
-        description="A peça do estoque sai do almoxarifado pelo custo médio e volta se for excluída daqui. A de compra entra no pedido ao financeiro."
+        description="A peça do estoque sai do almoxarifado pelo custo médio, já foi comprada e não entra de novo na compra ao financeiro. A de compra entra no pedido."
         storageKey="frota-os-pecas"
         searchPlaceholder="Filtrar nesta lista"
         [columns]="colunasPecas"
@@ -152,7 +212,15 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
         </ng-template>
         <ng-template cesCell="quantidade" let-row><span class="ces-cell-num">{{ row.quantidade | number: '1.0-3' }} {{ row.unidade }}</span></ng-template>
         <ng-template cesCell="valorUnitario" let-row><span class="ces-cell-num">{{ row.valorUnitario | currency: 'BRL' }}</span></ng-template>
-        <ng-template cesCell="subtotal" let-row><span class="ces-cell-num ces-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span></ng-template>
+        <ng-template cesCell="subtotal" let-row>
+          @if (!row.subtotal && row.semCusto) {
+            <ces-status tone="neutral" emphasis="outline">Sem custo</ces-status>
+          } @else if (!row.subtotal) {
+            <ces-status tone="warning" icon="pi-hourglass">Sem valor</ces-status>
+          } @else {
+            <span class="ces-cell-num ces-cell-strong">{{ row.subtotal | currency: 'BRL' }}</span>
+          }
+        </ng-template>
         <ng-template cesRowActions let-row>
           @if (editavel()) {
             <span class="ces-table-actions">
@@ -165,23 +233,6 @@ const numero = (v: number) => v.toLocaleString('pt-BR', { maximumFractionDigits:
         </ng-template>
       </ces-data-table>
 
-      <ces-surface>
-        <section class="ces-sheet-section" aria-labelledby="os-totais">
-          <h2 id="os-totais"><i class="pi pi-calculator" aria-hidden="true"></i> Totais</h2>
-          <dl class="ces-sheet">
-            <div><dt>Mão de obra</dt><dd>{{ d.totais.servicos | currency: 'BRL' }}</dd></div>
-            <div><dt>Peças</dt><dd>{{ d.totais.pecas | currency: 'BRL' }}</dd></div>
-            <div><dt>Desconto</dt><dd>{{ d.totais.desconto ? '− ' + moeda(d.totais.desconto) : '—' }}</dd></div>
-            <div><dt>Acréscimo</dt><dd>{{ d.totais.acrescimo ? '+ ' + moeda(d.totais.acrescimo) : '—' }}</dd></div>
-            <div><dt>Total da OS</dt><dd class="ces-cell-strong">{{ moeda(d.totais.total) }}</dd></div>
-          </dl>
-          @if (editavel() && temLancamentos()) {
-            <div class="ces-actions-row ces-actions-row--separated">
-              <ces-button size="sm" variant="outline" icon="pi pi-percentage" label="Desconto e acréscimo" (pressed)="abrirAjustes()"></ces-button>
-            </div>
-          }
-        </section>
-      </ces-surface>
     </div>
 
     <app-frota-os-lancamento [(visivel)]="lancamentoAberto" [tipo]="tipoLancamento()" [detalhe]="d" [opcoes]="opcoes()"
@@ -230,9 +281,25 @@ export class FrotaOsExecucaoComponent {
   readonly atualizado = output<OrdemServicoDetalhe>();
 
   protected readonly moeda = moeda;
-  protected readonly editavel = computed(() => this.podeEditar() && osAberta(this.detalhe().ordem.situacao));
+  protected readonly editavel = computed(() => {
+    const os = this.detalhe().ordem;
+    return this.podeEditar() && (osAberta(os.situacao) || (os.situacao === 'CONCLUIDA' && !!os.baixaPendente));
+  });
   protected readonly interna = computed(() => this.detalhe().ordem.tipoOficina === 'INTERNA');
+  /** Só na OS concluída: os serviços e peças que ainda seguram a finalização. */
+  protected readonly valoresPendentes = computed(() => {
+    const d = this.detalhe();
+    if (!d.ordem.baixaPendente) return [];
+    return (d.pendencias ?? []).filter((p) => p.startsWith('Serviço: ') || p.startsWith('Peça: '))
+      .map((p) => p.replace(/^(Serviço|Peça): /, ''));
+  });
   protected readonly temLancamentos = computed(() => this.detalhe().servicos.length + this.detalhe().pecas.length > 0);
+  /** "− R$ 300,00", "+ R$ 50,00" ou os dois; sem ajuste, "Nenhum". */
+  protected readonly ajusteTexto = computed(() => {
+    const t = this.detalhe().totais;
+    const partes = [t.desconto ? '− ' + moeda(t.desconto) : '', t.acrescimo ? '+ ' + moeda(t.acrescimo) : ''].filter(Boolean);
+    return partes.length ? partes.join(' ') : 'Nenhum';
+  });
   protected readonly somaLancamentos = computed(() => this.detalhe().totais.servicos + this.detalhe().totais.pecas);
 
   protected readonly lancamentoAberto = signal(false);

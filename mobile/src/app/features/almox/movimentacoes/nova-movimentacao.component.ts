@@ -1,21 +1,30 @@
 import { ChangeDetectionStrategy, Component, Injector, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, debounceTime, distinctUntilChanged, finalize, firstValueFrom, of, switchMap, tap } from 'rxjs';
+import { Observable, catchError, combineLatest, debounceTime, distinctUntilChanged, finalize, firstValueFrom, of, switchMap, tap } from 'rxjs';
 import { AlmoxService } from '../../../core/almox/almox.service';
-import { Condicao, Estoque, Material, MovimentacaoRequest, Saldo, SaldoSerie } from '../../../core/almox/almox.models';
+import { Condicao, DevolucaoComercialRequest, Estoque, ItemMovimentacaoRequest, Material, MovimentacaoRequest, ObraResumo, Saldo, SaldoSerie } from '../../../core/almox/almox.models';
 import { CONDICOES, rotuloCondicao } from '../../../core/almox/almox-status';
+import { ehAlmoxarifado } from '../../../core/almox/almox-tecnico';
 import { contarSeries, extrairSerie } from '../../../core/almox/series';
+import { ComUnidade, Equivalencia, daBase, paraBase } from '../../../core/almox/unidade-material';
+import { QuantidadeUnidadeComponent } from '../../../ui/quantidade-unidade.component';
 import { ApiError } from '../../../core/http/error.interceptor';
 import { RascunhoService, VinculoRascunho } from '../../../core/sessao/rascunho.service';
 import { ConnectivityService } from '../../../core/sync/connectivity.service';
 import { ToastService } from '../../../core/ui/toast.service';
 import {
   AssinaturaComponent, BarraTopoComponent, CapturaSeriesComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, LeitorCodigoComponent,
-  NomeIcone, OpcaoSeletor, QuantidadeComponent, RetornoLeitura, SeletorComponent, VazioComponent, VerificadorSeries, leitorPorCameraDisponivel, numeroBr,
+  NomeIcone, OpcaoSegmento, OpcaoSeletor, QuantidadeComponent, RetornoLeitura, SegmentadoComponent, SeletorComponent, VazioComponent, VerificadorSeries,
+  leitorPorCameraDisponivel, numeroBr,
 } from '../../../ui';
 
-type Tipo = 'entrada' | 'saida' | 'transferencia';
+type Tipo = 'entrada' | 'saida' | 'transferencia' | 'devolucao';
+type Processo = 'comercial' | 'tecnico';
+type Fonte = 'saldo' | 'catalogo';
+
+/** Material com série sai de uma em uma: equivalência não se aplica. */
+const equivalenciasDe = (m: Material): Equivalencia[] => (m.detalhaSerie ? [] : (m.equivalencias ?? []));
 
 interface ItemMov {
   chave: string;
@@ -27,11 +36,22 @@ interface ItemMov {
   condicao: Condicao;
   quantidade: number;
   series: string[];
-  /** Saldo na origem (saída e transferência); null na entrada. */
+  /** Saldo na origem (saída, transferência e devolução); null na entrada e no material fora do saldo. */
   saldo: number | null;
+  /** Devolução: fica guardado no almoxarifado (padrão) ou sai em baixa na hora. */
+  guardar?: boolean;
+  /** Devolução técnica: 922 (concreto) em vez de 222 (comum). */
+  concreto?: boolean;
+  equivalencias?: Equivalencia[];
+  /** Digitado em outra unidade (ex.: 30 KG de cabo em MT); {@link quantidade} já vem convertida. */
+  unidadeInformada?: string | null;
+  quantidadeInformada?: number;
 }
 
-interface RascunhoMov { passo: number; origem: string | null; destino: string | null; itens: ItemMov[] }
+interface RascunhoMov {
+  passo: number; origem: string | null; destino: string | null; itens: ItemMov[];
+  processo?: Processo; obra?: string | null; ocorrencia?: string;
+}
 
 interface DefTipo { titulo: string; verbo: string; icone: NomeIcone; passos: string[]; botao: string; sucesso: string; intro: string }
 
@@ -39,7 +59,17 @@ const TIPOS: Record<Tipo, DefTipo> = {
   entrada: { titulo: 'Entrada de material', verbo: 'entrada', icone: 'entrada', passos: ['Estoque', 'Materiais', 'Conferir'], botao: 'Confirmar entrada', sucesso: 'Entrada registrada. O saldo do estoque já foi atualizado.', intro: 'Escolha o estoque que recebe o material. Depois você busca os materiais no catálogo.' },
   saida: { titulo: 'Saída de material', verbo: 'saída', icone: 'saida', passos: ['Estoque', 'Materiais', 'Conferir'], botao: 'Confirmar baixa', sucesso: 'Saída registrada. O saldo foi debitado.', intro: 'Escolha o estoque de onde o material sai. Só aparece o que tem saldo nele.' },
   transferencia: { titulo: 'Transferência', verbo: 'transferência', icone: 'transferencia', passos: ['Estoques', 'Materiais', 'Conferir', 'Assinaturas'], botao: 'Confirmar transferência', sucesso: 'Transferência registrada. O material já está no destino.', intro: 'Escolha de onde sai e para onde vai. Quem entrega e quem recebe assinam no fim.' },
+  devolucao: { titulo: 'Devolução de material', verbo: 'devolução', icone: 'desfazer', passos: ['Quem devolve', 'Materiais', 'Conferir'], botao: 'Confirmar devolução', sucesso: 'Devolução registrada. O almoxarifado já recebeu o material.', intro: 'A equipe devolve e o almoxarifado recebe na hora. Na devolução técnica (222/922), informe também a obra.' },
 };
+
+const PROCESSOS: OpcaoSegmento<Processo>[] = [
+  { valor: 'comercial', rotulo: 'Comercial' },
+  { valor: 'tecnico', rotulo: 'Técnica · 222/922' },
+];
+const FONTES: OpcaoSegmento<Fonte>[] = [
+  { valor: 'saldo', rotulo: 'Com a equipe' },
+  { valor: 'catalogo', rotulo: 'Catálogo' },
+];
 
 const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condicao}`;
 
@@ -52,7 +82,10 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
 @Component({
   selector: 'app-nova-movimentacao',
   standalone: true,
-  imports: [AssinaturaComponent, BarraTopoComponent, CapturaSeriesComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, LeitorCodigoComponent, QuantidadeComponent, SeletorComponent, VazioComponent],
+  imports: [
+    AssinaturaComponent, BarraTopoComponent, CapturaSeriesComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, LeitorCodigoComponent, QuantidadeComponent, QuantidadeUnidadeComponent,
+    SegmentadoComponent, SeletorComponent, VazioComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
@@ -67,6 +100,28 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
         @switch (passo()) {
           @case (1) {
             <p class="intro">{{ def.intro }}</p>
+            @if (tipo === 'devolucao') {
+              <div class="campos">
+                <ces-segmentado rotulo="Processo da devolução" [opcoes]="processos" [valor]="processo()" (valorChange)="trocarProcesso($event)" />
+                <ces-seletor rotulo="Equipe que devolve" [obrigatorio]="true" [opcoes]="opcoesEquipe()" [valor]="origem()" (valorChange)="trocarOrigem($event)"
+                  [invalido]="tentou() && !origem()" [placeholder]="estoques().length ? 'Escolher' : 'Carregando…'" />
+                <ces-seletor rotulo="Almoxarifado que recebe" [obrigatorio]="true" [opcoes]="opcoesAlmoxarifado()" [valor]="destino()" (valorChange)="destino.set($event)"
+                  [invalido]="tentou() && !destino()" [placeholder]="estoques().length ? 'Escolher' : 'Carregando…'" />
+                @if (processo() === 'tecnico') {
+                  <ces-seletor rotulo="Obra" [obrigatorio]="true" [opcoes]="opcoesObra()" [valor]="obra()" (valorChange)="trocarObra($event)"
+                    [invalido]="tentou() && !obra()" [placeholder]="obras().length ? 'Escolher' : 'Carregando…'" />
+                  @if (exigeOcorrencia()) {
+                    <label class="ces-campo">
+                      <span class="ces-campo__rotulo">Número da {{ rotuloExecucao() }} *</span>
+                      <input class="ces-input mono" [value]="ocorrencia()" (input)="ocorrencia.set($any($event.target).value)" autocapitalize="characters" autocomplete="off"
+                        spellcheck="false" [placeholder]="'Ex.: ' + rotuloExecucao() + '-88412'" [attr.aria-invalid]="tentou() && !ocorrencia().trim()">
+                      @if (tentou() && !ocorrencia().trim()) { <span class="ces-campo__erro"><ces-icone nome="alerta" [tamanho]="16" />A obra é controlada por {{ rotuloExecucao() }}: informe o número.</span> }
+                    </label>
+                  }
+                }
+                @if (itens().length) { <p class="ajuda">Trocar a equipe tira os {{ itens().length }} itens já escolhidos.</p> }
+              </div>
+            } @else {
             <div class="campos">
               @if (tipo !== 'entrada') {
                 <ces-seletor [rotulo]="tipo === 'saida' ? 'Estoque de onde sai' : 'Sai de'" [obrigatorio]="true" [opcoes]="opcoesEstoque()" [valor]="origem()"
@@ -81,6 +136,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
               }
               @if (itens().length) { <p class="ajuda">Trocar o estoque de origem tira os {{ itens().length }} itens já escolhidos.</p> }
             </div>
+            }
           }
           @case (2) {
             @if (itens().length || tipo !== 'entrada') {
@@ -98,7 +154,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
                     <span class="ces-linha__texto">
                       <span class="ces-linha__titulo">{{ it.descricao }}</span>
                       <span class="ces-linha__apoio ces-num">Cód. {{ it.codigo }}
-                        @if (tipo === 'entrada') {
+                        @if (tipo === 'entrada' || (tipo === 'devolucao' && it.saldo === null)) {
                           · <button type="button" class="cond" (click)="condicaoDe.set(i)" [attr.aria-label]="'Condição: ' + rotuloCondicao(it.condicao) + '. Trocar'">{{ rotuloCondicao(it.condicao) }} ▾</button>
                         } @else {
                           · <span class="ces-cond" [class.ces-cond--sucata]="it.condicao !== 'NOVO'">{{ rotuloCondicao(it.condicao) }}</span> · saldo {{ num(it.saldo ?? 0) }}
@@ -109,22 +165,42 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
                       <button type="button" class="series" [class.vazia]="!it.series.length" (click)="seriesDe.set(it.chave)">
                         <ces-icone nome="codigo_barras" [tamanho]="18" />{{ it.series.length ? contar(it.series.length) : 'Informar séries' }}</button>
                     } @else {
-                      <ces-quantidade [valor]="it.quantidade" (valorChange)="definirQuantidade(i, $event)" [minimo]="0.001" [grande]="true" [unidade]="it.unidade"
-                        [rotulo]="'quantidade de ' + it.descricao" />
+                      @if (it.equivalencias?.length) {
+                        <ces-quantidade-unidade [material]="{ unidadeMedida: it.unidade, equivalencias: it.equivalencias }"
+                          [valor]="it.unidadeInformada ? (it.quantidadeInformada ?? it.quantidade) : it.quantidade" (valorChange)="definirQuantidade(i, $event)"
+                          [unidade]="it.unidadeInformada ?? null" (unidadeChange)="definirUnidade(i, $event)" [rotulo]="'quantidade de ' + it.descricao" />
+                      } @else {
+                        <ces-quantidade [valor]="it.quantidade" (valorChange)="definirQuantidade(i, $event)" [minimo]="0.001" [grande]="true" [unidade]="it.unidade"
+                          [rotulo]="'quantidade de ' + it.descricao" />
+                      }
                     }
                     <button type="button" class="ces-btn-icone tirar" (click)="remover(i)" [attr.aria-label]="'Tirar ' + it.descricao"><ces-icone nome="lixeira" [tamanho]="20" /></button>
+                    @if (tipo === 'devolucao') {
+                      <div class="extras">
+                        @if (processo() === 'tecnico') {
+                          <button type="button" class="extra ces-num" (click)="alternarConcreto(i)" [attr.aria-label]="'Tipo ' + (it.concreto ? '922, concreto' : '222, comum') + '. Trocar'">
+                            {{ it.concreto ? '922 · Concreto' : '222 · Comum' }}</button>
+                        }
+                        <button type="button" class="extra" role="switch" [attr.aria-checked]="it.guardar !== false" [class.baixa]="it.guardar === false" (click)="alternarGuardar(i)">
+                          <ces-icone [nome]="it.guardar === false ? 'saida' : 'estoque'" [tamanho]="15" />{{ it.guardar === false ? 'Baixa na hora' : 'Guardar no almox' }}</button>
+                      </div>
+                    }
                   </li>
                 }
               </ul>
             }
 
-            <h2 class="ces-secao"><span>{{ tipo === 'entrada' ? 'Catálogo de materiais' : 'Saldo do estoque' }}</span>
-              @if (tipo !== 'entrada' && saldosFiltrados().length) { <span class="ces-num">{{ saldosFiltrados().length }}</span> }</h2>
+            @if (tipo === 'devolucao' && processo() === 'tecnico') {
+              <div class="fonte"><ces-segmentado rotulo="De onde escolher o material" [opcoes]="fontes" [valor]="fonte()" (valorChange)="fonte.set($event)" /></div>
+              @if (fonte() === 'catalogo') { <p class="ajuda ajuda--fonte">Material fora do saldo da equipe também pode voltar. A devolução sai do estoque da obra, que pode ficar negativo.</p> }
+            }
+            <h2 class="ces-secao"><span>{{ usaCatalogo() ? 'Catálogo de materiais' : tipo === 'devolucao' ? 'Saldo da equipe' : 'Saldo do estoque' }}</span>
+              @if (!usaCatalogo() && saldosFiltrados().length) { <span class="ces-num">{{ saldosFiltrados().length }}</span> }</h2>
             <div class="ferramentas">
               <div class="busca"><ces-icone nome="busca" [tamanho]="18" />
-                <input type="search" placeholder="Nome ou código" enterkeyhint="search" [attr.aria-label]="tipo === 'entrada' ? 'Buscar no catálogo' : 'Buscar no saldo'"
+                <input type="search" placeholder="Nome ou código" enterkeyhint="search" [attr.aria-label]="usaCatalogo() ? 'Buscar no catálogo' : 'Buscar no saldo'"
                   [value]="busca()" (input)="busca.set($any($event.target).value)"></div>
-              @if (tipo !== 'entrada') {
+              @if (!usaCatalogo()) {
                 <button type="button" class="ces-btn ces-btn--tonal ler" (click)="leitorAberto.set(true)" aria-label="Ler série pela câmera ou leitor"><ces-icone nome="codigo_barras" /></button>
               }
             </div>
@@ -132,7 +208,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
               <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto tudo" (click)="adicionarTudo()"><ces-icone nome="mais" [tamanho]="16" />Transferir todo o saldo sem série</button>
             }
 
-            @if (tipo === 'entrada') {
+            @if (usaCatalogo()) {
               @if (buscando() && !catalogo().length) {
                 <div class="ces-esqueletos">@for (i of [1, 2, 3]; track i) { <div class="ces-esqueleto" style="height: 60px"></div> }</div>
               } @else if (catalogo().length) {
@@ -168,15 +244,23 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
                   }
                 </ul>
               } @else {
-                <ces-vazio icone="estoque" [titulo]="busca() ? 'Nada encontrado no saldo' : 'Estoque sem saldo'" [texto]="busca() ? 'Confira o nome ou o código.' : 'Não há material com saldo para movimentar.'" />
+                <ces-vazio icone="estoque" [titulo]="busca() ? 'Nada encontrado no saldo' : tipo === 'devolucao' ? 'A equipe não tem saldo' : 'Estoque sem saldo'"
+                  [texto]="busca() ? 'Confira o nome ou o código.' : tipo === 'devolucao' && processo() === 'tecnico' ? 'Busque no catálogo o material que está voltando.' : 'Não há material com saldo para movimentar.'" />
               }
             }
           }
           @case (3) {
             <div class="rota-final">
-              @if (tipo !== 'entrada') { <span><small>Sai de</small>{{ nomeEstoque(origem()) }}</span> }
-              @if (tipo !== 'saida') { <span><small>{{ tipo === 'entrada' ? 'Entra em' : 'Vai para' }}</small><strong>{{ nomeEstoque(destino()) }}</strong></span> }
+              @if (tipo === 'devolucao' && processo() === 'tecnico') {
+                @if (ocorrencia().trim() && exigeOcorrencia()) { <span><small>{{ rotuloExecucao() }}</small><strong class="ces-num">{{ ocorrencia().trim().toUpperCase() }}</strong></span> }
+                <span><small>Obra</small><strong>{{ nomeObra() }}</strong></span>
+              }
+              @if (tipo !== 'entrada') { <span><small>{{ tipo === 'devolucao' ? 'Quem devolve' : 'Sai de' }}</small>{{ nomeEstoque(origem()) }}</span> }
+              @if (tipo !== 'saida') { <span><small>{{ tipo === 'entrada' ? 'Entra em' : tipo === 'devolucao' ? 'Recebe' : 'Vai para' }}</small><strong>{{ nomeEstoque(destino()) }}</strong></span> }
             </div>
+            @if (tipo === 'devolucao' && emBaixa()) {
+              <div class="perigo"><ces-icone nome="alerta" /><p><strong>{{ emBaixa() }} {{ emBaixa() === 1 ? 'item sai' : 'itens saem' }} em baixa.</strong> É recebido e baixado na hora: não entra no saldo do almoxarifado.</p></div>
+            }
             @if (tipo === 'saida') {
               <div class="perigo"><ces-icone nome="alerta" /><p><strong>Baixa definitiva.</strong> O saldo é debitado na hora e a saída não pode ser desfeita.</p></div>
             }
@@ -185,10 +269,11 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
               @for (it of itens(); track it.chave) {
                 <li class="ces-linha conferir">
                   <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ it.descricao }}</span>
-                    <span class="ces-linha__apoio ces-num">Cód. {{ it.codigo }} · {{ rotuloCondicao(it.condicao) }}</span>
+                    <span class="ces-linha__apoio ces-num">Cód. {{ it.codigo }} · {{ rotuloCondicao(it.condicao) }}@if (tipo === 'devolucao') {
+                      @if (processo() === 'tecnico') { · {{ it.concreto ? '922' : '222' }} }@if (it.guardar === false) { · baixa na hora }@if (it.saldo === null) { · pelo catálogo } }</span>
                     @if (it.series.length) { <span class="lista-series">@for (s of it.series.slice(0, 12); track s) { <span>{{ s }}</span> }@if (it.series.length > 12) { <span>+{{ it.series.length - 12 }}</span> }</span> }
                   </span>
-                  <span class="ces-qtd">{{ num(qtd(it)) }}<small>{{ it.unidade }}</small></span>
+                  <span class="ces-qtd">{{ num(qtd(it)) }}<small>{{ it.unidade }}</small>@if (it.unidadeInformada && !it.detalhaSerie) {<small class="informado">{{ num(it.quantidadeInformada ?? 0) }} {{ it.unidadeInformada }} informados</small>}</span>
                 </li>
               }
             </ul>
@@ -215,12 +300,12 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
     </footer>
 
     <ces-captura-series [aberta]="!!seriesDe()" (abertaChange)="!$event && seriesDe.set(null)" [titulo]="itemSeries()?.descricao ?? ''"
-      [disponiveis]="tipo === 'entrada' ? null : seriesDisponiveis()" [nomeEstoque]="nomeEstoque(origem())"
+      [disponiveis]="tipo === 'entrada' || itemSeries()?.saldo === null ? null : seriesDisponiveis()" [nomeEstoque]="nomeEstoque(origem())"
       [series]="itemSeries()?.series ?? []" (seriesChange)="definirSeries($event)" [verificar]="tipo === 'entrada' ? verificarSeries : null" />
 
     <ces-folha [aberta]="condicaoDe() !== null" (fechar)="condicaoDe.set(null)" titulo="Condição do material">
       <ul class="ces-grupo lista" role="radiogroup" aria-label="Condição">
-        @for (c of condicoes; track c.valor) {
+        @for (c of condicoesDisponiveis(); track c.valor) {
           <li><button type="button" role="radio" class="ces-linha ces-linha--acao" [attr.aria-checked]="itemCondicao()?.condicao === c.valor" (click)="definirCondicao(c.valor)">
             <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ c.rotulo }}</span></span>
             @if (itemCondicao()?.condicao === c.valor) { <ces-icone nome="check" /> }</button></li>
@@ -268,7 +353,16 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
     .item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; row-gap: var(--ces-e2); column-gap: var(--ces-e2); }
     .item .ces-linha__texto { grid-column: 1; grid-row: 1; }
     .item .tirar { grid-column: 2; grid-row: 1; margin: -8px -10px -8px 0; color: var(--ces-texto-3); }
-    .item > ces-quantidade, .item > .series { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+    .informado { display: block; font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); text-align: right; }
+    .item > ces-quantidade, .item > ces-quantidade-unidade, .item > .series { grid-column: 1 / -1; grid-row: 2; justify-self: start; }
+    .extras { grid-column: 1 / -1; grid-row: 3; display: flex; flex-wrap: wrap; gap: var(--ces-e2); }
+    .extra { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: var(--ces-r-pilula); border: 1px solid var(--ces-linha-forte);
+      background: var(--ces-superficie); color: var(--ces-texto); font: 600 .8125rem/1 var(--ces-fonte); cursor: pointer; }
+    .extra ces-icone { color: var(--ces-ok); }
+    .extra.baixa { border-color: transparent; background: var(--ces-erro-suave); color: var(--ces-erro); }
+    .extra.baixa ces-icone { color: var(--ces-erro); }
+    .fonte { padding: var(--ces-e3) var(--ces-e3) 0; }
+    .ajuda--fonte { margin: var(--ces-e2) var(--ces-e5) 0; }
     .cond { border: 0; padding: 2px 6px; margin: -2px 0; border-radius: 6px; background: var(--ces-superficie-2); color: var(--ces-texto); font: 600 .8125rem/1.2 var(--ces-fonte); cursor: pointer; }
     .series { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border-radius: var(--ces-r-pilula); border: 1.5px solid var(--ces-ok);
       background: transparent; color: var(--ces-texto); font: 600 .875rem/1 var(--ces-fonte); cursor: pointer; }
@@ -373,6 +467,29 @@ export class NovaMovimentacaoComponent {
   readonly assinaturaRecebedor = signal<string | null>(null);
   private rascunho: VinculoRascunho | null = null;
 
+  // ---------- devolução ----------
+  readonly processos = PROCESSOS;
+  readonly fontes = FONTES;
+  readonly processo = signal<Processo>('comercial');
+  readonly fonte = signal<Fonte>('saldo');
+  readonly obras = signal<ObraResumo[]>([]);
+  readonly obra = signal<string | null>(null);
+  readonly ocorrencia = signal('');
+  readonly obraEscolhida = computed(() => this.obras().find(o => o.id === this.obra()) ?? null);
+  readonly exigeOcorrencia = computed(() => ['OS', 'OC'].includes(this.obraEscolhida()?.controleExecucao ?? ''));
+  readonly rotuloExecucao = computed(() => (this.obraEscolhida()?.controleExecucao === 'OS' ? 'OS' : 'OC'));
+  readonly nomeObra = computed(() => (this.obraEscolhida() ? `${this.obraEscolhida()!.numero} · ${this.obraEscolhida()!.titulo}` : '—'));
+  readonly opcoesObra = computed<OpcaoSeletor[]>(() => this.obras().map(o => ({ valor: o.id, rotulo: `${o.numero} · ${o.titulo}`, apoio: o.tipoObraNome ?? undefined })));
+  readonly opcoesEquipe = computed<OpcaoSeletor[]>(() => this.estoques().filter(e => !!e.idEquipe && e.ativo !== false)
+    .map(e => ({ valor: e.id, rotulo: e.nomeIdentificador, apoio: e.tipoEstoque?.nome })));
+  readonly opcoesAlmoxarifado = computed<OpcaoSeletor[]>(() => this.estoques().filter(ehAlmoxarifado).map(e => ({ valor: e.id, rotulo: e.nomeIdentificador })));
+  readonly condicoesDisponiveis = computed(() => (this.tipo === 'devolucao' ? CONDICOES.filter(c => c.valor === 'NOVO' || c.valor === 'SUCATA') : CONDICOES));
+  /** Entrada sempre busca no catálogo; a devolução técnica também, quando o material não está no saldo da equipe. */
+  readonly usaCatalogo = computed(() => this.tipo === 'entrada' || (this.tipo === 'devolucao' && this.processo() === 'tecnico' && this.fonte() === 'catalogo'));
+  /** Devolução técnica sai do estoque da obra: o saldo da equipe aqui só ajuda a escolher o material. */
+  readonly limitaSaldo = computed(() => !(this.tipo === 'devolucao' && this.processo() === 'tecnico'));
+  readonly emBaixa = computed(() => this.itens().filter(i => i.guardar === false).length);
+
   readonly ultimo = computed(() => this.passo() === this.def.passos.length);
   readonly opcoesEstoque = computed<OpcaoSeletor[]>(() => this.estoques().map(e => ({ valor: e.id, rotulo: e.nomeIdentificador, apoio: e.tipoEstoque?.nome })));
   readonly opcoesDestino = computed<OpcaoSeletor[]>(() => this.opcoesEstoque().filter(o => o.valor !== this.origem()));
@@ -387,11 +504,10 @@ export class NovaMovimentacaoComponent {
 
   constructor() {
     this.almox.estoques().subscribe(e => this.estoques.set(e));
-    if (this.tipo === 'entrada') {
-      toObservable(this.busca).pipe(
-        debounceTime(300), distinctUntilChanged(),
-        tap(() => { this.paginaCatalogo.set(0); this.buscando.set(true); }),
-        switchMap(q => this.almox.buscarMateriais(q, 0).pipe(catchError(() => of(null)))),
+    if (this.tipo === 'entrada' || this.tipo === 'devolucao') {
+      combineLatest([toObservable(this.busca).pipe(debounceTime(300), distinctUntilChanged()), toObservable(this.usaCatalogo)]).pipe(
+        tap(([, catalogo]) => { this.paginaCatalogo.set(0); this.buscando.set(catalogo); }),
+        switchMap(([q, catalogo]) => (catalogo ? this.almox.buscarMateriais(q, 0).pipe(catchError(() => of(null))) : of(null))),
         takeUntilDestroyed(),
       ).subscribe(r => {
         this.buscando.set(false);
@@ -399,7 +515,33 @@ export class NovaMovimentacaoComponent {
         this.temMaisCatalogo.set(!!r && (r.page?.number ?? 0) + 1 < (r.page?.totalPages ?? 0));
       });
     }
+    if (this.tipo === 'devolucao') this.almox.obras().subscribe(o => this.obras.set(o));
     void this.vincularRascunho();
+  }
+
+  trocarProcesso(p: Processo): void {
+    if (p === this.processo()) return;
+    this.processo.set(p);
+    this.fonte.set('saldo');
+    // Fora do saldo só vale na técnica; o tipo 222/922 só existe nela.
+    if (p === 'comercial') {
+      const fora = this.itens().filter(i => i.saldo === null).length;
+      this.itens.update(l => l.filter(i => i.saldo !== null).map(i => ({ ...i, concreto: false })));
+      if (fora) this.toast.info(`${fora} ${fora === 1 ? 'material fora do saldo saiu' : 'materiais fora do saldo saíram'}: a devolução comercial só aceita o que está com a equipe.`);
+    }
+  }
+
+  trocarObra(id: string | null): void {
+    this.obra.set(id);
+    if (!this.exigeOcorrencia()) this.ocorrencia.set('');
+  }
+
+  alternarConcreto(i: number): void {
+    this.itens.update(l => l.map((x, k) => (k === i ? { ...x, concreto: !x.concreto } : x)));
+  }
+
+  alternarGuardar(i: number): void {
+    this.itens.update(l => l.map((x, k) => (k === i ? { ...x, guardar: x.guardar === false } : x)));
   }
 
   private async vincularRascunho(): Promise<void> {
@@ -407,11 +549,17 @@ export class NovaMovimentacaoComponent {
       chave: `almox:mov:${this.tipo}`,
       injector: this.injector,
       // Assinaturas ficam fora do rascunho: se o app fechar, colhe de novo.
-      ler: () => ({ passo: Math.min(this.passo(), 3), origem: this.origem(), destino: this.destino(), itens: this.itens() }),
+      ler: () => ({
+        passo: Math.min(this.passo(), 3), origem: this.origem(), destino: this.destino(), itens: this.itens(),
+        processo: this.processo(), obra: this.obra(), ocorrencia: this.ocorrencia(),
+      }),
       aplicar: r => {
         this.origem.set(r.origem);
         this.destino.set(r.destino);
         this.itens.set(r.itens ?? []);
+        if (r.processo) this.processo.set(r.processo);
+        this.obra.set(r.obra ?? null);
+        this.ocorrencia.set(r.ocorrencia ?? '');
         this.passo.set(Math.min(Math.max(1, r.passo || 1), 3));
         if (this.passo() >= 2) this.carregarSaldos();
       },
@@ -468,10 +616,12 @@ export class NovaMovimentacaoComponent {
     this.carregandoSaldos.set(true);
     this.almox.listarSaldos(origem).subscribe({
       next: s => {
-        this.saldos.set([...s].sort((a, b) => a.material.descricao.localeCompare(b.material.descricao, 'pt-BR')));
+        // Devolução só leva material novo ou sucata (o que o almoxarifado recebe de volta).
+        const aceitos = this.tipo === 'devolucao' ? s.filter(x => (x.condicao || 'NOVO') === 'NOVO' || x.condicao === 'SUCATA') : s;
+        this.saldos.set([...aceitos].sort((a, b) => a.material.descricao.localeCompare(b.material.descricao, 'pt-BR')));
         this.carregandoSaldos.set(false);
         // Saldo pode ter mudado desde o rascunho: ajusta o limite de cada item.
-        this.itens.update(l => l.map(i => ({ ...i, saldo: this.saldoDe(i.chave) })));
+        this.itens.update(l => l.map(i => (i.saldo === null ? i : { ...i, saldo: this.saldoDe(i.chave) })));
       },
       error: () => { this.carregandoSaldos.set(false); this.saldosDe = null; this.toast.error('Não foi possível carregar o saldo do estoque.'); },
     });
@@ -487,7 +637,7 @@ export class NovaMovimentacaoComponent {
       this.itens.update(l => [...l, {
         chave: c, idMaterial: s.material.id, codigo: s.material.codigo, descricao: s.material.descricao, unidade: s.material.unidadeMedida || 'UN',
         detalhaSerie: !!s.material.detalhaSerie, condicao: (s.condicao || 'NOVO') as Condicao, quantidade: s.material.detalhaSerie ? 0 : Math.min(1, Number(s.quantidade)),
-        series: [], saldo: Number(s.quantidade),
+        series: [], saldo: Number(s.quantidade), ...this.padraoDevolucao(s.condicao), equivalencias: equivalenciasDe(s.material),
       }]);
     }
     if (s.material.detalhaSerie) this.abrirSeries(c);
@@ -499,6 +649,7 @@ export class NovaMovimentacaoComponent {
     this.itens.update(l => [...l, ...novos.map(s => ({
       chave: this.chave(s), idMaterial: s.material.id, codigo: s.material.codigo, descricao: s.material.descricao, unidade: s.material.unidadeMedida || 'UN',
       detalhaSerie: false, condicao: (s.condicao || 'NOVO') as Condicao, quantidade: Number(s.quantidade), series: [], saldo: Number(s.quantidade),
+      equivalencias: equivalenciasDe(s.material),
     }))]);
     const comSerie = this.saldos().filter(s => s.material.detalhaSerie).length;
     this.toast.success(`${novos.length} ${novos.length === 1 ? 'material entrou' : 'materiais entraram'} com todo o saldo.${comSerie ? ' Os com série escolha ou leia à parte.' : ''}`);
@@ -509,7 +660,7 @@ export class NovaMovimentacaoComponent {
     if (!this.temChave(c)) {
       this.itens.update(l => [...l, {
         chave: c, idMaterial: m.id, codigo: m.codigo, descricao: m.descricao, unidade: m.unidadeMedida || 'UN', detalhaSerie: !!m.detalhaSerie,
-        condicao: 'NOVO', quantidade: m.detalhaSerie ? 0 : 1, series: [], saldo: null,
+        condicao: 'NOVO', quantidade: m.detalhaSerie ? 0 : 1, series: [], saldo: null, ...this.padraoDevolucao('NOVO'), equivalencias: equivalenciasDe(m),
       }]);
     }
     if (m.detalhaSerie) this.abrirSeries(c);
@@ -527,11 +678,16 @@ export class NovaMovimentacaoComponent {
     });
   }
 
+  /** Na devolução: guarda no almoxarifado, e a sucata já sugere a baixa na hora. */
+  private padraoDevolucao(condicao?: string | null): Partial<ItemMov> {
+    return this.tipo === 'devolucao' ? { guardar: (condicao || 'NOVO') !== 'SUCATA', concreto: false } : {};
+  }
+
   private abrirSeries(chave: string): void {
     this.seriesDe.set(chave);
     if (this.tipo === 'entrada' || this.seriesPorChave()[chave]) return;
     const it = this.itens().find(i => i.chave === chave);
-    if (!it || !this.origem()) return;
+    if (!it || it.saldo === null || !this.origem()) return;
     this.almox.listarSeries(this.origem()!, it.idMaterial, it.condicao).pipe(catchError(() => of([]))).subscribe(s => {
       this.seriesPorChave.update(m => ({ ...m, [chave]: s.map(x => x.numSerie) }));
     });
@@ -543,10 +699,34 @@ export class NovaMovimentacaoComponent {
     this.itens.update(l => l.map(i => (i.chave === c ? { ...i, series, quantidade: series.length } : i)));
   }
 
+  /** Com outra unidade escolhida, {@code q} vem nela; o saldo recebe (ou perde) o convertido. */
   definirQuantidade(i: number, q: number): void {
     const it = this.itens()[i];
-    if (it.saldo !== null && q > it.saldo) { this.toast.warning(`O saldo é ${numeroBr(it.saldo)} ${it.unidade}.`); return; }
-    this.itens.update(l => l.map((x, k) => (k === i ? { ...x, quantidade: q } : x)));
+    const base = it.unidadeInformada ? paraBase(this.materialDe(it), q, it.unidadeInformada) : q;
+    if (it.saldo !== null && base > it.saldo && this.limitaSaldo()) {
+      const naUnidade = it.unidadeInformada ? ` (${numeroBr(daBase(this.materialDe(it), it.saldo, it.unidadeInformada))} ${it.unidadeInformada})` : '';
+      this.toast.warning(`O saldo é ${numeroBr(it.saldo)} ${it.unidade}${naUnidade}.`);
+      return;
+    }
+    this.itens.update(l => l.map((x, k) => (k !== i ? x : x.unidadeInformada
+      ? { ...x, quantidade: base, quantidadeInformada: q }
+      : { ...x, quantidade: q, quantidadeInformada: undefined })));
+  }
+
+  /** Troca a unidade mantendo a mesma quantidade física (ex.: 126 MT viram 30 KG). */
+  definirUnidade(i: number, unidade: string | null): void {
+    this.itens.update(l => l.map((x, k) => (k !== i ? x : unidade
+      ? { ...x, unidadeInformada: unidade, quantidadeInformada: daBase(this.materialDe(x), x.quantidade, unidade) }
+      : { ...x, unidadeInformada: null, quantidadeInformada: undefined })));
+  }
+
+  private materialDe(it: ItemMov): ComUnidade {
+    return { unidadeMedida: it.unidade, equivalencias: it.equivalencias };
+  }
+
+  /** O que foi digitado em outra unidade vai como foi digitado; o servidor converte e guarda os dois. */
+  private informado(i: ItemMov): { quantidade: number; unidade?: string } {
+    return i.unidadeInformada && i.quantidadeInformada ? { quantidade: i.quantidadeInformada, unidade: i.unidadeInformada } : { quantidade: i.quantidade };
   }
 
   definirCondicao(c: Condicao): void {
@@ -555,7 +735,7 @@ export class NovaMovimentacaoComponent {
     const it = this.itens()[i];
     const nova = chaveDe(it.idMaterial, c);
     if (nova !== it.chave && this.temChave(nova)) { this.toast.warning(`${it.descricao} já está na lista como ${rotuloCondicao(c)}.`); return; }
-    this.itens.update(l => l.map((x, k) => (k === i ? { ...x, condicao: c, chave: nova } : x)));
+    this.itens.update(l => l.map((x, k) => (k === i ? { ...x, condicao: c, chave: nova, ...(this.tipo === 'devolucao' ? { guardar: c !== 'SUCATA' } : {}) } : x)));
     this.condicaoDe.set(null);
   }
 
@@ -608,14 +788,21 @@ export class NovaMovimentacaoComponent {
     this.tentou.set(true);
     const p = this.passo();
     if (p === 1) {
-      if ((this.tipo !== 'entrada' && !this.origem()) || (this.tipo !== 'saida' && !this.destino())) { this.toast.warning('Escolha o estoque para continuar.'); return; }
+      if ((this.tipo !== 'entrada' && !this.origem()) || (this.tipo !== 'saida' && !this.destino())) {
+        this.toast.warning(this.tipo === 'devolucao' ? 'Escolha a equipe e o almoxarifado para continuar.' : 'Escolha o estoque para continuar.');
+        return;
+      }
+      if (this.tipo === 'devolucao' && this.processo() === 'tecnico') {
+        if (!this.obra()) { this.toast.warning('Escolha a obra da devolução.'); return; }
+        if (this.exigeOcorrencia() && !this.ocorrencia().trim()) { this.toast.warning(`Informe o número da ${this.rotuloExecucao()}.`); return; }
+      }
       this.carregarSaldos();
     }
     if (p === 2) {
       if (!this.itens().length) { this.toast.warning('Adicione ao menos um material.'); return; }
       const semSerie = this.itens().find(i => i.detalhaSerie && !i.series.length);
       if (semSerie) { this.toast.warning(`Informe as séries de ${semSerie.descricao}.`); this.abrirSeries(semSerie.chave); return; }
-      const excedido = this.itens().find(i => i.saldo !== null && this.qtd(i) > i.saldo);
+      const excedido = this.limitaSaldo() ? this.itens().find(i => i.saldo !== null && this.qtd(i) > i.saldo) : undefined;
       if (excedido) { this.toast.warning(`${excedido.descricao}: passa do saldo (${numeroBr(excedido.saldo!)} ${excedido.unidade}).`); return; }
       const zerado = this.itens().find(i => this.qtd(i) <= 0);
       if (zerado) { this.toast.warning(`Informe a quantidade de ${zerado.descricao}.`); return; }
@@ -645,11 +832,39 @@ export class NovaMovimentacaoComponent {
     this.passo.update(p => p + 1);
   }
 
+  private registrarDevolucao(): Observable<unknown> {
+    const equipe = this.estoques().find(e => e.id === this.origem())?.idEquipe;
+    if (!equipe) throw new Error('equipe');
+    const condicao = (c: Condicao) => (c === 'SUCATA' ? 'SUCATA' : 'NOVO') as 'NOVO' | 'SUCATA';
+    if (this.processo() === 'tecnico') {
+      return this.almox.registrarDevolucaoTecnica({
+        idObra: this.obra()!, ocorrencia: this.exigeOcorrencia() ? this.ocorrencia().trim().toUpperCase() : null, idEquipe: equipe, idAlmoxarifado: this.destino()!,
+        itens: this.itens().map(i => ({
+          idMaterial: i.idMaterial, tipoMovimentacao: i.concreto ? 'DEVOLUCAO_CONCRETO' : 'DEVOLUCAO_COMUM',
+          ...(i.detalhaSerie ? { quantidade: this.qtd(i) } : this.informado(i)), condicao: condicao(i.condicao),
+          numerosSerie: i.detalhaSerie ? i.series : undefined, guardarNoEstoque: i.guardar !== false,
+        })),
+      });
+    }
+    return this.almox.registrarDevolucaoComercial({
+      idEquipe: equipe, idEstoqueDestino: this.destino()!,
+      itens: this.itens().flatMap<DevolucaoComercialRequest['itens'][number]>(i => (i.detalhaSerie
+        ? i.series.map(numSerie => ({ idMaterial: i.idMaterial, quantidade: 1, numSerie, condicao: condicao(i.condicao), guardarNoEstoque: i.guardar !== false }))
+        : [{ idMaterial: i.idMaterial, ...this.informado(i), condicao: condicao(i.condicao), guardarNoEstoque: i.guardar !== false }])),
+    });
+  }
+
   private confirmar(): void {
     if (this.enviando()) return;
-    const itens = this.itens().flatMap(i => (i.detalhaSerie
+    if (this.tipo === 'devolucao') {
+      let chamadaDev: Observable<unknown>;
+      try { chamadaDev = this.registrarDevolucao(); } catch { this.toast.error('Este estoque não está ligado a uma equipe. Escolha o estoque de campo da equipe.'); return; }
+      this.enviar(chamadaDev);
+      return;
+    }
+    const itens = this.itens().flatMap<ItemMovimentacaoRequest>(i => (i.detalhaSerie
       ? i.series.map(numSerie => ({ idMaterial: i.idMaterial, quantidade: 1, numSerie, condicao: i.condicao }))
-      : [{ idMaterial: i.idMaterial, quantidade: i.quantidade, condicao: i.condicao }]));
+      : [{ idMaterial: i.idMaterial, ...this.informado(i), condicao: i.condicao }]));
     const pedido: MovimentacaoRequest = {
       idEstoqueOrigem: this.tipo !== 'entrada' ? this.origem()! : undefined,
       idEstoqueDestino: this.tipo !== 'saida' ? this.destino()! : undefined,
@@ -658,6 +873,10 @@ export class NovaMovimentacaoComponent {
       assinaturaRecebedor: this.tipo === 'transferencia' ? this.assinaturaRecebedor()! : undefined,
     };
     const chamada = this.tipo === 'entrada' ? this.almox.registrarEntrada(pedido) : this.tipo === 'saida' ? this.almox.registrarSaida(pedido) : this.almox.registrarTransferencia(pedido);
+    this.enviar(chamada);
+  }
+
+  private enviar(chamada: Observable<unknown>): void {
     this.enviando.set(true);
     chamada.subscribe({
       next: async () => {
@@ -684,7 +903,7 @@ export class NovaMovimentacaoComponent {
 }
 
 function lerTipo(v: string | null): Tipo {
-  return v === 'saida' || v === 'transferencia' ? v : 'entrada';
+  return v === 'saida' || v === 'transferencia' || v === 'devolucao' ? v : 'entrada';
 }
 
 function normalizar(v: string): string {

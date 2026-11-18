@@ -327,7 +327,7 @@
                     <span class="text-xs text-slate-600 dark:text-slate-300 font-normal">Lançamento, alterações, decisões e decisões desfeitas: quem, quando e por quê.</span>
                   </div>
                 </div>
-                <ces-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : undefined">{{ resumoHistorico() }}</ces-status>
+                <ces-status [tone]="decisoesDesfeitas() ? 'warning' : 'neutral'" [icon]="decisoesDesfeitas() ? 'pi-undo' : 'pi-history'">{{ resumoHistorico() }}</ces-status>
               </div>
             </p-accordion-header>
             <p-accordion-content>

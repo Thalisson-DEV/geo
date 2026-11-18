@@ -359,6 +359,14 @@ const EVENTO_LABELS: Record<string, string> = {
   APROVACAO: 'Aprovação registrada',
   REJEICAO: 'Rejeição registrada',
   CANCELAMENTO: 'Cancelamento',
+  FECHAMENTO_CRIADO: 'Solicitação criada',
+  FECHAMENTO_ALTERADO: 'Solicitação editada',
+  PENDENCIA_REGISTRADA: 'Pendência registrada',
+  PENDENCIA_REMOVIDA: 'Pendência resolvida',
+  MOVIMENTACAO_CONFIRMADA: 'Marcada como movimentada',
+  EFEITO_ESTOQUE_ALTERADO: 'Efeito no estoque trocado',
+  CANCELAMENTO_CONFIRMADO: 'Solicitação cancelada',
+  OCORRENCIA_ALTERADA: 'OS/OC trocada',
 };
 
 export function eventoLabel(tipo: string): string {
@@ -383,6 +391,14 @@ const EVENTO_ICONS: Record<string, string> = {
   APROVACAO: 'pi pi-thumbs-up',
   REJEICAO: 'pi pi-thumbs-down',
   CANCELAMENTO: 'pi pi-times-circle',
+  FECHAMENTO_CRIADO: 'pi pi-file-plus',
+  FECHAMENTO_ALTERADO: 'pi pi-pencil',
+  PENDENCIA_REGISTRADA: 'pi pi-flag',
+  PENDENCIA_REMOVIDA: 'pi pi-check',
+  MOVIMENTACAO_CONFIRMADA: 'pi pi-check-square',
+  EFEITO_ESTOQUE_ALTERADO: 'pi pi-arrow-right-arrow-left',
+  CANCELAMENTO_CONFIRMADO: 'pi pi-ban',
+  OCORRENCIA_ALTERADA: 'pi pi-pencil',
 };
 
 export function eventoIcon(tipo: string): string {
@@ -391,6 +407,8 @@ export function eventoIcon(tipo: string): string {
 
 export function eventoTone(tipo: string): CesTone {
   if (tipo.includes('CRIADA') || tipo.includes('SUBMISSAO')) return 'info';
+  if (tipo === 'PENDENCIA_REGISTRADA') return 'warning';
+  if (tipo === 'MOVIMENTACAO_CONFIRMADA' || tipo === 'PENDENCIA_REMOVIDA') return 'success';
   if (tipo.includes('ENTREGA') || tipo.includes('DEVOLUCAO_CONFIRMADA') || tipo.includes('APROVACAO') || tipo === 'SEPARACAO_CONCLUIDA') return 'success';
   if (tipo.includes('ESTORNO') || tipo.includes('REJEICAO') || tipo.includes('CANCELAMENTO')) return 'danger';
   if (tipo.includes('SEPARACAO_INICIADA') || tipo.includes('RESERVA') || tipo.includes('PLANEJAMENTO')) return 'warning';
@@ -465,6 +483,10 @@ const CAMPO_LABELS: Record<string, string> = {
   quantidadeEntregaLiquida: 'Quantidade entregue',
   quantidadeDevolucaoLiquida: 'Quantidade devolvida',
   quantidadePendente: 'Quantidade pendente',
+  quantidadeMovimentada: 'Quantidade movimentada',
+  efeitoEstoque: 'Efeito no estoque',
+  situacao: 'Situação',
+  pendencia: 'Pendência',
   material: 'Material',
   tipoMovimentacao: 'Tipo de movimento',
   tipoTecnico: 'Tipo técnico',

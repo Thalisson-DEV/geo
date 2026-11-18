@@ -67,6 +67,13 @@ public class UsuarioController implements UsuarioControllerDoc {
         return ResponseEntity.ok(useCases.atualizar(id, request));
     }
 
+    @PutMapping("/{id}/colaborador")
+    @PreAuthorize("hasAuthority('iam:usuario:write')")
+    @Override
+    public ResponseEntity<UsuarioResponse> vincularColaborador(@PathVariable UUID id, @RequestBody VincularColaboradorRequest request) {
+        return ResponseEntity.ok(useCases.vincularColaborador(id, request.idColaborador()));
+    }
+
     @PutMapping("/{id}/ativar")
     @PreAuthorize("hasAuthority('iam:usuario:write')")
     public ResponseEntity<Void> ativar(@PathVariable UUID id) {

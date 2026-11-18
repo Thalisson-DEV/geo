@@ -108,6 +108,7 @@ export class FrotaChecklistsPreenchidosComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-checklists',
+    rememberFilters: 'frota-checklists',
     filters: {
       idVeiculo: cesFilter.value<string | null>(null, {
         label: 'Veículo',
@@ -115,7 +116,7 @@ export class FrotaChecklistsPreenchidosComponent {
         type: 'string',
         format: (id) => (id ? (this.placaDoFiltro ? formatarPlaca(this.placaDoFiltro) : 'Veículo escolhido') : null)
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       de: cesFilter.date(null, { label: 'De' }),
       ate: cesFilter.date(null, { label: 'Até' }),
       comProblema: cesFilter.value<boolean | null>(null, { label: 'Problemas', param: 'problema', options: () => OPCOES_PROBLEMA })

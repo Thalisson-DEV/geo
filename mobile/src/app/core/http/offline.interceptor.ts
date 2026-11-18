@@ -2,13 +2,14 @@ import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { ConnectivityService } from '../sync/connectivity.service';
+import { IGNORAR_MODO_OFFLINE } from './http-context';
 
 export const offlineInterceptor: HttpInterceptorFn = (req, next) => {
   const connectivityService = inject(ConnectivityService);
 
   // Se o aplicativo estiver operando em modo offline (corte no 4G ou manual),
   // interrompe de imediato sem esperar timeout de rede em rota bloqueada
-  if (!connectivityService.isOnline()) {
+  if (!connectivityService.isOnline() && !req.context.get(IGNORAR_MODO_OFFLINE)) {
     return throwError(() => new HttpErrorResponse({
       status: 0,
       statusText: 'Offline',

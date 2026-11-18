@@ -1,5 +1,6 @@
 package com.nexo.app.modules.estoque.application.services;
 
+import com.nexo.app.modules.estoque.domain.QuantidadeConvertida;
 import com.nexo.app.modules.estoque.application.dto.EntregaSolicitacaoRequest;
 import com.nexo.app.modules.estoque.application.dto.EstornoParcialRequest;
 import com.nexo.app.modules.estoque.domain.CondicaoMaterial;
@@ -57,6 +58,7 @@ public class OperacaoSolicitacaoComercialService {
     private final EquipeApi equipeApi;
     private final DebitoSaldoService debitoSaldoService;
     private final EstoqueRepository estoqueRepository;
+    private final ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
 
     @Transactional
     @CacheEvict(value = SALDOS, allEntries = true)
@@ -86,12 +88,15 @@ public class OperacaoSolicitacaoComercialService {
                 if (!itemExiste) {
                     continue;
                 }
+                ItemSolicitacao item = buscarItem(solicitacao, itemReq.idItemSolicitacao());
+                QuantidadeConvertida convertida = itemReq.quantidade() == null ? null
+                        : item.getMaterial().converterParaBase(itemReq.quantidade(), itemReq.unidade());
+                BigDecimal quantidade = convertida == null ? null : convertida.base();
                 entregas.put(itemReq.idItemSolicitacao(), new SolicitacaoMaterial.ItemEntregaInfo(
-                        itemReq.quantidade(), itemReq.novaQuantidadeSolicitada(), itemReq.numSerie()));
-                if (itemReq.quantidade() != null && itemReq.quantidade().signum() > 0) {
-                    ItemSolicitacao item = buscarItem(solicitacao, itemReq.idItemSolicitacao());
-                    movimentar(solicitacao, item.getMaterial(), itemReq.quantidade(), idEntregador,
-                            false, itemReq.numSerie(), idOperacao);
+                        quantidade, itemReq.novaQuantidadeSolicitada(), itemReq.numSerie()));
+                if (quantidade != null && quantidade.signum() > 0) {
+                    movimentar(solicitacao, item.getMaterial(), quantidade, idEntregador,
+                            false, itemReq.numSerie(), idOperacao, convertida);
                 }
             }
         }
@@ -102,13 +107,14 @@ public class OperacaoSolicitacaoComercialService {
                 Material material = materialRepository.findById(novoReq.idMaterial())
                         .orElseThrow(() -> new RecursoNaoEncontradoException(
                                 "Material nao encontrado: " + novoReq.idMaterial()));
+                QuantidadeConvertida convertida = material.converterParaBase(novoReq.quantidade(), novoReq.unidade());
                 BigDecimal quantidadeSolicitada = novoReq.quantidadeSolicitada() != null
                         ? novoReq.quantidadeSolicitada()
-                        : novoReq.quantidade();
+                        : convertida.base();
                 novosItens.add(new SolicitacaoMaterial.NovoItemEntregaInfo(
-                        material, quantidadeSolicitada, novoReq.quantidade(), novoReq.numSerie()));
-                movimentar(solicitacao, material, novoReq.quantidade(), idEntregador,
-                        false, novoReq.numSerie(), idOperacao);
+                        material, quantidadeSolicitada, convertida.base(), novoReq.numSerie()));
+                movimentar(solicitacao, material, convertida.base(), idEntregador,
+                        false, novoReq.numSerie(), idOperacao, convertida);
             }
         }
 
@@ -255,8 +261,22 @@ public class OperacaoSolicitacaoComercialService {
             String numeroSerie,
             UUID idOperacao
     ) {
+        movimentar(solicitacao, material, quantidade, idOperador, estorno, numeroSerie, idOperacao, null);
+    }
+
+    private void movimentar(
+            SolicitacaoMaterial solicitacao,
+            Material material,
+            BigDecimal quantidade,
+            UUID idOperador,
+            boolean estorno,
+            String numeroSerie,
+            UUID idOperacao,
+            QuantidadeConvertida informada
+    ) {
         Estoque origem = estorno ? solicitacao.getEstoqueDestino() : solicitacao.getEstoqueOrigem();
         Estoque destino = estorno ? solicitacao.getEstoqueOrigem() : solicitacao.getEstoqueDestino();
+        java.time.OffsetDateTime instante = java.time.OffsetDateTime.now();
         debitoSaldoService.debitar(origem, material, CondicaoMaterial.NOVO, quantidade);
 
         Saldo saldoDestino = saldoRepository
@@ -276,13 +296,17 @@ public class OperacaoSolicitacaoComercialService {
             serie.cumprirReservaDa(solicitacao);
             serie.transferirPara(destino);
             serieRepository.save(serie);
+            // A equipe pode ter aplicado a série antes da entrega: chega já aplicada.
+            conciliacaoSerieAplicada.conciliarChegada(serie, instante);
         }
 
-        movimentacaoRepository.save(MovimentacaoEstoque.criarComercial(
+        MovimentacaoEstoque movimentacao = MovimentacaoEstoque.criarComercial(
                 solicitacao, origem, destino, material, quantidade,
                 estorno ? MovimentacaoEstoque.TipoMovimentacao.ESTORNO
                         : MovimentacaoEstoque.TipoMovimentacao.ENTREGA,
-                idOperador, idOperacao, numeroSerie));
+                idOperador, idOperacao, numeroSerie);
+        movimentacao.registrarQuantidadeInformada(informada);
+        movimentacaoRepository.save(movimentacao);
     }
 
     private ItemSolicitacao buscarItem(SolicitacaoMaterial solicitacao, UUID idItem) {

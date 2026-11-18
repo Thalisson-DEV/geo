@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   computed,
   effect,
@@ -11,7 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { DrawerModule } from 'primeng/drawer';
+import { Drawer, DrawerModule } from 'primeng/drawer';
 import { CES_COMPACT_VIEWPORT_QUERY, cesMediaQuery } from '../../core/media';
 import { CesConfirmationService } from '../../overlays/confirmation/confirmation.service';
 import { CesFormRegistry } from './form-kit.registry';
@@ -156,6 +157,7 @@ export class CesFormDrawerComponent {
   readonly closed = output<void>();
 
   private readonly body = viewChild<ElementRef<HTMLElement>>('body');
+  private readonly drawer = viewChild(Drawer);
   protected readonly titleId = `ces-form-drawer-${++drawerSequence}`;
   protected readonly compact = cesMediaQuery(CES_COMPACT_VIEWPORT_QUERY);
   private confirmando = false;
@@ -166,6 +168,12 @@ export class CesFormDrawerComponent {
   protected readonly redimensionando = signal(false);
 
   constructor() {
+    // Fechou e saiu da tela antes do fim da animação: o p-drawer não remove a máscara sozinho
+    // (ver ces-drawer). Sobrou máscara, ela sai junto com o drawer.
+    inject(DestroyRef).onDestroy(() => {
+      const drawer = this.drawer();
+      if (drawer?.mask) drawer.destroyModal();
+    });
     // Guarda quem abriu o drawer antes de o foco entrar nele, para devolver ao fechar.
     effect(() => {
       if (this.visible() && !this.origemFoco) this.origemFoco = document.activeElement as HTMLElement | null;
@@ -221,6 +229,20 @@ export class CesFormDrawerComponent {
   }
 
   /** Foca o primeiro campo (útil depois de "Salvar e novo"). */
+  focusFirstField(): void {
+    const primeiro = this.registry.fields()[0];
+    if (primeiro) {
+      primeiro.focus();
+      return;
+    }
+    this.body()?.nativeElement.querySelector<HTMLElement>('input, textarea, [role="combobox"]')?.focus();
+  }
+
+  /**
+   * Leva ao primeiro campo com erro depois de uma tentativa de salvar: rola até ele e foca. Sem isso o
+   * erro abaixo da dobra passa despercebido e o botão parece não ter feito nada. Chame logo após
+   * marcar os erros; espera a renderização.
+   */
   focusFirstError(): void {
     setTimeout(() => {
       const corpo = this.body()?.nativeElement;
@@ -230,15 +252,6 @@ export class CesFormDrawerComponent {
       alvo.scrollIntoView({ block: 'center', behavior: 'smooth' });
       if (campo) campo.focus({ preventScroll: true });
     });
-  }
-
-  focusFirstField(): void {
-    const primeiro = this.registry.fields()[0];
-    if (primeiro) {
-      primeiro.focus();
-      return;
-    }
-    this.body()?.nativeElement.querySelector<HTMLElement>('input, textarea, [role="combobox"]')?.focus();
   }
 
   protected onEscape(event: Event): void {

@@ -124,4 +124,24 @@ describe('RemoteLookup', () => {
     expect(lookup.hasMore()).toBe(false);
     lookup.destroy();
   });
+
+  it('volta a consultar o servidor na abertura seguinte ao reset', async () => {
+    vi.useFakeTimers();
+    const load = vi.fn(() => of(page([{ id: '1', label: 'Um' }])));
+    const lookup = new RemoteLookup<Option>({ load, identify: (item) => item.id });
+
+    lookup.open();
+    await vi.advanceTimersByTimeAsync(0);
+    lookup.open();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(load).toHaveBeenCalledTimes(1);
+
+    lookup.reset();
+    expect(lookup.items()).toEqual([]);
+
+    lookup.open();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(load).toHaveBeenCalledTimes(2);
+    lookup.destroy();
+  });
 });

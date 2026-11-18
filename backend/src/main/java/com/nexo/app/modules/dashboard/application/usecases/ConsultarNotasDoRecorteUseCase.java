@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.OffsetDateTime;
+import org.springframework.data.domain.Page;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -70,14 +72,15 @@ public class ConsultarNotasDoRecorteUseCase {
                 .filter(id -> filter.idEquipe() == null || filter.idEquipe().equals(id))
                 .toList();
 
-        return PageResponse.fromPage(execucaoApi.listarConcluidasDasEquipes(
-                        equipes,
-                        CalendarioOperacional.inicioDoDia(inicio),
-                        CalendarioOperacional.inicioDoDia(fim.plusDays(1)),
-                        filter.idTipoServico(),
-                        Boolean.TRUE.equals(filter.semTipoServico()),
+        OffsetDateTime de = CalendarioOperacional.inicioDoDia(inicio);
+        OffsetDateTime ate = CalendarioOperacional.inicioDoDia(fim.plusDays(1));
+        boolean semTipo = Boolean.TRUE.equals(filter.semTipoServico());
+        Page<ExecucaoComercialResponse> pagina = Boolean.TRUE.equals(filter.apenasProdutivas())
+                ? execucaoApi.listarConcluidasDasEquipes(equipes, de, ate, filter.idTipoServico(), semTipo, true,
                         paginacaoSegura(pageable))
-                .map(ConsultarNotasDoRecorteUseCase::linha));
+                : execucaoApi.listarConcluidasDasEquipes(equipes, de, ate, filter.idTipoServico(), semTipo,
+                        paginacaoSegura(pageable));
+        return PageResponse.fromPage(pagina.map(ConsultarNotasDoRecorteUseCase::linha));
     }
 
     static NotaDoRecorteResponse linha(ExecucaoComercialResponse nota) {

@@ -348,6 +348,7 @@ import {
                         @if (item.status) {
                           <ces-status
                             [tone]="item.status.tone ?? 'neutral'"
+                            [icon]="item.status.icon"
                             emphasis="soft"
                             [class.ces-status--devolucao]="item.status.label === 'Devolução' || item.typePill?.variant === 'devolucao'"
                           >

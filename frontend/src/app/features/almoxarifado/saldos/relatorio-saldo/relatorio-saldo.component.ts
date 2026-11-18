@@ -1,3 +1,4 @@
+import { iconeCondicao } from '../../../../shared/utils/movimentacao.utils';
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -19,12 +20,14 @@ import { NavigationHistoryService } from '../../../../core/navigation/navigation
 import { createUrlFilters, qp } from '../../../../core/navigation';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { RhService } from '../../../../core/services/rh.service';
-import { EstoqueResponse, PageResponseSaldoResponse, SaldoResponse } from '../../../../core/models/almoxarifado.models';
+import { EstoqueResponse, PageResponseSaldoResponse, SaldoResponse, SeriesAConferirResponse } from '../../../../core/models/almoxarifado.models';
 import { EquipeResponse } from '../../../../core/models/rh.models';
 import { getErrorMessage } from '../../../../core/models/shared.models';
 import { MovimentacoesMaterialDialogComponent } from '../../../../shared/components/movimentacoes-material-dialog/movimentacoes-material-dialog.component';
 import { imprimirSempreNoTemaClaro } from '../../../execucao/relatorios/relatorio-impressao';
 import { SaldoSeriaisPainelComponent } from '../../../../shared/components/saldo-seriais-painel/saldo-seriais-painel.component';
+import { SeriesAConferirComponent } from './series-a-conferir.component';
+import { processoMaterial } from '../../shared/processo-material';
 
 /** Recorte rápido da tabela: todos os saldos, só os negativos ou só os em sucata. */
 export type RecorteSaldo = 'todos' | 'negativos' | 'sucata';
@@ -35,6 +38,14 @@ export interface ResumoSaldo {
   negativos: number | null;
   sucata: number | null;
   series: number | null;
+}
+
+/** Processo do cadastro que tem saldo neste estoque, para o recorte por processo. */
+export interface ProcessoComSaldo {
+  id: string;
+  rotulo: string;
+  icone: string;
+  total: number;
 }
 
 interface PontoDeAtencao {
@@ -66,7 +77,8 @@ const ORDENACAO_PADRAO = 'material.descricao,asc';
     CesRowDetailDirective,
     CesRowActionsDirective,
     MovimentacoesMaterialDialogComponent,
-    SaldoSeriaisPainelComponent
+    SaldoSeriaisPainelComponent,
+    SeriesAConferirComponent
   ],
   templateUrl: './relatorio-saldo.component.html',
   styleUrl: './relatorio-saldo.component.css'
@@ -85,6 +97,10 @@ export class RelatorioSaldoComponent implements OnInit {
   protected readonly estoque = signal<EstoqueResponse | null>(null);
   protected readonly equipe = signal<EquipeResponse | null>(null);
   protected readonly resumo = signal<ResumoSaldo | null>(null);
+  /** Séries aplicadas fora do caminhão da equipe; nulo enquanto carrega ou em estoque sem equipe. */
+  protected readonly seriesAConferir = signal<SeriesAConferirResponse | null>(null);
+  protected readonly totalSeriesAConferir = computed(() =>
+    (this.seriesAConferir()?.materiais ?? []).reduce((total, m) => total + m.aplicadas.length, 0));
   protected readonly emitidoEm = new Date();
 
   protected readonly saldos = signal<SaldoResponse[]>([]);
@@ -93,6 +109,10 @@ export class RelatorioSaldoComponent implements OnInit {
   protected readonly tableError = signal<string | undefined>(undefined);
 
   protected readonly recorte = signal<RecorteSaldo>('todos');
+  /** Processo do material (Comercial, Obras...); nulo mostra todos. */
+  protected readonly processo = signal<string | null>(null);
+  protected readonly processos = signal<ProcessoComSaldo[]>([]);
+  protected readonly processoVisual = processoMaterial;
   protected readonly busca = signal('');
   protected readonly pagina = signal(0);
   protected readonly tamanho = signal(TAMANHO_PADRAO);
@@ -106,6 +126,7 @@ export class RelatorioSaldoComponent implements OnInit {
   private readonly estadoUrl = createUrlFilters<{
     buscaGlobal: string;
     recorte: string;
+    processo: string;
     negativos: boolean;
     pagina: number;
     tamanho: number;
@@ -113,6 +134,7 @@ export class RelatorioSaldoComponent implements OnInit {
   }>({
     buscaGlobal: qp.text('buscaGlobal'),
     recorte: qp.text('recorte'),
+    processo: qp.text('processo'),
     negativos: qp.boolean('negativos'),
     pagina: qp.number('pag'),
     tamanho: qp.number('tam'),
@@ -125,6 +147,7 @@ export class RelatorioSaldoComponent implements OnInit {
   protected readonly colunas: CesDataTableColumn<SaldoResponse>[] = [
     { key: 'codigo', header: 'Código', priority: 1, width: '7rem', value: (s) => s.material.codigo, sortField: 'material.codigo' },
     { key: 'descricao', header: 'Descrição', priority: 1, value: (s) => s.material.descricao, sortField: 'material.descricao' },
+    { key: 'processo', header: 'Processo', type: 'custom', priority: 2, value: (s) => s.material.processo?.nome, sortable: false },
     { key: 'unidade', header: 'Un.', priority: 2, width: '4rem', value: (s) => s.material.unidadeMedida, sortable: false },
     { key: 'avaliacao', header: 'Avaliação', priority: 2, value: (s) => s.material.avaliacaoTecnica?.nome, sortable: false },
     { key: 'suprMatr', header: 'SUPR/MATR', priority: 2, value: (s) => s.material.suprMatrFlag, sortable: false },
@@ -137,12 +160,12 @@ export class RelatorioSaldoComponent implements OnInit {
   protected readonly rotuloSaldo = (saldo: SaldoResponse) => `${saldo.material.codigo} ${saldo.material.descricao}`;
   protected readonly ehSeriado = (saldo: SaldoResponse) => !!saldo.material.detalhaSerie;
 
-  protected readonly situacao = computed<{ tom: CesTone; rotulo: string } | null>(() => {
+  protected readonly situacao = computed<{ tom: CesTone; rotulo: string; icone: string } | null>(() => {
     const r = this.resumo();
     if (!r || r.negativos === null) return null;
-    if (r.negativos > 0) return { tom: 'danger', rotulo: 'Com saldo negativo' };
-    if ((r.sucata ?? 0) > 0) return { tom: 'warning', rotulo: 'Com sucata' };
-    return { tom: 'success', rotulo: 'Regular' };
+    if (r.negativos > 0) return { tom: 'danger', rotulo: 'Com saldo negativo', icone: 'pi-exclamation-circle' };
+    if ((r.sucata ?? 0) > 0) return { tom: 'warning', rotulo: 'Com sucata', icone: 'pi-trash' };
+    return { tom: 'success', rotulo: 'Regular', icone: 'pi-check-circle' };
   });
 
   protected readonly pontosDeAtencao = computed<PontoDeAtencao[]>(() => {
@@ -166,6 +189,15 @@ export class RelatorioSaldoComponent implements OnInit {
         texto: 'Material aplicado além do saldo. Analise as movimentações e regularize o estoque.'
       });
     }
+    const aConferir = this.totalSeriesAConferir();
+    if (aConferir) {
+      pontos.push({
+        tom: 'warning',
+        icone: 'pi pi-barcode',
+        titulo: `${aConferir} ${aConferir === 1 ? 'série a conferir' : 'séries a conferir'}`,
+        texto: 'A equipe aplicou séries que não estavam no caminhão. Confira abaixo qual série do caminhão foi usada.'
+      });
+    }
     if (r.sucata) {
       pontos.push({
         tom: 'warning',
@@ -185,9 +217,13 @@ export class RelatorioSaldoComponent implements OnInit {
     return pontos;
   });
 
+  protected readonly processoEscolhido = computed(() => this.processos().find((p) => p.id === this.processo()) ?? null);
+  protected readonly filtrado = computed(() => this.recorte() !== 'todos' || !!this.processo());
+
   protected readonly descricaoRecorte = computed(() => {
     const filtros = [
       this.recorte() === 'negativos' ? 'somente negativos' : this.recorte() === 'sucata' ? 'somente sucata' : '',
+      this.processoEscolhido() ? `processo ${this.processoEscolhido()!.rotulo}` : '',
       this.busca().trim() ? `busca "${this.busca().trim()}"` : ''
     ].filter(Boolean);
     return filtros.length ? filtros.join(' · ') : 'Todos os itens';
@@ -240,6 +276,7 @@ export class RelatorioSaldoComponent implements OnInit {
     this.busca.set(estado.buscaGlobal ?? '');
     const recorte = estado.recorte === 'negativos' || estado.recorte === 'sucata' ? estado.recorte : estado.negativos ? 'negativos' : 'todos';
     this.recorte.set(recorte);
+    this.processo.set(estado.processo || null);
     this.tamanho.set(estado.tamanho && estado.tamanho > 0 ? estado.tamanho : TAMANHO_PADRAO);
     this.pagina.set(Math.max((estado.pagina ?? 1) - 1, 0));
     const [campo, direcao] = (estado.ordenacao ?? '').split(',');
@@ -258,6 +295,7 @@ export class RelatorioSaldoComponent implements OnInit {
         if (idEquipe) this.loadEquipe(idEquipe);
         this.loading.set(false);
         this.loadResumo();
+        this.loadSeriesAConferir(res);
         // A tabela pede a primeira página (lazyLoad) assim que é exibida.
       },
       error: (err) => {
@@ -285,6 +323,49 @@ export class RelatorioSaldoComponent implements OnInit {
       sucata: contar(this.almoxarifadoService.listarSaldos({ ...base, condicao: 'SUCATA' })),
       series: contar(this.almoxarifadoService.listarSaldosSeriais({ ...base, ativo: true }))
     }).subscribe((resumo) => this.resumo.set(resumo));
+    this.loadProcessos(base);
+  }
+
+  /** Só aparecem no recorte os processos que têm material neste estoque. */
+  private loadProcessos(base: Record<string, unknown>): void {
+    this.rhService
+      .listarProcessosAtivos()
+      .pipe(
+        switchMap((res) => {
+          const processos = res.content ?? [];
+          if (!processos.length) return of([] as ProcessoComSaldo[]);
+          return forkJoin(
+            processos.map((p) =>
+              this.almoxarifadoService.listarSaldos({ ...base, idProcesso: p.id }).pipe(
+                map((r): ProcessoComSaldo | null => {
+                  const visual = processoMaterial(p.nome);
+                  return visual && r.page.totalElements > 0 ? { id: p.id, ...visual, total: r.page.totalElements } : null;
+                }),
+                catchError(() => of(null))
+              )
+            )
+          ).pipe(map((lista) => lista.filter((p): p is ProcessoComSaldo => !!p).sort((a, b) => b.total - a.total)));
+        }),
+        catchError(() => of([] as ProcessoComSaldo[]))
+      )
+      .subscribe((lista) => this.processos.set(lista));
+  }
+
+  /** Só estoque de equipe tem aplicação em campo; falha aqui não derruba o relatório. */
+  private loadSeriesAConferir(estoque: EstoqueResponse): void {
+    this.seriesAConferir.set(null);
+    if (!estoque.idEquipe) return;
+    this.almoxarifadoService
+      .listarSeriesAConferir(estoque.id)
+      .pipe(catchError(() => of(null)))
+      .subscribe((res) => this.seriesAConferir.set(res));
+  }
+
+  /** Uma série saiu do caminhão: atualiza a lista, os números do resumo e a tabela. */
+  protected onSeriesConferidas(res: SeriesAConferirResponse): void {
+    this.seriesAConferir.set(res);
+    this.loadResumo();
+    this.recarregarTabela();
   }
 
   protected onLazyLoad(evento: CesLazyLoadEvent): void {
@@ -303,9 +384,17 @@ export class RelatorioSaldoComponent implements OnInit {
     this.onLazyLoad({ ...base, page: 0 });
   }
 
+  protected aplicarProcesso(id: string | null): void {
+    this.processo.set(this.processo() === id ? null : id);
+    this.pagina.set(0);
+    const base = this.ultimaCarga ?? { page: 0, size: this.tamanho(), sort: [], query: this.busca(), filters: [] };
+    this.onLazyLoad({ ...base, page: 0 });
+  }
+
   /** "Limpar filtros" no vazio por recorte: volta a todos os itens, sem busca. */
   protected limparRecorte(): void {
     this.recorte.set('todos');
+    this.processo.set(null);
     this.busca.set('');
     this.pagina.set(0);
     const base = this.ultimaCarga ?? { page: 0, size: this.tamanho(), sort: [], query: '', filters: [] };
@@ -325,7 +414,8 @@ export class RelatorioSaldoComponent implements OnInit {
       sort: regra ? `${regra.key},${regra.direction}` : ORDENACAO_PADRAO,
       buscaGlobal: evento.query.trim() || undefined,
       negativo: this.recorte() === 'negativos' ? true : undefined,
-      condicao: this.recorte() === 'sucata' ? 'SUCATA' : undefined
+      condicao: this.recorte() === 'sucata' ? 'SUCATA' : undefined,
+      idProcesso: this.processo() ?? undefined
     };
   }
 
@@ -334,12 +424,15 @@ export class RelatorioSaldoComponent implements OnInit {
     this.estadoUrl.write({
       buscaGlobal: evento.query.trim(),
       recorte: this.recorte() !== 'todos' ? this.recorte() : undefined,
+      processo: this.processo() ?? undefined,
       negativos: undefined,
       pagina: evento.page > 0 ? evento.page + 1 : undefined,
       tamanho: evento.size !== TAMANHO_PADRAO ? evento.size : undefined,
       ordenacao: regra ? `${regra.key},${regra.direction}` : undefined
     });
   }
+
+  protected readonly iconeCondicao = iconeCondicao;
 
   protected tomCondicao(condicao: string | undefined): CesTone {
     return condicao === 'SUCATA' ? 'warning' : 'neutral';

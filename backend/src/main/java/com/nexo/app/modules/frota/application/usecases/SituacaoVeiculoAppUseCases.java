@@ -1,6 +1,8 @@
 package com.nexo.app.modules.frota.application.usecases;
 
+import com.nexo.app.modules.frota.application.dto.ArquivoDocumentoFrota;
 import com.nexo.app.modules.frota.application.dto.SituacaoVeiculoAppResponse;
+import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import com.nexo.app.modules.frota.domain.DespesaVeiculo;
 import com.nexo.app.modules.frota.domain.DocumentoFrota;
 import com.nexo.app.modules.frota.domain.OrdemServico;
@@ -44,6 +46,8 @@ public class SituacaoVeiculoAppUseCases {
     private final ParametrosFrotaUseCases parametros;
     private final DespesaVeiculoRepository despesas;
     private final PreventivaUseCases preventiva;
+    private final com.nexo.app.modules.frota.infrastructure.persistence.AcoplamentoImplementoRepository acoplamentos;
+    private final com.nexo.app.shared.infrastructure.storage.ObjectStorageService objectStorage;
 
     @Transactional(readOnly = true)
     public SituacaoVeiculoAppResponse situacao(UUID idVeiculo) {
@@ -77,7 +81,53 @@ public class SituacaoVeiculoAppUseCases {
                 preventiva.pendentesDoVeiculo(idVeiculo).stream()
                         .map(p -> new SituacaoVeiculoAppResponse.Preventiva(p.plano(), p.situacao(), p.falta(),
                                 p.previsao(), p.numeroOrdemServico()))
-                        .toList());
+                        .toList(),
+                documentosDoConjunto(idVeiculo, veiculo.placa(), hoje, diasAviso));
+    }
+
+    /** Arquivo de um documento do veículo ou de implemento acoplado a ele agora, para o app abrir. */
+    @Transactional(readOnly = true)
+    public ArquivoDocumentoFrota arquivo(UUID idVeiculo, UUID idDocumento) {
+        DocumentoFrota documento = documentos.findById(idDocumento).filter(DocumentoFrota::isAtivo)
+                .filter(DocumentoFrota::possuiArquivo)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Documento sem arquivo ou não encontrado."));
+        boolean doVeiculo = idVeiculo.equals(documento.getIdVeiculo());
+        boolean doImplemento = documento.getIdImplemento() != null && acoplamentos.findAllByIdVeiculoInAndFimIsNullAndAtivoTrue(
+                List.of(idVeiculo)).stream().anyMatch(a -> a.getImplemento().getId().equals(documento.getIdImplemento()));
+        if (!doVeiculo && !doImplemento) {
+            throw new RecursoNaoEncontradoException("Este documento não é deste veículo.");
+        }
+        var objeto = objectStorage.baixar(documento.getArquivoChave());
+        return new ArquivoDocumentoFrota(documento.getArquivoNome(), documento.getArquivoContentType(),
+                documento.getArquivoTamanhoBytes(), objeto.conteudo());
+    }
+
+    /** Veículo primeiro (pelo vencimento mais próximo), depois os implementos acoplados agora. */
+    private List<SituacaoVeiculoAppResponse.DocumentoConjunto> documentosDoConjunto(UUID idVeiculo, String placa, LocalDate hoje,
+                                                                                 int diasAviso) {
+        var resultado = new java.util.ArrayList<SituacaoVeiculoAppResponse.DocumentoConjunto>();
+        documentos.findAllByIdVeiculoAndAtivoTrueOrderByDataVencimentoAsc(idVeiculo)
+                .forEach(d -> resultado.add(documentoConjunto(d, placa, false, hoje, diasAviso)));
+        var acoplados = acoplamentos.findAllByIdVeiculoInAndFimIsNullAndAtivoTrue(List.of(idVeiculo));
+        if (!acoplados.isEmpty()) {
+            Map<UUID, String> nomes = acoplados.stream().collect(Collectors.toMap(a -> a.getImplemento().getId(),
+                    a -> a.getImplemento().getIdentificacao(), (a, b) -> a));
+            documentos.findAllByIdImplementoInAndAtivoTrue(nomes.keySet())
+                    .forEach(d -> resultado.add(documentoConjunto(d, nomes.get(d.getIdImplemento()), true, hoje, diasAviso)));
+        }
+        return resultado;
+    }
+
+    private static SituacaoVeiculoAppResponse.DocumentoConjunto documentoConjunto(DocumentoFrota d, String titular,
+                                                                                boolean doImplemento, LocalDate hoje,
+                                                                                int diasAviso) {
+        boolean comArquivo = d.possuiArquivo();
+        return new SituacaoVeiculoAppResponse.DocumentoConjunto(d.getId(), d.getTipo(), d.getDescricao(), titular, doImplemento,
+                d.getDataVencimento(), d.getDataVencimento() == null ? SituacaoVencimento.SEM_VENCIMENTO
+                        : SituacaoVencimento.calcular(d.getDataVencimento(), hoje, diasAviso),
+                comArquivo ? d.getArquivoNome() : null, comArquivo ? d.getArquivoContentType() : null,
+                comArquivo ? d.getArquivoTamanhoBytes() : null,
+                comArquivo ? d.getArquivoChave() + ":" + d.getVersao() : null);
     }
 
     private List<SituacaoVeiculoAppResponse.Lavagem> lavagens(UUID idVeiculo) {

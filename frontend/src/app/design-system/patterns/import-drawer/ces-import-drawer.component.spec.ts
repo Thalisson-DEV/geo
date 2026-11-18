@@ -44,6 +44,7 @@ describe('CesImportDrawerComponent', () => {
 
   it('traduz a situação de cada linha', () => {
     expect(cesImportStatus('COM_ERRO').tone).toBe('danger');
+    expect(cesImportStatus('CONCLUIDO').label).toBe('Processada');
     expect(cesImportStatus('VALIDADO').label).toBeTruthy();
   });
 

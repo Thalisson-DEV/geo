@@ -1,3 +1,4 @@
+import { iconeCondicao } from '../../utils/movimentacao.utils';
 import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, input, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -37,7 +38,7 @@ import { SeriesGradeComponent } from '../series-grade/series-grade.component';
               <span class="font-bold tabular-nums text-[var(--ces-foreground)]">
                 {{ grupo.quantidade | number: '1.0-3' }} {{ grupo.material.unidadeMedida || '' }}
               </span>
-              <ces-status [tone]="tomCondicao(grupo.condicao)">{{ rotuloCondicao(grupo.condicao) }}</ces-status>
+              <ces-status [tone]="tomCondicao(grupo.condicao)" [icon]="iconeCondicao(grupo.condicao)">{{ rotuloCondicao(grupo.condicao) }}</ces-status>
               @if (grupo.series.length) {
                 <span class="text-[var(--ces-foreground-muted)]">
                   <i class="pi pi-barcode text-[11px]" aria-hidden="true"></i>
@@ -63,6 +64,7 @@ export class MovimentacaoMaterialItensComponent implements OnInit {
 
   protected readonly rotuloCondicao = rotuloCondicao;
   protected readonly tomCondicao = tomCondicao;
+  protected readonly iconeCondicao = iconeCondicao;
 
   protected readonly operacao = signal<MovimentacaoOperacaoResponse | null>(null);
   protected readonly carregando = signal(true);

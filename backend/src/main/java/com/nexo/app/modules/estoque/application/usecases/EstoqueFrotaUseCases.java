@@ -479,7 +479,7 @@ public class EstoqueFrotaUseCases implements EstoqueFrotaApi {
     }
 
     private static Movimento movimento(MovimentacaoEstoque m, Set<UUID> estornados) {
-        Motivo motivo = m.getMotivo() == null ? null : Motivo.valueOf(m.getMotivo());
+        Motivo motivo = m.getMotivoFrota() == null ? null : Motivo.valueOf(m.getMotivoFrota());
         String tipo = switch (m.getTipo()) {
             case ENTRADA_AVULSA -> motivo == Motivo.AJUSTE_INVENTARIO ? "AJUSTE" : "ENTRADA";
             case BAIXA_AVULSA -> motivo == Motivo.AJUSTE_INVENTARIO ? "AJUSTE" : "SAIDA";

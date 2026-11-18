@@ -68,7 +68,8 @@ export class SaldoEstoqueReportNavigatorDataSource
       title: raw.nomeIdentificador,
       status: {
         label: raw.ativo ? 'Ativo' : 'Inativo',
-        tone: raw.ativo ? 'success' : 'neutral'
+        tone: raw.ativo ? 'success' : 'neutral',
+        icon: raw.ativo ? 'pi-check-circle' : 'pi-ban'
       },
       metaAuthor: {
         label: tipoNome,

@@ -44,6 +44,7 @@ export function filtrosAbastecimento() {
 
   const estado = cesListState({
     storageKey: 'frota-abastecimentos',
+    rememberFilters: 'frota-abastecimentos',
     filters: {
       situacoes: cesFilter.list<SituacaoAbastecimento>([], {
         label: 'Situação',
@@ -51,7 +52,7 @@ export function filtrosAbastecimento() {
         itemLabel: (s) => SITUACOES_ABASTECIMENTO.find((o) => o.value === s)?.label ?? s,
         countLabel: (n) => `${n} selecionadas`
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       idPosto: cesFilter.value<string | null>(null, { label: 'Posto', param: 'posto', options: () => opcoesPosto() }),
       de: cesFilter.date(null, { label: 'De' }),
       ate: cesFilter.date(null, { label: 'Até' }),

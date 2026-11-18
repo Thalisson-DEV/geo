@@ -27,5 +27,11 @@ public record MovimentacaoItemResponse(
     UUID idItemOperacao,
 
     @Schema(description = "ID do item da solicitacao que originou o movimento")
-    UUID idItemSolicitacao
+    UUID idItemSolicitacao,
+
+    @Schema(description = "Quantidade como foi digitada, quando a pessoa usou outra unidade; nula sem conversão")
+    BigDecimal quantidadeInformada,
+
+    @Schema(description = "Unidade digitada (ex.: KG); a quantidade acima está na unidade do material")
+    String unidadeInformada
 ) {}

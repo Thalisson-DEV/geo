@@ -23,11 +23,25 @@ public record PecaOrdemServicoRequest(
         @NotBlank(message = "Informe a unidade (UN, L, KG...).") @Size(max = 10) String unidade,
         @DecimalMin("0") @Digits(integer = 10, fraction = 4) BigDecimal valorUnitario,
         UUID idMaterial,
-        UUID idEstoque
+        UUID idEstoque,
+        /** Item de manutenção (tipo peça) de onde saiu o nome da peça comprada. */
+        UUID idItemManutencao,
+        /** Valor zero de propósito (garantia, cortesia): a OS não fica com valores pendentes por ela. */
+        Boolean semCusto
 ) {
+    public PecaOrdemServicoRequest(String descricao, String codigo, OrigemPeca origem, BigDecimal quantidade, String unidade,
+                                   BigDecimal valorUnitario, UUID idMaterial, UUID idEstoque, UUID idItemManutencao) {
+        this(descricao, codigo, origem, quantidade, unidade, valorUnitario, idMaterial, idEstoque, idItemManutencao, null);
+    }
+
+    public PecaOrdemServicoRequest(String descricao, String codigo, OrigemPeca origem, BigDecimal quantidade, String unidade,
+                                   BigDecimal valorUnitario, UUID idMaterial, UUID idEstoque) {
+        this(descricao, codigo, origem, quantidade, unidade, valorUnitario, idMaterial, idEstoque, null, null);
+    }
+
     /** Sem a peça do estoque, mantém o construtor dos lançamentos livres. */
     public PecaOrdemServicoRequest(String descricao, String codigo, OrigemPeca origem, BigDecimal quantidade, String unidade,
                                    BigDecimal valorUnitario) {
-        this(descricao, codigo, origem, quantidade, unidade, valorUnitario, null, null);
+        this(descricao, codigo, origem, quantidade, unidade, valorUnitario, null, null, null, null);
     }
 }

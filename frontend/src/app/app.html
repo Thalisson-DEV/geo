@@ -74,4 +74,10 @@
   <!-- Fora de qualquer @if: a aba com build antigo quebra igual em tela logada, na de
        login e nos relatórios em tela cheia. Quem decide se aparece é o serviço. -->
   <app-atualizacao-disponivel class="print:hidden"></app-atualizacao-disponivel>
+
+  <!-- Avaliação do GEO: o convite cede a vez ao aviso de versão nova (mesmo canto). -->
+  @if (auth.isAuthenticated()) {
+    <app-avaliacao-convite></app-avaliacao-convite>
+    <app-avaliacao-drawer></app-avaliacao-drawer>
+  }
 </div>

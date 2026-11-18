@@ -57,8 +57,17 @@ public class SolicitacaoSpecification {
             if (filter.statuses() != null && !filter.statuses().isEmpty()) {
                 predicates.add(root.get("status").in(filter.statuses()));
             }
+
+            if (Boolean.TRUE.equals(filter.saldoAberto())) {
+                predicates.add(cb.isNull(root.get("encerradaEm")));
+            }
             if (filter.contexto() != null) {
                 predicates.add(cb.equal(root.get("contexto"), filter.contexto()));
+            } else {
+                // Encerramento de obra tem telas próprias: nunca entra nas listas técnicas e comerciais.
+                predicates.add(cb.or(
+                        cb.isNull(root.get("contexto")),
+                        cb.notEqual(root.get("contexto"), ContextoSolicitacaoMaterial.FECHAMENTO)));
             }
             if (filter.tipoTecnico() != null) {
                 predicates.add(cb.equal(root.get("tipoTecnico"), filter.tipoTecnico()));

@@ -198,6 +198,25 @@ public class ServicoCadastros {
         return new PreviaAcao(argumentos, exibicao, modelo.toString(), resumo, chave, pronta);
     }
 
+    /**
+     * Pendencias para uma IA externa (MCP): la nao existe cartao na tela, entao a orientacao e pedir o que falta
+     * a pessoa e chamar a ferramenta de novo com todos os dados.
+     */
+    public String pendenciasParaIntegracao(PreviaAcao previa) {
+        ObjectNode modelo;
+        try {
+            modelo = (ObjectNode) mapper.readTree(previa.paraModelo());
+        } catch (Exception exception) {
+            return previa.paraModelo();
+        }
+        modelo.put("status", "FALTAM_DADOS");
+        modelo.remove("pronto_para_confirmar");
+        modelo.put("orientacao", "Nada foi gravado. Pergunte a pessoa o que falta (com as opcoes, quando houver) e chame "
+                + "esta ferramenta de novo com TODOS os dados, os anteriores e os novos. Objetos como 'dados' ou 'valores' "
+                + "vao como objeto JSON {campo: valor}, nao como texto. Nao invente valores.");
+        return modelo.toString();
+    }
+
     // ------------------------------------------------------------------------------- argumentos
 
     public OperacaoCadastro<?> operacao(JsonNode argumentos, SemanticQueryContext seguranca) {
@@ -463,8 +482,9 @@ public class ServicoCadastros {
                 }
                 yield JsonSchemas.array(descricao, item.build());
             }
-            case OBJETO -> JsonSchemas.anyValue(descricao + (op.camposDinamicos().containsKey(caminho)
-                    ? ". Objeto {chave: valor}; os campos dependem dos demais dados" : ""));
+            case OBJETO -> JsonSchemas.anyObject(descricao + (op.camposDinamicos().containsKey(caminho)
+                    ? ". Objeto {chave: valor}; as chaves dependem dos demais dados: chame formulario_cadastro com a "
+                            + "operacao '" + op.chave() + "' e dados_parciais para ver quais sao" : ". Objeto {chave: valor}"));
             default -> JsonSchemas.string(descricao);
         };
         return campo.multiplo() && campo.tipo() != TipoCampo.LISTA ? JsonSchemas.array(descricao, base) : base;

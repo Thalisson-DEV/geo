@@ -36,8 +36,24 @@ public record SituacaoVeiculoAppResponse(
         /** As 5 lavagens mais recentes, sem valor: o gestor confere em campo. */
         List<Lavagem> ultimasLavagens,
         /** Planos preventivos próximos ou vencidos, do mais urgente para o menos. */
-        List<Preventiva> preventivas
+        List<Preventiva> preventivas,
+        /**
+         * Todos os documentos do veículo e dos implementos acoplados agora (CRLV, tacógrafo, laudo),
+         * com ou sem arquivo: o app mostra a lista na consulta e guarda os arquivos para a
+         * fiscalização mesmo sem sinal.
+         */
+        List<DocumentoConjunto> documentosDoConjunto
 ) {
+
+    /**
+     * Documento do conjunto (veículo ou implemento, identificado em {@code titular}). Sem arquivo,
+     * {@code arquivoNome} e {@code versao} vêm nulos; {@code versao} muda quando o arquivo é trocado,
+     * e o app só baixa de novo nesse caso.
+     */
+    public record DocumentoConjunto(UUID id, TipoDocumentoFrota tipo, String descricao, String titular, boolean doImplemento,
+                                    LocalDate vencimento, SituacaoVencimento situacao, String arquivoNome,
+                                    String arquivoContentType, Long arquivoTamanhoBytes, String versao) {
+    }
 
     /** Ex.: "Revisão 10 mil km" · "faltam 800 km"; {@code numeroOrdem} quando a OS já foi aberta. */
     public record Preventiva(String plano, SituacaoPreventiva situacao, String falta, LocalDate previsao, Long numeroOrdem) {

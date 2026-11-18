@@ -137,6 +137,10 @@ public class Colaborador extends BaseEntity {
         this.idUsuario = Objects.requireNonNull(idUsuario, "ID do Usuário é obrigatório");
     }
 
+    public void desvincularUsuario() {
+        this.idUsuario = null;
+    }
+
     public void validarStatus() {
         if (!isAtivo()) {
             throw new IllegalStateException("Não é possível alterar um registro desativado.");

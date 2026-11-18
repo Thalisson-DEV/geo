@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -52,6 +53,9 @@ class ServicoCadastrosTest {
     }
 
     record AcessoTeste(@NotBlank String login, String senha) {
+    }
+
+    record SolicitacaoTeste(@NotBlank String tipo, Map<String, Object> valores) {
     }
 
     private final List<Object> gravados = new ArrayList<>();
@@ -102,6 +106,17 @@ class ServicoCadastrosTest {
                                 .autoridade("teste:write")
                                 .campo("senha", c -> c.padrao(MotorCadastro.senhaProvisoria()))
                                 .identificadoPor("login")
+                                .executor((r, id, usuario) -> {
+                                    gravados.add(r);
+                                    return UUID.randomUUID();
+                                })
+                                .build(),
+                        OperacaoCadastro.criar("solicitacao", SolicitacaoTeste.class)
+                                .modulo("Teste").titulo("Nova solicitação").registro("Solicitação")
+                                .autoridade("teste:write")
+                                .campo("valores", c -> c.rotulo("Dados da solicitação"))
+                                .camposDinamicos("valores", ServicoCadastrosTest::camposDaSolicitacao)
+                                .identificadoPor("valores.descricao")
                                 .executor((r, id, usuario) -> {
                                     gravados.add(r);
                                     return UUID.randomUUID();
@@ -262,6 +277,57 @@ class ServicoCadastrosTest {
         assertThatThrownBy(() -> servico.preparar(json("{\"operacao\": \"restrito\", \"dados\": {\"login\": \"x\"}}"), comPermissao))
                 .isInstanceOf(ToolException.class)
                 .hasMessageContaining("permissao");
+    }
+
+    @Test
+    void schemaDaFerramentaDeclaraObjetoDinamicoComoObjeto() {
+        OperacaoCadastro<?> op = servico.catalogo().buscar("solicitacao").orElseThrow();
+
+        JsonNode valores = servico.schema(op).path("properties").path("valores");
+
+        assertThat(valores.path("type").asText()).isEqualTo("object");
+        assertThat(valores.path("additionalProperties").asBoolean()).isTrue();
+    }
+
+    @Test
+    void objetoDinamicoChegaComoObjetoOuComoTextoJson() throws Exception {
+        AcaoComPrevia.PreviaAcao comoObjeto = servico.preparar(json("""
+                {"operacao": "solicitacao", "dados": {"tipo": "compra", "valores": {"descricao": "Radiador", "valor": 980.25}}}"""),
+                comPermissao);
+        AcaoComPrevia.PreviaAcao comoTexto = servico.preparar(json("""
+                {"operacao": "solicitacao", "dados": {"tipo": "compra",
+                 "valores": "{\\"descricao\\": \\"Radiador\\", \\"valor\\": 980.25}"}}"""), comPermissao);
+
+        for (AcaoComPrevia.PreviaAcao previa : List.of(comoObjeto, comoTexto)) {
+            assertThat(previa.pronta()).isTrue();
+            JsonNode valores = previa.argumentos().path("lote").get(0).path("valores");
+            assertThat(valores.path("descricao").asText()).isEqualTo("Radiador");
+            assertThat(valores.path("valor").decimalValue()).isEqualByComparingTo("980.25");
+        }
+    }
+
+    @Test
+    void campoQueDependeDeOutraRespostaApareceQuandoElaFoiDada() throws Exception {
+        AcaoComPrevia.PreviaAcao previa = servico.preparar(json("""
+                {"operacao": "solicitacao", "dados": {"tipo": "compra",
+                 "valores": {"descricao": "Radiador", "valor": 980.25, "frota": true}}}"""), comPermissao);
+
+        assertThat(previa.pronta()).isFalse();
+        assertThat(previa.paraModelo()).contains("valores.placa");
+        String paraIntegracao = servico.pendenciasParaIntegracao(previa);
+        assertThat(json(paraIntegracao).path("status").asText()).isEqualTo("FALTAM_DADOS");
+        assertThat(paraIntegracao).doesNotContain("cartao");
+    }
+
+    private static List<CampoDescritor> camposDaSolicitacao(JsonNode dados) {
+        List<CampoDescritor> campos = new ArrayList<>(List.of(
+                CampoDescritor.simples("descricao", "Descrição", TipoCampo.TEXTO, true, null),
+                CampoDescritor.simples("valor", "Valor", TipoCampo.MOEDA, true, null),
+                CampoDescritor.simples("frota", "É da frota", TipoCampo.BOOLEANO, false, null)));
+        if (dados != null && dados.path("valores").path("frota").asBoolean(false)) {
+            campos.add(CampoDescritor.simples("placa", "Placa", TipoCampo.TEXTO, true, null));
+        }
+        return campos;
     }
 
     private JsonNode json(String texto) throws Exception {

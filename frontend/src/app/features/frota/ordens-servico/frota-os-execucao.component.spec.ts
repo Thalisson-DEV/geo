@@ -46,7 +46,7 @@ function montar<T>(tipo: Type<T>, frota: object, entradas: Record<string, unknow
       provideNoopAnimations(),
       MessageService,
       ConfirmationService,
-      { provide: FrotaService, useValue: frota },
+      { provide: FrotaService, useValue: { itensManutencao: vi.fn(() => of({ content: [] })), ...frota } },
       {
         provide: LookupStore,
         useValue: {
@@ -120,22 +120,30 @@ describe('FrotaOsLancamentoComponent', () => {
     const { tela } = montar(FrotaOsLancamentoComponent, frota, {
       tipo: 'servico', detalhe: detalhe({ tipoOficina: 'EXTERNA' }), visivel: true
     });
-    tela['nome'].set('Regulagem');
+    tela['itensCadastro'].set([
+      { id: 'i1', nome: 'REGULAGEM', natureza: 'X', naturezaRotulo: 'X', descricao: null, diasRepeticao: null, tipo: 'MAO_DE_OBRA', ativo: true }
+    ]);
+    tela['idItemCatalogo'].set('i1');
     tela['mecanicoNome'].set(' Zé ');
     tela['valorUnitario'].set(50);
 
     tela['salvar']();
 
     expect(frota.lancarServicoOs).toHaveBeenCalledWith('os1', expect.objectContaining({
-      descricao: 'Regulagem', idMecanico: null, mecanicoNome: 'Zé', quantidade: 1, valorUnitario: 50, idItemManutencao: 'i1'
+      descricao: 'REGULAGEM', idMecanico: null, mecanicoNome: 'Zé', quantidade: 1, valorUnitario: 50, idItemManutencao: 'i1'
     }));
   });
 
-  it('peça vai com origem, unidade e subtotal previsto', () => {
+  it('peça comprada sai dos itens de manutenção do tipo peça, com subtotal previsto', () => {
     const frota = { lancarPecaOs: vi.fn(() => of(detalhe())) };
     const { tela } = montar(FrotaOsLancamentoComponent, frota, { tipo: 'peca', detalhe: detalhe(), visivel: true });
-    tela['nome'].set('Filtro de ar');
+    tela['itensCadastro'].set([
+      { id: 'p1', nome: 'FILTRO DE AR', natureza: 'X', naturezaRotulo: 'X', descricao: null, diasRepeticao: null, tipo: 'PECA', ativo: true },
+      { id: 'm1', nome: 'REVISÃO', natureza: 'X', naturezaRotulo: 'X', descricao: null, diasRepeticao: null, tipo: 'MAO_DE_OBRA', ativo: true }
+    ]);
+    expect(tela['opcoesItens']().map((o: { value: string }) => o.value)).toEqual(['p1']);
     tela['origem'].set('COMPRA');
+    tela['idItemCatalogo'].set('p1');
     tela['quantidade'].set(2);
     tela['valorUnitario'].set(45.5);
 
@@ -143,9 +151,22 @@ describe('FrotaOsLancamentoComponent', () => {
     tela['salvar']();
 
     expect(frota.lancarPecaOs).toHaveBeenCalledWith('os1', expect.objectContaining({
-      descricao: 'Filtro de ar', origem: 'COMPRA', quantidade: 2, unidade: 'UN', valorUnitario: 45.5
+      descricao: 'FILTRO DE AR', origem: 'COMPRA', quantidade: 2, unidade: 'UN', valorUnitario: 45.5, idItemManutencao: 'p1'
     }));
   });
+
+  it('peça nova não sai sem escolher da lista', () => {
+    const frota = { lancarPecaOs: vi.fn(() => of(detalhe())) };
+    const { tela } = montar(FrotaOsLancamentoComponent, frota, { tipo: 'peca', detalhe: detalhe(), visivel: true });
+    tela['origem'].set('COMPRA');
+    tela['valorUnitario'].set(10);
+
+    tela['salvar']();
+
+    expect(frota.lancarPecaOs).not.toHaveBeenCalled();
+    expect(tela['erro']('catalogo')).toBe('Escolha a peça na lista.');
+  });
+
 });
 
 describe('FrotaOrdemServicoConclusaoComponent', () => {
@@ -155,6 +176,32 @@ describe('FrotaOrdemServicoConclusaoComponent', () => {
     concluirOrdemServico: vi.fn(() => of(detalhe({ situacao: 'CONCLUIDA' }))),
     itensManutencao: vi.fn(() => of({ content: [] })),
     fornecedoresOficina: vi.fn(() => of([]))
+  });
+
+  it('avisa que a peça sem valor vai deixar a OS com valores pendentes', () => {
+    const base = detalhe();
+    const ordem = { ...base, pecas: [{ ...base.pecas[0], descricao: 'LÂMPADA H4', valorUnitario: 0, subtotal: 0 }] };
+    const { tela } = montar(FrotaOrdemServicoConclusaoComponent, frotaConclusao(), {
+      ordem, opcoes: OPCOES_VAZIAS, visivel: true
+    });
+
+    expect(tela['faltaValor']()).toEqual(['LÂMPADA H4']);
+  });
+
+  it('peça sem custo e mão de obra zerada da oficina interna não deixam pendência', () => {
+    const base = detalhe();
+    const ordem = {
+      ...base,
+      servicos: [{ ...base.servicos[0], valorUnitario: 0, subtotal: 0 }],
+      pecas: [{ ...base.pecas[0], valorUnitario: 0, subtotal: 0, semCusto: true }]
+    };
+    const { tela } = montar(FrotaOrdemServicoConclusaoComponent, frotaConclusao(), {
+      ordem, opcoes: OPCOES_VAZIAS, visivel: true
+    });
+
+    expect(tela['faltaValor']()).toEqual([]);
+    tela['tipoOficina'].set('EXTERNA');
+    expect(tela['faltaValor']()).toEqual([base.servicos[0].descricao]);
   });
 
   it('não conclui sem a causa', () => {

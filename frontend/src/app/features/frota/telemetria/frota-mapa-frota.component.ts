@@ -40,8 +40,9 @@ import { desenharTrajeto, dividirTrajeto } from '../../../shared/utils/trajeto-m
 import { acessoFrota } from '../shared/frota-acesso';
 import { basesFrota } from '../shared/frota-lista';
 import { motivosDoVeiculo } from './frota-mapa-atencao';
+import { sinalBaseFrota } from '../shared/frota-base-compartilhada';
 
-// Leaflet é carregado globalmente (index.html), como nos demais mapas do CES.
+// Leaflet é carregado globalmente (index.html), como nos demais mapas do GEO.
 declare const L: any;
 
 /** O backend lê os rastreadores a cada 2 minutos; a tela confere a cada minuto. */
@@ -351,7 +352,7 @@ export class FrotaMapaFrotaComponent implements OnDestroy {
   protected readonly carregando = signal(false);
   protected readonly erro = signal<string | null>(null);
   protected readonly busca = signal('');
-  protected readonly idsBase = signal<string[]>([]);
+  protected readonly idsBase = sinalBaseFrota();
   private readonly preferencias = signal<Preferencias>(lerPreferencias());
   protected readonly estadosVisiveis = computed(() => this.preferencias().estados);
   protected readonly mostrarPlacas = computed(() => this.preferencias().placas);

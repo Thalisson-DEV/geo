@@ -1,5 +1,6 @@
 package com.nexo.app.modules.estoque.application.usecases;
 
+import com.nexo.app.modules.estoque.application.services.ProcessoMaterialService;
 import com.nexo.app.modules.estoque.application.dto.CriacaoSolicitacaoTecnicaResponse;
 import com.nexo.app.modules.estoque.application.dto.CriarSolicitacaoTecnicaRequest;
 import com.nexo.app.modules.estoque.application.dto.PlanejarSolicitacaoTecnicaRequest;
@@ -55,6 +56,7 @@ public class SolicitacaoTecnicaUseCases {
     private final EstoqueObraProvisioningService estoqueObraProvisioningService;
     private final EstoqueRepository estoqueRepository;
     private final MaterialRepository materialRepository;
+    private final ProcessoMaterialService processoMaterial;
     private final SolicitacaoMaterialRepository solicitacaoRepository;
     private final ItemSolicitacaoRepository itemRepository;
     private final GravadorEventoSolicitacaoService gravadorEvento;
@@ -545,6 +547,11 @@ public class SolicitacaoTecnicaUseCases {
             Material material = materiais.get(itens.get(indice).idMaterial());
             if (material == null || !material.isAtivo()) {
                 erros.put("itens[" + indice + "].idMaterial", "O material deve existir e estar ativo.");
+            } else if (itens.get(indice).idItem() == null) {
+                // Só o material novo passa pela regra: o que já estava na solicitação continua.
+                String campo = "itens[" + indice + "].idMaterial";
+                processoMaterial.incompatibilidade(ContextoSolicitacaoMaterial.TECNICO, material)
+                        .ifPresent(mensagem -> erros.put(campo, mensagem));
             }
         }
         if (!erros.isEmpty()) {
@@ -680,6 +687,10 @@ public class SolicitacaoTecnicaUseCases {
             Material material = materiais.get(idMaterial);
             if (material == null || !material.isAtivo()) {
                 erros.put("itens[" + indice + "].idMaterial", "O material deve existir e estar ativo.");
+            } else {
+                String campo = "itens[" + indice + "].idMaterial";
+                processoMaterial.incompatibilidade(ContextoSolicitacaoMaterial.TECNICO, material)
+                        .ifPresent(mensagem -> erros.put(campo, mensagem));
             }
         }
         if (!erros.isEmpty()) {

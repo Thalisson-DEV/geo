@@ -66,7 +66,7 @@
           </span>
         </ng-template>
         <ng-template cesCell="condicao" let-row>
-          <ces-status [tone]="tomCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</ces-status>
+          <ces-status [tone]="tomCondicao(row.condicao)" [icon]="iconeCondicao(row.condicao)">{{ rotuloCondicao(row.condicao) }}</ces-status>
         </ng-template>
         <ng-template cesCell="quantidade" let-row>
           <span class="sd-quantidade" [attr.data-tone]="row.negativo ? 'danger' : row.quantidade === 0 ? 'zero' : null">

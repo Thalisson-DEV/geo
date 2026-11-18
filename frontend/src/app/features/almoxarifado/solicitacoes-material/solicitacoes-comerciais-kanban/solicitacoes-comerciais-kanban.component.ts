@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { CesAsyncStateComponent, CesConfirmationService, CesIconButtonComponent, CesTone, NotificationService } from '@ces/ui';
+import { CesAsyncStateComponent, CesIconButtonComponent, CesTone } from '@ces/ui';
 import { catchError, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
 
 import { SolicitacaoStatus, SolicitacaoSummaryResponse } from '../../../../core/models/almoxarifado.models';
@@ -122,7 +122,6 @@ interface ColunaVisivel {
       }
     </nav>
 
-    <p class="kb-sr" aria-live="polite">{{ anuncio() }}</p>
 
     @if (erro()) {
       <ces-async-state type="error" title="Não foi possível carregar o quadro" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
@@ -234,14 +233,12 @@ interface ColunaVisivel {
 })
 export class SolicitacoesComerciaisKanbanComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
-  private readonly notificacoes = inject(NotificationService);
-  private readonly confirmacao = inject(CesConfirmationService);
   private readonly host = inject(ElementRef<HTMLElement>);
 
   /** Recorte da tela no formato do backend (inclui `statuses` dos atalhos). */
   readonly filtros = input<Record<string, unknown>>({});
   /** Abre o detalhe; `aba` direciona para a entrega. */
-  readonly abrir = output<{ item: Card | SolicitacaoSummaryResponse; aba?: 'entrega' }>();
+  readonly abrir = output<{ item: Card | SolicitacaoSummaryResponse; aba?: 'entrega' | 'aprovacao' }>();
   readonly rejeitar = output<Card>();
   /** "Ver todas": a tela troca para a tabela com esses status. */
   readonly verNaTabela = output<SolicitacaoStatus[]>();
@@ -258,7 +255,6 @@ export class SolicitacoesComerciaisKanbanComponent {
   protected readonly carregando = signal(false);
   protected readonly erro = signal<string | null>(null);
   protected readonly faixas = signal<FaixaStatus[] | null>(null);
-  protected readonly anuncio = signal('');
 
   /** Coluna em foco no celular (uma por vez, com rolagem lateral). */
   protected readonly colunaVisivel = signal(0);
@@ -387,7 +383,7 @@ export class SolicitacoesComerciaisKanbanComponent {
     const arraste = this.arrastando();
     if (!arraste || arraste.de === coluna) return null;
     const acoes = arraste.item.acoesPermitidas ?? [];
-    if (arraste.de === 'APROVACAO' && coluna === 'ENTREGA' && acoes.includes('APROVAR')) return { texto: 'Solte para aprovar', icon: 'pi pi-check', tone: 'success', acao: 'APROVAR' };
+    if (arraste.de === 'APROVACAO' && coluna === 'ENTREGA' && acoes.includes('APROVAR')) return { texto: 'Solte para revisar e aprovar', icon: 'pi pi-check', tone: 'success', acao: 'APROVAR' };
     if (arraste.de === 'APROVACAO' && coluna === 'ENCERRADAS' && acoes.includes('REJEITAR')) return { texto: 'Solte para rejeitar', icon: 'pi pi-times', tone: 'danger', acao: 'REJEITAR' };
     if (arraste.de === 'ENTREGA' && coluna === 'ENCERRADAS' && acoes.includes('ENTREGAR')) return { texto: 'Solte para registrar a entrega', icon: 'pi pi-truck', tone: 'success', acao: 'ENTREGAR' };
     return null;
@@ -421,42 +417,15 @@ export class SolicitacoesComerciaisKanbanComponent {
     const item = this.arrastando()?.item;
     this.encerrarArraste();
     if (!acao || !item) return;
-    this.aoAgir(item, acao.acao, true);
+    this.aoAgir(item, acao.acao);
   }
 
-  protected aoAgir(item: Card, acao: AcaoCardComercial, porArraste = false): void {
-    if (acao === 'APROVAR') void this.aprovar(item, porArraste);
+  /** Aprovar abre o detalhe já nos ajustes: o gestor revisa o que a equipe pediu e confirma lá. */
+  protected aoAgir(item: Card, acao: AcaoCardComercial): void {
+    if (acao === 'APROVAR') this.abrir.emit({ item, aba: 'aprovacao' });
     else if (acao === 'ENTREGAR') this.abrir.emit({ item, aba: 'entrega' });
     else if (acao === 'REJEITAR') this.rejeitar.emit(item);
     else this.abrir.emit({ item });
-  }
-
-  private async aprovar(item: Card, confirmar: boolean): Promise<void> {
-    const id = item.id.slice(0, 8);
-    if (confirmar) {
-      const ok = await this.confirmacao.confirm({
-        title: `Aprovar a solicitação #${id}?`,
-        message: `${item.estoqueOrigemNome ?? 'Origem'} → ${item.estoqueDestinoNome ?? 'destino'}. Depois de aprovada, ela fica disponível para a retirada.`,
-        confirmLabel: 'Aprovar'
-      });
-      if (!ok) return;
-    }
-    this.almoxarifado.aprovarSolicitacao(item.id, {}).subscribe({
-      next: () => {
-        this.notificacoes.success(`Solicitação #${id} aprovada. Ela agora aguarda a retirada.`);
-        this.anuncio.set(`Solicitação ${id} aprovada e movida para Entrega.`);
-        this.recarregar();
-        this.alterado.emit();
-      },
-      error: (err) => {
-        if (err?.status === 409) {
-          this.notificacoes.warning('Outra pessoa alterou esta solicitação. O quadro foi atualizado.', { title: 'Conflito de atualização' });
-          this.recarregar();
-        } else {
-          this.notificacoes.error(getErrorMessage(err), { title: 'Não foi possível aprovar' });
-        }
-      }
-    });
   }
 }
 

@@ -50,7 +50,7 @@ const SECOES: Record<SecaoCadastroFrota, { titulo: string; icone: string; descri
   implemento: { titulo: 'Tipos de implemento', icone: 'pi pi-link', descricao: 'Cestos, guindautos, carretas e outros equipamentos acoplados aos veículos.' },
   itens: { titulo: 'Itens de manutenção', icone: 'pi pi-wrench', descricao: 'Catálogo dos itens das OS, com a natureza do financeiro e a janela de repetição.' },
   checklists: { titulo: 'Modelos de checklist', icone: 'pi pi-list-check', descricao: 'Perguntas do checklist por tipo de veículo e os modelos adicionais por implemento.' },
-  planos: { titulo: 'Planos de preventiva', icone: 'pi pi-calendar-clock', descricao: 'Revisões por tipo de veículo ou implemento, de quanto em quanto (km, horas ou dias) e o que a OS preventiva leva.' },
+  planos: { titulo: 'Planos de preventiva', icone: 'pi pi-calendar-clock', descricao: 'Revisões por placa (ou por tipo de veículo), de quanto em quanto (km, horas ou dias) e o que a OS preventiva leva.' },
   aprovadores: { titulo: 'Aprovadores do abastecimento', icone: 'pi pi-user-edit', descricao: 'Quem aprova os pedidos de cada placa. Placa sem aprovador fica parada na fila.' },
   postos: { titulo: 'Postos', icone: 'pi pi-map-marker', descricao: 'Postos externos credenciados: WhatsApp do aviso e fornecedor da fatura.' },
   produtos: { titulo: 'Produtos do abastecimento', icone: 'pi pi-box', descricao: 'Combustíveis, ARLA, óleos e fluidos que a equipe pode pedir.' },
@@ -106,7 +106,7 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
               }
             </ng-container>
             <ng-template cesCell="ativo" let-row>
-              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
             </ng-template>
             <ng-template cesRowActions let-row>
               @if (acesso.configurar()) {
@@ -132,7 +132,7 @@ type ItemCatalogo = { id: string; nome: string; descricao: string | null; catego
               }
             </ng-container>
             <ng-template cesCell="ativo" let-row>
-              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
+              <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativo' : 'Inativo' }}</ces-status>
             </ng-template>
             <ng-template cesRowActions let-row>
               @if (acesso.configurar()) {

@@ -176,6 +176,17 @@ public class OrdemServico extends BaseEntity {
     @Column(name = "km_encerramento")
     private Long kmEncerramento;
 
+    /**
+     * Quando a OS concluída ficou com todos os valores lançados (e a causa e o serviço realizado).
+     * Nula enquanto falta algum valor: a OS fica com "valores pendentes" e ainda aceita lançamentos
+     * na execução. Ninguém "dá baixa": ela muda sozinha quando o último valor entra.
+     */
+    @Column(name = "finalizada_em")
+    private OffsetDateTime finalizadaEm;
+
+    @Column(name = "id_usuario_finalizacao")
+    private UUID idUsuarioFinalizacao;
+
     /** Id de origem da leitura de odômetro do encerramento (a da abertura usa o id da OS). */
     @Column(name = "id_leitura_encerramento", nullable = false, updatable = false)
     private UUID idLeituraEncerramento;
@@ -260,14 +271,30 @@ public class OrdemServico extends BaseEntity {
     ) {
     }
 
-    /** Dados do encerramento. Início real nulo mantém o já registrado no início da execução. */
+    /**
+     * Dados do encerramento. Início real nulo mantém o já registrado no início da execução.
+     * {@code baixa} nula conclui só com as datas e a medição: a OS fica com a baixa pendente.
+     */
     public record Encerramento(
             OffsetDateTime inicioReal,
             OffsetDateTime fimReal,
+            Long kmEncerramento,
+            Baixa baixa
+    ) {
+        /** Conclusão com a baixa no mesmo passo (o formato de antes da baixa pendente). */
+        public Encerramento(OffsetDateTime inicioReal, OffsetDateTime fimReal, String descricaoServico,
+                            String itensSubstituidos, BigDecimal valorTotal, Long kmEncerramento,
+                            TipoOficina tipoOficina, UUID idFornecedor, String oficinaNome, CausaManutencao causa) {
+            this(inicioReal, fimReal, kmEncerramento, new Baixa(descricaoServico, itensSubstituidos, valorTotal,
+                    tipoOficina, idFornecedor, oficinaNome, causa));
+        }
+    }
+
+    /** A baixa: por que a manutenção aconteceu, o que foi feito, onde e quanto custou. */
+    public record Baixa(
             String descricaoServico,
             String itensSubstituidos,
             BigDecimal valorTotal,
-            Long kmEncerramento,
             TipoOficina tipoOficina,
             UUID idFornecedor,
             String oficinaNome,
@@ -276,8 +303,13 @@ public class OrdemServico extends BaseEntity {
     }
 
     /** Soma da mão de obra e das peças, ajustes e total da OS. */
+    /**
+     * Totais da execução. {@code pecasEstoque} é a parte das peças que saiu do almoxarifado da
+     * oficina: já foi comprada quando entrou no estoque, então não entra no {@code aComprar}
+     * (o que a compra no financeiro ainda precisa pagar).
+     */
     public record Totais(BigDecimal servicos, BigDecimal pecas, BigDecimal desconto, BigDecimal acrescimo,
-                         BigDecimal total) {
+                         BigDecimal total, BigDecimal pecasEstoque, BigDecimal aComprar) {
     }
 
     public static OrdemServico abrir(FichaVeiculo ficha, Abertura dados, List<ItemManutencao> itens, UUID idUsuario) {
@@ -406,6 +438,20 @@ public class OrdemServico extends BaseEntity {
         this.inicioReal = inicio;
         definirPrevisao(previsao);
         this.situacao = SituacaoOrdemServico.EM_ANDAMENTO;
+        pararPeloServico(inicio);
+    }
+
+    /**
+     * OS em andamento conta o veículo como parado sem depender de alguém marcar: a parada
+     * começa no início real (ou continua a que já estava aberta). Liberar à mão segue possível.
+     */
+    private void pararPeloServico(OffsetDateTime inicio) {
+        if (!veicular || isParadaEmCurso()) return;
+        if (!veiculoParado) {
+            this.veiculoParado = true;
+            this.paradoDesde = inicio.isBefore(abertaEm) ? abertaEm : inicio;
+        }
+        this.liberadoEm = null;
     }
 
     public void alterarPrevisao(OffsetDateTime previsao) {
@@ -425,42 +471,153 @@ public class OrdemServico extends BaseEntity {
             throw new InvarianteVioladaException("O fim real não pode ser anterior ao início real.");
         }
         exigirNaoFuturo(dados.fimReal(), "O fim real");
-        if (dados.valorTotal() != null && dados.valorTotal().signum() < 0) {
-            throw new InvarianteVioladaException("O valor do serviço não pode ser negativo.");
-        }
         if (dados.kmEncerramento() != null && dados.kmEncerramento() < 0) {
             throw new InvarianteVioladaException(unidadeMedicao.rotulo() + " não pode ser negativo.");
         }
         if (!veicular && dados.kmEncerramento() != null) {
             throw new InvarianteVioladaException("Manutenção sem veículo não registra KM nem horímetro.");
         }
-        if (dados.causa() == null && origem != OrigemOrdemServico.IMPORTACAO) {
-            throw new InvarianteVioladaException("Informe a causa da manutenção.");
-        }
-        definirOficina(dados.tipoOficina(), dados.idFornecedor(), dados.oficinaNome());
-        if (tipoOficina == TipoOficina.EXTERNA && idFornecedor == null && oficinaNome == null) {
-            throw new InvarianteVioladaException("Informe o fornecedor ou o nome da oficina externa.");
-        }
-        if (tipoOficina == TipoOficina.INTERNA && servicos.stream().anyMatch(s -> !s.temMecanicoColaborador())) {
-            throw new InvarianteVioladaException(
-                    "Na oficina interna, todo serviço precisa de um mecânico colaborador. Revise a execução.");
-        }
-        Totais totais = totais();
-        if (temLancamentos() && totais.total().signum() < 0) {
-            throw new InvarianteVioladaException("O desconto é maior que o valor dos serviços e das peças.");
+        if (dados.baixa() != null) {
+            validarBaixa(dados.baixa());
         }
         this.inicioReal = inicio;
         this.fimReal = dados.fimReal();
-        this.descricaoServico = Textos.obrigatorio(dados.descricaoServico(), "descrição do serviço realizado", 4000);
-        this.itensSubstituidos = Textos.opcional(dados.itensSubstituidos(), 4000);
-        // Com lançamentos, o valor é o calculado; sem eles, vale o digitado (lançamento rápido).
-        this.valorTotal = temLancamentos() ? totais.total() : dados.valorTotal();
-        this.causa = dados.causa();
         this.kmEncerramento = dados.kmEncerramento();
-        if (veiculoParado && liberadoEm == null) {
+        // O tempo de oficina é tempo parado: quem concluiu direto (serviço já feito) também conta.
+        if (veicular && !veiculoParado) {
+            this.veiculoParado = true;
+            this.paradoDesde = inicio.isBefore(abertaEm) ? abertaEm : inicio;
+            this.liberadoEm = dados.fimReal().isBefore(paradoDesde) ? paradoDesde : dados.fimReal();
+        } else if (veiculoParado && liberadoEm == null) {
             this.liberadoEm = dados.fimReal().isBefore(paradoDesde) ? paradoDesde : dados.fimReal();
         }
         this.situacao = SituacaoOrdemServico.CONCLUIDA;
+        if (dados.baixa() != null) {
+            aplicarBaixa(dados.baixa());
+        } else {
+            this.valorTotal = temLancamentos() ? totais().total() : this.valorTotal;
+        }
+        // Com todos os valores já lançados, concluir é finalizar; senão, fica com valores pendentes.
+        this.finalizadaEm = pendencias().isEmpty() ? OffsetDateTime.now() : null;
+    }
+
+    /** Registra quem finalizou a OS junto com a conclusão. */
+    public void registrarFinalizacao(UUID idUsuario) {
+        if (finalizadaEm != null) this.idUsuarioFinalizacao = idUsuario;
+    }
+
+    /**
+     * Completa a conclusão de uma OS com valores pendentes: causa, serviço realizado, oficina e,
+     * sem lançamentos na execução, o valor. Com tudo lançado, a OS fica finalizada (devolve verdadeiro).
+     */
+    public boolean completarConclusao(Baixa dados, UUID idUsuario) {
+        if (!isBaixaPendente()) {
+            throw new InvarianteVioladaException("Só a OS concluída com valores pendentes pode ser completada.");
+        }
+        if (dados == null) {
+            throw new InvarianteVioladaException("Informe a causa e o serviço realizado.");
+        }
+        validarBaixa(dados);
+        aplicarBaixa(dados);
+        return finalizarSeCompleta(idUsuario);
+    }
+
+    /** Ajusta os itens quando o serviço feito foi diferente do previsto na abertura. */
+    public void trocarItensNaBaixa(List<ItemManutencao> novos) {
+        if (!isBaixaPendente()) {
+            throw new InvarianteVioladaException("Só a OS com valores pendentes troca os itens depois de concluída.");
+        }
+        definirItens(novos);
+    }
+
+    /**
+     * OS concluída sem pendências fica finalizada, com o usuário do último lançamento. Devolve
+     * verdadeiro quando ela acabou de ser finalizada, para o histórico.
+     */
+    public boolean finalizarSeCompleta(UUID idUsuario) {
+        if (!isBaixaPendente() || !pendencias().isEmpty()) return false;
+        this.finalizadaEm = OffsetDateTime.now();
+        this.idUsuarioFinalizacao = idUsuario;
+        return true;
+    }
+
+    /**
+     * O que falta para a OS concluída ficar finalizada: serviço ou peça com valor zero (sem a
+     * marca "sem custo"), o valor da OS sem lançamentos e, nas concluídas antes desta regra, a
+     * causa e o serviço realizado. Na oficina interna a mão de obra pode ficar zerada (é da casa).
+     */
+    public List<String> pendencias() {
+        List<String> faltam = new ArrayList<>();
+        if (descricaoServico == null || (causa == null && origem != OrigemOrdemServico.IMPORTACAO)) {
+            faltam.add("Causa e serviço realizado");
+        }
+        if (!temLancamentos()) {
+            if (valorTotal == null) faltam.add("Valor da OS");
+            return faltam;
+        }
+        boolean interna = tipoOficina == TipoOficina.INTERNA;
+        servicos.stream().filter(s -> s.isSemValor() && !interna)
+                .forEach(s -> faltam.add("Serviço: " + s.getDescricao()));
+        pecas.stream().filter(PecaOrdemServico::isSemValor)
+                .forEach(p -> faltam.add("Peça: " + p.getDescricao()));
+        return faltam;
+    }
+
+    /**
+     * Devolve a OS concluída para em andamento (o veículo voltou com problema no teste). A
+     * baixa, se houve, é desfeita para ser revista na nova conclusão, e a parada volta a contar.
+     */
+    public void reabrir() {
+        if (situacao != SituacaoOrdemServico.CONCLUIDA) {
+            throw new InvarianteVioladaException("Só a OS concluída pode voltar para em andamento.");
+        }
+        this.situacao = SituacaoOrdemServico.EM_ANDAMENTO;
+        this.fimReal = null;
+        this.finalizadaEm = null;
+        this.idUsuarioFinalizacao = null;
+        this.prazoAvisadoPara = null;
+        if (veicular) {
+            if (!veiculoParado) {
+                this.veiculoParado = true;
+                this.paradoDesde = OffsetDateTime.now();
+            }
+            this.liberadoEm = null;
+        }
+    }
+
+    /** Concluída, mas ainda com valores pendentes (ver {@link #pendencias()}). */
+    public boolean isBaixaPendente() {
+        return situacao == SituacaoOrdemServico.CONCLUIDA && finalizadaEm == null;
+    }
+
+    private void validarBaixa(Baixa dados) {
+        if (dados.valorTotal() != null && dados.valorTotal().signum() < 0) {
+            throw new InvarianteVioladaException("O valor do serviço não pode ser negativo.");
+        }
+        if (dados.causa() == null && origem != OrigemOrdemServico.IMPORTACAO) {
+            throw new InvarianteVioladaException("Informe a causa da manutenção.");
+        }
+        Textos.obrigatorio(dados.descricaoServico(), "descrição do serviço realizado", 4000);
+        TipoOficina tipo = dados.tipoOficina() == null ? TipoOficina.EXTERNA : dados.tipoOficina();
+        if (tipo == TipoOficina.EXTERNA && dados.idFornecedor() == null && Textos.opcional(dados.oficinaNome(), 150) == null) {
+            throw new InvarianteVioladaException("Informe o fornecedor ou o nome da oficina externa.");
+        }
+        if (tipo == TipoOficina.INTERNA && servicos.stream().anyMatch(s -> !s.temMecanicoColaborador())) {
+            throw new InvarianteVioladaException(
+                    "Na oficina interna, todo serviço precisa de um mecânico colaborador. Revise a execução.");
+        }
+        if (temLancamentos() && totais().total().signum() < 0) {
+            throw new InvarianteVioladaException("O desconto é maior que o valor dos serviços e das peças.");
+        }
+    }
+
+    private void aplicarBaixa(Baixa dados) {
+        definirOficina(dados.tipoOficina(), dados.idFornecedor(), dados.oficinaNome());
+        this.descricaoServico = Textos.obrigatorio(dados.descricaoServico(), "descrição do serviço realizado", 4000);
+        this.itensSubstituidos = Textos.opcional(dados.itensSubstituidos(), 4000);
+        // Com lançamentos, o valor é o calculado; sem eles, vale o digitado (lançamento rápido).
+        this.valorTotal = temLancamentos() ? totais().total() : dados.valorTotal();
+        this.causa = dados.causa();
     }
 
     public void cancelar(String motivo, OffsetDateTime instante) {
@@ -506,7 +663,7 @@ public class OrdemServico extends BaseEntity {
     // ── Execução ───────────────────────────────────────────────────────────────────
 
     public ServicoOrdemServico lancarServico(DadosServico dados) {
-        exigirAberta("alterada");
+        exigirLancavel();
         exigirMecanicoCoerente(dados.idMecanico());
         var servico = new ServicoOrdemServico(this);
         servico.preencher(dados);
@@ -515,7 +672,7 @@ public class OrdemServico extends BaseEntity {
     }
 
     public ServicoOrdemServico alterarServico(UUID idServico, DadosServico dados) {
-        exigirAberta("alterada");
+        exigirLancavel();
         exigirMecanicoCoerente(dados.idMecanico());
         var servico = buscarServico(idServico);
         servico.preencher(dados);
@@ -524,7 +681,7 @@ public class OrdemServico extends BaseEntity {
     }
 
     public ServicoOrdemServico excluirServico(UUID idServico) {
-        exigirAberta("alterada");
+        exigirLancavel();
         var servico = buscarServico(idServico);
         exigirDescontoCabe(servico.getSubtotal());
         servicos.remove(servico);
@@ -533,7 +690,7 @@ public class OrdemServico extends BaseEntity {
 
     /** "Mesmo mecânico para todos": aplica o colaborador (ou o nome) a todos os serviços. */
     public void definirMecanicoParaTodos(UUID idMecanico, String mecanicoNome) {
-        exigirAberta("alterada");
+        exigirLancavel();
         if (servicos.isEmpty()) {
             throw new InvarianteVioladaException("Lance ao menos um serviço antes de definir o mecânico.");
         }
@@ -545,7 +702,7 @@ public class OrdemServico extends BaseEntity {
     }
 
     public PecaOrdemServico lancarPeca(DadosPeca dados) {
-        exigirAberta("alterada");
+        exigirLancavel();
         var peca = new PecaOrdemServico(this);
         peca.preencher(dados);
         pecas.add(peca);
@@ -553,11 +710,59 @@ public class OrdemServico extends BaseEntity {
     }
 
     public PecaOrdemServico alterarPeca(UUID idPeca, DadosPeca dados) {
-        exigirAberta("alterada");
+        exigirLancavel();
         var peca = buscarPeca(idPeca);
         peca.preencher(dados);
         exigirDescontoCabe(BigDecimal.ZERO);
         return peca;
+    }
+
+    /** Marca (ou desmarca) o serviço de valor zero como "sem custo" (garantia, cortesia). */
+    public void definirSemCusto(ServicoOrdemServico servico, boolean semCusto) {
+        exigirLancavel();
+        servico.definirSemCusto(semCusto);
+    }
+
+    /** Marca (ou desmarca) a peça de valor zero como "sem custo" (garantia, cortesia). */
+    public void definirSemCusto(PecaOrdemServico peca, boolean semCusto) {
+        exigirLancavel();
+        peca.definirSemCusto(semCusto);
+    }
+
+    /** Liga a peça ao item de manutenção (tipo peça) de onde veio o nome, ou desliga com nulo. */
+    public void vincularPecaAoItem(PecaOrdemServico peca, UUID idItemManutencao) {
+        exigirLancavel();
+        peca.vincularItem(idItemManutencao);
+    }
+
+    public void vincularPecaAoItem(UUID idPeca, UUID idItemManutencao) {
+        vincularPecaAoItem(buscarPeca(idPeca), idItemManutencao);
+    }
+
+    /**
+     * OS aberta pelo plano preventivo: cada item vira lançamento com valor zero, peça ou mão de
+     * obra conforme o cadastro, para a oficina só completar quantidades, valores e o mecânico.
+     * Item que já está lançado não se repete.
+     */
+    public void preLancarItens(List<ItemManutencao> itensPlano) {
+        exigirLancavel();
+        for (ItemManutencao item : itensPlano) {
+            if (item.isPeca()) {
+                boolean jaTem = pecas.stream().anyMatch(p -> item.getId().equals(p.getIdItemManutencao()));
+                if (jaTem) continue;
+                var peca = new PecaOrdemServico(this);
+                peca.preencher(new DadosPeca(item.getNome(), null, OrigemPeca.COMPRA, BigDecimal.ONE, "UN", BigDecimal.ZERO));
+                peca.vincularItem(item.getId());
+                pecas.add(peca);
+            } else {
+                boolean jaTem = servicos.stream().anyMatch(s -> s.getItem() != null && item.getId().equals(s.getItem().getId()));
+                if (jaTem) continue;
+                // Sem mecânico ainda: na oficina interna ele é exigido na conclusão ("mesmo mecânico para todos").
+                var servico = new ServicoOrdemServico(this);
+                servico.preencher(new DadosServico(item.getNome(), item, null, null, BigDecimal.ONE, BigDecimal.ZERO));
+                servicos.add(servico);
+            }
+        }
     }
 
     /** Peça que saiu do almoxarifado da frota, já ligada à saída. */
@@ -569,7 +774,7 @@ public class OrdemServico extends BaseEntity {
 
     /** Liga a peça à saída do almoxarifado da frota (ou desliga, com material nulo). */
     public void vincularPecaAoEstoque(UUID idPeca, UUID idMaterial, UUID idEstoque, UUID idMovimentacao) {
-        exigirAberta("alterada");
+        exigirLancavel();
         var peca = buscarPeca(idPeca);
         if (idMaterial == null) {
             peca.desvincularEstoque();
@@ -579,7 +784,7 @@ public class OrdemServico extends BaseEntity {
     }
 
     public PecaOrdemServico excluirPeca(UUID idPeca) {
-        exigirAberta("alterada");
+        exigirLancavel();
         var peca = buscarPeca(idPeca);
         exigirDescontoCabe(peca.getSubtotal());
         pecas.remove(peca);
@@ -588,7 +793,7 @@ public class OrdemServico extends BaseEntity {
 
     /** Desconto e acréscimo sobre a soma dos lançamentos. */
     public void definirAjustes(BigDecimal desconto, BigDecimal acrescimo) {
-        exigirAberta("alterada");
+        exigirLancavel();
         BigDecimal novoDesconto = ajuste(desconto, "desconto");
         BigDecimal novoAcrescimo = ajuste(acrescimo, "acréscimo");
         if ((novoDesconto.signum() > 0 || novoAcrescimo.signum() > 0) && !temLancamentos()) {
@@ -609,7 +814,10 @@ public class OrdemServico extends BaseEntity {
         BigDecimal maoDeObra = servicos.stream().map(ServicoOrdemServico::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal emPecas = pecas.stream().map(PecaOrdemServico::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal total = maoDeObra.add(emPecas).subtract(desconto).add(acrescimo);
-        return new Totais(maoDeObra, emPecas, desconto, acrescimo, total);
+        BigDecimal doEstoque = pecas.stream().filter(p -> p.getOrigem() == OrigemPeca.ESTOQUE)
+                .map(PecaOrdemServico::getSubtotal).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal aComprar = total.subtract(doEstoque).max(BigDecimal.ZERO);
+        return new Totais(maoDeObra, emPecas, desconto, acrescimo, total, doEstoque, aComprar);
     }
 
     /** Excluir um lançamento não pode deixar o desconto maior que o que sobra. */
@@ -664,8 +872,12 @@ public class OrdemServico extends BaseEntity {
         return isAtrasada(agora) && !previsaoTermino.equals(prazoAvisadoPara);
     }
 
+    /**
+     * Compra e pagamento podem vir antes ou depois do serviço: compra grande é aprovada antes,
+     * a pequena muitas vezes só chega depois de a OS ser concluída. Só a OS cancelada recusa.
+     */
     public boolean aceitaOrcamento() {
-        return situacao.isAberta();
+        return situacao != SituacaoOrdemServico.CANCELADA;
     }
 
     public List<ItemOrdemServico> getItens() {
@@ -757,7 +969,28 @@ public class OrdemServico extends BaseEntity {
 
     /** Antes de mexer no estoque pela OS: a OS precisa estar aberta. */
     public void exigirPodeLancar() {
+        exigirLancavel();
+    }
+
+    /**
+     * Serviços, peças e ajustes: enquanto a OS está aberta ou concluída com valores pendentes
+     * (a peça pequena muitas vezes só é informada depois do serviço). O valor da OS concluída
+     * acompanha os lançamentos.
+     */
+    private void exigirLancavel() {
+        if (isBaixaPendente()) return;
+        if (situacao == SituacaoOrdemServico.CONCLUIDA) {
+            throw new InvarianteVioladaException("A OS " + (numero == null ? "" : numero + " ")
+                    + "já está finalizada. Volte a OS para em andamento para mudar a execução.");
+        }
         exigirAberta("alterada");
+    }
+
+    /** Na OS concluída com valores pendentes, o valor segue os lançamentos. */
+    public void atualizarValorPelaExecucao() {
+        if (isBaixaPendente() && temLancamentos()) {
+            this.valorTotal = totais().total();
+        }
     }
 
     private void exigirAberta(String acao) {

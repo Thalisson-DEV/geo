@@ -12,6 +12,7 @@ import {
   preverFaltasDeSaldo,
   rotuloNota,
   SaldoEquipeSnapshot,
+  serieParecida,
   turnoVencido
 } from './campo-regras';
 
@@ -254,6 +255,20 @@ describe('campo-regras', () => {
 
     it('depois do fim do ciclo pede sincronização', () => {
       expect(calcularProgressoCiclo(meta, [], new Date(2026, 9, 27))!.situacao).toBe('desatualizada');
+    });
+  });
+
+  describe('serieParecida', () => {
+    it('sugere a série do caminhão com até dois dígitos diferentes', () => {
+      expect(serieParecida('5269948109', ['5269948100', '6260031161'])).toBe('5269948100');
+      expect(serieParecida(' 5269948109 ', ['5269948100'])).toBe('5269948100');
+    });
+
+    it('não sugere quando nenhuma é parecida, quando empata ou quando é a mesma', () => {
+      expect(serieParecida('5269948109', ['6260031161'])).toBeNull();
+      expect(serieParecida('5269948109', ['5269948100', '5269948108'])).toBeNull();
+      expect(serieParecida('5269948109', ['5269948109'])).toBeNull();
+      expect(serieParecida('', ['5269948109'])).toBeNull();
     });
   });
 });

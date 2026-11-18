@@ -20,7 +20,8 @@ public class ModelosAutomacao {
     }
 
     public List<Modelo> listar() {
-        return List.of(descontoRh(), relatorioComercialPorBase(), relatorioSemanal(), filaDescontos(), aprovacaoAntesDeEnviar());
+        return List.of(descontoRh(), relatorioComercialPorBase(), metasInspecaoSemanal(), desviosDosInspetores(), desviosDaGestao(),
+                relatorioSemanal(), filaDescontos(), aprovacaoAntesDeEnviar());
     }
 
     private static Map<String, Object> no(String id, String tipo, String rotulo, Map<String, Object> params) {
@@ -200,6 +201,90 @@ public class ModelosAutomacao {
         Map<String, Object> no = no(id, "ces.query", rotulo, params);
         no.put("run_after", new ArrayList<>(List.of("succeeded", "failed")));
         return no;
+    }
+
+    // ------------------------------------------------------------------------------ SST
+
+    public static final String METAS_INSPECAO_ID = "metas-inspecao-semanal";
+    public static final String METAS_INSPECAO_NOME = "Metas de inspeção: acompanhamento semanal";
+    public static final String DESVIOS_INSPETORES_ID = "desvios-abertos-inspetores";
+    public static final String DESVIOS_INSPETORES_NOME = "Desvios em aberto: e-mail de cada inspetor";
+    public static final String DESVIOS_GESTAO_ID = "desvios-abertos-gestao";
+    public static final String DESVIOS_GESTAO_NOME = "Desvios em aberto: resumo semanal da gestão";
+
+    private static Map<String, Object> todaSegunda() {
+        return Map.of("frequency", "week", "weekdays", List.of(0), "time", "07:00");
+    }
+
+    /**
+     * Toda segunda, o acompanhamento das metas de inspeção para a gestão: execução, pódio,
+     * ranking por processo, base e pessoa e, na virada do mês, como o mês anterior fechou.
+     */
+    public Modelo metasInspecaoSemanal() {
+        Map<String, Object> metas = no("metas", "ces.sst_goals", "Metas de inspeção da semana", Map.of("bases", "", "processes", ""));
+        String corpo = "<p>Bom dia! Segue o acompanhamento das metas de inspeção: como cada processo, base e pessoa está "
+                + "diante da meta e o que foi lançado na semana passada (<span data-expr=\"trigger.outputs.semana_passada_inicio\"></span> a "
+                + "<span data-expr=\"trigger.outputs.semana_passada_fim\"></span>).</p>"
+                + "<div data-block=\"html\" data-source=\"steps.metas.outputs.html\"></div>";
+        Map<String, Object> enviar = no("enviar", "email.send", "Enviar para a gestão", Map.of(
+                "to", List.of(),
+                "subject", "Metas de inspeção: {{ steps.metas.outputs.execution }}% executado ({{ steps.metas.outputs.period }})",
+                "body", corpo,
+                "label", "Segurança do Trabalho", "button_label", "Abrir o acompanhamento de metas",
+                "button_link", "/sst/metas-inspecao/acompanhamento", "tone", "INFORMATIVO"));
+        return new Modelo(METAS_INSPECAO_ID, METAS_INSPECAO_NOME,
+                "Toda segunda às 7h, a gestão recebe o acompanhamento das metas de inspeção por processo, base e pessoa, "
+                        + "com o pódio do 1º ao 3º lugar e como o período anterior fechou.",
+                TipoAutomacao.EMAIL, "gauge", definicao("trigger.schedule", todaSegunda(), new ArrayList<>(List.of(metas, enviar))));
+    }
+
+    /** Toda segunda, cada inspetor com desvio em aberto recebe a lista dos seus desvios. */
+    public Modelo desviosDosInspetores() {
+        Map<String, Object> desvios = no("desvios", "ces.sst_open_deviations", "Desvios em aberto", Map.of("bases", "", "processes", ""));
+        String corpo = "<div data-block=\"html\" data-source=\"item.html\"></div>";
+        Map<String, Object> enviar = no("enviar", "email.send", "Enviar ao inspetor", Map.of(
+                "to", List.of(Map.of("tipo", "expressao", "valor", "{{ item.usuario_id }}", "rotulo", "O inspetor")),
+                "subject", "{{ item.assunto }}",
+                "body", corpo,
+                "label", "Segurança do Trabalho", "button_label", "Tratar meus desvios",
+                "button_link", "/sst/meus-desvios", "tone", "ATENCAO"));
+        // Usuário de campo costuma não ter e-mail: esse recebe o aviso no sininho, com o link.
+        Map<String, Object> sininho = no("avisar", "notify.people", "Avisar no sininho (sem e-mail)", Map.of(
+                "recipients", List.of(Map.of("tipo", "expressao", "valor", "{{ item.usuario_id }}", "rotulo", "O inspetor")),
+                "title", "{{ item.assunto }}",
+                "body", "{{ item.resumo }}",
+                "link", "/sst/meus-desvios",
+                "email", false, "category", "OPERACIONAL", "priority", "NORMAL",
+                "silence_minutes", 0, "silence_key", "{{ item.usuario_id }}"));
+        Map<String, Object> temEmail = no("tem_email", "control.condition", "O inspetor tem e-mail?", Map.of(
+                "condition", Map.of("op", "and", "rules", List.of(
+                        Map.of("left", "{{ item.tem_email }}", "operator", "is_true", "right", "")))));
+        temEmail.put("then", new ArrayList<>(List.of(enviar)));
+        temEmail.put("else", new ArrayList<>(List.of(sininho)));
+        Map<String, Object> cada = no("cada_inspetor", "control.foreach", "Para cada inspetor com pendência",
+                Map.of("items", "{{ steps.desvios.outputs.inspectors }}"));
+        cada.put("steps", new ArrayList<>(List.of(temEmail)));
+        return new Modelo(DESVIOS_INSPETORES_ID, DESVIOS_INSPETORES_NOME,
+                "Toda segunda às 7h, cada inspetor com desvio em aberto recebe os desvios das suas inspeções, "
+                        + "começando pelos vencidos (quem não tem e-mail recebe o aviso no sininho). Quem não tem pendência não recebe nada.",
+                TipoAutomacao.EMAIL, "alert", definicao("trigger.schedule", todaSegunda(), new ArrayList<>(List.of(desvios, cada))));
+    }
+
+    /** Toda segunda, a gestão recebe os desvios em aberto por processo, base e inspetor. */
+    public Modelo desviosDaGestao() {
+        Map<String, Object> desvios = no("desvios", "ces.sst_open_deviations", "Desvios em aberto", Map.of("bases", "", "processes", ""));
+        String corpo = "<p>Bom dia! Estes são os desvios de segurança que ainda estão em aberto, por processo, base e inspetor. "
+                + "Cada inspetor recebe também a lista dos próprios desvios.</p>"
+                + "<div data-block=\"html\" data-source=\"steps.desvios.outputs.html\"></div>";
+        Map<String, Object> enviar = no("enviar", "email.send", "Enviar para a gestão", Map.of(
+                "to", List.of(),
+                "subject", "Desvios em aberto: {{ steps.desvios.outputs.total }} pendentes, {{ steps.desvios.outputs.overdue }} vencidos",
+                "body", corpo,
+                "label", "Segurança do Trabalho", "button_label", "Abrir os desvios",
+                "button_link", "/sst/desvios", "tone", "INFORMATIVO"));
+        return new Modelo(DESVIOS_GESTAO_ID, DESVIOS_GESTAO_NOME,
+                "Toda segunda às 7h, a gestão recebe os desvios em aberto por processo, base e inspetor, com os mais atrasados.",
+                TipoAutomacao.EMAIL, "alert", definicao("trigger.schedule", todaSegunda(), new ArrayList<>(List.of(desvios, enviar))));
     }
 
     private Modelo relatorioSemanal() {

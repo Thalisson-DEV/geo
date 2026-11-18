@@ -84,6 +84,29 @@ describe('ConnectivityService (Mobile)', () => {
     expect(service.isOnline()).toBe(true);
   });
 
+  it('envia a fila ao voltar ao app, mesmo sem o estado da rede ter mudado', () => {
+    (tokenServiceSpy as any).reautenticacaoNecessaria = () => false;
+    service.setSimulatedCellular(false);
+    service.setSimulatedHardwareOnline(true);
+    syncServiceSpy.syncOutbox.calls.reset();
+
+    spyOnProperty(document, 'visibilityState', 'get').and.returnValue('visible');
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    expect(syncServiceSpy.syncOutbox).toHaveBeenCalledTimes(1);
+  });
+
+  it('não envia a fila ao voltar ao app sem rede liberada', () => {
+    (tokenServiceSpy as any).reautenticacaoNecessaria = () => false;
+    service.setSimulatedHardwareOnline(false);
+    syncServiceSpy.syncOutbox.calls.reset();
+
+    spyOnProperty(document, 'visibilityState', 'get').and.returnValue('visible');
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    expect(syncServiceSpy.syncOutbox).not.toHaveBeenCalled();
+  });
+
   it('deve ficar offline quando o hardware perder sinal completamente', () => {
     service.setSimulatedCellular(false);
     service.setSimulatedHardwareOnline(false);

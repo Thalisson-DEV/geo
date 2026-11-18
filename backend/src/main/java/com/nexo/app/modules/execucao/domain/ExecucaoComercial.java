@@ -205,6 +205,18 @@ public class ExecucaoComercial extends BaseEntity {
         this.materiais.add(new ExecucaoMaterial(this, idMaterial, quantidade, operacao, numSerie, origem));
     }
 
+    /** Guarda o que foi digitado em outra unidade no último material incluído com esse id e série. */
+    public void registrarQuantidadeInformada(UUID idMaterial, String numSerie, BigDecimal informada, String unidade) {
+        if (unidade == null || informada == null || materiais.isEmpty()) {
+            return;
+        }
+        ExecucaoMaterial ultimo = materiais.get(materiais.size() - 1);
+        if (!ultimo.getIdMaterial().equals(idMaterial) || !Objects.equals(ultimo.getNumSerie(), numSerie)) {
+            throw new IllegalStateException("O material informado não é o último incluído na nota.");
+        }
+        ultimo.registrarQuantidadeInformada(informada, unidade);
+    }
+
     /** Materiais que movimentam o saldo da equipe (os da concessionária ficam de fora). */
     public List<ExecucaoMaterial> getMateriaisDaEquipe() {
         return materiais.stream().filter(m -> m.getOrigem() == OrigemMaterial.EQUIPE).toList();

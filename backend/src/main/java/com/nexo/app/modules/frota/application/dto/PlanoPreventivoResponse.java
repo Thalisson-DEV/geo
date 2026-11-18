@@ -15,6 +15,8 @@ public record PlanoPreventivoResponse(
         String descricao,
         List<Referencia> tiposVeiculo,
         List<Referencia> tiposImplemento,
+        /** Placas escolhidas (nome = placa); vazia quando o plano vale pelos tipos. */
+        List<Referencia> placas,
         Long intervaloKm,
         Long intervaloHoras,
         Integer intervaloDias,

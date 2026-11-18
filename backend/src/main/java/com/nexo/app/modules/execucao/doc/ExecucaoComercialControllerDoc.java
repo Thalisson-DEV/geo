@@ -52,6 +52,16 @@ public interface ExecucaoComercialControllerDoc {
     @Operation(summary = "Listar execuções com filtros dinâmicos")
     ResponseEntity<PageResponse<ExecucaoComercialResponse>> listar(@ParameterObject ExecucaoFilter filter, Pageable pageable);
 
+    @Operation(summary = "Exportar as notas em CSV, uma linha por nota",
+            description = "Mesmos filtros da listagem; no máximo 30.000 notas, as mais recentes.")
+    ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> exportarResumo(
+            @ParameterObject ExecucaoFilter filter);
+
+    @Operation(summary = "Exportar as notas em CSV, uma linha por serviço e por material",
+            description = "Mesmos filtros da listagem; no máximo 30.000 notas, as mais recentes.")
+    ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> exportarDetalhado(
+            @ParameterObject ExecucaoFilter filter);
+
     @Operation(summary = "Listar execuções da equipe vinculada ao usuário logado")
     ResponseEntity<PageResponse<ExecucaoComercialResponse>> listarPorMinhaEquipe(@ParameterObject ExecucaoFilter filter, Pageable pageable);
 }

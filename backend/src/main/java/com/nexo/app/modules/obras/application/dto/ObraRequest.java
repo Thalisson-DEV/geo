@@ -73,6 +73,14 @@ public record ObraRequest(
 
         Set<UUID> equipes,
 
-        TipoObra tipoObra
+        TipoObra tipoObra,
+
+        /** Tipo cadastrado (Comum, LPT, Corretiva...); sem ele vale o tipo pela classe {@code tipoObra}. */
+        UUID idTipoObra
 ) {
+    /** Construtor do contrato anterior, sem o tipo cadastrado. */
+    public ObraRequest(String numero, String titulo, String descricao, String notaObra, BigDecimal valorProjeto, LocalDate dataInicio, LocalDate dataPrevisaoFim, LocalDate dataFimEfetiva, Double latitude, Double longitude, UUID idProcesso, UUID idBaseOperacional, UUID idMunicipio, UUID idCentroCusto, UUID idSupervisor, UUID idCoordenador, UUID idStatusObra, UUID idAgenteResponsavel, UUID idObraPai, TipoVinculoSubprojeto tipoVinculoPai, Set<UUID> equipes, TipoObra tipoObra) {
+        this(numero, titulo, descricao, notaObra, valorProjeto, dataInicio, dataPrevisaoFim, dataFimEfetiva, latitude, longitude, idProcesso, idBaseOperacional, idMunicipio, idCentroCusto, idSupervisor, idCoordenador, idStatusObra, idAgenteResponsavel, idObraPai, tipoVinculoPai, equipes, tipoObra, null);
+    }
+
 }

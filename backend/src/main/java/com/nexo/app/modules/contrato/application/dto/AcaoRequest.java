@@ -10,5 +10,8 @@ public record AcaoRequest(
 
     @NotBlank(message = "Nome da ação é obrigatório")
     @Size(max = 255, message = "O nome deve ter no máximo 255 caracteres")
-    String nome
+    String nome,
+
+    /** Serviço não efetuado (sem acesso, defeito técnico). Nulo mantém o que a ação já tem. */
+    Boolean improdutiva
 ) {}

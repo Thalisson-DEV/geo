@@ -1,0 +1,494 @@
+<div class="min-h-full min-h-screen bg-[var(--ces-surface)] text-[var(--ces-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0">
+  <p-toast></p-toast>
+
+  @if (loading()) {
+    <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
+      <ces-async-state state="loading" title="Carregando o relatório..."
+        description="Consultando o checklist, os desvios e as fotos da inspeção..."></ces-async-state>
+    </div>
+  } @else if (inspecao(); as insp) {
+    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+
+      <!-- 1. CABEÇALHO CORPORATIVO -->
+      <div class="grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
+        <div class="flex justify-start">
+          <img src="logo_vertical.svg" alt="Logo" class="h-16 print:h-14" onerror="this.style.display = 'none'" />
+        </div>
+        <div class="text-center flex flex-col gap-1">
+          <h1 class="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100 print:text-black uppercase tracking-wider">NOME DA EMPRESA</h1>
+          <p class="text-[11px] text-slate-700 dark:text-slate-300 print:text-slate-700 font-bold uppercase tracking-widest">Saúde e Segurança do Trabalho</p>
+          <p class="text-[11px] text-slate-600 dark:text-slate-400 print:text-slate-600 font-medium">Inspeções de Segurança</p>
+        </div>
+        <div class="flex justify-end">
+          <img src="logo_vertical.svg" alt="Logo Cliente" class="h-16 print:h-14 grayscale opacity-25 print:opacity-20" onerror="this.style.display = 'none'" />
+        </div>
+      </div>
+
+      <!-- 2. TÍTULO -->
+      <div class="py-4 text-center border-y border-slate-200 dark:border-slate-800 print:border-slate-300 my-4 print:py-2 print:my-2">
+        <h2 class="text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 print:text-black tracking-tight uppercase">
+          Relatório de Inspeção de Segurança
+        </h2>
+        <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-xs text-slate-600 dark:text-slate-400 print:text-slate-600 font-medium">
+          <span>Código <strong class="font-mono text-slate-900 dark:text-slate-100 print:text-black font-semibold">#{{ codigo() }}</strong></span>
+          <span>·</span>
+          <span>Realizada em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ insp.dataRealizacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
+          <span>·</span>
+          <ces-status [tone]="situacao().tom" [emphasis]="situacao().tom === 'success' ? 'solid' : 'soft'" [icon]="situacao().icone">{{ situacao().rotulo }}</ces-status>
+        </div>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 mt-1">{{ insp.formulario.titulo }}</p>
+        <div class="mt-3 print:hidden">
+          <app-analisar-com-copiloto origem="Relatório de inspeção de segurança" tipo="inspecao"
+            [entidade]="insp.id" [rotulo]="'Inspeção #' + codigo()" size="sm"
+            pergunta="Analise esta inspeção de segurança: não conformidades, gravidade, tratamento dos desvios e o histórico da equipe." />
+        </div>
+      </div>
+
+      <!-- FAIXA DA SITUAÇÃO (só na tela: no papel a situação já está no título) -->
+      @if (faixa(); as f) {
+        <div class="destaque rounded-xl border p-3.5 mb-6 flex items-start gap-3 print:hidden" [attr.data-tone]="f.tom" role="note">
+          <div class="destaque__icone w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border">
+            <i class="text-sm" [class]="f.icone" aria-hidden="true"></i>
+          </div>
+          <div class="flex flex-col min-w-0">
+            <span class="text-xs font-bold uppercase tracking-wider">{{ f.titulo }}</span>
+            <span class="text-[11px] font-medium opacity-90">{{ f.texto }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- 3. DADOS GERAIS -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6 bg-slate-50/60 dark:bg-slate-900/40 p-4 md:p-5 rounded-xl border border-slate-200 dark:border-slate-800 print:grid-cols-3 print:gap-3 print:mb-3 print:p-2 print:bg-transparent">
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-2">
+            <i class="pi pi-tag text-primary-500 text-xs"></i>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 print:text-black uppercase tracking-wider">Identificação</span>
+          </div>
+          <div class="kv"><span class="kv-l">Tipo</span><span class="kv-v">{{ insp.tipoInspecao?.nome || '—' }}</span></div>
+          <div class="kv"><span class="kv-l">Processo</span><span class="kv-v" [title]="insp.processo.nome || ''">{{ insp.processo.nome || '—' }}</span></div>
+          <div class="kv"><span class="kv-l">Inspetor</span><span class="kv-v kv-v--wrap uppercase">{{ insp.nomeInspetor || '—' }}</span></div>
+          <div class="kv"><span class="kv-l">Situação</span><span class="kv-v">{{ statusInspLabel(insp.status) }}</span></div>
+        </div>
+
+        <div class="flex flex-col gap-3 md:border-x md:border-slate-200 md:dark:border-slate-800 print:border-x print:border-slate-300 md:px-5 print:px-3">
+          <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-2">
+            <i class="pi pi-map-marker text-primary-500 text-xs"></i>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 print:text-black uppercase tracking-wider">Local e Equipe</span>
+          </div>
+          <div class="kv"><span class="kv-l">Equipe</span><span class="kv-v">{{ insp.equipe?.codigo || 'Individual' }}</span></div>
+          <div class="kv"><span class="kv-l">Base</span><span class="kv-v" [title]="insp.baseOperacional?.nome || ''">{{ insp.baseOperacional?.nome || 'Não identificada' }}</span></div>
+          <div class="kv"><span class="kv-l">Veículo</span><span class="kv-v font-mono">{{ insp.veiculo?.placa || '—' }}</span></div>
+          <div class="kv"><span class="kv-l">Coordenadas</span><span class="kv-v font-mono" [class.kv-v--muted]="insp.latitude == null">{{ insp.latitude != null && insp.longitude != null ? (insp.latitude | number: '1.5-5') + ', ' + (insp.longitude | number: '1.5-5') : 'Não registradas' }}</span></div>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-2">
+            <i class="pi pi-chart-bar text-primary-500 text-xs"></i>
+            <span class="text-xs font-bold text-slate-800 dark:text-slate-200 print:text-black uppercase tracking-wider">Resultado</span>
+          </div>
+          <div class="kv"><span class="kv-l">Inspecionados</span><span class="kv-v">{{ insp.colaboradoresInspecionados.length }}</span></div>
+          <div class="kv"><span class="kv-l">Itens avaliados</span><span class="kv-v">{{ indicadores().avaliados }}</span></div>
+          <div class="kv"><span class="kv-l">Não conformidades</span><span class="kv-v" [class.kv-v--brand]="insp.desvios.length > 0">{{ insp.desvios.length }}</span></div>
+          <div class="flex flex-col gap-1.5">
+            <div class="kv"><span class="kv-l">Conformidade</span><span class="kv-v">{{ indicadores().conformidade }}%</span></div>
+            <div class="barra" [attr.data-tone]="indicadores().tom" role="img" [attr.aria-label]="'Conformidade de ' + indicadores().conformidade + '%'">
+              <span [style.width.%]="indicadores().conformidade"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. CARTÕES DE RESUMO (só na tela) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-6 print:hidden">
+        <div class="resumo resumo--destaque">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Conformidade</span>
+            <span class="resumo__icone"><i class="pi pi-shield" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ indicadores().conformidade }}%</span>
+            <span class="resumo__legenda">{{ indicadores().legenda }}</span>
+          </div>
+        </div>
+        <div class="resumo">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Itens avaliados</span>
+            <span class="resumo__icone"><i class="pi pi-list-check" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ indicadores().avaliados }}</span>
+            <span class="resumo__legenda">{{ indicadores().naoAplica ? indicadores().naoAplica + ' não se aplicam' : 'todos aplicáveis' }}</span>
+          </div>
+        </div>
+        <div class="resumo" [class.resumo--alerta]="resumo().pendentes > 0">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Desvios em aberto</span>
+            <span class="resumo__icone"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ resumo().pendentes }}</span>
+            <span class="resumo__legenda">{{ desviosVencidos() ? desviosVencidos() + ' com prazo vencido' : (resumo().pendentes ? 'aguardando tratamento' : 'nenhum pendente') }}</span>
+          </div>
+        </div>
+        <div class="resumo" [class.resumo--sucesso]="resumo().resolvidos > 0">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Resolvidos</span>
+            <span class="resumo__icone"><i class="pi pi-check-circle" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ resumo().resolvidos }}</span>
+            <span class="resumo__legenda">{{ resumo().desvios ? 'de ' + resumo().desvios + (resumo().desvios === 1 ? ' desvio lançado' : ' desvios lançados') : 'nenhum desvio lançado' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. COLABORADORES INSPECIONADOS -->
+      <div class="mb-8 print:mb-3 page-break-inside-avoid">
+        <div class="flex items-center gap-2 mb-3 print:mb-2 border-l-2 border-primary-500 pl-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Colaboradores Inspecionados</span>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ insp.colaboradoresInspecionados.length }})</span>
+        </div>
+        <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 print:border-slate-300">
+          <table class="w-full text-left border-collapse text-xs print:text-[9.5px]">
+            <thead>
+              <tr class="bg-slate-50 dark:bg-slate-800/80 print:bg-slate-100 border-b border-slate-200 dark:border-slate-700 print:border-slate-300">
+                <th class="th w-10 text-center">Nº</th>
+                <th class="th">Nome</th>
+                <th class="th">Função</th>
+                <th class="th text-right">Desvios</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of insp.colaboradoresInspecionados; track c.id; let i = $index) {
+                <tr class="border-b border-slate-100 dark:border-slate-800 print:border-slate-200 last:border-b-0">
+                  <td class="td text-center font-mono text-slate-500 dark:text-slate-400 print:text-slate-600">{{ i + 1 }}</td>
+                  <td class="td font-semibold uppercase text-slate-900 dark:text-slate-100 print:text-black">{{ c.nomeCompleto }}</td>
+                  <td class="td text-slate-600 dark:text-slate-300 print:text-slate-700">{{ funcaoDe(c) }}</td>
+                  <td class="td text-right font-mono" [class.font-bold]="desviosDoColaborador(c.id) > 0">{{ desviosDoColaborador(c.id) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 6. OBSERVAÇÕES -->
+      @if (insp.observacoes) {
+        <div class="mb-8 print:mb-3 page-break-inside-avoid">
+          <div class="flex items-center gap-2 mb-3 print:mb-2 border-l-2 border-primary-500 pl-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Observações</span>
+          </div>
+          <p class="texto-longo">{{ insp.observacoes }}</p>
+        </div>
+      }
+
+      <!-- 7. CHECKLIST -->
+      <div class="mb-8 print:mb-3">
+        <div class="flex items-center justify-between gap-3 mb-3 print:mb-2 flex-wrap">
+          <div class="flex items-center gap-2 border-l-2 border-primary-500 pl-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Checklist</span>
+            @if (formulario() && indicadores().temChecklist) {
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ indicadores().conformes }} conformes · {{ indicadores().naoConformes }} não conformes · {{ indicadores().naoAplica }} não se aplicam)</span>
+            } @else if (formulario()) {
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ indicadores().avaliados }} respostas)</span>
+            }
+          </div>
+          @if (formulario() && resumo().desvios) {
+            <div class="print:hidden">
+              <ces-boolean-control kind="toggle" [inline]="true" label="Só não conformes" [value]="soNaoConformes()" (valueChange)="soNaoConformes.set($event)"></ces-boolean-control>
+            </div>
+          }
+        </div>
+
+        @if (formulario(); as form) {
+          <div class="flex flex-col gap-4 print:gap-2">
+            @for (grupo of form.grupos; track grupo.id; let gi = $index) {
+              @let rg = resumoChecklist([grupo]);
+              @if (!soNaoConformes() || rg.naoConformes) {
+                <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 print:border-slate-300 page-break-inside-avoid">
+                  <table class="w-full text-left border-collapse text-xs print:text-[9.5px]">
+                    <thead>
+                      <tr class="bg-slate-50 dark:bg-slate-800/80 print:bg-slate-100 border-b border-slate-200 dark:border-slate-700 print:border-slate-300">
+                        <th class="th w-10 text-center">{{ gi + 1 }}</th>
+                        <th class="th">{{ grupo.titulo }}</th>
+                        <th class="th text-right whitespace-nowrap w-48">
+                          @if (rg.conformes + rg.naoConformes + rg.naoAplica) {
+                            <span class="normal-case font-semibold tracking-normal">{{ rg.conformes }} C · {{ rg.naoConformes }} NC · {{ rg.naoAplica }} NA</span>
+                          } @else { Resposta }
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (pergunta of grupo.perguntas; track pergunta.id; let pi = $index) {
+                        @if (!soNaoConformes() || respostaDesvio(pergunta)) {
+                          <tr class="border-b border-slate-100 dark:border-slate-800 print:border-slate-200 last:border-b-0" [class.linha-nc]="respostaDesvio(pergunta)">
+                            <td class="td text-center font-mono text-slate-500 dark:text-slate-400 print:text-slate-600 align-top">{{ gi + 1 }}.{{ pi + 1 }}</td>
+                            <td class="td align-top">
+                              <span class="font-medium text-slate-900 dark:text-slate-100 print:text-black">{{ pergunta.enunciado }}</span>
+                              @if (pergunta.orientacao) {
+                                <span class="block text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 print:text-[8.5px]">{{ pergunta.orientacao }}</span>
+                              }
+                            </td>
+                            <td class="td text-right align-top">
+                              @if (ehChecklist(pergunta)) {
+                                <ces-status [tone]="tomResposta(pergunta)" [icon]="iconeResposta(pergunta)">{{ respostaTexto(pergunta) }}</ces-status>
+                              } @else {
+                                <span class="text-slate-800 dark:text-slate-200 print:text-black whitespace-pre-line">{{ respostaTexto(pergunta) }}</span>
+                              }
+                            </td>
+                          </tr>
+                        }
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            }
+          </div>
+        } @else {
+          <p class="texto-longo">Não foi possível carregar as respostas do checklist.</p>
+        }
+      </div>
+
+      <!-- 8. DESVIOS E TRATAMENTO -->
+      <div class="mb-8 print:mb-3 page-break-inside-avoid">
+        <div class="flex items-center gap-2 mb-3 print:mb-2 border-l-2 border-primary-500 pl-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Desvios e Tratamento</span>
+          <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ insp.desvios.length }})</span>
+        </div>
+        @if (insp.desvios.length === 0) {
+          <p class="texto-longo">Nenhuma não conformidade foi encontrada nesta inspeção.</p>
+        } @else {
+          <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 print:border-slate-300">
+            <table class="w-full text-left border-collapse text-xs print:text-[9.5px]">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/80 print:bg-slate-100 border-b border-slate-200 dark:border-slate-700 print:border-slate-300">
+                  <th class="th w-10 text-center">Nº</th>
+                  <th class="th">Item e ação corretiva</th>
+                  <th class="th">Gravidade</th>
+                  <th class="th">Responsáveis</th>
+                  <th class="th whitespace-nowrap">Prazo</th>
+                  <th class="th">Situação</th>
+                  <th class="th w-24 print:hidden"><span class="sr-only">Ações</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (desvio of insp.desvios; track desvio.id; let i = $index) {
+                  <tr class="border-b border-slate-100 dark:border-slate-800 print:border-slate-200 last:border-b-0 align-top">
+                    <td class="td text-center font-mono text-slate-500 dark:text-slate-400 print:text-slate-600">{{ i + 1 }}</td>
+                    <td class="td">
+                      <span class="font-semibold text-slate-900 dark:text-slate-100 print:text-black">{{ perguntaEnunciado(desvio.idPergunta) }}</span>
+                      @if (desvio.descricao && desvio.descricao !== opcaoTexto(desvio.idOpcaoResposta)) {
+                        <span class="block text-slate-600 dark:text-slate-300 print:text-slate-700">{{ desvio.descricao }}</span>
+                      }
+                      @if (desvio.acaoCorretiva) {
+                        <span class="block text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 mt-0.5"><strong class="font-semibold">Ação:</strong> {{ desvio.acaoCorretiva }}</span>
+                      }
+                    </td>
+                    <td class="td"><ces-status [tone]="tomGravidade(desvio.gravidade)" [emphasis]="desvio.gravidade === 'CRITICA' ? 'solid' : 'soft'" [icon]="iconeGravidade[desvio.gravidade]">{{ gravidadeLabel(desvio.gravidade) }}</ces-status></td>
+                    <td class="td uppercase text-slate-700 dark:text-slate-200 print:text-black">
+                      @for (c of desvio.colaboradores; track c.id; let ultimo = $last) { {{ c.nomeCompleto }}@if (!ultimo) {<br />} }
+                      @if (!desvio.colaboradores.length) { <span class="normal-case italic text-slate-500 dark:text-slate-400">Equipe</span> }
+                    </td>
+                    <td class="td whitespace-nowrap" [class.prazo-vencido]="prazoVencido(desvio)">
+                      {{ desvio.prazo ? (desvio.prazo | date: 'dd/MM/yyyy') : '—' }}
+                      @if (prazoVencido(desvio)) { <span class="block text-[10px] font-bold uppercase">vencido</span> }
+                    </td>
+                    <td class="td">
+                      <ces-status [tone]="tomStatusDesvio(desvio.status)" [icon]="iconeStatusDesvio(desvio.status)">{{ statusDesvioLabel(desvio.status) }}</ces-status>
+                      @if (desvio.dataResolucao) {
+                        <span class="block text-[10px] text-slate-500 dark:text-slate-400 print:text-slate-600 mt-1">em {{ desvio.dataResolucao | date: 'dd/MM/yyyy' }}</span>
+                      }
+                    </td>
+                    <td class="td print:hidden">
+                      <div class="flex items-center justify-end gap-1">
+                        <ces-icon-button icon="pi pi-paperclip" [label]="'Evidências do desvio ' + (i + 1)" [tooltip]="totalAnexos(desvio) + (totalAnexos(desvio) === 1 ? ' evidência' : ' evidências')" size="icon-sm" (pressed)="abrirDesvio(desvio)" />
+                        @if (podeTratar()) {
+                          <ces-icon-button icon="pi pi-pencil" [label]="'Tratar desvio ' + (i + 1)" tooltip="Tratar desvio" size="icon-sm" (pressed)="abrirTratamento(desvio)" />
+                        }
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+      <!-- 9. FOTOS E EVIDÊNCIAS (entram na impressão: a foto dá valor probatório ao relatório) -->
+      <app-evidencias-inspecao
+        [idInspecao]="insp.id"
+        [evidencias]="insp.evidencias || []"
+        [anexosDesvios]="anexosDesviosGaleria()"
+        [canWrite]="podeTratar()"
+        (evidenciasChange)="onEvidenciasMudadas($event)"
+      ></app-evidencias-inspecao>
+
+      <!-- 10. LOCALIZAÇÃO (só na tela) -->
+      @if (insp.latitude != null && insp.longitude != null) {
+        <div class="mb-8 print:hidden">
+          <div class="flex items-center gap-2 mb-3 border-l-2 border-primary-500 pl-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">Localização</span>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium font-mono">({{ insp.latitude | number: '1.5-5' }}, {{ insp.longitude | number: '1.5-5' }})</span>
+          </div>
+          <div class="w-full h-[360px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 isolate">
+            <div id="map-inspecao" class="w-full h-full"></div>
+          </div>
+        </div>
+      }
+
+      <!-- 11. LINHA DO TEMPO (rastro de tudo; na tela fica recolhida) -->
+      <div class="mb-8 px-1 print:hidden" id="secao-historico">
+        <p-accordion [value]="timelineValue()" (valueChange)="timelineValue.set($event)">
+          <p-accordion-panel value="timeline">
+            <p-accordion-header>
+              <div class="flex items-center justify-between w-full gap-3 min-w-0 pr-2">
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                    <i class="pi pi-history text-slate-600 dark:text-slate-300 text-sm"></i>
+                  </div>
+                  <div class="flex flex-col gap-0.5 min-w-0 text-left">
+                    <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100">Linha do tempo da inspeção</span>
+                    <span class="text-xs text-slate-600 dark:text-slate-300 font-normal">Lançamento, edições e tratamento dos desvios: quem, quando e por quê.</span>
+                  </div>
+                </div>
+              </div>
+            </p-accordion-header>
+            <p-accordion-content>
+              @if (isTimelineOpen()) {
+                <div class="pt-3">
+                  <app-inspecao-seguranca-historico [idInspecao]="insp.id" [ocultarCabecalho]="true" #historicoComp></app-inspecao-seguranca-historico>
+                </div>
+              }
+            </p-accordion-content>
+          </p-accordion-panel>
+        </p-accordion>
+      </div>
+
+      <!-- 12. DECLARAÇÃO & ASSINATURAS -->
+      <div class="mb-8 page-break-inside-avoid print:mb-3 print:mt-4">
+        <div class="flex items-center gap-2 mb-3 print:mb-2 border-l-2 border-primary-500 pl-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Declaração &amp; Assinaturas</span>
+        </div>
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 p-4 md:p-5 flex flex-col gap-5 print:p-3 print:gap-3 print:bg-transparent print:border-slate-400">
+          <p class="text-xs leading-relaxed text-slate-700 dark:text-slate-300 text-justify print:text-[9.5px] print:leading-normal print:text-slate-800">
+            Declaramos que a inspeção descrita neste <strong>Relatório de Inspeção de Segurança</strong> foi realizada na data e no local indicados,
+            que as não conformidades apontadas foram comunicadas à equipe inspecionada e que as ações corretivas registradas são de conhecimento dos responsáveis.
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 print:grid-cols-3 print:gap-3">
+            <div class="assinatura">
+              <div class="w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 print:text-black block">Inspetor</span>
+                <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Responsável pela inspeção</span>
+              </div>
+              <div class="w-full flex flex-col items-center mt-4 print:mt-2">
+                <div class="signature-slot"></div>
+                <span class="text-xs font-bold text-slate-900 dark:text-slate-100 print:text-black uppercase max-w-full truncate">{{ insp.nomeInspetor || 'Nome legível' }}</span>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ insp.dataRealizacao | date: 'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+            <div class="assinatura">
+              <div class="w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 print:text-black block">Encarregado da Equipe</span>
+                <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Ciente das não conformidades</span>
+              </div>
+              <div class="w-full flex flex-col items-center mt-4 print:mt-2">
+                <div class="signature-slot"></div>
+                <span class="text-xs font-bold text-slate-900 dark:text-slate-100 print:text-black">Nome legível</span>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Data: ____/____/________</span>
+              </div>
+            </div>
+            <div class="assinatura">
+              <div class="w-full">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 print:text-black block">Segurança do Trabalho</span>
+                <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Acompanhamento das ações</span>
+              </div>
+              <div class="w-full flex flex-col items-center mt-4 print:mt-2">
+                <div class="signature-slot"></div>
+                <span class="text-xs font-bold text-slate-900 dark:text-slate-100 print:text-black">Nome legível</span>
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Data: ____/____/________</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 13. RODAPÉ DE EMISSÃO -->
+      <footer class="border-t border-slate-200 dark:border-slate-800 pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 print:mt-3 print:pt-2 print:text-[9px]">
+        <div class="flex flex-col gap-0.5">
+          <span>Realizada em: <strong class="text-slate-900 dark:text-slate-100">{{ insp.dataRealizacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
+          <span>Emitido em: <strong class="text-slate-900 dark:text-slate-100">{{ emitidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
+        </div>
+        <div class="text-right font-semibold text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Documento emitido eletronicamente via Sistema GEO · EMPRESA Saúde e Segurança do Trabalho
+        </div>
+      </footer>
+    </div>
+
+    <!-- 14. AÇÕES FLUTUANTES: navegação e impressão à esquerda, a ação por último. -->
+    <div class="barra-acoes fixed inset-x-0 bottom-0 px-4 pb-4 pt-6 md:inset-x-auto md:bottom-8 md:right-12 md:p-0 flex items-center justify-end flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
+      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
+        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="printReport()"
+        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
+      @if (podeEditarCabecalho()) {
+        <p-button icon="pi pi-pencil" label="EDITAR" (onClick)="navegarParaEdicao()"
+          styleClass="!rounded-lg !bg-[var(--ces-surface)] !border-[var(--ces-border)] !text-[var(--ces-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--ces-surface-muted)] hover:!text-[var(--ces-foreground)] cursor-pointer"></p-button>
+      }
+      @if (podeTratar() && proximoDesvioPendente(); as d) {
+        <p-button icon="pi pi-wrench" label="TRATAR DESVIOS" (onClick)="abrirTratamento(d)"
+          styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"></p-button>
+      }
+    </div>
+
+    <!-- Drawer: evidências de um desvio -->
+    <ces-form-drawer [visible]="!!desvioAberto()" (visibleChange)="!$event && desvioAberto.set(null)"
+      [title]="'Evidências do desvio'" [description]="desvioAberto() ? perguntaEnunciado(desvioAberto()!.idPergunta) : undefined" size="md">
+      @if (desvioAberto(); as d) {
+        <ces-form-section title="Desvio" icon="pi pi-exclamation-triangle">
+          <div class="flex flex-col gap-2">
+            <div class="kv"><span class="kv-l">Gravidade</span><span class="kv-v"><ces-status [tone]="tomGravidade(d.gravidade)" [icon]="iconeGravidade[d.gravidade]">{{ gravidadeLabel(d.gravidade) }}</ces-status></span></div>
+            <div class="kv"><span class="kv-l">Situação</span><span class="kv-v"><ces-status [tone]="tomStatusDesvio(d.status)" [icon]="iconeStatusDesvio(d.status)">{{ statusDesvioLabel(d.status) }}</ces-status></span></div>
+            <div class="kv"><span class="kv-l">Prazo</span><span class="kv-v">{{ d.prazo ? (d.prazo | date: 'dd/MM/yyyy') : '—' }}</span></div>
+            @if (d.acaoCorretiva) { <p class="texto-longo mt-1">{{ d.acaoCorretiva }}</p> }
+          </div>
+        </ces-form-section>
+        <ces-form-section title="Evidências" icon="pi pi-paperclip">
+          <app-desvio-anexos [idInspecao]="insp.id" [idDesvio]="d.id" [anexos]="d.anexos || []" [canWrite]="podeTratar()"
+            (anexosChange)="onAnexoMudado(d, $event)"></app-desvio-anexos>
+        </ces-form-section>
+      }
+      <div drawer-footer class="ces-actions-row">
+        <ces-button variant="ghost" label="Fechar" (pressed)="desvioAberto.set(null)"></ces-button>
+        @if (podeTratar() && desvioAberto(); as d) {
+          <ces-button variant="primary" icon="pi pi-pencil" label="Tratar desvio" (pressed)="desvioAberto.set(null); abrirTratamento(d)"></ces-button>
+        }
+      </div>
+    </ces-form-drawer>
+
+    <!-- Drawer: tratamento do desvio -->
+    <ces-form-drawer [visible]="dialogTratamento" (visibleChange)="dialogTratamento = $event" title="Tratar desvio"
+      [description]="desvioTratadoEnunciado()" [loading]="salvandoTratamento()" size="sm">
+      <ces-form-section title="Tratamento" icon="pi pi-wrench">
+        <div class="ces-form-stack">
+          <ces-select label="Situação" [required]="true" [options]="statusDesvioOptions" [(value)]="tratamento.status"
+            [disabled]="desvioInicialmenteResolvido"
+            [description]="desvioInicialmenteResolvido ? 'Desvio resolvido não volta a ficar aberto.' : undefined"></ces-select>
+          <ces-textarea label="Ação corretiva" [showOptional]="true" [rows]="3" [maxlength]="1000" [value]="tratamento.acaoCorretiva ?? ''" (valueChange)="tratamento.acaoCorretiva = $event"
+            placeholder="O que foi ou será feito para corrigir"></ces-textarea>
+          <ces-datepicker label="Prazo" [showOptional]="true" [(value)]="tratamentoPrazo"></ces-datepicker>
+        </div>
+      </ces-form-section>
+      <div drawer-footer class="ces-actions-row">
+        <ces-button variant="ghost" label="Voltar" (pressed)="dialogTratamento = false" [disabled]="salvandoTratamento()"></ces-button>
+        <ces-button variant="primary" icon="pi pi-check" label="Salvar tratamento" [loading]="salvandoTratamento()" [disabled]="!tratamento.status" (pressed)="salvarTratamento()"></ces-button>
+      </div>
+    </ces-form-drawer>
+  } @else {
+    <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
+      <ces-async-state state="error" title="Inspeção indisponível" description="A inspeção não foi encontrada ou não pôde ser carregada."
+        actionLabel="Voltar às inspeções" actionIcon="pi pi-arrow-left" (action)="voltar()"></ces-async-state>
+    </div>
+  }
+</div>

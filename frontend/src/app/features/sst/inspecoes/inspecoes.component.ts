@@ -1,3 +1,4 @@
+import { ICONE_STATUS_INSPECAO } from '../../../core/models/sst.models';
 import { ChangeDetectionStrategy, Component, DestroyRef, Signal, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -167,7 +168,7 @@ export const DIAS_PADRAO_INSPECOES = 90;
           }
         </ng-template>
         <ng-template cesCell="status" let-row>
-          <ces-status [tone]="tom(row.status)">{{ rotuloStatus(row.status) }}</ces-status>
+          <ces-status [tone]="tom(row.status)" [icon]="iconeStatus[row.status]">{{ rotuloStatus(row.status) }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <ces-icon-button icon="pi pi-history" [label]="'Histórico de alterações da inspeção de ' + rotulo(row)" size="icon-sm" (pressed)="historico.set(row.id)"></ces-icon-button>
@@ -330,6 +331,8 @@ export class InspecoesComponent {
   protected realizacao(limite: 'from' | 'to', data: Date | null): void {
     this.lista.filters.realizacao.update((atual) => ({ ...atual, [limite]: dataIso(data) }));
   }
+
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_INSPECAO;
 
   protected tom(s: StatusInspecao): CesTone {
     return TOM_STATUS[s] ?? 'neutral';

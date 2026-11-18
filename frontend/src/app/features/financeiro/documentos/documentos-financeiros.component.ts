@@ -1,3 +1,4 @@
+import { ICONE_SITUACAO_DOCUMENTO } from '../../../core/models/financeiro.models';
 import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -187,7 +188,7 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
           </span>
         </ng-template>
         <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tom(row.situacao)">{{ row.situacaoRotulo }}</ces-status>
+          <ces-status [tone]="tom(row.situacao)" [icon]="iconeSituacao[row.situacao]">{{ row.situacaoRotulo }}</ces-status>
           <span class="ces-cell-muted">{{ row.diasNaSituacao }} dia(s) nesta situação</span>
           @if (row.motivoPendencia) {
             <span class="ces-cell-muted" [title]="row.motivoPendencia"><i class="pi pi-comment" aria-hidden="true"></i> {{ row.motivoPendencia }}</span>
@@ -562,6 +563,8 @@ export class DocumentosFinanceirosComponent {
     if (ct.includes('sheet') || ct.includes('excel')) return 'pi pi-file-excel';
     return 'pi pi-file';
   }
+
+  protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO_DOCUMENTO;
 
   protected tom(s: SituacaoDocumento): CesTone {
     return TOM_SITUACAO[s] ?? 'neutral';

@@ -12,7 +12,12 @@ import { silentContext } from '../../../core/http/http-context';
 import { SessaoService } from '../../../core/sessao/sessao.service';
 import { BarraTopoComponent, IconeComponent, VazioComponent, dataCurta, hora, numeroBr } from '../../../ui';
 
-interface GrupoMaterial { chave: string; descricao: string; codigo: string; unidade: string; condicao: string; quantidade: number; series: string[] }
+interface GrupoMaterial {
+  chave: string; descricao: string; codigo: string; unidade: string; condicao: string; quantidade: number; series: string[];
+  /** Soma do que foi digitado em outra unidade; nula quando não houve ou quando as unidades se misturam. */
+  informada: { quantidade: number; unidade: string } | null;
+  semInformada: boolean;
+}
 
 /** Uma movimentação (operação) com os itens agrupados por material e as séries de cada um. */
 @Component({
@@ -61,7 +66,7 @@ interface GrupoMaterial { chave: string; descricao: string; codigo: string; unid
                 }
               }
             </span>
-            <span class="ces-qtd">{{ num(g.quantidade) }}<small>{{ g.unidade }}</small></span>
+            <span class="ces-qtd">{{ num(g.quantidade) }}<small>{{ g.unidade }}</small>@if (g.informada) {<small class="informado">{{ num(g.informada.quantidade) }} {{ g.informada.unidade }} informados</small>}</span>
           </li>
         }
       </ul>
@@ -78,6 +83,7 @@ interface GrupoMaterial { chave: string; descricao: string; codigo: string; unid
   `,
   styles: [`
     :host { display: block; min-height: 100%; background: var(--ces-fundo); }
+    .informado { display: block; font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); text-align: right; }
     .hero { display: flex; gap: var(--ces-e3); align-items: center; margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e4); border-radius: var(--ces-r-folha); background: var(--ces-superficie); }
     .rota { display: grid; gap: var(--ces-e2); min-width: 0; }
     .rota span { display: grid; font: var(--ces-t-corpo); overflow-wrap: anywhere; }
@@ -114,8 +120,21 @@ export class MovimentacaoAlmoxDetalheComponent implements OnDestroy {
     for (const i of this.mov()?.itens ?? []) {
       const condicao = i.condicao || 'NOVO';
       const chave = `${i.material.id}|${condicao}`;
-      const g = mapa.get(chave) ?? { chave, descricao: i.material.descricao, codigo: i.material.codigo, unidade: i.material.unidadeMedida || 'UN', condicao, quantidade: 0, series: [] };
+      const g = mapa.get(chave) ?? {
+        chave, descricao: i.material.descricao, codigo: i.material.codigo, unidade: i.material.unidadeMedida || 'UN', condicao, quantidade: 0, series: [],
+        informada: null, semInformada: false,
+      };
       g.quantidade += Number(i.quantidade) || 0;
+      // Só mostra o informado quando todo o grupo foi lançado na mesma outra unidade.
+      if (!i.unidadeInformada) {
+        g.semInformada = true;
+        g.informada = null;
+      } else if (!g.semInformada && (!g.informada || g.informada.unidade === i.unidadeInformada)) {
+        g.informada = { unidade: i.unidadeInformada, quantidade: (g.informada?.quantidade ?? 0) + (Number(i.quantidadeInformada) || 0) };
+      } else {
+        g.semInformada = true;
+        g.informada = null;
+      }
       if (i.numSerie) g.series.push(i.numSerie);
       mapa.set(chave, g);
     }

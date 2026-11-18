@@ -501,6 +501,72 @@
   gap: 0.75rem;
 }
 
+/* Aprovação com ajustes */
+.dd-aprov__item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.dd-aprov__item > .dd-consumo-ops {
+  grid-column: 1 / -1;
+}
+
+.dd-aprov__item--removido {
+  background: var(--ces-surface-subtle);
+}
+
+.dd-aprov__item--removido .dd-material > strong {
+  color: var(--ces-foreground-muted);
+  text-decoration: line-through;
+}
+
+.dd-aprov__campos {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.dd-aprov__quantidade {
+  width: 9rem;
+}
+
+/* Material com outras unidades: o campo, as pílulas (MT | KG) e a conta cabem lado a lado. */
+.dd-aprov__quantidade.qu--multi {
+  width: 15rem;
+  max-width: 100%;
+}
+
+.dd-aprov__adicionar {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px dashed var(--ces-border);
+  border-radius: var(--ces-radius-md);
+}
+
+.dd-aprov__data {
+  margin: 0.5rem 0 0.75rem;
+}
+
+.dd-aprov__data ces-datepicker {
+  max-width: 16rem;
+}
+
+.dd-aprov__dica {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.dd-aprov__adicionar-campos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem auto;
+  /* A dica do autocomplete fica abaixo do campo: alinha pelo topo dos controles. */
+  align-items: start;
+  gap: 0.5rem;
+}
+
 /* Rodapé */
 .dd-rodape {
   display: flex;
@@ -570,6 +636,19 @@
   .dd-assinaturas,
   .dd-entrega__campos {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dd-aprov__item,
+  .dd-aprov__adicionar-campos {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dd-aprov__campos {
+    justify-content: space-between;
+  }
+
+  .dd-aprov__adicionar-campos .dd-aprov__quantidade {
+    width: 100%;
   }
 
   .dd-tabela__linha {

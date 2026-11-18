@@ -172,14 +172,14 @@ class McpServidorTest {
     }
 
     @Test
-    void promptDeCadastroSoApareceComEscrita() throws Exception {
+    void promptsDeCadastroEAprovacaoSoAparecemComEscrita() throws Exception {
         String corpo = "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"prompts/list\"}";
         JsonNode soLeitura = chamar(servidor(10), sessao(false), corpo).path("result").path("prompts");
         JsonNode comEscrita = chamar(servidor(10), sessao(true), corpo).path("result").path("prompts");
 
-        assertThat(comEscrita.size()).isEqualTo(soLeitura.size() + 1);
-        assertThat(comEscrita.toString()).contains("cadastrar_no_ces");
-        assertThat(soLeitura.toString()).doesNotContain("cadastrar_no_ces");
+        assertThat(comEscrita.size()).isEqualTo(soLeitura.size() + 2);
+        assertThat(comEscrita.toString()).contains("cadastrar_no_ces", "aprovar_pendencias");
+        assertThat(soLeitura.toString()).doesNotContain("cadastrar_no_ces", "aprovar_pendencias");
     }
 
     private AgentTool ferramenta(String nome, ToolKind tipo, RiskLevel risco) {

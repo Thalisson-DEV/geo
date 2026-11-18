@@ -43,7 +43,7 @@ const EVENTOS: Record<TipoEventoSolicitacao, { icone: string; tom: Tom; rotuloTe
               <div class="cabeca">
                 <span class="titulo">{{ ev.rotulo }}</span>
                 @if (ev.tipo === 'DECISAO_DESFEITA') {
-                  <ces-status tone="warning">{{ ev.statusAnterior === 'APROVADO' ? 'Era aprovação' : 'Era rejeição' }}</ces-status>
+                  <ces-status tone="warning" icon="pi-undo">{{ ev.statusAnterior === 'APROVADO' ? 'Era aprovação' : 'Era rejeição' }}</ces-status>
                 }
                 <time class="quando" [attr.datetime]="ev.ocorridoEm">{{ ev.ocorridoEm | date: 'dd/MM/yyyy · HH:mm' }}</time>
               </div>

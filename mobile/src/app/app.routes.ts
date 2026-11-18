@@ -5,7 +5,7 @@ import { adminGuard } from './core/auth/admin.guard';
 import { desviosGuard } from './core/auth/desvios.guard';
 import { logisticaGuard } from './core/auth/logistica.guard';
 import { campoGuard } from './core/auth/campo.guard';
-import { almoxGuard } from './core/auth/almox.guard';
+import { almoxGuard, fechamentoCriarGuard } from './core/auth/almox.guard';
 import { retomadaGuard } from './core/sessao/retomada.guard';
 
 export const routes: Routes = [
@@ -79,9 +79,41 @@ export const routes: Routes = [
         loadChildren: () => import('./features/almox/almox.routes').then(m => m.ALMOX_ROUTES)
       },
       {
+        // Encerramento de obras do técnico: abre nas solicitações da própria pessoa.
+        path: 'fechamento',
+        canMatch: [fechamentoCriarGuard],
+        loadChildren: () => import('./features/fechamento/fechamento.routes').then(m => m.rotasFechamento('/fechamento')),
+      },
+      {
         path: 'desvios',
         canMatch: [desviosGuard],
         loadComponent: () => import('./features/desvios/meus-desvios.component').then(m => m.MeusDesviosComponent)
+      },
+      {
+        // Frota: checklist, abastecimento e situação do veículo num destino só (qualquer usuário do app).
+        path: 'frota',
+        loadComponent: () => import('./features/frota/frota.component').then(m => m.FrotaComponent)
+      },
+      {
+        path: 'frota/veiculo',
+        loadComponent: () => import('./features/frota/veiculo-situacao.component').then(m => m.VeiculoSituacaoComponent)
+      },
+      {
+        // Documentos do veículo para a fiscalização: abrem dentro do app, também sem sinal.
+        path: 'frota/documentos',
+        loadComponent: () => import('./features/frota/veiculo-documentos.component').then(m => m.VeiculoDocumentosComponent)
+      },
+      {
+        path: 'frota/documentos/:idDocumento',
+        loadComponent: () => import('./features/frota/documento-visor.component').then(m => m.DocumentoVisorComponent)
+      },
+      {
+        path: 'checklist',
+        loadChildren: () => import('./features/checklist-veiculo/checklist-veiculo.routes').then(m => m.CHECKLIST_VEICULO_ROUTES)
+      },
+      {
+        path: 'abastecimento',
+        loadChildren: () => import('./features/abastecimento/abastecimento.routes').then(m => m.ABASTECIMENTO_ROUTES)
       },
       {
         path: 'perfil',

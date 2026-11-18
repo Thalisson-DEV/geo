@@ -1,22 +1,28 @@
 package com.nexo.app.modules.sst.infrastructure.web;
 
 import com.nexo.app.modules.sst.application.dto.AtualizarFormularioDadosRequest;
+import com.nexo.app.modules.sst.application.dto.ConfirmarImportacaoFormularioInspecaoRequest;
+import com.nexo.app.modules.sst.application.dto.ImportacaoFormularioInspecaoResponse;
 import com.nexo.app.modules.sst.application.dto.CriarFormularioRequest;
 import com.nexo.app.modules.sst.application.dto.FormularioInspecaoFilter;
 import com.nexo.app.modules.sst.application.dto.FormularioInspecaoResponse;
 import com.nexo.app.modules.sst.application.dto.FormularioInspecaoResumoResponse;
 import com.nexo.app.modules.sst.application.dto.ReordenarRequest;
 import com.nexo.app.modules.sst.application.usecases.FormularioInspecaoUseCases;
+import com.nexo.app.modules.sst.application.usecases.ImportarFormulariosInspecaoUseCase;
 import com.nexo.app.modules.sst.doc.FormularioInspecaoControllerDoc;
 import com.nexo.app.shared.application.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -26,6 +32,7 @@ import java.util.UUID;
 public class FormularioInspecaoController implements FormularioInspecaoControllerDoc {
 
     private final FormularioInspecaoUseCases useCases;
+    private final ImportarFormulariosInspecaoUseCase importarUseCase;
 
     @Override
     @PostMapping
@@ -111,5 +118,30 @@ public class FormularioInspecaoController implements FormularioInspecaoControlle
     public ResponseEntity<Void> ativar(@PathVariable UUID id) {
         useCases.ativar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @PostMapping(value = "/importar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('sst:formulario:write')")
+    public ResponseEntity<ImportacaoFormularioInspecaoResponse> importar(@RequestPart("arquivo") MultipartFile arquivo) {
+        return ResponseEntity.ok(importarUseCase.executarValidacao(arquivo));
+    }
+
+    @Override
+    @PostMapping("/confirmar-importacao")
+    @PreAuthorize("hasAuthority('sst:formulario:write')")
+    public ResponseEntity<ImportacaoFormularioInspecaoResponse> confirmarImportacao(
+            @Valid @RequestBody ConfirmarImportacaoFormularioInspecaoRequest request) {
+        return ResponseEntity.ok(importarUseCase.confirmarImportacao(request));
+    }
+
+    @Override
+    @GetMapping(value = "/importar/modelo", produces = "text/csv")
+    @PreAuthorize("hasAuthority('sst:formulario:write')")
+    public ResponseEntity<byte[]> baixarModeloImportacao() {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"modelo-importacao-formularios-inspecao.csv\"")
+                .header(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8")
+                .body(importarUseCase.obterModeloCsv());
     }
 }

@@ -102,14 +102,14 @@ import { EXEMPLO_CADASTRO, EXEMPLOS_PERGUNTA, PROVEDORES, ProvedorIa, copiarText
             <ul>
               <li>Consultar estoque, solicitações, obras e o que mais o seu perfil acessa.</li>
               <li>Resumir e comparar os dados para você.</li>
-              @if (podeEscrever()) { <li>Cadastrar e alterar registros, se você permitir ao conectar.</li> }
+              @if (podeEscrever()) { <li>Cadastrar, alterar e aprovar o que espera por você, se você permitir ao conectar.</li> }
             </ul>
           </div>
           <div>
             <h3><i class="pi pi-ban" aria-hidden="true"></i>Não pode</h3>
             <ul>
               <li>Ver o que o seu perfil não vê.</li>
-              <li>Cadastrar nada sem a sua permissão.</li>
+              <li>Cadastrar ou aprovar nada sem a sua permissão.</li>
               <li>Continuar usando o GEO depois que você desconectar.</li>
             </ul>
           </div>

@@ -12,7 +12,10 @@ import com.nexo.app.modules.iam.infrastructure.persistence.UsuarioRepository;
 import com.nexo.app.modules.rh.ColaboradorApi;
 import com.nexo.app.modules.rh.ResumoColaborador;
 import com.nexo.app.shared.application.dto.PageResponse;
+import com.nexo.app.shared.domain.events.VinculoUsuarioColaboradorAlteradoEvent;
+import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,8 +62,80 @@ class UsuarioUseCasesTest {
     @Mock
     private SessaoAutenticacaoUseCases sessoes;
 
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private UsuarioUseCases useCases;
+
+    @Test
+    @DisplayName("Vincula um usuário existente a um colaborador e avisa o RH")
+    void vincularColaborador_VinculaEAvisaRh() {
+        UUID id = UUID.randomUUID();
+        UUID idColaborador = UUID.randomUUID();
+        Usuario usuario = new Usuario("login", null, null, "senha", mock(PerfilAcesso.class), null, TipoUsuario.ADMINISTRATIVO);
+
+        when(repository.findById(id)).thenReturn(Optional.of(usuario));
+        when(colaboradorApi.existeColaborador(idColaborador)).thenReturn(true);
+        when(repository.findFirstByIdColaboradorAndIdNot(idColaborador, id)).thenReturn(Optional.empty());
+        when(colaboradorApi.buscarPorIdResponse(idColaborador)).thenReturn(Optional.empty());
+        when(repository.save(usuario)).thenReturn(usuario);
+        when(mapper.toResponse(any())).thenReturn(mock(UsuarioResponse.class));
+
+        useCases.vincularColaborador(id, idColaborador);
+
+        assertEquals(idColaborador, usuario.getIdColaborador());
+        verify(eventPublisher).publishEvent(new VinculoUsuarioColaboradorAlteradoEvent(id, null, idColaborador));
+    }
+
+    @Test
+    @DisplayName("Recusa vincular colaborador que já pertence a outro usuário")
+    void vincularColaborador_RecusaColaboradorOcupado() {
+        UUID id = UUID.randomUUID();
+        UUID idColaborador = UUID.randomUUID();
+        Usuario usuario = new Usuario("login", null, null, "senha", mock(PerfilAcesso.class), null, TipoUsuario.ADMINISTRATIVO);
+        Usuario outro = new Usuario("outro", null, null, "senha", mock(PerfilAcesso.class), idColaborador, TipoUsuario.ADMINISTRATIVO);
+
+        when(repository.findById(id)).thenReturn(Optional.of(usuario));
+        when(colaboradorApi.existeColaborador(idColaborador)).thenReturn(true);
+        when(repository.findFirstByIdColaboradorAndIdNot(idColaborador, id)).thenReturn(Optional.of(outro));
+
+        assertThrows(InvarianteVioladaException.class, () -> useCases.vincularColaborador(id, idColaborador));
+        assertNull(usuario.getIdColaborador());
+        verify(repository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    @DisplayName("Recusa colaborador inexistente ou desligado")
+    void vincularColaborador_RecusaColaboradorInexistente() {
+        UUID id = UUID.randomUUID();
+        UUID idColaborador = UUID.randomUUID();
+        Usuario usuario = new Usuario("login", null, null, "senha", mock(PerfilAcesso.class), null, TipoUsuario.ADMINISTRATIVO);
+
+        when(repository.findById(id)).thenReturn(Optional.of(usuario));
+        when(colaboradorApi.existeColaborador(idColaborador)).thenReturn(false);
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> useCases.vincularColaborador(id, idColaborador));
+        verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    @DisplayName("Desfaz o vínculo quando o colaborador informado é nulo")
+    void vincularColaborador_DesvinculaComNulo() {
+        UUID id = UUID.randomUUID();
+        UUID anterior = UUID.randomUUID();
+        Usuario usuario = new Usuario("login", null, null, "senha", mock(PerfilAcesso.class), anterior, TipoUsuario.ADMINISTRATIVO);
+
+        when(repository.findById(id)).thenReturn(Optional.of(usuario));
+        when(repository.save(usuario)).thenReturn(usuario);
+        when(mapper.toResponse(any())).thenReturn(mock(UsuarioResponse.class));
+
+        useCases.vincularColaborador(id, null);
+
+        assertNull(usuario.getIdColaborador());
+        verify(eventPublisher).publishEvent(new VinculoUsuarioColaboradorAlteradoEvent(id, anterior, null));
+    }
 
     @Test
     @DisplayName("Deve atualizar o tipo de usuário com sucesso")

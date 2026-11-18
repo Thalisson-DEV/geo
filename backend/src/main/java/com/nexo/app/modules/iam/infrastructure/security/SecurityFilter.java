@@ -1,5 +1,6 @@
 package com.nexo.app.modules.iam.infrastructure.security;
 
+import com.nexo.app.shared.infrastructure.web.ClienteIp;
 import com.nexo.app.shared.domain.exception.SessaoInvalidaException;
 import com.nexo.app.modules.iam.domain.Usuario;
 import com.nexo.app.modules.iam.infrastructure.persistence.UsuarioRepository;
@@ -113,9 +114,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     private static String ipDe(HttpServletRequest request) {
-        String encaminhado = request.getHeader("X-Forwarded-For");
-        if (encaminhado != null && !encaminhado.isBlank()) return encaminhado.split(",")[0].trim();
-        return request.getRemoteAddr();
+        return ClienteIp.de(request);
     }
 
     private String recuperarToken(HttpServletRequest request) {

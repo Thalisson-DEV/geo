@@ -111,7 +111,7 @@ const PRIORIDADES: CesSelectOption<PrioridadeNotificacao | null>[] = [{ label: '
         <ng-template cesCell="notificacao" let-row>
           <span class="ces-cell-strong">
             @if (!lida(row)) {
-              <ces-status tone="brand" emphasis="solid">Nova</ces-status>
+              <ces-status tone="brand" emphasis="solid" icon="pi-bell">Nova</ces-status>
             }
             {{ row.titulo }}
           </span>
@@ -121,7 +121,7 @@ const PRIORIDADES: CesSelectOption<PrioridadeNotificacao | null>[] = [{ label: '
           </span>
         </ng-template>
         <ng-template cesCell="prioridade" let-row>
-          <ces-status [tone]="tom(row.prioridade)">{{ row.prioridadeRotulo }}</ces-status>
+          <ces-status [tone]="tom(row.prioridade)" icon="pi-flag">{{ row.prioridadeRotulo }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">

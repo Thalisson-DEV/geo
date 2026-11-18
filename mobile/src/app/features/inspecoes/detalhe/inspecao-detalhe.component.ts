@@ -79,6 +79,7 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
           @for (d of desvios(); track d.idPergunta) {
             <li>
               <strong>{{ getPergunta(d.idPergunta)?.enunciado || 'Pergunta' }}</strong>
+              @if (getPergunta(d.idPergunta)?.desvioPorColaborador === false && !d.colaboradores?.length) { <p class="equipe">Item da equipe ou do veículo</p> }
               @if (d.descricao) { <p><span class="rot">Problema</span>{{ d.descricao }}</p> }
               @if (d.acaoCorretiva) { <p><span class="rot">O que foi feito</span>{{ d.acaoCorretiva }}</p> }
               @if (d.status === 'RESOLVIDO' && d.dataResolucao) { <p class="resolvido"><ces-icone nome="check" [tamanho]="16" />Resolvido em {{ data(d.dataResolucao) }}</p> }
@@ -90,7 +91,40 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
         </ul>
       }
 
-      @if (respostas().length) {
+      @if (respostas().length && gruposRespostas().length) {
+        @let tot = totaisChecklist();
+        <h2 class="ces-secao ces-secao--marcada"><span class="ces-marca ces-marca--aplicado" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>
+          <span>Checklist</span><span class="ces-contagem">{{ respostas().length }}</span></h2>
+        @if (tot.c + tot.nc + tot.na) {
+          <div class="filtro" role="group" aria-label="Mostrar respostas">
+            <button type="button" class="filtro__op" [attr.aria-pressed]="!soNaoConformes()" (click)="soNaoConformes.set(false)">Todas</button>
+            <button type="button" class="filtro__op" [attr.aria-pressed]="soNaoConformes()" (click)="soNaoConformes.set(true)" [disabled]="!tot.nc">Não conformes <span class="ces-num">{{ tot.nc }}</span></button>
+            <span class="filtro__resumo ces-num">{{ tot.c }} C · {{ tot.na }} NA</span>
+          </div>
+        }
+        @for (g of gruposRespostas(); track g.id) {
+          @if (!soNaoConformes() || g.nc) {
+            <h3 class="grupo-resp"><span>{{ g.titulo }}</span>@if (g.nc) { <span class="nc ces-num">{{ g.nc }} NC</span> }</h3>
+            <ul class="ces-grupo" [attr.aria-label]="g.titulo">
+              @for (it of g.itens; track it.id) {
+                @if (!soNaoConformes() || it.tipo === 'nc') {
+                  <li><div class="ces-linha resposta">
+                    <span class="ces-linha__texto">
+                      <span class="enunciado">{{ it.enunciado }}</span>
+                      @if (it.orientacao) { <span class="pergunta">{{ it.orientacao }}</span> }
+                      @if (it.tipo === 'livre') { <span class="valor">{{ it.valor }}</span> }
+                    </span>
+                    @if (it.tipo !== 'livre') {
+                      <span class="tag" [class.tag--nc]="it.tipo === 'nc'" [class.tag--na]="it.tipo === 'na'">
+                        <ces-icone [nome]="it.tipo === 'nc' ? 'desvio' : it.tipo === 'na' ? 'menos' : 'check'" [tamanho]="14" />{{ it.valor }}</span>
+                    }
+                  </div></li>
+                }
+              }
+            </ul>
+          }
+        }
+      } @else if (respostas().length) {
         <h2 class="ces-secao ces-secao--marcada"><span class="ces-marca ces-marca--aplicado" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>
           <span>Respostas</span><span class="ces-contagem">{{ respostas().length }}</span></h2>
         <ul class="ces-grupo" aria-label="Respostas">
@@ -165,6 +199,24 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
     .resposta { align-items: flex-start; }
     .pergunta { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
     .valor { font: var(--ces-t-corpo-forte); overflow-wrap: anywhere; }
+    .enunciado { font: var(--ces-t-corpo); overflow-wrap: anywhere; }
+    .desvios .equipe { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .filtro { display: flex; align-items: center; gap: var(--ces-e2); flex-wrap: wrap; padding: 0 var(--ces-e3) var(--ces-e2); }
+    .filtro__op { min-height: 40px; padding: 0 var(--ces-e3); border-radius: var(--ces-r-pilula); border: 1.5px solid var(--ces-linha); background: var(--ces-superficie);
+      color: var(--ces-texto); font: 500 .875rem/1 var(--ces-fonte); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .filtro__op[aria-pressed='true'] { border-color: var(--ces-destaque); background: var(--ces-destaque-suave); }
+    .filtro__op:disabled { opacity: .5; cursor: default; }
+    .filtro__resumo { margin-left: auto; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .grupo-resp { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e2); margin: 0; padding: var(--ces-e4) var(--ces-e5) var(--ces-e2);
+      font: var(--ces-t-secao); color: var(--ces-texto-2); }
+    .grupo-resp .nc { padding: 2px 8px; border-radius: var(--ces-r-pilula); background: var(--ces-atencao-suave); color: var(--ces-texto); font: 600 .75rem/1.4 var(--ces-fonte); }
+    .tag { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--ces-r-pilula); font: 600 .8125rem/1.2 var(--ces-fonte);
+      background: var(--ces-ok-suave); color: var(--ces-texto); }
+    .tag ces-icone { color: var(--ces-ok); }
+    .tag--nc { background: var(--ces-atencao-suave); }
+    .tag--nc ces-icone { color: var(--ces-atencao); }
+    .tag--na { background: var(--ces-superficie-2); color: var(--ces-texto-2); }
+    .tag--na ces-icone { color: var(--ces-texto-2); }
   `],
 })
 export class InspecaoDetalheComponent implements OnInit, OnDestroy {
@@ -304,6 +356,39 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
     }
     return null;
   }
+
+  readonly soNaoConformes = signal(false);
+
+  /** Respostas na ordem do formulário, por grupo, com o resultado do checklist (C, NC, NA) ou o valor livre. */
+  readonly gruposRespostas = computed(() => {
+    const f = this.formulario();
+    if (!f) return [];
+    const porPergunta = new Map(this.respostas().map(r => [r.idPergunta, r]));
+    return f.grupos.map(g => {
+      const itens = g.perguntas.filter(p => porPergunta.has(p.id)).map(p => {
+        const r = porPergunta.get(p.id);
+        const opcoes = (r.opcoesSelecionadas ?? []).map((id: string) => p.opcoes.find(o => o.id === id)).filter(Boolean);
+        const checklist = p.tipoResposta === 'MULTIPLA_ESCOLHA' && p.opcoes.some(o => o.geraDesvio)
+          && p.opcoes.some(o => o.texto.trim().toLowerCase() === 'conforme');
+        let tipo: 'c' | 'nc' | 'na' | 'livre' = 'livre';
+        if (opcoes.some((o: { geraDesvio: boolean }) => o.geraDesvio)) tipo = 'nc';
+        else if (checklist) tipo = opcoes.some((o: { texto: string }) => o.texto.trim().toLowerCase() === 'não se aplica') ? 'na' : 'c';
+        return { id: p.id, enunciado: p.enunciado, orientacao: p.orientacao ?? null, valor: this.valorResposta(r), tipo };
+      });
+      return {
+        id: g.id, titulo: g.titulo, itens,
+        nc: itens.filter(i => i.tipo === 'nc').length,
+      };
+    }).filter(g => g.itens.length);
+  });
+
+  readonly totaisChecklist = computed(() => {
+    const t = { c: 0, nc: 0, na: 0 };
+    for (const g of this.gruposRespostas()) {
+      for (const i of g.itens) if (i.tipo !== 'livre') t[i.tipo]++;
+    }
+    return t;
+  });
 
   getOpcao(idPergunta: string, idOpcao: string) {
     const p = this.getPergunta(idPergunta);

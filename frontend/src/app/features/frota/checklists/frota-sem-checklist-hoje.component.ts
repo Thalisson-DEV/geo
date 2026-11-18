@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, signal, untracked } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CesButtonComponent,
@@ -60,6 +60,8 @@ import { FrotaChecklistService } from '../../../core/services/frota-checklist.se
 export class FrotaSemChecklistHojeComponent {
   private readonly checklist = inject(FrotaChecklistService);
   private readonly router = inject(Router);
+  /** Bases escolhidas no topo da página; vazio é todas. */
+  readonly idsBase = input<string[]>([]);
 
   protected readonly placa = formatarPlaca;
   protected readonly veiculos = signal<VeiculoSemChecklist[]>([]);
@@ -77,13 +79,16 @@ export class FrotaSemChecklistHojeComponent {
   protected readonly chave = (v: VeiculoSemChecklist) => v.idVeiculo;
 
   constructor() {
-    this.carregar();
+    effect(() => {
+      this.idsBase();
+      untracked(() => this.carregar());
+    });
   }
 
   protected carregar(): void {
     this.carregando.set(true);
     this.erro.set(null);
-    this.checklist.semChecklistHoje().subscribe({
+    this.checklist.semChecklistHoje(this.idsBase()).subscribe({
       next: (lista) => {
         this.veiculos.set(lista);
         this.carregando.set(false);

@@ -184,6 +184,16 @@ public class SstAnalyticsUseCases implements SstAnalyticsApi {
                 OffsetDateTime.now(ZONE_ID));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<EventoComVeiculo> listarEventosComVeiculo(OffsetDateTime inicioInclusivo, OffsetDateTime fimExclusivo) {
+        validarPeriodo(inicioInclusivo, fimExclusivo);
+        return eventoRepository.listarComVeiculoNoPeriodo(StatusEventoSst.CANCELADO, inicioInclusivo, fimExclusivo).stream()
+                .map(e -> new EventoComVeiculo(e.getId(), e.getIdVeiculo(), e.getTipo().name(), e.getTipo().getRotulo(),
+                        e.getDataOcorrencia(), e.getDiasPerdidos() == null ? 0 : e.getDiasPerdidos()))
+                .toList();
+    }
+
     private Map<UUID, Long> contarPorInspetor(
             ApuracaoMetaPeriodo apuracao, OffsetDateTime inicio, OffsetDateTime fim) {
         if (apuracao.metaPorInspetor().isEmpty()) {

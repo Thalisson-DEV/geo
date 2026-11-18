@@ -6,6 +6,8 @@
         (focusout)="numero.set(numeroLimpo())"></ces-text-input>
       <ces-text-input label="Nota da obra" [(value)]="notaObra" [maxlength]="50" placeholder="Ex.: NOT-2026-8812" [showOptional]="true"></ces-text-input>
     </div>
+    <ces-select label="Tipo de obra" [required]="true" [options]="tiposObraOpcoes()" [(value)]="idTipoObra" [filter]="true"
+      [description]="descricaoTipo()" [error]="erro('idTipoObra')"></ces-select>
     <ces-text-input label="Título da obra" [required]="true" [(value)]="titulo" [maxlength]="300" placeholder="Ex.: Subestação Central - Reforma Alimentador 02" [error]="erro('titulo')"
       (focusout)="titulo.set(tituloLimpo())"></ces-text-input>
     <ces-textarea label="Descrição / escopo técnico" [(value)]="descricao" [rows]="3" [maxlength]="1000" [showOptional]="true"></ces-textarea>

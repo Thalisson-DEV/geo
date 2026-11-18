@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, Injector, OnInit, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Injector, OnInit, computed, effect, inject, signal, untracked } from '@angular/core';
+import { liveQuery } from 'dexie';
 import { Router } from '@angular/router';
 import { TurnoService } from '../../core/turno/turno.service';
+import { ChecklistVeiculoLocal, diaLocal } from '../../core/frota/checklist-veiculo.models';
+import { ChecklistVeiculoService } from '../../core/frota/checklist-veiculo.service';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { RascunhoService, VinculoRascunho } from '../../core/sessao/rascunho.service';
@@ -64,6 +67,36 @@ interface RascunhoTurno {
           </button>
         </div>
 
+        @if (checklist(); as c) {
+          <h2 class="ces-secao">Checklist do veículo</h2>
+          <div class="ces-grupo">
+            @switch (c.estado) {
+              @case ('feito') {
+                <div class="ces-linha">
+                  <span class="ces-selo ces-selo--ok"><ces-icone nome="check" /></span>
+                  <span class="ces-linha__texto"><span class="ces-linha__titulo">Feito hoje</span>
+                    <span class="ces-linha__apoio">{{ c.texto }}</span></span>
+                </div>
+              }
+              @case ('procurando') {
+                <div class="ces-linha" aria-busy="true">
+                  <span class="ces-selo"><ces-icone nome="relogio" /></span>
+                  <span class="ces-linha__texto"><span class="ces-linha__titulo">Procurando o checklist de hoje…</span>
+                    <span class="ces-linha__apoio">Alguém da equipe pode já ter feito em outro celular</span></span>
+                </div>
+              }
+              @default {
+                <button type="button" class="ces-linha ces-linha--acao" (click)="fazerChecklist()">
+                  <span class="ces-selo ces-selo--atencao"><ces-icone [nome]="c.rascunho ? 'retomar' : 'caminhao'" /></span>
+                  <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ c.rascunho ? 'Continuar checklist' : 'Fazer checklist' }}</span>
+                    <span class="ces-linha__apoio">{{ c.texto }}</span></span>
+                  <ces-icone nome="avancar" [tamanho]="18" />
+                </button>
+              }
+            }
+          </div>
+        }
+
         <h2 class="ces-secao"><span>Pessoas</span><span class="ces-num">{{ membros().length }}</span></h2>
         <ul class="ces-grupo">
           @for (m of membros(); track m.idColaborador) {
@@ -105,7 +138,10 @@ interface RascunhoTurno {
         @if (!rede.isOnline()) {
           <p class="sem-rede"><ces-icone nome="sem_rede" [tamanho]="16" />Abrir o turno precisa de internet. A conferência fica salva.</p>
         }
-        <button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="abrirTurno()" [disabled]="enviando() || !rede.isOnline()">
+        @if (faltaChecklist()) {
+          <p class="sem-rede"><ces-icone nome="alerta" [tamanho]="16" />Faça o checklist do {{ veiculo()?.placa }} para abrir o turno.</p>
+        }
+        <button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="abrirTurno()" [disabled]="enviando() || !rede.isOnline() || faltaChecklist()">
           {{ enviando() ? 'Abrindo…' : (houveAlteracao() ? 'Abrir turno com as mudanças' : 'Abrir turno') }}
         </button>
       </footer>
@@ -173,7 +209,13 @@ export class AbrirTurnoComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly rascunhos = inject(RascunhoService);
   private readonly injector = inject(Injector);
+  private readonly checklists = inject(ChecklistVeiculoService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly rede = inject(ConnectivityService);
+
+  private readonly checklistsLocais = signal<ChecklistVeiculoLocal[]>([]);
+  /** Checklist de hoje do veículo achado no servidor (feito em outro aparelho), por veículo consultado. */
+  private readonly noServidor = signal<{ idVeiculo: string; estado: 'procurando' | 'achou' | 'nao-achou'; texto?: string } | null>(null);
 
   readonly carregando = signal(true);
   readonly enviando = signal(false);
@@ -198,6 +240,32 @@ export class AbrirTurnoComponent implements OnInit {
   });
   readonly houveAlteracao = computed(() => this.veiculoAlterado() || this.membrosAlterados());
 
+  /**
+   * O veículo escolhido precisa de checklist hoje antes de abrir o turno, se a frota configurou
+   * checklist para ele. Vale o deste aparelho (mesmo ainda na fila) ou o que o servidor já tem.
+   */
+  readonly checklist = computed<{ estado: 'feito' | 'procurando' | 'falta'; texto: string; rascunho: boolean } | null>(() => {
+    const id = this.veiculo()?.id;
+    const doCatalogo = this.checklists.catalogo()?.veiculos.find(v => v.idVeiculo === id);
+    if (!id || !doCatalogo?.idsModelosPrincipais.length) return null;
+    const hoje = diaLocal();
+    const locais = this.checklistsLocais().filter(c => c.idVeiculo === id);
+    const feito = locais
+      .filter(c => c.statusSync !== 'RASCUNHO' && c.statusSync !== 'ERRO' && c.preenchidoEm && diaLocal(new Date(c.preenchidoEm)) === hoje)
+      .sort((a, b) => (b.preenchidoEm ?? '').localeCompare(a.preenchidoEm ?? ''))[0];
+    if (feito) {
+      const hora = new Date(feito.preenchidoEm!).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      const fila = feito.statusSync === 'ENVIADO' ? '' : ' · enviando quando houver sinal';
+      return { estado: 'feito', texto: `Às ${hora} neste celular${feito.condutorNome ? ' · ' + feito.condutorNome : ''}${fila}`, rascunho: false };
+    }
+    const servidor = this.noServidor();
+    if (servidor?.idVeiculo === id && servidor.estado === 'achou') return { estado: 'feito', texto: servidor.texto ?? '', rascunho: false };
+    if (servidor?.idVeiculo === id && servidor.estado === 'procurando') return { estado: 'procurando', texto: '', rascunho: false };
+    const rascunho = locais.some(c => c.statusSync === 'RASCUNHO');
+    return { estado: 'falta', texto: 'Obrigatório antes de abrir o turno', rascunho };
+  });
+  readonly faltaChecklist = computed(() => !!this.checklist() && this.checklist()!.estado !== 'feito');
+
   readonly veiculosFiltrados = computed(() => {
     const q = normalizar(this.busca());
     const lista = this.composicao()?.opcoes.veiculos ?? [];
@@ -213,8 +281,45 @@ export class AbrirTurnoComponent implements OnInit {
       .slice(0, 60);
   });
 
+  constructor() {
+    // Trocou o veículo (ou abriu a tela com sinal): procura no servidor o checklist de hoje feito em outro aparelho.
+    effect(() => {
+      const id = this.veiculo()?.id;
+      const online = this.rede.isOnline();
+      if (id && online) untracked(() => void this.procurarNoServidor(id));
+    });
+  }
+
   async ngOnInit(): Promise<void> {
+    const assinatura = liveQuery(() => this.checklists.listar()).subscribe({ next: lista => this.checklistsLocais.set(lista) });
+    this.destroyRef.onDestroy(() => assinatura.unsubscribe());
+    if (!this.checklists.catalogo()) await this.checklists.carregarCatalogoLocal();
     await this.carregar();
+  }
+
+  fazerChecklist(): void {
+    const id = this.veiculo()?.id;
+    if (!id) return;
+    void this.router.navigate(['/checklist/novo'], { queryParams: { veiculo: id, volta: '/turno/abrir' } });
+  }
+
+  private async procurarNoServidor(idVeiculo: string): Promise<void> {
+    if (this.noServidor()?.idVeiculo === idVeiculo && this.noServidor()?.estado === 'achou') return;
+    this.noServidor.set({ idVeiculo, estado: 'procurando' });
+    try {
+      const hoje = diaLocal();
+      const achado = (await this.checklists.doVeiculo(idVeiculo))
+        .map(i => i.checklist)
+        .find(c => diaLocal(new Date(c.preenchidoEm)) === hoje);
+      if (this.veiculo()?.id !== idVeiculo) return;
+      const hora = achado ? new Date(achado.preenchidoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+      this.noServidor.set(achado
+        ? { idVeiculo, estado: 'achou', texto: `Às ${hora}${achado.preenchidoPor ? ' por ' + achado.preenchidoPor : ''}` }
+        : { idVeiculo, estado: 'nao-achou' });
+    } catch {
+      // Sem resposta do servidor vale o que está no aparelho.
+      if (this.veiculo()?.id === idVeiculo) this.noServidor.set({ idVeiculo, estado: 'nao-achou' });
+    }
   }
 
   async carregar(): Promise<void> {
@@ -290,7 +395,7 @@ export class AbrirTurnoComponent implements OnInit {
   }
 
   async abrirTurno(): Promise<void> {
-    if (this.enviando()) return;
+    if (this.enviando() || this.faltaChecklist()) return;
     this.enviando.set(true);
     this.erro.set(null);
     try {

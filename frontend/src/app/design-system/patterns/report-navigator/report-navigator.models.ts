@@ -87,6 +87,8 @@ export interface CesReportNavigatorItem {
   status?: {
     label: string;
     tone?: CesTone;
+    /** Ícone da situação (PrimeIcons). Sem ele, a tag usa o ícone do tom. */
+    icon?: string;
   };
   /** Autor / Solicitante / Equipe (Linha 3) */
   metaAuthor?: {

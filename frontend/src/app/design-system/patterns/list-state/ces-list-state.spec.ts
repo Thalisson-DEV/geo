@@ -4,7 +4,7 @@ import { Router, provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { Observable, Subject, of } from 'rxjs';
 import { afterEach, describe, expect, it } from 'vitest';
-import { CesListResponse, CesListState, cesFilter, cesListState } from './ces-list-state';
+import { CesListResponse, CesListState, cesFilter, cesListState, readSharedFilter, writeSharedFilter } from './ces-list-state';
 
 const situacoes = [
   { label: 'Vencidos e a vencer', value: 'A_VENCER' },
@@ -18,7 +18,7 @@ interface Doc {
 
 const filtros = () => ({
   situacao: cesFilter.value<string | null>('A_VENCER', { label: 'Situação', options: () => situacoes }),
-  idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => `Base ${id}` }),
+  idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'teste.base', itemLabel: (id) => `Base ${id}` }),
   ativo: cesFilter.value<boolean | null>(true, { label: 'Cadastro', format: (v) => (v === null ? null : v ? 'Somente ativos' : 'Somente desativados') }),
   cpf: cesFilter.value<string | null>(null, { label: 'CPF', url: false }),
   periodo: cesFilter.range({ from: null, to: null }, { label: 'Período' }),
@@ -148,6 +148,24 @@ describe('cesListState', () => {
     const resultado = TestBed.runInInjectionContext(() => lista.results<Doc>(() => of([{ id: 'a' }, { id: 'b' }]), { immediate: true }));
     expect(resultado.rows()).toHaveLength(2);
     expect(resultado.total()).toBe(2);
+  });
+
+  it('filtro comum entre telas: abre na base escolhida em outra tela e grava a troca', async () => {
+    writeSharedFilter('teste.base', 'b1,b2');
+    const { lista } = await abrir('/docs');
+    expect(lista.applied().idsBase).toEqual(['b1', 'b2']);
+
+    lista.set('idsBase', ['b3']);
+    expect(readSharedFilter('teste.base')).toBe('b3');
+
+    lista.set('idsBase', []);
+    expect(readSharedFilter('teste.base')).toBe('');
+  });
+
+  it('a base no link vale mais que a lembrada', async () => {
+    writeSharedFilter('teste.base', 'b1');
+    const { lista } = await abrir('/docs?base=b9');
+    expect(lista.applied().idsBase).toEqual(['b9']);
   });
 });
 

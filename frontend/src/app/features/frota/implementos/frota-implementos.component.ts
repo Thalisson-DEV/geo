@@ -1,3 +1,4 @@
+import { ICONE_SITUACAO } from '../../../core/models/frota.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
@@ -141,9 +142,9 @@ type Modo = 'cadastro' | 'acoplar' | 'desacoplar' | 'historico';
           <span class="ces-cell-muted">{{ row.tipoImplemento }}{{ row.fabricante ? ' · ' + row.fabricante : '' }}{{ row.modelo ? ' ' + row.modelo : '' }}</span>
         </ng-template>
         <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="tomSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
+          <ces-status [tone]="tomSituacao[row.situacao]" [icon]="iconeSituacao[row.situacao]">{{ rotuloSituacao[row.situacao] }}</ces-status>
           @if (!row.ativo) {
-            <ces-status tone="neutral" emphasis="outline">Desativado</ces-status>
+            <ces-status tone="neutral" emphasis="outline" icon="pi-ban">Desativado</ces-status>
           }
         </ng-template>
         <ng-template cesCell="veiculo" let-row>
@@ -151,7 +152,7 @@ type Modo = 'cadastro' | 'acoplar' | 'desacoplar' | 'historico';
             <span class="ces-cell-strong">{{ placa(row.acoplamentoAtual.placa) }}</span>
             <span class="ces-cell-muted">desde {{ row.acoplamentoAtual.inicio | date: 'dd/MM/yyyy' }}</span>
           } @else {
-            <ces-status tone="neutral" emphasis="outline">Livre</ces-status>
+            <ces-status tone="neutral" emphasis="outline" icon="pi-minus-circle">Livre</ces-status>
           }
         </ng-template>
         <ng-template cesRowActions let-row>
@@ -249,7 +250,7 @@ type Modo = 'cadastro' | 'acoplar' | 'desacoplar' | 'historico';
           @if (row.fim) {
             {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
           } @else {
-            <ces-status tone="success">Acoplado</ces-status>
+            <ces-status tone="success" icon="pi-link">Acoplado</ces-status>
           }
         </ng-template>
       </ces-data-table>
@@ -263,6 +264,7 @@ export class FrotaImplementosComponent {
   protected readonly acesso = acessoFrota();
 
   protected readonly tomSituacao: Record<string, CesTone> = TOM_SITUACAO;
+  protected readonly iconeSituacao: Record<string, string> = ICONE_SITUACAO;
   protected readonly rotuloSituacao: Record<string, string> = ROTULO_SITUACAO;
   protected readonly placa = formatarPlaca;
   protected readonly hoje = new Date();
@@ -309,8 +311,9 @@ export class FrotaImplementosComponent {
   );
   protected readonly lista = cesListState({
     storageKey: 'frota-implementos',
+    rememberFilters: 'frota-implementos',
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       idsTipoImplemento: cesFilter.list<string>([], {
         label: 'Tipo',
         param: 'tipo',

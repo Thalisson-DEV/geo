@@ -61,6 +61,7 @@ class OperacaoSolicitacaoComercialServiceTest {
     @Mock private EquipeApi equipeApi;
     @Mock private DebitoSaldoService debitoSaldoService;
     @Mock private EstoqueRepository estoqueRepository;
+    @Mock private com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
     @InjectMocks private OperacaoSolicitacaoComercialService service;
 
     @Test

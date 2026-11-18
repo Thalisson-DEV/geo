@@ -7,6 +7,9 @@ describe('navegação da Bússola', () => {
 
   it('publica exatamente as 86 chaves ativas do catálogo 1.1', () => {
     expect(Object.keys(COPILOTO_DESTINOS)).toHaveLength(86);
+    // Lista e editor das automações, como no navigation-actions.yaml do backend.
+    expect(COPILOTO_DESTINOS['AUTOMACOES'].routeAuthority).toBe('automacao:read');
+    expect(COPILOTO_DESTINOS['AUTOMACAO_EDITOR'].routeAuthority).toBe('automacao:manage');
     // Espelha navigation-actions.yaml do backend (cadastro de tipos de serviço).
     expect(COPILOTO_DESTINOS['EXECUCAO_TIPOS_SERVICO'].routeAuthority).toBe('execucao:tipo-servico:read');
     for (const blocked of [

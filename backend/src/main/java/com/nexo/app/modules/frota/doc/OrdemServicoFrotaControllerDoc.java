@@ -2,6 +2,7 @@ package com.nexo.app.modules.frota.doc;
 
 import com.nexo.app.modules.frota.application.dto.AbrirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.AgendarOrdemServicoRequest;
+import com.nexo.app.modules.frota.application.dto.BaixaOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.ConcluirOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.EditarOrdemServicoRequest;
 import com.nexo.app.modules.frota.application.dto.FornecedorFrotaResponse;
@@ -53,8 +54,17 @@ public interface OrdemServicoFrotaControllerDoc {
     ResponseEntity<OrdemServicoDetalheResponse> alterarPrevisao(UUID id, PrevisaoOrdemServicoRequest request);
 
     @Operation(summary = "Concluir", description = "Pode concluir direto de pendente ou agendada (serviço já realizado). "
-            + "Grava a repetição de cada item e o KM no odômetro.")
+            + "Grava a repetição de cada item e o KM no odômetro. Se faltar valor de algum serviço ou peça (ou, sem "
+            + "lançamentos, o valor da OS), ela fica com valores pendentes e finaliza sozinha quando o último valor entra.")
     ResponseEntity<OrdemServicoDetalheResponse> concluir(UUID id, ConcluirOrdemServicoRequest request);
+
+    @Operation(summary = "Completar a conclusão", description = "Causa, serviço realizado, oficina e valor da OS concluída "
+            + "com valores pendentes. Sem mais nada faltando, a OS fica finalizada e a execução não aceita mais lançamentos.")
+    ResponseEntity<OrdemServicoDetalheResponse> completarConclusao(UUID id, BaixaOrdemServicoRequest request);
+
+    @Operation(summary = "Voltar para em andamento", description = "A OS concluída volta para em andamento (ex.: problema no teste). "
+            + "A finalização é desfeita para ser revista e o veículo volta a contar como parado.")
+    ResponseEntity<OrdemServicoDetalheResponse> reabrir(UUID id, JustificativaRequest request);
 
     @Operation(summary = "Cancelar", description = "Recusado enquanto houver compra ou pagamento em rascunho ou aguardando aprovação.")
     ResponseEntity<OrdemServicoDetalheResponse> cancelar(UUID id, JustificativaRequest request);

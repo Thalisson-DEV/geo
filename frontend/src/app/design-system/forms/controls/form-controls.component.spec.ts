@@ -379,6 +379,39 @@ describe('GEO form controls', () => {
     expect(input.value).toBe('10/10/2026');
   });
 
+  it('número obrigatório vazio continua vazio (não vira 0)', async () => {
+    await configure(CesNumberInputComponent);
+    const fixture = TestBed.createComponent(CesNumberInputComponent);
+    fixture.componentRef.setInput('label', 'KM na revisão');
+    fixture.componentRef.setInput('required', true);
+    fixture.componentRef.setInput('suffix', ' km');
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    input.dispatchEvent(new Event('blur'));
+    fixture.detectChanges();
+    expect(input.value).toBe('');
+    expect(fixture.componentInstance.value()).toBeNull();
+  });
+
+  it('datepicker abre no clique, não no foco, e anda de 5 em 5 minutos', async () => {
+    await configure(CesDatepickerComponent);
+    const fixture = TestBed.createComponent(CesDatepickerComponent);
+    fixture.componentRef.setInput('label', 'Agendada para');
+    fixture.componentRef.setInput('showTime', true);
+    fixture.detectChanges();
+    const datepicker = fixture.debugElement.query(By.directive(DatePicker)).componentInstance as DatePicker;
+    const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+    expect(datepicker.stepMinute).toBe(5);
+
+    input.focus();
+    input.dispatchEvent(new FocusEvent('focus'));
+    expect(datepicker.overlayVisible).toBeFalsy();
+
+    input.click();
+    expect(datepicker.overlayVisible).toBe(true);
+  });
+
   it('datepicker não reemite o mesmo instante (evita laço com Date recriado a cada leitura)', async () => {
     await configure(CesDatepickerComponent);
     const fixture = TestBed.createComponent(CesDatepickerComponent);

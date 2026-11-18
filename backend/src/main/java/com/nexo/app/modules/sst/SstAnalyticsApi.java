@@ -32,6 +32,23 @@ public interface SstAnalyticsApi {
             OffsetDateTime inicioInclusivo,
             OffsetDateTime fimExclusivo);
 
+    /**
+     * Eventos não cancelados com veículo informado, ocorridos em {@code [inicio, fim)}: acidente,
+     * dano material ou incidente com um veículo da frota.
+     */
+    List<EventoComVeiculo> listarEventosComVeiculo(
+            OffsetDateTime inicioInclusivo,
+            OffsetDateTime fimExclusivo);
+
+    record EventoComVeiculo(
+            UUID idEvento,
+            UUID idVeiculo,
+            String tipo,
+            String rotuloTipo,
+            OffsetDateTime ocorridoEm,
+            int diasPerdidos) {
+    }
+
     record MediaMensalInspecoes(
             String metrica,
             String versao,

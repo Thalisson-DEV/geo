@@ -1,6 +1,6 @@
 import { DateMaskDirective } from '../../../shared/directives/date-mask.directive';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, ViewChild, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, ViewChild, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -275,7 +275,7 @@ interface Inspecionado {
             </div>
 
             <!-- Evidência fotográfica: obrigatória, sobe antes do lançamento -->
-            <app-evidencias-inspecao-upload #evidencias></app-evidencias-inspecao-upload>
+            <app-evidencias-inspecao-upload #evidencias class="block scroll-mt-24"></app-evidencias-inspecao-upload>
           }
         </div>
       </div>
@@ -303,16 +303,55 @@ interface Inspecionado {
           </div>
         } @else {
           <div class="flex flex-col gap-4 md:gap-6">
+            <!-- Progresso do checklist -->
+            @if (progresso(); as pg) {
+              <div class="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm px-4 md:px-5 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex flex-col gap-1.5 min-w-0 flex-1">
+                  <div class="flex items-center gap-3 flex-wrap text-[11px]">
+                    <span class="font-medium text-slate-800 dark:text-slate-100">{{ pg.respondidas }} de {{ pg.total }} respondidas</span>
+                    @if (pg.naoConformes) {
+                      <span class="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400"><i class="pi pi-exclamation-triangle text-[10px]"></i>{{ pg.naoConformes }} {{ pg.naoConformes === 1 ? 'não conformidade' : 'não conformidades' }}</span>
+                    } @else {
+                      <span class="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400"><i class="pi pi-check-circle text-[10px]"></i>Nenhuma não conformidade</span>
+                    }
+                  </div>
+                  <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden" role="progressbar" [attr.aria-valuenow]="pg.respondidas" [attr.aria-valuemax]="pg.total" aria-label="Perguntas respondidas">
+                    <div class="h-full bg-primary-600 transition-all" [style.width.%]="pg.total ? (pg.respondidas * 100) / pg.total : 0"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                  <ces-boolean-control kind="toggle" [inline]="true" label="Só não conformes" [value]="soNaoConformes()" (valueChange)="soNaoConformes.set($event)"></ces-boolean-control>
+                  <p-button [text]="true" size="small" [icon]="todosRecolhidos() ? 'pi pi-angle-double-down' : 'pi pi-angle-double-up'" [label]="todosRecolhidos() ? 'Abrir grupos' : 'Recolher grupos'" (onClick)="alternarTodosGrupos()" styleClass="!text-[11px]"></p-button>
+                </div>
+              </div>
+            }
             @for (grupo of formulario()!.grupos; track grupo.id; let gi = $index) {
+              @let rg = resumoGrupo(grupo);
+              @if (!soNaoConformes() || rg.naoConformes > 0) {
               <div class="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <!-- Cabeçalho do grupo -->
-                <div class="bg-slate-100 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 px-4 md:px-5 py-3 md:py-3.5">
-                  <span class="text-[13px] font-medium text-slate-800 dark:text-slate-100">{{ formatarNumero(gi + 1) }}. {{ grupo.titulo }}</span>
+                <div class="bg-slate-100 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 px-4 md:px-5 py-2.5 md:py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <button type="button" class="flex items-center gap-2 text-left min-w-0" (click)="alternarGrupo(grupo.id)" [attr.aria-expanded]="!grupoRecolhido(grupo.id)">
+                    <i class="pi text-[10px] text-slate-500 shrink-0" [ngClass]="grupoRecolhido(grupo.id) ? 'pi-chevron-right' : 'pi-chevron-down'"></i>
+                    <span class="text-[13px] font-medium text-slate-800 dark:text-slate-100">{{ formatarNumero(gi + 1) }}. {{ grupo.titulo }}</span>
+                    <span class="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">{{ rg.respondidas }}/{{ rg.total }}</span>
+                    @if (rg.naoConformes) {
+                      <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 shrink-0">{{ rg.naoConformes }} NC</span>
+                    }
+                  </button>
+                  @if (rg.checklist) {
+                    <div class="flex items-center gap-1 shrink-0">
+                      <p-button [text]="true" size="small" icon="pi pi-check" label="Tudo conforme" (onClick)="marcarGrupo(grupo, 'conforme')" pTooltip="Marca Conforme nos itens do grupo que não estão como não conformes" styleClass="!text-[10px] !py-1"></p-button>
+                      <p-button [text]="true" size="small" icon="pi pi-minus-circle" label="Não se aplica" (onClick)="marcarGrupo(grupo, 'não se aplica')" pTooltip="Marca Não se aplica em todos os itens do grupo (ex.: equipe sem kit SMC)" styleClass="!text-[10px] !py-1 !text-slate-500"></p-button>
+                    </div>
+                  }
                 </div>
 
                 <!-- Perguntas -->
+                @if (!grupoRecolhido(grupo.id)) {
                 <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
                   @for (pergunta of grupo.perguntas; track pergunta.id; let pi = $index) {
+                    @if (!soNaoConformes() || temNaoConforme(pergunta)) {
                     <div class="px-4 md:px-5 py-4 md:py-5 bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                       @if (isObjetivo(pergunta.tipoResposta)) {
                         <div class="flex flex-col gap-4">
@@ -323,10 +362,14 @@ interface Inspecionado {
                                 @if (pergunta.obrigatoria) { <span class="text-red-500 ml-1" pTooltip="Obrigatório">*</span> }
                               </span>
                             </div>
-                            <!-- Opções em caixas de seleção (Coluna única) -->
-                            <div class="flex flex-col gap-0.5 ml-4">
+                            @if (pergunta.orientacao) {
+                              <span class="ml-4 -mt-1 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-[10px]"></i>{{ pergunta.orientacao }}</span>
+                            }
+                            <!-- Opções: checklist lado a lado; demais em coluna -->
+                            <div class="flex ml-4" [ngClass]="ehChecklist(pergunta) ? 'flex-row flex-wrap gap-1.5' : 'flex-col gap-0.5'" role="group" [attr.aria-label]="pergunta.enunciado">
                               @for (opcao of pergunta.opcoes; track opcao.id) {
-                                <button type="button" (click)="toggleOpcao(pergunta, opcao.id, opcao.geraDesvio)"
+                                <button type="button" (click)="toggleOpcao(pergunta, opcao.id, opcao.geraDesvio)" [attr.aria-pressed]="isOpcaoSelecionada(pergunta.id, opcao.id)"
+                                  [ngClass]="ehChecklist(pergunta) ? 'checklist-opcao' : ''"
                                   class="group flex items-start gap-2.5 text-left py-2 px-2 -mx-1.5 rounded-md transition-colors"
                                   [ngClass]="isOpcaoSelecionada(pergunta.id, opcao.id) ? (opcao.geraDesvio ? 'text-red-700 dark:text-red-400 font-medium bg-red-50 dark:bg-red-950/40' : 'text-primary-700 dark:text-primary-300 font-medium bg-primary-50 dark:bg-primary-950/40') : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'">
                                   <div class="w-3.5 h-3.5 mt-0.5 rounded-sm border shrink-0 flex-none"
@@ -414,8 +457,8 @@ interface Inspecionado {
                                     <p-datepicker [(ngModel)]="dv.prazo" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small" styleClass="doc-date w-full"></p-datepicker>
                                   </div>
                                   <div class="flex flex-col gap-1.5">
-                                    <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}"><i class="pi pi-users"></i> Responsáveis <span class="normal-case font-normal opacity-75">(inspecionados)</span></label>
-                                    <p-multiSelect [options]="inspecionados()" size="small" [(ngModel)]="dv.colaboradores" optionLabel="nome" optionValue="id" placeholder="Atribuir a..." appendTo="body" styleClass="doc-multiselect w-full"></p-multiSelect>
+                                    <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}"><i class="pi pi-users"></i> Responsáveis <span class="normal-case font-normal opacity-75">{{ pergunta.desvioPorColaborador === false ? '(opcional: item da equipe ou do veículo)' : '(inspecionados)' }}</span>@if (pergunta.desvioPorColaborador !== false) { <span class="text-red-500 ml-0.5">*</span> }</label>
+                                    <p-multiSelect [options]="inspecionados()" size="small" [(ngModel)]="dv.colaboradores" optionLabel="nome" optionValue="id" [placeholder]="pergunta.desvioPorColaborador === false ? 'Equipe, sem pessoa específica' : 'Atribuir a...'" appendTo="body" styleClass="doc-multiselect w-full"></p-multiSelect>
                                   </div>
                                 </div>
                               </div>
@@ -467,6 +510,9 @@ interface Inspecionado {
                             @if (pergunta.obrigatoria) { <span class="text-red-500 ml-1" pTooltip="Obrigatório">*</span> }
                           </span>
                         </div>
+                        @if (pergunta.orientacao) {
+                          <span class="ml-4 -mt-1.5 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-[10px]"></i>{{ pergunta.orientacao }}</span>
+                        }
                         <div class="ml-4 md:ml-6 mt-1">
                           @if (pergunta.tipoResposta === 'TEXTO') {
                             <textarea pTextarea [(ngModel)]="respostas[pergunta.id].valorTexto" rows="2" placeholder="Digite sua resposta..." class="doc-textarea w-full md:max-w-2xl bg-white dark:bg-slate-900 focus:bg-slate-50 dark:focus:bg-slate-800/80 transition-colors"></textarea>
@@ -481,9 +527,12 @@ interface Inspecionado {
                       </div>
                     }
                   </div>
+                    }
                 }
               </div>
+                }
             </div>
+              }
           }
         </div>
         }
@@ -491,10 +540,17 @@ interface Inspecionado {
     </div>
 
     @if (formulario() && podePreencherChecklist()) {
-      <div class="fixed inset-x-0 bottom-0 z-30 px-4 pb-4 pt-6 pointer-events-none bg-gradient-to-t from-white via-white to-transparent dark:from-slate-950 dark:via-slate-950/80 dark:to-transparent md:inset-x-auto md:right-12 md:bottom-6 md:p-0 md:bg-none">
-        <!-- O tooltip vai no wrapper: botão desabilitado não dispara eventos de mouse. -->
-        <span class="pointer-events-auto block md:inline-block" [pTooltip]="motivoBloqueioLancamento()" tooltipPosition="top">
-          <p-button [label]="isModoEdicao() ? 'Salvar Alterações' : 'Registrar Inspeção'" icon="pi pi-check-circle" [loading]="saving()" [disabled]="!podeLancar()" (onClick)="lancar()" styleClass="!w-full md:!w-auto !justify-center !rounded-xl !bg-primary-700 hover:!bg-primary-800 dark:!bg-primary-600 dark:hover:!bg-primary-500 !border-primary-700 dark:!border-primary-600 !text-white !font-medium !text-[11px] !tracking-widest !uppercase !px-6 !py-3 transition-all"></p-button>
+      <div class="fixed inset-x-0 bottom-0 z-30 px-4 pb-4 pt-6 pointer-events-none bg-gradient-to-t from-white via-white to-transparent dark:from-slate-950 dark:via-slate-950/80 dark:to-transparent md:inset-x-auto md:right-12 md:bottom-6 md:p-0 md:bg-none md:flex md:flex-col md:items-end">
+        <!-- O motivo fica visível e o botão continua clicável: desabilitado em silêncio,
+             o inspetor clicava, nada acontecia e ele recarregava achando que tinha lançado. -->
+        @if (motivoBloqueioLancamento(); as motivo) {
+          <p class="pointer-events-auto mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-800 shadow-sm dark:border-amber-800/60 dark:bg-amber-950/60 dark:text-amber-200 md:max-w-xs" role="status">
+            <i class="pi pi-exclamation-triangle mt-0.5 text-[11px]" aria-hidden="true"></i>
+            <span>{{ motivo }}</span>
+          </p>
+        }
+        <span class="pointer-events-auto block md:inline-block">
+          <p-button [label]="isModoEdicao() ? 'Salvar Alterações' : 'Registrar Inspeção'" icon="pi pi-check-circle" [loading]="saving()" [disabled]="saving() || !!evidenciasUpload?.enviando()" (onClick)="lancar()" styleClass="!w-full md:!w-auto !justify-center !rounded-xl !bg-primary-700 hover:!bg-primary-800 dark:!bg-primary-600 dark:hover:!bg-primary-500 !border-primary-700 dark:!border-primary-600 !text-white !font-medium !text-[11px] !tracking-widest !uppercase !px-6 !py-3 transition-all"></p-button>
         </span>
       </div>
     }
@@ -608,6 +664,7 @@ interface Inspecionado {
     </app-help-dialog>
   `,
   styles: [`
+    .checklist-opcao { margin-left: 0; margin-right: 0; padding-left: .75rem; padding-right: .75rem; border: 1px solid var(--p-content-border-color); align-items: center; }
     :host ::ng-deep {
       .doc-input.p-inputtext, .doc-textarea.p-inputtext,
       .doc-select .p-select-label, .doc-select .p-select-placeholder,
@@ -697,6 +754,7 @@ export class InspecaoFormComponent implements OnInit {
   @ViewChild('localPicker') localPicker!: LocationPickerDialogComponent;
   @ViewChild('helpDialog') helpDialog!: HelpDialogComponent;
   @ViewChild('evidencias') evidenciasUpload?: EvidenciasInspecaoUploadComponent;
+  @ViewChild('evidencias', { read: ElementRef }) private evidenciasEl?: ElementRef<HTMLElement>;
 
   private sst = inject(SstService);
   private rh = inject(RhService);
@@ -1219,6 +1277,93 @@ export class InspecaoFormComponent implements OnInit {
     return `${idPergunta}:${idOpcao}`;
   }
 
+  // ---------- navegação do checklist ----------
+  protected readonly soNaoConformes = signal(false);
+  private readonly recolhidos = signal<ReadonlySet<string>>(new Set());
+
+  protected grupoRecolhido(id: string): boolean {
+    return this.recolhidos().has(id);
+  }
+
+  protected alternarGrupo(id: string): void {
+    const novo = new Set(this.recolhidos());
+    if (novo.has(id)) novo.delete(id);
+    else novo.add(id);
+    this.recolhidos.set(novo);
+  }
+
+  protected todosRecolhidos(): boolean {
+    const grupos = this.formulario()?.grupos ?? [];
+    return grupos.length > 0 && grupos.every((g) => this.recolhidos().has(g.id));
+  }
+
+  protected alternarTodosGrupos(): void {
+    this.recolhidos.set(this.todosRecolhidos() ? new Set() : new Set((this.formulario()?.grupos ?? []).map((g) => g.id)));
+  }
+
+  /** Checklist C/NC/NA: até três opções, uma delas "Conforme" e outra gerando desvio. */
+  protected ehChecklist(p: PerguntaResponse): boolean {
+    return p.tipoResposta === 'MULTIPLA_ESCOLHA' && p.opcoes.length <= 3 && p.opcoes.some((o) => o.geraDesvio)
+      && p.opcoes.some((o) => this.normalizar(o.texto) === 'conforme');
+  }
+
+  protected temNaoConforme(p: PerguntaResponse): boolean {
+    return p.opcoes.some((o) => o.geraDesvio && this.isOpcaoSelecionada(p.id, o.id));
+  }
+
+  private respondida(p: PerguntaResponse): boolean {
+    const r = this.respostas[p.id];
+    if (!r) return false;
+    if (isTipoObjetivo(p.tipoResposta)) return r.opcoesSelecionadas.length > 0;
+    if (p.tipoResposta === 'TEXTO') return !!r.valorTexto?.trim();
+    if (p.tipoResposta === 'NUMERO') return r.valorNumero !== null && r.valorNumero !== undefined;
+    return !!r.valorData;
+  }
+
+  protected resumoGrupo(g: FormularioInspecaoResponse['grupos'][number]): { total: number; respondidas: number; naoConformes: number; checklist: boolean } {
+    let respondidas = 0;
+    let naoConformes = 0;
+    for (const p of g.perguntas) {
+      if (this.respondida(p)) respondidas++;
+      if (this.temNaoConforme(p)) naoConformes++;
+    }
+    return { total: g.perguntas.length, respondidas, naoConformes, checklist: g.perguntas.filter((p) => this.ehChecklist(p)).length > 1 };
+  }
+
+  protected progresso(): { total: number; respondidas: number; naoConformes: number } {
+    const total = { total: 0, respondidas: 0, naoConformes: 0 };
+    for (const g of this.formulario()?.grupos ?? []) {
+      const r = this.resumoGrupo(g);
+      total.total += r.total;
+      total.respondidas += r.respondidas;
+      total.naoConformes += r.naoConformes;
+    }
+    return total;
+  }
+
+  /** Marca a mesma resposta nos itens de checklist do grupo; "conforme" preserva as não conformidades já lançadas. */
+  protected marcarGrupo(g: FormularioInspecaoResponse['grupos'][number], texto: 'conforme' | 'não se aplica'): void {
+    for (const p of g.perguntas) {
+      if (!this.ehChecklist(p)) continue;
+      if (texto === 'conforme' && this.temNaoConforme(p)) continue;
+      const opcao = p.opcoes.find((o) => this.normalizar(o.texto) === texto);
+      if (!opcao || this.isOpcaoSelecionada(p.id, opcao.id)) continue;
+      this.toggleOpcao(p, opcao.id, opcao.geraDesvio);
+    }
+  }
+
+  protected exigeColaborador(idPergunta: string): boolean {
+    for (const g of this.formulario()?.grupos ?? []) {
+      const p = g.perguntas.find((x) => x.id === idPergunta);
+      if (p) return p.desvioPorColaborador !== false;
+    }
+    return true;
+  }
+
+  private normalizar(texto: string): string {
+    return texto.trim().toLowerCase();
+  }
+
   protected isOpcaoSelecionada(idPergunta: string, idOpcao: string): boolean {
     return this.respostas[idPergunta]?.opcoesSelecionadas.includes(idOpcao) ?? false;
   }
@@ -1369,10 +1514,6 @@ export class InspecaoFormComponent implements OnInit {
     return '';
   }
 
-  protected podeLancar(): boolean {
-    return !!this.evidenciasUpload?.temEvidencia() && !this.evidenciasUpload?.enviando();
-  }
-
   private validar(): string | null {
     if (!this.idFormulario) return 'Selecione um formulário.';
     if (!this.idTipoInspecao) return 'Selecione o tipo de inspeção.';
@@ -1401,7 +1542,7 @@ export class InspecaoFormComponent implements OnInit {
     }
 
     for (const dv of Object.values(this.desvios)) {
-      if (dv.colaboradores.length === 0) return 'Atribua ao menos um colaborador a cada desvio.';
+      if (dv.colaboradores.length === 0 && this.exigeColaborador(dv.idPergunta)) return 'Atribua ao menos um colaborador a cada desvio.';
       if (dv.tratadoInLoco && !dv.acaoCorretiva?.trim()) {
         return 'Informe a ação corretiva realizada no local para o desvio marcado como tratado in-loco.';
       }
@@ -1415,7 +1556,10 @@ export class InspecaoFormComponent implements OnInit {
   protected lancar() {
     const erro = this.validar();
     if (erro) {
-      this.messageService.add({ severity: 'warn', summary: 'Revise a inspeção', detail: erro });
+      this.messageService.add({ severity: 'warn', summary: 'Inspeção ainda não registrada', detail: erro });
+      if (erro === this.motivoBloqueioLancamento()) {
+        this.evidenciasEl?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       return;
     }
 

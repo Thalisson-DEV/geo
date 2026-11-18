@@ -1,0 +1,186 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Solicitações comerciais" icon="pi pi-shopping-cart"
+      [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Solicitações comerciais' }]"
+      description="Pedidos das equipes comerciais da aprovação à retirada: onde trava, quem não retira, o que falta atender e quanto tempo leva.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (dados(); as d) { <span actions class="dash-updated">Calculado às {{ d.geradoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="almox-rel-comerciais" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-almox-recorte-campos prefixo="apc" />
+        <ces-multiselect label="Situação" inputId="apc-situacao" placeholder="Todas" [options]="opcoesSituacao" [filter]="false"
+          [value]="situacoesSel()" (valueChange)="situacoesSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Etapa atual" inputId="apc-etapa" placeholder="Todas" [options]="opcoesEtapa()" [filter]="false"
+          [value]="etapasSel()" (valueChange)="etapasSel.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <app-almox-painel-topo [descricao]="recorte.descricaoPeriodo(recorte.aplicado().de ? { de: recorte.aplicado().de!, ate: recorte.aplicado().ate! } : null) + ' · pela data do pedido'"
+      (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !r()) {
+      <ces-async-state state="loading" title="Lendo as solicitações comerciais" description="Pedidos do período e os abertos de antes dele."></ces-async-state>
+    } @else if (erro() && !r()) {
+      <ces-async-state state="error" title="Não foi possível ler as solicitações" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (r(); as r) {
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+      @if (dados()?.truncado) {
+        <ces-callout tone="info" icon="pi pi-info-circle" title="Período grande demais">Há mais solicitações que o limite de leitura; reduza o período.</ces-callout>
+      }
+
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+      }
+
+      @if (!ind().total && !r.abertas.length) {
+        <ces-async-state state="empty" title="Nenhuma solicitação comercial neste recorte" description="Amplie o período ou retire filtros."
+          actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></ces-async-state>
+      } @else {
+        <section class="dash-metrics" aria-label="Fila">
+          <app-dashboard-metric-card label="Pedidos no período" icon="pi-inbox" tone="primary" [value]="inteiro(ind().total)"
+            [detail]="varVolume() !== null ? variacao(varVolume()) + ' sobre o anterior' : inteiro(ind().porDia) + ' por dia'"
+            actionLabel="Analisar" (activate)="analisar('kpi', 'volume')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'total', rotulo: 'Pedidos no período' }" />
+          </app-dashboard-metric-card>
+          <app-dashboard-metric-card label="Em aberto agora" icon="pi-clock" tone="slate" [value]="inteiro(r.abertas.length)"
+            [detail]="r.backlog.length ? inteiro(r.backlog.length) + ' de antes do período' : 'Todos do período'" actionLabel="Ver a fila" (activate)="analisar('kpi', 'abertas')" />
+          <app-dashboard-metric-card label="Atrasados" icon="pi-exclamation-triangle" [tone]="tomAtraso()" [value]="inteiro(atrasadas().length)"
+            detail="Passaram da data prevista de saque" actionLabel="Ver os atrasados" (activate)="analisar('kpi', 'atrasadas')" />
+          <app-dashboard-metric-card label="Aprovado e não retirado" icon="pi-truck" [tone]="aguardandoRetirada().length ? 'amber' : 'green'" [value]="inteiro(aguardandoRetirada().length)"
+            [detail]="inteiro(comSaldoPendente().length) + ' entregues em parte, esperando o resto'" actionLabel="Ver a etapa" (activate)="analisar('etapa', 'PENDENTE_RETIRADA')" />
+        </section>
+        <section class="dash-metrics" aria-label="Desempenho">
+          <app-dashboard-metric-card label="Aprovação" icon="pi-check-square" tone="slate" [value]="tempo(ind().aprovacaoMediana)"
+            [detail]="varAprovacao() !== null ? 'Mediana · ' + variacao(varAprovacao()) + ' sobre o anterior' : 'Tempo mediano até aprovar'"
+            actionLabel="Analisar" (activate)="analisar('kpi', 'aprovacao')" />
+          <app-dashboard-metric-card label="Ciclo do pedido" icon="pi-stopwatch" tone="slate" [value]="tempo(ind().cicloMediana)"
+            [detail]="ind().cicloP90 !== null ? '90% em até ' + tempo(ind().cicloP90) : 'Do pedido à entrega'"
+            actionLabel="Analisar" (activate)="analisar('kpi', 'ciclo')" />
+          <app-dashboard-metric-card label="Quantidade atendida" icon="pi-percentage" [tone]="(ind().atendimento ?? 100) < 90 ? 'amber' : 'green'" [value]="percentual(ind().atendimento)"
+            detail="Entregue sobre o pedido, nos concluídos" actionLabel="Ver o atendimento" (activate)="analisar('kpi', 'atendimento')"
+            [progress]="ind().atendimento" />
+          <app-dashboard-metric-card label="Rejeitados" icon="pi-times-circle" [tone]="(ind().taxaRecusa ?? 0) >= 10 ? 'amber' : 'slate'" [value]="percentual(ind().taxaRecusa)"
+            [detail]="plural(ind().recusadas, 'pedido rejeitado ou cancelado', 'pedidos rejeitados ou cancelados')" actionLabel="Ver as recusas" (activate)="analisar('kpi', 'recusas')" />
+        </section>
+
+        <section class="dash-grid" aria-label="Fila em aberto">
+          <article class="dash-panel dash-col-6">
+            <header class="dash-panel__header">
+              <div><span class="dash-eyebrow">Gargalo</span><h2>Onde a fila está parada</h2><p>Pedidos abertos por etapa, separando os atrasados. Clique numa etapa.</p></div>
+              <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'etapas', rotulo: 'Abertas por etapa' }" />
+            </header>
+            <ces-chart kind="bar-stacked" title="Abertas por etapa" [showTitle]="false" [selectable]="true" selectLabel="Analisar a etapa"
+              [labels]="graficoFluxo().rotulos" [series]="graficoFluxo().series" valueFormat="integer" [height]="240" (pointSelect)="analisarEtapa($event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-6">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Idade</span><h2>Há quanto tempo esperam</h2><p>Abertos pela idade do pedido. Clique numa faixa.</p></div></header>
+            <ces-chart kind="bar-stacked" title="Abertas por idade" [showTitle]="false" [selectable]="true" selectLabel="Analisar a faixa"
+              [labels]="graficoIdade().rotulos" [series]="graficoIdade().series" valueFormat="integer" [height]="240" (pointSelect)="analisarIdade($event.index)"></ces-chart>
+          </article>
+        </section>
+
+        @if (serie(); as s) {
+          <section class="dash-grid pf-grid-espaco" aria-label="Volume">
+            <article class="dash-panel dash-col-8">
+              <header class="dash-panel__header"><div><span class="dash-eyebrow">Volume</span><h2>Pedidos por dia</h2><p>Pela data do pedido e como cada um está hoje. Clique num dia.</p></div></header>
+              <ces-chart kind="bar-stacked" title="Pedidos por dia" [showTitle]="false" [selectable]="true" selectLabel="Analisar o dia"
+                [labels]="s.rotulos" [series]="s.series" valueFormat="integer" [height]="280" (pointSelect)="analisarDia($event.index)"></ces-chart>
+            </article>
+            <article class="dash-panel dash-col-4">
+              <header class="dash-panel__header"><div><span class="dash-eyebrow">Tempo</span><h2>Do pedido à entrega</h2><p>Concluídos por faixa de tempo.</p></div></header>
+              <ces-chart kind="bar" title="Concluídos por faixa de ciclo" [showTitle]="false" [selectable]="true" selectLabel="Analisar o ciclo"
+                [labels]="ciclo().rotulos" [series]="ciclo().series" valueFormat="integer" [height]="280" (pointSelect)="analisar('kpi', 'ciclo')"></ces-chart>
+            </article>
+          </section>
+        }
+
+        <section class="pf-secao" aria-labelledby="apc-atencao">
+          <header><span class="dash-eyebrow">Agir</span><h2 id="apc-atencao">Pedidos que pedem ação</h2>
+            <p>Abertos do mais atrasado para o mais antigo. Abra a linha para ir à solicitação.</p></header>
+          <ces-data-table title="Fila de atenção" storageKey="apc-atencao" exportFileName="solicitacoes-comerciais-atencao"
+            [columns]="colAtencao" [rows]="atencao()" [rowKey]="chaveSolicitacao" [rowLabel]="rotuloSolicitacao" searchPlaceholder="Filtrar equipe, etapa ou pendência"
+            rowActionLabel="Abrir a solicitação" (rowActivate)="abrirSolicitacao($event)"
+            [state]="atencao().length ? 'ready' : 'empty'" stateTitle="Nenhum pedido em aberto">
+            <ng-template cesCell="etapa" let-l><ces-status [tone]="tomEtapa(l)" [icon]="iconeEtapa(l)">{{ rotuloEtapa($any(l).etapa) }}</ces-status></ng-template>
+            <ng-template cesCell="atraso" let-l>
+              @if (diasAtraso(l)) { <ces-status tone="danger" emphasis="outline" icon="pi pi-history">{{ plural(diasAtraso(l), 'dia', 'dias') }}</ces-status> }
+              @else { <ces-status tone="success" icon="pi pi-check">No prazo</ces-status> }
+            </ng-template>
+          </ces-data-table>
+        </section>
+
+        <section class="dash-grid pf-grid-espaco" aria-label="Equipes">
+          <article class="dash-panel dash-col-12">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Equipes</span><h2>Quem pede e como está</h2>
+              <p>Pedidos do período por situação e os abertos de antes. Clique numa equipe para analisá-la.</p></div></header>
+            <ces-chart kind="bar-stacked" title="Pedidos por equipe" [showTitle]="false" [selectable]="true" selectLabel="Analisar a equipe"
+              [labels]="graficoEquipes().rotulos" [series]="graficoEquipes().series" valueFormat="integer" [height]="300" (pointSelect)="analisarEquipe($event.index)"></ces-chart>
+          </article>
+        </section>
+        <section class="pf-secao">
+          <ces-data-table title="Equipes" description="Volume, fila, atrasos, conclusão, ciclo e quantidade atendida." storageKey="apc-equipes"
+            exportFileName="solicitacoes-comerciais-equipes" [columns]="colRanking" [rows]="equipes()" [rowKey]="chaveRanking" searchPlaceholder="Filtrar equipe"
+            rowActionLabel="Analisar" (rowActivate)="analisar('equipe', $event.chave)"></ces-data-table>
+        </section>
+
+        <section class="dash-grid pf-grid-espaco" aria-label="Materiais">
+          <article class="dash-panel dash-col-7">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Falta</span><h2>Materiais menos atendidos</h2>
+              <p>Pedidos ao menos 3 vezes e entregues abaixo do pedido. É o que falta no almoxarifado para o comercial.</p></div></header>
+            @if (menosAtendidos().length) {
+              <ces-chart kind="bar-horizontal" title="Materiais menos atendidos" [showTitle]="false" [selectable]="true" selectLabel="Ver o atendimento"
+                [labels]="graficoMenosAtendidos().rotulos" [series]="graficoMenosAtendidos().series" valueFormat="percent" [height]="Math.max(200, menosAtendidos().length * 30)"
+                (pointSelect)="analisar('kpi', 'atendimento')"></ces-chart>
+            } @else {
+              <ces-async-state state="empty" title="Tudo atendido" description="Os materiais pedidos saíram na quantidade pedida."></ces-async-state>
+            }
+          </article>
+          <article class="dash-panel dash-col-5">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Motivos</span><h2>Rejeições e pendências</h2><p>Clique num motivo para ver os pedidos.</p></div></header>
+            @if (motivosRejeicao().length) {
+              <ces-chart kind="bar-horizontal" title="Motivos de rejeição" [showTitle]="true" [selectable]="true" selectLabel="Ver os pedidos"
+                [labels]="rotulosDe(motivosRejeicao())" [series]="[{ name: 'Rejeitados', values: totaisDe(motivosRejeicao()) }]" valueFormat="integer"
+                [height]="Math.max(140, motivosRejeicao().length * 34)" (pointSelect)="analisarRejeicao($event.index)"></ces-chart>
+            }
+            @if (motivosPendencia().length) {
+              <ces-chart kind="bar-horizontal" title="Motivos de pendência" [showTitle]="true" [selectable]="true" selectLabel="Ver os pedidos"
+                [labels]="rotulosDe(motivosPendencia())" [series]="[{ name: 'Com pendência', values: totaisDe(motivosPendencia()) }]" valueFormat="integer"
+                [height]="Math.max(140, motivosPendencia().length * 34)" (pointSelect)="analisarPendencia($event.index)"></ces-chart>
+            }
+            @if (!motivosRejeicao().length && !motivosPendencia().length) {
+              <ces-async-state state="empty" title="Sem rejeições nem pendências"></ces-async-state>
+            }
+          </article>
+        </section>
+
+        <section class="pf-secao" aria-labelledby="apc-materiais">
+          <header><span class="dash-eyebrow">Materiais</span><h2 id="apc-materiais">O que o comercial pede</h2>
+            <p>Pedidos, quantidade pedida e atendida por material.@if (materiaisSemCorte()) { Considera o período e os filtros de seleção única; situação, etapa e seleções múltiplas não se aplicam aqui.}</p></header>
+          <ces-data-table title="Materiais pedidos" storageKey="apc-materiais" exportFileName="solicitacoes-comerciais-materiais"
+            [columns]="colMateriais" [rows]="listaMateriais()" [rowKey]="chaveMaterial" searchPlaceholder="Filtrar código ou material"
+            [state]="listaMateriais().length ? 'ready' : 'empty'" stateTitle="Nenhum material pedido"></ces-data-table>
+        </section>
+
+        <section class="pf-secao">
+          <ces-data-table title="Almoxarifados" description="Quem atende o comercial: volume, fila e tempo." storageKey="apc-almox"
+            exportFileName="solicitacoes-comerciais-almoxarifados" [columns]="colRanking" [rows]="almoxarifados()" [rowKey]="chaveRanking" [searchable]="false"
+            rowActionLabel="Analisar" (rowActivate)="analisar('almox', $event.chave)"></ces-data-table>
+        </section>
+      }
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

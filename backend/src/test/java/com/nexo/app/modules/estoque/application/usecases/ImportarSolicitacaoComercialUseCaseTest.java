@@ -46,6 +46,9 @@ class ImportarSolicitacaoComercialUseCaseTest {
     @Mock
     private SolicitacaoMaterialUseCases solicitacoes;
 
+    @Mock
+    private com.nexo.app.modules.estoque.application.services.ProcessoMaterialService processoMaterial;
+
     @InjectMocks
     private ImportarSolicitacaoComercialUseCase useCase;
 

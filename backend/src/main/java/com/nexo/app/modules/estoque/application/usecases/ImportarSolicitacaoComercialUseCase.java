@@ -1,5 +1,7 @@
 package com.nexo.app.modules.estoque.application.usecases;
 
+import com.nexo.app.modules.estoque.application.services.ProcessoMaterialService;
+import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
 import com.nexo.app.modules.estoque.application.dto.ConfirmarImportacaoSolicitacaoComercialRequest;
 import com.nexo.app.modules.estoque.application.dto.ImportacaoSolicitacaoComercialResponse;
 import com.nexo.app.modules.estoque.application.dto.ProcessamentoImportacao;
@@ -42,6 +44,7 @@ public class ImportarSolicitacaoComercialUseCase {
 
     private final EstoqueRepository estoqueRepository;
     private final MaterialRepository materialRepository;
+    private final ProcessoMaterialService processoMaterial;
     private final SolicitacaoMaterialUseCases solicitacoes;
 
     public ImportacaoSolicitacaoComercialResponse executarValidacao(MultipartFile arquivo) {
@@ -310,6 +313,8 @@ public class ImportarSolicitacaoComercialUseCase {
                 if (!mat.get().isAtivo()) {
                     erros.add("Material: Material está inativo no sistema.");
                 } else {
+                    processoMaterial.incompatibilidade(ContextoSolicitacaoMaterial.COMERCIAL, mat.get())
+                            .ifPresent(m -> erros.add("Material: " + m));
                     if (mat.get().getId() != null) {
                         idMaterial = mat.get().getId();
                     }
@@ -329,6 +334,8 @@ public class ImportarSolicitacaoComercialUseCase {
             } else if (!mat.get().isAtivo()) {
                 erros.add("Material: Material '" + codTermo + "' está inativo no sistema.");
             } else {
+                processoMaterial.incompatibilidade(ContextoSolicitacaoMaterial.COMERCIAL, mat.get())
+                        .ifPresent(m -> erros.add("Material: " + m));
                 idMaterial = mat.get().getId();
                 nomeMaterial = mat.get().getDescricao();
             }

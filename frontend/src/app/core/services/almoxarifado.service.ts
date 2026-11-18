@@ -55,6 +55,7 @@ import {
   EntregaSolicitacaoRequest,
   EstoqueResponse,
   MovimentacaoBulkRequest,
+  MovimentacaoContagensResponse,
   MovimentacaoEstoqueFilter,
   MovimentacaoEstoqueResponse,
   MovimentacaoOperacaoResponse,
@@ -76,6 +77,8 @@ import {
   DevolucaoTecnicaRequest,
   ImportacaoMovimentacaoResponse,
   ConfirmarImportacaoMovimentacaoRequest,
+  SeriesAConferirResponse,
+  ConciliarSerieAplicadaRequest,
 } from '../models/almoxarifado.models';
 import { PagedResponse } from '../models/shared.models';
 import { UsuarioResponse } from '../models/iam.models';
@@ -645,6 +648,19 @@ export class AlmoxarifadoService {
     );
   }
 
+  contarMovimentacoes(params: MovimentacaoEstoqueFilter): Observable<MovimentacaoContagensResponse> {
+    let httpParams = new HttpParams();
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        httpParams = httpParams.set(key, String(value));
+      }
+    });
+    return this.http.get<MovimentacaoContagensResponse>(
+      `${this.apiUrl}/movimentacoes-estoque/contagens`,
+      { params: httpParams },
+    );
+  }
+
   buscarMovimentacaoPorId(id: string): Observable<MovimentacaoEstoqueResponse> {
     return this.http.get<MovimentacaoEstoqueResponse>(`${this.apiUrl}/movimentacoes-estoque/${id}`);
   }
@@ -832,6 +848,17 @@ export class AlmoxarifadoService {
     return this.http.get<PageResponseSaldoSerieResponse>(`${this.apiUrl}/saldos/seriais`, {
       params: httpParams,
     });
+  }
+
+  /** Séries que a equipe aplicou sem estarem no caminhão, nos materiais com séries a mais. */
+  listarSeriesAConferir(idEstoque: string): Observable<SeriesAConferirResponse> {
+    return this.http.get<SeriesAConferirResponse>(`${this.apiUrl}/saldos/estoques/${idEstoque}/series-a-conferir`);
+  }
+
+  /** Diz qual série do caminhão era a aplicada (ela sai da equipe) ou, sem série, que nenhuma corresponde. */
+  conciliarSerieAplicada(idEstoque: string, request: ConciliarSerieAplicadaRequest): Observable<SeriesAConferirResponse> {
+    return this.http.post<SeriesAConferirResponse>(
+      `${this.apiUrl}/saldos/estoques/${idEstoque}/series-a-conferir/conciliacoes`, request);
   }
 
   // Alias para compatibilidade com outros componentes

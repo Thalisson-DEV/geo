@@ -212,9 +212,10 @@ export class FrotaAcompanhamentoPreventivaComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-preventiva-acompanhamento',
+    rememberFilters: 'frota-preventiva-acompanhamento',
     queryParam: false,
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       idPlano: cesFilter.value<string | null>(null, { label: 'Plano', param: 'plano', options: () => this.opcoesPlano() })
     }
   });

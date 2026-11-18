@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
-import { CesConfirmationService, NotificationService } from '@ces/ui';
+import { NotificationService } from '@ces/ui';
 import { ConfirmationService } from 'primeng/api';
 import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -12,13 +12,16 @@ import { UsuarioLookupService } from '../../../../core/services/usuario-lookup.s
 import { paginaTeste } from '../../../../shared/listagem/listagem-teste';
 import { LIMITE_ABERTAS, LIMITE_ENCERRADAS, SolicitacoesComerciaisKanbanComponent } from './solicitacoes-comerciais-kanban.component';
 
+// Prazo de saque sempre adiante: só o card que o teste marcar com data passada fica atrasado.
+const PRAZO_FUTURO = new Date(Date.now() + 30 * 86_400_000).toISOString().substring(0, 10);
+
 const card = (id: string, status: string, extra: Partial<SolicitacaoMaterialSummaryResponse> = {}) =>
   ({
     id: id.padEnd(12, '0'),
     status,
     contexto: 'COMERCIAL',
     dataSolicitacao: '2026-10-01T10:00:00Z',
-    dataPrevista: '2026-10-20',
+    dataPrevista: PRAZO_FUTURO,
     estoqueOrigemNome: 'CENTRAL',
     estoqueDestinoNome: 'EQUIPE ' + id,
     idRequisitante: 'u1',
@@ -121,19 +124,20 @@ describe('SolicitacoesComerciaisKanbanComponent', () => {
     expect(el.querySelector('#kb-col-APROVACAO .kb-vazio')?.textContent).toContain('Nada para aprovar');
   });
 
-  it('arrastar de Aprovação para Entrega aprova após confirmar; para Encerradas pede a rejeição', async () => {
+  it('arrastar de Aprovação para Entrega abre o detalhe para revisar e aprovar; para Encerradas pede a rejeição', async () => {
     const { tela, fixture } = await abrir();
-    vi.spyOn(TestBed.inject(CesConfirmationService), 'confirm').mockResolvedValue(true);
     const rejeitar = vi.fn();
+    const abrir$ = vi.fn();
     fixture.componentInstance.rejeitar.subscribe(rejeitar);
+    fixture.componentInstance.abrir.subscribe(abrir$);
     const pendente = porStatus['PENDENTE'].itens[0];
 
     tela.iniciarArraste(pendente, 'APROVACAO');
     expect(tela.acaoDeSoltar('ENTREGA')?.acao).toBe('APROVAR');
     expect(tela.acaoDeSoltar('ENCERRADAS')?.acao).toBe('REJEITAR');
     tela.aoSoltar(new Event('drop') as DragEvent, 'ENTREGA');
-    await fixture.whenStable();
-    expect(almox['aprovarSolicitacao']).toHaveBeenCalledWith(pendente.id, {});
+    expect(abrir$).toHaveBeenCalledWith({ item: pendente, aba: 'aprovacao' });
+    expect(almox['aprovarSolicitacao']).not.toHaveBeenCalled();
 
     tela.iniciarArraste(pendente, 'APROVACAO');
     tela.aoSoltar(new Event('drop') as DragEvent, 'ENCERRADAS');
@@ -145,6 +149,16 @@ describe('SolicitacoesComerciaisKanbanComponent', () => {
     tela.iniciarArraste(porStatus['ENTREGUE'].itens[0], 'ENCERRADAS');
     expect(tela.acaoDeSoltar('APROVACAO')).toBeNull();
     expect(tela.acaoDeSoltar('ENTREGA')).toBeNull();
+  });
+
+  it('botão Aprovar do cartão abre o detalhe já nos ajustes, sem aprovar direto', async () => {
+    const { tela, fixture } = await abrir();
+    const abrir$ = vi.fn();
+    fixture.componentInstance.abrir.subscribe(abrir$);
+    const pendente = porStatus['PENDENTE'].itens[0];
+    tela.aoAgir(pendente, 'APROVAR');
+    expect(abrir$).toHaveBeenCalledWith({ item: pendente, aba: 'aprovacao' });
+    expect(almox['aprovarSolicitacao']).not.toHaveBeenCalled();
   });
 
   it('botão Entregar do cartão abre o detalhe na aba de entrega', async () => {

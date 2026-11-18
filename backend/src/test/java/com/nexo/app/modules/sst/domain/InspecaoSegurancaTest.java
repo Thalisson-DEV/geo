@@ -140,6 +140,23 @@ class InspecaoSegurancaTest {
     }
 
     @Test
+    @DisplayName("Deve registrar desvio da equipe ou do veículo sem colaborador")
+    void deveRegistrarDesvioDaEquipeSemColaborador() {
+        InspecaoSeguranca inspecao = novaInspecao();
+        UUID colab = UUID.randomUUID();
+        inspecao.adicionarColaboradorInspecionado(colab);
+
+        DesvioSeguranca desvio = inspecao.registrarDesvio(
+                UUID.randomUUID(), UUID.randomUUID(), GravidadeDesvio.MEDIA,
+                "Pneu careca", "Trocar o pneu", null, List.of(), StatusDesvio.ABERTO, false);
+
+        assertTrue(desvio.getColaboradores().isEmpty());
+        assertThrows(InvarianteVioladaException.class, () -> inspecao.registrarDesvio(
+                UUID.randomUUID(), UUID.randomUUID(), GravidadeDesvio.MEDIA,
+                "Extintor vencido", "Recarregar", null, List.of(UUID.randomUUID()), StatusDesvio.ABERTO, false));
+    }
+
+    @Test
     @DisplayName("Deve concluir uma inspeção com colaboradores inspecionados e evidência fotográfica")
     void deveConcluirInspecao() {
         InspecaoSeguranca inspecao = novaInspecao();

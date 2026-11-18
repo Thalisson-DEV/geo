@@ -46,6 +46,9 @@ public class ObraSpecification {
                 if (filter.tipoObra() != null) {
                     predicates.add(cb.equal(root.get("tipoObra"), filter.tipoObra()));
                 }
+                if (filter.tipoObraId() != null) {
+                    predicates.add(cb.equal(root.get("tipoDeObra").get("id"), filter.tipoObraId()));
+                }
                 if (filter.statusId() != null) {
                     predicates.add(cb.equal(root.get("statusObra").get("id"), filter.statusId()));
                 }
@@ -178,7 +181,10 @@ public class ObraSpecification {
         return switch (prop) {
             case "numero" -> asc ? cb.asc(root.get("numero")) : cb.desc(root.get("numero"));
             case "titulo" -> asc ? cb.asc(cb.lower(root.get("titulo"))) : cb.desc(cb.lower(root.get("titulo")));
-            case "tipoobra", "tipo_obra" -> asc ? cb.asc(root.get("tipoObra")) : cb.desc(root.get("tipoObra"));
+            case "tipoobra", "tipo_obra", "tipoobranome" -> {
+                var tipoJoin = root.join("tipoDeObra", JoinType.LEFT);
+                yield asc ? cb.asc(tipoJoin.get("nome")) : cb.desc(tipoJoin.get("nome"));
+            }
             case "notaobra", "nota_obra" -> asc ? cb.asc(root.get("notaObra")) : cb.desc(root.get("notaObra"));
             case "valorprojeto", "valor_projeto" -> asc ? cb.asc(root.get("valorProjeto")) : cb.desc(root.get("valorProjeto"));
             case "datainicio", "data_inicio" -> asc ? cb.asc(root.get("dataInicio")) : cb.desc(root.get("dataInicio"));

@@ -1,4 +1,5 @@
 import { CesFilterChip, CesSelectOption } from '@ces/ui';
+import { dataLocal } from '../../listagem/listagem';
 
 /**
  * Auxiliares dos painéis (dashboards) no padrão de listagem: o `ces-filter-panel` mostra o
@@ -28,7 +29,8 @@ export function chipsDoRecorte(
 ): CesFilterChip[] {
   const chips: CesFilterChip[] = [];
   if (periodo && (periodo.inicio || periodo.fim)) {
-    const dia = (iso: string) => new Date(iso).toLocaleDateString('pt-BR');
+    // "2026-11-01" em new Date() é meia-noite UTC: no fuso de Brasília cairia no dia anterior.
+    const dia = (iso: string) => dataLocal(iso)!.toLocaleDateString('pt-BR');
     const { inicio, fim } = periodo;
     const texto = inicio && fim ? `${dia(inicio)} a ${dia(fim)}` : inicio ? `a partir de ${dia(inicio)}` : `até ${dia(fim!)}`;
     chips.push({ key: 'periodo', label: `${periodo.rotulo ?? 'Período'}: ${texto}` });

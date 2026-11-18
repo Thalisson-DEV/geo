@@ -157,7 +157,7 @@ function servidor(pedido: CesListRequest<Filtros>): Observable<{ content: Regist
           <span class="ces-cell-muted">{{ nomeBase(row.base) }}</span>
         </ng-template>
         <ng-template cesCell="situacao" let-row>
-          <ces-status [tone]="row.situacao === 'OPERANDO' ? 'success' : row.situacao === 'PARADO' ? 'danger' : 'warning'">
+          <ces-status [tone]="row.situacao === 'OPERANDO' ? 'success' : row.situacao === 'PARADO' ? 'danger' : 'warning'" [icon]="row.situacao === 'OPERANDO' ? 'pi-check-circle' : row.situacao === 'PARADO' ? 'pi-pause-circle' : 'pi-wrench'">
             {{ nomeSituacao(row.situacao) }}
           </ces-status>
         </ng-template>

@@ -253,9 +253,9 @@ import {
 
           <ces-surface variant="subtle">
             <div class="ces-catalog__row">
-              <ces-status tone="neutral">Rascunho</ces-status>
+              <ces-status tone="neutral" icon="pi-pencil">Rascunho</ces-status>
               <ces-status tone="brand" icon="pi-circle-fill">Em análise</ces-status>
-              <ces-status tone="info">Informativo</ces-status>
+              <ces-status tone="info" icon="pi-info-circle">Informativo</ces-status>
               <ces-status tone="success" icon="pi-check">Concluído</ces-status>
               <ces-status tone="warning" icon="pi-clock">Aguardando sincronização</ces-status>
               <ces-status tone="danger" icon="pi-times">Rejeitado</ces-status>
@@ -386,8 +386,8 @@ import {
                   Ctrl+K, paginação virtual/infinita e estado sincronizado.
                 </p>
                 <div class="flex items-center gap-2">
-                  <ces-status tone="brand">@ces/ui/patterns</ces-status>
-                  <ces-status tone="success">10 Domínios Integrados</ces-status>
+                  <ces-status tone="brand" icon="pi-code">@ces/ui/patterns</ces-status>
+                  <ces-status tone="success" icon="pi-sitemap">10 Domínios Integrados</ces-status>
                 </div>
               </div>
             </ces-surface>

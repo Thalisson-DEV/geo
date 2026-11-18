@@ -19,6 +19,10 @@ public interface SolicitacaoPagamentoRepository
 
     Optional<SolicitacaoPagamento> findByNumero(Long numero);
 
+    /** Fila de decisão: as que aguardam aprovação, das mais antigas para as mais novas. */
+    java.util.List<SolicitacaoPagamento> findByStatusAndAtivoTrueOrderByDataSubmissaoAsc(
+            com.nexo.app.modules.financeiro.domain.StatusSolicitacao status, Pageable pageable);
+
     @Query("""
             select s from SolicitacaoPagamento s
             where s.nucleo.dadosPagamento is not null

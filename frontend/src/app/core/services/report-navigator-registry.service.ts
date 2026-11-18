@@ -9,7 +9,9 @@ import { ExecucaoReportNavigatorDataSource } from '../../features/execucao/execu
 import { TurnoReportNavigatorDataSource } from '../../features/execucao/turno-report-navigator.data-source';
 import { DescontoReportNavigatorDataSource } from '../../features/dp/descontos/desconto-report-navigator.data-source';
 import { InspecaoSstReportNavigatorDataSource } from '../../features/sst/inspecoes/inspecao-sst-report-navigator.data-source';
+import { EventoSstReportNavigatorDataSource } from '../../features/sst/eventos/evento-sst-report-navigator.data-source';
 import { ObraReportNavigatorDataSource } from '../../features/obras/obra-report-navigator.data-source';
+import { FechamentoReportNavigatorDataSource } from '../../features/obras/fechamento/fechamento-report-navigator.data-source';
 
 @Injectable({ providedIn: 'root' })
 export class ReportNavigatorRegistryService {
@@ -25,7 +27,9 @@ export class ReportNavigatorRegistryService {
     turno: TurnoReportNavigatorDataSource,
     desconto: DescontoReportNavigatorDataSource,
     'inspecao-sst': InspecaoSstReportNavigatorDataSource,
-    obra: ObraReportNavigatorDataSource
+    'evento-sst': EventoSstReportNavigatorDataSource,
+    obra: ObraReportNavigatorDataSource,
+    fechamento: FechamentoReportNavigatorDataSource
   };
 
   resolve(sourceKey: string): CesReportNavigatorDataSource | null {

@@ -1,3 +1,4 @@
+import { ICONE_STATUS_AUTOMACAO } from '../../../core/models/automacao.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -34,10 +35,10 @@ import { mapaEspecs } from './lib/dinamico';
         <ces-page-header [title]="a.nome" icon="pi pi-sitemap" [description]="a.descricao ?? undefined"
                          [breadcrumb]="[{ label: 'Automações', route: '/notificacoes/automacoes' }, { label: a.nome }]">
           <div status style="display:flex;gap:0.375rem;flex-wrap:wrap">
-            <ces-status [tone]="$any(a.status === 'ATIVA' ? 'success' : a.status === 'PAUSADA' ? 'warning' : null) ?? 'neutral'">{{ statusRotulo(a.status) }}</ces-status>
-            <ces-status tone="neutral">{{ tipoRotulo(a.tipo) }}</ces-status>
-            @if (a.origem === 'REGRA_CONVERTIDA') { <ces-status tone="info">Convertida de regra de notificação</ces-status> }
-            @if (a.origem === 'COPILOTO') { <ces-status tone="brand">Montada pela Bússola</ces-status> }
+            <ces-status [tone]="$any(a.status === 'ATIVA' ? 'success' : a.status === 'PAUSADA' ? 'warning' : null) ?? 'neutral'" [icon]="iconeStatus[a.status]">{{ statusRotulo(a.status) }}</ces-status>
+            <ces-status tone="neutral" icon="pi-bolt">{{ tipoRotulo(a.tipo) }}</ces-status>
+            @if (a.origem === 'REGRA_CONVERTIDA') { <ces-status tone="info" icon="pi-sync">Convertida de regra de notificação</ces-status> }
+            @if (a.origem === 'COPILOTO') { <ces-status tone="brand" icon="pi-sparkles">Montada pela Bússola</ces-status> }
           </div>
           <div actions style="display:flex;gap:0.5rem;flex-wrap:wrap">
             <ces-button icon="pi pi-pencil" label="Abrir no editor" variant="primary" size="sm" (pressed)="ir(['/notificacoes/automacoes', a.id, 'editar'])"></ces-button>
@@ -128,6 +129,7 @@ export class AutomacaoDetalheComponent {
   private readonly confirmacao = inject(CesConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
 
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_AUTOMACAO;
   protected readonly detalhe = signal<AutomacaoDetalhe | null>(null);
   protected readonly catalogo = signal<Catalogo | null>(null);
   protected readonly execucoes = signal<ExecucaoResumo[]>([]);

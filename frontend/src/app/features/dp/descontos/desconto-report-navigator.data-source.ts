@@ -15,6 +15,14 @@ import {
 import { RhDescontosService } from '../../../core/services/rh-descontos.service';
 import { CesTone } from '../../../design-system/core';
 
+const STATUS_ICONES: Record<DescontoStatus, string> = {
+  SOLICITADO: 'pi-clock',
+  VALIDADO: 'pi-check',
+  BAIXADO: 'pi-check-circle',
+  FINALIZADO: 'pi-verified',
+  REJEITADO: 'pi-times-circle'
+};
+
 const STATUS_TONES: Record<DescontoStatus, CesTone> = {
   SOLICITADO: 'warning',
   VALIDADO: 'info',
@@ -100,7 +108,8 @@ export class DescontoReportNavigatorDataSource
       title: `${motivoDescricao} · ${raw.quantidadeParcelas}x`,
       status: {
         label: STATUS_LABELS[raw.status] || raw.status,
-        tone: STATUS_TONES[raw.status] || 'neutral'
+        tone: STATUS_TONES[raw.status] || 'neutral',
+        icon: STATUS_ICONES[raw.status]
       },
       metaAuthor: {
         label: 'Colaborador',

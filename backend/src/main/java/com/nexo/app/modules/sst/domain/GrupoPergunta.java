@@ -56,7 +56,17 @@ public class GrupoPergunta extends BaseEntity {
      * Adiciona uma pergunta ao final do grupo, atribuindo a próxima ordem.
      */
     public Pergunta adicionarPergunta(String enunciado, TipoResposta tipoResposta, boolean obrigatoria) {
-        Pergunta pergunta = new Pergunta(this, enunciado, tipoResposta, obrigatoria, perguntas.size());
+        return adicionarPergunta(enunciado, tipoResposta, obrigatoria, null, true);
+    }
+
+    /**
+     * Adiciona uma pergunta com orientação (quantidade esperada/observação) e
+     * indicando se o desvio dela aponta colaborador ou é da equipe/veículo.
+     */
+    public Pergunta adicionarPergunta(String enunciado, TipoResposta tipoResposta, boolean obrigatoria,
+                                      String orientacao, boolean desvioPorColaborador) {
+        Pergunta pergunta = new Pergunta(this, enunciado, tipoResposta, obrigatoria, perguntas.size(),
+                orientacao, desvioPorColaborador);
         this.perguntas.add(pergunta);
         return pergunta;
     }

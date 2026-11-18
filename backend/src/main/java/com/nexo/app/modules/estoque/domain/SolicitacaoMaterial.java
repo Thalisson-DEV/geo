@@ -161,6 +161,43 @@ public class SolicitacaoMaterial extends BaseEntity {
     @OneToOne(mappedBy = "solicitacao", fetch = FetchType.LAZY)
     private ReservaSolicitacaoTecnica reserva;
 
+    // --- Encerramento de obra -------------------------------------------------
+
+    @Column(name = "id_encarregado")
+    private UUID idEncarregado;
+
+    @Column(name = "id_supervisor")
+    private UUID idSupervisor;
+
+    @Column(name = "prazo_reserva_ate")
+    private OffsetDateTime prazoReservaAte;
+
+    @Column(name = "prazo_movimentacao_ate")
+    private OffsetDateTime prazoMovimentacaoAte;
+
+    @Column(name = "reserva_cumprida_em")
+    private OffsetDateTime reservaCumpridaEm;
+
+    @Column(name = "movimentacao_concluida_em")
+    private OffsetDateTime movimentacaoConcluidaEm;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "situacao_fechamento", length = 30)
+    private SituacaoFechamentoSolicitacao situacaoFechamento;
+
+    /** Limite do prazo em curso; nulo quando não há prazo correndo. Mantido para filtrar e ordenar. */
+    @Column(name = "prazo_vigente_ate")
+    private OffsetDateTime prazoVigenteAte;
+
+    @Column(name = "cancelada_em")
+    private OffsetDateTime canceladaEm;
+
+    @Column(name = "id_usuario_cancelamento")
+    private UUID idUsuarioCancelamento;
+
+    @Column(name = "motivo_cancelamento", length = 500)
+    private String motivoCancelamento;
+
     public enum StatusSolicitacao {
         PENDENTE, 
         APROVADO, 
@@ -410,6 +447,320 @@ public class SolicitacaoMaterial extends BaseEntity {
         return solicitacao;
     }
 
+    /**
+     * Cria uma solicitação de encerramento: regulariza o saldo da obra, sem agendamento,
+     * separação ou assinatura. Nasce aguardando reserva, com 48 horas úteis para recebê-la.
+     */
+    public static SolicitacaoMaterial criarFechamento(
+            ObraPublica obra,
+            TipoSolicitacaoTecnica tipo,
+            Estoque estoqueObra,
+            Estoque almoxarifadoAtendimento,
+            UUID idEncarregado,
+            UUID idSupervisor,
+            String observacao,
+            UUID idRequisitante
+    ) {
+        SolicitacaoMaterial solicitacao = new SolicitacaoMaterial();
+        solicitacao.contexto = ContextoSolicitacaoMaterial.FECHAMENTO;
+        solicitacao.tipoTecnico = Objects.requireNonNull(tipo, "O tipo e obrigatorio");
+        solicitacao.idObra = Objects.requireNonNull(
+                Objects.requireNonNull(obra, "A obra e obrigatoria").id(), "O ID da obra e obrigatorio");
+        solicitacao.tipoObraSnapshot = TipoObraSnapshot.valueOf(obra.tipoObra().name());
+        solicitacao.almoxarifadoAtendimento = Objects.requireNonNull(
+                almoxarifadoAtendimento, "O almoxarifado de atendimento e obrigatorio");
+        Objects.requireNonNull(estoqueObra, "O estoque da obra e obrigatorio");
+        if (tipo.isAdicao()) {
+            solicitacao.estoqueOrigem = almoxarifadoAtendimento;
+            solicitacao.estoqueDestino = estoqueObra;
+        } else {
+            solicitacao.estoqueOrigem = estoqueObra;
+            solicitacao.estoqueDestino = almoxarifadoAtendimento;
+        }
+        solicitacao.idEncarregado = idEncarregado;
+        solicitacao.idSupervisor = idSupervisor;
+        solicitacao.observacao = limparObservacao(observacao);
+        solicitacao.idRequisitante = Objects.requireNonNull(idRequisitante, "O solicitante e obrigatorio");
+        solicitacao.status = StatusSolicitacao.APROVADO;
+        solicitacao.dataSolicitacao = OffsetDateTime.now();
+        solicitacao.prazoReservaAte = com.nexo.app.shared.domain.HorasUteis.somar(
+                solicitacao.dataSolicitacao, SituacaoPrazoFechamento.HORAS_UTEIS_PRAZO);
+        solicitacao.recalcularFechamento();
+        return solicitacao;
+    }
+
+    public boolean isFechamento() {
+        return contexto == ContextoSolicitacaoMaterial.FECHAMENTO;
+    }
+
+    public ItemSolicitacao adicionarItemFechamento(Material material, BigDecimal quantidade) {
+        exigirFechamentoEditavel();
+        Objects.requireNonNull(material, "O material e obrigatorio");
+        if (quantidade == null || quantidade.signum() <= 0) {
+            throw new InvarianteVioladaException("A quantidade do material " + material.getCodigo() + " deve ser positiva.");
+        }
+        boolean repetido = itens.stream().anyMatch(item -> Objects.equals(item.getMaterial().getId(), material.getId()));
+        if (repetido) {
+            throw new InvarianteVioladaException("O material " + material.getCodigo() + " já está na solicitação.");
+        }
+        ItemSolicitacao item = new ItemSolicitacao(this, material, quantidade);
+        itens.add(item);
+        recalcularFechamento();
+        return item;
+    }
+
+    public void alterarQuantidadeItemFechamento(UUID idItem, BigDecimal quantidade) {
+        exigirFechamentoEditavel();
+        ItemSolicitacao item = itemFechamento(idItem);
+        if (quantidade == null || quantidade.signum() <= 0) {
+            throw new InvarianteVioladaException("A quantidade deve ser positiva.");
+        }
+        BigDecimal movimentada = item.getQuantidadeOperadaLiquida();
+        if (quantidade.compareTo(movimentada) < 0) {
+            throw new InvarianteVioladaException("Já foram movimentados " + movimentada.stripTrailingZeros().toPlainString()
+                    + " deste material. A quantidade mínima é " + movimentada.stripTrailingZeros().toPlainString() + ".");
+        }
+        item.replanejar(item.getMaterial(), quantidade);
+        recalcularFechamento();
+    }
+
+    public ItemSolicitacao removerItemFechamento(UUID idItem) {
+        exigirFechamentoEditavel();
+        ItemSolicitacao item = itemFechamento(idItem);
+        if (item.possuiFatoOperacional()) {
+            throw new InvarianteVioladaException("Material com movimentação registrada não pode ser removido.");
+        }
+        if (itens.size() == 1) {
+            throw new InvarianteVioladaException("A solicitação precisa de ao menos um material. Para desistir, cancele.");
+        }
+        itens.remove(item);
+        recalcularFechamento();
+        return item;
+    }
+
+    public void definirResponsaveisFechamento(UUID idEncarregado, UUID idSupervisor) {
+        exigirFechamentoEditavel();
+        this.idEncarregado = idEncarregado;
+        this.idSupervisor = idSupervisor;
+    }
+
+    public void definirObservacaoFechamento(String valor) {
+        exigirFechamentoEditavel();
+        this.observacao = limparObservacao(valor);
+    }
+
+    /** Reserva registrada (ou corrigida). O prazo de movimentação corre só do primeiro registro. */
+    public void reservaRegistradaNoFechamento(OffsetDateTime instante) {
+        exigirFechamento();
+        if (prazoMovimentacaoAte == null) {
+            OffsetDateTime registro = Objects.requireNonNull(instante, "O instante do registro e obrigatorio");
+            this.reservaCumpridaEm = registro;
+            this.prazoMovimentacaoAte = com.nexo.app.shared.domain.HorasUteis.somar(
+                    registro, SituacaoPrazoFechamento.HORAS_UTEIS_PRAZO);
+        }
+        recalcularFechamento();
+    }
+
+    /** Reserva pode ser trocada até a primeira movimentação não estornada (no fechamento). */
+    public boolean reservaBloqueadaParaAlteracao() {
+        if (isFechamento()) {
+            return possuiQuantidadeMovimentadaFechamento();
+        }
+        return possuiFatoOperacional();
+    }
+
+    public boolean possuiQuantidadeMovimentadaFechamento() {
+        return itens.stream().anyMatch(item -> item.getQuantidadeOperadaLiquida().signum() > 0);
+    }
+
+    public void exigirMovimentavelNoFechamento() {
+        exigirFechamento();
+        if (status == StatusSolicitacao.CANCELADO) {
+            throw new InvarianteVioladaException("A solicitação está cancelada.");
+        }
+        if (reserva == null) {
+            throw new InvarianteVioladaException("Falta a reserva. Registre o número da reserva antes de movimentar.");
+        }
+    }
+
+    /** Atualiza a situação depois de movimentação, estorno ou troca de efeito. */
+    public void aplicarMovimentacaoFechamento(OffsetDateTime instante) {
+        exigirFechamento();
+        boolean concluida = !itens.isEmpty() && itens.stream().allMatch(ItemSolicitacao::isTotalmenteEntregue);
+        if (concluida && movimentacaoConcluidaEm == null) {
+            this.movimentacaoConcluidaEm = Objects.requireNonNull(instante, "O instante e obrigatorio");
+            this.dataEntrega = instante;
+        } else if (!concluida) {
+            this.movimentacaoConcluidaEm = null;
+        }
+        recalcularFechamento();
+    }
+
+    /** Quem abriu a solicitação: a única pessoa que pode cancelar um fechamento. */
+    public boolean abertaPor(UUID idUsuario) {
+        return idUsuario != null && idUsuario.equals(idRequisitante);
+    }
+
+    public void cancelarFechamento(UUID idUsuario, String motivo) {
+        exigirFechamento();
+        if (!abertaPor(idUsuario)) {
+            throw new InvarianteVioladaException("Só quem abriu a solicitação pode cancelar.");
+        }
+        if (status == StatusSolicitacao.CANCELADO) {
+            throw new InvarianteVioladaException("A solicitação já está cancelada.");
+        }
+        if (possuiQuantidadeMovimentadaFechamento()) {
+            throw new InvarianteVioladaException(
+                    "Há quantidade movimentada nesta solicitação. Estorne as movimentações antes de cancelar.");
+        }
+        if (motivo == null || motivo.isBlank()) {
+            throw new InvarianteVioladaException("Informe o motivo do cancelamento.");
+        }
+        if (motivo.trim().length() > 500) {
+            throw new InvarianteVioladaException("O motivo deve ter até 500 caracteres.");
+        }
+        this.status = StatusSolicitacao.CANCELADO;
+        this.canceladaEm = OffsetDateTime.now();
+        this.idUsuarioCancelamento = Objects.requireNonNull(idUsuario, "O usuario e obrigatorio");
+        this.motivoCancelamento = motivo.trim();
+        recalcularFechamento();
+    }
+
+    public void registrarPendenciaGeralFechamento(MotivoPendencia motivo, String justificativa) {
+        exigirFechamentoAberto();
+        if (justificativa == null || justificativa.isBlank()) {
+            validarMotivo(motivo);
+            this.justificativaPendencia = null;
+        } else {
+            validarPendencia(motivo, justificativa);
+            this.justificativaPendencia = justificativa.trim();
+        }
+        this.motivoPendencia = motivo;
+    }
+
+    public void removerPendenciaGeralFechamento() {
+        exigirFechamentoAberto();
+        this.motivoPendencia = null;
+        this.justificativaPendencia = null;
+    }
+
+    public void registrarPendenciaItemFechamento(UUID idItem, MotivoPendencia motivo, String justificativa) {
+        exigirFechamentoAberto();
+        itemFechamento(idItem).registrarPendencia(motivo, justificativa);
+    }
+
+    public void removerPendenciaItemFechamento(UUID idItem) {
+        exigirFechamentoAberto();
+        itemFechamento(idItem).removerPendencia();
+    }
+
+    /** Pendência registrada na solicitação inteira (sem olhar os itens). */
+    public MotivoPendencia getMotivoPendenciaGeral() {
+        return motivoPendencia;
+    }
+
+    public String getJustificativaPendenciaGeral() {
+        return justificativaPendencia;
+    }
+
+    public boolean possuiPendenciaFechamento() {
+        return motivoPendencia != null || itens.stream().anyMatch(ItemSolicitacao::possuiPendencia);
+    }
+
+    public SituacaoPrazoFechamento situacaoPrazoReserva(OffsetDateTime agora) {
+        if (!isFechamento() || prazoReservaAte == null) {
+            return null;
+        }
+        if (reservaCumpridaEm != null) {
+            return SituacaoPrazoFechamento.cumprido(prazoReservaAte, reservaCumpridaEm);
+        }
+        return status == StatusSolicitacao.CANCELADO ? null : SituacaoPrazoFechamento.emCurso(prazoReservaAte, agora);
+    }
+
+    public SituacaoPrazoFechamento situacaoPrazoMovimentacao(OffsetDateTime agora) {
+        if (!isFechamento() || prazoMovimentacaoAte == null) {
+            return null;
+        }
+        if (movimentacaoConcluidaEm != null) {
+            return SituacaoPrazoFechamento.cumprido(prazoMovimentacaoAte, movimentacaoConcluidaEm);
+        }
+        return status == StatusSolicitacao.CANCELADO ? null : SituacaoPrazoFechamento.emCurso(prazoMovimentacaoAte, agora);
+    }
+
+    /** Prazo em curso: o da reserva enquanto ela falta, depois o da movimentação. */
+    public SituacaoPrazoFechamento situacaoPrazoVigente(OffsetDateTime agora) {
+        if (situacaoFechamento == SituacaoFechamentoSolicitacao.AGUARDANDO_RESERVA) {
+            return situacaoPrazoReserva(agora);
+        }
+        if (situacaoFechamento == SituacaoFechamentoSolicitacao.CANCELADA) {
+            return null;
+        }
+        return situacaoPrazoMovimentacao(agora);
+    }
+
+    private void recalcularFechamento() {
+        if (!isFechamento()) {
+            return;
+        }
+        SituacaoFechamentoSolicitacao situacao;
+        if (status == StatusSolicitacao.CANCELADO) {
+            situacao = SituacaoFechamentoSolicitacao.CANCELADA;
+        } else if (reserva == null) {
+            situacao = SituacaoFechamentoSolicitacao.AGUARDANDO_RESERVA;
+        } else if (!itens.isEmpty() && itens.stream().allMatch(ItemSolicitacao::isTotalmenteEntregue)) {
+            situacao = SituacaoFechamentoSolicitacao.MOVIMENTADA;
+        } else if (possuiQuantidadeMovimentadaFechamento()) {
+            situacao = SituacaoFechamentoSolicitacao.MOVIMENTADA_PARCIALMENTE;
+        } else {
+            situacao = SituacaoFechamentoSolicitacao.AGUARDANDO_MOVIMENTACAO;
+        }
+        this.situacaoFechamento = situacao;
+        this.prazoVigenteAte = switch (situacao) {
+            case AGUARDANDO_RESERVA -> prazoReservaAte;
+            case AGUARDANDO_MOVIMENTACAO, MOVIMENTADA_PARCIALMENTE -> prazoMovimentacaoAte;
+            case MOVIMENTADA, CANCELADA -> null;
+        };
+        if (status != StatusSolicitacao.CANCELADO) {
+            this.status = situacao == SituacaoFechamentoSolicitacao.MOVIMENTADA
+                    ? StatusSolicitacao.ENTREGUE : StatusSolicitacao.APROVADO;
+        }
+    }
+
+    private ItemSolicitacao itemFechamento(UUID idItem) {
+        return itens.stream()
+                .filter(item -> Objects.equals(item.getId(), idItem))
+                .findFirst()
+                .orElseThrow(() -> new InvarianteVioladaException("Material não encontrado nesta solicitação."));
+    }
+
+    private void exigirFechamento() {
+        if (!isFechamento()) {
+            throw new InvarianteVioladaException("O comando exige uma solicitação de encerramento.");
+        }
+    }
+
+    private void exigirFechamentoAberto() {
+        exigirFechamento();
+        if (status == StatusSolicitacao.CANCELADO) {
+            throw new InvarianteVioladaException("A solicitação está cancelada.");
+        }
+    }
+
+    private void exigirFechamentoEditavel() {
+        exigirFechamentoAberto();
+        if (situacaoFechamento == SituacaoFechamentoSolicitacao.MOVIMENTADA) {
+            throw new InvarianteVioladaException(
+                    "A solicitação já foi toda movimentada. Para alterar, estorne a movimentação antes.");
+        }
+    }
+
+    private static String limparObservacao(String valor) {
+        if (valor != null && valor.trim().length() > 1000) {
+            throw new InvarianteVioladaException("A observação deve ter até 1000 caracteres.");
+        }
+        return valor == null || valor.isBlank() ? null : valor.trim();
+    }
+
     public void adicionarItem(Material material, java.math.BigDecimal quantidade) {
         if (this.status != StatusSolicitacao.PENDENTE && this.status != StatusSolicitacao.APROVADO && this.status != StatusSolicitacao.ENTREGUE_PARCIAL) {
             throw new InvarianteVioladaException("Não é possível adicionar itens com status: " + this.status);
@@ -482,6 +833,28 @@ public class SolicitacaoMaterial extends BaseEntity {
         substituirPlanejamentoTecnico(
                 obra, ocorrencia, estoqueObra, almoxarifadoAtendimento,
                 idEquipeSaque, null, false, dataPrevistaRetirada, observacao);
+    }
+
+    /**
+     * Troca a OS/OC da solicitação técnica, inclusive depois da entrega: a equipe às vezes recebe
+     * o material para uma ocorrência e, a caminho, ela muda. Saldo e operações não mudam.
+     */
+    public void trocarOcorrencia(OcorrenciaPublica nova) {
+        if (contexto != ContextoSolicitacaoMaterial.TECNICO) {
+            throw new InvarianteVioladaException("A troca da OS/OC se aplica somente a solicitacao tecnica.");
+        }
+        if (status == StatusSolicitacao.CANCELADO) {
+            throw new InvarianteVioladaException("A solicitacao foi cancelada; a OS/OC nao pode mais mudar.");
+        }
+        Objects.requireNonNull(nova, "A nova OS/OC e obrigatoria");
+        if (!Objects.equals(nova.idObra(), idObra)) {
+            throw new InvarianteVioladaException("A nova OS/OC precisa ser da mesma obra.");
+        }
+        if (Objects.equals(nova.id(), idOcorrencia)) {
+            throw new InvarianteVioladaException("A solicitacao ja esta com essa OS/OC.");
+        }
+        this.idOcorrencia = nova.id();
+        this.ocorrencia = nova.codigo();
     }
 
     public void invalidarSeparacao() {
@@ -638,6 +1011,7 @@ public class SolicitacaoMaterial extends BaseEntity {
             throw new InvarianteVioladaException("A solicitacao tecnica ja possui uma reserva associada.");
         }
         this.reserva = novaReserva;
+        recalcularFechamento();
     }
 
     public boolean isExcecaoReserva() {
@@ -648,11 +1022,11 @@ public class SolicitacaoMaterial extends BaseEntity {
 
     /** A reserva externa é requisito de confirmação, não de separação ou saldo. */
     public ReservaSolicitacaoTecnica exigirReservaParaMovimentacaoTecnica() {
-        if (contexto != ContextoSolicitacaoMaterial.TECNICO) {
+        if (contexto != ContextoSolicitacaoMaterial.TECNICO && contexto != ContextoSolicitacaoMaterial.FECHAMENTO) {
             throw new InvarianteVioladaException("Reserva externa se aplica somente a movimentacao tecnica.");
         }
         if (reserva == null) {
-            if (isExcecaoReserva()) {
+            if (contexto == ContextoSolicitacaoMaterial.TECNICO && isExcecaoReserva()) {
                 return null;
             }
             throw new InvarianteVioladaException(

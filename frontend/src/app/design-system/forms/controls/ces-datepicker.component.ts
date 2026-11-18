@@ -1,7 +1,7 @@
 import { DateMaskDirective } from '../../../shared/directives/date-mask.directive';
-import { ChangeDetectionStrategy, Component, computed, input, model } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, model, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { DatePickerModule } from 'primeng/datepicker';
+import { DatePicker, DatePickerModule } from 'primeng/datepicker';
 import type { DatePickerPassThrough } from 'primeng/datepicker';
 import { CesFieldComponent } from '../field';
 import { createControlId, getDescribedBy } from './form-control.helpers';
@@ -25,7 +25,11 @@ import { CesDateValue, CesOverlayAppendTarget } from './form-control.types';
       [readonly]="readonly()"
     >
       <p-datepicker
+        #picker
         [autofocus]="false"
+        [showOnFocus]="false"
+        [stepMinute]="5"
+        (click)="abrirAoClicar($event)"
         dateMask
         [dateMaskTime]="showTime()"
         class="ces-prime-control"
@@ -111,6 +115,18 @@ export class CesDatepickerComponent {
     this.ultimoValor = atual;
     return atual;
   });
+
+  private readonly picker = viewChild<DatePicker>('picker');
+
+  /**
+   * O calendário abre no clique no campo ou no ícone, não no foco: o foco automático de drawers e o
+   * Tab não cobrem os campos seguintes com o calendário. Digitar a data continua valendo (máscara).
+   */
+  protected abrirAoClicar(event: MouseEvent): void {
+    const picker = this.picker();
+    if (!picker || this.disabled() || this.readonly() || picker.overlayVisible) return;
+    if ((event.target as HTMLElement | null)?.tagName === 'INPUT') picker.showOverlay();
+  }
 
   protected onValueChange(value: Date | null): void {
     if (this.disabled() || this.readonly()) return;

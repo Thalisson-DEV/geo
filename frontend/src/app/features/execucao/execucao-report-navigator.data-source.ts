@@ -21,6 +21,12 @@ const STATUS_LABELS: Record<StatusExecucao, string> = {
   EDITADO: 'Editado'
 };
 
+const STATUS_ICONES: Record<StatusExecucao, string> = {
+  INICIADO: 'pi-clock',
+  CONCLUIDO: 'pi-check-circle',
+  EDITADO: 'pi-pencil'
+};
+
 const STATUS_TONES: Record<StatusExecucao, CesTone> = {
   INICIADO: 'warning',
   CONCLUIDO: 'success',
@@ -96,7 +102,8 @@ export class ExecucaoReportNavigatorDataSource
       value: raw.valorTotalFaturado,
       status: {
         label: STATUS_LABELS[status] || status,
-        tone: STATUS_TONES[status] || 'neutral'
+        tone: STATUS_TONES[status] || 'neutral',
+        icon: STATUS_ICONES[status]
       },
       metaAuthor: {
         label: equipeNome,

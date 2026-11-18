@@ -54,6 +54,8 @@ class SolicitacaoMaterialDetalheTecnicoTest {
     @Mock private ApplicationEventPublisher eventPublisher;
     @Mock private OperacaoSolicitacaoMaterialRepository operacaoSolicitacaoRepository;
     @Mock private PoliticaAcoesPermitidasSolicitacao politicaAcoesPermitidas;
+    @Mock private com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
+    @Mock private com.nexo.app.modules.estoque.application.services.ProcessoMaterialService processoMaterial;
     @InjectMocks private SolicitacaoMaterialUseCases useCases;
 
     @Test

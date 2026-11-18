@@ -57,6 +57,17 @@ describe('fila de envio: espera crescente entre tentativas', () => {
       expect(outbox.pendingCount()).toBe(1);
     });
 
+    it('429 adia pelo tempo pedido pelo servidor, com folga de até 20% e teto de 5 minutos', async () => {
+      const id = await outbox.enqueue({ endpoint: '/v1/x', method: 'POST', payload: {} });
+      const agora = Date.now();
+
+      expect(await outbox.adiarPor(id, 40_000, agora, 0)).toBe(agora + 40_000);
+      expect(await outbox.adiarPor(id, 40_000, agora, 1)).toBe(agora + 48_000);
+      expect(await outbox.adiarPor(id, 3_600_000, agora, 0)).toBe(agora + ESPERA_MAX_MS);
+      expect(await outbox.adiarPor(id, 0, agora, 0)).toBe(agora + 1_000);
+      expect((await outbox.getPendingItems()).map(i => i.id)).not.toContain(id);
+    });
+
     it('enviado com sucesso limpa o adiamento', async () => {
       const id = await outbox.enqueue({ endpoint: '/v1/x', method: 'POST', payload: {} });
       await outbox.adiarNovaTentativa(id, 2);

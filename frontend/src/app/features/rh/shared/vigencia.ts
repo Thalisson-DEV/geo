@@ -8,13 +8,15 @@ import { dataLocal } from '../../../shared/listagem/listagem';
 import { formatarCpf } from '../colaboradores/colaboradores.component';
 
 /** Situação de uma designação com vigência (coordenador, supervisor). */
-export function situacaoVigencia(v: { ativo: boolean; dataFim: string | null }): { label: string; tone: CesTone } {
-  if (!v.ativo) return { label: 'Inativo', tone: 'neutral' };
+export function situacaoVigencia(v: { ativo: boolean; dataFim: string | null }): { label: string; tone: CesTone; icon: string } {
+  if (!v.ativo) return { label: 'Inativo', tone: 'neutral', icon: 'pi-ban' };
   const fim = dataLocal(v.dataFim);
-  if (!fim) return { label: 'Vigente', tone: 'success' };
+  if (!fim) return { label: 'Vigente', tone: 'success', icon: 'pi-check-circle' };
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
-  return fim < hoje ? { label: `Encerrado em ${fim.toLocaleDateString('pt-BR')}`, tone: 'neutral' } : { label: `Vigente até ${fim.toLocaleDateString('pt-BR')}`, tone: 'warning' };
+  return fim < hoje
+    ? { label: `Encerrado em ${fim.toLocaleDateString('pt-BR')}`, tone: 'neutral', icon: 'pi-history' }
+    : { label: `Vigente até ${fim.toLocaleDateString('pt-BR')}`, tone: 'warning', icon: 'pi-clock' };
 }
 
 /** Busca paginada de colaboradores para o autocomplete, mantendo o selecionado visível. */

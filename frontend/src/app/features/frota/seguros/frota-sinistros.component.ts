@@ -223,12 +223,13 @@ export class FrotaSinistrosComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-sinistros',
+    rememberFilters: 'frota-sinistros',
     filters: {
       situacoes: cesFilter.list<SituacaoSinistro>(EM_ANDAMENTO, {
         label: 'Situação', param: 'situacao', itemLabel: (s) => ROTULO_SITUACAO_SINISTRO[s], countLabel: (n) => `${n} situações`
       }),
       tipos: cesFilter.list<TipoSinistro>([], { label: 'Tipo', param: 'tipo', itemLabel: (t) => ROTULO_TIPO_SINISTRO[t], countLabel: (n) => `${n} tipos` }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       idCondutor: cesFilter.value<string | null>(null, { label: 'Condutor', param: 'condutor', options: () => this.opcoesCondutor() }),
       de: cesFilter.date(null, { label: 'De' }),
       ate: cesFilter.date(null, { label: 'Até' })

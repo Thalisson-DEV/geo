@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { ImportacaoService } from '../../../core/services/importacao.service';
+import { RhService } from '../../../core/services/rh.service';
 import { abrirListagem, chipsDoPainel, paginaTeste, tecla } from '../../../shared/listagem/listagem-teste';
 import { MateriaisComponent } from './materiais.component';
 
@@ -14,7 +15,8 @@ describe('MateriaisComponent', () => {
   const abrir = (url = '/lista') =>
     abrirListagem(MateriaisComponent, 'lista', url, [
       { provide: AlmoxarifadoService, useValue: servico },
-      { provide: ImportacaoService, useValue: { baixarModeloCsv: vi.fn() } }
+      { provide: ImportacaoService, useValue: { baixarModeloCsv: vi.fn() } },
+      { provide: RhService, useValue: { listarProcessosAtivos: vi.fn(() => paginaTeste([{ id: 'p-com', nome: 'COMERCIAL' }, { id: 'p-obr', nome: 'OBRAS' }])) } }
     ]);
 
   beforeEach(() => {
@@ -54,7 +56,7 @@ describe('MateriaisComponent', () => {
     tela['descricao'].set('Conector');
     tela['idCentro'].set('c1');
     tela.salvar();
-    expect(servico['criarMaterial']).toHaveBeenCalledWith(expect.objectContaining({ codigo: 'MAT002', descricao: 'Conector', idCentroInvestimento: 'c1', detalhaSerie: false }));
+    expect(servico['criarMaterial']).toHaveBeenCalledWith(expect.objectContaining({ codigo: 'MAT002', descricao: 'Conector', idCentroInvestimento: 'c1', detalhaSerie: false, idProcesso: 'p-com' }));
     tela.editar(material);
     tela['ativo'].set(false);
     tela.salvar();

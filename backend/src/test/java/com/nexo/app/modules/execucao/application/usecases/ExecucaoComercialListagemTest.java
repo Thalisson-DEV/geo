@@ -121,8 +121,37 @@ class ExecucaoComercialListagemTest {
                 null, null, null, null, null, List.of(), List.of(), null, null, null, 0);
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    void baseSemEquipesDevolvePaginaVaziaSemConsultarAsNotas() {
+        UUID idBase = UUID.randomUUID();
+        when(equipeApi.buscarIdsPorBases(List.of(idBase))).thenReturn(List.of());
+
+        PageResponse<ExecucaoComercialResponse> pagina = useCases.listar(filtroDaBase(idBase), PageRequest.of(0, 20));
+
+        assertEquals(0, pagina.getContent().size());
+        verify(repository, never()).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void baseComEquipesConsultaAsNotas() {
+        UUID idBase = UUID.randomUUID();
+        when(equipeApi.buscarIdsPorBases(List.of(idBase))).thenReturn(List.of(idEquipe));
+        when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(new PageImpl<>(List.of()));
+
+        useCases.listar(filtroDaBase(idBase), PageRequest.of(0, 20));
+
+        verify(repository).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    private static ExecucaoFilter filtroDaBase(UUID idBase) {
+        return new ExecucaoFilter(null, null, null, null, null, null, null, false, null, null, null, null, null,
+                null, null, null, null, null, null, List.of(idBase));
+    }
+
     private static ExecucaoFilter filtroVazio() {
         return new ExecucaoFilter(null, null, null, null, null, null, null, false, null, null, null, null, null,
-                null, null, null, null, null, null);
+                null, null, null, null, null, null, null);
     }
 }

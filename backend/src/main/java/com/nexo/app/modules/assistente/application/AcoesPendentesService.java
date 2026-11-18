@@ -106,6 +106,9 @@ public class AcoesPendentesService {
             resultado.resultado().path("registros").forEach(r -> {
                 if (r.hasNonNull("mensagem")) motivos.add(r.path("mensagem").asText());
             });
+            resultado.resultado().path("itens").forEach(r -> {
+                if (r.hasNonNull("mensagem")) motivos.add(r.path("titulo").asText("") + ": " + r.path("mensagem").asText());
+            });
             LOGGER.info("Cartao {} da Bússola recusado pelo modulo; segue aberto", acao.getId());
             return view(acao, null, motivos.isEmpty() ? "Não foi possível gravar. Revise os dados." : String.join(" ", motivos));
         }

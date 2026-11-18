@@ -146,6 +146,15 @@ public class SupervisorUseCases implements SupervisorApi {
 
     @Override
     @Transactional(readOnly = true)
+    public java.util.List<UUID> buscarIdsPorCoordenador(UUID idCoordenador) {
+        if (idCoordenador == null) {
+            return java.util.List.of();
+        }
+        return repository.findIdsByCoordenadorId(idCoordenador);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public boolean existeSupervisor(UUID id) {
         return id != null && repository.findById(id).filter(Supervisor::isAtivo).isPresent();
     }

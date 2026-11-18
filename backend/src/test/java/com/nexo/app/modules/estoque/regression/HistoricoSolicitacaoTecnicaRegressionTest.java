@@ -257,6 +257,7 @@ class HistoricoSolicitacaoTecnicaRegressionTest {
                 clockForScenario());
         SolicitacaoTecnicaUseCases useCases = new SolicitacaoTecnicaUseCases(
                 referenciaValidator, estoqueObraProvisioningService, estoqueRepository, materialRepository,
+                org.mockito.Mockito.mock(com.nexo.app.modules.estoque.application.services.ProcessoMaterialService.class),
                 solicitacaoRepository, itemRepository, gravador, publicadorEventos, observabilidade, idempotencia);
 
         useCases.criar(new CriarSolicitacaoTecnicaRequest(

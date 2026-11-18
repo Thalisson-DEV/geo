@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -86,6 +87,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     SolicitacaoMaterialFormComponent,
+    NgTemplateOutlet,
     CesButtonComponent,
     CesCalloutComponent,
     CesCellDirective,
@@ -170,6 +172,9 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
 
       <ces-filter-panel #painel [storageKey]="chave" [activeCount]="lista.activeCount()" [summary]="lista.summary()"
         [loading]="resultado.loading()" (applied)="lista.apply()" (cleared)="lista.reset()" (chipRemoved)="lista.remove($any($event))">
+        @if (visao !== 'tabela') {
+          <div filter-actions class="ces-quick-filters"><ng-container [ngTemplateOutlet]="soAsMinhas"></ng-container></div>
+        }
         <div class="ces-filter-grid">
           <ces-select label="Estoque de origem" [options]="estoqueOptions()" [(value)]="lista.filters.idEstoqueOrigem" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
           <ces-select label="Estoque de destino" [options]="estoqueOptions()" [(value)]="lista.filters.idEstoqueDestino" [clearable]="true" [filter]="true" placeholder="Todos"></ces-select>
@@ -178,7 +183,8 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
           <ces-select label="Base de destino" [options]="baseOptions()" [(value)]="lista.filters.idBaseDestino" [clearable]="true" [filter]="true" placeholder="Todas"
             [loading]="bases.loading()" (opened)="bases.open()" (search)="bases.search($event)"></ces-select>
           <ces-select label="Requisitante" [options]="usuarioOptions()" [(value)]="lista.filters.idRequisitante" [clearable]="true" [filter]="true" placeholder="Todos"
-            [loading]="usuarios.loading()" (opened)="usuarios.open()" (search)="usuarios.search($event)"></ces-select>
+            [loading]="usuarios.loading()" (opened)="usuarios.open()" (search)="usuarios.search($event)"
+            [disabled]="lista.filters.minhas()" [description]="lista.filters.minhas() ? 'Desligue Só as minhas para escolher outro requisitante.' : undefined"></ces-select>
           <ces-multiselect label="Status" [options]="statusOpcoes" [(value)]="lista.filters.status" [filter]="false" placeholder="Todos"></ces-multiselect>
           <ces-select label="Referência" [options]="referencias" [(value)]="lista.filters.referencia" [clearable]="true" [filter]="true" placeholder="Mês/ano"></ces-select>
           <ces-text-input label="Número de série" [(value)]="lista.filters.numSerie" hint="Não fica salvo no endereço da página."></ces-text-input>
@@ -193,7 +199,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
             Todas <span class="sol-contagem">{{ contagemTotal() ?? '–' }}</span>
           </button>
           <button type="button" class="ces-quick-filter" [attr.aria-pressed]="emAbertoAtivo()" (click)="definirStatus(emAberto)"
-            title="Pendentes, aprovadas e entregues em parte: tudo o que ainda exige ação">
+            title="Pendentes, aprovadas e entregues em parte com saldo a retirar: tudo o que ainda exige ação">
             <i class="pi pi-inbox" aria-hidden="true"></i> Em aberto <span class="sol-contagem" [class.sol-contagem--alerta]="(contagemAbertas() ?? 0) > 0">{{ contagemAbertas() ?? '–' }}</span>
           </button>
           <span class="sol-divisor" aria-hidden="true"></span>
@@ -212,6 +218,12 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
           }
         </nav>
       </div>
+
+      <ng-template #soAsMinhas>
+        <button type="button" class="ces-quick-filter" [attr.aria-pressed]="lista.applied().minhas" (click)="escopo(!lista.applied().minhas)">
+          <i class="pi pi-user" aria-hidden="true"></i> Só as minhas
+        </button>
+      </ng-template>
 
       @switch (visao) {
         @case ('kanban') {
@@ -249,6 +261,9 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
             (emptyAction)="novo()"
             (rowActivate)="abrirDetalhe($event)"
           >
+            <div table-filters class="ces-quick-filters" role="group" aria-label="Atalhos das solicitações">
+              <ng-container [ngTemplateOutlet]="soAsMinhas"></ng-container>
+            </div>
             <ng-template cesCell="id" let-row><span class="ces-cell-strong">#{{ row.id?.substring(0, 8) }}</span></ng-template>
             <ng-template cesCell="tipo" let-row>
               <ces-status [tone]="tipoTone(row.tipoTecnico)" [icon]="tipoIcon(row.tipoTecnico)">{{ tipoCodigo(row.tipoTecnico) }}</ces-status>
@@ -316,7 +331,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
       rotuloNovo="Nova solicitação" [importacao]="true">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-filter"></i> Atalhos de status</h4>
-        <p class="help-text-desc">Os botões acima da lista mostram quantas solicitações há em cada status. Clique para ver só aquele status; clique em outros para somar. "Em aberto" junta tudo o que ainda precisa de aprovação ou entrega.</p>
+        <p class="help-text-desc">Os botões acima da lista mostram quantas solicitações há em cada status. Clique para ver só aquele status; clique em outros para somar. "Em aberto" junta tudo o que ainda precisa de aprovação ou entrega; a entrega parcial com saldo encerrado não conta.</p>
       </div>
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-objects-column"></i> Tabela, quadro e calendário</h4>
@@ -340,6 +355,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
 export class SolicitacoesMaterialComponent {
   private readonly almoxarifado = inject(AlmoxarifadoService);
   private readonly rh = inject(RhService);
+  private readonly idUsuario = inject(AuthService).currentUser()?.id ?? null;
   private readonly usuariosService = inject(UsuariosService);
   private readonly router = inject(Router);
   private readonly notificacoes = inject(NotificationService);
@@ -394,6 +410,7 @@ export class SolicitacoesMaterialComponent {
   protected readonly lista = cesListState({
     storageKey: this.chave,
     filters: {
+      minhas: cesFilter.value<boolean>(false, { label: 'Escopo', format: (v): string | null => (v ? 'Só as minhas' : null) }),
       idEstoqueOrigem: cesFilter.value<string | null>(null, { label: 'Origem', param: 'estoqueOrigem', format: (id): string | null => (id ? this.nomeEstoque(id) : null) }),
       idEstoqueDestino: cesFilter.value<string | null>(null, { label: 'Destino', param: 'estoqueDestino', format: (id): string | null => (id ? this.nomeEstoque(id) : null) }),
       idBaseOrigem: cesFilter.value<string | null>(null, { label: 'Base de origem', param: 'baseOrigem', format: (id): string | null => (id ? this.nomeBase(id) : null) }),
@@ -438,14 +455,15 @@ export class SolicitacoesMaterialComponent {
   protected readonly filtrosExportacao = computed(() => {
     this.lista.applied();
     const f = this.filtro();
-    return { ...f, dataInicio: f['dataInicio'] ?? null, dataFim: f['dataFim'] ?? null, buscaGlobal: f['buscaGlobal'] ?? null };
+    return { ...f, dataInicio: f['dataInicio'] ?? null, dataFim: f['dataFim'] ?? null, buscaGlobal: f['buscaGlobal'] ?? null, apenasMinhas: this.lista.applied().minhas };
   });
 
   /** Contagem de cada status no recorte atual, ignorando os atalhos (para o número não sumir ao filtrar). */
   protected readonly contagens = signal<Partial<Record<SolicitacaoStatus, number>>>({});
   private readonly versaoContagens = signal(0);
   protected readonly contagemTotal = computed(() => this.somar(ORDEM_STATUS));
-  protected readonly contagemAbertas = computed(() => this.somar(STATUS_EM_ABERTO));
+  /** Consulta própria: a entrega parcial com saldo encerrado é ENTREGUE_PARCIAL, mas não está mais em aberto. */
+  protected readonly contagemAbertas = signal<number | null>(null);
 
   /** O que a Bússola recebe: o recorte em tela e a contagem de cada status. */
   protected readonly contextoCopiloto = computed<CopilotoDashboardContext | null>(() => {
@@ -525,7 +543,7 @@ export class SolicitacoesMaterialComponent {
 
     const consultaContagens = computed(
       () => {
-        const { statuses: _s, ...semStatus } = this.filtroVisao();
+        const { statuses: _s, saldoAberto: _a, ...semStatus } = this.filtroVisao();
         return { filtro: semStatus, versao: this.versaoContagens() };
       },
       { equal: (a, b) => JSON.stringify(a) === JSON.stringify(b) }
@@ -533,18 +551,27 @@ export class SolicitacoesMaterialComponent {
     toObservable(consultaContagens)
       .pipe(
         switchMap(({ filtro }) =>
-          forkJoin(
-            ORDEM_STATUS.map((status) =>
-              this.almoxarifado.listarSolicitacoes({ ...filtro, statuses: [status], page: 0, size: 1 }).pipe(
-                map((r) => [status, r.page?.totalElements ?? 0] as const),
-                catchError(() => of([status, undefined] as const))
+          forkJoin({
+            status: forkJoin(
+              ORDEM_STATUS.map((status) =>
+                this.almoxarifado.listarSolicitacoes({ ...filtro, statuses: [status], page: 0, size: 1 }).pipe(
+                  map((r) => [status, r.page?.totalElements ?? 0] as const),
+                  catchError(() => of([status, undefined] as const))
+                )
               )
+            ),
+            abertas: this.almoxarifado.listarSolicitacoes({ ...filtro, statuses: [...STATUS_EM_ABERTO], saldoAberto: true, page: 0, size: 1 }).pipe(
+              map((r) => r.page?.totalElements ?? 0),
+              catchError(() => of(null))
             )
-          )
+          })
         ),
         takeUntilDestroyed()
       )
-      .subscribe((pares) => this.contagens.set(Object.fromEntries(pares.filter(([, n]) => n !== undefined))));
+      .subscribe(({ status, abertas }) => {
+        this.contagens.set(Object.fromEntries(status.filter(([, n]) => n !== undefined)));
+        this.contagemAbertas.set(abertas);
+      });
   }
 
   /** Recorte aplicado no formato do backend (lista, quadro, calendário e exportação). */
@@ -555,9 +582,11 @@ export class SolicitacoesMaterialComponent {
     if (f.idEstoqueDestino) params['idEstoqueDestino'] = f.idEstoqueDestino;
     if (f.idBaseOrigem) params['idBaseOrigem'] = f.idBaseOrigem;
     if (f.idBaseDestino) params['idBaseDestino'] = f.idBaseDestino;
-    if (f.idRequisitante) params['idRequisitante'] = f.idRequisitante;
+    const requisitante = f.minhas ? this.idUsuario : f.idRequisitante;
+    if (requisitante) params['idRequisitante'] = requisitante;
     // `statuses` é a lista no backend; `status` aceita só um valor.
     if (f.status.length) params['statuses'] = [...f.status];
+    if (mesmoConjunto(f.status, STATUS_EM_ABERTO)) params['saldoAberto'] = true;
     if (f.numSerie.trim()) params['numSerie'] = f.numSerie.trim();
     if (f.referencia) params['referencia'] = f.referencia;
     if (f.periodo.from) params['dataInicio'] = dataLocal(f.periodo.from)!.toISOString();
@@ -578,6 +607,12 @@ export class SolicitacoesMaterialComponent {
 
   private nomeBase(id: string): string {
     return this.baseOptions().find((o) => o.value === id)?.label ?? 'selecionada';
+  }
+
+  protected escopo(minhas: boolean): void {
+    this.lista.filters.minhas.set(minhas);
+    if (minhas) this.lista.filters.idRequisitante.set(null);
+    this.lista.apply();
   }
 
   protected definirStatus(status: readonly SolicitacaoStatus[]): void {

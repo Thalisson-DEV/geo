@@ -10,15 +10,22 @@ import com.nexo.app.modules.iam.infrastructure.persistence.UsuarioRepository;
 import com.nexo.app.modules.iam.infrastructure.security.PerfilPermissaoCacheService;
 import com.nexo.app.modules.rh.ColaboradorApi;
 import com.nexo.app.modules.rh.EquipeApi;
+import com.nexo.app.shared.infrastructure.ratelimit.DecisaoRateLimit;
+import com.nexo.app.shared.infrastructure.ratelimit.PoliticaRateLimit;
+import com.nexo.app.shared.infrastructure.ratelimit.RateLimitExcedidoException;
+import com.nexo.app.shared.infrastructure.ratelimit.RateLimiter;
 import com.nexo.app.shared.infrastructure.security.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -41,13 +48,32 @@ public class AutenticarUseCase {
     private final ColaboradorApi colaboradorApi;
     private final EquipeApi equipeApi;
     private final EstoqueApi estoqueApi;
+    private final RateLimiter rateLimiter;
 
     /** Credenciais emitidas; o refresh token vai para o cookie, nunca para o corpo. */
     public record Credenciais(String tokenAcesso, String refreshToken, OffsetDateTime sessaoExpiraEm) {}
 
-    public Credenciais login(LoginRequest request, String dispositivo) {
-        var autenticacao = manager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.login(), request.senha()));
+    /**
+     * Confere login e senha. Além do limite por IP (no filtro), aqui contam só as senhas
+     * erradas: por login vindo do mesmo IP e por login vindo de qualquer IP. Errar não trava
+     * a conta para sempre; o balde volta a encher com o tempo, então um ataque não consegue
+     * deixar o encarregado de fora por mais que o período da política.
+     */
+    public Credenciais login(LoginRequest request, String dispositivo, String ip) {
+        String conta = request.login() == null ? "" : request.login().strip().toUpperCase(Locale.ROOT);
+        String contaNoIp = (ip == null ? "" : ip) + "|" + conta;
+        exigirTentativaDisponivel(PoliticaRateLimit.LOGIN_FALHAS_CONTA_IP, contaNoIp);
+        exigirTentativaDisponivel(PoliticaRateLimit.LOGIN_FALHAS_CONTA, conta);
+
+        Authentication autenticacao;
+        try {
+            autenticacao = manager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.login(), request.senha()));
+        } catch (BadCredentialsException senhaErrada) {
+            rateLimiter.consumir(PoliticaRateLimit.LOGIN_FALHAS_CONTA_IP, contaNoIp);
+            rateLimiter.consumir(PoliticaRateLimit.LOGIN_FALHAS_CONTA, conta);
+            throw senhaErrada;
+        }
         Usuario usuario = (Usuario) autenticacao.getPrincipal();
         if (usuario == null) {
             throw new IllegalStateException("Autenticação sem usuário associado");
@@ -56,6 +82,13 @@ public class AutenticarUseCase {
         var roles = usuario.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
         SessaoEmitida sessao = sessoes.iniciar(usuario.getId(), dispositivo);
         return credenciais(usuario, roles, sessao);
+    }
+
+    private void exigirTentativaDisponivel(PoliticaRateLimit politica, String chave) {
+        DecisaoRateLimit decisao = rateLimiter.consultar(politica, chave);
+        if (decisao.bloqueada()) {
+            throw new RateLimitExcedidoException(decisao);
+        }
     }
 
     public Credenciais renovar(String refreshToken) {

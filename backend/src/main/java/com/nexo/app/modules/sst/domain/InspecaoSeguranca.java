@@ -205,7 +205,20 @@ public class InspecaoSeguranca extends BaseEntity {
     public DesvioSeguranca registrarDesvio(UUID idPergunta, UUID idOpcaoResposta, GravidadeDesvio gravidade,
                                            String descricao, String acaoCorretiva, LocalDate prazo,
                                            List<UUID> idsColaboradores, StatusDesvio status) {
-        if (idsColaboradores == null || idsColaboradores.isEmpty()) {
+        return registrarDesvio(idPergunta, idOpcaoResposta, gravidade, descricao, acaoCorretiva, prazo,
+                idsColaboradores, status, true);
+    }
+
+    /**
+     * Registra um desvio. Com {@code exigeColaborador} falso (item da equipe ou do
+     * veículo, como pneu ou extintor) o desvio pode ficar sem colaborador; quem for
+     * informado continua tendo de estar entre os inspecionados.
+     */
+    public DesvioSeguranca registrarDesvio(UUID idPergunta, UUID idOpcaoResposta, GravidadeDesvio gravidade,
+                                           String descricao, String acaoCorretiva, LocalDate prazo,
+                                           List<UUID> idsColaboradores, StatusDesvio status, boolean exigeColaborador) {
+        idsColaboradores = idsColaboradores == null ? List.of() : idsColaboradores;
+        if (exigeColaborador && idsColaboradores.isEmpty()) {
             throw new InvarianteVioladaException("Um desvio deve ser atribuído a pelo menos um colaborador.");
         }
 
@@ -305,7 +318,15 @@ public class InspecaoSeguranca extends BaseEntity {
     public DesvioSeguranca sincronizarDesvio(UUID idPergunta, UUID idOpcaoResposta, GravidadeDesvio gravidade,
                                              String descricao, String acaoCorretiva, LocalDate prazo,
                                              List<UUID> idsColaboradores, StatusDesvio status) {
-        if (idsColaboradores == null || idsColaboradores.isEmpty()) {
+        return sincronizarDesvio(idPergunta, idOpcaoResposta, gravidade, descricao, acaoCorretiva, prazo,
+                idsColaboradores, status, true);
+    }
+
+    public DesvioSeguranca sincronizarDesvio(UUID idPergunta, UUID idOpcaoResposta, GravidadeDesvio gravidade,
+                                             String descricao, String acaoCorretiva, LocalDate prazo,
+                                             List<UUID> idsColaboradores, StatusDesvio status, boolean exigeColaborador) {
+        idsColaboradores = idsColaboradores == null ? List.of() : idsColaboradores;
+        if (exigeColaborador && idsColaboradores.isEmpty()) {
             throw new InvarianteVioladaException("Um desvio deve ser atribuído a pelo menos um colaborador.");
         }
         for (UUID idColaborador : idsColaboradores) {

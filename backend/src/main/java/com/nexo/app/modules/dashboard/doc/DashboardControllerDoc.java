@@ -2,6 +2,8 @@ package com.nexo.app.modules.dashboard.doc;
 
 import com.nexo.app.modules.dashboard.application.dto.ConsultaTurnosFilter;
 import com.nexo.app.modules.dashboard.application.dto.ContextoExecucaoResponse;
+import com.nexo.app.modules.dashboard.application.dto.DashboardMetaFisicaFilter;
+import com.nexo.app.modules.dashboard.application.dto.DashboardMetaFisicaResponse;
 import com.nexo.app.modules.dashboard.application.dto.DashboardOperacionalFilter;
 import com.nexo.app.modules.dashboard.application.dto.DashboardOperacionalResponse;
 import com.nexo.app.modules.dashboard.application.dto.DashboardTurnosFilter;
@@ -27,6 +29,13 @@ public interface DashboardControllerDoc {
             @ParameterObject DashboardOperacionalFilter filter
     );
 
+    @Operation(summary = "Meta física da Concessionária no mês",
+            description = "Metas de cada base por tipo de serviço e notas concluídas por dia, base, tipo e equipe, "
+                    + "com os cinco meses anteriores para comparação. Cada nota conta uma vez.")
+    ResponseEntity<DashboardMetaFisicaResponse> gerarDashboardMetaFisica(
+            @ParameterObject DashboardMetaFisicaFilter filter
+    );
+
     @Operation(summary = "Situação dos turnos das equipes em um dia")
     ResponseEntity<DashboardTurnosResponse> gerarDashboardTurnos(
             @ParameterObject DashboardTurnosFilter filter
@@ -40,6 +49,17 @@ public interface DashboardControllerDoc {
     ResponseEntity<PageResponse<TurnoConsultaResponse>> consultarTurnos(
             @ParameterObject ConsultaTurnosFilter filter,
             @ParameterObject Pageable pageable
+    );
+
+    @Operation(summary = "Exportar os turnos em CSV, uma linha por turno",
+            description = "Mesmos filtros da consulta; no máximo 30.000 turnos, os mais recentes.")
+    ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> exportarTurnosResumo(
+            @ParameterObject ConsultaTurnosFilter filter);
+
+    @Operation(summary = "Exportar os turnos em CSV, uma linha por nota do turno",
+            description = "Mesmos filtros da consulta; no máximo 30.000 turnos, os mais recentes.")
+    ResponseEntity<org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody> exportarTurnosDetalhado(
+            @ParameterObject ConsultaTurnosFilter filter
     );
 
     @Operation(summary = "Notas concluídas que compõem os números dos dashboards de execução",

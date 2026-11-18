@@ -155,7 +155,9 @@
       }
 
       @for (proposta of propostas(); track proposta.acaoId) {
-        @if (ehCadastro(proposta)) {
+        @if (ehAprovacao(proposta)) {
+          <app-copiloto-cartao-aprovacao [proposta]="proposta" />
+        } @else if (ehCadastro(proposta)) {
           <app-copiloto-cartao-cadastro [proposta]="proposta" />
         } @else {
           <ces-callout tone="warning" [title]="proposta.titulo" icon="pi-shield" [dense]="true">

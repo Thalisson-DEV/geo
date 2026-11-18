@@ -15,7 +15,7 @@ class LeituraOdometroTest {
     private static final int LIMITE_KM_DIA = 1500;
 
     private static LeituraOdometro leitura(long km, OffsetDateTime quando, LeituraOdometro anterior, LeituraOdometro posterior) {
-        return LeituraOdometro.registrar(VEICULO, km, quando, OrigemLeituraOdometro.MANUAL, null, null,
+        return LeituraOdometro.registrar(VEICULO, UnidadeMedicao.KM, km, quando, OrigemLeituraOdometro.MANUAL, null, null,
                 anterior, posterior, LIMITE_KM_DIA);
     }
 
@@ -59,6 +59,86 @@ class LeituraOdometroTest {
     }
 
     @Test
+    void saltoDeHorasAcimaDoLimiteFicaInconsistenteComMotivoEmHoras() {
+        var anterior = LeituraOdometro.registrar(VEICULO, UnidadeMedicao.HORAS, 1_000, OffsetDateTime.now().minusDays(1),
+                OrigemLeituraOdometro.MANUAL, null, null, null, null, 16);
+
+        var salto = LeituraOdometro.registrar(VEICULO, UnidadeMedicao.HORAS, 1_040, OffsetDateTime.now(),
+                OrigemLeituraOdometro.MANUAL, null, null, anterior, null, 16);
+
+        assertThat(salto.getUnidade()).isEqualTo(UnidadeMedicao.HORAS);
+        assertThat(salto.isInconsistente()).isTrue();
+        assertThat(salto.getMotivoSituacao()).isEqualTo(
+                "Salto de 40 h desde a leitura anterior, acima do limite de 16 h por dia.");
+    }
+
+    @Test
+    void horimetroMenorQueOAnteriorUsaORotuloDaUnidade() {
+        var anterior = LeituraOdometro.registrar(VEICULO, UnidadeMedicao.HORAS, 4_009, OffsetDateTime.now().minusDays(1),
+                OrigemLeituraOdometro.MANUAL, null, null, null, null, 16);
+
+        var menor = LeituraOdometro.registrar(VEICULO, UnidadeMedicao.HORAS, 4_000, OffsetDateTime.now(),
+                OrigemLeituraOdometro.MANUAL, null, null, anterior, null, 16);
+
+        assertThat(menor.getMotivoSituacao()).startsWith("Horímetro menor que a leitura anterior (4009 h");
+    }
+
+    @Test
+    void trocaDePainelGuardaFechamentoEDeslocamento() {
+        var ultima = leitura(264_656, OffsetDateTime.now().minusDays(1), null, null);
+
+        var troca = LeituraOdometro.registrarTrocaPainel(VEICULO, UnidadeMedicao.KM, 264_656, 0,
+                OffsetDateTime.now().minusHours(1), null, ultima, "Painel queimado");
+
+        assertThat(troca.isTrocaPainel()).isTrue();
+        assertThat(troca.isValida()).isTrue();
+        assertThat(troca.getKm()).isZero();
+        assertThat(troca.getFechamentoPainel()).isEqualTo(264_656L);
+        assertThat(troca.getDeslocamento()).isEqualTo(264_656L);
+        assertThat(troca.getMotivoSituacao()).isEqualTo("Troca de painel. Painel antigo encerrado em 264656 km. Painel queimado");
+    }
+
+    @Test
+    void leituraDepoisDaTrocaComparaSoComOPainelNovo() {
+        var troca = LeituraOdometro.registrarTrocaPainel(VEICULO, UnidadeMedicao.KM, 264_656, 0,
+                OffsetDateTime.now().minusHours(5), null, null, null);
+
+        var seguinte = leitura(120, OffsetDateTime.now(), troca, null);
+
+        assertThat(seguinte.isValida()).isTrue();
+    }
+
+    @Test
+    void trocaQueMudaAUnidadeRecomecaOAcumulado() {
+        var ultima = leitura(80_000, OffsetDateTime.now().minusDays(1), null, null);
+
+        var troca = LeituraOdometro.registrarTrocaPainel(VEICULO, UnidadeMedicao.HORAS, 80_000, 0,
+                OffsetDateTime.now(), null, ultima, null);
+
+        assertThat(troca.getUnidade()).isEqualTo(UnidadeMedicao.HORAS);
+        assertThat(troca.getDeslocamento()).isNull();
+        assertThat(troca.getMotivoSituacao()).contains("unidade alterada para h");
+    }
+
+    @Test
+    void trocaRecusaFechamentoMenorQueAUltimaLeituraEDataAnterior() {
+        var ultima = leitura(10_000, OffsetDateTime.now().minusDays(1), null, null);
+
+        assertThatThrownBy(() -> LeituraOdometro.registrarTrocaPainel(VEICULO, UnidadeMedicao.KM, 9_000, 0,
+                OffsetDateTime.now(), null, ultima, null))
+                .isInstanceOf(InvarianteVioladaException.class)
+                .hasMessageContaining("não pode ser menor que a última leitura válida");
+        assertThatThrownBy(() -> LeituraOdometro.registrarTrocaPainel(VEICULO, UnidadeMedicao.KM, 10_000, 0,
+                OffsetDateTime.now().minusDays(2), null, ultima, null))
+                .isInstanceOf(InvarianteVioladaException.class)
+                .hasMessageContaining("depois da última leitura válida");
+        assertThatThrownBy(() -> LeituraOdometro.registrarTrocaPainel(VEICULO, UnidadeMedicao.KM, 10_000, 10_500,
+                OffsetDateTime.now(), null, ultima, null))
+                .isInstanceOf(InvarianteVioladaException.class)
+                .hasMessageContaining("não pode começar acima");
+    }
+
+    @Test
     void rodagemCompativelComOPeriodoEhValida() {
         var anterior = leitura(10_000, OffsetDateTime.now().minusDays(3), null, null);
 
@@ -82,7 +162,7 @@ class LeituraOdometroTest {
 
     @Test
     void leituraAutomaticaExigeRegistroDeOrigem() {
-        assertThatThrownBy(() -> LeituraOdometro.registrar(VEICULO, 100, OffsetDateTime.now(),
+        assertThatThrownBy(() -> LeituraOdometro.registrar(VEICULO, UnidadeMedicao.KM, 100, OffsetDateTime.now(),
                 OrigemLeituraOdometro.CHECKLIST, null, null, null, null, LIMITE_KM_DIA))
                 .isInstanceOf(InvarianteVioladaException.class)
                 .hasMessageContaining("registro de origem");

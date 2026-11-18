@@ -132,7 +132,7 @@ public class PainelSolicitacoesUseCase {
 
     // ------------------------------------------------------------------ montagem das linhas
 
-    private record Equipe(String codigo, String base, String processo) {
+    private record Equipe(String codigo, String base, String processo, UUID idBase, UUID idProcesso) {
     }
 
     private Map<UUID, Equipe> resolverEquipes(List<SolicitacaoAnaliticaProjection> linhas) {
@@ -140,12 +140,14 @@ public class PainelSolicitacoesUseCase {
         for (EquipeResponse e : equipeApi.listarEquipesAtivas()) {
             mapa.put(e.id(), new Equipe(e.codigo(),
                     e.baseOperacional() == null ? null : e.baseOperacional().nome(),
-                    e.processo() == null ? null : e.processo().nome()));
+                    e.processo() == null ? null : e.processo().nome(),
+                    e.baseOperacional() == null ? null : e.baseOperacional().id(),
+                    e.processo() == null ? null : e.processo().id()));
         }
         linhas.stream().map(SolicitacaoAnaliticaProjection::getIdEquipe).filter(Objects::nonNull).distinct()
                 .filter(id -> !mapa.containsKey(id))
                 .forEach(id -> equipeApi.buscarPublicaPorId(id)
-                        .ifPresent(e -> mapa.put(id, new Equipe(e.codigo(), null, null))));
+                        .ifPresent(e -> mapa.put(id, new Equipe(e.codigo(), null, null, e.idBaseOperacional(), e.idProcesso()))));
         return mapa;
     }
 
@@ -210,7 +212,9 @@ public class PainelSolicitacoesUseCase {
                 valor(l.getItens()),
                 decimal(l.getQuantidadeSolicitada()),
                 decimal(l.getQuantidadeAtendida()),
-                Boolean.TRUE.equals(l.getAnteriorAoPeriodo()));
+                Boolean.TRUE.equals(l.getAnteriorAoPeriodo()),
+                equipe == null ? null : equipe.idBase(),
+                equipe == null ? null : equipe.idProcesso());
     }
 
     /** Mesma regra de SolicitacaoMaterial.isExcecaoReserva(). */

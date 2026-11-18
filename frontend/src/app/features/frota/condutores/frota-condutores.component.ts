@@ -1,3 +1,4 @@
+import { ICONE_VENCIMENTO } from '../../../core/models/frota.models';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -153,9 +154,9 @@ import { LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, 
           }
         </ng-template>
         <ng-template cesCell="situacaoCnh" let-row>
-          <ces-status [tone]="tom[row.situacaoCnh]">{{ rotuloVencimento[row.situacaoCnh] }}</ces-status>
+          <ces-status [tone]="tom[row.situacaoCnh]" [icon]="icone[row.situacaoCnh]">{{ rotuloVencimento[row.situacaoCnh] }}</ces-status>
           @if (!row.ativo) {
-            <ces-status tone="neutral" emphasis="outline">Retirado</ces-status>
+            <ces-status tone="neutral" emphasis="outline" icon="pi-history">Retirado</ces-status>
           }
         </ng-template>
         <ng-template cesCell="placaAtual" let-row>
@@ -217,7 +218,7 @@ import { LIMITE_EXPORTACAO_FROTA, OPCOES_CADASTRO, basesFrota, exportacaoFrota, 
           @if (row.fim) {
             {{ row.fim | date: 'dd/MM/yyyy HH:mm' }}
           } @else {
-            <ces-status tone="success">Atual</ces-status>
+            <ces-status tone="success" icon="pi-check-circle">Atual</ces-status>
           }
         </ng-template>
       </ces-data-table>
@@ -234,6 +235,7 @@ export class FrotaCondutoresComponent {
   protected readonly acesso = acessoFrota();
 
   protected readonly tom: Record<string, CesTone> = TOM_VENCIMENTO;
+  protected readonly icone: Record<string, string> = ICONE_VENCIMENTO;
   protected readonly rotuloVencimento: Record<string, string> = ROTULO_VENCIMENTO;
   protected readonly prazo = descreverPrazo;
   protected readonly placa = formatarPlaca;
@@ -271,9 +273,10 @@ export class FrotaCondutoresComponent {
   /** A busca aceita o número da CNH: por isso não vai para a URL (`queryParam: false`). */
   protected readonly lista = cesListState({
     storageKey: 'frota-condutores',
+    rememberFilters: 'frota-condutores',
     queryParam: false,
     filters: {
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       categorias: cesFilter.list<CategoriaCnh>([], { label: 'Categoria', param: 'categoria', countLabel: (n) => `${n} selecionadas` }),
       situacaoCnh: cesFilter.value<SituacaoVencimento | null>(null, { label: 'CNH', param: 'cnh', options: () => this.situacoesCnh }),
       ativo: cesFilter.value<boolean | null>(true, { label: 'Cadastro', options: () => OPCOES_CADASTRO })

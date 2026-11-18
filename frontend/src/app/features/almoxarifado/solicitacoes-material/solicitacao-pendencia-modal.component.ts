@@ -54,7 +54,7 @@ export interface ItemPendenciaConfig {
                 <i class="pi pi-exclamation-triangle text-[var(--ces-warning-text)]"></i>
                 {{ idItem() ? 'Pendência Atual do Material' : 'Pendência Atual da Solicitação' }}
               </span>
-              <ces-status tone="warning">{{ motivo.nome }}</ces-status>
+              <ces-status tone="warning" icon="pi-flag">{{ motivo.nome }}</ces-status>
             </div>
             @if (justificativaAtual()) {
               <p class="text-xs text-[var(--ces-foreground)] italic bg-[var(--ces-surface)] p-2 rounded-lg border border-[var(--ces-border)]">
@@ -263,7 +263,7 @@ export interface ItemPendenciaConfig {
 
                       @if (item.motivoPendencia) {
                         <div class="flex items-center gap-1.5 shrink-0">
-                          <ces-status tone="warning">{{ item.motivoPendencia.nome }}</ces-status>
+                          <ces-status tone="warning" icon="pi-flag">{{ item.motivoPendencia.nome }}</ces-status>
                           @if (podeResolver()) {
                             <ces-button
                               label="Resolver"

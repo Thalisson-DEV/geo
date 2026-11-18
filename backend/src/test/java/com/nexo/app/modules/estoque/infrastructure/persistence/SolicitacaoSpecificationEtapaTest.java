@@ -71,7 +71,8 @@ class SolicitacaoSpecificationEtapaTest {
         SolicitacaoSpecification.filterBy(filtro(EtapaSolicitacaoTecnica.AGUARDANDO_PLANEJAMENTO))
                 .toPredicate(root, query, cb);
 
-        verify(root).get("contexto");
+        // A etapa restringe ao contexto técnico; sem contexto no filtro, o fechamento também fica de fora.
+        verify(root, atLeastOnce()).get("contexto");
         verify(root).get("tipoTecnico");
         verify(root).get("status");
         verify(root).get("encerradaEm");
@@ -84,7 +85,8 @@ class SolicitacaoSpecificationEtapaTest {
         SolicitacaoSpecification.filterBy(filtro(EtapaSolicitacaoTecnica.EM_SEPARACAO))
                 .toPredicate(root, query, cb);
 
-        verify(root).get("contexto");
+        // A etapa restringe ao contexto técnico; sem contexto no filtro, o fechamento também fica de fora.
+        verify(root, atLeastOnce()).get("contexto");
         verify(root).get("tipoTecnico");
         verify(root, atLeastOnce()).get("statusSeparacao");
         verify(root).get("encerradaEm");

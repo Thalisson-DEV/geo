@@ -44,6 +44,7 @@ public class ItemManutencaoUseCases {
             throw new InvarianteVioladaException("Já existe um item de manutenção com este nome.");
         }
         var item = new ItemManutencao(request.nome(), request.natureza(), request.descricao(), request.diasRepeticao());
+        item.definirTipo(request.tipo());
         return toResponse(repository.save(item));
     }
 
@@ -55,6 +56,7 @@ public class ItemManutencaoUseCases {
             throw new InvarianteVioladaException("Já existe um item de manutenção com este nome.");
         }
         item.atualizar(request.nome(), request.natureza(), request.descricao(), request.diasRepeticao());
+        item.definirTipo(request.tipo());
         return toResponse(repository.save(item));
     }
 
@@ -91,6 +93,9 @@ public class ItemManutencaoUseCases {
                 return cb.and(predicates.toArray(new Predicate[0]));
             });
         }
+        if (filtro != null && filtro.tipo() != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("tipo"), filtro.tipo()));
+        }
         return PageResponse.fromPage(repository.findAll(spec, pageable).map(ItemManutencaoUseCases::toResponse));
     }
 
@@ -112,6 +117,7 @@ public class ItemManutencaoUseCases {
 
     static ItemManutencaoResponse toResponse(ItemManutencao item) {
         return new ItemManutencaoResponse(item.getId(), item.getNome(), item.getNatureza(),
-                item.getNatureza().getRotulo(), item.getDescricao(), item.getDiasRepeticao(), item.isAtivo());
+                item.getNatureza().getRotulo(), item.getDescricao(), item.getDiasRepeticao(), item.getTipo(),
+                item.getTipo().getRotulo(), item.isAtivo());
     }
 }

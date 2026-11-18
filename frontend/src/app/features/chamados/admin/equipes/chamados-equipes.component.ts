@@ -122,7 +122,7 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
           @if (row.membros.length) {
             <span class="ces-cell-chips">
               @for (membro of row.membros.slice(0, 3); track membro) {
-                <ces-status tone="neutral" emphasis="outline">{{ nomeMembro(membro) }}</ces-status>
+                <ces-status tone="neutral" emphasis="outline" icon="pi-user">{{ nomeMembro(membro) }}</ces-status>
               }
               @if (row.membros.length > 3) {
                 <span class="ces-cell-muted">+{{ row.membros.length - 3 }}</span>
@@ -133,7 +133,7 @@ const SITUACOES: CesSelectOption<boolean | null>[] = [
           }
         </ng-template>
         <ng-template cesCell="ativo" let-row>
-          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
+          <ces-status [tone]="row.ativo ? 'success' : 'neutral'" [emphasis]="row.ativo ? 'soft' : 'outline'" [icon]="row.ativo ? 'pi pi-check-circle' : 'pi pi-ban'">{{ row.ativo ? 'Ativa' : 'Inativa' }}</ces-status>
         </ng-template>
         <ng-template cesRowActions let-row>
           <span class="ces-table-actions">

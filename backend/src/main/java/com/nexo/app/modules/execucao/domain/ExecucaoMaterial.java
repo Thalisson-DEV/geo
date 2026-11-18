@@ -41,6 +41,13 @@ public class ExecucaoMaterial extends BaseEntity {
     @Column(name = "operacao", nullable = false, length = 20)
     private OperacaoMaterial operacao;
 
+    /** O que a equipe digitou em outra unidade (ex.: 2,5 M de fita); {@link #quantidade} é o convertido. */
+    @Column(name = "quantidade_informada", precision = 14, scale = 6)
+    private BigDecimal quantidadeInformada;
+
+    @Column(name = "unidade_informada", length = 10)
+    private String unidadeInformada;
+
     @Column(name = "num_serie")
     private String numSerie;
 
@@ -69,5 +76,13 @@ public class ExecucaoMaterial extends BaseEntity {
 
     public void atualizarQuantidade(BigDecimal novaQuantidade) {
         this.quantidade = Objects.requireNonNull(novaQuantidade, "A nova quantidade é obrigatória");
+        // A quantidade foi corrigida na unidade do material: o que foi digitado antes não vale mais.
+        this.quantidadeInformada = null;
+        this.unidadeInformada = null;
+    }
+
+    void registrarQuantidadeInformada(BigDecimal informada, String unidade) {
+        this.quantidadeInformada = informada;
+        this.unidadeInformada = unidade;
     }
 }

@@ -14,6 +14,9 @@ public interface ObraApi {
 
     Optional<ObraPublica> buscarPorNumero(String numero);
 
+    /** Obras cujo número ou título contém o trecho, sem diferenciar maiúsculas. */
+    Set<UUID> buscarIdsPorNumeroOuTitulo(String trecho);
+
     /** Retorna somente obra ativa vinculada ao processo técnico elegível. */
     Optional<ObraPublica> buscarTecnicaAtivaPorId(UUID id);
 

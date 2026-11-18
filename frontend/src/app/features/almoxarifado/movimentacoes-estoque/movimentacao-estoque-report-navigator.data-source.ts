@@ -1,3 +1,4 @@
+import { iconeTipoMovimentacao } from '../../../shared/utils/movimentacao.utils';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
@@ -110,7 +111,8 @@ export class MovimentacaoEstoqueReportNavigatorDataSource
       title: rota,
       status: {
         label: TIPO_LABELS[tipo] || tipo,
-        tone: TIPO_TONES[tipo] || 'neutral'
+        tone: TIPO_TONES[tipo] || 'neutral',
+        icon: iconeTipoMovimentacao(tipo)
       },
       metaAuthor: {
         label: raw.operadorNome || 'Operador',

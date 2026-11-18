@@ -142,13 +142,23 @@ tr.is-selected > td,
 }
 
 .ces-data-table__selection {
+  /* Flutua no rodapé da tela enquanto há seleção: sempre à vista, sem deslocar as linhas. */
+  position: fixed;
+  inset-inline: 0;
+  bottom: 1rem;
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0.75rem;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  margin-inline: auto;
   padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--ces-border);
-  background: var(--ces-brand-soft);
+  border: 1px solid color-mix(in srgb, var(--ces-brand) 40%, var(--ces-border));
+  border-radius: var(--ces-radius-lg);
+  background: color-mix(in srgb, var(--ces-brand) 14%, var(--ces-surface));
+  box-shadow: var(--ces-shadow-lg);
 }
 
 .ces-data-table__selection-limit {

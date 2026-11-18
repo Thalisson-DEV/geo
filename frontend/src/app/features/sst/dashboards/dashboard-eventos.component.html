@@ -127,7 +127,7 @@
                 @if (item.diasSemAcidente === null) {
                   <ces-status tone="success" icon="pi-check-circle">Sem ocorrência</ces-status>
                 } @else {
-                  <ces-status [tone]="item.diasSemAcidente < 30 ? 'danger' : 'neutral'">{{ item.diasSemAcidente }} dias</ces-status>
+                  <ces-status [tone]="item.diasSemAcidente < 30 ? 'danger' : 'neutral'" icon="pi-shield">{{ item.diasSemAcidente }} dias</ces-status>
                 }
               </ng-template>
               <ng-template cesCell="comLesaoNoPeriodo" let-item>

@@ -23,11 +23,51 @@ export enum ImportacaoStatus {
 /**
  * DTO resumido para listagem de obras paginadas.
  */
+/** OBRA: material direto na obra; OS/OC: direto na ordem de serviço ou ocorrência digitada na solicitação. */
+export type ControleExecucaoObra = 'OBRA' | 'OS' | 'OC';
+
+/** Cadastro de tipo de obra (Comum, LPT, Corretiva, Preventiva, Kit, Medidor...). */
+export interface TipoDeObraResponse {
+  id: string;
+  codigo: string;
+  nome: string;
+  descricao?: string | null;
+  controleExecucao: ControleExecucaoObra;
+  subtipo: boolean;
+  classeOperacional: 'OBRA' | 'CORRETIVA' | 'PREVENTIVA' | 'LPT';
+  ativo: boolean;
+  dataCriacao?: string;
+  dataUltimaAlteracao?: string;
+}
+
+export interface TipoDeObraRequest {
+  nome: string;
+  descricao?: string;
+  controleExecucao: ControleExecucaoObra;
+  subtipo: boolean;
+}
+
+export interface TipoDeObraFilter {
+  buscaGlobal?: string;
+  controleExecucao?: ControleExecucaoObra;
+  subtipo?: boolean;
+  ativo?: boolean;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 export interface ObraResumoResponse {
   id: string;
   numero: string;
   titulo: string;
   tipoObra?: 'OBRA' | 'CORRETIVA' | 'PREVENTIVA' | 'LPT';
+  /** Tipo cadastrado (Comum, LPT, Corretiva...). */
+  tipoObraId?: string | null;
+  tipoObraNome?: string | null;
+  /** OBRA: material direto na obra; OS/OC: na ordem de serviço ou ocorrência digitada na solicitação. */
+  controleExecucao?: ControleExecucaoObra;
+  tipoObraSubtipo?: boolean;
   notaObra?: string;
   valorProjeto?: number;
   dataInicio: string; // dd/MM/yyyy
@@ -68,6 +108,12 @@ export interface ObraResponse {
   numero: string;
   titulo: string;
   tipoObra?: 'OBRA' | 'CORRETIVA' | 'PREVENTIVA' | 'LPT';
+  /** Tipo cadastrado (Comum, LPT, Corretiva...). */
+  tipoObraId?: string | null;
+  tipoObraNome?: string | null;
+  /** OBRA: material direto na obra; OS/OC: na ordem de serviço ou ocorrência digitada na solicitação. */
+  controleExecucao?: ControleExecucaoObra;
+  tipoObraSubtipo?: boolean;
   descricao?: string;
   notaObra?: string;
   valorProjeto?: number;
@@ -214,6 +260,8 @@ export interface ObraRequest {
   idSupervisor: string; // Obrigatório
   idCoordenador: string; // Obrigatório
   idStatusObra: string;
+  /** Tipo cadastrado; sem ele a obra fica como Comum. */
+  idTipoObra?: string | null;
   idAgenteResponsavel?: string;
   idObraPai?: string | null;
   tipoVinculoPai?: TipoVinculoSubprojeto | null;
@@ -248,6 +296,7 @@ export interface TipoAnexoObraRequest {
 // ═══════════════════════════════════════════════════════════════════════
 
 export interface ObraFilter {
+  tipoObraId?: string;
   buscaGlobal?: string;
   numero?: string;
   titulo?: string;

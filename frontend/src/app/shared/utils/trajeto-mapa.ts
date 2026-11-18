@@ -1,4 +1,4 @@
-// Leaflet é carregado globalmente (angular.json), como nos demais mapas do CES.
+// Leaflet é carregado globalmente (angular.json), como nos demais mapas do GEO.
 declare const L: any;
 
 export interface OpcoesTrajeto {

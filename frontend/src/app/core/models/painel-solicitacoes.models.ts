@@ -61,6 +61,9 @@ export interface SolicitacaoDoPainel {
   quantidadeAtendida: number;
   /** Criada antes do período e ainda aberta. */
   anteriorAoPeriodo: boolean;
+  /** Base operacional e processo da equipe (para filtrar no cliente). */
+  idBaseOperacional?: string | null;
+  idProcesso?: string | null;
 }
 
 export interface MaterialDoPainel {

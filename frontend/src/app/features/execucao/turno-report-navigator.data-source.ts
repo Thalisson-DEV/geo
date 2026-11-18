@@ -72,7 +72,7 @@ export class TurnoReportNavigatorDataSource implements CesReportNavigatorDataSou
       },
       title: `${equipe} · ${raw.notas} ${raw.notas === 1 ? 'nota' : 'notas'}${raw.placa ? ' · ' + raw.placa : ''}`,
       value: raw.producao,
-      status: { label: situacao.rotulo, tone: situacao.tom },
+      status: { label: situacao.rotulo, tone: situacao.tom, icon: situacao.icone },
       metaAuthor: {
         label: raw.abertoPor || equipe,
         icon: 'pi pi-user',

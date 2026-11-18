@@ -210,6 +210,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/iam/status/status.component').then(m => m.StatusComponent)
       },
       {
+        path: 'avaliacoes',
+        data: { permission: 'avaliacao:read', fullBleed: true },
+        loadComponent: () => import('./features/iam/avaliacoes/avaliacoes-painel.component').then(m => m.AvaliacoesPainelComponent)
+      },
+      {
         path: 'tratamento-erros',
         data: { permission: 'sincronizacao:read' },
         loadComponent: () => import('./features/admin/sync-error-cases/sync-error-cases.component').then(m => m.SyncErrorCasesComponent)
@@ -230,6 +235,31 @@ export const routes: Routes = [
         path: 'supervisores',
         data: { permission: 'rh:supervisor:read' },
         loadComponent: () => import('./features/rh/supervisores/supervisores.component').then(m => m.SupervisoresComponent)
+      },
+      {
+        path: 'medidas-disciplinares',
+        data: { permission: 'rh:medida-disciplinar:read' },
+        loadComponent: () => import('./features/rh/medidas-disciplinares/medidas-disciplinares.component').then(m => m.MedidasDisciplinaresComponent)
+      },
+      {
+        path: 'medidas-disciplinares/configuracao',
+        redirectTo: 'medidas-disciplinares/cadastros/tipos',
+        pathMatch: 'full'
+      },
+      {
+        path: 'medidas-disciplinares/cadastros/tipos',
+        data: { permission: 'rh:medida-disciplinar:read', secao: 'tipos' },
+        loadComponent: () => import('./features/rh/medidas-disciplinares/cadastros-medidas-disciplinares.component').then(m => m.CadastrosMedidasDisciplinaresComponent)
+      },
+      {
+        path: 'medidas-disciplinares/cadastros/motivos',
+        data: { permission: 'rh:medida-disciplinar:read', secao: 'motivos' },
+        loadComponent: () => import('./features/rh/medidas-disciplinares/cadastros-medidas-disciplinares.component').then(m => m.CadastrosMedidasDisciplinaresComponent)
+      },
+      {
+        path: 'medidas-disciplinares/cadastros/parametros',
+        data: { permission: 'rh:medida-disciplinar:read', secao: 'parametros' },
+        loadComponent: () => import('./features/rh/medidas-disciplinares/cadastros-medidas-disciplinares.component').then(m => m.CadastrosMedidasDisciplinaresComponent)
       }
     ]
   },
@@ -237,23 +267,11 @@ export const routes: Routes = [
     path: 'almoxarifado',
     children: [
       { path: '', redirectTo: 'avaliacoes', pathMatch: 'full' },
-      {
-        path: 'transferencia-lote',
-        loadComponent: () => import('./features/almoxarifado/movimentacoes-estoque/transferencias/stock-transfer.component').then(m => m.StockTransferComponent)
-      },
-      {
-        path: 'entrada-avulsa',
-        loadComponent: () => import('./features/almoxarifado/movimentacoes-estoque/entrada-avulsa/stock-entry.component').then(m => m.StockEntryComponent)
-      },
-      {
-        path: 'baixa-avulsa',
-        loadComponent: () => import('./features/almoxarifado/movimentacoes-estoque/baixa-avulsa/stock-exit.component').then(m => m.StockExitComponent)
-      },
-      {
-        path: 'devolucao-comercial',
-        data: { permission: 'estoque:movimentacao:write' },
-        loadComponent: () => import('./features/almoxarifado/movimentacoes-estoque/devolucao-comercial/devolucao-comercial.component').then(m => m.DevolucaoComercialComponent)
-      },
+      // Abrem o drawer da operação em cima da lista; ficam para não quebrar menu e favoritos.
+      { path: 'transferencia-lote', redirectTo: '/almoxarifado/movimentacoes?operacao=transferencia', pathMatch: 'full' },
+      { path: 'entrada-avulsa', redirectTo: '/almoxarifado/movimentacoes?operacao=entrada', pathMatch: 'full' },
+      { path: 'baixa-avulsa', redirectTo: '/almoxarifado/movimentacoes?operacao=baixa', pathMatch: 'full' },
+      { path: 'devolucao-comercial', redirectTo: '/almoxarifado/movimentacoes?operacao=devolucao-comercial', pathMatch: 'full' },
       {
         path: 'materiais',
         data: { permission: 'estoque:material:read' },
@@ -305,13 +323,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/almoxarifado/solicitacoes-material/solicitacoes-material.component').then(m => m.SolicitacoesMaterialComponent)
       },
       {
+        // A nova solicitação comercial abre em painel lateral na lista.
         path: 'solicitacoes/nova',
         pathMatch: 'full',
         redirectTo: abrirNoDrawer('/almoxarifado/solicitacoes')
       },
       {
         path: 'solicitacoes-tecnicas',
-        data: { permission: 'estoque:solicitacao:read' },
+        data: { permission: 'estoque:solicitacao:read', fullBleed: true },
         loadComponent: () => import('./features/almoxarifado/solicitacoes-material/solicitacoes-material-tecnicas.component').then(m => m.SolicitacoesMaterialTecnicasComponent)
       },
       {
@@ -359,24 +378,49 @@ export const routes: Routes = [
         data: { permission: 'estoque:solicitacao:read', fullscreen: true, reportNavigator: 'solicitacao-material' },
         loadComponent: () => import('./features/almoxarifado/solicitacoes-material/relatorio-solicitacao-material/relatorio-solicitacao-material.component').then(m => m.RelatorioSolicitacaoMaterialComponent)
       },
+      { path: 'dashboard/movimentacoes', redirectTo: 'relatorios/movimentacoes', pathMatch: 'full' },
       {
-        path: 'dashboard/solicitacoes',
-        data: { permission: 'estoque:solicitacao:read', fullBleed: true, modoPainel: 'GERAL' },
-        loadComponent: () => import('./features/almoxarifado/dashboard/solicitacoes-dashboard/solicitacoes-dashboard.component').then(m => m.SolicitacoesDashboardComponent)
+        path: 'relatorios',
+        pathMatch: 'full',
+        data: { permission: 'estoque:solicitacao:read', fullBleed: true },
+        loadComponent: () => import('./features/almoxarifado/relatorios/painel/geral/almox-painel-geral.component').then(m => m.AlmoxPainelGeralComponent)
       },
       {
-        path: 'dashboard/solicitacoes/comercial',
-        data: { permission: 'estoque:solicitacao:read', fullBleed: true, modoPainel: 'COMERCIAL' },
-        loadComponent: () => import('./features/almoxarifado/dashboard/solicitacoes-dashboard/solicitacoes-dashboard.component').then(m => m.SolicitacoesDashboardComponent)
+        path: 'relatorios/solicitacoes-comerciais',
+        data: { permission: 'estoque:solicitacao:read', fullBleed: true },
+        loadComponent: () => import('./features/almoxarifado/relatorios/painel/solicitacoes/almox-painel-comerciais.component').then(m => m.AlmoxPainelComerciaisComponent)
       },
       {
-        path: 'dashboard/solicitacoes/tecnico',
-        data: { permission: 'estoque:solicitacao:read', fullBleed: true, modoPainel: 'TECNICO' },
-        loadComponent: () => import('./features/almoxarifado/dashboard/solicitacoes-dashboard/solicitacoes-dashboard.component').then(m => m.SolicitacoesDashboardComponent)
+        path: 'relatorios/solicitacoes-tecnicas',
+        data: { permission: 'estoque:solicitacao:read', fullBleed: true },
+        loadComponent: () => import('./features/almoxarifado/relatorios/painel/solicitacoes/almox-painel-tecnicas.component').then(m => m.AlmoxPainelTecnicasComponent)
       },
+      {
+        path: 'relatorios/fechamento',
+        data: { permission: 'obras:fechamento:read', fullBleed: true },
+        loadComponent: () => import('./features/almoxarifado/relatorios/painel/fechamento/almox-painel-fechamento.component').then(m => m.AlmoxPainelFechamentoComponent)
+      },
+      {
+        path: 'relatorios/consumo',
+        data: { permission: 'estoque:movimentacao:read', fullBleed: true },
+        loadComponent: () => import('./features/almoxarifado/relatorios/painel/consumo/almox-painel-consumo.component').then(m => m.AlmoxPainelConsumoComponent)
+      },
+      {
+        path: 'relatorios/estoque',
+        data: { permission: 'estoque:saldo:read', fullBleed: true },
+        loadComponent: () => import('./features/almoxarifado/relatorios/painel/estoque/almox-painel-estoque.component').then(m => m.AlmoxPainelEstoqueComponent)
+      },
+      {
+        path: 'relatorios/movimentacoes',
+        data: { permission: 'estoque:movimentacao:read', fullBleed: true },
+        loadComponent: () => import('./features/almoxarifado/relatorios/painel/movimentacoes/almox-painel-movimentacoes.component').then(m => m.AlmoxPainelMovimentacoesComponent)
+      },
+      { path: 'dashboard/solicitacoes', redirectTo: 'relatorios', pathMatch: 'full' },
+      { path: 'dashboard/solicitacoes/comercial', redirectTo: 'relatorios/solicitacoes-comerciais', pathMatch: 'full' },
+      { path: 'dashboard/solicitacoes/tecnico', redirectTo: 'relatorios/solicitacoes-tecnicas', pathMatch: 'full' },
       {
         path: 'movimentacoes',
-        data: { permission: 'estoque:movimentacao:read' },
+        data: { permission: 'estoque:movimentacao:read', fullBleed: true },
         loadComponent: () => import('./features/almoxarifado/movimentacoes-estoque/movimentacoes-estoque.component').then(m => m.MovimentacoesEstoqueComponent)
       },
       {
@@ -409,6 +453,16 @@ export const routes: Routes = [
         path: 'dashboard-turnos',
         data: { permission: 'execucao:comercial:read', fullBleed: true },
         loadComponent: () => import('./features/execucao/dashboards/turnos/dashboard-turnos.component').then(m => m.DashboardTurnosComponent)
+      },
+      {
+        path: 'metas-fisicas',
+        data: { permission: 'execucao:meta-fisica:read' },
+        loadComponent: () => import('./features/execucao/metas-fisicas/metas-fisicas.component').then(m => m.MetasFisicasComponent)
+      },
+      {
+        path: 'dashboard-meta-fisica',
+        data: { permission: 'execucao:meta-fisica:read', fullBleed: true },
+        loadComponent: () => import('./features/execucao/dashboards/meta-fisica/dashboard-meta-fisica.component').then(m => m.DashboardMetaFisicaComponent)
       },
       {
         path: 'turnos/:id/detalhamento',
@@ -456,6 +510,11 @@ export const routes: Routes = [
         path: 'ordens-servico/:id',
         data: { permission: 'frota:os:read' },
         loadComponent: () => import('./features/frota/ordens-servico/frota-ordem-servico-detalhe.component').then(m => m.FrotaOrdemServicoDetalheComponent)
+      },
+      {
+        path: 'ordens-servico/:id/checklist',
+        data: { permission: 'frota:os:read', fullscreen: true },
+        loadComponent: () => import('./features/frota/relatorios/relatorio-checklist-oficina.component').then(m => m.RelatorioChecklistOficinaComponent)
       },
       {
         path: 'ordens-servico/:id/relatorio',
@@ -511,6 +570,36 @@ export const routes: Routes = [
         path: 'preventiva',
         data: { permission: 'frota:preventiva:read' },
         loadComponent: () => import('./features/frota/preventiva/frota-preventiva.component').then(m => m.FrotaPreventivaComponent)
+      },
+      {
+        path: 'relatorios',
+        data: { permission: 'frota:veiculo:read', fullBleed: true },
+        loadComponent: () => import('./features/frota/relatorios/painel/geral/frota-painel-geral.component').then(m => m.FrotaPainelGeralComponent)
+      },
+      {
+        path: 'relatorios/custos',
+        data: { permission: 'frota:veiculo:read', fullBleed: true },
+        loadComponent: () => import('./features/frota/relatorios/painel/custos/frota-painel-custos.component').then(m => m.FrotaPainelCustosComponent)
+      },
+      {
+        path: 'relatorios/manutencao',
+        data: { permission: 'frota:os:read', fullBleed: true },
+        loadComponent: () => import('./features/frota/relatorios/painel/manutencao/frota-painel-manutencao.component').then(m => m.FrotaPainelManutencaoComponent)
+      },
+      {
+        path: 'relatorios/combustivel',
+        data: { permission: 'frota:abastecimento:read', fullBleed: true },
+        loadComponent: () => import('./features/frota/relatorios/painel/combustivel/frota-painel-combustivel.component').then(m => m.FrotaPainelCombustivelComponent)
+      },
+      {
+        path: 'relatorios/uso',
+        data: { permission: 'frota:veiculo:read', fullBleed: true },
+        loadComponent: () => import('./features/frota/relatorios/painel/uso/frota-painel-uso.component').then(m => m.FrotaPainelUsoComponent)
+      },
+      {
+        path: 'relatorios/conformidade',
+        data: { permission: 'frota:veiculo:read', fullBleed: true },
+        loadComponent: () => import('./features/frota/relatorios/painel/conformidade/frota-painel-conformidade.component').then(m => m.FrotaPainelConformidadeComponent)
       },
       {
         path: 'relatorios/corretivas-servico',
@@ -638,6 +727,36 @@ export const routes: Routes = [
         path: 'novo',
         redirectTo: 'nova',
         pathMatch: 'full'
+      },
+      {
+        path: 'cadastros/tipos-obra',
+        data: { permission: 'obras:cadastros:read' },
+        loadComponent: () => import('./features/obras/cadastros/tipos-obra/tipos-obra.component').then(m => m.TiposObraComponent)
+      },
+      {
+        path: 'encerramento',
+        data: { permission: 'obras:fechamento:read', fullBleed: true },
+        loadComponent: () => import('./features/obras/fechamento/fechamento-lista.component').then(m => m.FechamentoListaComponent)
+      },
+      {
+        path: 'encerramento/kanban',
+        data: { permission: 'obras:fechamento:read', modo: 'kanban', fullBleed: true },
+        loadComponent: () => import('./features/obras/fechamento/fechamento-lista.component').then(m => m.FechamentoListaComponent)
+      },
+      {
+        path: 'encerramento/calendario',
+        data: { permission: 'obras:fechamento:read', modo: 'calendario', fullBleed: true },
+        loadComponent: () => import('./features/obras/fechamento/fechamento-lista.component').then(m => m.FechamentoListaComponent)
+      },
+      {
+        // A nova solicitação abre em painel lateral na lista.
+        path: 'encerramento/nova',
+        redirectTo: '/obras/encerramento?nova=1'
+      },
+      {
+        path: 'encerramento/:id',
+        data: { permission: 'obras:fechamento:read', fullscreen: true, reportNavigator: 'fechamento' },
+        loadComponent: () => import('./features/obras/fechamento/fechamento-relatorio.component').then(m => m.FechamentoRelatorioComponent)
       },
       {
         path: 'cadastros/status',
@@ -1017,11 +1136,8 @@ export const routes: Routes = [
         data: { permission: 'chamado:read', modo: 'solicitante' },
         loadComponent: () => import('./features/chamados/lista/chamados-lista.component').then(m => m.ChamadosListaComponent)
       },
-      {
-        path: 'novo',
-        data: { permission: 'chamado:write' },
-        loadComponent: () => import('./features/chamados/novo/chamado-novo.component').then(m => m.ChamadoNovoComponent)
-      },
+      // O cadastro virou drawer da lista; o endereço antigo segue valendo para menu, atalhos e avisos.
+      { path: 'novo', redirectTo: () => '/chamados/meus?novo=1' },
       {
         path: 'meus/:id',
         data: { permission: 'chamado:read', modo: 'solicitante' },

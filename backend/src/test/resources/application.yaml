@@ -1,5 +1,9 @@
 # Configurações para testes
 ces:
+  frota:
+    analises:
+      # As tabelas JDBC da telemetria não existem no H2 (create-drop pelas entidades).
+      calcular-ao-subir: false
   auditoria-solicitacao:
     versao-ativa: v1
     chaves:
@@ -37,6 +41,12 @@ spring:
     hibernate:
       ddl-auto: create-drop
     show-sql: false
+    # O script abaixo roda depois do DDL do Hibernate.
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:h2/telemetria.sql
   flyway:
     enabled: false
   

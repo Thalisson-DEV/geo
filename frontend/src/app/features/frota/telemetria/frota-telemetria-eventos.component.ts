@@ -147,11 +147,12 @@ export class FrotaTelemetriaEventosComponent {
 
   protected readonly lista = cesListState({
     storageKey: 'frota-telemetria-eventos',
+    rememberFilters: 'frota-telemetria-eventos',
     filters: {
       tipos: cesFilter.list<TipoEventoTelemetria>([], {
         label: 'Tipo', param: 'tipo', itemLabel: (t) => ROTULO_TIPO_EVENTO[t], countLabel: (n) => `${n} selecionados`
       }),
-      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
+      idsBase: cesFilter.list<string>([], { label: 'Base', param: 'base', shared: 'frota.base', itemLabel: (id) => this.bases.nome(id), countLabel: (n) => `${n} selecionadas` }),
       semCondutor: cesFilter.value<boolean | null>(null, { label: 'Condutor', param: 'semCondutor', options: () => CONDUTOR }),
       periodo: cesFilter.range({ from: null, to: null }, { label: 'Período' })
     },

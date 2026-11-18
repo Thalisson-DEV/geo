@@ -1,5 +1,6 @@
 import { CesTone } from '@ces/ui';
 
+import { paraUnidadeBase } from '../../shared/unidade-material';
 import { EntregaSolicitacaoRequest, ItemSolicitacaoResponse, MaterialResponse } from '../../../../core/models/almoxarifado.models';
 import { montarItensEntrega } from '../series-selecao/entrega-series.util';
 
@@ -82,6 +83,8 @@ export interface ItemEntregaRascunho {
   readonly series: string[];
   /** Tirado da solicitação nesta entrega (só o que ainda não teve entrega nenhuma). */
   readonly removido?: boolean;
+  /** Unidade em que a quantidade foi digitada; nula = unidade do material. */
+  readonly unidade?: string | null;
 }
 
 /** O que falta de cada material vira uma linha da entrega; o com série já vem com as séries definidas. */
@@ -106,7 +109,7 @@ export function rascunhoDaEntrega(itens: readonly ItemSolicitacaoResponse[] | nu
 
 /** Quanto sai da linha: o material com série sai pelas séries escolhidas. */
 export const quantidadeDaLinha = (l: ItemEntregaRascunho): number =>
-  l.removido ? 0 : l.material.detalhaSerie ? l.series.length : Number(l.quantidade) || 0;
+  l.removido ? 0 : l.material.detalhaSerie ? l.series.length : paraUnidadeBase(l.material, Number(l.quantidade) || 0, l.unidade) ?? 0;
 
 type ItensDaEntrega = Pick<EntregaSolicitacaoRequest, 'itens' | 'itensAdicionados' | 'itensRemovidos'>;
 
@@ -134,12 +137,20 @@ export function montarEntregaDoRelatorio(linhas: readonly ItemEntregaRascunho[])
       l.series.forEach((numSerie) => adicionados.push({ idMaterial: l.material.id, quantidade: 1, quantidadeSolicitada: 1, numSerie }));
     } else {
       const quantidade = quantidadeDaLinha(l);
-      adicionados.push({ idMaterial: l.material.id, quantidade, quantidadeSolicitada: quantidade });
+      adicionados.push(l.unidade
+        ? { idMaterial: l.material.id, quantidade: Number(l.quantidade), unidade: l.unidade, quantidadeSolicitada: quantidade }
+        : { idMaterial: l.material.id, quantidade, quantidadeSolicitada: quantidade });
     }
   }
   const removidos = [...(base.itensRemovidos ?? []), ...linhas.filter((l) => l.idItem && l.removido).map((l) => l.idItem!)];
+  // O que foi digitado em outra unidade vai como foi digitado: o servidor converte e guarda os dois.
+  const porItem = new Map(existentes.filter((l) => l.unidade && !l.material.detalhaSerie).map((l) => [l.idItem!, l]));
+  const itens = base.itens.map((i) => {
+    const l = porItem.get(i.idItemSolicitacao);
+    return l && i.quantidade > 0 ? { ...i, quantidade: Number(l.quantidade), unidade: l.unidade! } : i;
+  });
   return {
-    itens: base.itens,
+    itens,
     ...(adicionados.length ? { itensAdicionados: adicionados } : {}),
     ...(removidos.length ? { itensRemovidos: removidos } : {}),
   };

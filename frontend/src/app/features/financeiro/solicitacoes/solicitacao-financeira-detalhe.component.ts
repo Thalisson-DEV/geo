@@ -1,3 +1,4 @@
+import { ICONE_STATUS_SOLICITACAO } from '../../../core/models/financeiro.models';
 import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -155,6 +156,7 @@ export class SolicitacaoFinanceiraDetalheComponent {
 
   protected readonly rotuloStatus = ROTULO_STATUS;
   protected readonly tomStatus = TOM_STATUS;
+  protected readonly iconeStatus: Record<string, string> = ICONE_STATUS_SOLICITACAO;
   protected readonly nomeSolicitante = nomeSolicitante;
   protected readonly icone = (grupo: keyof typeof ICONE_GRUPO) => ICONE_GRUPO[grupo];
 

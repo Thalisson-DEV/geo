@@ -18,7 +18,7 @@ import {
 } from '../../../ui';
 import { abasAlmox } from '../almox-abas';
 
-type Filtro = 'todas' | 'ENTRADA_AVULSA' | 'BAIXA_AVULSA' | 'TRANSFERENCIA' | 'ENTREGA' | 'ESTORNO';
+type Filtro = 'todas' | 'ENTRADA_AVULSA' | 'BAIXA_AVULSA' | 'TRANSFERENCIA' | 'ENTREGA' | 'DEVOLUCAO' | 'ESTORNO';
 interface EstadoTela { tipo?: Filtro; estoque?: string | null; periodo?: PeriodFilter; filtros?: boolean; novo?: boolean }
 
 const FILTROS: OpcaoChip<Filtro>[] = [
@@ -27,12 +27,14 @@ const FILTROS: OpcaoChip<Filtro>[] = [
   { valor: 'BAIXA_AVULSA', rotulo: 'Saídas' },
   { valor: 'TRANSFERENCIA', rotulo: 'Transferências' },
   { valor: 'ENTREGA', rotulo: 'Entregas' },
+  { valor: 'DEVOLUCAO', rotulo: 'Devoluções' },
   { valor: 'ESTORNO', rotulo: 'Estornos' },
 ];
-const NOVAS: { tipo: 'entrada' | 'saida' | 'transferencia'; titulo: string; texto: string; icone: NomeIcone; tom: string }[] = [
+const NOVAS: { tipo: 'entrada' | 'saida' | 'transferencia' | 'devolucao'; titulo: string; texto: string; icone: NomeIcone; tom: string }[] = [
   { tipo: 'entrada', titulo: 'Entrada', texto: 'Material que chega a um estoque (compra, devolução, ajuste).', icone: 'entrada', tom: 'ok' },
   { tipo: 'saida', titulo: 'Saída', texto: 'Baixa definitiva: perda, avaria, sucateamento, ajuste.', icone: 'saida', tom: 'erro' },
   { tipo: 'transferencia', titulo: 'Transferir', texto: 'De um estoque para outro, com as duas assinaturas.', icone: 'transferencia', tom: 'destaque' },
+  { tipo: 'devolucao', titulo: 'Devolver', texto: 'A equipe devolve ao almoxarifado (comercial ou técnica 222/922).', icone: 'desfazer', tom: 'atencao' },
 ];
 const TAMANHO = 30;
 
@@ -131,6 +133,10 @@ const TAMANHO = 30;
     :host { display: block; min-height: 100%; }
     .filtro { gap: 6px; }
     .atalhos { display: flex; gap: var(--ces-e2); padding: var(--ces-e3) var(--ces-e3) 0; }
+    .atalhos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .atalho[data-tom='atencao'] ces-icone { color: var(--ces-atencao); }
+    /* Quatro atalhos lado a lado no celular: ícone em cima, texto embaixo. */
+    .atalhos .atalho { flex-direction: column; gap: 4px; min-height: 60px; padding: var(--ces-e2) 4px; border-radius: var(--ces-r-grupo); font-size: .75rem; }
     .atalho { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 var(--ces-e2);
       border-radius: var(--ces-r-pilula); background: var(--ces-superficie); color: var(--ces-texto); text-decoration: none; font: 600 .8125rem/1 var(--ces-fonte);
       box-shadow: inset 0 0 0 1px var(--ces-linha); transition: transform 100ms; }

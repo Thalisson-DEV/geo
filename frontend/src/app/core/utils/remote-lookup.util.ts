@@ -138,6 +138,17 @@ export class RemoteLookup<T, TKey = string> {
     this.items.update((current) => this.unique([...items, ...current]));
   }
 
+  /** Esquece o que foi carregado: a próxima abertura volta a consultar o servidor. */
+  reset(): void {
+    this.initialized = false;
+    this.currentQuery = '';
+    this.items.set([]);
+    this.error.set(null);
+    this.currentPage.set(0);
+    this.totalPages.set(0);
+    this.totalElements.set(0);
+  }
+
   destroy(): void {
     this.subscription.unsubscribe();
     this.commands.complete();

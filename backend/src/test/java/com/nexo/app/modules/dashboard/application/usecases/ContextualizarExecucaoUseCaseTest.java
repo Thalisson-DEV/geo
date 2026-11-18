@@ -45,7 +45,7 @@ class ContextualizarExecucaoUseCaseTest {
         var turno = turno(idEquipe, "2026-10-09T07:00:00-03:00", null, 0);
         var equipe = new EquipeResponse(idEquipe, "EQ-01", null, null, null, null, null, null, idContrato, true,
                 List.of(), new BigDecimal("21000"));
-        var acaoDaNota = new AcaoResponse(UUID.randomUUID(), "A1", "Religação", true, null, null);
+        var acaoDaNota = new AcaoResponse(UUID.randomUUID(), "A1", "Religação", true, null, null, false);
         OffsetDateTime lancamento = OffsetDateTime.parse("2026-10-09T10:00:00-03:00");
         var execucao = new ExecucaoComercialResponse(UUID.randomUUID(), "N-1", turno.id(), null, equipe, null, null, null,
                 lancamento, StatusExecucao.CONCLUIDO, new BigDecimal("150"), null, null,

@@ -1,0 +1,175 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Solicitações técnicas" icon="pi pi-wrench"
+      [breadcrumb]="[{ label: 'Almoxarifado' }, { label: 'Relatórios' }, { label: 'Solicitações técnicas' }]"
+      description="Adições e devoluções das obras: planejamento, separação, retirada e devolução; quais obras pedem e devolvem demais e onde a fila trava.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (dados(); as d) { <span actions class="dash-updated">Calculado às {{ d.geradoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="almox-rel-tecnicas" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-almox-recorte-campos prefixo="apt" />
+        <ces-multiselect label="Tipo técnico" inputId="apt-tipo" placeholder="Adições e devoluções" [options]="opcoesTipo" [filter]="false"
+          [value]="tiposSel()" (valueChange)="tiposSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Tipo de obra" inputId="apt-tipo-obra" placeholder="Todos" [options]="opcoesTipoObra" [filter]="false"
+          [value]="tiposObraSel()" (valueChange)="tiposObraSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Situação" inputId="apt-situacao" placeholder="Todas" [options]="opcoesSituacao" [filter]="false"
+          [value]="situacoesSel()" (valueChange)="situacoesSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Etapa atual" inputId="apt-etapa" placeholder="Todas" [options]="opcoesEtapa()" [filter]="false"
+          [value]="etapasSel()" (valueChange)="etapasSel.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <app-almox-painel-topo [descricao]="recorte.descricaoPeriodo(recorte.aplicado().de ? { de: recorte.aplicado().de!, ate: recorte.aplicado().ate! } : null) + ' · pela data da solicitação'"
+      (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !r()) {
+      <ces-async-state state="loading" title="Lendo as solicitações técnicas" description="Adições e devoluções do período e as abertas de antes dele."></ces-async-state>
+    } @else if (erro() && !r()) {
+      <ces-async-state state="error" title="Não foi possível ler as solicitações" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (r(); as r) {
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+      @if (dados()?.truncado) {
+        <ces-callout tone="info" icon="pi pi-info-circle" title="Período grande demais">Há mais solicitações que o limite de leitura; reduza o período.</ces-callout>
+      }
+
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+      }
+
+      @if (!ind().total && !r.abertas.length) {
+        <ces-async-state state="empty" title="Nenhuma solicitação técnica neste recorte" description="Amplie o período ou retire filtros."
+          actionLabel="Limpar filtros" actionIcon="pi pi-filter-slash" (action)="limpar()"></ces-async-state>
+      } @else {
+        <section class="dash-metrics" aria-label="Fila">
+          <app-dashboard-metric-card label="Solicitações no período" icon="pi-inbox" tone="primary" [value]="inteiro(ind().total)"
+            [detail]="varVolume() !== null ? variacao(varVolume()) + ' sobre o anterior' : inteiro(ind().porDia) + ' por dia'"
+            actionLabel="Analisar" (activate)="analisar('kpi', 'volume')">
+            <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'total', rotulo: 'Solicitações no período' }" />
+          </app-dashboard-metric-card>
+          <app-dashboard-metric-card label="Em aberto agora" icon="pi-clock" tone="slate" [value]="inteiro(r.abertas.length)"
+            [detail]="r.backlog.length ? inteiro(r.backlog.length) + ' de antes do período' : 'Todas do período'" actionLabel="Ver a fila" (activate)="analisar('kpi', 'abertas')" />
+          <app-dashboard-metric-card label="Atrasadas" icon="pi-exclamation-triangle" [tone]="tomAtraso()" [value]="inteiro(atrasadas().length)"
+            detail="Passaram da data prevista" actionLabel="Ver as atrasadas" (activate)="analisar('kpi', 'atrasadas')" />
+          <app-dashboard-metric-card label="Devoluções pendentes" icon="pi-replay" [tone]="devolucoesPendentes() ? 'amber' : 'green'" [value]="inteiro(devolucoesPendentes())"
+            detail="Material que ainda não voltou da obra" actionLabel="Ver a etapa" (activate)="analisar('etapa', 'PENDENTE_DEVOLUCAO')" />
+        </section>
+        <section class="dash-metrics" aria-label="Desempenho">
+          <app-dashboard-metric-card label="Na separação" icon="pi-box" [tone]="naSeparacao() ? 'amber' : 'slate'" [value]="inteiro(naSeparacao())"
+            [detail]="'Separação mediana de ' + tempo(ind().separacaoMediana)" actionLabel="Analisar a separação" (activate)="analisar('kpi', 'separacao')" />
+          <app-dashboard-metric-card label="Ciclo" icon="pi-stopwatch" tone="slate" [value]="tempo(ind().cicloMediana)"
+            [detail]="varCiclo() !== null ? 'Mediana · ' + variacao(varCiclo()) + ' sobre o anterior' : 'Da solicitação à entrega'"
+            actionLabel="Analisar" (activate)="analisar('kpi', 'ciclo')" />
+          <app-dashboard-metric-card label="Concluídas" icon="pi-check-circle" tone="green" [value]="percentual(ind().taxaConclusao)"
+            [detail]="plural(ind().concluidas, 'solicitação concluída', 'solicitações concluídas')" actionLabel="Analisar" (activate)="analisar('kpi', 'conclusao')"
+            [progress]="ind().taxaConclusao" />
+          <app-dashboard-metric-card label="Rejeitadas" icon="pi-times-circle" [tone]="(ind().taxaRecusa ?? 0) >= 10 ? 'amber' : 'slate'" [value]="percentual(ind().taxaRecusa)"
+            [detail]="plural(ind().recusadas, 'rejeitada ou cancelada', 'rejeitadas ou canceladas')" actionLabel="Ver as recusas" (activate)="analisar('kpi', 'recusas')" />
+        </section>
+
+        <section class="dash-grid" aria-label="Fila em aberto">
+          <article class="dash-panel dash-col-7">
+            <header class="dash-panel__header">
+              <div><span class="dash-eyebrow">Gargalo</span><h2>Onde a fila está parada</h2><p>Do planejamento à devolução, separando as atrasadas. Clique numa etapa.</p></div>
+              <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'etapas', rotulo: 'Abertas por etapa' }" />
+            </header>
+            <ces-chart kind="bar-stacked" title="Abertas por etapa" [showTitle]="false" [selectable]="true" selectLabel="Analisar a etapa"
+              [labels]="graficoFluxo().rotulos" [series]="graficoFluxo().series" valueFormat="integer" [height]="300" (pointSelect)="analisarEtapa($event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-5">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Idade</span><h2>Há quanto tempo esperam</h2><p>Abertas pela idade. Clique numa faixa.</p></div></header>
+            <ces-chart kind="bar-stacked" title="Abertas por idade" [showTitle]="false" [selectable]="true" selectLabel="Analisar a faixa"
+              [labels]="graficoIdade().rotulos" [series]="graficoIdade().series" valueFormat="integer" [height]="300" (pointSelect)="analisarIdade($event.index)"></ces-chart>
+          </article>
+        </section>
+
+        <section class="dash-grid pf-grid-espaco" aria-label="Obras e tipos">
+          <article class="dash-panel dash-col-7">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Obras</span><h2>Adições e devoluções por obra</h2>
+              <p>Obra que devolve muito do que pede tem orçamento de material acima do necessário. Clique numa obra.</p></div></header>
+            <ces-chart kind="bar-horizontal" title="Adições e devoluções por obra" [showTitle]="false" [selectable]="true" selectLabel="Analisar a obra"
+              [labels]="graficoObras().rotulos" [series]="graficoObras().series" valueFormat="integer" [height]="Math.max(220, obrasTop().length * 40)"
+              (pointSelect)="analisarObra($event.index)"></ces-chart>
+          </article>
+          <article class="dash-panel dash-col-5">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Tipo</span><h2>Por tipo técnico</h2><p>221/921 adicionam, 222/922 devolvem. Clique num tipo.</p></div></header>
+            <ces-chart kind="bar-stacked" title="Solicitações por tipo técnico" [showTitle]="false" [selectable]="true" selectLabel="Analisar o tipo"
+              [labels]="graficoTipo().rotulos" [series]="graficoTipo().series" valueFormat="integer" [height]="Math.max(220, obrasTop().length * 40)"
+              (pointSelect)="analisarTipo($event.index)"></ces-chart>
+          </article>
+        </section>
+
+        @if (serie(); as s) {
+          <section class="dash-grid pf-grid-espaco" aria-label="Volume">
+            <article class="dash-panel dash-col-8">
+              <header class="dash-panel__header"><div><span class="dash-eyebrow">Volume</span><h2>Solicitações por dia</h2><p>Pela data da solicitação e como cada uma está hoje. Clique num dia.</p></div></header>
+              <ces-chart kind="bar-stacked" title="Solicitações por dia" [showTitle]="false" [selectable]="true" selectLabel="Analisar o dia"
+                [labels]="s.rotulos" [series]="s.series" valueFormat="integer" [height]="280" (pointSelect)="analisarDia($event.index)"></ces-chart>
+            </article>
+            <article class="dash-panel dash-col-4">
+              <header class="dash-panel__header"><div><span class="dash-eyebrow">Tempo</span><h2>Da solicitação à entrega</h2><p>Concluídas por faixa de tempo.</p></div></header>
+              <ces-chart kind="bar" title="Concluídas por faixa de ciclo" [showTitle]="false" [selectable]="true" selectLabel="Analisar o ciclo"
+                [labels]="ciclo().rotulos" [series]="ciclo().series" valueFormat="integer" [height]="280" (pointSelect)="analisar('kpi', 'ciclo')"></ces-chart>
+            </article>
+          </section>
+        }
+
+        <section class="pf-secao" aria-labelledby="apt-atencao">
+          <header><span class="dash-eyebrow">Agir</span><h2 id="apt-atencao">Solicitações que pedem ação</h2>
+            <p>Abertas da mais atrasada para a mais antiga. Abra a linha para ir à solicitação.</p></header>
+          <ces-data-table title="Fila de atenção" storageKey="apt-atencao" exportFileName="solicitacoes-tecnicas-atencao"
+            [columns]="colAtencao" [rows]="atencao()" [rowKey]="chaveSolicitacao" [rowLabel]="rotuloSolicitacao" searchPlaceholder="Filtrar obra, equipe ou etapa"
+            rowActionLabel="Abrir a solicitação" (rowActivate)="abrirSolicitacao($event)"
+            [state]="atencao().length ? 'ready' : 'empty'" stateTitle="Nenhuma solicitação em aberto">
+            <ng-template cesCell="etapa" let-l><ces-status [tone]="tomEtapa(l)" [icon]="iconeEtapa(l)">{{ rotuloEtapa($any(l).etapa) }}</ces-status></ng-template>
+            <ng-template cesCell="atraso" let-l>
+              @if (diasAtraso(l)) { <ces-status tone="danger" emphasis="outline" icon="pi pi-history">{{ plural(diasAtraso(l), 'dia', 'dias') }}</ces-status> }
+              @else { <ces-status tone="success" icon="pi pi-check">No prazo</ces-status> }
+            </ng-template>
+          </ces-data-table>
+        </section>
+
+        <section class="pf-secao" aria-labelledby="apt-obras">
+          <header><span class="dash-eyebrow">Obras</span><h2 id="apt-obras">Por obra</h2><p>Adições, devoluções, fila e tempo de cada obra.</p></header>
+          <ces-data-table title="Obras" storageKey="apt-obras" exportFileName="solicitacoes-tecnicas-obras" [columns]="colObras" [rows]="obras()"
+            [rowKey]="chaveRanking" searchPlaceholder="Filtrar obra" rowActionLabel="Analisar" (rowActivate)="analisar('obra', $event.chave)"
+            [state]="obras().length ? 'ready' : 'empty'" stateTitle="Nenhuma obra no recorte"></ces-data-table>
+        </section>
+
+        <section class="dash-grid pf-grid-espaco">
+          <div class="dash-col-6">
+            <ces-data-table title="Equipes" description="Quem pede e retira para as obras." storageKey="apt-equipes" exportFileName="solicitacoes-tecnicas-equipes"
+              [columns]="colRanking" [rows]="equipes()" [rowKey]="chaveRanking" searchPlaceholder="Filtrar equipe"
+              rowActionLabel="Analisar" (rowActivate)="analisar('equipe', $event.chave)"></ces-data-table>
+          </div>
+          <div class="dash-col-6">
+            <ces-data-table title="Por tipo de obra" description="Obra, corretiva, preventiva e LPT." storageKey="apt-tipo-obra" exportFileName="solicitacoes-tecnicas-tipo-obra"
+              [columns]="colRanking" [rows]="porTipoObra()" [rowKey]="chaveRanking" [searchable]="false"
+              rowActionLabel="Analisar" (rowActivate)="analisar('tipo-obra', $event.chave)"></ces-data-table>
+          </div>
+        </section>
+
+        <section class="pf-secao" aria-labelledby="apt-materiais">
+          <header><span class="dash-eyebrow">Materiais</span><h2 id="apt-materiais">O que as obras pedem</h2>
+            <p>Adições por material com a quantidade atendida.@if (materiaisSemCorte()) { Considera o período e os filtros de seleção única; situação, etapa, tipos e seleções múltiplas não se aplicam aqui.}</p></header>
+          <ces-data-table title="Materiais das adições" storageKey="apt-materiais" exportFileName="solicitacoes-tecnicas-materiais"
+            [columns]="colMateriais" [rows]="listaMateriais()" [rowKey]="chaveMaterial" searchPlaceholder="Filtrar código ou material"
+            [state]="listaMateriais().length ? 'ready' : 'empty'" stateTitle="Nenhum material pedido"></ces-data-table>
+        </section>
+      }
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

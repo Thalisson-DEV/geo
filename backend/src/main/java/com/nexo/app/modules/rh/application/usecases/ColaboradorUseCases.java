@@ -1,5 +1,6 @@
 package com.nexo.app.modules.rh.application.usecases;
 
+import com.nexo.app.modules.iam.ValidacaoNovoAcessoApi;
 import com.nexo.app.modules.rh.ColaboradorApi;
 import com.nexo.app.modules.rh.ColaboradorAtivoResumo;
 import com.nexo.app.modules.rh.ColaboradorResponse;
@@ -53,6 +54,7 @@ public class ColaboradorUseCases implements ColaboradorApi {
     private final BaseOperacionalRepository baseRepository;
     private final FuncaoRepository funcaoRepository;
     private final ColaboradorMapper mapper;
+    private final ValidacaoNovoAcessoApi validacaoNovoAcesso;
 
     private final ApplicationEventPublisher eventPublisher;
 
@@ -136,6 +138,9 @@ public class ColaboradorUseCases implements ColaboradorApi {
         }
 
         colaborador.validarStatus();
+
+        // O usuário nasce depois desta resposta: o que for recusado precisa voltar agora.
+        validacaoNovoAcesso.validar(request.usuario().login(), request.usuario().email(), request.usuario().idPerfil());
 
         eventPublisher.publishEvent(new AcessoColaboradorSolicitadoEvent(
                 colaborador.getId(),

@@ -1,0 +1,195 @@
+<app-copiloto-area [contexto]="contextoCopiloto()">
+<main class="dash-page">
+  <div class="dash-shell">
+    <ces-page-header title="Manutenção da frota" icon="pi pi-wrench"
+      [breadcrumb]="[{ label: 'Frota' }, { label: 'Relatórios' }, { label: 'Manutenção' }]"
+      description="Disponibilidade, fila de OS, corretiva × preventiva, tempo de reparo, oficinas, itens e retrabalho. O que tira veículo de operação e quanto custa.">
+      @if (copilotoDisponivel) { <app-copiloto-gatilho actions></app-copiloto-gatilho> }
+      @if (gerencial(); as g) { <span actions class="dash-updated">Calculado às {{ g.periodo.calculadoEm | date: 'HH:mm' }}</span> }
+      <ces-button actions label="Atualizar" icon="pi pi-refresh" variant="secondary" [loading]="carregando()" (pressed)="aplicar()"></ces-button>
+    </ces-page-header>
+
+    <ces-filter-panel storageKey="frota-painel-manutencao" [activeCount]="chips().length" [summary]="chips()" [loading]="carregando()"
+      (applied)="aplicar()" (cleared)="limpar()" (chipRemoved)="removerFiltro($event)">
+      <div class="ces-filter-grid">
+        <app-frota-recorte-campos prefixo="fpm" />
+        <ces-multiselect label="Tipo de manutenção" inputId="fpm-tipo-manut" placeholder="Corretivas e preventivas" [options]="tipos" [filter]="false"
+          [value]="tipoSel()" (valueChange)="tipoSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Criticidade" inputId="fpm-criticidade" placeholder="Todas" [options]="criticidades" [filter]="false"
+          [value]="criticidadeSel()" (valueChange)="criticidadeSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Oficina" inputId="fpm-oficina" placeholder="Interna e externa" [options]="oficinasOpcoes" [filter]="false"
+          [value]="oficinaSel()" (valueChange)="oficinaSel.set($event)"></ces-multiselect>
+        <ces-multiselect label="Origem da OS" inputId="fpm-origem" placeholder="Todas" [options]="origens" [filter]="false"
+          [value]="origemSel()" (valueChange)="origemSel.set($event)"></ces-multiselect>
+      </div>
+    </ces-filter-panel>
+
+    <app-frota-painel-topo [dados]="gerencial()" (periodo)="usarPeriodo($event)" />
+
+    @if (carregando() && !modelo()) {
+      <ces-async-state state="loading" title="Calculando a manutenção da frota" description="Somando OS, tempo parado, peças e serviços do período."></ces-async-state>
+    } @else if (erro() && !modelo()) {
+      <ces-async-state state="error" title="Não foi possível calcular a manutenção" [description]="erro()!"
+        actionLabel="Tentar novamente" actionIcon="pi pi-refresh" (action)="aplicar()"></ces-async-state>
+    } @else if (modelo(); as m) {
+      @if (erro()) {
+        <ces-callout tone="warning" icon="pi pi-exclamation-triangle" title="Os números abaixo são da consulta anterior">{{ erro() }}</ces-callout>
+      }
+      @if (m.filtrado) {
+        <ces-callout tone="info" icon="pi pi-filter" title="Recorte por tipo, criticidade, oficina ou origem">
+          OS, valores, tempos e fila seguem o filtro. Disponibilidade e preventivas vencidas são da frota do recorte inteira.
+        </ces-callout>
+      }
+
+      @if (visao(); as vg) {
+        <app-dashboard-visao-gerencial [veredito]="vg.veredito" [leituras]="vg.leituras" [copiloto]="copilotoDisponivel"
+          (abrir)="analisar($event.dimension, $event.value)" (perguntar)="perguntarVisao(vg.pergunta)" />
+      }
+
+      <section class="dash-metrics" aria-label="Indicadores de manutenção">
+        <app-dashboard-metric-card label="Disponibilidade" icon="pi-check-circle" [tone]="tomDisponibilidade(m.r.manutencao?.disponibilidade?.atual)"
+          [value]="pct(m.r.manutencao?.disponibilidade?.atual)" [progress]="percentual(m.r.manutencao?.disponibilidade?.atual)"
+          [detail]="'Meta 95% · ' + textoVariacao(m.r.manutencao?.disponibilidade?.atual ?? null, m.r.manutencao?.disponibilidade?.anterior ?? null, 'fracao')"
+          actionLabel="Ver os parados" (activate)="analisar('kpi', 'parados')">
+          <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'disponibilidade', rotulo: 'Disponibilidade' }" />
+        </app-dashboard-metric-card>
+        <app-dashboard-metric-card label="OS concluídas" icon="pi-check-square" tone="primary" [value]="inteiro(m.os.length)"
+          [detail]="m.corretivas.length + ' corretivas · ' + textoVariacao(m.os.length, m.anterior.length || null)"
+          actionLabel="Ver as OS" (activate)="analisar('kpi', 'os')" />
+        <app-dashboard-metric-card label="Custo de manutenção" icon="pi-wallet" tone="slate" [value]="moedaCurta(m.valor)"
+          [detail]="moeda(m.ticket) + ' por OS · ' + textoVariacao(m.valor, m.valorAnterior || null, 'moeda')"
+          actionLabel="Ver o custo" (activate)="analisar('kpi', 'custo')" />
+        <app-dashboard-metric-card label="OS preventivas" icon="pi-calendar-clock"
+          [tone]="m.percPreventiva == null ? 'slate' : m.percPreventiva < limites.preventivaMinima ? 'amber' : m.percPreventiva >= limites.preventivaBoa ? 'green' : 'primary'"
+          [value]="pct(m.percPreventiva)" [progress]="percentual(m.percPreventiva)"
+          [detail]="'Referência 70% · ' + (m.r.manutencao?.preventivasVencidas ?? 0) + ' vencidas hoje'"
+          actionLabel="Ver a preventiva" (activate)="analisar('kpi', 'preventiva')" />
+      </section>
+      <section class="dash-metrics" aria-label="Tempo e fila">
+        <app-dashboard-metric-card label="Tempo médio de reparo" icon="pi-stopwatch" [tone]="(m.mttr ?? 0) > 48 ? 'amber' : 'slate'"
+          [value]="m.mttr == null ? '—' : numero(m.mttr) + ' h'" [detail]="'Por corretiva · ' + textoVariacao(m.mttr, m.mttrAnterior)"
+          actionLabel="Ver o reparo" (activate)="analisar('kpi', 'mttr')" />
+        <app-dashboard-metric-card label="Tempo entre falhas" icon="pi-history" tone="slate"
+          [value]="m.mtbf == null ? '—' : numero(m.mtbf) + ' dias'" detail="Dias de operação por corretiva; maior é melhor"
+          actionLabel="Ver as corretivas" (activate)="analisar('kpi', 'mtbf')" />
+        <app-dashboard-metric-card label="Fila de OS" icon="pi-inbox" [tone]="m.atrasadas.length ? 'amber' : 'slate'" [value]="inteiro(m.abertas.length)"
+          [detail]="m.paradas.length + ' com veículo parado · ' + m.atrasadas.length + ' atrasadas'"
+          actionLabel="Ver a fila" (activate)="analisar('kpi', 'fila')" />
+        <app-dashboard-metric-card label="Retrabalho" icon="pi-replay" [tone]="m.retrabalho.length ? 'amber' : 'green'" [value]="inteiro(m.retrabalho.length)"
+          detail="Item que voltou no mesmo veículo em 30 dias" actionLabel="Ver o retrabalho" (activate)="analisar('kpi', 'retrabalho')" />
+      </section>
+
+      <section class="dash-grid" aria-label="Corretiva e preventiva">
+        <article class="dash-panel dash-col-8">
+          <header class="dash-panel__header">
+            <div><span class="dash-eyebrow">Tendência</span><h2>Corretivas × preventivas por mês</h2><p>OS concluídas no mês. A preventiva deve ser a maior parte.</p></div>
+            <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'mensal', rotulo: 'Corretivas × preventivas por mês' }" />
+          </header>
+          <ces-chart kind="bar-stacked" title="OS por mês" [showTitle]="false" [selectable]="true" selectLabel="Analisar o mês"
+            [labels]="mensal().rotulos" [series]="mensal().series" valueFormat="integer" [height]="290"
+            (pointSelect)="selecionar(m.mensal, $event.index, 'mes', mesDoGrafico)"></ces-chart>
+        </article>
+        <article class="dash-panel dash-col-4">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">Por quê</span><h2>Causa das corretivas</h2><p>Uso indevido e avaria pedem conversa com a operação.</p></div></header>
+          <ces-chart kind="doughnut" title="Causa das corretivas" [showTitle]="false" [selectable]="true" selectLabel="Ver as OS"
+            [labels]="graficoCausas().rotulos" [series]="graficoCausas().series" valueFormat="integer" [height]="290"
+            (pointSelect)="selecionar(causas(), $event.index, 'causa', chaveGrupo)"></ces-chart>
+        </article>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="fpm-agora">
+        <header><span class="dash-eyebrow">Agora</span><h2 id="fpm-agora">O que está parado e o que está na fila</h2>
+          <p>Hoje, independente do período. Abra a linha para ir à OS.</p></header>
+        <div class="dash-grid">
+          <div class="dash-col-6">
+            <ces-data-table title="Veículos parados agora" description="OS aberta com o veículo parado, do mais antigo para o mais novo."
+              storageKey="fpm-parados" exportFileName="frota-veiculos-parados" [columns]="colParados" [rows]="m.paradas" [rowKey]="chaveId"
+              [searchable]="false" rowActionLabel="Abrir OS" (rowActivate)="abrirOs($event)"
+              [state]="m.paradas.length ? 'ready' : 'empty'" stateTitle="Nenhum veículo parado"></ces-data-table>
+          </div>
+          <article class="dash-panel dash-col-6">
+            <header class="dash-panel__header"><div><span class="dash-eyebrow">Idade</span><h2>Fila por tempo em aberto</h2><p>Clique numa faixa para ver as OS.</p></div></header>
+            <ces-chart kind="bar" title="OS abertas por idade" [showTitle]="false" [selectable]="true" selectLabel="Ver as OS"
+              [labels]="graficoFila().rotulos" [series]="graficoFila().series" valueFormat="integer" [height]="200"
+              (pointSelect)="selecionar(m.fila, $event.index, 'faixa', chaveFaixa)"></ces-chart>
+            @if (criticidadeFila().chaves.length) {
+              <ces-chart kind="bar-horizontal" title="OS abertas por criticidade" [showTitle]="false" [selectable]="true" selectLabel="Ver as OS"
+                [labels]="criticidadeFila().rotulos" [series]="criticidadeFila().series" valueFormat="integer" [height]="160"
+                (pointSelect)="selecionar(criticidadeFila().chaves, $event.index, 'criticidade', identidade)"></ces-chart>
+            }
+          </article>
+        </div>
+      </section>
+
+      <section class="dash-grid pf-grid-espaco">
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">De onde vêm</span><h2>Origem das OS</h2><p>Checklist e inspeção mostram problema achado antes de quebrar.</p></div></header>
+          <ces-chart kind="bar-horizontal" title="OS por origem" [showTitle]="false" [selectable]="true" selectLabel="Ver as OS"
+            [labels]="graficoOrigens().rotulos" [series]="graficoOrigens().series" valueFormat="integer" [height]="240"
+            (pointSelect)="selecionar(origensGrupos(), $event.index, 'origem', chaveGrupo)"></ces-chart>
+        </article>
+        <article class="dash-panel dash-col-6">
+          <header class="dash-panel__header"><div><span class="dash-eyebrow">O que quebra</span><h2>Itens mais frequentes</h2><p>Itens de manutenção nas OS concluídas. Clique para ver onde aparecem.</p></div></header>
+          <ces-chart kind="bar-horizontal" title="Itens de manutenção mais frequentes" [showTitle]="false" [selectable]="true" selectLabel="Analisar o item"
+            [labels]="graficoItens().rotulos" [series]="graficoItens().series" valueFormat="integer" [height]="240"
+            (pointSelect)="selecionar(itensTop(), $event.index, 'item', chaveItem)"></ces-chart>
+        </article>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="fpm-quem">
+        <header><span class="dash-eyebrow">Quem executa</span><h2 id="fpm-quem">Oficinas, itens, peças e mecânicos</h2>
+          <p>Preço, prazo e retrabalho de cada oficina; o que mais se troca e quem mais trabalha.</p></header>
+        <div class="dash-grid">
+          <div class="dash-col-6">
+            <ces-data-table title="Oficinas" description="OS concluídas: quantidade, valor, prazo e retrabalho." storageKey="fpm-oficinas"
+              exportFileName="frota-oficinas" [columns]="colOficinas" [rows]="m.oficinas" [rowKey]="chaveNome" [searchable]="false"
+              rowActionLabel="Analisar" (rowActivate)="analisar('oficina', $event.nome)"
+              [state]="m.oficinas.length ? 'ready' : 'empty'" stateTitle="Nenhuma OS concluída"></ces-data-table>
+          </div>
+          <div class="dash-col-6">
+            <ces-data-table title="Itens de manutenção" storageKey="fpm-itens" exportFileName="frota-itens-manutencao" [columns]="colItens"
+              [rows]="m.itens" [rowKey]="chaveItem" searchPlaceholder="Filtrar item" rowActionLabel="Analisar" (rowActivate)="analisar('item', $event.item)"
+              [state]="m.itens.length ? 'ready' : 'empty'" stateTitle="Sem itens nas OS do período"></ces-data-table>
+          </div>
+        </div>
+        <div class="dash-grid pf-grid-espaco">
+          <div class="dash-col-6">
+            <ces-data-table title="Peças que mais pesaram" [description]="'Peças das OS concluídas · ' + moeda(m.pecas) + ' no total'" storageKey="fpm-pecas"
+              exportFileName="frota-pecas" [columns]="colPecas" [rows]="m.pecasTop" [rowKey]="chaveDescricao" searchPlaceholder="Filtrar peça"
+              [state]="m.pecasTop.length ? 'ready' : 'empty'" stateTitle="Nenhuma peça lançada"></ces-data-table>
+          </div>
+          <div class="dash-col-6">
+            <ces-data-table title="Mecânicos" [description]="'Serviços das OS concluídas · ' + moeda(m.servicos) + ' no total'" storageKey="fpm-mecanicos"
+              exportFileName="frota-mecanicos" [columns]="colMecanicos" [rows]="m.mecanicos" [rowKey]="chaveNome" [searchable]="false"
+              [state]="m.mecanicos.length ? 'ready' : 'empty'" stateTitle="Nenhum serviço lançado"></ces-data-table>
+          </div>
+        </div>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="fpm-fila">
+        <header><span class="dash-eyebrow">Fila</span><h2 id="fpm-fila">OS abertas</h2><p>Da mais antiga para a mais nova. Abra a linha para ir à OS.</p></header>
+        <ces-data-table title="OS abertas" storageKey="fpm-fila" exportFileName="frota-fila-os" [columns]="colFila" [rows]="m.abertas" [rowKey]="chaveId"
+          searchPlaceholder="Filtrar placa" rowActionLabel="Abrir OS" (rowActivate)="abrirOs($event)"
+          [state]="m.abertas.length ? 'ready' : 'empty'" stateTitle="Fila vazia">
+          <ng-template cesCell="situacao" let-row>
+            <span>{{ rotuloSituacao(row.situacao) }}</span>
+            @if (row.atrasada) { <ces-status tone="warning" emphasis="outline" icon="pi-clock">Atrasada</ces-status> }
+          </ng-template>
+        </ces-data-table>
+      </section>
+
+      <section class="pf-secao" aria-labelledby="fpm-veic">
+        <header><span class="dash-eyebrow">Por veículo</span><h2 id="fpm-veic">Manutenção por veículo</h2>
+          <p>Quem mais quebra e mais fica parado vem primeiro. Abra a linha para o histórico do veículo.</p></header>
+        <ces-data-table title="Manutenção por veículo" storageKey="fpm-veiculos" exportFileName="frota-manutencao-por-veiculo" [columns]="colVeiculos"
+          [rows]="veiculosComOs()" [rowKey]="chaveVeiculo" searchPlaceholder="Filtrar placa" rowActionLabel="Analisar"
+          (rowActivate)="analisar('veiculo', $event.idVeiculo)" [state]="veiculosComOs().length ? 'ready' : 'empty'" stateTitle="Nenhum veículo com manutenção no período"></ces-data-table>
+      </section>
+    }
+  </div>
+</main>
+</app-copiloto-area>
+
+<app-dashboard-analise [vista]="vistaAnalise()" [trilha]="analise.trilha()" [copiloto]="copilotoDisponivel"
+  (fechar)="analise.fechar()" (navegar)="aprofundar($event)" (trocar)="analise.trocar($event)"
+  (voltar)="analise.voltar($event)" (perguntar)="perguntarAnalise($event)" />

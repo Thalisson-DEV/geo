@@ -62,6 +62,7 @@ const RECURSOS: Record<string, { rotulo: string; descricao?: string }> = {
   'estoque:motivo-rejeicao': { rotulo: 'Motivos de rejeição e pendência', descricao: 'Também é usado para escolher o motivo ao rejeitar ou registrar pendência.' },
   'execucao:comercial': { rotulo: 'Notas, turnos e painéis de execução' },
   'execucao:tipo-servico': { rotulo: 'Tipos de serviço' },
+  'execucao:meta-fisica': { rotulo: 'Meta física da Concessionária (cadastro e painel)' },
   'contrato:contrato': { rotulo: 'Contratos' },
   'contrato:acao': { rotulo: 'Ações do contrato' },
   'contrato:acao-valor': { rotulo: 'Valores das ações' },

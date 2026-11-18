@@ -46,10 +46,18 @@ public record DevolucaoComercialRequest(
         String numSerie,
 
         @Schema(description = "Se o almoxarifado destino guarda o material. Quando falso, o material é devolvido e baixado (baixa avulsa) no destino na mesma operação. Padrão: true")
-        Boolean guardarNoEstoque
+        Boolean guardarNoEstoque,
+
+        @Schema(description = "Unidade em que a quantidade foi informada (ex.: M para fita). Vazia = unidade do material.")
+        String unidade
     ) {
         public ItemDevolucaoComercialRequest(UUID idMaterial, BigDecimal quantidade, CondicaoMaterial condicao, String numSerie) {
-            this(idMaterial, quantidade, condicao, numSerie, null);
+            this(idMaterial, quantidade, condicao, numSerie, null, null);
+        }
+
+        public ItemDevolucaoComercialRequest(UUID idMaterial, BigDecimal quantidade, CondicaoMaterial condicao, String numSerie,
+                                             Boolean guardarNoEstoque) {
+            this(idMaterial, quantidade, condicao, numSerie, guardarNoEstoque, null);
         }
 
         public boolean deveGuardar() {

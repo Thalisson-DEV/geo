@@ -49,6 +49,13 @@ public class MovimentacaoEstoqueController implements MovimentacaoEstoqueControl
     }
 
     @Override
+    @GetMapping("/contagens")
+    @PreAuthorize("hasAuthority('estoque:movimentacao:read')")
+    public ResponseEntity<MovimentacaoContagensResponse> contar(@ParameterObject MovimentacaoEstoqueFilter filter) {
+        return ResponseEntity.ok(useCases.contar(filter));
+    }
+
+    @Override
     @GetMapping("/operacao/{idReferencia}")
     @PreAuthorize("hasAuthority('estoque:movimentacao:read')")
     public ResponseEntity<MovimentacaoOperacaoResponse> buscarOperacaoPorIdReferencia(@PathVariable UUID idReferencia) {

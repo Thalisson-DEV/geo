@@ -31,6 +31,8 @@ import {
   ROTULO_CRITICIDADE,
   ROTULO_ORIGEM_OS,
   ROTULO_SITUACAO_OS,
+  rotuloSituacaoOs,
+  tomSituacaoOs,
   ROTULO_STATUS_FINANCEIRO,
   ROTULO_TIPO_MANUTENCAO,
   ROTULO_TIPO_OFICINA,
@@ -50,13 +52,15 @@ import { NavigationHistoryService } from '../../../core/navigation';
 import { FrotaService } from '../../../core/services/frota.service';
 import { acessoFrota } from '../shared/frota-acesso';
 import { FrotaJustificativaDrawerComponent } from '../shared/frota-justificativa-drawer.component';
-import { FrotaOrdemServicoConclusaoComponent } from './frota-ordem-servico-conclusao.component';
+import { FrotaOrdemServicoConclusaoComponent, ModoConclusao } from './frota-ordem-servico-conclusao.component';
 import { EtapaOrdemServico, FrotaOrdemServicoEtapaComponent } from './frota-ordem-servico-etapa.component';
 import { FrotaOrdemServicoFormComponent } from './frota-ordem-servico-form.component';
 import { FrotaOsDocumentosFiscaisComponent } from './frota-os-documentos-fiscais.component';
 import { FrotaOsExecucaoComponent } from './frota-os-execucao.component';
+import { FrotaOsHistoricoPlacaComponent } from './frota-os-historico-placa.component';
+import { FrotaOsAnexosComponent } from './frota-os-anexos.component';
 
-const ABAS = ['resumo', 'itens', 'execucao', 'documentos', 'orcamentos', 'historico'] as const;
+const ABAS = ['resumo', 'itens', 'execucao', 'documentos', 'orcamentos', 'placa', 'historico'] as const;
 type Aba = (typeof ABAS)[number];
 
 /** Ficha da OS: situação, próximos passos, itens com repetição, orçamentos do financeiro e histórico. */
@@ -83,7 +87,9 @@ type Aba = (typeof ABAS)[number];
     FrotaOrdemServicoEtapaComponent,
     FrotaOrdemServicoFormComponent,
     FrotaOsDocumentosFiscaisComponent,
-    FrotaOsExecucaoComponent
+    FrotaOsExecucaoComponent,
+    FrotaOsHistoricoPlacaComponent,
+    FrotaOsAnexosComponent
   ],
   styles: `
     .roteiro { display: grid; gap: 0.375rem; margin-bottom: 0.75rem; }
@@ -107,7 +113,7 @@ type Aba = (typeof ABAS)[number];
           [description]="(d.ordem.base ?? 'Sem base') + ' · ' + rotuloTipo[d.ordem.tipoManutencao] + ' · ' + d.itens.length + (d.itens.length === 1 ? ' item' : ' itens')"
         >
           <ng-container status>
-            <ces-status [tone]="tomSituacao[d.ordem.situacao]">{{ rotuloSituacao[d.ordem.situacao] }}</ces-status>
+            <ces-status [tone]="tomSituacaoOs(d.ordem)">{{ rotuloSituacaoOs(d.ordem) }}</ces-status>
             <ces-status [tone]="tomCriticidade[d.ordem.criticidade]" emphasis="outline">{{ rotuloCriticidade[d.ordem.criticidade] }}</ces-status>
             @if (d.ordem.atrasada) {
               <ces-status tone="danger" icon="pi-clock">Prazo estourado</ces-status>
@@ -115,6 +121,10 @@ type Aba = (typeof ABAS)[number];
           </ng-container>
           <ng-container actions>
             <ces-button variant="outline" icon="pi pi-file" label="Relatório" (pressed)="abrirRelatorio(d.ordem.id)"></ces-button>
+            @if (aberta()) {
+              <!-- Folha para imprimir e entregar ao mecânico: roteiro e itens para marcar, com as assinaturas. -->
+              <ces-button variant="outline" icon="pi pi-print" label="Checklist da oficina" (pressed)="abrirChecklist(d.ordem.id)"></ces-button>
+            }
             @if (aberta()) {
               <!-- Uma ação primária por etapa: pendente agenda, agendada inicia, em andamento conclui. -->
               @if (podeAgendar()) {
@@ -130,18 +140,33 @@ type Aba = (typeof ABAS)[number];
               }
               @if (acesso.executarOs()) {
                 <ces-button [variant]="proximaEtapa() === 'concluir' ? 'primary' : 'outline'" icon="pi pi-check" label="Concluir"
-                  (pressed)="conclusaoAberta.set(true)"></ces-button>
+                  (pressed)="abrirConclusao('concluir')"></ces-button>
               }
               @if (acesso.editarOs()) {
                 <ces-button variant="ghost" icon="pi pi-pencil" label="Editar" (pressed)="formularioAberto.set(true)"></ces-button>
                 <ces-button variant="ghost" icon="pi pi-times" label="Cancelar OS" (pressed)="cancelamentoAberto.set(true)"></ces-button>
               }
             }
+            @if (d.ordem.situacao === 'CONCLUIDA' && acesso.executarOs()) {
+              @if (d.ordem.baixaPendente) {
+                <ces-button icon="pi pi-dollar" label="Lançar valores" (pressed)="aba.set('execucao')"></ces-button>
+                <ces-button variant="outline" icon="pi pi-pencil" label="Completar conclusão" (pressed)="abrirConclusao('completar')"></ces-button>
+              }
+              <!-- Deu problema no teste: a OS volta para a oficina sem abrir outra. -->
+              <ces-button variant="ghost" icon="pi pi-replay" label="Voltar para em andamento" (pressed)="reaberturaAberta.set(true)"></ces-button>
+            }
           </ng-container>
         </ces-page-header>
 
         @for (aviso of avisos(); track aviso) {
           <ces-callout tone="warning" [dense]="true">{{ aviso }}</ces-callout>
+        }
+        <!-- Na aba Execução o aviso já aparece junto das linhas sem valor. -->
+        @if (d.ordem.baixaPendente && aba() !== 'execucao') {
+          <ces-callout tone="warning" icon="pi pi-hourglass" title="Valores pendentes">
+            O serviço foi concluído, mas ainda falta: {{ (d.pendencias ?? []).join('; ') || 'o valor da OS' }}.
+            Lance os valores na aba Execução (ou marque como sem custo); com o último valor, a OS fica finalizada sozinha.
+          </ces-callout>
         }
 
         <div class="ces-kpis">
@@ -254,7 +279,7 @@ type Aba = (typeof ABAS)[number];
                   <dl class="ces-sheet">
                     <div><dt>Valor total</dt><dd>{{ d.ordem.valorTotal != null ? (d.ordem.valorTotal | currency: 'BRL') : '—' }}</dd></div>
                     <div><dt>{{ d.ordem.unidadeMedicao === 'HORAS' ? 'Horímetro na entrega' : 'KM na entrega' }}</dt><dd>{{ medida(d.ordem.kmEncerramento, sufixo(d.ordem.unidadeMedicao)) }}</dd></div>
-                    <div class="ces-sheet__wide"><dt>Serviço realizado</dt><dd>{{ d.ordem.descricaoServico }}</dd></div>
+                    <div class="ces-sheet__wide"><dt>Serviço realizado</dt><dd>{{ d.ordem.descricaoServico || (d.ordem.baixaPendente ? 'Falta informar' : '—') }}</dd></div>
                     <div class="ces-sheet__wide"><dt>Itens substituídos</dt><dd>{{ d.ordem.itensSubstituidos || '—' }}</dd></div>
                   </dl>
                 </section>
@@ -302,7 +327,10 @@ type Aba = (typeof ABAS)[number];
           </ng-template>
 
           <ng-template cesTabPanel="documentos">
-            <app-frota-os-documentos-fiscais [ordem]="d.ordem" [podeEditar]="acesso.editarOs() || acesso.executarOs()"></app-frota-os-documentos-fiscais>
+            <div class="ces-form-stack">
+              <app-frota-os-anexos [ordem]="d.ordem" [podeEditar]="acesso.editarOs() || acesso.executarOs()"></app-frota-os-anexos>
+              <app-frota-os-documentos-fiscais [ordem]="d.ordem" [podeEditar]="acesso.editarOs() || acesso.executarOs()"></app-frota-os-documentos-fiscais>
+            </div>
           </ng-template>
 
           <ng-template cesTabPanel="orcamentos">
@@ -317,14 +345,14 @@ type Aba = (typeof ABAS)[number];
               [rowKey]="chaveOrcamento"
               [state]="d.orcamentos.length ? 'ready' : 'empty'"
               stateTitle="Nenhuma solicitação no financeiro"
-              [stateDescription]="aberta() ? 'Para lançar o orçamento e pedir aprovação, use Solicitar compra.' : 'A OS foi encerrada sem orçamento no financeiro.'"
+              [stateDescription]="aceitaOrcamento() ? 'Use Solicitar compra para lançar o orçamento, antes ou depois do serviço. Os dados da OS já vão preenchidos.' : 'A OS foi cancelada sem orçamento no financeiro.'"
               (rowActivate)="abrirSolicitacao($event)"
             >
               <ng-container table-actions>
-                @if (aberta() && acesso.solicitarCompra()) {
+                @if (aceitaOrcamento() && acesso.solicitarCompra()) {
                   <ces-button size="sm" icon="pi pi-shopping-cart" label="Solicitar compra" (pressed)="solicitar('COMPRA')"></ces-button>
                 }
-                @if (aberta() && acesso.solicitarPagamento()) {
+                @if (aceitaOrcamento() && acesso.solicitarPagamento()) {
                   <ces-button size="sm" variant="outline" icon="pi pi-credit-card" label="Solicitar pagamento" (pressed)="solicitar('PAGAMENTO')"></ces-button>
                 }
               </ng-container>
@@ -347,6 +375,13 @@ type Aba = (typeof ABAS)[number];
             </ces-data-table>
           </ng-template>
 
+          <ng-template cesTabPanel="placa">
+            @if (d.ordem.idVeiculo) {
+              <app-frota-os-historico-placa [idOrdem]="d.ordem.id" [idVeiculo]="d.ordem.idVeiculo" [placa]="placa(d.ordem.placa)"
+                [itensAtuais]="nomesItens()"></app-frota-os-historico-placa>
+            }
+          </ng-template>
+
           <ng-template cesTabPanel="historico">
             <ces-data-table
               title="Histórico"
@@ -366,7 +401,17 @@ type Aba = (typeof ABAS)[number];
 
         <app-frota-ordem-servico-form [(visivel)]="formularioAberto" [ordem]="d" [opcoes]="opcoes()" (salvo)="aplicar($event)"></app-frota-ordem-servico-form>
         <app-frota-ordem-servico-etapa [(visivel)]="etapaAberta" [etapa]="etapa()" [ordem]="d" (salvo)="aplicar($event)"></app-frota-ordem-servico-etapa>
-        <app-frota-ordem-servico-conclusao [(visivel)]="conclusaoAberta" [ordem]="d" [opcoes]="opcoes()" (salvo)="aplicar($event)"></app-frota-ordem-servico-conclusao>
+        <app-frota-ordem-servico-conclusao [(visivel)]="conclusaoAberta" [ordem]="d" [opcoes]="opcoes()" [modo]="modoConclusao()" (salvo)="aplicar($event)"></app-frota-ordem-servico-conclusao>
+        <app-frota-justificativa-drawer
+          [(visivel)]="reaberturaAberta"
+          [titulo]="'Voltar ' + rotuloOs(d.ordem.numero) + ' para em andamento'"
+          descricao="A data de fim é apagada e o veículo volta a contar como parado. Se ela já estava finalizada, volta a aceitar lançamentos até a nova conclusão."
+          rotuloCampo="O que aconteceu"
+          placeholder="Ex.: no teste o freio voltou a fazer barulho"
+          rotuloConfirmar="Voltar para em andamento"
+          [processando]="reabrindo()"
+          (confirmado)="reabrir($event)"
+        ></app-frota-justificativa-drawer>
         <app-frota-justificativa-drawer
           [(visivel)]="cancelamentoAberto"
           [titulo]="'Cancelar ' + rotuloOs(d.ordem.numero)"
@@ -420,6 +465,11 @@ export class FrotaOrdemServicoDetalheComponent {
   protected readonly etapaAberta = signal(false);
   protected readonly etapa = signal<EtapaOrdemServico>('agendar');
   protected readonly conclusaoAberta = signal(false);
+  protected readonly modoConclusao = signal<ModoConclusao>('concluir');
+  protected readonly reaberturaAberta = signal(false);
+  protected readonly reabrindo = signal(false);
+  protected readonly rotuloSituacaoOs = rotuloSituacaoOs;
+  protected readonly tomSituacaoOs = tomSituacaoOs;
   protected readonly cancelamentoAberto = signal(false);
   protected readonly cancelando = signal(false);
   protected readonly alterandoParada = signal(false);
@@ -453,6 +503,9 @@ export class FrotaOrdemServicoDetalheComponent {
     const s = this.detalhe()?.ordem.situacao;
     return (s === 'PENDENTE' || s === 'AGENDADA') && (this.acesso.editarOs() || this.acesso.executarOs());
   });
+  protected readonly nomesItens = computed(() => this.detalhe()?.itens.map((i) => i.nome) ?? []);
+  /** Compra e pagamento valem antes ou depois do serviço; só a OS cancelada não recebe. */
+  protected readonly aceitaOrcamento = computed(() => !!this.detalhe() && this.detalhe()!.ordem.situacao !== 'CANCELADA');
   protected readonly itensRepetidos = computed(() => this.detalhe()?.itens.filter((i) => i.repeticao).length ?? 0);
 
   protected readonly abas = computed<CesTabItem[]>(() => {
@@ -461,9 +514,11 @@ export class FrotaOrdemServicoDetalheComponent {
       { value: 'resumo', label: 'Resumo', icon: 'pi pi-file' },
       { value: 'itens', label: 'Itens', icon: 'pi pi-list', badge: d?.itens.length || undefined },
       { value: 'execucao', label: 'Execução', icon: 'pi pi-wrench', badge: (d ? d.servicos.length + d.pecas.length : 0) || undefined },
-      { value: 'documentos', label: 'Documentos fiscais', icon: 'pi pi-receipt' },
+      { value: 'documentos', label: 'Anexos e notas', icon: 'pi pi-paperclip' },
       { value: 'orcamentos', label: 'Orçamentos', icon: 'pi pi-dollar', badge: d?.orcamentos.length || undefined },
-      { value: 'historico', label: 'Histórico', icon: 'pi pi-history' }
+      // A OS sem veículo (ferramental, oficina) não tem placa para buscar o histórico.
+      ...(d?.ordem.idVeiculo ? [{ value: 'placa', label: 'Manutenções da placa', icon: 'pi pi-car' }] : []),
+      { value: 'historico', label: 'Histórico da OS', icon: 'pi pi-history' }
     ];
   });
 
@@ -474,7 +529,7 @@ export class FrotaOrdemServicoDetalheComponent {
       case 'PENDENTE': return 'Aguardando agenda';
       case 'AGENDADA': return 'Agendada';
       case 'EM_ANDAMENTO': return os.atrasada ? 'Prazo estourado' : 'Em andamento';
-      case 'CONCLUIDA': return 'Concluída';
+      case 'CONCLUIDA': return os.baixaPendente ? 'Concluída, valores pendentes' : 'Finalizada';
       default: return 'Cancelada';
     }
   });
@@ -581,6 +636,29 @@ export class FrotaOrdemServicoDetalheComponent {
     });
   }
 
+  protected abrirConclusao(modo: ModoConclusao): void {
+    this.modoConclusao.set(modo);
+    this.conclusaoAberta.set(true);
+  }
+
+  protected reabrir(motivo: string): void {
+    const os = this.detalhe()?.ordem;
+    if (!os) return;
+    this.reabrindo.set(true);
+    this.frota.reabrirOrdemServico(os.id, motivo).subscribe({
+      next: (d) => {
+        this.reabrindo.set(false);
+        this.reaberturaAberta.set(false);
+        this.aplicar(d);
+        this.notificacoes.success(`${rotuloOs(d.ordem.numero)} voltou para em andamento.`);
+      },
+      error: (e) => {
+        this.reabrindo.set(false);
+        this.notificacoes.error(getErrorMessage(e));
+      }
+    });
+  }
+
   protected cancelar(motivo: string): void {
     const os = this.detalhe()?.ordem;
     if (!os) return;
@@ -610,6 +688,10 @@ export class FrotaOrdemServicoDetalheComponent {
 
   protected abrirRelatorio(id: string): void {
     void this.router.navigate(['/frota', 'ordens-servico', id, 'relatorio']);
+  }
+
+  protected abrirChecklist(id: string): void {
+    void this.router.navigate(['/frota', 'ordens-servico', id, 'checklist']);
   }
 
   protected abrirSolicitacao(orcamento: OrcamentoOrdemServico): void {

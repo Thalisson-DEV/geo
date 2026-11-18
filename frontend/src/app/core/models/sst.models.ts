@@ -90,6 +90,10 @@ export interface PerguntaRequest {
   tipoResposta: TipoResposta;
   obrigatoria: boolean;
   opcoes: OpcaoRespostaRequest[];
+  /** Quantidade esperada ou observação do item ("Individual", "Quantidade: 5", "Por escada"). */
+  orientacao?: string | null;
+  /** Falso para itens da equipe ou do veículo: o desvio pode sair sem colaborador. Padrão: verdadeiro. */
+  desvioPorColaborador?: boolean;
 }
 
 export interface GrupoPerguntaRequest {
@@ -131,6 +135,8 @@ export interface PerguntaResponse {
   obrigatoria: boolean;
   ordem: number;
   opcoes: OpcaoRespostaResponse[];
+  orientacao?: string | null;
+  desvioPorColaborador?: boolean;
 }
 
 export interface GrupoPerguntaResponse {
@@ -772,3 +778,43 @@ export async function comprimirImagemAnexo(file: File): Promise<File> {
     bitmap?.close?.();
   }
 }
+
+// ============================================================
+// Importação de formulários por planilha
+// ============================================================
+export interface FormularioInspecaoImportacaoDTO {
+  linha: number;
+  formulario: string;
+  descricao: string;
+  grupo: string;
+  pergunta: string;
+  orientacao: string;
+  tipoResposta: string;
+  gravidade: string;
+  desvioPorColaborador: string;
+  obrigatoria: string;
+  opcoes: string;
+  status: 'AGUARDANDO_PROCESSAMENTO' | 'COM_ERRO' | 'EM_PROCESSAMENTO' | 'CONCLUIDO';
+  mensagemErro: string | null;
+  editing?: boolean;
+}
+
+export interface ImportacaoFormularioInspecaoResponse {
+  registros: FormularioInspecaoImportacaoDTO[];
+  totalProcessados: number;
+  totalSucesso: number;
+  totalFalha: number;
+}
+
+export const ICONE_STATUS_INSPECAO: Record<StatusInspecao, string> = {
+  EM_ANDAMENTO: 'pi-clock',
+  CONCLUIDA: 'pi-check-circle',
+  CANCELADA: 'pi-ban'
+};
+
+export const ICONE_GRAVIDADE_DESVIO: Record<GravidadeDesvio, string> = {
+  BAIXA: 'pi-info-circle',
+  MEDIA: 'pi-exclamation-circle',
+  ALTA: 'pi-exclamation-triangle',
+  CRITICA: 'pi-times-circle'
+};

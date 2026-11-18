@@ -48,6 +48,7 @@ public class ExecucaoOrdemServicoUseCases {
     public OrdemServicoDetalheResponse lancarServico(UUID idOs, ServicoOrdemServicoRequest request) {
         OrdemServico os = ordens.buscarEntidade(idOs);
         ServicoOrdemServico servico = os.lancarServico(dadosServico(request));
+        os.definirSemCusto(servico, Boolean.TRUE.equals(request.semCusto()));
         return salvar(os, "Serviço incluído: " + descrever(servico));
     }
 
@@ -55,6 +56,7 @@ public class ExecucaoOrdemServicoUseCases {
     public OrdemServicoDetalheResponse alterarServico(UUID idOs, UUID idServico, ServicoOrdemServicoRequest request) {
         OrdemServico os = ordens.buscarEntidade(idOs);
         ServicoOrdemServico servico = os.alterarServico(idServico, dadosServico(request));
+        os.definirSemCusto(servico, Boolean.TRUE.equals(request.semCusto()));
         return salvar(os, "Serviço alterado: " + descrever(servico));
     }
 
@@ -82,10 +84,13 @@ public class ExecucaoOrdemServicoUseCases {
         OrdemServico os = ordens.buscarEntidade(idOs);
         if (request.idMaterial() == null) {
             PecaOrdemServico peca = os.lancarPeca(dadosPeca(request));
+            os.vincularPecaAoItem(peca, request.idItemManutencao());
+            os.definirSemCusto(peca, Boolean.TRUE.equals(request.semCusto()));
             return salvar(os, "Peça incluída: " + descrever(peca));
         }
         var saida = baixar(os, request);
         PecaOrdemServico peca = os.lancarPecaDoEstoque(dadosDoEstoque(request, saida), request.idMaterial(), request.idEstoque(), saida.id());
+        os.definirSemCusto(peca, Boolean.TRUE.equals(request.semCusto()));
         return salvar(os, "Peça incluída do " + saida.estoqueOrigem() + ": " + descrever(peca));
     }
 
@@ -101,11 +106,14 @@ public class ExecucaoOrdemServicoUseCases {
         if (request.idMaterial() == null) {
             os.vincularPecaAoEstoque(idPeca, null, null, null);
             PecaOrdemServico peca = os.alterarPeca(idPeca, dadosPeca(request));
+            os.vincularPecaAoItem(idPeca, request.idItemManutencao());
+            os.definirSemCusto(peca, Boolean.TRUE.equals(request.semCusto()));
             return salvar(os, "Peça alterada: " + descrever(peca) + devolvida);
         }
         var saida = baixar(os, request);
         PecaOrdemServico peca = os.alterarPeca(idPeca, dadosDoEstoque(request, saida));
         os.vincularPecaAoEstoque(idPeca, request.idMaterial(), request.idEstoque(), saida.id());
+        os.definirSemCusto(peca, Boolean.TRUE.equals(request.semCusto()));
         return salvar(os, "Peça alterada (saída do " + saida.estoqueOrigem() + "): " + descrever(peca) + devolvida);
     }
 
@@ -161,8 +169,12 @@ public class ExecucaoOrdemServicoUseCases {
     }
 
     private OrdemServicoDetalheResponse salvar(OrdemServico os, String historico) {
+        UUID usuario = SecurityUtils.getUsuarioLogadoId();
+        os.atualizarValorPelaExecucao();
+        boolean finalizada = os.finalizarSeCompleta(usuario);
         OrdemServico salva = repository.saveAndFlush(os);
-        ordens.registrar(salva, TipoEventoOrdemServico.EXECUCAO_ALTERADA, historico, SecurityUtils.getUsuarioLogadoId());
+        ordens.registrar(salva, TipoEventoOrdemServico.EXECUCAO_ALTERADA, historico, usuario);
+        ordens.registrarFinalizacao(salva, finalizada, usuario);
         return montador.detalhar(salva, List.of());
     }
 

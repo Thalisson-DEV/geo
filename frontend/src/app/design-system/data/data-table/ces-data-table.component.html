@@ -78,17 +78,6 @@
     <div class="ces-data-table__progress" role="progressbar" aria-label="Atualizando registros"></div>
   }
 
-  @if (selectable() && selection().length) {
-    <div class="ces-data-table__selection" role="status">
-      <strong>{{ selection().length }} {{ selection().length === 1 ? 'selecionado' : 'selecionados' }}</strong>
-      @if (selectionFull()) {
-        <span class="ces-data-table__selection-limit">limite de {{ selectionLimit() }}</span>
-      }
-      <ng-content select="[selection-actions]"></ng-content>
-      <ces-button size="sm" variant="ghost" icon="pi pi-times" label="Limpar seleção" (pressed)="clearSelection()"></ces-button>
-    </div>
-  }
-
   @if (noResults()) {
     <ces-async-state
       class="ces-data-table__no-results"
@@ -329,6 +318,18 @@
         }
       </tbody>
     </table>
+  }
+
+  <!-- Flutuante no rodapé da tela: marcar a primeira linha não desloca as demais e as ações ficam à vista. -->
+  @if (selectable() && selection().length) {
+    <div class="ces-data-table__selection" role="status">
+      <strong>{{ selection().length }} {{ selection().length === 1 ? 'selecionado' : 'selecionados' }}</strong>
+      @if (selectionFull()) {
+        <span class="ces-data-table__selection-limit">limite de {{ selectionLimit() }}</span>
+      }
+      <ng-content select="[selection-actions]"></ng-content>
+      <ces-button size="sm" variant="ghost" icon="pi pi-times" label="Limpar seleção" (pressed)="clearSelection()"></ces-button>
+    </div>
   }
 
   @if (shellState() === 'ready' && !noResults()) {

@@ -84,6 +84,14 @@ public class DesvioSegurancaUseCases {
         return PageResponse.fromPage(pagina.map(contexto::montar));
     }
 
+    /** A fila inteira, sem paginar: para os relatórios periódicos, que resumem tudo de uma vez. */
+    @Transactional(readOnly = true)
+    public List<DesvioDetalhadoResponse> listarTodos(DesvioSegurancaFilter filter) {
+        List<DesvioSeguranca> desvios = repository.findAll(DesvioSegurancaSpecification.geral(filter), MAIS_RECENTES);
+        Contexto contexto = new Contexto(desvios);
+        return desvios.stream().map(contexto::montar).toList();
+    }
+
     /**
      * Sem ordenação explícita, o banco pode devolver a mesma linha em duas páginas e
      * esconder outra — por isso a listagem nunca pagina sem uma ordem definida.

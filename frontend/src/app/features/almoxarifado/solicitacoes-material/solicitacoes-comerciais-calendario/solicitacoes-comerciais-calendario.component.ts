@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent } from '@ces/ui';
+import { CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent, CesTone } from '@ces/ui';
 import { catchError, of, switchMap, tap } from 'rxjs';
 
 import { SolicitacaoSummaryResponse } from '../../../../core/models/almoxarifado.models';
@@ -12,6 +12,22 @@ import { dataCivil, isoCivil, prazoRelativo, saqueAtrasado, STATUS_COMERCIAIS, s
 export const LIMITE_CALENDARIO = 500;
 const VISIVEIS_POR_DIA = 3;
 const DIAS_SEMANA = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+/** Situação de um cartão (cor, ícone e rótulo). */
+export interface SituacaoCalendario {
+  label: string;
+  tone: CesTone;
+  icon: string;
+}
+
+/** Conteúdo do cartão no painel do dia, quando o processo tem campos próprios (ex.: obra, OS/OC, reserva). */
+export interface DetalheCalendario {
+  codigo: string;
+  titulo: string;
+  linha?: string | null;
+  etiqueta?: string | null;
+  meta: { icon: string; texto: string }[];
+}
 
 interface DiaCalendario {
   iso: string;
@@ -31,110 +47,7 @@ interface DiaCalendario {
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CesAsyncStateComponent, CesButtonComponent, CesCalloutComponent, CesIconButtonComponent, CesStatusComponent],
-  styles: `
-    :host { display: block; }
-    .cal-shell { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) 20rem; align-items: start; }
-    .cal-card {
-      border: 1px solid var(--ces-border);
-      border-radius: var(--ces-radius-xl);
-      background: var(--ces-surface);
-      box-shadow: var(--ces-shadow-sm);
-      overflow: hidden;
-    }
-    .cal-head {
-      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
-      padding: 0.75rem 1rem; border-bottom: 1px solid var(--ces-border);
-    }
-    .cal-nav { display: flex; align-items: center; gap: 0.25rem; }
-    .cal-title { margin: 0 0.5rem; font-size: var(--ces-font-title); font-weight: 700; color: var(--ces-foreground); min-width: 11rem; }
-    .cal-resumo { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .cal-weekdays, .cal-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-    .cal-weekdays { background: var(--ces-surface-subtle); border-bottom: 1px solid var(--ces-border); }
-    .cal-weekdays span {
-      padding: 0.5rem; font-size: var(--ces-font-caption); font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.04em; color: var(--ces-foreground-muted); text-align: left;
-    }
-    .cal-week + .cal-week { border-top: 1px solid var(--ces-border); }
-    .cal-day {
-      position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-height: 7.25rem; min-width: 0;
-      padding: 0.375rem; border-left: 1px solid var(--ces-border); cursor: pointer;
-      transition: background var(--ces-duration-fast) var(--ces-ease-standard);
-    }
-    .cal-day:first-child { border-left: 0; }
-    .cal-day:hover { background: var(--ces-surface-subtle); }
-    .cal-day--fds { background: color-mix(in srgb, var(--ces-surface-muted) 45%, transparent); }
-    .cal-day--fora { background: var(--ces-surface-subtle); }
-    .cal-day--fora .cal-num { color: var(--ces-foreground-subtle); }
-    .cal-day--sel { background: var(--ces-brand-soft); box-shadow: inset 0 0 0 2px var(--ces-brand); }
-    .cal-num {
-      display: inline-flex; align-items: center; justify-content: center; align-self: flex-start;
-      min-width: 1.75rem; height: 1.75rem; padding: 0 0.375rem; border: 0; border-radius: 999px;
-      background: transparent; color: var(--ces-foreground); font: inherit; font-size: var(--ces-font-control); font-weight: 600; cursor: pointer;
-    }
-    .cal-num:focus-visible, .cal-pill:focus-visible, .cal-mais:focus-visible, .cal-agenda-item:focus-visible { outline: 2px solid var(--ces-focus-ring); outline-offset: 2px; }
-    .cal-day--hoje .cal-num { background: var(--ces-brand); color: #fff; }
-    .cal-pill {
-      display: flex; align-items: center; gap: 0.375rem; width: 100%; min-width: 0; padding: 0.2rem 0.4rem;
-      border: 1px solid var(--ces-status-border); border-radius: var(--ces-radius-sm);
-      background: var(--ces-status-soft); color: var(--ces-status-ink);
-      font: inherit; font-size: 0.72rem; font-weight: 600; text-align: left; cursor: pointer;
-    }
-    .cal-pill:hover { filter: brightness(0.97); border-color: var(--ces-status-color); }
-    .cal-pill .pi { font-size: 0.65rem; flex: none; }
-    .cal-pill__txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .cal-pill--atrasada { box-shadow: inset 3px 0 0 var(--ces-danger); }
-    .cal-mais {
-      align-self: flex-start; padding: 0.1rem 0.3rem; border: 0; border-radius: var(--ces-radius-sm); background: transparent;
-      color: var(--ces-brand); font: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer;
-    }
-    .cal-mais:hover { background: var(--ces-brand-soft); }
-    .cal-dots { display: none; }
-
-    [data-tone='warning'] { --ces-status-color: var(--ces-warning); --ces-status-soft: var(--ces-warning-soft); --ces-status-ink: var(--ces-warning-text); --ces-status-border: color-mix(in srgb, var(--ces-warning) 35%, transparent); }
-    [data-tone='info'] { --ces-status-color: var(--ces-info); --ces-status-soft: var(--ces-info-soft); --ces-status-ink: var(--ces-info-text); --ces-status-border: color-mix(in srgb, var(--ces-info) 35%, transparent); }
-    [data-tone='success'] { --ces-status-color: var(--ces-success); --ces-status-soft: var(--ces-success-soft); --ces-status-ink: var(--ces-success-text); --ces-status-border: color-mix(in srgb, var(--ces-success) 35%, transparent); }
-    [data-tone='danger'] { --ces-status-color: var(--ces-danger); --ces-status-soft: var(--ces-danger-soft); --ces-status-ink: var(--ces-danger-text); --ces-status-border: color-mix(in srgb, var(--ces-danger) 35%, transparent); }
-    [data-tone='neutral'] { --ces-status-color: var(--ces-foreground-muted); --ces-status-soft: var(--ces-surface-muted); --ces-status-ink: var(--ces-foreground); --ces-status-border: var(--ces-border); }
-
-    .cal-legenda { display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 0.625rem 1rem; border-top: 1px solid var(--ces-border); font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .cal-legenda span { display: inline-flex; align-items: center; gap: 0.3rem; }
-    .cal-legenda .pi { font-size: 0.7rem; color: var(--ces-status-color); }
-
-    .cal-agenda { position: sticky; top: 1rem; display: flex; flex-direction: column; max-height: calc(100vh - 8rem); }
-    .cal-agenda__head { padding: 0.875rem 1rem; border-bottom: 1px solid var(--ces-border); }
-    .cal-agenda__eyebrow { margin: 0; font-size: var(--ces-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ces-foreground-muted); }
-    .cal-agenda__title { margin: 0.125rem 0 0; font-size: var(--ces-font-title); font-weight: 700; color: var(--ces-foreground); }
-    .cal-agenda__list { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; overflow-y: auto; }
-    .cal-agenda__vazio { padding: 2rem 1rem; text-align: center; color: var(--ces-foreground-muted); font-size: var(--ces-font-control); }
-    .cal-agenda__vazio .pi { display: block; margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--ces-foreground-subtle); }
-    .cal-agenda-item {
-      display: grid; gap: 0.3rem; width: 100%; padding: 0.625rem 0.75rem; border: 1px solid var(--ces-border);
-      border-left: 3px solid var(--ces-status-color); border-radius: var(--ces-radius-md);
-      background: var(--ces-surface); color: var(--ces-foreground); font: inherit; text-align: left; cursor: pointer;
-    }
-    .cal-agenda-item:hover { background: var(--ces-surface-subtle); border-color: var(--ces-border-strong); border-left-color: var(--ces-status-color); }
-    .cal-agenda-item__top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-    .cal-agenda-item__id { font-weight: 700; font-size: var(--ces-font-control); font-variant-numeric: tabular-nums; }
-    .cal-agenda-item__rota { font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .cal-agenda-item__rota strong { color: var(--ces-foreground); font-weight: 600; }
-    .cal-agenda-item__meta { display: flex; gap: 0.75rem; font-size: var(--ces-font-caption); color: var(--ces-foreground-muted); }
-    .cal-agenda-item__meta .pi { font-size: 0.7rem; margin-right: 0.2rem; }
-
-    @media (max-width: 64rem) {
-      .cal-shell { grid-template-columns: minmax(0, 1fr); }
-      .cal-agenda { position: static; max-height: none; }
-    }
-    @media (max-width: 40rem) {
-      .cal-day { min-height: 3.25rem; padding: 0.25rem; align-items: center; }
-      .cal-num { align-self: center; }
-      .cal-pill, .cal-mais { display: none; }
-      .cal-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; }
-      .cal-dots i { width: 6px; height: 6px; border-radius: 999px; background: var(--ces-status-color); }
-      .cal-weekdays span { text-align: center; padding: 0.375rem 0; }
-      .cal-title { min-width: 0; }
-    }
-    @media (prefers-reduced-motion: reduce) { .cal-day { transition: none; } }
-  `,
+  styleUrl: './solicitacoes-comerciais-calendario.component.css',
   template: `
     @if (erro()) {
       <ces-async-state type="error" title="Não foi possível carregar o calendário" [description]="erro()!" actionLabel="Tentar novamente" (actionPressed)="recarregar()" />
@@ -188,12 +101,15 @@ interface DiaCalendario {
                         type="button"
                         class="cal-pill"
                         [class.cal-pill--atrasada]="atrasada(s)"
-                        [attr.data-tone]="status(s.status).tone"
+                        [attr.data-tone]="situacao(s).tone"
                         [attr.aria-label]="rotuloSolicitacao(s)"
                         (click)="abrirSolicitacao(s, $event)"
                       >
-                        <i [class]="'pi ' + status(s.status).icon" aria-hidden="true"></i>
-                        <span class="cal-pill__txt">{{ s.estoqueDestinoNome || '#' + s.id.substring(0, 8) }}</span>
+                        <i [class]="'pi ' + situacao(s).icon" aria-hidden="true"></i>
+                        @if (detalhe(s)?.etiqueta; as etiqueta) {
+                          <span class="cal-pill__tag">{{ etiqueta }}</span>
+                        }
+                        <span class="cal-pill__txt">{{ nomeItem()(s) }}</span>
                       </button>
                     }
                     @if (dia.itens.length > visiveis) {
@@ -201,7 +117,7 @@ interface DiaCalendario {
                     }
                     @if (dia.itens.length) {
                       <span class="cal-dots" aria-hidden="true">
-                        @for (s of dia.itens.slice(0, 4); track s.id) { <i [attr.data-tone]="status(s.status).tone"></i> }
+                        @for (s of dia.itens.slice(0, 4); track s.id) { <i [attr.data-tone]="situacao(s).tone"></i> }
                       </span>
                     }
                   </div>
@@ -211,8 +127,10 @@ interface DiaCalendario {
           </div>
 
           <footer class="cal-legenda" aria-label="Legenda">
-            @for (s of legenda; track s.value) {
-              <span [attr.data-tone]="s.tone"><i [class]="'pi ' + s.icon" aria-hidden="true"></i>{{ s.label }}</span>
+            @for (s of legenda(); track s.value) {
+              <span [attr.data-tone]="s.tone"><i [class]="'pi ' + s.icon" aria-hidden="true"></i>{{ s.label }}
+                @if (contagemPorSituacao(); as contagem) { <strong>{{ contagem.get(s.label) ?? 0 }}</strong> }
+              </span>
             }
           </footer>
         </section>
@@ -224,12 +142,36 @@ interface DiaCalendario {
           </div>
           <div class="cal-agenda__list">
             @for (s of agendaSelecionada(); track s.id) {
+              @if (detalhe(s); as d) {
+                <button type="button" class="cal-agenda-item" [attr.data-tone]="situacao(s).tone" (click)="abrir.emit(s)" [attr.aria-label]="rotuloSolicitacao(s)">
+                  <span class="cal-agenda-item__top">
+                    <span class="cal-agenda-item__codigo">
+                      @if (d.etiqueta) { <span class="cal-agenda-item__tag">{{ d.etiqueta }}</span> }
+                      <span class="cal-agenda-item__id">{{ d.codigo }}</span>
+                    </span>
+                    <ces-status [tone]="situacao(s).tone" [icon]="'pi ' + situacao(s).icon">{{ situacao(s).label }}</ces-status>
+                  </span>
+                  <span class="cal-agenda-item__titulo">{{ d.titulo }}</span>
+                  @if (d.linha) { <span class="cal-agenda-item__rota">{{ d.linha }}</span> }
+                  <span class="cal-agenda-item__meta">
+                    @for (m of d.meta; track m.texto) {
+                      <span><i [class]="'pi ' + m.icon" aria-hidden="true"></i>{{ m.texto }}</span>
+                    }
+                    @if (atrasada(s)) {
+                      <span class="cal-agenda-item__alerta"><i class="pi pi-exclamation-triangle" aria-hidden="true"></i>Atrasada {{ relativo(s) }}</span>
+                    }
+                    @if (s.possuiPendencia) {
+                      <span><i class="pi pi-flag" aria-hidden="true"></i>Com pendência</span>
+                    }
+                  </span>
+                </button>
+              } @else {
               <button type="button" class="cal-agenda-item" [attr.data-tone]="status(s.status).tone" (click)="abrir.emit(s)" [attr.aria-label]="rotuloSolicitacao(s)">
                 <span class="cal-agenda-item__top">
                   <span class="cal-agenda-item__id">#{{ s.id.substring(0, 8) }}</span>
                   <ces-status [tone]="status(s.status).tone" [icon]="'pi ' + status(s.status).icon">{{ status(s.status).label }}</ces-status>
                 </span>
-                <span class="cal-agenda-item__rota">{{ s.estoqueOrigemNome }} → <strong>{{ s.estoqueDestinoNome }}</strong></span>
+                <span class="cal-agenda-item__rota">{{ s.estoqueOrigemNome }} → <strong>{{ nomeItem()(s) }}</strong></span>
                 <span class="cal-agenda-item__meta">
                   <span><i class="pi pi-box" aria-hidden="true"></i>{{ s.totalItens }} {{ s.totalItens === 1 ? 'item' : 'itens' }}</span>
                   @if (atrasada(s)) {
@@ -240,8 +182,9 @@ interface DiaCalendario {
                   }
                 </span>
               </button>
+              }
             } @empty {
-              <p class="cal-agenda__vazio"><i class="pi pi-calendar" aria-hidden="true"></i>Nenhum saque previsto neste dia.</p>
+              <p class="cal-agenda__vazio"><i [class]="'pi ' + iconeVazio()" aria-hidden="true"></i>Nenhum saque previsto neste dia.</p>
             }
           </div>
         </aside>
@@ -259,7 +202,28 @@ export class SolicitacoesComerciaisCalendarioComponent {
   protected readonly diasSemana = DIAS_SEMANA;
   protected readonly visiveis = VISIVEIS_POR_DIA;
   protected readonly limite = LIMITE_CALENDARIO;
-  protected readonly legenda = STATUS_COMERCIAIS;
+  /** Status de cada solicitação; o técnico passa o próprio vocabulário. */
+  readonly statusDe = input<(valor: string) => { label: string; tone: CesTone; icon: string }>((v) => statusComercial(v));
+  /** Legenda do rodapé. */
+  readonly legendaItens = input<readonly { value: string; label: string; tone: CesTone; icon: string }[]>(STATUS_COMERCIAIS);
+  /** Texto curto do cartão no dia (comercial: equipe de destino; técnico: obra). */
+  readonly nomeItem = input<(s: SolicitacaoSummaryResponse) => string>((s) => s.estoqueDestinoNome || '#' + s.id.substring(0, 8));
+  /** Situação do cartão a partir da solicitação inteira (o técnico usa a etapa: separar, retirar...). */
+  readonly situacaoDe = input<((s: SolicitacaoSummaryResponse) => SituacaoCalendario) | null>(null);
+  /** Cartão do painel do dia com os campos do processo; sem ele, mostra origem e destino. */
+  readonly detalheDe = input<((s: SolicitacaoSummaryResponse) => DetalheCalendario) | null>(null);
+  readonly iconeVazio = input('pi-calendar');
+  protected readonly legenda = computed(() => this.legendaItens());
+  /** Quantas solicitações do mês há em cada situação da legenda (só quando a situação vem do processo). */
+  protected readonly contagemPorSituacao = computed(() => {
+    if (!this.situacaoDe()) return null;
+    const mapa = new Map<string, number>();
+    for (const s of this.doMes()) {
+      const label = this.situacao(s).label;
+      mapa.set(label, (mapa.get(label) ?? 0) + 1);
+    }
+    return mapa;
+  });
 
   private readonly hoje = isoCivil(new Date());
   protected readonly mes = signal(primeiroDoMes(new Date()));
@@ -381,7 +345,16 @@ export class SolicitacoesComerciaisCalendarioComponent {
   }
 
   protected status(valor: string) {
-    return statusComercial(valor);
+    return this.statusDe()(valor);
+  }
+
+  protected situacao(s: SolicitacaoSummaryResponse): SituacaoCalendario {
+    const fn = this.situacaoDe();
+    return fn ? fn(s) : this.statusDe()(s.status);
+  }
+
+  protected detalhe(s: SolicitacaoSummaryResponse): DetalheCalendario | null {
+    return this.detalheDe()?.(s) ?? null;
   }
 
   protected atrasada(s: SolicitacaoSummaryResponse): boolean {
@@ -399,7 +372,7 @@ export class SolicitacoesComerciaisCalendarioComponent {
   }
 
   protected rotuloSolicitacao(s: SolicitacaoSummaryResponse): string {
-    const partes = [`Solicitação #${s.id.substring(0, 8)}`, `para ${s.estoqueDestinoNome ?? 'destino não informado'}`, statusComercial(s.status).label];
+    const partes = [`Solicitação ${this.detalhe(s)?.codigo ?? '#' + s.id.substring(0, 8)}`, `para ${this.nomeItem()(s)}`, this.situacao(s).label];
     if (this.atrasada(s)) partes.push('atrasada');
     return partes.join(', ');
   }

@@ -7,12 +7,14 @@ import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { SolicitacaoResponse } from '../../../core/models/almoxarifado.models';
+import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { RhService } from '../../../core/services/rh.service';
 import { UsuarioLookupService } from '../../../core/services/usuario-lookup.service';
 import { paginaTeste } from '../../../shared/listagem/listagem-teste';
-import { ItemEntregaDraft, SolicitacaoComercialDetalheComponent } from './solicitacao-comercial-detalhe.component';
+import { SolicitacaoComercialDetalheComponent } from './solicitacao-comercial-detalhe.component';
+import { ItemEntregaRascunho } from './relatorio-solicitacao-material/itens-solicitacao.util';
 
 const detalhe = (extra: Partial<SolicitacaoResponse> = {}): SolicitacaoResponse =>
   ({
@@ -36,7 +38,9 @@ const detalhe = (extra: Partial<SolicitacaoResponse> = {}): SolicitacaoResponse 
 
 type Tela = {
   detalhe(): SolicitacaoResponse | null;
-  itensEntrega(): ItemEntregaDraft[];
+  itensEntrega(): ItemEntregaRascunho[];
+  definirQuantidade(i: number, v: number | null): void;
+  alternarRemocaoEntrega(i: number): void;
   podeAprovar(): boolean;
   podeEntregar(): boolean;
   fluxo(): { rotulo: string; estado: string }[];
@@ -60,13 +64,26 @@ type Tela = {
   opcoesOrigem(): { label: string; value: string }[];
   trocarOrigem(id: string): void;
   podeTrocarOrigem(): boolean;
+  ajustando(): boolean;
+  iniciarAjustes(): void;
+  sairDosAjustes(): void;
+  definirQuantidadeAprovada(i: number, v: number | null): void;
+  alternarRemocao(i: number): void;
+  materialNovoId: { set(v: string | null): void };
+  selecionarMaterialNovo(id: string | null): void;
+  quantidadeNova: { set(v: number | null): void };
+  adicionarMaterial(): void;
+  rascunhoAprovacao(): { idItem: string | null; removido: boolean; quantidade: number | null }[];
+  temAjustes(): boolean;
+  aprovar(): void;
+  dataPrevistaAprovacao: { set(v: Date | null): void };
 };
 
 describe('SolicitacaoComercialDetalheComponent', () => {
   let almox: Record<string, ReturnType<typeof vi.fn>>;
   let avisos: Record<string, ReturnType<typeof vi.fn>>;
 
-  async function abrir(det: SolicitacaoResponse, aba: 'itens' | 'entrega' = 'itens') {
+  async function abrir(det: SolicitacaoResponse, aba: 'itens' | 'entrega' | 'aprovacao' = 'itens') {
     almox['buscarSolicitacaoPorId'].mockReturnValue(of(det));
     TestBed.configureTestingModule({
       providers: [
@@ -74,6 +91,7 @@ describe('SolicitacaoComercialDetalheComponent', () => {
         provideRouter([]),
         ConfirmationService,
         { provide: AlmoxarifadoService, useValue: almox },
+        { provide: LookupStore, useValue: { searchMaterials: () => of({ items: [], nextCursor: null, hasMore: false }) } },
         { provide: RhService, useValue: { listarMembrosAtivos: () => of([{ idColaborador: 'c1', nomeColaborador: 'Ana' }]), listarColaboradores: () => paginaTeste([]) } },
         { provide: UsuarioLookupService, useValue: { resolverNome: (id: string) => (id === 'u1' ? 'Requisitante' : 'Aprovador') } },
         { provide: NotificationService, useValue: avisos },
@@ -123,6 +141,8 @@ describe('SolicitacaoComercialDetalheComponent', () => {
       listarMotivosPendencia: vi.fn(() => of([])),
       listarMotivosRejeicaoAtivos: vi.fn(() => paginaTeste([])),
       aprovarSolicitacao: vi.fn(() => of(undefined)),
+      buscarMaterialPorId: vi.fn(() => of({ id: 'm-poste', codigo: 'POSTE', descricao: 'Poste', unidadeMedida: 'UN', detalhaSerie: false, ativo: true })),
+      listarSaldos: vi.fn(() => paginaTeste([{ quantidade: 15 }])),
       registrarEntrega: vi.fn(() => of(undefined)),
       listarEstoquesAtivos: vi.fn(() =>
         paginaTeste([
@@ -160,14 +180,13 @@ describe('SolicitacaoComercialDetalheComponent', () => {
   it('material com série: as séries definidas antes já vêm escolhidas e o item entra com quantas séries tiver', async () => {
     const { tela } = await abrir(detalhe(), 'entrega');
     expect(almox['listarSaldosSeriais']).toHaveBeenCalledWith(expect.objectContaining({ idEstoque: 'origem', idMaterial: 'm-trafo', condicao: 'NOVO' }));
-    expect(tela.itensEntrega()[1]).toMatchObject({ series: ['TR-002'], quantidadeAEntregar: 1 });
+    expect(tela.itensEntrega()[1]).toMatchObject({ series: ['TR-002'] });
     expect(tela.itensMarcados()).toBe(2);
 
     tela.definirSeries(1, ['TR-001', 'TR-002']);
-    expect(tela.itensEntrega()[1].quantidadeAEntregar).toBe(2);
+    expect(tela.itensEntrega()[1].series).toHaveLength(2);
 
     tela.definirSeries(1, []);
-    expect(tela.itensEntrega()[1].quantidadeAEntregar).toBe(0);
     expect(tela.itensMarcados()).toBe(1);
   });
 
@@ -175,10 +194,12 @@ describe('SolicitacaoComercialDetalheComponent', () => {
     const { tela } = await abrir(detalhe(), 'entrega');
     tela.definirSeries(1, []);
     tela.preencherTudo();
-    expect(tela.itensEntrega().map((i) => [i.quantidadeAEntregar, i.series])).toEqual([
+    expect(tela.itensEntrega().map((i) => [i.quantidade, i.series])).toEqual([
       [6, []],
-      [0, []]
+      [1, []]
     ]);
+    // O material com série só sai pelas séries escolhidas.
+    expect(tela.itensMarcados()).toBe(1);
     tela.zerarTudo();
     expect(tela.itensMarcados()).toBe(0);
   });
@@ -208,6 +229,59 @@ describe('SolicitacaoComercialDetalheComponent', () => {
     expect(tela.aba()).toBe('itens');
   });
 
+  it('na entrega, o almoxarifado tira da solicitação o que não vai sair e inclui material que não foi pedido', async () => {
+    const semSaida = detalhe({
+      itens: [
+        { id: 'i-cabo', quantidade: 10, quantidadeEntregue: 4, quantidadePendente: 6, material: { id: 'm-cabo', codigo: 'CABO', descricao: 'Cabo', unidadeMedida: 'MT', detalhaSerie: false } },
+        { id: 'i-luva', quantidade: 5, quantidadeEntregue: 0, quantidadePendente: 5, material: { id: 'm-luva', codigo: 'LUVA', descricao: 'Luva', unidadeMedida: 'PR', detalhaSerie: false } }
+      ] as never
+    });
+    const { fixture, tela } = await abrir(semSaida, 'entrega');
+    fixture.detectChanges();
+    expect(document.body.textContent).toContain('Adicionar material');
+    expect(document.body.querySelector('[aria-label="Tirar da solicitação LUVA"]')).not.toBeNull();
+    // O que já teve saída não sai mais da solicitação.
+    expect(document.body.querySelector('[aria-label="Tirar da solicitação CABO"]')).toBeNull();
+
+    tela.alternarRemocaoEntrega(1);
+    tela.definirQuantidade(0, 2);
+    tela.materialNovoId.set('m-poste');
+    tela.selecionarMaterialNovo('m-poste');
+    expect(almox['listarSaldos']).toHaveBeenCalledWith(expect.objectContaining({ idEstoque: 'origem', idMaterial: 'm-poste' }));
+    tela.quantidadeNova.set(3);
+    tela.adicionarMaterial();
+    fixture.detectChanges();
+    expect(document.body.textContent).toContain('Incluído nesta entrega');
+    expect(document.body.textContent).toContain('Sai da solicitação');
+
+    tela.responsavelId.set('c1');
+    tela.confirmarEntrega();
+    expect(almox['registrarEntrega']).toHaveBeenCalledWith(
+      'sol-12345678-abcd',
+      expect.objectContaining({
+        itens: [{ idItemSolicitacao: 'i-cabo', quantidade: 2, novaQuantidadeSolicitada: 10 }],
+        itensAdicionados: [{ idMaterial: 'm-poste', quantidade: 3, quantidadeSolicitada: 3 }],
+        itensRemovidos: ['i-luva']
+      })
+    );
+    expect(avisos['success']).toHaveBeenCalledWith('Entrega parcial registrada. O saldo continua aguardando retirada.');
+  });
+
+  it('material incluído na entrega sem quantidade não vai calado: avisa e não envia', async () => {
+    const { tela } = await abrir(detalhe(), 'entrega');
+    tela.materialNovoId.set('m-poste');
+    tela.selecionarMaterialNovo('m-poste');
+    tela.quantidadeNova.set(1);
+    tela.adicionarMaterial();
+    tela.definirQuantidade(2, 0);
+    tela.responsavelId.set('c1');
+    tela.confirmarEntrega();
+    expect(almox['registrarEntrega']).not.toHaveBeenCalled();
+    expect(avisos['warning']).toHaveBeenCalledWith('POSTE: informe a quantidade ou descarte o material incluído.');
+    tela.alternarRemocaoEntrega(2);
+    expect(tela.itensEntrega()).toHaveLength(2);
+  });
+
   it('quem entrega troca o almoxarifado de origem: as séries da origem anterior saem e a entrega leva a nova origem', async () => {
     const semSaida = detalhe({
       itens: [
@@ -222,7 +296,7 @@ describe('SolicitacaoComercialDetalheComponent', () => {
     tela.carregarOrigens();
     expect(tela.opcoesOrigem().map((o) => o.value)).toEqual(['origem', 'norte']);
     tela.trocarOrigem('norte');
-    expect(tela.itensEntrega()[1]).toMatchObject({ series: [], quantidadeAEntregar: 0 });
+    expect(tela.itensEntrega()[1]).toMatchObject({ series: [] });
 
     tela.responsavelId.set('c1');
     tela.confirmarEntrega();
@@ -327,5 +401,128 @@ describe('SolicitacaoComercialDetalheComponent', () => {
     const { tela } = await abrir(detalhe());
     expect(tela.detalhe()?.id).toBe('sol-12345678-abcd');
     expect(document.body.textContent).not.toContain('Pegou em');
+  });
+
+  describe('aprovação com ajustes', () => {
+    const pendente = () => detalhe({ status: 'PENDENTE', dataVerificacao: undefined, acoesPermitidas: ['APROVAR', 'REJEITAR'] });
+
+    it('aberto pela lista, mostra o detalhe normal com o atalho para ajustar', async () => {
+      const { tela } = await abrir(pendente());
+      expect(tela.ajustando()).toBe(false);
+      expect(document.body.textContent).toContain('Ajustar materiais e data');
+    });
+
+    it('aprovar sem ajustar manda o pedido vazio', async () => {
+      const { tela } = await abrir(pendente());
+      tela.aprovar();
+      expect(almox['aprovarSolicitacao']).toHaveBeenCalledWith('sol-12345678-abcd', {});
+    });
+
+    it('o gestor muda a quantidade, tira um material e inclui outro antes de aprovar', async () => {
+      const { fixture, tela } = await abrir(pendente());
+      tela.iniciarAjustes();
+      fixture.detectChanges();
+      expect(tela.ajustando()).toBe(true);
+      expect(tela.temAjustes()).toBe(false);
+      expect(document.body.textContent).toContain('Data prevista do saque');
+      expect(document.body.textContent).toContain('Adicionar material');
+
+      tela.definirQuantidadeAprovada(0, 8);
+      tela.alternarRemocao(1);
+      tela.materialNovoId.set('m-poste');
+      tela.selecionarMaterialNovo('m-poste');
+      tela.quantidadeNova.set(2);
+      tela.adicionarMaterial();
+      fixture.detectChanges();
+      expect(tela.temAjustes()).toBe(true);
+      expect(document.body.textContent).toContain('Aprovar com ajustes');
+
+      tela.aprovar();
+      expect(almox['aprovarSolicitacao']).toHaveBeenCalledWith('sol-12345678-abcd', {
+        itensEditados: [{ idItemSolicitacao: 'i-cabo', novaQuantidade: 8 }],
+        itensAdicionados: [{ idMaterial: 'm-poste', quantidade: 2 }],
+        itensRemovidos: ['i-trafo']
+      });
+      expect(tela.ajustando()).toBe(false);
+    });
+
+    it('o gestor muda a data prevista do saque na aprovação', async () => {
+      const { tela } = await abrir(pendente());
+      tela.iniciarAjustes();
+      tela.dataPrevistaAprovacao.set(new Date(2026, 9, 24));
+      expect(tela.temAjustes()).toBe(true);
+      tela.aprovar();
+      expect(almox['aprovarSolicitacao']).toHaveBeenCalledWith('sol-12345678-abcd', { dataPrevista: '2026-10-24' });
+      expect(avisos['success']).toHaveBeenCalledWith(expect.stringContaining('aprovada com os ajustes'));
+    });
+
+    it('a mesma data de antes não conta como ajuste', async () => {
+      const { tela } = await abrir(pendente());
+      tela.iniciarAjustes();
+      tela.dataPrevistaAprovacao.set(new Date(2026, 9, 20));
+      expect(tela.temAjustes()).toBe(false);
+    });
+
+    it('não aprova sem material nenhum nem com quantidade vazia', async () => {
+      const { tela } = await abrir(pendente());
+      tela.iniciarAjustes();
+      tela.definirQuantidadeAprovada(0, null);
+      tela.aprovar();
+      expect(avisos['warning']).toHaveBeenCalledWith(expect.stringContaining('CABO'));
+      tela.alternarRemocao(0);
+      tela.alternarRemocao(1);
+      tela.aprovar();
+      expect(avisos['warning']).toHaveBeenLastCalledWith(expect.stringContaining('ao menos um material'));
+      expect(almox['aprovarSolicitacao']).not.toHaveBeenCalled();
+    });
+
+    it('material incluído na hora sai da lista ao ser tirado; o pedido pela equipe pode voltar', async () => {
+      const { tela } = await abrir(pendente());
+      tela.iniciarAjustes();
+      tela.materialNovoId.set('m-poste');
+      tela.selecionarMaterialNovo('m-poste');
+      tela.quantidadeNova.set(1);
+      tela.adicionarMaterial();
+      expect(tela.rascunhoAprovacao()).toHaveLength(3);
+      tela.alternarRemocao(2);
+      expect(tela.rascunhoAprovacao()).toHaveLength(2);
+      tela.alternarRemocao(0);
+      tela.alternarRemocao(0);
+      expect(tela.rascunhoAprovacao()[0].removido).toBe(false);
+      expect(tela.temAjustes()).toBe(false);
+    });
+
+    it('aberto pelo "Aprovar" do quadro, já entra nos ajustes', async () => {
+      const { tela } = await abrir(pendente(), 'aprovacao');
+      expect(tela.ajustando()).toBe(true);
+      expect(tela.aba()).toBe('itens');
+      expect(tela.rascunhoAprovacao()).toHaveLength(2);
+    });
+
+    it('aberto para aprovar uma solicitação que já foi aprovada, mostra o detalhe normal', async () => {
+      const { tela } = await abrir(detalhe(), 'aprovacao');
+      expect(tela.ajustando()).toBe(false);
+    });
+
+    it('desfazer os ajustes volta ao que a equipe pediu', async () => {
+      const { tela } = await abrir(pendente());
+      tela.iniciarAjustes();
+      tela.definirQuantidadeAprovada(0, 3);
+      expect(tela.temAjustes()).toBe(true);
+      tela.iniciarAjustes();
+      expect(tela.temAjustes()).toBe(false);
+      tela.aprovar();
+      expect(almox['aprovarSolicitacao']).toHaveBeenCalledWith('sol-12345678-abcd', {});
+    });
+
+    it('cancelar os ajustes volta para a aprovação normal', async () => {
+      const { tela } = await abrir(pendente());
+      tela.iniciarAjustes();
+      tela.definirQuantidadeAprovada(0, 3);
+      tela.sairDosAjustes();
+      expect(tela.ajustando()).toBe(false);
+      tela.aprovar();
+      expect(almox['aprovarSolicitacao']).toHaveBeenCalledWith('sol-12345678-abcd', {});
+    });
   });
 });

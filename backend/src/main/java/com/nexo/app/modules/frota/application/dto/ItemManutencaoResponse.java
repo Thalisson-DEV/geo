@@ -11,6 +11,8 @@ public record ItemManutencaoResponse(
         String naturezaRotulo,
         String descricao,
         Integer diasRepeticao,
+        com.nexo.app.modules.frota.domain.TipoItemManutencao tipo,
+        String tipoRotulo,
         boolean ativo
 ) {
 }

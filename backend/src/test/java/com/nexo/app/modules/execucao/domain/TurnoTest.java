@@ -38,6 +38,39 @@ class TurnoTest {
     }
 
     @Test
+    @DisplayName("Turno fechado pela equipe recebe a nota da fila lançada enquanto estava aberto")
+    void fechadoPelaEquipeRecebeNotaDaFila() {
+        Turno turno = new Turno(UUID.randomUUID(), UUID.randomUUID());
+        turno.fechar();
+        var corte = turno.getDataFim().plusHours(6);
+
+        assertThat(turno.recebeLancamentoTardio(turno.getDataFim(), corte)).isTrue();
+        assertThat(turno.recebeLancamentoTardio(turno.getDataFim().plusMinutes(3), corte)).isTrue();
+        assertThat(turno.recebeLancamentoTardio(turno.getDataFim().plusHours(1), corte)).isFalse();
+        assertThat(turno.recebeLancamentoTardio(turno.getDataInicio().minusHours(1), corte)).isFalse();
+        assertThat(turno.recebeLancamentoTardio(null, corte)).isFalse();
+    }
+
+    @Test
+    @DisplayName("Turno aberto não usa a regra de lançamento tardio")
+    void abertoNaoRecebeComoTardio() {
+        Turno turno = new Turno(UUID.randomUUID(), UUID.randomUUID());
+
+        assertThat(turno.recebeLancamentoTardio(turno.getDataInicio(), turno.getDataInicio().plusHours(6))).isFalse();
+    }
+
+    @Test
+    @DisplayName("Turno encerrado pelo sistema recebe a nota da fila até o corte da noite")
+    void encerradoPeloSistemaRecebeAteOCorte() {
+        Turno turno = new Turno(UUID.randomUUID(), UUID.randomUUID());
+        var corte = turno.getDataInicio().plusHours(14);
+        turno.encerrarAutomaticamente(turno.getDataInicio().plusHours(2), "esquecido");
+
+        assertThat(turno.recebeLancamentoTardio(turno.getDataInicio().plusHours(10), corte)).isTrue();
+        assertThat(turno.recebeLancamentoTardio(corte.plusMinutes(1), corte)).isFalse();
+    }
+
+    @Test
     @DisplayName("Fechar turno já fechado deve ser idempotente e manter a data de fim original")
     void fecharTurno_duasVezes_deveSerIdempotente() {
         Turno turno = new Turno(UUID.randomUUID(), UUID.randomUUID());

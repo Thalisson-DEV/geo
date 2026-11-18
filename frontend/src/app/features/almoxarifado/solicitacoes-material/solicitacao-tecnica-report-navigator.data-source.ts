@@ -1,3 +1,4 @@
+import { statusTecnicoDef } from './solicitacao-tecnica-situacao';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import {
@@ -104,7 +105,8 @@ export class SolicitacaoTecnicaReportNavigatorDataSource
       title: `${raw.estoqueOrigemNome || 'Origem'} → ${raw.estoqueDestinoNome || 'Destino'}`,
       status: {
         label: STATUS_LABELS[status] || status,
-        tone: STATUS_TONES[status] || 'neutral'
+        tone: STATUS_TONES[status] || 'neutral',
+        icon: statusTecnicoDef(status).icon
       },
       metaAuthor: {
         label: raw.nomeAgenteReserva || 'Agente',

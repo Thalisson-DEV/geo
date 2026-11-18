@@ -1,3 +1,4 @@
+import { CES_STATUS_ICONE_PADRAO } from '@ces/ui';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -81,6 +82,21 @@ export function tomGovernanca(valor?: string | null): CesTone {
   return 'info';
 }
 
+const ICONES: Record<string, string> = {
+  EM_PREPARACAO: 'pi-pencil', ATIVO: 'pi-check-circle', ENCERRADO: 'pi-lock',
+  AGENDADA: 'pi-calendar', EM_REALIZACAO: 'pi-play-circle', AGUARDANDO_ATA: 'pi-file-edit', AGUARDANDO_ASSINATURAS: 'pi-pen-to-square',
+  FINALIZADA: 'pi-check-circle', CANCELADA: 'pi-ban',
+  VIGENTE: 'pi-check-circle', A_VENCER: 'pi-clock', VENCIDO: 'pi-calendar-times', VENCIDA: 'pi-calendar-times', SEM_VALIDADE: 'pi-minus-circle',
+  PENDING_REVIEW: 'pi-search', APPROVED: 'pi-verified', REJECTED: 'pi-times-circle',
+  REGULAR: 'pi-check-circle', AUSENTE: 'pi-exclamation-circle', INCOMPATIVEL: 'pi-times-circle', CONTEXTO_PENDENTE: 'pi-question-circle',
+  ABERTA: 'pi-inbox', EM_ANDAMENTO: 'pi-play-circle', CONCLUIDA: 'pi-check-circle'
+};
+
+/** Ícone da situação; valores sem ícone próprio caem no ícone do tom. */
+export function iconeGovernanca(valor?: string | null): string {
+  return (valor && ICONES[valor]) || CES_STATUS_ICONE_PADRAO[tomGovernanca(valor)];
+}
+
 const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}T00:00:00`).toLocaleDateString('pt-BR') : '');
 
 /**
@@ -151,7 +167,7 @@ const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}
               <span class="ces-cell-muted">Atualizado em {{ dashboard()?.calculadoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
               @for (item of dashboard()?.atencao ?? []; track item.idRegistro) {
                 <button type="button" class="gov-atencao__item" (click)="abrirAtencao(item)">
-                  <ces-status [tone]="item.severidade === 'VENCIDO' ? 'danger' : 'warning'">{{ item.severidade === 'VENCIDO' ? 'Vencido' : 'A vencer' }}</ces-status>
+                  <ces-status [tone]="item.severidade === 'VENCIDO' ? 'danger' : 'warning'" [icon]="item.severidade === 'VENCIDO' ? 'pi-calendar-times' : 'pi-clock'">{{ item.severidade === 'VENCIDO' ? 'Vencido' : 'A vencer' }}</ces-status>
                   <span><strong>{{ item.titulo }}</strong>
                     <span class="ces-cell-muted">{{ rotulo(item.tipo) }}{{ item.prazo ? ' · prazo ' + (item.prazo | date: 'dd/MM/yyyy') : '' }}</span></span>
                   <i class="pi pi-angle-right" aria-hidden="true"></i>
@@ -215,11 +231,11 @@ const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}
             }
           </ng-template>
           <ng-template cesCell="situacao" let-row>
-            <ces-status [tone]="tom(situacaoDe(row))">{{ rotulo(situacaoDe(row)) }}</ces-status>
+            <ces-status [tone]="tom(situacaoDe(row))" [icon]="icone(situacaoDe(row))">{{ rotulo(situacaoDe(row)) }}</ces-status>
             @if (secao === 'documentos') { <span class="ces-cell-muted">{{ rotulo(row.statusValidade) }}</span> }
           </ng-template>
           <ng-template cesCell="prioridade" let-row>
-            <ces-status [tone]="row.prioridade === 'CRITICA' ? 'danger' : row.prioridade === 'ALTA' ? 'warning' : 'neutral'">{{ rotulo(row.prioridade) }}</ces-status>
+            <ces-status [tone]="row.prioridade === 'CRITICA' ? 'danger' : row.prioridade === 'ALTA' ? 'warning' : 'neutral'" icon="pi-flag">{{ rotulo(row.prioridade) }}</ces-status>
           </ng-template>
         </ces-data-table>
       }
@@ -233,8 +249,8 @@ const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}
         <dl class="gov-detalhe">
           <div><dt>Responsável</dt><dd>{{ acao.responsavelNome || 'Responsável definido' }}</dd></div>
           <div><dt>Prazo</dt><dd>{{ acao.prazo | date: 'dd/MM/yyyy' }}</dd></div>
-          <div><dt>Prioridade</dt><dd><ces-status [tone]="acao.prioridade === 'CRITICA' ? 'danger' : acao.prioridade === 'ALTA' ? 'warning' : 'neutral'">{{ rotulo(acao.prioridade) }}</ces-status></dd></div>
-          <div><dt>Situação</dt><dd><ces-status [tone]="tom(acao.status)">{{ rotulo(acao.status) }}</ces-status></dd></div>
+          <div><dt>Prioridade</dt><dd><ces-status [tone]="acao.prioridade === 'CRITICA' ? 'danger' : acao.prioridade === 'ALTA' ? 'warning' : 'neutral'" icon="pi-flag">{{ rotulo(acao.prioridade) }}</ces-status></dd></div>
+          <div><dt>Situação</dt><dd><ces-status [tone]="tom(acao.status)" [icon]="icone(acao.status)">{{ rotulo(acao.status) }}</ces-status></dd></div>
         </dl>
         <ces-callout tone="info" icon="pi pi-link">Esta ação faz parte somente da {{ tipo() === 'CIPA' ? 'CIPA' : 'Brigada de incêndio' }} selecionada.</ces-callout>
       }
@@ -284,6 +300,7 @@ export class GovernancaSstComponent {
   protected readonly dataLocal = dataLocal;
   protected readonly rotulo = rotuloGovernanca;
   protected readonly tom = tomGovernanca;
+  protected readonly icone = iconeGovernanca;
   protected readonly statusOpcoes: CesSelectOption<string>[] = STATUS_POR_SECAO[this.secao].map((v) => ({ label: rotuloGovernanca(v), value: v }));
   private readonly bases = signal<{ id: string; nome: string }[]>([]);
   protected readonly basesOpcoes = computed<CesSelectOption<string>[]>(() => this.bases().map((b) => ({ label: b.nome, value: b.id })));

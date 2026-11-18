@@ -22,6 +22,8 @@ export interface PlanoPreventivo {
   descricao: string | null;
   tiposVeiculo: ReferenciaPlano[];
   tiposImplemento: ReferenciaPlano[];
+  /** Placas escolhidas (nome = placa); vazia quando o plano vale pelos tipos. */
+  placas?: ReferenciaPlano[];
   intervaloKm: number | null;
   intervaloHoras: number | null;
   intervaloDias: number | null;
@@ -55,6 +57,8 @@ export interface PlanoPreventivoRequest {
   abrirOsAutomaticamente: boolean;
   idsItem: string[];
   tarefas: string[];
+  /** Com placas, o plano vale só para elas e os tipos são ignorados. */
+  idsVeiculos: string[];
 }
 
 /** Um plano num veículo: a última realização, a próxima e quanto falta (medições acumuladas). */

@@ -51,7 +51,21 @@ export type AcaoPermitidaSolicitacao =
   | 'CONFIRMAR_DEVOLUCAO'
   | 'ENCERRAR_SALDO'
   | 'ESTORNAR'
+  | 'TROCAR_OCORRENCIA'
   | 'VER_HISTORICO';
+
+export interface TrocarOcorrenciaTecnicaRequest {
+  versaoEsperada: number;
+  ocorrencia: string;
+  justificativa: string;
+}
+
+export interface TrocaOcorrenciaTecnicaResponse {
+  idSolicitacao: string;
+  ocorrenciaAnterior: string | null;
+  ocorrencia: string;
+  versao: number;
+}
 
 export const MAPA_TIPO_CODIGO_TECNICO: Record<TipoSolicitacaoTecnica, CodigoTipoTecnico> = {
   ADICAO_COMUM: '221',
@@ -454,6 +468,8 @@ export interface ItemComandoTecnicoRequest {
   idItemSolicitacao: string;
   quantidade: number;
   numeroSerie?: string | null;
+  /** Unidade da quantidade; vazia = unidade do material (o servidor converte). */
+  unidade?: string;
 }
 
 export interface ConfirmarEntregaTecnicaRequest {
@@ -512,6 +528,8 @@ export interface SolicitacaoMaterialFilter {
   statusSeparacao?: StatusSeparacao | null;
   status?: StatusSolicitacaoMaterial | null;
   statuses?: StatusSolicitacaoMaterial[];
+  /** Deixa de fora quem teve o saldo pendente encerrado. */
+  saldoAberto?: boolean;
   dataInicio?: string | null;
   dataFim?: string | null;
   previstaDe?: string | null;

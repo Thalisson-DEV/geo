@@ -49,6 +49,8 @@ export interface MaterialLocal {
   descricao: string;
   unidadeMedida: string;
   detalhaSerie: boolean;
+  /** Outras unidades em que a quantidade pode ser lançada (ex.: M para fita em UN). */
+  equivalencias?: Equivalencia[];
 }
 
 export interface EstoqueLocal {
@@ -164,6 +166,9 @@ export interface ExecucaoMaterialLocal {
   condicao: 'NOVO' | 'SUCATA';
   /** Ausente nos registros anteriores à ocorrência comercial: vale EQUIPE. */
   origem?: OrigemMaterial;
+  /** O que a equipe digitou em outra unidade; {@link quantidade} já está na unidade do material. */
+  quantidadeInformada?: number;
+  unidadeInformada?: string;
 }
 
 export interface ExecucaoCampoLocal {
@@ -381,6 +386,10 @@ export interface PerguntaLocal {
   obrigatoria: boolean;
   ordem: number;
   opcoes: OpcaoRespostaLocal[];
+  /** Quantidade esperada ou observação do item ("Individual", "Quantidade: 5"). */
+  orientacao?: string | null;
+  /** Falso para itens da equipe ou do veículo: o desvio pode sair sem colaborador. */
+  desvioPorColaborador?: boolean;
 }
 
 export interface GrupoPerguntaLocal {
@@ -398,6 +407,7 @@ export interface FormularioLocal {
   emUso?: boolean;
   grupos: GrupoPerguntaLocal[];
 }
+import { Equivalencia } from '../almox/unidade-material';
 import {
   AnexoPendenteLocal,
   EvidenciaInspecaoResponse,

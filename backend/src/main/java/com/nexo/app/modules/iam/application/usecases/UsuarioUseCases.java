@@ -14,9 +14,11 @@ import com.nexo.app.modules.iam.infrastructure.persistence.PerfilAcessoRepositor
 import com.nexo.app.modules.iam.infrastructure.persistence.UsuarioRepository;
 import com.nexo.app.modules.iam.infrastructure.persistence.UsuarioSpecification;
 import com.nexo.app.modules.rh.ColaboradorApi;
+import com.nexo.app.modules.rh.ColaboradorResponse;
 import com.nexo.app.modules.rh.ResumoColaborador;
 import com.nexo.app.shared.application.dto.PageResponse;
 import com.nexo.app.shared.domain.events.UsuarioCriadoParaColaboradorEvent;
+import com.nexo.app.shared.domain.events.VinculoUsuarioColaboradorAlteradoEvent;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import com.nexo.app.shared.infrastructure.persistence.SpecificationUtils;
@@ -125,6 +127,48 @@ public class UsuarioUseCases implements UsuarioApi {
         }
 
         return comColaborador(mapper.toResponse(repository.save(usuario)));
+    }
+
+    /**
+     * Liga um acesso já existente a um colaborador já existente — ou desfaz o vínculo
+     * quando {@code idColaborador} é nulo. Um colaborador tem no máximo um acesso, então
+     * o vínculo é recusado se outro usuário já ocupa aquele colaborador. O RH é avisado
+     * para manter o lado inverso ({@code colaboradores.id_usuario}) coerente, inclusive
+     * limpando o colaborador que deixou de ser dono deste acesso.
+     */
+    @Transactional
+    @CacheEvict(allEntries = true)
+    public UsuarioResponse vincularColaborador(UUID id, UUID idColaborador) {
+        Usuario usuario = repository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Usuário não encontrado"));
+
+        UUID anterior = usuario.getIdColaborador();
+        if (Objects.equals(anterior, idColaborador)) {
+            return comColaborador(mapper.toResponse(usuario));
+        }
+
+        if (idColaborador != null) {
+            if (!colaboradorApi.existeColaborador(idColaborador)) {
+                throw new RecursoNaoEncontradoException("Colaborador não encontrado ou desligado");
+            }
+            repository.findFirstByIdColaboradorAndIdNot(idColaborador, id).ifPresent(outro -> {
+                throw new InvarianteVioladaException(
+                        "Este colaborador já está vinculado ao usuário " + outro.getLogin());
+            });
+            colaboradorApi.buscarPorIdResponse(idColaborador)
+                    .map(ColaboradorResponse::idUsuario)
+                    .filter(idUsuario -> !idUsuario.equals(id))
+                    .ifPresent(idUsuario -> {
+                        throw new InvarianteVioladaException("Este colaborador já possui um acesso vinculado");
+                    });
+        }
+
+        usuario.vincularColaborador(idColaborador);
+        Usuario salvo = repository.save(usuario);
+
+        eventPublisher.publishEvent(new VinculoUsuarioColaboradorAlteradoEvent(id, anterior, idColaborador));
+
+        return comColaborador(mapper.toResponse(salvo));
     }
 
     @Transactional
@@ -325,6 +369,8 @@ public class UsuarioUseCases implements UsuarioApi {
                 .filter(usuario -> usuario.getEmail() != null && !usuario.getEmail().isBlank())
                 .collect(Collectors.toMap(Usuario::getId, Usuario::getEmail));
     }
+
+
 
     @Override
     @Transactional(readOnly = true)

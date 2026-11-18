@@ -1,11 +1,15 @@
 package com.nexo.app.modules.estoque.application.mappers;
 
 import com.nexo.app.modules.estoque.MaterialResponse;
+import com.nexo.app.modules.estoque.UnidadeEquivalenteResponse;
 import com.nexo.app.modules.estoque.domain.Material;
 import com.nexo.app.modules.rh.ProcessoNegocioApi;
 import com.nexo.app.modules.rh.ProcessoNegocioResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.math.MathContext;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -38,7 +42,16 @@ public class MaterialMapper {
                 avaliacaoMapper.toResponse(entity.getAvaliacaoTecnica()),
                 centroInvestimentoMapper.toResponse(entity.getCentroInvestimento()),
                 entity.isDetalhaSerie(),
-                entity.isAtivo()
+                entity.isAtivo(),
+                equivalencias(entity)
         );
+    }
+
+    private static List<UnidadeEquivalenteResponse> equivalencias(Material entity) {
+        return entity.getEquivalencias().stream()
+                .map(e -> new UnidadeEquivalenteResponse(
+                        e.getUnidade(), e.getQuantidadeUnidade(), e.getQuantidadeBase(),
+                        e.getQuantidadeBase().divide(e.getQuantidadeUnidade(), MathContext.DECIMAL64).stripTrailingZeros()))
+                .toList();
     }
 }

@@ -1,3 +1,4 @@
+import { ICONE_VENCIMENTO } from '../../../core/models/frota.models';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, input, model, output } from '@angular/core';
 import {
@@ -88,7 +89,7 @@ import { FrotaService } from '../../../core/services/frota.service';
         }
       </ng-template>
       <ng-template cesCell="situacaoVencimento" let-row>
-        <ces-status [tone]="tom[row.situacaoVencimento]">{{ rotulo[row.situacaoVencimento] }}</ces-status>
+        <ces-status [tone]="tom[row.situacaoVencimento]" [icon]="icone[row.situacaoVencimento]">{{ rotulo[row.situacaoVencimento] }}</ces-status>
       </ng-template>
       <ng-template cesRowActions let-row>
         <span class="ces-table-actions">
@@ -139,6 +140,7 @@ export class FrotaDocumentosTabelaComponent {
   readonly limparFiltros = output<void>();
 
   protected readonly tom: Record<string, CesTone> = TOM_VENCIMENTO;
+  protected readonly icone: Record<string, string> = ICONE_VENCIMENTO;
   protected readonly rotulo: Record<string, string> = ROTULO_VENCIMENTO;
   protected readonly prazo = descreverPrazo;
   protected readonly placa = formatarPlaca;

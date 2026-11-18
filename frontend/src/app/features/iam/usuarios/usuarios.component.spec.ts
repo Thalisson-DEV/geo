@@ -48,6 +48,7 @@ describe('UsuariosComponent', () => {
       atualizarUsuario: vi.fn(() => of(usuario)),
       ativarUsuario: vi.fn(() => of(null)),
       desativarUsuario: vi.fn(() => of(null)),
+      vincularColaborador: vi.fn(() => of(usuario)),
       validarImportacao: vi.fn(() =>
         of({ registros: [{ linha: 2, login: 'USR000001', senha: 'x', status: 'AGUARDANDO_PROCESSAMENTO' }], totalProcessados: 1, totalSucesso: 1, totalFalha: 0 })
       ),
@@ -60,6 +61,7 @@ describe('UsuariosComponent', () => {
       listarProcessosAtivos: vi.fn(() => paginaTeste([{ id: 'pr1', nome: 'MANUTENÇÃO' }])),
       listarFuncoesAtivas: vi.fn(() => paginaTeste([{ id: 'f1', nome: 'ELETRICISTA' }])),
       criarColaborador: vi.fn(() => of({ id: 'novo-colab' })),
+      aguardarAcessoColaborador: vi.fn(() => of(true)),
       gerarAcesso: vi.fn(() => of({}))
     };
   });
@@ -112,6 +114,27 @@ describe('UsuariosComponent', () => {
     expect(request).not.toHaveProperty('senha');
     expect(request).toMatchObject({ login: 'USR123456', idPerfil: 'p1', tipo: 'CAMPO' });
     expect(servico['desativarUsuario']).toHaveBeenCalledWith('u1');
+  });
+
+  it('vincula um usuário existente a um colaborador existente ao salvar a edição', async () => {
+    const { tela } = await abrir();
+    tela.editar({ ...usuario, idColaborador: undefined, colaborador: null });
+    tela['idColaborador'].set('c9');
+    tela.salvar();
+    expect(servico['atualizarUsuario']).toHaveBeenCalled();
+    expect(servico['vincularColaborador']).toHaveBeenCalledWith('u1', 'c9');
+  });
+
+  it('desfaz o vínculo quando o colaborador é limpo e não chama o vínculo sem mudança', async () => {
+    const { tela } = await abrir();
+    tela.editar({ ...usuario, idColaborador: 'c1' });
+    tela.salvar();
+    expect(servico['vincularColaborador']).not.toHaveBeenCalled();
+
+    tela.editar({ ...usuario, idColaborador: 'c1' });
+    tela['idColaborador'].set(null);
+    tela.salvar();
+    expect(servico['vincularColaborador']).toHaveBeenCalledWith('u1', null);
   });
 
   it('a importação descarta as linhas (com senha) depois de processar sem erro', async () => {

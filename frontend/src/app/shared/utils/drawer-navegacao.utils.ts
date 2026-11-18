@@ -2,14 +2,21 @@ import { DestroyRef, inject } from '@angular/core';
 
 /**
  * Sair de um drawer para outra rota (ex.: "Relatório completo") destrói o drawer no meio da
- * animação de saída da máscara, que leva cerca de 1 s. A máscara ficava órfã no `body`, por cima
- * da tela nova, e nada mais recebia clique até recarregar a página.
+ * animação da máscara (cerca de 1 s). A máscara ficava órfã no `body`, escurecendo a tela nova,
+ * com a rolagem travada e sem receber clique até recarregar a página.
  *
- * Navega na hora e, depois que a rota troca, remove as máscaras que ficaram saindo e devolve a
- * rolagem ao `body` quando não resta nenhum overlay aberto.
+ * A máscara órfã pode ficar presa saindo (`leave-active`) ou entrando (`enter-active`); nos dois
+ * casos ela fica vazia, porque o painel foi destruído junto com o drawer. Uma máscara viva sempre
+ * tem o drawer ou o diálogo dentro. Navega na hora e limpa duas vezes: logo depois da troca de
+ * rota e de novo quando a animação já teria acabado.
  */
+const FIM_DA_ANIMACAO_MS = 1100;
+
 export function navegarSaindoDoDrawer(navegar: () => Promise<boolean>): Promise<boolean> {
-  return navegar().finally(() => requestAnimationFrame(limparMascarasOrfas));
+  return navegar().finally(() => {
+    requestAnimationFrame(limparMascarasOrfas);
+    setTimeout(limparMascarasOrfas, FIM_DA_ANIMACAO_MS);
+  });
 }
 
 /** Duração da saída do painel: desmontar antes disso corta a animação. */

@@ -13,5 +13,8 @@ public record ExecucaoMaterialResponse(
         BigDecimal quantidade,
         OperacaoMaterial operacao,
         String numSerie,
-        OrigemMaterial origem
+        OrigemMaterial origem,
+        /** O que a equipe digitou em outra unidade (ex.: 2,5 M de fita); nulo sem conversão. */
+        BigDecimal quantidadeInformada,
+        String unidadeInformada
 ) {}

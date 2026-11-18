@@ -38,6 +38,7 @@ public class MaterialUseCases {
     private final CentroInvestimentoRepository centroInvestimentoRepository;
     private final ProcessoNegocioApi processoApi;
     private final MaterialMapper mapper;
+    private final com.nexo.app.modules.estoque.infrastructure.persistence.MovimentacaoEstoqueRepository movimentacaoRepository;
 
     @Transactional
     @CacheEvict(allEntries = true)
@@ -64,6 +65,9 @@ public class MaterialUseCases {
                 request.detalhaSerie(),
                 processo.id()
         );
+        if (request.equivalencias() != null) {
+            entity.definirEquivalencias(equivalencias(request));
+        }
 
         return mapearResposta(repository.save(entity));
     }
@@ -84,7 +88,11 @@ public class MaterialUseCases {
 
         ProcessoNegocioResponse processo = resolverProcesso(request.idProcesso());
 
+        exigirUnidadeSemHistorico(entity, request.unidadeMedida());
         entity.atualizar(request.codigo(), request.descricao(), request.unidadeMedida(), request.suprMatrFlag(), request.detalhaSerie());
+        if (request.equivalencias() != null) {
+            entity.definirEquivalencias(equivalencias(request));
+        }
         entity.vincularAvaliacao(avaliacao);
         entity.vincularCentroInvestimento(centro);
         entity.vincularProcesso(processo.id());
@@ -125,6 +133,26 @@ public class MaterialUseCases {
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado"));
         entity.desativar();
         repository.save(entity);
+    }
+
+    private static java.util.List<Material.Equivalencia> equivalencias(MaterialRequest request) {
+        return request.equivalencias().stream()
+                .map(e -> new Material.Equivalencia(e.unidade(), e.quantidadeUnidade(), e.quantidadeBase()))
+                .toList();
+    }
+
+    /**
+     * Trocar a unidade de um material que já foi movimentado mudaria o sentido de todo o saldo e
+     * do histórico. Nesse caso a troca é recusada; a saída é cadastrar uma equivalência.
+     */
+    private void exigirUnidadeSemHistorico(Material entity, String novaUnidade) {
+        String atual = entity.getUnidadeMedida() == null ? "" : entity.getUnidadeMedida();
+        String nova = novaUnidade == null ? "" : novaUnidade.trim().toUpperCase();
+        if (!atual.equals(nova) && movimentacaoRepository.existsByMaterialId(entity.getId())) {
+            throw new InvarianteVioladaException("O material " + entity.getCodigo() + " já tem movimentações em "
+                    + (atual.isBlank() ? "UN" : atual) + ". Para usar " + (nova.isBlank() ? "outra unidade" : nova)
+                    + ", cadastre uma equivalência em vez de trocar a unidade.");
+        }
     }
 
     private void validarUnicidade(String codigo) {

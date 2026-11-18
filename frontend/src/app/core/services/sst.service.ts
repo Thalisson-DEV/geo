@@ -13,6 +13,7 @@ import {
   DashboardInspecoesResponse,
   DashboardSstFilter,
   EvidenciaInspecaoResponse,
+  FormularioInspecaoImportacaoDTO,
   FormularioInspecaoResponse,
   FormularioInspecaoResumoResponse,
   InspecaoFilters,
@@ -25,7 +26,8 @@ import {
   TratarDesvioRequest,
   AtualizarCabecalhoInspecaoRequest,
   AtualizarInspecaoRequest,
-  HistoricoInspecaoResponse
+  HistoricoInspecaoResponse,
+  ImportacaoFormularioInspecaoResponse
 } from '../models/sst.models';
 import {
   MeuDesvioFilter,
@@ -132,6 +134,16 @@ export class SstService extends BaseService {
 
   registrarEvento(request: EventoSstRequest): Observable<EventoSstResponse> {
     return this.http.post<EventoSstResponse>(this.eventosUrl, request);
+  }
+
+  importarFormularios(arquivo: File): Observable<ImportacaoFormularioInspecaoResponse> {
+    const formData = new FormData();
+    formData.append('arquivo', arquivo, arquivo.name);
+    return this.http.post<ImportacaoFormularioInspecaoResponse>(`${this.formulariosUrl}/importar`, formData);
+  }
+
+  confirmarImportacaoFormularios(perguntas: FormularioInspecaoImportacaoDTO[]): Observable<ImportacaoFormularioInspecaoResponse> {
+    return this.http.post<ImportacaoFormularioInspecaoResponse>(`${this.formulariosUrl}/confirmar-importacao`, { perguntas });
   }
 
   importarEventos(arquivo: File): Observable<ImportacaoEventoSstResponse> {

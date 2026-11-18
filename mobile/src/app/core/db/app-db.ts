@@ -22,6 +22,8 @@ import {
   FormularioLocal,
   TipoInspecaoLocal
 } from './models';
+import { ChecklistVeiculoLocal } from '../frota/checklist-veiculo.models';
+import { AbastecimentoLocal } from '../frota/abastecimento.models';
 
 export class AppDatabase extends Dexie {
   equipe!: Table<EquipeLocal>;
@@ -45,6 +47,10 @@ export class AppDatabase extends Dexie {
   inspecoes!: Table<InspecaoLocal>;
   tiposInspecao!: Table<TipoInspecaoLocal>;
   formularios!: Table<FormularioLocal>;
+  /** Checklists do veículo: rascunho, fila e enviados (com as fotos até subirem). */
+  checklistsVeiculo!: Table<ChecklistVeiculoLocal>;
+  /** Pedidos de abastecimento: rascunho, fila, a situação do servidor e o realizado (com as fotos até subirem). */
+  abastecimentos!: Table<AbastecimentoLocal>;
   outbox!: Table<OutboxItem>;
   config!: Table<{ key: string, value: any }>;
 
@@ -71,6 +77,8 @@ export class AppDatabase extends Dexie {
       inspecoes: 'id, status, idInspetor, dataRealizacao, statusSync',
       tiposInspecao: 'id, nome, ordem, ativo',
       formularios: 'id, titulo, ativo',
+      checklistsVeiculo: 'id, statusSync, idVeiculo, criadoEm',
+      abastecimentos: 'id, statusSync, idVeiculo, criadoEm',
       outbox: 'id, status, criadoEm',
       config: 'key'
     }).upgrade(tx => tx.table('execucoesCampo').toCollection().modify(migrarExecucaoParaLancamentoUnico));

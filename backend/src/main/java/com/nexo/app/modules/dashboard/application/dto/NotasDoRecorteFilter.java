@@ -31,7 +31,10 @@ public record NotasDoRecorteFilter(
         UUID idTipoServico,
 
         @Parameter(description = "Apenas notas sem tipo de serviço informado")
-        Boolean semTipoServico
+        Boolean semTipoServico,
+
+        @Parameter(description = "Deixa de fora as notas só com serviços improdutivos (como na meta física)")
+        Boolean apenasProdutivas
 ) {
 
     public NotasDoRecorteFilter {

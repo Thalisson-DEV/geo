@@ -81,10 +81,32 @@ describe('ChamadosListaComponent', () => {
     expect(chipsDoPainel(el)).toEqual(['Tópico: ACESSO', 'Status: Aberto', 'Abertura: 01/10/2026 a 10/10/2026']);
   });
 
-  it('"n" em Meus chamados abre a tela de novo chamado', async () => {
+  it('"n" em Meus chamados abre o drawer de novo chamado (?novo=1)', async () => {
     await abrir('meus');
     const navegar = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     tecla('n');
-    expect(navegar).toHaveBeenCalledWith(['/chamados/novo']);
+    expect(navegar).toHaveBeenCalledWith([], expect.objectContaining({ queryParams: expect.objectContaining({ novo: '1' }) }));
+  });
+
+  it('mostra a situação do prazo em texto, além da cor e do ícone', async () => {
+    servico['listarFila'].mockReturnValue(
+      paginaTeste([
+        { ...chamado, id: 'c2', protocolo: 'CH-2', slaResolucaoVencido: true },
+        { ...chamado, id: 'c3', protocolo: 'CH-3', dataLimiteResolucao: new Date(Date.now() + 48 * 3_600_000).toISOString() }
+      ])
+    );
+    const { el } = await abrir('central');
+    const prazos = Array.from(el.querySelectorAll('ces-status[data-emphasis="outline"]')).map((s) => s.textContent!.trim());
+    expect(prazos).toEqual(expect.arrayContaining(['Vencido', 'No prazo']));
+  });
+
+  it('ação da linha copia o protocolo', async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    const { el } = await abrir('meus');
+    const copiar = el.querySelector<HTMLButtonElement>('button[aria-label="Copiar protocolo CH-20261010-0001"]');
+    expect(copiar).not.toBeNull();
+    copiar!.click();
+    expect(writeText).toHaveBeenCalledWith('CH-20261010-0001');
   });
 });

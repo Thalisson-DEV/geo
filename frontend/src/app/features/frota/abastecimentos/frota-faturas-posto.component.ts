@@ -164,6 +164,7 @@ export class FrotaFaturasPostoComponent {
   /** Recorte próprio, fora da URL: o posto da fatura não se mistura com o filtro dos pedidos. */
   protected readonly lista = cesListState({
     storageKey: 'frota-faturas-posto',
+    rememberFilters: 'frota-faturas-posto',
     url: false,
     filters: {
       idPosto: cesFilter.value<string | null>(null, { label: 'Posto', options: () => this.filtros().opcoesPosto() }),

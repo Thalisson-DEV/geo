@@ -200,6 +200,16 @@ public class MotorCadastro {
         }
     }
 
+    private JsonNode objetoEmTexto(JsonNode valor) {
+        String texto = valor.asText().strip();
+        if (!texto.startsWith("{")) return valor;
+        try {
+            return mapper.readTree(texto);
+        } catch (Exception exception) {
+            return valor;
+        }
+    }
+
     private JsonNode normalizarValor(OperacaoCadastro<?> op, CampoDescritor campo, JsonNode valor, String caminho,
             ObjectNode visao, List<Pendencia> pendencias, Contexto contexto, ObjectNode irmaos) {
         if (campo.multiplo()) {
@@ -244,12 +254,17 @@ public class MotorCadastro {
             return lista;
         }
         if (campo.tipo() == TipoCampo.OBJETO) {
+            // Integracoes as vezes mandam o objeto como texto JSON.
+            if (valor.isTextual()) valor = objetoEmTexto(valor);
             OperacaoCadastro.CamposDinamicos dinamicos = op.camposDinamicos().get(caminhoDeclarado(caminho));
             if (dinamicos == null) {
                 visao.put("exibicao", valor.isObject() ? valor.size() + " informações" : texto(valor));
                 return valor;
             }
-            List<CampoDescritor> filhos = dinamicos.campos(irmaos);
+            // Os campos que aparecem conforme outras respostas precisam enxergar o que foi informado no objeto.
+            ObjectNode comInformado = irmaos.deepCopy();
+            if (valor.isObject()) comInformado.set(campo.chave(), valor);
+            List<CampoDescritor> filhos = dinamicos.campos(comInformado);
             ObjectNode saida = JsonNodeFactory.instance.objectNode();
             ArrayNode camposObjeto = JsonNodeFactory.instance.arrayNode();
             normalizar(op, filhos, valor.isObject() ? valor : JsonNodeFactory.instance.objectNode(), saida, camposObjeto,

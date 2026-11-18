@@ -21,6 +21,8 @@ import { createControlId, getDescribedBy } from './form-control.helpers';
       [disabled]="disabled()"
       [readonly]="readonly()"
     >
+      <!-- Vazio continua vazio mesmo quando obrigatório: o PrimeNG trocava por 0, que passava na validação
+           como se tivesse sido digitado. A obrigatoriedade fica com a validação da tela. -->
       <p-inputnumber
         [autofocus]="false"
         class="ces-prime-control"
@@ -41,7 +43,7 @@ import { createControlId, getDescribedBy } from './form-control.helpers';
         [prefix]="prefix()"
         [suffix]="suffix()"
         [showButtons]="showButtons()"
-        [allowEmpty]="!required()"
+        [allowEmpty]="true"
         [required]="required()"
         [disabled]="disabled()"
         [readonly]="readonly()"

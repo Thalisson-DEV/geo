@@ -64,6 +64,11 @@ public class Obra extends BaseEntity {
     @Column(name = "tipo_obra", nullable = false, length = 20)
     private TipoObra tipoObra = TipoObra.OBRA;
 
+    /** Tipo cadastrado (Comum, LPT, Corretiva...). A classe operacional acima é derivada dele. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_obra")
+    private TipoDeObra tipoDeObra;
+
     @Column(name = "descricao", length = 1000)
     private String descricao;
 
@@ -299,6 +304,23 @@ public class Obra extends BaseEntity {
         registrarTrocaStatus(statusObra, null);
         this.agenteResponsavel = agenteResponsavel;
         atualizarEquipes(novasEquipes);
+    }
+
+    /** Define o tipo cadastrado e a classe operacional que o estoque e os relatórios usam. */
+    public void definirTipo(TipoDeObra tipo) {
+        validarAtivo();
+        this.tipoDeObra = Objects.requireNonNull(tipo, "O tipo da obra é obrigatório.");
+        this.tipoObra = tipo.classeOperacional();
+    }
+
+    /** O material vai para a OS/OC digitada na solicitação, e não direto na obra. */
+    public boolean usaOcorrencia() {
+        return tipoDeObra != null ? tipoDeObra.usaOcorrencia() : tipoObra.exigeOcorrencia();
+    }
+
+    public ControleExecucaoObra controleExecucao() {
+        if (tipoDeObra != null) return tipoDeObra.getControleExecucao();
+        return tipoObra.exigeOcorrencia() ? ControleExecucaoObra.OC : ControleExecucaoObra.OBRA;
     }
 
     public void alterarStatus(StatusObra novoStatus, LocalDate dataFimEfetiva) {

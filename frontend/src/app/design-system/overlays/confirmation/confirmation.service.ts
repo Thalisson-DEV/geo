@@ -27,18 +27,10 @@ export class CesConfirmationService {
         icon: request.icon ?? (destructive ? 'pi pi-exclamation-triangle' : 'pi pi-question-circle'),
         acceptLabel: request.confirmLabel ?? (destructive ? 'Excluir' : 'Confirmar'),
         rejectLabel: request.cancelLabel ?? 'Cancelar',
-        acceptButtonProps: {
-          severity: destructive ? 'danger' : 'success',
-          styleClass: destructive
-            ? '!bg-red-600 !border-red-600 !text-white hover:!bg-red-700 !font-semibold !px-6 !py-2 !rounded-lg'
-            : '!bg-green-600 !border-green-600 !text-white hover:!bg-green-700 !font-semibold !px-6 !py-2 !rounded-lg'
-        },
-        rejectButtonProps: {
-          severity: 'danger',
-          outlined: true,
-          styleClass:
-            '!bg-transparent !border-red-300 dark:!border-red-800/70 !text-red-600 dark:!text-red-400 hover:!bg-red-50 dark:hover:!bg-red-950/40 !font-semibold !px-6 !py-2 !rounded-lg'
-        },
+        // Variantes semânticas do tema, sem cor fixa: confirmar é a ação primária (perigo se destrutiva)
+        // e cancelar é neutra — vermelho no "Cancelar" sugeria que desistir era a ação arriscada.
+        acceptButtonProps: { severity: destructive ? 'danger' : undefined },
+        rejectButtonProps: { severity: 'secondary', text: true },
         accept: () => resolve(true),
         reject: () => resolve(false)
       });

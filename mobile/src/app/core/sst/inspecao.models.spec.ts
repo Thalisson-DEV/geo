@@ -92,6 +92,18 @@ describe('contrato de lançamento de inspeção', () => {
     expect(sanitizarRegistrarInspecao(repetido).evidencias).toEqual(['ev-1', 'ev-2']);
   });
 
+  it('remove colaborador repetido ao escolher a equipe inteira', () => {
+    const repetido: RegistrarInspecaoRequest = {
+      ...request,
+      colaboradoresInspecionados: ['col-1', 'col-2', 'col-1'],
+    };
+    const limpo = sanitizarRegistrarInspecao(repetido);
+    expect(limpo.colaboradoresInspecionados).toEqual(['col-1', 'col-2']);
+    expect(validarRegistrarInspecao(formulario, limpo)).not.toContain(
+      'A lista de colaboradores inspecionados contém duplicidades.'
+    );
+  });
+
   it('recusa arquivo que não é imagem e aceita HEIC do iPhone', () => {
     expect(validarArquivoEvidencia({ size: 1024, type: 'application/pdf', name: 'laudo.pdf' }))
       .toContain('precisa ser uma imagem');

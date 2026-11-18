@@ -1,7 +1,7 @@
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
@@ -27,6 +27,8 @@ const saldo = (id: string, detalhaSerie: boolean, quantidade = 2) => ({
 describe('RelatorioSaldoComponent', () => {
   const listarSaldos = vi.fn();
   const listarSaldosSeriais = vi.fn();
+  const listarSeriesAConferir = vi.fn();
+  let estoque: Record<string, unknown>;
 
   async function montar() {
     TestBed.resetTestingModule();
@@ -46,14 +48,15 @@ describe('RelatorioSaldoComponent', () => {
         {
           provide: AlmoxarifadoService,
           useValue: {
-            buscarEstoquePorId: () =>
-              of({ id: 'stock-1-abcdef', nomeIdentificador: 'Central', ativo: true, tipoEstoque: { nome: 'Fixo' } }),
+            buscarEstoquePorId: () => of(estoque),
             listarSaldos,
             listarSaldosSeriais,
+            listarSeriesAConferir,
           },
         },
-        { provide: RhService, useValue: { buscarEquipePorId: vi.fn() } },
+        { provide: RhService, useValue: { buscarEquipePorId: vi.fn(() => of(null)), listarProcessosAtivos: vi.fn(() => of({ content: [] })) } },
         MessageService,
+        ConfirmationService,
       ],
     }).compileComponents();
     const fixture = TestBed.createComponent(RelatorioSaldoComponent);
@@ -66,6 +69,8 @@ describe('RelatorioSaldoComponent', () => {
   beforeEach(() => {
     listarSaldos.mockReset();
     listarSaldosSeriais.mockReset();
+    listarSeriesAConferir.mockReset();
+    estoque = { id: 'stock-1-abcdef', nomeIdentificador: 'Central', ativo: true, tipoEstoque: { nome: 'Fixo' } };
     listarSaldos.mockImplementation((params: Record<string, unknown>) => {
       if (params['size'] === 1) {
         if (params['negativo']) return of(pagina([], 3));
@@ -125,5 +130,35 @@ describe('RelatorioSaldoComponent', () => {
     const painel = el.querySelector('app-saldo-seriais-painel')!;
     expect(painel.textContent).toContain('SN-001');
     expect(painel.textContent).toContain('Indisponível');
+  });
+
+  it('estoque fixo não consulta séries a conferir', async () => {
+    const fixture = await montar();
+    expect(listarSeriesAConferir).not.toHaveBeenCalled();
+    expect(fixture.nativeElement.querySelector('app-series-a-conferir')).toBeNull();
+  });
+
+  it('estoque de equipe mostra as séries aplicadas fora do caminhão e o ponto de atenção', async () => {
+    estoque = { ...estoque, idEquipe: 'eq-1' };
+    listarSeriesAConferir.mockReturnValue(of({
+      idEstoque: 'stock-1-abcdef',
+      materiais: [{
+        idMaterial: 'mat-a', codigo: '802149', descricao: 'Medidor', quantidadeSaldo: 13, seriesNoSaldo: 22, seriesSobrando: 9,
+        aplicadas: [
+          { idMovimentacao: 'm1', numSerie: '5269950597', dataHora: '2026-10-22T15:33:42-03:00', sugestao: '5269950598' },
+          { idMovimentacao: 'm2', numSerie: '5269950546', dataHora: '2026-10-23T14:45:50-03:00', sugestao: null },
+        ],
+        seriesDisponiveis: ['5269950598', '6260031161'],
+      }],
+    }));
+
+    const fixture = await montar();
+    const texto: string = fixture.nativeElement.textContent;
+
+    expect(listarSeriesAConferir).toHaveBeenCalledWith('stock-1-abcdef');
+    expect(texto).toContain('2 séries a conferir');
+    expect(texto).toContain('9 séries a mais');
+    expect(texto).toContain('5269950597');
+    expect(texto).toContain('Nenhuma parecida');
   });
 });

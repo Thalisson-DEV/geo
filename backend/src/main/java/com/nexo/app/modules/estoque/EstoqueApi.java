@@ -11,6 +11,7 @@ import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,17 @@ public class EstoqueApi {
     private final MaterialRepository materialRepository;
     private final EstoqueRepository estoqueRepository;
     private final MaterialMapper materialMapper;
+
+    /**
+     * Converte uma quantidade informada em outra unidade (ex.: metros de fita) para a unidade do
+     * material (rolo). Unidade vazia ou igual à do material passa direto.
+     */
+    public QuantidadeNaUnidadeResponse converterParaUnidadeDoMaterial(UUID idMaterial, BigDecimal quantidade, String unidade) {
+        Material material = materialRepository.findById(idMaterial)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Material não encontrado: " + idMaterial));
+        var convertida = material.converterParaBase(quantidade, unidade);
+        return new QuantidadeNaUnidadeResponse(convertida.base(), convertida.informada(), convertida.unidadeInformada());
+    }
 
     /**
      * Valida o item de material de uma execução de campo.

@@ -2,9 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { limparMascarasOrfas, navegarSaindoDoDrawer } from './drawer-navegacao.utils';
 
-function mascara(classes: string): HTMLElement {
+function mascara(classes: string, comPainel = false): HTMLElement {
   const el = document.createElement('div');
   el.className = classes;
+  if (comPainel) el.appendChild(document.createElement('div')).className = 'p-drawer';
   document.body.appendChild(el);
   return el;
 }
@@ -26,8 +27,18 @@ describe('drawer-navegacao.utils', () => {
     expect(document.body.classList).not.toContain('p-overflow-hidden');
   });
 
+  it('remove a máscara vazia que ficou presa entrando (drawer destruído na navegação)', () => {
+    const orfa = mascara('p-drawer-mask p-overlay-mask p-overlay-mask-enter-active');
+    document.body.classList.add('p-overflow-hidden');
+
+    limparMascarasOrfas();
+
+    expect(orfa.isConnected).toBe(false);
+    expect(document.body.classList).not.toContain('p-overflow-hidden');
+  });
+
   it('não mexe num overlay que continua aberto', () => {
-    const aberta = mascara('p-dialog-mask p-overlay-mask');
+    const aberta = mascara('p-dialog-mask p-overlay-mask', true);
     document.body.classList.add('p-overflow-hidden');
 
     limparMascarasOrfas();

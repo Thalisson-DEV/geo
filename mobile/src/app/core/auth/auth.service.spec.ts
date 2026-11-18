@@ -278,6 +278,20 @@ describe('AuthService', () => {
       expect(service.isCampo()).toBeTrue();
     });
 
+    it('o campo não aprova abastecimento, mesmo com a permissão: só pede', () => {
+      tokenServiceSpy.getDecodedPayload.and.returnValue({
+        sub: '456', nome: 'Campo User', roles: ['frota:abastecimento:aprovar'], tipoUsuario: 'CAMPO', exp: 9999999999
+      });
+      expect(service.podeAprovarAbastecimento()).toBeFalse();
+    });
+
+    it('o administrativo com a permissão aprova abastecimento', () => {
+      tokenServiceSpy.getDecodedPayload.and.returnValue({
+        sub: '123', nome: 'Admin User', roles: ['frota:abastecimento:aprovar'], tipoUsuario: 'ADMINISTRATIVO', exp: 9999999999
+      });
+      expect(service.podeAprovarAbastecimento()).toBeTrue();
+    });
+
     it('nega o módulo de logística ao usuário administrativo', () => {
       tokenServiceSpy.getDecodedPayload.and.returnValue({
         sub: '123',

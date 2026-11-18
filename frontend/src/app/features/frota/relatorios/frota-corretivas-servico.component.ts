@@ -19,6 +19,7 @@ import { FrotaPreventivaService } from '../../../core/services/frota-preventiva.
 import { FrotaService } from '../../../core/services/frota.service';
 import { dataIso } from '../../../shared/listagem/listagem';
 import { basesFrota } from '../shared/frota-lista';
+import { sinalBaseFrota } from '../shared/frota-base-compartilhada';
 
 const PERIODOS: CesSelectOption<number>[] = [
   { label: 'Últimos 30 dias', value: 30 },
@@ -95,7 +96,7 @@ export class FrotaCorretivasServicoComponent {
 
   protected readonly dias = signal(90);
   protected readonly idsTipo = signal<string[]>([]);
-  protected readonly idsBase = signal<string[]>([]);
+  protected readonly idsBase = sinalBaseFrota();
   protected readonly tipos = signal<CesSelectOption<string>[]>([]);
   protected readonly linhas = signal<CorretivaPorItem[]>([]);
   protected readonly carregando = signal(false);

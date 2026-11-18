@@ -31,10 +31,10 @@ export interface OpcaoSeletor {
     </button>
 
     <ces-folha [aberta]="aberto()" (fechar)="fechar()" [titulo]="rotulo()" [descricao]="multiplo() ? 'Marque quantos precisar.' : null">
-      @if (opcoes().length > 6) {
+      @if (buscavel() ?? opcoes().length > 6) {
         <div class="busca">
           <ces-icone nome="busca" [tamanho]="18" />
-          <input type="search" placeholder="Buscar" enterkeyhint="search" [attr.aria-label]="'Buscar ' + rotulo()"
+          <input type="search" [placeholder]="placeholderBusca()" enterkeyhint="search" autocomplete="off" [attr.aria-label]="'Buscar ' + rotulo()"
             [value]="busca()" (input)="busca.set($any($event.target).value)">
         </div>
       }
@@ -92,6 +92,9 @@ export class SeletorComponent {
   readonly multiplo = input(false);
   readonly desabilitado = input(false);
   readonly invalido = input(false);
+  /** Busca no topo da folha: sem valor, aparece a partir de 7 opções; `true` sempre (lista que cresce com o cadastro). */
+  readonly buscavel = input<boolean | null>(null);
+  readonly placeholderBusca = input('Buscar');
   readonly valor = model<string | null>(null);
   readonly valores = model<string[]>([]);
   readonly aberto = model(false);

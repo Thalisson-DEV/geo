@@ -63,7 +63,9 @@ public record PainelSolicitacoesResponse(
         long itens,
         BigDecimal quantidadeSolicitada,
         BigDecimal quantidadeAtendida,
-        @Schema(description = "Criada antes do período e ainda aberta (backlog)") boolean anteriorAoPeriodo
+        @Schema(description = "Criada antes do período e ainda aberta (backlog)") boolean anteriorAoPeriodo,
+        @Schema(description = "Base operacional da equipe") UUID idBaseOperacional,
+        @Schema(description = "Processo de negócio da equipe") UUID idProcesso
     ) {}
 
     @Schema(description = "Material agregado no período, separado por processo e sentido")

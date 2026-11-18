@@ -39,9 +39,11 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
     List<MovimentacaoEstoque> findAllByIdReferenciaOperacaoInOrderByDataHoraAscIdAsc(
             java.util.Collection<UUID> idsOperacoes);
 
-    @Query(
-            value = """
-        SELECT me.id_referencia_operacao
+    /**
+     * Recorte da lista de operações. No processo comercial entra também o que não nasce de
+     * solicitação: aplicação, retirada e estorno de nota e a devolução comercial.
+     */
+    String RECORTE_OPERACOES = """
         FROM movimentacoes_estoque me
         WHERE (CAST(:idEstoque AS UUID) IS NULL
                   OR me.id_estoque_origem  = :idEstoque
@@ -82,6 +84,16 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
                   WHERE sm.id = me.id_solicitacao AND sm.status = :statusSolicitacao))
           AND (CAST(:statusSeparacao AS VARCHAR) IS NULL OR EXISTS (SELECT 1 FROM solicitacoes_material sm
                   WHERE sm.id = me.id_solicitacao AND sm.status_separacao = :statusSeparacao))
+          AND (CAST(:processo AS VARCHAR) IS NULL
+                  OR (:processo = 'COMERCIAL' AND me.id_solicitacao IS NULL
+                      AND me.tipo_movimentacao IN ('APLICACAO', 'RETIRADA', 'ESTORNO', 'DEVOLUCAO'))
+                  OR EXISTS (SELECT 1 FROM solicitacoes_material sm
+                      WHERE sm.id = me.id_solicitacao AND sm.contexto = :processo))
+          AND (CAST(:motivo AS VARCHAR) IS NULL OR me.motivo = :motivo)
+        """;
+
+    @Query(
+            value = "SELECT me.id_referencia_operacao " + RECORTE_OPERACOES + """
         GROUP BY me.id_referencia_operacao
         ORDER BY 
             CASE WHEN :sortCol = 'dataHora' AND :sortDir = 'ASC' THEN MAX(me.data_hora) END ASC,
@@ -95,49 +107,7 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
             MAX(me.data_hora) DESC,
             me.id_referencia_operacao ASC
         """,
-            countQuery = """
-        SELECT COUNT(DISTINCT me.id_referencia_operacao)
-        FROM movimentacoes_estoque me
-        WHERE (CAST(:idEstoque AS UUID) IS NULL
-                  OR me.id_estoque_origem  = :idEstoque
-                  OR me.id_estoque_destino = :idEstoque)
-          AND (CAST(:idMaterial AS UUID) IS NULL OR me.id_material = :idMaterial)
-          AND (CAST(:condicao AS VARCHAR) IS NULL OR me.condicao = :condicao)
-          AND (CAST(:tipo AS VARCHAR) IS NULL OR me.tipo_movimentacao = :tipo)
-          AND (CAST(:dataInicio AS TIMESTAMPTZ) IS NULL OR me.data_hora >= :dataInicio)
-          AND (CAST(:dataFim AS TIMESTAMPTZ) IS NULL OR me.data_hora <= :dataFim)
-          AND (CAST(:dataInicioRef AS TIMESTAMPTZ) IS NULL OR me.data_hora >= :dataInicioRef)
-          AND (CAST(:dataFimRef AS TIMESTAMPTZ) IS NULL OR me.data_hora <= :dataFimRef)
-          AND (CAST(:idUsuarioOperador AS UUID) IS NULL OR me.id_usuario_operador = :idUsuarioOperador)
-          AND (CAST(:numSerieLike AS VARCHAR) IS NULL OR LOWER(me.num_serie) LIKE LOWER(:numSerieLike))
-          AND (CAST(:idBaseOrigem AS UUID) IS NULL OR EXISTS (
-                  SELECT 1 FROM estoques eo WHERE eo.id = me.id_estoque_origem AND eo.id_base_operacional = :idBaseOrigem))
-          AND (CAST(:idBaseDestino AS UUID) IS NULL OR EXISTS (
-                  SELECT 1 FROM estoques ed WHERE ed.id = me.id_estoque_destino AND ed.id_base_operacional = :idBaseDestino))
-          AND (CAST(:buscaGlobalLike AS VARCHAR) IS NULL
-                  OR immutable_unaccent(lower(me.num_serie)) LIKE immutable_unaccent(lower(:buscaGlobalLike))
-                  OR EXISTS (SELECT 1 FROM materiais m WHERE m.id = me.id_material
-                          AND (immutable_unaccent(lower(m.cod_material)) LIKE immutable_unaccent(lower(:buscaGlobalLike))
-                               OR immutable_unaccent(lower(m.descricao)) LIKE immutable_unaccent(lower(:buscaGlobalLike))))
-                  OR immutable_unaccent(lower(me.codigo_ocorrencia_snapshot)) LIKE immutable_unaccent(lower(:buscaGlobalLike)))
-          AND (CAST(:contexto AS VARCHAR) IS NULL OR EXISTS (SELECT 1 FROM solicitacoes_material sm
-                  WHERE sm.id = me.id_solicitacao AND sm.contexto = :contexto))
-          AND (CAST(:idSolicitacao AS UUID) IS NULL OR me.id_solicitacao = :idSolicitacao)
-          AND (CAST(:tipoTecnico AS VARCHAR) IS NULL OR me.tipo_tecnico = :tipoTecnico)
-          AND (CAST(:tipoObra AS VARCHAR) IS NULL OR me.tipo_obra_snapshot = :tipoObra)
-          AND (CAST(:idObra AS UUID) IS NULL OR me.id_obra = :idObra)
-          AND (CAST(:ocorrencia AS VARCHAR) IS NULL OR me.codigo_ocorrencia_snapshot = :ocorrencia)
-          AND (CAST(:idEquipe AS UUID) IS NULL OR me.id_equipe = :idEquipe)
-          AND (CAST(:idReserva AS UUID) IS NULL OR me.id_reserva = :idReserva)
-          AND (CAST(:numeroReserva AS VARCHAR) IS NULL OR EXISTS (SELECT 1 FROM reservas_solicitacao_tecnica rs
-                  WHERE rs.id = me.id_reserva AND CAST(rs.numero AS VARCHAR) = :numeroReserva))
-          AND (CAST(:idAgenteReserva AS UUID) IS NULL OR EXISTS (SELECT 1 FROM reservas_solicitacao_tecnica rs
-                  WHERE rs.id = me.id_reserva AND rs.id_agente_responsavel = :idAgenteReserva))
-          AND (CAST(:statusSolicitacao AS VARCHAR) IS NULL OR EXISTS (SELECT 1 FROM solicitacoes_material sm
-                  WHERE sm.id = me.id_solicitacao AND sm.status = :statusSolicitacao))
-          AND (CAST(:statusSeparacao AS VARCHAR) IS NULL OR EXISTS (SELECT 1 FROM solicitacoes_material sm
-                  WHERE sm.id = me.id_solicitacao AND sm.status_separacao = :statusSeparacao))
-        """,
+            countQuery = "SELECT COUNT(DISTINCT me.id_referencia_operacao) " + RECORTE_OPERACOES,
             nativeQuery = true
     )
     Page<UUID> findUniqueOperacoesIds(
@@ -166,6 +136,8 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
             @Param("idAgenteReserva")   UUID idAgenteReserva,
             @Param("statusSolicitacao") String statusSolicitacao,
             @Param("statusSeparacao")   String statusSeparacao,
+            @Param("processo")          String processo,
+            @Param("motivo")            String motivo,
             @Param("sortCol")           String sortCol,
             @Param("sortDir")           String sortDir,
             Pageable pageable
@@ -193,9 +165,48 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
                 idEstoque, idMaterial, null, tipo, dataInicio, dataFim, dataInicioRef, dataFimRef,
                 idUsuarioOperador, numSerieLike, idBaseOrigem, idBaseDestino, buscaGlobalLike,
                 null, null, null, null, null, null,
-                null, null, null, null, null, null,
+                null, null, null, null, null, null, null, null,
                 sortCol, sortDir, pageable);
     }
+
+    /**
+     * Operações do recorte por tipo; a linha de tipo nulo é o total, que não é a soma dos
+     * tipos porque uma nota pode aplicar e retirar na mesma operação.
+     */
+    @Query(
+            value = "SELECT me.tipo_movimentacao, COUNT(DISTINCT me.id_referencia_operacao) "
+                    + RECORTE_OPERACOES + " GROUP BY GROUPING SETS ((me.tipo_movimentacao), ())",
+            nativeQuery = true
+    )
+    List<Object[]> contarOperacoesPorTipo(
+            @Param("idEstoque")         UUID idEstoque,
+            @Param("idMaterial")        UUID idMaterial,
+            @Param("condicao")          String condicao,
+            @Param("tipo")              String tipo,
+            @Param("dataInicio")        OffsetDateTime dataInicio,
+            @Param("dataFim")           OffsetDateTime dataFim,
+            @Param("dataInicioRef")     OffsetDateTime dataInicioRef,
+            @Param("dataFimRef")        OffsetDateTime dataFimRef,
+            @Param("idUsuarioOperador") UUID idUsuarioOperador,
+            @Param("numSerieLike")      String numSerieLike,
+            @Param("idBaseOrigem")      UUID idBaseOrigem,
+            @Param("idBaseDestino")     UUID idBaseDestino,
+            @Param("buscaGlobalLike")   String buscaGlobalLike,
+            @Param("contexto")          String contexto,
+            @Param("idSolicitacao")     UUID idSolicitacao,
+            @Param("tipoTecnico")       String tipoTecnico,
+            @Param("tipoObra")          String tipoObra,
+            @Param("idObra")            UUID idObra,
+            @Param("ocorrencia")        String ocorrencia,
+            @Param("idEquipe")          UUID idEquipe,
+            @Param("idReserva")         UUID idReserva,
+            @Param("numeroReserva")     String numeroReserva,
+            @Param("idAgenteReserva")   UUID idAgenteReserva,
+            @Param("statusSolicitacao") String statusSolicitacao,
+            @Param("statusSeparacao")   String statusSeparacao,
+            @Param("processo")          String processo,
+            @Param("motivo")            String motivo
+    );
 
     List<MovimentacaoEstoque> findAllByIdReferenciaOperacaoInOrderByDataHoraDesc(List<UUID> ids);
 
@@ -259,4 +270,61 @@ public interface MovimentacaoEstoqueRepository extends JpaRepository<Movimentaca
 
     List<MovimentacaoEstoque> findAllByTipoAndIdReferenciaOperacaoIn(MovimentacaoEstoque.TipoMovimentacao tipo,
                                                                      java.util.Collection<UUID> ids);
+    /** A série já entrou alguma vez no estoque. */
+    boolean existsByMaterialId(UUID idMaterial);
+
+    boolean existsByEstoqueDestinoIdAndMaterialIdAndNumSerieAndAtivoTrue(UUID idEstoque, UUID idMaterial, String numSerie);
+
+    /** Quantas vezes a equipe aplicou a série em campo. */
+    @Query("""
+            SELECT count(m) FROM MovimentacaoEstoque m
+            WHERE m.estoqueOrigem.id = :idEstoque AND m.material.id = :idMaterial AND m.numSerie = :numSerie
+              AND m.tipo = com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao.APLICACAO
+              AND m.ativo = true
+            """)
+    long contarAplicacoesDaSerie(@Param("idEstoque") UUID idEstoque,
+                                 @Param("idMaterial") UUID idMaterial,
+                                 @Param("numSerie") String numSerie);
+
+    /** Quantas vezes a série entrou no estoque antes do instante (entrega, transferência, estorno, entrada). */
+    @Query("""
+            SELECT count(m) FROM MovimentacaoEstoque m
+            WHERE m.estoqueDestino.id = :idEstoque AND m.material.id = :idMaterial AND m.numSerie = :numSerie
+              AND m.ativo = true AND m.dataHora < :antesDe
+            """)
+    long contarEntradasDaSerieAntesDe(@Param("idEstoque") UUID idEstoque,
+                                      @Param("idMaterial") UUID idMaterial,
+                                      @Param("numSerie") String numSerie,
+                                      @Param("antesDe") OffsetDateTime antesDe);
+
+    /**
+     * Aplicações em campo de séries que nunca entraram no estoque da equipe e que o
+     * almoxarifado ainda não conciliou, da mais antiga à mais nova.
+     */
+    @Query("""
+            SELECT a FROM MovimentacaoEstoque a
+            JOIN FETCH a.material
+            WHERE a.estoqueOrigem.id = :idEstoque
+              AND a.tipo = com.nexo.app.modules.estoque.domain.MovimentacaoEstoque.TipoMovimentacao.APLICACAO
+              AND a.ativo = true AND a.numSerie IS NOT NULL
+              AND NOT EXISTS (SELECT 1 FROM MovimentacaoEstoque i
+                              WHERE i.estoqueDestino.id = :idEstoque AND i.material = a.material
+                                AND i.numSerie = a.numSerie AND i.ativo = true)
+              AND NOT EXISTS (SELECT 1 FROM ConciliacaoSerieAplicada c
+                              WHERE c.aplicacao = a AND c.ativo = true)
+            ORDER BY a.dataHora ASC, a.id ASC
+            """)
+    List<MovimentacaoEstoque> aplicacoesDeSeriesForaDoEstoque(@Param("idEstoque") UUID idEstoque);
+
+    /** Movimentações ativas marcadas com a obra (entregas, devoluções e estornos técnicos), da mais antiga à mais nova. */
+    @Query("""
+            SELECT m FROM MovimentacaoEstoque m
+            JOIN FETCH m.material
+            LEFT JOIN FETCH m.estoqueOrigem
+            LEFT JOIN FETCH m.estoqueDestino
+            LEFT JOIN FETCH m.reserva
+            WHERE m.idObra = :idObra AND m.ativo = true
+            ORDER BY m.dataHora ASC, m.id ASC
+            """)
+    List<MovimentacaoEstoque> daObra(@Param("idObra") UUID idObra);
 }

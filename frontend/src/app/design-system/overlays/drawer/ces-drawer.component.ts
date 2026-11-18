@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
-import { DrawerModule } from 'primeng/drawer';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, model, output, viewChild } from '@angular/core';
+import { Drawer, DrawerModule } from 'primeng/drawer';
 import { CES_COMPACT_VIEWPORT_QUERY, cesMediaQuery } from '../../core/media';
 
 export type CesDrawerSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -139,6 +139,17 @@ export class CesDrawerComponent {
   readonly closed = output<void>();
 
   protected readonly titleId = `ces-drawer-title-${++drawerSequence}`;
+  private readonly drawer = viewChild(Drawer);
+
+  constructor() {
+    // Fechar e sair da tela no mesmo clique ("Abrir completa"): o p-drawer é destruído no meio da
+    // animação de saída e, como já não está visível, não remove a máscara — a página ficava
+    // escura e sem clique. Sobrou máscara, ela sai junto com o drawer.
+    inject(DestroyRef).onDestroy(() => {
+      const drawer = this.drawer();
+      if (drawer?.mask) drawer.destroyModal();
+    });
+  }
   protected readonly compact = cesMediaQuery(CES_COMPACT_VIEWPORT_QUERY);
 
   /**

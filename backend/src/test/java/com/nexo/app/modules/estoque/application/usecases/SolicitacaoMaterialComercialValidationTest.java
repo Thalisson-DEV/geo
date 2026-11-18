@@ -60,6 +60,8 @@ class SolicitacaoMaterialComercialValidationTest {
     @Mock private ConsultaOperacoesSolicitacaoComercialService operacoesComerciais;
     @Mock private EquipeApi equipeApi;
     @Mock private ColaboradorApi colaboradorApi;
+    @Mock private com.nexo.app.modules.estoque.application.services.ConciliacaoSerieAplicadaService conciliacaoSerieAplicada;
+    @Mock private com.nexo.app.modules.estoque.application.services.ProcessoMaterialService processoMaterial;
     @InjectMocks private SolicitacaoMaterialUseCases useCases;
 
     @Test

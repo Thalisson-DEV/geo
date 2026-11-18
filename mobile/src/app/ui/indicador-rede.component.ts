@@ -12,11 +12,16 @@ import { IconeComponent } from './icone.component';
     <button type="button" class="pilula" [class.off]="!online()" (click)="tocar.emit()"
       [attr.aria-label]="'Conexão: ' + texto()">
       @if (online()) { <span class="ponto" aria-hidden="true"></span> } @else { <ces-icone nome="sem_rede" [tamanho]="16" /> }
-      {{ texto() }}
+      <span class="texto" aria-hidden="true">{{ texto() }}</span>
     </button>
   `,
   styles: [`
     :host { display: inline-flex; }
+    /* Tela estreita e tudo bem: só o ponto verde. Sem rede, o texto volta (é quando importa). */
+    @media (max-width: 430px) {
+      .pilula:not(.off) { width: 36px; padding: 0; justify-content: center; }
+      .pilula:not(.off) .texto { display: none; }
+    }
     .pilula { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: var(--ces-r-pilula);
       border: 1px solid var(--ces-linha); background: var(--ces-superficie); color: var(--ces-texto-2);
       font: 500 .8125rem/1 var(--ces-fonte); white-space: nowrap; cursor: pointer; }

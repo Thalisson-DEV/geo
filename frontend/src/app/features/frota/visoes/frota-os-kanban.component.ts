@@ -12,7 +12,6 @@ import {
   OrdemServicoDetalhe,
   ROTULO_CRITICIDADE,
   SituacaoOrdemServico,
-  TOM_CRITICIDADE,
   rotuloOs
 } from '../../../core/models/frota.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -20,7 +19,7 @@ import { FrotaService } from '../../../core/services/frota.service';
 import { acessoFrota } from '../shared/frota-acesso';
 import { FrotaJustificativaDrawerComponent } from '../shared/frota-justificativa-drawer.component';
 import { EtapaOrdemServico, FrotaOrdemServicoEtapaComponent } from '../ordens-servico/frota-ordem-servico-etapa.component';
-import { FrotaOrdemServicoConclusaoComponent } from '../ordens-servico/frota-ordem-servico-conclusao.component';
+import { FrotaOrdemServicoConclusaoComponent, ModoConclusao } from '../ordens-servico/frota-ordem-servico-conclusao.component';
 import { AcaoCardOs, FrotaOsKanbanCardComponent } from './frota-os-kanban-card.component';
 
 export type AgrupamentoQuadroOs = 'situacao' | 'criticidade' | 'oficina' | 'base';
@@ -71,10 +70,20 @@ interface Faixa {
   total: number;
 }
 
+/** Tons do quadro: os do design system e as cores de criticidade (vermelho, laranja, amarelo, verde). */
+type TomGrupo = CesTone | 'crit-urgente' | 'crit-alta' | 'crit-media' | 'crit-baixa';
+
+const TOM_GRUPO_CRITICIDADE: Record<Criticidade, TomGrupo> = {
+  URGENTE: 'crit-urgente',
+  ALTA: 'crit-alta',
+  MEDIA: 'crit-media',
+  BAIXA: 'crit-baixa'
+};
+
 interface Grupo {
   id: string;
   label: string;
-  tone: CesTone;
+  tone: TomGrupo;
   itens: OrdemServico[];
   total: number;
 }
@@ -92,7 +101,7 @@ interface AcaoSoltar {
   texto: string;
   icon: string;
   tone: CesTone;
-  acao: 'AGENDAR' | 'INICIAR' | 'CONCLUIR';
+  acao: 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'REABRIR';
 }
 
 /**
@@ -211,9 +220,10 @@ interface AcaoSoltar {
                               [style.--i]="i < 12 ? i : 12"
                               [item]="item"
                               [arrastando]="arrastando()?.item?.id === item.id"
-                              [arrastavel]="arrastavel && podeArrastar() && col.def.id !== 'CONCLUIDAS'"
+                              [arrastavel]="arrastavel && podeArrastar() && (col.def.id !== 'CONCLUIDAS' || acesso.executarOs())"
                               [podeAgir]="podeAgir(item)"
                               [podeCancelar]="acesso.editarOs()"
+                              [podeReabrir]="acesso.executarOs()"
                               (cardClicked)="abrir.emit($event)"
                               (dragStarted)="iniciarArraste($event, col.def.id)"
                               (dragEnded)="encerrarArraste()"
@@ -238,7 +248,19 @@ interface AcaoSoltar {
     }
 
     <app-frota-ordem-servico-etapa [(visivel)]="etapaAberta" [etapa]="etapa()" [ordem]="ordemSelecionada()" (salvo)="aoSalvar($event)"></app-frota-ordem-servico-etapa>
-    <app-frota-ordem-servico-conclusao [(visivel)]="conclusaoAberta" [ordem]="ordemSelecionada()" [opcoes]="opcoes()" (salvo)="aoSalvar($event)"></app-frota-ordem-servico-conclusao>
+    <app-frota-ordem-servico-conclusao [(visivel)]="conclusaoAberta" [ordem]="ordemSelecionada()" [opcoes]="opcoes()" [modo]="modoConclusao()" (salvo)="aoSalvar($event)"></app-frota-ordem-servico-conclusao>
+    @if (reabrindo(); as alvo) {
+      <app-frota-justificativa-drawer
+        [(visivel)]="reaberturaAberta"
+        [titulo]="'Voltar ' + rotuloOs(alvo.numero) + ' para em andamento'"
+        descricao="A OS sai de Concluídas, a data de fim é apagada e o veículo volta a contar como parado. Se ela já estava finalizada, volta a aceitar lançamentos até a nova conclusão."
+        rotuloCampo="O que aconteceu"
+        placeholder="Ex.: no teste o freio voltou a fazer barulho"
+        rotuloConfirmar="Voltar para em andamento"
+        [processando]="processandoReabertura()"
+        (confirmado)="reabrir(alvo, $event)"
+      ></app-frota-justificativa-drawer>
+    }
     @if (cancelando(); as alvo) {
       <app-frota-justificativa-drawer
         [(visivel)]="cancelamentoAberto"
@@ -262,6 +284,8 @@ export class FrotaOsKanbanComponent {
   readonly filtros = input<FiltroOrdensServico>({});
   readonly opcoes = input<OpcoesFrota | null>(null);
   readonly abrir = output<OrdemServico>();
+  /** OS concluída com valores pendentes: abre a ficha na aba Execução. */
+  readonly lancarValores = output<OrdemServico>();
   /** Abre o relatório de uma OS concluída. */
   readonly relatorio = output<OrdemServico>();
   /** "Ver todas": a tela troca para a tabela nessa situação. */
@@ -285,6 +309,10 @@ export class FrotaOsKanbanComponent {
   protected readonly etapa = signal<EtapaOrdemServico>('agendar');
   protected readonly etapaAberta = signal(false);
   protected readonly conclusaoAberta = signal(false);
+  protected readonly modoConclusao = signal<ModoConclusao>('concluir');
+  protected readonly reabrindo = signal<OrdemServico | null>(null);
+  protected readonly reaberturaAberta = signal(false);
+  protected readonly processandoReabertura = signal(false);
   protected readonly ordemSelecionada = signal<OrdemServicoDetalhe | null>(null);
   protected readonly cancelando = signal<OrdemServico | null>(null);
   protected readonly cancelamentoAberto = signal(false);
@@ -409,6 +437,9 @@ export class FrotaOsKanbanComponent {
     if (arraste.de !== 'CONCLUIDAS' && coluna === 'CONCLUIDAS' && executar) {
       return { texto: 'Solte para concluir', icon: 'pi pi-check', tone: 'success', acao: 'CONCLUIR' };
     }
+    if (arraste.de === 'CONCLUIDAS' && coluna === 'EM_EXECUCAO' && executar) {
+      return { texto: 'Solte para voltar para em andamento', icon: 'pi pi-replay', tone: 'warning', acao: 'REABRIR' };
+    }
     return null;
   }
 
@@ -445,10 +476,16 @@ export class FrotaOsKanbanComponent {
 
   protected aoAgir(item: OrdemServico, acao: AcaoCardOs): void {
     if (acao === 'DETALHAR') return this.abrir.emit(item);
+    if (acao === 'LANCAR_VALORES') return this.lancarValores.emit(item);
     if (acao === 'RELATORIO') return this.relatorio.emit(item);
     if (acao === 'CANCELAR') {
       this.cancelando.set(item);
       this.cancelamentoAberto.set(true);
+      return;
+    }
+    if (acao === 'REABRIR') {
+      this.reabrindo.set(item);
+      this.reaberturaAberta.set(true);
       return;
     }
     // Os formulários recebem o detalhe completo, como na ficha da OS.
@@ -458,6 +495,7 @@ export class FrotaOsKanbanComponent {
         if (detalhe.ordem.situacao !== item.situacao) return this.conflito(item);
         this.ordemSelecionada.set(detalhe);
         if (acao === 'CONCLUIR') {
+          this.modoConclusao.set('concluir');
           this.conclusaoAberta.set(true);
         } else {
           this.etapa.set(acao === 'AGENDAR' ? 'agendar' : 'iniciar');
@@ -492,6 +530,23 @@ export class FrotaOsKanbanComponent {
     });
   }
 
+  protected reabrir(item: OrdemServico, motivo: string): void {
+    this.processandoReabertura.set(true);
+    this.frota.reabrirOrdemServico(item.id, motivo).subscribe({
+      next: (detalhe) => {
+        this.processandoReabertura.set(false);
+        this.reaberturaAberta.set(false);
+        this.reabrindo.set(null);
+        this.notificacoes.success(`${rotuloOs(detalhe.ordem.numero)} voltou para em andamento.`);
+        this.aoSalvar(detalhe);
+      },
+      error: (err: unknown) => {
+        this.processandoReabertura.set(false);
+        this.notificacoes.error(getErrorMessage(err), { title: 'Não foi possível voltar a OS' });
+      }
+    });
+  }
+
   /** O cartão estava desatualizado: recarrega o quadro e explica por que nada foi aberto. */
   private conflito(item: OrdemServico): void {
     this.notificacoes.warning(`${rotuloOs(item.numero)} foi alterada por outra pessoa. O quadro foi atualizado; confira a OS antes de seguir.`,
@@ -521,29 +576,26 @@ function inicioDoDia(data: Date): number {
 function porPrazo(coluna: ColunaQuadroOs, itens: OrdemServico[]): Grupo[] {
   const hoje = inicioDoDia(new Date());
   const amanha = hoje + 86_400_000;
-  const semana = hoje + 8 * 86_400_000;
-  const faixas: { id: string; label: string; tone: CesTone; teste: (o: OrdemServico) => boolean }[] = {
-    A_AGENDAR: [
-      { id: 'URGENTES', label: 'Urgentes', tone: 'danger' as CesTone, teste: (o: OrdemServico) => o.criticidade === 'URGENTE' },
-      {
-        id: 'ORCAMENTO', label: 'Aguardando orçamento ou aprovação', tone: 'warning' as CesTone,
-        teste: (o: OrdemServico) => o.situacaoAprovacao === 'EM_ORCAMENTO' || o.situacaoAprovacao === 'AGUARDANDO_APROVACAO'
-      },
-      { id: 'DEMAIS', label: 'Demais', tone: 'neutral' as CesTone, teste: () => true }
-    ],
+  const depoisDeAmanha = hoje + 2 * 86_400_000;
+  const faixas: { id: string; label: string; tone: TomGrupo; teste: (o: OrdemServico) => boolean }[] = {
+    // Uma faixa por criticidade: o orçamento em andamento aparece no cartão.
+    A_AGENDAR: (['URGENTE', 'ALTA', 'MEDIA', 'BAIXA'] as Criticidade[]).map((c) => ({
+      id: c, label: ROTULO_CRITICIDADE[c], tone: TOM_GRUPO_CRITICIDADE[c], teste: (o: OrdemServico) => o.criticidade === c
+    })),
+    // Hoje para o acompanhamento do dia, amanhã para o planejamento.
     AGENDADAS: [
-      { id: 'PASSADA', label: 'Data passada', tone: 'danger' as CesTone, teste: (o: OrdemServico) => !!o.agendadaPara && new Date(o.agendadaPara).getTime() < Date.now() },
-      { id: 'HOJE', label: 'Hoje', tone: 'warning' as CesTone, teste: (o: OrdemServico) => !!o.agendadaPara && new Date(o.agendadaPara).getTime() < amanha },
-      { id: 'SEMANA', label: 'Próximos 7 dias', tone: 'info' as CesTone, teste: (o: OrdemServico) => !!o.agendadaPara && new Date(o.agendadaPara).getTime() < semana },
-      { id: 'DEPOIS', label: 'Mais adiante', tone: 'neutral' as CesTone, teste: () => true }
+      { id: 'PASSADA', label: 'Data passada', tone: 'danger' as TomGrupo, teste: (o: OrdemServico) => !!o.agendadaPara && new Date(o.agendadaPara).getTime() < Date.now() },
+      { id: 'HOJE', label: 'Hoje', tone: 'warning' as TomGrupo, teste: (o: OrdemServico) => !!o.agendadaPara && new Date(o.agendadaPara).getTime() < amanha },
+      { id: 'AMANHA', label: 'Amanhã', tone: 'info' as TomGrupo, teste: (o: OrdemServico) => !!o.agendadaPara && new Date(o.agendadaPara).getTime() < depoisDeAmanha },
+      { id: 'DEMAIS', label: 'Demais', tone: 'neutral' as TomGrupo, teste: () => true }
     ],
     EM_EXECUCAO: [
-      { id: 'ESTOURADO', label: 'Prazo estourado', tone: 'danger' as CesTone, teste: (o: OrdemServico) => o.atrasada },
+      { id: 'ESTOURADO', label: 'Prazo estourado', tone: 'danger' as TomGrupo, teste: (o: OrdemServico) => o.atrasada },
       {
-        id: 'HOJE', label: 'Termina hoje', tone: 'warning' as CesTone,
+        id: 'HOJE', label: 'Termina hoje', tone: 'warning' as TomGrupo,
         teste: (o: OrdemServico) => !!o.previsaoTermino && new Date(o.previsaoTermino).getTime() < amanha
       },
-      { id: 'NO_PRAZO', label: 'No prazo ou sem previsão', tone: 'success' as CesTone, teste: () => true }
+      { id: 'NO_PRAZO', label: 'No prazo ou sem previsão', tone: 'success' as TomGrupo, teste: () => true }
     ],
     CONCLUIDAS: []
   }[coluna];
@@ -559,19 +611,24 @@ function porPrazo(coluna: ColunaQuadroOs, itens: OrdemServico[]): Grupo[] {
 }
 
 function porDiaDeConclusao(itens: OrdemServico[]): Grupo[] {
+  const pendentes = itens.filter((o) => o.baixaPendente);
   const grupos = new Map<string, OrdemServico[]>();
-  for (const o of itens) {
+  for (const o of itens.filter((i) => !i.baixaPendente)) {
     const dia = o.fimReal ? new Date(o.fimReal).toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' }) : 'Sem data';
     grupos.set(dia, [...(grupos.get(dia) ?? []), o]);
   }
-  return [...grupos].map(([dia, lista]) => ({ id: dia, label: dia.charAt(0).toUpperCase() + dia.slice(1), tone: 'success' as CesTone, itens: lista, total: lista.length }));
+  const porDia = [...grupos].map(([dia, lista]) => ({ id: dia, label: dia.charAt(0).toUpperCase() + dia.slice(1), tone: 'success' as TomGrupo, itens: lista, total: lista.length }));
+  // Com valor faltando, a OS fica no topo, para ninguém esquecer de lançar.
+  return pendentes.length
+    ? [{ id: 'BAIXA_PENDENTE', label: 'Valores pendentes', tone: 'warning' as TomGrupo, itens: pendentes, total: pendentes.length }, ...porDia]
+    : porDia;
 }
 
 function porCriticidade(itens: OrdemServico[]): Grupo[] {
   return (['URGENTE', 'ALTA', 'MEDIA', 'BAIXA'] as Criticidade[])
     .map((c) => {
       const lista = itens.filter((o) => o.criticidade === c);
-      return { id: c, label: ROTULO_CRITICIDADE[c], tone: TOM_CRITICIDADE[c], itens: lista, total: lista.length };
+      return { id: c, label: ROTULO_CRITICIDADE[c], tone: TOM_GRUPO_CRITICIDADE[c], itens: lista, total: lista.length };
     })
     .filter((g) => g.total > 0);
 }

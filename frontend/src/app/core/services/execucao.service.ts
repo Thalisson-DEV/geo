@@ -1,5 +1,7 @@
+import { HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { toHttpParams } from '../utils/http-params.util';
 import { environment } from '../../../environments/environment';
 import { BaseService } from './base.service';
 import {
@@ -22,6 +24,12 @@ export class ExecucaoService extends BaseService {
 
   listarExecucoes(params: ExecucaoFilters): Observable<PagedResponse<ExecucaoComercialResponse>> {
     return this.getList<ExecucaoComercialResponse>(this.apiUrl, params);
+  }
+
+  /** CSV das notas do recorte (no máximo 30 mil, as mais recentes), resumido ou detalhado. */
+  exportarExecucoes(formato: 'resumo' | 'detalhado', filtros: ExecucaoFilters): Observable<HttpResponse<Blob>> {
+    const params = toHttpParams({ ...filtros }, { ignorar: ['page', 'size', 'sort'] });
+    return this.http.get(`${this.apiUrl}/exportar/${formato}`, { params, responseType: 'blob', observe: 'response' });
   }
 
   buscarPorId(id: string): Observable<ExecucaoComercialResponse> {

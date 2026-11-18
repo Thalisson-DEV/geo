@@ -251,6 +251,25 @@ public class PreventivaUseCases {
                 planosPorItem.getOrDefault(l.getIdItem(), List.of()).stream().sorted().toList())).toList();
     }
 
+    /** Controles vencidos e próximos de um veículo. */
+    public record PendenciaPreventiva(long vencidas, long proximas) {
+    }
+
+    /** Por veículo, os controles ativos vencidos e próximos hoje (relatórios gerenciais). */
+    @Transactional(readOnly = true)
+    public Map<UUID, PendenciaPreventiva> pendenciasPorVeiculo() {
+        Map<UUID, PendenciaPreventiva> porVeiculo = new HashMap<>();
+        var ativos = controles.findAllByAtivoTrue().stream().filter(c -> c.getPlano().isAtivo()).toList();
+        for (Avaliado a : avaliar(ativos, hoje())) {
+            boolean vencida = a.filtros().contains(SituacaoPreventiva.VENCIDA.name());
+            boolean proxima = a.filtros().contains(SituacaoPreventiva.PROXIMA.name());
+            if (!vencida && !proxima) continue;
+            porVeiculo.merge(a.ficha().getIdVeiculo(), new PendenciaPreventiva(vencida ? 1 : 0, proxima ? 1 : 0),
+                    (x, y) -> new PendenciaPreventiva(x.vencidas() + y.vencidas(), x.proximas() + y.proximas()));
+        }
+        return porVeiculo;
+    }
+
     // ── Ações ──────────────────────────────────────────────────────────────────────
 
     /** Revisão feita fora do sistema: vira a base do ciclo. A medição vem no valor do painel. */

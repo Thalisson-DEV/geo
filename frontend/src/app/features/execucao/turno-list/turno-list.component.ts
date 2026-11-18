@@ -1,8 +1,10 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import {
   CesBooleanControlComponent,
+  CesButtonComponent,
   CesCellDirective,
   CesDataTableColumn,
   CesDataTableComponent,
@@ -16,18 +18,22 @@ import {
   CesSelectComponent,
   CesSelectOption,
   CesStatusComponent,
+  CesTextInputComponent,
+  NotificationService,
   cesAttainmentBand,
   cesFilter,
   cesListState
 } from '@ces/ui';
-import { map } from 'rxjs';
+import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
 
 import { ConsultaTurnosFiltros, StatusTurno, TurnoConsulta } from '../../../core/models/dashboard.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { AuditDialogComponent } from '../../../shared/components/audit-dialog/audit-dialog.component';
 import { AjudaListagemComponent } from '../../../shared/listagem/ajuda-listagem.component';
-import { LIMITE_EXPORTACAO, dataIso, dataLocal } from '../../../shared/listagem/listagem';
+import { baixarCsv, mensagemDoErroDeExportacao } from '../../../shared/listagem/exportacao-csv';
+import { ExportacaoCsvDrawerComponent, FormatoExportacao } from '../../../shared/listagem/exportacao-csv-drawer.component';
+import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
 import { duracao, percentual } from '../dashboards/execucao-dashboards.utils';
 import { RecorteDashboardService } from '../dashboards/recorte-dashboard.service';
 import { situacaoDoTurno } from './turno-list.utils';
@@ -39,6 +45,8 @@ const STATUS: CesSelectOption<StatusTurno | null>[] = [
 ];
 /** Padrão: turnos abertos nos últimos 30 dias (a consulta aberta varre o histórico inteiro). */
 export const DIAS_PADRAO_TURNOS = 30;
+/** Os turnos exportam bem mais que o padrão das listagens. */
+const LIMITE_EXPORTACAO_TURNOS = 30_000;
 
 function inicioPadrao(): string {
   const d = new Date();
@@ -65,8 +73,11 @@ function inicioPadrao(): string {
     CesRowActionsDirective,
     CesSelectComponent,
     CesStatusComponent,
+    CesButtonComponent,
+    CesTextInputComponent,
     AuditDialogComponent,
-    AjudaListagemComponent
+    AjudaListagemComponent,
+    ExportacaoCsvDrawerComponent
   ],
   template: `
     <div class="ces-page" cesListShortcuts>
@@ -100,7 +111,6 @@ function inicioPadrao(): string {
         title="Turnos"
         mode="server"
         storageKey="execucao-turnos"
-        exportFileName="turnos"
         searchPlaceholder="Equipe, placa ou quem abriu"
         rowActionLabel="Relatório"
         rowActionIcon="pi pi-external-link"
@@ -113,8 +123,6 @@ function inicioPadrao(): string {
         [stateTitle]="resultado.error() ? 'Não foi possível carregar os turnos' : 'Nenhum turno aberto'"
         [stateDescription]="resultado.error() ?? 'Os turnos aparecem aqui quando as equipes os abrem no aplicativo de campo.'"
         [filtered]="lista.filtered()"
-        [exportRows]="exportar"
-        [exportLimit]="limiteExportacao"
         [(page)]="lista.page"
         [(pageSize)]="lista.pageSize"
         [(sort)]="lista.sort"
@@ -132,6 +140,7 @@ function inicioPadrao(): string {
             <i class="pi pi-calendar" aria-hidden="true"></i> Abertos hoje
           </button>
         </div>
+        <ces-button table-actions size="sm" variant="outline" icon="pi pi-download" label="Exportar CSV" (pressed)="abrirExportacao()"></ces-button>
         <ng-template cesCell="equipe" let-row>
           <span class="ces-cell-strong">{{ row.codigoEquipe || 'Equipe removida' }}</span>
           <span class="ces-cell-muted">{{ local(row) }}</span>
@@ -154,7 +163,7 @@ function inicioPadrao(): string {
         </ng-template>
         <ng-template cesCell="meta" let-row>
           @if (row.percentualMetaDiaria !== null) {
-            <ces-status [tone]="faixa(row.percentualMetaDiaria)">{{ percentual(row.percentualMetaDiaria) }}</ces-status>
+            <ces-status [tone]="faixa(row.percentualMetaDiaria)" icon="pi-chart-line">{{ percentual(row.percentualMetaDiaria) }}</ces-status>
             <span class="ces-cell-muted">de {{ row.metaDiaria | currency: 'BRL' }}</span>
           } @else {
             <span class="ces-cell-muted">Sem meta</span>
@@ -171,6 +180,25 @@ function inicioPadrao(): string {
     </div>
 
     <app-audit-dialog #auditoria></app-audit-dialog>
+    <app-exportacao-csv-drawer [(visible)]="exportacaoAberta" [(formato)]="exportFormato" titulo="Exportar turnos (CSV)"
+      [resumo]="formatoResumo" [detalhado]="formatoDetalhado" singular="turno" plural="turnos"
+      [total]="totalExportacao()" [contando]="contandoExportacao()" [limite]="limiteExportacao" [exportando]="exportando()"
+      (exportar)="exportarCsv($event)">
+      @if (exportacaoAberta()) {
+        <ces-text-input label="Equipe, placa ou quem abriu" [value]="expBusca()" (valueChange)="expBusca.set($event)"></ces-text-input>
+        <ces-select label="Equipe" [options]="recorte.opcoesEquipes()" [value]="exp().idEquipe" (valueChange)="mudar('idEquipe', $event)" [clearable]="true" [filter]="true"
+          [loading]="recorte.carregandoEquipes()" placeholder="Todas"></ces-select>
+        <ces-datepicker label="Abertos a partir de" [value]="dataLocal(exp().abertura.from)" [clearable]="true" (valueChange)="periodoExportacao('from', $event)"></ces-datepicker>
+        <ces-datepicker label="Abertos até" [value]="dataLocal(exp().abertura.to)" [clearable]="true" [minDate]="dataLocal(exp().abertura.from)"
+          (valueChange)="periodoExportacao('to', $event)"></ces-datepicker>
+        <ces-select label="Status" [options]="statusOpcoes" [value]="exp().status" (valueChange)="mudar('status', $event)"></ces-select>
+        <ces-multiselect label="Base operacional" [options]="recorte.opcoesBases()" [value]="exp().idBaseOperacional" (valueChange)="mudar('idBaseOperacional', $event)"
+          [clearable]="true" selectedItemsLabel="{0} bases" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todas"></ces-multiselect>
+        <ces-multiselect label="Processo" [options]="recorte.opcoesProcessos()" [value]="exp().idProcesso" (valueChange)="mudar('idProcesso', $event)"
+          [clearable]="true" selectedItemsLabel="{0} processos" [maxSelectedLabels]="2" [loading]="recorte.carregando()" placeholder="Todos"></ces-multiselect>
+        <ces-boolean-control label="Só os abertos hoje" kind="toggle" [inline]="true" [value]="exp().apenasHoje" (valueChange)="mudar('apenasHoje', $event)"></ces-boolean-control>
+      }
+    </app-exportacao-csv-drawer>
     <app-ajuda-listagem #ajuda titulo="Turnos" entidadePlural="turnos" busca="equipe, placa ou quem abriu" [podeCriar]="false">
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-filter"></i> Recorte inicial</h4>
@@ -186,6 +214,7 @@ function inicioPadrao(): string {
 export class TurnoListComponent {
   private readonly dashboard = inject(DashboardService);
   private readonly router = inject(Router);
+  private readonly notificacoes = inject(NotificationService);
   private readonly auditoria = viewChild.required<AuditDialogComponent>('auditoria');
   protected readonly recorte = inject(RecorteDashboardService);
 
@@ -209,9 +238,22 @@ export class TurnoListComponent {
     sort: [{ key: 'abertura', direction: 'desc' }]
   });
   protected readonly resultado = this.lista.results<TurnoConsulta>((pedido) => this.dashboard.consultarTurnos(this.filtro(pedido)), { errorMessage: getErrorMessage });
-  protected readonly limiteExportacao = LIMITE_EXPORTACAO;
-  protected readonly exportar = (_evento: unknown, limite: number) =>
-    this.dashboard.consultarTurnos({ ...this.filtro(this.lista.request()), page: 0, size: limite }).pipe(map((r) => r.content));
+  /*
+   * Exportação no desenho das solicitações: o drawer abre com o recorte da lista e deixa
+   * ajustá-lo sem mexer na tela; o servidor gera o CSV (resumido ou detalhado).
+   */
+  protected readonly limiteExportacao = LIMITE_EXPORTACAO_TURNOS;
+  protected readonly formatoResumo = { rotulo: 'Resumido', dica: 'Uma linha por turno, com duração, notas, produção e atingimento da meta do dia.' };
+  protected readonly formatoDetalhado = { rotulo: 'Detalhado', dica: 'Uma linha por nota lançada em cada turno: número, tipo de serviço, horário, status e faturado.' };
+  protected readonly exportacaoAberta = signal(false);
+  protected readonly exportFormato = signal<FormatoExportacao>('resumo');
+  protected readonly exportando = signal(false);
+  /** Rascunho dos filtros da exportação; começa igual ao da lista. */
+  protected readonly exp = signal(this.lista.applied());
+  protected readonly expBusca = signal('');
+  protected readonly totalExportacao = signal<number | null>(null);
+  protected readonly contandoExportacao = signal(false);
+  private readonly recorteExportacao = computed(() => this.paraApi(this.exp(), this.expBusca()));
 
   protected readonly colunas: CesDataTableColumn<TurnoConsulta>[] = [
     { key: 'equipe', header: 'Equipe', type: 'custom', priority: 1, value: (t) => t.codigoEquipe, display: (t) => t.codigoEquipe ?? 'Equipe removida' },
@@ -226,6 +268,25 @@ export class TurnoListComponent {
   protected readonly rotulo = (t: TurnoConsulta) => t.codigoEquipe ?? 'equipe removida';
 
   constructor() {
+    // Quantos turnos vão no arquivo: recontado a cada ajuste do recorte, só com o drawer aberto.
+    toObservable(computed(() => (this.exportacaoAberta() ? this.recorteExportacao() : null)))
+      .pipe(
+        debounceTime(300),
+        tap((r) => {
+          this.contandoExportacao.set(!!r);
+          if (!r) this.totalExportacao.set(null);
+        }),
+        switchMap((r) =>
+          r
+            ? this.dashboard.consultarTurnos({ ...r, page: 0, size: 1 }).pipe(map((p) => p.page.totalElements), catchError(() => of(null)))
+            : of(null)
+        ),
+        takeUntilDestroyed()
+      )
+      .subscribe((total) => {
+        this.contandoExportacao.set(false);
+        if (this.exportacaoAberta()) this.totalExportacao.set(total);
+      });
     const destroyRef = inject(DestroyRef);
     this.recorte.carregar(destroyRef);
     this.recorte.carregarEquipes(destroyRef);
@@ -238,6 +299,16 @@ export class TurnoListComponent {
   private filtro(pedido: { page: number; size: number; sort: readonly { key: string; direction: string }[] }): ConsultaTurnosFiltros {
     const { filters, query } = this.lista.request();
     return {
+      ...this.paraApi(filters, query),
+      page: pedido.page,
+      size: pedido.size,
+      sort: pedido.sort.length ? pedido.sort.map((r) => `${r.key},${r.direction}`) : ['dataInicio,desc']
+    };
+  }
+
+  /** Filtros da tela (ou do drawer de exportação) no formato da API, sem paginação. */
+  private paraApi(filters = this.lista.applied(), query = ''): ConsultaTurnosFiltros {
+    return {
       idEquipe: filters.idEquipe ?? undefined,
       idBaseOperacional: filters.idBaseOperacional.length ? filters.idBaseOperacional : undefined,
       idProcesso: filters.idProcesso.length ? filters.idProcesso : undefined,
@@ -245,11 +316,43 @@ export class TurnoListComponent {
       apenasHoje: filters.apenasHoje || undefined,
       aberturaDe: filters.abertura.from ?? undefined,
       aberturaAte: filters.abertura.to ?? undefined,
-      buscaGlobal: query || undefined,
-      page: pedido.page,
-      size: pedido.size,
-      sort: pedido.sort.length ? pedido.sort.map((r) => `${r.key},${r.direction}`) : ['dataInicio,desc']
+      buscaGlobal: query.trim() || undefined
     };
+  }
+
+  protected abrirExportacao(): void {
+    const { filters, query } = this.lista.request();
+    this.exp.set({ ...filters, abertura: { ...filters.abertura } });
+    this.expBusca.set(query ?? '');
+    this.exportFormato.set('resumo');
+    this.exportacaoAberta.set(true);
+  }
+
+  /** Ajusta um filtro só na exportação. */
+  protected mudar<K extends keyof ReturnType<typeof this.exp>>(chave: K, valor: ReturnType<typeof this.exp>[K]): void {
+    this.exp.update((f) => ({ ...f, [chave]: valor }));
+  }
+
+  protected periodoExportacao(limite: 'from' | 'to', data: Date | null): void {
+    this.exp.update((f) => ({ ...f, abertura: { ...f.abertura, [limite]: dataIso(data) } }));
+  }
+
+  protected exportarCsv(formato: FormatoExportacao): void {
+    if (this.exportando()) return;
+    this.exportando.set(true);
+    this.dashboard.exportarTurnos(formato, this.recorteExportacao()).subscribe({
+      next: (resposta) => {
+        this.exportando.set(false);
+        this.exportacaoAberta.set(false);
+        if (baixarCsv(resposta, `turnos_${formato}.csv`)) {
+          this.notificacoes.success(`CSV dos turnos (${formato === 'resumo' ? 'resumido' : 'detalhado'}) gerado.`);
+        }
+      },
+      error: async (erro: unknown) => {
+        this.exportando.set(false);
+        this.notificacoes.error(await mensagemDoErroDeExportacao(erro), { title: 'Não foi possível exportar' });
+      }
+    });
   }
 
   protected local(t: TurnoConsulta): string {

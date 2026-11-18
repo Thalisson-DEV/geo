@@ -38,6 +38,8 @@ class SolicitacaoTecnicaFeatureFlagTest {
             .withUserConfiguration(SolicitacaoTecnicaController.class, SolicitacaoController.class)
             .withBean(SolicitacaoTecnicaUseCases.class, () -> mock(SolicitacaoTecnicaUseCases.class))
             .withBean(ReservaSolicitacaoTecnicaUseCases.class, () -> mock(ReservaSolicitacaoTecnicaUseCases.class))
+            .withBean(com.nexo.app.modules.estoque.application.usecases.TrocaOcorrenciaTecnicaUseCase.class,
+                    () -> mock(com.nexo.app.modules.estoque.application.usecases.TrocaOcorrenciaTecnicaUseCase.class))
             .withBean(SeparacaoSolicitacaoTecnicaUseCases.class, () -> mock(SeparacaoSolicitacaoTecnicaUseCases.class))
             .withBean(OperacaoSolicitacaoTecnicaUseCases.class, () -> mock(OperacaoSolicitacaoTecnicaUseCases.class))
             .withBean(EncerramentoSaldoTecnicoUseCases.class, () -> mock(EncerramentoSaldoTecnicoUseCases.class))
