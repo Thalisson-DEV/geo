@@ -22,7 +22,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
     >
       <div class="geo-nav__topo">
         <a routerLink="/home" class="geo-nav__marca" aria-label="GEO, ir para o início" (click)="irParaInicio()">
-          <geo-logo size="2rem" label="GEO" />
+          <geo-logo size="1.625rem" label="GEO" />
         </a>
         @if (!isMobile()) {
           <button
@@ -32,7 +32,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
             [attr.aria-expanded]="menuVisible()"
             (click)="toggleMenu.emit()"
           >
-            <geo-icon [name]="menuVisible() ? 'panel-left-close' : 'panel-left-open'" />
+            <geo-icon [name]="menuVisible() ? 'panel-left-close' : 'panel-left-open'" size="sm" />
           </button>
         }
       </div>
@@ -47,7 +47,7 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
               [attr.aria-current]="isItemActive(item) ? 'page' : null"
               (click)="onItemClick(item)"
             >
-              <geo-icon class="geo-nav__icone" name="compass" />
+              <geo-icon class="geo-nav__icone" name="compass" size="sm" />
               <span class="geo-nav__rotulo">{{ item.label }}</span>
               @if (item.badge) { <span class="geo-nav__badge">{{ item.badge }}</span> }
             </a>
@@ -63,22 +63,22 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
                   [attr.aria-current]="isItemActive(item) ? 'page' : null"
                   (click)="onItemClick(item)"
                 >
-                  @if (item.icon) { <geo-icon class="geo-nav__icone" [name]="item.icon" /> }
+                  @if (item.icon) { <geo-icon class="geo-nav__icone" [name]="item.icon" size="sm" /> }
                   <span class="geo-nav__rotulo">{{ item.label }}</span>
                   @if (item.badge) { <span class="geo-nav__badge">{{ item.badge }}</span> }
                 </a>
               } @else if (item.url) {
                 <a [href]="item.url" [target]="item.target || '_self'" class="geo-nav__item" (click)="onItemClick(item)">
-                  @if (item.icon) { <geo-icon class="geo-nav__icone" [name]="item.icon" /> }
+                  @if (item.icon) { <geo-icon class="geo-nav__icone" [name]="item.icon" size="sm" /> }
                   <span class="geo-nav__rotulo">{{ item.label }}</span>
                   <geo-icon class="geo-nav__seta" name="external-link" size="sm" />
                 </a>
               } @else {
                 <a class="geo-nav__item geo-nav__grupo" [class.geo-nav__grupo--ativo]="isItemActive(item)" (click)="onItemClick(item)">
-                  @if (item.icon) { <geo-icon class="geo-nav__icone" [name]="item.icon" /> }
+                  @if (item.icon) { <geo-icon class="geo-nav__icone" [name]="item.icon" size="sm" /> }
                   <span class="geo-nav__rotulo">{{ item.label }}</span>
                   @if (item.items && item.items.length > 0) {
-                    <geo-icon class="geo-nav__seta" [class.geo-nav__seta--aberta]="item.expanded" name="chevron-down" size="sm" />
+                    <geo-icon class="geo-nav__seta" [class.geo-nav__seta--aberta]="item.expanded" name="chevron-right" size="sm" />
                   }
                 </a>
               }
@@ -109,11 +109,13 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
       </div>
 
       <div class="geo-nav__rodape" role="status">
-        <span class="geo-nav__conexao" [attr.data-estado]="conectado() ? 'online' : 'offline'"></span>
-        @if (menuVisible() || isMobile()) {
-          <span class="geo-nav__rodape-texto">{{ conectado() ? 'Conectado' : 'Sem conexão: salvando no aparelho' }}</span>
-        } @else {
-          <span class="geo-sr-only">{{ conectado() ? 'Conectado' : 'Sem conexão' }}</span>
+        @if (!conectado()) {
+          <span class="geo-nav__conexao" aria-hidden="true"></span>
+          @if (menuVisible() || isMobile()) {
+            <span>Sem conexão: salvando no aparelho</span>
+          } @else {
+            <span class="geo-sr-only">Sem conexão</span>
+          }
         }
       </div>
     </nav>
@@ -125,64 +127,85 @@ import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.s
       display: flex; flex-direction: column;
       inline-size: var(--geo-nav-width); block-size: 100%;
       background: var(--geo-nav-bg); color: var(--geo-nav-fg);
-      border-inline-end: 1px solid var(--geo-nav-border);
       transition: inline-size var(--geo-motion-base) var(--geo-ease-out), transform var(--geo-motion-slow) var(--geo-ease-emphasis);
     }
     @media (min-width: 1024px) { .geo-nav { position: relative; z-index: 40; } }
     .geo-nav--recolhido { inline-size: var(--geo-nav-width-collapsed); }
     .geo-nav--fechado { transform: translateX(-100%); transition-duration: var(--geo-motion-exit); transition-timing-function: var(--geo-ease-in); }
-    .geo-nav__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.9rem 0.9rem 0.75rem; min-block-size: 4rem; }
-    .geo-nav--recolhido .geo-nav__topo { flex-direction: column; padding-inline: 0; }
-    .geo-nav__marca { display: inline-flex; border-radius: var(--geo-radius-md); }
+
+    /* Topo alinhado ao cabeçalho (3.5rem). */
+    .geo-nav__topo { display: flex; align-items: center; justify-content: space-between; flex: none; block-size: 3.5rem; padding-inline: 1rem 0.625rem; }
+    .geo-nav--recolhido .geo-nav__topo { justify-content: center; padding-inline: 0; }
+    .geo-nav--recolhido .geo-nav__marca { display: none; }
+    .geo-nav__marca { display: inline-flex; border-radius: var(--geo-radius-sm); }
     .geo-nav__marca:focus-visible { outline: 2px solid var(--geo-nav-indicator); outline-offset: 2px; }
     .geo-nav__recolher {
       display: inline-flex; align-items: center; justify-content: center;
-      inline-size: 2.25rem; block-size: 2.25rem; border: 0; border-radius: var(--geo-radius-sm);
+      inline-size: 1.75rem; block-size: 1.75rem; border: 0; border-radius: var(--geo-radius-sm);
       background: transparent; color: var(--geo-nav-fg-muted); cursor: pointer;
       transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out);
     }
     .geo-nav__recolher:hover { background: var(--geo-nav-bg-hover); color: var(--geo-nav-fg-active); }
     .geo-nav__recolher:focus-visible { outline: 2px solid var(--geo-nav-indicator); outline-offset: 2px; }
-    .geo-nav__rolagem { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.25rem 0.6rem 0.75rem; scrollbar-width: thin; scrollbar-color: var(--geo-nav-border) transparent; }
+
+    .geo-nav__rolagem { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.25rem 0.625rem 1rem; scrollbar-width: thin; scrollbar-color: var(--geo-nav-border) transparent; }
+
+    /* Item: fino e arejado. */
     .geo-nav__item {
-      position: relative; display: flex; align-items: center; gap: 0.7rem;
-      inline-size: 100%; min-block-size: 2.5rem; margin-block: 1px; padding: 0 0.75rem;
+      display: flex; align-items: center; gap: 0.625rem;
+      inline-size: 100%; min-block-size: 2.125rem; margin-block: 1px; padding: 0 0.625rem;
       border: 0; border-radius: var(--geo-radius-sm); background: transparent;
-      color: var(--geo-nav-fg); font: inherit; font-size: var(--geo-text-body-sm); font-weight: var(--geo-font-weight-medium);
-      text-align: start; text-decoration: none; cursor: pointer;
+      color: var(--geo-nav-fg); font: inherit; font-size: var(--geo-text-body-sm); font-weight: var(--geo-font-weight-regular);
+      line-height: 1.2; text-align: start; text-decoration: none; cursor: pointer;
       transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out);
     }
     .geo-nav__item:hover { background: var(--geo-nav-bg-hover); color: var(--geo-nav-fg-active); }
     .geo-nav__item:focus-visible { outline: 2px solid var(--geo-nav-indicator); outline-offset: -2px; }
-    .geo-nav__item--ativo { background: var(--geo-nav-bg-active); color: var(--geo-nav-fg-active); font-weight: var(--geo-font-weight-semibold); }
-    .geo-nav__item--ativo::before {
-      content: ''; position: absolute; inset-block: 0.5rem; inset-inline-start: 0;
-      inline-size: 3px; border-radius: var(--geo-radius-full); background: var(--geo-nav-indicator);
-    }
+    .geo-nav__item--ativo { background: var(--geo-nav-bg-active); color: var(--geo-nav-fg-active); font-weight: var(--geo-font-weight-medium); }
     .geo-nav__item--ativo .geo-nav__icone { color: var(--geo-nav-indicator); }
     .geo-nav__grupo--ativo { color: var(--geo-nav-fg-active); }
+    .geo-nav__grupo--ativo .geo-nav__icone { color: var(--geo-nav-fg-active); }
     .geo-nav__icone { color: var(--geo-nav-fg-muted); transition: color var(--geo-motion-fast) var(--geo-ease-out); }
+    .geo-nav__icone svg { stroke-width: 1.6; }
     .geo-nav__item:hover .geo-nav__icone { color: var(--geo-nav-fg-active); }
     .geo-nav__rotulo { flex: 1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .geo-nav__seta { color: var(--geo-nav-fg-muted); transition: transform var(--geo-motion-base) var(--geo-ease-out); }
-    .geo-nav__seta--aberta { transform: rotate(180deg); }
-    .geo-nav__item--bussola { margin-block-end: 0.5rem; box-shadow: inset 0 0 0 1px var(--geo-nav-border); }
+    .geo-nav__seta { color: var(--geo-nav-fg-muted); opacity: 0.7; transition: transform var(--geo-motion-base) var(--geo-ease-out); }
+    .geo-nav__seta--aberta { transform: rotate(90deg); }
+
+    /* Bússola: primeiro item, só o ícone âmbar a distingue; uma linha fina a separa dos módulos. */
     .geo-nav__item--bussola .geo-nav__icone { color: var(--geo-nav-indicator); }
+    .geo-nav__item--bussola { margin-block-end: 0.5rem; }
+    .geo-nav__item--bussola + .geo-nav__grupos { padding-block-start: 0.5rem; border-block-start: 1px solid var(--geo-nav-border); }
     .geo-nav__badge {
-      min-inline-size: 1.25rem; padding: 0 0.35rem; border-radius: var(--geo-radius-full);
-      background: var(--geo-nav-indicator); color: var(--geo-nav-bg);
-      font-size: var(--geo-text-caption); font-weight: var(--geo-font-weight-bold); line-height: 1.25rem; text-align: center;
+      padding: 0 0.375rem; border-radius: var(--geo-radius-full);
+      background: var(--geo-nav-badge-bg); color: var(--geo-nav-indicator);
+      font-size: 0.625rem; font-weight: var(--geo-font-weight-semibold); line-height: 1.125rem; letter-spacing: 0.02em;
     }
-    .geo-nav__icones { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
-    .geo-nav__item--icone { justify-content: center; inline-size: 2.75rem; block-size: 2.75rem; padding: 0; }
+
+    /* Subitens: sem ícone, recuo curto e linha guia. */
+    .geo-nav__grupos .p-panelmenu-content { position: relative; box-sizing: border-box; inline-size: auto; max-inline-size: calc(100% - 1.125rem); margin-inline-start: 1.125rem; }
+    .geo-nav__grupos .p-panelmenu-content::before {
+      content: ''; position: absolute; inset-block: 0.25rem; inset-inline-start: 0;
+      inline-size: 1px; background: var(--geo-nav-border);
+    }
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__item { padding-inline-start: 0.75rem; min-block-size: 1.875rem; color: var(--geo-nav-fg-muted); }
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__item:hover,
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__item--ativo,
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__grupo--ativo { color: var(--geo-nav-fg-active); }
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__icone { display: none; }
+
+    /* Recolhido: só ícones. */
+    .geo-nav__icones { display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 0; padding: 0; list-style: none; }
+    .geo-nav__item--icone { justify-content: center; inline-size: 2.25rem; block-size: 2.25rem; min-block-size: 0; padding: 0; }
+
+    .geo-nav__rodape:empty { display: none; }
     .geo-nav__rodape {
-      display: flex; align-items: center; gap: 0.6rem; padding: 0.75rem 1.1rem;
+      display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1rem;
       border-block-start: 1px solid var(--geo-nav-border);
-      color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption);
+      color: var(--geo-nav-indicator); font-size: var(--geo-text-caption);
     }
     .geo-nav--recolhido .geo-nav__rodape { justify-content: center; padding-inline: 0; }
-    .geo-nav__conexao { flex: none; inline-size: 0.5rem; block-size: 0.5rem; border-radius: var(--geo-radius-full); background: var(--geo-success-text); }
-    .geo-nav__conexao[data-estado='offline'] { background: var(--geo-nav-indicator); }
+    .geo-nav__conexao { flex: none; inline-size: 0.4375rem; block-size: 0.4375rem; border-radius: var(--geo-radius-full); background: var(--geo-nav-indicator); }
   `]
 })
 export class SidebarComponent {

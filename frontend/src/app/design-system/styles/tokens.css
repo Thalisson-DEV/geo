@@ -99,14 +99,15 @@
     /* Menu lateral azul-marinho, igual nos dois temas. */
     --geo-nav-bg: #0f1d3d;
     --geo-nav-bg-hover: rgb(255 255 255 / 0.06);
-    --geo-nav-bg-active: rgb(251 191 36 / 0.12);
+    --geo-nav-bg-active: rgb(255 255 255 / 0.09);
+    --geo-nav-badge-bg: rgb(251 191 36 / 0.16);
     --geo-nav-fg: #c9d4ea;
     --geo-nav-fg-muted: #8b9bbd;
     --geo-nav-fg-active: #ffffff;
     --geo-nav-indicator: #fbbf24;
     --geo-nav-border: rgb(255 255 255 / 0.08);
-    --geo-nav-width: 15.5rem;
-    --geo-nav-width-collapsed: 4.25rem;
+    --geo-nav-width: 14.5rem;
+    --geo-nav-width-collapsed: 3.5rem;
 
     /* Tipografia. A raiz é 13px: 1rem = 13px. */
     --geo-font-family-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -297,7 +298,8 @@
       /* No escuro o menu continua azul-marinho e a área de conteúdo fica num neutro mais escuro. */
       --geo-nav-bg: #0f1a33;
       --geo-nav-bg-hover: rgb(255 255 255 / 0.06);
-      --geo-nav-bg-active: rgb(251 191 36 / 0.14);
+      --geo-nav-bg-active: rgb(255 255 255 / 0.09);
+      --geo-nav-badge-bg: rgb(251 191 36 / 0.16);
       --geo-nav-fg: #c9d4ea;
       --geo-nav-fg-muted: #8b9bbd;
       --geo-nav-fg-active: #ffffff;

@@ -651,8 +651,9 @@
     box-shadow: none !important;
   }
 
+  /* O recuo e a linha guia dos subitens ficam com o menu lateral (sidebar.component). */
   .custom-panelmenu .p-panelmenu-content {
-    padding-left: 0.75rem !important;
+    padding-left: 0 !important;
   }
 
   .custom-panelmenu .p-panelmenu-header-link,
