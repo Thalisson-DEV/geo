@@ -1,5 +1,6 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
@@ -27,7 +28,8 @@ import { environment } from '../../../../environments/environment';
     CardModule,
     ToastModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    RouterLink
   ],
   providers: [MessageService],
   template: `
@@ -195,12 +197,16 @@ import { environment } from '../../../../environments/environment';
       </p-card>
 
       <!-- Rodapé do Login -->
-      <div class="mt-8 text-center">
+      <div class="mt-8 flex flex-col items-center gap-2 text-center">
+        <nav class="flex gap-4 text-xs font-semibold" aria-label="Documentos legais">
+          <a routerLink="/privacidade" class="text-[var(--geo-foreground-muted)] hover:text-[var(--geo-brand)] hover:underline">Política de privacidade</a>
+          <a routerLink="/termos" class="text-[var(--geo-foreground-muted)] hover:text-[var(--geo-brand)] hover:underline">Termos de uso</a>
+        </nav>
         <span
           class="text-[9px] uppercase tracking-widest"
           [class.text-slate-500]="themeService.isDarkMode()"
           [class.text-slate-400]="!themeService.isDarkMode()"
-        >GEO | Gestão de Ativos e Eficiência Operacional © 2026</span>
+        >GEO | Gestão de Equipes e Operações © 2026</span>
       </div>
     </div>
   `,

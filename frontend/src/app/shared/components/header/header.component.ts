@@ -330,6 +330,13 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
               (onClick)="showChangePassword(); op.hide()"
               styleClass="!w-full !justify-start !text-[var(--geo-foreground-muted)] !text-[11px] !py-2.5 hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] !border-0 transition-all !rounded-xl"
             ></p-button>
+            <p-button
+              label="Privacidade e termos"
+              icon="pi pi-shield"
+              [text]="true"
+              (onClick)="router.navigate(['/privacidade']); op.hide()"
+              styleClass="!w-full !justify-start !text-[var(--geo-foreground-muted)] !text-[11px] !py-2.5 hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] !border-0 transition-all !rounded-xl"
+            ></p-button>
             <div class="h-px bg-[var(--geo-border)] my-2 mx-3"></div>
             <p-button (onClick)="logout.emit()" label="Sair do Sistema" icon="pi pi-power-off" [text]="true" styleClass="!w-full !justify-start !text-red-500 !text-[11px] !py-2.5 hover:!bg-red-500/10 !border-0 font-bold transition-all !rounded-xl"></p-button>
           </div>

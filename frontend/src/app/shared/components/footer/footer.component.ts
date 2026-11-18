@@ -1,17 +1,20 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { ConnectivityService } from '../../../core/services/connectivity.service';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <footer class="fixed bottom-0 left-0 w-full bg-[var(--geo-surface)]/90 backdrop-blur-md border-t border-[var(--geo-border)] py-1 px-3 flex justify-between items-center text-[10px] text-[var(--geo-foreground-subtle)] z-50">
       <div class="flex gap-5 items-center">
-        <span class="font-medium text-[var(--geo-foreground-muted)]">GEO | Gestão de Ativos e Eficiência Operacional</span>
+        <span class="font-medium text-[var(--geo-foreground-muted)]">GEO | Gestão de Equipes e Operações</span>
         <span class="font-medium text-[var(--geo-foreground-subtle)]"> | </span>
         <span class="font-medium text-[var(--geo-foreground-muted)] tracking-tight">v1.0</span>
+        <a routerLink="/privacidade" class="hidden sm:inline font-medium text-[var(--geo-foreground-muted)] hover:text-[var(--geo-brand)] hover:underline">Privacidade</a>
+        <a routerLink="/termos" class="hidden sm:inline font-medium text-[var(--geo-foreground-muted)] hover:text-[var(--geo-brand)] hover:underline">Termos</a>
       </div>
 
       <div class="flex items-center gap-3">

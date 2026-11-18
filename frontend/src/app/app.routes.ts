@@ -33,6 +33,20 @@ export const routes: Routes = [
     loadComponent: () => import('./features/financeiro/decisao-email/decisao-email.component').then(m => m.DecisaoEmailComponent)
   },
   {
+    // Política de Privacidade e Termos de Uso: públicas e fora do shell, para abrir da
+    // tela de entrada e por quem recebe o link.
+    path: 'privacidade',
+    data: { fullscreen: true, documento: 'privacidade' },
+    title: 'Política de Privacidade - GEO',
+    loadComponent: () => import('./features/legal/documento-legal.component').then(m => m.DocumentoLegalComponent)
+  },
+  {
+    path: 'termos',
+    data: { fullscreen: true, documento: 'termos' },
+    title: 'Termos de Uso - GEO',
+    loadComponent: () => import('./features/legal/documento-legal.component').then(m => m.DocumentoLegalComponent)
+  },
+  {
     // A Central roda dentro do shell autenticado: usa o cabeçalho de página, o breadcrumb e a
     // busca padrão do produto. O conteúdo também documenta credenciais padrão de primeiro
     // acesso, que não devem ficar em rota pública.
