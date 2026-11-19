@@ -1,24 +1,101 @@
-<section class="home" aria-labelledby="home-title">
-  <h1 id="home-title" class="home__title">Módulos</h1>
+<section class="inicio" aria-labelledby="inicio-titulo">
+  <header class="entrada">
+    <svg class="entrada__rosa" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
+      <circle cx="200" cy="200" r="190" />
+      <circle cx="200" cy="200" r="140" />
+      <circle cx="200" cy="200" r="90" />
+      <path d="M200 10 V390 M10 200 H390 M66 66 L334 334 M334 66 L66 334" />
+      <path class="entrada__agulha" d="M200 70 L216 200 L200 330 L184 200 Z" />
+    </svg>
 
-  @if (modules().length) {
-    <nav class="module-grid" aria-labelledby="home-title">
-      @for (module of modules(); track module.route) {
-        <a class="module-card" [routerLink]="module.route">
-          <span class="module-card__icon" aria-hidden="true">
-            <geo-icon [name]="module.icon" size="lg" />
-          </span>
-          <span class="module-card__copy">
-            <strong>{{ module.name }}</strong>
-            <small>{{ module.description }}</small>
-          </span>
-          <geo-icon class="module-card__arrow" name="arrow-right" size="sm" />
-        </a>
+    <div class="entrada__conteudo">
+      <div class="entrada__marca">
+        <geo-logo size="2.25rem" label="GEO" />
+        <span>Gestão de Equipes e Operações</span>
+      </div>
+
+      <h1 id="inicio-titulo" class="entrada__titulo">Escolha um módulo</h1>
+      <p class="entrada__texto">
+        Cada área reúne as telas do dia a dia. Precisa de uma resposta rápida? Pergunte à Bússola.
+      </p>
+
+      @if (podeUsarBussola()) {
+        <form class="bussola" aria-label="Perguntar à Bússola" (submit)="perguntar($event, campo)">
+          <geo-bussola-avatar size="2.25rem" />
+          <label class="geo-sr-only" for="inicio-pergunta">Pergunta para a Bússola</label>
+          <input
+            #campo
+            id="inicio-pergunta"
+            class="bussola__campo"
+            type="text"
+            autocomplete="off"
+            enterkeyhint="send"
+            placeholder="Pergunte à Bússola…"
+          />
+          <button type="submit" class="bussola__enviar" aria-label="Perguntar">
+            <geo-icon name="arrow-right" size="sm" />
+          </button>
+        </form>
+
+        <ul class="bussola__sugestoes" aria-label="Sugestões de pergunta">
+          @for (sugestao of sugestoes; track sugestao) {
+            <li>
+              <button type="button" (click)="abrirBussola(sugestao)">{{ sugestao }}</button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </header>
+
+  @if (modulos().length) {
+    <nav class="modulos" aria-labelledby="inicio-titulo">
+      @for (modulo of modulos(); track modulo.rota; let i = $index) {
+        <article class="modulo" [class.modulo--destaque]="modulo.destaque" [style.--ordem]="i">
+          <a class="modulo__entrada" [routerLink]="modulo.rota">
+            <span class="modulo__icone" aria-hidden="true">
+              <geo-icon [name]="modulo.icone" size="lg" />
+            </span>
+            <span class="modulo__texto">
+              <span class="modulo__nome">{{ modulo.rotulo }}</span>
+              <span class="modulo__descricao">{{ modulo.descricao }}</span>
+            </span>
+            <geo-icon class="modulo__seta" name="arrow-up-right" />
+          </a>
+
+          @if (modulo.atalhos.length) {
+            <ul class="modulo__atalhos" [attr.aria-label]="'Atalhos de ' + modulo.rotulo">
+              @for (atalho of modulo.atalhos; track atalho.rotulo) {
+                <li>
+                  <a [routerLink]="atalho.rota" [queryParams]="atalho.query">{{ atalho.rotulo }}</a>
+                </li>
+              }
+            </ul>
+          }
+        </article>
       }
     </nav>
   } @else {
-    <p class="home__empty">
-      Seu perfil ainda não tem acesso a nenhum módulo. Peça a liberação ao administrador do sistema.
-    </p>
+    <div class="vazio" role="status">
+      <geo-icon name="lock" size="lg" />
+      <p>
+        <strong>Nenhum módulo liberado para o seu perfil.</strong>
+        Peça a liberação ao administrador do sistema.
+      </p>
+    </div>
+  }
+
+  @if (administracao().length) {
+    <footer class="sistema">
+      <span class="sistema__rotulo">
+        <geo-icon name="settings" size="sm" />
+        Administração
+      </span>
+      <ul aria-label="Administração do sistema">
+        @for (destino of administracao(); track destino.rota) {
+          <li><a [routerLink]="destino.rota">{{ destino.rotulo }}</a></li>
+        }
+      </ul>
+    </footer>
   }
 </section>

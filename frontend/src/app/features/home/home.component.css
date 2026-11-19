@@ -2,72 +2,259 @@
   display: block;
 }
 
-.home {
-  width: min(100%, 72rem);
+.inicio {
+  width: min(100%, 92rem);
   margin: 0 auto;
-  padding: clamp(1rem, 3vw, 2.5rem) 0;
+  padding-block: clamp(0.5rem, 2vw, 1.5rem) 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.5rem);
 }
 
-.home__title {
-  margin: 0 0 1.25rem;
-  color: var(--geo-foreground);
-  font-size: var(--geo-text-title-1);
-  font-weight: var(--geo-font-weight-bold);
-  letter-spacing: -0.01em;
+/* ---------- Entrada: a marca e a busca ---------- */
+
+.entrada {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 4vw, 3.25rem);
+  border: 1px solid var(--geo-nav-border-strong);
+  border-radius: var(--geo-radius-xl);
+  background: var(--geo-nav-bg);
+  color: var(--geo-nav-fg);
+  box-shadow: var(--geo-shadow-md);
+  animation: geo-fade-in var(--geo-motion-slow) var(--geo-ease-out) both;
 }
 
-.home__empty {
-  margin: 0;
-  padding: 1.5rem;
-  border: 1px dashed var(--geo-border-strong);
-  border-radius: var(--geo-radius-lg);
-  color: var(--geo-foreground-muted);
-  font-size: var(--geo-font-body);
+.entrada__rosa {
+  position: absolute;
+  z-index: -1;
+  inset-block-start: 50%;
+  inset-inline-end: -7rem;
+  inline-size: 30rem;
+  block-size: 30rem;
+  translate: 0 -50%;
+  fill: none;
+  stroke: var(--geo-nav-border-strong);
+  stroke-width: 1;
+  animation: inicio-girar calc(var(--geo-motion-slow) * 4) var(--geo-ease-emphasis) both;
 }
 
-.module-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
+.entrada__agulha {
+  fill: var(--geo-nav-tile-bg-active);
+  stroke: var(--geo-nav-indicator);
 }
 
-@media (min-width: 40rem) {
-  .module-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@keyframes inicio-girar {
+  from {
+    opacity: 0;
+    rotate: -30deg;
   }
 }
 
-@media (min-width: 64rem) {
-  .module-grid {
+.entrada__conteudo {
+  max-inline-size: 38rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.entrada__marca {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--geo-nav-fg-muted);
+  font-size: var(--geo-text-label);
+  font-weight: var(--geo-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.entrada__titulo {
+  margin: 1.25rem 0 0;
+  color: var(--geo-nav-fg-active);
+  font-size: clamp(2.15rem, 4.2vw, 3.25rem);
+  font-weight: var(--geo-font-weight-bold);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.entrada__texto {
+  max-inline-size: 30rem;
+  margin: 0.75rem 0 0;
+  color: var(--geo-nav-fg);
+  font-size: var(--geo-text-body);
+  line-height: var(--geo-text-leading-normal);
+  text-wrap: pretty;
+}
+
+.bussola {
+  inline-size: min(100%, 34rem);
+  margin-block-start: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.375rem 0.375rem 0.375rem 0.5rem;
+  border: 1px solid var(--geo-nav-border-strong);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-nav-tile-bg);
+  transition:
+    background-color var(--geo-motion-fast) var(--geo-ease-standard),
+    border-color var(--geo-motion-fast) var(--geo-ease-standard);
+}
+
+.bussola:focus-within {
+  border-color: var(--geo-nav-indicator);
+  background: var(--geo-nav-tile-bg-hover);
+}
+
+.bussola geo-bussola-avatar {
+  flex: none;
+}
+
+.bussola__campo {
+  min-inline-size: 0;
+  min-block-size: var(--geo-touch-target);
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--geo-nav-fg-active);
+  font: inherit;
+  font-size: var(--geo-text-body);
+}
+
+.bussola__campo::placeholder {
+  color: var(--geo-nav-fg-muted);
+}
+
+.bussola__enviar {
+  inline-size: var(--geo-touch-target);
+  block-size: var(--geo-touch-target);
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-nav-indicator);
+  color: var(--geo-nav-bg);
+  cursor: pointer;
+  transition: translate var(--geo-motion-fast) var(--geo-ease-standard);
+}
+
+.bussola__enviar:focus-visible {
+  outline: 2px solid var(--geo-nav-fg-active);
+  outline-offset: 2px;
+}
+
+.bussola__sugestoes {
+  margin: 0.875rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.bussola__sugestoes button {
+  min-block-size: 2rem;
+  padding: 0.25rem 0.875rem;
+  border: 1px solid var(--geo-nav-border-strong);
+  border-radius: var(--geo-radius-full);
+  background: transparent;
+  color: var(--geo-nav-fg);
+  font: inherit;
+  font-size: var(--geo-text-label);
+  font-weight: var(--geo-font-weight-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--geo-motion-fast) var(--geo-ease-standard),
+    border-color var(--geo-motion-fast) var(--geo-ease-standard),
+    color var(--geo-motion-fast) var(--geo-ease-standard);
+}
+
+.bussola__sugestoes button:focus-visible {
+  outline: 2px solid var(--geo-nav-indicator);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .bussola__enviar:hover {
+    translate: var(--geo-motion-distance-sm) 0;
+  }
+
+  .bussola__sugestoes button:hover {
+    border-color: var(--geo-nav-indicator);
+    background: var(--geo-nav-tile-bg-active);
+    color: var(--geo-nav-fg-active);
+  }
+}
+
+/* ---------- Módulos ---------- */
+
+.modulos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.875rem;
+}
+
+@media (min-width: 40rem) {
+  .modulos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .modulo--destaque {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 72rem) {
+  .modulos {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
   }
 }
 
-.module-card {
+.modulo {
   position: relative;
-  min-height: 5.5rem;
+  min-inline-size: 0;
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.125rem 1.25rem;
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid var(--geo-border);
   border-radius: var(--geo-radius-lg);
   background: var(--geo-surface);
-  color: var(--geo-foreground);
-  text-decoration: none;
   box-shadow: var(--geo-shadow-sm);
+  animation: geo-rise-in var(--geo-motion-slow) var(--geo-ease-out) both;
+  animation-delay: calc(var(--ordem, 0) * var(--geo-motion-instant) / 2);
   transition:
     border-color var(--geo-motion-fast) var(--geo-ease-standard),
     box-shadow var(--geo-motion-base) var(--geo-ease-standard),
-    transform var(--geo-motion-base) var(--geo-ease-standard);
+    translate var(--geo-motion-base) var(--geo-ease-standard);
 }
 
-.module-card__icon {
-  width: 3rem;
-  height: 3rem;
+.modulo__entrada {
+  flex: 1;
   display: grid;
-  flex: 0 0 auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 1rem;
+  padding: 1.375rem 1.375rem 1.25rem;
+  color: var(--geo-foreground);
+  text-decoration: none;
+  border-radius: var(--geo-radius-lg) var(--geo-radius-lg) 0 0;
+}
+
+.modulo__entrada:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--geo-focus-ring);
+}
+
+.modulo__icone {
+  inline-size: 3.25rem;
+  block-size: 3.25rem;
+  display: grid;
   place-items: center;
   border-radius: var(--geo-radius-md);
   background: var(--geo-brand-soft);
@@ -77,72 +264,262 @@
     color var(--geo-motion-fast) var(--geo-ease-standard);
 }
 
-.module-card__copy {
-  min-width: 0;
-  flex: 1;
+.modulo__texto {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.3rem;
+  padding-block-start: 0.15rem;
 }
 
-.module-card__copy strong {
-  font-size: 1rem;
-  font-weight: var(--geo-font-weight-semibold);
-  line-height: 1.3;
+.modulo__nome {
+  font-size: var(--geo-text-title-3);
+  font-weight: var(--geo-font-weight-bold);
+  line-height: var(--geo-text-leading-tight);
+  letter-spacing: -0.01em;
 }
 
-.module-card__copy small {
+.modulo__descricao {
   color: var(--geo-foreground-muted);
-  font-size: var(--geo-font-caption);
-  line-height: 1.4;
+  font-size: var(--geo-text-body-sm);
+  line-height: 1.45;
+  text-wrap: pretty;
 }
 
-.module-card__arrow {
-  flex: 0 0 auto;
+.modulo__seta {
   color: var(--geo-foreground-subtle);
   transition:
     color var(--geo-motion-fast) var(--geo-ease-standard),
-    transform var(--geo-motion-base) var(--geo-ease-standard);
+    translate var(--geo-motion-base) var(--geo-ease-standard);
+}
+
+.modulo__atalhos {
+  margin: 0;
+  padding: 0.875rem 1.375rem 1.125rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  list-style: none;
+  border-block-start: 1px solid var(--geo-border);
+}
+
+.modulo__atalhos a {
+  min-block-size: 2rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-full);
+  color: var(--geo-foreground-muted);
+  font-size: var(--geo-text-label);
+  font-weight: var(--geo-font-weight-semibold);
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--geo-motion-fast) var(--geo-ease-standard),
+    border-color var(--geo-motion-fast) var(--geo-ease-standard),
+    color var(--geo-motion-fast) var(--geo-ease-standard);
+}
+
+.modulo__atalhos a:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 2px;
 }
 
 @media (hover: hover) {
-  .module-card:hover {
-    border-color: color-mix(in srgb, var(--geo-brand) 45%, var(--geo-border));
+  .modulo:hover {
+    border-color: color-mix(in srgb, var(--geo-brand) 40%, var(--geo-border));
     box-shadow: var(--geo-shadow-md);
-    transform: translateY(calc(-1 * var(--geo-motion-distance-sm) / 2));
+    translate: 0 calc(-1 * var(--geo-motion-distance-sm) / 2);
   }
 
-  .module-card:hover .module-card__icon {
+  .modulo__entrada:hover .modulo__icone {
     background: var(--geo-brand);
     color: var(--geo-surface);
   }
 
-  .module-card:hover .module-card__arrow {
-    color: var(--geo-brand);
-    transform: translateX(var(--geo-motion-distance-sm));
+  .modulo__entrada:hover .modulo__seta {
+    color: var(--geo-brand-text);
+    translate: var(--geo-motion-distance-sm) calc(-1 * var(--geo-motion-distance-sm));
+  }
+
+  .modulo__atalhos a:hover {
+    border-color: color-mix(in srgb, var(--geo-brand) 35%, var(--geo-border));
+    background: var(--geo-brand-soft);
+    color: var(--geo-brand-text);
   }
 }
 
-.module-card:focus-visible {
-  outline: none;
-  border-color: var(--geo-brand);
-  box-shadow: var(--geo-focus-ring);
+.modulo__entrada:active {
+  scale: var(--geo-motion-scale-press);
 }
 
-.module-card:active {
-  transform: scale(var(--geo-motion-scale-press));
+/* Destaque: o módulo principal desta distribuição ganha mais presença. */
+.modulo--destaque {
+  border-color: color-mix(in srgb, var(--geo-brand) 30%, var(--geo-border));
+  background: linear-gradient(
+    135deg,
+    var(--geo-brand-soft) 0%,
+    var(--geo-surface) 70%
+  );
 }
+
+.modulo--destaque::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  block-size: 3px;
+  background: var(--geo-brand);
+}
+
+.modulo--destaque .modulo__entrada {
+  padding: 1.75rem 1.75rem 1.5rem;
+}
+
+.modulo--destaque .modulo__icone {
+  inline-size: 4rem;
+  block-size: 4rem;
+  background: var(--geo-brand);
+  color: var(--geo-surface);
+}
+
+.modulo--destaque .modulo__nome {
+  font-size: var(--geo-text-title-1);
+}
+
+.modulo--destaque .modulo__descricao {
+  font-size: var(--geo-text-body);
+}
+
+.modulo--destaque .modulo__atalhos {
+  padding-inline: 1.75rem;
+  border-block-start-color: color-mix(in srgb, var(--geo-brand) 18%, var(--geo-border));
+}
+
+/* ---------- Vazio e administração ---------- */
+
+.vazio {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--geo-border-strong);
+  border-radius: var(--geo-radius-lg);
+  color: var(--geo-foreground-muted);
+}
+
+.vazio p {
+  margin: 0;
+  font-size: var(--geo-text-body);
+  line-height: var(--geo-text-leading-normal);
+}
+
+.vazio strong {
+  display: block;
+  color: var(--geo-foreground);
+}
+
+.sistema {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg);
+  background: var(--geo-surface-muted);
+  font-size: var(--geo-text-body-sm);
+}
+
+.sistema__rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--geo-foreground-muted);
+  font-weight: var(--geo-font-weight-semibold);
+}
+
+.sistema ul {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  list-style: none;
+}
+
+.sistema a {
+  color: var(--geo-brand-text);
+  font-weight: var(--geo-font-weight-semibold);
+  text-decoration: none;
+}
+
+.sistema a:hover {
+  text-decoration: underline;
+}
+
+.sistema a:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--geo-radius-sm);
+}
+
+/* ---------- Celular ---------- */
+
+@media (max-width: 39.99rem) {
+  .entrada__rosa {
+    display: none;
+  }
+
+  .modulo__entrada,
+  .modulo--destaque .modulo__entrada {
+    padding: 1.125rem;
+  }
+
+  .modulo__atalhos,
+  .modulo--destaque .modulo__atalhos {
+    padding-inline: 1.125rem;
+  }
+
+  .modulo--destaque .modulo__icone {
+    inline-size: 3.25rem;
+    block-size: 3.25rem;
+  }
+
+  .modulo--destaque .modulo__nome {
+    font-size: var(--geo-text-title-2);
+  }
+}
+
+/* ---------- Movimento reduzido ---------- */
 
 @media (prefers-reduced-motion: reduce) {
-  .module-card,
-  .module-card__icon,
-  .module-card__arrow {
+  .entrada,
+  .entrada__rosa,
+  .modulo {
+    animation: none;
+  }
+
+  .modulo,
+  .modulo__icone,
+  .modulo__seta,
+  .modulo__atalhos a,
+  .bussola,
+  .bussola__enviar,
+  .bussola__sugestoes button {
     transition: none;
   }
 
-  .module-card:hover,
-  .module-card:active,
-  .module-card:hover .module-card__arrow {
-    transform: none;
+  .modulo:hover,
+  .modulo__entrada:hover .modulo__seta,
+  .modulo__entrada:active,
+  .bussola__enviar:hover {
+    translate: none;
+    scale: none;
   }
+}
+
+:root[data-motion='reduced'] :host .entrada,
+:root[data-motion='reduced'] :host .entrada__rosa,
+:root[data-motion='reduced'] :host .modulo {
+  animation: none;
 }
