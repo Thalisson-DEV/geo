@@ -78,6 +78,9 @@ export interface PreviaProgramacao {
   prazoPrevisto?: string | null;
   prazoRegulado?: string | null;
   equipes: EquipeProjetada[];
+  /** Materiais a instalar que vão para o almoxarifado ao programar (somados por material). */
+  materiaisASolicitar: number;
+  tipoObra: string;
 }
 
 export interface CondicoesProgramacao {
@@ -95,6 +98,10 @@ export interface ProgramarRequest extends CondicoesProgramacao {
   idEquipe: string;
   inicio: string; // dd/MM/yyyy
   fim: string; // dd/MM/yyyy
+  /** Almoxarifado que atende a solicitação gerada; obrigatório quando há material a solicitar. */
+  idAlmoxarifadoAtendimento?: string | null;
+  /** OS/OC, exigida em obra corretiva ou preventiva quando há material a solicitar. */
+  ocorrencia?: string | null;
 }
 
 export interface ItemProgramado {
@@ -135,6 +142,7 @@ export interface ResultadoProgramacao {
   ignoradosConcluidos: number;
   materiaisIncluidos: number;
   servicosSemValor: number;
+  materiaisSolicitados: number;
 }
 
 export interface BarraGantt {

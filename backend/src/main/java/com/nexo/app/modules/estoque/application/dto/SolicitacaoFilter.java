@@ -2,6 +2,7 @@ package com.nexo.app.modules.estoque.application.dto;
 
 import com.nexo.app.modules.estoque.domain.ContextoSolicitacaoMaterial;
 import com.nexo.app.modules.estoque.domain.EtapaSolicitacaoTecnica;
+import com.nexo.app.modules.estoque.domain.OrigemSolicitacaoTecnica;
 import com.nexo.app.modules.estoque.domain.SolicitacaoMaterial.StatusSolicitacao;
 import com.nexo.app.modules.estoque.domain.StatusSeparacao;
 import com.nexo.app.modules.estoque.domain.TipoObraSnapshot;
@@ -75,8 +76,50 @@ public record SolicitacaoFilter(
     List<TipoSolicitacaoTecnica> tiposTecnicos,
 
     @Schema(description = "Quando verdadeiro, deixa de fora as solicitacoes com saldo pendente encerrado")
-    Boolean saldoAberto
+    Boolean saldoAberto,
+
+    @Schema(description = "Origem da solicitacao tecnica: MANUAL ou PROGRAMACAO (gerada pela programacao da obra)")
+    OrigemSolicitacaoTecnica origem,
+
+    @Schema(description = "Somente as solicitacoes geradas por esta programacao de obra")
+    UUID idProgramacao
 ) {
+    /** Mantem compatibilidade com consumidores que montam o filtro sem a origem. */
+    public SolicitacaoFilter(
+            UUID idEstoqueOrigem,
+            UUID idEstoqueDestino,
+            UUID idBaseOrigem,
+            UUID idBaseDestino,
+            UUID idRequisitante,
+            StatusSolicitacao status,
+            List<StatusSolicitacao> statuses,
+            ContextoSolicitacaoMaterial contexto,
+            TipoSolicitacaoTecnica tipoTecnico,
+            TipoObraSnapshot tipoObra,
+            UUID idObra,
+            String ocorrencia,
+            UUID idEquipe,
+            UUID idAlmoxarifado,
+            String numeroReserva,
+            UUID idAgenteReserva,
+            StatusSeparacao statusSeparacao,
+            EtapaSolicitacaoTecnica etapa,
+            OffsetDateTime dataInicio,
+            OffsetDateTime dataFim,
+            String referencia,
+            String numSerie,
+            String buscaGlobal,
+            LocalDate previstaDe,
+            LocalDate previstaAte,
+            List<TipoSolicitacaoTecnica> tiposTecnicos,
+            Boolean saldoAberto
+    ) {
+        this(idEstoqueOrigem, idEstoqueDestino, idBaseOrigem, idBaseDestino, idRequisitante,
+                status, statuses, contexto, tipoTecnico, tipoObra, idObra, ocorrencia, idEquipe,
+                idAlmoxarifado, numeroReserva, idAgenteReserva, statusSeparacao, etapa, dataInicio,
+                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, saldoAberto, null, null);
+    }
+
     /** Mantem compatibilidade com consumidores que montam o filtro sem o recorte de saldo aberto. */
     public SolicitacaoFilter(
             UUID idEstoqueOrigem,
@@ -214,7 +257,7 @@ public record SolicitacaoFilter(
                 idEstoqueOrigem, idEstoqueDestino, idBaseOrigem, idBaseDestino, idRequisitante,
                 status, statuses, novoContexto, tipoTecnico, tipoObra, idObra, ocorrencia, idEquipe,
                 idAlmoxarifado, numeroReserva, idAgenteReserva, statusSeparacao, etapa, dataInicio,
-                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, saldoAberto);
+                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, saldoAberto, origem, idProgramacao);
     }
 
     public SolicitacaoFilter comRequisitante(UUID novoRequisitante) {
@@ -222,6 +265,6 @@ public record SolicitacaoFilter(
                 idEstoqueOrigem, idEstoqueDestino, idBaseOrigem, idBaseDestino, novoRequisitante,
                 status, statuses, contexto, tipoTecnico, tipoObra, idObra, ocorrencia, idEquipe,
                 idAlmoxarifado, numeroReserva, idAgenteReserva, statusSeparacao, etapa, dataInicio,
-                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, saldoAberto);
+                dataFim, referencia, numSerie, buscaGlobal, previstaDe, previstaAte, tiposTecnicos, saldoAberto, origem, idProgramacao);
     }
 }

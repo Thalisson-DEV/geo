@@ -206,6 +206,9 @@ export interface DetalhesTecnicosSolicitacaoResponse {
   idUsuarioEncerramento: string | null;
   motivoEncerramento: string | null;
   etapaOperacional?: EtapaOperacionalTecnica | null;
+  /** Programação de obra que gerou a solicitação; nula na manual. */
+  idProgramacao?: string | null;
+  numeroProgramacao?: number | null;
 }
 
 export interface SolicitacaoMaterialDetalheResponse {
@@ -284,6 +287,8 @@ export interface SolicitacaoMaterialSummaryResponse {
   encerradaEm?: string | null;
   motivoEncerramento?: string | null;
   etapaOperacional?: EtapaOperacionalTecnica | null;
+  idProgramacao?: string | null;
+  numeroProgramacao?: number | null;
   versao: number;
   acoesPermitidas: AcaoPermitidaSolicitacao[];
 }
@@ -314,6 +319,8 @@ export interface SolicitacaoMaterialListaTecnicaResponse {
   encerradaEm?: string | null;
   motivoEncerramento?: string | null;
   etapaOperacional?: EtapaOperacionalTecnica | null;
+  idProgramacao?: string | null;
+  numeroProgramacao?: number | null;
 }
 
 export interface SolicitacaoMaterialListaItemResponse {
@@ -514,6 +521,8 @@ export interface OperacaoTecnicaResponse {
   idOperacao: string;
 }
 
+export type OrigemSolicitacaoTecnica = 'MANUAL' | 'PROGRAMACAO';
+
 export interface SolicitacaoMaterialFilter {
   contexto?: ContextoSolicitacaoMaterial | null;
   etapa?: EtapaSolicitacaoTecnica | null;
@@ -530,6 +539,9 @@ export interface SolicitacaoMaterialFilter {
   statuses?: StatusSolicitacaoMaterial[];
   /** Deixa de fora quem teve o saldo pendente encerrado. */
   saldoAberto?: boolean;
+  /** MANUAL ou PROGRAMACAO (gerada pela programação da obra). */
+  origem?: OrigemSolicitacaoTecnica | null;
+  idProgramacao?: string | null;
   dataInicio?: string | null;
   dataFim?: string | null;
   previstaDe?: string | null;

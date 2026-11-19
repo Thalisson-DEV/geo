@@ -42,7 +42,9 @@ public record DetalhesTecnicosSolicitacaoResponse(
         OffsetDateTime encerradaEm,
         UUID idUsuarioEncerramento,
         String motivoEncerramento,
-        EtapaOperacionalSolicitacao etapaOperacional
+        EtapaOperacionalSolicitacao etapaOperacional,
+        UUID idProgramacao,
+        Long numeroProgramacao
 ) {
 
     public static DetalhesTecnicosSolicitacaoResponse de(
@@ -64,7 +66,8 @@ public record DetalhesTecnicosSolicitacaoResponse(
                 TotaisResponse.de(solicitacao), operacoes.stream().map(OperacaoResponse::de).toList(),
                 solicitacao.getVersao() == null ? 0 : solicitacao.getVersao(), acoesPermitidas,
                 estaAtrasada(solicitacao), solicitacao.isForaPrazoSaque(), solicitacao.estaEncerrada(), solicitacao.getEncerradaEm(), solicitacao.getIdUsuarioEncerramento(),
-                solicitacao.getMotivoEncerramento(), EtapaOperacionalSolicitacao.calcular(solicitacao));
+                solicitacao.getMotivoEncerramento(), EtapaOperacionalSolicitacao.calcular(solicitacao),
+                solicitacao.getIdProgramacao(), solicitacao.getNumeroProgramacao());
     }
 
     private static boolean estaAtrasada(SolicitacaoMaterial solicitacao) {

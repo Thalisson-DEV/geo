@@ -6,6 +6,7 @@ import com.nexo.app.modules.obras.domain.EventoProgramacao;
 import com.nexo.app.modules.obras.domain.ItemPlanejado;
 import com.nexo.app.modules.obras.domain.KitAplicado;
 import com.nexo.app.modules.obras.domain.Obra;
+import com.nexo.app.modules.obras.domain.OperacaoItemKit;
 import com.nexo.app.modules.obras.domain.PontoPlanejamento;
 import com.nexo.app.modules.obras.domain.Programacao;
 import com.nexo.app.modules.obras.domain.ProgramacaoItem;
@@ -21,7 +22,9 @@ import com.nexo.app.modules.obras.infrastructure.persistence.VaoPlanejamentoRepo
 import com.nexo.app.modules.rh.EquipeApi;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
+import com.nexo.app.shared.domain.events.ProgramacaoObraEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +33,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +62,7 @@ public class ProgramacaoObraUseCases {
     private final KitConstrutivoUseCases kitUseCases;
     private final EquipeApi equipeApi;
     private final ProjecaoEquipesObra projecao;
+    private final ApplicationEventPublisher eventos;
 
     /** O que a seleção vira ao programar: os itens programáveis e o que fica de fora. */
     record Selecao(Set<ItemPlanejado> itens, int materiaisIncluidos, int ignoradosProgramados, int ignoradosConcluidos) {
@@ -73,7 +79,8 @@ public class ProgramacaoObraUseCases {
             int servicos = (int) itens.stream().filter(v -> v.getItemPlanejado().getTipo() == TipoItemKit.SERVICO).count();
             return new ProgramacaoResponses.Previa(itens.size(), servicos, itens.size() - servicos, 0, 0, 0, 0, List.of(), valor,
                     obra.getDataPrevisaoFim(), obra.getPrazoRegulado(),
-                    projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), valor, programacao.getId()));
+                    projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), valor, programacao.getId()),
+                    0, obra.getTipoObra().name());
         }
         Selecao selecao = selecionar(idObra, request.idsItens());
         Map<UUID, Map<UUID, BigDecimal>> valores = new HashMap<>();
@@ -98,7 +105,9 @@ public class ProgramacaoObraUseCases {
         return new ProgramacaoResponses.Previa(selecao.itens().size(), servicos, selecao.itens().size() - servicos,
                 selecao.materiaisIncluidos(), selecao.ignoradosProgramados(), selecao.ignoradosConcluidos(), semValor,
                 List.copyOf(nomesSemValor), total, obra.getDataPrevisaoFim(), obra.getPrazoRegulado(),
-                projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), total, null));
+                projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), total, null),
+                materiaisASolicitar(selecao.itens().stream().map(i -> new ItemQuantidade(i, i.getQuantidadePrevista())).toList()).size(),
+                obra.getTipoObra().name());
     }
 
     @Transactional
@@ -126,8 +135,19 @@ public class ProgramacaoObraUseCases {
         obra.vincularEquipeSeAusente(request.idEquipe());
         Programacao salva = repository.saveAndFlush(programacao);
         registrar(salva.registrarCriacao(), obra);
+        List<ProgramacaoObraEvent.Material> materiais = materiaisASolicitar(salva.getItensAtivos().stream()
+                .map(v -> new ItemQuantidade(v.getItemPlanejado(), v.getQuantidade())).toList());
+        if (!materiais.isEmpty()) {
+            if (request.idAlmoxarifadoAtendimento() == null) {
+                throw new InvarianteVioladaException(
+                        "Informe o almoxarifado de atendimento: os materiais da programação serão solicitados a ele.");
+            }
+            eventos.publishEvent(new ProgramacaoObraEvent(ProgramacaoObraEvent.Tipo.CRIADA, salva.getId(), salva.getNumero(),
+                    idObra, salva.getIdEquipe(), salva.getDataInicio(), request.idAlmoxarifadoAtendimento(),
+                    request.ocorrencia(), "Gerada pela programação #" + salva.getNumero() + ": " + salva.getDescricao(), materiais));
+        }
         return new ProgramacaoResponses.Resultado(detalhar(salva, obra), selecao.ignoradosProgramados(),
-                selecao.ignoradosConcluidos(), selecao.materiaisIncluidos(), semValor);
+                selecao.ignoradosConcluidos(), selecao.materiaisIncluidos(), semValor, materiais.size());
     }
 
     @Transactional
@@ -147,7 +167,9 @@ public class ProgramacaoObraUseCases {
         Obra obra = buscarObra(programacao.getIdObra());
         registrar(programacao.reprogramar(request.idEquipe(), request.inicio(), request.fim(), request.observacao()), obra);
         obra.vincularEquipeSeAusente(request.idEquipe());
-        return detalhar(repository.saveAndFlush(programacao), obra);
+        Programacao salva = repository.saveAndFlush(programacao);
+        publicar(ProgramacaoObraEvent.Tipo.REPROGRAMADA, salva, request.observacao());
+        return detalhar(salva, obra);
     }
 
     @Transactional
@@ -156,7 +178,10 @@ public class ProgramacaoObraUseCases {
         conferirVersao(programacao, request.versao());
         Obra obra = buscarObra(programacao.getIdObra());
         registrar(programacao.cancelar(request.observacao()), obra);
-        return detalhar(repository.saveAndFlush(programacao), obra);
+        Programacao salva = repository.saveAndFlush(programacao);
+        publicar(ProgramacaoObraEvent.Tipo.CANCELADA, salva, "Programação #" + salva.getNumero() + " cancelada"
+                + (request.observacao() == null || request.observacao().isBlank() ? "." : ": " + request.observacao().trim()));
+        return detalhar(salva, obra);
     }
 
     @Transactional
@@ -164,6 +189,32 @@ public class ProgramacaoObraUseCases {
         Programacao programacao = buscar(id);
         conferirVersao(programacao, request != null ? request.versao() : null);
         registrar(programacao.excluir(request != null ? request.observacao() : null), buscarObra(programacao.getIdObra()));
+        publicar(ProgramacaoObraEvent.Tipo.CANCELADA, programacao, "Programação #" + programacao.getNumero() + " excluída.");
+    }
+
+    record ItemQuantidade(ItemPlanejado item, BigDecimal quantidade) {
+    }
+
+    /**
+     * O que vai para o almoxarifado: só material a instalar, com cadastro de material, somado por material. Material
+     * retirado da rede volta pela devolução, depois da execução.
+     */
+    static List<ProgramacaoObraEvent.Material> materiaisASolicitar(Collection<ItemQuantidade> itens) {
+        Map<UUID, BigDecimal> somados = new LinkedHashMap<>();
+        for (ItemQuantidade v : itens) {
+            ItemPlanejado item = v.item();
+            if (item.getTipo() != TipoItemKit.MATERIAL || item.getOperacao() != OperacaoItemKit.INSTALAR
+                    || item.getIdMaterial() == null || v.quantidade() == null || v.quantidade().signum() <= 0) {
+                continue;
+            }
+            somados.merge(item.getIdMaterial(), v.quantidade(), BigDecimal::add);
+        }
+        return somados.entrySet().stream().map(e -> new ProgramacaoObraEvent.Material(e.getKey(), e.getValue())).toList();
+    }
+
+    private void publicar(ProgramacaoObraEvent.Tipo tipo, Programacao programacao, String observacao) {
+        eventos.publishEvent(new ProgramacaoObraEvent(tipo, programacao.getId(), programacao.getNumero(), programacao.getIdObra(),
+                programacao.getIdEquipe(), programacao.getDataInicio(), null, null, observacao, List.of()));
     }
 
     /** @return a programação atualizada, ou vazio quando o último item saiu e ela foi excluída */

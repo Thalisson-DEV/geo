@@ -368,6 +368,8 @@ export class SolicitacaoMaterialTecnicaService {
       atrasada: tecnico?.atrasada ?? false,
       encerradaEm: tecnico?.encerradaEm ?? null,
       motivoEncerramento: tecnico?.motivoEncerramento ?? null,
+      idProgramacao: tecnico?.idProgramacao ?? null,
+      numeroProgramacao: tecnico?.numeroProgramacao ?? null,
       versao: item.versao,
       acoesPermitidas: item.acoesPermitidas ?? tecnico?.acoesPermitidas ?? [],
     };

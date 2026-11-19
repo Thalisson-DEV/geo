@@ -35,6 +35,10 @@ public final class ProgramacaoRequests {
             UUID idProgramacao) {
     }
 
+    /**
+     * Programa os itens. Os materiais a instalar da seleção são solicitados ao almoxarifado informado, com o
+     * início como saque previsto; {@code ocorrencia} é a OS/OC exigida em obra corretiva ou preventiva.
+     */
     public record Programar(
             @NotEmpty(message = "Selecione ao menos um item") List<UUID> idsItens,
             @NotNull(message = "Informe a equipe") UUID idEquipe,
@@ -46,7 +50,16 @@ public final class ProgramacaoRequests {
             @NotNull(message = "Informe se finaliza a obra") Boolean finalizaObra,
             @NotNull(message = "Informe o turno") TurnoProgramacao turno,
             @NotNull(message = "Informe a situação da intervenção") SituacaoIntervencao situacaoIntervencao,
-            @Size(max = 1000) String observacao) {
+            @Size(max = 1000) String observacao,
+            UUID idAlmoxarifadoAtendimento,
+            @Size(max = 100) String ocorrencia) {
+
+        public Programar(List<UUID> idsItens, UUID idEquipe, LocalDate inicio, LocalDate fim, String descricao,
+                         Boolean linhaViva, Boolean desligamento, Boolean finalizaObra, TurnoProgramacao turno,
+                         SituacaoIntervencao situacaoIntervencao, String observacao) {
+            this(idsItens, idEquipe, inicio, fim, descricao, linhaViva, desligamento, finalizaObra, turno,
+                    situacaoIntervencao, observacao, null, null);
+        }
 
         public Programacao.Condicoes condicoes() {
             return new Programacao.Condicoes(descricao, linhaViva, desligamento, finalizaObra, turno, situacaoIntervencao, observacao);

@@ -61,6 +61,13 @@ public class SolicitacaoMaterial extends BaseEntity {
     @Column(name = "codigo_ocorrencia_snapshot", length = 100)
     private String ocorrencia;
 
+    /** Programação de obra que gerou a solicitação; nula na solicitação manual. */
+    @Column(name = "id_programacao")
+    private UUID idProgramacao;
+
+    @Column(name = "numero_programacao")
+    private Long numeroProgramacao;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_almoxarifado_atendimento")
     private Estoque almoxarifadoAtendimento;
@@ -855,6 +862,61 @@ public class SolicitacaoMaterial extends BaseEntity {
         }
         this.idOcorrencia = nova.id();
         this.ocorrencia = nova.codigo();
+    }
+
+    /** Marca a solicitação técnica como gerada pela programação da obra. */
+    public void vincularProgramacao(UUID idProgramacao, Long numeroProgramacao) {
+        if (contexto != ContextoSolicitacaoMaterial.TECNICO) {
+            throw new InvarianteVioladaException("Somente a solicitacao tecnica pode vir de uma programacao.");
+        }
+        this.idProgramacao = Objects.requireNonNull(idProgramacao, "A programacao e obrigatoria");
+        this.numeroProgramacao = numeroProgramacao;
+    }
+
+    public boolean geradaPorProgramacao() {
+        return idProgramacao != null;
+    }
+
+    /**
+     * A programação ainda manda na solicitação enquanto nada aconteceu com o material: aprovada, sem
+     * operação, sem reserva e sem separação iniciada. Depois disso, mudanças passam pelo almoxarifado.
+     */
+    public boolean acompanhaProgramacao() {
+        return geradaPorProgramacao()
+                && isAtivo()
+                && status == StatusSolicitacao.APROVADO
+                && !estaEncerrada()
+                && !possuiFatoOperacional()
+                && reserva == null
+                && statusSeparacao != StatusSeparacao.EM_SEPARACAO
+                && statusSeparacao != StatusSeparacao.SEPARADO;
+    }
+
+    /** Reprogramação: a data prevista de saque e a equipe seguem a programação. */
+    public void acompanharReprogramacao(LocalDate novaData, UUID novaEquipe) {
+        if (!acompanhaProgramacao()) {
+            throw new InvarianteVioladaException("A solicitacao ja esta em atendimento e nao segue mais a programacao.");
+        }
+        this.dataPrevistaRetirada = Objects.requireNonNull(novaData, "A data prevista de saque e obrigatoria");
+        if (novaEquipe != null && !novaEquipe.equals(idEquipeSaque)) {
+            this.idEquipeSaque = novaEquipe;
+            this.idColaboradorSaque = null;
+            this.saqueForaEquipe = false;
+        }
+        atualizarProntidaoPorData();
+    }
+
+    /** Programação cancelada ou excluída antes de o material andar: a solicitação deixa de valer. */
+    public void cancelarPorProgramacao(UUID idUsuario, String motivo) {
+        if (!acompanhaProgramacao()) {
+            throw new InvarianteVioladaException("A solicitacao ja esta em atendimento e nao pode ser cancelada pela programacao.");
+        }
+        this.status = StatusSolicitacao.CANCELADO;
+        this.statusSeparacao = null;
+        this.canceladaEm = OffsetDateTime.now();
+        this.idUsuarioCancelamento = Objects.requireNonNull(idUsuario, "O usuario e obrigatorio");
+        String texto = motivo == null || motivo.isBlank() ? "Programacao cancelada." : motivo.trim();
+        this.motivoCancelamento = texto.length() > 500 ? texto.substring(0, 500) : texto;
     }
 
     public void invalidarSeparacao() {

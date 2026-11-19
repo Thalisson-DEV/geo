@@ -16,6 +16,9 @@ import java.util.UUID;
 @Repository
 public interface SolicitacaoMaterialRepository extends JpaRepository<SolicitacaoMaterial, UUID>, JpaSpecificationExecutor<SolicitacaoMaterial> {
 
+    /** Solicitações geradas por uma programação de obra. */
+    List<SolicitacaoMaterial> findAllByIdProgramacaoAndAtivoTrue(UUID idProgramacao);
+
     List<SolicitacaoMaterial> findAllByStatusAndEncerradaEmIsNullAndDataEntregaBefore(
         SolicitacaoMaterial.StatusSolicitacao status, 
         OffsetDateTime dataEntrega

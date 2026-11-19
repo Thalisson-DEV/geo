@@ -30,7 +30,7 @@ public final class ProgramacaoResponses {
                          List<String> nomesServicosSemValor, BigDecimal valor,
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate prazoPrevisto,
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate prazoRegulado,
-                         List<EquipeProjetada> equipes) {
+                         List<EquipeProjetada> equipes, int materiaisASolicitar, String tipoObra) {
     }
 
     /**
@@ -68,7 +68,7 @@ public final class ProgramacaoResponses {
     }
 
     public record Resultado(ProgramacaoDetalhe programacao, int ignoradosProgramados, int ignoradosConcluidos,
-                            int materiaisIncluidos, int servicosSemValor) {
+                            int materiaisIncluidos, int servicosSemValor, int materiaisSolicitados) {
     }
 
     public record ProgramacaoDetalhe(UUID id, long numero, UUID idObra, String numeroObra, String tituloObra,

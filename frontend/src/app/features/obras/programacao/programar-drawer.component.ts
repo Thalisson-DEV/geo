@@ -20,6 +20,8 @@ import { PlanejamentoObra } from '../../../core/models/obras-planejamento.models
 import { ObrasPlanejamentoService } from '../../../core/services/obras-planejamento.service';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { ObrasService } from '../../../core/services/obras.service';
+import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
+import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solicitacao-material-tecnica.service';
 import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate } from '../obras-ui';
 import { CondicoesProgramacaoComponent } from './condicoes-programacao.component';
 import { EquipesProjecaoComponent } from './equipes-projecao.component';
@@ -140,6 +142,29 @@ import { locaisProgramaveis } from './programar.logic';
           [(finalizaObra)]="finalizaObra" [(turno)]="turno" [(situacaoIntervencao)]="situacaoIntervencao" [(observacao)]="observacao"></app-condicoes-programacao>
       </geo-form-section>
 
+      @if (materiaisASolicitar(); as qtd) {
+        <geo-form-section title="Solicitação de material" icon="pi pi-box"
+          description="Ao programar, os materiais a instalar viram uma solicitação técnica ao almoxarifado, com o início como saque previsto.">
+          <p class="programar__resumo">
+            <strong>{{ qtd }} {{ qtd === 1 ? 'material' : 'materiais' }}</strong> {{ qtd === 1 ? 'será solicitado' : 'serão solicitados' }}
+            com saque previsto para <strong>{{ inicioTexto() }}</strong>. Material a retirar da rede volta pela devolução, depois da execução.
+          </p>
+          <div class="geo-form-grid">
+            <geo-select label="Almoxarifado de atendimento" [required]="true" [options]="opcoesAlmoxarifado()" [value]="idAlmoxarifado()"
+              (valueChange)="idAlmoxarifado.set($any($event))" [filter]="true" [loading]="carregandoAlmoxarifados()" placeholder="Selecione"
+              [error]="tentou() && !idAlmoxarifado() ? 'Escolha o almoxarifado que vai atender.' : undefined"></geo-select>
+            @if (exigeOcorrencia()) {
+              <geo-text-input label="Ocorrência (OC/OS)" [required]="true" [maxlength]="100" [value]="ocorrencia()" (valueChange)="ocorrencia.set($event)"
+                hint="Obra corretiva ou preventiva: a solicitação precisa da OS/OC."
+                [error]="tentou() && !ocorrencia().trim() ? 'Informe a OC/OS.' : undefined"></geo-text-input>
+            }
+          </div>
+          @if (saqueEmCimaDaHora()) {
+            <geo-callout tone="warning" [dense]="true">Saque com menos de 48 horas: o almoxarifado vê a solicitação como fora do prazo.</geo-callout>
+          }
+        </geo-form-section>
+      }
+
       <geo-form-section title="Equipe" icon="pi pi-users">
         <app-equipes-projecao [equipes]="previa()?.equipes ?? []" [carregando]="carregando()" [turno]="turno()" [(selecionada)]="idEquipe"></app-equipes-projecao>
         @if (tentou() && !idEquipe()) {
@@ -168,6 +193,8 @@ export class ProgramarDrawerComponent {
   private readonly api = inject(ObrasProgramacaoService);
   private readonly obrasApi = inject(ObrasService);
   private readonly planejamentoApi = inject(ObrasPlanejamentoService);
+  private readonly almoxarifadoApi = inject(AlmoxarifadoService);
+  private readonly solicitacoesApi = inject(SolicitacaoMaterialTecnicaService);
   private readonly notificacoes = inject(NotificationService);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -193,6 +220,25 @@ export class ProgramarDrawerComponent {
   protected readonly turno = signal<TurnoProgramacao | null>(null);
   protected readonly situacaoIntervencao = signal<SituacaoIntervencao | null>(null);
   protected readonly observacao = signal('');
+  protected readonly idAlmoxarifado = signal<string | null>(null);
+  protected readonly ocorrencia = signal('');
+  protected readonly opcoesAlmoxarifado = signal<GeoSelectOption<string>[]>([]);
+  protected readonly carregandoAlmoxarifados = signal(false);
+  protected readonly materiaisASolicitar = computed(() => this.previa()?.materiaisASolicitar ?? 0);
+  protected readonly exigeOcorrencia = computed(() => {
+    const tipo = this.previa()?.tipoObra;
+    return tipo === 'CORRETIVA' || tipo === 'PREVENTIVA';
+  });
+  protected readonly inicioTexto = computed(() => this.inicio()?.toLocaleDateString('pt-BR') ?? '—');
+  /** Mesma regra do almoxarifado: saque com menos de dois dias de antecedência é fora do prazo. */
+  protected readonly saqueEmCimaDaHora = computed(() => {
+    const inicio = this.inicio();
+    if (!inicio) return false;
+    const hoje = new Date();
+    return inicio < new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 2);
+  });
+  /** Obra para a qual o almoxarifado já foi sugerido, para não sobrescrever a escolha do usuário. */
+  private almoxarifadoSugeridoPara: string | null = null;
 
   protected readonly previa = signal<PreviaProgramacao | null>(null);
   protected readonly erroPrevia = signal<string | null>(null);
@@ -290,6 +336,12 @@ export class ProgramarDrawerComponent {
       this.pedidos.next({ idObra, idsItens: ids, inicio: formatarDataParaApi(this.inicio())!, fim: formatarDataParaApi(this.fim())! });
     });
     effect(() => {
+      const idObra = this.obraEfetiva();
+      if (this.aberto() && idObra && this.materiaisASolicitar() > 0 && this.almoxarifadoSugeridoPara !== idObra) {
+        untracked(() => this.sugerirAlmoxarifado(idObra));
+      }
+    });
+    effect(() => {
       const sugestao = this.descricaoSugerida();
       if (this.livre() && !this.descricaoEditada) untracked(() => this.descricao.set(sugestao));
     });
@@ -310,6 +362,9 @@ export class ProgramarDrawerComponent {
     this.turno.set('DIA_TODO');
     this.situacaoIntervencao.set(null);
     this.observacao.set('');
+    this.idAlmoxarifado.set(null);
+    this.ocorrencia.set('');
+    this.almoxarifadoSugeridoPara = null;
     this.tentou.set(false);
     this.previa.set(null);
     if (this.livre()) {
@@ -361,6 +416,31 @@ export class ProgramarDrawerComponent {
           ? 'Esta obra ainda não tem planejamento. Abra o planejamento para lançar os pontos e os kits.'
           : getErrorMessage(e));
       }
+    });
+  }
+
+  /**
+   * Almoxarifados físicos para atender. Sugere o da última solicitação técnica da obra; sem histórico e com um só
+   * almoxarifado, ele já vem escolhido.
+   */
+  private sugerirAlmoxarifado(idObra: string): void {
+    this.almoxarifadoSugeridoPara = idObra;
+    this.carregandoAlmoxarifados.set(true);
+    forkJoin({
+      estoques: this.opcoesAlmoxarifado().length ? of(null) : this.almoxarifadoApi.listarEstoquesAtivos().pipe(catchError(() => of(null))),
+      ultima: this.solicitacoesApi.listar({ idObra, contexto: 'TECNICO', page: 0, size: 1, sort: 'dataSolicitacao,desc' }).pipe(catchError(() => of(null)))
+    }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ estoques, ultima }) => {
+      this.carregandoAlmoxarifados.set(false);
+      if (estoques) {
+        this.opcoesAlmoxarifado.set(estoques.content
+          .filter((e) => e.tipoEstoque?.nome === 'FISICO')
+          .map((e) => ({ value: e.id, label: e.nomeIdentificador })));
+      }
+      if (this.idAlmoxarifado() || this.obraEfetiva() !== idObra) return;
+      const opcoes = this.opcoesAlmoxarifado();
+      const anterior = ultima?.content[0]?.idAlmoxarifadoAtendimento;
+      if (anterior && opcoes.some((o) => o.value === anterior)) this.idAlmoxarifado.set(anterior);
+      else if (opcoes.length === 1) this.idAlmoxarifado.set(opcoes[0].value);
     });
   }
 
@@ -429,6 +509,10 @@ export class ProgramarDrawerComponent {
       || desligamento === null || finalizaObra === null || !turno || !situacao) {
       return;
     }
+    const comMaterial = this.materiaisASolicitar() > 0;
+    if (comMaterial && (!this.idAlmoxarifado() || (this.exigeOcorrencia() && !this.ocorrencia().trim()))) {
+      return;
+    }
     this.salvando.set(true);
     this.api.programar(idObra, {
       idsItens,
@@ -441,14 +525,19 @@ export class ProgramarDrawerComponent {
       finalizaObra,
       turno,
       situacaoIntervencao: situacao,
-      observacao: this.observacao().trim() || null
+      observacao: this.observacao().trim() || null,
+      idAlmoxarifadoAtendimento: comMaterial ? this.idAlmoxarifado() : null,
+      ocorrencia: comMaterial && this.exigeOcorrencia() ? this.ocorrencia().trim() : null
     }).subscribe({
       next: (resultado) => {
         this.salvando.set(false);
         this.aberto.set(false);
         const ignorados = resultado.ignoradosProgramados + resultado.ignoradosConcluidos;
         this.notificacoes.success(`Programação #${resultado.programacao.numero} criada para ${resultado.programacao.codigoEquipe}.`
-          + (ignorados ? ` ${ignorados} ${ignorados === 1 ? 'item ficou' : 'itens ficaram'} de fora.` : ''));
+          + (ignorados ? ` ${ignorados} ${ignorados === 1 ? 'item ficou' : 'itens ficaram'} de fora.` : '')
+          + (resultado.materiaisSolicitados
+            ? ` ${resultado.materiaisSolicitados} ${resultado.materiaisSolicitados === 1 ? 'material solicitado' : 'materiais solicitados'} ao almoxarifado.`
+            : ''));
         this.programado.emit(resultado);
       },
       error: (e) => {

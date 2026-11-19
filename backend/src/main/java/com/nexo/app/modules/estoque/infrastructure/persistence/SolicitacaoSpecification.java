@@ -78,6 +78,14 @@ public class SolicitacaoSpecification {
             if (filter.idObra() != null) {
                 predicates.add(cb.equal(root.get("idObra"), filter.idObra()));
             }
+            if (filter.origem() == com.nexo.app.modules.estoque.domain.OrigemSolicitacaoTecnica.PROGRAMACAO) {
+                predicates.add(cb.isNotNull(root.get("idProgramacao")));
+            } else if (filter.origem() == com.nexo.app.modules.estoque.domain.OrigemSolicitacaoTecnica.MANUAL) {
+                predicates.add(cb.isNull(root.get("idProgramacao")));
+            }
+            if (filter.idProgramacao() != null) {
+                predicates.add(cb.equal(root.get("idProgramacao"), filter.idProgramacao()));
+            }
             if (filter.ocorrencia() != null && !filter.ocorrencia().isBlank()) {
                 predicates.add(cb.equal(root.get("ocorrencia"), NormalizadorOcorrenciaTecnica.normalizar(filter.ocorrencia())));
             }
