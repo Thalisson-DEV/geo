@@ -66,7 +66,7 @@ import { ObraDocumentacaoComponent } from '../documentacao/obra-documentacao.com
 import { RhService } from '../../../core/services/rh.service';
 import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solicitacao-material-tecnica.service';
 import { DevolucaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes-material/devolucao-tecnica-form/devolucao-tecnica-form.component';
-import { SolicitacaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes-material/solicitacao-tecnica-form/solicitacao-tecnica-form.component';
+import { NovaSolicitacaoTecnicaDrawerComponent } from '../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-tecnica-drawer.component';
 import { ObraFormComponent } from '../form/obra-form.component';
 import { ButtonModule } from 'primeng/button';
 import { CargaSaldoObra, ObraMateriaisComponent } from './obra-materiais.component';
@@ -133,7 +133,7 @@ interface MarcoPrazo {
     ObraFechamentosComponent,
     DevolucaoTecnicaFormComponent,
     ObraFormComponent,
-    SolicitacaoTecnicaFormComponent,
+    NovaSolicitacaoTecnicaDrawerComponent,
     DatePipe,
     ButtonModule,
     ObraMateriaisComponent,

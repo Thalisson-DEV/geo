@@ -131,8 +131,11 @@
 /* Quadro */
 .kb-board {
   display: grid;
-  grid-template-columns: repeat(3, minmax(18rem, 1fr));
+  /* Todas as colunas numa linha só, qualquer que seja o número de colunas do quadro. */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(16rem, 1fr);
   gap: 1rem;
+  overflow-x: auto;
   align-items: start;
   transition: opacity var(--geo-duration-normal) var(--kb-ease);
 }
@@ -548,8 +551,7 @@
 /* Telas médias: colunas mais estreitas, ainda lado a lado. */
 @media (max-width: 75rem) {
   .kb-board {
-    grid-template-columns: repeat(3, minmax(16rem, 1fr));
-    overflow-x: auto;
+    grid-auto-columns: minmax(15rem, 1fr);
     padding-bottom: 0.5rem;
   }
 }

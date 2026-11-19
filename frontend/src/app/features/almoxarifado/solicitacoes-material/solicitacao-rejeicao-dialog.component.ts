@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
-import { GeoButtonComponent, GeoCalloutComponent, GeoDialogShellComponent, GeoSelectComponent, GeoSelectOption, GeoTextareaComponent, NotificationService } from '@geo/ui';
+import { GeoButtonComponent, GeoCalloutComponent, GeoFormDrawerComponent, GeoSelectComponent, GeoSelectOption, GeoTextareaComponent, NotificationService } from '@geo/ui';
 
 import { MotivoRejeicaoResponse } from '../../../core/models/almoxarifado.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
@@ -12,9 +12,9 @@ const MINIMO_JUSTIFICATIVA = 5;
   selector: 'app-solicitacao-rejeicao-dialog',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [GeoButtonComponent, GeoCalloutComponent, GeoDialogShellComponent, GeoSelectComponent, GeoTextareaComponent],
+  imports: [GeoButtonComponent, GeoCalloutComponent, GeoFormDrawerComponent, GeoSelectComponent, GeoTextareaComponent],
   template: `
-    <geo-dialog-shell
+    <geo-form-drawer
       [visible]="visible()"
       (visibleChange)="visible.set($event)"
       [title]="(reprovar() ? 'Reprovar' : 'Rejeitar') + ' solicitação #' + idCurto()"
@@ -22,7 +22,7 @@ const MINIMO_JUSTIFICATIVA = 5;
       size="sm"
     >
       <div class="rej-form">
-        <geo-callout tone="danger" title="Encerra o atendimento">Depois de {{ reprovar() ? 'reprovada' : 'rejeitada' }}, a solicitação não pode ser aprovada nem entregue.</geo-callout>
+        <geo-callout tone="danger" title="Encerra o atendimento">{{ reprovar() ? 'Depois de reprovada, a solicitação não pode ser aprovada nem entregue.' : 'Depois de rejeitada, a solicitação não pode mais ser entregue.' }}</geo-callout>
         <geo-select
           label="Motivo"
           placeholder="Selecione o motivo"
@@ -43,11 +43,11 @@ const MINIMO_JUSTIFICATIVA = 5;
           [error]="tentou() && !justificativaValida() ? 'Escreva ao menos ' + minimo + ' caracteres.' : undefined"
         />
       </div>
-      <div dialog-footer class="geo-actions-row">
+      <div drawer-footer class="geo-actions-row">
         <geo-button label="Cancelar" variant="ghost" (pressed)="visible.set(false)" />
         <geo-button [label]="(reprovar() ? 'Reprovar' : 'Rejeitar') + ' solicitação'" icon="pi pi-times" variant="destructive" [loading]="salvando()" (pressed)="confirmar()" />
       </div>
-    </geo-dialog-shell>
+    </geo-form-drawer>
   `,
   styles: `
     .rej-form { display: grid; gap: 1rem; }

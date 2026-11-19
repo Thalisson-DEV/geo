@@ -1,3 +1,4 @@
+import { ConfirmationService } from 'primeng/api';
 import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { NotificationService } from '@geo/ui';
@@ -22,6 +23,7 @@ describe('SolicitacaoRejeicaoDialogComponent', () => {
   async function abrir() {
     TestBed.configureTestingModule({
       providers: [
+        ConfirmationService,
         provideNoopAnimations(),
         { provide: AlmoxarifadoService, useValue: almox },
         { provide: NotificationService, useValue: { success: vi.fn(), error: vi.fn() } }

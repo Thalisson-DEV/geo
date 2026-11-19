@@ -14,8 +14,6 @@ describe('rotas de solicitações de material', () => {
     expect(paths).toContain('solicitacoes-tecnicas');
     expect(paths).toContain('solicitacoes-tecnicas/nova');
     expect(paths).toContain('solicitacoes-tecnicas/devolucao');
-    expect(paths).toContain('solicitacoes-tecnicas/kanban');
-    expect(paths).toContain('solicitacoes-tecnicas/calendario');
     expect(paths).toContain('solicitacoes-tecnicas/:id');
   });
 
@@ -24,9 +22,6 @@ describe('rotas de solicitações de material', () => {
     const paths = almoxarifado?.children?.map((route) => route.path) ?? [];
 
     expect(paths.indexOf('solicitacoes-tecnicas/nova')).toBeLessThan(
-      paths.indexOf('solicitacoes-tecnicas/:id'),
-    );
-    expect(paths.indexOf('solicitacoes-tecnicas/calendario')).toBeLessThan(
       paths.indexOf('solicitacoes-tecnicas/:id'),
     );
     expect(paths.indexOf('solicitacoes-tecnicas/devolucao')).toBeLessThan(

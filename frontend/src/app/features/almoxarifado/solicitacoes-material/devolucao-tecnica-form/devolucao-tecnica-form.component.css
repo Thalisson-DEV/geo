@@ -1,0 +1,22 @@
+/* Mesmo desenho da devolução do CES: linhas em cartão, escolhas em pílula. */
+.dv { display: grid; gap: 0.75rem; }
+.dv-linha-topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
+.dv-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.dv-escolha { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.dv-chip {
+  display: inline-flex; align-items: center; gap: 0.375rem; min-height: 2rem; padding: 0 0.75rem;
+  border: 1px solid var(--geo-border); border-radius: 999px; background: var(--geo-surface);
+  color: var(--geo-foreground); font: inherit; font-size: 0.8125rem; cursor: pointer;
+}
+.dv-chip:hover { border-color: var(--geo-border-strong, var(--geo-border)); }
+.dv-chip:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+.dv-chip[aria-pressed='true'] { border-color: var(--geo-brand); background: var(--geo-brand-soft); color: var(--geo-brand); font-weight: 600; }
+span.dv-chip { cursor: default; }
+.dv-destino { display: grid; gap: 0.375rem; }
+.dv-qtd { display: grid; gap: 0.375rem; align-content: start; font-size: 0.8125rem; }
+.dv-qtd span { font-weight: 600; color: var(--geo-foreground); }
+.dv-incluir-acao { display: flex; justify-content: flex-end; }
+.dv-resumo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+@media (max-width: 40rem) {
+  .dv-grid-3 { grid-template-columns: minmax(0, 1fr); }
+}

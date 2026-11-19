@@ -477,7 +477,7 @@ const CAMPO_LABELS: Record<string, string> = {
   idUsuario: 'Usuário',
   dataPrevista: 'Data prevista',
   dataPrevistaRetirada: 'Data prevista',
-  ocorrencia: 'Ocorrência / OS',
+  ocorrencia: 'OS / OC',
   observacao: 'Observação',
   quantidade: 'Quantidade',
   quantidadeEntregaLiquida: 'Quantidade entregue',

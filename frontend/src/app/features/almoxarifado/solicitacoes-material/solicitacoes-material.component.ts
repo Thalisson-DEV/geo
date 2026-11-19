@@ -2,9 +2,6 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { bindDrawerToUrl } from '../../../core/navigation';
-import { AuthService } from '../../../core/services/auth.service';
-import { SolicitacaoMaterialFormComponent } from './solicitacao-material-form/solicitacao-material-form.component';
 import {
   GeoButtonComponent,
   GeoCalloutComponent,
@@ -43,6 +40,7 @@ import { UsuarioResponse } from '../../../core/models/iam.models';
 import { BaseOperacionalResponse } from '../../../core/models/rh.models';
 import { generateReferenceOptions, getErrorMessage } from '../../../core/models/shared.models';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { RhService } from '../../../core/services/rh.service';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
@@ -66,6 +64,7 @@ import { SolicitacaoRejeicaoDialogComponent } from './solicitacao-rejeicao-dialo
 import { SolicitacoesComerciaisCalendarioComponent } from './solicitacoes-comerciais-calendario/solicitacoes-comerciais-calendario.component';
 import { SolicitacoesComerciaisImportacaoComponent } from './solicitacoes-comerciais-importacao/solicitacoes-comerciais-importacao.component';
 import { SolicitacoesComerciaisKanbanComponent } from './solicitacoes-comerciais-kanban';
+import { NovaSolicitacaoComercialDrawerComponent } from './nova-solicitacao/nova-solicitacao-comercial-drawer.component';
 
 type ItemEstorno = ItemSolicitacaoResponse & { quantidadeEstorno: number | null };
 export type VisaoSolicitacoes = 'tabela' | 'kanban' | 'calendario';
@@ -86,7 +85,6 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    SolicitacaoMaterialFormComponent,
     NgTemplateOutlet,
     GeoButtonComponent,
     GeoCalloutComponent,
@@ -112,6 +110,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
     SolicitacoesComerciaisCalendarioComponent,
     SolicitacoesComerciaisImportacaoComponent,
     SolicitacoesComerciaisKanbanComponent,
+    NovaSolicitacaoComercialDrawerComponent,
     CopilotoAreaComponent,
     CopilotoGatilhoComponent
   ],
@@ -321,6 +320,8 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
       </div>
     </geo-form-drawer>
 
+    <app-nova-solicitacao-comercial-drawer [(visible)]="formularioAberto" (criada)="aoCriar()" />
+
     <app-solicitacoes-comerciais-importacao [(visible)]="importacaoAberta" [estoques]="estoques()" [materiais]="materiais()" (processado)="aoAlterar()"></app-solicitacoes-comerciais-importacao>
 
     <app-exportar-solicitacoes-dialog [visible]="exportacaoAberta()" (visibleChange)="exportacaoAberta.set($event)" contextoInicial="COMERCIAL"
@@ -346,10 +347,6 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
         <p class="help-text-desc">Solicitações entregues (total ou parcialmente) podem ter itens estornados: os saldos voltam ao estoque de origem.</p>
       </div>
     </app-ajuda-listagem>
-
-    @if (drawer.mode() === 'novo' && podeCriar) {
-      <app-solicitacao-material-form (criada)="aoAlterar()" (fechado)="drawer.close()"></app-solicitacao-material-form>
-    }
   `
 })
 export class SolicitacoesMaterialComponent {
@@ -527,17 +524,9 @@ export class SolicitacoesMaterialComponent {
     { key: 'estorno', header: 'Estornar', type: 'custom', priority: 1, value: (i) => i.quantidadeEstorno }
   ];
 
-  protected readonly drawer = bindDrawerToUrl();
-  protected readonly podeCriar = inject(AuthService).currentUser()?.permissoes?.includes('estoque:solicitacao:create') ?? false;
-
   constructor() {
-    this.drawer.connect((modo) => {
-      // A URL antiga do cadastro redireciona para cá sem guard: sem permissão, o drawer não abre.
-      if (modo === 'novo' && !this.podeCriar) {
-        this.notificacoes.warning('Você não tem permissão para criar solicitações.');
-        this.drawer.close();
-      }
-    });
+    // Link antigo /almoxarifado/solicitacoes/nova abre o painel de nova solicitação.
+    if (inject(ActivatedRoute).snapshot.queryParamMap.get('nova') === '1') this.formularioAberto.set(true);
     this.almoxarifado.listarEstoquesAtivos().subscribe({ next: (r) => this.estoques.set(r.content), error: () => this.estoques.set([]) });
     this.almoxarifado.listarMateriais({ page: 0, size: 1000, ativo: true }).subscribe({ next: (r) => this.materiais.set(r?.content || []), error: () => this.materiais.set([]) });
 
@@ -677,8 +666,16 @@ export class SolicitacoesMaterialComponent {
     return ehDevolucao(tipo) ? 'pi-trash' : 'pi-shopping-cart';
   }
 
+  /** Nova solicitação em painel lateral, sem sair da lista. */
+  protected readonly formularioAberto = signal(false);
+
   protected novo(): void {
-    if (this.podeCriar) this.drawer.openNew();
+    this.formularioAberto.set(true);
+  }
+
+  protected aoCriar(): void {
+    this.formularioAberto.set(false);
+    this.aoAlterar();
   }
 
   protected irParaDevolucaoComercial(): void {

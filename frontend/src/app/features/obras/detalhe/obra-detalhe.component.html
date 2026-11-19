@@ -651,7 +651,7 @@
   <app-devolucao-tecnica-form [idObra]="obra()!.id" (registrada)="carregarSolicitacoes()" (fechado)="devolvendo.set(false)"></app-devolucao-tecnica-form>
 }
 @if (solicitando()) {
-  <app-solicitacao-tecnica-form [idObra]="obra()!.id" (criadas)="carregarSolicitacoes()" (fechado)="solicitando.set(false)"></app-solicitacao-tecnica-form>
+  <app-nova-solicitacao-tecnica-drawer [visible]="true" (visibleChange)="!$event && solicitando.set(false)" [idObraInicial]="obra()!.id" (criada)="carregarSolicitacoes()" />
 }
 
 @if (idProgramacao()) {

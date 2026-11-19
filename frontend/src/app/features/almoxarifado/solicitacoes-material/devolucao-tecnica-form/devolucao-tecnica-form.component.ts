@@ -104,7 +104,7 @@ const CONDICOES: GeoSelectOption<CondicaoDevolucao>[] = [
     SaldoEstoqueDialogComponent,
   ],
   templateUrl: './devolucao-tecnica-form.component.html',
-  styleUrl: '../solicitacao-form-itens.css',
+  styleUrls: ['../solicitacao-comercial-detalhe.component.css', '../nova-solicitacao/nova-solicitacao.css', './devolucao-tecnica-form.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DevolucaoTecnicaFormComponent implements OnInit {
@@ -204,6 +204,8 @@ export class DevolucaoTecnicaFormComponent implements OnInit {
 
   protected readonly itensForaDoEstoque = computed(() => this.itens().filter((i) => i.quantidade > i.saldoNaObra));
   protected readonly itensBaixados = computed(() => this.itens().filter((i) => !i.guardarNoEstoque));
+  protected readonly resumoBaixa = computed(() => this.itensBaixados().length);
+  protected readonly resumoGuardar = computed(() => this.itens().length - this.itensBaixados().length);
 
   protected readonly alterado = computed(
     () => this.itens().length > 0 || !!(this.idEquipe() || this.idEstoqueDestino() || this.idMaterial() || this.ocorrencia().trim()) || (!this.obraFixa() && !!this.idObra()),

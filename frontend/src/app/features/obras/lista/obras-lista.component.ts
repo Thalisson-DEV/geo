@@ -3,7 +3,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { bindDrawerToUrl } from '../../../core/navigation';
 import { DevolucaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes-material/devolucao-tecnica-form/devolucao-tecnica-form.component';
-import { SolicitacaoTecnicaFormComponent } from '../../almoxarifado/solicitacoes-material/solicitacao-tecnica-form/solicitacao-tecnica-form.component';
+import { NovaSolicitacaoTecnicaDrawerComponent } from '../../almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-tecnica-drawer.component';
 import { ObraFormComponent } from '../form/obra-form.component';
 import { catchError, debounceTime, distinctUntilChanged, map, of, startWith, switchMap } from 'rxjs';
 import {
@@ -123,7 +123,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
     GeoFormDrawerComponent,
     ObraFormComponent,
     DevolucaoTecnicaFormComponent,
-    SolicitacaoTecnicaFormComponent,
+    NovaSolicitacaoTecnicaDrawerComponent,
     GeoIconButtonComponent,
     GeoImportDrawerComponent,
     GeoListShortcutsDirective,
@@ -414,7 +414,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
       <app-obra-form [idObra]="drawerObra.id()" (salva)="lista.reload()" (fechado)="drawerObra.close()"></app-obra-form>
     }
     @if (solicitandoObra(); as idObra) {
-      <app-solicitacao-tecnica-form [idObra]="idObra" (criadas)="lista.reload()" (fechado)="solicitandoObra.set(null)"></app-solicitacao-tecnica-form>
+      <app-nova-solicitacao-tecnica-drawer [visible]="true" (visibleChange)="!$event && solicitandoObra.set(null)" [idObraInicial]="idObra" (criada)="lista.reload()" />
     }
     @if (devolvendoObra(); as idObra) {
       <app-devolucao-tecnica-form [idObra]="idObra" (fechado)="devolvendoObra.set(null)"></app-devolucao-tecnica-form>

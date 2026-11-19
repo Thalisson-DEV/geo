@@ -405,6 +405,8 @@ export class SolicitacaoTecnicaHistoricoComponent implements OnInit {
     }
 
     const cleanField = caminho.split('.').at(-1) ?? caminho;
+    if (value === true || value === 'true') return 'Sim';
+    if (value === false || value === 'false') return 'Não';
 
     if (
       cleanField === 'tipoTecnico' ||
@@ -685,6 +687,17 @@ export class SolicitacaoTecnicaHistoricoComponent implements OnInit {
   }
 
   private loadLookups(): void {
+    if (typeof this.obrasService?.listarObras === 'function') {
+      this.obrasService.listarObras({ ativo: true, size: 1000 }).subscribe({
+        next: (res) => {
+          const map = new Map<string, string>();
+          (res.content ?? []).forEach((o) => map.set(o.id, `${o.numero} · ${o.titulo}`));
+          this.obrasMap.set(map);
+          this.cdr.markForCheck();
+        },
+        error: () => {},
+      });
+    }
     if (this.rhService) {
       this.rhService.listarEquipes({ ativo: true, size: 1000 }).subscribe({
         next: (res) => {

@@ -5,8 +5,18 @@ import { GeoButtonComponent } from '@geo/ui';
 import { SolicitacaoMaterialSummaryResponse } from '../../../../core/models/solicitacao-material-tecnica.models';
 import { UsuarioLookupService } from '../../../../core/services/usuario-lookup.service';
 import { dataCivil, isoCivil, saqueAtrasado, statusComercial } from '../solicitacao-comercial-status';
+import { tipoTecnicoEhAdicao, tipoTecnicoLabel } from '../solicitacao-tecnica-presentation';
+import { statusTecnicoDef } from '../solicitacao-tecnica-situacao';
 
-export type AcaoCardComercial = 'APROVAR' | 'ENTREGAR' | 'REJEITAR' | 'DETALHAR';
+export type AcaoCardComercial = 'APROVAR' | 'ENTREGAR' | 'REJEITAR' | 'DETALHAR' | 'PLANEJAR' | 'INICIAR_SEPARACAO' | 'CONCLUIR_SEPARACAO' | 'DEVOLVER';
+
+/** Próximo passo do cartão técnico (botão do rodapé). */
+const PASSO_TECNICO: { acao: string; acaoCard: AcaoCardComercial; rotulo: string; icone: string }[] = [
+  { acao: 'INICIAR_SEPARACAO', acaoCard: 'INICIAR_SEPARACAO', rotulo: 'Separar', icone: 'pi pi-play' },
+  { acao: 'CONCLUIR_SEPARACAO', acaoCard: 'CONCLUIR_SEPARACAO', rotulo: 'Concluir', icone: 'pi pi-box' },
+  { acao: 'ENTREGAR', acaoCard: 'ENTREGAR', rotulo: 'Entregar', icone: 'pi pi-truck' },
+  { acao: 'CONFIRMAR_DEVOLUCAO', acaoCard: 'DEVOLVER', rotulo: 'Receber', icone: 'pi pi-undo' }
+];
 
 /**
  * Cartão do quadro comercial. Arrastar é atalho: toda ação também existe por botão e teclado
@@ -33,12 +43,18 @@ export type AcaoCardComercial = 'APROVAR' | 'ENTREGAR' | 'REJEITAR' | 'DETALHAR'
       (keydown.space)="abrirPorTeclado($event)"
     >
       <div class="kc__head">
-        <span class="kc__titulo" [title]="item().estoqueDestinoNome || ''">{{ item().estoqueDestinoNome || 'Destino não informado' }}</span>
+        <span class="kc__titulo" [title]="titulo()">{{ titulo() }}</span>
         <span class="kc__id">#{{ idCurto() }}</span>
-        <span class="kc__origem" [title]="'Sai de ' + (item().estoqueOrigemNome || '')">de {{ item().estoqueOrigemNome || 'origem não informada' }}</span>
+        <span class="kc__origem" [title]="subtitulo()">{{ subtitulo() }}</span>
       </div>
 
       <div class="kc__tags">
+        @if (tecnico() && tipoTecnico()) {
+          <span class="kc__tag" [class.kc__tag--info]="ehAdicao()"><i [class]="ehAdicao() ? 'pi pi-shopping-cart' : 'pi pi-undo'" aria-hidden="true"></i>{{ tipoTecnicoLabel($any(tipoTecnico())) }}</span>
+        }
+        @if (tecnico() && ehAdicao() && !item().dataPrevista && item().status === 'APROVADO') {
+          <span class="kc__tag kc__tag--aviso"><i class="pi pi-calendar-plus" aria-hidden="true"></i>A planejar</span>
+        }
         @switch (prazo().tipo) {
           @case ('entregue') {
             <span class="kc__tag kc__tag--ok"><i class="pi pi-check" aria-hidden="true"></i>Entregue {{ item().dataEntrega | date: 'dd/MM' }}</span>
@@ -74,7 +90,11 @@ export type AcaoCardComercial = 'APROVAR' | 'ENTREGAR' | 'REJEITAR' | 'DETALHAR'
           <span class="kc__avatar" aria-hidden="true">{{ iniciais() }}</span>
           <span>{{ requisitante() }}</span>
         </span>
-        @if (podeAprovar()) {
+        @if (tecnico()) {
+          @if (passoTecnico(); as passo) {
+            <geo-button [label]="passo.rotulo" [icon]="passo.icone" size="sm" variant="outline" [ariaLabel]="passo.rotulo + ' a solicitação #' + idCurto()" (pressed)="disparar(passo.acaoCard)" (click)="$event.stopPropagation()" />
+          }
+        } @else if (podeAprovar()) {
           <geo-button label="Aprovar" icon="pi pi-check" size="sm" variant="outline" [ariaLabel]="'Aprovar solicitação #' + idCurto()" (pressed)="disparar('APROVAR')" (click)="$event.stopPropagation()" />
         } @else if (podeEntregar()) {
           <geo-button label="Entregar" icon="pi pi-truck" size="sm" variant="outline" [ariaLabel]="'Registrar entrega da solicitação #' + idCurto()" (pressed)="disparar('ENTREGAR')" (click)="$event.stopPropagation()" />
@@ -92,12 +112,40 @@ export class SolicitacaoComercialKanbanCardComponent {
   /** Em telas de toque o cartão não é arrastável (a rolagem do quadro tem prioridade). */
   readonly arrastavel = input(true);
 
+  /** Cartão do quadro técnico: título é a obra, mostra 221/922 e o próximo passo da fila. */
+  readonly tecnico = input(false);
+  /** Nome da obra (o quadro técnico resolve pelo cadastro). */
+  readonly nomeObra = input<string | null>(null);
+
   readonly cardClicked = output<SolicitacaoMaterialSummaryResponse>();
   readonly dragStarted = output<SolicitacaoMaterialSummaryResponse>();
   readonly dragEnded = output<void>();
   readonly actionTriggered = output<{ item: SolicitacaoMaterialSummaryResponse; action: AcaoCardComercial }>();
 
-  protected readonly status = computed(() => statusComercial(this.item().status));
+  protected readonly status = computed(() => (this.tecnico() ? statusTecnicoDef(this.item().status) : statusComercial(this.item().status)));
+  protected readonly tipoTecnicoLabel = tipoTecnicoLabel;
+  protected readonly tipoTecnico = computed(() => (this.item() as { tipoTecnico?: string | null; tipo?: string | null }).tipoTecnico ?? this.item().tipo ?? null);
+  protected readonly ehAdicao = computed(() => tipoTecnicoEhAdicao(this.tipoTecnico() as never));
+  protected readonly titulo = computed(() => {
+    const it = this.item();
+    if (!this.tecnico()) return it.estoqueDestinoNome || 'Destino não informado';
+    return this.nomeObra() || (this.ehAdicao() ? it.estoqueDestinoNome : it.estoqueOrigemNome) || 'Obra não informada';
+  });
+  protected readonly subtitulo = computed(() => {
+    const it = this.item();
+    if (!this.tecnico()) return `de ${it.estoqueOrigemNome || 'origem não informada'}`;
+    const codigo = it.ocorrencia?.codigo?.trim();
+    // O número pode ter sido digitado com o prefixo ("OC-88412"); não repete.
+    const oc = codigo ? (/^(OS|OC)\b/i.test(codigo) ? codigo : `OS/OC ${codigo}`) : null;
+    const almox = it.estoqueOrigemNome ? `de ${it.estoqueOrigemNome}` : null;
+    return [oc, almox].filter(Boolean).join(' · ') || 'Direto na obra';
+  });
+  protected readonly passoTecnico = computed(() => {
+    const it = this.item();
+    const acoes = (it.acoesPermitidas ?? []) as string[];
+    if (this.ehAdicao() && !it.dataPrevista && acoes.includes('EDITAR_PLANEJAMENTO')) return { acao: 'PLANEJAR', acaoCard: 'PLANEJAR' as AcaoCardComercial, rotulo: 'Planejar', icone: 'pi pi-calendar-plus' };
+    return PASSO_TECNICO.find((p) => acoes.includes(p.acao)) ?? null;
+  });
   protected readonly idCurto = computed(() => this.item().id.slice(0, 8));
   protected readonly quantidadeItens = computed(() => {
     const it = this.item() as SolicitacaoMaterialSummaryResponse & { totalItens?: number };
@@ -131,8 +179,8 @@ export class SolicitacaoComercialKanbanCardComponent {
   protected readonly ariaLabel = computed(() => {
     const it = this.item();
     const partes = [
-      `Solicitação ${this.idCurto()} para ${it.estoqueDestinoNome ?? 'destino não informado'}`,
-      `de ${it.estoqueOrigemNome ?? 'origem não informada'}`,
+      `Solicitação ${this.idCurto()}: ${this.titulo()}`,
+      this.subtitulo(),
       this.status().label,
       `${this.quantidadeItens()} ${this.quantidadeItens() === 1 ? 'item' : 'itens'}`
     ];

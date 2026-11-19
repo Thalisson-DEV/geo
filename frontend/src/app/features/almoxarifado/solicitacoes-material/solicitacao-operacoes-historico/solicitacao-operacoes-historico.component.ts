@@ -75,6 +75,8 @@ export class SolicitacaoOperacoesHistoricoComponent {
     const partes: string[] = [];
     if (entregas) partes.push(`${entregas} ${entregas > 1 ? 'entregas realizadas' : 'entrega realizada'}`);
     if (estornos) partes.push(`${estornos} ${estornos > 1 ? 'correções / estornos' : 'correção / estorno'}`);
+    const devolucoes = operacoes.filter((operacao) => (operacao.tipo as string) === 'DEVOLUCAO').length;
+    if (devolucoes) partes.push(`${devolucoes} ${devolucoes > 1 ? 'devoluções' : 'devolução'}`);
     return partes.join(' · ');
   });
 
@@ -118,12 +120,19 @@ export class SolicitacaoOperacoesHistoricoComponent {
     return this.seriesAbertas().has(`${idOperacao}|${chave}`);
   }
 
+  /** O relatório técnico usa o mesmo histórico: lá também há devolução e encerramento de saldo. */
   protected operationFriendlyTitle(tipo: string): string {
-    return tipo === 'ENTREGA' ? 'Entrega de Materiais' : 'Correção / Estorno de Movimentação';
+    if (tipo === 'ENTREGA') return 'Entrega de Materiais';
+    if (tipo === 'DEVOLUCAO') return 'Devolução ao Almoxarifado';
+    if (tipo?.startsWith('ENCERRAMENTO')) return 'Encerramento do Saldo';
+    return 'Correção / Estorno de Movimentação';
   }
 
   protected operationIcon(tipo: string): string {
-    return tipo === 'ENTREGA' ? 'pi pi-box' : 'pi pi-undo';
+    if (tipo === 'ENTREGA') return 'pi pi-box';
+    if (tipo === 'DEVOLUCAO') return 'pi pi-inbox';
+    if (tipo?.startsWith('ENCERRAMENTO')) return 'pi pi-lock';
+    return 'pi pi-undo';
   }
 
   protected formatUser(id?: string | null): string {

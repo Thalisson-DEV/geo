@@ -1,1387 +1,547 @@
-<div
-  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] p-4 md:p-8 print:p-0 print:min-h-0 print:bg-white print:dark:bg-white print:text-black"
->
-  <!-- LOADING -->
+<div class="relatorio min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] p-4 md:p-8 print:p-0 print:min-h-0">
   @if (state() === 'loading') {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <geo-async-state
-        [state]="'loading'"
-        title="Carregando relatório da solicitação técnica..."
-        description="Consultando informações da solicitação..."
-      ></geo-async-state>
+      <geo-async-state state="loading" title="Carregando solicitação técnica..." description="Consultando informações da solicitação..." />
     </div>
-  }
-
-  <!-- ERRO -->
-  @else if (state() === 'error') {
+  } @else if (state() === 'error') {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
-      <geo-async-state
-        [state]="'error'"
-        title="Solicitação indisponível"
-        description="Não foi possível carregar o detalhe técnico."
-        actionLabel="Tentar novamente"
-        (action)="reload()"
-      ></geo-async-state>
+      <geo-async-state state="error" title="Solicitação indisponível" [description]="erro() || 'Não foi possível carregar os dados.'"
+        actionLabel="Tentar novamente" (action)="reload()" />
     </div>
-  }
-
-  <!-- RELATÓRIO CONTÍNUO DE PÁGINA ÚNICA -->
-  @else if (detail(); as request) {
-    @if (request.tecnico; as tech) {
-      <div class="max-w-6xl mx-auto pb-32 print:max-w-full print:pb-0 rise print:animate-none">
-        <!-- CABEÇALHO CORPORATIVO OFICIAL -->
-        <div
-          class="grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:pb-2 print:mb-2"
-          aria-label="Cabeçalho institucional"
-        >
-          <div class="flex justify-start">
-            <img src="logo_vertical.svg" alt="Logo" class="h-16 print:h-14" onerror="this.style.display = 'none'" />
-          </div>
-          <div class="text-center flex flex-col gap-1">
-            <h1 class="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">NOME DA EMPRESA</h1>
-            <p class="text-[11px] text-slate-700 dark:text-slate-300 font-bold uppercase tracking-widest">
-              Almoxarifado Central & Gestão de Materiais
-            </p>
-            <p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Serviços prestados à Concessionária</p>
-          </div>
-          <div class="flex justify-end">
-            <img
-              src="logo_vertical.svg"
-              alt="Logo Cliente"
-              class="h-16 print:h-14 grayscale opacity-25"
-              onerror="this.style.display = 'none'"
-            />
-          </div>
+  } @else if (detail(); as sol) {
+    @let tech = sol.tecnico!;
+    @let sit = situacao();
+    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+      <!-- 1. CABEÇALHO INSTITUCIONAL -->
+      <div class="grid grid-cols-3 items-center border-b border-[var(--geo-border)] pb-6 mb-6 print:pb-2 print:mb-2" aria-label="Cabeçalho institucional">
+        <div class="flex justify-start">
+          <img src="logo_vertical.svg" alt="Logo" class="h-16 print:h-14" onerror="this.style.display = 'none'" />
         </div>
-
-        <!-- TÍTULO CENTRALIZADO DO RELATÓRIO -->
-        <div class="py-4 text-center border-y border-slate-200 dark:border-slate-800 my-4 print:py-2 print:my-2">
-          <h2 class="text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight uppercase">
-            Relatório Técnico de Solicitação de Material
-          </h2>
-          <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-xs text-slate-600 dark:text-slate-300 font-medium">
-            <span class="font-bold text-slate-900 dark:text-slate-100">ID {{ request.id.slice(0, 8) }}</span>
-            <span>·</span>
-            <span
-              >Emissão: <strong class="text-slate-900 dark:text-slate-100">{{ dataEmissao | date: 'dd/MM/yyyy HH:mm' }}</strong></span
-            >
-          </div>
+        <div class="text-center flex flex-col gap-1">
+          <h1 class="text-xs md:text-sm font-bold uppercase tracking-wider">NOME DA EMPRESA</h1>
+          <p class="text-[11px] text-[var(--geo-foreground-muted)] font-bold uppercase tracking-widest">Almoxarifado Central &amp; Gestão de Materiais</p>
+          <p class="text-[11px] text-[var(--geo-foreground-muted)] font-medium">Serviços prestados à Concessionária</p>
         </div>
+        <div class="flex justify-end">
+          <img src="logo_vertical.svg" alt="Logo Cliente" class="h-16 print:h-14 grayscale opacity-25" onerror="this.style.display = 'none'" />
+        </div>
+      </div>
 
-        <!-- ALERTAS DE CONEXÃO E RETENTATIVA IDEMPOTENTE -->
-        @if (!isOnline()) {
-          <div
-            class="flex items-center gap-3 p-3.5 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50/80 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 mb-4 print:hidden"
-          >
-            <i class="pi pi-wifi text-amber-600 text-lg shrink-0"></i>
-            <div class="flex flex-col gap-0.5 text-xs">
-              <span class="font-bold">Modo Offline (Sem Conexão)</span>
-              <span class="text-[11px] text-amber-700 dark:text-amber-300"
-                >O snapshot atual é somente leitura. Comandos operacionais serão reabilitados automaticamente ao reconectar.</span
-              >
-            </div>
-          </div>
-        }
+      <!-- 2. TÍTULO -->
+      <div class="py-4 text-center border-y border-[var(--geo-border)] my-4 print:py-2 print:my-2">
+        <h2 class="text-base md:text-lg font-bold tracking-tight uppercase">Solicitação Técnica #{{ sol.id.substring(0, 8) }}@if (ocorrencia(); as oc) { · {{ oc }}}</h2>
+        <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-xs text-[var(--geo-foreground-muted)] font-medium">
+          <span class="font-bold text-[var(--geo-foreground)]">ID {{ sol.id.substring(0, 8) }}</span>
+          <span aria-hidden="true">·</span>
+          <span>Emissão: <strong class="text-[var(--geo-foreground)]">{{ (sol.dataSolicitacao | date: 'dd/MM/yyyy HH:mm') || '--/--/----' }}</strong></span>
+          <span aria-hidden="true">·</span>
+          <geo-status [tone]="sit.tone" [icon]="'pi ' + sit.icon">{{ sit.label }}</geo-status>
+        </div>
+      </div>
 
-        @if (pendingSeparation(); as sep) {
-          <div
-            class="flex items-center justify-between gap-3 p-3.5 rounded-lg border border-sky-200 dark:border-sky-900 bg-sky-50/80 dark:bg-sky-950/40 text-sky-800 dark:text-sky-300 mb-4 print:hidden"
-          >
-            <div class="flex items-center gap-2.5">
-              <i class="pi pi-refresh text-sky-600 text-base animate-spin"></i>
-              <div class="flex flex-col gap-0.5 text-xs">
-                <span class="font-bold">Resposta de separação não confirmada</span>
-                <span class="text-[11px] text-sky-700 dark:text-sky-300"
-                  >Repita com a mesma chave e o mesmo corpo para evitar duplicidade.</span
-                >
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <geo-button label="Tentar Novamente" size="sm" variant="primary" (pressed)="separation(sep.kind, true)" />
-              <geo-button label="Descartar" size="sm" variant="ghost" (pressed)="discardSeparationRetry()" />
-            </div>
-          </div>
-        }
+      <!-- FAIXA DA SITUAÇÃO -->
+      @let f = faixa();
+      <div class="destaque rounded-xl border p-3.5 mb-6 flex items-center gap-3 print:hidden" [attr.data-tone]="f.tom">
+        <div class="destaque__icone w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border">
+          <i class="text-sm" [class]="f.icone" aria-hidden="true"></i>
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span class="text-xs font-bold uppercase tracking-wider">{{ f.titulo }}</span>
+          <span class="text-[11px] font-medium opacity-90">{{ f.texto }}</span>
+        </div>
+      </div>
 
-        <!-- VISUAL STAGE TRACKER (ETAPAS DO FLUXO OFICIAL) -->
-        <div class="mb-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-2xs print:hidden">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400"> Fluxo da Solicitação </span>
-            <span class="text-[11px] text-slate-500 dark:text-slate-400"> 4 etapas integradas </span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            @for (stage of stages(); track stage.number) {
-              <div
-                class="flex items-start gap-3 p-3 rounded-lg border transition-all"
-                [ngClass]="{
-                  'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800/60 text-emerald-900 dark:text-emerald-200':
-                    stage.state === 'completed',
-                  'bg-primary-50/80 dark:bg-primary-950/40 border-primary-300 dark:border-primary-700 text-primary-900 dark:text-primary-100 ring-2 ring-primary-500/20 shadow-xs':
-                    stage.state === 'current',
-                  'bg-slate-50/60 dark:bg-slate-800/40 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 opacity-80':
-                    stage.state === 'waiting',
-                }"
-              >
-                <div class="relative shrink-0">
-                  <div
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs"
-                    [ngClass]="{
-                      'bg-emerald-600 text-white': stage.state === 'completed',
-                      'bg-primary-600 text-white shadow-xs': stage.state === 'current',
-                      'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400': stage.state === 'waiting',
-                    }"
-                  >
-                    <i
-                      [class]="
-                        stage.icon +
-                        ' workflow-stage-icon ' +
-                        (stage.state === 'waiting' ? 'workflow-stage-icon--waiting' : 'workflow-stage-icon--active')
-                      "
-                    ></i>
-                  </div>
-                  @if (stage.state === 'completed') {
-                    <span
-                      class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-700 text-white rounded-full flex items-center justify-center ring-2 ring-white dark:ring-slate-900"
-                      title="Etapa concluída"
-                    >
-                      <i class="pi pi-check text-[7px]"></i>
-                    </span>
-                  }
-                </div>
-                <div class="flex flex-col min-w-0 flex-1">
-                  <div class="flex items-center justify-between gap-1">
-                    <span class="font-bold text-xs tracking-tight truncate">
-                      {{ stage.label }}
-                    </span>
-                    @if (stage.badge) {
-                      <span
-                        class="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0"
-                        [ngClass]="{
-                          'bg-emerald-200/70 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200': stage.state === 'completed',
-                          'bg-primary-200 dark:bg-primary-900/60 text-primary-800 dark:text-primary-200': stage.state === 'current',
-                          'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400': stage.state === 'waiting',
-                        }"
-                      >
-                        {{ stage.badge }}
-                      </span>
-                    }
-                  </div>
-                  <span class="text-[10px] text-slate-600 dark:text-slate-400 leading-tight mt-0.5 line-clamp-2">
-                    {{ stage.description }}
-                  </span>
-                </div>
-              </div>
+      <!-- 3. DADOS GERAIS (3 COLUNAS) -->
+      <div class="quadro grid grid-cols-1 md:grid-cols-3 gap-5 mb-6 p-4 md:p-5 rounded-xl border print:grid-cols-3 print:gap-3 print:mb-2 print:p-2">
+        <!-- Obra & Atendimento -->
+        <div class="flex flex-col gap-3">
+          <div class="quadro__titulo"><i class="pi pi-building" aria-hidden="true"></i><span>Obra &amp; Atendimento</span></div>
+          <div class="kv items-start">
+            <span class="kv-l">Obra</span>
+            @if (obra(); as o) {
+              <a class="kv-v kv-link font-semibold" [routerLink]="['/obras', o.id]" [title]="o.numero + ' · ' + o.titulo">{{ o.numero }} · {{ o.titulo }}</a>
+            } @else {
+              <span class="kv-v kv-v--muted">Carregando...</span>
             }
           </div>
-        </div>
-
-        <!-- BLOCO EM EVIDÊNCIA DA OBRA (OCUPANDO TODAS AS COLUNAS) -->
-        <div
-          class="mb-6 bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700 rounded-xl p-4 md:p-5 print:p-3 print:mb-3 shadow-2xs"
-        >
-          <!-- Linha 1: Identificação Principal e Número da Obra em Evidência -->
-          <div
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200/80 dark:border-slate-700"
-          >
-            <div class="flex items-center gap-3">
-              <div
-                class="w-10 h-10 rounded-lg bg-primary-100 dark:bg-primary-950/80 text-primary-700 dark:text-primary-300 flex items-center justify-center border border-primary-200 dark:border-primary-800 shrink-0"
-              >
-                <i class="pi pi-building text-lg"></i>
-              </div>
-              <div class="flex flex-col">
-                <div class="flex items-center gap-2 flex-wrap">
-                  @if (obraInfo(); as o) {
-                    <a
-                      [routerLink]="['/obras', o.id]"
-                      class="text-sm md:text-base font-bold text-primary-600 dark:text-primary-400 hover:underline"
-                    >
-                      {{ o.numero }}
-                    </a>
-                  } @else {
-                    <span class="text-sm md:text-base font-bold text-slate-900 dark:text-slate-100">
-                      {{ tech.idObra.slice(0, 8) }}
-                    </span>
-                  }
-                  <span class="text-slate-400 dark:text-slate-500 font-medium">·</span>
-                  <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-tight">
-                    {{ obraInfo()?.titulo || obraDisplay() }}
-                  </span>
-                </div>
-              </div>
+          <div class="kv">
+            <span class="kv-l">Tipo de obra</span>
+            <span class="kv-v">{{ obra()?.tipoObraNome || '—' }}</span>
+          </div>
+          @if (ocorrencia(); as oc) {
+            <div class="kv">
+              <span class="kv-l">{{ rotuloExecucao() }}</span>
+              <span class="kv-v font-semibold">{{ oc }}</span>
             </div>
-
-            <!-- Badges e Ocorrência em Destaque -->
-            <div class="flex items-center gap-2 flex-wrap sm:justify-end">
-              @if (tech.ocorrencia) {
-                <span
-                  class="text-xs font-bold px-2.5 py-1 rounded-md bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 flex items-center gap-1.5"
-                  title="Ocorrência vinculada à obra"
-                >
-                  <i class="pi pi-file-edit text-xs"></i>
-                  <span>OC/OS: {{ tech.ocorrencia.codigo }}</span>
-                </span>
-              }
-              @if (obraInfo(); as o) {
-                @if (o.notaObra) {
-                  <span
-                    class="text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5"
-                  >
-                    <i class="pi pi-receipt text-xs text-slate-500 dark:text-slate-400"></i>
-                    <span
-                      >Nota: <strong class="text-slate-900 dark:text-slate-100">{{ o.notaObra }}</strong></span
-                    >
-                  </span>
-                  <span
-                    class="text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5"
-                  >
-                    <i class="pi pi-tag text-xs text-slate-500 dark:text-slate-400"></i>
-                    <span
-                      >Tipo: <strong class="text-slate-900 dark:text-slate-100">{{ tech.tipoObra }}</strong></span
-                    >
-                  </span>
-                }
-                <span
-                  class="text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-tight bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"
-                >
-                  {{ o.statusNome }}
-                </span>
+          }
+          <div class="kv">
+            <span class="kv-l">Tipo</span>
+            <geo-status tone="brand" [icon]="tipoIcon(tech.tipoTecnico)">{{ tipoLabel(tech.tipoTecnico) }}</geo-status>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Origem</span>
+            <span class="kv-v font-semibold">{{ origem() }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Almoxarifado</span>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="kv-v font-semibold" [title]="almoxarifadoNome()">{{ almoxarifadoNome() }}</span>
+              @if (almoxarifadoId()) {
+                <geo-icon-button icon="pi pi-search" [label]="'Consultar o saldo de ' + almoxarifadoNome()" tooltip="Consultar saldo do almoxarifado"
+                  size="icon-sm" class="print:hidden" (pressed)="abrirSaldo(almoxarifadoId(), almoxarifadoNome())" />
               }
             </div>
           </div>
-
-          <!-- Linhas Dedicadas com Informações Complementares da Obra -->
-          @if (obraInfo(); as o) {
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-3 text-xs">
-              <div class="flex flex-col">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Município</span>
-                <span class="font-semibold text-slate-900 dark:text-slate-100 truncate" [title]="o.municipioNome || '—'">{{
-                  o.municipioNome || '—'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Base Operacional</span>
-                <span class="font-semibold text-slate-900 dark:text-slate-100 truncate" [title]="o.baseOperacionalNome || '—'">{{
-                  o.baseOperacionalNome || '—'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Processo</span>
-                <span class="font-semibold text-slate-900 dark:text-slate-100 truncate" [title]="o.processoNome || '—'">{{
-                  o.processoNome || '—'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Centro de Custo</span>
-                <span class="font-semibold text-slate-900 dark:text-slate-100 truncate" [title]="o.centroCustoNome || '—'">{{
-                  o.centroCustoNome || '—'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Supervisor</span>
-                <span class="font-semibold text-slate-900 dark:text-slate-100 truncate" [title]="o.supervisorNome || '—'">{{
-                  o.supervisorNome || '—'
-                }}</span>
-              </div>
-              <div class="flex flex-col">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Fiscal da Obra</span>
-                <span class="font-semibold text-slate-900 dark:text-slate-100 truncate" [title]="o.agenteResponsavelNome || '—'">{{
-                  o.agenteResponsavelNome || '—'
-                }}</span>
-              </div>
+          <div class="kv">
+            <span class="kv-l">Situação atual</span>
+            <geo-status [tone]="sit.tone" [icon]="'pi ' + sit.icon">{{ sit.label }}</geo-status>
+          </div>
+          @if (encerrada() || sol.status === 'ENTREGUE') {
+            <div class="kv items-start">
+              <span class="kv-l">Encerramento</span>
+              <span class="kv-aviso">A solicitação já foi encerrada.</span>
             </div>
           }
         </div>
 
-        <app-solicitacao-pendencias [detalhe]="request"
-          [podeEditar]="isOnline() && !!tech.idObra && request.status !== 'REJEITADO' && request.status !== 'CANCELADO' && request.status !== 'ENTREGUE' && !request.encerrada"
-          (atualizado)="reload()" />
+        <!-- Cronograma -->
+        <div class="flex flex-col gap-3 md:border-x md:border-[var(--geo-border)] md:px-6">
+          <div class="quadro__titulo"><i class="pi pi-calendar" aria-hidden="true"></i><span>Cronograma</span></div>
+          <div class="kv">
+            <span class="kv-l">Solicitação</span>
+            <span class="kv-v">{{ (sol.dataSolicitacao | date: 'dd/MM/yyyy HH:mm') || '—' }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Saque previsto</span>
+            @if (tech.dataPrevista) {
+              <span class="kv-v">{{ dataCurta(tech.dataPrevista) }}</span>
+            } @else {
+              <span class="kv-v kv-v--muted">A planejar</span>
+            }
+          </div>
+          @if (tech.atrasada && !encerrada() && (sol.status === 'APROVADO' || sol.status === 'PENDENTE' || sol.status === 'ENTREGUE_PARCIAL')) {
+            <div class="kv">
+              <span class="kv-l">Prazo</span>
+              <geo-status tone="danger" icon="pi pi-clock">Saque atrasado</geo-status>
+            </div>
+          }
+          @if (tech.foraPrazoSaque) {
+            <div class="kv items-start">
+              <span class="kv-l">Prazo de solicitação</span>
+              <geo-status tone="warning" icon="pi pi-exclamation-triangle">Solicitada fora do prazo</geo-status>
+            </div>
+          }
+          <div class="kv">
+            <span class="kv-l">Reserva externa</span>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="kv-v" [class.kv-v--muted]="!tech.reserva">{{ tech.reserva?.numero || 'Sem reserva' }}</span>
+              @if (podeReserva() && isOnline()) {
+                <geo-icon-button icon="pi pi-pencil" [label]="tech.reserva ? 'Alterar a reserva' : 'Registrar a reserva'" [tooltip]="tech.reserva ? 'Alterar reserva' : 'Registrar reserva'"
+                  size="icon-sm" class="print:hidden" (pressed)="abrirPainel('itens', 'RESERVA')" />
+              }
+            </div>
+          </div>
+          @if (tech.reserva) {
+            <div class="kv">
+              <span class="kv-l">Fiscal da reserva</span>
+              <span class="kv-v" [title]="tech.reserva.nomeAgente || '—'">{{ tech.reserva.nomeAgente || '—' }}</span>
+            </div>
+          }
+          <div class="kv">
+            <span class="kv-l">Última entrega</span>
+            <span class="kv-v" [class.kv-v--success]="!!dataEntrega()" [class.kv-v--muted]="!dataEntrega()">{{ dataEntrega() ? (dataEntrega() | date: 'dd/MM/yyyy HH:mm') : 'Pendente' }}</span>
+          </div>
+          @if (encerrada()) {
+            <div class="kv">
+              <span class="kv-l">Saldo encerrado</span>
+              <span class="kv-v">{{ (tech.encerradaEm | date: 'dd/MM/yyyy HH:mm') || '—' }}</span>
+            </div>
+          }
+        </div>
 
-        <!-- BLOCO DE REJEIÇÃO -->
-        @if (request.status === 'REJEITADO' && request.motivoRejeicao) {
-          <div
-            class="mb-6 p-4 bg-rose-50/60 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl animate-in fade-in slide-in-from-top-4 duration-500"
-          >
-            <div class="flex items-start gap-4">
-              <div
-                class="w-10 h-10 rounded-lg bg-rose-100 dark:bg-rose-900/60 text-rose-600 dark:text-rose-300 flex items-center justify-center shrink-0 border border-rose-200 dark:border-rose-800"
-              >
-                <i class="pi pi-times-circle text-base"></i>
-              </div>
-              <div class="flex flex-col gap-2 w-full">
-                <div class="flex items-center justify-between">
-                  <span class="text-xs font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">
-                    Informações da Rejeição —
-                    <span class="text-xs text-rose-800 dark:text-rose-300 font-bold uppercase">{{
-                      request.dataVerificacao | date: 'dd/MM/yyyy HH:mm'
-                    }}</span>
-                  </span>
+        <!-- Envolvidos -->
+        <div class="flex flex-col gap-3">
+          <div class="quadro__titulo"><i class="pi pi-users" aria-hidden="true"></i><span>Envolvidos</span></div>
+          <div class="kv">
+            <span class="kv-l">Equipe de saque</span>
+            <div class="flex items-center gap-1.5 min-w-0">
+              @if (equipeNome(); as eq) {
+                <span class="kv-v font-semibold" [title]="eq">{{ eq }}</span>
+              } @else {
+                <span class="kv-v kv-v--muted">A definir</span>
+              }
+              @if (podePlanejar() && isOnline()) {
+                <geo-icon-button icon="pi pi-pencil" [label]="equipeNome() ? 'Trocar a equipe de saque' : 'Definir a equipe de saque'"
+                  [tooltip]="equipeNome() ? 'Trocar equipe' : 'Definir equipe'" size="icon-sm" class="print:hidden" (pressed)="abrirPainel('planejamento')" />
+              }
+            </div>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Responsável pelo saque</span>
+            <span class="kv-v font-semibold" [class.kv-v--muted]="!responsavelSaqueNome()">{{ responsavelSaqueNome() || 'A definir' }}</span>
+          </div>
+          @if (tech.saqueForaEquipe) {
+            <div class="kv">
+              <span class="kv-l">Retirada</span>
+              <geo-status tone="info" icon="pi pi-arrow-right-arrow-left">Por outra equipe</geo-status>
+            </div>
+          }
+          <div class="kv">
+            <span class="kv-l">Requisitante</span>
+            <span class="kv-v font-semibold uppercase">{{ nome(sol.idRequisitante) }}</span>
+          </div>
+          <div class="kv">
+            <span class="kv-l">Almoxarife</span>
+            <span class="kv-v font-semibold uppercase" [class.kv-v--muted]="!dataEntrega()">{{ dataEntrega() ? entreguePor() : '—' }}</span>
+          </div>
+        </div>
+      </div>
+
+      @if (tech.observacao) {
+        <div class="observacao rounded-xl border p-3.5 mb-6 flex items-start gap-3">
+          <i class="pi pi-comment text-sm mt-0.5" aria-hidden="true"></i>
+          <div class="flex flex-col gap-0.5 min-w-0">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-[var(--geo-foreground-muted)]">Observação</span>
+            <span class="text-xs">{{ tech.observacao }}</span>
+          </div>
+        </div>
+      }
+
+      <app-solicitacao-pendencias [detalhe]="$any(sol)"
+        [podeEditar]="podePendencia()"
+        (atualizado)="reload()" />
+
+      <!-- REJEIÇÃO -->
+      @if (sol.status === 'REJEITADO' && sol.motivoRejeicao) {
+        <div class="rejeicao mb-6 p-4 rounded-xl border">
+          <div class="flex items-start gap-4">
+            <div class="rejeicao__icone w-10 h-10 rounded-lg flex items-center justify-center shrink-0 border">
+              <i class="pi pi-times-circle text-base" aria-hidden="true"></i>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <span class="rejeicao__titulo text-xs font-bold uppercase tracking-wider">
+                Informações da rejeição — {{ sol.dataVerificacao | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
+                <div class="flex flex-col gap-1">
+                  <span class="text-xs font-bold uppercase">{{ sol.motivoRejeicao.nome }}</span>
+                  <p class="text-xs leading-relaxed text-[var(--geo-foreground-muted)]">{{ sol.motivoRejeicao.descricao }}</p>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-1">
-                  <div class="flex flex-col gap-1">
-                    <span class="text-xs font-bold text-rose-900 dark:text-rose-200 uppercase">{{ request.motivoRejeicao.nome }}</span>
-                    <p class="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
-                      {{ request.motivoRejeicao.descricao }}
-                    </p>
-                  </div>
-                  <div class="flex flex-col gap-1">
-                    <span class="text-[10px] text-rose-600 dark:text-rose-400 uppercase font-bold tracking-wider">Descrição / Justificativa</span>
-                    <div class="p-3 bg-white/80 dark:bg-slate-900/80 rounded-lg border border-rose-200 dark:border-rose-900/60 min-h-[60px]">
-                      <p class="text-xs text-slate-800 dark:text-slate-200 leading-relaxed">
-                        "{{ request.justificativaRejeicao || 'Sem justificativa detalhada' }}"
-                      </p>
-                    </div>
+                <div class="flex flex-col gap-1">
+                  <span class="text-[10px] uppercase font-bold tracking-wider text-[var(--geo-foreground-muted)]">Justificativa</span>
+                  <div class="rejeicao__justificativa p-3 rounded-lg border min-h-[60px]">
+                    <p class="text-xs leading-relaxed">"{{ sol.justificativaRejeicao || 'Sem justificativa detalhada' }}"</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        }
+        </div>
+      }
 
-        <!-- DADOS GERAIS AGRUPADOS EM 3 COLUNAS (.KV) -->
-        <div
-          class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6 bg-slate-50/60 dark:bg-slate-900/40 p-4 md:p-5 rounded-xl border border-slate-200 dark:border-slate-800 print:grid-cols-3 print:gap-3 print:mb-2 print:p-2"
+      <!-- 4. RESUMO -->
+      @let grupos = this.grupos();
+      @let totais = this.totais();
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-6 print:hidden">
+        <div class="resumo">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Materiais</span>
+            <span class="resumo__icone"><i class="pi pi-box" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ grupos.length }}</span>
+            <span class="resumo__legenda">{{ grupos.length === 1 ? 'material distinto' : 'materiais distintos' }} · {{ totais.solicitada | number: '1.0-3' }} solicitados</span>
+          </div>
+        </div>
+        <div class="resumo">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Entregue</span>
+            <span class="resumo__icone"><i class="pi pi-truck" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ totais.entregaLiquida | number: '1.0-3' }}</span>
+            <span class="resumo__legenda">
+              @if (totais.entregaEstornada > 0) {
+                {{ totais.entregaBruta | number: '1.0-3' }} entregues, {{ totais.entregaEstornada | number: '1.0-3' }} estornados
+              } @else {
+                {{ totais.entregaLiquida > 0 ? 'unidades entregues' : 'nada entregue ainda' }}
+              }
+            </span>
+          </div>
+        </div>
+        <div class="resumo">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Números de série</span>
+            <span class="resumo__icone"><i class="pi pi-barcode" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ resumoSeries().entregues }}</span>
+            <span class="resumo__legenda">
+              @if (!resumoSeries().materiais) {
+                nenhum material seriado
+              } @else if (!resumoSeries().entregues) {
+                nenhuma entregue ainda · {{ resumoSeries().materiais }} {{ resumoSeries().materiais === 1 ? 'material seriado' : 'materiais seriados' }}
+              } @else {
+                entregues em {{ resumoSeries().materiais }} {{ resumoSeries().materiais === 1 ? 'material seriado' : 'materiais seriados' }}
+              }
+            </span>
+          </div>
+        </div>
+        <div class="resumo resumo--destaque">
+          <div class="resumo__topo">
+            <span class="resumo__rotulo">Saldo pendente</span>
+            <span class="resumo__icone"><i class="pi pi-hourglass" aria-hidden="true"></i></span>
+          </div>
+          <div>
+            <span class="resumo__valor">{{ totais.pendente | number: '1.0-3' }}</span>
+            <span class="resumo__legenda">
+              @if (encerrada() && totais.pendente > 0) {
+                encerrado, não sai mais
+              } @else {
+                {{ totais.pendente > 0 ? 'a entregar em ' + materiaisPendentes() + (materiaisPendentes() === 1 ? ' material' : ' materiais') : 'solicitação atendida' }}
+              }
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. ITENS -->
+      <div class="mb-8 print:mb-4">
+        <div class="flex items-center justify-between gap-2 mb-3 border-l-2 border-[var(--geo-brand)] pl-3">
+          <span class="secao__titulo">Itens da solicitação <span class="secao__contagem">({{ grupos.length }} {{ grupos.length === 1 ? 'material' : 'materiais' }})</span></span>
+          <span class="text-xs text-[var(--geo-foreground-muted)]">Total solicitado: <strong class="text-[var(--geo-foreground)]">{{ totais.solicitada | number: '1.0-3' }}</strong></span>
+        </div>
+        <geo-data-table
+          class="print:hidden"
+          caption="Itens da solicitação por material"
+          searchPlaceholder="Buscar por código, descrição ou série"
+          stateTitle="Solicitação sem itens"
+          stateDescription="Nenhum material nesta solicitação."
+          noResultsTitle="Nenhum material encontrado nesta solicitação."
+          [columns]="colunasItens"
+          [rows]="grupos"
+          [rowKey]="chaveGrupo"
+          [rowLabel]="rotuloGrupo"
+          [rowExpandable]="grupoExpansivel"
+          [pageSizeOptions]="[50, 100, 500]"
         >
-          <!-- Coluna 1: Atendimento & Almoxarifado -->
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-              <i class="pi pi-box text-primary-500 text-xs"></i>
-              <span class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Atendimento & Almoxarifado</span>
+          <ng-template geoCell="codigo" let-g>
+            <span class="font-mono font-semibold">{{ g.material.codigo }}</span>
+          </ng-template>
+          <ng-template geoCell="descricao" let-g>
+            <span class="inline-flex items-center gap-2 flex-wrap">
+              <span class="uppercase">{{ g.material.descricao }}</span>
+              @if (g.seriesEntregues.length) {
+                <geo-status tone="brand" icon="pi pi-barcode">{{ g.seriesEntregues.length }} {{ g.seriesEntregues.length === 1 ? 'série entregue' : 'séries entregues' }}</geo-status>
+              }
+            </span>
+          </ng-template>
+          <ng-template geoCell="situacao" let-g>
+            <span class="inline-flex items-center gap-1">
+              @let s = situacaoItem(g);
+              <geo-status [tone]="s.tom" [icon]="s.icone">{{ g.itemComPendencia && g.pendente > 0 ? g.itemComPendencia.motivoPendencia?.nome : s.rotulo }}</geo-status>
+              @if (g.itemComPendencia) {
+                <geo-icon-button icon="pi pi-exclamation-triangle" [label]="'Ver a pendência de ' + g.material.codigo" tooltip="Ver pendência" size="icon-sm" (pressed)="abrirModalPendenciaItem(g)" />
+              } @else if (podePendencia() && g.itemPendente) {
+                <geo-icon-button icon="pi pi-flag" [label]="'Apontar pendência em ' + g.material.codigo" tooltip="Apontar pendência" size="icon-sm" (pressed)="abrirModalPendenciaItem(g)" />
+              }
+            </span>
+          </ng-template>
+          <ng-template geoRowDetail let-g>
+            <div class="detalhe-series">
+              <span class="detalhe-series__titulo"><i class="pi pi-truck" aria-hidden="true"></i>Séries entregues ({{ g.seriesEntregues.length }})</span>
+              <app-series-grade [series]="grade(g.seriesEntregues)" [rotulo]="'Séries entregues de ' + g.material.descricao" />
             </div>
-            <div class="kv">
-              <span class="kv-l">Almoxarifado</span><span class="kv-v font-semibold" [title]="warehouseName()">{{ warehouseName() }}</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Equipe Responsável</span><span class="kv-v font-semibold" [title]="teamName()">{{ teamName() }}</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Responsável</span>
-              <span class="kv-v font-semibold" [title]="plannedWithdrawalName()">
-                {{ plannedWithdrawalName() }}
-                @if (tech.saqueForaEquipe) {
-                  <span> · fora da equipe</span>
+          </ng-template>
+        </geo-data-table>
+
+        <!-- No papel: a mesma tabela, com as séries abertas sob cada material. -->
+        <table class="tabela-documento" aria-hidden="true">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Material / Descrição</th>
+              <th>Un.</th>
+              <th class="tabela-documento__num">Solicitado</th>
+              <th class="tabela-documento__num">Entregue</th>
+              <th class="tabela-documento__num">Pendente</th>
+              <th>Situação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (g of grupos; track g.chave) {
+              <tr>
+                <td class="font-mono font-semibold">{{ g.material.codigo }}</td>
+                <td class="uppercase">{{ g.material.descricao }}</td>
+                <td>{{ g.material.unidadeMedida }}</td>
+                <td class="tabela-documento__num">{{ g.solicitada | number: '1.0-3' }}</td>
+                <td class="tabela-documento__num">{{ g.entregue | number: '1.0-3' }}</td>
+                <td class="tabela-documento__num">{{ g.pendente | number: '1.0-3' }}</td>
+                <td>{{ situacaoItem(g).rotulo }}</td>
+              </tr>
+              @if (g.seriesEntregues.length) {
+                <tr class="tabela-documento__detalhe">
+                  <td colspan="7">
+                    <app-series-grade [series]="grade(g.seriesEntregues)" [copiavel]="false" [rotulo]="'Séries entregues de ' + g.material.descricao" />
+                  </td>
+                </tr>
+              }
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6. HISTÓRICO DE OPERAÇÕES -->
+      <div class="mb-6 px-1 print:hidden">
+        <app-solicitacao-operacoes-historico [operacoes]="operacoes()" [equipeNome]="equipeNome() ?? 'Não informada'" />
+      </div>
+
+      <!-- 7. LINHA DO TEMPO -->
+      @if (can('VER_HISTORICO')) {
+        <div class="mb-6 px-1 print:hidden">
+          <p-accordion [value]="timelineValue()" (valueChange)="timelineValue.set($event)">
+            <p-accordion-panel value="timeline">
+              <p-accordion-header>
+                <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                  <div class="linha-tempo__icone w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
+                    <i class="pi pi-history text-sm" aria-hidden="true"></i>
+                  </div>
+                  <div class="flex flex-col gap-0.5 min-w-0 text-left">
+                    <span class="text-xs md:text-sm font-bold">Linha do tempo de alterações</span>
+                    <span class="text-xs text-[var(--geo-foreground-muted)] font-normal">Veja todas as ações realizadas nesta solicitação em ordem cronológica.</span>
+                  </div>
+                </div>
+              </p-accordion-header>
+              <p-accordion-content>
+                @if (isTimelineOpen()) {
+                  <div class="pt-3">
+                    <app-solicitacao-tecnica-historico [idSolicitacao]="sol.id" [ocultarObra]="true" />
+                  </div>
                 }
-              </span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Requisitante</span><span class="kv-v font-semibold">{{ formatUser(request.idRequisitante) }}</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Data da Solicitação</span>
-              <span class="kv-v">{{ request.dataSolicitacao | date: 'dd/MM/yyyy HH:mm' }}</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Data Prevista</span>
-              <span class="kv-v">{{ tech.dataPrevista ? (tech.dataPrevista | date: 'dd/MM/yyyy' : 'UTC') : 'Não definida' }}</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Data Atendimento</span>
-              <span
-                class="kv-v"
-                [class.text-emerald-600]="!!(dataEntrega() || request.dataEntrega)"
-                [class.dark:text-emerald-400]="!!(dataEntrega() || request.dataEntrega)"
-              >{{
-                (dataEntrega() || request.dataEntrega) ? ((dataEntrega() || request.dataEntrega) | date: 'dd/MM/yyyy HH:mm') : 'Pendente'
-              }}</span>
-            </div>
-          </div>
-
-          <!-- Coluna 2: Status & Fluxo Operacional -->
-          <div class="flex flex-col gap-3 md:border-x md:border-slate-200 dark:md:border-slate-800 md:px-6">
-            <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-              <i class="pi pi-tag text-primary-500 text-xs"></i>
-              <span class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Status & Fluxo Operacional</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Tipo Técnico</span>
-              <span
-                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-bold tracking-wide"
-                [ngClass]="
-                  typeIsAdicao(tech.tipoTecnico)
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60'
-                    : 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/60'
-                "
-              >
-                <i [class]="typeIcon(tech.tipoTecnico)" class="text-[11px]"></i>
-                {{ typeLabel(tech.tipoTecnico) }}
-              </span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Status Operacional</span>
-              <geo-status [tone]="statusTone(request.status)">{{ statusLabel(request.status) }}</geo-status>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Status Separação</span>
-              @if (typeIsAdicao(tech.tipoTecnico)) {
-                <geo-status [tone]="separacaoTone(tech.statusSeparacao)">{{ separacaoLabel(tech.statusSeparacao) }}</geo-status>
-              } @else {
-                <span class="kv-v text-slate-500 dark:text-slate-400">Não se aplica</span>
-              }
-            </div>
-            <div class="kv">
-              <span class="kv-l">Situação Cronológica</span>
-              @if (tech.atrasada) {
-                <geo-status tone="danger" icon="pi pi-clock">Atrasada</geo-status>
-              } @else {
-                <span class="kv-v text-emerald-600 dark:text-emerald-400 font-semibold">No prazo</span>
-              }
-            </div>
-            @if (tech.foraPrazoSaque) {
-              <div class="kv items-start">
-                <span class="kv-l">Prazo de Solicitação</span>
-                <geo-status tone="warning" icon="pi pi-exclamation-triangle">Solicitada fora do prazo</geo-status>
-              </div>
-            }
-            @if (tech.encerrada || tech.encerradaEm) {
-              <div class="kv items-start">
-                <span class="kv-l">Encerramento</span>
-                <span class="text-[11px] font-semibold leading-snug text-right text-amber-700 dark:text-amber-300">
-                  A solicitação já foi encerrada.
-                </span>
-              </div>
-            }
-          </div>
-
-          <!-- Coluna 3: Reserva Externa & Governança -->
-          <div class="flex flex-col gap-3">
-            <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-              <i class="pi pi-bookmark text-primary-500 text-xs"></i>
-              <span class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Reserva Externa</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Número da Reserva</span>
-              <span
-                class="kv-v font-bold"
-                [ngClass]="tech.reserva ? 'text-primary-600 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400'"
-              >
-                {{ tech.reserva?.numero || 'Não registrada' }}
-              </span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Data Criação Reserva</span>
-              <span class="kv-v">{{ tech.reserva?.dataCriacao ? (tech.reserva!.dataCriacao | date: 'dd/MM/yyyy' : 'UTC') : '—' }}</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Fiscal da Reserva</span>
-              <span class="kv-v font-semibold" [title]="tech.reserva?.nomeAgente || '—'">{{ tech.reserva?.nomeAgente || '—' }}</span>
-            </div>
-            <div class="kv">
-              <span class="kv-l">Total de Itens</span><span class="kv-v font-bold">{{ request.itens.length }}</span>
-            </div>
-          </div>
+              </p-accordion-content>
+            </p-accordion-panel>
+          </p-accordion>
         </div>
+      }
 
-        <!-- OBSERVAÇÃO / MOTIVO DE ENCERRAMENTO -->
-        @if (tech.observacao) {
-          <div class="mb-6 flex flex-col gap-1 px-1">
-            <span class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Observação do Planejamento</span>
-            <p
-              class="text-xs text-slate-800 dark:text-slate-200 leading-relaxed bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-lg border border-slate-200 dark:border-slate-800"
-            >
-              {{ tech.observacao }}
-            </p>
-          </div>
-        }
-
-        <!-- ACUMULADORES TÉCNICOS (MÉTRICAS - OCULTO NA IMPRESSÃO) -->
-        <div class="mb-6 px-1 print:hidden">
-          <div class="flex items-center gap-2 mb-3 border-l-2 border-primary-500 pl-3">
-            <span class="text-xs font-bold uppercase tracking-tight text-slate-800 dark:text-slate-200">Acumuladores & Totais Físicos</span>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div
-              class="flex flex-col gap-1 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 shadow-2xs"
-            >
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Qtd. Solicitada</span>
-              <span class="text-lg font-bold text-slate-900 dark:text-slate-100 tabular-nums">{{ number(tech.totais.solicitada) }}</span>
-            </div>
-            <div
-              class="flex flex-col gap-1 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 shadow-2xs"
-            >
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{{
-                typeIsAdicao(tech.tipoTecnico) ? 'Entrega Bruta' : 'Devolução Bruta'
-              }}</span>
-              <span class="text-lg font-bold text-slate-900 dark:text-slate-100 tabular-nums">{{
-                number(typeIsAdicao(tech.tipoTecnico) ? tech.totais.entregaBruta : tech.totais.devolucaoBruta)
-              }}</span>
-            </div>
-            <div
-              class="flex flex-col gap-1 p-3.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 shadow-2xs"
-            >
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">{{
-                typeIsAdicao(tech.tipoTecnico) ? 'Entrega Estornada' : 'Devolução Estornada'
-              }}</span>
-              <span class="text-lg font-bold text-amber-600 dark:text-amber-400 tabular-nums">{{
-                number(typeIsAdicao(tech.tipoTecnico) ? tech.totais.entregaEstornada : tech.totais.devolucaoEstornada)
-              }}</span>
-            </div>
-            <div
-              class="flex flex-col gap-1 p-3.5 rounded-lg border border-primary-300 dark:border-primary-800 bg-primary-50/70 dark:bg-primary-950/40 shadow-2xs"
-            >
-              <div class="flex items-center justify-between">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-primary-700 dark:text-primary-300">Saldo Pendente</span>
-                <span class="text-[10px] font-semibold text-slate-600 dark:text-slate-400"
-                  >Líq: {{ number(typeIsAdicao(tech.tipoTecnico) ? tech.totais.entregaLiquida : tech.totais.devolucaoLiquida) }}</span
-                >
-              </div>
-              <span class="text-lg font-black text-primary-700 dark:text-primary-300 tabular-nums">{{ number(tech.totais.pendente) }}</span>
-            </div>
-          </div>
+      <!-- 8. TERMO DE RESPONSABILIDADE & ASSINATURAS -->
+      <div class="mb-8 px-1 page-break-inside-avoid print:mb-4 print:mt-6">
+        <div class="flex items-center gap-2 mb-3 border-l-2 border-[var(--geo-brand)] pl-3">
+          <span class="secao__titulo">Termo de Responsabilidade &amp; Assinaturas Formais</span>
         </div>
-
-        <!-- ITENS DA SOLICITAÇÃO TÉCNICA -->
-        <div class="mb-6 px-1 print:mb-3">
-          <div class="flex items-center justify-between mb-3 border-l-2 border-primary-500 pl-3">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold uppercase tracking-tight text-slate-800 dark:text-slate-200"
-                >Materiais & Itens Solicitados</span
-              >
-              <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">({{ request.itens.length }})</span>
-            </div>
-          </div>
-
-          <div class="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden shadow-2xs bg-white dark:bg-slate-900/60">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr
-                    class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200"
-                  >
-                    <th class="py-2.5 px-3">Código</th>
-                    <th class="py-2.5 px-3">Descrição</th>
-                    <th class="py-2.5 px-3 text-center">Unid.</th>
-                    <th class="py-2.5 px-3 text-center">Centro</th>
-                    <th class="py-2.5 px-3">Avaliação</th>
-                    <th class="py-2.5 px-3 text-center">SUPR/MATR</th>
-                    <th class="py-2.5 px-3 text-right">Solicitada</th>
-                    <th class="py-2.5 px-3 text-right">
-                      {{ typeIsAdicao(tech.tipoTecnico) ? 'Entregue' : 'Devolvida' }}
-                    </th>
-                    <th class="py-2.5 px-3 text-right">Pendente</th>
-                    <th class="py-2.5 px-3 text-center">Pendência</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-                  @for (item of request.itens; track item.id) {
-                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors">
-                      <td class="py-2.5 px-3 whitespace-nowrap">
-                        <div class="flex items-center gap-1.5">
-                          <span class="font-bold text-xs text-slate-900 dark:text-slate-100">{{ item.material.codigo }}</span>
-                          @if (item.material.detalhaSerie) {
-                            <span
-                              class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800"
-                              >SÉRIE</span
-                            >
-                          }
-                        </div>
-                      </td>
-                      <td class="py-2.5 px-3">
-                        <span class="text-xs font-medium text-slate-800 dark:text-slate-200">{{ item.material.descricao }}</span>
-                      </td>
-                      <td class="py-2.5 px-3 text-center text-[11px] text-slate-600 dark:text-slate-400 uppercase">
-                        {{ item.material.unidadeMedida || '—' }}
-                      </td>
-                      <td class="py-2.5 px-3 text-center text-[11px] text-slate-600 dark:text-slate-400 font-mono">
-                        {{ item.material.centroInvestimento?.codigo || '—' }}
-                      </td>
-                      <td class="py-2.5 px-3 text-[11px] text-slate-600 dark:text-slate-400">
-                        {{ item.material.avaliacaoTecnica?.nome || '—' }}
-                      </td>
-                      <td class="py-2.5 px-3 text-center text-[11px] text-slate-600 dark:text-slate-400 uppercase">
-                        {{ item.material.suprMatrFlag || '—' }}
-                      </td>
-                      <td class="py-2.5 px-3 text-right font-semibold tabular-nums text-slate-900 dark:text-slate-100">
-                        {{ number(item.quantidade) }}
-                      </td>
-                      <td class="py-2.5 px-3 text-right tabular-nums text-slate-900 dark:text-slate-100 font-semibold">
-                        @if (typeIsAdicao(tech.tipoTecnico)) {
-                          <div>
-                            {{ number(item.quantidadeEntregaLiquida ?? item.quantidadeEntregue) }}
-                          </div>
-                          @if ((item.quantidadeEntregaEstornada || 0) > 0) {
-                            <div class="text-[10px] text-amber-600 dark:text-amber-400 font-normal">
-                              ({{ number(item.quantidadeEntregaEstornada || 0) }} estornado)
-                            </div>
-                          }
-                        } @else {
-                          <div>{{ number(item.quantidadeDevolucaoLiquida ?? 0) }}</div>
-                          @if ((item.quantidadeDevolucaoEstornada || 0) > 0) {
-                            <div class="text-[10px] text-amber-600 dark:text-amber-400 font-normal">
-                              ({{ number(item.quantidadeDevolucaoEstornada || 0) }} estornado)
-                            </div>
-                          }
-                        }
-                      </td>
-                      <td class="py-2.5 px-3 text-right font-bold text-primary-600 dark:text-primary-400 tabular-nums">
-                        {{ number(item.quantidadePendente || 0) }}
-                      </td>
-                      <td class="py-2.5 px-3 text-center">
-                        @if (item.motivoPendencia) {
-                          <button
-                            type="button"
-                            class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-amber-500 hover:text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition-colors cursor-pointer"
-                            title="Ver pendência do material"
-                            (click)="abrirModalPendenciaItem(item)"
-                          >
-                            <i class="pi pi-exclamation-triangle text-base"></i>
-                          </button>
-                        } @else {
-                          <span
-                            class="inline-flex items-center justify-center w-7 h-7 text-emerald-500 dark:text-emerald-400"
-                            title="Sem pendência"
-                          >
-                            <i class="pi pi-check-circle text-base"></i>
-                          </span>
-                        }
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- HISTÓRICO DE ENTREGAS E DEVOLUÇÕES (SANFONA PRINCIPAL COM SUB-SANFONAS AMIGÁVEIS - OCULTO NA IMPRESSÃO) -->
-        <div class="mb-6 px-1 print:hidden">
-          <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/60 shadow-2xs overflow-hidden">
-            <!-- SANFONA MAIOR (CABEÇALHO PRINCIPAL) -->
-            <button
-              type="button"
-              (click)="toggleOperations()"
-              class="w-full py-3.5 px-4 flex items-center justify-between gap-3 bg-slate-50/90 dark:bg-slate-800/70 hover:bg-slate-100/90 dark:hover:bg-slate-800 transition-colors text-left cursor-pointer select-none border-b"
-              [class.border-slate-200]="operationsOpen()"
-              [class.dark:border-slate-700]="operationsOpen()"
-              [class.border-transparent]="!operationsOpen()"
-              [attr.aria-expanded]="operationsOpen()"
-              aria-controls="historico-movimentacoes-painel"
-            >
-              <div class="flex items-center gap-3">
-                <div
-                  class="w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-950/80 text-primary-700 dark:text-primary-300 flex items-center justify-center border border-primary-200 dark:border-primary-800 shrink-0"
-                >
-                  <i class="pi pi-box text-sm"></i>
-                </div>
-                <div class="flex flex-col gap-0.5">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100">Histórico de Operações</span>
-                    <span
-                      class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-200/80 dark:bg-slate-700 text-slate-800 dark:text-slate-200"
-                    >
-                      {{ tech.operacoes.length }}
-                      {{ tech.operacoes.length === 1 ? 'movimentação' : 'movimentações' }}
-                    </span>
-                  </div>
-                  <span class="text-xs text-slate-600 dark:text-slate-300 font-normal">
-                    {{ operationsSummary() }}
-                  </span>
-                </div>
+        <div class="termo rounded-xl border p-4 md:p-5 flex flex-col gap-5 print:p-3">
+          <p class="text-xs leading-relaxed text-justify text-[var(--geo-foreground-muted)] print:text-[10px] print:leading-normal">
+            Declaramos para os devidos fins que os materiais discriminados nesta solicitação técnica foram devidamente conferidos e
+            movimentados em conformidade com as especificações da empresa e da concessionária. A equipe
+            responsável assume integral custódia pela aplicação na obra indicada, conservação e devolução de eventuais sobras técnicas ao
+            almoxarifado central.
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 print:grid-cols-2 print:gap-4 print:pt-3">
+            <div class="assinatura">
+              <div class="w-full">
+                <span class="assinatura__parte">Almoxarifado</span>
+                <span class="assinatura__sub">Expedição &amp; Atendimento</span>
               </div>
-
-              <div class="flex items-center gap-2.5 shrink-0 print:hidden">
-                <span class="text-xs font-semibold text-primary-600 dark:text-primary-400">
-                  {{ operationsOpen() ? 'Recolher' : 'Ver movimentações' }}
-                </span>
-                <i
-                  class="pi text-xs text-primary-600 dark:text-primary-400 transition-transform duration-200"
-                  [class.pi-chevron-up]="operationsOpen()"
-                  [class.pi-chevron-down]="!operationsOpen()"
-                ></i>
-              </div>
-            </button>
-
-            <!-- CONTEÚDO DA SANFONA MAIOR -->
-            <div
-              id="historico-movimentacoes-painel"
-              [class.hidden]="!operationsOpen()"
-              class="p-3 md:p-4 flex flex-col gap-3 bg-slate-50/30 dark:bg-slate-900/30"
-            >
-              @if (tech.operacoes.length > 0) {
-                <!-- Barra de Ações Rápidas -->
-                <div class="flex items-center justify-between gap-2 pb-1">
-                  <span class="text-xs text-slate-600 dark:text-slate-300">
-                    Clique em qualquer movimentação abaixo para visualizar os materiais e números de série entregues:
-                  </span>
-                  <div class="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      (click)="expandAllOperations()"
-                      class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline cursor-pointer"
-                    >
-                      Expandir todas
-                    </button>
-                    <span class="text-slate-400 dark:text-slate-600">·</span>
-                    <button
-                      type="button"
-                      (click)="collapseAllOperations()"
-                      class="text-xs font-semibold text-slate-600 dark:text-slate-300 hover:underline cursor-pointer"
-                    >
-                      Recolher todas
-                    </button>
-                  </div>
-                </div>
-
-                <!-- LISTA DE SUB-SANFONAS (UMA PARA CADA MOVIMENTAÇÃO) -->
-                <div class="flex flex-col gap-2.5">
-                  @for (op of tech.operacoes; track op.id; let idx = $index) {
-                    <div
-                      class="rounded-lg border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900/80 shadow-2xs overflow-hidden"
-                    >
-                      <!-- CABEÇALHO DA SUB-SANFONA (MOVIMENTAÇÃO INDIVIDUAL) -->
-                      <button
-                        type="button"
-                        (click)="toggleOperation(op.id)"
-                        class="w-full p-3 flex items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors text-left cursor-pointer select-none"
-                        [attr.aria-expanded]="isOperationExpanded(op.id)"
-                      >
-                        <div class="flex items-center gap-3">
-                          <!-- Ícone com Tom Semântico Claro -->
-                          <div
-                            class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border"
-                            [ngClass]="{
-                              'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800':
-                                op.tipo === 'ENTREGA',
-                              'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800':
-                                op.tipo === 'DEVOLUCAO',
-                              'bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-300 border-amber-200 dark:border-amber-800':
-                                op.tipo === 'ESTORNO',
-                              'bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 border-rose-200 dark:border-rose-800':
-                                isEncerramentoOp(op.tipo),
-                            }"
-                          >
-                            <i [class]="operationIcon(op.tipo)" class="text-sm"></i>
-                          </div>
-
-                          <!-- Título e Detalhes Amigáveis -->
-                          <div class="flex flex-col gap-0.5">
-                            <div class="flex items-center gap-2 flex-wrap">
-                              <span
-                                class="text-xs font-bold"
-                                [ngClass]="
-                                  isEncerramentoOp(op.tipo) ? 'text-rose-700 dark:text-rose-300' : 'text-slate-900 dark:text-slate-100'
-                                "
-                              >
-                                {{ operationFriendlyTitle(op.tipo) }}
-                              </span>
-                              <span class="text-xs text-slate-500 dark:text-slate-400 font-mono" [title]="op.id">
-                                #{{ op.id.slice(0, 8) }}
-                              </span>
-                            </div>
-
-                            <div class="flex items-center gap-2 flex-wrap text-xs text-slate-600 dark:text-slate-300">
-                              <span class="inline-flex items-center gap-1"
-                                ><i class="pi pi-calendar text-xs text-slate-500"></i>
-                                {{ op.realizadaEm | date: 'dd/MM/yyyy às HH:mm' }}</span
-                              >
-                              <span>·</span>
-                              <span class="inline-flex items-center gap-1"
-                                ><i class="pi pi-user text-xs text-slate-500"></i> Responsável:
-                                <strong class="text-slate-900 dark:text-slate-100 font-semibold">{{
-                                  formatUser(op.idUsuarioOperador)
-                                }}</strong></span
-                              >
-                              <span>·</span>
-                              <span class="inline-flex items-center gap-1"
-                                ><i class="pi pi-users text-xs text-slate-500"></i> Equipe:
-                                <strong class="text-slate-900 dark:text-slate-100 font-semibold">{{
-                                  getTeamName(op.idEquipe)
-                                }}</strong></span
-                              >
-                              @if (op.tipo === 'ENTREGA') {
-                                <span>·</span>
-                                <span class="inline-flex items-center gap-1"
-                                  ><i class="pi pi-user-edit text-xs text-slate-500"></i> Saque:
-                                  <strong class="text-slate-900 dark:text-slate-100 font-semibold">{{
-                                    op.idColaboradorSaque ? formatUser(op.idColaboradorSaque) : 'Não informado'
-                                  }}</strong>
-                                  @if (op.saqueForaEquipe) {
-                                    <span> (fora da equipe)</span>
-                                  }
-                                </span>
-                              }
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Resumo de Itens e Seta -->
-                        <div class="flex items-center gap-3 shrink-0">
-                          <span
-                            class="text-xs font-bold px-2 py-0.5 rounded border"
-                            [ngClass]="
-                              isEncerramentoOp(op.tipo)
-                                ? 'bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700'
-                            "
-                          >
-                            {{
-                              isEncerramentoOp(op.tipo)
-                                ? 'Encerrada'
-                                : (op.itens ? op.itens.length : 0) + ' ' + (op.itens && op.itens.length === 1 ? 'item' : 'itens')
-                            }}
-                          </span>
-                          <i
-                            class="pi text-xs text-slate-400 dark:text-slate-400 transition-transform duration-200"
-                            [class.pi-chevron-up]="isOperationExpanded(op.id)"
-                            [class.pi-chevron-down]="!isOperationExpanded(op.id)"
-                          ></i>
-                        </div>
-                      </button>
-
-                      <!-- CONTEÚDO DA SUB-SANFONA (DETALHES DOS MATERIAIS OU PAINEL INFORMATIVO) -->
-                      <div
-                        [class.hidden]="!isOperationExpanded(op.id)"
-                        class="border-t border-slate-100 dark:border-slate-800 p-3 bg-slate-50/40 dark:bg-slate-900/40"
-                      >
-                        <!-- Box Explicativo para Estornos / Correções -->
-                        @if (op.tipo === 'ESTORNO') {
-                          <div
-                            class="mb-3 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-amber-900 dark:text-amber-200 text-xs flex flex-col gap-1"
-                          >
-                            <div class="flex items-center gap-1.5 font-bold">
-                              <i class="pi pi-info-circle text-amber-600"></i>
-                              <span>Informação sobre esta correção</span>
-                            </div>
-                            @if (op.idOperacaoOriginal) {
-                              <p>
-                                Esta operação cancelou/corrigiu o lançamento anterior
-                                <strong>#{{ op.idOperacaoOriginal.slice(0, 8) }}</strong
-                                >.
-                              </p>
-                            }
-                            @if (op.motivo) {
-                              <p><strong>Motivo informado:</strong> "{{ op.motivo }}"</p>
-                            }
-                          </div>
-                        }
-
-                        <!-- Se houver itens: Tabela de Materiais -->
-                        @if (!isEncerramentoOp(op.tipo) && op.itens && op.itens.length > 0) {
-                          <div class="rounded border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
-                            <table class="w-full text-left text-xs border-collapse">
-                              <thead>
-                                <tr
-                                  class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200"
-                                >
-                                  <th class="py-2 px-3">Código</th>
-                                  <th class="py-2 px-3">Descrição do Material</th>
-                                  <th class="py-2 px-3 text-right">Quantidade</th>
-                                  <th class="py-2 px-3">Condição</th>
-                                  <th class="py-2 px-3">Número de Série</th>
-                                </tr>
-                              </thead>
-                              <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-                                @for (it of op.itens; track it.id) {
-                                  <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                    <td class="py-2 px-3 font-bold text-slate-900 dark:text-slate-100">
-                                      {{ it.codigoMaterial }}
-                                    </td>
-                                    <td class="py-2 px-3 text-slate-800 dark:text-slate-200">
-                                      {{ it.descricaoMaterial }}
-                                    </td>
-                                    <td class="py-2 px-3 text-right font-bold text-slate-900 dark:text-slate-100 tabular-nums">
-                                      {{ number(it.quantidade) }}
-                                    </td>
-                                    <td class="py-2 px-3 font-semibold text-slate-700 dark:text-slate-300">
-                                      {{ it.condicao === 'SUCATA' ? 'Sucata' : 'Novo' }}
-                                    </td>
-                                    <td class="py-2 px-3">
-                                      @if (it.numeroSerie) {
-                                        <span
-                                          class="inline-flex items-center gap-1 font-mono font-bold text-[11px] px-2 py-0.5 rounded bg-sky-50 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800"
-                                        >
-                                          <i class="pi pi-tag text-[10px]"></i>
-                                          {{ it.numeroSerie }}
-                                        </span>
-                                      } @else {
-                                        <span class="text-slate-500 dark:text-slate-400 text-xs italic"> Material comum (sem série) </span>
-                                      }
-                                    </td>
-                                  </tr>
-                                }
-                              </tbody>
-                            </table>
-                          </div>
-                        } @else {
-                          <!-- Painel Vermelho/Informativo para Encerramento de Saldo / Cancelamento -->
-                          <div
-                            class="rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50/50 dark:bg-rose-950/30 p-3.5 flex flex-col gap-2"
-                          >
-                            <div class="flex items-center gap-2 text-rose-800 dark:text-rose-200 font-semibold text-xs">
-                              <i class="pi pi-lock text-rose-600 dark:text-rose-400"></i>
-                              <span>Encerramento de Saldo Remanescente</span>
-                            </div>
-                            @if (op.motivo) {
-                              <div
-                                class="text-xs text-rose-900 dark:text-rose-200 bg-white/80 dark:bg-slate-900/80 p-2.5 rounded border border-rose-200/80 dark:border-rose-900/80"
-                              >
-                                <span class="font-bold text-rose-700 dark:text-rose-400 block text-[10px] uppercase tracking-wider mb-0.5"
-                                  >Motivo Registrado:</span
-                                >
-                                "{{ op.motivo }}"
-                              </div>
-                            }
-                            <p class="text-xs text-rose-700/90 dark:text-rose-300">
-                              Esta operação encerrou formalmente o saldo restante desta solicitação no almoxarifado sem movimentar novas
-                              peças físicas.
-                            </p>
-                          </div>
-                        }
-                      </div>
-                    </div>
+              <div class="w-full flex flex-col items-center mt-4 print:mt-3">
+                <div class="signature-slot">
+                  @if (assinaturaAlmoxUrl()) {
+                    <img [src]="assinaturaAlmoxUrl()" class="signature-image" alt="Assinatura do almoxarifado" />
                   }
                 </div>
-              } @else {
-                <!-- ESTADO VAZIO AMIGÁVEL -->
-                <div class="py-6 px-4 text-center flex flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-400">
-                  <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-1">
-                    <i class="pi pi-inbox text-slate-400 text-lg"></i>
-                  </div>
-                  <span class="text-xs font-bold text-slate-800 dark:text-slate-200">Nenhuma movimentação realizada ainda</span>
-                  <span class="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
-                    Assim que forem registradas entregas ou devoluções de materiais para esta solicitação, elas aparecerão listadas aqui.
-                  </span>
-                </div>
-              }
+                <span class="assinatura__nome">{{ dataEntrega() ? entreguePor() : 'Responsável Almoxarifado' }}</span>
+                <span class="assinatura__papel">Responsável pela entrega</span>
+                <span class="assinatura__data">{{ dataEntrega() ? (dataEntrega() | date: 'dd/MM/yyyy HH:mm') : 'Data: ____/____/________' }}</span>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- HISTÓRICO & AUDITORIA — OCULTO POR PADRÃO (SANFONA - OCULTO NA IMPRESSÃO) -->
-        @if (can('VER_HISTORICO')) {
-          <div class="mb-6 px-1 print:hidden">
-            <p-accordion [value]="timelineValue()" (valueChange)="timelineValue.set($event)">
-              <p-accordion-panel value="timeline">
-                <p-accordion-header>
-                  <div class="flex items-center justify-between w-full gap-3 min-w-0 pr-2">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                      <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                        <i class="pi pi-history text-slate-600 dark:text-slate-300 text-sm"></i>
-                      </div>
-                      <div class="flex flex-col gap-0.5 min-w-0 text-left">
-                        <span class="text-xs md:text-sm font-bold text-slate-900 dark:text-slate-100">Linha do tempo de alterações</span>
-                        <span class="text-xs text-slate-600 dark:text-slate-300 font-normal"
-                          >Veja todas as ações realizadas nesta solicitação em ordem cronológica.</span
-                        >
-                      </div>
-                    </div>
-                  </div>
-                </p-accordion-header>
-                <p-accordion-content>
-                  @if (isTimelineOpen()) {
-                    <div class="pt-3">
-                      <app-solicitacao-tecnica-historico [idSolicitacao]="request.id" />
-                    </div>
+            <div class="assinatura">
+              <div class="w-full">
+                <span class="assinatura__parte">Equipe receptora</span>
+                <span class="assinatura__sub truncate">{{ equipeNome() || 'Equipe a definir' }}</span>
+              </div>
+              <div class="w-full flex flex-col items-center mt-4 print:mt-3">
+                <div class="signature-slot">
+                  @if (assinaturaEquipeUrl()) {
+                    <img [src]="assinaturaEquipeUrl()" class="signature-image" alt="Assinatura de quem retirou" />
                   }
-                </p-accordion-content>
-              </p-accordion-panel>
-            </p-accordion>
-          </div>
-        }
-
-        <!-- TERMO FORMAL DE RESPONSABILIDADE & QUADRO DE ASSINATURAS -->
-        <div class="mb-8 px-1 page-break-inside-avoid print:mb-4 print:mt-6">
-          <div class="flex items-center gap-2 mb-3 border-l-2 border-primary-500 pl-3">
-            <span class="text-xs font-bold uppercase tracking-tight text-slate-800 dark:text-slate-200"
-              >Termo de Responsabilidade & Assinaturas Formais</span
-            >
-          </div>
-
-          <div
-            class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 p-4 md:p-5 flex flex-col gap-5 print:p-3 print:bg-transparent print:border-slate-400"
-          >
-            <!-- Texto do Termo de Declaração -->
-            <p
-              class="text-xs leading-relaxed text-slate-700 dark:text-slate-300 text-justify print:text-[10px] print:leading-normal print:text-slate-800"
-            >
-              Declaramos para os devidos fins que os materiais discriminados nesta solicitação técnica foram devidamente conferidos e
-              movimentados em conformidade com as especificações da empresa e da concessionária. A equipe
-              responsável assume integral custódia pela aplicação na obra indicada, conservação e devolução de eventuais sobras técnicas ao
-              almoxarifado central.
-            </p>
-
-            <!-- Grade de 2 Vias de Assinatura (Almoxarifado & Equipe) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 print:grid-cols-2 print:gap-4 print:pt-3">
-              <!-- 1. Almoxarifado / Expedição -->
-              <div
-                class="flex flex-col items-center justify-between border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/70 rounded-lg p-4 text-center min-h-[140px] print:border-slate-400 print:min-h-[110px] print:p-2"
-              >
-                <div class="w-full">
-                  <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 block"
-                    >Almoxarifado</span
-                  >
-                  <span class="text-[11px] text-slate-600 dark:text-slate-400 block">Expedição & Atendimento</span>
                 </div>
-
-                <div class="w-full flex flex-col items-center mt-4 print:mt-3">
-                  <div class="signature-slot">
-                    @if (assinaturaAlmoxUrl()) {
-                      <img [src]="assinaturaAlmoxUrl()" class="signature-image" alt="Assinatura Almoxarifado" />
-                    }
-                  </div>
-                  <span class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-full">{{ delivererName() }}</span>
-                  <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Responsável pela Entrega</span>
-                  <span class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {{ (dataEntrega() || request.dataEntrega) ? ((dataEntrega() || request.dataEntrega) | date: 'dd/MM/yyyy HH:mm') : 'Data: ____/____/________' }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- 2. Equipe / Recebedor -->
-              <div
-                class="flex flex-col items-center justify-between border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/70 rounded-lg p-4 text-center min-h-[140px] print:border-slate-400 print:min-h-[110px] print:p-2"
-              >
-                <div class="w-full">
-                  <span class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 block">Equipe Receptora</span>
-                  <span class="text-[11px] text-slate-600 dark:text-slate-400 block truncate font-medium" [title]="teamName()">{{
-                    teamName()
-                  }}</span>
-                </div>
-
-                <div class="w-full flex flex-col items-center mt-4 print:mt-3">
-                  <div class="signature-slot">
-                    @if (assinaturaEquipeUrl()) {
-                      <img [src]="assinaturaEquipeUrl()" class="signature-image" alt="Assinatura Requisitante" />
-                    }
-                  </div>
-                  <span class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-full">{{ responsavelSaqueNome() }}</span>
-                  <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-400">Responsável pelo Saque</span>
-                  <span class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    {{ (dataEntrega() || request.dataEntrega) ? ((dataEntrega() || request.dataEntrega) | date: 'dd/MM/yyyy HH:mm') : 'Data: ____/____/________' }}
-                  </span>
-                </div>
+                <span class="assinatura__nome">{{ responsavelSaqueNome() || 'Responsável pelo saque' }}</span>
+                <span class="assinatura__papel">Responsável pelo saque</span>
+                <span class="assinatura__data">{{ dataEntrega() ? (dataEntrega() | date: 'dd/MM/yyyy HH:mm') : 'Data: ____/____/________' }}</span>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- AUDITORIA & RODAPÉ DE EMISSÃO -->
-        <footer
-          class="border-t border-slate-200 dark:border-slate-800 pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-slate-600 dark:text-slate-300 print:mt-4 print:pt-2"
-        >
-          <div class="flex flex-col gap-0.5">
-            <span
-              >Criado em:
-              <strong class="text-slate-900 dark:text-slate-100">{{ request.dataSolicitacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span
-            >
-            @if (tech.reserva?.atualizadaEm) {
-              <span
-                >Última atualização de reserva:
-                <strong class="text-slate-900 dark:text-slate-100">{{
-                  tech.reserva!.atualizadaEm | date: 'dd/MM/yyyy HH:mm'
-                }}</strong></span
-              >
-            }
-          </div>
-          <div class="text-right sm:text-right font-semibold text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Documento emitido eletronicamente via Sistema GEO · Almoxarifado
-          </div>
-        </footer>
       </div>
 
-      <!-- AÇÕES FLUTUANTES (PADRÃO IDÊNTICO AO RELATÓRIO DE OBRA) -->
-      <div
-        class="fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50"
-      >
-        <p-button
-          icon="pi pi-arrow-left"
-          label="VOLTAR"
-          (onClick)="voltar()"
-          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"
-        ></p-button>
+      <!-- 9. RODAPÉ DE EMISSÃO -->
+      <footer class="border-t border-[var(--geo-border)] pt-4 mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-[var(--geo-foreground-muted)] print:mt-4 print:pt-2">
+        <div class="flex flex-col gap-0.5">
+          <span>Criado em: <strong class="text-[var(--geo-foreground)]">{{ (sol.dataSolicitacao | date: 'dd/MM/yyyy HH:mm') || '—' }}</strong></span>
+          @if (dataEntrega()) {
+            <span>Última entrega em: <strong class="text-[var(--geo-foreground)]">{{ dataEntrega() | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
+          }
+        </div>
+        <div class="font-semibold text-[10px] uppercase tracking-wider">Documento emitido eletronicamente via Sistema GEO · Almoxarifado</div>
+      </footer>
+    </div>
 
-        <p-button
-          icon="pi pi-print"
-          label="IMPRIMIR"
-          (onClick)="print()"
-          styleClass="!rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"
-        ></p-button>
+    <!-- 10. AÇÕES FLUTUANTES (mesma barra do relatório comercial) -->
+    <div class="acoes fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap justify-end gap-2.5 print:hidden z-50">
+      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)]" />
+      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white hover:!bg-[var(--report-action-strong-bg-hover)]" />
 
-        @if (canPlanning()) {
-          <p-button
-            icon="pi pi-pencil"
-            [label]="isInitialPlanning() ? 'PLANEJAR' : 'REPLANEJAR'"
-            (onClick)="openPlanning()"
-            [disabled]="!isOnline()"
-            [styleClass]="
-              isInitialPlanning()
-                ? '!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer'
-                : '!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer'
-            "
-          ></p-button>
+      @if (isOnline()) {
+        @if (can('TROCAR_OCORRENCIA')) {
+          <p-button [label]="'TROCAR ' + rotuloExecucao()" icon="pi pi-pencil" (onClick)="trocaOcorrenciaAberta.set(true)" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)]" />
         }
-
-        @if (can('INICIAR_SEPARACAO')) {
-          <p-button
-            icon="pi pi-box"
-            label="INICIAR SEPARAÇÃO"
-            (onClick)="separation('start')"
-            [loading]="commandLoading()"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"
-          ></p-button>
-        }
-
-        @if (canRegistrarPendencia()) {
-          <p-button
-            icon="pi pi-exclamation-triangle"
-            label="PENDÊNCIA"
-            (onClick)="abrirModalPendenciaSolicitacao()"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
-          ></p-button>
-        }
-
-        @if (can('REJEITAR')) {
-          <p-button
-            icon="pi pi-times"
-            label="REJEITAR"
-            (onClick)="rejectSolicitacao()"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"
-          ></p-button>
-        }
-
-        @if (can('PULAR_SEPARACAO')) {
-          <p-button
-            icon="pi pi-step-forward"
-            label="PULAR SEPARAÇÃO"
-            (onClick)="separation('skip')"
-            [loading]="commandLoading()"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-amber-500 !text-amber-600 dark:!text-amber-400 !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-amber-50 dark:hover:!bg-amber-950/30 cursor-pointer"
-          ></p-button>
-        }
-
-        @if (can('CONCLUIR_SEPARACAO')) {
-          <p-button
-            icon="pi pi-check"
-            label="CONCLUIR SEPARAÇÃO"
-            (onClick)="separation('finish')"
-            [loading]="commandLoading()"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
-          ></p-button>
-        }
-
-        @if (can('ENTREGAR')) {
-          <p-button
-            icon="pi pi-box"
-            label="CONFIRMAR ENTREGA"
-            (onClick)="openAction('deliver')"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
-          ></p-button>
-        }
-
-        @if (can('CONFIRMAR_DEVOLUCAO')) {
-          <p-button
-            icon="pi pi-inbox"
-            label="RECEBER DEVOLUÇÃO"
-            (onClick)="openAction('return')"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
-          ></p-button>
-        }
-
         @if (can('ESTORNAR')) {
-          <p-button
-            icon="pi pi-replay"
-            label="ESTORNAR OPERAÇÃO"
-            (onClick)="openAction('reverse')"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
-          ></p-button>
+          <p-button label="ESTORNAR" icon="pi pi-replay" (onClick)="abrirPainel('itens', 'ESTORNAR')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white hover:!bg-[var(--geo-warning-hover)]" />
         }
-
         @if (can('ENCERRAR_SALDO')) {
-          <p-button
-            icon="pi pi-lock"
-            label="ENCERRAR SALDO"
-            (onClick)="openAction('close')"
-            [disabled]="!isOnline()"
-            styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"
-          ></p-button>
+          <p-button label="ENCERRAR SALDO" icon="pi pi-lock" (onClick)="abrirPainel('itens', 'ENCERRAR_SALDO')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)]" />
         }
-      </div>
+        @if (podePendencia()) {
+          <p-button label="PENDÊNCIA" icon="pi pi-exclamation-triangle" (onClick)="abrirModalPendenciaSolicitacao()" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white hover:!bg-[var(--geo-warning-hover)]" />
+        }
+        @if (can('REJEITAR')) {
+          <p-button label="REJEITAR" icon="pi pi-times" (onClick)="rejeicaoAberta.set(true)" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white hover:!bg-[var(--geo-danger-hover)]" />
+        }
 
-      <!-- MODAIS DE AÇÃO -->
-      @if (selectedAction(); as mode) {
-        <app-solicitacao-tecnica-acao
-          [visible]="actionVisible()"
-          (visibleChange)="actionVisible.set($event)"
-          [detail]="request"
-          [mode]="mode"
-          (completed)="actionCompleted($event)"
-          (conflict)="actionConflict($event)"
-        />
+        @if (podePlanejar() && planejada()) {
+          <p-button label="EDITAR" icon="pi pi-pencil" (onClick)="abrirPainel('planejamento')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)]" />
+        }
+        <!-- O próximo passo: um botão principal por vez -->
+        @if (can('ENTREGAR')) {
+          <p-button label="REGISTRAR ENTREGA" icon="pi pi-box" (onClick)="abrirPainel('entrega')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white hover:!bg-[var(--geo-success-hover)]" />
+        } @else if (can('CONFIRMAR_DEVOLUCAO')) {
+          <p-button label="RECEBER DEVOLUÇÃO" icon="pi pi-inbox" (onClick)="abrirPainel('devolucao')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white hover:!bg-[var(--geo-success-hover)]" />
+        } @else if (can('CONCLUIR_SEPARACAO')) {
+          <p-button label="CONCLUIR SEPARAÇÃO" icon="pi pi-check" [loading]="executando()" (onClick)="separar('CONCLUIR_SEPARACAO')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-primary-600 !border-primary-600 !text-white hover:!bg-primary-700" />
+        } @else if (can('INICIAR_SEPARACAO')) {
+          <p-button label="INICIAR SEPARAÇÃO" icon="pi pi-play" [loading]="executando()" (onClick)="separar('INICIAR_SEPARACAO')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-primary-600 !border-primary-600 !text-white hover:!bg-primary-700" />
+        } @else if (podePlanejar() && !planejada()) {
+          <p-button label="PLANEJAR" icon="pi pi-calendar-plus" (onClick)="abrirPainel('planejamento')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-primary-600 !border-primary-600 !text-white hover:!bg-primary-700" />
+        }
       }
+    </div>
 
-      @if (planningVisible()) {
-        <app-solicitacao-tecnica-planejamento
-          [visible]="planningVisible()"
-          (visibleChange)="planningVisible.set($event)"
-          [detail]="request"
-          (completed)="planningCompleted($event)"
-          (conflict)="planningConflict($event)"
-        />
-      }
-
-      @if (teamVisible()) {
-        <app-solicitacao-tecnica-equipe
-          [visible]="teamVisible()"
-          (visibleChange)="teamVisible.set($event)"
-          [detail]="request"
-          [teams]="teams()"
-          (completed)="teamCompleted($event)"
-          (conflict)="planningConflict($event)"
-        />
-      }
-
-      <app-solicitacao-pendencia-modal
-        [(visible)]="pendenciaModalVisible"
-        [idSolicitacao]="request.id"
-        [itens]="request.itens"
-        [idItem]="pendenciaModalItemId()"
-        [itemLabel]="pendenciaModalItemLabel()"
-        [motivoAtual]="pendenciaModalMotivoAtual()"
-        [justificativaAtual]="pendenciaModalJustificativaAtual()"
-        (pendenciaSalva)="reload()"
-        (pendenciaResolvida)="reload()"
-      />
-    }
+    <app-solicitacao-tecnica-detalhe-drawer [(visible)]="painelAberto" [solicitacaoId]="sol.id" [abaInicial]="painelAba()"
+      [acaoInicial]="painelAcao()" (alterado)="reload()" />
+    <app-troca-ocorrencia-drawer [(visible)]="trocaOcorrenciaAberta" [idSolicitacao]="sol.id" [versao]="sol.versao"
+      [atual]="ocorrencia()" [rotulo]="rotuloExecucao()" [entregue]="totais.entregaLiquida > 0" (trocada)="reload()" (conflito)="reload()" />
+    <app-solicitacao-rejeicao-dialog [(visible)]="rejeicaoAberta" [idSolicitacao]="sol.id" [reprovar]="false" (rejeitada)="reload()" />
+    <app-solicitacao-pendencia-modal
+      [(visible)]="pendenciaModalVisible"
+      [idSolicitacao]="sol.id"
+      [itens]="$any(sol.itens)"
+      [idItem]="pendenciaModalItemId()"
+      [itemLabel]="pendenciaModalItemLabel()"
+      [motivoAtual]="pendenciaModalMotivoAtual()"
+      [justificativaAtual]="pendenciaModalJustificativaAtual()"
+      (pendenciaSalva)="reload()"
+      (pendenciaResolvida)="reload()"
+    />
   }
 </div>
 
-<!-- MODAL DE CONFLITO DE VERSÃO (409) -->
-<geo-dialog-shell
-  [title]="'Conflito de versão'"
-  description="Esta solicitação foi atualizada recentemente no servidor."
-  size="sm"
-  [(visible)]="conflictVisible"
->
-  <div class="flex flex-col gap-3 py-1">
-    <div
-      class="flex items-center gap-2.5 p-2.5 rounded-lg bg-amber-50/70 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/40 text-amber-800 dark:text-amber-300"
-    >
-      <i class="pi pi-exclamation-triangle text-amber-600 text-base shrink-0"></i>
-      <div class="flex flex-col gap-0.5 text-xs">
-        <span class="font-medium">Atualização de segurança</span>
-        <span class="text-[11px] text-amber-700 dark:text-amber-300">Os dados mudaram para evitar sobrescrita acidental.</span>
-      </div>
-    </div>
-    <div class="text-xs text-slate-600 dark:text-slate-400 flex flex-col gap-1.5">
-      <p><span class="font-medium">Ação em execução:</span> {{ conflictIntent() }}</p>
-      @if (conflictVersions()) {
-        <p class="text-slate-500 text-[11px] bg-slate-100 dark:bg-slate-800 p-2 rounded">
-          {{ conflictVersions() }}
-        </p>
-      }
-      <p class="mt-0.5 text-[11px]">
-        Clique em <span class="font-medium">Recarregar</span> para atualizar a tela com os dados mais recentes.
-      </p>
-    </div>
-  </div>
-  <div dialog-footer>
-    <geo-button label="Fechar" variant="ghost" size="sm" (pressed)="conflictVisible.set(false)" />
-    <geo-button label="Recarregar e atualizar" icon="pi pi-refresh" variant="primary" size="sm" (pressed)="reconcile()" />
-  </div>
-</geo-dialog-shell>
-
-<!-- MODAL DE REJEIÇÃO -->
-<geo-dialog-shell
-  [title]="'Rejeitar Solicitação Técnica'"
-  description="A rejeição cancelará permanentemente a solicitação técnica de material."
-  size="md"
-  [(visible)]="displayRejectModal"
->
-  <div class="flex flex-col gap-4 py-1">
-    <div class="bg-rose-50/70 dark:bg-rose-950/40 p-3.5 rounded-xl border border-rose-200 dark:border-rose-900/60 flex items-start gap-3">
-      <i class="pi pi-exclamation-circle text-rose-600 dark:text-rose-400 mt-0.5 text-base shrink-0"></i>
-      <div class="flex flex-col gap-0.5">
-        <span class="text-xs font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">Atenção</span>
-        <p class="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
-          A rejeição é irreversível e impedirá separações ou entregas físicas para esta solicitação.
-        </p>
-      </div>
-    </div>
-
-    <!-- Detalhes e Descrição da Solicitação -->
-    @if (detail(); as sol) {
-      <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 text-xs flex flex-col gap-2">
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-1.5">
-          <span class="font-semibold text-slate-700 dark:text-slate-300">Solicitação:</span>
-          <span class="font-mono text-slate-600 dark:text-slate-400">{{ sol.id }}</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2 text-[11px]">
-          <div>
-            <span class="text-slate-500 dark:text-slate-400">Obra:</span>
-            <span class="font-medium text-slate-800 dark:text-slate-200 ml-1">{{ obraDisplay() }}</span>
-          </div>
-          <div>
-            <span class="text-slate-500 dark:text-slate-400">Tipo:</span>
-            <span class="font-medium text-slate-800 dark:text-slate-200 ml-1">{{ typeLabel(sol.tecnico?.tipoTecnico) }}</span>
-          </div>
-        </div>
-        @if (sol.tecnico?.observacao) {
-          <div class="flex flex-col gap-0.5 pt-1 border-t border-slate-200 dark:border-slate-700">
-            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Descrição / Observação da Solicitação:</span>
-            <span class="text-[11px] text-slate-700 dark:text-slate-300 italic">{{ sol.tecnico?.observacao }}</span>
-          </div>
-        }
-      </div>
-    }
-
-    <div class="flex flex-col gap-3.5">
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-          Motivo da Rejeição <span class="text-rose-500">*</span>
-        </label>
-        <p-select
-          [(ngModel)]="rejectionData.idMotivoRejeicao"
-          [options]="motivosRejeicaoOptions()"
-          optionLabel="nome"
-          size="small"
-          optionValue="id"
-          placeholder="Selecione o motivo..."
-          class="w-full text-xs"
-          appendTo="body"
-        >
-          <ng-template let-motivo pTemplate="item">
-            <div class="flex flex-col gap-0.5">
-              <span class="text-xs font-semibold text-slate-800 dark:text-slate-200">{{ motivo.nome }}</span>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight">{{ motivo.descricao }}</span>
-            </div>
-          </ng-template>
-        </p-select>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-semibold text-slate-700 dark:text-slate-300">
-          Descrição / Justificativa da Rejeição <span class="text-rose-500">*</span>
-        </label>
-        <textarea
-          pTextarea
-          [(ngModel)]="rejectionData.justificativa"
-          rows="4"
-          placeholder="Descreva detalhadamente o porquê desta rejeição..."
-          class="w-full text-xs rounded-xl border-slate-300 dark:border-slate-700 focus:border-rose-500 bg-white dark:bg-slate-900"
-        ></textarea>
-        <span class="text-[10px] text-slate-500 dark:text-slate-400 italic">* Mínimo de 5 caracteres.</span>
-      </div>
-    </div>
-  </div>
-
-  <div dialog-footer>
-    <geo-button label="Cancelar" variant="ghost" size="sm" (pressed)="displayRejectModal.set(false)" />
-    <geo-button
-      label="Confirmar Rejeição"
-      icon="pi pi-times-circle"
-      variant="destructive"
-      size="sm"
-      [loading]="rejectLoading()"
-      [disabled]="!isOnline() || !rejectionData.idMotivoRejeicao || !rejectionData.justificativa || rejectionData.justificativa.trim().length < 5"
-      (pressed)="confirmRejection()"
-    />
-  </div>
-</geo-dialog-shell>
+<app-saldo-estoque-dialog #saldoDialog />

@@ -344,7 +344,7 @@ export const routes: Routes = [
         // A nova solicitação comercial abre em painel lateral na lista.
         path: 'solicitacoes/nova',
         pathMatch: 'full',
-        redirectTo: abrirNoDrawer('/almoxarifado/solicitacoes')
+        redirectTo: '/almoxarifado/solicitacoes?nova=1'
       },
       {
         path: 'solicitacoes-tecnicas',
@@ -353,23 +353,23 @@ export const routes: Routes = [
       },
       {
         path: 'solicitacoes-tecnicas/calendario',
-        data: { permission: 'estoque:solicitacao:read', modo: 'calendario' },
+        data: { permission: 'estoque:solicitacao:read', modo: 'calendario', fullBleed: true },
         loadComponent: () => import('./features/almoxarifado/solicitacoes-material/solicitacoes-material-tecnicas.component').then(m => m.SolicitacoesMaterialTecnicasComponent)
       },
       {
         path: 'solicitacoes-tecnicas/kanban',
-        data: { permission: 'estoque:solicitacao:read', modo: 'kanban' },
+        data: { permission: 'estoque:solicitacao:read', modo: 'kanban', fullBleed: true },
         loadComponent: () => import('./features/almoxarifado/solicitacoes-material/solicitacoes-material-tecnicas.component').then(m => m.SolicitacoesMaterialTecnicasComponent)
       },
       {
         path: 'solicitacoes-tecnicas/nova',
         pathMatch: 'full',
-        redirectTo: abrirNoDrawer('/almoxarifado/solicitacoes-tecnicas')
+        redirectTo: ({ queryParams }) => `/almoxarifado/solicitacoes-tecnicas?nova=1${queryParams['idObra'] ? '&idObra=' + queryParams['idObra'] : ''}`
       },
       {
         path: 'solicitacoes-tecnicas/devolucao',
         pathMatch: 'full',
-        redirectTo: abrirNoDrawer('/almoxarifado/solicitacoes-tecnicas', { modo: 'devolucao' })
+        redirectTo: ({ queryParams }) => `/almoxarifado/solicitacoes-tecnicas?devolucao=1${queryParams['idObra'] ? '&idObra=' + queryParams['idObra'] : ''}`
       },
       {
         path: 'solicitacoes-tecnicas/:id',

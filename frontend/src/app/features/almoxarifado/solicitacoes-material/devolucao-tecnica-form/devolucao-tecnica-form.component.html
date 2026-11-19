@@ -1,36 +1,45 @@
-<geo-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova devolução de material" [description]="obraFixa() ? obraRotulo() : 'Da obra para o almoxarifado; o saldo é movimentado na hora.'"
+<geo-form-drawer #gaveta [visible]="aberto()" (visibleChange)="!$event && fechar()" title="Nova devolução técnica (222/922)"
+  [description]="obraFixa() ? obraRotulo() : 'Do estoque da obra para o almoxarifado; o saldo é movimentado na hora.'"
   size="lg" [resizable]="true" [dirty]="alterado()" [loading]="carregando()">
   @if (erroCatalogos()) {
     <geo-async-state state="error" title="Não foi possível preparar o formulário" [description]="erroCatalogos()" actionLabel="Tentar de novo" (action)="carregarCatalogos()"></geo-async-state>
   } @else {
-    <div class="sol-form">
-      <geo-form-section title="Origem e destino" icon="pi pi-building">
-        @if (!obraFixa()) {
-          <geo-select label="Obra" [required]="true" [options]="obraOpcoes()" [value]="idObra()" (valueChange)="selecionarObra($event)" [filter]="true"
-            placeholder="Pesquisar por número ou título" [error]="erro('idObra')"></geo-select>
-        }
-        <div class="geo-form-grid">
-          <geo-select label="Equipe responsável" [required]="true" [options]="equipeOpcoes()" [(value)]="idEquipe" [filter]="true" [error]="erro('idEquipe')"></geo-select>
-          <geo-select label="Almoxarifado de destino" [required]="true" [options]="destinoOpcoes()" [(value)]="idEstoqueDestino" [filter]="true" [error]="erro('idEstoqueDestino')"></geo-select>
+    <div class="ns">
+      <section class="ns-secao" aria-labelledby="dv-origem">
+        <h3 id="dv-origem" class="ns-secao__titulo"><i class="pi pi-building" aria-hidden="true"></i>De onde volta</h3>
+        <div class="ns-cartao">
+          @if (!obraFixa()) {
+            <geo-select label="Obra" [required]="true" [options]="obraOpcoes()" [value]="idObra()" (valueChange)="selecionarObra($event)" [filter]="true"
+              placeholder="Buscar obra" [error]="erro('idObra')"></geo-select>
+          }
+          @if (ocorrenciaObrigatoria()) {
+            <geo-text-input label="Número da OC/OS" [required]="true" [(value)]="ocorrencia" [maxlength]="100" placeholder="Como está na ordem" [error]="erro('ocorrencia')"></geo-text-input>
+          }
+          <div class="dd-grid-2">
+            <geo-select label="Equipe que devolve" [required]="true" [options]="equipeOpcoes()" [(value)]="idEquipe" [filter]="true" placeholder="Selecione" [error]="erro('idEquipe')"></geo-select>
+            <geo-select label="Almoxarifado que recebe" [required]="true" [options]="destinoOpcoes()" [(value)]="idEstoqueDestino" [filter]="true" placeholder="Selecione" [error]="erro('idEstoqueDestino')"></geo-select>
+          </div>
         </div>
-        @if (ocorrenciaObrigatoria()) {
-          <geo-text-input label="Ocorrência (OC/OS)" [required]="true" [(value)]="ocorrencia" [maxlength]="100" placeholder="Número da OC/OS" [error]="erro('ocorrencia')"></geo-text-input>
-        }
-      </geo-form-section>
+      </section>
 
-      <geo-form-section title="Materiais" icon="pi pi-box">
-        @if (estoqueObra()) {
-          <div section-actions>
-            <geo-button variant="ghost" size="sm" icon="pi pi-box" label="Ver saldo da obra" (pressed)="abrirSaldoObra()"></geo-button>
-          </div>
-        }
-        <div class="sol-novo-item">
-          <div class="sol-novo-item__material">
-            <geo-autocomplete inputId="materialDevolucao" label="Material" [showSearchInstruction]="false" [options]="materiais()" [ngModel]="idMaterial()" (ngModelChange)="aoEscolherMaterial($event)"
-              [loading]="materiaisCarregando()" [status]="materiaisStatus()" [error]="materiaisErro()" placeholder="Pesquise por código ou descrição" [minLength]="2" appendTo="body"
-              (search)="buscarMateriais($event)" (loadMore)="carregarMaisMateriais()" (retry)="tentarMateriaisDeNovo()"></geo-autocomplete>
-          </div>
-          <div class="sol-novo-item__material geo-form-grid">
+      <section class="ns-secao" aria-labelledby="dv-materiais">
+        <div class="ns-secao__topo">
+          <h3 id="dv-materiais" class="ns-secao__titulo"><i class="pi pi-box" aria-hidden="true"></i>Materiais</h3>
+          <span class="dv-resumo">
+            @if (itens().length) {
+              <span class="ns-secao__dica">{{ itens().length }} {{ itens().length === 1 ? 'material' : 'materiais' }}</span>
+            }
+            @if (estoqueObra()) {
+              <geo-button variant="ghost" size="sm" icon="pi pi-box" label="Ver saldo da obra" (pressed)="abrirSaldoObra()"></geo-button>
+            }
+          </span>
+        </div>
+
+        <div class="ns-cartao">
+          <geo-autocomplete inputId="materialDevolucao" label="Incluir material" [showSearchInstruction]="false" [options]="materiais()" [ngModel]="idMaterial()" (ngModelChange)="aoEscolherMaterial($event)"
+            [loading]="materiaisCarregando()" [status]="materiaisStatus()" [error]="materiaisErro()" placeholder="Buscar por código ou descrição" [minLength]="2" appendTo="body"
+            (search)="buscarMateriais($event)" (loadMore)="carregarMaisMateriais()" (retry)="tentarMateriaisDeNovo()"></geo-autocomplete>
+          <div class="dv-grid-3">
             <geo-select label="Tipo" [options]="tipos" [(value)]="tipo"></geo-select>
             <geo-select label="Condição" [options]="condicoes" [value]="condicao()" (valueChange)="aoMudarCondicao($event!)"></geo-select>
             @if (!controlaSerie()) {
@@ -38,73 +47,113 @@
             }
           </div>
           @if (controlaSerie()) {
-            <div class="sol-novo-item__material">
-              <geo-textarea label="Números de série" [(value)]="seriesTexto" [rows]="2" description="Um por linha. Série que não está na obra também pode ser informada."></geo-textarea>
+            <div class="dv">
               @if (seriesDaObra().length) {
-                <div class="sol-opcoes" role="group" aria-label="Séries nesta obra">
+                <div class="dv-escolha" role="group" aria-label="Séries nesta obra">
                   @for (serie of seriesDaObra(); track serie) {
-                    <geo-button variant="ghost" size="sm" [label]="serie" (pressed)="adicionarSerie(serie)"></geo-button>
+                    <button type="button" class="dv-chip" (click)="adicionarSerie(serie)"><i class="pi pi-barcode" aria-hidden="true"></i>{{ serie }}</button>
                   }
                 </div>
               }
+              <geo-textarea label="Números de série" [(value)]="seriesTexto" [rows]="2" description="Um por linha. Série que não está na obra também pode ser informada."></geo-textarea>
             </div>
           }
-          <div class="sol-novo-item__material">
-            <geo-boolean-control label="Guardar no almoxarifado" description="Desligado, o material é devolvido e baixado na mesma operação." kind="toggle" [(value)]="guardar"></geo-boolean-control>
+          <div class="dv-destino">
+            <span class="dd-muted">No almoxarifado</span>
+            <div class="dv-escolha" role="radiogroup" aria-label="O que fazer com o material no almoxarifado">
+              <button type="button" class="dv-chip" role="radio" [attr.aria-checked]="guardar()" [attr.aria-pressed]="guardar()" (click)="guardar.set(true)">
+                <i class="pi pi-inbox" aria-hidden="true"></i>Guardar no estoque
+              </button>
+              <button type="button" class="dv-chip" role="radio" [attr.aria-checked]="!guardar()" [attr.aria-pressed]="!guardar()" (click)="guardar.set(false)">
+                <i class="pi pi-trash" aria-hidden="true"></i>Dar baixa avulsa
+              </button>
+            </div>
           </div>
           @if (material()) {
-            <p class="sol-novo-item__material sol-resumo" aria-live="polite">
-              Saldo na obra: {{ saldoSelecionado() }} {{ material()!.unidadeMedida }} ({{ condicao() === 'SUCATA' ? 'sucata' : 'novo' }}).
-              @if (excede()) { A diferença será lançada como entrada na obra. }
+            <p class="ns-info" aria-live="polite"><i class="pi pi-info-circle" aria-hidden="true"></i>
+              <span>Saldo na obra: {{ saldoSelecionado() }} {{ material()!.unidadeMedida }} ({{ condicao() === 'SUCATA' ? 'sucata' : 'novo' }}).@if (excede()) { A diferença entra como entrada na obra. }</span>
             </p>
           }
-          <div class="sol-novo-item__botao">
-            <geo-button variant="outline" icon="pi pi-plus" label="Adicionar" [disabled]="!podeIncluir()" (pressed)="adicionarItem()"></geo-button>
+          <div class="dv-incluir-acao">
+            <geo-button variant="outline" icon="pi pi-plus" label="Incluir" [disabled]="!podeIncluir()" (pressed)="adicionarItem()"></geo-button>
           </div>
         </div>
+
         @if (erro('itens')) {
-          <p class="sol-erro" role="alert">{{ erro('itens') }}</p>
+          <geo-callout tone="danger" [dense]="true">{{ erro('itens') }}</geo-callout>
         }
-        @if (itens().length) {
-          <ul class="sol-itens" aria-label="Materiais da devolução">
+
+        @if (!itens().length) {
+          <div class="ns-vazio">
+            <i class="pi pi-box" aria-hidden="true"></i>
+            <span>Nenhum material ainda. Pode incluir o que não está no saldo da obra: a diferença entra como entrada avulsa.</span>
+          </div>
+        } @else {
+          <ul class="dd-entrega__lista" aria-label="Materiais da devolução">
             @for (item of itens(); track item.idMaterial + item.tipo + item.condicao; let i = $index) {
-              <li class="sol-item sol-item--devolucao">
-                <span class="sol-item__nome">
-                  <span class="sol-item__codigo">{{ item.codigo }}</span>
-                  <span class="sol-item__descricao" [title]="item.descricao">{{ item.descricao }}</span>
+              <li class="dd-entrega__item">
+                <div class="dv-linha-topo">
+                  <div class="dd-material">
+                    <strong>{{ item.descricao }}</strong>
+                    <span class="dd-muted">{{ item.codigo }} · {{ rotuloTipo(item.tipo) }} · obra tem {{ item.saldoNaObra }} {{ item.condicao === 'SUCATA' ? 'sucata' : 'novo' }}</span>
+                    @if (item.quantidade > item.saldoNaObra) {
+                      <geo-status tone="warning" icon="pi pi-exclamation-triangle">Fora do saldo: a diferença entra como entrada na obra</geo-status>
+                    }
+                  </div>
+                  <geo-icon-button icon="pi pi-trash" [label]="'Tirar ' + item.codigo + ' da devolução'" tooltip="Tirar da devolução" size="icon-sm" (pressed)="removerItem(i)"></geo-icon-button>
+                </div>
+                <div class="dv-grid-3">
+                  <div class="dv-qtd">
+                    <span>Condição</span>
+                    <geo-status [tone]="item.condicao === 'SUCATA' ? 'warning' : 'success'">{{ item.condicao === 'SUCATA' ? 'Sucata' : 'Novo' }}</geo-status>
+                  </div>
                   @if (item.numSeries?.length) {
-                    <span class="sol-item__descricao">Séries: {{ item.numSeries!.join(', ') }}</span>
+                    <div class="dv-qtd">
+                      <span>Quantidade</span>
+                      <strong>{{ item.numSeries!.length }} {{ item.numSeries!.length === 1 ? 'série' : 'séries' }}</strong>
+                    </div>
+                  } @else {
+                    <geo-number-input [label]="'Quantidade'" [value]="item.quantidade" (valueChange)="ajustarQuantidade(i, $event)" [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></geo-number-input>
                   }
-                  @if (item.quantidade > item.saldoNaObra) {
-                    <span class="sol-item__descricao">Saldo na obra: {{ item.saldoNaObra }}; a diferença entra como entrada.</span>
-                  }
-                </span>
-                <span class="sol-opcoes">
-                  <geo-status tone="neutral">{{ rotuloTipo(item.tipo) }}</geo-status>
-                  <geo-status [tone]="item.condicao === 'SUCATA' ? 'warning' : 'success'">{{ item.condicao === 'SUCATA' ? 'Sucata' : 'Novo' }}</geo-status>
-                  <geo-button variant="ghost" size="sm" [icon]="item.guardarNoEstoque ? 'pi pi-inbox' : 'pi pi-trash'" [label]="item.guardarNoEstoque ? 'Guardar' : 'Baixar'" (pressed)="alternarDestino(i)"></geo-button>
-                </span>
+                </div>
                 @if (item.numSeries?.length) {
-                  <span>{{ item.quantidade }}</span>
-                } @else {
-                  <geo-number-input [label]="'Quantidade de ' + item.codigo" [labelVisible]="false" [value]="item.quantidade" (valueChange)="ajustarQuantidade(i, $event)" [min]="0.001" [step]="0.001" [maxFractionDigits]="3"></geo-number-input>
+                  <div class="dv-escolha">
+                    @for (serie of item.numSeries!; track serie) {
+                      <span class="dv-chip" aria-pressed="true"><i class="pi pi-barcode" aria-hidden="true"></i>{{ serie }}</span>
+                    }
+                  </div>
                 }
-                <geo-icon-button icon="pi pi-trash" [label]="'Remover ' + item.codigo" size="icon-sm" (pressed)="removerItem(i)"></geo-icon-button>
+                <div class="dv-destino">
+                  <span class="dd-muted">No almoxarifado</span>
+                  <div class="dv-escolha" role="radiogroup" [attr.aria-label]="'O que fazer com ' + item.codigo + ' no almoxarifado'">
+                    <button type="button" class="dv-chip" role="radio" [attr.aria-checked]="item.guardarNoEstoque" [attr.aria-pressed]="item.guardarNoEstoque"
+                      (click)="!item.guardarNoEstoque && alternarDestino(i)"><i class="pi pi-inbox" aria-hidden="true"></i>Guardar no estoque</button>
+                    <button type="button" class="dv-chip" role="radio" [attr.aria-checked]="!item.guardarNoEstoque" [attr.aria-pressed]="!item.guardarNoEstoque"
+                      (click)="item.guardarNoEstoque && alternarDestino(i)"><i class="pi pi-trash" aria-hidden="true"></i>Dar baixa avulsa</button>
+                  </div>
+                </div>
               </li>
             }
           </ul>
-        } @else {
-          <p class="sol-vazio">Nenhum material adicionado.</p>
         }
-        @if (itensForaDoEstoque().length) {
-          <geo-callout tone="info" title="Material fora do saldo da obra">A diferença será lançada como entrada avulsa na obra, para o saldo não ficar negativo.</geo-callout>
-        }
-      </geo-form-section>
+      </section>
     </div>
   }
-  <geo-form-actions drawer-footer submitLabel="Registrar devolução" submitIcon="pi pi-undo" savingLabel="Registrando…" [saving]="salvando()" [disabled]="!!erroCatalogos() || carregando()" (save)="enviar()" (cancel)="gaveta.requestClose()">
-    <span actions-start class="sol-resumo">{{ itens().length }} {{ itens().length === 1 ? 'material' : 'materiais' }}</span>
-  </geo-form-actions>
+
+  <div drawer-footer class="ns-rodape">
+    <span class="dv-resumo" aria-live="polite">
+      @if (itens().length) {
+        <geo-status tone="info" icon="pi pi-inbox">{{ resumoGuardar() }} para guardar</geo-status>
+        @if (resumoBaixa()) { <geo-status tone="neutral" icon="pi pi-trash">{{ resumoBaixa() }} em baixa avulsa</geo-status> }
+        @if (itensForaDoEstoque().length) { <geo-status tone="warning" icon="pi pi-exclamation-triangle">{{ itensForaDoEstoque().length }} fora do saldo</geo-status> }
+      }
+    </span>
+    <span class="ns-rodape__acoes">
+      <geo-button label="Cancelar" variant="ghost" (pressed)="gaveta.requestClose()"></geo-button>
+      <geo-button [label]="'Registrar devolução' + (itens().length ? ' (' + itens().length + ')' : '')" icon="pi pi-check-circle"
+        [loading]="salvando()" [disabled]="!itens().length || !!erroCatalogos() || carregando()" (pressed)="enviar()"></geo-button>
+    </span>
+  </div>
 </geo-form-drawer>
 
 <app-saldo-estoque-dialog #saldoDialog></app-saldo-estoque-dialog>

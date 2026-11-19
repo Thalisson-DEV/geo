@@ -515,8 +515,8 @@ export class App {
             { label: 'Gerenciar Solicitações', icon: 'pi pi-list', routerLink: '/almoxarifado/solicitacoes-tecnicas', routerLinkActiveOptions: { exact: true } },
             { label: 'Nova Solicitação', icon: 'pi pi-plus-circle', routerLink: '/almoxarifado/solicitacoes-tecnicas/nova' },
             { label: 'Nova Devolução', icon: 'pi pi-undo', routerLink: '/almoxarifado/solicitacoes-tecnicas/devolucao' },
-            { label: 'Kanban', icon: 'pi pi-objects-column', routerLink: '/almoxarifado/solicitacoes-tecnicas/kanban' },
-            { label: 'Calendário', icon: 'pi pi-calendar', routerLink: '/almoxarifado/solicitacoes-tecnicas/calendario' },
+            { label: 'Quadro', icon: 'pi pi-objects-column', routerLink: '/almoxarifado/solicitacoes-tecnicas/kanban' },
+            { label: 'Calendário de saques', icon: 'pi pi-calendar', routerLink: '/almoxarifado/solicitacoes-tecnicas/calendario' },
           ]
         },
         {

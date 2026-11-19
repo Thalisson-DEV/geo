@@ -1,7 +1,7 @@
 import { Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import {
   GeoButtonComponent,
-  GeoDialogShellComponent,
+  GeoFormDrawerComponent,
   GeoSelectComponent,
   GeoStatusComponent,
   GeoTextareaComponent,
@@ -33,14 +33,14 @@ export interface ItemPendenciaConfig {
   selector: 'app-solicitacao-pendencia-modal',
   standalone: true,
   imports: [
-    GeoDialogShellComponent,
+    GeoFormDrawerComponent,
     GeoButtonComponent,
     GeoSelectComponent,
     GeoTextareaComponent,
     GeoStatusComponent,
   ],
   template: `
-    <geo-dialog-shell
+    <geo-form-drawer
       [title]="modalTitle()"
       [description]="modalDescription()"
       [size]="modalSize()"
@@ -52,7 +52,7 @@ export interface ItemPendenciaConfig {
             <div class="flex items-center justify-between gap-2">
               <span class="text-xs font-bold text-[var(--geo-warning-text)] uppercase tracking-wider flex items-center gap-1.5">
                 <i class="pi pi-exclamation-triangle text-[var(--geo-warning-text)]"></i>
-                {{ idItem() ? 'Pendência Atual do Material' : 'Pendência Atual da Solicitação' }}
+                {{ idItem() ? 'Pendência atual do material' : 'Pendência atual da solicitação' }}
               </span>
               <geo-status tone="warning" icon="pi-flag">{{ motivo.nome }}</geo-status>
             </div>
@@ -316,7 +316,7 @@ export interface ItemPendenciaConfig {
       }
       </div>
 
-      <div dialog-footer class="flex items-center justify-end gap-2 w-full">
+      <div drawer-footer class="flex items-center justify-end gap-2 w-full">
         <geo-button
           label="Cancelar"
           variant="ghost"
@@ -333,7 +333,7 @@ export interface ItemPendenciaConfig {
           (pressed)="salvar()"
         />
       </div>
-    </geo-dialog-shell>
+    </geo-form-drawer>
   `,
 })
 export class SolicitacaoPendenciaModalComponent {
@@ -399,9 +399,9 @@ export class SolicitacaoPendenciaModalComponent {
 
   readonly modalTitle = computed(() => {
     if (this.itemLabel()) {
-      return 'Registrar Pendência do Material';
+      return 'Registrar pendência do material';
     }
-    return this.escopo() === 'MATERIAL' ? 'Registrar Pendência por Material' : 'Registrar Pendência da Solicitação';
+    return this.escopo() === 'MATERIAL' ? 'Registrar pendência por material' : 'Registrar pendência da solicitação';
   });
 
   readonly modalDescription = computed(() => {

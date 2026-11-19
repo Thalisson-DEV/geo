@@ -1,3 +1,4 @@
+import { ConfirmationService } from 'primeng/api';
 import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
 import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
@@ -37,6 +38,7 @@ describe('SolicitacaoPendenciaModalComponent', () => {
     TestBed.configureTestingModule({
       imports: [SolicitacaoPendenciaModalComponent],
       providers: [
+        ConfirmationService,
         { provide: AlmoxarifadoService, useValue: service },
         { provide: NotificationService, useValue: notifications },
       ],
@@ -92,7 +94,7 @@ describe('SolicitacaoPendenciaModalComponent', () => {
 
     const component = fixture.componentInstance;
     expect(component.escopo()).toBe('GERAL');
-    expect(component.modalTitle()).toBe('Registrar Pendência da Solicitação');
+    expect(component.modalTitle()).toBe('Registrar pendência da solicitação');
 
     component.idMotivo.set('mot-1');
     component.descricao.set('Aguardando autorização da gerência');
@@ -227,7 +229,7 @@ describe('SolicitacaoPendenciaModalComponent', () => {
 
     const component = fixture.componentInstance;
     expect(component.escopo()).toBe('MATERIAL');
-    expect(component.modalTitle()).toBe('Registrar Pendência do Material');
+    expect(component.modalTitle()).toBe('Registrar pendência do material');
 
     component.setItemMotivo('item-456', 'mot-2');
     component.setItemJustificativa('item-456', 'Material danificado na embalagem');

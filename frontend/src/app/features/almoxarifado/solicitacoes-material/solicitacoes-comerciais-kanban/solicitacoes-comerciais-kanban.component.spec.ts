@@ -12,16 +12,13 @@ import { UsuarioLookupService } from '../../../../core/services/usuario-lookup.s
 import { paginaTeste } from '../../../../shared/listagem/listagem-teste';
 import { LIMITE_ABERTAS, LIMITE_ENCERRADAS, SolicitacoesComerciaisKanbanComponent } from './solicitacoes-comerciais-kanban.component';
 
-// Prazo de saque sempre adiante: só o card que o teste marcar com data passada fica atrasado.
-const PRAZO_FUTURO = new Date(Date.now() + 30 * 86_400_000).toISOString().substring(0, 10);
-
 const card = (id: string, status: string, extra: Partial<SolicitacaoMaterialSummaryResponse> = {}) =>
   ({
     id: id.padEnd(12, '0'),
     status,
     contexto: 'COMERCIAL',
     dataSolicitacao: '2026-10-01T10:00:00Z',
-    dataPrevista: PRAZO_FUTURO,
+    dataPrevista: '2099-10-20',
     estoqueOrigemNome: 'CENTRAL',
     estoqueDestinoNome: 'EQUIPE ' + id,
     idRequisitante: 'u1',

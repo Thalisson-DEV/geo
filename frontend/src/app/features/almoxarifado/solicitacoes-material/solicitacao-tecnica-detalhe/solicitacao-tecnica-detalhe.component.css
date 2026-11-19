@@ -1,3 +1,4 @@
+/* Mesmo desenho do relatório comercial (relatorio-solicitacao-material.component.css). */
 :host {
   display: block;
   width: 100%;
@@ -5,18 +6,12 @@
   background-color: var(--geo-surface);
 
   /*
-   * Ação "neutra forte" (IMPRIMIR) da barra flutuante. Nenhum token único cobre os
-   * dois temas — no claro é tinta escura sobre a página, no escuro é uma superfície
-   * elevada — então o par vive aqui e o template consome só a variável.
+   * Ação "neutra forte" (IMPRIMIR) da barra flutuante.
    */
   --report-action-strong-bg: var(--geo-foreground);
   --report-action-strong-bg-hover: var(--geo-foreground-muted);
 }
 
-/*
- * O relatório é uma página inteira, por isso o fundo do host acompanha o canvas
- * do tema escuro (e não a superfície de card) para não criar duas tonalidades.
- */
 :host-context(.app-dark),
 :host-context(.dark) {
   background-color: var(--geo-canvas);
@@ -74,7 +69,6 @@
   white-space: nowrap;
 }
 
-/* Realces semânticos de valor (nunca são o único indicador: o texto também muda) */
 .kv-v--muted {
   color: var(--geo-foreground-subtle);
 }
@@ -85,25 +79,6 @@
 
 .kv-v--brand {
   color: var(--geo-brand);
-}
-
-.workflow-stage-icon {
-  color: inherit !important;
-}
-
-.workflow-stage-icon--active,
-.workflow-stage-icon--active::before {
-  color: #ffffff !important;
-}
-
-.workflow-stage-icon--waiting,
-.workflow-stage-icon--waiting::before {
-  color: #475569 !important;
-}
-
-:host-context(.dark) .workflow-stage-icon--waiting,
-:host-context(.dark) .workflow-stage-icon--waiting::before {
-  color: #94a3b8 !important;
 }
 
 .signature-slot {
@@ -180,6 +155,19 @@ p-accordion-content {
   border-top: 1px solid var(--geo-border);
 }
 
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--geo-border);
+  border-radius: 10px;
+}
+
 /* REGRAS DE IMPRESSÃO A4 */
 @media print {
   :host {
@@ -222,7 +210,6 @@ p-accordion-content {
     animation: none !important;
   }
 
-  /* O papel é sempre branco: a tinta não pode seguir os tokens do tema escuro. */
   .kv-l {
     font-size: 8.5px;
     color: #475569 !important;
@@ -253,3 +240,128 @@ p-accordion-content {
     box-shadow: none !important;
   }
 }
+
+/* FAIXA DA SITUAÇÃO (mesmo padrão do comprovante de movimentação) */
+.destaque {
+  border-color: var(--geo-border);
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground);
+}
+.destaque[data-tone='success'] { border-color: var(--geo-success); background: var(--geo-success-soft); }
+.destaque[data-tone='warning'] { border-color: var(--geo-warning); background: var(--geo-warning-soft); }
+.destaque[data-tone='danger'] { border-color: var(--geo-danger); background: var(--geo-danger-soft); }
+.destaque[data-tone='info'] { border-color: var(--geo-info); background: var(--geo-info-soft); }
+.destaque[data-tone='brand'] { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
+.destaque__icone { border-color: currentColor; }
+.destaque[data-tone='success'] .destaque__icone { color: var(--geo-success-text); }
+.destaque[data-tone='warning'] .destaque__icone { color: var(--geo-warning-text); }
+.destaque[data-tone='danger'] .destaque__icone { color: var(--geo-danger-text); }
+.destaque[data-tone='info'] .destaque__icone { color: var(--geo-info-text); }
+.destaque[data-tone='brand'] .destaque__icone { color: var(--geo-brand); }
+
+/* CARDS DE RESUMO */
+.resumo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-lg, 0.75rem);
+  background: var(--geo-surface);
+}
+.resumo__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.resumo__rotulo { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground-muted); }
+.resumo__icone {
+  display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+  width: 1.75rem; height: 1.75rem; border-radius: var(--geo-radius-md, 0.5rem);
+  border: 1px solid var(--geo-border); background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.75rem;
+}
+.resumo__valor { display: block; font-size: 1.5rem; font-weight: 700; color: var(--geo-foreground); font-variant-numeric: tabular-nums; }
+.resumo__legenda { font-size: 11px; font-weight: 500; color: var(--geo-foreground-muted); }
+.resumo--destaque { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
+.resumo--destaque .resumo__rotulo,
+.resumo--destaque .resumo__valor,
+.resumo--destaque .resumo__icone { color: var(--geo-brand); }
+.resumo--destaque .resumo__icone { border-color: var(--geo-brand); background: transparent; }
+
+/* SEÇÕES E PAINÉIS DE OPERAÇÃO */
+.secao__titulo { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground); }
+.secao__contagem { font-size: 11px; font-weight: 500; color: var(--geo-foreground-muted); }
+
+.detalhe-series { display: grid; gap: 1rem; }
+.detalhe-series__bloco { display: grid; gap: 0.5rem; }
+.detalhe-series__titulo { display: inline-flex; align-items: center; gap: 0.375rem; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--geo-foreground-muted); }
+.detalhe-series__texto { margin: 0; font-size: 0.75rem; color: var(--geo-foreground-muted); }
+
+/* Na tela a tabela interativa; no papel a tabela do documento, com as séries abertas sob cada material. */
+.tabela-documento { display: none; }
+
+@media print {
+  .destaque, .resumo, .resumo--destaque {
+    border-color: #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  .tabela-documento { display: table; width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; font-size: 10px; color: #0f172a; }
+  .tabela-documento th { padding: 5px 8px; border-bottom: 1px solid #cbd5e1; background: #f1f5f9; text-align: left; font-weight: 700; }
+  .tabela-documento td { padding: 5px 8px; border-top: 1px solid #e2e8f0; }
+  .tabela-documento__num { text-align: right !important; font-variant-numeric: tabular-nums; }
+  .tabela-documento tr { page-break-inside: avoid; break-inside: avoid; }
+  /* Mesmo fundo da linha aberta do comprovante de movimentação, com as séries em branco por cima. */
+  .tabela-documento__detalhe td {
+    padding: 6px 8px 8px;
+    border-top: 0;
+    background: var(--geo-surface-subtle) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* QUADRO DE DADOS (3 colunas) */
+.quadro { border-color: var(--geo-border); background: var(--geo-surface-subtle); }
+.quadro__titulo {
+  display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--geo-border);
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground);
+}
+.quadro__titulo i { font-size: 0.75rem; color: var(--geo-brand); }
+.kv-link { color: var(--geo-brand); text-decoration: none; white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.kv-link:hover { text-decoration: underline; }
+.kv-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: 2px; }
+
+.observacao { border-color: var(--geo-border); background: var(--geo-surface); color: var(--geo-foreground); }
+.observacao > i { color: var(--geo-foreground-muted); }
+
+/* REJEIÇÃO */
+.rejeicao { border-color: var(--geo-danger); background: var(--geo-danger-soft); color: var(--geo-foreground); }
+.rejeicao__icone { border-color: var(--geo-danger); color: var(--geo-danger-text); }
+.rejeicao__titulo { color: var(--geo-danger-text); }
+.rejeicao__justificativa { border-color: var(--geo-border); background: var(--geo-surface); }
+
+.linha-tempo__icone { background: var(--geo-surface-muted); color: var(--geo-foreground-muted); }
+
+/* TERMO E ASSINATURAS */
+.termo { border-color: var(--geo-border); background: var(--geo-surface-subtle); }
+.assinatura {
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  min-height: 140px; padding: 1rem; text-align: center;
+  border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem); background: var(--geo-surface);
+}
+.assinatura__parte { display: block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground); }
+.assinatura__sub { display: block; font-size: 11px; color: var(--geo-foreground-muted); }
+.assinatura__nome { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.75rem; font-weight: 700; color: var(--geo-foreground); }
+.assinatura__papel { font-size: 11px; font-weight: 600; color: var(--geo-foreground-muted); }
+.assinatura__data { margin-top: 0.25rem; font-size: 0.75rem; color: var(--geo-foreground-muted); }
+
+@media print {
+  .quadro, .termo, .assinatura, .rejeicao, .observacao {
+    border-color: #cbd5e1 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  .assinatura { min-height: 110px; padding: 0.5rem; }
+  .quadro__titulo, .assinatura__parte, .assinatura__nome { color: #0f172a !important; }
+}
+
+.kv-aviso { font-size: 11px; font-weight: 600; line-height: 1.35; text-align: right; color: var(--geo-warning-text); }
