@@ -1,87 +1,101 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { GeoIconComponent } from '@geo/ui';
+import { AuthService } from '../../core/services/auth.service';
+import { rotaOculta } from '../../core/white-label/modulos-ocultos';
 
 interface GeoModule {
-  code: string;
   name: string;
   description: string;
-  highlight: string;
+  /** Nome do ícone GEO. */
   icon: string;
   route: string;
+  /** Mesma permissão que o guard exige na rota de entrada do módulo. */
+  permission: string;
 }
+
+const MODULES: GeoModule[] = [
+  {
+    name: 'Obras',
+    description: 'Carteira, programação e medições',
+    icon: 'building-2',
+    route: '/obras',
+    permission: 'obras:obra:read',
+  },
+  {
+    name: 'Almoxarifado',
+    description: 'Materiais e estoques',
+    icon: 'package',
+    route: '/almoxarifado/solicitacoes-tecnicas',
+    permission: 'estoque:solicitacao:read',
+  },
+  {
+    name: 'Execução',
+    description: 'Operação e produtividade',
+    icon: 'zap',
+    route: '/execucao/dashboard-operacional',
+    permission: 'obras:turno:read',
+  },
+  {
+    name: 'Frota',
+    description: 'Veículos, manutenção e condutores',
+    icon: 'car',
+    route: '/frota/veiculos',
+    permission: 'frota:veiculo:read',
+  },
+  {
+    name: 'Segurança do trabalho',
+    description: 'Inspeções e prevenção',
+    icon: 'shield-check',
+    route: '/sst/inspecoes',
+    permission: 'sst:inspecao:read',
+  },
+  {
+    name: 'Departamento pessoal',
+    description: 'Pessoas e descontos em folha',
+    icon: 'users',
+    route: '/dp/descontos/lancamento',
+    permission: 'desconto:read',
+  },
+  {
+    name: 'Financeiro',
+    description: 'Compras e pagamentos',
+    icon: 'wallet',
+    route: '/financeiro/compras',
+    permission: 'financeiro:compra:read',
+  },
+  {
+    name: 'Chamados',
+    description: 'Suporte e atendimento',
+    icon: 'ticket',
+    route: '/chamados/meus',
+    permission: 'chamado:read',
+  },
+  {
+    name: 'Administração',
+    description: 'Usuários e acessos',
+    icon: 'settings',
+    route: '/admin/cadastros/usuarios',
+    permission: 'iam:usuario:read',
+  },
+];
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, GeoIconComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent {
-  protected readonly modules: GeoModule[] = [
-    {
-      code: '01',
-      name: 'Almoxarifado',
-      description: 'Materiais e estoques',
-      highlight: 'Fluxos de materiais em movimento.',
-      icon: 'pi pi-box',
-      route: '/almoxarifado/solicitacoes-tecnicas',
-    },
-    {
-      code: '02',
-      name: 'Execução',
-      description: 'Operação e produtividade',
-      highlight: 'Acompanhe a operação onde ela acontece.',
-      icon: 'pi pi-bolt',
-      route: '/execucao/dashboard-operacional',
-    },
-    {
-      code: '03',
-      name: 'Segurança do trabalho',
-      description: 'Inspeções e prevenção',
-      highlight: 'Prevenção incorporada à rotina.',
-      icon: 'pi pi-shield',
-      route: '/sst/inspecoes',
-    },
-    {
-      code: '04',
-      name: 'Departamento pessoal',
-      description: 'Pessoas e folha',
-      highlight: 'Pessoas e processos organizados.',
-      icon: 'pi pi-users',
-      route: '/dp/descontos/lancamento',
-    },
-    {
-      code: '05',
-      name: 'Financeiro',
-      description: 'Compras e pagamentos',
-      highlight: 'Decisões financeiras com contexto.',
-      icon: 'pi pi-wallet',
-      route: '/financeiro/compras',
-    },
-    {
-      code: '06',
-      name: 'Administração',
-      description: 'Cadastros e acessos',
-      highlight: 'Estrutura e acessos sob controle.',
-      icon: 'pi pi-cog',
-      route: '/admin/cadastros/usuarios',
-    },
-    {
-      code: '07',
-      name: 'Chamados',
-      description: 'Suporte e atendimento',
-      highlight: 'Solicitações que encontram o caminho certo.',
-      icon: 'pi pi-ticket',
-      route: '/chamados/meus',
-    },
-  ];
+  private readonly auth = inject(AuthService);
 
-  protected readonly featuredModuleIndex = signal(0);
-  protected readonly featuredModule = computed(() => this.modules[this.featuredModuleIndex()]);
-
-  protected featureModule(index: number): void {
-    this.featuredModuleIndex.set(index);
-  }
+  /** Só os módulos que o perfil consegue abrir e que fazem parte desta distribuição. */
+  protected readonly modules = computed(() => {
+    const permissoes = this.auth.currentUser()?.permissoes ?? [];
+    return MODULES.filter(
+      (module) => permissoes.includes(module.permission) && !rotaOculta(module.route),
+    );
+  });
 }

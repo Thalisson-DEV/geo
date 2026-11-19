@@ -1,17 +1,19 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
+import { GeoIconComponent } from '../../icons/geo-icon.component';
+import { resolverIcone } from '../../icons/geo-icons';
 import { TooltipModule } from 'primeng/tooltip';
 import { GeoActionSize, GeoActionVariant } from '../../core';
 
 @Component({
   selector: 'geo-icon-button',
   standalone: true,
-  imports: [ButtonModule, TooltipModule],
+  imports: [GeoIconComponent, ButtonModule, TooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <p-button
       [buttonProps]="semAutofocus"
-      [icon]="primeIcon()"
+      [icon]="iconeLucide() ? undefined : primeIcon()"
       [rounded]="true"
       [disabled]="disabled() || loading()"
       [loading]="loading()"
@@ -24,7 +26,16 @@ import { GeoActionSize, GeoActionVariant } from '../../core';
       [pTooltip]="tooltip() || label()"
       [tooltipPosition]="tooltipPosition()"
       (onClick)="pressed.emit()"
-    ></p-button>
+    >
+      @if (iconeLucide(); as nome) {
+        <ng-template #icon let-classe="class">
+          <geo-icon [name]="nome" size="sm" [class]="classe" />
+        </ng-template>
+      }
+      <ng-template #loadingicon let-classe="class">
+        <geo-icon name="loader-circle" size="sm" [spin]="true" [class]="classe" />
+      </ng-template>
+    </p-button>
   `
 })
 export class GeoIconButtonComponent {
@@ -53,6 +64,9 @@ export class GeoIconButtonComponent {
     if (icon.startsWith('pi-')) return `pi ${icon}`;
     return icon;
   });
+
+  /** Ícone desenhado pelo geo-icon (Lucide) quando o nome tem equivalente registrado. */
+  protected readonly iconeLucide = computed(() => resolverIcone(this.icon())?.nome);
 
   protected readonly primeSeverity = computed(() => {
     switch (this.variant()) {

@@ -1,7 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NEVER } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { MenuItem } from 'primeng/api';
+import { signal } from '@angular/core';
+import { ConnectivityService } from '../../../core/services/connectivity.service';
 import { SidebarComponent } from './sidebar.component';
 
 describe('SidebarComponent', () => {
@@ -10,6 +13,7 @@ describe('SidebarComponent', () => {
   let mockUrl = '/almoxarifado/solicitacoes-tecnicas';
 
   const mockRouter = {
+    events: NEVER,
     get url() {
       return mockUrl;
     },
@@ -58,7 +62,11 @@ describe('SidebarComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [SidebarComponent],
-      providers: [{ provide: Router, useValue: mockRouter }],
+      providers: [
+        { provide: Router, useValue: mockRouter },
+        { provide: ActivatedRoute, useValue: {} },
+        { provide: ConnectivityService, useValue: { isOnline: signal(true) } },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(SidebarComponent);

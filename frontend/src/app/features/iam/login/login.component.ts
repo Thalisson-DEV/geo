@@ -1,351 +1,320 @@
-import { Component, signal, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
+import { ChangeDetectionStrategy, Component, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import {
+  GeoButtonComponent,
+  GeoIconButtonComponent,
+  GeoIconComponent,
+  GeoLogoComponent,
+} from '@geo/ui';
+import { GeoPasswordInputComponent, GeoTextInputComponent } from '@geo/ui/forms';
 import { AuthService } from '../../../core/services/auth.service';
+import { ConnectivityService } from '../../../core/services/connectivity.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { LoginRequest } from '../../../core/models/auth.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 import { environment } from '../../../../environments/environment';
 
+/**
+ * Entrada do GEO: painel da marca (some no celular, onde a marca vai para o topo) e o formulário.
+ * O erro do login aparece no próprio formulário, perto do botão, e não em aviso flutuante.
+ */
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    PasswordModule,
-    ButtonModule,
-    CardModule,
-    ToastModule,
-    IconFieldModule,
-    InputIconModule,
-    RouterLink
+    GeoButtonComponent,
+    GeoIconButtonComponent,
+    GeoIconComponent,
+    GeoLogoComponent,
+    GeoPasswordInputComponent,
+    GeoTextInputComponent,
+    RouterLink,
   ],
-  providers: [MessageService],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // Sem encapsulamento para dar aos campos do formulário a altura de toque da entrada; tudo sob .geo-login.
+  encapsulation: ViewEncapsulation.None,
   template: `
-    <p-toast></p-toast>
+    <div class="geo-login">
+      <aside class="geo-login__marca" aria-label="Sobre o GEO">
+        <svg class="geo-login__rosa" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
+          <circle cx="200" cy="200" r="190" />
+          <circle cx="200" cy="200" r="140" />
+          <circle cx="200" cy="200" r="90" />
+          <path d="M200 10 V390 M10 200 H390" />
+          <path class="geo-login__agulha" d="M200 70 L216 200 L200 330 L184 200 Z" />
+        </svg>
 
-    <!-- Fundo da Tela -->
-    <div
-      class="min-h-screen flex flex-col items-center justify-center p-4 pb-12 overflow-hidden relative transition-colors duration-200"
-      [class.bg-[#020617]]="themeService.isDarkMode()"
-      [class.bg-slate-50]="!themeService.isDarkMode()"
-    >
-
-      <!-- Botão de Alternância de Tema -->
-      <button
-        type="button"
-        (click)="themeService.setDarkMode(!themeService.isDarkMode())"
-        class="absolute top-4 right-4 p-2.5 rounded-xl border backdrop-blur transition-all shadow-sm flex items-center justify-center cursor-pointer z-10"
-        [class.bg-slate-800\/90]="themeService.isDarkMode()"
-        [class.border-slate-700]="themeService.isDarkMode()"
-        [class.text-slate-200]="themeService.isDarkMode()"
-        [class.hover:bg-slate-700]="themeService.isDarkMode()"
-        [class.bg-white\/90]="!themeService.isDarkMode()"
-        [class.border-slate-200]="!themeService.isDarkMode()"
-        [class.text-slate-600]="!themeService.isDarkMode()"
-        [class.hover:bg-slate-100]="!themeService.isDarkMode()"
-        [title]="themeService.isDarkMode() ? 'Modo Escuro (clique para mudar para Modo Claro)' : 'Modo Claro (clique para mudar para Modo Escuro)'"
-        aria-label="Alternar tema"
-      >
-        <i [class]="themeService.isDarkMode() ? 'pi pi-moon text-blue-400 text-sm' : 'pi pi-sun text-amber-500 text-sm'"></i>
-      </button>
-
-      <!-- Elementos Decorativos Suaves -->
-      <div
-        class="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full blur-[100px] -z-10 transition-all duration-300"
-        [class.bg-blue-950\/30]="themeService.isDarkMode()"
-        [class.opacity-20]="themeService.isDarkMode()"
-        [class.bg-blue-100]="!themeService.isDarkMode()"
-        [class.opacity-60]="!themeService.isDarkMode()"
-      ></div>
-      <div
-        class="absolute bottom-[-10%] left-[-10%] w-[30%] h-[30%] rounded-full blur-[80px] -z-10 transition-all duration-300"
-        [class.bg-slate-900\/40]="themeService.isDarkMode()"
-        [class.opacity-20]="themeService.isDarkMode()"
-        [class.bg-blue-50]="!themeService.isDarkMode()"
-        [class.opacity-40]="!themeService.isDarkMode()"
-      ></div>
-
-      <!-- Card de Login -->
-      <p-card
-        class="w-full max-w-[350px] overflow-hidden !rounded-2xl transition-all duration-200"
-        [class.login-card-dark]="themeService.isDarkMode()"
-        [class.login-card-light]="!themeService.isDarkMode()"
-        [class.shadow-black\/60]="themeService.isDarkMode()"
-      >
-
-        <!-- Logo Container -->
-        <div class="flex flex-col items-center mb-8 pt-4">
-          <div class="w-28 h-28 mb-4 flex items-center justify-center">
-            @if (themeService.isDarkMode()) {
-              <!-- Versão Escuro (Linhas Brancas + Texto Vermelho) -->
-              <img src="/logo_vertical_dark.svg" alt="GEO" class="w-full h-full object-contain">
-            } @else {
-              <!-- Versão Claro (Linhas Azuis + Texto Vermelho Original) -->
-              <img src="/logo_vertical.svg" alt="GEO" class="w-full h-full object-contain">
-            }
+        <div class="geo-login__identidade">
+          <geo-logo size="2.75rem" label="GEO" />
+          <div>
+            <strong>GEO</strong>
+            <span>Gestão de Equipes e Operações</span>
           </div>
-          <p
-            class="text-[10px] font-bold uppercase tracking-[0.25em]"
-            [class.text-slate-400]="themeService.isDarkMode()"
-            [class.text-slate-500]="!themeService.isDarkMode()"
-          >Gestão de Equipes e Operações</p>
         </div>
 
-        @if (reautenticando) {
-          <p role="status" class="mb-4 px-1 text-xs leading-relaxed" [class.text-slate-300]="themeService.isDarkMode()" [class.text-slate-600]="!themeService.isDarkMode()">
-            Sua sessão terminou no servidor. Entre de novo para enviar os lançamentos que estão
-            salvos neste aparelho.
-          </p>
-        }
+        <div class="geo-login__manchete">
+          <h2>A operação inteira, do campo ao escritório.</h2>
+          <ul>
+            <li>
+              <span class="geo-login__ponto"><geo-icon name="wifi-off" /></span>
+              <span>Funciona sem sinal: o que a equipe lança fica no aparelho e sobe quando a conexão volta.</span>
+            </li>
+            <li>
+              <span class="geo-login__ponto"><geo-icon name="compass" /></span>
+              <span>A Bússola responde sobre obras, estoque e equipes em linguagem simples.</span>
+            </li>
+            <li>
+              <span class="geo-login__ponto"><geo-icon name="shield-check" /></span>
+              <span>Cada pessoa vê só o que o perfil dela permite.</span>
+            </li>
+          </ul>
+        </div>
 
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 px-1">
+        <p class="geo-login__rodape">GEO · {{ ano }}</p>
+      </aside>
 
-          <!-- Campo Usuário -->
-          <div class="flex flex-col gap-2">
-            <label
-              for="login"
-              class="filter-label !text-[11px] ml-1"
-              [class.!text-slate-300]="themeService.isDarkMode()"
-              [class.!text-slate-600]="!themeService.isDarkMode()"
-            >Usuário</label>
-            <p-iconfield iconPosition="left">
-              <p-inputicon class="pi pi-user !text-xs !text-blue-500"></p-inputicon>
-              <input
-                id="login"
-                type="text"
-                pInputText
-                formControlName="login"
-                placeholder="Ex: USR123456"
-                class="login-input w-full !rounded-xl !py-2.5 !text-sm !font-medium !uppercase focus:!border-blue-400 focus:!ring-0 transition-all"
-                [class.login-input-dark]="themeService.isDarkMode()"
-                [class.login-input-light]="!themeService.isDarkMode()"
-                autocomplete="username"
-                (input)="onLoginInput($event)"
-              />
-            </p-iconfield>
-            <small *ngIf="loginForm.get('login')?.invalid && loginForm.get('login')?.touched" class="text-red-500 text-[9px] font-medium ml-1">
-              Formato inválido (USR + 6 números)
-            </small>
+      <main class="geo-login__lado">
+        <div class="geo-login__topo">
+          <div class="geo-login__marca-curta">
+            <geo-logo size="2rem" label="GEO" />
+            <strong>GEO</strong>
           </div>
+          <geo-icon-button
+            variant="outline"
+            [icon]="tema.isDarkMode() ? 'sun' : 'moon'"
+            [label]="tema.isDarkMode() ? 'Usar tema claro' : 'Usar tema escuro'"
+            tooltipPosition="left"
+            (pressed)="tema.setDarkMode(!tema.isDarkMode())"
+          />
+        </div>
 
-          <!-- Campo Senha -->
-          <div class="flex flex-col gap-2">
-            <label
-              for="password"
-              class="filter-label !text-[11px] ml-1"
-              [class.!text-slate-300]="themeService.isDarkMode()"
-              [class.!text-slate-600]="!themeService.isDarkMode()"
-            >Senha</label>
-            <p-iconfield iconPosition="left">
-              <p-inputicon class="pi pi-lock !text-xs !text-blue-500 z-10"></p-inputicon>
-              <p-password
-                id="password"
-                formControlName="password"
-                [toggleMask]="true"
-                [feedback]="false"
-                placeholder="••••••••"
-                class="w-full"
-                [inputStyleClass]="themeService.isDarkMode() ? 'login-input login-input-dark w-full !rounded-xl !py-2.5 !text-sm focus:!border-blue-400 focus:!ring-0 transition-all' : 'login-input login-input-light w-full !rounded-xl !py-2.5 !text-sm focus:!border-blue-400 focus:!ring-0 transition-all'"
-                autocomplete="current-password"
-              ></p-password>
-            </p-iconfield>
-          </div>
+        <section class="geo-login__cartao" aria-labelledby="geo-login-titulo">
+          <h1 id="geo-login-titulo">Entrar</h1>
+          <p class="geo-login__subtitulo">Use o usuário e a senha que você recebeu.</p>
 
-          <!-- Botão Entrar -->
-          <div class="pt-4 flex flex-col gap-3">
-            <p-button
-              label="ENTRAR NO SISTEMA"
-              type="submit"
-              class="w-full"
-              styleClass="w-full !rounded-xl !py-4 !text-xs !font-black !tracking-widest !bg-blue-600 !border-blue-600 hover:!bg-blue-700 !shadow-lg transition-all active:scale-[0.98]"
-              [class.!shadow-blue-950\/40]="themeService.isDarkMode()"
-              [class.!shadow-blue-200\/50]="!themeService.isDarkMode()"
-              [disabled]="loginForm.invalid"
-              [loading]="isLoading()"
-              icon="pi pi-sign-in"
-              iconPos="right"
-            ></p-button>
+          @if (reautenticando) {
+            <p class="geo-login__aviso geo-login__aviso--info" role="status">
+              <geo-icon name="info" size="sm" />
+              <span>Sua sessão terminou no servidor. Entre de novo para enviar os lançamentos que estão salvos neste aparelho.</span>
+            </p>
+          }
 
-            @if (statusPageConfigured) {
-              <p-button
-                label="STATUS DO SISTEMA"
-                type="button"
-                class="w-full"
-                styleClass="w-full !rounded-xl !py-3 !text-[10px] !font-bold !tracking-widest !bg-transparent transition-all"
-                [class.login-status-dark]="themeService.isDarkMode()"
-                [class.login-status-light]="!themeService.isDarkMode()"
-                icon="pi pi-server"
-                iconPos="left"
-                (onClick)="openStatusPage()"
-              ></p-button>
+          <form class="geo-login__form" novalidate (submit)="entrar($event)">
+            <geo-text-input
+              label="Usuário"
+              inputId="login"
+              placeholder="Ex.: USR123456"
+              autocomplete="username"
+              [value]="login()"
+              (valueChange)="definirLogin($event)"
+              [error]="erroLogin()"
+              [required]="true"
+            />
+            <geo-password-input
+              label="Senha"
+              inputId="senha"
+              autocomplete="current-password"
+              [value]="senha()"
+              (valueChange)="senha.set($event); erro.set(null)"
+              [error]="erroSenha()"
+              [required]="true"
+            />
+
+            @if (erro(); as mensagem) {
+              <p class="geo-login__aviso geo-login__aviso--erro" role="alert">
+                <geo-icon name="circle-alert" size="sm" />
+                <span>{{ mensagem }}</span>
+              </p>
             }
-          </div>
 
-        </form>
-      </p-card>
+            <geo-button
+              type="submit"
+              label="Entrar"
+              icon="log-in"
+              iconPosition="right"
+              size="lg"
+              [fluid]="true"
+              [loading]="entrando()"
+            />
+          </form>
 
-      <!-- Rodapé do Login -->
-      <div class="mt-8 flex flex-col items-center gap-2 text-center">
-        <nav class="flex gap-4 text-xs font-semibold" aria-label="Documentos legais">
-          <a routerLink="/privacidade" class="text-[var(--geo-foreground-muted)] hover:text-[var(--geo-brand)] hover:underline">Política de privacidade</a>
-          <a routerLink="/termos" class="text-[var(--geo-foreground-muted)] hover:text-[var(--geo-brand)] hover:underline">Termos de uso</a>
-        </nav>
-        <span
-          class="text-[9px] uppercase tracking-widest"
-          [class.text-slate-500]="themeService.isDarkMode()"
-          [class.text-slate-400]="!themeService.isDarkMode()"
-        >GEO | Gestão de Equipes e Operações © 2026</span>
-      </div>
+          @if (conectado()) {
+            <p class="geo-login__nota">
+              <geo-icon name="wifi-off" size="sm" />
+              <span>Depois do primeiro acesso, o GEO abre neste aparelho mesmo sem sinal.</span>
+            </p>
+          } @else {
+            <p class="geo-login__aviso geo-login__aviso--alerta" role="status">
+              <geo-icon name="wifi-off" size="sm" />
+              <span>Sem conexão. Para entrar, o GEO precisa de internet; depois disso ele abre mesmo sem sinal.</span>
+            </p>
+          }
+
+          @if (statusConfigurado) {
+            <button type="button" class="geo-login__status" (click)="abrirStatus()">
+              <geo-icon name="activity" size="sm" />
+              Status do sistema
+            </button>
+          }
+
+          <nav class="geo-login__legal" aria-label="Documentos legais">
+            <a routerLink="/privacidade">Política de privacidade</a>
+            <a routerLink="/termos">Termos de uso</a>
+          </nav>
+        </section>
+      </main>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
+  styles: `
+    app-login { display: block; min-block-size: 100dvh; background: var(--geo-canvas); }
+
+    .geo-login { display: grid; grid-template-columns: minmax(0, 1fr); min-block-size: 100dvh; }
+    @media (min-width: 1024px) { .geo-login { grid-template-columns: minmax(26rem, 0.9fr) minmax(0, 1.1fr); } }
+
+    /* Painel da marca */
+    .geo-login__marca {
+      position: relative; display: none; flex-direction: column; justify-content: space-between; gap: 2.5rem;
+      overflow: hidden; padding: clamp(2rem, 4vw, 3.5rem);
+      background: var(--geo-nav-bg); color: var(--geo-nav-fg);
     }
-    :host ::ng-deep .p-card-body {
-      padding: 1.5rem;
+    @media (min-width: 1024px) { .geo-login__marca { display: flex; } }
+    .geo-login__rosa {
+      position: absolute; inset-block-start: calc(50% - 13rem); inset-inline-end: -13rem; inline-size: 26rem; block-size: 26rem;
+      fill: none; stroke: var(--geo-nav-border-strong); stroke-width: 1;
+      animation: geo-login-girar 1.2s var(--geo-ease-emphasis) both;
+    }
+    .geo-login__agulha { fill: var(--geo-nav-tile-bg-active); stroke: var(--geo-nav-indicator); }
+    @keyframes geo-login-girar { from { opacity: 0; transform: rotate(-24deg); } }
+    :root[data-motion='reduced'] .geo-login__rosa, :root[data-motion='reduced'] .geo-login__cartao { animation: none; }
+
+    .geo-login__identidade { position: relative; display: flex; align-items: center; gap: 0.875rem; color: var(--geo-nav-fg-active); }
+    .geo-login__identidade div { display: flex; flex-direction: column; line-height: 1.25; }
+    .geo-login__identidade strong { font-size: var(--geo-text-title-2); font-weight: var(--geo-font-weight-bold); letter-spacing: 0.04em; }
+    .geo-login__identidade span { color: var(--geo-nav-fg-muted); font-size: var(--geo-text-body-sm); }
+
+    .geo-login__manchete { position: relative; max-inline-size: 30rem; }
+    .geo-login__manchete h2 {
+      margin: 0 0 1.75rem; color: var(--geo-nav-fg-active);
+      font-size: var(--geo-text-display); font-weight: var(--geo-font-weight-bold); line-height: 1.15; letter-spacing: -0.01em;
+      text-wrap: balance;
+    }
+    .geo-login__manchete ul { display: grid; gap: 1.125rem; margin: 0; padding: 0; list-style: none; }
+    .geo-login__manchete li { display: flex; align-items: flex-start; gap: 0.875rem; font-size: var(--geo-text-body); line-height: 1.5; }
+    .geo-login__ponto {
+      display: inline-flex; flex: none; align-items: center; justify-content: center;
+      inline-size: 2.25rem; block-size: 2.25rem; border-radius: var(--geo-radius-md);
+      background: var(--geo-nav-tile-bg); color: var(--geo-nav-indicator);
+    }
+    .geo-login__rodape { position: relative; margin: 0; color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption); }
+
+    /* Lado do formulário */
+    .geo-login__lado { display: flex; flex-direction: column; min-inline-size: 0; padding: 1rem; }
+    @media (min-width: 640px) { .geo-login__lado { padding: 1.5rem 2rem; } }
+    .geo-login__topo { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .geo-login__marca-curta { display: flex; align-items: center; gap: 0.625rem; color: var(--geo-foreground); font-weight: var(--geo-font-weight-bold); letter-spacing: 0.04em; }
+    @media (min-width: 1024px) {
+      .geo-login__topo { justify-content: flex-end; }
+      .geo-login__marca-curta { display: none; }
     }
 
-    /* Card Claro */
-    :host ::ng-deep .login-card-light.p-card,
-    :host .login-card-light.p-card {
-      background-color: #ffffff !important;
-      border: 1px solid #f1f5f9 !important; /* slate-100 */
+    .geo-login__cartao {
+      box-sizing: border-box; inline-size: 100%; max-inline-size: 26rem; margin: auto; padding-block: 2rem 3rem;
+      animation: geo-rise-in var(--geo-motion-slow) var(--geo-ease-out) both;
     }
+    .geo-login__cartao h1 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-text-title-1); font-weight: var(--geo-font-weight-bold); letter-spacing: -0.01em; }
+    .geo-login__subtitulo { margin: 0.375rem 0 1.75rem; color: var(--geo-foreground-muted); font-size: var(--geo-text-body); }
+    .geo-login__form { display: grid; gap: 1.125rem; }
+    .geo-login__form input { min-block-size: 2.75rem; font-size: var(--geo-text-body); }
+    .geo-login__form geo-button { margin-block-start: 0.375rem; }
 
-    /* Card Escuro */
-    :host ::ng-deep .login-card-dark.p-card,
-    :host .login-card-dark.p-card {
-      background-color: #1e293b !important; /* slate-800 */
-      border: 1px solid #334155 !important; /* slate-700 */
+    .geo-login__aviso {
+      display: flex; align-items: flex-start; gap: 0.625rem; margin: 0 0 1.25rem; padding: 0.75rem 0.875rem;
+      border: 1px solid; border-radius: var(--geo-radius-md); font-size: var(--geo-text-body-sm); line-height: 1.45;
     }
+    .geo-login__aviso geo-icon { flex: none; margin-block-start: 0.1rem; }
+    .geo-login__form .geo-login__aviso { margin: 0; }
+    .geo-login__aviso--info { border-color: var(--geo-border); background: var(--geo-info-soft); color: var(--geo-info-text); }
+    .geo-login__aviso--erro { border-color: var(--geo-danger-border); background: var(--geo-danger-soft); color: var(--geo-danger-text); }
+    .geo-login__aviso--alerta { margin: 1.5rem 0 0; border-color: var(--geo-warning-border); background: var(--geo-warning-soft); color: var(--geo-warning-text); }
 
-    /* Input Claro */
-    .login-input-light,
-    :host ::ng-deep .login-input-light.p-inputtext,
-    :host ::ng-deep input.login-input-light {
-      background-color: #f8fafc !important; /* slate-50 */
-      color: #0f172a !important; /* slate-900 */
-      border: 1px solid #f1f5f9 !important; /* slate-100 */
-    }
-    .login-input-light::placeholder,
-    :host ::ng-deep .login-input-light::placeholder {
-      font-size: 0.75rem;
-      color: #94a3b8 !important; /* slate-400 */
-    }
+    .geo-login__nota { display: flex; align-items: flex-start; gap: 0.5rem; margin: 1.5rem 0 0; color: var(--geo-foreground-subtle); font-size: var(--geo-text-body-sm); line-height: 1.45; }
+    .geo-login__nota geo-icon { flex: none; margin-block-start: 0.1rem; }
 
-    /* Input Escuro */
-    .login-input-dark,
-    :host ::ng-deep .login-input-dark.p-inputtext,
-    :host ::ng-deep input.login-input-dark {
-      background-color: #1e293b !important; /* slate-800 */
-      color: #ffffff !important; /* branco puro */
-      border: 1px solid #334155 !important; /* slate-700 */
+    .geo-login__status {
+      display: inline-flex; align-items: center; gap: 0.375rem; margin-block-start: 1rem; padding: 0.25rem 0;
+      border: 0; background: transparent; color: var(--geo-brand-text); font: inherit; font-size: var(--geo-text-body-sm);
+      font-weight: var(--geo-font-weight-semibold); cursor: pointer;
     }
-    .login-input-dark::placeholder,
-    :host ::ng-deep .login-input-dark::placeholder {
-      font-size: 0.75rem;
-      color: #64748b !important; /* slate-500 */
-    }
-
-    /* Botão Status Claro */
-    :host ::ng-deep .login-status-light .p-button {
-      border: 1px solid #e2e8f0 !important; /* slate-200 */
-      color: #64748b !important; /* slate-500 */
-    }
-    :host ::ng-deep .login-status-light .p-button:hover {
-      background-color: #f8fafc !important; /* slate-50 */
-      border-color: #cbd5e1 !important; /* slate-300 */
-    }
-
-    /* Botão Status Escuro */
-    :host ::ng-deep .login-status-dark .p-button {
-      border: 1px solid #334155 !important; /* slate-700 */
-      color: #cbd5e1 !important; /* slate-300 */
-    }
-    :host ::ng-deep .login-status-dark .p-button:hover {
-      background-color: rgba(51, 65, 85, 0.5) !important; /* slate-700/50 */
-    }
-  `]
+    .geo-login__status:hover { text-decoration: underline; }
+    .geo-login__legal { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; margin-block-start: 1.25rem; padding-block-start: 1rem; border-block-start: 1px solid var(--geo-border); font-size: var(--geo-text-caption); }
+    .geo-login__legal a { color: var(--geo-foreground-muted); text-decoration: none; }
+    .geo-login__legal a:hover { color: var(--geo-brand-text); text-decoration: underline; }
+    .geo-login__legal a:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
+    .geo-login__status:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
+  `,
 })
 export class LoginComponent {
-  protected readonly themeService = inject(ThemeService);
-  private readonly authService = inject(AuthService);
-  private readonly messageService = inject(MessageService);
+  protected readonly tema = inject(ThemeService);
+  private readonly auth = inject(AuthService);
+  private readonly conectividade = inject(ConnectivityService);
 
-  protected readonly isLoading = signal(false);
-  protected readonly reautenticando = this.authService.reautenticacaoNecessaria();
-  protected readonly statusPageConfigured = environment.statusPageUrl.length > 0;
+  protected readonly ano = new Date().getFullYear();
+  protected readonly conectado = computed(() => this.conectividade.isOnline());
+  protected readonly reautenticando = this.auth.reautenticacaoNecessaria();
+  protected readonly statusConfigurado = environment.statusPageUrl.length > 0;
 
-  protected readonly loginForm = new FormGroup({
-    login: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(6)]
-    }),
-    password: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.minLength(4)]
-    })
+  protected readonly login = signal(this.reautenticando ? (this.auth.currentUser()?.login ?? '') : '');
+  protected readonly senha = signal('');
+  protected readonly entrando = signal(false);
+  protected readonly erro = signal<string | null>(null);
+  private readonly tentou = signal(false);
+
+  protected readonly erroLogin = computed(() => {
+    if (!this.tentou()) return undefined;
+    const valor = this.login().trim();
+    if (!valor) return 'Informe o usuário.';
+    return valor.length < 6 ? 'O usuário tem pelo menos 6 caracteres, como USR123456.' : undefined;
+  });
+  protected readonly erroSenha = computed(() => {
+    if (!this.tentou()) return undefined;
+    const valor = this.senha();
+    if (!valor) return 'Informe a senha.';
+    return valor.length < 4 ? 'A senha tem pelo menos 4 caracteres.' : undefined;
   });
 
-  constructor() {
-    const login = this.authService.currentUser()?.login;
-    if (this.reautenticando && login) {
-      this.loginForm.controls.login.setValue(login);
-    }
+  protected definirLogin(valor: string): void {
+    this.login.set(valor.toUpperCase());
+    this.erro.set(null);
   }
 
-  protected onLoginInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    input.value = input.value.toUpperCase();
-    this.loginForm.controls.login.setValue(input.value, { emitEvent: false });
+  protected abrirStatus(): void {
+    if (environment.statusPageUrl) window.open(environment.statusPageUrl, '_blank', 'noopener,noreferrer');
   }
 
-  protected openStatusPage(): void {
-    if (environment.statusPageUrl) {
-      window.open(environment.statusPageUrl, '_blank', 'noopener,noreferrer');
-    }
+  protected entrar(evento: Event): void {
+    evento.preventDefault();
+    this.tentou.set(true);
+    if (this.entrando() || this.erroLogin() || this.erroSenha()) return;
+
+    this.entrando.set(true);
+    this.erro.set(null);
+    const credenciais: LoginRequest = { login: this.login().trim(), senha: this.senha() };
+    this.auth.login(credenciais).subscribe({
+      next: () => this.entrando.set(false),
+      error: (err) => {
+        this.entrando.set(false);
+        this.erro.set(mensagemDeErroDoLogin(err));
+      },
+    });
   }
+}
 
-  protected onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.isLoading.set(true);
-
-      const credentials: LoginRequest = {
-        login: this.loginForm.controls.login.value,
-        senha: this.loginForm.controls.password.value
-      };
-
-      this.authService.login(credentials).subscribe({
-        next: () => {
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.messageService.add({
-            severity: err?.status === 429 ? 'warn' : 'error',
-            // 429: muitas tentativas seguidas; o detalhe do servidor já diz quanto esperar.
-            summary: err?.status === 429 ? 'Muitas tentativas' : 'Acesso Negado',
-            detail:
-              err?.status === 0
-                ? 'Sem conexão com o servidor. O login precisa de internet; tente quando houver sinal.'
-                : getErrorMessage(err),
-            life: 3000
-          });
-        }
-      });
-    }
-  }
+/** Texto do erro do login, no guia de voz: o que houve e o que fazer. */
+export function mensagemDeErroDoLogin(err: unknown): string {
+  const status = (err as { status?: number } | null)?.status;
+  if (status === 0) return 'Sem conexão com o servidor. Para entrar, o GEO precisa de internet; tente quando houver sinal.';
+  if (status === 429) return `Muitas tentativas seguidas. ${getErrorMessage(err)}`;
+  if (status === 401 || status === 400) return 'Usuário ou senha não conferem. Confira e tente de novo.';
+  if (status && status >= 500) return 'O servidor não respondeu agora. Tente de novo em alguns minutos.';
+  return getErrorMessage(err);
 }

@@ -20,7 +20,8 @@
           "/index.html",
           "/manifest.webmanifest",
           "/*.css",
-          "/*.js"
+          "/*.js",
+          "/fonts/*.woff2"
         ]
       }
     },

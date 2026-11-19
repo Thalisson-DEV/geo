@@ -23,17 +23,31 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <script src="env.js"></script>
 
-  <!-- Inicialização Imediata do Tema (Previne FOUC e garante tema persistido no navegador) -->
+  <link rel="preload" href="fonts/manrope-latin.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!--
+    Tema, densidade e movimento aplicados antes da primeira pintura (sem flash do claro).
+    Espelha o ThemeService: tema light|dark|system, reduzir movimento automatico|ligado.
+    Roda antes da migração de chaves do main.ts; por isso também lê a chave antiga.
+  -->
   <script>
-    try {
-      // Roda antes da migração de chaves do main.ts; por isso também lê a chave antiga.
-      var savedTheme = localStorage.getItem('geo_theme_mode') || localStorage.getItem('ces_theme_mode'); // renomear-geo: manter
-      if (savedTheme === 'dark') {
-        document.documentElement.classList.add('app-dark', 'dark');
-      } else if (savedTheme === 'light') {
-        document.documentElement.classList.remove('app-dark', 'dark');
+    (function () {
+      var raiz = document.documentElement;
+      function consulta(q) { try { return window.matchMedia(q).matches; } catch (e) { return false; } }
+      function ler(chave) { try { return localStorage.getItem(chave); } catch (e) { return null; } }
+      var tema = ler('geo_theme_mode') || ler('ces_theme_mode'); // renomear-geo: manter
+      var escuro = tema === 'dark' || (tema !== 'light' && consulta('(prefers-color-scheme: dark)'));
+      raiz.classList.toggle('app-dark', escuro);
+      raiz.classList.toggle('dark', escuro);
+      raiz.style.colorScheme = escuro ? 'dark' : 'light';
+      var reduz = ler('geo_reduzir_movimento') === 'ligado' || consulta('(prefers-reduced-motion: reduce)');
+      raiz.setAttribute('data-motion', reduz ? 'reduced' : 'full');
+      var densidade = ler('geo_density');
+      if (densidade !== 'compact' && densidade !== 'comfortable') {
+        densidade = consulta('(pointer: coarse)') ? 'comfortable' : 'compact';
       }
-    } catch (e) {}
+      raiz.setAttribute('data-geo-density', densidade);
+    })();
   </script>
 
   <!--

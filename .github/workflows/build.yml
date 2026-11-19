@@ -27,6 +27,12 @@ jobs:
         run: node --test tools/renomear-geo.test.mjs
       - name: Nenhum identificador ces
         run: node tools/renomear-geo.mjs --check
+      - name: Testes das guardas visuais
+        run: node --test frontend/tools/design-system/check-tokens.test.mjs frontend/tools/design-system/check-visual-rules.test.mjs
+      - name: Tokens (convenção, tema escuro e contraste)
+        run: node frontend/tools/design-system/check-tokens.mjs
+      - name: Catraca das regras visuais
+        run: node frontend/tools/design-system/check-visual-rules.mjs
 
   docker:
     runs-on: ubuntu-latest

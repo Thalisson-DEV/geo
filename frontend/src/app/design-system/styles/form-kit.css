@@ -26,28 +26,6 @@
     min-width: 0;
   }
 
-  .geo-form-page__breadcrumb ol {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.35rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    color: var(--geo-foreground-muted);
-    font-size: var(--geo-font-caption);
-  }
-  .geo-form-page__breadcrumb li + li::before {
-    content: '\203A';
-    margin-right: 0.35rem;
-    color: var(--geo-foreground-subtle);
-  }
-  .geo-form-page__breadcrumb a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .geo-form-page__breadcrumb a:hover { color: var(--geo-brand); }
-  .geo-form-page__breadcrumb [aria-current='page'] { color: var(--geo-foreground); font-weight: 600; }
 
   .geo-form-page__back {
     display: inline-flex;

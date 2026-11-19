@@ -89,7 +89,7 @@ describe('MovimentacoesEstoqueComponent', () => {
   it('mostra o ícone do tipo na tag e a nota da aplicação', async () => {
     almox['listarMovimentacoes'].mockReturnValue(paginaTeste([{ ...operacao, tipo: 'APLICACAO', numeroNota: 'NOTA-77' }]));
     const { el } = await abrir();
-    expect(el.querySelector('geo-status .pi-wrench')).toBeTruthy();
+    expect(el.querySelector('geo-status [data-icon="wrench"]')).toBeTruthy();
     expect(el.querySelector('.mov-atalhos .pi-wrench')).toBeTruthy();
     expect(el.textContent).toContain('NOTA-77');
   });

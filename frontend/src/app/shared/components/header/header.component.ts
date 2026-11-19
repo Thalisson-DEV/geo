@@ -1,4 +1,6 @@
-import { Component, inject, input, output, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, input, output, signal, ViewChild } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { AvatarModule } from 'primeng/avatar';
@@ -6,11 +8,17 @@ import { PopoverModule, Popover } from 'primeng/popover';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '../../../core/services/auth.service';
-import { RouterLink, Router } from "@angular/router";
+import { NavigationEnd, RouterLink, Router } from "@angular/router";
 import { ChangePasswordDialogComponent } from '../change-password-dialog/change-password-dialog.component';
 import { FavoritosService } from '../../../core/services/favoritos.service';
-import { ThemeService } from '../../../core/services/theme.service';
-import { GeoShortcutsPreference } from '@geo/ui';
+import {
+  GeoDensidadePreferida,
+  GeoReduzirMovimento,
+  GeoTema,
+  ThemeService
+} from '../../../core/services/theme.service';
+import { GeoIconButtonComponent, GeoIconComponent, GeoLogoComponent, GeoShortcutsPreference } from '@geo/ui';
+import { GeoTrechoDaTrilha, GeoTrilhaDaPagina } from '@geo/ui/patterns';
 import { UsuariosService } from '../../../core/services/usuarios.service';
 import { NotificacoesStore } from '../../../core/services/notificacoes-store.service';
 import { ConnectivityService } from '../../../core/services/connectivity.service';
@@ -22,77 +30,86 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
 
 @Component({
   selector: 'app-header',
+  styles: [`
+    .geo-topo { position: relative; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex: none; block-size: 3.5rem; padding-inline: 1rem; background: var(--geo-surface); border-block-end: 1px solid var(--geo-border); color: var(--geo-foreground); }
+    @media (min-width: 1024px) { .geo-topo { padding-inline: 1.5rem; } }
+    .geo-topo__inicio { display: flex; align-items: center; gap: 0.5rem; min-inline-size: 0; }
+    .geo-topo__marca { display: inline-flex; }
+    .geo-topo__trilha { display: flex; align-items: center; gap: 0.35rem; min-inline-size: 0; color: var(--geo-foreground-subtle); font-size: var(--geo-text-body-sm); white-space: nowrap; overflow: hidden; }
+    .geo-topo__trilha > span { overflow: hidden; text-overflow: ellipsis; }
+    .geo-topo__trilha-link { flex: none; border-radius: var(--geo-radius-sm); color: inherit; text-decoration: none; }
+    .geo-topo__trilha-link:hover { color: var(--geo-brand-text); text-decoration: underline; }
+    .geo-topo__trilha-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .geo-topo__trilha-atual { color: var(--geo-foreground); font-weight: var(--geo-font-weight-semibold); }
+    .geo-topo__trilha-sep { color: var(--geo-border-strong); }
+    @media (max-width: 639px) { .geo-topo__trilha { display: none; } }
+    .geo-topo__acoes { display: flex; align-items: center; gap: 0.25rem; }
+    .geo-topo__notificacoes { position: relative; display: inline-flex; }
+    .geo-topo__contador { position: absolute; inset-block-start: 0.1rem; inset-inline-end: 0.1rem; min-inline-size: 1.05rem; block-size: 1.05rem; padding-inline: 0.25rem; border-radius: var(--geo-radius-full); background: var(--geo-accent); color: var(--geo-surface-inverse); font-size: 0.65rem; font-weight: var(--geo-font-weight-bold); line-height: 1.05rem; text-align: center; box-shadow: 0 0 0 2px var(--geo-surface); pointer-events: none; }
+    .geo-topo__conta { display: inline-flex; align-items: center; justify-content: center; inline-size: 2.25rem; block-size: 2.25rem; margin-inline-start: 0.25rem; padding: 0; border: 0; border-radius: var(--geo-radius-full); background: transparent; cursor: pointer; }
+    .geo-topo__conta:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .geo-topo__avatar { display: inline-flex; align-items: center; justify-content: center; inline-size: 2rem; block-size: 2rem; border-radius: var(--geo-radius-full); background: var(--geo-brand-soft); color: var(--geo-brand-text); font-size: var(--geo-text-label); font-weight: var(--geo-font-weight-bold); transition: box-shadow var(--geo-motion-fast) var(--geo-ease-out); }
+    .geo-topo__conta:hover .geo-topo__avatar { box-shadow: 0 0 0 2px var(--geo-border-strong); }
+    .geo-pref-grupo { border: 0; margin: 0 0 0.75rem; padding: 0; min-width: 0; }
+    .geo-pref-rotulo { font-size: var(--geo-text-caption); font-weight: var(--geo-font-weight-semibold); color: var(--geo-foreground-muted); margin-bottom: 0.375rem; padding: 0 0.25rem; }
+    .geo-pref-opcoes { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 2px; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
+    .geo-pref-opcao { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; min-height: var(--geo-control-height-sm); padding: 0 0.5rem; border: 0; border-radius: var(--geo-radius-sm); background: transparent; color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-text-label); font-weight: var(--geo-font-weight-medium); cursor: pointer; transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out); }
+    .geo-pref-opcao:hover { color: var(--geo-foreground); }
+    .geo-pref-opcao[aria-checked='true'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-elevation-1); }
+  `],
   standalone: true,
-  imports: [CommonModule, ButtonModule, AvatarModule, PopoverModule, DialogModule, TooltipModule, RouterLink, ChangePasswordDialogComponent, NotificacoesPanelComponent, BuscaTelasComponent],
+  imports: [CommonModule, GeoIconButtonComponent, GeoIconComponent, GeoLogoComponent, ButtonModule, AvatarModule, PopoverModule, DialogModule, TooltipModule, RouterLink, ChangePasswordDialogComponent, NotificacoesPanelComponent, BuscaTelasComponent],
   template: `
-    <header class="h-16 shrink-0 z-50 bg-[var(--geo-surface)]/95 text-[var(--geo-foreground)] backdrop-blur-md border-b border-[var(--geo-border)] flex items-center justify-between px-4 lg:px-6">
-      <!-- Logo & Mobile Toggle Area -->
-      <div class="flex items-center gap-2 lg:gap-0">
+    <header class="geo-topo">
+      <div class="geo-topo__inicio">
         @if (isMobile()) {
-          <p-button
-            icon="pi pi-bars"
-            [text]="true"
-            (onClick)="toggleMenu.emit()"
-            styleClass="!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all"
-          ></p-button>
-        }
-
-        <div class="flex items-center h-8" [class.ml-2]="!isMobile()">
-          <a [routerLink]="'/home'" class="flex items-center h-full">
-            <img src="/logo_vertical.svg" alt="GEO" class="h-full w-auto object-contain">
+          <geo-icon-button icon="menu" label="Abrir menu" (pressed)="toggleMenu.emit()"></geo-icon-button>
+          <a routerLink="/home" class="geo-topo__marca" aria-label="GEO, ir para o início">
+            <geo-logo size="1.75rem" label="GEO" />
           </a>
-        </div>
+        }
+        <nav class="geo-topo__trilha" aria-label="Você está em">
+          @for (parte of trilha(); track $index; let ultimo = $last) {
+            @if (ultimo) {
+              <span aria-current="page" class="geo-topo__trilha-atual">{{ parte.label }}</span>
+            } @else if (parte.route) {
+              <a class="geo-topo__trilha-link" [routerLink]="parte.route" [queryParams]="parte.queryParams ?? null">{{ parte.label }}</a>
+            } @else {
+              <span>{{ parte.label }}</span>
+            }
+            @if (!ultimo) { <geo-icon name="chevron-right" size="sm" class="geo-topo__trilha-sep" /> }
+          }
+        </nav>
       </div>
 
-      <!-- User Actions Area -->
-      <div class="flex items-center gap-1.5 lg:gap-2">
-        <!-- Busca rápida de telas (Ctrl+K) -->
+      <div class="geo-topo__acoes">
+        <!-- Busca rápida de telas (Ctrl+K ou /) -->
         <app-busca-telas [menuItems]="menuItems()"></app-busca-telas>
 
-        <!-- Botão dedicado de alternar tema (Claro / Escuro) -->
-        <p-button
-          [icon]="theme.isDarkMode() ? 'pi pi-sun text-amber-500 text-base' : 'pi pi-moon text-[var(--geo-foreground-muted)] text-sm'"
-          [text]="true"
-          (onClick)="toggleTheme()"
-          [pTooltip]="theme.isDarkMode() ? 'Mudar para Tema Claro' : 'Mudar para Tema Escuro'"
+        <geo-icon-button
+          [icon]="theme.isDarkMode() ? 'sun' : 'moon'"
+          [label]="theme.isDarkMode() ? 'Usar tema claro' : 'Usar tema escuro'"
           tooltipPosition="bottom"
-          aria-label="Alternar tema claro e escuro"
-          styleClass="!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all"
-        ></p-button>
+          (pressed)="toggleTheme()"
+        ></geo-icon-button>
 
-        <!-- Favorites Button -->
-        <p-button
-          #favButton
-          icon="pi pi-star"
-          [text]="true"
-          (onClick)="favOp.toggle($event)"
-          styleClass="!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all"
-        ></p-button>
+        <geo-icon-button icon="star" label="Favoritos" tooltipPosition="bottom" (click)="favOp.toggle($event)"></geo-icon-button>
 
-        <!-- Notifications Button -->
-        <div class="relative">
-          <p-button
-            icon="pi pi-bell"
-            [text]="true"
-            (onClick)="notificacoes.carregarRecentes(); notifOp.toggle($event)"
-            styleClass="!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all"
-          ></p-button>
+        <div class="geo-topo__notificacoes">
+          <geo-icon-button
+            icon="bell"
+            [label]="rotuloNotificacoes()"
+            tooltipPosition="bottom"
+            (click)="notificacoes.carregarRecentes(); notifOp.toggle($event)"
+          ></geo-icon-button>
           @if (notificacoes.temNaoLidas()) {
-            <span
-              class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 flex items-center justify-center rounded-full bg-red-500 border border-white text-[9px] font-bold text-white"
-            >
-              {{ notificacoes.badge() }}
-            </span>
+            <span class="geo-topo__contador" aria-hidden="true">{{ notificacoes.badge() }}</span>
           }
         </div>
 
-        <!-- User Profile Button -->
-        <p-button
-          icon="pi pi-user"
-          [text]="true"
-          (onClick)="op.toggle($event)"
-          styleClass="!text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-brand-soft)] hover:!text-[var(--geo-brand)] !w-10 !h-10 !p-0 !rounded-xl transition-all"
-        ></p-button>
+        <button type="button" class="geo-topo__conta" aria-label="Conta e preferências" (click)="op.toggle($event)">
+          <span class="geo-topo__avatar" aria-hidden="true">{{ iniciais() }}</span>
+        </button>
       </div>
     </header>
 
@@ -172,51 +189,45 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
           <div class="p-4 border-b border-[var(--geo-border)]">
             <span class="text-[10px] font-bold text-[var(--geo-foreground-subtle)] uppercase tracking-widest block mb-3 px-1">Personalização</span>
 
-            <!-- Dark Mode Toggle -->
-            <div class="flex items-center justify-between p-2 mb-3 bg-[var(--geo-surface-subtle)] rounded-xl border border-[var(--geo-border)]">
-              <div class="flex items-center gap-2">
-                <i [class]="theme.isDarkMode() ? 'pi pi-moon text-primary-400' : 'pi pi-sun text-amber-500'" class="text-sm"></i>
-                <span class="text-xs font-semibold text-[var(--geo-foreground-muted)]">Modo Escuro</span>
+            <!-- Tema, densidade e movimento -->
+            <fieldset class="geo-pref-grupo">
+              <legend class="geo-pref-rotulo">Tema</legend>
+              <div class="geo-pref-opcoes" role="radiogroup" aria-label="Tema">
+                @for (opcao of opcoesTema; track opcao.valor) {
+                  <button type="button" role="radio" class="geo-pref-opcao"
+                    [attr.aria-checked]="theme.tema() === opcao.valor"
+                    (click)="escolherTema(opcao.valor)">
+                    <i [class]="'pi ' + opcao.icone" aria-hidden="true"></i>{{ opcao.rotulo }}
+                  </button>
+                }
               </div>
-              <p-button
-                [icon]="theme.isDarkMode() ? 'pi pi-check' : 'pi pi-circle'"
-                [text]="true"
-                (onClick)="toggleTheme()"
-                [styleClass]="theme.isDarkMode() ? '!bg-primary-600 !text-white !w-12 !h-7 !rounded-full' : '!bg-slate-200 dark:!bg-slate-700 !text-slate-400 !w-12 !h-7 !rounded-full'"
-              ></p-button>
-            </div>
+            </fieldset>
 
-            <!-- Color Palette Selector -->
-            <div class="flex flex-wrap gap-2 px-1">
-              @for (color of availableColors; track color.name) {
-                <button
-                  (click)="changeColor(color.name)"
-                  [class]="color.class"
-                  [title]="color.label"
-                  class="w-6 h-6 rounded-full border-2 transition-all transform hover:scale-110 active:scale-95 flex items-center justify-center"
-                  [class.!border-[var(--geo-foreground)]]="theme.primaryColor() === color.name"
-                  [class.border-transparent]="theme.primaryColor() !== color.name"
-                >
-                  @if (theme.primaryColor() === color.name) {
-                    <i class="pi pi-check text-[10px] text-white"></i>
-                  }
-                </button>
-              }
-            </div>
-
-            <!-- Animations Toggle -->
-            <div class="flex items-center justify-between p-2 mt-3 bg-[var(--geo-surface-subtle)] rounded-xl border border-[var(--geo-border)]">
-              <div class="flex items-center gap-2">
-                <i class="pi pi-bolt text-[var(--geo-foreground-subtle)] text-sm"></i>
-                <span class="text-xs font-semibold text-[var(--geo-foreground-muted)]">Animações</span>
+            <fieldset class="geo-pref-grupo">
+              <legend class="geo-pref-rotulo">Densidade</legend>
+              <div class="geo-pref-opcoes" role="radiogroup" aria-label="Densidade">
+                @for (opcao of opcoesDensidade; track opcao.valor) {
+                  <button type="button" role="radio" class="geo-pref-opcao"
+                    [attr.aria-checked]="theme.densidadePreferida() === opcao.valor"
+                    (click)="theme.setDensity(opcao.valor)">
+                    {{ opcao.rotulo }}
+                  </button>
+                }
               </div>
-              <p-button
-                [icon]="theme.rippleEnabled() ? 'pi pi-check' : 'pi pi-circle'"
-                [text]="true"
-                (onClick)="toggleAnimations()"
-                [styleClass]="theme.rippleEnabled() ? '!bg-green-500 !text-white !w-12 !h-7 !rounded-full' : '!bg-slate-200 !text-slate-400 !w-12 !h-7 !rounded-full'"
-              ></p-button>
-            </div>
+            </fieldset>
+
+            <fieldset class="geo-pref-grupo">
+              <legend class="geo-pref-rotulo">Reduzir movimento</legend>
+              <div class="geo-pref-opcoes" role="radiogroup" aria-label="Reduzir movimento">
+                @for (opcao of opcoesMovimento; track opcao.valor) {
+                  <button type="button" role="radio" class="geo-pref-opcao"
+                    [attr.aria-checked]="theme.reduzirMovimento() === opcao.valor"
+                    (click)="escolherMovimento(opcao.valor)">
+                    {{ opcao.rotulo }}
+                  </button>
+                }
+              </div>
+            </fieldset>
 
             <!-- Single-key shortcuts (WCAG 2.1.4) -->
             <div class="flex items-center justify-between p-2 mt-3 bg-[var(--geo-surface-subtle)] rounded-xl border border-[var(--geo-border)]">
@@ -421,6 +432,36 @@ export class HeaderComponent {
   @ViewChild('favButton') favButton!: any;
 
   protected auth = inject(AuthService);
+
+  private readonly urlAtual = toSignal(
+    inject(Router).events.pipe(
+      filter((evento): evento is NavigationEnd => evento instanceof NavigationEnd),
+      map((evento) => evento.urlAfterRedirects),
+      startWith(typeof location !== 'undefined' ? location.pathname : '')
+    ),
+    { initialValue: '' }
+  );
+
+  private readonly trilhaDaPagina = inject(GeoTrilhaDaPagina);
+
+  /** Trilha "Grupo › Tela" do menu, completada pelo que a página informa (registro aberto, recorte). */
+  protected readonly trilha = computed(() =>
+    montarTrilha(this.menuItems(), this.urlAtual() ?? '', this.trilhaDaPagina.trechos())
+  );
+
+  protected readonly iniciais = computed(() => {
+    const usuario = this.auth.currentUser();
+    const base = (usuario?.nome || usuario?.login || '').trim();
+    const partes = base.split(/\s+/).filter(Boolean);
+    const letras = partes.length > 1 ? partes[0][0] + partes[partes.length - 1][0] : base.slice(0, 2);
+    return letras.toUpperCase() || '?';
+  });
+
+  protected readonly rotuloNotificacoes = computed(() => {
+    if (!this.notificacoes.temNaoLidas()) return 'Notificações';
+    const total = this.notificacoes.badge();
+    return `Notificações, ${total} ${total === '1' ? 'nova' : 'novas'}`;
+  });
   protected connectivity = inject(ConnectivityService);
   protected favs = inject(FavoritosService);
   protected theme = inject(ThemeService);
@@ -446,13 +487,19 @@ export class HeaderComponent {
 
   showManuaisDialog = signal(false);
 
-  availableColors = [
-    { name: 'blue', label: 'Azul', class: '!bg-blue-500' },
-    { name: 'emerald', label: 'Esmeralda', class: '!bg-emerald-500' },
-    { name: 'violet', label: 'Violeta', class: '!bg-violet-500' },
-    { name: 'amber', label: 'Âmbar', class: '!bg-amber-500' },
-    { name: 'rose', label: 'Rosa', class: '!bg-rose-500' },
-    { name: 'slate', label: 'Grafite', class: '!bg-slate-600' }
+  readonly opcoesTema: { valor: GeoTema; rotulo: string; icone: string }[] = [
+    { valor: 'claro', rotulo: 'Claro', icone: 'pi-sun' },
+    { valor: 'escuro', rotulo: 'Escuro', icone: 'pi-moon' },
+    { valor: 'sistema', rotulo: 'Sistema', icone: 'pi-desktop' }
+  ];
+  readonly opcoesDensidade: { valor: GeoDensidadePreferida; rotulo: string }[] = [
+    { valor: 'auto', rotulo: 'Automática' },
+    { valor: 'compact', rotulo: 'Compacta' },
+    { valor: 'comfortable', rotulo: 'Confortável' }
+  ];
+  readonly opcoesMovimento: { valor: GeoReduzirMovimento; rotulo: string }[] = [
+    { valor: 'automatico', rotulo: 'Automático' },
+    { valor: 'ligado', rotulo: 'Ligado' }
   ];
 
   showChangePassword() {
@@ -465,14 +512,13 @@ export class HeaderComponent {
     this.syncPreferencias();
   }
 
-  changeColor(color: string) {
-    this.theme.updatePrimaryColor(color);
+  escolherTema(tema: GeoTema) {
+    this.theme.setTema(tema);
     this.syncPreferencias();
   }
 
-  toggleAnimations() {
-    const newValue = !this.theme.rippleEnabled();
-    this.theme.setRipple(newValue);
+  escolherMovimento(valor: GeoReduzirMovimento) {
+    this.theme.setReduzirMovimento(valor);
     this.syncPreferencias();
   }
 
@@ -488,7 +534,7 @@ export class HeaderComponent {
     const themeData = {
       tema: (this.theme.isDarkMode() ? 'dark' : 'light') as 'light' | 'dark',
       corPrimaria: this.theme.primaryColor(),
-      animacoesAtivadas: this.theme.rippleEnabled()
+      animacoesAtivadas: this.theme.reduzirMovimento() !== 'ligado'
     };
 
     // Atualiza a sessão e localStorage localmente de forma imediata
@@ -534,4 +580,58 @@ export class HeaderComponent {
     const url = this.router.serializeUrl(this.router.createUrlTree([rota]));
     window.open(url, '_blank');
   }
+}
+
+/** Caminho do menu até o item cuja rota mais se aproxima da URL atual. */
+function caminhoDoMenu(itens: MenuItem[], url: string): { rotulos: string[]; alvo: string } | undefined {
+  const caminho = url.split('?')[0].split('#')[0];
+  let melhor: { rotulos: string[]; alvo: string } | undefined;
+  const visitar = (lista: MenuItem[], acima: string[]) => {
+    for (const item of lista) {
+      if (item.visible === false) continue;
+      const rotulos = [...acima, item.label ?? ''];
+      const link = Array.isArray(item.routerLink) ? item.routerLink.join('/') : item.routerLink;
+      if (typeof link === 'string') {
+        const alvo = link.split('?')[0];
+        const casa = caminho === alvo || caminho.startsWith(alvo + '/');
+        if (casa && (!melhor || alvo.length > melhor.alvo.length)) melhor = { rotulos: rotulos.filter(Boolean), alvo };
+      }
+      if (item.items?.length) visitar(item.items, rotulos);
+    }
+  };
+  visitar(itens, []);
+  return melhor;
+}
+
+/** Rótulos do menu até a tela atual. */
+export function trilhaDoMenu(itens: MenuItem[], url: string): string[] {
+  return caminhoDoMenu(itens, url)?.rotulos ?? [];
+}
+
+const rotaComoTexto = (rota: GeoTrechoDaTrilha['route']): string | undefined =>
+  rota == null ? undefined : (Array.isArray(rota) ? rota.join('/') : String(rota)).split('?')[0];
+
+/**
+ * Trilha única do app. Na tela do próprio menu, é o caminho do menu. Numa tela mais funda
+ * (ficha, formulário), o último trecho do menu vira link de volta, com o recorte que a página
+ * informou, e o último trecho da página (o registro aberto) fecha a trilha. Fora do menu, vale a
+ * trilha da página.
+ */
+export function montarTrilha(
+  itens: MenuItem[],
+  url: string,
+  pagina: readonly GeoTrechoDaTrilha[]
+): GeoTrechoDaTrilha[] {
+  const menu = caminhoDoMenu(itens, url);
+  if (!menu) return [...pagina];
+  const caminho = url.split('?')[0].split('#')[0];
+  const trechos: GeoTrechoDaTrilha[] = menu.rotulos.map((label) => ({ label }));
+  const ultimaDaPagina = pagina.at(-1);
+  if (caminho === menu.alvo || !ultimaDaPagina || ultimaDaPagina.label === menu.rotulos.at(-1)) return trechos;
+
+  const origem = pagina.find((t) => rotaComoTexto(t.route) === menu.alvo) ?? pagina.at(-2);
+  const queryParams = origem?.route ? origem.queryParams ?? null : null;
+  trechos[trechos.length - 1] = { label: menu.rotulos.at(-1) ?? '', route: menu.alvo, queryParams };
+  trechos.push({ label: ultimaDaPagina.label });
+  return trechos;
 }

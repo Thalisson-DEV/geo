@@ -60,7 +60,9 @@ export class App {
   private readonly navigatorRegistry = inject(ReportNavigatorRegistryService);
 
   protected readonly isMobile = signal(window.innerWidth < 1024);
-  protected readonly menuVisible = signal(window.innerWidth >= 1024);
+  /** Escolha de recolher o menu no desktop, salva no aparelho. */
+  private readonly CHAVE_MENU_RECOLHIDO = 'geo_menu_recolhido';
+  protected readonly menuVisible = signal(window.innerWidth >= 1024 && !this.menuRecolhidoSalvo());
   protected readonly hideLayout = signal(false);
   protected readonly layoutWorkspace = signal(false);
   /** Rotas que gerenciam a própria rolagem e margens (workspace da Bússola e dashboards com painel lateral). */
@@ -217,17 +219,11 @@ export class App {
     // preservando a preferência explicitamente salva no navegador pelo usuário
     effect(() => {
       const user = this.auth.currentUser();
-      const savedMode = localStorage.getItem('geo_theme_mode');
-      const isDark = savedMode ? savedMode === 'dark' : user?.tema === 'dark';
-      this.theme.setDarkMode(isDark);
-
-      const savedColor = localStorage.getItem('geo_primary_color');
-      const color = savedColor || user?.corPrimaria;
-      if (color) this.theme.updatePrimaryColor(color);
-
-      const savedRipple = localStorage.getItem('geo_ripple_enabled');
-      const ripple = savedRipple !== null ? savedRipple !== 'false' : (user?.animacoesAtivadas ?? true);
-      this.theme.setRipple(ripple);
+      // A escolha gravada neste aparelho vale mais que a do perfil. O perfil só traz o escuro
+      // (o claro é o padrão do servidor e não é escolha); sem nenhuma, segue o sistema.
+      if (user?.tema === 'dark' && !this.theme.temTemaSalvo()) {
+        untracked(() => this.theme.setTema('escuro'));
+      }
     });
 
     // O menu é montado uma vez; ao entrar/sair da sessão as entradas dependentes
@@ -241,7 +237,7 @@ export class App {
       const mobile = window.innerWidth < 1024;
       if (this.isMobile() !== mobile) {
         this.isMobile.set(mobile);
-        this.menuVisible.set(!mobile && !this.layoutWorkspace());
+        this.menuVisible.set(!mobile && !this.layoutWorkspace() && !this.menuRecolhidoSalvo());
       }
     });
 
@@ -803,6 +799,21 @@ export class App {
 
   protected toggleMenu() {
     this.menuVisible.update(v => !v);
+    if (!this.isMobile() && !this.layoutWorkspace()) {
+      try {
+        localStorage.setItem(this.CHAVE_MENU_RECOLHIDO, String(!this.menuVisible()));
+      } catch {
+        // Sem armazenamento: a escolha vale só nesta sessão.
+      }
+    }
+  }
+
+  private menuRecolhidoSalvo(): boolean {
+    try {
+      return localStorage.getItem('geo_menu_recolhido') === 'true';
+    } catch {
+      return false;
+    }
   }
 
   protected expandAndFocus(item: MenuItem) {

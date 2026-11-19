@@ -4,6 +4,7 @@ import { provideRouter } from '@angular/router';
 import { describe, expect, it, vi } from 'vitest';
 
 import { GEO_PAGE_FAVORITES, GeoPageHeaderComponent } from './geo-page-header.component';
+import { GeoTrilhaDaPagina } from './geo-trilha-da-pagina';
 
 @Component({
   standalone: true,
@@ -27,7 +28,7 @@ class HostComponent {
 }
 
 describe('GeoPageHeaderComponent', () => {
-  it('renderiza trilha, título, selos, ações, ajuda e favorito', async () => {
+  it('renderiza título, selos, ações, ajuda e favorito e manda a trilha para o cabeçalho do app', async () => {
     const favorito = signal(false);
     const toggle = vi.fn(() => favorito.set(!favorito()));
     await TestBed.configureTestingModule({
@@ -39,9 +40,11 @@ describe('GeoPageHeaderComponent', () => {
     const el: HTMLElement = fixture.nativeElement;
 
     expect(el.querySelector('h1')!.textContent).toBe('Veículos');
-    const link = el.querySelector('nav a') as HTMLAnchorElement;
-    expect(link.getAttribute('href')).toBe('/frota/veiculos?base=b1');
-    expect(el.querySelector('[aria-current="page"]')!.textContent).toBe('Veículos');
+    expect(el.querySelector('nav')).toBeNull();
+    expect(TestBed.inject(GeoTrilhaDaPagina).trechos()).toEqual([
+      { label: 'Frota', route: '/frota/veiculos', queryParams: { base: 'b1' } },
+      { label: 'Veículos' },
+    ]);
     expect(el.querySelector('.selo')).not.toBeNull();
     expect(el.querySelector('.geo-page-header__actions .novo')).not.toBeNull();
 
@@ -52,6 +55,9 @@ describe('GeoPageHeaderComponent', () => {
     fixture.detectChanges();
     expect(toggle).toHaveBeenCalledWith('Veículos', 'pi pi-car');
     expect(el.querySelector('button[aria-label="Remover dos favoritos"]')).not.toBeNull();
+
+    fixture.destroy();
+    expect(TestBed.inject(GeoTrilhaDaPagina).trechos()).toEqual([]);
   });
 
   it('sem provedor de favoritos e sem rótulo de ajuda, não mostra os botões', async () => {

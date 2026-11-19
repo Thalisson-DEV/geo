@@ -1,51 +1,24 @@
 <section class="home" aria-labelledby="home-title">
-  <header class="brand-panel">
+  <h1 id="home-title" class="home__title">Módulos</h1>
 
-    <div class="brand-panel__statement">
-      <span class="brand-panel__eyebrow">Ambiente de gestão integrado</span>
-      <h1 id="home-title">Pessoas, ativos e operação no mesmo ambiente.</h1>
-      <p>Escolha uma área para continuar seu trabalho no GEO.</p>
-    </div>
-
-    <div class="brand-panel__monogram" aria-hidden="true">GEO</div>
-
-    <div class="brand-panel__focus" aria-hidden="true">
-      <span>{{ featuredModule().code }}</span>
-      <div>
-        <i [class]="featuredModule().icon"></i>
-        <strong>{{ featuredModule().name }}</strong>
-        <small>{{ featuredModule().highlight }}</small>
-      </div>
-    </div>
-  </header>
-
-  <div class="module-index">
-    <header class="module-index__header">
-      <span>Mapa do sistema</span>
-    </header>
-
-    <nav class="module-list" aria-labelledby="module-index-title">
-      @for (module of modules; track module.name) {
-        <a
-          class="module-link"
-          [class.module-link--featured]="$index === featuredModuleIndex()"
-          [routerLink]="module.route"
-          (mouseenter)="featureModule($index)"
-          (focus)="featureModule($index)"
-        >
-          <span class="module-link__number" aria-hidden="true">{{ module.code }}</span>
-          <span class="module-link__icon" aria-hidden="true">
-            <i [class]="module.icon"></i>
+  @if (modules().length) {
+    <nav class="module-grid" aria-labelledby="home-title">
+      @for (module of modules(); track module.route) {
+        <a class="module-card" [routerLink]="module.route">
+          <span class="module-card__icon" aria-hidden="true">
+            <geo-icon [name]="module.icon" size="lg" />
           </span>
-          <span class="module-link__copy">
+          <span class="module-card__copy">
             <strong>{{ module.name }}</strong>
             <small>{{ module.description }}</small>
           </span>
-          <span class="module-link__arrow" aria-hidden="true">
-            <i class="pi pi-arrow-right"></i>
-          </span>
+          <geo-icon class="module-card__arrow" name="arrow-right" size="sm" />
         </a>
       }
     </nav>
-  </div>
+  } @else {
+    <p class="home__empty">
+      Seu perfil ainda não tem acesso a nenhum módulo. Peça a liberação ao administrador do sistema.
+    </p>
+  }
 </section>

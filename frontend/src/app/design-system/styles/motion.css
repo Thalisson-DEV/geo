@@ -1,0 +1,113 @@
+/*
+ * Movimento do GEO. Única forma de animar entrada e saída em telas:
+ *
+ *   <div animate.enter="geo-enter-rise" animate.leave="geo-leave-fade">…</div>
+ *
+ * Entradas usam --geo-motion-base com --geo-ease-out; saídas, --geo-motion-exit com
+ * --geo-ease-in (cerca de 70% da entrada). Só opacity e transform. Com reduzir movimento os
+ * tokens zeram deslocamento e escala, e sobra uma troca de opacidade instantânea.
+ */
+@layer geo.components {
+  .geo-enter-fade {
+    animation: geo-fade-in var(--geo-motion-base) var(--geo-ease-out) both;
+  }
+  .geo-enter-rise {
+    animation: geo-rise-in var(--geo-motion-base) var(--geo-ease-out) both;
+  }
+  .geo-enter-scale {
+    animation: geo-scale-in var(--geo-motion-base) var(--geo-ease-out) both;
+  }
+  .geo-enter-slide-start {
+    --geo-slide-from: calc(-1 * var(--geo-motion-distance-lg));
+    animation: geo-slide-x-in var(--geo-motion-slow) var(--geo-ease-emphasis) both;
+  }
+  .geo-enter-slide-end {
+    --geo-slide-from: var(--geo-motion-distance-lg);
+    animation: geo-slide-x-in var(--geo-motion-slow) var(--geo-ease-emphasis) both;
+  }
+  .geo-enter-slide-up {
+    --geo-slide-from: var(--geo-motion-distance-lg);
+    animation: geo-slide-y-in var(--geo-motion-slow) var(--geo-ease-emphasis) both;
+  }
+
+  .geo-leave-fade {
+    animation: geo-fade-out var(--geo-motion-exit) var(--geo-ease-in) both;
+  }
+  .geo-leave-sink {
+    animation: geo-sink-out var(--geo-motion-exit) var(--geo-ease-in) both;
+  }
+  .geo-leave-scale {
+    animation: geo-scale-out var(--geo-motion-exit) var(--geo-ease-in) both;
+  }
+  .geo-leave-slide-start {
+    --geo-slide-to: calc(-1 * var(--geo-motion-distance-lg));
+    animation: geo-slide-x-out var(--geo-motion-exit) var(--geo-ease-in) both;
+  }
+  .geo-leave-slide-end {
+    --geo-slide-to: var(--geo-motion-distance-lg);
+    animation: geo-slide-x-out var(--geo-motion-exit) var(--geo-ease-in) both;
+  }
+
+  /* Resposta de pressão no lugar do ripple: encolhe e escurece em 90 ms. */
+  .geo-pressable {
+    transition:
+      transform var(--geo-motion-instant) var(--geo-ease-out),
+      filter var(--geo-motion-instant) var(--geo-ease-out);
+  }
+  .geo-pressable:active:not(:disabled, [aria-disabled='true']) {
+    transform: scale(var(--geo-motion-scale-press));
+    filter: brightness(0.94);
+  }
+
+  /* Realce breve de valor que mudou (diretiva geoValorAnimado). */
+  .geo-valor-animado--mudou {
+    animation: geo-valor-realce var(--geo-motion-slow) var(--geo-ease-out) 1;
+  }
+
+  @keyframes geo-fade-in { from { opacity: 0; } }
+  @keyframes geo-fade-out { to { opacity: 0; } }
+  @keyframes geo-rise-in {
+    from { opacity: 0; transform: translateY(var(--geo-motion-distance-md)); }
+  }
+  @keyframes geo-sink-out {
+    to { opacity: 0; transform: translateY(var(--geo-motion-distance-sm)); }
+  }
+  @keyframes geo-scale-in {
+    from { opacity: 0; transform: scale(var(--geo-motion-scale-enter)); }
+  }
+  @keyframes geo-scale-out {
+    to { opacity: 0; transform: scale(var(--geo-motion-scale-enter)); }
+  }
+  @keyframes geo-slide-x-in {
+    from { opacity: 0; transform: translateX(var(--geo-slide-from)); }
+  }
+  @keyframes geo-slide-x-out {
+    to { opacity: 0; transform: translateX(var(--geo-slide-to)); }
+  }
+  @keyframes geo-slide-y-in {
+    from { opacity: 0; transform: translateY(var(--geo-slide-from)); }
+  }
+  @keyframes geo-valor-realce {
+    0% { background-color: var(--geo-accent-soft); }
+    100% { background-color: transparent; }
+  }
+
+  /*
+   * Transição de navegação (withViewTransitions): só a área de conteúdo
+   * (view-transition-name: geo-conteudo) troca; menu e cabeçalho ficam parados.
+   */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+  ::view-transition-old(geo-conteudo) {
+    animation: geo-fade-out var(--geo-motion-exit) var(--geo-ease-in) both;
+  }
+  ::view-transition-new(geo-conteudo) {
+    animation: geo-rise-in var(--geo-motion-base) var(--geo-ease-out) both;
+  }
+  :root[data-motion='reduced']::view-transition-old(geo-conteudo),
+  :root[data-motion='reduced']::view-transition-new(geo-conteudo) {
+    animation: none;
+  }
+}
