@@ -230,6 +230,11 @@ import {
   ZoomIn,
   ZoomOut,
   type LucideIconData,
+  CalendarDays,
+  ClipboardCheck,
+  Fuel,
+  ShieldCheck,
+  WifiOff,
 } from 'lucide-angular';
 
 export const GEO_ICONES = {
@@ -450,6 +455,11 @@ export const GEO_ICONES = {
   'wallet': Wallet,
   'warehouse': Warehouse,
   'wifi': Wifi,
+  'calendar-days': CalendarDays,
+  'clipboard-check': ClipboardCheck,
+  'fuel': Fuel,
+  'shield-check': ShieldCheck,
+  'wifi-off': WifiOff,
   'wrench': Wrench,
   'x': X,
   'zap': Zap,
