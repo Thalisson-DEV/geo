@@ -10,16 +10,20 @@
 
     <div class="entrada__conteudo">
       <div class="entrada__marca">
-        <geo-logo size="2.25rem" label="GEO" />
+        <geo-logo size="2rem" label="GEO" />
         <span>Gestão de Equipes e Operações</span>
       </div>
-
       <h1 id="inicio-titulo" class="entrada__titulo">Escolha um módulo</h1>
       <p class="entrada__texto">
-        Cada área reúne as telas do dia a dia. Precisa de uma resposta rápida? Pergunte à Bússola.
+        Cada área reúne as telas do dia a dia.
+        @if (podeUsarBussola()) {
+          Precisa de uma resposta rápida? Pergunte à Bússola.
+        }
       </p>
+    </div>
 
-      @if (podeUsarBussola()) {
+    @if (podeUsarBussola()) {
+      <div class="entrada__bussola">
         <form class="bussola" aria-label="Perguntar à Bússola" (submit)="perguntar($event, campo)">
           <geo-bussola-avatar size="2.25rem" />
           <label class="geo-sr-only" for="inicio-pergunta">Pergunta para a Bússola</label>
@@ -44,11 +48,11 @@
             </li>
           }
         </ul>
-      }
-    </div>
+      </div>
+    }
   </header>
 
-  @if (modulos().length) {
+  @if (modulos().length || administracao().length) {
     <nav class="modulos" aria-labelledby="inicio-titulo">
       @for (modulo of modulos(); track modulo.rota; let i = $index) {
         <article class="modulo" [class.modulo--destaque]="modulo.destaque" [style.--ordem]="i">
@@ -74,6 +78,28 @@
           }
         </article>
       }
+
+      @if (administracao(); as admin) {
+        @if (admin.length) {
+          <article class="modulo modulo--sistema" [style.--ordem]="modulos().length">
+            <a class="modulo__entrada" [routerLink]="admin[0].rota">
+              <span class="modulo__icone" aria-hidden="true">
+                <geo-icon name="settings" size="lg" />
+              </span>
+              <span class="modulo__texto">
+                <span class="modulo__nome">Administração</span>
+                <span class="modulo__descricao">Quem entra no sistema e o que cada perfil pode fazer.</span>
+              </span>
+              <geo-icon class="modulo__seta" name="arrow-up-right" />
+            </a>
+            <ul class="modulo__atalhos" aria-label="Atalhos de Administração">
+              @for (destino of admin; track destino.rota) {
+                <li><a [routerLink]="destino.rota">{{ destino.rotulo }}</a></li>
+              }
+            </ul>
+          </article>
+        }
+      }
     </nav>
   } @else {
     <div class="vazio" role="status">
@@ -83,19 +109,5 @@
         Peça a liberação ao administrador do sistema.
       </p>
     </div>
-  }
-
-  @if (administracao().length) {
-    <footer class="sistema">
-      <span class="sistema__rotulo">
-        <geo-icon name="settings" size="sm" />
-        Administração
-      </span>
-      <ul aria-label="Administração do sistema">
-        @for (destino of administracao(); track destino.rota) {
-          <li><a [routerLink]="destino.rota">{{ destino.rotulo }}</a></li>
-        }
-      </ul>
-    </footer>
   }
 </section>

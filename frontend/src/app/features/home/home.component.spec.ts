@@ -32,7 +32,7 @@ async function montar(permissoes: string[]): Promise<ComponentFixture<HomeCompon
 
 const el = (f: ComponentFixture<HomeComponent>) => f.nativeElement as HTMLElement;
 const cartoes = (f: ComponentFixture<HomeComponent>) =>
-  Array.from(el(f).querySelectorAll<HTMLElement>('article.modulo'));
+  Array.from(el(f).querySelectorAll<HTMLElement>('article.modulo:not(.modulo--sistema)'));
 const nome = (cartao: HTMLElement) => cartao.querySelector('.modulo__nome')?.textContent?.trim();
 
 describe('HomeComponent', () => {
@@ -66,15 +66,15 @@ describe('HomeComponent', () => {
     expect(novo?.getAttribute('href')).toBe('/chamados/meus?novo=1');
   });
 
-  it('deixa a administração numa faixa à parte, só para quem administra', async () => {
+  it('mostra a administração por último, só para quem administra', async () => {
     const semAdmin = await montar(['obras:obra:read']);
-    expect(el(semAdmin).querySelector('.sistema')).toBeNull();
+    expect(el(semAdmin).querySelector('.modulo--sistema')).toBeNull();
 
     TestBed.resetTestingModule();
     const comAdmin = await montar(['iam:usuario:read']);
-    const links = el(comAdmin).querySelectorAll<HTMLAnchorElement>('.sistema a');
-    expect(links).toHaveLength(1);
-    expect(links[0].getAttribute('href')).toBe('/admin/cadastros/usuarios');
+    const cartao = el(comAdmin).querySelector<HTMLElement>('.modulo--sistema')!;
+    expect(cartao.querySelector('a.modulo__entrada')?.getAttribute('href')).toBe('/admin/cadastros/usuarios');
+    expect(cartao.querySelectorAll('.modulo__atalhos a')).toHaveLength(1);
   });
 
   it('explica quando o perfil não tem nenhum módulo', async () => {
