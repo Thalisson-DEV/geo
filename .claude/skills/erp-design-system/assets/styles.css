@@ -1,0 +1,72 @@
+/* src/styles.css — base global do ERP
+   Requer: npm i @fontsource-variable/inter
+   Em app.config.ts use cssLayer: { name: 'primeng', order: 'theme, base, primeng, app' } */
+
+@import '@fontsource-variable/inter';
+
+@layer theme, base, primeng, app;
+
+@layer base {
+  html {
+    font-size: 14px; /* densidade global: todo rem do PrimeNG escala a partir daqui */
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+  html.app-dark { color-scheme: dark; }
+
+  body {
+    margin: 0;
+    font-family: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv11', 'ss01'; /* 1 e l mais legíveis no Inter */
+    line-height: 1.43; /* 20px */
+    background: var(--p-surface-50);
+    color: var(--p-text-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html.app-dark body { background: var(--p-surface-950); }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+
+  code, kbd, .mono { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.92em; }
+
+  :focus-visible { outline: 2px solid var(--p-primary-color); outline-offset: 1px; }
+
+  ::selection { background: var(--p-highlight-background); }
+
+  /* scrollbars discretos */
+  * { scrollbar-width: thin; scrollbar-color: var(--p-surface-300) transparent; }
+  html.app-dark * { scrollbar-color: var(--p-surface-700) transparent; }
+}
+
+@layer app {
+  :root {
+    --erp-topbar-h: 48px;
+    --erp-sidebar-w: 232px;
+    --erp-sidebar-w-collapsed: 52px;
+    --erp-page-pad: 20px;
+    --erp-gap: 12px;
+  }
+
+  /* Tipografia utilitária */
+  .t-page-title    { font-size: 18px; font-weight: 600; line-height: 26px; letter-spacing: -0.01em; }
+  .t-section-title { font-size: 15px; font-weight: 600; line-height: 22px; letter-spacing: -0.01em; }
+  .t-small         { font-size: 13px; line-height: 18px; }
+  .t-caption       { font-size: 12px; font-weight: 500; line-height: 16px; color: var(--p-text-muted-color); }
+  .t-muted         { color: var(--p-text-muted-color); }
+  .t-num           { font-variant-numeric: tabular-nums; text-align: right; }
+  .t-kpi           { font-size: 24px; font-weight: 600; line-height: 30px; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+  /* Tabelas: números tabulares por padrão + cabeçalho discreto */
+  .p-datatable { font-variant-numeric: tabular-nums; }
+  .p-datatable .p-datatable-column-title { font-size: 12.5px; color: var(--p-text-muted-color); }
+
+  /* Superfície padrão de painel */
+  .erp-panel {
+    background: var(--p-content-background);
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 8px;
+  }
+}

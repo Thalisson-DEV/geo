@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm start)",
+      "Bash(npm test*)",
+      "Bash(npm run *)",
+      "Bash(npm ls*)",
+      "Bash(npx ng *)",
+      "Bash(npx vitest *)",
+      "Bash(npx playwright test*)",
+      "Bash(ng build*)",
+      "Bash(ng test*)",
+      "Bash(./mvnw *)",
+      "Bash(mvnw.cmd *)",
+      "Bash(.\\mvnw.cmd *)",
+      "mcp__primeng",
+      "mcp__angular-cli"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/application-prod.yml)",
+      "Read(**/application-prod.yaml)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "primeng",
+    "angular-cli"
+  ],
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "playwright@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "jdtls-lsp@claude-plugins-official": true
+  }
+}

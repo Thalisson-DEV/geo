@@ -35,3 +35,6 @@ Thumbs.db
 # Worktrees locais dos agentes e cache do Python
 .claude/worktrees/
 __pycache__/
+
+# Claude Code: configurações locais por pessoa (o resto de .claude/ é versionado)
+.claude/settings.local.json
