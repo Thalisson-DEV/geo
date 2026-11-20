@@ -96,7 +96,7 @@
   font-size: 0.65rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--geo-foreground-muted);
   background: var(--geo-surface-muted);
   border: 1px solid var(--geo-border);
@@ -249,7 +249,7 @@
   font-size: 0.625rem;
   font-weight: 500;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
+  text-transform: none;
   line-height: 1;
   margin-bottom: 0.15rem;
 }
@@ -682,7 +682,7 @@
   padding: 0.15rem 0.45rem;
   font-size: 0.675rem;
   font-weight: 500;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: 0.04em;
   border-radius: var(--geo-radius-sm);
   background: var(--geo-surface-muted);
@@ -847,7 +847,7 @@
   gap: 0.25rem;
   color: var(--geo-brand);
   font-weight: 600;
-  text-transform: uppercase;
+  text-transform: none;
   font-size: 0.65rem;
   letter-spacing: 0.04em;
   flex-shrink: 0;

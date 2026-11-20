@@ -144,7 +144,7 @@ export function geoImportStatus(status: string | undefined): { label: string; to
       background: color-mix(in srgb, var(--geo-brand-soft) 88%, transparent);
       color: var(--geo-foreground);
       font-size: var(--geo-font-body);
-      font-weight: 700;
+      font-weight: var(--geo-font-weight-semibold);
       pointer-events: none;
     }
 

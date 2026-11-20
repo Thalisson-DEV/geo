@@ -31,7 +31,7 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
 @Component({
   selector: 'app-header',
   styles: [`
-    .geo-topo { position: relative; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex: none; block-size: 3.5rem; padding-inline: 1rem; background: var(--geo-surface); border-block-end: 1px solid var(--geo-border); color: var(--geo-foreground); }
+    .geo-topo { position: relative; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex: none; block-size: var(--geo-nav-topbar-height); padding-inline: 16px; background: var(--geo-surface); border-block-end: 1px solid var(--geo-border); color: var(--geo-foreground); }
     @media (min-width: 1024px) { .geo-topo { padding-inline: 1.5rem; } }
     .geo-topo__inicio { display: flex; align-items: center; gap: 0.5rem; min-inline-size: 0; }
     .geo-topo__marca { display: inline-flex; }

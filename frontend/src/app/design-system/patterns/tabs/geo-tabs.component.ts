@@ -34,7 +34,7 @@ export interface GeoTabItem {
       display: inline-flex;
       align-items: center;
       gap: 0.45rem;
-      font-weight: 700;
+      font-weight: var(--geo-font-weight-semibold);
     }
 
     .geo-tabs__badge {

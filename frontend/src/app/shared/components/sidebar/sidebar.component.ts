@@ -9,7 +9,7 @@ import { RouterLink, Router } from '@angular/router';
 import { ViewStateStore, linkToUrl } from '../../../core/navigation/view-state.store';
 
 const CHAVE_LARGURA = 'geo_menu_largura';
-const LARGURA_PADRAO = 288;
+const LARGURA_PADRAO = 232;
 const PASSO_TECLADO = 16;
 
 @Component({
@@ -160,6 +160,7 @@ const PASSO_TECLADO = 16;
     app-sidebar { display: contents; }
     .geo-nav {
       --geo-nav-largura: var(--geo-nav-width);
+      border-inline-end: 1px solid var(--geo-nav-border);
       position: fixed; inset-block: 0; inset-inline-start: 0; z-index: 50;
       display: flex; flex-direction: column;
       inline-size: var(--geo-nav-largura); max-inline-size: 100vw; block-size: 100%;
@@ -172,7 +173,7 @@ const PASSO_TECLADO = 16;
     .geo-nav--arrastando { transition: none; user-select: none; }
 
     /* Topo: marca com o nome por extenso e botão de recolher, na altura do cabeçalho. */
-    .geo-nav__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex: none; block-size: 3.5rem; padding-inline: 0.875rem 0.625rem; border-block-end: 1px solid var(--geo-nav-border); }
+    .geo-nav__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex: none; block-size: var(--geo-nav-topbar-height); padding-inline: 12px 8px; border-block-end: 1px solid var(--geo-nav-border); }
     .geo-nav--recolhido .geo-nav__topo { justify-content: center; padding-inline: 0; }
     .geo-nav--recolhido .geo-nav__marca { display: none; }
     .geo-nav__marca { display: inline-flex; align-items: center; gap: 0.625rem; min-inline-size: 0; border-radius: var(--geo-radius-sm); color: var(--geo-nav-fg-active); text-decoration: none; }
@@ -182,20 +183,20 @@ const PASSO_TECLADO = 16;
     .geo-nav__marca-texto small { overflow: hidden; color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption); text-overflow: ellipsis; white-space: nowrap; }
     .geo-nav__recolher {
       display: inline-flex; flex: none; align-items: center; justify-content: center;
-      inline-size: 2.25rem; block-size: 2.25rem; border: 0; border-radius: var(--geo-radius-md);
+      inline-size: 28px; block-size: 28px; border: 0; border-radius: var(--geo-radius-sm);
       background: transparent; color: var(--geo-nav-fg-muted); cursor: pointer;
       transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out);
     }
     .geo-nav__recolher:hover { background: var(--geo-nav-bg-hover); color: var(--geo-nav-fg-active); }
     .geo-nav__recolher:focus-visible { outline: 2px solid var(--geo-nav-indicator); outline-offset: 2px; }
 
-    .geo-nav__rolagem { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 0.75rem 0.75rem 1.25rem; scrollbar-width: thin; scrollbar-color: var(--geo-nav-border-strong) transparent; }
-    .geo-nav__secao { margin: 1rem 0 0.375rem; padding-inline: 0.625rem; color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption); font-weight: var(--geo-font-weight-semibold); letter-spacing: 0.08em; text-transform: uppercase; }
+    .geo-nav__rolagem { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 8px 8px 16px; scrollbar-width: thin; scrollbar-color: var(--geo-nav-border-strong) transparent; }
+    .geo-nav__secao { margin: 12px 0 4px; padding-inline: 8px; color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption); font-weight: var(--geo-font-weight-semibold); letter-spacing: 0; text-transform: none; }
 
     /* Item: ícone em ladrilho, rótulo legível e área de toque confortável. */
     .geo-nav__item {
-      position: relative; display: flex; align-items: center; gap: 0.75rem;
-      box-sizing: border-box; inline-size: 100%; min-block-size: 2.75rem; margin-block: 2px; padding: 0.25rem 0.625rem 0.25rem 0.375rem;
+      position: relative; display: flex; align-items: center; gap: 8px;
+      box-sizing: border-box; inline-size: 100%; min-block-size: 30px; margin-block: 1px; padding: 0 8px;
       border: 0; border-radius: var(--geo-radius-md); background: transparent;
       color: var(--geo-nav-fg); font: inherit; font-size: var(--geo-text-body); font-weight: var(--geo-font-weight-medium);
       line-height: 1.25; text-align: start; text-decoration: none; cursor: pointer;
@@ -205,33 +206,33 @@ const PASSO_TECLADO = 16;
     .geo-nav__item:focus-visible { outline: 2px solid var(--geo-nav-indicator); outline-offset: -2px; }
     .geo-nav__icone {
       display: inline-flex; flex: none; align-items: center; justify-content: center;
-      inline-size: 2rem; block-size: 2rem; border-radius: var(--geo-radius-sm);
-      background: var(--geo-nav-tile-bg); color: var(--geo-nav-fg);
+      inline-size: 1.1429rem; block-size: 1.1429rem; border-radius: 0;
+      background: transparent; color: var(--geo-nav-fg-muted);
       transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out);
     }
-    .geo-nav__item:hover .geo-nav__icone { background: var(--geo-nav-tile-bg-hover); color: var(--geo-nav-fg-active); }
+    .geo-nav__item:hover .geo-nav__icone { color: var(--geo-nav-fg-active); }
     .geo-nav__rotulo { flex: 1; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .geo-nav__seta { flex: none; color: var(--geo-nav-fg-muted); transition: transform var(--geo-motion-base) var(--geo-ease-out); }
     .geo-nav__seta--aberta { transform: rotate(180deg); }
 
     /* Grupo aberto ou com a tela ativa dentro. */
     .geo-nav__grupo--aberto, .geo-nav__grupo--ativo { color: var(--geo-nav-fg-active); }
-    .geo-nav__grupo--ativo .geo-nav__icone { background: var(--geo-nav-tile-bg-active); color: var(--geo-nav-indicator); }
+    .geo-nav__grupo--ativo .geo-nav__icone { color: var(--geo-nav-indicator); }
 
-    /* Tela ativa: fundo azul suave, texto branco, ícone âmbar e marcador na borda. */
+    /* Tela ativa: fundo neutro, texto forte, ícone e marcador no acento. */
     .geo-nav__item--ativo, .geo-nav__item--ativo:hover { background: var(--geo-nav-bg-active); color: var(--geo-nav-fg-active); font-weight: var(--geo-font-weight-semibold); }
-    .geo-nav__item--ativo .geo-nav__icone, .geo-nav__item--ativo:hover .geo-nav__icone { background: var(--geo-nav-tile-bg-active); color: var(--geo-nav-indicator); }
+    .geo-nav__item--ativo .geo-nav__icone, .geo-nav__item--ativo:hover .geo-nav__icone { color: var(--geo-nav-indicator); }
     .geo-nav__item--ativo::before {
-      content: ''; position: absolute; inset-block: 0.625rem; inset-inline-start: -0.75rem;
+      content: ''; position: absolute; inset-block: 7px; inset-inline-start: -8px;
       inline-size: 3px; border-radius: 0 3px 3px 0; background: var(--geo-nav-indicator);
     }
 
-    /* Bússola: ladrilho âmbar. */
-    .geo-nav__item--bussola .geo-nav__icone { background: var(--geo-nav-badge-bg); color: var(--geo-nav-indicator); }
+    /* Bússola: ícone no acento. */
+    .geo-nav__item--bussola .geo-nav__icone { color: var(--geo-nav-indicator); }
     .geo-nav__badge {
-      flex: none; padding: 0 0.4375rem; border-radius: var(--geo-radius-full);
+      flex: none; padding: 0 6px; border-radius: var(--geo-radius-xs);
       background: var(--geo-nav-badge-bg); color: var(--geo-nav-indicator);
-      font-size: var(--geo-text-caption); font-weight: var(--geo-font-weight-semibold); line-height: 1.25rem; letter-spacing: 0.02em;
+      font-size: var(--geo-text-caption); font-weight: var(--geo-font-weight-semibold); line-height: 18px; letter-spacing: 0;
     }
 
     /* Subníveis: ícone menor, recuo alinhado ao ladrilho do pai e linha guia. */
@@ -239,7 +240,7 @@ const PASSO_TECLADO = 16;
     .geo-nav__grupos .p-panelmenu-header-content { border: 0; background: transparent; }
     .geo-nav__grupos .p-panelmenu-content {
       position: relative; box-sizing: border-box; inline-size: auto;
-      margin-inline-start: 1.375rem;
+      margin-inline-start: 15px;
       border: 0; background: transparent;
     }
     .geo-nav__grupos .p-panelmenu-content::before {
@@ -247,8 +248,8 @@ const PASSO_TECLADO = 16;
       inline-size: 1px; background: var(--geo-nav-border-strong);
     }
     .geo-nav__grupos .p-panelmenu-item-content { border: 0; background: transparent; }
-    .geo-nav__grupos .p-panelmenu-content .geo-nav__item { min-block-size: 2.375rem; gap: 0.625rem; padding-inline-start: 0.375rem; font-size: var(--geo-text-body-sm); font-weight: var(--geo-font-weight-regular); color: var(--geo-nav-fg); }
-    .geo-nav__grupos .p-panelmenu-content .geo-nav__icone { inline-size: 1.625rem; block-size: 1.625rem; background: transparent; color: var(--geo-nav-fg-muted); }
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__item { min-block-size: 28px; gap: 8px; padding-inline-start: 8px; font-size: var(--geo-text-body-sm); font-weight: var(--geo-font-weight-regular); color: var(--geo-nav-fg); }
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__icone { inline-size: 1rem; block-size: 1rem; background: transparent; color: var(--geo-nav-fg-muted); }
     .geo-nav__grupos .p-panelmenu-content .geo-nav__item:hover { color: var(--geo-nav-fg-active); }
     .geo-nav__grupos .p-panelmenu-content .geo-nav__item:hover .geo-nav__icone { background: transparent; color: var(--geo-nav-fg-active); }
     .geo-nav__grupos .p-panelmenu-content .geo-nav__grupo--aberto,
@@ -256,15 +257,15 @@ const PASSO_TECLADO = 16;
     .geo-nav__grupos .p-panelmenu-content .geo-nav__grupo--ativo .geo-nav__icone,
     .geo-nav__grupos .p-panelmenu-content .geo-nav__item--ativo .geo-nav__icone { background: transparent; color: var(--geo-nav-indicator); }
     .geo-nav__grupos .p-panelmenu-content .geo-nav__item--ativo { font-weight: var(--geo-font-weight-semibold); }
-    .geo-nav__grupos .p-panelmenu-submenu { margin: 0; padding: 0 0 0 0.5rem; }
-    .geo-nav__grupos .p-panelmenu-content .geo-nav__item--ativo::before { inset-inline-start: calc(-0.5rem - 1px); inset-block: 0.5rem; border-radius: 3px; }
-    .geo-nav__grupos .p-panelmenu-content .p-panelmenu-content { margin-inline-start: 0.875rem; }
+    .geo-nav__grupos .p-panelmenu-submenu { margin: 0; padding: 0 0 0 8px; }
+    .geo-nav__grupos .p-panelmenu-content .geo-nav__item--ativo::before { inset-inline-start: -9px; inset-block: 6px; border-radius: 2px; inline-size: 2px; }
+    .geo-nav__grupos .p-panelmenu-content .p-panelmenu-content { margin-inline-start: 12px; }
 
     /* Recolhido: só os ladrilhos. */
     .geo-nav--recolhido .geo-nav__rolagem { padding-inline: 0; }
-    .geo-nav__icones { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; margin: 0; padding: 0; list-style: none; }
-    .geo-nav__item--icone { justify-content: center; inline-size: 2.75rem; block-size: 2.75rem; min-block-size: 0; padding: 0; }
-    .geo-nav__item--icone.geo-nav__item--ativo::before { inset-inline-start: -0.75rem; }
+    .geo-nav__icones { display: flex; flex-direction: column; align-items: center; gap: 2px; margin: 0; padding: 0; list-style: none; }
+    .geo-nav__item--icone { justify-content: center; inline-size: 36px; block-size: 32px; min-block-size: 0; padding: 0; }
+    .geo-nav__item--icone.geo-nav__item--ativo::before { inset-inline-start: -8px; }
 
     /* Alça de largura na borda direita do menu aberto. */
     .geo-nav__alca {
@@ -280,7 +281,7 @@ const PASSO_TECLADO = 16;
 
     .geo-nav__rodape:empty { display: none; }
     .geo-nav__rodape {
-      display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem;
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
       border-block-start: 1px solid var(--geo-nav-border);
       color: var(--geo-nav-indicator); font-size: var(--geo-text-caption);
     }
@@ -303,7 +304,7 @@ export class SidebarComponent {
   toggleMenu = output<void>();
   expandAndFocus = output<MenuItem>();
 
-  protected readonly LARGURA_MIN = 232;
+  protected readonly LARGURA_MIN = 200;
   protected readonly LARGURA_MAX = 440;
   /** Largura do menu aberto, em px, ajustada pela alça e guardada no aparelho. */
   readonly largura = signal(this.larguraSalva());

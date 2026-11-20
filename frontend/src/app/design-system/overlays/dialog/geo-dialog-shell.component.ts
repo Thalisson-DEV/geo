@@ -42,7 +42,7 @@ const DIALOG_WIDTHS: Record<GeoDialogSize, string> = {
       background: color-mix(in srgb, var(--geo-surface) 86%, transparent);
       color: var(--geo-foreground-muted);
       font-size: var(--geo-font-control);
-      font-weight: 700;
+      font-weight: var(--geo-font-weight-semibold);
       backdrop-filter: blur(2px);
     }
 

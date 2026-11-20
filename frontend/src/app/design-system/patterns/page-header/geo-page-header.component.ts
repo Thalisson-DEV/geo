@@ -82,7 +82,7 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
     h1 {
       margin: 0;
       font-size: 1.125rem;
-      font-weight: 700;
+      font-weight: var(--geo-font-weight-semibold);
       line-height: 1.3;
       color: var(--geo-foreground);
       overflow-wrap: anywhere;

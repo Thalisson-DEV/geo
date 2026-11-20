@@ -69,7 +69,7 @@ const BAND_TEXT: Record<GeoAttainmentBand, string> = {
       align-items: center;
       gap: 0.25rem;
       color: var(--geo-meter-text);
-      font-weight: 700;
+      font-weight: var(--geo-font-weight-semibold);
     }
 
     .geo-meter__track {

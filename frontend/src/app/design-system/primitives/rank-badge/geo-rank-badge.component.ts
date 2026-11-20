@@ -25,7 +25,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
       background: var(--geo-surface-muted);
       color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
-      font-weight: 700;
+      font-weight: var(--geo-font-weight-semibold);
       font-variant-numeric: tabular-nums;
     }
 

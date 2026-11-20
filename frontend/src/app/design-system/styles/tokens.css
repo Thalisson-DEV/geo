@@ -125,8 +125,8 @@
     --geo-text-tracking-display: -0.01em;
     /* Tamanhos usados pelos componentes do DS. */
     --geo-font-caption: 0.8571rem;
-    --geo-font-control: 0.9286rem;
-    --geo-font-label: var(--geo-font-control);
+    --geo-font-control: 1rem;
+    --geo-font-label: 0.9286rem;
     --geo-font-body: 1rem;
     --geo-font-title: 1.0714rem;
     --geo-font-size-xs: var(--geo-font-caption);
@@ -201,7 +201,7 @@
     --geo-form-field-gap: 12px;
     --geo-form-title-size: var(--geo-text-title-3);
     --geo-form-section-title-size: var(--geo-text-title-3);
-    --geo-form-label-size: var(--geo-font-control);
+    --geo-form-label-size: var(--geo-font-label);
     --geo-form-hint-size: var(--geo-font-caption);
     --geo-form-footer-bg: color-mix(in srgb, var(--geo-surface) 94%, transparent);
 
@@ -331,7 +331,7 @@
     --geo-control-height-md: 40px;
     --geo-control-height-lg: 44px;
     --geo-table-row-height: 44px;
-    --geo-font-control: 1rem;
+    --geo-font-control: 1.0714rem;
     --geo-font-body: 1.0714rem;
   }
 

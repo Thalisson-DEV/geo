@@ -152,7 +152,7 @@ const FIELD_SELECTOR =
       background: var(--geo-brand-soft);
       color: var(--geo-brand);
       font-size: var(--geo-font-caption);
-      font-weight: 700;
+      font-weight: var(--geo-font-weight-semibold);
     }
 
     .geo-filter-panel__summary {

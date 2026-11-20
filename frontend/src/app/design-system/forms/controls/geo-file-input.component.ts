@@ -18,7 +18,7 @@ import { createControlId } from './form-control.helpers';
     .geo-file-input__copy { display: grid; min-width: 0; gap: .15rem; }
     .geo-file-input__copy strong { font-size: var(--geo-font-body); }
     .geo-file-input__copy span { overflow: hidden; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); text-overflow: ellipsis; white-space: nowrap; }
-    .geo-file-input__clear { justify-self: start; min-height: var(--geo-touch-target); border: 0; background: transparent; color: var(--geo-brand); font-weight: 700; cursor: pointer; }
+    .geo-file-input__clear { justify-self: start; min-height: var(--geo-touch-target); border: 0; background: transparent; color: var(--geo-brand); font-weight: var(--geo-font-weight-semibold); cursor: pointer; }
   `,
   template: `
     <geo-field

@@ -54,9 +54,9 @@
 .geo-catalog__identity span:not(.geo-catalog__mark) {
   color: #94a3b8;
   font-size: var(--geo-font-caption);
-  font-weight: 700;
+  font-weight: var(--geo-font-weight-semibold);
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .geo-catalog__mark {
@@ -119,9 +119,9 @@
   margin-bottom: 0.75rem;
   color: var(--geo-brand);
   font-size: var(--geo-font-caption);
-  font-weight: 800;
+  font-weight: var(--geo-font-weight-semibold);
   letter-spacing: 0.17em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .geo-catalog__header h1 {
@@ -161,9 +161,9 @@
 .geo-catalog__controls label > span {
   color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
-  font-weight: 700;
+  font-weight: var(--geo-font-weight-semibold);
   letter-spacing: 0.05em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .geo-catalog__section {
@@ -183,9 +183,9 @@
   padding-top: 0.3rem;
   color: var(--geo-brand);
   font-size: var(--geo-font-caption);
-  font-weight: 800;
+  font-weight: var(--geo-font-weight-semibold);
   letter-spacing: 0.13em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .geo-catalog__section-heading h2 {
@@ -261,5 +261,5 @@
   background: var(--geo-surface);
   color: var(--geo-foreground);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: var(--geo-font-weight-semibold);
 }

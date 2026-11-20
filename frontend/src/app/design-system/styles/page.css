@@ -126,7 +126,7 @@
 
   .geo-kpi__value {
     font-size: 1.125rem;
-    font-weight: 700;
+    font-weight: var(--geo-font-weight-semibold);
     color: var(--geo-foreground);
     font-variant-numeric: tabular-nums;
     overflow-wrap: anywhere;
@@ -204,7 +204,7 @@
     gap: 0.5rem;
     margin: 0 0 0.75rem;
     font-size: var(--geo-font-control);
-    font-weight: 700;
+    font-weight: var(--geo-font-weight-semibold);
     color: var(--geo-foreground);
   }
 
