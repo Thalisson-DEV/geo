@@ -45,7 +45,6 @@
     "icone-primeicons": 15
   },
   "src/app/features/almoxarifado/movimentacoes-estoque/relatorio-movimentacao-estoque/relatorio-movimentacao-estoque.component.css": {
-    "cor-literal": 12,
     "important": 33,
     "movimento-literal": 1
   },
@@ -132,7 +131,7 @@
     "icone-primeicons": 65
   },
   "src/app/features/almoxarifado/saldos/relatorio-saldo/relatorio-saldo.component.css": {
-    "cor-literal": 13,
+    "cor-literal": 1,
     "important": 34,
     "movimento-literal": 2
   },
@@ -187,7 +186,7 @@
     "icone-primeicons": 4
   },
   "src/app/features/almoxarifado/solicitacoes-material/relatorio-solicitacao-material/relatorio-solicitacao-material.component.css": {
-    "cor-literal": 17,
+    "cor-literal": 1,
     "important": 35,
     "movimento-literal": 1
   },
@@ -244,9 +243,6 @@
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-rejeicao-dialog.component.ts": {
     "icone-primeicons": 1
   },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-assinatura/solicitacao-tecnica-assinatura.component.css": {
-    "cor-literal": 2
-  },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-assinatura/solicitacao-tecnica-assinatura.component.html": {
     "icone-primeicons": 3
   },
@@ -254,7 +250,7 @@
     "icone-primeicons": 44
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component.css": {
-    "cor-literal": 21,
+    "cor-literal": 1,
     "important": 39,
     "movimento-literal": 1
   },
@@ -268,7 +264,7 @@
     "primeng-direto": 2
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-historico/solicitacao-tecnica-historico.component.css": {
-    "cor-literal": 38
+    "cor-literal": 18
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-historico/solicitacao-tecnica-historico.component.html": {
     "icone-primeicons": 11,
@@ -282,9 +278,6 @@
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-report-navigator.data-source.ts": {
     "icone-primeicons": 8
   },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-calendario/solicitacoes-comerciais-calendario.component.css": {
-    "cor-literal": 1
-  },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-calendario/solicitacoes-comerciais-calendario.component.ts": {
     "icone-primeicons": 9
   },
@@ -295,7 +288,7 @@
     "icone-primeicons": 18
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacoes-comerciais-kanban.component.css": {
-    "cor-literal": 8,
+    "cor-literal": 1,
     "movimento-literal": 3,
     "movimento-tailwind": 1
   },
@@ -387,7 +380,6 @@
     "important": 1
   },
   "src/app/features/dp/descontos/dashboard/dashboard-descontos.component.html": {
-    "cor-literal": 6,
     "icone-primeicons": 19,
     "paleta-tailwind": 1
   },
@@ -403,7 +395,6 @@
     "paleta-tailwind": 254
   },
   "src/app/features/dp/descontos/desconto-form/desconto-form.component.ts": {
-    "cor-literal": 8,
     "icone-primeicons": 3,
     "important": 6,
     "movimento-literal": 1,
@@ -429,12 +420,11 @@
     "icone-primeicons": 16
   },
   "src/app/features/dp/descontos/relatorio-desconto/desconto-historico.component.ts": {
-    "cor-literal": 4,
     "icone-primeicons": 14,
     "important": 4
   },
   "src/app/features/dp/descontos/relatorio-desconto/relatorio-desconto.component.css": {
-    "cor-literal": 6,
+    "cor-literal": 1,
     "important": 5
   },
   "src/app/features/dp/descontos/relatorio-desconto/relatorio-desconto.component.html": {
@@ -524,7 +514,6 @@
     "icone-primeicons": 27
   },
   "src/app/features/execucao/relatorios/relatorio.css": {
-    "cor-literal": 12,
     "important": 33,
     "movimento-literal": 1
   },
@@ -573,7 +562,6 @@
     "primeng-direto": 5
   },
   "src/app/features/financeiro/formularios/formulario-financeiro-builder.component.ts": {
-    "cor-literal": 9,
     "icone-primeicons": 10,
     "important": 11,
     "ng-deep": 1,
@@ -588,7 +576,6 @@
     "icone-primeicons": 14
   },
   "src/app/features/financeiro/shared/financeiro-form.component.ts": {
-    "cor-literal": 29,
     "icone-primeicons": 1,
     "important": 34,
     "movimento-literal": 1,
@@ -604,7 +591,6 @@
     "icone-primeicons": 9
   },
   "src/app/features/financeiro/solicitacoes/solicitacao-documentos.component.ts": {
-    "cor-literal": 9,
     "icone-primeicons": 31,
     "important": 3,
     "movimento-literal": 1,
@@ -615,7 +601,6 @@
     "icone-primeicons": 7
   },
   "src/app/features/financeiro/solicitacoes/solicitacao-financeira-detalhe.component.css": {
-    "cor-literal": 5,
     "important": 6
   },
   "src/app/features/financeiro/solicitacoes/solicitacao-financeira-detalhe.component.html": {
@@ -629,7 +614,7 @@
     "primeng-direto": 2
   },
   "src/app/features/financeiro/solicitacoes/solicitacao-financeira-form.component.ts": {
-    "cor-literal": 18,
+    "cor-literal": 3,
     "icone-primeicons": 28,
     "important": 15,
     "movimento-literal": 1,
@@ -638,7 +623,6 @@
     "primeng-direto": 7
   },
   "src/app/features/financeiro/solicitacoes/solicitacao-financeira-historico.component.ts": {
-    "cor-literal": 4,
     "icone-primeicons": 8,
     "important": 4
   },
@@ -853,7 +837,7 @@
     "icone-primeicons": 21
   },
   "src/app/features/frota/relatorios/frota-relatorio.css": {
-    "cor-literal": 8,
+    "cor-literal": 2,
     "important": 2,
     "movimento-literal": 2
   },
@@ -1013,15 +997,13 @@
     "icone-primeicons": 1
   },
   "src/app/features/frota/visoes/frota-os-calendario.component.ts": {
-    "cor-literal": 1,
     "icone-primeicons": 8
   },
   "src/app/features/frota/visoes/frota-os-kanban-card.component.ts": {
-    "cor-literal": 6,
     "icone-primeicons": 19
   },
   "src/app/features/frota/visoes/frota-os-kanban.component.css": {
-    "cor-literal": 20,
+    "cor-literal": 1,
     "movimento-literal": 3,
     "movimento-tailwind": 1
   },
@@ -1056,17 +1038,11 @@
   "src/app/features/iam/usuarios/usuarios.component.ts": {
     "icone-primeicons": 15
   },
-  "src/app/features/manuais/central-treinamento.component.css": {
-    "cor-literal": 1
-  },
   "src/app/features/manuais/central-treinamento.component.html": {
     "icone-primeicons": 22
   },
   "src/app/features/manuais/central-treinamento.data.ts": {
     "icone-primeicons": 82
-  },
-  "src/app/features/manuais/manual-treinamento-documento.component.css": {
-    "cor-literal": 48
   },
   "src/app/features/manuais/manual-treinamento-documento.component.html": {
     "icone-primeicons": 14
@@ -1100,7 +1076,7 @@
     "icone-primeicons": 8
   },
   "src/app/features/notificacoes/admin/regras/regra-form.component.css": {
-    "cor-literal": 18,
+    "cor-literal": 2,
     "important": 16
   },
   "src/app/features/notificacoes/admin/regras/regra-form.component.html": {
@@ -1122,7 +1098,6 @@
     "icone-primeicons": 9
   },
   "src/app/features/notificacoes/automacoes/automacao-execucao.component.ts": {
-    "cor-literal": 1,
     "icone-primeicons": 8
   },
   "src/app/features/notificacoes/automacoes/automacoes-campos.css": {
@@ -1187,7 +1162,7 @@
     "icone-primeicons": 28
   },
   "src/app/features/notificacoes/notificacoes-form.shared.css": {
-    "cor-literal": 61,
+    "cor-literal": 4,
     "important": 53,
     "movimento-literal": 2,
     "paleta-tailwind": 2
@@ -1217,7 +1192,6 @@
     "icone-primeicons": 16
   },
   "src/app/features/obras/detalhe/obra-detalhe.component.css": {
-    "cor-literal": 15,
     "important": 5,
     "movimento-literal": 1
   },
@@ -1368,7 +1342,7 @@
     "cor-literal": 1
   },
   "src/app/features/obras/planejamento/obra-planejamento.component.css": {
-    "cor-literal": 4,
+    "cor-literal": 3,
     "movimento-literal": 1
   },
   "src/app/features/obras/planejamento/obra-planejamento.component.html": {
@@ -1396,7 +1370,6 @@
     "icone-primeicons": 9
   },
   "src/app/features/obras/programacao/programacao-linha-tempo.component.ts": {
-    "cor-literal": 1,
     "icone-primeicons": 2
   },
   "src/app/features/obras/programacao/programacao-painel.component.css": {
@@ -1517,12 +1490,11 @@
     "cor-literal": 9
   },
   "src/app/features/sst/dashboards/dashboard-desvios.component.html": {
-    "cor-literal": 2,
     "icone-primeicons": 19,
     "paleta-tailwind": 16
   },
   "src/app/features/sst/dashboards/dashboard-desvios.component.ts": {
-    "cor-literal": 93,
+    "cor-literal": 14,
     "icone-primeicons": 6,
     "movimento-literal": 2,
     "primeng-direto": 2
@@ -1531,29 +1503,27 @@
     "cor-literal": 28
   },
   "src/app/features/sst/dashboards/dashboard-eventos.component.html": {
-    "cor-literal": 3,
     "icone-primeicons": 18,
     "paleta-tailwind": 3
   },
   "src/app/features/sst/dashboards/dashboard-eventos.component.ts": {
-    "cor-literal": 49,
+    "cor-literal": 11,
     "icone-primeicons": 3,
     "important": 2,
     "movimento-literal": 1,
     "primeng-direto": 2
   },
   "src/app/features/sst/dashboards/dashboard-inspecoes.component.html": {
-    "cor-literal": 3,
     "icone-primeicons": 21,
     "paleta-tailwind": 4
   },
   "src/app/features/sst/dashboards/dashboard-inspecoes.component.ts": {
-    "cor-literal": 47,
+    "cor-literal": 37,
     "icone-primeicons": 4,
     "primeng-direto": 2
   },
   "src/app/features/sst/dashboards/mapa-corpo-lesoes.component.css": {
-    "cor-literal": 60,
+    "cor-literal": 9,
     "important": 1,
     "movimento-literal": 3
   },
@@ -1567,7 +1537,7 @@
     "icone-primeicons": 9
   },
   "src/app/features/sst/dashboards/piramide-bird.component.ts": {
-    "cor-literal": 18,
+    "cor-literal": 8,
     "icone-primeicons": 1,
     "movimento-literal": 2
   },
@@ -1582,7 +1552,6 @@
     "icone-primeicons": 8
   },
   "src/app/features/sst/eventos/evento-anexos.component.ts": {
-    "cor-literal": 3,
     "icone-primeicons": 11,
     "important": 3,
     "movimento-literal": 1,
@@ -1591,11 +1560,9 @@
     "primeng-direto": 2
   },
   "src/app/features/sst/eventos/evento-corpo.component.ts": {
-    "cor-literal": 5,
     "movimento-literal": 1
   },
   "src/app/features/sst/eventos/evento-detalhe.component.css": {
-    "cor-literal": 8,
     "important": 8
   },
   "src/app/features/sst/eventos/evento-detalhe.component.html": {
@@ -1610,7 +1577,7 @@
     "primeng-direto": 1
   },
   "src/app/features/sst/eventos/evento-form.component.css": {
-    "cor-literal": 46,
+    "cor-literal": 6,
     "movimento-literal": 1,
     "ng-deep": 5
   },
@@ -1632,7 +1599,6 @@
     "icone-primeicons": 7
   },
   "src/app/features/sst/formularios/formulario-builder.component.ts": {
-    "cor-literal": 4,
     "icone-primeicons": 22,
     "important": 7,
     "ng-deep": 1,
@@ -1647,7 +1613,7 @@
     "icone-primeicons": 11
   },
   "src/app/features/sst/governanca/governanca-cadastro.component.css": {
-    "cor-literal": 37,
+    "cor-literal": 4,
     "important": 21,
     "movimento-literal": 2,
     "ng-deep": 22
@@ -1662,7 +1628,7 @@
     "primeng-direto": 10
   },
   "src/app/features/sst/governanca/governanca-composicao-form.component.css": {
-    "cor-literal": 16,
+    "cor-literal": 1,
     "movimento-literal": 1,
     "ng-deep": 15
   },
@@ -1676,22 +1642,21 @@
     "primeng-direto": 9
   },
   "src/app/features/sst/governanca/governanca-configuracoes-checklists.component.css": {
-    "cor-literal": 34,
+    "cor-literal": 4,
     "important": 12,
     "ng-deep": 25
   },
   "src/app/features/sst/governanca/governanca-configuracoes-form.component.css": {
-    "cor-literal": 48,
+    "cor-literal": 3,
     "important": 20,
     "ng-deep": 28
   },
   "src/app/features/sst/governanca/governanca-configuracoes-table.component.css": {
-    "cor-literal": 15,
     "important": 14,
     "ng-deep": 46
   },
   "src/app/features/sst/governanca/governanca-configuracoes.component.css": {
-    "cor-literal": 65,
+    "cor-literal": 2,
     "movimento-literal": 1
   },
   "src/app/features/sst/governanca/governanca-configuracoes.component.html": {
@@ -1704,10 +1669,10 @@
     "primeng-direto": 12
   },
   "src/app/features/sst/governanca/governanca-contexto.component.css": {
-    "cor-literal": 38
+    "cor-literal": 2
   },
   "src/app/features/sst/governanca/governanca-membros-etapa.component.css": {
-    "cor-literal": 37,
+    "cor-literal": 2,
     "important": 2,
     "ng-deep": 19
   },
@@ -1723,7 +1688,6 @@
     "icone-primeicons": 7
   },
   "src/app/features/sst/governanca/governanca-table.css": {
-    "cor-literal": 24,
     "important": 16,
     "movimento-literal": 1,
     "ng-deep": 15
@@ -1732,11 +1696,10 @@
     "icone-primeicons": 6
   },
   "src/app/features/sst/governanca/reuniao-governanca-fields.component.css": {
-    "cor-literal": 2,
     "ng-deep": 17
   },
   "src/app/features/sst/governanca/reuniao-governanca.component.css": {
-    "cor-literal": 22,
+    "cor-literal": 2,
     "important": 15,
     "movimento-literal": 2
   },
@@ -1766,7 +1729,7 @@
     "primeng-direto": 5
   },
   "src/app/features/sst/inspecoes/inspecao-detalhe.component.css": {
-    "cor-literal": 8,
+    "cor-literal": 1,
     "important": 7
   },
   "src/app/features/sst/inspecoes/inspecao-detalhe.component.html": {
@@ -1782,7 +1745,7 @@
     "primeng-direto": 5
   },
   "src/app/features/sst/inspecoes/inspecao-form.component.ts": {
-    "cor-literal": 34,
+    "cor-literal": 16,
     "icone-primeicons": 62,
     "important": 20,
     "movimento-literal": 1,
@@ -1793,7 +1756,7 @@
     "primeng-direto": 13
   },
   "src/app/features/sst/inspecoes/inspecao-seguranca-historico/inspecao-seguranca-historico.component.css": {
-    "cor-literal": 27
+    "cor-literal": 10
   },
   "src/app/features/sst/inspecoes/inspecao-seguranca-historico/inspecao-seguranca-historico.component.html": {
     "icone-primeicons": 7
@@ -1888,7 +1851,6 @@
     "primeng-direto": 6
   },
   "src/app/shared/components/chatbot/assistant-rich-content.component.css": {
-    "cor-literal": 14,
     "movimento-literal": 1,
     "ng-deep": 1
   },
@@ -1899,19 +1861,18 @@
     "cor-literal": 27
   },
   "src/app/shared/components/chatbot/chatbot-controls.css": {
-    "cor-literal": 10,
+    "cor-literal": 2,
     "important": 6,
     "movimento-literal": 7,
     "ng-deep": 8
   },
   "src/app/shared/components/chatbot/chatbot-conversation.css": {
-    "cor-literal": 15,
     "movimento-literal": 2,
     "movimento-tailwind": 1,
     "ng-deep": 4
   },
   "src/app/shared/components/chatbot/chatbot-messages.css": {
-    "cor-literal": 11,
+    "cor-literal": 2,
     "movimento-literal": 1,
     "movimento-tailwind": 1,
     "ng-deep": 2
@@ -1922,13 +1883,13 @@
     "ng-deep": 4
   },
   "src/app/shared/components/chatbot/chatbot-welcome.css": {
-    "cor-literal": 12,
+    "cor-literal": 5,
     "important": 9,
     "movimento-literal": 2,
     "ng-deep": 10
   },
   "src/app/shared/components/chatbot/chatbot.component.css": {
-    "cor-literal": 16,
+    "cor-literal": 3,
     "important": 3,
     "movimento-literal": 1,
     "ng-deep": 5
@@ -1942,7 +1903,6 @@
     "primeng-direto": 7
   },
   "src/app/shared/components/comunicado-conteudo/comunicado-conteudo.component.ts": {
-    "cor-literal": 17,
     "icone-primeicons": 5,
     "ng-deep": 56,
     "p-button": 1,
@@ -2012,7 +1972,7 @@
     "icone-primeicons": 5
   },
   "src/app/shared/components/mural-host/mural-host.component.ts": {
-    "cor-literal": 14,
+    "cor-literal": 6,
     "icone-primeicons": 9,
     "movimento-literal": 1,
     "movimento-tailwind": 1,
@@ -2035,7 +1995,6 @@
     "primeng-direto": 1
   },
   "src/app/shared/components/saldo-seriais-painel/saldo-seriais-painel.component.css": {
-    "cor-literal": 2,
     "important": 3,
     "movimento-literal": 1,
     "movimento-tailwind": 1
@@ -2044,7 +2003,6 @@
     "icone-primeicons": 4
   },
   "src/app/shared/components/series-grade/series-grade.component.css": {
-    "cor-literal": 2,
     "important": 3
   },
   "src/app/shared/components/series-grade/series-grade.component.ts": {
@@ -2068,9 +2026,9 @@
     "primeng-direto": 1
   },
   "src/app/shared/styles/dashboard-shell.css": {
-    "cor-literal": 162,
+    "cor-literal": 13,
     "important": 3,
-    "movimento-literal": 3
+    "movimento-literal": 2
   },
   "src/app/shared/utils/movimentacao.utils.ts": {
     "icone-primeicons": 9
