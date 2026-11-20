@@ -233,7 +233,7 @@ li + li > .geo-linha::before {
 .geo-coluna-app > :has(.geo-passos) { max-width: 640px; }
 
 // ---------- listas ----------
-.geo-esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
+.geo-esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4) var(--geo-margem); }
 // Listas longas: o navegador pula o trabalho das linhas fora da tela.
 .geo-linha-lista { content-visibility: auto; contain-intrinsic-size: auto 72px; }
 .geo-respiro { height: 96px; }

@@ -69,6 +69,24 @@ for (const [aparelho, viewport] of Object.entries(APARELHOS)) {
         await foto(page, '06-conta');
       });
 
+      test('catalogo', async ({ page }) => {
+        test.setTimeout(90_000);
+        await new MockApi({ perfil: 'CAMPO', turnoAberto: true }).install(page);
+        await loginPelaUi(page);
+        await page.goto('/catalogo');
+        await expect(page.getByText('Catálogo de componentes')).toBeVisible();
+        const main = page.locator('main');
+        const altura = await main.evaluate(el => el.scrollHeight - el.clientHeight);
+        const passos = altura > 0 ? 3 : 1;
+        for (let i = 0; i < passos; i++) {
+          await main.evaluate((el, y) => el.scrollTo(0, y), Math.round((altura * i) / Math.max(1, passos - 1)));
+          await foto(page, `20-catalogo-${i + 1}`);
+        }
+        await page.getByRole('button', { name: 'Abrir folha' }).click();
+        await expect(page.getByRole('dialog')).toBeVisible();
+        await foto(page, '21-catalogo-folha');
+      });
+
       test('administrativo', async ({ page }) => {
         test.setTimeout(90_000);
         await entrar(page, 'ADMINISTRATIVO');

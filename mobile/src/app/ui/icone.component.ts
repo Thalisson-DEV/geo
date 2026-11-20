@@ -3,7 +3,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import {
   ArrowDownToLine, ArrowLeftRight, ArrowRight, ArrowUpFromLine, Boxes, Calendar, CalendarCheck, Camera, Check,
   ChevronLeft, ChevronRight, CircleArrowDown, CircleUserRound, ClipboardCheck, ClipboardPaste, Clock, CloudUpload,
-  Download, Ellipsis, FileText, Flag, Flashlight, FolderCheck, Fuel, History, Info, Kanban, Keyboard, List, ListFilter,
+  Download, Ellipsis, FileText, Flag, Flashlight, FolderCheck, Fuel, History, Image, Info, Kanban, Keyboard, List, ListFilter,
   ListOrdered, LocateFixed, LogOut, MapPin, Maximize2, Minimize2, Minus, Moon, Package, Pencil, Plus, RefreshCw,
   ScanBarcode, Search, Share, ShieldCheck, ShoppingCart, Signature, Smartphone, Star, Sun, Trash2, TriangleAlert, Truck,
   Undo2, Upload, UserRoundX, Users, Warehouse, WifiOff, Wrench, X,
@@ -44,6 +44,7 @@ export const ICONES = {
   busca: Search,
   filtro: ListFilter,
   camera: Camera,
+  imagem: Image,
   lixeira: Trash2,
   editar: Pencil,
   relogio: Clock,

@@ -116,6 +116,11 @@ export const routes: Routes = [
         loadChildren: () => import('./features/abastecimento/abastecimento.routes').then(m => m.ABASTECIMENTO_ROUTES)
       },
       {
+        // Catálogo dos componentes de toque (desenvolvimento e screenshots do redesign); sem link no app.
+        path: 'catalogo',
+        loadComponent: () => import('./features/catalogo/catalogo.component').then(m => m.CatalogoComponent)
+      },
+      {
         path: 'perfil',
         loadComponent: () => import('./features/perfil/perfil.component').then(m => m.PerfilComponent)
       },

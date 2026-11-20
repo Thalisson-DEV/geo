@@ -35,6 +35,9 @@
   --geo-inverso-atencao: #FBBF24;
   --geo-inverso-destaque: #93C5FD;
   --geo-inverso-pressionado: rgba(255, 255, 255, .10);
+  // Véu sobre foto (legenda, botões em cima da imagem): escuro nos dois temas, porque a foto não muda com o tema
+  --geo-veu-foto: rgba(0, 0, 0, .55);
+  --geo-veu-foto-texto: #FFFFFF;
   // Âmbar da marca: escasso (ponto do logo, marcador de novidade), nunca para status
   --geo-marca-ambar: #FBBF24;
 

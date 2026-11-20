@@ -1,3 +1,4 @@
+import { desenharCarimbo } from '../fotos/carimbo';
 /**
  * Compressão das evidências fotográficas antes do upload.
  *
@@ -21,7 +22,12 @@ export interface EvidenciaPreparada {
  * original quando o navegador não consegue decodificar (HEIC do iPhone, por
  * exemplo — que o backend aceita sem conversão) ou quando comprimir não ajuda.
  */
-export async function prepararEvidencia(arquivo: File): Promise<EvidenciaPreparada> {
+export interface OpcoesEvidencia {
+  /** Linhas gravadas numa faixa no pé da foto (ver `core/fotos/carimbo.ts`). Com carimbo, a foto sempre é regravada. */
+  carimbo?: string[];
+}
+
+export async function prepararEvidencia(arquivo: File, opcoes: OpcoesEvidencia = {}): Promise<EvidenciaPreparada> {
   const original: EvidenciaPreparada = {
     arquivo,
     nomeArquivo: arquivo.name || `evidencia-${Date.now()}.jpg`,
@@ -40,6 +46,8 @@ export async function prepararEvidencia(arquivo: File): Promise<EvidenciaPrepara
     const ctx = canvas.getContext('2d');
     if (!ctx) return original;
     ctx.drawImage(bitmap as CanvasImageSource, 0, 0, largura, altura);
+    const carimbada = !!opcoes.carimbo?.length;
+    if (carimbada) desenharCarimbo(ctx, largura, altura, opcoes.carimbo!);
 
     let comprimido: Blob | null = null;
     for (const qualidade of QUALIDADES) {
@@ -48,7 +56,8 @@ export async function prepararEvidencia(arquivo: File): Promise<EvidenciaPrepara
     }
 
     // Recomprimir nem sempre compensa (PNG pequeno, foto já otimizada).
-    if (!comprimido || comprimido.size >= arquivo.size) return original;
+    if (!comprimido) return original;
+    if (!carimbada && comprimido.size >= arquivo.size) return original;
 
     return {
       arquivo: comprimido,

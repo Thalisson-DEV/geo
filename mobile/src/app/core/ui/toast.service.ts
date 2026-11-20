@@ -35,6 +35,14 @@ export class ToastService {
     return id;
   }
 
+  /**
+   * Ação reversível já feita, com "Desfazer" por alguns segundos (no lugar de perguntar "tem certeza?").
+   * Quem chama desfaz no `aoDesfazer`; sem toque, a ação simplesmente fica.
+   */
+  desfazer(message: string, aoDesfazer: () => void, duration = 6000) {
+    this.show(message, 'info', duration, { label: 'Desfazer', handler: aoDesfazer });
+  }
+
   success(message: string, duration?: number) {
     this.show(message, 'success', duration);
   }

@@ -46,3 +46,7 @@ mostrar o estado de envio de cada foto.
 #### Scenario: Foto sem sinal
 - **WHEN** o encarregado tira uma foto sem conexão
 - **THEN** a miniatura aparece com o selo "no aparelho"
+
+#### Scenario: Carimbo na imagem
+- **WHEN** a foto é tirada com contexto "Obra 1234 · Ponto 4" e GPS disponível
+- **THEN** a imagem salva traz numa faixa no pé o contexto, a data e hora e as coordenadas com a precisão

@@ -13,3 +13,4 @@ export * from './abas-secao.component';
 export * from './assinatura.component';
 export * from './leitor-codigo.component';
 export * from './captura-series.component';
+export * from './fotos.component';
