@@ -296,8 +296,8 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
     .td-texto { margin: 0; font-size: var(--geo-font-caption); overflow-wrap: anywhere; white-space: pre-wrap; }
     .td-vazio { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .td-tabela-wrap { overflow-x: auto; }
-    .td-tabela { width: 100%; font-size: var(--geo-font-caption); border-collapse: collapse; }
-    .td-tabela th { padding: 0.375rem 0.5rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; text-align: left; border-bottom: 1px solid var(--geo-border); }
+    .td-tabela { width: 100%; font-size: var(--geo-font-table); border-collapse: collapse; }
+    .td-tabela th { padding: 0.375rem 0.5rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-table-meta); font-weight: 600; text-align: left; border-bottom: 1px solid var(--geo-border); }
     .td-tabela td { padding: 0.5rem; vertical-align: top; border-bottom: 1px solid var(--geo-border); }
     .td-tabela tr:last-child td { border-bottom: 0; }
     .td-tabela small { display: block; color: var(--geo-foreground-muted); }

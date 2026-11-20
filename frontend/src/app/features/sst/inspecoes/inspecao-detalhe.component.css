@@ -35,7 +35,7 @@
 /* TABELAS (mesmas medidas das tabelas do termo de desconto) */
 .th {
   padding: 0.625rem 0.75rem;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table-meta);
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;

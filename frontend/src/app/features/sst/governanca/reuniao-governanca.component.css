@@ -88,8 +88,8 @@
 .mobile-label { display: none; font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; color: var(--w-muted); letter-spacing: 0; margin-bottom: .25rem; }
 .desktop-only { display: block; }
 .table-primary, .table-secondary { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.table-primary { color: var(--w-title); font-size: var(--geo-font-caption); font-weight: 600; }
-.table-secondary { max-width: 22rem; margin-top: .15rem; color: var(--w-sub); font-size: var(--geo-font-caption); }
+.table-primary { color: var(--w-title); font-size: var(--geo-font-table); font-weight: 600; }
+.table-secondary { max-width: 22rem; margin-top: .15rem; color: var(--w-sub); font-size: var(--geo-font-table); }
 .table-empty-state { display: flex; min-height: 12rem; flex-direction: column; align-items: center; justify-content: center; gap: .45rem; padding: 1.5rem; color: var(--w-sub); text-align: center; }
 .table-empty-state > i { display: grid; width: 3.5rem; height: 3.5rem; margin-bottom: .25rem; place-items: center; border-radius: 9999px; background: var(--w-card-bg); color: var(--w-muted); font-size: 1.35rem; }
 .table-empty-state strong { color: var(--w-title); font-size: var(--geo-font-caption); font-weight: 600; }
@@ -105,8 +105,8 @@
 .typing-indicator span:nth-child(3) { animation-delay: .4s; }
 @keyframes typing { 0%, 100% { opacity: .3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
 
-.custom-table th { font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; color: var(--w-muted); }
-.custom-table td { font-size: var(--geo-font-caption); }
+.custom-table th { font-size: var(--geo-font-table-meta); font-weight: 600; text-transform: none; color: var(--w-muted); }
+.custom-table td { font-size: var(--geo-font-table); }
 .table-attendance th:nth-child(1) { min-width: 220px; }
 .table-attendance th:nth-child(2) { min-width: 170px; }
 .table-attendance th:nth-child(3) { min-width: 280px; }
@@ -129,7 +129,7 @@
   .table-attendance .col-motivo { order: 4; display: none; }
   .table-attendance .col-motivo.is-absent { display: flex; flex: 1 1 100%; flex-direction: column; gap: .35rem; margin-top: .25rem; }
   .table-attendance .table-primary { font-size: 12px; line-height: 1.2; }
-  .table-attendance .table-secondary { font-size: var(--geo-font-caption); line-height: 1.2; }
+  .table-attendance .table-secondary { font-size: var(--geo-font-table); line-height: 1.2; }
   .table-attendance .table-action-button { width: 2.2rem; height: 2.2rem; }
   .table-attendance .table-action-button .pi { font-size: 1rem; }
 }

@@ -162,7 +162,7 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
     .backlog-card__total { font-size: 1.6rem; font-weight: 600; color: var(--geo-foreground); line-height: 1; font-variant-numeric: tabular-nums; }
 
     /* --- Table polish --- */
-    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
+    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-table); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;

@@ -346,7 +346,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
-  font-size: var(--geo-font-control);
+  font-size: var(--geo-font-table);
 }
 
 .dd-reserva {
@@ -416,7 +416,7 @@
 
 .dd-tabela__cab {
   background: var(--geo-surface-subtle);
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table-meta);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;

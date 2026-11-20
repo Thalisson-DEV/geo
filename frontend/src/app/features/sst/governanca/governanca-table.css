@@ -24,14 +24,14 @@
 
 .table-primary {
   color: var(--geo-foreground-muted);
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
   font-weight: 600; }
 
 .table-secondary {
   max-width: 22rem;
   margin-top: 0.15rem;
   color: var(--geo-foreground-subtle);
-  font-size: var(--geo-font-caption); }
+  font-size: var(--geo-font-table); }
 
 .table-mono {
   font-variant-numeric: tabular-nums;

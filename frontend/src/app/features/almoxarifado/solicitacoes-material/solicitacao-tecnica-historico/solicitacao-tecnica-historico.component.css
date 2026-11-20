@@ -356,13 +356,13 @@
 .materials-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
   text-align: left;
 }
 
 .materials-table th {
   padding: 0.4rem 0.75rem;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table-meta);
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;

@@ -35,7 +35,7 @@
 .visualization-table[open] .table-chevron { transform: rotate(180deg); }
 .visualization-table-scroll { max-width: 100%; overflow-x: auto; border-top: 1px solid var(--p-zinc-200); }
 .visualization-table-scroll:focus-visible { outline: 2px solid var(--p-primary-400); outline-offset: -2px; }
-.visualization-table table { width: 100%; border-collapse: collapse; background: white; font-size: var(--geo-font-caption); text-align: left; }
+.visualization-table table { width: 100%; border-collapse: collapse; background: white; font-size: var(--geo-font-table); text-align: left; }
 .visualization-table th, .visualization-table td { min-width: 4.5rem; padding: 0.45rem 0.55rem; border-bottom: 1px solid var(--p-zinc-100); }
 .visualization-table th { background: var(--p-zinc-100); color: var(--p-zinc-600); font-weight: 600; }
 .visualization-table td { color: var(--p-zinc-500); }
@@ -55,7 +55,7 @@
   .indicator-value span { font-size: var(--geo-font-caption); }
   .indicator-value small { font-size: var(--geo-font-caption); }
   .visualization-table summary { min-height: 2.75rem; box-sizing: border-box; font-size: var(--geo-font-caption); }
-  .visualization-table table { font-size: var(--geo-font-caption); }
+  .visualization-table table { font-size: var(--geo-font-table); }
 }
 
 @media (prefers-reduced-motion: reduce) {

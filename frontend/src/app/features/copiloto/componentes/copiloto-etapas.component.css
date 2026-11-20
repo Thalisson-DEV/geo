@@ -293,7 +293,7 @@
 .etapa__previa table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
   font-variant-numeric: tabular-nums;
 }
 

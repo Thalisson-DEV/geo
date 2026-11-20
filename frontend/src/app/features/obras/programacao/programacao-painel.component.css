@@ -37,11 +37,11 @@
 .pp-dia__flags .pi { margin-right: 0.125rem; font-size: var(--geo-font-caption); }
 
 /* Tabela de ocupação */
-.pp-tabela { width: 100%; border-collapse: collapse; font-size: var(--geo-font-control); }
+.pp-tabela { width: 100%; border-collapse: collapse; font-size: var(--geo-font-table); }
 .pp-tabela th, .pp-tabela td { padding: 0.5rem; border-bottom: 1px solid var(--geo-border); text-align: left; vertical-align: middle; }
-.pp-tabela thead th { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0.02em; text-transform: none; white-space: nowrap; }
+.pp-tabela thead th { color: var(--geo-foreground-muted); font-size: var(--geo-font-table-meta); font-weight: 600; letter-spacing: 0.02em; text-transform: none; white-space: nowrap; }
 .pp-tabela tbody th { font-weight: 400; }
-.pp-tabela small { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+.pp-tabela small { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-table); }
 .pp-tabela .pp-num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
 .pp-equipe { padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; font-weight: 600; cursor: pointer; }
 .pp-equipe:hover { text-decoration: underline; }

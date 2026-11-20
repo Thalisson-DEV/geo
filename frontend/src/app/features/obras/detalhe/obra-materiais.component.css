@@ -226,7 +226,7 @@
 .mat-tabela {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
 }
 
 .mat-tabela th {

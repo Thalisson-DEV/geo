@@ -172,7 +172,7 @@
 
 /* Tabelas do relatório (itens, serviços, peças): leitura e impressão, não listagem. */
 .rel-tabela-rolagem { overflow-x: auto; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg, 0.75rem); background: var(--geo-surface); }
-.rel-tabela { width: 100%; border-collapse: collapse; font-size: var(--geo-font-caption); }
+.rel-tabela { width: 100%; border-collapse: collapse; font-size: var(--geo-font-table); }
 .rel-tabela th {
   padding: 0.625rem 0.75rem;
   background: var(--geo-surface-subtle);

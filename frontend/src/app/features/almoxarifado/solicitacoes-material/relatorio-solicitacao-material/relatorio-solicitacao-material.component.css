@@ -317,7 +317,7 @@ p-accordion-content {
 }
 .entrega__linha--aprovacao { grid-template-columns: minmax(12rem, 1fr) 6rem 9rem 2.5rem; }
 .entrega__linha + .entrega__linha { border-top: 1px solid var(--geo-border); }
-.entrega__cab { background: var(--geo-surface-subtle); font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--geo-foreground-muted); }
+.entrega__cab { background: var(--geo-surface-subtle); font-size: var(--geo-font-table-meta); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--geo-foreground-muted); }
 .entrega__linha--removida .entrega__material strong { text-decoration: line-through; color: var(--geo-foreground-muted); }
 .entrega__material { display: grid; gap: 0.2rem; justify-items: start; min-width: 0; }
 .entrega__material strong { font-weight: 600; text-transform: none; }

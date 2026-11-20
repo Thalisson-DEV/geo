@@ -113,9 +113,9 @@ import { agruparOperacoesConsumo } from './consumo-anterior.util';
     .co-conta__parcela--total { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
     .co-secao { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); overflow: hidden; }
     .co-secao__cab { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; padding: 0.5rem 0.75rem; background: var(--geo-surface-subtle);
-      border-bottom: 1px solid var(--geo-border); font-size: var(--geo-font-caption); }
+      border-bottom: 1px solid var(--geo-border); font-size: var(--geo-font-table-meta); }
     .co-secao__cab > i { color: var(--geo-foreground-muted); }
-    .co-secao__cab h4 { margin: 0; font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0.02em; color: var(--geo-foreground); }
+    .co-secao__cab h4 { margin: 0; font-size: var(--geo-font-table-meta); font-weight: 600; text-transform: none; letter-spacing: 0.02em; color: var(--geo-foreground); }
     .co-secao__total { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--geo-foreground); }
     .co-linhas { list-style: none; margin: 0; padding: 0; }
     .co-linha { display: grid; grid-template-columns: 6.75rem minmax(0, 1fr) auto 4.5rem; gap: 0.25rem 0.75rem; align-items: center;

@@ -119,7 +119,7 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
     :host .dash-tab { white-space: nowrap; }
 
     :host .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
+    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-table); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;

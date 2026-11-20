@@ -206,7 +206,7 @@ app-copiloto-markdown {
 }
 .copiloto-markdown .markdown-tabela__total {
   flex: 1;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
   color: var(--geo-foreground-subtle);
 }
 .copiloto-markdown .markdown-tabela__acao {
@@ -220,10 +220,10 @@ app-copiloto-markdown {
   background: transparent;
   color: var(--geo-foreground-muted);
   font: inherit;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
   cursor: pointer;
 }
-.copiloto-markdown .markdown-tabela__acao .geo-icon-svg { font-size: var(--geo-font-caption); }
+.copiloto-markdown .markdown-tabela__acao .geo-icon-svg { font-size: var(--geo-font-table); }
 .copiloto-markdown .markdown-tabela__acao:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
 .copiloto-markdown .markdown-ordenar {
   display: inline-flex;

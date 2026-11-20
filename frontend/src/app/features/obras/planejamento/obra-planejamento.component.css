@@ -787,7 +787,7 @@
 
 .plan-orcamento th {
   color: var(--geo-foreground-muted);
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table-meta);
   font-weight: 600;
 }
 

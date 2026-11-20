@@ -6,8 +6,8 @@
 .aut-datalist > div + div { border-top: 1px solid var(--geo-border); }
 .aut-datalist dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-body); }
 .aut-datalist dd { margin: 0; font-size: var(--geo-font-body); word-break: break-word; white-space: pre-line; }
-.aut-table { width: 100%; border-collapse: collapse; font-size: var(--geo-font-body); }
-.aut-table th { padding: 0.65rem 1rem; border-bottom: 1px solid var(--geo-border); color: var(--geo-foreground-muted); font-size: var(--geo-font-control); font-weight: 600; text-align: start; }
+.aut-table { width: 100%; border-collapse: collapse; font-size: var(--geo-font-table); }
+.aut-table th { padding: 0.65rem 1rem; border-bottom: 1px solid var(--geo-border); color: var(--geo-foreground-muted); font-size: var(--geo-font-table-meta); font-weight: 600; text-align: start; }
 .aut-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--geo-border); vertical-align: middle; }
 .aut-table tbody tr:last-child td { border-bottom: 0; }
 .aut-table tr[data-clickable] { cursor: pointer; }

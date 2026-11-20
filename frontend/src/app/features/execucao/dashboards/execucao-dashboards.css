@@ -600,7 +600,7 @@
 
 .ed-tipos thead th {
   color: var(--geo-foreground-subtle);
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table-meta);
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: none;

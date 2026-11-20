@@ -29,7 +29,7 @@
 .mf-distribuicao__total span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 .mf-distribuicao__total strong { font-size: 1.5rem; line-height: 1.2; color: var(--geo-foreground); font-variant-numeric: tabular-nums; }
 
-.mf-tabela { width: 100%; border-collapse: collapse; font-size: var(--geo-font-caption); }
+.mf-tabela { width: 100%; border-collapse: collapse; font-size: var(--geo-font-table); }
 .mf-tabela th, .mf-tabela td { padding: 0.375rem 0.5rem; border-bottom: 1px solid var(--geo-border); text-align: left; }
 .mf-tabela thead th { font-weight: 600; color: var(--geo-foreground-muted); }
 .mf-tabela tbody th { font-weight: 600; color: var(--geo-foreground); }

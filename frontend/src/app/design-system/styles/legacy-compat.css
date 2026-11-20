@@ -17,13 +17,34 @@
   .custom-table {
     --geo-legacy-compatible: 1;
   }
+}
 
-  /*
-   * Células com template próprio que fixaram text-sm/text-base (13px) ficavam maiores que a
-   * escala da tabela. Dentro do corpo da tabela elas herdam a fonte da tabela.
-   */
-  .geo-data-table__table tbody td :is(.text-sm, .text-base, .text-\[13px\], .text-\[14px\]),
-  .p-datatable-tbody > tr > td :is(.text-sm, .text-base, .text-\[13px\], .text-\[14px\]) {
+/*
+ * Escala única de tabela (só na tela; a impressão mantém os tamanhos próprios dos relatórios).
+ * Vale para geo-data-table, p-table cru e tabelas montadas à mão (rel-tabela, mat-tabela...).
+ * Calendário do datepicker fica de fora.
+ *
+ * Fora de @layer de propósito: na ordem efetiva do navegador a camada utilities do Tailwind
+ * vence a geo.legacy, e o text-xs/text-sm das células ganhava. Sem camada, a especificidade
+ * decide e o CSS próprio de cada componente continua podendo ajustar.
+ */
+@media screen {
+  /* Sem exigir thead/tbody: o Angular cria <tr> direto na <table>, sem o tbody implícito. */
+  :where(table:not(.p-datepicker table)) :is(td, th) {
+    font-size: var(--geo-font-table);
+  }
+
+  :where(table:not(.p-datepicker table)) th {
+    font-size: var(--geo-font-table-meta);
+  }
+
+  /* Conteúdo das células que fixou tamanho próprio herda a escala da tabela. */
+  :where(table:not(.p-datepicker table)) :is(td, th)
+    :is(.text-xs, .text-sm, .text-base, .text-\[11px\], .text-\[12px\], .text-\[13px\], .text-\[14px\]) {
     font-size: inherit;
+  }
+
+  :where(table:not(.p-datepicker table)) td :is(.geo-status, .p-tag, .p-button-label) {
+    font-size: var(--geo-font-table-meta);
   }
 }

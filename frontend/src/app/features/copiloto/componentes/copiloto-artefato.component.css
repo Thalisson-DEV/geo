@@ -220,7 +220,7 @@
 .tabela table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--geo-font-body);
+  font-size: var(--geo-font-table);
   font-variant-numeric: tabular-nums;
 }
 
@@ -250,7 +250,7 @@
 
 .tabela__rodape {
   margin: 0;
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
   color: var(--geo-foreground-subtle);
 }
 

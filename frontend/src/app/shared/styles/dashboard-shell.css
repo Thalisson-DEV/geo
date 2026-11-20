@@ -191,7 +191,7 @@
 .dash-kpi__hint { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); line-height: 1.45; }
 
 /* Etiqueta de status dentro de tabela. */
-.dash-tag { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 0.45rem; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; white-space: nowrap; }
+.dash-tag { display: inline-block; padding: 0.25rem 0.6rem; border-radius: 0.45rem; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: var(--geo-font-table); font-weight: 600; white-space: nowrap; }
 .dash-tag[data-status='SOLICITADO'] { background: var(--geo-surface-subtle); color: var(--p-amber-700); }
 .dash-tag[data-status='VALIDADO'] { background: var(--geo-surface-muted); color: var(--p-blue-700); }
 .dash-tag[data-status='BAIXADO'] { background: var(--geo-surface-subtle); color: var(--p-green-700); }
@@ -243,9 +243,9 @@
 
 .dash-table-wrap { overflow-x: auto; }
 .dash-table-name { display: flex; align-items: center; gap: 0.75rem; min-width: 260px; }
-.dash-table-rank { display: grid; width: 2rem; height: 2rem; flex: 0 0 auto; place-items: center; border-radius: 0.55rem; background: var(--p-primary-50); color: var(--p-primary-600); font-size: var(--geo-font-caption); font-weight: 600; }
-.dash-table-name strong { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
-.dash-table-name span { display: block; margin-top: 0.2rem; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); }
+.dash-table-rank { display: grid; width: 2rem; height: 2rem; flex: 0 0 auto; place-items: center; border-radius: 0.55rem; background: var(--p-primary-50); color: var(--p-primary-600); font-size: var(--geo-font-table); font-weight: 600; }
+.dash-table-name strong { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-table); }
+.dash-table-name span { display: block; margin-top: 0.2rem; color: var(--geo-foreground-subtle); font-size: var(--geo-font-table); }
 .dash-number { color: var(--geo-foreground); font-variant-numeric: tabular-nums; font-weight: 600; }
 .dash-progress { display: flex; min-width: 180px; align-items: center; gap: 0.75rem; }
 .dash-progress__track { width: 100%; height: 0.45rem; overflow: hidden; border-radius: 99px; background: var(--geo-surface-muted); }
@@ -263,7 +263,7 @@
   border-color: var(--geo-border);
   background: var(--geo-surface-subtle);
   color: var(--geo-foreground-subtle);
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table-meta);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -273,7 +273,7 @@
   border-color: var(--geo-border);
   background: var(--geo-surface);
   color: var(--geo-foreground-muted);
-  font-size: var(--geo-font-caption);
+  font-size: var(--geo-font-table);
 }
 .dash-page .dash-table--polished .p-datatable-tbody > tr:nth-child(even) > td { background: var(--geo-surface-subtle); }
 .dash-page .dash-table--polished .p-datatable-tbody > tr:hover > td { background: var(--geo-surface-muted); }
@@ -322,8 +322,8 @@
 .dash-page .dash-filterbar .p-select,
 .dash-page .dash-filterbar .p-datepicker { width: 100%; border-radius: 8px; }
 .dash-page .dash-table .p-datatable-table { min-width: 720px; }
-.dash-page .dash-table .p-datatable-thead > tr > th { padding: 0.9rem 1.15rem; border-color: var(--geo-border); background: var(--geo-surface-subtle); color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
-.dash-page .dash-table .p-datatable-tbody > tr > td { padding: 1rem 1.15rem; border-color: var(--geo-border); background: var(--geo-surface); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+.dash-page .dash-table .p-datatable-thead > tr > th { padding: 0.9rem 1.15rem; border-color: var(--geo-border); background: var(--geo-surface-subtle); color: var(--geo-foreground-subtle); font-size: var(--geo-font-table-meta); font-weight: 600; letter-spacing: 0; text-transform: none; }
+.dash-page .dash-table .p-datatable-tbody > tr > td { padding: 1rem 1.15rem; border-color: var(--geo-border); background: var(--geo-surface); color: var(--geo-foreground-muted); font-size: var(--geo-font-table); }
 .dash-page .dash-table .p-datatable-tbody > tr:hover > td { background: var(--geo-surface-subtle); }
 .dash-page .dash-table .p-paginator { padding: 0.75rem 0 0; border: 0; background: transparent; justify-content: center; }
 
@@ -618,4 +618,4 @@
 }
 
 /* Zero discreto nas colunas de contagem (vencidos, críticos) das tabelas dos painéis. */
-.dash-zero { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; }
+.dash-zero { color: var(--geo-foreground-subtle); font-size: var(--geo-font-table); font-variant-numeric: tabular-nums; }

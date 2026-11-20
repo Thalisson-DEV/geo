@@ -100,7 +100,7 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
     .dash-card-hit:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .dash-aging-card:has(.dash-card-hit):hover { border-color: color-mix(in srgb, var(--geo-brand) 45%, var(--geo-border)); box-shadow: var(--geo-shadow-md); }
     .dash-aging-card:has(.dash-card-hit:disabled) .dash-card-hit { cursor: default; }
-    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
+    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-table); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;

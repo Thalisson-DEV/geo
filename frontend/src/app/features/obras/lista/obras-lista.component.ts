@@ -104,14 +104,14 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
     .obra-sub {
       white-space: nowrap;
     }
-    .obra-sub { display: block; font-size: var(--geo-font-caption); }
+    .obra-sub { display: block; font-size: var(--geo-font-table-meta); }
 
     .obra-encerramento { display: inline-flex; margin-top: 0.25rem; padding: 0; border: 0; background: none; cursor: pointer; border-radius: var(--geo-radius-sm); }
     .obra-encerramento:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     /* Título em uma linha; o texto completo fica no title da célula. */
     .obra-titulo {
       display: block;
-      min-width: 16rem;
+      min-width: 13rem;
       max-width: 20rem;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -271,7 +271,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
           }
         </ng-template>
         <ng-template geoCell="prazo" let-row>
-          <span>{{ row.dataInicio }} → {{ row.dataPrevisaoFim }}</span>
+          <span class="geo-cell-num">{{ row.dataInicio }} → {{ row.dataPrevisaoFim }}</span>
           @if (row.dataFimEfetiva) {
             <span class="geo-cell-muted">Concluída em {{ row.dataFimEfetiva }}</span>
           }
@@ -491,9 +491,9 @@ export class ObrasListComponent {
     { key: 'base', header: 'Base', sortField: 'baseOperacional.nome', value: (o) => o.baseOperacionalNome, display: (o) => o.baseOperacionalNome || '—' },
     { key: 'municipio', header: 'Município', sortField: 'municipio.nome', value: (o) => o.municipioNome, display: (o) => o.municipioNome || '—' },
     { key: 'centro', header: 'Centro de custo', sortField: 'centroCusto.nome', value: (o) => o.centroCustoNome, display: (o) => o.centroCustoNome || '—' },
-    { key: 'supervisor', header: 'Supervisor', sortField: 'supervisor', value: (o) => o.supervisorNome, display: (o) => o.supervisorNome || '—' },
-    { key: 'coordenador', header: 'Coordenador', sortField: 'coordenador', value: (o) => o.coordenadorNome, display: (o) => o.coordenadorNome || '—' },
-    { key: 'prazo', header: 'Início → previsão', type: 'custom', sortField: 'dataInicio', value: (o) => o.dataInicio, display: (o) => `${o.dataInicio} → ${o.dataPrevisaoFim}` },
+    { key: 'supervisor', header: 'Supervisor', sortField: 'supervisor', width: '10rem', value: (o) => o.supervisorNome, display: (o) => o.supervisorNome || '—' },
+    { key: 'coordenador', header: 'Coordenador', sortField: 'coordenador', width: '10rem', value: (o) => o.coordenadorNome, display: (o) => o.coordenadorNome || '—' },
+    { key: 'prazo', header: 'Início → previsão', type: 'custom', sortField: 'dataInicio', width: '10.5rem', value: (o) => o.dataInicio, display: (o) => `${o.dataInicio} → ${o.dataPrevisaoFim}` },
     { key: 'tensao', header: 'Tensão', type: 'custom', sortField: 'classeTensao', width: '7rem', value: (o) => o.carteira?.classeTensao, display: (o) => o.carteira?.classeTensaoRotulo || '—' },
     { key: 'prioridade', header: 'Prioridade', type: 'custom', sortField: 'prioridade', width: '7rem', value: (o) => o.carteira?.prioridade, display: (o) => this.rotuloPrioridade(o.carteira?.prioridade) },
     { key: 'prazoRegulado', header: 'Prazo regulado', sortField: 'prazoRegulado', width: '8rem', value: (o) => o.carteira?.prazoRegulado, display: (o) => o.carteira?.prazoRegulado || '—' },

@@ -138,7 +138,7 @@ const NUMERICOS = new Set(['NUMERO', 'INTEIRO', 'DECIMAL', 'MOEDA', 'numero', 'i
     .dados__resumo-texto strong { font-size: var(--geo-font-body); color: var(--geo-foreground); }
     .dados__resumo-texto span { font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); }
     .dados__tabela { overflow: auto; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); max-height: 70vh; }
-    table { width: 100%; border-collapse: collapse; font-size: var(--geo-font-body); font-variant-numeric: tabular-nums; }
+    table { width: 100%; border-collapse: collapse; font-size: var(--geo-font-table); font-variant-numeric: tabular-nums; }
     th, td { padding: 0.4rem 0.65rem; border-bottom: 1px solid var(--geo-border); text-align: left; white-space: nowrap; }
     th { position: sticky; top: 0; z-index: 1; background: var(--geo-surface-muted); font-weight: 600; }
     tbody tr:nth-child(even) { background: var(--geo-surface-subtle); }
