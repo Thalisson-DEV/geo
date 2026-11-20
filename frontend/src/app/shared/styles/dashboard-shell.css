@@ -25,11 +25,13 @@
 /* Cabeçalho e painel de filtros do design system no lugar de .dash-header/.dash-filterbar:
    mesmo respiro que os blocos do painel (1.5rem). */
 .dash-shell > geo-page-header,
+.dashboard-container > geo-page-header {
+  margin-bottom: 16px;
+}
 .dash-shell > geo-filter-panel,
-.dashboard-container > geo-page-header,
 .dashboard-container > geo-filter-panel {
   display: block;
-  margin-bottom: 1.5rem;
+  margin-bottom: 16px;
 }
 
 .dash-header {
@@ -529,7 +531,7 @@
 
 .app-dark .dash-tab.is-active {
   background: var(--geo-surface);
-  color: var(--geo-brand);
+  color: var(--geo-foreground);
   box-shadow: var(--geo-shadow-sm);
 }
 

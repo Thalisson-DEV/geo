@@ -110,7 +110,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
     .obra-titulo {
       display: block;
       min-width: 16rem;
-      max-width: 26rem;
+      max-width: 20rem;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -488,13 +488,14 @@ export class ObrasListComponent {
 
   /** Carteira larga (18 colunas): texto em uma linha, o resto no title da célula. */
   protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 1 } as const;
-  /** Padrão enxuto (10 colunas, com o valor do projeto à vista); o usuário escolhe as demais em "Colunas". */
+  /** Padrão enxuto (10 colunas, valor do projeto logo após o status); o usuário escolhe as demais em "Colunas". */
   protected readonly colunasOcultasPadrao = ['processo', 'centro', 'coordenador', 'tensao', 'prioridade', 'prazoRegulado', 'materialPrevisto', 'servicoPrevisto'];
   protected readonly colunas: GeoDataTableColumn<ObraResumoResponse>[] = [
     { key: 'numero', header: 'Número', type: 'custom', priority: 1, sortField: 'numero', width: '9rem', value: (o) => o.numero, display: (o) => o.numero },
     { key: 'titulo', header: 'Título', type: 'custom', priority: 1, sortField: 'titulo', value: (o) => o.titulo, display: (o) => o.titulo },
     { key: 'nota', header: 'Nota', sortField: 'notaObra', value: (o) => o.notaObra, display: (o) => o.notaObra || '—' },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status.nome', value: (o) => o.statusNome, display: (o) => o.statusNome },
+    { key: 'valor', header: 'Valor do projeto', type: 'currency', sortField: 'valorProjeto', value: (o) => o.valorProjeto },
     { key: 'planejado', header: 'Planejamento', type: 'custom', width: '12rem', value: (o) => this.resumoDe(o)?.valorTotal },
     { key: 'processo', header: 'Processo', sortField: 'processo.nome', value: (o) => o.processoNome, display: (o) => o.processoNome || '—' },
     { key: 'base', header: 'Base', sortField: 'baseOperacional.nome', value: (o) => o.baseOperacionalNome, display: (o) => o.baseOperacionalNome || '—' },
@@ -503,7 +504,6 @@ export class ObrasListComponent {
     { key: 'supervisor', header: 'Supervisor', sortField: 'supervisor', value: (o) => o.supervisorNome, display: (o) => o.supervisorNome || '—' },
     { key: 'coordenador', header: 'Coordenador', sortField: 'coordenador', value: (o) => o.coordenadorNome, display: (o) => o.coordenadorNome || '—' },
     { key: 'prazo', header: 'Início → previsão', type: 'custom', sortField: 'dataInicio', value: (o) => o.dataInicio, display: (o) => `${o.dataInicio} → ${o.dataPrevisaoFim}` },
-    { key: 'valor', header: 'Valor do projeto', type: 'currency', sortField: 'valorProjeto', value: (o) => o.valorProjeto },
     { key: 'tensao', header: 'Tensão', type: 'custom', sortField: 'classeTensao', width: '7rem', value: (o) => o.carteira?.classeTensao, display: (o) => o.carteira?.classeTensaoRotulo || '—' },
     { key: 'prioridade', header: 'Prioridade', type: 'custom', sortField: 'prioridade', width: '7rem', value: (o) => o.carteira?.prioridade, display: (o) => this.rotuloPrioridade(o.carteira?.prioridade) },
     { key: 'prazoRegulado', header: 'Prazo regulado', sortField: 'prazoRegulado', width: '8rem', value: (o) => o.carteira?.prazoRegulado, display: (o) => o.carteira?.prazoRegulado || '—' },
