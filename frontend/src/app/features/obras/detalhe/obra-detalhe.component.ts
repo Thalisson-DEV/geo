@@ -458,6 +458,11 @@ export class ObraDetalheComponent {
     return etapas;
   });
 
+  /** A primeira etapa ainda não concluída: é onde a obra está. */
+  protected readonly etapaAtual = computed(() => this.ciclo().findIndex((e) => e.estado !== 'feito'));
+  protected readonly etapasConcluidas = computed(() => this.ciclo().filter((e) => e.estado === 'feito').length);
+  protected readonly rotuloEstado: Record<EstadoEtapa, string> = { feito: 'concluída', andamento: 'em andamento', atencao: 'pede atenção', pendente: 'pendente' };
+
   /** A primeira etapa que pede ação de quem está vendo, na ordem do ciclo. Sem permissão para agir, não sugere. */
   protected readonly proximoPasso = computed<ProximoPasso | null>(() => {
     const o = this.obra();

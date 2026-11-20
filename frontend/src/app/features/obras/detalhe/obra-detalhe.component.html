@@ -133,30 +133,36 @@
       </div>
     </section>
 
-    <!-- Ciclo da obra: cada etapa com a situação; clicar leva à seção. O próximo passo sugere a ação que destrava a obra. -->
-    <nav class="obra-ciclo" aria-label="Ciclo da obra">
-      <ol class="obra-ciclo__etapas">
+    <!-- Ciclo da obra: as etapas ligadas por uma linha que avança com a obra; clicar leva à seção. O próximo passo sugere a ação que destrava a obra. -->
+    <nav class="obra-ciclo" aria-labelledby="ciclo-titulo">
+      <header class="obra-ciclo__cabecalho">
+        <h2 id="ciclo-titulo">Ciclo da obra</h2>
+        <span class="obra-ciclo__resumo">{{ etapasConcluidas() }} de {{ ciclo().length }} etapas concluídas</span>
+      </header>
+      <ol class="obra-ciclo__etapas" [style.--etapas]="ciclo().length">
         @for (e of ciclo(); track e.id; let i = $index) {
-          <li class="obra-ciclo__etapa" [attr.data-estado]="e.estado">
-            <button type="button" class="obra-ciclo__botao" (click)="irParaSecao(e.alvo)" [attr.aria-label]="e.rotulo + ': ' + e.detalhe">
-              <span class="obra-ciclo__marca" aria-hidden="true">
-                @switch (e.estado) {
-                  @case ('feito') { <i class="pi pi-check"></i> }
-                  @case ('atencao') { ! }
-                  @default { {{ i + 1 }} }
-                }
+          <li class="obra-ciclo__etapa" [attr.data-estado]="e.estado" [class.obra-ciclo__etapa--atual]="i === etapaAtual()">
+            <button type="button" class="obra-ciclo__botao" (click)="irParaSecao(e.alvo)"
+              [attr.aria-current]="i === etapaAtual() ? 'step' : null" [attr.aria-label]="e.rotulo + ': ' + e.detalhe + ' (' + rotuloEstado[e.estado] + ')'">
+              <span class="obra-ciclo__trilho" aria-hidden="true">
+                <span class="obra-ciclo__marca">
+                  @switch (e.estado) {
+                    @case ('feito') { <i class="pi pi-check"></i> }
+                    @case ('atencao') { ! }
+                    @default { {{ i + 1 }} }
+                  }
+                </span>
               </span>
-              <span class="obra-ciclo__texto">
-                <span class="obra-ciclo__rotulo">{{ e.rotulo }}</span>
-                <span class="obra-ciclo__detalhe">{{ e.detalhe }}</span>
-              </span>
+              <span class="obra-ciclo__rotulo">{{ e.rotulo }}</span>
+              <span class="obra-ciclo__detalhe">{{ e.detalhe }}</span>
             </button>
           </li>
         }
       </ol>
       @if (proximoPasso(); as passo) {
         <div class="obra-ciclo__proximo">
-          <span class="obra-ciclo__proximo-texto"><i class="pi pi-arrow-circle-right" aria-hidden="true"></i> <strong>Próximo passo:</strong> {{ passo.texto }}</span>
+          <span class="obra-ciclo__proximo-icone" aria-hidden="true"><i class="pi pi-bolt"></i></span>
+          <span class="obra-ciclo__proximo-texto"><strong>Próximo passo</strong><span>{{ passo.texto }}</span></span>
           <geo-button size="sm" [label]="passo.rotulo" [icon]="passo.icone" (pressed)="executarPasso(passo.acao)"></geo-button>
         </div>
       }
