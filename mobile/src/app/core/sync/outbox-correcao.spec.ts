@@ -1,103 +1,27 @@
 import { TestBed } from '@angular/core/testing';
 import { CorrecaoRecusadaError, OutboxService } from './outbox.service';
 import { db } from '../db/app-db';
-import { ExecucaoCampoLocal, OutboxItem, SolicitacaoLocal } from '../db/models';
-
-const LANCAR = '/_execucoes-comerciais/lancar';
-
-function execucao(id: string, acoes: string[], extra: Partial<ExecucaoCampoLocal> = {}): ExecucaoCampoLocal {
-    return {
-        id, referenciaNota: '4605144730', idTurno: 't1', idEquipe: 'e1', dataLancamento: new Date().toISOString(),
-        statusExecucao: 'CONCLUIDO', acoes, materiais: [], statusSync: 'LOCAL', ...extra,
-    };
-}
+import { OutboxItem, SolicitacaoLocal } from '../db/models';
 
 function intencao(tempId: string) {
-    return { endpoint: LANCAR, method: 'POST' as const, payload: { tempId, body: {} } };
+    return { endpoint: '/v1/solicitacoes-material', method: 'POST' as const, payload: { tempId } };
 }
 
 /**
- * Correção de nota na fila offline. Em campo (14/10) a versão corrigida e a anterior
- * foram enviadas juntas e a nota entrou duplicada em produção.
+ * Correção de registro na fila offline: a versão corrigida substitui a anterior, e nunca as
+ * duas são enviadas (em campo, uma correção enviada junto com a anterior duplicou o registro).
  */
 describe('OutboxService — correção de registro na fila', () => {
     let outbox: OutboxService;
 
     beforeEach(async () => {
-        await Promise.all([db.outbox.clear(), db.execucoesCampo.clear(), db.solicitacoes.clear()]);
+        await Promise.all([db.outbox.clear(), db.solicitacoes.clear()]);
         TestBed.configureTestingModule({});
         outbox = TestBed.inject(OutboxService);
     });
 
     afterAll(async () => {
-        await Promise.all([db.outbox.clear(), db.execucoesCampo.clear(), db.solicitacoes.clear()]);
-    });
-
-    async function lancar(id: string, acoes: string[]): Promise<string> {
-        return outbox.enqueueExecucao(intencao(id), execucao(id, acoes));
-    }
-
-    async function corrigir(antigo: string, novo: string, acoes: string[]): Promise<string> {
-        const fila = await db.outbox.filter(i => i.payload?.tempId === antigo).first();
-        return outbox.enqueueExecucao(intencao(novo), execucao(novo, acoes), antigo, fila?.id);
-    }
-
-    it('corrigir uma nota ainda não enviada deixa só a versão corrigida para enviar', async () => {
-        await lancar('v1', ['a', 'b', 'c']);
-        const novo = await corrigir('v1', 'v2', ['a', 'b']);
-
-        const pendentes = await outbox.getPendingItems();
-        expect(pendentes.map(i => i.id)).toEqual([novo]);
-        expect(pendentes[0].payload.tempId).toBe('v2');
-        expect(await db.execucoesCampo.get('v1')).toBeUndefined();
-    });
-
-    it('corrigir duas vezes seguidas continua deixando uma única versão', async () => {
-        await lancar('v1', ['a']);
-        await corrigir('v1', 'v2', ['b']);
-        const ultima = await corrigir('v2', 'v3', ['c']);
-
-        expect((await outbox.getPendingItems()).map(i => i.id)).toEqual([ultima]);
-    });
-
-    it('recusa a correção quando o envio da versão anterior já começou', async () => {
-        const original = await lancar('v1', ['a', 'b', 'c']);
-        expect(await outbox.reivindicarParaEnvio(original)).toBeDefined();
-
-        await expect(corrigir('v1', 'v2', ['a', 'b'])).rejects.toThrowError(CorrecaoRecusadaError);
-
-        expect((await db.outbox.toArray()).map(i => i.id)).toEqual([original]);
-        expect(await db.execucoesCampo.get('v1')).toBeDefined();
-        expect(await db.execucoesCampo.get('v2')).toBeUndefined();
-    });
-
-    it('nota com envio iniciado não pode ser corrigida nem descartada', async () => {
-        const original = await lancar('v1', ['a']);
-        const item = await outbox.reivindicarParaEnvio(original);
-
-        expect(outbox.canEdit(item)).toBe(false);
-        expect(outbox.canDiscard(item)).toBe(false);
-    });
-
-    it('recusa a correção de nota que já sincronizou enquanto o formulário estava aberto', async () => {
-        const original = await lancar('v1', ['a']);
-        // O sync troca o id local pelo do servidor e tira o item da fila.
-        await db.execucoesCampo.delete('v1');
-        await db.execucoesCampo.put(execucao('id-servidor', ['a'], { statusSync: 'SINCRONIZADO' }));
-        await db.outbox.delete(original);
-
-        await expect(outbox.enqueueExecucao(intencao('v2'), execucao('v2', ['b']), 'v1', original)).rejects.toThrowError(CorrecaoRecusadaError);
-        await expect(outbox.enqueueExecucao(intencao('v3'), execucao('v3', ['b']), 'id-servidor')).rejects.toThrowError(CorrecaoRecusadaError);
-        expect(await db.outbox.count()).toBe(0);
-    });
-
-    it('o sync não reivindica uma versão que a correção já retirou da fila', async () => {
-        const original = await lancar('v1', ['a']);
-        const listados = await outbox.getPendingItems();
-        await corrigir('v1', 'v2', ['b']);
-
-        expect(listados.map(i => i.id)).toContain(original);
-        expect(await outbox.reivindicarParaEnvio(original)).toBeUndefined();
+        await Promise.all([db.outbox.clear(), db.solicitacoes.clear()]);
     });
 
     it('pedido de material só é corrigido enquanto está na fila', async () => {

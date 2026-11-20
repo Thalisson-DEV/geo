@@ -11,11 +11,8 @@ import {
   SaldoLocal,
   SaldoSerieLocal,
   ProcessoLocal,
-  AcaoComercialLocal,
-  TipoServicoLocal,
   SolicitacaoLocal,
   TransferenciaLocal,
-  ExecucaoCampoLocal,
   TurnoLocal,
   OutboxItem,
   InspecaoLocal,
@@ -36,13 +33,10 @@ export class AppDatabase extends Dexie {
   saldos!: Table<SaldoLocal>;
   saldosSeriais!: Table<SaldoSerieLocal>;
   processos!: Table<ProcessoLocal>;
-  acoes!: Table<AcaoComercialLocal>;
-  tiposServico!: Table<TipoServicoLocal>;
   
   // Tabelas de operação offline
   solicitacoes!: Table<SolicitacaoLocal>;
   transferencias!: Table<TransferenciaLocal>;
-  execucoesCampo!: Table<ExecucaoCampoLocal>;
   turnos!: Table<TurnoLocal>;
   inspecoes!: Table<InspecaoLocal>;
   tiposInspecao!: Table<TipoInspecaoLocal>;
@@ -67,11 +61,12 @@ export class AppDatabase extends Dexie {
       saldos: 'id, idEstoque, idMaterial, condicao',
       saldosSeriais: 'id, idEstoque, idMaterial, numSerie, condicao',
       processos: 'id, nome, ativo',
-      acoes: 'id, codigo, nome, ativo',
-      tiposServico: 'id, codigo, descricao, ativo',
+      // v12: o fluxo comercial (notas, ações, tipos de serviço) saiu do app.
+      acoes: null,
+      tiposServico: null,
       solicitacoes: 'id, status, idRequisitante, dataSolicitacao',
       transferencias: 'id, idEstoqueOrigem, idEstoqueDestino, dataTransferencia, statusSync',
-      execucoesCampo: 'id, statusExecucao, idEquipe, idTurno, dataLancamento',
+      execucoesCampo: null,
       turnos: 'id, idEquipe, status',
       eventosTurno: null,
       inspecoes: 'id, status, idInspetor, dataRealizacao, statusSync',
@@ -81,28 +76,7 @@ export class AppDatabase extends Dexie {
       abastecimentos: 'id, statusSync, idVeiculo, criadoEm',
       outbox: 'id, status, criadoEm',
       config: 'key'
-    }).upgrade(tx => tx.table('execucoesCampo').toCollection().modify(migrarExecucaoParaLancamentoUnico));
-  }
-}
-
-/**
- * v8: o lançamento da nota passou a ser feito de uma só vez. Registros gravados por
- * versões anteriores trazem `dataInicio`/`dataFim` e localização de início/fim; aqui
- * viram `dataLancamento` e uma única localização, sem perder nada que ainda importe.
- * Exportada para teste.
- */
-export function migrarExecucaoParaLancamentoUnico(execucao: Record<string, unknown>): void {
-  if (execucao['dataLancamento'] === undefined) {
-    execucao['dataLancamento'] = execucao['dataInicio'] ?? execucao['dataFim'];
-  }
-  if (execucao['latitude'] === undefined && execucao['latitudeInicio'] !== undefined) {
-    execucao['latitude'] = execucao['latitudeInicio'];
-  }
-  if (execucao['longitude'] === undefined && execucao['longitudeInicio'] !== undefined) {
-    execucao['longitude'] = execucao['longitudeInicio'];
-  }
-  for (const legado of ['dataInicio', 'dataFim', 'latitudeInicio', 'longitudeInicio', 'latitudeFim', 'longitudeFim']) {
-    delete execucao[legado];
+    });
   }
 }
 

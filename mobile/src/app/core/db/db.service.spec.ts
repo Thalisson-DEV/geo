@@ -144,50 +144,6 @@ describe('DbService (IndexedDB)', () => {
         });
     });
 
-    describe('Execuções vindas do servidor (replaceExecucoesSincronizadas)', () => {
-        const lancadaEm = '2026-10-22T17:15:39.494Z';
-        const temporaria = (id = 'temp-1') => ({
-            id, referenciaNota: '234567890', idTurno: 't-1', idEquipe: 'eq-1', dataLancamento: lancadaEm,
-            statusExecucao: 'CONCLUIDO', acoes: ['a1'], materiais: [], statusSync: 'LOCAL'
-        } as any);
-        const doServidor = { ...temporaria('real-1'), statusSync: 'SINCRONIZADO' } as any;
-        const filaDe = (status: string, receiptStatus: string) => ({
-            id: 'fila-1', endpoint: '/_execucoes-comerciais/lancar', method: 'POST', payload: { tempId: 'temp-1' },
-            status, receiptStatus, tentativas: 0, criadoEm: new Date()
-        } as any);
-
-        it('lançamento resolvido pelo escritório não fica duplicado no aparelho', async () => {
-            await db.execucoesCampo.put(temporaria());
-            await db.outbox.put(filaDe('SINCRONIZADO', 'RESOLVED'));
-
-            await service.replaceExecucoesSincronizadas([doServidor]);
-
-            const ids = (await db.execucoesCampo.toArray()).map(e => e.id);
-            expect(ids).toEqual(['real-1']);
-            expect(await db.outbox.get('fila-1')).toBeUndefined();
-        });
-
-        it('lançamento ainda na fila nunca é apagado, mesmo parecido com uma nota do servidor', async () => {
-            await db.execucoesCampo.put(temporaria());
-            await db.outbox.put(filaDe('PENDENTE', 'QUEUED'));
-
-            await service.replaceExecucoesSincronizadas([doServidor]);
-
-            const ids = (await db.execucoesCampo.toArray()).map(e => e.id).sort();
-            expect(ids).toEqual(['real-1', 'temp-1']);
-            expect(await db.outbox.get('fila-1')).toBeDefined();
-        });
-
-        it('mesmo número em outro horário é outra nota', async () => {
-            await db.execucoesCampo.put(temporaria());
-            await db.outbox.put(filaDe('SINCRONIZADO', 'RESOLVED'));
-
-            await service.replaceExecucoesSincronizadas([{ ...doServidor, dataLancamento: '2026-10-21T16:42:33.939Z' }]);
-
-            expect((await db.execucoesCampo.toArray()).map(e => e.id).sort()).toEqual(['real-1', 'temp-1']);
-        });
-    });
-
     describe('Substituição Inteligente de Solicitações (replaceSolicitacoesSincronizadas)', () => {
         it('should delete local-only synced items but preserve offline pendings', async () => {
             const hoje = new Date().toISOString();

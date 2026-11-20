@@ -62,11 +62,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/turno/abrir-turno.component').then(m => m.AbrirTurnoComponent)
       },
       {
-        path: 'campo',
-        canMatch: [campoGuard],
-        loadChildren: () => import('./features/campo/campo.routes').then(m => m.CAMPO_ROUTES)
-      },
-      {
         // Módulo administrativo: fora do escopo do encarregado de campo.
         path: 'inspecoes',
         canMatch: [adminGuard],

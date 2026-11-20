@@ -1,25 +1,12 @@
-import { ExecucaoCampoLocal, OutboxItem } from '../db/models';
+import { OutboxItem } from '../db/models';
 import type { EstadoEnvio } from '../../ui/status-envio.component';
 
 /**
- * Traduz o estado técnico de um registro (statusSync + item da fila) para o
- * vocabulário que o encarregado vê. Regra de ouro: nunca dizer "Enviado" para
- * algo que só está na fila.
+ * Descrição dos itens da fila de envio no vocabulário que o encarregado vê (folha "Envios").
+ * Regra de ouro: nunca dizer "Enviado" para algo que só está na fila.
  */
-export function estadoEnvioExecucao(
-  exec: Pick<ExecucaoCampoLocal, 'statusSync'>,
-  fila: Pick<OutboxItem, 'status' | 'receiptStatus'> | undefined,
-  enviandoAgora: boolean,
-): EstadoEnvio {
-  if (exec.statusSync === 'SINCRONIZADO') return 'synced';
-  if (exec.statusSync === 'RESULTADO_INCERTO' || fila?.status === 'RESULTADO_INCERTO') return 'conflict';
-  if (exec.statusSync === 'ERRO' || exec.statusSync === 'RECEBIDO_BACKOFFICE' || fila?.status === 'ERRO') return 'error';
-  if (!fila) return 'committed';
-  if (fila.status === 'SINCRONIZADO' || fila.receiptStatus === 'RESOLVED') return 'synced';
-  return enviandoAgora ? 'syncing' : 'queued';
-}
 
-export type TipoItemFila = 'execucao' | 'pedido' | 'transferencia' | 'inspecao' | 'anexo' | 'turno' | 'outro';
+export type TipoItemFila = 'pedido' | 'transferencia' | 'inspecao' | 'anexo' | 'turno' | 'outro';
 
 export interface ItemFilaDescrito {
   id: string;
@@ -33,7 +20,6 @@ export interface ItemFilaDescrito {
 }
 
 const TITULOS: Record<TipoItemFila, string> = {
-  execucao: 'Execução',
   pedido: 'Pedido de material',
   transferencia: 'Transferência',
   inspecao: 'Inspeção',
@@ -43,7 +29,6 @@ const TITULOS: Record<TipoItemFila, string> = {
 };
 
 export function tipoDoItem(endpoint: string): TipoItemFila {
-  if (endpoint.includes('execucoes-comerciais')) return 'execucao';
   if (endpoint.includes('inspecao/anexo')) return 'anexo';
   if (endpoint.includes('inspec')) return 'inspecao';
   if (endpoint.includes('solicitac')) return 'pedido';
@@ -55,9 +40,7 @@ export function tipoDoItem(endpoint: string): TipoItemFila {
 /** Linha da folha "Envios": o quê, de quando e em que pé está. */
 export function descreverItemFila(item: OutboxItem, enviandoAgora: boolean, agora = new Date()): ItemFilaDescrito {
   const tipo = tipoDoItem(item.endpoint ?? '');
-  const payload = (item.originalPayload ?? item.payload ?? {}) as { body?: { referenciaNota?: string }; referenciaNota?: string };
-  const nota = payload.body?.referenciaNota ?? payload.referenciaNota;
-  const titulo = tipo === 'execucao' && nota ? `Nota ${nota}` : TITULOS[tipo];
+  const titulo = TITULOS[tipo];
   const criadoEm = item.criadoEm instanceof Date ? item.criadoEm : new Date(item.criadoEm);
   const hora = criadoEm.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   const mesmoDia = criadoEm.toDateString() === agora.toDateString();
@@ -86,9 +69,7 @@ export function descreverItemFila(item: OutboxItem, enviandoAgora: boolean, agor
     id: item.id,
     tipo,
     titulo,
-    detalhe: tipo === 'execucao'
-      ? `${item.endpoint === '/_execucoes-comerciais/alterar' ? 'Alteração' : TITULOS.execucao} · ${quando}`
-      : quando,
+    detalhe: quando,
     estado,
     motivo,
     criadoEm,

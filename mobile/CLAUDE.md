@@ -206,19 +206,10 @@ export class ConnectivityService {
 - Enquanto carrega o sync inicial, exibir tela de loading com progresso (ex: "Carregando equipe...", "Carregando municípios...").
 
 ### 7.2 Feature: Hoje (`/hoje`; `/dashboard` redireciona)
-- Header: "Bom dia, [Nome do Encarregado] 👷" + nome da equipe.
-- **Cards de resumo rápido:**
-  - Solicitações pendentes (count de itens no outbox com status PENDENTE)
-  - Execuções de hoje
-  - Membros da equipe ativos
-  - Status de sincronização (último sync bem-sucedido)
-- **Atalhos rápidos** (grid 2x2 de botões grandes):
-  - Nova Solicitação
-  - Registrar Execução
-  - Ver Equipe
-  - Materiais Disponíveis
-- **Feed de atividade recente** (últimas execuções/solicitações)
-- **Indicador de itens com erro** de sync — card de alerta vermelho com link para a lista de pendências.
+- Título com a data e a equipe, indicador de rede e retomada do trabalho deixado pela metade.
+- Campo: turno (abrir/encerrar), envios pendentes, veículo (checklist e abastecimento). Será o "Hoje guiado" de Obras
+  (change `execucao-campo-obras`): obras do dia e o próximo passo.
+- Administrativo: almoxarifado, segurança e aprovações, conforme as permissões.
 
 ### 7.3 Feature: Solicitações (`/solicitacoes`)
 Gerenciamento de solicitações de material para a equipe.
@@ -242,29 +233,14 @@ Gerenciamento de solicitações de material para a equipe.
 
 **Consultar `/docs/logistica.md`** para os contratos de endpoint de solicitações de material.
 
-### 7.4 Feature: Campo (`/campo`)
-Registro de execuções operacionais e eventos de campo.
-
-**Listagem:**
-- Execuções do dia atual em destaque.
-- Histórico dos últimos 7 dias.
-- Status badge de sync em cada item.
+### 7.4 Turno (comum a todas as equipes de campo)
+O lançamento comercial (notas, aba Serviços, `/campo`, meta de faturamento) foi **retirado do app** em 20/11/2026: o app é de
+Obras. Fica o turno:
 
 **Abertura do turno (`/turno/abrir`):**
 - O líder (responsável da equipe) confere o veículo e as pessoas antes de começar e pode trocar a placa e incluir/tirar parceiros. As mudanças vão junto com `POST /api/v1/turnos/abrir` (`idVeiculo`, `idsColaboradores`).
-- Composição, opções e meta do ciclo vêm de `GET /api/v1/turnos/minha-equipe/composicao` e ficam salvas no aparelho.
-
-**Lançar execução (etapa única, sem "iniciar/finalizar"):**
-- Passo 1: número da nota + localização coletada automaticamente pelo GPS (funciona offline). Não existe município.
-- Passo 2: serviços (ações). Passo 3: materiais — "Meu saldo" ou "Outros materiais".
-- Material fora do saldo pode ser aplicado: o saldo da equipe apenas fica negativo e o app avisa o encarregado para informar o gestor. Não existe pendência para tratar.
-- Retirada: o material retirado em campo vai no veículo (entra como sucata no estoque da equipe) e é devolvido quando a equipe puder.
-- No desktop, ao entregar material para a equipe, o almoxarifado vê um aviso nos materiais com saldo negativo nessa equipe (informativo, não trava a entrega).
-- Passo 4: conferir e lançar. A execução vai para o outbox e é enviada quando houver conexão.
-
-**Meta do ciclo:** a meta é cadastrada no GEO por janela — ciclo comercial (dia 26 a 25 do mês seguinte, nomeado pelo mês em que termina) para as equipes do processo comercial, ou mês civil para as demais. A composição (`metaDoCiclo`) traz a janela, o valor, a meta diária e o faturamento que o servidor já recebeu. A tela Hoje mostra, além da meta do dia, o cartão do ciclo: realizado (servidor + lançamentos ainda só no aparelho), percentual, quanto falta, quanto fazer por dia útil restante e se a equipe está no ritmo. Passado o fim do ciclo sem sincronizar, o cartão pede sincronização em vez de mostrar números velhos.
-
-**Consultar `/docs/campo.md` ou o endpoint equivalente** na documentação da API.
+- Composição e opções vêm de `GET /api/v1/turnos/minha-equipe/composicao` e ficam salvas no aparelho.
+- O corte diário (22 h, horário de Brasília) está em `core/turno/turno-regras.ts`.
 
 ### 7.5 Feature: Perfil (`/perfil`)
 - Dados do encarregado logado (carregados do cache local).

@@ -11,17 +11,14 @@ import {
   MaterialLocal,
   EstoqueLocal,
   ProcessoLocal,
-  AcaoComercialLocal,
   SaldoLocal,
   SaldoSerieLocal,
   SolicitacaoLocal,
   TransferenciaLocal,
-  ExecucaoCampoLocal,
   TurnoLocal,
   OutboxItem,
   InspecaoLocal,
   TipoInspecaoLocal,
-  TipoServicoLocal,
   ComposicaoEquipeLocal
 } from './models';
 
@@ -42,16 +39,14 @@ export class DbService {
     if (currentUserId === nextUserId) return;
 
     await db.transaction('rw', db.tables, async () => {
-      const [outbox, turnos, execucoes, transferencias, inspecoes] = await Promise.all([
+      const [outbox, turnos, transferencias, inspecoes] = await Promise.all([
         db.outbox.toArray(),
         db.turnos.toArray(),
-        db.execucoesCampo.toArray(),
         db.transferencias.toArray(),
         db.inspecoes.toArray(),
       ]);
       const hasPendingWork = outbox.some(item => item.status !== 'SINCRONIZADO') ||
         turnos.some(turno => turno.status === 'ABERTO') ||
-        execucoes.some(execucao => execucao.statusSync === 'LOCAL') ||
         transferencias.some(transferencia => transferencia.statusSync !== 'SINCRONIZADO') ||
         inspecoes.some(inspecao => inspecao.statusSync !== 'SINCRONIZADO');
 
@@ -162,15 +157,6 @@ export class DbService {
     return turnos.sort((a, b) => b.dataInicio.localeCompare(a.dataInicio))[0];
   }
 
-  // Dashboard Stats
-  async countExecucoesHoje(): Promise<number> {
-    // Dia local do aparelho (não UTC): depois das 21 h ainda é "hoje".
-    const hoje = new Date().toDateString();
-    return db.execucoesCampo
-      .filter(ex => new Date(ex.dataLancamento).toDateString() === hoje)
-      .count();
-  }
-
   async countSolicitacoesHoje(): Promise<number> {
     const today = new Date().toISOString().split('T')[0];
     return db.solicitacoes
@@ -231,49 +217,6 @@ export class DbService {
     return db.colaboradores.filter(c => c.ativo).count();
   }
 
-  /**
-   * @param opts.incluirInspecoes quando `false`, o feed não traz inspeções.
-   * O encarregado de campo não opera esse módulo — e num tablet compartilhado
-   * podem restar inspeções cacheadas de uma sessão administrativa anterior.
-   */
-  async getAtividadesRecentes(
-    limit: number = 5,
-    opts: { incluirInspecoes?: boolean } = {}
-  ): Promise<any[]> {
-    const { incluirInspecoes = true } = opts;
-
-    const solicitacoes = await db.solicitacoes
-      .orderBy('dataSolicitacao')
-      .reverse()
-      .limit(limit)
-      .toArray();
-
-    const execucoes = await db.execucoesCampo
-      .orderBy('dataLancamento')
-      .reverse()
-      .limit(limit)
-      .toArray();
-
-    const inspecoes = incluirInspecoes
-      ? await db.inspecoes
-          .orderBy('dataRealizacao')
-          .reverse()
-          .limit(limit)
-          .toArray()
-      : [];
-
-    // Combine and sort by date
-    const combined = [
-      ...solicitacoes.map(s => ({ ...s, tipo: 'SOLICITACAO', data: s.dataSolicitacao })),
-      ...execucoes.map(e => ({ ...e, tipo: 'EXECUCAO', data: e.dataLancamento })),
-      ...inspecoes.map(i => ({ ...i, tipo: 'INSPECAO', data: i.dataRealizacao }))
-    ];
-
-    return combined
-      .sort((a, b) => new Date(b.data || 0).getTime() - new Date(a.data || 0).getTime())
-      .slice(0, limit);
-  }
-
   // Veiculos
   async bulkSaveVeiculos(veiculos: VeiculoLocal[]): Promise<void> {
     await db.veiculos.bulkPut(veiculos);
@@ -301,39 +244,6 @@ export class DbService {
   }
   async getProcessos(): Promise<ProcessoLocal[]> {
     return db.processos.toArray();
-  }
-
-  // Acoes
-  async bulkSaveAcoes(acoes: AcaoComercialLocal[]): Promise<void> {
-    await db.acoes.bulkPut(acoes);
-  }
-  async replaceAcoes(acoes: AcaoComercialLocal[]): Promise<void> {
-    await db.transaction('rw', db.acoes, async () => {
-      await db.acoes.clear();
-      await db.acoes.bulkPut(acoes);
-    });
-  }
-
-  async getAcoes(): Promise<AcaoComercialLocal[]> {
-    return db.acoes.toArray();
-  }
-
-  async getAcoesAtivas(): Promise<AcaoComercialLocal[]> {
-    return db.acoes.filter(a => a.ativo).toArray();
-  }
-
-  // Tipos de serviço
-  async replaceTiposServico(tipos: TipoServicoLocal[]): Promise<void> {
-    await db.transaction('rw', db.tiposServico, async () => {
-      await db.tiposServico.clear();
-      await db.tiposServico.bulkPut(tipos);
-    });
-  }
-
-  /** Tipos disponíveis para lançar, em ordem alfabética. */
-  async getTiposServicoAtivos(): Promise<TipoServicoLocal[]> {
-    const tipos = await db.tiposServico.filter(t => t.ativo).toArray();
-    return tipos.sort((a, b) => a.descricao.localeCompare(b.descricao, 'pt-BR'));
   }
 
   // Materiais
@@ -722,97 +632,7 @@ export class DbService {
       .first();
   }
 
-  // Execucoes Comerciais (Campo)
-  async getExecucoes(): Promise<ExecucaoCampoLocal[]> {
-    return db.execucoesCampo
-      .orderBy('dataLancamento')
-      .reverse()
-      .toArray();
-  }
-
-  async getExecucaoById(id: string): Promise<ExecucaoCampoLocal | undefined> {
-    return db.execucoesCampo.get(id);
-  }
-
-  async saveExecucao(execucao: ExecucaoCampoLocal): Promise<void> {
-    await db.execucoesCampo.put(execucao);
-  }
-
-  async deleteExecucao(id: string): Promise<void> {
-    await db.execucoesCampo.delete(id);
-  }
-
-  /**
-   * Substitui as execuções sincronizadas pelo servidor, preservando as pendentes no outbox.
-   */
-  async replaceExecucoesSincronizadas(novas: ExecucaoCampoLocal[]): Promise<void> {
-    await db.transaction('rw', [db.execucoesCampo, db.outbox], async () => {
-      const outbox = await db.outbox.toArray();
-      const pendingIds = new Set(
-        outbox
-          .filter(o => o.status !== 'SINCRONIZADO' && o.endpoint?.includes('execucoes-comerciais'))
-          .map(o => o.payload?.id || o.payload?.tempId)
-          .filter(Boolean)
-      );
-      const serverIds = new Set(novas.map(e => e.id));
-
-      const allLocal = await db.execucoesCampo.toArray();
-      const toDelete = allLocal
-        .filter(e => e.statusSync === 'SINCRONIZADO' && !pendingIds.has(e.id) && !serverIds.has(e.id))
-        .map(e => e.id);
-
-      // Lançamento que chegou ao servidor por outro caminho (ex.: o escritório tratou a
-      // operação recusada e reprocessou o envio original): o servidor criou a nota com
-      // id próprio e o registro temporário do aparelho ficaria duplicado. É a mesma nota
-      // quando bate equipe, número e o instante do lançamento, que o reprocessamento
-      // preserva. Só sai o temporário cujo envio já não pode partir (resolvido ou fora
-      // da fila); um envio ainda pendente nunca é apagado.
-      const filaDoTemporario = new Map(
-        outbox.filter(o => o.endpoint === '/_execucoes-comerciais/lancar' && o.payload?.tempId)
-          .map(o => [o.payload.tempId as string, o] as const)
-      );
-      for (const local of allLocal) {
-        if (local.statusSync === 'SINCRONIZADO' || serverIds.has(local.id)) continue;
-        const fila = filaDoTemporario.get(local.id);
-        if (fila && fila.status !== 'SINCRONIZADO' && fila.receiptStatus !== 'RESOLVED') continue;
-        const doServidor = novas.find(n => mesmaNotaLancada(n, local));
-        if (!doServidor) continue;
-        toDelete.push(local.id);
-        if (fila) await db.outbox.delete(fila.id);
-        registrarIdTrocado(local.id, doServidor.id);
-      }
-
-      if (toDelete.length > 0) {
-        await db.execucoesCampo.bulkDelete(toDelete);
-      }
-      // Nota com alteração ainda na fila: a versão do servidor é a anterior à correção
-      // e não pode apagar o que a equipe mudou no aparelho.
-      const comAlteracao = new Set(allLocal.filter(e => e.alteracaoPendente && pendingIds.has(e.id)).map(e => e.id));
-      await db.execucoesCampo.bulkPut(novas.filter(e => !comAlteracao.has(e.id)));
-    });
-  }
-
-  /** Alteração de nota sincronizada ainda na fila (ou retida com erro). */
-  async getOutboxAlteracaoByExecucaoId(execucaoId: string): Promise<OutboxItem | undefined> {
-    return db.outbox
-      .filter(item =>
-        item.endpoint === '/_execucoes-comerciais/alterar' &&
-        item.payload?.tempId === execucaoId &&
-        item.status !== 'SINCRONIZADO'
-      )
-      .first();
-  }
-
-  async getOutboxItemByExecucaoId(execucaoId: string): Promise<OutboxItem | undefined> {
-    return db.outbox
-      .filter(item =>
-        item.endpoint === '/_execucoes-comerciais/lancar' &&
-        item.payload?.tempId === execucaoId
-      )
-      .first();
-  }
-
-  // Saldos com Materiais (Join)
+  // Saldos
   async getSaldosComMateriais(idEstoque: string): Promise<any[]> {
     const saldos = await db.saldos
       .where('idEstoque')
@@ -863,13 +683,3 @@ export class DbService {
   // ... Outros métodos serão adicionados conforme a necessidade das features
 }
 
-/** Mesma nota lançada: mesma equipe, mesmo número e o mesmo instante de lançamento (tolerância de 1 s). */
-function mesmaNotaLancada(a: ExecucaoCampoLocal, b: ExecucaoCampoLocal): boolean {
-  if (a.idEquipe && b.idEquipe && a.idEquipe !== b.idEquipe) return false;
-  const numero = (e: ExecucaoCampoLocal) => (e.referenciaProvisoria ?? e.referenciaNota ?? '').trim().toUpperCase();
-  // Avulsa: o número oficial pode ter trocado a referência no servidor; o provisório fica.
-  if (numero(a) !== numero(b)) return false;
-  const ta = new Date(a.dataLancamento).getTime();
-  const tb = new Date(b.dataLancamento).getTime();
-  return Number.isFinite(ta) && Number.isFinite(tb) && Math.abs(ta - tb) < 1000;
-}

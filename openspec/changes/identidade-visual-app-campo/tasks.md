@@ -24,7 +24,7 @@
 ## 2. Migração das telas existentes (em paralelo por módulo)
 
 - [ ] 2.1 Login, Hoje e Conta
-- [ ] ~~2.2 Serviços (notas comerciais) e turno comercial~~ — fora do escopo: o fluxo comercial deve sair do app (decisão do usuário, 20/11/2026); não redesenhar
+- [x] ~~2.2 Serviços (notas comerciais)~~ — fluxo comercial retirado do app em 20/11/2026 (telas, serviços, sincronização das notas, ações comerciais, tipos de serviço e meta de faturamento; banco local v12 apaga as tabelas). O turno fica (Obras usa). Pendente: refazer no pedido de material os testes e2e de garantias gerais que usavam a nota como veículo (retomada, sessão sem rede, atualização do service worker, a11y)
 - [ ] 2.3 Material, solicitações e transferências
 - [ ] 2.4 Frota: checklist, abastecimento, situação e documentos do veículo
 - [ ] 2.5 Segurança: inspeções e desvios

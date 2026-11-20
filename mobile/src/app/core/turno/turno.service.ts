@@ -5,9 +5,9 @@ import { environment } from '../../../environments/environment';
 import { DbService } from '../db/db.service';
 import { OutboxService } from '../sync/outbox.service';
 import { AuthService } from '../auth/auth.service';
-import { ComposicaoEquipeLocal, ColaboradorLocal, MetaDoCicloLocal, TurnoLocal } from '../db/models';
+import { ComposicaoEquipeLocal, ColaboradorLocal, TurnoLocal } from '../db/models';
 import { silentContext } from '../http/http-context';
-import { calcularMetaDiariaPadrao, corteDoTurno, turnoVencido } from '../campo/campo-regras';
+import { corteDoTurno, turnoVencido } from './turno-regras';
 
 /** Escolhas do responsável na conferência da equipe ao abrir o turno. */
 export interface ComposicaoTurnoEscolhida {
@@ -138,8 +138,8 @@ export class TurnoService {
   }
 
   /**
-   * Baixa a composição atual da equipe, as opções de colaboradores/veículos e a
-   * meta do mês, e guarda no dispositivo. Também atualiza a lista local de
+   * Baixa a composição atual da equipe e as opções de colaboradores/veículos, e
+   * guarda no dispositivo. Também atualiza a lista local de
    * membros para que as telas reflitam a equipe confirmada no turno.
    */
   async sincronizarComposicao(): Promise<ComposicaoEquipeLocal> {
@@ -149,74 +149,12 @@ export class TurnoService {
     const composicao = this.mapearComposicao(resp);
     await this.dbService.saveComposicaoEquipe(composicao);
     await this.atualizarMembrosLocais(composicao);
-    if (Array.isArray(resp?.acoes) && resp.acoes.length > 0) {
-      const acoesSalvas = resp.acoes.map((a: any) => ({
-        id: a.idAcao,
-        codigo: a.codigo,
-        nome: a.nome,
-        ativo: true,
-        valor: a.valor !== undefined && a.valor !== null ? Number(a.valor) : undefined
-      }));
-      await this.dbService.bulkSaveAcoes(acoesSalvas);
-
-      // Backfill valorTotalFaturado em execuções locais que estavam pendentes de precificação
-      try {
-        const mapaNovasAcoes = new Map<string, { valor?: number }>();
-        for (const a of acoesSalvas) {
-          if (a.id) {
-            mapaNovasAcoes.set(a.id, a);
-          }
-        }
-        const execs = await this.dbService.getExecucoes();
-        for (const e of execs) {
-          if ((e.valorTotalFaturado === undefined || e.valorTotalFaturado === null) && e.acoes?.length > 0) {
-            let soma = 0;
-            let temValor = false;
-            for (const idAcao of e.acoes) {
-              const acao = mapaNovasAcoes.get(idAcao);
-              if (acao?.valor !== undefined && acao?.valor !== null) {
-                soma += Number(acao.valor);
-                temValor = true;
-              }
-            }
-            if (temValor) {
-              await this.dbService.saveExecucao({
-                ...e,
-                valorTotalFaturado: Math.round(soma * 100) / 100
-              });
-            }
-          }
-        }
-      } catch (err) {
-        console.warn('Erro ao atualizar valores de execuções locais existentes:', err);
-      }
-    }
     this.composicao.set(composicao);
     return composicao;
   }
 
-  private mapearMetaDoCiclo(m: any): MetaDoCicloLocal | null {
-    if (!m || m.valor === null || m.valor === undefined || !m.inicio || !m.fim) return null;
-    return {
-      periodicidade: m.periodicidade === 'MENSAL' ? 'MENSAL' : 'CICLO_COMERCIAL',
-      competencia: m.competencia,
-      inicio: m.inicio,
-      fim: m.fim,
-      valor: Number(m.valor),
-      metaDiaria: m.metaDiaria === null || m.metaDiaria === undefined ? null : Number(m.metaDiaria),
-      diasUteis: Number(m.diasUteis) || 0,
-      realizado: Number(m.realizado) || 0,
-      apuradoEm: m.apuradoEm ?? new Date().toISOString()
-    };
-  }
-
   private mapearComposicao(resp: any): ComposicaoEquipeLocal {
     const c = resp?.composicao ?? {};
-    const meta = c.metaFaturamentoMensal;
-    const metaDiaria = c.metaFaturamentoDiaria;
-    const metaDiariaCalculada = metaDiaria !== null && metaDiaria !== undefined
-      ? Number(metaDiaria)
-      : (meta ? calcularMetaDiariaPadrao(Number(meta)) : null);
     return {
       idEquipe: c.idEquipe,
       codigo: c.codigo,
@@ -227,9 +165,6 @@ export class TurnoService {
         funcao: m.funcao,
         responsavel: !!m.responsavel
       })),
-      metaFaturamentoMensal: meta === null || meta === undefined ? null : Number(meta),
-      metaFaturamentoDiaria: metaDiariaCalculada,
-      metaDoCiclo: this.mapearMetaDoCiclo(resp?.metaDoCiclo),
       usuarioResponsavel: !!resp?.usuarioResponsavel,
       opcoes: {
         colaboradores: (resp?.opcoes?.colaboradores ?? []).map((o: any) => ({

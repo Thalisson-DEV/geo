@@ -37,9 +37,9 @@ describe('AppShellComponent', () => {
     return fixture.componentInstance;
   }
 
-  it('encarregado: Hoje · Serviços · Material · Frota · Conta (sem inspeções)', () => {
+  it('encarregado: Hoje · Material · Frota · Conta (sem inspeções nem serviços comerciais)', () => {
     const c = criar();
-    expect(c.rotas()).toEqual(['/hoje', '/campo', '/material', '/frota', '/perfil']);
+    expect(c.rotas()).toEqual(['/hoje', '/material', '/frota', '/perfil']);
     expect(c.rotas()).not.toContain('/inspecoes');
   });
 
@@ -78,7 +78,7 @@ describe('AppShellComponent', () => {
 
   it('equipe de campo nunca vê o fechamento, mesmo com a permissão no perfil', () => {
     criaFechamento = true;
-    expect(criar().rotas()).toEqual(['/hoje', '/campo', '/material', '/frota', '/perfil']);
+    expect(criar().rotas()).toEqual(['/hoje', '/material', '/frota', '/perfil']);
   });
 
   it('pendências da fila aparecem no marcador da aba Hoje', () => {

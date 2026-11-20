@@ -8,7 +8,6 @@ import { AuthService } from '../auth/auth.service';
 import { DbService } from '../db/db.service';
 import { OutboxService } from './outbox.service';
 import { TurnoService } from '../turno/turno.service';
-import { ExecucoesService, EXECUCAO_ALTERAR_ENDPOINT, EXECUCAO_LANCAR_ENDPOINT } from '../campo/execucoes.service';
 import { silentContext } from '../http/http-context';
 import { CHECKLIST_LANCAR_ENDPOINT, ChecklistVeiculoService } from '../frota/checklist-veiculo.service';
 import { DocumentosVeiculoService } from '../frota/documentos-veiculo.service';
@@ -24,15 +23,11 @@ import {
   SaldoLocal,
   SaldoSerieLocal,
   ProcessoLocal,
-  AcaoComercialLocal,
   SolicitacaoLocal,
   TransferenciaLocal,
-  ExecucaoCampoLocal,
-  ExecucaoMaterialLocal,
   OutboxItem,
   InspecaoLocal,
-  TipoInspecaoLocal,
-  TipoServicoLocal
+  TipoInspecaoLocal
 } from '../db/models';
 import {
   AnexoPendenteLocal,
@@ -154,7 +149,6 @@ export class SyncService {
   private readonly tokenService = inject(TokenService);
   private readonly dbService = inject(DbService);
   private readonly outboxService = inject(OutboxService);
-  private readonly execucoesService = inject(ExecucoesService);
   private readonly turnoService = inject(TurnoService);
   private readonly baseOperacionalService = inject(BaseOperacionalService);
   private readonly checklistVeiculo = inject(ChecklistVeiculoService);
@@ -339,12 +333,10 @@ export class SyncService {
         await this.runStep('Formulários de inspeção', 'clipboard-check', () => this.syncFormularios(), falhas);
       }
 
-      // Catálogos de material/comercial: exclusivos de quem opera logística.
+      // Catálogos de material: exclusivos de quem opera logística.
       // Para o perfil administrativo esses endpoints respondem 403 e nada no
       // app consome os dados, então nem chegam a ser solicitados.
       if (this.authService.podeAcessarLogistica()) {
-        await this.runStep('Ações comerciais', 'zap', () => this.syncAcoes(), falhas);
-        await this.runStep('Tipos de serviço', 'tag', () => this.syncTiposServico(), falhas);
         await this.runStep('Catálogo de materiais', 'package', () => this.syncMateriais(), falhas);
         await this.runStep('Estoques', 'archive', () => this.syncEstoques(), falhas);
 
@@ -353,7 +345,7 @@ export class SyncService {
           await this.runStep('Números de série', 'qr_code', () => this.syncSeriais(estoqueId), falhas);
           // Reaplicar deduções só faz sentido depois que saldos e seriais oficiais
           // estiverem no lugar — caso contrário o replace desfaz as deduções.
-          await this.runStep('Saldos locais pendentes', 'database', () => this.execucoesService.reaplicarDeducoesPendentes(estoqueId), falhas);
+          await this.runStep('Saldos locais pendentes', 'database', () => this.reaplicarDeducoesPendentes(estoqueId), falhas);
         }
       }
 
@@ -488,9 +480,7 @@ export class SyncService {
       idBaseOperacional: equipeData.baseOperacional?.id,
       nomeBaseOperacional: equipeData.baseOperacional?.nome,
       idVeiculo: equipeData.veiculo?.id,
-      membrosIds: idsMembrosAtivos(equipeData.membros),
-      metaFaturamentoMensal: equipeData.metaFaturamentoMensal != null ? Number(equipeData.metaFaturamentoMensal) : null,
-      metaFaturamentoDiaria: equipeData.metaFaturamentoDiaria != null ? Number(equipeData.metaFaturamentoDiaria) : null
+      membrosIds: idsMembrosAtivos(equipeData.membros)
     };
     await this.dbService.saveEquipe(equipeLocal);
   }
@@ -784,11 +774,7 @@ export class SyncService {
           try {
             // Endpoints sentinela (começam com "/_") são orquestrações compostas
             // resolvidas localmente, e não chamadas HTTP únicas.
-            if (item.endpoint === EXECUCAO_LANCAR_ENDPOINT) {
-              await this.processarExecucaoLancamento(item);
-            } else if (item.endpoint === EXECUCAO_ALTERAR_ENDPOINT) {
-              await this.processarExecucaoAlteracao(item);
-            } else if (item.endpoint === INSPECAO_LANCAR_ENDPOINT) {
+            if (item.endpoint === INSPECAO_LANCAR_ENDPOINT) {
               await this.processarInspecaoLancamento(item);
             } else if (item.endpoint === INSPECAO_ANEXO_ENDPOINT) {
               await this.processarAnexoInspecao(item);
@@ -1091,42 +1077,6 @@ export class SyncService {
     await this.dbService.replaceFormularios(formularios);
   }
 
-  private async syncAcoes(): Promise<void> {
-    const data = await this.fetchAllPages<any>(`${this.baseUrl}/v1/contratos/acoes`);
-    const existentes = await this.dbService.getAcoes();
-    const mapaExistentes = new Map(existentes.map(a => [a.id, a]));
-    const local: AcaoComercialLocal[] = data.map(a => ({
-      id: a.id,
-      codigo: a.codigo,
-      nome: a.nome,
-      ativo: a.ativo,
-      valor: a.valor !== undefined && a.valor !== null ? Number(a.valor) : mapaExistentes.get(a.id)?.valor
-    }));
-    // Preserva ações do contrato da equipe que já tinham valor cadastrado
-    const idsNovos = new Set(local.map(a => a.id));
-    for (const [id, a] of mapaExistentes) {
-      if (!idsNovos.has(id) && a.valor !== undefined && a.valor !== null) {
-        local.push(a);
-      }
-    }
-    await this.dbService.replaceAcoes(local);
-  }
-
-  /** Só os ativos: são as opções do lançamento. Notas antigas guardam o próprio tipo. */
-  private async syncTiposServico(): Promise<void> {
-    const data = await firstValueFrom(
-      this.http.get<TipoServicoLocal[]>(`${this.baseUrl}/v1/tipos-servico/opcoes`, this.silentOpts)
-    );
-    if (Array.isArray(data)) {
-      await this.dbService.replaceTiposServico(data.map(t => ({
-        id: t.id,
-        codigo: t.codigo,
-        descricao: t.descricao,
-        ativo: t.ativo
-      })));
-    }
-  }
-
   private async syncMateriais(): Promise<void> {
     const data = await this.fetchAllPages<any>(`${this.baseUrl}/v1/materiais`);
     const local: MaterialLocal[] = data.map(m => ({
@@ -1207,7 +1157,6 @@ export class SyncService {
   ): Promise<void> {
     const { incluirCatalogoMateriais = true } = opts;
     const estoqueId = this.tokenService.estoqueId();
-    const isCampo = typeof this.authService.isCampo === 'function' ? this.authService.isCampo() : !!this.authService.isCampo;
     const podeLogistica = typeof this.authService.podeAcessarLogistica === 'function' ? this.authService.podeAcessarLogistica() : !!this.authService.podeAcessarLogistica;
 
     const etapas: { nome: string, exec: () => Promise<void> }[] = [];
@@ -1234,10 +1183,6 @@ export class SyncService {
       etapas.push({ nome: 'Números de série', exec: () => this.syncSeriais(estoqueId) });
     }
 
-    if (isCampo) {
-      etapas.push({ nome: 'Execuções comerciais', exec: () => this.syncExecucoes() });
-    }
-
     const resultados = await Promise.allSettled(etapas.map(e => e.exec()));
 
     const unauthorized = resultados.find(resultado =>
@@ -1260,7 +1205,7 @@ export class SyncService {
     // estiverem gravados, senão a substituição atômica desfaz o trabalho offline.
     if (podeLogistica && estoqueId) {
       try {
-        await this.execucoesService.reaplicarDeducoesPendentes(estoqueId);
+        await this.reaplicarDeducoesPendentes(estoqueId);
       } catch (error) {
         falhas.push(this.descreverFalha('Saldos locais pendentes', error));
       }
@@ -1329,62 +1274,6 @@ export class SyncService {
     await this.dbService.replaceSaldosSeriais(seriais);
   }
 
-  /**
-   * Sincroniza execuções comerciais da equipe a partir do backend.
-   * Sempre puxa /minha-equipe para enxergar apenas o trabalho da equipe do encarregado.
-   */
-  async syncExecucoes(): Promise<void> {
-    const data = await this.fetchAllPages<any>(`${this.baseUrl}/v1/execucoes-comerciais/minha-equipe`);
-
-    const locais: ExecucaoCampoLocal[] = data.map(item => ({
-      id: item.id,
-      referenciaNota: item.referenciaNota,
-      tipoNota: item.tipoNota ?? 'COMUM',
-      referenciaProvisoria: item.referenciaProvisoria ?? null,
-      aguardandoNumeroOficial: !!item.aguardandoNumeroOficial,
-      idTurno: item.idTurno,
-      idEquipe: item.equipe?.id,
-      tipoServico: item.tipoServico
-        ? { id: item.tipoServico.id, codigo: item.tipoServico.codigo, descricao: item.tipoServico.descricao }
-        : null,
-      idMunicipio: item.municipio?.id,
-      latitude: item.latitude,
-      longitude: item.longitude,
-      dataLancamento: item.dataLancamento,
-      statusExecucao: item.statusExecucao,
-      acoes: (item.acoes || []).map((a: any) => a.acao?.id).filter((id: any) => !!id),
-      materiais: (item.materiais || []).map((m: any) => ({
-        idMaterial: m.material?.id,
-        quantidade: m.quantidade,
-        operacao: m.operacao,
-        numSerie: m.numSerie,
-        // O servidor não devolve a condição: aplicado sai como novo e retirado volta como sucata.
-        condicao: m.condicao ?? (m.operacao === 'APLICADO' ? 'NOVO' : 'SUCATA'),
-        origem: m.origem ?? 'EQUIPE',
-        ...(m.unidadeInformada ? { quantidadeInformada: Number(m.quantidadeInformada), unidadeInformada: m.unidadeInformada } : {})
-      } as ExecucaoMaterialLocal)),
-      statusSync: 'SINCRONIZADO',
-      valorTotalFaturado: item.valorTotalFaturado,
-      totalAlteracoes: item.totalAlteracoes ?? 0,
-      alteracaoPendente: null
-    }));
-
-    await this.dbService.replaceExecucoesSincronizadas(locais);
-  }
-
-
-
-  /**
-   * Processa o lançamento de uma execução comercial em etapa única.
-   * Envia um único POST /v1/execucoes-comerciais com metadados, ativos, ações e
-   * materiais. O backend cria a execução já como CONCLUIDO e calcula o valor
-   * faturado. Em caso de sucesso, troca o id temporário pelo id real e hidrata o
-   * registro local com os dados retornados (status, valorTotalFaturado).
-   *
-   * A operação é atômica no backend (rollback total em falha de validação), então
-   * basta um único passo — não há necessidade de checkpoint parcial.
-   */
-  
   /**
    * Lança a inspeção respeitando a ordem exigida pela evidência fotográfica:
    * as fotos sobem **antes** do `POST /v1/sst/inspecoes`, uma requisição por
@@ -1606,124 +1495,19 @@ export class SyncService {
 
 
 
-  private async processarExecucaoLancamento(item: OutboxItem): Promise<void> {
-    const payload = item.payload || {};
-    const tempId: string = payload.tempId;
-    const bodyToSubmit = payload.body ? { ...payload.body } : {};
-    delete bodyToSubmit.numPoste;
-    delete bodyToSubmit.numPosto;
-
-    let resp: any;
-    try {
-      resp = await firstValueFrom(
-        this.http.post<any>(
-          `${this.baseUrl}/v1/execucoes-comerciais`,
-          bodyToSubmit,
-          this.opcoesDeEscrita(item.id)
-        )
-      );
-    } catch (err: any) {
-      const detail = this.extrairDetalheErro(err) || 'erro';
-      // `detail` é o campo que o `syncOutbox` grava em `erroDetalhes`; `message`
-      // cobre o caso do erro cru (sem o errorInterceptor na cadeia).
-      err.detail = `Falha ao lançar execução: ${detail}`;
-      err.message = err.detail;
-      throw err;
-    }
-
-    if (!resp?.id) {
-      throw new Error('Resposta inválida do servidor ao lançar execução (id ausente).');
-    }
-
-    const realId = resp.id as string;
-    const existing = await this.dbService.getExecucaoById(tempId);
-
-    if (existing) {
-      if (tempId !== realId) {
-        registrarIdTrocado(tempId, realId);
-        await this.dbService.deleteExecucao(tempId);
-      }
-      await this.dbService.saveExecucao({
-        ...existing,
-        id: realId,
-        statusExecucao: resp.statusExecucao || 'CONCLUIDO',
-        valorTotalFaturado: resp.valorTotalFaturado ?? existing.valorTotalFaturado,
-        dataLancamento: resp.dataLancamento || existing.dataLancamento,
-        statusSync: 'SINCRONIZADO'
-      });
-
-      // 7) Atualizar outros itens no Outbox que usem este tempId no endpoint
-      if (tempId !== realId) {
-        const pending = await this.outboxService.getPendingItems();
-        for (const p of pending) {
-          if (p.endpoint.includes(tempId)) {
-            const newEndpoint = p.endpoint.replace(tempId, realId);
-            await this.outboxService.updateEndpoint(p.id, newEndpoint);
-          }
-        }
-      }
-    } else {
-      const existingReal = await this.dbService.getExecucaoById(realId);
-      if (existingReal) {
-        await this.dbService.saveExecucao({
-          ...existingReal,
-          statusExecucao: resp.statusExecucao || 'CONCLUIDO',
-          valorTotalFaturado: resp.valorTotalFaturado ?? existingReal.valorTotalFaturado,
-          dataLancamento: resp.dataLancamento || existingReal.dataLancamento,
-          statusSync: 'SINCRONIZADO'
-        });
-      }
-    }
-
-    await this.outboxService.updateStatus(item.id, 'SINCRONIZADO');
-    await this.outboxService.discard(item.id);
-  }
-
   /**
-   * Envia a alteração de uma nota já sincronizada (PUT com a nota inteira e o motivo).
-   * O idOperacao no corpo e a Idempotency-Key tornam o reenvio seguro. Aceita, a nota
-   * local passa a ser a do servidor: valor recalculado e o contador de alterações.
+   * Transferências ainda na fila não constam do saldo que o servidor devolveu: deduz de novo
+   * no aparelho, depois que saldos e séries oficiais foram gravados.
    */
-  private async processarExecucaoAlteracao(item: OutboxItem): Promise<void> {
-    const idExecucao: string = item.payload?.tempId;
-    let resp: any;
-    try {
-      resp = await firstValueFrom(
-        this.http.put<any>(
-          `${this.baseUrl}/v1/execucoes-comerciais/${idExecucao}/lancamentos`,
-          item.payload?.body ?? {},
-          this.opcoesDeEscrita(item.id)
-        )
-      );
-    } catch (err: any) {
-      const detail = this.extrairDetalheErro(err) || 'erro';
-      err.detail = `Falha ao alterar a nota: ${detail}`;
-      err.message = err.detail;
-      throw err;
+  private async reaplicarDeducoesPendentes(idEstoque: string): Promise<void> {
+    const pendentes = (await this.dbService.getTransferencias())
+      .filter(t => t.statusSync === 'PENDENTE' && t.idEstoqueOrigem === idEstoque);
+    for (const transf of pendentes) {
+      for (const item of transf.itens) {
+        await this.dbService.deduzirSaldoLocal(idEstoque, item.idMaterial, item.quantidade, item.condicao,
+          item.numSerie ? [item.numSerie] : undefined);
+      }
     }
-
-    const local = await this.dbService.getExecucaoById(idExecucao);
-    if (local) {
-      await this.dbService.saveExecucao({
-        ...local,
-        acoes: (resp?.acoes || []).map((a: any) => a.acao?.id).filter((id: any) => !!id),
-        materiais: (resp?.materiais || []).map((m: any) => ({
-          idMaterial: m.material?.id,
-          quantidade: m.quantidade,
-          operacao: m.operacao,
-          numSerie: m.numSerie,
-          condicao: m.operacao === 'APLICADO' ? 'NOVO' : 'SUCATA',
-          origem: m.origem ?? 'EQUIPE'
-        })),
-        valorTotalFaturado: resp?.valorTotalFaturado ?? local.valorTotalFaturado,
-        totalAlteracoes: resp?.totalAlteracoes ?? (local.totalAlteracoes ?? 0) + 1,
-        statusSync: 'SINCRONIZADO',
-        alteracaoPendente: null
-      });
-    }
-
-    await this.outboxService.updateStatus(item.id, 'SINCRONIZADO');
-    await this.outboxService.discard(item.id);
   }
 
   /**

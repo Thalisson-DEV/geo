@@ -1,25 +1,15 @@
-import { rotuloNota } from '../../core/campo/campo-regras';
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { TokenService } from '../../core/auth/token.service';
 import { TurnoService } from '../../core/turno/turno.service';
-import { CampoResumoService } from '../../core/campo/campo-resumo.service';
 import { DbService } from '../../core/db/db.service';
-import { db } from '../../core/db/app-db';
-import { ExecucaoCampoLocal } from '../../core/db/models';
 import { FilaEnvioService } from '../../core/sync/fila-envio.service';
-import { SyncService } from '../../core/sync/sync.service';
 import { ConnectivityService } from '../../core/sync/connectivity.service';
 import { ToastService } from '../../core/ui/toast.service';
 import { RascunhoStore, ResumoRascunho } from '../../core/sessao/rascunho.store';
 import { SessaoService } from '../../core/sessao/sessao.service';
-import { estadoEnvioExecucao } from '../../core/campo/estado-envio';
-import { EXECUCAO_LANCAR_ENDPOINT } from '../../core/campo/execucoes.service';
-import {
-  EstadoEnvio, FolhaComponent, IconeComponent, IndicadorRedeComponent, StatusEnvioComponent, TituloGrandeComponent, VazioComponent,
-} from '../../ui';
+import { FolhaComponent, IconeComponent, IndicadorRedeComponent, TituloGrandeComponent } from '../../ui';
 import { FolhaEnviosComponent } from './folha-envios.component';
 import { AvaliacaoConviteComponent } from '../avaliacao/avaliacao-convite.component';
 import { catchError, forkJoin, map, of } from 'rxjs';
@@ -32,15 +22,6 @@ import { emAndamento, ordenarParaEquipe, podeRegistrarRealizado, situacaoParaEqu
 import { AbastecimentoService } from '../../core/frota/abastecimento.service';
 import { AprovacaoAbastecimentoService } from '../../core/frota/aprovacao-abastecimento.service';
 
-interface LancamentoHoje {
-  id: string;
-  nota: string;
-  servicos: string;
-  contagem: string;
-  hora: string;
-  estado: EstadoEnvio;
-}
-
 const DIAS = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
 
@@ -52,8 +33,8 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
   selector: 'app-hoje',
   standalone: true,
   imports: [
-    CurrencyPipe, RouterLink, TituloGrandeComponent, IndicadorRedeComponent, IconeComponent, StatusEnvioComponent,
-    VazioComponent, FolhaComponent, FolhaEnviosComponent, AvaliacaoConviteComponent,
+    RouterLink, TituloGrandeComponent, IndicadorRedeComponent, IconeComponent, FolhaComponent, FolhaEnviosComponent,
+    AvaliacaoConviteComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -93,7 +74,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
               <span class="geo-selo"><geo-icone nome="relogio" /></span>
               <div class="geo-linha__texto">
                 <span class="geo-linha__titulo">Turno fechado</span>
-                <span class="geo-linha__apoio">Abra para lançar execuções</span>
+                <span class="geo-linha__apoio">Abra o turno para começar o dia</span>
               </div>
             </div>
             @if (turno.encerramentoAutomatico(); as e) {
@@ -106,69 +87,11 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
               </div>
             }
           }
-          @if (progresso(); as p) {
-            <div class="meta">
-              <span class="meta__rotulo">Valor dos serviços feitos hoje</span>
-              <div class="meta__linha">
-                <span class="meta__valor geo-num">{{ p.executado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
-                @if (p.meta) {
-                  <span class="meta__de geo-num">meta do dia {{ p.meta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
-                }
-              </div>
-              @if (p.meta) {
-                <div class="barra" role="progressbar" aria-label="Meta do dia" [attr.aria-valuenow]="p.percentual" aria-valuemin="0" aria-valuemax="100">
-                  <i [style.width.%]="p.percentual ?? 0" [class.batida]="p.atingida"></i>
-                </div>
-                <span class="meta__falta geo-num">
-                  @if (p.atingida) { <geo-icone nome="check" [tamanho]="16" /> Meta batida }
-                  @else { Faltam {{ p.falta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} }
-                </span>
-              }
-            </div>
-          }
-          @if (ciclo(); as c) {
-            <div class="meta" data-testid="meta-ciclo">
-              <span class="meta__rotulo">{{ c.titulo }} · {{ dataCurta(c.inicio) }} a {{ dataCurta(c.fim) }}</span>
-              <div class="meta__linha">
-                <span class="meta__valor geo-num">{{ c.realizado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
-                <span class="meta__de geo-num">meta {{ c.meta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
-              </div>
-              <div class="barra" role="progressbar" [attr.aria-label]="c.titulo" [attr.aria-valuenow]="c.percentual" aria-valuemin="0" aria-valuemax="100">
-                <i [style.width.%]="c.percentual" [class.batida]="c.situacao === 'batida'" [class.abaixo]="c.situacao === 'abaixo'"></i>
-              </div>
-              @switch (c.situacao) {
-                @case ('batida') {
-                  <span class="meta__falta meta__falta--ok"><geo-icone nome="check" [tamanho]="16" /> Meta do ciclo batida ({{ c.percentual }}%)</span>
-                }
-                @case ('desatualizada') {
-                  <span class="meta__falta"><geo-icone nome="atualizar" [tamanho]="16" /> O ciclo terminou em {{ dataCurta(c.fim) }}. Sincronize para ver o novo.</span>
-                }
-                @default {
-                  <span class="meta__falta geo-num" [class.meta__falta--atencao]="c.situacao === 'abaixo'">
-                    <geo-icone [nome]="c.situacao === 'abaixo' ? 'alerta' : 'check'" [tamanho]="16" />
-                    {{ c.situacao === 'abaixo' ? 'Abaixo do ritmo' : 'No ritmo' }} · {{ c.percentual }}% da meta
-                  </span>
-                  <span class="meta__falta geo-num">
-                    Faltam {{ c.falta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
-                    @if (c.ritmoNecessario !== null) {
-                      · {{ c.ritmoNecessario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} por dia útil ({{ c.diasUteisRestantes }} {{ c.diasUteisRestantes === 1 ? 'dia' : 'dias' }})
-                    }
-                  </span>
-                }
-              }
-              @if (c.pendenteEnvio > 0) {
-                <span class="meta__falta geo-num"><geo-icone nome="nuvem" [tamanho]="16" /> Inclui {{ c.pendenteEnvio | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} aguardando envio</span>
-              }
-            </div>
-          }
         </div>
       }
 
-      @if (auth.isCampo() || !auth.podeAcessarAlmoxarifado() || fila.total() > 0) {
-      <h2 class="geo-secao">
-        <span>{{ auth.isCampo() ? 'Lançamentos de hoje' : 'Acompanhar' }}</span>
-        @if (auth.isCampo() && lancamentos().length) { <span class="geo-num">{{ lancamentos().length }}</span> }
-      </h2>
+      @if (fila.total() > 0 || (!auth.isCampo() && !auth.podeAcessarAlmoxarifado())) {
+      <h2 class="geo-secao"><span>{{ auth.isCampo() ? 'Envios' : 'Acompanhar' }}</span></h2>
       <ul class="geo-grupo">
         @if (fila.total() > 0) {
           <li>
@@ -188,20 +111,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
             </button>
           </li>
         }
-        @if (auth.isCampo()) {
-          @for (l of lancamentos(); track l.id) {
-            <li [attr.data-ancora]="l.id">
-              <a class="geo-linha geo-linha--acao" [routerLink]="['/campo', l.id]">
-                <span class="geo-linha__texto">
-                  <span class="geo-linha__titulo geo-num">{{ l.nota }}</span>
-                  @if (l.servicos) { <span class="geo-linha__resumo">{{ l.servicos }}</span> }
-                  <span class="geo-linha__apoio">{{ l.contagem }} · {{ l.hora }}</span>
-                </span>
-                <geo-status-envio [estado]="l.estado" />
-              </a>
-            </li>
-          }
-        } @else if (!auth.podeAcessarAlmoxarifado()) {
+        @if (!auth.isCampo() && !auth.podeAcessarAlmoxarifado()) {
           <li><a class="geo-linha geo-linha--acao" routerLink="/inspecoes"><span class="geo-selo"><geo-icone nome="inspecao" /></span>
             <span class="geo-linha__texto"><span class="geo-linha__titulo">Inspeções</span><span class="geo-linha__apoio">Registradas e em rascunho</span></span>
             <geo-icone nome="avancar" [tamanho]="18" /></a></li>
@@ -278,21 +188,15 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
             <span class="geo-linha__apoio">{{ abastecimento().texto }}</span></span>
           <geo-icone nome="avancar" [tamanho]="18" /></a></li>
       </ul>
-      @if (auth.isCampo() && carregado() && !lancamentos().length && fila.total() === 0) {
-        <geo-vazio icone="servicos" titulo="Nenhuma execução hoje"
-          [texto]="turno.turnoAtivo() ? 'Toque em Nova execução para lançar a primeira.' : 'Abra o turno para começar.'" />
-      }
       <!-- A avaliação sobe como folha só nesta tela; com lançamento pela metade, retomar vem antes e ela espera. -->
       <app-avaliacao-convite [ativo]="!rascunho()" />
       <div class="respiro"></div>
     </div>
 
-    @if (auth.isCampo() || !auth.podeAcessarAlmoxarifado()) {
+    @if ((auth.isCampo() && !turno.turnoAtivo()) || (!auth.isCampo() && !auth.podeAcessarAlmoxarifado())) {
     <div class="doca" data-acao-fixa>
       @if (!auth.isCampo()) {
         <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/inspecoes/nova"><geo-icone nome="mais" />Nova inspeção</a>
-      } @else if (turno.turnoAtivo()) {
-        <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/campo/nova"><geo-icone nome="mais" />Nova execução</a>
       } @else {
         <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/turno/abrir"><geo-icone nome="relogio" />Abrir turno</a>
       }
@@ -331,18 +235,6 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
     .retomar strong { font: var(--geo-t-corpo-forte); }
     .retomar span { font: var(--geo-t-apoio); color: var(--geo-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .encerrar { color: var(--geo-texto-2); }
-    .meta { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); border-top: 1px solid var(--geo-linha); }
-    .meta__linha { display: flex; justify-content: space-between; align-items: baseline; gap: var(--geo-e2); flex-wrap: wrap; }
-    .meta__valor { font: var(--geo-t-numero); letter-spacing: -.01em; }
-    .meta__rotulo { font: var(--geo-t-apoio); color: var(--geo-texto-2); margin-bottom: -6px; }
-    .meta__de, .meta__falta { font: var(--geo-t-apoio); color: var(--geo-texto-2); display: inline-flex; align-items: center; gap: 4px; }
-    .barra { height: 6px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
-    .barra i { display: block; height: 100%; border-radius: inherit; background: var(--geo-destaque); transition: width var(--geo-m-folha) var(--geo-curva); }
-    .barra i.batida { background: var(--geo-ok); }
-    .barra i.abaixo { background: var(--geo-atencao); }
-    .meta__falta--ok { color: var(--geo-ok); }
-    .meta__falta--atencao { color: var(--geo-texto); }
-    .meta__falta--atencao geo-icone { color: var(--geo-atencao); }
     .respiro { height: var(--geo-e6); }
     .doca { position: sticky; bottom: 0; padding: var(--geo-e3) var(--geo-e4); background: linear-gradient(to top, var(--geo-fundo) 72%, transparent); }
     .atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-margem) 0; }
@@ -361,9 +253,7 @@ export class HojeComponent implements OnInit {
   readonly fila = inject(FilaEnvioService);
   readonly rede = inject(ConnectivityService);
   private readonly tokens = inject(TokenService);
-  private readonly resumo = inject(CampoResumoService);
   private readonly dbService = inject(DbService);
-  private readonly sync = inject(SyncService);
   private readonly rascunhos = inject(RascunhoStore);
   private readonly sessao = inject(SessaoService);
   private readonly toast = inject(ToastService);
@@ -383,9 +273,6 @@ export class HojeComponent implements OnInit {
   /** Fila do almoxarifado para o administrativo: o que aprovar e o que entregar. */
   readonly almox = signal<{ aprovar?: number; entregar?: number; atrasadas?: number; hoje?: number }>({});
 
-  readonly progresso = this.resumo.progresso;
-  readonly ciclo = this.resumo.ciclo;
-  readonly lancamentos = signal<LancamentoHoje[]>([]);
   readonly rascunho = signal<ResumoRascunho | null>(null);
   readonly carregado = signal(false);
   readonly equipe = signal('');
@@ -413,13 +300,11 @@ export class HojeComponent implements OnInit {
       dono ? this.rascunhos.listar(dono) : Promise.resolve([]),
       this.turno.loadTurnoAtivo(),
       this.auth.isCampo() ? this.turno.loadComposicaoLocal() : Promise.resolve(null),
-      this.auth.isCampo() ? this.resumo.carregar() : Promise.resolve(),
     ]);
     // Cópias de conflito entre abas não viram cartão: o original é o que importa.
     this.rascunho.set(lista.find(r => r.rota && !r.chave.includes('#conflito-')) ?? null);
     if (this.auth.isCampo()) {
       this.equipe.set((await this.dbService.getEquipe())?.codigo ?? '');
-      await this.carregarLancamentos();
     }
     this.carregado.set(true);
     if (!this.auth.isCampo() && this.auth.podeVerSolicitacoesAlmox() && this.rede.isOnline()) this.carregarAlmox();
@@ -445,12 +330,6 @@ export class HojeComponent implements OnInit {
       atrasadas: total({ statuses: ['APROVADO', 'ENTREGUE_PARCIAL'], previstaAte: ontem }),
       hoje: total({ statuses: ['APROVADO', 'ENTREGUE_PARCIAL'], previstaDe: isoCivil(hoje), previstaAte: isoCivil(hoje) }),
     }).subscribe(r => this.almox.set(r));
-  }
-
-  /** `AAAA-MM-DD` → `dd/mm`, sem passar por `Date` (evita o deslocamento de fuso). */
-  dataCurta(iso: string): string {
-    const [, mes, dia] = iso.slice(0, 10).split('-');
-    return `${dia}/${mes}`;
   }
 
   hora(iso: string): string {
@@ -497,31 +376,6 @@ export class HojeComponent implements OnInit {
     } finally {
       this.encerrando.set(false);
     }
-  }
-
-  private async carregarLancamentos(): Promise<void> {
-    const hoje = new Date().toDateString();
-    const [execs, acoes, filaItens] = await Promise.all([
-      this.dbService.getExecucoes(),
-      this.dbService.getAcoes(),
-      db.outbox.filter(i => i.endpoint === EXECUCAO_LANCAR_ENDPOINT).toArray(),
-    ]);
-    const nomes = new Map(acoes.map(a => [a.id, a.nome]));
-    const filaPorExec = new Map(filaItens.map(i => [i.payload?.tempId as string, i]));
-    const enviando = this.sync.isSyncing() || this.fila.enviandoAgora();
-    this.lancamentos.set(
-      execs
-        // Data local do aparelho (não UTC): depois das 21 h em Fortaleza ainda é "hoje".
-        .filter((e: ExecucaoCampoLocal) => new Date(e.dataLancamento).toDateString() === hoje)
-        .map(e => ({
-          id: e.id,
-          nota: rotuloNota(e),
-          servicos: e.acoes.map(id => nomes.get(id) ?? 'Serviço').join(' · '),
-          contagem: `${e.tipoServico?.descricao ?? 'Tipo não informado'} · ${e.acoes.length ? e.acoes.length + (e.acoes.length === 1 ? ' serviço' : ' serviços') : 'Sem serviço'}`,
-          hora: this.hora(e.dataLancamento),
-          estado: estadoEnvioExecucao(e, filaPorExec.get(e.id), enviando),
-        })),
-    );
   }
 
   private async carregarAbastecimento(): Promise<void> {

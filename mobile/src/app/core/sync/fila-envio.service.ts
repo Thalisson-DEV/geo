@@ -3,7 +3,7 @@ import { db } from '../db/app-db';
 import { OutboxService } from './outbox.service';
 import { SyncService } from './sync.service';
 import { ConnectivityService } from './connectivity.service';
-import { ItemFilaDescrito, descreverItemFila } from '../campo/estado-envio';
+import { ItemFilaDescrito, descreverItemFila } from './item-fila';
 
 /**
  * Visão da fila de envio para a tela: o que está esperando, enviando, com erro

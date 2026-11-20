@@ -7,8 +7,6 @@ export interface EquipeLocal {
   nomeBaseOperacional: string;
   idVeiculo?: string;
   membrosIds?: string[];
-  metaFaturamentoMensal?: number | null;
-  metaFaturamentoDiaria?: number | null;
 }
 
 export interface BaseOperacionalLocal {
@@ -89,26 +87,6 @@ export interface ProcessoLocal {
   ativo: boolean;
 }
 
-export interface AcaoComercialLocal {
-  id: string;
-  codigo: string;
-  nome: string;
-  ativo: boolean;
-  valor?: number;
-}
-
-/**
- * Tipo de serviço da nota (Ligação nova, Corte, Religação...). O código é a
- * classificação da nota e se repete entre tipos; quem identifica é a descrição.
- */
-export interface TipoServicoLocal {
-  id: string;
-  codigo: string;
-  descricao: string;
-  ativo: boolean;
-}
-
-// Interfaces de Operação Offline
 export interface ItemSolicitacaoLocal {
   idMaterial: string;
   quantidade: number;
@@ -148,78 +126,6 @@ export interface TransferenciaLocal {
   erroDetalhes?: string;
 }
 
-/**
- * COMUM: nota com número da OS ou do talão. AVULSA: nota achada em campo, sem número
- * (o app gera um provisório e o escritório informa o oficial depois). OCORRENCIA:
- * ocorrência comercial, com número de letras e números. Os três contam meta.
- */
-export type TipoNota = 'COMUM' | 'AVULSA' | 'OCORRENCIA';
-
-/** EQUIPE mexe no saldo do caminhão; CONCESSIONARIA (Concessionária) é só registro, na ocorrência. */
-export type OrigemMaterial = 'EQUIPE' | 'CONCESSIONARIA';
-
-export interface ExecucaoMaterialLocal {
-  idMaterial: string;
-  quantidade: number;
-  operacao: 'APLICADO' | 'RETIRADO';
-  numSerie?: string;
-  condicao: 'NOVO' | 'SUCATA';
-  /** Ausente nos registros anteriores à ocorrência comercial: vale EQUIPE. */
-  origem?: OrigemMaterial;
-  /** O que a equipe digitou em outra unidade; {@link quantidade} já está na unidade do material. */
-  quantidadeInformada?: number;
-  unidadeInformada?: string;
-}
-
-export interface ExecucaoCampoLocal {
-  id: string;
-  referenciaNota: string;
-  /** Ausente nos registros anteriores à nota avulsa e à ocorrência: vale COMUM. */
-  tipoNota?: TipoNota;
-  /** Número gerado pelo app para a nota avulsa (continua aqui depois do número oficial). */
-  referenciaProvisoria?: string | null;
-  /** Nota avulsa que ainda está com o número provisório. */
-  aguardandoNumeroOficial?: boolean;
-  idTurno: string;
-  idEquipe: string;
-  /**
-   * Tipo de serviço escolhido no lançamento, guardado inteiro para continuar legível
-   * mesmo se o tipo for desativado depois. Nulo nas notas anteriores ao cadastro.
-   */
-  tipoServico?: Pick<TipoServicoLocal, 'id' | 'codigo' | 'descricao'> | null;
-  /** Legado: execuções novas registram apenas a localização (GPS). */
-  idMunicipio?: string | null;
-  latitude?: number;
-  longitude?: number;
-  /** O lançamento é feito de uma só vez: esta é a única data da execução. */
-  dataLancamento: string;
-  statusExecucao: 'INICIADO' | 'CONCLUIDO' | 'EDITADO';
-  acoes: string[]; // IDs das ações
-  materiais: ExecucaoMaterialLocal[];
-  // Controle local: 'LOCAL' = ainda não persistida no servidor; 'SINCRONIZADO' = já existe lá.
-  statusSync: 'LOCAL' | 'SINCRONIZADO' | 'ERRO' | 'RESULTADO_INCERTO' | 'RECEBIDO_BACKOFFICE';
-  erroDetalhes?: string;
-  valorTotalFaturado?: number;
-  /** Quantas vezes a nota foi alterada depois de sincronizada (vem do servidor). */
-  totalAlteracoes?: number;
-  /**
-   * Alteração feita no aparelho numa nota já sincronizada e que ainda não chegou ao
-   * servidor. Enquanto existir, `acoes` e `materiais` já mostram a nota corrigida.
-   */
-  alteracaoPendente?: AlteracaoPendenteLocal | null;
-}
-
-/** Correção de uma nota sincronizada, guardada no aparelho até o envio. */
-export interface AlteracaoPendenteLocal {
-  /** Vai ao servidor: o reenvio da mesma alteração não a aplica duas vezes. */
-  idOperacao: string;
-  motivo: string;
-  /** Quando a pessoa alterou (pode ser bem antes do envio, se estava offline). */
-  alteradoEm: string;
-  /** Como a nota está no servidor: volta a valer se a alteração for desfeita. */
-  anterior: { acoes: string[]; materiais: ExecucaoMaterialLocal[]; valorTotalFaturado?: number; referenciaNota?: string };
-}
-
 export interface VeiculoComposicaoLocal {
   id: string;
   placa: string;
@@ -244,24 +150,6 @@ export interface OpcaoColaboradorLocal {
 }
 
 /**
- * Meta da janela vigente da equipe (ciclo comercial de 26 a 25, ou mês civil),
- * como o servidor apurou em `apuradoEm`. Datas no formato `AAAA-MM-DD`.
- */
-export interface MetaDoCicloLocal {
-  periodicidade: 'CICLO_COMERCIAL' | 'MENSAL';
-  /** Mês de referência `AAAA-MM`: no ciclo, o mês em que ele termina. */
-  competencia: string;
-  inicio: string;
-  fim: string;
-  valor: number;
-  metaDiaria: number | null;
-  diasUteis: number;
-  /** Faturamento que o servidor já tinha recebido na janela em `apuradoEm`. */
-  realizado: number;
-  apuradoEm: string;
-}
-
-/**
  * Retrato da equipe do encarregado para a conferência na abertura do turno.
  * Guardado em `config` para funcionar offline.
  */
@@ -270,10 +158,6 @@ export interface ComposicaoEquipeLocal {
   codigo: string;
   veiculo: VeiculoComposicaoLocal | null;
   membros: MembroComposicaoLocal[];
-  metaFaturamentoMensal: number | null;
-  metaFaturamentoDiaria: number | null;
-  /** Meta do ciclo/mês vigente; nula sem meta cadastrada (ou em dado antigo). */
-  metaDoCiclo?: MetaDoCicloLocal | null;
   usuarioResponsavel: boolean;
   opcoes: {
     colaboradores: OpcaoColaboradorLocal[];

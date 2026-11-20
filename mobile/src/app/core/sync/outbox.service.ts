@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { db } from '../db/app-db';
-import { ExecucaoCampoLocal, InspecaoLocal, OutboxItem, SolicitacaoLocal } from '../db/models';
+import { InspecaoLocal, OutboxItem, SolicitacaoLocal } from '../db/models';
 
 @Injectable({
   providedIn: 'root'
@@ -74,79 +74,6 @@ export class OutboxService {
 
     await this.updatePendingCount();
     return id;
-  }
-
-  /** Persiste a execução e a intenção de envio na mesma transação local. */
-  async enqueueExecucao(
-    item: Omit<OutboxItem, 'id' | 'criadoEm' | 'status' | 'tentativas'>,
-    execucao: ExecucaoCampoLocal,
-    substituirId?: string,
-    substituirOutboxId?: string
-  ): Promise<string> {
-    const id = crypto.randomUUID();
-    const newItem: OutboxItem = {
-      ...item,
-      id,
-      status: 'PENDENTE',
-      receiptStatus: 'QUEUED',
-      originalPayload: structuredClone(item.originalPayload ?? item.payload),
-      tentativas: 0,
-      criadoEm: new Date()
-    };
-    await db.transaction('rw', [db.outbox, db.execucoesCampo], async () => {
-      if (substituirId) {
-        const local = await db.execucoesCampo.get(substituirId);
-        await this.retirarVersaoAnterior(local?.statusSync === 'SINCRONIZADO' ? undefined : local, substituirId, substituirOutboxId);
-        if (substituirId !== execucao.id) await db.execucoesCampo.delete(substituirId);
-      }
-      await db.execucoesCampo.put(execucao);
-      await db.outbox.add(newItem);
-    });
-    await this.updatePendingCount();
-    return id;
-  }
-
-  /**
-   * Persiste a alteração de uma nota sincronizada e o envio dela na mesma transação.
-   * Uma nova alteração antes do envio substitui a anterior na fila (mantendo o
-   * retrato do servidor); se a anterior já pode ter saído, a nova é recusada.
-   */
-  async enqueueAlteracaoExecucao(
-    item: Omit<OutboxItem, 'id' | 'criadoEm' | 'status' | 'tentativas'>,
-    execucao: ExecucaoCampoLocal
-  ): Promise<string> {
-    const id = crypto.randomUUID();
-    const newItem: OutboxItem = {
-      ...item,
-      id,
-      status: 'PENDENTE',
-      receiptStatus: 'QUEUED',
-      originalPayload: structuredClone(item.originalPayload ?? item.payload),
-      tentativas: 0,
-      criadoEm: new Date()
-    };
-    await db.transaction('rw', [db.outbox, db.execucoesCampo], async () => {
-      const anteriores = await db.outbox
-        .filter(o => o.endpoint === item.endpoint && o.payload?.tempId === execucao.id && o.status !== 'SINCRONIZADO')
-        .toArray();
-      if (anteriores.some(o => !this.canEdit(o))) throw new CorrecaoRecusadaError();
-      for (const o of anteriores) await db.outbox.delete(o.id);
-      await db.execucoesCampo.put(execucao);
-      await db.outbox.add(newItem);
-    });
-    await this.updatePendingCount();
-    return id;
-  }
-
-  /**
-   * Tira da fila a alteração de uma nota sincronizada. Recusada pelo servidor (ERRO),
-   * ela não mudou nada lá e pode sair; na dúvida se chegou, fica para conferência.
-   */
-  async retirarAlteracao(item: OutboxItem): Promise<boolean> {
-    if (item.status === 'RESULTADO_INCERTO' || (item.status === 'PENDENTE' && item.envioIniciadoEm)) return false;
-    await db.outbox.delete(item.id);
-    await this.updatePendingCount();
-    return true;
   }
 
   /** Persiste a solicitaÃ§Ã£o e sua intenÃ§Ã£o de envio atomicamente. */
