@@ -117,6 +117,7 @@ const ATALHOS: Atalho[] = [
       }
 
       <geo-data-table
+        [textFit]="ajusteTexto"
         title="Meus desvios"
         mode="server"
         storageKey="sst-meus-desvios"
@@ -284,8 +285,10 @@ export class MeusDesviosComponent {
     return f.status.length === 1 && f.prazoSituacao === null ? f.status[0] : null;
   });
 
+  /** Texto em até 2 linhas com largura mínima por coluna: rola na horizontal em vez de espremer. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 2 } as const;
   protected readonly colunas: GeoDataTableColumn<MeuDesvioResponse>[] = [
-    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
+    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, width: '18rem', value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
     { key: 'gravidade', header: 'Gravidade', type: 'custom', priority: 1, sortField: 'gravidade', value: (d) => d.gravidade, display: (d) => GRAVIDADE_LABELS[d.gravidade] },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, value: (d) => d.status, display: (d) => STATUS_DESVIO_LABELS[d.status] },
     { key: 'prazo', header: 'Prazo', type: 'custom', sortField: 'prazo', value: (d) => d.prazo },

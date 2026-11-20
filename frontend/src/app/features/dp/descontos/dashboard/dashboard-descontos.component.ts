@@ -35,10 +35,13 @@ import {
   TipoEquipamentoResponse
 } from '../../../../core/models/desconto.models';
 import { normalizarSelecao } from '../../../../core/utils/http-params.util';
+import { DashboardMetricCardComponent, InsightTone } from '../../../../shared/components/dashboard/dashboard-ui.components';
 import {
-  DashboardInsightPanelComponent,
-  DashboardMetricCardComponent
-} from '../../../../shared/components/dashboard/dashboard-ui.components';
+  DashboardVisaoGerencialComponent,
+  LeituraGerencial,
+  VereditoGerencial
+} from '../../../../shared/components/dashboard/dashboard-visao-gerencial.component';
+import { AlvoAnalise } from '../../../../shared/components/dashboard/dashboard-analise.models';
 import {
   GeoButtonComponent,
   GeoDataTableColumn,
@@ -51,6 +54,7 @@ import {
   GeoPageHeaderComponent,
   GeoSelectComponent,
   GeoSelectOption,
+  GeoTone,
   NotificationService
 } from '@geo/ui';
 import { DashboardDrillComponent, DrillRecorte } from '../../../../shared/components/dashboard/dashboard-drill.component';
@@ -141,6 +145,22 @@ const COR = {
   tooltip: '#102a43'
 };
 
+const TOM_DA_LEITURA: Record<InsightTone, GeoTone> = {
+  critical: 'danger',
+  warning: 'warning',
+  positive: 'success',
+  neutral: 'info'
+};
+
+/** Junta evidência e ação sugerida em um parágrafo, com ponto final entre as frases. */
+function juntarFrases(...frases: string[]): string {
+  return frases
+    .map((f) => f.trim())
+    .filter(Boolean)
+    .map((f) => (/[.!?…]$/.test(f) ? f : `${f}.`))
+    .join(' ');
+}
+
 const CORES_CATEGORICAS = [
   '#2563eb', '#0f766e', '#c57a16', '#60a5fa', '#14b8a6',
   '#9f1239', '#7c3aed', '#475569', '#93c5fd', '#a16207'
@@ -152,12 +172,13 @@ const CORES_CATEGORICAS = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule, DecimalPipe, GeoChartCanvasComponent, SkeletonModule, TableModule, TooltipModule,
-    DashboardInsightPanelComponent, DashboardMetricCardComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
+    DashboardVisaoGerencialComponent, DashboardMetricCardComponent, GeoButtonComponent, CopilotoAreaComponent, CopilotoGatilhoComponent,
     DashboardDrillComponent, GeoIconButtonComponent, GeoDatepickerComponent, GeoFilterPanelComponent, GeoMultiSelectComponent,
     GeoPageHeaderComponent, GeoSelectComponent
   ],
   providers: [GeoDrillStateService],
-  templateUrl: './dashboard-descontos.component.html'
+  templateUrl: './dashboard-descontos.component.html',
+  styleUrl: './dashboard-descontos.component.css'
 })
 export class DashboardDescontosComponent implements OnInit {
   private readonly descontos = inject(RhDescontosService);
@@ -171,7 +192,6 @@ export class DashboardDescontosComponent implements OnInit {
   protected readonly loading = signal(false);
   protected readonly data = signal<DashboardDescontosResponse | null>(null);
   protected readonly atualizadoEm = signal<Date | null>(null);
-  protected readonly showManagementView = signal(true);
   protected readonly periodoAtivo = signal<string>('');
   protected readonly tipoDataFiltro = signal<'ocorrencia' | 'criacao'>('ocorrencia');
 
@@ -242,6 +262,42 @@ export class DashboardDescontosComponent implements OnInit {
   protected readonly insights = computed(() => {
     const atual = this.data();
     return atual ? construirInsightsDeDescontos(atual) : [];
+  });
+
+  /** Leituras no formato da visão gerencial; só as que vieram de uma prioridade levam à listagem. */
+  protected readonly leituras = computed<LeituraGerencial[]>(() => {
+    const prioridades = this.data()?.prioridades ?? [];
+    return this.insights().map((insight, indice) => ({
+      id: `${indice}-${insight.title}`,
+      tom: TOM_DA_LEITURA[insight.tone],
+      icone: `pi ${insight.icon}`,
+      titulo: insight.title,
+      texto: juntarFrases(insight.description, insight.action),
+      acao: indice < prioridades.length
+        ? { rotulo: 'Ver termos', alvo: { dimension: 'prioridade', value: String(indice) } }
+        : undefined
+    }));
+  });
+
+  /** Veredito em uma frase, derivado das prioridades que o backend calculou. */
+  protected readonly veredito = computed<VereditoGerencial>(() => {
+    const prioridades = this.data()?.prioridades ?? [];
+    const criticas = prioridades.filter((p) => p.severidade === 'CRITICA').length;
+    if (!prioridades.length) {
+      return {
+        tom: 'success',
+        rotulo: 'Em dia',
+        titulo: 'Nenhuma pendência travada no recorte',
+        texto: 'Sem termos parados, sem comprovação ou fora do padrão. Confira o período e os filtros antes de concluir.'
+      };
+    }
+    const total = prioridades.length;
+    return {
+      tom: criticas ? 'danger' : 'warning',
+      rotulo: criticas ? 'Agir agora' : 'Acompanhar',
+      titulo: `${total} ${total === 1 ? 'ponto pede' : 'pontos pedem'} atenção`,
+      texto: 'Pendências travadas, comprovação faltando e o que os números do período dizem sobre o processo. As prioridades saem dos dados, não de um limiar arbitrário.'
+    };
   });
 
   protected readonly linhasOrganizacionais = computed<RankingDescontoItem[]>(() => {
@@ -750,6 +806,11 @@ export class DashboardDescontosComponent implements OnInit {
 
   protected verListagem(): void {
     this.router.navigate(['/dp/descontos/lancamento']);
+  }
+
+  /** A visão gerencial devolve o alvo com o índice da prioridade clicada. */
+  protected abrirLeitura(alvo: AlvoAnalise): void {
+    if (alvo.dimension === 'prioridade') this.abrirPrioridadePorIndice(Number(alvo.value));
   }
 
   /** O painel de leitura devolve o índice do cartão clicado. */

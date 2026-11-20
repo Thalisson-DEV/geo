@@ -1,0 +1,22 @@
+/* Ajustes locais sobre o dashboard-shell compartilhado. */
+
+/* As abas de período/unidade não encolhem nem quebram o rótulo ("30 dias" em duas linhas). */
+.dash-tabs {
+  flex: none;
+}
+
+.dash-tab {
+  white-space: nowrap;
+}
+
+.dash-kpis--afastado {
+  margin-top: 1.25rem;
+}
+
+.dash-summary__items--afastado {
+  margin-top: 1rem;
+}
+
+.dash-table-name--estreito {
+  min-width: 150px;
+}

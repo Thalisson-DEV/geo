@@ -1,25 +1,21 @@
 .wizard-shell {
-  --w-border: var(--p-zinc-100);
-  --w-bg: var(--p-surface-0);
-  --w-title: var(--p-zinc-800);
-  --w-text: var(--p-zinc-700);
-  --w-muted: var(--p-zinc-500);
-  --w-sub: var(--p-zinc-400);
-  --w-card-bg: #f8fafc80;
-  --w-card-b: var(--p-zinc-100);
-  --w-accent: var(--p-primary-600);
-  --w-accent-hover: var(--p-primary-700);
-  --w-accent-soft: var(--p-primary-50);
-  --w-accent-text: var(--p-primary-700);
-  --w-note-bg: var(--p-zinc-50);
-  --w-note-border: var(--p-zinc-100);
-  --w-warn-bg: var(--p-zinc-50);
-  --w-warn-border: var(--p-amber-200);
-  --w-warn-text: var(--p-amber-800);
-  --w-footer-bg: var(--p-surface-0);
-  --w-footer-border: var(--p-zinc-200);
-  --w-footer-text: var(--p-zinc-600);
-  --w-footer-shadow: 0 4px 14px -8px var(--p-zinc-900);
+  --w-border: var(--geo-border);
+  --w-bg: var(--geo-surface);
+  --w-title: var(--geo-foreground);
+  --w-text: var(--geo-foreground-muted);
+  --w-muted: var(--geo-foreground-muted);
+  --w-sub: var(--geo-foreground-subtle);
+  --w-card-bg: var(--geo-surface-subtle);
+  --w-card-b: var(--geo-border);
+  --w-accent: var(--geo-brand);
+  --w-accent-hover: var(--geo-brand-hover);
+  --w-accent-soft: var(--geo-brand-soft);
+  --w-accent-text: var(--geo-brand-text);
+  --w-note-bg: var(--geo-surface-subtle);
+  --w-note-border: var(--geo-border);
+  --w-warn-bg: var(--geo-warning-soft);
+  --w-warn-border: var(--geo-warning-border);
+  --w-warn-text: var(--geo-warning-text);
   --p-stepper-separator-active-background: var(--w-accent);
   --p-stepper-separator-background: var(--w-border);
   margin-inline: auto;
@@ -27,33 +23,8 @@
   max-width: 56rem;
   overflow: hidden;
   border: 1px solid var(--w-border);
-  border-radius: 1rem;
+  border-radius: var(--geo-radius-lg);
   background: var(--w-bg);
-}
-
-:host-context(.app-dark) .wizard-shell,
-:host-context(.dark) .wizard-shell {
-  --w-border: var(--p-zinc-700);
-  --w-bg: var(--p-zinc-900);
-  --w-title: var(--p-zinc-100);
-  --w-text: var(--p-zinc-300);
-  --w-muted: var(--p-zinc-400);
-  --w-sub: var(--p-zinc-500);
-  --w-card-bg: rgba(15, 23, 42, 0.6);
-  --w-card-b: var(--p-zinc-700);
-  --w-accent: var(--p-primary-500);
-  --w-accent-hover: var(--p-primary-400);
-  --w-accent-soft: rgba(59, 130, 246, 0.16);
-  --w-accent-text: var(--p-primary-300);
-  --w-note-bg: rgba(15, 23, 42, 0.6);
-  --w-note-border: var(--p-zinc-700);
-  --w-warn-bg: rgba(120, 53, 15, 0.25);
-  --w-warn-border: rgba(245, 158, 11, 0.3);
-  --w-warn-text: var(--p-amber-200);
-  --w-footer-bg: var(--p-zinc-800);
-  --w-footer-border: var(--p-zinc-700);
-  --w-footer-text: var(--p-zinc-100);
-  --w-footer-shadow: 0 4px 14px -8px black;
 }
 
 .wizard-header {
@@ -175,10 +146,11 @@
   gap: 0.375rem;
 }
 
-.field > label {
+.field > label,
+.sub-label {
   color: var(--w-muted);
-  font-size: var(--geo-font-caption);
-  font-weight: 600;
+  font-size: var(--geo-font-label);
+  font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -197,47 +169,31 @@
 }
 
 .field-error {
-  color: var(--p-red-500);
+  color: var(--geo-danger-text);
   font-size: var(--geo-font-caption);
 }
 
-:host-context(.app-dark) .field-error,
-:host-context(.dark) .field-error {
-  color: var(--p-red-400);
-}
 
 .field-warning,
 .timing-feedback {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  color: var(--p-amber-700);
+  color: var(--geo-warning-text);
   font-size: var(--geo-font-caption);
   font-weight: 500;
 }
 
-:host-context(.app-dark) .field-warning,
-:host-context(.dark) .field-warning {
-  color: var(--p-amber-400);
-}
 
 .timing-feedback {
-  color: var(--p-emerald-700);
+  color: var(--geo-success-text);
 }
 
-:host-context(.app-dark) .timing-feedback,
-:host-context(.dark) .timing-feedback {
-  color: var(--p-emerald-400);
-}
 
 .timing-feedback.is-late {
-  color: var(--p-red-700);
+  color: var(--geo-danger-text);
 }
 
-:host-context(.app-dark) .timing-feedback.is-late,
-:host-context(.dark) .timing-feedback.is-late {
-  color: var(--p-red-400);
-}
 
 .context-note,
 .next-step-note {
@@ -245,7 +201,7 @@
   align-items: flex-start;
   gap: 0.5rem;
   border: 1px solid var(--w-note-border);
-  border-radius: 0.75rem;
+  border-radius: var(--geo-radius-lg);
   background: var(--w-note-bg);
   padding: 0.75rem;
   color: var(--w-accent);
@@ -320,19 +276,15 @@
 .impact-section,
 .cat-section {
   border: 1px solid var(--w-card-b);
-  border-radius: 0.75rem;
+  border-radius: var(--geo-radius-lg);
   background: var(--w-card-bg);
   padding: 1rem;
 }
 
 .impact-section .subsection-title {
-  color: var(--p-red-700);
+  color: var(--geo-danger-text);
 }
 
-:host-context(.app-dark) .impact-section .subsection-title,
-:host-context(.dark) .impact-section .subsection-title {
-  color: var(--p-red-400);
-}
 
 .impact-section .subsection-title i {
   color: inherit;
@@ -397,8 +349,7 @@
   cursor: pointer;
 }
 
-:host-context(.app-dark) .review-heading button:hover,
-:host-context(.dark) .review-heading button:hover {
+.review-heading button:hover {
   color: var(--w-accent-hover);
 }
 
@@ -435,29 +386,6 @@
 
 .review-card strong {
   font-weight: 500;
-}
-
-:host ::ng-deep .field-control,
-.field-control .p-select,
-.field-control .p-multiselect,
-.field-control.p-inputnumber,
-.field-control.p-datepicker {
-  width: 100%;
-}
-
-:host ::ng-deep .field .p-inputtext,
-:host ::ng-deep .field .p-select,
-:host ::ng-deep .field .p-multiselect {
-  width: 100%;
-  font-size: var(--geo-font-caption);
-}
-
-:host ::ng-deep .p-breadcrumb .p-menuitem-text {
-  color: var(--w-sub);
-  font-size: var(--geo-font-caption);
-  font-weight: 500;
-  letter-spacing: 0;
-  text-transform: none;
 }
 
 @media (max-width: 768px) {

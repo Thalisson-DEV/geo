@@ -51,7 +51,7 @@
           <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'inspecoesComDesvio', rotulo: 'Inspeções com desvio' }" />
         </app-dashboard-metric-card>
         <app-dashboard-metric-card label="Desvios resolvidos" [value]="percentualOuSemAmostra(d.totalDesvios, d.indicadores.taxaResolucao.valor)" icon="pi-check-circle"
-          [detail]="'Acompanhamento das correções · ' + comparison(d.indicadores.taxaResolucao)" [pTooltip]="descricaoIndicador(d.indicadores.taxaResolucao)"
+          [detail]="(d.totalDesvios > 0 ? 'Acompanhamento das correções · ' : 'Sem desvios no período · ') + comparison(d.indicadores.taxaResolucao)" [pTooltip]="descricaoIndicador(d.indicadores.taxaResolucao)"
           tone="green" [progress]="d.indicadores.taxaResolucao.valor"
           actionLabel="Analisar tratamento" (activate)="analisar('kpi', 'resolucao')">
           <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'taxaResolucao', rotulo: 'Desvios resolvidos' }" />
@@ -183,7 +183,7 @@
                       <span class="dash-share-pill" [attr.data-tone]="volume.total > 0 ? tomGravidade(volume.gravidade) : 'neutral'">
                         {{ volume.percentual | number:'1.0-1' }}%
                       </span>
-                      <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">do volume</span>
+                      <span class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">do volume</span>
                     </div>
                   </div>
 
@@ -200,7 +200,7 @@
 
                     <!-- Rodapé com comparativo do período anterior -->
                     <div class="dash-card-footer">
-                      <span class="dash-badge !text-[11px] !py-0.5 !px-2 font-semibold"
+                      <span class="dash-badge !text-xs !py-0.5 !px-2 font-semibold"
                             [class]="classeVariacaoGravidade(volume)"
                             [pTooltip]="textoTooltipVariacao(volume)">
                         <i [class]="iconeVariacao(volume.variacaoPercentual)" aria-hidden="true"></i>
@@ -217,7 +217,7 @@
                     </div>
                     <div class="dash-card-footer">
                       @if (volume.anterior > 0) {
-                        <span class="dash-badge dash-badge--success !text-[11px] !py-0.5 !px-2 font-semibold"
+                        <span class="dash-badge dash-badge--success !text-xs !py-0.5 !px-2 font-semibold"
                               [pTooltip]="'Redução de 100% vs. período anterior (de ' + volume.anterior + ' para 0)'">
                           <i class="pi pi-arrow-down" aria-hidden="true"></i> -100%
                         </span>
@@ -225,7 +225,7 @@
                           Anterior: <strong class="text-slate-700 dark:text-slate-200 font-bold">{{ volume.anterior }}</strong>
                         </span>
                       } @else {
-                        <span class="text-[10px] text-slate-400 dark:text-slate-500 italic">Sem registros anteriores</span>
+                        <span class="text-xs text-slate-400 dark:text-slate-500 italic">Sem registros anteriores</span>
                         <span class="text-slate-400 dark:text-slate-500 font-medium tabular-nums">Anterior: 0</span>
                       }
                     </div>
@@ -327,22 +327,22 @@
                     <!-- Detalhamento de severidades com chips -->
                     <div class="dash-aging-chips">
                       @if (faixa.porGravidade.CRITICA > 0) {
-                        <span class="dash-badge dash-badge--danger !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.CRITICA + ' desvios críticos'">
+                        <span class="dash-badge dash-badge--danger !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.CRITICA + ' desvios críticos'">
                           <i class="pi pi-bolt"></i> Crítica: {{ faixa.porGravidade.CRITICA }}
                         </span>
                       }
                       @if (faixa.porGravidade.ALTA > 0) {
-                        <span class="dash-badge dash-badge--orange !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.ALTA + ' desvios de alta gravidade'">
+                        <span class="dash-badge dash-badge--orange !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.ALTA + ' desvios de alta gravidade'">
                           Alta: {{ faixa.porGravidade.ALTA }}
                         </span>
                       }
                       @if (faixa.porGravidade.MEDIA > 0) {
-                        <span class="dash-badge dash-badge--warning !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.MEDIA + ' desvios de média gravidade'">
+                        <span class="dash-badge dash-badge--warning !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.MEDIA + ' desvios de média gravidade'">
                           Média: {{ faixa.porGravidade.MEDIA }}
                         </span>
                       }
                       @if (faixa.porGravidade.BAIXA > 0) {
-                        <span class="dash-badge !text-[11px] !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.BAIXA + ' desvios de baixa gravidade'">
+                        <span class="dash-badge !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.BAIXA + ' desvios de baixa gravidade'">
                           Baixa: {{ faixa.porGravidade.BAIXA }}
                         </span>
                       }

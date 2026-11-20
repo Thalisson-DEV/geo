@@ -657,7 +657,7 @@ export const routes: Routes = [
       },
       {
         path: 'abastecimentos',
-        data: { permission: 'frota:abastecimento:read' },
+        data: { permission: 'frota:abastecimento:read', fullBleed: true },
         loadComponent: () => import('./features/frota/abastecimentos/frota-abastecimentos.component').then(m => m.FrotaAbastecimentosComponent)
       },
       {

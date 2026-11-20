@@ -111,6 +111,12 @@ const ICONE_STATUS: Record<DescontoStatus, string> = {
 };
 /** Padrão da consulta: criados nos últimos 90 dias (links com parâmetros abrem sem limite). */
 export const DIAS_PADRAO_DESCONTOS = 90;
+function somenteData(valor: string | null | undefined): string {
+  if (!valor) return '—';
+  const data = new Date(valor);
+  return Number.isNaN(data.getTime()) ? valor : data.toLocaleDateString('pt-BR');
+}
+
 const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
   { label: 'Resumo (um por desconto)', value: 'resumo' },
   { label: 'Detalhado (um por item)', value: 'detalhado' }
@@ -181,7 +187,7 @@ const FORMATOS: GeoSelectOption<'resumo' | 'detalhado'>[] = [
       </geo-filter-panel>
 
       <geo-data-table
-        [title]="titulo"
+        [title]="fila ? titulo : 'Termos'"
         mode="server"
         [storageKey]="'dp-descontos-' + modo"
         searchPlaceholder="Colaborador, motivo, status, observações ou código"
@@ -336,7 +342,8 @@ export class DescontosLancamentoComponent {
     { key: 'validado', header: 'Validado', type: 'custom', sortField: 'valorValidado', value: (d) => d.valorValidado },
     { key: 'baixado', header: 'Baixado', type: 'custom', sortField: 'valorBaixado', value: (d) => d.valorBaixado },
     { key: 'parcelas', header: 'Parcelas', sortField: 'quantidadeParcelas', value: (d) => d.quantidadeParcelas, display: (d) => `${d.quantidadeParcelas}x` },
-    { key: 'ocorrencia', header: 'Ocorrência', type: 'date', sortField: 'dataOcorrencia', value: (d) => d.dataOcorrencia },
+    // A ocorrência é informada só com a data no termo: a hora que vem do servidor não diz nada.
+    { key: 'ocorrencia', header: 'Ocorrência', type: 'date', sortField: 'dataOcorrencia', value: (d) => d.dataOcorrencia, display: (d) => somenteData(d.dataOcorrencia) },
     { key: 'criado', header: 'Criado em', type: 'date', sortField: 'dataCriacao', value: (d) => d.dataCriacao }
   ];
   protected readonly rotulo = (d: DescontoResponse) => this.nomeColaborador(d.colaboradorId);

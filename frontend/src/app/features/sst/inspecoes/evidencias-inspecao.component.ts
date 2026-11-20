@@ -95,7 +95,7 @@ interface ItemGaleria {
       <div class="flex items-center justify-between gap-3 mb-3 print:mb-2 flex-wrap">
         <div class="flex items-center gap-2 border-l-2 border-primary-500 pl-3">
           <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Fotos &amp; Evidências</span>
-          <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ itens().length }})</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ itens().length }})</span>
         </div>
         @if (canWrite()) {
           <geo-button class="print:hidden" variant="outline" size="sm" icon="pi pi-camera" label="Acrescentar foto"
@@ -107,7 +107,7 @@ interface ItemGaleria {
         <!-- Inspeção anterior à exigência: aviso discreto, não é erro nem pendência. -->
         <div class="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 px-4 py-3 mb-4">
           <i class="pi pi-info-circle text-slate-400 dark:text-slate-500 text-xs"></i>
-          <span class="text-[11px] text-slate-500 dark:text-slate-400">Inspeção anterior à exigência de evidência fotográfica.</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Inspeção anterior à exigência de evidência fotográfica.</span>
         </div>
       }
 
@@ -128,7 +128,7 @@ interface ItemGaleria {
                     } @else {
                       <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-slate-800">
                         <i class="pi pi-spin pi-spinner text-slate-400 text-xl"></i>
-                        <span class="text-[10px] text-slate-400 font-medium">Carregando imagem...</span>
+                        <span class="text-xs text-slate-400 font-medium">Carregando imagem...</span>
                       </div>
                     }
                   </div>
@@ -136,8 +136,8 @@ interface ItemGaleria {
                   <!-- HEIC/HEIF não renderiza em <img> no desktop: cartão com ícone e nome. -->
                   <div class="h-44 w-full bg-slate-50 dark:bg-slate-800/60 flex flex-col items-center justify-center gap-2 px-3 text-center">
                     <i class="pi pi-image text-3xl text-slate-300 dark:text-slate-600"></i>
-                    <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300 break-all line-clamp-2">{{ item.nomeArquivo }}</span>
-                    <button type="button" (click)="baixar(item)" class="text-[10px] font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
+                    <span class="text-xs font-medium text-slate-600 dark:text-slate-300 break-all line-clamp-2">{{ item.nomeArquivo }}</span>
+                    <button type="button" (click)="baixar(item)" class="text-xs font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
                       Baixar para visualizar
                     </button>
                   </div>
@@ -148,8 +148,8 @@ interface ItemGaleria {
                        [ngClass]="ehPdf(item) ? 'bg-red-50 text-red-600 border border-red-100 dark:bg-red-950/50 dark:text-red-400 dark:border-red-900/60' : 'bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-900/60'">
                     <i [class]="iconeArquivo(item.nomeArquivo)" class="text-2xl"></i>
                   </div>
-                  <button type="button" (click)="baixar(item)" class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
-                    <i class="pi pi-download text-[10px]"></i> Abrir documento
+                  <button type="button" (click)="baixar(item)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
+                    <i class="pi pi-download text-xs"></i> Abrir documento
                   </button>
                 </div>
               }
@@ -157,20 +157,20 @@ interface ItemGaleria {
               <div class="p-3.5 flex flex-col gap-1.5 flex-1 bg-white dark:bg-slate-900">
                 <div class="flex items-center justify-between gap-1">
                   @if (item.origem === 'INSPECAO') {
-                    <span class="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-primary-700 bg-primary-50 dark:text-primary-300 dark:bg-primary-950/60 dark:border-primary-800/60 px-2 py-0.5 rounded border border-primary-100">
-                      <i class="pi pi-camera text-[9px]"></i> Inspeção
+                    <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-primary-700 bg-primary-50 dark:text-primary-300 dark:bg-primary-950/60 dark:border-primary-800/60 px-2 py-0.5 rounded border border-primary-100">
+                      <i class="pi pi-camera text-xs"></i> Inspeção
                     </span>
                   } @else {
-                    <span class="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-950/60 dark:border-amber-800/60 px-2 py-0.5 rounded border border-amber-100">
-                      <i class="pi pi-exclamation-triangle text-[9px]"></i> Desvio
+                    <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-950/60 dark:border-amber-800/60 px-2 py-0.5 rounded border border-amber-100">
+                      <i class="pi pi-exclamation-triangle text-xs"></i> Desvio
                     </span>
                   }
-                  <span class="text-[10px] text-slate-400 font-medium">{{ formatarTamanho(item.tamanhoBytes) }}</span>
+                  <span class="text-xs text-slate-400 font-medium">{{ formatarTamanho(item.tamanhoBytes) }}</span>
                 </div>
                 <span class="text-xs font-semibold text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug mt-1" [title]="item.titulo">{{ item.titulo }}</span>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1" [title]="item.subtitulo">{{ item.subtitulo }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1" [title]="item.subtitulo">{{ item.subtitulo }}</span>
                 <div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                  <span class="text-[10px] text-slate-400 truncate" [title]="item.nomeArquivo">
+                  <span class="text-xs text-slate-400 truncate" [title]="item.nomeArquivo">
                     {{ item.origem === 'INSPECAO' ? (item.dataCriacao | date: 'dd/MM/yy HH:mm') : item.nomeArquivo }}
                   </span>
                   @if (canWrite() && item.origem === 'INSPECAO') {
@@ -180,7 +180,7 @@ interface ItemGaleria {
                           tooltipPosition="top" class="print:hidden shrink-0">
                       <button type="button" (click)="confirmarRemocao($event, item)" [disabled]="ehUnica()"
                         class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-950/50 transition-colors disabled:opacity-40 disabled:hover:text-slate-400 disabled:hover:bg-transparent disabled:cursor-not-allowed">
-                        <i class="pi pi-trash text-[10px]"></i>
+                        <i class="pi pi-trash text-xs"></i>
                       </button>
                     </span>
                   }
@@ -208,11 +208,11 @@ interface ItemGaleria {
           <div class="flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
             <div class="flex items-center justify-between gap-3">
               <span class="text-xs font-bold text-slate-800 dark:text-white">{{ item.titulo }}</span>
-              <span class="text-[11px] text-slate-400 font-medium shrink-0">{{ formatarTamanho(item.tamanhoBytes) }}</span>
+              <span class="text-xs text-slate-400 font-medium shrink-0">{{ formatarTamanho(item.tamanhoBytes) }}</span>
             </div>
             <span class="text-xs text-slate-600 dark:text-slate-300">{{ item.subtitulo }}</span>
             <div class="flex items-center justify-between gap-3 pt-2 mt-1 border-t border-slate-200/60 dark:border-slate-800">
-              <span class="text-[11px] text-slate-400 truncate">
+              <span class="text-xs text-slate-400 truncate">
                 Arquivo: {{ item.nomeArquivo }} · {{ item.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}
               </span>
               <button type="button" (click)="baixar(item)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 shrink-0">

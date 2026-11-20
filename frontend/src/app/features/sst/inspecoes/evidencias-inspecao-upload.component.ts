@@ -62,15 +62,15 @@ let seqEvidencia = 0;
       <div class="flex items-center justify-between gap-2 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 px-4 md:px-5 py-2.5">
         <div class="flex items-center gap-2 min-w-0">
           <i class="pi pi-camera text-primary-700 dark:text-primary-400"></i>
-          <span class="text-[11px] font-medium text-slate-700 dark:text-slate-200 uppercase tracking-widest">
+          <span class="text-xs font-medium text-slate-700 dark:text-slate-200 uppercase tracking-widest">
             Evidências Fotográficas <span class="text-red-500">*</span>
           </span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           @if (!temEvidencia()) {
-            <span class="hidden sm:inline text-[10px] font-medium text-amber-600 dark:text-amber-400">Ao menos 1 foto é obrigatória</span>
+            <span class="hidden sm:inline text-xs font-medium text-amber-600 dark:text-amber-400">Ao menos 1 foto é obrigatória</span>
           }
-          <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full text-[11px] font-medium border border-transparent"
+          <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full text-xs font-medium border border-transparent"
                 [ngClass]="temEvidencia() ? 'bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 dark:border-primary-800/40' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 dark:border-amber-800/40'">
             {{ enviadas().length }}
           </span>
@@ -89,11 +89,11 @@ let seqEvidencia = 0;
             ? 'border-primary-400 dark:border-primary-500 bg-primary-50/60 dark:bg-primary-950/40'
             : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-50 dark:hover:bg-slate-800/60'">
           <i class="pi pi-cloud-upload text-2xl text-slate-300 dark:text-slate-600"></i>
-          <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Arraste as fotos aqui ou clique para selecionar</span>
-          <span class="text-[10px] text-slate-400 dark:text-slate-500">JPEG, PNG, WebP ou HEIC · até 15 MB por arquivo</span>
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Arraste as fotos aqui ou clique para selecionar</span>
+          <span class="text-xs text-slate-400 dark:text-slate-500">JPEG, PNG, WebP ou HEIC · até 15 MB por arquivo</span>
         </div>
 
-        <span class="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
+        <span class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
           <i class="pi pi-info-circle"></i> A foto comprova que a inspeção aconteceu em campo.
         </span>
 
@@ -117,7 +117,7 @@ let seqEvidencia = 0;
 
                   @if (item.estado === 'ENVIANDO') {
                     <div class="absolute inset-0 bg-slate-900/50 flex items-center justify-center">
-                      <span class="text-[10px] font-semibold text-white">{{ item.progresso }}%</span>
+                      <span class="text-xs font-semibold text-white">{{ item.progresso }}%</span>
                     </div>
                   } @else if (item.estado === 'ERRO') {
                     <button type="button" (click)="reenviar(item)"
@@ -130,7 +130,7 @@ let seqEvidencia = 0;
                   <button type="button" (click)="remover(item); $event.stopPropagation()" pTooltip="Remover evidência"
                     tooltipPosition="top"
                     class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow">
-                    <i class="pi pi-trash text-[10px]"></i>
+                    <i class="pi pi-trash text-xs"></i>
                   </button>
                 </div>
 
@@ -140,7 +140,7 @@ let seqEvidencia = 0;
                        [ngClass]="item.estado === 'ERRO' ? 'bg-red-500' : (item.estado === 'ENVIADA' ? 'bg-emerald-500' : 'bg-primary-700 dark:bg-primary-500')"
                        [style.width.%]="item.estado === 'ERRO' ? 100 : item.progresso"></div>
                 </div>
-                <span class="block text-[9px] text-slate-400 dark:text-slate-500 truncate mt-0.5" [title]="item.nome">
+                <span class="block text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5" [title]="item.nome">
                   {{ formatarTamanho(item.tamanhoBytes) }}
                 </span>
               </div>

@@ -4,8 +4,7 @@ import { Component, DestroyRef, ElementRef, OnInit, ViewChild, signal, computed,
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { MenuItem, MessageService } from 'primeng/api';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -56,6 +55,7 @@ import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as LookupRemoteLookup } from '../../../core/lookup/store/remote-lookup';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 import { GeoAutocompleteComponent, GeoBooleanControlComponent } from '@geo/ui/forms';
+import { GeoBreadcrumbItem, GeoButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
 
 interface RespostaState {
   opcoesSelecionadas: string[];
@@ -93,7 +93,8 @@ interface Inspecionado {
   imports: [
     CommonModule,
     FormsModule,
-    BreadcrumbModule,
+    GeoPageHeaderComponent,
+    GeoButtonComponent,
     ButtonModule,
     InputTextModule,
     InputNumberModule,
@@ -119,73 +120,57 @@ interface Inspecionado {
     <app-map-dialog #mapDialog></app-map-dialog>
     <app-location-picker-dialog #localPicker (localConfirmado)="onLocalConfirmado($event)"></app-location-picker-dialog>
 
-    <div class="flex flex-col gap-3 md:gap-4 pb-28 max-w-5xl mx-auto w-full rise">
-      <!-- Barra superior -->
-      <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-        <p-breadcrumb [model]="breadcrumbItems" styleClass="!bg-transparent !border-0 !p-0"></p-breadcrumb>
-        <div class="flex items-center gap-1 shrink-0 ml-auto">
-          <p-button icon="pi pi-question-circle" label="Guia" [text]="true" severity="secondary" (onClick)="helpDialog.show()" styleClass="!text-primary-700 dark:!text-primary-400 !text-[10px] !font-medium !px-2"></p-button>
-          <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" styleClass="!text-slate-400 dark:!text-slate-400 hover:dark:!text-slate-200 !text-[10px] !font-medium !px-2"></p-button>
-        </div>
-      </div>
+    <div class="flex flex-col gap-4 pb-28 w-full">
+      <geo-page-header
+        [title]="isModoEdicao() ? 'Editar inspeção de segurança' : 'Nova inspeção de segurança'"
+        icon="pi pi-shield"
+        [breadcrumb]="trilha()"
+        [description]="isModoEdicao() ? 'Altere os dados, checklist, desvios e evidências da inspeção.' : 'Escolha o modelo do formulário e preencha os dados iniciais para liberar o checklist.'"
+        helpLabel="Guia da tela"
+        (help)="helpDialog.show()"
+      >
+        @if (temLocalizacao()) {
+          <geo-button actions label="Ver localização" icon="pi pi-map-marker" variant="ghost" (pressed)="abrirMapaGeo()"></geo-button>
+        }
+        <geo-button actions [label]="temLocalizacao() ? 'Editar localização' : 'Selecionar localização'" icon="pi pi-map" variant="outline" (pressed)="abrirSeletorLocal()"></geo-button>
+        <geo-button actions label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="voltar()"></geo-button>
+      </geo-page-header>
 
       <!-- ========================= CABEÇALHO ========================= -->
-      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-        <div class="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 px-4 md:px-8 py-3.5 md:py-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-9 h-9 rounded-lg bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border border-transparent dark:border-primary-800/40 flex items-center justify-center shrink-0">
-              <i class="pi pi-shield text-lg"></i>
-            </div>
-            <div class="flex flex-col min-w-0">
-              <span class="text-[13px] md:text-sm font-medium text-slate-800 dark:text-slate-100 uppercase tracking-widest leading-tight">{{ isModoEdicao() ? 'Editar Inspeção de Segurança' : 'Nova Inspeção de Segurança' }}</span>
-              <span class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{{ isModoEdicao() ? 'Altere os dados, checklist, desvios e evidências da inspeção' : 'Preencha os dados iniciais do formulário' }}</span>
-            </div>
-          </div>
-          <div class="flex items-stretch gap-2 shrink-0">
-            @if (temLocalizacao()) {
-              <button type="button" (click)="abrirMapaGeo()" class="flex flex-1 md:flex-none items-center justify-center gap-1.5 text-[10px] font-medium text-primary-700 dark:text-primary-300 uppercase tracking-widest hover:underline bg-primary-50 dark:bg-primary-950/40 px-3 py-2 md:py-1.5 rounded-md border border-primary-100 dark:border-primary-800/50">
-                <i class="pi pi-map-marker text-[11px]"></i> Localização Definida
-              </button>
-            }
-            <button type="button" (click)="abrirSeletorLocal()" class="flex flex-1 md:flex-none items-center justify-center gap-1.5 text-[10px] font-medium text-slate-600 dark:text-slate-300 uppercase tracking-widest hover:underline bg-slate-50 dark:bg-slate-800 px-3 py-2 md:py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
-              <i class="pi pi-map text-[11px]"></i> {{ temLocalizacao() ? 'Editar' : 'Selecionar' }} Localização
-            </button>
-          </div>
-        </div>
-
+      <div class="insp-card">
         <div class="px-4 md:px-8 py-5 md:py-6 flex flex-col gap-5 md:gap-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             <div class="flex flex-col gap-2">
-              <label class="dl flex items-center gap-2"><i class="pi pi-file-edit text-slate-400 dark:text-slate-500"></i> Modelo do Formulário <span class="text-red-500">*</span></label>
-              <p-select [options]="formularios()" [(ngModel)]="idFormulario" [disabled]="isModoEdicao()" optionLabel="titulo" optionValue="id" placeholder="Selecione o molde da inspeção" class="doc-select w-full" size="small" [filter]="true" appendTo="body" (onChange)="onSelecionarFormulario()"></p-select>
+              <label class="dl flex items-center gap-2"><i class="pi pi-file-edit text-slate-400 dark:text-slate-500"></i> Modelo do formulário <span class="text-red-500">*</span></label>
+              <p-select [options]="formularios()" [(ngModel)]="idFormulario" [disabled]="isModoEdicao()" optionLabel="titulo" optionValue="id" placeholder="Selecione o molde da inspeção" class="doc-select w-full" [filter]="true" appendTo="body" (onChange)="onSelecionarFormulario()"></p-select>
             </div>
 
             <div class="flex flex-col gap-2">
-              <label class="dl flex items-center gap-2"><i class="pi pi-tags text-slate-400 dark:text-slate-500"></i> Tipo de Inspeção <span class="text-red-500">*</span></label>
-              <p-select [options]="tiposInspecao()" [(ngModel)]="idTipoInspecao" optionLabel="nome" optionValue="id" placeholder="Selecione o tipo de inspeção" class="doc-select w-full" size="small" [filter]="true" appendTo="body"></p-select>
+              <label class="dl flex items-center gap-2"><i class="pi pi-tags text-slate-400 dark:text-slate-500"></i> Tipo de inspeção <span class="text-red-500">*</span></label>
+              <p-select [options]="tiposInspecao()" [(ngModel)]="idTipoInspecao" optionLabel="nome" optionValue="id" placeholder="Selecione o tipo de inspeção" class="doc-select w-full" [filter]="true" appendTo="body"></p-select>
             </div>
           </div>
 
           @if (carregandoForm()) {
-            <p-skeleton height="3rem" class="!rounded-xl"></p-skeleton>
+            <p-skeleton height="3rem"></p-skeleton>
           }
 
           @if (formulario()) {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 p-4 md:p-5 bg-slate-50/50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
               <div class="flex flex-col gap-2">
                 <label class="dl flex items-center gap-2"><i class="pi pi-sitemap text-slate-400 dark:text-slate-500"></i> Processo <span class="text-red-500">*</span></label>
-                <p-select [options]="processos()" [(ngModel)]="idProcesso" optionLabel="nome" optionValue="id" placeholder="Selecione" class="doc-select w-full" size="small" [filter]="true" appendTo="body"></p-select>
+                <p-select [options]="processos()" [(ngModel)]="idProcesso" optionLabel="nome" optionValue="id" placeholder="Selecione" class="doc-select w-full" [filter]="true" appendTo="body"></p-select>
               </div>
               <div class="flex flex-col gap-2">
                 <label class="dl flex items-center gap-2"><i class="pi pi-calendar-clock text-slate-400 dark:text-slate-500"></i> Data / hora <span class="text-red-500">*</span></label>
-                <p-datepicker [(ngModel)]="dataRealizacao" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" placeholder="dd/mm/aaaa hh:mm" appendTo="body" size="small" class="doc-date w-full"></p-datepicker>
+                <p-datepicker [(ngModel)]="dataRealizacao" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" placeholder="dd/mm/aaaa hh:mm" appendTo="body" class="doc-date w-full"></p-datepicker>
               </div>
               <div class="flex flex-col gap-2">
                 <label class="dl flex items-center gap-2"><i class="pi pi-building text-slate-400 dark:text-slate-500"></i> Base operacional <span class="text-red-500">*</span></label>
                 @if (podeLerBases()) {
-                  <p-select [options]="basesOperacionais()" [(ngModel)]="idBaseOperacional" optionLabel="nome" optionValue="id" placeholder="Selecione a base" class="doc-select w-full" size="small" [filter]="true" appendTo="body" [loading]="carregandoBases()"></p-select>
+                  <p-select [options]="basesOperacionais()" [(ngModel)]="idBaseOperacional" optionLabel="nome" optionValue="id" placeholder="Selecione a base" class="doc-select w-full" [filter]="true" appendTo="body" [loading]="carregandoBases()"></p-select>
                 } @else {
-                  <div class="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-[10px] leading-relaxed text-amber-800 dark:text-amber-300">
+                  <div class="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs leading-relaxed text-amber-800 dark:text-amber-300">
                     <i class="pi pi-lock mr-1"></i>
                     Seu perfil pode lançar inspeções, mas não pode consultar bases. Solicite a permissão <strong>rh:base-operacional:read</strong>.
                   </div>
@@ -193,7 +178,7 @@ interface Inspecionado {
               </div>
               <div class="flex flex-col gap-2">
                 <label class="dl flex items-center gap-2"><i class="pi pi-car text-slate-400 dark:text-slate-500"></i> Veículo</label>
-                <p-select [options]="veiculos()" [(ngModel)]="idVeiculo" optionLabel="placa" optionValue="id" placeholder="Opcional" class="doc-select w-full" size="small" [filter]="true" filterBy="placa,modelo" [showClear]="true" [loading]="veiculosLoading()" [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body" (onShow)="openVeiculos()" (onFilter)="searchVeiculos($event)" (onLazyLoad)="loadMoreVeiculos()"></p-select>
+                <p-select [options]="veiculos()" [(ngModel)]="idVeiculo" optionLabel="placa" optionValue="id" placeholder="Opcional" class="doc-select w-full" [filter]="true" filterBy="placa,modelo" [showClear]="true" [loading]="veiculosLoading()" [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body" (onShow)="openVeiculos()" (onFilter)="searchVeiculos($event)" (onLazyLoad)="loadMoreVeiculos()"></p-select>
               </div>
             </div>
 
@@ -204,7 +189,7 @@ interface Inspecionado {
 
             @if (isModoEdicao()) {
               <div class="flex flex-col gap-2">
-                <label class="dl flex items-center gap-2"><i class="pi pi-history text-slate-400 dark:text-slate-500"></i> Justificativa da Edição</label>
+                <label class="dl flex items-center gap-2"><i class="pi pi-history text-slate-400 dark:text-slate-500"></i> Justificativa da edição</label>
                 <textarea pTextarea [(ngModel)]="justificativaEdicao" rows="2" maxlength="500" placeholder="Motivo da alteração da inspeção (registrado no histórico de auditoria)..." class="doc-textarea w-full"></textarea>
               </div>
             }
@@ -214,12 +199,12 @@ interface Inspecionado {
               <div class="p-4 md:p-5 flex flex-col gap-4 bg-slate-50/80 dark:bg-slate-900/60 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
                 <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
                   <i class="pi pi-user-plus text-primary-700 dark:text-primary-400"></i>
-                  <span class="text-[11px] font-medium text-slate-700 dark:text-slate-200 uppercase tracking-widest">Adicionar Colaboradores</span>
+                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">Adicionar colaboradores</span>
                 </div>
                 <div class="flex flex-col gap-2">
-                  <label class="dl">Por Equipe</label>
-                  <p-select [options]="equipes()" [(ngModel)]="idEquipe" optionLabel="codigo" optionValue="id" placeholder="Individual (sem equipe)" class="doc-select w-full" size="small" [filter]="true" filterBy="codigo,nome" [showClear]="true" [loading]="equipesLoading()" [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body" (onShow)="openEquipes()" (onFilter)="searchEquipes($event)" (onLazyLoad)="loadMoreEquipes()" (onChange)="onSelecionarEquipe()"></p-select>
-                  <span class="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1"><i class="pi pi-info-circle"></i> Integrantes entram automaticamente.</span>
+                  <label class="dl">Por equipe</label>
+                  <p-select [options]="equipes()" [(ngModel)]="idEquipe" optionLabel="codigo" optionValue="id" placeholder="Individual (sem equipe)" class="doc-select w-full" [filter]="true" filterBy="codigo,nome" [showClear]="true" [loading]="equipesLoading()" [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body" (onShow)="openEquipes()" (onFilter)="searchEquipes($event)" (onLazyLoad)="loadMoreEquipes()" (onChange)="onSelecionarEquipe()"></p-select>
+                  <span class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1"><i class="pi pi-info-circle"></i> Integrantes entram automaticamente.</span>
                 </div>
                 <div class="flex flex-col gap-2 mt-2">
                   <label class="dl">Manualmente</label>
@@ -251,24 +236,24 @@ interface Inspecionado {
                 <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
                   <div class="flex items-center gap-2">
                     <i class="pi pi-users text-primary-700 dark:text-primary-400"></i>
-                    <span class="text-[11px] font-medium text-slate-700 dark:text-slate-200 uppercase tracking-widest">Lista de Inspecionados <span class="text-red-500">*</span></span>
+                    <span class="text-xs font-medium text-slate-700 dark:text-slate-200">Lista de inspecionados <span class="text-red-500">*</span></span>
                   </div>
-                  <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border border-transparent dark:border-primary-800/40 text-[11px] font-medium">{{ inspecionados().length }}</span>
+                  <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border border-transparent dark:border-primary-800/40 text-xs font-medium">{{ inspecionados().length }}</span>
                 </div>
                 @if (inspecionados().length) {
                   <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-800 max-h-[220px] overflow-y-auto pr-1">
                     @for (c of inspecionados(); track c.id) {
                       <div class="flex items-center justify-between gap-2 py-2.5 group">
-                        <span class="flex items-center gap-2 text-[12px] font-medium text-slate-700 dark:text-slate-200 truncate"><i class="pi pi-user text-[11px] text-slate-400 dark:text-slate-500 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors"></i>{{ c.nome }}</span>
-                        <button type="button" (click)="removerInspecionado(c.id)" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shrink-0" pTooltip="Remover"><i class="pi pi-times text-[10px]"></i></button>
+                        <span class="flex items-center gap-2 text-[12px] font-medium text-slate-700 dark:text-slate-200 truncate"><i class="pi pi-user text-xs text-slate-400 dark:text-slate-500 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors"></i>{{ c.nome }}</span>
+                        <button type="button" (click)="removerInspecionado(c.id)" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shrink-0" pTooltip="Remover"><i class="pi pi-times text-xs"></i></button>
                       </div>
                     }
                   </div>
                 } @else {
                   <div class="flex flex-col items-center justify-center gap-2 py-10 text-center bg-slate-50/50 dark:bg-slate-800/30 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
                     <i class="pi pi-users text-2xl text-slate-300 dark:text-slate-600"></i>
-                    <span class="text-[11px] font-medium text-slate-500 dark:text-slate-400">Nenhum colaborador na lista.</span>
-                    <span class="text-[10px] text-slate-400 dark:text-slate-500">Utilize o painel ao lado para adicionar.</span>
+                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Nenhum colaborador na lista.</span>
+                    <span class="text-xs text-slate-400 dark:text-slate-500">Utilize o painel ao lado para adicionar.</span>
                   </div>
                 }
               </div>
@@ -283,20 +268,20 @@ interface Inspecionado {
       <!-- ========================= CORPO (CHECKLIST) ========================= -->
       @if (formulario()) {
         @if (!podePreencherChecklist()) {
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 md:p-6 flex flex-col items-center justify-center text-center gap-3.5 shadow-sm">
+          <div class="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-5 md:p-6 flex flex-col items-center justify-center text-center gap-3.5">
             <div class="w-11 h-11 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-500 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
               <i class="pi pi-lock text-lg"></i>
             </div>
             <div class="flex flex-col gap-0.5">
               <span class="text-[12px] font-medium text-slate-700 dark:text-slate-200">Complete os dados para liberar o checklist</span>
-              <span class="text-[10px] text-slate-500 dark:text-slate-400">Faltam apenas estes passos:</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">Faltam apenas estes passos:</span>
             </div>
             <div class="flex flex-col gap-1.5 w-full max-w-xs mt-0.5">
               @for (r of requisitos(); track r.label) {
                 <div class="flex items-center gap-2 text-left rounded-lg border px-3 py-2 transition-colors"
                      [ngClass]="r.ok ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/30' : 'border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40'">
                   <i class="pi text-[12px] shrink-0" [ngClass]="r.ok ? 'pi-check-circle text-emerald-500 dark:text-emerald-400' : 'pi-circle text-slate-300 dark:text-slate-600'"></i>
-                  <span class="text-[11px] font-medium" [ngClass]="r.ok ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'">{{ r.label }}</span>
+                  <span class="text-xs font-medium" [ngClass]="r.ok ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'">{{ r.label }}</span>
                 </div>
               }
             </div>
@@ -307,12 +292,12 @@ interface Inspecionado {
             @if (progresso(); as pg) {
               <div class="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm px-4 md:px-5 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">
-                  <div class="flex items-center gap-3 flex-wrap text-[11px]">
+                  <div class="flex items-center gap-3 flex-wrap text-xs">
                     <span class="font-medium text-slate-800 dark:text-slate-100">{{ pg.respondidas }} de {{ pg.total }} respondidas</span>
                     @if (pg.naoConformes) {
-                      <span class="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400"><i class="pi pi-exclamation-triangle text-[10px]"></i>{{ pg.naoConformes }} {{ pg.naoConformes === 1 ? 'não conformidade' : 'não conformidades' }}</span>
+                      <span class="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400"><i class="pi pi-exclamation-triangle text-xs"></i>{{ pg.naoConformes }} {{ pg.naoConformes === 1 ? 'não conformidade' : 'não conformidades' }}</span>
                     } @else {
-                      <span class="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400"><i class="pi pi-check-circle text-[10px]"></i>Nenhuma não conformidade</span>
+                      <span class="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400"><i class="pi pi-check-circle text-xs"></i>Nenhuma não conformidade</span>
                     }
                   </div>
                   <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden" role="progressbar" [attr.aria-valuenow]="pg.respondidas" [attr.aria-valuemax]="pg.total" aria-label="Perguntas respondidas">
@@ -321,28 +306,28 @@ interface Inspecionado {
                 </div>
                 <div class="flex items-center gap-2 shrink-0 flex-wrap">
                   <geo-boolean-control kind="toggle" [inline]="true" label="Só não conformes" [value]="soNaoConformes()" (valueChange)="soNaoConformes.set($event)"></geo-boolean-control>
-                  <p-button [text]="true" size="small" [icon]="todosRecolhidos() ? 'pi pi-angle-double-down' : 'pi pi-angle-double-up'" [label]="todosRecolhidos() ? 'Abrir grupos' : 'Recolher grupos'" (onClick)="alternarTodosGrupos()" styleClass="!text-[11px]"></p-button>
+                  <p-button [text]="true" size="small" [icon]="todosRecolhidos() ? 'pi pi-angle-double-down' : 'pi pi-angle-double-up'" [label]="todosRecolhidos() ? 'Abrir grupos' : 'Recolher grupos'" (onClick)="alternarTodosGrupos()"></p-button>
                 </div>
               </div>
             }
             @for (grupo of formulario()!.grupos; track grupo.id; let gi = $index) {
               @let rg = resumoGrupo(grupo);
               @if (!soNaoConformes() || rg.naoConformes > 0) {
-              <div class="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+              <div class="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <!-- Cabeçalho do grupo -->
                 <div class="bg-slate-100 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 px-4 md:px-5 py-2.5 md:py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <button type="button" class="flex items-center gap-2 text-left min-w-0" (click)="alternarGrupo(grupo.id)" [attr.aria-expanded]="!grupoRecolhido(grupo.id)">
-                    <i class="pi text-[10px] text-slate-500 shrink-0" [ngClass]="grupoRecolhido(grupo.id) ? 'pi-chevron-right' : 'pi-chevron-down'"></i>
+                    <i class="pi text-xs text-slate-500 shrink-0" [ngClass]="grupoRecolhido(grupo.id) ? 'pi-chevron-right' : 'pi-chevron-down'"></i>
                     <span class="text-[13px] font-medium text-slate-800 dark:text-slate-100">{{ formatarNumero(gi + 1) }}. {{ grupo.titulo }}</span>
-                    <span class="text-[10px] text-slate-500 dark:text-slate-400 shrink-0">{{ rg.respondidas }}/{{ rg.total }}</span>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 shrink-0">{{ rg.respondidas }}/{{ rg.total }}</span>
                     @if (rg.naoConformes) {
-                      <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 shrink-0">{{ rg.naoConformes }} NC</span>
+                      <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 shrink-0">{{ rg.naoConformes }} NC</span>
                     }
                   </button>
                   @if (rg.checklist) {
                     <div class="flex items-center gap-1 shrink-0">
-                      <p-button [text]="true" size="small" icon="pi pi-check" label="Tudo conforme" (onClick)="marcarGrupo(grupo, 'conforme')" pTooltip="Marca Conforme nos itens do grupo que não estão como não conformes" styleClass="!text-[10px] !py-1"></p-button>
-                      <p-button [text]="true" size="small" icon="pi pi-minus-circle" label="Não se aplica" (onClick)="marcarGrupo(grupo, 'não se aplica')" pTooltip="Marca Não se aplica em todos os itens do grupo (ex.: equipe sem kit SMC)" styleClass="!text-[10px] !py-1 !text-slate-500"></p-button>
+                      <p-button [text]="true" size="small" icon="pi pi-check" label="Tudo conforme" (onClick)="marcarGrupo(grupo, 'conforme')" pTooltip="Marca Conforme nos itens do grupo que não estão como não conformes"></p-button>
+                      <p-button [text]="true" size="small" icon="pi pi-minus-circle" label="Não se aplica" (onClick)="marcarGrupo(grupo, 'não se aplica')" pTooltip="Marca Não se aplica em todos os itens do grupo (ex.: equipe sem kit SMC)"></p-button>
                     </div>
                   }
                 </div>
@@ -363,7 +348,7 @@ interface Inspecionado {
                               </span>
                             </div>
                             @if (pergunta.orientacao) {
-                              <span class="ml-4 -mt-1 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-[10px]"></i>{{ pergunta.orientacao }}</span>
+                              <span class="ml-4 -mt-1 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
                             }
                             <!-- Opções: checklist lado a lado; demais em coluna -->
                             <div class="flex ml-4" [ngClass]="ehChecklist(pergunta) ? 'flex-row flex-wrap gap-1.5' : 'flex-col gap-0.5'" role="group" [attr.aria-label]="pergunta.enunciado">
@@ -375,7 +360,7 @@ interface Inspecionado {
                                   <div class="w-3.5 h-3.5 mt-0.5 rounded-sm border shrink-0 flex-none"
                                       [ngClass]="boxClass(pergunta.id, opcao.id, opcao.geraDesvio)">
                                   </div>
-                                  <span class="text-[11px] leading-snug">{{ opcao.texto }}</span>
+                                  <span class="text-xs leading-snug">{{ opcao.texto }}</span>
                                 </button>
                               }
                             </div>
@@ -388,22 +373,22 @@ interface Inspecionado {
                               <div class="flex flex-col gap-2 pb-2.5 border-b sm:flex-row sm:items-center sm:justify-between" [ngStyle]="{'border-bottom-color': corGravidade(opcao.gravidade) + '40'}">
                                 <div class="flex items-center gap-2 flex-wrap min-w-0">
                                   <i class="pi pi-exclamation-triangle text-sm shrink-0" [ngStyle]="{'color': corGravidade(opcao.gravidade)}"></i>
-                                  <span class="text-[11px] font-semibold uppercase tracking-widest" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}">Tratamento de Desvio</span>
-                                  <span class="text-[11px] font-medium px-2 py-0.5 rounded-md max-w-full truncate" [ngStyle]="{'background-color': corGravidade(opcao.gravidade) + '30', 'color': corGravidadeTexto(opcao.gravidade)}">Motivo: {{ opcao.texto }}</span>
+                                  <span class="text-xs font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}">Tratamento de desvio</span>
+                                  <span class="text-xs font-medium px-2 py-0.5 rounded-md max-w-full truncate" [ngStyle]="{'background-color': corGravidade(opcao.gravidade) + '30', 'color': corGravidadeTexto(opcao.gravidade)}">Motivo: {{ opcao.texto }}</span>
                                   @if (dv.tratadoInLoco) {
-                                    <span class="text-[10px] font-bold uppercase tracking-tight px-2.5 py-1 rounded-md bg-emerald-600 text-white shadow-sm shrink-0 flex items-center gap-1">
-                                      <i class="pi pi-check text-[10px]"></i> Tratado in-loco
+                                    <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-600 text-white shadow-sm shrink-0 flex items-center gap-1">
+                                      <i class="pi pi-check text-xs"></i> Tratado in-loco
                                     </span>
                                   }
                                 </div>
                                 <div class="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
                                   @if (opcao.gravidade) {
-                                    <span class="text-[10px] font-bold uppercase tracking-tight px-3.5 py-1.5 rounded-md shadow-sm shrink-0" [ngStyle]="{'background-color': corGravidade(opcao.gravidade), 'color': '#ffffff'}">Gravidade: {{ gravidadeLabel(opcao.gravidade) }}</span>
+                                    <span class="text-xs font-semibold px-3.5 py-1.5 rounded-md shadow-sm shrink-0" [ngStyle]="{'background-color': corGravidade(opcao.gravidade), 'color': '#ffffff'}">Gravidade: {{ gravidadeLabel(opcao.gravidade) }}</span>
                                   }
                                   <input #fileInput type="file" [accept]="acceptAttr" multiple class="hidden" (change)="onAnexarArquivo($event, dv)" />
                                   <button type="button" (click)="fileInput.click()" pTooltip="Anexar evidência do desvio (Arquivos ou Galeria)" tooltipPosition="left" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-600 shadow-sm transition-all hover:border-slate-400 dark:hover:border-slate-500 active:scale-95">
                                     <i class="pi pi-paperclip text-blue-600 dark:text-blue-400 text-sm"></i>
-                                    <span>Anexar Evidência</span>
+                                    <span>Anexar evidência</span>
                                   </button>
                                 </div>
                               </div>
@@ -417,7 +402,7 @@ interface Inspecionado {
                                     <span class="text-xs font-semibold" [ngClass]="dv.tratadoInLoco ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-700 dark:text-slate-200'">
                                       Tratamento in-loco (tratado na hora)
                                     </span>
-                                    <span class="text-[11px]" [ngClass]="dv.tratadoInLoco ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'">
+                                    <span class="text-xs" [ngClass]="dv.tratadoInLoco ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'">
                                       {{ dv.tratadoInLoco ? 'O desvio foi sanado imediatamente durante a inspeção. Será registrado como Resolvido.' : 'Marque se o desvio já foi sanado no próprio local de execução.' }}
                                     </span>
                                   </div>
@@ -452,13 +437,13 @@ interface Inspecionado {
                                     <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}">
                                       <i class="pi pi-calendar"></i>
                                       <span>{{ dv.tratadoInLoco ? 'Data da resolução' : 'Prazo' }}</span>
-                                      @if (dv.tratadoInLoco) { <span class="text-[10px] font-normal opacity-75">(in-loco)</span> }
+                                      @if (dv.tratadoInLoco) { <span class="text-xs font-normal opacity-75">(in-loco)</span> }
                                     </label>
-                                    <p-datepicker [(ngModel)]="dv.prazo" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small" class="doc-date w-full"></p-datepicker>
+                                    <p-datepicker [(ngModel)]="dv.prazo" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" class="doc-date w-full"></p-datepicker>
                                   </div>
                                   <div class="flex flex-col gap-1.5">
                                     <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}"><i class="pi pi-users"></i> Responsáveis <span class="normal-case font-normal opacity-75">{{ pergunta.desvioPorColaborador === false ? '(opcional: item da equipe ou do veículo)' : '(inspecionados)' }}</span>@if (pergunta.desvioPorColaborador !== false) { <span class="text-red-500 ml-0.5">*</span> }</label>
-                                    <p-multiselect [options]="inspecionados()" size="small" [(ngModel)]="dv.colaboradores" optionLabel="nome" optionValue="id" [placeholder]="pergunta.desvioPorColaborador === false ? 'Equipe, sem pessoa específica' : 'Atribuir a...'" appendTo="body" class="doc-multiselect w-full"></p-multiselect>
+                                    <p-multiselect [options]="inspecionados()" [(ngModel)]="dv.colaboradores" optionLabel="nome" optionValue="id" [placeholder]="pergunta.desvioPorColaborador === false ? 'Equipe, sem pessoa específica' : 'Atribuir a...'" appendTo="body" class="doc-multiselect w-full"></p-multiselect>
                                   </div>
                                 </div>
                               </div>
@@ -479,7 +464,7 @@ interface Inspecionado {
                                             </div>
                                           }
                                           <button type="button" (click)="$event.stopPropagation(); removerAnexoPreview(dv, $index)" pTooltip="Remover evidência" tooltipPosition="top" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow">
-                                            <i class="pi pi-trash text-[10px]"></i>
+                                            <i class="pi pi-trash text-xs"></i>
                                           </button>
                                         </div>
                                       } @else {
@@ -487,10 +472,10 @@ interface Inspecionado {
                                           <i [class]="getIconArquivo(anexo.nome)" class="text-base shrink-0"></i>
                                           <div class="flex flex-col min-w-0 pr-5">
                                             <span class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate" [title]="anexo.nome">{{ anexo.nome }}</span>
-                                            <span class="text-[10px] text-slate-400 dark:text-slate-500">{{ anexo.tamanho }}</span>
+                                            <span class="text-xs text-slate-400 dark:text-slate-500">{{ anexo.tamanho }}</span>
                                           </div>
                                           <button type="button" (click)="removerAnexoPreview(dv, $index)" pTooltip="Remover evidência" tooltipPosition="top" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow">
-                                            <i class="pi pi-trash text-[10px]"></i>
+                                            <i class="pi pi-trash text-xs"></i>
                                           </button>
                                         </div>
                                       }
@@ -511,7 +496,7 @@ interface Inspecionado {
                           </span>
                         </div>
                         @if (pergunta.orientacao) {
-                          <span class="ml-4 -mt-1.5 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-[10px]"></i>{{ pergunta.orientacao }}</span>
+                          <span class="ml-4 -mt-1.5 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
                         }
                         <div class="ml-4 md:ml-6 mt-1">
                           @if (pergunta.tipoResposta === 'TEXTO') {
@@ -521,7 +506,7 @@ interface Inspecionado {
                             <p-inputnumber [(ngModel)]="respostas[pergunta.id].valorNumero" [showButtons]="false" placeholder="0" class="doc-number w-full md:w-48"></p-inputnumber>
                           }
                           @if (pergunta.tipoResposta === 'DATA') {
-                            <p-datepicker [(ngModel)]="respostas[pergunta.id].valorData" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small" class="doc-date w-full md:w-48"></p-datepicker>
+                            <p-datepicker [(ngModel)]="respostas[pergunta.id].valorData" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" class="doc-date w-full md:w-48"></p-datepicker>
                           }
                         </div>
                       </div>
@@ -544,18 +529,18 @@ interface Inspecionado {
         <!-- O motivo fica visível e o botão continua clicável: desabilitado em silêncio,
              o inspetor clicava, nada acontecia e ele recarregava achando que tinha lançado. -->
         @if (motivoBloqueioLancamento(); as motivo) {
-          <p class="pointer-events-auto mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-medium text-amber-800 shadow-sm dark:border-amber-800/60 dark:bg-amber-950/60 dark:text-amber-200 md:max-w-xs" role="status">
-            <i class="pi pi-exclamation-triangle mt-0.5 text-[11px]" aria-hidden="true"></i>
+          <p class="pointer-events-auto mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 shadow-sm dark:border-amber-800/60 dark:bg-amber-950/60 dark:text-amber-200 md:max-w-xs" role="status">
+            <i class="pi pi-exclamation-triangle mt-0.5 text-xs" aria-hidden="true"></i>
             <span>{{ motivo }}</span>
           </p>
         }
         <span class="pointer-events-auto block md:inline-block">
-          <p-button [label]="isModoEdicao() ? 'Salvar Alterações' : 'Registrar Inspeção'" icon="pi pi-check-circle" [loading]="saving()" [disabled]="saving() || !!evidenciasUpload?.enviando()" (onClick)="lancar()" styleClass="!w-full md:!w-auto !justify-center !rounded-xl !bg-primary-700 hover:!bg-primary-800 dark:!bg-primary-600 dark:hover:!bg-primary-500 !border-primary-700 dark:!border-primary-600 !text-white !font-medium !text-[11px] !tracking-widest !uppercase !px-6 !py-3 transition-all"></p-button>
+          <p-button [label]="isModoEdicao() ? 'Salvar alterações' : 'Registrar inspeção'" icon="pi pi-check-circle" [loading]="saving()" [disabled]="saving() || !!evidenciasUpload?.enviando()" (onClick)="lancar()"></p-button>
         </span>
       </div>
     }
 
-    <p-dialog [(visible)]="fotoExpandidaVisible" [modal]="true" appendTo="body" [dismissableMask]="true" [showHeader]="true" header="Visualizar Evidência" [style]="{width: '90vw', maxWidth: '750px'}" styleClass="overflow-hidden rounded-2xl">
+    <p-dialog [(visible)]="fotoExpandidaVisible" [modal]="true" appendTo="body" [dismissableMask]="true" [showHeader]="true" header="Visualizar evidência" [style]="{width: '90vw', maxWidth: '750px'}" styleClass="overflow-hidden rounded-2xl">
       @if (fotoExpandida) {
         <div class="flex items-center justify-center p-3 bg-slate-950 rounded-xl">
           <img [src]="fotoExpandida" class="max-h-[75vh] w-auto object-contain rounded-lg shadow-2xl" alt="Foto expandida do desvio" />
@@ -646,7 +631,7 @@ interface Inspecionado {
         </div>
 
         <div class="help-item">
-          <div class="help-icon !bg-amber-50 !text-amber-600 dark:!bg-amber-950/50 dark:!text-amber-400"><i class="pi pi-camera"></i></div>
+          <div class="help-icon"><i class="pi pi-camera"></i></div>
           <div class="help-text">
             <span class="help-text-title">Evidência Fotográfica (Obrigatória)</span>
             <span class="help-text-desc">Toda inspeção exige <strong>ao menos uma fotografia</strong> comprovando que ela aconteceu de fato em campo. Arraste as fotos para a área indicada ou clique para selecionar — são aceitos apenas arquivos de imagem (JPEG, PNG, WebP ou HEIC) de até 15 MB. Enquanto não houver nenhuma foto, o botão de registrar permanece bloqueado.</span>
@@ -654,10 +639,10 @@ interface Inspecionado {
         </div>
 
         <div class="help-item">
-          <div class="help-icon !bg-primary-50 !text-primary-700 dark:!bg-primary-950/50 dark:!text-primary-400"><i class="pi pi-check-circle"></i></div>
+          <div class="help-icon"><i class="pi pi-check-circle"></i></div>
           <div class="help-text">
             <span class="help-text-title">Registrar Inspeção</span>
-            <span class="help-text-desc">Após responder a todas as perguntas obrigatórias, clique no botão azul no canto inferior direito <strong>"REGISTRAR INSPEÇÃO"</strong> para salvar e transmitir o relatório.</span>
+            <span class="help-text-desc">Após responder a todas as perguntas obrigatórias, clique no botão azul no canto inferior direito <strong>"Registrar inspeção"</strong> para salvar e transmitir o relatório.</span>
           </div>
         </div>
       </div>
@@ -666,83 +651,8 @@ interface Inspecionado {
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .checklist-opcao { margin-left: 0; margin-right: 0; padding-left: .75rem; padding-right: .75rem; border: 1px solid var(--p-content-border-color); align-items: center; }
-    :host ::ng-deep {
-      .doc-input.p-inputtext, .doc-textarea.p-inputtext,
-      .doc-select .p-select-label, .doc-select .p-select-placeholder,
-      .doc-multiselect .p-multiselect-label,
-      .doc-number .p-inputnumber-input, .doc-date .p-inputtext {
-        font-size: var(--geo-font-caption) !important;
-        font-weight: 500 !important;
-        color: var(--p-zinc-700);
-        border-radius: 6px !important;
-      }
-      .doc-input.p-inputtext, .doc-select .p-select-label, .doc-multiselect .p-multiselect-label,
-      .doc-number .p-inputnumber-input, .doc-date .p-inputtext { height: 34px !important; display: flex; align-items: center; }
-      .doc-textarea.p-inputtext { height: auto !important; padding: 0.5rem 0.75rem; }
-      .doc-input.p-inputtext, .doc-textarea.p-inputtext { width: 100%; border-color: var(--p-zinc-200) !important; }
-      .doc-select .p-select, .doc-multiselect .p-multiselect, .doc-date .p-datepicker, .doc-number.p-inputnumber { width: 100%; }
-      .doc-select .p-select, .doc-multiselect .p-multiselect { height: 34px; border-color: var(--p-zinc-200) !important; border-radius: 6px !important; }
-      .doc-date .p-inputtext { border-color: var(--p-zinc-200) !important; }
-      .p-breadcrumb .p-menuitem-text { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-400); text-transform: none; letter-spacing: 0; }
-    }
-    .dl { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-500); text-transform: capitalize; letter-spacing: 0; }
-
-    :host-context(.app-dark),
-    :host-context(.dark) {
-      .dl {
-        color: var(--p-zinc-400);
-      }
-      ::ng-deep {
-        .doc-input.p-inputtext,
-        .doc-textarea.p-inputtext,
-        .doc-select .p-select-label,
-        .doc-multiselect .p-multiselect-label,
-        .doc-number .p-inputnumber-input,
-        .doc-date .p-inputtext {
-          color: var(--p-zinc-100) !important;
-          background-color: var(--p-zinc-900) !important;
-        }
-        .doc-input.p-inputtext:not([style*="border-color"]),
-        .doc-textarea.p-inputtext:not([style*="border-color"]) {
-          border-color: var(--p-zinc-700) !important;
-        }
-        .doc-select .p-select-placeholder,
-        .doc-multiselect .p-multiselect-label:empty,
-        .doc-input::placeholder,
-        .doc-textarea::placeholder,
-        .doc-date .p-inputtext::placeholder {
-          color: var(--p-zinc-500) !important;
-        }
-        .doc-select .p-select,
-        .doc-multiselect .p-multiselect,
-        .doc-date .p-datepicker {
-          background-color: var(--p-zinc-900) !important;
-          border-color: var(--p-zinc-700) !important;
-        }
-        .doc-date .p-inputtext {
-          border-color: var(--p-zinc-700) !important;
-        }
-        .doc-select .p-select:not(.p-disabled):hover,
-        .doc-multiselect .p-multiselect:not(.p-disabled):hover,
-        .doc-input.p-inputtext:not(:disabled):hover,
-        .doc-textarea.p-inputtext:not(:disabled):hover {
-          border-color: var(--p-zinc-600) !important;
-        }
-        .doc-select .p-select:not(.p-disabled).p-focus,
-        .doc-multiselect .p-multiselect:not(.p-disabled).p-focus,
-        .doc-input.p-inputtext:not(:disabled):focus,
-        .doc-textarea.p-inputtext:not(:disabled):focus {
-          border-color: var(--p-blue-500) !important;
-        }
-        .p-breadcrumb .p-menuitem-text {
-          color: var(--p-zinc-400) !important;
-        }
-        .p-breadcrumb .p-menuitem-icon,
-        .p-breadcrumb .p-breadcrumb-separator {
-          color: var(--p-zinc-500) !important;
-        }
-      }
-    }
+    .insp-card { overflow: hidden; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
+    .dl { font-size: var(--geo-font-label); font-weight: 500; color: var(--geo-foreground-muted); letter-spacing: 0; }
 
     /* Entrada sutil ao abrir a tela — dinamismo discreto, mantendo a estética. */
     @keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -799,12 +709,12 @@ export class InspecaoFormComponent implements OnInit {
   protected fotoExpandidaVisible = false;
   protected readonly acceptAttr = ANEXO_ACCEPT;
 
-  protected breadcrumbItems: MenuItem[] = [
-    { icon: 'pi pi-home', routerLink: '/home' },
-    { label: 'SST' },
-    { label: 'Inspeções', routerLink: '/sst/inspecoes' },
-    { label: 'Nova' }
-  ];
+  protected readonly trilha = computed<GeoBreadcrumbItem[]>(() => {
+    const id = this.idInspecaoEdicao();
+    return id
+      ? [{ label: 'Segurança' }, { label: 'Inspeções', route: '/sst/inspecoes' }, { label: 'Detalhes', route: `/sst/inspecoes/${id}` }, { label: 'Editar' }]
+      : [{ label: 'Segurança' }, { label: 'Inspeções', route: '/sst/inspecoes' }, { label: 'Nova' }];
+  });
 
   protected saving = signal(false);
   protected carregandoForm = signal(false);
@@ -918,13 +828,6 @@ export class InspecaoFormComponent implements OnInit {
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.idInspecaoEdicao.set(idParam);
-      this.breadcrumbItems = [
-        { icon: 'pi pi-home', routerLink: '/home' },
-        { label: 'SST' },
-        { label: 'Inspeções', routerLink: '/sst/inspecoes' },
-        { label: 'Detalhes', routerLink: `/sst/inspecoes/${idParam}` },
-        { label: 'Editar' }
-      ];
       this.carregarInspecaoParaEdicao(idParam);
     } else {
       this.capturarGeolocalizacao();

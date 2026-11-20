@@ -1,32 +1,19 @@
 <p-toast />
 
 <div class="flex flex-col gap-4 pb-28">
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <p-breadcrumb [model]="breadcrumb()" styleClass="!bg-transparent !border-0 !p-0" />
-    <p-button
-      icon="pi pi-arrow-left"
-      label="Voltar"
-      [text]="true"
-      severity="secondary"
-      (onClick)="voltar()"
-      styleClass="!text-slate-400 dark:!text-slate-400 hover:dark:!text-slate-200 !text-[10px] !font-medium"
-    />
-  </div>
+  <geo-page-header
+    [title]="editando() ? 'Corrigir evento ' + (evento()?.numeroRegistro ?? '') : 'Registrar evento de segurança'"
+    icon="pi pi-shield"
+    [breadcrumb]="trilha()"
+    description="Preencha os dados por etapas e revise as informações antes de registrar."
+  >
+    <geo-button actions label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="voltar()"></geo-button>
+  </geo-page-header>
 
   @if (carregando()) {
-    <p-skeleton height="34rem" class="!rounded-2xl" />
+    <p-skeleton height="34rem" />
   } @else {
     <section class="wizard-shell">
-      <header class="wizard-header">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="pi pi-shield text-primary-700 dark:text-primary-400 text-xs"></i>
-          <span class="eyebrow">{{
-            editando() ? 'Correção do registro' : 'Novo evento de segurança'
-          }}</span>
-        </div>
-        <h1>{{ editando() ? evento()?.numeroRegistro : 'Registro de evento de segurança' }}</h1>
-        <p>Preencha os dados por etapas e revise as informações antes de registrar.</p>
-      </header>
 
       <div class="wizard-body">
         <p-stepper [(value)]="activeStep">
@@ -109,7 +96,6 @@
                         optionValue="value"
                         placeholder="Selecione o tipo que melhor descreve o fato"
                         class="field-control"
-                        size="small"
                         appendTo="body"
                         (onChange)="onTipoAlterado()"
                       />
@@ -134,7 +120,6 @@
                         [maxDate]="agora"
                         placeholder="dd/mm/aaaa hh:mm"
                         appendTo="body"
-                        size="small"
                         class="field-control"
                       />
                       @if (etapaTentada(1) && !dataOcorrencia()) {
@@ -154,7 +139,6 @@
                         [maxDate]="agora"
                         placeholder="dd/mm/aaaa hh:mm"
                         appendTo="body"
-                        size="small"
                         class="field-control"
                       />
                       @if (atrasoHoras() !== null) {
@@ -184,7 +168,6 @@
                         optionValue="id"
                         placeholder="Selecione a classificação"
                         class="field-control"
-                        size="small"
                         [filter]="true"
                         appendTo="body"
                       />
@@ -216,11 +199,10 @@
 
                   <div class="flex justify-end mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <p-button
-                      label="CONTINUAR"
+                      label="Continuar"
                       icon="pi pi-arrow-right"
                       iconPos="right"
                       (onClick)="avancar()"
-                      styleClass="!rounded-lg !bg-primary-700 dark:!bg-primary-600 !border-primary-700 dark:!border-primary-600 !py-2.5 !px-8 !font-bold !text-[10px] !text-white"
                     />
                   </div>
                 </div>
@@ -258,7 +240,6 @@
                         optionValue="id"
                         placeholder="Selecione a atividade"
                         class="field-control"
-                        size="small"
                         [filter]="true"
                         appendTo="body"
                         (onChange)="onAtividadeAlterada()"
@@ -298,7 +279,6 @@
                         optionValue="id"
                         placeholder="Selecione a base"
                         class="field-control"
-                        size="small"
                         [filter]="true"
                         appendTo="body"
                       />
@@ -316,7 +296,6 @@
                         optionValue="id"
                         placeholder="Opcional"
                         class="field-control"
-                        size="small"
                         [filter]="true"
                         [showClear]="true"
                         appendTo="body"
@@ -332,7 +311,6 @@
                         optionValue="id"
                         placeholder="Opcional"
                         class="field-control"
-                        size="small"
                         [filter]="true"
                         [showClear]="true"
                         [loading]="equipesLoading()"
@@ -355,7 +333,6 @@
                         optionValue="id"
                         placeholder="Opcional"
                         class="field-control"
-                        size="small"
                         [filter]="true"
                         filterBy="placa,modelo"
                         [showClear]="true"
@@ -396,7 +373,6 @@
                           optionLabel="label"
                           optionValue="value"
                           class="field-control"
-                          size="small"
                           appendTo="body"
                         />
                       </div>
@@ -409,7 +385,6 @@
                           optionLabel="label"
                           optionValue="value"
                           class="field-control"
-                          size="small"
                           appendTo="body"
                         />
                       </div>
@@ -418,18 +393,16 @@
 
                   <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <p-button
-                      label="VOLTAR"
+                      label="Voltar"
                       icon="pi pi-arrow-left"
                       [text]="true"
                       (onClick)="voltarEtapa()"
-                      styleClass="!text-primary-700 dark:!text-primary-400 !font-bold !text-[10px]"
                     />
                     <p-button
-                      label="CONTINUAR"
+                      label="Continuar"
                       icon="pi pi-arrow-right"
                       iconPos="right"
                       (onClick)="avancar()"
-                      styleClass="!rounded-lg !bg-primary-700 dark:!bg-primary-600 !border-primary-700 dark:!border-primary-600 !py-2.5 !px-8 !font-bold !text-[10px] !text-white"
                     />
                   </div>
                 </div>
@@ -458,7 +431,6 @@
                       optionValue="value"
                       placeholder="Selecione ao menos um técnico"
                       [filter]="true"
-                      size="small"
                       [loading]="colaboradoresLoading()"
                       [virtualScroll]="true"
                       [virtualScrollItemSize]="38"
@@ -480,8 +452,8 @@
                           <i class="pi pi-users text-xs"></i>
                         </div>
                         <div class="flex items-center gap-2">
-                          <span class="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Pessoas envolvidas</span>
-                          <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border border-transparent dark:border-primary-800/40 text-[10px] font-bold">
+                          <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">Pessoas envolvidas</span>
+                          <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border border-transparent dark:border-primary-800/40 text-xs font-bold">
                             {{ envolvidos().length }}
                           </span>
                         </div>
@@ -493,7 +465,6 @@
                           size="small"
                           [outlined]="true"
                           (onClick)="adicionarEnvolvido('COLABORADOR')"
-                          styleClass="!text-[11px] !font-semibold !py-1 !px-2.5"
                         />
                         <p-button
                           label="Terceiro"
@@ -502,7 +473,6 @@
                           [outlined]="true"
                           severity="secondary"
                           (onClick)="adicionarEnvolvido('TERCEIRO')"
-                          styleClass="!text-[11px] !font-semibold !py-1 !px-2.5"
                         />
                       </div>
                     </div>
@@ -519,9 +489,9 @@
                         <div class="bg-slate-50/60 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-3.5 sm:p-4 flex flex-col gap-3 transition-colors">
                           <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-2 flex-wrap">
-                              <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">#{{ $index + 1 }}</span>
+                              <span class="text-xs font-bold text-slate-500 dark:text-slate-400">#{{ $index + 1 }}</span>
                               <span
-                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold tracking-wide uppercase"
+                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
                                 [ngClass]="envolvido.tipo === 'COLABORADOR'
                                   ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40'
                                   : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40'"
@@ -530,8 +500,8 @@
                                 {{ tipoEnvolvidoLabel(envolvido.tipo) }}
                               </span>
                               @if (envolvido.papel === 'ACIDENTADO') {
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40">
-                                  <i class="pi pi-heart text-[9px]"></i>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40">
+                                  <i class="pi pi-heart text-xs"></i>
                                   Acidentado
                                 </span>
                               }
@@ -544,27 +514,25 @@
                               size="small"
                               pTooltip="Remover pessoa"
                               (onClick)="removerEnvolvido($index)"
-                              styleClass="!w-7 !h-7 !p-0 text-red-500 hover:text-red-600 dark:text-red-400"
                             />
                           </div>
 
                           @if (envolvido.tipo === 'COLABORADOR') {
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Papel no evento *</label>
+                                <label class="sub-label">Papel no evento *</label>
                                 <p-select
                                   [options]="papelOptions"
                                   [(ngModel)]="envolvido.papel"
                                   optionLabel="label"
                                   optionValue="value"
                                   class="field-control w-full"
-                                  size="small"
                                   appendTo="body"
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                               </div>
                               <div class="sm:col-span-8 flex flex-col gap-1">
-                                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Colaborador *</label>
+                                <label class="sub-label">Colaborador *</label>
                                 <geo-autocomplete
                                   [(ngModel)]="envolvido.idColaborador"
                                   [labelVisible]="false"
@@ -586,27 +554,26 @@
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.idColaborador) {
-                                  <small class="text-red-500 dark:text-red-400 text-[10px]">Selecione o colaborador.</small>
+                                  <small class="text-red-500 dark:text-red-400 text-xs">Selecione o colaborador.</small>
                                 }
                               </div>
                             </div>
                           } @else {
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Papel no evento *</label>
+                                <label class="sub-label">Papel no evento *</label>
                                 <p-select
                                   [options]="papelOptions"
                                   [(ngModel)]="envolvido.papel"
                                   optionLabel="label"
                                   optionValue="value"
                                   class="field-control w-full"
-                                  size="small"
                                   appendTo="body"
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                               </div>
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Nome completo *</label>
+                                <label class="sub-label">Nome completo *</label>
                                 <input
                                   pInputText
                                   [(ngModel)]="envolvido.nome"
@@ -616,11 +583,11 @@
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.nome.trim()) {
-                                  <small class="text-red-500 dark:text-red-400 text-[10px]">Informe o nome.</small>
+                                  <small class="text-red-500 dark:text-red-400 text-xs">Informe o nome.</small>
                                 }
                               </div>
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="text-[10px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">Empresa / Terceirizada *</label>
+                                <label class="sub-label">Empresa / Terceirizada *</label>
                                 <input
                                   pInputText
                                   [(ngModel)]="envolvido.empresa"
@@ -630,7 +597,7 @@
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.empresa.trim()) {
-                                  <small class="text-red-500 dark:text-red-400 text-[10px]">Informe a empresa.</small>
+                                  <small class="text-red-500 dark:text-red-400 text-xs">Informe a empresa.</small>
                                 }
                               </div>
                             </div>
@@ -643,7 +610,7 @@
                           </div>
                           <div class="flex flex-col gap-0.5">
                             <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Nenhuma pessoa adicionada</span>
-                            <span class="text-[11px] text-slate-500 dark:text-slate-400 max-w-sm">Incidentes sem lesão podem ser registrados sem envolvidos. Caso haja pessoas, adicione abaixo.</span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400 max-w-sm">Incidentes sem lesão podem ser registrados sem envolvidos. Caso haja pessoas, adicione abaixo.</span>
                           </div>
                           <div class="flex items-center gap-2 mt-1">
                             <p-button
@@ -652,7 +619,6 @@
                               size="small"
                               [outlined]="true"
                               (onClick)="adicionarEnvolvido('COLABORADOR')"
-                              styleClass="!text-xs !font-semibold"
                             />
                             <p-button
                               label="Adicionar Terceiro"
@@ -661,7 +627,6 @@
                               [outlined]="true"
                               severity="secondary"
                               (onClick)="adicionarEnvolvido('TERCEIRO')"
-                              styleClass="!text-xs !font-semibold"
                             />
                           </div>
                         </div>
@@ -685,7 +650,6 @@
                             optionValue="id"
                             placeholder="Selecione"
                             class="field-control"
-                            size="small"
                             [filter]="true"
                             appendTo="body"
                           />
@@ -703,7 +667,6 @@
                             optionValue="id"
                             placeholder="Opcional"
                             class="field-control"
-                            size="small"
                             [filter]="true"
                             [showClear]="true"
                             appendTo="body"
@@ -738,7 +701,6 @@
                         optionValue="id"
                         placeholder="Opcional"
                         class="field-control"
-                        size="small"
                         [filter]="true"
                         [showClear]="true"
                         appendTo="body"
@@ -772,7 +734,6 @@
                             optionValue="value"
                             placeholder="Selecione"
                             class="field-control"
-                            size="small"
                             appendTo="body"
                           />
                           @if (etapaTentada(3) && !tipoCat()) {
@@ -801,7 +762,6 @@
                             iconDisplay="input"
                             placeholder="dd/mm/aaaa"
                             appendTo="body"
-                            size="small"
                             class="field-control"
                           />
                         </div>
@@ -815,18 +775,16 @@
 
                   <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <p-button
-                      label="VOLTAR"
+                      label="Voltar"
                       icon="pi pi-arrow-left"
                       [text]="true"
                       (onClick)="voltarEtapa()"
-                      styleClass="!text-primary-700 dark:!text-primary-400 !font-bold !text-[10px]"
                     />
                     <p-button
-                      label="CONTINUAR"
+                      label="Continuar"
                       icon="pi pi-arrow-right"
                       iconPos="right"
                       (onClick)="avancar()"
-                      styleClass="!rounded-lg !bg-primary-700 dark:!bg-primary-600 !border-primary-700 dark:!border-primary-600 !py-2.5 !px-8 !font-bold !text-[10px] !text-white"
                     />
                   </div>
                 </div>
@@ -957,19 +915,17 @@
 
                   <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <p-button
-                      label="VOLTAR"
+                      label="Voltar"
                       icon="pi pi-arrow-left"
                       [text]="true"
                       (onClick)="voltarEtapa()"
-                      styleClass="!text-primary-700 dark:!text-primary-400 !font-bold !text-[10px]"
                     />
                     <p-button
-                      [label]="editando() ? 'SALVAR CORREÇÃO' : 'REGISTRAR EVENTO'"
+                      [label]="editando() ? 'Salvar correção' : 'Registrar evento'"
                       [icon]="salvando() ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
                       [loading]="salvando()"
                       [disabled]="salvando()"
                       (onClick)="salvar()"
-                      styleClass="!rounded-lg !bg-primary-700 dark:!bg-primary-600 !border-primary-700 dark:!border-primary-600 !py-2.5 !px-8 !font-bold !text-[10px] !text-white"
                     />
                   </div>
                 </div>

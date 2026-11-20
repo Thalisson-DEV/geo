@@ -2,7 +2,7 @@
 <div class="flex flex-col gap-4 pb-32">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <p-breadcrumb [model]="[{label:'Segurança'},{label:reuniao()?.tipoCorpo === 'CIPA' ? 'CIPA' : 'Brigada de Incêndio'},{label:'Reuniões e atas'}]" styleClass="!bg-transparent !border-0 !p-0" />
-    <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" styleClass="!text-slate-400 !text-[10px] !font-medium" />
+    <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" styleClass="!text-slate-400 !text-xs !font-medium" />
   </div>
 
   @if (carregando()) {
@@ -87,8 +87,8 @@
                       <div class="flex flex-row items-center gap-2 border border-slate-200 dark:border-slate-800 rounded-lg p-2 w-full min-w-0 max-w-full bg-white dark:bg-slate-900 overflow-hidden">
                         <i class="pi pi-image text-primary-700 dark:text-primary-400 shrink-0"></i>
                         <div class="flex-1 min-w-0 w-0 overflow-hidden flex flex-col">
-                          <b class="truncate block text-[10px] text-slate-700 dark:text-white">{{foto.nomeArquivo}}</b>
-                          <small class="truncate block text-[9px] text-slate-500 dark:text-slate-400">{{foto.legenda||'Sem legenda'}}</small>
+                          <b class="truncate block text-xs text-slate-700 dark:text-white">{{foto.nomeArquivo}}</b>
+                          <small class="truncate block text-xs text-slate-500 dark:text-slate-400">{{foto.legenda||'Sem legenda'}}</small>
                         </div>
                         <div class="flex items-center gap-1 shrink-0">
                           <p-button icon="pi pi-download" [text]="true" [rounded]="true" pTooltip="Baixar" (onClick)="baixarFoto(foto)" class="shrink-0" styleClass="!w-8 !h-8 !p-0 shrink-0"/>
@@ -108,7 +108,7 @@
                         <p-fileupload mode="basic" chooseLabel="ANEXAR NOVA FOTO" chooseIcon="pi pi-upload" name="file" accept="image/*" [maxFileSize]="5000000" [auto]="true" [customUpload]="true" (uploadHandler)="enviarFoto($event)" [disabled]="processando()==='foto' || !legendaFoto.trim()" styleClass="w-full"/>
                       </div>
                       <div class="flex-1 min-w-0 ml-3">
-                        <input pInputText [(ngModel)]="legendaFoto" placeholder="Digite uma legenda para habilitar o anexo" class="w-full !text-[10px]" maxlength="150" />
+                        <input pInputText [(ngModel)]="legendaFoto" placeholder="Digite uma legenda para habilitar o anexo" class="w-full !text-xs" maxlength="150" />
                       </div>
                     </div>
                   }

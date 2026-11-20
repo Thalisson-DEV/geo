@@ -150,6 +150,7 @@ const TOM_STATUS: Record<StatusEventoSst, GeoTone> = {
       </geo-filter-panel>
 
       <geo-data-table
+        [textFit]="ajusteTexto"
         title="Eventos"
         mode="server"
         storageKey="sst-eventos"
@@ -299,8 +300,10 @@ export class EventosComponent {
     { errorMessage: getErrorMessage }
   );
 
+  /** Texto em até 2 linhas com largura mínima por coluna: rola na horizontal em vez de espremer. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 2 } as const;
   protected readonly colunas: GeoDataTableColumn<EventoSstResumoResponse>[] = [
-    { key: 'registro', header: 'Registro', type: 'custom', priority: 1, sortField: 'numeroRegistro', value: (e) => e.numeroRegistro },
+    { key: 'registro', header: 'Registro', type: 'custom', priority: 1, width: '8.5rem', sortField: 'numeroRegistro', value: (e) => e.numeroRegistro },
     { key: 'tipo', header: 'Tipo', type: 'custom', priority: 1, sortField: 'tipo', value: (e) => TIPO_EVENTO_LABELS[e.tipo] ?? e.tipo },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (e) => STATUS_EVENTO_LABELS[e.status] ?? e.status },
     {

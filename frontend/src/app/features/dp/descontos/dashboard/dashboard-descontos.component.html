@@ -1,13 +1,11 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <geo-page-header title="Recuperação de valor e gargalos do ciclo" icon="pi pi-money-bill"
+    <geo-page-header title="Painel de descontos" icon="pi pi-money-bill"
       [breadcrumb]="[{ label: 'Departamento pessoal' }, { label: 'Descontos' }, { label: 'Painel' }]"
-      description="Quanto do que foi solicitado virou desconto real, onde o processo trava e em que motivos, materiais e equipes as perdas se concentram.">
+      description="Recuperação de valor e gargalos do ciclo: quanto do solicitado virou desconto real, onde o processo trava e onde as perdas se concentram.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
       @if (atualizadoEm()) { <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span> }
-      <geo-button actions [label]="showManagementView() ? 'Ocultar leitura' : 'Leitura gerencial'" [icon]="showManagementView() ? 'pi pi-eye-slash' : 'pi pi-eye'"
-        variant="secondary" (pressed)="showManagementView.set(!showManagementView())"></geo-button>
       <geo-button actions label="Ver lançamentos" icon="pi pi-list" variant="secondary" (pressed)="verListagem()"></geo-button>
       <geo-button actions label="Atualizar" icon="pi pi-refresh" [loading]="loading()" (pressed)="aplicar()"></geo-button>
     </geo-page-header>
@@ -30,17 +28,11 @@
     </geo-filter-panel>
 
     @if (loading()) {
-      <div class="dash-metrics">@for (item of [1,2,3,4]; track item) { <p-skeleton height="156px" borderRadius="16px" /> }</div>
-      <p-skeleton height="430px" borderRadius="16px" />
+      <div class="dash-metrics">@for (item of [1,2,3,4]; track item) { <p-skeleton height="120px" borderRadius="8px" /> }</div>
+      <p-skeleton height="430px" borderRadius="8px" />
     } @else if (data(); as d) {
 
-      @if (showManagementView()) {
-        <app-dashboard-insight-panel headingId="descontos-briefing" eyebrow="Leitura gerencial"
-          title="O que merece atenção agora"
-          description="Pendências travadas, comprovação faltando e o que os números do período dizem sobre o processo. As prioridades saem dos dados, não de um limiar arbitrário de desempenho."
-          [insights]="insights()" [actionable]="d.prioridades.length > 0"
-          (actionSelected)="abrirPrioridadePorIndice($event)" />
-      }
+      <app-dashboard-visao-gerencial [veredito]="veredito()" [leituras]="leituras()" (abrir)="abrirLeitura($event)" />
 
       <!-- Cartões principais -->
       <section class="dash-metrics" aria-label="Indicadores principais">
@@ -51,9 +43,9 @@
             : 'Sem período anterior para comparar'" />
 
         <app-dashboard-metric-card label="Recuperação do solicitado"
-          [value]="d.resumo.totalDescontos > 0 ? percentual(d.financeiro.taxaRecuperacao) : 'Sem dados no período'"
+          [value]="d.resumo.totalDescontos > 0 ? percentual(d.financeiro.taxaRecuperacao) : '—'"
           icon="pi-percentage" tone="primary" [progress]="d.financeiro.taxaRecuperacao"
-          [detail]="moedaCompacta(d.financeiro.valorBaixado) + ' de ' + moedaCompacta(d.financeiro.valorSolicitado) + ' solicitados'" />
+          [detail]="d.resumo.totalDescontos > 0 ? moedaCompacta(d.financeiro.valorBaixado) + ' de ' + moedaCompacta(d.financeiro.valorSolicitado) + ' solicitados' : 'Sem termos no período'" />
 
         <app-dashboard-metric-card label="Em aberto" [value]="moedaCompacta(d.financeiro.valorEmAberto)"
           icon="pi-hourglass" tone="amber"
@@ -128,7 +120,7 @@
           @if (d.resumo.totalDescontos === 0) {
             <div class="dash-empty dash-empty--tight">
               <i class="pi pi-inbox"></i>
-              <strong class="block text-slate-600 text-sm">Nenhum termo no recorte</strong>
+              <strong class="block text-sm">Nenhum termo no recorte</strong>
               <span class="block mt-2 text-xs leading-relaxed">Ajuste o período ou remova filtros para ver a taxa de recuperação.</span>
             </div>
           } @else {
@@ -147,7 +139,7 @@
               </div>
             </div>
 
-            <div class="dash-kpis !mt-5">
+            <div class="dash-kpis dash-kpis--afastado">
               @for (kpi of kpisComparativos(); track kpi.chave) {
                 <div class="dash-kpi">
                   <span class="dash-kpi__label">{{ kpi.rotulo }}</span>
@@ -176,7 +168,7 @@
           </header>
           @if (d.resumo.totalDescontos) {
             <div class="dash-chart dash-chart--short"><geo-chart-canvas type="bar" [data]="funilData" [options]="funilOptions" height="240px" /></div>
-            <div class="dash-summary__items !mt-4">
+            <div class="dash-summary__items dash-summary__items--afastado">
               @for (etapa of d.funil; track etapa.etapa) {
                 <div class="dash-summary__item">
                   <i class="dash-summary__dot" [style.background]="corDaEtapa(etapa.etapa)"></i>
@@ -200,7 +192,7 @@
           </header>
           @if (totalPendenteHistorico() > 0) {
             <div class="dash-chart dash-chart--short"><geo-chart-canvas type="bar" [data]="envelhecimentoData" [options]="envelhecimentoOptions" height="240px" /></div>
-            <div class="dash-summary__items !mt-4">
+            <div class="dash-summary__items dash-summary__items--afastado">
               @for (faixa of d.envelhecimento; track faixa.faixa) {
                 @if (faixa.quantidade > 0) {
                   <div class="dash-summary__item">
@@ -370,7 +362,7 @@
                   <td class="dash-number">{{ moeda(item.valorEfetivo) }}</td>
                   <td class="dash-number">{{ item.pendentes }}</td>
                   <td class="dash-number">{{ item.mediaParcelas | number:'1.0-1' }}</td>
-                  <td class="text-[11px]">{{ item.ultimaOcorrencia ? (item.ultimaOcorrencia | date:'dd/MM/yyyy') : '—' }}</td>
+                  <td class="text-xs">{{ item.ultimaOcorrencia ? (item.ultimaOcorrencia | date:'dd/MM/yyyy') : '—' }}</td>
                   <td>
                     <span class="dash-days" [attr.data-alert]="alertaDeIdade(item.diasDesdeUltimaOcorrencia)">
                       {{ item.diasDesdeUltimaOcorrencia }} dia(s)
@@ -404,7 +396,7 @@
               <ng-template #body let-item>
                 <tr>
                   <td>
-                    <div class="dash-table-name !min-w-[150px]">
+                    <div class="dash-table-name dash-table-name--estreito">
                       <div class="max-w-[180px]">
                         <strong class="block truncate" [pTooltip]="item.nome?.length > 22 ? item.nome : undefined">{{ nomeOuPlaceholder(item.nome) }}</strong>
                       </div>

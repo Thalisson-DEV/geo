@@ -42,7 +42,7 @@
           <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'totalInspecoes', rotulo: 'Inspeções realizadas' }" />
         </app-dashboard-metric-card>
         <app-dashboard-metric-card label="Inspeções sem desvio" [value]="percentualOuSemAmostra(d.resumo.totalInspecoes, d.resumo.percentualSemDesvio)"
-          icon="pi-shield" [detail]="d.resumo.inspecoesSemDesvio + ' de ' + d.resumo.totalInspecoes + ' inspeções'"
+          icon="pi-shield" [detail]="d.resumo.totalInspecoes > 0 ? d.resumo.inspecoesSemDesvio + ' de ' + d.resumo.totalInspecoes + ' inspeções' : 'Sem inspeções no período'"
           tone="primary" [progress]="d.resumo.percentualSemDesvio" actionLabel="Ver onde estão os desvios" (activate)="analisar('kpi', 'conformidade')">
           <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'percentualSemDesvio', rotulo: 'Inspeções sem desvio' }" />
         </app-dashboard-metric-card>
@@ -126,7 +126,7 @@
           @if (!metaComparavel()) {
             <div class="dash-empty dash-empty--tight">
               <i class="pi pi-filter"></i>
-              <strong class="block text-slate-600 text-sm">Não comparável neste filtro</strong>
+              <strong class="block text-zinc-600 dark:text-zinc-300 text-sm">Não comparável neste filtro</strong>
               <span class="block mt-2 text-xs leading-relaxed">
                 Processo, equipe e formulário restringem apenas o realizado — a meta continua cheia, então o percentual ficaria distorcido.
                 Remova esses filtros para ver o atingimento.
@@ -135,7 +135,7 @@
           } @else if (!d.meta.possuiMeta) {
             <div class="dash-empty dash-empty--tight">
               <i class="pi pi-flag"></i>
-              <strong class="block text-slate-600 text-sm">Nenhuma meta vigente</strong>
+              <strong class="block text-zinc-600 dark:text-zinc-300 text-sm">Nenhuma meta vigente</strong>
               <span class="block mt-2 text-xs leading-relaxed">Não há meta cobrindo o período consultado.</span>
               <div class="pt-4"><geo-button label="Cadastrar metas" icon="pi pi-plus" size="sm" (pressed)="irParaMetas()"></geo-button></div>
             </div>
@@ -236,7 +236,7 @@
                   <geo-meter [value]="item.percentualAtingido" [detail]="item.realizado + '/' + (item.meta | number:'1.0-1')"
                     [label]="'Atingimento da meta de ' + nomeOuPlaceholder(item.nomeInspetor)" />
                 } @else {
-                  <span class="text-[11px] text-slate-500 dark:text-slate-400 italic">{{ metaComparavel() ? 'Sem meta' : 'Não comparável' }}</span>
+                  <span class="text-xs text-slate-500 dark:text-slate-400 italic">{{ metaComparavel() ? 'Sem meta' : 'Não comparável' }}</span>
                 }
               </ng-template>
               <ng-template geoCell="desvios" let-item>

@@ -114,16 +114,20 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
   providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-inspecoes.component.html',
   styles: [`
+    /* Seletores segmentados no cabeçalho dos painéis não quebram o rótulo ("7 dias"). */
+    :host .dash-tabs { flex: none; }
+    :host .dash-tab { white-space: nowrap; }
+
     :host .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .dash-cell-name { color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; }
+    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;
       border-radius: .4rem;
-      background: var(--p-zinc-100);
-      color: var(--p-zinc-600);
+      background: var(--geo-surface-muted);
+      color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
-      font-weight: 650;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
     .dash-badge {
@@ -132,21 +136,15 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
       gap: .3rem;
       padding: .2rem .5rem;
       border-radius: .4rem;
-      background: var(--p-zinc-100);
-      color: var(--p-zinc-600);
+      background: var(--geo-surface-muted);
+      color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
-      font-weight: 650;
+      font-weight: 600;
     }
     .dash-badge--success { background: var(--geo-success-soft); color: var(--geo-success-text); }
     .dash-badge--warning { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
     .dash-badge--danger { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
     .dash-badge i { font-size: var(--geo-font-caption); }
-
-    :host-context(.app-dark), :host-context(.dark) {
-      .dash-cell-name { color: var(--p-zinc-200); }
-      .dash-pct-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
-      .dash-badge { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
-    }
 
     .dash-drill-bar {
       display: flex;
@@ -545,7 +543,7 @@ export class DashboardInspecoesComponent implements OnInit {
   }
 
   protected percentualOuSemAmostra(total: number, value: number): string {
-    return total > 0 ? `${value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : 'Sem dados no período';
+    return total > 0 ? `${value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : '—';
   }
 
   protected variacao(resumo: { totalPeriodoAnterior: number; variacaoPercentual: number }): string {

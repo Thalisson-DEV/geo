@@ -117,6 +117,7 @@ export const DIAS_PADRAO_INSPECOES = 90;
       </geo-filter-panel>
 
       <geo-data-table
+        [textFit]="ajusteTexto"
         title="Inspeções"
         mode="server"
         storageKey="sst-inspecoes"
@@ -264,6 +265,8 @@ export class InspecoesComponent {
     { errorMessage: getErrorMessage }
   );
 
+  /** Texto em até 2 linhas com largura mínima por coluna: rola na horizontal em vez de espremer. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 2 } as const;
   protected readonly colunas: GeoDataTableColumn<InspecaoSegurancaResponse>[] = [
     { key: 'formulario', header: 'Formulário', type: 'custom', priority: 1, value: (i) => i.formulario?.titulo, display: (i) => i.formulario?.titulo ?? '—' },
     { key: 'local', header: 'Base / processo', type: 'custom', value: (i) => i.baseOperacional?.nome },

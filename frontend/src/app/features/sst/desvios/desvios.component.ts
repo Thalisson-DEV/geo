@@ -122,6 +122,7 @@ function fimDoDia(iso: string | null): Date | null {
       </geo-filter-panel>
 
       <geo-data-table
+        [textFit]="ajusteTexto"
         title="Desvios"
         mode="server"
         storageKey="sst-desvios"
@@ -342,8 +343,10 @@ export class DesviosComponent {
   protected readonly exportar = (_evento: unknown, limite: number) =>
     this.sst.listarDesvios({ ...this.filtro(this.lista.request()), page: 0, size: limite }).pipe(map((r) => r.content));
 
+  /** Texto em até 2 linhas com largura mínima por coluna: rola na horizontal em vez de espremer. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 2 } as const;
   protected readonly colunas: GeoDataTableColumn<DesvioDetalhadoResponse>[] = [
-    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
+    { key: 'desvio', header: 'Desvio', type: 'custom', priority: 1, width: '18rem', value: (d) => d.pergunta, display: (d) => [d.pergunta, d.descricao].filter(Boolean).join(' — ') },
     { key: 'gravidade', header: 'Gravidade', type: 'custom', priority: 1, sortField: 'gravidade', value: (d) => d.gravidade, display: (d) => GRAVIDADE_LABELS[d.gravidade] },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (d) => d.status, display: (d) => STATUS_DESVIO_LABELS[d.status] },
     { key: 'prazo', header: 'Prazo', type: 'custom', sortField: 'prazo', value: (d) => d.prazo, display: (d) => (d.prazo ? new Date(`${d.prazo.substring(0, 10)}T00:00:00`).toLocaleDateString('pt-BR') : 'Sem prazo') },

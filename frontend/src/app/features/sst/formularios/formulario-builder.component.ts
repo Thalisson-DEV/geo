@@ -81,7 +81,7 @@ function uid(): string {
       <!-- Barra superior -->
       <div class="flex justify-between items-center">
         <p-breadcrumb [model]="breadcrumbItems" styleClass="!bg-transparent !border-0 !p-0"></p-breadcrumb>
-        <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" styleClass="!text-slate-400 !text-[10px] !font-medium"></p-button>
+        <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" styleClass="!text-slate-400 !text-xs !font-medium"></p-button>
       </div>
 
       @if (loading()) {
@@ -93,17 +93,17 @@ function uid(): string {
           <div class="px-5 md:px-8 py-6 border-b border-slate-100">
             <div class="flex items-center gap-2 mb-5">
               <i class="pi pi-file-edit text-primary-700 text-xs"></i>
-              <span class="text-[10px] font-medium text-gray-500 uppercase tracking-widest">
+              <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">
                 {{ formId() ? 'Editar Formulário de Inspeção' : 'Novo Formulário de Inspeção' }}
               </span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="flex flex-col gap-1.5 md:col-span-1">
-                <label class="filter-label !text-slate-600 !text-[11px]">Título</label>
+                <label class="filter-label !text-slate-600 !text-xs">Título</label>
                 <input pInputText placeholder="Ex: Inspeção de Campo" class="doc-input" [(ngModel)]="titulo" />
               </div>
               <div class="flex flex-col gap-1.5 md:col-span-2">
-                <label class="filter-label !text-slate-600 !text-[11px]">Descrição</label>
+                <label class="filter-label !text-slate-600 !text-xs">Descrição</label>
                 <input pInputText placeholder="Ex: Checklist diário" class="doc-input" [(ngModel)]="descricao" />
               </div>
             </div>
@@ -111,15 +111,15 @@ function uid(): string {
               <div class="mt-5 flex items-start gap-3 bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3">
                 <i class="pi pi-lock text-amber-500 text-xs mt-0.5"></i>
                 <div class="flex-grow">
-                  <span class="text-[10px] font-medium text-amber-700 uppercase tracking-widest">Formulário em uso</span>
-                  <p class="text-[11px] text-amber-700/80 leading-relaxed mt-1">
+                  <span class="text-xs font-medium text-amber-700 uppercase tracking-widest">Formulário em uso</span>
+                  <p class="text-xs text-amber-700/80 leading-relaxed mt-1">
                     A estrutura está bloqueada porque já existem inspeções lançadas. É possível reordenar os itens e
                     editar o título/descrição. Para mudar a estrutura, gere uma cópia editável.
                   </p>
                 </div>
                 <div class="flex flex-col gap-2 shrink-0">
-                  <p-button label="Salvar dados" icon="pi pi-check" [loading]="saving()" (onClick)="salvarDados()" styleClass="!rounded-lg !bg-white !border-amber-200 !text-amber-700 !font-medium !text-[10px] !px-4 !py-2"></p-button>
-                  <p-button label="Duplicar" icon="pi pi-copy" (onClick)="duplicar()" styleClass="!rounded-lg !bg-amber-500 !border-amber-500 !text-white !font-medium !text-[10px] !px-4 !py-2"></p-button>
+                  <p-button label="Salvar dados" icon="pi pi-check" [loading]="saving()" (onClick)="salvarDados()" styleClass="!rounded-lg !bg-white !border-amber-200 !text-amber-700 !font-medium !text-xs !px-4 !py-2"></p-button>
+                  <p-button label="Duplicar" icon="pi pi-copy" (onClick)="duplicar()" styleClass="!rounded-lg !bg-amber-500 !border-amber-500 !text-white !font-medium !text-xs !px-4 !py-2"></p-button>
                 </div>
               </div>
             }
@@ -131,7 +131,7 @@ function uid(): string {
               <div class="flex flex-col gap-4">
                 <!-- Marcador do grupo -->
                 <div class="flex items-center gap-3 border-l-2 border-primary-700 pl-3">
-                  <span class="text-[11px] font-medium text-gray-400">{{ formatarNumero(gi + 1) }}</span>
+                  <span class="text-xs font-medium text-gray-400">{{ formatarNumero(gi + 1) }}</span>
                   <input pInputText placeholder="Título do grupo (ex: Kit SMC)" class="doc-input flex-grow" [(ngModel)]="grupo.titulo" [disabled]="emUso()" />
                   <div class="flex items-center gap-0.5 shrink-0">
                     <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" pTooltip="Subir" [disabled]="gi === 0" (onClick)="moverGrupo(gi, -1)" styleClass="!text-slate-400 !w-7 !h-7"></p-button>
@@ -147,7 +147,7 @@ function uid(): string {
                   @for (pergunta of grupo.perguntas; track pergunta.uid; let pi = $index) {
                     <div class="rounded-xl border border-slate-100 bg-slate-50/30 px-4 py-4 flex flex-col gap-3">
                       <div class="flex items-start gap-3">
-                        <span class="text-[10px] font-medium text-gray-400 mt-2.5 shrink-0">{{ gi + 1 }}.{{ pi + 1 }}</span>
+                        <span class="text-xs font-medium text-gray-400 mt-2.5 shrink-0">{{ gi + 1 }}.{{ pi + 1 }}</span>
                         <div class="flex flex-col gap-1.5 flex-grow min-w-0">
                           <input pInputText placeholder="Enunciado da pergunta" class="doc-input w-full" [(ngModel)]="pergunta.enunciado" [disabled]="emUso()" [attr.aria-label]="'Enunciado da pergunta ' + (gi + 1) + '.' + (pi + 1)" />
                           <input pInputText placeholder="Orientação (opcional): quantidade esperada ou observação, ex.: Individual · Por escada" class="doc-input w-full"
@@ -164,7 +164,7 @@ function uid(): string {
 
                       <div class="flex flex-wrap items-end gap-3 md:pl-7">
                         <div class="flex flex-col gap-1.5">
-                          <label class="filter-label !text-slate-600 !text-[11px]">Tipo de resposta</label>
+                          <label class="filter-label !text-slate-600 !text-xs">Tipo de resposta</label>
                           <p-select
                             [options]="tipoOptions"
                             [(ngModel)]="pergunta.tipoResposta"
@@ -179,12 +179,12 @@ function uid(): string {
                         </div>
                         <label class="flex items-center gap-2 h-[34px] cursor-pointer">
                           <p-checkbox [binary]="true" size="small" [(ngModel)]="pergunta.obrigatoria" [disabled]="emUso()"></p-checkbox>
-                          <span class="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Obrigatória</span>
+                          <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">Obrigatória</span>
                         </label>
                         @if (temDesvio(pergunta)) {
                           <label class="flex items-center gap-2 h-[34px] cursor-pointer" pTooltip="Desmarque em itens da equipe ou do veículo (pneu, extintor, ferramenta): o desvio poderá ser lançado sem apontar ninguém.">
                             <p-checkbox [binary]="true" size="small" [(ngModel)]="pergunta.desvioPorColaborador" [disabled]="emUso()"></p-checkbox>
-                            <span class="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Desvio aponta colaborador</span>
+                            <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">Desvio aponta colaborador</span>
                           </label>
                         }
                       </div>
@@ -192,10 +192,10 @@ function uid(): string {
                       @if (isObjetivo(pergunta.tipoResposta)) {
                         <div class="md:pl-7 flex flex-col gap-2 mt-1">
                           <div class="flex flex-wrap items-center justify-between gap-2">
-                            <span class="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Opções de resposta</span>
+                            <span class="text-xs font-medium text-gray-400 uppercase tracking-widest">Opções de resposta</span>
                             @if (!emUso() && pergunta.tipoResposta === 'MULTIPLA_ESCOLHA' && !ehChecklist(pergunta)) {
-                              <button type="button" (click)="aplicarChecklist(pergunta)" class="flex items-center gap-1.5 text-[10px] font-medium text-primary-700 uppercase tracking-widest w-fit">
-                                <i class="pi pi-list-check text-[9px]"></i> Usar Conforme / Não conforme / Não se aplica
+                              <button type="button" (click)="aplicarChecklist(pergunta)" class="flex items-center gap-1.5 text-xs font-medium text-primary-700 uppercase tracking-widest w-fit">
+                                <i class="pi pi-list-check text-xs"></i> Usar Conforme / Não conforme / Não se aplica
                               </button>
                             }
                           </div>
@@ -206,12 +206,12 @@ function uid(): string {
                               <label class="flex items-center gap-1.5 h-[34px] px-2.5 rounded-md border shrink-0 cursor-pointer transition-colors"
                                 [ngClass]="opcao.padrao ? 'border-blue-200 bg-blue-50/40' : 'border-slate-200 bg-white'">
                                 <p-checkbox [binary]="true" size="small" [(ngModel)]="opcao.padrao" [disabled]="emUso() || opcao.geraDesvio" (onChange)="onPadraoChange(pergunta, opcao)"></p-checkbox>
-                                <span class="text-[9px] font-medium uppercase tracking-widest" [ngClass]="opcao.padrao ? 'text-blue-600' : 'text-gray-400'">Padrão</span>
+                                <span class="text-xs font-medium uppercase tracking-widest" [ngClass]="opcao.padrao ? 'text-blue-600' : 'text-gray-400'">Padrão</span>
                               </label>
                               <label class="flex items-center gap-1.5 h-[34px] px-2.5 rounded-md border shrink-0 cursor-pointer transition-colors"
                                 [ngClass]="opcao.geraDesvio ? 'border-red-200 bg-red-50/40' : 'border-slate-200 bg-white'">
                                 <p-checkbox [binary]="true" size="small" [(ngModel)]="opcao.geraDesvio" [disabled]="emUso()" (onChange)="onGeraDesvioChange(opcao)"></p-checkbox>
-                                <span class="text-[9px] font-medium uppercase tracking-widest" [ngClass]="opcao.geraDesvio ? 'text-red-500' : 'text-gray-400'">Gera desvio</span>
+                                <span class="text-xs font-medium uppercase tracking-widest" [ngClass]="opcao.geraDesvio ? 'text-red-500' : 'text-gray-400'">Gera desvio</span>
                               </label>
                               @if (opcao.geraDesvio) {
                                 <p-select
@@ -236,22 +236,22 @@ function uid(): string {
                             </div>
                           }
                           @if (!emUso()) {
-                            <button type="button" (click)="adicionarOpcao(pergunta)" class="flex items-center gap-1.5 text-[10px] font-medium text-primary-700 uppercase tracking-widest mt-1 w-fit">
-                              <i class="pi pi-plus text-[9px]"></i> Adicionar opção
+                            <button type="button" (click)="adicionarOpcao(pergunta)" class="flex items-center gap-1.5 text-xs font-medium text-primary-700 uppercase tracking-widest mt-1 w-fit">
+                              <i class="pi pi-plus text-xs"></i> Adicionar opção
                             </button>
                           }
                         </div>
                       } @else {
-                        <div class="md:pl-7 text-[10px] text-gray-400 tracking-wide">
-                          <i class="pi pi-info-circle text-[9px]"></i> Resposta livre — preenchida em campo, sem opções.
+                        <div class="md:pl-7 text-xs text-gray-400 tracking-wide">
+                          <i class="pi pi-info-circle text-xs"></i> Resposta livre — preenchida em campo, sem opções.
                         </div>
                       }
                     </div>
                   }
 
                   @if (!emUso()) {
-                    <button type="button" (click)="adicionarPergunta(grupo)" class="flex items-center gap-1.5 text-[10px] font-medium text-primary-700 uppercase tracking-widest w-fit">
-                      <i class="pi pi-plus text-[9px]"></i> Adicionar pergunta
+                    <button type="button" (click)="adicionarPergunta(grupo)" class="flex items-center gap-1.5 text-xs font-medium text-primary-700 uppercase tracking-widest w-fit">
+                      <i class="pi pi-plus text-xs"></i> Adicionar pergunta
                     </button>
                   }
                 </div>
@@ -259,8 +259,8 @@ function uid(): string {
             }
 
             @if (!emUso()) {
-              <button type="button" (click)="adicionarGrupo()" class="flex items-center justify-center gap-2 text-[10px] font-medium text-gray-500 uppercase tracking-widest border border-dashed border-slate-200 rounded-xl py-3 hover:bg-slate-50/50 transition-colors">
-                <i class="pi pi-plus text-[10px]"></i> Adicionar grupo
+              <button type="button" (click)="adicionarGrupo()" class="flex items-center justify-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-widest border border-dashed border-slate-200 rounded-xl py-3 hover:bg-slate-50/50 transition-colors">
+                <i class="pi pi-plus text-xs"></i> Adicionar grupo
               </button>
             }
           </div>
@@ -270,7 +270,7 @@ function uid(): string {
 
     @if (!loading() && !emUso()) {
       <div class="fixed bottom-6 right-6 md:right-12 z-50">
-        <p-button [label]="formId() ? 'Salvar estrutura' : 'Criar formulário'" icon="pi pi-check" [loading]="saving()" (onClick)="salvar()" styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !text-white !font-medium !text-[10px] !tracking-widest !uppercase !px-7 !py-3 shadow-lg"></p-button>
+        <p-button [label]="formId() ? 'Salvar estrutura' : 'Criar formulário'" icon="pi pi-check" [loading]="saving()" (onClick)="salvar()" styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !text-white !font-medium !text-xs !tracking-widest !uppercase !px-7 !py-3 shadow-lg"></p-button>
       </div>
     }
   `,

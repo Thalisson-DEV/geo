@@ -88,6 +88,10 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
   providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-eventos.component.html',
   styles: [`
+    /* Seletores segmentados no cabeçalho dos painéis não quebram o rótulo ("7 dias"). */
+    :host .dash-tabs { flex: none; }
+    :host .dash-tab { white-space: nowrap; }
+
     :host .dash-filterbar--eventos { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     :host .dash-filterbar--eventos .dash-field,
     :host .dash-filterbar--eventos .dash-filterbar__actions { grid-column: auto; }
@@ -100,7 +104,7 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
     /* --- Responsive chart --- */
     .dash-chart--responsive { height: clamp(260px, 22vw, 360px); padding-top: .25rem; }
     .dash-chart--responsive .geo-chart-canvas { display: block; width: 100%; height: 100%; }
-    .dash-chart--responsive canvas { width: 100% !important; max-width: 100%; }
+    .dash-chart--responsive canvas { width: 100%; max-width: 100%; }
 
     /* --- Backlog card grid --- */
     .backlog-grid {
@@ -109,13 +113,13 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       gap: .65rem;
     }
     .backlog-card {
-      border: 1px solid var(--p-zinc-200);
-      border-radius: .85rem;
-      background: var(--p-zinc-50);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-lg);
+      background: var(--geo-surface-subtle);
       overflow: hidden;
       transition: border-color 150ms ease, box-shadow 150ms ease;
     }
-    .backlog-card:hover { border-color: var(--p-zinc-300); box-shadow: 0 4px 12px rgba(16, 42, 67, .06); }
+    .backlog-card:hover { border-color: var(--geo-border-strong); box-shadow: var(--geo-shadow-sm); }
     /* Faixa clicável: botão esticado sobre o cartão abre os eventos dela. */
     .backlog-card { position: relative; }
     .backlog-card__hit {
@@ -127,18 +131,18 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
     .backlog-card.is-vazia { opacity: .5; }
     .backlog-card__header {
       padding: .6rem .85rem;
-      border-bottom: 1px solid var(--p-zinc-100);
-      background: var(--p-zinc-50);
+      border-bottom: 1px solid var(--geo-border);
+      background: var(--geo-surface-subtle);
     }
     .backlog-card__eyebrow {
       display: block;
       font-size: var(--geo-font-caption);
       font-weight: 600;
-      color: var(--p-zinc-400);
+      color: var(--geo-foreground-subtle);
       text-transform: none;
       letter-spacing: 0;
     }
-    .backlog-card__faixa { display: block; font-size: var(--geo-font-caption); font-weight: 650; color: var(--p-zinc-700); margin-top: .1rem; }
+    .backlog-card__faixa { display: block; font-size: var(--geo-font-caption); font-weight: 600; color: var(--geo-foreground-muted); margin-top: .1rem; }
     .backlog-card__body {
       display: flex;
       align-items: center;
@@ -152,22 +156,21 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       align-items: center;
       gap: .3rem;
       font-size: var(--geo-font-caption);
-      color: var(--p-zinc-500);
+      color: var(--geo-foreground-subtle);
     }
     .backlog-card__status i { font-size: var(--geo-font-caption); }
-    .backlog-card__total { font-size: 1.6rem; font-weight: 600; color: var(--p-zinc-900); line-height: 1; font-variant-numeric: tabular-nums; }
+    .backlog-card__total { font-size: 1.6rem; font-weight: 600; color: var(--geo-foreground); line-height: 1; font-variant-numeric: tabular-nums; }
 
     /* --- Table polish --- */
-    .dash-cell-name { color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; }
-    :host-context(.app-dark) .dash-cell-name, :host-context(.dark) .dash-cell-name { color: var(--p-zinc-200); }
+    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;
       border-radius: .4rem;
-      background: var(--p-zinc-100);
-      color: var(--p-zinc-600);
+      background: var(--geo-surface-muted);
+      color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
-      font-weight: 650;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
     .dash-badge {
@@ -176,14 +179,14 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       gap: .3rem;
       padding: .2rem .5rem;
       border-radius: .4rem;
-      background: var(--p-zinc-100);
-      color: var(--p-zinc-600);
+      background: var(--geo-surface-muted);
+      color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
-      font-weight: 650;
+      font-weight: 600;
     }
-    .dash-badge--success { background: var(--p-zinc-50); color: var(--p-green-700); }
-    .dash-badge--danger { background: var(--p-zinc-100); color: var(--p-red-700); }
-    .dash-badge--danger-text { color: var(--p-red-700); font-weight: 600; }
+    .dash-badge--success { background: var(--geo-surface-subtle); color: var(--geo-success-text); }
+    .dash-badge--danger { background: var(--geo-surface-muted); color: var(--geo-danger-text); }
+    .dash-badge--danger-text { color: var(--geo-danger-text); font-weight: 600; }
     .dash-badge i { font-size: var(--geo-font-caption); }
 
     /* --- Compact empty state --- */
@@ -192,31 +195,16 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       align-items: center;
       gap: .75rem;
       padding: 1.5rem 1.25rem;
-      border: 1px dashed var(--p-zinc-200);
-      border-radius: .75rem;
-      color: var(--p-zinc-400);
+      border: 1px dashed var(--geo-border);
+      border-radius: var(--geo-radius-lg);
+      color: var(--geo-foreground-subtle);
       font-size: var(--geo-font-caption);
       line-height: 1.5;
     }
-    .dash-empty--compact i { font-size: 1.25rem; flex: none; color: var(--p-zinc-300); }
-    .dash-empty--compact strong { color: var(--p-zinc-600); }
+    .dash-empty--compact i { font-size: 1.25rem; flex: none; color: var(--geo-foreground-subtle); }
+    .dash-empty--compact strong { color: var(--geo-foreground-muted); }
 
     /* --- Dark mode --- */
-    :host-context(.app-dark), :host-context(.dark) {
-      .backlog-card { background: var(--geo-surface, var(--p-zinc-800)); border-color: var(--geo-border, var(--p-zinc-700)); }
-      .backlog-card:hover { border-color: color-mix(in srgb, var(--geo-brand, var(--p-blue-500)) 40%, transparent); }
-      .backlog-card__header { background: var(--geo-surface-subtle, var(--p-zinc-900)); border-color: var(--geo-border, var(--p-zinc-700)); }
-      .backlog-card__faixa, .backlog-card__total { color: var(--p-surface-0) !important; }
-      .backlog-card__status span { color: var(--p-zinc-300); }
-
-      .dash-pct-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
-      .dash-badge { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
-      .dash-badge--success { background: rgba(34,197,94,.12); color: var(--p-green-400); }
-      .dash-badge--danger { background: rgba(239,68,68,.12); color: var(--p-red-400); }
-      .dash-badge--danger-text { color: var(--p-red-400); }
-      .dash-empty--compact { border-color: var(--geo-border, var(--p-zinc-700)); color: var(--geo-foreground-subtle, var(--p-zinc-400)); }
-      .dash-empty--compact strong { color: var(--p-zinc-300); }
-    }
 
     /* --- Responsiveness --- */
     @media (max-width: 1360px) {

@@ -62,7 +62,7 @@ const ORIGENS: OrigemAnexo[] = [
         <div class="flex items-center gap-2 border-l-2 border-primary-500 pl-3">
           <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Fotos &amp; Evidências</span>
           @if (!carregando()) {
-            <span class="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ lista().length }})</span>
+            <span class="text-xs text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ lista().length }})</span>
           }
         </div>
         @if (canWrite()) {
@@ -82,7 +82,7 @@ const ORIGENS: OrigemAnexo[] = [
       } @else if (!lista().length) {
         <div class="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 px-4 py-3">
           <i class="pi pi-info-circle text-slate-400 dark:text-slate-500 text-xs"></i>
-          <span class="text-[11px] text-slate-500 dark:text-slate-400">
+          <span class="text-xs text-slate-500 dark:text-slate-400">
             Nenhuma foto ou documento anexado ao evento.{{ canWrite() ? ' Anexe fotos do local, o boletim de ocorrência, a CAT e as evidências das medidas adotadas.' : '' }}
           </span>
         </div>
@@ -117,7 +117,7 @@ const ORIGENS: OrigemAnexo[] = [
                   } @else {
                     <span class="w-full h-full flex flex-col items-center justify-center gap-2">
                       <i class="pi pi-spin pi-spinner text-slate-400 text-xl"></i>
-                      <span class="text-[10px] text-slate-400 font-medium">Carregando imagem...</span>
+                      <span class="text-xs text-slate-400 font-medium">Carregando imagem...</span>
                     </span>
                   }
                 </button>
@@ -126,9 +126,9 @@ const ORIGENS: OrigemAnexo[] = [
                   <div class="w-14 h-14 rounded-xl flex items-center justify-center border border-[var(--geo-border)] bg-[var(--geo-surface)] text-[var(--geo-foreground-muted)]">
                     <i [class]="iconeArquivo(anexo)" class="text-2xl"></i>
                   </div>
-                  <span class="text-[11px] font-medium text-slate-600 dark:text-slate-300 break-all line-clamp-2">{{ anexo.nomeArquivo }}</span>
-                  <button type="button" (click)="baixar(anexo)" class="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
-                    <i class="pi pi-download text-[10px]"></i> {{ anexo.tipo === 'FOTO' ? 'Baixar para visualizar' : 'Abrir documento' }}
+                  <span class="text-xs font-medium text-slate-600 dark:text-slate-300 break-all line-clamp-2">{{ anexo.nomeArquivo }}</span>
+                  <button type="button" (click)="baixar(anexo)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
+                    <i class="pi pi-download text-xs"></i> {{ anexo.tipo === 'FOTO' ? 'Baixar para visualizar' : 'Abrir documento' }}
                   </button>
                 </div>
               }
@@ -136,21 +136,21 @@ const ORIGENS: OrigemAnexo[] = [
               <div class="p-3.5 flex flex-col gap-1.5 flex-1 bg-white dark:bg-slate-900">
                 <div class="flex items-center justify-between gap-1">
                   <geo-status [tone]="o.tom" [icon]="o.icone">{{ o.rotulo }}</geo-status>
-                  <span class="text-[10px] text-slate-400 font-medium">{{ formatarTamanho(anexo.tamanhoBytes) }}</span>
+                  <span class="text-xs text-slate-400 font-medium">{{ formatarTamanho(anexo.tamanhoBytes) }}</span>
                 </div>
                 <span class="text-xs font-semibold text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug mt-1" [title]="anexo.nomeArquivo">{{ anexo.nomeArquivo }}</span>
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">{{ anexo.tipo === 'FOTO' ? 'Foto' : 'Documento' }} · {{ o.dica }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">{{ anexo.tipo === 'FOTO' ? 'Foto' : 'Documento' }} · {{ o.dica }}</span>
                 <div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                  <span class="text-[10px] text-slate-400 truncate">Anexado em {{ anexo.dataCriacao | date: 'dd/MM/yy HH:mm' }}</span>
+                  <span class="text-xs text-slate-400 truncate">Anexado em {{ anexo.dataCriacao | date: 'dd/MM/yy HH:mm' }}</span>
                   <span class="flex items-center gap-0.5 print:hidden shrink-0">
                     <button type="button" (click)="baixar(anexo)" pTooltip="Baixar arquivo original" tooltipPosition="top" [attr.aria-label]="'Baixar ' + anexo.nomeArquivo"
                       class="inline-flex items-center px-2 py-1 rounded-md text-slate-400 hover:text-[var(--geo-brand)] hover:bg-[var(--geo-surface-muted)] transition-colors">
-                      <i class="pi pi-download text-[10px]"></i>
+                      <i class="pi pi-download text-xs"></i>
                     </button>
                     @if (canWrite()) {
                       <button type="button" (click)="confirmarRemocao(anexo)" pTooltip="Remover evidência" tooltipPosition="top" [attr.aria-label]="'Remover ' + anexo.nomeArquivo"
                         class="inline-flex items-center px-2 py-1 rounded-md text-slate-400 hover:text-[var(--geo-danger-text)] hover:bg-[var(--geo-danger-soft)] transition-colors">
-                        <i class="pi pi-trash text-[10px]"></i>
+                        <i class="pi pi-trash text-xs"></i>
                       </button>
                     }
                   </span>
@@ -174,10 +174,10 @@ const ORIGENS: OrigemAnexo[] = [
           <div class="flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
             <div class="flex items-center justify-between gap-3">
               <geo-status [tone]="origem(anexo.contexto).tom" [icon]="origem(anexo.contexto).icone">{{ origem(anexo.contexto).rotulo }}</geo-status>
-              <span class="text-[11px] text-slate-400 font-medium shrink-0">{{ formatarTamanho(anexo.tamanhoBytes) }}</span>
+              <span class="text-xs text-slate-400 font-medium shrink-0">{{ formatarTamanho(anexo.tamanhoBytes) }}</span>
             </div>
             <div class="flex items-center justify-between gap-3 pt-2 mt-1 border-t border-slate-200/60 dark:border-slate-800">
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ anexo.nomeArquivo }} · {{ anexo.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ anexo.nomeArquivo }} · {{ anexo.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</span>
               <button type="button" (click)="baixar(anexo)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 dark:text-primary-400 shrink-0">
                 <i class="pi pi-external-link text-xs"></i> Baixar arquivo original
               </button>

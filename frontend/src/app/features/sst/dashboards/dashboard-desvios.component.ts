@@ -84,6 +84,12 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
   providers: [GeoDrillStateService, NavegacaoAnaliseService],
   templateUrl: './dashboard-desvios.component.html',
   styles: [`
+    /* Seletores segmentados no cabeçalho dos painéis não quebram o rótulo ("7 dias"). */
+    :host .dash-tabs { flex: none; }
+    :host .dash-tab { white-space: nowrap; }
+    :host { --dash-orange-text: var(--p-orange-700); }
+    :host-context(.app-dark) { --dash-orange-text: var(--p-orange-400); }
+
     :host .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     /* Cartões de gravidade e de idade clicáveis: botão esticado sobre o cartão. */
     .dash-aging-card { position: relative; }
@@ -94,15 +100,15 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
     .dash-card-hit:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .dash-aging-card:has(.dash-card-hit):hover { border-color: color-mix(in srgb, var(--geo-brand) 45%, var(--geo-border)); box-shadow: var(--geo-shadow-md); }
     .dash-aging-card:has(.dash-card-hit:disabled) .dash-card-hit { cursor: default; }
-    .dash-cell-name { color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; }
+    .dash-cell-name { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;
       border-radius: .4rem;
-      background: var(--p-zinc-100);
-      color: var(--p-zinc-600);
+      background: var(--geo-surface-muted);
+      color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
-      font-weight: 650;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
     .dash-badge {
@@ -111,15 +117,15 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       gap: .3rem;
       padding: .2rem .5rem;
       border-radius: .4rem;
-      background: var(--p-zinc-100);
-      color: var(--p-zinc-600);
+      background: var(--geo-surface-muted);
+      color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
-      font-weight: 650;
+      font-weight: 600;
     }
-    .dash-badge--success { background: var(--p-zinc-50); color: var(--p-green-700); }
-    .dash-badge--warning { background: var(--p-zinc-50); color: var(--p-amber-700); }
-    .dash-badge--orange { background: var(--p-zinc-50); color: var(--p-orange-700); }
-    .dash-badge--danger { background: var(--p-zinc-100); color: var(--p-red-700); }
+    .dash-badge--success { background: var(--geo-surface-subtle); color: var(--geo-success-text); }
+    .dash-badge--warning { background: var(--geo-surface-subtle); color: var(--geo-warning-text); }
+    .dash-badge--orange { background: var(--geo-surface-subtle); color: var(--dash-orange-text); }
+    .dash-badge--danger { background: var(--geo-surface-muted); color: var(--geo-danger-text); }
     .dash-badge i { font-size: var(--geo-font-caption); }
 
     .dash-chart--responsive {
@@ -143,25 +149,25 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
     .dash-aging-card {
       display: flex;
       flex-direction: column;
-      border: 1px solid var(--p-zinc-200);
-      border-radius: 0.75rem;
-      background: var(--p-zinc-50);
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-lg);
+      background: var(--geo-surface-subtle);
       overflow: hidden;
       transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
     }
     .dash-aging-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border-color: var(--p-zinc-300);
+      box-shadow: var(--geo-shadow-sm);
+      border-color: var(--geo-border-strong);
     }
     .dash-aging-card.is-vazio {
       opacity: 0.6;
-      background: var(--p-zinc-50);
+      background: var(--geo-surface-subtle);
     }
     .dash-aging-card.is-alerta {
-      border-color: var(--p-red-400);
-      background: var(--p-zinc-50);
-      box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+      border-color: var(--geo-danger-border);
+      background: var(--geo-surface-subtle);
+      box-shadow: var(--geo-shadow-sm);
     }
     .dash-aging-card__header {
       display: flex;
@@ -169,13 +175,13 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       justify-content: space-between;
       gap: 0.5rem;
       padding: 0.65rem 0.85rem;
-      background: var(--p-zinc-100);
-      border-bottom: 1px solid var(--p-zinc-200);
+      background: var(--geo-surface-muted);
+      border-bottom: 1px solid var(--geo-border);
     }
     .dash-aging-card__range {
       font-size: var(--geo-font-caption);
       font-weight: 600;
-      color: var(--p-zinc-800);
+      color: var(--geo-foreground);
     }
     .dash-aging-card__stage {
       font-size: var(--geo-font-caption);
@@ -183,11 +189,11 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       text-transform: none;
       letter-spacing: 0;
     }
-    .dash-aging-card__stage[data-tone='success'] { color: var(--p-green-700); }
-    .dash-aging-card__stage[data-tone='info'] { color: var(--p-blue-600); }
-    .dash-aging-card__stage[data-tone='warning'] { color: var(--p-amber-700); }
-    .dash-aging-card__stage[data-tone='orange'] { color: var(--p-orange-700); }
-    .dash-aging-card__stage[data-tone='danger'] { color: var(--p-red-700); }
+    .dash-aging-card__stage[data-tone='success'] { color: var(--geo-success-text); }
+    .dash-aging-card__stage[data-tone='info'] { color: var(--geo-info-text); }
+    .dash-aging-card__stage[data-tone='warning'] { color: var(--geo-warning-text); }
+    .dash-aging-card__stage[data-tone='orange'] { color: var(--dash-orange-text); }
+    .dash-aging-card__stage[data-tone='danger'] { color: var(--geo-danger-text); }
 
     .dash-aging-dot {
       width: 0.5rem;
@@ -217,12 +223,12 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       font-size: 1.5rem;
       font-weight: 600;
       line-height: 1;
-      color: var(--p-zinc-900);
+      color: var(--geo-foreground);
       font-variant-numeric: tabular-nums;
     }
     .dash-aging-card__unit {
       font-size: var(--geo-font-caption);
-      color: var(--p-zinc-500);
+      color: var(--geo-foreground-subtle);
       font-weight: 500;
     }
 
@@ -232,7 +238,7 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       width: 100%;
       border-radius: 99px;
       overflow: hidden;
-      background: var(--p-zinc-200);
+      background: var(--geo-surface-muted);
     }
     .dash-aging-bar__seg {
       height: 100%;
@@ -248,14 +254,14 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       flex-wrap: wrap;
       gap: 0.3rem;
     }
-    .dash-badge--orange { background: var(--p-zinc-50); color: var(--p-orange-700); }
+    .dash-badge--orange { background: var(--geo-surface-subtle); color: var(--dash-orange-text); }
 
     .dash-aging-card__empty {
       display: flex;
       align-items: center;
       gap: 0.35rem;
       font-size: var(--geo-font-caption);
-      color: var(--p-zinc-400);
+      color: var(--geo-foreground-subtle);
       padding: 0.4rem 0;
     }
     .dash-share-pill {
@@ -266,13 +272,13 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       font-size: var(--geo-font-caption);
       font-weight: 600;
       font-variant-numeric: tabular-nums;
-      background: var(--p-zinc-100);
-      color: var(--p-zinc-700);
+      background: var(--geo-surface-muted);
+      color: var(--geo-foreground-muted);
     }
-    .dash-share-pill[data-tone='danger'] { background: var(--p-zinc-100); color: var(--p-red-700); }
-    .dash-share-pill[data-tone='orange'] { background: var(--p-zinc-50); color: var(--p-orange-700); }
-    .dash-share-pill[data-tone='warning'] { background: var(--p-zinc-50); color: var(--p-amber-700); }
-    .dash-share-pill[data-tone='info'] { background: var(--p-zinc-100); color: var(--p-blue-700); }
+    .dash-share-pill[data-tone='danger'] { background: var(--geo-surface-muted); color: var(--geo-danger-text); }
+    .dash-share-pill[data-tone='orange'] { background: var(--geo-surface-subtle); color: var(--dash-orange-text); }
+    .dash-share-pill[data-tone='warning'] { background: var(--geo-surface-subtle); color: var(--geo-warning-text); }
+    .dash-share-pill[data-tone='info'] { background: var(--geo-surface-muted); color: var(--geo-info-text); }
 
     .dash-card-footer {
       display: flex;
@@ -281,39 +287,8 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       gap: 0.5rem;
       padding-top: 0.6rem;
       margin-top: auto;
-      border-top: 1px solid var(--p-zinc-100);
+      border-top: 1px solid var(--geo-border);
       font-size: var(--geo-font-caption);
-    }
-
-    :host-context(.app-dark), :host-context(.dark) {
-      .dash-cell-name { color: var(--p-zinc-200); }
-      .dash-pct-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
-      .dash-badge { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
-      .dash-badge--success { background: rgba(34,197,94,.12); color: var(--p-green-400); }
-      .dash-badge--warning { background: rgba(245,158,11,.12); color: var(--p-amber-400); }
-      .dash-badge--orange { background: rgba(249,115,22,.15); color: var(--p-orange-400); }
-      .dash-badge--danger { background: rgba(239,68,68,.12); color: var(--p-red-400); }
-
-      .dash-aging-card { background: var(--geo-surface, var(--p-zinc-800)); border-color: var(--geo-border, var(--p-zinc-700)); }
-      .dash-aging-card:hover { border-color: color-mix(in srgb, var(--geo-brand, var(--p-blue-500)) 40%, transparent); }
-      .dash-aging-card.is-vazio { background: rgba(15, 23, 42, 0.6); opacity: 0.5; }
-      .dash-aging-card.is-alerta { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.5); }
-      .dash-aging-card__header { background: var(--geo-surface-subtle, var(--p-zinc-900)); border-color: var(--geo-border, var(--p-zinc-700)); }
-      .dash-aging-card__range { color: var(--p-zinc-50); }
-      .dash-aging-card__stage[data-tone='success'] { color: var(--p-green-400); }
-      .dash-aging-card__stage[data-tone='info'] { color: var(--p-blue-400); }
-      .dash-aging-card__stage[data-tone='warning'] { color: var(--p-amber-400); }
-      .dash-aging-card__stage[data-tone='orange'] { color: var(--p-orange-400); }
-      .dash-aging-card__stage[data-tone='danger'] { color: var(--p-red-400); }
-      .dash-aging-card__total { color: var(--p-surface-0); }
-      .dash-aging-card__unit { color: var(--p-zinc-400); }
-      .dash-aging-bar { background: var(--p-zinc-700); }
-      .dash-share-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
-      .dash-share-pill[data-tone='danger'] { background: rgba(239,68,68,.15); color: var(--p-red-400); }
-      .dash-share-pill[data-tone='orange'] { background: rgba(249,115,22,.15); color: var(--p-orange-400); }
-      .dash-share-pill[data-tone='warning'] { background: rgba(245,158,11,.15); color: var(--p-amber-400); }
-      .dash-share-pill[data-tone='info'] { background: rgba(59,130,246,.15); color: var(--p-blue-400); }
-      .dash-card-footer { border-color: rgba(51, 65, 85, 0.6); }
     }
 
     @media (max-width: 1200px) {
@@ -556,7 +531,7 @@ export class DashboardDesviosComponent implements OnInit {
   }
   protected barWidth(value: number): number { return Math.max(0, Math.min(100, value ?? 0)); }
   protected percentualOuSemAmostra(total: number, value: number): string {
-    return total > 0 ? `${value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : 'Sem dados no período';
+    return total > 0 ? `${value.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}%` : '—';
   }
   protected comparison(indicator: IndicadorComparativo): string {
     return this.comparisonFrom(indicator.anterior, indicator.variacaoPercentual);

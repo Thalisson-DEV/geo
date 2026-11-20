@@ -10,8 +10,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MenuItem, MessageService } from 'primeng/api';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -51,7 +50,7 @@ import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as LookupRemoteLookup } from '../../../core/lookup/store/remote-lookup';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 
-import { GeoAutocompleteComponent } from '@geo/ui';
+import { GeoAutocompleteComponent, GeoBreadcrumbItem, GeoButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
 
 interface EnvolvidoForm {
   tipo: TipoEnvolvido;
@@ -69,7 +68,8 @@ interface EnvolvidoForm {
   imports: [
     CommonModule,
     FormsModule,
-    BreadcrumbModule,
+    GeoPageHeaderComponent,
+    GeoButtonComponent,
     ButtonModule,
     DatePickerModule,
     InputNumberModule,
@@ -179,9 +179,9 @@ export class EventoFormComponent implements OnInit {
   private idEvento: string | null = null;
 
   protected readonly editando = computed(() => this.idEvento !== null);
-  protected readonly breadcrumb = computed<MenuItem[]>(() => [
-    { label: 'Segurança (SST)' },
-    { label: 'Eventos de segurança', routerLink: '/sst/eventos' },
+  protected readonly trilha = computed<GeoBreadcrumbItem[]>(() => [
+    { label: 'Segurança' },
+    { label: 'Eventos de segurança', route: '/sst/eventos' },
     { label: this.editando() ? 'Correção' : 'Novo registro' },
   ]);
   protected readonly implicaLesao = computed(() => {

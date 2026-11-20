@@ -194,6 +194,13 @@ export const geoPreset = definePreset(Aura, {
     },
     toast: {
       root: { width: '22rem', borderRadius: '8px' }
+    },
+    // Abas de página: compactas, sobre o fundo da página (sem moldura de superfície em volta).
+    tabs: {
+      tablist: { background: 'transparent' },
+      tab: { padding: '0.55rem 0.9rem', fontWeight: '500', gap: '0.4rem' },
+      tabpanel: { background: 'transparent', padding: '1rem 0 0 0' },
+      navButton: { background: 'transparent' }
     }
   }
 });

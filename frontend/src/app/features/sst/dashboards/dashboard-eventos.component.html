@@ -160,7 +160,7 @@
             </div>
             <div class="mt-4">
               <div class="flex justify-between text-xs mb-1">
-                <span class="font-semibold text-slate-600">Cobertura de CAT nos eventos com lesão</span>
+                <span class="font-semibold text-zinc-600 dark:text-zinc-300">Cobertura de CAT nos eventos com lesão</span>
                 <strong>{{ d.resumo.coberturaCat | number:'1.0-2' }}%</strong>
               </div>
               <div class="dash-progress__track"><span [style.width.%]="barWidth(d.resumo.coberturaCat)"></span></div>
@@ -184,11 +184,11 @@
             </div>
             <div class="mt-4">
               <div class="flex justify-between text-xs mb-1">
-                <span class="font-semibold text-slate-600">Comunicações fora do prazo</span>
+                <span class="font-semibold text-zinc-600 dark:text-zinc-300">Comunicações fora do prazo</span>
                 <strong>{{ d.resumo.percentualAtrasadas | number:'1.0-2' }}%</strong>
               </div>
               <div class="dash-progress__track"><span [style.width.%]="barWidth(d.resumo.percentualAtrasadas)"></span></div>
-              <span class="text-[10px] text-slate-400">{{ d.resumo.comunicacoesAtrasadas }} de {{ d.resumo.total }} eventos do período</span>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ d.resumo.comunicacoesAtrasadas }} de {{ d.resumo.total }} eventos do período</span>
             </div>
           </div>
         </article>

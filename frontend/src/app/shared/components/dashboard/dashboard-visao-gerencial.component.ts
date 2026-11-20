@@ -60,7 +60,7 @@ const ROTULO_TOM: Record<GeoTone, string> = {
           @if (veredito().progresso; as p) {
             <div class="vg__progresso" role="img" [attr.aria-label]="p.rotulo + (p.rotuloMarcador ? '; ' + p.rotuloMarcador : '')">
               <div class="vg__trilho">
-                <span class="vg__barra" [style.width.%]="limitar(p.valor)"></span>
+                <span class="vg__barra" [style.width.%]="limitar(p.valor)" [attr.data-atingido]="p.marcador !== undefined && p.valor >= p.marcador"></span>
                 @if (p.marcador !== undefined) {
                   <span class="vg__marcador" [style.left.%]="limitar(p.marcador)"></span>
                 }

@@ -44,6 +44,7 @@ import { ImageModule } from 'primeng/image';
 import { LookupStore } from '../../../../core/lookup/store/lookup.store';
 import { RemoteLookup } from '../../../../core/lookup/store/remote-lookup';
 import { GeoAutocompleteComponent } from '@geo/ui/forms';
+import { GEO_FORM_KIT, GeoButtonComponent, GeoCalloutComponent, GeoIconButtonComponent } from '@geo/ui';
 import { NavigationHistoryService, createFormDraft } from '../../../../core/navigation';
 
 interface EtapaDesconto {
@@ -81,29 +82,59 @@ interface AnexoPreview {
     ProgressSpinnerModule,
     HelpDialogComponent,
     DateMaskDirective,
-    GeoAutocompleteComponent
+    GeoAutocompleteComponent,
+    ...GEO_FORM_KIT,
+    GeoButtonComponent,
+    GeoCalloutComponent,
+    GeoIconButtonComponent
   ],
   templateUrl: './desconto-form.component.html',
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
-    .kv { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-    .kv-l { font-size: var(--geo-font-caption); font-weight: 600; color: var(--p-zinc-600); }
-    :host-context(.app-dark) .kv-l { color: var(--p-zinc-400); }
-    .kv-v { font-size: var(--geo-font-caption); font-weight: 600; color: var(--p-zinc-900); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    :host-context(.app-dark) .kv-v { color: var(--p-zinc-50); }
-    .kv-v--wrap { font-size: var(--geo-font-caption); font-weight: 600; color: var(--p-zinc-900); text-align: right; white-space: normal; word-break: break-word; }
-    :host-context(.app-dark) .kv-v--wrap { color: var(--p-zinc-50); }
-    @keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-    .rise { animation: riseIn .45s cubic-bezier(.22,.61,.36,1) both; }
-    @media (prefers-reduced-motion: reduce) { .rise { animation: none; } }
-    @media print {
-      .fixed { display: none !important; }
-      .rise { animation: none !important; }
-      @page { margin: 10mm; }
-      .kv-l { font-size: var(--geo-font-caption); color: var(--p-zinc-600) !important; }
-      .kv-v, .kv-v--wrap { font-size: var(--geo-font-caption); color: var(--p-zinc-800) !important; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .df-form { display: grid; gap: 1.5rem; }
+    .df-add { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--geo-form-field-gap, 0.75rem 1rem); align-items: end; }
+    .df-add > * { grid-column: span 12; }
+    .df-add > .df-add__acao { display: flex; align-items: end; }
+    @media (min-width: 48rem) {
+      .df-add > .geo-form-field { grid-column: span var(--geo-form-span, 12); }
+      .df-add > .df-add__acao { grid-column: span 2; }
+      .df-total { grid-column: span 4; }
     }
+    .df-colab { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); padding: 0.75rem 1rem; display: grid; gap: 0.75rem; }
+    .df-colab__head { display: flex; align-items: center; gap: 0.625rem; }
+    .df-colab__avatar { width: 2rem; height: 2rem; border-radius: var(--geo-radius-full); display: inline-flex; align-items: center; justify-content: center; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); flex: none; }
+    .df-colab__nome { display: grid; min-width: 0; }
+    .df-colab__nome strong { color: var(--geo-foreground); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .df-colab__nome span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .df-colab__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.5rem 1rem; margin: 0; }
+    .df-colab__grid dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .df-colab__grid dd { margin: 0; color: var(--geo-foreground); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .df-mono { font-family: ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .df-num { font-variant-numeric: tabular-nums; }
+    .df-forte { color: var(--geo-foreground); font-weight: 500; }
+    .df-vazio { margin: 0; padding: 0.75rem 1rem; border: 1px dashed var(--geo-border); border-radius: var(--geo-radius-lg); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); text-align: center; }
+    td.df-vazio { border: 0; padding: 1.5rem 1rem; }
+    .df-textarea { resize: vertical; }
+    .df-tabela { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); overflow: hidden; }
+    .df-col-acoes { width: 5.5rem; text-align: right; }
+    .df-acoes { display: flex; justify-content: flex-end; gap: 0.25rem; }
+    .df-total { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); padding: 0.75rem 1rem; display: grid; gap: 0.125rem; text-align: right; align-content: center; }
+    .df-total span, .df-total small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .df-total strong { color: var(--geo-foreground); font-size: 1.25rem; font-weight: 600; }
+    .df-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; min-height: 8rem; padding: 1.5rem; border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-lg); color: var(--geo-foreground-muted); cursor: pointer; text-align: center; transition: border-color 140ms ease-out, background-color 140ms ease-out; }
+    .df-drop:hover { border-color: var(--geo-border-focus); background: var(--geo-surface-muted); }
+    .df-drop:focus-within, .df-anexo--mais:focus-within { outline: 2px solid var(--geo-border-focus); outline-offset: 2px; }
+    .df-drop i { font-size: 1.25rem; }
+    .df-drop strong { color: var(--geo-foreground); font-weight: 500; }
+    .df-drop span { font-size: var(--geo-font-caption); }
+    .df-anexos { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.5rem; }
+    .df-anexo { display: flex; align-items: center; gap: 0.5rem; min-height: 3rem; padding: 0.375rem 0.5rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
+    .df-anexo__icone { width: 2rem; height: 2rem; border-radius: var(--geo-radius-sm); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+    .df-anexo__info { display: grid; min-width: 0; flex: 1; }
+    .df-anexo__info span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--geo-font-caption); }
+    .df-anexo__info small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .df-anexo--mais { justify-content: center; border-style: dashed; color: var(--geo-foreground-muted); cursor: pointer; }
+    .df-anexo--mais:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
   `]
 })
 export class DescontoFormComponent implements OnInit, OnDestroy {

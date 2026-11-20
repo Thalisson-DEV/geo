@@ -47,6 +47,8 @@
 .vg__progresso { display: grid; gap: 0.35rem; margin-top: 0.35rem; max-width: 34rem; }
 .vg__trilho { position: relative; height: 0.5rem; border-radius: 999px; background: var(--geo-surface-muted); }
 .vg__barra { display: block; height: 100%; border-radius: inherit; background: var(--vg-cor); }
+/* A barra fala do próprio indicador: meta atingida é verde mesmo quando o veredito geral pede ação. */
+.vg__barra[data-atingido='true'] { background: var(--geo-success); }
 .vg__marcador {
   position: absolute;
   top: -0.25rem;
