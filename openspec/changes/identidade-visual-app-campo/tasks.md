@@ -17,14 +17,14 @@
 - [x] 1.3a Ajustes da revisão (ui-reviewer, 20/11/2026): toast acima da faixa de ação fixa (`data-acao-fixa` + `--geo-rodape-acao`), contorno de controle ≥ 3:1 (`--geo-borda-campo`), segmentado no padrão M3 (destaque + check), alto contraste também no escuro, barra lateral só com altura ≥ 600 px e respeitando o recorte lateral do iPhone, área de toque de 48 px no indicador de rede e nos chips (chip selecionado com check), `mobile/CLAUDE.md` e `GEMINI.md` reescritos
 - [ ] 1.4 Componentes: botão (principal, secundário, perigo), lista/cartão, folha inferior, seletor, campo de quantidade, campos de formulário, assistente em passos
 - [ ] 1.5 Componentes: câmera/galeria com carimbo, status de envio, estados vazio/carregando (skeleton)/erro, puxar para atualizar, ação por arrasto, desfazer, ditado por voz. Feito: `geo-fotos` (câmera traseira direta, galeria opcional, compressão e carimbo com contexto, data e GPS gravado na imagem — `core/fotos/carimbo.ts`), estado de envio compacto (só ícone) e discreto, `ToastService.desfazer`. Decidido: ditado pelo microfone do teclado do aparelho (funciona offline com os modelos do sistema; a API de voz do navegador depende de rede no Chrome), sem componente próprio. Falta: puxar para atualizar e ação por arrasto
-- [ ] 1.6 Layout lista + detalhe adaptável (celular, tablet retrato, tablet paisagem)
+- [x] 1.6 Layout lista + detalhe adaptável (celular, tablet retrato, tablet paisagem): componente `geo-lista-detalhe` (detalhe como rota filha, painéis com rolagem e fixos próprios) e `LayoutService` (classe expandida ≥ 900 × 600). Estreia nas telas de Obras
 - [ ] 1.8 Pendências da revisão para os componentes e telas. Feito: margem de página única (`--geo-margem`, 16 px no celular e 24 px no tablet) em título, seções, cartões e faixas; um estilo de campo (contorno também no seletor); coluna de 640 px para fluxos em passos no tablet; folha inferior centralizada com até 640 px no tablet; barra de passos unificada (`.geo-passos`, antes copiada em 9 telas); Serviços com valor à direita em `tabular-nums`, "Enviado" só como ícone e sem repetir o tipo ("Tipo não informado" sai); apoio das linhas em até 2 linhas; "Seu veículo" em caixa de frase.; interruptor único no padrão M3 (`.geo-interruptor`, antes copiado em 9 telas, desligado com contorno 3:1); sombras e estrela em tokens (`--geo-sombra-cartao`, `--geo-marca-ambar`); Conta sem o status de conexão repetido; rodapé do login sem o separador desalinhado. Falta: FAB na barra lateral no tablet deitado (vai com a 1.6)
 - [x] 1.7 Catálogo interno dos componentes (rota `/catalogo`, sem link no app) com screenshots claro/escuro em `docs/redesign/mobile/`
 
 ## 2. Migração das telas existentes (em paralelo por módulo)
 
 - [ ] 2.1 Login, Hoje e Conta
-- [ ] 2.2 Serviços (notas comerciais) e turno comercial
+- [ ] ~~2.2 Serviços (notas comerciais) e turno comercial~~ — fora do escopo: o fluxo comercial deve sair do app (decisão do usuário, 20/11/2026); não redesenhar
 - [ ] 2.3 Material, solicitações e transferências
 - [ ] 2.4 Frota: checklist, abastecimento, situação e documentos do veículo
 - [ ] 2.5 Segurança: inspeções e desvios

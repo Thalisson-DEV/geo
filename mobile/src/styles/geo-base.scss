@@ -190,6 +190,8 @@ button, a, [role='button'], [role='tab'], .geo-tocavel {
   text-decoration: none;
 
   &--acao { cursor: pointer; transition: background-color 100ms; }
+  // Item aberto no painel ao lado (lista + detalhe).
+  &[aria-current='true'] { background: var(--geo-destaque-suave); }
   &--acao:active { background: var(--geo-superficie-2); }
 
   .geo-linha__texto { flex: 1; min-width: 0; display: grid; gap: 1px; }
@@ -229,6 +231,8 @@ li + li > .geo-linha::before {
 // Tablet: cada tela ocupa uma coluna de largura máxima centralizada; o fundo continua de ponta a ponta.
 // Fica aqui (global) porque o host da tela é inserido pelo roteador, fora do alcance do estilo do shell.
 .geo-coluna-app > :not(router-outlet) { width: 100%; max-width: var(--geo-conteudo-max); margin-inline: auto; }
+// Lista + detalhe dividida (tablet deitado): ocupa a largura e a altura toda; cada painel rola sozinho.
+.geo-coluna-app > :has(> .geo-lista-detalhe.dividido) { max-width: none; height: 100%; min-height: 0; }
 // Formulário em passos: coluna mais estreita (um campo de 7 dígitos não precisa de 880 px).
 .geo-coluna-app > :has(.geo-passos) { max-width: 640px; }
 

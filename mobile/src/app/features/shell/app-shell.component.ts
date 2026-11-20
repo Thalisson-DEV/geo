@@ -4,6 +4,7 @@ import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { OutboxService } from '../../core/sync/outbox.service';
 import { SessaoService } from '../../core/sessao/sessao.service';
+import { LayoutService } from '../../core/plataforma/layout.service';
 import { Aba, BarraAbasComponent, ModoNavegacao } from '../../ui';
 import { AvisoSessaoComponent } from '../../ui/aviso-sessao.component';
 
@@ -57,6 +58,7 @@ export class AppShellComponent implements AfterViewInit {
   private readonly auth = inject(AuthService);
   private readonly outbox = inject(OutboxService);
   private readonly sessao = inject(SessaoService);
+  readonly layout = inject(LayoutService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly rolagem = viewChild.required<ElementRef<HTMLElement>>('rolagem');
 
@@ -104,15 +106,10 @@ export class AppShellComponent implements AfterViewInit {
   });
   readonly rotas = computed(() => this.abas().map(a => a.rota));
   /** Tablet deitado (≥ 900 × 600 px): navegação em barra lateral; abaixo disso, abas embaixo. */
-  private readonly largo = signal(consultaLargo()?.matches ?? false);
-  readonly modoNavegacao = computed<ModoNavegacao>(() => (this.largo() ? 'lateral' : 'inferior'));
+  readonly modoNavegacao = computed<ModoNavegacao>(() => (this.layout.expandido() ? 'lateral' : 'inferior'));
   readonly mostrarAbas = computed(() => TELAS_DE_TOPO.test(this.url()));
 
   constructor() {
-    const consulta = consultaLargo();
-    const aoMudar = (e: MediaQueryListEvent) => this.largo.set(e.matches);
-    consulta?.addEventListener('change', aoMudar);
-    this.destroyRef.onDestroy(() => consulta?.removeEventListener('change', aoMudar));
     // Os elementos fixos (rodapés, avisos, botão flutuante) leem o modo pelo atributo na raiz.
     effect(() => {
       const nav = !this.mostrarAbas() ? 'nenhuma' : this.modoNavegacao();
@@ -235,11 +232,3 @@ export class AppShellComponent implements AfterViewInit {
   }
 }
 
-function consultaLargo(): MediaQueryList | null {
-  try {
-    // Altura mínima: celular deitado (≈ 915×412) não comporta a barra lateral e continua com abas embaixo.
-    return typeof matchMedia === 'function' ? matchMedia('(min-width: 900px) and (min-height: 600px)') : null;
-  } catch {
-    return null;
-  }
-}
