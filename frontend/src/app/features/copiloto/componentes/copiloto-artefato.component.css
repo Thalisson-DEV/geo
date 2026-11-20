@@ -346,3 +346,45 @@
   font-size: var(--geo-font-caption);
   color: var(--geo-foreground-subtle);
 }
+
+.painel__versoes {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
+}
+
+.painel__versao {
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.35rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface);
+  color: var(--geo-foreground-muted);
+  font: inherit;
+  font-size: var(--geo-font-caption);
+  cursor: pointer;
+}
+
+.painel__versao:hover { border-color: var(--geo-brand); }
+
+.painel__versao:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 2px;
+}
+
+.painel__versao--ativa {
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
+  font-weight: 600;
+}
+
+.painel__versao-aviso {
+  margin-left: 0.25rem;
+  color: var(--geo-warning-text, var(--geo-foreground-muted));
+}

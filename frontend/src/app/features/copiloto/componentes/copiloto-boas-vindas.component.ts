@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { GeoStatusComponent } from '@geo/ui';
 import { GeoAsyncStateComponent, GeoCalloutComponent } from '@geo/ui/feedback';
-import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/assistente.models';
+import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../../../core/models/assistente.models';
 
 @Component({
   selector: 'app-copiloto-boas-vindas',
@@ -48,15 +48,28 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
             </ul>
           }
         </div>
+        @if (continuar(); as conversa) {
+          <button type="button" class="continuar" (click)="abrirConversa.emit(conversa.id)">
+            <i class="pi pi-history continuar__icone" aria-hidden="true"></i>
+            <span class="continuar__texto">
+              <span class="continuar__rotulo">Continuar de onde parou</span>
+              <strong class="continuar__titulo">{{ conversa.titulo }}</strong>
+            </span>
+            <i class="pi pi-arrow-right continuar__seta" aria-hidden="true"></i>
+          </button>
+        }
         @if (cap.sugestoes.length) {
-          <h2 class="boas-vindas__subtitulo">Experimente uma pergunta</h2>
+          <h2 class="boas-vindas__subtitulo">Sugestões para o seu perfil</h2>
           <ul class="sugestoes">
-            @for (sugestao of cap.sugestoes.slice(0, 4); track sugestao.titulo) {
+            @for (sugestao of cap.sugestoes.slice(0, 6); track sugestao.titulo) {
               <li>
                 <button type="button" class="sugestao" [disabled]="!cap.disponivel" (click)="escolher.emit(sugestao.pergunta)">
                   <i [class]="sugestao.icone + ' sugestao__icone'" aria-hidden="true"></i>
                   <span class="sugestao__texto">
                     <strong>{{ sugestao.titulo }}</strong>
+                    @if (sugestao.descricao) {
+                      <span class="sugestao__descricao">{{ sugestao.descricao }}</span>
+                    }
                   </span>
                   <i class="pi pi-arrow-up-right sugestao__seta" aria-hidden="true"></i>
                 </button>
@@ -146,8 +159,45 @@ import { AssistenteContexto, CapacidadesAssistente } from '../../../core/models/
     .sugestao:disabled { cursor: not-allowed; opacity: 0.6; }
     .sugestao__icone { color: var(--geo-brand); }
     .sugestao__texto { flex: 1; font-size: var(--geo-font-body); line-height: 1.35; }
-    .sugestao__texto strong { font-weight: 550; }
+    .sugestao__texto { display: flex; flex-direction: column; gap: 0.1rem; }
+    .sugestao__texto strong { font-weight: 600; }
+    .sugestao__descricao { font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); line-height: 1.35; }
+    .continuar {
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-top: 1rem;
+      padding: 0.7rem 0.9rem;
+      border: 1px solid color-mix(in srgb, var(--geo-brand) 30%, var(--geo-border));
+      border-radius: var(--geo-radius-md);
+      background: var(--geo-brand-soft);
+      color: var(--geo-foreground);
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+    .continuar:hover { border-color: var(--geo-brand); }
+    .continuar:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
+    .continuar__icone, .continuar__seta { color: var(--geo-brand); }
+    .continuar__texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .continuar__rotulo { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .continuar__titulo { font-size: var(--geo-font-body); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .sugestao__seta { font-size: 0.7rem; color: var(--geo-foreground-subtle); }
+    /* Telas baixas (notebooks 1366x768 com zoom, janelas divididas): tudo cabe sem rolar. */
+    @media (max-height: 820px) {
+      .boas-vindas { gap: 0.45rem; padding-top: 0.25rem; padding-bottom: 0.75rem; }
+      .boas-vindas__avatar { width: 2.5rem; height: 2.5rem; }
+      .boas-vindas__subtitulo { margin-top: 0.6rem; }
+      .boas-vindas__estado { margin: 0.4rem 0 0.3rem; }
+      .continuar { margin-top: 0.5rem; padding: 0.5rem 0.8rem; }
+      .sugestoes li:nth-child(n + 5) { display: none; }
+      .sugestao { min-height: 3.1rem; padding: 0.5rem 0.75rem; }
+      .sugestao__descricao { display: none; }
+    }
+    @media (max-height: 680px) {
+      .boas-vindas__avatar, .boas-vindas__texto { display: none; }
+    }
     @media (max-width: 640px) {
       .boas-vindas { padding: 0.75rem 0 1.5rem; }
       .sugestoes { grid-template-columns: 1fr; }
@@ -159,7 +209,10 @@ export class CopilotoBoasVindasComponent {
   readonly capacidades = input<CapacidadesAssistente | null>(null);
   readonly erro = input<string | null>(null);
   readonly contexto = input<AssistenteContexto | null>(null);
+  /** Conversa mais recente, oferecida como atalho para continuar. */
+  readonly continuar = input<ConversaResumo | null>(null);
   readonly escolher = output<string>();
+  readonly abrirConversa = output<string>();
 
   private readonly catalogoCapacidades = computed(() => {
     const cap = this.capacidades();

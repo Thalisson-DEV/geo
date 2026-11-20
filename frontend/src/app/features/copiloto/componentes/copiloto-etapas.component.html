@@ -9,7 +9,7 @@
     >
       @if (emAndamento()) {
         <i class="pi pi-spinner etapas__giro" aria-hidden="true"></i>
-      } @else if (falhas()) {
+      } @else if (falhas() && !concluidaComSucesso()) {
         <i class="pi pi-exclamation-circle etapas__icone--aviso" aria-hidden="true"></i>
       } @else {
         <i class="pi pi-check-circle etapas__icone--ok" aria-hidden="true"></i>
@@ -21,9 +21,15 @@
         {{ resumo() }}
       </span>
       @if (falhas() && !emAndamento()) {
-        <geo-status tone="warning" icon="pi-exclamation-triangle">
-          {{ falhas() }} {{ falhas() === 1 ? 'etapa com erro' : 'etapas com erro' }}
-        </geo-status>
+        @if (concluidaComSucesso()) {
+          <geo-status tone="neutral" icon="pi-info-circle">
+            {{ falhas() }} {{ falhas() === 1 ? 'erro contornado' : 'erros contornados' }}
+          </geo-status>
+        } @else {
+          <geo-status tone="warning" icon="pi-exclamation-triangle">
+            {{ falhas() }} {{ falhas() === 1 ? 'etapa com erro' : 'etapas com erro' }}
+          </geo-status>
+        }
       }
       <i class="pi etapas__seta" [class.pi-chevron-up]="aberta()" [class.pi-chevron-down]="!aberta()" aria-hidden="true"></i>
     </button>
@@ -75,7 +81,7 @@
                 <ul class="etapa__arquivos">
                   @for (arquivo of etapa.arquivos; track arquivo.id) {
                     <li>
-                      <button type="button" class="etapa__arquivo" (click)="baixarArquivo.emit(arquivo)">
+                      <button type="button" class="etapa__arquivo" (click)="baixarArquivo.emit(arquivoAtual()(arquivo))">
                         <i class="pi pi-download" aria-hidden="true"></i>{{ arquivo.nome }}
                       </button>
                     </li>

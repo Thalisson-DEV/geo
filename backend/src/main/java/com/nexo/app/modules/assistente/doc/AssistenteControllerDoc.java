@@ -29,7 +29,7 @@ public interface AssistenteControllerDoc {
     @Operation(summary = "Consultar conversa com mensagens, timeline, artefatos e arquivos")
     ResponseEntity<ConversaDetalheResponse> buscar(UUID conversaId);
 
-    @Operation(summary = "Renomear conversa")
+    @Operation(summary = "Renomear ou fixar conversa", description = "Envie o título, a fixação no topo do histórico ou ambos.")
     ResponseEntity<ConversaResumoResponse> renomear(UUID conversaId, RenomearConversaRequest request);
 
     @Operation(summary = "Excluir conversa", description = "Exclusao logica; interrompe execucao em andamento.")
@@ -48,6 +48,9 @@ public interface AssistenteControllerDoc {
 
     @Operation(summary = "Interromper a geracao em andamento", description = "O conteudo parcial e preservado.")
     ResponseEntity<Map<String, Object>> parar(UUID conversaId);
+
+    @Operation(summary = "Avaliar uma resposta", description = "Útil (POSITIVA) ou não útil (NEGATIVA, com motivo); avaliação nula remove.")
+    ResponseEntity<MensagemResponse.Avaliacao> avaliar(UUID conversaId, UUID mensagemId, AvaliarRespostaRequest request);
 
     @Operation(summary = "Consultar uma mensagem")
     ResponseEntity<MensagemResponse> mensagem(UUID conversaId, UUID mensagemId);

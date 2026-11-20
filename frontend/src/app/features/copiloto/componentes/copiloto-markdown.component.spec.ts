@@ -1,13 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CopilotoMarkdownComponent } from './copiloto-markdown.component';
+import { NotificationService } from '@geo/ui/feedback';
+import { CopilotoMarkdownComponent, numeroBr } from './copiloto-markdown.component';
 
 describe('CopilotoMarkdownComponent', () => {
   let fixture: ComponentFixture<CopilotoMarkdownComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CopilotoMarkdownComponent]
+      imports: [CopilotoMarkdownComponent],
+      providers: [{ provide: NotificationService, useValue: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CopilotoMarkdownComponent);
@@ -73,5 +75,50 @@ describe('CopilotoMarkdownComponent', () => {
     expect(markdown.textContent).toContain('[7]');
     const link = [...markdown.querySelectorAll('a')].find((a) => a.textContent === 'site') as HTMLAnchorElement;
     expect(link.target).toBe('_blank');
+  });
+
+  it('troca citações de resultados por um link de dados e avisa quais resultados abrir', () => {
+    fixture.componentRef.setInput('content', 'Total de **R$ 10** (r2, r6) no mês (r19).');
+    fixture.componentRef.setInput('citacoesClicaveis', true);
+    fixture.detectChanges();
+    const abertos: string[][] = [];
+    fixture.componentInstance.verDados.subscribe((codigos) => abertos.push(codigos));
+
+    const markdown = fixture.nativeElement.querySelector('.markdown-body') as HTMLElement;
+    const links = markdown.querySelectorAll<HTMLButtonElement>('button.markdown-dados');
+    expect(links).toHaveLength(2);
+    expect(markdown.textContent).not.toContain('r19');
+    links[0].click();
+    expect(abertos).toEqual([['r2', 'r6']]);
+  });
+
+  it('sem quem abra os dados, as citações de resultados somem do texto', () => {
+    fixture.componentRef.setInput('content', 'Total de R$ 10 (r2).');
+    fixture.detectChanges();
+    const markdown = fixture.nativeElement.querySelector('.markdown-body') as HTMLElement;
+    expect(markdown.textContent?.trim()).toBe('Total de R$ 10.');
+  });
+
+  it('ordena tabelas por valores em reais e monta o índice das respostas longas', () => {
+    fixture.componentRef.setInput('content', [
+      '## Um', '## Dois', '## Três', '## Quatro', '',
+      '| Equipe | Valor |', '| --- | ---: |', '| A | R$ 1.860,06 |', '| B | R$ 99,10 |', '| C | R$ 10.000,00 |',
+    ].join(String.fromCharCode(10)));
+    fixture.componentRef.setInput('indice', true);
+    fixture.detectChanges();
+    const markdown = fixture.nativeElement.querySelector('.markdown-body') as HTMLElement;
+
+    expect(markdown.querySelectorAll('.markdown-indice__item')).toHaveLength(4);
+    const ordenar = markdown.querySelectorAll<HTMLButtonElement>('button.markdown-ordenar')[1];
+    ordenar.click();
+    const valores = [...markdown.querySelectorAll('tbody tr td:last-child')].map((td) => td.textContent?.trim());
+    expect(valores).toEqual(['R$ 99,10', 'R$ 1.860,06', 'R$ 10.000,00']);
+    expect(ordenar.closest('th')?.getAttribute('aria-sort')).toBe('ascending');
+  });
+
+  it('lê números no padrão brasileiro', () => {
+    expect(numeroBr('R$ 1.234,56')).toBe(1234.56);
+    expect(numeroBr('11,5%')).toBe(11.5);
+    expect(numeroBr('Bonfim')).toBeNull();
   });
 });

@@ -53,6 +53,10 @@ public class ConversaAssistente extends BaseEntity {
     @Column(name = "origem_id", length = 80)
     private String origemId;
 
+    /** Fixada pelo usuário no topo do histórico. */
+    @Column(name = "fixada", nullable = false)
+    private boolean fixada;
+
     public ConversaAssistente(UUID usuarioId, String titulo) {
         this(usuarioId, titulo, null);
     }
@@ -102,6 +106,10 @@ public class ConversaAssistente extends BaseEntity {
         }
         this.titulo = normalizeTitle(novoTitulo);
         this.tituloDefinidoPeloUsuario = true;
+    }
+
+    public void fixar(boolean fixada) {
+        this.fixada = fixada;
     }
 
     public void registrarAtividade() {

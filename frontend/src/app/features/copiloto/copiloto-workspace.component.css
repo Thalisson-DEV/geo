@@ -14,7 +14,7 @@
 
 .ws__lista {
   display: none;
-  flex: 0 0 15rem;
+  flex: 0 0 var(--ws-lista-largura, 17.5rem);
   min-width: 0;
   min-height: 0;
   border-right: 1px solid var(--geo-border);
@@ -193,6 +193,91 @@
 
   .ws__aviso {
     display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- painel lateral redimensionável */
+.ws__divisor {
+  position: relative;
+  flex: 0 0 0.4rem;
+  margin: 0 -0.2rem;
+  z-index: 2;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.ws__divisor::after {
+  content: '';
+  position: absolute;
+  inset: 0 0.15rem;
+  border-radius: 999px;
+  background: transparent;
+  transition: background var(--geo-duration-fast) var(--geo-ease-standard);
+}
+
+/* O divisor do histórico desenha a borda entre a lista e a conversa (de cima a baixo, inclusive no cabeçalho). */
+.ws__divisor--lista {
+  margin: 0 -0.25rem;
+}
+
+.ws__divisor--lista::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--geo-border-strong);
+}
+
+.ws--desktop.ws--lista-aberta .ws__lista {
+  border-right: 0;
+}
+
+.ws__divisor:hover::after,
+.ws--redimensionando .ws__divisor::after {
+  background: var(--geo-brand);
+}
+
+.ws__divisor:focus-visible {
+  outline: none;
+}
+
+.ws__divisor:focus-visible::after {
+  background: var(--geo-focus-ring);
+}
+
+.ws--redimensionando {
+  cursor: col-resize;
+  user-select: none;
+}
+
+.ws--desktop.ws--largura-definida .ws__painel {
+  flex: 0 0 var(--ws-painel-largura);
+  max-width: calc(100% - 23.75rem);
+}
+
+.ws--painel-cheio .ws__chat,
+.ws--painel-cheio .ws__lista {
+  display: none;
+}
+
+.ws--painel-cheio.ws--desktop .ws__painel {
+  flex: 1 1 auto;
+  max-width: none;
+  border-left: 0;
+  box-shadow: none;
+}
+
+@media (min-width: 1024px) and (max-width: 1280px) {
+  .ws__divisor:not(.ws__divisor--lista) {
+    display: none;
+  }
+
+  .ws--desktop.ws--largura-definida .ws__painel {
+    flex: 1 1 auto;
+    max-width: none;
   }
 }
 

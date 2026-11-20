@@ -1,8 +1,15 @@
 <div
+  #ws
   class="ws"
   [class.ws--desktop]="desktop()"
   [class.ws--lista-aberta]="listaVisivel()"
   [class.ws--painel-aberto]="painelAberto()"
+  [class.ws--painel-cheio]="painelAberto() && painelCheio()"
+  [class.ws--redimensionando]="redimensionando()"
+  [class.ws--largura-definida]="larguraPainel() !== null"
+  [style.--ws-painel-largura.px]="larguraPainel()"
+  [style.--ws-lista-largura.px]="larguraLista()"
+  (keydown.escape)="aoEsc()"
 >
   <aside class="ws__lista" [attr.aria-hidden]="!listaVisivel()" [attr.inert]="listaVisivel() ? null : ''">
     <app-copiloto-conversas
@@ -18,9 +25,25 @@
       (buscar)="store.buscar($event)"
       (recarregar)="store.carregarConversas()"
       (renomear)="store.renomear($event.id, $event.titulo)"
+      (fixar)="store.fixar($event.id, $event.fixada)"
       (excluir)="excluir($event)"
     ></app-copiloto-conversas>
   </aside>
+  @if (desktop() && listaVisivel()) {
+    <div
+      class="ws__divisor ws__divisor--lista"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Redimensionar o histórico de conversas (setas esquerda e direita)"
+      [attr.aria-valuenow]="larguraLista()"
+      [attr.aria-valuemin]="LISTA_MINIMA"
+      [attr.aria-valuemax]="LISTA_MAXIMA"
+      tabindex="0"
+      (pointerdown)="iniciarRedimensionamento($event, 'lista')"
+      (keydown)="redimensionarPeloTeclado($event, 'lista')"
+      (dblclick)="redefinirLista()"
+    ></div>
+  }
 
   <section
     class="ws__chat"
@@ -38,15 +61,16 @@
       <img class="ws__avatar" src="icons/bussola.svg" alt="" aria-hidden="true" />
       <div class="ws__identidade">
         <span class="ws__marca">Bússola</span>
-        <h1 class="ws__titulo">{{ store.titulo() }}</h1>
+        <h1 class="ws__titulo" [attr.title]="store.titulo()">{{ store.titulo() }}</h1>
       </div>
-      @if (store.artefatos().length && !painelAberto()) {
+      @if (totalArquivos() && !painelAberto()) {
         <geo-button
           variant="ghost"
           size="sm"
-          icon="pi pi-objects-column"
-          [label]="'Artefatos (' + store.artefatos().length + ')'"
-          (pressed)="abrirUltimoArtefato()"
+          icon="pi pi-folder-open"
+          [label]="'Arquivos (' + totalArquivos() + ')'"
+          [ariaLabel]="'Arquivos e artefatos desta conversa: ' + totalArquivos()"
+          (pressed)="store.abrirArquivos()"
         ></geo-button>
       }
       @if (podeConectarIa()) {
@@ -58,7 +82,7 @@
     </header>
 
     <div class="ws__mensagens" #rolagem (scroll)="aoRolar()">
-      <div class="ws__conteudo" [class.ws__conteudo--vazio]="store.vazia()" role="log" aria-label="Mensagens da conversa" aria-live="off">
+      <div class="ws__conteudo" #conteudo [class.ws__conteudo--vazio]="store.vazia()" role="log" aria-label="Mensagens da conversa" aria-live="off">
         @if (store.carregandoConversa()) {
           <geo-async-state state="loading" title="Abrindo a conversa"></geo-async-state>
         } @else if (store.erroConversa()) {
@@ -75,17 +99,28 @@
             [capacidades]="store.capacidades()"
             [erro]="store.erroCapacidades()"
             [contexto]="store.contexto()"
+            [continuar]="ultimaConversa()"
             (escolher)="usarSugestao($event)"
+            (abrirConversa)="abrirConversa($event)"
           ></app-copiloto-boas-vindas>
         } @else {
           @for (mensagem of store.mensagens(); track mensagem.chave) {
-            <app-copiloto-mensagem [mensagem]="mensagem" (abrirArtefato)="abrirArtefato($event)"></app-copiloto-mensagem>
+            <app-copiloto-mensagem
+              [mensagem]="mensagem"
+              [ultima]="mensagem.chave === ultimaResposta()"
+              [podeEditar]="!store.transmitindo()"
+              (abrirArtefato)="abrirArtefato($event)"
+              (verDados)="store.abrirDados($event)"
+              (enviarTexto)="enviar($event)"
+              (editar)="editar($event)"
+              (refazer)="refazer(mensagem.chave)"
+            ></app-copiloto-mensagem>
           }
         }
       </div>
     </div>
 
-    @if (!grudado() && !store.vazia()) {
+    @if (!grudado() && !store.vazia() && !store.carregandoConversa()) {
       <div class="ws__fim">
         <geo-button variant="secondary" size="sm" icon="pi pi-arrow-down" label="Ir para o fim" (pressed)="irParaOFim()"></geo-button>
       </div>
@@ -101,6 +136,7 @@
         [(valor)]="rascunho"
         [anexos]="store.anexos()"
         [contexto]="store.vazia() ? store.contexto() : null"
+        [competencias]="store.capacidades()?.competencias ?? []"
         [transmitindo]="store.transmitindo()"
         [parando]="store.parando()"
         [disponivel]="store.disponivel()"
@@ -110,7 +146,9 @@
         (anexar)="store.anexar($event)"
         (removerAnexo)="store.removerAnexo($event)"
       ></app-copiloto-compositor>
-      <p class="ws__aviso">A Bússola só vê o que você pode ver e só grava no GEO depois que você confirma no cartão. Confira decisões importantes nos módulos de origem.</p>
+      @if (store.vazia()) {
+        <p class="ws__aviso">A Bússola só vê o que você pode ver e só grava no GEO depois que você confirma no cartão. Confira decisões importantes nos módulos de origem.</p>
+      }
     </div>
 
     @if (arrastando()) {
@@ -121,14 +159,54 @@
     }
   </section>
 
-  @if (store.artefatoSelecionado(); as artefato) {
-    <aside class="ws__painel" aria-label="Painel de artefatos">
-      <app-copiloto-artefato
-        [artefato]="artefato"
-        [artefatos]="store.artefatos()"
-        (fechar)="store.abrirArtefato(null)"
-        (selecionar)="store.abrirArtefato($event)"
-      ></app-copiloto-artefato>
+  @if (store.painel(); as painel) {
+    @if (desktop() && !painelCheio()) {
+      <div
+        class="ws__divisor"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Redimensionar o painel lateral (setas esquerda e direita)"
+        [attr.aria-valuenow]="larguraPainel()"
+        [attr.aria-valuemin]="LARGURA_MINIMA"
+        tabindex="0"
+        (pointerdown)="iniciarRedimensionamento($event, 'painel')"
+        (keydown)="redimensionarPeloTeclado($event, 'painel')"
+        (dblclick)="larguraPainel.set(null)"
+      ></div>
+    }
+    <aside class="ws__painel" [attr.aria-label]="rotuloPainel()">
+      <ng-template #acoesPainel>
+        @if (desktop()) {
+          <geo-icon-button
+            acoes-painel
+            [icon]="painelCheio() ? 'pi pi-window-minimize' : 'pi pi-window-maximize'"
+            [label]="painelCheio() ? 'Voltar a ver a conversa ao lado' : 'Abrir o painel em tela cheia'"
+            [tooltip]="painelCheio() ? 'Mostrar a conversa' : 'Tela cheia'"
+            size="icon-sm"
+            (pressed)="painelCheio.set(!painelCheio())"
+          ></geo-icon-button>
+        }
+      </ng-template>
+      @switch (painel.tipo) {
+        @case ('artefato') {
+          @if (store.artefatoSelecionado(); as artefato) {
+            <app-copiloto-artefato
+              [artefato]="artefato"
+              [artefatos]="store.artefatosAtuais()"
+              (fechar)="fecharPainel()"
+              (selecionar)="store.abrirArtefato($event)"
+            ><ng-container ngProjectAs="[acoes-painel]" [ngTemplateOutlet]="acoesPainel"></ng-container></app-copiloto-artefato>
+          }
+        }
+        @case ('dados') {
+          <app-copiloto-dados [codigos]="$any(painel).codigos" (fechar)="fecharPainel()"
+            ><ng-container ngProjectAs="[acoes-painel]" [ngTemplateOutlet]="acoesPainel"></ng-container></app-copiloto-dados>
+        }
+        @case ('arquivos') {
+          <app-copiloto-arquivos (fechar)="fecharPainel()" (abrirArtefato)="store.abrirArtefato($event)"
+            ><ng-container ngProjectAs="[acoes-painel]" [ngTemplateOutlet]="acoesPainel"></ng-container></app-copiloto-arquivos>
+        }
+      }
     </aside>
   }
 </div>

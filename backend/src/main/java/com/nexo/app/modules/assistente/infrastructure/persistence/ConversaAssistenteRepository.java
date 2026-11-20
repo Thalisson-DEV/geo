@@ -43,7 +43,6 @@ public interface ConversaAssistenteRepository extends JpaRepository<ConversaAssi
               and (lower(c.titulo) like :termo escape '\\'
                    or exists (select 1 from MensagemAssistente m
                               where m.conversa = c and m.ativo = true
-                                and m.papel = com.nexo.app.modules.assistente.domain.PapelMensagem.USUARIO
                                 and lower(m.conteudo) like :termo escape '\\'))
             """)
     Page<ConversaAssistente> buscarDoUsuario(@Param("usuarioId") UUID usuarioId, @Param("termo") String termo,

@@ -5,8 +5,9 @@ app-copiloto-markdown {
 
 .copiloto-markdown {
   color: var(--geo-foreground);
-  font-size: var(--geo-font-body);
-  line-height: 1.65;
+  /* Leitura longa: um pouco maior que o corpo das telas de cadastro, respeitando a densidade escolhida. */
+  font-size: calc(var(--geo-font-body) + 0.0625rem);
+  line-height: 1.7;
   overflow-wrap: anywhere;
 }
 
@@ -162,3 +163,122 @@ app-copiloto-markdown {
   background: var(--geo-brand-soft);
   color: var(--geo-brand);
 }
+
+/* ---------------------------------------------------------------- citação de resultados do GEO */
+.copiloto-markdown .markdown-dados {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0 0.4rem;
+  margin: 0 0.05rem;
+  border: 1px solid var(--geo-border);
+  border-radius: 999px;
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-muted);
+  font: inherit;
+  font-size: var(--geo-font-caption);
+  line-height: 1.35rem;
+  vertical-align: 0.05rem;
+  cursor: pointer;
+  transition: color var(--geo-duration-fast) var(--geo-ease-standard), border-color var(--geo-duration-fast) var(--geo-ease-standard);
+}
+.copiloto-markdown .markdown-dados .pi { font-size: 0.65rem; }
+.copiloto-markdown .markdown-dados:hover { color: var(--geo-brand); border-color: var(--geo-brand); }
+.copiloto-markdown .markdown-dados:focus-visible,
+.copiloto-markdown .markdown-tabela__acao:focus-visible,
+.copiloto-markdown .markdown-ordenar:focus-visible,
+.copiloto-markdown .markdown-indice__item:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- tabelas com ações */
+.copiloto-markdown .markdown-tabela { margin: 0 0 0.85rem; }
+.copiloto-markdown .markdown-tabela .markdown-table { margin: 0; }
+.copiloto-markdown .markdown-tabela__barra {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  margin-bottom: 0.3rem;
+}
+.copiloto-markdown .markdown-tabela__total {
+  flex: 1;
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
+}
+.copiloto-markdown .markdown-tabela__acao {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border: 0;
+  border-radius: var(--geo-radius-sm);
+  background: transparent;
+  color: var(--geo-foreground-muted);
+  font: inherit;
+  font-size: var(--geo-font-caption);
+  cursor: pointer;
+}
+.copiloto-markdown .markdown-tabela__acao .pi { font-size: 0.7rem; }
+.copiloto-markdown .markdown-tabela__acao:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
+.copiloto-markdown .markdown-ordenar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.copiloto-markdown th[align='right'] .markdown-ordenar { flex-direction: row-reverse; }
+.copiloto-markdown .markdown-ordenar__seta { font-size: 0.65rem; color: var(--geo-foreground-subtle); }
+.copiloto-markdown th[aria-sort='ascending'] .markdown-ordenar__seta,
+.copiloto-markdown th[aria-sort='descending'] .markdown-ordenar__seta { color: var(--geo-brand); }
+
+/* ---------------------------------------------------------------- índice de respostas longas */
+.copiloto-markdown .markdown-indice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 1rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
+}
+.copiloto-markdown .markdown-indice__rotulo {
+  margin-right: 0.25rem;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--geo-foreground-subtle);
+}
+.copiloto-markdown .markdown-indice__item {
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--geo-border);
+  border-radius: 999px;
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
+  font: inherit;
+  font-size: var(--geo-font-caption);
+  cursor: pointer;
+}
+.copiloto-markdown .markdown-indice__item:hover { border-color: var(--geo-brand); color: var(--geo-brand); }
+.copiloto-markdown h1[id],
+.copiloto-markdown h2[id],
+.copiloto-markdown h3[id] { scroll-margin-top: 1rem; }
+
+/* Células não quebram palavras e datas no meio: a tabela rola na horizontal quando falta espaço. */
+.copiloto-markdown th,
+.copiloto-markdown td {
+  overflow-wrap: normal;
+  word-break: normal;
+  min-width: 4.5rem;
+}
+.copiloto-markdown td { white-space: normal; }

@@ -4,14 +4,29 @@
     <div class="painel__titulos">
       <h2 class="painel__titulo" [id]="'artefato-' + artefato().codigo">{{ artefato().titulo }}</h2>
       <p class="painel__subtitulo">
-        {{ rotulo[artefato().tipo] || artefato().tipo }} · {{ artefato().codigo }}
+        {{ rotulo[artefato().tipo] || artefato().tipo }}
         @if (artefato().descricao) {
           · {{ artefato().descricao }}
         }
       </p>
+      @if (versoes().length > 1) {
+        <div class="painel__versoes" role="group" aria-label="Versões deste artefato">
+          <span>Versão</span>
+          @for (versao of versoes(); track versao.codigo; let i = $index) {
+            <button type="button" class="painel__versao" [class.painel__versao--ativa]="versao.codigo === artefato().codigo"
+              [attr.aria-current]="versao.codigo === artefato().codigo ? 'true' : null"
+              [attr.aria-label]="'Versão ' + (i + 1) + (i === versoes().length - 1 ? ' (mais recente)' : '')"
+              (click)="selecionar.emit(versao.codigo)">{{ i + 1 }}</button>
+          }
+          @if (versoes()[versoes().length - 1].codigo !== artefato().codigo) {
+            <span class="painel__versao-aviso">versão anterior</span>
+          }
+        </div>
+      }
     </div>
     <div class="painel__acoes">
-      @if (artefatos().length > 1) {
+      <ng-content select="[acoes-painel]"></ng-content>
+      @if (artefatos().length > 1 && indice() >= 0) {
         <geo-icon-button icon="pi pi-angle-left" label="Artefato anterior" size="icon-sm" [disabled]="indice() <= 0" (pressed)="anterior()"></geo-icon-button>
         <span class="painel__posicao">{{ indice() + 1 }}/{{ artefatos().length }}</span>
         <geo-icon-button icon="pi pi-angle-right" label="Próximo artefato" size="icon-sm" [disabled]="indice() >= artefatos().length - 1" (pressed)="proximo()"></geo-icon-button>

@@ -3,6 +3,7 @@ package com.nexo.app.modules.assistente.application.agent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nexo.app.modules.assistente.application.AssistenteProperties;
+import com.nexo.app.modules.assistente.application.AvisoRespostaPronta;
 import com.nexo.app.modules.assistente.application.ConversaPersistencia;
 import com.nexo.app.modules.assistente.application.artifacts.ArtifactService;
 import com.nexo.app.modules.assistente.application.dto.EnviarMensagemRequest;
@@ -57,11 +58,13 @@ public class AgentRunner {
     private final ConversaPersistencia persistencia;
     private final ObjectMapper objectMapper;
     private final ObjectProvider<MeterRegistry> meterRegistry;
+    private final ObjectProvider<AvisoRespostaPronta> avisos;
 
     public AgentRunner(AssistenteProperties properties, LlmProvider llm, AgentRunRegistry registry, ToolRegistry tools,
             AgentLoop loop, SystemPromptBuilder promptBuilder, ContextAssembler contextAssembler, TitleGenerator titleGenerator,
             SkillCatalog skills, ResultStore resultStore, ArquivoService arquivos, ArtifactService artefatos,
-            ConversaPersistencia persistencia, ObjectMapper objectMapper, ObjectProvider<MeterRegistry> meterRegistry) {
+            ConversaPersistencia persistencia, ObjectMapper objectMapper, ObjectProvider<MeterRegistry> meterRegistry,
+            ObjectProvider<AvisoRespostaPronta> avisos) {
         this.properties = properties;
         this.llm = llm;
         this.registry = registry;
@@ -77,6 +80,7 @@ public class AgentRunner {
         this.persistencia = persistencia;
         this.objectMapper = objectMapper;
         this.meterRegistry = meterRegistry;
+        this.avisos = avisos;
     }
 
     /**
@@ -230,6 +234,11 @@ public class AgentRunner {
             run.finish();
         }
         registrarMetricas(status, duracaoMs, uso, context.chamadasFerramenta());
+        // Resposta fora do chat (automação, com orçamento próprio) não avisa: quem pediu não está esperando na tela.
+        if (context.interativa()) {
+            AvisoRespostaPronta sino = avisos.getIfAvailable();
+            if (sino != null) sino.avisar(run.conversaId(), run.usuarioId(), run.mensagemAssistenteId(), status, duracaoMs);
+        }
     }
 
     private void gerarTitulo(AgentRun run, String pergunta) {

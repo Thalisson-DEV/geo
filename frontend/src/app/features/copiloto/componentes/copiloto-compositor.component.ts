@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, computed, input, model, output, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, afterRenderEffect, computed, inject, input, model, output, signal, viewChild } from '@angular/core';
 import { GeoButtonComponent, GeoIconButtonComponent, GeoStatusComponent } from '@geo/ui';
 import { GeoTextareaComponent } from '@geo/ui/forms';
 import { AssistenteContexto } from '../../../core/models/assistente.models';
@@ -6,9 +6,15 @@ import { AnexoPendente, formatarTamanho } from '../copiloto.store';
 
 const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.yaml,.sql,.html,.htm,.docx,.png,.jpg,.jpeg,.gif,.webp';
 
+export interface CompetenciaAtalho {
+  nome: string;
+  titulo: string;
+  descricao: string;
+}
+
 /**
  * Compositor de mensagens: texto com Enter para enviar (Shift+Enter quebra linha), anexos por botão,
- * colar ou arrastar, e botão de interromper durante a geração.
+ * colar ou arrastar, "/" para escolher uma competência e botão de interromper durante a geração.
  */
 @Component({
   selector: 'app-copiloto-compositor',
@@ -54,6 +60,27 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
           }
         </ul>
       }
+      @if (atalhos().length) {
+        <ul class="atalhos" role="listbox" id="copiloto-competencias" aria-label="Competências da Bússola">
+          @for (competencia of atalhos(); track competencia.nome; let i = $index) {
+            <li
+              role="option"
+              class="atalho"
+              [class.atalho--ativo]="i === atalhoAtivo()"
+              [attr.aria-selected]="i === atalhoAtivo()"
+              [id]="'copiloto-competencia-' + i"
+              (mousedown)="$event.preventDefault()"
+              (click)="escolherAtalho(competencia)"
+            >
+              <span class="atalho__nome">/{{ competencia.nome }}</span>
+              <span class="atalho__texto">
+                <strong>{{ competencia.titulo }}</strong>
+                <span>{{ competencia.descricao }}</span>
+              </span>
+            </li>
+          }
+        </ul>
+      }
       <div class="compositor__campo" (keydown)="aoTeclar($event)" (paste)="aoColar($event)">
         <geo-textarea
           #campo
@@ -62,7 +89,8 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
           inputId="copiloto-mensagem"
           [(value)]="valor"
           [rows]="2"
-          [autoResize]="false"
+          [autoResize]="true"
+          maxHeight="224px"
           [maxlength]="20000"
           [placeholder]="placeholder()"
           [disabled]="!disponivel()"
@@ -85,7 +113,13 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
           [disabled]="!disponivel()"
           (pressed)="seletor.click()"
         ></geo-icon-button>
-        <span class="compositor__dica">Enter envia · Shift+Enter quebra linha</span>
+        <span class="compositor__dica" aria-hidden="true">
+          @if (valor().trim()) {
+            Enter envia · Shift+Enter quebra linha
+          } @else if (competencias().length) {
+            Digite / para usar uma competência
+          }
+        </span>
         @if (transmitindo()) {
           <geo-button
             variant="secondary"
@@ -153,11 +187,40 @@ const ACEITOS = '.pdf,.xlsx,.xlsm,.xls,.csv,.tsv,.json,.txt,.md,.log,.xml,.yml,.
     .anexo__meta { color: var(--geo-foreground-subtle); }
     .anexo__giro { color: var(--geo-brand); animation: anexo-giro 0.9s linear infinite; }
     @keyframes anexo-giro { to { transform: rotate(360deg); } }
+    .atalhos {
+      list-style: none;
+      margin: 0;
+      padding: 0.25rem;
+      max-height: 15rem;
+      overflow-y: auto;
+      border: 1px solid var(--geo-border);
+      border-radius: var(--geo-radius-md);
+      background: var(--geo-surface);
+    }
+    .atalho {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: var(--geo-radius-sm);
+      cursor: pointer;
+    }
+    .atalho:hover, .atalho--ativo { background: var(--geo-brand-soft); }
+    .atalho__nome {
+      flex: 0 0 auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: var(--geo-font-caption);
+      color: var(--geo-brand);
+      padding-top: 0.1rem;
+    }
+    .atalho__texto { display: flex; flex-direction: column; min-width: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .atalho__texto strong { font-size: var(--geo-font-body); color: var(--geo-foreground); font-weight: 600; }
     @media (max-width: 640px) { .compositor__dica { visibility: hidden; } }
     @media (prefers-reduced-motion: reduce) { .anexo__giro { animation: none; } }
   `,
 })
 export class CopilotoCompositorComponent {
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly campo = viewChild<GeoTextareaComponent>('campo');
   private readonly seletor = viewChild<ElementRef<HTMLInputElement>>('seletor');
 
@@ -168,6 +231,7 @@ export class CopilotoCompositorComponent {
   readonly parando = input(false);
   readonly disponivel = input(true);
   readonly enviandoAnexos = input(false);
+  readonly competencias = input<readonly CompetenciaAtalho[]>([]);
 
   readonly enviar = output<string>();
   readonly parar = output<void>();
@@ -184,6 +248,30 @@ export class CopilotoCompositorComponent {
       ? 'Pergunte à Bússola…'
       : 'A Bússola está indisponível no momento',
   );
+  private readonly atalhoFechado = signal<string | null>(null);
+  protected readonly atalhoAtivo = signal(0);
+  /** Competências que casam com o que foi digitado depois da barra ("/ati" → investigacao-atipicos). */
+  protected readonly atalhos = computed(() => {
+    const valor = this.valor();
+    const busca = /^\/([\w-]*)$/.exec(valor);
+    if (!busca || this.atalhoFechado() === valor) return [];
+    const termo = busca[1].toLowerCase();
+    return this.competencias()
+      .filter((competencia) => !termo || competencia.nome.toLowerCase().includes(termo)
+        || competencia.titulo.toLowerCase().includes(termo))
+      .slice(0, 8);
+  });
+
+  constructor() {
+    // A altura acompanha o texto (inclusive ao limpar depois de enviar); o limite fica no maxHeight do campo.
+    afterRenderEffect(() => {
+      this.valor();
+      const campo = this.host.nativeElement.querySelector('textarea');
+      if (!campo || !campo.offsetWidth) return;
+      campo.style.height = 'auto';
+      campo.style.height = `${campo.scrollHeight + 2}px`;
+    });
+  }
 
   focar(): void {
     this.campo()?.focus();
@@ -194,7 +282,33 @@ export class CopilotoCompositorComponent {
     this.enviar.emit(this.valor().trim());
   }
 
+  protected escolherAtalho(competencia: CompetenciaAtalho): void {
+    this.valor.set(`/${competencia.nome} `);
+    this.atalhoAtivo.set(0);
+    this.focar();
+  }
+
   protected aoTeclar(evento: KeyboardEvent): void {
+    const atalhos = this.atalhos();
+    if (atalhos.length) {
+      if (evento.key === 'ArrowDown' || evento.key === 'ArrowUp') {
+        evento.preventDefault();
+        const passo = evento.key === 'ArrowDown' ? 1 : -1;
+        this.atalhoAtivo.set((this.atalhoAtivo() + passo + atalhos.length) % atalhos.length);
+        return;
+      }
+      if ((evento.key === 'Enter' || evento.key === 'Tab') && !evento.shiftKey) {
+        evento.preventDefault();
+        this.escolherAtalho(atalhos[Math.min(this.atalhoAtivo(), atalhos.length - 1)]);
+        return;
+      }
+      if (evento.key === 'Escape') {
+        evento.preventDefault();
+        evento.stopPropagation();
+        this.atalhoFechado.set(this.valor());
+        return;
+      }
+    }
     if (evento.key === 'Enter' && !evento.shiftKey && !evento.isComposing && !evento.ctrlKey && !evento.altKey) {
       evento.preventDefault();
       this.enviarAgora();

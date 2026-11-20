@@ -66,6 +66,11 @@ public final class AgentRunContext {
         this.maxChamadas = maxChamadas;
     }
 
+    /** Resposta do chat (sem orçamento definido por automação). */
+    public boolean interativa() {
+        return maxCiclos == null && maxChamadas == null;
+    }
+
     public int maxCiclos(int padrao) {
         return maxCiclos == null ? Math.max(padrao, ciclosAmpliados) : maxCiclos;
     }

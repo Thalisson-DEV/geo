@@ -10,7 +10,7 @@ import {
   GraficoArtefato,
   KpiArtefato,
 } from '../../../core/models/assistente.models';
-import { CopilotoStore } from '../copiloto.store';
+import { CopilotoStore, chaveArtefato } from '../copiloto.store';
 import {
   FORMATO_GRAFICO,
   ICONE_ARTEFATO,
@@ -54,7 +54,15 @@ export class CopilotoArtefatoComponent {
   protected readonly procedenciaAberta = signal(false);
   protected readonly spec = computed(() => this.artefato().especificacao ?? { tipo: '' });
   protected readonly arquivo = computed<ArquivoAssistente | null>(() => this.spec().arquivo ?? null);
-  protected readonly indice = computed(() => this.artefatos().findIndex((item) => item.codigo === this.artefato().codigo));
+  protected readonly indice = computed(() => {
+    const chave = chaveArtefato(this.artefato());
+    return this.artefatos().findIndex((item) => chaveArtefato(item) === chave);
+  });
+  /** Todas as versões deste artefato na conversa (refeito com o mesmo título e tipo), da mais antiga à atual. */
+  protected readonly versoes = computed(() => {
+    const chave = chaveArtefato(this.artefato());
+    return this.store.artefatos().filter((item) => chaveArtefato(item) === chave);
+  });
 
   protected readonly icone = ICONE_ARTEFATO;
   protected readonly rotulo = ROTULO_ARTEFATO;

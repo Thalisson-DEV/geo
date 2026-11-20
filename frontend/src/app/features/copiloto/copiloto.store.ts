@@ -7,17 +7,21 @@ import {
   ArquivoAssistente,
   ArtefatoAssistente,
   AssistenteContexto,
+  AvaliacaoResposta,
   CapacidadesAssistente,
   ConversaDetalhe,
   ConversaResumo,
   MensagemAssistente,
   MetricasMensagem,
   PacoteAssistente,
+  ResultadoTabular,
+  ValorAvaliacao,
 } from '../../core/models/assistente.models';
 import { getErrorMessage } from '../../core/models/shared.models';
 import { AssistenteService, AssistenteStreamError } from '../../core/services/assistente.service';
 import { AuthService } from '../../core/services/auth.service';
 import { RespostaView, aplicarPacote, novaResposta, respostaDaMensagem } from './copiloto-pacotes';
+import { ultimasVersoes } from './copiloto-texto';
 
 export interface MensagemView {
   chave: string;
@@ -29,6 +33,19 @@ export interface MensagemView {
   metricas?: MetricasMensagem;
   /** Snapshot do contexto de tela desta pergunta (dashboards): mantém o histórico semanticamente correto. */
   contexto?: AssistenteContexto | null;
+  /** Avaliação do usuário (só respostas). */
+  avaliacao?: AvaliacaoResposta | null;
+}
+
+/** O que o painel lateral mostra: um artefato, os dados de resultados citados ou todos os arquivos da conversa. */
+export type PainelLateral =
+  | { tipo: 'artefato'; codigo: string }
+  | { tipo: 'dados'; codigos: string[] }
+  | { tipo: 'arquivos' };
+
+/** Chave de versão de um artefato: refazer com o mesmo título e tipo gera uma nova versão do mesmo artefato. */
+export function chaveArtefato(artefato: Pick<ArtefatoAssistente, 'tipo' | 'titulo'>): string {
+  return `${artefato.tipo}|${(artefato.titulo ?? '').trim().toLowerCase()}`;
 }
 
 export interface AnexoPendente {
@@ -62,15 +79,20 @@ export function agruparConversas(conversas: readonly ConversaResumo[], agora = n
     { rotulo: 'Mais antigas', desde: Number.NEGATIVE_INFINITY },
   ];
   const grupos = limites.map((limite) => ({ rotulo: limite.rotulo, conversas: [] as ConversaResumo[] }));
+  const fixadas: GrupoConversas = { rotulo: 'Fixadas', conversas: [] };
   const ordenadas = [...conversas].sort(
     (a, b) => Date.parse(b.ultimaAtividadeEm || b.dataCriacao) - Date.parse(a.ultimaAtividadeEm || a.dataCriacao),
   );
   for (const conversa of ordenadas) {
+    if (conversa.fixada) {
+      fixadas.conversas.push(conversa);
+      continue;
+    }
     const quando = Date.parse(conversa.ultimaAtividadeEm || conversa.dataCriacao);
     const indice = limites.findIndex((limite) => quando >= limite.desde);
     grupos[indice < 0 ? grupos.length - 1 : indice].conversas.push(conversa);
   }
-  return grupos.filter((grupo) => grupo.conversas.length > 0);
+  return [fixadas, ...grupos].filter((grupo) => grupo.conversas.length > 0);
 }
 
 export function formatarTamanho(bytes: number): string {
@@ -102,7 +124,14 @@ export class CopilotoStore {
   readonly contexto = signal<AssistenteContexto | null>(null);
   readonly mensagens = signal<MensagemView[]>([]);
   readonly artefatos = signal<ArtefatoAssistente[]>([]);
-  readonly artefatoAberto = signal<string | null>(null);
+  readonly painel = signal<PainelLateral | null>(null);
+  /** Código do artefato aberto no painel (atalho para o painel do tipo artefato). */
+  readonly artefatoAberto = computed(() => {
+    const painel = this.painel();
+    return painel?.tipo === 'artefato' ? painel.codigo : null;
+  });
+  /** Arquivos ativos da conversa (versões substituídas ficam de fora). */
+  readonly arquivosConversa = signal<ArquivoAssistente[]>([]);
   readonly carregandoConversa = signal(false);
   readonly erroConversa = signal<string | null>(null);
   /** Estado atual dos cartões de confirmação da conversa, por acaoId (o stream só traz a prévia inicial). */
@@ -122,6 +151,21 @@ export class CopilotoStore {
     return codigo ? (this.artefatos().find((item) => item.codigo === codigo) ?? null) : null;
   });
   readonly disponivel = computed(() => this.capacidades()?.disponivel ?? true);
+  /** Última versão de cada artefato (refeitos com o mesmo título e tipo contam como versões). */
+  readonly artefatosAtuais = computed(() => ultimasVersoes(this.artefatos(), chaveArtefato));
+  /** Arquivos gerados e anexos da conversa, só a última versão de cada nome. */
+  readonly arquivosAtuais = computed(() => {
+    const vistos = new Map<string, ArquivoAssistente>();
+    for (const arquivo of this.arquivosConversa()) vistos.set(arquivo.id, arquivo);
+    for (const mensagem of this.mensagens()) {
+      for (const arquivo of [...mensagem.anexos, ...(mensagem.resposta?.arquivos ?? [])]) {
+        if (!vistos.has(arquivo.id)) vistos.set(arquivo.id, arquivo);
+      }
+    }
+    return ultimasVersoes([...vistos.values()], (arquivo) => `${arquivo.origem ?? ''}|${arquivo.nome.toLowerCase()}`);
+  });
+  /** Resultados já carregados para o painel de dados (cache por conversa). */
+  private readonly resultados = new Map<string, Promise<ResultadoTabular>>();
 
   /**
    * Fonte do contexto de cada pergunta. O workspace envia o contexto de origem só na primeira mensagem; o
@@ -158,7 +202,9 @@ export class CopilotoStore {
     this.contexto.set(null);
     this.mensagens.set([]);
     this.artefatos.set([]);
-    this.artefatoAberto.set(null);
+    this.arquivosConversa.set([]);
+    this.resultados.clear();
+    this.painel.set(null);
     this.acoesCartao.set({});
     this.carregandoConversa.set(false);
     this.erroConversa.set(null);
@@ -226,7 +272,9 @@ export class CopilotoStore {
     this.contexto.set(contexto);
     this.mensagens.set([]);
     this.artefatos.set([]);
-    this.artefatoAberto.set(null);
+    this.arquivosConversa.set([]);
+    this.resultados.clear();
+    this.painel.set(null);
     this.acoesCartao.set({});
     this.erroConversa.set(null);
     this.carregandoConversa.set(false);
@@ -239,7 +287,7 @@ export class CopilotoStore {
     this.conversaId.set(id);
     this.carregandoConversa.set(true);
     this.erroConversa.set(null);
-    this.artefatoAberto.set(null);
+    this.painel.set(null);
     try {
       const detalhe = await firstValueFrom(this.api.buscarConversa(id));
       if (geracao !== this.geracao) return;
@@ -482,7 +530,84 @@ export class CopilotoStore {
   }
 
   abrirArtefato(codigo: string | null): void {
-    this.artefatoAberto.set(codigo);
+    this.painel.set(codigo ? { tipo: 'artefato', codigo } : null);
+  }
+
+  /** Abre no painel lateral os dados dos resultados citados na resposta (r2, r6...). */
+  abrirDados(codigos: readonly string[]): void {
+    if (codigos.length) this.painel.set({ tipo: 'dados', codigos: [...codigos] });
+  }
+
+  abrirArquivos(): void {
+    this.painel.set({ tipo: 'arquivos' });
+  }
+
+  fecharPainel(): void {
+    this.painel.set(null);
+  }
+
+  /** Dados de um resultado da conversa atual (até 500 linhas), com cache. */
+  resultado(codigo: string): Promise<ResultadoTabular> {
+    const conversaId = this.conversaId();
+    if (!conversaId) return Promise.reject(new Error('Nenhuma conversa aberta'));
+    const chave = `${conversaId}|${codigo}`;
+    let promessa = this.resultados.get(chave);
+    if (!promessa) {
+      promessa = firstValueFrom(this.api.resultado(conversaId, codigo, 500));
+      promessa.catch(() => this.resultados.delete(chave));
+      this.resultados.set(chave, promessa);
+    }
+    return promessa;
+  }
+
+  async fixar(id: string, fixada: boolean): Promise<void> {
+    try {
+      await firstValueFrom(this.api.fixarConversa(id, fixada));
+      this.conversas.update((lista) => lista.map((item) => (item.id === id ? { ...item, fixada } : item)));
+      this.notificacao.success(fixada ? 'Conversa fixada no topo.' : 'Conversa desafixada.');
+    } catch (erro) {
+      this.notificacao.error(getErrorMessage(erro));
+    }
+  }
+
+  /** Avalia uma resposta; `valor` nulo remove a avaliação. */
+  async avaliar(chave: string, valor: ValorAvaliacao | null, motivo?: string, comentario?: string): Promise<boolean> {
+    const conversaId = this.conversaId();
+    const mensagem = this.mensagens().find((item) => item.chave === chave);
+    const mensagemId = mensagem?.resposta?.mensagemId;
+    if (!conversaId || !mensagem || !mensagemId) return false;
+    const anterior = mensagem.avaliacao ?? null;
+    this.definirAvaliacao(chave, valor ? { valor, motivo, comentario } : null);
+    try {
+      const salva = await firstValueFrom(this.api.avaliarResposta(conversaId, mensagemId,
+        { avaliacao: valor, motivo, comentario }));
+      this.definirAvaliacao(chave, salva ?? null);
+      return true;
+    } catch (erro) {
+      this.definirAvaliacao(chave, anterior);
+      this.notificacao.error(getErrorMessage(erro));
+      return false;
+    }
+  }
+
+  /** Pergunta que originou a resposta (para refazer ou editar). */
+  perguntaDe(chaveResposta: string): string | null {
+    const lista = this.mensagens();
+    const indice = lista.findIndex((item) => item.chave === chaveResposta);
+    for (let i = indice - 1; i >= 0; i--) {
+      if (lista[i].papel === 'USUARIO') return lista[i].texto ?? null;
+    }
+    return null;
+  }
+
+  /** Refaz a resposta enviando de novo a mesma pergunta (a resposta anterior continua no histórico). */
+  async refazer(chaveResposta: string): Promise<boolean> {
+    const pergunta = this.perguntaDe(chaveResposta);
+    return pergunta ? this.enviar(pergunta) : false;
+  }
+
+  private definirAvaliacao(chave: string, avaliacao: AvaliacaoResposta | null): void {
+    this.mensagens.update((lista) => lista.map((item) => (item.chave === chave ? { ...item, avaliacao } : item)));
   }
 
   // ---------------------------------------------------------------------------------- interno
@@ -491,6 +616,7 @@ export class CopilotoStore {
     this.titulo.set(detalhe.titulo);
     this.contexto.set(detalhe.contexto ?? null);
     this.artefatos.set(detalhe.artefatos ?? []);
+    this.arquivosConversa.set(detalhe.arquivos ?? []);
     this.mensagens.set((detalhe.mensagens ?? []).map((mensagem) => this.paraView(mensagem)));
   }
 
@@ -512,6 +638,7 @@ export class CopilotoStore {
       resposta: mensagem.status === 'PROCESSANDO' ? novaResposta() : respostaDaMensagem(mensagem),
       dataCriacao: mensagem.dataCriacao,
       metricas: mensagem.metricas,
+      avaliacao: mensagem.avaliacao ?? null,
     };
   }
 
@@ -591,9 +718,14 @@ export class CopilotoStore {
         const artefato = obj['artefato'] as ArtefatoAssistente | undefined;
         if (artefato?.codigo) {
           this.artefatos.update((lista) => [...lista.filter((item) => item.codigo !== artefato.codigo), artefato]);
-          this.artefatoAberto.set(artefato.codigo);
+          this.painel.set({ tipo: 'artefato', codigo: artefato.codigo });
           this.anuncio.set(`Artefato criado: ${artefato.titulo}.`);
         }
+        break;
+      }
+      case 'file': {
+        const arquivo = obj['arquivo'] as ArquivoAssistente | undefined;
+        if (arquivo?.nome) this.anuncio.set(`Arquivo pronto: ${arquivo.nome}.`);
         break;
       }
       case 'stop': {

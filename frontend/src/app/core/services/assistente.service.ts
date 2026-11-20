@@ -7,6 +7,7 @@ import {
   AlteracaoCartao,
   ArquivoAssistente,
   ArtefatoAssistente,
+  AvaliacaoResposta,
   CapacidadesAssistente,
   ConversaDetalhe,
   ConversaResumo,
@@ -15,6 +16,7 @@ import {
   OpcaoCadastro,
   PacoteAssistente,
   ResultadoTabular,
+  ValorAvaliacao,
 } from '../models/assistente.models';
 import { PagedResponse, ProblemDetails } from '../models/shared.models';
 import { AuthService } from './auth.service';
@@ -86,6 +88,22 @@ export class AssistenteService {
 
   renomearConversa(conversaId: string, titulo: string): Observable<ConversaResumo> {
     return this.http.patch<ConversaResumo>(`${this.base}/conversas/${conversaId}`, { titulo });
+  }
+
+  fixarConversa(conversaId: string, fixada: boolean): Observable<ConversaResumo> {
+    return this.http.patch<ConversaResumo>(`${this.base}/conversas/${conversaId}`, { fixada });
+  }
+
+  /** Avalia uma resposta (útil / não útil, com motivo); `valor` nulo remove a avaliação. */
+  avaliarResposta(
+    conversaId: string,
+    mensagemId: string,
+    avaliacao: { avaliacao: ValorAvaliacao | null; motivo?: string; comentario?: string },
+  ): Observable<AvaliacaoResposta | null> {
+    return this.http.put<AvaliacaoResposta | null>(
+      `${this.base}/conversas/${conversaId}/mensagens/${mensagemId}/avaliacao`,
+      avaliacao,
+    );
   }
 
   excluirConversa(conversaId: string): Observable<void> {

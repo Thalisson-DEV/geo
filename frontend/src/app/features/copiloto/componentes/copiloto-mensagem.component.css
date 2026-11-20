@@ -349,6 +349,7 @@
 }
 
 .assistente__rodape {
+  justify-content: flex-end;
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -363,4 +364,212 @@
   .assistente__cursor {
     animation: none;
   }
+}
+
+/* ---------------------------------------------------------------- ações da pergunta */
+.usuario__acoes {
+  display: flex;
+  gap: 0.1rem;
+  opacity: 0;
+  transition: opacity var(--geo-duration-fast) var(--geo-ease-standard);
+}
+.usuario:hover .usuario__acoes,
+.usuario:focus-within .usuario__acoes { opacity: 1; }
+@media (hover: none) { .usuario__acoes { opacity: 1; } }
+
+/* ---------------------------------------------------------------- andamento */
+.assistente__decorrido {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+  font-size: var(--geo-font-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--geo-foreground-subtle);
+}
+.assistente__decorrido .pi { font-size: 0.7rem; }
+
+.assistente__longa {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface-subtle);
+  border: 1px solid var(--geo-border);
+  font-size: var(--geo-font-caption);
+  line-height: 1.5;
+  color: var(--geo-foreground-muted);
+}
+.assistente__longa .pi { margin-top: 0.15rem; color: var(--geo-brand); }
+
+.assistente__retomar { margin-top: 0.6rem; }
+
+/* ---------------------------------------------------------------- arquivos entregues */
+.entregaveis {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+.entregavel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
+  box-shadow: var(--geo-shadow-sm);
+}
+.entregavel__icone {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
+  font-size: 1.1rem;
+}
+.entregavel__texto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.entregavel__nome {
+  font-weight: 600;
+  font-size: var(--geo-font-body);
+  color: var(--geo-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.entregavel__meta {
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
+}
+.entregavel__acoes {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 0.35rem;
+}
+@media (max-width: 520px) {
+  .entregavel { flex-wrap: wrap; }
+  .entregavel__acoes { width: 100%; justify-content: flex-end; }
+}
+
+/* ---------------------------------------------------------------- próximos passos */
+.passos {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.passos__titulo {
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--geo-foreground-subtle);
+}
+.passos__lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.passo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 100%;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
+  font: inherit;
+  font-size: var(--geo-font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--geo-duration-fast) var(--geo-ease-standard), color var(--geo-duration-fast) var(--geo-ease-standard);
+}
+.passo .pi { flex: 0 0 auto; font-size: 0.7rem; color: var(--geo-foreground-subtle); }
+.passo:hover { border-color: var(--geo-brand); color: var(--geo-brand); }
+.passo:hover .pi { color: var(--geo-brand); }
+.passo:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- rodapé e avaliação */
+.assistente__metrica { margin-right: auto; }
+.assistente__acoes {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.05rem;
+}
+.assistente__separador {
+  width: 1px;
+  height: 1rem;
+  margin: 0 0.3rem;
+  background: var(--geo-border);
+}
+
+.avaliacao {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid var(--geo-border);
+  border-radius: var(--geo-radius-md);
+  background: var(--geo-surface);
+}
+.avaliacao__titulo { margin: 0; font-size: var(--geo-font-body); font-weight: 600; }
+.avaliacao__motivos { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.avaliacao__motivo {
+  padding: 0.25rem 0.65rem;
+  border: 1px solid var(--geo-border);
+  border-radius: 999px;
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
+  font: inherit;
+  font-size: var(--geo-font-caption);
+  cursor: pointer;
+}
+.avaliacao__motivo:hover { border-color: var(--geo-brand); }
+.avaliacao__motivo--ativo {
+  border-color: var(--geo-brand);
+  background: var(--geo-brand-soft);
+  color: var(--geo-brand);
+  font-weight: 600;
+}
+.avaliacao__motivo:focus-visible,
+.avaliacao__comentario:focus-visible {
+  outline: 2px solid var(--geo-focus-ring);
+  outline-offset: 2px;
+}
+.avaliacao__comentario {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--geo-border-strong);
+  border-radius: var(--geo-radius-sm);
+  background: var(--geo-surface);
+  color: var(--geo-foreground);
+  font: inherit;
+  font-size: var(--geo-font-body);
+  resize: vertical;
+}
+.avaliacao__botoes { display: flex; justify-content: flex-end; gap: 0.4rem; }
+.avaliacao__obrigado {
+  margin: -0.3rem 0 0;
+  font-size: var(--geo-font-caption);
+  color: var(--geo-foreground-subtle);
 }

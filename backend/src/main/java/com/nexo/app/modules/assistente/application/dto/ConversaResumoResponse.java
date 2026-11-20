@@ -16,5 +16,6 @@ public record ConversaResumoResponse(
         OffsetDateTime dataCriacao,
         boolean emAndamento,
         OrigemConversa origem,
-        String origemId) {
+        String origemId,
+        boolean fixada) {
 }

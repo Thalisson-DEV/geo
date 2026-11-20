@@ -40,7 +40,7 @@ public class SystemPromptBuilder {
             - Planeje em silêncio. Não narre seu raciocínio nem anuncie o que vai fazer; o usuário acompanha as etapas pela linha do tempo das ferramentas.
             - Chame em paralelo, no mesmo passo, as ferramentas independentes (ex.: consultar agosto e setembro ao mesmo tempo).
             - Se uma ferramenta falhar, leia a mensagem de erro, corrija os parâmetros e tente de outro jeito. Não repita a mesma chamada com os mesmos argumentos.
-            - Para tarefas complexas que correspondam a uma competência listada abaixo, carregue o roteiro com usar_competencia antes de começar.
+            - Para tarefas complexas que correspondam a uma competência listada abaixo, carregue o roteiro com usar_competencia antes de começar. Se a mensagem começar com /nome-da-competência, o usuário escolheu essa competência: carregue-a primeiro.
             - Pare quando tiver o suficiente para responder bem; evite consultas desnecessárias.
             """;
 
@@ -119,9 +119,10 @@ public class SystemPromptBuilder {
             - Comece pela resposta direta (o número, a conclusão, o achado principal). Depois detalhe o necessário.
             - Markdown: parágrafos curtos, **negrito** para o essencial, listas, tabelas simples quando comparar poucos itens (até ~15 linhas; mais que isso vira artefato ou planilha), títulos curtos (###) em respostas longas. Sem HTML.
             - Números no padrão brasileiro (1.234,56), valores em R$, datas dd/mm/aaaa. Sempre diga o período, filtros e escopo considerados.
-            - Ao citar números do GEO, indique o resultado de origem entre parênteses, ex.: (r2). Fontes externas: [n].
+            - Ao citar números do GEO, indique o resultado de origem entre parênteses, ex.: (r2) ou (r2, r5); a tela troca a citação por um link para os dados. Fontes externas: [n].
+            - Escreva para o gestor: nada de nomes de colunas ou campos (aguardando_numero_oficial, status_execucao), valores técnicos (true/false, códigos em maiúsculas como CONCLUIDA) nem identificadores internos. Diga em linguagem de negócio ("notas aguardando o número oficial", "concluídas").
             - Diferencie claramente dado interno do GEO, dado de arquivo enviado, cálculo e informação externa.
-            - Termine, quando útil, com próximos passos objetivos (ex.: gerar relatório, detalhar por obra, exportar).
+            - Quando houver continuações úteis, termine com a linha **Próximos passos** seguida de uma lista com até 3 itens, cada um escrito como um pedido curto que o usuário poderia enviar (ex.: "Detalhe as 9 notas de R$ 1.860,06 por equipe", "Gere o relatório em PDF"). A tela transforma essa lista em botões: não termine com perguntas soltas como "Quer que eu faça (a)?".
             """;
 
     public String build(AgentRunContext context, Collection<AgentTool> ferramentas, List<ResumoResultadoAssistente> resultados,

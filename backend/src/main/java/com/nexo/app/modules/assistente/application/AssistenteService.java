@@ -88,7 +88,7 @@ public class AssistenteService {
     public PageResponse<ConversaResumoResponse> listar(int pagina, int tamanho, String busca, String painelId) {
         UUID usuarioId = usuario();
         PageRequest page = PageRequest.of(Math.max(0, pagina), Math.min(100, Math.max(1, tamanho)),
-                Sort.by(Sort.Direction.DESC, "ultimaAtividadeEm"));
+                Sort.by(Sort.Order.desc("fixada"), Sort.Order.desc("ultimaAtividadeEm")));
         Page<ConversaAssistente> resultado;
         if (painelId != null && !painelId.isBlank()) {
             resultado = conversas.findByUsuarioIdAndAtivoTrueAndOrigemAndOrigemId(usuarioId, OrigemConversa.DASHBOARD,
@@ -125,7 +125,8 @@ public class AssistenteService {
     @Transactional
     public ConversaResumoResponse renomear(UUID conversaId, RenomearConversaRequest request) {
         ConversaAssistente conversa = exigir(conversaId, usuario());
-        conversa.renomear(request.titulo());
+        if (request.titulo() != null && !request.titulo().isBlank()) conversa.renomear(request.titulo());
+        if (request.fixada() != null) conversa.fixar(request.fixada());
         return resumo(conversas.save(conversa));
     }
 
@@ -156,6 +157,18 @@ public class AssistenteService {
         UUID usuarioId = usuario();
         exigirSemTransacao(conversaId, usuarioId);
         return runner.execucao(conversaId, usuarioId);
+    }
+
+    /** Avalia uma resposta da Bússola (útil / não útil), para acompanhar a qualidade com casos reais. */
+    @Transactional
+    public MensagemResponse.Avaliacao avaliar(UUID conversaId, UUID mensagemId, AvaliarRespostaRequest request) {
+        exigir(conversaId, usuario());
+        MensagemAssistente mensagem = mensagens.findById(mensagemId)
+                .filter(item -> item.isAtivo() && item.getConversa().getId().equals(conversaId))
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Mensagem não encontrada"));
+        mensagem.avaliar(request.avaliacao(), request.motivo(), request.comentario());
+        mensagens.save(mensagem);
+        return avaliacao(mensagem);
     }
 
     @Transactional(readOnly = true)
@@ -326,7 +339,8 @@ public class AssistenteService {
 
     private ConversaResumoResponse resumo(ConversaAssistente conversa) {
         return new ConversaResumoResponse(conversa.getId(), conversa.getTitulo(), conversa.getUltimaAtividadeEm(),
-                conversa.getDataCriacao(), runner.emAndamento(conversa.getId()), conversa.getOrigem(), conversa.getOrigemId());
+                conversa.getDataCriacao(), runner.emAndamento(conversa.getId()), conversa.getOrigem(), conversa.getOrigemId(),
+                conversa.isFixada());
     }
 
     private MensagemResponse mensagem(MensagemAssistente mensagem, Map<UUID, ArquivoResumo> arquivosPorId) {
@@ -361,7 +375,13 @@ public class AssistenteService {
                 : null;
         return new MensagemResponse(mensagem.getId(), mensagem.getClientMessageId(), mensagem.getPapel(), mensagem.getStatus(),
                 mensagem.getConteudo(), pacotes, acoes, anexos, mensagem.getDataCriacao(), metricas,
-                mensagem.getPapel() == PapelMensagem.USUARIO ? persistencia.contextoDe(mensagem.getContextoJson()) : null);
+                mensagem.getPapel() == PapelMensagem.USUARIO ? persistencia.contextoDe(mensagem.getContextoJson()) : null,
+                avaliacao(mensagem));
+    }
+
+    private static MensagemResponse.Avaliacao avaliacao(MensagemAssistente mensagem) {
+        return mensagem.getAvaliacao() == null ? null : new MensagemResponse.Avaliacao(mensagem.getAvaliacao(),
+                mensagem.getAvaliacaoMotivo(), mensagem.getAvaliacaoComentario());
     }
 
     private ConversaAssistente exigir(UUID conversaId, UUID usuarioId) {

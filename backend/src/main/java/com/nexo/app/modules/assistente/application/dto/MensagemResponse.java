@@ -25,7 +25,12 @@ public record MensagemResponse(
         List<ArquivoAssistenteResponse> arquivos,
         OffsetDateTime dataCriacao,
         Metricas metricas,
-        ContextoGeo contexto) {
+        ContextoGeo contexto,
+        Avaliacao avaliacao) {
+    /** Avaliação do usuário sobre a resposta (null quando não avaliada). */
+    public record Avaliacao(String valor, String motivo, String comentario) {
+    }
+
     public record Metricas(String modelo, Integer tokensEntrada, Integer tokensSaida, Long duracaoMs, Integer ciclos,
             Integer chamadasFerramenta) {
     }

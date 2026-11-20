@@ -117,6 +117,13 @@ public class AssistenteController implements AssistenteControllerDoc {
     }
 
     @Override
+    @PutMapping("/conversas/{conversaId}/mensagens/{mensagemId}/avaliacao")
+    public ResponseEntity<MensagemResponse.Avaliacao> avaliar(@PathVariable UUID conversaId, @PathVariable UUID mensagemId,
+            @Valid @RequestBody AvaliarRespostaRequest request) {
+        return ResponseEntity.ok(service.avaliar(conversaId, mensagemId, request));
+    }
+
+    @Override
     @GetMapping("/conversas/{conversaId}/mensagens/{mensagemId}")
     public ResponseEntity<MensagemResponse> mensagem(@PathVariable UUID conversaId, @PathVariable UUID mensagemId) {
         return ResponseEntity.ok(service.mensagem(conversaId, mensagemId));

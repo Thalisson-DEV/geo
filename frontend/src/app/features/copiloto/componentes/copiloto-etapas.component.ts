@@ -25,6 +25,10 @@ export class CopilotoEtapasComponent {
   readonly observacoes = input<readonly string[]>([]);
   readonly emAndamento = input(false);
   readonly duracaoMs = input<number | undefined>();
+  /** Resposta concluída: erros de etapas foram contornados e não pedem alarme. */
+  readonly concluidaComSucesso = input(false);
+  /** Resolve o arquivo de uma etapa para a versão final (o Python pode refazer o mesmo arquivo). */
+  readonly arquivoAtual = input<(arquivo: ArquivoAssistente) => ArquivoAssistente>((arquivo) => arquivo);
   readonly baixarArquivo = output<ArquivoAssistente>();
 
   /** null = segue o padrão (aberta durante a execução, recolhida ao terminar). */

@@ -86,6 +86,19 @@ public class MensagemAssistente extends BaseEntity {
     @Column(name = "erro", length = 500)
     private String erro;
 
+    /** POSITIVA ou NEGATIVA: avaliação do usuário sobre a resposta. */
+    @Column(name = "avaliacao", length = 10)
+    private String avaliacao;
+
+    @Column(name = "avaliacao_motivo", length = 60)
+    private String avaliacaoMotivo;
+
+    @Column(name = "avaliacao_comentario", length = 1000)
+    private String avaliacaoComentario;
+
+    @Column(name = "avaliada_em")
+    private java.time.OffsetDateTime avaliadaEm;
+
     private MensagemAssistente(ConversaAssistente conversa, UUID clientMessageId, PapelMensagem papel,
             StatusMensagemAssistente status, String conteudo, String evidenciasJson, String acoesJson) {
         this.conversa = Objects.requireNonNull(conversa, "Conversa e obrigatoria");
@@ -160,6 +173,36 @@ public class MensagemAssistente extends BaseEntity {
             this.ciclos = metricas.ciclos();
             this.chamadasFerramenta = metricas.chamadasFerramenta();
         }
+    }
+
+    /**
+     * Registra a avaliação do usuário. Só respostas da Bússola já concluídas podem ser avaliadas; avaliar de novo
+     * substitui a anterior e {@code null} remove.
+     */
+    public void avaliar(String avaliacao, String motivo, String comentario) {
+        if (papel != PapelMensagem.ASSISTENTE || isProcessando()) {
+            throw new IllegalArgumentException("Só respostas concluídas da Bússola podem ser avaliadas");
+        }
+        if (avaliacao == null) {
+            this.avaliacao = null;
+            this.avaliacaoMotivo = null;
+            this.avaliacaoComentario = null;
+            this.avaliadaEm = null;
+            return;
+        }
+        if (!avaliacao.equals("POSITIVA") && !avaliacao.equals("NEGATIVA")) {
+            throw new IllegalArgumentException("Avaliação inválida");
+        }
+        this.avaliacao = avaliacao;
+        this.avaliacaoMotivo = limitar(motivo, 60);
+        this.avaliacaoComentario = limitar(comentario, 1000);
+        this.avaliadaEm = java.time.OffsetDateTime.now();
+    }
+
+    private static String limitar(String valor, int maximo) {
+        if (valor == null || valor.isBlank()) return null;
+        String limpo = valor.strip();
+        return limpo.length() <= maximo ? limpo : limpo.substring(0, maximo);
     }
 
     public boolean isProcessando() {

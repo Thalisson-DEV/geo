@@ -130,6 +130,8 @@ export interface ConversaResumo {
   origem?: OrigemConversa;
   /** Id do painel quando a conversa começou em um dashboard. */
   origemId?: string;
+  /** Fixada pelo usuário no topo do histórico. */
+  fixada?: boolean;
 }
 
 export interface ConversaDetalhe {
@@ -169,6 +171,16 @@ export interface MensagemAssistente {
   metricas?: MetricasMensagem;
   /** Snapshot do contexto de tela usado nesta pergunta (perguntas feitas em dashboards). */
   contexto?: AssistenteContexto;
+  /** Avaliação do usuário sobre a resposta. */
+  avaliacao?: AvaliacaoResposta | null;
+}
+
+export type ValorAvaliacao = 'POSITIVA' | 'NEGATIVA';
+
+export interface AvaliacaoResposta {
+  valor: ValorAvaliacao;
+  motivo?: string | null;
+  comentario?: string | null;
 }
 
 /** Filtro proposto pelo agente para uma tabela do painel (validado no backend e de novo na tela). */

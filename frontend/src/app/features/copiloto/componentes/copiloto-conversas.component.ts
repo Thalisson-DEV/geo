@@ -24,7 +24,7 @@ import { GrupoConversas } from '../copiloto.store';
         <geo-text-input
           label="Buscar conversas"
           inputId="copiloto-busca"
-          placeholder="Buscar no histórico"
+          placeholder="Buscar em títulos e mensagens"
           [value]="busca()"
           (valueChange)="aoBuscar($event)"
         ></geo-text-input>
@@ -75,20 +75,36 @@ import { GrupoConversas } from '../copiloto.store';
                       <button
                         type="button"
                         class="item__abrir"
+                        [attr.title]="conversa.titulo"
                         [attr.aria-current]="conversa.id === ativa() ? 'page' : null"
                         (click)="abrir.emit(conversa.id)"
                       >
+                        <span class="item__linha">
+                          @if (conversa.fixada) {
+                            <i class="pi pi-thumbtack item__origem" aria-hidden="true"></i>
+                            <span class="geo-sr-only">Fixada:</span>
+                          }
+                          @if (conversa.origem === 'DASHBOARD') {
+                            <i class="pi pi-objects-column item__origem" aria-hidden="true" title="Iniciada em um dashboard"></i>
+                            <span class="geo-sr-only">Iniciada em um dashboard:</span>
+                          }
+                          <span class="item__titulo">{{ conversa.titulo }}</span>
+                        </span>
                         @if (conversa.emAndamento) {
-                          <i class="pi pi-spinner item__giro" aria-hidden="true"></i>
-                          <span class="geo-sr-only">Resposta em andamento:</span>
+                          <span class="item__andamento">
+                            <i class="pi pi-spinner item__giro" aria-hidden="true"></i>
+                            Respondendo{{ andamento(conversa) }}
+                          </span>
                         }
-                        @if (conversa.origem === 'DASHBOARD') {
-                          <i class="pi pi-objects-column item__origem" aria-hidden="true" title="Iniciada em um dashboard"></i>
-                          <span class="geo-sr-only">Iniciada em um dashboard:</span>
-                        }
-                        <span class="item__titulo">{{ conversa.titulo }}</span>
                       </button>
                       <span class="item__acoes">
+                        <geo-icon-button
+                          icon="pi pi-thumbtack"
+                          size="icon-sm"
+                          [label]="(conversa.fixada ? 'Desafixar ' : 'Fixar no topo ') + conversa.titulo"
+                          [tooltip]="conversa.fixada ? 'Desafixar' : 'Fixar no topo'"
+                          (pressed)="fixar.emit({ id: conversa.id, fixada: !conversa.fixada })"
+                        ></geo-icon-button>
                         <geo-icon-button
                           icon="pi pi-pencil"
                           size="icon-sm"
@@ -116,7 +132,7 @@ import { GrupoConversas } from '../copiloto.store';
     </nav>
   `,
   styles: `
-    :host { display: flex; min-width: 0; min-height: 0; height: 100%; }
+    :host { display: flex; flex: 1 1 auto; min-width: 0; min-height: 0; height: 100%; }
     .conversas {
       display: flex;
       flex-direction: column;
@@ -176,8 +192,9 @@ import { GrupoConversas } from '../copiloto.store';
       flex: 1;
       min-width: 0;
       display: flex;
-      align-items: center;
-      gap: 0.45rem;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.15rem;
       padding: 0.5rem 0.5rem;
       border: 0;
       background: transparent;
@@ -192,7 +209,26 @@ import { GrupoConversas } from '../copiloto.store';
       outline: 2px solid var(--geo-focus-ring);
       outline-offset: -2px;
     }
-    .item__titulo { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .item__linha { display: flex; align-items: flex-start; gap: 0.4rem; min-width: 0; }
+    .item__linha .item__origem { margin-top: 0.3rem; }
+    .item__titulo {
+      flex: 1;
+      min-width: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+    .item__andamento {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: var(--geo-font-caption);
+      color: var(--geo-brand);
+    }
+
     .item__giro { color: var(--geo-brand); font-size: 0.75rem; animation: item-giro 0.9s linear infinite; }
     @keyframes item-giro { to { transform: rotate(360deg); } }
     .item__origem { flex: 0 0 auto; color: var(--geo-foreground-subtle); font-size: 0.7rem; }
@@ -230,11 +266,20 @@ export class CopilotoConversasComponent {
   readonly buscar = output<string>();
   readonly recarregar = output<void>();
   readonly renomear = output<{ id: string; titulo: string }>();
+  readonly fixar = output<{ id: string; fixada: boolean }>();
   readonly excluir = output<string>();
 
   protected readonly editando = signal<string | null>(null);
   protected readonly rascunhoTitulo = signal('');
   private temporizador: ReturnType<typeof setTimeout> | undefined;
+
+  /** " · há 3 min" a partir da última atividade (o envio da pergunta). */
+  protected andamento(conversa: ConversaResumo): string {
+    const desde = Date.parse(conversa.ultimaAtividadeEm);
+    if (!Number.isFinite(desde)) return '';
+    const minutos = Math.floor((Date.now() - desde) / 60_000);
+    return minutos >= 1 ? ` · há ${minutos} min` : '';
+  }
 
   protected aoBuscar(termo: string): void {
     clearTimeout(this.temporizador);

@@ -12,9 +12,6 @@
               <button type="button" class="arquivo" (click)="baixar(anexo)" [attr.aria-label]="'Baixar ' + anexo.nome">
                 <i [class]="iconeArquivo(anexo)" aria-hidden="true"></i>
                 <span class="arquivo__nome">{{ anexo.nome }}</span>
-                @if (anexo.codigo) {
-                  <span class="arquivo__codigo">{{ anexo.codigo }}</span>
-                }
               </button>
             </li>
           }
@@ -27,6 +24,15 @@
         <span class="usuario__recorte-painel">{{ r.painel }}</span>
         <span class="usuario__recorte-resumo">{{ r.resumo }}</span>
       </p>
+    }
+    @if (mensagem().texto) {
+      <div class="usuario__acoes" role="group" aria-label="Ações da sua mensagem">
+        <geo-icon-button icon="pi pi-copy" label="Copiar a pergunta" size="icon-sm" (pressed)="copiarPergunta()"></geo-icon-button>
+        @if (podeEditar()) {
+          <geo-icon-button icon="pi pi-pencil" label="Editar e enviar de novo" tooltip="Editar e enviar de novo" size="icon-sm"
+            (pressed)="editar.emit(mensagem().texto!)"></geo-icon-button>
+        }
+      </div>
     }
   </article>
 } @else if (resposta(); as r) {
@@ -48,6 +54,11 @@
             <geo-status tone="danger" icon="pi-ban">Indisponível</geo-status>
           }
         }
+        @if (emAndamento()) {
+          <span class="assistente__decorrido" aria-hidden="true">
+            <i class="pi pi-clock"></i>{{ decorrido() }}
+          </span>
+        }
       </div>
 
       <app-copiloto-etapas
@@ -55,6 +66,8 @@
         [observacoes]="notas()"
         [emAndamento]="emAndamento()"
         [duracaoMs]="r.duracaoMs"
+        [concluidaComSucesso]="r.status === 'CONCLUIDA'"
+        [arquivoAtual]="arquivoAtual"
         (baixarArquivo)="baixar($event)"
       ></app-copiloto-etapas>
 
@@ -65,8 +78,23 @@
         </p>
       }
 
-      @if (texto()) {
-        <app-copiloto-markdown class="assistente__texto" [content]="texto()" [fontes]="r.fontes"></app-copiloto-markdown>
+      @if (longa()) {
+        <p class="assistente__longa" role="note">
+          <i class="pi pi-info-circle" aria-hidden="true"></i>
+          <span>Análise longa em andamento. Pode sair desta tela: a Bússola continua trabalhando e avisa no sino quando terminar.</span>
+        </p>
+      }
+
+      @if (corpo()) {
+        <app-copiloto-markdown
+          #markdown
+          class="assistente__texto"
+          [content]="corpo()"
+          [fontes]="r.fontes"
+          [indice]="!emAndamento()"
+          [citacoesClicaveis]="true"
+          (verDados)="verDados.emit($event)"
+        ></app-copiloto-markdown>
         @if (emAndamento()) {
           <span class="assistente__cursor" aria-hidden="true"></span>
         }
@@ -90,32 +118,50 @@
         </div>
       }
 
-      @if (r.artefatos.length) {
-        <ul class="artefatos" aria-label="Artefatos criados nesta resposta">
-          @for (artefato of r.artefatos; track artefato.codigo) {
-            <li>
-              <button type="button" class="artefato" (click)="abrir(artefato)">
-                <span class="artefato__icone" aria-hidden="true"><i [class]="iconeArtefato[artefato.tipo] || 'pi pi-file'"></i></span>
-                <span class="artefato__texto">
-                  <span class="artefato__titulo">{{ artefato.titulo }}</span>
-                  <span class="artefato__tipo">{{ rotuloArtefato[artefato.tipo] || artefato.tipo }} · {{ artefato.codigo }}</span>
-                </span>
-                <span class="artefato__abrir">Abrir <i class="pi pi-arrow-right" aria-hidden="true"></i></span>
-              </button>
+      @if (entregaveis().length) {
+        <ul class="entregaveis" aria-label="Arquivos entregues nesta resposta">
+          @for (arquivo of entregaveis(); track arquivo.id) {
+            <li class="entregavel">
+              <span class="entregavel__icone" [attr.data-categoria]="arquivo.categoria" aria-hidden="true">
+                <i [class]="iconeArquivo(arquivo)"></i>
+              </span>
+              <span class="entregavel__texto">
+                <span class="entregavel__nome" [attr.title]="arquivo.nome">{{ arquivo.nome }}</span>
+                <span class="entregavel__meta">{{ rotuloArquivo(arquivo) }} · {{ formatarTamanho(arquivo.tamanhoBytes) }}</span>
+              </span>
+              <span class="entregavel__acoes">
+                @if (artefatoDoArquivo().get(arquivo.id); as artefato) {
+                  <geo-button variant="ghost" size="sm" icon="pi pi-eye" label="Ver conteúdo"
+                    [ariaLabel]="'Ver o conteúdo de ' + arquivo.nome" (pressed)="abrir(artefato)"></geo-button>
+                }
+                @if (abreNoNavegador(arquivo)) {
+                  <geo-button variant="ghost" size="sm" icon="pi pi-external-link" label="Abrir"
+                    [ariaLabel]="'Abrir ' + arquivo.nome" (pressed)="abrirArquivo(arquivo)"></geo-button>
+                }
+                <geo-button variant="secondary" size="sm" icon="pi pi-download" label="Baixar"
+                  [ariaLabel]="'Baixar ' + arquivo.nome" (pressed)="baixar(arquivo)"></geo-button>
+              </span>
             </li>
           }
         </ul>
       }
 
-      @if (demaisArquivos().length) {
-        <ul class="anexos anexos--gerados" aria-label="Arquivos gerados">
-          @for (arquivo of demaisArquivos(); track arquivo.id) {
+      @if (artefatos().length) {
+        <ul class="artefatos" aria-label="Artefatos criados nesta resposta">
+          @for (artefato of artefatos(); track artefato.codigo) {
             <li>
-              <button type="button" class="arquivo arquivo--gerado" (click)="baixar(arquivo)" [attr.aria-label]="'Baixar ' + arquivo.nome">
-                <i [class]="iconeArquivo(arquivo)" aria-hidden="true"></i>
-                <span class="arquivo__nome">{{ arquivo.nome }}</span>
-                <span class="arquivo__codigo">{{ formatarTamanho(arquivo.tamanhoBytes) }}</span>
-                <i class="pi pi-download" aria-hidden="true"></i>
+              <button type="button" class="artefato" (click)="abrir(artefato)">
+                <span class="artefato__icone" aria-hidden="true"><i [class]="iconeArtefato[artefato.tipo] || 'pi pi-file'"></i></span>
+                <span class="artefato__texto">
+                  <span class="artefato__titulo">{{ artefato.titulo }}</span>
+                  <span class="artefato__tipo">
+                    {{ rotuloArtefato[artefato.tipo] || artefato.tipo }}
+                    @if (versoesDe(artefato) > 1) {
+                      · versão {{ versoesDe(artefato) }}
+                    }
+                  </span>
+                </span>
+                <span class="artefato__abrir">Abrir <i class="pi pi-arrow-right" aria-hidden="true"></i></span>
               </button>
             </li>
           }
@@ -166,24 +212,103 @@
         }
       }
 
+      @if (r.status === 'CANCELADA' && r.concluida) {
+        <geo-callout tone="warning" icon="pi-stop-circle" title="Você interrompeu esta resposta" [dense]="true">
+          {{ resumoInterrupcao() }}
+          @if (ultima()) {
+            <div class="assistente__retomar">
+              <geo-button variant="secondary" size="sm" icon="pi pi-play" label="Continuar de onde parou"
+                (pressed)="enviarTexto.emit('Continue de onde parou.')"></geo-button>
+            </div>
+          }
+        </geo-callout>
+      }
+
       @if (r.erro) {
         <geo-callout tone="danger" title="Resposta não concluída" icon="pi-exclamation-triangle" [dense]="true">
           {{ r.erro }}
+          @if (ultima() && r.concluida) {
+            <div class="assistente__retomar">
+              <geo-button variant="secondary" size="sm" icon="pi pi-refresh" label="Tentar de novo" (pressed)="refazer.emit()"></geo-button>
+            </div>
+          }
         </geo-callout>
+      }
+
+      @if (passos().length && ultima() && r.concluida) {
+        <div class="passos" role="group" aria-label="Próximos passos sugeridos">
+          <span class="passos__titulo">Próximos passos</span>
+          <div class="passos__lista">
+            @for (passo of passos(); track passo) {
+              <button type="button" class="passo" (click)="enviarTexto.emit(passo)">
+                <span>{{ passo }}</span>
+                <i class="pi pi-arrow-up-right" aria-hidden="true"></i>
+              </button>
+            }
+          </div>
+        </div>
       }
 
       @if (r.concluida) {
         <div class="assistente__rodape">
-          @if (r.status === 'CANCELADA') {
-            <span>Geração interrompida pelo usuário.</span>
-          }
           @if (rodape()) {
-            <span>{{ rodape() }}</span>
+            <span class="assistente__metrica">{{ rodape() }}</span>
           }
-          @if (texto()) {
-            <geo-icon-button icon="pi pi-copy" label="Copiar resposta" size="icon-sm" (pressed)="copiar()"></geo-icon-button>
-          }
+          <span class="assistente__acoes" role="group" aria-label="Ações da resposta">
+            @if (texto()) {
+              <geo-icon-button icon="pi pi-copy" label="Copiar resposta" tooltip="Copiar" size="icon-sm" (pressed)="copiar()"></geo-icon-button>
+              <geo-icon-button icon="pi pi-clone" label="Copiar com formatação (para e-mail ou Word)" tooltip="Copiar com formatação"
+                size="icon-sm" (pressed)="copiarFormatado()"></geo-icon-button>
+              <geo-icon-button icon="pi pi-print" label="Imprimir ou salvar a resposta em PDF" tooltip="Imprimir ou salvar em PDF"
+                size="icon-sm" (pressed)="imprimir()"></geo-icon-button>
+            }
+            @if (ultima() && r.status !== 'PROCESSANDO' && !r.erro) {
+              <geo-icon-button icon="pi pi-refresh" label="Refazer a resposta" tooltip="Refazer" size="icon-sm"
+                (pressed)="refazer.emit()"></geo-icon-button>
+            }
+            @if (r.mensagemId && r.status === 'CONCLUIDA') {
+              <span class="assistente__separador" aria-hidden="true"></span>
+              <geo-icon-button
+                [icon]="avaliacao()?.valor === 'POSITIVA' ? 'pi pi-thumbs-up-fill' : 'pi pi-thumbs-up'"
+                [label]="avaliacao()?.valor === 'POSITIVA' ? 'Resposta marcada como útil (clique para desfazer)' : 'Resposta útil'"
+                tooltip="Útil"
+                size="icon-sm"
+                (pressed)="avaliarPositiva()"
+              ></geo-icon-button>
+              <geo-icon-button
+                [icon]="avaliacao()?.valor === 'NEGATIVA' ? 'pi pi-thumbs-down-fill' : 'pi pi-thumbs-down'"
+                [label]="avaliacao()?.valor === 'NEGATIVA' ? 'Resposta marcada como não útil (clique para mudar o motivo)' : 'Resposta não ajudou'"
+                tooltip="Não ajudou"
+                size="icon-sm"
+                (pressed)="abrirAvaliacaoNegativa()"
+              ></geo-icon-button>
+            }
+          </span>
         </div>
+
+        @if (avaliandoNegativa()) {
+          <form class="avaliacao" (submit)="$event.preventDefault(); enviarAvaliacaoNegativa()" aria-label="Por que a resposta não ajudou">
+            <p class="avaliacao__titulo">O que não ficou bom?</p>
+            <div class="avaliacao__motivos" role="radiogroup" aria-label="Motivo">
+              @for (motivo of motivos; track motivo) {
+                <button type="button" class="avaliacao__motivo" role="radio" [attr.aria-checked]="motivoEscolhido() === motivo"
+                  [class.avaliacao__motivo--ativo]="motivoEscolhido() === motivo" (click)="motivoEscolhido.set(motivo)">{{ motivo }}</button>
+              }
+            </div>
+            <label class="geo-sr-only" [for]="'avaliacao-' + mensagem().chave">Comentário (opcional)</label>
+            <textarea class="avaliacao__comentario" [id]="'avaliacao-' + mensagem().chave" rows="2" maxlength="1000"
+              placeholder="Conte o que esperava (opcional)" [value]="comentario()"
+              (input)="comentario.set($any($event.target).value)"></textarea>
+            <div class="avaliacao__botoes">
+              <geo-button variant="ghost" size="sm" label="Cancelar" (pressed)="avaliandoNegativa.set(false)"></geo-button>
+              <geo-button type="submit" size="sm" label="Enviar avaliação" [disabled]="!motivoEscolhido()"></geo-button>
+            </div>
+          </form>
+        } @else if (avaliacao(); as av) {
+          <p class="avaliacao__obrigado" role="status">
+            {{ av.valor === 'POSITIVA' ? 'Obrigado! Isso ajuda a Bússola a acertar mais.' : 'Obrigado pelo retorno' + (av.motivo ? ' (' + av.motivo + ')' : '') + '. Vamos usar para melhorar.' }}
+          </p>
+        }
       }
     </div>
   </article>
