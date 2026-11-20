@@ -8,7 +8,7 @@
     font-size: var(--geo-font-caption);
     font-weight: 600;
     letter-spacing: 0;
-    text-transform: capitalize;
+    text-transform: none;
   }
 
   .custom-input,

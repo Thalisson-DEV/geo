@@ -83,44 +83,44 @@
   }
 
   .geo-button--success.p-button,
-  .p-button.p-button-success,
-  .p-button-success {
+  .p-button.p-button-success:not(.p-button-outlined):not(.p-button-text):not(.p-button-link),
+  .p-button-success:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) {
     border-color: var(--geo-success, var(--p-green-700)) !important;
     background: var(--geo-success, var(--p-green-700)) !important;
     color: var(--p-surface-0) !important;
   }
 
   .geo-button--success.p-button *,
-  .p-button.p-button-success *,
-  .p-button-success * {
+  .p-button.p-button-success:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) *,
+  .p-button-success:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) * {
     color: var(--p-surface-0) !important;
   }
 
   .geo-button--success.p-button:not(:disabled):hover,
-  .p-button.p-button-success:not(:disabled):hover,
-  .p-button-success:not(:disabled):hover {
+  .p-button.p-button-success:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):not(:disabled):hover,
+  .p-button-success:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):not(:disabled):hover {
     border-color: var(--geo-success-hover, var(--p-green-800)) !important;
     background: var(--geo-success-hover, var(--p-green-800)) !important;
     color: var(--p-surface-0) !important;
   }
 
   .geo-button--destructive.p-button,
-  .p-button.p-button-danger,
-  .p-button-danger {
+  .p-button.p-button-danger:not(.p-button-outlined):not(.p-button-text):not(.p-button-link),
+  .p-button-danger:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) {
     border-color: var(--geo-danger, var(--p-red-700)) !important;
     background: var(--geo-danger, var(--p-red-700)) !important;
     color: var(--p-surface-0) !important;
   }
 
   .geo-button--destructive.p-button *,
-  .p-button.p-button-danger *,
-  .p-button-danger * {
+  .p-button.p-button-danger:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) *,
+  .p-button-danger:not(.p-button-outlined):not(.p-button-text):not(.p-button-link) * {
     color: var(--p-surface-0) !important;
   }
 
   .geo-button--destructive.p-button:not(:disabled):hover,
-  .p-button.p-button-danger:not(:disabled):hover,
-  .p-button-danger:not(:disabled):hover {
+  .p-button.p-button-danger:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):not(:disabled):hover,
+  .p-button-danger:not(.p-button-outlined):not(.p-button-text):not(.p-button-link):not(:disabled):hover {
     border-color: var(--geo-danger-hover, var(--p-red-800)) !important;
     background: var(--geo-danger-hover, var(--p-red-800)) !important;
     color: var(--p-surface-0) !important;

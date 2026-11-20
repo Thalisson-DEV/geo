@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import {
+  computed, ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 /**
@@ -41,7 +42,7 @@ export type MetricTone = 'primary' | 'amber' | 'red' | 'green' | 'slate';
           <span class="dash-metric__icon" aria-hidden="true"><i class="pi {{ icon() }}"></i></span>
         </span>
       </div>
-      <strong class="dash-metric__value">{{ value() }}</strong>
+      <strong class="dash-metric__value" [class.dash-metric__value--texto]="valorTextual()">{{ value() }}</strong>
       <p class="dash-metric__detail">{{ detail() }}</p>
       @if (progress() !== null) {
         <div class="dash-metric__track" aria-hidden="true">
@@ -60,6 +61,8 @@ export type MetricTone = 'primary' | 'amber' | 'red' | 'green' | 'slate';
 export class DashboardMetricCardComponent {
   readonly label = input.required<string>();
   readonly value = input.required<string | number>();
+  /** Valor sem número (ex.: "Sem dados no período"): fonte menor, para não quebrar como um KPI. */
+  protected readonly valorTextual = computed(() => !/\d/.test(String(this.value())));
   readonly detail = input.required<string>();
   readonly icon = input.required<string>();
   readonly tone = input<MetricTone>('slate');

@@ -221,8 +221,10 @@ export class GeoDataTableComponent<T = unknown> implements OnInit {
 
   /** Largura mínima do cabeçalho com `textFit`: `column.width` prevalece; numéricas usam a metade. */
   protected minWidth(column: GeoDataTableColumn<T>): string | null {
+    // Largura definida pela tela vale também como mínimo: a tabela larga não espreme a coluna.
+    if (column.width) return column.width;
     const fit = this.fit();
-    if (!fit || column.width) return null;
+    if (!fit) return null;
     return this.isNumeric(column) ? `calc(${fit.minColumnWidth} / 2)` : fit.minColumnWidth;
   }
 
