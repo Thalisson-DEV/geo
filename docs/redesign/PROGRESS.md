@@ -4,10 +4,15 @@
 > Branch: `redesign/full` (criada a partir da `main` em 9d67b2b0, 20/11/2026).
 
 ## Etapa atual
-4. Telas de referência — migradas; aguardando o ui-reviewer (portão).
+5. Migração em massa por módulo (portão das referências: APROVADO COM AJUSTES pelo ui-reviewer, 2ª rodada, ~01:25).
+   - Rodada 1 (subagentes em paralelo, mesmo working tree, cada um só na pasta do módulo; eu integro e commito):
+     SST · Almoxarifado + DP · Frota.
+   - Rodada 2: Obras + Execução · Financeiro + Chamados + Notificações · RH/IAM/Contrato/Admin/Manuais/Home/Legal/Bússola.
+   - Brief comum: docs/redesign/BRIEF-MODULO.md.
 
 ## Próxima tarefa
-- Aplicar o relatório do ui-reviewer nas 3 referências; depois migração em massa por módulo (P1 primeiro).
+- Integrar a rodada 1 (testes do módulo + commit por módulo + ui-reviewer por módulo); lançar a rodada 2.
+- Depois das rodadas: reiniciar o backend (endpoints novos), `npm run api:gen`, e2e, build, npm test, ds:check.
 
 ## Ferramentas
 - Chrome (Claude in Chrome) parou de capturar telas às ~00:30 (renderer sem pintura; provável tela do PC desligada). Validação visual segue pelo Playwright headless:
@@ -55,6 +60,12 @@ Prints: `docs/redesign/shots/antes/*.jpg` e `docs/redesign/shots/depois/*.png`.
 | D13 | `max-page-size` NÃO limitado a 200 | 65 telas pedem 500–2000 itens para popular selects; limitar quebraria. Depende de endpoints /options. |
 | D14 | openapi-typescript via `npx` com versão fixa, fora do package.json | Declara peer typescript@5 (projeto em TS 6); instalar exigiria --legacy-peer-deps. |
 | D15 | Componentes novos do backend em `application/dto` e `application/mappers` | backend/CLAUDE.md proíbe camadas extras. |
+
+## Pendências menores do portão (registradas)
+- `.uppercase` neutralizado globalmente (D9): remover na origem tela a tela.
+- `pi pi-*` no código das telas (desenhados como Lucide pela máscara): trocar por `<geo-icon>` aos poucos.
+- `ChangeDetectionStrategy.Eager` em sidebar/header.
+- Dashboard operacional: dois CTAs da Bússola (header e visão gerencial).
 
 ## PENDENCIAS
 - Migrar de `aura-compat` para o Aura padrão antes de jun/2027.
