@@ -405,15 +405,9 @@ export class GeoKanbanColumnComponent {
     return map[this.column().tone] ?? 'bg-slate-500/15 text-slate-300 border-slate-500/30';
   });
 
-  protected readonly columnBorderAndBgClass = computed(() => {
-    const map: Record<string, string> = {
-      warning: 'border border-amber-500/25 dark:border-amber-500/35 bg-slate-50/80 dark:bg-[#0b1320]',
-      info: 'border border-sky-500/25 dark:border-sky-500/35 bg-slate-50/80 dark:bg-[#0b1320]',
-      success: 'border border-emerald-500/25 dark:border-emerald-500/35 bg-slate-50/80 dark:bg-[#0b1320]',
-      danger: 'border border-rose-500/25 dark:border-rose-500/35 bg-slate-50/80 dark:bg-[#0b1320]',
-      neutral: 'border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0b1320]',
-      brand: 'border border-sky-500/25 dark:border-sky-500/35 bg-slate-50/80 dark:bg-[#0b1320]',
-    };
-    return map[this.column().tone] ?? 'border border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-[#0b1320]';
-  });
+  /** Coluna neutra nos dois temas: o tom fica só no ícone e na contagem (sem borda colorida). */
+  protected readonly columnBorderAndBgClass = computed(
+    () => 'border border-[var(--geo-border)] bg-[var(--geo-surface-subtle)]'
+  );
+
 }
