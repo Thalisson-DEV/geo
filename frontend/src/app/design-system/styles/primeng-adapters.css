@@ -172,18 +172,31 @@
     color: var(--geo-foreground) !important;
   }
 
+  /*
+   * Botão só de ícone: quadrado e com o ícone no centro. O PrimeNG fixa a altura do botão redondo
+   * (--p-button-icon-only-width) e põe um ::after invisível para a altura da linha; sem zerar o gap,
+   * esse ::after empurrava o ícone meio gap para a esquerda.
+   */
+  .geo-button.p-button.p-button-icon-only,
+  .geo-icon-button.p-button.p-button-icon-only {
+    gap: 0;
+  }
+
   .geo-icon-button--icon-sm.p-button {
     width: var(--geo-control-height-sm);
+    height: var(--geo-control-height-sm);
     padding: 0;
   }
 
   .geo-icon-button--icon-md.p-button {
     width: var(--geo-control-height-md);
+    height: var(--geo-control-height-md);
     padding: 0;
   }
 
   .geo-icon-button--icon-lg.p-button {
     width: var(--geo-control-height-lg);
+    height: var(--geo-control-height-lg);
     padding: 0;
   }
 

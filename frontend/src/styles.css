@@ -29,7 +29,9 @@ body {
   font-size: 0.9rem !important;
 }
 
-.p-button {
+/* Botões só de ícone ficam de fora: o padding horizontal os deixava mais estreitos que altos e com o
+   ícone fora do centro. Eles seguem o PrimeNG e o geo-icon-button (quadrados, ícone centralizado). */
+.p-button:not(.p-button-icon-only) {
   padding: 0.5rem 1rem !important;
 }
 
