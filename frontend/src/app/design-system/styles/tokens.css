@@ -104,7 +104,7 @@
     --geo-nav-width-collapsed: 52px;
     --geo-nav-topbar-height: 48px;
 
-    /* Tipografia. A raiz é 14px: 1rem = 14px. Escala 24/20/18/15/14/13/12. */
+    /* Tipografia. A raiz é 14px: 1rem = 14px. Escala compacta 20/18/16/14/13/12 (texto base 13px). */
     --geo-font-family-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
       Roboto, sans-serif;
     --geo-font-family-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas,
@@ -115,23 +115,23 @@
     --geo-font-weight-semibold: 600;
     /* Nada acima de 600 na interface: "bold" vira semibold. */
     --geo-font-weight-bold: 600;
-    --geo-text-display: 1.7143rem;
-    --geo-text-title-1: 1.4286rem;
-    --geo-text-title-2: 1.2857rem;
-    --geo-text-title-3: 1.0714rem;
-    --geo-text-body: 1rem;
-    --geo-text-body-sm: 0.9286rem;
-    --geo-text-label: 0.9286rem;
+    --geo-text-display: 1.4286rem;
+    --geo-text-title-1: 1.2857rem;
+    --geo-text-title-2: 1.1429rem;
+    --geo-text-title-3: 1rem;
+    --geo-text-body: 0.9286rem;
+    --geo-text-body-sm: 0.8571rem;
+    --geo-text-label: 0.8571rem;
     --geo-text-caption: 0.8571rem;
     --geo-text-leading-tight: 1.3;
     --geo-text-leading-normal: 1.45;
     --geo-text-tracking-display: -0.01em;
     /* Tamanhos usados pelos componentes do DS. */
     --geo-font-caption: 0.8571rem;
-    --geo-font-control: 1rem;
-    --geo-font-label: 0.9286rem;
-    --geo-font-body: 1rem;
-    --geo-font-title: 1.0714rem;
+    --geo-font-control: 0.9286rem;
+    --geo-font-label: 0.8571rem;
+    --geo-font-body: 0.9286rem;
+    --geo-font-title: 1rem;
     --geo-font-size-xs: var(--geo-font-caption);
     --geo-font-size-sm: var(--geo-font-control);
 
@@ -334,8 +334,8 @@
     --geo-control-height-md: 40px;
     --geo-control-height-lg: 44px;
     --geo-table-row-height: 44px;
-    --geo-font-control: 1.0714rem;
-    --geo-font-body: 1.0714rem;
+    --geo-font-control: 1rem;
+    --geo-font-body: 1rem;
   }
 
   /* Reduzir movimento: nenhum componente precisa de lógica própria. */

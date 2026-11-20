@@ -57,6 +57,14 @@
   --font-weight-extrabold: 600;
   --font-weight-black: 600;
   /* Rótulos sem tracking largo: a hierarquia vem do tamanho e do peso. */
+  /* Escala de texto compacta (raiz 14px): xs 12 · sm 13 · base 13 · lg 15 · xl 16 · 2xl 18 · 3xl 22. */
+  --text-xs: 0.8571rem;
+  --text-sm: 0.9286rem;
+  --text-base: 0.9286rem;
+  --text-lg: 1.0714rem;
+  --text-xl: 1.1429rem;
+  --text-2xl: 1.2857rem;
+  --text-3xl: 1.5714rem;
   --tracking-wide: 0.01em;
   --tracking-wider: 0.01em;
   --tracking-widest: 0.02em;
@@ -70,6 +78,8 @@
 
 body {
   margin: 0;
+  font-size: var(--geo-text-body);
+  line-height: var(--geo-text-leading-normal);
   font-family: var(--geo-font-family-sans);
   font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;

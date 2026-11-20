@@ -6,7 +6,7 @@
 .geo-data-table__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--geo-text-body-sm);
+  font-size: var(--geo-text-body);
   line-height: 1.35;
   color: var(--geo-foreground);
   font-variant-numeric: tabular-nums;

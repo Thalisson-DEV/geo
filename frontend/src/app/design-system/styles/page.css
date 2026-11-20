@@ -124,7 +124,7 @@
   }
 
   .geo-kpi__value {
-    font-size: clamp(1.2857rem, 1.6vw, 1.7143rem);
+    font-size: clamp(1.1429rem, 1.4vw, 1.4286rem);
     line-height: 1.25;
     white-space: nowrap;
     font-weight: var(--geo-font-weight-semibold);

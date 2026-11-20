@@ -19,6 +19,8 @@ export const geoPreset = definePreset(Aura, {
   semantic: {
     transitionDuration: '0.14s',
     iconSize: '1rem',
+    // Tipografia compacta: texto de 13px sobre a raiz de 14px (controles seguem com ~32px).
+    typography: { fontSize: '0.9286rem' },
     focusRing: {
       width: '2px',
       style: 'solid',
@@ -69,9 +71,10 @@ export const geoPreset = definePreset(Aura, {
 
     formField: {
       paddingX: '0.65rem',
-      paddingY: '0.4rem',
-      sm: { fontSize: '0.9286rem', paddingX: '0.55rem', paddingY: '0.3rem' },
-      lg: { fontSize: '1.0714rem', paddingX: '0.85rem', paddingY: '0.55rem' },
+      paddingY: '0.5rem',
+      fontSize: '0.9286rem',
+      sm: { fontSize: '0.8571rem', paddingX: '0.55rem', paddingY: '0.4rem' },
+      lg: { fontSize: '1rem', paddingX: '0.85rem', paddingY: '0.6rem' },
       borderRadius: '6px',
       focusRing: { width: '0', style: 'none', color: 'transparent', offset: '0', shadow: 'none' },
       transitionDuration: '{transition.duration}',
@@ -154,10 +157,10 @@ export const geoPreset = definePreset(Aura, {
       root: {
         borderRadius: '6px',
         paddingX: '0.85rem',
-        paddingY: '0.4rem',
+        paddingY: '0.5rem',
         gap: '0.4rem',
         iconOnlyWidth: '2.2857rem',
-        sm: { fontSize: '0.9286rem', paddingX: '0.65rem', paddingY: '0.3rem', iconOnlyWidth: '2rem' },
+        sm: { fontSize: '0.8571rem', paddingX: '0.65rem', paddingY: '0.4rem', iconOnlyWidth: '2rem' },
         label: { fontWeight: '500' }
       }
     },
@@ -174,23 +177,23 @@ export const geoPreset = definePreset(Aura, {
       navButton: { width: '2rem', height: '2rem', borderRadius: '6px' }
     },
     tag: {
-      root: { fontSize: '0.8571rem', fontWeight: '500', padding: '0.15rem 0.45rem', borderRadius: '4px' }
+      root: { fontSize: '0.8214rem', fontWeight: '500', padding: '0.15rem 0.45rem', borderRadius: '4px' }
     },
     card: {
       root: { borderRadius: '8px', shadow: 'none' },
       body: { padding: '1rem', gap: '0.5rem' },
-      title: { fontSize: '1.0714rem', fontWeight: '600' }
+      title: { fontSize: '1rem', fontWeight: '600' }
     },
     dialog: {
       header: { padding: '1rem 1.25rem 0.5rem' },
       content: { padding: '0 1.25rem 1rem' },
       footer: { padding: '0.75rem 1.25rem 1rem', gap: '0.5rem' },
-      title: { fontSize: '1.0714rem', fontWeight: '600' }
+      title: { fontSize: '1rem', fontWeight: '600' }
     },
     drawer: {
       header: { padding: '1rem 1.25rem' },
       content: { padding: '0 1.25rem 1.25rem' },
-      title: { fontSize: '1.0714rem', fontWeight: '600' }
+      title: { fontSize: '1rem', fontWeight: '600' }
     },
     toast: {
       root: { width: '22rem', borderRadius: '8px' }

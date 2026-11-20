@@ -131,7 +131,7 @@
 .dash-metric__topline { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .dash-metric__label { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .dash-metric__icon { display: grid; width: 2.1rem; height: 2.1rem; place-items: center; border-radius: 0.6rem; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); }
-.dash-metric__value { display: block; margin-top: 12px; color: var(--geo-foreground); font-size: 1.7143rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dash-metric__value { display: block; margin-top: 12px; color: var(--geo-foreground); font-size: 1.4286rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .dash-metric__value--texto { font-size: var(--geo-text-body); font-weight: 500; color: var(--geo-foreground-muted); white-space: normal; letter-spacing: 0; }
 .dash-metric__detail { margin: 0.55rem 0 0; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); line-height: 1.4; }
 .dash-metric__track { height: 4px; margin-top: 0.85rem; overflow: hidden; border-radius: 99px; background: var(--geo-surface-muted); }
