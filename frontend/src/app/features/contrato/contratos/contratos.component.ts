@@ -93,6 +93,7 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
       <geo-data-table
         title="Contratos"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="contratos"
         exportFileName="contratos"
         searchPlaceholder="Número do contrato ou cliente"

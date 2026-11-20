@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { GeoBussolaAvatarComponent, GeoIconComponent, GeoLogoComponent } from '@geo/ui';
+import { GeoBussolaAvatarComponent, GeoIconComponent } from '@geo/ui';
 import { AuthService } from '../../core/services/auth.service';
 import { rotaOculta } from '../../core/white-label/modulos-ocultos';
 
@@ -145,7 +145,7 @@ const PERMISSAO_BUSSOLA = 'assistente:chat:use';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, GeoBussolaAvatarComponent, GeoIconComponent, GeoLogoComponent],
+  imports: [RouterLink, GeoBussolaAvatarComponent, GeoIconComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

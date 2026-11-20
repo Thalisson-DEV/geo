@@ -96,6 +96,7 @@ import { PermissoesPerfilEditorComponent } from './permissoes-perfil-editor.comp
       <geo-data-table
         title="Perfis de acesso"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="iam-perfis"
         exportFileName="perfis-de-acesso"
         searchPlaceholder="Nome do perfil"

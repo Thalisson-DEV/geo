@@ -129,6 +129,7 @@ const FUNCOES_MEMBRO: GeoSelectOption<FuncaoMembro>[] = [
       <geo-data-table
         title="Equipes"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-equipes"
         exportFileName="equipes"
         searchPlaceholder="Código, base, placa ou pessoas"

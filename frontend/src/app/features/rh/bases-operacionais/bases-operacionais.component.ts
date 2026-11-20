@@ -84,6 +84,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       <geo-data-table
         title="Bases operacionais"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-bases"
         exportFileName="bases-operacionais"
         searchPlaceholder="Nome da base"

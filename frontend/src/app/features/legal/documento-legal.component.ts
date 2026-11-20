@@ -147,14 +147,13 @@ import {
       margin: 0 auto;
       background: var(--geo-surface);
       border: 1px solid var(--geo-border);
-      border-radius: var(--geo-radius-xl);
-      padding: clamp(1.25rem, 5vw, 3rem);
-      box-shadow: var(--geo-shadow-sm);
+      border-radius: var(--geo-radius-lg);
+      padding: clamp(1.25rem, 4vw, 2.5rem);
     }
     h1 {
-      font-size: clamp(1.75rem, 4vw, 2.25rem);
+      font-size: var(--geo-text-display);
       font-weight: 600;
-      line-height: 1.15;
+      line-height: 1.25;
       margin: 0;
     }
     .legal-meta {

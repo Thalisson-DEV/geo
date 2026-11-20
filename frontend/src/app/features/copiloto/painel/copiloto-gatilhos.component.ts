@@ -35,25 +35,24 @@ import { CopilotoPainelService } from './copiloto-painel.service';
       align-items: center;
       gap: 0.45rem;
       min-height: var(--geo-control-height-sm, 2rem);
-      padding: 0.2rem 0.75rem 0.2rem 0.25rem;
-      border: 1px solid color-mix(in srgb, var(--geo-brand) 35%, var(--geo-border));
-      border-radius: 999px;
+      padding: 0.2rem 0.75rem 0.2rem 0.3rem;
+      border: 1px solid var(--geo-border-strong);
+      border-radius: var(--geo-radius-md);
       background: var(--geo-surface);
-      color: var(--geo-brand);
+      color: var(--geo-foreground);
       font: inherit;
       font-size: var(--geo-font-body);
-      font-weight: 650;
+      font-weight: 500;
       cursor: pointer;
-      box-shadow: var(--geo-shadow-sm);
       transition: background var(--geo-duration-fast) var(--geo-ease-standard),
         border-color var(--geo-duration-fast) var(--geo-ease-standard);
     }
-    .gatilho img { width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--geo-brand-soft); object-fit: contain; }
-    .gatilho geo-icon { font-size: var(--geo-font-caption); }
-    .gatilho:hover { background: var(--geo-brand-soft); border-color: var(--geo-brand); }
+    .gatilho img { width: 1.4rem; height: 1.4rem; border-radius: 50%; object-fit: contain; }
+    .gatilho geo-icon { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .gatilho:hover { background: var(--geo-surface-muted); }
     .gatilho:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .gatilho:active { transform: translateY(1px); }
-    .gatilho--aberto { background: var(--geo-brand-soft); border-color: var(--geo-brand); }
+    .gatilho--aberto { background: var(--geo-surface-muted); border-color: var(--geo-foreground-subtle); }
     @media (max-width: 480px) { .gatilho__texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .gatilho { padding-right: 0.55rem; } }
   `,
 })

@@ -99,6 +99,7 @@ function separar(p: PermissaoResponse): PermissaoLinha {
       <geo-data-table
         title="Permissões"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="iam-permissoes"
         exportFileName="permissoes"
         searchPlaceholder="Identificador (ex.: CONTRATO:ACAO:READ)"

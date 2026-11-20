@@ -36,16 +36,8 @@ import { environment } from '../../../../environments/environment';
   template: `
     <div class="geo-login">
       <aside class="geo-login__marca" aria-label="Sobre o GEO">
-        <svg class="geo-login__rosa" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
-          <circle cx="200" cy="200" r="190" />
-          <circle cx="200" cy="200" r="140" />
-          <circle cx="200" cy="200" r="90" />
-          <path d="M200 10 V390 M10 200 H390" />
-          <path class="geo-login__agulha" d="M200 70 L216 200 L200 330 L184 200 Z" />
-        </svg>
-
         <div class="geo-login__identidade">
-          <geo-logo size="2.75rem" label="GEO" />
+          <geo-logo size="2.25rem" label="GEO" />
           <div>
             <strong>GEO</strong>
             <span>Gestão de Equipes e Operações</span>
@@ -175,35 +167,29 @@ import { environment } from '../../../../environments/environment';
     .geo-login__marca {
       position: relative; display: none; flex-direction: column; justify-content: space-between; gap: 2.5rem;
       overflow: hidden; padding: clamp(2rem, 4vw, 3.5rem);
+      border-inline-end: 1px solid var(--geo-nav-border);
       background: var(--geo-nav-bg); color: var(--geo-nav-fg);
     }
     @media (min-width: 1024px) { .geo-login__marca { display: flex; } }
-    .geo-login__rosa {
-      position: absolute; inset-block-start: calc(50% - 13rem); inset-inline-end: -13rem; inline-size: 26rem; block-size: 26rem;
-      fill: none; stroke: var(--geo-nav-border-strong); stroke-width: 1;
-      animation: geo-login-girar 1.2s var(--geo-ease-emphasis) both;
-    }
-    .geo-login__agulha { fill: var(--geo-nav-tile-bg-active); stroke: var(--geo-nav-indicator); }
-    @keyframes geo-login-girar { from { opacity: 0; transform: rotate(-24deg); } }
-    :root[data-motion='reduced'] .geo-login__rosa, :root[data-motion='reduced'] .geo-login__cartao { animation: none; }
+    :root[data-motion='reduced'] .geo-login__cartao { animation: none; }
 
     .geo-login__identidade { position: relative; display: flex; align-items: center; gap: 0.875rem; color: var(--geo-nav-fg-active); }
     .geo-login__identidade div { display: flex; flex-direction: column; line-height: 1.25; }
-    .geo-login__identidade strong { font-size: var(--geo-text-title-2); font-weight: var(--geo-font-weight-bold); letter-spacing: 0; }
+    .geo-login__identidade strong { font-size: var(--geo-text-title-3); font-weight: var(--geo-font-weight-semibold); letter-spacing: 0; }
     .geo-login__identidade span { color: var(--geo-nav-fg-muted); font-size: var(--geo-text-body-sm); }
 
     .geo-login__manchete { position: relative; max-inline-size: 30rem; }
     .geo-login__manchete h2 {
-      margin: 0 0 1.75rem; color: var(--geo-nav-fg-active);
-      font-size: var(--geo-text-display); font-weight: var(--geo-font-weight-bold); line-height: 1.15; letter-spacing: -0.01em;
+      margin: 0 0 1.25rem; color: var(--geo-nav-fg-active);
+      font-size: var(--geo-text-title-1); font-weight: var(--geo-font-weight-semibold); line-height: 1.3; letter-spacing: -0.01em;
       text-wrap: balance;
     }
     .geo-login__manchete ul { display: grid; gap: 1.125rem; margin: 0; padding: 0; list-style: none; }
     .geo-login__manchete li { display: flex; align-items: flex-start; gap: 0.875rem; font-size: var(--geo-text-body); line-height: 1.5; }
     .geo-login__ponto {
       display: inline-flex; flex: none; align-items: center; justify-content: center;
-      inline-size: 2.25rem; block-size: 2.25rem; border-radius: var(--geo-radius-md);
-      background: var(--geo-nav-tile-bg); color: var(--geo-nav-indicator);
+      inline-size: 2rem; block-size: 2rem; border-radius: var(--geo-radius-md);
+      border: 1px solid var(--geo-nav-border); color: var(--geo-nav-fg-muted);
     }
     .geo-login__rodape { position: relative; margin: 0; color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption); }
 
@@ -211,7 +197,7 @@ import { environment } from '../../../../environments/environment';
     .geo-login__lado { display: flex; flex-direction: column; min-inline-size: 0; padding: 1rem; }
     @media (min-width: 640px) { .geo-login__lado { padding: 1.5rem 2rem; } }
     .geo-login__topo { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    .geo-login__marca-curta { display: flex; align-items: center; gap: 0.625rem; color: var(--geo-foreground); font-weight: var(--geo-font-weight-bold); letter-spacing: 0; }
+    .geo-login__marca-curta { display: flex; align-items: center; gap: 0.625rem; color: var(--geo-foreground); font-weight: var(--geo-font-weight-semibold); letter-spacing: 0; }
     @media (min-width: 1024px) {
       .geo-login__topo { justify-content: flex-end; }
       .geo-login__marca-curta { display: none; }
@@ -221,7 +207,7 @@ import { environment } from '../../../../environments/environment';
       box-sizing: border-box; inline-size: 100%; max-inline-size: 26rem; margin: auto; padding-block: 2rem 3rem;
       animation: geo-rise-in var(--geo-motion-slow) var(--geo-ease-out) both;
     }
-    .geo-login__cartao h1 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-text-title-1); font-weight: var(--geo-font-weight-bold); letter-spacing: -0.01em; }
+    .geo-login__cartao h1 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-text-title-1); font-weight: var(--geo-font-weight-semibold); letter-spacing: -0.01em; }
     .geo-login__subtitulo { margin: 0.375rem 0 1.75rem; color: var(--geo-foreground-muted); font-size: var(--geo-text-body); }
     .geo-login__form { display: grid; gap: 1.125rem; }
     .geo-login__form input { min-block-size: 2.75rem; font-size: var(--geo-text-body); }

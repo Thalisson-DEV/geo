@@ -82,6 +82,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       <geo-data-table
         title="Funções"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-funcoes"
         exportFileName="funcoes"
         searchPlaceholder="Nome da função"

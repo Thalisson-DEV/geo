@@ -93,6 +93,7 @@ import { buscaColaboradores, resumoColaborador, rotuloColaborador, situacaoVigen
       <geo-data-table
         title="Coordenadores"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-coordenadores"
         exportFileName="coordenadores"
         searchPlaceholder="Nome do coordenador"

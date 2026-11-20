@@ -88,6 +88,7 @@ const REAIS = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL
       <geo-data-table
         title="Valores de ações"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="acoes-valores"
         exportFileName="valores-de-acoes"
         searchPlaceholder="Ação ou contrato"

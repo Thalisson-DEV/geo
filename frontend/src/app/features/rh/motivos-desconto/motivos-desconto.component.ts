@@ -73,6 +73,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       <geo-data-table
         title="Motivos de desconto"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-motivos-desconto"
         exportFileName="motivos-desconto"
         searchPlaceholder="Descrição do motivo"

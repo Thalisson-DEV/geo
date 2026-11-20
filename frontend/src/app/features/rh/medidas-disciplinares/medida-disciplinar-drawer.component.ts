@@ -236,7 +236,7 @@ function tamanho(bytes: number): string {
             <div><dt>Fato</dt><dd>{{ m.dataFato | date: 'dd/MM/yyyy' }}</dd></div>
             <div><dt>Aplicação</dt><dd>{{ m.dataAplicacao | date: 'dd/MM/yyyy' }}{{ m.aplicadaPorNome ? ' · lançada por ' + m.aplicadaPorNome : '' }}</dd></div>
             @if (m.diasSuspensao) {
-              <div class="resumo__largo"><dt>Suspensão</dt><dd>{{ m.diasSuspensao }} dia(s), de {{ m.inicioSuspensao | date: 'dd/MM/yyyy' }} a {{ m.fimSuspensao | date: 'dd/MM/yyyy' }}</dd></div>
+              <div class="resumo__largo"><dt>Suspensão</dt><dd>{{ m.diasSuspensao }} {{ m.diasSuspensao === 1 ? 'dia' : 'dias' }}, de {{ m.inicioSuspensao | date: 'dd/MM/yyyy' }} a {{ m.fimSuspensao | date: 'dd/MM/yyyy' }}</dd></div>
             }
             <div class="resumo__largo"><dt>Fatos</dt><dd class="resumo__fatos">{{ m.descricao }}</dd></div>
           </dl>

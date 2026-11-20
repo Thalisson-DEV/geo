@@ -96,6 +96,7 @@ import { buscaColaboradores, resumoColaborador, rotuloColaborador, situacaoVigen
       <geo-data-table
         title="Supervisores"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-supervisores"
         exportFileName="supervisores"
         searchPlaceholder="Nome do supervisor"

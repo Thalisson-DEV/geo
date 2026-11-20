@@ -125,6 +125,7 @@ const CORES: GeoSelectOption<string>[] = [
       <geo-data-table
         title="Usuários"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="iam-usuarios"
         exportFileName="usuarios"
         searchPlaceholder="Nome, login ou e-mail"

@@ -118,9 +118,9 @@ type FiltroOrigem = OrigemAvaliacao | null;
             <geo-async-state state="loading" title="Lendo as respostas" />
           } @else if (resumo(); as r) {
             <div class="dash-metrics">
-              <app-dashboard-metric-card label="Respostas" icon="pi-users" tone="primary" [value]="r.respostas"
+              <app-dashboard-metric-card label="Respostas" icon="pi-users" tone="slate" [value]="r.respostas"
                 [detail]="plural(r.anonimas, 'anônima', 'anônimas') + ' · ' + plural(r.comSugestao, 'com sugestão', 'com sugestão')" />
-              <app-dashboard-metric-card label="Nota média" icon="pi-star-fill" tone="amber"
+              <app-dashboard-metric-card label="Nota média" icon="pi-star-fill" tone="slate"
                 [value]="r.mediaEstrelas != null ? (r.mediaEstrelas | number: '1.1-1') + ' de 5' : '—'"
                 [progress]="r.mediaEstrelas != null ? (r.mediaEstrelas / 5) * 100 : null"
                 [detail]="r.mediaEstrelas != null ? rotuloEstrelas[arredondar(r.mediaEstrelas)] + ', em média' : 'Sem notas ainda'" />

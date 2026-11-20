@@ -82,6 +82,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       <geo-data-table
         title="Tipos de equipe"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-tipos-equipe"
         exportFileName="tipos-equipe"
         searchPlaceholder="Nome do tipo"

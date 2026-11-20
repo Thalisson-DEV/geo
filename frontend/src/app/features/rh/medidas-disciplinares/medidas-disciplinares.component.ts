@@ -113,7 +113,7 @@ export function paginaMedidas(pedido: Pick<GeoListRequest<unknown>, 'page' | 'si
         </div>
       </geo-filter-panel>
 
-      <geo-data-table title="Medidas" mode="server" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar colaborador"
+      <geo-data-table title="Medidas" mode="server" [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }" [description]="descricao()" [searchable]="true" searchPlaceholder="Buscar colaborador"
         storageKey="rh-medidas-disciplinares" exportFileName="medidas-disciplinares" [exportRows]="exportar" [exportLimit]="limiteExportacao"
         [columns]="colunas" [rows]="resultado.rows()" [totalRecords]="resultado.total()" [rowKey]="chave" [rowLabel]="rotulo"
         [state]="resultado.state()"

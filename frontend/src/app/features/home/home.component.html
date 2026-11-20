@@ -1,18 +1,6 @@
 <section class="inicio" aria-labelledby="inicio-titulo">
   <header class="entrada">
-    <svg class="entrada__rosa" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
-      <circle cx="200" cy="200" r="190" />
-      <circle cx="200" cy="200" r="140" />
-      <circle cx="200" cy="200" r="90" />
-      <path d="M200 10 V390 M10 200 H390 M66 66 L334 334 M334 66 L66 334" />
-      <path class="entrada__agulha" d="M200 70 L216 200 L200 330 L184 200 Z" />
-    </svg>
-
     <div class="entrada__conteudo">
-      <div class="entrada__marca">
-        <geo-logo size="2rem" label="GEO" />
-        <span>Gestão de Equipes e Operações</span>
-      </div>
       <h1 id="inicio-titulo" class="entrada__titulo">Escolha um módulo</h1>
       <p class="entrada__texto">
         Cada área reúne as telas do dia a dia.
@@ -25,7 +13,7 @@
     @if (podeUsarBussola()) {
       <div class="entrada__bussola">
         <form class="bussola" aria-label="Perguntar à Bússola" (submit)="perguntar($event, campo)">
-          <geo-bussola-avatar size="2.25rem" />
+          <geo-bussola-avatar size="1.75rem" />
           <label class="geo-sr-only" for="inicio-pergunta">Pergunta para a Bússola</label>
           <input
             #campo

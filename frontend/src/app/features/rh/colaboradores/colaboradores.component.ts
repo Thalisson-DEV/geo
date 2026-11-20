@@ -129,6 +129,7 @@ export function formatarCpf(valor: string | null | undefined): string {
       <geo-data-table
         title="Colaboradores"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-colaboradores"
         exportFileName="colaboradores"
         searchPlaceholder="Nome do colaborador"

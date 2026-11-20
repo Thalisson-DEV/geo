@@ -114,6 +114,7 @@ function nomeEm(lista: { id: string; nome: string }[], id: string): string {
       <geo-data-table
         title="Metas"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="rh-metas-faturamento"
         searchPlaceholder="Descrição da meta"
         rowActionLabel="Editar"

@@ -194,20 +194,6 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
     CopilotoAreaComponent,
     CopilotoGatilhoComponent
   ],
-  styles: [`
-    :host ::ng-deep {
-      .p-stepper {
-        --p-stepper-separator-background: var(--geo-border);
-        --p-stepper-separator-active-background: var(--p-primary-600);
-      }
-      .p-stepper-separator {
-        background-color: var(--geo-border) !important;
-      }
-      .custom-select, .custom-date {
-        width: 100%;
-      }
-    }
-  `],
   template: `
     <app-copiloto-area [contexto]="contextoCopiloto">
     <div class="geo-page">
@@ -237,6 +223,7 @@ const FIELD_LABELS: Record<string, { label: string; type?: 'text' | 'textarea' |
       <geo-data-table
         title="Pendências de sincronismo"
         mode="server"
+        [textFit]="{ minColumnWidth: '7.5rem', maxLines: 1 }"
         storageKey="admin-sync-erros"
         exportFileName="erros-sincronizacao"
         searchPlaceholder="Colaborador, atividade ou motivo"

@@ -35,7 +35,7 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
             <p class="boas-vindas__estado">Disponível agora</p>
             <ul class="boas-vindas__capacidades" aria-label="Capacidades disponíveis agora">
               @for (capacidade of capacidadesDisponiveis(); track capacidade.label) {
-                <li><geo-status tone="brand" [icon]="capacidade.icon">{{ capacidade.label }}</geo-status></li>
+                <li><geo-status tone="neutral" [icon]="capacidade.icon">{{ capacidade.label }}</geo-status></li>
               }
             </ul>
           }
@@ -98,7 +98,7 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
       text-align: center;
     }
     .boas-vindas__avatar { width: 3.25rem; height: 3.25rem; border-radius: 999px; object-fit: cover; }
-    .boas-vindas__titulo { margin: 0.3rem 0 0; font-size: clamp(1.35rem, 2vw, 1.7rem); font-weight: 650; color: var(--geo-foreground); line-height: 1.25; }
+    .boas-vindas__titulo { margin: 0.3rem 0 0; font-size: 1.43rem; font-weight: 600; color: var(--geo-foreground); line-height: 1.25; }
     .boas-vindas__texto { margin: 0; max-width: 34rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-body); line-height: 1.5; }
     .boas-vindas__subtitulo {
       align-self: stretch;
@@ -154,10 +154,10 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
       cursor: pointer;
       transition: border-color var(--geo-duration-fast) var(--geo-ease-standard), box-shadow var(--geo-duration-fast) var(--geo-ease-standard);
     }
-    .sugestao:hover:not(:disabled) { border-color: var(--geo-brand); box-shadow: var(--geo-shadow-sm); }
+    .sugestao:hover:not(:disabled) { border-color: var(--geo-border-strong); background: var(--geo-surface-muted); }
     .sugestao:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .sugestao:disabled { cursor: not-allowed; opacity: 0.6; }
-    .sugestao__icone { color: var(--geo-brand); }
+    .sugestao__icone { color: var(--geo-foreground-muted); }
     .sugestao__texto { flex: 1; font-size: var(--geo-font-body); line-height: 1.35; }
     .sugestao__texto { display: flex; flex-direction: column; gap: 0.1rem; }
     .sugestao__texto strong { font-weight: 600; }
@@ -169,17 +169,17 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
       gap: 0.7rem;
       margin-top: 1rem;
       padding: 0.7rem 0.9rem;
-      border: 1px solid color-mix(in srgb, var(--geo-brand) 30%, var(--geo-border));
+      border: 1px solid var(--geo-border);
       border-radius: var(--geo-radius-md);
-      background: var(--geo-brand-soft);
+      background: var(--geo-surface);
       color: var(--geo-foreground);
       font: inherit;
       text-align: left;
       cursor: pointer;
     }
-    .continuar:hover { border-color: var(--geo-brand); }
+    .continuar:hover { border-color: var(--geo-border-strong); background: var(--geo-surface-muted); }
     .continuar:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
-    .continuar__icone, .continuar__seta { color: var(--geo-brand); }
+    .continuar__icone, .continuar__seta { color: var(--geo-foreground-muted); }
     .continuar__texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .continuar__rotulo { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .continuar__titulo { font-size: var(--geo-font-body); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
