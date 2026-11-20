@@ -35,6 +35,8 @@ Antes de qualquer trabalho visual, use as skills do projeto:
 - Textos de interface em pt-BR. **Código e identificadores também em pt-BR** (padrão atual: `desativar()`, `movimentarEstoque()`, `ContextoObras`), com sufixos técnicos em inglês (`UseCases`, `Service`, `Controller`, `Dto`). Não traduza nomes existentes.
 - **Não é multiempresa.** Cada implantação atende uma única empresa (produto white label): não há tenant, empresa nem filial no modelo. O acesso é resolvido pelas permissões do usuário no contexto de segurança (JWT; no front, `route.data.permission` no `authGuard`). Centro de custo e base operacional são recortes organizacionais usados como filtros de consulta, não escopo de segurança. Se algum dia virar multiempresa, o escopo virá do contexto de segurança, nunca de parâmetro livre.
 - White label: não use nome, logo ou mascote de empresa em código, textos ou dados.
+- PrimeNG sob licença comunitária PrimeUI (renovação anual). Não usar componentes PrimeUI Pro.
+  - A chave fica em `primeuiLicense` nos `frontend/src/environments/environment*.ts` e vence em 20/11/2027; sem ela, o PrimeNG mostra o aviso "Invalid PrimeUI License" em todas as telas.
 
 ## Comandos
 - Front (em `frontend/`): dev `npm start` (http://localhost:4200, proxy para a API) · build `npm run build` · testes `npm test` (Vitest) · um arquivo `npx vitest run <caminho>.spec.ts` · e2e `npm run test:e2e` (Playwright)

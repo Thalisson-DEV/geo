@@ -23,6 +23,7 @@ import {
 } from './core/versao-obsoleta';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { geoPreset } from './design-system/core';
+import { environment } from '../environments/environment';
 import { GEO_PAGE_FAVORITES } from './design-system/patterns/page-header';
 import { FavoritosService } from './core/services/favoritos.service';
 import { NavigationHistoryService } from './core/navigation/navigation-history.service';
@@ -70,6 +71,7 @@ export const appConfig: ApplicationConfig = {
       }
     },
     providePrimeNG({
+      license: environment.primeuiLicense,
       ripple: false,
       pt: {
         confirmDialog: {
