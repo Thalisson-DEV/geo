@@ -1,30 +1,16 @@
+:host { --dash-orange-text: var(--p-orange-700); }
+:host-context(.app-dark) { --dash-orange-text: var(--p-orange-400); }
 .context-shell {
-  --context-accent: var(--p-primary-600);
-  --context-soft: var(--p-primary-50);
+  --context-accent: var(--geo-brand);
+  --context-soft: var(--geo-brand-soft);
   overflow: hidden;
-  border: 1px solid var(--p-zinc-200);
+  border: 1px solid var(--geo-border);
   border-radius: 1rem;
-  background: var(--p-surface-0);
-}
+  background: var(--geo-surface); }
 
 .context-shell[data-contexto='brigada'] {
-  --context-accent: var(--p-orange-700);
-  --context-soft: var(--p-zinc-50);
-}
-
-:host-context(.app-dark) .context-shell,
-:host-context(.dark) .context-shell {
-  --context-accent: var(--p-primary-500);
-  --context-soft: rgba(59, 130, 246, 0.16);
-  border-color: var(--geo-border, var(--p-zinc-700));
-  background: var(--geo-surface, var(--p-zinc-900));
-}
-
-:host-context(.app-dark) .context-shell[data-contexto='brigada'],
-:host-context(.dark) .context-shell[data-contexto='brigada'] {
-  --context-accent: var(--p-orange-400);
-  --context-soft: rgba(249, 115, 22, 0.16);
-}
+  --context-accent: var(--dash-orange-text);
+  --context-soft: var(--geo-surface-subtle); }
 
 .context-heading {
   display: flex;
@@ -32,72 +18,38 @@
   justify-content: space-between;
   gap: 1.5rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--p-zinc-100);
-  background: linear-gradient(105deg, var(--context-soft), var(--p-surface-0) 48%);
-}
+  border-bottom: 1px solid var(--geo-border);
+  background: var(--geo-surface); }
 
-:host-context(.app-dark) .context-heading,
-:host-context(.dark) .context-heading {
-  border-bottom-color: var(--geo-border, var(--p-zinc-700));
-  background: linear-gradient(105deg, var(--context-soft), var(--geo-surface, var(--p-zinc-900)) 60%);
-}
-
-.context-copy span,
-.context-copy strong,
-.context-copy small,
-.context-choice b,
-.context-choice small,
-.section-nav b,
-.section-nav small {
-  display: block;
-}
+.context-copy span, .context-copy strong, .context-copy small, .context-choice b, .context-choice small, .section-nav b, .section-nav small {
+  display: block; }
 
 .context-copy span {
   color: var(--context-accent);
   font-size: var(--geo-font-caption);
   font-weight: 600;
   letter-spacing: 0;
-  text-transform: none;
-}
+  text-transform: none; }
 
 .context-copy strong {
   margin-top: 0.15rem;
-  color: var(--p-zinc-800);
+  color: var(--geo-foreground);
   font-size: 14px;
-  font-weight: 600;
-}
-
-:host-context(.app-dark) .context-copy strong,
-:host-context(.dark) .context-copy strong {
-  color: var(--p-surface-0);
-}
+  font-weight: 600; }
 
 .context-copy small {
   margin-top: 0.2rem;
-  color: var(--p-zinc-500);
-  font-size: var(--geo-font-caption);
-}
-
-:host-context(.app-dark) .context-copy small,
-:host-context(.dark) .context-copy small {
-  color: var(--p-zinc-400);
-}
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption); }
 
 .context-choice {
   display: grid;
   grid-template-columns: repeat(2, minmax(9.5rem, 1fr));
   gap: 0.4rem;
   padding: 0.3rem;
-  border: 1px solid var(--p-zinc-200);
+  border: 1px solid var(--geo-border);
   border-radius: 0.85rem;
-  background: var(--p-surface-0);
-}
-
-:host-context(.app-dark) .context-choice,
-:host-context(.dark) .context-choice {
-  border-color: var(--p-zinc-700);
-  background: var(--p-zinc-800);
-}
+  background: var(--geo-surface); }
 
 .context-choice button {
   position: relative;
@@ -110,34 +62,15 @@
   border-radius: 0.65rem;
   background: transparent;
   padding: 0.45rem 0.65rem;
-  color: var(--p-zinc-500);
-  text-align: left;
-}
+  color: var(--geo-foreground-subtle);
+  text-align: left; }
 
-:host-context(.app-dark) .context-choice button,
-:host-context(.dark) .context-choice button {
-  color: var(--p-zinc-300);
-}
-
-.context-choice button:hover { background: var(--p-zinc-50); }
-
-:host-context(.app-dark) .context-choice button:hover,
-:host-context(.dark) .context-choice button:hover {
-  background: var(--p-zinc-700);
-}
+.context-choice button:hover { background: var(--geo-surface-subtle); }
 
 .context-choice button.active {
   border-color: color-mix(in srgb, var(--context-accent) 24%, white);
   background: var(--context-soft);
-  color: var(--context-accent);
-}
-
-:host-context(.app-dark) .context-choice button.active,
-:host-context(.dark) .context-choice button.active {
-  border-color: var(--context-accent);
-  background: var(--context-soft);
-  color: var(--context-accent);
-}
+  color: var(--context-accent); }
 
 .choice-icon {
   display: grid;
@@ -145,25 +78,12 @@
   height: 1.8rem;
   place-items: center;
   border-radius: 0.55rem;
-  background: var(--p-zinc-100);
-}
+  background: var(--geo-surface-muted); }
 
-:host-context(.app-dark) .choice-icon,
-:host-context(.dark) .choice-icon {
-  background: var(--p-zinc-900);
-  color: var(--p-zinc-300);
-}
-
-.active .choice-icon { background: var(--p-surface-0); }
-
-:host-context(.app-dark) .active .choice-icon,
-:host-context(.dark) .active .choice-icon {
-  background: var(--p-zinc-800);
-  color: var(--context-accent);
-}
+.active .choice-icon { background: var(--geo-surface); }
 
 .context-choice b { font-size: var(--geo-font-caption); font-weight: 600; }
-.context-choice small { margin-top: 0.1rem; font-size: 8px; }
+.context-choice small { margin-top: 0.1rem; font-size:  var(--geo-font-caption); }
 .selected-mark { font-size: var(--geo-font-caption); }
 
 .section-nav {
@@ -171,8 +91,7 @@
   gap: 0.2rem;
   overflow-x: auto;
   padding: 0.45rem;
-  scrollbar-width: thin;
-}
+  scrollbar-width: thin; }
 
 .section-nav a {
   display: flex;
@@ -181,36 +100,18 @@
   gap: 0.45rem;
   border-radius: 0.6rem;
   padding: 0.55rem 0.7rem;
-  color: var(--p-zinc-500);
-  text-decoration: none;
-}
+  color: var(--geo-foreground-subtle);
+  text-decoration: none; }
 
-:host-context(.app-dark) .section-nav a,
-:host-context(.dark) .section-nav a {
-  color: var(--p-zinc-300);
-}
-
-.section-nav a:hover { background: var(--p-zinc-50); color: var(--p-zinc-700); }
-
-:host-context(.app-dark) .section-nav a:hover,
-:host-context(.dark) .section-nav a:hover {
-  background: var(--p-zinc-800);
-  color: var(--p-surface-0);
-}
+.section-nav a:hover { background: var(--geo-surface-subtle); color: var(--geo-foreground-muted); }
 
 .section-nav a.active {
   background: var(--context-soft);
-  color: var(--context-accent);
-}
+  color: var(--context-accent); }
 
 .section-nav i { font-size: var(--geo-font-caption); }
 .section-nav b { font-size: var(--geo-font-caption); font-weight: 600; }
-.section-nav small { margin-top: 0.1rem; color: var(--p-zinc-400); font-size: 8px; }
-
-:host-context(.app-dark) .section-nav small,
-:host-context(.dark) .section-nav small {
-  color: var(--p-zinc-500);
-}
+.section-nav small { margin-top: 0.1rem; color: var(--geo-foreground-subtle); font-size:  var(--geo-font-caption); }
 
 @media (max-width: 780px) {
   .context-heading { align-items: stretch; flex-direction: column; gap: 0.75rem; }

@@ -9,7 +9,7 @@
         </div>
       </div>
       @if (podeAtivar()) {
-        <p-button label="ATIVAR FORMAÇÃO" icon="pi pi-check-circle" [outlined]="true" [disabled]="membrosAtivos().length === 0" [loading]="processando()" pTooltip="Inclua os integrantes necessários antes de ativar" (onClick)="ativarCorpo()" styleClass="!text-xs !font-bold" />
+        <p-button label="ATIVAR FORMAÇÃO" icon="pi pi-check-circle" [outlined]="true" [disabled]="membrosAtivos().length === 0" [loading]="processando()" pTooltip="Inclua os integrantes necessários antes de ativar" (onClick)="ativarCorpo()" />
       }
     </div>
 
@@ -30,7 +30,7 @@
 
     <section>
       <div class="mb-3 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div class="section-marker !mb-0"><span>Integrantes da formação</span></div>
+        <div class="section-marker mb-0"><span>Integrantes da formação</span></div>
         <div class="flex flex-wrap items-center gap-2">
           @if (membrosHistoricos().length) {
             <p-button
@@ -39,16 +39,16 @@
               [text]="true"
               severity="secondary"
               (onClick)="exibirHistorico.set(!exibirHistorico())"
-              styleClass="!text-xs !font-bold"
+
             />
           }
           @if (podeGerenciar() && modo() === null) {
-            <p-button label="ADICIONAR INTEGRANTE" icon="pi pi-plus" (onClick)="prepararAdicao()" styleClass="!rounded-lg !bg-primary-700 dark:!bg-primary-600 !border-primary-700 dark:!border-primary-600 !text-xs !font-bold" />
+            <p-button label="ADICIONAR INTEGRANTE" icon="pi pi-plus" (onClick)="prepararAdicao()" />
           }
         </div>
       </div>
 
-      <p-table [value]="membrosExibidos()" dataKey="id" class="p-datatable-sm minimalist-table governance-table table-members" [rowHover]="true" [scrollable]="true" scrollHeight="360px">
+      <p-table [tableStyle]="{ 'min-width': '52rem' }" [value]="membrosExibidos()" dataKey="id" class="p-datatable-sm minimalist-table governance-table table-members" [rowHover]="true" [scrollable]="true" scrollHeight="360px">
         <ng-template #header>
           <tr>
             <th>Colaborador</th>
@@ -75,7 +75,7 @@
             <td><geo-status [tone]="membro.fimParticipacao ? 'neutral' : 'success'" [icon]="membro.fimParticipacao ? 'pi-history' : 'pi-check-circle'">{{ membro.fimParticipacao ? 'Histórico' : 'Ativo' }}</geo-status></td>
             <td class="table-actions">
               @if (podeGerenciar() && !membro.fimParticipacao) {
-                <p-button icon="pi pi-sync" [rounded]="true" [text]="true" pTooltip="Substituir integrante" (onClick)="prepararSubstituicao(membro)" styleClass="table-action-button !text-primary-700 dark:!text-primary-400" />
+                <p-button icon="pi pi-sync" [rounded]="true" [text]="true" pTooltip="Substituir integrante" (onClick)="prepararSubstituicao(membro)" styleClass="table-action-button" />
                 <p-button icon="pi pi-sign-out" [rounded]="true" [text]="true" severity="danger" pTooltip="Retirar integrante" (onClick)="prepararSaida(membro)" styleClass="table-action-button" />
               } @else {
                 <span class="text-xs text-slate-300 dark:text-slate-600">—</span>
@@ -113,7 +113,7 @@
               <p>O integrante deixará o quadro ativo na data informada. O registro continuará disponível no histórico.</p>
             </div>
           </div>
-          <p-button label="CANCELAR" icon="pi pi-times" [text]="true" severity="secondary" [disabled]="processando()" (onClick)="fecharEditor()" styleClass="!text-xs !font-bold" />
+          <p-button label="CANCELAR" icon="pi pi-times" [text]="true" severity="secondary" [disabled]="processando()" (onClick)="fecharEditor()" />
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -129,7 +129,7 @@
           </div>
         </div>
         <div class="mt-5 flex justify-end">
-          <p-button label="CONFIRMAR RETIRADA" icon="pi pi-sign-out" severity="danger" [loading]="processando()" (onClick)="salvarManutencao()" styleClass="!rounded-lg !py-2.5 !px-6 !font-bold !text-xs" />
+          <p-button label="CONFIRMAR RETIRADA" icon="pi pi-sign-out" severity="danger" [loading]="processando()" (onClick)="salvarManutencao()" />
         </div>
       </section>
     } @else if (modo() === 'ADICIONAR' || modo() === 'SUBSTITUIR') {
@@ -144,7 +144,7 @@
             </div>
           </div>
           @if (membrosAtivos().length > 0) {
-            <p-button label="CANCELAR" icon="pi pi-times" [text]="true" severity="secondary" [disabled]="processando()" (onClick)="fecharEditor()" styleClass="!text-xs !font-bold" />
+            <p-button label="CANCELAR" icon="pi pi-times" [text]="true" severity="secondary" [disabled]="processando()" (onClick)="fecharEditor()" />
           }
         </div>
 
@@ -214,7 +214,7 @@
               }
               <div class="form-field" [class.md:col-span-2]="modo() === 'SUBSTITUIR'">
                 <label for="turno">Turno disponível</label>
-                <input id="turno" pInputText formControlName="turnoDisponivel" maxlength="80" class="w-full !text-xs" placeholder="Ex.: Administrativo" />
+                <input id="turno" pInputText formControlName="turnoDisponivel" maxlength="80" class="w-full" placeholder="Ex.: Administrativo" />
               </div>
               @if (tipo === 'CIPA' && corpo()?.regimeComposicao !== 'REPRESENTANTE_NOMEADO') {
                 <div class="form-field">
@@ -231,19 +231,19 @@
               @if (origemEleita()) {
                 <div class="form-field">
                   <label for="cicloEleitoral">Ciclo eleitoral *</label>
-                  <input id="cicloEleitoral" pInputText formControlName="cicloEleitoral" maxlength="120" class="w-full !text-xs" placeholder="Ex.: Eleição 2026/2027" />
+                  <input id="cicloEleitoral" pInputText formControlName="cicloEleitoral" maxlength="120" class="w-full" placeholder="Ex.: Eleição 2026/2027" />
                   @if (formularioTentado() && !formMembro.controls.cicloEleitoral.value.trim()) { <small class="field-error">Informe o ciclo eleitoral.</small> }
                 </div>
                 <div class="form-field">
                   <label for="classificacao">Classificação na eleição *</label>
-                  <input id="classificacao" pInputText type="number" min="1" formControlName="classificacaoEleitoral" class="w-full !text-xs" />
+                  <input id="classificacao" pInputText type="number" min="1" formControlName="classificacaoEleitoral" class="w-full" />
                   @if (formularioTentado() && !formMembro.controls.classificacaoEleitoral.value) { <small class="field-error">Informe a classificação.</small> }
                 </div>
                 <label class="flex items-center gap-2 text-xs text-slate-500 md:col-span-2"><p-checkbox formControlName="reeleito" [binary]="true" /><span>Este integrante foi reeleito</span></label>
               } @else if (exigeAtoDesignacao()) {
                 <div class="form-field md:col-span-2">
                   <label for="atoDesignacao">Ato de designação *</label>
-                  <input id="atoDesignacao" pInputText formControlName="atoDesignacao" maxlength="180" class="w-full !text-xs" placeholder="Informe o documento ou ato de designação" />
+                  <input id="atoDesignacao" pInputText formControlName="atoDesignacao" maxlength="180" class="w-full" placeholder="Informe o documento ou ato de designação" />
                   @if (formularioTentado() && !formMembro.controls.atoDesignacao.value.trim()) { <small class="field-error">Informe o ato de designação.</small> }
                 </div>
               }
@@ -255,7 +255,7 @@
           }
 
           <div class="flex justify-end">
-            <p-button [label]="modo() === 'SUBSTITUIR' ? 'CONFIRMAR SUBSTITUIÇÃO' : 'ADICIONAR À FORMAÇÃO'" [icon]="modo() === 'SUBSTITUIR' ? 'pi pi-sync' : 'pi pi-user-plus'" [loading]="processando()" (onClick)="salvarManutencao()" styleClass="!rounded-lg !bg-primary-700 dark:!bg-primary-600 !border-primary-700 dark:!border-primary-600 !py-2.5 !px-6 !font-bold !text-xs" />
+            <p-button [label]="modo() === 'SUBSTITUIR' ? 'CONFIRMAR SUBSTITUIÇÃO' : 'ADICIONAR À FORMAÇÃO'" [icon]="modo() === 'SUBSTITUIR' ? 'pi pi-sync' : 'pi pi-user-plus'" [loading]="processando()" (onClick)="salvarManutencao()" />
           </div>
         }
       </section>

@@ -1,111 +1,41 @@
-:host ::ng-deep .governance-table {
-  --governance-table-border: var(--p-zinc-100);
-  --governance-table-header: var(--p-zinc-50);
-  --governance-table-muted: var(--p-zinc-400);
-  --governance-table-copy: var(--p-zinc-600);
-  --governance-table-title: var(--p-zinc-700);
-}
+:host .governance-table {
+  --governance-table-border: var(--geo-border);
+  --governance-table-header: var(--geo-surface-subtle);
+  --governance-table-muted: var(--geo-foreground-subtle);
+  --governance-table-copy: var(--geo-foreground-muted);
+  --governance-table-title: var(--geo-foreground-muted); }
 
-:host-context(.app-dark) ::ng-deep .governance-table,
-:host-context(.dark) ::ng-deep .governance-table {
-  --governance-table-border: var(--p-zinc-700);
-  --governance-table-header: var(--p-zinc-800);
-  --governance-table-muted: var(--p-zinc-400);
-  --governance-table-copy: var(--p-zinc-300);
-  --governance-table-title: var(--p-surface-0);
-}
+:host .governance-table th {
+  white-space: nowrap; }
 
-:host ::ng-deep .governance-table .p-datatable-table {
-  min-width: 52rem;
-}
+:host .governance-table td {
+  vertical-align: middle; }
 
-:host ::ng-deep .governance-table th {
-  height: 2.625rem;
-  padding: 0.7rem 1rem !important;
-  border-color: var(--p-zinc-200) !important;
-  background: var(--governance-table-header) !important;
-  color: var(--p-zinc-500) !important;
-  font-size: var(--geo-font-caption) !important;
-  font-weight: 600 !important;
-  line-height: 1.15;
-  letter-spacing: 0;
-  text-transform: none;
-  white-space: nowrap;
-}
-
-:host-context(.app-dark) ::ng-deep .governance-table th,
-:host-context(.dark) ::ng-deep .governance-table th {
-  border-color: var(--p-zinc-700) !important;
-  color: var(--p-primary-400) !important;
-}
-
-:host ::ng-deep .governance-table td {
-  height: 3.5rem;
-  padding: 0.65rem 1rem !important;
-  border-color: var(--governance-table-border) !important;
-  color: var(--governance-table-copy);
-  font-size: var(--geo-font-caption) !important;
-  line-height: 1.35;
-  vertical-align: middle;
-}
-
-:host ::ng-deep .governance-table .p-datatable-tbody > tr {
-  transition: background-color 0.15s ease;
-}
-
-:host ::ng-deep .governance-table .p-datatable-tbody > tr:hover {
-  background: var(--p-zinc-50) !important;
-}
-
-
-:host-context(.app-dark) ::ng-deep .governance-table .p-paginator,
-:host-context(.dark) ::ng-deep .governance-table .p-paginator {
-  background: var(--p-zinc-900);
-  color: var(--p-zinc-400);
-}
-
-:host ::ng-deep .governance-table .table-actions {
+:host .governance-table .table-actions {
   width: 76px;
-  min-width: 76px !important;
-  text-align: center;
-}
+  min-width: 76px;
+  text-align: center; }
 
-:host ::ng-deep .governance-table .table-action-button {
-  width: 1.75rem !important;
-  height: 1.75rem !important;
-  padding: 0 !important;
-}
-
-.table-primary,
-.table-secondary {
+.table-primary, .table-secondary {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-}
+  white-space: nowrap; }
 
 .table-primary {
-  color: var(--p-zinc-700);
+  color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
-  font-weight: 600;
-}
-
-:host-context(.app-dark) .table-primary,
-:host-context(.dark) .table-primary {
-  color: var(--p-surface-0);
-}
+  font-weight: 600; }
 
 .table-secondary {
   max-width: 22rem;
   margin-top: 0.15rem;
-  color: var(--p-zinc-400);
-  font-size: var(--geo-font-caption);
-}
+  color: var(--geo-foreground-subtle);
+  font-size: var(--geo-font-caption); }
 
 .table-mono {
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+  white-space: nowrap; }
 
 .table-empty-state {
   display: flex;
@@ -115,9 +45,8 @@
   justify-content: center;
   gap: 0.45rem;
   padding: 2rem;
-  color: var(--p-zinc-400);
-  text-align: center;
-}
+  color: var(--geo-foreground-subtle);
+  text-align: center; }
 
 .table-empty-state > i {
   display: grid;
@@ -126,31 +55,18 @@
   margin-bottom: 0.25rem;
   place-items: center;
   border-radius: 9999px;
-  background: var(--p-zinc-50);
-  color: var(--p-zinc-300);
-  font-size: 1.35rem;
-}
+  background: var(--geo-surface-subtle);
+  color: var(--geo-foreground-subtle);
+  font-size: 1.35rem; }
 
 .table-empty-state strong {
-  color: var(--p-zinc-600);
+  color: var(--geo-foreground-muted);
   font-size: 12px;
-  font-weight: 600;
-}
+  font-weight: 600; }
 
 .table-empty-state span {
   max-width: 30rem;
-  color: var(--p-zinc-400);
+  color: var(--geo-foreground-subtle);
   font-size: var(--geo-font-caption);
-  line-height: 1rem;
-}
+  line-height: 1rem; }
 
-:host-context(.app-dark) .table-empty-state > i,
-:host-context(.dark) .table-empty-state > i { background: var(--p-surface-800); color: var(--p-surface-400); }
-:host-context(.app-dark) .table-empty-state strong,
-:host-context(.dark) .table-empty-state strong { color: var(--p-surface-200); }
-
-@media (prefers-reduced-motion: reduce) {
-  :host ::ng-deep .governance-table .p-datatable-tbody > tr {
-    transition: none;
-  }
-}

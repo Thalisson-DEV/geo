@@ -158,16 +158,16 @@
 }
 
 .am-skeleton__hero,
-.am-skeleton__tabela {
+.am-skeleton span.am-skeleton__tabela {
   grid-column: 1 / -1;
 }
 
-.am-skeleton__hero {
-  height: 9rem !important;
+.am-skeleton span.am-skeleton__hero {
+  height: 9rem;
 }
 
-.am-skeleton__tabela {
-  height: 22rem !important;
+.am-skeleton span.am-skeleton__tabela {
+  height: 22rem;
 }
 
 @keyframes am-pulsa {

@@ -579,7 +579,7 @@
                                   [(ngModel)]="envolvido.nome"
                                   maxlength="255"
                                   placeholder="Nome do terceiro"
-                                  class="w-full !py-1.5 !text-xs"
+                                  class="w-full"
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.nome.trim()) {
@@ -593,7 +593,7 @@
                                   [(ngModel)]="envolvido.empresa"
                                   maxlength="150"
                                   placeholder="Empresa do terceiro"
-                                  class="w-full !py-1.5 !text-xs"
+                                  class="w-full"
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.empresa.trim()) {

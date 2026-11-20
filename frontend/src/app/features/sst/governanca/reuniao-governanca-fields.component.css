@@ -1,36 +1,7 @@
-:host ::ng-deep .wizard-shell .p-inputtext,
-:host ::ng-deep .wizard-shell .p-select,
-:host ::ng-deep .wizard-shell .p-multiselect,
-:host ::ng-deep .wizard-shell .p-datepicker {
-  width: 100%;
-  min-height: 30px;
-  border-radius: 8px;
-  border-color: var(--p-zinc-200);
-  font-size: var(--geo-font-caption);
-}
-:host-context(.app-dark) ::ng-deep .wizard-shell .p-inputtext,
-:host-context(.dark) ::ng-deep .wizard-shell .p-inputtext,
-:host-context(.app-dark) ::ng-deep .wizard-shell .p-select,
-:host-context(.dark) ::ng-deep .wizard-shell .p-select,
-:host-context(.app-dark) ::ng-deep .wizard-shell .p-multiselect,
-:host-context(.dark) ::ng-deep .wizard-shell .p-multiselect,
-:host-context(.app-dark) ::ng-deep .wizard-shell .p-datepicker,
-:host-context(.dark) ::ng-deep .wizard-shell .p-datepicker {
-  border-color: var(--p-zinc-700);
-}
-:host ::ng-deep .wizard-shell input.p-inputtext,
-:host ::ng-deep .wizard-shell .p-select-label,
-:host ::ng-deep .wizard-shell .p-multiselect-label,
-:host ::ng-deep .wizard-shell .p-datepicker-input {
-  height: 30px;
+:host .wizard-shell .p-inputtext, :host .wizard-shell .p-select, :host .wizard-shell .p-multiselect, :host .wizard-shell .p-datepicker {
+  width: 100%; }
+
+:host .wizard-shell input.p-inputtext {
   display: flex;
-  align-items: center;
-  padding-block: 0;
-}
-:host ::ng-deep .wizard-shell textarea.p-inputtext {
-  height: auto;
-  min-height: 5rem;
-  padding-block: .55rem;
-  font-size: var(--geo-font-caption);
-  line-height: 1.15rem;
-}
+  align-items: center; }
+

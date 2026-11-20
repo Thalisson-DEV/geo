@@ -1,12 +1,12 @@
 <p-toast />
 <div class="flex flex-col gap-4 pb-32">
   <div class="flex flex-wrap items-center justify-between gap-2">
-    <p-breadcrumb [model]="[{label:'Segurança'},{label:reuniao()?.tipoCorpo === 'CIPA' ? 'CIPA' : 'Brigada de Incêndio'},{label:'Reuniões e atas'}]" styleClass="!bg-transparent !border-0 !p-0" />
-    <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" styleClass="!text-slate-400 !text-xs !font-medium" />
+    <p-breadcrumb [model]="[{label:'Segurança'},{label:reuniao()?.tipoCorpo === 'CIPA' ? 'CIPA' : 'Brigada de Incêndio'},{label:'Reuniões e atas'}]" />
+    <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" />
   </div>
 
   @if (carregando()) {
-    <p-skeleton height="36rem" class="!rounded-2xl" />
+    <p-skeleton height="36rem" />
   } @else if (erro()) {
     <section class="error-state"><i class="pi pi-exclamation-circle"></i><h2>Não foi possível abrir a reunião</h2><p>{{ erro() }}</p><p-button label="Tentar novamente" icon="pi pi-refresh" (onClick)="carregar()" /></section>
   } @else {
@@ -47,7 +47,7 @@
             <p-step-panel [value]="2"><ng-template #content>
               <div class="step-panel w-full min-w-0 max-w-full overflow-hidden">
                 <div class="step-intro"><span>Participantes</span><h2>Quem esteve presente?</h2><p>Marque cada integrante e informe o motivo somente quando houver ausência.</p></div>
-                <p-table [value]="participantes()" class="p-datatable-sm custom-table governance-table table-attendance" [scrollable]="true" scrollHeight="400px">
+                <p-table [tableStyle]="{ 'min-width': '52rem' }" [value]="participantes()" class="p-datatable-sm custom-table governance-table table-attendance" [scrollable]="true" scrollHeight="400px">
                   <ng-template #header><tr><th>Integrante</th><th>Presença</th><th>Motivo da ausência</th><th class="table-actions">Secretaria</th></tr></ng-template>
                     <ng-template #body let-item>
                       <tr>
@@ -91,9 +91,9 @@
                           <small class="truncate block text-xs text-slate-500 dark:text-slate-400">{{foto.legenda||'Sem legenda'}}</small>
                         </div>
                         <div class="flex items-center gap-1 shrink-0">
-                          <p-button icon="pi pi-download" [text]="true" [rounded]="true" pTooltip="Baixar" (onClick)="baixarFoto(foto)" class="shrink-0" styleClass="!w-8 !h-8 !p-0 shrink-0"/>
+                          <p-button icon="pi pi-download" [text]="true" [rounded]="true" pTooltip="Baixar" (onClick)="baixarFoto(foto)" class="shrink-0" styleClass="shrink-0"/>
                           @if(podeEditar()){
-                            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" pTooltip="Remover" (onClick)="removerFoto(foto)" class="shrink-0" styleClass="!w-8 !h-8 !p-0 shrink-0 text-red-500"/>
+                            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" pTooltip="Remover" (onClick)="removerFoto(foto)" class="shrink-0" styleClass="shrink-0 text-red-500"/>
                           }
                         </div>
                       </div>
@@ -108,7 +108,7 @@
                         <p-fileupload mode="basic" chooseLabel="ANEXAR NOVA FOTO" chooseIcon="pi pi-upload" name="file" accept="image/*" [maxFileSize]="5000000" [auto]="true" [customUpload]="true" (uploadHandler)="enviarFoto($event)" [disabled]="processando()==='foto' || !legendaFoto.trim()" styleClass="w-full"/>
                       </div>
                       <div class="flex-1 min-w-0 ml-3">
-                        <input pInputText [(ngModel)]="legendaFoto" placeholder="Digite uma legenda para habilitar o anexo" class="w-full !text-xs" maxlength="150" />
+                        <input pInputText [(ngModel)]="legendaFoto" placeholder="Digite uma legenda para habilitar o anexo" class="w-full" maxlength="150" />
                       </div>
                     </div>
                   }

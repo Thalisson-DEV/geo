@@ -1,46 +1,44 @@
-:host ::ng-deep .custom-table .p-datatable-table{min-width:48rem}
-:host ::ng-deep .custom-table th{height:2.5rem;padding:.75rem 1rem!important;border-color:var(--p-zinc-200)!important;background:var(--p-zinc-50)!important;color:var(--p-zinc-500)!important;font-size: var(--geo-font-caption)!important;font-weight:500!important;line-height:1.15;letter-spacing: 0;text-transform: none;white-space:nowrap}
-:host-context(.app-dark) ::ng-deep .custom-table th,:host-context(.dark) ::ng-deep .custom-table th{border-color:var(--p-zinc-700)!important;background:var(--p-zinc-800)!important;color:var(--p-primary-400)!important}
-:host ::ng-deep .custom-table td{padding:.75rem 1rem!important;border-color:var(--p-zinc-100)!important;color:var(--p-zinc-600);font-size: var(--geo-font-caption)!important;vertical-align:middle}
-:host-context(.app-dark) ::ng-deep .custom-table td,:host-context(.dark) ::ng-deep .custom-table td{border-color:var(--p-zinc-700)!important;color:var(--p-zinc-300)}
-:host ::ng-deep .custom-table td b,:host ::ng-deep .custom-table td small{display:block}
-:host ::ng-deep .custom-table td b{color:var(--p-zinc-700);font-size: var(--geo-font-caption);font-weight:600}
-:host-context(.app-dark) ::ng-deep .custom-table td b,:host-context(.dark) ::ng-deep .custom-table td b{color:var(--p-surface-0)}
-:host ::ng-deep .custom-table td small{margin-top:.15rem;color:var(--p-zinc-400);font-size: var(--geo-font-caption)}
-.actions{width:88px;min-width:88px!important;text-align:center}
-.code-pill{display:inline-flex;border-radius:.45rem;background:var(--p-zinc-100);padding:.25rem .45rem;color:var(--p-zinc-600);font-size: var(--geo-font-caption);font-weight: 600}
-:host-context(.app-dark) .code-pill,:host-context(.dark) .code-pill{background:var(--p-zinc-800);color:var(--p-primary-400)}
 
-:host ::ng-deep .table-minute-models th:nth-child(2){min-width:280px}
-:host ::ng-deep .table-minute-models th:nth-child(3){min-width:150px}
-:host ::ng-deep .table-minute-models th:nth-child(4){min-width:100px}
-:host ::ng-deep .table-minute-models th:nth-child(5){min-width:120px}
-:host ::ng-deep .table-checklists th:nth-child(2){min-width:240px}
-:host ::ng-deep .table-checklists th:nth-child(3){min-width:220px}
-:host ::ng-deep .table-checklists th:nth-child(4){min-width:280px}
-:host ::ng-deep .table-checklists th:nth-child(5){min-width:130px}
-:host ::ng-deep .table-training-catalog th:nth-child(1){min-width:100px}
-:host ::ng-deep .table-training-catalog th:nth-child(2){min-width:300px}
-:host ::ng-deep .table-training-catalog th:nth-child(3){min-width:170px}
-:host ::ng-deep .table-training-catalog th:nth-child(4){min-width:120px}
-:host ::ng-deep .table-training-rules th:nth-child(1){min-width:240px}
-:host ::ng-deep .table-training-rules th:nth-child(2){min-width:150px}
-:host ::ng-deep .table-training-rules th:nth-child(3){min-width:200px}
-:host ::ng-deep .table-training-rules th:nth-child(4){min-width:100px}
-:host ::ng-deep .table-training-rules th:nth-child(5){min-width:150px}
-:host ::ng-deep .table-training-rules th:nth-child(6){min-width:130px}
-:host ::ng-deep .table-schools th:nth-child(1){min-width:260px}
-:host ::ng-deep .table-schools th:nth-child(2){min-width:160px}
-:host ::ng-deep .table-schools th:nth-child(3){min-width:220px}
-:host ::ng-deep .table-schools th:nth-child(4){min-width:150px}
-:host ::ng-deep .table-schools th:nth-child(5){min-width:170px}
-:host ::ng-deep .table-document-types th:nth-child(1){min-width:260px}
-:host ::ng-deep .table-document-types th:nth-child(2){min-width:150px}
-:host ::ng-deep .table-document-types th:nth-child(3){min-width:160px}
-:host ::ng-deep .table-document-types th:nth-child(4){min-width:130px}
-:host ::ng-deep .table-document-types th:nth-child(5){min-width:150px}
-:host ::ng-deep .table-assets th:nth-child(1){min-width:200px}
-:host ::ng-deep .table-assets th:nth-child(2){min-width:150px}
-:host ::ng-deep .table-assets th:nth-child(3){min-width:260px}
-:host ::ng-deep .table-assets th:nth-child(4){min-width:150px}
-:host ::ng-deep .table-assets th:nth-child(5){min-width:160px}
+:host .custom-table th {white-space:nowrap; }
+
+:host .custom-table td {vertical-align:middle; }
+
+:host .custom-table td b, :host .custom-table td small {display:block; }
+
+:host .custom-table td small {margin-top:.15rem; }
+.actions {width:88px;min-width:88px;text-align:center; }
+.code-pill {display:inline-flex;border-radius:.45rem;background:var(--geo-surface-muted);padding:.25rem .45rem;color:var(--geo-foreground-muted);font-size: var(--geo-font-caption);font-weight: 600; }
+
+:host .table-minute-models th:nth-child(2) {min-width:280px; }
+:host .table-minute-models th:nth-child(3) {min-width:150px; }
+:host .table-minute-models th:nth-child(4) {min-width:100px; }
+:host .table-minute-models th:nth-child(5) {min-width:120px; }
+:host .table-checklists th:nth-child(2) {min-width:240px; }
+:host .table-checklists th:nth-child(3) {min-width:220px; }
+:host .table-checklists th:nth-child(4) {min-width:280px; }
+:host .table-checklists th:nth-child(5) {min-width:130px; }
+:host .table-training-catalog th:nth-child(1) {min-width:100px; }
+:host .table-training-catalog th:nth-child(2) {min-width:300px; }
+:host .table-training-catalog th:nth-child(3) {min-width:170px; }
+:host .table-training-catalog th:nth-child(4) {min-width:120px; }
+:host .table-training-rules th:nth-child(1) {min-width:240px; }
+:host .table-training-rules th:nth-child(2) {min-width:150px; }
+:host .table-training-rules th:nth-child(3) {min-width:200px; }
+:host .table-training-rules th:nth-child(4) {min-width:100px; }
+:host .table-training-rules th:nth-child(5) {min-width:150px; }
+:host .table-training-rules th:nth-child(6) {min-width:130px; }
+:host .table-schools th:nth-child(1) {min-width:260px; }
+:host .table-schools th:nth-child(2) {min-width:160px; }
+:host .table-schools th:nth-child(3) {min-width:220px; }
+:host .table-schools th:nth-child(4) {min-width:150px; }
+:host .table-schools th:nth-child(5) {min-width:170px; }
+:host .table-document-types th:nth-child(1) {min-width:260px; }
+:host .table-document-types th:nth-child(2) {min-width:150px; }
+:host .table-document-types th:nth-child(3) {min-width:160px; }
+:host .table-document-types th:nth-child(4) {min-width:130px; }
+:host .table-document-types th:nth-child(5) {min-width:150px; }
+:host .table-assets th:nth-child(1) {min-width:200px; }
+:host .table-assets th:nth-child(2) {min-width:150px; }
+:host .table-assets th:nth-child(3) {min-width:260px; }
+:host .table-assets th:nth-child(4) {min-width:150px; }
+:host .table-assets th:nth-child(5) {min-width:160px; }

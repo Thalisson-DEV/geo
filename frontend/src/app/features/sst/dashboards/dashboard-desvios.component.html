@@ -146,7 +146,7 @@
           </div>
           <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'volumePorGravidade', rotulo: 'Distribuição dos desvios por gravidade' }" />
           @if (d.totalDesvios > 0) {
-            <span class="dash-badge !font-bold">{{ d.totalDesvios }} {{ d.totalDesvios === 1 ? 'desvio' : 'desvios' }} no período</span>
+            <span class="dash-badge">{{ d.totalDesvios }} {{ d.totalDesvios === 1 ? 'desvio' : 'desvios' }} no período</span>
           }
         </header>
 
@@ -200,7 +200,7 @@
 
                     <!-- Rodapé com comparativo do período anterior -->
                     <div class="dash-card-footer">
-                      <span class="dash-badge !text-xs !py-0.5 !px-2 font-semibold"
+                      <span class="dash-badge font-semibold"
                             [class]="classeVariacaoGravidade(volume)"
                             [pTooltip]="textoTooltipVariacao(volume)">
                         <i [class]="iconeVariacao(volume.variacaoPercentual)" aria-hidden="true"></i>
@@ -217,7 +217,7 @@
                     </div>
                     <div class="dash-card-footer">
                       @if (volume.anterior > 0) {
-                        <span class="dash-badge dash-badge--success !text-xs !py-0.5 !px-2 font-semibold"
+                        <span class="dash-badge dash-badge--success font-semibold"
                               [pTooltip]="'Redução de 100% vs. período anterior (de ' + volume.anterior + ' para 0)'">
                           <i class="pi pi-arrow-down" aria-hidden="true"></i> -100%
                         </span>
@@ -281,7 +281,7 @@
           </div>
           <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'backlogPorIdade', rotulo: 'Pendências por tempo em aberto' }" />
           @if (totalBacklogPorIdade(d) > 0) {
-            <span class="dash-badge !font-bold">{{ totalBacklogPorIdade(d) }} {{ totalBacklogPorIdade(d) === 1 ? 'pendência' : 'pendências' }} em aberto</span>
+            <span class="dash-badge">{{ totalBacklogPorIdade(d) }} {{ totalBacklogPorIdade(d) === 1 ? 'pendência' : 'pendências' }} em aberto</span>
           }
         </header>
 
@@ -327,22 +327,22 @@
                     <!-- Detalhamento de severidades com chips -->
                     <div class="dash-aging-chips">
                       @if (faixa.porGravidade.CRITICA > 0) {
-                        <span class="dash-badge dash-badge--danger !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.CRITICA + ' desvios críticos'">
+                        <span class="dash-badge dash-badge--danger" [pTooltip]="faixa.porGravidade.CRITICA + ' desvios críticos'">
                           <i class="pi pi-bolt"></i> Crítica: {{ faixa.porGravidade.CRITICA }}
                         </span>
                       }
                       @if (faixa.porGravidade.ALTA > 0) {
-                        <span class="dash-badge dash-badge--orange !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.ALTA + ' desvios de alta gravidade'">
+                        <span class="dash-badge dash-badge--orange" [pTooltip]="faixa.porGravidade.ALTA + ' desvios de alta gravidade'">
                           Alta: {{ faixa.porGravidade.ALTA }}
                         </span>
                       }
                       @if (faixa.porGravidade.MEDIA > 0) {
-                        <span class="dash-badge dash-badge--warning !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.MEDIA + ' desvios de média gravidade'">
+                        <span class="dash-badge dash-badge--warning" [pTooltip]="faixa.porGravidade.MEDIA + ' desvios de média gravidade'">
                           Média: {{ faixa.porGravidade.MEDIA }}
                         </span>
                       }
                       @if (faixa.porGravidade.BAIXA > 0) {
-                        <span class="dash-badge !text-xs !py-0.5 !px-1.5" [pTooltip]="faixa.porGravidade.BAIXA + ' desvios de baixa gravidade'">
+                        <span class="dash-badge" [pTooltip]="faixa.porGravidade.BAIXA + ' desvios de baixa gravidade'">
                           Baixa: {{ faixa.porGravidade.BAIXA }}
                         </span>
                       }

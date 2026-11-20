@@ -372,7 +372,7 @@
   .mapa__lista b,
   .mapa__sistemas b,
   .mapa__secao > header > span {
-    color: var(--p-surface-0) !important;
+    color: var(--geo-foreground);
   }
   .mapa__lista strong {
     color: var(--p-zinc-200);

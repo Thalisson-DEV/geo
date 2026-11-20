@@ -155,7 +155,7 @@
               </div>
             </div>
             @if (d.meta.colaboradoresSemAcesso > 0) {
-              <div class="dash-quality !mt-4 !mb-0" role="status">
+              <div class="dash-quality mt-4 mb-0" role="status">
                 <i class="pi pi-user-minus"></i>
                 <div>
                   <strong>{{ d.meta.colaboradoresSemAcesso }} {{ d.meta.colaboradoresSemAcesso === 1 ? 'colaborador sem usuário no sistema' : 'colaboradores sem usuário no sistema' }}</strong>
@@ -185,7 +185,7 @@
             <div class="dash-summary__total">
               <strong>{{ d.colaboradores.colaboradoresInspecionados }}<span class="dash-summary__de">de {{ d.colaboradores.colaboradoresAtivos }}</span></strong>
               <span>colaboradores inspecionados</span>
-              <div class="dash-progress !mt-3">
+              <div class="dash-progress mt-3">
                 <div class="dash-progress__track"><span [style.width.%]="barWidth(d.colaboradores.percentualCobertura)"></span></div>
                 <strong>{{ d.colaboradores.percentualCobertura | number:'1.0-1' }}%</strong>
               </div>

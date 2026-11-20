@@ -1,73 +1,43 @@
+:host { --dash-orange-text: var(--p-orange-700); }
+:host-context(.app-dark) { --dash-orange-text: var(--p-orange-400); }
 .context-note {
   display: flex;
   align-items: flex-start;
   gap: .5rem;
   margin-bottom: 1rem;
   padding: .75rem;
-  border: 1px solid var(--p-zinc-100);
+  border: 1px solid var(--geo-border);
   border-radius: .75rem;
-  background: var(--p-zinc-50);
-  color: var(--p-primary-500);
-}
-:host-context(.app-dark) .context-note, :host-context(.dark) .context-note {
-  border-color: var(--p-zinc-700);
-  background: var(--p-zinc-800);
-  color: var(--p-primary-400);
-}
-.context-note p { color: var(--p-zinc-500); font-size: var(--geo-font-caption); line-height: 1rem; }
-:host-context(.app-dark) .context-note p, :host-context(.dark) .context-note p { color: var(--p-zinc-300); }
-.context-note strong { color: var(--p-zinc-600); }
-:host-context(.app-dark) .context-note strong, :host-context(.dark) .context-note strong { color: var(--p-surface-0); }
+  background: var(--geo-surface-subtle);
+  color: var(--geo-brand-text); }
+
+.context-note p { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); line-height: 1rem; }
+
+.context-note strong { color: var(--geo-foreground-muted); }
+
 .checklist-layout { grid-template-columns: 1fr 1fr; }
 .checklist-help { display: flex; flex-direction: column; gap: .5rem; padding: .25rem; }
-.step-card { display: flex; align-items: center; gap: .65rem; padding: .75rem; border: 1px solid var(--p-zinc-100); border-radius: .65rem; background: #f8fafc80; }
-:host-context(.app-dark) .step-card, :host-context(.dark) .step-card {
-  border-color: var(--p-zinc-700);
-  background: var(--p-zinc-800);
-}
-.step-card > span { display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 9999px; background: var(--p-primary-50); color: var(--p-primary-700); font-size: var(--geo-font-caption); font-weight: 600; }
-:host-context(.app-dark) .step-card > span, :host-context(.dark) .step-card > span {
-  background: rgba(59, 130, 246, 0.16);
-  color: var(--p-primary-400);
-}
-.step-card b,.step-card small { display: block; }
-.step-card b { color: var(--p-zinc-600); font-size: var(--geo-font-caption); }
-:host-context(.app-dark) .step-card b, :host-context(.dark) .step-card b { color: var(--p-surface-0); }
-.step-card small { margin-top: .15rem; color: var(--p-zinc-400); font-size: var(--geo-font-caption); }
-.context-pill { display: inline-flex; align-items: center; padding: .25rem .55rem; border-radius: 9999px; background: var(--p-primary-50); color: var(--p-primary-700); font-size: var(--geo-font-caption); font-weight: 600; }
-:host-context(.app-dark) .context-pill, :host-context(.dark) .context-pill {
-  background: rgba(59, 130, 246, 0.16);
-  color: var(--p-primary-400);
-}
-.context-pill.brigada { background: var(--p-zinc-50); color: var(--p-orange-700); }
-:host-context(.app-dark) .context-pill.brigada, :host-context(.dark) .context-pill.brigada {
-  background: rgba(194, 65, 12, 0.2);
-  color: var(--p-orange-400);
-}
-.table-empty { min-height: 12rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem; color: var(--p-zinc-400); font-size: var(--geo-font-caption); }
+.step-card { display: flex; align-items: center; gap: .65rem; padding: .75rem; border: 1px solid var(--geo-border); border-radius: .65rem; background: var(--geo-surface-subtle); }
+
+.step-card > span { display: grid; width: 1.75rem; height: 1.75rem; place-items: center; border-radius: 9999px; background: var(--geo-brand-soft); color: var(--geo-brand-text); font-size: var(--geo-font-caption); font-weight: 600; }
+
+.step-card b, .step-card small { display: block; }
+.step-card b { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+
+.step-card small { margin-top: .15rem; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); }
+.context-pill { display: inline-flex; align-items: center; padding: .25rem .55rem; border-radius: 9999px; background: var(--geo-brand-soft); color: var(--geo-brand-text); font-size: var(--geo-font-caption); font-weight: 600; }
+
+.context-pill.brigada { background: var(--geo-surface-subtle); color: var(--dash-orange-text); }
+
+.table-empty { min-height: 12rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); }
 .table-empty i { font-size: 1.5rem; }
-.table-empty b { color: var(--p-zinc-600); font-size: var(--geo-font-caption); }
-:host ::ng-deep .custom-table th { padding: .75rem !important; background: var(--p-zinc-50) !important; color: var(--p-zinc-500) !important; font-size: var(--geo-font-caption) !important; font-weight: 500 !important; letter-spacing: 0; text-transform: none; }
-:host-context(.app-dark) ::ng-deep .custom-table th, :host-context(.dark) ::ng-deep .custom-table th { background: var(--p-zinc-800) !important; color: var(--p-primary-400) !important; border-color: var(--p-zinc-700) !important; }
-:host ::ng-deep .custom-table td { padding: .75rem !important; border-color: var(--p-zinc-100) !important; color: var(--p-zinc-600); font-size: var(--geo-font-caption) !important; }
-:host-context(.app-dark) ::ng-deep .custom-table td, :host-context(.dark) ::ng-deep .custom-table td { border-color: var(--p-zinc-700) !important; color: var(--p-zinc-300); }
-:host ::ng-deep .custom-table td b,:host ::ng-deep .custom-table td small { display: block; }
-:host ::ng-deep .custom-table td small { margin-top: .15rem; color: var(--p-zinc-400); font-size: var(--geo-font-caption); }
-:host ::ng-deep .config-shell .p-inputtext,
-:host ::ng-deep .config-shell .p-select,
-:host ::ng-deep .config-shell .p-multiselect,
-:host ::ng-deep .config-shell .p-datepicker { width: 100%; min-height: 30px; border-radius: 8px; border-color: var(--p-zinc-200); font-size: var(--geo-font-caption); }
-:host-context(.app-dark) ::ng-deep .config-shell .p-inputtext,
-:host-context(.dark) ::ng-deep .config-shell .p-inputtext,
-:host-context(.app-dark) ::ng-deep .config-shell .p-select,
-:host-context(.dark) ::ng-deep .config-shell .p-select,
-:host-context(.app-dark) ::ng-deep .config-shell .p-multiselect,
-:host-context(.dark) ::ng-deep .config-shell .p-multiselect,
-:host-context(.app-dark) ::ng-deep .config-shell .p-datepicker,
-:host-context(.dark) ::ng-deep .config-shell .p-datepicker { border-color: var(--p-zinc-700); }
-:host ::ng-deep .config-shell input.p-inputtext,
-:host ::ng-deep .config-shell .p-select-label,
-:host ::ng-deep .config-shell .p-multiselect-label { height: 30px; display: flex; align-items: center; padding-block: 0; font-size: var(--geo-font-caption); }
-:host ::ng-deep .config-shell textarea.p-inputtext { height: auto; min-height: 4.5rem; padding-block: .55rem; line-height: 1.1rem; }
+.table-empty b { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+
+:host .custom-table td b, :host .custom-table td small { display: block; }
+:host .custom-table td small { margin-top: .15rem; }
+:host .config-shell .p-inputtext, :host .config-shell .p-select, :host .config-shell .p-multiselect, :host .config-shell .p-datepicker { width: 100%; }
+
+:host .config-shell input.p-inputtext { display: flex; align-items: center; }
+
 .actions { width: 76px; text-align: center; }
 @media(max-width: 950px) { .checklist-layout { grid-template-columns: 1fr; } }

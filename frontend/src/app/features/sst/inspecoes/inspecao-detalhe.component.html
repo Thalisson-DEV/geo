@@ -428,17 +428,17 @@
 
     <!-- 14. AÇÕES FLUTUANTES: navegação e impressão à esquerda, a ação por último. -->
     <div class="barra-acoes fixed inset-x-0 bottom-0 px-4 pb-4 pt-6 md:inset-x-auto md:bottom-8 md:right-12 md:p-0 flex items-center justify-end flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
-      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-xs !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
-      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="printReport()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-xs !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
+      <p-button icon="pi pi-arrow-left" label="Voltar" severity="secondary" [outlined]="true" (onClick)="voltar()"
+        styleClass="hidden md:inline-flex cursor-pointer"></p-button>
+      <p-button icon="pi pi-print" label="Imprimir" (onClick)="printReport()"
+        styleClass="hidden md:inline-flex cursor-pointer"></p-button>
       @if (podeEditarCabecalho()) {
-        <p-button icon="pi pi-pencil" label="EDITAR" (onClick)="navegarParaEdicao()"
-          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-xs !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
+        <p-button icon="pi pi-pencil" label="Editar" severity="secondary" [outlined]="true" (onClick)="navegarParaEdicao()"
+          styleClass="cursor-pointer"></p-button>
       }
       @if (podeTratar() && proximoDesvioPendente(); as d) {
-        <p-button icon="pi pi-wrench" label="TRATAR DESVIOS" (onClick)="abrirTratamento(d)"
-          styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-xs !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"></p-button>
+        <p-button icon="pi pi-wrench" label="Tratar desvios" severity="secondary" [outlined]="true" (onClick)="abrirTratamento(d)"
+          styleClass="cursor-pointer"></p-button>
       }
     </div>
 

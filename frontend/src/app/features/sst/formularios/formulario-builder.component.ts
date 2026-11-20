@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MenuItem, MessageService, ConfirmationService } from 'primeng/api';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { GeoBreadcrumbItem, GeoButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -61,7 +61,8 @@ function uid(): string {
   imports: [
     CommonModule,
     FormsModule,
-    BreadcrumbModule,
+    GeoPageHeaderComponent,
+    GeoButtonComponent,
     ButtonModule,
     CheckboxModule,
     ConfirmDialogModule,
@@ -78,48 +79,45 @@ function uid(): string {
     <p-confirmdialog></p-confirmdialog>
 
     <div class="flex flex-col gap-4 pb-28">
-      <!-- Barra superior -->
-      <div class="flex justify-between items-center">
-        <p-breadcrumb [model]="breadcrumbItems" styleClass="!bg-transparent !border-0 !p-0"></p-breadcrumb>
-        <p-button icon="pi pi-arrow-left" label="Voltar" [text]="true" severity="secondary" (onClick)="voltar()" styleClass="!text-slate-400 !text-xs !font-medium"></p-button>
-      </div>
+      <geo-page-header
+        [title]="formId() ? 'Editar formulário de inspeção' : 'Novo formulário de inspeção'"
+        icon="pi pi-file-edit"
+        [breadcrumb]="trilha"
+        description="Monte os grupos, as perguntas e as opções de resposta do checklist usado em campo."
+      >
+        <geo-button actions label="Voltar" icon="pi pi-arrow-left" variant="ghost" (pressed)="voltar()"></geo-button>
+      </geo-page-header>
 
       @if (loading()) {
-        <p-skeleton height="22rem" class="!rounded-2xl"></p-skeleton>
+        <p-skeleton height="22rem"></p-skeleton>
       } @else {
         <!-- DOCUMENTO -->
-        <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+        <div class="bg-[var(--geo-surface)] rounded-lg border border-[var(--geo-border)] overflow-hidden">
           <!-- CABEÇALHO -->
-          <div class="px-5 md:px-8 py-6 border-b border-slate-100">
-            <div class="flex items-center gap-2 mb-5">
-              <i class="pi pi-file-edit text-primary-700 text-xs"></i>
-              <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">
-                {{ formId() ? 'Editar Formulário de Inspeção' : 'Novo Formulário de Inspeção' }}
-              </span>
-            </div>
+          <div class="px-5 md:px-8 py-6 border-b border-[var(--geo-border)]">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div class="flex flex-col gap-1.5 md:col-span-1">
-                <label class="filter-label !text-slate-600 !text-xs">Título</label>
+                <label class="text-sm font-medium text-[var(--geo-foreground-muted)]">Título</label>
                 <input pInputText placeholder="Ex: Inspeção de Campo" class="doc-input" [(ngModel)]="titulo" />
               </div>
               <div class="flex flex-col gap-1.5 md:col-span-2">
-                <label class="filter-label !text-slate-600 !text-xs">Descrição</label>
+                <label class="text-sm font-medium text-[var(--geo-foreground-muted)]">Descrição</label>
                 <input pInputText placeholder="Ex: Checklist diário" class="doc-input" [(ngModel)]="descricao" />
               </div>
             </div>
             @if (emUso()) {
-              <div class="mt-5 flex items-start gap-3 bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3">
-                <i class="pi pi-lock text-amber-500 text-xs mt-0.5"></i>
+              <div class="mt-5 flex items-start gap-3 bg-[var(--geo-warning-soft)] border border-[var(--geo-warning-border)] rounded-lg px-4 py-3">
+                <i class="pi pi-lock text-[var(--geo-warning-text)] text-xs mt-0.5"></i>
                 <div class="flex-grow">
-                  <span class="text-xs font-medium text-amber-700 uppercase tracking-widest">Formulário em uso</span>
-                  <p class="text-xs text-amber-700/80 leading-relaxed mt-1">
+                  <span class="text-xs font-medium text-[var(--geo-warning-text)]">Formulário em uso</span>
+                  <p class="text-xs text-[var(--geo-warning-text)] leading-relaxed mt-1">
                     A estrutura está bloqueada porque já existem inspeções lançadas. É possível reordenar os itens e
                     editar o título/descrição. Para mudar a estrutura, gere uma cópia editável.
                   </p>
                 </div>
                 <div class="flex flex-col gap-2 shrink-0">
-                  <p-button label="Salvar dados" icon="pi pi-check" [loading]="saving()" (onClick)="salvarDados()" styleClass="!rounded-lg !bg-white !border-amber-200 !text-amber-700 !font-medium !text-xs !px-4 !py-2"></p-button>
-                  <p-button label="Duplicar" icon="pi pi-copy" (onClick)="duplicar()" styleClass="!rounded-lg !bg-amber-500 !border-amber-500 !text-white !font-medium !text-xs !px-4 !py-2"></p-button>
+                  <p-button label="Salvar dados" icon="pi pi-check" [loading]="saving()" (onClick)="salvarDados()"></p-button>
+                  <p-button label="Duplicar" icon="pi pi-copy" (onClick)="duplicar()"></p-button>
                 </div>
               </div>
             }
@@ -130,14 +128,14 @@ function uid(): string {
             @for (grupo of grupos(); track grupo.uid; let gi = $index) {
               <div class="flex flex-col gap-4">
                 <!-- Marcador do grupo -->
-                <div class="flex items-center gap-3 border-l-2 border-primary-700 pl-3">
-                  <span class="text-xs font-medium text-gray-400">{{ formatarNumero(gi + 1) }}</span>
+                <div class="flex items-center gap-3 border-l-2 border-[var(--geo-brand)] pl-3">
+                  <span class="text-xs font-medium text-[var(--geo-foreground-subtle)]">{{ formatarNumero(gi + 1) }}</span>
                   <input pInputText placeholder="Título do grupo (ex: Kit SMC)" class="doc-input flex-grow" [(ngModel)]="grupo.titulo" [disabled]="emUso()" />
                   <div class="flex items-center gap-0.5 shrink-0">
-                    <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" pTooltip="Subir" [disabled]="gi === 0" (onClick)="moverGrupo(gi, -1)" styleClass="!text-slate-400 !w-7 !h-7"></p-button>
-                    <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" pTooltip="Descer" [disabled]="gi === grupos().length - 1" (onClick)="moverGrupo(gi, 1)" styleClass="!text-slate-400 !w-7 !h-7"></p-button>
+                    <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" pTooltip="Subir" [disabled]="gi === 0" (onClick)="moverGrupo(gi, -1)"></p-button>
+                    <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" pTooltip="Descer" [disabled]="gi === grupos().length - 1" (onClick)="moverGrupo(gi, 1)"></p-button>
                     @if (!emUso()) {
-                      <p-button icon="pi pi-trash" [text]="true" [rounded]="true" pTooltip="Remover grupo" (onClick)="removerGrupo(gi)" styleClass="!text-red-400 !w-7 !h-7"></p-button>
+                      <p-button icon="pi pi-trash" [text]="true" [rounded]="true" pTooltip="Remover grupo" (onClick)="removerGrupo(gi)"></p-button>
                     }
                   </div>
                 </div>
@@ -145,46 +143,45 @@ function uid(): string {
                 <!-- Perguntas -->
                 <div class="flex flex-col gap-3 md:pl-5">
                   @for (pergunta of grupo.perguntas; track pergunta.uid; let pi = $index) {
-                    <div class="rounded-xl border border-slate-100 bg-slate-50/30 px-4 py-4 flex flex-col gap-3">
+                    <div class="rounded-lg border border-[var(--geo-border)] bg-[var(--geo-surface-subtle)] px-4 py-4 flex flex-col gap-3">
                       <div class="flex items-start gap-3">
-                        <span class="text-xs font-medium text-gray-400 mt-2.5 shrink-0">{{ gi + 1 }}.{{ pi + 1 }}</span>
+                        <span class="text-xs font-medium text-[var(--geo-foreground-subtle)] mt-2.5 shrink-0">{{ gi + 1 }}.{{ pi + 1 }}</span>
                         <div class="flex flex-col gap-1.5 flex-grow min-w-0">
                           <input pInputText placeholder="Enunciado da pergunta" class="doc-input w-full" [(ngModel)]="pergunta.enunciado" [disabled]="emUso()" [attr.aria-label]="'Enunciado da pergunta ' + (gi + 1) + '.' + (pi + 1)" />
                           <input pInputText placeholder="Orientação (opcional): quantidade esperada ou observação, ex.: Individual · Por escada" class="doc-input w-full"
                             [(ngModel)]="pergunta.orientacao" [disabled]="emUso()" maxlength="300" [attr.aria-label]="'Orientação da pergunta ' + (gi + 1) + '.' + (pi + 1)" />
                         </div>
                         <div class="flex items-center gap-0.5 shrink-0">
-                          <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" pTooltip="Subir" [disabled]="pi === 0" (onClick)="moverPergunta(grupo, pi, -1)" styleClass="!text-slate-400 !w-7 !h-7"></p-button>
-                          <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" pTooltip="Descer" [disabled]="pi === grupo.perguntas.length - 1" (onClick)="moverPergunta(grupo, pi, 1)" styleClass="!text-slate-400 !w-7 !h-7"></p-button>
+                          <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" pTooltip="Subir" [disabled]="pi === 0" (onClick)="moverPergunta(grupo, pi, -1)"></p-button>
+                          <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" pTooltip="Descer" [disabled]="pi === grupo.perguntas.length - 1" (onClick)="moverPergunta(grupo, pi, 1)"></p-button>
                           @if (!emUso()) {
-                            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" pTooltip="Remover pergunta" (onClick)="removerPergunta(grupo, pi)" styleClass="!text-red-400 !w-7 !h-7"></p-button>
+                            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" pTooltip="Remover pergunta" (onClick)="removerPergunta(grupo, pi)"></p-button>
                           }
                         </div>
                       </div>
 
                       <div class="flex flex-wrap items-end gap-3 md:pl-7">
                         <div class="flex flex-col gap-1.5">
-                          <label class="filter-label !text-slate-600 !text-xs">Tipo de resposta</label>
+                          <label class="text-sm font-medium text-[var(--geo-foreground-muted)]">Tipo de resposta</label>
                           <p-select
                             [options]="tipoOptions"
                             [(ngModel)]="pergunta.tipoResposta"
                             optionLabel="label"
                             optionValue="value"
-                            class="doc-select !w-56"
-                            size="small"
+                            class="doc-select w-56"
                             appendTo="body"
                             [disabled]="emUso()"
                             (onChange)="onTipoChange(pergunta)"
                           ></p-select>
                         </div>
-                        <label class="flex items-center gap-2 h-[34px] cursor-pointer">
+                        <label class="flex items-center gap-2 h-8 cursor-pointer">
                           <p-checkbox [binary]="true" size="small" [(ngModel)]="pergunta.obrigatoria" [disabled]="emUso()"></p-checkbox>
-                          <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">Obrigatória</span>
+                          <span class="text-xs font-medium text-[var(--geo-foreground-muted)]">Obrigatória</span>
                         </label>
                         @if (temDesvio(pergunta)) {
-                          <label class="flex items-center gap-2 h-[34px] cursor-pointer" pTooltip="Desmarque em itens da equipe ou do veículo (pneu, extintor, ferramenta): o desvio poderá ser lançado sem apontar ninguém.">
+                          <label class="flex items-center gap-2 h-8 cursor-pointer" pTooltip="Desmarque em itens da equipe ou do veículo (pneu, extintor, ferramenta): o desvio poderá ser lançado sem apontar ninguém.">
                             <p-checkbox [binary]="true" size="small" [(ngModel)]="pergunta.desvioPorColaborador" [disabled]="emUso()"></p-checkbox>
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-widest">Desvio aponta colaborador</span>
+                            <span class="text-xs font-medium text-[var(--geo-foreground-muted)]">Desvio aponta colaborador</span>
                           </label>
                         }
                       </div>
@@ -192,26 +189,26 @@ function uid(): string {
                       @if (isObjetivo(pergunta.tipoResposta)) {
                         <div class="md:pl-7 flex flex-col gap-2 mt-1">
                           <div class="flex flex-wrap items-center justify-between gap-2">
-                            <span class="text-xs font-medium text-gray-400 uppercase tracking-widest">Opções de resposta</span>
+                            <span class="text-xs font-medium text-[var(--geo-foreground-subtle)]">Opções de resposta</span>
                             @if (!emUso() && pergunta.tipoResposta === 'MULTIPLA_ESCOLHA' && !ehChecklist(pergunta)) {
-                              <button type="button" (click)="aplicarChecklist(pergunta)" class="flex items-center gap-1.5 text-xs font-medium text-primary-700 uppercase tracking-widest w-fit">
+                              <button type="button" (click)="aplicarChecklist(pergunta)" class="flex items-center gap-1.5 text-xs font-medium text-[var(--geo-brand-text)] w-fit">
                                 <i class="pi pi-list-check text-xs"></i> Usar Conforme / Não conforme / Não se aplica
                               </button>
                             }
                           </div>
                           @for (opcao of pergunta.opcoes; track opcao.uid; let oi = $index) {
                             <div class="flex items-center gap-2">
-                              <i class="pi pi-circle text-[7px] text-slate-300"></i>
+                              <i class="pi pi-circle text-xs text-[var(--geo-foreground-subtle)]"></i>
                               <input pInputText placeholder="Texto da opção" class="doc-input flex-grow" [(ngModel)]="opcao.texto" [disabled]="emUso()" />
-                              <label class="flex items-center gap-1.5 h-[34px] px-2.5 rounded-md border shrink-0 cursor-pointer transition-colors"
-                                [ngClass]="opcao.padrao ? 'border-blue-200 bg-blue-50/40' : 'border-slate-200 bg-white'">
+                              <label class="flex items-center gap-1.5 h-8 px-2.5 rounded-md border shrink-0 cursor-pointer transition-colors"
+                                [ngClass]="opcao.padrao ? 'border-[var(--geo-brand)] bg-[var(--geo-brand-soft)]' : 'border-[var(--geo-border)] bg-[var(--geo-surface)]'">
                                 <p-checkbox [binary]="true" size="small" [(ngModel)]="opcao.padrao" [disabled]="emUso() || opcao.geraDesvio" (onChange)="onPadraoChange(pergunta, opcao)"></p-checkbox>
-                                <span class="text-xs font-medium uppercase tracking-widest" [ngClass]="opcao.padrao ? 'text-blue-600' : 'text-gray-400'">Padrão</span>
+                                <span class="text-xs font-medium" [ngClass]="opcao.padrao ? 'text-[var(--geo-brand-text)]' : 'text-[var(--geo-foreground-subtle)]'">Padrão</span>
                               </label>
-                              <label class="flex items-center gap-1.5 h-[34px] px-2.5 rounded-md border shrink-0 cursor-pointer transition-colors"
-                                [ngClass]="opcao.geraDesvio ? 'border-red-200 bg-red-50/40' : 'border-slate-200 bg-white'">
+                              <label class="flex items-center gap-1.5 h-8 px-2.5 rounded-md border shrink-0 cursor-pointer transition-colors"
+                                [ngClass]="opcao.geraDesvio ? 'border-[var(--geo-danger-border)] bg-[var(--geo-danger-soft)]' : 'border-[var(--geo-border)] bg-[var(--geo-surface)]'">
                                 <p-checkbox [binary]="true" size="small" [(ngModel)]="opcao.geraDesvio" [disabled]="emUso()" (onChange)="onGeraDesvioChange(opcao)"></p-checkbox>
-                                <span class="text-xs font-medium uppercase tracking-widest" [ngClass]="opcao.geraDesvio ? 'text-red-500' : 'text-gray-400'">Gera desvio</span>
+                                <span class="text-xs font-medium" [ngClass]="opcao.geraDesvio ? 'text-[var(--geo-danger-text)]' : 'text-[var(--geo-foreground-subtle)]'">Gera desvio</span>
                               </label>
                               @if (opcao.geraDesvio) {
                                 <p-select
@@ -220,29 +217,28 @@ function uid(): string {
                                   optionLabel="label"
                                   optionValue="value"
                                   placeholder="Gravidade *"
-                                  class="doc-select !w-32 border-red-200"
-                                  size="small"
+                                  class="doc-select w-32"
                                   appendTo="body"
                                   [disabled]="emUso()"
                                 ></p-select>
                               }
                               <div class="flex items-center gap-0.5 shrink-0">
-                                <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" [disabled]="oi === 0" (onClick)="moverOpcao(grupo, pergunta, oi, -1)" styleClass="!text-slate-300 !w-6 !h-6"></p-button>
-                                <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" [disabled]="oi === pergunta.opcoes.length - 1" (onClick)="moverOpcao(grupo, pergunta, oi, 1)" styleClass="!text-slate-300 !w-6 !h-6"></p-button>
+                                <p-button icon="pi pi-chevron-up" [text]="true" [rounded]="true" [disabled]="oi === 0" (onClick)="moverOpcao(grupo, pergunta, oi, -1)"></p-button>
+                                <p-button icon="pi pi-chevron-down" [text]="true" [rounded]="true" [disabled]="oi === pergunta.opcoes.length - 1" (onClick)="moverOpcao(grupo, pergunta, oi, 1)"></p-button>
                                 @if (!emUso()) {
-                                  <p-button icon="pi pi-times" [text]="true" [rounded]="true" (onClick)="removerOpcao(pergunta, oi)" styleClass="!text-red-300 !w-6 !h-6"></p-button>
+                                  <p-button icon="pi pi-times" [text]="true" [rounded]="true" (onClick)="removerOpcao(pergunta, oi)"></p-button>
                                 }
                               </div>
                             </div>
                           }
                           @if (!emUso()) {
-                            <button type="button" (click)="adicionarOpcao(pergunta)" class="flex items-center gap-1.5 text-xs font-medium text-primary-700 uppercase tracking-widest mt-1 w-fit">
+                            <button type="button" (click)="adicionarOpcao(pergunta)" class="flex items-center gap-1.5 text-xs font-medium text-[var(--geo-brand-text)] mt-1 w-fit">
                               <i class="pi pi-plus text-xs"></i> Adicionar opção
                             </button>
                           }
                         </div>
                       } @else {
-                        <div class="md:pl-7 text-xs text-gray-400 tracking-wide">
+                        <div class="md:pl-7 text-xs text-[var(--geo-foreground-subtle)]">
                           <i class="pi pi-info-circle text-xs"></i> Resposta livre — preenchida em campo, sem opções.
                         </div>
                       }
@@ -250,7 +246,7 @@ function uid(): string {
                   }
 
                   @if (!emUso()) {
-                    <button type="button" (click)="adicionarPergunta(grupo)" class="flex items-center gap-1.5 text-xs font-medium text-primary-700 uppercase tracking-widest w-fit">
+                    <button type="button" (click)="adicionarPergunta(grupo)" class="flex items-center gap-1.5 text-xs font-medium text-[var(--geo-brand-text)] w-fit">
                       <i class="pi pi-plus text-xs"></i> Adicionar pergunta
                     </button>
                   }
@@ -259,7 +255,7 @@ function uid(): string {
             }
 
             @if (!emUso()) {
-              <button type="button" (click)="adicionarGrupo()" class="flex items-center justify-center gap-2 text-xs font-medium text-gray-500 uppercase tracking-widest border border-dashed border-slate-200 rounded-xl py-3 hover:bg-slate-50/50 transition-colors">
+              <button type="button" (click)="adicionarGrupo()" class="flex items-center justify-center gap-2 text-xs font-medium text-[var(--geo-foreground-muted)] border border-dashed border-[var(--geo-border)] rounded-lg py-3 hover:bg-[var(--geo-surface-subtle)] transition-colors">
                 <i class="pi pi-plus text-xs"></i> Adicionar grupo
               </button>
             }
@@ -270,27 +266,11 @@ function uid(): string {
 
     @if (!loading() && !emUso()) {
       <div class="fixed bottom-6 right-6 md:right-12 z-50">
-        <p-button [label]="formId() ? 'Salvar estrutura' : 'Criar formulário'" icon="pi pi-check" [loading]="saving()" (onClick)="salvar()" styleClass="!rounded-lg !bg-primary-700 !border-primary-700 !text-white !font-medium !text-xs !tracking-widest !uppercase !px-7 !py-3 shadow-lg"></p-button>
+        <p-button [label]="formId() ? 'Salvar estrutura' : 'Criar formulário'" icon="pi pi-check" [loading]="saving()" (onClick)="salvar()" styleClass="shadow-lg"></p-button>
       </div>
     }
   `,
   changeDetection: ChangeDetectionStrategy.Eager,
-  styles: [`
-    :host ::ng-deep {
-      .doc-input.p-inputtext, .doc-select .p-select-label, .doc-select .p-select-placeholder {
-        font-size: var(--geo-font-caption) !important;
-        font-weight: 500 !important;
-        color: var(--p-zinc-700);
-        height: 34px !important;
-        display: flex;
-        align-items: center;
-        border-radius: 6px !important;
-      }
-      .doc-input.p-inputtext { border-color: var(--p-zinc-200) !important; }
-      .doc-select .p-select { width: 100%; height: 34px; border-color: var(--p-zinc-200) !important; border-radius: 6px !important; }
-      .p-breadcrumb .p-menuitem-text { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-400); text-transform: none; letter-spacing: 0; }
-    }
-  `]
 })
 export class FormularioBuilderComponent implements OnInit {
   private sst = inject(SstService);
@@ -309,10 +289,9 @@ export class FormularioBuilderComponent implements OnInit {
   protected descricao = '';
   protected grupos = signal<BuilderGrupo[]>([]);
 
-  protected breadcrumbItems: MenuItem[] = [
-    { icon: 'pi pi-home', routerLink: '/home' },
-    { label: 'SST' },
-    { label: 'Formulários', routerLink: '/sst/formularios' },
+  protected readonly trilha: GeoBreadcrumbItem[] = [
+    { label: 'Segurança' },
+    { label: 'Formulários', route: '/sst/formularios' },
     { label: 'Construtor' }
   ];
 
