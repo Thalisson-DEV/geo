@@ -108,7 +108,7 @@ export class FrotaRecorteCamposComponent {
         }
       </div>
       @if (dados(); as d) {
-        <p class="fpt-recorte">{{ descricao() }} · {{ d.recorte.veiculos }} veículos no recorte ({{ d.recorte.emOperacao }} em operação, {{ d.recorte.locados }} locados)</p>
+        <p class="fpt-recorte">{{ descricao() }} · {{ d.recorte.veiculos }} {{ d.recorte.veiculos === 1 ? 'veículo' : 'veículos' }} no recorte ({{ d.recorte.emOperacao }} em operação, {{ d.recorte.locados }} locados)</p>
       }
     </div>
   `

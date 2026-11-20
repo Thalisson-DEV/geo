@@ -338,10 +338,10 @@ export class DescontosLancamentoComponent {
     { key: 'colaborador', header: 'Colaborador', type: 'custom', priority: 1, sortField: 'colaborador', value: (d) => this.nomeColaborador(d.colaboradorId) },
     { key: 'motivo', header: 'Motivo', priority: 1, sortField: 'motivo.descricao', value: (d) => d.motivo?.descricao, display: (d) => d.motivo?.descricao ?? '—' },
     { key: 'status', header: 'Status', type: 'custom', priority: 1, sortField: 'status', value: (d) => d.status, display: (d) => this.rotuloStatus(d.status) },
-    { key: 'sugerido', header: 'Sugerido', type: 'custom', sortField: 'valorSugerido', value: (d) => d.valorSugerido },
-    { key: 'validado', header: 'Validado', type: 'custom', sortField: 'valorValidado', value: (d) => d.valorValidado },
-    { key: 'baixado', header: 'Baixado', type: 'custom', sortField: 'valorBaixado', value: (d) => d.valorBaixado },
-    { key: 'parcelas', header: 'Parcelas', sortField: 'quantidadeParcelas', value: (d) => d.quantidadeParcelas, display: (d) => `${d.quantidadeParcelas}x` },
+    { key: 'sugerido', header: 'Sugerido', type: 'custom', align: 'end', sortField: 'valorSugerido', value: (d) => d.valorSugerido },
+    { key: 'validado', header: 'Validado', type: 'custom', align: 'end', sortField: 'valorValidado', value: (d) => d.valorValidado },
+    { key: 'baixado', header: 'Baixado', type: 'custom', align: 'end', sortField: 'valorBaixado', value: (d) => d.valorBaixado },
+    { key: 'parcelas', header: 'Parcelas', align: 'end', sortField: 'quantidadeParcelas', value: (d) => d.quantidadeParcelas, display: (d) => `${d.quantidadeParcelas}x` },
     // A ocorrência é informada só com a data no termo: a hora que vem do servidor não diz nada.
     { key: 'ocorrencia', header: 'Ocorrência', type: 'date', sortField: 'dataOcorrencia', value: (d) => d.dataOcorrencia, display: (d) => somenteData(d.dataOcorrencia) },
     { key: 'criado', header: 'Criado em', type: 'date', sortField: 'dataCriacao', value: (d) => d.dataCriacao }

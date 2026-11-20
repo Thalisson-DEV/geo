@@ -896,7 +896,7 @@ public class DashboardFinanceiroUseCases {
             resultado.add(new PrioridadeFinanceiraItem(
                     "VENCIDO_SEM_COMPROVANTE", SeveridadePrioridade.CRITICA,
                     vencidas.size() + " despesa(s) aprovada(s) já vencida(s) e sem comprovante",
-                    "Somam " + arredondar(somar(vencidas, Registro::valorAprovado))
+                    "Somam " + moedaPtBr(somar(vencidas, Registro::valorAprovado))
                             + "; a mais antiga venceu há "
                             + Math.abs(diasAte(hoje, vencidas.getFirst())) + " dias",
                     "Pagar e anexar o comprovante, ou registrar por que o pagamento não ocorreu",
@@ -913,7 +913,7 @@ public class DashboardFinanceiroUseCases {
             resultado.add(new PrioridadeFinanceiraItem(
                     "VENCIMENTO_PROXIMO", SeveridadePrioridade.ALTA,
                     proximas.size() + " despesa(s) vencem nos próximos " + DIAS_VENCIMENTO_PROXIMO + " dias",
-                    "Somam " + arredondar(somar(proximas, Registro::valorAprovado))
+                    "Somam " + moedaPtBr(somar(proximas, Registro::valorAprovado))
                             + "; a mais próxima vence em " + diasAte(hoje, proximas.getFirst()) + " dia(s)",
                     "Programar o pagamento antes que a conta entre em atraso",
                     "SOLICITACOES", amostra(proximas),
@@ -950,9 +950,9 @@ public class DashboardFinanceiroUseCases {
                     "SEM_NOTA_FISCAL",
                     proporcao.compareTo(BigDecimal.valueOf(30)) > 0
                             ? SeveridadePrioridade.ALTA : SeveridadePrioridade.MEDIA,
-                    semFiscal.size() + " despesa(s) aprovada(s) sem nenhum documento fiscal",
-                    "Somam " + arredondar(somar(semFiscal, Registro::valorAprovado))
-                            + " e representam " + proporcao + "% do que foi aprovado no período",
+                    semFiscal.size() + (semFiscal.size() == 1 ? " despesa aprovada sem nenhum documento fiscal" : " despesas aprovadas sem nenhum documento fiscal"),
+                    "Somam " + moedaPtBr(somar(semFiscal, Registro::valorAprovado))
+                            + " e representam " + percentualPtBr(proporcao) + " do que foi aprovado no período",
                     "Cobrar a nota, o boleto ou o recibo de quem solicitou e anexar ao repositório",
                     "SOLICITACOES", amostra(semFiscal),
                     Map.of("status", List.of(StatusSolicitacao.APROVADO.name()), "semDocumentoFiscal", true)));
@@ -1031,7 +1031,7 @@ public class DashboardFinanceiroUseCases {
                 tipo,
                 criticos > 0 ? SeveridadePrioridade.CRITICA : SeveridadePrioridade.ALTA,
                 parados.size() + " solicitação(ões) há mais de " + limite + " dias " + descricaoEtapa,
-                "Somam " + arredondar(somar(parados, Registro::valorSolicitado)) + "; a mais antiga está há "
+                "Somam " + moedaPtBr(somar(parados, Registro::valorSolicitado)) + "; a mais antiga está há "
                         + idadeNaEtapa(parados.getFirst(), referencia) + " dias parada",
                 acao,
                 "SOLICITACOES", amostra(parados),
@@ -1289,5 +1289,19 @@ public class DashboardFinanceiroUseCases {
 
     private BigDecimal arredondar(BigDecimal valor) {
         return valor == null ? ZERO : valor.setScale(SCALE, RoundingMode.HALF_UP);
+    }
+
+    /** Valor em reais no formato da interface (R$ 13.637,37), para textos prontos para o usuário. */
+    private static String moedaPtBr(java.math.BigDecimal valor) {
+        java.text.NumberFormat formato = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.of("pt", "BR"));
+        return formato.format(valor == null ? java.math.BigDecimal.ZERO : valor).replace(' ', ' ');
+    }
+
+    /** Percentual no formato da interface (25,8%). */
+    private static String percentualPtBr(java.math.BigDecimal valor) {
+        java.text.NumberFormat formato = java.text.NumberFormat.getNumberInstance(java.util.Locale.of("pt", "BR"));
+        formato.setMaximumFractionDigits(1);
+        formato.setMinimumFractionDigits(0);
+        return formato.format(valor == null ? java.math.BigDecimal.ZERO : valor) + "%";
     }
 }

@@ -276,7 +276,7 @@ export class FrotaVeiculosComponent {
     { key: 'tipoVeiculo', header: 'Tipo', sortField: 'tipoVeiculo.nome', display: (r) => r.tipoVeiculo ?? 'Sem tipo' },
     { key: 'situacao', header: 'Situação', type: 'custom', priority: 1, sortField: 'situacao', value: (r) => r.situacao, display: (r) => ROTULO_SITUACAO[r.situacao] },
     { key: 'regime', header: 'Regime', sortField: 'regime', display: (r) => ROTULO_REGIME[r.regime] },
-    { key: 'kmAtual', header: 'KM / horas', type: 'custom', value: (r) => r.kmAtual, display: (r) => (r.kmAtual != null ? formatarMedicao(r.kmAtual, r.unidadeMedicao) : '') },
+    { key: 'kmAtual', header: 'KM / horas', type: 'custom', align: 'end', value: (r) => r.kmAtual, display: (r) => (r.kmAtual != null ? formatarMedicao(r.kmAtual, r.unidadeMedicao) : '') },
     { key: 'uso', header: 'Uso em 30 dias', type: 'custom', value: (r) => r.uso?.km ?? -1,
       display: (r) => (r.uso ? `${Math.round(r.uso.km)} km${r.uso.rodaPouco ? ', roda pouco' : ''}${r.uso.diasForaExpediente ? `, ${r.uso.diasForaExpediente} dias fora do expediente` : ''}` : 'Sem rastreador') },
     { key: 'condutorAtual', header: 'Condutor', type: 'custom', value: (r) => r.condutorAtual, display: (r) => r.condutorAtual ?? 'Sem condutor' },

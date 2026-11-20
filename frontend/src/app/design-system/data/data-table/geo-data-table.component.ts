@@ -551,6 +551,7 @@ export class GeoDataTableComponent<T = unknown> implements OnInit {
   }
 
   protected isNumeric(column: GeoDataTableColumn<T>): boolean {
+    if (column.align) return column.align === 'end';
     return ['number', 'integer', 'percent', 'currency'].includes(column.type ?? 'text');
   }
 

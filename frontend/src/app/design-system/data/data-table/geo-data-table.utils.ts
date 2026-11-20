@@ -13,6 +13,8 @@ export interface GeoDataTableColumn<T = unknown> {
   /** Mobile: 1 = sempre no card; 2 = em "Mais detalhes"; 3 = só no detalhe. Padrão 2 (1 para a primeira coluna). */
   readonly priority?: 1 | 2 | 3;
   readonly width?: string;
+  /** Alinhamento da célula. Padrão: à direita para tipos numéricos; use `end` em colunas `custom` de valor. */
+  readonly align?: 'start' | 'end';
   /** Valor usado em ordenação, busca e exportação. Padrão: `row[key]`. */
   readonly value?: (row: T) => unknown;
   /**

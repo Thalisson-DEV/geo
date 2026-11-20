@@ -691,9 +691,9 @@ public class DashboardDescontoUseCases {
                     "SEM_COMPROVACAO",
                     proporcao.compareTo(BigDecimal.valueOf(25)) > 0
                             ? SeveridadePrioridade.ALTA : SeveridadePrioridade.MEDIA,
-                    semComprovacao.size() + " pendência(s) sem nenhum anexo",
-                    "Somam " + arredondar(somar(semComprovacao, termo -> valorEfetivo(termo.desconto())))
-                            + " e representam " + proporcao + "% do que está em aberto",
+                    semComprovacao.size() + (semComprovacao.size() == 1 ? " pendência sem nenhum anexo" : " pendências sem nenhum anexo"),
+                    "Somam " + moedaPtBr(somar(semComprovacao, termo -> valorEfetivo(termo.desconto())))
+                            + " e representam " + percentualPtBr(proporcao) + " do que está em aberto",
                     "Anexar a comprovação antes de levar o termo à validação",
                     amostra(semComprovacao),
                     Map.of("status", List.of("SOLICITADO", "VALIDADO"), "semAnexo", true)));
@@ -948,5 +948,19 @@ public class DashboardDescontoUseCases {
 
     private BigDecimal arredondar(BigDecimal valor) {
         return valor == null ? ZERO : valor.setScale(SCALE, RoundingMode.HALF_UP);
+    }
+
+    /** Valor em reais no formato da interface (R$ 13.637,37), para textos prontos para o usuário. */
+    private static String moedaPtBr(java.math.BigDecimal valor) {
+        java.text.NumberFormat formato = java.text.NumberFormat.getCurrencyInstance(java.util.Locale.of("pt", "BR"));
+        return formato.format(valor == null ? java.math.BigDecimal.ZERO : valor).replace(' ', ' ');
+    }
+
+    /** Percentual no formato da interface (25,8%). */
+    private static String percentualPtBr(java.math.BigDecimal valor) {
+        java.text.NumberFormat formato = java.text.NumberFormat.getNumberInstance(java.util.Locale.of("pt", "BR"));
+        formato.setMaximumFractionDigits(1);
+        formato.setMinimumFractionDigits(0);
+        return formato.format(valor == null ? java.math.BigDecimal.ZERO : valor) + "%";
     }
 }
