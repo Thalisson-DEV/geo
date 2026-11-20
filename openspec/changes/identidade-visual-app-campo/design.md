@@ -1,0 +1,56 @@
+## Context
+
+`mobile/` é um PWA Angular 20 (≈46 mil linhas) com zone.js, `@angular/animations`, Tailwind 3, Karma/Jasmine, Playwright e
+Cypress. Já tem uma camada de UI própria (`src/app/ui/`: barra de topo, barra de abas, folha, lista, seletor, leitor de código,
+assinatura, status de envio, indicador de rede, título grande) e tokens em `src/styles/ces-tokens.scss` (prefixo `--ces-*`, azul
+`#0052A5`, Roboto, alvo de 48px, claro por padrão, `data-tema="escuro"` e `data-contraste="alto"`). Offline-first maduro: Dexie,
+fila, retomada de sessão, rascunhos, envio durável.
+
+O web (`frontend/`) usa a identidade GEO: Inter, neutros zinc, acento azul, Lucide, tokens `--geo-*`, `light-dark()`, Angular 22
+zoneless. Público do app: encarregados de campo e administrativo; ~70% tablet, também celular; Android e iPhone; PWA sem loja.
+
+## Goals / Non-Goals
+
+**Goals:**
+- Mesma marca do web, com escala e ergonomia de toque.
+- Padrões de mercado consolidados para apps de campo, aplicados em todas as telas.
+- Nenhuma perda de dados do aparelho na troca de nomes e de versão.
+
+**Non-Goals:**
+- Mudar regras de negócio das telas existentes.
+- PrimeNG no app (o app mantém componentes próprios, leves para offline e toque).
+- Capacitor/loja.
+
+## Decisions
+
+- **Componentes próprios, tokens compartilhados.** O app não adota PrimeNG: os componentes de toque já existem em `ui/` e são
+  redesenhados. Os tokens de marca (cores, fonte, raios, movimento) seguem os nomes `--geo-*` do web, com uma camada de escala de
+  toque própria do app. Alternativa (PrimeNG no app) rejeitada pelo peso no bundle offline e por ser calibrado para densidade
+  compacta.
+- **Escala de toque, não compacta.** A regra "densidade compacta sempre" vale para o web. No app: corpo 15–16px, apoio 13px,
+  títulos de barra 17–20px, título grande 28–30px, alvos ≥ 48px (botão principal 52–56px), margens de 16px (24px no tablet).
+- **Inter empacotada.** Fonte variável servida pelo próprio app e cacheada pelo service worker; números tabulares em quantidades.
+- **Tablet primeiro.** Pontos de quebra: celular (< 600px), tablet retrato (600–899px), tablet paisagem (≥ 900px). No tablet em
+  paisagem a navegação vira trilho lateral e as listas abrem o detalhe ao lado; no celular, detalhe em tela cheia.
+- **Padrões de mercado adotados**: abas inferiores com 3–5 destinos; título grande que encolhe ao rolar; um botão principal por
+  tela, ao alcance do polegar; folhas inferiores no lugar de diálogos; formulários longos em passos; skeleton em vez de spinner;
+  puxar para atualizar; ação por arrasto sempre com alternativa visível; desfazer em vez de "tem certeza?" para ações reversíveis;
+  estado de envio sempre visível; áreas seguras (`env(safe-area-inset-*)`); `100dvh`; campos com fonte ≥ 16px (sem zoom no iOS);
+  sem realce de toque do navegador; retomada no ponto exato.
+- **Troca `ces` → `geo` por script**, como na etapa zero do web: as chaves do `localStorage`/`sessionStorage` são migradas na
+  primeira abertura (copia sem sobrescrever e apaga a antiga). Os bancos IndexedDB (fila, rascunhos, sessão), o cache dos
+  documentos do veículo e as travas entre abas **mantêm o nome**, como o web fez com o banco dele: renomear exigiria copiar fila e
+  fotos sem ganho para o usuário, e uma aba da versão anterior aberta durante a atualização deixaria de respeitar a trava da fila.
+- **Sem Tailwind no app.** O Tailwind só servia a classes de filtro que nenhuma tela usava; o reset dele virou `styles/_reset.scss`.
+  O visual do app vem dos tokens e componentes próprios.
+- **Zoneless e sem `@angular/animations`.** Transições por CSS e View Transitions quando disponíveis, com os tokens de movimento.
+- **Testes**: Vitest em modo navegador (Chromium headless) no lugar de Karma, porque os testes usam IndexedDB, Web Locks e
+  Blob reais; Playwright mantém e2e, a11y e visual (claro/escuro × tablet/celular); Cypress sai.
+
+## Risks / Trade-offs
+
+- [Atualização Angular 20 → 22 quebrar telas] → migrar por etapas (21, depois 22) com os testes de caracterização a cada passo.
+- [Perder a sessão ou a fila na atualização] → bancos do aparelho mantêm o nome; migração das chaves idempotente, sem
+  sobrescrever chave nova, coberta por `e2e/piloto/migracao-chaves.spec.ts` (abre a nova versão sem rede e sem pedir login).
+- [Diferenças no Safari do iPhone] → testar o app instalado na tela inicial em cada release.
+- [Regressão visual em massa] → baselines por tela e migração módulo a módulo.

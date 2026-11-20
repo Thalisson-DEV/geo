@@ -1,12 +1,17 @@
 ## ADDED Requirements
 
 ### Requirement: Evidências por ponto e vão
-O app SHALL exigir ou sugerir, conforme configuração do contrato, fotos ao marcar ponto ou vão como feito, guardando-as offline e
-enviando-as na sincronização vinculadas ao ponto/vão e ao apontamento.
+O app SHALL apresentar, ao executar um ponto ou vão, a lista de fotos do modelo (antes, durante, depois), abrir a câmera direto,
+aplicar carimbo com obra, ponto, data/hora e GPS, guardar as fotos offline e enviá-las vinculadas ao ponto/vão e ao apontamento.
+Foto exigida que falta MUST NOT bloquear a marcação: ela vira pendência visível no ponto, no Hoje, no fechamento do turno e no web.
 
-#### Scenario: Foto obrigatória
-- **WHEN** a configuração exige foto e o eletricista tenta marcar o vão sem foto
-- **THEN** o app impede a marcação e pede a foto
+#### Scenario: Foto exigida faltando
+- **WHEN** o modelo exige a foto "Depois" e o encarregado marca o vão como feito sem ela
+- **THEN** o vão fica feito com a pendência "falta foto Depois" e o app permite tirá-la depois
+
+#### Scenario: Galeria não permitida
+- **WHEN** o modelo não permite foto da galeria para a etapa "Durante"
+- **THEN** o app oferece só a câmera para essa foto
 
 ### Requirement: Anexação de evidência pelo web
 O web SHALL permitir anexar fotos a pontos e vãos executados (ex.: execução anterior à adoção do app), identificadas como
@@ -22,7 +27,7 @@ relatório de medição detalhado.
 
 #### Scenario: Reprovar foto
 - **WHEN** o revisor reprova uma foto por "foto desfocada"
-- **THEN** a foto sai do relatório detalhado e aparece em inconformidades
+- **THEN** a foto sai do relatório detalhado, aparece em inconformidades e volta como pendência para a equipe
 
 ### Requirement: Inconformidades e ranking
 O sistema SHALL listar inconformidades de fotos por período, equipe e motivo, e o ranking de qualidade das fotos por equipe

@@ -2,7 +2,7 @@
 
 ### Requirement: Status operacional da equipe
 O sistema SHALL derivar o status da equipe entre Sem turno, Na base, Em rota, Aguardando e Trabalhando, combinando turno aberto,
-última atividade no app e posição/ignição/movimento da telemetria, exibindo-o na central de operações, no dashboard de turnos e
+chegada/saída da obra, última atividade no app e posição/ignição/movimento da telemetria, exibindo-o na central de operações, no dashboard de turnos e
 na telemetria.
 
 #### Scenario: Equipe em rota
