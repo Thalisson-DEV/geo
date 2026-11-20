@@ -49,16 +49,16 @@
 }
 
 .kv-l {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   color: var(--geo-foreground-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  text-transform: none;
+  letter-spacing: 0;
   flex-shrink: 0;
 }
 
 .kv-v {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   color: var(--geo-foreground);
   text-align: right;
@@ -101,7 +101,7 @@
   height: auto;
   max-height: 2.5rem;
   object-fit: contain;
-  background: #ffffff;
+  background: var(--p-surface-0);
   filter: none;
   mix-blend-mode: normal;
 }
@@ -110,7 +110,7 @@
 /* REGRAS DE IMPRESSÃO A4 */
 @media print {
   :host {
-    background-color: #ffffff !important;
+    background-color: var(--p-surface-0) !important;
     min-height: auto !important;
     height: auto !important;
     padding: 0 !important;
@@ -119,12 +119,12 @@
 
   html,
   body {
-    background-color: #ffffff !important;
+    background-color: var(--p-surface-0) !important;
     height: auto !important;
     min-height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
-    color: #000000 !important;
+    color: black !important;
   }
 
   .print\:hidden {
@@ -152,26 +152,26 @@
 
   .kv-l {
     font-size: 8.5px;
-    color: #475569 !important;
+    color: var(--p-zinc-600) !important;
   }
 
   .kv-v {
-    font-size: 9.5px;
-    color: #0f172a !important;
+    font-size: var(--geo-font-caption);
+    color: var(--p-zinc-900) !important;
   }
 
   .kv-v--muted {
-    color: #64748b !important;
+    color: var(--p-zinc-500) !important;
   }
 
   .kv-v--success,
   .kv-v--brand {
-    color: #0f172a !important;
+    color: var(--p-zinc-900) !important;
   }
 
   .signature-slot {
     height: 2.75rem;
-    border-bottom-color: #1e293b !important;
+    border-bottom-color: var(--p-zinc-800) !important;
   }
 
   .signature-image {
@@ -249,8 +249,8 @@
 
 @media print {
   .destaque {
-    border-color: #cbd5e1 !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
+    border-color: var(--p-zinc-300) !important;
+    background: var(--p-surface-0) !important;
+    color: var(--p-zinc-900) !important;
   }
 }

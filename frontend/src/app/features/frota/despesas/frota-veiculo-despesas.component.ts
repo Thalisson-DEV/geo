@@ -44,7 +44,7 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
   ],
   styles: `
     :host { display: grid; gap: 0.75rem; }
-    .valor { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .valor { font-weight: 600; font-variant-numeric: tabular-nums; }
   `,
   template: `
     <!-- Sem despesa, os cartões zerados só repetem o estado vazio da tabela. -->

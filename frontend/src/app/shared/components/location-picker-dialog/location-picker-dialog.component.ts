@@ -149,7 +149,7 @@ export interface LocalSelecionado {
       ::ng-deep .lp-autocomplete .p-autocomplete-input {
         flex: 1 1 auto;
         width: 100% !important;
-        font-size: 11px;
+        font-size: var(--geo-font-caption);
         font-weight: 500;
         border-radius: 6px;
       }

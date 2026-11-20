@@ -15,7 +15,7 @@
   flex: 0 0 auto;
   background: var(--p-primary-100);
   color: var(--p-primary-700);
-  font-size: 0.68rem;
+  font-size: var(--geo-font-caption);
 }
 
 .message-bubble {
@@ -26,10 +26,10 @@
 }
 
 .message-bubble--assistant {
-  border: 1px solid #e1e8f0;
+  border: 1px solid var(--p-zinc-200);
   border-bottom-left-radius: 0.35rem;
   background: white;
-  color: #334155;
+  color: var(--p-zinc-700);
 }
 
 .message-bubble--user {
@@ -39,24 +39,24 @@
 }
 
 .message-bubble--warning {
-  border: 1px solid #f5d78e;
+  border: 1px solid var(--p-amber-200);
   border-bottom-left-radius: 0.35rem;
-  background: #fffbeb;
-  color: #664d13;
+  background: var(--p-zinc-50);
+  color: var(--p-yellow-900);
 }
 
 .message-bubble--quiet {
-  border: 1px solid #dfe7f0;
+  border: 1px solid var(--p-zinc-200);
   border-bottom-left-radius: 0.35rem;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--p-zinc-100);
+  color: var(--p-zinc-600);
 }
 
 .message-text {
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: 0.79rem;
+  font-size: var(--geo-font-caption);
   line-height: 1.58;
 }
 
@@ -94,7 +94,7 @@
   align-items: center;
   gap: 0.55rem;
   padding: 0.78rem 1rem;
-  border: 1px solid #e1e8f0;
+  border: 1px solid var(--p-zinc-200);
   border-radius: 1.15rem 1.15rem 1.15rem 0.35rem;
   background: white;
   box-shadow: 0 2px 8px rgb(15 23 42 / 0.045);
@@ -106,7 +106,7 @@
   :host ::ng-deep .message-avatar {
     width: 2.35rem;
     height: 2.35rem;
-    font-size: 11px;
+    font-size: var(--geo-font-caption);
   }
 
   .message-bubble {

@@ -110,18 +110,18 @@ interface Arraste {
     .tempo__grade { display: grid; grid-template-columns: 13rem repeat(var(--dias), minmax(2.5rem, 1fr)); min-width: max-content; }
     .tempo__grade[data-modo='semana'] { grid-template-columns: 13rem repeat(var(--dias), minmax(7.5rem, 1fr)); }
     .tempo__canto, .tempo__equipe { position: sticky; left: 0; z-index: 2; padding: 0.5rem 0.75rem; border-right: 1px solid var(--geo-border); border-bottom: 1px solid var(--geo-border); background: var(--geo-surface); }
-    .tempo__canto { display: flex; align-items: flex-end; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; background: var(--geo-surface-subtle); }
+    .tempo__canto { display: flex; align-items: flex-end; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0; background: var(--geo-surface-subtle); }
     .tempo__dia { display: flex; flex-direction: column; gap: 0.125rem; align-items: center; padding: 0.375rem 0; border-bottom: 1px solid var(--geo-border); background: var(--geo-surface-subtle); font-size: var(--geo-font-control); font-weight: 600; font-variant-numeric: tabular-nums; }
-    .tempo__dia small { color: var(--geo-foreground-muted); font-size: 0.625rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .tempo__dia small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
     .tempo__numero { display: inline-flex; align-items: center; justify-content: center; min-width: 1.5rem; height: 1.5rem; border-radius: 999px; }
     .tempo__dia--fim { background: var(--geo-surface-muted); color: var(--geo-foreground-muted); }
-    .tempo__dia--hoje .tempo__numero { background: var(--geo-brand); color: var(--geo-brand-contrast, #fff); }
+    .tempo__dia--hoje .tempo__numero { background: var(--geo-brand); color: var(--geo-brand-contrast, var(--p-surface-0)); }
     .tempo__equipe { display: flex; flex-direction: column; gap: 0.125rem; justify-content: center; min-width: 0; font-size: var(--geo-font-control); }
     .tempo__codigo { display: flex; gap: 0.375rem; align-items: center; justify-content: space-between; }
-    .tempo__conflito { display: inline-flex; gap: 0.25rem; align-items: center; color: var(--geo-warning-text); font-size: 0.6875rem; font-weight: 700; white-space: nowrap; }
-    .tempo__conflito .pi { font-size: 0.625rem; }
+    .tempo__conflito { display: inline-flex; gap: 0.25rem; align-items: center; color: var(--geo-warning-text); font-size: var(--geo-font-caption); font-weight: 600; white-space: nowrap; }
+    .tempo__conflito .pi { font-size: var(--geo-font-caption); }
     .tempo__equipe small { overflow: hidden; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); text-overflow: ellipsis; white-space: nowrap; }
-    .tempo__meta { display: flex; gap: 0.375rem; align-items: center; color: var(--geo-foreground-muted); font-size: 0.6875rem; white-space: nowrap; }
+    .tempo__meta { display: flex; gap: 0.375rem; align-items: center; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); white-space: nowrap; }
     .tempo__meta-barra { flex: 1; overflow: hidden; height: 0.25rem; border-radius: 999px; background: var(--geo-surface-muted); }
     .tempo__meta-barra span { display: block; height: 100%; border-radius: inherit; background: var(--geo-brand); }
     .tempo__meta[data-acima='true'] { color: var(--geo-warning-text); font-weight: 600; }
@@ -131,7 +131,7 @@ interface Arraste {
     .tempo__coluna--fim { background: color-mix(in srgb, var(--geo-surface-muted) 55%, transparent); }
     .tempo__coluna--hoje { background: color-mix(in srgb, var(--geo-brand) 8%, transparent); }
     .tempo__livre { position: absolute; top: 50%; left: 0.75rem; display: inline-flex; gap: 0.375rem; align-items: center; color: var(--geo-foreground-subtle, var(--geo-foreground-muted)); font-size: var(--geo-font-caption); transform: translateY(-50%); pointer-events: none; }
-    .tempo__livre .pi { font-size: 0.625rem; }
+    .tempo__livre .pi { font-size: var(--geo-font-caption); }
     .tempo__barra { position: absolute; display: flex; gap: 0.375rem; align-items: center; overflow: hidden; padding: 0 0.5rem; border: 1px solid; border-left-width: 3px; border-radius: var(--geo-radius-sm); font: inherit; text-align: left; white-space: nowrap; cursor: pointer; transition: filter var(--geo-duration-fast) var(--geo-ease-standard); }
     [data-modo='mes'] .tempo__barra { padding: 0 0.375rem; }
     .tempo__barra:hover { filter: brightness(1.08); }
@@ -143,12 +143,12 @@ interface Arraste {
     .tempo__ponta--fim::after { content: ''; position: absolute; top: 30%; right: 2px; bottom: 30%; width: 2px; border-radius: 1px; background: currentColor; opacity: 0; }
     .tempo__barra--arrastavel:hover .tempo__ponta--fim::after { opacity: 0.6; }
     .tempo__trilho[data-alvo='true'] { background: color-mix(in srgb, var(--geo-brand) 6%, transparent); }
-    .tempo__fantasma { position: absolute; top: 3px; bottom: 3px; z-index: 3; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed var(--geo-brand); border-radius: var(--geo-radius-sm); background: var(--geo-brand-soft, var(--geo-surface-muted)); color: var(--geo-foreground); font-size: 0.6875rem; font-weight: 700; white-space: nowrap; pointer-events: none; box-shadow: var(--geo-shadow-sm); }
+    .tempo__fantasma { position: absolute; top: 3px; bottom: 3px; z-index: 3; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px dashed var(--geo-brand); border-radius: var(--geo-radius-sm); background: var(--geo-brand-soft, var(--geo-surface-muted)); color: var(--geo-foreground); font-size: var(--geo-font-caption); font-weight: 600; white-space: nowrap; pointer-events: none; box-shadow: var(--geo-shadow-sm); }
     .tempo__barra:focus-visible { z-index: 1; outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
-    .tempo__barra .pi { flex: none; font-size: 0.75rem; }
+    .tempo__barra .pi { flex: none; font-size: var(--geo-font-caption); }
     .tempo__texto { display: flex; flex-direction: column; min-width: 0; line-height: 1.2; }
-    .tempo__texto strong { overflow: hidden; font-size: 0.75rem; font-variant-numeric: tabular-nums; text-overflow: ellipsis; }
-    .tempo__texto small { overflow: hidden; font-size: 0.6875rem; text-overflow: ellipsis; }
+    .tempo__texto strong { overflow: hidden; font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; text-overflow: ellipsis; }
+    .tempo__texto small { overflow: hidden; font-size: var(--geo-font-caption); text-overflow: ellipsis; }
     .tempo__barra--corte-inicio { border-left-style: dashed; }
     .tempo__barra--corte-fim { border-right-style: dashed; }
     .tempo__barra[data-situacao='PROGRAMADA'] { border-color: var(--geo-info); background: var(--geo-info-soft); color: var(--geo-info-text); }

@@ -171,8 +171,8 @@ import { GrupoConversas } from '../copiloto.store';
       margin: 0.4rem 0.45rem 0.25rem;
       font-size: var(--geo-font-caption);
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      text-transform: none;
+      letter-spacing: 0;
       color: var(--geo-foreground-subtle);
     }
     ul { list-style: none; margin: 0; padding: 0; }
@@ -229,9 +229,9 @@ import { GrupoConversas } from '../copiloto.store';
       color: var(--geo-brand);
     }
 
-    .item__giro { color: var(--geo-brand); font-size: 0.75rem; animation: item-giro 0.9s linear infinite; }
+    .item__giro { color: var(--geo-brand); font-size: var(--geo-font-caption); animation: item-giro 0.9s linear infinite; }
     @keyframes item-giro { to { transform: rotate(360deg); } }
-    .item__origem { flex: 0 0 auto; color: var(--geo-foreground-subtle); font-size: 0.7rem; }
+    .item__origem { flex: 0 0 auto; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); }
     .item__acoes { display: none; flex: 0 0 auto; padding-right: 0.15rem; }
     .item:hover .item__acoes, .item:focus-within .item__acoes, .item--ativa .item__acoes { display: inline-flex; }
     .item__edicao { flex: 1; padding: 0.25rem; }

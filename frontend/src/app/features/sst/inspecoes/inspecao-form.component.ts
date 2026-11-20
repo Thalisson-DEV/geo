@@ -671,26 +671,26 @@ interface Inspecionado {
       .doc-select .p-select-label, .doc-select .p-select-placeholder,
       .doc-multiselect .p-multiselect-label,
       .doc-number .p-inputnumber-input, .doc-date .p-inputtext {
-        font-size: 11px !important;
+        font-size: var(--geo-font-caption) !important;
         font-weight: 500 !important;
-        color: #374151;
+        color: var(--p-zinc-700);
         border-radius: 6px !important;
       }
       .doc-input.p-inputtext, .doc-select .p-select-label, .doc-multiselect .p-multiselect-label,
       .doc-number .p-inputnumber-input, .doc-date .p-inputtext { height: 34px !important; display: flex; align-items: center; }
       .doc-textarea.p-inputtext { height: auto !important; padding: 0.5rem 0.75rem; }
-      .doc-input.p-inputtext, .doc-textarea.p-inputtext { width: 100%; border-color: #e5e7eb !important; }
+      .doc-input.p-inputtext, .doc-textarea.p-inputtext { width: 100%; border-color: var(--p-zinc-200) !important; }
       .doc-select .p-select, .doc-multiselect .p-multiselect, .doc-date .p-datepicker, .doc-number.p-inputnumber { width: 100%; }
-      .doc-select .p-select, .doc-multiselect .p-multiselect { height: 34px; border-color: #e5e7eb !important; border-radius: 6px !important; }
-      .doc-date .p-inputtext { border-color: #e5e7eb !important; }
-      .p-breadcrumb .p-menuitem-text { font-size: 0.7rem; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; }
+      .doc-select .p-select, .doc-multiselect .p-multiselect { height: 34px; border-color: var(--p-zinc-200) !important; border-radius: 6px !important; }
+      .doc-date .p-inputtext { border-color: var(--p-zinc-200) !important; }
+      .p-breadcrumb .p-menuitem-text { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-400); text-transform: none; letter-spacing: 0; }
     }
-    .dl { font-size: 10.5px; font-weight: 500; color: #64748b; text-transform: capitalize; letter-spacing: 0.08em; }
+    .dl { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-500); text-transform: capitalize; letter-spacing: 0; }
 
     :host-context(.app-dark),
     :host-context(.dark) {
       .dl {
-        color: #94a3b8;
+        color: var(--p-zinc-400);
       }
       ::ng-deep {
         .doc-input.p-inputtext,
@@ -699,47 +699,47 @@ interface Inspecionado {
         .doc-multiselect .p-multiselect-label,
         .doc-number .p-inputnumber-input,
         .doc-date .p-inputtext {
-          color: #f1f5f9 !important;
-          background-color: #0f172a !important;
+          color: var(--p-zinc-100) !important;
+          background-color: var(--p-zinc-900) !important;
         }
         .doc-input.p-inputtext:not([style*="border-color"]),
         .doc-textarea.p-inputtext:not([style*="border-color"]) {
-          border-color: #334155 !important;
+          border-color: var(--p-zinc-700) !important;
         }
         .doc-select .p-select-placeholder,
         .doc-multiselect .p-multiselect-label:empty,
         .doc-input::placeholder,
         .doc-textarea::placeholder,
         .doc-date .p-inputtext::placeholder {
-          color: #64748b !important;
+          color: var(--p-zinc-500) !important;
         }
         .doc-select .p-select,
         .doc-multiselect .p-multiselect,
         .doc-date .p-datepicker {
-          background-color: #0f172a !important;
-          border-color: #334155 !important;
+          background-color: var(--p-zinc-900) !important;
+          border-color: var(--p-zinc-700) !important;
         }
         .doc-date .p-inputtext {
-          border-color: #334155 !important;
+          border-color: var(--p-zinc-700) !important;
         }
         .doc-select .p-select:not(.p-disabled):hover,
         .doc-multiselect .p-multiselect:not(.p-disabled):hover,
         .doc-input.p-inputtext:not(:disabled):hover,
         .doc-textarea.p-inputtext:not(:disabled):hover {
-          border-color: #475569 !important;
+          border-color: var(--p-zinc-600) !important;
         }
         .doc-select .p-select:not(.p-disabled).p-focus,
         .doc-multiselect .p-multiselect:not(.p-disabled).p-focus,
         .doc-input.p-inputtext:not(:disabled):focus,
         .doc-textarea.p-inputtext:not(:disabled):focus {
-          border-color: #3b82f6 !important;
+          border-color: var(--p-blue-500) !important;
         }
         .p-breadcrumb .p-menuitem-text {
-          color: #94a3b8 !important;
+          color: var(--p-zinc-400) !important;
         }
         .p-breadcrumb .p-menuitem-icon,
         .p-breadcrumb .p-breadcrumb-separator {
-          color: #64748b !important;
+          color: var(--p-zinc-500) !important;
         }
       }
     }

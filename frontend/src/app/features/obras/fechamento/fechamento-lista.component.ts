@@ -123,7 +123,7 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
     .fl-contagem {
       display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem;
       border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
-      font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+      font-size: var(--geo-font-caption); font-weight: 600; font-variant-numeric: tabular-nums;
     }
     .geo-quick-filter[aria-pressed='true'] .fl-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
     .fl-contagem--alerta { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
@@ -143,7 +143,7 @@ const CONTADOS: readonly AtalhoFechamento[] = [ATALHO_EM_ABERTO, ...ATALHOS];
     .fl-visoes button:hover { color: var(--geo-foreground); }
     .fl-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
     .fl-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
-    .fl-visoes .pi { font-size: 0.8rem; }
+    .fl-visoes .pi { font-size: var(--geo-font-caption); }
     .fl-obra { display: grid; gap: 0.125rem; min-width: 15rem; }
     .fl-pilha { display: grid; gap: 0.125rem; justify-items: start; min-width: 0; }
     @media (max-width: 40rem) {

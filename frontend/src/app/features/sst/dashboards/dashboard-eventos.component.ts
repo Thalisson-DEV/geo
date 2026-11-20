@@ -109,13 +109,13 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       gap: .65rem;
     }
     .backlog-card {
-      border: 1px solid #e5edf4;
+      border: 1px solid var(--p-zinc-200);
       border-radius: .85rem;
-      background: #fbfdff;
+      background: var(--p-zinc-50);
       overflow: hidden;
       transition: border-color 150ms ease, box-shadow 150ms ease;
     }
-    .backlog-card:hover { border-color: #bfdbfe; box-shadow: 0 4px 12px rgba(16, 42, 67, .06); }
+    .backlog-card:hover { border-color: var(--p-zinc-300); box-shadow: 0 4px 12px rgba(16, 42, 67, .06); }
     /* Faixa clicável: botão esticado sobre o cartão abre os eventos dela. */
     .backlog-card { position: relative; }
     .backlog-card__hit {
@@ -127,18 +127,18 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
     .backlog-card.is-vazia { opacity: .5; }
     .backlog-card__header {
       padding: .6rem .85rem;
-      border-bottom: 1px solid #f1f5f9;
-      background: #f8fafc;
+      border-bottom: 1px solid var(--p-zinc-100);
+      background: var(--p-zinc-50);
     }
     .backlog-card__eyebrow {
       display: block;
-      font-size: .54rem;
-      font-weight: 700;
-      color: #94a3b8;
-      text-transform: uppercase;
-      letter-spacing: .07em;
+      font-size: var(--geo-font-caption);
+      font-weight: 600;
+      color: var(--p-zinc-400);
+      text-transform: none;
+      letter-spacing: 0;
     }
-    .backlog-card__faixa { display: block; font-size: .82rem; font-weight: 650; color: #334155; margin-top: .1rem; }
+    .backlog-card__faixa { display: block; font-size: var(--geo-font-caption); font-weight: 650; color: var(--p-zinc-700); margin-top: .1rem; }
     .backlog-card__body {
       display: flex;
       align-items: center;
@@ -151,22 +151,22 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       display: inline-flex;
       align-items: center;
       gap: .3rem;
-      font-size: .64rem;
-      color: #64748b;
+      font-size: var(--geo-font-caption);
+      color: var(--p-zinc-500);
     }
-    .backlog-card__status i { font-size: .58rem; }
-    .backlog-card__total { font-size: 1.6rem; font-weight: 700; color: #0f172a; line-height: 1; font-variant-numeric: tabular-nums; }
+    .backlog-card__status i { font-size: var(--geo-font-caption); }
+    .backlog-card__total { font-size: 1.6rem; font-weight: 600; color: var(--p-zinc-900); line-height: 1; font-variant-numeric: tabular-nums; }
 
     /* --- Table polish --- */
-    .dash-cell-name { color: #243b53; font-size: .78rem; font-weight: 600; }
-    :host-context(.app-dark) .dash-cell-name, :host-context(.dark) .dash-cell-name { color: #e2e8f0; }
+    .dash-cell-name { color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; }
+    :host-context(.app-dark) .dash-cell-name, :host-context(.dark) .dash-cell-name { color: var(--p-zinc-200); }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;
       border-radius: .4rem;
-      background: #f1f5f9;
-      color: #475569;
-      font-size: .7rem;
+      background: var(--p-zinc-100);
+      color: var(--p-zinc-600);
+      font-size: var(--geo-font-caption);
       font-weight: 650;
       font-variant-numeric: tabular-nums;
     }
@@ -176,15 +176,15 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       gap: .3rem;
       padding: .2rem .5rem;
       border-radius: .4rem;
-      background: #f1f5f9;
-      color: #475569;
-      font-size: .7rem;
+      background: var(--p-zinc-100);
+      color: var(--p-zinc-600);
+      font-size: var(--geo-font-caption);
       font-weight: 650;
     }
-    .dash-badge--success { background: #f0fdf4; color: #15803d; }
-    .dash-badge--danger { background: #fef2f2; color: #b91c1c; }
-    .dash-badge--danger-text { color: #b91c1c; font-weight: 700; }
-    .dash-badge i { font-size: .6rem; }
+    .dash-badge--success { background: var(--p-zinc-50); color: var(--p-green-700); }
+    .dash-badge--danger { background: var(--p-zinc-100); color: var(--p-red-700); }
+    .dash-badge--danger-text { color: var(--p-red-700); font-weight: 600; }
+    .dash-badge i { font-size: var(--geo-font-caption); }
 
     /* --- Compact empty state --- */
     .dash-empty--compact {
@@ -192,30 +192,30 @@ type DimensaoRanking = 'classificacao' | 'atividade' | 'gestor' | 'base' | 'equi
       align-items: center;
       gap: .75rem;
       padding: 1.5rem 1.25rem;
-      border: 1px dashed #d9e2ec;
+      border: 1px dashed var(--p-zinc-200);
       border-radius: .75rem;
-      color: #94a3b8;
-      font-size: .82rem;
+      color: var(--p-zinc-400);
+      font-size: var(--geo-font-caption);
       line-height: 1.5;
     }
-    .dash-empty--compact i { font-size: 1.25rem; flex: none; color: #cbd5e1; }
-    .dash-empty--compact strong { color: #475569; }
+    .dash-empty--compact i { font-size: 1.25rem; flex: none; color: var(--p-zinc-300); }
+    .dash-empty--compact strong { color: var(--p-zinc-600); }
 
     /* --- Dark mode --- */
     :host-context(.app-dark), :host-context(.dark) {
-      .backlog-card { background: var(--geo-surface, #1e293b); border-color: var(--geo-border, #334155); }
-      .backlog-card:hover { border-color: color-mix(in srgb, var(--geo-brand, #3b82f6) 40%, transparent); }
-      .backlog-card__header { background: var(--geo-surface-subtle, #0f172a); border-color: var(--geo-border, #334155); }
-      .backlog-card__faixa, .backlog-card__total { color: #fff !important; }
-      .backlog-card__status span { color: #cbd5e1; }
+      .backlog-card { background: var(--geo-surface, var(--p-zinc-800)); border-color: var(--geo-border, var(--p-zinc-700)); }
+      .backlog-card:hover { border-color: color-mix(in srgb, var(--geo-brand, var(--p-blue-500)) 40%, transparent); }
+      .backlog-card__header { background: var(--geo-surface-subtle, var(--p-zinc-900)); border-color: var(--geo-border, var(--p-zinc-700)); }
+      .backlog-card__faixa, .backlog-card__total { color: var(--p-surface-0) !important; }
+      .backlog-card__status span { color: var(--p-zinc-300); }
 
-      .dash-pct-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge--success { background: rgba(34,197,94,.12); color: #4ade80; }
-      .dash-badge--danger { background: rgba(239,68,68,.12); color: #f87171; }
-      .dash-badge--danger-text { color: #f87171; }
-      .dash-empty--compact { border-color: var(--geo-border, #334155); color: var(--geo-foreground-subtle, #94a3b8); }
-      .dash-empty--compact strong { color: #cbd5e1; }
+      .dash-pct-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
+      .dash-badge { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
+      .dash-badge--success { background: rgba(34,197,94,.12); color: var(--p-green-400); }
+      .dash-badge--danger { background: rgba(239,68,68,.12); color: var(--p-red-400); }
+      .dash-badge--danger-text { color: var(--p-red-400); }
+      .dash-empty--compact { border-color: var(--geo-border, var(--p-zinc-700)); color: var(--geo-foreground-subtle, var(--p-zinc-400)); }
+      .dash-empty--compact strong { color: var(--p-zinc-300); }
     }
 
     /* --- Responsiveness --- */

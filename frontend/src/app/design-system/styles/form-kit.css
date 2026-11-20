@@ -198,7 +198,7 @@
     border-radius: var(--geo-radius-sm);
     background: var(--geo-brand-soft);
     color: var(--geo-brand);
-    font-size: 0.8rem;
+    font-size: var(--geo-font-caption);
   }
   .geo-form-section__heading { display: grid; flex: 1; gap: 0.15rem; min-width: 0; }
   .geo-form-section__title {
@@ -395,8 +395,8 @@
     font-size: var(--geo-font-control);
     font-weight: 600;
   }
-  .geo-form-summary__field i { color: var(--geo-brand); font-size: 0.75rem; }
-  .geo-form-nav a i { font-size: 0.8rem; }
+  .geo-form-summary__field i { color: var(--geo-brand); font-size: var(--geo-font-caption); }
+  .geo-form-nav a i { font-size: var(--geo-font-caption); }
   .geo-form-summary__error { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
 
   /* ---------- Stepper (tipo D) ---------- */
@@ -450,7 +450,7 @@
   .geo-form-stepper__item--active .geo-form-stepper__marker {
     border-color: var(--geo-brand);
     background: var(--geo-brand);
-    color: var(--p-primary-contrast-color, #fff);
+    color: var(--p-primary-contrast-color, var(--p-surface-0));
   }
   .geo-form-stepper__item--done .geo-form-stepper__marker { border-color: var(--geo-brand); color: var(--geo-brand); }
   .geo-form-stepper__item--done .geo-form-stepper__button:hover { background: var(--geo-surface-muted); }

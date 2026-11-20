@@ -144,7 +144,7 @@ export function formatarDuracao(ms: number | null): string {
                       [attr.data-hover]="hoverKey() === chave(c.alvo) || null" [attr.data-dragging]="(arrastandoPaleta() || arrastado()) || null"
                       aria-label="Adicionar ação aqui" title="Adicionar ação aqui"
                       (pointerdown)="$event.stopPropagation()" (click)="inserirEm.emit(c.alvo!)">
-                <i class="pi pi-plus" style="font-size:0.65rem" aria-hidden="true"></i>
+                <i class="pi pi-plus" style="font-size: var(--geo-font-caption)" aria-hidden="true"></i>
                 @if (arrastandoPaleta() || arrastado()) { <span>Soltar</span> }
               </button>
             }

@@ -116,7 +116,7 @@ const ROTULOS_COMUNS: Record<string, string> = {
                   }
                   @if (htmlEmail(et); as h) {
                     <span class="aut-section-title">E-mail montado</span>
-                    <iframe [srcdoc]="h" title="Prévia do e-mail" sandbox="" style="width:100%;height:24rem;border:1px solid var(--geo-border);border-radius:10px;background:#fff"></iframe>
+                    <iframe [srcdoc]="h" title="Prévia do e-mail" sandbox="" style="width:100%;height:24rem;border:1px solid var(--geo-border);border-radius:10px;background:var(--p-surface-0)"></iframe>
                   }
                   <span class="aut-section-title">Entradas</span>
                   <ng-container *ngTemplateOutlet="dados; context: { $implicit: et.entradas, modo: 'entrada' }" />

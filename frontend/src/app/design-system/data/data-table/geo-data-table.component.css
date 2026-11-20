@@ -6,7 +6,7 @@
 .geo-data-table__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--geo-font-control);
+  font-size: var(--geo-text-body-sm);
   line-height: 1.35;
   color: var(--geo-foreground);
   font-variant-numeric: tabular-nums;
@@ -103,7 +103,7 @@
   border-radius: 999px;
   background: var(--geo-brand-soft);
   color: var(--geo-brand);
-  font-size: 0.625rem;
+  font-size: var(--geo-font-caption);
 }
 
 .geo-data-table__expander-col {

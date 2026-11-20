@@ -135,7 +135,7 @@ const TIPOS: GeoSelectOption<TipoMedicao>[] = [
     .medir__saldo { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: 0.75rem; margin: 0 0 0.5rem; }
     .medir__saldo div { padding: 0.6rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     .medir__saldo dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
-    .medir__saldo dd { margin: 0.15rem 0 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .medir__saldo dd { margin: 0.15rem 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
     .medir__saldo small { margin-left: 0.35rem; font-weight: 400; color: var(--geo-foreground-muted); }
     .medir__saldo--ciclo { margin-top: 0.75rem; }
     .medir__link { display: inline-flex; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; color: var(--geo-brand); font-size: var(--geo-font-body); }

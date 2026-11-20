@@ -57,12 +57,13 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      width: 2.5rem;
-      height: 2.5rem;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--geo-border);
       border-radius: var(--geo-radius-md);
-      background: var(--geo-brand-soft);
-      color: var(--geo-brand);
-      font-size: 1.125rem;
+      background: var(--geo-surface);
+      color: var(--geo-foreground-muted);
+      font-size: var(--geo-icon-size-md);
     }
 
     .geo-page-header__text {
@@ -81,9 +82,10 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
 
     h1 {
       margin: 0;
-      font-size: 1.125rem;
+      font-size: var(--geo-text-title-2);
       font-weight: var(--geo-font-weight-semibold);
-      line-height: 1.3;
+      line-height: 1.45;
+      letter-spacing: -0.01em;
       color: var(--geo-foreground);
       overflow-wrap: anywhere;
     }
@@ -91,7 +93,7 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
     p {
       margin: 0;
       max-width: 52rem;
-      font-size: var(--geo-font-body);
+      font-size: var(--geo-text-body-sm);
       color: var(--geo-foreground-muted);
     }
 
@@ -107,11 +109,14 @@ export const GEO_PAGE_FAVORITES = new InjectionToken<GeoPageFavorites>('GEO_PAGE
       display: none;
     }
 
+    /* Ações sempre à direita, inclusive quando quebram para a linha de baixo. */
     .geo-page-header__actions {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: flex-end;
       gap: 0.5rem;
+      margin-inline-start: auto;
     }
 
     @media (max-width: 40rem) {

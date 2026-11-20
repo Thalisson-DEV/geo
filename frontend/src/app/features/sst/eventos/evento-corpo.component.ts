@@ -48,11 +48,11 @@ import { RegiaoCorpo } from './evento-relatorio.util';
     svg { width: 100%; max-width: 4.75rem; height: auto; overflow: visible; }
     .r { fill: var(--geo-surface-muted); stroke: var(--geo-border-strong); stroke-width: 1; transition: fill 0.2s ease; }
     .r--on { fill: var(--geo-danger); stroke: var(--geo-danger-text); stroke-width: 1.5; }
-    .lado { font-size: 15px; font-weight: 700; fill: var(--geo-foreground-muted); }
+    .lado { font-size: 15px; font-weight: 600; fill: var(--geo-foreground-muted); }
     @media print {
-      .r { fill: #f1f5f9; stroke: #94a3b8; }
-      .r--on { fill: #dc2626; stroke: #7f1d1d; }
-      .lado { fill: #334155; }
+      .r { fill: var(--p-zinc-100); stroke: var(--p-zinc-400); }
+      .r--on { fill: var(--p-red-600); stroke: var(--p-red-900); }
+      .lado { fill: var(--p-zinc-700); }
     }
   `
 })

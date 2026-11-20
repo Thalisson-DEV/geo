@@ -233,37 +233,37 @@ import {
       border-left-color: var(--p-primary-400) !important;
     }
     .section-marker span {
-      color: #374151;
+      color: var(--p-zinc-700);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: -0.01em;
       text-transform: none;
     }
     :host-context(.app-dark) .section-marker span,
     :host-context(.dark) .section-marker span {
-      color: #f1f5f9 !important;
+      color: var(--p-zinc-100) !important;
     }
     .field { display: flex; flex-direction: column; gap: 0.375rem; }
-    .field > label { color: #475569; font-size: 11px; font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
+    .field > label { color: var(--p-zinc-600); font-size: var(--geo-font-caption); font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
     :host-context(.app-dark) .field > label,
     :host-context(.dark) .field > label {
-      color: #cbd5e1 !important;
+      color: var(--p-zinc-300) !important;
     }
-    .field-meta { display: flex; justify-content: space-between; gap: 0.5rem; color: #94a3b8; font-size: 9px; min-height: 0.75rem; }
+    .field-meta { display: flex; justify-content: space-between; gap: 0.5rem; color: var(--p-zinc-400); font-size: var(--geo-font-caption); min-height: 0.75rem; }
     :host-context(.app-dark) .field-meta,
     :host-context(.dark) .field-meta {
-      color: #64748b !important;
+      color: var(--p-zinc-500) !important;
     }
     .field-meta:empty { display: none; }
-    .field-help { color: #94a3b8; font-size: 9px; font-style: italic; line-height: 1.3; }
+    .field-help { color: var(--p-zinc-400); font-size: var(--geo-font-caption); font-style: italic; line-height: 1.3; }
     :host-context(.app-dark) .field-help,
     :host-context(.dark) .field-help {
-      color: #94a3b8 !important;
+      color: var(--p-zinc-400) !important;
     }
-    .form-error { color: #ef4444; font-size: 9px; }
+    .form-error { color: var(--p-red-500); font-size: var(--geo-font-caption); }
     :host-context(.app-dark) .form-error,
     :host-context(.dark) .form-error {
-      color: #f87171 !important;
+      color: var(--p-red-400) !important;
     }
     :host ::ng-deep {
       .field .p-inputtext,
@@ -271,7 +271,7 @@ import {
       .field .p-inputnumber,
       .field .p-datepicker {
         width: 100%;
-        font-size: 11px;
+        font-size: var(--geo-font-caption);
       }
       .booleano-toggle.p-selectbutton {
         display: flex;
@@ -283,35 +283,35 @@ import {
       }
       .booleano-toggle .p-togglebutton {
         flex: 1 1 0;
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
+        font-size: var(--geo-font-caption);
+        font-weight: 600;
+        letter-spacing: 0;
+        text-transform: none;
         border-radius: 0.5rem !important;
         padding: 0.5rem 0.75rem !important;
         min-height: 2.25rem !important;
         transition: all 0.2s ease-in-out;
-        border: 1px solid #e2e8f0 !important;
-        background: #f8fafc !important;
-        color: #64748b !important;
+        border: 1px solid var(--p-zinc-200) !important;
+        background: var(--p-zinc-50) !important;
+        color: var(--p-zinc-500) !important;
       }
       .booleano-toggle .p-togglebutton:not(.p-togglebutton-checked):hover {
-        background: #f1f5f9 !important;
-        color: #1e293b !important;
-        border-color: #cbd5e1 !important;
+        background: var(--p-zinc-100) !important;
+        color: var(--p-zinc-800) !important;
+        border-color: var(--p-zinc-300) !important;
       }
       .booleano-toggle .p-togglebutton.p-togglebutton-checked,
       .booleano-toggle .p-togglebutton[data-p-checked="true"],
       .booleano-toggle .p-togglebutton[aria-pressed="true"] {
-        background: var(--p-primary-600, #2563eb) !important;
-        border-color: var(--p-primary-600, #2563eb) !important;
-        color: #ffffff !important;
+        background: var(--p-primary-600, var(--p-blue-600)) !important;
+        border-color: var(--p-primary-600, var(--p-blue-600)) !important;
+        color: var(--p-surface-0) !important;
         box-shadow: none !important;
       }
       .booleano-toggle .p-togglebutton.p-togglebutton-checked *,
       .booleano-toggle .p-togglebutton[data-p-checked="true"] *,
       .booleano-toggle .p-togglebutton[aria-pressed="true"] * {
-        color: #ffffff !important;
+        color: var(--p-surface-0) !important;
       }
       .ng-invalid.ng-touched .p-inputtext,
       input.ng-invalid.ng-touched,
@@ -322,27 +322,27 @@ import {
     :host-context(.app-dark) :host ::ng-deep,
     :host-context(.dark) :host ::ng-deep {
       .booleano-toggle .p-togglebutton {
-        background: #1e293b !important;
-        border-color: #334155 !important;
-        color: #94a3b8 !important;
+        background: var(--p-zinc-800) !important;
+        border-color: var(--p-zinc-700) !important;
+        color: var(--p-zinc-400) !important;
       }
       .booleano-toggle .p-togglebutton:not(.p-togglebutton-checked):hover {
-        background: #334155 !important;
-        color: #f8fafc !important;
-        border-color: #475569 !important;
+        background: var(--p-zinc-700) !important;
+        color: var(--p-zinc-50) !important;
+        border-color: var(--p-zinc-600) !important;
       }
       .booleano-toggle .p-togglebutton.p-togglebutton-checked,
       .booleano-toggle .p-togglebutton[data-p-checked="true"],
       .booleano-toggle .p-togglebutton[aria-pressed="true"] {
-        background: var(--p-primary-600, #2563eb) !important;
-        border-color: var(--p-primary-500, #3b82f6) !important;
-        color: #ffffff !important;
+        background: var(--p-primary-600, var(--p-blue-600)) !important;
+        border-color: var(--p-primary-500, var(--p-blue-500)) !important;
+        color: var(--p-surface-0) !important;
         box-shadow: none !important;
       }
       .booleano-toggle .p-togglebutton.p-togglebutton-checked *,
       .booleano-toggle .p-togglebutton[data-p-checked="true"] *,
       .booleano-toggle .p-togglebutton[aria-pressed="true"] * {
-        color: #ffffff !important;
+        color: var(--p-surface-0) !important;
       }
     }
   `]

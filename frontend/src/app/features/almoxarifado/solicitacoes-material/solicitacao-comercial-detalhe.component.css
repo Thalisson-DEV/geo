@@ -7,9 +7,9 @@
 .dd-label {
   display: block;
   font-size: var(--geo-font-caption);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--geo-foreground-muted);
 }
 
@@ -20,7 +20,7 @@
 
 .dd-forte {
   color: var(--geo-foreground);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-texto-alerta {
@@ -29,7 +29,7 @@
 
 .dd-texto-aviso {
   color: var(--geo-warning-text);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-sr {
@@ -96,11 +96,11 @@
 
 .dd-hero__rota strong {
   color: var(--geo-foreground);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-hero__rota .pi {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .dd-hero__seta {
@@ -122,7 +122,7 @@
 
 .dd-hero__id {
   color: var(--geo-foreground);
-  font-weight: 700;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -138,7 +138,7 @@
   margin: 0;
   color: var(--geo-foreground);
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-titulo-secao .pi {
@@ -209,7 +209,7 @@
   border-radius: 999px;
   background: var(--geo-surface);
   color: var(--geo-foreground-subtle);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .dd-fluxo__etapa[data-estado='feito'] .dd-fluxo__marca {
@@ -371,7 +371,7 @@
 }
 
 .dd-reserva__botao i {
-  font-size: 0.65rem;
+  font-size: var(--geo-font-caption);
 }
 
 .dd-reserva__botao:hover {
@@ -417,9 +417,9 @@
 .dd-tabela__cab {
   background: var(--geo-surface-subtle);
   font-size: var(--geo-font-caption);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--geo-foreground-muted);
 }
 
@@ -616,11 +616,11 @@
   }
 
   .dd-fluxo__marca {
-    font-size: 0.6875rem;
+    font-size: var(--geo-font-caption);
   }
 
   .dd-fluxo__texto {
-    font-size: 0.6875rem;
+    font-size: var(--geo-font-caption);
   }
 
   .dd-fluxo__texto strong {

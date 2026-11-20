@@ -367,7 +367,7 @@ const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
     .od-bloco { display: flex; flex-direction: column; gap: 0.625rem; min-width: 0; }
     .od-bloco + .od-bloco { padding-top: 1.25rem; border-top: 1px solid var(--geo-border); }
     .od-bloco__topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.625rem; }
-    .od-bloco__topo h3 { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 700; }
+    .od-bloco__topo h3 { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 600; }
     .od-bloco__acao { margin-left: auto; }
     .od-contagem { color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .od-subtitulo { margin: 0.375rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
@@ -391,7 +391,7 @@ const TIPOS_EQUIPAMENTO: GeoSelectOption<TipoEquipamento>[] = [
     .od-ponto__semfoto { display: flex; align-items: center; gap: 0.375rem; margin: 0; padding: 0.875rem 0.75rem; border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-md); color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .od-ponto__estados { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: auto; }
     .od-evidencias { display: flex; flex-direction: column; gap: 0.875rem; margin-top: 1rem; }
-    .od-evidencias h3, .od-ficha-titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 700; }
+    .od-evidencias h3, .od-ficha-titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 600; }
     .od-ficha-titulo { margin-top: 1.25rem; margin-bottom: 0.25rem; }
     .od-item { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
     .od-item__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; color: var(--geo-foreground); font-size: 0.875rem; }

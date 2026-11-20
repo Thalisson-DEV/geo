@@ -34,12 +34,12 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'LANCAR_VALORES' |
     .kc[data-crit] { box-shadow: inset 4px 0 0 var(--kc-crit); }
     .kc[data-crit]:hover { box-shadow: inset 4px 0 0 var(--kc-crit), var(--geo-shadow-md); }
     [data-crit='URGENTE'] { --kc-crit: var(--geo-danger); --kc-crit-soft: var(--geo-danger-soft); --kc-crit-ink: var(--geo-danger-text); }
-    [data-crit='ALTA'] { --kc-crit: #ea580c; --kc-crit-soft: color-mix(in srgb, #ea580c 14%, var(--geo-surface)); --kc-crit-ink: color-mix(in srgb, #ea580c 70%, var(--geo-foreground)); }
-    [data-crit='MEDIA'] { --kc-crit: #eab308; --kc-crit-soft: color-mix(in srgb, #eab308 18%, var(--geo-surface)); --kc-crit-ink: color-mix(in srgb, #a16207 75%, var(--geo-foreground)); }
+    [data-crit='ALTA'] { --kc-crit: var(--p-orange-600); --kc-crit-soft: color-mix(in srgb, var(--p-orange-600) 14%, var(--geo-surface)); --kc-crit-ink: color-mix(in srgb, var(--p-orange-600) 70%, var(--geo-foreground)); }
+    [data-crit='MEDIA'] { --kc-crit: var(--p-yellow-500); --kc-crit-soft: color-mix(in srgb, var(--p-yellow-500) 18%, var(--geo-surface)); --kc-crit-ink: color-mix(in srgb, var(--p-yellow-700) 75%, var(--geo-foreground)); }
     [data-crit='BAIXA'] { --kc-crit: var(--geo-success); --kc-crit-soft: var(--geo-success-soft); --kc-crit-ink: var(--geo-success-text); }
     .kc__tag.kc__tag--crit { background: var(--kc-crit-soft); color: var(--kc-crit-ink); }
     .kc__head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.125rem 0.5rem; align-items: baseline; }
-    .kc__titulo { overflow: hidden; font-size: var(--geo-font-control); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .kc__titulo { overflow: hidden; font-size: var(--geo-font-control); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
     .kc__id { font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); font-variant-numeric: tabular-nums; }
     .kc__descricao {
       grid-column: 1 / -1; display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
@@ -49,9 +49,9 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'LANCAR_VALORES' |
     .kc__tag {
       display: inline-flex; max-width: 100%; overflow: hidden; text-overflow: ellipsis; align-items: center; gap: 0.3rem; height: 1.375rem;
       padding: 0 0.5rem; border-radius: var(--geo-radius-sm); background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
-      font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+      font-size: var(--geo-font-caption); font-weight: 600; white-space: nowrap;
     }
-    .kc__tag .pi { font-size: 0.65rem; }
+    .kc__tag .pi { font-size: var(--geo-font-caption); }
     .kc__tag--perigo { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
     .kc__tag--aviso { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
     .kc__tag--ok { background: var(--geo-success-soft); color: var(--geo-success-text); }
@@ -63,7 +63,7 @@ export type AcaoCardOs = 'AGENDAR' | 'INICIAR' | 'CONCLUIR' | 'LANCAR_VALORES' |
       font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .kc__oficina span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .kc__icone { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem;
-      border-radius: 999px; background: var(--geo-brand-soft); color: var(--geo-brand); font-size: 0.7rem; }
+      border-radius: 999px; background: var(--geo-brand-soft); color: var(--geo-brand); font-size: var(--geo-font-caption); }
     @media (prefers-reduced-motion: reduce) { .kc { transition: none; } .kc:hover { transform: none; } }
   `,
   template: `

@@ -26,17 +26,17 @@ export interface FotoRelatorio {
     .foto { display: grid; gap: 0.375rem; margin: 0; }
     .foto__quadro { position: relative; display: flex; aspect-ratio: 4 / 3; align-items: center; justify-content: center; overflow: hidden;
       border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem); background: var(--geo-surface-subtle);
-      color: var(--geo-foreground-muted); font-size: 0.75rem; text-align: center; }
+      color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); text-align: center; }
     a.foto__quadro:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     a.foto__quadro:hover img { transform: scale(1.02); }
     .foto__quadro img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
     .foto__selo { position: absolute; top: 0.375rem; left: 0.375rem; display: inline-flex; align-items: center; gap: 0.25rem;
-      padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface); font-size: 0.6875rem; font-weight: 700;
+      padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface); font-size: var(--geo-font-caption); font-weight: 600;
       box-shadow: var(--geo-shadow-sm, 0 1px 2px rgb(0 0 0 / 0.1)); }
     .foto__selo[data-tom='success'] { color: var(--geo-success-text); }
     .foto__selo[data-tom='danger'] { color: var(--geo-danger-text); }
     .foto__selo[data-tom='warning'] { color: var(--geo-warning-text); }
-    .foto__legenda { font-size: 0.75rem; font-weight: 600; line-height: 1.35; }
+    .foto__legenda { font-size: var(--geo-font-caption); font-weight: 600; line-height: 1.35; }
     .foto__detalhe { display: block; font-weight: 400; color: var(--geo-foreground-muted); }
     @media (prefers-reduced-motion: reduce) { .foto__quadro img { transition: none; } }
     @media print { .fotos { grid-template-columns: repeat(4, minmax(0, 1fr)); } .foto { break-inside: avoid; } }

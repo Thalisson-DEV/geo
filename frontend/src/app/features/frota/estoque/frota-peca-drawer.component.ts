@@ -48,12 +48,12 @@ export type OperacaoPeca = 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA' | 'AJUSTE';
     .saldo { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.5rem 1rem; margin: 0; padding: 0.75rem; border: 1px solid var(--geo-border);
       border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
     .saldo dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .saldo dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .saldo dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
     .botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .extrato { display: grid; margin: 0; padding: 0; list-style: none; }
     .extrato li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.2rem 0.6rem; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid var(--geo-border); }
     .extrato__det { grid-column: 1 / -1; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .extrato__qtd { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+    .extrato__qtd { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
     .locais { display: grid; margin: 0; padding: 0; list-style: none; }
     .local { display: flex; width: 100%; align-items: center; gap: 0.75rem; padding: 0.6rem 0.25rem; border: 0; border-bottom: 1px solid var(--geo-border); background: none; color: inherit;
       font: inherit; text-align: start; cursor: pointer; }
@@ -61,7 +61,7 @@ export type OperacaoPeca = 'ENTRADA' | 'SAIDA' | 'TRANSFERENCIA' | 'AJUSTE';
     .local:focus-visible { outline: 2px solid var(--geo-ring); outline-offset: -2px; }
     .local__nome { flex: 1; min-width: 0; display: grid; }
     .local__det { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .local__qtd { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .local__qtd { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .local__seta { color: var(--geo-foreground-muted); }
     .vazio { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .rodape { display: flex; align-items: center; gap: 0.5rem; width: 100%; flex-wrap: wrap; }

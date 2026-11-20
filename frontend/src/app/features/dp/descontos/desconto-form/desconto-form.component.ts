@@ -87,12 +87,12 @@ interface AnexoPreview {
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .kv { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-    .kv-l { font-size: 10px; font-weight: 600; color: #475569; }
-    :host-context(.app-dark) .kv-l { color: #94a3b8; }
-    .kv-v { font-size: 11px; font-weight: 600; color: #0f172a; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    :host-context(.app-dark) .kv-v { color: #f8fafc; }
-    .kv-v--wrap { font-size: 11px; font-weight: 600; color: #0f172a; text-align: right; white-space: normal; word-break: break-word; }
-    :host-context(.app-dark) .kv-v--wrap { color: #f8fafc; }
+    .kv-l { font-size: var(--geo-font-caption); font-weight: 600; color: var(--p-zinc-600); }
+    :host-context(.app-dark) .kv-l { color: var(--p-zinc-400); }
+    .kv-v { font-size: var(--geo-font-caption); font-weight: 600; color: var(--p-zinc-900); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    :host-context(.app-dark) .kv-v { color: var(--p-zinc-50); }
+    .kv-v--wrap { font-size: var(--geo-font-caption); font-weight: 600; color: var(--p-zinc-900); text-align: right; white-space: normal; word-break: break-word; }
+    :host-context(.app-dark) .kv-v--wrap { color: var(--p-zinc-50); }
     @keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     .rise { animation: riseIn .45s cubic-bezier(.22,.61,.36,1) both; }
     @media (prefers-reduced-motion: reduce) { .rise { animation: none; } }
@@ -100,8 +100,8 @@ interface AnexoPreview {
       .fixed { display: none !important; }
       .rise { animation: none !important; }
       @page { margin: 10mm; }
-      .kv-l { font-size: 9px; color: #475569 !important; }
-      .kv-v, .kv-v--wrap { font-size: 9px; color: #1e293b !important; }
+      .kv-l { font-size: var(--geo-font-caption); color: var(--p-zinc-600) !important; }
+      .kv-v, .kv-v--wrap { font-size: var(--geo-font-caption); color: var(--p-zinc-800) !important; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
     }
   `]

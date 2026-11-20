@@ -91,8 +91,8 @@ const ICONE_ARQUIVO: Record<string, string> = {
     .arquivos__corpo { flex: 1; min-height: 0; overflow-y: auto; padding: 0.6rem 0.9rem 1.2rem; }
     .grupo + .grupo { margin-top: 1rem; }
     .grupo__titulo {
-      margin: 0.4rem 0 0.4rem; font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0.05em;
-      text-transform: uppercase; color: var(--geo-foreground-subtle);
+      margin: 0.4rem 0 0.4rem; font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0;
+      text-transform: none; color: var(--geo-foreground-subtle);
     }
     ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.4rem; }
     .item {

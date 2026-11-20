@@ -23,7 +23,7 @@
 }
 
 .usuario__recorte geo-icon {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-brand);
 }
 
@@ -299,8 +299,8 @@
   margin: 0 0 0.35rem;
   font-size: var(--geo-font-caption);
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  text-transform: none;
+  letter-spacing: 0;
   color: var(--geo-foreground-subtle);
 }
 
@@ -387,7 +387,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--geo-foreground-subtle);
 }
-.assistente__decorrido geo-icon { font-size: 0.7rem; }
+.assistente__decorrido geo-icon { font-size: var(--geo-font-caption); }
 
 .assistente__longa {
   display: flex;
@@ -475,8 +475,8 @@
 .passos__titulo {
   font-size: var(--geo-font-caption);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--geo-foreground-subtle);
 }
 .passos__lista {

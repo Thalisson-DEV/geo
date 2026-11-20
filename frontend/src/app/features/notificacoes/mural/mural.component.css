@@ -43,7 +43,7 @@
 }
 
 .mu-tipo .pi {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   color: var(--mu-tom, var(--geo-foreground-subtle));
 }
 
@@ -89,7 +89,7 @@
   margin: 0 0 0.75rem;
   color: var(--geo-foreground);
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .mu-secao__titulo .pi {
@@ -164,15 +164,15 @@
   border-radius: var(--geo-radius-sm);
   background: var(--mu-tom-soft);
   color: var(--mu-tom-text);
-  font-size: 0.875rem;
+  font-size: var(--geo-font-caption);
 }
 
 .mu-card__tipo {
   color: var(--mu-tom-text);
   font-size: var(--geo-font-caption);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .mu-card__marcas {
@@ -184,7 +184,7 @@
 
 .mu-card__fixado {
   color: var(--geo-foreground-muted);
-  font-size: 0.8125rem;
+  font-size: var(--geo-font-caption);
 }
 
 .mu-card__corpo {
@@ -211,7 +211,7 @@
   margin: 0;
   color: var(--geo-foreground);
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.35;
 }
 
@@ -258,7 +258,7 @@
 }
 
 .mu-card__meta .pi {
-  font-size: 0.6875rem;
+  font-size: var(--geo-font-caption);
 }
 
 .mu-card__rodape {

@@ -47,8 +47,8 @@ geo-callout {
   color: var(--geo-brand);
   font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-forte);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .manual__titulo {
@@ -90,8 +90,8 @@ geo-callout {
   color: var(--geo-foreground-subtle);
   font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-forte);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .indice__filtro {
@@ -156,7 +156,7 @@ geo-callout {
   border-radius: var(--geo-radius-sm);
   background: var(--geo-surface);
   color: var(--geo-brand);
-  font-size: 0.85rem;
+  font-size: var(--geo-font-caption);
 }
 
 .indice__texto {
@@ -185,7 +185,7 @@ geo-callout {
   display: grid;
   place-items: center;
   color: var(--geo-foreground-subtle);
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   transition:
     color var(--geo-duration-fast) var(--geo-ease-standard),
     transform var(--geo-duration-normal) var(--geo-ease-standard);
@@ -264,8 +264,8 @@ geo-callout {
   color: var(--geo-foreground-subtle);
   font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-forte);
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .modulo__codigo {
@@ -330,7 +330,7 @@ geo-callout {
   border-radius: var(--geo-radius-md);
   background: var(--geo-surface);
   color: var(--geo-foreground-muted);
-  font-size: 0.8rem;
+  font-size: var(--geo-font-caption);
   transition:
     transform var(--geo-duration-normal) var(--geo-ease-standard),
     color var(--geo-duration-fast) var(--geo-ease-standard),
@@ -458,7 +458,7 @@ geo-callout {
   padding-inline: 0.4rem;
   border-radius: var(--geo-radius-md);
   background: var(--geo-brand);
-  color: #fff;
+  color: var(--p-surface-0);
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
   font-weight: var(--doc-peso-forte);
@@ -540,7 +540,7 @@ geo-callout {
 
 .passo__numero {
   color: var(--geo-brand);
-  font-size: 0.6875rem;
+  font-size: var(--geo-font-caption);
   font-variant-numeric: tabular-nums;
   font-weight: var(--doc-peso-forte);
   letter-spacing: 0.02em;
@@ -580,7 +580,7 @@ geo-callout {
   background: var(--geo-surface);
   color: var(--geo-foreground);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: var(--doc-peso-forte);
   overflow-wrap: anywhere;
 }
@@ -764,7 +764,7 @@ geo-callout {
   .passo__marca {
     width: 2rem;
     height: 2rem;
-    font-size: 0.85rem;
+    font-size: var(--geo-font-caption);
   }
 }
 

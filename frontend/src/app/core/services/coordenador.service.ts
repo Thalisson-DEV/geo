@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PagedResponse } from '../models/shared.models';
 import {
@@ -43,9 +43,8 @@ export class CoordenadorService {
   }
 
   listarAtivosMin(): Observable<CoordenadorMinResponse[]> {
-    return this.http.get<CoordenadorMinResponse[]>(`${this.baseUrl}/ativos-min`).pipe(
-      catchError(() => this.http.get<CoordenadorMinResponse[]>(`${this.baseUrl}/min`))
-    );
+    // O backend publica os ativos em /min (não existe /ativos-min: a chamada antiga sempre dava 400).
+    return this.http.get<CoordenadorMinResponse[]>(`${this.baseUrl}/min`);
   }
 
   buscarPorId(id: string): Observable<CoordenadorResponse> {

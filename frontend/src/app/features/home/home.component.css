@@ -74,8 +74,8 @@
   color: var(--geo-nav-fg-muted);
   font-size: var(--geo-text-label);
   font-weight: var(--geo-font-weight-semibold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .entrada__titulo {

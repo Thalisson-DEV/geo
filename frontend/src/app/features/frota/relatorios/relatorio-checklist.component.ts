@@ -161,7 +161,7 @@ interface Grupo {
               <thead><tr><th>Item</th><th>Resposta</th><th>Situação</th></tr></thead>
               @for (g of grupos(); track g.titulo) {
                 <tbody>
-                  <tr><td colspan="3" style="background: var(--geo-surface-subtle); font-weight: 700">{{ g.titulo }}</td></tr>
+                  <tr><td colspan="3" style="background: var(--geo-surface-subtle); font-weight: 600">{{ g.titulo }}</td></tr>
                   @for (r of g.respostas; track r.id) {
                     <tr>
                       <td>{{ r.pergunta }}</td>

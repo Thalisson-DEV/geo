@@ -278,17 +278,17 @@ function uid(): string {
   styles: [`
     :host ::ng-deep {
       .doc-input.p-inputtext, .doc-select .p-select-label, .doc-select .p-select-placeholder {
-        font-size: 11px !important;
+        font-size: var(--geo-font-caption) !important;
         font-weight: 500 !important;
-        color: #374151;
+        color: var(--p-zinc-700);
         height: 34px !important;
         display: flex;
         align-items: center;
         border-radius: 6px !important;
       }
-      .doc-input.p-inputtext { border-color: #e5e7eb !important; }
-      .doc-select .p-select { width: 100%; height: 34px; border-color: #e5e7eb !important; border-radius: 6px !important; }
-      .p-breadcrumb .p-menuitem-text { font-size: 0.7rem; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; }
+      .doc-input.p-inputtext { border-color: var(--p-zinc-200) !important; }
+      .doc-select .p-select { width: 100%; height: 34px; border-color: var(--p-zinc-200) !important; border-radius: 6px !important; }
+      .p-breadcrumb .p-menuitem-text { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-400); text-transform: none; letter-spacing: 0; }
     }
   `]
 })

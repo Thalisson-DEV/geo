@@ -93,7 +93,7 @@ const TAMANHO_PADRAO = 25;
         align-items: center;
         justify-content: space-between;
         gap: 0.5rem;
-        font-size: 0.75rem;
+        font-size: var(--geo-font-caption);
         color: var(--geo-foreground-muted);
       }
     `

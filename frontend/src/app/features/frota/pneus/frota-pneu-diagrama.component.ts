@@ -47,14 +47,14 @@ export const ESCOPO_PNEU = 'frota-pneu';
       border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background:
         radial-gradient(circle at 50% 0, var(--geo-brand-soft), transparent 60%), var(--geo-surface-subtle); }
     .frente { position: absolute; top: 0.6rem; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 0.35rem;
-      font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--geo-foreground-muted); }
+      font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--geo-foreground-muted); }
     /* O chassi acompanha só os eixos: o estepe fica fora dele. */
     .eixos { position: relative; display: grid; justify-items: center; gap: 1.1rem; }
     .chassi { position: absolute; top: -0.2rem; bottom: -0.2rem; left: 50%; width: 3.2rem; transform: translateX(-50%);
       border-inline: 3px solid var(--geo-border-strong); border-radius: var(--geo-radius-md); opacity: 0.55; pointer-events: none; }
     .eixo { position: relative; display: flex; align-items: center; gap: 0.35rem; }
     .eixo__barra { width: clamp(2.5rem, 12vw, 5.5rem); height: 0.55rem; border-radius: 999px; background: var(--geo-border-strong); }
-    .eixo__numero { position: absolute; top: -1.05rem; left: 50%; transform: translateX(-50%); font-size: 0.7rem; font-weight: 700;
+    .eixo__numero { position: absolute; top: -1.05rem; left: 50%; transform: translateX(-50%); font-size: var(--geo-font-caption); font-weight: 600;
       color: var(--geo-foreground-subtle); }
     .lado { display: flex; gap: 0.2rem; }
     /* Com eixo duplo no veículo, todo lado reserva o espaço de duas rodas: o pneu do eixo simples fica na borda de fora, alinhado ao externo do duplo. */
@@ -86,7 +86,7 @@ export const ESCOPO_PNEU = 'frota-pneu';
     .roda--selecionada:not(.roda--ocupada) { border-color: var(--geo-brand); border-style: solid; background: var(--geo-brand-soft); color: var(--geo-brand); }
     .roda--alterada::after { content: ''; position: absolute; top: -0.3rem; right: -0.3rem; width: 0.8rem; height: 0.8rem; border-radius: 50%;
       background: var(--geo-brand); border: 2px solid var(--geo-surface); }
-    .roda__fogo { max-width: 2.7rem; padding: 0.1rem 0.25rem; border-radius: 0.3rem; background: var(--p-slate-950); font-size: 0.66rem; font-weight: 800;
+    .roda__fogo { max-width: 2.7rem; padding: 0.1rem 0.25rem; border-radius: 0.3rem; background: var(--p-slate-950); font-size: var(--geo-font-caption); font-weight: 600;
       letter-spacing: 0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .roda__vazia { font-size: 0.9rem; }
     .roda__sulco { position: absolute; left: 0.5rem; right: 0.5rem; top: 0.3rem; height: 0.26rem; border-radius: 999px; }
@@ -95,10 +95,10 @@ export const ESCOPO_PNEU = 'frota-pneu';
     .roda__sulco[data-tom='success'] { background: var(--geo-success); }
     .roda__sulco[data-tom='neutral'] { background: var(--geo-foreground-subtle); }
     .roda__aviso { position: absolute; bottom: -0.35rem; right: -0.35rem; display: grid; place-items: center; width: 1.15rem; height: 1.15rem;
-      border-radius: 50%; font-size: 0.7rem; font-weight: 800; line-height: 1; background: var(--geo-danger); color: var(--p-slate-50); border: 2px solid var(--geo-surface); }
+      border-radius: 50%; font-size: var(--geo-font-caption); font-weight: 600; line-height: 1; background: var(--geo-danger); color: var(--p-slate-50); border: 2px solid var(--geo-surface); }
     .estepes { display: grid; justify-items: center; gap: 0.35rem; margin-top: 0.35rem; padding-top: 0.75rem; border-top: 1px dashed var(--geo-border-strong);
       width: min(100%, 18rem); }
-    .estepes__titulo { font-size: var(--geo-font-caption); font-weight: 700; color: var(--geo-foreground-muted); }
+    .estepes__titulo { font-size: var(--geo-font-caption); font-weight: 600; color: var(--geo-foreground-muted); }
     .estepes__rodas { display: flex; gap: 0.5rem; }
     .legenda { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 0.9rem; margin-top: 0.6rem; font-size: var(--geo-font-caption);
       color: var(--geo-foreground-muted); }

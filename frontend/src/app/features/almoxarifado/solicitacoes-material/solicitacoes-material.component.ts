@@ -120,7 +120,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
     .sol-contagem {
       display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem;
       border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
-      font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+      font-size: var(--geo-font-caption); font-weight: 600; font-variant-numeric: tabular-nums;
     }
     .geo-quick-filter[aria-pressed='true'] .sol-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
     .sol-contagem--alerta { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
@@ -140,7 +140,7 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
     .sol-visoes button:hover { color: var(--geo-foreground); }
     .sol-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
     .sol-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
-    .sol-visoes .pi { font-size: 0.8rem; }
+    .sol-visoes .pi { font-size: var(--geo-font-caption); }
     .sol-prazo { display: grid; gap: 0.125rem; justify-items: start; }
     @media (max-width: 40rem) {
       .sol-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.625rem; }

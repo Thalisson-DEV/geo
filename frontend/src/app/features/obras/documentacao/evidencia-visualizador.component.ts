@@ -117,23 +117,23 @@ const OPCOES_ETAPA: GeoSelectOption<EtapaEvidencia | 'SEM'>[] = [
     .ev-palco { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
     .ev-foto { display: grid; place-items: center; min-height: 16rem; overflow: hidden; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     .ev-foto img { display: block; max-width: 100%; max-height: 64vh; object-fit: contain; }
-    .ev-nav { display: flex; align-items: center; justify-content: center; gap: 0.75rem; color: var(--geo-foreground-muted); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+    .ev-nav { display: flex; align-items: center; justify-content: center; gap: 0.75rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; }
     .ev-dados { display: flex; flex-direction: column; gap: 0.875rem; min-width: 0; }
     .ev-selos { display: flex; flex-wrap: wrap; gap: 0.375rem; }
     .ev-lista { display: flex; flex-direction: column; gap: 0.625rem; margin: 0; }
     .ev-lista div { display: flex; flex-direction: column; gap: 0.125rem; }
     .ev-lista dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
-    .ev-lista dd { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; overflow-wrap: anywhere; }
+    .ev-lista dd { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-caption); overflow-wrap: anywhere; }
     .ev-sem { color: var(--geo-foreground-subtle); }
-    .ev-arquivo { font-size: 0.8125rem; }
+    .ev-arquivo { font-size: var(--geo-font-caption); }
     .ev-mapa { color: var(--geo-brand); font-variant-numeric: tabular-nums; text-decoration: none; }
     .ev-mapa:hover { text-decoration: underline; }
     .ev-mapa:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
-    .ev-mapa i { font-size: 0.6875rem; }
+    .ev-mapa i { font-size: var(--geo-font-caption); }
     .ev-legenda { display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem; }
     .ev-legenda__campo { min-width: 0; }
     .ev-legenda-leitura span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
-    .ev-legenda-leitura p { margin: 0.125rem 0 0; color: var(--geo-foreground); font-size: 0.875rem; overflow-wrap: anywhere; }
+    .ev-legenda-leitura p { margin: 0.125rem 0 0; color: var(--geo-foreground); font-size: var(--geo-font-caption); overflow-wrap: anywhere; }
   `
 })
 export class EvidenciaVisualizadorComponent {

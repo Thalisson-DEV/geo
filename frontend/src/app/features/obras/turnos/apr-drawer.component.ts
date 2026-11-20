@@ -58,7 +58,7 @@ const RESPOSTAS: Record<RespostaApr, string> = { SIM: 'Sim', NAO: 'Não', NAO_SE
     .apr-leitura { display: flex; flex-direction: column; gap: 0.625rem; margin: 1rem 0; }
     .apr-leitura dt { color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
     .apr-leitura dd { margin: 0; overflow-wrap: anywhere; }
-    .apr-subtitulo { margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 700; }
+    .apr-subtitulo { margin: 0 0 0.5rem; font-size: 0.875rem; font-weight: 600; }
     .apr-respostas { display: flex; flex-direction: column; gap: 0.375rem; margin: 0 0 1rem; padding: 0; font-size: 0.875rem; list-style: none; }
     .apr-respostas li { display: flex; gap: 1rem; justify-content: space-between; }
     .apr-respostas strong { flex: none; }

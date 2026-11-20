@@ -19,7 +19,7 @@ import { FrotaPneuDiagramaComponent } from './frota-pneu-diagrama.component';
     .lado { display: grid; gap: 1rem; min-width: 0; }
     .topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.75rem; }
     .cartao { display: grid; gap: 0.6rem; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
-    .cartao h3 { margin: 0; font-size: var(--geo-font-body); font-weight: 700; }
+    .cartao h3 { margin: 0; font-size: var(--geo-font-body); font-weight: 600; }
     .cartao__acao { justify-self: start; }
     .cartao dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.5rem 1rem; margin: 0; }
     .cartao dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }

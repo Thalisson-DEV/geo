@@ -21,14 +21,14 @@
 .timeline-header-info h2 {
   margin: 0;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--geo-foreground);
 }
 
 .timeline-header-info p {
   margin: 0.15rem 0 0;
   color: var(--geo-foreground-muted);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 /* ── Banner de integridade ──────────────────── */
@@ -38,7 +38,7 @@
   gap: 0.6rem;
   padding: 0.6rem 0.85rem;
   border-radius: var(--geo-radius-md);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   border: 1px solid transparent;
 }
@@ -71,7 +71,7 @@
 .dark .integrity-ok,
 .app-dark .integrity-ok {
   background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
+  color: var(--p-green-400);
   border-color: rgba(34, 197, 94, 0.3);
 }
 
@@ -80,7 +80,7 @@
 .dark .integrity-warn,
 .app-dark .integrity-warn {
   background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
+  color: var(--p-amber-400);
   border-color: rgba(245, 158, 11, 0.3);
 }
 
@@ -89,7 +89,7 @@
 .dark .integrity-fail,
 .app-dark .integrity-fail {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: var(--p-red-400);
   border-color: rgba(239, 68, 68, 0.3);
 }
 
@@ -134,7 +134,7 @@
 }
 
 .timeline-dot i {
-  font-size: 0.65rem;
+  font-size: var(--geo-font-caption);
 }
 
 /* Cores semânticas dos dots */
@@ -172,8 +172,8 @@
 :host-context(.app-dark) .dot-info,
 .dark .dot-info,
 .app-dark .dot-info {
-  border-color: #3b82f6;
-  color: #60a5fa;
+  border-color: var(--p-blue-500);
+  color: var(--p-blue-400);
   background: rgba(59, 130, 246, 0.15);
 }
 
@@ -181,8 +181,8 @@
 :host-context(.app-dark) .dot-success,
 .dark .dot-success,
 .app-dark .dot-success {
-  border-color: #22c55e;
-  color: #4ade80;
+  border-color: var(--p-green-500);
+  color: var(--p-green-400);
   background: rgba(34, 197, 94, 0.15);
 }
 
@@ -190,8 +190,8 @@
 :host-context(.app-dark) .dot-danger,
 .dark .dot-danger,
 .app-dark .dot-danger {
-  border-color: #ef4444;
-  color: #f87171;
+  border-color: var(--p-red-500);
+  color: var(--p-red-400);
   background: rgba(239, 68, 68, 0.15);
 }
 
@@ -199,8 +199,8 @@
 :host-context(.app-dark) .dot-warning,
 .dark .dot-warning,
 .app-dark .dot-warning {
-  border-color: #f59e0b;
-  color: #fbbf24;
+  border-color: var(--p-amber-500);
+  color: var(--p-amber-400);
   background: rgba(245, 158, 11, 0.15);
 }
 
@@ -244,13 +244,13 @@
 }
 
 .event-label {
-  font-size: 0.8125rem;
-  font-weight: 700;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
   color: var(--geo-foreground);
 }
 
 .event-time {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-foreground-muted);
   white-space: nowrap;
   flex-shrink: 0;
@@ -263,7 +263,7 @@
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-foreground-muted);
 }
 
@@ -276,7 +276,7 @@
 }
 
 .event-author i {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-foreground-muted);
 }
 
@@ -294,13 +294,13 @@
   border-radius: var(--geo-radius-md);
   background: var(--geo-surface-subtle);
   border: 1px solid var(--geo-border);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-foreground);
   font-style: italic;
 }
 
 .event-note i {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   margin-top: 0.1rem;
   flex-shrink: 0;
   color: var(--geo-foreground-muted);
@@ -318,8 +318,8 @@
 }
 
 .changes-title {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
   color: var(--geo-foreground);
   margin-bottom: 0.15rem;
 }
@@ -330,7 +330,7 @@
   justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   padding: 0.25rem 0;
   border-bottom: 1px solid color-mix(in srgb, var(--geo-border) 40%, transparent);
 }
@@ -350,7 +350,7 @@
 
 .change-field small {
   color: var(--geo-foreground-muted);
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   font-weight: 500;
 }
 
@@ -365,44 +365,44 @@
 
 .change-context {
   color: var(--geo-foreground-muted);
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   font-weight: 500;
 }
 
 .change-old {
-  color: #dc2626;
+  color: var(--p-red-600);
   text-decoration: line-through;
   font-weight: 600;
 }
 
 .change-new {
-  color: #16a34a;
-  font-weight: 700;
+  color: var(--p-green-600);
+  font-weight: 600;
 }
 
 .change-removal .change-new {
-  color: #dc2626;
+  color: var(--p-red-600);
 }
 
 :host-context(.dark) .change-old,
 :host-context(.app-dark) .change-old,
 .dark .change-old,
 .app-dark .change-old {
-  color: #f87171;
+  color: var(--p-red-400);
 }
 
 :host-context(.dark) .change-new,
 :host-context(.app-dark) .change-new,
 .dark .change-new,
 .app-dark .change-new {
-  color: #4ade80;
+  color: var(--p-green-400);
 }
 
 :host-context(.dark) .change-removal .change-new,
 :host-context(.app-dark) .change-removal .change-new,
 .dark .change-removal .change-new,
 .app-dark .change-removal .change-new {
-  color: #f87171;
+  color: var(--p-red-400);
 }
 
 /* ── Paginação ──────────────────────────────── */
@@ -415,7 +415,7 @@
 }
 
 .pagination-info {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-foreground-muted);
   font-weight: 500;
 }
@@ -431,7 +431,7 @@
 /* ── Impressão ──────────────────────────────── */
 @media print {
   .timeline-dot { width: 1.25rem; height: 1.25rem; }
-  .timeline-dot i { font-size: 0.5rem; }
+  .timeline-dot i { font-size: var(--geo-font-caption); }
   .timeline-content { padding-bottom: 0.5rem; }
   .timeline-item { grid-template-columns: 1.5rem minmax(0, 1fr); }
 }

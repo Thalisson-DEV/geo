@@ -64,7 +64,7 @@ for (const par of pares) {
       const ctx = await contexto(largura, tema);
       const page = await ctx.newPage();
       await page.goto(`${BASE}${rota}`, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(1200);
+      await page.waitForTimeout(Number(process.env.GEO_SHOTS_WAIT ?? 3000));
       const arquivo = resolve(destino, `${nome}-${tema === 'dark' ? 'escuro' : 'claro'}-${largura}.png`);
       await page.screenshot({ path: arquivo });
       console.log('ok', arquivo);

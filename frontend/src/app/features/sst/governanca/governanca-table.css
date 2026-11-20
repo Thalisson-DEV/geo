@@ -1,18 +1,18 @@
 :host ::ng-deep .governance-table {
-  --governance-table-border: #f1f5f9;
-  --governance-table-header: #f8fafc;
-  --governance-table-muted: #94a3b8;
-  --governance-table-copy: #475569;
-  --governance-table-title: #334155;
+  --governance-table-border: var(--p-zinc-100);
+  --governance-table-header: var(--p-zinc-50);
+  --governance-table-muted: var(--p-zinc-400);
+  --governance-table-copy: var(--p-zinc-600);
+  --governance-table-title: var(--p-zinc-700);
 }
 
 :host-context(.app-dark) ::ng-deep .governance-table,
 :host-context(.dark) ::ng-deep .governance-table {
-  --governance-table-border: #334155;
-  --governance-table-header: #1e293b;
-  --governance-table-muted: #94a3b8;
-  --governance-table-copy: #cbd5e1;
-  --governance-table-title: #ffffff;
+  --governance-table-border: var(--p-zinc-700);
+  --governance-table-header: var(--p-zinc-800);
+  --governance-table-muted: var(--p-zinc-400);
+  --governance-table-copy: var(--p-zinc-300);
+  --governance-table-title: var(--p-surface-0);
 }
 
 :host ::ng-deep .governance-table .p-datatable-table {
@@ -22,20 +22,20 @@
 :host ::ng-deep .governance-table th {
   height: 2.625rem;
   padding: 0.7rem 1rem !important;
-  border-color: #e2e8f0 !important;
+  border-color: var(--p-zinc-200) !important;
   background: var(--governance-table-header) !important;
-  color: #64748b !important;
-  font-size: 9px !important;
-  font-weight: 700 !important;
+  color: var(--p-zinc-500) !important;
+  font-size: var(--geo-font-caption) !important;
+  font-weight: 600 !important;
   line-height: 1.15;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   white-space: nowrap;
 }
 
 :host-context(.app-dark) ::ng-deep .governance-table th,
 :host-context(.dark) ::ng-deep .governance-table th {
-  border-color: #334155 !important;
+  border-color: var(--p-zinc-700) !important;
   color: var(--p-primary-400) !important;
 }
 
@@ -44,7 +44,7 @@
   padding: 0.65rem 1rem !important;
   border-color: var(--governance-table-border) !important;
   color: var(--governance-table-copy);
-  font-size: 11px !important;
+  font-size: var(--geo-font-caption) !important;
   line-height: 1.35;
   vertical-align: middle;
 }
@@ -54,14 +54,14 @@
 }
 
 :host ::ng-deep .governance-table .p-datatable-tbody > tr:hover {
-  background: #f8fafc !important;
+  background: var(--p-zinc-50) !important;
 }
 
 
 :host-context(.app-dark) ::ng-deep .governance-table .p-paginator,
 :host-context(.dark) ::ng-deep .governance-table .p-paginator {
-  background: #0f172a;
-  color: #94a3b8;
+  background: var(--p-zinc-900);
+  color: var(--p-zinc-400);
 }
 
 :host ::ng-deep .governance-table .table-actions {
@@ -85,21 +85,21 @@
 }
 
 .table-primary {
-  color: #334155;
-  font-size: 11px;
+  color: var(--p-zinc-700);
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 
 :host-context(.app-dark) .table-primary,
 :host-context(.dark) .table-primary {
-  color: #ffffff;
+  color: var(--p-surface-0);
 }
 
 .table-secondary {
   max-width: 22rem;
   margin-top: 0.15rem;
-  color: #94a3b8;
-  font-size: 9px;
+  color: var(--p-zinc-400);
+  font-size: var(--geo-font-caption);
 }
 
 .table-mono {
@@ -115,7 +115,7 @@
   justify-content: center;
   gap: 0.45rem;
   padding: 2rem;
-  color: #94a3b8;
+  color: var(--p-zinc-400);
   text-align: center;
 }
 
@@ -126,21 +126,21 @@
   margin-bottom: 0.25rem;
   place-items: center;
   border-radius: 9999px;
-  background: #f8fafc;
-  color: #cbd5e1;
+  background: var(--p-zinc-50);
+  color: var(--p-zinc-300);
   font-size: 1.35rem;
 }
 
 .table-empty-state strong {
-  color: #475569;
+  color: var(--p-zinc-600);
   font-size: 12px;
   font-weight: 600;
 }
 
 .table-empty-state span {
   max-width: 30rem;
-  color: #94a3b8;
-  font-size: 10px;
+  color: var(--p-zinc-400);
+  font-size: var(--geo-font-caption);
   line-height: 1rem;
 }
 

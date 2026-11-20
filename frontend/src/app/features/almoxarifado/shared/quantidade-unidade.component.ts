@@ -34,7 +34,7 @@ import { equivalenciaDe, fraseEquivalencia, numero, paraUnidadeBase, temEquivale
     .qu-pilula[aria-checked='true'] { border-color: var(--geo-brand); background: var(--geo-brand-soft); color: var(--geo-brand); }
     .qu-conversao { display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; margin: 0.375rem 0 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .qu-conversao strong { color: var(--geo-foreground); font-weight: 600; font-variant-numeric: tabular-nums; }
-    .qu-conversao .pi { font-size: 0.75rem; }
+    .qu-conversao .pi { font-size: var(--geo-font-caption); }
     @media (prefers-reduced-motion: reduce) { .qu-pilula { transition: none; } }
   `,
   template: `

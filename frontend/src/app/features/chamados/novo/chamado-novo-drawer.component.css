@@ -119,7 +119,7 @@
   color: var(--geo-foreground);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: var(--geo-font-title);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .chamado-acoes {

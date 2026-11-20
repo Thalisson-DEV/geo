@@ -38,7 +38,7 @@ app-copiloto-markdown {
 .copiloto-markdown h3 { font-size: 1rem; }
 .copiloto-markdown h4 { font-size: 0.92rem; }
 
-.copiloto-markdown strong { font-weight: 700; }
+.copiloto-markdown strong { font-weight: 600; }
 
 .copiloto-markdown a {
   color: var(--geo-brand);
@@ -155,7 +155,7 @@ app-copiloto-markdown {
   min-width: 1.1rem;
   padding: 0 0.25rem;
   margin-left: 0.1rem;
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   line-height: 1.1rem;
   text-align: center;
   text-decoration: none;
@@ -184,7 +184,7 @@ app-copiloto-markdown {
   cursor: pointer;
   transition: color var(--geo-duration-fast) var(--geo-ease-standard), border-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
-.copiloto-markdown .markdown-dados .geo-icon-svg { font-size: 0.65rem; }
+.copiloto-markdown .markdown-dados .geo-icon-svg { font-size: var(--geo-font-caption); }
 .copiloto-markdown .markdown-dados:hover { color: var(--geo-brand); border-color: var(--geo-brand); }
 .copiloto-markdown .markdown-dados:focus-visible,
 .copiloto-markdown .markdown-tabela__acao:focus-visible,
@@ -223,7 +223,7 @@ app-copiloto-markdown {
   font-size: var(--geo-font-caption);
   cursor: pointer;
 }
-.copiloto-markdown .markdown-tabela__acao .geo-icon-svg { font-size: 0.7rem; }
+.copiloto-markdown .markdown-tabela__acao .geo-icon-svg { font-size: var(--geo-font-caption); }
 .copiloto-markdown .markdown-tabela__acao:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
 .copiloto-markdown .markdown-ordenar {
   display: inline-flex;
@@ -238,7 +238,7 @@ app-copiloto-markdown {
   cursor: pointer;
 }
 .copiloto-markdown th[align='right'] .markdown-ordenar { flex-direction: row-reverse; }
-.copiloto-markdown .markdown-ordenar__seta { font-size: 0.65rem; color: var(--geo-foreground-subtle); }
+.copiloto-markdown .markdown-ordenar__seta { font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); }
 .copiloto-markdown th[aria-sort='ascending'] .markdown-ordenar__seta,
 .copiloto-markdown th[aria-sort='descending'] .markdown-ordenar__seta { color: var(--geo-brand); }
 
@@ -258,8 +258,8 @@ app-copiloto-markdown {
   margin-right: 0.25rem;
   font-size: var(--geo-font-caption);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--geo-foreground-subtle);
 }
 .copiloto-markdown .markdown-indice__item {

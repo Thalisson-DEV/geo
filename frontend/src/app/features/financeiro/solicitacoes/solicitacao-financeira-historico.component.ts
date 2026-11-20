@@ -78,7 +78,7 @@ const EVENTOS: Record<TipoEventoSolicitacao, { icone: string; tom: Tom; rotuloTe
     .linha { list-style: none; margin: 0; padding: 0; display: grid; }
     .item { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr); min-height: 3.5rem; break-inside: avoid; }
     .trilho { display: flex; flex-direction: column; align-items: center; padding-top: 0.1rem; }
-    .ponto { width: 1.75rem; height: 1.75rem; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem;
+    .ponto { width: 1.75rem; height: 1.75rem; border-radius: 50%; display: grid; place-items: center; font-size: var(--geo-font-caption);
       border: 2px solid var(--geo-border); background: var(--geo-surface); color: var(--geo-foreground-muted); }
     .ponto[data-tom='success'] { border-color: var(--geo-success); color: var(--geo-success); background: var(--geo-success-soft); }
     .ponto[data-tom='warning'] { border-color: var(--geo-warning); color: var(--geo-warning); background: var(--geo-warning-soft); }
@@ -87,19 +87,19 @@ const EVENTOS: Record<TipoEventoSolicitacao, { icone: string; tom: Tom; rotuloTe
     .conector { flex: 1; width: 2px; background: var(--geo-border); margin: 0.25rem 0; min-height: 1rem; }
     .conteudo { padding: 0 0 1.25rem 0.5rem; min-width: 0; display: grid; gap: 0.35rem; }
     .cabeca { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .titulo { font-weight: 700; font-size: 0.875rem; color: var(--geo-foreground); }
-    .quando { margin-left: auto; font-size: 0.75rem; color: var(--geo-foreground-muted); font-variant-numeric: tabular-nums; }
-    .meta, .apoio, .mudanca { margin: 0; font-size: 0.75rem; color: var(--geo-foreground-muted); }
+    .titulo { font-weight: 600; font-size: var(--geo-font-caption); color: var(--geo-foreground); }
+    .quando { margin-left: auto; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); font-variant-numeric: tabular-nums; }
+    .meta, .apoio, .mudanca { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .mudanca { color: var(--geo-foreground); }
     .antes { text-decoration: line-through; color: var(--geo-foreground-muted); }
     .motivo { margin: 0; display: flex; gap: 0.5rem; align-items: flex-start; padding: 0.5rem 0.75rem; border-radius: var(--geo-radius-md);
-      background: var(--geo-surface-muted); border: 1px solid var(--geo-border); font-size: 0.8125rem; color: var(--geo-foreground);
+      background: var(--geo-surface-muted); border: 1px solid var(--geo-border); font-size: var(--geo-font-caption); color: var(--geo-foreground);
       white-space: pre-line; overflow-wrap: anywhere; }
     .motivo i { margin-top: 0.15rem; color: var(--geo-foreground-muted); }
     @media print {
-      .titulo, .mudanca, .motivo { color: #0f172a !important; }
-      .meta, .quando, .apoio { color: #475569 !important; }
-      .motivo { background: #ffffff !important; border-color: #cbd5e1 !important; }
+      .titulo, .mudanca, .motivo { color: var(--p-zinc-900) !important; }
+      .meta, .quando, .apoio { color: var(--p-zinc-600) !important; }
+      .motivo { background: var(--p-surface-0) !important; border-color: var(--p-zinc-300) !important; }
     }
   `
 })

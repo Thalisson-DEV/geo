@@ -42,7 +42,7 @@
 
 .sp__marca {
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--geo-brand);
 }
@@ -231,7 +231,7 @@
 
 .sp__aviso-recorte geo-icon {
   margin-top: 0.15rem;
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
 }
 
 .sp__artefato {

@@ -55,16 +55,16 @@
 }
 
 .kv-l {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   color: var(--geo-foreground-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  text-transform: none;
+  letter-spacing: 0;
   flex-shrink: 0;
 }
 
 .kv-v {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   color: var(--geo-foreground);
   text-align: right;
@@ -93,7 +93,7 @@
 /* REGRAS DE IMPRESSÃO A4 */
 @media print {
   :host {
-    background-color: #ffffff !important;
+    background-color: var(--p-surface-0) !important;
     min-height: auto !important;
     height: auto !important;
     padding: 0 !important;
@@ -102,12 +102,12 @@
 
   html,
   body {
-    background-color: #ffffff !important;
+    background-color: var(--p-surface-0) !important;
     height: auto !important;
     min-height: auto !important;
     margin: 0 !important;
     padding: 0 !important;
-    color: #000000 !important;
+    color: black !important;
   }
 
   .print\:hidden {
@@ -135,21 +135,21 @@
 
   .kv-l {
     font-size: 8.5px;
-    color: #475569 !important;
+    color: var(--p-zinc-600) !important;
   }
 
   .kv-v {
-    font-size: 9.5px;
-    color: #0f172a !important;
+    font-size: var(--geo-font-caption);
+    color: var(--p-zinc-900) !important;
   }
 
   .kv-v--muted {
-    color: #64748b !important;
+    color: var(--p-zinc-500) !important;
   }
 
   .kv-v--success,
   .kv-v--brand {
-    color: #0f172a !important;
+    color: var(--p-zinc-900) !important;
   }
 
 
@@ -268,7 +268,7 @@
   border-radius: 0.5rem;
   background: transparent;
   color: var(--geo-foreground-muted);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   cursor: pointer;
 }
@@ -300,7 +300,7 @@
   justify-content: flex-end;
   gap: 0.375rem;
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--geo-foreground);
 }
 
@@ -326,17 +326,17 @@
 
 @media print {
   .destaque {
-    border-color: #cbd5e1 !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
+    border-color: var(--p-zinc-300) !important;
+    background: var(--p-surface-0) !important;
+    color: var(--p-zinc-900) !important;
   }
 
   .card-filtro[aria-pressed='true'] {
-    border-color: #cbd5e1 !important;
+    border-color: var(--p-zinc-300) !important;
   }
 
   .quantidade,
   .card-valor {
-    color: #0f172a !important;
+    color: var(--p-zinc-900) !important;
   }
 }

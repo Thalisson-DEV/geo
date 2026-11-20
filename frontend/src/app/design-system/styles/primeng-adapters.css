@@ -85,45 +85,45 @@
   .geo-button--success.p-button,
   .p-button.p-button-success,
   .p-button-success {
-    border-color: var(--geo-success, #15803d) !important;
-    background: var(--geo-success, #15803d) !important;
-    color: #ffffff !important;
+    border-color: var(--geo-success, var(--p-green-700)) !important;
+    background: var(--geo-success, var(--p-green-700)) !important;
+    color: var(--p-surface-0) !important;
   }
 
   .geo-button--success.p-button *,
   .p-button.p-button-success *,
   .p-button-success * {
-    color: #ffffff !important;
+    color: var(--p-surface-0) !important;
   }
 
   .geo-button--success.p-button:not(:disabled):hover,
   .p-button.p-button-success:not(:disabled):hover,
   .p-button-success:not(:disabled):hover {
-    border-color: var(--geo-success-hover, #166534) !important;
-    background: var(--geo-success-hover, #166534) !important;
-    color: #ffffff !important;
+    border-color: var(--geo-success-hover, var(--p-green-800)) !important;
+    background: var(--geo-success-hover, var(--p-green-800)) !important;
+    color: var(--p-surface-0) !important;
   }
 
   .geo-button--destructive.p-button,
   .p-button.p-button-danger,
   .p-button-danger {
-    border-color: var(--geo-danger, #b91c1c) !important;
-    background: var(--geo-danger, #b91c1c) !important;
-    color: #ffffff !important;
+    border-color: var(--geo-danger, var(--p-red-700)) !important;
+    background: var(--geo-danger, var(--p-red-700)) !important;
+    color: var(--p-surface-0) !important;
   }
 
   .geo-button--destructive.p-button *,
   .p-button.p-button-danger *,
   .p-button-danger * {
-    color: #ffffff !important;
+    color: var(--p-surface-0) !important;
   }
 
   .geo-button--destructive.p-button:not(:disabled):hover,
   .p-button.p-button-danger:not(:disabled):hover,
   .p-button-danger:not(:disabled):hover {
-    border-color: var(--geo-danger-hover, #991b1b) !important;
-    background: var(--geo-danger-hover, #991b1b) !important;
-    color: #ffffff !important;
+    border-color: var(--geo-danger-hover, var(--p-red-800)) !important;
+    background: var(--geo-danger-hover, var(--p-red-800)) !important;
+    color: var(--p-surface-0) !important;
   }
 
   .geo-button--secondary.p-button:not(:disabled),
@@ -271,25 +271,25 @@
     --geo-status-color: var(--geo-info);
     --geo-status-ink: var(--geo-info-text);
     --geo-status-soft: var(--geo-info-soft);
-    --geo-status-border: #bfdbfe;
+    --geo-status-border: var(--p-zinc-300);
   }
   .geo-status[data-tone='success'] {
     --geo-status-color: var(--geo-success);
     --geo-status-ink: var(--geo-success-text);
     --geo-status-soft: var(--geo-success-soft);
-    --geo-status-border: #bbf7d0;
+    --geo-status-border: var(--p-green-200);
   }
   .geo-status[data-tone='warning'] {
     --geo-status-color: var(--geo-warning);
     --geo-status-ink: var(--geo-warning-text);
     --geo-status-soft: var(--geo-warning-soft);
-    --geo-status-border: #fde68a;
+    --geo-status-border: var(--p-amber-200);
   }
   .geo-status[data-tone='danger'] {
     --geo-status-color: var(--geo-danger);
     --geo-status-ink: var(--geo-danger-text);
     --geo-status-soft: var(--geo-danger-soft);
-    --geo-status-border: #fecaca;
+    --geo-status-border: var(--p-zinc-300);
   }
   .geo-status[data-emphasis='soft'] {
     background: var(--geo-status-soft);
@@ -297,18 +297,18 @@
     border-color: var(--geo-status-border, transparent);
   }
   .geo-status[data-emphasis='outline'] { border-color: currentColor; color: var(--geo-status-ink); }
-  .geo-status[data-emphasis='solid'] { background: var(--geo-status-color); color: #fff; }
+  .geo-status[data-emphasis='solid'] { background: var(--geo-status-color); color: var(--p-surface-0); }
 
   .geo-status--devolucao,
   .geo-status[data-tipo='DEVOLUCAO'],
   .geo-status[data-tipo='DEVOLUCAO_COMERCIAL'] {
-    --geo-status-color: #6366f1;
-    --geo-status-ink: #4338ca;
-    --geo-status-soft: #e0e7ff;
-    --geo-status-border: #c7d2fe;
-    background: #e0e7ff !important;
-    border-color: #c7d2fe !important;
-    color: #4338ca !important;
+    --geo-status-color: var(--p-indigo-500);
+    --geo-status-ink: var(--p-indigo-700);
+    --geo-status-soft: var(--p-zinc-200);
+    --geo-status-border: var(--p-indigo-200);
+    background: var(--p-zinc-200) !important;
+    border-color: var(--p-indigo-200) !important;
+    color: var(--p-indigo-700) !important;
   }
 
   .app-dark .geo-status[data-tone='neutral'],
@@ -342,13 +342,13 @@
   .dark .geo-status--devolucao,
   .dark .geo-status[data-tipo='DEVOLUCAO'],
   .dark .geo-status[data-tipo='DEVOLUCAO_COMERCIAL'] {
-    --geo-status-color: #818cf8;
-    --geo-status-ink: #c7d2fe;
+    --geo-status-color: var(--p-indigo-400);
+    --geo-status-ink: var(--p-indigo-200);
     --geo-status-soft: rgba(49, 46, 129, 0.45);
     --geo-status-border: rgba(99, 102, 241, 0.4);
     background: rgba(49, 46, 129, 0.45) !important;
     border-color: rgba(99, 102, 241, 0.4) !important;
-    color: #c7d2fe !important;
+    color: var(--p-indigo-200) !important;
   }
 
   .geo-field {
@@ -503,7 +503,7 @@
     color: var(--geo-callout-ink, var(--geo-callout-color));
     font-size: var(--geo-font-caption);
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
     text-transform: none;
   }
 

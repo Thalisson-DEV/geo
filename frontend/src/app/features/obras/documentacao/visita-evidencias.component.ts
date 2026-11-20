@@ -78,14 +78,14 @@ type Entrada = { tipo: 'gravada'; evidencia: EvidenciaVisita } | { tipo: 'penden
     .ve-mini:hover { border-color: var(--geo-brand); }
     .ve-mini:focus-visible { outline: 3px solid var(--geo-focus-ring); outline-offset: 2px; }
     .ve-mini img { display: block; width: 100%; height: 100%; object-fit: cover; }
-    .ve-mini__pdf { display: flex; flex-direction: column; align-items: center; gap: 0.125rem; color: var(--geo-danger-text); font-size: 0.6875rem; font-weight: 700; }
+    .ve-mini__pdf { display: flex; flex-direction: column; align-items: center; gap: 0.125rem; color: var(--geo-danger-text); font-size: var(--geo-font-caption); font-weight: 600; }
     .ve-mini__pdf .pi { font-size: 1.25rem; }
-    .ve-mini__selo { position: absolute; inset: auto 0 0 0; padding: 0.125rem 0.25rem; background: var(--geo-info-soft); color: var(--geo-info-text); font-size: 0.625rem; font-weight: 700; text-align: center; backdrop-filter: blur(4px); }
+    .ve-mini__selo { position: absolute; inset: auto 0 0 0; padding: 0.125rem 0.25rem; background: var(--geo-info-soft); color: var(--geo-info-text); font-size: var(--geo-font-caption); font-weight: 600; text-align: center; backdrop-filter: blur(4px); }
     .ve-item__remover { position: absolute; top: 0.125rem; right: 0.125rem; border-radius: 999px; background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
     .ve-acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; }
     .ve-acoes--discreta { margin-left: -0.5rem; }
     .ve-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; }
-    .ve-dica { margin: 0; color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .ve-dica { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .ve-foto { display: grid; place-items: center; min-height: 14rem; overflow: hidden; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     .ve-foto img { display: block; max-width: 100%; max-height: 70vh; object-fit: contain; }
   `

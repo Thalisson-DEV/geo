@@ -248,16 +248,16 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
   styles: `
     .td-resumo { display: grid; grid-template-columns: minmax(16rem, 2fr) minmax(0, 3fr); gap: 1.5rem; align-items: center; margin-bottom: 1rem; padding: 1rem 1.25rem; background: var(--geo-surface); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
     .td-resumo__meta { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
-    .td-rotulo { color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; }
-    .td-resumo__valor { font-size: 1.5rem; font-variant-numeric: tabular-nums; font-weight: 700; line-height: 1.2; }
+    .td-rotulo { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
+    .td-resumo__valor { font-size: 1.5rem; font-variant-numeric: tabular-nums; font-weight: 600; line-height: 1.2; }
     .td-resumo__fatos { display: grid; grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr)); gap: 0.75rem; margin: 0; }
-    .td-resumo__fatos dt { color: var(--geo-foreground-muted); font-size: 0.8125rem; }
-    .td-resumo__fatos dt i { margin-right: 0.125rem; font-size: 0.75rem; }
+    .td-resumo__fatos dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .td-resumo__fatos dt i { margin-right: 0.125rem; font-size: var(--geo-font-caption); }
     .td-resumo__fatos dd { margin: 0.125rem 0 0; font-variant-numeric: tabular-nums; font-weight: 600; }
     .td-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem); gap: 1rem; align-items: start; }
     .td-frentes, .td-lateral { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
-    .td-secao h2 { margin: 0; font-size: 1.0625rem; font-weight: 700; }
-    .td-secao p { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: 0.875rem; }
+    .td-secao h2 { margin: 0; font-size: 1.0625rem; font-weight: 600; }
+    .td-secao p { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .td-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; background: var(--geo-surface); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
     .td-card__topo { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-start; justify-content: space-between; }
     .td-card__titulo { display: flex; flex: 1 1 16rem; flex-direction: column; gap: 0.125rem; min-width: 0; overflow-wrap: anywhere; }
@@ -268,36 +268,36 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
     .td-gate[data-liberacao='PENDENTE'] .td-gate__icone, .td-gate[data-liberacao='EM_PREENCHIMENTO'] .td-gate__icone { color: var(--geo-warning-text); }
     .td-gate[data-liberacao='LIBERADA'] .td-gate__icone { color: var(--geo-success-text); }
     .td-gate[data-liberacao='IMPEDIDA'] .td-gate__icone { color: var(--geo-foreground-muted); }
-    .td-gate__texto { display: flex; flex: 1 1 14rem; flex-direction: column; min-width: 0; font-size: 0.875rem; overflow-wrap: anywhere; }
+    .td-gate__texto { display: flex; flex: 1 1 14rem; flex-direction: column; min-width: 0; font-size: var(--geo-font-caption); overflow-wrap: anywhere; }
     .td-progresso { display: flex; flex-direction: column; gap: 0.25rem; }
     .td-progresso__trilho { display: block; height: 0.375rem; overflow: hidden; background: var(--geo-surface-subtle); border-radius: 999px; }
     .td-progresso__trilho span { display: block; height: 100%; background: var(--geo-brand); border-radius: inherit; }
-    .td-aviso { margin: 0; color: var(--geo-warning-text); font-size: 0.875rem; font-weight: 600; }
-    .td-vazio-card { flex-direction: row; align-items: center; color: var(--geo-foreground-muted); font-size: 0.875rem; }
+    .td-aviso { margin: 0; color: var(--geo-warning-text); font-size: var(--geo-font-caption); font-weight: 600; }
+    .td-vazio-card { flex-direction: row; align-items: center; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .td-vazio-card p { margin: 0; }
     .td-bloco { padding: 1rem; background: var(--geo-surface); border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); }
-    .td-bloco h2 { margin: 0 0 0.625rem; font-size: 0.9375rem; font-weight: 700; }
+    .td-bloco h2 { margin: 0 0 0.625rem; font-size: 0.9375rem; font-weight: 600; }
     .td-bloco h2 i { margin-right: 0.25rem; color: var(--geo-foreground-muted); }
     .td-pessoas { display: flex; flex-direction: column; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
     .td-pessoas li { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
-    .td-avatar { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.875rem; height: 1.875rem; color: var(--geo-foreground-muted); font-size: 0.6875rem; font-weight: 700; background: var(--geo-surface-subtle); border-radius: 50%; }
-    .td-pessoa { display: flex; flex: 1 1 8rem; flex-direction: column; min-width: 0; font-size: 0.875rem; overflow-wrap: anywhere; }
+    .td-avatar { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 1.875rem; height: 1.875rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; background: var(--geo-surface-subtle); border-radius: 50%; }
+    .td-pessoa { display: flex; flex: 1 1 8rem; flex-direction: column; min-width: 0; font-size: var(--geo-font-caption); overflow-wrap: anywhere; }
     .td-pessoa strong { font-weight: 600; }
     .td-pessoa small { color: var(--geo-foreground-muted); }
     .td-lista { display: flex; flex-direction: column; gap: 0.625rem; margin: 0; padding: 0; list-style: none; }
-    .td-linha { display: flex; flex-direction: column; min-width: 0; font-size: 0.875rem; overflow-wrap: anywhere; }
+    .td-linha { display: flex; flex-direction: column; min-width: 0; font-size: var(--geo-font-caption); overflow-wrap: anywhere; }
     .td-linha small { color: var(--geo-foreground-muted); }
-    .td-link { padding: 0; color: var(--geo-brand); font-weight: 700; text-align: left; text-decoration: none; background: none; border: 0; cursor: pointer; }
+    .td-link { padding: 0; color: var(--geo-brand); font-weight: 600; text-align: left; text-decoration: none; background: none; border: 0; cursor: pointer; }
     .td-link:hover { text-decoration: underline; }
     .td-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
-    .td-muted { color: var(--geo-foreground-muted); font-size: 0.875rem; }
-    .td-rodape { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin: 0.625rem 0 0; font-size: 0.8125rem; }
+    .td-muted { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .td-rodape { display: flex; flex-wrap: wrap; gap: 0.25rem 0.75rem; margin: 0.625rem 0 0; font-size: var(--geo-font-caption); }
     .td-rodape:empty { display: none; }
-    .td-texto { margin: 0; font-size: 0.875rem; overflow-wrap: anywhere; white-space: pre-wrap; }
-    .td-vazio { margin: 0; color: var(--geo-foreground-muted); font-size: 0.875rem; }
+    .td-texto { margin: 0; font-size: var(--geo-font-caption); overflow-wrap: anywhere; white-space: pre-wrap; }
+    .td-vazio { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .td-tabela-wrap { overflow-x: auto; }
-    .td-tabela { width: 100%; font-size: 0.875rem; border-collapse: collapse; }
-    .td-tabela th { padding: 0.375rem 0.5rem; color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; text-align: left; border-bottom: 1px solid var(--geo-border); }
+    .td-tabela { width: 100%; font-size: var(--geo-font-caption); border-collapse: collapse; }
+    .td-tabela th { padding: 0.375rem 0.5rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; text-align: left; border-bottom: 1px solid var(--geo-border); }
     .td-tabela td { padding: 0.5rem; vertical-align: top; border-bottom: 1px solid var(--geo-border); }
     .td-tabela tr:last-child td { border-bottom: 0; }
     .td-tabela small { display: block; color: var(--geo-foreground-muted); }

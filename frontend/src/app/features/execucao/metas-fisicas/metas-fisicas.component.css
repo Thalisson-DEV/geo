@@ -6,7 +6,7 @@
   border: 1px solid var(--geo-border); border-radius: 999px; background: var(--geo-surface-subtle);
   font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); white-space: nowrap;
 }
-.mf-chips li .pi { font-size: 0.6875rem; color: var(--geo-brand); }
+.mf-chips li .pi { font-size: var(--geo-font-caption); color: var(--geo-brand); }
 .mf-chips li strong { color: var(--geo-foreground); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 .mf-linha {
@@ -19,7 +19,7 @@
   grid-column: 1 / -1; display: flex; align-items: center; gap: 0.375rem; margin: 0;
   font-size: var(--geo-font-caption); color: var(--geo-foreground-muted);
 }
-.mf-linha__resultado .pi { font-size: 0.6875rem; color: var(--geo-brand); }
+.mf-linha__resultado .pi { font-size: var(--geo-font-caption); color: var(--geo-brand); }
 
 .mf-distribuicao {
   display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 1rem; padding: 1rem;

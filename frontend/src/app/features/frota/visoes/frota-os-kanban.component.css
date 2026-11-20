@@ -9,42 +9,42 @@
   --kb-tone: var(--geo-warning);
   --kb-tone-soft: var(--geo-warning-soft);
   --kb-tone-ink: var(--geo-warning-text);
-  --kb-tone-solid: color-mix(in srgb, var(--geo-warning) 78%, #000);
+  --kb-tone-solid: color-mix(in srgb, var(--geo-warning) 78%, black);
 }
 
 [data-tone='info'] {
   --kb-tone: var(--geo-info);
   --kb-tone-soft: var(--geo-info-soft);
   --kb-tone-ink: var(--geo-info-text);
-  --kb-tone-solid: color-mix(in srgb, var(--geo-info) 82%, #000);
+  --kb-tone-solid: color-mix(in srgb, var(--geo-info) 82%, black);
 }
 
 [data-tone='success'] {
   --kb-tone: var(--geo-success);
   --kb-tone-soft: var(--geo-success-soft);
   --kb-tone-ink: var(--geo-success-text);
-  --kb-tone-solid: color-mix(in srgb, var(--geo-success) 76%, #000);
+  --kb-tone-solid: color-mix(in srgb, var(--geo-success) 76%, black);
 }
 
 [data-tone='danger'] {
   --kb-tone: var(--geo-danger);
   --kb-tone-soft: var(--geo-danger-soft);
   --kb-tone-ink: var(--geo-danger-text);
-  --kb-tone-solid: color-mix(in srgb, var(--geo-danger) 82%, #000);
+  --kb-tone-solid: color-mix(in srgb, var(--geo-danger) 82%, black);
 }
 
 [data-tone='brand'] {
   --kb-tone: var(--geo-brand);
   --kb-tone-soft: var(--geo-brand-soft);
   --kb-tone-ink: var(--geo-brand);
-  --kb-tone-solid: color-mix(in srgb, var(--geo-brand) 82%, #000);
+  --kb-tone-solid: color-mix(in srgb, var(--geo-brand) 82%, black);
 }
 
 [data-tone='neutral'] {
   --kb-tone: var(--geo-foreground-subtle);
   --kb-tone-soft: var(--geo-surface-muted);
   --kb-tone-ink: var(--geo-foreground-muted);
-  --kb-tone-solid: #475569;
+  --kb-tone-solid: var(--p-zinc-600);
 }
 
 /* Criticidade (pedido do gestor da frota): vermelho, laranja, amarelo e verde, iguais à faixa do cartão. */
@@ -52,30 +52,30 @@
   --kb-tone: var(--geo-danger);
   --kb-tone-soft: var(--geo-danger-soft);
   --kb-tone-ink: var(--geo-danger-text);
-  --kb-tone-solid: color-mix(in srgb, var(--geo-danger) 82%, #000);
+  --kb-tone-solid: color-mix(in srgb, var(--geo-danger) 82%, black);
 }
 
 [data-tone='crit-alta'] {
-  --kb-tone: #ea580c;
-  --kb-tone-soft: color-mix(in srgb, #ea580c 14%, var(--geo-surface));
-  --kb-tone-ink: color-mix(in srgb, #ea580c 70%, var(--geo-foreground));
-  --kb-tone-solid: #c2410c;
+  --kb-tone: var(--p-orange-600);
+  --kb-tone-soft: color-mix(in srgb, var(--p-orange-600) 14%, var(--geo-surface));
+  --kb-tone-ink: color-mix(in srgb, var(--p-orange-600) 70%, var(--geo-foreground));
+  --kb-tone-solid: var(--p-orange-700);
 }
 
 /* Amarelo não segura texto branco: o cabeçalho usa texto escuro. */
 [data-tone='crit-media'] {
-  --kb-tone: #eab308;
-  --kb-tone-soft: color-mix(in srgb, #eab308 18%, var(--geo-surface));
-  --kb-tone-ink: color-mix(in srgb, #a16207 75%, var(--geo-foreground));
-  --kb-tone-solid: #facc15;
-  --kb-tone-on: #422006;
+  --kb-tone: var(--p-yellow-500);
+  --kb-tone-soft: color-mix(in srgb, var(--p-yellow-500) 18%, var(--geo-surface));
+  --kb-tone-ink: color-mix(in srgb, var(--p-yellow-700) 75%, var(--geo-foreground));
+  --kb-tone-solid: var(--p-yellow-400);
+  --kb-tone-on: var(--p-yellow-950);
 }
 
 [data-tone='crit-baixa'] {
   --kb-tone: var(--geo-success);
   --kb-tone-soft: var(--geo-success-soft);
   --kb-tone-ink: var(--geo-success-text);
-  --kb-tone-solid: color-mix(in srgb, var(--geo-success) 76%, #000);
+  --kb-tone-solid: color-mix(in srgb, var(--geo-success) 76%, black);
 }
 
 .kb-sr {
@@ -151,7 +151,7 @@
 }
 
 .kb-seg .pi {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .kb-dica {
@@ -227,7 +227,7 @@
   margin: 0;
   color: var(--geo-foreground);
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .kb-col__titulos p {
@@ -250,7 +250,7 @@
   background: var(--kb-tone-soft);
   color: var(--kb-tone-ink);
   font-size: var(--geo-font-caption);
-  font-weight: 700;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
@@ -273,7 +273,7 @@
 }
 
 .kb-alerta .pi {
-  font-size: 0.65rem;
+  font-size: var(--geo-font-caption);
 }
 
 .kb-alerta--perigo {
@@ -331,7 +331,7 @@
   backdrop-filter: blur(3px);
   color: var(--kb-tone-ink);
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
   pointer-events: none;
   animation: kb-surge var(--geo-duration-normal) var(--kb-ease) both;
   transition: background var(--geo-duration-fast) var(--kb-ease), border-color var(--geo-duration-fast) var(--kb-ease);
@@ -357,7 +357,7 @@
 
 .kb-col--sobre .kb-drop__icone {
   background: var(--kb-tone-solid);
-  color: #fff;
+  color: var(--p-surface-0);
   transform: scale(1.12);
 }
 
@@ -380,7 +380,7 @@
   padding: 0.5rem 0.75rem;
   border: 0;
   background: var(--kb-tone-solid);
-  color: var(--kb-tone-on, #fff);
+  color: var(--kb-tone-on, var(--p-surface-0));
   font: inherit;
   text-align: left;
   cursor: pointer;
@@ -397,7 +397,7 @@
 
 .kb-grupo__seta {
   flex: none;
-  font-size: 0.65rem;
+  font-size: var(--geo-font-caption);
   transition: transform var(--geo-duration-normal) var(--kb-ease);
 }
 
@@ -410,7 +410,7 @@
   min-width: 0;
   overflow: hidden;
   font-size: var(--geo-font-control);
-  font-weight: 700;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -422,7 +422,7 @@
   border-radius: 999px;
   background: rgb(0 0 0 / 0.24);
   font-size: var(--geo-font-caption);
-  font-weight: 700;
+  font-weight: 600;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
@@ -498,7 +498,7 @@
 }
 
 .kb-mais .pi {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
 }
 
 /* Coluna vazia */

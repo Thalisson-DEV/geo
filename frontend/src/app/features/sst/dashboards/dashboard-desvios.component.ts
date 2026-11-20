@@ -94,14 +94,14 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
     .dash-card-hit:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: -2px; }
     .dash-aging-card:has(.dash-card-hit):hover { border-color: color-mix(in srgb, var(--geo-brand) 45%, var(--geo-border)); box-shadow: var(--geo-shadow-md); }
     .dash-aging-card:has(.dash-card-hit:disabled) .dash-card-hit { cursor: default; }
-    .dash-cell-name { color: #243b53; font-size: .78rem; font-weight: 600; }
+    .dash-cell-name { color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;
       border-radius: .4rem;
-      background: #f1f5f9;
-      color: #475569;
-      font-size: .7rem;
+      background: var(--p-zinc-100);
+      color: var(--p-zinc-600);
+      font-size: var(--geo-font-caption);
       font-weight: 650;
       font-variant-numeric: tabular-nums;
     }
@@ -111,16 +111,16 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       gap: .3rem;
       padding: .2rem .5rem;
       border-radius: .4rem;
-      background: #f1f5f9;
-      color: #475569;
-      font-size: .7rem;
+      background: var(--p-zinc-100);
+      color: var(--p-zinc-600);
+      font-size: var(--geo-font-caption);
       font-weight: 650;
     }
-    .dash-badge--success { background: #f0fdf4; color: #15803d; }
-    .dash-badge--warning { background: #fffbeb; color: #b45309; }
-    .dash-badge--orange { background: #fff7ed; color: #c2410c; }
-    .dash-badge--danger { background: #fef2f2; color: #b91c1c; }
-    .dash-badge i { font-size: .6rem; }
+    .dash-badge--success { background: var(--p-zinc-50); color: var(--p-green-700); }
+    .dash-badge--warning { background: var(--p-zinc-50); color: var(--p-amber-700); }
+    .dash-badge--orange { background: var(--p-zinc-50); color: var(--p-orange-700); }
+    .dash-badge--danger { background: var(--p-zinc-100); color: var(--p-red-700); }
+    .dash-badge i { font-size: var(--geo-font-caption); }
 
     .dash-chart--responsive {
       position: relative;
@@ -143,24 +143,24 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
     .dash-aging-card {
       display: flex;
       flex-direction: column;
-      border: 1px solid #e2e8f0;
+      border: 1px solid var(--p-zinc-200);
       border-radius: 0.75rem;
-      background: #fbfdff;
+      background: var(--p-zinc-50);
       overflow: hidden;
       transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
     }
     .dash-aging-card:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      border-color: #cbd5e1;
+      border-color: var(--p-zinc-300);
     }
     .dash-aging-card.is-vazio {
       opacity: 0.6;
-      background: #f8fafc;
+      background: var(--p-zinc-50);
     }
     .dash-aging-card.is-alerta {
-      border-color: #f87171;
-      background: #fffafa;
+      border-color: var(--p-red-400);
+      background: var(--p-zinc-50);
       box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
     }
     .dash-aging-card__header {
@@ -169,25 +169,25 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       justify-content: space-between;
       gap: 0.5rem;
       padding: 0.65rem 0.85rem;
-      background: #f1f5f9;
-      border-bottom: 1px solid #e2e8f0;
+      background: var(--p-zinc-100);
+      border-bottom: 1px solid var(--p-zinc-200);
     }
     .dash-aging-card__range {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: #1e293b;
+      font-size: var(--geo-font-caption);
+      font-weight: 600;
+      color: var(--p-zinc-800);
     }
     .dash-aging-card__stage {
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      font-size: var(--geo-font-caption);
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
     }
-    .dash-aging-card__stage[data-tone='success'] { color: #15803d; }
-    .dash-aging-card__stage[data-tone='info'] { color: #2563eb; }
-    .dash-aging-card__stage[data-tone='warning'] { color: #b45309; }
-    .dash-aging-card__stage[data-tone='orange'] { color: #c2410c; }
-    .dash-aging-card__stage[data-tone='danger'] { color: #b91c1c; }
+    .dash-aging-card__stage[data-tone='success'] { color: var(--p-green-700); }
+    .dash-aging-card__stage[data-tone='info'] { color: var(--p-blue-600); }
+    .dash-aging-card__stage[data-tone='warning'] { color: var(--p-amber-700); }
+    .dash-aging-card__stage[data-tone='orange'] { color: var(--p-orange-700); }
+    .dash-aging-card__stage[data-tone='danger'] { color: var(--p-red-700); }
 
     .dash-aging-dot {
       width: 0.5rem;
@@ -195,11 +195,11 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       border-radius: 99px;
       flex: none;
     }
-    .dash-aging-dot[data-tone='success'] { background: #22c55e; }
-    .dash-aging-dot[data-tone='info'] { background: #3b82f6; }
-    .dash-aging-dot[data-tone='warning'] { background: #f59e0b; }
-    .dash-aging-dot[data-tone='orange'] { background: #f97316; }
-    .dash-aging-dot[data-tone='danger'] { background: #ef4444; }
+    .dash-aging-dot[data-tone='success'] { background: var(--p-green-500); }
+    .dash-aging-dot[data-tone='info'] { background: var(--p-blue-500); }
+    .dash-aging-dot[data-tone='warning'] { background: var(--p-amber-500); }
+    .dash-aging-dot[data-tone='orange'] { background: var(--p-orange-500); }
+    .dash-aging-dot[data-tone='danger'] { background: var(--p-red-500); }
 
     .dash-aging-card__body {
       padding: 0.85rem;
@@ -215,14 +215,14 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
     }
     .dash-aging-card__total {
       font-size: 1.5rem;
-      font-weight: 800;
+      font-weight: 600;
       line-height: 1;
-      color: #0f172a;
+      color: var(--p-zinc-900);
       font-variant-numeric: tabular-nums;
     }
     .dash-aging-card__unit {
-      font-size: 0.72rem;
-      color: #64748b;
+      font-size: var(--geo-font-caption);
+      color: var(--p-zinc-500);
       font-weight: 500;
     }
 
@@ -232,30 +232,30 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       width: 100%;
       border-radius: 99px;
       overflow: hidden;
-      background: #e2e8f0;
+      background: var(--p-zinc-200);
     }
     .dash-aging-bar__seg {
       height: 100%;
       transition: width 200ms ease;
     }
-    .dash-aging-bar__seg--critical { background: #dc2626; }
-    .dash-aging-bar__seg--high { background: #ea580c; }
-    .dash-aging-bar__seg--medium { background: #f59e0b; }
-    .dash-aging-bar__seg--low { background: #3b82f6; }
+    .dash-aging-bar__seg--critical { background: var(--p-red-600); }
+    .dash-aging-bar__seg--high { background: var(--p-orange-600); }
+    .dash-aging-bar__seg--medium { background: var(--p-amber-500); }
+    .dash-aging-bar__seg--low { background: var(--p-blue-500); }
 
     .dash-aging-chips {
       display: flex;
       flex-wrap: wrap;
       gap: 0.3rem;
     }
-    .dash-badge--orange { background: #fff7ed; color: #c2410c; }
+    .dash-badge--orange { background: var(--p-zinc-50); color: var(--p-orange-700); }
 
     .dash-aging-card__empty {
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      font-size: 0.7rem;
-      color: #94a3b8;
+      font-size: var(--geo-font-caption);
+      color: var(--p-zinc-400);
       padding: 0.4rem 0;
     }
     .dash-share-pill {
@@ -263,16 +263,16 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       align-items: center;
       padding: 0.15rem 0.5rem;
       border-radius: 99px;
-      font-size: 0.72rem;
-      font-weight: 700;
+      font-size: var(--geo-font-caption);
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
-      background: #f1f5f9;
-      color: #334155;
+      background: var(--p-zinc-100);
+      color: var(--p-zinc-700);
     }
-    .dash-share-pill[data-tone='danger'] { background: #fef2f2; color: #b91c1c; }
-    .dash-share-pill[data-tone='orange'] { background: #fff7ed; color: #c2410c; }
-    .dash-share-pill[data-tone='warning'] { background: #fffbeb; color: #b45309; }
-    .dash-share-pill[data-tone='info'] { background: #eff6ff; color: #1d4ed8; }
+    .dash-share-pill[data-tone='danger'] { background: var(--p-zinc-100); color: var(--p-red-700); }
+    .dash-share-pill[data-tone='orange'] { background: var(--p-zinc-50); color: var(--p-orange-700); }
+    .dash-share-pill[data-tone='warning'] { background: var(--p-zinc-50); color: var(--p-amber-700); }
+    .dash-share-pill[data-tone='info'] { background: var(--p-zinc-100); color: var(--p-blue-700); }
 
     .dash-card-footer {
       display: flex;
@@ -281,38 +281,38 @@ type PendingDimension = 'processo' | 'processoInspetor' | 'base' | 'equipe';
       gap: 0.5rem;
       padding-top: 0.6rem;
       margin-top: auto;
-      border-top: 1px solid #f1f5f9;
-      font-size: 0.72rem;
+      border-top: 1px solid var(--p-zinc-100);
+      font-size: var(--geo-font-caption);
     }
 
     :host-context(.app-dark), :host-context(.dark) {
-      .dash-cell-name { color: #e2e8f0; }
-      .dash-pct-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge--success { background: rgba(34,197,94,.12); color: #4ade80; }
-      .dash-badge--warning { background: rgba(245,158,11,.12); color: #fbbf24; }
-      .dash-badge--orange { background: rgba(249,115,22,.15); color: #fb923c; }
-      .dash-badge--danger { background: rgba(239,68,68,.12); color: #f87171; }
+      .dash-cell-name { color: var(--p-zinc-200); }
+      .dash-pct-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
+      .dash-badge { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
+      .dash-badge--success { background: rgba(34,197,94,.12); color: var(--p-green-400); }
+      .dash-badge--warning { background: rgba(245,158,11,.12); color: var(--p-amber-400); }
+      .dash-badge--orange { background: rgba(249,115,22,.15); color: var(--p-orange-400); }
+      .dash-badge--danger { background: rgba(239,68,68,.12); color: var(--p-red-400); }
 
-      .dash-aging-card { background: var(--geo-surface, #1e293b); border-color: var(--geo-border, #334155); }
-      .dash-aging-card:hover { border-color: color-mix(in srgb, var(--geo-brand, #3b82f6) 40%, transparent); }
+      .dash-aging-card { background: var(--geo-surface, var(--p-zinc-800)); border-color: var(--geo-border, var(--p-zinc-700)); }
+      .dash-aging-card:hover { border-color: color-mix(in srgb, var(--geo-brand, var(--p-blue-500)) 40%, transparent); }
       .dash-aging-card.is-vazio { background: rgba(15, 23, 42, 0.6); opacity: 0.5; }
       .dash-aging-card.is-alerta { background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.5); }
-      .dash-aging-card__header { background: var(--geo-surface-subtle, #0f172a); border-color: var(--geo-border, #334155); }
-      .dash-aging-card__range { color: #f8fafc; }
-      .dash-aging-card__stage[data-tone='success'] { color: #4ade80; }
-      .dash-aging-card__stage[data-tone='info'] { color: #60a5fa; }
-      .dash-aging-card__stage[data-tone='warning'] { color: #fbbf24; }
-      .dash-aging-card__stage[data-tone='orange'] { color: #fb923c; }
-      .dash-aging-card__stage[data-tone='danger'] { color: #f87171; }
-      .dash-aging-card__total { color: #fff; }
-      .dash-aging-card__unit { color: #94a3b8; }
-      .dash-aging-bar { background: #334155; }
-      .dash-share-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
-      .dash-share-pill[data-tone='danger'] { background: rgba(239,68,68,.15); color: #f87171; }
-      .dash-share-pill[data-tone='orange'] { background: rgba(249,115,22,.15); color: #fb923c; }
-      .dash-share-pill[data-tone='warning'] { background: rgba(245,158,11,.15); color: #fbbf24; }
-      .dash-share-pill[data-tone='info'] { background: rgba(59,130,246,.15); color: #60a5fa; }
+      .dash-aging-card__header { background: var(--geo-surface-subtle, var(--p-zinc-900)); border-color: var(--geo-border, var(--p-zinc-700)); }
+      .dash-aging-card__range { color: var(--p-zinc-50); }
+      .dash-aging-card__stage[data-tone='success'] { color: var(--p-green-400); }
+      .dash-aging-card__stage[data-tone='info'] { color: var(--p-blue-400); }
+      .dash-aging-card__stage[data-tone='warning'] { color: var(--p-amber-400); }
+      .dash-aging-card__stage[data-tone='orange'] { color: var(--p-orange-400); }
+      .dash-aging-card__stage[data-tone='danger'] { color: var(--p-red-400); }
+      .dash-aging-card__total { color: var(--p-surface-0); }
+      .dash-aging-card__unit { color: var(--p-zinc-400); }
+      .dash-aging-bar { background: var(--p-zinc-700); }
+      .dash-share-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
+      .dash-share-pill[data-tone='danger'] { background: rgba(239,68,68,.15); color: var(--p-red-400); }
+      .dash-share-pill[data-tone='orange'] { background: rgba(249,115,22,.15); color: var(--p-orange-400); }
+      .dash-share-pill[data-tone='warning'] { background: rgba(245,158,11,.15); color: var(--p-amber-400); }
+      .dash-share-pill[data-tone='info'] { background: rgba(59,130,246,.15); color: var(--p-blue-400); }
       .dash-card-footer { border-color: rgba(51, 65, 85, 0.6); }
     }
 

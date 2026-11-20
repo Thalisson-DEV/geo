@@ -59,7 +59,7 @@ import { ConsumoAnteriorOperacoesComponent } from './solicitacao-consumo-operaco
     .ca-linha dd { margin: 0; font-weight: 600; color: var(--geo-foreground); font-variant-numeric: tabular-nums; }
     .ca-ver { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0; border: 0; background: none; font: inherit; font-weight: 600;
       color: var(--geo-brand); cursor: pointer; }
-    .ca-ver i { font-size: 0.65rem; }
+    .ca-ver i { font-size: var(--geo-font-caption); }
     .ca-ver:hover { text-decoration: underline; }
     .ca-ver:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
     .ca-primeiro { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
@@ -183,15 +183,15 @@ interface LinhaConsumo {
     .ca-tabela__detalhe { padding: 0.75rem 0.875rem 0.875rem; border-top: 1px solid var(--geo-border); background: var(--geo-surface-subtle); }
     .ca-material__botao { display: inline-flex; align-items: baseline; gap: 0.4rem; padding: 0; border: 0; background: none; color: inherit; font: inherit;
       text-align: left; cursor: pointer; }
-    .ca-material__botao i { font-size: 0.7rem; color: var(--geo-brand); }
+    .ca-material__botao i { font-size: var(--geo-font-caption); color: var(--geo-brand); }
     .ca-material__botao:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
-    .ca-tabela__cab { background: var(--geo-surface-subtle); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--geo-foreground-muted); }
+    .ca-tabela__cab { background: var(--geo-surface-subtle); font-weight: 600; text-transform: none; letter-spacing: 0.02em; color: var(--geo-foreground-muted); }
     .ca-material { display: grid; gap: 0.15rem; justify-items: start; min-width: 0; }
     .ca-material strong { font-weight: 600; }
     .ca-material > span { color: var(--geo-foreground-muted); }
     .ca-dica { margin-top: 0.2rem; }
     .ca-num { text-align: right; font-variant-numeric: tabular-nums; }
-    .ca-forte { font-weight: 700; }
+    .ca-forte { font-weight: 600; }
     .ca-muted { color: var(--geo-foreground-muted); }
     .ca-vazio { margin: 0; padding: 0.875rem; }
     .ca-esqueletos { display: grid; gap: 0.5rem; }

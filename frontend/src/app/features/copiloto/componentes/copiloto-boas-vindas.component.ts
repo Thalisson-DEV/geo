@@ -105,8 +105,8 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
       margin: 1.1rem 0 0;
       font-size: var(--geo-font-caption);
       font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+      letter-spacing: 0;
+      text-transform: none;
       color: var(--geo-foreground-subtle);
       text-align: left;
     }
@@ -183,7 +183,7 @@ import { AssistenteContexto, CapacidadesAssistente, ConversaResumo } from '../..
     .continuar__texto { flex: 1; min-width: 0; display: flex; flex-direction: column; }
     .continuar__rotulo { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .continuar__titulo { font-size: var(--geo-font-body); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sugestao__seta { font-size: 0.7rem; color: var(--geo-foreground-subtle); }
+    .sugestao__seta { font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); }
     /* Telas baixas (notebooks 1366x768 com zoom, janelas divididas): tudo cabe sem rolar. */
     @media (max-height: 820px) {
       .boas-vindas { gap: 0.45rem; padding-top: 0.25rem; padding-bottom: 0.75rem; }

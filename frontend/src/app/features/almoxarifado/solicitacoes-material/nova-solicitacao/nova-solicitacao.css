@@ -7,10 +7,10 @@
 .ns-secao__topo { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
 .ns-secao__titulo {
   display: inline-flex; align-items: center; gap: 0.5rem; margin: 0;
-  font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none;
   color: var(--geo-foreground-muted);
 }
-.ns-secao__titulo .pi { font-size: 0.75rem; color: var(--geo-brand); }
+.ns-secao__titulo .pi { font-size: var(--geo-font-caption); color: var(--geo-brand); }
 .ns-secao__dica { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 
 .ns-cartao {
@@ -24,7 +24,7 @@
   display: flex; align-items: flex-start; gap: 0.5rem; margin: 0;
   font-size: var(--geo-font-caption); color: var(--geo-foreground-muted);
 }
-.ns-info .pi { margin-top: 0.125rem; font-size: 0.75rem; }
+.ns-info .pi { margin-top: 0.125rem; font-size: var(--geo-font-caption); }
 .ns-info strong { color: var(--geo-foreground); font-weight: 600; }
 .ns-info--aviso { color: var(--geo-warning-text); }
 .ns-info--aviso strong { color: inherit; }

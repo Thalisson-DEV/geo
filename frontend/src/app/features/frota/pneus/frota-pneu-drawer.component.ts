@@ -69,7 +69,7 @@ const VELOCIDADES = ['F', 'G', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
     .resumo { display: grid; gap: 0.6rem; }
     .resumo dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 0.5rem 1rem; margin: 0; }
     .resumo dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .resumo dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .resumo dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
     .alertas { display: flex; flex-wrap: wrap; gap: 0.35rem; }
     .botoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .etapa { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
@@ -78,13 +78,13 @@ const VELOCIDADES = ['F', 'G', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
     .linha::before { content: ''; position: absolute; left: 0.45rem; top: 0.4rem; bottom: 0.4rem; width: 2px; background: var(--geo-border); }
     .evento { position: relative; display: grid; gap: 0.15rem; padding: 0.35rem 0 0.75rem; }
     .evento__marca { position: absolute; left: -1.4rem; top: 0.35rem; display: grid; place-items: center; width: 1.1rem; height: 1.1rem; border-radius: 50%;
-      font-size: 0.6rem; background: var(--geo-surface); border: 2px solid var(--geo-border-strong); color: var(--geo-foreground-muted); }
+      font-size: var(--geo-font-caption); background: var(--geo-surface); border: 2px solid var(--geo-border-strong); color: var(--geo-foreground-muted); }
     .evento__marca[data-tom='info'] { border-color: var(--geo-info); color: var(--geo-info-text); }
     .evento__marca[data-tom='success'] { border-color: var(--geo-success); color: var(--geo-success-text); }
     .evento__marca[data-tom='warning'] { border-color: var(--geo-warning); color: var(--geo-warning-text); }
     .evento__marca[data-tom='danger'] { border-color: var(--geo-danger); color: var(--geo-danger-text); }
     .evento__topo { display: flex; flex-wrap: wrap; gap: 0.25rem 0.6rem; align-items: baseline; }
-    .evento__titulo { font-weight: 700; }
+    .evento__titulo { font-weight: 600; }
     .evento__quando { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .evento__detalhe { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,

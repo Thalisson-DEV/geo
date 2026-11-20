@@ -75,7 +75,7 @@ export function valePara(p: Pick<PlanoPreventivo, 'tiposVeiculo' | 'tiposImpleme
     .frequencia { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
     @media (max-width: 480px) { .frequencia { grid-template-columns: minmax(0, 1fr); } }
     .tarefa { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr) auto; gap: 0.5rem; align-items: center; }
-    .tarefa__numero { font-weight: 700; color: var(--geo-foreground-subtle); text-align: end; font-variant-numeric: tabular-nums; }
+    .tarefa__numero { font-weight: 600; color: var(--geo-foreground-subtle); text-align: end; font-variant-numeric: tabular-nums; }
   `,
   template: `
     <geo-data-table title="Planos de preventiva"

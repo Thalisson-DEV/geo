@@ -89,22 +89,22 @@ function opcoes(equipes: readonly EquipeProjetada[], id: (e: EquipeProjetada) =>
   styles: [`
     :host { display: flex; flex-direction: column; gap: 0.75rem; }
     .equipes { display: flex; flex-direction: column; gap: 0.375rem; max-height: 18rem; overflow-y: auto; }
-    .equipe { display: flex; flex-direction: column; gap: 0.375rem; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; font-size: 0.8125rem; text-align: left; cursor: pointer; }
+    .equipe { display: flex; flex-direction: column; gap: 0.375rem; width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; font-size: var(--geo-font-caption); text-align: left; cursor: pointer; }
     .equipe:hover { background: var(--geo-surface-muted); }
     .equipe:focus-visible { outline: 2px solid var(--geo-brand); outline-offset: 1px; }
     .equipe--ativa { border-color: var(--geo-brand); box-shadow: inset 0 0 0 1px var(--geo-brand); }
     .equipe__topo { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: center; }
     .equipe--ativa .pi { color: var(--geo-brand); }
-    .equipe__tipo, .equipe__distancia, .equipe__ocupacao small { color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .equipe__tipo, .equipe__distancia, .equipe__ocupacao small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .equipe__distancia { margin-left: auto; }
-    .equipe__conflito { display: flex; gap: 0.375rem; align-items: center; color: var(--geo-warning-text); font-size: 0.75rem; font-weight: 600; }
+    .equipe__conflito { display: flex; gap: 0.375rem; align-items: center; color: var(--geo-warning-text); font-size: var(--geo-font-caption); font-weight: 600; }
     .equipe__ocupacao { display: flex; gap: 0.5rem; align-items: center; }
     .equipe__barra { flex: 1; overflow: hidden; height: 0.375rem; border-radius: 999px; background: var(--geo-surface-muted); }
     .equipe__preenchido { display: block; height: 100%; border-radius: inherit; background: var(--geo-brand); }
     .equipe__preenchido[data-acima='true'] { background: var(--geo-warning); }
     .projecao { display: grid; grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr)); gap: 0.5rem 1rem; margin: 0; padding: 0.75rem; border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
-    .projecao dt { color: var(--geo-foreground-muted); font-size: 0.6875rem; }
-    .projecao dd { margin: 0; font-size: 0.875rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .projecao dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .projecao dd { margin: 0; font-size: var(--geo-font-caption); font-weight: 600; font-variant-numeric: tabular-nums; }
     .projecao dd[data-negativo='true'] { color: var(--geo-danger-text); }
     .projecao dd[data-acima='true'] { color: var(--geo-warning-text); }
   `]

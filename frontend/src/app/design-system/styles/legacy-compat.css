@@ -7,7 +7,7 @@
     color: var(--geo-foreground-subtle);
     font-size: var(--geo-font-caption);
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0;
     text-transform: capitalize;
   }
 

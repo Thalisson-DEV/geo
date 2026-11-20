@@ -140,7 +140,7 @@
   .geo-kpi__go {
     align-self: center;
     color: var(--geo-foreground-subtle);
-    font-size: 0.75rem;
+    font-size: var(--geo-font-caption);
   }
 
   /* Células de tabela. */
@@ -320,7 +320,7 @@
   }
 
   .geo-quick-filter .pi {
-    font-size: 0.75rem;
+    font-size: var(--geo-font-caption);
   }
 
   /* Estrela de favoritos ativa no geo-page-header (a estrela preenchida também indica o estado). */

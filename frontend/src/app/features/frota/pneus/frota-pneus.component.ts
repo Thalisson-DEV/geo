@@ -95,7 +95,7 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
     .barra [data-tom='info'] { background: var(--geo-info); }
     .barra [data-tom='success'] { background: var(--geo-success); }
     .barra [data-tom='warning'] { background: var(--geo-warning); }
-    .sulco { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .sulco { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .sulco__ponto { width: 0.55rem; height: 0.55rem; border-radius: 50%; }
     .sulco__ponto[data-tom='danger'] { background: var(--geo-danger); }
     .sulco__ponto[data-tom='warning'] { background: var(--geo-warning); }

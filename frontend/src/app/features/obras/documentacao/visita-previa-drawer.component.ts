@@ -140,7 +140,7 @@ import { EvidenciaPendente, novaPendente, porPergunta } from './visita-evidencia
     .vp-checklist { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.25rem; }
     .vp-checklist__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
     .vp-checklist__titulo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.75rem; }
-    .vp-checklist__titulo h3 { margin: 0; color: var(--geo-foreground); font-size: 1rem; font-weight: 700; }
+    .vp-checklist__titulo h3 { margin: 0; color: var(--geo-foreground); font-size: 1rem; font-weight: 600; }
     .vp-checklist__acao { align-self: flex-start; }
     .vp-barra { display: block; height: 0.5rem; overflow: hidden; border-radius: 999px; background: var(--geo-surface-muted); }
     .vp-barra span { display: block; height: 100%; border-radius: inherit; background: var(--geo-brand); transition: width 160ms ease-out; }

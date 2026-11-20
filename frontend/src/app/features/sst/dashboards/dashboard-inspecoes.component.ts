@@ -115,14 +115,14 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
   templateUrl: './dashboard-inspecoes.component.html',
   styles: [`
     :host .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .dash-cell-name { color: #243b53; font-size: .78rem; font-weight: 600; }
+    .dash-cell-name { color: var(--p-zinc-700); font-size: var(--geo-font-caption); font-weight: 600; }
     .dash-pct-pill {
       display: inline-block;
       padding: .15rem .45rem;
       border-radius: .4rem;
-      background: #f1f5f9;
-      color: #475569;
-      font-size: .7rem;
+      background: var(--p-zinc-100);
+      color: var(--p-zinc-600);
+      font-size: var(--geo-font-caption);
       font-weight: 650;
       font-variant-numeric: tabular-nums;
     }
@@ -132,20 +132,20 @@ const DIMENSAO_GRUPO: Record<DistributionDimension, GrupoInspecao> = {
       gap: .3rem;
       padding: .2rem .5rem;
       border-radius: .4rem;
-      background: #f1f5f9;
-      color: #475569;
-      font-size: .7rem;
+      background: var(--p-zinc-100);
+      color: var(--p-zinc-600);
+      font-size: var(--geo-font-caption);
       font-weight: 650;
     }
     .dash-badge--success { background: var(--geo-success-soft); color: var(--geo-success-text); }
     .dash-badge--warning { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
     .dash-badge--danger { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
-    .dash-badge i { font-size: .6rem; }
+    .dash-badge i { font-size: var(--geo-font-caption); }
 
     :host-context(.app-dark), :host-context(.dark) {
-      .dash-cell-name { color: #e2e8f0; }
-      .dash-pct-pill { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
-      .dash-badge { background: var(--geo-surface-muted, #334155); color: #cbd5e1; }
+      .dash-cell-name { color: var(--p-zinc-200); }
+      .dash-pct-pill { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
+      .dash-badge { background: var(--geo-surface-muted, var(--p-zinc-700)); color: var(--p-zinc-300); }
     }
 
     .dash-drill-bar {

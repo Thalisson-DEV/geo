@@ -214,10 +214,10 @@ interface BlocoBuilder extends GrupoDeCampos {
     </div>
   `,
   styles: [`
-    .form-shell { background: #ffffff; border: 1px solid #f1f5f9; border-radius: 1rem; overflow: hidden; }
-    :host-context(.app-dark) .form-shell, :host-context(.dark) .form-shell { background: #0f172a !important; border-color: #1e293b !important; }
-    .form-shell__header { padding: 1.5rem 1.25rem; border-bottom: 1px solid #f1f5f9; }
-    :host-context(.app-dark) .form-shell__header, :host-context(.dark) .form-shell__header { border-bottom-color: #1e293b !important; }
+    .form-shell { background: var(--p-surface-0); border: 1px solid var(--p-zinc-100); border-radius: 1rem; overflow: hidden; }
+    :host-context(.app-dark) .form-shell, :host-context(.dark) .form-shell { background: var(--p-zinc-900) !important; border-color: var(--p-zinc-800) !important; }
+    .form-shell__header { padding: 1.5rem 1.25rem; border-bottom: 1px solid var(--p-zinc-100); }
+    :host-context(.app-dark) .form-shell__header, :host-context(.dark) .form-shell__header { border-bottom-color: var(--p-zinc-800) !important; }
     .form-shell__body { padding: 1.5rem 1.25rem; }
     @media (min-width: 768px) { .form-shell__header, .form-shell__body { padding-left: 2rem; padding-right: 2rem; } }
     .section-marker {
@@ -233,30 +233,30 @@ interface BlocoBuilder extends GrupoDeCampos {
       border-left-color: var(--p-primary-400) !important;
     }
     .section-marker span {
-      color: #374151;
+      color: var(--p-zinc-700);
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 600;
       letter-spacing: -0.01em;
       text-transform: none;
     }
     :host-context(.app-dark) .section-marker span,
     :host-context(.dark) .section-marker span {
-      color: #f1f5f9 !important;
+      color: var(--p-zinc-100) !important;
     }
     .field { display: flex; flex-direction: column; gap: 0.375rem; }
-    .field > label { color: #475569; font-size: 11px; font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
+    .field > label { color: var(--p-zinc-600); font-size: var(--geo-font-caption); font-weight: 500; letter-spacing: normal; text-transform: none; line-height: 1.35; }
     :host-context(.app-dark) .field > label,
     :host-context(.dark) .field > label {
-      color: #cbd5e1 !important;
+      color: var(--p-zinc-300) !important;
     }
     :host ::ng-deep {
       .doc-input.p-inputtext, .doc-select .p-select-label, .doc-select .p-select-placeholder {
-        font-size: 11px !important; font-weight: 500 !important;
+        font-size: var(--geo-font-caption) !important; font-weight: 500 !important;
         height: 34px !important; display: flex; align-items: center; border-radius: 6px !important;
       }
       .doc-input.p-inputtext { width: 100%; }
       .doc-select .p-select { width: 100%; height: 34px; border-radius: 6px !important; }
-      .p-breadcrumb .p-menuitem-text { font-size: 0.7rem; font-weight: 500; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.08em; }
+      .p-breadcrumb .p-menuitem-text { font-size: var(--geo-font-caption); font-weight: 500; color: var(--p-zinc-400); text-transform: none; letter-spacing: 0; }
     }
   `]
 })

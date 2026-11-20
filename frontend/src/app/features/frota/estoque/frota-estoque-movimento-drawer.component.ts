@@ -77,7 +77,7 @@ const TEXTOS: Record<OperacaoEstoque, { titulo: string; descricao: string; botao
       font-variant-numeric: tabular-nums; }
     .acoes { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem; }
     .acoes__botoes { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-    .total { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .total { font-weight: 600; font-variant-numeric: tabular-nums; }
     .links { display: flex; flex-wrap: wrap; align-items: center; gap: 0 0.25rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .bloco { display: grid; gap: 0.75rem; padding: 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
     .bloco__titulo { font-weight: 600; }

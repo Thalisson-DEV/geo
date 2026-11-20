@@ -65,7 +65,7 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
     FrotaApoliceDrawerComponent
   ],
   styles: `
-    .valor { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .valor { font-weight: 600; font-variant-numeric: tabular-nums; }
     .avisos { display: grid; gap: 0.5rem; }
     .aviso { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
     .aviso__texto { flex: 1 1 18rem; min-width: 0; }

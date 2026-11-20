@@ -50,7 +50,7 @@ const PERIODOS = [7, 30, 90] as const;
     .vu-card { display: grid; gap: 0.125rem; align-content: start; padding: 0.875rem 1rem; border: 1px solid var(--geo-border);
       border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
     .vu-card__rotulo { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .vu-card__valor { font-size: 1.375rem; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+    .vu-card__valor { font-size: 1.375rem; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
     .vu-card__apoio { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .vu-secao-topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
     .vu-secao-topo h2 { margin: 0; }

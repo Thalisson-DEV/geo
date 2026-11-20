@@ -60,7 +60,7 @@
 }
 
 .etapas__seta {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
 }
 
 .etapas__giro {
@@ -111,7 +111,7 @@
   background: var(--geo-surface);
   border: 1px solid var(--geo-border);
   color: var(--geo-foreground-muted);
-  font-size: 0.72rem;
+  font-size: var(--geo-font-caption);
 }
 
 .etapa[data-status='executando'] .etapa__marcador {
@@ -143,7 +143,7 @@
 }
 
 .etapa__estado {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
 }
 
 .etapa__estado--ok {
@@ -271,7 +271,7 @@
   border: 1px solid var(--geo-border);
   background: var(--geo-surface);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.72rem;
+  font-size: var(--geo-font-caption);
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: anywhere;

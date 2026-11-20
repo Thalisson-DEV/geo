@@ -26,7 +26,7 @@ import { dataIso, dataLocal } from '../../../shared/listagem/listagem';
   imports: [DatePipe, GeoButtonComponent, GeoCalloutComponent, GeoDatepickerComponent, GeoFormDrawerComponent, GeoNumberInputComponent, GeoTextareaComponent],
   styles: `
     .contexto { display: grid; gap: 0.125rem; padding: 0.75rem; border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }
-    .contexto__titulo { font-weight: 700; color: var(--geo-foreground); }
+    .contexto__titulo { font-weight: 600; color: var(--geo-foreground); }
     .contexto__linha { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,
   template: `

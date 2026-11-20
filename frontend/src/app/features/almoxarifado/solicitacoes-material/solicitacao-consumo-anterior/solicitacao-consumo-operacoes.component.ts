@@ -109,13 +109,13 @@ import { agruparOperacoesConsumo } from './consumo-anterior.util';
     .co-conta { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0; }
     .co-conta__parcela { display: grid; gap: 0.1rem; padding: 0.375rem 0.625rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .co-conta__parcela dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .co-conta__parcela dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--geo-foreground); }
+    .co-conta__parcela dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--geo-foreground); }
     .co-conta__parcela--total { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
     .co-secao { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); overflow: hidden; }
     .co-secao__cab { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 0.5rem; padding: 0.5rem 0.75rem; background: var(--geo-surface-subtle);
       border-bottom: 1px solid var(--geo-border); font-size: var(--geo-font-caption); }
     .co-secao__cab > i { color: var(--geo-foreground-muted); }
-    .co-secao__cab h4 { margin: 0; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--geo-foreground); }
+    .co-secao__cab h4 { margin: 0; font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0.02em; color: var(--geo-foreground); }
     .co-secao__total { margin-left: auto; font-variant-numeric: tabular-nums; color: var(--geo-foreground); }
     .co-linhas { list-style: none; margin: 0; padding: 0; }
     .co-linha { display: grid; grid-template-columns: 6.75rem minmax(0, 1fr) auto 4.5rem; gap: 0.25rem 0.75rem; align-items: center;
@@ -126,9 +126,9 @@ import { agruparOperacoesConsumo } from './consumo-anterior.util';
     .co-linha__desc a { display: inline-flex; align-items: center; gap: 0.3rem; width: fit-content; font-weight: 600; color: var(--geo-brand); text-decoration: none; }
     .co-linha__desc a:hover { text-decoration: underline; }
     .co-linha__desc a:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; border-radius: var(--geo-radius-sm); }
-    .co-linha__desc a i { font-size: 0.65rem; }
+    .co-linha__desc a i { font-size: var(--geo-font-caption); }
     .co-linha__desc small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
-    .co-linha__qtd { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .co-linha__qtd { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
     .co-serie { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.1rem 0.45rem; border-radius: var(--geo-radius-sm);
       background: var(--geo-surface-muted); color: var(--geo-foreground); font-variant-numeric: tabular-nums; font-size: var(--geo-font-caption); }
     .co-serie--botao { border: 1px solid var(--geo-border); cursor: pointer; font: inherit; font-size: var(--geo-font-caption); }

@@ -77,7 +77,7 @@ const MINIMO_MOTIVO = 5;
 
     .marca strong {
       color: var(--geo-brand);
-      letter-spacing: 0.04em;
+      letter-spacing: 0;
     }
 
     .marca span,
@@ -98,7 +98,7 @@ const MINIMO_MOTIVO = 5;
     h1 {
       margin: 0;
       font-size: 1.125rem;
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .linha-titulo {
@@ -111,7 +111,7 @@ const MINIMO_MOTIVO = 5;
 
     .valor {
       font-size: 1.5rem;
-      font-weight: 700;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
 
@@ -160,7 +160,7 @@ const MINIMO_MOTIVO = 5;
       background: var(--geo-surface);
       color: var(--geo-foreground);
       font: inherit;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
     }
 

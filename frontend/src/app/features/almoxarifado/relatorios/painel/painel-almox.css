@@ -4,9 +4,9 @@ geo-data-table { display: block; }
 .pf-secao { margin-top: 1.5rem; }
 .pf-secao > header { margin-bottom: 0.75rem; }
 .pf-secao > header h2 { margin: 0.15rem 0 0; font-size: 1.05rem; color: var(--geo-foreground); }
-.pf-secao > header p { margin: 0.25rem 0 0; color: var(--geo-foreground-muted); font-size: 0.82rem; }
+.pf-secao > header p { margin: 0.25rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
 .pf-grid-espaco { margin-top: 1rem; }
-.pf-dica { display: flex; align-items: center; gap: 0.4rem; margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: 0.75rem; }
+.pf-dica { display: flex; align-items: center; gap: 0.4rem; margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
 
 /* Lista "situação da frota": cada linha é um botão que abre a análise. */
 .pf-situacao { margin: 1.2rem 0 0; padding: 0; list-style: none; }

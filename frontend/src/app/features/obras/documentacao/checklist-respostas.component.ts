@@ -92,8 +92,8 @@ import {
     :host { display: flex; flex-direction: column; gap: 1rem; }
     .cr-grupo { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; padding: 0.875rem 1rem 1rem; border: 1px solid var(--geo-border-strong); border-radius: var(--geo-radius-lg); background: var(--geo-surface-subtle); }
     .cr-grupo__legenda { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
-    .cr-grupo__titulo { margin: 0; color: var(--geo-foreground); font-size: 0.9375rem; font-weight: 700; overflow-wrap: anywhere; }
-    .cr-grupo__contagem { flex: none; color: var(--geo-foreground-muted); font-size: 0.8125rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .cr-grupo__titulo { margin: 0; color: var(--geo-foreground); font-size: 0.9375rem; font-weight: 600; overflow-wrap: anywhere; }
+    .cr-grupo__contagem { flex: none; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; font-variant-numeric: tabular-nums; }
     .cr-grupo--completo .cr-grupo__contagem { color: var(--geo-success-text); }
     .cr-barra { display: block; height: 0.375rem; overflow: hidden; border-radius: 999px; background: var(--geo-surface-muted); }
     .cr-barra__valor { display: block; height: 100%; border-radius: inherit; background: var(--geo-brand); transition: width 160ms ease-out; }
@@ -104,20 +104,20 @@ import {
     .cr-pergunta--pendente { padding-left: 0.625rem; border-left: 3px solid var(--geo-danger-text); }
     .cr-pergunta--nc { padding-left: 0.625rem; border-left: 3px solid var(--geo-warning-text); }
     .cr-pergunta__topo { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem 0.75rem; }
-    .cr-enunciado { flex: 1 1 14rem; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 500; overflow-wrap: anywhere; }
+    .cr-enunciado { flex: 1 1 14rem; color: var(--geo-foreground); font-size: var(--geo-font-caption); font-weight: 500; overflow-wrap: anywhere; }
     .cr-obrigatoria { color: var(--geo-danger-text); }
     .cr-opcoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .cr-opcao { display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--geo-touch-target); padding: 0.375rem 0.875rem; border: 1px solid var(--geo-border-strong); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; font-size: 0.875rem; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out; }
-    .cr-opcao .pi { font-size: 0.75rem; color: var(--geo-foreground-subtle); }
+    .cr-opcao { display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--geo-touch-target); padding: 0.375rem 0.875rem; border: 1px solid var(--geo-border-strong); border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; font-size: var(--geo-font-caption); cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out; }
+    .cr-opcao .pi { font-size: var(--geo-font-caption); color: var(--geo-foreground-subtle); }
     .cr-opcao:hover:not(:disabled) { border-color: var(--geo-brand); background: var(--geo-surface-muted); }
     .cr-opcao:active:not(:disabled) { background: var(--geo-brand-soft); }
     .cr-opcao:focus-visible { outline: 3px solid var(--geo-focus-ring); outline-offset: 2px; }
     .cr-opcao:disabled { opacity: 0.55; cursor: not-allowed; }
-    .cr-opcao--marcada, .cr-opcao--marcada:hover:not(:disabled) { border-color: var(--geo-brand); background: var(--geo-brand-soft); box-shadow: inset 0 0 0 1px var(--geo-brand); color: var(--geo-foreground); font-weight: 700; }
+    .cr-opcao--marcada, .cr-opcao--marcada:hover:not(:disabled) { border-color: var(--geo-brand); background: var(--geo-brand-soft); box-shadow: inset 0 0 0 1px var(--geo-brand); color: var(--geo-foreground); font-weight: 600; }
     .cr-opcao--marcada .pi { color: var(--geo-brand); }
     .cr-opcao--alerta, .cr-opcao--alerta:hover:not(:disabled) { border-color: var(--geo-warning-text); background: var(--geo-warning-soft); box-shadow: inset 0 0 0 1px var(--geo-warning-text); }
     .cr-opcao--alerta .pi { color: var(--geo-warning-text); }
-    .cr-erro { display: flex; gap: 0.375rem; align-items: center; margin: 0; color: var(--geo-danger-text); font-size: 0.8125rem; }
+    .cr-erro { display: flex; gap: 0.375rem; align-items: center; margin: 0; color: var(--geo-danger-text); font-size: var(--geo-font-caption); }
     @media (prefers-reduced-motion: reduce) { .cr-barra__valor, .cr-opcao { transition: none; } }
   `
 })

@@ -438,32 +438,32 @@
             <strong>{{ d.inicio | date:'dd/MM/yyyy' }} — {{ d.fim | date:'dd/MM/yyyy' }}</strong>
           </div>
           <div class="dash-summary__item">
-            <i class="dash-summary__dot" style="background:#94a3b8"></i>
+            <i class="dash-summary__dot" style="background:var(--p-zinc-400)"></i>
             <span>Comparado com</span>
             <strong>{{ d.periodo.comparacaoInicio | date:'dd/MM/yyyy' }} — {{ d.periodo.comparacaoFim | date:'dd/MM/yyyy' }}</strong>
           </div>
           <div class="dash-summary__item">
-            <i class="dash-summary__dot" style="background:#0f766e"></i>
+            <i class="dash-summary__dot" style="background:var(--p-teal-700)"></i>
             <span>Cobertura do efetivo</span>
             <strong>{{ d.resumo.colaboradoresAtingidos }} de {{ d.resumo.colaboradoresAtivos }} ({{ d.resumo.percentualDoEfetivo | number:'1.0-1' }}%)</strong>
           </div>
           <div class="dash-summary__item">
-            <i class="dash-summary__dot" style="background:#9f1239"></i>
+            <i class="dash-summary__dot" style="background:var(--p-rose-800)"></i>
             <span>Reincidentes (2+ termos no período)</span>
             <strong>{{ d.resumo.colaboradoresReincidentes }}</strong>
           </div>
           <div class="dash-summary__item">
-            <i class="dash-summary__dot" style="background:#c57a16"></i>
+            <i class="dash-summary__dot" style="background:var(--p-yellow-600)"></i>
             <span>Itens lançados · média por termo</span>
             <strong>{{ d.resumo.totalItens }} · {{ d.resumo.mediaItensPorDesconto | number:'1.0-2' }}</strong>
           </div>
           <div class="dash-summary__item">
-            <i class="dash-summary__dot" style="background:#7c3aed"></i>
+            <i class="dash-summary__dot" style="background:var(--p-violet-600)"></i>
             <span>Impacto mensal em folha (valor médio da parcela)</span>
             <strong>{{ moeda(d.financeiro.valorMedioParcela) }}</strong>
           </div>
           <div class="dash-summary__item">
-            <i class="dash-summary__dot" style="background:#475569"></i>
+            <i class="dash-summary__dot" style="background:var(--p-zinc-600)"></i>
             <span>Documentação das pendências</span>
             <strong>{{ d.qualidade.coberturaDocumentalPercentual | number:'1.0-1' }}% dos campos de apoio preenchidos</strong>
           </div>

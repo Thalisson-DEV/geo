@@ -58,13 +58,13 @@
   color: var(--geo-brand);
   font: inherit;
   font-size: var(--geo-font-caption);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: background var(--geo-duration-fast) var(--geo-ease-standard),
     border-color var(--geo-duration-fast) var(--geo-ease-standard);
 }
 .an-copiloto img { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--geo-brand-soft); object-fit: contain; }
-.an-copiloto i { font-size: 0.7rem; }
+.an-copiloto i { font-size: var(--geo-font-caption); }
 .an-copiloto:hover { background: var(--geo-brand-soft); border-color: var(--geo-brand); }
 .an-copiloto:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
 .an-copiloto:active { transform: translateY(1px); }
@@ -128,7 +128,7 @@
   font-size: var(--geo-font-caption);
   font-weight: 650;
 }
-.an-kpi__rotulo i { font-size: 0.75rem; }
+.an-kpi__rotulo i { font-size: var(--geo-font-caption); }
 .an-kpi strong {
   color: var(--geo-foreground);
   font-size: 1.2rem;
@@ -156,7 +156,7 @@
   background: var(--geo-surface);
 }
 .an-grafico--inteiro { grid-column: 1 / -1; }
-.an-grafico header h3 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 700; }
+.an-grafico header h3 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 600; }
 .an-grafico header p { margin: 0.15rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); line-height: 1.4; }
 .an-grafico--esqueleto {
   min-height: 16rem;
@@ -218,7 +218,7 @@
 }
 .an-chip button:hover { background: color-mix(in srgb, var(--geo-brand) 15%, transparent); }
 .an-chip button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
-.an-chip button i { font-size: 0.65rem; }
+.an-chip button i { font-size: var(--geo-font-caption); }
 
 .an-detalhe {
   display: grid;
@@ -231,7 +231,7 @@
 }
 .an-detalhe:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
 .an-detalhe header { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
-.an-detalhe__eyebrow { color: var(--geo-brand); font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.an-detalhe__eyebrow { color: var(--geo-brand); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .an-detalhe h4 { margin: 0.1rem 0 0; color: var(--geo-foreground); font-size: 1.05rem; }
 .an-detalhe header p { margin: 0.15rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
 .an-detalhe dl {

@@ -76,7 +76,7 @@ import { EstrelasAvaliacaoComponent } from './estrelas-avaliacao.component';
       background: var(--geo-brand-soft); color: var(--geo-brand); font-size: 1.125rem;
     }
     .av-textos { display: grid; gap: 0.25rem; min-width: 0; }
-    .av-titulo { margin: 0; font-size: var(--geo-font-body); font-weight: 700; letter-spacing: -0.01em; }
+    .av-titulo { margin: 0; font-size: var(--geo-font-body); font-weight: 600; letter-spacing: -0.01em; }
     .av-texto { margin: 0; font-size: var(--geo-font-caption); line-height: 1.5; color: var(--geo-foreground-muted); }
 
     .av-nota {
@@ -88,7 +88,7 @@ import { EstrelasAvaliacaoComponent } from './estrelas-avaliacao.component';
       display: flex; flex-wrap: wrap; justify-content: center; gap: 0.375rem; margin: 0;
       font-size: var(--geo-font-caption); line-height: 1.5; color: var(--geo-foreground-muted);
     }
-    .av-ultima .pi { margin-top: 0.125rem; font-size: 0.75rem; }
+    .av-ultima .pi { margin-top: 0.125rem; font-size: var(--geo-font-caption); }
 
     .av-acoes { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
     .av-recusar {

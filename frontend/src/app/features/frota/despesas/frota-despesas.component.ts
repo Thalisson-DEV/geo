@@ -107,12 +107,12 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
     .tipo[aria-pressed='true'] { background: var(--geo-brand-soft); }
     .tipo__linha { display: flex; justify-content: space-between; gap: 0.75rem; font-size: var(--geo-font-caption); }
     .tipo__nome { font-weight: 600; color: var(--geo-foreground); }
-    .tipo__valor { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .tipo__valor { font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .tipo__qtd { margin-left: 0.25rem; font-weight: 500; color: var(--geo-foreground-subtle); }
     .tipo__barra { display: block; height: 0.375rem; border-radius: 999px; background: var(--geo-surface-muted); overflow: hidden; }
     .tipo__barra > span { display: block; height: 100%; min-width: 0.375rem; border-radius: inherit; background: var(--geo-brand); transition: width 240ms ease; }
     .correcao { display: grid; grid-template-columns: repeat(3, minmax(6rem, 1fr)); gap: 0.5rem; }
-    .valor { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .valor { font-weight: 600; font-variant-numeric: tabular-nums; }
   `,
   template: `
     <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="acesso.editarDespesa()" (newRequested)="novo()">

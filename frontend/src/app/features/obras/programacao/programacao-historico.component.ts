@@ -236,10 +236,10 @@ function rotuloDia(dia: string): string {
   `,
   styles: [`
     .hist-barra { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-    .hist-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .hist-contagem { display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; font-variant-numeric: tabular-nums; }
     .geo-quick-filter[aria-pressed='true'] .hist-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
     .hist-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--geo-border); }
-    .geo-quick-filters .pi { font-size: 0.75rem; }
+    .geo-quick-filters .pi { font-size: var(--geo-font-caption); }
     .geo-quick-filters [data-tone='info'] .pi { color: var(--geo-info); }
     .geo-quick-filters [data-tone='warning'] .pi { color: var(--geo-warning); }
     .geo-quick-filters [data-tone='danger'] .pi { color: var(--geo-danger); }
@@ -249,16 +249,16 @@ function rotuloDia(dia: string): string {
     .hist-visoes button:hover { color: var(--geo-foreground); }
     .hist-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
     .hist-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
-    .hist-visoes .pi { font-size: 0.8rem; }
+    .hist-visoes .pi { font-size: var(--geo-font-caption); }
     .hist-card { padding: 1rem 1.25rem 1.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); }
     .hist-card__topo { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; justify-content: space-between; margin-bottom: 0.5rem; }
     .hist-busca { width: min(28rem, 100%); }
     .hist-card__total { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; }
-    .hist-dia { position: sticky; top: 0; z-index: 1; margin: 1rem 0 0.5rem; padding: 0.25rem 0; background: var(--geo-surface); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+    .hist-dia { position: sticky; top: 0; z-index: 1; margin: 1rem 0 0.5rem; padding: 0.25rem 0; background: var(--geo-surface); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0.03em; text-transform: none; }
     .hist-linha { margin: 0; padding: 0; list-style: none; }
     .hist-evento { position: relative; display: flex; gap: 0.75rem; padding-bottom: 0.75rem; }
     .hist-evento:not(:last-child)::before { position: absolute; top: 2rem; bottom: 0; left: 0.9375rem; width: 1px; background: var(--geo-border); content: ''; }
-    .hist-evento__marca { display: grid; flex: none; width: 2rem; height: 2rem; place-items: center; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.8rem; }
+    .hist-evento__marca { display: grid; flex: none; width: 2rem; height: 2rem; place-items: center; border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .hist-evento[data-tone='info'] .hist-evento__marca { background: var(--geo-info-soft); color: var(--geo-info-text); }
     .hist-evento[data-tone='warning'] .hist-evento__marca { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
     .hist-evento[data-tone='danger'] .hist-evento__marca { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
@@ -266,18 +266,18 @@ function rotuloDia(dia: string): string {
     .hist-evento__corpo { flex: 1; min-width: 0; padding: 0.625rem 0.75rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .hist-evento__topo { display: flex; flex-wrap: wrap; gap: 0.375rem 0.5rem; align-items: center; font-size: var(--geo-font-control); }
     .hist-evento__quem { display: inline-flex; gap: 0.375rem; align-items: center; margin-left: auto; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
-    .hist-evento__quem .pi { font-size: 0.7rem; }
-    .hist-link { padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+    .hist-evento__quem .pi { font-size: var(--geo-font-caption); }
+    .hist-link { padding: 0; border: 0; background: transparent; color: var(--geo-brand); font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
     .hist-link:hover { text-decoration: underline; }
     .hist-link:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
-    .hist-numero { font-weight: 700; }
+    .hist-numero { font-weight: 600; }
     .hist-sep { color: var(--geo-foreground-muted); }
     .hist-mudancas { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 0.375rem 1rem; margin: 0.5rem 0 0; }
-    .hist-mudancas dt { color: var(--geo-foreground-muted); font-size: 0.6875rem; font-weight: 600; }
+    .hist-mudancas dt { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
     .hist-mudancas dd { display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center; margin: 0; font-size: var(--geo-font-control); }
     .hist-mudancas del { color: var(--geo-foreground-muted); }
     .hist-mudancas ins { font-weight: 600; text-decoration: none; }
-    .hist-mudancas .pi { color: var(--geo-foreground-muted); font-size: 0.625rem; }
+    .hist-mudancas .pi { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .hist-motivo { margin: 0.5rem 0 0; padding: 0.375rem 0.625rem; border-left: 3px solid var(--geo-border); background: var(--geo-surface-subtle); font-size: var(--geo-font-control); }
     .hist-motivo span { color: var(--geo-foreground-muted); font-weight: 600; }
     .hist-mais { display: flex; justify-content: center; margin-top: 0.5rem; }

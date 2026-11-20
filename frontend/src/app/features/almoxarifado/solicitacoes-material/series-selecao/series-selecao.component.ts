@@ -136,12 +136,12 @@ interface SerieComProblema extends LeituraSerie {
     .ss-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.375rem; }
     .ss-chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.25rem 0.2rem 0.5rem; border: 1px solid var(--geo-border);
       border-radius: var(--geo-radius-md); background: var(--geo-surface); font-size: var(--geo-font-caption); color: var(--geo-foreground); }
-    .ss-chip > i { color: var(--geo-foreground-muted); font-size: 0.7rem; }
+    .ss-chip > i { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .ss-chip__remover { display: inline-grid; place-items: center; width: 1.25rem; height: 1.25rem; padding: 0; border: 0; border-radius: var(--geo-radius-sm);
       background: none; color: var(--geo-foreground-muted); cursor: pointer; }
     .ss-chip__remover:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
     .ss-chip__remover:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
-    .ss-chip__remover i { font-size: 0.6rem; }
+    .ss-chip__remover i { font-size: var(--geo-font-caption); }
   `]
 })
 export class SeriesSelecaoComponent {

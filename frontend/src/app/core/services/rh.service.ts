@@ -775,13 +775,8 @@ export class RhService extends BaseService {
   }
 
   listarCoordenadoresAtivosMin(): Observable<CoordenadorMinResponse[]> {
-    return this.http
-      .get<CoordenadorMinResponse[]>(`${this.apiUrl}/v1/rh/coordenadores/ativos-min`)
-      .pipe(
-        catchError(() =>
-          this.http.get<CoordenadorMinResponse[]>(`${this.apiUrl}/v1/rh/coordenadores/min`),
-        ),
-      );
+    // Ativos em /min (não existe /ativos-min no backend: a chamada antiga sempre dava 400).
+    return this.http.get<CoordenadorMinResponse[]>(`${this.apiUrl}/v1/rh/coordenadores/min`);
   }
 
   listarCoordenadoresDropdown(): Observable<CoordenadorMinResponse[]> {
@@ -835,13 +830,8 @@ export class RhService extends BaseService {
   }
 
   listarSupervisoresAtivosMin(): Observable<SupervisorMinResponse[]> {
-    return this.http
-      .get<SupervisorMinResponse[]>(`${this.apiUrl}/v1/rh/supervisores/ativos-min`)
-      .pipe(
-        catchError(() =>
-          this.http.get<SupervisorMinResponse[]>(`${this.apiUrl}/v1/rh/supervisores/min`),
-        ),
-      );
+    // Ativos em /min (não existe /ativos-min no backend: a chamada antiga sempre dava 400).
+    return this.http.get<SupervisorMinResponse[]>(`${this.apiUrl}/v1/rh/supervisores/min`);
   }
 
   listarSupervisoresDropdown(): Observable<SupervisorMinResponse[]> {

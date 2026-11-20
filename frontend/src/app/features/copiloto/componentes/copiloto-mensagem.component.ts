@@ -316,8 +316,8 @@ export class CopilotoMensagemComponent {
 <style>
   body { font: 14px/1.6 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; color: CanvasText; background: Canvas; margin: 2rem auto; max-width: 48rem; padding: 0 1rem; }
   header { border-bottom: 2px solid currentColor; margin-bottom: 1.25rem; padding-bottom: 0.5rem; }
-  header h1 { font-size: 1.25rem; margin: 0; } header p { margin: 0.2rem 0 0; color: GrayText; font-size: 0.8rem; }
-  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; font-size: 0.85rem; }
+  header h1 { font-size: 1.25rem; margin: 0; } header p { margin: 0.2rem 0 0; color: GrayText; font-size: var(--geo-font-caption); }
+  table { border-collapse: collapse; width: 100%; margin: 0.5rem 0 1rem; font-size: var(--geo-font-caption); }
   th, td { border: 1px solid GrayText; padding: 0.3rem 0.5rem; text-align: left; } th { font-weight: 600; }
   td[align='right'], th[align='right'] { text-align: right; }
   code { border: 1px solid GrayText; padding: 0 0.25rem; border-radius: 3px; }

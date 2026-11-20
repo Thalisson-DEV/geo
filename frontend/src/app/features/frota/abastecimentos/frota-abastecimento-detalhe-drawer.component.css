@@ -8,9 +8,9 @@
 .dd-label {
   display: block;
   font-size: var(--geo-font-caption);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--geo-foreground-muted);
 }
 
@@ -21,12 +21,12 @@
 
 .dd-forte {
   color: var(--geo-foreground);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-texto-aviso {
   color: var(--geo-warning-text);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 [data-tone='warning'] { --dd-tone: var(--geo-warning); }
@@ -67,11 +67,11 @@
 
 .dd-hero__rota strong {
   color: var(--geo-foreground);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-hero__rota .pi {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .dd-hero__seta {
@@ -103,7 +103,7 @@
   margin: 0 0 0.625rem;
   color: var(--geo-foreground);
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-titulo-secao .pi {
@@ -178,7 +178,7 @@
   border-radius: 999px;
   background: var(--geo-surface);
   color: var(--geo-foreground-subtle);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .dd-fluxo__etapa[data-estado='feito'] .dd-fluxo__marca {
@@ -315,15 +315,15 @@
 .dd-tabela__cab {
   background: var(--geo-surface-subtle);
   font-size: var(--geo-font-caption);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--geo-foreground-muted);
 }
 
 .dd-tabela__total {
   background: var(--geo-surface-subtle);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .dd-num {
@@ -526,11 +526,11 @@ a.dd-foto__quadro:focus-visible img {
   }
 
   .dd-fluxo__marca {
-    font-size: 0.6875rem;
+    font-size: var(--geo-font-caption);
   }
 
   .dd-fluxo__texto {
-    font-size: 0.6875rem;
+    font-size: var(--geo-font-caption);
   }
 
   .dd-fluxo__texto strong {

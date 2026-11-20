@@ -191,9 +191,9 @@
               </div>
             </div>
             <div class="dash-summary__items">
-              <div class="dash-summary__item"><i class="dash-summary__dot" style="background:#c2413b"></i><span>Sem nenhuma inspeção</span><strong>{{ d.colaboradores.colaboradoresSemInspecao }}</strong></div>
-              <div class="dash-summary__item"><i class="dash-summary__dot" style="background:#c57a16"></i><span>Com desvio no período</span><strong>{{ d.colaboradores.colaboradoresComDesvio }} ({{ d.colaboradores.percentualComDesvio | number:'1.0-1' }}%)</strong></div>
-              <div class="dash-summary__item"><i class="dash-summary__dot" style="background:#9f1239"></i><span>Reincidentes (2+ desvios)</span><strong>{{ d.colaboradores.colaboradoresReincidentes }}</strong></div>
+              <div class="dash-summary__item"><i class="dash-summary__dot" style="background:var(--p-red-800)"></i><span>Sem nenhuma inspeção</span><strong>{{ d.colaboradores.colaboradoresSemInspecao }}</strong></div>
+              <div class="dash-summary__item"><i class="dash-summary__dot" style="background:var(--p-yellow-600)"></i><span>Com desvio no período</span><strong>{{ d.colaboradores.colaboradoresComDesvio }} ({{ d.colaboradores.percentualComDesvio | number:'1.0-1' }}%)</strong></div>
+              <div class="dash-summary__item"><i class="dash-summary__dot" style="background:var(--p-rose-800)"></i><span>Reincidentes (2+ desvios)</span><strong>{{ d.colaboradores.colaboradoresReincidentes }}</strong></div>
               <div class="dash-summary__item"><i class="dash-summary__dot" style="background:var(--p-primary-400)"></i><span>Média de inspeções por colaborador</span><strong>{{ d.colaboradores.mediaInspecoesPorColaborador | number:'1.0-2' }}</strong></div>
             </div>
           </div>

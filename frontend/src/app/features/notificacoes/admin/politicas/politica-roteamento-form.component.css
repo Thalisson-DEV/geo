@@ -115,14 +115,14 @@
   border-radius: 999px;
   background: var(--geo-brand-soft);
   color: var(--geo-brand);
-  font-size: 0.625rem;
-  font-weight: 800;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
 }
 
 .review-route p {
   margin-top: 0.25rem;
   color: var(--geo-foreground-muted);
-  font-size: 0.625rem;
+  font-size: var(--geo-font-caption);
 }
 
 .review-route__conditions {
@@ -131,7 +131,7 @@
   margin: 0.4rem 0 0;
   padding-left: 1rem;
   color: var(--geo-foreground-muted);
-  font-size: 0.625rem;
+  font-size: var(--geo-font-caption);
 }
 
 .review-route code {
@@ -140,7 +140,7 @@
   padding: 0.05rem 0.25rem;
   color: var(--geo-brand);
   font-family: ui-monospace, monospace;
-  font-size: 0.6rem;
+  font-size: var(--geo-font-caption);
 }
 
 .policy-success {

@@ -98,15 +98,21 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
     }
 
     /* O título é a coluna de leitura da carteira: não deixa a tabela larga espremer em várias linhas. */
-    .obra-planejado {
+    .obra-planejado,
+    .obra-sub {
       white-space: nowrap;
     }
+    .obra-sub { display: block; font-size: var(--geo-font-caption); }
 
     .obra-encerramento { display: inline-flex; margin-top: 0.25rem; padding: 0; border: 0; background: none; cursor: pointer; border-radius: var(--geo-radius-sm); }
     .obra-encerramento:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .obra-titulo {
-      display: block;
+      display: -webkit-box;
       min-width: 16rem;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
     }
 
     .importacao-opcoes {
@@ -213,6 +219,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         rowActionIcon="pi pi-external-link"
         [emptyActionLabel]="podeEscrever ? 'Nova obra' : undefined"
         noResultsTitle="Nenhuma obra encontrada com esse recorte."
+        [textFit]="ajusteTexto"
         [columns]="colunas"
         [rows]="resultado.rows()"
         [totalRecords]="resultado.total()"
@@ -234,7 +241,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         <ng-template geoCell="numero" let-row>
           <span class="geo-cell-strong">{{ row.numero }}</span>
           @if (row.obraPaiNumero) {
-            <span class="geo-cell-muted"><i class="pi pi-link" aria-hidden="true"></i> subprojeto de {{ row.obraPaiNumero }}</span>
+            <span class="geo-cell-muted obra-sub" [title]="'Subprojeto da obra ' + row.obraPaiNumero"><i class="pi pi-link" aria-hidden="true"></i> sub. de {{ row.obraPaiNumero }}</span>
           }
         </ng-template>
         <ng-template geoCell="titulo" let-row><span class="obra-titulo" [title]="row.titulo">{{ row.titulo }}</span></ng-template>
@@ -477,6 +484,8 @@ export class ObrasListComponent {
     { errorMessage: getErrorMessage }
   );
 
+  /** Carteira larga (18 colunas): texto em até 2 linhas, o resto no title da célula. */
+  protected readonly ajusteTexto = { minColumnWidth: '7.5rem', maxLines: 2 } as const;
   protected readonly colunas: GeoDataTableColumn<ObraResumoResponse>[] = [
     { key: 'numero', header: 'Número', type: 'custom', priority: 1, sortField: 'numero', width: '9rem', value: (o) => o.numero, display: (o) => o.numero },
     { key: 'titulo', header: 'Título', type: 'custom', priority: 1, sortField: 'titulo', value: (o) => o.titulo, display: (o) => o.titulo },

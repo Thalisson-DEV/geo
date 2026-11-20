@@ -49,7 +49,7 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
       display: inline-flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem;
       border-radius: 999px; background: var(--geo-success-soft); color: var(--geo-success-text); font-size: 1.5rem;
     }
-    .av-agradecimento h3 { margin: 0; font-size: var(--geo-font-body); font-weight: 700; color: var(--geo-foreground); }
+    .av-agradecimento h3 { margin: 0; font-size: var(--geo-font-body); font-weight: 600; color: var(--geo-foreground); }
     .av-agradecimento p { margin: 0; max-width: 22rem; font-size: var(--geo-font-caption); line-height: 1.6; color: var(--geo-foreground-muted); }
   `,
   template: `

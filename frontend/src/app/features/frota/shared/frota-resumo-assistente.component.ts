@@ -31,12 +31,12 @@ import { FrotaAnaliseIaService } from '../../../core/services/frota-analise-ia.s
       box-shadow: 0 0 0 2px var(--geo-brand-soft), 0 0 0 3px var(--geo-brand); }
     .rs__corpo { display: grid; gap: 0.375rem; min-width: 0; }
     .rs__topo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
-    .rs__topo strong { font-size: 0.875rem; }
-    .rs__quando { font-size: 0.72rem; color: var(--geo-foreground-muted); }
-    .rs__texto { margin: 0; font-size: 0.8125rem; line-height: 1.55; }
-    .rs__pontos { margin: 0; padding-left: 1.1rem; font-size: 0.8125rem; display: grid; gap: 0.2rem; }
+    .rs__topo strong { font-size: var(--geo-font-caption); }
+    .rs__quando { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .rs__texto { margin: 0; font-size: var(--geo-font-caption); line-height: 1.55; }
+    .rs__pontos { margin: 0; padding-left: 1.1rem; font-size: var(--geo-font-caption); display: grid; gap: 0.2rem; }
     .rs__acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .rs__espera { font-size: 0.8125rem; color: var(--geo-foreground-muted); margin: 0; }
+    .rs__espera { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); margin: 0; }
   `,
   template: `
     @if (estado(); as e) {

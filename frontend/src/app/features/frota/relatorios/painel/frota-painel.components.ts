@@ -72,18 +72,18 @@ export class FrotaRecorteCamposComponent {
     :host { display: block; margin-bottom: 1rem; }
     .fpt-linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem; }
     .fpt-periodos { width: fit-content; max-width: 100%; }
-    .fpt-recorte { margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8rem; }
+    .fpt-recorte { margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .fpt-paineis { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0 0 0.875rem; padding: 0; list-style: none; }
     .fpt-painel {
       display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.25rem; padding: 0.35rem 0.8rem;
       border: 1px solid var(--geo-border); border-radius: 999px; color: var(--geo-foreground-muted);
-      font-size: 0.8125rem; font-weight: 600; text-decoration: none; background: var(--geo-surface);
+      font-size: var(--geo-font-caption); font-weight: 600; text-decoration: none; background: var(--geo-surface);
       transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
     }
     .fpt-painel:hover { color: var(--geo-foreground); border-color: var(--geo-border-strong); }
     .fpt-painel:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .fpt-painel.is-ativo { color: var(--geo-brand); background: var(--geo-brand-soft); border-color: var(--geo-brand); }
-    .fpt-painel i { font-size: 0.8rem; }
+    .fpt-painel i { font-size: var(--geo-font-caption); }
     @media (prefers-reduced-motion: reduce) { .fpt-painel { transition: none; } }
   `,
   template: `

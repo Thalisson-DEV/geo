@@ -69,7 +69,7 @@
 
 .ws__marca {
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--geo-brand);
 }

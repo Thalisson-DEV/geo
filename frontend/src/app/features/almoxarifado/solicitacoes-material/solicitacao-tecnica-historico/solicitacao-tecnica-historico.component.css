@@ -7,8 +7,8 @@
 /* ── Cabeçalho ──────────────────────────────── */
 .history-timeline { display: grid; gap: 1rem; }
 .timeline-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.timeline-header-info h2 { margin: 0; font-size: 1rem; font-weight: 700; color: var(--geo-foreground); }
-.timeline-header-info p { margin: 0.15rem 0 0; color: var(--geo-foreground-muted); font-size: 0.75rem; }
+.timeline-header-info h2 { margin: 0; font-size: 1rem; font-weight: 600; color: var(--geo-foreground); }
+.timeline-header-info p { margin: 0.15rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
 .scope-toggle {
   display: inline-flex;
   align-items: center;
@@ -27,13 +27,13 @@
   border: 1px solid transparent;
   background: transparent;
   color: var(--geo-foreground-muted);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   cursor: pointer;
   transition: all var(--geo-duration-fast) var(--geo-ease-standard);
   user-select: none;
 }
-.scope-btn i { font-size: 0.75rem; }
+.scope-btn i { font-size: var(--geo-font-caption); }
 .scope-btn:hover:not(.active) {
   color: var(--geo-foreground);
   background: var(--geo-surface-muted);
@@ -49,7 +49,7 @@
 .integrity-banner {
   display: flex; align-items: center; gap: 0.6rem;
   padding: 0.6rem 0.85rem; border-radius: var(--geo-radius-md);
-  font-size: 0.75rem; font-weight: 600;
+  font-size: var(--geo-font-caption); font-weight: 600;
   border: 1px solid transparent;
 }
 .integrity-ok {
@@ -74,7 +74,7 @@
 .dark .integrity-ok,
 .app-dark .integrity-ok {
   background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
+  color: var(--p-green-400);
   border-color: rgba(34, 197, 94, 0.3);
 }
 :host-context(.dark) .integrity-warn,
@@ -82,7 +82,7 @@
 .dark .integrity-warn,
 .app-dark .integrity-warn {
   background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
+  color: var(--p-amber-400);
   border-color: rgba(245, 158, 11, 0.3);
 }
 :host-context(.dark) .integrity-fail,
@@ -90,7 +90,7 @@
 .dark .integrity-fail,
 .app-dark .integrity-fail {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: var(--p-red-400);
   border-color: rgba(239, 68, 68, 0.3);
 }
 
@@ -119,7 +119,7 @@
   transition: border-color var(--geo-duration-normal) var(--geo-ease-standard),
               background var(--geo-duration-normal) var(--geo-ease-standard);
 }
-.timeline-dot i { font-size: 0.65rem; }
+.timeline-dot i { font-size: var(--geo-font-caption); }
 
 /* Cores semânticas dos dots */
 .dot-info { border-color: var(--geo-info); color: var(--geo-info); background: var(--geo-info-soft); }
@@ -132,25 +132,25 @@
 :host-context(.app-dark) .dot-info,
 .dark .dot-info,
 .app-dark .dot-info {
-  border-color: #3b82f6; color: #60a5fa; background: rgba(59, 130, 246, 0.15);
+  border-color: var(--p-blue-500); color: var(--p-blue-400); background: rgba(59, 130, 246, 0.15);
 }
 :host-context(.dark) .dot-success,
 :host-context(.app-dark) .dot-success,
 .dark .dot-success,
 .app-dark .dot-success {
-  border-color: #22c55e; color: #4ade80; background: rgba(34, 197, 94, 0.15);
+  border-color: var(--p-green-500); color: var(--p-green-400); background: rgba(34, 197, 94, 0.15);
 }
 :host-context(.dark) .dot-danger,
 :host-context(.app-dark) .dot-danger,
 .dark .dot-danger,
 .app-dark .dot-danger {
-  border-color: #ef4444; color: #f87171; background: rgba(239, 68, 68, 0.15);
+  border-color: var(--p-red-500); color: var(--p-red-400); background: rgba(239, 68, 68, 0.15);
 }
 :host-context(.dark) .dot-warning,
 :host-context(.app-dark) .dot-warning,
 .dark .dot-warning,
 .app-dark .dot-warning {
-  border-color: #f59e0b; color: #fbbf24; background: rgba(245, 158, 11, 0.15);
+  border-color: var(--p-amber-500); color: var(--p-amber-400); background: rgba(245, 158, 11, 0.15);
 }
 :host-context(.dark) .dot-neutral,
 :host-context(.app-dark) .dot-neutral,
@@ -179,16 +179,16 @@
   display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
 }
 .event-label {
-  font-size: 0.8125rem; font-weight: 700;
+  font-size: var(--geo-font-caption); font-weight: 600;
   color: var(--geo-foreground);
 }
 .event-type-badge {
-  font-size: 0.65rem; font-weight: 700;
+  font-size: var(--geo-font-caption); font-weight: 600;
   padding: 0.15rem 0.5rem; border-radius: var(--geo-radius-sm);
   display: inline-flex; align-items: center; gap: 0.3rem;
   border: 1px solid transparent;
 }
-.event-type-badge i { font-size: 0.55rem; }
+.event-type-badge i { font-size: var(--geo-font-caption); }
 .badge-adicao {
   background: var(--geo-success-soft);
   color: var(--geo-success);
@@ -204,7 +204,7 @@
 .dark .badge-adicao,
 .app-dark .badge-adicao {
   background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
+  color: var(--p-green-400);
   border-color: rgba(34, 197, 94, 0.3);
 }
 :host-context(.dark) .badge-devolucao,
@@ -212,22 +212,22 @@
 .dark .badge-devolucao,
 .app-dark .badge-devolucao {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: var(--p-red-400);
   border-color: rgba(239, 68, 68, 0.3);
 }
 
 .event-time {
-  font-size: 0.75rem; color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption); color: var(--geo-foreground-muted);
   white-space: nowrap; flex-shrink: 0; font-weight: 500;
 }
 
 /* Autor + origem */
 .event-meta {
   display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
-  font-size: 0.75rem; color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption); color: var(--geo-foreground-muted);
 }
 .event-author { display: flex; align-items: center; gap: 0.3rem; font-weight: 600; color: var(--geo-foreground); }
-.event-author i { font-size: 0.7rem; color: var(--geo-foreground-muted); }
+.event-author i { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 .event-origin { font-style: italic; color: var(--geo-foreground-muted); }
 
 /* Justificativa / nota */
@@ -235,10 +235,10 @@
   display: flex; align-items: flex-start; gap: 0.4rem;
   padding: 0.5rem 0.75rem; border-radius: var(--geo-radius-md);
   background: var(--geo-surface-subtle); border: 1px solid var(--geo-border);
-  font-size: 0.75rem; color: var(--geo-foreground);
+  font-size: var(--geo-font-caption); color: var(--geo-foreground);
   font-style: italic;
 }
-.event-note i { font-size: 0.7rem; margin-top: 0.1rem; flex-shrink: 0; color: var(--geo-foreground-muted); }
+.event-note i { font-size: var(--geo-font-caption); margin-top: 0.1rem; flex-shrink: 0; color: var(--geo-foreground-muted); }
 
 /* Alterações / diffs */
 .event-changes {
@@ -247,45 +247,45 @@
   background: var(--geo-surface-subtle); border: 1px solid var(--geo-border);
 }
 .changes-title {
-  font-size: 0.75rem; font-weight: 700;
+  font-size: var(--geo-font-caption); font-weight: 600;
   color: var(--geo-foreground); margin-bottom: 0.15rem;
 }
 .change-row {
   display: flex; align-items: center; justify-content: space-between;
   gap: 0.5rem; flex-wrap: wrap;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 .change-field {
   display: inline-flex; align-items: baseline; gap: 0.35rem;
   font-weight: 600; color: var(--geo-foreground); flex-shrink: 0;
 }
-.change-field small { color: var(--geo-foreground-muted); font-size: 0.7rem; font-weight: 500; }
+.change-field small { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 500; }
 .change-values {
   display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;
   text-align: right;
 }
-.change-context { color: var(--geo-foreground-muted); font-size: 0.7rem; font-weight: 500; }
-.change-old { color: #dc2626; text-decoration: line-through; font-weight: 600; }
-.change-new { color: #16a34a; font-weight: 700; }
-.change-removal .change-new { color: #dc2626; }
+.change-context { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 500; }
+.change-old { color: var(--p-red-600); text-decoration: line-through; font-weight: 600; }
+.change-new { color: var(--p-green-600); font-weight: 600; }
+.change-removal .change-new { color: var(--p-red-600); }
 
 :host-context(.dark) .change-old,
 :host-context(.app-dark) .change-old,
 .dark .change-old,
 .app-dark .change-old {
-  color: #f87171;
+  color: var(--p-red-400);
 }
 :host-context(.dark) .change-new,
 :host-context(.app-dark) .change-new,
 .dark .change-new,
 .app-dark .change-new {
-  color: #4ade80;
+  color: var(--p-green-400);
 }
 :host-context(.dark) .change-removal .change-new,
 :host-context(.app-dark) .change-removal .change-new,
 .dark .change-removal .change-new,
 .app-dark .change-removal .change-new {
-  color: #f87171;
+  color: var(--p-red-400);
 }
 
 /* ── Materiais Expansíveis na Linha do Tempo ── */
@@ -319,17 +319,17 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   color: var(--geo-foreground);
 }
 
 .materials-title {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .materials-badge {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   color: var(--geo-foreground-muted);
 }
@@ -338,13 +338,13 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   color: var(--geo-brand);
 }
 
 .toggle-label {
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
 }
 
 .materials-expanded-list {
@@ -356,16 +356,16 @@
 .materials-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   text-align: left;
 }
 
 .materials-table th {
   padding: 0.4rem 0.75rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
   color: var(--geo-foreground-muted);
   background: var(--geo-surface-subtle);
   border-bottom: 1px solid var(--geo-border);
@@ -388,19 +388,19 @@
 
 .mat-serial {
   display: inline-flex;
-  font-size: 0.65rem;
+  font-size: var(--geo-font-caption);
   font-family: monospace;
-  font-weight: 700;
+  font-weight: 600;
   padding: 0.1rem 0.35rem;
   border-radius: var(--geo-radius-xs, 0.25rem);
   background: var(--geo-info-soft, rgba(59, 130, 246, 0.1));
-  color: var(--geo-info, #2563eb);
+  color: var(--geo-info, var(--p-blue-600));
   border: 1px solid color-mix(in srgb, var(--geo-info) 30%, transparent);
 }
 
 .mat-type-pill {
   display: inline-flex;
-  font-size: 0.65rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   padding: 0.1rem 0.4rem;
   border-radius: var(--geo-radius-xs, 0.25rem);
@@ -414,7 +414,7 @@
   align-items: center;
   gap: 0.35rem;
   flex-wrap: wrap;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .row-inclusion {
@@ -445,7 +445,7 @@
   gap: 0.75rem; padding-top: 0.75rem;
 }
 .page-info {
-  font-size: 0.75rem; color: var(--geo-foreground-muted);
+  font-size: var(--geo-font-caption); color: var(--geo-foreground-muted);
   font-weight: 600;
 }
 
@@ -460,7 +460,7 @@
 @media print {
   .scope { display: none; }
   .timeline-dot { width: 1.25rem; height: 1.25rem; }
-  .timeline-dot i { font-size: 0.5rem; }
+  .timeline-dot i { font-size: var(--geo-font-caption); }
   .timeline-content { padding-bottom: 0.5rem; }
   .timeline-item { grid-template-columns: 1.5rem minmax(0, 1fr); }
 }

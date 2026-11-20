@@ -400,12 +400,12 @@ const OPERACOES: OperacaoCardOption[] = [
   styles: `
     .mov-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
     .mov-atalhos { flex: 1 1 auto; min-width: 0; }
-    .mov-atalhos .pi { font-size: 0.75rem; color: var(--mov-tom, currentColor); }
+    .mov-atalhos .pi { font-size: var(--geo-font-caption); color: var(--mov-tom, currentColor); }
     .geo-quick-filter[aria-pressed='true'] .pi { color: inherit; }
     .mov-contagem {
       display: inline-flex; align-items: center; justify-content: center; min-width: 1.375rem; height: 1.25rem; padding: 0 0.375rem;
       border-radius: 999px; background: var(--geo-surface-muted); color: var(--geo-foreground-muted);
-      font-size: 0.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+      font-size: var(--geo-font-caption); font-weight: 600; font-variant-numeric: tabular-nums;
     }
     .geo-quick-filter[aria-pressed='true'] .mov-contagem { background: var(--geo-surface); color: var(--geo-foreground); }
     .mov-divisor { width: 1px; align-self: stretch; margin: 0.25rem 0.125rem; background: var(--geo-border); }

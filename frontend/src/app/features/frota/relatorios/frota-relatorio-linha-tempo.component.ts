@@ -31,26 +31,26 @@ export interface EventoRelatorio {
     .lt__marca { display: flex; width: 2.25rem; height: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center;
       border-radius: var(--geo-radius-md, 0.5rem); background: var(--geo-brand-soft); color: var(--geo-brand); }
     .lt__cab { display: flex; min-width: 0; align-items: center; gap: 0.75rem; }
-    .lt__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 700; }
-    .lt__contagem { padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface-muted); font-size: 0.75rem; font-weight: 600; }
-    .lt__resumo { font-size: 0.75rem; color: var(--geo-foreground-muted); }
-    .lt__abrir { flex-shrink: 0; font-size: 0.75rem; font-weight: 600; color: var(--geo-brand); }
+    .lt__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; font-size: var(--geo-font-caption); font-weight: 600; }
+    .lt__contagem { padding: 0.125rem 0.5rem; border-radius: 999px; background: var(--geo-surface-muted); font-size: var(--geo-font-caption); font-weight: 600; }
+    .lt__resumo { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
+    .lt__abrir { flex-shrink: 0; font-size: var(--geo-font-caption); font-weight: 600; color: var(--geo-brand); }
     .lt__lista { margin: 0; padding: 1rem 1rem 1rem 1.25rem; list-style: none; border-top: 1px solid var(--geo-border); background: var(--geo-surface-subtle); }
     .lt__item { position: relative; display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 0.75rem; padding-bottom: 1rem; }
     .lt__item:last-child { padding-bottom: 0; }
     .lt__item:not(:last-child)::before { content: ''; position: absolute; top: 2rem; bottom: 0; left: 0.9375rem; width: 2px; background: var(--geo-border); }
     .lt__ponto { display: flex; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 999px;
-      border: 1px solid var(--geo-border); background: var(--geo-surface); font-size: 0.75rem; }
+      border: 1px solid var(--geo-border); background: var(--geo-surface); font-size: var(--geo-font-caption); }
     .lt__ponto[data-tom='success'] { background: var(--geo-success-soft); color: var(--geo-success-text); }
     .lt__ponto[data-tom='warning'] { background: var(--geo-warning-soft); color: var(--geo-warning-text); }
     .lt__ponto[data-tom='danger'] { background: var(--geo-danger-soft); color: var(--geo-danger-text); }
     .lt__ponto[data-tom='info'] { background: var(--geo-info-soft); color: var(--geo-info-text); }
     .lt__ponto[data-tom='brand'] { background: var(--geo-brand-soft); color: var(--geo-brand); }
     .lt__corpo { display: grid; gap: 0.125rem; padding-top: 0.25rem; min-width: 0; }
-    .lt__evento { font-size: 0.8125rem; font-weight: 700; }
-    .lt__meta { display: flex; flex-wrap: wrap; gap: 0.375rem; font-size: 0.75rem; color: var(--geo-foreground-muted); }
+    .lt__evento { font-size: var(--geo-font-caption); font-weight: 600; }
+    .lt__meta { display: flex; flex-wrap: wrap; gap: 0.375rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .lt__meta strong { color: var(--geo-foreground); font-weight: 600; }
-    .lt__descricao { margin: 0.25rem 0 0; font-size: 0.75rem; line-height: 1.5; white-space: pre-line; }
+    .lt__descricao { margin: 0.25rem 0 0; font-size: var(--geo-font-caption); line-height: 1.5; white-space: pre-line; }
     @media print { .lt__lista { display: block !important; background: transparent; } .lt__abrir { display: none; } }
   `,
   template: `

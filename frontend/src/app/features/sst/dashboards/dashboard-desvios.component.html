@@ -112,12 +112,12 @@
             </div>
             <div class="dash-summary__items">
               <div class="dash-summary__item">
-                <i class="dash-summary__dot" style="background:#c2413b"></i>
+                <i class="dash-summary__dot" style="background:var(--p-red-800)"></i>
                 <span>9 em cada 10 resolvidos em até</span>
                 <strong>{{ d.totalResolvidos > 0 ? (d.tempoP90ResolucaoDias | number:'1.0-2') + ' dias' : 'Sem dados' }}</strong>
               </div>
               <div class="dash-summary__item">
-                <i class="dash-summary__dot" style="background:#c57a16"></i>
+                <i class="dash-summary__dot" style="background:var(--p-yellow-600)"></i>
                 <span>Sem prazo definido</span>
                 <strong>{{ d.totalSemPrazo }}</strong>
               </div>

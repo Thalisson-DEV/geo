@@ -60,7 +60,7 @@ interface Grupo {
     .chk-problema__topo { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; }
     .chk-problema__pergunta { display: grid; gap: 0.125rem; }
     .chk-problema__pergunta strong { font-size: var(--geo-font-body); }
-    .chk-problema__motivo { color: var(--geo-warning-text); font-weight: 700; }
+    .chk-problema__motivo { color: var(--geo-warning-text); font-weight: 600; }
     .chk-problema__comentario { margin: 0; padding-left: 0.625rem; border-left: 2px solid var(--geo-border); color: var(--geo-foreground-muted); font-style: italic; }
     .chk-problema__historico { display: flex; align-items: center; gap: 0.375rem; flex-wrap: wrap; margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .chk-problema__decisao { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;

@@ -49,7 +49,7 @@ import { CopilotoPainelService } from './copiloto-painel.service';
         border-color var(--geo-duration-fast) var(--geo-ease-standard);
     }
     .gatilho img { width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--geo-brand-soft); object-fit: contain; }
-    .gatilho geo-icon { font-size: 0.75rem; }
+    .gatilho geo-icon { font-size: var(--geo-font-caption); }
     .gatilho:hover { background: var(--geo-brand-soft); border-color: var(--geo-brand); }
     .gatilho:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .gatilho:active { transform: translateY(1px); }

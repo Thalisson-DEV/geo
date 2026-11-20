@@ -93,9 +93,9 @@ type Aba = (typeof ABAS)[number];
   ],
   styles: `
     .roteiro { display: grid; gap: 0.375rem; margin-bottom: 0.75rem; }
-    .roteiro__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; font-weight: 700; color: var(--geo-foreground); }
+    .roteiro__titulo { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0; font-weight: 600; color: var(--geo-foreground); }
     .roteiro__tarefas { margin: 0; padding-inline-start: 1.5rem; display: grid; gap: 0.25rem; color: var(--geo-foreground); }
-    .roteiro__tarefas li::marker { font-weight: 700; color: var(--geo-foreground-subtle); }
+    .roteiro__tarefas li::marker { font-weight: 600; color: var(--geo-foreground-subtle); }
     .roteiro__vazio { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
   `,
   template: `

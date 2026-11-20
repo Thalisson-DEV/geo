@@ -88,7 +88,7 @@ const dataBr = (iso: string | null) => (iso ? iso.slice(0, 10).split('-').revers
     .linha__texto { flex: 1; min-width: 12rem; display: grid; }
     .linha__texto strong { font-weight: 600; }
     .linha__texto span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
-    .linha__valor { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .linha__valor { font-weight: 600; font-variant-numeric: tabular-nums; }
     .linha--edicao { background: var(--geo-surface-subtle); }
     .acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; }
     .acoes > * { flex: 1 1 10rem; }

@@ -19,14 +19,14 @@
   font: inherit;
 }
 .resumo__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.resumo__rotulo { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground-muted); }
+.resumo__rotulo { font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--geo-foreground-muted); }
 .resumo__icone {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
   width: 1.75rem; height: 1.75rem; border-radius: var(--geo-radius-md, 0.5rem);
-  border: 1px solid var(--geo-border); background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: 0.75rem;
+  border: 1px solid var(--geo-border); background: var(--geo-surface-muted); color: var(--geo-foreground-muted); font-size: var(--geo-font-caption);
 }
-.resumo__valor { display: block; font-size: 1.5rem; font-weight: 700; color: var(--geo-foreground); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.resumo__legenda { font-size: 11px; font-weight: 500; color: var(--geo-foreground-muted); }
+.resumo__valor { display: block; font-size: 1.5rem; font-weight: 600; color: var(--geo-foreground); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.resumo__legenda { font-size: var(--geo-font-caption); font-weight: 500; color: var(--geo-foreground-muted); }
 
 .resumo--destaque { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
 .resumo--destaque .resumo__rotulo,
@@ -60,7 +60,7 @@
   padding: 0.625rem 0.75rem;
   border-radius: var(--geo-radius-md, 0.5rem);
   background: var(--geo-surface-subtle);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-foreground);
   white-space: pre-line;
   overflow-wrap: anywhere;
@@ -102,12 +102,12 @@
 
 @media print {
   .resumo, .resumo--destaque, .resumo--sucesso, .bloco {
-    border-color: #cbd5e1 !important;
-    background: #ffffff !important;
-    color: #0f172a !important;
+    border-color: var(--p-zinc-300) !important;
+    background: var(--p-surface-0) !important;
+    color: var(--p-zinc-900) !important;
   }
-  .resumo__rotulo, .resumo__valor, .resumo__icone { color: #0f172a !important; }
+  .resumo__rotulo, .resumo__valor, .resumo__icone { color: var(--p-zinc-900) !important; }
   .resumo__valor { font-size: 1rem; }
-  .texto-longo { background: transparent !important; padding: 0; font-size: 9.5px; }
-  .kv-link { color: #0f172a !important; }
+  .texto-longo { background: transparent !important; padding: 0; font-size: var(--geo-font-caption); }
+  .kv-link { color: var(--p-zinc-900) !important; }
 }

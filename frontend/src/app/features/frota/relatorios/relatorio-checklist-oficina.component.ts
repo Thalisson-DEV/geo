@@ -47,11 +47,11 @@ interface TarefaRoteiro {
     .chk-linha { display: block; height: 1.25rem; border-bottom: 1px dotted var(--geo-border-strong); }
     .chk-campos { display: grid; gap: 0.75rem; }
     @media (min-width: 768px) { .chk-campos { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    .chk-campo { display: grid; gap: 0.25rem; font-size: 0.75rem; color: var(--geo-foreground-muted); }
+    .chk-campo { display: grid; gap: 0.25rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .chk-campo .chk-linha { height: 1.5rem; }
     .chk-anotacoes { display: grid; gap: 0.25rem; }
     .chk-anotacoes .chk-linha { height: 1.75rem; }
-    .chk-plano { font-weight: 700; color: var(--geo-foreground); }
+    .chk-plano { font-weight: 600; color: var(--geo-foreground); }
     @media print {
       .chk-campos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .chk-tabela tr { break-inside: avoid; }

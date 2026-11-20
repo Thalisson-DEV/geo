@@ -45,7 +45,7 @@
 }
 
 .leitura__valor geo-icon {
-  font-size: 0.8rem;
+  font-size: var(--geo-font-caption);
 }
 
 .opcional {
@@ -137,7 +137,7 @@
   border-radius: 999px;
   background: var(--geo-surface-muted);
   color: var(--geo-foreground-muted);
-  font-size: 0.7rem;
+  font-size: var(--geo-font-caption);
   line-height: 1.25rem;
   text-align: center;
 }

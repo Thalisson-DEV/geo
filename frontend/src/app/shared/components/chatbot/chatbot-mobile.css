@@ -31,7 +31,7 @@
 
   .assistant-identity { gap: 0.65rem; }
   .assistant-identity h2 { font-size: 15px; }
-  .assistant-identity p { max-width: 12.5rem; font-size: 11px; }
+  .assistant-identity p { max-width: 12.5rem; font-size: var(--geo-font-caption); }
 
   :host ::ng-deep .assistant-avatar {
     width: 2.9rem;
@@ -83,9 +83,9 @@
     min-width: 2.7rem;
     min-height: 2.7rem;
   }
-  .message-counter { right: 3.15rem; bottom: 0.14rem; font-size: 9px; }
+  .message-counter { right: 3.15rem; bottom: 0.14rem; font-size: var(--geo-font-caption); }
   .composer-hint { display: none; }
-  .assistant-disclaimer { margin-top: 0.35rem; font-size: 10px; }
+  .assistant-disclaimer { margin-top: 0.35rem; font-size: var(--geo-font-caption); }
 
   .chatbot-launcher {
     position: absolute;

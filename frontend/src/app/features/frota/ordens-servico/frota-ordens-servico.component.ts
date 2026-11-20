@@ -106,7 +106,7 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
     .os-visoes button:hover { color: var(--geo-foreground); }
     .os-visoes button[aria-current='page'] { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
     .os-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
-    .os-visoes .pi { font-size: 0.8rem; }
+    .os-visoes .pi { font-size: var(--geo-font-caption); }
     @media (max-width: 40rem) { .os-visoes { width: 100%; } .os-visoes button { flex: 1; justify-content: center; } }
     /* Descrição e itens em poucas linhas: a preventiva traz o roteiro inteiro, que fica na ficha. */
     .os-resumo { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; max-width: 28rem; }

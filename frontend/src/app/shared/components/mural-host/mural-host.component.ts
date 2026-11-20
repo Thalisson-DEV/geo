@@ -208,7 +208,7 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
         min-height: 32px;
         padding: 0.125rem 0.5rem 0.125rem 0.875rem;
         background-color: var(--faixa-fundo);
-        color: #fff;
+        color: var(--p-surface-0);
         box-shadow: inset 0 -1px 0 0 rgb(0 0 0 / 0.15);
       }
 
@@ -218,7 +218,7 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
 
       .faixa__icone {
         flex-shrink: 0;
-        font-size: 0.8125rem;
+        font-size: var(--geo-font-caption);
       }
 
       .faixa__etiqueta {
@@ -228,10 +228,10 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
         background-color: rgb(255 255 255 / 0.22);
         padding: 0.0625rem 0.375rem;
         font-size: 8px;
-        font-weight: 700;
+        font-weight: 600;
         line-height: 1.4;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
+        letter-spacing: 0;
+        text-transform: none;
       }
 
       @media (min-width: 640px) {
@@ -255,8 +255,8 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
         flex-shrink: 0;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 11px;
-        font-weight: 700;
+        font-size: var(--geo-font-caption);
+        font-weight: 600;
         line-height: 1.3;
       }
 
@@ -271,7 +271,7 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
       .faixa__resumo {
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 10.5px;
+        font-size: var(--geo-font-caption);
         line-height: 1.3;
         color: rgb(255 255 255 / 0.9);
       }
@@ -285,17 +285,17 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
 
       /* Os botões do PrimeNG assumem fundo claro; sobre a barra sólida eles precisam ser brancos. */
       :host ::ng-deep .faixa .p-button {
-        color: #fff;
+        color: var(--p-surface-0);
         border-radius: 6px;
       }
 
       :host ::ng-deep .faixa .p-button:not(:disabled):hover {
-        color: #fff;
+        color: var(--p-surface-0);
         background: rgb(255 255 255 / 0.18);
       }
 
       :host ::ng-deep .faixa .p-button:focus-visible {
-        outline: 2px solid #fff;
+        outline: 2px solid var(--p-surface-0);
         outline-offset: -2px;
         box-shadow: none;
       }
@@ -318,23 +318,23 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
       }
 
       .faixa--dica {
-        --faixa-fundo: var(--p-amber-700, #b45309);
+        --faixa-fundo: var(--p-amber-700, var(--p-amber-700));
       }
 
       .faixa--changelog {
-        --faixa-fundo: var(--p-violet-600, #7c3aed);
+        --faixa-fundo: var(--p-violet-600, var(--p-violet-600));
       }
 
       .faixa--aviso {
-        --faixa-fundo: var(--p-primary-600, #2563eb);
+        --faixa-fundo: var(--p-primary-600, var(--p-blue-600));
       }
 
       .faixa--manutencao {
-        --faixa-fundo: var(--p-slate-700, #334155);
+        --faixa-fundo: var(--p-slate-700, var(--p-zinc-700));
       }
 
       .faixa--urgente {
-        --faixa-fundo: var(--p-red-600, #dc2626);
+        --faixa-fundo: var(--p-red-600, var(--p-red-600));
       }
     `
   ]

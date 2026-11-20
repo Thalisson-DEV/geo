@@ -20,7 +20,7 @@ import { FrotaMapaTelemetriaComponent, MarcadorMapa } from './frota-mapa-telemet
   styles: `
     .ed { display: grid; gap: 1rem; }
     .ed-topo { display: flex; flex-wrap: wrap; gap: 0.375rem; }
-    .ed-destaque { margin: 0; font-size: var(--geo-font-title, 1.25rem); font-weight: 700; color: var(--geo-foreground); }
+    .ed-destaque { margin: 0; font-size: var(--geo-font-title, 1.25rem); font-weight: 600; color: var(--geo-foreground); }
   `,
   template: `
     <geo-drawer [(visible)]="visivel" eyebrow="Evento de condução" [title]="titulo()" size="md">

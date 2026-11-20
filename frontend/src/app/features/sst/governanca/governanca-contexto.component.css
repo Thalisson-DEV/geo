@@ -2,27 +2,27 @@
   --context-accent: var(--p-primary-600);
   --context-soft: var(--p-primary-50);
   overflow: hidden;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--p-zinc-200);
   border-radius: 1rem;
-  background: #fff;
+  background: var(--p-surface-0);
 }
 
 .context-shell[data-contexto='brigada'] {
-  --context-accent: #c2410c;
-  --context-soft: #fff7ed;
+  --context-accent: var(--p-orange-700);
+  --context-soft: var(--p-zinc-50);
 }
 
 :host-context(.app-dark) .context-shell,
 :host-context(.dark) .context-shell {
   --context-accent: var(--p-primary-500);
   --context-soft: rgba(59, 130, 246, 0.16);
-  border-color: var(--geo-border, #334155);
-  background: var(--geo-surface, #0f172a);
+  border-color: var(--geo-border, var(--p-zinc-700));
+  background: var(--geo-surface, var(--p-zinc-900));
 }
 
 :host-context(.app-dark) .context-shell[data-contexto='brigada'],
 :host-context(.dark) .context-shell[data-contexto='brigada'] {
-  --context-accent: #fb923c;
+  --context-accent: var(--p-orange-400);
   --context-soft: rgba(249, 115, 22, 0.16);
 }
 
@@ -32,14 +32,14 @@
   justify-content: space-between;
   gap: 1.5rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid #f1f5f9;
-  background: linear-gradient(105deg, var(--context-soft), #fff 48%);
+  border-bottom: 1px solid var(--p-zinc-100);
+  background: linear-gradient(105deg, var(--context-soft), var(--p-surface-0) 48%);
 }
 
 :host-context(.app-dark) .context-heading,
 :host-context(.dark) .context-heading {
-  border-bottom-color: var(--geo-border, #334155);
-  background: linear-gradient(105deg, var(--context-soft), var(--geo-surface, #0f172a) 60%);
+  border-bottom-color: var(--geo-border, var(--p-zinc-700));
+  background: linear-gradient(105deg, var(--context-soft), var(--geo-surface, var(--p-zinc-900)) 60%);
 }
 
 .context-copy span,
@@ -54,33 +54,33 @@
 
 .context-copy span {
   color: var(--context-accent);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .context-copy strong {
   margin-top: 0.15rem;
-  color: #1e293b;
+  color: var(--p-zinc-800);
   font-size: 14px;
   font-weight: 600;
 }
 
 :host-context(.app-dark) .context-copy strong,
 :host-context(.dark) .context-copy strong {
-  color: #ffffff;
+  color: var(--p-surface-0);
 }
 
 .context-copy small {
   margin-top: 0.2rem;
-  color: #64748b;
-  font-size: 10px;
+  color: var(--p-zinc-500);
+  font-size: var(--geo-font-caption);
 }
 
 :host-context(.app-dark) .context-copy small,
 :host-context(.dark) .context-copy small {
-  color: #94a3b8;
+  color: var(--p-zinc-400);
 }
 
 .context-choice {
@@ -88,15 +88,15 @@
   grid-template-columns: repeat(2, minmax(9.5rem, 1fr));
   gap: 0.4rem;
   padding: 0.3rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--p-zinc-200);
   border-radius: 0.85rem;
-  background: #fff;
+  background: var(--p-surface-0);
 }
 
 :host-context(.app-dark) .context-choice,
 :host-context(.dark) .context-choice {
-  border-color: #334155;
-  background: #1e293b;
+  border-color: var(--p-zinc-700);
+  background: var(--p-zinc-800);
 }
 
 .context-choice button {
@@ -110,20 +110,20 @@
   border-radius: 0.65rem;
   background: transparent;
   padding: 0.45rem 0.65rem;
-  color: #64748b;
+  color: var(--p-zinc-500);
   text-align: left;
 }
 
 :host-context(.app-dark) .context-choice button,
 :host-context(.dark) .context-choice button {
-  color: #cbd5e1;
+  color: var(--p-zinc-300);
 }
 
-.context-choice button:hover { background: #f8fafc; }
+.context-choice button:hover { background: var(--p-zinc-50); }
 
 :host-context(.app-dark) .context-choice button:hover,
 :host-context(.dark) .context-choice button:hover {
-  background: #334155;
+  background: var(--p-zinc-700);
 }
 
 .context-choice button.active {
@@ -145,26 +145,26 @@
   height: 1.8rem;
   place-items: center;
   border-radius: 0.55rem;
-  background: #f1f5f9;
+  background: var(--p-zinc-100);
 }
 
 :host-context(.app-dark) .choice-icon,
 :host-context(.dark) .choice-icon {
-  background: #0f172a;
-  color: #cbd5e1;
+  background: var(--p-zinc-900);
+  color: var(--p-zinc-300);
 }
 
-.active .choice-icon { background: #fff; }
+.active .choice-icon { background: var(--p-surface-0); }
 
 :host-context(.app-dark) .active .choice-icon,
 :host-context(.dark) .active .choice-icon {
-  background: #1e293b;
+  background: var(--p-zinc-800);
   color: var(--context-accent);
 }
 
-.context-choice b { font-size: 10px; font-weight: 700; }
+.context-choice b { font-size: var(--geo-font-caption); font-weight: 600; }
 .context-choice small { margin-top: 0.1rem; font-size: 8px; }
-.selected-mark { font-size: 9px; }
+.selected-mark { font-size: var(--geo-font-caption); }
 
 .section-nav {
   display: flex;
@@ -181,21 +181,21 @@
   gap: 0.45rem;
   border-radius: 0.6rem;
   padding: 0.55rem 0.7rem;
-  color: #64748b;
+  color: var(--p-zinc-500);
   text-decoration: none;
 }
 
 :host-context(.app-dark) .section-nav a,
 :host-context(.dark) .section-nav a {
-  color: #cbd5e1;
+  color: var(--p-zinc-300);
 }
 
-.section-nav a:hover { background: #f8fafc; color: #334155; }
+.section-nav a:hover { background: var(--p-zinc-50); color: var(--p-zinc-700); }
 
 :host-context(.app-dark) .section-nav a:hover,
 :host-context(.dark) .section-nav a:hover {
-  background: #1e293b;
-  color: #ffffff;
+  background: var(--p-zinc-800);
+  color: var(--p-surface-0);
 }
 
 .section-nav a.active {
@@ -203,13 +203,13 @@
   color: var(--context-accent);
 }
 
-.section-nav i { font-size: 10px; }
-.section-nav b { font-size: 9px; font-weight: 700; }
-.section-nav small { margin-top: 0.1rem; color: #94a3b8; font-size: 8px; }
+.section-nav i { font-size: var(--geo-font-caption); }
+.section-nav b { font-size: var(--geo-font-caption); font-weight: 600; }
+.section-nav small { margin-top: 0.1rem; color: var(--p-zinc-400); font-size: 8px; }
 
 :host-context(.app-dark) .section-nav small,
 :host-context(.dark) .section-nav small {
-  color: #64748b;
+  color: var(--p-zinc-500);
 }
 
 @media (max-width: 780px) {

@@ -16,9 +16,9 @@
 .am-rotulo {
   color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .am-muted {
@@ -28,7 +28,7 @@
 
 .am-texto-alerta {
   color: var(--geo-danger-text);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .am-callout-acao {
@@ -58,7 +58,7 @@
 .am-panorama__numero {
   color: var(--am-texto, var(--geo-foreground));
   font-size: 2.25rem;
-  font-weight: 800;
+  font-weight: 600;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }

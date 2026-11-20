@@ -97,9 +97,9 @@ const COR_PADRAO = '#64748b';
     .bird__tier--zero { opacity: .3; }
 
     .bird__tier strong {
-      color: #fff;
+      color: var(--p-surface-0);
       font-size: clamp(.82rem, 2.5cqw, 1.25rem);
-      font-weight: 700;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
       line-height: 1;
       text-shadow: 0 1px 2px rgb(0 0 0 / 25%);
@@ -121,7 +121,7 @@ const COR_PADRAO = '#64748b';
       transition: background 150ms ease;
     }
 
-    .bird__legend-row:hover { background: #f1f5f9; }
+    .bird__legend-row:hover { background: var(--p-zinc-100); }
 
     .bird__legend-row > i {
       flex: none;
@@ -138,7 +138,7 @@ const COR_PADRAO = '#64748b';
     }
 
     .bird__legend-text strong {
-      color: #1e293b;
+      color: var(--p-zinc-800);
       font-size: clamp(.62rem, 1.6cqw, .76rem);
       font-weight: 650;
       line-height: 1.25;
@@ -148,7 +148,7 @@ const COR_PADRAO = '#64748b';
     }
 
     .bird__legend-text span {
-      color: #94a3b8;
+      color: var(--p-zinc-400);
       font-size: clamp(.5rem, 1.2cqw, .6rem);
       font-weight: 600;
       font-variant-numeric: tabular-nums;
@@ -161,16 +161,16 @@ const COR_PADRAO = '#64748b';
       justify-content: center;
       gap: .45rem;
       padding-top: .7rem;
-      border-top: 1px solid #e5edf4;
-      color: #829ab1;
-      font-size: .66rem;
+      border-top: 1px solid var(--p-zinc-200);
+      color: var(--p-zinc-400);
+      font-size: var(--geo-font-caption);
       text-align: center;
     }
 
     .bird__ratio {
-      color: #102a43;
+      color: var(--p-zinc-800);
       font-size: 1rem;
-      font-weight: 800;
+      font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
 
@@ -185,10 +185,10 @@ const COR_PADRAO = '#64748b';
     /* --- Dark mode --- */
     :host-context(.app-dark), :host-context(.dark) {
       .bird__legend-row:hover { background: var(--geo-surface-subtle, rgba(255,255,255,.05)); }
-      .bird__legend-text strong { color: #f1f5f9; }
-      .bird__legend-text span { color: #64748b; }
-      .bird__caption { border-color: var(--geo-border, #334155); }
-      .bird__ratio { color: #f8fafc; }
+      .bird__legend-text strong { color: var(--p-zinc-100); }
+      .bird__legend-text span { color: var(--p-zinc-500); }
+      .bird__caption { border-color: var(--geo-border, var(--p-zinc-700)); }
+      .bird__ratio { color: var(--p-zinc-50); }
     }
   `]
 })

@@ -192,10 +192,10 @@ const ORIGENS: OrigemAnexo[] = [
       display: inline-flex; align-items: center; gap: 0.375rem;
       padding: 0.25rem 0.625rem; border-radius: 999px;
       border: 1px solid var(--geo-border); background: var(--geo-surface);
-      font-size: 11px; font-weight: 600; color: var(--geo-foreground-muted);
+      font-size: var(--geo-font-caption); font-weight: 600; color: var(--geo-foreground-muted);
       cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease;
     }
-    .filtro i { font-size: 10px; }
+    .filtro i { font-size: var(--geo-font-caption); }
     .filtro strong { color: var(--geo-foreground); font-variant-numeric: tabular-nums; }
     .filtro:hover:not(:disabled) { background: var(--geo-surface-muted); color: var(--geo-foreground); }
     .filtro:focus-visible { outline: none; box-shadow: var(--geo-focus-ring); }
@@ -203,8 +203,8 @@ const ORIGENS: OrigemAnexo[] = [
     .filtro--ativo { border-color: var(--geo-brand); background: var(--geo-brand-soft); color: var(--geo-brand); }
     .filtro--ativo strong { color: var(--geo-brand); }
     @media print {
-      .filtro { cursor: default; background: #ffffff !important; }
-      .filtro--ativo { border-color: #cbd5e1 !important; color: #334155 !important; }
+      .filtro { cursor: default; background: var(--p-surface-0) !important; }
+      .filtro--ativo { border-color: var(--p-zinc-300) !important; color: var(--p-zinc-700) !important; }
     }
   `
 })

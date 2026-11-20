@@ -150,7 +150,7 @@
   font-size: var(--geo-font-caption);
   font-weight: 600;
   letter-spacing: 0.03em;
-  text-transform: uppercase;
+  text-transform: none;
   color: var(--geo-foreground-subtle);
 }
 

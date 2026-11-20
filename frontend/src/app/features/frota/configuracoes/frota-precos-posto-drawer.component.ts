@@ -51,19 +51,19 @@ import { precoUnitario } from '../abastecimentos/frota-abastecimento.util';
     .pp__cartao { display: grid; gap: 0.25rem; padding: 0.75rem 0.875rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem);
       background: var(--geo-surface); }
     .pp__cartao strong { font-size: 1.125rem; font-variant-numeric: tabular-nums; }
-    .pp__cartao span { font-size: 0.75rem; color: var(--geo-foreground-muted); }
+    .pp__cartao span { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .pp__cartao--vazio { border-style: dashed; }
     .pp__form { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 0.625rem; align-items: end; }
     @media (max-width: 560px) { .pp__form { grid-template-columns: 1fr; } }
     .pp__historico { display: grid; margin: 0; padding: 0; list-style: none; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md, 0.5rem); }
-    .pp__linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; padding: 0.625rem 0.875rem; font-size: 0.8125rem; }
+    .pp__linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; padding: 0.625rem 0.875rem; font-size: var(--geo-font-caption); }
     .pp__linha + .pp__linha { border-top: 1px solid var(--geo-border); }
     .pp__linha strong { font-variant-numeric: tabular-nums; }
     .pp__linha span { color: var(--geo-foreground-muted); }
     .pp__sugestao { display: grid; gap: 0.5rem; padding: 0.75rem 0.875rem; border: 1px solid var(--geo-warning); border-radius: var(--geo-radius-md, 0.5rem);
       background: var(--geo-warning-soft); }
     .pp__acoes { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-    .pp__titulo { margin: 0; font-size: 0.875rem; font-weight: 700; }
+    .pp__titulo { margin: 0; font-size: var(--geo-font-caption); font-weight: 600; }
   `,
   template: `
     <geo-drawer [(visible)]="visible" eyebrow="Preços do posto" [title]="posto()?.nome ?? 'Posto'" size="md">

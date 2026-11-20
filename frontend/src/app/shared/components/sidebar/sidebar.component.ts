@@ -179,7 +179,7 @@ const PASSO_TECLADO = 16;
     .geo-nav__marca { display: inline-flex; align-items: center; gap: 0.625rem; min-inline-size: 0; border-radius: var(--geo-radius-sm); color: var(--geo-nav-fg-active); text-decoration: none; }
     .geo-nav__marca:focus-visible { outline: 2px solid var(--geo-nav-indicator); outline-offset: 2px; }
     .geo-nav__marca-texto { display: flex; flex-direction: column; min-inline-size: 0; line-height: 1.2; }
-    .geo-nav__marca-texto strong { font-size: var(--geo-text-body); font-weight: var(--geo-font-weight-bold); letter-spacing: 0.04em; }
+    .geo-nav__marca-texto strong { font-size: var(--geo-text-body); font-weight: var(--geo-font-weight-bold); letter-spacing: 0; }
     .geo-nav__marca-texto small { overflow: hidden; color: var(--geo-nav-fg-muted); font-size: var(--geo-text-caption); text-overflow: ellipsis; white-space: nowrap; }
     .geo-nav__recolher {
       display: inline-flex; flex: none; align-items: center; justify-content: center;

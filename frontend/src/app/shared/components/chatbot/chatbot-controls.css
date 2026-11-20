@@ -1,6 +1,6 @@
 .assistant-composer {
   padding: 0.75rem 0.95rem 0.7rem;
-  border-top: 1px solid #e7edf4;
+  border-top: 1px solid var(--p-zinc-200);
   background: white;
 }
 
@@ -10,9 +10,9 @@
   align-items: flex-end;
   gap: 0.35rem;
   padding: 0.25rem;
-  border: 1px solid #d8e1eb;
+  border: 1px solid var(--p-zinc-200);
   border-radius: 1.05rem;
-  background: #f8fafc;
+  background: var(--p-zinc-50);
   transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
 }
 
@@ -32,12 +32,12 @@
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
-  color: #283548;
-  font-size: 0.78rem;
+  color: var(--p-zinc-700);
+  font-size: var(--geo-font-caption);
   line-height: 1.4;
 }
 
-.assistant-textarea::placeholder { color: #8a98aa; }
+.assistant-textarea::placeholder { color: var(--p-zinc-400); }
 
 :host ::ng-deep .assistant-send-button {
   width: 2.55rem;
@@ -56,7 +56,7 @@
 
 :host ::ng-deep .assistant-send-button .p-button-icon {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: var(--geo-font-caption);
   transform: translateX(0.03rem);
 }
 
@@ -69,8 +69,8 @@
   position: absolute;
   right: 3.25rem;
   bottom: 0.22rem;
-  color: #94a3b8;
-  font-size: 0.52rem;
+  color: var(--p-zinc-400);
+  font-size: var(--geo-font-caption);
 }
 
 .composer-hint {
@@ -79,21 +79,21 @@
   justify-content: center;
   gap: 0.35rem;
   margin: 0.48rem 0 0;
-  color: #8491a3;
-  font-size: 0.59rem;
+  color: var(--p-zinc-400);
+  font-size: var(--geo-font-caption);
   line-height: 1.35;
   text-align: center;
 }
 
 .composer-hint i {
   color: var(--p-primary-500);
-  font-size: 0.56rem;
+  font-size: var(--geo-font-caption);
 }
 
 .assistant-disclaimer {
   margin: 0.35rem 0 0;
-  color: #64748b;
-  font-size: 0.56rem;
+  color: var(--p-zinc-500);
+  font-size: var(--geo-font-caption);
   line-height: 1.35;
   text-align: center;
 }
@@ -116,8 +116,8 @@
   padding: 0.2rem;
   border: 1px solid color-mix(in srgb, var(--p-primary-400) 70%, white);
   border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
   box-shadow: 0 14px 32px rgb(15 23 42 / 0.2);
   transition: transform 160ms ease, box-shadow 160ms ease;
 }

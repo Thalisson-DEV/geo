@@ -4,7 +4,7 @@
 header, footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 header div { display: grid; gap: .15rem; }
 header span, p { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
-canvas { width: 100%; height: 9rem; border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-md); background: #fff; color: #111827; /* papel: a assinatura sai legível no comprovante impresso, em qualquer tema */ touch-action: none; cursor: crosshair; }
+canvas { width: 100%; height: 9rem; border: 1px dashed var(--geo-border-strong); border-radius: var(--geo-radius-md); background: var(--p-surface-0); color: var(--p-zinc-900); /* papel: a assinatura sai legível no comprovante impresso, em qualquer tema */ touch-action: none; cursor: crosshair; }
 canvas.physical { opacity: .45; cursor: not-allowed; }
 footer { justify-content: flex-start; flex-wrap: wrap; }
 @media (max-width: 40rem) { header { align-items: flex-start; flex-direction: column; } }

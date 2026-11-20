@@ -98,9 +98,9 @@ import { formatarTamanhoArquivo } from '../../../features/notificacoes/notificac
       :host ::ng-deep .comunicado-conteudo h2,
       :host ::ng-deep .comunicado-conteudo h3,
       :host ::ng-deep .comunicado-conteudo h4 {
-        font-weight: 700;
+        font-weight: 600;
         line-height: 1.3;
-        color: #0f172a;
+        color: var(--p-zinc-900);
         margin: 1.4rem 0 0.5rem;
       }
       .app-dark :host ::ng-deep .comunicado-conteudo h1,
@@ -111,16 +111,16 @@ import { formatarTamanhoArquivo } from '../../../features/notificacoes/notificac
       .dark :host ::ng-deep .comunicado-conteudo h2,
       .dark :host ::ng-deep .comunicado-conteudo h3,
       .dark :host ::ng-deep .comunicado-conteudo h4 {
-        color: #f8fafc;
+        color: var(--p-zinc-50);
       }
       /* Tamanhos proporcionais e legíveis */
       :host ::ng-deep .comunicado-conteudo h1 { font-size: 1.25rem; }
-      :host ::ng-deep .comunicado-conteudo h2 { font-size: 1.1rem;  border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3rem; }
+      :host ::ng-deep .comunicado-conteudo h2 { font-size: 1.1rem;  border-bottom: 1px solid var(--p-zinc-200); padding-bottom: 0.3rem; }
       :host ::ng-deep .comunicado-conteudo h3 { font-size: 1rem; }
       :host ::ng-deep .comunicado-conteudo h4 { font-size: 0.9rem; }
       .app-dark :host ::ng-deep .comunicado-conteudo h2,
       .dark      :host ::ng-deep .comunicado-conteudo h2 {
-        border-bottom-color: #334155;
+        border-bottom-color: var(--p-zinc-700);
       }
 
       /* ─── Listas ───────────────────────────────────────────────────────── */
@@ -135,7 +135,7 @@ import { formatarTamanhoArquivo } from '../../../features/notificacoes/notificac
       :host ::ng-deep .comunicado-conteudo li > p  { margin: 0.25rem 0; }
 
       /* ─── Negrito e itálico ────────────────────────────────────────────── */
-      :host ::ng-deep .comunicado-conteudo strong { font-weight: 700; }
+      :host ::ng-deep .comunicado-conteudo strong { font-weight: 600; }
       :host ::ng-deep .comunicado-conteudo em      { font-style: italic; }
 
       /* ─── Links ────────────────────────────────────────────────────────── */
@@ -154,40 +154,40 @@ import { formatarTamanhoArquivo } from '../../../features/notificacoes/notificac
         margin: 0 0 0.85rem;
         padding: 0.5rem 0.9rem;
         border-left: 3px solid var(--p-primary-400);
-        background: #f8fafc;
+        background: var(--p-zinc-50);
         border-radius: 0 0.375rem 0.375rem 0;
-        color: #475569;
+        color: var(--p-zinc-600);
       }
       .app-dark :host ::ng-deep .comunicado-conteudo blockquote,
       .dark      :host ::ng-deep .comunicado-conteudo blockquote {
-        background: #1e293b;
-        color: #94a3b8;
+        background: var(--p-zinc-800);
+        color: var(--p-zinc-400);
         border-left-color: var(--p-primary-500);
       }
 
       /* ─── Divisor horizontal ───────────────────────────────────────────── */
       :host ::ng-deep .comunicado-conteudo hr {
         border: 0;
-        border-top: 1px solid #e2e8f0;
+        border-top: 1px solid var(--p-zinc-200);
         margin: 1.25rem 0;
       }
       .app-dark :host ::ng-deep .comunicado-conteudo hr,
       .dark      :host ::ng-deep .comunicado-conteudo hr {
-        border-top-color: #334155;
+        border-top-color: var(--p-zinc-700);
       }
 
       /* ─── Código inline ────────────────────────────────────────────────── */
       :host ::ng-deep .comunicado-conteudo code {
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         font-size: 0.85em;
-        background: #f1f5f9;
+        background: var(--p-zinc-100);
         border-radius: 0.25rem;
         padding: 0.1rem 0.3rem;
       }
       .app-dark :host ::ng-deep .comunicado-conteudo code,
       .dark      :host ::ng-deep .comunicado-conteudo code {
-        background: #1e293b;
-        color: #e2e8f0;
+        background: var(--p-zinc-800);
+        color: var(--p-zinc-200);
       }
 
       /* ─── Bloco de código ──────────────────────────────────────────────── */
@@ -196,8 +196,8 @@ import { formatarTamanhoArquivo } from '../../../features/notificacoes/notificac
         padding: 0.75rem 0.9rem;
         overflow-x: auto;
         border-radius: 0.5rem;
-        background: #f1f5f9;
-        border: 1px solid #e2e8f0;
+        background: var(--p-zinc-100);
+        border: 1px solid var(--p-zinc-200);
       }
       :host ::ng-deep .comunicado-conteudo pre code {
         padding: 0;
@@ -206,8 +206,8 @@ import { formatarTamanhoArquivo } from '../../../features/notificacoes/notificac
       }
       .app-dark :host ::ng-deep .comunicado-conteudo pre,
       .dark      :host ::ng-deep .comunicado-conteudo pre {
-        background: #0f172a;
-        border-color: #1e293b;
+        background: var(--p-zinc-900);
+        border-color: var(--p-zinc-800);
       }
 
       /* ─── Imagens ──────────────────────────────────────────────────────── */
@@ -228,23 +228,23 @@ import { formatarTamanhoArquivo } from '../../../features/notificacoes/notificac
       :host ::ng-deep .comunicado-conteudo th,
       :host ::ng-deep .comunicado-conteudo td {
         padding: 0.45rem 0.7rem;
-        border: 1px solid #e2e8f0;
+        border: 1px solid var(--p-zinc-200);
         text-align: left;
         vertical-align: top;
       }
       :host ::ng-deep .comunicado-conteudo thead th {
-        background: #f8fafc;
+        background: var(--p-zinc-50);
         font-weight: 600;
       }
       .app-dark :host ::ng-deep .comunicado-conteudo th,
       .app-dark :host ::ng-deep .comunicado-conteudo td,
       .dark      :host ::ng-deep .comunicado-conteudo th,
       .dark      :host ::ng-deep .comunicado-conteudo td {
-        border-color: #334155;
+        border-color: var(--p-zinc-700);
       }
       .app-dark :host ::ng-deep .comunicado-conteudo thead th,
       .dark      :host ::ng-deep .comunicado-conteudo thead th {
-        background: #1e293b;
+        background: var(--p-zinc-800);
       }
     `
   ]

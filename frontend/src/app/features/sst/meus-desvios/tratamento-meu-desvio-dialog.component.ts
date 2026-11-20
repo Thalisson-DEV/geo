@@ -61,7 +61,7 @@ const LIMITE_LOTE = 100;
       margin: 0;
       color: var(--geo-foreground);
       font-size: var(--geo-font-body);
-      font-weight: 700;
+      font-weight: 600;
       line-height: 1.35;
     }
     .td-resumo__texto,
@@ -131,7 +131,7 @@ const LIMITE_LOTE = 100;
       align-items: center;
       gap: 0.375rem;
       font-size: var(--geo-font-control);
-      font-weight: 700;
+      font-weight: 600;
     }
     .td-situacao__rotulo .pi {
       color: var(--td-tom);

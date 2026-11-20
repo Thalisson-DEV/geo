@@ -69,18 +69,18 @@ export class AlmoxRecorteCamposComponent {
   styles: `
     :host { display: block; margin-bottom: 1rem; }
     .apt-periodos { width: fit-content; max-width: 100%; overflow-x: auto; }
-    .apt-recorte { margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8rem; }
+    .apt-recorte { margin: 0.5rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .apt-paineis { display: flex; flex-wrap: wrap; gap: 0.375rem; margin: 0 0 0.875rem; padding: 0; list-style: none; }
     .apt-painel {
       display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.25rem; padding: 0.35rem 0.8rem;
       border: 1px solid var(--geo-border); border-radius: 999px; color: var(--geo-foreground-muted);
-      font-size: 0.8125rem; font-weight: 600; text-decoration: none; background: var(--geo-surface);
+      font-size: var(--geo-font-caption); font-weight: 600; text-decoration: none; background: var(--geo-surface);
       transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
     }
     .apt-painel:hover { color: var(--geo-foreground); border-color: var(--geo-border-strong); }
     .apt-painel:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
     .apt-painel.is-ativo { color: var(--geo-brand); background: var(--geo-brand-soft); border-color: var(--geo-brand); }
-    .apt-painel i { font-size: 0.8rem; }
+    .apt-painel i { font-size: var(--geo-font-caption); }
     @media (prefers-reduced-motion: reduce) { .apt-painel { transition: none; } }
   `,
   template: `

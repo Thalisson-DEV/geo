@@ -46,7 +46,7 @@ import { FrotaPneuDiagramaComponent, PosicaoDiagrama } from './frota-pneu-diagra
     .area { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) minmax(15rem, 20rem); gap: 1rem; margin-top: 1rem; align-items: start; }
     .painel { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface);
       box-shadow: var(--geo-shadow-sm); min-width: 0; }
-    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--geo-font-body); font-weight: 700; }
+    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--geo-font-body); font-weight: 600; }
     .painel__sub { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .seta { align-self: center; color: var(--geo-brand); font-size: 1.5rem; }
     .trocas { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }

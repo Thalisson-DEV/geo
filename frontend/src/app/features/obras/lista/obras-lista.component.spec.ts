@@ -92,7 +92,7 @@ describe('ObrasListComponent', () => {
     expect(ultimaConsulta()).toEqual({ ativo: true, apenasPrincipais: false, page: 0, size: 25, sort: 'dataInicio,desc' });
     expect(el.textContent).toContain('SUBESTAÇÃO CENTRAL');
     expect(el.textContent).toContain('EM EXECUÇÃO');
-    expect(el.textContent).toContain('subprojeto de 1228000');
+    expect(el.textContent).toContain('sub. de 1228000');
     expect(el.textContent).toContain('01/03/2026 → 30/09/2026');
   });
 

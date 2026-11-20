@@ -107,14 +107,14 @@ const TAMANHO_OBSERVACAO = 1000;
     .op-qtd-unidade { max-width: 15rem; }
     .op-item--erro { box-shadow: inset 3px 0 0 var(--geo-danger); }
     .op-saldo { display: inline-flex; align-items: center; gap: 0.25rem; font-variant-numeric: tabular-nums; }
-    .op-saldo .pi { font-size: 0.625rem; }
+    .op-saldo .pi { font-size: var(--geo-font-caption); }
     .op-saldo strong { color: var(--geo-foreground); }
     .op-qtd { font-size: var(--geo-font-control); font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
     .op-erro { margin: 0; padding: 0 0.875rem 0.75rem; font-size: var(--geo-font-caption); color: var(--geo-danger-text, var(--geo-danger)); }
     .op-series { display: grid; gap: 0.625rem; padding: 0.75rem 0.875rem; border-top: 1px dashed var(--geo-border); background: var(--geo-surface-subtle); }
     .op-series__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
     .op-chips { display: flex; flex-wrap: wrap; gap: 0.375rem; max-height: 10rem; overflow-y: auto; }
-    .op-chips .pi { font-size: 0.7rem; }
+    .op-chips .pi { font-size: var(--geo-font-caption); }
     .op-colar { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; align-items: end; }
     .op-assinaturas { display: grid; gap: 1rem; }
     @media (max-width: 40rem) {

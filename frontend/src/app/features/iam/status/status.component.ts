@@ -89,8 +89,8 @@ import { PublicStatusStore } from '../../../core/services/public-status.store';
       .status-page { display: flex; flex-direction: column; gap: 1.25rem; }
       .status-page__header, .status-page__section-heading, .status-page__component-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
       .status-page__header { padding: 1.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
-      .status-page__eyebrow { display: block; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
-      .status-page h1, .status-page h2 { margin: 0.35rem 0 0; color: var(--geo-foreground); font-weight: 800; }
+      .status-page__eyebrow { display: block; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
+      .status-page h1, .status-page h2 { margin: 0.35rem 0 0; color: var(--geo-foreground); font-weight: 600; }
       .status-page h1 { font-size: 1.1rem; }
       .status-page h2 { font-size: 0.95rem; }
       .status-page__header p { margin: 0.35rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-body); }
@@ -98,7 +98,7 @@ import { PublicStatusStore } from '../../../core/services/public-status.store';
       .status-page__updated, .status-page__component time { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); }
       .status-page__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
       .status-page__component { min-width: 0; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
-      .status-page__component-name { min-width: 0; overflow: hidden; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 800; text-overflow: ellipsis; white-space: nowrap; }
+      .status-page__component-name { min-width: 0; overflow: hidden; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
       .status-page__component p { min-height: 2.2rem; margin: 0.75rem 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); line-height: 1.5; }
       .status-page__state, .status-page__empty, .status-page__footer { display: flex; align-items: center; gap: 0.65rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); }
       .status-page__state { padding: 0.85rem 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-subtle); }

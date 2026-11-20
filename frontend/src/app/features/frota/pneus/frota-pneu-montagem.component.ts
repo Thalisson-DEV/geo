@@ -82,7 +82,7 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
     .area { display: grid; grid-template-columns: minmax(15rem, 1fr) minmax(19rem, 1.35fr) minmax(16rem, 1fr); gap: 1rem; margin-top: 1rem; align-items: start; }
     .painel { display: grid; gap: 0.75rem; padding: 1rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface);
       box-shadow: var(--geo-shadow-sm); min-width: 0; }
-    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--geo-font-body); font-weight: 700; }
+    .painel__titulo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; font-size: var(--geo-font-body); font-weight: 600; }
     .painel__sub { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .estoque { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 0.5rem; max-height: 30rem; overflow: auto; padding: 0.25rem;
       border-radius: var(--geo-radius-md); transition: background var(--geo-duration-fast) var(--geo-ease-standard); }
@@ -98,10 +98,10 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
     .ficha__faixa[data-tom='warning'] { background: var(--geo-warning); }
     .ficha__faixa[data-tom='success'] { background: var(--geo-success); }
     .ficha__faixa[data-tom='neutral'] { background: var(--geo-foreground-subtle); }
-    .ficha__fogo { font-weight: 800; letter-spacing: 0.03em; }
+    .ficha__fogo { font-weight: 600; letter-spacing: 0.03em; }
     .ficha__info { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); line-height: 1.25; }
-    .ficha__saindo { font-size: 0.7rem; font-weight: 700; color: var(--geo-brand); }
-    .ficha__aviso { font-size: 0.7rem; font-weight: 700; color: var(--geo-warning-text); }
+    .ficha__saindo { font-size: var(--geo-font-caption); font-weight: 600; color: var(--geo-brand); }
+    .ficha__aviso { font-size: var(--geo-font-caption); font-weight: 600; color: var(--geo-warning-text); }
     .estoque--escolhendo .ficha { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
     .guia { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: 0; min-height: 2rem; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .guia--ativa { padding: 0.35rem 0.35rem 0.35rem 0.7rem; border-radius: var(--geo-radius-md); background: var(--geo-brand-soft); color: var(--geo-foreground); font-weight: 600; }
@@ -124,9 +124,9 @@ const ZONAS: { tipo: Destino; rotulo: string; icone: string; dica: string }[] = 
     .zona--destino { border-color: var(--geo-brand); border-style: solid; }
     .zona--indisponivel { opacity: 0.55; }
     .zona[data-tipo='DESCARTE']:hover, .zona[data-tipo='DESCARTE'].zona--alvo { border-color: var(--geo-danger); background: var(--geo-danger-soft); }
-    .zona__titulo { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; }
+    .zona__titulo { display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600; }
     .zona__dica { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .zona__qtd { font-size: var(--geo-font-caption); font-weight: 700; color: var(--geo-brand); }
+    .zona__qtd { font-size: var(--geo-font-caption); font-weight: 600; color: var(--geo-brand); }
     .selecionado dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem 0.75rem; margin: 0; }
     .selecionado dt { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .selecionado dd { margin: 0; font-weight: 600; }

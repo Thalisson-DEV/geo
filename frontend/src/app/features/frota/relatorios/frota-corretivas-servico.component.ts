@@ -40,7 +40,7 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, GeoButtonComponent, GeoCellDirective, GeoDataTableComponent, GeoMultiSelectComponent, GeoPageHeaderComponent, GeoSelectComponent, GeoStatusComponent],
-  styles: `.valor { font-weight: 700; font-variant-numeric: tabular-nums; }`,
+  styles: `.valor { font-weight: 600; font-variant-numeric: tabular-nums; }`,
   template: `
     <div class="geo-page">
       <geo-page-header title="Corretivas por serviço" icon="pi pi-chart-bar"

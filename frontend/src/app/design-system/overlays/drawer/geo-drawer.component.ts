@@ -34,7 +34,7 @@ let drawerSequence = 0;
       color: var(--geo-foreground-muted);
       font-size: var(--geo-font-caption);
       font-weight: var(--geo-font-weight-semibold);
-      letter-spacing: 0.04em;
+      letter-spacing: 0;
       text-transform: none;
     }
 

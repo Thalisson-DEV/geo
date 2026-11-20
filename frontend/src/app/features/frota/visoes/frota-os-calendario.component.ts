@@ -63,11 +63,11 @@ interface DiaCalendario {
     .cal-card { border: 1px solid var(--geo-border); border-radius: var(--geo-radius-xl); background: var(--geo-surface); box-shadow: var(--geo-shadow-sm); overflow: hidden; }
     .cal-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; padding: 0.75rem 1rem; border-bottom: 1px solid var(--geo-border); }
     .cal-nav { display: flex; align-items: center; gap: 0.25rem; }
-    .cal-title { margin: 0 0.5rem; font-size: var(--geo-font-title); font-weight: 700; color: var(--geo-foreground); min-width: 11rem; }
+    .cal-title { margin: 0 0.5rem; font-size: var(--geo-font-title); font-weight: 600; color: var(--geo-foreground); min-width: 11rem; }
     .cal-resumo { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .cal-weekdays, .cal-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
     .cal-weekdays { background: var(--geo-surface-subtle); border-bottom: 1px solid var(--geo-border); }
-    .cal-weekdays span { padding: 0.5rem; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--geo-foreground-muted); }
+    .cal-weekdays span { padding: 0.5rem; font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--geo-foreground-muted); }
     .cal-week + .cal-week { border-top: 1px solid var(--geo-border); }
     .cal-day { position: relative; display: flex; flex-direction: column; gap: 0.25rem; min-height: 7.25rem; min-width: 0; padding: 0.375rem;
       border-left: 1px solid var(--geo-border); cursor: pointer; transition: background var(--geo-duration-fast) var(--geo-ease-standard); }
@@ -82,16 +82,16 @@ interface DiaCalendario {
     .cal-num { display: inline-flex; align-items: center; justify-content: center; align-self: flex-start; min-width: 1.75rem; height: 1.75rem; padding: 0 0.375rem;
       border: 0; border-radius: 999px; background: transparent; color: var(--geo-foreground); font: inherit; font-size: var(--geo-font-control); font-weight: 600; cursor: pointer; }
     .cal-num:focus-visible, .cal-pill:focus-visible, .cal-mais:focus-visible, .cal-agenda-item:focus-visible, .cal-filtro:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
-    .cal-day--hoje .cal-num { background: var(--p-primary-600); color: #fff; }
+    .cal-day--hoje .cal-num { background: var(--p-primary-600); color: var(--p-surface-0); }
     .cal-pill { display: flex; align-items: center; gap: 0.375rem; width: 100%; min-width: 0; padding: 0.2rem 0.4rem; border: 1px solid var(--geo-status-border);
-      border-radius: var(--geo-radius-sm); background: var(--geo-status-soft); color: var(--geo-status-ink); font: inherit; font-size: 0.72rem; font-weight: 600; text-align: left; cursor: pointer; }
+      border-radius: var(--geo-radius-sm); background: var(--geo-status-soft); color: var(--geo-status-ink); font: inherit; font-size: var(--geo-font-caption); font-weight: 600; text-align: left; cursor: pointer; }
     .cal-pill[draggable='true'] { cursor: grab; }
     .cal-pill:hover { filter: brightness(0.97); border-color: var(--geo-status-color); }
-    .cal-pill .pi { font-size: 0.65rem; flex: none; }
+    .cal-pill .pi { font-size: var(--geo-font-caption); flex: none; }
     .cal-pill__txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .cal-pill--atrasada { box-shadow: inset 3px 0 0 var(--geo-danger); }
     .cal-mais { align-self: flex-start; padding: 0.1rem 0.3rem; border: 0; border-radius: var(--geo-radius-sm); background: transparent; color: var(--geo-brand);
-      font: inherit; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+      font: inherit; font-size: var(--geo-font-caption); font-weight: 600; cursor: pointer; }
     .cal-mais:hover { background: var(--geo-brand-soft); }
     .cal-dots { display: none; }
     [data-tone='warning'] { --geo-status-color: var(--geo-warning); --geo-status-soft: var(--geo-warning-soft); --geo-status-ink: var(--geo-warning-text); --geo-status-border: color-mix(in srgb, var(--geo-warning) 35%, transparent); }
@@ -102,13 +102,13 @@ interface DiaCalendario {
     .cal-legenda { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0.625rem 1rem; border-top: 1px solid var(--geo-border); font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); align-items: center; }
     .cal-filtro { display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.625rem; border: 1px solid var(--geo-border); border-radius: 999px;
       background: var(--geo-surface); color: var(--geo-foreground-muted); font: inherit; font-size: var(--geo-font-caption); font-weight: 600; cursor: pointer; }
-    .cal-filtro .pi { font-size: 0.7rem; color: var(--geo-status-color); }
+    .cal-filtro .pi { font-size: var(--geo-font-caption); color: var(--geo-status-color); }
     .cal-filtro[aria-pressed='true'] { border-color: var(--geo-status-color); background: var(--geo-status-soft); color: var(--geo-status-ink); }
     .cal-filtro[aria-pressed='false'] { text-decoration: line-through; opacity: 0.7; }
     .cal-agenda { position: sticky; top: 1rem; display: flex; flex-direction: column; max-height: calc(100vh - 8rem); }
     .cal-agenda__head { padding: 0.875rem 1rem; border-bottom: 1px solid var(--geo-border); }
-    .cal-agenda__eyebrow { margin: 0; font-size: var(--geo-font-caption); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--geo-foreground-muted); }
-    .cal-agenda__title { margin: 0.125rem 0 0; font-size: var(--geo-font-title); font-weight: 700; color: var(--geo-foreground); }
+    .cal-agenda__eyebrow { margin: 0; font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--geo-foreground-muted); }
+    .cal-agenda__title { margin: 0.125rem 0 0; font-size: var(--geo-font-title); font-weight: 600; color: var(--geo-foreground); }
     .cal-agenda__list { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; overflow-y: auto; }
     .cal-agenda__vazio { padding: 2rem 1rem; text-align: center; color: var(--geo-foreground-muted); font-size: var(--geo-font-control); }
     .cal-agenda__vazio .pi { display: block; margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--geo-foreground-subtle); }
@@ -116,10 +116,10 @@ interface DiaCalendario {
       border-radius: var(--geo-radius-md); background: var(--geo-surface); color: var(--geo-foreground); font: inherit; text-align: left; cursor: pointer; }
     .cal-agenda-item:hover { background: var(--geo-surface-subtle); border-color: var(--geo-border-strong); border-left-color: var(--geo-status-color); }
     .cal-agenda-item__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.375rem 0.5rem; min-width: 0; }
-    .cal-agenda-item__titulo { min-width: 0; font-weight: 700; font-size: var(--geo-font-control); overflow-wrap: anywhere; }
+    .cal-agenda-item__titulo { min-width: 0; font-weight: 600; font-size: var(--geo-font-control); overflow-wrap: anywhere; }
     .cal-agenda-item__detalhe { font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
     .cal-agenda-item__meta { display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
-    .cal-agenda-item__meta .pi { font-size: 0.7rem; margin-right: 0.2rem; }
+    .cal-agenda-item__meta .pi { font-size: var(--geo-font-caption); margin-right: 0.2rem; }
     @media (max-width: 64rem) { .cal-shell { grid-template-columns: minmax(0, 1fr); } .cal-agenda { position: static; max-height: none; } }
     @media (max-width: 40rem) {
       .cal-day { min-height: 3.25rem; padding: 0.25rem; align-items: center; }

@@ -5,12 +5,12 @@ geo-data-table, geo-tabs { display: block; }
 .cd-secao { margin-top: 1.5rem; }
 .cd-secao > header { margin-bottom: 0.75rem; }
 .cd-secao > header h2 { margin: 0.15rem 0 0; font-size: 1.05rem; color: var(--geo-foreground); }
-.cd-secao > header p { margin: 0.25rem 0 0; max-width: 72ch; color: var(--geo-foreground-muted); font-size: 0.82rem; }
+.cd-secao > header p { margin: 0.25rem 0 0; max-width: 72ch; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
 .cd-espaco { margin-top: 1rem; }
 .cd-aba { padding-top: 0.75rem; }
 
 .dash-panel__header h3 { margin: 0; font-size: 0.95rem; color: var(--geo-foreground); }
-.dash-panel__header h3 + p { margin: 0.2rem 0 0; color: var(--geo-foreground-muted); font-size: 0.78rem; }
+.dash-panel__header h3 + p { margin: 0.2rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
 
 .cd-motivos { display: inline-flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
 .cd-mudo { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }

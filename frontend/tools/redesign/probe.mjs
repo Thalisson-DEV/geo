@@ -10,7 +10,7 @@ const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, storage
 await ctx.addInitScript((t) => localStorage.setItem('geo_theme_mode', t), tema);
 const p = await ctx.newPage();
 const erros = [];
-p.on('console', (m) => m.type() === 'error' && erros.push(m.text().slice(0, 200)));
+p.on('console', (m) => (m.type() === 'error' || m.type() === 'warning') && erros.push(m.text().slice(0, 300)));
 p.on('response', (r) => r.status() >= 400 && erros.push(r.status() + ' ' + r.url().slice(0, 160)));
 await p.goto('http://localhost:4200' + rota, { waitUntil: 'networkidle' });
 await p.waitForTimeout(800);

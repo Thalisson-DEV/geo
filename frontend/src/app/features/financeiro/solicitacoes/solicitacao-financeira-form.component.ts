@@ -401,29 +401,29 @@ interface RascunhoSolicitacaoFinanceira {
     </div>
   `,
   styles: [`
-    .form-shell { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
-    :host-context(.app-dark) .form-shell, :host-context(.dark) .form-shell { background: #0f172a !important; border-color: #334155 !important; }
-    .form-shell__header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
-    :host-context(.app-dark) .form-shell__header, :host-context(.dark) .form-shell__header { border-bottom-color: #334155 !important; }
+    .form-shell { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--p-zinc-100); }
+    :host-context(.app-dark) .form-shell, :host-context(.dark) .form-shell { background: var(--p-zinc-900) !important; border-color: var(--p-zinc-700) !important; }
+    .form-shell__header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--p-zinc-100); display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; }
+    :host-context(.app-dark) .form-shell__header, :host-context(.dark) .form-shell__header { border-bottom-color: var(--p-zinc-700) !important; }
     .form-shell__body { padding: 1.5rem; }
     @media (min-width: 768px) { .form-shell__header, .form-shell__body { padding-left: 2rem; padding-right: 2rem; } }
     .step-button { background: transparent; border: 0; display: inline-flex; flex-direction: column; align-items: center; gap: 0.375rem; cursor: pointer; padding: 0.25rem 0.5rem; }
     .step-button:disabled { cursor: default; }
     .step-circle { border-radius: 9999px; border-width: 2px; width: 2rem; height: 2rem; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s; }
     .step-active { background: var(--p-primary-600); color: white; border-color: var(--p-primary-600); }
-    :host-context(.app-dark) .step-active, :host-context(.dark) .step-active { background: var(--p-primary-700) !important; border-color: var(--p-primary-700) !important; color: #ffffff !important; }
-    .step-inactive { border-color: #e2e8f0; color: #94a3b8; background: transparent; }
-    :host-context(.app-dark) .step-inactive, :host-context(.dark) .step-inactive { border-color: #334155 !important; color: #64748b !important; background: #0f172a !important; }
-    .step-label { font-size: 10px; font-weight: 600; text-transform: none; }
+    :host-context(.app-dark) .step-active, :host-context(.dark) .step-active { background: var(--p-primary-700) !important; border-color: var(--p-primary-700) !important; color: var(--p-surface-0) !important; }
+    .step-inactive { border-color: var(--p-zinc-200); color: var(--p-zinc-400); background: transparent; }
+    :host-context(.app-dark) .step-inactive, :host-context(.dark) .step-inactive { border-color: var(--p-zinc-700) !important; color: var(--p-zinc-500) !important; background: var(--p-zinc-900) !important; }
+    .step-label { font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; }
     .section-marker { display: flex; align-items: center; gap: 0.5rem; border-left: 2px solid var(--p-primary-500); padding-left: 0.75rem; margin-bottom: 0.75rem; }
     :host-context(.app-dark) .section-marker, :host-context(.dark) .section-marker { border-left-color: var(--p-primary-400) !important; }
-    .section-marker span { color: #374151; font-size: 13px; font-weight: 700; letter-spacing: -0.01em; text-transform: none; }
-    :host-context(.app-dark) .section-marker span, :host-context(.dark) .section-marker span { color: #f1f5f9 !important; }
-    .review-card { border: 1px solid #f1f5f9; border-radius: 0.5rem; background: #f8fafc80; padding: 0.65rem 0.75rem; }
-    :host-context(.app-dark) .review-card, :host-context(.dark) .review-card { border-color: #334155 !important; background: rgba(15, 23, 42, 0.8) !important; }
-    .review-card > span { color: #94a3b8; font-size: 10px; font-weight: 600; text-transform: none; }
-    :host-context(.app-dark) .review-card > span, :host-context(.dark) .review-card > span { color: #94a3b8 !important; }
-    :host-context(.app-dark) .review-card p, :host-context(.dark) .review-card p { color: #ffffff !important; }
+    .section-marker span { color: var(--p-zinc-700); font-size: 13px; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
+    :host-context(.app-dark) .section-marker span, :host-context(.dark) .section-marker span { color: var(--p-zinc-100) !important; }
+    .review-card { border: 1px solid var(--p-zinc-100); border-radius: 0.5rem; background: #f8fafc80; padding: 0.65rem 0.75rem; }
+    :host-context(.app-dark) .review-card, :host-context(.dark) .review-card { border-color: var(--p-zinc-700) !important; background: rgba(15, 23, 42, 0.8) !important; }
+    .review-card > span { color: var(--p-zinc-400); font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; }
+    :host-context(.app-dark) .review-card > span, :host-context(.dark) .review-card > span { color: var(--p-zinc-400) !important; }
+    :host-context(.app-dark) .review-card p, :host-context(.dark) .review-card p { color: var(--p-surface-0) !important; }
   `]
 })
 export class SolicitacaoFinanceiraFormComponent {

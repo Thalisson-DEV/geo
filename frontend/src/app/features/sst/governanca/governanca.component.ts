@@ -265,12 +265,12 @@ const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}
       background: var(--geo-surface); color: var(--geo-foreground); cursor: pointer; text-align: left;
     }
     .gov-metrica:hover, .gov-metrica:focus-visible { border-color: var(--geo-primary, currentColor); }
-    .gov-metrica strong { font-size: 1.5rem; font-weight: 700; }
+    .gov-metrica strong { font-size: 1.5rem; font-weight: 600; }
     .gov-atencao {
       display: flex; flex-direction: column; gap: var(--geo-space-2, 0.5rem); padding: var(--geo-space-4, 1rem);
       border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg, 0.75rem); background: var(--geo-surface);
     }
-    .gov-atencao h3 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 700; }
+    .gov-atencao h3 { margin: 0; color: var(--geo-foreground); font-size: var(--geo-font-body); font-weight: 600; }
     .gov-atencao__item {
       display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--geo-space-3, 0.75rem);
       padding: var(--geo-space-2, 0.5rem) 0; border: 0; border-top: 1px solid var(--geo-border); background: none;

@@ -114,7 +114,7 @@ const MAXIMO_PIXELS_CANVAS = 16_000_000;
     .geo-pdf-folha {
       position: relative;
       margin: 0 auto;
-      background: #fff;
+      background: var(--p-surface-0);
       box-shadow: 0 1px 6px rgb(0 0 0 / 0.25);
     }
 

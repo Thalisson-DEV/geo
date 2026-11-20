@@ -86,7 +86,7 @@ interface Preferencias {
     @media (min-width: 64rem) { .mf { grid-template-columns: 21rem minmax(0, 1fr); } }
     @media (min-width: 64rem) { .mf--recolhido { grid-template-columns: minmax(0, 1fr); } }
     .mf-painel__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin: -0.25rem 0; }
-    .mf-painel__titulo { margin: 0; font-size: var(--geo-font-control); font-weight: 700; }
+    .mf-painel__titulo { margin: 0; font-size: var(--geo-font-control); font-weight: 600; }
     .mf-painel__titulo span { color: var(--geo-foreground-muted); font-weight: 600; }
     .mf-abrir { position: absolute; z-index: 500; top: 0.75rem; left: 3.5rem; }
 
@@ -110,7 +110,7 @@ interface Preferencias {
     .mf-item:hover { background: var(--geo-surface-muted); }
     .mf-item[aria-current='true'] { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
     .mf-item__texto { display: grid; min-width: 0; }
-    .mf-item__placa { font-weight: 700; font-size: var(--geo-font-control); }
+    .mf-item__placa { font-weight: 600; font-size: var(--geo-font-control); }
     .mf-item__apoio { overflow: hidden; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); text-overflow: ellipsis; white-space: nowrap; }
     .mf-item__lado { display: grid; justify-items: end; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); white-space: nowrap; }
     .mf-rodape { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
@@ -131,20 +131,20 @@ interface Preferencias {
     .mf-cartao__topo { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 0.75rem; }
     .mf-cartao__icone { display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 999px; background: var(--mf-cor);
       color: var(--geo-surface); font-size: 1.125rem; }
-    .mf-cartao__titulo { margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+    .mf-cartao__titulo { margin: 0; font-size: 1.25rem; font-weight: 600; line-height: 1.2; }
     .mf-cartao__sub { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); line-height: 1.4; }
     .mf-cartao__selos { display: flex; flex-wrap: wrap; gap: 0.375rem; }
     .mf-cartao dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.875rem 1rem; margin: 0; padding: 0.875rem 1rem;
       border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
     .mf-cartao dt { margin-bottom: 0.125rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .mf-cartao dd { margin: 0; font-size: var(--geo-font-control); font-weight: 600; overflow-wrap: anywhere; }
-    .mf-cartao dd.mf-cartao__velocidade { font-size: 1.5rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .mf-cartao dd.mf-cartao__velocidade { font-size: 1.5rem; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
     .mf-cartao dd.mf-cartao__velocidade small { margin-left: 0.25rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600; }
     .mf-cartao__apoio { display: block; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 400; }
     .mf-cartao__acoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
     .mf-cartao__trajeto { margin: -0.5rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .mf-secao__titulo { margin: 0 0 0.5rem; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.04em; }
+      text-transform: none; letter-spacing: 0; }
     .mf-modulos__grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
     .mf-atalho { display: grid; justify-items: center; gap: 0.375rem; padding: 0.75rem 0.25rem; border: 1px solid var(--geo-border);
       border-radius: var(--geo-radius-md); color: var(--geo-foreground); font-size: var(--geo-font-caption); font-weight: 600; text-align: center;
@@ -163,7 +163,7 @@ interface Preferencias {
     .mf-alertas { display: grid; gap: 0.625rem; margin: 0; padding: 0.75rem 0.875rem; border: 1px solid var(--geo-danger);
       border-radius: var(--geo-radius-md); background: var(--geo-danger-soft); list-style: none; }
     .mf-alertas li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: baseline; gap: 0.5rem; font-size: var(--geo-font-control); }
-    .mf-alertas li .pi { font-size: 0.875rem; }
+    .mf-alertas li .pi { font-size: var(--geo-font-caption); }
     .mf-alertas__perigo .pi { color: var(--geo-danger); }
     .mf-alertas__aviso .pi { color: var(--geo-warning); }
     .mf-alertas a { color: var(--geo-brand); font-size: var(--geo-font-caption); font-weight: 600; white-space: nowrap; }
@@ -681,7 +681,7 @@ export class FrotaMapaFrotaComponent implements OnDestroy {
         className: '',
         iconSize: [20, 20],
         iconAnchor: [10, 10],
-        html: `<span style="display:grid;place-items:center;width:20px;height:20px;border:2px solid ${fundo};border-radius:5px;background:${cor};color:${fundo};transform:rotate(45deg);box-shadow:0 1px 3px rgba(0,0,0,.3)"><i class="${ICONE_TIPO_EVENTO[e.tipo]}" style="font-size:9px;transform:rotate(-45deg)"></i></span>`
+        html: `<span style="display:grid;place-items:center;width:20px;height:20px;border:2px solid ${fundo};border-radius:5px;background:${cor};color:${fundo};transform:rotate(45deg);box-shadow:0 1px 3px rgba(0,0,0,.3)"><i class="${ICONE_TIPO_EVENTO[e.tipo]}" style="font-size: var(--geo-font-caption);transform:rotate(-45deg)"></i></span>`
       });
       const quando = new Date(e.ocorridoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
       L.marker([e.latitude, e.longitude], { icon: icone, title: `${e.tipoRotulo} · ${formatarPlaca(e.placa)}`, keyboard: false })

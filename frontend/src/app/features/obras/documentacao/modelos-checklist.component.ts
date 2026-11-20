@@ -258,7 +258,7 @@ function rotuloFinalidade(finalidade: FinalidadeChecklist): string {
     .mc-acoes { display: inline-flex; gap: 0.125rem; margin-top: 1.5rem; }
     .mc-pergunta { display: flex; flex-direction: column; gap: 0.625rem; padding: 0.875rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .mc-pergunta__marcas { display: flex; flex-wrap: wrap; gap: 1.25rem; }
-    .mc-evidencias__titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 700; }
+    .mc-evidencias__titulo { margin: 0; color: var(--geo-foreground); font-size: 0.875rem; font-weight: 600; }
     .mc-evidencias__ajuda { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: 0.8125rem; }
     .mc-evidencias__marca { margin-top: 1.75rem; }
   `

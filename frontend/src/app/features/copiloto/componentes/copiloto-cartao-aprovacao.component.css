@@ -50,7 +50,7 @@
 .cartao__titulo {
   margin: 0;
   font-size: var(--geo-font-body);
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.35;
   color: var(--geo-foreground);
 }
@@ -130,8 +130,8 @@
 }
 
 .item__marca geo-icon {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
 }
 
 .item__texto {
@@ -150,7 +150,7 @@
 }
 
 .item__numero {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--geo-foreground);
   white-space: nowrap;
 }
@@ -189,7 +189,7 @@
 
 .item__valor strong {
   font-size: var(--geo-font-control);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--geo-foreground);
   white-space: nowrap;
 }
@@ -231,7 +231,7 @@
 }
 
 .item__observacao geo-icon {
-  font-size: 0.72rem;
+  font-size: var(--geo-font-caption);
 }
 
 /* O que ficou de fora e por quê */
@@ -250,7 +250,7 @@
   gap: 0.4rem;
   margin: 0;
   font-size: var(--geo-font-caption);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--geo-warning-text);
 }
 

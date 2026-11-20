@@ -81,8 +81,8 @@
     html,
     body {
       color-scheme: light;
-      background: #ffffff;
-      color: #151b26;
+      background: var(--p-surface-0);
+      color: var(--p-zinc-900);
     }
   }
 }

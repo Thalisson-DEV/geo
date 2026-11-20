@@ -201,33 +201,33 @@ export function montarAceite(pontos: readonly PontoEmRevisao[], vaos: readonly V
     </footer>
   `,
   styles: [`
-    :host { display: flex; flex: 1; flex-direction: column; min-height: 0; color: var(--geo-foreground); font-size: 0.8125rem; }
+    :host { display: flex; flex: 1; flex-direction: column; min-height: 0; color: var(--geo-foreground); font-size: var(--geo-font-caption); }
     .topo { padding: 0.625rem 0.75rem; border-bottom: 1px solid var(--geo-border); }
     h2 { display: flex; gap: 0.375rem; align-items: center; margin: 0; font-size: 0.9375rem; font-weight: 600; }
     h2 i { color: var(--geo-brand); }
-    .topo p { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .topo p { margin: 0.125rem 0 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .corpo { display: flex; flex: 1; flex-direction: column; gap: 0.625rem; min-height: 0; padding: 0.625rem; overflow-y: auto; }
     .vazio { margin: 0; padding: 1rem 0.25rem; color: var(--geo-foreground-muted); text-align: center; }
     .secao { display: flex; flex-direction: column; gap: 0.375rem; }
     .secao__marca { display: flex; gap: 0.375rem; align-items: center; cursor: pointer; }
-    .secao__marca span { color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .secao__marca span { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .cartao { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.375rem 0.5rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface); }
     .cartao--ativo { border-color: var(--geo-brand); box-shadow: 0 0 0 1px var(--geo-brand); }
     .cartao__linha { display: flex; gap: 0.375rem; align-items: center; }
-    .cartao input[type='text'], .cartao input[type='number'], .cartao select { min-width: 0; padding: 0.125rem 0.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-sm); background: var(--geo-surface); color: var(--geo-foreground); font-size: 0.75rem; }
-    .prefixo, .unidade { color: var(--geo-foreground-muted); font-size: 0.75rem; }
+    .cartao input[type='text'], .cartao input[type='number'], .cartao select { min-width: 0; padding: 0.125rem 0.25rem; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-sm); background: var(--geo-surface); color: var(--geo-foreground); font-size: var(--geo-font-caption); }
+    .prefixo, .unidade { color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
     .prefixo { margin-right: -0.25rem; }
     .cartao__numero { width: 3.25rem; }
     .cartao select { flex: 1; }
     .cartao__metros { width: 4.5rem; margin-left: auto; }
-    .confianca { flex: none; margin-left: auto; color: var(--geo-foreground-muted); font-size: 0.6875rem; font-variant-numeric: tabular-nums; }
+    .confianca { flex: none; margin-left: auto; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); font-variant-numeric: tabular-nums; }
     .cartao__metros + .unidade + .confianca { margin-left: 0; }
     .confianca--baixa { color: var(--geo-warning-text); font-weight: 600; }
-    .cartao__erro { display: flex; gap: 0.25rem; margin: 0; color: var(--geo-danger-text); font-size: 0.75rem; }
-    .cartao__aviso { display: flex; gap: 0.25rem; margin: 0; color: var(--geo-warning-text); font-size: 0.75rem; }
-    .cartao__lido { margin: 0; color: var(--geo-foreground-muted); font-size: 0.6875rem; }
-    .kit { display: flex; gap: 0.375rem; align-items: baseline; font-size: 0.75rem; cursor: pointer; }
-    .kit code { flex: none; color: var(--geo-brand); font-size: 0.6875rem; font-weight: 600; }
+    .cartao__erro { display: flex; gap: 0.25rem; margin: 0; color: var(--geo-danger-text); font-size: var(--geo-font-caption); }
+    .cartao__aviso { display: flex; gap: 0.25rem; margin: 0; color: var(--geo-warning-text); font-size: var(--geo-font-caption); }
+    .cartao__lido { margin: 0; color: var(--geo-foreground-muted); font-size: var(--geo-font-caption); }
+    .kit { display: flex; gap: 0.375rem; align-items: baseline; font-size: var(--geo-font-caption); cursor: pointer; }
+    .kit code { flex: none; color: var(--geo-brand); font-size: var(--geo-font-caption); font-weight: 600; }
     input[type='checkbox'] { flex: none; accent-color: var(--geo-brand); }
     .rodape { display: flex; gap: 0.5rem; justify-content: flex-end; padding: 0.5rem 0.75rem; border-top: 1px solid var(--geo-border); }
   `]

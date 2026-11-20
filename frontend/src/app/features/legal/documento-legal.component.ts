@@ -123,7 +123,7 @@ import {
       display: inline-flex;
       align-items: center;
       gap: 0.625rem;
-      font-weight: 800;
+      font-weight: 600;
       font-size: 1.125rem;
       color: var(--geo-foreground);
       text-decoration: none;
@@ -153,7 +153,7 @@ import {
     }
     h1 {
       font-size: clamp(1.75rem, 4vw, 2.25rem);
-      font-weight: 800;
+      font-weight: 600;
       line-height: 1.15;
       margin: 0;
     }
@@ -177,9 +177,9 @@ import {
     .legal-sumario-titulo {
       margin: 0 0 0.5rem;
       font-size: var(--geo-font-caption);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
       color: var(--geo-foreground-subtle);
     }
     .legal-sumario ol {
@@ -201,7 +201,7 @@ import {
     }
     .legal-sumario button:hover { text-decoration: underline; }
     .legal-secao { scroll-margin-top: 5rem; margin-top: 2rem; }
-    h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.75rem; }
+    h2 { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.75rem; }
     .legal-secao p, .legal-secao li {
       font-size: 1rem;
       line-height: 1.7;

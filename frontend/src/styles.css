@@ -52,6 +52,14 @@
   --color-neutral-900: var(--p-zinc-900);
   --color-neutral-950: var(--p-zinc-950);
   --font-sans: var(--geo-font-family-sans);
+  /* Nada acima de 600 na interface: bold/extrabold/black do Tailwind viram semibold. */
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 600;
+  --font-weight-black: 600;
+  /* Rótulos sem tracking largo: a hierarquia vem do tamanho e do peso. */
+  --tracking-wide: 0.01em;
+  --tracking-wider: 0.01em;
+  --tracking-widest: 0.02em;
   --font-mono: var(--geo-font-family-mono);
 }
 
@@ -68,6 +76,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: var(--geo-foreground);
   background-color: var(--geo-canvas);
+}
+
+/*
+ * Sem caixa alta na interface (exceto siglas, que já vêm em maiúsculas no texto). As telas antigas
+ * usam a utilidade `uppercase` em rótulos; aqui ela é neutralizada. Para manter caixa alta de
+ * propósito (placa, código), use `.geo-caixa-alta`.
+ */
+.uppercase:not(.geo-caixa-alta) {
+  text-transform: none;
+}
+.geo-caixa-alta {
+  text-transform: uppercase;
 }
 
 /* Números sempre tabulares em tabelas e campos numéricos. */

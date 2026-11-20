@@ -48,14 +48,14 @@
 
 .geo-catalog__identity strong {
   font-size: 1rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
 }
 
 .geo-catalog__identity span:not(.geo-catalog__mark) {
   color: #94a3b8;
   font-size: var(--geo-font-caption);
   font-weight: var(--geo-font-weight-semibold);
-  letter-spacing: 0.1em;
+  letter-spacing: 0;
   text-transform: none;
 }
 
@@ -120,7 +120,7 @@
   color: var(--geo-brand);
   font-size: var(--geo-font-caption);
   font-weight: var(--geo-font-weight-semibold);
-  letter-spacing: 0.17em;
+  letter-spacing: 0;
   text-transform: none;
 }
 
@@ -162,7 +162,7 @@
   color: var(--geo-foreground-muted);
   font-size: var(--geo-font-caption);
   font-weight: var(--geo-font-weight-semibold);
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   text-transform: none;
 }
 
@@ -184,7 +184,7 @@
   color: var(--geo-brand);
   font-size: var(--geo-font-caption);
   font-weight: var(--geo-font-weight-semibold);
-  letter-spacing: 0.13em;
+  letter-spacing: 0;
   text-transform: none;
 }
 
@@ -260,6 +260,6 @@
   border-radius: 50%;
   background: var(--geo-surface);
   color: var(--geo-foreground);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: var(--geo-font-weight-semibold);
 }

@@ -42,7 +42,7 @@
 .plan-topo__obra span {
   overflow: hidden;
   color: var(--geo-foreground-muted);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -79,7 +79,7 @@
 
 .plan-indicadores__total span {
   color: var(--geo-foreground-muted);
-  font-size: 0.6875rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-indicadores__barra {
@@ -116,7 +116,7 @@
   gap: 0.75rem;
   overflow: hidden;
   color: var(--geo-foreground-muted);
-  font-size: 0.6875rem;
+  font-size: var(--geo-font-caption);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -200,7 +200,7 @@
 .plan-pilula__valor {
   min-width: 3rem;
   padding: 0 0.25rem;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-variant-numeric: tabular-nums;
   text-align: center;
   white-space: nowrap;
@@ -222,7 +222,7 @@
 .plan-pilula__icone {
   padding-left: 0.375rem;
   color: var(--geo-foreground-muted);
-  font-size: 0.8125rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-pilula__faixa {
@@ -246,7 +246,7 @@
   border: 0;
   background: transparent;
   color: inherit;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   cursor: pointer;
 }
 
@@ -257,7 +257,7 @@
   margin: 0;
   padding: 0.25rem 0.375rem 0.375rem;
   list-style: none;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-legenda-folha li {
@@ -290,7 +290,7 @@
   background: var(--geo-foreground);
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
   color: var(--geo-surface);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-corpo {
@@ -418,7 +418,7 @@
   background: var(--geo-surface);
   box-shadow: 0 0 0 1px var(--geo-border);
   color: var(--geo-foreground);
-  font-size: 0.625rem;
+  font-size: var(--geo-font-caption);
   pointer-events: none;
   transform: translate(-50%, -50%);
   white-space: nowrap;
@@ -437,8 +437,8 @@
   background: var(--geo-surface);
   box-shadow: 0 0 0 2px var(--geo-surface), 0 2px 6px rgb(0 0 0 / 0.4);
   color: var(--geo-foreground);
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
   line-height: 1;
   cursor: pointer;
   transform: translate(-50%, -50%);
@@ -487,8 +487,8 @@
   top: -0.5rem;
   right: -0.25rem;
   color: var(--geo-danger-text);
-  font-size: 0.6875rem;
-  font-weight: 700;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
 }
 
 .plan-marcador[data-estado='andamento'] {
@@ -509,7 +509,7 @@
   top: -0.5rem;
   right: -0.375rem;
   color: var(--geo-success-text);
-  font-size: 0.625rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-marcador--ativo {
@@ -520,7 +520,7 @@
 .plan-marcador--selecionado {
   z-index: 1;
   background: var(--geo-brand);
-  color: var(--geo-brand-foreground, #fff);
+  color: var(--geo-brand-foreground, var(--p-surface-0));
 }
 
 .plan-marcador--origem {
@@ -538,14 +538,14 @@
   border-radius: 999px;
   background: var(--geo-surface);
   color: var(--geo-foreground);
-  font-size: 0.625rem;
+  font-size: var(--geo-font-caption);
   white-space: nowrap;
   cursor: pointer;
   transform: translate(0.875rem, -50%);
 }
 
 .plan-conexao i {
-  font-size: 0.5625rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-anotacao {
@@ -567,7 +567,7 @@
 }
 
 .plan-anotacao i {
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-sugestao {
@@ -580,8 +580,8 @@
   border-radius: 999px;
   background: var(--geo-info-soft);
   color: var(--geo-info-text);
-  font-size: 0.6875rem;
-  font-weight: 700;
+  font-size: var(--geo-font-caption);
+  font-weight: 600;
   cursor: grab;
   transform: translate(-50%, -50%);
   touch-action: none;
@@ -658,7 +658,7 @@
 
 .plan-inicio__opcao small {
   color: var(--geo-foreground-muted);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   line-height: 1.35;
 }
 
@@ -682,7 +682,7 @@
   border: 0;
   background: transparent;
   color: var(--geo-foreground);
-  font-size: 0.8125rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
   cursor: pointer;
 }
@@ -695,7 +695,7 @@
 .plan-avanco__seta {
   margin-left: auto;
   color: var(--geo-foreground-muted);
-  font-size: 0.6875rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-avanco__lista {
@@ -707,7 +707,7 @@
   padding: 0 0.75rem 0.625rem;
   overflow-y: auto;
   list-style: none;
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-avanco__linha {
@@ -735,7 +735,7 @@
   justify-content: space-between;
   margin-top: 0.125rem;
   color: var(--geo-foreground-muted);
-  font-size: 0.6875rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-avanco__vazio {
@@ -752,7 +752,7 @@
   padding: 0.5rem 0.75rem;
   border-top: 1px solid var(--geo-border);
   background: var(--geo-surface-muted);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-selecao span {
@@ -768,14 +768,14 @@
   border-radius: var(--geo-radius-md);
   background: var(--geo-surface-muted);
   font-family: inherit;
-  font-size: 0.8125rem;
+  font-size: var(--geo-font-caption);
   white-space: pre-wrap;
 }
 
 .plan-orcamento {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8125rem;
+  font-size: var(--geo-font-caption);
 }
 
 .plan-orcamento th,
@@ -787,7 +787,7 @@
 
 .plan-orcamento th {
   color: var(--geo-foreground-muted);
-  font-size: 0.75rem;
+  font-size: var(--geo-font-caption);
   font-weight: 600;
 }
 

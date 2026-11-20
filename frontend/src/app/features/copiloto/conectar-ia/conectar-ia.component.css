@@ -28,7 +28,7 @@
 }
 
 .conexao-permissao geo-icon {
-  font-size: 0.8rem;
+  font-size: var(--geo-font-caption);
   color: var(--geo-foreground-muted);
 }
 
