@@ -65,8 +65,8 @@ public class RastreioTools {
                 "Diz em quais notas de campo cada numero de serie (ex.: medidor) foi APLICADO ou RETIRADO, com o numero "
                         + "da nota, data, equipe, base e material. Use sempre que perguntarem em que nota/OS uma serie foi "
                         + "aplicada, instalada, retirada ou usada, ou o historico de uma serie. Aceita varias series de uma "
-                        + "vez (ate " + MAXIMO_SERIES + "). O numero da nota NAO existe nas fontes de dados nem no "
-                        + "consultar_sql: so esta ferramenta o devolve.",
+                        + "vez (ate " + MAXIMO_SERIES + "). A busca por serie so existe aqui: as fontes de dados nao tem o "
+                        + "numero de serie.",
                 JsonSchemas.object()
                         .required("series", JsonSchemas.arrayOfStrings("Numeros de serie exatamente como o usuario informou"))
                         .prop("titulo", JsonSchemas.string("Titulo curto do resultado"))

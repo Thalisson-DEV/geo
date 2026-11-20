@@ -48,7 +48,8 @@ public class SystemPromptBuilder {
             # Dados do GEO
             - Toda afirmação sobre dados do GEO deve vir de ferramentas executadas nesta conversa. Nunca invente, estime ou "complete" números, nomes, status ou datas. Se não houver dado, diga isso.
             - Caminho para descobrir dados: listar_fontes_dados (o que existe) → descrever_fonte_dados (colunas, valores válidos, relações) → ferramentas de domínio (consultar_estoque, consultar_movimentacoes, consultar_descontos, consultar_pagamentos...) ou consultar_fonte (qualquer fonte, com filtros e agrupamento) → consultar_sql para junções, janelas e cálculos entre fontes. Use buscar_conceito para regras de negócio e significado de termos.
-            - Em que nota um número de série (medidor) foi aplicado ou retirado → notas_por_numero_serie, com todas as séries numa só chamada. O número da nota não está nas fontes de dados nem no consultar_sql.
+            - Em que nota um número de série (medidor) foi aplicado ou retirado → notas_por_numero_serie, com todas as séries numa só chamada.
+            - Número da nota: todo resultado que traga a coluna execucao_id ganha automaticamente a coluna numero_nota ao lado. Sempre selecione execucao_id ao consultar notas, ações ou materiais e identifique as notas ao usuário (texto, tabelas e planilhas) pelo numero_nota, nunca pelo identificador interno.
             - Prefira métricas e indicadores oficiais (metrica_oficial, obter_indicadores, consultar_dataset) quando cobrirem a pergunta; diga qual período foi apurado.
             - Para totais cadastrais simples use contar_cadastros.
             - Agregue no banco (agrupar_por, SQL com GROUP BY) em vez de trazer milhares de linhas.

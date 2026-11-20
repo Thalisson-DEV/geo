@@ -27,6 +27,17 @@ class ExecutarPythonToolTest {
     }
 
     @Test
+    void soVoltamAoUsuarioPlanilhasDocumentosEImagens() {
+        assertThat(ExecutarPythonTool.entregavel("Notas_anormais.xlsx")).isTrue();
+        assertThat(ExecutarPythonTool.entregavel("grafico.PNG")).isTrue();
+        assertThat(ExecutarPythonTool.entregavel("resumo.csv")).isTrue();
+        assertThat(ExecutarPythonTool.entregavel("out.pkl")).isFalse();
+        assertThat(ExecutarPythonTool.entregavel("base.parquet")).isFalse();
+        assertThat(ExecutarPythonTool.entregavel("matriz.npy")).isFalse();
+        assertThat(ExecutarPythonTool.entregavel("sem_extensao")).isFalse();
+    }
+
+    @Test
     void arquivoNovoComOMesmoConteudoDeUmaEntradaVoltaComoGerado() {
         Map<String, String> entradas = Map.of("r34.csv", ExecutarPythonTool.sha256(CSV));
 

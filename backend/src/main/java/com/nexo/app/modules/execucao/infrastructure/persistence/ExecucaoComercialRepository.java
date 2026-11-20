@@ -20,6 +20,11 @@ import java.util.UUID;
 public interface ExecucaoComercialRepository extends JpaRepository<ExecucaoComercial, UUID>, JpaSpecificationExecutor<ExecucaoComercial> {
     java.util.Optional<ExecucaoComercial> findFirstByAtivoTrueOrderByIdAsc();
 
+    /** Número da nota de cada execução; o conversor da entidade abre o valor cifrado. */
+    @Query("SELECT new com.nexo.app.modules.execucao.application.dto.NumeroDaNota(e.id, e.referenciaNota) "
+           + "FROM ExecucaoComercial e WHERE e.id IN :ids")
+    List<com.nexo.app.modules.execucao.application.dto.NumeroDaNota> buscarNumeros(@Param("ids") Collection<UUID> ids);
+
     @Query("SELECT new com.nexo.app.modules.execucao.application.dto.LancamentoResumido("
            + "e.id, e.idEquipe, e.idTurno, e.idTipoServico, e.dataLancamento, e.valorTotalFaturado) "
            + "FROM ExecucaoComercial e "

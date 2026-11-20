@@ -294,6 +294,7 @@ fontes:
     palavras_chave: [execucao, nota executada, nota lancada, servico comercial, faturamento de producao, tipo de servico, tipo de nota]
     coluna_data: data_lancamento
     colunas:
+      execucao_id: Identificador interno da nota. O resultado ganha automaticamente a coluna numero_nota (numero da nota) ao lado; mostre sempre o numero_nota ao usuario
       status_execucao: {descricao: Status da execucao, valores: [INICIADO, CONCLUIDO, EDITADO]}
       tipo_servico: Tipo de servico da nota (ex. LIGAÇÃO NOVA, CORTE, RELIGAÇÃO); NÃO INFORMADO nas notas lancadas antes do cadastro de tipos
       tipo_servico_codigo: Codigo da classificacao da nota (ex. CL, CS, CR); se repete entre tipos e e nulo quando o tipo nao foi informado
@@ -307,6 +308,7 @@ fontes:
     coluna_data: data_lancamento
     colunas:
       base_operacional: Base operacional da equipe que executou (use para filtrar por base, ex. JUAZEIRO)
+      execucao_id: Nota da acao. O resultado ganha automaticamente a coluna numero_nota ao lado
   execucoes_materiais:
     dominio: execucao
     nome: Materiais aplicados nas execuções
@@ -314,6 +316,7 @@ fontes:
     autoridades: [execucao:comercial:read]
     coluna_data: data_lancamento
     colunas:
+      execucao_id: Nota do material. O resultado ganha automaticamente a coluna numero_nota ao lado
       operacao: Se o material foi aplicado ou retirado na execucao
       origem: {descricao: "De onde veio o material. EQUIPE movimenta o saldo da equipe; CONCESSIONARIA (material da Concessionária, so em ocorrencia comercial) e apenas registro e nao entra no consumo nem no saldo da equipe", valores: [EQUIPE, CONCESSIONARIA]}
       tipo_nota: Tipo do lancamento (COMUM, AVULSA ou OCORRENCIA)

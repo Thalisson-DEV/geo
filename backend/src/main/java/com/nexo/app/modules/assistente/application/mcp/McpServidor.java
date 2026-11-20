@@ -133,7 +133,8 @@ public class McpServidor {
                 - Para perguntas sobre dados, prefira as consultas de dominio e os indicadores; para algo especifico, \
                 use listar_fontes_dados e descrever_fonte_dados antes de consultar_fonte ou consultar_sql.
                 - Para saber em que nota um numero de serie (ex.: medidor) foi aplicado ou retirado, use \
-                notas_por_numero_serie com todas as series de uma vez; o numero da nota nao aparece nas fontes de dados.
+                notas_por_numero_serie com todas as series de uma vez.
+                - O numero da nota e incluido automaticamente (coluna numero_nota) em todo resultado que traga a                 coluna execucao_id; identifique as notas ao usuario por esse numero, nunca pelo identificador interno.
                 - Consultas devolvem um codigo de resultado (r1, r2...). As ferramentas de analise reutilizam esse codigo \
                 sem repetir a consulta. Nunca invente numeros: use so o que as ferramentas devolverem.
                 - %s

@@ -99,6 +99,22 @@ public class ArquivoService {
         return repository.saveAll(ordenados);
     }
 
+    /**
+     * Desativa o arquivo gerado com o mesmo nome nesta mesma resposta (a planilha refeita depois de uma correcao).
+     * Arquivos de respostas anteriores ficam: sao entregas que o usuario ja recebeu.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void desativarVersaoAnterior(AgentRunContext context, String nome) {
+        List<ArquivoAssistente> anteriores = repository.findByConversaIdAndMensagemIdAndOrigemAndAtivoTrue(
+                context.conversaId(), context.mensagemAssistenteId(), ArquivoAssistente.Origem.GERADO);
+        for (ArquivoAssistente anterior : anteriores) {
+            if (anterior.getNome().equalsIgnoreCase(nome)) {
+                anterior.desativar();
+                repository.save(anterior);
+            }
+        }
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public ArquivoAssistente salvarGerado(AgentRunContext context, String nome, String tipoConteudo, byte[] bytes) {
         String extensao = ArquivoParser.extensao(nome);

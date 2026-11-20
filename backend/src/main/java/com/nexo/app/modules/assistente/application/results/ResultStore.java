@@ -31,15 +31,19 @@ public class ResultStore {
 
     private final ResultadoAssistenteRepository repository;
     private final ObjectMapper objectMapper;
+    private final NumeroNotaNosResultados numerosDeNota;
 
-    public ResultStore(ResultadoAssistenteRepository repository, ObjectMapper objectMapper) {
+    public ResultStore(ResultadoAssistenteRepository repository, ObjectMapper objectMapper,
+            NumeroNotaNosResultados numerosDeNota) {
         this.repository = repository;
         this.objectMapper = objectMapper;
+        this.numerosDeNota = numerosDeNota;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public StoredResult registrar(AgentRunContext context, String origem, ResultadoAssistente.Natureza natureza,
-            String titulo, TabularData data, Map<String, Object> consulta) {
+            String titulo, TabularData dados, Map<String, Object> consulta) {
+        TabularData data = numerosDeNota.enriquecer(dados, context.security());
         List<List<Object>> rows = data.rows();
         boolean truncado = data.truncated();
         if (rows.size() > MAX_LINHAS_PERSISTIDAS) {

@@ -27,6 +27,9 @@ public interface ArquivoAssistenteRepository extends JpaRepository<ArquivoAssist
 
     Optional<ArquivoAssistente> findByConversaIdAndCodigoAndAtivoTrue(UUID conversaId, String codigo);
 
+    List<ArquivoAssistente> findByConversaIdAndMensagemIdAndOrigemAndAtivoTrue(UUID conversaId, UUID mensagemId,
+            ArquivoAssistente.Origem origem);
+
     @Query("select count(a) from ArquivoAssistente a where a.conversaId = :conversaId and a.codigo is not null")
     long contarCodificados(@Param("conversaId") UUID conversaId);
 }

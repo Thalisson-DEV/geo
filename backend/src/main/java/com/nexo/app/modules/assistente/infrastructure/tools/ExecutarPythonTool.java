@@ -45,6 +45,9 @@ public class ExecutarPythonTool extends BaseTool {
     private static final int MAX_RESULTADOS_DE_PLANILHAS = 4;
     private static final int MAX_SAIDA_TRANSMITIDA = 30_000;
     private static final Set<String> EXTENSOES_PLANILHA = Set.of("csv", "tsv", "xlsx", "xlsm", "xls");
+    /** O que o Python devolve ao usuario: planilhas, documentos, imagens e texto. O resto e arquivo de trabalho. */
+    private static final Set<String> EXTENSOES_ENTREGAVEIS = Set.of("xlsx", "xlsm", "xls", "csv", "tsv", "pdf", "png",
+            "jpg", "jpeg", "gif", "webp", "svg", "docx", "pptx", "txt", "md", "json", "html", "zip");
 
     private final CodeInterpreterClient client;
     private final ArquivoService arquivos;
@@ -169,9 +172,16 @@ public class ExecutarPythonTool extends BaseTool {
         int resultadosCriados = 0;
         int processados = 0;
         Map<String, String> entradas = staging.hashes();
+        List<String> ignorados = new ArrayList<>();
         for (CodeInterpreterClient.WorkspaceFile arquivo : execucao.files()) {
             if (!"file".equals(arquivo.kind()) || arquivo.fileId() == null) continue;
             String nome = nomeFinal(arquivo.path());
+            if (!entregavel(nome)) {
+                // Arquivos de trabalho (pickle, parquet, numpy...) nao interessam ao usuario.
+                ignorados.add(nome);
+                client.deleteFile(arquivo.fileId());
+                continue;
+            }
             if (entradas.containsKey(nome)) {
                 // O sandbox lista tambem os arquivos de entrada; so volta como gerado o que o codigo alterou.
                 try {
@@ -202,6 +212,8 @@ public class ExecutarPythonTool extends BaseTool {
                     falhas.add(nome + " (maior que 25 MB)");
                     continue;
                 }
+                // A mesma planilha refeita na mesma resposta substitui a versao anterior: o usuario ve so a ultima.
+                arquivos.desativarVersaoAnterior(context.run(), nome);
                 ArquivoAssistente salvo = arquivos.salvarGerado(context.run(), nome, tipoConteudo(nome), conteudo);
                 Map<String, Object> descricao = ArtefatoTools.descreverArquivo(salvo);
                 Map<String, Object> resumoModelo = new LinkedHashMap<>();
@@ -260,6 +272,11 @@ public class ExecutarPythonTool extends BaseTool {
         resposta.put("arquivos_disponiveis", staging.nomes());
         if (staging.aviso() != null) resposta.put("staging_notice", staging.aviso());
         if (!falhas.isEmpty()) resposta.put("arquivos_nao_salvos", falhas);
+        if (!ignorados.isEmpty()) {
+            resposta.put("arquivos_de_trabalho_descartados", ignorados);
+            resposta.put("observacao_arquivos", "Arquivos de trabalho nao sao entregues nem ficam para a proxima chamada: "
+                    + "faca o trabalho num unico script ou grave CSV, que vira resultado rN.");
+        }
         if (!paraModelo.isEmpty()) {
             resposta.put("observacao", "Os arquivos gerados ja aparecem para o usuario na conversa. Cite-os pelo nome; "
                     + "nao escreva links. Use os resultados rN de planilhas geradas em criar_artefato ou relatorios.");
@@ -374,6 +391,11 @@ public class ExecutarPythonTool extends BaseTool {
     }
 
     // ------------------------------------------------------------------------------------ utilitarios
+
+    static boolean entregavel(String nome) {
+        int ponto = nome == null ? -1 : nome.lastIndexOf('.');
+        return ponto > 0 && EXTENSOES_ENTREGAVEIS.contains(nome.substring(ponto + 1).toLowerCase(Locale.ROOT));
+    }
 
     static String nomeSeguro(String nome) {
         String limpo = NOME_INSEGURO.matcher(nome == null ? "" : nome).replaceAll("_").strip();
