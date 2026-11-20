@@ -90,7 +90,7 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
               <strong>Enviar sem me identificar</strong>
               <span>{{ anonima() ? 'Seu nome não vai junto. Só fica registrado que você já respondeu.' : 'A resposta vai com o seu nome.' }}</span>
             </span>
-            <span class="trilho" aria-hidden="true"><span></span></span>
+            <span class="geo-interruptor" aria-hidden="true"><span></span></span>
           </button>
 
           @if (!rede.isOnline()) {
@@ -159,10 +159,6 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
     .anonima__texto { flex: 1; display: grid; gap: 2px; }
     .anonima__texto strong { font: var(--geo-t-corpo-forte); }
     .anonima__texto span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
-    [aria-checked='true'] .trilho span { transform: translateX(20px); }
 
     .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); }

@@ -110,7 +110,7 @@ const CONDICOES: OpcaoSegmento<CondicaoDev>[] = [
                   <button type="button" class="alternar" role="switch" [attr.aria-checked]="it.guardar" (click)="alternarGuardar(i)">
                     <span class="txt"><strong>{{ it.guardar ? 'Guardar no almoxarifado' : 'Baixa na hora' }}</strong>
                       <span>{{ it.guardar ? 'Entra no saldo de ' + almoxarifado() : 'Recebido e baixado: não entra no saldo' }}</span></span>
-                    <span class="trilho" aria-hidden="true"><i></i></span>
+                    <span class="geo-interruptor" aria-hidden="true"><i></i></span>
                   </button>
                 </div>
               }
@@ -155,11 +155,6 @@ const CONDICOES: OpcaoSegmento<CondicaoDev>[] = [
     .alternar .txt { flex: 1; display: grid; gap: 2px; }
     .alternar .txt strong { font: 600 .875rem/1.25 var(--geo-fonte); }
     .alternar .txt span { font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); }
-    .trilho { width: 44px; height: 26px; border-radius: 13px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background var(--geo-m-entrar); }
-    .trilho i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25);
-      transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
-    [aria-checked='true'] .trilho i { transform: translateX(18px); }
     .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
       background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
     .rodape .principal { flex: 1; min-height: var(--geo-alvo-principal); font-size: 1rem; }

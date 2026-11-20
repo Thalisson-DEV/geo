@@ -114,7 +114,7 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
                   @if (pedidoItem.categoria === 'COMBUSTIVEL') {
                     <button type="button" role="switch" class="interruptor" [attr.aria-checked]="i.tanqueCheio" (click)="alterarItem(i.idItem, { tanqueCheio: !i.tanqueCheio })">
                       <span class="txt"><b>Encheu o tanque</b><span>Com o tanque cheio o GEO calcula o consumo (km/l).</span></span>
-                      <span class="trilho" aria-hidden="true"><span></span></span>
+                      <span class="geo-interruptor" aria-hidden="true"><span></span></span>
                     </button>
                   }
                 </div>
@@ -235,10 +235,6 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
       background: var(--geo-superficie); color: var(--geo-texto); text-align: left; cursor: pointer; }
     .interruptor .txt { flex: 1; display: grid; gap: 2px; }
     .interruptor .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-ok); }
-    [aria-checked='true'] .trilho span { transform: translateX(20px); }
     .fotos { list-style: none; margin: var(--geo-e3) 0 0; padding: 0 var(--geo-e3); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--geo-e3); }
     .fotos li { display: grid; gap: 4px; min-width: 0; }
     .foto { position: relative; display: grid; place-content: center; justify-items: center; gap: 6px; aspect-ratio: 3 / 4; overflow: hidden;

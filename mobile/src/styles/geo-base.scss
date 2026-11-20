@@ -123,6 +123,23 @@ button, a, [role='button'], [role='tab'], .geo-tocavel {
   &--grande { font: var(--geo-t-campo); letter-spacing: .02em; font-variant-numeric: tabular-nums; min-height: 60px; }
 }
 
+// ---------- interruptor (switch, Material 3) ----------
+// Só o desenho: o botão que o contém tem role="switch" e aria-checked. Desligado com contorno ≥ 3:1.
+.geo-interruptor {
+  position: relative; flex: none; width: 52px; height: 32px; border-radius: 16px; box-sizing: border-box;
+  background: var(--geo-superficie-2); border: 2px solid var(--geo-borda-campo);
+  transition: background-color var(--geo-m-entrar) var(--geo-curva), border-color var(--geo-m-entrar);
+  > * { position: absolute; top: 50%; left: 6px; width: 16px; height: 16px; margin-top: -8px; border-radius: 50%;
+    background: var(--geo-borda-campo);
+    transition: transform var(--geo-m-entrar) var(--geo-curva), width var(--geo-m-entrar), height var(--geo-m-entrar),
+      margin var(--geo-m-entrar), background-color var(--geo-m-entrar); }
+}
+[aria-checked='true'] .geo-interruptor {
+  background: var(--geo-destaque); border-color: var(--geo-destaque);
+  > * { width: 24px; height: 24px; margin-top: -12px; transform: translateX(18px); background: var(--geo-destaque-texto); }
+}
+[aria-disabled='true'] .geo-interruptor, :disabled .geo-interruptor { opacity: .45; }
+
 // ---------- progresso de um fluxo em passos ----------
 // Segmentos no topo do lançamento (o texto "1 de 4" fica no subtítulo da barra superior).
 .geo-passos {

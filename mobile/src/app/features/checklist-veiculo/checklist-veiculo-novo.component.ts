@@ -339,7 +339,7 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                 @if (modelo()?.exigeAssinatura) {
                   <button type="button" role="switch" class="interruptor" [attr.aria-checked]="r.assinado" (click)="atualizar({ assinado: !r.assinado })">
                     <span class="txt"><b>Confirmo que conferi o veículo</b><span>Fica registrado com o seu login.</span></span>
-                    <span class="trilho" aria-hidden="true"><span></span></span>
+                    <span class="geo-interruptor" aria-hidden="true"><span></span></span>
                   </button>
                   @if (tentou() && !r.assinado) { <p class="falta" role="alert">Confirme para enviar.</p> }
                 }

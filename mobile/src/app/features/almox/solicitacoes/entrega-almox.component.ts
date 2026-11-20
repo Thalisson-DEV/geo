@@ -138,7 +138,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
                 <button type="button" class="alternar" role="switch" [attr.aria-checked]="foraEquipe()" (click)="alternarForaEquipe()" [disabled]="!idEquipe()">
                   <span class="txt"><strong>Retirada por alguém de fora da equipe</strong>
                     <span>{{ idEquipe() ? 'Ligue quando quem retira não é da equipe de destino.' : 'O estoque de destino não tem equipe: escolha qualquer colaborador.' }}</span></span>
-                  <span class="trilho" aria-hidden="true"><i></i></span>
+                  <span class="geo-interruptor" aria-hidden="true"><i></i></span>
                 </button>
                 @if (carregandoPessoas()) {
                   <div class="geo-esqueleto" style="height: 64px"></div>
@@ -280,11 +280,6 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
     .alternar:disabled { opacity: .75; cursor: default; }
     .alternar .txt { flex: 1; display: grid; gap: 2px; }
     .alternar .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background var(--geo-m-entrar); }
-    .trilho i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25);
-      transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
-    [aria-checked='true'] .trilho i { transform: translateX(20px); }
     .campos .geo-secao { padding-left: var(--geo-e2); }
     .campos .geo-grupo { margin: 0; }
     .ajuda { margin: 0 var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }

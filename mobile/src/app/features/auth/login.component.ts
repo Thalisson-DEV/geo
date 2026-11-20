@@ -64,7 +64,6 @@ import { environment } from '../../../environments/environment';
 
       <footer class="rodape">
         <span class="geo-num">Versão {{ versao }}</span>
-        <span aria-hidden="true">·</span>
         <button type="button" class="atualizar" (click)="buscarAtualizacao()" [disabled]="atualizando()">
           {{ atualizando() ? 'Procurando…' : 'Buscar atualização' }}
         </button>
@@ -90,9 +89,9 @@ import { environment } from '../../../environments/environment';
     .erro, .aviso { margin: 0; display: flex; gap: var(--geo-e2); align-items: flex-start; font: var(--geo-t-corpo); }
     .erro { color: var(--geo-erro); }
     .aviso { color: var(--geo-atencao); }
-    .rodape { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 var(--geo-e2);
+    .rodape { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 var(--geo-e3);
       color: var(--geo-texto-2); font: var(--geo-t-apoio); }
-    .atualizar { min-height: 44px; padding: 0 var(--geo-e2); border: 0; background: transparent; color: var(--geo-destaque);
+    .atualizar { min-height: var(--geo-alvo); padding: 0 var(--geo-e2); border: 0; background: transparent; color: var(--geo-destaque);
       font: 600 .875rem/1 var(--geo-fonte); border-radius: var(--geo-r-campo); cursor: pointer; }
     .atualizar:disabled { color: var(--geo-texto-2); cursor: default; }
     .situacao { flex-basis: 100%; margin: 0; text-align: center; }

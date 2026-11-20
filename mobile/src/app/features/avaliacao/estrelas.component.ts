@@ -29,7 +29,7 @@ import { ROTULO_ESTRELAS } from '../../core/avaliacao/avaliacao.service';
   styles: [`
     /* Dourado próprio da nota: é decoração, não estado. O --geo-atencao (âmbar escuro, feito para
        texto de alerta) deixava a estrela marrom. */
-    :host { --estrela: #F5B400; --estrela-apagada: color-mix(in srgb, var(--geo-texto) 14%, transparent);
+    :host { --estrela: var(--geo-marca-ambar); --estrela-apagada: color-mix(in srgb, var(--geo-texto) 14%, transparent);
       display: grid; justify-items: center; gap: var(--geo-e1); }
     .estrelas { display: flex; gap: var(--geo-e2); }
     .estrela { width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%;

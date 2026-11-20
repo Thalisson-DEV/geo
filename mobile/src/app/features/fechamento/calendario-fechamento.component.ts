@@ -108,7 +108,7 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
   styles: [`
     :host { display: block; }
     .mes { margin: var(--geo-e3) var(--geo-margem) 0; padding: var(--geo-e4) var(--geo-e3) var(--geo-e3); border-radius: var(--geo-r-folha); background: var(--geo-superficie);
-      box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
+      box-shadow: var(--geo-sombra-cartao); }
     .cab { display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e1) var(--geo-e3) var(--geo-e2); }
     .titulo { flex: 1; min-width: 0; }
     .titulo h3 { margin: 0; font: 600 1.0625rem/1.25 var(--geo-fonte); }

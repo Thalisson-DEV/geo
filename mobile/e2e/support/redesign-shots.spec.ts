@@ -49,6 +49,9 @@ for (const [aparelho, viewport] of Object.entries(APARELHOS)) {
         await foto(page, '01-hoje');
         await page.goto('/campo');
         await foto(page, '02-servicos');
+        await page.locator('main').evaluate(el => el.scrollTo(0, 500));
+        await foto(page, '02b-servicos-rolado');
+        await page.locator('main').evaluate(el => el.scrollTo(0, 0));
         await page.goto('/campo/nova');
         await expect(page.locator('#nota')).toBeVisible();
         await foto(page, '03-nova-execucao');

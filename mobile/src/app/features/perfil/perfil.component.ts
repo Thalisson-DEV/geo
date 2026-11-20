@@ -24,7 +24,8 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
   imports: [FolhaComponent, IconeComponent, IndicadorRedeComponent, SegmentadoComponent, TituloGrandeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <geo-titulo-grande titulo="Conta" [subtitulo]="rede.isOnline() ? 'Conectado' : 'Trabalhando sem internet'">
+    <!-- Sem subtítulo de conexão: o indicador ao lado já diz online/sem rede (antes o mesmo dado aparecia duas vezes). -->
+    <geo-titulo-grande titulo="Conta">
       <geo-indicador-rede />
     </geo-titulo-grande>
 
@@ -62,14 +63,14 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
           <span class="geo-linha__titulo">Usar dados móveis</span>
           <span class="geo-linha__apoio quebra">{{ rede.usarRedesMoveis() ? 'Envia também pelo 4G/5G' : 'Envia só no Wi-Fi' }}</span>
         </span>
-        <span class="trilho" aria-hidden="true"><span></span></span>
+        <span class="geo-interruptor" aria-hidden="true"><span></span></span>
       </button></li>
       <li><button type="button" role="switch" class="geo-linha geo-linha--acao interruptor" [attr.aria-checked]="rede.forcarOffline()" (click)="alternarOffline()">
         <span class="geo-linha__texto">
           <span class="geo-linha__titulo">Trabalhar sem internet</span>
           <span class="geo-linha__apoio quebra">{{ rede.forcarOffline() ? 'Nada é enviado até você desligar' : 'O app decide pela conexão' }}</span>
         </span>
-        <span class="trilho" aria-hidden="true"><span></span></span>
+        <span class="geo-interruptor" aria-hidden="true"><span></span></span>
       </button></li>
     </ul>
     @if (rede.isBloqueadoPorDadosMoveis()) {
@@ -142,10 +143,6 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
     .girando { display: inline-flex; animation: girar 1s linear infinite; }
     @keyframes girar { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { .girando { animation: none; } }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
-    [aria-checked='true'] .trilho span { transform: translateX(20px); }
     .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e2) var(--geo-margem) 0; padding: var(--geo-e3) var(--geo-e4);
       border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); font-size: .875rem; }
     .folha-aviso { margin: 0 var(--geo-e4); }

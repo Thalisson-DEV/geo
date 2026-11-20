@@ -61,7 +61,7 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
   `,
   styles: [`
     :host { display: block; }
-    .cartao { background: var(--geo-superficie); border-radius: var(--geo-r-grupo); overflow: hidden; box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
+    .cartao { background: var(--geo-superficie); border-radius: var(--geo-r-grupo); overflow: hidden; box-shadow: var(--geo-sombra-cartao); }
     .corpo { display: flex; align-items: flex-start; gap: var(--geo-e3); width: 100%; padding: var(--geo-e3); border: 0; background: transparent; color: inherit;
       text-align: left; font: inherit; cursor: pointer; transition: background-color 100ms; }
     .corpo:active { background: var(--geo-superficie-2); }

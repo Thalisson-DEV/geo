@@ -142,7 +142,7 @@ const ABAS: readonly { value: AbaDesvio; label: string }[] = [
       <div class="campos">
         <geo-segmentado rotulo="Gravidade" [opcoes]="opcoesGravidade" [valor]="gravidade()" (valorChange)="gravidade.set($any($event))" />
         <button type="button" role="switch" class="interruptor" [attr.aria-checked]="vencimento() === 'vencidos'" (click)="vencimento.set(vencimento() === 'vencidos' ? 'todos' : 'vencidos')">
-          <span class="txt"><b>Só os vencidos</b><span>Prazo já passou</span></span><span class="trilho" aria-hidden="true"><span></span></span>
+          <span class="txt"><b>Só os vencidos</b><span>Prazo já passou</span></span><span class="geo-interruptor" aria-hidden="true"><span></span></span>
         </button>
         <geo-seletor rotulo="Processo" placeholder="Todos" [opcoes]="opcoesProcesso()" [valor]="idProcesso() || null" (valorChange)="idProcesso.set($event ?? '')" />
         <geo-seletor rotulo="Base" placeholder="Todas" [opcoes]="opcoesBase()" [valor]="idBase() || null" (valorChange)="idBase.set($event ?? '')" />
@@ -207,10 +207,6 @@ const ABAS: readonly { value: AbaDesvio; label: string }[] = [
       border-radius: var(--geo-r-grupo); background: var(--geo-superficie); color: var(--geo-texto); text-align: left; cursor: pointer; }
     .interruptor .txt { flex: 1; display: grid; gap: 2px; }
     .interruptor .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
-    [aria-checked='true'] .trilho span { transform: translateX(20px); }
   `],
 })
 export class MeusDesviosComponent implements OnInit, OnDestroy {

@@ -65,7 +65,7 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
               }
               <button type="button" role="switch" class="interruptor" [attr.aria-checked]="saqueForaEquipe()" (click)="definirForaEquipe(!saqueForaEquipe())">
                 <span class="txt"><b>Quem retira é de fora da equipe</b><span>O almoxarifado define na entrega.</span></span>
-                <span class="trilho" aria-hidden="true"><span></span></span>
+                <span class="geo-interruptor" aria-hidden="true"><span></span></span>
               </button>
               @if (!saqueForaEquipe()) {
                 <geo-seletor rotulo="Quem vai retirar" placeholder="Definir na entrega" [opcoes]="opcoesMembros()" [valor]="idColaboradorSaque()"
@@ -174,10 +174,6 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
       border-radius: var(--geo-r-grupo); background: var(--geo-superficie); color: var(--geo-texto); text-align: left; cursor: pointer; }
     .interruptor .txt { flex: 1; display: grid; gap: 2px; }
     .interruptor .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
-    [aria-checked='true'] .trilho span { transform: translateX(20px); }
     .data { padding: var(--geo-e2) var(--geo-e1) 0; }
     .item { flex-wrap: wrap; }
     .item .geo-linha__texto { flex-basis: 100%; }

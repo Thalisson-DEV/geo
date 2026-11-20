@@ -228,7 +228,7 @@ const PREFIXO_BRUTO = 'bruto:';
                 </header>
                 <button type="button" role="switch" class="interruptor" [attr.aria-checked]="!!d.tratadoInLoco" (click)="toggleTratadoInLoco(d.idPergunta)">
                   <span class="txt"><b>Corrigido na hora</b><span>{{ d.tratadoInLoco ? 'Vai como resolvido.' : 'Marque se já foi sanado no local.' }}</span></span>
-                  <span class="trilho" aria-hidden="true"><span></span></span>
+                  <span class="geo-interruptor" aria-hidden="true"><span></span></span>
                 </button>
                 <div class="geo-campo">
                   <label [for]="'acao-' + d.idPergunta">{{ d.tratadoInLoco ? 'O que foi feito *' : 'Ação corretiva *' }}</label>
@@ -394,10 +394,6 @@ const PREFIXO_BRUTO = 'bruto:';
     .interruptor { display: flex; align-items: center; gap: var(--geo-e3); min-height: 56px; padding: 0; border: 0; background: transparent; color: var(--geo-texto); text-align: left; cursor: pointer; }
     .interruptor .txt { flex: 1; display: grid; gap: 2px; }
     .interruptor .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
-    [aria-checked='true'] .trilho { background: var(--geo-ok); }
-    [aria-checked='true'] .trilho span { transform: translateX(20px); }
     .botoes-foto { display: flex; gap: var(--geo-e2); }
     .botoes-foto .geo-btn { flex: 1; position: relative; }
     .botoes-foto.evid { padding: 0 var(--geo-e3) var(--geo-e3); }
