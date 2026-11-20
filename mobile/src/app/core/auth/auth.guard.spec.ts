@@ -4,44 +4,49 @@ import { authGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
 describe('AuthGuard', () => {
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  const arvoreLogin = {} as UrlTree;
+    let authServiceSpy: any;
+    let routerSpy: any;
+    const arvoreLogin = {} as UrlTree;
 
-  beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['isAuthenticated', 'restaurarSessao']);
-    authServiceSpy.restaurarSessao.and.resolveTo(false);
-    routerSpy = jasmine.createSpyObj('Router', ['parseUrl']);
-    routerSpy.parseUrl.and.returnValue(arvoreLogin);
+    beforeEach(() => {
+        authServiceSpy = {
+            isAuthenticated: vi.fn().mockName("AuthService.isAuthenticated"),
+            restaurarSessao: vi.fn().mockName("AuthService.restaurarSessao")
+        };
+        authServiceSpy.restaurarSessao.mockResolvedValue(false);
+        routerSpy = {
+            parseUrl: vi.fn().mockName("Router.parseUrl")
+        };
+        routerSpy.parseUrl.mockReturnValue(arvoreLogin);
 
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: Router, useValue: routerSpy }
-      ]
+        TestBed.configureTestingModule({
+            providers: [
+                { provide: AuthService, useValue: authServiceSpy },
+                { provide: Router, useValue: routerSpy }
+            ]
+        });
     });
-  });
 
-  const runGuard = () => TestBed.runInInjectionContext(() => authGuard({} as any, {} as any)) as Promise<boolean | UrlTree>;
+    const runGuard = () => TestBed.runInInjectionContext(() => authGuard({} as any, {} as any)) as Promise<boolean | UrlTree>;
 
-  it('abre o app com a sessão do aparelho, com ou sem rede e mesmo com o token vencido', async () => {
-    authServiceSpy.isAuthenticated.and.returnValue(true);
+    it('abre o app com a sessão do aparelho, com ou sem rede e mesmo com o token vencido', async () => {
+        authServiceSpy.isAuthenticated.mockReturnValue(true);
 
-    expect(await runGuard()).toBeTrue();
-    expect(authServiceSpy.restaurarSessao).not.toHaveBeenCalled();
-  });
+        expect(await runGuard()).toBe(true);
+        expect(authServiceSpy.restaurarSessao).not.toHaveBeenCalled();
+    });
 
-  it('sem sessão local, tenta recuperá-la pelo cookie antes do login', async () => {
-    authServiceSpy.isAuthenticated.and.returnValue(false);
-    authServiceSpy.restaurarSessao.and.resolveTo(true);
+    it('sem sessão local, tenta recuperá-la pelo cookie antes do login', async () => {
+        authServiceSpy.isAuthenticated.mockReturnValue(false);
+        authServiceSpy.restaurarSessao.mockResolvedValue(true);
 
-    expect(await runGuard()).toBeTrue();
-  });
+        expect(await runGuard()).toBe(true);
+    });
 
-  it('sem sessão nenhuma, vai para o login', async () => {
-    authServiceSpy.isAuthenticated.and.returnValue(false);
+    it('sem sessão nenhuma, vai para o login', async () => {
+        authServiceSpy.isAuthenticated.mockReturnValue(false);
 
-    expect(await runGuard()).toBe(arvoreLogin);
-    expect(routerSpy.parseUrl).toHaveBeenCalledWith('/login');
-  });
+        expect(await runGuard()).toBe(arvoreLogin);
+        expect(routerSpy.parseUrl).toHaveBeenCalledWith('/login');
+    });
 });

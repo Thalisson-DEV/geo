@@ -39,48 +39,48 @@ interface EstadoTela { filtro?: FiltroPedido; periodo?: PeriodFilter; folhaPerio
   imports: [BarraTopoComponent, ChipsComponent, IconeComponent, PeriodoComponent, RouterLink, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Meus pedidos" [subtitulo]="subtitulo()" (voltar)="voltar()">
-      <ces-periodo [valor]="periodo()" (valorChange)="definirPeriodo($event)" [aberto]="folhaPeriodo()" (abertoChange)="definirFolha($event)" />
-    </ces-barra-topo>
-    <ces-chips rotulo="Filtrar pedidos" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definirFiltro($any($event))" />
+    <geo-barra-topo titulo="Meus pedidos" [subtitulo]="subtitulo()" (voltar)="voltar()">
+      <geo-periodo [valor]="periodo()" (valorChange)="definirPeriodo($event)" [aberto]="folhaPeriodo()" (abertoChange)="definirFolha($event)" />
+    </geo-barra-topo>
+    <geo-chips rotulo="Filtrar pedidos" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definirFiltro($any($event))" />
 
     @if (carregando()) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        @for (i of [1, 2, 3]; track i) { <div class="ces-esqueleto" style="height: 72px"></div> }
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 72px"></div> }
       </div>
     } @else if (grupos().length) {
       @for (g of grupos(); track g.titulo) {
-        <h2 class="ces-secao">{{ g.titulo }}</h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao">{{ g.titulo }}</h2>
+        <ul class="geo-grupo">
           @for (l of g.itens; track l.id) {
-            <li class="ces-linha-lista" [attr.data-ancora]="l.id">
-              <a class="ces-linha ces-linha--acao" [routerLink]="['/solicitacoes', l.id]">
-                <span class="ces-selo" [class]="'ces-selo ces-selo--' + seloDe(l.situacao.tom)"><ces-icone nome="documento" /></span>
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo">{{ l.resumo }}</span>
-                  <span class="ces-linha__apoio ces-num">{{ l.origem }}{{ l.retirada ? ' · retirar ' + l.retirada : '' }}</span>
+            <li class="geo-linha-lista" [attr.data-ancora]="l.id">
+              <a class="geo-linha geo-linha--acao" [routerLink]="['/solicitacoes', l.id]">
+                <span class="geo-selo" [class]="'geo-selo geo-selo--' + seloDe(l.situacao.tom)"><geo-icone nome="documento" /></span>
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo">{{ l.resumo }}</span>
+                  <span class="geo-linha__apoio geo-num">{{ l.origem }}{{ l.retirada ? ' · retirar ' + l.retirada : '' }}</span>
                 </span>
                 <span class="direita">
-                  <span class="ces-qtd">{{ l.itens }}<small>{{ l.itens === 1 ? 'item' : 'itens' }}</small></span>
-                  <span class="ces-etiqueta" [class]="'ces-etiqueta ces-etiqueta--' + l.situacao.tom">{{ l.situacao.rotulo }}</span>
+                  <span class="geo-qtd">{{ l.itens }}<small>{{ l.itens === 1 ? 'item' : 'itens' }}</small></span>
+                  <span class="geo-etiqueta" [class]="'geo-etiqueta geo-etiqueta--' + l.situacao.tom">{{ l.situacao.rotulo }}</span>
                 </span>
               </a>
             </li>
           }
         </ul>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     } @else {
-      <ces-vazio icone="documento" [titulo]="filtro() === 'todos' ? 'Nenhum pedido no período' : 'Nada com esse filtro'"
+      <geo-vazio icone="documento" [titulo]="filtro() === 'todos' ? 'Nenhum pedido no período' : 'Nada com esse filtro'"
         [texto]="filtro() === 'todos' ? 'Peça material do almoxarifado pelo botão Pedir.' : 'Volte para Todos para ver o resto.'">
         @if (filtro() !== 'todos' || periodo() !== 'todos') {
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="limpar()">Mostrar todos</button>
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="limpar()">Mostrar todos</button>
         }
-      </ces-vazio>
+      </geo-vazio>
     }
 
     @if (turno.turnoAtivo()) {
-      <a class="ces-fab" routerLink="/solicitacoes/nova"><ces-icone nome="mais" />Pedir</a>
+      <a class="geo-fab" routerLink="/solicitacoes/nova"><geo-icone nome="mais" />Pedir</a>
     }
   `,
   styles: [`

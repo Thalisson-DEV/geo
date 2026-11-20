@@ -16,7 +16,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 # Defina NGINX_ENVSUBST_FILTER=PORT no ambiente para substituir só ${PORT}.
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 
-# Nome interno do projeto Angular: ces-field-app-tmp -> dist/ces-field-app-tmp/browser
-COPY --from=build /app/dist/ces-field-app-tmp/browser /usr/share/nginx/html
+# Nome interno do projeto Angular: geo-field-app-tmp -> dist/geo-field-app-tmp/browser
+COPY --from=build /app/dist/geo-field-app-tmp/browser /usr/share/nginx/html
 
 EXPOSE 80

@@ -9,13 +9,13 @@ import { IconeComponent } from './icone.component';
  * aparecem as unidades para tocar (ex.: UN | M) e a conta logo abaixo, do jeito que vai para o saldo.
  */
 @Component({
-  selector: 'ces-quantidade-unidade',
+  selector: 'geo-quantidade-unidade',
   standalone: true,
   imports: [QuantidadeComponent, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="qu">
-      <ces-quantidade [grande]="grande()" [unidade]="atual()" [valor]="valor()" (valorChange)="valor.set($event)" [minimo]="minimo()" [rotulo]="rotulo()" />
+      <geo-quantidade [grande]="grande()" [unidade]="atual()" [valor]="valor()" (valorChange)="valor.set($event)" [minimo]="minimo()" [rotulo]="rotulo()" />
       @if (unidades().length > 1) {
         <div class="unidades" role="radiogroup" [attr.aria-label]="'Unidade de ' + rotulo()">
           @for (u of unidades(); track u) {
@@ -25,19 +25,19 @@ import { IconeComponent } from './icone.component';
       }
     </div>
     @if (conta(); as c) {
-      <p class="conta ces-num" aria-live="polite"><ces-icone nome="transferencia" [tamanho]="14" />Vai para o saldo como <strong>{{ c.base }}</strong> · {{ c.frase }}</p>
+      <p class="conta geo-num" aria-live="polite"><geo-icone nome="transferencia" [tamanho]="14" />Vai para o saldo como <strong>{{ c.base }}</strong> · {{ c.frase }}</p>
     }
   `,
   styles: [`
     :host { display: block; }
-    .qu { display: flex; align-items: center; gap: var(--ces-e2); flex-wrap: wrap; justify-content: flex-end; }
+    .qu { display: flex; align-items: center; gap: var(--geo-e2); flex-wrap: wrap; justify-content: flex-end; }
     .unidades { display: inline-flex; gap: 4px; }
-    .un { min-width: 48px; min-height: 44px; padding: 0 var(--ces-e3); border: 1.5px solid var(--ces-linha-forte); border-radius: var(--ces-r-pilula);
-      background: transparent; color: var(--ces-texto); font: 600 .875rem/1 var(--ces-fonte); cursor: pointer; }
-    .un[aria-checked='true'] { border-color: var(--ces-destaque); background: var(--ces-destaque-suave); color: var(--ces-destaque); }
-    .un:focus-visible { outline: 2px solid var(--ces-destaque); outline-offset: 2px; }
-    .conta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; flex-wrap: wrap; margin: var(--ces-e1) 0 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); text-align: right; }
-    .conta strong { color: var(--ces-texto); }
+    .un { min-width: 48px; min-height: 44px; padding: 0 var(--geo-e3); border: 1.5px solid var(--geo-linha-forte); border-radius: var(--geo-r-pilula);
+      background: transparent; color: var(--geo-texto); font: 600 .875rem/1 var(--geo-fonte); cursor: pointer; }
+    .un[aria-checked='true'] { border-color: var(--geo-destaque); background: var(--geo-destaque-suave); color: var(--geo-destaque); }
+    .un:focus-visible { outline: 2px solid var(--geo-destaque); outline-offset: 2px; }
+    .conta { display: flex; align-items: center; justify-content: flex-end; gap: 4px; flex-wrap: wrap; margin: var(--geo-e1) 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); text-align: right; }
+    .conta strong { color: var(--geo-texto); }
   `],
 })
 export class QuantidadeUnidadeComponent {

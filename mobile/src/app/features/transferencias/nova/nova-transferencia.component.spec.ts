@@ -11,153 +11,166 @@ import { SyncService } from '../../../core/sync/sync.service';
 import { ConnectivityService } from '../../../core/sync/connectivity.service';
 
 describe('NovaTransferenciaComponent - Assinaturas Digitais', () => {
-  let component: NovaTransferenciaComponent;
-  let fixture: ComponentFixture<NovaTransferenciaComponent>;
+    let component: NovaTransferenciaComponent;
+    let fixture: ComponentFixture<NovaTransferenciaComponent>;
 
-  let dbServiceSpy: jasmine.SpyObj<DbService>;
-  let tokenServiceSpy: jasmine.SpyObj<TokenService>;
-  let toastServiceSpy: jasmine.SpyObj<ToastService>;
-  let turnoServiceSpy: jasmine.SpyObj<TurnoService>;
-  let routerSpy: jasmine.SpyObj<Router>;
-  let outboxServiceSpy: jasmine.SpyObj<OutboxService>;
-  let syncServiceSpy: jasmine.SpyObj<SyncService>;
-  let connectivityServiceSpy: jasmine.SpyObj<ConnectivityService>;
+    let dbServiceSpy: any;
+    let tokenServiceSpy: any;
+    let toastServiceSpy: any;
+    let turnoServiceSpy: any;
+    let routerSpy: any;
+    let outboxServiceSpy: any;
+    let syncServiceSpy: any;
+    let connectivityServiceSpy: any;
 
-  beforeEach(async () => {
-    dbServiceSpy = jasmine.createSpyObj('DbService', [
-      'getEstoques',
-      'getSaldosComMateriais',
-      'registrarTransferenciaOffline',
-    ]);
-    dbServiceSpy.getEstoques.and.resolveTo([
-      { id: 'est-dest-1', nomeIdentificador: 'Base Sul', tipoEstoque: 'BASE' } as any,
-    ]);
-    dbServiceSpy.getSaldosComMateriais.and.resolveTo([]);
-    dbServiceSpy.registrarTransferenciaOffline.and.resolveTo();
+    beforeEach(async () => {
+        dbServiceSpy = {
+            getEstoques: vi.fn().mockName("DbService.getEstoques"),
+            getSaldosComMateriais: vi.fn().mockName("DbService.getSaldosComMateriais"),
+            registrarTransferenciaOffline: vi.fn().mockName("DbService.registrarTransferenciaOffline")
+        };
+        dbServiceSpy.getEstoques.mockResolvedValue([
+            { id: 'est-dest-1', nomeIdentificador: 'Base Sul', tipoEstoque: 'BASE' } as any,
+        ]);
+        dbServiceSpy.getSaldosComMateriais.mockResolvedValue([]);
+        dbServiceSpy.registrarTransferenciaOffline.mockResolvedValue(undefined);
 
-    tokenServiceSpy = jasmine.createSpyObj('TokenService', ['estoqueId', 'nomeUsuario', 'ownerId']);
-    tokenServiceSpy.ownerId.and.returnValue('u-1');
-    tokenServiceSpy.estoqueId.and.returnValue('est-origem-1');
-    tokenServiceSpy.nomeUsuario.and.returnValue('Equipe Teste');
+        tokenServiceSpy = {
+            estoqueId: vi.fn().mockName("TokenService.estoqueId"),
+            nomeUsuario: vi.fn().mockName("TokenService.nomeUsuario"),
+            ownerId: vi.fn().mockName("TokenService.ownerId")
+        };
+        tokenServiceSpy.ownerId.mockReturnValue('u-1');
+        tokenServiceSpy.estoqueId.mockReturnValue('est-origem-1');
+        tokenServiceSpy.nomeUsuario.mockReturnValue('Equipe Teste');
 
-    toastServiceSpy = jasmine.createSpyObj('ToastService', ['success', 'warning', 'error']);
-    turnoServiceSpy = jasmine.createSpyObj('TurnoService', ['loadTurnoAtivo'], {
-      turnoAtivo: signal({ id: 'turno-1' }),
+        toastServiceSpy = {
+            success: vi.fn().mockName("ToastService.success"),
+            warning: vi.fn().mockName("ToastService.warning"),
+            error: vi.fn().mockName("ToastService.error")
+        };
+        turnoServiceSpy = {
+            loadTurnoAtivo: vi.fn().mockName("TurnoService.loadTurnoAtivo"),
+            turnoAtivo: signal({ id: 'turno-1' })
+        };
+        turnoServiceSpy.loadTurnoAtivo.mockResolvedValue(undefined);
+
+        routerSpy = {
+            navigate: vi.fn().mockName("Router.navigate")
+        };
+        outboxServiceSpy = {
+            updateStatus: vi.fn().mockName("OutboxService.updateStatus"),
+            discard: vi.fn().mockName("OutboxService.discard")
+        };
+        syncServiceSpy = {
+            syncOutbox: vi.fn().mockName("SyncService.syncOutbox")
+        };
+        connectivityServiceSpy = {
+            isOnline: vi.fn().mockName("ConnectivityService.isOnline"),
+            statusConexao: vi.fn().mockName("ConnectivityService.statusConexao")
+        };
+        connectivityServiceSpy.statusConexao.mockReturnValue('online');
+        connectivityServiceSpy.isOnline.mockReturnValue(true);
+
+        await TestBed.configureTestingModule({
+            imports: [NovaTransferenciaComponent],
+            providers: [
+                { provide: DbService, useValue: dbServiceSpy },
+                { provide: TokenService, useValue: tokenServiceSpy },
+                { provide: ToastService, useValue: toastServiceSpy },
+                { provide: TurnoService, useValue: turnoServiceSpy },
+                { provide: Router, useValue: routerSpy },
+                { provide: OutboxService, useValue: outboxServiceSpy },
+                { provide: SyncService, useValue: syncServiceSpy },
+                { provide: ConnectivityService, useValue: connectivityServiceSpy },
+            ],
+        }).compileComponents();
+
+        fixture = TestBed.createComponent(NovaTransferenciaComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
-    turnoServiceSpy.loadTurnoAtivo.and.resolveTo();
 
-    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    outboxServiceSpy = jasmine.createSpyObj('OutboxService', ['updateStatus', 'discard']);
-    syncServiceSpy = jasmine.createSpyObj('SyncService', ['syncOutbox']);
-    connectivityServiceSpy = jasmine.createSpyObj('ConnectivityService', ['isOnline', 'statusConexao']);
-    connectivityServiceSpy.statusConexao.and.returnValue('online');
-    connectivityServiceSpy.isOnline.and.returnValue(true);
+    it('deve ter 4 etapas no wizard e iniciar na etapa 1', () => {
+        expect(component.currentStep()).toBe(1);
+        expect(component.stepTitle()).toBe('Estoque de destino');
+    });
 
-    await TestBed.configureTestingModule({
-      imports: [NovaTransferenciaComponent],
-      providers: [
-        { provide: DbService, useValue: dbServiceSpy },
-        { provide: TokenService, useValue: tokenServiceSpy },
-        { provide: ToastService, useValue: toastServiceSpy },
-        { provide: TurnoService, useValue: turnoServiceSpy },
-        { provide: Router, useValue: routerSpy },
-        { provide: OutboxService, useValue: outboxServiceSpy },
-        { provide: SyncService, useValue: syncServiceSpy },
-        { provide: ConnectivityService, useValue: connectivityServiceSpy },
-      ],
-    }).compileComponents();
+    it('deve avançar para a etapa 4 de assinatura digital e validar obrigatoriedade das assinaturas', () => {
+        component.idEstoqueDestino.set('est-dest-1');
+        component.selectedItens.set([
+            {
+                idMaterial: 'mat-1',
+                codigo: '1001',
+                descricao: 'Cabo',
+                unidadeMedida: 'M',
+                quantidade: 10,
+                condicao: 'NOVO',
+                detalhaSerie: false,
+                saldoDisponivel: 50,
+            },
+        ]);
 
-    fixture = TestBed.createComponent(NovaTransferenciaComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+        component.currentStep.set(3);
+        expect(component.stepTitle()).toBe('Revisão dos itens');
+        expect(component.canAdvance()).toBe(true);
 
-  it('deve ter 4 etapas no wizard e iniciar na etapa 1', () => {
-    expect(component.currentStep()).toBe(1);
-    expect(component.stepTitle()).toBe('Estoque de destino');
-  });
+        // Avança para a Etapa 4
+        component.nextStep();
+        expect(component.currentStep()).toBe(4);
+        expect(component.stepTitle()).toBe('Assinatura digital');
 
-  it('deve avançar para a etapa 4 de assinatura digital e validar obrigatoriedade das assinaturas', () => {
-    component.idEstoqueDestino.set('est-dest-1');
-    component.selectedItens.set([
-      {
-        idMaterial: 'mat-1',
-        codigo: '1001',
-        descricao: 'Cabo',
-        unidadeMedida: 'M',
-        quantidade: 10,
-        condicao: 'NOVO',
-        detalhaSerie: false,
-        saldoDisponivel: 50,
-      },
-    ]);
+        // Na etapa 4, não pode avançar sem ambas as assinaturas
+        expect(component.canAdvance()).toBe(false);
 
-    component.currentStep.set(3);
-    expect(component.stepTitle()).toBe('Revisão dos itens');
-    expect(component.canAdvance()).toBeTrue();
+        component.assinaturaEntregador.set('data:image/png;base64,assinatura1');
+        expect(component.canAdvance()).toBe(false);
 
-    // Avança para a Etapa 4
-    component.nextStep();
-    expect(component.currentStep()).toBe(4);
-    expect(component.stepTitle()).toBe('Assinatura digital');
+        component.assinaturaRecebedor.set('data:image/png;base64,assinatura2');
+        expect(component.canAdvance()).toBe(true);
+    });
 
-    // Na etapa 4, não pode avançar sem ambas as assinaturas
-    expect(component.canAdvance()).toBeFalse();
+    it('deve abrir e fechar o modal de assinatura para entregador e recebedor', () => {
+        component.openSignaturePad('entregador');
+        expect(component.activeSignatureModal()).toBe('entregador');
 
-    component.assinaturaEntregador.set('data:image/png;base64,assinatura1');
-    expect(component.canAdvance()).toBeFalse();
+        component.closeSignaturePad();
+        expect(component.activeSignatureModal()).toBeNull();
 
-    component.assinaturaRecebedor.set('data:image/png;base64,assinatura2');
-    expect(component.canAdvance()).toBeTrue();
-  });
+        component.openSignaturePad('recebedor');
+        expect(component.activeSignatureModal()).toBe('recebedor');
+    });
 
-  it('deve abrir e fechar o modal de assinatura para entregador e recebedor', () => {
-    component.openSignaturePad('entregador');
-    expect(component.activeSignatureModal()).toBe('entregador');
+    it('deve submeter a transferência enviando ambas as assinaturas digitais', async () => {
+        component.idEstoqueDestino.set('est-dest-1');
+        component.selectedItens.set([
+            {
+                idMaterial: 'mat-1',
+                codigo: '1001',
+                descricao: 'Cabo',
+                unidadeMedida: 'M',
+                quantidade: 5,
+                condicao: 'NOVO',
+                detalhaSerie: false,
+                saldoDisponivel: 20,
+            },
+        ]);
+        component.assinaturaEntregador.set('data:image/png;base64,entregador-ok');
+        component.assinaturaRecebedor.set('data:image/png;base64,recebedor-ok');
+        component.currentStep.set(4);
 
-    component.closeSignaturePad();
-    expect(component.activeSignatureModal()).toBeNull();
+        await component.confirm();
 
-    component.openSignaturePad('recebedor');
-    expect(component.activeSignatureModal()).toBe('recebedor');
-  });
-
-  it('deve submeter a transferência enviando ambas as assinaturas digitais', async () => {
-    component.idEstoqueDestino.set('est-dest-1');
-    component.selectedItens.set([
-      {
-        idMaterial: 'mat-1',
-        codigo: '1001',
-        descricao: 'Cabo',
-        unidadeMedida: 'M',
-        quantidade: 5,
-        condicao: 'NOVO',
-        detalhaSerie: false,
-        saldoDisponivel: 20,
-      },
-    ]);
-    component.assinaturaEntregador.set('data:image/png;base64,entregador-ok');
-    component.assinaturaRecebedor.set('data:image/png;base64,recebedor-ok');
-    component.currentStep.set(4);
-
-    await component.confirm();
-
-    expect(dbServiceSpy.registrarTransferenciaOffline).toHaveBeenCalledWith(
-      'est-origem-1',
-      'est-dest-1',
-      [
-        {
-          idMaterial: 'mat-1',
-          quantidade: 5,
-          condicao: 'NOVO',
-          numSerie: null,
-        },
-      ],
-      'data:image/png;base64,entregador-ok',
-      'data:image/png;base64,recebedor-ok'
-    );
-    expect(syncServiceSpy.syncOutbox).toHaveBeenCalled();
-    expect(toastServiceSpy.success).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/transferencias']);
-  });
+        expect(dbServiceSpy.registrarTransferenciaOffline).toHaveBeenCalledWith('est-origem-1', 'est-dest-1', [
+            {
+                idMaterial: 'mat-1',
+                quantidade: 5,
+                condicao: 'NOVO',
+                numSerie: null,
+            },
+        ], 'data:image/png;base64,entregador-ok', 'data:image/png;base64,recebedor-ok');
+        expect(syncServiceSpy.syncOutbox).toHaveBeenCalled();
+        expect(toastServiceSpy.success).toHaveBeenCalled();
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/transferencias']);
+    });
 });

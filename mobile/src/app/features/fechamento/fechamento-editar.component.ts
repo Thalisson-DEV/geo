@@ -25,32 +25,32 @@ const SEM_RESPONSAVEL = '';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <ces-barra-topo titulo="Editar solicitação" [subtitulo]="det() ? det()!.tipo + ' · ' + obra() : 'Carregando…'" navegacao="fechar" rotuloFechar="Fechar sem salvar" (voltar)="fechar()">
-        <ces-indicador-rede />
-      </ces-barra-topo>
+      <geo-barra-topo titulo="Editar solicitação" [subtitulo]="det() ? det()!.tipo + ' · ' + obra() : 'Carregando…'" navegacao="fechar" rotuloFechar="Fechar sem salvar" (voltar)="fechar()">
+        <geo-indicador-rede />
+      </geo-barra-topo>
 
       @if (carregando()) {
-        <div class="ces-esqueletos" aria-busy="true"><div class="ces-esqueleto" style="height: 240px"></div><div class="ces-esqueleto" style="height: 128px"></div></div>
+        <div class="geo-esqueletos" aria-busy="true"><div class="geo-esqueleto" style="height: 240px"></div><div class="geo-esqueleto" style="height: 128px"></div></div>
       } @else if (erro()) {
-        <ces-vazio icone="alerta" titulo="Não foi possível abrir a edição" [texto]="erro()">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="carregar()">Tentar de novo</button>
-        </ces-vazio>
+        <geo-vazio icone="alerta" titulo="Não foi possível abrir a edição" [texto]="erro()">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="carregar()">Tentar de novo</button>
+        </geo-vazio>
       } @else if (det()) {
-        <h2 class="ces-secao"><span>Materiais</span><span class="ces-num">{{ linhas().length }}</span></h2>
+        <h2 class="geo-secao"><span>Materiais</span><span class="geo-num">{{ linhas().length }}</span></h2>
         <app-linhas-fechamento [linhas]="linhas()" (linhasChange)="linhas.set($event)" />
-        @if (tentou() && !linhas().length) { <p class="ces-campo__erro erro" role="alert"><ces-icone nome="alerta" [tamanho]="16" />Inclua ao menos um material. Para desistir, cancele a solicitação.</p> }
+        @if (tentou() && !linhas().length) { <p class="geo-campo__erro erro" role="alert"><geo-icone nome="alerta" [tamanho]="16" />Inclua ao menos um material. Para desistir, cancele a solicitação.</p> }
 
-        <h2 class="ces-secao"><span>Responsáveis</span></h2>
+        <h2 class="geo-secao"><span>Responsáveis</span></h2>
         <div class="campos">
-          <ces-seletor rotulo="Encarregado" placeholder="Não informar" [opcoes]="opcoesEncarregado()" [valor]="idEncarregado() ?? semResponsavel" (valorChange)="idEncarregado.set($event || null)" />
-          <ces-seletor rotulo="Supervisor" placeholder="Não informar" [opcoes]="opcoesSupervisor()" [valor]="idSupervisor() ?? semResponsavel" (valorChange)="idSupervisor.set($event || null)" />
+          <geo-seletor rotulo="Encarregado" placeholder="Não informar" [opcoes]="opcoesEncarregado()" [valor]="idEncarregado() ?? semResponsavel" (valorChange)="idEncarregado.set($event || null)" />
+          <geo-seletor rotulo="Supervisor" placeholder="Não informar" [opcoes]="opcoesSupervisor()" [valor]="idSupervisor() ?? semResponsavel" (valorChange)="idSupervisor.set($event || null)" />
         </div>
 
-        <h2 class="ces-secao"><span>Observação</span></h2>
+        <h2 class="geo-secao"><span>Observação</span></h2>
         <div class="campos">
-          <label class="ces-campo">
-            <span class="ces-sr-only">Observação para o almoxarifado</span>
-            <textarea class="ces-input texto" rows="3" maxlength="1000" [value]="observacao()" (input)="observacao.set($any($event.target).value)" placeholder="Informação para o almoxarifado"></textarea>
+          <label class="geo-campo">
+            <span class="geo-sr-only">Observação para o almoxarifado</span>
+            <textarea class="geo-input texto" rows="3" maxlength="1000" [value]="observacao()" (input)="observacao.set($any($event.target).value)" placeholder="Informação para o almoxarifado"></textarea>
           </label>
         </div>
       }
@@ -58,21 +58,21 @@ const SEM_RESPONSAVEL = '';
 
     @if (det()) {
       <footer class="rodape">
-        <button type="button" class="ces-btn ces-btn--principal principal" (click)="salvar()" [disabled]="enviando() || !rede.isOnline()">
+        <button type="button" class="geo-btn geo-btn--principal principal" (click)="salvar()" [disabled]="enviando() || !rede.isOnline()">
           {{ enviando() ? 'Salvando…' : !rede.isOnline() ? 'Sem internet' : 'Salvar alterações' }}</button>
       </footer>
     }
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
-    .tela { flex: 1; padding-bottom: var(--ces-e5); }
-    .campos { display: grid; gap: var(--ces-e2); padding: var(--ces-e2) var(--ces-e3); }
-    .erro { margin: var(--ces-e2) var(--ces-e5) 0; }
-    .texto { min-height: 88px; padding: var(--ces-e3) var(--ces-e4); resize: vertical; }
-    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; padding: var(--ces-e3) var(--ces-e4) calc(var(--ces-e3) + var(--ces-safe-base));
-      background: var(--ces-fundo); border-top: 1px solid var(--ces-linha); }
-    .rodape .principal { flex: 1; min-height: var(--ces-alvo-principal); font-size: 1rem; }
+    .tela { flex: 1; padding-bottom: var(--geo-e5); }
+    .campos { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e3); }
+    .erro { margin: var(--geo-e2) var(--geo-e5) 0; }
+    .texto { min-height: 88px; padding: var(--geo-e3) var(--geo-e4); resize: vertical; }
+    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
+      background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
+    .rodape .principal { flex: 1; min-height: var(--geo-alvo-principal); font-size: 1rem; }
   `],
 })
 export class FechamentoEditarComponent {

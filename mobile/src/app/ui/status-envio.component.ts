@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { IconeComponent, NomeIcone } from './icone.component';
 
 /**
- * Estado de envio de um registro, no vocabulário normativo do Nexo:
+ * Estado de envio de um registro, no vocabulário normativo do GEO:
  * committed = salvo no aparelho · queued = na fila · syncing = enviando ·
  * synced = enviado · conflict = conflito · error = não enviado (precisa de ação).
  * Nunca mostrar "enviado" para algo que só está na fila.
@@ -19,7 +19,7 @@ const ROTULOS: Record<EstadoEnvio, { texto: string; icone: NomeIcone | null; cla
 };
 
 @Component({
-  selector: 'ces-status-envio',
+  selector: 'geo-status-envio',
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,20 +28,20 @@ const ROTULOS: Record<EstadoEnvio, { texto: string; icone: NomeIcone | null; cla
       @if (estado() === 'syncing') {
         <span class="giro" aria-hidden="true"></span>
       } @else if (info().icone) {
-        <ces-icone [nome]="info().icone!" [tamanho]="15" />
+        <geo-icone [nome]="info().icone!" [tamanho]="15" />
       }
       {{ rotulo() ?? info().texto }}
     </span>
   `,
   styles: [`
     :host { display: inline-flex; flex: none; }
-    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: var(--ces-r-pilula);
-      font: 600 .75rem/1.2 var(--ces-fonte); white-space: nowrap; }
-    .neutro { background: var(--ces-superficie-2); color: var(--ces-texto-2); }
-    .fila { background: var(--ces-destaque-suave); color: var(--ces-destaque); }
-    .ok { background: var(--ces-ok-suave); color: var(--ces-ok); }
-    .atencao { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-    .erro { background: var(--ces-erro-suave); color: var(--ces-erro); }
+    .chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: var(--geo-r-pilula);
+      font: 600 .75rem/1.2 var(--geo-fonte); white-space: nowrap; }
+    .neutro { background: var(--geo-superficie-2); color: var(--geo-texto-2); }
+    .fila { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
+    .ok { background: var(--geo-ok-suave); color: var(--geo-ok); }
+    .atencao { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+    .erro { background: var(--geo-erro-suave); color: var(--geo-erro); }
     .giro { width: 11px; height: 11px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent;
       animation: giro .8s linear infinite; }
     @keyframes giro { to { transform: rotate(360deg); } }

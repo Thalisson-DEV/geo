@@ -11,14 +11,14 @@ import { IconeComponent } from './icone.component';
  * Sem rede, o botão não aparece — entrar precisa de conexão.
  */
 @Component({
-  selector: 'ces-aviso-sessao',
+  selector: 'geo-aviso-sessao',
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (auth.reautenticacaoNecessaria()) {
       <section class="aviso" role="status" aria-live="polite">
-        <ces-icone nome="alerta" [tamanho]="20" />
+        <geo-icone nome="alerta" [tamanho]="20" />
         <div class="texto">
           <strong>Entre novamente para enviar</strong>
           <span>
@@ -27,19 +27,19 @@ import { IconeComponent } from './icone.component';
           </span>
         </div>
         @if (rede.isOnline()) {
-          <button type="button" class="ces-btn ces-btn--principal" (click)="auth.entrarNovamente()">Entrar</button>
+          <button type="button" class="geo-btn geo-btn--principal" (click)="auth.entrarNovamente()">Entrar</button>
         }
       </section>
     }
   `,
   styles: [`
     :host { display: block; }
-    .aviso { display: flex; align-items: center; gap: var(--ces-e3); margin: var(--ces-e3) var(--ces-e4) 0;
-      padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-campo);
-      background: var(--ces-atencao-suave); color: var(--ces-texto); }
-    .aviso > ces-icone { color: var(--ces-atencao); flex: none; }
-    .texto { flex: 1; display: grid; gap: 2px; font: var(--ces-t-corpo); }
-    .texto span { color: var(--ces-texto-2); }
+    .aviso { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-e4) 0;
+      padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-campo);
+      background: var(--geo-atencao-suave); color: var(--geo-texto); }
+    .aviso > geo-icone { color: var(--geo-atencao); flex: none; }
+    .texto { flex: 1; display: grid; gap: 2px; font: var(--geo-t-corpo); }
+    .texto span { color: var(--geo-texto-2); }
     button { flex: none; min-height: 48px; }
   `],
 })

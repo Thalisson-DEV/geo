@@ -11,18 +11,18 @@ import { MockApi, loginPelaUi } from '../support/mock-api';
 test.describe('Login com o modo offline gravado no aparelho', () => {
   test('"Trabalhar sem internet" ligado: entra e o modo desliga', async ({ page, context }) => {
     await new MockApi({ perfil: 'CAMPO', turnoAberto: false }).install(context);
-    await context.addInitScript(() => localStorage.setItem('ces_mobile_forcar_offline', 'true'));
+    await context.addInitScript(() => localStorage.setItem('geo_mobile_forcar_offline', 'true'));
 
     await loginPelaUi(page);
 
     await expect(page.getByText('A conexão com o servidor falhou')).toHaveCount(0);
-    expect(await page.evaluate(() => localStorage.getItem('ces_mobile_forcar_offline'))).toBeNull();
+    expect(await page.evaluate(() => localStorage.getItem('geo_mobile_forcar_offline'))).toBeNull();
   });
 
   test('no 4G com dados móveis desligados: entra e os dados móveis passam a valer', async ({ page, context }) => {
     await new MockApi({ perfil: 'CAMPO', turnoAberto: false }).install(context);
     await context.addInitScript(() => {
-      localStorage.setItem('ces_mobile_usar_redes_moveis', 'false');
+      localStorage.setItem('geo_mobile_usar_redes_moveis', 'false');
       const conexao = Object.assign(new EventTarget(), { type: 'cellular', effectiveType: '4g' });
       Object.defineProperty(navigator, 'connection', { get: () => conexao, configurable: true });
     });
@@ -34,7 +34,7 @@ test.describe('Login com o modo offline gravado no aparelho', () => {
 
     await loginPelaUi(page);
 
-    expect(await page.evaluate(() => localStorage.getItem('ces_mobile_usar_redes_moveis'))).toBe('true');
+    expect(await page.evaluate(() => localStorage.getItem('geo_mobile_usar_redes_moveis'))).toBe('true');
   });
 });
 

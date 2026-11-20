@@ -3,42 +3,42 @@ import { IconeComponent, NomeIcone } from './icone.component';
 
 /** Seletor de quantidade: − valor +, com digitação direta pelo teclado decimal. */
 @Component({
-  selector: 'ces-quantidade',
+  selector: 'geo-quantidade',
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="caixa" [class.grande]="grande()" role="group" [attr.aria-label]="rotulo()">
       <button type="button" class="b" (click)="mudar(-passo())" [disabled]="valor() - passo() < minimo()" [attr.aria-label]="'Diminuir ' + rotulo()">
-        <ces-icone nome="menos" [tamanho]="20" />
+        <geo-icone nome="menos" [tamanho]="20" />
       </button>
       <span class="numero">
-        <input #campo class="ces-num" type="text" inputmode="decimal" enterkeyhint="done" [value]="texto()" [style.width.ch]="largura()"
+        <input #campo class="geo-num" type="text" inputmode="decimal" enterkeyhint="done" [value]="texto()" [style.width.ch]="largura()"
           (change)="digitar(campo.value); campo.value = texto()" (focus)="campo.select()" [attr.aria-label]="rotulo()">
         @if (unidade()) { <span class="un" aria-hidden="true">{{ unidade() }}</span> }
       </span>
       <button type="button" class="b" (click)="mudar(passo())" [attr.aria-label]="'Aumentar ' + rotulo()">
-        <ces-icone nome="mais" [tamanho]="20" />
+        <geo-icone nome="mais" [tamanho]="20" />
       </button>
     </div>
   `,
   styles: [`
     :host { display: inline-flex; }
-    .caixa { display: inline-flex; align-items: center; border: 1px solid var(--ces-linha-forte); border-radius: var(--ces-r-pilula); }
-    .b { width: 44px; height: 44px; border: 0; background: transparent; color: var(--ces-destaque); display: grid; place-items: center;
+    .caixa { display: inline-flex; align-items: center; border: 1px solid var(--geo-linha-forte); border-radius: var(--geo-r-pilula); }
+    .b { width: 44px; height: 44px; border: 0; background: transparent; color: var(--geo-destaque); display: grid; place-items: center;
       border-radius: 50%; cursor: pointer; }
-    .b:active:not(:disabled) { background: var(--ces-destaque-suave); }
-    .b:disabled { color: var(--ces-texto-3); }
+    .b:active:not(:disabled) { background: var(--geo-destaque-suave); }
+    .b:disabled { color: var(--geo-texto-3); }
     .numero { display: inline-flex; align-items: baseline; justify-content: center; gap: 3px; min-width: 3.2em; }
-    input { min-width: 2ch; border: 0; background: transparent; text-align: center; color: var(--ces-texto);
-      font: 600 1rem/1 var(--ces-fonte); padding: 0; }
+    input { min-width: 2ch; border: 0; background: transparent; text-align: center; color: var(--geo-texto);
+      font: 600 1rem/1 var(--geo-fonte); padding: 0; }
     input:focus { outline: none; }
-    .un { font: 600 .8125rem/1 var(--ces-fonte); color: var(--ces-texto-2); }
+    .un { font: 600 .8125rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     /* Versão para lançamentos: o número é a informação principal da linha. */
     .grande { border-width: 1.5px; }
     .grande .b { width: 52px; height: 52px; }
     .grande .numero { min-width: 4.5em; }
-    .grande input { font: 700 1.5rem/1 var(--ces-fonte); }
+    .grande input { font: 700 1.5rem/1 var(--geo-fonte); }
     .grande .un { font-size: .9375rem; }
   `],
 })
@@ -78,7 +78,7 @@ export interface OpcaoSegmento<T extends string = string> {
 
 /** Escolha entre 2–3 opções exclusivas. */
 @Component({
-  selector: 'ces-segmentado',
+  selector: 'geo-segmentado',
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -86,7 +86,7 @@ export interface OpcaoSegmento<T extends string = string> {
     <div class="trilho" role="radiogroup" [attr.aria-label]="rotulo()" [style.grid-template-columns]="colunas()">
       @for (o of opcoes(); track o.valor) {
         <button type="button" role="radio" [attr.aria-checked]="o.valor === valor()" (click)="valor.set(o.valor)">
-          @if (o.icone) { <ces-icone [nome]="o.icone" [tamanho]="18" /> }
+          @if (o.icone) { <geo-icone [nome]="o.icone" [tamanho]="18" /> }
           {{ o.rotulo }}
         </button>
       }
@@ -94,11 +94,11 @@ export interface OpcaoSegmento<T extends string = string> {
   `,
   styles: [`
     :host { display: block; }
-    .trilho { display: grid; background: var(--ces-superficie-2); border-radius: var(--ces-r-pilula); padding: 3px; gap: 2px; }
-    button { min-height: 40px; border: 0; border-radius: var(--ces-r-pilula); background: transparent; color: var(--ces-texto-2);
-      font: 500 .875rem/1.1 var(--ces-fonte); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
-      transition: background-color var(--ces-m-entrar) var(--ces-curva), color var(--ces-m-entrar); }
-    button[aria-checked='true'] { background: var(--ces-superficie); color: var(--ces-texto); font-weight: 600;
+    .trilho { display: grid; background: var(--geo-superficie-2); border-radius: var(--geo-r-pilula); padding: 3px; gap: 2px; }
+    button { min-height: 40px; border: 0; border-radius: var(--geo-r-pilula); background: transparent; color: var(--geo-texto-2);
+      font: 500 .875rem/1.1 var(--geo-fonte); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;
+      transition: background-color var(--geo-m-entrar) var(--geo-curva), color var(--geo-m-entrar); }
+    button[aria-checked='true'] { background: var(--geo-superficie); color: var(--geo-texto); font-weight: 600;
       box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
   `],
 })
@@ -111,13 +111,13 @@ export class SegmentadoComponent<T extends string = string> {
 
 /** Estado vazio útil: diz o que aparece aqui e como começar. */
 @Component({
-  selector: 'ces-vazio',
+  selector: 'geo-vazio',
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="vazio">
-      <span class="ces-selo ces-selo--destaque"><ces-icone [nome]="icone()" /></span>
+      <span class="geo-selo geo-selo--destaque"><geo-icone [nome]="icone()" /></span>
       <h2>{{ titulo() }}</h2>
       @if (texto()) { <p>{{ texto() }}</p> }
       <ng-content />
@@ -125,9 +125,9 @@ export class SegmentadoComponent<T extends string = string> {
   `,
   styles: [`
     :host { display: block; }
-    .vazio { display: grid; justify-items: center; text-align: center; gap: var(--ces-e2); padding: var(--ces-e8) var(--ces-e6); }
-    h2 { margin: var(--ces-e2) 0 0; font: var(--ces-t-barra); }
-    p { margin: 0; font: var(--ces-t-corpo); color: var(--ces-texto-2); max-width: 32ch; }
+    .vazio { display: grid; justify-items: center; text-align: center; gap: var(--geo-e2); padding: var(--geo-e8) var(--geo-e6); }
+    h2 { margin: var(--geo-e2) 0 0; font: var(--geo-t-barra); }
+    p { margin: 0; font: var(--geo-t-corpo); color: var(--geo-texto-2); max-width: 32ch; }
   `],
 })
 export class VazioComponent {

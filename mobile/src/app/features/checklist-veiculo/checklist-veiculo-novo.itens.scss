@@ -1,50 +1,50 @@
 // Checklist do veículo: perguntas, respostas, problemas e fotos dos itens.
 /* Itens */
-.progresso { position: sticky; top: 0; z-index: 3; display: grid; gap: var(--ces-e2); padding: var(--ces-e2) var(--ces-e5) var(--ces-e3); background: var(--ces-fundo); }
-.progresso__texto { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e2); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-.progresso__texto b { color: var(--ces-texto); font-weight: 700; }
-.progresso__barra { height: 6px; border-radius: var(--ces-r-pilula); background: var(--ces-linha); overflow: hidden; }
-.progresso__barra i { display: block; height: 100%; border-radius: inherit; background: var(--ces-ok); transition: width var(--ces-m-entrar) var(--ces-curva); }
-.grupo { align-items: center; padding-top: var(--ces-e3); }
+.progresso { position: sticky; top: 0; z-index: 3; display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e5) var(--geo-e3); background: var(--geo-fundo); }
+.progresso__texto { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+.progresso__texto b { color: var(--geo-texto); font-weight: 700; }
+.progresso__barra { height: 6px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
+.progresso__barra i { display: block; height: 100%; border-radius: inherit; background: var(--geo-ok); transition: width var(--geo-m-entrar) var(--geo-curva); }
+.grupo { align-items: center; padding-top: var(--geo-e3); }
 .grupo h2 { margin: 0; font: inherit; }
-.tudo-ok { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; margin: -8px -8px -8px 0; padding: 0 var(--ces-e2); border: 0; border-radius: var(--ces-r-pilula);
-  background: transparent; color: var(--ces-destaque); font: 600 .8125rem/1 var(--ces-fonte); cursor: pointer; }
-.tudo-ok:active { background: var(--ces-destaque-suave); }
-.pergunta { position: relative; display: grid; gap: var(--ces-e3); padding: var(--ces-e3) var(--ces-e4); }
-.pergunta + .pergunta::before { content: ''; position: absolute; top: 0; left: var(--ces-e4); right: 0; height: 1px; background: var(--ces-linha); }
-.pergunta--pendente { box-shadow: inset 3px 0 0 var(--ces-erro); }
-.pergunta__linha { display: flex; align-items: center; gap: var(--ces-e3); min-height: 48px; }
-.pergunta__texto { flex: 1; min-width: 0; font: 500 1rem/1.35 var(--ces-fonte); color: var(--ces-texto); overflow-wrap: anywhere; }
-.resp { display: inline-flex; gap: var(--ces-e2); flex: none; }
+.tudo-ok { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; margin: -8px -8px -8px 0; padding: 0 var(--geo-e2); border: 0; border-radius: var(--geo-r-pilula);
+  background: transparent; color: var(--geo-destaque); font: 600 .8125rem/1 var(--geo-fonte); cursor: pointer; }
+.tudo-ok:active { background: var(--geo-destaque-suave); }
+.pergunta { position: relative; display: grid; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4); }
+.pergunta + .pergunta::before { content: ''; position: absolute; top: 0; left: var(--geo-e4); right: 0; height: 1px; background: var(--geo-linha); }
+.pergunta--pendente { box-shadow: inset 3px 0 0 var(--geo-erro); }
+.pergunta__linha { display: flex; align-items: center; gap: var(--geo-e3); min-height: 48px; }
+.pergunta__texto { flex: 1; min-width: 0; font: 500 1rem/1.35 var(--geo-fonte); color: var(--geo-texto); overflow-wrap: anywhere; }
+.resp { display: inline-flex; gap: var(--geo-e2); flex: none; }
 .resp__btn { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; padding: 0; cursor: pointer;
-  border: 1.5px solid var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-3);
-  transition: background-color 140ms var(--ces-curva), border-color 140ms, color 140ms, transform 80ms; }
+  border: 1.5px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-3);
+  transition: background-color 140ms var(--geo-curva), border-color 140ms, color 140ms, transform 80ms; }
 .resp__btn:active { transform: scale(.94); }
-.resp:has([aria-checked='true']) .resp__btn[aria-checked='false'] { border-color: var(--ces-linha); color: var(--ces-linha-forte); }
-.resp__btn.resp__btn--ok[aria-checked='true'] { background: var(--ces-ok); border-color: var(--ces-ok); color: var(--ces-fundo); }
-.resp__btn.resp__btn--nok[aria-checked='true'] { background: var(--ces-atencao); border-color: var(--ces-atencao); color: var(--ces-fundo); }
-.opcoes { display: flex; flex-wrap: wrap; gap: var(--ces-e2); }
-.opcao { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--ces-r-pilula);
-  border: 1px solid var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto); font: 500 .875rem/1 var(--ces-fonte); cursor: pointer; }
+.resp:has([aria-checked='true']) .resp__btn[aria-checked='false'] { border-color: var(--geo-linha); color: var(--geo-linha-forte); }
+.resp__btn.resp__btn--ok[aria-checked='true'] { background: var(--geo-ok); border-color: var(--geo-ok); color: var(--geo-fundo); }
+.resp__btn.resp__btn--nok[aria-checked='true'] { background: var(--geo-atencao); border-color: var(--geo-atencao); color: var(--geo-fundo); }
+.opcoes { display: flex; flex-wrap: wrap; gap: var(--geo-e2); }
+.opcao { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--geo-r-pilula);
+  border: 1px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto); font: 500 .875rem/1 var(--geo-fonte); cursor: pointer; }
 .opcao:active { transform: scale(.97); }
-.opcao[aria-checked='true'] { background: var(--ces-destaque-suave); border-color: transparent; color: var(--ces-destaque); font-weight: 600; }
-.opcao.opcao--problema[aria-checked='true'] { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-.texto { min-height: 72px; padding-top: var(--ces-e3); resize: vertical; }
-.detalhe--foto { border-left-color: var(--ces-destaque); }
-.detalhe { display: grid; gap: var(--ces-e4); margin: 2px 0 var(--ces-e1); padding-left: var(--ces-e4); border-left: 2px solid var(--ces-atencao);
-  animation: entrar var(--ces-m-entrar) var(--ces-curva); }
-.detalhe__bloco { display: grid; gap: var(--ces-e2); }
-.detalhe__rotulo { font: var(--ces-t-secao); color: var(--ces-texto-2); }
-.detalhe__obrig { color: var(--ces-atencao); }
+.opcao[aria-checked='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
+.opcao.opcao--problema[aria-checked='true'] { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+.texto { min-height: 72px; padding-top: var(--geo-e3); resize: vertical; }
+.detalhe--foto { border-left-color: var(--geo-destaque); }
+.detalhe { display: grid; gap: var(--geo-e4); margin: 2px 0 var(--geo-e1); padding-left: var(--geo-e4); border-left: 2px solid var(--geo-atencao);
+  animation: entrar var(--geo-m-entrar) var(--geo-curva); }
+.detalhe__bloco { display: grid; gap: var(--geo-e2); }
+.detalhe__rotulo { font: var(--geo-t-secao); color: var(--geo-texto-2); }
+.detalhe__obrig { color: var(--geo-atencao); }
 .detalhe__comentario { min-height: 48px; }
-.fotos { display: flex; flex-wrap: wrap; gap: var(--ces-e2); }
+.fotos { display: flex; flex-wrap: wrap; gap: var(--geo-e2); }
 .mini, .add-foto { position: relative; width: 64px; height: 64px; border-radius: 12px; flex: none; }
-.mini { overflow: hidden; background: var(--ces-superficie-2); }
+.mini { overflow: hidden; background: var(--geo-superficie-2); }
 .mini img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mini__tirar { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; border: 0; display: grid; place-items: center;
   background: rgba(0, 0, 0, .6); color: #fff; cursor: pointer; }
 .mini__tirar::after { content: ''; position: absolute; inset: -10px; }
-.add-foto { display: grid; place-content: center; justify-items: center; gap: 2px; background: var(--ces-superficie-2); color: var(--ces-texto-2);
-  font: 600 .75rem/1.1 var(--ces-fonte); cursor: pointer; transition: transform 80ms; }
+.add-foto { display: grid; place-content: center; justify-items: center; gap: 2px; background: var(--geo-superficie-2); color: var(--geo-texto-2);
+  font: 600 .75rem/1.1 var(--geo-fonte); cursor: pointer; transition: transform 80ms; }
 .add-foto:active { transform: scale(.95); }
-.add-foto--pedida { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
+.add-foto--pedida { background: var(--geo-atencao-suave); color: var(--geo-atencao); }

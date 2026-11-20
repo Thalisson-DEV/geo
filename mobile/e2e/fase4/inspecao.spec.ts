@@ -116,7 +116,7 @@ test.describe('inspeção com fotos', () => {
     // Estado exato de um processo morto entre "guardar o original" e "pôr na tela".
     await page.evaluate(async (bytes) => {
       await new Promise<void>((ok, erro) => {
-        const req = indexedDB.open('ces-field-sessao');
+        const req = indexedDB.open('ces-field-sessao'); // renomear-geo: manter
         req.onsuccess = () => {
           const tx = req.result.transaction('anexos', 'readwrite');
           tx.objectStore('anexos').put({

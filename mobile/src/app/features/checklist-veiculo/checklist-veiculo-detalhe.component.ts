@@ -72,34 +72,34 @@ type Filtro = 'todos' | 'problemas';
   imports: [BarraTopoComponent, FolhaComponent, IconeComponent, SegmentadoComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Checklist" [subtitulo]="subtitulo()" (voltar)="voltar()" />
+    <geo-barra-topo titulo="Checklist" [subtitulo]="subtitulo()" (voltar)="voltar()" />
 
     @if (!carregado()) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        <div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 180px"></div><div class="ces-esqueleto" style="height: 220px"></div>
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 180px"></div><div class="geo-esqueleto" style="height: 220px"></div>
       </div>
     } @else if (tela(); as t) {
       @let f = faixa();
-      <section class="ces-faixa-estado" [class.ces-faixa-estado--atencao]="f.tom === 'atencao'" [class.ces-faixa-estado--erro]="f.tom === 'erro'" aria-live="polite">
-        <span [class]="'ces-etiqueta ces-etiqueta--' + f.tom">{{ f.rotulo }}</span>
+      <section class="geo-faixa-estado" [class.geo-faixa-estado--atencao]="f.tom === 'atencao'" [class.geo-faixa-estado--erro]="f.tom === 'erro'" aria-live="polite">
+        <span [class]="'geo-etiqueta geo-etiqueta--' + f.tom">{{ f.rotulo }}</span>
         <p>{{ f.apoio }}</p>
       </section>
       @if (local()?.aviso) {
-        <p class="aviso"><ces-icone nome="info" [tamanho]="16" />{{ local()!.aviso }}</p>
+        <p class="aviso"><geo-icone nome="info" [tamanho]="16" />{{ local()!.aviso }}</p>
       }
       @if (falhaServidor() && local()?.registrado) {
-        <p class="nota"><ces-icone nome="alerta" [tamanho]="16" /><span>Não deu para buscar no servidor: aparecem só os dados deste aparelho.
+        <p class="nota"><geo-icone nome="alerta" [tamanho]="16" /><span>Não deu para buscar no servidor: aparecem só os dados deste aparelho.
           <button type="button" class="nota__acao" (click)="carregarServidor()">Tentar de novo</button></span></p>
       }
       @if (semSinalParaCompletar()) {
-        <p class="nota"><ces-icone nome="nuvem" [tamanho]="16" />Sem sinal: as fotos enviadas e as decisões do gestor aparecem quando a internet voltar.</p>
+        <p class="nota"><geo-icone nome="nuvem" [tamanho]="16" />Sem sinal: as fotos enviadas e as decisões do gestor aparecem quando a internet voltar.</p>
       }
 
-      <dl class="ces-dados">
-        <div><dt>Veículo</dt><dd class="ces-num">{{ t.placa }}{{ t.base ? ' · ' + t.base : '' }}</dd></div>
-        <div><dt>Condutor</dt><dd>{{ t.condutor ?? '—' }}@if (t.passagem) { <span class="ces-etiqueta ces-etiqueta--destaque dado-etiqueta">Recebeu o veículo</span> }</dd></div>
+      <dl class="geo-dados">
+        <div><dt>Veículo</dt><dd class="geo-num">{{ t.placa }}{{ t.base ? ' · ' + t.base : '' }}</dd></div>
+        <div><dt>Condutor</dt><dd>{{ t.condutor ?? '—' }}@if (t.passagem) { <span class="geo-etiqueta geo-etiqueta--destaque dado-etiqueta">Recebeu o veículo</span> }</dd></div>
         @if (t.preenchidoPor && t.preenchidoPor !== t.condutor) { <div><dt>Preenchido por</dt><dd>{{ t.preenchidoPor }}</dd></div> }
-        <div><dt>Medição</dt><dd class="ces-num">{{ t.medicao }}</dd></div>
+        <div><dt>Medição</dt><dd class="geo-num">{{ t.medicao }}</dd></div>
         @if (t.modelo) { <div><dt>Checklist</dt><dd>{{ t.modelo }}</dd></div> }
         @if (t.liberacaoCnh) { <div><dt>CNH liberada pelo gestor</dt><dd>{{ t.liberacaoCnh }}</dd></div> }
         @if (t.comentario) { <div><dt>Comentário geral</dt><dd class="dado-texto">{{ t.comentario }}</dd></div> }
@@ -107,20 +107,20 @@ type Filtro = 'todos' | 'problemas';
 
       @if (t.problemas && totalItens() > t.problemas) {
         <div class="filtro">
-          <ces-segmentado rotulo="Itens mostrados" [opcoes]="opcoesFiltro()" [(valor)]="filtro" />
+          <geo-segmentado rotulo="Itens mostrados" [opcoes]="opcoesFiltro()" [(valor)]="filtro" />
         </div>
       }
 
       @for (g of gruposVisiveis(); track g.titulo) {
-        <h2 class="ces-secao"><span>{{ g.titulo }}</span><span class="ces-num">{{ g.itens.length }}</span></h2>
-        <ul class="ces-grupo" [attr.aria-label]="g.titulo">
+        <h2 class="geo-secao"><span>{{ g.titulo }}</span><span class="geo-num">{{ g.itens.length }}</span></h2>
+        <ul class="geo-grupo" [attr.aria-label]="g.titulo">
           @for (i of g.itens; track i.id) {
             <li class="resp" [class.resp--problema]="i.problema">
               <div class="resp__topo">
                 <span class="resp__pergunta">{{ i.pergunta }}</span>
                 @if (i.etiqueta) {
-                  <span class="ces-etiqueta" [class.ces-etiqueta--ok]="!i.problema && i.etiqueta === 'OK'" [class.ces-etiqueta--erro]="i.problema">
-                    @if (i.problema) { <ces-icone nome="alerta" [tamanho]="12" /> } @else if (i.etiqueta === 'OK') { <ces-icone nome="check" [tamanho]="12" /> }
+                  <span class="geo-etiqueta" [class.geo-etiqueta--ok]="!i.problema && i.etiqueta === 'OK'" [class.geo-etiqueta--erro]="i.problema">
+                    @if (i.problema) { <geo-icone nome="alerta" [tamanho]="12" /> } @else if (i.etiqueta === 'OK') { <geo-icone nome="check" [tamanho]="12" /> }
                     {{ i.etiqueta }}
                   </span>
                 }
@@ -133,14 +133,14 @@ type Filtro = 'todos' | 'problemas';
                   @for (foto of i.fotos; track foto.id) { <li>
                     @if (foto.url) {
                       <button type="button" class="foto foto--pronta" (click)="ampliar.set(foto)" [attr.aria-label]="'Ampliar a foto de ' + foto.rotulo">
-                        <img [src]="foto.url" [alt]="foto.rotulo"><span class="foto__lupa" aria-hidden="true"><ces-icone nome="busca" [tamanho]="12" /></span>
+                        <img [src]="foto.url" [alt]="foto.rotulo"><span class="foto__lupa" aria-hidden="true"><geo-icone nome="busca" [tamanho]="12" /></span>
                       </button>
                     } @else {
                       <span class="foto" [class.foto--alerta]="foto.situacao === 'sem-sinal'">
                         @switch (foto.situacao) {
-                          @case ('carregando') { <span class="ces-esqueleto foto__esqueleto"></span> }
-                          @case ('no-celular') { <ces-icone nome="nuvem" [tamanho]="18" /><span>Ainda no celular</span> }
-                          @default { <ces-icone nome="nuvem" [tamanho]="18" /><span>Abra com sinal</span> }
+                          @case ('carregando') { <span class="geo-esqueleto foto__esqueleto"></span> }
+                          @case ('no-celular') { <geo-icone nome="nuvem" [tamanho]="18" /><span>Ainda no celular</span> }
+                          @default { <geo-icone nome="nuvem" [tamanho]="18" /><span>Abra com sinal</span> }
                         }
                       </span>
                     }
@@ -156,20 +156,20 @@ type Filtro = 'todos' | 'problemas';
       }
 
       @if (t.recebimento.length && filtro() === 'todos') {
-        <h2 class="ces-secao"><span>Fotos do recebimento</span><span class="ces-num">{{ t.recebimento.length }}</span></h2>
+        <h2 class="geo-secao"><span>Fotos do recebimento</span><span class="geo-num">{{ t.recebimento.length }}</span></h2>
         <ul class="fotos" aria-label="Fotos do recebimento">
           @for (foto of t.recebimento; track foto.id) {
             <li>
               @if (foto.url) {
                 <button type="button" class="foto foto--pronta" (click)="ampliar.set(foto)" [attr.aria-label]="'Ampliar a foto: ' + foto.rotulo">
-                  <img [src]="foto.url" [alt]="foto.rotulo"><span class="foto__lupa" aria-hidden="true"><ces-icone nome="busca" [tamanho]="14" /></span>
+                  <img [src]="foto.url" [alt]="foto.rotulo"><span class="foto__lupa" aria-hidden="true"><geo-icone nome="busca" [tamanho]="14" /></span>
                 </button>
               } @else {
                 <span class="foto" [class.foto--alerta]="foto.situacao === 'sem-sinal'">
                   @switch (foto.situacao) {
-                    @case ('carregando') { <span class="ces-esqueleto foto__esqueleto"></span> }
-                    @case ('no-celular') { <ces-icone nome="nuvem" [tamanho]="22" /><span>Ainda no celular</span> }
-                    @default { <ces-icone nome="nuvem" [tamanho]="22" /><span>Abra com sinal</span> }
+                    @case ('carregando') { <span class="geo-esqueleto foto__esqueleto"></span> }
+                    @case ('no-celular') { <geo-icone nome="nuvem" [tamanho]="22" /><span>Ainda no celular</span> }
+                    @default { <geo-icone nome="nuvem" [tamanho]="22" /><span>Abra com sinal</span> }
                   }
                 </span>
               }
@@ -178,63 +178,63 @@ type Filtro = 'todos' | 'problemas';
           }
         </ul>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     } @else if (erro()) {
-      <ces-vazio icone="alerta" titulo="Não foi possível abrir o checklist" [texto]="erro()">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="carregarServidor()">Tentar de novo</button>
-      </ces-vazio>
+      <geo-vazio icone="alerta" titulo="Não foi possível abrir o checklist" [texto]="erro()">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="carregarServidor()">Tentar de novo</button>
+      </geo-vazio>
     } @else {
-      <ces-vazio icone="nuvem" titulo="Checklist precisa de internet" texto="Ele não está neste aparelho. Conecte e abra de novo.">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="voltar()">Ver checklists</button>
-      </ces-vazio>
+      <geo-vazio icone="nuvem" titulo="Checklist precisa de internet" texto="Ele não está neste aparelho. Conecte e abra de novo.">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="voltar()">Ver checklists</button>
+      </geo-vazio>
     }
 
-    <ces-folha [aberta]="!!ampliar()" (fechar)="ampliar.set(null)" [titulo]="ampliar()?.rotulo ?? null">
+    <geo-folha [aberta]="!!ampliar()" (fechar)="ampliar.set(null)" [titulo]="ampliar()?.rotulo ?? null">
       @if (ampliar()?.url; as url) { <img class="ampliada" [src]="url" [alt]="ampliar()!.rotulo"> }
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
-    .aviso, .nota { display: flex; align-items: flex-start; gap: 6px; margin: var(--ces-e2) var(--ces-e5) 0; font: var(--ces-t-apoio); }
-    .aviso { color: var(--ces-atencao); }
-    .nota { color: var(--ces-texto-2); }
-    .nota__acao { margin-left: 4px; padding: 0; border: 0; background: none; color: var(--ces-destaque); font: inherit; font-weight: 600; cursor: pointer; }
-    .aviso ces-icone, .nota ces-icone { flex: none; margin-top: 2px; }
-    .dado-etiqueta { margin-left: var(--ces-e2); vertical-align: 1px; }
-    .dado-texto { font: var(--ces-t-corpo); white-space: pre-line; }
-    .filtro { padding: var(--ces-e4) var(--ces-e3) 0; }
+    .aviso, .nota { display: flex; align-items: flex-start; gap: 6px; margin: var(--geo-e2) var(--geo-e5) 0; font: var(--geo-t-apoio); }
+    .aviso { color: var(--geo-atencao); }
+    .nota { color: var(--geo-texto-2); }
+    .nota__acao { margin-left: 4px; padding: 0; border: 0; background: none; color: var(--geo-destaque); font: inherit; font-weight: 600; cursor: pointer; }
+    .aviso geo-icone, .nota geo-icone { flex: none; margin-top: 2px; }
+    .dado-etiqueta { margin-left: var(--geo-e2); vertical-align: 1px; }
+    .dado-texto { font: var(--geo-t-corpo); white-space: pre-line; }
+    .filtro { padding: var(--geo-e4) var(--geo-e3) 0; }
 
-    .resp { position: relative; display: grid; gap: 6px; padding: var(--ces-e3) var(--ces-e4); }
-    .resp + .resp::before { content: ''; position: absolute; top: 0; left: var(--ces-e4); right: 0; height: 1px; background: var(--ces-linha); }
-    .resp--problema { box-shadow: inset 3px 0 0 var(--ces-erro); }
-    .resp__topo { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ces-e3); }
-    .resp__pergunta { font: var(--ces-t-corpo-forte); overflow-wrap: anywhere; }
-    .resp__motivo { font: var(--ces-t-apoio); font-weight: 600; color: var(--ces-erro); }
-    .resp__texto { font: var(--ces-t-corpo); color: var(--ces-texto); white-space: pre-line; overflow-wrap: anywhere; }
-    .resp__comentario { font: var(--ces-t-apoio); color: var(--ces-texto-2); font-style: italic; overflow-wrap: anywhere; }
-    .resp__decisao { display: inline-flex; align-items: center; gap: 6px; font: var(--ces-t-apoio); font-weight: 600; color: var(--ces-texto-2); }
+    .resp { position: relative; display: grid; gap: 6px; padding: var(--geo-e3) var(--geo-e4); }
+    .resp + .resp::before { content: ''; position: absolute; top: 0; left: var(--geo-e4); right: 0; height: 1px; background: var(--geo-linha); }
+    .resp--problema { box-shadow: inset 3px 0 0 var(--geo-erro); }
+    .resp__topo { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--geo-e3); }
+    .resp__pergunta { font: var(--geo-t-corpo-forte); overflow-wrap: anywhere; }
+    .resp__motivo { font: var(--geo-t-apoio); font-weight: 600; color: var(--geo-erro); }
+    .resp__texto { font: var(--geo-t-corpo); color: var(--geo-texto); white-space: pre-line; overflow-wrap: anywhere; }
+    .resp__comentario { font: var(--geo-t-apoio); color: var(--geo-texto-2); font-style: italic; overflow-wrap: anywhere; }
+    .resp__decisao { display: inline-flex; align-items: center; gap: 6px; font: var(--geo-t-apoio); font-weight: 600; color: var(--geo-texto-2); }
     .resp__decisao i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
-    .resp__decisao[data-tom='atencao'] { color: var(--ces-atencao); }
-    .resp__decisao[data-tom='destaque'] { color: var(--ces-destaque); }
-    .resp__decisao[data-tom='ok'] { color: var(--ces-ok); }
+    .resp__decisao[data-tom='atencao'] { color: var(--geo-atencao); }
+    .resp__decisao[data-tom='destaque'] { color: var(--geo-destaque); }
+    .resp__decisao[data-tom='ok'] { color: var(--geo-ok); }
 
-    .fotos { list-style: none; margin: 0; padding: 0 var(--ces-e3); display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--ces-e3); }
-    .fotos--mini { padding: 2px 0 0; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: var(--ces-e2); }
+    .fotos { list-style: none; margin: 0; padding: 0 var(--geo-e3); display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--geo-e3); }
+    .fotos--mini { padding: 2px 0 0; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); gap: var(--geo-e2); }
     .fotos li { display: grid; gap: 6px; min-width: 0; }
     .foto { position: relative; display: grid; place-content: center; justify-items: center; gap: 4px; aspect-ratio: 4 / 3; overflow: hidden; padding: 0;
-      border-radius: var(--ces-r-grupo); border: 1.5px dashed var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-2);
-      font: var(--ces-t-apoio); font-size: .75rem; text-align: center; }
-    .fotos--mini .foto { border-radius: 10px; background: var(--ces-superficie-2); }
+      border-radius: var(--geo-r-grupo); border: 1.5px dashed var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2);
+      font: var(--geo-t-apoio); font-size: .75rem; text-align: center; }
+    .fotos--mini .foto { border-radius: 10px; background: var(--geo-superficie-2); }
     .foto--pronta { border: 0; cursor: pointer; }
     .foto--pronta:active { transform: scale(.98); }
-    .foto--alerta { color: var(--ces-atencao); }
+    .foto--alerta { color: var(--geo-atencao); }
     .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .foto__lupa { position: absolute; right: 4px; bottom: 4px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
       background: rgba(0, 0, 0, .55); color: #fff; }
     .foto__esqueleto { position: absolute; inset: 0; border-radius: 0; }
-    .foto__rotulo { font: var(--ces-t-apoio); color: var(--ces-texto); font-weight: 500; padding: 0 2px; }
-    .ampliada { display: block; width: calc(100% - 2 * var(--ces-e4)); margin: 0 var(--ces-e4); max-height: 70vh; object-fit: contain; border-radius: var(--ces-r-grupo); }
+    .foto__rotulo { font: var(--geo-t-apoio); color: var(--geo-texto); font-weight: 500; padding: 0 2px; }
+    .ampliada { display: block; width: calc(100% - 2 * var(--geo-e4)); margin: 0 var(--geo-e4); max-height: 70vh; object-fit: contain; border-radius: var(--geo-r-grupo); }
   `]
 })
 export class ChecklistVeiculoDetalheComponent implements OnInit, OnDestroy {
@@ -328,7 +328,7 @@ export class ChecklistVeiculoDetalheComponent implements OnInit, OnDestroy {
 
   /** Volta para a lista como estava (Meus ou Do veículo, com a placa); aberto por link, vai para a lista. */
   protected voltar(): void {
-    if (this.router.lastSuccessfulNavigation?.previousNavigation) this.location.back();
+    if (this.router.lastSuccessfulNavigation()?.previousNavigation) this.location.back();
     else void this.router.navigate(['/checklist']);
   }
 

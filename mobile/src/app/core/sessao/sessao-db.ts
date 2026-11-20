@@ -3,9 +3,9 @@ import Dexie, { Table } from 'dexie';
 import { SnapshotGravado } from './snapshot';
 
 /**
- * Banco PRÓPRIO da sessão e dos rascunhos, separado do `ces-field-db` (decisão D5).
+ * Banco PRÓPRIO da sessão e dos rascunhos, separado do `ces-field-db` (decisão D5). // renomear-geo: manter
  *
- * O `ces-field-db` guarda a fila de envio e continua na versão 7: assim um rollback
+ * O `ces-field-db` guarda a fila de envio e continua na versão 7: assim um rollback // renomear-geo: manter
  * para o build anterior abre o mesmo banco sem `VersionError`, e simplesmente
  * ignora este aqui. Nada neste banco é necessário para enviar dados ao servidor.
  */
@@ -75,7 +75,7 @@ export class SessaoDb extends Dexie {
   }
 }
 
-export const NOME_SESSAO_DB = 'ces-field-sessao';
+export const NOME_SESSAO_DB = 'ces-field-sessao'; // renomear-geo: manter
 
 /** Testes injetam um nome único para isolar cada caso. */
 export const SESSAO_DB = new InjectionToken<SessaoDb>('SESSAO_DB', {

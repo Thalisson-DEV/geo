@@ -6,7 +6,7 @@
 
 ## 🎯 1. Identidade do Projeto
 
-**Nome:** Nexo Field App (`ces-field-app`)
+**Nome:** Nexo Field App (`geo-field-app`)
 **Propósito:** Aplicação PWA Angular consumida exclusivamente por **encarregados de equipes de campo** (supervisores operacionais) da empresa. Eles atuam em campo, frequentemente sem conexão de rede estável, e precisam registrar execuções, lançar solicitações de materiais e consultar dados operacionais.
 
 **Relacionamento com o backend:** Este app é um **cliente** do sistema backend Nexo (Gestão Operacional). O backend é um Monolith Modular (Spring Boot 4, Java 21, PostgreSQL 17.5) com API RESTful documentada via Swagger. A URL base da API deve ser configurável por ambiente (`environment.ts`).
@@ -83,7 +83,7 @@ Esta é a regra mais importante de design: **a aplicação deve parecer e se com
 ## 📁 4. Estrutura de Diretórios
 
 ```
-ces-field-app/
+geo-field-app/
 ├── docs/                          ← 📌 DOCUMENTAÇÃO DA API (não modificar)
 │   ├── iam.md
 │   ├── rh.md
@@ -165,8 +165,8 @@ ces-field-app/
 ### 5.1.1 Sessão em campo (regra que não se quebra)
 - **Quem entrou só volta ao login tocando em "Sair".** Token vencido, falta de internet (inclusive 4G bloqueado ou Wi-Fi sem saída, quando `navigator.onLine` mente) e erro do servidor nunca mandam para `/login`: o `authGuard` e a retomada a frio aceitam qualquer sessão local.
 - A tela `/login` tem o `loginGuard`: com sessão no aparelho segue para `volta` (ou `/hoje`) e, sem token, tenta o cookie antes. O Android reabre o app instalado na última página carregada, não pelo ícone; sem o guarda, quem tinha entrado pelo login via o formulário em toda reabertura. A abertura pelo ícone (`retomadaGuard`) também tenta o cookie antes de mandar ao login.
-- O token de acesso (~1h) é renovado sozinho por `POST /v1/auth/refresh` com o cookie HttpOnly `ces_sessao` (`AuthService.renovarToken`, uma renovação por vez entre abas). O `authInterceptor` renova e repete a requisição; ele fica **depois** do `errorInterceptor` na cadeia.
-- `SESSAO_INVALIDA` só marca `reautenticacaoNecessaria`: o app continua, a fila espera e o shell mostra o aviso "Entre novamente para enviar" (`ces-aviso-sessao`). O login só abre se a pessoa tocar em "Entrar".
+- O token de acesso (~1h) é renovado sozinho por `POST /v1/auth/refresh` com o cookie HttpOnly `geo_sessao` (`AuthService.renovarToken`, uma renovação por vez entre abas). O `authInterceptor` renova e repete a requisição; ele fica **depois** do `errorInterceptor` na cadeia.
+- `SESSAO_INVALIDA` só marca `reautenticacaoNecessaria`: o app continua, a fila espera e o shell mostra o aviso "Entre novamente para enviar" (`geo-aviso-sessao`). O login só abre se a pessoa tocar em "Entrar".
 - A renovação respeita o `ConnectivityService` (não sai pelo 4G bloqueado) e é tentada ao reabrir o app e quando a rede volta.
 - Garantias cobertas por `e2e/piloto/sessao-campo.spec.ts` e `e2e/sw/sessao-offline.spec.ts` (modo avião + token vencido com o service worker real).
 

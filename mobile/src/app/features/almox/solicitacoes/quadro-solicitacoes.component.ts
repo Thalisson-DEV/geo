@@ -23,7 +23,7 @@ const COLUNAS: readonly DefColuna[] = [
 ];
 const LIMITE_ABERTAS = 200;
 const LIMITE_ENCERRADAS = 15;
-const CHAVE_AGRUPAMENTO = 'ces_almox_quadro_agrupamento';
+const CHAVE_AGRUPAMENTO = 'geo_almox_quadro_agrupamento';
 const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
   { valor: 'situacao', rotulo: 'Situação', apoio: 'Aguardando retirada, entregue em parte…' },
   { valor: 'pendencia', rotulo: 'Pendência', apoio: 'Pelo motivo da pendência aberta' },
@@ -45,22 +45,22 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
       <nav class="atalhos" aria-label="Ir para a coluna">
       @for (c of colunas(); track c.def.id; let i = $index) {
         <button type="button" class="atalho" [attr.data-tom]="c.def.tom" [attr.aria-current]="visivel() === i ? 'true' : null" (click)="irPara(i)">
-          {{ c.def.titulo }}<strong class="ces-num">{{ faixas() ? c.total : '–' }}</strong>
+          {{ c.def.titulo }}<strong class="geo-num">{{ faixas() ? c.total : '–' }}</strong>
         </button>
       }
       </nav>
-      <button type="button" class="ces-btn-icone agrupar" (click)="folhaAgrupar.set(true)" [attr.aria-label]="'Agrupar por ' + rotuloAgrupamento()"><ces-icone nome="filtro" [tamanho]="20" /></button>
+      <button type="button" class="geo-btn-icone agrupar" (click)="folhaAgrupar.set(true)" [attr.aria-label]="'Agrupar por ' + rotuloAgrupamento()"><geo-icone nome="filtro" [tamanho]="20" /></button>
     </div>
     <p class="agrupado">Agrupado por {{ rotuloAgrupamento().toLowerCase() }}</p>
 
     @if (erro()) {
-      <ces-vazio icone="alerta" titulo="Não foi possível carregar o quadro" [texto]="erro()">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="recarregar()">Tentar de novo</button>
-      </ces-vazio>
+      <geo-vazio icone="alerta" titulo="Não foi possível carregar o quadro" [texto]="erro()">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
+      </geo-vazio>
     } @else if (!faixas()) {
       <div class="trilho" aria-busy="true" aria-label="Carregando o quadro">
         @for (c of [1, 2]; track c) {
-          <div class="coluna"><div class="ces-esqueleto" style="height: 76px; border-radius: 16px"></div><div class="ces-esqueleto" style="height: 104px"></div><div class="ces-esqueleto" style="height: 104px"></div></div>
+          <div class="coluna"><div class="geo-esqueleto" style="height: 76px; border-radius: 16px"></div><div class="geo-esqueleto" style="height: 104px"></div><div class="geo-esqueleto" style="height: 104px"></div></div>
         }
       </div>
     } @else {
@@ -68,22 +68,22 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
         @for (c of colunas(); track c.def.id) {
           <section class="coluna" [attr.data-tom]="c.def.tom" [attr.aria-labelledby]="'qd-' + c.def.id">
             <header class="cab">
-              <span class="cab__icone"><ces-icone [nome]="c.def.icone" [tamanho]="20" /></span>
+              <span class="cab__icone"><geo-icone [nome]="c.def.icone" [tamanho]="20" /></span>
               <div class="cab__txt">
                 <h3 [id]="'qd-' + c.def.id">{{ c.def.titulo }}</h3>
                 <p>{{ c.def.subtitulo }}</p>
               </div>
-              <span class="cab__total ces-num">{{ c.total }}</span>
+              <span class="cab__total geo-num">{{ c.total }}</span>
             </header>
             @if (c.atrasadas || c.pendencias) {
               <div class="alertas">
-                @if (c.atrasadas) { <span class="alerta alerta--erro"><ces-icone nome="alerta" [tamanho]="14" />{{ c.atrasadas }} {{ c.atrasadas === 1 ? 'atrasada' : 'atrasadas' }}</span> }
-                @if (c.pendencias) { <span class="alerta alerta--atencao"><ces-icone nome="bandeira" [tamanho]="14" />{{ c.pendencias }} com pendência</span> }
+                @if (c.atrasadas) { <span class="alerta alerta--erro"><geo-icone nome="alerta" [tamanho]="14" />{{ c.atrasadas }} {{ c.atrasadas === 1 ? 'atrasada' : 'atrasadas' }}</span> }
+                @if (c.pendencias) { <span class="alerta alerta--atencao"><geo-icone nome="bandeira" [tamanho]="14" />{{ c.pendencias }} com pendência</span> }
               </div>
             }
             @if (c.total === 0) {
               <div class="vazio">
-                <span class="vazio__icone"><ces-icone nome="check" [tamanho]="22" /></span>
+                <span class="vazio__icone"><geo-icone nome="check" [tamanho]="22" /></span>
                 <strong>Tudo em dia</strong>
                 <span>{{ c.def.vazio }}</span>
               </div>
@@ -96,8 +96,8 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
                     @if (varios) {
                     <button type="button" class="grupo__cab" [attr.aria-expanded]="!fechado" (click)="alternar(g.id)" [attr.data-tom]="g.tom">
                       <span class="grupo__ponto" aria-hidden="true"></span>
-                      <span class="grupo__rotulo">{{ g.rotulo }}</span><span class="ces-num conta">{{ g.total }}</span>
-                      <ces-icone nome="avancar" [tamanho]="16" class="seta" [class.aberta]="!fechado" />
+                      <span class="grupo__rotulo">{{ g.rotulo }}</span><span class="geo-num conta">{{ g.total }}</span>
+                      <geo-icone nome="avancar" [tamanho]="16" class="seta" [class.aberta]="!fechado" />
                     </button>
                     }
                     @if (!fechado || !varios) {
@@ -120,70 +120,70 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
       </div>
     }
 
-    <ces-folha [aberta]="folhaAgrupar()" (fechar)="folhaAgrupar.set(false)" titulo="Agrupar o quadro" descricao="Como os cartões se organizam dentro de cada coluna.">
-      <ul class="ces-grupo opcoes" role="radiogroup" aria-label="Agrupar por">
+    <geo-folha [aberta]="folhaAgrupar()" (fechar)="folhaAgrupar.set(false)" titulo="Agrupar o quadro" descricao="Como os cartões se organizam dentro de cada coluna.">
+      <ul class="geo-grupo opcoes" role="radiogroup" aria-label="Agrupar por">
         @for (a of agrupamentos; track a.valor) {
-          <li><button type="button" role="radio" class="ces-linha ces-linha--acao" [attr.aria-checked]="agrupamento() === a.valor" (click)="agrupar(a.valor); folhaAgrupar.set(false)">
-            <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ a.rotulo }}</span><span class="ces-linha__apoio">{{ a.apoio }}</span></span>
-            @if (agrupamento() === a.valor) { <ces-icone nome="check" /> }
+          <li><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="agrupamento() === a.valor" (click)="agrupar(a.valor); folhaAgrupar.set(false)">
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ a.rotulo }}</span><span class="geo-linha__apoio">{{ a.apoio }}</span></span>
+            @if (agrupamento() === a.valor) { <geo-icone nome="check" /> }
           </button></li>
         }
       </ul>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; }
-    .barra { display: flex; align-items: center; gap: var(--ces-e1); padding: var(--ces-e3) var(--ces-e2) 0 var(--ces-e3); }
-    .agrupar { flex: none; color: var(--ces-texto-2); }
-    .agrupado { margin: 6px var(--ces-e5) 0; font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-3); }
-    .opcoes { background: var(--ces-fundo); }
-    .atalhos { flex: 1; min-width: 0; display: flex; gap: 2px; padding: 3px; border-radius: var(--ces-r-pilula); background: var(--ces-superficie-2); }
+    .barra { display: flex; align-items: center; gap: var(--geo-e1); padding: var(--geo-e3) var(--geo-e2) 0 var(--geo-e3); }
+    .agrupar { flex: none; color: var(--geo-texto-2); }
+    .agrupado { margin: 6px var(--geo-e5) 0; font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-3); }
+    .opcoes { background: var(--geo-fundo); }
+    .atalhos { flex: 1; min-width: 0; display: flex; gap: 2px; padding: 3px; border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); }
     .atalho { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 36px; padding: 0 6px; border: 0;
-      border-radius: var(--ces-r-pilula); background: transparent; color: var(--ces-texto-2); font: 600 .8125rem/1 var(--ces-fonte); cursor: pointer;
-      transition: background-color var(--ces-m-entrar), color var(--ces-m-entrar); }
+      border-radius: var(--geo-r-pilula); background: transparent; color: var(--geo-texto-2); font: 600 .8125rem/1 var(--geo-fonte); cursor: pointer;
+      transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
     .atalho strong { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; display: inline-grid; place-items: center;
-      font: 700 .6875rem/1 var(--ces-fonte); background: var(--ces-superficie); color: var(--ces-texto); }
-    .atalho[aria-current='true'] { background: var(--ces-superficie); color: var(--ces-texto); box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
-    .atalho[aria-current='true'][data-tom='atencao'] strong { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-    .atalho[aria-current='true'][data-tom='destaque'] strong { background: var(--ces-destaque-suave); color: var(--ces-destaque); }
-    .atalho[aria-current='true'] strong { background: var(--ces-superficie-2); }
-    .trilho { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: var(--ces-e3); overflow-x: auto; overscroll-behavior-x: contain;
-      align-items: start; scroll-snap-type: x mandatory; scroll-padding: 0 var(--ces-e3); padding: var(--ces-e3) var(--ces-e3) var(--ces-e2); scrollbar-width: none; transition: opacity var(--ces-m-entrar); }
+      font: 700 .6875rem/1 var(--geo-fonte); background: var(--geo-superficie); color: var(--geo-texto); }
+    .atalho[aria-current='true'] { background: var(--geo-superficie); color: var(--geo-texto); box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
+    .atalho[aria-current='true'][data-tom='atencao'] strong { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+    .atalho[aria-current='true'][data-tom='destaque'] strong { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
+    .atalho[aria-current='true'] strong { background: var(--geo-superficie-2); }
+    .trilho { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: var(--geo-e3); overflow-x: auto; overscroll-behavior-x: contain;
+      align-items: start; scroll-snap-type: x mandatory; scroll-padding: 0 var(--geo-e3); padding: var(--geo-e3) var(--geo-e3) var(--geo-e2); scrollbar-width: none; transition: opacity var(--geo-m-entrar); }
     .trilho::-webkit-scrollbar { display: none; }
     .trilho.atualizando { opacity: .6; }
-    .coluna { scroll-snap-align: start; display: grid; align-content: start; gap: var(--ces-e3); min-width: 0; padding: var(--ces-e2);
-      border-radius: var(--ces-r-folha); background: var(--ces-superficie-2); }
-    .coluna[data-tom='atencao'] { --cor: var(--ces-atencao); --suave: var(--ces-atencao-suave); }
-    .coluna[data-tom='destaque'] { --cor: var(--ces-destaque); --suave: var(--ces-destaque-suave); }
-    .coluna[data-tom='neutro'] { --cor: var(--ces-texto-2); --suave: var(--ces-superficie-2); }
-    .cab { display: flex; align-items: center; gap: var(--ces-e3); padding: var(--ces-e2) var(--ces-e2) var(--ces-e1); }
+    .coluna { scroll-snap-align: start; display: grid; align-content: start; gap: var(--geo-e3); min-width: 0; padding: var(--geo-e2);
+      border-radius: var(--geo-r-folha); background: var(--geo-superficie-2); }
+    .coluna[data-tom='atencao'] { --cor: var(--geo-atencao); --suave: var(--geo-atencao-suave); }
+    .coluna[data-tom='destaque'] { --cor: var(--geo-destaque); --suave: var(--geo-destaque-suave); }
+    .coluna[data-tom='neutro'] { --cor: var(--geo-texto-2); --suave: var(--geo-superficie-2); }
+    .cab { display: flex; align-items: center; gap: var(--geo-e3); padding: var(--geo-e2) var(--geo-e2) var(--geo-e1); }
     .cab__icone { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: var(--suave); color: var(--cor); flex: none; }
     .cab__txt { flex: 1; min-width: 0; }
-    .cab h3 { margin: 0; font: 600 .9375rem/1.25 var(--ces-fonte); }
-    .cab p { margin: 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .cab__total { min-width: 26px; height: 24px; padding: 0 8px; box-sizing: border-box; border-radius: 12px; display: grid; place-items: center; background: var(--ces-superficie); font: 700 .8125rem/1 var(--ces-fonte); color: var(--cor); }
-    .alertas { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 var(--ces-e1); }
-    .alerta { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: var(--ces-r-pilula); font: 600 .75rem/1.3 var(--ces-fonte); }
-    .alerta--erro { background: var(--ces-erro-suave); color: var(--ces-erro); }
-    .alerta--atencao { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-    .vazio { display: grid; justify-items: center; gap: 4px; padding: var(--ces-e5) var(--ces-e4); margin: 0 var(--ces-e1); border-radius: var(--ces-r-grupo); background: var(--ces-superficie); text-align: center; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .vazio strong { font: var(--ces-t-corpo-forte); color: var(--ces-texto); }
-    .vazio__icone { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 4px; background: var(--ces-ok-suave); color: var(--ces-ok); }
-    .grupo { display: grid; gap: var(--ces-e2); }
-    .grupo__cab { display: flex; align-items: center; gap: var(--ces-e2); min-height: 36px; padding: 0 var(--ces-e2); border: 0; background: transparent; color: var(--ces-texto);
-      font: 600 .8125rem/1.2 var(--ces-fonte); cursor: pointer; text-align: left; border-radius: var(--ces-r-campo); }
-    .grupo__cab:active { background: var(--ces-linha); }
-    .grupo__ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--ces-texto-3); flex: none; }
-    .grupo__cab[data-tom='erro'] .grupo__ponto { background: var(--ces-erro); }
-    .grupo__cab[data-tom='atencao'] .grupo__ponto { background: var(--ces-atencao); }
-    .grupo__cab[data-tom='destaque'] .grupo__ponto { background: var(--ces-destaque); }
-    .grupo__cab[data-tom='ok'] .grupo__ponto { background: var(--ces-ok); }
+    .cab h3 { margin: 0; font: 600 .9375rem/1.25 var(--geo-fonte); }
+    .cab p { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .cab__total { min-width: 26px; height: 24px; padding: 0 8px; box-sizing: border-box; border-radius: 12px; display: grid; place-items: center; background: var(--geo-superficie); font: 700 .8125rem/1 var(--geo-fonte); color: var(--cor); }
+    .alertas { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 var(--geo-e1); }
+    .alerta { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: var(--geo-r-pilula); font: 600 .75rem/1.3 var(--geo-fonte); }
+    .alerta--erro { background: var(--geo-erro-suave); color: var(--geo-erro); }
+    .alerta--atencao { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+    .vazio { display: grid; justify-items: center; gap: 4px; padding: var(--geo-e5) var(--geo-e4); margin: 0 var(--geo-e1); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); text-align: center; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .vazio strong { font: var(--geo-t-corpo-forte); color: var(--geo-texto); }
+    .vazio__icone { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 4px; background: var(--geo-ok-suave); color: var(--geo-ok); }
+    .grupo { display: grid; gap: var(--geo-e2); }
+    .grupo__cab { display: flex; align-items: center; gap: var(--geo-e2); min-height: 36px; padding: 0 var(--geo-e2); border: 0; background: transparent; color: var(--geo-texto);
+      font: 600 .8125rem/1.2 var(--geo-fonte); cursor: pointer; text-align: left; border-radius: var(--geo-r-campo); }
+    .grupo__cab:active { background: var(--geo-linha); }
+    .grupo__ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-texto-3); flex: none; }
+    .grupo__cab[data-tom='erro'] .grupo__ponto { background: var(--geo-erro); }
+    .grupo__cab[data-tom='atencao'] .grupo__ponto { background: var(--geo-atencao); }
+    .grupo__cab[data-tom='destaque'] .grupo__ponto { background: var(--geo-destaque); }
+    .grupo__cab[data-tom='ok'] .grupo__ponto { background: var(--geo-ok); }
     .grupo__rotulo { flex: 1; }
-    .conta { font: 700 .75rem/1 var(--ces-fonte); color: var(--ces-texto-2); }
-    .seta { transition: transform var(--ces-m-entrar) var(--ces-curva); color: var(--ces-texto-3); }
+    .conta { font: 700 .75rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
+    .seta { transition: transform var(--geo-m-entrar) var(--geo-curva); color: var(--geo-texto-3); }
     .seta.aberta { transform: rotate(90deg); }
-    .cartoes { display: grid; gap: var(--ces-e2); }
-    .mais { margin: 0; text-align: center; font: var(--ces-t-apoio); color: var(--ces-texto-2); padding: var(--ces-e2); }
+    .cartoes { display: grid; gap: var(--geo-e2); }
+    .mais { margin: 0; text-align: center; font: var(--geo-t-apoio); color: var(--geo-texto-2); padding: var(--geo-e2); }
   `],
 })
 export class QuadroSolicitacoesComponent {

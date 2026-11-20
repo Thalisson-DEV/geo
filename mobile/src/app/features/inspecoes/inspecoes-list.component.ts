@@ -49,37 +49,37 @@ interface EstadoTela { filtro?: Filtro; periodo?: PeriodFilter; folhaPeriodo?: b
   imports: [AbasSecaoComponent, ChipsComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, PeriodoComponent, RouterLink, SeletorComponent, StatusEnvioComponent, TituloGrandeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-titulo-grande titulo="Inspeções" [subtitulo]="subtitulo()">
-      <ces-indicador-rede />
-      <ces-periodo [valor]="periodo()" (valorChange)="definir({ periodo: $event })" [aberto]="folhaPeriodo()" (abertoChange)="definir({ folhaPeriodo: $event })" />
-    </ces-titulo-grande>
-    @if (abasSeguranca().length) { <ces-abas-secao rotulo="Segurança" [abas]="abasSeguranca()" /> }
+    <geo-titulo-grande titulo="Inspeções" [subtitulo]="subtitulo()">
+      <geo-indicador-rede />
+      <geo-periodo [valor]="periodo()" (valorChange)="definir({ periodo: $event })" [aberto]="folhaPeriodo()" (abertoChange)="definir({ folhaPeriodo: $event })" />
+    </geo-titulo-grande>
+    @if (abasSeguranca().length) { <geo-abas-secao rotulo="Segurança" [abas]="abasSeguranca()" /> }
 
     @if (authService.isCampo() && !turnoService.turnoAtivo()) {
-      <p class="aviso"><ces-icone nome="relogio" [tamanho]="18" />Abra o turno na tela Hoje para fazer uma inspeção.</p>
+      <p class="aviso"><geo-icone nome="relogio" [tamanho]="18" />Abra o turno na tela Hoje para fazer uma inspeção.</p>
     }
 
     <div class="linha-filtros">
-      <ces-chips rotulo="Filtrar inspeções" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definir({ filtro: $any($event) })" />
+      <geo-chips rotulo="Filtrar inspeções" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definir({ filtro: $any($event) })" />
     </div>
     @if (basesUsadas().length > 1 || tiposUsados().length > 1) {
-      <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto mais-filtros" (click)="definir({ folhaFiltros: true })">
-        <ces-icone nome="filtro" [tamanho]="16" />{{ idBase() || idTipo() ? 'Base e tipo filtrados' : 'Filtrar por base ou tipo' }}
+      <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto mais-filtros" (click)="definir({ folhaFiltros: true })">
+        <geo-icone nome="filtro" [tamanho]="16" />{{ idBase() || idTipo() ? 'Base e tipo filtrados' : 'Filtrar por base ou tipo' }}
       </button>
     }
 
     @if (filtro() === 'todas' || filtro() === 'andamento') {
       @if (rascunhos().length) {
-        <h2 class="ces-secao">Não terminadas</h2>
-        <ul class="ces-grupo" aria-label="Inspeções não terminadas">
+        <h2 class="geo-secao">Não terminadas</h2>
+        <ul class="geo-grupo" aria-label="Inspeções não terminadas">
           @for (r of rascunhos(); track r.chave) {
-            <li><button type="button" class="ces-linha ces-linha--acao" (click)="continuarRascunho(r)">
-              <span class="ces-selo ces-selo--destaque"><ces-icone nome="retomar" /></span>
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ r.titulo || 'Inspeção' }}</span>
-                <span class="ces-linha__apoio ces-num">Salva sozinha · {{ quando(r.atualizadoEm) }}{{ r.temAnexos ? ' · com fotos' : '' }}</span>
+            <li><button type="button" class="geo-linha geo-linha--acao" (click)="continuarRascunho(r)">
+              <span class="geo-selo geo-selo--destaque"><geo-icone nome="retomar" /></span>
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ r.titulo || 'Inspeção' }}</span>
+                <span class="geo-linha__apoio geo-num">Salva sozinha · {{ quando(r.atualizadoEm) }}{{ r.temAnexos ? ' · com fotos' : '' }}</span>
               </span>
-              <span class="ces-btn ces-btn--tonal ces-btn--compacto" aria-hidden="true">Continuar</span>
+              <span class="geo-btn geo-btn--tonal geo-btn--compacto" aria-hidden="true">Continuar</span>
             </button></li>
           }
         </ul>
@@ -87,27 +87,27 @@ interface EstadoTela { filtro?: Filtro; periodo?: PeriodFilter; folhaPeriodo?: b
     }
 
     @if (carregando()) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        @for (i of [1, 2, 3]; track i) { <div class="ces-esqueleto" style="height: 72px"></div> }
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 72px"></div> }
       </div>
     } @else if (grupos().length || rascunhos().length) {
       @for (g of grupos(); track g.titulo) {
-        <h2 class="ces-secao">{{ g.titulo }}</h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao">{{ g.titulo }}</h2>
+        <ul class="geo-grupo">
           @for (l of g.itens; track l.id) {
-            <li class="ces-linha-lista" [attr.data-ancora]="l.id">
-              <button type="button" class="ces-linha ces-linha--acao" (click)="abrir(l)">
-                <span class="ces-selo" [class.ces-selo--atencao]="l.desvios > 0" [class.ces-selo--ok]="!l.desvios && !l.emAndamento"><ces-icone nome="inspecao" /></span>
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo">{{ l.tipo }}</span>
-                  <span class="ces-linha__apoio ces-num">{{ l.apoio }}</span>
+            <li class="geo-linha-lista" [attr.data-ancora]="l.id">
+              <button type="button" class="geo-linha geo-linha--acao" (click)="abrir(l)">
+                <span class="geo-selo" [class.geo-selo--atencao]="l.desvios > 0" [class.geo-selo--ok]="!l.desvios && !l.emAndamento"><geo-icone nome="inspecao" /></span>
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo">{{ l.tipo }}</span>
+                  <span class="geo-linha__apoio geo-num">{{ l.apoio }}</span>
                 </span>
                 <span class="direita">
                   @if (l.emAndamento) {
-                    <span class="ces-btn ces-btn--tonal ces-btn--compacto" aria-hidden="true">Continuar</span>
+                    <span class="geo-btn geo-btn--tonal geo-btn--compacto" aria-hidden="true">Continuar</span>
                   } @else {
-                    <span class="ces-qtd" [class.com-desvio]="l.desvios > 0">{{ l.desvios }}<small>{{ l.desvios === 1 ? 'desvio' : 'desvios' }}</small></span>
-                    @if (l.estado) { <ces-status-envio [estado]="l.estado" [rotulo]="l.rotuloEstado" /> }
+                    <span class="geo-qtd" [class.com-desvio]="l.desvios > 0">{{ l.desvios }}<small>{{ l.desvios === 1 ? 'desvio' : 'desvios' }}</small></span>
+                    @if (l.estado) { <geo-status-envio [estado]="l.estado" [rotulo]="l.rotuloEstado" /> }
                   }
                 </span>
               </button>
@@ -115,39 +115,39 @@ interface EstadoTela { filtro?: Filtro; periodo?: PeriodFilter; folhaPeriodo?: b
           }
         </ul>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     } @else {
-      <ces-vazio icone="inspecao" [titulo]="filtro() === 'todas' ? 'Nenhuma inspeção no período' : 'Nada com esse filtro'"
+      <geo-vazio icone="inspecao" [titulo]="filtro() === 'todas' ? 'Nenhuma inspeção no período' : 'Nada com esse filtro'"
         [texto]="filtro() === 'todas' ? 'As inspeções feitas neste aparelho aparecem aqui.' : 'Volte para Todas para ver o resto.'">
         @if (filtro() !== 'todas' || periodo() !== 'todos' || idBase() || idTipo()) {
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="limpar()">Mostrar todas</button>
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="limpar()">Mostrar todas</button>
         }
-      </ces-vazio>
+      </geo-vazio>
     }
 
     @if (podeCriar()) {
-      <a class="ces-fab" routerLink="/inspecoes/nova"><ces-icone nome="mais" />Inspecionar</a>
+      <a class="geo-fab" routerLink="/inspecoes/nova"><geo-icone nome="mais" />Inspecionar</a>
     }
 
-    <ces-folha [aberta]="folhaFiltros()" (fechar)="definir({ folhaFiltros: false })" titulo="Base e tipo">
+    <geo-folha [aberta]="folhaFiltros()" (fechar)="definir({ folhaFiltros: false })" titulo="Base e tipo">
       <div class="campos">
-        <ces-seletor rotulo="Base" placeholder="Todas" [opcoes]="basesUsadas()" [valor]="idBase() || null" (valorChange)="definir({ base: $event ?? '' })" />
-        <ces-seletor rotulo="Tipo de inspeção" placeholder="Todos" [opcoes]="tiposUsados()" [valor]="idTipo() || null" (valorChange)="definir({ tipo: $event ?? '' })" />
+        <geo-seletor rotulo="Base" placeholder="Todas" [opcoes]="basesUsadas()" [valor]="idBase() || null" (valorChange)="definir({ base: $event ?? '' })" />
+        <geo-seletor rotulo="Tipo de inspeção" placeholder="Todos" [opcoes]="tiposUsados()" [valor]="idTipo() || null" (valorChange)="definir({ tipo: $event ?? '' })" />
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="definir({ base: '', tipo: '' })">Limpar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="definir({ folhaFiltros: false })">Mostrar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="definir({ base: '', tipo: '' })">Limpar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="definir({ folhaFiltros: false })">Mostrar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; position: relative; min-height: 100%; }
-    .aviso { display: flex; gap: var(--ces-e2); align-items: flex-start; margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
-      border-radius: var(--ces-r-grupo); background: var(--ces-atencao-suave); font: var(--ces-t-apoio); font-size: .875rem; }
-    .mais-filtros { margin: 0 var(--ces-e3); gap: 4px; }
+    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+      border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); font-size: .875rem; }
+    .mais-filtros { margin: 0 var(--geo-e3); gap: 4px; }
     .direita { display: grid; justify-items: end; gap: 6px; }
-    .ces-qtd.com-desvio { color: var(--ces-atencao); }
-    .campos { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e4); }
+    .geo-qtd.com-desvio { color: var(--geo-atencao); }
+    .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e4); }
   `],
 })
 export class InspecoesListComponent implements OnInit {

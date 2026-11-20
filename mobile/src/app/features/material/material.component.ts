@@ -16,45 +16,45 @@ import { DIAS_PARADO, diasDesde } from '../../core/saldo/tempo-saldo';
   imports: [RouterLink, TituloGrandeComponent, IconeComponent, IndicadorRedeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-titulo-grande titulo="Material" subtitulo="Pedidos, transferências e saldo">
-      <ces-indicador-rede />
-    </ces-titulo-grande>
+    <geo-titulo-grande titulo="Material" subtitulo="Pedidos, transferências e saldo">
+      <geo-indicador-rede />
+    </geo-titulo-grande>
 
-    <h2 class="ces-secao">Novo</h2>
-    <ul class="ces-grupo">
-      <li><a class="ces-linha ces-linha--acao" routerLink="/solicitacoes/nova">
-        <span class="ces-selo ces-selo--destaque"><ces-icone nome="documento" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Pedir material</span>
-          <span class="ces-linha__apoio">Do almoxarifado para o caminhão</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="ces-linha ces-linha--acao" routerLink="/transferencias/nova">
-        <span class="ces-selo ces-selo--destaque"><ces-icone nome="transferencia" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Transferir</span>
-          <span class="ces-linha__apoio">Para outro estoque, com assinatura</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+    <h2 class="geo-secao">Novo</h2>
+    <ul class="geo-grupo">
+      <li><a class="geo-linha geo-linha--acao" routerLink="/solicitacoes/nova">
+        <span class="geo-selo geo-selo--destaque"><geo-icone nome="documento" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Pedir material</span>
+          <span class="geo-linha__apoio">Do almoxarifado para o caminhão</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+      <li><a class="geo-linha geo-linha--acao" routerLink="/transferencias/nova">
+        <span class="geo-selo geo-selo--destaque"><geo-icone nome="transferencia" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Transferir</span>
+          <span class="geo-linha__apoio">Para outro estoque, com assinatura</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
     </ul>
 
-    <h2 class="ces-secao">Consultar</h2>
-    <ul class="ces-grupo">
-      <li><a class="ces-linha ces-linha--acao" routerLink="/solicitacoes">
-        <span class="ces-selo"><ces-icone nome="documento" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Meus pedidos</span>
-          <span class="ces-linha__apoio ces-num">{{ pendentes() ? pendentes() + ' aguardando aprovação' : 'Situação de cada pedido' }}</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="ces-linha ces-linha--acao" routerLink="/transferencias">
-        <span class="ces-selo"><ces-icone nome="transferencia" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Transferências</span>
-          <span class="ces-linha__apoio">Feitas por este aparelho</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="ces-linha ces-linha--acao" routerLink="/solicitacoes/estoque">
-        <span class="ces-selo"><ces-icone nome="caminhao" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Saldo do caminhão</span>
-          <span class="ces-linha__apoio ces-num">{{ itensSaldo() }} {{ itensSaldo() === 1 ? 'material' : 'materiais' }} com saldo
+    <h2 class="geo-secao">Consultar</h2>
+    <ul class="geo-grupo">
+      <li><a class="geo-linha geo-linha--acao" routerLink="/solicitacoes">
+        <span class="geo-selo"><geo-icone nome="documento" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Meus pedidos</span>
+          <span class="geo-linha__apoio geo-num">{{ pendentes() ? pendentes() + ' aguardando aprovação' : 'Situação de cada pedido' }}</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+      <li><a class="geo-linha geo-linha--acao" routerLink="/transferencias">
+        <span class="geo-selo"><geo-icone nome="transferencia" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Transferências</span>
+          <span class="geo-linha__apoio">Feitas por este aparelho</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+      <li><a class="geo-linha geo-linha--acao" routerLink="/solicitacoes/estoque">
+        <span class="geo-selo"><geo-icone nome="caminhao" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Saldo do caminhão</span>
+          <span class="geo-linha__apoio geo-num">{{ itensSaldo() }} {{ itensSaldo() === 1 ? 'material' : 'materiais' }} com saldo
             @if (parados()) { · <span class="parados">{{ parados() }} {{ parados() === 1 ? 'parado' : 'parados' }} há {{ diasParado }}+ dias</span> }</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
     </ul>
   `,
-  styles: [`:host { display: block; padding-bottom: var(--ces-e6); } .parados { font-weight: 600; color: var(--ces-atencao); }`],
+  styles: [`:host { display: block; padding-bottom: var(--geo-e6); } .parados { font-weight: 600; color: var(--geo-atencao); }`],
 })
 export class MaterialComponent implements OnInit {
   private readonly tokens = inject(TokenService);

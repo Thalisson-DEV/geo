@@ -314,7 +314,7 @@ export interface OutboxItem {
   criadoEm: Date;
   /**
    * Epoch (ms) antes do qual o item não é reenviado (espera crescente após 5xx).
-   * Campo não indexado: entra sem mudar a versão do `ces-field-db` (decisão D5).
+   * Campo não indexado: entra sem mudar a versão do `ces-field-db` (decisão D5). // renomear-geo: manter
    */
   proximaTentativaEm?: number;
   /**

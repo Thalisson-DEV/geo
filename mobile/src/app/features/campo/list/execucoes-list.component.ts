@@ -66,42 +66,42 @@ let ultimaLeitura: { execucoes: ExecucaoCampoLocal[]; fila: Map<string, OutboxIt
   imports: [CurrencyPipe, RouterLink, TituloGrandeComponent, IconeComponent, StatusEnvioComponent, VazioComponent, FolhaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-titulo-grande titulo="Serviços" [subtitulo]="subtitulo()">
-      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto periodo" (click)="abrirPeriodo()"
+    <geo-titulo-grande titulo="Serviços" [subtitulo]="subtitulo()">
+      <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto periodo" (click)="abrirPeriodo()"
         [attr.aria-label]="'Período: ' + rotuloPeriodo()">
-        <ces-icone nome="filtro" [tamanho]="18" />{{ rotuloPeriodoCurto() }}
+        <geo-icone nome="filtro" [tamanho]="18" />{{ rotuloPeriodoCurto() }}
       </button>
-    </ces-titulo-grande>
+    </geo-titulo-grande>
 
     <div class="chips" role="radiogroup" aria-label="Filtrar por envio">
       @for (f of filtros; track f.valor) {
         <button type="button" role="radio" class="chip" [attr.aria-checked]="filtro() === f.valor" (click)="definirFiltro(f.valor)">
           {{ f.rotulo }}
-          @if (contagem()[f.valor]; as n) { <span class="ces-num conta">{{ n }}</span> }
+          @if (contagem()[f.valor]; as n) { <span class="geo-num conta">{{ n }}</span> }
         </button>
       }
     </div>
 
     @if (carregando()) {
       <div class="esqueletos" aria-busy="true" aria-label="Carregando">
-        @for (i of [1, 2, 3, 4]; track i) { <div class="ces-esqueleto" style="height: 60px"></div> }
+        @for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 60px"></div> }
       </div>
     } @else if (grupos().length) {
       @for (g of grupos(); track g.titulo) {
-        <h2 class="ces-secao">{{ g.titulo }}</h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao">{{ g.titulo }}</h2>
+        <ul class="geo-grupo">
           @for (l of g.linhas; track l.id) {
             <li class="linha-lista" [attr.data-ancora]="l.id">
-              <button type="button" class="ces-linha ces-linha--acao" (click)="abrir(l)">
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo ces-num">{{ l.nota }}</span>
-                  @if (l.servicos) { <span class="ces-linha__resumo">{{ l.servicos }}</span> }
-                  <span class="ces-linha__apoio ces-num">@if (l.alterada) {<span class="ces-cond ces-cond--sucata">Alterada</span> · }{{ l.apoio }}@if (l.valor) { · {{ l.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} }</span>
+              <button type="button" class="geo-linha geo-linha--acao" (click)="abrir(l)">
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo geo-num">{{ l.nota }}</span>
+                  @if (l.servicos) { <span class="geo-linha__resumo">{{ l.servicos }}</span> }
+                  <span class="geo-linha__apoio geo-num">@if (l.alterada) {<span class="geo-cond geo-cond--sucata">Alterada</span> · }{{ l.apoio }}@if (l.valor) { · {{ l.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} }</span>
                 </span>
                 @if (l.legadoIniciada) {
-                  <span class="ces-btn ces-btn--tonal ces-btn--compacto" aria-hidden="true">Terminar</span>
+                  <span class="geo-btn geo-btn--tonal geo-btn--compacto" aria-hidden="true">Terminar</span>
                 } @else {
-                  <ces-status-envio [estado]="l.estado" />
+                  <geo-status-envio [estado]="l.estado" />
                 }
               </button>
             </li>
@@ -110,46 +110,46 @@ let ultimaLeitura: { execucoes: ExecucaoCampoLocal[]; fila: Map<string, OutboxIt
       }
       <div class="respiro"></div>
     } @else {
-      <ces-vazio icone="servicos" [titulo]="filtro() === 'todas' ? 'Nenhuma execução no período' : 'Nada com esse filtro'"
+      <geo-vazio icone="servicos" [titulo]="filtro() === 'todas' ? 'Nenhuma execução no período' : 'Nada com esse filtro'"
         [texto]="filtro() === 'todas' ? 'Mude o período ou lance uma execução.' : 'Volte para Todas para ver o resto.'">
         @if (filtro() !== 'todas' || periodo() !== 'todos') {
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="limpar()">Mostrar todas</button>
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="limpar()">Mostrar todas</button>
         }
-      </ces-vazio>
+      </geo-vazio>
     }
 
     @if (turno.turnoAtivo()) {
-      <a class="ces-fab" routerLink="/campo/nova"><ces-icone nome="mais" />Nova</a>
+      <a class="geo-fab" routerLink="/campo/nova"><geo-icone nome="mais" />Nova</a>
     }
 
-    <ces-folha [aberta]="folhaPeriodo()" (fechar)="fecharPeriodo()" titulo="Período">
-      <ul class="ces-grupo opcoes" role="radiogroup" aria-label="Período">
+    <geo-folha [aberta]="folhaPeriodo()" (fechar)="fecharPeriodo()" titulo="Período">
+      <ul class="geo-grupo opcoes" role="radiogroup" aria-label="Período">
         @for (p of periodos; track p.valor) {
           <li>
-            <button type="button" role="radio" class="ces-linha ces-linha--acao" [attr.aria-checked]="periodo() === p.valor" (click)="definirPeriodo(p.valor)">
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ p.rotulo }}</span></span>
-              @if (periodo() === p.valor) { <ces-icone nome="check" /> }
+            <button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="periodo() === p.valor" (click)="definirPeriodo(p.valor)">
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ p.rotulo }}</span></span>
+              @if (periodo() === p.valor) { <geo-icone nome="check" /> }
             </button>
           </li>
         }
       </ul>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; position: relative; min-height: 100%; }
-    .periodo { color: var(--ces-texto); }
-    .chips { display: flex; gap: var(--ces-e2); overflow-x: auto; padding: var(--ces-e3) var(--ces-e4) var(--ces-e1); scrollbar-width: none;
+    .periodo { color: var(--geo-texto); }
+    .chips { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-e4) var(--geo-e1); scrollbar-width: none;
       overscroll-behavior-x: contain; }
     .chips::-webkit-scrollbar { display: none; }
-    .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--ces-r-pilula);
-      border: 1px solid var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-2); font: 500 .875rem/1 var(--ces-fonte); cursor: pointer; }
-    .chip[aria-checked='true'] { background: var(--ces-destaque-suave); border-color: transparent; color: var(--ces-destaque); font-weight: 600; }
+    .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--geo-r-pilula);
+      border: 1px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2); font: 500 .875rem/1 var(--geo-fonte); cursor: pointer; }
+    .chip[aria-checked='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
     .conta { font-weight: 700; }
-    .esqueletos { display: grid; gap: var(--ces-e2); padding: var(--ces-e4); }
+    .esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
     /* Listas com milhares de linhas: o navegador pula o trabalho das que estão fora da tela. */
     .linha-lista { content-visibility: auto; contain-intrinsic-size: auto 64px; }
     .respiro { height: 96px; }
-    .opcoes { background: var(--ces-fundo); }
+    .opcoes { background: var(--geo-fundo); }
   `],
 })
 export class ExecucoesListComponent implements OnInit {

@@ -28,79 +28,79 @@ interface GrupoDocumentos {
   imports: [BarraTopoComponent, IconeComponent, IndicadorRedeComponent, SeletorComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Documentos" [subtitulo]="subtitulo()" (voltar)="voltar()">
-      <button type="button" class="ces-btn-icone" [disabled]="carga() === 'carregando' || !idVeiculo() || !online()" (click)="carregar()" aria-label="Atualizar">
-        <ces-icone nome="atualizar" />
+    <geo-barra-topo titulo="Documentos" [subtitulo]="subtitulo()" (voltar)="voltar()">
+      <button type="button" class="geo-btn-icone" [disabled]="carga() === 'carregando' || !idVeiculo() || !online()" (click)="carregar()" aria-label="Atualizar">
+        <geo-icone nome="atualizar" />
       </button>
-      <ces-indicador-rede />
-    </ces-barra-topo>
+      <geo-indicador-rede />
+    </geo-barra-topo>
 
     <div class="escolha">
-      <ces-seletor rotulo="Veículo" placeholder="Escolher a placa" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="escolher($event)" />
+      <geo-seletor rotulo="Veículo" placeholder="Escolher a placa" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="escolher($event)" />
     </div>
 
     @if (!idVeiculo()) {
-      <ces-vazio icone="documento" titulo="Escolha um veículo" texto="CRLV, tacógrafo e laudos do veículo e do implemento engatado." />
+      <geo-vazio icone="documento" titulo="Escolha um veículo" texto="CRLV, tacógrafo e laudos do veículo e do implemento engatado." />
     } @else if (carga() === 'carregando') {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        <div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 64px"></div>
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 64px"></div>
       </div>
     } @else if (grupos().length) {
       @if (!online()) {
-        <p class="aviso"><ces-icone nome="sem_rede" [tamanho]="16" />Sem internet: abrem os documentos já salvos no aparelho.</p>
+        <p class="aviso"><geo-icone nome="sem_rede" [tamanho]="16" />Sem internet: abrem os documentos já salvos no aparelho.</p>
       }
       @for (g of grupos(); track g.chave) {
-        <h2 class="ces-secao"><span>{{ g.titulo }}</span><span class="ces-num">{{ g.documentos.length }}</span></h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao"><span>{{ g.titulo }}</span><span class="geo-num">{{ g.documentos.length }}</span></h2>
+        <ul class="geo-grupo">
           @for (doc of g.documentos; track doc.id) {
             @let v = vencimento(doc);
             @let abre = podeAbrir(doc);
             @if (abre) {
-              <li><button type="button" class="ces-linha ces-linha--acao" (click)="abrir(doc)">
-                <span [class]="'ces-selo ces-selo--' + v.tom"><ces-icone nome="documento" /></span>
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo">{{ nome(doc) }}</span>
-                  <span class="ces-linha__apoio">{{ apoio(doc) }}</span>
+              <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrir(doc)">
+                <span [class]="'geo-selo geo-selo--' + v.tom"><geo-icone nome="documento" /></span>
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo">{{ nome(doc) }}</span>
+                  <span class="geo-linha__apoio">{{ apoio(doc) }}</span>
                 </span>
-                <span [class]="'ces-etiqueta ces-etiqueta--' + etiqueta(v.tom)">{{ v.rotulo }}</span>
-                <ces-icone nome="avancar" [tamanho]="18" />
+                <span [class]="'geo-etiqueta geo-etiqueta--' + etiqueta(v.tom)">{{ v.rotulo }}</span>
+                <geo-icone nome="avancar" [tamanho]="18" />
               </button></li>
             } @else {
-              <li class="ces-linha">
-                <span [class]="'ces-selo ces-selo--' + v.tom"><ces-icone nome="documento" /></span>
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo">{{ nome(doc) }}</span>
-                  <span class="ces-linha__apoio">{{ apoio(doc) }}</span>
+              <li class="geo-linha">
+                <span [class]="'geo-selo geo-selo--' + v.tom"><geo-icone nome="documento" /></span>
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo">{{ nome(doc) }}</span>
+                  <span class="geo-linha__apoio">{{ apoio(doc) }}</span>
                 </span>
-                <span [class]="'ces-etiqueta ces-etiqueta--' + etiqueta(v.tom)">{{ v.rotulo }}</span>
+                <span [class]="'geo-etiqueta geo-etiqueta--' + etiqueta(v.tom)">{{ v.rotulo }}</span>
               </li>
             }
           }
         </ul>
       }
       @if (semArquivo()) {
-        <p class="nota"><ces-icone nome="info" [tamanho]="16" />Documento sem arquivo: peça ao gestor da frota para anexar.</p>
+        <p class="nota"><geo-icone nome="info" [tamanho]="16" />Documento sem arquivo: peça ao gestor da frota para anexar.</p>
       }
     } @else if (carga() === 'sem-sinal') {
-      <ces-vazio icone="nuvem" titulo="Precisa de internet" texto="Os documentos deste veículo ainda não foram salvos neste aparelho. Conecte uma vez e eles passam a abrir sem sinal." />
+      <geo-vazio icone="nuvem" titulo="Precisa de internet" texto="Os documentos deste veículo ainda não foram salvos neste aparelho. Conecte uma vez e eles passam a abrir sem sinal." />
     } @else if (carga() === 'erro') {
-      <ces-vazio icone="alerta" titulo="Não foi possível buscar os documentos" texto="Confira a internet e tente de novo.">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="carregar()">Tentar de novo</button>
-      </ces-vazio>
+      <geo-vazio icone="alerta" titulo="Não foi possível buscar os documentos" texto="Confira a internet e tente de novo.">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="carregar()">Tentar de novo</button>
+      </geo-vazio>
     } @else if (carga() === 'pronto') {
-      <ces-vazio icone="documento" titulo="Nenhum documento cadastrado" texto="O gestor da frota cadastra o CRLV e os demais documentos na web." />
+      <geo-vazio icone="documento" titulo="Nenhum documento cadastrado" texto="O gestor da frota cadastra o CRLV e os demais documentos na web." />
     }
-    <div class="ces-respiro"></div>
+    <div class="geo-respiro"></div>
   `,
   styles: [`
     :host { display: block; }
-    .escolha { padding: var(--ces-e2) var(--ces-e3) 0; }
-    .ces-linha .ces-etiqueta { flex: none; }
-    .aviso, .nota { display: flex; align-items: center; gap: var(--ces-e2); margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
-      border-radius: var(--ces-r-grupo); font: var(--ces-t-apoio); font-size: .875rem; }
-    .aviso { background: var(--ces-atencao-suave); color: var(--ces-texto); }
-    .nota { background: var(--ces-superficie); color: var(--ces-texto-2); margin-top: var(--ces-e3); }
-    .aviso ces-icone, .nota ces-icone { flex: none; }
+    .escolha { padding: var(--geo-e2) var(--geo-e3) 0; }
+    .geo-linha .geo-etiqueta { flex: none; }
+    .aviso, .nota { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+      border-radius: var(--geo-r-grupo); font: var(--geo-t-apoio); font-size: .875rem; }
+    .aviso { background: var(--geo-atencao-suave); color: var(--geo-texto); }
+    .nota { background: var(--geo-superficie); color: var(--geo-texto-2); margin-top: var(--geo-e3); }
+    .aviso geo-icone, .nota geo-icone { flex: none; }
   `],
 })
 export class VeiculoDocumentosComponent implements OnInit {

@@ -40,48 +40,48 @@ interface EstadoTela { filtro?: Filtro; periodo?: PeriodFilter; folhaPeriodo?: b
   imports: [BarraTopoComponent, ChipsComponent, IconeComponent, PeriodoComponent, RouterLink, StatusEnvioComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Transferências" [subtitulo]="subtitulo()" (voltar)="voltar()">
-      <ces-periodo [valor]="periodo()" (valorChange)="definirPeriodo($event)" [aberto]="folhaPeriodo()" (abertoChange)="definirFolha($event)" />
-    </ces-barra-topo>
-    <ces-chips rotulo="Filtrar por envio" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definirFiltro($any($event))" />
+    <geo-barra-topo titulo="Transferências" [subtitulo]="subtitulo()" (voltar)="voltar()">
+      <geo-periodo [valor]="periodo()" (valorChange)="definirPeriodo($event)" [aberto]="folhaPeriodo()" (abertoChange)="definirFolha($event)" />
+    </geo-barra-topo>
+    <geo-chips rotulo="Filtrar por envio" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definirFiltro($any($event))" />
 
     @if (carregando()) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        @for (i of [1, 2, 3]; track i) { <div class="ces-esqueleto" style="height: 72px"></div> }
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 72px"></div> }
       </div>
     } @else if (grupos().length) {
       @for (g of grupos(); track g.titulo) {
-        <h2 class="ces-secao">{{ g.titulo }}</h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao">{{ g.titulo }}</h2>
+        <ul class="geo-grupo">
           @for (l of g.itens; track l.id) {
-            <li class="ces-linha-lista" [attr.data-ancora]="l.id">
-              <a class="ces-linha ces-linha--acao" [routerLink]="['/transferencias', l.id]">
-                <span class="ces-selo ces-selo--destaque"><ces-icone nome="transferencia" /></span>
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo">Para {{ l.destino }}</span>
-                  <span class="ces-linha__apoio ces-num">{{ l.quando }} · {{ l.resumo }}</span>
+            <li class="geo-linha-lista" [attr.data-ancora]="l.id">
+              <a class="geo-linha geo-linha--acao" [routerLink]="['/transferencias', l.id]">
+                <span class="geo-selo geo-selo--destaque"><geo-icone nome="transferencia" /></span>
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo">Para {{ l.destino }}</span>
+                  <span class="geo-linha__apoio geo-num">{{ l.quando }} · {{ l.resumo }}</span>
                 </span>
                 <span class="direita">
-                  <span class="ces-qtd">{{ l.total }}</span>
-                  <ces-status-envio [estado]="l.estado" [rotulo]="l.rotuloEstado" />
+                  <span class="geo-qtd">{{ l.total }}</span>
+                  <geo-status-envio [estado]="l.estado" [rotulo]="l.rotuloEstado" />
                 </span>
               </a>
             </li>
           }
         </ul>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     } @else {
-      <ces-vazio icone="transferencia" [titulo]="filtro() === 'todas' ? 'Nenhuma transferência no período' : 'Nada com esse filtro'"
+      <geo-vazio icone="transferencia" [titulo]="filtro() === 'todas' ? 'Nenhuma transferência no período' : 'Nada com esse filtro'"
         [texto]="filtro() === 'todas' ? 'As transferências feitas neste aparelho aparecem aqui.' : 'Volte para Todas para ver o resto.'">
         @if (filtro() !== 'todas' || periodo() !== 'todos') {
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="limpar()">Mostrar todas</button>
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="limpar()">Mostrar todas</button>
         }
-      </ces-vazio>
+      </geo-vazio>
     }
 
     @if (turno.turnoAtivo()) {
-      <a class="ces-fab" routerLink="/transferencias/nova"><ces-icone nome="mais" />Transferir</a>
+      <a class="geo-fab" routerLink="/transferencias/nova"><geo-icone nome="mais" />Transferir</a>
     }
   `,
   styles: [`

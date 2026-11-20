@@ -58,50 +58,50 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <ces-titulo-grande titulo="Hoje" [subtitulo]="subtitulo()">
-        <ces-indicador-rede (tocar)="abrirEnvios()" />
-      </ces-titulo-grande>
+      <geo-titulo-grande titulo="Hoje" [subtitulo]="subtitulo()">
+        <geo-indicador-rede (tocar)="abrirEnvios()" />
+      </geo-titulo-grande>
 
       @if (rascunho(); as r) {
         <section class="retomar" aria-label="Trabalho não terminado">
-          <span class="ces-selo ces-selo--destaque"><ces-icone nome="retomar" /></span>
+          <span class="geo-selo geo-selo--destaque"><geo-icone nome="retomar" /></span>
           <div class="txt">
             <strong>{{ r.antigo ? 'Rascunho antigo' : 'Lançamento pela metade' }}</strong>
-            <span class="ces-num">{{ r.titulo ?? 'Continue de onde parou' }}</span>
+            <span class="geo-num">{{ r.titulo ?? 'Continue de onde parou' }}</span>
           </div>
           <div class="retomar__acoes">
-            <button type="button" class="ces-btn ces-btn--principal ces-btn--compacto" (click)="continuar(r)">Continuar</button>
-            <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="confirmarDescarte.set(true)">Descartar</button>
+            <button type="button" class="geo-btn geo-btn--principal geo-btn--compacto" (click)="continuar(r)">Continuar</button>
+            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="confirmarDescarte.set(true)">Descartar</button>
           </div>
         </section>
       }
 
       @if (auth.isCampo()) {
-        <h2 class="ces-secao">Turno</h2>
-        <div class="ces-grupo">
+        <h2 class="geo-secao">Turno</h2>
+        <div class="geo-grupo">
           @if (turno.turnoAtivo(); as t) {
-            <div class="ces-linha">
-              <span class="ces-selo ces-selo--ok"><ces-icone nome="check" /></span>
-              <div class="ces-linha__texto">
-                <span class="ces-linha__titulo">Turno aberto</span>
-                <span class="ces-linha__apoio ces-num">desde {{ hora(t.dataInicio) }}{{ pessoas() }}</span>
+            <div class="geo-linha">
+              <span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span>
+              <div class="geo-linha__texto">
+                <span class="geo-linha__titulo">Turno aberto</span>
+                <span class="geo-linha__apoio geo-num">desde {{ hora(t.dataInicio) }}{{ pessoas() }}</span>
               </div>
-              <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto encerrar" (click)="confirmarEncerrar.set(true)">Encerrar</button>
+              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto encerrar" (click)="confirmarEncerrar.set(true)">Encerrar</button>
             </div>
           } @else {
-            <div class="ces-linha">
-              <span class="ces-selo"><ces-icone nome="relogio" /></span>
-              <div class="ces-linha__texto">
-                <span class="ces-linha__titulo">Turno fechado</span>
-                <span class="ces-linha__apoio">Abra para lançar execuções</span>
+            <div class="geo-linha">
+              <span class="geo-selo"><geo-icone nome="relogio" /></span>
+              <div class="geo-linha__texto">
+                <span class="geo-linha__titulo">Turno fechado</span>
+                <span class="geo-linha__apoio">Abra para lançar execuções</span>
               </div>
             </div>
             @if (turno.encerramentoAutomatico(); as e) {
-              <div class="ces-linha" role="status">
-                <span class="ces-selo ces-selo--atencao"><ces-icone nome="alerta" /></span>
-                <div class="ces-linha__texto">
-                  <span class="ces-linha__titulo">Turno encerrado pelo sistema</span>
-                  <span class="ces-linha__apoio">O turno aberto em {{ diaHora(e.dataInicio) }} ficou aberto além do horário e foi encerrado automaticamente. Encerre o turno ao fim do dia.</span>
+              <div class="geo-linha" role="status">
+                <span class="geo-selo geo-selo--atencao"><geo-icone nome="alerta" /></span>
+                <div class="geo-linha__texto">
+                  <span class="geo-linha__titulo">Turno encerrado pelo sistema</span>
+                  <span class="geo-linha__apoio">O turno aberto em {{ diaHora(e.dataInicio) }} ficou aberto além do horário e foi encerrado automaticamente. Encerre o turno ao fim do dia.</span>
                 </div>
               </div>
             }
@@ -110,17 +110,17 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
             <div class="meta">
               <span class="meta__rotulo">Valor dos serviços feitos hoje</span>
               <div class="meta__linha">
-                <span class="meta__valor ces-num">{{ p.executado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                <span class="meta__valor geo-num">{{ p.executado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
                 @if (p.meta) {
-                  <span class="meta__de ces-num">meta do dia {{ p.meta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                  <span class="meta__de geo-num">meta do dia {{ p.meta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
                 }
               </div>
               @if (p.meta) {
                 <div class="barra" role="progressbar" aria-label="Meta do dia" [attr.aria-valuenow]="p.percentual" aria-valuemin="0" aria-valuemax="100">
                   <i [style.width.%]="p.percentual ?? 0" [class.batida]="p.atingida"></i>
                 </div>
-                <span class="meta__falta ces-num">
-                  @if (p.atingida) { <ces-icone nome="check" [tamanho]="16" /> Meta batida }
+                <span class="meta__falta geo-num">
+                  @if (p.atingida) { <geo-icone nome="check" [tamanho]="16" /> Meta batida }
                   @else { Faltam {{ p.falta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} }
                 </span>
               }
@@ -130,25 +130,25 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
             <div class="meta" data-testid="meta-ciclo">
               <span class="meta__rotulo">{{ c.titulo }} · {{ dataCurta(c.inicio) }} a {{ dataCurta(c.fim) }}</span>
               <div class="meta__linha">
-                <span class="meta__valor ces-num">{{ c.realizado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
-                <span class="meta__de ces-num">meta {{ c.meta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                <span class="meta__valor geo-num">{{ c.realizado | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+                <span class="meta__de geo-num">meta {{ c.meta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
               </div>
               <div class="barra" role="progressbar" [attr.aria-label]="c.titulo" [attr.aria-valuenow]="c.percentual" aria-valuemin="0" aria-valuemax="100">
                 <i [style.width.%]="c.percentual" [class.batida]="c.situacao === 'batida'" [class.abaixo]="c.situacao === 'abaixo'"></i>
               </div>
               @switch (c.situacao) {
                 @case ('batida') {
-                  <span class="meta__falta meta__falta--ok"><ces-icone nome="check" [tamanho]="16" /> Meta do ciclo batida ({{ c.percentual }}%)</span>
+                  <span class="meta__falta meta__falta--ok"><geo-icone nome="check" [tamanho]="16" /> Meta do ciclo batida ({{ c.percentual }}%)</span>
                 }
                 @case ('desatualizada') {
-                  <span class="meta__falta"><ces-icone nome="atualizar" [tamanho]="16" /> O ciclo terminou em {{ dataCurta(c.fim) }}. Sincronize para ver o novo.</span>
+                  <span class="meta__falta"><geo-icone nome="atualizar" [tamanho]="16" /> O ciclo terminou em {{ dataCurta(c.fim) }}. Sincronize para ver o novo.</span>
                 }
                 @default {
-                  <span class="meta__falta ces-num" [class.meta__falta--atencao]="c.situacao === 'abaixo'">
-                    <ces-icone [nome]="c.situacao === 'abaixo' ? 'alerta' : 'check'" [tamanho]="16" />
+                  <span class="meta__falta geo-num" [class.meta__falta--atencao]="c.situacao === 'abaixo'">
+                    <geo-icone [nome]="c.situacao === 'abaixo' ? 'alerta' : 'check'" [tamanho]="16" />
                     {{ c.situacao === 'abaixo' ? 'Abaixo do ritmo' : 'No ritmo' }} · {{ c.percentual }}% da meta
                   </span>
-                  <span class="meta__falta ces-num">
+                  <span class="meta__falta geo-num">
                     Faltam {{ c.falta | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
                     @if (c.ritmoNecessario !== null) {
                       · {{ c.ritmoNecessario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} por dia útil ({{ c.diasUteisRestantes }} {{ c.diasUteisRestantes === 1 ? 'dia' : 'dias' }})
@@ -157,7 +157,7 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
                 }
               }
               @if (c.pendenteEnvio > 0) {
-                <span class="meta__falta ces-num"><ces-icone nome="nuvem" [tamanho]="16" /> Inclui {{ c.pendenteEnvio | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} aguardando envio</span>
+                <span class="meta__falta geo-num"><geo-icone nome="nuvem" [tamanho]="16" /> Inclui {{ c.pendenteEnvio | currency:'BRL':'symbol':'1.2-2':'pt-BR' }} aguardando envio</span>
               }
             </div>
           }
@@ -165,121 +165,121 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
       }
 
       @if (auth.isCampo() || !auth.podeAcessarAlmoxarifado() || fila.total() > 0) {
-      <h2 class="ces-secao">
+      <h2 class="geo-secao">
         <span>{{ auth.isCampo() ? 'Lançamentos de hoje' : 'Acompanhar' }}</span>
-        @if (auth.isCampo() && lancamentos().length) { <span class="ces-num">{{ lancamentos().length }}</span> }
+        @if (auth.isCampo() && lancamentos().length) { <span class="geo-num">{{ lancamentos().length }}</span> }
       </h2>
-      <ul class="ces-grupo">
+      <ul class="geo-grupo">
         @if (fila.total() > 0) {
           <li>
-            <button type="button" class="ces-linha ces-linha--acao" (click)="abrirEnvios()">
-              <span class="ces-selo" [class.ces-selo--destaque]="!fila.comProblema()" [class.ces-selo--atencao]="fila.comProblema() > 0">
-                <ces-icone [nome]="fila.comProblema() ? 'alerta' : 'nuvem'" />
+            <button type="button" class="geo-linha geo-linha--acao" (click)="abrirEnvios()">
+              <span class="geo-selo" [class.geo-selo--destaque]="!fila.comProblema()" [class.geo-selo--atencao]="fila.comProblema() > 0">
+                <geo-icone [nome]="fila.comProblema() ? 'alerta' : 'nuvem'" />
               </span>
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo ces-num">{{ fila.total() }} {{ fila.total() === 1 ? 'aguardando envio' : 'aguardando envio' }}</span>
-                <span class="ces-linha__apoio">
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo geo-num">{{ fila.total() }} {{ fila.total() === 1 ? 'aguardando envio' : 'aguardando envio' }}</span>
+                <span class="geo-linha__apoio">
                   @if (fila.comProblema()) { {{ fila.comProblema() }} {{ fila.comProblema() === 1 ? 'precisa' : 'precisam' }} de atenção }
                   @else if (!rede.isOnline()) { Vão sozinhos quando o sinal voltar }
                   @else { Enviando pela ordem de lançamento }
                 </span>
               </span>
-              <ces-icone nome="avancar" [tamanho]="18" />
+              <geo-icone nome="avancar" [tamanho]="18" />
             </button>
           </li>
         }
         @if (auth.isCampo()) {
           @for (l of lancamentos(); track l.id) {
             <li [attr.data-ancora]="l.id">
-              <a class="ces-linha ces-linha--acao" [routerLink]="['/campo', l.id]">
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo ces-num">{{ l.nota }}</span>
-                  @if (l.servicos) { <span class="ces-linha__resumo">{{ l.servicos }}</span> }
-                  <span class="ces-linha__apoio">{{ l.contagem }} · {{ l.hora }}</span>
+              <a class="geo-linha geo-linha--acao" [routerLink]="['/campo', l.id]">
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo geo-num">{{ l.nota }}</span>
+                  @if (l.servicos) { <span class="geo-linha__resumo">{{ l.servicos }}</span> }
+                  <span class="geo-linha__apoio">{{ l.contagem }} · {{ l.hora }}</span>
                 </span>
-                <ces-status-envio [estado]="l.estado" />
+                <geo-status-envio [estado]="l.estado" />
               </a>
             </li>
           }
         } @else if (!auth.podeAcessarAlmoxarifado()) {
-          <li><a class="ces-linha ces-linha--acao" routerLink="/inspecoes"><span class="ces-selo"><ces-icone nome="inspecao" /></span>
-            <span class="ces-linha__texto"><span class="ces-linha__titulo">Inspeções</span><span class="ces-linha__apoio">Registradas e em rascunho</span></span>
-            <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-          <li><a class="ces-linha ces-linha--acao" routerLink="/desvios"><span class="ces-selo"><ces-icone nome="desvio" /></span>
-            <span class="ces-linha__texto"><span class="ces-linha__titulo">Desvios</span><span class="ces-linha__apoio">Pendentes de tratamento</span></span>
-            <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+          <li><a class="geo-linha geo-linha--acao" routerLink="/inspecoes"><span class="geo-selo"><geo-icone nome="inspecao" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Inspeções</span><span class="geo-linha__apoio">Registradas e em rascunho</span></span>
+            <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+          <li><a class="geo-linha geo-linha--acao" routerLink="/desvios"><span class="geo-selo"><geo-icone nome="desvio" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Desvios</span><span class="geo-linha__apoio">Pendentes de tratamento</span></span>
+            <geo-icone nome="avancar" [tamanho]="18" /></a></li>
         }
       </ul>
       }
       @if (!auth.isCampo() && auth.podeAcessarAlmoxarifado()) {
         @if (auth.podeVerSolicitacoesAlmox()) {
-          <h2 class="ces-secao"><span>Almoxarifado</span>
+          <h2 class="geo-secao"><span>Almoxarifado</span>
             @if (!rede.isOnline()) { <span>precisa de internet</span> }</h2>
-          <ul class="ces-grupo" aria-label="Solicitações comerciais">
-            <li><button type="button" class="ces-linha ces-linha--acao" (click)="abrirSolicitacoes(['PENDENTE'])">
-              <span class="ces-selo" [class.ces-selo--atencao]="(almox().aprovar ?? 0) > 0"><ces-icone nome="relogio" /></span>
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">Aguardando aprovação</span><span class="ces-linha__apoio">Solicitações comerciais para decidir</span></span>
-              <span class="ces-qtd">{{ almox().aprovar ?? '–' }}</span></button></li>
-            <li><button type="button" class="ces-linha ces-linha--acao" (click)="abrirSolicitacoes(['APROVADO', 'ENTREGUE_PARCIAL'])">
-              <span class="ces-selo" [class.ces-selo--destaque]="(almox().entregar ?? 0) > 0"><ces-icone nome="caminhao" /></span>
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">Aguardando retirada</span>
-                <span class="ces-linha__apoio">
+          <ul class="geo-grupo" aria-label="Solicitações comerciais">
+            <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrirSolicitacoes(['PENDENTE'])">
+              <span class="geo-selo" [class.geo-selo--atencao]="(almox().aprovar ?? 0) > 0"><geo-icone nome="relogio" /></span>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">Aguardando aprovação</span><span class="geo-linha__apoio">Solicitações comerciais para decidir</span></span>
+              <span class="geo-qtd">{{ almox().aprovar ?? '–' }}</span></button></li>
+            <li><button type="button" class="geo-linha geo-linha--acao" (click)="abrirSolicitacoes(['APROVADO', 'ENTREGUE_PARCIAL'])">
+              <span class="geo-selo" [class.geo-selo--destaque]="(almox().entregar ?? 0) > 0"><geo-icone nome="caminhao" /></span>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">Aguardando retirada</span>
+                <span class="geo-linha__apoio">
                   @if (almox().atrasadas) { <span class="atraso">{{ almox().atrasadas }} com saque atrasado</span> }
                   @else if (almox().hoje) { {{ almox().hoje }} com saque hoje }
                   @else { Aprovadas e entregues em parte }
                 </span></span>
-              <span class="ces-qtd">{{ almox().entregar ?? '–' }}</span></button></li>
+              <span class="geo-qtd">{{ almox().entregar ?? '–' }}</span></button></li>
           </ul>
         }
         @if (auth.podeMovimentarEstoque() || auth.podeAcessarInspecoes()) {
           <div class="atalhos" role="group" aria-label="Atalhos">
             @if (auth.podeMovimentarEstoque()) {
-              <a class="atalho" routerLink="/almox/movimentacoes/nova/entrada"><span class="ces-selo ces-selo--ok"><ces-icone nome="entrada" /></span>Entrada</a>
-              <a class="atalho" routerLink="/almox/movimentacoes/nova/saida"><span class="ces-selo ces-selo--erro"><ces-icone nome="saida" /></span>Saída</a>
-              <a class="atalho" routerLink="/almox/movimentacoes/nova/transferencia"><span class="ces-selo ces-selo--destaque"><ces-icone nome="transferencia" /></span>Transferir</a>
+              <a class="atalho" routerLink="/almox/movimentacoes/nova/entrada"><span class="geo-selo geo-selo--ok"><geo-icone nome="entrada" /></span>Entrada</a>
+              <a class="atalho" routerLink="/almox/movimentacoes/nova/saida"><span class="geo-selo geo-selo--erro"><geo-icone nome="saida" /></span>Saída</a>
+              <a class="atalho" routerLink="/almox/movimentacoes/nova/transferencia"><span class="geo-selo geo-selo--destaque"><geo-icone nome="transferencia" /></span>Transferir</a>
             }
             @if (auth.podeAcessarInspecoes()) {
-              <a class="atalho" routerLink="/inspecoes/nova"><span class="ces-selo"><ces-icone nome="inspecao" /></span>Inspecionar</a>
+              <a class="atalho" routerLink="/inspecoes/nova"><span class="geo-selo"><geo-icone nome="inspecao" /></span>Inspecionar</a>
             }
           </div>
         }
-        <h2 class="ces-secao">Segurança</h2>
-        <ul class="ces-grupo">
-          <li><a class="ces-linha ces-linha--acao" routerLink="/inspecoes"><span class="ces-selo"><ces-icone nome="inspecao" /></span>
-            <span class="ces-linha__texto"><span class="ces-linha__titulo">Inspeções</span><span class="ces-linha__apoio">Registradas e em rascunho</span></span>
-            <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-          <li><a class="ces-linha ces-linha--acao" routerLink="/desvios"><span class="ces-selo"><ces-icone nome="desvio" /></span>
-            <span class="ces-linha__texto"><span class="ces-linha__titulo">Desvios</span><span class="ces-linha__apoio">Pendentes de tratamento</span></span>
-            <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+        <h2 class="geo-secao">Segurança</h2>
+        <ul class="geo-grupo">
+          <li><a class="geo-linha geo-linha--acao" routerLink="/inspecoes"><span class="geo-selo"><geo-icone nome="inspecao" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Inspeções</span><span class="geo-linha__apoio">Registradas e em rascunho</span></span>
+            <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+          <li><a class="geo-linha geo-linha--acao" routerLink="/desvios"><span class="geo-selo"><geo-icone nome="desvio" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Desvios</span><span class="geo-linha__apoio">Pendentes de tratamento</span></span>
+            <geo-icone nome="avancar" [tamanho]="18" /></a></li>
         </ul>
       }
       @if (auth.podeAprovarAbastecimento()) {
-        <h2 class="ces-secao"><span>Abastecimento</span>
+        <h2 class="geo-secao"><span>Abastecimento</span>
           @if (!rede.isOnline()) { <span>precisa de internet</span> }</h2>
-        <ul class="ces-grupo" aria-label="Aprovação de abastecimento">
-          <li><a class="ces-linha ces-linha--acao" routerLink="/abastecimento/aprovacoes">
-            <span class="ces-selo" [class.ces-selo--atencao]="(paraAprovar() ?? 0) > 0"><ces-icone nome="combustivel" /></span>
-            <span class="ces-linha__texto"><span class="ces-linha__titulo">Aguardando aprovação</span>
-              <span class="ces-linha__apoio">Pedidos das placas da sua carteira</span></span>
-            <span class="ces-qtd">{{ paraAprovar() ?? '–' }}</span></a></li>
+        <ul class="geo-grupo" aria-label="Aprovação de abastecimento">
+          <li><a class="geo-linha geo-linha--acao" routerLink="/abastecimento/aprovacoes">
+            <span class="geo-selo" [class.geo-selo--atencao]="(paraAprovar() ?? 0) > 0"><geo-icone nome="combustivel" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo">Aguardando aprovação</span>
+              <span class="geo-linha__apoio">Pedidos das placas da sua carteira</span></span>
+            <span class="geo-qtd">{{ paraAprovar() ?? '–' }}</span></a></li>
         </ul>
       }
-      <h2 class="ces-secao">Veículo</h2>
-      <ul class="ces-grupo">
-        <li><a class="ces-linha ces-linha--acao" routerLink="/checklist">
-          <span class="ces-selo" [class.ces-selo--ok]="!!checklistHoje()" [class.ces-selo--atencao]="!checklistHoje()"><ces-icone [nome]="checklistHoje() ? 'check' : 'caminhao'" /></span>
-          <span class="ces-linha__texto"><span class="ces-linha__titulo">Checklist do veículo</span>
-            <span class="ces-linha__apoio">{{ checklistHoje() ?? 'Faça antes de usar o veículo hoje' }}</span></span>
-          <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-        <li><a class="ces-linha ces-linha--acao" routerLink="/abastecimento">
-          <span class="ces-selo" [class.ces-selo--ok]="abastecimento().tom === 'ok'" [class.ces-selo--atencao]="abastecimento().tom === 'atencao'"
-            [class.ces-selo--erro]="abastecimento().tom === 'erro'"><ces-icone nome="combustivel" /></span>
-          <span class="ces-linha__texto"><span class="ces-linha__titulo">Abastecimento</span>
-            <span class="ces-linha__apoio">{{ abastecimento().texto }}</span></span>
-          <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+      <h2 class="geo-secao">Veículo</h2>
+      <ul class="geo-grupo">
+        <li><a class="geo-linha geo-linha--acao" routerLink="/checklist">
+          <span class="geo-selo" [class.geo-selo--ok]="!!checklistHoje()" [class.geo-selo--atencao]="!checklistHoje()"><geo-icone [nome]="checklistHoje() ? 'check' : 'caminhao'" /></span>
+          <span class="geo-linha__texto"><span class="geo-linha__titulo">Checklist do veículo</span>
+            <span class="geo-linha__apoio">{{ checklistHoje() ?? 'Faça antes de usar o veículo hoje' }}</span></span>
+          <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+        <li><a class="geo-linha geo-linha--acao" routerLink="/abastecimento">
+          <span class="geo-selo" [class.geo-selo--ok]="abastecimento().tom === 'ok'" [class.geo-selo--atencao]="abastecimento().tom === 'atencao'"
+            [class.geo-selo--erro]="abastecimento().tom === 'erro'"><geo-icone nome="combustivel" /></span>
+          <span class="geo-linha__texto"><span class="geo-linha__titulo">Abastecimento</span>
+            <span class="geo-linha__apoio">{{ abastecimento().texto }}</span></span>
+          <geo-icone nome="avancar" [tamanho]="18" /></a></li>
       </ul>
       @if (auth.isCampo() && carregado() && !lancamentos().length && fila.total() === 0) {
-        <ces-vazio icone="servicos" titulo="Nenhuma execução hoje"
+        <geo-vazio icone="servicos" titulo="Nenhuma execução hoje"
           [texto]="turno.turnoAtivo() ? 'Toque em Nova execução para lançar a primeira.' : 'Abra o turno para começar.'" />
       }
       <!-- A avaliação sobe como folha só nesta tela; com lançamento pela metade, retomar vem antes e ela espera. -->
@@ -290,69 +290,69 @@ const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julh
     @if (auth.isCampo() || !auth.podeAcessarAlmoxarifado()) {
     <div class="doca">
       @if (!auth.isCampo()) {
-        <a class="ces-btn ces-btn--principal ces-btn--bloco" routerLink="/inspecoes/nova"><ces-icone nome="mais" />Nova inspeção</a>
+        <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/inspecoes/nova"><geo-icone nome="mais" />Nova inspeção</a>
       } @else if (turno.turnoAtivo()) {
-        <a class="ces-btn ces-btn--principal ces-btn--bloco" routerLink="/campo/nova"><ces-icone nome="mais" />Nova execução</a>
+        <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/campo/nova"><geo-icone nome="mais" />Nova execução</a>
       } @else {
-        <a class="ces-btn ces-btn--principal ces-btn--bloco" routerLink="/turno/abrir"><ces-icone nome="relogio" />Abrir turno</a>
+        <a class="geo-btn geo-btn--principal geo-btn--bloco" routerLink="/turno/abrir"><geo-icone nome="relogio" />Abrir turno</a>
       }
     </div>
     }
 
     <app-folha-envios [aberta]="folhaEnvios()" (fechar)="fecharEnvios()" />
 
-    <ces-folha [aberta]="confirmarDescarte()" (fechar)="confirmarDescarte.set(false)" titulo="Descartar o que não terminou?"
+    <geo-folha [aberta]="confirmarDescarte()" (fechar)="confirmarDescarte.set(false)" titulo="Descartar o que não terminou?"
       descricao="O que foi preenchido e as fotos tiradas nele saem do aparelho. Não dá para desfazer.">
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="confirmarDescarte.set(false)">Manter</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="descartarRascunho()">Descartar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="confirmarDescarte.set(false)">Manter</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="descartarRascunho()">Descartar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
 
-    <ces-folha [aberta]="confirmarEncerrar()" (fechar)="confirmarEncerrar.set(false)" titulo="Encerrar o turno?"
+    <geo-folha [aberta]="confirmarEncerrar()" (fechar)="confirmarEncerrar.set(false)" titulo="Encerrar o turno?"
       [descricao]="rede.isOnline() ? 'A equipe fica sem turno aberto até a próxima abertura.' : 'Encerrar precisa de internet. Tente quando o sinal voltar.'">
       <div rodape class="acoes-folha">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="confirmarEncerrar.set(false)">Voltar</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="encerrar()" [disabled]="!rede.isOnline() || encerrando()">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="confirmarEncerrar.set(false)">Voltar</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="encerrar()" [disabled]="!rede.isOnline() || encerrando()">
           {{ encerrando() ? 'Encerrando…' : 'Encerrar turno' }}
         </button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
     .tela { flex: 1; }
-    .retomar { margin: var(--ces-e4) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo);
-      background: var(--ces-destaque-suave); display: flex; align-items: center; gap: var(--ces-e3); }
+    .retomar { margin: var(--geo-e4) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+      background: var(--geo-destaque-suave); display: flex; align-items: center; gap: var(--geo-e3); }
     .retomar .txt { flex: 1; min-width: 0; display: grid; }
     .retomar__acoes { display: grid; justify-items: center; gap: 2px; flex: none; }
-    .retomar strong { font: var(--ces-t-corpo-forte); }
-    .retomar span { font: var(--ces-t-apoio); color: var(--ces-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .encerrar { color: var(--ces-texto-2); }
-    .meta { display: grid; gap: var(--ces-e2); padding: var(--ces-e4); border-top: 1px solid var(--ces-linha); }
-    .meta__linha { display: flex; justify-content: space-between; align-items: baseline; gap: var(--ces-e2); flex-wrap: wrap; }
-    .meta__valor { font: var(--ces-t-numero); letter-spacing: -.01em; }
-    .meta__rotulo { font: var(--ces-t-apoio); color: var(--ces-texto-2); margin-bottom: -6px; }
-    .meta__de, .meta__falta { font: var(--ces-t-apoio); color: var(--ces-texto-2); display: inline-flex; align-items: center; gap: 4px; }
-    .barra { height: 6px; border-radius: var(--ces-r-pilula); background: var(--ces-linha); overflow: hidden; }
-    .barra i { display: block; height: 100%; border-radius: inherit; background: var(--ces-destaque); transition: width var(--ces-m-folha) var(--ces-curva); }
-    .barra i.batida { background: var(--ces-ok); }
-    .barra i.abaixo { background: var(--ces-atencao); }
-    .meta__falta--ok { color: var(--ces-ok); }
-    .meta__falta--atencao { color: var(--ces-texto); }
-    .meta__falta--atencao ces-icone { color: var(--ces-atencao); }
-    .respiro { height: var(--ces-e6); }
-    .doca { position: sticky; bottom: 0; padding: var(--ces-e3) var(--ces-e4); background: linear-gradient(to top, var(--ces-fundo) 72%, transparent); }
-    .atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: var(--ces-e2); margin: var(--ces-e3) var(--ces-e3) 0; }
-    .atalho { display: grid; justify-items: center; gap: 4px; padding: var(--ces-e2) var(--ces-e1) 10px; border-radius: var(--ces-r-grupo); background: var(--ces-superficie);
-      color: var(--ces-texto); text-decoration: none; font: 500 .75rem/1.2 var(--ces-fonte); text-align: center; }
-    .atalho .ces-selo { width: 34px; height: 34px; border-radius: 10px; }
-    .atalho:active { transform: scale(.97); background: var(--ces-superficie-2); }
-    .atraso { color: var(--ces-erro); font-weight: 600; }
-    .acoes-folha { display: flex; gap: var(--ces-e3); padding: var(--ces-e3) var(--ces-e4) 0; }
-    .acoes-folha .ces-btn { flex: 1; }
+    .retomar strong { font: var(--geo-t-corpo-forte); }
+    .retomar span { font: var(--geo-t-apoio); color: var(--geo-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .encerrar { color: var(--geo-texto-2); }
+    .meta { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); border-top: 1px solid var(--geo-linha); }
+    .meta__linha { display: flex; justify-content: space-between; align-items: baseline; gap: var(--geo-e2); flex-wrap: wrap; }
+    .meta__valor { font: var(--geo-t-numero); letter-spacing: -.01em; }
+    .meta__rotulo { font: var(--geo-t-apoio); color: var(--geo-texto-2); margin-bottom: -6px; }
+    .meta__de, .meta__falta { font: var(--geo-t-apoio); color: var(--geo-texto-2); display: inline-flex; align-items: center; gap: 4px; }
+    .barra { height: 6px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
+    .barra i { display: block; height: 100%; border-radius: inherit; background: var(--geo-destaque); transition: width var(--geo-m-folha) var(--geo-curva); }
+    .barra i.batida { background: var(--geo-ok); }
+    .barra i.abaixo { background: var(--geo-atencao); }
+    .meta__falta--ok { color: var(--geo-ok); }
+    .meta__falta--atencao { color: var(--geo-texto); }
+    .meta__falta--atencao geo-icone { color: var(--geo-atencao); }
+    .respiro { height: var(--geo-e6); }
+    .doca { position: sticky; bottom: 0; padding: var(--geo-e3) var(--geo-e4); background: linear-gradient(to top, var(--geo-fundo) 72%, transparent); }
+    .atalhos { display: grid; grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-e3) 0; }
+    .atalho { display: grid; justify-items: center; gap: 4px; padding: var(--geo-e2) var(--geo-e1) 10px; border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
+      color: var(--geo-texto); text-decoration: none; font: 500 .75rem/1.2 var(--geo-fonte); text-align: center; }
+    .atalho .geo-selo { width: 34px; height: 34px; border-radius: 10px; }
+    .atalho:active { transform: scale(.97); background: var(--geo-superficie-2); }
+    .atraso { color: var(--geo-erro); font-weight: 600; }
+    .acoes-folha { display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) 0; }
+    .acoes-folha .geo-btn { flex: 1; }
   `],
 })
 export class HojeComponent implements OnInit {

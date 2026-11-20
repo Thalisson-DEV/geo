@@ -18,7 +18,7 @@ test.use({
 /** Planta um token já vencido, como o que fica no aparelho depois de um dia em campo. */
 async function vencerToken(page: Page): Promise<void> {
   const vencido = fakeJwt('CAMPO', -24 * 3600);
-  await page.evaluate((t) => localStorage.setItem('ces_auth_token', t), vencido);
+  await page.evaluate((t) => localStorage.setItem('geo_auth_token', t), vencido);
 }
 
 /** Fecha o app sem eventos de saída e abre de novo pelo ícone (start_url). */

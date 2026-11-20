@@ -4,14 +4,14 @@ import { IconeComponent } from './icone.component';
 
 /** Pílula discreta de conexão. Sem rede não é erro: o app segue salvando no aparelho. */
 @Component({
-  selector: 'ces-indicador-rede',
+  selector: 'geo-indicador-rede',
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button type="button" class="pilula" [class.off]="!online()" (click)="tocar.emit()"
       [attr.aria-label]="'Conexão: ' + texto()">
-      @if (online()) { <span class="ponto" aria-hidden="true"></span> } @else { <ces-icone nome="sem_rede" [tamanho]="16" /> }
+      @if (online()) { <span class="ponto" aria-hidden="true"></span> } @else { <geo-icone nome="sem_rede" [tamanho]="16" /> }
       <span class="texto" aria-hidden="true">{{ texto() }}</span>
     </button>
   `,
@@ -22,11 +22,11 @@ import { IconeComponent } from './icone.component';
       .pilula:not(.off) { width: 36px; padding: 0; justify-content: center; }
       .pilula:not(.off) .texto { display: none; }
     }
-    .pilula { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: var(--ces-r-pilula);
-      border: 1px solid var(--ces-linha); background: var(--ces-superficie); color: var(--ces-texto-2);
-      font: 500 .8125rem/1 var(--ces-fonte); white-space: nowrap; cursor: pointer; }
-    .pilula.off { color: var(--ces-atencao); border-color: transparent; background: var(--ces-atencao-suave); }
-    .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--ces-ok); }
+    .pilula { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: var(--geo-r-pilula);
+      border: 1px solid var(--geo-linha); background: var(--geo-superficie); color: var(--geo-texto-2);
+      font: 500 .8125rem/1 var(--geo-fonte); white-space: nowrap; cursor: pointer; }
+    .pilula.off { color: var(--geo-atencao); border-color: transparent; background: var(--geo-atencao-suave); }
+    .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-ok); }
   `],
 })
 export class IndicadorRedeComponent {

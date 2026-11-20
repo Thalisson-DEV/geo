@@ -26,15 +26,15 @@ interface ItemEnriquecido {
   imports: [BarraTopoComponent, FolhaComponent, IconeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Pedido de material" [subtitulo]="quando()" (voltar)="goBack()" />
+    <geo-barra-topo titulo="Pedido de material" [subtitulo]="quando()" (voltar)="goBack()" />
 
     @if (isLoading()) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        <div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 140px"></div><div class="ces-esqueleto" style="height: 160px"></div>
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 140px"></div><div class="geo-esqueleto" style="height: 160px"></div>
       </div>
     } @else if (solicitacao(); as sol) {
-      <section class="ces-faixa-estado" [class.ces-faixa-estado--atencao]="situacao().tom === 'atencao'" [class.ces-faixa-estado--erro]="situacao().tom === 'erro'" aria-live="polite">
-        <span class="ces-etiqueta" [class]="'ces-etiqueta ces-etiqueta--' + situacao().tom">{{ situacao().rotulo }}</span>
+      <section class="geo-faixa-estado" [class.geo-faixa-estado--atencao]="situacao().tom === 'atencao'" [class.geo-faixa-estado--erro]="situacao().tom === 'erro'" aria-live="polite">
+        <span class="geo-etiqueta" [class]="'geo-etiqueta geo-etiqueta--' + situacao().tom">{{ situacao().rotulo }}</span>
         <p>{{ situacao().explicacao }}</p>
       </section>
       @if (sol.status === 'REJEITADO') {
@@ -44,66 +44,66 @@ interface ItemEnriquecido {
         </div>
       }
       @if (outboxItem()?.serverOperationId) {
-        <p class="protocolo ces-num">Protocolo #{{ outboxItem()?.serverOperationId }}</p>
+        <p class="protocolo geo-num">Protocolo #{{ outboxItem()?.serverOperationId }}</p>
       }
 
-      <dl class="ces-dados">
+      <dl class="geo-dados">
         <div><dt>Retirar em</dt><dd>{{ estoqueOrigemNome() }}</dd></div>
         <div><dt>Vai para</dt><dd>{{ estoqueDestinoNome() }}</dd></div>
         <div><dt>Quem retira</dt><dd>{{ responsavelSaqueNome() }}</dd></div>
-        @if (sol.dataPrevista) { <div><dt>Data prevista de retirada</dt><dd class="ces-num">{{ dataPrevista() }}</dd></div> }
+        @if (sol.dataPrevista) { <div><dt>Data prevista de retirada</dt><dd class="geo-num">{{ dataPrevista() }}</dd></div> }
       </dl>
 
-      <h2 class="ces-secao ces-secao--marcada"><span class="ces-marca ces-marca--aplicado" aria-hidden="true"><ces-icone nome="material" [tamanho]="14" /></span>
-        <span>Materiais pedidos</span><span class="ces-contagem">{{ itens().length }}</span></h2>
-      <ul class="ces-grupo" aria-label="Materiais pedidos">
+      <h2 class="geo-secao geo-secao--marcada"><span class="geo-marca geo-marca--aplicado" aria-hidden="true"><geo-icone nome="material" [tamanho]="14" /></span>
+        <span>Materiais pedidos</span><span class="geo-contagem">{{ itens().length }}</span></h2>
+      <ul class="geo-grupo" aria-label="Materiais pedidos">
         @for (item of itens(); track item.idMaterial) {
-          <li><div class="ces-linha">
-            <span class="ces-linha__texto">
-              <span class="ces-linha__titulo">{{ item.descricao }}</span>
-              <span class="ces-linha__apoio ces-num">Cód. {{ item.codigo }}</span>
+          <li><div class="geo-linha">
+            <span class="geo-linha__texto">
+              <span class="geo-linha__titulo">{{ item.descricao }}</span>
+              <span class="geo-linha__apoio geo-num">Cód. {{ item.codigo }}</span>
             </span>
-            <span class="ces-qtd">{{ num(item.quantidade) }}<small>{{ item.unidadeMedida }}</small></span>
+            <span class="geo-qtd">{{ num(item.quantidade) }}<small>{{ item.unidadeMedida }}</small></span>
           </div></li>
         }
       </ul>
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
 
       @if (showActionsFooter()) {
-        <footer class="ces-rodape-acoes">
+        <footer class="geo-rodape-acoes">
           @if (isResultadoIncerto()) {
-            <button type="button" class="ces-btn ces-btn--principal" (click)="reconciliar()" [disabled]="isReconciling()">
-              <ces-icone nome="atualizar" [tamanho]="18" />{{ isReconciling() ? 'Conferindo…' : 'Conferir no servidor' }}
+            <button type="button" class="geo-btn geo-btn--principal" (click)="reconciliar()" [disabled]="isReconciling()">
+              <geo-icone nome="atualizar" [tamanho]="18" />{{ isReconciling() ? 'Conferindo…' : 'Conferir no servidor' }}
             </button>
           } @else {
-            @if (canDiscard()) { <button type="button" class="ces-btn ces-btn--perigo" (click)="abrirDescarte()">Descartar</button> }
-            @if (canEdit()) { <button type="button" class="ces-btn ces-btn--principal" (click)="corrigir()"><ces-icone nome="editar" [tamanho]="18" />Corrigir</button> }
+            @if (canDiscard()) { <button type="button" class="geo-btn geo-btn--perigo" (click)="abrirDescarte()">Descartar</button> }
+            @if (canEdit()) { <button type="button" class="geo-btn geo-btn--principal" (click)="corrigir()"><geo-icone nome="editar" [tamanho]="18" />Corrigir</button> }
           }
         </footer>
       }
     } @else {
-      <ces-vazio icone="documento" titulo="Pedido não encontrado" texto="Ele não está mais neste aparelho.">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="goBack()">Ver pedidos</button>
-      </ces-vazio>
+      <geo-vazio icone="documento" titulo="Pedido não encontrado" texto="Ele não está mais neste aparelho.">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="goBack()">Ver pedidos</button>
+      </geo-vazio>
     }
 
-    <ces-folha [aberta]="showDiscardConfirmation()" (fechar)="fecharDescarte()" titulo="Descartar este pedido?"
+    <geo-folha [aberta]="showDiscardConfirmation()" (fechar)="fecharDescarte()" titulo="Descartar este pedido?"
       descricao="Ele ainda não saiu do aparelho. Descartar apaga o pedido e tira da fila de envio.">
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="fecharDescarte()">Manter</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="discardSolicitacao()">Descartar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="fecharDescarte()">Manter</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="discardSolicitacao()">Descartar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
-    .recusa { margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo);
-      background: var(--ces-superficie); border-left: 4px solid var(--ces-erro); }
-    .recusa strong { font: var(--ces-t-corpo-forte); }
-    .recusa p { margin: 4px 0 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .protocolo { margin: var(--ces-e2) var(--ces-e5) 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .recusa { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+      background: var(--geo-superficie); border-left: 4px solid var(--geo-erro); }
+    .recusa strong { font: var(--geo-t-corpo-forte); }
+    .recusa p { margin: 4px 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .protocolo { margin: var(--geo-e2) var(--geo-e5) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
   `],
 })
 export class SolicitacaoDetalheComponent implements OnInit {

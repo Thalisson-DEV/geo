@@ -22,7 +22,7 @@ async function auditar(page: Page, tela: string) {
 for (const tema of ['claro', 'escuro'] as const) {
   test(`telas do piloto sem violação grave · tema ${tema}`, async ({ page }) => {
     test.setTimeout(90_000);
-    if (tema === 'escuro') await page.addInitScript(() => localStorage.setItem('ces_tema', 'escuro'));
+    if (tema === 'escuro') await page.addInitScript(() => localStorage.setItem('geo_tema', 'escuro'));
     await new MockApi({ perfil: 'CAMPO', turnoAberto: true, historico: 30 }).install(page);
     await page.goto('/login');
     await auditar(page, 'login');

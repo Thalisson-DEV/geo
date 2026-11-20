@@ -23,34 +23,34 @@ import { IconeComponent, IndicadorRedeComponent, TituloGrandeComponent } from '.
   imports: [RouterLink, TituloGrandeComponent, IconeComponent, IndicadorRedeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-titulo-grande titulo="Frota" subtitulo="Checklist, abastecimento e veículo">
-      <ces-indicador-rede />
-    </ces-titulo-grande>
+    <geo-titulo-grande titulo="Frota" subtitulo="Checklist, abastecimento e veículo">
+      <geo-indicador-rede />
+    </geo-titulo-grande>
 
     <section class="atual" aria-label="Seu veículo">
       @if (atual(); as a) {
         <div class="atual__topo">
-          <span class="ces-selo ces-selo--destaque"><ces-icone nome="caminhao" /></span>
+          <span class="geo-selo geo-selo--destaque"><geo-icone nome="caminhao" /></span>
           <span class="atual__texto">
             <span class="atual__rotulo">Seu veículo</span>
-            <span class="atual__placa ces-num">{{ placa(a.placa) }}</span>
+            <span class="atual__placa geo-num">{{ placa(a.placa) }}</span>
             @if (a.descricao) { <span class="atual__apoio">{{ a.descricao }}</span> }
           </span>
         </div>
-        <p class="atual__origem"><ces-icone nome="info" [tamanho]="16" />{{ a.origem }}{{ a.base ? ' · ' + a.base : '' }}</p>
+        <p class="atual__origem"><geo-icone nome="info" [tamanho]="16" />{{ a.origem }}{{ a.base ? ' · ' + a.base : '' }}</p>
         <p class="atual__checklist" [class.atual__checklist--ok]="!!a.checklistHoje" [class.atual__checklist--falta]="!a.checklistHoje">
-          <ces-icone [nome]="a.checklistHoje ? 'check' : 'alerta'" [tamanho]="16" />{{ a.checklistHoje ?? 'Checklist de hoje ainda não feito neste celular' }}
+          <geo-icone [nome]="a.checklistHoje ? 'check' : 'alerta'" [tamanho]="16" />{{ a.checklistHoje ?? 'Checklist de hoje ainda não feito neste celular' }}
         </p>
         <div class="atual__acoes">
-          <a class="ces-btn ces-btn--tonal ces-btn--compacto" routerLink="/frota/veiculo" [queryParams]="{ veiculo: a.idVeiculo }"><ces-icone nome="caminhao" [tamanho]="16" />Ficha</a>
-          <a class="ces-btn ces-btn--tonal ces-btn--compacto" routerLink="/frota/documentos" [queryParams]="{ veiculo: a.idVeiculo }"><ces-icone nome="documento" [tamanho]="16" />Documentos</a>
+          <a class="geo-btn geo-btn--tonal geo-btn--compacto" routerLink="/frota/veiculo" [queryParams]="{ veiculo: a.idVeiculo }"><geo-icone nome="caminhao" [tamanho]="16" />Ficha</a>
+          <a class="geo-btn geo-btn--tonal geo-btn--compacto" routerLink="/frota/documentos" [queryParams]="{ veiculo: a.idVeiculo }"><geo-icone nome="documento" [tamanho]="16" />Documentos</a>
           @if (!a.checklistHoje) {
-            <a class="ces-btn ces-btn--principal ces-btn--compacto" routerLink="/checklist/novo" [queryParams]="{ veiculo: a.idVeiculo }"><ces-icone nome="check" [tamanho]="16" />Fazer checklist</a>
+            <a class="geo-btn geo-btn--principal geo-btn--compacto" routerLink="/checklist/novo" [queryParams]="{ veiculo: a.idVeiculo }"><geo-icone nome="check" [tamanho]="16" />Fazer checklist</a>
           }
         </div>
       } @else {
         <div class="atual__topo">
-          <span class="ces-selo"><ces-icone nome="caminhao" /></span>
+          <span class="geo-selo"><geo-icone nome="caminhao" /></span>
           <span class="atual__texto">
             <span class="atual__rotulo">Seu veículo</span>
             <span class="atual__vazio">Nenhum veículo com você agora</span>
@@ -62,85 +62,85 @@ import { IconeComponent, IndicadorRedeComponent, TituloGrandeComponent } from '.
 
     @if (liberado(); as a) {
       <a class="destaque" [routerLink]="['/abastecimento', a.id, 'realizado']">
-        <span class="ces-selo ces-selo--ok"><ces-icone nome="combustivel" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Abastecimento liberado</span>
-          <span class="ces-linha__apoio">{{ placa(a.placa) }} no {{ a.servidor?.posto }} · registre depois de abastecer</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" />
+        <span class="geo-selo geo-selo--ok"><geo-icone nome="combustivel" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Abastecimento liberado</span>
+          <span class="geo-linha__apoio">{{ placa(a.placa) }} no {{ a.servidor?.posto }} · registre depois de abastecer</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" />
       </a>
     }
 
     @if (podeAprovar()) {
       <a class="destaque" [class.destaque--aprovar]="(paraAprovar() ?? 0) > 0"
         [class.destaque--neutro]="!paraAprovar()" routerLink="/abastecimento/aprovacoes">
-        <span class="ces-selo" [class.ces-selo--atencao]="(paraAprovar() ?? 0) > 0"><ces-icone nome="check" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Abastecimentos da carteira</span>
-          <span class="ces-linha__apoio">{{ paraAprovar() === null ? (rede.isOnline() ? 'Pedidos das placas da sua carteira' : 'Precisa de internet') : paraAprovar() === 0 ? 'Nada para aprovar · acompanhe os pedidos' : paraAprovar() === 1 ? '1 pedido esperando você' : paraAprovar() + ' pedidos esperando você' }}</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" />
+        <span class="geo-selo" [class.geo-selo--atencao]="(paraAprovar() ?? 0) > 0"><geo-icone nome="check" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Abastecimentos da carteira</span>
+          <span class="geo-linha__apoio">{{ paraAprovar() === null ? (rede.isOnline() ? 'Pedidos das placas da sua carteira' : 'Precisa de internet') : paraAprovar() === 0 ? 'Nada para aprovar · acompanhe os pedidos' : paraAprovar() === 1 ? '1 pedido esperando você' : paraAprovar() + ' pedidos esperando você' }}</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" />
       </a>
     }
 
-    <h2 class="ces-secao">Novo</h2>
-    <ul class="ces-grupo">
-      <li><a class="ces-linha ces-linha--acao" routerLink="/checklist/novo">
-        <span class="ces-selo ces-selo--destaque"><ces-icone [nome]="rascunhoChecklist() ? 'retomar' : 'check'" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ rascunhoChecklist() ? 'Continuar checklist' : 'Fazer checklist' }}</span>
-          <span class="ces-linha__apoio">{{ rascunhoChecklist() ? 'Você parou no meio: retome de onde estava' : 'Antes de usar o veículo e ao receber de outra pessoa' }}</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="ces-linha ces-linha--acao" routerLink="/abastecimento/novo">
-        <span class="ces-selo ces-selo--destaque"><ces-icone nome="combustivel" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Pedir abastecimento</span>
-          <span class="ces-linha__apoio">O que precisa e o destino; o gestor define a quantidade</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+    <h2 class="geo-secao">Novo</h2>
+    <ul class="geo-grupo">
+      <li><a class="geo-linha geo-linha--acao" routerLink="/checklist/novo">
+        <span class="geo-selo geo-selo--destaque"><geo-icone [nome]="rascunhoChecklist() ? 'retomar' : 'check'" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ rascunhoChecklist() ? 'Continuar checklist' : 'Fazer checklist' }}</span>
+          <span class="geo-linha__apoio">{{ rascunhoChecklist() ? 'Você parou no meio: retome de onde estava' : 'Antes de usar o veículo e ao receber de outra pessoa' }}</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+      <li><a class="geo-linha geo-linha--acao" routerLink="/abastecimento/novo">
+        <span class="geo-selo geo-selo--destaque"><geo-icone nome="combustivel" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Pedir abastecimento</span>
+          <span class="geo-linha__apoio">O que precisa e o destino; o gestor define a quantidade</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
     </ul>
 
-    <h2 class="ces-secao">Consultar</h2>
-    <ul class="ces-grupo">
-      <li><a class="ces-linha ces-linha--acao" routerLink="/checklist">
-        <span class="ces-selo" [class.ces-selo--ok]="!!checklistHoje()" [class.ces-selo--atencao]="!checklistHoje()">
-          <ces-icone [nome]="checklistHoje() ? 'check' : 'caminhao'" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Checklists</span>
-          <span class="ces-linha__apoio">{{ checklistHoje() ?? 'Nenhum hoje neste aparelho' }}</span>
-          @if (checklistsNaFila()) { <span class="ces-linha__apoio ces-num">{{ checklistsNaFila() }} aguardando envio</span> }</span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="ces-linha ces-linha--acao" routerLink="/abastecimento">
-        <span class="ces-selo" [class.ces-selo--ok]="abastecimento().tom === 'ok'" [class.ces-selo--atencao]="abastecimento().tom === 'atencao'"
-          [class.ces-selo--erro]="abastecimento().tom === 'erro'"><ces-icone nome="combustivel" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Abastecimentos</span>
-          <span class="ces-linha__apoio">{{ abastecimento().texto }}</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="ces-linha ces-linha--acao" routerLink="/frota/veiculo">
-        <span class="ces-selo"><ces-icone nome="caminhao" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Ficha do veículo</span>
-          <span class="ces-linha__apoio">Se pode rodar, manutenção, problemas e revisões</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="ces-linha ces-linha--acao" routerLink="/frota/documentos">
-        <span class="ces-selo"><ces-icone nome="documento" /></span>
-        <span class="ces-linha__texto"><span class="ces-linha__titulo">Documentos do veículo</span>
-          <span class="ces-linha__apoio">CRLV, tacógrafo e laudos para a fiscalização</span></span>
-        <ces-icone nome="avancar" [tamanho]="18" /></a></li>
+    <h2 class="geo-secao">Consultar</h2>
+    <ul class="geo-grupo">
+      <li><a class="geo-linha geo-linha--acao" routerLink="/checklist">
+        <span class="geo-selo" [class.geo-selo--ok]="!!checklistHoje()" [class.geo-selo--atencao]="!checklistHoje()">
+          <geo-icone [nome]="checklistHoje() ? 'check' : 'caminhao'" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Checklists</span>
+          <span class="geo-linha__apoio">{{ checklistHoje() ?? 'Nenhum hoje neste aparelho' }}</span>
+          @if (checklistsNaFila()) { <span class="geo-linha__apoio geo-num">{{ checklistsNaFila() }} aguardando envio</span> }</span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+      <li><a class="geo-linha geo-linha--acao" routerLink="/abastecimento">
+        <span class="geo-selo" [class.geo-selo--ok]="abastecimento().tom === 'ok'" [class.geo-selo--atencao]="abastecimento().tom === 'atencao'"
+          [class.geo-selo--erro]="abastecimento().tom === 'erro'"><geo-icone nome="combustivel" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Abastecimentos</span>
+          <span class="geo-linha__apoio">{{ abastecimento().texto }}</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+      <li><a class="geo-linha geo-linha--acao" routerLink="/frota/veiculo">
+        <span class="geo-selo"><geo-icone nome="caminhao" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Ficha do veículo</span>
+          <span class="geo-linha__apoio">Se pode rodar, manutenção, problemas e revisões</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
+      <li><a class="geo-linha geo-linha--acao" routerLink="/frota/documentos">
+        <span class="geo-selo"><geo-icone nome="documento" /></span>
+        <span class="geo-linha__texto"><span class="geo-linha__titulo">Documentos do veículo</span>
+          <span class="geo-linha__apoio">CRLV, tacógrafo e laudos para a fiscalização</span></span>
+        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
     </ul>
   `,
   styles: [`
-    :host { display: block; padding-bottom: var(--ces-e6); }
-    .destaque { display: flex; align-items: center; gap: var(--ces-e3); margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
-      min-height: 72px; border-radius: var(--ces-r-grupo); background: var(--ces-ok-suave); color: var(--ces-texto); text-decoration: none; }
+    :host { display: block; padding-bottom: var(--geo-e6); }
+    .destaque { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+      min-height: 72px; border-radius: var(--geo-r-grupo); background: var(--geo-ok-suave); color: var(--geo-texto); text-decoration: none; }
     .destaque:active { transform: scale(.99); }
-    .destaque--aprovar { background: var(--ces-atencao-suave, var(--ces-superficie)); }
-    .destaque--neutro { background: var(--ces-superficie); }
-    .destaque .ces-linha__texto { flex: 1; min-width: 0; display: grid; gap: 2px; }
-    .atual { margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e4); border-radius: var(--ces-r-grupo); background: var(--ces-superficie);
-      display: grid; gap: var(--ces-e3); }
-    .atual__topo { display: flex; align-items: center; gap: var(--ces-e3); }
+    .destaque--aprovar { background: var(--geo-atencao-suave, var(--geo-superficie)); }
+    .destaque--neutro { background: var(--geo-superficie); }
+    .destaque .geo-linha__texto { flex: 1; min-width: 0; display: grid; gap: 2px; }
+    .atual { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
+      display: grid; gap: var(--geo-e3); }
+    .atual__topo { display: flex; align-items: center; gap: var(--geo-e3); }
     .atual__texto { display: grid; gap: 2px; min-width: 0; }
-    .atual__rotulo { font: var(--ces-t-secao); color: var(--ces-texto-2); text-transform: uppercase; letter-spacing: .04em; }
-    .atual__placa { font: var(--ces-t-numero); color: var(--ces-texto); }
-    .atual__vazio { font: var(--ces-t-corpo-forte); color: var(--ces-texto); }
-    .atual__apoio { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .atual__origem, .atual__checklist { display: flex; align-items: center; gap: var(--ces-e2); margin: 0; font: var(--ces-t-apoio); font-size: .875rem; color: var(--ces-texto-2); }
-    .atual__checklist--ok { color: var(--ces-ok); font-weight: 600; }
-    .atual__checklist--falta { color: var(--ces-atencao); font-weight: 600; }
-    .atual__acoes { display: flex; flex-wrap: wrap; gap: var(--ces-e2); }
-    .atual__acoes .ces-btn { flex: 1; min-width: 140px; text-decoration: none; }
+    .atual__rotulo { font: var(--geo-t-secao); color: var(--geo-texto-2); text-transform: uppercase; letter-spacing: .04em; }
+    .atual__placa { font: var(--geo-t-numero); color: var(--geo-texto); }
+    .atual__vazio { font: var(--geo-t-corpo-forte); color: var(--geo-texto); }
+    .atual__apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .atual__origem, .atual__checklist { display: flex; align-items: center; gap: var(--geo-e2); margin: 0; font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto-2); }
+    .atual__checklist--ok { color: var(--geo-ok); font-weight: 600; }
+    .atual__checklist--falta { color: var(--geo-atencao); font-weight: 600; }
+    .atual__acoes { display: flex; flex-wrap: wrap; gap: var(--geo-e2); }
+    .atual__acoes .geo-btn { flex: 1; min-width: 140px; text-decoration: none; }
   `],
 })
 export class FrotaComponent implements OnInit {

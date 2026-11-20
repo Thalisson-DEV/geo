@@ -141,7 +141,7 @@ export class MockApi {
   async install(target: Page | BrowserContext, { conviteInstalacao = false } = {}): Promise<void> {
     if (!conviteInstalacao) {
       await target.addInitScript(() => {
-        try { localStorage.setItem('ces_instalar_adiado_em', String(Date.now())); } catch { /* sem storage */ }
+        try { localStorage.setItem('geo_instalar_adiado_em', String(Date.now())); } catch { /* sem storage */ }
       });
     }
     await target.route('**/api/**', (route, request) => this.handle(route, request));

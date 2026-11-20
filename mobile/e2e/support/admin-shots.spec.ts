@@ -1,8 +1,8 @@
 import { test } from '@playwright/test';
 import { MockApi, loginPelaUi } from './mock-api';
 
-/** Capturas das telas do perfil administrativo (SST) para revisão visual. Rodar com CES_SHOTS=1. */
-test.skip(!process.env['CES_SHOTS'], 'só sob demanda');
+/** Capturas das telas do perfil administrativo (SST) para revisão visual. Rodar com GEO_SHOTS=1. */
+test.skip(!process.env['GEO_SHOTS'], 'só sob demanda');
 
 test('telas do administrativo', async ({ page }, info) => {
   test.skip(info.project.name !== 'android');

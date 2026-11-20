@@ -4,114 +4,120 @@ import { TokenService } from '../auth/token.service';
 import { SyncService } from './sync.service';
 
 describe('ConnectivityService (Mobile)', () => {
-  let service: ConnectivityService;
-  let tokenServiceSpy: jasmine.SpyObj<TokenService>;
-  let syncServiceSpy: jasmine.SpyObj<SyncService>;
+    let service: ConnectivityService;
+    let tokenServiceSpy: any;
+    let syncServiceSpy: any;
 
-  beforeEach(() => {
-    localStorage.removeItem('ces_mobile_usar_redes_moveis');
+    beforeEach(() => {
+        localStorage.removeItem('geo_mobile_usar_redes_moveis');
 
-    tokenServiceSpy = jasmine.createSpyObj('TokenService', ['token', 'isTokenExpired', 'getDecodedPayload']);
-    tokenServiceSpy.token.and.returnValue('valid-token');
-    tokenServiceSpy.isTokenExpired.and.returnValue(false);
-    tokenServiceSpy.getDecodedPayload.and.returnValue({
-      sub: 'colab-1',
-      nome: 'Encarregado Campo',
-      roles: ['ENCARREGADO'],
-      tipoUsuario: 'CAMPO',
-      exp: 9999999999,
+        tokenServiceSpy = {
+            token: vi.fn().mockName("TokenService.token"),
+            isTokenExpired: vi.fn().mockName("TokenService.isTokenExpired"),
+            getDecodedPayload: vi.fn().mockName("TokenService.getDecodedPayload")
+        };
+        tokenServiceSpy.token.mockReturnValue('valid-token');
+        tokenServiceSpy.isTokenExpired.mockReturnValue(false);
+        tokenServiceSpy.getDecodedPayload.mockReturnValue({
+            sub: 'colab-1',
+            nome: 'Encarregado Campo',
+            roles: ['ENCARREGADO'],
+            tipoUsuario: 'CAMPO',
+            exp: 9999999999,
+        });
+
+        syncServiceSpy = {
+            syncOutbox: vi.fn().mockName("SyncService.syncOutbox")
+        };
+        syncServiceSpy.syncOutbox.mockResolvedValue({ sincronizados: 0, erros: 0, falhas: [] });
+
+        TestBed.configureTestingModule({
+            providers: [
+                ConnectivityService,
+                { provide: TokenService, useValue: tokenServiceSpy },
+                { provide: SyncService, useValue: syncServiceSpy },
+            ],
+        });
+
+        service = TestBed.inject(ConnectivityService);
     });
 
-    syncServiceSpy = jasmine.createSpyObj('SyncService', ['syncOutbox']);
-    syncServiceSpy.syncOutbox.and.returnValue(Promise.resolve({ sincronizados: 0, erros: 0, falhas: [] }));
-
-    TestBed.configureTestingModule({
-      providers: [
-        ConnectivityService,
-        { provide: TokenService, useValue: tokenServiceSpy },
-        { provide: SyncService, useValue: syncServiceSpy },
-      ],
+    afterEach(() => {
+        localStorage.removeItem('geo_mobile_usar_redes_moveis');
     });
 
-    service = TestBed.inject(ConnectivityService);
-  });
+    it('deve ser instanciado corretamente', () => {
+        expect(service).toBeTruthy();
+    });
 
-  afterEach(() => {
-    localStorage.removeItem('ces_mobile_usar_redes_moveis');
-  });
+    it('deve inicializar com usarRedesMoveis false por padrão para usuários do tipo CAMPO', () => {
+        expect(service.usarRedesMoveis()).toBe(false);
+    });
 
-  it('deve ser instanciado corretamente', () => {
-    expect(service).toBeTruthy();
-  });
+    it('deve ficar offline e marcar isBloqueadoPorDadosMoveis quando estiver em rede celular e usarRedesMoveis for false', () => {
+        service.setSimulatedHardwareOnline(true);
+        service.setUsarRedesMoveis(false);
+        service.setSimulatedCellular(true);
 
-  it('deve inicializar com usarRedesMoveis false por padrão para usuários do tipo CAMPO', () => {
-    expect(service.usarRedesMoveis()).toBe(false);
-  });
+        expect(service.isOnline()).toBe(false);
+        expect(service.isBloqueadoPorDadosMoveis()).toBe(true);
+        expect(service.statusConexao()).toBe('dados_moveis_bloqueados');
+    });
 
-  it('deve ficar offline e marcar isBloqueadoPorDadosMoveis quando estiver em rede celular e usarRedesMoveis for false', () => {
-    service.setSimulatedHardwareOnline(true);
-    service.setUsarRedesMoveis(false);
-    service.setSimulatedCellular(true);
+    it('deve voltar a ficar online se o usuário ativar usarRedesMoveis', () => {
+        service.setSimulatedHardwareOnline(true);
+        service.setSimulatedCellular(true);
+        service.setUsarRedesMoveis(false);
+        expect(service.isOnline()).toBe(false);
 
-    expect(service.isOnline()).toBe(false);
-    expect(service.isBloqueadoPorDadosMoveis()).toBe(true);
-    expect(service.statusConexao()).toBe('dados_moveis_bloqueados');
-  });
+        service.setUsarRedesMoveis(true);
+        expect(service.isOnline()).toBe(true);
+        expect(service.isBloqueadoPorDadosMoveis()).toBe(false);
+        expect(service.statusConexao()).toBe('online');
+        expect(localStorage.getItem('geo_mobile_usar_redes_moveis')).toBe('true');
+    });
 
-  it('deve voltar a ficar online se o usuário ativar usarRedesMoveis', () => {
-    service.setSimulatedHardwareOnline(true);
-    service.setSimulatedCellular(true);
-    service.setUsarRedesMoveis(false);
-    expect(service.isOnline()).toBe(false);
+    it('deve ficar offline imediatamente quando o modo forcarOffline for ativado', () => {
+        service.setSimulatedHardwareOnline(true);
+        service.setSimulatedCellular(false);
+        expect(service.isOnline()).toBe(true);
 
-    service.setUsarRedesMoveis(true);
-    expect(service.isOnline()).toBe(true);
-    expect(service.isBloqueadoPorDadosMoveis()).toBe(false);
-    expect(service.statusConexao()).toBe('online');
-    expect(localStorage.getItem('ces_mobile_usar_redes_moveis')).toBe('true');
-  });
+        service.setForcarOffline(true);
+        expect(service.isOnline()).toBe(false);
+        expect(service.statusConexao()).toBe('offline_manual');
 
-  it('deve ficar offline imediatamente quando o modo forcarOffline for ativado', () => {
-    service.setSimulatedHardwareOnline(true);
-    service.setSimulatedCellular(false);
-    expect(service.isOnline()).toBe(true);
+        service.setForcarOffline(false);
+        expect(service.isOnline()).toBe(true);
+    });
 
-    service.setForcarOffline(true);
-    expect(service.isOnline()).toBe(false);
-    expect(service.statusConexao()).toBe('offline_manual');
+    it('envia a fila ao voltar ao app, mesmo sem o estado da rede ter mudado', () => {
+        (tokenServiceSpy as any).reautenticacaoNecessaria = () => false;
+        service.setSimulatedCellular(false);
+        service.setSimulatedHardwareOnline(true);
+        syncServiceSpy.syncOutbox.mockClear();
 
-    service.setForcarOffline(false);
-    expect(service.isOnline()).toBe(true);
-  });
+        vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+        document.dispatchEvent(new Event('visibilitychange'));
 
-  it('envia a fila ao voltar ao app, mesmo sem o estado da rede ter mudado', () => {
-    (tokenServiceSpy as any).reautenticacaoNecessaria = () => false;
-    service.setSimulatedCellular(false);
-    service.setSimulatedHardwareOnline(true);
-    syncServiceSpy.syncOutbox.calls.reset();
+        expect(syncServiceSpy.syncOutbox).toHaveBeenCalledTimes(1);
+    });
 
-    spyOnProperty(document, 'visibilityState', 'get').and.returnValue('visible');
-    document.dispatchEvent(new Event('visibilitychange'));
+    it('não envia a fila ao voltar ao app sem rede liberada', () => {
+        (tokenServiceSpy as any).reautenticacaoNecessaria = () => false;
+        service.setSimulatedHardwareOnline(false);
+        syncServiceSpy.syncOutbox.mockClear();
 
-    expect(syncServiceSpy.syncOutbox).toHaveBeenCalledTimes(1);
-  });
+        vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+        document.dispatchEvent(new Event('visibilitychange'));
 
-  it('não envia a fila ao voltar ao app sem rede liberada', () => {
-    (tokenServiceSpy as any).reautenticacaoNecessaria = () => false;
-    service.setSimulatedHardwareOnline(false);
-    syncServiceSpy.syncOutbox.calls.reset();
+        expect(syncServiceSpy.syncOutbox).not.toHaveBeenCalled();
+    });
 
-    spyOnProperty(document, 'visibilityState', 'get').and.returnValue('visible');
-    document.dispatchEvent(new Event('visibilitychange'));
+    it('deve ficar offline quando o hardware perder sinal completamente', () => {
+        service.setSimulatedCellular(false);
+        service.setSimulatedHardwareOnline(false);
 
-    expect(syncServiceSpy.syncOutbox).not.toHaveBeenCalled();
-  });
-
-  it('deve ficar offline quando o hardware perder sinal completamente', () => {
-    service.setSimulatedCellular(false);
-    service.setSimulatedHardwareOnline(false);
-
-    expect(service.isOnline()).toBe(false);
-    expect(service.statusConexao()).toBe('offline_sem_rede');
-  });
+        expect(service.isOnline()).toBe(false);
+        expect(service.statusConexao()).toBe('offline_sem_rede');
+    });
 });

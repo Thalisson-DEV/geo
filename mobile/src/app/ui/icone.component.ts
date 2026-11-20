@@ -78,7 +78,7 @@ export const ICONES = {
 export type NomeIcone = keyof typeof ICONES;
 
 @Component({
-  selector: 'ces-icone',
+  selector: 'geo-icone',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<svg [attr.width]="tamanho()" [attr.height]="tamanho()" viewBox="0 0 24 24" fill="none" stroke="currentColor"

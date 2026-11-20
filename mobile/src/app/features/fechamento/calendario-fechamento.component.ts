@@ -31,7 +31,7 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
       <header class="cab">
         <div class="titulo" aria-live="polite">
           <h3>{{ nomeMes() }} <span>{{ mes().getFullYear() }}</span></h3>
-          <p class="ces-num">
+          <p class="geo-num">
             @if (carregou()) {
               {{ resumoMes().total }} {{ resumoMes().total === 1 ? 'solicitação' : 'solicitações' }}
               @if (resumoMes().abertas) { · {{ resumoMes().abertas }} em aberto }
@@ -39,10 +39,10 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
             } @else { Carregando… }
           </p>
         </div>
-        @if (!mesAtual()) { <button type="button" class="ces-btn ces-btn--tonal ces-btn--compacto hoje-btn" (click)="irHoje()">Hoje</button> }
+        @if (!mesAtual()) { <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto hoje-btn" (click)="irHoje()">Hoje</button> }
         <div class="nav">
-          <button type="button" class="ces-btn-icone" (click)="mover(-1)" aria-label="Mês anterior"><ces-icone nome="voltar" /></button>
-          <button type="button" class="ces-btn-icone" (click)="mover(1)" aria-label="Próximo mês"><ces-icone nome="avancar" /></button>
+          <button type="button" class="geo-btn-icone" (click)="mover(-1)" aria-label="Mês anterior"><geo-icone nome="voltar" /></button>
+          <button type="button" class="geo-btn-icone" (click)="mover(1)" aria-label="Próximo mês"><geo-icone nome="avancar" /></button>
         </div>
       </header>
       <div class="semana" aria-hidden="true">@for (d of semana; track $index) { <span>{{ d }}</span> }</div>
@@ -52,10 +52,10 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
             @for (d of sem; track d.iso) {
               <button type="button" role="gridcell" class="dia" [class.fora]="!d.noMes" [class.hoje]="d.hoje" [class.passado]="d.passado" [class.com]="d.itens.length > 0"
                 [attr.aria-selected]="selecionado() === d.iso" (click)="selecionar(d.iso)" [attr.aria-label]="rotuloDia(d)">
-                <span class="num ces-num">{{ d.numero }}</span>
+                <span class="num geo-num">{{ d.numero }}</span>
                 <span class="marcas" aria-hidden="true">
                   @for (m of d.marcas; track $index) { <i [attr.data-marca]="m"></i> }
-                  @if (d.itens.length > 3) { <b class="ces-num">+{{ d.itens.length - 3 }}</b> }
+                  @if (d.itens.length > 3) { <b class="geo-num">+{{ d.itens.length - 3 }}</b> }
                 </span>
               </button>
             }
@@ -70,35 +70,35 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
     </section>
 
     @if (erro()) {
-      <ces-vazio icone="alerta" titulo="Não foi possível carregar o calendário" [texto]="erro()">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="recarregar()">Tentar de novo</button>
-      </ces-vazio>
+      <geo-vazio icone="alerta" titulo="Não foi possível carregar o calendário" [texto]="erro()">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
+      </geo-vazio>
     } @else {
       @if (excedeu()) {
-        <p class="aviso"><ces-icone nome="info" [tamanho]="18" />Há mais de {{ limite }} solicitações neste período; mostrando as {{ limite }} primeiras. Use os filtros para refinar.</p>
+        <p class="aviso"><geo-icone nome="info" [tamanho]="18" />Há mais de {{ limite }} solicitações neste período; mostrando as {{ limite }} primeiras. Use os filtros para refinar.</p>
       }
       <header class="dia-cab">
-        <span class="dia-cab__data"><span class="ces-num">{{ diaSelecionado().getDate() }}</span><small>{{ nomeMesCurto() }}</small></span>
+        <span class="dia-cab__data"><span class="geo-num">{{ diaSelecionado().getDate() }}</span><small>{{ nomeMesCurto() }}</small></span>
         <div>
           <h3>{{ selecionadoEhHoje() ? 'Hoje' : semanaExtenso() }}</h3>
           <p>{{ doDia().length ? doDia().length + (doDia().length === 1 ? ' solicitação' : ' solicitações') : 'Nada vence neste dia' }}</p>
         </div>
       </header>
       @if (carregando() && !carregou()) {
-        <div class="ces-esqueletos" aria-busy="true"><div class="ces-esqueleto" style="height: 96px"></div></div>
+        <div class="geo-esqueletos" aria-busy="true"><div class="geo-esqueleto" style="height: 96px"></div></div>
       } @else if (doDia().length) {
         <div class="cartoes">
           @for (s of doDia(); track s.id) { <app-cartao-fechamento [item]="s" [acoes]="acoes()" (abrir)="abrir.emit($event)" (agir)="agir.emit($event)" /> }
         </div>
       } @else if (proximos().length) {
-        <h4 class="ces-secao">Próximos dias</h4>
-        <ul class="ces-grupo proximos">
+        <h4 class="geo-secao">Próximos dias</h4>
+        <ul class="geo-grupo proximos">
           @for (p of proximos(); track p.iso) {
-            <li><button type="button" class="ces-linha ces-linha--acao" (click)="selecionar(p.iso)">
-              <span class="mini-data"><span class="ces-num">{{ p.dia }}</span><small>{{ p.mes }}</small></span>
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ p.titulo }}</span>
-                <span class="ces-linha__apoio">{{ p.total }} {{ p.total === 1 ? 'solicitação' : 'solicitações' }}</span></span>
-              <ces-icone nome="avancar" [tamanho]="18" />
+            <li><button type="button" class="geo-linha geo-linha--acao" (click)="selecionar(p.iso)">
+              <span class="mini-data"><span class="geo-num">{{ p.dia }}</span><small>{{ p.mes }}</small></span>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ p.titulo }}</span>
+                <span class="geo-linha__apoio">{{ p.total }} {{ p.total === 1 ? 'solicitação' : 'solicitações' }}</span></span>
+              <geo-icone nome="avancar" [tamanho]="18" />
             </button></li>
           }
         </ul>
@@ -107,54 +107,54 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
   `,
   styles: [`
     :host { display: block; }
-    .mes { margin: var(--ces-e3) var(--ces-e3) 0; padding: var(--ces-e4) var(--ces-e3) var(--ces-e3); border-radius: var(--ces-r-folha); background: var(--ces-superficie);
+    .mes { margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e4) var(--geo-e3) var(--geo-e3); border-radius: var(--geo-r-folha); background: var(--geo-superficie);
       box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
-    .cab { display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e1) var(--ces-e3) var(--ces-e2); }
+    .cab { display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e1) var(--geo-e3) var(--geo-e2); }
     .titulo { flex: 1; min-width: 0; }
-    .titulo h3 { margin: 0; font: 600 1.0625rem/1.25 var(--ces-fonte); }
-    .titulo h3 span { font-weight: 500; color: var(--ces-texto-3); }
-    .titulo p { margin: 2px 0 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .titulo .atraso { color: var(--ces-erro); font-weight: 600; }
+    .titulo h3 { margin: 0; font: 600 1.0625rem/1.25 var(--geo-fonte); }
+    .titulo h3 span { font-weight: 500; color: var(--geo-texto-3); }
+    .titulo p { margin: 2px 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .titulo .atraso { color: var(--geo-erro); font-weight: 600; }
     .nav { display: flex; margin-right: -6px; }
     .hoje-btn { min-height: 36px; }
     .semana, .linha { display: grid; grid-template-columns: repeat(7, 1fr); }
-    .semana span { text-align: center; font: 600 .6875rem/2 var(--ces-fonte); letter-spacing: .04em; text-transform: uppercase; color: var(--ces-texto-3); }
-    .grade { display: grid; gap: 2px; transition: opacity var(--ces-m-entrar); }
+    .semana span { text-align: center; font: 600 .6875rem/2 var(--geo-fonte); letter-spacing: .04em; text-transform: uppercase; color: var(--geo-texto-3); }
+    .grade { display: grid; gap: 2px; transition: opacity var(--geo-m-entrar); }
     .grade.atualizando { opacity: .55; }
     .dia { display: grid; justify-items: center; align-content: start; gap: 3px; min-height: 46px; padding: 4px 0; border: 0; border-radius: 14px;
-      background: transparent; color: var(--ces-texto); cursor: pointer; font: inherit; transition: background-color 100ms; }
-    .dia:active { background: var(--ces-superficie-2); }
-    .dia.fora { color: var(--ces-texto-3); }
+      background: transparent; color: var(--geo-texto); cursor: pointer; font: inherit; transition: background-color 100ms; }
+    .dia:active { background: var(--geo-superficie-2); }
+    .dia.fora { color: var(--geo-texto-3); }
     .dia.fora .marcas { opacity: .5; }
-    .dia.passado:not(.com) .num { color: var(--ces-texto-3); }
-    .num { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; font: 500 .9375rem/1 var(--ces-fonte);
-      transition: background-color var(--ces-m-entrar), color var(--ces-m-entrar); }
+    .dia.passado:not(.com) .num { color: var(--geo-texto-3); }
+    .num { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; font: 500 .9375rem/1 var(--geo-fonte);
+      transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
     .dia.com .num { font-weight: 700; }
-    .dia.hoje .num { color: var(--ces-destaque); box-shadow: inset 0 0 0 2px var(--ces-destaque); font-weight: 700; }
-    .dia[aria-selected='true'] .num { background: var(--ces-destaque); color: var(--ces-destaque-texto); box-shadow: none; }
+    .dia.hoje .num { color: var(--geo-destaque); box-shadow: inset 0 0 0 2px var(--geo-destaque); font-weight: 700; }
+    .dia[aria-selected='true'] .num { background: var(--geo-destaque); color: var(--geo-destaque-texto); box-shadow: none; }
     .marcas { display: flex; align-items: center; justify-content: center; gap: 3px; height: 6px; }
-    .marcas b { font: 700 .5625rem/1 var(--ces-fonte); color: var(--ces-texto-2); }
+    .marcas b { font: 700 .5625rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     i[data-marca] { display: block; width: 6px; height: 6px; border-radius: 50%; }
-    i[data-marca='aberta'] { background: var(--ces-destaque); }
-    i[data-marca='atraso'] { background: var(--ces-erro); }
-    i[data-marca='encerrada'] { background: var(--ces-linha-forte); }
-    .legenda { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px var(--ces-e4); margin: var(--ces-e3) 0 0; padding-top: var(--ces-e3);
-      border-top: 1px solid var(--ces-linha); font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); }
+    i[data-marca='aberta'] { background: var(--geo-destaque); }
+    i[data-marca='atraso'] { background: var(--geo-erro); }
+    i[data-marca='encerrada'] { background: var(--geo-linha-forte); }
+    .legenda { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px var(--geo-e4); margin: var(--geo-e3) 0 0; padding-top: var(--geo-e3);
+      border-top: 1px solid var(--geo-linha); font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); }
     .legenda span { display: inline-flex; align-items: center; gap: 6px; }
-    .aviso { display: flex; gap: var(--ces-e2); align-items: flex-start; margin: var(--ces-e3) var(--ces-e3) 0; padding: var(--ces-e3); border-radius: var(--ces-r-grupo);
-      background: var(--ces-atencao-suave); font: var(--ces-t-apoio); }
-    .dia-cab { display: flex; align-items: center; gap: var(--ces-e3); padding: var(--ces-e4) var(--ces-e4) var(--ces-e3); }
-    .dia-cab h3 { margin: 0; font: 600 .9375rem/1.3 var(--ces-fonte); }
-    .dia-cab p { margin: 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .dia-cab__data { width: 40px; height: 44px; border-radius: 12px; display: grid; place-content: center; justify-items: center; background: var(--ces-destaque); color: var(--ces-destaque-texto); }
-    .dia-cab__data span { font: 700 1rem/1 var(--ces-fonte); }
-    .dia-cab__data small { font: 700 .625rem/1.2 var(--ces-fonte); letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
-    .cartoes { display: grid; gap: var(--ces-e2); padding: 0 var(--ces-e3); }
-    .proximos .ces-linha { min-height: 64px; }
-    button.ces-linha { width: 100%; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
-    .mini-data { width: 40px; height: 44px; border-radius: 10px; display: grid; place-content: center; justify-items: center; background: var(--ces-superficie-2); flex: none; }
-    .mini-data span { font: 700 1rem/1 var(--ces-fonte); }
-    .mini-data small { font: 700 .5625rem/1.2 var(--ces-fonte); letter-spacing: .05em; text-transform: uppercase; color: var(--ces-texto-2); }
+    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3); border-radius: var(--geo-r-grupo);
+      background: var(--geo-atencao-suave); font: var(--geo-t-apoio); }
+    .dia-cab { display: flex; align-items: center; gap: var(--geo-e3); padding: var(--geo-e4) var(--geo-e4) var(--geo-e3); }
+    .dia-cab h3 { margin: 0; font: 600 .9375rem/1.3 var(--geo-fonte); }
+    .dia-cab p { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .dia-cab__data { width: 40px; height: 44px; border-radius: 12px; display: grid; place-content: center; justify-items: center; background: var(--geo-destaque); color: var(--geo-destaque-texto); }
+    .dia-cab__data span { font: 700 1rem/1 var(--geo-fonte); }
+    .dia-cab__data small { font: 700 .625rem/1.2 var(--geo-fonte); letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+    .cartoes { display: grid; gap: var(--geo-e2); padding: 0 var(--geo-e3); }
+    .proximos .geo-linha { min-height: 64px; }
+    button.geo-linha { width: 100%; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
+    .mini-data { width: 40px; height: 44px; border-radius: 10px; display: grid; place-content: center; justify-items: center; background: var(--geo-superficie-2); flex: none; }
+    .mini-data span { font: 700 1rem/1 var(--geo-fonte); }
+    .mini-data small { font: 700 .5625rem/1.2 var(--geo-fonte); letter-spacing: .05em; text-transform: uppercase; color: var(--geo-texto-2); }
   `],
 })
 export class CalendarioFechamentoComponent {

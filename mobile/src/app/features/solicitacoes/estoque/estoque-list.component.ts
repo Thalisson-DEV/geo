@@ -46,18 +46,18 @@ interface EstadoTela { filtro?: Filtro; busca?: string; series?: string | null; 
   imports: [BarraTopoComponent, ChipsComponent, FolhaComponent, IconeComponent, NgTemplateOutlet, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Saldo do caminhão" [subtitulo]="subtitulo()" (voltar)="goBack()" />
+    <geo-barra-topo titulo="Saldo do caminhão" [subtitulo]="subtitulo()" (voltar)="goBack()" />
 
     <div class="busca">
-      <ces-icone nome="busca" [tamanho]="18" />
+      <geo-icone nome="busca" [tamanho]="18" />
       <input type="search" placeholder="Nome ou código" enterkeyhint="search" aria-label="Buscar no saldo"
         [value]="busca()" (input)="definirBusca($any($event.target).value)">
     </div>
-    <ces-chips rotulo="Condição" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definirFiltro($any($event))" />
+    <geo-chips rotulo="Condição" [opcoes]="filtros" [contagem]="contagem()" [valor]="filtro()" (valorChange)="definirFiltro($any($event))" />
 
     @if (parados() || soParados()) {
       <button type="button" class="parados" [attr.aria-pressed]="soParados()" (click)="alternarParados()">
-        <ces-icone nome="relogio" [tamanho]="20" />
+        <geo-icone nome="relogio" [tamanho]="20" />
         <span class="parados__texto">
           @if (soParados()) {
             <strong>Mostrando só os parados</strong><span>Toque para ver todo o saldo</span>
@@ -66,79 +66,79 @@ interface EstadoTela { filtro?: Filtro; busca?: string; series?: string | null; 
             <span>Aplique ou devolva ao almoxarifado. Toque para ver.</span>
           }
         </span>
-        <ces-icone [nome]="soParados() ? 'fechar' : 'avancar'" [tamanho]="18" />
+        <geo-icone [nome]="soParados() ? 'fechar' : 'avancar'" [tamanho]="18" />
       </button>
     }
 
     @if (materiais() === undefined) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        @for (i of [1, 2, 3, 4]; track i) { <div class="ces-esqueleto" style="height: 64px"></div> }
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        @for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 64px"></div> }
       </div>
     } @else if (filtrados().length) {
-      <ul class="ces-grupo lista" aria-label="Materiais no caminhão">
+      <ul class="geo-grupo lista" aria-label="Materiais no caminhão">
         @for (m of filtrados(); track m.id) {
-          <li class="ces-linha-lista">
+          <li class="geo-linha-lista">
             @if (m.detalhaSerie) {
-              <button type="button" class="ces-linha ces-linha--acao" (click)="abrirSeries(m)" [attr.aria-label]="m.descricao + ', ' + num(m.quantidade) + ' ' + m.unidadeMedida + ', ver séries'">
+              <button type="button" class="geo-linha geo-linha--acao" (click)="abrirSeries(m)" [attr.aria-label]="m.descricao + ', ' + num(m.quantidade) + ' ' + m.unidadeMedida + ', ver séries'">
                 <ng-container *ngTemplateOutlet="conteudo; context: { $implicit: m }" />
-                <ces-icone nome="avancar" [tamanho]="18" />
+                <geo-icone nome="avancar" [tamanho]="18" />
               </button>
             } @else {
-              <div class="ces-linha"><ng-container *ngTemplateOutlet="conteudo; context: { $implicit: m }" /></div>
+              <div class="geo-linha"><ng-container *ngTemplateOutlet="conteudo; context: { $implicit: m }" /></div>
             }
           </li>
         }
       </ul>
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     } @else {
-      <ces-vazio icone="estoque" [titulo]="busca() || filtro() !== 'todos' || soParados() ? 'Nada encontrado' : 'Caminhão sem saldo'"
+      <geo-vazio icone="estoque" [titulo]="busca() || filtro() !== 'todos' || soParados() ? 'Nada encontrado' : 'Caminhão sem saldo'"
         [texto]="busca() || filtro() !== 'todos' || soParados() ? 'Confira o nome, o código ou o filtro.' : 'Quando o almoxarifado entregar material, ele aparece aqui.'" />
     }
 
     <ng-template #conteudo let-m>
-      <span class="ces-linha__texto">
-        <span class="ces-linha__titulo">{{ m.descricao }}</span>
-        <span class="ces-linha__apoio ces-num"><span class="ces-cond" [class.ces-cond--sucata]="m.condicao !== 'NOVO'">{{ m.condicao === 'NOVO' ? 'Novo' : 'Sucata' }}</span> · Cód. {{ m.codigo }}</span>
+      <span class="geo-linha__texto">
+        <span class="geo-linha__titulo">{{ m.descricao }}</span>
+        <span class="geo-linha__apoio geo-num"><span class="geo-cond" [class.geo-cond--sucata]="m.condicao !== 'NOVO'">{{ m.condicao === 'NOVO' ? 'Novo' : 'Sucata' }}</span> · Cód. {{ m.codigo }}</span>
         @if (m.dias != null) {
-          <span class="tempo" [attr.data-tom]="tom(m.dias)"><ces-icone nome="relogio" [tamanho]="14" />{{ rotuloTempo(m) }}</span>
+          <span class="tempo" [attr.data-tom]="tom(m.dias)"><geo-icone nome="relogio" [tamanho]="14" />{{ rotuloTempo(m) }}</span>
         }
       </span>
-      <span class="ces-qtd">{{ num(m.quantidade) }}<small>{{ m.unidadeMedida }}</small></span>
+      <span class="geo-qtd">{{ num(m.quantidade) }}<small>{{ m.unidadeMedida }}</small></span>
     </ng-template>
 
-    <ces-folha [aberta]="!!seriesDe()" (fechar)="fecharSeries()" [titulo]="seriesDe()?.descricao ?? ''"
+    <geo-folha [aberta]="!!seriesDe()" (fechar)="fecharSeries()" [titulo]="seriesDe()?.descricao ?? ''"
       [descricao]="descricaoSeries()">
       @if (carregandoSeries()) {
-        <div class="ces-esqueletos"><div class="ces-esqueleto" style="height: 48px"></div><div class="ces-esqueleto" style="height: 48px"></div></div>
+        <div class="geo-esqueletos"><div class="geo-esqueleto" style="height: 48px"></div><div class="geo-esqueleto" style="height: 48px"></div></div>
       } @else {
-        <ul class="ces-grupo series" aria-label="Séries">
+        <ul class="geo-grupo series" aria-label="Séries">
           @for (s of seriais(); track s.id) {
-            <li><div class="ces-linha"><span class="ces-linha__texto"><span class="ces-linha__titulo ces-num">{{ s.numSerie }}</span>
-              <span class="tempo" [attr.data-tom]="tom(dias(s.noSaldoDesde))"><ces-icone nome="relogio" [tamanho]="14" />{{ rotuloSerie(s.noSaldoDesde) }}</span></span></div></li>
-          } @empty { <li><div class="ces-linha"><span class="ces-linha__apoio">Nenhuma série registrada</span></div></li> }
+            <li><div class="geo-linha"><span class="geo-linha__texto"><span class="geo-linha__titulo geo-num">{{ s.numSerie }}</span>
+              <span class="tempo" [attr.data-tom]="tom(dias(s.noSaldoDesde))"><geo-icone nome="relogio" [tamanho]="14" />{{ rotuloSerie(s.noSaldoDesde) }}</span></span></div></li>
+          } @empty { <li><div class="geo-linha"><span class="geo-linha__apoio">Nenhuma série registrada</span></div></li> }
         </ul>
       }
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; min-height: 100%; }
-    .busca { margin: var(--ces-e1) var(--ces-e3) 0; display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e4); min-height: 48px;
-      border-radius: var(--ces-r-pilula); background: var(--ces-superficie); color: var(--ces-texto-2); }
-    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+    .busca { margin: var(--geo-e1) var(--geo-e3) 0; display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+      border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
+    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
-    .lista { margin-top: var(--ces-e2); }
-    .series { background: var(--ces-fundo); }
-    .tempo { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; font: 600 .8125rem/1.3 var(--ces-fonte); color: var(--ces-texto-2); }
-    .tempo[data-tom='atencao'] { color: var(--ces-atencao); }
-    .tempo[data-tom='erro'] { color: var(--ces-erro); }
-    .parados { display: flex; align-items: center; gap: var(--ces-e3); width: calc(100% - 2 * var(--ces-e3)); min-height: 56px; margin: var(--ces-e2) var(--ces-e3) 0;
-      padding: var(--ces-e2) var(--ces-e4); border: 0; border-radius: var(--ces-r-grupo); background: var(--ces-atencao-suave); color: var(--ces-atencao);
-      text-align: left; cursor: pointer; transition: transform var(--ces-m-entrar); }
+    .lista { margin-top: var(--geo-e2); }
+    .series { background: var(--geo-fundo); }
+    .tempo { display: inline-flex; align-items: center; gap: 4px; margin-top: 2px; font: 600 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
+    .tempo[data-tom='atencao'] { color: var(--geo-atencao); }
+    .tempo[data-tom='erro'] { color: var(--geo-erro); }
+    .parados { display: flex; align-items: center; gap: var(--geo-e3); width: calc(100% - 2 * var(--geo-e3)); min-height: 56px; margin: var(--geo-e2) var(--geo-e3) 0;
+      padding: var(--geo-e2) var(--geo-e4); border: 0; border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); color: var(--geo-atencao);
+      text-align: left; cursor: pointer; transition: transform var(--geo-m-entrar); }
     .parados:active { transform: scale(.98); }
-    .parados[aria-pressed='true'] { background: var(--ces-superficie); color: var(--ces-texto-2); }
+    .parados[aria-pressed='true'] { background: var(--geo-superficie); color: var(--geo-texto-2); }
     .parados__texto { flex: 1; min-width: 0; display: grid; gap: 2px; }
-    .parados__texto strong { font: 600 .9375rem/1.3 var(--ces-fonte); color: var(--ces-texto); }
-    .parados__texto span { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .parados__texto strong { font: 600 .9375rem/1.3 var(--geo-fonte); color: var(--geo-texto); }
+    .parados__texto span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
   `],
 })
 export class EstoqueListComponent {

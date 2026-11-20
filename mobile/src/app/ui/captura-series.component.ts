@@ -36,17 +36,17 @@ const MAX_CONFERIR = 30;
  * modo, desfaz a última adição e, com `verificar`, tira da lista as séries que já estão no sistema.
  */
 @Component({
-  selector: 'ces-captura-series',
+  selector: 'geo-captura-series',
   standalone: true,
   imports: [NgTemplateOutlet, FolhaComponent, IconeComponent, LeitorCodigoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown)': 'teclaGlobal($event)' },
   template: `
-    <ces-folha [aberta]="aberta()" (fechar)="aberta.set(false)" [titulo]="titulo()" [descricao]="descricao()">
+    <geo-folha [aberta]="aberta()" (fechar)="aberta.set(false)" [titulo]="titulo()" [descricao]="descricao()">
       <div class="modos" role="tablist" aria-label="Como adicionar as séries">
         @for (m of modos(); track m.valor) {
           <button type="button" role="tab" class="modo" [attr.aria-selected]="modo() === m.valor" (click)="trocarModo(m.valor)">
-            <ces-icone [nome]="m.icone" [tamanho]="18" />{{ m.rotulo }}
+            <geo-icone [nome]="m.icone" [tamanho]="18" />{{ m.rotulo }}
           </button>
         }
       </div>
@@ -55,12 +55,12 @@ const MAX_CONFERIR = 30;
         @switch (modo()) {
           @case ('ler') {
             @if (temCamera) {
-              <ces-leitor-codigo [ativo]="aberta() && modo() === 'ler'" [pausado]="completo()" motivoPausa="Quantidade completa" [retorno]="retorno()"
+              <geo-leitor-codigo [ativo]="aberta() && modo() === 'ler'" [pausado]="completo()" motivoPausa="Quantidade completa" [retorno]="retorno()"
                 [contador]="contador()" (lido)="adicionar([$event], 'leitura')" />
               <p class="dica">Centralize um código por vez na linha vermelha: cada bip entra na lista. Em "Gatilho", só lê com o botão apertado. Leitor conectado também funciona aqui.</p>
             } @else {
               <div class="sem-camera">
-                <ces-icone nome="info" />
+                <geo-icone nome="info" />
                 <p>Este navegador não lê códigos pela câmera. Use um <strong>leitor de código</strong> conectado ao aparelho — ele digita aqui e confirma sozinho.</p>
               </div>
               <ng-container [ngTemplateOutlet]="digitar" />
@@ -68,49 +68,49 @@ const MAX_CONFERIR = 30;
           }
           @case ('digitar') { <ng-container [ngTemplateOutlet]="digitar" /> }
           @case ('colar') {
-            <label class="ces-campo">
-              <span class="ces-campo__rotulo">Cole as séries (uma por linha, ou separadas por vírgula)</span>
-              <textarea class="ces-input texto" rows="5" [value]="textoLote()" (input)="textoLote.set($any($event.target).value)"
+            <label class="geo-campo">
+              <span class="geo-campo__rotulo">Cole as séries (uma por linha, ou separadas por vírgula)</span>
+              <textarea class="geo-input texto" rows="5" [value]="textoLote()" (input)="textoLote.set($any($event.target).value)"
                 autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC0001&#10;ABC0002&#10;ABC0003"></textarea>
             </label>
-            <button type="button" class="ces-btn ces-btn--tonal ces-btn--bloco" [disabled]="!lote().length" (click)="adicionarLote()">
-              <ces-icone nome="mais" [tamanho]="18" />{{ lote().length ? 'Adicionar ' + contar(lote().length) : 'Adicionar' }}
+            <button type="button" class="geo-btn geo-btn--tonal geo-btn--bloco" [disabled]="!lote().length" (click)="adicionarLote()">
+              <geo-icone nome="mais" [tamanho]="18" />{{ lote().length ? 'Adicionar ' + contar(lote().length) : 'Adicionar' }}
             </button>
           }
           @case ('sequencia') {
             <div class="duas">
-              <label class="ces-campo"><span class="ces-campo__rotulo">Primeira série</span>
-                <input class="ces-input mono" [value]="seqInicio()" (input)="seqInicio.set($any($event.target).value)" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC0001"></label>
-              <label class="ces-campo"><span class="ces-campo__rotulo">Última série</span>
-                <input class="ces-input mono" [value]="seqFim()" (input)="seqFim.set($any($event.target).value)" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC0100"></label>
+              <label class="geo-campo"><span class="geo-campo__rotulo">Primeira série</span>
+                <input class="geo-input mono" [value]="seqInicio()" (input)="seqInicio.set($any($event.target).value)" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC0001"></label>
+              <label class="geo-campo"><span class="geo-campo__rotulo">Última série</span>
+                <input class="geo-input mono" [value]="seqFim()" (input)="seqFim.set($any($event.target).value)" autocapitalize="characters" autocomplete="off" spellcheck="false" placeholder="ABC0100"></label>
             </div>
             @if (seqInicio() && seqFim()) {
-              @if (sequencia().erro; as e) { <p class="aviso aviso--erro"><ces-icone nome="alerta" [tamanho]="18" />{{ e }}</p> }
-              @else { <p class="aviso"><ces-icone nome="sequencia" [tamanho]="18" />Gera {{ contar(sequencia().series.length) }}: {{ sequencia().series[0] }} … {{ sequencia().series[sequencia().series.length - 1] }}</p> }
+              @if (sequencia().erro; as e) { <p class="aviso aviso--erro"><geo-icone nome="alerta" [tamanho]="18" />{{ e }}</p> }
+              @else { <p class="aviso"><geo-icone nome="sequencia" [tamanho]="18" />Gera {{ contar(sequencia().series.length) }}: {{ sequencia().series[0] }} … {{ sequencia().series[sequencia().series.length - 1] }}</p> }
             }
-            <button type="button" class="ces-btn ces-btn--tonal ces-btn--bloco" [disabled]="!sequencia().series.length" (click)="adicionar(sequencia().series, 'lote')">
-              <ces-icone nome="mais" [tamanho]="18" />{{ sequencia().series.length ? 'Adicionar ' + contar(sequencia().series.length) : 'Adicionar sequência' }}
+            <button type="button" class="geo-btn geo-btn--tonal geo-btn--bloco" [disabled]="!sequencia().series.length" (click)="adicionar(sequencia().series, 'lote')">
+              <geo-icone nome="mais" [tamanho]="18" />{{ sequencia().series.length ? 'Adicionar ' + contar(sequencia().series.length) : 'Adicionar sequência' }}
             </button>
           }
           @case ('escolher') {
             <div class="busca">
-              <ces-icone nome="busca" [tamanho]="18" />
+              <geo-icone nome="busca" [tamanho]="18" />
               <input type="search" placeholder="Buscar série" enterkeyhint="search" aria-label="Buscar série no estoque" [value]="buscaDisponivel()" (input)="buscaDisponivel.set($any($event.target).value)">
             </div>
             @if (faltam() > 0 && livres().length) {
-              <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="adicionar(livres().slice(0, faltam()), 'lote')">
+              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="adicionar(livres().slice(0, faltam()), 'lote')">
                 Marcar {{ contar(Math.min(faltam(), livres().length)) }} {{ faltam() < livres().length ? 'primeiras' : '' }}
               </button>
             }
-            <ul class="ces-grupo escolher" aria-label="Séries no estoque">
+            <ul class="geo-grupo escolher" aria-label="Séries no estoque">
               @for (s of disponiveisFiltradas(); track s) {
-                <li><button type="button" role="checkbox" class="ces-linha ces-linha--acao" [attr.aria-checked]="selecionada(s)" (click)="alternar(s)"
+                <li><button type="button" role="checkbox" class="geo-linha geo-linha--acao" [attr.aria-checked]="selecionada(s)" (click)="alternar(s)"
                   [disabled]="!selecionada(s) && completo()">
-                  <span class="caixa" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>
-                  <span class="ces-linha__texto"><span class="ces-linha__titulo mono">{{ s }}</span></span>
+                  <span class="caixa" aria-hidden="true"><geo-icone nome="check" [tamanho]="14" /></span>
+                  <span class="geo-linha__texto"><span class="geo-linha__titulo mono">{{ s }}</span></span>
                 </button></li>
               } @empty {
-                <li><div class="ces-linha"><span class="ces-linha__apoio">{{ buscaDisponivel() ? 'Nenhuma série com esse trecho' : 'Nenhuma série neste estoque' }}</span></div></li>
+                <li><div class="geo-linha"><span class="geo-linha__apoio">{{ buscaDisponivel() ? 'Nenhuma série com esse trecho' : 'Nenhuma série neste estoque' }}</span></div></li>
               }
             </ul>
           }
@@ -120,7 +120,7 @@ const MAX_CONFERIR = 30;
             <span>{{ u.texto }}</span>
             @if (ultimaAdicao().length) {
               <button type="button" class="desfazer" (click)="desfazer()" [attr.aria-label]="'Desfazer: tirar ' + contar(ultimaAdicao().length) + ' da lista'">
-                <ces-icone nome="desfazer" [tamanho]="16" />Desfazer</button>
+                <geo-icone nome="desfazer" [tamanho]="16" />Desfazer</button>
             }
           </div>
         }
@@ -131,30 +131,30 @@ const MAX_CONFERIR = 30;
 
       <ng-template #digitar>
         <form class="digitar" (submit)="$event.preventDefault(); adicionarDigitada()">
-          <label class="ces-sr-only" for="serie-digitada">Número de série</label>
-          <input #campo id="serie-digitada" class="ces-input mono" [value]="digitada()" (input)="digitada.set($any($event.target).value)"
+          <label class="geo-sr-only" for="serie-digitada">Número de série</label>
+          <input #campo id="serie-digitada" class="geo-input mono" [value]="digitada()" (input)="digitada.set($any($event.target).value)"
             (keydown.tab)="tabNoCampo($event)" (paste)="colarNoCampo($event)"
             autocapitalize="characters" autocomplete="off" spellcheck="false" enterkeyhint="send" placeholder="Número de série" [disabled]="completo()">
-          <button type="submit" class="ces-btn ces-btn--principal" [disabled]="!digitada().trim() || completo()" aria-label="Adicionar série"><ces-icone nome="mais" /></button>
+          <button type="submit" class="geo-btn geo-btn--principal" [disabled]="!digitada().trim() || completo()" aria-label="Adicionar série"><geo-icone nome="mais" /></button>
         </form>
         <p class="dica">Confirme com Enter: o campo fica pronto para a próxima. Colar várias linhas adiciona todas.</p>
       </ng-template>
 
       @if (conferir().length) {
         <section class="conferir" aria-labelledby="conferir-titulo">
-          <h3 id="conferir-titulo" class="ces-secao topo-lista">
+          <h3 id="conferir-titulo" class="geo-secao topo-lista">
             <span>Para conferir</span>
-            <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="conferir.set([])">Limpar</button>
+            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="conferir.set([])">Limpar</button>
           </h3>
-          <ul class="ces-grupo">
+          <ul class="geo-grupo">
             @for (c of conferir(); track c.serie) {
-              <li class="ces-linha conferir__item" [attr.data-tipo]="c.tipo">
-                <ces-icone [nome]="c.tipo === 'suspeita' ? 'alerta' : 'fechar'" [tamanho]="18" />
-                <span class="ces-linha__texto"><span class="ces-linha__titulo mono">{{ c.serie }}</span><span class="ces-linha__apoio">{{ c.motivo }}</span></span>
+              <li class="geo-linha conferir__item" [attr.data-tipo]="c.tipo">
+                <geo-icone [nome]="c.tipo === 'suspeita' ? 'alerta' : 'fechar'" [tamanho]="18" />
+                <span class="geo-linha__texto"><span class="geo-linha__titulo mono">{{ c.serie }}</span><span class="geo-linha__apoio">{{ c.motivo }}</span></span>
                 @if (c.tipo === 'suspeita') {
                   <span class="conferir__acoes">
-                    <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="ignorar(c.serie)" [attr.aria-label]="'Ignorar ' + c.serie + ' nas próximas leituras'">Ignorar</button>
-                    <button type="button" class="ces-btn ces-btn--tonal ces-btn--compacto" (click)="aceitarSuspeita(c.serie)" [attr.aria-label]="'Adicionar ' + c.serie + ' mesmo assim'">Adicionar</button>
+                    <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="ignorar(c.serie)" [attr.aria-label]="'Ignorar ' + c.serie + ' nas próximas leituras'">Ignorar</button>
+                    <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto" (click)="aceitarSuspeita(c.serie)" [attr.aria-label]="'Adicionar ' + c.serie + ' mesmo assim'">Adicionar</button>
                   </span>
                 }
               </li>
@@ -164,93 +164,93 @@ const MAX_CONFERIR = 30;
       }
 
       <section class="lista" aria-label="Séries adicionadas">
-        <h3 class="ces-secao topo-lista">
+        <h3 class="geo-secao topo-lista">
           <span>Adicionadas</span>
-          <span class="ces-num conta" [class.completo]="completo()">{{ series().length }}@if (limite() != null) { de {{ limite() }} }</span>
+          <span class="geo-num conta" [class.completo]="completo()">{{ series().length }}@if (limite() != null) { de {{ limite() }} }</span>
         </h3>
         @if (series().length) {
           <ul class="chips">
             @for (s of seriesRecentes(); track s) {
               <li class="chip" [class.nova]="ultimaAdicao().includes(s)"><span class="mono">{{ s }}</span>
-                <button type="button" class="tirar" (click)="remover(s)" [attr.aria-label]="'Tirar a série ' + s"><ces-icone nome="fechar" [tamanho]="16" /></button></li>
+                <button type="button" class="tirar" (click)="remover(s)" [attr.aria-label]="'Tirar a série ' + s"><geo-icone nome="fechar" [tamanho]="16" /></button></li>
             }
           </ul>
-          <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto limpar" (click)="confirmandoLimpar() ? limpar() : confirmandoLimpar.set(true)">
-            <ces-icone nome="lixeira" [tamanho]="16" />{{ confirmandoLimpar() ? 'Toque de novo para tirar todas' : 'Tirar todas' }}
+          <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto limpar" (click)="confirmandoLimpar() ? limpar() : confirmandoLimpar.set(true)">
+            <geo-icone nome="lixeira" [tamanho]="16" />{{ confirmandoLimpar() ? 'Toque de novo para tirar todas' : 'Tirar todas' }}
           </button>
         } @else {
           <p class="vazio">Nenhuma série ainda.</p>
         }
       </section>
 
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--principal" (click)="aberta.set(false)">
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--principal" (click)="aberta.set(false)">
           {{ limite() != null && !completo() && series().length ? 'Pronto · faltam ' + faltam() : 'Pronto' }}
         </button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: contents; }
-    .modos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; margin: 0 var(--ces-e4) var(--ces-e3); padding: 3px;
-      border-radius: var(--ces-r-grupo); background: var(--ces-superficie-2); }
+    .modos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; margin: 0 var(--geo-e4) var(--geo-e3); padding: 3px;
+      border-radius: var(--geo-r-grupo); background: var(--geo-superficie-2); }
     .modo { display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 52px; padding: 4px 2px; border: 0; border-radius: 11px;
-      background: transparent; color: var(--ces-texto-2); font: 500 .6875rem/1.1 var(--ces-fonte); cursor: pointer; white-space: nowrap;
-      transition: background-color var(--ces-m-entrar), color var(--ces-m-entrar); }
-    .modo[aria-selected='true'] { background: var(--ces-superficie); color: var(--ces-destaque); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
-    .area { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e4); }
-    .dica { margin: 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .sem-camera { display: flex; gap: var(--ces-e3); align-items: flex-start; padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo);
-      background: var(--ces-superficie-2); color: var(--ces-texto-2); }
-    .sem-camera p { margin: 0; font: var(--ces-t-apoio); font-size: .875rem; color: var(--ces-texto); }
-    .digitar { display: flex; gap: var(--ces-e2); }
-    .digitar .ces-input { flex: 1; min-width: 0; }
-    .digitar .ces-btn { width: 54px; padding: 0; flex: none; }
-    .mono { font-family: var(--ces-fonte-mono); letter-spacing: .02em; }
-    .texto { min-height: 132px; padding: var(--ces-e3) var(--ces-e4); font-family: var(--ces-fonte-mono); resize: vertical; }
-    .duas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ces-e2); }
-    .aviso { display: flex; gap: var(--ces-e2); align-items: center; margin: 0; padding: var(--ces-e2) var(--ces-e3); border-radius: var(--ces-r-campo);
-      background: var(--ces-superficie-2); font: var(--ces-t-apoio); color: var(--ces-texto); overflow-wrap: anywhere; }
-    .aviso--erro { background: var(--ces-erro-suave); color: var(--ces-erro); }
-    .busca { display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e4); min-height: 48px; border-radius: var(--ces-r-pilula);
-      background: var(--ces-superficie-2); color: var(--ces-texto-2); }
-    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+      background: transparent; color: var(--geo-texto-2); font: 500 .6875rem/1.1 var(--geo-fonte); cursor: pointer; white-space: nowrap;
+      transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
+    .modo[aria-selected='true'] { background: var(--geo-superficie); color: var(--geo-destaque); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
+    .area { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e4); }
+    .dica { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .sem-camera { display: flex; gap: var(--geo-e3); align-items: flex-start; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo);
+      background: var(--geo-superficie-2); color: var(--geo-texto-2); }
+    .sem-camera p { margin: 0; font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto); }
+    .digitar { display: flex; gap: var(--geo-e2); }
+    .digitar .geo-input { flex: 1; min-width: 0; }
+    .digitar .geo-btn { width: 54px; padding: 0; flex: none; }
+    .mono { font-family: var(--geo-fonte-mono); letter-spacing: .02em; }
+    .texto { min-height: 132px; padding: var(--geo-e3) var(--geo-e4); font-family: var(--geo-fonte-mono); resize: vertical; }
+    .duas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--geo-e2); }
+    .aviso { display: flex; gap: var(--geo-e2); align-items: center; margin: 0; padding: var(--geo-e2) var(--geo-e3); border-radius: var(--geo-r-campo);
+      background: var(--geo-superficie-2); font: var(--geo-t-apoio); color: var(--geo-texto); overflow-wrap: anywhere; }
+    .aviso--erro { background: var(--geo-erro-suave); color: var(--geo-erro); }
+    .busca { display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px; border-radius: var(--geo-r-pilula);
+      background: var(--geo-superficie-2); color: var(--geo-texto-2); }
+    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
-    .escolher { margin: 0; max-height: 34dvh; overflow-y: auto; background: var(--ces-fundo); }
-    .escolher .ces-linha { min-height: 52px; }
-    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--ces-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
-    [aria-checked='true'] > .caixa { background: var(--ces-destaque); border-color: var(--ces-destaque); color: var(--ces-destaque-texto); }
-    .resultado { display: flex; align-items: center; gap: var(--ces-e2); margin: 0; padding: var(--ces-e2) var(--ces-e3); border-radius: var(--ces-r-campo);
-      font: 600 .8125rem/1.35 var(--ces-fonte); background: var(--ces-superficie-2); overflow-wrap: anywhere; }
+    .escolher { margin: 0; max-height: 34dvh; overflow-y: auto; background: var(--geo-fundo); }
+    .escolher .geo-linha { min-height: 52px; }
+    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
+    [aria-checked='true'] > .caixa { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
+    .resultado { display: flex; align-items: center; gap: var(--geo-e2); margin: 0; padding: var(--geo-e2) var(--geo-e3); border-radius: var(--geo-r-campo);
+      font: 600 .8125rem/1.35 var(--geo-fonte); background: var(--geo-superficie-2); overflow-wrap: anywhere; }
     .resultado > span { flex: 1; min-width: 0; }
-    .resultado[data-tom='ok'] { background: var(--ces-ok-suave); color: var(--ces-ok); }
-    .resultado[data-tom='atencao'] { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-    .resultado[data-tom='erro'] { background: var(--ces-erro-suave); color: var(--ces-erro); }
-    .desfazer { flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 0 12px; border: 0; border-radius: var(--ces-r-pilula);
-      background: var(--ces-superficie); color: var(--ces-texto); font: 600 .8125rem/1 var(--ces-fonte); cursor: pointer; }
+    .resultado[data-tom='ok'] { background: var(--geo-ok-suave); color: var(--geo-ok); }
+    .resultado[data-tom='atencao'] { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+    .resultado[data-tom='erro'] { background: var(--geo-erro-suave); color: var(--geo-erro); }
+    .desfazer { flex: none; display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 0 12px; border: 0; border-radius: var(--geo-r-pilula);
+      background: var(--geo-superficie); color: var(--geo-texto); font: 600 .8125rem/1 var(--geo-fonte); cursor: pointer; }
     .desfazer:active { transform: scale(.97); }
-    .verificando { display: flex; align-items: center; gap: var(--ces-e2); margin: 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .verificando { display: flex; align-items: center; gap: var(--geo-e2); margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .giro { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: giro .8s linear infinite; }
     @keyframes giro { to { transform: rotate(360deg); } }
-    .conferir .ces-secao button { margin-left: auto; }
-    .conferir__item { gap: var(--ces-e3); }
-    .conferir__item[data-tipo='suspeita'] > ces-icone { color: var(--ces-atencao); }
-    .conferir__item[data-tipo='recusada'] > ces-icone { color: var(--ces-erro); }
+    .conferir .geo-secao button { margin-left: auto; }
+    .conferir__item { gap: var(--geo-e3); }
+    .conferir__item[data-tipo='suspeita'] > geo-icone { color: var(--geo-atencao); }
+    .conferir__item[data-tipo='recusada'] > geo-icone { color: var(--geo-erro); }
     .conferir__acoes { display: flex; gap: 4px; flex: none; }
-    .lista { padding-bottom: var(--ces-e2); }
-    .topo-lista { padding-top: var(--ces-e4); }
-    .conta { font-weight: 700; color: var(--ces-texto); }
-    .conta.completo { color: var(--ces-ok); }
-    .chips { list-style: none; margin: 0; padding: 0 var(--ces-e4); display: flex; flex-wrap: wrap; gap: 6px; }
-    .chip { display: inline-flex; align-items: center; gap: 2px; padding-left: 12px; min-height: 36px; border-radius: var(--ces-r-pilula);
-      background: var(--ces-superficie-2); font: 600 .8125rem/1 var(--ces-fonte); animation: entrar 160ms var(--ces-curva); }
-    .chip.nova { background: var(--ces-ok-suave); }
+    .lista { padding-bottom: var(--geo-e2); }
+    .topo-lista { padding-top: var(--geo-e4); }
+    .conta { font-weight: 700; color: var(--geo-texto); }
+    .conta.completo { color: var(--geo-ok); }
+    .chips { list-style: none; margin: 0; padding: 0 var(--geo-e4); display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { display: inline-flex; align-items: center; gap: 2px; padding-left: 12px; min-height: 36px; border-radius: var(--geo-r-pilula);
+      background: var(--geo-superficie-2); font: 600 .8125rem/1 var(--geo-fonte); animation: entrar 160ms var(--geo-curva); }
+    .chip.nova { background: var(--geo-ok-suave); }
     @keyframes entrar { from { opacity: 0; transform: scale(.94); } }
-    .tirar { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--ces-texto-2); display: grid; place-items: center; cursor: pointer; }
-    .tirar:active { background: var(--ces-linha); }
-    .limpar { margin: var(--ces-e2) var(--ces-e3) 0; color: var(--ces-erro); gap: 4px; }
-    .vazio { margin: 0; padding: 0 var(--ces-e5); font: var(--ces-t-apoio); color: var(--ces-texto-3); }
-    .ces-folha-rodape .ces-btn { flex: 1; }
+    .tirar { width: 36px; height: 36px; border: 0; border-radius: 50%; background: transparent; color: var(--geo-texto-2); display: grid; place-items: center; cursor: pointer; }
+    .tirar:active { background: var(--geo-linha); }
+    .limpar { margin: var(--geo-e2) var(--geo-e3) 0; color: var(--geo-erro); gap: 4px; }
+    .vazio { margin: 0; padding: 0 var(--geo-e5); font: var(--geo-t-apoio); color: var(--geo-texto-3); }
+    .geo-folha-rodape .geo-btn { flex: 1; }
     @media (prefers-reduced-motion: reduce) { .chip, .giro { animation: none; } }
   `],
 })

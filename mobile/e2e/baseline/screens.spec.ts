@@ -7,7 +7,7 @@ import { MockApi, loginPelaUi } from '../support/mock-api';
  * Histórico: roda contra o build da base (origin/main @ 8425f426), não contra a UI nova.
  * Para regenerar: faça checkout da base, `npm run build`, e `npx playwright test e2e/baseline`.
  */
-test.skip(!process.env['CES_BASELINE'], 'baseline da UI antiga: defina CES_BASELINE=1 no build da base');
+test.skip(!process.env['GEO_BASELINE'], 'baseline da UI antiga: defina GEO_BASELINE=1 no build da base');
 
 test.use({
   geolocation: { latitude: -3.7319, longitude: -38.5267, accuracy: 12 },

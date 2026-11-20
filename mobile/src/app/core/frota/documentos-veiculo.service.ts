@@ -10,7 +10,7 @@ import { DocumentoComArquivo, DocumentoConjunto, temArquivo } from './situacao-v
 import { SituacaoVeiculoService } from './situacao-veiculo.service';
 
 /** Cache do navegador onde ficam os arquivos (PDF, foto) dos documentos do veículo. */
-const CACHE = 'ces-documentos-veiculo-v1';
+const CACHE = 'ces-documentos-veiculo-v1'; // renomear-geo: manter
 const chaveLista = (idVeiculo: string) => `documentos-veiculo:${idVeiculo}`;
 /** Endereço fictício do arquivo no cache: muda com a versão, então arquivo trocado é baixado de novo. */
 const chaveArquivo = (a: DocumentoComArquivo) => `/__ces/documentos-veiculo/${a.id}?v=${encodeURIComponent(a.versao)}`;

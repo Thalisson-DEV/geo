@@ -17,9 +17,9 @@ export interface JwtPayload {
   providedIn: 'root'
 })
 export class TokenService {
-  private readonly STORAGE_KEY = 'ces_auth_token';
-  private readonly OWNER_KEY = 'ces_device_user_id';
-  private readonly REAUTH_KEY = 'ces_reautenticacao_necessaria';
+  private readonly STORAGE_KEY = 'geo_auth_token';
+  private readonly OWNER_KEY = 'geo_device_user_id';
+  private readonly REAUTH_KEY = 'geo_reautenticacao_necessaria';
   private readonly _token = signal<string | null>(localStorage.getItem(this.STORAGE_KEY));
   private readonly _ownerId = signal<string | null>(localStorage.getItem(this.OWNER_KEY));
   private readonly _reautenticacao = signal(localStorage.getItem(this.REAUTH_KEY) === 'true');

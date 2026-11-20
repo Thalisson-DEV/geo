@@ -1,7 +1,6 @@
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from '@angular/core';
 import { provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 
 import { registerLocaleData } from '@angular/common';
 import localePt from '@angular/common/locales/pt';
@@ -15,11 +14,9 @@ registerLocaleData(localePt, 'pt-BR');
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideAnimationsAsync(),
     provideBrowserGlobalErrorListeners(),
-    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes, withPreloading(PreloadAllModules)),
-    provideHttpClient(
+    provideHttpClient(withXhr(), 
       withInterceptors([
         // errorInterceptor por fora: só vê o resultado final, depois de o authInterceptor
         // renovar o token e repetir a requisição.

@@ -51,65 +51,65 @@ const ABAS: readonly { value: AbaDesvio; label: string }[] = [
   imports: [AbasSecaoComponent, ChipsComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, SegmentadoComponent, SeletorComponent, TituloGrandeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-titulo-grande titulo="Desvios" [subtitulo]="subtitulo()">
-      <ces-indicador-rede />
-      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto filtro" (click)="abrirFiltros()" [attr.aria-label]="'Filtros' + (activeFiltersCount() ? ', ' + activeFiltersCount() + ' ativos' : '')">
-        <ces-icone nome="filtro" [tamanho]="18" />@if (activeFiltersCount()) { <span class="ces-num">{{ activeFiltersCount() }}</span> } @else { Filtrar }
+    <geo-titulo-grande titulo="Desvios" [subtitulo]="subtitulo()">
+      <geo-indicador-rede />
+      <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto filtro" (click)="abrirFiltros()" [attr.aria-label]="'Filtros' + (activeFiltersCount() ? ', ' + activeFiltersCount() + ' ativos' : '')">
+        <geo-icone nome="filtro" [tamanho]="18" />@if (activeFiltersCount()) { <span class="geo-num">{{ activeFiltersCount() }}</span> } @else { Filtrar }
       </button>
-    </ces-titulo-grande>
-    @if (abasSeguranca().length) { <ces-abas-secao rotulo="Segurança" [abas]="abasSeguranca()" /> }
+    </geo-titulo-grande>
+    @if (abasSeguranca().length) { <geo-abas-secao rotulo="Segurança" [abas]="abasSeguranca()" /> }
 
     @if (!connectivity.isOnline()) {
-      <ces-vazio icone="nuvem" titulo="Desvios precisam de internet" texto="A lista vem direto do servidor. Conecte e ela aparece aqui." />
+      <geo-vazio icone="nuvem" titulo="Desvios precisam de internet" texto="A lista vem direto do servidor. Conecte e ela aparece aqui." />
     } @else if (blockedMessage()) {
-      <ces-vazio icone="alerta" titulo="Consulta indisponível" [texto]="blockedMessage()" />
+      <geo-vazio icone="alerta" titulo="Consulta indisponível" [texto]="blockedMessage()" />
     } @else {
       <div class="busca">
-        <ces-icone nome="busca" [tamanho]="18" />
+        <geo-icone nome="busca" [tamanho]="18" />
         <input type="search" placeholder="Pergunta, equipe, base…" enterkeyhint="search" aria-label="Buscar desvios"
           [value]="buscaInput()" (input)="onBuscaChange($any($event.target).value)">
       </div>
-      <ces-chips rotulo="Situação" [opcoes]="abasChips" [valor]="aba()" (valorChange)="selecionarAba($any($event))" />
+      <geo-chips rotulo="Situação" [opcoes]="abasChips" [valor]="aba()" (valorChange)="selecionarAba($any($event))" />
 
       @if (desvios().length && !isLoading()) {
         <div class="barra-sel">
           @if (modoSelecao()) {
-            <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="toggleSelecionarPagina()">
+            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="toggleSelecionarPagina()">
               {{ paginaTodaSelecionada() ? 'Desmarcar página' : 'Marcar página' }}</button>
-            <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="sairSelecao()">Cancelar</button>
+            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="sairSelecao()">Cancelar</button>
           } @else {
-            <span class="ces-num total">{{ page().totalElements }} {{ page().totalElements === 1 ? 'desvio' : 'desvios' }}</span>
+            <span class="geo-num total">{{ page().totalElements }} {{ page().totalElements === 1 ? 'desvio' : 'desvios' }}</span>
             @if (desviosSelecionaveis().length > 1) {
-              <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="modoSelecao.set(true)">Tratar vários</button>
+              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="modoSelecao.set(true)">Tratar vários</button>
             }
           }
         </div>
       }
 
       @if (isLoading()) {
-        <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-          @for (i of [1, 2, 3]; track i) { <div class="ces-esqueleto" style="height: 96px"></div> }
+        <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+          @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 96px"></div> }
         </div>
       } @else if (desvios().length) {
-        <ul class="ces-grupo" aria-label="Desvios">
+        <ul class="geo-grupo" aria-label="Desvios">
           @for (d of desvios(); track d.id) {
-            <li class="ces-linha-lista" [attr.data-ancora]="d.id">
-              <button type="button" class="ces-linha ces-linha--acao desvio" [class.vencido]="d.vencido && d.status !== 'RESOLVIDO'"
+            <li class="geo-linha-lista" [attr.data-ancora]="d.id">
+              <button type="button" class="geo-linha geo-linha--acao desvio" [class.vencido]="d.vencido && d.status !== 'RESOLVIDO'"
                 [attr.role]="modoSelecao() ? 'checkbox' : null" [attr.aria-checked]="modoSelecao() ? isSelecionado(d.id) : null"
                 [disabled]="modoSelecao() && d.status === 'RESOLVIDO'" (click)="modoSelecao() ? toggleSelecao(d.id) : abrirTratamento(d)">
                 @if (modoSelecao()) {
-                  <span class="caixa" [class.marcada]="isSelecionado(d.id)" aria-hidden="true"><ces-icone nome="check" [tamanho]="16" /></span>
+                  <span class="caixa" [class.marcada]="isSelecionado(d.id)" aria-hidden="true"><geo-icone nome="check" [tamanho]="16" /></span>
                 }
                 <span class="corpo">
                   <span class="topo">
-                    <span class="ces-etiqueta" [class]="'ces-etiqueta ces-etiqueta--' + tomGravidade(d.gravidade)">{{ gravidadeLabel(d.gravidade) }}</span>
-                    <span class="ces-etiqueta" [class]="'ces-etiqueta ces-etiqueta--' + tomStatus(d.status)">{{ statusLabel(d.status) }}</span>
+                    <span class="geo-etiqueta" [class]="'geo-etiqueta geo-etiqueta--' + tomGravidade(d.gravidade)">{{ gravidadeLabel(d.gravidade) }}</span>
+                    <span class="geo-etiqueta" [class]="'geo-etiqueta geo-etiqueta--' + tomStatus(d.status)">{{ statusLabel(d.status) }}</span>
                   </span>
-                  <span class="ces-linha__titulo">{{ d.pergunta || 'Desvio' }}</span>
+                  <span class="geo-linha__titulo">{{ d.pergunta || 'Desvio' }}</span>
                   @if (d.descricao) { <span class="desc">{{ d.descricao }}</span> }
-                  <span class="ces-linha__apoio ces-num">{{ equipeLabel(d) }}{{ d.baseOperacional?.nome ? ' · ' + d.baseOperacional?.nome : '' }} · inspeção {{ data(d.dataInspecao) }}</span>
+                  <span class="geo-linha__apoio geo-num">{{ equipeLabel(d) }}{{ d.baseOperacional?.nome ? ' · ' + d.baseOperacional?.nome : '' }} · inspeção {{ data(d.dataInspecao) }}</span>
                   @if (d.prazo && d.status !== 'RESOLVIDO') {
-                    <span class="prazo ces-num" [class.atrasado]="d.vencido"><ces-icone nome="relogio" [tamanho]="14" />{{ d.vencido ? 'Venceu em ' : 'Prazo ' }}{{ data(d.prazo) }}</span>
+                    <span class="prazo geo-num" [class.atrasado]="d.vencido"><geo-icone nome="relogio" [tamanho]="14" />{{ d.vencido ? 'Venceu em ' : 'Prazo ' }}{{ data(d.prazo) }}</span>
                   }
                 </span>
               </button>
@@ -118,98 +118,98 @@ const ABAS: readonly { value: AbaDesvio; label: string }[] = [
         </ul>
         @if (page().totalPages > 1) {
           <nav class="paginas" aria-label="Páginas">
-            <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto" (click)="paginaAnterior()" [disabled]="pageNumber() === 0">Anterior</button>
-            <span class="ces-num">Página {{ pageNumber() + 1 }} de {{ page().totalPages }}</span>
-            <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto" (click)="proximaPagina()" [disabled]="pageNumber() + 1 >= page().totalPages">Próxima</button>
+            <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto" (click)="paginaAnterior()" [disabled]="pageNumber() === 0">Anterior</button>
+            <span class="geo-num">Página {{ pageNumber() + 1 }} de {{ page().totalPages }}</span>
+            <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto" (click)="proximaPagina()" [disabled]="pageNumber() + 1 >= page().totalPages">Próxima</button>
           </nav>
         }
-        <div class="ces-respiro"></div>
+        <div class="geo-respiro"></div>
       } @else {
-        <ces-vazio icone="desvio" [titulo]="aba() === 'pendentes' && !activeFiltersCount() && !busca() ? 'Nenhum desvio pendente' : 'Nada encontrado'"
+        <geo-vazio icone="desvio" [titulo]="aba() === 'pendentes' && !activeFiltersCount() && !busca() ? 'Nenhum desvio pendente' : 'Nada encontrado'"
           [texto]="activeFiltersCount() || busca() ? 'Mude a busca ou os filtros.' : 'Quando uma inspeção apontar um desvio para você, ele aparece aqui.'">
-          @if (activeFiltersCount()) { <button type="button" class="ces-btn ces-btn--tonal" (click)="limparFiltros()">Limpar filtros</button> }
-        </ces-vazio>
+          @if (activeFiltersCount()) { <button type="button" class="geo-btn geo-btn--tonal" (click)="limparFiltros()">Limpar filtros</button> }
+        </geo-vazio>
       }
     }
 
     @if (modoSelecao() && selectedCount()) {
-      <footer class="ces-rodape-acoes">
-        <button type="button" class="ces-btn ces-btn--principal" (click)="abrirTratamentoEmMassa()">Tratar {{ selectedCount() }} {{ selectedCount() === 1 ? 'desvio' : 'desvios' }}</button>
+      <footer class="geo-rodape-acoes">
+        <button type="button" class="geo-btn geo-btn--principal" (click)="abrirTratamentoEmMassa()">Tratar {{ selectedCount() }} {{ selectedCount() === 1 ? 'desvio' : 'desvios' }}</button>
       </footer>
     }
 
-    <ces-folha [aberta]="isFilterSheetOpen()" (fechar)="fecharFiltros()" titulo="Filtros">
+    <geo-folha [aberta]="isFilterSheetOpen()" (fechar)="fecharFiltros()" titulo="Filtros">
       <div class="campos">
-        <ces-segmentado rotulo="Gravidade" [opcoes]="opcoesGravidade" [valor]="gravidade()" (valorChange)="gravidade.set($any($event))" />
+        <geo-segmentado rotulo="Gravidade" [opcoes]="opcoesGravidade" [valor]="gravidade()" (valorChange)="gravidade.set($any($event))" />
         <button type="button" role="switch" class="interruptor" [attr.aria-checked]="vencimento() === 'vencidos'" (click)="vencimento.set(vencimento() === 'vencidos' ? 'todos' : 'vencidos')">
           <span class="txt"><b>Só os vencidos</b><span>Prazo já passou</span></span><span class="trilho" aria-hidden="true"><span></span></span>
         </button>
-        <ces-seletor rotulo="Processo" placeholder="Todos" [opcoes]="opcoesProcesso()" [valor]="idProcesso() || null" (valorChange)="idProcesso.set($event ?? '')" />
-        <ces-seletor rotulo="Base" placeholder="Todas" [opcoes]="opcoesBase()" [valor]="idBase() || null" (valorChange)="idBase.set($event ?? '')" />
-        <ces-seletor rotulo="Equipe" placeholder="Todas" [opcoes]="opcoesEquipe()" [valor]="idEquipe() || null" (valorChange)="idEquipe.set($event ?? '')" />
+        <geo-seletor rotulo="Processo" placeholder="Todos" [opcoes]="opcoesProcesso()" [valor]="idProcesso() || null" (valorChange)="idProcesso.set($event ?? '')" />
+        <geo-seletor rotulo="Base" placeholder="Todas" [opcoes]="opcoesBase()" [valor]="idBase() || null" (valorChange)="idBase.set($event ?? '')" />
+        <geo-seletor rotulo="Equipe" placeholder="Todas" [opcoes]="opcoesEquipe()" [valor]="idEquipe() || null" (valorChange)="idEquipe.set($event ?? '')" />
         <div class="datas">
-          <div class="ces-campo"><label for="de">Inspeção de</label><input id="de" class="ces-input" type="date" [value]="dataDe()" (input)="dataDe.set($any($event.target).value)"></div>
-          <div class="ces-campo"><label for="ate">até</label><input id="ate" class="ces-input" type="date" [value]="dataAte()" (input)="dataAte.set($any($event.target).value)"></div>
+          <div class="geo-campo"><label for="de">Inspeção de</label><input id="de" class="geo-input" type="date" [value]="dataDe()" (input)="dataDe.set($any($event.target).value)"></div>
+          <div class="geo-campo"><label for="ate">até</label><input id="ate" class="geo-input" type="date" [value]="dataAte()" (input)="dataAte.set($any($event.target).value)"></div>
         </div>
-        <ces-seletor rotulo="Ordem" [opcoes]="opcoesOrdem" [valor]="sort()" (valorChange)="sort.set($event ?? 'prazo,asc')" />
+        <geo-seletor rotulo="Ordem" [opcoes]="opcoesOrdem" [valor]="sort()" (valorChange)="sort.set($event ?? 'prazo,asc')" />
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="limparFiltros()">Limpar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="aplicarFiltros()">Mostrar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="limparFiltros()">Limpar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="aplicarFiltros()">Mostrar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
 
-    <ces-folha [aberta]="isTreatmentOpen()" (fechar)="fecharTratamento()" [titulo]="treatmentItemId() ? 'Tratar desvio' : 'Tratar ' + selectedCount() + ' desvios'"
+    <geo-folha [aberta]="isTreatmentOpen()" (fechar)="fecharTratamento()" [titulo]="treatmentItemId() ? 'Tratar desvio' : 'Tratar ' + selectedCount() + ' desvios'"
       [descricao]="desvioEmTratamento()?.pergunta ?? null">
       <div class="campos">
-        <ces-segmentado rotulo="Situação" [opcoes]="opcoesStatus" [valor]="treatmentStatus()" (valorChange)="definirTratamento({ status: $any($event) })" />
-        <div class="ces-campo">
+        <geo-segmentado rotulo="Situação" [opcoes]="opcoesStatus" [valor]="treatmentStatus()" (valorChange)="definirTratamento({ status: $any($event) })" />
+        <div class="geo-campo">
           <label for="acao">O que foi ou será feito</label>
-          <textarea id="acao" class="ces-input" rows="3" [value]="treatmentAction()" (input)="definirTratamento({ acao: $any($event.target).value })"
+          <textarea id="acao" class="geo-input" rows="3" [value]="treatmentAction()" (input)="definirTratamento({ acao: $any($event.target).value })"
             placeholder="Ex.: luva trocada e equipe orientada"></textarea>
         </div>
-        <div class="ces-campo">
+        <div class="geo-campo">
           <label for="prazo">Prazo</label>
-          <input id="prazo" class="ces-input" type="date" [value]="treatmentDeadline()" (input)="definirTratamento({ prazo: $any($event.target).value })">
+          <input id="prazo" class="geo-input" type="date" [value]="treatmentDeadline()" (input)="definirTratamento({ prazo: $any($event.target).value })">
         </div>
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="fecharTratamento()" [disabled]="isSubmitting()">Cancelar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="confirmarTratamento()" [disabled]="isSubmitting() || !connectivity.isOnline()">
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="fecharTratamento()" [disabled]="isSubmitting()">Cancelar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="confirmarTratamento()" [disabled]="isSubmitting() || !connectivity.isOnline()">
           {{ isSubmitting() ? 'Salvando…' : 'Salvar' }}</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; position: relative; min-height: 100%; }
-    .filtro { color: var(--ces-texto); gap: 4px; white-space: nowrap; flex: none; }
-    .ces-rodape-acoes { bottom: calc(var(--ces-barra-abas) + var(--ces-safe-base)); padding-bottom: var(--ces-e3); }
-    .busca { margin: var(--ces-e1) var(--ces-e3) 0; display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e4); min-height: 48px;
-      border-radius: var(--ces-r-pilula); background: var(--ces-superficie); color: var(--ces-texto-2); }
-    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+    .filtro { color: var(--geo-texto); gap: 4px; white-space: nowrap; flex: none; }
+    .geo-rodape-acoes { bottom: calc(var(--geo-barra-abas) + var(--geo-safe-base)); padding-bottom: var(--geo-e3); }
+    .busca { margin: var(--geo-e1) var(--geo-e3) 0; display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+      border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
+    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
-    .barra-sel { display: flex; align-items: center; justify-content: space-between; padding: var(--ces-e2) var(--ces-e4) var(--ces-e1); }
-    .total { font: var(--ces-t-corpo-forte); color: var(--ces-texto-2); }
+    .barra-sel { display: flex; align-items: center; justify-content: space-between; padding: var(--geo-e2) var(--geo-e4) var(--geo-e1); }
+    .total { font: var(--geo-t-corpo-forte); color: var(--geo-texto-2); }
     .desvio { align-items: flex-start; border-left: 4px solid transparent; }
-    .desvio.vencido { border-left-color: var(--ces-erro); }
+    .desvio.vencido { border-left-color: var(--geo-erro); }
     .corpo { flex: 1; min-width: 0; display: grid; gap: 4px; }
     .topo { display: flex; gap: 6px; flex-wrap: wrap; }
-    .desc { font: var(--ces-t-corpo); color: var(--ces-texto); overflow-wrap: anywhere; }
-    .prazo { display: inline-flex; align-items: center; gap: 4px; font: 600 .8125rem/1.3 var(--ces-fonte); color: var(--ces-texto-2); }
-    .prazo.atrasado { color: var(--ces-erro); }
-    .caixa { width: 24px; height: 24px; margin-top: 2px; border-radius: 7px; border: 2px solid var(--ces-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
-    .caixa.marcada { background: var(--ces-destaque); border-color: var(--ces-destaque); color: var(--ces-destaque-texto); }
-    .paginas { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e3); padding: var(--ces-e4); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .campos { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e4); }
-    .datas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ces-e3); }
-    textarea.ces-input { min-height: 96px; resize: vertical; font: var(--ces-t-corpo); font-size: 1rem; }
-    .interruptor { display: flex; align-items: center; gap: var(--ces-e3); min-height: 64px; padding: var(--ces-e3) var(--ces-e4); border: 0;
-      border-radius: var(--ces-r-grupo); background: var(--ces-superficie); color: var(--ces-texto); text-align: left; cursor: pointer; }
+    .desc { font: var(--geo-t-corpo); color: var(--geo-texto); overflow-wrap: anywhere; }
+    .prazo { display: inline-flex; align-items: center; gap: 4px; font: 600 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
+    .prazo.atrasado { color: var(--geo-erro); }
+    .caixa { width: 24px; height: 24px; margin-top: 2px; border-radius: 7px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
+    .caixa.marcada { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
+    .paginas { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e3); padding: var(--geo-e4); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e4); }
+    .datas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--geo-e3); }
+    textarea.geo-input { min-height: 96px; resize: vertical; font: var(--geo-t-corpo); font-size: 1rem; }
+    .interruptor { display: flex; align-items: center; gap: var(--geo-e3); min-height: 64px; padding: var(--geo-e3) var(--geo-e4); border: 0;
+      border-radius: var(--geo-r-grupo); background: var(--geo-superficie); color: var(--geo-texto); text-align: left; cursor: pointer; }
     .interruptor .txt { flex: 1; display: grid; gap: 2px; }
-    .interruptor .txt span { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--ces-linha-forte); position: relative; flex: none; transition: background-color var(--ces-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--ces-m-entrar) var(--ces-curva); }
-    [aria-checked='true'] .trilho { background: var(--ces-destaque); }
+    .interruptor .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
+    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
+    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
     [aria-checked='true'] .trilho span { transform: translateX(20px); }
   `],
 })

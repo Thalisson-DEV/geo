@@ -25,7 +25,7 @@ for (const tema of ['light', 'dark'] as const) {
   test.describe(`tema ${tema}`, () => {
     // O escuro é escolha do usuário (Conta → Aparência), não do sistema.
     test.beforeEach(async ({ page }) => {
-      if (tema === 'dark') await page.addInitScript(() => localStorage.setItem('ces_tema', 'escuro'));
+      if (tema === 'dark') await page.addInitScript(() => localStorage.setItem('geo_tema', 'escuro'));
     });
 
     async function foto(page: Page, nome: string) {

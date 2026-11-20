@@ -6,7 +6,7 @@
  *
  * Guarda só os últimos 100 pares; perder o mapa só traz de volta o "não encontrado".
  */
-const CHAVE = 'ces_ids_trocados';
+const CHAVE = 'geo_ids_trocados';
 const LIMITE = 100;
 
 function ler(): Record<string, string> {

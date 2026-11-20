@@ -7,7 +7,7 @@ import { TokenService } from '../auth/token.service';
 import { ConnectivityService } from '../sync/connectivity.service';
 import { silentContext } from '../http/http-context';
 
-const CHAVE_APARELHO = 'ces_id_aparelho';
+const CHAVE_APARELHO = 'geo_id_aparelho';
 const LOTE = 100;
 
 /**

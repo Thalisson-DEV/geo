@@ -15,7 +15,7 @@ const ARRASTE_FECHA_PX = 90;
  * Quem usa decide se a folha aberta entra no estado de tela persistido.
  */
 @Component({
-  selector: 'ces-folha',
+  selector: 'geo-folha',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown.escape)': 'aberta() && pedirFechar()' },
@@ -38,20 +38,20 @@ const ARRASTE_FECHA_PX = 90;
   `,
   styles: [`
     :host { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
-    .veu { position: absolute; inset: 0; background: var(--ces-veu); opacity: 0; pointer-events: auto;
-      transition: opacity var(--ces-m-folha) var(--ces-curva); }
+    .veu { position: absolute; inset: 0; background: var(--geo-veu); opacity: 0; pointer-events: auto;
+      transition: opacity var(--geo-m-folha) var(--geo-curva); }
     .veu.visivel { opacity: 1; }
     .painel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 88dvh; display: flex; flex-direction: column;
-      background: var(--ces-superficie); border-radius: var(--ces-r-folha) var(--ces-r-folha) 0 0; box-shadow: var(--ces-sombra-folha);
-      padding-bottom: calc(var(--ces-e4) + var(--ces-safe-base)); pointer-events: auto; outline: none;
-      transform: translateY(102%); transition: transform var(--ces-m-folha) var(--ces-curva); }
+      background: var(--geo-superficie); border-radius: var(--geo-r-folha) var(--geo-r-folha) 0 0; box-shadow: var(--geo-sombra-folha);
+      padding-bottom: calc(var(--geo-e4) + var(--geo-safe-base)); pointer-events: auto; outline: none;
+      transform: translateY(102%); transition: transform var(--geo-m-folha) var(--geo-curva); }
     /* Aberta sem transform: assim o leitor em tela cheia (position: fixed) cobre a tela, não só o painel. */
     .painel.visivel { transform: none; }
     .alca-area { display: grid; place-items: center; height: 24px; flex: none; touch-action: none; cursor: grab; }
-    .alca { width: 36px; height: 4px; border-radius: 99px; background: var(--ces-linha-forte); }
-    .cab { padding: 0 var(--ces-e5) var(--ces-e3); flex: none; }
-    h2 { margin: 0; font: 600 1.1875rem/1.3 var(--ces-fonte); }
-    .cab p { margin: 4px 0 0; font: var(--ces-t-apoio); font-size: .875rem; color: var(--ces-texto-2); }
+    .alca { width: 36px; height: 4px; border-radius: 99px; background: var(--geo-linha-forte); }
+    .cab { padding: 0 var(--geo-e5) var(--geo-e3); flex: none; }
+    h2 { margin: 0; font: 600 1.1875rem/1.3 var(--geo-fonte); }
+    .cab p { margin: 4px 0 0; font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto-2); }
     .corpo { overflow-y: auto; overscroll-behavior: contain; min-height: 0; flex: 1; }
   `],
 })
@@ -72,7 +72,7 @@ export class FolhaComponent implements OnDestroy {
     topo.empurrouHistorico = false;
     topo.fechar.emit();
   };
-  readonly idTitulo = `ces-folha-titulo-${++FolhaComponent.seq}`;
+  readonly idTitulo = `geo-folha-titulo-${++FolhaComponent.seq}`;
 
   readonly aberta = input(false);
   readonly titulo = input<string | null>(null);
@@ -127,7 +127,7 @@ export class FolhaComponent implements OnDestroy {
       this.painel()?.nativeElement.focus({ preventScroll: true });
     }));
     if (!this.empurrouHistorico) {
-      history.pushState({ ...(history.state ?? {}), cesFolha: true }, '');
+      history.pushState({ ...(history.state ?? {}), geoFolha: true }, '');
       this.empurrouHistorico = true;
       FolhaComponent.pilha.push(this);
       if (!FolhaComponent.ouvindo) {
@@ -150,7 +150,7 @@ export class FolhaComponent implements OnDestroy {
     if (this.empurrouHistorico) {
       this.empurrouHistorico = false;
       // Fechou pela UI: consome o estado que a folha empurrou, sem que isso feche outra folha.
-      if (history.state?.cesFolha) {
+      if (history.state?.geoFolha) {
         FolhaComponent.voltasIgnoradas++;
         history.back();
       }

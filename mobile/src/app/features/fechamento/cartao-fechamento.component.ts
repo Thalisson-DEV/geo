@@ -18,28 +18,28 @@ export type AcaoFechamento = 'movimentar' | 'reserva';
     <article class="cartao">
       <button type="button" class="corpo" (click)="abrir.emit(item())" [attr.aria-label]="rotuloAcessivel()">
         <span class="tipo" [class.tipo--dev]="!tipo().adicao" aria-hidden="true">
-          <ces-icone [nome]="icone()" [tamanho]="18" /><span class="ces-num">{{ item().tipo }}</span>
+          <geo-icone [nome]="icone()" [tamanho]="18" /><span class="geo-num">{{ item().tipo }}</span>
         </span>
         <span class="txt">
           <span class="obra">{{ obra() }}</span>
           <span class="linha-status">
             <span class="status" [attr.data-tom]="situacao().tom"><i aria-hidden="true"></i>{{ situacao().rotulo }}</span>
             <span class="sep" aria-hidden="true">·</span>
-            <span class="ces-num">{{ item().totalItens }} {{ item().totalItens === 1 ? 'item' : 'itens' }}</span>
+            <span class="geo-num">{{ item().totalItens }} {{ item().totalItens === 1 ? 'item' : 'itens' }}</span>
           </span>
-          @if (prazo()) { <span class="prazo ces-num"><ces-icone nome="relogio" [tamanho]="14" />{{ prazo() }}</span> }
-          <span class="quem"><ces-icone nome="pessoas" [tamanho]="14" /><span>{{ solicitante() }}</span></span>
+          @if (prazo()) { <span class="prazo geo-num"><geo-icone nome="relogio" [tamanho]="14" />{{ prazo() }}</span> }
+          <span class="quem"><geo-icone nome="pessoas" [tamanho]="14" /><span>{{ solicitante() }}</span></span>
           @if (sinais().length) {
             <span class="sinais">
-              @for (s of sinais(); track s.texto) { <span class="ces-etiqueta" [class]="'ces-etiqueta--' + s.tom"><ces-icone [nome]="s.icone" [tamanho]="13" />{{ s.texto }}</span> }
+              @for (s of sinais(); track s.texto) { <span class="geo-etiqueta" [class]="'geo-etiqueta--' + s.tom"><geo-icone [nome]="s.icone" [tamanho]="13" />{{ s.texto }}</span> }
             </span>
           }
         </span>
       </button>
       @if (acoes() && acao(); as a) {
         <div class="acoes">
-          <button type="button" class="ces-btn ces-btn--compacto ces-btn--principal acao" (click)="agir.emit({ acao: a.acao, item: item() })">
-            <ces-icone [nome]="a.icone" [tamanho]="18" />{{ a.rotulo }}
+          <button type="button" class="geo-btn geo-btn--compacto geo-btn--principal acao" (click)="agir.emit({ acao: a.acao, item: item() })">
+            <geo-icone [nome]="a.icone" [tamanho]="18" />{{ a.rotulo }}
           </button>
         </div>
       }
@@ -47,27 +47,27 @@ export type AcaoFechamento = 'movimentar' | 'reserva';
   `,
   styles: [`
     :host { display: block; }
-    .cartao { background: var(--ces-superficie); border-radius: var(--ces-r-grupo); overflow: hidden; box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
-    .corpo { display: flex; align-items: flex-start; gap: var(--ces-e3); width: 100%; min-height: 56px; padding: var(--ces-e3); border: 0; background: transparent; color: inherit;
+    .cartao { background: var(--geo-superficie); border-radius: var(--geo-r-grupo); overflow: hidden; box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
+    .corpo { display: flex; align-items: flex-start; gap: var(--geo-e3); width: 100%; min-height: 56px; padding: var(--geo-e3); border: 0; background: transparent; color: inherit;
       text-align: left; font: inherit; cursor: pointer; transition: background-color 100ms; }
-    .corpo:active { background: var(--ces-superficie-2); }
+    .corpo:active { background: var(--geo-superficie-2); }
     .tipo { flex: none; width: 48px; height: 52px; border-radius: 12px; display: grid; place-content: center; justify-items: center; gap: 2px;
-      background: var(--ces-destaque-suave); color: var(--ces-destaque); font: 700 .75rem/1 var(--ces-fonte-mono); }
-    .tipo--dev { background: var(--ces-superficie-2); color: var(--ces-texto); }
+      background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 700 .75rem/1 var(--geo-fonte-mono); }
+    .tipo--dev { background: var(--geo-superficie-2); color: var(--geo-texto); }
     .txt { flex: 1; min-width: 0; display: grid; gap: 3px; }
-    .obra { font: 700 1rem/1.25 var(--ces-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
-    .linha-status { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ces-texto); }
-    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--ces-texto-3); }
-    .status[data-tom='atencao'] i { background: var(--ces-atencao); }
-    .status[data-tom='destaque'] i { background: var(--ces-destaque); }
-    .status[data-tom='ok'] i { background: var(--ces-ok); }
-    .sep { color: var(--ces-texto-3); }
-    .prazo, .quem { display: flex; align-items: center; gap: 4px; min-width: 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .obra { font: 700 1rem/1.25 var(--geo-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
+    .linha-status { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--geo-texto); }
+    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-texto-3); }
+    .status[data-tom='atencao'] i { background: var(--geo-atencao); }
+    .status[data-tom='destaque'] i { background: var(--geo-destaque); }
+    .status[data-tom='ok'] i { background: var(--geo-ok); }
+    .sep { color: var(--geo-texto-3); }
+    .prazo, .quem { display: flex; align-items: center; gap: 4px; min-width: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .quem span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .sinais { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-    .acoes { display: flex; justify-content: flex-end; padding: 6px var(--ces-e3); border-top: 1px solid var(--ces-linha); }
-    .acoes .acao { min-height: 38px; padding: 0 var(--ces-e4); border-radius: var(--ces-r-pilula); }
+    .acoes { display: flex; justify-content: flex-end; padding: 6px var(--geo-e3); border-top: 1px solid var(--geo-linha); }
+    .acoes .acao { min-height: 38px; padding: 0 var(--geo-e4); border-radius: var(--geo-r-pilula); }
   `],
 })
 export class CartaoFechamentoComponent {

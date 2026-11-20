@@ -15,30 +15,30 @@ const MINIMO = 5;
   imports: [FolhaComponent, IconeComponent, SeletorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-folha [aberta]="!!idSolicitacao()" (fechar)="fechar.emit()" [titulo]="'Rejeitar a solicitação #' + id()"
+    <geo-folha [aberta]="!!idSolicitacao()" (fechar)="fechar.emit()" [titulo]="'Rejeitar a solicitação #' + id()"
       descricao="Quem pediu vê o motivo e a justificativa. A rejeição encerra a solicitação.">
       <div class="campos">
-        <ces-seletor rotulo="Motivo" [obrigatorio]="true" [opcoes]="opcoes()" [valor]="idMotivo()" (valorChange)="idMotivo.set($event)"
+        <geo-seletor rotulo="Motivo" [obrigatorio]="true" [opcoes]="opcoes()" [valor]="idMotivo()" (valorChange)="idMotivo.set($event)"
           [invalido]="tentou() && !idMotivo()" [placeholder]="carregando() ? 'Carregando motivos…' : 'Escolher'" [desabilitado]="carregando()" />
-        <label class="ces-campo">
-          <span class="ces-campo__rotulo">Justificativa *</span>
-          <textarea class="ces-input texto" rows="3" [value]="justificativa()" (input)="justificativa.set($any($event.target).value)"
+        <label class="geo-campo">
+          <span class="geo-campo__rotulo">Justificativa *</span>
+          <textarea class="geo-input texto" rows="3" [value]="justificativa()" (input)="justificativa.set($any($event.target).value)"
             [attr.aria-invalid]="tentou() && !valida()" placeholder="Explique o que impede o atendimento"></textarea>
-          @if (tentou() && !valida()) { <span class="ces-campo__erro"><ces-icone nome="alerta" [tamanho]="16" />Escreva ao menos {{ minimo }} caracteres.</span> }
-          @else { <span class="ces-campo__ajuda">Mínimo de {{ minimo }} caracteres.</span> }
+          @if (tentou() && !valida()) { <span class="geo-campo__erro"><geo-icone nome="alerta" [tamanho]="16" />Escreva ao menos {{ minimo }} caracteres.</span> }
+          @else { <span class="geo-campo__ajuda">Mínimo de {{ minimo }} caracteres.</span> }
         </label>
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="fechar.emit()" [disabled]="enviando()">Voltar</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="rejeitar()" [disabled]="enviando()">{{ enviando() ? 'Rejeitando…' : 'Rejeitar' }}</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="fechar.emit()" [disabled]="enviando()">Voltar</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="rejeitar()" [disabled]="enviando()">{{ enviando() ? 'Rejeitando…' : 'Rejeitar' }}</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    .campos { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e3) var(--ces-e2); }
-    .campos ces-seletor { box-shadow: inset 0 0 0 1px var(--ces-linha); border-radius: var(--ces-r-grupo); }
-    .texto { min-height: 96px; padding: var(--ces-e3) var(--ces-e4); resize: vertical; }
-    .campos .ces-campo__rotulo, .campos .ces-campo__ajuda, .campos .ces-campo__erro { padding-left: var(--ces-e4); }
+    .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
+    .campos geo-seletor { box-shadow: inset 0 0 0 1px var(--geo-linha); border-radius: var(--geo-r-grupo); }
+    .texto { min-height: 96px; padding: var(--geo-e3) var(--geo-e4); resize: vertical; }
+    .campos .geo-campo__rotulo, .campos .geo-campo__ajuda, .campos .geo-campo__erro { padding-left: var(--geo-e4); }
   `],
 })
 export class FolhaRejeicaoComponent {

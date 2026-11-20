@@ -25,7 +25,7 @@ async function matarEReabrir(page: Page, context: BrowserContext): Promise<Page>
 /** Lê/escreve o banco de sessão direto (para corromper ou plantar formatos antigos). */
 async function sessaoDb<T>(page: Page, fn: string, arg?: unknown): Promise<T> {
   return page.evaluate(([corpo, a]) => new Promise<T>((resolve, reject) => {
-    const req = indexedDB.open('ces-field-sessao');
+    const req = indexedDB.open('ces-field-sessao'); // renomear-geo: manter
     req.onerror = () => reject(req.error);
     req.onsuccess = () => {
       const db = req.result;

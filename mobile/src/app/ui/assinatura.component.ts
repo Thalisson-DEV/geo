@@ -8,7 +8,7 @@ import { IconeComponent } from './icone.component';
  * formato que o backend guarda. Assinar de novo substitui; "Refazer" limpa o quadro.
  */
 @Component({
-  selector: 'ces-assinatura',
+  selector: 'geo-assinatura',
   standalone: true,
   imports: [FolhaComponent, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,47 +17,47 @@ import { IconeComponent } from './icone.component';
       [attr.aria-label]="rotulo() + (valor() ? ': assinada. Toque para assinar de novo.' : ': não assinada. Toque para assinar.')">
       <span class="topo">
         <span class="rotulo">{{ rotulo() }}</span>
-        @if (valor()) { <span class="ok"><ces-icone nome="check" [tamanho]="16" />Assinada</span> }
+        @if (valor()) { <span class="ok"><geo-icone nome="check" [tamanho]="16" />Assinada</span> }
       </span>
       @if (quem()) { <span class="quem">{{ quem() }}</span> }
       @if (valor(); as img) {
         <img [src]="img" alt="">
       } @else {
-        <span class="vazia"><ces-icone nome="assinatura" />Toque para assinar</span>
+        <span class="vazia"><geo-icone nome="assinatura" />Toque para assinar</span>
       }
     </button>
 
-    <ces-folha [aberta]="aberto()" (fechar)="aberto.set(false)" [titulo]="rotulo()" [descricao]="quem() ? 'Assina: ' + quem() : 'Assine com o dedo no quadro.'">
+    <geo-folha [aberta]="aberto()" (fechar)="aberto.set(false)" [titulo]="rotulo()" [descricao]="quem() ? 'Assina: ' + quem() : 'Assine com o dedo no quadro.'">
       <div class="quadro">
         <canvas #quadro aria-label="Quadro de assinatura" (pointerdown)="iniciar($event)" (pointermove)="tracar($event)"
           (pointerup)="terminar()" (pointercancel)="terminar()" (pointerleave)="terminar()"></canvas>
         <span class="linha" aria-hidden="true"></span>
         @if (!desenhou()) { <span class="dica" aria-hidden="true">Assine aqui</span> }
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="preparar()" [disabled]="!desenhou()">Refazer</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="confirmar()" [disabled]="!desenhou()">Confirmar assinatura</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="preparar()" [disabled]="!desenhou()">Refazer</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="confirmar()" [disabled]="!desenhou()">Confirmar assinatura</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; }
-    .cartao { width: 100%; display: grid; gap: var(--ces-e2); padding: var(--ces-e3) var(--ces-e4); min-height: 148px; box-sizing: border-box;
-      border: 1.5px dashed var(--ces-linha-forte); border-radius: var(--ces-r-grupo); background: var(--ces-superficie); text-align: left;
-      color: var(--ces-texto); cursor: pointer; font: inherit; transition: border-color var(--ces-m-entrar); }
-    .cartao:active { background: var(--ces-superficie-2); }
-    .cartao.feita { border-style: solid; border-color: var(--ces-ok); }
-    .cartao.invalida { border-color: var(--ces-erro); }
-    .topo { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e2); }
-    .rotulo { font: 600 .875rem/1.3 var(--ces-fonte); color: var(--ces-texto); }
-    .quem { font: var(--ces-t-apoio); color: var(--ces-texto-2); margin-top: -6px; }
-    .ok { display: inline-flex; align-items: center; gap: 4px; font: 600 .75rem/1 var(--ces-fonte); color: var(--ces-ok); }
+    .cartao { width: 100%; display: grid; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e4); min-height: 148px; box-sizing: border-box;
+      border: 1.5px dashed var(--geo-linha-forte); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); text-align: left;
+      color: var(--geo-texto); cursor: pointer; font: inherit; transition: border-color var(--geo-m-entrar); }
+    .cartao:active { background: var(--geo-superficie-2); }
+    .cartao.feita { border-style: solid; border-color: var(--geo-ok); }
+    .cartao.invalida { border-color: var(--geo-erro); }
+    .topo { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); }
+    .rotulo { font: 600 .875rem/1.3 var(--geo-fonte); color: var(--geo-texto); }
+    .quem { font: var(--geo-t-apoio); color: var(--geo-texto-2); margin-top: -6px; }
+    .ok { display: inline-flex; align-items: center; gap: 4px; font: 600 .75rem/1 var(--geo-fonte); color: var(--geo-ok); }
     img { width: 100%; height: 88px; object-fit: contain; background: #fff; border-radius: 8px; }
-    .vazia { display: flex; align-items: center; justify-content: center; gap: var(--ces-e2); min-height: 88px; color: var(--ces-destaque); font-weight: 600; }
-    .quadro { position: relative; padding: 0 var(--ces-e4); }
-    canvas { width: 100%; height: 260px; display: block; border-radius: var(--ces-r-grupo); background: #fff; border: 1px solid var(--ces-linha-forte); touch-action: none; }
-    .linha { position: absolute; left: calc(var(--ces-e4) + 24px); right: calc(var(--ces-e4) + 24px); bottom: 56px; height: 1px; background: #c9d1dc; pointer-events: none; }
-    .dica { position: absolute; left: calc(var(--ces-e4) + 24px); bottom: 64px; font: 500 .8125rem/1 var(--ces-fonte); color: #7c8899; pointer-events: none; }
+    .vazia { display: flex; align-items: center; justify-content: center; gap: var(--geo-e2); min-height: 88px; color: var(--geo-destaque); font-weight: 600; }
+    .quadro { position: relative; padding: 0 var(--geo-e4); }
+    canvas { width: 100%; height: 260px; display: block; border-radius: var(--geo-r-grupo); background: #fff; border: 1px solid var(--geo-linha-forte); touch-action: none; }
+    .linha { position: absolute; left: calc(var(--geo-e4) + 24px); right: calc(var(--geo-e4) + 24px); bottom: 56px; height: 1px; background: #c9d1dc; pointer-events: none; }
+    .dica { position: absolute; left: calc(var(--geo-e4) + 24px); bottom: 64px; font: 500 .8125rem/1 var(--geo-fonte); color: #7c8899; pointer-events: none; }
   `],
 })
 export class AssinaturaComponent {

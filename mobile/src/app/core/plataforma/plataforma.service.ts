@@ -9,7 +9,7 @@ interface BeforeInstallPromptEvent extends Event {
 
 export type PlataformaInstalacao = 'android' | 'ios' | 'outro';
 
-const CHAVE_ADIADO = 'ces_instalar_adiado_em';
+const CHAVE_ADIADO = 'geo_instalar_adiado_em';
 /** "Agora não" vale por um dia; depois o convite volta (decisão R2: só sugerir). */
 const ADIAMENTO_MS = 24 * 60 * 60 * 1000;
 

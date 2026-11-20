@@ -6,7 +6,7 @@ import { ROTULO_ESTRELAS } from '../../core/avaliacao/avaliacao.service';
  * O SVG é próprio porque a estrela acesa é preenchida, e os ícones do app são só traço.
  */
 @Component({
-  selector: 'ces-estrelas',
+  selector: 'geo-estrelas',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -27,20 +27,20 @@ import { ROTULO_ESTRELAS } from '../../core/avaliacao/avaliacao.service';
     }
   `,
   styles: [`
-    /* Dourado próprio da nota: é decoração, não estado. O --ces-atencao (âmbar escuro, feito para
+    /* Dourado próprio da nota: é decoração, não estado. O --geo-atencao (âmbar escuro, feito para
        texto de alerta) deixava a estrela marrom. */
-    :host { --estrela: #F5B400; --estrela-apagada: color-mix(in srgb, var(--ces-texto) 14%, transparent);
-      display: grid; justify-items: center; gap: var(--ces-e1); }
-    .estrelas { display: flex; gap: var(--ces-e2); }
+    :host { --estrela: #F5B400; --estrela-apagada: color-mix(in srgb, var(--geo-texto) 14%, transparent);
+      display: grid; justify-items: center; gap: var(--geo-e1); }
+    .estrelas { display: flex; gap: var(--geo-e2); }
     .estrela { width: 48px; height: 48px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%;
       background: transparent; color: var(--estrela-apagada); cursor: pointer; -webkit-tap-highlight-color: transparent;
-      transition: color var(--ces-m-entrar), transform var(--ces-m-entrar) var(--ces-curva); }
+      transition: color var(--geo-m-entrar), transform var(--geo-m-entrar) var(--geo-curva); }
     .estrela:active { transform: scale(.88); }
-    .estrela:focus-visible { outline: 2px solid var(--ces-destaque); outline-offset: 1px; }
+    .estrela:focus-visible { outline: 2px solid var(--geo-destaque); outline-offset: 1px; }
     .estrela svg { width: 38px; height: 38px; fill: currentColor; stroke: currentColor; stroke-width: 1; stroke-linejoin: round; }
     .estrela.acesa { color: var(--estrela); }
-    .rotulo { min-height: 1.375rem; font: var(--ces-t-corpo-forte); color: var(--ces-texto); }
-    .rotulo.vazio { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .rotulo { min-height: 1.375rem; font: var(--geo-t-corpo-forte); color: var(--geo-texto); }
+    .rotulo.vazio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     @media (prefers-reduced-motion: reduce) { .estrela { transition: none; } }
   `],
 })

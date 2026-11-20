@@ -19,8 +19,8 @@ import { environment } from '../../../environments/environment';
   template: `
     <main class="tela">
       <div class="marca">
-        <img src="logo_vertical.svg" alt="Nexo" width="96" height="96">
-        <h1>Nexo Campo</h1>
+        <img src="logo_vertical.svg" alt="GEO" width="96" height="96">
+        <h1>GEO Campo</h1>
         @if (volta) {
           <p>Sua sessão expirou. Entre de novo para continuar de onde parou.</p>
         } @else if (authService.hasLocalIdentity()) {
@@ -31,16 +31,16 @@ import { environment } from '../../../environments/environment';
       </div>
 
       <form [formGroup]="form" (ngSubmit)="entrar()" class="form" novalidate>
-        <div class="ces-campo">
+        <div class="geo-campo">
           <label for="login">Login</label>
-          <input id="login" class="ces-input" type="text" formControlName="login" autocomplete="username"
+          <input id="login" class="geo-input" type="text" formControlName="login" autocomplete="username"
             autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next">
         </div>
 
-        <div class="ces-campo">
+        <div class="geo-campo">
           <label for="senha">Senha</label>
           <div class="senha">
-            <input id="senha" class="ces-input" [type]="mostrarSenha() ? 'text' : 'password'" formControlName="senha"
+            <input id="senha" class="geo-input" [type]="mostrarSenha() ? 'text' : 'password'" formControlName="senha"
               autocomplete="current-password" enterkeyhint="go" [attr.aria-invalid]="erro() ? 'true' : null"
               [attr.aria-describedby]="erro() ? 'erro-login' : null">
             <button type="button" class="ver" (click)="mostrarSenha.set(!mostrarSenha())"
@@ -51,19 +51,19 @@ import { environment } from '../../../environments/environment';
         </div>
 
         @if (erro()) {
-          <p id="erro-login" class="erro" role="alert"><ces-icone nome="alerta" [tamanho]="18" />{{ erro() }}</p>
+          <p id="erro-login" class="erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" />{{ erro() }}</p>
         }
         @if (!rede.hardwareOnline()) {
-          <p class="aviso"><ces-icone nome="sem_rede" [tamanho]="18" />Sem internet. Entrar precisa de conexão.</p>
+          <p class="aviso"><geo-icone nome="sem_rede" [tamanho]="18" />Sem internet. Entrar precisa de conexão.</p>
         }
 
-        <button type="submit" class="ces-btn ces-btn--principal ces-btn--bloco" [disabled]="carregando()">
+        <button type="submit" class="geo-btn geo-btn--principal geo-btn--bloco" [disabled]="carregando()">
           @if (carregando()) { <span class="giro" aria-hidden="true"></span> Entrando… } @else { Entrar }
         </button>
       </form>
 
       <footer class="rodape">
-        <span class="ces-num">Versão {{ versao }}</span>
+        <span class="geo-num">Versão {{ versao }}</span>
         <span aria-hidden="true">·</span>
         <button type="button" class="atualizar" (click)="buscarAtualizacao()" [disabled]="atualizando()">
           {{ atualizando() ? 'Procurando…' : 'Buscar atualização' }}
@@ -75,26 +75,26 @@ import { environment } from '../../../environments/environment';
     </main>
   `,
   styles: [`
-    :host { display: block; min-height: 100dvh; background: var(--ces-fundo); }
-    .tela { min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: var(--ces-e8);
-      padding: calc(var(--ces-safe-topo) + var(--ces-e6)) var(--ces-e6) calc(var(--ces-safe-base) + var(--ces-e6)); max-width: 440px; margin: 0 auto; }
-    .marca { display: grid; gap: var(--ces-e2); }
+    :host { display: block; min-height: 100dvh; background: var(--geo-fundo); }
+    .tela { min-height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; gap: var(--geo-e8);
+      padding: calc(var(--geo-safe-topo) + var(--geo-e6)) var(--geo-e6) calc(var(--geo-safe-base) + var(--geo-e6)); max-width: 440px; margin: 0 auto; }
+    .marca { display: grid; gap: var(--geo-e2); }
     .marca img { width: 64px; height: auto; }
-    h1 { margin: var(--ces-e3) 0 0; font: var(--ces-t-titulo); letter-spacing: -.02em; }
-    .marca p { margin: 0; color: var(--ces-texto-2); }
-    .form { display: grid; gap: var(--ces-e5); }
+    h1 { margin: var(--geo-e3) 0 0; font: var(--geo-t-titulo); letter-spacing: -.02em; }
+    .marca p { margin: 0; color: var(--geo-texto-2); }
+    .form { display: grid; gap: var(--geo-e5); }
     .senha { position: relative; }
-    .senha .ces-input { padding-right: 96px; }
+    .senha .geo-input { padding-right: 96px; }
     .ver { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); min-height: 44px; padding: 0 12px; border: 0;
-      background: transparent; color: var(--ces-destaque); font: 600 .875rem/1 var(--ces-fonte); border-radius: var(--ces-r-campo); cursor: pointer; }
-    .erro, .aviso { margin: 0; display: flex; gap: var(--ces-e2); align-items: flex-start; font: var(--ces-t-corpo); }
-    .erro { color: var(--ces-erro); }
-    .aviso { color: var(--ces-atencao); }
-    .rodape { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 var(--ces-e2);
-      color: var(--ces-texto-2); font: var(--ces-t-apoio); }
-    .atualizar { min-height: 44px; padding: 0 var(--ces-e2); border: 0; background: transparent; color: var(--ces-destaque);
-      font: 600 .875rem/1 var(--ces-fonte); border-radius: var(--ces-r-campo); cursor: pointer; }
-    .atualizar:disabled { color: var(--ces-texto-2); cursor: default; }
+      background: transparent; color: var(--geo-destaque); font: 600 .875rem/1 var(--geo-fonte); border-radius: var(--geo-r-campo); cursor: pointer; }
+    .erro, .aviso { margin: 0; display: flex; gap: var(--geo-e2); align-items: flex-start; font: var(--geo-t-corpo); }
+    .erro { color: var(--geo-erro); }
+    .aviso { color: var(--geo-atencao); }
+    .rodape { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 var(--geo-e2);
+      color: var(--geo-texto-2); font: var(--geo-t-apoio); }
+    .atualizar { min-height: 44px; padding: 0 var(--geo-e2); border: 0; background: transparent; color: var(--geo-destaque);
+      font: 600 .875rem/1 var(--geo-fonte); border-radius: var(--geo-r-campo); cursor: pointer; }
+    .atualizar:disabled { color: var(--geo-texto-2); cursor: default; }
     .situacao { flex-basis: 100%; margin: 0; text-align: center; }
     .giro { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid currentColor; border-right-color: transparent; animation: g .8s linear infinite; }
     @keyframes g { to { transform: rotate(360deg); } }

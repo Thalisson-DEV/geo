@@ -94,47 +94,47 @@ const PREFIXO_BRUTO = 'bruto:';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <ces-barra-topo [titulo]="draftId() ? 'Inspeção em rascunho' : 'Nova inspeção'" [subtitulo]="stepTitle() + ' · ' + currentStep() + ' de ' + totalSteps()"
+      <geo-barra-topo [titulo]="draftId() ? 'Inspeção em rascunho' : 'Nova inspeção'" [subtitulo]="stepTitle() + ' · ' + currentStep() + ' de ' + totalSteps()"
         navegacao="fechar" (voltar)="fechar()">
-        <span class="auto-salvo" role="status" aria-label="Salvo automaticamente" title="Salvo automaticamente"><ces-icone nome="check" [tamanho]="14" />Salvo</span>
-      </ces-barra-topo>
+        <span class="auto-salvo" role="status" aria-label="Salvo automaticamente" title="Salvo automaticamente"><geo-icone nome="check" [tamanho]="14" />Salvo</span>
+      </geo-barra-topo>
       <div class="passos" aria-hidden="true">
         @for (s of stepsArray(); track s) { <i [class.feito]="s <= currentStep()"></i> }
       </div>
 
       @if (isLoading()) {
         <div class="esqueletos" aria-busy="true" aria-label="Carregando">
-          @for (i of [1, 2, 3]; track i) { <div class="ces-esqueleto" style="height: 64px"></div> }
+          @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 64px"></div> }
         </div>
       } @else {
         <section class="conteudo" [attr.aria-label]="stepTitle()">
           @if (currentStep() === 1) {
             <div class="campos">
-              <ces-seletor rotulo="Formulário" [obrigatorio]="true" [opcoes]="opcoesFormulario()" [valor]="idFormulario()"
+              <geo-seletor rotulo="Formulário" [obrigatorio]="true" [opcoes]="opcoesFormulario()" [valor]="idFormulario()"
                 (valorChange)="onFormularioChange($event!)" [invalido]="tentou() && !idFormulario()"
                 [aberto]="seletorAberto() === 'formulario'" (abertoChange)="abrirSeletor('formulario', $event)" />
-              <ces-seletor rotulo="Tipo de inspeção" [obrigatorio]="true" [opcoes]="opcoesTipo()" [valor]="idTipoInspecao()"
+              <geo-seletor rotulo="Tipo de inspeção" [obrigatorio]="true" [opcoes]="opcoesTipo()" [valor]="idTipoInspecao()"
                 (valorChange)="idTipoInspecao.set($event)" [invalido]="tentou() && !idTipoInspecao()"
                 [aberto]="seletorAberto() === 'tipo'" (abertoChange)="abrirSeletor('tipo', $event)" />
-              <ces-seletor rotulo="Processo" [obrigatorio]="true" [opcoes]="opcoesProcesso()" [valor]="idProcesso()"
+              <geo-seletor rotulo="Processo" [obrigatorio]="true" [opcoes]="opcoesProcesso()" [valor]="idProcesso()"
                 (valorChange)="idProcesso.set($event)" [invalido]="tentou() && !idProcesso()"
                 [aberto]="seletorAberto() === 'processo'" (abertoChange)="abrirSeletor('processo', $event)" />
               @if (isAdministrativo()) {
-                <ces-seletor rotulo="Equipe" [opcoes]="opcoesEquipe()" [valor]="idEquipe()" (escolhido)="selecionarEquipe($event.valor)"
+                <geo-seletor rotulo="Equipe" [opcoes]="opcoesEquipe()" [valor]="idEquipe()" (escolhido)="selecionarEquipe($event.valor)"
                   [aberto]="seletorAberto() === 'equipe'" (abertoChange)="abrirSeletor('equipe', $event)" />
               } @else {
                 <div class="fixo"><span>Equipe</span><strong>{{ nomeEquipe() }}</strong></div>
               }
               @if (basesAccessDenied()) {
-                <p class="aviso"><ces-icone nome="info" [tamanho]="18" />Seu perfil não consulta bases operacionais. Peça a permissão ao administrador.</p>
+                <p class="aviso"><geo-icone nome="info" [tamanho]="18" />Seu perfil não consulta bases operacionais. Peça a permissão ao administrador.</p>
               } @else {
-                <ces-seletor rotulo="Base operacional" [obrigatorio]="true" [opcoes]="opcoesBase()" [valor]="idBaseOperacional()"
+                <geo-seletor rotulo="Base operacional" [obrigatorio]="true" [opcoes]="opcoesBase()" [valor]="idBaseOperacional()"
                   (valorChange)="idBaseOperacional.set($event)" [invalido]="tentou() && !idBaseOperacional()"
                   [aberto]="seletorAberto() === 'base'" (abertoChange)="abrirSeletor('base', $event)" />
               }
-              <ces-seletor rotulo="Veículo" placeholder="Opcional" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="idVeiculo.set($event)"
+              <geo-seletor rotulo="Veículo" placeholder="Opcional" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="idVeiculo.set($event)"
                 [aberto]="seletorAberto() === 'veiculo'" (abertoChange)="abrirSeletor('veiculo', $event)" />
-              <ces-seletor rotulo="Inspecionados" [obrigatorio]="true" [multiplo]="true" [opcoes]="opcoesColaborador()"
+              <geo-seletor rotulo="Inspecionados" [obrigatorio]="true" [multiplo]="true" [opcoes]="opcoesColaborador()"
                 [valores]="idColaboradoresInspecionados()" (valoresChange)="idColaboradoresInspecionados.set($event)"
                 [invalido]="tentou() && !idColaboradoresInspecionados().length"
                 [aberto]="seletorAberto() === 'inspecionados'" (abertoChange)="abrirSeletor('inspecionados', $event)" />
@@ -146,11 +146,11 @@ const PREFIXO_BRUTO = 'bruto:';
               @let pg = progresso();
               <div class="progresso" role="status">
                 <div class="progresso__linha">
-                  <span class="ces-num">{{ pg.respondidas }} de {{ pg.total }}</span>
+                  <span class="geo-num">{{ pg.respondidas }} de {{ pg.total }}</span>
                   @if (pg.naoConformes) {
-                    <span class="progresso__nc"><ces-icone nome="desvio" [tamanho]="14" />{{ pg.naoConformes }} não {{ pg.naoConformes === 1 ? 'conforme' : 'conformes' }}</span>
+                    <span class="progresso__nc"><geo-icone nome="desvio" [tamanho]="14" />{{ pg.naoConformes }} não {{ pg.naoConformes === 1 ? 'conforme' : 'conformes' }}</span>
                   } @else {
-                    <span class="progresso__ok"><ces-icone nome="check" [tamanho]="14" />Tudo conforme até aqui</span>
+                    <span class="progresso__ok"><geo-icone nome="check" [tamanho]="14" />Tudo conforme até aqui</span>
                   }
                 </div>
                 <div class="progresso__trilho" aria-hidden="true"><i [style.width.%]="pg.total ? (pg.respondidas * 100) / pg.total : 0"></i></div>
@@ -159,15 +159,15 @@ const PREFIXO_BRUTO = 'bruto:';
                 @let rg = resumoGrupo(grupo);
                 <div class="grupo-topo">
                   <button type="button" class="grupo-titulo" (click)="alternarGrupo(grupo.id)" [attr.aria-expanded]="!grupoRecolhido(grupo.id)">
-                    <ces-icone [nome]="grupoRecolhido(grupo.id) ? 'expandir' : 'recolher'" [tamanho]="18" />
+                    <geo-icone [nome]="grupoRecolhido(grupo.id) ? 'expandir' : 'recolher'" [tamanho]="18" />
                     <span class="grupo-titulo__texto">{{ grupo.titulo }}</span>
-                    <span class="grupo-titulo__conta ces-num">{{ rg.respondidas }}/{{ rg.total }}</span>
-                    @if (rg.naoConformes) { <span class="grupo-titulo__nc ces-num">{{ rg.naoConformes }} NC</span> }
+                    <span class="grupo-titulo__conta geo-num">{{ rg.respondidas }}/{{ rg.total }}</span>
+                    @if (rg.naoConformes) { <span class="grupo-titulo__nc geo-num">{{ rg.naoConformes }} NC</span> }
                   </button>
                   @if (rg.checklist && !grupoRecolhido(grupo.id)) {
                     <div class="grupo-acoes">
-                      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto" (click)="marcarGrupo(grupo, 'conforme')"><ces-icone nome="check" [tamanho]="16" />Tudo conforme</button>
-                      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto" (click)="marcarGrupo(grupo, 'não se aplica')"><ces-icone nome="menos" [tamanho]="16" />Não se aplica</button>
+                      <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto" (click)="marcarGrupo(grupo, 'conforme')"><geo-icone nome="check" [tamanho]="16" />Tudo conforme</button>
+                      <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto" (click)="marcarGrupo(grupo, 'não se aplica')"><geo-icone nome="menos" [tamanho]="16" />Não se aplica</button>
                     </div>
                   }
                 </div>
@@ -176,7 +176,7 @@ const PREFIXO_BRUTO = 'bruto:';
                   @for (p of grupo.perguntas; track p.id) {
                     <fieldset class="pergunta" [class.pendente]="tentou() && p.obrigatoria && !respondida(p)" [class.nc]="temNaoConforme(p)">
                       <legend>{{ p.enunciado }}@if (p.obrigatoria) {<span aria-hidden="true"> *</span>}</legend>
-                      @if (p.orientacao) { <p class="orientacao"><ces-icone nome="info" [tamanho]="14" />{{ p.orientacao }}</p> }
+                      @if (p.orientacao) { <p class="orientacao"><geo-icone nome="info" [tamanho]="14" />{{ p.orientacao }}</p> }
                       @switch (p.tipoResposta) {
                         @case ('MULTIPLA_ESCOLHA') {
                           <div class="opcoes" [class.segmento]="ehChecklist(p)" role="radiogroup" [attr.aria-label]="p.enunciado">
@@ -193,21 +193,21 @@ const PREFIXO_BRUTO = 'bruto:';
                             @for (o of p.opcoes; track o.id) {
                               <button type="button" role="checkbox" class="opcao" [attr.aria-checked]="isOpcaoSelecionada(p.id, o.id)"
                                 [class.gera-desvio]="o.geraDesvio && isOpcaoSelecionada(p.id, o.id)" (click)="toggleOpcaoRespostaMultipla(p.id, o.id)">
-                                <span class="caixa" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>{{ o.texto }}
+                                <span class="caixa" aria-hidden="true"><geo-icone nome="check" [tamanho]="14" /></span>{{ o.texto }}
                               </button>
                             }
                           </div>
                         }
                         @case ('TEXTO') {
-                          <textarea class="ces-input texto" rows="3" [value]="getTextoResposta(p.id)" (input)="setTextoResposta(p.id, $event)"
+                          <textarea class="geo-input texto" rows="3" [value]="getTextoResposta(p.id)" (input)="setTextoResposta(p.id, $event)"
                             [attr.aria-label]="p.enunciado" placeholder="Escreva a resposta"></textarea>
                         }
                         @case ('NUMERO') {
-                          <input class="ces-input" type="text" inputmode="decimal" [value]="getNumeroResposta(p.id) ?? ''" (input)="setNumeroResposta(p.id, $event)"
+                          <input class="geo-input" type="text" inputmode="decimal" [value]="getNumeroResposta(p.id) ?? ''" (input)="setNumeroResposta(p.id, $event)"
                             [attr.aria-label]="p.enunciado" placeholder="0">
                         }
                         @case ('DATA') {
-                          <input class="ces-input" type="date" [value]="getDataResposta(p.id)" (input)="setDataResposta(p.id, $event)" [attr.aria-label]="p.enunciado">
+                          <input class="geo-input" type="date" [value]="getDataResposta(p.id)" (input)="setDataResposta(p.id, $event)" [attr.aria-label]="p.enunciado">
                         }
                       }
                     </fieldset>
@@ -219,7 +219,7 @@ const PREFIXO_BRUTO = 'bruto:';
           }
 
           @if (hasDesvios() && currentStep() === 3) {
-            <p class="intro"><ces-icone nome="desvio" [tamanho]="18" />Algumas respostas geraram desvio. Diga o que foi feito em cada um.</p>
+            <p class="intro"><geo-icone nome="desvio" [tamanho]="18" />Algumas respostas geraram desvio. Diga o que foi feito em cada um.</p>
             @for (d of desviosGerados(); track d.idPergunta + d.idOpcaoResposta) {
               <article class="desvio" [class.tratado]="d.tratadoInLoco">
                 <header>
@@ -230,45 +230,45 @@ const PREFIXO_BRUTO = 'bruto:';
                   <span class="txt"><b>Corrigido na hora</b><span>{{ d.tratadoInLoco ? 'Vai como resolvido.' : 'Marque se já foi sanado no local.' }}</span></span>
                   <span class="trilho" aria-hidden="true"><span></span></span>
                 </button>
-                <div class="ces-campo">
+                <div class="geo-campo">
                   <label [for]="'acao-' + d.idPergunta">{{ d.tratadoInLoco ? 'O que foi feito *' : 'Ação corretiva *' }}</label>
-                  <textarea class="ces-input texto" rows="3" [id]="'acao-' + d.idPergunta" [value]="d.acaoCorretiva"
+                  <textarea class="geo-input texto" rows="3" [id]="'acao-' + d.idPergunta" [value]="d.acaoCorretiva"
                     (input)="updateDesvioAcao(d.idPergunta, $any($event.target).value)"
                     [attr.aria-invalid]="tentou() && !d.acaoCorretiva.trim() ? 'true' : null"></textarea>
                 </div>
-                <div class="ces-campo">
-                  <span class="ces-campo__rotulo">{{ exigeColaborador(d.idPergunta) ? 'Pessoas envolvidas *' : 'Pessoas envolvidas (opcional, item da equipe)' }}</span>
+                <div class="geo-campo">
+                  <span class="geo-campo__rotulo">{{ exigeColaborador(d.idPergunta) ? 'Pessoas envolvidas *' : 'Pessoas envolvidas (opcional, item da equipe)' }}</span>
                   <div class="opcoes">
                     @for (c of getColaboradoresInspecionadosList(); track c.id) {
                       <button type="button" role="checkbox" class="opcao" [attr.aria-checked]="d.colaboradores.includes(c.id)"
                         (click)="toggleColaboradorDesvio(d.idPergunta, c.id)">
-                        <span class="caixa" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>{{ c.nomeCompleto }}
+                        <span class="caixa" aria-hidden="true"><geo-icone nome="check" [tamanho]="14" /></span>{{ c.nomeCompleto }}
                       </button>
                     }
                   </div>
                 </div>
                 @if (!d.tratadoInLoco) {
-                  <div class="ces-campo">
+                  <div class="geo-campo">
                     <label [for]="'prazo-' + d.idPergunta">Prazo</label>
-                    <input class="ces-input" type="date" [id]="'prazo-' + d.idPergunta" [value]="d.prazo ?? ''" (input)="updateDesvioPrazo(d.idPergunta, $any($event.target).value)">
+                    <input class="geo-input" type="date" [id]="'prazo-' + d.idPergunta" [value]="d.prazo ?? ''" (input)="updateDesvioPrazo(d.idPergunta, $any($event.target).value)">
                   </div>
                 }
-                <div class="ces-campo">
-                  <span class="ces-campo__rotulo">Foto do desvio</span>
+                <div class="geo-campo">
+                  <span class="geo-campo__rotulo">Foto do desvio</span>
                   @if (previewDesvio(d); as url) {
                     <div class="foto-desvio">
                       <img [src]="url" alt="Foto do desvio">
-                      <button type="button" class="ces-btn ces-btn--perigo ces-btn--compacto" (click)="removerFoto(d.idPergunta)">Tirar foto</button>
+                      <button type="button" class="geo-btn geo-btn--perigo geo-btn--compacto" (click)="removerFoto(d.idPergunta)">Tirar foto</button>
                     </div>
                   } @else if (temFotoDesvio(d)) {
-                    <div class="foto-desvio"><span class="ces-selo ces-selo--ok"><ces-icone nome="check" /></span>Foto anexada
-                      <button type="button" class="ces-btn ces-btn--perigo ces-btn--compacto" (click)="removerFoto(d.idPergunta)">Tirar foto</button></div>
+                    <div class="foto-desvio"><span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span>Foto anexada
+                      <button type="button" class="geo-btn geo-btn--perigo geo-btn--compacto" (click)="removerFoto(d.idPergunta)">Tirar foto</button></div>
                   } @else {
                     <div class="botoes-foto">
-                      <label class="ces-btn ces-btn--tonal"><ces-icone nome="camera" [tamanho]="18" />Câmera
-                        <input type="file" accept="image/*" capture="environment" class="ces-sr-only" (change)="onFotoSelected($event, d.idPergunta)"></label>
-                      <label class="ces-btn ces-btn--neutro">Galeria
-                        <input type="file" accept="image/*" class="ces-sr-only" (change)="onFotoSelected($event, d.idPergunta)"></label>
+                      <label class="geo-btn geo-btn--tonal"><geo-icone nome="camera" [tamanho]="18" />Câmera
+                        <input type="file" accept="image/*" capture="environment" class="geo-sr-only" (change)="onFotoSelected($event, d.idPergunta)"></label>
+                      <label class="geo-btn geo-btn--neutro">Galeria
+                        <input type="file" accept="image/*" class="geo-sr-only" (change)="onFotoSelected($event, d.idPergunta)"></label>
                     </div>
                   }
                 </div>
@@ -277,12 +277,12 @@ const PREFIXO_BRUTO = 'bruto:';
           }
 
           @if (currentStep() === stepEvidencias()) {
-            <p class="intro"><ces-icone nome="camera" [tamanho]="18" />Ao menos uma foto do local. Ela fica guardada no aparelho na hora em que é tirada.</p>
+            <p class="intro"><geo-icone nome="camera" [tamanho]="18" />Ao menos uma foto do local. Ela fica guardada no aparelho na hora em que é tirada.</p>
             <div class="botoes-foto evid">
-              <label class="ces-btn ces-btn--principal"><ces-icone nome="camera" [tamanho]="18" />Tirar foto
-                <input id="evidencia-camera" type="file" accept="image/*" capture="environment" multiple class="ces-sr-only" (change)="onEvidenciasSelected($event)"></label>
-              <label class="ces-btn ces-btn--neutro">Da galeria
-                <input id="evidencia-gallery" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple class="ces-sr-only" (change)="onEvidenciasSelected($event)"></label>
+              <label class="geo-btn geo-btn--principal"><geo-icone nome="camera" [tamanho]="18" />Tirar foto
+                <input id="evidencia-camera" type="file" accept="image/*" capture="environment" multiple class="geo-sr-only" (change)="onEvidenciasSelected($event)"></label>
+              <label class="geo-btn geo-btn--neutro">Da galeria
+                <input id="evidencia-gallery" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple class="geo-sr-only" (change)="onEvidenciasSelected($event)"></label>
             </div>
             @if (isPreparandoEvidencia()) {
               <p class="preparando" aria-live="polite"><span class="giro" aria-hidden="true"></span>Preparando a foto…</p>
@@ -292,16 +292,16 @@ const PREFIXO_BRUTO = 'bruto:';
                 @for (e of evidencias(); track e.idLocal) {
                   <li>
                     @if (previewEvidencia(e.idLocal); as url) { <img [src]="url" [alt]="e.nomeArquivo"> }
-                    @else { <span class="sem-previa"><ces-icone nome="camera" /></span> }
-                    <span class="tam ces-num">{{ tamanhoEvidencia(e) }}</span>
+                    @else { <span class="sem-previa"><geo-icone nome="camera" /></span> }
+                    <span class="tam geo-num">{{ tamanhoEvidencia(e) }}</span>
                     <button type="button" class="tirar" (click)="removerEvidencia(e.idLocal)" [attr.aria-label]="'Tirar foto ' + e.nomeArquivo">
-                      <ces-icone nome="fechar" [tamanho]="16" />
+                      <geo-icone nome="fechar" [tamanho]="16" />
                     </button>
                   </li>
                 }
               </ul>
             } @else if (!isPreparandoEvidencia()) {
-              <ces-vazio icone="camera" titulo="Nenhuma foto ainda" texto="Sem foto a inspeção não pode ser enviada." />
+              <geo-vazio icone="camera" titulo="Nenhuma foto ainda" texto="Sem foto a inspeção não pode ser enviada." />
             }
           }
 
@@ -313,11 +313,11 @@ const PREFIXO_BRUTO = 'bruto:';
               <div><dt>Equipe</dt><dd>{{ nomeEquipe() || '—' }}</dd></div>
               <div><dt>Base</dt><dd>{{ nomeBaseOperacional() || '—' }}</dd></div>
               <div><dt>Inspecionados</dt><dd>{{ getInspecionadosNomes().join(', ') }}</dd></div>
-              <div><dt>Respostas</dt><dd class="ces-num">{{ countRespostas() }}</dd></div>
-              <div><dt>Desvios</dt><dd class="ces-num">{{ desviosGerados().length }}</dd></div>
-              <div><dt>Fotos</dt><dd class="ces-num">{{ evidencias().length }}</dd></div>
+              <div><dt>Respostas</dt><dd class="geo-num">{{ countRespostas() }}</dd></div>
+              <div><dt>Desvios</dt><dd class="geo-num">{{ desviosGerados().length }}</dd></div>
+              <div><dt>Fotos</dt><dd class="geo-num">{{ evidencias().length }}</dd></div>
             </dl>
-            <p class="dica"><ces-icone nome="nuvem" [tamanho]="18" />Sem internet, fica salva no aparelho com as fotos e sai sozinha quando o sinal voltar.</p>
+            <p class="dica"><geo-icone nome="nuvem" [tamanho]="18" />Sem internet, fica salva no aparelho com as fotos e sai sozinha quando o sinal voltar.</p>
           }
         </section>
       }
@@ -325,106 +325,106 @@ const PREFIXO_BRUTO = 'bruto:';
 
     <footer class="rodape">
       @if (currentStep() > 1) {
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="voltarPasso()">Voltar</button>
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="voltarPasso()">Voltar</button>
       }
-      <button type="button" class="ces-btn ces-btn--principal principal" (click)="avancar()" [disabled]="isSaving() || isLoading() || isPreparandoEvidencia()">
+      <button type="button" class="geo-btn geo-btn--principal principal" (click)="avancar()" [disabled]="isSaving() || isLoading() || isPreparandoEvidencia()">
         @if (currentStep() === totalSteps()) { {{ isSaving() ? 'Salvando…' : 'Finalizar inspeção' }} }
-        @else { Continuar <ces-icone nome="seta" [tamanho]="18" /> }
+        @else { Continuar <geo-icone nome="seta" [tamanho]="18" /> }
       </button>
     </footer>
   `,
   styles: [`
-    .auto-salvo { display: inline-flex; align-items: center; gap: 4px; font: 500 .75rem/1.2 var(--ces-fonte); color: var(--ces-ok); white-space: nowrap; }
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    .auto-salvo { display: inline-flex; align-items: center; gap: 4px; font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-ok); white-space: nowrap; }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
-    .tela { flex: 1; padding-bottom: var(--ces-e5); }
-    .passos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 0 var(--ces-e5) var(--ces-e3); }
-    .passos i { height: 4px; border-radius: var(--ces-r-pilula); background: var(--ces-linha); }
-    .passos i.feito { background: var(--ces-destaque); }
-    .esqueletos { display: grid; gap: var(--ces-e2); padding: var(--ces-e4); }
-    .conteudo { animation: entrar var(--ces-m-entrar) var(--ces-curva); }
+    .tela { flex: 1; padding-bottom: var(--geo-e5); }
+    .passos { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
+    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); }
+    .passos i.feito { background: var(--geo-destaque); }
+    .esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
+    .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
-    .campos { display: grid; gap: var(--ces-e2); padding: var(--ces-e2) var(--ces-e3); }
-    .fixo { display: grid; gap: 2px; padding: var(--ces-e3) var(--ces-e4); background: var(--ces-superficie); border-radius: var(--ces-r-grupo); }
-    .fixo span { font: 500 .8125rem/1.3 var(--ces-fonte); color: var(--ces-texto-2); }
-    .aviso, .intro, .dica, .preparando { display: flex; gap: var(--ces-e2); align-items: flex-start; font: var(--ces-t-apoio); font-size: .875rem; }
-    .aviso { padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo); background: var(--ces-atencao-suave); color: var(--ces-texto); margin: 0; }
-    .intro { margin: var(--ces-e2) var(--ces-e5) var(--ces-e3); color: var(--ces-texto-2); }
-    .dica { margin: var(--ces-e4) var(--ces-e5) 0; color: var(--ces-texto-2); }
-    .perguntas { display: grid; gap: var(--ces-e2); padding: 0 var(--ces-e3); }
-    .progresso { position: sticky; top: 0; z-index: 4; display: grid; gap: var(--ces-e2); margin: 0 0 var(--ces-e2); padding: var(--ces-e3) var(--ces-e5);
-      background: var(--ces-fundo); border-bottom: 1px solid var(--ces-linha); }
-    .progresso__linha { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e3); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .progresso__linha > span:first-child, .progresso__nc { font-weight: 600; color: var(--ces-texto); }
+    .campos { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e3); }
+    .fixo { display: grid; gap: 2px; padding: var(--geo-e3) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .fixo span { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
+    .aviso, .intro, .dica, .preparando { display: flex; gap: var(--geo-e2); align-items: flex-start; font: var(--geo-t-apoio); font-size: .875rem; }
+    .aviso { padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); color: var(--geo-texto); margin: 0; }
+    .intro { margin: var(--geo-e2) var(--geo-e5) var(--geo-e3); color: var(--geo-texto-2); }
+    .dica { margin: var(--geo-e4) var(--geo-e5) 0; color: var(--geo-texto-2); }
+    .perguntas { display: grid; gap: var(--geo-e2); padding: 0 var(--geo-e3); }
+    .progresso { position: sticky; top: 0; z-index: 4; display: grid; gap: var(--geo-e2); margin: 0 0 var(--geo-e2); padding: var(--geo-e3) var(--geo-e5);
+      background: var(--geo-fundo); border-bottom: 1px solid var(--geo-linha); }
+    .progresso__linha { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e3); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .progresso__linha > span:first-child, .progresso__nc { font-weight: 600; color: var(--geo-texto); }
     .progresso__nc, .progresso__ok { display: inline-flex; align-items: center; gap: 4px; }
-    .progresso__nc ces-icone { color: var(--ces-atencao); }
-    .progresso__ok ces-icone { color: var(--ces-ok); }
-    .progresso__trilho { height: 4px; border-radius: var(--ces-r-pilula); background: var(--ces-linha); overflow: hidden; }
-    .progresso__trilho i { display: block; height: 100%; background: var(--ces-destaque); }
-    .grupo-topo { display: grid; gap: var(--ces-e2); padding: var(--ces-e4) var(--ces-e3) var(--ces-e2); }
-    .grupo-titulo { display: flex; align-items: center; gap: var(--ces-e2); min-height: 44px; padding: 0 var(--ces-e2); border: 0; background: transparent;
-      color: var(--ces-texto); text-align: left; cursor: pointer; font: var(--ces-t-secao); }
+    .progresso__nc geo-icone { color: var(--geo-atencao); }
+    .progresso__ok geo-icone { color: var(--geo-ok); }
+    .progresso__trilho { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
+    .progresso__trilho i { display: block; height: 100%; background: var(--geo-destaque); }
+    .grupo-topo { display: grid; gap: var(--geo-e2); padding: var(--geo-e4) var(--geo-e3) var(--geo-e2); }
+    .grupo-titulo { display: flex; align-items: center; gap: var(--geo-e2); min-height: 44px; padding: 0 var(--geo-e2); border: 0; background: transparent;
+      color: var(--geo-texto); text-align: left; cursor: pointer; font: var(--geo-t-secao); }
     .grupo-titulo__texto { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-    .grupo-titulo__conta { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .grupo-titulo__nc { padding: 2px 8px; border-radius: var(--ces-r-pilula); background: var(--ces-atencao-suave); color: var(--ces-texto); font: 600 .75rem/1.4 var(--ces-fonte); }
-    .grupo-acoes { display: flex; gap: var(--ces-e2); padding: 0 var(--ces-e2); }
-    .grupo-acoes .ces-btn { flex: 1; }
-    .orientacao { display: flex; align-items: flex-start; gap: 6px; margin: calc(var(--ces-e2) * -1) 0 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .orientacao ces-icone { flex: none; margin-top: 2px; }
-    .pergunta.nc { box-shadow: inset 4px 0 0 var(--ces-atencao); }
+    .grupo-titulo__conta { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .grupo-titulo__nc { padding: 2px 8px; border-radius: var(--geo-r-pilula); background: var(--geo-atencao-suave); color: var(--geo-texto); font: 600 .75rem/1.4 var(--geo-fonte); }
+    .grupo-acoes { display: flex; gap: var(--geo-e2); padding: 0 var(--geo-e2); }
+    .grupo-acoes .geo-btn { flex: 1; }
+    .orientacao { display: flex; align-items: flex-start; gap: 6px; margin: calc(var(--geo-e2) * -1) 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .orientacao geo-icone { flex: none; margin-top: 2px; }
+    .pergunta.nc { box-shadow: inset 4px 0 0 var(--geo-atencao); }
     .segmento { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-    .segmento .opcao { justify-content: center; text-align: center; padding: var(--ces-e2) 6px; font-size: .875rem; line-height: 1.2; }
-    .pergunta { margin: 0; border: 0; padding: var(--ces-e4); background: var(--ces-superficie); border-radius: var(--ces-r-grupo); display: grid; gap: var(--ces-e3); min-width: 0; }
-    .pergunta.pendente { box-shadow: inset 0 0 0 1.5px var(--ces-erro); }
-    legend { float: left; width: 100%; padding: 0; font: var(--ces-t-corpo-forte); }
+    .segmento .opcao { justify-content: center; text-align: center; padding: var(--geo-e2) 6px; font-size: .875rem; line-height: 1.2; }
+    .pergunta { margin: 0; border: 0; padding: var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); display: grid; gap: var(--geo-e3); min-width: 0; }
+    .pergunta.pendente { box-shadow: inset 0 0 0 1.5px var(--geo-erro); }
+    legend { float: left; width: 100%; padding: 0; font: var(--geo-t-corpo-forte); }
     legend + * { clear: both; }
-    .opcoes { display: grid; gap: var(--ces-e2); }
-    .opcao { display: flex; align-items: center; gap: var(--ces-e3); min-height: 48px; padding: var(--ces-e2) var(--ces-e3); border: 1.5px solid var(--ces-linha);
-      border-radius: var(--ces-r-campo); background: var(--ces-superficie); color: var(--ces-texto); text-align: left; font: var(--ces-t-corpo); cursor: pointer; }
-    .opcao[aria-checked='true'] { border-color: var(--ces-destaque); background: var(--ces-destaque-suave); }
-    .opcao.gera-desvio[aria-checked='true'] { border-color: var(--ces-atencao); background: var(--ces-atencao-suave); }
-    .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--ces-linha-forte); flex: none; }
-    [aria-checked='true'] > .radio { border: 6px solid var(--ces-destaque); }
-    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--ces-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
-    [aria-checked='true'] > .caixa { background: var(--ces-destaque); border-color: var(--ces-destaque); color: var(--ces-destaque-texto); }
-    .texto { min-height: 96px; padding-top: var(--ces-e3); resize: vertical; }
-    .desvio { margin: 0 var(--ces-e3) var(--ces-e3); padding: var(--ces-e4); background: var(--ces-superficie); border-radius: var(--ces-r-grupo);
-      display: grid; gap: var(--ces-e4); border-left: 4px solid var(--ces-atencao); }
-    .desvio.tratado { border-left-color: var(--ces-ok); }
+    .opcoes { display: grid; gap: var(--geo-e2); }
+    .opcao { display: flex; align-items: center; gap: var(--geo-e3); min-height: 48px; padding: var(--geo-e2) var(--geo-e3); border: 1.5px solid var(--geo-linha);
+      border-radius: var(--geo-r-campo); background: var(--geo-superficie); color: var(--geo-texto); text-align: left; font: var(--geo-t-corpo); cursor: pointer; }
+    .opcao[aria-checked='true'] { border-color: var(--geo-destaque); background: var(--geo-destaque-suave); }
+    .opcao.gera-desvio[aria-checked='true'] { border-color: var(--geo-atencao); background: var(--geo-atencao-suave); }
+    .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--geo-linha-forte); flex: none; }
+    [aria-checked='true'] > .radio { border: 6px solid var(--geo-destaque); }
+    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
+    [aria-checked='true'] > .caixa { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
+    .texto { min-height: 96px; padding-top: var(--geo-e3); resize: vertical; }
+    .desvio { margin: 0 var(--geo-e3) var(--geo-e3); padding: var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo);
+      display: grid; gap: var(--geo-e4); border-left: 4px solid var(--geo-atencao); }
+    .desvio.tratado { border-left-color: var(--geo-ok); }
     .desvio header { display: grid; gap: 2px; }
-    .ref { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .interruptor { display: flex; align-items: center; gap: var(--ces-e3); min-height: 56px; padding: 0; border: 0; background: transparent; color: var(--ces-texto); text-align: left; cursor: pointer; }
+    .ref { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .interruptor { display: flex; align-items: center; gap: var(--geo-e3); min-height: 56px; padding: 0; border: 0; background: transparent; color: var(--geo-texto); text-align: left; cursor: pointer; }
     .interruptor .txt { flex: 1; display: grid; gap: 2px; }
-    .interruptor .txt span { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--ces-linha-forte); position: relative; flex: none; transition: background-color var(--ces-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--ces-m-entrar) var(--ces-curva); }
-    [aria-checked='true'] .trilho { background: var(--ces-ok); }
+    .interruptor .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
+    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
+    [aria-checked='true'] .trilho { background: var(--geo-ok); }
     [aria-checked='true'] .trilho span { transform: translateX(20px); }
-    .botoes-foto { display: flex; gap: var(--ces-e2); }
-    .botoes-foto .ces-btn { flex: 1; position: relative; }
-    .botoes-foto.evid { padding: 0 var(--ces-e3) var(--ces-e3); }
-    .foto-desvio { display: flex; align-items: center; gap: var(--ces-e3); }
-    .foto-desvio img { width: 72px; height: 72px; object-fit: cover; border-radius: var(--ces-r-campo); }
-    .preparando { margin: 0 var(--ces-e5) var(--ces-e3); color: var(--ces-texto-2); align-items: center; }
+    .botoes-foto { display: flex; gap: var(--geo-e2); }
+    .botoes-foto .geo-btn { flex: 1; position: relative; }
+    .botoes-foto.evid { padding: 0 var(--geo-e3) var(--geo-e3); }
+    .foto-desvio { display: flex; align-items: center; gap: var(--geo-e3); }
+    .foto-desvio img { width: 72px; height: 72px; object-fit: cover; border-radius: var(--geo-r-campo); }
+    .preparando { margin: 0 var(--geo-e5) var(--geo-e3); color: var(--geo-texto-2); align-items: center; }
     .giro { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: g .8s linear infinite; }
     @keyframes g { to { transform: rotate(360deg); } }
-    .fotos { list-style: none; margin: 0; padding: 0 var(--ces-e3); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ces-e2); }
-    .fotos li { position: relative; aspect-ratio: 1; border-radius: var(--ces-r-campo); overflow: hidden; background: var(--ces-superficie-2); max-width: 100%; }
+    .fotos { list-style: none; margin: 0; padding: 0 var(--geo-e3); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--geo-e2); }
+    .fotos li { position: relative; aspect-ratio: 1; border-radius: var(--geo-r-campo); overflow: hidden; background: var(--geo-superficie-2); max-width: 100%; }
     .fotos img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .sem-previa { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ces-texto-2); }
+    .sem-previa { position: absolute; inset: 0; display: grid; place-items: center; color: var(--geo-texto-2); }
     .tam { position: absolute; left: 6px; bottom: 6px; padding: 2px 6px; border-radius: 6px; background: rgba(0, 0, 0, .55); color: #fff; font-size: 11px; }
     .tirar { position: absolute; top: 4px; right: 4px; width: 32px; height: 32px; border-radius: 50%; border: 0; display: grid; place-items: center;
       background: rgba(0, 0, 0, .55); color: #fff; cursor: pointer; }
     .tirar::after { content: ''; position: absolute; inset: -8px; }
-    .resumo { margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e2) var(--ces-e4); background: var(--ces-superficie); border-radius: var(--ces-r-grupo); }
-    .resumo > div { display: flex; justify-content: space-between; gap: var(--ces-e3); padding: var(--ces-e3) 0; border-bottom: 1px solid var(--ces-linha); }
+    .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e2) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .resumo > div { display: flex; justify-content: space-between; gap: var(--geo-e3); padding: var(--geo-e3) 0; border-bottom: 1px solid var(--geo-linha); }
     .resumo > div:last-child { border-bottom: 0; }
-    dt { color: var(--ces-texto-2); }
+    dt { color: var(--geo-texto-2); }
     dd { margin: 0; font-weight: 500; text-align: right; overflow-wrap: anywhere; }
-    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--ces-e3); padding: var(--ces-e3) var(--ces-e4) calc(var(--ces-e3) + var(--ces-safe-base));
-      background: var(--ces-fundo); border-top: 1px solid var(--ces-linha); }
-    .rodape .principal { flex: 1; min-height: var(--ces-alvo-principal); font-size: 1rem; }
+    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
+      background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
+    .rodape .principal { flex: 1; min-height: var(--geo-alvo-principal); font-size: 1rem; }
   `],
 })
 export class NovaInspecaoComponent implements OnInit, OnDestroy {

@@ -58,60 +58,60 @@ type CargaServidor = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Checklist do veículo" [subtitulo]="subtitulo()" (voltar)="voltar()">
-      <button type="button" class="ces-btn-icone" [disabled]="cargaAtual() === 'carregando'" (click)="atualizar()" aria-label="Atualizar a lista">
-        <ces-icone nome="atualizar" />
+    <geo-barra-topo titulo="Checklist do veículo" [subtitulo]="subtitulo()" (voltar)="voltar()">
+      <button type="button" class="geo-btn-icone" [disabled]="cargaAtual() === 'carregando'" (click)="atualizar()" aria-label="Atualizar a lista">
+        <geo-icone nome="atualizar" />
       </button>
-      <ces-indicador-rede />
-    </ces-barra-topo>
+      <geo-indicador-rede />
+    </geo-barra-topo>
 
     <div class="visao">
-      <ces-segmentado rotulo="Quais checklists" [opcoes]="opcoesVisao" [valor]="visao()" (valorChange)="trocarVisao($event)" />
+      <geo-segmentado rotulo="Quais checklists" [opcoes]="opcoesVisao" [valor]="visao()" (valorChange)="trocarVisao($event)" />
     </div>
 
     <div class="conteudo">
       @if (visao() === 'meus') {
         @if (rascunho(); as r) {
           <section class="retomar" aria-label="Checklist não terminado">
-            <span class="ces-selo ces-selo--destaque"><ces-icone nome="retomar" /></span>
+            <span class="geo-selo geo-selo--destaque"><geo-icone nome="retomar" /></span>
             <span class="retomar__texto">
               <strong>Checklist não terminado</strong>
               <span>{{ r.placa ?? 'Veículo ainda não escolhido' }}{{ r.condutorNome ? ' · ' + r.condutorNome : '' }}</span>
             </span>
             <span class="retomar__acoes">
-              <button type="button" class="ces-btn ces-btn--principal ces-btn--compacto" (click)="continuar()">Continuar</button>
-              <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="confirmarDescarte.set(true)">Descartar</button>
+              <button type="button" class="geo-btn geo-btn--principal geo-btn--compacto" (click)="continuar()">Continuar</button>
+              <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="confirmarDescarte.set(true)">Descartar</button>
             </span>
           </section>
         }
 
         @if (naFila().length) {
-          <h2 class="ces-secao"><span>Neste aparelho, a enviar</span><span class="ces-num">{{ naFila().length }}</span></h2>
-          <ul class="ces-grupo">
+          <h2 class="geo-secao"><span>Neste aparelho, a enviar</span><span class="geo-num">{{ naFila().length }}</span></h2>
+          <ul class="geo-grupo">
             @for (c of naFila(); track c.id) {
               <li>
-                <button type="button" class="ces-linha ces-linha--acao" (click)="abrir(c.id)" [attr.aria-label]="'Abrir o checklist do ' + placa(c.placa)">
-                  <span class="ces-selo" [class.ces-selo--atencao]="problemas(c) > 0" [class.ces-selo--ok]="!problemas(c)">
-                    <ces-icone [nome]="problemas(c) ? 'alerta' : 'check'" />
+                <button type="button" class="geo-linha geo-linha--acao" (click)="abrir(c.id)" [attr.aria-label]="'Abrir o checklist do ' + placa(c.placa)">
+                  <span class="geo-selo" [class.geo-selo--atencao]="problemas(c) > 0" [class.geo-selo--ok]="!problemas(c)">
+                    <geo-icone [nome]="problemas(c) ? 'alerta' : 'check'" />
                   </span>
-                  <span class="ces-linha__texto">
-                    <span class="ces-linha__titulo ces-num">{{ placa(c.placa) }}</span>
-                    <span class="ces-linha__resumo">{{ resumo(problemas(c)) }}</span>
-                    <span class="ces-linha__apoio">{{ quando(c.preenchidoEm) }}{{ c.condutorNome ? ' · ' + c.condutorNome : '' }}</span>
+                  <span class="geo-linha__texto">
+                    <span class="geo-linha__titulo geo-num">{{ placa(c.placa) }}</span>
+                    <span class="geo-linha__resumo">{{ resumo(problemas(c)) }}</span>
+                    <span class="geo-linha__apoio">{{ quando(c.preenchidoEm) }}{{ c.condutorNome ? ' · ' + c.condutorNome : '' }}</span>
                     @if (c.erro) { <span class="erro">{{ c.erro }}</span> }
                     @else if (c.aviso) { <span class="aviso">{{ c.aviso }}</span> }
                   </span>
-                  <ces-status-envio [estado]="estado(c)" />
+                  <geo-status-envio [estado]="estado(c)" />
                 </button>
                 @if (c.statusSync === 'ERRO' && c.registrado) {
                   <div class="corrigir">
-                    <button type="button" class="ces-btn ces-btn--tonal ces-btn--compacto" (click)="tentarDeNovo(c)"><ces-icone nome="atualizar" [tamanho]="16" />Tentar de novo</button>
+                    <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto" (click)="tentarDeNovo(c)"><geo-icone nome="atualizar" [tamanho]="16" />Tentar de novo</button>
                   </div>
                 }
                 @if (c.statusSync === 'ERRO' && !c.registrado) {
                   <div class="corrigir">
-                    <button type="button" class="ces-btn ces-btn--tonal ces-btn--compacto" (click)="corrigir(c)"><ces-icone nome="editar" [tamanho]="16" />Corrigir e enviar</button>
-                    <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="descartarRecusado.set(c)">Descartar</button>
+                    <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto" (click)="corrigir(c)"><geo-icone nome="editar" [tamanho]="16" />Corrigir e enviar</button>
+                    <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="descartarRecusado.set(c)">Descartar</button>
                   </div>
                 }
               </li>
@@ -120,51 +120,51 @@ type CargaServidor = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
         }
 
         @if (enviados().length) {
-          <h2 class="ces-secao"><span>Enviados</span><span class="ces-num">{{ enviados().length }}</span></h2>
-          @if (cargaMeus() === 'sem-sinal') { <p class="nota"><ces-icone nome="nuvem" [tamanho]="16" />Sem sinal: aparecem só os deste aparelho.</p> }
-          @if (cargaMeus() === 'erro') { <p class="nota"><ces-icone nome="alerta" [tamanho]="16" />Não deu para buscar no servidor: aparecem só os deste aparelho.</p> }
-          <ul class="ces-grupo">
+          <h2 class="geo-secao"><span>Enviados</span><span class="geo-num">{{ enviados().length }}</span></h2>
+          @if (cargaMeus() === 'sem-sinal') { <p class="nota"><geo-icone nome="nuvem" [tamanho]="16" />Sem sinal: aparecem só os deste aparelho.</p> }
+          @if (cargaMeus() === 'erro') { <p class="nota"><geo-icone nome="alerta" [tamanho]="16" />Não deu para buscar no servidor: aparecem só os deste aparelho.</p> }
+          <ul class="geo-grupo">
             @for (e of enviados(); track e.chave) {
               <li><ng-container [ngTemplateOutlet]="linhaEnviado" [ngTemplateOutletContext]="{ $implicit: e, titulo: placa(e.placa), comPlaca: true }" /></li>
             }
           </ul>
         } @else if (cargaMeus() === 'carregando' && !naFila().length) {
-          <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando"><div class="ces-esqueleto" style="height: 72px"></div><div class="ces-esqueleto" style="height: 72px"></div></div>
+          <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando"><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div></div>
         }
 
         @if (carregado() && cargaMeus() !== 'carregando' && !enviados().length && !naFila().length && !rascunho()) {
-          <ces-vazio icone="caminhao" titulo="Nenhum checklist seu nos últimos 30 dias"
+          <geo-vazio icone="caminhao" titulo="Nenhum checklist seu nos últimos 30 dias"
             texto="Faça o checklist antes de usar o veículo pela primeira vez no dia e sempre que receber o veículo de outra pessoa." />
         }
       } @else {
         <div class="escolha">
-          <ces-seletor rotulo="Veículo" placeholder="Escolher a placa" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="escolherVeiculo($event)" />
+          <geo-seletor rotulo="Veículo" placeholder="Escolher a placa" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="escolherVeiculo($event)" />
         </div>
         @if (!idVeiculo()) {
-          <ces-vazio icone="caminhao" titulo="Escolha um veículo" texto="Aparecem os últimos checklists da placa, de qualquer pessoa: como o veículo foi entregue." />
+          <geo-vazio icone="caminhao" titulo="Escolha um veículo" texto="Aparecem os últimos checklists da placa, de qualquer pessoa: como o veículo foi entregue." />
         } @else {
           @switch (cargaVeiculo()) {
             @case ('carregando') {
-              <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando"><div class="ces-esqueleto" style="height: 72px"></div><div class="ces-esqueleto" style="height: 72px"></div><div class="ces-esqueleto" style="height: 72px"></div></div>
+              <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando"><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div></div>
             }
             @case ('sem-sinal') {
-              <ces-vazio icone="nuvem" titulo="Precisa de internet" texto="O histórico do veículo vem do servidor. Conecte e toque em atualizar." />
+              <geo-vazio icone="nuvem" titulo="Precisa de internet" texto="O histórico do veículo vem do servidor. Conecte e toque em atualizar." />
             }
             @case ('erro') {
-              <ces-vazio icone="alerta" titulo="Não foi possível buscar os checklists" texto="Confira a internet e tente de novo.">
-                <button type="button" class="ces-btn ces-btn--tonal" (click)="carregarVeiculo()">Tentar de novo</button>
-              </ces-vazio>
+              <geo-vazio icone="alerta" titulo="Não foi possível buscar os checklists" texto="Confira a internet e tente de novo.">
+                <button type="button" class="geo-btn geo-btn--tonal" (click)="carregarVeiculo()">Tentar de novo</button>
+              </geo-vazio>
             }
             @default {
               @if (doVeiculo().length) {
-                <h2 class="ces-secao"><span>Últimos checklists</span><span class="ces-num">{{ doVeiculo().length }}</span></h2>
-                <ul class="ces-grupo">
+                <h2 class="geo-secao"><span>Últimos checklists</span><span class="geo-num">{{ doVeiculo().length }}</span></h2>
+                <ul class="geo-grupo">
                   @for (e of doVeiculo(); track e.chave) {
                     <li><ng-container [ngTemplateOutlet]="linhaEnviado" [ngTemplateOutletContext]="{ $implicit: e, titulo: quando(e.preenchidoEm), comPlaca: false }" /></li>
                   }
                 </ul>
               } @else {
-                <ces-vazio icone="caminhao" titulo="Nenhum checklist deste veículo" texto="Quando alguém fizer o checklist desta placa, ele aparece aqui." />
+                <geo-vazio icone="caminhao" titulo="Nenhum checklist deste veículo" texto="Quando alguém fizer o checklist desta placa, ele aparece aqui." />
               }
             }
           }
@@ -174,66 +174,66 @@ type CargaServidor = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
     </div>
 
     <ng-template #linhaEnviado let-e let-titulo="titulo" let-comPlaca="comPlaca">
-      <button type="button" class="ces-linha ces-linha--acao" (click)="abrir(e.abrir)" [attr.aria-label]="'Abrir o checklist do ' + placa(e.placa) + ' de ' + quando(e.preenchidoEm)">
-        <span class="ces-selo" [class.ces-selo--atencao]="e.problemas > 0" [class.ces-selo--ok]="!e.problemas">
-          <ces-icone [nome]="e.problemas ? 'alerta' : 'check'" />
+      <button type="button" class="geo-linha geo-linha--acao" (click)="abrir(e.abrir)" [attr.aria-label]="'Abrir o checklist do ' + placa(e.placa) + ' de ' + quando(e.preenchidoEm)">
+        <span class="geo-selo" [class.geo-selo--atencao]="e.problemas > 0" [class.geo-selo--ok]="!e.problemas">
+          <geo-icone [nome]="e.problemas ? 'alerta' : 'check'" />
         </span>
-        <span class="ces-linha__texto">
+        <span class="geo-linha__texto">
           <span class="linha__topo">
-            <span class="ces-linha__titulo" [class.ces-num]="comPlaca">{{ titulo }}</span>
-            @if (e.passagem) { <span class="ces-etiqueta ces-etiqueta--destaque">Recebeu o veículo</span> }
+            <span class="geo-linha__titulo" [class.geo-num]="comPlaca">{{ titulo }}</span>
+            @if (e.passagem) { <span class="geo-etiqueta geo-etiqueta--destaque">Recebeu o veículo</span> }
           </span>
-          <span class="ces-linha__resumo">{{ resumo(e.problemas) }}</span>
-          <span class="ces-linha__apoio">{{ apoio(e, comPlaca) }}</span>
+          <span class="geo-linha__resumo">{{ resumo(e.problemas) }}</span>
+          <span class="geo-linha__apoio">{{ apoio(e, comPlaca) }}</span>
           @if (e.fotosAChegar) { <span class="aviso">{{ e.fotosAChegar === 1 ? '1 foto ainda no celular de quem preencheu' : e.fotosAChegar + ' fotos ainda no celular de quem preencheu' }}</span> }
         </span>
-        <ces-icone class="abrir" nome="avancar" [tamanho]="18" />
+        <geo-icone class="abrir" nome="avancar" [tamanho]="18" />
       </button>
     </ng-template>
 
     <div class="doca">
       @if (rascunho()) {
-        <button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="continuar()"><ces-icone nome="retomar" />Continuar checklist</button>
+        <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="continuar()"><geo-icone nome="retomar" />Continuar checklist</button>
       } @else {
-        <button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="novo()"><ces-icone nome="mais" />Fazer checklist</button>
+        <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="novo()"><geo-icone nome="mais" />Fazer checklist</button>
       }
     </div>
 
-    <ces-folha [aberta]="!!descartarRecusado()" (fechar)="descartarRecusado.set(null)" titulo="Descartar o checklist recusado?"
+    <geo-folha [aberta]="!!descartarRecusado()" (fechar)="descartarRecusado.set(null)" titulo="Descartar o checklist recusado?"
       descricao="Ele sai do aparelho e não vai para o servidor. Se o veículo ainda vai ser usado, faça um novo.">
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="descartarRecusado.set(null)">Manter</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="descartarErro()">Descartar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="descartarRecusado.set(null)">Manter</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="descartarErro()">Descartar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
 
-    <ces-folha [aberta]="confirmarDescarte()" (fechar)="confirmarDescarte.set(false)" titulo="Descartar o checklist?"
+    <geo-folha [aberta]="confirmarDescarte()" (fechar)="confirmarDescarte.set(false)" titulo="Descartar o checklist?"
       descricao="As respostas e fotos deste checklist saem do aparelho.">
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="confirmarDescarte.set(false)">Manter</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="descartar()">Descartar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="confirmarDescarte.set(false)">Manter</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="descartar()">Descartar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: flex; flex-direction: column; min-height: 100%; }
     .conteudo { flex: 1; }
-    .visao { padding: var(--ces-e2) var(--ces-e3) 0; }
-    .escolha { margin: var(--ces-e3) var(--ces-e3) 0; background: var(--ces-superficie); border-radius: var(--ces-r-grupo); overflow: hidden; }
-    .retomar { display: flex; align-items: center; gap: var(--ces-e3); margin: var(--ces-e3) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
-      background: var(--ces-superficie); border-radius: var(--ces-r-grupo); box-shadow: inset 4px 0 0 var(--ces-destaque); flex-wrap: wrap; }
-    .retomar__texto { flex: 1; min-width: 12rem; display: grid; gap: 2px; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .retomar__texto strong { font: var(--ces-t-corpo-forte); color: var(--ces-texto); }
-    .retomar__acoes { display: flex; gap: var(--ces-e2); }
-    .linha__topo { display: flex; align-items: center; gap: var(--ces-e2); flex-wrap: wrap; }
-    .abrir { color: var(--ces-texto-2); }
-    .erro { color: var(--ces-erro); font: var(--ces-t-apoio); font-weight: 600; }
-    .aviso { color: var(--ces-atencao); font: var(--ces-t-apoio); }
-    .nota { display: flex; align-items: flex-start; gap: 6px; margin: 0 var(--ces-e5) var(--ces-e2); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .nota ces-icone { flex: none; margin-top: 2px; }
-    .corrigir { display: flex; gap: var(--ces-e2); padding: 0 var(--ces-e4) var(--ces-e3) calc(var(--ces-e4) + 40px + var(--ces-e3)); }
+    .visao { padding: var(--geo-e2) var(--geo-e3) 0; }
+    .escolha { margin: var(--geo-e3) var(--geo-e3) 0; background: var(--geo-superficie); border-radius: var(--geo-r-grupo); overflow: hidden; }
+    .retomar { display: flex; align-items: center; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+      background: var(--geo-superficie); border-radius: var(--geo-r-grupo); box-shadow: inset 4px 0 0 var(--geo-destaque); flex-wrap: wrap; }
+    .retomar__texto { flex: 1; min-width: 12rem; display: grid; gap: 2px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .retomar__texto strong { font: var(--geo-t-corpo-forte); color: var(--geo-texto); }
+    .retomar__acoes { display: flex; gap: var(--geo-e2); }
+    .linha__topo { display: flex; align-items: center; gap: var(--geo-e2); flex-wrap: wrap; }
+    .abrir { color: var(--geo-texto-2); }
+    .erro { color: var(--geo-erro); font: var(--geo-t-apoio); font-weight: 600; }
+    .aviso { color: var(--geo-atencao); font: var(--geo-t-apoio); }
+    .nota { display: flex; align-items: flex-start; gap: 6px; margin: 0 var(--geo-e5) var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .nota geo-icone { flex: none; margin-top: 2px; }
+    .corrigir { display: flex; gap: var(--geo-e2); padding: 0 var(--geo-e4) var(--geo-e3) calc(var(--geo-e4) + 40px + var(--geo-e3)); }
     .respiro { height: 96px; }
-    .doca { position: sticky; bottom: 0; padding: var(--ces-e3) var(--ces-e4) calc(var(--ces-e3) + var(--ces-safe-base)); background: var(--ces-fundo); }
+    .doca { position: sticky; bottom: 0; padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base)); background: var(--geo-fundo); }
   `]
 })
 export class ChecklistVeiculoListaComponent implements OnInit {

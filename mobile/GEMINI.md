@@ -6,7 +6,7 @@
 
 ## 🎯 1. Identidade do Projeto
 
-**Nome:** Nexo Field App (`ces-field-app`)
+**Nome:** Nexo Field App (`geo-field-app`)
 **Propósito:** Aplicação PWA Angular consumida exclusivamente por **encarregados de equipes de campo** (supervisores operacionais) da empresa. Eles atuam em campo, frequentemente sem conexão de rede estável, e precisam registrar execuções, lançar solicitações de materiais e consultar dados operacionais.
 
 **Relacionamento com o backend:** Este app é um **cliente** do sistema backend Nexo (Gestão Operacional). O backend é um Monolith Modular (Spring Boot 4, Java 21, PostgreSQL 17.5) com API RESTful documentada via Swagger. A URL base da API deve ser configurável por ambiente (`environment.ts`).
@@ -83,7 +83,7 @@ Esta é a regra mais importante de design: **a aplicação deve parecer e se com
 ## 📁 4. Estrutura de Diretórios
 
 ```
-ces-field-app/
+geo-field-app/
 ├── docs/                          ← 📌 DOCUMENTAÇÃO DA API (não modificar)
 │   ├── iam.md
 │   ├── rh.md

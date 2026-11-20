@@ -29,23 +29,23 @@ import { AvaliacaoFolhaComponent } from '../avaliacao/avaliacao-folha.component'
   template: `
     <div class="casca">
       <main #rolagem class="conteudo" (scroll)="aoRolar()">
-        <ces-aviso-sessao />
+        <geo-aviso-sessao />
         <router-outlet />
         <app-avaliacao-folha />
       </main>
       @if (mostrarAbas()) {
-        <ces-barra-abas [abas]="abas()" />
+        <geo-barra-abas [abas]="abas()" />
       }
     </div>
   `,
   styles: [`
     :host { display: block; height: 100%; }
-    .casca { display: flex; flex-direction: column; height: 100dvh; background: var(--ces-fundo); }
+    .casca { display: flex; flex-direction: column; height: 100dvh; background: var(--geo-fundo); }
     .conteudo { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
       display: flex; flex-direction: column; }
     /* Só a tela cresce até o fim; o aviso de sessão fica do tamanho dele (vazio, crescia e empurrava a tela curta para baixo no tablet). */
-    .conteudo > :not(router-outlet):not(ces-aviso-sessao) { flex: 1 0 auto; }
-    .conteudo > ces-aviso-sessao { flex: none; }
+    .conteudo > :not(router-outlet):not(geo-aviso-sessao) { flex: 1 0 auto; }
+    .conteudo > geo-aviso-sessao { flex: none; }
   `],
 })
 export class AppShellComponent implements AfterViewInit {

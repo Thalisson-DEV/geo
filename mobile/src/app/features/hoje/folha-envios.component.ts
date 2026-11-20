@@ -11,43 +11,43 @@ import { FolhaComponent, StatusEnvioComponent, IconeComponent, VazioComponent } 
   imports: [FolhaComponent, StatusEnvioComponent, IconeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-folha [aberta]="aberta()" (fechar)="fechar.emit()" titulo="Envios"
+    <geo-folha [aberta]="aberta()" (fechar)="fechar.emit()" titulo="Envios"
       [descricao]="rede.isOnline() ? 'Saem pela ordem em que foram lançados.' : 'Sem internet. Vão sozinhos quando o sinal voltar.'">
       @if (fila.itens().length) {
-        <ul class="ces-grupo lista">
+        <ul class="geo-grupo lista">
           @for (item of fila.itens(); track item.id) {
             <li>
-              <div class="ces-linha">
+              <div class="geo-linha">
                 @if (item.estado === 'conflict' || item.estado === 'error') {
-                  <span class="ces-selo" [class.ces-selo--erro]="item.estado === 'conflict'" [class.ces-selo--atencao]="item.estado === 'error'">
-                    <ces-icone nome="alerta" />
+                  <span class="geo-selo" [class.geo-selo--erro]="item.estado === 'conflict'" [class.geo-selo--atencao]="item.estado === 'error'">
+                    <geo-icone nome="alerta" />
                   </span>
                 }
-                <div class="ces-linha__texto">
-                  <span class="ces-linha__titulo ces-num">{{ item.titulo }}</span>
-                  <span class="ces-linha__apoio ces-num">{{ item.motivo ?? item.detalhe }}</span>
+                <div class="geo-linha__texto">
+                  <span class="geo-linha__titulo geo-num">{{ item.titulo }}</span>
+                  <span class="geo-linha__apoio geo-num">{{ item.motivo ?? item.detalhe }}</span>
                 </div>
-                <ces-status-envio [estado]="item.estado" />
+                <geo-status-envio [estado]="item.estado" />
               </div>
             </li>
           }
         </ul>
       } @else {
-        <ces-vazio icone="check" titulo="Tudo enviado" texto="Nada esperando para sair deste aparelho." />
+        <geo-vazio icone="check" titulo="Tudo enviado" texto="Nada esperando para sair deste aparelho." />
       }
       <div rodape class="rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="fechar.emit()">Fechar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="enviar()"
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="fechar.emit()">Fechar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="enviar()"
           [disabled]="!rede.isOnline() || fila.enviandoAgora() || !fila.itens().length">
-          <ces-icone nome="atualizar" [tamanho]="18" />{{ fila.enviandoAgora() ? 'Enviando…' : 'Enviar agora' }}
+          <geo-icone nome="atualizar" [tamanho]="18" />{{ fila.enviandoAgora() ? 'Enviando…' : 'Enviar agora' }}
         </button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    .lista { margin-bottom: var(--ces-e2); background: var(--ces-fundo); }
-    .rodape { display: flex; gap: var(--ces-e3); padding: var(--ces-e3) var(--ces-e4) 0; }
-    .rodape .ces-btn { flex: 1; }
+    .lista { margin-bottom: var(--geo-e2); background: var(--geo-fundo); }
+    .rodape { display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) 0; }
+    .rodape .geo-btn { flex: 1; }
   `],
 })
 export class FolhaEnviosComponent {

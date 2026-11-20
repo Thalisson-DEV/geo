@@ -127,7 +127,7 @@ export const TRAVA_FILA = new InjectionToken<ExecutorComTrava>('TRAVA_FILA', {
   factory: () => async (fn) => {
     const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
     if (!locks?.request) return fn();
-    const resultado: unknown = await locks.request('ces-outbox', { ifAvailable: true }, lock => (lock ? fn() : RESULTADO_VAZIO()));
+    const resultado: unknown = await locks.request('ces-outbox', { ifAvailable: true }, lock => (lock ? fn() : RESULTADO_VAZIO())); // renomear-geo: manter
     return resultado as SyncResult;
   },
 });

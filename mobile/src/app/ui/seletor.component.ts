@@ -16,7 +16,7 @@ export interface OpcaoSeletor {
  * a tela poder persistir a folha aberta no rascunho.
  */
 @Component({
-  selector: 'ces-seletor',
+  selector: 'geo-seletor',
   standalone: true,
   imports: [FolhaComponent, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,61 +27,61 @@ export interface OpcaoSeletor {
         <span class="rotulo">{{ rotulo() }}@if (obrigatorio()) {<span aria-hidden="true"> *</span>}</span>
         <span class="valor">{{ resumo() || placeholder() }}</span>
       </span>
-      <ces-icone nome="avancar" [tamanho]="18" />
+      <geo-icone nome="avancar" [tamanho]="18" />
     </button>
 
-    <ces-folha [aberta]="aberto()" (fechar)="fechar()" [titulo]="rotulo()" [descricao]="multiplo() ? 'Marque quantos precisar.' : null">
+    <geo-folha [aberta]="aberto()" (fechar)="fechar()" [titulo]="rotulo()" [descricao]="multiplo() ? 'Marque quantos precisar.' : null">
       @if (buscavel() ?? opcoes().length > 6) {
         <div class="busca">
-          <ces-icone nome="busca" [tamanho]="18" />
+          <geo-icone nome="busca" [tamanho]="18" />
           <input type="search" [placeholder]="placeholderBusca()" enterkeyhint="search" autocomplete="off" [attr.aria-label]="'Buscar ' + rotulo()"
             [value]="busca()" (input)="busca.set($any($event.target).value)">
         </div>
       }
-      <ul class="ces-grupo lista" [attr.role]="multiplo() ? 'group' : 'radiogroup'" [attr.aria-label]="rotulo()">
+      <ul class="geo-grupo lista" [attr.role]="multiplo() ? 'group' : 'radiogroup'" [attr.aria-label]="rotulo()">
         @for (o of filtradas(); track o.valor) {
           <li>
-            <button type="button" class="ces-linha ces-linha--acao" [attr.role]="multiplo() ? 'checkbox' : 'radio'"
+            <button type="button" class="geo-linha geo-linha--acao" [attr.role]="multiplo() ? 'checkbox' : 'radio'"
               [attr.aria-checked]="marcado(o.valor)" [disabled]="o.desabilitado" (click)="escolher(o)">
               @if (multiplo()) {
-                <span class="caixa" [class.marcada]="marcado(o.valor)" aria-hidden="true"><ces-icone nome="check" [tamanho]="16" /></span>
+                <span class="caixa" [class.marcada]="marcado(o.valor)" aria-hidden="true"><geo-icone nome="check" [tamanho]="16" /></span>
               }
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ o.rotulo }}</span>
-                @if (o.apoio) { <span class="ces-linha__apoio">{{ o.apoio }}</span> }
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ o.rotulo }}</span>
+                @if (o.apoio) { <span class="geo-linha__apoio">{{ o.apoio }}</span> }
               </span>
-              @if (!multiplo() && marcado(o.valor)) { <ces-icone nome="check" /> }
+              @if (!multiplo() && marcado(o.valor)) { <geo-icone nome="check" /> }
             </button>
           </li>
         } @empty {
-          <li><div class="ces-linha"><span class="ces-linha__apoio">Nada encontrado</span></div></li>
+          <li><div class="geo-linha"><span class="geo-linha__apoio">Nada encontrado</span></div></li>
         }
       </ul>
       @if (multiplo()) {
-        <div rodape class="rodape"><button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="fechar()">Pronto</button></div>
+        <div rodape class="rodape"><button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="fechar()">Pronto</button></div>
       }
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; }
-    .campo { width: 100%; display: flex; align-items: center; gap: var(--ces-e3); min-height: 64px; padding: var(--ces-e3) var(--ces-e4);
-      background: var(--ces-superficie); border: 0; border-radius: var(--ces-r-grupo); text-align: left; color: var(--ces-texto); cursor: pointer; }
-    .campo:active:not(:disabled) { background: var(--ces-superficie-2); }
+    .campo { width: 100%; display: flex; align-items: center; gap: var(--geo-e3); min-height: 64px; padding: var(--geo-e3) var(--geo-e4);
+      background: var(--geo-superficie); border: 0; border-radius: var(--geo-r-grupo); text-align: left; color: var(--geo-texto); cursor: pointer; }
+    .campo:active:not(:disabled) { background: var(--geo-superficie-2); }
     .campo:disabled { cursor: default; opacity: .7; }
-    .campo.invalido { box-shadow: inset 0 0 0 1.5px var(--ces-erro); }
+    .campo.invalido { box-shadow: inset 0 0 0 1.5px var(--geo-erro); }
     .txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
-    .rotulo { font: 500 .8125rem/1.3 var(--ces-fonte); color: var(--ces-texto-2); }
-    .valor { font: var(--ces-t-corpo-forte); overflow-wrap: anywhere; }
-    .vazio .valor { color: var(--ces-texto-3); font-weight: 400; }
-    .busca { margin: 0 var(--ces-e3) var(--ces-e3); display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e4); min-height: 48px;
-      border-radius: var(--ces-r-pilula); background: var(--ces-superficie-2); color: var(--ces-texto-2); }
-    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+    .rotulo { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
+    .valor { font: var(--geo-t-corpo-forte); overflow-wrap: anywhere; }
+    .vazio .valor { color: var(--geo-texto-3); font-weight: 400; }
+    .busca { margin: 0 var(--geo-e3) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+      border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); color: var(--geo-texto-2); }
+    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
-    .lista { background: var(--ces-fundo); }
-    .lista .ces-linha:disabled { opacity: .5; }
-    .caixa { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--ces-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
-    .caixa.marcada { background: var(--ces-destaque); border-color: var(--ces-destaque); color: var(--ces-destaque-texto); }
-    .rodape { padding: var(--ces-e3) var(--ces-e4) 0; }
+    .lista { background: var(--geo-fundo); }
+    .lista .geo-linha:disabled { opacity: .5; }
+    .caixa { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
+    .caixa.marcada { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
+    .rodape { padding: var(--geo-e3) var(--geo-e4) 0; }
   `],
 })
 export class SeletorComponent {

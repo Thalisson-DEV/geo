@@ -1,5 +1,3 @@
-import { FilterOption } from './filter.models';
-
 /** Janelas de tempo suportadas pelo filtro de período das listagens. */
 export type PeriodFilter = 'hoje' | '7dias' | '30dias' | 'todos';
 
@@ -9,14 +7,6 @@ export type PeriodFilter = 'hoje' | '7dias' | '30dias' | 'todos';
  * continua acessível em "Todo o Período".
  */
 export const DEFAULT_PERIOD_FILTER: PeriodFilter = '30dias';
-
-/** Opções do grupo "Período", idênticas em todos os domínios. */
-export const PERIOD_FILTER_OPTIONS: readonly FilterOption<PeriodFilter>[] = [
-  { value: 'hoje', label: 'Hoje', activeClass: 'filter-todos-active' },
-  { value: '7dias', label: 'Últimos 7 dias', activeClass: 'filter-todos-active' },
-  { value: '30dias', label: 'Últimos 30 dias', activeClass: 'filter-todos-active' },
-  { value: 'todos', label: 'Todo o Período', activeClass: 'filter-todos-active' },
-];
 
 /** Quantidade de dias corridos (incluindo hoje) que cada período abrange. */
 const PERIOD_DAYS: Record<Exclude<PeriodFilter, 'todos'>, number> = {

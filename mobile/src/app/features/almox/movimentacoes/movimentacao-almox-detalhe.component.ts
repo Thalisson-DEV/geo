@@ -26,78 +26,78 @@ interface GrupoMaterial {
   imports: [BarraTopoComponent, IconeComponent, RouterLink, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo [titulo]="mov() ? tipo().rotulo : 'Movimentação'" [subtitulo]="mov() ? quando() : 'Carregando…'" (voltar)="voltar()" />
+    <geo-barra-topo [titulo]="mov() ? tipo().rotulo : 'Movimentação'" [subtitulo]="mov() ? quando() : 'Carregando…'" (voltar)="voltar()" />
 
     @if (carregando()) {
-      <div class="ces-esqueletos" aria-busy="true"><div class="ces-esqueleto" style="height: 96px"></div><div class="ces-esqueleto" style="height: 200px"></div></div>
+      <div class="geo-esqueletos" aria-busy="true"><div class="geo-esqueleto" style="height: 96px"></div><div class="geo-esqueleto" style="height: 200px"></div></div>
     } @else if (erro()) {
-      <ces-vazio icone="alerta" titulo="Não foi possível abrir a movimentação" [texto]="erro()">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="carregar()">Tentar de novo</button>
-      </ces-vazio>
+      <geo-vazio icone="alerta" titulo="Não foi possível abrir a movimentação" [texto]="erro()">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="carregar()">Tentar de novo</button>
+      </geo-vazio>
     } @else if (mov(); as m) {
       <section class="hero">
-        <span class="ces-selo" [class]="'ces-selo ces-selo--' + tipo().tom"><ces-icone [nome]="tipo().icone" /></span>
+        <span class="geo-selo" [class]="'geo-selo geo-selo--' + tipo().tom"><geo-icone [nome]="tipo().icone" /></span>
         <div class="rota">
           @if (m.estoqueOrigem) { <span><small>Saiu de</small>{{ m.estoqueOrigem.nomeIdentificador }}</span> }
           @if (m.estoqueDestino) { <span><small>Entrou em</small><strong>{{ m.estoqueDestino.nomeIdentificador }}</strong></span> }
         </div>
       </section>
-      <dl class="ces-dados">
+      <dl class="geo-dados">
         <div><dt>Quem registrou</dt><dd>{{ m.operadorNome || 'Sistema' }}</dd></div>
-        <div><dt>Quando</dt><dd class="ces-num">{{ quando() }}</dd></div>
-        <div><dt>Total</dt><dd class="ces-num">{{ grupos().length }} {{ grupos().length === 1 ? 'material' : 'materiais' }}{{ totalSeries() ? ' · ' + contar(totalSeries()) : '' }}</dd></div>
+        <div><dt>Quando</dt><dd class="geo-num">{{ quando() }}</dd></div>
+        <div><dt>Total</dt><dd class="geo-num">{{ grupos().length }} {{ grupos().length === 1 ? 'material' : 'materiais' }}{{ totalSeries() ? ' · ' + contar(totalSeries()) : '' }}</dd></div>
         @if (m.idSolicitacao) {
-          <div><dt>Solicitação</dt><dd><a class="link" [routerLink]="['/almox/solicitacoes', m.idSolicitacao]">#{{ idCurto(m.idSolicitacao) }} <ces-icone nome="avancar" [tamanho]="16" /></a></dd></div>
+          <div><dt>Solicitação</dt><dd><a class="link" [routerLink]="['/almox/solicitacoes', m.idSolicitacao]">#{{ idCurto(m.idSolicitacao) }} <geo-icone nome="avancar" [tamanho]="16" /></a></dd></div>
         }
       </dl>
 
-      <h2 class="ces-secao"><span>Materiais</span><span class="ces-num">{{ grupos().length }}</span></h2>
-      <ul class="ces-grupo">
+      <h2 class="geo-secao"><span>Materiais</span><span class="geo-num">{{ grupos().length }}</span></h2>
+      <ul class="geo-grupo">
         @for (g of grupos(); track g.chave) {
-          <li class="ces-linha material">
-            <span class="ces-linha__texto">
-              <span class="ces-linha__titulo">{{ g.descricao }}</span>
-              <span class="ces-linha__apoio ces-num">Cód. {{ g.codigo }} · <span class="ces-cond" [class.ces-cond--sucata]="g.condicao !== 'NOVO'">{{ rotuloCondicao(g.condicao) }}</span></span>
+          <li class="geo-linha material">
+            <span class="geo-linha__texto">
+              <span class="geo-linha__titulo">{{ g.descricao }}</span>
+              <span class="geo-linha__apoio geo-num">Cód. {{ g.codigo }} · <span class="geo-cond" [class.geo-cond--sucata]="g.condicao !== 'NOVO'">{{ rotuloCondicao(g.condicao) }}</span></span>
               @if (g.series.length) {
                 <button type="button" class="ver-series" [attr.aria-expanded]="abertos()[g.chave] ?? g.series.length <= 6" (click)="alternar(g)">
-                  <ces-icone nome="codigo_barras" [tamanho]="16" />{{ contar(g.series.length) }}</button>
+                  <geo-icone nome="codigo_barras" [tamanho]="16" />{{ contar(g.series.length) }}</button>
                 @if (abertos()[g.chave] ?? g.series.length <= 6) {
                   <span class="series">@for (s of g.series; track s) { <span>{{ s }}</span> }</span>
                 }
               }
             </span>
-            <span class="ces-qtd">{{ num(g.quantidade) }}<small>{{ g.unidade }}</small>@if (g.informada) {<small class="informado">{{ num(g.informada.quantidade) }} {{ g.informada.unidade }} informados</small>}</span>
+            <span class="geo-qtd">{{ num(g.quantidade) }}<small>{{ g.unidade }}</small>@if (g.informada) {<small class="informado">{{ num(g.informada.quantidade) }} {{ g.informada.unidade }} informados</small>}</span>
           </li>
         }
       </ul>
 
       @if (assinaturas().entregador || assinaturas().recebedor) {
-        <h2 class="ces-secao">Assinaturas</h2>
+        <h2 class="geo-secao">Assinaturas</h2>
         <div class="assinaturas">
           @if (assinaturas().entregador; as a) { <figure><img [src]="a" alt="Assinatura de quem entregou"><figcaption>Quem entregou</figcaption></figure> }
           @if (assinaturas().recebedor; as b) { <figure><img [src]="b" alt="Assinatura de quem recebeu"><figcaption>Quem recebeu</figcaption></figure> }
         </div>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     }
   `,
   styles: [`
-    :host { display: block; min-height: 100%; background: var(--ces-fundo); }
-    .informado { display: block; font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); text-align: right; }
-    .hero { display: flex; gap: var(--ces-e3); align-items: center; margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e4); border-radius: var(--ces-r-folha); background: var(--ces-superficie); }
-    .rota { display: grid; gap: var(--ces-e2); min-width: 0; }
-    .rota span { display: grid; font: var(--ces-t-corpo); overflow-wrap: anywhere; }
-    .rota small { font: 500 .75rem/1.3 var(--ces-fonte); color: var(--ces-texto-2); }
-    .link { display: inline-flex; align-items: center; gap: 2px; color: var(--ces-destaque); font-weight: 600; text-decoration: none; font-family: var(--ces-fonte-mono); }
+    :host { display: block; min-height: 100%; background: var(--geo-fundo); }
+    .informado { display: block; font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); text-align: right; }
+    .hero { display: flex; gap: var(--geo-e3); align-items: center; margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); }
+    .rota { display: grid; gap: var(--geo-e2); min-width: 0; }
+    .rota span { display: grid; font: var(--geo-t-corpo); overflow-wrap: anywhere; }
+    .rota small { font: 500 .75rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
+    .link { display: inline-flex; align-items: center; gap: 2px; color: var(--geo-destaque); font-weight: 600; text-decoration: none; font-family: var(--geo-fonte-mono); }
     .material { align-items: flex-start; }
-    .ver-series { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin-top: 6px; min-height: 32px; padding: 0 10px; border: 0; border-radius: var(--ces-r-pilula);
-      background: var(--ces-superficie-2); color: var(--ces-texto); font: 600 .75rem/1 var(--ces-fonte); cursor: pointer; }
+    .ver-series { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin-top: 6px; min-height: 32px; padding: 0 10px; border: 0; border-radius: var(--geo-r-pilula);
+      background: var(--geo-superficie-2); color: var(--geo-texto); font: 600 .75rem/1 var(--geo-fonte); cursor: pointer; }
     .series { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-    .series span { padding: 3px 8px; border-radius: 6px; background: var(--ces-superficie-2); font: 600 .75rem/1.3 var(--ces-fonte-mono); }
-    .assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ces-e2); padding: 0 var(--ces-e3); }
-    figure { margin: 0; padding: var(--ces-e2); border-radius: var(--ces-r-grupo); background: var(--ces-superficie); display: grid; gap: 4px; }
+    .series span { padding: 3px 8px; border-radius: 6px; background: var(--geo-superficie-2); font: 600 .75rem/1.3 var(--geo-fonte-mono); }
+    .assinaturas { display: grid; grid-template-columns: 1fr 1fr; gap: var(--geo-e2); padding: 0 var(--geo-e3); }
+    figure { margin: 0; padding: var(--geo-e2); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); display: grid; gap: 4px; }
     figure img { width: 100%; height: 72px; object-fit: contain; background: #fff; border-radius: 8px; }
-    figcaption { font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); text-align: center; }
+    figcaption { font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); text-align: center; }
   `],
 })
 export class MovimentacaoAlmoxDetalheComponent implements OnDestroy {

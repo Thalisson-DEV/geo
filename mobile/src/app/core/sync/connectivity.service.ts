@@ -13,8 +13,8 @@ export class ConnectivityService {
   private readonly syncService = inject(SyncService, { optional: true });
   private readonly tokenService = inject(TokenService, { optional: true });
 
-  private readonly STORAGE_REDES_MOVEIS = 'ces_mobile_usar_redes_moveis';
-  static readonly STORAGE_FORCAR_OFFLINE = 'ces_mobile_forcar_offline';
+  private readonly STORAGE_REDES_MOVEIS = 'geo_mobile_usar_redes_moveis';
+  static readonly STORAGE_FORCAR_OFFLINE = 'geo_mobile_forcar_offline';
 
   /** Conexão física de rede informada pelo navegador/sistema operacional */
   readonly hardwareOnline = signal<boolean>(

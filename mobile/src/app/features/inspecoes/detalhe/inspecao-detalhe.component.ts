@@ -22,50 +22,50 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
   imports: [BarraTopoComponent, FolhaComponent, IconeComponent, StatusEnvioComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo [titulo]="nomeTipoInspecao() || 'Inspeção'" [subtitulo]="quando()" (voltar)="goBack()" />
+    <geo-barra-topo [titulo]="nomeTipoInspecao() || 'Inspeção'" [subtitulo]="quando()" (voltar)="goBack()" />
 
     @if (isLoading()) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        <div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 160px"></div><div class="ces-esqueleto" style="height: 200px"></div>
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 160px"></div><div class="geo-esqueleto" style="height: 200px"></div>
       </div>
     } @else if (inspecao(); as ins) {
-      <section class="ces-faixa-estado" [class.ces-faixa-estado--atencao]="estado() === 'conflict'" [class.ces-faixa-estado--erro]="estado() === 'error'" aria-live="polite">
-        @if (estado(); as e) { <ces-status-envio [estado]="e" [rotulo]="rotuloEstado()" /> } @else { <span class="ces-etiqueta">{{ rotuloEstado() }}</span> }
+      <section class="geo-faixa-estado" [class.geo-faixa-estado--atencao]="estado() === 'conflict'" [class.geo-faixa-estado--erro]="estado() === 'error'" aria-live="polite">
+        @if (estado(); as e) { <geo-status-envio [estado]="e" [rotulo]="rotuloEstado()" /> } @else { <span class="geo-etiqueta">{{ rotuloEstado() }}</span> }
         <p>{{ explicacao() }}</p>
       </section>
-      @if (outboxItem()?.serverOperationId) { <p class="protocolo ces-num">Protocolo #{{ outboxItem()?.serverOperationId }}</p> }
+      @if (outboxItem()?.serverOperationId) { <p class="protocolo geo-num">Protocolo #{{ outboxItem()?.serverOperationId }}</p> }
 
       <div class="resumo">
-        <div><strong class="ces-num">{{ respostas().length }}</strong><span>{{ respostas().length === 1 ? 'resposta' : 'respostas' }}</span></div>
-        <div [class.alerta]="desvios().length > 0"><strong class="ces-num">{{ desvios().length }}</strong><span>{{ desvios().length === 1 ? 'desvio' : 'desvios' }}</span></div>
-        <div><strong class="ces-num">{{ totalEvidencias() }}</strong><span>{{ totalEvidencias() === 1 ? 'foto' : 'fotos' }}</span></div>
+        <div><strong class="geo-num">{{ respostas().length }}</strong><span>{{ respostas().length === 1 ? 'resposta' : 'respostas' }}</span></div>
+        <div [class.alerta]="desvios().length > 0"><strong class="geo-num">{{ desvios().length }}</strong><span>{{ desvios().length === 1 ? 'desvio' : 'desvios' }}</span></div>
+        <div><strong class="geo-num">{{ totalEvidencias() }}</strong><span>{{ totalEvidencias() === 1 ? 'foto' : 'fotos' }}</span></div>
       </div>
 
-      <dl class="ces-dados">
+      <dl class="geo-dados">
         @if (nomeProcesso()) { <div><dt>Processo</dt><dd>{{ nomeProcesso() }}</dd></div> }
         @if (nomeEquipe()) { <div><dt>Equipe</dt><dd>{{ nomeEquipe() }}</dd></div> }
         @if (nomeBaseOperacional()) { <div><dt>Base</dt><dd>{{ nomeBaseOperacional() }}</dd></div> }
-        @if (nomeVeiculo()) { <div><dt>Veículo</dt><dd class="ces-num">{{ nomeVeiculo() }}</dd></div> }
-        @if (ins.latitude && ins.longitude) { <div><dt>Local</dt><dd class="ces-num">{{ coord(ins.latitude) }}, {{ coord(ins.longitude) }}</dd></div> }
+        @if (nomeVeiculo()) { <div><dt>Veículo</dt><dd class="geo-num">{{ nomeVeiculo() }}</dd></div> }
+        @if (ins.latitude && ins.longitude) { <div><dt>Local</dt><dd class="geo-num">{{ coord(ins.latitude) }}, {{ coord(ins.longitude) }}</dd></div> }
         @if (ins.observacoes) { <div><dt>Observações</dt><dd class="texto">{{ ins.observacoes }}</dd></div> }
       </dl>
 
       @if (totalEvidencias()) {
-        <h2 class="ces-secao ces-secao--marcada"><span class="ces-marca ces-marca--servico" aria-hidden="true"><ces-icone nome="camera" [tamanho]="14" /></span>
-          <span>Fotos</span><span class="ces-contagem">{{ totalEvidencias() }}</span></h2>
+        <h2 class="geo-secao geo-secao--marcada"><span class="geo-marca geo-marca--servico" aria-hidden="true"><geo-icone nome="camera" [tamanho]="14" /></span>
+          <span>Fotos</span><span class="geo-contagem">{{ totalEvidencias() }}</span></h2>
         <ul class="fotos" aria-label="Fotos da inspeção">
           @for (ev of evidenciasLocais(); track ev.idLocal) {
             <li>
-              @if (previewLocal(ev.idLocal); as url) { <img [src]="url" [alt]="ev.nomeArquivo"> } @else { <span class="sem-foto"><ces-icone nome="camera" />{{ ev.nomeArquivo }}</span> }
-              <span class="ces-etiqueta" [class]="'ces-etiqueta ces-etiqueta--' + tomEvidencia(ev.estado)">{{ rotuloEstadoEvidencia(ev) }}</span>
+              @if (previewLocal(ev.idLocal); as url) { <img [src]="url" [alt]="ev.nomeArquivo"> } @else { <span class="sem-foto"><geo-icone nome="camera" />{{ ev.nomeArquivo }}</span> }
+              <span class="geo-etiqueta" [class]="'geo-etiqueta geo-etiqueta--' + tomEvidencia(ev.estado)">{{ rotuloEstadoEvidencia(ev) }}</span>
             </li>
           }
           @if (!evidenciasLocais().length) {
             @for (ev of evidenciasRemotas(); track ev.id) {
               <li>
                 @if (evidenciasCarregadas()[ev.id]; as url) { <img [src]="url" [alt]="ev.nomeArquivo"> }
-                @else if (evidenciasCarregando()[ev.id]) { <span class="ces-esqueleto sem-foto"></span> }
-                @else { <span class="sem-foto"><ces-icone nome="camera" />{{ ev.nomeArquivo }}</span> }
+                @else if (evidenciasCarregando()[ev.id]) { <span class="geo-esqueleto sem-foto"></span> }
+                @else { <span class="sem-foto"><geo-icone nome="camera" />{{ ev.nomeArquivo }}</span> }
               </li>
             }
           }
@@ -73,8 +73,8 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
       }
 
       @if (desvios().length) {
-        <h2 class="ces-secao ces-secao--marcada"><span class="ces-marca ces-marca--retirado" aria-hidden="true"><ces-icone nome="desvio" [tamanho]="14" /></span>
-          <span>Desvios</span><span class="ces-contagem">{{ desvios().length }}</span></h2>
+        <h2 class="geo-secao geo-secao--marcada"><span class="geo-marca geo-marca--retirado" aria-hidden="true"><geo-icone nome="desvio" [tamanho]="14" /></span>
+          <span>Desvios</span><span class="geo-contagem">{{ desvios().length }}</span></h2>
         <ul class="desvios" aria-label="Desvios">
           @for (d of desvios(); track d.idPergunta) {
             <li>
@@ -82,10 +82,10 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
               @if (getPergunta(d.idPergunta)?.desvioPorColaborador === false && !d.colaboradores?.length) { <p class="equipe">Item da equipe ou do veículo</p> }
               @if (d.descricao) { <p><span class="rot">Problema</span>{{ d.descricao }}</p> }
               @if (d.acaoCorretiva) { <p><span class="rot">O que foi feito</span>{{ d.acaoCorretiva }}</p> }
-              @if (d.status === 'RESOLVIDO' && d.dataResolucao) { <p class="resolvido"><ces-icone nome="check" [tamanho]="16" />Resolvido em {{ data(d.dataResolucao) }}</p> }
+              @if (d.status === 'RESOLVIDO' && d.dataResolucao) { <p class="resolvido"><geo-icone nome="check" [tamanho]="16" />Resolvido em {{ data(d.dataResolucao) }}</p> }
               @if (d.fotoBase64) { <img [src]="d.fotoBase64" alt="Foto do desvio"> }
               @else if (d.id && loadedAnexos()[d.id]) { <img [src]="loadedAnexos()[d.id]" alt="Foto do desvio"> }
-              @else if (d.id && anexosLoading()[d.id]) { <span class="ces-esqueleto foto-desvio"></span> }
+              @else if (d.id && anexosLoading()[d.id]) { <span class="geo-esqueleto foto-desvio"></span> }
             </li>
           }
         </ul>
@@ -93,30 +93,30 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
 
       @if (respostas().length && gruposRespostas().length) {
         @let tot = totaisChecklist();
-        <h2 class="ces-secao ces-secao--marcada"><span class="ces-marca ces-marca--aplicado" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>
-          <span>Checklist</span><span class="ces-contagem">{{ respostas().length }}</span></h2>
+        <h2 class="geo-secao geo-secao--marcada"><span class="geo-marca geo-marca--aplicado" aria-hidden="true"><geo-icone nome="check" [tamanho]="14" /></span>
+          <span>Checklist</span><span class="geo-contagem">{{ respostas().length }}</span></h2>
         @if (tot.c + tot.nc + tot.na) {
           <div class="filtro" role="group" aria-label="Mostrar respostas">
             <button type="button" class="filtro__op" [attr.aria-pressed]="!soNaoConformes()" (click)="soNaoConformes.set(false)">Todas</button>
-            <button type="button" class="filtro__op" [attr.aria-pressed]="soNaoConformes()" (click)="soNaoConformes.set(true)" [disabled]="!tot.nc">Não conformes <span class="ces-num">{{ tot.nc }}</span></button>
-            <span class="filtro__resumo ces-num">{{ tot.c }} C · {{ tot.na }} NA</span>
+            <button type="button" class="filtro__op" [attr.aria-pressed]="soNaoConformes()" (click)="soNaoConformes.set(true)" [disabled]="!tot.nc">Não conformes <span class="geo-num">{{ tot.nc }}</span></button>
+            <span class="filtro__resumo geo-num">{{ tot.c }} C · {{ tot.na }} NA</span>
           </div>
         }
         @for (g of gruposRespostas(); track g.id) {
           @if (!soNaoConformes() || g.nc) {
-            <h3 class="grupo-resp"><span>{{ g.titulo }}</span>@if (g.nc) { <span class="nc ces-num">{{ g.nc }} NC</span> }</h3>
-            <ul class="ces-grupo" [attr.aria-label]="g.titulo">
+            <h3 class="grupo-resp"><span>{{ g.titulo }}</span>@if (g.nc) { <span class="nc geo-num">{{ g.nc }} NC</span> }</h3>
+            <ul class="geo-grupo" [attr.aria-label]="g.titulo">
               @for (it of g.itens; track it.id) {
                 @if (!soNaoConformes() || it.tipo === 'nc') {
-                  <li><div class="ces-linha resposta">
-                    <span class="ces-linha__texto">
+                  <li><div class="geo-linha resposta">
+                    <span class="geo-linha__texto">
                       <span class="enunciado">{{ it.enunciado }}</span>
                       @if (it.orientacao) { <span class="pergunta">{{ it.orientacao }}</span> }
                       @if (it.tipo === 'livre') { <span class="valor">{{ it.valor }}</span> }
                     </span>
                     @if (it.tipo !== 'livre') {
                       <span class="tag" [class.tag--nc]="it.tipo === 'nc'" [class.tag--na]="it.tipo === 'na'">
-                        <ces-icone [nome]="it.tipo === 'nc' ? 'desvio' : it.tipo === 'na' ? 'menos' : 'check'" [tamanho]="14" />{{ it.valor }}</span>
+                        <geo-icone [nome]="it.tipo === 'nc' ? 'desvio' : it.tipo === 'na' ? 'menos' : 'check'" [tamanho]="14" />{{ it.valor }}</span>
                     }
                   </div></li>
                 }
@@ -125,12 +125,12 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
           }
         }
       } @else if (respostas().length) {
-        <h2 class="ces-secao ces-secao--marcada"><span class="ces-marca ces-marca--aplicado" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>
-          <span>Respostas</span><span class="ces-contagem">{{ respostas().length }}</span></h2>
-        <ul class="ces-grupo" aria-label="Respostas">
+        <h2 class="geo-secao geo-secao--marcada"><span class="geo-marca geo-marca--aplicado" aria-hidden="true"><geo-icone nome="check" [tamanho]="14" /></span>
+          <span>Respostas</span><span class="geo-contagem">{{ respostas().length }}</span></h2>
+        <ul class="geo-grupo" aria-label="Respostas">
           @for (r of respostas(); track r.idPergunta) {
-            <li><div class="ces-linha resposta">
-              <span class="ces-linha__texto">
+            <li><div class="geo-linha resposta">
+              <span class="geo-linha__texto">
                 <span class="pergunta">{{ getPergunta(r.idPergunta)?.enunciado || 'Pergunta' }}</span>
                 <span class="valor">{{ valorResposta(r) }}</span>
               </span>
@@ -138,85 +138,85 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
           }
         </ul>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
 
       @if (showActionsFooter()) {
-        <footer class="ces-rodape-acoes">
-          @if (canDiscard()) { <button type="button" class="ces-btn ces-btn--perigo" (click)="abrirFolha('descartar')">Descartar</button> }
+        <footer class="geo-rodape-acoes">
+          @if (canDiscard()) { <button type="button" class="geo-btn geo-btn--perigo" (click)="abrirFolha('descartar')">Descartar</button> }
           @if (isResultadoIncerto()) {
-            <button type="button" class="ces-btn ces-btn--principal" (click)="abrirFolha('reenviar')" [disabled]="isRetrying()">
-              <ces-icone nome="atualizar" [tamanho]="18" />{{ isRetrying() ? 'Reenviando…' : 'Reenviar' }}</button>
+            <button type="button" class="geo-btn geo-btn--principal" (click)="abrirFolha('reenviar')" [disabled]="isRetrying()">
+              <geo-icone nome="atualizar" [tamanho]="18" />{{ isRetrying() ? 'Reenviando…' : 'Reenviar' }}</button>
           }
         </footer>
       }
     } @else {
-      <ces-vazio icone="inspecao" titulo="Inspeção não encontrada" texto="Ela não está mais neste aparelho.">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="goBack()">Ver inspeções</button>
-      </ces-vazio>
+      <geo-vazio icone="inspecao" titulo="Inspeção não encontrada" texto="Ela não está mais neste aparelho.">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="goBack()">Ver inspeções</button>
+      </geo-vazio>
     }
 
-    <ces-folha [aberta]="folha() === 'descartar'" (fechar)="abrirFolha(null)" titulo="Descartar esta inspeção?"
+    <geo-folha [aberta]="folha() === 'descartar'" (fechar)="abrirFolha(null)" titulo="Descartar esta inspeção?"
       descricao="Ela sai da fila de envio e fica marcada como cancelada neste aparelho.">
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="abrirFolha(null)">Manter</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="discard()">Descartar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="abrirFolha(null)">Manter</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="discard()">Descartar</button>
       </div>
-    </ces-folha>
-    <ces-folha [aberta]="folha() === 'reenviar'" (fechar)="abrirFolha(null)" titulo="Reenviar mesmo assim?"
+    </geo-folha>
+    <geo-folha [aberta]="folha() === 'reenviar'" (fechar)="abrirFolha(null)" titulo="Reenviar mesmo assim?"
       descricao="O sinal caiu no envio: a inspeção pode já estar no servidor. Reenviar agora pode criar uma cópia.">
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="abrirFolha(null)">Voltar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="retry()">Reenviar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="abrirFolha(null)">Voltar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="retry()">Reenviar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
-    .protocolo { margin: var(--ces-e2) var(--ces-e5) 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--ces-e2); margin: var(--ces-e3) var(--ces-e3) 0; }
-    .resumo div { display: grid; justify-items: center; padding: var(--ces-e3) var(--ces-e2); border-radius: var(--ces-r-grupo); background: var(--ces-superficie); }
-    .resumo strong { font: 700 1.625rem/1.1 var(--ces-fonte); }
-    .resumo span { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .resumo .alerta { background: var(--ces-atencao-suave); }
-    .resumo .alerta strong { color: var(--ces-atencao); }
-    dd.texto { font: var(--ces-t-corpo); white-space: pre-line; }
-    .fotos { list-style: none; margin: 0; padding: 0 var(--ces-e3); display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--ces-e2); }
-    .fotos li { position: relative; border-radius: var(--ces-r-grupo); overflow: hidden; background: var(--ces-superficie); aspect-ratio: 4 / 3; }
+    .protocolo { margin: var(--geo-e2) var(--geo-e5) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-e3) 0; }
+    .resumo div { display: grid; justify-items: center; padding: var(--geo-e3) var(--geo-e2); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
+    .resumo strong { font: 700 1.625rem/1.1 var(--geo-fonte); }
+    .resumo span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .resumo .alerta { background: var(--geo-atencao-suave); }
+    .resumo .alerta strong { color: var(--geo-atencao); }
+    dd.texto { font: var(--geo-t-corpo); white-space: pre-line; }
+    .fotos { list-style: none; margin: 0; padding: 0 var(--geo-e3); display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--geo-e2); }
+    .fotos li { position: relative; border-radius: var(--geo-r-grupo); overflow: hidden; background: var(--geo-superficie); aspect-ratio: 4 / 3; }
     .fotos img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .fotos .ces-etiqueta { position: absolute; left: 6px; bottom: 6px; }
-    .sem-foto { width: 100%; height: 100%; display: grid; place-items: center; align-content: center; gap: 4px; padding: var(--ces-e2);
-      font: var(--ces-t-apoio); color: var(--ces-texto-2); text-align: center; overflow-wrap: anywhere; }
-    .desvios { list-style: none; margin: 0; padding: 0 var(--ces-e3); display: grid; gap: var(--ces-e2); }
-    .desvios li { display: grid; gap: var(--ces-e2); padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo); background: var(--ces-superficie);
-      border-left: 4px solid var(--ces-atencao); }
-    .desvios strong { font: var(--ces-t-corpo-forte); }
-    .desvios p { margin: 0; font: var(--ces-t-corpo); overflow-wrap: anywhere; }
-    .desvios .rot { display: block; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .desvios .resolvido { display: flex; align-items: center; gap: 4px; color: var(--ces-ok); font-weight: 600; }
+    .fotos .geo-etiqueta { position: absolute; left: 6px; bottom: 6px; }
+    .sem-foto { width: 100%; height: 100%; display: grid; place-items: center; align-content: center; gap: 4px; padding: var(--geo-e2);
+      font: var(--geo-t-apoio); color: var(--geo-texto-2); text-align: center; overflow-wrap: anywhere; }
+    .desvios { list-style: none; margin: 0; padding: 0 var(--geo-e3); display: grid; gap: var(--geo-e2); }
+    .desvios li { display: grid; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie);
+      border-left: 4px solid var(--geo-atencao); }
+    .desvios strong { font: var(--geo-t-corpo-forte); }
+    .desvios p { margin: 0; font: var(--geo-t-corpo); overflow-wrap: anywhere; }
+    .desvios .rot { display: block; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .desvios .resolvido { display: flex; align-items: center; gap: 4px; color: var(--geo-ok); font-weight: 600; }
     .desvios img, .foto-desvio { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; display: block; }
     .resposta { align-items: flex-start; }
-    .pergunta { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .valor { font: var(--ces-t-corpo-forte); overflow-wrap: anywhere; }
-    .enunciado { font: var(--ces-t-corpo); overflow-wrap: anywhere; }
-    .desvios .equipe { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .filtro { display: flex; align-items: center; gap: var(--ces-e2); flex-wrap: wrap; padding: 0 var(--ces-e3) var(--ces-e2); }
-    .filtro__op { min-height: 40px; padding: 0 var(--ces-e3); border-radius: var(--ces-r-pilula); border: 1.5px solid var(--ces-linha); background: var(--ces-superficie);
-      color: var(--ces-texto); font: 500 .875rem/1 var(--ces-fonte); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
-    .filtro__op[aria-pressed='true'] { border-color: var(--ces-destaque); background: var(--ces-destaque-suave); }
+    .pergunta { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .valor { font: var(--geo-t-corpo-forte); overflow-wrap: anywhere; }
+    .enunciado { font: var(--geo-t-corpo); overflow-wrap: anywhere; }
+    .desvios .equipe { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .filtro { display: flex; align-items: center; gap: var(--geo-e2); flex-wrap: wrap; padding: 0 var(--geo-e3) var(--geo-e2); }
+    .filtro__op { min-height: 40px; padding: 0 var(--geo-e3); border-radius: var(--geo-r-pilula); border: 1.5px solid var(--geo-linha); background: var(--geo-superficie);
+      color: var(--geo-texto); font: 500 .875rem/1 var(--geo-fonte); display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+    .filtro__op[aria-pressed='true'] { border-color: var(--geo-destaque); background: var(--geo-destaque-suave); }
     .filtro__op:disabled { opacity: .5; cursor: default; }
-    .filtro__resumo { margin-left: auto; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .grupo-resp { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e2); margin: 0; padding: var(--ces-e4) var(--ces-e5) var(--ces-e2);
-      font: var(--ces-t-secao); color: var(--ces-texto-2); }
-    .grupo-resp .nc { padding: 2px 8px; border-radius: var(--ces-r-pilula); background: var(--ces-atencao-suave); color: var(--ces-texto); font: 600 .75rem/1.4 var(--ces-fonte); }
-    .tag { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--ces-r-pilula); font: 600 .8125rem/1.2 var(--ces-fonte);
-      background: var(--ces-ok-suave); color: var(--ces-texto); }
-    .tag ces-icone { color: var(--ces-ok); }
-    .tag--nc { background: var(--ces-atencao-suave); }
-    .tag--nc ces-icone { color: var(--ces-atencao); }
-    .tag--na { background: var(--ces-superficie-2); color: var(--ces-texto-2); }
-    .tag--na ces-icone { color: var(--ces-texto-2); }
+    .filtro__resumo { margin-left: auto; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .grupo-resp { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); margin: 0; padding: var(--geo-e4) var(--geo-e5) var(--geo-e2);
+      font: var(--geo-t-secao); color: var(--geo-texto-2); }
+    .grupo-resp .nc { padding: 2px 8px; border-radius: var(--geo-r-pilula); background: var(--geo-atencao-suave); color: var(--geo-texto); font: 600 .75rem/1.4 var(--geo-fonte); }
+    .tag { flex: none; display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: var(--geo-r-pilula); font: 600 .8125rem/1.2 var(--geo-fonte);
+      background: var(--geo-ok-suave); color: var(--geo-texto); }
+    .tag geo-icone { color: var(--geo-ok); }
+    .tag--nc { background: var(--geo-atencao-suave); }
+    .tag--nc geo-icone { color: var(--geo-atencao); }
+    .tag--na { background: var(--geo-superficie-2); color: var(--geo-texto-2); }
+    .tag--na geo-icone { color: var(--geo-texto-2); }
   `],
 })
 export class InspecaoDetalheComponent implements OnInit, OnDestroy {

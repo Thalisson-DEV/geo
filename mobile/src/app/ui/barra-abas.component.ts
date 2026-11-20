@@ -15,7 +15,7 @@ export interface Aba {
 
 /** Navegação principal: 4 destinos, rótulo sempre visível, pílula no ativo (Material 3). */
 @Component({
-  selector: 'ces-barra-abas',
+  selector: 'geo-barra-abas',
   standalone: true,
   imports: [RouterLink, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,10 +24,10 @@ export interface Aba {
       @for (aba of abas(); track aba.rota) {
         <a class="aba" [routerLink]="aba.rota" [class.ativa]="ativa(aba)" [attr.aria-current]="ativa(aba) ? 'page' : null">
           <span class="pilula">
-            <ces-icone [nome]="aba.icone" />
+            <geo-icone [nome]="aba.icone" />
             @if (aba.marcador) {
-              <span class="marcador ces-num" aria-hidden="true">{{ aba.marcador > 99 ? '99+' : aba.marcador }}</span>
-              <span class="ces-sr-only">, {{ aba.marcador }} aguardando envio</span>
+              <span class="marcador geo-num" aria-hidden="true">{{ aba.marcador > 99 ? '99+' : aba.marcador }}</span>
+              <span class="geo-sr-only">, {{ aba.marcador }} aguardando envio</span>
             }
           </span>
           <span class="rotulo">{{ aba.rotulo }}</span>
@@ -37,17 +37,17 @@ export interface Aba {
   `,
   styles: [`
     :host { display: block; flex: none; }
-    .barra { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--ces-superficie);
-      border-top: 1px solid var(--ces-linha); padding: 6px 4px calc(6px + var(--ces-safe-base)); }
+    .barra { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: var(--geo-superficie);
+      border-top: 1px solid var(--geo-linha); padding: 6px 4px calc(6px + var(--geo-safe-base)); }
     .aba { display: grid; justify-items: center; gap: 2px; min-height: 56px; padding-top: 4px; text-decoration: none;
-      color: var(--ces-texto-2); font: 500 .75rem/1.2 var(--ces-fonte); }
-    .pilula { position: relative; width: 60px; height: 32px; border-radius: var(--ces-r-pilula); display: grid; place-items: center;
-      transition: background-color var(--ces-m-entrar) var(--ces-curva); }
-    .aba.ativa { color: var(--ces-texto); font-weight: 600; }
-    .aba.ativa .pilula { background: var(--ces-destaque-suave); color: var(--ces-destaque); }
-    .aba:active .pilula { background: var(--ces-superficie-2); }
+      color: var(--geo-texto-2); font: 500 .75rem/1.2 var(--geo-fonte); }
+    .pilula { position: relative; width: 60px; height: 32px; border-radius: var(--geo-r-pilula); display: grid; place-items: center;
+      transition: background-color var(--geo-m-entrar) var(--geo-curva); }
+    .aba.ativa { color: var(--geo-texto); font-weight: 600; }
+    .aba.ativa .pilula { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
+    .aba:active .pilula { background: var(--geo-superficie-2); }
     .marcador { position: absolute; top: -2px; left: 34px; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box;
-      border-radius: 9px; background: var(--ces-destaque); color: var(--ces-destaque-texto); font: 700 .6875rem/18px var(--ces-fonte);
+      border-radius: 9px; background: var(--geo-destaque); color: var(--geo-destaque-texto); font: 700 .6875rem/18px var(--geo-fonte);
       text-align: center; }
   `],
 })

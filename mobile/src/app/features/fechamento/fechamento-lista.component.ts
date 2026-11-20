@@ -35,7 +35,7 @@ const VISOES: OpcaoSegmento<Visao>[] = [
   { valor: 'quadro', rotulo: 'Quadro', icone: 'quadro' },
   { valor: 'calendario', rotulo: 'Calendário', icone: 'calendario' },
 ];
-const CHAVE_VISAO = 'ces_almox_visao_fechamento';
+const CHAVE_VISAO = 'geo_almox_visao_fechamento';
 const POR_PAGINA = 20;
 
 function lerVisao(): Visao {
@@ -61,50 +61,50 @@ function lerVisao(): Visao {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-titulo-grande [titulo]="almox ? 'Almoxarifado' : 'Encerramento'" [subtitulo]="subtitulo()">
-      <ces-indicador-rede />
-      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto filtro" (click)="definir({ filtros: true })"
+    <geo-titulo-grande [titulo]="almox ? 'Almoxarifado' : 'Encerramento'" [subtitulo]="subtitulo()">
+      <geo-indicador-rede />
+      <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto filtro" (click)="definir({ filtros: true })"
         [attr.aria-label]="'Filtros' + (filtrosAtivos() ? ', ' + filtrosAtivos() + ' ativos' : '')">
-        <ces-icone nome="filtro" [tamanho]="18" />@if (filtrosAtivos()) { <span class="ces-num">{{ filtrosAtivos() }}</span> } @else { Filtrar }
+        <geo-icone nome="filtro" [tamanho]="18" />@if (filtrosAtivos()) { <span class="geo-num">{{ filtrosAtivos() }}</span> } @else { Filtrar }
       </button>
-    </ces-titulo-grande>
-    @if (almox && abas().length > 1) { <ces-abas-secao rotulo="Almoxarifado" [abas]="abas()" /> }
+    </geo-titulo-grande>
+    @if (almox && abas().length > 1) { <geo-abas-secao rotulo="Almoxarifado" [abas]="abas()" /> }
 
     @if (!rede.isOnline()) {
-      <ces-vazio icone="sem_rede" titulo="O encerramento precisa de internet" texto="As solicitações dependem do saldo e dos prazos de agora no servidor. Conecte e a lista aparece aqui.">
-        @if (auth.podeCriarFechamento()) { <a class="ces-btn ces-btn--tonal" [routerLink]="[base, 'novo']">Continuar preenchendo uma solicitação</a> }
-      </ces-vazio>
+      <geo-vazio icone="sem_rede" titulo="O encerramento precisa de internet" texto="As solicitações dependem do saldo e dos prazos de agora no servidor. Conecte e a lista aparece aqui.">
+        @if (auth.podeCriarFechamento()) { <a class="geo-btn geo-btn--tonal" [routerLink]="[base, 'novo']">Continuar preenchendo uma solicitação</a> }
+      </geo-vazio>
     } @else {
       @if (almox) {
-        <div class="topo"><ces-segmentado rotulo="Forma de ver" [opcoes]="visoes" [valor]="visao()" (valorChange)="definir({ visao: $event })" /></div>
+        <div class="topo"><geo-segmentado rotulo="Forma de ver" [opcoes]="visoes" [valor]="visao()" (valorChange)="definir({ visao: $event })" /></div>
       } @else {
-        <div class="topo"><ces-segmentado rotulo="De quem" [opcoes]="opcoesQuem" [valor]="quem()" (valorChange)="definir({ quem: $event })" /></div>
+        <div class="topo"><geo-segmentado rotulo="De quem" [opcoes]="opcoesQuem" [valor]="quem()" (valorChange)="definir({ quem: $event })" /></div>
       }
 
       <div class="busca">
-        <ces-icone nome="busca" [tamanho]="18" />
+        <geo-icone nome="busca" [tamanho]="18" />
         <input type="search" placeholder="Buscar pela obra ou reserva" enterkeyhint="search" aria-label="Buscar pela obra ou reserva" autocomplete="off" spellcheck="false"
           [value]="buscaDigitada()" (input)="buscaDigitada.set($any($event.target).value)">
-        @if (buscaDigitada()) { <button type="button" class="ces-btn-icone limpar" (click)="buscaDigitada.set('')" aria-label="Limpar a busca"><ces-icone nome="fechar" [tamanho]="18" /></button> }
+        @if (buscaDigitada()) { <button type="button" class="geo-btn-icone limpar" (click)="buscaDigitada.set('')" aria-label="Limpar a busca"><geo-icone nome="fechar" [tamanho]="18" /></button> }
       </div>
 
       @if (visao() === 'lista') {
         <div class="atalhos" role="group" aria-label="Mostrar só a situação escolhida">
           <button type="button" class="chip" [attr.aria-pressed]="atalho() === 'ABERTO'" (click)="definir({ atalho: 'ABERTO' })">
-            <ces-icone nome="relogio" [tamanho]="16" />Em aberto<span class="conta ces-num" [class.alerta]="(contagens()['ABERTO'] ?? 0) > 0">{{ contagens()['ABERTO'] ?? '–' }}</span>
+            <geo-icone nome="relogio" [tamanho]="16" />Em aberto<span class="conta geo-num" [class.alerta]="(contagens()['ABERTO'] ?? 0) > 0">{{ contagens()['ABERTO'] ?? '–' }}</span>
           </button>
           <span class="divisor" aria-hidden="true"></span>
           @for (a of situacoes; track a.valor) {
             <button type="button" class="chip" [attr.data-tom]="a.tom" [attr.aria-pressed]="atalho() === a.valor" (click)="definir({ atalho: a.valor })">
-              <span class="ponto" aria-hidden="true"></span>{{ a.rotulo }}<span class="conta ces-num">{{ contagens()[a.valor] ?? '–' }}</span>
+              <span class="ponto" aria-hidden="true"></span>{{ a.rotulo }}<span class="conta geo-num">{{ contagens()[a.valor] ?? '–' }}</span>
             </button>
           }
         </div>
       }
 
       @if (resumoFiltros()) {
-        <p class="recorte"><ces-icone nome="filtro" [tamanho]="16" /><span>{{ resumoFiltros() }}</span>
-          <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="limparFiltros()">Limpar</button></p>
+        <p class="recorte"><geo-icone nome="filtro" [tamanho]="16" /><span>{{ resumoFiltros() }}</span>
+          <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="limparFiltros()">Limpar</button></p>
       }
 
       @if (visao() === 'quadro') {
@@ -112,11 +112,11 @@ function lerVisao(): Visao {
       } @else if (visao() === 'calendario') {
         <app-calendario-fechamento #calendario [filtro]="recorte()" [acoes]="true" (abrir)="abrir($event)" (agir)="agir($event)" />
       } @else if (erro()) {
-        <ces-vazio icone="alerta" titulo="Não foi possível carregar o fechamento" [texto]="erro()">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="recarregar()">Tentar de novo</button>
-        </ces-vazio>
+        <geo-vazio icone="alerta" titulo="Não foi possível carregar o fechamento" [texto]="erro()">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
+        </geo-vazio>
       } @else if (carregando() && !itens().length) {
-        <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3, 4]; track i) { <div class="ces-esqueleto" style="height: 128px"></div> }</div>
+        <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 128px"></div> }</div>
       } @else if (itens().length) {
         <div class="cartoes" [class.atualizando]="carregando()">
           @for (s of itens(); track s.id) {
@@ -124,70 +124,70 @@ function lerVisao(): Visao {
           }
         </div>
         @if (itens().length < total()) {
-          <button type="button" class="ces-btn ces-btn--neutro ces-btn--bloco mais" (click)="mostrarMais()" [disabled]="carregandoMais()">
+          <button type="button" class="geo-btn geo-btn--neutro geo-btn--bloco mais" (click)="mostrarMais()" [disabled]="carregandoMais()">
             {{ carregandoMais() ? 'Carregando…' : 'Mostrar mais' }}</button>
         }
       } @else {
-        <ces-vazio icone="fechamento" [titulo]="tituloVazio()" [texto]="textoVazio()">
-          @if (temRecorte()) { <button type="button" class="ces-btn ces-btn--tonal" (click)="verTudo()">Ver em aberto</button> }
-        </ces-vazio>
+        <geo-vazio icone="fechamento" [titulo]="tituloVazio()" [texto]="textoVazio()">
+          @if (temRecorte()) { <button type="button" class="geo-btn geo-btn--tonal" (click)="verTudo()">Ver em aberto</button> }
+        </geo-vazio>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     }
 
     @if (auth.podeCriarFechamento() && rede.isOnline()) {
-      <a class="ces-fab" [routerLink]="[base, 'novo']"><ces-icone nome="mais" />Nova</a>
+      <a class="geo-fab" [routerLink]="[base, 'novo']"><geo-icone nome="mais" />Nova</a>
     }
 
-    <ces-folha [aberta]="folhaFiltros()" (fechar)="definir({ filtros: false })" titulo="Filtrar fechamento">
+    <geo-folha [aberta]="folhaFiltros()" (fechar)="definir({ filtros: false })" titulo="Filtrar fechamento">
       <div class="campos">
         @if (almox && auth.podeCriarFechamento()) {
-          <ces-segmentado rotulo="De quem" [opcoes]="opcoesQuem" [valor]="quem()" (valorChange)="definir({ quem: $event })" />
+          <geo-segmentado rotulo="De quem" [opcoes]="opcoesQuem" [valor]="quem()" (valorChange)="definir({ quem: $event })" />
         }
-        <ces-seletor rotulo="Almoxarifado" placeholder="Todos" [opcoes]="opcoesAlmoxarifado()" [valor]="almoxarifado()" (valorChange)="definir({ almoxarifado: $event })" />
-        <ces-seletor rotulo="Tipo" placeholder="Todos" [opcoes]="opcoesTipo" [valor]="tipo()" (valorChange)="definir({ tipo: $any($event) })" />
+        <geo-seletor rotulo="Almoxarifado" placeholder="Todos" [opcoes]="opcoesAlmoxarifado()" [valor]="almoxarifado()" (valorChange)="definir({ almoxarifado: $event })" />
+        <geo-seletor rotulo="Tipo" placeholder="Todos" [opcoes]="opcoesTipo" [valor]="tipo()" (valorChange)="definir({ tipo: $any($event) })" />
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="limparFiltros()">Limpar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="definir({ filtros: false })">Mostrar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="limparFiltros()">Limpar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="definir({ filtros: false })">Mostrar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; min-height: 100%; }
     .filtro { gap: 6px; }
-    .topo { padding: var(--ces-e3) var(--ces-e4) 0; }
-    .busca { display: flex; align-items: center; gap: var(--ces-e2); margin: var(--ces-e3) var(--ces-e4) 0; padding: 0 var(--ces-e2) 0 var(--ces-e4); min-height: 48px;
-      border-radius: var(--ces-r-pilula); background: var(--ces-superficie); color: var(--ces-texto-2); box-shadow: inset 0 0 0 1px var(--ces-linha); }
-    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+    .topo { padding: var(--geo-e3) var(--geo-e4) 0; }
+    .busca { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-e4) 0; padding: 0 var(--geo-e2) 0 var(--geo-e4); min-height: 48px;
+      border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); box-shadow: inset 0 0 0 1px var(--geo-linha); }
+    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
-    .limpar { color: var(--ces-texto-3); }
-    .atalhos { display: flex; gap: var(--ces-e2); overflow-x: auto; padding: var(--ces-e3) var(--ces-e4) var(--ces-e2); scrollbar-width: none; overscroll-behavior-x: contain;
-      scroll-snap-type: x proximity; scroll-padding-inline: var(--ces-e4); }
+    .limpar { color: var(--geo-texto-3); }
+    .atalhos { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-e4) var(--geo-e2); scrollbar-width: none; overscroll-behavior-x: contain;
+      scroll-snap-type: x proximity; scroll-padding-inline: var(--geo-e4); }
     .atalhos::after { content: ''; flex: 0 0 1px; }
     .atalhos::-webkit-scrollbar { display: none; }
-    .chip { flex: none; scroll-snap-align: start; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 6px 0 14px; border-radius: var(--ces-r-pilula);
-      border: 1px solid var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-2); font: 500 .875rem/1 var(--ces-fonte); cursor: pointer; white-space: nowrap; }
-    .chip[aria-pressed='true'] { background: var(--ces-destaque-suave); border-color: transparent; color: var(--ces-destaque); font-weight: 600; }
+    .chip { flex: none; scroll-snap-align: start; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 6px 0 14px; border-radius: var(--geo-r-pilula);
+      border: 1px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2); font: 500 .875rem/1 var(--geo-fonte); cursor: pointer; white-space: nowrap; }
+    .chip[aria-pressed='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
     .chip:active { transform: scale(.97); }
     .conta { min-width: 24px; height: 26px; padding: 0 7px; box-sizing: border-box; border-radius: 13px; display: inline-grid; place-items: center;
-      background: var(--ces-superficie-2); color: var(--ces-texto); font: 700 .75rem/1 var(--ces-fonte); }
-    .chip[aria-pressed='true'] .conta { background: var(--ces-superficie); }
-    .conta.alerta { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-    .divisor { flex: none; width: 1px; align-self: stretch; margin: 6px 2px; background: var(--ces-linha-forte); }
-    .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--ces-texto-3); flex: none; }
-    [data-tom='atencao'] .ponto { background: var(--ces-atencao); }
-    [data-tom='destaque'] .ponto { background: var(--ces-destaque); }
-    [data-tom='ok'] .ponto { background: var(--ces-ok); }
-    [data-tom='erro'] .ponto { background: var(--ces-erro); }
-    .recorte { display: flex; align-items: center; gap: var(--ces-e2); margin: var(--ces-e2) var(--ces-e4) 0; padding: 0 0 0 var(--ces-e4); min-height: 44px;
-      border-radius: var(--ces-r-grupo); background: var(--ces-superficie); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .recorte span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ces-texto); }
-    .cartoes { display: grid; gap: var(--ces-e2); padding: var(--ces-e2) var(--ces-e4) 0; transition: opacity var(--ces-m-entrar); }
+      background: var(--geo-superficie-2); color: var(--geo-texto); font: 700 .75rem/1 var(--geo-fonte); }
+    .chip[aria-pressed='true'] .conta { background: var(--geo-superficie); }
+    .conta.alerta { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+    .divisor { flex: none; width: 1px; align-self: stretch; margin: 6px 2px; background: var(--geo-linha-forte); }
+    .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-texto-3); flex: none; }
+    [data-tom='atencao'] .ponto { background: var(--geo-atencao); }
+    [data-tom='destaque'] .ponto { background: var(--geo-destaque); }
+    [data-tom='ok'] .ponto { background: var(--geo-ok); }
+    [data-tom='erro'] .ponto { background: var(--geo-erro); }
+    .recorte { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-e4) 0; padding: 0 0 0 var(--geo-e4); min-height: 44px;
+      border-radius: var(--geo-r-grupo); background: var(--geo-superficie); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .recorte span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--geo-texto); }
+    .cartoes { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e4) 0; transition: opacity var(--geo-m-entrar); }
     .cartoes.atualizando { opacity: .6; }
-    .mais { margin: var(--ces-e3) var(--ces-e4) 0; width: calc(100% - 2 * var(--ces-e4)); }
-    .campos { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e3) var(--ces-e2); }
-    .campos ces-seletor { box-shadow: inset 0 0 0 1px var(--ces-linha); border-radius: var(--ces-r-grupo); }
+    .mais { margin: var(--geo-e3) var(--geo-e4) 0; width: calc(100% - 2 * var(--geo-e4)); }
+    .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
+    .campos geo-seletor { box-shadow: inset 0 0 0 1px var(--geo-linha); border-radius: var(--geo-r-grupo); }
   `],
 })
 export class FechamentoListaComponent {

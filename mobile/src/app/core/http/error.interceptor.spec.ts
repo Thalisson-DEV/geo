@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
 import { errorInterceptor, ApiError } from './error.interceptor';
 import { silentContext } from './http-context';
@@ -8,102 +8,107 @@ import { ToastService } from '../ui/toast.service';
 import { TokenService } from '../auth/token.service';
 
 describe('errorInterceptor', () => {
-  let http: HttpClient;
-  let httpMock: HttpTestingController;
-  let authSpy: jasmine.SpyObj<AuthService>;
-  let toastSpy: jasmine.SpyObj<ToastService>;
+    let http: HttpClient;
+    let httpMock: HttpTestingController;
+    let authSpy: any;
+    let toastSpy: any;
 
-  beforeEach(() => {
-    authSpy = jasmine.createSpyObj('AuthService', ['requireReauthentication']);
-    const tokenSpy = jasmine.createSpyObj('TokenService', ['token']);
-    tokenSpy.token.and.returnValue('token-atual');
-    toastSpy = jasmine.createSpyObj('ToastService', ['error', 'success', 'warning', 'info']);
+    beforeEach(() => {
+        authSpy = {
+            requireReauthentication: vi.fn().mockName("AuthService.requireReauthentication")
+        };
+        const tokenSpy = {
+            token: vi.fn().mockName("TokenService.token")
+        };
+        tokenSpy.token.mockReturnValue('token-atual');
+        toastSpy = {
+            error: vi.fn().mockName("ToastService.error"),
+            success: vi.fn().mockName("ToastService.success"),
+            warning: vi.fn().mockName("ToastService.warning"),
+            info: vi.fn().mockName("ToastService.info")
+        };
 
-    TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(withInterceptors([errorInterceptor])),
-        provideHttpClientTesting(),
-        { provide: AuthService, useValue: authSpy },
-        { provide: TokenService, useValue: tokenSpy },
-        { provide: ToastService, useValue: toastSpy }
-      ]
+        TestBed.configureTestingModule({
+            providers: [
+                provideHttpClient(withXhr(), withInterceptors([errorInterceptor])),
+                provideHttpClientTesting(),
+                { provide: AuthService, useValue: authSpy },
+                { provide: TokenService, useValue: tokenSpy },
+                { provide: ToastService, useValue: toastSpy }
+            ]
+        });
+
+        http = TestBed.inject(HttpClient);
+        httpMock = TestBed.inject(HttpTestingController);
     });
 
-    http = TestBed.inject(HttpClient);
-    httpMock = TestBed.inject(HttpTestingController);
-  });
+    afterEach(() => httpMock.verify());
 
-  afterEach(() => httpMock.verify());
+    function dispararErro(status: number, body: string | Object | null = null, opts: {
+        silencioso?: boolean;
+    } = {}): Promise<ApiError> {
+        return new Promise<ApiError>(resolve => {
+            const options = opts.silencioso ? { context: silentContext() } : {};
+            http.get('/api/v1/teste', options).subscribe({
+                next: () => expect.fail('deveria falhar'),
+                error: (e: ApiError) => resolve(e)
+            });
 
-  function dispararErro(
-    status: number,
-    body: string | Object | null = null,
-    opts: { silencioso?: boolean } = {}
-  ): Promise<ApiError> {
-    return new Promise<ApiError>(resolve => {
-      const options = opts.silencioso ? { context: silentContext() } : {};
-      http.get('/api/v1/teste', options).subscribe({
-        next: () => fail('deveria falhar'),
-        error: (e: ApiError) => resolve(e)
-      });
+            httpMock.expectOne('/api/v1/teste').flush(body, { status, statusText: 'Erro' });
+        });
+    }
 
-      httpMock.expectOne('/api/v1/teste').flush(body, { status, statusText: 'Erro' });
-    });
-  }
+    it('traduz 403 sem corpo para uma mensagem acionável em português', async () => {
+        const erro = await dispararErro(403);
 
-  it('traduz 403 sem corpo para uma mensagem acionável em português', async () => {
-    const erro = await dispararErro(403);
-
-    expect(erro.status).toBe(403);
-    expect(erro.title).toBe('Acesso não permitido');
-    expect(erro.detail).toBe(
-      'Seu perfil de acesso não permite esta operação. Fale com o administrador do sistema.'
-    );
-    // 403 significa "sem permissão", não "sessão inválida": não pode deslogar.
-    expect(authSpy.requireReauthentication).not.toHaveBeenCalled();
-    expect(toastSpy.error).toHaveBeenCalled();
-  });
-
-  it('prefere o detalhe do backend quando ele existe (RFC 7807)', async () => {
-    const erro = await dispararErro(403, {
-      title: 'Permissão ausente',
-      detail: 'Requer a permissão material:ler.'
+        expect(erro.status).toBe(403);
+        expect(erro.title).toBe('Acesso não permitido');
+        expect(erro.detail).toBe('Seu perfil de acesso não permite esta operação. Fale com o administrador do sistema.');
+        // 403 significa "sem permissão", não "sessão inválida": não pode deslogar.
+        expect(authSpy.requireReauthentication).not.toHaveBeenCalled();
+        expect(toastSpy.error).toHaveBeenCalled();
     });
 
-    expect(erro.detail).toBe('Requer a permissão material:ler.');
-    expect(erro.title).toBe('Permissão ausente');
-  });
+    it('prefere o detalhe do backend quando ele existe (RFC 7807)', async () => {
+        const erro = await dispararErro(403, {
+            title: 'Permissão ausente',
+            detail: 'Requer a permissão material:ler.'
+        });
 
-  it('401 de token (renovação impossível sem rede) não pede login nem tira da tela', async () => {
-    const erro = await dispararErro(401);
+        expect(erro.detail).toBe('Requer a permissão material:ler.');
+        expect(erro.title).toBe('Permissão ausente');
+    });
 
-    expect(erro.detail).toContain('fica salvo');
-    expect(authSpy.requireReauthentication).not.toHaveBeenCalled();
-  });
+    it('401 de token (renovação impossível sem rede) não pede login nem tira da tela', async () => {
+        const erro = await dispararErro(401);
 
-  it('401 SESSAO_INVALIDA marca a reautenticação, sem apagar a identidade local', async () => {
-    const erro = await dispararErro(401, { code: 'SESSAO_INVALIDA', title: 'Sessão Encerrada', detail: 'x' });
+        expect(erro.detail).toContain('fica salvo');
+        expect(authSpy.requireReauthentication).not.toHaveBeenCalled();
+    });
 
-    expect(erro.detail).toContain('lançamentos continuam salvos');
-    expect(authSpy.requireReauthentication).toHaveBeenCalled();
-  });
+    it('401 SESSAO_INVALIDA marca a reautenticação, sem apagar a identidade local', async () => {
+        const erro = await dispararErro(401, { code: 'SESSAO_INVALIDA', title: 'Sessão Encerrada', detail: 'x' });
 
-  it('não redireciona novamente quando as credenciais do login são rejeitadas', async () => {
-    http.post('/api/v1/auth/login', { login: 'equipe', senha: 'incorreta' }).subscribe({ error: () => {} });
-    httpMock.expectOne('/api/v1/auth/login').flush(null, { status: 401, statusText: 'Unauthorized' });
+        expect(erro.detail).toContain('lançamentos continuam salvos');
+        expect(authSpy.requireReauthentication).toHaveBeenCalled();
+    });
 
-    expect(authSpy.requireReauthentication).not.toHaveBeenCalled();
-  });
+    it('não redireciona novamente quando as credenciais do login são rejeitadas', async () => {
+        http.post('/api/v1/auth/login', { login: 'equipe', senha: 'incorreta' }).subscribe({ error: () => { } });
+        httpMock.expectOne('/api/v1/auth/login').flush(null, { status: 401, statusText: 'Unauthorized' });
 
-  it('não exibe toast em requisições marcadas como silenciosas', async () => {
-    await dispararErro(403, null, { silencioso: true });
+        expect(authSpy.requireReauthentication).not.toHaveBeenCalled();
+    });
 
-    expect(toastSpy.error).not.toHaveBeenCalled();
-  });
+    it('não exibe toast em requisições marcadas como silenciosas', async () => {
+        await dispararErro(403, null, { silencioso: true });
 
-  it('não expõe mensagem técnica quando o corpo do erro é inútil', async () => {
-    const erro = await dispararErro(403, '<html>Forbidden</html>');
+        expect(toastSpy.error).not.toHaveBeenCalled();
+    });
 
-    expect(erro.detail).not.toContain('Http failure');
-  });
+    it('não expõe mensagem técnica quando o corpo do erro é inútil', async () => {
+        const erro = await dispararErro(403, '<html>Forbidden</html>');
+
+        expect(erro.detail).not.toContain('Http failure');
+    });
 });

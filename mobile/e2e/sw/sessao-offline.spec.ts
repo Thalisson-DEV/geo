@@ -32,7 +32,7 @@ test('modo avião + token vencido: reabre o app instalado direto, sem login, e a
 
   // Um dia em campo: token vencido no aparelho e nenhuma conexão.
   const vencido = fakeJwt('CAMPO', -24 * 3600);
-  await page.evaluate((t) => localStorage.setItem('ces_auth_token', t), vencido);
+  await page.evaluate((t) => localStorage.setItem('geo_auth_token', t), vencido);
   api.offline = true;
   await context.setOffline(true);
 

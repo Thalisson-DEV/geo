@@ -45,115 +45,115 @@ const TAMANHO = 30;
   imports: [AbasSecaoComponent, ChipsComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, RouterLink, SeletorComponent, TituloGrandeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-titulo-grande titulo="Almoxarifado" [subtitulo]="subtitulo()">
-      <ces-indicador-rede />
-      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto filtro" (click)="definir({ filtros: true })"
+    <geo-titulo-grande titulo="Almoxarifado" [subtitulo]="subtitulo()">
+      <geo-indicador-rede />
+      <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto filtro" (click)="definir({ filtros: true })"
         [attr.aria-label]="'Filtros' + (filtrosAtivos() ? ', ' + filtrosAtivos() + ' ativos' : '')">
-        <ces-icone nome="filtro" [tamanho]="18" />@if (filtrosAtivos()) { <span class="ces-num">{{ filtrosAtivos() }}</span> } @else { Filtrar }
+        <geo-icone nome="filtro" [tamanho]="18" />@if (filtrosAtivos()) { <span class="geo-num">{{ filtrosAtivos() }}</span> } @else { Filtrar }
       </button>
-    </ces-titulo-grande>
-    @if (abas().length > 1) { <ces-abas-secao rotulo="Almoxarifado" [abas]="abas()" /> }
+    </geo-titulo-grande>
+    @if (abas().length > 1) { <geo-abas-secao rotulo="Almoxarifado" [abas]="abas()" /> }
 
     @if (!rede.isOnline()) {
-      <ces-vazio icone="sem_rede" titulo="Movimentações precisam de internet" texto="O saldo de cada estoque está no servidor. Conecte e a lista aparece aqui." />
+      <geo-vazio icone="sem_rede" titulo="Movimentações precisam de internet" texto="O saldo de cada estoque está no servidor. Conecte e a lista aparece aqui." />
     } @else {
       @if (podeMovimentar()) {
         <div class="atalhos" role="group" aria-label="Movimentar estoque">
           @for (n of novas; track n.tipo) {
             <a class="atalho" [routerLink]="['/almox/movimentacoes/nova', n.tipo]" [attr.data-tom]="n.tom">
-              <ces-icone [nome]="n.icone" [tamanho]="18" />{{ n.titulo }}
+              <geo-icone [nome]="n.icone" [tamanho]="18" />{{ n.titulo }}
             </a>
           }
         </div>
         @for (r of rascunhos(); track r.chave) {
           <button type="button" class="retomar" (click)="continuar(r)">
-            <span class="ces-selo ces-selo--destaque"><ces-icone nome="retomar" /></span>
+            <span class="geo-selo geo-selo--destaque"><geo-icone nome="retomar" /></span>
             <span class="txt"><strong>{{ r.titulo || 'Movimentação pela metade' }}</strong><span>Continue de onde parou</span></span>
-            <span class="ces-btn ces-btn--tonal ces-btn--compacto" aria-hidden="true">Continuar</span>
+            <span class="geo-btn geo-btn--tonal geo-btn--compacto" aria-hidden="true">Continuar</span>
           </button>
         }
       }
 
-      <ces-chips rotulo="Tipo de movimentação" [opcoes]="filtrosTipo" [valor]="tipo()" (valorChange)="definir({ tipo: $any($event) })" />
+      <geo-chips rotulo="Tipo de movimentação" [opcoes]="filtrosTipo" [valor]="tipo()" (valorChange)="definir({ tipo: $any($event) })" />
 
       @if (erro()) {
-        <ces-vazio icone="alerta" titulo="Não foi possível carregar as movimentações" [texto]="erro()">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="recarregar()">Tentar de novo</button>
-        </ces-vazio>
+        <geo-vazio icone="alerta" titulo="Não foi possível carregar as movimentações" [texto]="erro()">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
+        </geo-vazio>
       } @else if (carregando() && !itens().length) {
-        <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3, 4]; track i) { <div class="ces-esqueleto" style="height: 72px"></div> }</div>
+        <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 72px"></div> }</div>
       } @else if (grupos().length) {
         <div [class.atualizando]="carregando()" class="lista">
           @for (g of grupos(); track g.titulo) {
-            <h2 class="ces-secao">{{ g.titulo }}</h2>
-            <ul class="ces-grupo">
+            <h2 class="geo-secao">{{ g.titulo }}</h2>
+            <ul class="geo-grupo">
               @for (m of g.itens; track m.idReferenciaOperacao) {
-                <li class="ces-linha-lista" [attr.data-ancora]="m.idReferenciaOperacao">
-                  <a class="ces-linha ces-linha--acao" [routerLink]="['/almox/movimentacoes', m.idReferenciaOperacao]">
-                    <span class="ces-selo" [class]="'ces-selo ces-selo--' + tipoDe(m).tom"><ces-icone [nome]="tipoDe(m).icone" /></span>
-                    <span class="ces-linha__texto">
-                      <span class="ces-linha__titulo">{{ tipoDe(m).rotulo }}</span>
-                      <span class="ces-linha__resumo">{{ rota(m) }}</span>
-                      <span class="ces-linha__apoio ces-num">{{ hora(m.dataHora) }} · {{ m.operadorNome || 'Sistema' }}</span>
+                <li class="geo-linha-lista" [attr.data-ancora]="m.idReferenciaOperacao">
+                  <a class="geo-linha geo-linha--acao" [routerLink]="['/almox/movimentacoes', m.idReferenciaOperacao]">
+                    <span class="geo-selo" [class]="'geo-selo geo-selo--' + tipoDe(m).tom"><geo-icone [nome]="tipoDe(m).icone" /></span>
+                    <span class="geo-linha__texto">
+                      <span class="geo-linha__titulo">{{ tipoDe(m).rotulo }}</span>
+                      <span class="geo-linha__resumo">{{ rota(m) }}</span>
+                      <span class="geo-linha__apoio geo-num">{{ hora(m.dataHora) }} · {{ m.operadorNome || 'Sistema' }}</span>
                     </span>
-                    <ces-icone nome="avancar" [tamanho]="18" />
+                    <geo-icone nome="avancar" [tamanho]="18" />
                   </a>
                 </li>
               }
             </ul>
           }
           @if (itens().length < total()) {
-            <button type="button" class="ces-btn ces-btn--neutro ces-btn--bloco mais" (click)="pagina.set(pagina() + 1)" [disabled]="carregando()">
+            <button type="button" class="geo-btn geo-btn--neutro geo-btn--bloco mais" (click)="pagina.set(pagina() + 1)" [disabled]="carregando()">
               {{ carregando() ? 'Carregando…' : 'Mostrar mais (' + (total() - itens().length) + ')' }}</button>
           }
         </div>
       } @else {
-        <ces-vazio icone="transferencia" titulo="Nenhuma movimentação neste recorte" [texto]="filtrosAtivos() || tipo() !== 'todas' ? 'Tire algum filtro para ver mais.' : 'As entradas, saídas e transferências aparecem aqui.'">
-          @if (filtrosAtivos() || tipo() !== 'todas') { <button type="button" class="ces-btn ces-btn--tonal" (click)="limpar()">Ver todas</button> }
-        </ces-vazio>
+        <geo-vazio icone="transferencia" titulo="Nenhuma movimentação neste recorte" [texto]="filtrosAtivos() || tipo() !== 'todas' ? 'Tire algum filtro para ver mais.' : 'As entradas, saídas e transferências aparecem aqui.'">
+          @if (filtrosAtivos() || tipo() !== 'todas') { <button type="button" class="geo-btn geo-btn--tonal" (click)="limpar()">Ver todas</button> }
+        </geo-vazio>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     }
 
-    <ces-folha [aberta]="folhaFiltros()" (fechar)="definir({ filtros: false })" titulo="Filtrar movimentações">
+    <geo-folha [aberta]="folhaFiltros()" (fechar)="definir({ filtros: false })" titulo="Filtrar movimentações">
       <div class="campos">
-        <ces-seletor rotulo="Estoque (origem ou destino)" placeholder="Todos" [opcoes]="opcoesEstoque()" [valor]="estoque()" (valorChange)="definir({ estoque: $event })" />
-        <ces-seletor rotulo="Período" [opcoes]="opcoesPeriodo" [valor]="periodo()" (valorChange)="definir({ periodo: $any($event) ?? '30dias' })" />
-        <label class="ces-campo serie"><span class="ces-campo__rotulo">Número de série</span>
-          <input class="ces-input" [value]="serieDigitada()" (input)="serieDigitada.set($any($event.target).value)" autocapitalize="characters" autocomplete="off"
+        <geo-seletor rotulo="Estoque (origem ou destino)" placeholder="Todos" [opcoes]="opcoesEstoque()" [valor]="estoque()" (valorChange)="definir({ estoque: $event })" />
+        <geo-seletor rotulo="Período" [opcoes]="opcoesPeriodo" [valor]="periodo()" (valorChange)="definir({ periodo: $any($event) ?? '30dias' })" />
+        <label class="geo-campo serie"><span class="geo-campo__rotulo">Número de série</span>
+          <input class="geo-input" [value]="serieDigitada()" (input)="serieDigitada.set($any($event.target).value)" autocapitalize="characters" autocomplete="off"
             spellcheck="false" enterkeyhint="search" placeholder="Ex.: ABC12345"></label>
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="limpar()">Limpar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="definir({ filtros: false })">Mostrar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="limpar()">Limpar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="definir({ filtros: false })">Mostrar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: block; min-height: 100%; }
     .filtro { gap: 6px; }
-    .atalhos { display: flex; gap: var(--ces-e2); padding: var(--ces-e3) var(--ces-e3) 0; }
+    .atalhos { display: flex; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e3) 0; }
     .atalhos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .atalho[data-tom='atencao'] ces-icone { color: var(--ces-atencao); }
+    .atalho[data-tom='atencao'] geo-icone { color: var(--geo-atencao); }
     /* Quatro atalhos lado a lado no celular: ícone em cima, texto embaixo. */
-    .atalhos .atalho { flex-direction: column; gap: 4px; min-height: 60px; padding: var(--ces-e2) 4px; border-radius: var(--ces-r-grupo); font-size: .75rem; }
-    .atalho { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 var(--ces-e2);
-      border-radius: var(--ces-r-pilula); background: var(--ces-superficie); color: var(--ces-texto); text-decoration: none; font: 600 .8125rem/1 var(--ces-fonte);
-      box-shadow: inset 0 0 0 1px var(--ces-linha); transition: transform 100ms; }
-    .atalho:active { transform: scale(.97); background: var(--ces-superficie-2); }
-    .atalho[data-tom='ok'] ces-icone { color: var(--ces-ok); }
-    .atalho[data-tom='erro'] ces-icone { color: var(--ces-erro); }
-    .atalho[data-tom='destaque'] ces-icone { color: var(--ces-destaque); }
-    .retomar { display: flex; align-items: center; gap: var(--ces-e3); width: calc(100% - 24px); margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
-      border: 0; border-radius: var(--ces-r-grupo); background: var(--ces-destaque-suave); color: var(--ces-texto); text-align: left; font: inherit; cursor: pointer; }
+    .atalhos .atalho { flex-direction: column; gap: 4px; min-height: 60px; padding: var(--geo-e2) 4px; border-radius: var(--geo-r-grupo); font-size: .75rem; }
+    .atalho { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 var(--geo-e2);
+      border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto); text-decoration: none; font: 600 .8125rem/1 var(--geo-fonte);
+      box-shadow: inset 0 0 0 1px var(--geo-linha); transition: transform 100ms; }
+    .atalho:active { transform: scale(.97); background: var(--geo-superficie-2); }
+    .atalho[data-tom='ok'] geo-icone { color: var(--geo-ok); }
+    .atalho[data-tom='erro'] geo-icone { color: var(--geo-erro); }
+    .atalho[data-tom='destaque'] geo-icone { color: var(--geo-destaque); }
+    .retomar { display: flex; align-items: center; gap: var(--geo-e3); width: calc(100% - 24px); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+      border: 0; border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); color: var(--geo-texto); text-align: left; font: inherit; cursor: pointer; }
     .retomar .txt { flex: 1; min-width: 0; display: grid; }
-    .retomar .txt span { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .lista { transition: opacity var(--ces-m-entrar); }
+    .retomar .txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .lista { transition: opacity var(--geo-m-entrar); }
     .lista.atualizando { opacity: .6; }
-    .mais { margin: var(--ces-e3) var(--ces-e3) 0; width: calc(100% - 24px); }
-    .campos { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e3) var(--ces-e2); }
-    .campos ces-seletor { box-shadow: inset 0 0 0 1px var(--ces-linha); border-radius: var(--ces-r-grupo); }
-    .campos .ces-campo__rotulo, .campos .ces-campo__ajuda, .campos .ces-campo__erro { padding-left: var(--ces-e4); }
+    .mais { margin: var(--geo-e3) var(--geo-e3) 0; width: calc(100% - 24px); }
+    .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
+    .campos geo-seletor { box-shadow: inset 0 0 0 1px var(--geo-linha); border-radius: var(--geo-r-grupo); }
+    .campos .geo-campo__rotulo, .campos .geo-campo__ajuda, .campos .geo-campo__erro { padding-left: var(--geo-e4); }
   `],
 })
 export class MovimentacoesAlmoxComponent {

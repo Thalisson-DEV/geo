@@ -22,34 +22,34 @@ type Estado = 'carregando' | 'pronto' | 'sem-sinal' | 'nao-encontrado' | 'erro' 
   imports: [BarraTopoComponent, IconeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo [titulo]="titulo()" [subtitulo]="subtitulo()" (voltar)="voltar()">
+    <geo-barra-topo [titulo]="titulo()" [subtitulo]="subtitulo()" (voltar)="voltar()">
       @if (estado() === 'pronto' && formato() !== 'outro') {
-        <button type="button" class="ces-btn-icone" (click)="ampliado.set(!ampliado())" [attr.aria-pressed]="ampliado()"
+        <button type="button" class="geo-btn-icone" (click)="ampliado.set(!ampliado())" [attr.aria-pressed]="ampliado()"
           [attr.aria-label]="ampliado() ? 'Ajustar à tela' : 'Ampliar'">
-          <ces-icone [nome]="ampliado() ? 'recolher' : 'expandir'" />
+          <geo-icone [nome]="ampliado() ? 'recolher' : 'expandir'" />
         </button>
       }
-    </ces-barra-topo>
+    </geo-barra-topo>
 
     @switch (estado()) {
       @case ('carregando') {
-        <div class="ces-esqueletos" aria-busy="true" aria-label="Abrindo o documento">
-          <div class="ces-esqueleto" style="height: 70vh"></div>
+        <div class="geo-esqueletos" aria-busy="true" aria-label="Abrindo o documento">
+          <div class="geo-esqueleto" style="height: 70vh"></div>
         </div>
       }
       @case ('sem-sinal') {
-        <ces-vazio icone="nuvem" titulo="Documento ainda não está no aparelho" texto="Conecte à internet uma vez para baixar. Depois ele abre mesmo sem sinal." />
+        <geo-vazio icone="nuvem" titulo="Documento ainda não está no aparelho" texto="Conecte à internet uma vez para baixar. Depois ele abre mesmo sem sinal." />
       }
       @case ('nao-encontrado') {
-        <ces-vazio icone="documento" titulo="Documento não encontrado" texto="Ele pode ter sido trocado ou removido pelo gestor da frota. Volte e atualize a lista." />
+        <geo-vazio icone="documento" titulo="Documento não encontrado" texto="Ele pode ter sido trocado ou removido pelo gestor da frota. Volte e atualize a lista." />
       }
       @case ('formato') {
-        <ces-vazio icone="documento" titulo="Este arquivo não abre no app" texto="O app mostra PDF e foto. Peça ao gestor da frota para anexar o documento em PDF." />
+        <geo-vazio icone="documento" titulo="Este arquivo não abre no app" texto="O app mostra PDF e foto. Peça ao gestor da frota para anexar o documento em PDF." />
       }
       @case ('erro') {
-        <ces-vazio icone="alerta" titulo="Não foi possível abrir o documento" texto="Confira a internet e tente de novo.">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="abrir()">Tentar de novo</button>
-        </ces-vazio>
+        <geo-vazio icone="alerta" titulo="Não foi possível abrir o documento" texto="Confira a internet e tente de novo.">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="abrir()">Tentar de novo</button>
+        </geo-vazio>
       }
       @default {
         <div class="folha" [class.folha--ampliada]="ampliado()">
@@ -65,10 +65,10 @@ type Estado = 'carregando' | 'pronto' | 'sem-sinal' | 'nao-encontrado' | 'erro' 
     }
   `,
   styles: [`
-    :host { display: block; min-height: 100dvh; background: var(--ces-fundo); }
-    .folha { padding: var(--ces-e3); display: grid; gap: var(--ces-e3); justify-items: center; overflow-x: auto; }
+    :host { display: block; min-height: 100dvh; background: var(--geo-fundo); }
+    .folha { padding: var(--geo-e3); display: grid; gap: var(--geo-e3); justify-items: center; overflow-x: auto; }
     .folha--ampliada { justify-items: start; }
-    .pagina { display: block; width: 100%; height: auto; background: #fff; border-radius: 4px; box-shadow: var(--ces-sombra-flutuante); }
+    .pagina { display: block; width: 100%; height: auto; background: #fff; border-radius: 4px; box-shadow: var(--geo-sombra-flutuante); }
     .folha--ampliada .pagina { width: 200%; max-width: none; }
     canvas.pagina { width: auto; }
   `],

@@ -36,80 +36,80 @@ interface RascunhoTurno {
   imports: [BarraTopoComponent, FolhaComponent, IconeComponent, IndicadorRedeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Abrir turno" [subtitulo]="composicao()?.codigo ? 'Equipe ' + composicao()!.codigo : null" (voltar)="voltar()">
-      <ces-indicador-rede />
-    </ces-barra-topo>
+    <geo-barra-topo titulo="Abrir turno" [subtitulo]="composicao()?.codigo ? 'Equipe ' + composicao()!.codigo : null" (voltar)="voltar()">
+      <geo-indicador-rede />
+    </geo-barra-topo>
 
     <div class="tela">
       @if (carregando() && !composicao()) {
         <div class="esqueletos" aria-busy="true" aria-label="Carregando equipe">
-          <div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 180px"></div>
+          <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 180px"></div>
         </div>
       } @else if (!composicao()) {
-        <ces-vazio icone="pessoas" titulo="Não deu para carregar sua equipe" texto="Conecte-se à internet e tente de novo.">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="carregar()">Tentar de novo</button>
-        </ces-vazio>
+        <geo-vazio icone="pessoas" titulo="Não deu para carregar sua equipe" texto="Conecte-se à internet e tente de novo.">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="carregar()">Tentar de novo</button>
+        </geo-vazio>
       } @else {
         <p class="intro">Confira quem está no caminhão hoje.</p>
         @if (!podeEditar()) {
-          <p class="aviso"><ces-icone nome="info" [tamanho]="18" />Só o líder da equipe pode trocar o veículo ou as pessoas.</p>
+          <p class="aviso"><geo-icone nome="info" [tamanho]="18" />Só o líder da equipe pode trocar o veículo ou as pessoas.</p>
         }
 
-        <h2 class="ces-secao">Veículo</h2>
-        <div class="ces-grupo">
-          <button type="button" class="ces-linha" [class.ces-linha--acao]="podeEditar()" [disabled]="!podeEditar()" (click)="abrirFolha('veiculo')">
-            <span class="ces-selo"><ces-icone nome="caminhao" /></span>
-            <span class="ces-linha__texto">
-              <span class="ces-linha__titulo ces-num">{{ veiculo()?.placa ?? 'Nenhum veículo' }}</span>
-              <span class="ces-linha__apoio">{{ veiculo()?.modelo ?? (podeEditar() ? 'Toque para escolher' : '') }}{{ veiculoAlterado() ? ' · trocado hoje' : '' }}</span>
+        <h2 class="geo-secao">Veículo</h2>
+        <div class="geo-grupo">
+          <button type="button" class="geo-linha" [class.geo-linha--acao]="podeEditar()" [disabled]="!podeEditar()" (click)="abrirFolha('veiculo')">
+            <span class="geo-selo"><geo-icone nome="caminhao" /></span>
+            <span class="geo-linha__texto">
+              <span class="geo-linha__titulo geo-num">{{ veiculo()?.placa ?? 'Nenhum veículo' }}</span>
+              <span class="geo-linha__apoio">{{ veiculo()?.modelo ?? (podeEditar() ? 'Toque para escolher' : '') }}{{ veiculoAlterado() ? ' · trocado hoje' : '' }}</span>
             </span>
             @if (podeEditar()) { <span class="trocar">Trocar</span> }
           </button>
         </div>
 
         @if (checklist(); as c) {
-          <h2 class="ces-secao">Checklist do veículo</h2>
-          <div class="ces-grupo">
+          <h2 class="geo-secao">Checklist do veículo</h2>
+          <div class="geo-grupo">
             @switch (c.estado) {
               @case ('feito') {
-                <div class="ces-linha">
-                  <span class="ces-selo ces-selo--ok"><ces-icone nome="check" /></span>
-                  <span class="ces-linha__texto"><span class="ces-linha__titulo">Feito hoje</span>
-                    <span class="ces-linha__apoio">{{ c.texto }}</span></span>
+                <div class="geo-linha">
+                  <span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span>
+                  <span class="geo-linha__texto"><span class="geo-linha__titulo">Feito hoje</span>
+                    <span class="geo-linha__apoio">{{ c.texto }}</span></span>
                 </div>
               }
               @case ('procurando') {
-                <div class="ces-linha" aria-busy="true">
-                  <span class="ces-selo"><ces-icone nome="relogio" /></span>
-                  <span class="ces-linha__texto"><span class="ces-linha__titulo">Procurando o checklist de hoje…</span>
-                    <span class="ces-linha__apoio">Alguém da equipe pode já ter feito em outro celular</span></span>
+                <div class="geo-linha" aria-busy="true">
+                  <span class="geo-selo"><geo-icone nome="relogio" /></span>
+                  <span class="geo-linha__texto"><span class="geo-linha__titulo">Procurando o checklist de hoje…</span>
+                    <span class="geo-linha__apoio">Alguém da equipe pode já ter feito em outro celular</span></span>
                 </div>
               }
               @default {
-                <button type="button" class="ces-linha ces-linha--acao" (click)="fazerChecklist()">
-                  <span class="ces-selo ces-selo--atencao"><ces-icone [nome]="c.rascunho ? 'retomar' : 'caminhao'" /></span>
-                  <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ c.rascunho ? 'Continuar checklist' : 'Fazer checklist' }}</span>
-                    <span class="ces-linha__apoio">{{ c.texto }}</span></span>
-                  <ces-icone nome="avancar" [tamanho]="18" />
+                <button type="button" class="geo-linha geo-linha--acao" (click)="fazerChecklist()">
+                  <span class="geo-selo geo-selo--atencao"><geo-icone [nome]="c.rascunho ? 'retomar' : 'caminhao'" /></span>
+                  <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ c.rascunho ? 'Continuar checklist' : 'Fazer checklist' }}</span>
+                    <span class="geo-linha__apoio">{{ c.texto }}</span></span>
+                  <geo-icone nome="avancar" [tamanho]="18" />
                 </button>
               }
             }
           </div>
         }
 
-        <h2 class="ces-secao"><span>Pessoas</span><span class="ces-num">{{ membros().length }}</span></h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao"><span>Pessoas</span><span class="geo-num">{{ membros().length }}</span></h2>
+        <ul class="geo-grupo">
           @for (m of membros(); track m.idColaborador) {
             <li>
-              <div class="ces-linha">
+              <div class="geo-linha">
                 <span class="iniciais" aria-hidden="true">{{ iniciais(m.nome) }}</span>
-                <span class="ces-linha__texto">
-                  <span class="ces-linha__titulo">{{ m.nome }}</span>
-                  <span class="ces-linha__apoio">{{ m.responsavel ? 'Líder' : (m.funcao || 'Colaborador') }}{{ ehNovo(m.idColaborador) ? ' · incluído hoje' : '' }}</span>
+                <span class="geo-linha__texto">
+                  <span class="geo-linha__titulo">{{ m.nome }}</span>
+                  <span class="geo-linha__apoio">{{ m.responsavel ? 'Líder' : (m.funcao || 'Colaborador') }}{{ ehNovo(m.idColaborador) ? ' · incluído hoje' : '' }}</span>
                 </span>
                 @if (podeEditar() && !m.responsavel) {
-                  <button type="button" class="ces-btn-icone" (click)="removerPessoa(m.idColaborador)" [attr.aria-label]="'Tirar ' + m.nome + ' do turno'">
-                    <ces-icone nome="fechar" [tamanho]="20" />
+                  <button type="button" class="geo-btn-icone" (click)="removerPessoa(m.idColaborador)" [attr.aria-label]="'Tirar ' + m.nome + ' do turno'">
+                    <geo-icone nome="fechar" [tamanho]="20" />
                   </button>
                 }
               </div>
@@ -117,9 +117,9 @@ interface RascunhoTurno {
           }
           @if (podeEditar()) {
             <li>
-              <button type="button" class="ces-linha ces-linha--acao incluir" (click)="abrirFolha('pessoa')">
-                <span class="ces-selo ces-selo--destaque"><ces-icone nome="mais" /></span>
-                <span class="ces-linha__texto"><span class="ces-linha__titulo">Incluir pessoa</span></span>
+              <button type="button" class="geo-linha geo-linha--acao incluir" (click)="abrirFolha('pessoa')">
+                <span class="geo-selo geo-selo--destaque"><geo-icone nome="mais" /></span>
+                <span class="geo-linha__texto"><span class="geo-linha__titulo">Incluir pessoa</span></span>
               </button>
             </li>
           }
@@ -128,7 +128,7 @@ interface RascunhoTurno {
           <p class="nota">Fora do turno hoje: {{ nomesRemovidos() }}.</p>
         }
         @if (erro()) {
-          <p class="erro" role="alert"><ces-icone nome="alerta" [tamanho]="18" />{{ erro() }}</p>
+          <p class="erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" />{{ erro() }}</p>
         }
       }
     </div>
@@ -136,71 +136,71 @@ interface RascunhoTurno {
     @if (composicao()) {
       <footer class="rodape">
         @if (!rede.isOnline()) {
-          <p class="sem-rede"><ces-icone nome="sem_rede" [tamanho]="16" />Abrir o turno precisa de internet. A conferência fica salva.</p>
+          <p class="sem-rede"><geo-icone nome="sem_rede" [tamanho]="16" />Abrir o turno precisa de internet. A conferência fica salva.</p>
         }
         @if (faltaChecklist()) {
-          <p class="sem-rede"><ces-icone nome="alerta" [tamanho]="16" />Faça o checklist do {{ veiculo()?.placa }} para abrir o turno.</p>
+          <p class="sem-rede"><geo-icone nome="alerta" [tamanho]="16" />Faça o checklist do {{ veiculo()?.placa }} para abrir o turno.</p>
         }
-        <button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="abrirTurno()" [disabled]="enviando() || !rede.isOnline() || faltaChecklist()">
+        <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="abrirTurno()" [disabled]="enviando() || !rede.isOnline() || faltaChecklist()">
           {{ enviando() ? 'Abrindo…' : (houveAlteracao() ? 'Abrir turno com as mudanças' : 'Abrir turno') }}
         </button>
       </footer>
     }
 
-    <ces-folha [aberta]="folha() !== null" (fechar)="fecharFolha()" [titulo]="folha() === 'veiculo' ? 'Escolher veículo' : 'Incluir pessoa'">
+    <geo-folha [aberta]="folha() !== null" (fechar)="fecharFolha()" [titulo]="folha() === 'veiculo' ? 'Escolher veículo' : 'Incluir pessoa'">
       <div class="busca">
-        <ces-icone nome="busca" [tamanho]="18" />
+        <geo-icone nome="busca" [tamanho]="18" />
         <input type="search" [placeholder]="folha() === 'veiculo' ? 'Placa ou modelo' : 'Nome'" enterkeyhint="search"
           [attr.aria-label]="folha() === 'veiculo' ? 'Buscar veículo' : 'Buscar pessoa'" [value]="busca()" (input)="busca.set($any($event.target).value)">
       </div>
       @if (folha() === 'veiculo') {
-        <ul class="ces-grupo opcoes">
+        <ul class="geo-grupo opcoes">
           @for (v of veiculosFiltrados(); track v.id) {
-            <li><button type="button" class="ces-linha ces-linha--acao" (click)="escolherVeiculo(v)" [attr.aria-pressed]="v.id === veiculo()?.id">
-              <span class="ces-linha__texto"><span class="ces-linha__titulo ces-num">{{ v.placa }}</span><span class="ces-linha__apoio">{{ v.modelo }}</span></span>
-              @if (v.id === veiculo()?.id) { <ces-icone nome="check" /> }
+            <li><button type="button" class="geo-linha geo-linha--acao" (click)="escolherVeiculo(v)" [attr.aria-pressed]="v.id === veiculo()?.id">
+              <span class="geo-linha__texto"><span class="geo-linha__titulo geo-num">{{ v.placa }}</span><span class="geo-linha__apoio">{{ v.modelo }}</span></span>
+              @if (v.id === veiculo()?.id) { <geo-icone nome="check" /> }
             </button></li>
-          } @empty { <li><div class="ces-linha"><span class="ces-linha__apoio">Nenhum veículo encontrado</span></div></li> }
+          } @empty { <li><div class="geo-linha"><span class="geo-linha__apoio">Nenhum veículo encontrado</span></div></li> }
         </ul>
       } @else if (folha() === 'pessoa') {
-        <ul class="ces-grupo opcoes">
+        <ul class="geo-grupo opcoes">
           @for (c of pessoasDisponiveis(); track c.id) {
-            <li><button type="button" class="ces-linha ces-linha--acao" (click)="adicionarPessoa(c)" [disabled]="c.responsavelEmOutraEquipe">
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ c.nome }}</span>
-                <span class="ces-linha__apoio">{{ c.responsavelEmOutraEquipe ? 'Líder de outra equipe' : (c.funcao || 'Colaborador') }}{{ c.equipeAtual ? ' · ' + c.equipeAtual : '' }}</span>
+            <li><button type="button" class="geo-linha geo-linha--acao" (click)="adicionarPessoa(c)" [disabled]="c.responsavelEmOutraEquipe">
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ c.nome }}</span>
+                <span class="geo-linha__apoio">{{ c.responsavelEmOutraEquipe ? 'Líder de outra equipe' : (c.funcao || 'Colaborador') }}{{ c.equipeAtual ? ' · ' + c.equipeAtual : '' }}</span>
               </span>
             </button></li>
-          } @empty { <li><div class="ces-linha"><span class="ces-linha__apoio">Ninguém encontrado com esse nome</span></div></li> }
+          } @empty { <li><div class="geo-linha"><span class="geo-linha__apoio">Ninguém encontrado com esse nome</span></div></li> }
         </ul>
       }
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
-    .tela { flex: 1; padding-bottom: var(--ces-e4); }
-    .esqueletos { display: grid; gap: var(--ces-e3); padding: var(--ces-e4); }
-    .intro { margin: var(--ces-e1) var(--ces-e5) 0; color: var(--ces-texto-2); }
-    .aviso, .nota, .erro, .sem-rede { display: flex; gap: var(--ces-e2); align-items: flex-start; font: var(--ces-t-apoio); font-size: .875rem; }
-    .aviso { margin: var(--ces-e3) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo); background: var(--ces-destaque-suave); color: var(--ces-texto); }
-    .nota { margin: var(--ces-e3) var(--ces-e5) 0; color: var(--ces-texto-2); }
-    .erro { margin: var(--ces-e3) var(--ces-e5) 0; color: var(--ces-erro); }
-    .ces-linha:disabled { color: inherit; cursor: default; }
-    .trocar { color: var(--ces-destaque); font-weight: 600; font-size: .875rem; }
-    .iniciais { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--ces-superficie-2);
-      color: var(--ces-texto-2); font: 600 .875rem/1 var(--ces-fonte); }
-    .incluir .ces-linha__titulo { color: var(--ces-destaque); }
-    .rodape { position: sticky; bottom: 0; display: grid; gap: var(--ces-e2); padding: var(--ces-e3) var(--ces-e4) calc(var(--ces-e3) + var(--ces-safe-base));
-      background: var(--ces-fundo); border-top: 1px solid var(--ces-linha); }
-    .sem-rede { margin: 0; color: var(--ces-atencao); }
-    .busca { margin: 0 var(--ces-e3) var(--ces-e3); display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e4); min-height: 48px;
-      border-radius: var(--ces-r-pilula); background: var(--ces-superficie-2); color: var(--ces-texto-2); }
-    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+    .tela { flex: 1; padding-bottom: var(--geo-e4); }
+    .esqueletos { display: grid; gap: var(--geo-e3); padding: var(--geo-e4); }
+    .intro { margin: var(--geo-e1) var(--geo-e5) 0; color: var(--geo-texto-2); }
+    .aviso, .nota, .erro, .sem-rede { display: flex; gap: var(--geo-e2); align-items: flex-start; font: var(--geo-t-apoio); font-size: .875rem; }
+    .aviso { margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); color: var(--geo-texto); }
+    .nota { margin: var(--geo-e3) var(--geo-e5) 0; color: var(--geo-texto-2); }
+    .erro { margin: var(--geo-e3) var(--geo-e5) 0; color: var(--geo-erro); }
+    .geo-linha:disabled { color: inherit; cursor: default; }
+    .trocar { color: var(--geo-destaque); font-weight: 600; font-size: .875rem; }
+    .iniciais { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--geo-superficie-2);
+      color: var(--geo-texto-2); font: 600 .875rem/1 var(--geo-fonte); }
+    .incluir .geo-linha__titulo { color: var(--geo-destaque); }
+    .rodape { position: sticky; bottom: 0; display: grid; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
+      background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
+    .sem-rede { margin: 0; color: var(--geo-atencao); }
+    .busca { margin: 0 var(--geo-e3) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+      border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); color: var(--geo-texto-2); }
+    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
-    .opcoes { background: var(--ces-fundo); }
-    .opcoes .ces-linha:disabled { opacity: .55; }
+    .opcoes { background: var(--geo-fundo); }
+    .opcoes .geo-linha:disabled { opacity: .55; }
   `],
 })
 export class AbrirTurnoComponent implements OnInit {

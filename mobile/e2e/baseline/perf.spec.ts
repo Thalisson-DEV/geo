@@ -56,7 +56,7 @@ test('abertura a frio do login em celular intermediário (Slow 4G, CPU 4x)', asy
     loadMs: load, campoLoginVisivelMs: interativo, lcpMs: Math.round(await lcp(page)),
     ...nav, jsTransferidoKb: recursos,
     // A UI antiga tinha uma splash de ~3 s por cima de tudo; a nova não tem.
-    splashBloqueiaMs: process.env['CES_BASELINE'] ? 3000 : 0,
+    splashBloqueiaMs: process.env['GEO_BASELINE'] ? 3000 : 0,
   };
 });
 
@@ -87,8 +87,8 @@ test('abertura offline a partir do cache do service worker', async ({ page, cont
 });
 
 test.afterAll(() => {
-  // CES_BASELINE=1 regrava a baseline (build da base); sem ela, mede o build atual.
-  const dir = process.env['CES_BASELINE'] ? '../docs/mobile/baseline' : '../docs/mobile/piloto';
+  // GEO_BASELINE=1 regrava a baseline (build da base); sem ela, mede o build atual.
+  const dir = process.env['GEO_BASELINE'] ? '../docs/mobile/baseline' : '../docs/mobile/piloto';
   mkdirSync(dir, { recursive: true });
   writeFileSync(`${dir}/perf.json`, JSON.stringify({ medidoEm: new Date().toISOString(), ...resultados }, null, 2));
 });

@@ -1,6 +1,6 @@
 # PLANNING.md — Plano de Desenvolvimento: Nexo Field App
 
-> **Objetivo:** Desenvolver o `ces-field-app`, uma PWA Angular 20 offline-first para tablets, consumida por encarregados de equipes de campo da empresa. Este documento guia o desenvolvimento em sprints sequenciais e incrementais.
+> **Objetivo:** Desenvolver o `geo-field-app`, uma PWA Angular 20 offline-first para tablets, consumida por encarregados de equipes de campo da empresa. Este documento guia o desenvolvimento em sprints sequenciais e incrementais.
 > **Contexto de Agente:** `GEMINI.md` (leia antes de qualquer tarefa)
 > **Documentação da API:** `/docs/` (consulte sempre antes de integrar endpoints)
 
@@ -29,7 +29,7 @@ FASE 6 — Sprint 6: Hardening, Testes e PWA Production
 ### Tarefas
 
 #### F0.1 — Criação do Projeto
-- [ ] `ng new ces-field-app --routing --style=scss --strict --standalone`
+- [ ] `ng new geo-field-app --routing --style=scss --strict --standalone`
 - [ ] Configurar `tsconfig.json` para `strict: true`, `target: ES2022`.
 - [ ] Adicionar `@angular/pwa`: `ng add @angular/pwa`
 - [ ] Instalar dependências:
@@ -62,7 +62,7 @@ FASE 6 — Sprint 6: Hardening, Testes e PWA Production
     production: false,
     apiBaseUrl: 'http://localhost:8080/api',
     dbVersion: 1,
-    dbName: 'ces-field-db',
+    dbName: 'geo-field-db',
   };
   ```
 - [ ] `environment.prod.ts` com URL de produção.

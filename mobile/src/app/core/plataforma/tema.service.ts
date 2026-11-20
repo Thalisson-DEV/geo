@@ -3,8 +3,8 @@ import { Injectable, signal } from '@angular/core';
 export type Tema = 'claro' | 'escuro';
 export type Contraste = 'normal' | 'alto';
 
-const CHAVE_TEMA = 'ces_tema';
-const CHAVE_CONTRASTE = 'ces_contraste';
+const CHAVE_TEMA = 'geo_tema';
+const CHAVE_CONTRASTE = 'geo_contraste';
 const COR_BARRA: Record<Tema, string> = { claro: '#F4F6F9', escuro: '#0B1017' };
 
 /**

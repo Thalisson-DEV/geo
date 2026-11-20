@@ -46,16 +46,16 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <ces-barra-topo titulo="Checklist do veículo" [subtitulo]="tituloPasso() + ' · ' + (indice() + 1) + ' de ' + passos().length"
+      <geo-barra-topo titulo="Checklist do veículo" [subtitulo]="tituloPasso() + ' · ' + (indice() + 1) + ' de ' + passos().length"
         navegacao="fechar" (voltar)="fechar()">
-        <span class="auto-salvo" role="status" aria-label="Salvo automaticamente"><ces-icone nome="check" [tamanho]="14" />Salvo</span>
-      </ces-barra-topo>
+        <span class="auto-salvo" role="status" aria-label="Salvo automaticamente"><geo-icone nome="check" [tamanho]="14" />Salvo</span>
+      </geo-barra-topo>
       <div class="passos" aria-hidden="true">
         @for (p of passos(); track $index) { <i [class.feito]="$index <= indice()"></i> }
       </div>
 
       @if (!catalogo()) {
-        <ces-vazio icone="nuvem" titulo="Falta baixar os checklists"
+        <geo-vazio icone="nuvem" titulo="Falta baixar os checklists"
           texto="Sincronize o app com internet para baixar os veículos e as perguntas. Depois funciona sem sinal." />
       } @else if (registro(); as r) {
         <section class="conteudo" [attr.aria-label]="tituloPasso()">
@@ -63,35 +63,35 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
             @case ('veiculo') {
               @if (catalogo()!.veiculos.length > 6) {
                 <div class="busca">
-                  <ces-icone nome="busca" [tamanho]="20" />
+                  <geo-icone nome="busca" [tamanho]="20" />
                   <input type="search" placeholder="Buscar por placa ou descrição" enterkeyhint="search" aria-label="Buscar veículo"
                     [value]="busca()" (input)="busca.set($any($event.target).value)">
                 </div>
               }
               @if (meusVeiculos().length) {
-                <h2 class="ces-secao">Com você</h2>
-                <ul class="ces-grupo" role="listbox" aria-label="Veículos com você">
+                <h2 class="geo-secao">Com você</h2>
+                <ul class="geo-grupo" role="listbox" aria-label="Veículos com você">
                   @for (v of meusVeiculos(); track v.idVeiculo) {
                     <li><ng-container *ngTemplateOutlet="linhaVeiculo; context: { $implicit: v }" /></li>
                   }
                 </ul>
               }
               @if (outrosVeiculos().length) {
-                <h2 class="ces-secao">{{ meusVeiculos().length ? 'Outros veículos' : 'Veículos' }}</h2>
-                <ul class="ces-grupo" role="listbox" aria-label="Veículos">
+                <h2 class="geo-secao">{{ meusVeiculos().length ? 'Outros veículos' : 'Veículos' }}</h2>
+                <ul class="geo-grupo" role="listbox" aria-label="Veículos">
                   @for (v of outrosVeiculos(); track v.idVeiculo) {
                     <li><ng-container *ngTemplateOutlet="linhaVeiculo; context: { $implicit: v }" /></li>
                   }
                 </ul>
               }
               @if (!meusVeiculos().length && !outrosVeiculos().length) {
-                <ces-vazio icone="busca" titulo="Nenhum veículo encontrado" texto="Confira a placa digitada." />
+                <geo-vazio icone="busca" titulo="Nenhum veículo encontrado" texto="Confira a placa digitada." />
               }
               @if (tentou() && !r.idVeiculo) {
-                <p class="ces-faixa-estado ces-faixa-estado--erro" role="alert"><ces-icone nome="alerta" [tamanho]="18" /><span>Escolha o veículo que vai usar.</span></p>
+                <p class="geo-faixa-estado geo-faixa-estado--erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" /><span>Escolha o veículo que vai usar.</span></p>
               }
               @if (semModelo()) {
-                <p class="ces-faixa-estado ces-faixa-estado--erro" role="alert"><ces-icone nome="alerta" [tamanho]="18" />
+                <p class="geo-faixa-estado geo-faixa-estado--erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" />
                   <span>Este veículo ainda não tem checklist configurado. Avise o gestor da frota.</span></p>
               }
             }
@@ -100,7 +100,7 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
               <ng-container *ngTemplateOutlet="cartaoVeiculo" />
 
               @if (podeRegistrarSemCondutor()) {
-                <h2 class="ces-secao">Para que é o checklist</h2>
+                <h2 class="geo-secao">Para que é o checklist</h2>
                 <div class="chips" role="radiogroup" aria-label="Para que é o checklist">
                   @for (f of finalidades; track f) {
                     <button type="button" role="radio" class="chip" [attr.aria-checked]="finalidade() === f" (click)="escolherFinalidade(f)">
@@ -109,40 +109,40 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                   }
                 </div>
                 @if (finalidade() !== 'USO') {
-                  <p class="ces-faixa-estado"><ces-icone nome="documento" [tamanho]="18" />
+                  <p class="geo-faixa-estado"><geo-icone nome="documento" [tamanho]="18" />
                     <span>Registro sem condutor: não passa o veículo para ninguém nem conta como o checklist do dia. Os Não OK vão para o gestor.</span></p>
                 }
               }
 
               @if (finalidade() === 'USO') {
-              <h2 class="ces-secao">Condutor</h2>
+              <h2 class="geo-secao">Condutor</h2>
               <div class="campos">
-                <ces-seletor rotulo="Quem vai dirigir" [obrigatorio]="true" [opcoes]="opcoesCondutor()" [valor]="r.idCondutor"
+                <geo-seletor rotulo="Quem vai dirigir" [obrigatorio]="true" [opcoes]="opcoesCondutor()" [valor]="r.idCondutor"
                   (valorChange)="escolherCondutor($event)" [invalido]="tentou() && !r.idCondutor"
                   [aberto]="seletorAberto() === 'condutor'" (abertoChange)="seletorAberto.set($event ? 'condutor' : null)" />
                 @if (cnh(); as c) {
                   @if (c.situacao === 'APTO') {
-                    <p class="estado estado--ok"><ces-icone nome="check" [tamanho]="16" />CNH {{ categoriaCondutor() }} em dia para este veículo</p>
+                    <p class="estado estado--ok"><geo-icone nome="check" [tamanho]="16" />CNH {{ categoriaCondutor() }} em dia para este veículo</p>
                   } @else if (c.liberado) {
-                    <p class="ces-faixa-estado ces-faixa-estado--atencao"><ces-icone nome="info" [tamanho]="18" /><span>{{ c.mensagem }} O gestor liberou para hoje.</span></p>
+                    <p class="geo-faixa-estado geo-faixa-estado--atencao"><geo-icone nome="info" [tamanho]="18" /><span>{{ c.mensagem }} O gestor liberou para hoje.</span></p>
                   } @else {
                     <!-- A CNH só avisa no checklist: o bloqueio fica no abastecimento (gestores, 23/10/2026). -->
-                    <p class="ces-faixa-estado ces-faixa-estado--atencao" role="status"><ces-icone nome="alerta" [tamanho]="18" />
+                    <p class="geo-faixa-estado geo-faixa-estado--atencao" role="status"><geo-icone nome="alerta" [tamanho]="18" />
                       <span>{{ c.mensagem }} O checklist vale e o gestor é avisado. O abastecimento fica bloqueado até renovar a CNH ou o gestor liberar.</span></p>
                   }
                 }
                 @if (principais().length > 1) {
-                  <ces-seletor rotulo="Checklist" [opcoes]="opcoesModelo()" [valor]="r.idModelo" (valorChange)="escolherModelo($event)"
+                  <geo-seletor rotulo="Checklist" [opcoes]="opcoesModelo()" [valor]="r.idModelo" (valorChange)="escolherModelo($event)"
                     [aberto]="seletorAberto() === 'modelo'" (abertoChange)="seletorAberto.set($event ? 'modelo' : null)" />
                 }
               </div>
               }
 
-              <h2 class="ces-secao">{{ horas() ? 'Horímetro' : 'Hodômetro' }}</h2>
+              <h2 class="geo-secao">{{ horas() ? 'Horímetro' : 'Hodômetro' }}</h2>
               <div class="campos">
                 <label class="medida" [class.medida--erro]="(tentou() && r.medicao === null) || !!erroMedicao()">
-                  <span class="ces-sr-only">{{ horas() ? 'Horas no horímetro' : 'KM no painel' }}</span>
-                  <input class="medida__valor ces-num" type="text" inputmode="numeric" autocomplete="off" placeholder="0"
+                  <span class="geo-sr-only">{{ horas() ? 'Horas no horímetro' : 'KM no painel' }}</span>
+                  <input class="medida__valor geo-num" type="text" inputmode="numeric" autocomplete="off" placeholder="0"
                     [value]="r.medicao ?? ''" (input)="definirMedicao($any($event.target).value)"
                     [attr.aria-invalid]="(tentou() && r.medicao === null) || erroMedicao() ? 'true' : null">
                   <span class="medida__unidade">{{ horas() ? 'h' : 'km' }}</span>
@@ -150,42 +150,42 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                 @if (tentou() && r.medicao === null) {
                   <p class="falta" role="alert">{{ horas() ? 'Informe as horas que aparecem no horímetro.' : 'Informe o KM que aparece no painel.' }}</p>
                 } @else if (erroMedicao(); as erro) {
-                  <p class="ces-faixa-estado ces-faixa-estado--erro" role="alert"><ces-icone nome="alerta" [tamanho]="18" />
+                  <p class="geo-faixa-estado geo-faixa-estado--erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" />
                     <span>{{ erro }} {{ intervalo() }}.</span></p>
                 } @else if (veiculo()?.medicaoAtual != null) {
-                  <p class="apoio">Último registro: <b class="ces-num">{{ formatarMedicao(veiculo()!.medicaoAtual!) }}</b>{{ intervalo() ? ' · ' + intervalo() : '' }}</p>
+                  <p class="apoio">Último registro: <b class="geo-num">{{ formatarMedicao(veiculo()!.medicaoAtual!) }}</b>{{ intervalo() ? ' · ' + intervalo() : '' }}</p>
                 }
               </div>
 
               @if (finalidade() === 'USO' && r.idCondutor && troca()) {
-                <p class="ces-faixa-estado"><ces-icone nome="camera" [tamanho]="18" />
+                <p class="geo-faixa-estado"><geo-icone nome="camera" [tamanho]="18" />
                   <span>{{ veiculo()?.condutorAtualNome ? 'Você está recebendo o veículo de ' + veiculo()!.condutorAtualNome + '.' : 'Primeiro checklist deste condutor no veículo.' }}
                     No fim, o app pede as fotos de recebimento.</span></p>
               }
               @if (modelo()?.instrucoes) {
-                <p class="ces-faixa-estado"><ces-icone nome="documento" [tamanho]="18" /><span>{{ modelo()!.instrucoes }}</span></p>
+                <p class="geo-faixa-estado"><geo-icone nome="documento" [tamanho]="18" /><span>{{ modelo()!.instrucoes }}</span></p>
               }
             }
 
             @case ('itens') {
               <div class="progresso" role="status">
                 <div class="progresso__texto">
-                  <span><b class="ces-num">{{ respondidas() }}</b> de <span class="ces-num">{{ totalPerguntas() }}</span> conferidos</span>
+                  <span><b class="geo-num">{{ respondidas() }}</b> de <span class="geo-num">{{ totalPerguntas() }}</span> conferidos</span>
                   @if (problemas().length) {
-                    <span class="ces-etiqueta ces-etiqueta--atencao">{{ problemas().length }} {{ problemas().length === 1 ? 'problema' : 'problemas' }}</span>
+                    <span class="geo-etiqueta geo-etiqueta--atencao">{{ problemas().length }} {{ problemas().length === 1 ? 'problema' : 'problemas' }}</span>
                   }
                 </div>
                 <div class="progresso__barra" aria-hidden="true"><i [style.width.%]="percentual()"></i></div>
               </div>
 
               @for (g of grupos(); track g.titulo) {
-                <div class="ces-secao grupo">
+                <div class="geo-secao grupo">
                   <h2>{{ g.titulo }}</h2>
                   @if (abertosOkNok(g) > 1) {
-                    <button type="button" class="tudo-ok" (click)="marcarTudoOk(g)"><ces-icone nome="check" [tamanho]="16" />{{ abertosOkNok(g) === totalOkNok(g) ? 'Marcar todos OK' : 'Marcar o resto OK' }}</button>
+                    <button type="button" class="tudo-ok" (click)="marcarTudoOk(g)"><geo-icone nome="check" [tamanho]="16" />{{ abertosOkNok(g) === totalOkNok(g) ? 'Marcar todos OK' : 'Marcar o resto OK' }}</button>
                   }
                 </div>
-                <ul class="ces-grupo">
+                <ul class="geo-grupo">
                   @for (p of g.perguntas; track p.id) {
                     <li class="pergunta" [id]="'pergunta-' + p.id" [class.pergunta--pendente]="tentou() && !!pendencia(p)">
                       <div class="pergunta__linha">
@@ -193,9 +193,9 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                         @if (p.tipoResposta === 'OK_NOK') {
                           <span class="resp" role="radiogroup" [attr.aria-label]="p.texto">
                             <button type="button" role="radio" class="resp__btn resp__btn--ok" aria-label="OK"
-                              [attr.aria-checked]="resposta(p.id)?.conforme === true" (click)="marcar(p, true)"><ces-icone nome="check" [tamanho]="22" /></button>
+                              [attr.aria-checked]="resposta(p.id)?.conforme === true" (click)="marcar(p, true)"><geo-icone nome="check" [tamanho]="22" /></button>
                             <button type="button" role="radio" class="resp__btn resp__btn--nok" aria-label="Não OK"
-                              [attr.aria-checked]="resposta(p.id)?.conforme === false" (click)="marcar(p, false)"><ces-icone nome="fechar" [tamanho]="20" /></button>
+                              [attr.aria-checked]="resposta(p.id)?.conforme === false" (click)="marcar(p, false)"><geo-icone nome="fechar" [tamanho]="20" /></button>
                           </span>
                         }
                       </div>
@@ -204,11 +204,11 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                           @for (o of p.opcoes; track o.id) {
                             <button type="button" role="radio" class="opcao" [class.opcao--problema]="o.indicaProblema"
                               [attr.aria-checked]="resposta(p.id)?.idAlternativa === o.id" (click)="escolherOpcao(p, o.id)">
-                              @if (resposta(p.id)?.idAlternativa === o.id) { <ces-icone nome="check" [tamanho]="16" /> }{{ o.texto }}</button>
+                              @if (resposta(p.id)?.idAlternativa === o.id) { <geo-icone nome="check" [tamanho]="16" /> }{{ o.texto }}</button>
                           }
                         </div>
                       } @else if (p.tipoResposta === 'TEXTO') {
-                        <textarea class="ces-input texto" rows="2" [value]="resposta(p.id)?.texto ?? ''" (input)="escrever(p, $any($event.target).value)"
+                        <textarea class="geo-input texto" rows="2" [value]="resposta(p.id)?.texto ?? ''" (input)="escrever(p, $any($event.target).value)"
                           [attr.aria-label]="p.texto" placeholder="Escreva aqui"></textarea>
                       }
 
@@ -221,7 +221,7 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                                 @for (m of p.motivos; track m.id) {
                                   <button type="button" role="radio" class="opcao opcao--problema" [attr.aria-checked]="resposta(p.id)?.idAlternativa === m.id"
                                     (click)="escolherMotivo(p, m.id)">
-                                    @if (resposta(p.id)?.idAlternativa === m.id) { <ces-icone nome="check" [tamanho]="16" /> }{{ m.texto }}</button>
+                                    @if (resposta(p.id)?.idAlternativa === m.id) { <geo-icone nome="check" [tamanho]="16" /> }{{ m.texto }}</button>
                                 }
                               </div>
                             </div>
@@ -234,17 +234,17 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                               @for (f of resposta(p.id)?.fotos ?? []; track f.idFoto) {
                                 <span class="mini">
                                   @if (previa(f); as url) { <img [src]="url" alt="Foto do problema"> }
-                                  <button type="button" class="mini__tirar" (click)="removerFoto(p, f.idFoto)" aria-label="Tirar a foto"><ces-icone nome="fechar" [tamanho]="12" /></button>
+                                  <button type="button" class="mini__tirar" (click)="removerFoto(p, f.idFoto)" aria-label="Tirar a foto"><geo-icone nome="fechar" [tamanho]="12" /></button>
                                 </span>
                               }
                               <label class="add-foto" [class.add-foto--pedida]="fotoExigida(p, resposta(p.id)) && !(resposta(p.id)?.fotos?.length)">
-                                <ces-icone nome="camera" [tamanho]="22" />
+                                <geo-icone nome="camera" [tamanho]="22" />
                                 <span>{{ (resposta(p.id)?.fotos?.length) ? 'Outra' : 'Tirar' }}</span>
-                                <input type="file" accept="image/*" capture="environment" class="ces-sr-only" aria-label="Tirar foto do problema" (change)="fotografar($event, p)">
+                                <input type="file" accept="image/*" capture="environment" class="geo-sr-only" aria-label="Tirar foto do problema" (change)="fotografar($event, p)">
                               </label>
                             </div>
                           </div>
-                          <input class="ces-input detalhe__comentario" type="text" [value]="resposta(p.id)?.comentario ?? ''" maxlength="500"
+                          <input class="geo-input detalhe__comentario" type="text" [value]="resposta(p.id)?.comentario ?? ''" maxlength="500"
                             (input)="comentar(p, $any($event.target).value)" placeholder="Comentário (opcional)" aria-label="Comentário">
                         </div>
                       } @else if (modoFoto(p) === 'SEMPRE' && !pendenciaSemFoto(p)) {
@@ -258,19 +258,19 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                               @for (f of resposta(p.id)?.fotos ?? []; track f.idFoto) {
                                 <span class="mini">
                                   @if (previa(f); as url) { <img [src]="url" [alt]="'Foto de ' + p.texto"> }
-                                  <button type="button" class="mini__tirar" (click)="removerFoto(p, f.idFoto)" aria-label="Tirar a foto"><ces-icone nome="fechar" [tamanho]="12" /></button>
+                                  <button type="button" class="mini__tirar" (click)="removerFoto(p, f.idFoto)" aria-label="Tirar a foto"><geo-icone nome="fechar" [tamanho]="12" /></button>
                                 </span>
                               }
                               <label class="add-foto" [class.add-foto--pedida]="!(resposta(p.id)?.fotos?.length)">
-                                <ces-icone nome="camera" [tamanho]="22" />
+                                <geo-icone nome="camera" [tamanho]="22" />
                                 <span>{{ (resposta(p.id)?.fotos?.length) ? 'Outra' : 'Tirar' }}</span>
-                                <input type="file" accept="image/*" capture="environment" class="ces-sr-only" [attr.aria-label]="'Tirar foto de ' + p.texto" (change)="fotografar($event, p)">
+                                <input type="file" accept="image/*" capture="environment" class="geo-sr-only" [attr.aria-label]="'Tirar foto de ' + p.texto" (change)="fotografar($event, p)">
                               </label>
                             </div>
                           </div>
                         </div>
                       }
-                      @if (tentou() && pendencia(p); as falta) { <p class="falta" role="alert"><ces-icone nome="alerta" [tamanho]="14" />{{ falta }}</p> }
+                      @if (tentou() && pendencia(p); as falta) { <p class="falta" role="alert"><geo-icone nome="alerta" [tamanho]="14" />{{ falta }}</p> }
                     </li>
                   }
                 </ul>
@@ -278,22 +278,22 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
             }
 
             @case ('recebimento') {
-              <p class="ces-faixa-estado"><ces-icone nome="camera" [tamanho]="18" />
+              <p class="geo-faixa-estado"><geo-icone nome="camera" [tamanho]="18" />
                 <span>Você está recebendo o veículo. As fotos mostram como ele estava; toque em cada uma para fotografar.</span></p>
-              <h2 class="ces-secao"><span>Fotos</span><span class="ces-num">{{ fotosRecebidas() }} de {{ modelo()?.fotosRecebimento?.length ?? 0 }}</span></h2>
+              <h2 class="geo-secao"><span>Fotos</span><span class="geo-num">{{ fotosRecebidas() }} de {{ modelo()?.fotosRecebimento?.length ?? 0 }}</span></h2>
               <ul class="receb">
                 @for (pedida of modelo()?.fotosRecebimento ?? []; track pedida.id) {
                   <li>
                     <label class="receb__foto" [class.receb__foto--feita]="!!fotoRecebimento(pedida.id)" [class.receb__foto--pendente]="tentou() && !fotoRecebimento(pedida.id)">
                       @if (fotoRecebimento(pedida.id); as f) {
                         @if (previa(f); as url) { <img [src]="url" [alt]="pedida.descricao"> }
-                        <span class="receb__ok" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>
+                        <span class="receb__ok" aria-hidden="true"><geo-icone nome="check" [tamanho]="14" /></span>
                         <span class="receb__refazer">Refazer</span>
                       } @else {
-                        <ces-icone nome="camera" [tamanho]="26" />
+                        <geo-icone nome="camera" [tamanho]="26" />
                         <span class="receb__tirar">Tirar foto</span>
                       }
-                      <input type="file" accept="image/*" capture="environment" class="ces-sr-only" [attr.aria-label]="'Foto: ' + pedida.descricao"
+                      <input type="file" accept="image/*" capture="environment" class="geo-sr-only" [attr.aria-label]="'Foto: ' + pedida.descricao"
                         (change)="fotografarRecebimento($event, pedida.id)">
                     </label>
                     <span class="receb__rotulo">{{ pedida.descricao }}</span>
@@ -306,35 +306,35 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
               <ng-container *ngTemplateOutlet="cartaoVeiculo" />
               <dl class="resumo">
                 <div><dt>{{ finalidade() === 'USO' ? 'Condutor' : 'Checklist' }}</dt><dd>{{ finalidade() === 'USO' ? r.condutorNome : rotuloFinalidade[finalidade()] + ', sem condutor' }}</dd></div>
-                <div><dt>{{ horas() ? 'Horímetro' : 'Hodômetro' }}</dt><dd class="ces-num">{{ r.medicao != null ? formatarMedicao(r.medicao) : '—' }}</dd></div>
-                <div><dt>Itens conferidos</dt><dd class="ces-num">{{ totalPerguntas() }}</dd></div>
-                @if (troca()) { <div><dt>Fotos de recebimento</dt><dd class="ces-num">{{ fotosRecebidas() }}</dd></div> }
+                <div><dt>{{ horas() ? 'Horímetro' : 'Hodômetro' }}</dt><dd class="geo-num">{{ r.medicao != null ? formatarMedicao(r.medicao) : '—' }}</dd></div>
+                <div><dt>Itens conferidos</dt><dd class="geo-num">{{ totalPerguntas() }}</dd></div>
+                @if (troca()) { <div><dt>Fotos de recebimento</dt><dd class="geo-num">{{ fotosRecebidas() }}</dd></div> }
               </dl>
 
               @if (problemas().length) {
-                <h2 class="ces-secao"><span>Vão para o gestor</span><span class="ces-num">{{ problemas().length }}</span></h2>
-                <ul class="ces-grupo">
+                <h2 class="geo-secao"><span>Vão para o gestor</span><span class="geo-num">{{ problemas().length }}</span></h2>
+                <ul class="geo-grupo">
                   @for (p of problemas(); track p.id) {
                     <li>
-                      <button type="button" class="ces-linha ces-linha--acao" (click)="irPara(p)">
+                      <button type="button" class="geo-linha geo-linha--acao" (click)="irPara(p)">
                         @if (primeiraFoto(p); as url) { <img class="miniatura" [src]="url" alt=""> }
-                        @else { <span class="ces-selo ces-selo--atencao"><ces-icone nome="alerta" /></span> }
-                        <span class="ces-linha__texto">
-                          <span class="ces-linha__titulo">{{ p.texto }}</span>
-                          <span class="ces-linha__apoio">{{ detalheProblema(p) }}</span>
+                        @else { <span class="geo-selo geo-selo--atencao"><geo-icone nome="alerta" /></span> }
+                        <span class="geo-linha__texto">
+                          <span class="geo-linha__titulo">{{ p.texto }}</span>
+                          <span class="geo-linha__apoio">{{ detalheProblema(p) }}</span>
                         </span>
-                        <ces-icone nome="editar" [tamanho]="18" />
+                        <geo-icone nome="editar" [tamanho]="18" />
                       </button>
                     </li>
                   }
                 </ul>
               } @else {
-                <p class="estado estado--ok estado--bloco"><ces-icone nome="check" [tamanho]="18" />Tudo OK. Nenhum problema para o gestor.</p>
+                <p class="estado estado--ok estado--bloco"><geo-icone nome="check" [tamanho]="18" />Tudo OK. Nenhum problema para o gestor.</p>
               }
 
-              <h2 class="ces-secao">Observação geral</h2>
+              <h2 class="geo-secao">Observação geral</h2>
               <div class="campos">
-                <textarea id="comentario" class="ces-input texto" rows="3" [value]="r.comentario" (input)="atualizar({ comentario: $any($event.target).value })"
+                <textarea id="comentario" class="geo-input texto" rows="3" [value]="r.comentario" (input)="atualizar({ comentario: $any($event.target).value })"
                   placeholder="Opcional" aria-label="Observação geral"></textarea>
                 @if (modelo()?.exigeAssinatura) {
                   <button type="button" role="switch" class="interruptor" [attr.aria-checked]="r.assinado" (click)="atualizar({ assinado: !r.assinado })">
@@ -344,7 +344,7 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
                   @if (tentou() && !r.assinado) { <p class="falta" role="alert">Confirme para enviar.</p> }
                 }
               </div>
-              <p class="dica"><ces-icone nome="nuvem" [tamanho]="18" />Sem internet, fica salvo no aparelho com as fotos e vai sozinho quando o sinal voltar.</p>
+              <p class="dica"><geo-icone nome="nuvem" [tamanho]="18" />Sem internet, fica salvo no aparelho com as fotos e vai sozinho quando o sinal voltar.</p>
             }
           }
         </section>
@@ -353,38 +353,38 @@ type Passo = { tipo: 'veiculo' | 'inicio' | 'itens' | 'recebimento' | 'revisao' 
 
     @if (catalogo() && registro()) {
       <footer class="rodape">
-        @if (indice() > 0) { <button type="button" class="ces-btn ces-btn--neutro" (click)="voltar()">Voltar</button> }
-        <button type="button" class="ces-btn ces-btn--principal principal" (click)="avancar()" [disabled]="salvando() || preparandoFoto()">
+        @if (indice() > 0) { <button type="button" class="geo-btn geo-btn--neutro" (click)="voltar()">Voltar</button> }
+        <button type="button" class="geo-btn geo-btn--principal principal" (click)="avancar()" [disabled]="salvando() || preparandoFoto()">
           @if (passo().tipo === 'revisao') { {{ salvando() ? 'Salvando…' : 'Enviar checklist' }} }
           @else if (preparandoFoto()) { Preparando a foto… }
           @else if (passo().tipo === 'itens' && faltam() > 0) { {{ faltam() === 1 ? 'Falta 1 item' : 'Faltam ' + faltam() + ' itens' }} }
           @else if (passo().tipo === 'recebimento' && fotosFaltando() > 0) { {{ fotosFaltando() === 1 ? 'Falta 1 foto' : 'Faltam ' + fotosFaltando() + ' fotos' }} }
-          @else { Continuar <ces-icone nome="seta" [tamanho]="18" /> }
+          @else { Continuar <geo-icone nome="seta" [tamanho]="18" /> }
         </button>
       </footer>
     }
 
     <ng-template #linhaVeiculo let-v>
-      <button type="button" role="option" class="ces-linha ces-linha--acao veiculo" [attr.aria-selected]="registro()?.idVeiculo === v.idVeiculo" (click)="escolherVeiculo(v)">
-        <span class="ces-selo" [class.ces-selo--destaque]="registro()?.idVeiculo === v.idVeiculo"><ces-icone nome="caminhao" /></span>
-        <span class="ces-linha__texto">
-          <span class="ces-linha__titulo ces-num">{{ placa(v.placa) }}</span>
-          <span class="ces-linha__resumo">{{ v.descricao ?? 'Sem descrição' }}</span>
-          <span class="ces-linha__apoio">{{ v.baseNome ?? 'Sem base' }}{{ v.idCondutorAtual !== meuColaborador() && v.condutorAtualNome ? ' · com ' + v.condutorAtualNome : '' }}</span>
+      <button type="button" role="option" class="geo-linha geo-linha--acao veiculo" [attr.aria-selected]="registro()?.idVeiculo === v.idVeiculo" (click)="escolherVeiculo(v)">
+        <span class="geo-selo" [class.geo-selo--destaque]="registro()?.idVeiculo === v.idVeiculo"><geo-icone nome="caminhao" /></span>
+        <span class="geo-linha__texto">
+          <span class="geo-linha__titulo geo-num">{{ placa(v.placa) }}</span>
+          <span class="geo-linha__resumo">{{ v.descricao ?? 'Sem descrição' }}</span>
+          <span class="geo-linha__apoio">{{ v.baseNome ?? 'Sem base' }}{{ v.idCondutorAtual !== meuColaborador() && v.condutorAtualNome ? ' · com ' + v.condutorAtualNome : '' }}</span>
         </span>
-        <span class="marca" aria-hidden="true"><ces-icone nome="check" [tamanho]="16" /></span>
+        <span class="marca" aria-hidden="true"><geo-icone nome="check" [tamanho]="16" /></span>
       </button>
     </ng-template>
 
     <ng-template #cartaoVeiculo>
       @if (veiculo(); as v) {
         <div class="cartao">
-          <span class="ces-selo ces-selo--destaque"><ces-icone nome="caminhao" /></span>
+          <span class="geo-selo geo-selo--destaque"><geo-icone nome="caminhao" /></span>
           <span class="cartao__texto">
-            <strong class="ces-num">{{ placa(v.placa) }}</strong>
+            <strong class="geo-num">{{ placa(v.placa) }}</strong>
             <span>{{ v.descricao ?? 'Sem descrição' }}{{ v.baseNome ? ' · ' + v.baseNome : '' }}</span>
           </span>
-          @if (modelo(); as m) { <span class="ces-etiqueta">{{ m.nome }}</span> }
+          @if (modelo(); as m) { <span class="geo-etiqueta">{{ m.nome }}</span> }
         </div>
       }
     </ng-template>

@@ -2,18 +2,18 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Nexo Campo</title>
+  <title>GEO Campo</title>
   <base href="/">
   <!-- Zoom liberado (WCAG 1.4.4). viewport-fit=cover: o app desenha sob a barra de status e usa as safe areas. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
   <!-- Claro por padrão, mesmo com o celular em modo escuro; o escuro é escolha do usuário em Conta. -->
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#F4F6F9">
-  <meta name="description" content="App de campo do Nexo: turno, execuções e materiais, com ou sem internet.">
+  <meta name="description" content="App de campo do GEO: turno, obras, execuções e materiais, com ou sem internet.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Nexo Campo">
+  <meta name="apple-mobile-web-app-title" content="GEO Campo">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="icons/icon-192x192.png">
@@ -21,9 +21,9 @@
   <script>
     // Antes do Angular: aplica o tema escolhido sem piscar (claro se nada foi escolhido).
     try {
-      var t = localStorage.getItem('ces_tema');
+      var t = localStorage.getItem('geo_tema');
       if (t === 'escuro') { document.documentElement.setAttribute('data-tema', 'escuro'); document.querySelector('meta[name=theme-color]').content = '#0B1017'; }
-      if (localStorage.getItem('ces_contraste') === 'alto') document.documentElement.setAttribute('data-contraste', 'alto');
+      if (localStorage.getItem('geo_contraste') === 'alto') document.documentElement.setAttribute('data-contraste', 'alto');
     } catch (e) {}
   </script>
   <style>
@@ -33,6 +33,6 @@
 </head>
 <body>
   <app-root></app-root>
-  <noscript>Ative o JavaScript para usar o Nexo Campo.</noscript>
+  <noscript>Ative o JavaScript para usar o GEO Campo.</noscript>
 </body>
 </html>

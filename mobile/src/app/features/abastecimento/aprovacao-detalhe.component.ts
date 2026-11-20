@@ -19,32 +19,32 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
   imports: [BarraTopoComponent, FolhaComponent, IconeComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo [titulo]="pedido() && !pedido()!.abastecimento.podeAprovar ? 'Abastecimento' : 'Aprovar abastecimento'" [subtitulo]="subtitulo()" (voltar)="voltar()" />
+    <geo-barra-topo [titulo]="pedido() && !pedido()!.abastecimento.podeAprovar ? 'Abastecimento' : 'Aprovar abastecimento'" [subtitulo]="subtitulo()" (voltar)="voltar()" />
 
     @if (carregando()) {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        <div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 160px"></div><div class="ces-esqueleto" style="height: 140px"></div>
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 160px"></div><div class="geo-esqueleto" style="height: 140px"></div>
       </div>
     } @else if (pedido(); as p) {
       @let a = p.abastecimento;
       @if (!a.podeAprovar) {
-        <h2 class="ces-secao">Andamento</h2>
+        <h2 class="geo-secao">Andamento</h2>
         <ol class="passos" aria-label="Andamento do pedido">
           @for (ps of passos(); track ps.titulo) {
             <li class="passo" [attr.data-estado]="ps.estado">
-              <span class="passo__marca" aria-hidden="true">@if (ps.estado === 'feito') { <ces-icone nome="check" [tamanho]="14" /> }</span>
+              <span class="passo__marca" aria-hidden="true">@if (ps.estado === 'feito') { <geo-icone nome="check" [tamanho]="14" /> }</span>
               <span class="passo__texto"><span class="passo__titulo">{{ ps.titulo }}</span>
                 @if (ps.detalhe) { <span class="passo__detalhe">{{ ps.detalhe }}</span> }</span>
             </li>
           }
         </ol>
-        <h2 class="ces-secao">Quantidades</h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao">Quantidades</h2>
+        <ul class="geo-grupo">
           @for (i of a.itens; track i.id) {
-            <li class="ces-linha item">
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ i.produtoPedido }}</span>
-                <span class="ces-linha__apoio ces-num">{{ resumoQuantidades(i) }}</span></span>
-              <span class="ces-qtd">{{ numero(quantidadeAtual(i)) }}<small>{{ i.unidade.toUpperCase() === 'L' ? 'l' : 'un' }}</small></span>
+            <li class="geo-linha item">
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ i.produtoPedido }}</span>
+                <span class="geo-linha__apoio geo-num">{{ resumoQuantidades(i) }}</span></span>
+              <span class="geo-qtd">{{ numero(quantidadeAtual(i)) }}<small>{{ i.unidade.toUpperCase() === 'L' ? 'l' : 'un' }}</small></span>
             </li>
           }
         </ul>
@@ -63,24 +63,24 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
       }
 
       @if (a.alertas.length) {
-        <section class="ces-faixa-estado ces-faixa-estado--atencao" aria-label="Alertas">
-          <ces-icone nome="alerta" [tamanho]="18" />
+        <section class="geo-faixa-estado geo-faixa-estado--atencao" aria-label="Alertas">
+          <geo-icone nome="alerta" [tamanho]="18" />
           <div>@for (al of a.alertas; track al.mensagem) { <p><b>{{ al.tipoRotulo }}:</b> {{ al.mensagem }}</p> }</div>
         </section>
       }
 
-      <dl class="ces-dados">
+      <dl class="geo-dados">
         <div><dt>Destino</dt><dd><b>{{ a.destino ?? 'Não informado' }}</b></dd></div>
         <div><dt>Condutor</dt><dd>{{ a.condutor ?? '—' }}</dd></div>
         <div><dt>Posto</dt><dd>{{ a.posto }}</dd></div>
-        <div><dt>{{ a.unidadeMedicao === 'HORAS' ? 'Horímetro' : 'KM' }} no pedido</dt><dd class="ces-num">{{ formatarMedicao(a.medicaoSolicitacao, a.unidadeMedicao) }}</dd></div>
-        <div><dt>Tanque</dt><dd class="ces-num">{{ a.capacidadeTanque ? formatarQuantidade(a.capacidadeTanque, 'L') : 'Não informado na ficha' }}</dd></div>
+        <div><dt>{{ a.unidadeMedicao === 'HORAS' ? 'Horímetro' : 'KM' }} no pedido</dt><dd class="geo-num">{{ formatarMedicao(a.medicaoSolicitacao, a.unidadeMedicao) }}</dd></div>
+        <div><dt>Tanque</dt><dd class="geo-num">{{ a.capacidadeTanque ? formatarQuantidade(a.capacidadeTanque, 'L') : 'Não informado na ficha' }}</dd></div>
         <div><dt>Pedido</dt><dd>{{ quando(a.solicitadoEm) }}{{ a.solicitante ? ' · ' + a.solicitante : '' }}</dd></div>
         @if (a.observacao) { <div><dt>Observação</dt><dd>{{ a.observacao }}</dd></div> }
       </dl>
 
       @if (fotos().length) {
-        <h2 class="ces-secao">Painel</h2>
+        <h2 class="geo-secao">Painel</h2>
         <ul class="fotos">
           @for (f of fotos(); track f.id) {
             <li>
@@ -94,16 +94,16 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
       }
 
       @if (a.podeAprovar) {
-        <h2 class="ces-secao">Quanto abastecer</h2>
+        <h2 class="geo-secao">Quanto abastecer</h2>
         <p class="dica">A equipe pediu só o produto. Defina a quantidade pelo destino; zero tira o item.</p>
-        <ul class="ces-grupo">
+        <ul class="geo-grupo">
           @for (i of a.itens; track i.id) {
-            <li class="ces-linha item">
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ i.produtoPedido }}</span>
-                <span class="ces-linha__apoio">{{ rotuloCategoria[i.categoria] }}</span></span>
+            <li class="geo-linha item">
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ i.produtoPedido }}</span>
+                <span class="geo-linha__apoio">{{ rotuloCategoria[i.categoria] }}</span></span>
               <label class="qtd" [class.qtd--erro]="tentou() && quantidades()[i.id] == null">
-                <span class="ces-sr-only">Quantidade de {{ i.produtoPedido }}</span>
-                <input class="ces-num" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="digitado(i)"
+                <span class="geo-sr-only">Quantidade de {{ i.produtoPedido }}</span>
+                <input class="geo-num" type="text" inputmode="decimal" autocomplete="off" placeholder="0" [value]="digitado(i)"
                   (input)="definir(i, $any($event.target).value)">
                 <span>{{ i.unidade.toUpperCase() === 'L' ? 'l' : 'un' }}</span>
               </label>
@@ -111,85 +111,85 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
           }
         </ul>
         @if (acimaDoTanque(); as aviso) {
-          <p class="ces-faixa-estado ces-faixa-estado--atencao" role="alert"><ces-icone nome="alerta" [tamanho]="18" /><span>{{ aviso }}</span></p>
+          <p class="geo-faixa-estado geo-faixa-estado--atencao" role="alert"><geo-icone nome="alerta" [tamanho]="18" /><span>{{ aviso }}</span></p>
         }
         @if (tentou() && erroQuantidades(); as erro) {
-          <p class="ces-faixa-estado ces-faixa-estado--erro" role="alert"><ces-icone nome="alerta" [tamanho]="18" /><span>{{ erro }}</span></p>
+          <p class="geo-faixa-estado geo-faixa-estado--erro" role="alert"><geo-icone nome="alerta" [tamanho]="18" /><span>{{ erro }}</span></p>
         }
-        <div class="ces-respiro"></div>
-        <footer class="ces-rodape-acoes">
-          <button type="button" class="ces-btn ces-btn--neutro" [disabled]="salvando()" (click)="reprovando.set(true)">Reprovar</button>
-          <button type="button" class="ces-btn ces-btn--principal" [disabled]="salvando() || !rede.isOnline()" (click)="aprovar()">
-            <ces-icone nome="check" [tamanho]="18" />{{ salvando() ? 'Aprovando…' : rede.isOnline() ? 'Aprovar' : 'Sem internet' }}</button>
+        <div class="geo-respiro"></div>
+        <footer class="geo-rodape-acoes">
+          <button type="button" class="geo-btn geo-btn--neutro" [disabled]="salvando()" (click)="reprovando.set(true)">Reprovar</button>
+          <button type="button" class="geo-btn geo-btn--principal" [disabled]="salvando() || !rede.isOnline()" (click)="aprovar()">
+            <geo-icone nome="check" [tamanho]="18" />{{ salvando() ? 'Aprovando…' : rede.isOnline() ? 'Aprovar' : 'Sem internet' }}</button>
         </footer>
       }
     } @else {
-      <ces-vazio icone="combustivel" [titulo]="rede.isOnline() ? 'Pedido não encontrado' : 'Sem internet'"
+      <geo-vazio icone="combustivel" [titulo]="rede.isOnline() ? 'Pedido não encontrado' : 'Sem internet'"
         [texto]="erro() ?? 'Conecte para ver o pedido.'">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="carregar()">Tentar de novo</button>
-      </ces-vazio>
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="carregar()">Tentar de novo</button>
+      </geo-vazio>
     }
 
-    <ces-folha [aberta]="reprovando()" (fechar)="reprovando.set(false)" titulo="Reprovar o pedido?"
+    <geo-folha [aberta]="reprovando()" (fechar)="reprovando.set(false)" titulo="Reprovar o pedido?"
       descricao="A equipe vê o motivo no app e pode pedir de novo.">
       <div class="motivo">
-        <label class="ces-campo">
-          <span class="ces-campo__rotulo">Motivo</span>
-          <textarea class="ces-input" rows="3" maxlength="400" placeholder="Ex.: abasteceu ontem e o painel mostra mais da metade do tanque"
+        <label class="geo-campo">
+          <span class="geo-campo__rotulo">Motivo</span>
+          <textarea class="geo-input" rows="3" maxlength="400" placeholder="Ex.: abasteceu ontem e o painel mostra mais da metade do tanque"
             [value]="motivo()" (input)="motivo.set($any($event.target).value)"></textarea>
         </label>
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="reprovando.set(false)">Voltar</button>
-        <button type="button" class="ces-btn ces-btn--perigo" [disabled]="salvando() || motivo().trim().length < 5" (click)="reprovar()">
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="reprovando.set(false)">Voltar</button>
+        <button type="button" class="geo-btn geo-btn--perigo" [disabled]="salvando() || motivo().trim().length < 5" (click)="reprovar()">
           {{ salvando() ? 'Reprovando…' : 'Reprovar' }}</button>
       </div>
-    </ces-folha>
+    </geo-folha>
 
-    <ces-folha [aberta]="!!ampliar()" (fechar)="ampliar.set(null)" [titulo]="ampliar()?.rotulo ?? null">
+    <geo-folha [aberta]="!!ampliar()" (fechar)="ampliar.set(null)" [titulo]="ampliar()?.rotulo ?? null">
       @if (ampliar()?.url; as url) { <img class="ampliada" [src]="url" [alt]="ampliar()!.rotulo"> }
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
-    .copiloto { display: flex; gap: var(--ces-e3); margin: var(--ces-e3) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
-      border-radius: var(--ces-r-grupo); background: var(--ces-destaque-suave); border-left: 4px solid var(--ces-destaque); }
-    .copiloto[data-tom='ATENCAO'] { border-left-color: var(--ces-atencao); }
-    .copiloto[data-tom='CRITICO'] { border-left-color: var(--ces-erro); }
-    .copiloto img { width: 40px; height: 40px; border-radius: 50%; background: var(--ces-superficie); flex: none; }
+    .copiloto { display: flex; gap: var(--geo-e3); margin: var(--geo-e3) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+      border-radius: var(--geo-r-grupo); background: var(--geo-destaque-suave); border-left: 4px solid var(--geo-destaque); }
+    .copiloto[data-tom='ATENCAO'] { border-left-color: var(--geo-atencao); }
+    .copiloto[data-tom='CRITICO'] { border-left-color: var(--geo-erro); }
+    .copiloto img { width: 40px; height: 40px; border-radius: 50%; background: var(--geo-superficie); flex: none; }
     .copiloto div { display: grid; gap: 4px; min-width: 0; }
-    .copiloto p { margin: 0; font: var(--ces-t-apoio); color: var(--ces-texto); }
-    .copiloto__nota { font: var(--ces-t-apoio); color: var(--ces-texto-2); font-size: .8125rem; }
-    .dica { margin: 0 var(--ces-e5) var(--ces-e2); font: var(--ces-t-apoio); color: var(--ces-texto-2); }
+    .copiloto p { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto); }
+    .copiloto__nota { font: var(--geo-t-apoio); color: var(--geo-texto-2); font-size: .8125rem; }
+    .dica { margin: 0 var(--geo-e5) var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .item { align-items: center; }
-    .qtd { display: flex; align-items: center; gap: 6px; min-height: 56px; padding: 0 var(--ces-e3); border-radius: var(--ces-r-campo, 12px);
-      border: 1.5px solid var(--ces-linha-forte); background: var(--ces-fundo); }
-    .qtd--erro { border-color: var(--ces-erro); }
-    .qtd input { width: 84px; border: 0; background: transparent; font: var(--ces-t-numero); font-size: 1.25rem; text-align: right; color: var(--ces-texto); outline: none; }
-    .fotos { list-style: none; margin: 0; padding: 0 var(--ces-e3); display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--ces-e3); }
+    .qtd { display: flex; align-items: center; gap: 6px; min-height: 56px; padding: 0 var(--geo-e3); border-radius: var(--geo-r-campo, 12px);
+      border: 1.5px solid var(--geo-linha-forte); background: var(--geo-fundo); }
+    .qtd--erro { border-color: var(--geo-erro); }
+    .qtd input { width: 84px; border: 0; background: transparent; font: var(--geo-t-numero); font-size: 1.25rem; text-align: right; color: var(--geo-texto); outline: none; }
+    .fotos { list-style: none; margin: 0; padding: 0 var(--geo-e3); display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--geo-e3); }
     .fotos li { display: grid; gap: 6px; }
-    .foto { position: relative; display: grid; place-content: center; aspect-ratio: 4 / 3; overflow: hidden; padding: 0; border-radius: var(--ces-r-grupo);
-      border: 1.5px dashed var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-2); font: var(--ces-t-apoio); }
+    .foto { position: relative; display: grid; place-content: center; aspect-ratio: 4 / 3; overflow: hidden; padding: 0; border-radius: var(--geo-r-grupo);
+      border: 1.5px dashed var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2); font: var(--geo-t-apoio); }
     .foto--pronta { border: 0; cursor: pointer; }
     .foto img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-    .foto__rotulo { font: var(--ces-t-apoio); color: var(--ces-texto); }
-    .motivo { padding: 0 var(--ces-e4); }
-    .passos { list-style: none; margin: 0 var(--ces-e3); padding: var(--ces-e3) var(--ces-e4); border-radius: var(--ces-r-grupo); background: var(--ces-superficie); }
-    .passo { position: relative; display: flex; gap: var(--ces-e3); padding-bottom: var(--ces-e4); }
+    .foto__rotulo { font: var(--geo-t-apoio); color: var(--geo-texto); }
+    .motivo { padding: 0 var(--geo-e4); }
+    .passos { list-style: none; margin: 0 var(--geo-e3); padding: var(--geo-e3) var(--geo-e4); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
+    .passo { position: relative; display: flex; gap: var(--geo-e3); padding-bottom: var(--geo-e4); }
     .passo:last-child { padding-bottom: 0; }
-    .passo:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 26px; bottom: 2px; width: 2px; background: var(--ces-linha); }
+    .passo:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 26px; bottom: 2px; width: 2px; background: var(--geo-linha); }
     .passo__marca { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
-      border: 2px solid var(--ces-linha-forte); background: var(--ces-fundo); color: var(--ces-fundo); }
-    .passo[data-estado='feito'] .passo__marca { border-color: var(--ces-ok); background: var(--ces-ok); }
-    .passo[data-estado='atual'] .passo__marca { border-color: var(--ces-destaque); box-shadow: inset 0 0 0 4px var(--ces-destaque-suave); }
-    .passo[data-estado='erro'] .passo__marca { border-color: var(--ces-erro); background: var(--ces-erro-suave); }
+      border: 2px solid var(--geo-linha-forte); background: var(--geo-fundo); color: var(--geo-fundo); }
+    .passo[data-estado='feito'] .passo__marca { border-color: var(--geo-ok); background: var(--geo-ok); }
+    .passo[data-estado='atual'] .passo__marca { border-color: var(--geo-destaque); box-shadow: inset 0 0 0 4px var(--geo-destaque-suave); }
+    .passo[data-estado='erro'] .passo__marca { border-color: var(--geo-erro); background: var(--geo-erro-suave); }
     .passo__texto { display: grid; gap: 2px; min-width: 0; padding-top: 2px; }
-    .passo__titulo { font: 600 1rem/1.3 var(--ces-fonte); color: var(--ces-texto); }
-    .passo[data-estado='futuro'] .passo__titulo { color: var(--ces-texto-2); font-weight: 500; }
-    .passo[data-estado='erro'] .passo__titulo { color: var(--ces-erro); }
-    .passo__detalhe { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .ampliada { display: block; width: 100%; height: auto; border-radius: var(--ces-r-grupo); }
+    .passo__titulo { font: 600 1rem/1.3 var(--geo-fonte); color: var(--geo-texto); }
+    .passo[data-estado='futuro'] .passo__titulo { color: var(--geo-texto-2); font-weight: 500; }
+    .passo[data-estado='erro'] .passo__titulo { color: var(--geo-erro); }
+    .passo__detalhe { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .ampliada { display: block; width: 100%; height: auto; border-radius: var(--geo-r-grupo); }
   `]
 })
 export class AprovacaoDetalheComponent implements OnInit, OnDestroy {

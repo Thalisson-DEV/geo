@@ -65,16 +65,16 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <ces-barra-topo titulo="Transferir material" [subtitulo]="stepTitle() + ' · ' + currentStep() + ' de 4'" navegacao="fechar" (voltar)="fechar()">
-        <ces-indicador-rede />
-      </ces-barra-topo>
+      <geo-barra-topo titulo="Transferir material" [subtitulo]="stepTitle() + ' · ' + currentStep() + ' de 4'" navegacao="fechar" (voltar)="fechar()">
+        <geo-indicador-rede />
+      </geo-barra-topo>
       <div class="passos" aria-hidden="true">@for (s of [1, 2, 3, 4]; track s) { <i [class.feito]="s <= currentStep()"></i> }</div>
 
       <section class="conteudo" [attr.aria-label]="stepTitle()">
         @if (currentStep() === 1) {
           <div class="campos">
             <div class="fixo"><span>Sai de</span><strong>{{ nomeEstoqueOrigem() }}</strong></div>
-            <ces-seletor rotulo="Vai para" [obrigatorio]="true" [opcoes]="opcoesDestino()" [valor]="idEstoqueDestino()"
+            <geo-seletor rotulo="Vai para" [obrigatorio]="true" [opcoes]="opcoesDestino()" [valor]="idEstoqueDestino()"
               (valorChange)="idEstoqueDestino.set($event)" [invalido]="tentou() && !idEstoqueDestino()"
               [aberto]="seletorAberto()" (abertoChange)="seletorAberto.set($event)" />
           </div>
@@ -82,52 +82,52 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
 
         @if (currentStep() === 2) {
           @if (selectedItens().length) {
-            <p class="contagem ces-num">{{ selectedItens().length }} {{ selectedItens().length === 1 ? 'item escolhido' : 'itens escolhidos' }}</p>
+            <p class="contagem geo-num">{{ selectedItens().length }} {{ selectedItens().length === 1 ? 'item escolhido' : 'itens escolhidos' }}</p>
           }
           <div class="busca">
-            <ces-icone nome="busca" [tamanho]="18" />
+            <geo-icone nome="busca" [tamanho]="18" />
             <input type="search" placeholder="Nome ou código" enterkeyhint="search" aria-label="Buscar no saldo"
               [value]="busca()" (input)="busca.set($any($event.target).value)">
           </div>
           @if (saldosFiltrados().length) {
-            <ul class="ces-grupo">
+            <ul class="geo-grupo">
               @for (s of saldosFiltrados(); track s.idMaterial + s.condicao) {
                 <li class="linha-lista">
-                  <div class="ces-linha item">
-                    <span class="ces-linha__texto">
-                      <span class="ces-linha__titulo">{{ s.descricao }}</span>
-                      <span class="ces-linha__apoio ces-num">Cód. {{ s.codigo }} · <span class="cond" [class.sucata]="s.condicao !== 'NOVO'">{{ s.condicao === 'NOVO' ? 'Novo' : 'Sucata' }}</span></span>
+                  <div class="geo-linha item">
+                    <span class="geo-linha__texto">
+                      <span class="geo-linha__titulo">{{ s.descricao }}</span>
+                      <span class="geo-linha__apoio geo-num">Cód. {{ s.codigo }} · <span class="cond" [class.sucata]="s.condicao !== 'NOVO'">{{ s.condicao === 'NOVO' ? 'Novo' : 'Sucata' }}</span></span>
                     </span>
-                    <span class="saldo ces-num"><span><strong>{{ num(s.quantidade) }}</strong> {{ s.unidadeMedida }}</span><small>no caminhão</small></span>
+                    <span class="saldo geo-num"><span><strong>{{ num(s.quantidade) }}</strong> {{ s.unidadeMedida }}</span><small>no caminhão</small></span>
                     @if (s.detalhaSerie) {
-                      <button type="button" class="ces-btn ces-btn--tonal ces-btn--compacto" (click)="openSerialPicker(s)">
+                      <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto" (click)="openSerialPicker(s)">
                         {{ getSelectedSeriais(s.idMaterial, s.condicao).length ? getSelectedSeriais(s.idMaterial, s.condicao).length + ' série(s)' : 'Escolher séries' }}
                       </button>
                     } @else if (getSelection(s.idMaterial, s.condicao); as sel) {
-                      <ces-quantidade [grande]="true" [unidade]="s.unidadeMedida" [valor]="sel.quantidade" [minimo]="1" (valorChange)="setQty(s, $event)" [rotulo]="'quantidade de ' + s.descricao" />
-                      <button type="button" class="ces-btn-icone" (click)="removerItem(s)" [attr.aria-label]="'Tirar ' + s.descricao"><ces-icone nome="lixeira" [tamanho]="20" /></button>
+                      <geo-quantidade [grande]="true" [unidade]="s.unidadeMedida" [valor]="sel.quantidade" [minimo]="1" (valorChange)="setQty(s, $event)" [rotulo]="'quantidade de ' + s.descricao" />
+                      <button type="button" class="geo-btn-icone" (click)="removerItem(s)" [attr.aria-label]="'Tirar ' + s.descricao"><geo-icone nome="lixeira" [tamanho]="20" /></button>
                     } @else {
-                      <button type="button" class="ces-btn ces-btn--tonal ces-btn--compacto" (click)="addMaterial(s)" [attr.aria-label]="'Adicionar ' + s.descricao">Adicionar</button>
+                      <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto" (click)="addMaterial(s)" [attr.aria-label]="'Adicionar ' + s.descricao">Adicionar</button>
                     }
                   </div>
                 </li>
               }
             </ul>
           } @else {
-            <ces-vazio icone="caminhao" [titulo]="busca() ? 'Nada encontrado' : 'Caminhão sem saldo'" [texto]="busca() ? 'Confira o nome ou o código.' : 'Não há material para transferir.'" />
+            <geo-vazio icone="caminhao" [titulo]="busca() ? 'Nada encontrado' : 'Caminhão sem saldo'" [texto]="busca() ? 'Confira o nome ou o código.' : 'Não há material para transferir.'" />
           }
         }
 
         @if (currentStep() === 3) {
           <div class="fixo resumo-topo"><span>De {{ nomeEstoqueOrigem() }} para</span><strong>{{ nomeEstoqueDestino() }}</strong></div>
-          <h2 class="ces-secao"><span>Itens</span><span class="ces-num">{{ selectedItens().length }}</span></h2>
-          <ul class="ces-grupo resumo-lista" aria-label="Itens da transferência">
+          <h2 class="geo-secao"><span>Itens</span><span class="geo-num">{{ selectedItens().length }}</span></h2>
+          <ul class="geo-grupo resumo-lista" aria-label="Itens da transferência">
             @for (i of selectedItens(); track i.idMaterial + i.condicao + (i.numSerie ?? '')) {
-              <li><div class="ces-linha"><span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ i.descricao }}</span>
-                <span class="ces-linha__apoio ces-num">{{ i.numSerie ? 'Série ' + i.numSerie : 'Cód. ' + i.codigo }} · <span class="cond" [class.sucata]="i.condicao !== 'NOVO'">{{ i.condicao === 'NOVO' ? 'Novo' : 'Sucata' }}</span></span>
+              <li><div class="geo-linha"><span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ i.descricao }}</span>
+                <span class="geo-linha__apoio geo-num">{{ i.numSerie ? 'Série ' + i.numSerie : 'Cód. ' + i.codigo }} · <span class="cond" [class.sucata]="i.condicao !== 'NOVO'">{{ i.condicao === 'NOVO' ? 'Novo' : 'Sucata' }}</span></span>
               </span>
-              <span class="qtd-fixa ces-num">{{ num(i.quantidade) }} <small>{{ i.unidadeMedida }}</small></span></div></li>
+              <span class="qtd-fixa geo-num">{{ num(i.quantidade) }} <small>{{ i.unidadeMedida }}</small></span></div></li>
             }
           </ul>
         }
@@ -139,7 +139,7 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
               <button type="button" class="assinatura" [class.feita]="!!assinatura(p)" (click)="openSignaturePad(p)">
                 <span class="rotulo">{{ p === 'entregador' ? 'Quem entrega' : 'Quem recebe' }}</span>
                 @if (assinatura(p); as img) { <img [src]="img" [alt]="'Assinatura de ' + (p === 'entregador' ? 'quem entrega' : 'quem recebe')"> }
-                @else { <span class="vazia"><ces-icone nome="editar" />Toque para assinar</span> }
+                @else { <span class="vazia"><geo-icone nome="editar" />Toque para assinar</span> }
               </button>
             }
           </div>
@@ -148,87 +148,87 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
     </div>
 
     <footer class="rodape">
-      @if (currentStep() > 1) { <button type="button" class="ces-btn ces-btn--neutro" (click)="prevStep()">Voltar</button> }
-      <button type="button" class="ces-btn ces-btn--principal principal" (click)="nextStep()" [disabled]="isSubmitting()">
+      @if (currentStep() > 1) { <button type="button" class="geo-btn geo-btn--neutro" (click)="prevStep()">Voltar</button> }
+      <button type="button" class="geo-btn geo-btn--principal principal" (click)="nextStep()" [disabled]="isSubmitting()">
         @if (currentStep() === 4) { {{ isSubmitting() ? 'Salvando…' : 'Confirmar transferência' }} }
-        @else { Continuar <ces-icone nome="seta" [tamanho]="18" /> }
+        @else { Continuar <geo-icone nome="seta" [tamanho]="18" /> }
       </button>
     </footer>
 
-    <ces-folha [aberta]="!!seriesDe()" (fechar)="fecharSeries()" [titulo]="seriesDe()?.descricao ?? ''" descricao="Marque as séries que vão.">
-      <ul class="ces-grupo lista">
+    <geo-folha [aberta]="!!seriesDe()" (fechar)="fecharSeries()" [titulo]="seriesDe()?.descricao ?? ''" descricao="Marque as séries que vão.">
+      <ul class="geo-grupo lista">
         @for (sr of availableSeriais(); track sr.id) {
-          <li><button type="button" role="checkbox" class="ces-linha ces-linha--acao" [attr.aria-checked]="isSerialSelected(sr.numSerie)" (click)="toggleSerialSelection(sr.numSerie)">
-            <span class="caixa" aria-hidden="true"><ces-icone nome="check" [tamanho]="14" /></span>
-            <span class="ces-linha__texto"><span class="ces-linha__titulo ces-num">{{ sr.numSerie }}</span></span>
+          <li><button type="button" role="checkbox" class="geo-linha geo-linha--acao" [attr.aria-checked]="isSerialSelected(sr.numSerie)" (click)="toggleSerialSelection(sr.numSerie)">
+            <span class="caixa" aria-hidden="true"><geo-icone nome="check" [tamanho]="14" /></span>
+            <span class="geo-linha__texto"><span class="geo-linha__titulo geo-num">{{ sr.numSerie }}</span></span>
           </button></li>
-        } @empty { <li><div class="ces-linha"><span class="ces-linha__apoio">Nenhuma série no saldo</span></div></li> }
+        } @empty { <li><div class="geo-linha"><span class="geo-linha__apoio">Nenhuma série no saldo</span></div></li> }
       </ul>
-      <div rodape class="folha-rodape"><button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="fecharSeries()">Pronto</button></div>
-    </ces-folha>
+      <div rodape class="folha-rodape"><button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="fecharSeries()">Pronto</button></div>
+    </geo-folha>
 
-    <ces-folha [aberta]="activeSignatureModal() !== null" (fechar)="closeSignaturePad()"
+    <geo-folha [aberta]="activeSignatureModal() !== null" (fechar)="closeSignaturePad()"
       [titulo]="activeSignatureModal() === 'entregador' ? 'Assinatura de quem entrega' : 'Assinatura de quem recebe'" descricao="Assine com o dedo no quadro.">
       <div class="quadro">
         <canvas #quadro aria-label="Quadro de assinatura" (pointerdown)="iniciarTraco($event)" (pointermove)="tracar($event)"
           (pointerup)="terminarTraco()" (pointercancel)="terminarTraco()" (pointerleave)="terminarTraco()"></canvas>
       </div>
       <div rodape class="folha-rodape duas">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="limparQuadro()">Limpar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="saveSignature()" [disabled]="!hasDrawnInModal()">Confirmar assinatura</button>
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="limparQuadro()">Limpar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="saveSignature()" [disabled]="!hasDrawnInModal()">Confirmar assinatura</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     /* Nada encolhe: com conteúdo maior que a tela, a página rola (grupos com overflow:hidden eram cortados). */
     :host > * { flex-shrink: 0; }
-    .tela { flex: 1; padding-bottom: var(--ces-e5); }
-    .passos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 var(--ces-e5) var(--ces-e3); }
-    .passos i { height: 4px; border-radius: var(--ces-r-pilula); background: var(--ces-linha); }
-    .passos i.feito { background: var(--ces-destaque); }
-    .conteudo { animation: entrar var(--ces-m-entrar) var(--ces-curva); }
+    .tela { flex: 1; padding-bottom: var(--geo-e5); }
+    .passos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 0 var(--geo-e5) var(--geo-e3); }
+    .passos i { height: 4px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); }
+    .passos i.feito { background: var(--geo-destaque); }
+    .conteudo { animation: entrar var(--geo-m-entrar) var(--geo-curva); }
     @keyframes entrar { from { opacity: 0; transform: translateY(6px); } }
-    .campos { display: grid; gap: var(--ces-e2); padding: var(--ces-e2) var(--ces-e3); }
-    .fixo { display: grid; gap: 2px; padding: var(--ces-e3) var(--ces-e4); background: var(--ces-superficie); border-radius: var(--ces-r-grupo); }
-    .fixo span { font: 500 .8125rem/1.3 var(--ces-fonte); color: var(--ces-texto-2); }
-    .resumo-topo { margin: var(--ces-e2) var(--ces-e3) var(--ces-e3); }
-    .contagem { margin: var(--ces-e2) var(--ces-e5) 0; font: var(--ces-t-corpo-forte); color: var(--ces-texto-2); }
-    .busca { margin: var(--ces-e2) var(--ces-e3); display: flex; align-items: center; gap: var(--ces-e2); padding: 0 var(--ces-e4); min-height: 48px;
-      border-radius: var(--ces-r-pilula); background: var(--ces-superficie); color: var(--ces-texto-2); }
-    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ces-texto); font: var(--ces-t-corpo); font-size: 1rem; }
+    .campos { display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e3); }
+    .fixo { display: grid; gap: 2px; padding: var(--geo-e3) var(--geo-e4); background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
+    .fixo span { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
+    .resumo-topo { margin: var(--geo-e2) var(--geo-e3) var(--geo-e3); }
+    .contagem { margin: var(--geo-e2) var(--geo-e5) 0; font: var(--geo-t-corpo-forte); color: var(--geo-texto-2); }
+    .busca { margin: var(--geo-e2) var(--geo-e3); display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 48px;
+      border-radius: var(--geo-r-pilula); background: var(--geo-superficie); color: var(--geo-texto-2); }
+    .busca input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--geo-texto); font: var(--geo-t-corpo); font-size: 1rem; }
     .busca input:focus { outline: none; }
     .item { flex-wrap: wrap; }
     .linha-lista { content-visibility: auto; contain-intrinsic-size: auto 96px; }
-    .qtd-fixa { font: 700 1.375rem/1 var(--ces-fonte); white-space: nowrap; }
-    .qtd-fixa small { font: 600 .875rem/1 var(--ces-fonte); color: var(--ces-texto-2); }
-    .resumo-lista .ces-linha { min-height: 56px; }
-    .saldo { display: grid; justify-items: end; font: 600 .875rem/1.2 var(--ces-fonte); color: var(--ces-texto-2); white-space: nowrap; }
-    .saldo strong { font: 700 1.25rem/1.1 var(--ces-fonte); color: var(--ces-texto); }
-    .saldo small { font: var(--ces-t-apoio); font-size: .75rem; }
-    .item .ces-linha__texto { flex: 1 1 55%; }
-    .cond { font-weight: 600; color: var(--ces-ok); }
-    .cond.sucata { color: var(--ces-atencao); }
-    .intro { margin: var(--ces-e2) var(--ces-e5) var(--ces-e3); color: var(--ces-texto-2); font: var(--ces-t-apoio); font-size: .875rem; }
-    .assinaturas { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e3); }
-    .assinatura { display: grid; gap: var(--ces-e2); padding: var(--ces-e3) var(--ces-e4); min-height: 140px; border: 1.5px dashed var(--ces-linha-forte);
-      border-radius: var(--ces-r-grupo); background: var(--ces-superficie); text-align: left; color: var(--ces-texto); cursor: pointer; }
-    .assinatura.feita { border-style: solid; border-color: var(--ces-ok); }
-    .assinatura .rotulo { font: 500 .8125rem/1.3 var(--ces-fonte); color: var(--ces-texto-2); }
+    .qtd-fixa { font: 700 1.375rem/1 var(--geo-fonte); white-space: nowrap; }
+    .qtd-fixa small { font: 600 .875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
+    .resumo-lista .geo-linha { min-height: 56px; }
+    .saldo { display: grid; justify-items: end; font: 600 .875rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); white-space: nowrap; }
+    .saldo strong { font: 700 1.25rem/1.1 var(--geo-fonte); color: var(--geo-texto); }
+    .saldo small { font: var(--geo-t-apoio); font-size: .75rem; }
+    .item .geo-linha__texto { flex: 1 1 55%; }
+    .cond { font-weight: 600; color: var(--geo-ok); }
+    .cond.sucata { color: var(--geo-atencao); }
+    .intro { margin: var(--geo-e2) var(--geo-e5) var(--geo-e3); color: var(--geo-texto-2); font: var(--geo-t-apoio); font-size: .875rem; }
+    .assinaturas { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3); }
+    .assinatura { display: grid; gap: var(--geo-e2); padding: var(--geo-e3) var(--geo-e4); min-height: 140px; border: 1.5px dashed var(--geo-linha-forte);
+      border-radius: var(--geo-r-grupo); background: var(--geo-superficie); text-align: left; color: var(--geo-texto); cursor: pointer; }
+    .assinatura.feita { border-style: solid; border-color: var(--geo-ok); }
+    .assinatura .rotulo { font: 500 .8125rem/1.3 var(--geo-fonte); color: var(--geo-texto-2); }
     .assinatura img { max-width: 100%; height: 90px; object-fit: contain; background: #fff; border-radius: 8px; }
-    .vazia { display: flex; align-items: center; justify-content: center; gap: var(--ces-e2); color: var(--ces-destaque); font-weight: 600; min-height: 90px; }
-    .lista { background: var(--ces-fundo); }
-    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--ces-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
-    [aria-checked='true'] > .caixa { background: var(--ces-destaque); border-color: var(--ces-destaque); color: var(--ces-destaque-texto); }
-    .quadro { padding: 0 var(--ces-e4); }
-    .quadro canvas { width: 100%; height: 240px; border-radius: var(--ces-r-grupo); background: #fff; border: 1px solid var(--ces-linha-forte);
+    .vazia { display: flex; align-items: center; justify-content: center; gap: var(--geo-e2); color: var(--geo-destaque); font-weight: 600; min-height: 90px; }
+    .lista { background: var(--geo-fundo); }
+    .caixa { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; color: transparent; flex: none; }
+    [aria-checked='true'] > .caixa { background: var(--geo-destaque); border-color: var(--geo-destaque); color: var(--geo-destaque-texto); }
+    .quadro { padding: 0 var(--geo-e4); }
+    .quadro canvas { width: 100%; height: 240px; border-radius: var(--geo-r-grupo); background: #fff; border: 1px solid var(--geo-linha-forte);
       touch-action: none; display: block; }
-    .folha-rodape { padding: var(--ces-e3) var(--ces-e4) 0; }
-    .folha-rodape.duas { display: flex; gap: var(--ces-e3); }
-    .folha-rodape.duas .ces-btn { flex: 1; }
-    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--ces-e3); padding: var(--ces-e3) var(--ces-e4) calc(var(--ces-e3) + var(--ces-safe-base));
-      background: var(--ces-fundo); border-top: 1px solid var(--ces-linha); }
-    .rodape .principal { flex: 1; min-height: var(--ces-alvo-principal); font-size: 1rem; }
+    .folha-rodape { padding: var(--geo-e3) var(--geo-e4) 0; }
+    .folha-rodape.duas { display: flex; gap: var(--geo-e3); }
+    .folha-rodape.duas .geo-btn { flex: 1; }
+    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
+      background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
+    .rodape .principal { flex: 1; min-height: var(--geo-alvo-principal); font-size: 1rem; }
   `],
 })
 export class NovaTransferenciaComponent implements OnInit {

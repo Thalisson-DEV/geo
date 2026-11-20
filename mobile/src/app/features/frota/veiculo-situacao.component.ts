@@ -26,60 +26,60 @@ type Carga = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
   imports: [BarraTopoComponent, IconeComponent, IndicadorRedeComponent, SeletorComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Ficha do veículo" [subtitulo]="subtitulo()" (voltar)="voltar()">
-      <button type="button" class="ces-btn-icone" [disabled]="carga() === 'carregando' || !idVeiculo()" (click)="carregar()" aria-label="Atualizar">
-        <ces-icone nome="atualizar" />
+    <geo-barra-topo titulo="Ficha do veículo" [subtitulo]="subtitulo()" (voltar)="voltar()">
+      <button type="button" class="geo-btn-icone" [disabled]="carga() === 'carregando' || !idVeiculo()" (click)="carregar()" aria-label="Atualizar">
+        <geo-icone nome="atualizar" />
       </button>
-      <ces-indicador-rede />
-    </ces-barra-topo>
+      <geo-indicador-rede />
+    </geo-barra-topo>
 
     <div class="escolha">
-      <ces-seletor rotulo="Veículo" placeholder="Escolher a placa" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="escolher($event)" />
+      <geo-seletor rotulo="Veículo" placeholder="Escolher a placa" [opcoes]="opcoesVeiculo()" [valor]="idVeiculo()" (valorChange)="escolher($event)" />
     </div>
 
     @if (!idVeiculo()) {
-      <ces-vazio icone="caminhao" titulo="Escolha um veículo" texto="Veja se ele pode rodar, o que está em manutenção e os documentos." />
+      <geo-vazio icone="caminhao" titulo="Escolha um veículo" texto="Veja se ele pode rodar, o que está em manutenção e os documentos." />
     } @else if (carga() === 'carregando') {
-      <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">
-        <div class="ces-esqueleto" style="height: 64px"></div><div class="ces-esqueleto" style="height: 140px"></div><div class="ces-esqueleto" style="height: 120px"></div>
+      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 140px"></div><div class="geo-esqueleto" style="height: 120px"></div>
       </div>
     } @else if (dados(); as d) {
       @if (vistaEm(); as em) {
-        <p class="aviso"><ces-icone nome="sem_rede" [tamanho]="16" />Sem internet: ficha como estava {{ quando(em) }}.</p>
+        <p class="aviso"><geo-icone nome="sem_rede" [tamanho]="16" />Sem internet: ficha como estava {{ quando(em) }}.</p>
       }
 
       @let r = resumo();
-      <section class="ces-faixa-estado" [class.ces-faixa-estado--atencao]="r.tom === 'atencao'" [class.ces-faixa-estado--erro]="r.tom === 'erro'" aria-live="polite">
-        <span [class]="'ces-etiqueta ces-etiqueta--' + etiqueta(r.tom)">{{ r.rotulo }}</span>
+      <section class="geo-faixa-estado" [class.geo-faixa-estado--atencao]="r.tom === 'atencao'" [class.geo-faixa-estado--erro]="r.tom === 'erro'" aria-live="polite">
+        <span [class]="'geo-etiqueta geo-etiqueta--' + etiqueta(r.tom)">{{ r.rotulo }}</span>
         <p>{{ r.apoio }}</p>
       </section>
 
-      <dl class="ces-dados">
+      <dl class="geo-dados">
         @if (d.modelo) { <div><dt>Modelo</dt><dd>{{ d.modelo }}</dd></div> }
         @if (d.baseOperacional) { <div><dt>Base</dt><dd>{{ d.baseOperacional }}</dd></div> }
         <div><dt>Condutor</dt><dd>{{ d.condutorAtual ?? 'Ninguém vinculado agora' }}</dd></div>
         @if (d.medicaoAtual != null) {
           <div><dt>{{ d.unidadeMedicao === 'HORAS' ? 'Horímetro' : 'Odômetro' }}</dt>
-            <dd class="ces-num">{{ medicao(d) }}@if (d.medicaoAtualEm) {<span class="dd-apoio"> · {{ quando(d.medicaoAtualEm) }}</span>}</dd></div>
+            <dd class="geo-num">{{ medicao(d) }}@if (d.medicaoAtualEm) {<span class="dd-apoio"> · {{ quando(d.medicaoAtualEm) }}</span>}</dd></div>
         }
       </dl>
 
       @let f = ficha();
       @if (f.ordens.length) {
-        <h2 class="ces-secao"><span>Em manutenção</span><span class="ces-num">{{ f.ordens.length }}</span></h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao"><span>Em manutenção</span><span class="geo-num">{{ f.ordens.length }}</span></h2>
+        <ul class="geo-grupo">
           @for (item of f.ordens; track item.ordem.id) {
             @let o = item.ordem;
             @let s = estadoOrdem(o);
-            <li class="ces-linha">
-              <span [class]="'ces-selo ces-selo--' + s.tom"><ces-icone [nome]="o.veiculoParado ? 'alerta' : 'relogio'" /></span>
-              <span class="ces-linha__texto">
-                <span class="linha__topo"><span class="ces-linha__titulo">{{ o.tipoManutencao === 'PREVENTIVA' ? 'Preventiva' : 'Corretiva' }} · OS {{ o.numero }}</span>
-                  <span [class]="'ces-etiqueta ces-etiqueta--' + etiqueta(s.tom)">{{ s.rotulo }}</span></span>
-                @if (o.descricao) { <span class="ces-linha__resumo">{{ o.descricao }}</span> }
-                @if (s.apoio) { <span class="ces-linha__apoio">{{ s.apoio }}</span> }
-                @if (item.revisoes.length) { <span class="inclui"><ces-icone nome="relogio" [tamanho]="14" />{{ nomes(item.revisoes) }}</span> }
-                @if (item.problemas.length) { <span class="inclui"><ces-icone nome="alerta" [tamanho]="14" />{{ nomes(item.problemas) }}</span> }
+            <li class="geo-linha">
+              <span [class]="'geo-selo geo-selo--' + s.tom"><geo-icone [nome]="o.veiculoParado ? 'alerta' : 'relogio'" /></span>
+              <span class="geo-linha__texto">
+                <span class="linha__topo"><span class="geo-linha__titulo">{{ o.tipoManutencao === 'PREVENTIVA' ? 'Preventiva' : 'Corretiva' }} · OS {{ o.numero }}</span>
+                  <span [class]="'geo-etiqueta geo-etiqueta--' + etiqueta(s.tom)">{{ s.rotulo }}</span></span>
+                @if (o.descricao) { <span class="geo-linha__resumo">{{ o.descricao }}</span> }
+                @if (s.apoio) { <span class="geo-linha__apoio">{{ s.apoio }}</span> }
+                @if (item.revisoes.length) { <span class="inclui"><geo-icone nome="relogio" [tamanho]="14" />{{ nomes(item.revisoes) }}</span> }
+                @if (item.problemas.length) { <span class="inclui"><geo-icone nome="alerta" [tamanho]="14" />{{ nomes(item.problemas) }}</span> }
                 @if (o.veiculoParado) { <span class="parado">Veículo parado para esta manutenção</span> }
               </span>
             </li>
@@ -88,99 +88,99 @@ type Carga = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
       }
 
       @if (f.problemas.length) {
-        <h2 class="ces-secao"><span>Problemas apontados</span><span class="ces-num">{{ f.problemas.length }}</span></h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao"><span>Problemas apontados</span><span class="geo-num">{{ f.problemas.length }}</span></h2>
+        <ul class="geo-grupo">
           @for (p of f.problemas; track p.id) {
             @let s = estadoPendencia(p);
-            <li class="ces-linha">
-              <span [class]="'ces-selo ces-selo--' + s.tom"><ces-icone nome="alerta" /></span>
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ p.item }}</span>
-                <span class="ces-linha__apoio">No checklist de {{ quando(p.desde) }}</span>
+            <li class="geo-linha">
+              <span [class]="'geo-selo geo-selo--' + s.tom"><geo-icone nome="alerta" /></span>
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ p.item }}</span>
+                <span class="geo-linha__apoio">No checklist de {{ quando(p.desde) }}</span>
               </span>
-              <span [class]="'ces-etiqueta ces-etiqueta--' + etiqueta(s.tom)">{{ s.rotulo }}</span>
+              <span [class]="'geo-etiqueta geo-etiqueta--' + etiqueta(s.tom)">{{ s.rotulo }}</span>
             </li>
           }
         </ul>
       }
 
       @if (f.revisoes.length) {
-        <h2 class="ces-secao"><span>Revisões</span><span class="ces-num">{{ f.revisoes.length }}</span></h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao"><span>Revisões</span><span class="geo-num">{{ f.revisoes.length }}</span></h2>
+        <ul class="geo-grupo">
           @for (p of f.revisoes; track p.plano) {
             @let s = estadoPreventiva(p);
-            <li class="ces-linha">
-              <span [class]="'ces-selo ces-selo--' + s.tom"><ces-icone [nome]="p.situacao === 'VENCIDA' && !p.numeroOrdem ? 'alerta' : 'relogio'" /></span>
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ p.plano }}</span>
-                <span class="ces-linha__apoio">{{ primeiraMaiuscula(p.falta) }}{{ p.previsao && p.situacao !== 'VENCIDA' ? ' · previsão ' + data(p.previsao) : '' }}</span>
+            <li class="geo-linha">
+              <span [class]="'geo-selo geo-selo--' + s.tom"><geo-icone [nome]="p.situacao === 'VENCIDA' && !p.numeroOrdem ? 'alerta' : 'relogio'" /></span>
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ p.plano }}</span>
+                <span class="geo-linha__apoio">{{ primeiraMaiuscula(p.falta) }}{{ p.previsao && p.situacao !== 'VENCIDA' ? ' · previsão ' + data(p.previsao) : '' }}</span>
               </span>
-              <span [class]="'ces-etiqueta ces-etiqueta--' + etiqueta(s.tom)">{{ s.rotulo }}</span>
+              <span [class]="'geo-etiqueta geo-etiqueta--' + etiqueta(s.tom)">{{ s.rotulo }}</span>
             </li>
           }
         </ul>
       }
 
-      <h2 class="ces-secao">Consultar</h2>
-      <ul class="ces-grupo">
+      <h2 class="geo-secao">Consultar</h2>
+      <ul class="geo-grupo">
         @let doc = documentosResumo();
-        <li><button type="button" class="ces-linha ces-linha--acao" (click)="verDocumentos()">
-          <span [class]="'ces-selo ces-selo--' + doc.tom"><ces-icone nome="documento" /></span>
-          <span class="ces-linha__texto"><span class="ces-linha__titulo">Documentos</span>
-            <span class="ces-linha__apoio">{{ doc.texto }}</span></span>
-          <ces-icone nome="avancar" [tamanho]="18" /></button></li>
-        <li><button type="button" class="ces-linha ces-linha--acao" (click)="verChecklists()">
-          <span class="ces-selo"><ces-icone nome="lista" /></span>
-          <span class="ces-linha__texto"><span class="ces-linha__titulo">Checklists</span>
-            <span class="ces-linha__apoio">Como ele foi entregue em cada uso</span></span>
-          <ces-icone nome="avancar" [tamanho]="18" /></button></li>
+        <li><button type="button" class="geo-linha geo-linha--acao" (click)="verDocumentos()">
+          <span [class]="'geo-selo geo-selo--' + doc.tom"><geo-icone nome="documento" /></span>
+          <span class="geo-linha__texto"><span class="geo-linha__titulo">Documentos</span>
+            <span class="geo-linha__apoio">{{ doc.texto }}</span></span>
+          <geo-icone nome="avancar" [tamanho]="18" /></button></li>
+        <li><button type="button" class="geo-linha geo-linha--acao" (click)="verChecklists()">
+          <span class="geo-selo"><geo-icone nome="lista" /></span>
+          <span class="geo-linha__texto"><span class="geo-linha__titulo">Checklists</span>
+            <span class="geo-linha__apoio">Como ele foi entregue em cada uso</span></span>
+          <geo-icone nome="avancar" [tamanho]="18" /></button></li>
       </ul>
 
       @if (d.ultimasConcluidas.length || d.ultimasLavagens?.length) {
-        <h2 class="ces-secao">Histórico</h2>
-        <ul class="ces-grupo">
+        <h2 class="geo-secao">Histórico</h2>
+        <ul class="geo-grupo">
           @for (o of d.ultimasConcluidas; track o.id) {
-            <li class="ces-linha">
-              <span class="ces-selo ces-selo--ok"><ces-icone nome="servicos" /></span>
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ o.tipoManutencao === 'PREVENTIVA' ? 'Preventiva' : 'Corretiva' }} · OS {{ o.numero }}</span>
-                @if (o.descricao) { <span class="ces-linha__resumo">{{ o.descricao }}</span> }
-                <span class="ces-linha__apoio">Concluída {{ estadoOrdem(o).apoio }}</span>
+            <li class="geo-linha">
+              <span class="geo-selo geo-selo--ok"><geo-icone nome="servicos" /></span>
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ o.tipoManutencao === 'PREVENTIVA' ? 'Preventiva' : 'Corretiva' }} · OS {{ o.numero }}</span>
+                @if (o.descricao) { <span class="geo-linha__resumo">{{ o.descricao }}</span> }
+                <span class="geo-linha__apoio">Concluída {{ estadoOrdem(o).apoio }}</span>
               </span>
             </li>
           }
           @for (l of d.ultimasLavagens ?? []; track $index) {
-            <li class="ces-linha">
-              <span class="ces-selo"><ces-icone nome="check" /></span>
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">Lavagem{{ l.subtipo ? ' ' + l.subtipo.toLowerCase() : '' }}</span>
-                <span class="ces-linha__apoio">{{ data(l.data) }}</span>
+            <li class="geo-linha">
+              <span class="geo-selo"><geo-icone nome="check" /></span>
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">Lavagem{{ l.subtipo ? ' ' + l.subtipo.toLowerCase() : '' }}</span>
+                <span class="geo-linha__apoio">{{ data(l.data) }}</span>
               </span>
             </li>
           }
         </ul>
       }
     } @else if (carga() === 'sem-sinal') {
-      <ces-vazio icone="nuvem" titulo="Precisa de internet" texto="Esta ficha ainda não foi aberta neste aparelho. Os documentos salvos abrem sem sinal.">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="verDocumentos()">Ver documentos</button>
-      </ces-vazio>
+      <geo-vazio icone="nuvem" titulo="Precisa de internet" texto="Esta ficha ainda não foi aberta neste aparelho. Os documentos salvos abrem sem sinal.">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="verDocumentos()">Ver documentos</button>
+      </geo-vazio>
     } @else if (carga() === 'erro') {
-      <ces-vazio icone="alerta" titulo="Não foi possível buscar o veículo" texto="Confira a internet e tente de novo.">
-        <button type="button" class="ces-btn ces-btn--tonal" (click)="carregar()">Tentar de novo</button>
-      </ces-vazio>
+      <geo-vazio icone="alerta" titulo="Não foi possível buscar o veículo" texto="Confira a internet e tente de novo.">
+        <button type="button" class="geo-btn geo-btn--tonal" (click)="carregar()">Tentar de novo</button>
+      </geo-vazio>
     }
-    <div class="ces-respiro"></div>
+    <div class="geo-respiro"></div>
   `,
   styles: [`
     :host { display: block; }
-    .escolha { padding: var(--ces-e2) var(--ces-e3) 0; }
-    .linha__topo { display: flex; align-items: center; gap: var(--ces-e2); flex-wrap: wrap; }
-    .parado { font: var(--ces-t-apoio); font-weight: 600; color: var(--ces-erro); }
-    .inclui { display: flex; align-items: center; gap: 6px; font: var(--ces-t-apoio); color: var(--ces-texto); overflow-wrap: anywhere; }
-    .inclui ces-icone { flex: none; color: var(--ces-texto-2); }
-    .dd-apoio { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .aviso { display: flex; align-items: center; gap: var(--ces-e2); margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e3) var(--ces-e4);
-      border-radius: var(--ces-r-grupo); background: var(--ces-atencao-suave); font: var(--ces-t-apoio); font-size: .875rem; color: var(--ces-texto); }
+    .escolha { padding: var(--geo-e2) var(--geo-e3) 0; }
+    .linha__topo { display: flex; align-items: center; gap: var(--geo-e2); flex-wrap: wrap; }
+    .parado { font: var(--geo-t-apoio); font-weight: 600; color: var(--geo-erro); }
+    .inclui { display: flex; align-items: center; gap: 6px; font: var(--geo-t-apoio); color: var(--geo-texto); overflow-wrap: anywhere; }
+    .inclui geo-icone { flex: none; color: var(--geo-texto-2); }
+    .dd-apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .aviso { display: flex; align-items: center; gap: var(--geo-e2); margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e3) var(--geo-e4);
+      border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); font-size: .875rem; color: var(--geo-texto); }
   `],
 })
 export class VeiculoSituacaoComponent implements OnInit {

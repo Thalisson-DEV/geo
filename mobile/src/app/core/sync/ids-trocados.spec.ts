@@ -1,7 +1,7 @@
 import { idAtual, registrarIdTrocado } from './ids-trocados';
 
 describe('ids trocados (temporário → servidor)', () => {
-  beforeEach(() => localStorage.removeItem('ces_ids_trocados'));
+  beforeEach(() => localStorage.removeItem('geo_ids_trocados'));
 
   it('devolve o id do servidor para um id temporário conhecido', () => {
     registrarIdTrocado('tmp-1', 'srv-1');
@@ -24,7 +24,7 @@ describe('ids trocados (temporário → servidor)', () => {
   });
 
   it('armazenamento corrompido não quebra', () => {
-    localStorage.setItem('ces_ids_trocados', '{quebrado');
+    localStorage.setItem('geo_ids_trocados', '{quebrado');
     expect(idAtual('x')).toBeNull();
     registrarIdTrocado('x', 'y');
     expect(idAtual('x')).toBe('y');

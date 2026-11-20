@@ -25,7 +25,7 @@ export const MARCADOR_MANTER = 'renomear-geo: manter';
 export const MARCADOR_MANTER_SEGUINTE = 'renomear-geo: manter a linha seguinte';
 
 /** Pastas e arquivos varridos (relativos à raiz do repositório). */
-export const ESCOPO = ['frontend', 'backend', '.github', 'openspec/config.yaml', 'AGENTS.md', 'README.md'];
+export const ESCOPO = ['frontend', 'backend', 'mobile', '.github', 'openspec/config.yaml', 'AGENTS.md', 'README.md'];
 
 /** Fora da renomeação, com o motivo. */
 export const ISENCOES = [
@@ -39,6 +39,7 @@ export const ISENCOES = [
   /^tools\/renomear-geo(\.test)?\.mjs$/,
   // Testes da compatibilidade com os nomes antigos (chaves do navegador e variáveis de ambiente).
   /^frontend\/src\/app\/core\/migracao\/migrar-chaves-geo\.spec\.ts$/,
+  /^mobile\/src\/app\/core\/migracao\/migrar-chaves-geo\.spec\.ts$/,
   /^backend\/src\/test\/java\/com\/nexo\/app\/shared\/infrastructure\/config\/PrefixoConfiguracaoLegadoGuardTest\.java$/,
 ];
 

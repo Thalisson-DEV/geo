@@ -18,47 +18,47 @@ interface ItemEstorno { id: string; descricao: string; restante: number; quantid
   imports: [FolhaComponent, IconeComponent, PreviaSaldoComponent, QuantidadeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-folha [aberta]="!!movimentacao()" (fechar)="fechar.emit()" titulo="Estornar movimentação"
+    <geo-folha [aberta]="!!movimentacao()" (fechar)="fechar.emit()" titulo="Estornar movimentação"
       [descricao]="movimentacao()?.efeitoEstoque === 'FISICO' ? 'O material volta pelo mesmo caminho e o saldo é desfeito.' : 'A movimentação virtual é desfeita; nenhum saldo muda.'">
       <div class="campos">
-        <ul class="ces-grupo lista">
+        <ul class="geo-grupo lista">
           @for (i of itens(); track i.id; let idx = $index) {
-            <li class="ces-linha linha">
+            <li class="geo-linha linha">
               <button type="button" role="checkbox" class="caixa" [attr.aria-checked]="i.marcado" (click)="marcar(idx)" [attr.aria-label]="'Estornar ' + i.descricao">
-                <ces-icone nome="check" [tamanho]="14" /></button>
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ i.descricao }}</span>
-                <span class="ces-linha__apoio ces-num">Pode estornar até {{ num(i.restante) }}</span></span>
+                <geo-icone nome="check" [tamanho]="14" /></button>
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ i.descricao }}</span>
+                <span class="geo-linha__apoio geo-num">Pode estornar até {{ num(i.restante) }}</span></span>
               @if (i.marcado) {
-                <ces-quantidade [valor]="i.quantidade" (valorChange)="quantidade(idx, $event)" [minimo]="0.001" [rotulo]="'quantidade a estornar de ' + i.descricao" />
+                <geo-quantidade [valor]="i.quantidade" (valorChange)="quantidade(idx, $event)" [minimo]="0.001" [rotulo]="'quantidade a estornar de ' + i.descricao" />
               }
             </li>
           }
         </ul>
-        <label class="ces-campo">
-          <span class="ces-campo__rotulo">Motivo do estorno *</span>
-          <textarea class="ces-input texto" rows="3" maxlength="500" [value]="motivo()" (input)="motivo.set($any($event.target).value); confirmando.set(false)"
+        <label class="geo-campo">
+          <span class="geo-campo__rotulo">Motivo do estorno *</span>
+          <textarea class="geo-input texto" rows="3" maxlength="500" [value]="motivo()" (input)="motivo.set($any($event.target).value); confirmando.set(false)"
             [attr.aria-invalid]="tentou() && !motivo().trim()" placeholder="Ex.: quantidade marcada errada"></textarea>
-          @if (tentou() && !motivo().trim()) { <span class="ces-campo__erro"><ces-icone nome="alerta" [tamanho]="16" />Informe o motivo do estorno.</span> }
+          @if (tentou() && !motivo().trim()) { <span class="geo-campo__erro"><geo-icone nome="alerta" [tamanho]="16" />Informe o motivo do estorno.</span> }
         </label>
         <app-previa-saldo [previa]="previa()" />
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="fechar.emit()">Voltar</button>
-        <button type="button" class="ces-btn ces-btn--perigo" (click)="confirmar()" [disabled]="enviando() || !marcados()">
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="fechar.emit()">Voltar</button>
+        <button type="button" class="geo-btn geo-btn--perigo" (click)="confirmar()" [disabled]="enviando() || !marcados()">
           {{ enviando() ? 'Estornando…' : confirmando() ? 'Toque de novo' : 'Estornar ' + marcados() + (marcados() === 1 ? ' item' : ' itens') }}</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    .campos { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e3) var(--ces-e2); }
-    .lista { margin: 0; background: var(--ces-fundo); }
+    .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
+    .lista { margin: 0; background: var(--geo-fundo); }
     .linha { flex-wrap: wrap; }
-    .texto { min-height: 88px; padding: var(--ces-e3) var(--ces-e4); resize: vertical; }
+    .texto { min-height: 88px; padding: var(--geo-e3) var(--geo-e4); resize: vertical; }
     .caixa { width: 48px; height: 48px; margin: -10px -6px -10px -10px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: transparent; }
-    .caixa ces-icone { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--ces-linha-forte); display: grid; place-items: center; box-sizing: border-box; }
-    .caixa[aria-checked='true'] { color: var(--ces-destaque-texto); }
-    .caixa[aria-checked='true'] ces-icone { background: var(--ces-destaque); border-color: var(--ces-destaque); }
-    .campos .ces-campo__rotulo, .campos .ces-campo__erro { padding-left: var(--ces-e4); }
+    .caixa geo-icone { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--geo-linha-forte); display: grid; place-items: center; box-sizing: border-box; }
+    .caixa[aria-checked='true'] { color: var(--geo-destaque-texto); }
+    .caixa[aria-checked='true'] geo-icone { background: var(--geo-destaque); border-color: var(--geo-destaque); }
+    .campos .geo-campo__rotulo, .campos .geo-campo__erro { padding-left: var(--geo-e4); }
   `],
 })
 export class FolhaEstornoFechamentoComponent {

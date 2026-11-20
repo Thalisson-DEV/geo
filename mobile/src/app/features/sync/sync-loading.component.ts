@@ -17,7 +17,7 @@ import { IconeComponent } from '../../ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main class="tela" [attr.aria-busy]="!error()">
-      <img src="logo_vertical.svg" alt="Nexo" width="88" height="88">
+      <img src="logo_vertical.svg" alt="GEO" width="88" height="88">
       @if (!error()) {
         <h1>Preparando o aparelho</h1>
         <p class="sub">Baixando o que você precisa para trabalhar mesmo sem internet.</p>
@@ -25,31 +25,31 @@ import { IconeComponent } from '../../ui';
         <p class="etapa" aria-live="polite">{{ etapa() }}</p>
       } @else {
         <div class="erro" role="alert">
-          <span class="ces-selo ces-selo--erro"><ces-icone nome="alerta" /></span>
+          <span class="geo-selo geo-selo--erro"><geo-icone nome="alerta" /></span>
           <h1>Não deu para carregar tudo</h1>
           <p class="sub">{{ error() }}</p>
           <div class="acoes">
-            <button type="button" class="ces-btn ces-btn--principal ces-btn--bloco" (click)="startSync()">Tentar de novo</button>
-            <button type="button" class="ces-btn ces-btn--neutro ces-btn--bloco" (click)="continueOffline()">Seguir com o que já tem</button>
+            <button type="button" class="geo-btn geo-btn--principal geo-btn--bloco" (click)="startSync()">Tentar de novo</button>
+            <button type="button" class="geo-btn geo-btn--neutro geo-btn--bloco" (click)="continueOffline()">Seguir com o que já tem</button>
           </div>
         </div>
       }
     </main>
   `,
   styles: [`
-    :host { display: block; min-height: 100dvh; background: var(--ces-fundo); }
-    .tela { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--ces-e3);
-      padding: calc(var(--ces-e6, 32px) + env(safe-area-inset-top, 0px)) var(--ces-e5) calc(var(--ces-e6, 32px) + var(--ces-safe-base)); text-align: center; }
-    img { margin-bottom: var(--ces-e3); }
-    h1 { margin: 0; font: 700 1.375rem/1.25 var(--ces-fonte); text-wrap: balance; }
-    .sub { margin: 0; max-width: 32ch; font: var(--ces-t-corpo); color: var(--ces-texto-2); }
-    .barra { width: min(280px, 80vw); height: 6px; margin-top: var(--ces-e4); border-radius: var(--ces-r-pilula); background: var(--ces-superficie-2); overflow: hidden; }
-    .barra span { display: block; width: 40%; height: 100%; border-radius: inherit; background: var(--ces-destaque); animation: correr 1.2s ease-in-out infinite; }
+    :host { display: block; min-height: 100dvh; background: var(--geo-fundo); }
+    .tela { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--geo-e3);
+      padding: calc(var(--geo-e6, 32px) + env(safe-area-inset-top, 0px)) var(--geo-e5) calc(var(--geo-e6, 32px) + var(--geo-safe-base)); text-align: center; }
+    img { margin-bottom: var(--geo-e3); }
+    h1 { margin: 0; font: 700 1.375rem/1.25 var(--geo-fonte); text-wrap: balance; }
+    .sub { margin: 0; max-width: 32ch; font: var(--geo-t-corpo); color: var(--geo-texto-2); }
+    .barra { width: min(280px, 80vw); height: 6px; margin-top: var(--geo-e4); border-radius: var(--geo-r-pilula); background: var(--geo-superficie-2); overflow: hidden; }
+    .barra span { display: block; width: 40%; height: 100%; border-radius: inherit; background: var(--geo-destaque); animation: correr 1.2s ease-in-out infinite; }
     @keyframes correr { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
     @media (prefers-reduced-motion: reduce) { .barra span { animation: none; width: 100%; opacity: .5; } }
-    .etapa { margin: 0; min-height: 1.4em; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .erro { display: grid; justify-items: center; gap: var(--ces-e3); width: min(360px, 100%); }
-    .acoes { display: grid; gap: var(--ces-e2); width: 100%; margin-top: var(--ces-e3); }
+    .etapa { margin: 0; min-height: 1.4em; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .erro { display: grid; justify-items: center; gap: var(--geo-e3); width: min(360px, 100%); }
+    .acoes { display: grid; gap: var(--geo-e2); width: 100%; margin-top: var(--geo-e3); }
   `],
 })
 export class SyncLoadingComponent implements OnInit {

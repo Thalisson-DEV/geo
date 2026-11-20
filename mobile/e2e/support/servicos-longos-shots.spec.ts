@@ -1,8 +1,8 @@
 import { test } from '@playwright/test';
 import { MockApi, loginPelaUi, IDS } from './mock-api';
 
-/** Reprodução: execução com vários serviços de nome longo em Android pequeno. Rodar com CES_SHOTS=1. */
-test.skip(!process.env['CES_SHOTS'], 'só sob demanda');
+/** Reprodução: execução com vários serviços de nome longo em Android pequeno. Rodar com GEO_SHOTS=1. */
+test.skip(!process.env['GEO_SHOTS'], 'só sob demanda');
 test.use({ viewport: { width: 360, height: 780 } });
 
 const ACOES = [

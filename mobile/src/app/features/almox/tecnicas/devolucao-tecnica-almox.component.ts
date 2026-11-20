@@ -49,64 +49,64 @@ const CONDICOES: OpcaoSegmento<CondicaoDev>[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tela">
-      <ces-barra-topo titulo="Receber devolução" [subtitulo]="referencia()" navegacao="fechar" rotuloFechar="Fechar sem receber" (voltar)="fechar()">
-        <ces-indicador-rede />
-      </ces-barra-topo>
+      <geo-barra-topo titulo="Receber devolução" [subtitulo]="referencia()" navegacao="fechar" rotuloFechar="Fechar sem receber" (voltar)="fechar()">
+        <geo-indicador-rede />
+      </geo-barra-topo>
 
       @if (carregando()) {
-        <div class="ces-esqueletos" aria-busy="true"><div class="ces-esqueleto" style="height: 96px"></div><div class="ces-esqueleto" style="height: 240px"></div></div>
+        <div class="geo-esqueletos" aria-busy="true"><div class="geo-esqueleto" style="height: 96px"></div><div class="geo-esqueleto" style="height: 240px"></div></div>
       } @else if (erro()) {
-        <ces-vazio icone="alerta" titulo="Não foi possível preparar a devolução" [texto]="erro()">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="carregar()">Tentar de novo</button>
-        </ces-vazio>
+        <geo-vazio icone="alerta" titulo="Não foi possível preparar a devolução" [texto]="erro()">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="carregar()">Tentar de novo</button>
+        </geo-vazio>
       } @else if (det(); as d) {
         <section class="resumo" aria-label="Devolução">
-          @if (titulo().ocorrencia; as oc) { <span class="rotulo">Ocorrência</span><strong class="oc ces-num">{{ oc }}</strong> }
+          @if (titulo().ocorrencia; as oc) { <span class="rotulo">Ocorrência</span><strong class="oc geo-num">{{ oc }}</strong> }
           <span class="rotulo">Obra</span><strong class="obra">{{ titulo().obra }}</strong>
-          <p class="rota"><span>Estoque da obra</span><ces-icone nome="seta" [tamanho]="16" /><strong>{{ almoxarifado() }}</strong></p>
+          <p class="rota"><span>Estoque da obra</span><geo-icone nome="seta" [tamanho]="16" /><strong>{{ almoxarifado() }}</strong></p>
           <span class="rotulo">Equipe</span><span>{{ equipe() }}</span>
-          <span class="tipo ces-num">{{ tipo().codigo }} · {{ tipo().rotulo }}</span>
+          <span class="tipo geo-num">{{ tipo().codigo }} · {{ tipo().rotulo }}</span>
         </section>
 
         @if (pedeReserva()) {
-          <label class="ces-campo reserva">
-            <span class="ces-campo__rotulo">Número da reserva</span>
-            <input class="ces-input mono" [value]="reserva()" (input)="reserva.set(soDigitos($any($event.target)))" inputmode="numeric" maxlength="20" autocomplete="off"
+          <label class="geo-campo reserva">
+            <span class="geo-campo__rotulo">Número da reserva</span>
+            <input class="geo-input mono" [value]="reserva()" (input)="reserva.set(soDigitos($any($event.target)))" inputmode="numeric" maxlength="20" autocomplete="off"
               placeholder="Opcional · só números">
-            <span class="ces-campo__ajuda">Sem reserva, a devolução é recebida e fica com pendência de reserva.</span>
+            <span class="geo-campo__ajuda">Sem reserva, a devolução é recebida e fica com pendência de reserva.</span>
           </label>
         }
 
         <div class="barra-itens">
-          <span class="ces-num"><strong>{{ marcados() }}</strong> de {{ itens().length }} {{ itens().length === 1 ? 'material' : 'materiais' }} nesta devolução</span>
+          <span class="geo-num"><strong>{{ marcados() }}</strong> de {{ itens().length }} {{ itens().length === 1 ? 'material' : 'materiais' }} nesta devolução</span>
           <span class="botoes">
-            <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="tudo()">Tudo o que falta</button>
-            <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto" (click)="zerar()" [disabled]="!marcados()">Zerar</button>
+            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="tudo()">Tudo o que falta</button>
+            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto" (click)="zerar()" [disabled]="!marcados()">Zerar</button>
           </span>
         </div>
-        <ul class="ces-grupo itens">
+        <ul class="geo-grupo itens">
           @for (it of itens(); track it.id; let i = $index) {
-            <li class="ces-linha item" [class.zerado]="!it.quantidade">
-              <span class="ces-linha__texto">
-                <span class="ces-linha__titulo">{{ it.descricao }}</span>
-                <span class="ces-linha__apoio ces-num">Cód. {{ it.codigo }} · falta {{ num(it.pendente) }} de {{ num(it.pedido) }} {{ it.unidade }}</span>
+            <li class="geo-linha item" [class.zerado]="!it.quantidade">
+              <span class="geo-linha__texto">
+                <span class="geo-linha__titulo">{{ it.descricao }}</span>
+                <span class="geo-linha__apoio geo-num">Cód. {{ it.codigo }} · falta {{ num(it.pendente) }} de {{ num(it.pedido) }} {{ it.unidade }}</span>
               </span>
               @if (it.detalhaSerie) {
-                <input class="ces-input mono serie" [value]="it.serie" (change)="definirSerie(i, $any($event.target).value)" placeholder="Série devolvida"
+                <input class="geo-input mono serie" [value]="it.serie" (change)="definirSerie(i, $any($event.target).value)" placeholder="Série devolvida"
                   autocapitalize="characters" autocomplete="off" spellcheck="false" [attr.aria-label]="'Série devolvida de ' + it.descricao">
               } @else {
                 @if (it.equivalencias.length) {
-                  <ces-quantidade-unidade [material]="{ unidadeMedida: it.unidade, equivalencias: it.equivalencias }" [minimo]="0"
+                  <geo-quantidade-unidade [material]="{ unidadeMedida: it.unidade, equivalencias: it.equivalencias }" [minimo]="0"
                     [valor]="it.unidadeInformada ? (it.quantidadeInformada ?? 0) : it.quantidade" (valorChange)="definirQuantidade(i, $event)"
                     [unidade]="it.unidadeInformada" (unidadeChange)="definirUnidade(i, $event)" [rotulo]="'quantidade devolvida de ' + it.descricao" />
                 } @else {
-                  <ces-quantidade [valor]="it.quantidade" (valorChange)="definirQuantidade(i, $event)" [minimo]="0" [grande]="true" [unidade]="it.unidade"
+                  <geo-quantidade [valor]="it.quantidade" (valorChange)="definirQuantidade(i, $event)" [minimo]="0" [grande]="true" [unidade]="it.unidade"
                     [rotulo]="'quantidade devolvida de ' + it.descricao" />
                 }
               }
               @if (it.quantidade) {
                 <div class="opcoes">
-                  <ces-segmentado [rotulo]="'Condição de ' + it.descricao" [opcoes]="condicoes" [valor]="it.condicao" (valorChange)="definirCondicao(i, $event)" />
+                  <geo-segmentado [rotulo]="'Condição de ' + it.descricao" [opcoes]="condicoes" [valor]="it.condicao" (valorChange)="definirCondicao(i, $event)" />
                   <button type="button" class="alternar" role="switch" [attr.aria-checked]="it.guardar" (click)="alternarGuardar(i)">
                     <span class="txt"><strong>{{ it.guardar ? 'Guardar no almoxarifado' : 'Baixa na hora' }}</strong>
                       <span>{{ it.guardar ? 'Entra no saldo de ' + almoxarifado() : 'Recebido e baixado: não entra no saldo' }}</span></span>
@@ -122,47 +122,47 @@ const CONDICOES: OpcaoSegmento<CondicaoDev>[] = [
 
     @if (det()) {
       <footer class="rodape">
-        <button type="button" class="ces-btn ces-btn--principal principal" (click)="confirmar()" [disabled]="enviando() || !marcados() || !rede.isOnline()">
+        <button type="button" class="geo-btn geo-btn--principal principal" (click)="confirmar()" [disabled]="enviando() || !marcados() || !rede.isOnline()">
           {{ enviando() ? 'Recebendo…' : !rede.isOnline() ? 'Sem internet' : confirmando() ? 'Toque de novo para confirmar' : 'Confirmar recebimento' }}</button>
       </footer>
     }
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     :host > * { flex-shrink: 0; }
-    .tela { flex: 1; padding-bottom: var(--ces-e5); }
-    .resumo { margin: var(--ces-e2) var(--ces-e3) 0; padding: var(--ces-e4); border-radius: var(--ces-r-folha); background: var(--ces-superficie); display: grid; gap: 2px; }
-    .resumo .rotulo { font: 500 .75rem/1.2 var(--ces-fonte); color: var(--ces-texto-2); }
-    .resumo .rotulo:not(:first-child) { margin-top: var(--ces-e2); }
-    .oc, .obra { font: 700 1.125rem/1.25 var(--ces-fonte); overflow-wrap: anywhere; }
-    .rota { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: var(--ces-e3) 0 0; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .rota strong { color: var(--ces-texto); }
-    .tipo { justify-self: start; margin-top: var(--ces-e2); padding: 2px 8px; border-radius: 6px; background: var(--ces-superficie-2); font: 600 .75rem/1.5 var(--ces-fonte); }
-    .reserva { margin: var(--ces-e3) var(--ces-e3) 0; }
-    .reserva .ces-campo__rotulo, .reserva .ces-campo__ajuda { padding-left: var(--ces-e4); }
-    .barra-itens { display: flex; align-items: center; justify-content: space-between; gap: var(--ces-e2); flex-wrap: wrap; padding: var(--ces-e3) var(--ces-e3) var(--ces-e2) var(--ces-e5);
-      font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .barra-itens strong { color: var(--ces-texto); }
+    .tela { flex: 1; padding-bottom: var(--geo-e5); }
+    .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: 2px; }
+    .resumo .rotulo { font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); }
+    .resumo .rotulo:not(:first-child) { margin-top: var(--geo-e2); }
+    .oc, .obra { font: 700 1.125rem/1.25 var(--geo-fonte); overflow-wrap: anywhere; }
+    .rota { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: var(--geo-e3) 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .rota strong { color: var(--geo-texto); }
+    .tipo { justify-self: start; margin-top: var(--geo-e2); padding: 2px 8px; border-radius: 6px; background: var(--geo-superficie-2); font: 600 .75rem/1.5 var(--geo-fonte); }
+    .reserva { margin: var(--geo-e3) var(--geo-e3) 0; }
+    .reserva .geo-campo__rotulo, .reserva .geo-campo__ajuda { padding-left: var(--geo-e4); }
+    .barra-itens { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); flex-wrap: wrap; padding: var(--geo-e3) var(--geo-e3) var(--geo-e2) var(--geo-e5);
+      font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .barra-itens strong { color: var(--geo-texto); }
     .botoes { display: flex; }
-    .item { flex-wrap: wrap; row-gap: var(--ces-e2); }
-    .item .ces-linha__texto { flex: 1 1 55%; }
-    .item.zerado .ces-linha__titulo { color: var(--ces-texto-2); }
+    .item { flex-wrap: wrap; row-gap: var(--geo-e2); }
+    .item .geo-linha__texto { flex: 1 1 55%; }
+    .item.zerado .geo-linha__titulo { color: var(--geo-texto-2); }
     .serie { flex: 1 1 100%; }
-    .mono { font-family: var(--ces-fonte-mono); }
-    .opcoes { flex-basis: 100%; display: grid; gap: var(--ces-e2); }
-    .alternar { display: flex; align-items: center; gap: var(--ces-e3); width: 100%; padding: var(--ces-e2) var(--ces-e3); min-height: 56px; border: 0; border-radius: var(--ces-r-campo);
-      background: var(--ces-superficie-2); color: var(--ces-texto); text-align: left; font: inherit; cursor: pointer; }
+    .mono { font-family: var(--geo-fonte-mono); }
+    .opcoes { flex-basis: 100%; display: grid; gap: var(--geo-e2); }
+    .alternar { display: flex; align-items: center; gap: var(--geo-e3); width: 100%; padding: var(--geo-e2) var(--geo-e3); min-height: 56px; border: 0; border-radius: var(--geo-r-campo);
+      background: var(--geo-superficie-2); color: var(--geo-texto); text-align: left; font: inherit; cursor: pointer; }
     .alternar .txt { flex: 1; display: grid; gap: 2px; }
-    .alternar .txt strong { font: 600 .875rem/1.25 var(--ces-fonte); }
-    .alternar .txt span { font: var(--ces-t-apoio); font-size: .75rem; color: var(--ces-texto-2); }
-    .trilho { width: 44px; height: 26px; border-radius: 13px; background: var(--ces-linha-forte); position: relative; flex: none; transition: background var(--ces-m-entrar); }
+    .alternar .txt strong { font: 600 .875rem/1.25 var(--geo-fonte); }
+    .alternar .txt span { font: var(--geo-t-apoio); font-size: .75rem; color: var(--geo-texto-2); }
+    .trilho { width: 44px; height: 26px; border-radius: 13px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background var(--geo-m-entrar); }
     .trilho i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25);
-      transition: transform var(--ces-m-entrar) var(--ces-curva); }
-    [aria-checked='true'] .trilho { background: var(--ces-destaque); }
+      transition: transform var(--geo-m-entrar) var(--geo-curva); }
+    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
     [aria-checked='true'] .trilho i { transform: translateX(18px); }
-    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--ces-e3); padding: var(--ces-e3) var(--ces-e4) calc(var(--ces-e3) + var(--ces-safe-base));
-      background: var(--ces-fundo); border-top: 1px solid var(--ces-linha); }
-    .rodape .principal { flex: 1; min-height: var(--ces-alvo-principal); font-size: 1rem; }
+    .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
+      background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
+    .rodape .principal { flex: 1; min-height: var(--geo-alvo-principal); font-size: 1rem; }
   `],
 })
 export class DevolucaoTecnicaAlmoxComponent {

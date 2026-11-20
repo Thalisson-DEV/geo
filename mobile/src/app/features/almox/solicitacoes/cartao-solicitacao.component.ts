@@ -23,24 +23,24 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
         @if (!semData()) {
           <span class="data" [attr.data-prazo]="prazo()" aria-hidden="true">
             @if (item().dataPrevista) {
-              <span class="dia ces-num">{{ dia() }}</span><span class="mes">{{ mes() }}</span>
+              <span class="dia geo-num">{{ dia() }}</span><span class="mes">{{ mes() }}</span>
             } @else {
-              <ces-icone nome="calendario" [tamanho]="18" /><span class="mes">sem data</span>
+              <geo-icone nome="calendario" [tamanho]="18" /><span class="mes">sem data</span>
             }
           </span>
         }
         <span class="txt">
-          <span class="topo"><span class="destino">{{ destino() }}</span><span class="id ces-num">#{{ id() }}</span></span>
+          <span class="topo"><span class="destino">{{ destino() }}</span><span class="id geo-num">#{{ id() }}</span></span>
           <span class="origem">de {{ origem() }}</span>
           <span class="linha-status">
             <span class="status" [attr.data-tom]="status().tom"><i aria-hidden="true"></i>{{ status().rotulo }}</span>
             <span class="sep" aria-hidden="true">·</span>
-            <span class="ces-num">{{ item().totalItens }} {{ item().totalItens === 1 ? 'item' : 'itens' }}</span>
+            <span class="geo-num">{{ item().totalItens }} {{ item().totalItens === 1 ? 'item' : 'itens' }}</span>
           </span>
           @if (sinais().length) {
             <span class="sinais">
               @for (s of sinais(); track s.texto) {
-                <span class="sinal" [attr.data-tom]="s.tom"><ces-icone [nome]="s.icone" [tamanho]="13" />{{ s.texto }}</span>
+                <span class="sinal" [attr.data-tom]="s.tom"><geo-icone [nome]="s.icone" [tamanho]="13" />{{ s.texto }}</span>
               }
             </span>
           }
@@ -49,15 +49,15 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
       @if (acoes() && (podeAprovar() || podeRejeitar() || podeEntregar())) {
         <div class="acoes">
           @if (podeRejeitar()) {
-            <button type="button" class="ces-btn ces-btn--texto ces-btn--compacto rejeitar" [disabled]="!!ocupado()" (click)="agir.emit({ acao: 'rejeitar', item: item() })">Rejeitar</button>
+            <button type="button" class="geo-btn geo-btn--texto geo-btn--compacto rejeitar" [disabled]="!!ocupado()" (click)="agir.emit({ acao: 'rejeitar', item: item() })">Rejeitar</button>
           }
           @if (podeAprovar()) {
-            <button type="button" class="ces-btn ces-btn--principal ces-btn--compacto acao" [disabled]="!!ocupado()" (click)="agir.emit({ acao: 'aprovar', item: item() })">
-              @if (ocupado() === 'aprovar') { <span class="giro" aria-hidden="true"></span>Aprovando… } @else { <ces-icone nome="check" [tamanho]="18" />Aprovar }
+            <button type="button" class="geo-btn geo-btn--principal geo-btn--compacto acao" [disabled]="!!ocupado()" (click)="agir.emit({ acao: 'aprovar', item: item() })">
+              @if (ocupado() === 'aprovar') { <span class="giro" aria-hidden="true"></span>Aprovando… } @else { <geo-icone nome="check" [tamanho]="18" />Aprovar }
             </button>
           } @else if (podeEntregar()) {
-            <button type="button" class="ces-btn ces-btn--tonal ces-btn--compacto acao" [disabled]="!!ocupado()" (click)="agir.emit({ acao: 'entregar', item: item() })">
-              <ces-icone nome="caminhao" [tamanho]="18" />Registrar entrega
+            <button type="button" class="geo-btn geo-btn--tonal geo-btn--compacto acao" [disabled]="!!ocupado()" (click)="agir.emit({ acao: 'entregar', item: item() })">
+              <geo-icone nome="caminhao" [tamanho]="18" />Registrar entrega
             </button>
           }
         </div>
@@ -66,43 +66,43 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
   `,
   styles: [`
     :host { display: block; }
-    .cartao { background: var(--ces-superficie); border-radius: var(--ces-r-grupo); overflow: hidden; box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
-    .corpo { display: flex; align-items: flex-start; gap: var(--ces-e3); width: 100%; padding: var(--ces-e3) var(--ces-e3) var(--ces-e3) var(--ces-e3);
+    .cartao { background: var(--geo-superficie); border-radius: var(--geo-r-grupo); overflow: hidden; box-shadow: 0 1px 2px rgba(14, 23, 38, .05); }
+    .corpo { display: flex; align-items: flex-start; gap: var(--geo-e3); width: 100%; padding: var(--geo-e3) var(--geo-e3) var(--geo-e3) var(--geo-e3);
       border: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; transition: background-color 100ms; }
-    .corpo:active { background: var(--ces-superficie-2); }
+    .corpo:active { background: var(--geo-superficie-2); }
     .data { flex: none; width: 44px; height: 48px; border-radius: 12px; display: grid; place-content: center; justify-items: center; gap: 1px;
-      background: var(--ces-superficie-2); color: var(--ces-texto); }
-    .data .dia { font: 700 1.125rem/1 var(--ces-fonte); letter-spacing: -.02em; }
-    .data .mes { font: 700 .625rem/1 var(--ces-fonte); letter-spacing: .06em; color: var(--ces-texto-2); text-transform: uppercase; }
-    .data[data-prazo='atrasado'] { background: var(--ces-erro-suave); color: var(--ces-erro); }
-    .data[data-prazo='atrasado'] .mes { color: var(--ces-erro); }
-    .data[data-prazo='hoje'] { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-    .data[data-prazo='hoje'] .mes { color: var(--ces-atencao); }
-    .data[data-prazo='sem'] { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ces-linha); color: var(--ces-texto-3); }
-    .data[data-prazo='sem'] .mes { font-size: .5625rem; letter-spacing: .02em; color: var(--ces-texto-3); }
+      background: var(--geo-superficie-2); color: var(--geo-texto); }
+    .data .dia { font: 700 1.125rem/1 var(--geo-fonte); letter-spacing: -.02em; }
+    .data .mes { font: 700 .625rem/1 var(--geo-fonte); letter-spacing: .06em; color: var(--geo-texto-2); text-transform: uppercase; }
+    .data[data-prazo='atrasado'] { background: var(--geo-erro-suave); color: var(--geo-erro); }
+    .data[data-prazo='atrasado'] .mes { color: var(--geo-erro); }
+    .data[data-prazo='hoje'] { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+    .data[data-prazo='hoje'] .mes { color: var(--geo-atencao); }
+    .data[data-prazo='sem'] { background: transparent; box-shadow: inset 0 0 0 1.5px var(--geo-linha); color: var(--geo-texto-3); }
+    .data[data-prazo='sem'] .mes { font-size: .5625rem; letter-spacing: .02em; color: var(--geo-texto-3); }
     .data[data-prazo='encerrada'] { opacity: .7; }
     .txt { flex: 1; min-width: 0; display: grid; gap: 2px; padding-top: 1px; }
-    .topo { display: flex; align-items: baseline; gap: var(--ces-e2); }
-    .destino { flex: 1; min-width: 0; font: 600 .9375rem/1.3 var(--ces-fonte); overflow-wrap: anywhere; }
-    .origem { font: var(--ces-t-apoio); color: var(--ces-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .linha-status { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; margin-top: 4px; font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--ces-texto); }
-    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--ces-texto-3); }
-    .status[data-tom='atencao'] i { background: var(--ces-atencao); }
-    .status[data-tom='destaque'] i { background: var(--ces-destaque); }
-    .status[data-tom='ok'] i { background: var(--ces-ok); }
-    .status[data-tom='erro'] i { background: var(--ces-erro); }
-    .sep { color: var(--ces-texto-3); }
-    .id { flex: none; font: 500 .6875rem/1 var(--ces-fonte-mono); color: var(--ces-texto-3); }
+    .topo { display: flex; align-items: baseline; gap: var(--geo-e2); }
+    .destino { flex: 1; min-width: 0; font: 600 .9375rem/1.3 var(--geo-fonte); overflow-wrap: anywhere; }
+    .origem { font: var(--geo-t-apoio); color: var(--geo-texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .linha-status { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; margin-top: 4px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--geo-texto); }
+    .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-texto-3); }
+    .status[data-tom='atencao'] i { background: var(--geo-atencao); }
+    .status[data-tom='destaque'] i { background: var(--geo-destaque); }
+    .status[data-tom='ok'] i { background: var(--geo-ok); }
+    .status[data-tom='erro'] i { background: var(--geo-erro); }
+    .sep { color: var(--geo-texto-3); }
+    .id { flex: none; font: 500 .6875rem/1 var(--geo-fonte-mono); color: var(--geo-texto-3); }
     .sinais { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    .sinal { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: var(--ces-r-pilula); font: 600 .75rem/1.3 var(--ces-fonte);
-      background: var(--ces-superficie-2); color: var(--ces-texto-2); }
-    .sinal[data-tom='erro'] { background: var(--ces-erro-suave); color: var(--ces-erro); }
-    .sinal[data-tom='atencao'] { background: var(--ces-atencao-suave); color: var(--ces-atencao); }
-    .acoes { display: flex; justify-content: flex-end; align-items: center; gap: var(--ces-e2); padding: 6px var(--ces-e3); border-top: 1px solid var(--ces-linha); }
-    .acoes .acao { min-height: 38px; padding: 0 var(--ces-e4); border-radius: var(--ces-r-pilula); }
-    .rejeitar { color: var(--ces-texto-2); }
-    .compacto .corpo { padding: var(--ces-e3); }
+    .sinal { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: var(--geo-r-pilula); font: 600 .75rem/1.3 var(--geo-fonte);
+      background: var(--geo-superficie-2); color: var(--geo-texto-2); }
+    .sinal[data-tom='erro'] { background: var(--geo-erro-suave); color: var(--geo-erro); }
+    .sinal[data-tom='atencao'] { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
+    .acoes { display: flex; justify-content: flex-end; align-items: center; gap: var(--geo-e2); padding: 6px var(--geo-e3); border-top: 1px solid var(--geo-linha); }
+    .acoes .acao { min-height: 38px; padding: 0 var(--geo-e4); border-radius: var(--geo-r-pilula); }
+    .rejeitar { color: var(--geo-texto-2); }
+    .compacto .corpo { padding: var(--geo-e3); }
     .compacto .data { width: 40px; height: 44px; }
     .compacto .data .dia { font-size: 1rem; }
     .giro { width: 14px; height: 14px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: giro .8s linear infinite; }

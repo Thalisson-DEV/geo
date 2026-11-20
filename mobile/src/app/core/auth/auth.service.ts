@@ -12,11 +12,11 @@ import { ConnectivityService } from '../sync/connectivity.service';
 import { IGNORAR_MODO_OFFLINE } from '../http/http-context';
 
 /** Uma aba renova por vez: o refresh token gira a cada uso. */
-const TRAVA_RENOVACAO = 'ces-renovacao-sessao';
+const TRAVA_RENOVACAO = 'ces-renovacao-sessao'; // renomear-geo: manter
 /** Logout feito sem rede: a sessão no servidor ainda precisa ser encerrada. */
-const LOGOUT_PENDENTE_KEY = 'ces_logout_pendente';
+const LOGOUT_PENDENTE_KEY = 'geo_logout_pendente';
 /** A pessoa tocou em "Sair": nada de restaurar a sessão pelo cookie até um novo login. */
-const SAIU_KEY = 'ces_saiu_da_conta';
+const SAIU_KEY = 'geo_saiu_da_conta';
 
 /**
  * O que um 401 significa. Só `sessao-invalida` pede novo login; `token` se resolve
@@ -35,7 +35,7 @@ export interface LoginRequest {
 }
 
 export interface TokenResponse {
-  /** JWT de acesso (~1h). O refresh token só trafega no cookie HttpOnly `ces_sessao`. */
+  /** JWT de acesso (~1h). O refresh token só trafega no cookie HttpOnly `geo_sessao`. */
   token: string;
   sessaoExpiraEm?: string;
 }
@@ -79,7 +79,7 @@ export class AuthService {
     if (typeof window === 'undefined') return;
     // Outra aba renovou ou saiu: esta passa a usar o mesmo token.
     const aoMudarArmazenamento = (evento: StorageEvent) => {
-      if (evento.key === 'ces_auth_token' || evento.key === 'ces_reautenticacao_necessaria') {
+      if (evento.key === 'geo_auth_token' || evento.key === 'geo_reautenticacao_necessaria') {
         this.tokenService.recarregar();
       }
     };

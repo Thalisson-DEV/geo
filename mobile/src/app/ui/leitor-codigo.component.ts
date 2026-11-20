@@ -11,7 +11,7 @@ const INTERVALO_LEITURA_MS = 90;
 /** O recorte da mira vai ao decodificador com no máximo esta largura (nitidez sem pesar). */
 const LARGURA_MAXIMA_RECORTE = 1280;
 const ZOOMS = [1, 2, 3];
-const CHAVE_MODO = 'ces.leitor.modo';
+const CHAVE_MODO = 'geo.leitor.modo';
 
 /** Câmera disponível: com o ZXing em WebAssembly, qualquer navegador com câmera lê códigos. */
 export function leitorPorCameraDisponivel(): boolean {
@@ -35,7 +35,7 @@ function lerModo(): ModoLeitor {
  * texto grande, vibração e som).
  */
 @Component({
-  selector: 'ces-leitor-codigo',
+  selector: 'geo-leitor-codigo',
   standalone: true,
   imports: [IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,20 +58,20 @@ function lerModo(): ModoLeitor {
         <span class="aviso"><span class="giro" aria-hidden="true"></span>Abrindo a câmera…</span>
       } @else if (estado() === 'erro') {
         <span class="aviso erro">
-          <ces-icone nome="alerta" [tamanho]="20" /><span class="aviso__texto">{{ erro() }}</span>
+          <geo-icone nome="alerta" [tamanho]="20" /><span class="aviso__texto">{{ erro() }}</span>
           @if (podeTentarDeNovo()) { <button type="button" class="tentar" (click)="tentarDeNovo()">Tentar de novo</button> }
         </span>
       } @else if (pausado()) {
-        <span class="aviso"><ces-icone nome="check" [tamanho]="20" />{{ motivoPausa() }}</span>
+        <span class="aviso"><geo-icone nome="check" [tamanho]="20" />{{ motivoPausa() }}</span>
       }
 
       <div class="base">
-        @if (contador(); as c) { <span class="contador ces-num" [attr.aria-label]="c + ' lidas'">{{ c }}</span> } @else { <span></span> }
+        @if (contador(); as c) { <span class="contador geo-num" [attr.aria-label]="c + ' lidas'">{{ c }}</span> } @else { <span></span> }
         @if (modo() === 'gatilho' && estado() === 'lendo') {
           <button type="button" class="gatilho" [attr.aria-pressed]="segurando()" aria-label="Segure para ler o código na linha"
             (pointerdown)="apertar($event)" (pointerup)="soltar()" (pointercancel)="soltar()" (pointerleave)="soltar()"
             (keydown.space)="apertar($event)" (keyup.space)="soltar()" (contextmenu)="$event.preventDefault()">
-            <ces-icone nome="codigo_barras" [tamanho]="30" />
+            <geo-icone nome="codigo_barras" [tamanho]="30" />
           </button>
         } @else if (telaCheia()) {
           <button type="button" class="concluir" (click)="telaCheia.set(false)">Concluir</button>
@@ -80,22 +80,22 @@ function lerModo(): ModoLeitor {
           <button type="button" class="controle modo" (click)="alternarModo()" [attr.aria-label]="modo() === 'gatilho' ? 'Modo gatilho. Trocar para automático' : 'Modo automático. Trocar para gatilho'">
             {{ modo() === 'gatilho' ? 'Gatilho' : 'Auto' }}</button>
           @if (temZoom()) {
-            <button type="button" class="controle ces-num" (click)="alternarZoom()" [attr.aria-label]="'Zoom ' + zoom() + 'x. Toque para mudar'">{{ zoom() }}x</button>
+            <button type="button" class="controle geo-num" (click)="alternarZoom()" [attr.aria-label]="'Zoom ' + zoom() + 'x. Toque para mudar'">{{ zoom() }}x</button>
           }
           @if (temLanterna()) {
             <button type="button" class="controle" [attr.aria-pressed]="lanterna()" (click)="alternarLanterna()"
-              [attr.aria-label]="lanterna() ? 'Apagar a lanterna' : 'Acender a lanterna'"><ces-icone nome="lanterna" /></button>
+              [attr.aria-label]="lanterna() ? 'Apagar a lanterna' : 'Acender a lanterna'"><geo-icone nome="lanterna" /></button>
           }
           <button type="button" class="controle" (click)="telaCheia.set(!telaCheia())"
-            [attr.aria-label]="telaCheia() ? 'Sair da tela cheia' : 'Abrir a câmera em tela cheia'"><ces-icone [nome]="telaCheia() ? 'recolher' : 'expandir'" /></button>
+            [attr.aria-label]="telaCheia() ? 'Sair da tela cheia' : 'Abrir a câmera em tela cheia'"><geo-icone [nome]="telaCheia() ? 'recolher' : 'expandir'" /></button>
         </div>
       </div>
     </div>
-    <p class="ces-sr-only" aria-live="polite">{{ retorno()?.texto ?? '' }}</p>
+    <p class="geo-sr-only" aria-live="polite">{{ retorno()?.texto ?? '' }}</p>
   `,
   styles: [`
     :host { display: block; }
-    .leitor { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 56dvh; overflow: hidden; border-radius: var(--ces-r-grupo);
+    .leitor { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 56dvh; overflow: hidden; border-radius: var(--geo-r-grupo);
       background: #000; isolation: isolate; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
     /* Celular em pé: câmera alta, ocupando a maior parte da tela. */
     @media (max-width: 600px) and (orientation: portrait) { .leitor { aspect-ratio: 3 / 4; max-height: 64dvh; } }
@@ -119,32 +119,32 @@ function lerModo(): ModoLeitor {
 
     .topo { position: absolute; left: 12px; right: 12px; top: calc(12px + env(safe-area-inset-top)); display: flex; justify-content: center; pointer-events: none; }
     .retorno { max-width: 100%; padding: 10px 18px; border-radius: 16px; background: #e7edf5; color: #06121f; text-align: center;
-      font: 800 1.125rem/1.25 var(--ces-fonte); overflow-wrap: anywhere; animation: surgir 140ms var(--ces-curva); }
+      font: 800 1.125rem/1.25 var(--geo-fonte); overflow-wrap: anywhere; animation: surgir 140ms var(--geo-curva); }
     .retorno[data-tom='ok'] { background: #34c759; }
     .retorno[data-tom='atencao'] { background: #ffb020; }
     .retorno[data-tom='erro'] { background: #ff7a6e; }
-    .instrucao { padding: 8px 14px; border-radius: var(--ces-r-pilula); background: rgba(0, 0, 0, .55); color: #fff; font: 600 .9375rem/1.25 var(--ces-fonte); text-align: center; }
+    .instrucao { padding: 8px 14px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .55); color: #fff; font: 600 .9375rem/1.25 var(--geo-fonte); text-align: center; }
     @keyframes surgir { from { opacity: 0; transform: translateY(-6px); } }
 
     .aviso { position: absolute; left: 12px; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-wrap: wrap; align-items: center;
       justify-content: center; gap: 8px; padding: 12px 14px; border-radius: 14px; background: rgba(11, 16, 23, .88); color: #fff;
-      font: 600 .9375rem/1.3 var(--ces-fonte); text-align: center; }
+      font: 600 .9375rem/1.3 var(--geo-fonte); text-align: center; }
     .aviso.erro { background: rgba(46, 20, 20, .94); }
     .aviso__texto { flex: 1 1 200px; }
-    .tentar { min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--ces-r-pilula); background: #fff; color: #06121f; font: 700 .9375rem/1 var(--ces-fonte); cursor: pointer; }
+    .tentar { min-height: 48px; padding: 0 18px; border: 0; border-radius: var(--geo-r-pilula); background: #fff; color: #06121f; font: 700 .9375rem/1 var(--geo-fonte); cursor: pointer; }
 
     .base { position: absolute; left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom)); display: grid; grid-template-columns: 1fr auto 1fr;
       align-items: end; gap: 8px; }
-    .contador { justify-self: start; min-width: 52px; padding: 8px 14px; border-radius: var(--ces-r-pilula); background: rgba(0, 0, 0, .65); color: #fff;
-      font: 800 1.375rem/1.1 var(--ces-fonte); text-align: center; }
+    .contador { justify-self: start; min-width: 52px; padding: 8px 14px; border-radius: var(--geo-r-pilula); background: rgba(0, 0, 0, .65); color: #fff;
+      font: 800 1.375rem/1.1 var(--geo-fonte); text-align: center; }
     .controles { justify-self: end; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
     .controle { min-width: 48px; height: 48px; padding: 0 10px; border: 0; border-radius: 24px; display: grid; place-items: center;
-      background: rgba(0, 0, 0, .6); color: #fff; font: 700 .875rem/1 var(--ces-fonte); cursor: pointer; }
+      background: rgba(0, 0, 0, .6); color: #fff; font: 700 .875rem/1 var(--geo-fonte); cursor: pointer; }
     .controle[aria-pressed='true'] { background: #ffb020; color: #06121f; }
     .gatilho { width: 84px; height: 84px; border-radius: 50%; border: 4px solid #fff; background: #ff3b30; color: #fff; display: grid; place-items: center;
       cursor: pointer; box-shadow: 0 4px 16px rgba(0, 0, 0, .45); transition: transform 80ms, background-color 80ms; -webkit-tap-highlight-color: transparent; }
     .gatilho[aria-pressed='true'] { transform: scale(.92); background: #c4271f; }
-    .concluir { min-height: 52px; padding: 0 24px; border: 0; border-radius: var(--ces-r-pilula); background: #fff; color: #06121f; font: 800 1rem/1 var(--ces-fonte); cursor: pointer; }
+    .concluir { min-height: 52px; padding: 0 24px; border: 0; border-radius: var(--geo-r-pilula); background: #fff; color: #06121f; font: 800 1rem/1 var(--geo-fonte); cursor: pointer; }
     .giro { width: 16px; height: 16px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: giro .8s linear infinite; }
     @keyframes giro { to { transform: rotate(360deg); } }
     @media (prefers-reduced-motion: reduce) { .retorno, .giro { animation: none; } .janela, .laser, .gatilho { transition: none; } }

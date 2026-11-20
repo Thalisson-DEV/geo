@@ -26,25 +26,25 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
   imports: [FolhaComponent, IconeComponent, EstrelasComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-folha [aberta]="aberta()" (fechar)="fechar()" [titulo]="titulo()" [descricao]="descricao()">
+    <geo-folha [aberta]="aberta()" (fechar)="fechar()" [titulo]="titulo()" [descricao]="descricao()">
       @if (avaliacao.convite()?.jaRespondeu) {
         <div class="final">
-          <span class="ces-selo ces-selo--ok"><ces-icone nome="check" /></span>
+          <span class="geo-selo geo-selo--ok"><geo-icone nome="check" /></span>
           <strong>Obrigado pela sua avaliação!</strong>
           <span>Você já respondeu nesta pesquisa.</span>
         </div>
       } @else if (!avaliacao.convite()) {
         <div class="final">
-          <span class="ces-selo"><ces-icone nome="info" /></span>
+          <span class="geo-selo"><geo-icone nome="info" /></span>
           <strong>{{ rede.isOnline() ? 'Nenhuma pesquisa aberta agora' : 'Sem internet' }}</strong>
           <span>{{ rede.isOnline() ? 'Quando houver uma pesquisa, ela aparece aqui.' : 'Conecte para ver e responder a pesquisa.' }}</span>
         </div>
       } @else {
         <div class="campos">
           <div class="nota" [class.nota--erro]="tentou() && !estrelas()">
-            <ces-estrelas [valor]="estrelas()" (escolher)="escolher($event)" />
+            <geo-estrelas [valor]="estrelas()" (escolher)="escolher($event)" />
             @if (tentou() && !estrelas()) {
-              <span class="ces-campo__erro"><ces-icone nome="alerta" [tamanho]="16" />Escolha de 1 a 5 estrelas.</span>
+              <span class="geo-campo__erro"><geo-icone nome="alerta" [tamanho]="16" />Escolha de 1 a 5 estrelas.</span>
             }
           </div>
 
@@ -71,17 +71,17 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
               }
             </div>
             @if (problemas().length) {
-              <label class="ces-campo">
-                <span class="ces-campo__rotulo">Conte o que acontece</span>
-                <textarea class="ces-input texto" rows="3" maxlength="1000" [value]="problemaDetalhe()"
+              <label class="geo-campo">
+                <span class="geo-campo__rotulo">Conte o que acontece</span>
+                <textarea class="geo-input texto" rows="3" maxlength="1000" [value]="problemaDetalhe()"
                   (input)="problemaDetalhe.set($any($event.target).value)" placeholder="Ex.: demora para enviar as fotos"></textarea>
               </label>
             }
           </div>
 
-          <label class="ces-campo">
+          <label class="geo-campo">
             <span class="titulo">Sugestão <em>opcional</em></span>
-            <textarea class="ces-input texto" rows="3" maxlength="2000" [value]="sugestao()"
+            <textarea class="geo-input texto" rows="3" maxlength="2000" [value]="sugestao()"
               (input)="sugestao.set($any($event.target).value)" placeholder="O que deixaria o app melhor para você?"></textarea>
           </label>
 
@@ -94,7 +94,7 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
           </button>
 
           @if (!rede.isOnline()) {
-            <p class="aviso"><ces-icone nome="alerta" [tamanho]="18" />Sem internet. A avaliação só é enviada com conexão; o que você preencheu continua aqui.</p>
+            <p class="aviso"><geo-icone nome="alerta" [tamanho]="18" />Sem internet. A avaliação só é enviada com conexão; o que você preencheu continua aqui.</p>
           }
           </div>
           </div>
@@ -103,74 +103,74 @@ const PROBLEMAS: ProblemaAvaliacao[] = ['LENTIDAO', 'SINCRONIZACAO', 'LOGIN', 'T
 
       <div rodape class="rodape-area">
         @if (podeResponder() && !expandido()) {
-          <div class="ces-folha-rodape rodape">
-            <button type="button" class="ces-btn ces-btn--neutro" (click)="avaliacao.adiar()">Responder depois</button>
-            <button type="button" class="ces-btn ces-btn--principal" (click)="avaliacao.abrir(estrelas())">Avaliar agora</button>
+          <div class="geo-folha-rodape rodape">
+            <button type="button" class="geo-btn geo-btn--neutro" (click)="avaliacao.adiar()">Responder depois</button>
+            <button type="button" class="geo-btn geo-btn--principal" (click)="avaliacao.abrir(estrelas())">Avaliar agora</button>
           </div>
           @if (avaliacao.convite()?.ultimaVez) {
             <button type="button" class="recusar" (click)="avaliacao.recusar()">Não quero responder</button>
           }
         } @else if (podeResponder()) {
-          <div class="ces-folha-rodape rodape">
-            <button type="button" class="ces-btn ces-btn--neutro" (click)="fechar()" [disabled]="enviando()">Cancelar</button>
-            <button type="button" class="ces-btn ces-btn--principal" (click)="enviar()" [disabled]="enviando() || !rede.isOnline()">
+          <div class="geo-folha-rodape rodape">
+            <button type="button" class="geo-btn geo-btn--neutro" (click)="fechar()" [disabled]="enviando()">Cancelar</button>
+            <button type="button" class="geo-btn geo-btn--principal" (click)="enviar()" [disabled]="enviando() || !rede.isOnline()">
               {{ enviando() ? 'Enviando…' : 'Enviar avaliação' }}
             </button>
           </div>
         } @else {
-          <div class="ces-folha-rodape rodape">
-            <button type="button" class="ces-btn ces-btn--neutro" (click)="fechar()">Fechar</button>
+          <div class="geo-folha-rodape rodape">
+            <button type="button" class="geo-btn geo-btn--neutro" (click)="fechar()">Fechar</button>
           </div>
         }
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    .campos { display: grid; gap: var(--ces-e5, 24px); padding: var(--ces-e1) var(--ces-e4) var(--ces-e2); }
-    .bloco { display: grid; gap: var(--ces-e3); }
-    .titulo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; font: 600 .9375rem/1.3 var(--ces-fonte); color: var(--ces-texto); }
-    .titulo em { font: var(--ces-t-apoio); font-style: normal; color: var(--ces-texto-2); }
+    .campos { display: grid; gap: var(--geo-e5, 24px); padding: var(--geo-e1) var(--geo-e4) var(--geo-e2); }
+    .bloco { display: grid; gap: var(--geo-e3); }
+    .titulo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; font: 600 .9375rem/1.3 var(--geo-fonte); color: var(--geo-texto); }
+    .titulo em { font: var(--geo-t-apoio); font-style: normal; color: var(--geo-texto-2); }
 
     /* A nota abre a folha, em destaque: é a única pergunta obrigatória. */
     /* Crescer no lugar: 0fr → 1fr anima a altura real do conteúdo, e a folha (presa embaixo) sobe junto. */
-    .expansao { display: grid; grid-template-rows: 0fr; opacity: 0; margin-top: calc(var(--ces-e5, 24px) * -1);
-      transition: grid-template-rows 360ms var(--ces-curva), opacity 240ms ease, margin-top 360ms var(--ces-curva); }
+    .expansao { display: grid; grid-template-rows: 0fr; opacity: 0; margin-top: calc(var(--geo-e5, 24px) * -1);
+      transition: grid-template-rows 360ms var(--geo-curva), opacity 240ms ease, margin-top 360ms var(--geo-curva); }
     .expansao--aberta { grid-template-rows: 1fr; opacity: 1; margin-top: 0; }
-    .expansao__dentro { display: grid; gap: var(--ces-e5, 24px); min-height: 0; overflow: hidden; }
+    .expansao__dentro { display: grid; gap: var(--geo-e5, 24px); min-height: 0; overflow: hidden; }
     .rodape-area { display: grid; }
-    .recusar { justify-self: center; min-height: 40px; margin-top: var(--ces-e1); padding: 0 var(--ces-e3); border: 0; background: none;
-      font: var(--ces-t-apoio); color: var(--ces-texto-2); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
-    .nota { display: grid; justify-items: center; gap: var(--ces-e2); padding: var(--ces-e4) var(--ces-e3);
-      border-radius: var(--ces-r-grupo); background: var(--ces-superficie-2); }
-    .nota--erro { box-shadow: inset 0 0 0 1.5px var(--ces-erro); }
+    .recusar { justify-self: center; min-height: 40px; margin-top: var(--geo-e1); padding: 0 var(--geo-e3); border: 0; background: none;
+      font: var(--geo-t-apoio); color: var(--geo-texto-2); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+    .nota { display: grid; justify-items: center; gap: var(--geo-e2); padding: var(--geo-e4) var(--geo-e3);
+      border-radius: var(--geo-r-grupo); background: var(--geo-superficie-2); }
+    .nota--erro { box-shadow: inset 0 0 0 1.5px var(--geo-erro); }
 
-    .pilulas { display: flex; flex-wrap: wrap; gap: var(--ces-e2); }
-    .pilula { min-height: 44px; padding: 0 16px; border-radius: var(--ces-r-pilula); border: 1.5px solid var(--ces-linha);
-      background: var(--ces-superficie); color: var(--ces-texto); font: 500 .9375rem/1 var(--ces-fonte); cursor: pointer;
-      -webkit-tap-highlight-color: transparent; transition: background-color var(--ces-m-entrar), border-color var(--ces-m-entrar); }
+    .pilulas { display: flex; flex-wrap: wrap; gap: var(--geo-e2); }
+    .pilula { min-height: 44px; padding: 0 16px; border-radius: var(--geo-r-pilula); border: 1.5px solid var(--geo-linha);
+      background: var(--geo-superficie); color: var(--geo-texto); font: 500 .9375rem/1 var(--geo-fonte); cursor: pointer;
+      -webkit-tap-highlight-color: transparent; transition: background-color var(--geo-m-entrar), border-color var(--geo-m-entrar); }
     .pilula:active { transform: scale(.97); }
-    .pilula[aria-checked='true'], .pilula[aria-pressed='true'] { border-color: var(--ces-destaque); background: var(--ces-destaque-suave);
-      color: var(--ces-destaque); font-weight: 600; }
-    .pilula:focus-visible, .anonima:focus-visible { outline: 2px solid var(--ces-destaque); outline-offset: 2px; }
-    .texto { min-height: 88px; padding: var(--ces-e3) var(--ces-e4); resize: vertical; }
+    .pilula[aria-checked='true'], .pilula[aria-pressed='true'] { border-color: var(--geo-destaque); background: var(--geo-destaque-suave);
+      color: var(--geo-destaque); font-weight: 600; }
+    .pilula:focus-visible, .anonima:focus-visible { outline: 2px solid var(--geo-destaque); outline-offset: 2px; }
+    .texto { min-height: 88px; padding: var(--geo-e3) var(--geo-e4); resize: vertical; }
 
-    .anonima { display: flex; align-items: center; gap: var(--ces-e3); width: 100%; padding: var(--ces-e3) var(--ces-e4); text-align: left;
-      border: 0; border-radius: var(--ces-r-grupo); background: var(--ces-superficie-2); color: inherit; font: inherit; cursor: pointer; }
+    .anonima { display: flex; align-items: center; gap: var(--geo-e3); width: 100%; padding: var(--geo-e3) var(--geo-e4); text-align: left;
+      border: 0; border-radius: var(--geo-r-grupo); background: var(--geo-superficie-2); color: inherit; font: inherit; cursor: pointer; }
     .anonima__texto { flex: 1; display: grid; gap: 2px; }
-    .anonima__texto strong { font: var(--ces-t-corpo-forte); }
-    .anonima__texto span { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--ces-linha-forte); position: relative; flex: none; transition: background-color var(--ces-m-entrar); }
-    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--ces-m-entrar) var(--ces-curva); }
-    [aria-checked='true'] .trilho { background: var(--ces-destaque); }
+    .anonima__texto strong { font: var(--geo-t-corpo-forte); }
+    .anonima__texto span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .trilho { width: 48px; height: 28px; border-radius: 14px; background: var(--geo-linha-forte); position: relative; flex: none; transition: background-color var(--geo-m-entrar); }
+    .trilho span { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform var(--geo-m-entrar) var(--geo-curva); }
+    [aria-checked='true'] .trilho { background: var(--geo-destaque); }
     [aria-checked='true'] .trilho span { transform: translateX(20px); }
 
-    .aviso { display: flex; gap: var(--ces-e2); align-items: flex-start; margin: 0; padding: var(--ces-e3) var(--ces-e4);
-      border-radius: var(--ces-r-grupo); background: var(--ces-atencao-suave); font: var(--ces-t-apoio); }
-    .final { display: grid; justify-items: center; gap: var(--ces-e2); padding: var(--ces-e4) var(--ces-e4) var(--ces-e5); text-align: center; }
-    .final strong { font: var(--ces-t-corpo-forte); }
-    .final span:last-child { font: var(--ces-t-apoio); color: var(--ces-texto-2); }
-    .rodape { display: flex; gap: var(--ces-e3); padding: var(--ces-e3) var(--ces-e4) 0; }
-    .rodape .ces-btn { flex: 1; min-height: var(--ces-alvo-principal); }
+    .aviso { display: flex; gap: var(--geo-e2); align-items: flex-start; margin: 0; padding: var(--geo-e3) var(--geo-e4);
+      border-radius: var(--geo-r-grupo); background: var(--geo-atencao-suave); font: var(--geo-t-apoio); }
+    .final { display: grid; justify-items: center; gap: var(--geo-e2); padding: var(--geo-e4) var(--geo-e4) var(--geo-e5); text-align: center; }
+    .final strong { font: var(--geo-t-corpo-forte); }
+    .final span:last-child { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
+    .rodape { display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) 0; }
+    .rodape .geo-btn { flex: 1; min-height: var(--geo-alvo-principal); }
     @media (prefers-reduced-motion: reduce) {
       .pilula, .expansao { transition: none; }
       .pilula:active { transform: none; }

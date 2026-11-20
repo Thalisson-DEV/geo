@@ -1,4 +1,4 @@
-// Design system do Nexo Campo — componentes. Tokens e primitivas CSS em src/styles/ces-*.scss.
+// Design system do GEO Campo — componentes. Tokens e primitivas CSS em src/styles/geo-*.scss.
 export * from './icone.component';
 export * from './status-envio.component';
 export * from './barra-topo.component';

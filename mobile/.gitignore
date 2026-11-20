@@ -44,3 +44,6 @@ Thumbs.db
 e2e/.results/
 e2e/.report/
 e2e/.videos/
+
+# Vitest (modo navegador)
+.vitest/

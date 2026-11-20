@@ -58,7 +58,7 @@ test.describe('consultas de material', () => {
     await page.goto('/solicitacoes/estoque');
     const lista = page.getByRole('list', { name: 'Materiais no caminhão' });
     await expect(lista.getByText('Cabo concêntrico 10mm')).toBeVisible();
-    await expect(lista.locator('.ces-qtd').first()).toBeVisible();
+    await expect(lista.locator('.geo-qtd').first()).toBeVisible();
     await page.getByRole('searchbox', { name: 'Buscar no saldo' }).fill('zzz-nada');
     await expect(page.getByText('Nada encontrado')).toBeVisible();
   });

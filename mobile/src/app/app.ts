@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, untracked } from '@angular/core';
+import { Component, DestroyRef, effect, inject, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/components/toast/toast.component';
 import { AppUpdateService } from './core/sync/app-update.service';
@@ -19,6 +19,7 @@ import { ConviteInstalacaoComponent } from './features/instalar/convite-instalac
     <app-toast />
     <app-convite-instalacao />
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: [`
     :host { display: block; height: 100%; }
   `]

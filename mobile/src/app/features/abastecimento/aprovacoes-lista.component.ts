@@ -49,87 +49,87 @@ const ROTA = '/abastecimento/aprovacoes';
   imports: [RouterLink, BarraTopoComponent, ChipsComponent, FolhaComponent, IconeComponent, SeletorComponent, VazioComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ces-barra-topo titulo="Abastecimentos" [subtitulo]="subtitulo()" (voltar)="voltar()">
-      <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto filtro" (click)="definir({ filtros: true })"
+    <geo-barra-topo titulo="Abastecimentos" [subtitulo]="subtitulo()" (voltar)="voltar()">
+      <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto filtro" (click)="definir({ filtros: true })"
         [attr.aria-label]="'Filtros' + (filtrosAtivos() ? ', ' + filtrosAtivos() + ' ativos' : '')">
-        <ces-icone nome="filtro" [tamanho]="18" />@if (filtrosAtivos()) { <span class="ces-num">{{ filtrosAtivos() }}</span> } @else { Filtrar }
+        <geo-icone nome="filtro" [tamanho]="18" />@if (filtrosAtivos()) { <span class="geo-num">{{ filtrosAtivos() }}</span> } @else { Filtrar }
       </button>
-    </ces-barra-topo>
+    </geo-barra-topo>
 
     @if (!rede.isOnline()) {
-      <ces-vazio icone="sem_rede" titulo="Sem internet" texto="A situação dos pedidos está no servidor. Conecte e a lista aparece aqui." />
+      <geo-vazio icone="sem_rede" titulo="Sem internet" texto="A situação dos pedidos está no servidor. Conecte e a lista aparece aqui." />
     } @else {
-      <ces-chips rotulo="Situação do pedido" [opcoes]="recortes" [contagem]="{ pendentes: pendentes() ?? 0 }" [valor]="recorte()"
+      <geo-chips rotulo="Situação do pedido" [opcoes]="recortes" [contagem]="{ pendentes: pendentes() ?? 0 }" [valor]="recorte()"
         (valorChange)="definir({ recorte: $any($event) })" />
 
       @if (erro()) {
-        <ces-vazio icone="alerta" titulo="Não foi possível carregar os pedidos" [texto]="erro()">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="recarregar()">Tentar de novo</button>
-        </ces-vazio>
+        <geo-vazio icone="alerta" titulo="Não foi possível carregar os pedidos" [texto]="erro()">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
+        </geo-vazio>
       } @else if (carregando() && !itens().length) {
-        <div class="ces-esqueletos" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3]; track i) { <div class="ces-esqueleto" style="height: 88px"></div> }</div>
+        <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 88px"></div> }</div>
       } @else if (grupos().length) {
         <div class="lista" [class.atualizando]="carregando()">
           @for (g of grupos(); track g.titulo) {
-            <h2 class="ces-secao">{{ g.titulo }}</h2>
-            <ul class="ces-grupo">
+            <h2 class="geo-secao">{{ g.titulo }}</h2>
+            <ul class="geo-grupo">
               @for (p of g.itens; track p.id) {
-                <li><a class="ces-linha ces-linha--acao" [routerLink]="['/abastecimento/aprovacoes', p.id]">
-                  <span class="ces-selo" [class]="'ces-selo ces-selo--' + etapa(p).tom"><ces-icone nome="combustivel" /></span>
-                  <span class="ces-linha__texto">
-                    <span class="ces-linha__titulo"><span class="ces-num">{{ placa(p.placa) }}</span> · {{ p.itens }}</span>
-                    <span class="ces-linha__resumo" [attr.data-tom]="etapa(p).tom">{{ etapa(p).texto }}</span>
-                    <span class="ces-linha__apoio">{{ p.destino ? 'Destino: ' + p.destino : 'Sem destino informado' }}</span>
-                    <span class="ces-linha__apoio ces-num">{{ hora(p.solicitadoEm) }}{{ p.condutor ? ' · ' + p.condutor : '' }}{{ p.alertas.length ? ' · ' + p.alertas.length + (p.alertas.length === 1 ? ' alerta' : ' alertas') : '' }}</span>
+                <li><a class="geo-linha geo-linha--acao" [routerLink]="['/abastecimento/aprovacoes', p.id]">
+                  <span class="geo-selo" [class]="'geo-selo geo-selo--' + etapa(p).tom"><geo-icone nome="combustivel" /></span>
+                  <span class="geo-linha__texto">
+                    <span class="geo-linha__titulo"><span class="geo-num">{{ placa(p.placa) }}</span> · {{ p.itens }}</span>
+                    <span class="geo-linha__resumo" [attr.data-tom]="etapa(p).tom">{{ etapa(p).texto }}</span>
+                    <span class="geo-linha__apoio">{{ p.destino ? 'Destino: ' + p.destino : 'Sem destino informado' }}</span>
+                    <span class="geo-linha__apoio geo-num">{{ hora(p.solicitadoEm) }}{{ p.condutor ? ' · ' + p.condutor : '' }}{{ p.alertas.length ? ' · ' + p.alertas.length + (p.alertas.length === 1 ? ' alerta' : ' alertas') : '' }}</span>
                   </span>
-                  <ces-icone nome="avancar" [tamanho]="18" />
+                  <geo-icone nome="avancar" [tamanho]="18" />
                 </a></li>
               }
             </ul>
           }
           @if (itens().length < total()) {
-            <button type="button" class="ces-btn ces-btn--neutro ces-btn--bloco mais" (click)="pagina.set(pagina() + 1)" [disabled]="carregando()">
+            <button type="button" class="geo-btn geo-btn--neutro geo-btn--bloco mais" (click)="pagina.set(pagina() + 1)" [disabled]="carregando()">
               {{ carregando() ? 'Carregando…' : 'Mostrar mais (' + (total() - itens().length) + ')' }}</button>
           }
         </div>
       } @else if (recorte() === 'pendentes' && !filtrosAtivos()) {
-        <ces-vazio icone="check" titulo="Nada para aprovar" texto="Os pedidos das placas da sua carteira aparecem aqui assim que a equipe pede pelo app.">
-          <button type="button" class="ces-btn ces-btn--tonal" (click)="definir({ recorte: 'todos' })">Ver todos os pedidos</button>
-        </ces-vazio>
+        <geo-vazio icone="check" titulo="Nada para aprovar" texto="Os pedidos das placas da sua carteira aparecem aqui assim que a equipe pede pelo app.">
+          <button type="button" class="geo-btn geo-btn--tonal" (click)="definir({ recorte: 'todos' })">Ver todos os pedidos</button>
+        </geo-vazio>
       } @else {
-        <ces-vazio icone="combustivel" titulo="Nenhum pedido neste recorte" [texto]="filtrosAtivos() ? 'Tire algum filtro para ver mais.' : 'Os pedidos das placas da sua carteira aparecem aqui.'">
-          @if (filtrosAtivos()) { <button type="button" class="ces-btn ces-btn--tonal" (click)="limpar()">Limpar filtros</button> }
-        </ces-vazio>
+        <geo-vazio icone="combustivel" titulo="Nenhum pedido neste recorte" [texto]="filtrosAtivos() ? 'Tire algum filtro para ver mais.' : 'Os pedidos das placas da sua carteira aparecem aqui.'">
+          @if (filtrosAtivos()) { <button type="button" class="geo-btn geo-btn--tonal" (click)="limpar()">Limpar filtros</button> }
+        </geo-vazio>
       }
-      <div class="ces-respiro"></div>
+      <div class="geo-respiro"></div>
     }
 
-    <ces-folha [aberta]="folhaFiltros()" (fechar)="definir({ filtros: false })" titulo="Filtrar abastecimentos">
+    <geo-folha [aberta]="folhaFiltros()" (fechar)="definir({ filtros: false })" titulo="Filtrar abastecimentos">
       <div class="campos">
-        <label class="ces-campo"><span class="ces-campo__rotulo">Placa</span>
-          <input class="ces-input" [value]="buscaDigitada()" (input)="buscaDigitada.set($any($event.target).value)" autocapitalize="characters"
+        <label class="geo-campo"><span class="geo-campo__rotulo">Placa</span>
+          <input class="geo-input" [value]="buscaDigitada()" (input)="buscaDigitada.set($any($event.target).value)" autocapitalize="characters"
             autocomplete="off" spellcheck="false" enterkeyhint="search" placeholder="Ex.: ABC1D23"></label>
-        <ces-seletor rotulo="Período do pedido" [opcoes]="opcoesPeriodo" [valor]="periodo()" (valorChange)="definir({ periodo: $any($event) ?? '30dias' })" />
+        <geo-seletor rotulo="Período do pedido" [opcoes]="opcoesPeriodo" [valor]="periodo()" (valorChange)="definir({ periodo: $any($event) ?? '30dias' })" />
       </div>
-      <div rodape class="ces-folha-rodape">
-        <button type="button" class="ces-btn ces-btn--neutro" (click)="limpar()">Limpar</button>
-        <button type="button" class="ces-btn ces-btn--principal" (click)="definir({ filtros: false })">Mostrar</button>
+      <div rodape class="geo-folha-rodape">
+        <button type="button" class="geo-btn geo-btn--neutro" (click)="limpar()">Limpar</button>
+        <button type="button" class="geo-btn geo-btn--principal" (click)="definir({ filtros: false })">Mostrar</button>
       </div>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
-    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--ces-fundo); }
+    :host { display: flex; flex-direction: column; min-height: 100%; background: var(--geo-fundo); }
     .filtro { gap: 6px; }
-    .lista { transition: opacity var(--ces-m-entrar); }
+    .lista { transition: opacity var(--geo-m-entrar); }
     .lista.atualizando { opacity: .6; }
-    .ces-linha__resumo[data-tom='atencao'] { color: var(--ces-atencao); font-weight: 600; }
-    .ces-linha__resumo[data-tom='destaque'] { color: var(--ces-destaque); }
-    .ces-linha__resumo[data-tom='ok'] { color: var(--ces-ok); }
-    .ces-linha__resumo[data-tom='erro'] { color: var(--ces-erro); }
-    .mais { margin: var(--ces-e3) var(--ces-e3) 0; width: calc(100% - 24px); }
-    .campos { display: grid; gap: var(--ces-e3); padding: 0 var(--ces-e3) var(--ces-e2); }
-    .campos ces-seletor { box-shadow: inset 0 0 0 1px var(--ces-linha); border-radius: var(--ces-r-grupo); }
-    .campos .ces-campo__rotulo { padding-left: var(--ces-e4); }
+    .geo-linha__resumo[data-tom='atencao'] { color: var(--geo-atencao); font-weight: 600; }
+    .geo-linha__resumo[data-tom='destaque'] { color: var(--geo-destaque); }
+    .geo-linha__resumo[data-tom='ok'] { color: var(--geo-ok); }
+    .geo-linha__resumo[data-tom='erro'] { color: var(--geo-erro); }
+    .mais { margin: var(--geo-e3) var(--geo-e3) 0; width: calc(100% - 24px); }
+    .campos { display: grid; gap: var(--geo-e3); padding: 0 var(--geo-e3) var(--geo-e2); }
+    .campos geo-seletor { box-shadow: inset 0 0 0 1px var(--geo-linha); border-radius: var(--geo-r-grupo); }
+    .campos .geo-campo__rotulo { padding-left: var(--geo-e4); }
   `]
 })
 export class AprovacoesListaComponent {

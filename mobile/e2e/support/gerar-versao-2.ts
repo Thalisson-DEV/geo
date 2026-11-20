@@ -5,12 +5,12 @@ import { cpSync, readFileSync, writeFileSync, readdirSync, rmSync } from 'node:f
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 
-export const MARCA_V2 = '/* ces-versao-2 */';
+export const MARCA_V2 = '/* geo-versao-2 */';
 
 export function gerarVersao2(): string {
   // Playwright roda a partir de mobile/.
   const dist = join(process.cwd(), 'dist');
-  const origem = join(dist, 'ces-field-app-tmp/browser');
+  const origem = join(dist, 'geo-field-app-tmp/browser');
   const destino = join(dist, 'versao-2/browser');
   rmSync(join(dist, 'versao-2'), { recursive: true, force: true });
   cpSync(origem, destino, { recursive: true });

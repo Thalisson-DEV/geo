@@ -9,8 +9,8 @@ import { gzipSync } from 'node:zlib';
 
 const dist = fileURLToPath(new URL('../../dist/', import.meta.url));
 // Versão servida. Os testes de atualização trocam com GET /__versao/<v2|v1> (só neste servidor de teste).
-let root = join(dist, 'ces-field-app-tmp/browser/');
-const versoes = { v1: join(dist, 'ces-field-app-tmp/browser/'), v2: join(dist, 'versao-2/browser/') };
+let root = join(dist, 'geo-field-app-tmp/browser/');
+const versoes = { v1: join(dist, 'geo-field-app-tmp/browser/'), v2: join(dist, 'versao-2/browser/') };
 const port = Number(process.env.PORT || 4300);
 
 const types = {

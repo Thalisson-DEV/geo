@@ -23,7 +23,7 @@ export const PERIODOS: { valor: PeriodFilter; rotulo: string; curto: string }[] 
 
 /** Linha de chips de filtro (um escolhido), com contagem opcional em cada um. */
 @Component({
-  selector: 'ces-chips',
+  selector: 'geo-chips',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -31,19 +31,19 @@ export const PERIODOS: { valor: PeriodFilter; rotulo: string; curto: string }[] 
       @for (o of opcoes(); track o.valor) {
         <button type="button" role="radio" class="chip" [attr.aria-checked]="valor() === o.valor" (click)="valor.set(o.valor)">
           {{ o.rotulo }}
-          @if (contagem()[o.valor]; as n) { <span class="ces-num conta">{{ n }}</span> }
+          @if (contagem()[o.valor]; as n) { <span class="geo-num conta">{{ n }}</span> }
         </button>
       }
     </div>
   `,
   styles: [`
     :host { display: block; }
-    .chips { display: flex; gap: var(--ces-e2); overflow-x: auto; padding: var(--ces-e3) var(--ces-e4) var(--ces-e1); scrollbar-width: none;
+    .chips { display: flex; gap: var(--geo-e2); overflow-x: auto; padding: var(--geo-e3) var(--geo-e4) var(--geo-e1); scrollbar-width: none;
       overscroll-behavior-x: contain; }
     .chips::-webkit-scrollbar { display: none; }
-    .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--ces-r-pilula);
-      border: 1px solid var(--ces-linha-forte); background: var(--ces-superficie); color: var(--ces-texto-2); font: 500 .875rem/1 var(--ces-fonte); cursor: pointer; }
-    .chip[aria-checked='true'] { background: var(--ces-destaque-suave); border-color: transparent; color: var(--ces-destaque); font-weight: 600; }
+    .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--geo-r-pilula);
+      border: 1px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2); font: 500 .875rem/1 var(--geo-fonte); cursor: pointer; }
+    .chip[aria-checked='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
     .conta { font-weight: 700; }
   `],
 })
@@ -56,32 +56,32 @@ export class ChipsComponent {
 
 /** Botão de período (para o canto do título) e a folha com as opções. */
 @Component({
-  selector: 'ces-periodo',
+  selector: 'geo-periodo',
   standalone: true,
   imports: [FolhaComponent, IconeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button type="button" class="ces-btn ces-btn--neutro ces-btn--compacto botao" (click)="aberto.set(true)" [attr.aria-label]="'Período: ' + atual().rotulo">
-      <ces-icone nome="filtro" [tamanho]="18" />{{ atual().curto }}
+    <button type="button" class="geo-btn geo-btn--neutro geo-btn--compacto botao" (click)="aberto.set(true)" [attr.aria-label]="'Período: ' + atual().rotulo">
+      <geo-icone nome="filtro" [tamanho]="18" />{{ atual().curto }}
     </button>
-    <ces-folha [aberta]="aberto()" (fechar)="aberto.set(false)" titulo="Período">
-      <ul class="ces-grupo opcoes" role="radiogroup" aria-label="Período">
+    <geo-folha [aberta]="aberto()" (fechar)="aberto.set(false)" titulo="Período">
+      <ul class="geo-grupo opcoes" role="radiogroup" aria-label="Período">
         @for (p of periodos; track p.valor) {
           <li>
-            <button type="button" role="radio" class="ces-linha ces-linha--acao" [attr.aria-checked]="valor() === p.valor" (click)="escolher(p.valor)">
-              <span class="ces-linha__texto"><span class="ces-linha__titulo">{{ p.rotulo }}</span></span>
-              @if (valor() === p.valor) { <ces-icone nome="check" /> }
+            <button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="valor() === p.valor" (click)="escolher(p.valor)">
+              <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ p.rotulo }}</span></span>
+              @if (valor() === p.valor) { <geo-icone nome="check" /> }
             </button>
           </li>
         }
       </ul>
-    </ces-folha>
+    </geo-folha>
   `,
   styles: [`
     :host { display: inline-flex; }
-    .botao { color: var(--ces-texto); white-space: nowrap; flex: none; }
-    .opcoes { background: var(--ces-fundo); }
-    button.ces-linha { width: 100%; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
+    .botao { color: var(--geo-texto); white-space: nowrap; flex: none; }
+    .opcoes { background: var(--geo-fundo); }
+    button.geo-linha { width: 100%; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
   `],
 })
 export class PeriodoComponent {

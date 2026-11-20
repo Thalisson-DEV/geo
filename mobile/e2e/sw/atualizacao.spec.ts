@@ -26,7 +26,7 @@ test.use({
 
 async function eventosAtualizacao(page: Page): Promise<string[]> {
   return page.evaluate(() => new Promise<string[]>(resolve => {
-    const req = indexedDB.open('ces-field-sessao');
+    const req = indexedDB.open('ces-field-sessao'); // renomear-geo: manter
     req.onsuccess = () => {
       const tudo = req.result.transaction('eventos').objectStore('eventos').getAll();
       tudo.onsuccess = () => resolve((tudo.result as { tipo: string; dados?: { etapa?: string } }[])
@@ -106,7 +106,7 @@ test('versão nova no meio do lançamento: não interrompe, entra no segundo pla
 
   // O banco principal (fila de envio) continua na versão do build antigo: Dexie vN = IndexedDB N*10.
   const versaoBanco = await page.evaluate(() => new Promise<number>(r => {
-    const req = indexedDB.open('ces-field-db');
+    const req = indexedDB.open('ces-field-db'); // renomear-geo: manter
     req.onsuccess = () => { r(req.result.version); req.result.close(); };
   }));
   expect(versaoBanco).toBe(environment.dbVersion * 10);
