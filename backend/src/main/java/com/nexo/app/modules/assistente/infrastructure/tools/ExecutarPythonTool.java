@@ -10,6 +10,7 @@ import com.nexo.app.modules.assistente.application.results.ResultFormatter;
 import com.nexo.app.modules.assistente.application.results.ResultStore;
 import com.nexo.app.modules.assistente.application.results.TabularExport;
 import com.nexo.app.modules.assistente.domain.ArquivoAssistente;
+import com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoResumo;
 import com.nexo.app.modules.assistente.domain.ResultadoAssistente;
 import com.nexo.app.modules.assistente.infrastructure.sandbox.CodeInterpreterClient;
 import org.slf4j.Logger;
@@ -119,8 +120,7 @@ public class ExecutarPythonTool extends BaseTool {
         int[] transmitido = {0};
         CodeInterpreterClient.ExecuteResult execucao;
         try {
-            List<CodeInterpreterClient.StagedFile> staged = enviarArquivos(staging, context);
-            execucao = client.executeStreaming(code, config.getTimeoutMs(), staged, (stream, data) -> {
+            CodeInterpreterClient.OutputListener saida = (stream, data) -> {
                 ("stderr".equals(stream) ? stderr : stdout).append(data);
                 if (transmitido[0] < MAX_SAIDA_TRANSMITIDA && !data.isEmpty()) {
                     String parte = data.length() > MAX_SAIDA_TRANSMITIDA - transmitido[0]
@@ -129,7 +129,20 @@ public class ExecutarPythonTool extends BaseTool {
                     context.emit(Packet.Types.TOOL_OUTPUT, "stream", "stderr".equals(stream) ? "stderr" : "stdout",
                             "data", parte);
                 }
-            }, context::cancelled);
+            };
+            try {
+                execucao = client.executeStreaming(code, config.getTimeoutMs(), enviarArquivos(staging, context), saida,
+                        context::cancelled);
+            } catch (IOException primeiraFalha) {
+                // Falha de conexao antes de qualquer saida: o codigo nao chegou a rodar. Uma nova tentativa, com os
+                // arquivos reenviados (a VM pode ter sido trocada), resolve as quedas passageiras do sandbox.
+                if (context.cancelled() || !stdout.isEmpty() || !stderr.isEmpty()) throw primeiraFalha;
+                LOGGER.warn("Sandbox Python falhou antes de executar, tentando de novo: {}", primeiraFalha.getMessage());
+                client.invalidarSaude();
+                context.run().cacheArquivosSandbox().clear();
+                execucao = client.executeStreaming(code, config.getTimeoutMs(), enviarArquivos(staging, context), saida,
+                        context::cancelled);
+            }
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new ToolException("Execucao Python interrompida.");
@@ -155,9 +168,27 @@ public class ExecutarPythonTool extends BaseTool {
         List<String> falhas = new ArrayList<>();
         int resultadosCriados = 0;
         int processados = 0;
+        Map<String, String> entradas = staging.hashes();
         for (CodeInterpreterClient.WorkspaceFile arquivo : execucao.files()) {
             if (!"file".equals(arquivo.kind()) || arquivo.fileId() == null) continue;
             String nome = nomeFinal(arquivo.path());
+            if (entradas.containsKey(nome)) {
+                // O sandbox lista tambem os arquivos de entrada; so volta como gerado o que o codigo alterou.
+                try {
+                    byte[] conteudo = client.downloadFile(arquivo.fileId());
+                    if (entradaInalterada(entradas, nome, conteudo)) {
+                        client.deleteFile(arquivo.fileId());
+                        continue;
+                    }
+                } catch (IOException exception) {
+                    LOGGER.warn("Falha ao comparar arquivo de entrada do sandbox: {}", exception.getMessage());
+                    client.deleteFile(arquivo.fileId());
+                    continue;
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                    throw new ToolException("Execucao Python interrompida.");
+                }
+            }
             if (processados >= MAX_ARQUIVOS_GERADOS) {
                 falhas.add(nome + " (limite de " + MAX_ARQUIVOS_GERADOS + " arquivos por execucao)");
                 client.deleteFile(arquivo.fileId());
@@ -273,14 +304,16 @@ public class ExecutarPythonTool extends BaseTool {
         }
 
         // Arquivos da conversa: citados no codigo primeiro, depois os mais recentes.
-        List<ArquivoAssistente> daConversa = new ArrayList<>(arquivos.listarDaConversa(context.conversaId()));
+        List<ArquivoResumo> daConversa = new ArrayList<>(arquivos.listarDaConversa(context.conversaId()));
         Collections.reverse(daConversa);
         List<Candidato> citados = new ArrayList<>();
         List<Candidato> demais = new ArrayList<>();
-        for (ArquivoAssistente arquivo : daConversa) {
-            String nome = nomeSeguro(arquivo.getNome());
-            Candidato candidato = new Candidato(nome, () -> arquivos.conteudo(arquivo),
-                    code.contains(arquivo.getNome()) || code.contains(nome));
+        for (ArquivoResumo arquivo : daConversa) {
+            String nome = nomeSeguro(arquivo.nome());
+            boolean citado = code.contains(arquivo.nome()) || code.contains(nome);
+            // Gerados pela própria Bússola so entram quando o codigo os usa: os resultados ja chegam como rN.csv.
+            if (!citado && arquivo.origem() == ArquivoAssistente.Origem.GERADO) continue;
+            Candidato candidato = new Candidato(nome, () -> arquivos.conteudo(arquivo), citado);
             (candidato.citado() ? citados : demais).add(candidato);
         }
         candidatos.addAll(citados);
@@ -397,7 +430,13 @@ public class ExecutarPythonTool extends BaseTool {
         return texto.length() <= maximo ? texto : texto.substring(0, maximo - 3) + "...";
     }
 
-    private static String sha256(byte[] bytes) {
+    /** Arquivo enviado ao sandbox que voltou igual: nao e resultado do codigo e nao deve ser salvo de novo. */
+    static boolean entradaInalterada(Map<String, String> entradas, String nome, byte[] conteudo) {
+        String hash = entradas.get(nome);
+        return hash != null && hash.equals(sha256(conteudo));
+    }
+
+    static String sha256(byte[] bytes) {
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
         } catch (NoSuchAlgorithmException exception) {
@@ -418,6 +457,13 @@ public class ExecutarPythonTool extends BaseTool {
 
         List<String> nomes() {
             return arquivos.stream().map(ArquivoPreparado::nome).toList();
+        }
+
+        /** Nome no diretorio de trabalho -> SHA-256 do conteudo enviado. */
+        Map<String, String> hashes() {
+            Map<String, String> hashes = new HashMap<>();
+            arquivos.forEach(arquivo -> hashes.put(arquivo.nome(), sha256(arquivo.conteudo())));
+            return hashes;
         }
 
         String aviso() {

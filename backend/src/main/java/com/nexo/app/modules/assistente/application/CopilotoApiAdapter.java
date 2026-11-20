@@ -25,6 +25,7 @@ import com.nexo.app.modules.assistente.application.semantic.SemanticCatalog;
 import com.nexo.app.modules.assistente.application.semantic.ViewQuery;
 import com.nexo.app.modules.assistente.application.semantic.ViewQueryCompiler;
 import com.nexo.app.modules.assistente.domain.ArquivoAssistente;
+import com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoResumo;
 import com.nexo.app.modules.assistente.domain.ConversaAssistente;
 import com.nexo.app.modules.assistente.domain.MensagemAssistente;
 import com.nexo.app.modules.assistente.domain.StatusMensagemAssistente;
@@ -137,12 +138,12 @@ public class CopilotoApiAdapter implements CopilotoApi {
             return new Analise("", conversa.getId(), List.of(), false, "A resposta da Bússola não foi encontrada.", duracao);
         }
         List<Arquivo> anexos = new ArrayList<>();
-        for (ArquivoAssistente arquivo : arquivos.listarDaConversa(conversa.getId())) {
-            if (arquivo.getOrigem() != ArquivoAssistente.Origem.GERADO) continue;
+        for (ArquivoResumo arquivo : arquivos.listarDaConversa(conversa.getId())) {
+            if (arquivo.origem() != ArquivoAssistente.Origem.GERADO) continue;
             try {
-                anexos.add(new Arquivo(arquivo.getNome(), arquivo.getTipoConteudo(), arquivos.conteudo(arquivo)));
+                anexos.add(new Arquivo(arquivo.nome(), arquivo.tipoConteudo(), arquivos.conteudo(arquivo)));
             } catch (RuntimeException e) {
-                LOGGER.warn("Arquivo {} gerado pela Bússola não pôde ser lido: {}", arquivo.getId(), e.getMessage());
+                LOGGER.warn("Arquivo {} gerado pela Bússola não pôde ser lido: {}", arquivo.id(), e.getMessage());
             }
         }
         boolean concluida = mensagem.getStatus() == StatusMensagemAssistente.CONCLUIDA;

@@ -12,6 +12,7 @@ import com.nexo.app.modules.assistente.application.results.ResultStore;
 import com.nexo.app.modules.assistente.application.results.TabularData;
 import com.nexo.app.modules.assistente.application.skills.SkillCatalog;
 import com.nexo.app.modules.assistente.domain.ArquivoAssistente;
+import com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoResumo;
 import com.nexo.app.modules.assistente.domain.ConversaAssistente;
 import com.nexo.app.modules.assistente.domain.MensagemAssistente;
 import com.nexo.app.modules.assistente.domain.OrigemConversa;
@@ -111,9 +112,9 @@ public class AssistenteService {
         UUID usuarioId = usuario();
         ConversaAssistente conversa = exigir(conversaId, usuarioId);
         List<MensagemAssistente> lista = mensagens.findByConversaIdAndAtivoTrueOrderByDataCriacaoAsc(conversaId);
-        List<ArquivoAssistente> arquivosConversa = arquivos.listarDaConversa(conversaId);
-        Map<UUID, ArquivoAssistente> arquivosPorId = new HashMap<>();
-        arquivosConversa.forEach(arquivo -> arquivosPorId.put(arquivo.getId(), arquivo));
+        List<ArquivoResumo> arquivosConversa = arquivos.listarDaConversa(conversaId);
+        Map<UUID, ArquivoResumo> arquivosPorId = new HashMap<>();
+        arquivosConversa.forEach(arquivo -> arquivosPorId.put(arquivo.id(), arquivo));
         List<MensagemResponse> respostas = lista.stream().map(mensagem -> mensagem(mensagem, arquivosPorId)).toList();
         return new ConversaDetalheResponse(conversa.getId(), conversa.getTitulo(), conversa.getDataCriacao(),
                 conversa.getUltimaAtividadeEm(), persistencia.contexto(conversa), respostas, artefatos.listar(conversaId),
@@ -163,8 +164,8 @@ public class AssistenteService {
         MensagemAssistente mensagem = mensagens.findById(mensagemId)
                 .filter(item -> item.isAtivo() && item.getConversa().getId().equals(conversaId))
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Mensagem não encontrada"));
-        Map<UUID, ArquivoAssistente> arquivosPorId = new HashMap<>();
-        arquivos.listarDaConversa(conversaId).forEach(arquivo -> arquivosPorId.put(arquivo.getId(), arquivo));
+        Map<UUID, ArquivoResumo> arquivosPorId = new HashMap<>();
+        arquivos.listarDaConversa(conversaId).forEach(arquivo -> arquivosPorId.put(arquivo.id(), arquivo));
         return mensagem(mensagem, arquivosPorId);
     }
 
@@ -328,7 +329,7 @@ public class AssistenteService {
                 conversa.getDataCriacao(), runner.emAndamento(conversa.getId()), conversa.getOrigem(), conversa.getOrigemId());
     }
 
-    private MensagemResponse mensagem(MensagemAssistente mensagem, Map<UUID, ArquivoAssistente> arquivosPorId) {
+    private MensagemResponse mensagem(MensagemAssistente mensagem, Map<UUID, ArquivoResumo> arquivosPorId) {
         List<Packet> pacotes = List.of();
         if (mensagem.getPacotesJson() != null && !mensagem.getPacotesJson().isBlank()) {
             try {

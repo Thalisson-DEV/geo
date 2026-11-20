@@ -11,6 +11,7 @@ import com.nexo.app.modules.assistente.domain.ArquivoAssistente;
 import com.nexo.app.modules.assistente.domain.ArquivoConteudo;
 import com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoAssistenteRepository;
 import com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoConteudoRepository;
+import com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoResumo;
 import com.nexo.app.shared.domain.exception.PreenchimentoInvalidoException;
 import com.nexo.app.shared.domain.exception.RecursoNaoEncontradoException;
 import com.nexo.app.shared.infrastructure.storage.ObjectStorageService;
@@ -134,21 +135,30 @@ public class ArquivoService {
     }
 
     @Transactional(readOnly = true)
-    public List<ArquivoAssistente> listarDaConversa(UUID conversaId) {
-        return repository.findByConversaIdAndAtivoTrueOrderByDataCriacaoAsc(conversaId);
+    public List<ArquivoResumo> listarDaConversa(UUID conversaId) {
+        return repository.listarResumos(conversaId);
     }
 
     @Transactional(readOnly = true)
     public byte[] conteudo(ArquivoAssistente arquivo) {
-        if (arquivo.getArmazenamento() == ArquivoAssistente.Armazenamento.R2) {
-            StorageObject objeto = objectStorage.baixar(arquivo.getChaveArmazenamento());
+        return conteudo(arquivo.getId(), arquivo.getArmazenamento(), arquivo.getChaveArmazenamento());
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] conteudo(ArquivoResumo arquivo) {
+        return conteudo(arquivo.id(), arquivo.armazenamento(), arquivo.chaveArmazenamento());
+    }
+
+    private byte[] conteudo(UUID arquivoId, ArquivoAssistente.Armazenamento armazenamento, String chave) {
+        if (armazenamento == ArquivoAssistente.Armazenamento.R2) {
+            StorageObject objeto = objectStorage.baixar(chave);
             try (InputStream input = objeto.conteudo()) {
                 return input.readAllBytes();
             } catch (IOException exception) {
                 throw new IllegalStateException("Falha ao ler arquivo do armazenamento", exception);
             }
         }
-        return conteudoRepository.findById(arquivo.getId()).map(ArquivoConteudo::getConteudo)
+        return conteudoRepository.findById(arquivoId).map(ArquivoConteudo::getConteudo)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Conteúdo do arquivo indisponível"));
     }
 
@@ -177,9 +187,13 @@ public class ArquivoService {
     }
 
     public Map<String, Object> resumo(ArquivoAssistente arquivo) {
-        if (arquivo.getResumoJson() == null || arquivo.getResumoJson().isBlank()) return Map.of();
+        return resumo(arquivo.getResumoJson());
+    }
+
+    private Map<String, Object> resumo(String resumoJson) {
+        if (resumoJson == null || resumoJson.isBlank()) return Map.of();
         try {
-            return objectMapper.readValue(arquivo.getResumoJson(), MAPA);
+            return objectMapper.readValue(resumoJson, MAPA);
         } catch (JsonProcessingException exception) {
             return Map.of();
         }
@@ -190,6 +204,12 @@ public class ArquivoService {
                 arquivo.getNome(), arquivo.getTipoConteudo(), arquivo.getCategoria().name(), arquivo.getTamanhoBytes(),
                 arquivo.getOrigem().name(), arquivo.getStatus().name(), arquivo.getErro(), resumo(arquivo),
                 arquivo.getDataCriacao());
+    }
+
+    public ArquivoAssistenteResponse toResponse(ArquivoResumo arquivo) {
+        return new ArquivoAssistenteResponse(arquivo.id(), arquivo.codigo(), arquivo.conversaId(), arquivo.nome(),
+                arquivo.tipoConteudo(), arquivo.categoria().name(), arquivo.tamanhoBytes(), arquivo.origem().name(),
+                arquivo.status().name(), arquivo.erro(), resumo(arquivo.resumoJson()), arquivo.dataCriacao());
     }
 
     // ------------------------------------------------------------------------------------ interno

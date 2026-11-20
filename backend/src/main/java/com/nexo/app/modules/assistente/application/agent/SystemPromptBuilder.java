@@ -3,6 +3,7 @@ package com.nexo.app.modules.assistente.application.agent;
 import com.nexo.app.modules.assistente.application.artifacts.ArtifactService;
 import com.nexo.app.modules.assistente.application.skills.SkillCatalog;
 import com.nexo.app.modules.assistente.domain.ArquivoAssistente;
+import com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoResumo;
 import com.nexo.app.modules.assistente.infrastructure.persistence.ResumoResultadoAssistente;
 import org.springframework.stereotype.Component;
 
@@ -122,7 +123,7 @@ public class SystemPromptBuilder {
             """;
 
     public String build(AgentRunContext context, Collection<AgentTool> ferramentas, List<ResumoResultadoAssistente> resultados,
-            List<ArquivoAssistente> arquivos, List<ArtifactService.ArtefatoView> artefatos, List<SkillCatalog.Skill> competencias) {
+            List<ArquivoResumo> arquivos, List<ArtifactService.ArtefatoView> artefatos, List<SkillCatalog.Skill> competencias) {
         Set<String> nomes = new HashSet<>();
         ferramentas.forEach(tool -> nomes.add(tool.name()));
         StringBuilder prompt = new StringBuilder(12_000);
@@ -199,12 +200,12 @@ public class SystemPromptBuilder {
             }
             if (!arquivos.isEmpty()) {
                 prompt.append("Arquivos:\n");
-                for (ArquivoAssistente arquivo : arquivos) {
-                    if (arquivo.getCodigo() == null) continue;
-                    prompt.append("- ").append(arquivo.getCodigo()).append(": ").append(arquivo.getNome()).append(" (")
-                            .append(arquivo.getCategoria().name()).append(", ").append(tamanho(arquivo.getTamanhoBytes()))
-                            .append(arquivo.getOrigem() == ArquivoAssistente.Origem.GERADO ? ", gerado nesta conversa" : ", enviado pelo usuário")
-                            .append(arquivo.getStatus() == ArquivoAssistente.Status.FALHOU ? ", leitura automática falhou" : "")
+                for (ArquivoResumo arquivo : arquivos) {
+                    if (arquivo.codigo() == null) continue;
+                    prompt.append("- ").append(arquivo.codigo()).append(": ").append(arquivo.nome()).append(" (")
+                            .append(arquivo.categoria().name()).append(", ").append(tamanho(arquivo.tamanhoBytes()))
+                            .append(arquivo.origem() == ArquivoAssistente.Origem.GERADO ? ", gerado nesta conversa" : ", enviado pelo usuário")
+                            .append(arquivo.status() == ArquivoAssistente.Status.FALHOU ? ", leitura automática falhou" : "")
                             .append(")\n");
                 }
             }

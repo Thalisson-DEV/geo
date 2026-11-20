@@ -21,22 +21,45 @@ function readyTemplate() {
   return templateReady;
 }
 
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 async function warmup() {
   if (!process.env.RAILWAY_TOKEN || !process.env.RAILWAY_ENVIRONMENT_ID) {
     readinessError = 'RAILWAY_TOKEN ou RAILWAY_ENVIRONMENT_ID ausente';
     return;
   }
+  for (let attempt = 1; !operational; attempt++) {
+    await warmupOnce(attempt);
+    if (!operational) await sleep(Math.min(attempt * 10_000, 60_000));
+  }
+}
+
+async function waitForVm(sandbox) {
+  for (let i = 0; i < 10; i++) {
+    const ping = await sandbox.exec('true', { timeoutSec: 10 }).catch(() => undefined);
+    if (ping?.exitCode === 0) return;
+    await sleep(2_000);
+  }
+  throw new Error('VM de verificação não respondeu');
+}
+
+async function warmupOnce(attempt) {
   let sandbox;
   try {
     await readyTemplate();
     sandbox = await Sandbox.create(pythonTemplate, { networkIsolation: 'ISOLATED', idleTimeoutMinutes: 5 });
-    const probe = await sandbox.exec("if [ \"$(id -u)\" -eq 0 ]; then unshare --net -- setpriv --bounding-set=-all --reuid=nobody --regid=nogroup --clear-groups /usr/bin/env -i HOME=/tmp PATH=/usr/bin:/bin MPLCONFIGDIR=/tmp /opt/ces-python/bin/python -c 'import os, numpy, pandas, scipy, matplotlib, openpyxl, PIL; assert os.getuid() != 0'; else sudo -n unshare --net -- setpriv --bounding-set=-all --reuid=nobody --regid=nogroup --clear-groups /usr/bin/env -i HOME=/tmp PATH=/usr/bin:/bin MPLCONFIGDIR=/tmp /opt/ces-python/bin/python -c 'import os, numpy, pandas, scipy, matplotlib, openpyxl, PIL; assert os.getuid() != 0'; fi", { timeoutSec: 20 });
-    if (probe.exitCode !== 0) throw new Error(`Isolamento Python indisponível: ${probe.stderr.slice(0, 300)}`);
+    await waitForVm(sandbox);
+    const probe = await sandbox.exec("if [ \"$(id -u)\" -eq 0 ]; then unshare --net -- setpriv --bounding-set=-all --reuid=nobody --regid=nogroup --clear-groups /usr/bin/env -i HOME=/tmp PATH=/usr/bin:/bin MPLCONFIGDIR=/tmp /opt/ces-python/bin/python -c 'import os, numpy, pandas, scipy, matplotlib, openpyxl, PIL; assert os.getuid() != 0'; else sudo -n unshare --net -- setpriv --bounding-set=-all --reuid=nobody --regid=nogroup --clear-groups /usr/bin/env -i HOME=/tmp PATH=/usr/bin:/bin MPLCONFIGDIR=/tmp /opt/ces-python/bin/python -c 'import os, numpy, pandas, scipy, matplotlib, openpyxl, PIL; assert os.getuid() != 0'; fi 2>&1", { timeoutSec: 60 });
+    if (probe.exitCode !== 0) {
+      throw new Error(`Isolamento Python indisponível (exit=${probe.exitCode}, timedOut=${probe.timedOut}): ${String(probe.stdout || probe.stderr || '').slice(0, 300)}`);
+    }
     operational = true;
     readinessError = '';
+    console.log(`Interpretador pronto na tentativa ${attempt}`);
   } catch (error) {
     readinessError = error.message;
-    console.error('Falha ao inicializar o interpretador:', readinessError);
+    templateReady = undefined;
+    console.error(`Falha ao inicializar o interpretador (tentativa ${attempt}):`, readinessError);
   } finally {
     if (sandbox) await sandbox.destroy().catch(error => console.error('Falha ao limpar VM de verificação:', error));
   }

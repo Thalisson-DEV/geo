@@ -107,7 +107,7 @@ public class ToolExecutor {
             context.emit(Packet.Types.TOOL_START, "ferramenta", tool.name(), "titulo", tool.displayName(),
                     "tipo", tool.kind().name(), "rotulo", tool.displayName());
             return concluir(run, context, tool, nome, JsonNodeFactory.instance.objectNode(), null,
-                    "Argumentos JSON invalidos para " + nome + ". Envie um objeto JSON valido conforme o schema.", inicio, ciclo, chamada);
+                    erroDeArgumentos(nome, chamada.arguments()), inicio, ciclo, chamada);
         }
         JsonNode exibicao = exibir(tool, argumentos);
         context.emit(Packet.Types.TOOL_START, "ferramenta", tool.name(), "titulo", tool.displayName(),
@@ -270,6 +270,23 @@ public class ToolExecutor {
                 .tag("status", sucesso ? "ok" : "erro")
                 .register(registry)
                 .record(Duration.ofMillis(duracaoMs));
+    }
+
+    /**
+     * Argumentos que nao fecham o objeto JSON quase sempre foram cortados pelo limite de saida da resposta (codigo
+     * Python longo, dados escritos no codigo). Dizer isso ao modelo evita que ele reenvie a mesma chamada.
+     */
+    static String erroDeArgumentos(String nome, String bruto) {
+        String texto = bruto == null ? "" : bruto.strip();
+        boolean cortado = texto.length() > 2_000 && !texto.endsWith("}");
+        if (cortado) {
+            return "Os argumentos de " + nome + " chegaram cortados: a chamada passou do limite de saida de uma resposta "
+                    + "(" + texto.length() + " caracteres). Nao repita a mesma chamada. Encurte: nao escreva dados no "
+                    + "codigo (leia rN.csv), prefira as ferramentas de analise (detectar_anomalias, "
+                    + "detectar_itens_incomuns, analisar_resultado) e exportar_planilha, ou divida o trabalho em "
+                    + "chamadas menores.";
+        }
+        return "Argumentos JSON invalidos para " + nome + ". Envie um objeto JSON valido conforme o schema.";
     }
 
     private JsonNode interpretarArgumentos(String bruto) throws JsonProcessingException {

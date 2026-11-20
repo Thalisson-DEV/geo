@@ -16,7 +16,14 @@ public interface ArquivoAssistenteRepository extends JpaRepository<ArquivoAssist
 
     List<ArquivoAssistente> findByIdInAndUsuarioIdAndAtivoTrue(Collection<UUID> ids, UUID usuarioId);
 
-    List<ArquivoAssistente> findByConversaIdAndAtivoTrueOrderByDataCriacaoAsc(UUID conversaId);
+    /** Metadados leves (sem texto extraido nem dados tabulares) dos arquivos ativos da conversa. */
+    @Query("""
+            select new com.nexo.app.modules.assistente.infrastructure.persistence.ArquivoResumo(
+                a.id, a.codigo, a.conversaId, a.origem, a.nome, a.tipoConteudo, a.categoria, a.tamanhoBytes,
+                a.armazenamento, a.chaveArmazenamento, a.status, a.erro, a.resumoJson, a.dataCriacao)
+            from ArquivoAssistente a where a.conversaId = :conversaId and a.ativo = true order by a.dataCriacao asc
+            """)
+    List<ArquivoResumo> listarResumos(@Param("conversaId") UUID conversaId);
 
     Optional<ArquivoAssistente> findByConversaIdAndCodigoAndAtivoTrue(UUID conversaId, String codigo);
 
