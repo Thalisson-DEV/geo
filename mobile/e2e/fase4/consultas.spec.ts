@@ -1,65 +1,58 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { MockApi, loginPelaUi } from '../support/mock-api';
 
-/** Fase 4 · Telas de consulta do material: pedidos, transferências e saldo, com números em evidência. */
-
-async function pedir(page: Page) {
-  await page.goto('/solicitacoes/nova');
-  await page.getByRole('button', { name: /^Retirar de:/ }).click();
-  await page.getByRole('dialog').getByRole('radio', { name: /Almoxarifado Central/ }).click();
-  await page.getByRole('button', { name: /Continuar/ }).click();
-  await page.getByRole('button', { name: 'Adicionar Cabo concêntrico 10mm' }).click();
-  const qtd = page.getByRole('textbox', { name: 'quantidade de Cabo concêntrico 10mm' });
-  await qtd.fill('12,5');
-  await qtd.press('Enter');
-  await qtd.blur();
-  await page.getByRole('button', { name: /Continuar/ }).click();
-  await page.getByRole('button', { name: 'Enviar pedido' }).click();
-  await expect(page).toHaveURL(/\/solicitacoes$/);
-}
+/** Fase 4 · Telas de consulta do material: transferências e saldo do caminhão, com números em evidência. */
 
 test.describe('consultas de material', () => {
-  test('pedido aparece na lista com contagem e situação; o detalhe mostra a quantidade grande', async ({ page }) => {
-    const api = new MockApi({ perfil: 'CAMPO', turnoAberto: true });
-    await api.install(page);
+  test('transferência aparece na lista com quantidade e situação; o detalhe mostra os itens', async ({ page }) => {
+    await new MockApi({ perfil: 'CAMPO', turnoAberto: true, transferencias: 3 }).install(page);
     await loginPelaUi(page);
-    await pedir(page);
-    // Ao enviar, o id temporário vira o do servidor; abrir antes disso cai em "não encontrado".
-    await expect.poll(() => api.escritasEm('/v1/solicitacoes-material').length).toBe(1);
-    await page.waitForTimeout(800);
-    const linha = page.getByRole('link', { name: /Cabo concêntrico 10mm/ });
+    await page.goto('/transferencias');
+    const linha = page.locator('[data-ancora="tr-0"] a');
     await expect(linha).toBeVisible();
-    await expect(linha.getByText(/^1\s*item$/)).toBeVisible();
+    await expect(linha.getByText(/Para Almoxarifado Central/)).toBeVisible();
+    await expect(linha.getByRole('status')).toBeVisible();
     await linha.click();
-    await expect(page.getByRole('heading', { name: /Materiais pedidos/ })).toBeVisible();
-    await expect(page.getByRole('list', { name: 'Materiais pedidos' }).getByText(/^12,5\s*M$/)).toBeVisible();
+    await expect(page).toHaveURL(/\/transferencias\/tr-0$/);
+    await expect(page.getByText('Cabo concêntrico 10mm')).toBeVisible();
     await expect(page.getByText('Almoxarifado Central')).toBeVisible();
   });
 
-  test('filtro e período da lista de pedidos voltam iguais depois de reabrir', async ({ page, context }) => {
-    await new MockApi({ perfil: 'CAMPO', turnoAberto: true }).install(context);
+  test('filtro e período da lista de transferências voltam iguais depois de reabrir', async ({ page, context }) => {
+    await new MockApi({ perfil: 'CAMPO', turnoAberto: true, transferencias: 5 }).install(context);
     await loginPelaUi(page);
-    await page.goto('/solicitacoes');
-    await page.getByRole('radio', { name: /Entregues/ }).click();
+    await page.goto('/transferencias');
+    await page.getByRole('radio', { name: /Enviadas/ }).click();
     await page.getByRole('button', { name: /Período:/ }).click();
     await page.getByRole('dialog', { name: 'Período' }).getByRole('radio', { name: 'Todo o período' }).click();
     await page.waitForTimeout(450);
     await page.close({ runBeforeUnload: false });
     const reaberta = await context.newPage();
     await reaberta.goto('/?origem=app');
-    await expect(reaberta).toHaveURL(/\/solicitacoes$/);
-    await expect(reaberta.getByRole('radio', { name: /Entregues/ })).toHaveAttribute('aria-checked', 'true');
+    await expect(reaberta).toHaveURL(/\/transferencias$/);
+    await expect(reaberta.getByRole('radio', { name: /Enviadas/ })).toHaveAttribute('aria-checked', 'true');
     await expect(reaberta.getByRole('button', { name: 'Período: Todo o período' })).toBeVisible();
   });
 
-  test('saldo do caminhão mostra quantidade e condição, e filtra por sucata', async ({ page }) => {
+  test('saldo do caminhão mostra quantidade e condição, e busca no saldo', async ({ page }) => {
     await new MockApi({ perfil: 'CAMPO', turnoAberto: true }).install(page);
     await loginPelaUi(page);
-    await page.goto('/solicitacoes/estoque');
+    await page.goto('/material');
+    await page.getByRole('link', { name: /Saldo do caminhão/ }).click();
+    await expect(page).toHaveURL(/\/material\/saldo$/);
     const lista = page.getByRole('list', { name: 'Materiais no caminhão' });
     await expect(lista.getByText('Cabo concêntrico 10mm')).toBeVisible();
     await expect(lista.locator('.geo-qtd').first()).toBeVisible();
     await page.getByRole('searchbox', { name: 'Buscar no saldo' }).fill('zzz-nada');
     await expect(page.getByText('Nada encontrado')).toBeVisible();
+  });
+
+  test('a equipe de campo não tem pedido de material no app', async ({ page }) => {
+    await new MockApi({ perfil: 'CAMPO', turnoAberto: true }).install(page);
+    await loginPelaUi(page);
+    await page.goto('/material');
+    await expect(page.getByRole('link', { name: /Pedir material/ })).toHaveCount(0);
+    await page.goto('/solicitacoes/nova');
+    await expect(page).toHaveURL(/\/hoje$/);
   });
 });

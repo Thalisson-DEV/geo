@@ -211,27 +211,10 @@ export class ConnectivityService {
   (change `execucao-campo-obras`): obras do dia e o próximo passo.
 - Administrativo: almoxarifado, segurança e aprovações, conforme as permissões.
 
-### 7.3 Feature: Solicitações (`/solicitacoes`)
-Gerenciamento de solicitações de material para a equipe.
-
-**Listagem:**
-- Lista paginada de solicitações (local + sync status badge).
-- Filtros: status (Pendente/Sincronizado/Erro/Todos), data.
-- FAB (+) para nova solicitação.
-
-**Criação (wizard multi-step):**
-- Step 1: Selecionar processo/serviço (dados locais do IndexedDB).
-- Step 2: Selecionar materiais e quantidades (estoque local).
-- Step 3: Informações adicionais (observações, município de atendimento).
-- Step 4: Revisão e confirmação.
-- Ao confirmar: grava no IndexedDB + enfileira no outbox.
-
-**Detalhe de solicitação com erro:**
-- Exibir o erro retornado pela API (campo `erroDetalhes`).
-- Permitir **edição e reenvio**.
-- Botão "Descartar" para cancelar a solicitação com erro.
-
-**Consultar `/docs/logistica.md`** para os contratos de endpoint de solicitações de material.
+### 7.3 Feature: Material (`/material`)
+- Saldo do caminhão (`/material/saldo`) e transferências entre estoques (`/transferencias`, com assinatura).
+- **A equipe de campo não pede material**: ele vem da programação dos pontos (Obras) ou de solicitação manual feita no web.
+  O pedido de material saiu do app em 20/11/2026; não o recrie.
 
 ### 7.4 Turno (comum a todas as equipes de campo)
 O lançamento comercial (notas, aba Serviços, `/campo`, meta de faturamento) foi **retirado do app** em 20/11/2026: o app é de
@@ -387,8 +370,10 @@ export const routes: Routes = [
   `npx ng test --watch=false --include <caminho>.spec.ts`.
 - e2e: `npx playwright test e2e/characterization e2e/piloto e2e/fase4 e2e/sw e2e/a11y --project=android` (build antes: `npm run build`).
 - Visual: `npx playwright test e2e/visual` (referências em `e2e/visual/telas.spec.ts-snapshots`).
-- Há 9 falhas de e2e conhecidas e anteriores ao redesign (navegação e turno de caracterização desatualizados; rolagem em
-  `retomada.spec.ts:72`); não as trate como regressão nova.
+- A bateria e2e completa (`npx playwright test e2e/characterization e2e/piloto e2e/fase4 e2e/sw e2e/a11y e2e/visual`) passa
+  inteira em Android e iOS; 4 testes são pulados de propósito no WebKit (service worker e fila com Blob). Qualquer falha é
+  regressão. Os testes de garantias gerais (retomada, sessão sem rede, atualização do SW) usam a transferência como fluxo.
+- Restauração de rolagem: a garantia é o mesmo item no topo (âncora), não o mesmo `scrollTop` em pixels.
 - Build de produção: `npm run build`. Verifique o tamanho do bundle ao adicionar dependência.
 
 ---

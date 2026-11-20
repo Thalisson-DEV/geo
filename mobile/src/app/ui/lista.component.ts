@@ -72,7 +72,7 @@ export class ChipsComponent {
     <geo-folha [aberta]="aberto()" (fechar)="aberto.set(false)" titulo="Período">
       <ul class="geo-grupo opcoes" role="radiogroup" aria-label="Período">
         @for (p of periodos; track p.valor) {
-          <li>
+          <li role="none">
             <button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="valor() === p.valor" (click)="escolher(p.valor)">
               <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ p.rotulo }}</span></span>
               @if (valor() === p.valor) { <geo-icone nome="check" /> }

@@ -50,13 +50,13 @@ test.describe('Garantia de campo: sem login sem rede', () => {
     await semSplash(reaberta);
     await expect(reaberta).toHaveURL(/\/hoje$/);
 
-    await reaberta.goto('/campo/nova');
-    await reaberta.locator('#nota').fill('7770001');
-    await reaberta.getByRole('button', { name: /^Tipo de serviço/ }).click();
-    await reaberta.getByRole('radio', { name: /CORTE/ }).click();
+    // Consegue trabalhar: um fluxo em passos (transferência) segue normalmente, sem ir ao login.
+    await reaberta.goto('/transferencias/nova');
+    await reaberta.getByRole('button', { name: /^Vai para:/ }).click();
+    await reaberta.getByRole('dialog').getByRole('radio', { name: /Almoxarifado Central/ }).click();
     await reaberta.waitForTimeout(2_000);
-    await expect(reaberta).toHaveURL(/\/campo\/nova$/);
-    await expect(reaberta.locator('#nota')).toHaveValue('7770001');
+    await expect(reaberta).toHaveURL(/\/transferencias\/nova$/);
+    await expect(reaberta.getByRole('button', { name: /^Vai para:.*Almoxarifado Central/ })).toBeVisible();
   });
 
   test('a sessão sobrevive a vários dias fechada: reabrir não pede login', async ({ page, context }) => {
@@ -100,9 +100,9 @@ test.describe('Garantia de campo: sem login sem rede', () => {
     await page.close({ runBeforeUnload: false });
 
     const reaberta = await context.newPage();
-    await reaberta.goto('/login?volta=%2Fcampo');
+    await reaberta.goto('/login?volta=%2Fmaterial');
     await semSplash(reaberta);
-    await expect(reaberta).toHaveURL(/\/campo$/);
+    await expect(reaberta).toHaveURL(/\/material$/);
   });
 
   test('ao voltar a internet, renova sozinho e envia o que ficou na fila, sem login', async ({ page, context }) => {
@@ -133,8 +133,8 @@ test.describe('Garantia de campo: sem login sem rede', () => {
 
     await expect(reaberta.getByText('Entre novamente para enviar')).toBeVisible({ timeout: 15_000 });
     await expect(reaberta).toHaveURL(/\/hoje$/);
-    await reaberta.goto('/campo/nova');
-    await expect(reaberta.locator('#nota')).toBeVisible();
+    await reaberta.goto('/transferencias/nova');
+    await expect(reaberta.getByRole('button', { name: /^Vai para:/ })).toBeVisible();
     await expect(reaberta).not.toHaveURL(/\/login/);
   });
 

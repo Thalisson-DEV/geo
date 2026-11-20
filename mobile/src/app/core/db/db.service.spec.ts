@@ -144,51 +144,6 @@ describe('DbService (IndexedDB)', () => {
         });
     });
 
-    describe('Substituição Inteligente de Solicitações (replaceSolicitacoesSincronizadas)', () => {
-        it('should delete local-only synced items but preserve offline pendings', async () => {
-            const hoje = new Date().toISOString();
-
-            // Simula uma solicitação que está PENDENTE no outbox (criada offline)
-            const offlineId = 'sol-offline';
-            await service.saveSolicitacao({ id: offlineId, status: 'PENDENTE', dataSolicitacao: hoje } as any);
-            await service.enqueueOutbox({
-                id: 'out-88',
-                endpoint: '/v1/solicitacoes',
-                payload: { tempId: offlineId },
-                status: 'PENDENTE',
-                method: 'POST',
-                tentativas: 0,
-                criadoEm: new Date()
-            });
-
-            // Simula uma solicitação velha que já estava sincronizada no BD local,
-            // mas que sumiu do servidor (ex: foi excluída ou mudou de filtro)
-            await service.saveSolicitacao({ id: 'sol-velha', status: 'APROVADO', dataSolicitacao: hoje } as any);
-
-            // Simula o retorno do servidor com UMA NOVA solicitação (que nunca vimos)
-            const novasSincronizadas = [
-                { id: 'sol-nova-servidor', status: 'ATENDIDO', dataSolicitacao: hoje }
-            ];
-
-            // Executa a substituição inteligente
-            await service.replaceSolicitacoesSincronizadas(novasSincronizadas as any);
-
-            const todasLocal = await service.getSolicitacoes();
-
-            // Validações:
-            expect(todasLocal.length).toBe(2);
-
-            // A velha sumiu?
-            expect(todasLocal.find(s => s.id === 'sol-velha')).toBeUndefined();
-
-            // A nova do servidor entrou?
-            expect(todasLocal.find(s => s.id === 'sol-nova-servidor')).toBeTruthy();
-
-            // A pendente offline sobreviveu à limpeza atômica?
-            expect(todasLocal.find(s => s.id === offlineId)).toBeTruthy();
-        });
-    });
-
     describe('Substituição Inteligente de Transferências (replaceTransferenciasSincronizadas)', () => {
         it('deve preservar assinaturas digitais coletadas localmente ao sincronizar com servidor', async () => {
             const hoje = new Date().toISOString();

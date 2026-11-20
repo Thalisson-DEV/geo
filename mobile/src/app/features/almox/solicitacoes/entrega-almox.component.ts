@@ -146,7 +146,7 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
                   <h3 class="geo-secao">Membros da equipe</h3>
                   <ul class="geo-grupo" role="radiogroup" aria-label="Quem retira">
                     @for (m of membros(); track m.valor) {
-                      <li><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="responsavel() === m.valor" (click)="responsavel.set(m.valor)">
+                      <li role="none"><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="responsavel() === m.valor" (click)="responsavel.set(m.valor)">
                         <span class="geo-selo" [class.geo-selo--destaque]="responsavel() === m.valor"><geo-icone nome="conta" /></span>
                         <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ m.rotulo }}</span></span>
                         @if (responsavel() === m.valor) { <geo-icone nome="check" /> }
@@ -210,16 +210,16 @@ const PASSOS = ['Materiais', 'Quem retira', 'Assinaturas', 'Conferir'];
           <input type="search" placeholder="Buscar ou digitar a série" enterkeyhint="search" aria-label="Buscar série" [value]="buscaSerie()" (input)="buscaSerie.set($any($event.target).value)"></div>
         <ul class="geo-grupo lista" role="radiogroup" [attr.aria-label]="'Séries de ' + it.descricao">
           @if (it.serie) {
-            <li><button type="button" class="geo-linha geo-linha--acao" (click)="definirSerie(serieDe()!, '')"><span class="geo-selo"><geo-icone nome="fechar" /></span>
+            <li role="none"><button type="button" class="geo-linha geo-linha--acao" (click)="definirSerie(serieDe()!, '')"><span class="geo-selo"><geo-icone nome="fechar" /></span>
               <span class="geo-linha__texto"><span class="geo-linha__titulo">Não entregar agora</span></span></button></li>
           }
           @for (s of seriesFiltradas(); track s) {
-            <li><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="it.serie === s" (click)="definirSerie(serieDe()!, s)">
+            <li role="none"><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="it.serie === s" (click)="definirSerie(serieDe()!, s)">
               <span class="geo-linha__texto"><span class="geo-linha__titulo mono">{{ s }}</span></span>
               @if (it.serie === s) { <geo-icone nome="check" /> }
             </button></li>
           } @empty {
-            <li><div class="geo-linha"><span class="geo-linha__apoio">{{ buscaSerie() ? 'Nenhuma série com esse trecho na origem' : 'Nenhuma série nova disponível na origem' }}</span></div></li>
+            <li role="none"><div class="geo-linha"><span class="geo-linha__apoio">{{ buscaSerie() ? 'Nenhuma série com esse trecho na origem' : 'Nenhuma série nova disponível na origem' }}</span></div></li>
           }
         </ul>
       }

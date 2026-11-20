@@ -52,13 +52,13 @@ O app SHALL registrar atividade em obra não programada buscando a obra pelo nú
 - **WHEN** a equipe atua na obra 1277970 sem programação
 - **THEN** a atividade é registrada como obra não programada no turno
 
-### Requirement: Material complementar
-O app SHALL permitir solicitar material complementar a partir do serviço do dia, gerando solicitação técnica vinculada à obra e à
-programação.
+### Requirement: Material previsto, sem pedido no app
+O app SHALL mostrar, para cada serviço do dia, o material previsto pela programação dos pontos (ou pela solicitação manual
+feita no web) e o que falta no estoque da equipe; o app MUST NOT oferecer pedido de material à equipe de campo.
 
-#### Scenario: Pedir material em campo
-- **WHEN** o encarregado solicita 2 cruzetas a partir da programação do dia
-- **THEN** a solicitação técnica é criada após a sincronização, vinculada à obra e à programação
+#### Scenario: Falta material no caminhão
+- **WHEN** a programação do dia prevê 4 cruzetas e o caminhão tem 2
+- **THEN** a ficha da obra mostra "faltam 2 cruzetas" e a equipe pode registrar ocorrência de material, sem pedir pelo app
 
 ### Requirement: As Built e equipamentos no campo
 O app SHALL preencher a ficha As Built do ponto a partir do que foi marcado como feito e registrar equipamentos com leitura de série

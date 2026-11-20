@@ -24,8 +24,8 @@
 ## 2. Migração das telas existentes (em paralelo por módulo)
 
 - [ ] 2.1 Login, Hoje e Conta
-- [x] ~~2.2 Serviços (notas comerciais)~~ — fluxo comercial retirado do app em 20/11/2026 (telas, serviços, sincronização das notas, ações comerciais, tipos de serviço e meta de faturamento; banco local v12 apaga as tabelas). O turno fica (Obras usa). Pendente: refazer no pedido de material os testes e2e de garantias gerais que usavam a nota como veículo (retomada, sessão sem rede, atualização do service worker, a11y)
-- [ ] 2.3 Material, solicitações e transferências
+- [x] ~~2.2 Serviços (notas comerciais)~~ — fluxo comercial retirado do app em 20/11/2026 (telas, serviços, sincronização das notas, ações comerciais, tipos de serviço e meta de faturamento; banco local v12 apaga as tabelas). O turno fica (Obras usa). Pedido de material também retirado (a equipe não pede material). Testes e2e refeitos na transferência; bateria completa verde em Android e iOS, incluindo as 8 falhas antigas (eram defeito real: catálogo de checklist sem `veiculos` quebrava a abertura do turno)
+- [ ] 2.3 Material (saldo do caminhão) e transferências
 - [ ] 2.4 Frota: checklist, abastecimento, situação e documentos do veículo
 - [ ] 2.5 Segurança: inspeções e desvios
 - [ ] 2.6 Almoxarifado e Encerramento

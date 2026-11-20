@@ -16,7 +16,7 @@ test.use({
   permissions: ['geolocation'],
 });
 
-test('modo avião + token vencido: reabre o app instalado direto, sem login, e abre o lançamento', async ({ page, context, request }) => {
+test('modo avião + token vencido: reabre o app instalado direto, sem login, e abre um fluxo de lançamento', async ({ page, context, request }) => {
   test.setTimeout(90_000);
   await request.get('/__versao/v1');
   const api = new MockApi({ perfil: 'CAMPO', turnoAberto: true });
@@ -43,9 +43,10 @@ test('modo avião + token vencido: reabre o app instalado direto, sem login, e a
   await expect(reaberta.locator('app-splash-screen > div')).toHaveCount(0, { timeout: 15_000 });
 
   await expect(reaberta).toHaveURL(/\/hoje$/);
-  await reaberta.goto('/campo/nova');
-  await expect(reaberta.locator('#nota')).toBeVisible();
-  await reaberta.locator('#nota').fill('8880001');
+  await reaberta.goto('/transferencias/nova');
+  await expect(reaberta.getByRole('button', { name: /^Vai para:/ })).toBeVisible();
+  await reaberta.getByRole('button', { name: /^Vai para:/ }).click();
+  await reaberta.getByRole('dialog').getByRole('radio', { name: /Almoxarifado Central/ }).click();
   await expect(reaberta).not.toHaveURL(/\/login/);
 
   await context.setOffline(false);

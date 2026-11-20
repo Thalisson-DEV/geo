@@ -13,7 +13,6 @@ import {
   ProcessoLocal,
   SaldoLocal,
   SaldoSerieLocal,
-  SolicitacaoLocal,
   TransferenciaLocal,
   TurnoLocal,
   OutboxItem,
@@ -155,13 +154,6 @@ export class DbService {
   async getUltimoTurno(): Promise<TurnoLocal | undefined> {
     const turnos = await db.turnos.toArray();
     return turnos.sort((a, b) => b.dataInicio.localeCompare(a.dataInicio))[0];
-  }
-
-  async countSolicitacoesHoje(): Promise<number> {
-    const today = new Date().toISOString().split('T')[0];
-    return db.solicitacoes
-      .filter(s => !!s.dataSolicitacao && s.dataSolicitacao.startsWith(today))
-      .count();
   }
 
   async countInspecoesHoje(): Promise<number> {
@@ -491,52 +483,6 @@ export class DbService {
       .toArray();
   }
 
-  // Solicitacoes
-  async getSolicitacoes(): Promise<SolicitacaoLocal[]> {
-    return db.solicitacoes
-      .orderBy('dataSolicitacao')
-      .reverse()
-      .toArray();
-  }
-
-  async getSolicitacaoById(id: string): Promise<SolicitacaoLocal | undefined> {
-    return db.solicitacoes.get(id);
-  }
-
-  async saveSolicitacao(solicitacao: SolicitacaoLocal): Promise<void> {
-    await db.solicitacoes.put(solicitacao);
-  }
-
-  async deleteSolicitacao(id: string): Promise<void> {
-    await db.solicitacoes.delete(id);
-  }
-
-  /**
-   * Substitui as solicitações sincronizadas pelo servidor, preservando as pendentes no outbox.
-   */
-  async replaceSolicitacoesSincronizadas(novas: SolicitacaoLocal[]): Promise<void> {
-    await db.transaction('rw', [db.solicitacoes, db.outbox], async () => {
-      const outbox = await db.outbox.toArray();
-      const pendingIds = new Set(
-        outbox
-          .filter(o => o.status !== 'SINCRONIZADO' && (o.endpoint?.includes('solicitacoes') || o.payload?.tempId))
-          .map(o => o.payload?.id || o.payload?.tempId)
-          .filter(Boolean)
-      );
-      const serverIds = new Set(novas.map(s => s.id));
-
-      const allLocal = await db.solicitacoes.toArray();
-      const toDelete = allLocal
-        .filter(s => s.status !== 'PENDENTE' && !pendingIds.has(s.id) && !serverIds.has(s.id))
-        .map(s => s.id);
-
-      if (toDelete.length > 0) {
-        await db.solicitacoes.bulkDelete(toDelete);
-      }
-      await db.solicitacoes.bulkPut(novas);
-    });
-  }
-
   // Transferencias
   async getTransferencias(): Promise<TransferenciaLocal[]> {
     return db.transferencias
@@ -610,17 +556,6 @@ export class DbService {
 
       await db.transferencias.bulkPut(mergedNovas);
     });
-  }
-
-  // Outbox lookup helper
-  async getOutboxItemBySolicitacaoId(solicitacaoId: string): Promise<OutboxItem | undefined> {
-    // Busca um item que tenha o id da solicitação no payload (seja id real ou tempId)
-    return db.outbox
-      .filter(item =>
-        item.payload?.id === solicitacaoId ||
-        item.payload?.tempId === solicitacaoId
-      )
-      .first();
   }
 
   async getOutboxItemByTransferenciaId(transferenciaId: string): Promise<OutboxItem | undefined> {

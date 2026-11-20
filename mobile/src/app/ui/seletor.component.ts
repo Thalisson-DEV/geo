@@ -40,7 +40,8 @@ export interface OpcaoSeletor {
       }
       <ul class="geo-grupo lista" [attr.role]="multiplo() ? 'group' : 'radiogroup'" [attr.aria-label]="rotulo()">
         @for (o of filtradas(); track o.valor) {
-          <li>
+          <!-- role="none": a lista é um grupo de opções (radiogroup/group); o li é só estrutura. -->
+          <li role="none">
             <button type="button" class="geo-linha geo-linha--acao" [attr.role]="multiplo() ? 'checkbox' : 'radio'"
               [attr.aria-checked]="marcado(o.valor)" [disabled]="o.desabilitado" (click)="escolher(o)">
               @if (multiplo()) {
@@ -54,7 +55,7 @@ export interface OpcaoSeletor {
             </button>
           </li>
         } @empty {
-          <li><div class="geo-linha"><span class="geo-linha__apoio">Nada encontrado</span></div></li>
+          <li role="none"><div class="geo-linha"><span class="geo-linha__apoio">Nada encontrado</span></div></li>
         }
       </ul>
       @if (multiplo()) {

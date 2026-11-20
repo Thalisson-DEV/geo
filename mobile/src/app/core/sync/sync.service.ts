@@ -23,7 +23,6 @@ import {
   SaldoLocal,
   SaldoSerieLocal,
   ProcessoLocal,
-  SolicitacaoLocal,
   TransferenciaLocal,
   OutboxItem,
   InspecaoLocal,
@@ -794,7 +793,7 @@ export class SyncService {
             } else {
               const response = await firstValueFrom(
                 this.http.request<any>(item.method, `${this.baseUrl}${item.endpoint}`, {
-                  body: (item.endpoint === '/v1/solicitacoes-material' || item.endpoint === '/v1/movimentacoes-estoque/transferencia') && item.payload?.tempId
+                  body: item.endpoint === '/v1/movimentacoes-estoque/transferencia' && item.payload?.tempId
                     ? (({ tempId: _tempId, ...request }) => request)(item.payload)
                     : item.payload,
                   ...this.opcoesDeEscrita(item.id)
@@ -810,21 +809,6 @@ export class SyncService {
                   operationId: receiptId,
                   status: response.receiptStatus ?? 'RECEIVED'
                 });
-              }
-
-              // Se for uma solicitação de material, atualizar o registro local com o ID real
-              if ((item.endpoint === '/v1/solicitacoes-material' || item.endpoint === '/v1/solicitacoes') && item.payload?.tempId) {
-                const localSol = await this.dbService.getSolicitacaoById(item.payload.tempId);
-                if (localSol) {
-                  const realId = typeof response === 'string' ? response : (response?.id || response?.idReferenciaOperacao || localSol.id);
-                  await this.dbService.deleteSolicitacao(item.payload.tempId);
-                  registrarIdTrocado(item.payload.tempId, realId);
-                  await this.dbService.saveSolicitacao({
-                    ...localSol,
-                    id: realId,
-                    status: response?.status || 'PENDENTE'
-                  });
-                }
               }
 
               // Se for uma transferência, atualizar o registro local
@@ -958,67 +942,6 @@ export class SyncService {
 
     this.agendarRetomadaSemRede(falhouPorRede);
     return { sincronizados, erros, falhas: [] };
-  }
-
-  /**
-   * Sincroniza o status das solicitações do encarregado com o backend.
-   */
-  async syncSolicitacoes(): Promise<void> {
-    const idUsuario = this.tokenService.usuarioId();
-    if (!idUsuario) return;
-
-    // Busca solicitações criadas pelo usuário logado.
-    // Erros propagam de propósito: quem chama (`pullParcialData`) consolida a
-    // falha para que ela apareça ao usuário em vez de sumir no console.
-    const data = await this.fetchAllPages<any>(`${this.baseUrl}/v1/solicitacoes-material`, { idRequisitante: idUsuario });
-
-    const locais: SolicitacaoLocal[] = [];
-    for (const item of data) {
-      // Busca o detalhamento completo de cada solicitação para garantir que temos todos os dados dos materiais.
-      // Uma solicitação individual inacessível não pode invalidar o histórico inteiro.
-      let fullSolicitacao: any;
-      try {
-        fullSolicitacao = await firstValueFrom(
-          this.http.get<any>(`${this.baseUrl}/v1/solicitacoes-material/${item.id}`, this.silentOpts)
-        );
-      } catch (error) {
-        console.warn(`[Sync] Detalhe da solicitação ${item.id} indisponível; item ignorado.`, error);
-        continue;
-      }
-
-      const local: SolicitacaoLocal = {
-        id: fullSolicitacao.id,
-        idEstoqueOrigem: fullSolicitacao.estoqueOrigem?.id,
-        idEstoqueDestino: fullSolicitacao.estoqueDestino?.id,
-        idEquipe: fullSolicitacao.idEquipe,
-        dataPrevista: fullSolicitacao.dataPrevista,
-        idColaboradorSaque: fullSolicitacao.idColaboradorSaque,
-        saqueForaEquipe: fullSolicitacao.saqueForaEquipe,
-        idRequisitante: fullSolicitacao.idRequisitante,
-        status: fullSolicitacao.status,
-        dataSolicitacao: fullSolicitacao.dataSolicitacao,
-        itens: (fullSolicitacao.itens || []).map((i: any) => ({
-          idMaterial: i.material?.id,
-          quantidade: i.quantidade
-        })),
-        motivoRejeicao: fullSolicitacao.motivoRejeicao ? {
-          nome: fullSolicitacao.motivoRejeicao.nome,
-          descricao: fullSolicitacao.motivoRejeicao.descricao
-        } : undefined,
-        justificativaRejeicao: fullSolicitacao.justificativaRejeicao
-      };
-
-      locais.push(local);
-    }
-
-    // Se o servidor listou solicitações mas nenhum detalhe pôde ser lido, gravar
-    // a lista vazia apagaria o histórico já cacheado. Falha explicitamente para
-    // que a etapa seja reportada e o cache local permaneça intacto.
-    if (data.length > 0 && locais.length === 0) {
-      throw new Error('Não foi possível carregar o detalhamento das solicitações de material.');
-    }
-
-    await this.dbService.replaceSolicitacoesSincronizadas(locais);
   }
 
   private async syncMunicipios(): Promise<void> {
@@ -1167,7 +1090,6 @@ export class SyncService {
       if (incluirCatalogoMateriais) {
         etapas.push({ nome: 'Catálogo de materiais', exec: () => this.syncMateriais() });
       }
-      etapas.push({ nome: 'Solicitações de material', exec: () => this.syncSolicitacoes() });
       etapas.push({ nome: 'Transferências', exec: () => this.syncTransferencias() });
     }
 

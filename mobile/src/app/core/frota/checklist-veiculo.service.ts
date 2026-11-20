@@ -46,16 +46,16 @@ export class ChecklistVeiculoService {
 
   /** Etapa da sincronização: baixa o catálogo e guarda no aparelho. */
   async sincronizarCatalogo(): Promise<void> {
-    const catalogo = await firstValueFrom(
-      this.http.get<CatalogoChecklist>(`${this.baseUrl}/v1/frota/app/checklist/catalogo`, { context: silentContext() })
-    );
+    const catalogo = normalizarCatalogo(await firstValueFrom(
+      this.http.get<Partial<CatalogoChecklist>>(`${this.baseUrl}/v1/frota/app/checklist/catalogo`, { context: silentContext() })
+    ));
     await db.config.put({ key: CHAVE_CATALOGO, value: catalogo });
     this.catalogo.set(catalogo);
   }
 
   async carregarCatalogoLocal(): Promise<CatalogoChecklist | null> {
     const salvo = await db.config.get(CHAVE_CATALOGO);
-    const catalogo = (salvo?.value as CatalogoChecklist | undefined) ?? null;
+    const catalogo = salvo?.value ? normalizarCatalogo(salvo.value as Partial<CatalogoChecklist>) : null;
     this.catalogo.set(catalogo);
     return catalogo;
   }
@@ -281,4 +281,18 @@ export class ChecklistVeiculoService {
 function detalhe(erro: unknown): string {
   const e = erro as { detail?: string; error?: { detail?: string }; message?: string } | null;
   return e?.detail ?? e?.error?.detail ?? 'O servidor recusou o checklist.';
+}
+
+/**
+ * Catálogo sempre com as listas presentes: resposta parcial (ou de uma versão antiga do servidor) não pode
+ * quebrar a abertura do turno, que lê `veiculos` para saber se o veículo exige checklist.
+ */
+export function normalizarCatalogo(c: Partial<CatalogoChecklist> | null | undefined): CatalogoChecklist {
+  return {
+    geradoEm: c?.geradoEm ?? new Date(0).toISOString(),
+    modelos: c?.modelos ?? [],
+    veiculos: c?.veiculos ?? [],
+    condutores: c?.condutores ?? [],
+    liberacoesCnh: c?.liberacoesCnh ?? [],
+  };
 }

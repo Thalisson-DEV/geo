@@ -65,14 +65,15 @@ test('versão nova no meio do lançamento: não interrompe, entra no segundo pla
   await page.reload(); // passa a ser controlada pelo SW
   await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
 
-  // Lançamento em andamento.
-  await page.goto('/campo/nova');
-  await page.locator('#nota').fill('6060606');
-  await page.getByRole('button', { name: /^Tipo de serviço/ }).click();
-  await page.getByRole('radio', { name: /CORTE/ }).click();
-  await expect(page.getByText('Local registrado')).toBeVisible();
+  // Lançamento em andamento (transferência no passo dos itens, com 2 m de cabo).
+  await page.goto('/transferencias/nova');
+  await page.getByRole('button', { name: /^Vai para:/ }).click();
+  await page.getByRole('dialog').getByRole('radio', { name: /Almoxarifado Central/ }).click();
   await page.getByRole('button', { name: /Continuar/ }).click();
-  await page.getByRole('button', { name: /Religação/ }).click();
+  await page.getByRole('button', { name: 'Adicionar Cabo concêntrico 10mm' }).click();
+  await page.getByRole('button', { name: 'Aumentar quantidade de Cabo concêntrico 10mm' }).click();
+  const qtd = page.getByRole('textbox', { name: 'quantidade de Cabo concêntrico 10mm' });
+  await expect(qtd).toHaveValue('2');
   await page.waitForTimeout(450);
   await page.evaluate(() => ((window as unknown as { __semRecarregar: boolean }).__semRecarregar = true));
 
@@ -83,14 +84,13 @@ test('versão nova no meio do lançamento: não interrompe, entra no segundo pla
 
   // A tela NÃO recarregou e o trabalho segue na frente do usuário.
   expect(await page.evaluate(() => (window as unknown as { __semRecarregar?: boolean }).__semRecarregar)).toBe(true);
-  await expect(page.getByRole('button', { name: /Religação/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(qtd).toHaveValue('2');
 
   // App vai para segundo plano: a versão nova entra e a tela volta igual.
   await irParaSegundoPlano(page);
   await page.waitForFunction(() => !(window as unknown as { __semRecarregar?: boolean }).__semRecarregar, null, { timeout: 30_000 });
-  await expect(page).toHaveURL(/\/campo\/nova$/);
-  await expect(page.getByText(/Serviços · 2 de 4/)).toBeVisible();
-  await expect(page.getByRole('button', { name: /Religação/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).toHaveURL(/\/transferencias\/nova$/);
+  await expect(page.getByRole('textbox', { name: 'quantidade de Cabo concêntrico 10mm' })).toHaveValue('2');
   expect(await mainContemMarca(page)).toBe(true);
 
   // Rollback: redeploy da versão 1.
@@ -100,8 +100,7 @@ test('versão nova no meio do lançamento: não interrompe, entra no segundo pla
   await expect.poll(async () => (await eventosAtualizacao(page)).filter(e => e === 'pronta').length, { timeout: 30_000 }).toBe(2);
   await irParaSegundoPlano(page);
   await page.waitForFunction(() => !(window as unknown as { __semRecarregar?: boolean }).__semRecarregar, null, { timeout: 30_000 });
-  await expect(page.getByText(/Serviços · 2 de 4/)).toBeVisible();
-  await expect(page.getByRole('button', { name: /Religação/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('textbox', { name: 'quantidade de Cabo concêntrico 10mm' })).toHaveValue('2');
   expect(await mainContemMarca(page)).toBe(false);
 
   // O banco principal (fila de envio) continua na versão do build antigo: Dexie vN = IndexedDB N*10.

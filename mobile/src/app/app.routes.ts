@@ -47,9 +47,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/material/material.component').then(m => m.MaterialComponent)
       },
       {
-        path: 'solicitacoes',
+        // Saldo do caminhão (a equipe de campo não pede material: ele vem da programação ou de solicitação manual).
+        path: 'material/saldo',
         canMatch: [logisticaGuard],
-        loadChildren: () => import('./features/solicitacoes/solicitacoes.routes').then(m => m.SOLICITACOES_ROUTES)
+        loadComponent: () => import('./features/material/saldo/estoque-list.component').then(m => m.EstoqueListComponent)
       },
       {
         path: 'transferencias',

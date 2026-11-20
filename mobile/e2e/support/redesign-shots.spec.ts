@@ -35,7 +35,7 @@ for (const [aparelho, viewport] of Object.entries(APARELHOS)) {
       }
 
       async function entrar(page: Page, perfil: Perfil) {
-        await new MockApi({ perfil, turnoAberto: true, historico: 12 }).install(page);
+        await new MockApi({ perfil, turnoAberto: true, transferencias: 12 }).install(page);
         await page.goto('/login');
         await expect(page.locator('#login')).toBeVisible({ timeout: 15_000 });
         await page.waitForTimeout(300);

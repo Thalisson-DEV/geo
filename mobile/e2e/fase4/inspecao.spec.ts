@@ -150,9 +150,9 @@ test.describe('inspeção com fotos', () => {
     expect(api.escritasEm('/v1/sst/inspecoes')).toHaveLength(0);
 
     api.offline = false;
+    // Só a volta da rede (o Chromium dispara o evento real). Um "offline" artificial aqui derrubava o envio
+    // que acabou de começar e virava "resultado incerto" — uma queda de verdade no meio do envio, outro cenário.
     await context.setOffline(false);
-    await page.evaluate(() => { window.dispatchEvent(new Event('offline')); });
-    await page.waitForTimeout(300);
     await page.evaluate(() => { window.dispatchEvent(new Event('online')); });
     await expect.poll(() => api.escritasEm('/v1/sst/inspecoes').length, { timeout: 45_000 }).toBe(1);
     await page.waitForTimeout(1500);

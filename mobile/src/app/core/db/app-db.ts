@@ -11,7 +11,6 @@ import {
   SaldoLocal,
   SaldoSerieLocal,
   ProcessoLocal,
-  SolicitacaoLocal,
   TransferenciaLocal,
   TurnoLocal,
   OutboxItem,
@@ -35,7 +34,6 @@ export class AppDatabase extends Dexie {
   processos!: Table<ProcessoLocal>;
   
   // Tabelas de operação offline
-  solicitacoes!: Table<SolicitacaoLocal>;
   transferencias!: Table<TransferenciaLocal>;
   turnos!: Table<TurnoLocal>;
   inspecoes!: Table<InspecaoLocal>;
@@ -64,7 +62,8 @@ export class AppDatabase extends Dexie {
       // v12: o fluxo comercial (notas, ações, tipos de serviço) saiu do app.
       acoes: null,
       tiposServico: null,
-      solicitacoes: 'id, status, idRequisitante, dataSolicitacao',
+      // v13: a equipe de campo não pede material (vem da programação ou de solicitação manual).
+      solicitacoes: null,
       transferencias: 'id, idEstoqueOrigem, idEstoqueDestino, dataTransferencia, statusSync',
       execucoesCampo: null,
       turnos: 'id, idEquipe, status',

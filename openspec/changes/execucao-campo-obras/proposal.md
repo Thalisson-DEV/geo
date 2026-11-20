@@ -29,7 +29,7 @@ Depende da change `identidade-visual-app-campo` (base técnica, shell e componen
   hora gravados automaticamente.
 - Fotos pela lista do modelo (antes/durante/depois) com carimbo de obra, ponto, data e GPS; foto faltando **avisa e vira
   pendência**, sem bloquear.
-- Ocorrências tipadas com foto, obra não programada, pedido de material complementar ligado à programação, ficha As Built e
+- Ocorrências tipadas com foto (inclusive falta de material), obra não programada, ficha As Built e
   equipamentos com leitura de série/QR.
 - Avisos de reprogramação/cancelamento (Web Push com o app instalado e, sempre, ao abrir o app).
 
@@ -50,6 +50,9 @@ Depende da change `identidade-visual-app-campo` (base técnica, shell e componen
 - Revisão de fotos (aprovar/reprovar com motivo), inconformidades, ranking de qualidade por equipe; relatório detalhado só com
   fotos aprovadas.
 - Status em tempo real das equipes; aviso de obra sem coordenada/endereço na programação.
+
+**Fora do app de campo**: a equipe não solicita material. O material vem da programação dos pontos (kits) ou de solicitação
+manual feita pelo web; o app mostra o previsto e o que falta no caminhão.
 
 **Fica para etapas futuras**
 - Empacotamento nativo (Capacitor) — só para Android e só se o PWA mostrar problema real.
@@ -75,6 +78,6 @@ Depende da change `identidade-visual-app-campo` (base técnica, shell e componen
 - App `mobile/`: perfil e abas de Obras, novas tabelas offline (programações, obras, planejamento, APR, ocorrências,
   apontamentos, evidências), armazenamento de PDFs/fotos em arquivo, notificações.
 - Backend: módulo `obras` (comandos idempotentes, pacote da equipe, ponto inteiro, chegada/saída, endereço, desligamento), módulo
-  `sincronizacao` (tipos e adaptadores de Obras), `estoque` (`idProgramacao` na solicitação técnica), IAM (perfil da equipe).
+  `sincronizacao` (tipos e adaptadores de Obras), IAM (perfil da equipe).
 - Web: revisão de fotos, ranking, status de equipe, avisos de cadastro na programação.
 - Pré-requisitos: `evoluir-processo-obras` (frentes A–D) e `identidade-visual-app-campo` (fundação e shell).

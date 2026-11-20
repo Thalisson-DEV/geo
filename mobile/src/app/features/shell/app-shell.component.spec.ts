@@ -87,7 +87,7 @@ describe('AppShellComponent', () => {
 
   it('Material também fica ativa em pedidos e transferências', () => {
     const material = criar().abas().find(a => a.rota === '/material');
-    expect(material?.ativaEm).toEqual(['/solicitacoes', '/transferencias']);
+    expect(material?.ativaEm).toEqual(['/transferencias']);
   });
 
   it('Frota fica ativa no checklist e no abastecimento, em todos os perfis', () => {

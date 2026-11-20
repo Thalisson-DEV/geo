@@ -41,11 +41,11 @@ test.describe('sessão encerrada no servidor', () => {
     await api.install(page);
     await loginPelaUi(page);
 
-    await page.goto('/campo/nova');
-    await page.locator('#nota').fill('9990001');
-
-    await page.getByRole('button', { name: /^Tipo de serviço/ }).click();
-    await page.getByRole('radio', { name: /CORTE/ }).click();
+    // Um fluxo em passos qualquer: a transferência de material.
+    await page.goto('/transferencias/nova');
+    await page.getByRole('button', { name: /^Vai para:/ }).click();
+    await page.getByRole('dialog').getByRole('radio', { name: /Almoxarifado Central/ }).click();
+    await expect(page.getByRole('button', { name: /^Vai para:.*Almoxarifado Central/ })).toBeVisible();
     // A sessão acabou no servidor enquanto o app estava em segundo plano.
     // A volta da rede dispara a sincronização automática, que recebe 401 e não consegue renovar.
     api.sessaoExpirada = true;
@@ -58,14 +58,14 @@ test.describe('sessão encerrada no servidor', () => {
 
     // NÃO sai da tela: em campo o login não funcionaria sem sinal. Avisa e deixa seguir.
     await expect(page.getByText('Entre novamente para enviar')).toBeVisible({ timeout: 15_000 });
-    await expect(page).toHaveURL(/\/campo\/nova$/);
+    await expect(page).toHaveURL(/\/transferencias\/nova$/);
     await page.getByRole('button', { name: 'Entrar', exact: true }).click();
-    await expect(page).toHaveURL(/\/login\?volta=%2Fcampo%2Fnova$/, { timeout: 15_000 });
+    await expect(page).toHaveURL(/\/login\?volta=%2Ftransferencias%2Fnova$/, { timeout: 15_000 });
     await page.locator('#login').fill('encarregado');
     await page.locator('#senha').fill('senha-secreta');
     await page.getByRole('button', { name: 'Entrar' }).click();
 
     // Mesma conta e dados já no aparelho: sem tela de carga, direto para onde estava.
-    await expect(page).toHaveURL(/\/campo\/nova$/, { timeout: 20_000 });
+    await expect(page).toHaveURL(/\/transferencias\/nova$/, { timeout: 20_000 });
   });
 });

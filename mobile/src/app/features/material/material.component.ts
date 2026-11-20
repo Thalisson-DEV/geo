@@ -7,8 +7,8 @@ import { DbService } from '../../core/db/db.service';
 import { DIAS_PARADO, diasDesde } from '../../core/saldo/tempo-saldo';
 
 /**
- * Aba Material: pedidos, transferências e saldo do caminhão são o mesmo assunto
- * para o encarregado, então ficam num destino só.
+ * Aba Material: saldo do caminhão e transferências. A equipe de campo não pede material:
+ * ele vem da programação dos pontos ou de solicitação manual feita no web.
  */
 @Component({
   selector: 'app-material',
@@ -16,17 +16,12 @@ import { DIAS_PARADO, diasDesde } from '../../core/saldo/tempo-saldo';
   imports: [RouterLink, TituloGrandeComponent, IconeComponent, IndicadorRedeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <geo-titulo-grande titulo="Material" subtitulo="Pedidos, transferências e saldo">
+    <geo-titulo-grande titulo="Material" subtitulo="Saldo do caminhão e transferências">
       <geo-indicador-rede />
     </geo-titulo-grande>
 
     <h2 class="geo-secao">Novo</h2>
     <ul class="geo-grupo">
-      <li><a class="geo-linha geo-linha--acao" routerLink="/solicitacoes/nova">
-        <span class="geo-selo geo-selo--destaque"><geo-icone nome="documento" /></span>
-        <span class="geo-linha__texto"><span class="geo-linha__titulo">Pedir material</span>
-          <span class="geo-linha__apoio">Do almoxarifado para o caminhão</span></span>
-        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
       <li><a class="geo-linha geo-linha--acao" routerLink="/transferencias/nova">
         <span class="geo-selo geo-selo--destaque"><geo-icone nome="transferencia" /></span>
         <span class="geo-linha__texto"><span class="geo-linha__titulo">Transferir</span>
@@ -36,17 +31,12 @@ import { DIAS_PARADO, diasDesde } from '../../core/saldo/tempo-saldo';
 
     <h2 class="geo-secao">Consultar</h2>
     <ul class="geo-grupo">
-      <li><a class="geo-linha geo-linha--acao" routerLink="/solicitacoes">
-        <span class="geo-selo"><geo-icone nome="documento" /></span>
-        <span class="geo-linha__texto"><span class="geo-linha__titulo">Meus pedidos</span>
-          <span class="geo-linha__apoio geo-num">{{ pendentes() ? pendentes() + ' aguardando aprovação' : 'Situação de cada pedido' }}</span></span>
-        <geo-icone nome="avancar" [tamanho]="18" /></a></li>
       <li><a class="geo-linha geo-linha--acao" routerLink="/transferencias">
         <span class="geo-selo"><geo-icone nome="transferencia" /></span>
         <span class="geo-linha__texto"><span class="geo-linha__titulo">Transferências</span>
           <span class="geo-linha__apoio">Feitas por este aparelho</span></span>
         <geo-icone nome="avancar" [tamanho]="18" /></a></li>
-      <li><a class="geo-linha geo-linha--acao" routerLink="/solicitacoes/estoque">
+      <li><a class="geo-linha geo-linha--acao" routerLink="/material/saldo">
         <span class="geo-selo"><geo-icone nome="caminhao" /></span>
         <span class="geo-linha__texto"><span class="geo-linha__titulo">Saldo do caminhão</span>
           <span class="geo-linha__apoio geo-num">{{ itensSaldo() }} {{ itensSaldo() === 1 ? 'material' : 'materiais' }} com saldo
@@ -58,7 +48,6 @@ import { DIAS_PARADO, diasDesde } from '../../core/saldo/tempo-saldo';
 })
 export class MaterialComponent implements OnInit {
   private readonly tokens = inject(TokenService);
-  readonly pendentes = signal(0);
   readonly itensSaldo = signal(0);
   readonly parados = signal(0);
   readonly diasParado = DIAS_PARADO;
@@ -66,11 +55,7 @@ export class MaterialComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const idEstoque = this.tokens.estoqueId();
-    const [pendentes, saldo] = await Promise.all([
-      db.solicitacoes.where('status').equals('PENDENTE').count(),
-      idEstoque ? db.saldos.where('idEstoque').equals(idEstoque).filter(s => s.quantidade > 0).count() : Promise.resolve(0),
-    ]);
-    this.pendentes.set(pendentes);
+    const saldo = idEstoque ? await db.saldos.where('idEstoque').equals(idEstoque).filter(s => s.quantidade > 0).count() : 0;
     this.itensSaldo.set(saldo);
     if (idEstoque) {
       const linhas = await this.dbService.getSaldosComMateriais(idEstoque);

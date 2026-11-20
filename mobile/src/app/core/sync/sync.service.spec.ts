@@ -77,15 +77,14 @@ describe('SyncService', () => {
             bulkSaveMateriais: vi.fn().mockName("DbService.bulkSaveMateriais"),
             replaceSaldos: vi.fn().mockName("DbService.replaceSaldos"),
             replaceSaldosSeriais: vi.fn().mockName("DbService.replaceSaldosSeriais"),
-            replaceSolicitacoesSincronizadas: vi.fn().mockName("DbService.replaceSolicitacoesSincronizadas"),
             replaceTransferenciasSincronizadas: vi.fn().mockName("DbService.replaceTransferenciasSincronizadas"),
             replaceInspecoesSincronizadas: vi.fn().mockName("DbService.replaceInspecoesSincronizadas"),
             getInspecao: vi.fn().mockName("DbService.getInspecao"),
             deleteInspecao: vi.fn().mockName("DbService.deleteInspecao"),
             saveInspecao: vi.fn().mockName("DbService.saveInspecao"),
-            getSolicitacaoById: vi.fn().mockName("DbService.getSolicitacaoById"),
-            deleteSolicitacao: vi.fn().mockName("DbService.deleteSolicitacao"),
-            saveSolicitacao: vi.fn().mockName("DbService.saveSolicitacao")
+            getTransferenciaById: vi.fn().mockName("DbService.getTransferenciaById"),
+            deleteTransferencia: vi.fn().mockName("DbService.deleteTransferencia"),
+            saveTransferencia: vi.fn().mockName("DbService.saveTransferencia")
         };
         Object.values(mockDbService).forEach((spy: any) => spy?.mockResolvedValue(undefined));
         mockDbService.getConfig.mockResolvedValue(null);
@@ -253,7 +252,7 @@ describe('SyncService', () => {
         it('não repete o catálogo de materiais no pull final', async () => {
             stubEtapas();
             (service as any).pullParcialData.mockRestore();
-            ['syncSolicitacoes', 'syncTransferencias']
+            ['syncTransferencias']
                 .forEach(nome => vi.spyOn(service as any, nome).mockResolvedValue(undefined));
 
             await service.syncTotal();
@@ -286,7 +285,6 @@ describe('SyncService', () => {
     describe('escopo do usuário de campo', () => {
         it('não baixa inspeções de segurança para usuário de campo', async () => {
             vi.spyOn(service as any, 'syncMateriais').mockResolvedValue(undefined);
-            vi.spyOn(service as any, 'syncSolicitacoes').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncTransferencias').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncSaldos').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncSeriais').mockResolvedValue(undefined);
@@ -304,7 +302,6 @@ describe('SyncService', () => {
             mockAuthService.podeAcessarLogistica.set(false);
 
             vi.spyOn(service as any, 'syncMateriais').mockResolvedValue(undefined);
-            vi.spyOn(service as any, 'syncSolicitacoes').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncTransferencias').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncSaldos').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncSeriais').mockResolvedValue(undefined);
@@ -322,7 +319,6 @@ describe('SyncService', () => {
             mockAuthService.podeAcessarLogistica.set(false);
 
             vi.spyOn(service as any, 'syncMateriais').mockResolvedValue(undefined);
-            vi.spyOn(service as any, 'syncSolicitacoes').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncTransferencias').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncSaldos').mockResolvedValue(undefined);
             vi.spyOn(service as any, 'syncSeriais').mockResolvedValue(undefined);
@@ -333,50 +329,11 @@ describe('SyncService', () => {
             await (service as any).pullParcialData(falhas);
 
             expect((service as any).syncMateriais).not.toHaveBeenCalled();
-            expect((service as any).syncSolicitacoes).not.toHaveBeenCalled();
             expect((service as any).syncTransferencias).not.toHaveBeenCalled();
             expect((service as any).syncSaldos).not.toHaveBeenCalled();
             expect((service as any).syncSeriais).not.toHaveBeenCalled();
             expect((service as any).reaplicarDeducoesPendentes).not.toHaveBeenCalled();
             expect(falhas).toEqual([]);
-        });
-    });
-
-    describe('syncSolicitacoes()', () => {
-        it('ignora item cujo detalhe falha, mas mantém os demais', async () => {
-            (service as any).syncSolicitacoes();
-
-            httpMock.expectOne(r => r.url === `${environment.apiBaseUrl}/v1/solicitacoes-material`)
-                .flush({ content: [{ id: 's-1' }, { id: 's-2' }], page: { totalPages: 1 } });
-            await vi.advanceTimersByTimeAsync(0);
-
-            httpMock.expectOne(`${environment.apiBaseUrl}/v1/solicitacoes-material/s-1`)
-                .flush(null, { status: 404, statusText: 'Not Found' });
-            await vi.advanceTimersByTimeAsync(0);
-
-            httpMock.expectOne(`${environment.apiBaseUrl}/v1/solicitacoes-material/s-2`)
-                .flush({ id: 's-2', itens: [] });
-            await vi.advanceTimersByTimeAsync(0);
-
-            expect(mockDbService.replaceSolicitacoesSincronizadas).toHaveBeenCalledWith([
-                expect.objectContaining({ id: 's-2' })
-            ]);
-        });
-
-        it('falha em vez de apagar o histórico quando nenhum detalhe é acessível', async () => {
-            let erro: any = null;
-            (service as any).syncSolicitacoes().catch((e: any) => erro = e);
-
-            httpMock.expectOne(r => r.url === `${environment.apiBaseUrl}/v1/solicitacoes-material`)
-                .flush({ content: [{ id: 's-1' }], page: { totalPages: 1 } });
-            await vi.advanceTimersByTimeAsync(0);
-
-            httpMock.expectOne(`${environment.apiBaseUrl}/v1/solicitacoes-material/s-1`)
-                .flush(null, { status: 403, statusText: 'Forbidden' });
-            await vi.advanceTimersByTimeAsync(0);
-
-            expect(erro).toBeTruthy();
-            expect(mockDbService.replaceSolicitacoesSincronizadas).not.toHaveBeenCalled();
         });
     });
 
@@ -430,28 +387,28 @@ describe('SyncService', () => {
             expect(mockOutboxService.reivindicarParaEnvio).toHaveBeenCalledWith('versao-antiga');
         });
 
-        it('envia a solicitação comercial sem tempId e preserva o status pendente retornado pela criação', async () => {
+        it('envia a transferência sem tempId e troca o id provisório pelo do servidor', async () => {
             const local = {
-                id: 'temp-1', idEstoqueOrigem: 'origem', idEstoqueDestino: 'destino',
-                idRequisitante: 'user-1', status: 'PENDENTE', itens: []
+                id: 'temp-1', idEstoqueOrigem: 'origem', idEstoqueDestino: 'destino', itens: [], statusSync: 'PENDENTE'
             };
-            mockDbService.getSolicitacaoById.mockResolvedValue(local);
+            mockDbService.getTransferenciaById.mockResolvedValue(local);
             mockOutboxService.getPendingItems.mockResolvedValue([{
-                    id: 'out-sol', endpoint: '/v1/solicitacoes-material', method: 'POST',
-                    payload: { tempId: 'temp-1', idEstoqueOrigem: 'origem', idEquipe: 'equipe', dataPrevista: '2026-09-27', itens: [] },
+                    id: 'out-transf', endpoint: '/v1/movimentacoes-estoque/transferencia', method: 'POST',
+                    payload: { tempId: 'temp-1', idEstoqueOrigem: 'origem', idEstoqueDestino: 'destino', itens: [] },
                     status: 'PENDENTE', tentativas: 0, criadoEm: new Date()
                 }]);
 
             service.syncOutbox({ reconciliar: false });
             await vi.advanceTimersByTimeAsync(0);
 
-            const req = httpMock.expectOne(`${environment.apiBaseUrl}/v1/solicitacoes-material`);
-            expect(req.request.body).toEqual({ idEstoqueOrigem: 'origem', idEquipe: 'equipe', dataPrevista: '2026-09-27', itens: [] });
+            const req = httpMock.expectOne(`${environment.apiBaseUrl}/v1/movimentacoes-estoque/transferencia`);
+            expect(req.request.body).toEqual({ idEstoqueOrigem: 'origem', idEstoqueDestino: 'destino', itens: [] });
             req.flush('server-1');
             await vi.advanceTimersByTimeAsync(0);
 
-            expect(mockDbService.saveSolicitacao).toHaveBeenCalledWith(expect.objectContaining({
-                id: 'server-1', status: 'PENDENTE'
+            expect(mockDbService.deleteTransferencia).toHaveBeenCalledWith('temp-1');
+            expect(mockDbService.saveTransferencia).toHaveBeenCalledWith(expect.objectContaining({
+                id: 'server-1', statusSync: 'SINCRONIZADO'
             }));
         });
 

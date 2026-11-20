@@ -306,7 +306,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
     <geo-folha [aberta]="condicaoDe() !== null" (fechar)="condicaoDe.set(null)" titulo="Condição do material">
       <ul class="geo-grupo lista" role="radiogroup" aria-label="Condição">
         @for (c of condicoesDisponiveis(); track c.valor) {
-          <li><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="itemCondicao()?.condicao === c.valor" (click)="definirCondicao(c.valor)">
+          <li role="none"><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="itemCondicao()?.condicao === c.valor" (click)="definirCondicao(c.valor)">
             <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ c.rotulo }}</span></span>
             @if (itemCondicao()?.condicao === c.valor) { <geo-icone nome="check" /> }</button></li>
         }

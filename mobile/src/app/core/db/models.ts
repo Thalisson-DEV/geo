@@ -87,27 +87,6 @@ export interface ProcessoLocal {
   ativo: boolean;
 }
 
-export interface ItemSolicitacaoLocal {
-  idMaterial: string;
-  quantidade: number;
-}
-
-export interface SolicitacaoLocal {
-  id: string;
-  idEstoqueOrigem: string;
-  idEstoqueDestino: string;
-  idEquipe?: string;
-  dataPrevista?: string;
-  idColaboradorSaque?: string | null;
-  saqueForaEquipe?: boolean;
-  idRequisitante: string;
-  status: 'PENDENTE' | 'APROVADO' | 'REJEITADO' | 'ENTREGUE_PARCIAL' | 'ENTREGUE' | 'ESTORNADO';
-  dataSolicitacao?: string;
-  itens: ItemSolicitacaoLocal[];
-  motivoRejeicao?: { nome: string; descricao: string };
-  justificativaRejeicao?: string;
-}
-
 export interface TransferenciaLocal {
   id: string;
   idEstoqueOrigem: string;

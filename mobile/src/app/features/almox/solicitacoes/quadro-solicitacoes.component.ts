@@ -123,7 +123,7 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
     <geo-folha [aberta]="folhaAgrupar()" (fechar)="folhaAgrupar.set(false)" titulo="Agrupar o quadro" descricao="Como os cartões se organizam dentro de cada coluna.">
       <ul class="geo-grupo opcoes" role="radiogroup" aria-label="Agrupar por">
         @for (a of agrupamentos; track a.valor) {
-          <li><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="agrupamento() === a.valor" (click)="agrupar(a.valor); folhaAgrupar.set(false)">
+          <li role="none"><button type="button" role="radio" class="geo-linha geo-linha--acao" [attr.aria-checked]="agrupamento() === a.valor" (click)="agrupar(a.valor); folhaAgrupar.set(false)">
             <span class="geo-linha__texto"><span class="geo-linha__titulo">{{ a.rotulo }}</span><span class="geo-linha__apoio">{{ a.apoio }}</span></span>
             @if (agrupamento() === a.valor) { <geo-icone nome="check" /> }
           </button></li>

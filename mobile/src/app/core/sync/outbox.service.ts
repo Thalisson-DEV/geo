@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { db } from '../db/app-db';
-import { InspecaoLocal, OutboxItem, SolicitacaoLocal } from '../db/models';
+import { InspecaoLocal, OutboxItem } from '../db/models';
 
 @Injectable({
   providedIn: 'root'
@@ -74,59 +74,6 @@ export class OutboxService {
 
     await this.updatePendingCount();
     return id;
-  }
-
-  /** Persiste a solicitaÃ§Ã£o e sua intenÃ§Ã£o de envio atomicamente. */
-  async enqueueSolicitacao(
-    item: Omit<OutboxItem, 'id' | 'criadoEm' | 'status' | 'tentativas'>,
-    solicitacao: SolicitacaoLocal,
-    substituirId?: string,
-    substituirOutboxId?: string
-  ): Promise<string> {
-    const id = crypto.randomUUID();
-    const newItem: OutboxItem = {
-      ...item,
-      id,
-      status: 'PENDENTE',
-      receiptStatus: 'QUEUED',
-      originalPayload: structuredClone(item.originalPayload ?? item.payload),
-      tentativas: 0,
-      criadoEm: new Date()
-    };
-    await db.transaction('rw', [db.outbox, db.solicitacoes], async () => {
-      if (substituirId) {
-        // Pedido só é corrigido enquanto está na fila: fora dela já está no servidor.
-        await this.retirarVersaoAnterior(await db.solicitacoes.get(substituirId), substituirId, substituirOutboxId, true);
-        if (substituirId !== solicitacao.id) await db.solicitacoes.delete(substituirId);
-      }
-      await db.solicitacoes.put(solicitacao);
-      await db.outbox.add(newItem);
-    });
-    await this.updatePendingCount();
-    return id;
-  }
-
-  /**
-   * Retira da fila a versão que a correção substitui. Roda dentro da transação da
-   * correção, que também trava o outbox: o sync não consegue reivindicar o item no
-   * meio do caminho, e o item reivindicado antes não pode mais ser retirado.
-   *
-   * Recusa a correção quando a versão anterior pode já estar no servidor (envio
-   * iniciado, sincronizada ou fora do aparelho). Mandar as duas cria duplicidade.
-   */
-  private async retirarVersaoAnterior(
-    registroLocal: unknown, idRegistro: string, idFilaInformado?: string, exigeFila = false
-  ): Promise<void> {
-    if (!registroLocal) throw new CorrecaoRecusadaError();
-    const fila = await db.outbox
-      .filter(item => item.payload?.tempId === idRegistro && item.status !== 'SINCRONIZADO')
-      .toArray();
-    if (idFilaInformado && !fila.some(item => item.id === idFilaInformado)) {
-      const informado = await db.outbox.get(idFilaInformado);
-      if (informado) fila.push(informado);
-    }
-    if ((exigeFila && fila.length === 0) || fila.some(item => !this.canEdit(item))) throw new CorrecaoRecusadaError();
-    for (const item of fila) await db.outbox.delete(item.id);
   }
 
   /**
@@ -461,13 +408,4 @@ export function calcularEspera(tentativas: number, aleatorio: number): number {
   const base = Math.min(ESPERA_MAX_MS, ESPERA_BASE_MS * 2 ** Math.max(0, tentativas - 1));
   const variacao = 0.75 + Math.min(1, Math.max(0, aleatorio)) * 0.5;
   return Math.round(base * variacao);
-}
-
-/** Correção recusada porque a versão anterior pode já ter chegado ao servidor. */
-export class CorrecaoRecusadaError extends Error {
-  constructor() {
-    super('Este registro já começou a ser enviado e não pode mais ser corrigido no aparelho. '
-      + 'Aguarde o envio terminar e peça a correção ao administrativo.');
-    this.name = 'CorrecaoRecusadaError';
-  }
 }

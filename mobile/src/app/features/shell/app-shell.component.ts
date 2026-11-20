@@ -9,7 +9,7 @@ import { Aba, BarraAbasComponent, ModoNavegacao } from '../../ui';
 import { AvisoSessaoComponent } from '../../ui/aviso-sessao.component';
 
 /** Telas de topo: mostram a barra de abas. Lançamentos e detalhes ocupam a tela toda. */
-const TELAS_DE_TOPO = /^\/(hoje|material|frota|solicitacoes|solicitacoes\/estoque|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
+const TELAS_DE_TOPO = /^\/(hoje|material|material\/saldo|frota|transferencias|perfil|inspecoes|desvios|almox\/solicitacoes|almox\/tecnicas|almox\/movimentacoes|almox\/fechamento|fechamento)(\?|$)/;
 
 /** Checklist e abastecimento valem para todos os perfis do app (campo e administrativo). */
 const ABA_FROTA: Aba = { rota: '/frota', rotulo: 'Frota', icone: 'caminhao', ativaEm: ['/checklist', '/abastecimento'] };
@@ -98,7 +98,7 @@ export class AppShellComponent implements AfterViewInit {
     }
     return [
       { rota: '/hoje', rotulo: 'Hoje', icone: 'hoje', marcador: pendentes || undefined },
-      { rota: '/material', rotulo: 'Material', icone: 'material', ativaEm: ['/solicitacoes', '/transferencias'] },
+      { rota: '/material', rotulo: 'Material', icone: 'material', ativaEm: ['/transferencias'] },
       ABA_FROTA,
       { rota: '/perfil', rotulo: 'Conta', icone: 'conta' },
     ];

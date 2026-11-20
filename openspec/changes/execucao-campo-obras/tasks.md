@@ -12,7 +12,7 @@
 - [ ] A.7 Tipos `OBRA_*` no envio durável e adaptadores no módulo de Obras, com diagnósticos traduzidos
 - [ ] A.8 Evidência por ponto/vão com id do aparelho, vínculo ao apontamento, etapa e carimbo; pendências de foto calculadas por modelo
 - [ ] A.9 Endereço/referência da obra; horário previsto e número da manobra na programação com desligamento (migração + web)
-- [ ] A.10 `idProgramacao` na solicitação técnica de material
+- [ ] ~~A.10 `idProgramacao` na solicitação técnica de material~~ — fora: a equipe não pede material (vem da programação ou de solicitação manual no web)
 - [ ] A.11 Perfil da equipe de Obras com `obras:turno:write` e `obras:execucao:write`; composição (líder e substitutos) ao abrir o turno (`Turno.informarComposicao`)
 - [ ] A.12 Eventos de mudança de programação para aviso à equipe (Web Push com chave VAPID e assinatura por aparelho)
 
@@ -33,7 +33,7 @@
 - [ ] C.5 APR guiada em passos, com sugestões por condição, assinatura dos participantes e "Sem condição de executar". Opções sugeridas, a validar com o SST: riscos (choque elétrico, arco elétrico, queda de altura, queda de materiais ou ferramentas, movimentação de carga, tráfego, escavação, animais peçonhentos, clima, calor ou esforço físico); medidas (desenergização, bloqueio e aterramento, linha viva, sinalização e isolamento, inspeção de escada e cinto, plano de içamento, EPI e EPC, revezamento e hidratação); verificações (conversa sobre riscos, EPI em bom estado, ferramentas e veículo inspecionados, área sinalizada, clima permite, desligamento confirmado)
 - [ ] C.6 Execução sobre o projeto: pontos coloridos por situação, "Tudo feito" por ponto, parcial por item; tablet em duas colunas, celular com folha
 - [ ] C.7 Fotos do modelo por ponto/vão com câmera direta, carimbo e pendências
-- [ ] C.8 Ocorrências com foto e ditado por voz; obra não programada; material complementar a partir do serviço
+- [ ] C.8 Ocorrências com foto (inclusive falta de material); obra não programada; material previsto × saldo do caminhão, sem pedido
 - [ ] C.9 As Built do ponto pré-preenchido e equipamentos por leitura de série/QR
 - [ ] C.10 Fechar turno com relatório diário montado
 - [ ] C.11 Avisos de reprogramação/cancelamento (notificação e ao abrir)

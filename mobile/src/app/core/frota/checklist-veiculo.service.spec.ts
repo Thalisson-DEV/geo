@@ -178,3 +178,15 @@ describe('ChecklistVeiculoService', () => {
         expect(await db.checklistsVeiculo.get('de-outro-aparelho')).toBeUndefined();
     });
 });
+
+import { normalizarCatalogo } from './checklist-veiculo.service';
+
+describe('normalizarCatalogo', () => {
+  it('resposta sem as listas vira catálogo vazio (a abertura do turno não pode quebrar)', () => {
+    const c = normalizarCatalogo({ content: [] } as never);
+    expect(c.veiculos).toEqual([]);
+    expect(c.modelos).toEqual([]);
+    expect(c.condutores).toEqual([]);
+    expect(c.liberacoesCnh).toEqual([]);
+  });
+});

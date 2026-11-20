@@ -24,7 +24,8 @@ export interface MockOptions {
   /** Token expira em N segundos (padrão: 8h). */
   expiraEmSegundos?: number;
   /** Execuções já registradas no servidor (histórico da equipe), espalhadas nos últimos dias. */
-  historico?: number;
+  /** Transferências já sincronizadas do estoque da equipe (histórico grande para os testes de lista). */
+  transferencias?: number;
 }
 
 export const IDS = {
@@ -34,7 +35,6 @@ export const IDS = {
   turno: 't-1',
   veiculo: 'v-1',
   colaboradores: ['c-1', 'c-2'],
-  acoes: ['a-1', 'a-2', 'a-3'],
   materiais: ['m-cabo', 'm-medidor'],
 } as const;
 
@@ -93,36 +93,25 @@ export class MockApi {
   private cookieDeSessao = false;
   private renovacoes = 0;
   private readonly expiraEm: number;
-  private readonly historico: number;
+  private readonly transferencias: number;
   private readonly recebidas = new Map<string, unknown>();
 
   constructor(opts: MockOptions = {}) {
     this.perfil = opts.perfil ?? 'CAMPO';
     this.turnoAberto = opts.turnoAberto ?? true;
     this.expiraEm = opts.expiraEmSegundos ?? 8 * 3600;
-    this.historico = opts.historico ?? 0;
+    this.transferencias = opts.transferencias ?? 0;
   }
 
-  /** Execuções sincronizadas, 1 a cada 20 min para trás a partir de agora (formato de /minha-equipe). */
-  private execucoesHistorico() {
+  /** Transferências sincronizadas, 1 a cada 20 min para trás (formato do resumo de /v1/movimentacoes-estoque). */
+  private transferenciasHistorico() {
     const agora = Date.now();
-    return Array.from({ length: this.historico }, (_, i) => ({
-      id: `hist-${i}`,
-      referenciaNota: String(6_000_000 + i),
-      idTurno: IDS.turno,
-      equipe: { id: IDS.equipe },
-      dataLancamento: new Date(agora - (i + 1) * 20 * 60_000).toISOString(),
-      statusExecucao: 'CONCLUIDO',
-      latitude: -3.73, longitude: -38.52,
-      // O primeiro (o mais recente) chega com tipo; os demais imitam notas anteriores ao cadastro.
-      tipoServico: [
-        { id: 'ts-cl', codigo: 'CL', descricao: 'LIGAÇÃO NOVA' },
-        { id: 'ts-cs', codigo: 'CS', descricao: 'CORTE' },
-        null,
-      ][i % 3],
-      acoes: [{ acao: { id: IDS.acoes[i % 3] } }],
-      materiais: [],
-      valorTotalFaturado: [120.5, 45, 60][i % 3],
+    return Array.from({ length: this.transferencias }, (_, i) => ({
+      idReferenciaOperacao: `tr-${i}`,
+      estoqueOrigem: { id: IDS.estoque },
+      estoqueDestino: { id: 'est-dep' },
+      dataHora: new Date(agora - (i + 1) * 20 * 60_000).toISOString(),
+      itens: [{ material: { id: 'm-cabo' }, quantidade: (i % 5) + 1, condicao: 'NOVO', numSerie: null }],
     }));
   }
 
@@ -227,8 +216,7 @@ export class MockApi {
             { idColaborador: 'c-1', nome: 'José Encarregado', funcao: 'Encarregado', responsavel: true },
             { idColaborador: 'c-2', nome: 'Maria Eletricista', funcao: 'Eletricista', responsavel: false },
           ],
-          metaFaturamentoMensal: 30000, metaFaturamentoDiaria: 1500,
-        },
+          },
         usuarioResponsavel: true,
         opcoes: {
           colaboradores: [
@@ -239,21 +227,15 @@ export class MockApi {
           ],
           veiculos: [{ id: IDS.veiculo, placa: 'ABC1D23', modelo: 'Strada' }, { id: 'v-2', placa: 'XYZ9K87', modelo: 'Saveiro' }],
         },
-        acoes: [
-          { idAcao: 'a-1', codigo: 'LIG-01', nome: 'Ligação nova', valor: 120.5 },
-          { idAcao: 'a-2', codigo: 'COR-02', nome: 'Corte', valor: 45 },
-          { idAcao: 'a-3', codigo: 'REL-03', nome: 'Religação', valor: 60 },
-        ],
       });
     }
 
     // ---------- Equipe ----------
     if (path === `/v1/equipes/${IDS.equipe}`) {
       return this.json(route, 200, {
-        id: IDS.equipe, codigo: 'EQ-101', tipoEquipe: { nome: 'Leve' }, processo: { nome: 'Comercial' },
+        id: IDS.equipe, codigo: 'EQ-101', tipoEquipe: { nome: 'Leve' }, processo: { nome: 'Obras' },
         baseOperacional: { id: 'b-1', nome: 'Base Fortaleza' }, veiculo: { id: IDS.veiculo },
         membros: [{ idColaborador: 'c-1' }, { idColaborador: 'c-2' }],
-        metaFaturamentoMensal: 30000, metaFaturamentoDiaria: 1500,
       });
     }
     if (path === `/v1/equipes/${IDS.equipe}/membros`) {
@@ -264,20 +246,6 @@ export class MockApi {
     }
 
     // ---------- Catálogos ----------
-    if (path === '/v1/contratos/acoes') {
-      return this.json(route, 200, page([
-        { id: 'a-1', codigo: 'LIG-01', nome: 'Ligação nova', ativo: true, valor: 120.5 },
-        { id: 'a-2', codigo: 'COR-02', nome: 'Corte', ativo: true, valor: 45 },
-        { id: 'a-3', codigo: 'REL-03', nome: 'Religação', ativo: true, valor: 60 },
-      ]));
-    }
-    if (path === '/v1/tipos-servico/opcoes') {
-      return this.json(route, 200, [
-        { id: 'ts-cs', codigo: 'CS', descricao: 'CORTE', ativo: true },
-        { id: 'ts-cl', codigo: 'CL', descricao: 'LIGAÇÃO NOVA', ativo: true },
-        { id: 'ts-cr', codigo: 'CR', descricao: 'RELIGAÇÃO', ativo: true },
-      ]);
-    }
     if (path === '/v1/materiais') {
       return this.json(route, 200, page([
         { id: 'm-cabo', codigo: 'CB-10', descricao: 'Cabo concêntrico 10mm', unidadeMedida: 'M', detalhaSerie: false },
@@ -304,8 +272,8 @@ export class MockApi {
       ]));
     }
 
-    if (path === '/v1/execucoes-comerciais/minha-equipe') {
-      return this.json(route, 200, page(this.execucoesHistorico()));
+    if (path === '/v1/movimentacoes-estoque' && method === 'GET' && url.searchParams.get('tipo') === 'TRANSFERENCIA') {
+      return this.json(route, 200, page(this.transferenciasHistorico()));
     }
 
     // ---------- SST (técnico administrativo) ----------
@@ -331,7 +299,7 @@ export class MockApi {
       return this.json(route, 200, page([{ id: 'b-1', nome: 'Base Fortaleza', latitude: -3.73, longitude: -38.52, raio: 500, ativo: true }]));
     }
     if (path === '/v1/equipes') {
-      return this.json(route, 200, page([{ id: IDS.equipe, codigo: 'EQ-101', tipoEquipe: { nome: 'Leve' }, processo: { nome: 'Comercial' },
+      return this.json(route, 200, page([{ id: IDS.equipe, codigo: 'EQ-101', tipoEquipe: { nome: 'Leve' }, processo: { nome: 'Obras' },
         baseOperacional: { id: 'b-1', nome: 'Base Fortaleza' }, veiculo: { id: IDS.veiculo }, membros: [{ idColaborador: 'c-1' }, { idColaborador: 'c-2' }] }]));
     }
     if (path === '/v1/rh/colaboradores') {
@@ -385,15 +353,6 @@ export class MockApi {
     }
 
     // ---------- Escritas operacionais ----------
-    if (path === '/v1/execucoes-comerciais' && method === 'POST') {
-      const key = request.headers()['idempotency-key'] ?? crypto.randomUUID();
-      if (!this.recebidas.has(key)) this.recebidas.set(key, { id: `exec-${this.recebidas.size + 1}` });
-      const { id } = this.recebidas.get(key) as { id: string };
-      return this.json(route, 201, { id, statusExecucao: 'CONCLUIDO', valorTotalFaturado: 120.5 });
-    }
-    if (path === '/v1/solicitacoes-material' && method === 'POST') {
-      return this.json(route, 201, { id: `sol-${this.escritasEm('/v1/solicitacoes-material').length}`, status: 'PENDENTE' });
-    }
     if (path === '/v1/telemetria/mobile' && method === 'POST') {
       const lote = (this.escritas.at(-1)?.body ?? {}) as { eventos?: unknown[] };
       return this.json(route, 202, { recebidos: lote.eventos?.length ?? 0, descartados: 0 });

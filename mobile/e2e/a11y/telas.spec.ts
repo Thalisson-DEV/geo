@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { MockApi, loginPelaUi } from '../support/mock-api';
 
 /**
- * Acessibilidade das telas do piloto (WCAG 2.1 A/AA via axe-core), claro e escuro.
+ * Acessibilidade das telas principais do app (WCAG 2.1 A/AA via axe-core), claro e escuro.
  * Falha com qualquer violação "serious" ou "critical".
  */
 
@@ -23,7 +23,7 @@ for (const tema of ['claro', 'escuro'] as const) {
   test(`telas do piloto sem violação grave · tema ${tema}`, async ({ page }) => {
     test.setTimeout(90_000);
     if (tema === 'escuro') await page.addInitScript(() => localStorage.setItem('geo_tema', 'escuro'));
-    await new MockApi({ perfil: 'CAMPO', turnoAberto: true, historico: 30 }).install(page);
+    await new MockApi({ perfil: 'CAMPO', turnoAberto: true }).install(page);
     await page.goto('/login');
     await auditar(page, 'login');
     await loginPelaUi(page);
@@ -32,23 +32,31 @@ for (const tema of ['claro', 'escuro'] as const) {
     await auditar(page, 'folha envios');
     await page.keyboard.press('Escape');
 
-    await page.goto('/campo');
-    await auditar(page, 'serviços');
-    await page.goto('/campo/hist-1');
-    await auditar(page, 'detalhe');
     await page.goto('/material');
     await auditar(page, 'material');
+    await page.goto('/material/saldo');
+    await auditar(page, 'saldo do caminhão');
+    await page.goto('/transferencias');
+    await auditar(page, 'transferências');
 
-    await page.goto('/campo/nova');
-    await page.locator('#nota').fill('7004512');
-    await page.getByRole('button', { name: /^Tipo de serviço/ }).click();
-    await page.getByRole('radio', { name: /CORTE/ }).click();
-    await expect(page.getByText('Local registrado')).toBeVisible();
-    await auditar(page, 'execução passo 1');
+    // Transferência: fluxo em passos com seletor (folha), quantidade e conferência.
+    await page.goto('/transferencias/nova');
+    await page.getByRole('button', { name: /^Vai para:/ }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await auditar(page, 'transferência folha destino');
+    await page.getByRole('dialog').getByRole('radio', { name: /Almoxarifado Central/ }).click();
+    await auditar(page, 'transferência passo 1');
     await page.getByRole('button', { name: /Continuar/ }).click();
-    await auditar(page, 'execução passo 2');
+    await page.getByRole('button', { name: 'Adicionar Cabo concêntrico 10mm' }).click();
+    await auditar(page, 'transferência passo 2');
     await page.getByRole('button', { name: /Continuar/ }).click();
-    await page.getByRole('button', { name: 'Aplicar Medidor monofásico' }).click();
-    await auditar(page, 'folha séries');
+    await auditar(page, 'transferência conferir');
+
+    await page.goto('/frota');
+    await auditar(page, 'frota');
+    await page.goto('/perfil');
+    await auditar(page, 'conta');
+    await page.goto('/catalogo');
+    await auditar(page, 'catálogo de componentes');
   });
 }
