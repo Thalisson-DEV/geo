@@ -64,7 +64,7 @@
                     </div>
                     <div class="form-grid grid-cols-1 md:grid-cols-2">
                       <div class="field md:col-span-2">
-                        <label for="nome">{{ tipo === 'CIPA' ? 'Nome da composição' : 'Nome da equipe' }} *</label>
+                        <label for="nome">{{ tipo === 'CIPA' ? 'Nome da composição' : 'Nome da equipe' }} <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <input
                           id="nome"
                           pInputText
@@ -76,7 +76,7 @@
                         @if (campoInvalido('nome')) { <small class="field-error">Informe um nome para o grupo.</small> }
                       </div>
                       <div class="field" [class.wide-field]="tipo !== 'CIPA'">
-                        <label for="base">Base principal *</label>
+                        <label for="base">Base principal <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-select
                           inputId="base"
                           formControlName="idBaseOperacional"
@@ -145,7 +145,7 @@
                     </div>
                     <div class="form-grid grid-cols-1 md:grid-cols-2">
                       <div class="field md:col-span-2">
-                        <label for="unidade">Unidade ou estabelecimento *</label>
+                        <label for="unidade">Unidade ou estabelecimento <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <input
                           id="unidade"
                           pInputText
@@ -155,17 +155,17 @@
                         @if (campoInvalido('unidadeGovernanca')) { <small class="field-error">Informe a unidade ou o estabelecimento.</small> }
                       </div>
                       <div class="field">
-                        <label for="uf">UF da unidade *</label>
+                        <label for="uf">UF da unidade <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-select inputId="uf" formControlName="uf" [options]="ufOptions" optionLabel="label" optionValue="value" placeholder="Selecione a UF" [filter]="true" [showClear]="true" class="custom-select field-control" size="small" appendTo="body" (onChange)="revalidarPerfil()" />
                         @if (campoInvalido('uf')) { <small class="field-error">Informe a UF aplicável.</small> }
                       </div>
                       <div class="field">
-                        <label for="grauRisco">Grau de risco *</label>
+                        <label for="grauRisco">Grau de risco <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-select inputId="grauRisco" formControlName="grauRisco" [options]="grauRiscoOptions" optionLabel="label" optionValue="value" placeholder="Selecione" [showClear]="true" class="custom-select field-control" size="small" appendTo="body" />
                         @if (campoInvalido('grauRisco')) { <small class="field-error">Informe o grau de risco.</small> }
                       </div>
                       <div class="field">
-                        <label for="inicio">Início do período *</label>
+                        <label for="inicio">Início do período <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-datepicker
                           inputId="inicio"
                           formControlName="inicioPeriodo"
@@ -186,7 +186,7 @@
                         @if (campoInvalido('inicioPeriodo')) { <small class="field-error">Informe a data de início.</small> }
                       </div>
                       <div class="field">
-                        <label for="fim">Fim do período *</label>
+                        <label for="fim">Fim do período <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-datepicker
                           inputId="fim"
                           formControlName="fimPeriodo"
@@ -220,7 +220,7 @@
                       </div>
                       @if (tipo === 'CIPA' && form.controls.regimeComposicao.value === 'REPRESENTANTE_NOMEADO') {
                         <div class="field md:col-span-2">
-                          <label for="hipoteseRepresentante">Hipótese da NR-5 confirmada *</label>
+                          <label for="hipoteseRepresentante">Hipótese da NR-5 confirmada <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                           <p-select inputId="hipoteseRepresentante" formControlName="hipoteseRepresentanteNomeadoConfirmada" [options]="confirmacaoOptions" optionLabel="label" optionValue="value" class="custom-select field-control" size="small" appendTo="body" />
                           @if (!form.controls.hipoteseRepresentanteNomeadoConfirmada.value) { <small class="field-error">Confirme a hipótese normativa para usar este regime.</small> }
                         </div>
@@ -262,7 +262,7 @@
                     } @else {
                       <div class="form-grid grid-cols-1 md:grid-cols-2">
                         <div class="field md:col-span-2">
-                          <label for="corpo">{{ tipo === 'CIPA' ? 'Composição da CIPA' : 'Equipe da Brigada' }} *</label>
+                          <label for="corpo">{{ tipo === 'CIPA' ? 'Composição da CIPA' : 'Equipe da Brigada' }} <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                           <p-select inputId="corpo" formControlName="idCorpo" [options]="corpos()" optionLabel="nome" optionValue="id" placeholder="Selecione o grupo ativo" [filter]="true" [showClear]="true" class="custom-select field-control" size="small" appendTo="body" />
                           @if (campoInvalido('idCorpo')) { <small class="field-error">Selecione o grupo.</small> }
                         </div>
@@ -271,7 +271,7 @@
                           <p-select inputId="tipoReuniao" formControlName="tipoReuniao" [options]="tipoReuniaoOptions" optionLabel="label" optionValue="value" class="custom-select field-control" size="small" appendTo="body" />
                         </div>
                         <div class="field">
-                          <label for="modeloAta">Modelo de ata *</label>
+                          <label for="modeloAta">Modelo de ata <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                           <p-select inputId="modeloAta" formControlName="idModeloAta" [options]="modelosAta()" optionLabel="nome" optionValue="id" placeholder="Selecione o modelo" [showClear]="true" class="custom-select field-control" size="small" appendTo="body" />
                           @if (campoInvalido('idModeloAta')) { <small class="field-error">Selecione o modelo da ata.</small> }
                         </div>
@@ -287,21 +287,21 @@
                     <div class="step-intro"><span>Organize o encontro</span><h2>Quando, onde e sobre o quê?</h2><p>Uma pauta clara ajuda os participantes a se preparar e orienta o registro da ata.</p></div>
                     <div class="form-grid grid-cols-1 md:grid-cols-2">
                       <div class="field">
-                        <label for="dataHora">Data e hora *</label>
+                        <label for="dataHora">Data e hora <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-datepicker inputId="dataHora" formControlName="dataHora" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" [showClear]="true" [showOnFocus]="true" [showButtonBar]="true" placeholder="dd/mm/aaaa hh:mm" class="custom-date field-control" size="small" appendTo="body" />
                         @if (campoInvalido('dataHora')) { <small class="field-error">Informe data e hora.</small> }
                       </div>
                       <div class="field">
-                        <label for="duracao">Duração prevista em minutos *</label>
+                        <label for="duracao">Duração prevista em minutos <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <input id="duracao" pInputText type="number" min="1" max="1440" formControlName="duracaoMinutos" />
                       </div>
                       <div class="field md:col-span-2">
-                        <label for="local">Local ou meio *</label>
+                        <label for="local">Local ou meio <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <input id="local" pInputText formControlName="localOuMeio" maxlength="255" placeholder="Ex.: sala de treinamento ou videoconferência" />
                         @if (campoInvalido('localOuMeio')) { <small class="field-error">Informe onde a reunião ocorrerá.</small> }
                       </div>
                       <div class="field md:col-span-2">
-                        <label for="pauta">Pauta *</label>
+                        <label for="pauta">Pauta <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <textarea id="pauta" pTextarea formControlName="pauta" rows="7" maxlength="4000" placeholder="Liste os assuntos e decisões esperadas para a reunião."></textarea>
                         <div class="field-meta"><span>@if (campoInvalido('pauta')) { <small class="field-error">Informe a pauta.</small> }</span><span>{{ form.controls.pauta.value.length }}/4000</span></div>
                       </div>
@@ -354,12 +354,12 @@
                     <div class="step-intro"><span>Classifique o registro</span><h2>Que documento é este e a qual base pertence?</h2><p>A classificação correta define alertas, validade e onde o arquivo será encontrado.</p></div>
                     <div class="form-grid grid-cols-1 md:grid-cols-2">
                       <div class="field md:col-span-2">
-                        <label for="categoria">Tipo de documento *</label>
+                        <label for="categoria">Tipo de documento <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-select inputId="categoria" formControlName="idCategoria" [options]="categorias()" optionLabel="nome" optionValue="id" placeholder="Selecione o tipo de documento" [filter]="true" [showClear]="true" class="custom-select field-control" size="small" appendTo="body" />
                         @if (campoInvalido('idCategoria')) { <small class="field-error">Selecione o tipo de documento.</small> }
                       </div>
                       <div class="field md:col-span-2">
-                        <label for="baseDocumento">Base *</label>
+                        <label for="baseDocumento">Base <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                         <p-select inputId="baseDocumento" formControlName="idBaseDocumento" [options]="bases()" optionLabel="nome" optionValue="id" placeholder="Selecione a base" [filter]="true" [showClear]="true" class="custom-select field-control" size="small" appendTo="body" />
                         @if (campoInvalido('idBaseDocumento')) { <small class="field-error">Selecione a base.</small> }
                       </div>

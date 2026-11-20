@@ -171,39 +171,23 @@ describe('InspecaoFormComponent', () => {
     expect(searchCollaborators).toHaveBeenCalledWith({ query: 'maria', cursor: null });
   });
 
-  it('deve calcular cores de gravidade com alto contraste para tema claro e escuro', async () => {
+  it('mapeia a gravidade para os tons do design system (sem cor literal)', () => {
     const fixture = TestBed.createComponent(InspecaoFormComponent);
     const component = fixture.componentInstance as any;
-
-    // Simula tema claro
-    component.theme = { isDarkMode: () => false };
-    expect(component.corGravidadeTexto('BAIXA')).toBe('#785A00');
-    expect(component.corGravidadeTexto('MEDIA')).toBe('#B84500');
-    expect(component.corGravidadeTexto('ALTA')).toBe('#B81D2A');
-    expect(component.corGravidadeTexto('CRITICA')).toBe('#8a0101');
-    expect(component.desvioBoxStyle('ALTA')['background-color']).toBe('#E6394624');
-
-    // Simula tema escuro
-    component.theme = { isDarkMode: () => true };
-    expect(component.corGravidadeTexto('BAIXA')).toBe('#fbbf24');
-    expect(component.corGravidadeTexto('MEDIA')).toBe('#fb923c');
-    expect(component.corGravidadeTexto('ALTA')).toBe('#f87171');
-    expect(component.corGravidadeTexto('CRITICA')).toBe('#fca5a5');
-    expect(component.desvioBoxStyle('ALTA')['background-color']).toBe('#E6394615');
+    expect(component.tomGravidade('BAIXA')).toBe('neutral');
+    expect(component.tomGravidade('MEDIA')).toBe('warning');
+    expect(component.tomGravidade('ALTA')).toBe('danger');
+    expect(component.tomGravidade('CRITICA')).toBe('danger');
   });
 
-  it('deve aplicar classes de tema escuro nos seletores de opção (boxClass)', () => {
+  it('marca a opção escolhida com tokens que acompanham o tema (boxClass)', () => {
     const fixture = TestBed.createComponent(InspecaoFormComponent);
     const component = fixture.componentInstance as any;
 
-    const unselectedBox = component.boxClass('p1', 'o1', false);
-    expect(unselectedBox).toContain('dark:border-slate-600');
-    expect(unselectedBox).toContain('dark:bg-slate-800');
+    expect(component.boxClass('p1', 'o1', false)).toContain('bg-[var(--geo-surface)]');
 
-    // Selecionado sem desvio
     component.respostas['p1'] = { opcoesSelecionadas: ['o1'] };
-    const selectedBox = component.boxClass('p1', 'o1', false);
-    expect(selectedBox).toContain('dark:border-primary-500');
-    expect(selectedBox).toContain('dark:bg-primary-500');
+    expect(component.boxClass('p1', 'o1', false)).toContain('bg-[var(--geo-brand)]');
+    expect(component.boxClass('p1', 'o1', true)).toContain('bg-[var(--geo-danger)]');
   });
 });

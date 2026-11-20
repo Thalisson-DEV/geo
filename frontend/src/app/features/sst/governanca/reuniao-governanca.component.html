@@ -13,7 +13,7 @@
     <section class="wizard-shell">
       <header class="wizard-header">
         <div class="flex items-center justify-between gap-3 mb-3">
-          <div class="flex items-center gap-2"><i [class]="reuniao()!.tipoCorpo === 'CIPA' ? 'pi pi-users text-primary-700 text-xs' : 'pi pi-shield text-primary-700 text-xs'"></i><span class="eyebrow">{{ reuniao()!.tipoCorpo === 'CIPA' ? 'Reunião da CIPA' : 'Reunião da Brigada' }}</span></div>
+          <div class="flex items-center gap-2"><i [class]="reuniao()!.tipoCorpo === 'CIPA' ? 'pi pi-users text-primary-700 text-[length:var(--geo-font-caption)]' : 'pi pi-shield text-primary-700 text-[length:var(--geo-font-caption)]'"></i><span class="eyebrow">{{ reuniao()!.tipoCorpo === 'CIPA' ? 'Reunião da CIPA' : 'Reunião da Brigada' }}</span></div>
           <geo-status [tone]="reuniao()!.status === 'FINALIZADA' ? 'success' : 'info'" [icon]="iconeStatus(reuniao()!.status)">{{ rotulo(reuniao()!.status) }}</geo-status>
         </div>
         <h1>{{ reuniao()!.tipo }} · {{ reuniao()!.dataHora | date:'dd/MM/yyyy HH:mm' }}</h1>
@@ -87,8 +87,8 @@
                       <div class="flex flex-row items-center gap-2 border border-slate-200 dark:border-slate-800 rounded-lg p-2 w-full min-w-0 max-w-full bg-white dark:bg-slate-900 overflow-hidden">
                         <i class="pi pi-image text-primary-700 dark:text-primary-400 shrink-0"></i>
                         <div class="flex-1 min-w-0 w-0 overflow-hidden flex flex-col">
-                          <b class="truncate block text-xs text-slate-700 dark:text-white">{{foto.nomeArquivo}}</b>
-                          <small class="truncate block text-xs text-slate-500 dark:text-slate-400">{{foto.legenda||'Sem legenda'}}</small>
+                          <b class="truncate block text-[length:var(--geo-font-caption)] text-slate-700 dark:text-white">{{foto.nomeArquivo}}</b>
+                          <small class="truncate block text-[length:var(--geo-font-caption)] text-slate-500 dark:text-slate-400">{{foto.legenda||'Sem legenda'}}</small>
                         </div>
                         <div class="flex items-center gap-1 shrink-0">
                           <p-button icon="pi pi-download" [text]="true" [rounded]="true" pTooltip="Baixar" (onClick)="baixarFoto(foto)" class="shrink-0" styleClass="shrink-0"/>
@@ -135,7 +135,7 @@
                           <span><b>Normalização {{item.numero}}</b>@if(item.conteudo){<small>{{item.conteudo.topicos.length}} tópicos · {{item.conteudo.decisoesCandidatas.length}} decisões · {{item.conteudo.incertezas.length}} pontos a conferir</small>}</span><geo-status [tone]="item.status==='CONFIRMADA'?'success':item.status==='FALHA'?'danger':'info'" [icon]="item.status==='CONFIRMADA'?'pi-verified':item.status==='FALHA'?'pi-times-circle':item.status==='EM_PROCESSAMENTO'?'pi-spin pi-spinner':'pi-pencil'">{{ rotulo(item.status) }}</geo-status>
                         @if(item.status==='RASCUNHO' && podeEditar()){<p-button label="Conferi" icon="pi pi-check" [text]="true" (onClick)="confirmarNormalizacao(item)"/>}</div>
                         @if(expandedNormalizacao() === item.id && item.conteudo){
-                          <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-3 bg-slate-50 dark:bg-slate-900 text-xs">
+                          <div class="border border-slate-200 dark:border-slate-800 rounded-lg p-3 bg-slate-50 dark:bg-slate-900 text-[length:var(--geo-font-caption)]">
                             <h4 class="font-bold text-slate-700 dark:text-white mb-2">Tópicos Identificados</h4>
                             <ul class="list-disc pl-4 mb-3 text-slate-600 dark:text-slate-300">@for(t of item.conteudo.topicos; track t.texto){ <li class="mb-1">{{t.texto}}</li> }</ul>
                             @if(item.conteudo.decisoesCandidatas.length > 0){

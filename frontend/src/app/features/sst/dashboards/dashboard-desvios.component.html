@@ -1,9 +1,9 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <geo-page-header title="Ocorrência e tratamento dos desvios" icon="pi pi-exclamation-triangle"
+    <geo-page-header title="Dashboard de desvios" icon="pi pi-exclamation-triangle"
       [breadcrumb]="[{ label: 'Segurança' }, { label: 'Painel de desvios' }]"
-      description="Acompanhe os desvios identificados, veja onde eles aparecem e priorize o que ainda precisa de tratamento.">
+      description="Ocorrência e tratamento dos desvios: veja onde eles aparecem e priorize o que ainda precisa de tratamento.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
         @if (atualizadoEm()) { <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span> }
         <geo-button actions label="Atualizar" icon="pi pi-refresh"
@@ -183,7 +183,7 @@
                       <span class="dash-share-pill" [attr.data-tone]="volume.total > 0 ? tomGravidade(volume.gravidade) : 'neutral'">
                         {{ volume.percentual | number:'1.0-1' }}%
                       </span>
-                      <span class="text-xs text-slate-400 dark:text-slate-500 font-medium mt-0.5">do volume</span>
+                      <span class="text-[length:var(--geo-font-caption)] text-slate-400 dark:text-slate-500 font-medium mt-0.5">do volume</span>
                     </div>
                   </div>
 
@@ -225,7 +225,7 @@
                           Anterior: <strong class="text-slate-700 dark:text-slate-200 font-bold">{{ volume.anterior }}</strong>
                         </span>
                       } @else {
-                        <span class="text-xs text-slate-400 dark:text-slate-500 italic">Sem registros anteriores</span>
+                        <span class="text-[length:var(--geo-font-caption)] text-slate-400 dark:text-slate-500 italic">Sem registros anteriores</span>
                         <span class="text-slate-400 dark:text-slate-500 font-medium tabular-nums">Anterior: 0</span>
                       }
                     </div>

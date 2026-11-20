@@ -1,9 +1,9 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <geo-page-header title="O que aconteceu, com quem e há quanto tempo" icon="pi pi-shield"
+    <geo-page-header title="Dashboard de acidentalidade" icon="pi pi-shield"
       [breadcrumb]="[{ label: 'Segurança' }, { label: 'Painel de eventos' }]"
-      description="Do incidente sem lesão ao afastamento, na mesma série — com os desvios das inspeções sustentando a base. Eventos cancelados ficam de fora de todos os indicadores.">
+      description="O que aconteceu, com quem e há quanto tempo: do incidente sem lesão ao afastamento, com os desvios das inspeções na base. Eventos cancelados ficam fora dos indicadores.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
         @if (atualizadoEm()) { <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span> }
         <geo-button actions label="Atualizar" icon="pi pi-refresh"
@@ -73,7 +73,7 @@
             <app-copiloto-perguntar [foco]="{ tipo: 'grafico', id: 'serie', rotulo: 'Ocorrências ao longo do período' }" />
           </header>
           @if (d.serie.length) {
-            <div class="dash-chart dash-chart--responsive dash-chart--drill"><geo-chart-canvas type="bar" [data]="serieChartData" [options]="serieChartOptions" [responsive]="true"
+            <div class="dash-chart dash-chart--responsive dash-chart--drill"><geo-chart-canvas type="bar" [data]="serieChartData" [options]="serieChartOptions()" [responsive]="true"
               ariaLabel="Ocorrências ao longo do período. Clique numa barra para analisar." (dataSelect)="onSerieSelect($event)" /></div>
             <p class="dash-drill-hint"><i class="pi pi-hand-pointer" aria-hidden="true"></i> Clique numa barra para ver os eventos daquele período</p>
           } @else {
@@ -159,7 +159,7 @@
               <div class="dash-summary__item"><i class="dash-summary__dot" style="background:var(--p-red-800)"></i><span>CAT emitida</span><strong>{{ d.resumo.comCat }}</strong></div>
             </div>
             <div class="mt-4">
-              <div class="flex justify-between text-xs mb-1">
+              <div class="flex justify-between text-[length:var(--geo-font-caption)] mb-1">
                 <span class="font-semibold text-zinc-600 dark:text-zinc-300">Cobertura de CAT nos eventos com lesão</span>
                 <strong>{{ d.resumo.coberturaCat | number:'1.0-2' }}%</strong>
               </div>
@@ -183,12 +183,12 @@
               <span>tempo médio entre a ocorrência e a comunicação</span>
             </div>
             <div class="mt-4">
-              <div class="flex justify-between text-xs mb-1">
+              <div class="flex justify-between text-[length:var(--geo-font-caption)] mb-1">
                 <span class="font-semibold text-zinc-600 dark:text-zinc-300">Comunicações fora do prazo</span>
                 <strong>{{ d.resumo.percentualAtrasadas | number:'1.0-2' }}%</strong>
               </div>
               <div class="dash-progress__track"><span [style.width.%]="barWidth(d.resumo.percentualAtrasadas)"></span></div>
-              <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ d.resumo.comunicacoesAtrasadas }} de {{ d.resumo.total }} eventos do período</span>
+              <span class="text-[length:var(--geo-font-caption)] text-zinc-500 dark:text-zinc-400">{{ d.resumo.comunicacoesAtrasadas }} de {{ d.resumo.total }} eventos do período</span>
             </div>
           </div>
         </article>

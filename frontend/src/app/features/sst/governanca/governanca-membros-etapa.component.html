@@ -4,8 +4,8 @@
       <div class="flex items-start gap-3">
         <i class="pi pi-check-circle mt-0.5 text-primary-700 dark:text-primary-400"></i>
         <div>
-          <p class="text-xs font-bold uppercase tracking-wider text-primary-700 dark:text-primary-400">{{ tipo === 'CIPA' ? 'Composição salva' : 'Equipe salva' }}</p>
-          <p class="mt-1 text-xs text-primary-700 dark:text-primary-400">{{ detalhe.corpo.nome }} · {{ detalhe.corpo.baseNome }} · {{ detalhe.corpo.uf }}</p>
+          <p class="text-[length:var(--geo-font-caption)] font-bold uppercase tracking-wider text-primary-700 dark:text-primary-400">{{ tipo === 'CIPA' ? 'Composição salva' : 'Equipe salva' }}</p>
+          <p class="mt-1 text-[length:var(--geo-font-caption)] text-primary-700 dark:text-primary-400">{{ detalhe.corpo.nome }} · {{ detalhe.corpo.baseNome }} · {{ detalhe.corpo.uf }}</p>
         </div>
       </div>
       @if (podeAtivar()) {
@@ -15,16 +15,16 @@
 
     <div class="grid grid-cols-1 gap-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-4 sm:grid-cols-3">
       <div class="flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase text-slate-400">Período</span>
-        <strong class="text-xs font-medium text-slate-700 dark:text-white">{{ detalhe.corpo.inicioPeriodo | date:'dd/MM/yyyy' }} a {{ detalhe.corpo.fimPeriodo | date:'dd/MM/yyyy' }}</strong>
+        <span class="text-[length:var(--geo-font-caption)] font-bold uppercase text-slate-400">Período</span>
+        <strong class="text-[length:var(--geo-font-caption)] font-medium text-slate-700 dark:text-white">{{ detalhe.corpo.inicioPeriodo | date:'dd/MM/yyyy' }} a {{ detalhe.corpo.fimPeriodo | date:'dd/MM/yyyy' }}</strong>
       </div>
       <div class="flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase text-slate-400">Unidade</span>
-        <strong class="text-xs font-medium text-slate-700 dark:text-white">{{ detalhe.corpo.unidadeGovernanca }}</strong>
+        <span class="text-[length:var(--geo-font-caption)] font-bold uppercase text-slate-400">Unidade</span>
+        <strong class="text-[length:var(--geo-font-caption)] font-medium text-slate-700 dark:text-white">{{ detalhe.corpo.unidadeGovernanca }}</strong>
       </div>
       <div class="flex flex-col gap-1">
-        <span class="text-xs font-bold uppercase text-slate-400">Quadro atual</span>
-        <strong class="text-xs font-bold text-primary-700 dark:text-primary-400">{{ membrosAtivos().length }} {{ membrosAtivos().length === 1 ? 'integrante' : 'integrantes' }}</strong>
+        <span class="text-[length:var(--geo-font-caption)] font-bold uppercase text-slate-400">Quadro atual</span>
+        <strong class="text-[length:var(--geo-font-caption)] font-bold text-primary-700 dark:text-primary-400">{{ membrosAtivos().length }} {{ membrosAtivos().length === 1 ? 'integrante' : 'integrantes' }}</strong>
       </div>
     </div>
 
@@ -78,7 +78,7 @@
                 <p-button icon="pi pi-sync" [rounded]="true" [text]="true" pTooltip="Substituir integrante" (onClick)="prepararSubstituicao(membro)" styleClass="table-action-button" />
                 <p-button icon="pi pi-sign-out" [rounded]="true" [text]="true" severity="danger" pTooltip="Retirar integrante" (onClick)="prepararSaida(membro)" styleClass="table-action-button" />
               } @else {
-                <span class="text-xs text-slate-300 dark:text-slate-600">—</span>
+                <span class="text-[length:var(--geo-font-caption)] text-slate-300 dark:text-slate-600">—</span>
               }
             </td>
           </tr>
@@ -99,8 +99,8 @@
 
     @if (!podeGerenciar()) {
       <div class="flex items-start gap-2 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 p-3">
-        <i class="pi pi-lock mt-0.5 text-xs text-slate-400"></i>
-        <p class="text-xs text-slate-500 dark:text-slate-300">A formação está encerrada ou seu perfil não possui permissão para alterar integrantes.</p>
+        <i class="pi pi-lock mt-0.5 text-[length:var(--geo-font-caption)] text-slate-400"></i>
+        <p class="text-[length:var(--geo-font-caption)] text-slate-500 dark:text-slate-300">A formação está encerrada ou seu perfil não possui permissão para alterar integrantes.</p>
       </div>
     } @else if (modo() === 'SAIDA') {
       <section class="action-panel action-panel-danger" [formGroup]="formMovimentacao">
@@ -179,7 +179,7 @@
           <div class="form-field">
             <label for="colaborador">Colaborador *</label>
             <p-select inputId="colaborador" formControlName="idColaborador" [options]="colaboradoresDisponiveis()" optionLabel="nomeCompleto" optionValue="id" [filter]="true" filterBy="nomeCompleto" [loading]="carregandoColaboradores()" [showClear]="true" [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" placeholder="Digite o nome do colaborador" class="w-full" size="small" appendTo="body" (onFilter)="pesquisarColaboradores($event)" (onLazyLoad)="carregarMaisColaboradores()">
-              <ng-template #item let-colaborador><div class="flex flex-col py-1"><span class="text-xs font-medium text-slate-700">{{ colaborador.nomeCompleto }}</span><span class="text-xs text-slate-400">{{ colaborador.funcao?.nome || 'Função não informada' }} · {{ colaborador.baseOperacional?.nome }}</span></div></ng-template>
+              <ng-template #item let-colaborador><div class="flex flex-col py-1"><span class="text-[length:var(--geo-font-caption)] font-medium text-slate-700">{{ colaborador.nomeCompleto }}</span><span class="text-[length:var(--geo-font-caption)] text-slate-400">{{ colaborador.funcao?.nome || 'Função não informada' }} · {{ colaborador.baseOperacional?.nome }}</span></div></ng-template>
             </p-select>
             @if (campoInvalido('idColaborador')) { <small class="field-error">Selecione um colaborador.</small> }
           </div>
@@ -239,7 +239,7 @@
                   <input id="classificacao" pInputText type="number" min="1" formControlName="classificacaoEleitoral" class="w-full" />
                   @if (formularioTentado() && !formMembro.controls.classificacaoEleitoral.value) { <small class="field-error">Informe a classificação.</small> }
                 </div>
-                <label class="flex items-center gap-2 text-xs text-slate-500 md:col-span-2"><p-checkbox formControlName="reeleito" [binary]="true" /><span>Este integrante foi reeleito</span></label>
+                <label class="flex items-center gap-2 text-[length:var(--geo-font-caption)] text-slate-500 md:col-span-2"><p-checkbox formControlName="reeleito" [binary]="true" /><span>Este integrante foi reeleito</span></label>
               } @else if (exigeAtoDesignacao()) {
                 <div class="form-field md:col-span-2">
                   <label for="atoDesignacao">Ato de designação *</label>
@@ -251,7 +251,7 @@
           </div>
 
           @if (formularioTentado() && !formularioMembroValido()) {
-            <div class="flex items-start gap-2 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/40 p-3"><i class="pi pi-exclamation-circle mt-0.5 text-amber-600 dark:text-amber-400"></i><p class="text-xs text-amber-700 dark:text-amber-300">Revise os campos indicados antes de confirmar.</p></div>
+            <div class="flex items-start gap-2 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/40 p-3"><i class="pi pi-exclamation-circle mt-0.5 text-amber-600 dark:text-amber-400"></i><p class="text-[length:var(--geo-font-caption)] text-amber-700 dark:text-amber-300">Revise os campos indicados antes de confirmar.</p></div>
           }
 
           <div class="flex justify-end">

@@ -87,7 +87,9 @@ export function criarGradienteBarra(
  */
 export function montarDadosGraficoEvolucao(
   serie: readonly SerieEventosItem[],
-  corPrimaria?: TomGradiente | string | null
+  corPrimaria?: TomGradiente | string | null,
+  /** Cores do tema atual (ThemeTokens): a linha de lesões segue o perigo e o fundo dos pontos, a superfície. */
+  tema?: { perigo: string; superficie: string }
 ): DadosGraficoEvolucao {
   const paleta = obterPaletaPrimaria(corPrimaria);
 
@@ -156,15 +158,15 @@ export function montarDadosGraficoEvolucao(
         label: 'Com lesão',
         data: serie.map((item) => item.comLesao),
         order: 1,
-        borderColor: '#dc2626',
+        borderColor: tema?.perigo || '#dc2626',
         backgroundColor: 'rgba(220, 38, 38, 0.08)',
         borderWidth: 2.5,
         // Marcador só onde houve lesão: dias zerados não viram uma fileira de bolinhas.
         pointRadius: serie.map((item) => (item.comLesao > 0 ? 4 : 0)),
         pointHoverRadius: 6,
         pointHitRadius: 18,
-        pointBackgroundColor: '#ffffff',
-        pointBorderColor: '#dc2626',
+        pointBackgroundColor: tema?.superficie || '#ffffff',
+        pointBorderColor: tema?.perigo || '#dc2626',
         pointBorderWidth: 2.5,
         tension: 0.3,
         cubicInterpolationMode: 'monotone',

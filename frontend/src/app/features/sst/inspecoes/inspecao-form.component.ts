@@ -55,7 +55,7 @@ import { LookupStore } from '../../../core/lookup/store/lookup.store';
 import { RemoteLookup as LookupRemoteLookup } from '../../../core/lookup/store/remote-lookup';
 import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 import { GeoAutocompleteComponent, GeoBooleanControlComponent } from '@geo/ui/forms';
-import { GeoBreadcrumbItem, GeoButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
+import { GeoBreadcrumbItem, GeoButtonComponent, GeoIconButtonComponent, GeoPageHeaderComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 
 interface RespostaState {
   opcoesSelecionadas: string[];
@@ -95,6 +95,8 @@ interface Inspecionado {
     FormsModule,
     GeoPageHeaderComponent,
     GeoButtonComponent,
+    GeoStatusComponent,
+    GeoIconButtonComponent,
     ButtonModule,
     InputTextModule,
     InputNumberModule,
@@ -141,12 +143,12 @@ interface Inspecionado {
         <div class="px-4 md:px-8 py-5 md:py-6 flex flex-col gap-5 md:gap-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
             <div class="flex flex-col gap-2">
-              <label class="dl flex items-center gap-2"><i class="pi pi-file-edit text-slate-400 dark:text-slate-500"></i> Modelo do formulário <span class="text-red-500">*</span></label>
+              <label class="dl flex items-center gap-2"><i class="pi pi-file-edit text-[var(--geo-foreground-subtle)]"></i> Modelo do formulário <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
               <p-select [options]="formularios()" [(ngModel)]="idFormulario" [disabled]="isModoEdicao()" optionLabel="titulo" optionValue="id" placeholder="Selecione o molde da inspeção" class="doc-select w-full" [filter]="true" appendTo="body" (onChange)="onSelecionarFormulario()"></p-select>
             </div>
 
             <div class="flex flex-col gap-2">
-              <label class="dl flex items-center gap-2"><i class="pi pi-tags text-slate-400 dark:text-slate-500"></i> Tipo de inspeção <span class="text-red-500">*</span></label>
+              <label class="dl flex items-center gap-2"><i class="pi pi-tags text-[var(--geo-foreground-subtle)]"></i> Tipo de inspeção <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
               <p-select [options]="tiposInspecao()" [(ngModel)]="idTipoInspecao" optionLabel="nome" optionValue="id" placeholder="Selecione o tipo de inspeção" class="doc-select w-full" [filter]="true" appendTo="body"></p-select>
             </div>
           </div>
@@ -156,55 +158,55 @@ interface Inspecionado {
           }
 
           @if (formulario()) {
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 p-4 md:p-5 bg-slate-50/50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-slate-800">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5 p-4 md:p-5 bg-[var(--geo-surface-subtle)] rounded-lg border border-[var(--geo-border)]">
               <div class="flex flex-col gap-2">
-                <label class="dl flex items-center gap-2"><i class="pi pi-sitemap text-slate-400 dark:text-slate-500"></i> Processo <span class="text-red-500">*</span></label>
+                <label class="dl flex items-center gap-2"><i class="pi pi-sitemap text-[var(--geo-foreground-subtle)]"></i> Processo <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                 <p-select [options]="processos()" [(ngModel)]="idProcesso" optionLabel="nome" optionValue="id" placeholder="Selecione" class="doc-select w-full" [filter]="true" appendTo="body"></p-select>
               </div>
               <div class="flex flex-col gap-2">
-                <label class="dl flex items-center gap-2"><i class="pi pi-calendar-clock text-slate-400 dark:text-slate-500"></i> Data / hora <span class="text-red-500">*</span></label>
+                <label class="dl flex items-center gap-2"><i class="pi pi-calendar-clock text-[var(--geo-foreground-subtle)]"></i> Data / hora <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                 <p-datepicker [(ngModel)]="dataRealizacao" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" placeholder="dd/mm/aaaa hh:mm" appendTo="body" class="doc-date w-full"></p-datepicker>
               </div>
               <div class="flex flex-col gap-2">
-                <label class="dl flex items-center gap-2"><i class="pi pi-building text-slate-400 dark:text-slate-500"></i> Base operacional <span class="text-red-500">*</span></label>
+                <label class="dl flex items-center gap-2"><i class="pi pi-building text-[var(--geo-foreground-subtle)]"></i> Base operacional <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                 @if (podeLerBases()) {
                   <p-select [options]="basesOperacionais()" [(ngModel)]="idBaseOperacional" optionLabel="nome" optionValue="id" placeholder="Selecione a base" class="doc-select w-full" [filter]="true" appendTo="body" [loading]="carregandoBases()"></p-select>
                 } @else {
-                  <div class="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                  <div class="rounded-lg border border-[var(--geo-warning-border)] bg-[var(--geo-warning-soft)] px-3 py-2 text-xs leading-relaxed text-[var(--geo-warning-text)]">
                     <i class="pi pi-lock mr-1"></i>
                     Seu perfil pode lançar inspeções, mas não pode consultar bases. Solicite a permissão <strong>rh:base-operacional:read</strong>.
                   </div>
                 }
               </div>
               <div class="flex flex-col gap-2">
-                <label class="dl flex items-center gap-2"><i class="pi pi-car text-slate-400 dark:text-slate-500"></i> Veículo</label>
+                <label class="dl flex items-center gap-2"><i class="pi pi-car text-[var(--geo-foreground-subtle)]"></i> Veículo</label>
                 <p-select [options]="veiculos()" [(ngModel)]="idVeiculo" optionLabel="placa" optionValue="id" placeholder="Opcional" class="doc-select w-full" [filter]="true" filterBy="placa,modelo" [showClear]="true" [loading]="veiculosLoading()" [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body" (onShow)="openVeiculos()" (onFilter)="searchVeiculos($event)" (onLazyLoad)="loadMoreVeiculos()"></p-select>
               </div>
             </div>
 
             <div class="flex flex-col gap-2">
-              <label class="dl flex items-center gap-2"><i class="pi pi-comment text-slate-400 dark:text-slate-500"></i> Observações</label>
+              <label class="dl flex items-center gap-2"><i class="pi pi-comment text-[var(--geo-foreground-subtle)]"></i> Observações</label>
               <textarea pTextarea [(ngModel)]="observacoes" rows="2" placeholder="Observações gerais da inspeção..." class="doc-textarea w-full"></textarea>
             </div>
 
             @if (isModoEdicao()) {
               <div class="flex flex-col gap-2">
-                <label class="dl flex items-center gap-2"><i class="pi pi-history text-slate-400 dark:text-slate-500"></i> Justificativa da edição</label>
+                <label class="dl flex items-center gap-2"><i class="pi pi-history text-[var(--geo-foreground-subtle)]"></i> Justificativa da edição</label>
                 <textarea pTextarea [(ngModel)]="justificativaEdicao" rows="2" maxlength="500" placeholder="Motivo da alteração da inspeção (registrado no histórico de auditoria)..." class="doc-textarea w-full"></textarea>
               </div>
             }
 
             <!-- Colaboradores: adicionar (esq.) | inspecionados (dir.) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-              <div class="p-4 md:p-5 flex flex-col gap-4 bg-slate-50/80 dark:bg-slate-900/60 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800">
-                <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
-                  <i class="pi pi-user-plus text-primary-700 dark:text-primary-400"></i>
-                  <span class="text-xs font-medium text-slate-700 dark:text-slate-200">Adicionar colaboradores</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 rounded-lg border border-[var(--geo-border)] overflow-hidden">
+              <div class="p-4 md:p-5 flex flex-col gap-4 bg-[var(--geo-surface-subtle)] border-b md:border-b-0 md:border-r border-[var(--geo-border)]">
+                <div class="flex items-center gap-2 border-b border-[var(--geo-border)] pb-2">
+                  <i class="pi pi-user-plus text-[var(--geo-brand-text)]"></i>
+                  <span class="text-xs font-medium text-[var(--geo-foreground-muted)]">Adicionar colaboradores</span>
                 </div>
                 <div class="flex flex-col gap-2">
                   <label class="dl">Por equipe</label>
                   <p-select [options]="equipes()" [(ngModel)]="idEquipe" optionLabel="codigo" optionValue="id" placeholder="Individual (sem equipe)" class="doc-select w-full" [filter]="true" filterBy="codigo,nome" [showClear]="true" [loading]="equipesLoading()" [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true" appendTo="body" (onShow)="openEquipes()" (onFilter)="searchEquipes($event)" (onLazyLoad)="loadMoreEquipes()" (onChange)="onSelecionarEquipe()"></p-select>
-                  <span class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1"><i class="pi pi-info-circle"></i> Integrantes entram automaticamente.</span>
+                  <span class="text-xs text-[var(--geo-foreground-subtle)] flex items-center gap-1"><i class="pi pi-info-circle"></i> Integrantes entram automaticamente.</span>
                 </div>
                 <div class="flex flex-col gap-2 mt-2">
                   <label class="dl">Manualmente</label>
@@ -232,28 +234,28 @@ interface Inspecionado {
                   ></geo-autocomplete>
                 </div>
               </div>
-              <div class="p-4 md:p-5 flex flex-col gap-4 bg-white dark:bg-slate-900">
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
+              <div class="p-4 md:p-5 flex flex-col gap-4 bg-[var(--geo-surface)]">
+                <div class="flex items-center justify-between border-b border-[var(--geo-border)] pb-2">
                   <div class="flex items-center gap-2">
-                    <i class="pi pi-users text-primary-700 dark:text-primary-400"></i>
-                    <span class="text-xs font-medium text-slate-700 dark:text-slate-200">Lista de inspecionados <span class="text-red-500">*</span></span>
+                    <i class="pi pi-users text-[var(--geo-brand-text)]"></i>
+                    <span class="text-xs font-medium text-[var(--geo-foreground-muted)]">Lista de inspecionados <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></span>
                   </div>
-                  <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border border-transparent dark:border-primary-800/40 text-xs font-medium">{{ inspecionados().length }}</span>
+                  <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full bg-[var(--geo-brand-soft)] text-[var(--geo-brand-text)] border border-transparent text-xs font-medium">{{ inspecionados().length }}</span>
                 </div>
                 @if (inspecionados().length) {
-                  <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-800 max-h-[220px] overflow-y-auto pr-1">
+                  <div class="flex flex-col divide-y divide-[var(--geo-border)] max-h-[220px] overflow-y-auto pr-1">
                     @for (c of inspecionados(); track c.id) {
                       <div class="flex items-center justify-between gap-2 py-2.5 group">
-                        <span class="flex items-center gap-2 text-[12px] font-medium text-slate-700 dark:text-slate-200 truncate"><i class="pi pi-user text-xs text-slate-400 dark:text-slate-500 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors"></i>{{ c.nome }}</span>
-                        <button type="button" (click)="removerInspecionado(c.id)" class="w-6 h-6 rounded flex items-center justify-center text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shrink-0" pTooltip="Remover"><i class="pi pi-times text-xs"></i></button>
+                        <span class="flex items-center gap-2 text-[12px] font-medium text-[var(--geo-foreground-muted)] truncate"><i class="pi pi-user text-xs text-[var(--geo-foreground-subtle)] group-hover:text-[var(--geo-brand-text)] transition-colors"></i>{{ c.nome }}</span>
+                        <geo-icon-button icon="pi pi-times" size="icon-sm" [label]="'Remover ' + c.nome" (pressed)="removerInspecionado(c.id)"></geo-icon-button>
                       </div>
                     }
                   </div>
                 } @else {
-                  <div class="flex flex-col items-center justify-center gap-2 py-10 text-center bg-slate-50/50 dark:bg-slate-800/30 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
-                    <i class="pi pi-users text-2xl text-slate-300 dark:text-slate-600"></i>
-                    <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Nenhum colaborador na lista.</span>
-                    <span class="text-xs text-slate-400 dark:text-slate-500">Utilize o painel ao lado para adicionar.</span>
+                  <div class="flex flex-col items-center justify-center gap-2 py-10 text-center bg-[var(--geo-surface-subtle)] rounded-lg border border-dashed border-[var(--geo-border)]">
+                    <i class="pi pi-users text-2xl text-[var(--geo-foreground-subtle)]"></i>
+                    <span class="text-xs font-medium text-[var(--geo-foreground-subtle)]">Nenhum colaborador na lista.</span>
+                    <span class="text-xs text-[var(--geo-foreground-subtle)]">Utilize o painel ao lado para adicionar.</span>
                   </div>
                 }
               </div>
@@ -268,20 +270,20 @@ interface Inspecionado {
       <!-- ========================= CORPO (CHECKLIST) ========================= -->
       @if (formulario()) {
         @if (!podePreencherChecklist()) {
-          <div class="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-5 md:p-6 flex flex-col items-center justify-center text-center gap-3.5">
-            <div class="w-11 h-11 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-500 dark:text-blue-400 flex items-center justify-center border border-blue-100 dark:border-blue-900/50">
+          <div class="bg-[var(--geo-surface)] rounded-lg border border-[var(--geo-border)] p-5 md:p-6 flex flex-col items-center justify-center text-center gap-3.5">
+            <div class="w-11 h-11 rounded-full bg-[var(--geo-brand-soft)] text-[var(--geo-brand-text)] flex items-center justify-center border border-[var(--geo-border-strong)]">
               <i class="pi pi-lock text-lg"></i>
             </div>
             <div class="flex flex-col gap-0.5">
-              <span class="text-[12px] font-medium text-slate-700 dark:text-slate-200">Complete os dados para liberar o checklist</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">Faltam apenas estes passos:</span>
+              <span class="text-[12px] font-medium text-[var(--geo-foreground-muted)]">Complete os dados para liberar o checklist</span>
+              <span class="text-xs text-[var(--geo-foreground-subtle)]">Faltam apenas estes passos:</span>
             </div>
             <div class="flex flex-col gap-1.5 w-full max-w-xs mt-0.5">
               @for (r of requisitos(); track r.label) {
                 <div class="flex items-center gap-2 text-left rounded-lg border px-3 py-2 transition-colors"
-                     [ngClass]="r.ok ? 'border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/50 dark:bg-emerald-950/30' : 'border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40'">
-                  <i class="pi text-[12px] shrink-0" [ngClass]="r.ok ? 'pi-check-circle text-emerald-500 dark:text-emerald-400' : 'pi-circle text-slate-300 dark:text-slate-600'"></i>
-                  <span class="text-xs font-medium" [ngClass]="r.ok ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-600 dark:text-slate-400'">{{ r.label }}</span>
+                     [ngClass]="r.ok ? 'border-[var(--geo-success)] bg-[var(--geo-success-soft)]' : 'border-[var(--geo-border)] bg-[var(--geo-surface-subtle)]'">
+                  <i class="pi text-[12px] shrink-0" [ngClass]="r.ok ? 'pi-check-circle text-[var(--geo-success-text)]' : 'pi-circle text-[var(--geo-foreground-subtle)]'"></i>
+                  <span class="text-xs font-medium" [ngClass]="r.ok ? 'text-[var(--geo-success-text)]' : 'text-[var(--geo-foreground-muted)]'">{{ r.label }}</span>
                 </div>
               }
             </div>
@@ -290,18 +292,18 @@ interface Inspecionado {
           <div class="flex flex-col gap-4 md:gap-6">
             <!-- Progresso do checklist -->
             @if (progresso(); as pg) {
-              <div class="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm px-4 md:px-5 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <div class="sticky top-0 z-20 bg-[var(--geo-surface)]/95 backdrop-blur rounded-lg border border-[var(--geo-border)] px-4 md:px-5 py-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
                 <div class="flex flex-col gap-1.5 min-w-0 flex-1">
                   <div class="flex items-center gap-3 flex-wrap text-xs">
-                    <span class="font-medium text-slate-800 dark:text-slate-100">{{ pg.respondidas }} de {{ pg.total }} respondidas</span>
+                    <span class="font-medium text-[var(--geo-foreground)]">{{ pg.respondidas }} de {{ pg.total }} respondidas</span>
                     @if (pg.naoConformes) {
-                      <span class="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-400"><i class="pi pi-exclamation-triangle text-xs"></i>{{ pg.naoConformes }} {{ pg.naoConformes === 1 ? 'não conformidade' : 'não conformidades' }}</span>
+                      <span class="inline-flex items-center gap-1 font-medium text-[var(--geo-warning-text)]"><i class="pi pi-exclamation-triangle text-xs"></i>{{ pg.naoConformes }} {{ pg.naoConformes === 1 ? 'não conformidade' : 'não conformidades' }}</span>
                     } @else {
-                      <span class="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400"><i class="pi pi-check-circle text-xs"></i>Nenhuma não conformidade</span>
+                      <span class="inline-flex items-center gap-1 text-[var(--geo-foreground-subtle)]"><i class="pi pi-check-circle text-xs"></i>Nenhuma não conformidade</span>
                     }
                   </div>
-                  <div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden" role="progressbar" [attr.aria-valuenow]="pg.respondidas" [attr.aria-valuemax]="pg.total" aria-label="Perguntas respondidas">
-                    <div class="h-full bg-primary-600 transition-all" [style.width.%]="pg.total ? (pg.respondidas * 100) / pg.total : 0"></div>
+                  <div class="h-1.5 rounded-full bg-[var(--geo-surface-muted)] overflow-hidden" role="progressbar" [attr.aria-valuenow]="pg.respondidas" [attr.aria-valuemax]="pg.total" aria-label="Perguntas respondidas">
+                    <div class="h-full bg-[var(--geo-brand)] transition-all" [style.width.%]="pg.total ? (pg.respondidas * 100) / pg.total : 0"></div>
                   </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0 flex-wrap">
@@ -313,15 +315,15 @@ interface Inspecionado {
             @for (grupo of formulario()!.grupos; track grupo.id; let gi = $index) {
               @let rg = resumoGrupo(grupo);
               @if (!soNaoConformes() || rg.naoConformes > 0) {
-              <div class="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+              <div class="bg-[var(--geo-surface)] rounded-lg border border-[var(--geo-border)] overflow-hidden">
                 <!-- Cabeçalho do grupo -->
-                <div class="bg-slate-100 dark:bg-slate-800/70 border-b border-slate-200 dark:border-slate-800 px-4 md:px-5 py-2.5 md:py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div class="bg-[var(--geo-surface-muted)] border-b border-[var(--geo-border)] px-4 md:px-5 py-2.5 md:py-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                   <button type="button" class="flex items-center gap-2 text-left min-w-0" (click)="alternarGrupo(grupo.id)" [attr.aria-expanded]="!grupoRecolhido(grupo.id)">
-                    <i class="pi text-xs text-slate-500 shrink-0" [ngClass]="grupoRecolhido(grupo.id) ? 'pi-chevron-right' : 'pi-chevron-down'"></i>
-                    <span class="text-[13px] font-medium text-slate-800 dark:text-slate-100">{{ formatarNumero(gi + 1) }}. {{ grupo.titulo }}</span>
-                    <span class="text-xs text-slate-500 dark:text-slate-400 shrink-0">{{ rg.respondidas }}/{{ rg.total }}</span>
+                    <i class="pi text-xs text-[var(--geo-foreground-subtle)] shrink-0" [ngClass]="grupoRecolhido(grupo.id) ? 'pi-chevron-right' : 'pi-chevron-down'"></i>
+                    <span class="text-[13px] font-medium text-[var(--geo-foreground)]">{{ formatarNumero(gi + 1) }}. {{ grupo.titulo }}</span>
+                    <span class="text-xs text-[var(--geo-foreground-subtle)] shrink-0">{{ rg.respondidas }}/{{ rg.total }}</span>
                     @if (rg.naoConformes) {
-                      <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 shrink-0">{{ rg.naoConformes }} NC</span>
+                      <span class="text-xs font-medium px-1.5 py-0.5 rounded bg-[var(--geo-warning-soft)] text-[var(--geo-warning-text)] shrink-0">{{ rg.naoConformes }} NC</span>
                     }
                   </button>
                   @if (rg.checklist) {
@@ -334,21 +336,21 @@ interface Inspecionado {
 
                 <!-- Perguntas -->
                 @if (!grupoRecolhido(grupo.id)) {
-                <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-800">
+                <div class="flex flex-col divide-y divide-[var(--geo-border)]">
                   @for (pergunta of grupo.perguntas; track pergunta.id; let pi = $index) {
                     @if (!soNaoConformes() || temNaoConforme(pergunta)) {
-                    <div class="px-4 md:px-5 py-4 md:py-5 bg-white dark:bg-slate-900 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <div class="px-4 md:px-5 py-4 md:py-5 bg-[var(--geo-surface)] hover:bg-[var(--geo-surface-subtle)] transition-colors">
                       @if (isObjetivo(pergunta.tipoResposta)) {
                         <div class="flex flex-col gap-4">
                           <div class="flex flex-col gap-2.5">
                             <div class="flex items-start gap-2">
-                              <span class="text-[12px] md:text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">
+                              <span class="text-[12px] md:text-sm font-medium text-[var(--geo-foreground)] leading-snug">
                                 {{ pi + 1 }}. {{ pergunta.enunciado }}
-                                @if (pergunta.obrigatoria) { <span class="text-red-500 ml-1" pTooltip="Obrigatório">*</span> }
+                                @if (pergunta.obrigatoria) { <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span> }
                               </span>
                             </div>
                             @if (pergunta.orientacao) {
-                              <span class="ml-4 -mt-1 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
+                              <span class="ml-4 -mt-1 text-xs text-[var(--geo-foreground-subtle)] flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
                             }
                             <!-- Opções: checklist lado a lado; demais em coluna -->
                             <div class="flex ml-4" [ngClass]="ehChecklist(pergunta) ? 'flex-row flex-wrap gap-1.5' : 'flex-col gap-0.5'" role="group" [attr.aria-label]="pergunta.enunciado">
@@ -356,7 +358,7 @@ interface Inspecionado {
                                 <button type="button" (click)="toggleOpcao(pergunta, opcao.id, opcao.geraDesvio)" [attr.aria-pressed]="isOpcaoSelecionada(pergunta.id, opcao.id)"
                                   [ngClass]="ehChecklist(pergunta) ? 'checklist-opcao' : ''"
                                   class="group flex items-start gap-2.5 text-left py-2 px-2 -mx-1.5 rounded-md transition-colors"
-                                  [ngClass]="isOpcaoSelecionada(pergunta.id, opcao.id) ? (opcao.geraDesvio ? 'text-red-700 dark:text-red-400 font-medium bg-red-50 dark:bg-red-950/40' : 'text-primary-700 dark:text-primary-300 font-medium bg-primary-50 dark:bg-primary-950/40') : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'">
+                                  [ngClass]="isOpcaoSelecionada(pergunta.id, opcao.id) ? (opcao.geraDesvio ? 'text-[var(--geo-danger-text)] font-medium bg-[var(--geo-danger-soft)]' : 'text-[var(--geo-brand-text)] font-medium bg-[var(--geo-brand-soft)]') : 'text-[var(--geo-foreground-muted)] hover:bg-[var(--geo-surface-subtle)]'">
                                   <div class="w-3.5 h-3.5 mt-0.5 rounded-sm border shrink-0 flex-none"
                                       [ngClass]="boxClass(pergunta.id, opcao.id, opcao.geraDesvio)">
                                   </div>
@@ -369,40 +371,35 @@ interface Inspecionado {
                         <!-- Bloco(s) de desvio -->
                         @for (opcao of pergunta.opcoes; track opcao.id) {
                           @if (opcao.geraDesvio && isOpcaoSelecionada(pergunta.id, opcao.id) && desvioRef(pergunta.id, opcao.id); as dv) {
-                            <div class="rounded-lg border border-l-4 px-3.5 md:px-5 py-3.5 md:py-4 flex flex-col gap-3.5 md:gap-4 mt-2 ml-1 md:ml-4 transition-all" [ngStyle]="desvioBoxStyle(opcao.gravidade)">
-                              <div class="flex flex-col gap-2 pb-2.5 border-b sm:flex-row sm:items-center sm:justify-between" [ngStyle]="{'border-bottom-color': corGravidade(opcao.gravidade) + '40'}">
+                            <div class="desvio-box rounded-lg border border-l-4 px-3.5 md:px-5 py-3.5 md:py-4 flex flex-col gap-3.5 md:gap-4 mt-2 ml-1 md:ml-4" [attr.data-tone]="tomGravidade(opcao.gravidade)">
+                              <div class="flex flex-col gap-2 pb-2.5 border-b border-[var(--geo-border)] sm:flex-row sm:items-center sm:justify-between">
                                 <div class="flex items-center gap-2 flex-wrap min-w-0">
-                                  <i class="pi pi-exclamation-triangle text-sm shrink-0" [ngStyle]="{'color': corGravidade(opcao.gravidade)}"></i>
-                                  <span class="text-xs font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}">Tratamento de desvio</span>
-                                  <span class="text-xs font-medium px-2 py-0.5 rounded-md max-w-full truncate" [ngStyle]="{'background-color': corGravidade(opcao.gravidade) + '30', 'color': corGravidadeTexto(opcao.gravidade)}">Motivo: {{ opcao.texto }}</span>
+                                  <i class="pi pi-exclamation-triangle text-sm shrink-0 desvio-box__icone" aria-hidden="true"></i>
+                                  <span class="text-sm font-semibold text-[var(--geo-foreground)]">Tratamento de desvio</span>
+                                  <span class="text-xs text-[var(--geo-foreground-muted)] max-w-full truncate">Motivo: {{ opcao.texto }}</span>
                                   @if (dv.tratadoInLoco) {
-                                    <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-emerald-600 text-white shadow-sm shrink-0 flex items-center gap-1">
-                                      <i class="pi pi-check text-xs"></i> Tratado in-loco
-                                    </span>
+                                    <geo-status tone="success" icon="pi-check">Tratado in-loco</geo-status>
                                   }
                                 </div>
                                 <div class="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
                                   @if (opcao.gravidade) {
-                                    <span class="text-xs font-semibold px-3.5 py-1.5 rounded-md shadow-sm shrink-0" [ngStyle]="{'background-color': corGravidade(opcao.gravidade), 'color': '#ffffff'}">Gravidade: {{ gravidadeLabel(opcao.gravidade) }}</span>
+                                    <geo-status [tone]="tomGravidade(opcao.gravidade)" icon="pi-exclamation-triangle">Gravidade: {{ gravidadeLabel(opcao.gravidade) }}</geo-status>
                                   }
                                   <input #fileInput type="file" [accept]="acceptAttr" multiple class="hidden" (change)="onAnexarArquivo($event, dv)" />
-                                  <button type="button" (click)="fileInput.click()" pTooltip="Anexar evidência do desvio (Arquivos ou Galeria)" tooltipPosition="left" class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-300 dark:border-slate-600 shadow-sm transition-all hover:border-slate-400 dark:hover:border-slate-500 active:scale-95">
-                                    <i class="pi pi-paperclip text-blue-600 dark:text-blue-400 text-sm"></i>
-                                    <span>Anexar evidência</span>
-                                  </button>
+                                  <geo-button size="sm" variant="outline" icon="pi pi-paperclip" label="Anexar evidência" ariaLabel="Anexar evidência do desvio (arquivos ou galeria)" (pressed)="fileInput.click()"></geo-button>
                                 </div>
                               </div>
 
                               <!-- Banner de Tratamento in-loco -->
                               <div class="flex items-center justify-between p-2.5 rounded-lg border transition-colors"
-                                   [ngClass]="dv.tratadoInLoco ? 'bg-emerald-50/80 border-emerald-300 dark:bg-emerald-950/30 dark:border-emerald-700/50' : 'bg-slate-50/80 border-slate-200 dark:bg-slate-800/40 dark:border-slate-700/60'">
+                                   [ngClass]="dv.tratadoInLoco ? 'bg-[var(--geo-success-soft)] border-[var(--geo-success)]' : 'bg-[var(--geo-surface-subtle)] border-[var(--geo-border)]'">
                                 <div class="flex items-center gap-2.5">
-                                  <i class="text-base" [ngClass]="dv.tratadoInLoco ? 'pi pi-check-circle text-emerald-600 dark:text-emerald-400' : 'pi pi-clock text-slate-400'"></i>
+                                  <i class="text-base" [ngClass]="dv.tratadoInLoco ? 'pi pi-check-circle text-[var(--geo-success-text)]' : 'pi pi-clock text-[var(--geo-foreground-subtle)]'"></i>
                                   <div class="flex flex-col">
-                                    <span class="text-xs font-semibold" [ngClass]="dv.tratadoInLoco ? 'text-emerald-900 dark:text-emerald-200' : 'text-slate-700 dark:text-slate-200'">
+                                    <span class="text-xs font-semibold" [ngClass]="dv.tratadoInLoco ? 'text-[var(--geo-success-text)]' : 'text-[var(--geo-foreground-muted)]'">
                                       Tratamento in-loco (tratado na hora)
                                     </span>
-                                    <span class="text-xs" [ngClass]="dv.tratadoInLoco ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'">
+                                    <span class="text-xs" [ngClass]="dv.tratadoInLoco ? 'text-[var(--geo-success-text)]' : 'text-[var(--geo-foreground-subtle)]'">
                                       {{ dv.tratadoInLoco ? 'O desvio foi sanado imediatamente durante a inspeção. Será registrado como Resolvido.' : 'Marque se o desvio já foi sanado no próprio local de execução.' }}
                                     </span>
                                   </div>
@@ -419,22 +416,22 @@ interface Inspecionado {
                                 <!-- Lado Esquerdo (2 opções) -->
                                 <div class="flex flex-col gap-4">
                                   <div class="flex flex-col gap-1.5">
-                                    <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}"><i class="pi pi-file-edit"></i> Descrição do problema</label>
-                                    <input pInputText [(ngModel)]="dv.descricao" placeholder="Descreva o que foi constatado" class="doc-input w-full" [ngStyle]="{'border-color': corGravidade(opcao.gravidade) + '50'}" />
+                                    <label class="dl flex items-center gap-1.5 font-semibold"><i class="pi pi-file-edit"></i> Descrição do problema</label>
+                                    <input pInputText [(ngModel)]="dv.descricao" placeholder="Descreva o que foi constatado" class="doc-input w-full" />
                                   </div>
                                   <div class="flex flex-col gap-1.5">
-                                    <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}">
+                                    <label class="dl flex items-center gap-1.5 font-semibold">
                                       <i class="pi pi-wrench"></i>
                                       <span>{{ dv.tratadoInLoco ? 'Ação corretiva realizada no local' : 'Ação corretiva recomendada' }}</span>
-                                      @if (dv.tratadoInLoco) { <span class="text-red-500 ml-0.5" pTooltip="Obrigatório para desvios tratados in-loco">*</span> }
+                                      @if (dv.tratadoInLoco) { <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span> }
                                     </label>
-                                    <input pInputText [(ngModel)]="dv.acaoCorretiva" [placeholder]="dv.tratadoInLoco ? 'Descreva o que foi feito na hora para sanar o desvio' : 'O que deve ser feito para corrigir'" class="doc-input w-full" [ngStyle]="{'border-color': corGravidade(opcao.gravidade) + '50'}" />
+                                    <input pInputText [(ngModel)]="dv.acaoCorretiva" [placeholder]="dv.tratadoInLoco ? 'Descreva o que foi feito na hora para sanar o desvio' : 'O que deve ser feito para corrigir'" class="doc-input w-full" />
                                   </div>
                                 </div>
                                 <!-- Lado Direito (2 opções) -->
                                 <div class="flex flex-col gap-4">
                                   <div class="flex flex-col gap-1.5">
-                                    <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}">
+                                    <label class="dl flex items-center gap-1.5 font-semibold">
                                       <i class="pi pi-calendar"></i>
                                       <span>{{ dv.tratadoInLoco ? 'Data da resolução' : 'Prazo' }}</span>
                                       @if (dv.tratadoInLoco) { <span class="text-xs font-normal opacity-75">(in-loco)</span> }
@@ -442,39 +439,39 @@ interface Inspecionado {
                                     <p-datepicker [(ngModel)]="dv.prazo" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" class="doc-date w-full"></p-datepicker>
                                   </div>
                                   <div class="flex flex-col gap-1.5">
-                                    <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}"><i class="pi pi-users"></i> Responsáveis <span class="normal-case font-normal opacity-75">{{ pergunta.desvioPorColaborador === false ? '(opcional: item da equipe ou do veículo)' : '(inspecionados)' }}</span>@if (pergunta.desvioPorColaborador !== false) { <span class="text-red-500 ml-0.5">*</span> }</label>
+                                    <label class="dl flex items-center gap-1.5 font-semibold"><i class="pi pi-users"></i> Responsáveis <span class="normal-case font-normal opacity-75">{{ pergunta.desvioPorColaborador === false ? '(opcional: item da equipe ou do veículo)' : '(inspecionados)' }}</span>@if (pergunta.desvioPorColaborador !== false) { <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span> }</label>
                                     <p-multiselect [options]="inspecionados()" [(ngModel)]="dv.colaboradores" optionLabel="nome" optionValue="id" [placeholder]="pergunta.desvioPorColaborador === false ? 'Equipe, sem pessoa específica' : 'Atribuir a...'" appendTo="body" class="doc-multiselect w-full"></p-multiselect>
                                   </div>
                                 </div>
                               </div>
                               @if (dv.anexosPreview && dv.anexosPreview.length > 0) {
-                                <div class="flex flex-col gap-2.5 pt-3 border-t" [ngStyle]="{'border-top-color': corGravidade(opcao.gravidade) + '40'}">
-                                  <span class="text-xs font-semibold flex items-center gap-1.5" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}">
+                                <div class="flex flex-col gap-2.5 pt-3 border-t border-[var(--geo-border)]">
+                                  <span class="text-xs font-semibold flex items-center gap-1.5">
                                     <i class="pi pi-paperclip"></i> Evidências selecionadas ({{ dv.anexosPreview.length }}):
                                   </span>
                                   <div class="flex items-center gap-2.5 flex-wrap">
                                     @for (anexo of dv.anexosPreview; track $index) {
                                       @if (anexo.isImage) {
-                                        <div (click)="abrirPreviewFoto(anexo.previewUrl || '')" pTooltip="Clique para visualizar em tela cheia" tooltipPosition="top" class="relative group w-16 h-16 rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden shadow-sm bg-white dark:bg-slate-800 cursor-pointer hover:border-blue-500 transition-all">
+                                        <div (click)="abrirPreviewFoto(anexo.previewUrl || '')" pTooltip="Clique para visualizar em tela cheia" tooltipPosition="top" class="relative group w-16 h-16 rounded-lg border border-[var(--geo-border-strong)] overflow-hidden bg-[var(--geo-surface)] cursor-pointer hover:border-[var(--geo-brand)] transition-all">
                                           @if (anexo.previewUrl) {
                                             <img [src]="anexo.previewUrl" class="w-full h-full object-cover" alt="Evidência do desvio" />
                                           } @else {
                                             <div class="w-full h-full flex items-center justify-center">
-                                              <i class="pi pi-spin pi-spinner text-slate-300 dark:text-slate-600 text-sm"></i>
+                                              <i class="pi pi-spin pi-spinner text-[var(--geo-foreground-subtle)] text-sm"></i>
                                             </div>
                                           }
-                                          <button type="button" (click)="$event.stopPropagation(); removerAnexoPreview(dv, $index)" pTooltip="Remover evidência" tooltipPosition="top" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow">
+                                          <button type="button" (click)="$event.stopPropagation(); removerAnexoPreview(dv, $index)" [attr.aria-label]="'Remover evidência ' + anexo.nome" pTooltip="Remover evidência" tooltipPosition="top" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-[var(--geo-danger)] text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                             <i class="pi pi-trash text-xs"></i>
                                           </button>
                                         </div>
                                       } @else {
-                                        <div class="relative group flex items-center gap-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 shadow-sm hover:border-blue-500 transition-all max-w-[240px]">
+                                        <div class="relative group flex items-center gap-2 bg-[var(--geo-surface)] border border-[var(--geo-border-strong)] rounded-lg px-3 py-2 hover:border-[var(--geo-brand)] transition-all max-w-[240px]">
                                           <i [class]="getIconArquivo(anexo.nome)" class="text-base shrink-0"></i>
                                           <div class="flex flex-col min-w-0 pr-5">
-                                            <span class="text-xs font-medium text-slate-800 dark:text-slate-200 truncate" [title]="anexo.nome">{{ anexo.nome }}</span>
-                                            <span class="text-xs text-slate-400 dark:text-slate-500">{{ anexo.tamanho }}</span>
+                                            <span class="text-xs font-medium text-[var(--geo-foreground)] truncate" [title]="anexo.nome">{{ anexo.nome }}</span>
+                                            <span class="text-xs text-[var(--geo-foreground-subtle)]">{{ anexo.tamanho }}</span>
                                           </div>
-                                          <button type="button" (click)="removerAnexoPreview(dv, $index)" pTooltip="Remover evidência" tooltipPosition="top" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow">
+                                          <button type="button" (click)="removerAnexoPreview(dv, $index)" [attr.aria-label]="'Remover evidência ' + anexo.nome" pTooltip="Remover evidência" tooltipPosition="top" class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-[var(--geo-danger)] text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                             <i class="pi pi-trash text-xs"></i>
                                           </button>
                                         </div>
@@ -490,17 +487,17 @@ interface Inspecionado {
                     } @else {
                       <div class="flex flex-col gap-3">
                         <div class="flex items-start gap-2">
-                          <span class="text-xs font-medium text-slate-800 dark:text-slate-200 leading-snug">
+                          <span class="text-xs font-medium text-[var(--geo-foreground)] leading-snug">
                             {{ pi + 1 }}. {{ pergunta.enunciado }}
-                            @if (pergunta.obrigatoria) { <span class="text-red-500 ml-1" pTooltip="Obrigatório">*</span> }
+                            @if (pergunta.obrigatoria) { <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span> }
                           </span>
                         </div>
                         @if (pergunta.orientacao) {
-                          <span class="ml-4 -mt-1.5 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
+                          <span class="ml-4 -mt-1.5 text-xs text-[var(--geo-foreground-subtle)] flex items-center gap-1.5"><i class="pi pi-info-circle text-xs"></i>{{ pergunta.orientacao }}</span>
                         }
                         <div class="ml-4 md:ml-6 mt-1">
                           @if (pergunta.tipoResposta === 'TEXTO') {
-                            <textarea pTextarea [(ngModel)]="respostas[pergunta.id].valorTexto" rows="2" placeholder="Digite sua resposta..." class="doc-textarea w-full md:max-w-2xl bg-white dark:bg-slate-900 focus:bg-slate-50 dark:focus:bg-slate-800/80 transition-colors"></textarea>
+                            <textarea pTextarea [(ngModel)]="respostas[pergunta.id].valorTexto" rows="2" placeholder="Digite sua resposta..." class="doc-textarea w-full md:max-w-2xl bg-[var(--geo-surface)] focus:bg-[var(--geo-surface-subtle)] transition-colors"></textarea>
                           }
                           @if (pergunta.tipoResposta === 'NUMERO') {
                             <p-inputnumber [(ngModel)]="respostas[pergunta.id].valorNumero" [showButtons]="false" placeholder="0" class="doc-number w-full md:w-48"></p-inputnumber>
@@ -525,11 +522,11 @@ interface Inspecionado {
     </div>
 
     @if (formulario() && podePreencherChecklist()) {
-      <div class="fixed inset-x-0 bottom-0 z-30 px-4 pb-4 pt-6 pointer-events-none bg-gradient-to-t from-white via-white to-transparent dark:from-slate-950 dark:via-slate-950/80 dark:to-transparent md:inset-x-auto md:right-12 md:bottom-6 md:p-0 md:bg-none md:flex md:flex-col md:items-end">
+      <div class="fixed inset-x-0 bottom-0 z-30 px-4 pb-4 pt-6 pointer-events-none from-white via-white to-transparent dark:to-transparent md:inset-x-auto md:right-12 md:bottom-6 md:p-0 md:bg-none md:flex md:flex-col md:items-end">
         <!-- O motivo fica visível e o botão continua clicável: desabilitado em silêncio,
              o inspetor clicava, nada acontecia e ele recarregava achando que tinha lançado. -->
         @if (motivoBloqueioLancamento(); as motivo) {
-          <p class="pointer-events-auto mb-2 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 shadow-sm dark:border-amber-800/60 dark:bg-amber-950/60 dark:text-amber-200 md:max-w-xs" role="status">
+          <p class="pointer-events-auto mb-2 flex items-start gap-2 rounded-lg border border-[var(--geo-warning-border)] bg-[var(--geo-warning-soft)] px-3 py-2 text-xs font-medium text-[var(--geo-warning-text)] md:max-w-xs" role="status">
             <i class="pi pi-exclamation-triangle mt-0.5 text-xs" aria-hidden="true"></i>
             <span>{{ motivo }}</span>
           </p>
@@ -540,10 +537,10 @@ interface Inspecionado {
       </div>
     }
 
-    <p-dialog [(visible)]="fotoExpandidaVisible" [modal]="true" appendTo="body" [dismissableMask]="true" [showHeader]="true" header="Visualizar evidência" [style]="{width: '90vw', maxWidth: '750px'}" styleClass="overflow-hidden rounded-2xl">
+    <p-dialog [(visible)]="fotoExpandidaVisible" [modal]="true" appendTo="body" [dismissableMask]="true" [showHeader]="true" header="Visualizar evidência" [style]="{width: '90vw', maxWidth: '750px'}" styleClass="overflow-hidden rounded-lg">
       @if (fotoExpandida) {
-        <div class="flex items-center justify-center p-3 bg-slate-950 rounded-xl">
-          <img [src]="fotoExpandida" class="max-h-[75vh] w-auto object-contain rounded-lg shadow-2xl" alt="Foto expandida do desvio" />
+        <div class="flex items-center justify-center p-3 bg-slate-950 rounded-lg">
+          <img [src]="fotoExpandida" class="max-h-[75vh] w-auto object-contain rounded-lg" alt="Foto expandida do desvio" />
         </div>
       }
     </p-dialog>
@@ -570,7 +567,7 @@ interface Inspecionado {
         </div>
       </div>
 
-      <div class="h-px bg-slate-100 dark:bg-slate-800 my-4"></div>
+      <div class="h-px bg-[var(--geo-surface-muted)] my-4"></div>
 
       <!-- 2. Equipe e Inspecionados -->
       <div class="help-section">
@@ -593,14 +590,14 @@ interface Inspecionado {
         </div>
       </div>
 
-      <div class="h-px bg-slate-100 dark:bg-slate-800 my-4"></div>
+      <div class="h-px bg-[var(--geo-surface-muted)] my-4"></div>
 
       <!-- 3. Preenchimento do Checklist -->
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-check-square"></i> 3. Respondendo ao Questionário</h4>
 
         <div class="help-item">
-          <div class="help-icon"><i class="pi pi-check text-green-600"></i></div>
+          <div class="help-icon"><i class="pi pi-check text-[var(--geo-success-text)]"></i></div>
           <div class="help-text">
             <span class="help-text-title">Opções de Conformidade</span>
             <span class="help-text-desc">Para cada pergunta do questionário, clique na opção correspondente (ex: Conforme, Não Conforme, Não se Aplica).</span>
@@ -608,7 +605,7 @@ interface Inspecionado {
         </div>
 
         <div class="help-item">
-          <div class="help-icon"><i class="pi pi-exclamation-triangle text-red-500"></i></div>
+          <div class="help-icon"><i class="pi pi-exclamation-triangle text-[var(--geo-danger-text)]"></i></div>
           <div class="help-text">
             <span class="help-text-title">Lançando Desvios</span>
             <span class="help-text-desc">Sempre que responder uma opção configurada como irregularidade/desvio, abrirá um quadro vermelho para informar o <strong>Prazo</strong>, a descrição do problema e a ação corretiva imediata.</span>
@@ -616,14 +613,14 @@ interface Inspecionado {
         </div>
       </div>
 
-      <div class="h-px bg-slate-100 dark:bg-slate-800 my-4"></div>
+      <div class="h-px bg-[var(--geo-surface-muted)] my-4"></div>
 
       <!-- 4. Localização e Envio -->
       <div class="help-section">
         <h4 class="help-section-title"><i class="pi pi-send"></i> 4. Finalização</h4>
 
         <div class="help-item">
-          <div class="help-icon"><i class="pi pi-map-marker text-primary-700 dark:text-primary-400"></i></div>
+          <div class="help-icon"><i class="pi pi-map-marker text-[var(--geo-brand-text)]"></i></div>
           <div class="help-text">
             <span class="help-text-title">Geolocalização Automática</span>
             <span class="help-text-desc">O aplicativo captura automaticamente suas coordenadas de GPS no momento da abertura do questionário para comprovação de presença em campo.</span>
@@ -651,6 +648,11 @@ interface Inspecionado {
   changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .checklist-opcao { margin-left: 0; margin-right: 0; padding-left: .75rem; padding-right: .75rem; border: 1px solid var(--p-content-border-color); align-items: center; }
+    .desvio-box { border-color: var(--geo-border); border-left-color: var(--geo-border-strong); background: var(--geo-surface-subtle); }
+    .desvio-box[data-tone='warning'] { border-left-color: var(--geo-warning); }
+    .desvio-box[data-tone='danger'] { border-left-color: var(--geo-danger); }
+    .desvio-box[data-tone='warning'] .desvio-box__icone { color: var(--geo-warning-text); }
+    .desvio-box[data-tone='danger'] .desvio-box__icone { color: var(--geo-danger-text); }
     .insp-card { overflow: hidden; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-lg); background: var(--geo-surface); }
     .dl { font-size: var(--geo-font-label); font-weight: 500; color: var(--geo-foreground-muted); letter-spacing: 0; }
 
@@ -775,49 +777,14 @@ export class InspecaoFormComponent implements OnInit {
     return g ? GRAVIDADE_LABELS[g] || g : '';
   }
 
-  protected corGravidade(g?: GravidadeDesvio | null): string {
+  /** Tom da gravidade (tokens do @geo/ui): baixa neutra, média em aviso, alta e crítica em perigo. */
+  protected tomGravidade(g?: GravidadeDesvio | null): GeoTone {
     switch (g) {
-      case 'BAIXA': return '#FFC107';
-      case 'MEDIA': return '#fd6214';
-      case 'ALTA': return '#E63946';
-      case 'CRITICA': return '#d40202';
-      default: return '#fd6214';
+      case 'BAIXA': return 'neutral';
+      case 'ALTA':
+      case 'CRITICA': return 'danger';
+      default: return 'warning';
     }
-  }
-
-  protected corGravidadeTexto(g?: GravidadeDesvio | null): string {
-    if (this.isDark()) {
-      switch (g) {
-        case 'BAIXA': return '#fbbf24';
-        case 'MEDIA': return '#fb923c';
-        case 'ALTA': return '#f87171';
-        case 'CRITICA': return '#fca5a5';
-        default: return '#fb923c';
-      }
-    }
-    switch (g) {
-      case 'BAIXA': return '#785A00';
-      case 'MEDIA': return '#B84500';
-      case 'ALTA': return '#B81D2A';
-      case 'CRITICA': return '#8a0101';
-      default: return '#B84500';
-    }
-  }
-
-  protected desvioBoxStyle(g?: GravidadeDesvio | null): Record<string, string> {
-    const cor = this.corGravidade(g);
-    if (this.isDark()) {
-      return {
-        'border-left-color': cor,
-        'border-color': `${cor}50`,
-        'background-color': `${cor}15`
-      };
-    }
-    return {
-      'border-left-color': cor,
-      'border-color': `${cor}60`,
-      'background-color': `${cor}24`
-    };
   }
 
   ngOnInit() {
@@ -991,9 +958,9 @@ export class InspecaoFormComponent implements OnInit {
 
   protected boxClass(idPergunta: string, idOpcao: string, geraDesvio: boolean): string {
     if (!this.isOpcaoSelecionada(idPergunta, idOpcao)) {
-      return 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-primary-400 group-hover:bg-slate-50 dark:group-hover:bg-slate-700';
+      return 'border-[var(--geo-border-strong)] bg-[var(--geo-surface)] group-hover:border-[var(--geo-brand)] group-hover:bg-[var(--geo-surface-subtle)]';
     }
-    return geraDesvio ? 'border-red-500 bg-red-500' : 'border-primary-700 dark:border-primary-500 bg-primary-700 dark:bg-primary-500';
+    return geraDesvio ? 'border-[var(--geo-danger-border)] bg-[var(--geo-danger)]' : 'border-[var(--geo-brand)] bg-[var(--geo-brand)]';
   }
 
   private carregarLookups() {
@@ -1400,9 +1367,9 @@ export class InspecaoFormComponent implements OnInit {
 
   protected getIconArquivo(nome: string): string {
     const lower = nome.toLowerCase();
-    if (lower.endsWith('.pdf')) return 'pi pi-file-pdf text-red-500';
-    if (lower.endsWith('.doc') || lower.endsWith('.docx')) return 'pi pi-file-word text-blue-600';
-    return 'pi pi-file text-slate-600';
+    if (lower.endsWith('.pdf')) return 'pi pi-file-pdf text-[var(--geo-danger-text)]';
+    if (lower.endsWith('.doc') || lower.endsWith('.docx')) return 'pi pi-file-word text-[var(--geo-brand-text)]';
+    return 'pi pi-file text-[var(--geo-foreground-muted)]';
   }
 
   /**

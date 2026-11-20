@@ -17,7 +17,7 @@
   background: var(--geo-surface);
 }
 .resumo__topo { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
-.resumo__rotulo { font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--geo-foreground-muted); }
+.resumo__rotulo { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--geo-font-caption); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--geo-foreground-muted); }
 .resumo__icone {
   display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
   width: 1.75rem; height: 1.75rem; border-radius: var(--geo-radius-md, 0.5rem);
@@ -26,23 +26,11 @@
 .resumo__valor { display: block; font-size: 1.5rem; font-weight: 600; color: var(--geo-foreground); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .resumo__legenda { font-size: var(--geo-font-caption); font-weight: 500; color: var(--geo-foreground-muted); }
 
-.resumo--destaque { border-color: var(--geo-brand); background: var(--geo-brand-soft); }
-.resumo--destaque .resumo__rotulo,
-.resumo--destaque .resumo__valor,
-.resumo--destaque .resumo__icone { color: var(--geo-brand); }
-.resumo--destaque .resumo__icone { border-color: var(--geo-brand); background: transparent; }
+.resumo--destaque .resumo__icone { color: var(--geo-brand-text); }
 
-.resumo--sucesso { border-color: var(--geo-success); background: var(--geo-success-soft); }
-.resumo--sucesso .resumo__rotulo,
-.resumo--sucesso .resumo__valor,
 .resumo--sucesso .resumo__icone { color: var(--geo-success-text); }
-.resumo--sucesso .resumo__icone { border-color: var(--geo-success); background: transparent; }
 
-.resumo--alerta { border-color: var(--geo-warning); background: var(--geo-warning-soft); }
-.resumo--alerta .resumo__rotulo,
-.resumo--alerta .resumo__valor,
 .resumo--alerta .resumo__icone { color: var(--geo-warning-text); }
-.resumo--alerta .resumo__icone { border-color: var(--geo-warning); background: transparent; }
 
 /* TABELAS (mesmas medidas das tabelas do termo de desconto) */
 .th {
@@ -55,11 +43,7 @@
 }
 .td { padding: 0.625rem 0.75rem; }
 
-.resumo--perigo { border-color: var(--geo-danger); background: var(--geo-danger-soft); }
-.resumo--perigo .resumo__rotulo,
-.resumo--perigo .resumo__valor,
 .resumo--perigo .resumo__icone { color: var(--geo-danger-text); }
-.resumo--perigo .resumo__icone { border-color: var(--geo-danger); background: transparent; }
 
 /* Gravidade é texto ("Com afastamento"), não número: um degrau menor para caber no cartão. */
 .resumo__valor--texto { font-size: 1.125rem; line-height: 1.75rem; }
@@ -112,18 +96,6 @@
   border-radius: var(--geo-radius-md, 0.5rem);
   background: var(--geo-surface);
   text-align: center;
-}
-
-/* Barra de ações: no celular ocupa a largura, com fundo para não sobrepor o texto. */
-.barra-acoes { background: linear-gradient(to top, var(--geo-surface) 70%, transparent); }
-@media (min-width: 768px) {
-  .barra-acoes { background: none; }
-}
-:host-context(.app-dark) .barra-acoes,
-:host-context(.dark) .barra-acoes { background: linear-gradient(to top, var(--geo-canvas) 70%, transparent); }
-@media (min-width: 768px) {
-  :host-context(.app-dark) .barra-acoes,
-  :host-context(.dark) .barra-acoes { background: none; }
 }
 
 /* MAPA no tema escuro */

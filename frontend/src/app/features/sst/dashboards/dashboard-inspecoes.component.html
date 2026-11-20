@@ -1,9 +1,9 @@
 <app-copiloto-area [contexto]="contextoCopiloto()">
 <main class="dash-page">
   <div class="dash-shell">
-    <geo-page-header title="Cobertura e qualidade das inspeções" icon="pi pi-shield"
+    <geo-page-header title="Dashboard de inspeções" icon="pi pi-shield"
       [breadcrumb]="[{ label: 'Segurança' }, { label: 'Painel de inspeções' }]"
-      description="Entenda se o plano está sendo executado, quanto da meta foi cumprido e qual parte do efetivo já foi alcançada.">
+      description="Cobertura e qualidade das inspeções: se o plano está sendo executado, quanto da meta foi cumprido e qual parte do efetivo já foi alcançada.">
       <app-copiloto-gatilho actions></app-copiloto-gatilho>
         @if (atualizadoEm()) { <span actions class="dash-updated">Atualizado às {{ atualizadoEm() | date: 'HH:mm' }}</span> }
         <geo-button actions label="Exportar" icon="pi pi-file-excel" variant="outline" (pressed)="abrirModalExportacao()"></geo-button>

@@ -3,7 +3,7 @@ import { CommonModule, DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
-import { GeoChartCanvasComponent, type GeoChartCanvasSelectEvent } from '@geo/ui';
+import { GeoChartCanvasComponent, type GeoChartCanvasSelectEvent, type GeoPaletaTema, ThemeTokens } from '@geo/ui';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -240,6 +240,7 @@ export class DashboardEventosComponent implements OnInit {
   private readonly rh = inject(RhService);
   private readonly centrosCustoLookup = inject(CentrosCustoLookupService);
   private readonly themeService = inject(ThemeService);
+  private readonly tokens = inject(ThemeTokens);
   private readonly notificacoes = inject(NotificationService);
   private readonly router = inject(Router);
   protected readonly analise = inject(NavegacaoAnaliseService);
@@ -264,6 +265,7 @@ export class DashboardEventosComponent implements OnInit {
     });
     effect(() => {
       const corPrimaria = this.themeService.primaryColor();
+      this.tokens.paleta();
       const dadosAtuais = this.data();
       if (dadosAtuais) {
         this.prepararGrafico(dadosAtuais, corPrimaria);
@@ -353,7 +355,8 @@ export class DashboardEventosComponent implements OnInit {
   protected dataFim: Date | null = null;
   protected filter: DashboardEventosSstFilter = this.filtroVazio();
   protected serieChartData?: ChartData<'bar' | 'line'>;
-  protected readonly serieChartOptions = this.chartOptions();
+  /** Opções do gráfico com as cores do tema atual (recalcula ao trocar claro/escuro). */
+  protected readonly serieChartOptions = computed(() => this.chartOptions(this.tokens.paleta()));
 
   private readonly chavesDeSelecao: (keyof DashboardEventosSstFilter)[] = [
     'tipo', 'idClassificacao', 'idAtividade', 'idGestor', 'idProcesso', 'idBaseOperacional',
@@ -634,10 +637,11 @@ export class DashboardEventosComponent implements OnInit {
   /** Total em barras e lesões em linha: séries coincidentes continuam distinguíveis. */
   private prepararGrafico(data: DashboardEventosSstResponse, corPrimaria?: GeoPrimaryColor): void {
     const cor = corPrimaria ?? this.themeService.primaryColor();
-    this.serieChartData = montarDadosGraficoEvolucao(data.serie ?? [], cor);
+    const tema = this.tokens.paleta();
+    this.serieChartData = montarDadosGraficoEvolucao(data.serie ?? [], cor, { perigo: tema.perigo, superficie: tema.superficie });
   }
 
-  private chartOptions(): ChartOptions<'bar' | 'line'> {
+  private chartOptions(tema: GeoPaletaTema): ChartOptions<'bar' | 'line'> {
     return {
       maintainAspectRatio: false,
       responsive: true,
@@ -650,18 +654,19 @@ export class DashboardEventosComponent implements OnInit {
             boxWidth: 12, boxHeight: 12,
             borderRadius: 3, useBorderRadius: true,
             font: { size: 11, weight: 600 },
-            color: '#64748b',
+            color: tema.textoSuave,
             padding: 16
           }
         },
         tooltip: {
           mode: 'index', intersect: false,
-          backgroundColor: '#0f172a',
-          titleColor: '#e2e8f0', bodyColor: '#fff',
-          titleFont: { size: 12, weight: 700 },
+          backgroundColor: tema.escuro ? tema.superficie : tema.texto,
+          titleColor: tema.escuro ? tema.texto : tema.superficie, bodyColor: tema.escuro ? tema.texto : tema.superficie,
+          borderColor: tema.borda, borderWidth: tema.escuro ? 1 : 0,
+          titleFont: { size: 12, weight: 600 },
           bodyFont: { size: 12 },
           footerFont: { size: 11, weight: 600 },
-          footerColor: '#94a3b8',
+          footerColor: tema.escuro ? tema.textoSuave : tema.borda,
           padding: 14, cornerRadius: 10,
           displayColors: true,
           boxPadding: 6,
@@ -679,7 +684,7 @@ export class DashboardEventosComponent implements OnInit {
           grid: { display: false },
           border: { display: false },
           ticks: {
-            color: '#829ab1',
+            color: tema.eixo,
             font: { size: 11, weight: 500 },
             maxTicksLimit: 10,
             maxRotation: 45,
@@ -691,9 +696,9 @@ export class DashboardEventosComponent implements OnInit {
           beginAtZero: true,
           grace: '10%',
           border: { display: false },
-          grid: { color: 'rgba(203, 213, 225, 0.3)', drawTicks: false },
+          grid: { color: tema.grade, drawTicks: false },
           ticks: {
-            color: '#94a3b8',
+            color: tema.eixo,
             font: { size: 11, weight: 500 },
             precision: 0,
             maxTicksLimit: 6,

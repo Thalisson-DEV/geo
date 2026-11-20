@@ -121,8 +121,8 @@ describe('EventoDetalheComponent', { timeout: 15000 }, () => {
   it('esconde as ações de escrita de quem só pode ler', async () => {
     const fixture = await montar(['sst:evento:read']);
     const texto = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(texto).not.toContain('ASSUMIR TRATATIVA');
-    expect(texto).not.toContain('CANCELAR REGISTRO');
+    expect(texto).not.toContain('Assumir tratativa');
+    expect(texto).not.toContain('Cancelar registro');
   });
 
   it('cancelamento exige motivo antes de chamar o servidor', async () => {

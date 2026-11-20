@@ -87,7 +87,7 @@
 
                   <div class="form-grid grid-cols-1 md:grid-cols-2">
                     <div class="field md:col-span-2">
-                      <label for="tipo">Tipo de ocorrência *</label>
+                      <label for="tipo">Tipo de ocorrência <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                       <p-select
                         inputId="tipo"
                         [options]="tipoOptions"
@@ -108,7 +108,7 @@
                       }
                     </div>
                     <div class="field">
-                      <label for="dataOcorrencia">Quando ocorreu? *</label>
+                      <label for="dataOcorrencia">Quando ocorreu? <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                       <p-datepicker
                         inputId="dataOcorrencia"
                         [(ngModel)]="dataOcorrencia"
@@ -127,7 +127,7 @@
                       }
                     </div>
                     <div class="field">
-                      <label for="dataComunicacao">Quando foi comunicado? *</label>
+                      <label for="dataComunicacao">Quando foi comunicado? <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                       <p-datepicker
                         inputId="dataComunicacao"
                         [(ngModel)]="dataComunicacao"
@@ -159,7 +159,7 @@
                       }
                     </div>
                     <div class="field md:col-span-2">
-                      <label for="classificacao">Classificação inicial *</label>
+                      <label for="classificacao">Classificação inicial <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                       <p-select
                         inputId="classificacao"
                         [options]="lookups()?.classificacoes || []"
@@ -176,7 +176,7 @@
                       }
                     </div>
                     <div class="field md:col-span-2">
-                      <label for="descricao">Relato do ocorrido *</label>
+                      <label for="descricao">Relato do ocorrido <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                       <textarea
                         id="descricao"
                         pTextarea
@@ -197,7 +197,7 @@
                     </div>
                   </div>
 
-                  <div class="flex justify-end mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div class="flex justify-end mt-6 pt-4 border-t border-[var(--geo-border)]">
                     <p-button
                       label="Continuar"
                       icon="pi pi-arrow-right"
@@ -231,7 +231,7 @@
 
                   <div class="form-grid grid-cols-1 md:grid-cols-2">
                     <div class="field">
-                      <label for="atividade">Atividade em execução *</label>
+                      <label for="atividade">Atividade em execução <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                       <p-select
                         inputId="atividade"
                         [options]="lookups()?.atividades || []"
@@ -270,7 +270,7 @@
                       />
                     </div>
                     <div class="field">
-                      <label for="base">Base operacional *</label>
+                      <label for="base">Base operacional <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                       <p-select
                         inputId="base"
                         [options]="lookups()?.bases || []"
@@ -391,7 +391,7 @@
                     </div>
                   </div>
 
-                  <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div class="flex justify-between items-center mt-6 pt-4 border-t border-[var(--geo-border)]">
                     <p-button
                       label="Voltar"
                       icon="pi pi-arrow-left"
@@ -422,7 +422,7 @@
                   </div>
 
                   <div class="field">
-                    <label for="tecnicos">Técnicos de segurança responsáveis *</label>
+                    <label for="tecnicos">Técnicos de segurança responsáveis <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                     <p-multiselect
                       inputId="tecnicos"
                       [options]="colaboradores()"
@@ -446,14 +446,14 @@
                   </div>
 
                   <div class="subsection">
-                    <div class="flex items-center justify-between gap-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center justify-between gap-3 pb-2 border-b border-[var(--geo-border)]">
                       <div class="flex items-center gap-2">
-                        <div class="w-7 h-7 rounded-lg bg-primary-50 dark:bg-primary-950/50 text-primary-700 dark:text-primary-400 flex items-center justify-center">
-                          <i class="pi pi-users text-xs"></i>
+                        <div class="w-7 h-7 rounded-lg bg-[var(--geo-brand-soft)] text-[var(--geo-brand-text)] flex items-center justify-center">
+                          <i class="pi pi-users text-[length:var(--geo-font-caption)]"></i>
                         </div>
                         <div class="flex items-center gap-2">
-                          <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">Pessoas envolvidas</span>
-                          <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 border border-transparent dark:border-primary-800/40 text-xs font-bold">
+                          <span class="text-sm font-semibold text-[var(--geo-foreground-muted)]">Pessoas envolvidas</span>
+                          <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-[var(--geo-brand-soft)] text-[var(--geo-brand-text)] border border-transparent text-[length:var(--geo-font-caption)] font-semibold">
                             {{ envolvidos().length }}
                           </span>
                         </div>
@@ -478,30 +478,30 @@
                     </div>
 
                     @if (implicaLesao() && !temAcidentado()) {
-                      <div class="flex items-center gap-2 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200 text-xs">
-                        <i class="pi pi-exclamation-triangle text-amber-600 dark:text-amber-400 shrink-0"></i>
+                      <div class="flex items-center gap-2 p-3 rounded-lg bg-[var(--geo-warning-soft)] border border-[var(--geo-warning-border)] text-[var(--geo-warning-text)] text-[length:var(--geo-font-caption)]">
+                        <i class="pi pi-exclamation-triangle text-[var(--geo-warning-text)] shrink-0"></i>
                         <span>Eventos com lesão exigem ao menos uma pessoa com o papel <strong>Acidentado</strong>.</span>
                       </div>
                     }
 
                     <div class="flex flex-col gap-3">
                       @for (envolvido of envolvidos(); track $index) {
-                        <div class="bg-slate-50/60 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700/60 rounded-xl p-3.5 sm:p-4 flex flex-col gap-3 transition-colors">
+                        <div class="bg-[var(--geo-surface-subtle)] border border-[var(--geo-border)] rounded-lg p-3.5 sm:p-4 flex flex-col gap-3 transition-colors">
                           <div class="flex items-center justify-between gap-2">
                             <div class="flex items-center gap-2 flex-wrap">
-                              <span class="text-xs font-bold text-slate-500 dark:text-slate-400">#{{ $index + 1 }}</span>
+                              <span class="text-[length:var(--geo-font-caption)] font-semibold text-[var(--geo-foreground-subtle)]">#{{ $index + 1 }}</span>
                               <span
-                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
+                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[length:var(--geo-font-caption)] font-medium"
                                 [ngClass]="envolvido.tipo === 'COLABORADOR'
-                                  ? 'bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/40'
-                                  : 'bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40'"
+                                  ? 'bg-[var(--geo-brand-soft)] text-[var(--geo-brand-text)] border border-[var(--geo-border-strong)]'
+                                  : 'bg-[var(--geo-surface-subtle)] text-[var(--geo-foreground-muted)] border border-[var(--geo-border)]'"
                               >
                                 <i class="pi" [ngClass]="envolvido.tipo === 'COLABORADOR' ? 'pi-id-card' : 'pi-briefcase'"></i>
                                 {{ tipoEnvolvidoLabel(envolvido.tipo) }}
                               </span>
                               @if (envolvido.papel === 'ACIDENTADO') {
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/40">
-                                  <i class="pi pi-heart text-xs"></i>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[length:var(--geo-font-caption)] font-semibold bg-[var(--geo-danger-soft)] text-[var(--geo-danger-text)] border border-[var(--geo-danger-border)]">
+                                  <i class="pi pi-heart text-[length:var(--geo-font-caption)]"></i>
                                   Acidentado
                                 </span>
                               }
@@ -520,7 +520,7 @@
                           @if (envolvido.tipo === 'COLABORADOR') {
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="sub-label">Papel no evento *</label>
+                                <label class="sub-label">Papel no evento <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                                 <p-select
                                   [options]="papelOptions"
                                   [(ngModel)]="envolvido.papel"
@@ -532,7 +532,7 @@
                                 />
                               </div>
                               <div class="sm:col-span-8 flex flex-col gap-1">
-                                <label class="sub-label">Colaborador *</label>
+                                <label class="sub-label">Colaborador <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                                 <geo-autocomplete
                                   [(ngModel)]="envolvido.idColaborador"
                                   [labelVisible]="false"
@@ -554,14 +554,14 @@
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.idColaborador) {
-                                  <small class="text-red-500 dark:text-red-400 text-xs">Selecione o colaborador.</small>
+                                  <small class="text-[var(--geo-danger-text)] text-[length:var(--geo-font-caption)]">Selecione o colaborador.</small>
                                 }
                               </div>
                             </div>
                           } @else {
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-start">
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="sub-label">Papel no evento *</label>
+                                <label class="sub-label">Papel no evento <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                                 <p-select
                                   [options]="papelOptions"
                                   [(ngModel)]="envolvido.papel"
@@ -573,7 +573,7 @@
                                 />
                               </div>
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="sub-label">Nome completo *</label>
+                                <label class="sub-label">Nome completo <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                                 <input
                                   pInputText
                                   [(ngModel)]="envolvido.nome"
@@ -583,11 +583,11 @@
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.nome.trim()) {
-                                  <small class="text-red-500 dark:text-red-400 text-xs">Informe o nome.</small>
+                                  <small class="text-[var(--geo-danger-text)] text-[length:var(--geo-font-caption)]">Informe o nome.</small>
                                 }
                               </div>
                               <div class="sm:col-span-4 flex flex-col gap-1">
-                                <label class="sub-label">Empresa / Terceirizada *</label>
+                                <label class="sub-label">Empresa / Terceirizada <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                                 <input
                                   pInputText
                                   [(ngModel)]="envolvido.empresa"
@@ -597,20 +597,20 @@
                                   (ngModelChange)="tocarEnvolvidos()"
                                 />
                                 @if (etapaTentada(3) && !envolvido.empresa.trim()) {
-                                  <small class="text-red-500 dark:text-red-400 text-xs">Informe a empresa.</small>
+                                  <small class="text-[var(--geo-danger-text)] text-[length:var(--geo-font-caption)]">Informe a empresa.</small>
                                 }
                               </div>
                             </div>
                           }
                         </div>
                       } @empty {
-                        <div class="flex flex-col items-center justify-center gap-2.5 py-8 px-4 text-center bg-slate-50/50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-700/60">
-                          <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500">
+                        <div class="flex flex-col items-center justify-center gap-2.5 py-8 px-4 text-center bg-[var(--geo-surface-subtle)] rounded-lg border border-dashed border-[var(--geo-border)]">
+                          <div class="w-10 h-10 rounded-full bg-[var(--geo-surface-muted)] flex items-center justify-center text-[var(--geo-foreground-subtle)]">
                             <i class="pi pi-users text-lg"></i>
                           </div>
                           <div class="flex flex-col gap-0.5">
-                            <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">Nenhuma pessoa adicionada</span>
-                            <span class="text-xs text-slate-500 dark:text-slate-400 max-w-sm">Incidentes sem lesão podem ser registrados sem envolvidos. Caso haja pessoas, adicione abaixo.</span>
+                            <span class="text-[length:var(--geo-font-caption)] font-semibold text-[var(--geo-foreground-muted)]">Nenhuma pessoa adicionada</span>
+                            <span class="text-[length:var(--geo-font-caption)] text-[var(--geo-foreground-subtle)] max-w-sm">Incidentes sem lesão podem ser registrados sem envolvidos. Caso haja pessoas, adicione abaixo.</span>
                           </div>
                           <div class="flex items-center gap-2 mt-1">
                             <p-button
@@ -636,12 +636,12 @@
 
                   @if (implicaLesao()) {
                     <div class="subsection impact-section">
-                      <div class="subsection-title text-red-700 dark:text-red-400">
+                      <div class="subsection-title text-[var(--geo-danger-text)]">
                         <i class="pi pi-heart"></i><span>Impacto à pessoa</span>
                       </div>
                       <div class="form-grid grid-cols-1 md:grid-cols-3">
                         <div class="field">
-                          <label for="localLesao">Parte do corpo atingida *</label>
+                          <label for="localLesao">Parte do corpo atingida <span class="geo-field__required" aria-hidden="true">*</span><span class="geo-sr-only">obrigatório</span></label>
                           <p-select
                             inputId="localLesao"
                             [options]="lookups()?.locaisLesao || []"
@@ -773,7 +773,7 @@
                     }
                   </div>
 
-                  <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div class="flex justify-between items-center mt-6 pt-4 border-t border-[var(--geo-border)]">
                     <p-button
                       label="Voltar"
                       icon="pi pi-arrow-left"
@@ -913,7 +913,7 @@
                     </div>
                   </div>
 
-                  <div class="flex justify-between items-center mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <div class="flex justify-between items-center mt-6 pt-4 border-t border-[var(--geo-border)]">
                     <p-button
                       label="Voltar"
                       icon="pi pi-arrow-left"

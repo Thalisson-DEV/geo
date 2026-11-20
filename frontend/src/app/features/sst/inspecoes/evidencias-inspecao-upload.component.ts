@@ -57,27 +57,27 @@ let seqEvidencia = 0;
   imports: [CommonModule, TooltipModule],
   changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-    <div class="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div class="rounded-lg border border-[var(--geo-border)] overflow-hidden">
       <!-- Cabeçalho do painel (mesmo padrão do bloco de inspecionados) -->
-      <div class="flex items-center justify-between gap-2 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 px-4 md:px-5 py-2.5">
+      <div class="flex items-center justify-between gap-2 bg-[var(--geo-surface-subtle)] border-b border-[var(--geo-border)] px-4 md:px-5 py-2.5">
         <div class="flex items-center gap-2 min-w-0">
-          <i class="pi pi-camera text-primary-700 dark:text-primary-400"></i>
-          <span class="text-xs font-medium text-slate-700 dark:text-slate-200 uppercase tracking-widest">
-            Evidências Fotográficas <span class="text-red-500">*</span>
+          <i class="pi pi-camera text-[var(--geo-brand-text)]"></i>
+          <span class="text-xs font-medium text-[var(--geo-foreground-muted)]">
+            Evidências Fotográficas <span class="text-[var(--geo-danger-text)]">*</span>
           </span>
         </div>
         <div class="flex items-center gap-2 shrink-0">
           @if (!temEvidencia()) {
-            <span class="hidden sm:inline text-xs font-medium text-amber-600 dark:text-amber-400">Ao menos 1 foto é obrigatória</span>
+            <span class="hidden sm:inline text-xs font-medium text-[var(--geo-warning-text)]">Ao menos 1 foto é obrigatória</span>
           }
           <span class="inline-flex items-center justify-center min-w-6 h-6 px-2 rounded-full text-xs font-medium border border-transparent"
-                [ngClass]="temEvidencia() ? 'bg-primary-100 dark:bg-primary-950/60 text-primary-700 dark:text-primary-400 dark:border-primary-800/40' : 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 dark:border-amber-800/40'">
+                [ngClass]="temEvidencia() ? 'bg-[var(--geo-brand-soft)] text-[var(--geo-brand-text)]' : 'bg-[var(--geo-warning-soft)] text-[var(--geo-warning-text)]'">
             {{ enviadas().length }}
           </span>
         </div>
       </div>
 
-      <div class="p-4 md:p-5 flex flex-col gap-4 bg-white dark:bg-slate-900">
+      <div class="p-4 md:p-5 flex flex-col gap-4 bg-[var(--geo-surface)]">
         <!-- Seleção e arrastar-e-soltar (mesmo empty-state tracejado das demais listas) -->
         <div
           (click)="escolherArquivos()"
@@ -86,32 +86,32 @@ let seqEvidencia = 0;
           (drop)="onDrop($event)"
           class="flex flex-col items-center justify-center gap-2 py-8 text-center rounded-lg border border-dashed cursor-pointer transition-colors"
           [ngClass]="arrastando()
-            ? 'border-primary-400 dark:border-primary-500 bg-primary-50/60 dark:bg-primary-950/40'
-            : 'border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30 hover:bg-slate-50 dark:hover:bg-slate-800/60'">
-          <i class="pi pi-cloud-upload text-2xl text-slate-300 dark:text-slate-600"></i>
-          <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Arraste as fotos aqui ou clique para selecionar</span>
-          <span class="text-xs text-slate-400 dark:text-slate-500">JPEG, PNG, WebP ou HEIC · até 15 MB por arquivo</span>
+            ? 'border-[var(--geo-brand)] bg-[var(--geo-brand-soft)]'
+            : 'border-[var(--geo-border)] bg-[var(--geo-surface-subtle)] hover:bg-[var(--geo-surface-subtle)]'">
+          <i class="pi pi-cloud-upload text-2xl text-[var(--geo-foreground-subtle)]"></i>
+          <span class="text-xs font-medium text-[var(--geo-foreground-subtle)]">Arraste as fotos aqui ou clique para selecionar</span>
+          <span class="text-xs text-[var(--geo-foreground-subtle)]">JPEG, PNG, WebP ou HEIC · até 15 MB por arquivo</span>
         </div>
 
-        <span class="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+        <span class="text-xs text-[var(--geo-foreground-subtle)] flex items-center gap-1">
           <i class="pi pi-info-circle"></i> A foto comprova que a inspeção aconteceu em campo.
         </span>
 
         <!-- Miniaturas (mesmo padrão das evidências de desvio) -->
         @if (itens().length) {
-          <div class="flex items-center gap-2.5 flex-wrap pt-1 border-t border-slate-100 dark:border-slate-800">
+          <div class="flex items-center gap-2.5 flex-wrap pt-1 border-t border-[var(--geo-border)]">
             @for (item of itens(); track item.idLocal) {
               <div class="relative group w-16 mt-3">
-                <div class="relative w-16 h-16 rounded-lg overflow-hidden border shadow-sm bg-white dark:bg-slate-800"
-                     [ngClass]="item.estado === 'ERRO' ? 'border-red-400 dark:border-red-600' : 'border-slate-300 dark:border-slate-700'"
+                <div class="relative w-16 h-16 rounded-lg overflow-hidden border bg-[var(--geo-surface)]"
+                     [ngClass]="item.estado === 'ERRO' ? 'border-[var(--geo-danger-border)]' : 'border-[var(--geo-border-strong)]'"
                      [pTooltip]="item.estado === 'ERRO' ? (item.erro || 'Falha no envio') : item.nome"
                      tooltipPosition="top">
                   @if (item.previewUrl) {
                     <img [src]="item.previewUrl" class="w-full h-full object-cover" [alt]="item.nome" />
                   } @else {
-                    <div class="w-full h-full flex flex-col items-center justify-center gap-0.5 text-slate-400 dark:text-slate-500">
+                    <div class="w-full h-full flex flex-col items-center justify-center gap-0.5 text-[var(--geo-foreground-subtle)]">
                       <i class="pi pi-image text-base"></i>
-                      <span class="text-[8px] font-medium uppercase tracking-tight">HEIC</span>
+                      <span class="text-[8px] font-medium">HEIC</span>
                     </div>
                   }
 
@@ -121,26 +121,26 @@ let seqEvidencia = 0;
                     </div>
                   } @else if (item.estado === 'ERRO') {
                     <button type="button" (click)="reenviar(item)"
-                      class="absolute inset-0 bg-red-900/50 flex flex-col items-center justify-center gap-0.5 text-white">
+                      class="absolute inset-0 bg-[var(--geo-danger)] flex flex-col items-center justify-center gap-0.5 text-white">
                       <i class="pi pi-refresh text-xs"></i>
-                      <span class="text-[8px] font-semibold uppercase tracking-tight">Tentar</span>
+                      <span class="text-[8px] font-semibold">Tentar</span>
                     </button>
                   }
 
                   <button type="button" (click)="remover(item); $event.stopPropagation()" pTooltip="Remover evidência"
                     tooltipPosition="top"
-                    class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shadow">
+                    class="absolute top-1 right-1 w-6 h-6 rounded-full bg-[var(--geo-danger)] text-white flex items-center justify-center ring-1 ring-white/70 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <i class="pi pi-trash text-xs"></i>
                   </button>
                 </div>
 
                 <!-- Barra de progresso individual -->
-                <div class="h-1 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1">
+                <div class="h-1 w-full rounded-full bg-[var(--geo-surface-muted)] overflow-hidden mt-1">
                   <div class="h-full rounded-full transition-[width] duration-200"
-                       [ngClass]="item.estado === 'ERRO' ? 'bg-red-500' : (item.estado === 'ENVIADA' ? 'bg-emerald-500' : 'bg-primary-700 dark:bg-primary-500')"
+                       [ngClass]="item.estado === 'ERRO' ? 'bg-[var(--geo-danger)]' : (item.estado === 'ENVIADA' ? 'bg-[var(--geo-success)]' : 'bg-[var(--geo-brand)]')"
                        [style.width.%]="item.estado === 'ERRO' ? 100 : item.progresso"></div>
                 </div>
-                <span class="block text-xs text-slate-400 dark:text-slate-500 truncate mt-0.5" [title]="item.nome">
+                <span class="block text-xs text-[var(--geo-foreground-subtle)] truncate mt-0.5" [title]="item.nome">
                   {{ formatarTamanho(item.tamanhoBytes) }}
                 </span>
               </div>

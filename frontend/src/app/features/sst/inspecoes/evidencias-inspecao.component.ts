@@ -93,9 +93,9 @@ interface ItemGaleria {
   template: `
     <div class="mb-8 print:mb-3">
       <div class="flex items-center justify-between gap-3 mb-3 print:mb-2 flex-wrap">
-        <div class="flex items-center gap-2 border-l-2 border-primary-500 pl-3">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 print:text-black">Fotos &amp; Evidências</span>
-          <span class="text-xs text-slate-500 dark:text-slate-400 print:text-slate-600 font-medium">({{ itens().length }})</span>
+        <div class="flex items-center gap-2 border-l-2 border-[var(--geo-brand)] pl-3">
+          <span class="text-xs font-semibold text-[var(--geo-foreground)] print:text-black">Fotos &amp; Evidências</span>
+          <span class="text-xs text-[var(--geo-foreground-subtle)] print:text-slate-600 font-medium">({{ itens().length }})</span>
         </div>
         @if (canWrite()) {
           <geo-button class="print:hidden" variant="outline" size="sm" icon="pi pi-camera" label="Acrescentar foto"
@@ -105,72 +105,72 @@ interface ItemGaleria {
 
       @if (!evidencias().length) {
         <!-- Inspeção anterior à exigência: aviso discreto, não é erro nem pendência. -->
-        <div class="flex items-center gap-2 rounded-lg border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-900/40 px-4 py-3 mb-4">
-          <i class="pi pi-info-circle text-slate-400 dark:text-slate-500 text-xs"></i>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Inspeção anterior à exigência de evidência fotográfica.</span>
+        <div class="flex items-center gap-2 rounded-lg border border-dashed border-[var(--geo-border)] bg-[var(--geo-surface-subtle)] px-4 py-3 mb-4">
+          <i class="pi pi-info-circle text-[var(--geo-foreground-subtle)] text-xs"></i>
+          <span class="text-xs text-[var(--geo-foreground-subtle)]">Inspeção anterior à exigência de evidência fotográfica.</span>
         </div>
       }
 
       @if (itens().length) {
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 print:grid-cols-3">
           @for (item of itens(); track item.chave) {
-            <div class="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm flex flex-col break-inside-avoid print:border-slate-300 print:shadow-none">
+            <div class="rounded-lg border border-[var(--geo-border)] bg-[var(--geo-surface)] overflow-hidden flex flex-col break-inside-avoid print:border-slate-300 print:shadow-none">
               @if (item.ehFoto) {
                 @if (item.renderizavel) {
-                  <div (click)="abrir(item)" class="relative h-44 w-full bg-slate-100 dark:bg-slate-800 overflow-hidden cursor-pointer group print:cursor-default">
+                  <div (click)="abrir(item)" class="relative h-44 w-full bg-[var(--geo-surface-muted)] overflow-hidden cursor-pointer group print:cursor-default">
                     @if (thumbs()[item.chave]; as url) {
                       <img [src]="url" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 print:scale-100" [alt]="item.nomeArquivo" />
                       <div class="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center print:hidden">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/95 text-slate-900 text-xs font-semibold shadow">
-                          <i class="pi pi-search-plus text-blue-600"></i> Visualizar
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--geo-surface)]/95 text-[var(--geo-foreground)] text-xs font-semibold">
+                          <i class="pi pi-search-plus text-[var(--geo-brand-text)]"></i> Visualizar
                         </span>
                       </div>
                     } @else {
-                      <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-slate-50 dark:bg-slate-800">
-                        <i class="pi pi-spin pi-spinner text-slate-400 text-xl"></i>
-                        <span class="text-xs text-slate-400 font-medium">Carregando imagem...</span>
+                      <div class="w-full h-full flex flex-col items-center justify-center gap-2 bg-[var(--geo-surface-subtle)]">
+                        <i class="pi pi-spin pi-spinner text-[var(--geo-foreground-subtle)] text-xl"></i>
+                        <span class="text-xs text-[var(--geo-foreground-subtle)] font-medium">Carregando imagem...</span>
                       </div>
                     }
                   </div>
                 } @else {
                   <!-- HEIC/HEIF não renderiza em <img> no desktop: cartão com ícone e nome. -->
-                  <div class="h-44 w-full bg-slate-50 dark:bg-slate-800/60 flex flex-col items-center justify-center gap-2 px-3 text-center">
-                    <i class="pi pi-image text-3xl text-slate-300 dark:text-slate-600"></i>
-                    <span class="text-xs font-medium text-slate-600 dark:text-slate-300 break-all line-clamp-2">{{ item.nomeArquivo }}</span>
-                    <button type="button" (click)="baixar(item)" class="text-xs font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
+                  <div class="h-44 w-full bg-[var(--geo-surface-subtle)] flex flex-col items-center justify-center gap-2 px-3 text-center">
+                    <i class="pi pi-image text-3xl text-[var(--geo-foreground-subtle)]"></i>
+                    <span class="text-xs font-medium text-[var(--geo-foreground-muted)] break-all line-clamp-2">{{ item.nomeArquivo }}</span>
+                    <button type="button" (click)="baixar(item)" class="text-xs font-semibold text-[var(--geo-brand-text)] hover:underline print:hidden">
                       Baixar para visualizar
                     </button>
                   </div>
                 }
               } @else {
-                <div class="h-44 w-full bg-slate-50 dark:bg-slate-800/60 flex flex-col items-center justify-center gap-2.5 px-3 text-center">
-                  <div class="w-14 h-14 rounded-xl flex items-center justify-center shadow-sm"
-                       [ngClass]="ehPdf(item) ? 'bg-red-50 text-red-600 border border-red-100 dark:bg-red-950/50 dark:text-red-400 dark:border-red-900/60' : 'bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-900/60'">
+                <div class="h-44 w-full bg-[var(--geo-surface-subtle)] flex flex-col items-center justify-center gap-2.5 px-3 text-center">
+                  <div class="w-14 h-14 rounded-lg flex items-center justify-center"
+                       [ngClass]="ehPdf(item) ? 'bg-[var(--geo-danger-soft)] text-[var(--geo-danger-text)] border border-[var(--geo-danger-border)]' : 'bg-[var(--geo-brand-soft)] text-[var(--geo-brand-text)] border border-[var(--geo-border-strong)]'">
                     <i [class]="iconeArquivo(item.nomeArquivo)" class="text-2xl"></i>
                   </div>
-                  <button type="button" (click)="baixar(item)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 dark:text-primary-400 hover:underline print:hidden">
+                  <button type="button" (click)="baixar(item)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--geo-brand-text)] hover:underline print:hidden">
                     <i class="pi pi-download text-xs"></i> Abrir documento
                   </button>
                 </div>
               }
 
-              <div class="p-3.5 flex flex-col gap-1.5 flex-1 bg-white dark:bg-slate-900">
+              <div class="p-3.5 flex flex-col gap-1.5 flex-1 bg-[var(--geo-surface)]">
                 <div class="flex items-center justify-between gap-1">
                   @if (item.origem === 'INSPECAO') {
-                    <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-primary-700 bg-primary-50 dark:text-primary-300 dark:bg-primary-950/60 dark:border-primary-800/60 px-2 py-0.5 rounded border border-primary-100">
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--geo-brand-text)] bg-[var(--geo-brand-soft)] px-2 py-0.5 rounded border border-[var(--geo-border-strong)]">
                       <i class="pi pi-camera text-xs"></i> Inspeção
                     </span>
                   } @else {
-                    <span class="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-50 dark:text-amber-300 dark:bg-amber-950/60 dark:border-amber-800/60 px-2 py-0.5 rounded border border-amber-100">
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-[var(--geo-warning-text)] bg-[var(--geo-warning-soft)] px-2 py-0.5 rounded border border-[var(--geo-warning-border)]">
                       <i class="pi pi-exclamation-triangle text-xs"></i> Desvio
                     </span>
                   }
-                  <span class="text-xs text-slate-400 font-medium">{{ formatarTamanho(item.tamanhoBytes) }}</span>
+                  <span class="text-xs text-[var(--geo-foreground-subtle)] font-medium">{{ formatarTamanho(item.tamanhoBytes) }}</span>
                 </div>
-                <span class="text-xs font-semibold text-slate-800 dark:text-slate-100 line-clamp-2 leading-snug mt-1" [title]="item.titulo">{{ item.titulo }}</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400 line-clamp-1" [title]="item.subtitulo">{{ item.subtitulo }}</span>
-                <div class="mt-auto pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                  <span class="text-xs text-slate-400 truncate" [title]="item.nomeArquivo">
+                <span class="text-xs font-semibold text-[var(--geo-foreground)] line-clamp-2 leading-snug mt-1" [title]="item.titulo">{{ item.titulo }}</span>
+                <span class="text-xs text-[var(--geo-foreground-subtle)] line-clamp-1" [title]="item.subtitulo">{{ item.subtitulo }}</span>
+                <div class="mt-auto pt-2 border-t border-[var(--geo-border)] flex items-center justify-between gap-2">
+                  <span class="text-xs text-[var(--geo-foreground-subtle)] truncate" [title]="item.nomeArquivo">
                     {{ item.origem === 'INSPECAO' ? (item.dataCriacao | date: 'dd/MM/yy HH:mm') : item.nomeArquivo }}
                   </span>
                   @if (canWrite() && item.origem === 'INSPECAO') {
@@ -179,7 +179,7 @@ interface ItemGaleria {
                             : 'Remover evidência'"
                           tooltipPosition="top" class="print:hidden shrink-0">
                       <button type="button" (click)="confirmarRemocao($event, item)" [disabled]="ehUnica()"
-                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:text-red-400 dark:hover:bg-red-950/50 transition-colors disabled:opacity-40 disabled:hover:text-slate-400 disabled:hover:bg-transparent disabled:cursor-not-allowed">
+                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[var(--geo-foreground-subtle)] hover:text-[var(--geo-danger-text)] hover:bg-[var(--geo-danger-soft)] transition-colors disabled:opacity-40 disabled:hover:text-[var(--geo-foreground-subtle)] disabled:hover:bg-transparent disabled:cursor-not-allowed">
                         <i class="pi pi-trash text-xs"></i>
                       </button>
                     </span>
@@ -199,23 +199,23 @@ interface ItemGaleria {
 
     <p-dialog [(visible)]="ampliadaVisible" [modal]="true" appendTo="body" [dismissableMask]="true"
       header="Evidência Fotográfica" [style]="{ width: '90vw', maxWidth: '850px' }"
-      styleClass="overflow-hidden rounded-2xl print:hidden">
+      styleClass="overflow-hidden rounded-lg print:hidden">
       @if (ampliada(); as item) {
         <div class="flex flex-col gap-4">
-          <div class="w-full max-h-[72vh] flex items-center justify-center bg-slate-900 rounded-xl overflow-hidden shadow-inner">
+          <div class="w-full max-h-[72vh] flex items-center justify-center bg-slate-900 rounded-lg overflow-hidden">
             <img [src]="thumbs()[item.chave] || ''" class="max-h-[72vh] w-auto object-contain" [alt]="item.nomeArquivo" />
           </div>
-          <div class="flex flex-col gap-1.5 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+          <div class="flex flex-col gap-1.5 bg-[var(--geo-surface-subtle)] p-4 rounded-lg border border-[var(--geo-border)]">
             <div class="flex items-center justify-between gap-3">
-              <span class="text-xs font-bold text-slate-800 dark:text-white">{{ item.titulo }}</span>
-              <span class="text-xs text-slate-400 font-medium shrink-0">{{ formatarTamanho(item.tamanhoBytes) }}</span>
+              <span class="text-xs font-semibold text-[var(--geo-foreground)] dark:text-white">{{ item.titulo }}</span>
+              <span class="text-xs text-[var(--geo-foreground-subtle)] font-medium shrink-0">{{ formatarTamanho(item.tamanhoBytes) }}</span>
             </div>
-            <span class="text-xs text-slate-600 dark:text-slate-300">{{ item.subtitulo }}</span>
-            <div class="flex items-center justify-between gap-3 pt-2 mt-1 border-t border-slate-200/60 dark:border-slate-800">
-              <span class="text-xs text-slate-400 truncate">
+            <span class="text-xs text-[var(--geo-foreground-muted)]">{{ item.subtitulo }}</span>
+            <div class="flex items-center justify-between gap-3 pt-2 mt-1 border-t border-[var(--geo-border)]">
+              <span class="text-xs text-[var(--geo-foreground-subtle)] truncate">
                 Arquivo: {{ item.nomeArquivo }} · {{ item.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}
               </span>
-              <button type="button" (click)="baixar(item)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 shrink-0">
+              <button type="button" (click)="baixar(item)" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--geo-brand-text)] hover:text-[var(--geo-brand-text)] shrink-0">
                 <i class="pi pi-external-link text-xs"></i> Baixar arquivo original
               </button>
             </div>
