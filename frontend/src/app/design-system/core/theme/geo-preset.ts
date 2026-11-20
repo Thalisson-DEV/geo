@@ -1,5 +1,7 @@
 import { definePreset } from '@primeuix/themes';
-import Lara from '@primeuix/themes/lara';
+// Variante compat: o PrimeNG 22 passou a calibrar o Lara para raiz de 16px; a compat mantém os
+// valores do Lara do PrimeNG 21 (a raiz do GEO é 13px, em styles.css). Mantida até jun/2027.
+import Lara from '@primeuix/themes/lara-compat';
 
 /** Escala primária do GEO, derivada do azul do "G" (#2563EB / #1E40AF). */
 export const GEO_PRIMARY = {
@@ -36,11 +38,15 @@ export const GEO_NEUTRAL = {
  * Tema oficial do GEO sobre o Lara. A cor primária é fixa para todos os usuários; os
  * componentes do DS consomem os tokens `--geo-*` de `tokens.css`, alinhados a esta escala.
  */
+/**
+ * Primitivos próprios do GEO (`{geo.*}` e `{ink.*}`). O tipo do Lara no @primeuix/themes 3 só
+ * lista os primitivos dele, mas o tema continua aceitando chaves novas e gerando --p-geo-* e
+ * --p-ink-*, como no 2.x; por isso o objeto entra sem o tipo estreito.
+ */
+const PRIMITIVOS_GEO: object = { geo: GEO_PRIMARY, ink: GEO_NEUTRAL };
+
 export const geoPreset = definePreset(Lara, {
-  primitive: {
-    geo: GEO_PRIMARY,
-    ink: GEO_NEUTRAL
-  },
+  primitive: PRIMITIVOS_GEO,
   semantic: {
     primary: {
       50: '{geo.50}',
@@ -62,39 +68,20 @@ export const geoPreset = definePreset(Lara, {
       offset: '2px',
       shadow: 'none'
     },
-    colorScheme: {
-      light: {
-        surface: {
-          0: '#ffffff',
-          50: '{ink.50}',
-          100: '{ink.100}',
-          200: '{ink.200}',
-          300: '{ink.300}',
-          400: '{ink.400}',
-          500: '{ink.500}',
-          600: '{ink.600}',
-          700: '{ink.700}',
-          800: '{ink.800}',
-          900: '{ink.900}',
-          950: '{ink.950}'
-        }
-      },
-      dark: {
-        surface: {
-          0: '{ink.950}',
-          50: '#0f1420',
-          100: '#121826',
-          200: '#1a2232',
-          300: '#263043',
-          400: '#35415a',
-          500: '#8f99ab',
-          600: '#b4bdcc',
-          700: '#cbd2de',
-          800: '#e1e6ee',
-          900: '#f2f5fa',
-          950: '#ffffff'
-        }
-      }
+    // light-dark(claro, escuro): a escala escura do GEO é invertida (surface.0 = ink.950).
+    surface: {
+      0: 'light-dark(#ffffff, {ink.950})',
+      50: 'light-dark({ink.50}, #0f1420)',
+      100: 'light-dark({ink.100}, #121826)',
+      200: 'light-dark({ink.200}, #1a2232)',
+      300: 'light-dark({ink.300}, #263043)',
+      400: 'light-dark({ink.400}, #35415a)',
+      500: 'light-dark({ink.500}, #8f99ab)',
+      600: 'light-dark({ink.600}, #b4bdcc)',
+      700: 'light-dark({ink.700}, #cbd2de)',
+      800: 'light-dark({ink.800}, #e1e6ee)',
+      900: 'light-dark({ink.900}, #f2f5fa)',
+      950: 'light-dark({ink.950}, #ffffff)'
     }
   },
   components: {
@@ -112,17 +99,14 @@ export const geoPreset = definePreset(Lara, {
       }
     },
     // O Lara escreve o detalhe do toast escuro com {surface.0}, que ele supõe branco. Como a
-    // escala escura do GEO é invertida (surface.0 = ink.950), o texto sumia no fundo.
+    // escala escura do GEO é invertida (surface.0 = ink.950), o texto sumia no fundo. O claro
+    // segue o do Lara ({surface.700}).
     toast: {
-      colorScheme: {
-        dark: {
-          info: { detailColor: '{ink.100}' },
-          success: { detailColor: '{ink.100}' },
-          warn: { detailColor: '{ink.100}' },
-          error: { detailColor: '{ink.100}' },
-          secondary: { detailColor: '{ink.100}' }
-        }
-      }
+      info: { detailColor: 'light-dark({surface.700}, {ink.100})' },
+      success: { detailColor: 'light-dark({surface.700}, {ink.100})' },
+      warn: { detailColor: 'light-dark({surface.700}, {ink.100})' },
+      error: { detailColor: 'light-dark({surface.700}, {ink.100})' },
+      secondary: { detailColor: 'light-dark({surface.700}, {ink.100})' }
     }
   }
 });

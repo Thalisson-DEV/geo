@@ -9,7 +9,7 @@
   [class.print:text-black]="isPrintMode()"
 >
   <p-toast></p-toast>
-  <p-confirmDialog></p-confirmDialog>
+  <p-confirmdialog></p-confirmdialog>
 
   <!-- Loading State -->
   @if (loading()) {
@@ -1300,8 +1300,8 @@
     </div>
 
     <div class="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-2xs">
-      <p-table [value]="estornoItems()" styleClass="p-datatable-sm">
-        <ng-template pTemplate="header">
+      <p-table [value]="estornoItems()" class="p-datatable-sm">
+        <ng-template #header>
           <tr
             class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200"
           >
@@ -1318,7 +1318,7 @@
             <th class="py-2.5 px-3 text-center" style="width: 130px">Qtd. Estorno</th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-item>
+        <ng-template #body let-item>
           <tr
             [class.bg-slate-50]="!item.selected"
             class="border-b border-slate-100 dark:border-slate-800 text-xs text-slate-800 dark:text-slate-200"
@@ -1344,16 +1344,16 @@
               {{ item.quantidadeEntregaLiquida ?? item.quantidadeEntregue | number: '1.3-3' }}
             </td>
             <td class="py-2.5 px-3">
-              <p-inputNumber
+              <p-inputnumber
                 [(ngModel)]="item.quantidadeEstorno"
                 [min]="0"
                 [max]="item.quantidadeEntregaLiquida ?? item.quantidadeEntregue"
                 [minFractionDigits]="3"
                 [maxFractionDigits]="3"
                 [disabled]="!item.selected"
-                styleClass="!w-full"
+                class="!w-full"
                 inputStyleClass="!text-xs !text-center !font-semibold !py-1"
-              ></p-inputNumber>
+              ></p-inputnumber>
             </td>
           </tr>
         </ng-template>

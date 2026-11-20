@@ -127,27 +127,27 @@ import {
                       [useGrouping]="false" [minFractionDigits]="0" [maxFractionDigits]="0"
                       [min]="campo.restricoes?.valorMinimo ?? undefined"
                       [max]="campo.restricoes?.valorMaximo ?? undefined"
-                      size="small" class="w-full" styleClass="w-full" [fluid]="true"></p-inputnumber>
+                      size="small" class="w-full w-full" [fluid]="true"></p-inputnumber>
                   }
                   @case ('DECIMAL') {
                     <p-inputnumber [inputId]="campo.chave" [formControl]="controle(campo)"
                       mode="decimal" locale="pt-BR" [minFractionDigits]="0" [maxFractionDigits]="4"
                       [min]="campo.restricoes?.valorMinimo ?? undefined"
                       [max]="campo.restricoes?.valorMaximo ?? undefined"
-                      size="small" class="w-full" styleClass="w-full" [fluid]="true"></p-inputnumber>
+                      size="small" class="w-full w-full" [fluid]="true"></p-inputnumber>
                   }
                   @case ('MOEDA') {
                     <p-inputnumber [inputId]="campo.chave" [formControl]="controle(campo)"
                       mode="currency" currency="BRL" locale="pt-BR"
                       [min]="campo.restricoes?.valorMinimo ?? undefined"
                       [max]="campo.restricoes?.valorMaximo ?? undefined"
-                      size="small" class="w-full" styleClass="w-full" [fluid]="true"></p-inputnumber>
+                      size="small" class="w-full w-full" [fluid]="true"></p-inputnumber>
                   }
                   @case ('DATA') {
                     <p-datepicker [inputId]="campo.chave" [formControl]="controle(campo)"
                       dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" [showClear]="true"
                       [showButtonBar]="true" placeholder="DD/MM/AAAA"
-                      size="small" class="w-full" styleClass="w-full" [fluid]="true" appendTo="body"></p-datepicker>
+                      size="small" class="w-full w-full" [fluid]="true" appendTo="body"></p-datepicker>
                   }
                   @case ('BOOLEANO') {
                     <p-selectbutton [formControl]="controle(campo)" [options]="opcoesSimNao"
@@ -159,7 +159,7 @@ import {
                       [options]="campo.opcoes" optionLabel="rotulo" optionValue="valor"
                       [placeholder]="campo.placeholder || 'Selecione...'"
                       [showClear]="!campo.obrigatorio" [filter]="campo.opcoes.length > 8"
-                      filterBy="rotulo" size="small" class="w-full" styleClass="w-full" [fluid]="true" appendTo="body"></p-select>
+                      filterBy="rotulo" size="small" class="w-full w-full" [fluid]="true" appendTo="body"></p-select>
                   }
                   @case ('REFERENCIA') {
                     @if (ehReferenciaColaborador(campo)) {
@@ -191,7 +191,7 @@ import {
                         [virtualScroll]="true" [virtualScrollItemSize]="38" [lazy]="true"
                         emptyMessage="Nenhum cadastro encontrado"
                         emptyFilterMessage="Nenhum cadastro encontrado"
-                        size="small" class="w-full" styleClass="w-full" [fluid]="true" appendTo="body"
+                        size="small" class="w-full w-full" [fluid]="true" appendTo="body"
                         (onShow)="carregarReferencia(campo)"
                         (onFilter)="filtrarReferencia(campo, $event)"
                         (onLazyLoad)="carregarMaisReferencia(campo)"></p-select>

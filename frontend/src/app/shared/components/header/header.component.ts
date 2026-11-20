@@ -171,7 +171,7 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
       <div class="flex flex-col w-72 bg-[var(--geo-surface)] text-[var(--geo-foreground)] border border-[var(--geo-border)] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         <!-- User Info Section -->
         <div class="p-5 border-b border-[var(--geo-border)] bg-[var(--geo-surface-subtle)] flex items-center gap-4">
-          <p-avatar icon="pi pi-user" shape="circle" styleClass="!bg-[var(--geo-brand-soft)] !text-[var(--geo-brand)] !w-12 !h-12 !text-lg shadow-sm border border-[var(--geo-border)]"></p-avatar>
+          <p-avatar icon="pi pi-user" shape="circle" class="!bg-[var(--geo-brand-soft)] !text-[var(--geo-brand)] !w-12 !h-12 !text-lg shadow-sm border border-[var(--geo-border)]"></p-avatar>
           <div class="flex flex-col overflow-hidden">
             <span class="text-sm font-bold text-[var(--geo-foreground)] truncate">{{ auth.currentUser()?.login }}</span>
             <div class="flex items-center gap-1.5 mt-0.5">

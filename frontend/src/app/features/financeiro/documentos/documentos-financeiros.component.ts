@@ -234,7 +234,7 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
             <input pInputText formControlName="numeroDocumento" placeholder="Como está impresso" pSize="small" />
           </geo-form-field>
           <geo-form-field label="Valor" size="md">
-            <p-inputNumber formControlName="valor" mode="currency" currency="BRL" locale="pt-BR" size="small"></p-inputNumber>
+            <p-inputnumber formControlName="valor" mode="currency" currency="BRL" locale="pt-BR" size="small"></p-inputnumber>
           </geo-form-field>
           <geo-form-field label="Emissão" size="md">
             <p-datepicker formControlName="dataEmissao" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showClear]="true" appendTo="body" size="small"></p-datepicker>

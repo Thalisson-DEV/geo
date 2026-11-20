@@ -168,7 +168,7 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
             hint="Multiplicador do valor base das ações deste contrato (1,0 = sem ajuste)."
             [errorMessages]="{ min: 'Deve ser maior que 0.', max: 'Deve ser no máximo 1000.' }"
           >
-            <p-inputNumber
+            <p-inputnumber
               formControlName="coeficienteFaturamento"
               mode="decimal"
               locale="pt-BR"
@@ -178,7 +178,7 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
               [max]="1000"
               placeholder="Ex.: 1,0000"
               size="small"
-            ></p-inputNumber>
+            ></p-inputnumber>
           </geo-form-field>
         </geo-form-section>
         <button type="submit" hidden aria-hidden="true" tabindex="-1"></button>

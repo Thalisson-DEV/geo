@@ -14,7 +14,7 @@
   </div>
 
   @if (carregando()) {
-    <p-skeleton height="34rem" styleClass="!rounded-2xl" />
+    <p-skeleton height="34rem" class="!rounded-2xl" />
   } @else {
     <section class="wizard-shell">
       <header class="wizard-header">
@@ -135,7 +135,7 @@
                         placeholder="dd/mm/aaaa hh:mm"
                         appendTo="body"
                         size="small"
-                        styleClass="field-control"
+                        class="field-control"
                       />
                       @if (etapaTentada(1) && !dataOcorrencia()) {
                         <small class="field-error">Informe data e hora da ocorrência.</small>
@@ -155,7 +155,7 @@
                         placeholder="dd/mm/aaaa hh:mm"
                         appendTo="body"
                         size="small"
-                        styleClass="field-control"
+                        class="field-control"
                       />
                       @if (atrasoHoras() !== null) {
                         <span class="timing-feedback" [class.is-late]="comunicacaoAtrasada()">
@@ -450,7 +450,7 @@
 
                   <div class="field">
                     <label for="tecnicos">Técnicos de segurança responsáveis *</label>
-                    <p-multiSelect
+                    <p-multiselect
                       inputId="tecnicos"
                       [options]="colaboradores()"
                       [(ngModel)]="idsTecnicos"
@@ -711,13 +711,13 @@
                         </div>
                         <div class="field">
                           <label for="diasPerdidos">Dias perdidos</label>
-                          <p-inputNumber
+                          <p-inputnumber
                             inputId="diasPerdidos"
                             [(ngModel)]="diasPerdidos"
                             [min]="0"
                             [showButtons]="false"
                             placeholder="0"
-                            styleClass="field-control"
+                            class="field-control"
                           />
                         </div>
                       </div>
@@ -802,7 +802,7 @@
                             placeholder="dd/mm/aaaa"
                             appendTo="body"
                             size="small"
-                            styleClass="field-control"
+                            class="field-control"
                           />
                         </div>
                       </div>

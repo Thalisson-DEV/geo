@@ -6,7 +6,7 @@
   </div>
 
   @if (carregando()) {
-    <p-skeleton height="36rem" styleClass="!rounded-2xl" />
+    <p-skeleton height="36rem" class="!rounded-2xl" />
   } @else if (erro()) {
     <section class="error-state"><i class="pi pi-exclamation-circle"></i><h2>Não foi possível abrir a reunião</h2><p>{{ erro() }}</p><p-button label="Tentar novamente" icon="pi pi-refresh" (onClick)="carregar()" /></section>
   } @else {
@@ -47,7 +47,7 @@
             <p-step-panel [value]="2"><ng-template #content>
               <div class="step-panel w-full min-w-0 max-w-full overflow-hidden">
                 <div class="step-intro"><span>Participantes</span><h2>Quem esteve presente?</h2><p>Marque cada integrante e informe o motivo somente quando houver ausência.</p></div>
-                <p-table [value]="participantes()" styleClass="p-datatable-sm custom-table governance-table table-attendance" [scrollable]="true" scrollHeight="400px">
+                <p-table [value]="participantes()" class="p-datatable-sm custom-table governance-table table-attendance" [scrollable]="true" scrollHeight="400px">
                   <ng-template #header><tr><th>Integrante</th><th>Presença</th><th>Motivo da ausência</th><th class="table-actions">Secretaria</th></tr></ng-template>
                     <ng-template #body let-item>
                       <tr>
@@ -59,7 +59,7 @@
                         </td>
                         <td class="col-presenca">
                           <span class="mobile-label">Presença</span>
-                          <p-select size="small" [(ngModel)]="item.presenca" [options]="presencas" optionLabel="label" optionValue="value" appendTo="body" (onChange)="item.presenca==='PRESENTE'&&salvarPresenca(item)" [disabled]="!podeEditar()" styleClass="min-w-0 w-full max-w-[150px]"/>
+                          <p-select size="small" [(ngModel)]="item.presenca" [options]="presencas" optionLabel="label" optionValue="value" appendTo="body" (onChange)="item.presenca==='PRESENTE'&&salvarPresenca(item)" [disabled]="!podeEditar()" class="min-w-0 w-full max-w-[150px]"/>
                         </td>
                         <td class="col-motivo" [class.is-absent]="item.presenca.includes('AUSENTE')">
                           @if(item.presenca.includes('AUSENTE')){
@@ -203,7 +203,7 @@
             <p-step-panel [value]="5"><ng-template #content>
               <div class="step-panel">
                 <div class="step-intro"><span>Documento final</span><h2>Baixe, assine e devolva a ata</h2><p>O sistema prepara o DOCX no modelo da empresa. A aprovação e as assinaturas permanecem humanas.</p></div>
-                <div class="finish-steps"><div><span>1</span><i class="pi pi-file-word"></i><b>Baixar DOCX</b><small>Pronto para impressão</small><p-button label="Baixar" icon="pi pi-download" [disabled]="selecionada()?.status!=='APROVADA'" [loading]="processando()==='docx'" (onClick)="gerarEBaixarDocx()"/></div><div><span>2</span><i class="pi pi-print"></i><b>Imprimir e assinar</b><small>Recolha as assinaturas necessárias</small></div><div><span>3</span><i class="pi pi-upload"></i><b>Anexar cópia assinada</b><small>PDF ou imagem</small><p-fileUpload mode="basic" chooseLabel="Selecionar" chooseIcon="pi pi-upload" accept="application/pdf,image/*" [auto]="true" [customUpload]="true" (uploadHandler)="enviarAssinada($event)"/></div></div>
+                <div class="finish-steps"><div><span>1</span><i class="pi pi-file-word"></i><b>Baixar DOCX</b><small>Pronto para impressão</small><p-button label="Baixar" icon="pi pi-download" [disabled]="selecionada()?.status!=='APROVADA'" [loading]="processando()==='docx'" (onClick)="gerarEBaixarDocx()"/></div><div><span>2</span><i class="pi pi-print"></i><b>Imprimir e assinar</b><small>Recolha as assinaturas necessárias</small></div><div><span>3</span><i class="pi pi-upload"></i><b>Anexar cópia assinada</b><small>PDF ou imagem</small><p-fileupload mode="basic" chooseLabel="Selecionar" chooseIcon="pi pi-upload" accept="application/pdf,image/*" [auto]="true" [customUpload]="true" (uploadHandler)="enviarAssinada($event)"/></div></div>
                 <div class="context-note"><i class="pi pi-lock"></i><p>Ao finalizar, novos uploads e alterações ficam bloqueados. Fotos, versões e arquivos continuam disponíveis para consulta.</p></div>
                 <div class="panel-actions"><p-button label="Voltar" icon="pi pi-arrow-left" [outlined]="true" severity="secondary" (onClick)="activeStep.set(4)"/><span></span>@if(reuniao()!.status!=='FINALIZADA'){<p-button label="Finalizar reunião" icon="pi pi-lock" severity="success" [loading]="processando()==='finalizar'" (onClick)="finalizar()"/>}@else{<span class="complete"><i class="pi pi-verified"></i> Reunião finalizada</span>}</div>
               </div>

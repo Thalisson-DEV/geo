@@ -61,7 +61,7 @@ interface BlocoBuilder extends GrupoDeCampos {
       </div>
 
       @if (loading()) {
-        <p-skeleton height="26rem" styleClass="!rounded-2xl" />
+        <p-skeleton height="26rem" class="!rounded-2xl" />
       } @else if (schema(); as doc) {
         <div class="form-shell max-w-4xl w-full mx-auto">
           <!-- CABEÇALHO: editado em linha, como no formulário de inspeção -->
@@ -174,7 +174,7 @@ interface BlocoBuilder extends GrupoDeCampos {
                         [(ngModel)]="escolhaPorBloco[bloco.grupo]" placeholder="Escolha um campo para acrescentar"
                         class="doc-select flex-grow" size="small" appendTo="body" [filter]="bloco.disponiveis.length > 8"
                         filterBy="rotuloPadrao">
-                        <ng-template pTemplate="item" let-item>
+                        <ng-template #item let-item>
                           <div class="flex flex-col py-1">
                             <span class="text-[11px] font-medium text-slate-700 dark:text-slate-200">{{ item.rotuloPadrao }}</span>
                             <span class="text-[9px] text-slate-400 dark:text-slate-500">{{ item.chave }} · {{ nomeTipo(item.tipoCampo) }}</span>

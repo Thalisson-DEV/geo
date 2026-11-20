@@ -167,7 +167,7 @@ interface Inspecionado {
           </div>
 
           @if (carregandoForm()) {
-            <p-skeleton height="3rem" styleClass="!rounded-xl"></p-skeleton>
+            <p-skeleton height="3rem" class="!rounded-xl"></p-skeleton>
           }
 
           @if (formulario()) {
@@ -178,7 +178,7 @@ interface Inspecionado {
               </div>
               <div class="flex flex-col gap-2">
                 <label class="dl flex items-center gap-2"><i class="pi pi-calendar-clock text-slate-400 dark:text-slate-500"></i> Data / hora <span class="text-red-500">*</span></label>
-                <p-datepicker [(ngModel)]="dataRealizacao" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" placeholder="dd/mm/aaaa hh:mm" appendTo="body" size="small" styleClass="doc-date w-full"></p-datepicker>
+                <p-datepicker [(ngModel)]="dataRealizacao" [showTime]="true" hourFormat="24" dateFormat="dd/mm/yy" [showIcon]="true" iconDisplay="input" placeholder="dd/mm/aaaa hh:mm" appendTo="body" size="small" class="doc-date w-full"></p-datepicker>
               </div>
               <div class="flex flex-col gap-2">
                 <label class="dl flex items-center gap-2"><i class="pi pi-building text-slate-400 dark:text-slate-500"></i> Base operacional <span class="text-red-500">*</span></label>
@@ -454,11 +454,11 @@ interface Inspecionado {
                                       <span>{{ dv.tratadoInLoco ? 'Data da resolução' : 'Prazo' }}</span>
                                       @if (dv.tratadoInLoco) { <span class="text-[10px] font-normal opacity-75">(in-loco)</span> }
                                     </label>
-                                    <p-datepicker [(ngModel)]="dv.prazo" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small" styleClass="doc-date w-full"></p-datepicker>
+                                    <p-datepicker [(ngModel)]="dv.prazo" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small" class="doc-date w-full"></p-datepicker>
                                   </div>
                                   <div class="flex flex-col gap-1.5">
                                     <label class="dl flex items-center gap-1.5 font-semibold" [ngStyle]="{'color': corGravidadeTexto(opcao.gravidade)}"><i class="pi pi-users"></i> Responsáveis <span class="normal-case font-normal opacity-75">{{ pergunta.desvioPorColaborador === false ? '(opcional: item da equipe ou do veículo)' : '(inspecionados)' }}</span>@if (pergunta.desvioPorColaborador !== false) { <span class="text-red-500 ml-0.5">*</span> }</label>
-                                    <p-multiSelect [options]="inspecionados()" size="small" [(ngModel)]="dv.colaboradores" optionLabel="nome" optionValue="id" [placeholder]="pergunta.desvioPorColaborador === false ? 'Equipe, sem pessoa específica' : 'Atribuir a...'" appendTo="body" styleClass="doc-multiselect w-full"></p-multiSelect>
+                                    <p-multiselect [options]="inspecionados()" size="small" [(ngModel)]="dv.colaboradores" optionLabel="nome" optionValue="id" [placeholder]="pergunta.desvioPorColaborador === false ? 'Equipe, sem pessoa específica' : 'Atribuir a...'" appendTo="body" class="doc-multiselect w-full"></p-multiselect>
                                   </div>
                                 </div>
                               </div>
@@ -518,10 +518,10 @@ interface Inspecionado {
                             <textarea pTextarea [(ngModel)]="respostas[pergunta.id].valorTexto" rows="2" placeholder="Digite sua resposta..." class="doc-textarea w-full md:max-w-2xl bg-white dark:bg-slate-900 focus:bg-slate-50 dark:focus:bg-slate-800/80 transition-colors"></textarea>
                           }
                           @if (pergunta.tipoResposta === 'NUMERO') {
-                            <p-inputnumber [(ngModel)]="respostas[pergunta.id].valorNumero" [showButtons]="false" placeholder="0" styleClass="doc-number w-full md:w-48"></p-inputnumber>
+                            <p-inputnumber [(ngModel)]="respostas[pergunta.id].valorNumero" [showButtons]="false" placeholder="0" class="doc-number w-full md:w-48"></p-inputnumber>
                           }
                           @if (pergunta.tipoResposta === 'DATA') {
-                            <p-datepicker [(ngModel)]="respostas[pergunta.id].valorData" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small" styleClass="doc-date w-full md:w-48"></p-datepicker>
+                            <p-datepicker [(ngModel)]="respostas[pergunta.id].valorData" dateFormat="dd/mm/yy" dateMask [showIcon]="true" iconDisplay="input" [showButtonBar]="true" placeholder="dd/mm/aaaa" appendTo="body" size="small" class="doc-date w-full md:w-48"></p-datepicker>
                           }
                         </div>
                       </div>

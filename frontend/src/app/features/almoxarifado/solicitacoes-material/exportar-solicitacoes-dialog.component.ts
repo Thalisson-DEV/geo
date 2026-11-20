@@ -179,7 +179,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
             <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
               <i class="pi pi-flag text-slate-400"></i> {{ ehFechamento ? 'Situação' : 'Status' }}
             </label>
-            <p-multiSelect
+            <p-multiselect
               [options]="ehFechamento ? situacaoFechamentoOptions : statusOptions"
               [(ngModel)]="statusSelecionados"
               optionLabel="label"
@@ -191,7 +191,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
               appendTo="body"
               class="custom-multiselect w-full"
               size="small"
-            ></p-multiSelect>
+            ></p-multiselect>
           </div>
 
           <!-- Filtros de Obra e Almoxarifado (Técnico / Todos / Fechamento) -->
@@ -312,7 +312,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
               <label class="!text-[11px] font-medium text-slate-700 flex items-center gap-1">
                 <i class="pi pi-tags text-slate-400"></i> Tipo
               </label>
-              <p-multiSelect
+              <p-multiselect
                 [options]="tipoFechamentoOptions"
                 [(ngModel)]="filtroTiposFechamento"
                 optionLabel="label"
@@ -324,7 +324,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
                 appendTo="body"
                 class="custom-multiselect w-full"
                 size="small"
-              ></p-multiSelect>
+              ></p-multiselect>
             </div>
 
             <div class="flex flex-col gap-1">
@@ -537,19 +537,19 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
 
           <!-- Apenas Minhas -->
           <div class="flex flex-col gap-1 sm:col-span-2 pt-2 border-t border-slate-100">
-            <p-toggleButton
+            <p-togglebutton
               [(ngModel)]="apenasMinhas"
               onLabel="Apenas minhas solicitações"
               offLabel="Apenas minhas solicitações"
               onIcon="pi pi-check"
               offIcon="pi pi-minus"
-              styleClass="!text-[11px] !font-medium w-fit"
-            ></p-toggleButton>
+              class="!text-[11px] !font-medium w-fit"
+            ></p-togglebutton>
           </div>
         </div>
       </div>
 
-      <ng-template pTemplate="footer">
+      <ng-template #footer>
         <geo-button
           label="Cancelar"
           icon="pi pi-times"

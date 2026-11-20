@@ -164,9 +164,9 @@ interface RascunhoSolicitacaoFinanceira {
                         <label class="text-[11px] font-medium text-slate-700 dark:text-slate-200">Modelo do formulário <span class="text-red-500 font-bold">*</span></label>
                         <p-select [(ngModel)]="varianteSelecionada" [options]="variantes()"
                           optionLabel="titulo" optionValue="id" [filter]="true" filterBy="titulo,descricao"
-                          placeholder="Selecione o tipo de solicitação" class="w-full" styleClass="w-full"
+                          placeholder="Selecione o tipo de solicitação" class="w-full w-full"
                           size="small" [fluid]="true" appendTo="body">
-                          <ng-template pTemplate="item" let-variante>
+                          <ng-template #item let-variante>
                             <div class="flex flex-col py-1">
                               <span class="text-[11px] font-medium text-slate-700 dark:text-slate-200">
                                 {{ variante.titulo }}

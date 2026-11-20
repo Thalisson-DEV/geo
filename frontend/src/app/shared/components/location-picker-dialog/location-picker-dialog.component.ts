@@ -69,30 +69,30 @@ export interface LocalSelecionado {
           <label class="filter-label !text-slate-600 !text-[11px] flex items-center gap-1.5">
             <i class="pi pi-search text-slate-400"></i> Buscar endereço
           </label>
-          <p-autoComplete
+          <p-autocomplete
             [(ngModel)]="termoBusca"
             [suggestions]="sugestoes()"
             (completeMethod)="buscarEndereco($event)"
             (onSelect)="onSelecionarSugestao($event)"
             optionLabel="display_name"
             [delay]="450"
-            [minLength]="3"
+            [minQueryLength]="3"
             [forceSelection]="false"
             [showClear]="true"
             scrollHeight="280px"
             placeholder="Digite CEP, nome da rua, cidade..."
-            styleClass="lp-autocomplete p-autocomplete-fluid"
+            class="lp-autocomplete p-autocomplete-fluid"
             inputStyleClass="lp-autocomplete-input"
             appendTo="body"
             emptyMessage="Nenhum endereço encontrado"
           >
-            <ng-template let-item pTemplate="item">
+            <ng-template let-item #item>
               <div class="flex items-start gap-2 py-0.5 max-w-[680px]">
                 <i class="pi pi-map-marker text-primary-500 text-[12px] mt-0.5"></i>
                 <span class="text-[11px] text-slate-600 leading-snug whitespace-normal">{{ item.display_name }}</span>
               </div>
             </ng-template>
-          </p-autoComplete>
+          </p-autocomplete>
           <span class="text-[10px] text-slate-400 flex items-center gap-1">
             <i class="pi pi-info-circle"></i>
             Ao escolher uma opção o marcador se move; nada é salvo até você confirmar.

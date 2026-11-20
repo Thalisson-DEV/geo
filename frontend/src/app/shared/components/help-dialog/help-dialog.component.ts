@@ -37,7 +37,7 @@ import { DialogModule } from 'primeng/dialog';
         </div>
       </div>
 
-      <ng-template pTemplate="footer">
+      <ng-template #footer>
         <p-button
           label="ENTENDI, FECHAR"
           icon="pi pi-check"

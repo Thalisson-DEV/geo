@@ -303,14 +303,14 @@
           </div>
         </header>
         <div class="dash-table-wrap">
-          <p-table [value]="linhasOrganizacionais()" [paginator]="linhasOrganizacionais().length > 8" [rows]="8" styleClass="dash-table" [rowHover]="true">
-            <ng-template pTemplate="header">
+          <p-table [value]="linhasOrganizacionais()" [paginator]="linhasOrganizacionais().length > 8" [rows]="8" class="dash-table" [rowHover]="true">
+            <ng-template #header>
               <tr>
                 <th>{{ rotuloOrganizacional() }}</th><th>Termos</th><th>Solicitado</th><th>Valor efetivo</th>
                 <th>% do valor</th><th>Ticket médio</th><th>Pendentes</th><th>Aprovação</th>
               </tr>
             </ng-template>
-            <ng-template pTemplate="body" let-item>
+            <ng-template #body let-item>
               <tr>
                 <td>
                   <div class="dash-table-name">
@@ -334,7 +334,7 @@
                 <td class="dash-number">{{ item.baixados + item.rejeitados > 0 ? (item.taxaAprovacao | number:'1.0-1') + '%' : '—' }}</td>
               </tr>
             </ng-template>
-            <ng-template pTemplate="emptymessage">
+            <ng-template #emptymessage>
               <tr><td colspan="8"><div class="dash-empty"><i class="pi pi-sitemap"></i>Sem dados de {{ rotuloOrganizacional().toLowerCase() }} no período.</div></td></tr>
             </ng-template>
           </p-table>
@@ -352,11 +352,11 @@
             </div>
           </header>
           <div class="dash-table-wrap">
-            <p-table [value]="d.porColaborador" [paginator]="d.porColaborador.length > 10" [rows]="10" styleClass="dash-table" [rowHover]="true">
-              <ng-template pTemplate="header">
+            <p-table [value]="d.porColaborador" [paginator]="d.porColaborador.length > 10" [rows]="10" class="dash-table" [rowHover]="true">
+              <ng-template #header>
                 <tr><th>Colaborador</th><th>Termos</th><th>Valor efetivo</th><th>Pendentes</th><th>Parcelas (média)</th><th>Última ocorrência</th><th>Dias desde a última</th><th><span class="sr-only">Detalhar</span></th></tr>
               </ng-template>
-              <ng-template pTemplate="body" let-item>
+              <ng-template #body let-item>
                 <tr class="cursor-pointer" (click)="abrirColaborador(item.idColaborador)">
                   <td>
                     <div class="dash-table-name">
@@ -381,7 +381,7 @@
                   </td>
                 </tr>
               </ng-template>
-              <ng-template pTemplate="emptymessage">
+              <ng-template #emptymessage>
                 <tr><td colspan="8"><div class="dash-empty"><i class="pi pi-users"></i>Nenhum colaborador foi descontado no período.</div></td></tr>
               </ng-template>
             </p-table>
@@ -397,11 +397,11 @@
             </div>
           </header>
           <div class="dash-table-wrap">
-            <p-table [value]="d.porSolicitante" [paginator]="d.porSolicitante.length > 8" [rows]="8" styleClass="dash-table" [rowHover]="true">
-              <ng-template pTemplate="header">
+            <p-table [value]="d.porSolicitante" [paginator]="d.porSolicitante.length > 8" [rows]="8" class="dash-table" [rowHover]="true">
+              <ng-template #header>
                 <tr><th>Solicitante</th><th>Termos</th><th>Valor</th><th>Aprovação</th></tr>
               </ng-template>
-              <ng-template pTemplate="body" let-item>
+              <ng-template #body let-item>
                 <tr>
                   <td>
                     <div class="dash-table-name !min-w-[150px]">
@@ -415,7 +415,7 @@
                   <td class="dash-number">{{ item.baixados + item.rejeitados > 0 ? (item.taxaAprovacao | number:'1.0-0') + '%' : '—' }}</td>
                 </tr>
               </ng-template>
-              <ng-template pTemplate="emptymessage">
+              <ng-template #emptymessage>
                 <tr><td colspan="4"><div class="dash-empty"><i class="pi pi-user"></i>Ninguém lançou termos no período.</div></td></tr>
               </ng-template>
             </p-table>

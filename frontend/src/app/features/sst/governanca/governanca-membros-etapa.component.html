@@ -48,8 +48,8 @@
         </div>
       </div>
 
-      <p-table [value]="membrosExibidos()" dataKey="id" styleClass="p-datatable-sm minimalist-table governance-table table-members" [rowHover]="true" [scrollable]="true" scrollHeight="360px">
-        <ng-template pTemplate="header">
+      <p-table [value]="membrosExibidos()" dataKey="id" class="p-datatable-sm minimalist-table governance-table table-members" [rowHover]="true" [scrollable]="true" scrollHeight="360px">
+        <ng-template #header>
           <tr>
             <th>Colaborador</th>
             <th>Papel na formação</th>
@@ -58,7 +58,7 @@
             <th class="table-actions">Ações</th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-membro>
+        <ng-template #body let-membro>
           <tr [class.active-action-row]="membroSelecionado()?.id === membro.id">
             <td>
               <span class="table-primary">{{ membro.nomeSnapshot }}</span>
@@ -83,7 +83,7 @@
             </td>
           </tr>
         </ng-template>
-        <ng-template pTemplate="emptymessage">
+        <ng-template #emptymessage>
           <tr>
             <td colspan="5">
               <div class="table-empty-state">

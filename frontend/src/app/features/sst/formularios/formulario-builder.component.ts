@@ -75,7 +75,7 @@ function uid(): string {
   providers: [MessageService, ConfirmationService],
   template: `
     <p-toast></p-toast>
-    <p-confirmDialog></p-confirmDialog>
+    <p-confirmdialog></p-confirmdialog>
 
     <div class="flex flex-col gap-4 pb-28">
       <!-- Barra superior -->
@@ -85,7 +85,7 @@ function uid(): string {
       </div>
 
       @if (loading()) {
-        <p-skeleton height="22rem" styleClass="!rounded-2xl"></p-skeleton>
+        <p-skeleton height="22rem" class="!rounded-2xl"></p-skeleton>
       } @else {
         <!-- DOCUMENTO -->
         <div class="bg-white rounded-2xl border border-slate-100 overflow-hidden">

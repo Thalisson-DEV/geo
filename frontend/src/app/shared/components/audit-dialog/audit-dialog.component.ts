@@ -57,7 +57,7 @@ import { TooltipModule } from 'primeng/tooltip';
         } @else {
           <p-timeline [value]="logs()!.alteracoes" align="alternate" class="custom-timeline">
             <!-- Marcador Central (Ícone) -->
-            <ng-template pTemplate="marker" let-log>
+            <ng-template #marker let-log>
               <span
                 class="flex w-9 h-9 items-center justify-center rounded-xl text-white z-10 transition-transform hover:scale-105"
                 [ngClass]="getOperationClass(log)"
@@ -67,7 +67,7 @@ import { TooltipModule } from 'primeng/tooltip';
             </ng-template>
 
             <!-- Lado Oposto: Cabeçalho (Quem/Quando) -->
-            <ng-template pTemplate="opposite" let-log>
+            <ng-template #opposite let-log>
                <div class="flex flex-col py-2">
                   <span class="text-[11px] font-medium text-[var(--geo-foreground)] uppercase tracking-tight">
                     {{ getFriendlyOperationName(log) }} por <span class="text-[var(--geo-foreground)] font-bold">{{ log.usuario }}</span>
@@ -79,7 +79,7 @@ import { TooltipModule } from 'primeng/tooltip';
             </ng-template>
 
             <!-- Lado Principal: Card de Conteúdo -->
-            <ng-template pTemplate="content" let-log>
+            <ng-template #content let-log>
               <div class="audit-log-card bg-[var(--geo-surface)] text-[var(--geo-foreground)] border border-[var(--geo-border)] rounded-xl p-4 shadow-sm flex flex-col gap-4 mb-12">
                 @if (log.operacao === 'INSERT') {
                   <div class="flex items-center gap-3">

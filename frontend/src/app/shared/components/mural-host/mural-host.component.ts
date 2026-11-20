@@ -101,7 +101,7 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
         styleClass="custom-dialog"
         appendTo="body"
       >
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <div class="flex w-full items-center gap-3">
             <div class="flex h-9 w-9 items-center justify-center rounded-xl border" [ngClass]="classesTipo(item)">
               <i [class]="iconeTipo(item)" class="text-sm"></i>
@@ -142,7 +142,7 @@ const FAIXA_MODIFICADORES: Record<TipoComunicado, string> = {
           }
         </div>
 
-        <ng-template pTemplate="footer">
+        <ng-template #footer>
           <div class="flex w-full flex-wrap items-center justify-end gap-2">
             @if (item.acaoRotulo && item.acaoDeeplink) {
               <p-button
