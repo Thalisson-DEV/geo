@@ -8,43 +8,53 @@
   color-scheme: light;
 
   // Cor — superfícies
-  --geo-fundo: #F4F6F9;
+  --geo-fundo: #F4F4F5;           // zinc-100
   --geo-superficie: #FFFFFF;
-  --geo-superficie-2: #EDF0F4;
-  --geo-linha: #E2E7EE;
-  --geo-linha-forte: #C9D1DC;
-  --geo-veu: rgba(14, 23, 38, .38);
+  --geo-superficie-2: #EEEEF0;
+  --geo-linha: #E4E4E7;           // zinc-200
+  --geo-linha-forte: #D4D4D8;     // zinc-300
+  --geo-veu: rgba(9, 9, 11, .40);
 
   // Cor — texto
-  --geo-texto: #0E1726;
-  --geo-texto-2: #5A687C;
-  --geo-texto-3: #7C8899;
+  --geo-texto: #18181B;           // zinc-900
+  --geo-texto-2: #52525B;         // zinc-600
+  --geo-texto-3: #63636B;         // entre zinc-500 e 600: ≥ 4,5:1 também sobre o fundo cinza
 
-  // Cor — destaque (azul da empresa): só ação e seleção
-  --geo-destaque: #0052A5;
+  // Cor — destaque (azul GEO, o mesmo do web): só ação e seleção
+  --geo-destaque: #2563EB;        // blue-600
   --geo-destaque-texto: #FFFFFF;
-  --geo-destaque-suave: #E6EFFA;
-  --geo-destaque-pressionado: #00428A;
+  --geo-destaque-suave: #EFF6FF;  // blue-50
+  --geo-destaque-pressionado: #1D4ED8; // blue-700
+  // Superfície inversa (toast/snackbar): escura no tema claro, clara no escuro
+  --geo-inverso: #18181B;
+  --geo-inverso-texto: #FAFAFA;
+  --geo-inverso-ok: #4ADE80;
+  --geo-inverso-erro: #F87171;
+  --geo-inverso-atencao: #FBBF24;
+  --geo-inverso-destaque: #93C5FD;
+  --geo-inverso-pressionado: rgba(255, 255, 255, .10);
+  // Âmbar da marca: escasso (ponto do logo, marcador de novidade), nunca para status
+  --geo-marca-ambar: #FBBF24;
 
   // Cor — status (sempre com ícone e texto, nunca só cor)
-  --geo-ok: #0F7A48;
-  --geo-ok-suave: #E3F4EB;
-  --geo-atencao: #9A5A00;
-  --geo-atencao-suave: #FDF1DC;
-  --geo-erro: #B42318;
-  --geo-erro-suave: #FDE8E6;
+  --geo-ok: #166534;              // green-800 (no app, um tom acima do web: lê sob sol e sobre o cinza)
+  --geo-ok-suave: #F0FDF4;
+  --geo-atencao: #92400E;         // amber-800 (idem)
+  --geo-atencao-suave: #FFFBEB;
+  --geo-erro: #B91C1C;            // red-700
+  --geo-erro-suave: #FEF2F2;
 
-  // Tipo — fonte do sistema (Roboto no Android): nada a baixar, funciona offline
-  --geo-fonte: Roboto, 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
-  --geo-fonte-mono: 'Roboto Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
-  --geo-t-titulo: 700 1.875rem/1.15 var(--geo-fonte);     // 30 — título grande da aba
+  // Tipo — Inter (a mesma do web), empacotada no app: funciona offline. Nada acima de 600, como no web.
+  --geo-fonte: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --geo-fonte-mono: ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Consolas, monospace;
+  --geo-t-titulo: 600 1.875rem/1.15 var(--geo-fonte);     // 30 — título grande da aba
   --geo-t-barra: 600 1.0625rem/1.3 var(--geo-fonte);      // 17 — barra superior, título de folha
   --geo-t-secao: 600 0.8125rem/1.3 var(--geo-fonte);      // 13 — cabeçalho de grupo
   --geo-t-corpo: 400 0.9375rem/1.45 var(--geo-fonte);     // 15
   --geo-t-corpo-forte: 500 0.9375rem/1.45 var(--geo-fonte);
   --geo-t-apoio: 400 0.8125rem/1.4 var(--geo-fonte);      // 13
   --geo-t-campo: 600 1.375rem/1.2 var(--geo-fonte);       // 22 — campo de valor principal
-  --geo-t-numero: 700 1.375rem/1.2 var(--geo-fonte);
+  --geo-t-numero: 600 1.375rem/1.2 var(--geo-fonte);
 
   // Espaço — grade de 4 px
   --geo-e1: 4px;
@@ -67,8 +77,8 @@
   --geo-r-pilula: 999px;
 
   // Elevação — só folha inferior e barra de abas
-  --geo-sombra-folha: 0 -8px 32px rgba(14, 23, 38, .12);
-  --geo-sombra-flutuante: 0 6px 20px rgba(14, 23, 38, .16);
+  --geo-sombra-folha: 0 -8px 32px rgba(9, 9, 11, .12);
+  --geo-sombra-flutuante: 0 6px 20px rgba(9, 9, 11, .16);
 
   // Movimento — entrar 200 ms, sair 160 ms, desaceleração
   --geo-curva: cubic-bezier(.2, .8, .2, 1);
@@ -80,31 +90,50 @@
   // Estrutura
   --geo-barra-abas: 64px;
   --geo-barra-topo: 56px;
+  // Barra lateral de navegação (tablet deitado): o shell liga com html[data-nav='lateral'].
+  --geo-nav-lateral: 0px;
+  // Largura máxima da coluna de conteúdo no tablet: linhas e botões não esticam pela tela toda.
+  --geo-conteudo-max: 880px;
+  // Recuo lateral de elementos fixos (rodapés, avisos) para alinhar com a coluna de conteúdo.
+  --geo-recuo-coluna: max(0px, calc((100vw - var(--geo-nav-lateral) - var(--geo-conteudo-max)) / 2));
   --geo-safe-topo: env(safe-area-inset-top, 0px);
   --geo-safe-base: env(safe-area-inset-bottom, 0px);
 }
 
+// Tablet deitado: navegação vira barra lateral, sem barra de abas embaixo.
+:root[data-nav='lateral'] {
+  --geo-nav-lateral: 88px;
+  --geo-barra-abas: 0px;
+}
+
 @mixin tema-escuro {
   color-scheme: dark;
-  --geo-fundo: #0B1017;
-  --geo-superficie: #141B25;
-  --geo-superficie-2: #1B2431;
-  --geo-linha: #232D3B;
-  --geo-linha-forte: #34404F;
+  --geo-fundo: #09090B;           // zinc-950
+  --geo-superficie: #18181B;      // zinc-900
+  --geo-superficie-2: #27272A;    // zinc-800
+  --geo-linha: #27272A;
+  --geo-linha-forte: #3F3F46;     // zinc-700
   --geo-veu: rgba(0, 0, 0, .55);
-  --geo-texto: #E7EDF5;
-  --geo-texto-2: #95A3B6;
-  --geo-texto-3: #7A8799;
-  --geo-destaque: #5C9DFF;
-  --geo-destaque-texto: #06121F;
-  --geo-destaque-suave: #15253C;
-  --geo-destaque-pressionado: #7FB2FF;
-  --geo-ok: #4CC38A;
-  --geo-ok-suave: #10281D;
-  --geo-atencao: #F0B04A;
-  --geo-atencao-suave: #2A1F0C;
-  --geo-erro: #FF7A6E;
-  --geo-erro-suave: #2E1414;
+  --geo-texto: #F4F4F5;           // zinc-100
+  --geo-texto-2: #A1A1AA;         // zinc-400
+  --geo-texto-3: #8E8E97;
+  --geo-destaque: #60A5FA;        // blue-400
+  --geo-destaque-texto: #0B1220;
+  --geo-destaque-suave: rgba(96, 165, 250, .16);
+  --geo-destaque-pressionado: #93C5FD; // blue-300
+  --geo-ok: #4ADE80;              // green-400
+  --geo-ok-suave: rgba(34, 197, 94, .14);
+  --geo-atencao: #FBBF24;         // amber-400
+  --geo-atencao-suave: rgba(245, 158, 11, .14);
+  --geo-erro: #F87171;            // red-400
+  --geo-erro-suave: rgba(239, 68, 68, .16);
+  --geo-inverso: #F4F4F5;
+  --geo-inverso-texto: #18181B;
+  --geo-inverso-ok: #15803D;
+  --geo-inverso-erro: #B91C1C;
+  --geo-inverso-atencao: #B45309;
+  --geo-inverso-destaque: #1D4ED8;
+  --geo-inverso-pressionado: rgba(0, 0, 0, .06);
   --geo-sombra-folha: 0 -8px 32px rgba(0, 0, 0, .5);
   --geo-sombra-flutuante: 0 6px 20px rgba(0, 0, 0, .5);
 }
@@ -115,16 +144,16 @@
 :root[data-contraste='alto'] {
   --geo-fundo: #FFFFFF;
   --geo-superficie: #FFFFFF;
-  --geo-superficie-2: #F0F2F5;
-  --geo-linha: #5A687C;
-  --geo-linha-forte: #0E1726;
+  --geo-superficie-2: #F4F4F5;
+  --geo-linha: #52525B;
+  --geo-linha-forte: #09090B;
   --geo-texto: #000000;
-  --geo-texto-2: #1F2937;
-  --geo-texto-3: #374151;
-  --geo-destaque: #003E7E;
-  --geo-ok: #0A5C36;
-  --geo-atencao: #6B3E00;
-  --geo-erro: #8F1A12;
+  --geo-texto-2: #27272A;
+  --geo-texto-3: #3F3F46;
+  --geo-destaque: #1E40AF;        // blue-800
+  --geo-ok: #14532D;
+  --geo-atencao: #78350F;
+  --geo-erro: #7F1D1D;
 }
 
 @media (prefers-reduced-motion: reduce) {

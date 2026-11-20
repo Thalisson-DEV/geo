@@ -342,7 +342,7 @@ const CATEGORIAS: CategoriaProduto[] = ['COMBUSTIVEL', 'ARLA', 'OLEO', 'FLUIDO']
       border: 1.5px solid var(--geo-linha-forte); background: var(--geo-fundo); cursor: text; }
     .qtd:focus-within { border-color: var(--geo-destaque); box-shadow: 0 0 0 3px var(--geo-destaque-suave); }
     .qtd--erro { border-color: var(--geo-erro); }
-    .qtd input { width: 4.5ch; border: 0; background: transparent; color: var(--geo-texto); text-align: right; font: 700 1.125rem/1 var(--geo-fonte); }
+    .qtd input { width: 4.5ch; border: 0; background: transparent; color: var(--geo-texto); text-align: right; font: 600 1.125rem/1 var(--geo-fonte); }
     .qtd input:focus { outline: none; }
     .qtd span { font: 500 .875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .tirar { color: var(--geo-texto-3); }

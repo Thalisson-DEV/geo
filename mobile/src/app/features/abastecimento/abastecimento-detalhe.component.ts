@@ -58,7 +58,7 @@ interface ItemTela {
     <geo-barra-topo titulo="Abastecimento" [subtitulo]="subtitulo()" (voltar)="voltar()" />
 
     @if (!carregado()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 160px"></div><div class="geo-esqueleto" style="height: 140px"></div>
       </div>
     } @else if (pedido(); as a) {

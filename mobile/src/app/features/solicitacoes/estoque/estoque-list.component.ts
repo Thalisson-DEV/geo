@@ -71,7 +71,7 @@ interface EstadoTela { filtro?: Filtro; busca?: string; series?: string | null; 
     }
 
     @if (materiais() === undefined) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         @for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 64px"></div> }
       </div>
     } @else if (filtrados().length) {

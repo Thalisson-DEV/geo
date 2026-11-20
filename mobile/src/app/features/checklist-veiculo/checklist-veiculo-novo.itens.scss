@@ -2,7 +2,7 @@
 /* Itens */
 .progresso { position: sticky; top: 0; z-index: 3; display: grid; gap: var(--geo-e2); padding: var(--geo-e2) var(--geo-e5) var(--geo-e3); background: var(--geo-fundo); }
 .progresso__texto { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-.progresso__texto b { color: var(--geo-texto); font-weight: 700; }
+.progresso__texto b { color: var(--geo-texto); font-weight: 600; }
 .progresso__barra { height: 6px; border-radius: var(--geo-r-pilula); background: var(--geo-linha); overflow: hidden; }
 .progresso__barra i { display: block; height: 100%; border-radius: inherit; background: var(--geo-ok); transition: width var(--geo-m-entrar) var(--geo-curva); }
 .grupo { align-items: center; padding-top: var(--geo-e3); }

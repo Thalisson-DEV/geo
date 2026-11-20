@@ -9,7 +9,7 @@ import { SessaoService } from '../sessao/sessao.service';
 import { RascunhoService } from '../sessao/rascunho.service';
 import { rotaInternaSegura } from '../sessao/snapshot';
 import { ConnectivityService } from '../sync/connectivity.service';
-import { IGNORAR_MODO_OFFLINE } from '../http/http-context';
+import { IGNORAR_MODO_OFFLINE, silentContext } from '../http/http-context';
 
 /** Uma aba renova por vez: o refresh token gira a cada uso. */
 const TRAVA_RENOVACAO = 'ces-renovacao-sessao'; // renomear-geo: manter
@@ -171,7 +171,9 @@ export class AuthService {
     }
     try {
       const resposta = await firstValueFrom(
-        this.http.post<TokenResponse>(`${environment.apiBaseUrl}/v1/auth/refresh`, null, { withCredentials: true })
+        // Silenciosa: falha de renovação vira a faixa "Entre novamente" no shell, nunca um toast
+        // (na abertura sem sessão, a tentativa pelo cookie mostrava "sessão expirou" a quem nem entrou).
+        this.http.post<TokenResponse>(`${environment.apiBaseUrl}/v1/auth/refresh`, null, { withCredentials: true, context: silentContext() })
       );
       const novoUsuario = this.tokenService.decodeToken(resposta.token)?.sub;
       const dono = this.tokenService.ownerId();

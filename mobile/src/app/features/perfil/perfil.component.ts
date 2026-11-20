@@ -129,7 +129,7 @@ import { FolhaComponent, IconeComponent, IndicadorRedeComponent, OpcaoSegmento, 
     .identidade { display: flex; align-items: center; gap: var(--geo-e3); margin: 0 var(--geo-e3); padding: var(--geo-e4);
       background: var(--geo-superficie); border-radius: var(--geo-r-grupo); }
     .avatar { width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; flex: none;
-      background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 700 1.375rem/1 var(--geo-fonte); }
+      background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 600 1.375rem/1 var(--geo-fonte); }
     .quem { flex: 1; min-width: 0; display: grid; gap: 2px; }
     .quem strong { font: var(--geo-t-corpo-forte); overflow-wrap: anywhere; }
     .quem span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
@@ -175,6 +175,7 @@ export class PerfilComponent implements OnInit {
   readonly opcoesTema: OpcaoSegmento<Tema>[] = [
     { valor: 'claro', rotulo: 'Claro', icone: 'sol' },
     { valor: 'escuro', rotulo: 'Escuro', icone: 'lua' },
+    { valor: 'sistema', rotulo: 'Sistema', icone: 'aparelho' },
   ];
   readonly opcoesContraste: OpcaoSegmento<Contraste>[] = [
     { valor: 'normal', rotulo: 'Normal' },

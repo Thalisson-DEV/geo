@@ -74,16 +74,15 @@ test('abertura offline a partir do cache do service worker', async ({ page, cont
   await expect(page.locator('#login')).toBeVisible({ timeout: 15_000 });
   const ms = Date.now() - inicio;
 
-  // A fonte de ícones das telas antigas precisa estar no cache do SW para abrir offline.
-  // (A UI antiga a buscava no Google Fonts, fora do alcance do SW.)
+  // A fonte da marca (Inter, empacotada no app) precisa estar no cache do SW para abrir offline.
   const fonteNoCache = await page.evaluate(async () => {
     for (const nome of await caches.keys()) {
       const chaves = await (await caches.open(nome)).keys();
-      if (chaves.some(r => /material-icons|fonts\.gstatic/.test(r.url))) return true;
+      if (chaves.some(r => /inter-latin-wght/.test(r.url))) return true;
     }
     return false;
   });
-  resultados['offline_cache'] = { loginVisivelMs: ms, fonteIconesNoCacheOffline: fonteNoCache };
+  resultados['offline_cache'] = { loginVisivelMs: ms, fonteNoCacheOffline: fonteNoCache };
 });
 
 test.afterAll(() => {

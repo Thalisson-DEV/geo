@@ -42,7 +42,7 @@ interface GrupoDocumentos {
     @if (!idVeiculo()) {
       <geo-vazio icone="documento" titulo="Escolha um veículo" texto="CRLV, tacógrafo e laudos do veículo e do implemento engatado." />
     } @else if (carga() === 'carregando') {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 64px"></div>
       </div>
     } @else if (grupos().length) {

@@ -129,11 +129,11 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
     .dia.passado:not(.com) .num { color: var(--geo-texto-3); }
     .num { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; font: 500 .9375rem/1 var(--geo-fonte);
       transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
-    .dia.com .num { font-weight: 700; }
-    .dia.hoje .num { color: var(--geo-destaque); box-shadow: inset 0 0 0 2px var(--geo-destaque); font-weight: 700; }
+    .dia.com .num { font-weight: 600; }
+    .dia.hoje .num { color: var(--geo-destaque); box-shadow: inset 0 0 0 2px var(--geo-destaque); font-weight: 600; }
     .dia[aria-selected='true'] .num { background: var(--geo-destaque); color: var(--geo-destaque-texto); box-shadow: none; }
     .marcas { display: flex; align-items: center; justify-content: center; gap: 3px; height: 6px; }
-    .marcas b { font: 700 .5625rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
+    .marcas b { font: 600 .5625rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     i[data-marca] { display: block; width: 6px; height: 6px; border-radius: 50%; }
     i[data-marca='aberta'] { background: var(--geo-destaque); }
     i[data-marca='atraso'] { background: var(--geo-erro); }
@@ -147,14 +147,14 @@ interface Dia { iso: string; numero: number; noMes: boolean; hoje: boolean; pass
     .dia-cab h3 { margin: 0; font: 600 .9375rem/1.3 var(--geo-fonte); }
     .dia-cab p { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .dia-cab__data { width: 40px; height: 44px; border-radius: 12px; display: grid; place-content: center; justify-items: center; background: var(--geo-destaque); color: var(--geo-destaque-texto); }
-    .dia-cab__data span { font: 700 1rem/1 var(--geo-fonte); }
-    .dia-cab__data small { font: 700 .625rem/1.2 var(--geo-fonte); letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
+    .dia-cab__data span { font: 600 1rem/1 var(--geo-fonte); }
+    .dia-cab__data small { font: 600 .625rem/1.2 var(--geo-fonte); letter-spacing: .06em; text-transform: uppercase; opacity: .85; }
     .cartoes { display: grid; gap: var(--geo-e2); padding: 0 var(--geo-e3); }
     .proximos .geo-linha { min-height: 64px; }
     button.geo-linha { width: 100%; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; }
     .mini-data { width: 40px; height: 44px; border-radius: 10px; display: grid; place-content: center; justify-items: center; background: var(--geo-superficie-2); flex: none; }
-    .mini-data span { font: 700 1rem/1 var(--geo-fonte); }
-    .mini-data small { font: 700 .5625rem/1.2 var(--geo-fonte); letter-spacing: .05em; text-transform: uppercase; color: var(--geo-texto-2); }
+    .mini-data span { font: 600 1rem/1 var(--geo-fonte); }
+    .mini-data small { font: 600 .5625rem/1.2 var(--geo-fonte); letter-spacing: .05em; text-transform: uppercase; color: var(--geo-texto-2); }
   `],
 })
 export class CalendarioFechamentoComponent {

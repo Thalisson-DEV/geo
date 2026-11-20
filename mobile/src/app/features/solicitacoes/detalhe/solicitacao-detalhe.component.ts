@@ -29,7 +29,7 @@ interface ItemEnriquecido {
     <geo-barra-topo titulo="Pedido de material" [subtitulo]="quando()" (voltar)="goBack()" />
 
     @if (isLoading()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 140px"></div><div class="geo-esqueleto" style="height: 160px"></div>
       </div>
     } @else if (solicitacao(); as sol) {

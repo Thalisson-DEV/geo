@@ -87,7 +87,7 @@ const ABAS: readonly { value: AbaDesvio; label: string }[] = [
       }
 
       @if (isLoading()) {
-        <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
           @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 96px"></div> }
         </div>
       } @else if (desvios().length) {

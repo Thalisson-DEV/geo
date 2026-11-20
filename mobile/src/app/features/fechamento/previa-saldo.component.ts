@@ -35,7 +35,7 @@ import { IconeComponent, numeroBr } from '../../ui';
     .material { font: 600 .9375rem/1.3 var(--geo-fonte); overflow-wrap: anywhere; }
     .estoque { font: var(--geo-t-apoio); color: var(--geo-texto-2); overflow-wrap: anywhere; }
     .numeros { flex: none; display: inline-flex; align-items: center; gap: 4px; font: 500 .9375rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
-    .numeros strong { font-weight: 700; color: var(--geo-erro); }
+    .numeros strong { font-weight: 600; color: var(--geo-erro); }
     p { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
   `],
 })

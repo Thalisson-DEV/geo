@@ -224,7 +224,7 @@ const TITULOS: Record<Passo, string> = { valores: 'Litros e valores', fotos: 'Fo
     .valor--erro { border-color: var(--geo-erro); }
     .valor__rotulo { font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); }
     .valor__linha { display: flex; align-items: baseline; gap: 4px; font: 500 .9375rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
-    .valor__linha input { flex: 1; min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; color: var(--geo-texto); font: 700 1.375rem/1.1 var(--geo-fonte); }
+    .valor__linha input { flex: 1; min-width: 0; width: 100%; padding: 0; border: 0; background: transparent; color: var(--geo-texto); font: 600 1.375rem/1.1 var(--geo-fonte); }
     .valor__linha input:focus { outline: none; }
     .medida { display: flex; align-items: center; gap: var(--geo-e2); padding: 0 var(--geo-e4); min-height: 64px; background: var(--geo-superficie);
       border: 1.5px solid var(--geo-linha); border-radius: var(--geo-r-campo); cursor: text; }

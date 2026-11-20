@@ -113,7 +113,7 @@ const mesmo = (a: readonly string[], b: readonly string[]) => a.length === b.len
               <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
             </geo-vazio>
           } @else if (carregandoLista() && !itens().length) {
-            <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+            <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
               @for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 128px"></div> }
             </div>
           } @else if (itens().length) {
@@ -185,7 +185,7 @@ const mesmo = (a: readonly string[], b: readonly string[]) => a.length === b.len
     .chip[aria-pressed='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
     .chip:active { transform: scale(.97); }
     .conta { min-width: 24px; height: 26px; padding: 0 7px; box-sizing: border-box; border-radius: 13px; display: inline-grid; place-items: center;
-      background: var(--geo-superficie-2); color: var(--geo-texto); font: 700 .75rem/1 var(--geo-fonte); }
+      background: var(--geo-superficie-2); color: var(--geo-texto); font: 600 .75rem/1 var(--geo-fonte); }
     .chip[aria-pressed='true'] .conta { background: var(--geo-superficie); }
     .conta.alerta { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
     .ponto { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-texto-3); flex: none; }

@@ -131,7 +131,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
       </div>
 
       @if (carregando()) {
-        <div class="esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="esqueletos" role="status" aria-busy="true" aria-label="Carregando">
           <div class="geo-esqueleto" style="height: 84px"></div>
           <div class="geo-esqueleto" style="height: 68px"></div>
         </div>
@@ -539,7 +539,7 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     .tipos { display: grid; gap: var(--geo-e2); }
     .tipos__titulo { font: var(--geo-t-corpo-forte); color: var(--geo-texto); }
     .provisorio { margin: 0; }
-    .provisorio__num { font: 700 1.375rem/1.2 var(--geo-fonte); overflow-wrap: anywhere; }
+    .provisorio__num { font: 600 1.375rem/1.2 var(--geo-fonte); overflow-wrap: anywhere; }
     dd.apoio { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .conferir .cod { color: var(--geo-texto-2); }
     .resumo-sel { padding: var(--geo-e2) var(--geo-e5) var(--geo-e1); font: var(--geo-t-corpo-forte); color: var(--geo-texto-2); }
@@ -558,31 +558,31 @@ function chaveLinha(m: Pick<SelectedMaterial, 'idMaterial' | 'operacao' | 'orige
     .tipo--servico .tipo__selo { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
     .tipo--material .tipo__selo { background: var(--geo-ok-suave); color: var(--geo-ok); }
     .tipo__txt { flex: 1; min-width: 0; display: grid; gap: 2px; }
-    .tipo__txt strong { font: 700 1.0625rem/1.25 var(--geo-fonte); }
+    .tipo__txt strong { font: 600 1.0625rem/1.25 var(--geo-fonte); }
     .tipo__txt span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .tipo__num { font: 700 1.75rem/1 var(--geo-fonte); min-width: 1.5ch; text-align: right; }
+    .tipo__num { font: 600 1.75rem/1 var(--geo-fonte); min-width: 1.5ch; text-align: right; }
     .valor { margin: var(--geo-e1) var(--geo-e5) var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .valor strong { font: 700 1.0625rem/1.3 var(--geo-fonte); color: var(--geo-texto); margin-left: 4px; }
+    .valor strong { font: 600 1.0625rem/1.3 var(--geo-fonte); color: var(--geo-texto); margin-left: 4px; }
     .grupo-tit { display: flex; align-items: center; gap: var(--geo-e2); }
     .grupo-tit .marca { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--geo-ok-suave); color: var(--geo-ok); }
     .grupo-tit.retirado .marca { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
     .grupo-tit.servico .marca { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
-    .grupo-tit .cont { margin-left: auto; font-weight: 700; color: var(--geo-texto); }
+    .grupo-tit .cont { margin-left: auto; font-weight: 600; color: var(--geo-texto); }
     .grupo-ajuda { margin: -4px var(--geo-e5) var(--geo-e2); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .mat { border-left: 4px solid var(--geo-ok); }
     .mat--retirado { border-left-color: var(--geo-atencao); }
-    .qtd-fixa { font: 700 1.5rem/1 var(--geo-fonte); white-space: nowrap; }
+    .qtd-fixa { font: 600 1.5rem/1 var(--geo-fonte); white-space: nowrap; }
     .qtd-fixa small { font: 600 .875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .qtd-fixa .informado { display: block; margin-top: 4px; font: var(--geo-t-apoio); font-size: .75rem; text-align: right; }
     .series-txt { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); overflow-wrap: anywhere; }
     .saldo { display: grid; justify-items: end; font: 600 .875rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); white-space: nowrap; }
-    .saldo strong { font: 700 1.25rem/1.1 var(--geo-fonte); color: var(--geo-texto); }
+    .saldo strong { font: 600 1.25rem/1.1 var(--geo-fonte); color: var(--geo-texto); }
     .saldo small { font: var(--geo-t-apoio); font-size: .75rem; }
     .saldo--zero small { color: var(--geo-atencao); font-weight: 600; }
     .op { gap: 4px; }
     .op--retirar { color: var(--geo-atencao); }
     .direita { font: var(--geo-t-corpo-forte); white-space: nowrap; }
-    dd.grande { font: 700 1.375rem/1.2 var(--geo-fonte); }
+    dd.grande { font: 600 1.375rem/1.2 var(--geo-fonte); }
     .resumo .geo-linha { min-height: 56px; }
     .mat { flex-direction: column; align-items: stretch; gap: var(--geo-e2); }
     .mat__topo { display: flex; align-items: flex-start; gap: var(--geo-e2); }

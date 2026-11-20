@@ -40,7 +40,7 @@ type Carga = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
     @if (!idVeiculo()) {
       <geo-vazio icone="caminhao" titulo="Escolha um veículo" texto="Veja se ele pode rodar, o que está em manutenção e os documentos." />
     } @else if (carga() === 'carregando') {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 140px"></div><div class="geo-esqueleto" style="height: 120px"></div>
       </div>
     } @else if (dados(); as d) {

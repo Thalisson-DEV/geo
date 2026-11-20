@@ -42,7 +42,7 @@ const COLUNAS: readonly DefColuna[] = [
     </nav>
 
     @if (!quadro()) {
-      <div class="trilho" aria-busy="true" aria-label="Carregando o quadro">
+      <div class="trilho" role="status" aria-busy="true" aria-label="Carregando o quadro">
         <div class="coluna"><div class="geo-esqueleto" style="height: 76px; border-radius: 16px"></div><div class="geo-esqueleto" style="height: 128px"></div></div>
       </div>
     } @else {
@@ -91,7 +91,7 @@ const COLUNAS: readonly DefColuna[] = [
       border-radius: var(--geo-r-pilula); background: transparent; color: var(--geo-texto-2); font: 600 .8125rem/1 var(--geo-fonte); cursor: pointer; white-space: nowrap;
       transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
     .atalho strong { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; display: inline-grid; place-items: center;
-      font: 700 .6875rem/1 var(--geo-fonte); background: var(--geo-superficie); color: var(--geo-texto); }
+      font: 600 .6875rem/1 var(--geo-fonte); background: var(--geo-superficie); color: var(--geo-texto); }
     .atalho[aria-current='true'] { background: var(--geo-superficie); color: var(--geo-texto); box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
     .atalho[aria-current='true'][data-tom='atencao'] strong { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
     .atalho[aria-current='true'][data-tom='destaque'] strong { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
@@ -110,7 +110,7 @@ const COLUNAS: readonly DefColuna[] = [
     .cab h3 { margin: 0; font: 600 .9375rem/1.25 var(--geo-fonte); }
     .cab p { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .cab__total { min-width: 26px; height: 24px; padding: 0 8px; box-sizing: border-box; border-radius: 12px; display: grid; place-items: center; background: var(--geo-superficie);
-      font: 700 .8125rem/1 var(--geo-fonte); color: var(--cor); }
+      font: 600 .8125rem/1 var(--geo-fonte); color: var(--cor); }
     .alertas { display: flex; padding: 0 var(--geo-e1); }
     .alerta { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: var(--geo-r-pilula); font: 600 .75rem/1.3 var(--geo-fonte);
       background: var(--geo-erro-suave); color: var(--geo-erro); }
@@ -126,7 +126,7 @@ const COLUNAS: readonly DefColuna[] = [
     .grupo__cab[data-tom='destaque'] .grupo__ponto { background: var(--geo-destaque); }
     .grupo__cab[data-tom='ok'] .grupo__ponto { background: var(--geo-ok); }
     .grupo__rotulo { flex: 1; }
-    .conta { font: 700 .75rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
+    .conta { font: 600 .75rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .cartoes { display: grid; gap: var(--geo-e2); }
     .mais { margin: 0; text-align: center; font: var(--geo-t-apoio); color: var(--geo-texto-2); padding: var(--geo-e2); }
   `],

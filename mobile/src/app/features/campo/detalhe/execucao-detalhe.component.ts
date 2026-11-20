@@ -40,7 +40,7 @@ interface MaterialLinha {
     <geo-barra-topo [titulo]="execucao() ? rotulo(execucao()!) : 'Execução'" [subtitulo]="quando()" (voltar)="voltar()" />
 
     @if (carregando()) {
-      <div class="esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 140px"></div>
       </div>
     } @else if (execucao(); as e) {
@@ -212,7 +212,7 @@ interface MaterialLinha {
     .alteracao p { margin: var(--geo-e1) 0 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .alteracao .motivo { color: var(--geo-texto); }
     .prazo { margin: 0 var(--geo-e4) var(--geo-e3); font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .acoes { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));
+    .acoes { position: fixed; left: var(--geo-nav-lateral); right: 0; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) calc(var(--geo-e4) + var(--geo-recuo-coluna)) calc(var(--geo-e3) + var(--geo-safe-base));
       background: var(--geo-fundo); border-top: 1px solid var(--geo-linha); }
     .acoes .corrigir { flex: 1; min-height: var(--geo-alvo-principal); }
     .folha-rodape { display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) 0; }

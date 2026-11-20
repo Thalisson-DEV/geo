@@ -23,9 +23,10 @@ zoneless. Público do app: encarregados de campo e administrativo; ~70% tablet, 
 
 ## Decisions
 
-- **Componentes próprios, tokens compartilhados.** O app não adota PrimeNG: os componentes de toque já existem em `ui/` e são
-  redesenhados. Os tokens de marca (cores, fonte, raios, movimento) seguem os nomes `--geo-*` do web, com uma camada de escala de
-  toque própria do app. Alternativa (PrimeNG no app) rejeitada pelo peso no bundle offline e por ser calibrado para densidade
+- **Componentes próprios, valores de marca compartilhados.** O app não adota PrimeNG: os componentes de toque já existem em `ui/`
+  e são redesenhados. Os tokens do app mantêm os nomes em português que as telas usam (`--geo-fundo`, `--geo-texto`,
+  `--geo-destaque`…) com os valores da paleta do web (zinc + azul 600, Inter, Lucide); renomeá-los para os nomes do web mexeria
+  em todas as telas sem ganho visual. Verde, âmbar e texto terciário ficam um tom mais escuros que no web para ler sob sol. Alternativa (PrimeNG no app) rejeitada pelo peso no bundle offline e por ser calibrado para densidade
   compacta.
 - **Escala de toque, não compacta.** A regra "densidade compacta sempre" vale para o web. No app: corpo 15–16px, apoio 13px,
   títulos de barra 17–20px, título grande 28–30px, alvos ≥ 48px (botão principal 52–56px), margens de 16px (24px no tablet).

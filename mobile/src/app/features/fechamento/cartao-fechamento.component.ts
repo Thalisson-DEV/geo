@@ -52,10 +52,10 @@ export type AcaoFechamento = 'movimentar' | 'reserva';
       text-align: left; font: inherit; cursor: pointer; transition: background-color 100ms; }
     .corpo:active { background: var(--geo-superficie-2); }
     .tipo { flex: none; width: 48px; height: 52px; border-radius: 12px; display: grid; place-content: center; justify-items: center; gap: 2px;
-      background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 700 .75rem/1 var(--geo-fonte-mono); }
+      background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 600 .75rem/1 var(--geo-fonte-mono); }
     .tipo--dev { background: var(--geo-superficie-2); color: var(--geo-texto); }
     .txt { flex: 1; min-width: 0; display: grid; gap: 3px; }
-    .obra { font: 700 1rem/1.25 var(--geo-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
+    .obra { font: 600 1rem/1.25 var(--geo-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
     .linha-status { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--geo-texto); }
     .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-texto-3); }

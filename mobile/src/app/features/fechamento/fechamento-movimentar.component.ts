@@ -92,7 +92,7 @@ interface ItemMovimentar { id: string; codigo: string; descricao: string; unidad
     .resumo { margin: var(--geo-e2) var(--geo-e3) 0; padding: var(--geo-e4); border-radius: var(--geo-r-folha); background: var(--geo-superficie); display: grid; gap: 2px; }
     .resumo .rotulo { font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); }
     .resumo .rotulo:not(:first-child) { margin-top: var(--geo-e2); }
-    .obra { font: 700 1.125rem/1.25 var(--geo-fonte); overflow-wrap: anywhere; }
+    .obra { font: 600 1.125rem/1.25 var(--geo-fonte); overflow-wrap: anywhere; }
     .barra-itens { display: flex; align-items: center; justify-content: space-between; gap: var(--geo-e2); flex-wrap: wrap; padding: var(--geo-e3) var(--geo-e3) var(--geo-e2) var(--geo-e5);
       font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .barra-itens strong { color: var(--geo-texto); }

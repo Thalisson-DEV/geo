@@ -129,7 +129,7 @@ type CargaServidor = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
             }
           </ul>
         } @else if (cargaMeus() === 'carregando' && !naFila().length) {
-          <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando"><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div></div>
+          <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando"><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div></div>
         }
 
         @if (carregado() && cargaMeus() !== 'carregando' && !enviados().length && !naFila().length && !rascunho()) {
@@ -145,7 +145,7 @@ type CargaServidor = 'ocioso' | 'carregando' | 'pronto' | 'sem-sinal' | 'erro';
         } @else {
           @switch (cargaVeiculo()) {
             @case ('carregando') {
-              <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando"><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div></div>
+              <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando"><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 72px"></div></div>
             }
             @case ('sem-sinal') {
               <geo-vazio icone="nuvem" titulo="Precisa de internet" texto="O histórico do veículo vem do servidor. Conecte e toque em atualizar." />

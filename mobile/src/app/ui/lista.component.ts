@@ -44,7 +44,7 @@ export const PERIODOS: { valor: PeriodFilter; rotulo: string; curto: string }[] 
     .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--geo-r-pilula);
       border: 1px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2); font: 500 .875rem/1 var(--geo-fonte); cursor: pointer; }
     .chip[aria-checked='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
-    .conta { font-weight: 700; }
+    .conta { font-weight: 600; }
   `],
 })
 export class ChipsComponent {

@@ -87,7 +87,7 @@ interface EstadoTela { filtro?: Filtro; periodo?: PeriodFilter; folhaPeriodo?: b
     }
 
     @if (carregando()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 72px"></div> }
       </div>
     } @else if (grupos().length || rascunhos().length) {

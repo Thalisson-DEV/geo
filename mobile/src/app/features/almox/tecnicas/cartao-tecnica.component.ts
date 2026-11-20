@@ -67,8 +67,8 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
     .corpo:active { background: var(--geo-superficie-2); }
     .data { flex: none; width: 44px; height: 48px; border-radius: 12px; display: grid; place-content: center; justify-items: center; gap: 1px;
       background: var(--geo-superficie-2); color: var(--geo-texto); }
-    .data .dia { font: 700 1.125rem/1 var(--geo-fonte); letter-spacing: -.02em; }
-    .data .mes { font: 700 .625rem/1 var(--geo-fonte); letter-spacing: .06em; color: var(--geo-texto-2); text-transform: uppercase; }
+    .data .dia { font: 600 1.125rem/1 var(--geo-fonte); letter-spacing: -.02em; }
+    .data .mes { font: 600 .625rem/1 var(--geo-fonte); letter-spacing: .06em; color: var(--geo-texto-2); text-transform: uppercase; }
     .data[data-prazo='atrasado'] { background: var(--geo-erro-suave); color: var(--geo-erro); }
     .data[data-prazo='atrasado'] .mes { color: var(--geo-erro); }
     .data[data-prazo='hoje'] { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
@@ -77,12 +77,12 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
     .data[data-prazo='sem'] .mes { font-size: .5625rem; letter-spacing: .02em; color: var(--geo-texto-3); }
     .txt { flex: 1; min-width: 0; display: grid; gap: 2px; padding-top: 1px; }
     .topo { display: flex; align-items: baseline; gap: var(--geo-e2); }
-    .oc { flex: 1; min-width: 0; font: 700 1rem/1.25 var(--geo-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
+    .oc { flex: 1; min-width: 0; font: 600 1rem/1.25 var(--geo-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
     .oc--obra { font-size: .9375rem; font-weight: 600; }
     .obra { font: 600 .875rem/1.3 var(--geo-fonte); color: var(--geo-texto); overflow-wrap: anywhere; }
     .id { flex: none; font: 500 .6875rem/1 var(--geo-fonte-mono); color: var(--geo-texto-3); }
     .linha-status { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 6px; margin-top: 4px; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .tipo { padding: 2px 6px; border-radius: 6px; background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 700 .6875rem/1.3 var(--geo-fonte-mono); }
+    .tipo { padding: 2px 6px; border-radius: 6px; background: var(--geo-destaque-suave); color: var(--geo-destaque); font: 600 .6875rem/1.3 var(--geo-fonte-mono); }
     .tipo--dev { background: var(--geo-superficie-2); color: var(--geo-texto); }
     .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--geo-texto); }
     .status i { width: 8px; height: 8px; border-radius: 50%; background: var(--geo-texto-3); }

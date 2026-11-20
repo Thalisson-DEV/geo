@@ -46,11 +46,11 @@
 
   b,
   strong {
-    font-weight: bolder;
+    font-weight: 600;
   }
 
   code, kbd, samp, pre {
-    font-family: var(--ces-fonte-mono);
+    font-family: var(--geo-fonte-mono);
     font-size: 1em;
   }
 
@@ -156,7 +156,7 @@
   input::placeholder,
   textarea::placeholder {
     opacity: 1;
-    color: var(--ces-texto-3);
+    color: var(--geo-texto-3);
   }
 
   button,

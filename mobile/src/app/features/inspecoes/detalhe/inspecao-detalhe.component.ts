@@ -25,7 +25,7 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
     <geo-barra-topo [titulo]="nomeTipoInspecao() || 'Inspeção'" [subtitulo]="quando()" (voltar)="goBack()" />
 
     @if (isLoading()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 160px"></div><div class="geo-esqueleto" style="height: 200px"></div>
       </div>
     } @else if (inspecao(); as ins) {
@@ -177,7 +177,7 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Status
     .protocolo { margin: var(--geo-e2) var(--geo-e5) 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .resumo { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--geo-e2); margin: var(--geo-e3) var(--geo-e3) 0; }
     .resumo div { display: grid; justify-items: center; padding: var(--geo-e3) var(--geo-e2); border-radius: var(--geo-r-grupo); background: var(--geo-superficie); }
-    .resumo strong { font: 700 1.625rem/1.1 var(--geo-fonte); }
+    .resumo strong { font: 600 1.625rem/1.1 var(--geo-fonte); }
     .resumo span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .resumo .alerta { background: var(--geo-atencao-suave); }
     .resumo .alerta strong { color: var(--geo-atencao); }

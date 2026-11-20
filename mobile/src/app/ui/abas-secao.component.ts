@@ -48,7 +48,7 @@ export interface AbaSecao {
       .abas.muitas .aba geo-icone { display: none; }
     }
     .conta { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; display: inline-grid; place-items: center;
-      background: var(--geo-atencao-suave); color: var(--geo-atencao); font: 700 .75rem/1 var(--geo-fonte); }
+      background: var(--geo-atencao-suave); color: var(--geo-atencao); font: 600 .75rem/1 var(--geo-fonte); }
   `],
 })
 export class AbasSecaoComponent {

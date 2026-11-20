@@ -1,10 +1,10 @@
-import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, signal, viewChild } from '@angular/core';
 import { NavigationEnd, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { OutboxService } from '../../core/sync/outbox.service';
 import { SessaoService } from '../../core/sessao/sessao.service';
-import { Aba, BarraAbasComponent } from '../../ui';
+import { Aba, BarraAbasComponent, ModoNavegacao } from '../../ui';
 import { AvisoSessaoComponent } from '../../ui/aviso-sessao.component';
 
 /** Telas de topo: mostram a barra de abas. Lançamentos e detalhes ocupam a tela toda. */
@@ -27,13 +27,16 @@ import { AvaliacaoFolhaComponent } from '../avaliacao/avaliacao-folha.component'
   imports: [RouterOutlet, BarraAbasComponent, AvisoSessaoComponent, AvaliacaoFolhaComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="casca">
-      <main #rolagem class="conteudo" (scroll)="aoRolar()">
+    <div class="casca" [class.lateral]="modoNavegacao() === 'lateral'">
+      @if (mostrarAbas() && modoNavegacao() === 'lateral') {
+        <geo-barra-abas [abas]="abas()" modo="lateral" />
+      }
+      <main #rolagem class="conteudo geo-coluna-app" (scroll)="aoRolar()">
         <geo-aviso-sessao />
         <router-outlet />
         <app-avaliacao-folha />
       </main>
-      @if (mostrarAbas()) {
+      @if (mostrarAbas() && modoNavegacao() === 'inferior') {
         <geo-barra-abas [abas]="abas()" />
       }
     </div>
@@ -41,7 +44,8 @@ import { AvaliacaoFolhaComponent } from '../avaliacao/avaliacao-folha.component'
   styles: [`
     :host { display: block; height: 100%; }
     .casca { display: flex; flex-direction: column; height: 100dvh; background: var(--geo-fundo); }
-    .conteudo { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
+    .casca.lateral { flex-direction: row; }
+    .conteudo { flex: 1; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain;
       display: flex; flex-direction: column; }
     /* Só a tela cresce até o fim; o aviso de sessão fica do tamanho dele (vazio, crescia e empurrava a tela curta para baixo no tablet). */
     .conteudo > :not(router-outlet):not(geo-aviso-sessao) { flex: 1 0 auto; }
@@ -99,9 +103,22 @@ export class AppShellComponent implements AfterViewInit {
     ];
   });
   readonly rotas = computed(() => this.abas().map(a => a.rota));
+  /** Tablet deitado (≥ 900 px): navegação em barra lateral; abaixo disso, abas embaixo. */
+  private readonly largo = signal(consultaLargo()?.matches ?? false);
+  readonly modoNavegacao = computed<ModoNavegacao>(() => (this.largo() ? 'lateral' : 'inferior'));
   readonly mostrarAbas = computed(() => TELAS_DE_TOPO.test(this.url()));
 
   constructor() {
+    const consulta = consultaLargo();
+    const aoMudar = (e: MediaQueryListEvent) => this.largo.set(e.matches);
+    consulta?.addEventListener('change', aoMudar);
+    this.destroyRef.onDestroy(() => consulta?.removeEventListener('change', aoMudar));
+    // Os elementos fixos (rodapés, avisos, botão flutuante) leem o modo pelo atributo na raiz.
+    effect(() => {
+      const nav = !this.mostrarAbas() ? 'nenhuma' : this.modoNavegacao();
+      document.documentElement.setAttribute('data-nav', nav);
+    });
+    this.destroyRef.onDestroy(() => document.documentElement.removeAttribute('data-nav'));
     // Ouve desde já: a casca nasce DURANTE a primeira navegação, e o NavigationEnd
     // dela chega antes do ngAfterViewInit. Sem isto a rolagem iria para a rota errada.
     const sub = this.router.events
@@ -215,5 +232,13 @@ export class AppShellComponent implements AfterViewInit {
       requestAnimationFrame(tentar);
     };
     requestAnimationFrame(tentar);
+  }
+}
+
+function consultaLargo(): MediaQueryList | null {
+  try {
+    return typeof matchMedia === 'function' ? matchMedia('(min-width: 900px)') : null;
+  } catch {
+    return null;
   }
 }

@@ -378,7 +378,7 @@ const chaveDe = (idMaterial: string, condicao: string) => `${idMaterial}|${condi
     .tudo { margin: 0 var(--geo-e3) var(--geo-e2); gap: 4px; }
     .atualizando { opacity: .6; }
     .mais { margin: var(--geo-e3) var(--geo-e3) 0; width: calc(100% - 24px); }
-    .saldo { display: grid; justify-items: end; font: 700 1.125rem/1.1 var(--geo-fonte); }
+    .saldo { display: grid; justify-items: end; font: 600 1.125rem/1.1 var(--geo-fonte); }
     .saldo small { font: 500 .75rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .ok { color: var(--geo-ok); }
     button.geo-linha:disabled { opacity: .6; }

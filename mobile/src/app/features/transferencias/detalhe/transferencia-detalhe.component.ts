@@ -33,7 +33,7 @@ interface ItemEnriquecido {
     <geo-barra-topo titulo="Transferência" [subtitulo]="quando()" (voltar)="goBack()" />
 
     @if (isLoading()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 120px"></div><div class="geo-esqueleto" style="height: 160px"></div>
       </div>
     } @else if (transferencia(); as t) {
@@ -75,7 +75,7 @@ interface ItemEnriquecido {
             <figcaption>{{ a.rotulo }}</figcaption>
             @if (a.url) { <img [src]="a.url" [alt]="'Assinatura de ' + a.rotulo.toLowerCase()"> }
             @else if (a.fisica) { <span class="sem"><geo-icone nome="documento" [tamanho]="18" />Assinada no papel</span> }
-            @else if (carregandoAssinaturas()) { <span class="geo-esqueleto carregando" aria-label="Carregando assinatura"></span> }
+            @else if (carregandoAssinaturas()) { <span class="geo-esqueleto carregando" role="status" aria-label="Carregando assinatura"></span> }
             @else { <span class="sem">Não colhida</span> }
           </figure>
         }

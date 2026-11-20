@@ -33,7 +33,7 @@ type Estado = 'carregando' | 'pronto' | 'sem-sinal' | 'nao-encontrado' | 'erro' 
 
     @switch (estado()) {
       @case ('carregando') {
-        <div class="geo-esqueletos" aria-busy="true" aria-label="Abrindo o documento">
+        <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Abrindo o documento">
           <div class="geo-esqueleto" style="height: 70vh"></div>
         </div>
       }

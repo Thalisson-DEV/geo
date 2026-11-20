@@ -22,7 +22,7 @@ interface Passo { titulo: string; detalhe: string | null; estado: 'feito' | 'atu
     <geo-barra-topo [titulo]="pedido() && !pedido()!.abastecimento.podeAprovar ? 'Abastecimento' : 'Aprovar abastecimento'" [subtitulo]="subtitulo()" (voltar)="voltar()" />
 
     @if (carregando()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 160px"></div><div class="geo-esqueleto" style="height: 140px"></div>
       </div>
     } @else if (pedido(); as p) {

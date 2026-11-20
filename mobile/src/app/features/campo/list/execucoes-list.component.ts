@@ -83,7 +83,7 @@ let ultimaLeitura: { execucoes: ExecucaoCampoLocal[]; fila: Map<string, OutboxIt
     </div>
 
     @if (carregando()) {
-      <div class="esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         @for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 60px"></div> }
       </div>
     } @else if (grupos().length) {
@@ -144,7 +144,7 @@ let ultimaLeitura: { execucoes: ExecucaoCampoLocal[]; fila: Map<string, OutboxIt
     .chip { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border-radius: var(--geo-r-pilula);
       border: 1px solid var(--geo-linha-forte); background: var(--geo-superficie); color: var(--geo-texto-2); font: 500 .875rem/1 var(--geo-fonte); cursor: pointer; }
     .chip[aria-checked='true'] { background: var(--geo-destaque-suave); border-color: transparent; color: var(--geo-destaque); font-weight: 600; }
-    .conta { font-weight: 700; }
+    .conta { font-weight: 600; }
     .esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
     /* Listas com milhares de linhas: o navegador pula o trabalho das que estão fora da tela. */
     .linha-lista { content-visibility: auto; contain-intrinsic-size: auto 64px; }

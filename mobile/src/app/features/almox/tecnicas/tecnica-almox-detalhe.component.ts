@@ -31,7 +31,7 @@ const MINIMO_MOTIVO = 5;
     </geo-barra-topo>
 
     @if (carregando() && !det()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando a solicitação">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando a solicitação">
         <div class="geo-esqueleto" style="height: 160px"></div><div class="geo-esqueleto" style="height: 96px"></div><div class="geo-esqueleto" style="height: 220px"></div>
       </div>
     } @else if (erro()) {
@@ -208,7 +208,7 @@ const MINIMO_MOTIVO = 5;
     .titulo { display: grid; gap: 2px; }
     .titulo .rotulo { font: 500 .75rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); }
     .titulo .rotulo:not(:first-child) { margin-top: var(--geo-e2); }
-    .oc, .obra { font: 700 1.25rem/1.25 var(--geo-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
+    .oc, .obra { font: 600 1.25rem/1.25 var(--geo-fonte); letter-spacing: -.01em; overflow-wrap: anywhere; }
     .rota { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--geo-e3); }
     .rota li { position: relative; display: flex; gap: var(--geo-e3); align-items: flex-start; }
     .rota li:first-child::after { content: ''; position: absolute; left: 4px; top: 14px; bottom: calc(-1 * var(--geo-e3) - 2px); width: 2px; background: var(--geo-linha-forte); }
@@ -236,7 +236,7 @@ const MINIMO_MOTIVO = 5;
     .obs span { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     .item { align-items: flex-start; }
     .estado { display: flex; gap: 4px; margin-top: 4px; }
-    .numeros { display: grid; grid-template-columns: repeat(3, auto); gap: var(--geo-e3); text-align: right; font: 700 1rem/1.1 var(--geo-fonte); flex: none; }
+    .numeros { display: grid; grid-template-columns: repeat(3, auto); gap: var(--geo-e3); text-align: right; font: 600 1rem/1.1 var(--geo-fonte); flex: none; }
     .numeros span { display: grid; gap: 2px; }
     .numeros small { font: 500 .6875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .numeros .falta { color: var(--geo-atencao); }

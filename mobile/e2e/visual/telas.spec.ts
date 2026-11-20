@@ -17,7 +17,7 @@ test('celular em modo escuro: o app abre no tema claro (padrão)', async ({ page
   await new MockApi({ perfil: 'CAMPO', turnoAberto: true }).install(page);
   await loginPelaUi(page);
   const fundo = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(fundo).toBe('rgb(244, 246, 249)');
+  expect(fundo).toBe('rgb(244, 244, 245)');
   expect(await page.evaluate(() => document.documentElement.getAttribute('data-tema'))).toBeNull();
 });
 

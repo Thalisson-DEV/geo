@@ -49,7 +49,7 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
       <div class="passos" aria-hidden="true">@for (s of [1, 2, 3]; track s) { <i [class.feito]="s <= passo()"></i> }</div>
 
       @if (carregando()) {
-        <div class="esqueletos" aria-busy="true" aria-label="Carregando">
+        <div class="esqueletos" role="status" aria-busy="true" aria-label="Carregando">
           @for (i of [1, 2, 3]; track i) { <div class="geo-esqueleto" style="height: 64px"></div> }
         </div>
       } @else {
@@ -195,7 +195,7 @@ const TITULOS = ['Origem e destino', 'Materiais', 'Conferir'];
     .resumo > div:last-child { border-bottom: 0; }
     dt { font: var(--geo-t-apoio); color: var(--geo-texto-2); }
     dd { margin: 2px 0 0; font: var(--geo-t-corpo-forte); overflow-wrap: anywhere; }
-    .qtd-fixa { font: 700 1.375rem/1 var(--geo-fonte); white-space: nowrap; }
+    .qtd-fixa { font: 600 1.375rem/1 var(--geo-fonte); white-space: nowrap; }
     .qtd-fixa small { font: 600 .875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .resumo-lista .geo-linha { min-height: 56px; }
     .rodape { position: sticky; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base));

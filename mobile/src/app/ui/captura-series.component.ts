@@ -239,7 +239,7 @@ const MAX_CONFERIR = 30;
     .conferir__acoes { display: flex; gap: 4px; flex: none; }
     .lista { padding-bottom: var(--geo-e2); }
     .topo-lista { padding-top: var(--geo-e4); }
-    .conta { font-weight: 700; color: var(--geo-texto); }
+    .conta { font-weight: 600; color: var(--geo-texto); }
     .conta.completo { color: var(--geo-ok); }
     .chips { list-style: none; margin: 0; padding: 0 var(--geo-e4); display: flex; flex-wrap: wrap; gap: 6px; }
     .chip { display: inline-flex; align-items: center; gap: 2px; padding-left: 12px; min-height: 36px; border-radius: var(--geo-r-pilula);

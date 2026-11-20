@@ -42,7 +42,7 @@ interface RascunhoTurno {
 
     <div class="tela">
       @if (carregando() && !composicao()) {
-        <div class="esqueletos" aria-busy="true" aria-label="Carregando equipe">
+        <div class="esqueletos" role="status" aria-busy="true" aria-label="Carregando equipe">
           <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 180px"></div>
         </div>
       } @else if (!composicao()) {

@@ -11,9 +11,9 @@
 
 ## 1. Identidade, shell e componentes
 
-- [ ] 1.1 Tokens `--geo-*` do app: cores da marca (claro/escuro/alto contraste), Inter empacotada, escala de toque, raios, elevação, movimento
-- [ ] 1.2 Ícones Lucide no componente de ícone
-- [ ] 1.3 Shell: barra superior com título grande, abas inferiores por perfil, trilho lateral no tablet em paisagem, áreas seguras, selo de pendentes, indicador de rede, aviso de nova versão
+- [x] 1.1 Tokens `--geo-*` do app: cores da marca (claro/escuro/alto contraste), Inter empacotada, escala de toque, raios, elevação, movimento. Paleta zinc + azul 600 do web; verde/âmbar/texto terciário um tom mais escuros que o web (≥ 4,5:1 sobre o cinza, sob sol); peso máximo 600; superfície inversa para o toast; tema "Sistema" além de claro/escuro
+- [x] 1.2 Ícones Lucide no componente de ícone (pacote `lucide`, só os usados entram no bundle; traço 1,75 como no web); fonte `material-icons` removida (sem uso)
+- [ ] 1.3 Shell: barra superior com título grande, abas inferiores por perfil, trilho lateral no tablet em paisagem, áreas seguras, selo de pendentes, indicador de rede, aviso de nova versão. Feito: barra lateral ≥ 900 px com a marca, coluna de conteúdo com largura máxima (`--geo-conteudo-max`), elementos fixos alinhados à coluna (`data-nav` na raiz). Já existiam: áreas seguras, selo, indicador de rede, aviso de versão. Falta: título grande que encolhe ao rolar
 - [ ] 1.4 Componentes: botão (principal, secundário, perigo), lista/cartão, folha inferior, seletor, campo de quantidade, campos de formulário, assistente em passos
 - [ ] 1.5 Componentes: câmera/galeria com carimbo, status de envio, estados vazio/carregando (skeleton)/erro, puxar para atualizar, ação por arrasto, desfazer, ditado por voz
 - [ ] 1.6 Layout lista + detalhe adaptável (celular, tablet retrato, tablet paisagem)

@@ -58,7 +58,7 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
         <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
       </geo-vazio>
     } @else if (!faixas()) {
-      <div class="trilho" aria-busy="true" aria-label="Carregando o quadro">
+      <div class="trilho" role="status" aria-busy="true" aria-label="Carregando o quadro">
         @for (c of [1, 2]; track c) {
           <div class="coluna"><div class="geo-esqueleto" style="height: 76px; border-radius: 16px"></div><div class="geo-esqueleto" style="height: 104px"></div><div class="geo-esqueleto" style="height: 104px"></div></div>
         }
@@ -142,7 +142,7 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
       border-radius: var(--geo-r-pilula); background: transparent; color: var(--geo-texto-2); font: 600 .8125rem/1 var(--geo-fonte); cursor: pointer;
       transition: background-color var(--geo-m-entrar), color var(--geo-m-entrar); }
     .atalho strong { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; display: inline-grid; place-items: center;
-      font: 700 .6875rem/1 var(--geo-fonte); background: var(--geo-superficie); color: var(--geo-texto); }
+      font: 600 .6875rem/1 var(--geo-fonte); background: var(--geo-superficie); color: var(--geo-texto); }
     .atalho[aria-current='true'] { background: var(--geo-superficie); color: var(--geo-texto); box-shadow: 0 1px 2px rgba(0, 0, 0, .1); }
     .atalho[aria-current='true'][data-tom='atencao'] strong { background: var(--geo-atencao-suave); color: var(--geo-atencao); }
     .atalho[aria-current='true'][data-tom='destaque'] strong { background: var(--geo-destaque-suave); color: var(--geo-destaque); }
@@ -161,7 +161,7 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
     .cab__txt { flex: 1; min-width: 0; }
     .cab h3 { margin: 0; font: 600 .9375rem/1.25 var(--geo-fonte); }
     .cab p { margin: 0; font: var(--geo-t-apoio); color: var(--geo-texto-2); }
-    .cab__total { min-width: 26px; height: 24px; padding: 0 8px; box-sizing: border-box; border-radius: 12px; display: grid; place-items: center; background: var(--geo-superficie); font: 700 .8125rem/1 var(--geo-fonte); color: var(--cor); }
+    .cab__total { min-width: 26px; height: 24px; padding: 0 8px; box-sizing: border-box; border-radius: 12px; display: grid; place-items: center; background: var(--geo-superficie); font: 600 .8125rem/1 var(--geo-fonte); color: var(--cor); }
     .alertas { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 var(--geo-e1); }
     .alerta { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: var(--geo-r-pilula); font: 600 .75rem/1.3 var(--geo-fonte); }
     .alerta--erro { background: var(--geo-erro-suave); color: var(--geo-erro); }
@@ -179,7 +179,7 @@ const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string; apoio: string }[] = [
     .grupo__cab[data-tom='destaque'] .grupo__ponto { background: var(--geo-destaque); }
     .grupo__cab[data-tom='ok'] .grupo__ponto { background: var(--geo-ok); }
     .grupo__rotulo { flex: 1; }
-    .conta { font: 700 .75rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
+    .conta { font: 600 .75rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .seta { transition: transform var(--geo-m-entrar) var(--geo-curva); color: var(--geo-texto-3); }
     .seta.aberta { transform: rotate(90deg); }
     .cartoes { display: grid; gap: var(--geo-e2); }

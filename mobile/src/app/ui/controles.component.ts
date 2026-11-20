@@ -38,7 +38,7 @@ import { IconeComponent, NomeIcone } from './icone.component';
     .grande { border-width: 1.5px; }
     .grande .b { width: 52px; height: 52px; }
     .grande .numero { min-width: 4.5em; }
-    .grande input { font: 700 1.5rem/1 var(--geo-fonte); }
+    .grande input { font: 600 1.5rem/1 var(--geo-fonte); }
     .grande .un { font-size: .9375rem; }
   `],
 })

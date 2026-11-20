@@ -75,7 +75,7 @@ type Filtro = 'todos' | 'problemas';
     <geo-barra-topo titulo="Checklist" [subtitulo]="subtitulo()" (voltar)="voltar()" />
 
     @if (!carregado()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">
         <div class="geo-esqueleto" style="height: 64px"></div><div class="geo-esqueleto" style="height: 180px"></div><div class="geo-esqueleto" style="height: 220px"></div>
       </div>
     } @else if (tela(); as t) {

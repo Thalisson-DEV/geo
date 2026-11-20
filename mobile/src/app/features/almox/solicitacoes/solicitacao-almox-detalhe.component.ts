@@ -32,7 +32,7 @@ const MINIMO = 5;
     </geo-barra-topo>
 
     @if (carregando() && !det()) {
-      <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando a solicitação">
+      <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando a solicitação">
         <div class="geo-esqueleto" style="height: 132px"></div><div class="geo-esqueleto" style="height: 72px"></div><div class="geo-esqueleto" style="height: 220px"></div>
       </div>
     } @else if (erro()) {
@@ -262,7 +262,7 @@ const MINIMO = 5;
     .item:disabled { opacity: 1; cursor: default; }
     .estado { display: flex; gap: 4px; margin-top: 4px; }
     .estado:empty { display: none; }
-    .numeros { display: grid; grid-template-columns: repeat(3, auto); gap: var(--geo-e3); text-align: right; font: 700 1rem/1.1 var(--geo-fonte); flex: none; }
+    .numeros { display: grid; grid-template-columns: repeat(3, auto); gap: var(--geo-e3); text-align: right; font: 600 1rem/1.1 var(--geo-fonte); flex: none; }
     .numeros span { display: grid; gap: 2px; }
     .numeros small { font: 500 .6875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .numeros .falta { color: var(--geo-atencao); }

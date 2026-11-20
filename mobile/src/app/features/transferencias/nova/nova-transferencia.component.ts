@@ -200,11 +200,11 @@ const TITULOS = ['Estoque de destino', 'Seleção de itens', 'Revisão dos itens
     .busca input:focus { outline: none; }
     .item { flex-wrap: wrap; }
     .linha-lista { content-visibility: auto; contain-intrinsic-size: auto 96px; }
-    .qtd-fixa { font: 700 1.375rem/1 var(--geo-fonte); white-space: nowrap; }
+    .qtd-fixa { font: 600 1.375rem/1 var(--geo-fonte); white-space: nowrap; }
     .qtd-fixa small { font: 600 .875rem/1 var(--geo-fonte); color: var(--geo-texto-2); }
     .resumo-lista .geo-linha { min-height: 56px; }
     .saldo { display: grid; justify-items: end; font: 600 .875rem/1.2 var(--geo-fonte); color: var(--geo-texto-2); white-space: nowrap; }
-    .saldo strong { font: 700 1.25rem/1.1 var(--geo-fonte); color: var(--geo-texto); }
+    .saldo strong { font: 600 1.25rem/1.1 var(--geo-fonte); color: var(--geo-texto); }
     .saldo small { font: var(--geo-t-apoio); font-size: .75rem; }
     .item .geo-linha__texto { flex: 1 1 55%; }
     .cond { font-weight: 600; color: var(--geo-ok); }

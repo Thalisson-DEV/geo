@@ -28,20 +28,20 @@ const ICONES: Record<string, NomeIcone> = { success: 'check', error: 'alerta', w
   `,
   styles: [`
     :host { display: contents; }
-    .pilha { position: fixed; left: 0; right: 0; z-index: 100; display: grid; justify-items: center; gap: var(--geo-e2); pointer-events: none;
+    .pilha { position: fixed; left: var(--geo-nav-lateral); right: 0; z-index: 100; display: grid; justify-items: center; gap: var(--geo-e2); pointer-events: none;
       padding: 0 var(--geo-e3); bottom: calc(var(--geo-barra-abas) + var(--geo-safe-base) + var(--geo-e3)); }
     .aviso { pointer-events: auto; width: min(100%, 520px); display: flex; align-items: center; gap: var(--geo-e3); min-height: 52px;
-      padding: var(--geo-e2) var(--geo-e2) var(--geo-e2) var(--geo-e4); border-radius: 14px; background: #1d2433; color: #f3f5f9;
+      padding: var(--geo-e2) var(--geo-e2) var(--geo-e2) var(--geo-e4); border-radius: 14px; background: var(--geo-inverso); color: var(--geo-inverso-texto);
       box-shadow: var(--geo-sombra-flutuante); font: 500 .9375rem/1.35 var(--geo-fonte); animation: subir 220ms var(--geo-curva); cursor: pointer; }
     .msg { flex: 1; min-width: 0; padding: 6px 0; overflow-wrap: anywhere; }
     .icone { flex: none; }
-    .success .icone { color: #5bd69a; }
-    .error .icone { color: #ff8a80; }
-    .warning .icone { color: #ffc35c; }
-    .info .icone { color: #8ab4ff; }
-    .acao { flex: none; min-height: 40px; padding: 0 var(--geo-e3); border: 0; border-radius: 10px; background: transparent; color: #8ab4ff;
-      font: 700 .9375rem/1 var(--geo-fonte); cursor: pointer; }
-    .acao:active { background: rgba(255, 255, 255, .08); }
+    .success .icone { color: var(--geo-inverso-ok); }
+    .error .icone { color: var(--geo-inverso-erro); }
+    .warning .icone { color: var(--geo-inverso-atencao); }
+    .info .icone { color: var(--geo-inverso-destaque); }
+    .acao { flex: none; min-height: 40px; padding: 0 var(--geo-e3); border: 0; border-radius: 10px; background: transparent; color: var(--geo-inverso-destaque);
+      font: 600 .9375rem/1 var(--geo-fonte); cursor: pointer; }
+    .acao:active { background: var(--geo-inverso-pressionado); }
     @keyframes subir { from { opacity: 0; transform: translateY(12px); } }
   `],
 })

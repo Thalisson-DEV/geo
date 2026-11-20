@@ -52,7 +52,7 @@ import { BarraTopoComponent, EstadoEnvio, FolhaComponent, IconeComponent, Indica
       }
 
       @if (!carregado()) {
-        <div class="geo-esqueletos" aria-label="Carregando"><span class="geo-esqueleto"></span><span class="geo-esqueleto"></span></div>
+        <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando"><span class="geo-esqueleto"></span><span class="geo-esqueleto"></span></div>
       } @else if (!abertos().length && !historico().length && !rascunho()) {
         <geo-vazio icone="combustivel" titulo="Nenhum pedido de abastecimento"
           texto="Peça pelo app com a foto do painel. O gestor da placa aprova, o administrativo libera e avisa o posto, e você registra o abastecimento com o cupom." />

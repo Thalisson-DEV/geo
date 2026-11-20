@@ -72,8 +72,8 @@ const MESES = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'O
     .corpo:active { background: var(--geo-superficie-2); }
     .data { flex: none; width: 44px; height: 48px; border-radius: 12px; display: grid; place-content: center; justify-items: center; gap: 1px;
       background: var(--geo-superficie-2); color: var(--geo-texto); }
-    .data .dia { font: 700 1.125rem/1 var(--geo-fonte); letter-spacing: -.02em; }
-    .data .mes { font: 700 .625rem/1 var(--geo-fonte); letter-spacing: .06em; color: var(--geo-texto-2); text-transform: uppercase; }
+    .data .dia { font: 600 1.125rem/1 var(--geo-fonte); letter-spacing: -.02em; }
+    .data .mes { font: 600 .625rem/1 var(--geo-fonte); letter-spacing: .06em; color: var(--geo-texto-2); text-transform: uppercase; }
     .data[data-prazo='atrasado'] { background: var(--geo-erro-suave); color: var(--geo-erro); }
     .data[data-prazo='atrasado'] .mes { color: var(--geo-erro); }
     .data[data-prazo='hoje'] { background: var(--geo-atencao-suave); color: var(--geo-atencao); }

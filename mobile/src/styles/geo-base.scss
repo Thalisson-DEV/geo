@@ -196,6 +196,11 @@ li + li > .geo-linha::before {
   &--erro { background: var(--geo-erro-suave); color: var(--geo-erro); }
 }
 
+// ---------- coluna do app ----------
+// Tablet: cada tela ocupa uma coluna de largura máxima centralizada; o fundo continua de ponta a ponta.
+// Fica aqui (global) porque o host da tela é inserido pelo roteador, fora do alcance do estilo do shell.
+.geo-coluna-app > :not(router-outlet) { width: 100%; max-width: var(--geo-conteudo-max); margin-inline: auto; }
+
 // ---------- listas ----------
 .geo-esqueletos { display: grid; gap: var(--geo-e2); padding: var(--geo-e4); }
 // Listas longas: o navegador pula o trabalho das linhas fora da tela.
@@ -206,7 +211,7 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
 // Botão de ação principal flutuante (canto inferior direito, acima das abas).
 .geo-fab {
   // Fixo acima da barra de abas: com lista curta não pode ficar no meio da tela.
-  position: fixed; right: var(--geo-e4); bottom: calc(var(--geo-barra-abas) + var(--geo-safe-base) + var(--geo-e4)); z-index: 6;
+  position: fixed; right: calc(var(--geo-e4) + var(--geo-recuo-coluna)); bottom: calc(var(--geo-barra-abas) + var(--geo-safe-base) + var(--geo-e4)); z-index: 6;
   display: inline-flex; align-items: center; gap: var(--geo-e2); min-height: 56px; padding: 0 var(--geo-e5) 0 var(--geo-e4);
   border-radius: 16px; background: var(--geo-destaque); color: var(--geo-destaque-texto); font: 600 1rem/1 var(--geo-fonte);
   text-decoration: none; box-shadow: var(--geo-sombra-flutuante); border: 0; cursor: pointer;
@@ -231,8 +236,9 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
 // Rodapé fixo de ações de uma tela de detalhe/fluxo.
 .geo-rodape-acoes {
   // Fixo no pé da tela (telas de detalhe não têm abas); o conteúdo reserva espaço com .geo-respiro.
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3);
-  padding: var(--geo-e3) var(--geo-e4) calc(var(--geo-e3) + var(--geo-safe-base)); background: var(--geo-fundo); border-top: 1px solid var(--geo-linha);
+  position: fixed; left: var(--geo-nav-lateral); right: 0; bottom: 0; z-index: 5; display: flex; gap: var(--geo-e3);
+  padding: var(--geo-e3) calc(var(--geo-e4) + var(--geo-recuo-coluna)) calc(var(--geo-e3) + var(--geo-safe-base));
+  background: var(--geo-fundo); border-top: 1px solid var(--geo-linha);
   .geo-btn { flex: 1; min-height: var(--geo-alvo-principal); font-size: 1rem; }
 }
 .geo-folha-rodape { display: flex; gap: var(--geo-e3); padding: var(--geo-e3) var(--geo-e4) 0; .geo-btn { flex: 1; min-height: var(--geo-alvo-principal); } }
@@ -249,7 +255,7 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
 // ---------- números e tipos de item (para quem não é do escritório) ----------
 // Quantidade em destaque, à direita da linha: o número é a informação principal.
 .geo-qtd {
-  font: 700 1.375rem/1 var(--geo-fonte);
+  font: 600 1.375rem/1 var(--geo-fonte);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   flex: none;
@@ -259,7 +265,7 @@ button.geo-linha:disabled { cursor: default; opacity: .55; }
 // Título de seção com marca colorida e contagem: serviço (azul), aplicado (verde), retirado (âmbar).
 .geo-secao--marcada {
   display: flex; align-items: center; gap: var(--geo-e2);
-  .geo-contagem { margin-left: auto; font-weight: 700; color: var(--geo-texto); font-variant-numeric: tabular-nums; }
+  .geo-contagem { margin-left: auto; font-weight: 600; color: var(--geo-texto); font-variant-numeric: tabular-nums; }
 }
 .geo-marca {
   width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center; flex: none;

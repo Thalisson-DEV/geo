@@ -81,7 +81,7 @@ const TAMANHO = 30;
           <button type="button" class="geo-btn geo-btn--tonal" (click)="recarregar()">Tentar de novo</button>
         </geo-vazio>
       } @else if (carregando() && !itens().length) {
-        <div class="geo-esqueletos" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 72px"></div> }</div>
+        <div class="geo-esqueletos" role="status" aria-busy="true" aria-label="Carregando">@for (i of [1, 2, 3, 4]; track i) { <div class="geo-esqueleto" style="height: 72px"></div> }</div>
       } @else if (grupos().length) {
         <div [class.atualizando]="carregando()" class="lista">
           @for (g of grupos(); track g.titulo) {
