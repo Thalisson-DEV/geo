@@ -55,7 +55,7 @@
       </div>
     </div>
   } @else {
-    <main appScrollMemory="tela-cheia" class="w-full h-full overflow-y-auto bg-[var(--geo-surface)] print:h-auto print:overflow-visible relative">
+    <main appScrollMemory="tela-cheia" class="w-full h-full overflow-y-auto bg-[var(--geo-surface)] print:h-auto print:overflow-visible relative" [class.geo-relatorio-fundo]="layoutRelatorio()">
       @if (activeDataSource(); as ds) {
         <geo-report-navigator
           [dataSource]="ds"
@@ -63,7 +63,11 @@
           [opened]="reportNavigatorOpen()"
           (openedChange)="reportNavigatorOpen.set($event)"
         ></geo-report-navigator>
-        <div class="report-content-container md:pl-14 print:pl-0">
+        <div class="report-content-container md:pl-14 print:pl-0" [class.geo-relatorio-moldura]="layoutRelatorio()">
+          <router-outlet></router-outlet>
+        </div>
+      } @else if (layoutRelatorio()) {
+        <div class="geo-relatorio-moldura">
           <router-outlet></router-outlet>
         </div>
       } @else {

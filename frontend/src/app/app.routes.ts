@@ -373,7 +373,7 @@ export const routes: Routes = [
       },
       {
         path: 'solicitacoes-tecnicas/:id',
-        data: { permission: 'estoque:solicitacao:read', fullscreen: true, reportNavigator: 'solicitacao-tecnica' },
+        data: { permission: 'estoque:solicitacao:read', fullscreen: true, relatorio: true, reportNavigator: 'solicitacao-tecnica' },
         loadComponent: () => import('./features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component').then(m => m.SolicitacaoTecnicaDetalheComponent)
       },
       {
@@ -388,12 +388,12 @@ export const routes: Routes = [
       },
       {
         path: 'saldos/relatorio',
-        data: { permission: 'estoque:saldo:read', fullscreen: true, reportNavigator: 'saldo' },
+        data: { permission: 'estoque:saldo:read', fullscreen: true, relatorio: true, reportNavigator: 'saldo' },
         loadComponent: () => import('./features/almoxarifado/saldos/relatorio-saldo/relatorio-saldo.component').then(m => m.RelatorioSaldoComponent)
       },
       {
         path: 'solicitacoes/:id',
-        data: { permission: 'estoque:solicitacao:read', fullscreen: true, reportNavigator: 'solicitacao-material' },
+        data: { permission: 'estoque:solicitacao:read', fullscreen: true, relatorio: true, reportNavigator: 'solicitacao-material' },
         loadComponent: () => import('./features/almoxarifado/solicitacoes-material/relatorio-solicitacao-material/relatorio-solicitacao-material.component').then(m => m.RelatorioSolicitacaoMaterialComponent)
       },
       { path: 'dashboard/movimentacoes', redirectTo: 'relatorios/movimentacoes', pathMatch: 'full' },
@@ -443,7 +443,7 @@ export const routes: Routes = [
       },
       {
         path: 'movimentacoes/:id',
-        data: { permission: 'estoque:movimentacao:read', fullscreen: true, reportNavigator: 'movimentacao' },
+        data: { permission: 'estoque:movimentacao:read', fullscreen: true, relatorio: true, reportNavigator: 'movimentacao' },
         loadComponent: () => import('./features/almoxarifado/movimentacoes-estoque/relatorio-movimentacao-estoque/relatorio-movimentacao-estoque.component').then(m => m.RelatorioMovimentacaoEstoqueComponent)
       }
     ]
@@ -484,12 +484,12 @@ export const routes: Routes = [
       },
       {
         path: 'turnos/:id/detalhamento',
-        data: { permission: 'execucao:comercial:read', fullscreen: true, reportNavigator: 'turno', backFallback: '/execucao/turnos' },
+        data: { permission: 'execucao:comercial:read', fullscreen: true, relatorio: true, reportNavigator: 'turno', backFallback: '/execucao/turnos' },
         loadComponent: () => import('./features/execucao/turno-detalhamento/turno-detalhamento.component').then(m => m.TurnoDetalhamentoComponent)
       },
       {
         path: 'comercial/:id',
-        data: { permission: 'execucao:comercial:read', fullscreen: true, reportNavigator: 'execucao-comercial', backFallback: '/execucao/comercial' },
+        data: { permission: 'execucao:comercial:read', fullscreen: true, relatorio: true, reportNavigator: 'execucao-comercial', backFallback: '/execucao/comercial' },
         loadComponent: () => import('./features/execucao/execucao-relatorio/execucao-relatorio.component').then(m => m.ExecucaoRelatorioComponent)
       }
     ]
@@ -531,22 +531,22 @@ export const routes: Routes = [
       },
       {
         path: 'ordens-servico/:id/checklist',
-        data: { permission: 'frota:os:read', fullscreen: true },
+        data: { permission: 'frota:os:read', fullscreen: true, relatorio: true },
         loadComponent: () => import('./features/frota/relatorios/relatorio-checklist-oficina.component').then(m => m.RelatorioChecklistOficinaComponent)
       },
       {
         path: 'ordens-servico/:id/relatorio',
-        data: { permission: 'frota:os:read', fullscreen: true, reportNavigator: 'frota-os' },
+        data: { permission: 'frota:os:read', fullscreen: true, relatorio: true, reportNavigator: 'frota-os' },
         loadComponent: () => import('./features/frota/relatorios/relatorio-ordem-servico.component').then(m => m.RelatorioOrdemServicoComponent)
       },
       {
         path: 'checklists/:id/relatorio',
-        data: { permission: 'frota:checklist:read', fullscreen: true, reportNavigator: 'frota-checklist' },
+        data: { permission: 'frota:checklist:read', fullscreen: true, relatorio: true, reportNavigator: 'frota-checklist' },
         loadComponent: () => import('./features/frota/relatorios/relatorio-checklist.component').then(m => m.RelatorioChecklistComponent)
       },
       {
         path: 'abastecimentos/:id/relatorio',
-        data: { permission: 'frota:abastecimento:read', fullscreen: true, reportNavigator: 'frota-abastecimento' },
+        data: { permission: 'frota:abastecimento:read', fullscreen: true, relatorio: true, reportNavigator: 'frota-abastecimento' },
         loadComponent: () => import('./features/frota/relatorios/relatorio-abastecimento.component').then(m => m.RelatorioAbastecimentoComponent)
       },
       {
@@ -773,7 +773,7 @@ export const routes: Routes = [
       },
       {
         path: 'encerramento/:id',
-        data: { permission: 'obras:fechamento:read', fullscreen: true, reportNavigator: 'fechamento' },
+        data: { permission: 'obras:fechamento:read', fullscreen: true, relatorio: true, reportNavigator: 'fechamento' },
         loadComponent: () => import('./features/obras/fechamento/fechamento-relatorio.component').then(m => m.FechamentoRelatorioComponent)
       },
       {
@@ -1002,7 +1002,7 @@ export const routes: Routes = [
       {
         path: 'inspecoes/:id',
         canActivate: [authGuard],
-        data: { permission: 'sst:inspecao:read', fullscreen: true, reportNavigator: 'inspecao-sst' },
+        data: { permission: 'sst:inspecao:read', fullscreen: true, relatorio: true, reportNavigator: 'inspecao-sst' },
         loadComponent: () => import('./features/sst/inspecoes/inspecao-detalhe.component').then(m => m.InspecaoDetalheComponent)
       },
       {
@@ -1052,7 +1052,7 @@ export const routes: Routes = [
       {
         path: 'eventos/:id',
         canActivate: [authGuard],
-        data: { permission: 'sst:evento:read', fullscreen: true, reportNavigator: 'evento-sst' },
+        data: { permission: 'sst:evento:read', fullscreen: true, relatorio: true, reportNavigator: 'evento-sst' },
         loadComponent: () => import('./features/sst/eventos/evento-detalhe.component').then(m => m.EventoDetalheComponent)
       },
       {
@@ -1143,7 +1143,7 @@ export const routes: Routes = [
       },
       {
         path: 'descontos/:id',
-        data: { permission: 'desconto:read', fullscreen: true, reportNavigator: 'desconto' },
+        data: { permission: 'desconto:read', fullscreen: true, relatorio: true, reportNavigator: 'desconto' },
         loadComponent: () => import('./features/dp/descontos/relatorio-desconto/relatorio-desconto.component').then(m => m.RelatorioDescontoComponent)
       }
     ]
@@ -1240,12 +1240,12 @@ export const routes: Routes = [
       },
       {
         path: 'compras/:id',
-        data: { permission: 'financeiro:compra:read', tipo: 'COMPRA', fullscreen: true, reportNavigator: 'financeiro' },
+        data: { permission: 'financeiro:compra:read', tipo: 'COMPRA', fullscreen: true, relatorio: true, reportNavigator: 'financeiro' },
         loadComponent: () => import('./features/financeiro/solicitacoes/solicitacao-financeira-detalhe.component').then(m => m.SolicitacaoFinanceiraDetalheComponent)
       },
       {
         path: 'pagamentos/:id',
-        data: { permission: 'financeiro:pagamento:read', tipo: 'PAGAMENTO', fullscreen: true, reportNavigator: 'financeiro' },
+        data: { permission: 'financeiro:pagamento:read', tipo: 'PAGAMENTO', fullscreen: true, relatorio: true, reportNavigator: 'financeiro' },
         loadComponent: () => import('./features/financeiro/solicitacoes/solicitacao-financeira-detalhe.component').then(m => m.SolicitacaoFinanceiraDetalheComponent)
       },
       {

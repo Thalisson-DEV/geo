@@ -57,7 +57,7 @@ describe('SolicitacaoTecnicaDetalheComponent (relatório)', () => {
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
   };
-  const botoes = (el: HTMLElement) => [...el.querySelectorAll('.fixed button')].map((b) => b.textContent?.trim()).filter(Boolean);
+  const botoes = (el: HTMLElement) => [...el.querySelectorAll('.geo-relatorio-acoes button')].map((b) => b.textContent?.trim()).filter(Boolean);
   const tela = () => fixture.componentInstance as any;
 
   beforeEach(async () => {
@@ -130,12 +130,12 @@ describe('SolicitacaoTecnicaDetalheComponent (relatório)', () => {
   it('a planejar: o próximo passo é PLANEJAR, sem editar ao lado', async () => {
     const el = await montar(detalhe('APROVADO', { dataPrevista: null, idEquipe: null, acoesPermitidas: ['EDITAR_PLANEJAMENTO'] }));
     expect(el.textContent).toContain('Defina a data do saque e, se já souber, a equipe');
-    expect(botoes(el)).toEqual(['VOLTAR', 'IMPRIMIR', 'PENDÊNCIA', 'PLANEJAR']);
+    expect(botoes(el)).toEqual(['Voltar', 'Imprimir', 'Pendência', 'Planejar']);
   });
 
   it('planejada: um único botão principal (iniciar separação) e editar como ação neutra', async () => {
     const el = await montar(detalhe());
-    expect(botoes(el)).toEqual(['VOLTAR', 'IMPRIMIR', 'PENDÊNCIA', 'EDITAR', 'INICIAR SEPARAÇÃO']);
+    expect(botoes(el)).toEqual(['Voltar', 'Imprimir', 'Pendência', 'Editar', 'Iniciar separação']);
   });
 
   it('separação confirma antes e recarrega o relatório', async () => {
@@ -155,17 +155,17 @@ describe('SolicitacaoTecnicaDetalheComponent (relatório)', () => {
       })
     );
     expect(el.textContent).toContain('Saíram 5 de 8; faltam 3');
-    expect(botoes(el)).toEqual(['VOLTAR', 'IMPRIMIR', 'ESTORNAR', 'ENCERRAR SALDO', 'PENDÊNCIA', 'REGISTRAR ENTREGA']);
+    expect(botoes(el)).toEqual(['Voltar', 'Imprimir', 'Estornar', 'Encerrar saldo', 'Pendência', 'Registrar entrega']);
   });
 
   it.each([
-    ['REGISTRAR ENTREGA', 'entrega', null],
-    ['ESTORNAR', 'itens', 'ESTORNAR'],
-    ['ENCERRAR SALDO', 'itens', 'ENCERRAR_SALDO']
+    ['Registrar entrega', 'entrega', null],
+    ['Estornar', 'itens', 'ESTORNAR'],
+    ['Encerrar saldo', 'itens', 'ENCERRAR_SALDO']
   ] as const)('%s abre o painel lateral da lista (aba %s)', async (rotulo, aba, acao) => {
     const el = await montar(detalhe('ENTREGUE_PARCIAL', { statusSeparacao: 'SEPARADO', acoesPermitidas: ['ENTREGAR', 'ESTORNAR', 'ENCERRAR_SALDO'] }));
     vi.useFakeTimers();
-    ([...el.querySelectorAll('.fixed button')].find((b) => b.textContent?.trim() === rotulo) as HTMLButtonElement).click();
+    ([...el.querySelectorAll('.geo-relatorio-acoes button')].find((b) => b.textContent?.trim() === rotulo) as HTMLButtonElement).click();
     vi.runAllTimers();
     expect(tela().painelAba()).toBe(aba);
     expect(tela().painelAcao()).toBe(acao);
@@ -177,7 +177,7 @@ describe('SolicitacaoTecnicaDetalheComponent (relatório)', () => {
     expect(el.textContent).toContain('Saldo encerrado');
     expect(el.textContent).toContain('Obra cancelada');
     expect(el.textContent).toContain('A solicitação já foi encerrada.');
-    expect(botoes(el)).toEqual(['VOLTAR', 'IMPRIMIR']);
+    expect(botoes(el)).toEqual(['Voltar', 'Imprimir']);
   });
 
   it('rejeitada: mostra o motivo e a justificativa', async () => {
@@ -186,6 +186,6 @@ describe('SolicitacaoTecnicaDetalheComponent (relatório)', () => {
     );
     expect(el.textContent).toContain('Solicitação rejeitada');
     expect(el.textContent).toContain('Falta no almoxarifado');
-    expect(botoes(el)).toEqual(['VOLTAR', 'IMPRIMIR']);
+    expect(botoes(el)).toEqual(['Voltar', 'Imprimir']);
   });
 });

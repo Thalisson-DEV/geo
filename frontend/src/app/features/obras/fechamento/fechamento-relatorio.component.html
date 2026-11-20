@@ -1,4 +1,4 @@
-<div class="relatorio min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] p-4 md:p-8 print:p-0 print:min-h-0">
+<div class="relatorio text-[var(--geo-foreground)] p-4 md:p-8 print:p-0 print:min-h-0">
   @if (state() === 'loading') {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
       <geo-async-state state="loading" title="Carregando solicitação de encerramento..." description="Consultando informações da solicitação..." />
@@ -10,9 +10,24 @@
     </div>
   } @else if (detail(); as sol) {
     @let sit = situacoes[sol.situacao];
-    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+    <!-- Ações do relatório (padrão: topo, fora da folha) -->
+    <div class="geo-relatorio-acoes print:hidden">
+      <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()" />
+      <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()" />
+
+      @if (sol.acoes.pendencias) {
+        <geo-button variant="outline" label="Pendência" icon="pi pi-exclamation-triangle" (pressed)="abrirPainel('itens')" />
+      }
+      <!-- O próximo passo: um botão principal por vez -->
+      @if (sol.acoes.registrarReserva) {
+        <geo-button label="Registrar reserva" icon="pi pi-hashtag" (pressed)="abrirPainel('reserva')" />
+      } @else if (sol.acoes.movimentar) {
+        <geo-button variant="success" label="Marcar movimentado" icon="pi pi-check-square" (pressed)="abrirPainel('movimentar')" />
+      }
+    </div>
+    <div class="geo-relatorio-folha print:max-w-full rise print:animate-none">
       <!-- 1. CABEÇALHO INSTITUCIONAL -->
-      <div class="grid grid-cols-3 items-center border-b border-[var(--geo-border)] pb-6 mb-6 print:pb-2 print:mb-2" aria-label="Cabeçalho institucional">
+      <div class="geo-relatorio-timbre grid grid-cols-3 items-center border-b border-[var(--geo-border)] pb-6 mb-6 print:pb-2 print:mb-2" aria-label="Cabeçalho institucional">
         <div class="flex justify-start">
           <img src="logo_vertical.svg" alt="Logo" class="h-16 print:h-14" onerror="this.style.display = 'none'" />
         </div>
@@ -27,7 +42,7 @@
       </div>
 
       <!-- 2. TÍTULO -->
-      <div class="py-4 text-center border-y border-[var(--geo-border)] my-4 print:py-2 print:my-2">
+      <div class="geo-relatorio-titulo py-4 text-center border-y border-[var(--geo-border)] my-4 print:py-2 print:my-2">
         <h2 class="text-base md:text-lg font-bold tracking-tight uppercase">Solicitação de Encerramento #{{ sol.id.substring(0, 8) }}@if (sol.reserva; as r) { · Reserva {{ r.numero }}}</h2>
         <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-xs text-[var(--geo-foreground-muted)] font-medium">
           <span class="font-bold text-[var(--geo-foreground)]">ID {{ sol.id.substring(0, 8) }}</span>
@@ -396,21 +411,7 @@
       </footer>
     </div>
 
-    <!-- 9. AÇÕES FLUTUANTES (mesma barra dos relatórios comercial e técnico) -->
-    <div class="acoes fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap justify-end gap-2.5 print:hidden z-50">
-      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)]" />
-      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white hover:!bg-[var(--report-action-strong-bg-hover)]" />
-
-      @if (sol.acoes.pendencias) {
-        <p-button label="PENDÊNCIA" icon="pi pi-exclamation-triangle" (onClick)="abrirPainel('itens')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white hover:!bg-[var(--geo-warning-hover)]" />
-      }
-      <!-- O próximo passo: um botão principal por vez -->
-      @if (sol.acoes.registrarReserva) {
-        <p-button label="REGISTRAR RESERVA" icon="pi pi-hashtag" (onClick)="abrirPainel('reserva')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-primary-600 !border-primary-600 !text-white hover:!bg-primary-700" />
-      } @else if (sol.acoes.movimentar) {
-        <p-button label="MARCAR MOVIMENTADO" icon="pi pi-check-square" (onClick)="abrirPainel('movimentar')" styleClass="!rounded-lg !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm cursor-pointer !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white hover:!bg-[var(--geo-success-hover)]" />
-      }
-    </div>
+    
 
     <app-fechamento-detalhe-drawer [(visible)]="painelAberto" [solicitacaoId]="sol.id" [abaInicial]="painelAba()" (alterado)="reload()" />
     <app-fechamento-estorno-drawer [(visible)]="estornoAberto" [solicitacao]="sol" [movimentacao]="movimentacaoSelecionada()" (estornada)="detail.set($event)" (conflito)="reload()" />

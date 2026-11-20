@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoButtonComponent } from '@geo/ui';
 import { map } from 'rxjs/operators';
 import { AbastecimentoDetalhe } from '../../../core/models/frota-abastecimento.models';
 import { formatarMedicao, formatarPlaca } from '../../../core/models/frota.models';
@@ -24,7 +24,7 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
   selector: 'app-relatorio-abastecimento',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [GeoButtonComponent, 
     DatePipe,
     GeoAsyncStateComponent,
     GeoStatusComponent,
@@ -45,16 +45,25 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
         <geo-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as a) {
-      <article class="rel">
+      <!-- Ações do relatório (padrão: topo, fora da folha) -->
+      <div class="geo-relatorio-acoes print:hidden">
+          <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+        <app-analisar-com-copiloto origem="Abastecimento da frota" tipo="frota_abastecimento" [entidade]="a.id"
+            [rotulo]="'Abastecimento ' + placa()" size="sm"
+            pergunta="Analise este abastecimento para apoiar a decisão: consumo, preço por litro, frequência e alertas, comparando com o histórico do veículo e da base." />
+          <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+          @if (a.podeAprovar || a.podeLiberar) {
+            <geo-button [icon]="'pi ' + (a.podeAprovar ? 'pi-check-circle' : 'pi-send')" [label]="a.podeAprovar ? 'Aprovar ou reprovar' : 'Liberar ao posto'" (pressed)="abrirNaFila()"></geo-button>
+          }
+        
+      </div>
+      <article class="rel geo-relatorio-folha">
         <app-frota-relatorio-cabecalho area="Abastecimento" [titulo]="'Abastecimento · ' + placa()">
           <geo-status [tone]="tomSituacao[a.situacao]" [icon]="'pi ' + iconeSituacao[a.situacao]">{{ a.situacaoRotulo }}</geo-status>
           <span>·</span>
           <span><strong>{{ a.posto }}</strong></span>
           <span>·</span>
           <span>Pedido em <strong>{{ a.solicitadoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
-          <app-analisar-com-copiloto acoes-titulo origem="Abastecimento da frota" tipo="frota_abastecimento" [entidade]="a.id"
-            [rotulo]="'Abastecimento ' + placa()" size="sm"
-            pergunta="Analise este abastecimento para apoiar a decisão: consumo, preço por litro, frequência e alertas, comparando com o histórico do veículo e da base." />
         </app-frota-relatorio-cabecalho>
 
         <section class="rel-dados" aria-label="Dados gerais do abastecimento">
@@ -201,15 +210,6 @@ import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-rela
         </footer>
       </article>
 
-      <div class="rel-acoes" role="toolbar" aria-label="Ações do relatório">
-        <div class="rel-acoes__linha">
-          <button type="button" class="rel-acao rel-acao--so-desktop" (click)="voltar()"><i class="pi pi-arrow-left" aria-hidden="true"></i>Voltar</button>
-          <button type="button" class="rel-acao rel-acao--forte rel-acao--so-desktop" (click)="imprimir()"><i class="pi pi-print" aria-hidden="true"></i>Imprimir</button>
-          @if (a.podeAprovar || a.podeLiberar) {
-            <button type="button" class="rel-acao rel-acao--primaria" (click)="abrirNaFila()"><i class="pi {{ a.podeAprovar ? 'pi-check-circle' : 'pi-send' }}" aria-hidden="true"></i>{{ a.podeAprovar ? 'Aprovar ou reprovar' : 'Liberar ao posto' }}</button>
-          }
-        </div>
-      </div>
     }
   `
 })

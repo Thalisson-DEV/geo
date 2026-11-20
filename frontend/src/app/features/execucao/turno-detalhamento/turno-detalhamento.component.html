@@ -1,7 +1,5 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200"
-  [class.p-4]="!isPrintMode()"
-  [class.md:p-8]="!isPrintMode()"
+  class="text-[var(--geo-foreground)] relative transition-colors duration-200"
   [class.print:p-0]="isPrintMode()"
   [class.print:min-h-0]="isPrintMode()"
   [class.print:bg-white]="isPrintMode()"
@@ -21,10 +19,18 @@
   } @else if (data(); as d) {
     @let ind = d.indicadores;
     @let hist = d.historicoEquipe;
-    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+    <!-- Ações do relatório (padrão: topo, fora da folha) -->
+    <div class="geo-relatorio-acoes print:hidden">
+      <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+      @if (notas().length) {
+        <geo-button icon="pi pi-list" label="Ver notas" (pressed)="verNotasNaConsulta()"></geo-button>
+      }
+      <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+    </div>
+    <div class="geo-relatorio-folha print:max-w-full rise print:animate-none">
 
       <!-- 1. CABEÇALHO CORPORATIVO -->
-      <div class="grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
+      <div class="geo-relatorio-timbre grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
         <div class="flex justify-start">
           <img src="logo_vertical.svg" alt="Logo" class="h-16 print:h-14" onerror="this.style.display = 'none'" />
         </div>
@@ -39,7 +45,7 @@
       </div>
 
       <!-- 2. TÍTULO -->
-      <div class="py-4 text-center border-y border-slate-200 dark:border-slate-800 print:border-slate-300 my-4 print:py-2 print:my-2">
+      <div class="geo-relatorio-titulo py-4 text-center border-y border-slate-200 dark:border-slate-800 print:border-slate-300 my-4 print:py-2 print:my-2">
         <h2 class="text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 print:text-black tracking-tight uppercase">Relatório de Turno Operacional</h2>
         <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-xs text-slate-600 dark:text-slate-400 print:text-slate-600 font-medium">
           <span class="font-mono font-bold text-slate-900 dark:text-slate-100 print:text-black">TURNO #{{ d.turno.id.slice(0, 8) }}</span>
@@ -445,16 +451,6 @@
       </footer>
     </div>
 
-    <!-- 14. AÇÕES FLUTUANTES -->
-    <div class="fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
-      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
-      @if (notas().length) {
-        <p-button icon="pi pi-list" label="VER NOTAS" (onClick)="verNotasNaConsulta()"
-          styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"></p-button>
-      }
-      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
-        styleClass="!rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
-    </div>
+    
   }
 </div>

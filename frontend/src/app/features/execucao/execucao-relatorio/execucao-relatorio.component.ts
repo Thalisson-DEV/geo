@@ -15,9 +15,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { AccordionModule } from 'primeng/accordion';
-import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
 
 import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -49,7 +48,7 @@ import { imprimirSempreNoTemaClaro } from '../relatorios/relatorio-impressao';
   imports: [
     CommonModule,
     AccordionModule,
-    ButtonModule,
+    GeoButtonComponent,
     TooltipModule,
     GeoAsyncStateComponent,
     GeoStatusComponent,

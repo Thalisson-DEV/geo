@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone, GeoButtonComponent } from '@geo/ui';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import {
@@ -81,7 +81,7 @@ const EVENTO: Record<string, { icone: string; tom: GeoTone }> = {
   selector: 'app-relatorio-ordem-servico',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [GeoButtonComponent, 
     DatePipe,
     GeoAsyncStateComponent,
     GeoStatusComponent,
@@ -102,16 +102,23 @@ const EVENTO: Record<string, { icone: string; tom: GeoTone }> = {
         <geo-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as d) {
-      <article class="rel">
+      <!-- Ações do relatório (padrão: topo, fora da folha) -->
+      <div class="geo-relatorio-acoes print:hidden">
+          <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+        <app-analisar-com-copiloto origem="Ordem de serviço da frota" tipo="frota_ordem_servico" [entidade]="d.ordem.id"
+            [rotulo]="'OS ' + d.ordem.numero" size="sm"
+            pergunta="Analise esta ordem de serviço para apoiar a decisão: custo, tempo parado, repetição do item, oficina e histórico do veículo, comparando com OS semelhantes." />
+          <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+          <geo-button icon="pi pi-external-link" label="Abrir a OS" (pressed)="abrirFicha(d.ordem.id)"></geo-button>
+        
+      </div>
+      <article class="rel geo-relatorio-folha">
         <app-frota-relatorio-cabecalho area="Manutenção" [titulo]="'Ordem de Serviço Nº ' + d.ordem.numero">
           <geo-status [tone]="tomSituacao[d.ordem.situacao]">{{ rotuloSituacao[d.ordem.situacao] }}</geo-status>
           <span>·</span>
           <span><strong>{{ rotuloTipo[d.ordem.tipoManutencao] }}</strong></span>
           <span>·</span>
           <span>Abertura: <strong>{{ d.ordem.abertaEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
-          <app-analisar-com-copiloto acoes-titulo origem="Ordem de serviço da frota" tipo="frota_ordem_servico" [entidade]="d.ordem.id"
-            [rotulo]="'OS ' + d.ordem.numero" size="sm"
-            pergunta="Analise esta ordem de serviço para apoiar a decisão: custo, tempo parado, repetição do item, oficina e histórico do veículo, comparando com OS semelhantes." />
         </app-frota-relatorio-cabecalho>
 
         <section class="rel-dados" aria-label="Dados gerais da OS">
@@ -373,13 +380,6 @@ const EVENTO: Record<string, { icone: string; tom: GeoTone }> = {
         </footer>
       </article>
 
-      <div class="rel-acoes" role="toolbar" aria-label="Ações do relatório">
-        <div class="rel-acoes__linha">
-          <button type="button" class="rel-acao rel-acao--so-desktop" (click)="voltar()"><i class="pi pi-arrow-left" aria-hidden="true"></i>Voltar</button>
-          <button type="button" class="rel-acao rel-acao--forte rel-acao--so-desktop" (click)="imprimir()"><i class="pi pi-print" aria-hidden="true"></i>Imprimir</button>
-          <button type="button" class="rel-acao rel-acao--primaria" (click)="abrirFicha(d.ordem.id)"><i class="pi pi-external-link" aria-hidden="true"></i>Abrir a OS</button>
-        </div>
-      </div>
     }
   `
 })

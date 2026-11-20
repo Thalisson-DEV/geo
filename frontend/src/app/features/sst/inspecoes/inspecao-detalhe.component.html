@@ -6,24 +6,22 @@
         description="Consultando o checklist, os desvios e as fotos da inspeção..."></geo-async-state>
     </div>
   } @else if (inspecao(); as insp) {
-    <div class="flex flex-col gap-4 print:block print:max-w-full">
-      <geo-page-header class="print:hidden" title="Relatório de inspeção de segurança" icon="pi pi-shield"
-        [breadcrumb]="[{ label: 'Segurança' }, { label: 'Inspeções', route: '/sst/inspecoes' }, { label: '#' + codigo() }]"
-        [description]="'Código #' + codigo() + ' · realizada em ' + (insp.dataRealizacao | date: 'dd/MM/yyyy HH:mm') + ' · ' + insp.formulario.titulo">
-        <geo-status status [tone]="situacao().tom" [icon]="situacao().icone">{{ situacao().rotulo }}</geo-status>
-        <app-analisar-com-copiloto actions origem="Relatório de inspeção de segurança" tipo="inspecao"
+    <div class="flex flex-col print:block print:max-w-full">
+      <!-- Ações do relatório (padrão: topo, fora da folha) -->
+      <div class="geo-relatorio-acoes print:hidden">
+        <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+        <app-analisar-com-copiloto origem="Relatório de inspeção de segurança" tipo="inspecao"
           [entidade]="insp.id" [rotulo]="'Inspeção #' + codigo()" size="sm"
           pergunta="Analise esta inspeção de segurança: não conformidades, gravidade, tratamento dos desvios e o histórico da equipe." />
-        <geo-button actions variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
-        <geo-button actions variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="printReport()"></geo-button>
+        <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="printReport()"></geo-button>
         @if (podeEditarCabecalho()) {
-          <geo-button actions variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="navegarParaEdicao()"></geo-button>
+          <geo-button variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="navegarParaEdicao()"></geo-button>
         }
         @if (podeTratar() && proximoDesvioPendente(); as d) {
-          <geo-button actions icon="pi pi-wrench" label="Tratar desvios" (pressed)="abrirTratamento(d)"></geo-button>
+          <geo-button icon="pi pi-wrench" label="Tratar desvios" (pressed)="abrirTratamento(d)"></geo-button>
         }
-      </geo-page-header>
-      <div class="flex flex-col print:block">
+      </div>
+      <div class="geo-relatorio-folha flex flex-col print:block">
 
       <!-- 1. CABEÇALHO CORPORATIVO -->
       <div class="hidden print:grid grid-cols-3 items-center border-b border-[var(--geo-border)] pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
@@ -41,7 +39,7 @@
       </div>
 
       <!-- 2. TÍTULO -->
-      <div class="hidden print:block py-4 text-center border-y border-[var(--geo-border)] print:border-slate-300 my-4 print:py-2 print:my-2">
+      <div class="geo-relatorio-titulo py-4 text-center border-y border-[var(--geo-border)] print:border-slate-300 my-4 print:py-2 print:my-2">
         <h2 class="text-base md:text-lg font-semibold text-[var(--geo-foreground)] print:text-black">
           Relatório de Inspeção de Segurança
         </h2>

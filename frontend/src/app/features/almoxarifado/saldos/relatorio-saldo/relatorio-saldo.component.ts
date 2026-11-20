@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, ViewChild, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { Observable, Subject, catchError, forkJoin, map, of, switchMap } from 'rxjs';
-import { GeoAsyncStateComponent, GeoContentState, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoButtonComponent, GeoAsyncStateComponent, GeoContentState, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import {
   GeoCellDirective,
   GeoDataTableColumn,
@@ -68,7 +67,7 @@ const ORDENACAO_PADRAO = 'material.descricao,asc';
   standalone: true,
   imports: [
     CommonModule,
-    ButtonModule,
+    GeoButtonComponent,
     GeoAsyncStateComponent,
     GeoStatusComponent,
     GeoIconButtonComponent,

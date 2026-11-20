@@ -1,0 +1,146 @@
+/*
+ * Padrão de relatório (rotas com data.relatorio): inspeção, evento, desconto, financeiro,
+ * execução, turno, almoxarifado, frota, encerramento...
+ *
+ * Anatomia: moldura (fundo da aplicação, largura máxima, respiro) → cabeçalho de página
+ * (título, identificação, ações à direita) → seções em painéis. O timbre institucional só
+ * aparece na impressão.
+ *
+ * A moldura fica fora de @layer: precisa vencer utilitários do Tailwind aplicados no mesmo
+ * elemento pelo shell (bg-*, md:pl-14).
+ */
+.geo-relatorio-fundo {
+  background: var(--geo-canvas);
+}
+
+.geo-relatorio-moldura {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 86rem;
+  margin-inline: auto;
+  padding: 1.5rem 2rem 4rem;
+}
+
+/* Com o navegador de relatórios (trilho fixo à esquerda), a margem esquerda abre espaço para ele. */
+@media (min-width: 768px) {
+  .report-content-container.geo-relatorio-moldura {
+    padding-left: 4.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .geo-relatorio-moldura {
+    padding: 1rem 1rem 3rem;
+  }
+}
+
+@media print {
+  .geo-relatorio-fundo {
+    background: none;
+  }
+
+  .geo-relatorio-moldura,
+  .report-content-container.geo-relatorio-moldura {
+    max-width: none;
+    padding: 0;
+  }
+}
+
+/*
+ * Título do relatório (primeiro bloco da folha): à esquerda na tela, centralizado no papel.
+ * Fora de @layer para vencer os utilitários (text-center, border-y, my-4...) que as telas
+ * ainda trazem no mesmo elemento.
+ */
+@media screen {
+  /* Timbre institucional: só no papel. Na tela, o título da folha já identifica o documento. */
+  .geo-relatorio-timbre {
+    display: none;
+  }
+
+  .geo-relatorio-titulo {
+    margin: 0 0 1.25rem;
+    padding: 0 0 1rem;
+    border-width: 0 0 1px;
+    border-style: solid;
+    border-color: var(--geo-border);
+    text-align: left;
+  }
+
+  .geo-relatorio-titulo h2 {
+    margin: 0;
+    color: var(--geo-foreground);
+    font-size: var(--geo-text-title-2);
+    font-weight: 600;
+    letter-spacing: 0;
+    line-height: 1.3;
+  }
+
+  .geo-relatorio-titulo > div {
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
+}
+
+@layer geo.components {
+  /*
+   * Barra de ações: sempre no topo, fora da folha, presa ao rolar. "Voltar" (primeiro botão)
+   * fica à esquerda; as demais à direita, com a ação principal por último.
+   */
+  .geo-relatorio-acoes {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-block: 0.5rem;
+    background: var(--geo-canvas);
+  }
+
+  .geo-relatorio-acoes > :first-child {
+    margin-right: auto;
+  }
+
+  /* Folha: o documento em si, com respiro interno generoso. */
+  .geo-relatorio-folha {
+    padding: 2rem 2.5rem 2.5rem;
+    border: 1px solid var(--geo-border);
+    border-radius: var(--geo-radius-lg);
+    background: var(--geo-surface);
+    color: var(--geo-foreground);
+  }
+
+  @media (max-width: 767px) {
+    .geo-relatorio-folha {
+      padding: 1rem;
+    }
+  }
+
+  @media print {
+    .geo-relatorio-folha {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: none;
+    }
+  }
+
+  /* Seção do relatório: painel com respiro interno. */
+  .geo-relatorio-secao {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--geo-border);
+    border-radius: var(--geo-radius-lg);
+    background: var(--geo-surface);
+  }
+
+  @media print {
+    .geo-relatorio-secao {
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+  }
+}

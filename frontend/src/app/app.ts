@@ -71,6 +71,8 @@ export class App {
   private menuAntesWorkspace: boolean | null = null;
   protected readonly reportNavigatorSource = signal<string | null>(null);
   protected readonly reportNavigatorOpen = signal(false);
+  /** Rota de relatório (data.relatorio): moldura padrão com respiro e largura máxima. */
+  protected readonly layoutRelatorio = signal(false);
   protected readonly currentRouteId = signal<string | number | null>(null);
 
   protected readonly activeDataSource = computed(() => {
@@ -265,6 +267,7 @@ export class App {
     const isPrint = queryParams['mode'] === 'print';
 
     this.hideLayout.set(isFullscreen);
+    this.layoutRelatorio.set(isFullscreen && !!data['relatorio'] && !isPrint);
     const workspace = !!data['workspace'];
     if (workspace && !this.layoutWorkspace()) {
       this.menuAntesWorkspace = this.menuVisible();

@@ -2,9 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
-import { ButtonModule } from 'primeng/button';
 import { map } from 'rxjs';
-import { GeoAsyncStateComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoButtonComponent, GeoAsyncStateComponent, GeoIconButtonComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { GeoCellDirective, GeoDataTableColumn, GeoDataTableComponent } from '@geo/ui/data';
 
 import { FechamentoDetalhe, ItemFechamento, MovimentacaoFechamento } from '../../../core/models/fechamento-obra.models';
@@ -57,7 +56,7 @@ const DATA_HORA_LONGA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', t
     CommonModule,
     RouterLink,
     AccordionModule,
-    ButtonModule,
+    GeoButtonComponent,
     GeoAsyncStateComponent,
     GeoCellDirective,
     GeoDataTableComponent,

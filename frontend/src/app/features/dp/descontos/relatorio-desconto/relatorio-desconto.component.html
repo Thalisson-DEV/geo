@@ -1,5 +1,5 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative transition-colors duration-200 p-4 md:p-8 print:p-0 print:min-h-0"
+  class="text-[var(--geo-foreground)] relative print:p-0 print:min-h-0"
 >
   @if (carregando() && !desconto()) {
     <div class="flex flex-col items-center justify-center min-h-[600px] gap-4">
@@ -13,10 +13,36 @@
         secondaryActionLabel="Voltar" secondaryActionIcon="pi pi-arrow-left" (secondaryAction)="voltar()"></geo-async-state>
     </div>
   } @else if (desconto(); as d) {
-    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+    <!-- Ações do relatório (padrão: topo, fora da folha): navegação e impressão primeiro, a decisão por último. -->
+    <div class="geo-relatorio-acoes print:hidden">
+      <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+      <app-analisar-com-copiloto origem="Termo de desconto em folha" tipo="desconto"
+        [entidade]="d.id" [rotulo]="'Desconto #' + codigo()" size="sm"
+        pergunta="Analise este desconto em folha: itens, valores por etapa, parcelamento e histórico de descontos do colaborador." />
+      <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+      @if (editavel() && pode('desconto:editar')) {
+        <geo-button variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="abrirDados()"></geo-button>
+      }
+      @if (podeDesfazer()) {
+        <geo-button variant="outline" icon="pi pi-undo" [label]="rotuloDesfazer()" (pressed)="abrirAcao('DESFAZER')"></geo-button>
+      }
+      @if (editavel() && pode('desconto:rejeitar')) {
+        <geo-button variant="destructive" icon="pi pi-times" label="Rejeitar" (pressed)="abrirAcao('REJEITAR')"></geo-button>
+      }
+      @if (editavel() && pode('desconto:validar')) {
+        <geo-button icon="pi pi-check" label="Validar" (pressed)="abrirAcao('VALIDAR')"></geo-button>
+      }
+      @if (d.status === 'VALIDADO' && pode('desconto:baixar')) {
+        <geo-button variant="success" icon="pi pi-wallet" label="Baixar em folha" (pressed)="abrirAcao('BAIXAR')"></geo-button>
+      }
+      @if (d.status === 'BAIXADO' && pode('desconto:baixar')) {
+        <geo-button variant="success" icon="pi pi-verified" label="Anexar termo assinado" (pressed)="abrirAcao('FINALIZAR')"></geo-button>
+      }
+    </div>
+    <div class="geo-relatorio-folha print:max-w-full rise print:animate-none">
 
       <!-- 1. CABEÇALHO CORPORATIVO -->
-      <div class="grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
+      <div class="geo-relatorio-timbre grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
         <div class="flex justify-start">
           <img src="logo_vertical.svg" alt="Logo" class="h-16 print:h-14" onerror="this.style.display = 'none'" />
         </div>
@@ -31,7 +57,7 @@
       </div>
 
       <!-- 2. TÍTULO -->
-      <div class="py-4 text-center border-y border-slate-200 dark:border-slate-800 print:border-slate-300 my-4 print:py-2 print:my-2">
+      <div class="geo-relatorio-titulo py-4 text-center border-y border-slate-200 dark:border-slate-800 print:border-slate-300 my-4 print:py-2 print:my-2">
         <h2 class="text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 print:text-black tracking-tight uppercase">
           Termo de Autorização de Desconto em Folha
         </h2>
@@ -41,11 +67,6 @@
           <span>Lançado em: <strong class="text-slate-900 dark:text-slate-100 print:text-black font-semibold">{{ d.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
           <span>·</span>
           <geo-status [tone]="tomStatus[d.status]" [emphasis]="d.status === 'FINALIZADO' ? 'solid' : 'soft'" [icon]="iconeStatus[d.status]">{{ rotuloStatus[d.status] }}</geo-status>
-        </div>
-        <div class="mt-3 print:hidden">
-          <app-analisar-com-copiloto origem="Termo de desconto em folha" tipo="desconto"
-            [entidade]="d.id" [rotulo]="'Desconto #' + codigo()" size="sm"
-            pergunta="Analise este desconto em folha: itens, valores por etapa, parcelamento e histórico de descontos do colaborador." />
         </div>
       </div>
 
@@ -507,38 +528,7 @@
       </footer>
     </div>
 
-    <!-- 12. AÇÕES FLUTUANTES: navegação e impressão à esquerda, a decisão por último. -->
-    <!-- No celular só ficam as ações sobre o termo; voltar e imprimir são do navegador. -->
-    <div class="barra-acoes fixed inset-x-0 bottom-0 px-4 pb-4 pt-6 md:inset-x-auto md:bottom-8 md:right-12 md:p-0 flex items-center justify-end flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50">
-      <p-button icon="pi pi-arrow-left" label="VOLTAR" (onClick)="voltar()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
-      <p-button icon="pi pi-print" label="IMPRIMIR" (onClick)="imprimir()"
-        styleClass="!hidden md:!inline-flex !rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"></p-button>
-      @if (editavel() && pode('desconto:editar')) {
-        <p-button icon="pi pi-pencil" label="EDITAR" (onClick)="abrirDados()"
-          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"></p-button>
-      }
-      @if (podeDesfazer()) {
-        <p-button icon="pi pi-undo" [label]="rotuloDesfazer()" (onClick)="abrirAcao('DESFAZER')"
-          styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"></p-button>
-      }
-      @if (editavel() && pode('desconto:rejeitar')) {
-        <p-button icon="pi pi-times" label="REJEITAR" (onClick)="abrirAcao('REJEITAR')"
-          styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-6 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"></p-button>
-      }
-      @if (editavel() && pode('desconto:validar')) {
-        <p-button icon="pi pi-check" label="VALIDAR" (onClick)="abrirAcao('VALIDAR')"
-          styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"></p-button>
-      }
-      @if (d.status === 'VALIDADO' && pode('desconto:baixar')) {
-        <p-button icon="pi pi-wallet" label="BAIXAR EM FOLHA" (onClick)="abrirAcao('BAIXAR')"
-          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"></p-button>
-      }
-      @if (d.status === 'BAIXADO' && pode('desconto:baixar')) {
-        <p-button icon="pi pi-verified" label="ANEXAR TERMO ASSINADO" (onClick)="abrirAcao('FINALIZAR')"
-          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"></p-button>
-      }
-    </div>
+
 
     <app-desconto-acao-drawer [(visivel)]="acaoAberta" [acao]="acao()" [desconto]="d"
       [nomeColaborador]="nomeColaborador()" [processando]="salvando()" (confirmado)="confirmarAcao($event)" />

@@ -3,9 +3,8 @@ import { TrocaOcorrenciaDrawerComponent } from '../troca-ocorrencia-drawer.compo
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
-import { ButtonModule } from 'primeng/button';
 import { catchError, finalize, forkJoin, of } from 'rxjs';
-import { GeoAsyncStateComponent, GeoConfirmationService, GeoIconButtonComponent, GeoStatusComponent, GeoTone, NotificationService } from '@geo/ui';
+import { GeoButtonComponent, GeoAsyncStateComponent, GeoConfirmationService, GeoIconButtonComponent, GeoStatusComponent, GeoTone, NotificationService } from '@geo/ui';
 import { GeoCellDirective, GeoDataTableColumn, GeoDataTableComponent, GeoRowDetailDirective } from '@geo/ui/data';
 
 import { ItemSolicitacaoResponse, MotivoPendenciaResponse, OperacaoSolicitacaoComercialResponse } from '../../../../core/models/almoxarifado.models';
@@ -54,7 +53,7 @@ interface FaixaSituacao {
     TrocaOcorrenciaDrawerComponent,
     CommonModule,
     RouterLink,
-    ButtonModule,
+    GeoButtonComponent,
     AccordionModule,
     GeoAsyncStateComponent,
     GeoDataTableComponent,

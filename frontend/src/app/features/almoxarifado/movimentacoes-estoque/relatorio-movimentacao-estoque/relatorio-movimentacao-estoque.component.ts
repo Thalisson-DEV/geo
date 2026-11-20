@@ -3,10 +3,9 @@ import { Component, OnInit, signal, inject, ViewChild, AfterViewInit, OnDestroy,
 import { numero, quantidadeComInformada } from '../../shared/unidade-material';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 
-import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoButtonComponent, GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 import { GeoCellDirective, GeoDataTableColumn, GeoDataTableComponent, GeoRowDetailDirective } from '@geo/ui/data';
 import { AlmoxarifadoService } from '../../../../core/services/almoxarifado.service';
 import { RhService } from '../../../../core/services/rh.service';
@@ -41,7 +40,7 @@ type GrupoItens = ItemMovimentacaoAgrupado & { readonly grade: readonly SerieGra
   standalone: true,
   imports: [
     CommonModule,
-    ButtonModule,
+    GeoButtonComponent,
     TooltipModule,
     DecimalPipe,
     DatePipe,

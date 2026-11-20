@@ -3,7 +3,6 @@ import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
@@ -113,7 +112,6 @@ const ICONE_STATUS: Record<DescontoStatus, string> = {
   imports: [
     CommonModule,
     FormsModule,
-    ButtonModule,
     AccordionModule,
     DialogModule,
     ProgressSpinnerModule,
@@ -411,10 +409,10 @@ export class RelatorioDescontoComponent implements OnInit {
 
   protected readonly rotuloDesfazer = computed(() => {
     switch (this.desconto()?.status) {
-      case 'VALIDADO': return 'DESFAZER VALIDAÇÃO';
-      case 'REJEITADO': return 'DESFAZER REJEIÇÃO';
-      case 'BAIXADO': return 'DESFAZER BAIXA';
-      case 'FINALIZADO': return 'DESFAZER FINALIZAÇÃO';
+      case 'VALIDADO': return 'Desfazer validação';
+      case 'REJEITADO': return 'Desfazer rejeição';
+      case 'BAIXADO': return 'Desfazer baixa';
+      case 'FINALIZADO': return 'Desfazer finalização';
       default: return '';
     }
   });

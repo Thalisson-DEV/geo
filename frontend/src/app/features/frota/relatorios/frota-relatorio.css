@@ -7,9 +7,7 @@
 :host {
   display: block;
   width: 100%;
-  /* Tela inteira: sem isso, nos estados de carregando e erro o fundo do app aparece embaixo. */
-  min-height: 100dvh;
-  background-color: var(--geo-surface);
+  /* Fundo e respiro vêm da moldura padrão de relatório (design-system/styles/report.css). */
   color: var(--geo-foreground);
   --rel-acao-forte: var(--geo-foreground);
   --rel-acao-forte-hover: var(--geo-foreground-muted);
@@ -23,15 +21,9 @@
 }
 
 .rel {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 1rem 1rem 8rem;
   animation: rel-subir 0.4s cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
 
-@media (min-width: 768px) {
-  .rel { padding: 2rem 2rem 8rem; }
-}
 
 @keyframes rel-subir {
   from { opacity: 0; transform: translateY(8px); }
@@ -69,18 +61,23 @@
 .rel-cabecalho__cliente { margin: 0; font-size: var(--geo-font-caption); color: var(--geo-foreground-muted); }
 
 /* 2. Faixa do título */
+/* Mesmo título dos demais relatórios: à esquerda na tela, centralizado no papel. */
 .rel-titulo {
-  margin: 1rem 0;
-  padding: 1rem 0;
-  text-align: center;
-  border-block: 1px solid var(--geo-border);
+  margin: 0 0 1.25rem;
+  padding: 0 0 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--geo-border);
 }
 
-.rel-titulo h1 { margin: 0; font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
+@media screen {
+  .rel-cabecalho { display: none; }
+}
+
+.rel-titulo h1 { margin: 0; font-size: var(--geo-text-title-2); font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
 .rel-titulo__meta {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
@@ -252,60 +249,16 @@
 .rel-rodape strong { color: var(--geo-foreground); }
 .rel-rodape__marca { font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
 
-/* Barra de ações flutuante, como nos relatórios do financeiro e da solicitação de material:
-   botões soltos, sem cartão em volta; no celular, faixa no rodapé com degradê. */
-.rel-acoes {
-  position: fixed;
-  inset: auto 0 0 0;
-  z-index: 30;
-  padding: 1.5rem max(16px, env(safe-area-inset-right, 0px)) calc(1rem + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
-  background: linear-gradient(to top, var(--geo-surface) 55%, transparent);
-  pointer-events: none;
-}
-.rel-acoes__linha { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 0.625rem; pointer-events: auto; }
-@media (min-width: 768px) {
-  .rel-acoes { inset: auto 3rem 2rem auto; padding: 0; background: none; }
-}
 
-.rel-acao {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.5rem;
-  border: 1px solid var(--geo-border);
-  border-radius: 0.5rem;
-  background: var(--geo-surface);
-  color: var(--geo-foreground-muted);
-  font: inherit;
-  font-size: var(--geo-font-caption);
-  font-weight: 500;
-  line-height: 15px;
-  text-transform: none;
-  cursor: pointer;
-  box-shadow: var(--geo-shadow-sm);
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-.rel-acao .pi { font-size: 1rem; }
-.rel-acao:hover { background: var(--geo-surface-muted); color: var(--geo-foreground); }
-.rel-acao:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 2px; }
-.rel-acao--forte { border-color: var(--rel-acao-forte); background: var(--rel-acao-forte); color: var(--p-surface-0); }
-.rel-acao--forte:hover { border-color: var(--rel-acao-forte-hover); background: var(--rel-acao-forte-hover); color: var(--p-surface-0); }
-/* Azul fixo, como no financeiro: no escuro o --geo-brand clareia e o branco perde contraste. */
-.rel-acao--primaria { border-color: var(--p-primary-600); background: var(--p-primary-600); color: var(--p-surface-0); }
-.rel-acao--primaria:hover { border-color: var(--p-primary-700); background: var(--p-primary-700); color: var(--p-surface-0); }
-@media (max-width: 767px) {
-  .rel-acao--so-desktop { display: none; }
-}
-@media (prefers-reduced-motion: reduce) { .rel-acao { transition: none; } }
 
 @media print {
   :host { background: var(--p-surface-0) !important; color: black; }
   .rel { max-width: none; padding: 0; animation: none; }
-  .rel-acoes, .rel-sem-impressao, .rel-titulo__acoes { display: none !important; }
+  .rel-sem-impressao, .rel-titulo__acoes { display: none !important; }
   .rel-cabecalho { padding-bottom: 0.5rem; margin-bottom: 0.5rem; }
   .rel-cabecalho img { height: 3.5rem; }
-  .rel-titulo { margin: 0.5rem 0; padding: 0.5rem 0; }
+  .rel-titulo { margin: 0.5rem 0; padding: 0.5rem 0; text-align: center; border-block: 1px solid var(--geo-border); }
+  .rel-titulo__meta { justify-content: center; }
   .rel-dados { grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 0.5rem; margin-bottom: 0.5rem; background: transparent; }
   .rel-secao, .rel-assinaturas { break-inside: avoid; }
   .rel-assinaturas { grid-template-columns: repeat(2, minmax(0, 1fr)); }

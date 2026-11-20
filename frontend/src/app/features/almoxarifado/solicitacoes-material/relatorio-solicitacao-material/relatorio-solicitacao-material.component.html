@@ -1,7 +1,5 @@
 <div
-  class="min-h-full min-h-screen bg-[var(--geo-surface)] text-[var(--geo-foreground)] relative"
-  [class.p-4]="!isPrintMode()"
-  [class.md:p-8]="!isPrintMode()"
+  class="text-[var(--geo-foreground)] relative"
   [class.print:p-0]="isPrintMode()"
   [class.print:min-h-0]="isPrintMode()"
   [class.print:bg-white]="isPrintMode()"
@@ -37,7 +35,88 @@
 
   <!-- Main Content -->
   @else if (solicitacao(); as sol) {
-    <div class="max-w-6xl mx-auto print:max-w-full pb-32 print:pb-0 rise print:animate-none">
+    <!-- Ações do relatório (padrão: topo, fora da folha) -->
+    <div
+      class="geo-relatorio-acoes print:hidden"
+    >
+      <geo-button variant="ghost"
+        icon="pi pi-arrow-left"
+        label="Voltar"
+        (pressed)="voltar()"
+      ></geo-button>
+
+      @if (isEditMode()) {
+        <geo-button variant="outline"
+          label="Cancelar"
+          icon="pi pi-times"
+          (pressed)="cancelApproval()"
+        ></geo-button>
+        <geo-button
+          label="Confirmar e aprovar"
+          icon="pi pi-check-circle"
+          [loading]="saving()"
+          (pressed)="confirmApproval()"
+        ></geo-button>
+      } @else if (isDeliveryMode()) {
+        <geo-button variant="outline"
+          label="Cancelar entrega"
+          icon="pi pi-times"
+          (pressed)="cancelDelivery()"
+        ></geo-button>
+        <geo-button variant="success"
+          label="Confirmar entrega física"
+          icon="pi pi-box"
+          [loading]="saving()"
+          (pressed)="confirmDelivery()"
+        ></geo-button>
+      } @else {
+        <geo-button variant="outline"
+          icon="pi pi-print"
+          label="Imprimir"
+          (pressed)="printReport()"
+        ></geo-button>
+
+        @if (pode('ESTORNAR')) {
+          <geo-button variant="outline"
+            label="Estornar"
+            icon="pi pi-replay"
+            [loading]="saving()"
+            (pressed)="confirmarEstorno()"
+          ></geo-button>
+        }
+
+        @if (podeRegistrarPendencia()) {
+          <geo-button variant="outline"
+            label="Pendência"
+            icon="pi pi-exclamation-triangle"
+            (pressed)="abrirModalPendenciaSolicitacao()"
+          ></geo-button>
+        }
+
+        @if (pode('REJEITAR')) {
+          <geo-button variant="destructive"
+            [label]="rotuloRejeicao().toUpperCase()"
+            icon="pi pi-times"
+            (pressed)="rejeicaoAberta.set(true)"
+          ></geo-button>
+        }
+
+        @if (pode('APROVAR')) {
+          <geo-button
+            label="Aprovar"
+            icon="pi pi-check"
+            (pressed)="abrirPainel('aprovacao')"
+          ></geo-button>
+        } @else if (pode('ENTREGAR')) {
+          <geo-button variant="success"
+            label="Registrar entrega"
+            icon="pi pi-box"
+            (pressed)="abrirPainel('entrega')"
+          ></geo-button>
+        }
+      }
+    </div>
+    <div class="geo-relatorio-folha print:max-w-full rise print:animate-none">
       <!-- 1. CABEÇALHO CORPORATIVO DA EMPRESA -->
       <div
         class="grid grid-cols-3 items-center border-b border-slate-200 dark:border-slate-800 pb-6 mb-6 print:pb-2 print:mb-2"
@@ -64,7 +143,7 @@
       </div>
 
       <!-- 2. TÍTULO -->
-      <div class="py-4 text-center border-y border-slate-200 dark:border-slate-800 my-4 print:py-2 print:my-2">
+      <div class="geo-relatorio-titulo py-4 text-center border-y border-slate-200 dark:border-slate-800 my-4 print:py-2 print:my-2">
         <h2 class="text-base md:text-lg font-bold text-slate-900 dark:text-slate-100 tracking-tight uppercase">
           Solicitação de Material #{{ sol.id.substring(0, 8) }}
         </h2>
@@ -925,97 +1004,7 @@
     </div>
 
     <!-- 8. RODAPÉ DE AÇÕES FLUTUANTE -->
-    <div
-      class="fixed bottom-6 right-6 md:bottom-8 md:right-12 flex items-center flex-wrap gap-2.5 print:hidden animate-in slide-in-from-right-4 duration-500 z-50"
-    >
-      <p-button
-        icon="pi pi-arrow-left"
-        label="VOLTAR"
-        (onClick)="voltar()"
-        styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] hover:!text-[var(--geo-foreground)] cursor-pointer"
-      ></p-button>
-
-      @if (isEditMode()) {
-        <p-button
-          label="CANCELAR"
-          icon="pi pi-times"
-          (onClick)="cancelApproval()"
-          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] cursor-pointer"
-        ></p-button>
-        <p-button
-          label="CONFIRMAR E APROVAR"
-          icon="pi pi-check-circle"
-          [loading]="saving()"
-          (onClick)="confirmApproval()"
-          styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"
-        ></p-button>
-      } @else if (isDeliveryMode()) {
-        <p-button
-          label="CANCELAR ENTREGA"
-          icon="pi pi-times"
-          (onClick)="cancelDelivery()"
-          styleClass="!rounded-lg !bg-[var(--geo-surface)] !border-[var(--geo-border)] !text-[var(--geo-foreground-muted)] !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-surface-muted)] cursor-pointer"
-        ></p-button>
-        <p-button
-          label="CONFIRMAR ENTREGA FÍSICA"
-          icon="pi pi-box"
-          [loading]="saving()"
-          (onClick)="confirmDelivery()"
-          styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
-        ></p-button>
-      } @else {
-        <p-button
-          icon="pi pi-print"
-          label="IMPRIMIR"
-          (onClick)="printReport()"
-          styleClass="!rounded-lg !bg-[var(--report-action-strong-bg)] !border-[var(--report-action-strong-bg)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--report-action-strong-bg-hover)] cursor-pointer"
-        ></p-button>
-
-        @if (pode('ESTORNAR')) {
-          <p-button
-            label="ESTORNAR"
-            icon="pi pi-replay"
-            [loading]="saving()"
-            (onClick)="confirmarEstorno()"
-            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
-          ></p-button>
-        }
-
-        @if (podeRegistrarPendencia()) {
-          <p-button
-            label="PENDÊNCIA"
-            icon="pi pi-exclamation-triangle"
-            (onClick)="abrirModalPendenciaSolicitacao()"
-            styleClass="!rounded-lg !bg-[var(--geo-warning)] !border-[var(--geo-warning)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-warning-hover)] cursor-pointer"
-          ></p-button>
-        }
-
-        @if (pode('REJEITAR')) {
-          <p-button
-            [label]="rotuloRejeicao().toUpperCase()"
-            icon="pi pi-times"
-            (onClick)="rejeicaoAberta.set(true)"
-            styleClass="!rounded-lg !bg-[var(--geo-danger)] !border-[var(--geo-danger)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-danger-hover)] cursor-pointer"
-          ></p-button>
-        }
-
-        @if (pode('APROVAR')) {
-          <p-button
-            label="APROVAR"
-            icon="pi pi-check"
-            (onClick)="abrirPainel('aprovacao')"
-            styleClass="!rounded-lg !bg-primary-600 !border-primary-600 !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-primary-700 cursor-pointer"
-          ></p-button>
-        } @else if (pode('ENTREGAR')) {
-          <p-button
-            label="REGISTRAR ENTREGA"
-            icon="pi pi-box"
-            (onClick)="abrirPainel('entrega')"
-            styleClass="!rounded-lg !bg-[var(--geo-success)] !border-[var(--geo-success)] !text-white !font-medium !text-[10px] !px-8 !py-2.5 !shadow-sm hover:!bg-[var(--geo-success-hover)] cursor-pointer"
-          ></p-button>
-        }
-      }
-    </div>
+    
   }
 </div>
 

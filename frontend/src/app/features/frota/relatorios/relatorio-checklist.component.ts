@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoTone, GeoButtonComponent } from '@geo/ui';
 import { map } from 'rxjs/operators';
 import { ChecklistDetalhe, FotoChecklist, RespostaChecklistDetalhe, SituacaoPendenciaChecklist } from '../../../core/models/frota-checklist.models';
 import { formatarMedicao, formatarPlaca } from '../../../core/models/frota.models';
@@ -37,7 +37,7 @@ interface Grupo {
   selector: 'app-relatorio-checklist',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
+  imports: [GeoButtonComponent, 
     DatePipe,
     GeoAsyncStateComponent,
     GeoStatusComponent,
@@ -58,7 +58,19 @@ interface Grupo {
         <geo-async-state state="error" title="Relatório indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as d) {
-      <article class="rel">
+      <!-- Ações do relatório (padrão: topo, fora da folha) -->
+      <div class="geo-relatorio-acoes print:hidden">
+          <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+        <app-analisar-com-copiloto origem="Checklist da frota" tipo="frota_checklist" [entidade]="d.resumo.id"
+            [rotulo]="'Checklist ' + placa()" size="sm"
+            pergunta="Analise este checklist para apoiar a decisão: problemas encontrados, recorrência no veículo, pendências e o que priorizar." />
+          <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+          @if (d.respostas.some(r => r.situacaoPendencia === 'ABERTA')) {
+            <geo-button icon="pi pi-flag" label="Decidir pendências" (pressed)="decidirPendencias()"></geo-button>
+          }
+        
+      </div>
+      <article class="rel geo-relatorio-folha">
         <app-frota-relatorio-cabecalho area="Checklist do veículo" [titulo]="'Checklist · ' + placa()">
           <geo-status [tone]="problemas().length ? 'warning' : 'success'" [icon]="problemas().length ? 'pi pi-exclamation-triangle' : 'pi pi-check'">
             {{ problemas().length ? problemas().length + (problemas().length === 1 ? ' problema' : ' problemas') : 'Tudo OK' }}
@@ -67,9 +79,6 @@ interface Grupo {
           <span><strong>{{ d.resumo.modeloNome }}</strong></span>
           <span>·</span>
           <span>Preenchido em <strong>{{ d.resumo.preenchidoEm | date: 'dd/MM/yyyy HH:mm' }}</strong></span>
-          <app-analisar-com-copiloto acoes-titulo origem="Checklist da frota" tipo="frota_checklist" [entidade]="d.resumo.id"
-            [rotulo]="'Checklist ' + placa()" size="sm"
-            pergunta="Analise este checklist para apoiar a decisão: problemas encontrados, recorrência no veículo, pendências e o que priorizar." />
         </app-frota-relatorio-cabecalho>
 
         <section class="rel-dados" aria-label="Dados gerais do checklist">
@@ -236,15 +245,6 @@ interface Grupo {
         </footer>
       </article>
 
-      <div class="rel-acoes" role="toolbar" aria-label="Ações do relatório">
-        <div class="rel-acoes__linha">
-          <button type="button" class="rel-acao rel-acao--so-desktop" (click)="voltar()"><i class="pi pi-arrow-left" aria-hidden="true"></i>Voltar</button>
-          <button type="button" class="rel-acao rel-acao--forte rel-acao--so-desktop" (click)="imprimir()"><i class="pi pi-print" aria-hidden="true"></i>Imprimir</button>
-          @if (d.respostas.some(r => r.situacaoPendencia === 'ABERTA')) {
-            <button type="button" class="rel-acao rel-acao--primaria" (click)="decidirPendencias()"><i class="pi pi-flag" aria-hidden="true"></i>Decidir pendências</button>
-          }
-        </div>
-      </div>
     }
   `
 })

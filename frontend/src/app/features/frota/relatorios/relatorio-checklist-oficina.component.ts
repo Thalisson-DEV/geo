@@ -2,7 +2,7 @@ import { DatePipe, Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { GeoAsyncStateComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoAsyncStateComponent, GeoStatusComponent, GeoButtonComponent } from '@geo/ui';
 import { map } from 'rxjs/operators';
 import {
   OrdemServicoDetalhe,
@@ -33,7 +33,7 @@ interface TarefaRoteiro {
   selector: 'app-relatorio-checklist-oficina',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DatePipe, GeoAsyncStateComponent, GeoStatusComponent, FrotaRelatorioCabecalhoComponent],
+  imports: [GeoButtonComponent, DatePipe, GeoAsyncStateComponent, GeoStatusComponent, FrotaRelatorioCabecalhoComponent],
   styleUrls: ['./frota-relatorio.css'],
   styles: `
     .chk-tabela th.chk-col, .chk-tabela td.chk-col { width: 3.25rem; text-align: center; }
@@ -67,7 +67,14 @@ interface TarefaRoteiro {
         <geo-async-state state="error" title="Checklist indisponível" [description]="erro()!" actionLabel="Tentar novamente" (action)="carregar(id())"></geo-async-state>
       </div>
     } @else if (detalhe(); as d) {
-      <article class="rel">
+      <!-- Ações do relatório (padrão: topo, fora da folha) -->
+      <div class="geo-relatorio-acoes print:hidden">
+          <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+          <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+          <geo-button icon="pi pi-external-link" label="Abrir a OS" (pressed)="abrirFicha(d.ordem.id)"></geo-button>
+        
+      </div>
+      <article class="rel geo-relatorio-folha">
         <app-frota-relatorio-cabecalho area="Oficina" [titulo]="'Checklist da ' + rotuloOs(d.ordem.numero)">
           <span><strong>{{ rotuloTipo[d.ordem.tipoManutencao] }}</strong></span>
           <span>·</span>
@@ -206,13 +213,6 @@ interface TarefaRoteiro {
         </footer>
       </article>
 
-      <div class="rel-acoes" role="toolbar" aria-label="Ações do checklist">
-        <div class="rel-acoes__linha">
-          <button type="button" class="rel-acao rel-acao--so-desktop" (click)="voltar()"><i class="pi pi-arrow-left" aria-hidden="true"></i>Voltar</button>
-          <button type="button" class="rel-acao rel-acao--forte" (click)="imprimir()"><i class="pi pi-print" aria-hidden="true"></i>Imprimir</button>
-          <button type="button" class="rel-acao rel-acao--primaria" (click)="abrirFicha(d.ordem.id)"><i class="pi pi-external-link" aria-hidden="true"></i>Abrir a OS</button>
-        </div>
-      </div>
     }
   `
 })

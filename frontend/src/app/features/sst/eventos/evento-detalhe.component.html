@@ -6,37 +6,36 @@
         description="Consultando a ocorrência, a lesão, os envolvidos e as evidências do evento..."></geo-async-state>
     </div>
   } @else if (evento(); as e) {
-    <div class="flex flex-col gap-4 print:block print:max-w-full">
-      <geo-page-header class="print:hidden" [title]="titulo()" icon="pi pi-shield"
-        [breadcrumb]="[{ label: 'Segurança' }, { label: 'Eventos de segurança', route: '/sst/eventos' }, { label: e.numeroRegistro }]"
-        [description]="'Registro ' + e.numeroRegistro + ' · ocorrido em ' + (e.dataOcorrencia | date: 'dd/MM/yyyy HH:mm') + ' · ' + tipoLabel(e.tipo) + (e.classificacaoNome ? ' · ' + e.classificacaoNome : '')">
-        <geo-status status [tone]="situacao().tom" [icon]="situacao().icone">{{ situacao().rotulo }}</geo-status>
-        <app-analisar-com-copiloto actions origem="Relatório de investigação de acidente" tipo="evento_sst"
+    <div class="flex flex-col print:block print:max-w-full">
+      <!-- Ações do relatório (padrão: topo, fora da folha) -->
+      <div class="geo-relatorio-acoes print:hidden">
+        <geo-button variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
+        <app-analisar-com-copiloto origem="Relatório de investigação de acidente" tipo="evento_sst"
           [entidade]="e.id" [rotulo]="'Evento ' + e.numeroRegistro" size="sm"
           pergunta="Analise este acidente: causas prováveis, gravidade, prazo de comunicação, medidas adotadas e o histórico de acidentes da equipe e da base." />
-        <geo-button actions variant="ghost" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
-        <geo-button actions variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
+        <geo-button variant="outline" icon="pi pi-print" label="Imprimir" (pressed)="imprimir()"></geo-button>
         @if (podeEditar()) {
-          <geo-button actions variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="editar()"></geo-button>
+          <geo-button variant="outline" icon="pi pi-pencil" label="Editar" (pressed)="editar()"></geo-button>
         }
         @if (podeEditar()) {
-          <geo-button actions variant="outline" icon="pi pi-times-circle" label="Cancelar registro" (pressed)="abrir('cancelamento')"></geo-button>
+          <geo-button variant="outline" icon="pi pi-times-circle" label="Cancelar registro" (pressed)="abrir('cancelamento')"></geo-button>
         }
         @if (canWrite()) {
           @switch (e.status) {
             @case ('REGISTRADO') {
-              <geo-button actions icon="pi pi-play" label="Assumir tratativa" (pressed)="abrir('tratativa')"></geo-button>
+              <geo-button icon="pi pi-play" label="Assumir tratativa" (pressed)="abrir('tratativa')"></geo-button>
             }
             @case ('EM_TRATATIVA') {
-              <geo-button actions icon="pi pi-check-circle" label="Concluir evento" (pressed)="abrir('conclusao')"></geo-button>
+              <geo-button icon="pi pi-check-circle" label="Concluir evento" (pressed)="abrir('conclusao')"></geo-button>
             }
             @case ('CONCLUIDO') {
-              <geo-button actions variant="outline" icon="pi pi-refresh" label="Reabrir evento" (pressed)="abrir('reabertura')"></geo-button>
+              <geo-button variant="outline" icon="pi pi-refresh" label="Reabrir evento" (pressed)="abrir('reabertura')"></geo-button>
             }
           }
         }
-      </geo-page-header>
-      <div class="flex flex-col print:block">
+      
+      </div>
+      <div class="geo-relatorio-folha flex flex-col print:block">
 
       <!-- 1. CABEÇALHO CORPORATIVO -->
       <div class="hidden print:grid grid-cols-3 items-center border-b border-[var(--geo-border)] pb-6 mb-6 print:border-slate-300 print:pb-3 print:mb-3" aria-label="Cabeçalho institucional">
@@ -54,7 +53,7 @@
       </div>
 
       <!-- 2. TÍTULO -->
-      <div class="hidden print:block py-4 text-center border-y border-[var(--geo-border)] print:border-slate-300 my-4 print:py-2 print:my-2">
+      <div class="geo-relatorio-titulo py-4 text-center border-y border-[var(--geo-border)] print:border-slate-300 my-4 print:py-2 print:my-2">
         <h2 class="text-base md:text-lg font-semibold text-[var(--geo-foreground)] print:text-black">{{ titulo() }}</h2>
         <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap text-[length:var(--geo-font-caption)] text-[var(--geo-foreground-muted)] print:text-slate-600 font-medium">
           <span>Registro <strong class="tabular-nums text-[var(--geo-foreground)] print:text-black font-semibold">{{ e.numeroRegistro }}</strong></span>

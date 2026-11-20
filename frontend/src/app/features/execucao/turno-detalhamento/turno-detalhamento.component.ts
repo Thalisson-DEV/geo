@@ -14,8 +14,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, of } from 'rxjs';
-import { ButtonModule } from 'primeng/button';
-import { GeoAsyncStateComponent, GeoChartComponent, GeoStatusComponent } from '@geo/ui';
+import { GeoButtonComponent, GeoAsyncStateComponent, GeoChartComponent, GeoStatusComponent } from '@geo/ui';
 
 import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 import { DashboardService } from '../../../core/services/dashboard.service';
@@ -44,7 +43,7 @@ import { imprimirSempreNoTemaClaro } from '../relatorios/relatorio-impressao';
   standalone: true,
   imports: [
     CommonModule,
-    ButtonModule,
+    GeoButtonComponent,
     GeoAsyncStateComponent,
     GeoChartComponent,
     GeoStatusComponent

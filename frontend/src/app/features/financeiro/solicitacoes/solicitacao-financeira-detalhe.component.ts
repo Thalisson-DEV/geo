@@ -11,6 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  GeoButtonComponent,
   GeoAsyncStateComponent,
   GeoIconButtonComponent,
   GeoStatusComponent,
@@ -18,7 +19,6 @@ import {
   NotificationService
 } from '@geo/ui';
 import { AccordionModule } from 'primeng/accordion';
-import { ButtonModule } from 'primeng/button';
 import {
   CampoFormulario,
   EventoSolicitacao,
@@ -114,7 +114,7 @@ type BlocoRelatorio = GrupoDeCampos & { largo: boolean };
   imports: [
     CommonModule,
     AccordionModule,
-    ButtonModule,
+    GeoButtonComponent,
     GeoAsyncStateComponent,
     GeoIconButtonComponent,
     GeoStatusComponent,
