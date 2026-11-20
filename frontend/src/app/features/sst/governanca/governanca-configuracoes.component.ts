@@ -25,6 +25,7 @@ import { SstService } from '../../../core/services/sst.service';
 import { GovernancaContextoComponent } from './governanca-contexto.component';
 import { GovernancaContextoState, normalizarTipoGovernanca } from './governanca-state';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 type SecaoConfiguracao = 'inicio' | 'modelos-ata' | 'checklists' | 'treinamentos' | 'regras-treinamento' | 'escolas' | 'documentos' | 'ativos';
 type CadastroConfiguracao = Exclude<SecaoConfiguracao, 'inicio'>;
 
@@ -62,6 +63,7 @@ export class GovernancaConfiguracoesComponent implements OnInit {
   private readonly sst = inject(SstService);
   private readonly route = inject(ActivatedRoute);
   readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly messages = inject(MessageService);
   private readonly contexto = inject(GovernancaContextoState);
 
@@ -174,7 +176,7 @@ export class GovernancaConfiguracoesComponent implements OnInit {
       this.abrirSecao('inicio');
       return;
     }
-    this.router.navigate(['/sst/governanca/painel'], { queryParams: { tipo: this.tipoModelo() } });
+    this.navegacao.back(`/sst/governanca/painel?tipo=${this.tipoModelo()}`);
   }
 
   abrirSecao(secao: SecaoConfiguracao): void {

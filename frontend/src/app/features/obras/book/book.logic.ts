@@ -40,7 +40,7 @@ export function rotuloEtapa(etapa: EtapaEvidencia | null): string {
 export const SITUACAO_GRUPO: Record<SituacaoGrupoComparativo, Aparencia> = {
   CONFORME: { label: 'Conforme', tone: 'success', icon: 'pi-check-circle' },
   DIVERGENTE: { label: 'Divergente', tone: 'danger', icon: 'pi-exclamation-circle' },
-  EM_EXECUCAO: { label: 'Em execução', tone: 'info', icon: 'pi-spinner' },
+  EM_EXECUCAO: { label: 'Em execução', tone: 'info', icon: 'pi-play' },
   NAO_INICIADO: { label: 'Não iniciado', tone: 'neutral', icon: 'pi-circle' }
 };
 

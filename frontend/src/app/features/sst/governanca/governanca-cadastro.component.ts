@@ -36,6 +36,7 @@ import {
 } from './governanca-corpo-cadastro.utils';
 import { GovernancaContextoState, normalizarTipoGovernanca } from './governanca-state';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 type CadastroGovernanca = 'composicao' | 'reuniao' | 'documento';
 
 interface PassoCadastro {
@@ -69,6 +70,7 @@ export class GovernancaCadastroComponent implements OnInit {
   private readonly rh = inject(RhService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly messages = inject(MessageService);
   private readonly contexto = inject(GovernancaContextoState);
 
@@ -277,7 +279,7 @@ export class GovernancaCadastroComponent implements OnInit {
   }
 
   protected cancelar(): void {
-    this.router.navigate(['/sst/governanca', this.secaoLista()], { queryParams: { tipo: this.tipo } });
+    this.navegacao.back(`/sst/governanca/${this.secaoLista()}?tipo=${this.tipo}`);
   }
 
   protected irParaComposicoes(): void {

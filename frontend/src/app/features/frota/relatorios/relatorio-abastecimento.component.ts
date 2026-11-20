@@ -1,4 +1,4 @@
-import { DatePipe, Location } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -15,6 +15,7 @@ import { FrotaRelatorioCabecalhoComponent } from './frota-relatorio-cabecalho.co
 import { FotoRelatorio, FrotaRelatorioFotosComponent } from './frota-relatorio-fotos.component';
 import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-relatorio-linha-tempo.component';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 /**
  * Relatório do abastecimento no padrão do relatório da solicitação de material: pedido, aprovação,
  * liberação ao posto e realizado; itens pedidos e entregues; alertas de aderência; fotos do painel e do
@@ -219,7 +220,7 @@ export class RelatorioAbastecimentoComponent {
 
   private readonly service = inject(FrotaAbastecimentoService);
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly detalhe = signal<AbastecimentoDetalhe | null>(null);
@@ -329,8 +330,7 @@ export class RelatorioAbastecimentoComponent {
   }
 
   protected voltar(): void {
-    if (window.history.length > 1) this.location.back();
-    else void this.router.navigate(['/frota', 'abastecimentos']);
+    this.navegacao.back(['/frota', 'abastecimentos']);
   }
 
   /** Aprovar e liberar acontecem no detalhe da fila, com os mesmos formulários de sempre. */

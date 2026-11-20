@@ -64,6 +64,7 @@ import {
   statusTom
 } from '../chamados-ui';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 const UMA_HORA = 3_600_000;
 const UM_DIA = 24 * UMA_HORA;
 const LIMITE_ANEXOS = 10;
@@ -181,6 +182,7 @@ export class ChamadoDetalheComponent {
   private readonly usuariosService = inject(UsuariosService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly notificacoes = inject(NotificationService);
   private readonly confirmacao = inject(GeoConfirmationService);
   private readonly destroyRef = inject(DestroyRef);
@@ -500,7 +502,7 @@ export class ChamadoDetalheComponent {
   }
 
   protected voltar(): void {
-    this.router.navigate([this.rotaLista]);
+    this.navegacao.back([this.rotaLista]);
   }
 
   // ── Conversa ──────────────────────────────────────────────────────────────────

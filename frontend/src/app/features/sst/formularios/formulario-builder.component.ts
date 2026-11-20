@@ -24,6 +24,7 @@ import {
 } from '../../../core/models/sst.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 interface BuilderOpcao {
   id?: string;
   uid: string;
@@ -270,6 +271,7 @@ export class FormularioBuilderComponent implements OnInit {
   private sst = inject(SstService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
 
@@ -618,6 +620,6 @@ export class FormularioBuilderComponent implements OnInit {
   }
 
   protected voltar() {
-    this.router.navigate(['/sst/formularios']);
+    this.navegacao.back(['/sst/formularios']);
   }
 }

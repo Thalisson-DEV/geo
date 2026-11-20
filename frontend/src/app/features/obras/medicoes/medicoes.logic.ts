@@ -43,7 +43,7 @@ export const STATUS_MEDICAO: Record<StatusMedicao, Rotulo> = {
 
 export const SITUACAO_EXECUCAO: Record<SituacaoExecucaoObra, Rotulo> = {
   NAO_INICIADA: { rotulo: 'Não iniciada', tom: 'neutral', icone: 'pi-circle' },
-  EM_ANDAMENTO: { rotulo: 'Em andamento', tom: 'info', icone: 'pi-spinner' },
+  EM_ANDAMENTO: { rotulo: 'Em andamento', tom: 'info', icone: 'pi-play' },
   CONCLUIDA: { rotulo: 'Concluída', tom: 'success', icone: 'pi-check-circle' }
 };
 

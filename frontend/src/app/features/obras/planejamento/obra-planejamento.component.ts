@@ -69,6 +69,7 @@ import { AplicacaoKit, PlanejamentoKitsComponent } from './planejamento-kits.com
 import { PlanejamentoRevisaoComponent, PontoEmRevisao, VaoEmRevisao } from './planejamento-revisao.component';
 import { EstadoLocal, ROTULO_ESTADO, estadoDoLocal, kitsDoLocal, programacoesAtrasadas, proximoNumero, rotuloVao } from './planejamento.logic';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 type Ferramenta = 'mao' | 'ponto' | 'vao' | 'selecionar' | 'area' | 'texto' | 'anotar';
 type ItemAtivo = { tipo: 'ponto' | 'vao' | 'anotacao'; id: string };
 
@@ -109,6 +110,7 @@ const INTERVALO_ANALISE_MS = 3000;
 export class ObraPlanejamentoComponent {
   private readonly rota = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly api = inject(ObrasPlanejamentoService);
   private readonly obras = inject(ObrasService);
@@ -588,7 +590,7 @@ export class ObraPlanejamentoComponent {
   }
 
   protected voltar(): void {
-    void this.router.navigate(['/obras', this.idObra]);
+    this.navegacao.back(['/obras', this.idObra]);
   }
 
   @HostListener('document:keydown', ['$event'])

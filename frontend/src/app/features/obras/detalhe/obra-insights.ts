@@ -1,7 +1,7 @@
 import { GeoTone } from '@geo/ui';
 
 import { ObraResponse, OrcamentoObraResponse } from '../../../core/models/obras.models';
-import { formatarMoeda, parseDataBrParaDate } from '../obras-ui';
+import { formatarMoeda, parseDataBrParaDate, rotuloStatus } from '../obras-ui';
 
 const DIA_MS = 86_400_000;
 const PRAZO_CURTO_DIAS = 15;
@@ -260,7 +260,7 @@ export function insightsDaObra(ctx: ContextoInsightsObra): InsightObra[] {
         tom: 'info',
         icone: 'pi pi-history',
         titulo: `Status sem atualização há ${dias(parado)}`,
-        texto: `A obra segue em "${obra.statusNome}". Vale confirmar a situação.`,
+        texto: `A obra segue em "${rotuloStatus(obra.statusNome)}". Vale confirmar a situação.`,
         acao: { tipo: 'status', rotulo: 'Registrar status' }
       });
     }

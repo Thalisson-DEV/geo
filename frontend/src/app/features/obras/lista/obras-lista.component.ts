@@ -62,7 +62,7 @@ import { ObrasKitService } from '../../../core/services/obras-kit.service';
 import { FechamentoObraService } from '../../../core/services/fechamento-obra.service';
 import { SituacaoFechamentoObra } from '../../../core/models/fechamento-obra.models';
 import { SITUACOES_OBRA } from '../fechamento/fechamento-ui';
-import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate, sanitizarNumeroObra, sanitizarTituloObra, statusIcon, statusTone } from '../obras-ui';
+import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate, sanitizarNumeroObra, sanitizarTituloObra, rotuloStatus, statusIcon, statusTone } from '../obras-ui';
 
 export type ObraImportRow = ObraImportacaoDTO & { editing?: boolean };
 
@@ -251,7 +251,7 @@ const ISO_PARA_BR = (iso: string | null) => formatarDataParaApi(dataLocal(iso));
         </ng-template>
         <ng-template geoCell="titulo" let-row><span class="obra-titulo" [title]="row.titulo">{{ row.titulo }}</span></ng-template>
         <ng-template geoCell="status" let-row>
-          <geo-status [tone]="statusTone(row.statusNome, row.statusConcluida)" [icon]="statusIcon(row.statusNome)">{{ row.statusNome }}</geo-status>
+          <geo-status [tone]="statusTone(row.statusNome, row.statusConcluida)" [icon]="statusIcon(row.statusNome)">{{ rotuloStatus(row.statusNome) }}</geo-status>
           @if (encerramentoDe(row); as enc) {
             <button type="button" class="obra-encerramento" [title]="'Ver o encerramento da obra ' + row.numero" (click)="verEncerramento(row); $event.stopPropagation()">
               <geo-status [tone]="enc.tone" [icon]="enc.icon">{{ enc.label }}</geo-status>
@@ -438,6 +438,7 @@ export class ObrasListComponent {
 
   protected readonly statusTone = statusTone;
   protected readonly statusIcon = statusIcon;
+  protected readonly rotuloStatus = rotuloStatus;
   protected readonly dataLocal = dataLocal;
   protected readonly principais = PRINCIPAIS;
   protected readonly formatos = FORMATOS;

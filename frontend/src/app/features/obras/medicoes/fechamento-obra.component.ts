@@ -345,6 +345,10 @@ export class FechamentoObraComponent {
   }
 
   protected gerar(): void {
+    const obras = this.codigos().split(/[\s,;]+/).map((c) => c.trim()).filter(Boolean).join(',');
+    if (obras !== (this.route.snapshot.queryParamMap.get('obras') ?? '')) {
+      void this.router.navigate([], { relativeTo: this.route, queryParams: { obras, ver: null }, queryParamsHandling: 'merge', replaceUrl: true });
+    }
     this.gerando.set(true);
     this.erro.set(null);
     this.resultado.set(null);
@@ -353,6 +357,9 @@ export class FechamentoObraComponent {
       next: (r) => {
         this.gerando.set(false);
         this.resultado.set(r);
+        const aberta = this.route.snapshot.queryParamMap.get('ver');
+        const obra = aberta ? r.obras.find((o) => o.numero === aberta) : null;
+        if (obra) this.escolhida.set(obra.idObra);
         if (!r.obras.length) this.notificacoes.error('Nenhum dos códigos informados corresponde a uma obra.');
       },
       error: (e) => {
@@ -382,8 +389,11 @@ export class FechamentoObraComponent {
   }
 
   /** Mostra o detalhe e leva o foco até ele, que fica abaixo do resumo. */
-  protected ver(o: FechamentoObra): void {
+  protected ver(o: FechamentoObra, rolar = true): void {
     this.escolhida.set(o.idObra);
+    // A obra aberta fica na URL: ao voltar de outra tela, o detalhe reaparece como estava.
+    void this.router.navigate([], { relativeTo: this.route, queryParams: { ver: o.numero }, queryParamsHandling: 'merge', replaceUrl: true });
+    if (!rolar) return;
     setTimeout(() => {
       const secao = document.getElementById('fechamento-obra');
       const reduzir = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

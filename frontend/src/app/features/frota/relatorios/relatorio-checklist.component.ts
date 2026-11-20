@@ -1,4 +1,4 @@
-import { DatePipe, Location } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,6 +16,7 @@ import { FrotaRelatorioCabecalhoComponent } from './frota-relatorio-cabecalho.co
 import { FotoRelatorio, FrotaRelatorioFotosComponent } from './frota-relatorio-fotos.component';
 import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-relatorio-linha-tempo.component';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 const EVENTO_DECISAO: Record<SituacaoPendenciaChecklist, { titulo: string; icone: string; tom: GeoTone }> = {
   ABERTA: { titulo: 'Aguardando o gestor', icone: 'pi-clock', tom: 'warning' },
   OS_ABERTA: { titulo: 'OS aberta', icone: 'pi-wrench', tom: 'info' },
@@ -254,7 +255,7 @@ export class RelatorioChecklistComponent {
 
   private readonly service = inject(FrotaChecklistService);
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly detalhe = signal<ChecklistDetalhe | null>(null);
@@ -362,8 +363,7 @@ export class RelatorioChecklistComponent {
   }
 
   protected voltar(): void {
-    if (window.history.length > 1) this.location.back();
-    else void this.router.navigate(['/frota', 'checklists']);
+    this.navegacao.back(['/frota', 'checklists']);
   }
 
   /** Pendências abertas se decidem na fila de pendências do checklist. */

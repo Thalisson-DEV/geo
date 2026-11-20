@@ -1,4 +1,4 @@
-import { DatePipe, Location } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,6 +36,7 @@ import { FotoRelatorio, FrotaRelatorioFotosComponent } from './frota-relatorio-f
 import { EventoRelatorio, FrotaRelatorioLinhaTempoComponent } from './frota-relatorio-linha-tempo.component';
 import { duracaoEntre } from './frota-relatorio.util';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 const ROTULO_MOTIVO: Record<MotivoServico, string> = {
   DESGASTE_NATURAL: 'Desgaste natural',
   ADEQUACAO_DE_MELHORIA: 'Adequação de melhoria',
@@ -389,7 +390,7 @@ export class RelatorioOrdemServicoComponent {
 
   private readonly service = inject(FrotaService);
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly detalhe = signal<OrdemServicoDetalhe | null>(null);
@@ -480,8 +481,7 @@ export class RelatorioOrdemServicoComponent {
   }
 
   protected voltar(): void {
-    if (window.history.length > 1) this.location.back();
-    else void this.router.navigate(['/frota', 'ordens-servico']);
+    this.navegacao.back(['/frota', 'ordens-servico']);
   }
 
   protected abrirFicha(id: string): void {

@@ -47,6 +47,7 @@ import {
 import { DESTINOS_DEEPLINK, GrupoDestinoDeeplink, rotaConhecida } from './destinos-deeplink';
 import { RemoteLookup } from '../../../../core/utils/remote-lookup.util';
 
+import { NavigationHistoryService } from '../../../../core/navigation/navigation-history.service';
 /** Sugestão de silêncio para gatilhos por limiar: a varredura repetiria o aviso a cada ciclo. */
 const COOLDOWN_PADRAO_LIMIAR = 720;
 
@@ -133,6 +134,7 @@ export class RegraFormComponent {
   private readonly messages = inject(MessageService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly usuarioLookup = new RemoteLookup<UsuarioResponse>(
@@ -577,7 +579,7 @@ export class RegraFormComponent {
   }
 
   protected sair(): void {
-    this.router.navigate(['/notificacoes/admin/regras']);
+    this.navegacao.back(['/notificacoes/admin/regras']);
   }
 
   private validarGatilho(): boolean {

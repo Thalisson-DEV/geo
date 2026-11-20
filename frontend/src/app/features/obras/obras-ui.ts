@@ -77,13 +77,22 @@ export function statusClass(statusNome?: string | null, concluida?: boolean): st
 /**
  * Ícone correspondente ao status da obra.
  */
+/**
+ * Nome do status como o restante da aplicação mostra: só a primeira letra maiúscula
+ * ("EM EXECUÇÃO" → "Em execução"). O cadastro guarda em caixa alta; aqui é só apresentação.
+ */
+export function rotuloStatus(statusNome?: string | null): string {
+  const texto = (statusNome ?? '').trim().toLocaleLowerCase('pt-BR');
+  return texto ? texto.charAt(0).toLocaleUpperCase('pt-BR') + texto.slice(1) : '';
+}
+
 export function statusIcon(statusNome?: string | null): string {
   const norm = (statusNome ?? '').toUpperCase().trim();
 
   if (norm.includes('CONCLU')) return 'pi pi-check-circle';
   if (norm.includes('CANCEL')) return 'pi pi-times-circle';
   if (norm.includes('PARALIS')) return 'pi pi-pause-circle';
-  if (norm.includes('EXECU')) return 'pi pi-spin pi-spinner';
+  if (norm.includes('EXECU')) return 'pi pi-play';
   if (norm.includes('PLANEJ')) return 'pi pi-calendar';
 
   return 'pi pi-circle';

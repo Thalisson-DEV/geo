@@ -37,6 +37,7 @@ import {
 import { GovernancaMembrosEtapaComponent } from './governanca-membros-etapa.component';
 import { GovernancaContextoState, normalizarTipoGovernanca } from './governanca-state';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 @Component({
   selector: 'app-governanca-composicao-form',
   standalone: true,
@@ -54,6 +55,7 @@ export class GovernancaComposicaoFormComponent implements OnInit {
   private readonly rh = inject(RhService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly location = inject(Location);
   private readonly messages = inject(MessageService);
   private readonly contexto = inject(GovernancaContextoState);
@@ -137,7 +139,7 @@ export class GovernancaComposicaoFormComponent implements OnInit {
   protected irParaEtapa(etapa: number): void {
     if (etapa < this.activeStep() || (this.detalheCorpo() && etapa <= 4)) this.activeStep.set(etapa);
   }
-  protected cancelar(): void { this.irParaLista(); }
+  protected cancelar(): void { this.navegacao.back(`/sst/governanca/composicoes?tipo=${this.tipo}`); }
   protected concluir(): void { this.irParaLista(); }
 
   protected salvarEContinuar(): void {

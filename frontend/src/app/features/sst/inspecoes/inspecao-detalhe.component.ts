@@ -59,6 +59,7 @@ import {
 } from '../../../core/models/rh.models';
 import { getErrorMessage } from '../../../core/models/shared.models';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 declare var L: any;
 
 @Component({
@@ -96,6 +97,7 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
   private auth = inject(AuthService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private messageService = inject(MessageService);
 
   @ViewChild('historicoComp') protected historicoComp?: InspecaoSegurancaHistoricoComponent;
@@ -585,7 +587,7 @@ export class InspecaoDetalheComponent implements OnInit, OnDestroy {
   }
 
   protected voltar() {
-    this.router.navigate(['/sst/inspecoes']);
+    this.navegacao.back(['/sst/inspecoes']);
   }
 
   protected rolarParaHistorico() {

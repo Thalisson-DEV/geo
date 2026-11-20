@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { Location } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
@@ -10,6 +9,7 @@ import {
   trechosLegais
 } from './documentos-legais.data';
 
+import { NavigationHistoryService } from '../../core/navigation/navigation-history.service';
 /**
  * Página pública da Política de Privacidade e dos Termos de Uso (`/privacidade`, `/termos`).
  * Fica fora do shell e sem login, para ser aberta da tela de entrada e por quem recebe o link.
@@ -252,9 +252,9 @@ import {
 })
 export class DocumentoLegalComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly location = inject(Location);
   private readonly router = inject(Router);
 
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly id = toSignal(
     this.route.data.pipe(map(data => (data['documento'] as DocumentoLegalId) ?? 'privacidade')),
     { initialValue: (this.route.snapshot.data['documento'] as DocumentoLegalId) ?? 'privacidade' }
@@ -272,10 +272,6 @@ export class DocumentoLegalComponent {
 
   /** Volta para a tela de onde veio; aberta direto pelo link, vai para a entrada. */
   protected voltar(): void {
-    if (window.history.length > 1) {
-      this.location.back();
-    } else {
-      void this.router.navigateByUrl('/login');
-    }
+    this.navegacao.back('/login');
   }
 }

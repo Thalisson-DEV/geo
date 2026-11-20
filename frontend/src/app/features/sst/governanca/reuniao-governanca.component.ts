@@ -28,6 +28,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { GovernancaSstService } from '../../../core/services/governanca-sst.service';
 import { FileDownloadUtil } from '../../../core/utils/file-download.util';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 type Transcricao = { id: string; numero: number; origem: string; conteudo: string; confirmada: boolean; dataCriacao: string };
 
 @Component({
@@ -44,6 +45,7 @@ export class ReuniaoGovernancaComponent implements OnInit, OnDestroy {
   private readonly api = inject(GovernancaSstService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly messages = inject(MessageService);
   private readonly cdr = inject(ChangeDetectorRef);
   readonly id = this.route.snapshot.paramMap.get('id')!;
@@ -110,7 +112,7 @@ export class ReuniaoGovernancaComponent implements OnInit, OnDestroy {
 
   voltar(): void {
     const tipo = this.reuniao()?.tipoCorpo ?? this.route.snapshot.data['tipoCorpo'] ?? 'CIPA';
-    this.router.navigate(['/sst/governanca/reunioes'], { queryParams: { tipo } });
+    this.navegacao.back(`/sst/governanca/reunioes?tipo=${tipo}`);
   }
   iniciar(): void { this.comando('inicio', () => this.api.executarComandoReuniao(this.id, 'inicio', {})); }
 

@@ -1,4 +1,4 @@
-import { DatePipe, Location } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,6 +18,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
 import { FrotaService } from '../../../core/services/frota.service';
 import { FrotaRelatorioCabecalhoComponent } from './frota-relatorio-cabecalho.component';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 /** Uma linha do roteiro: o plano de onde veio e a tarefa, sem a numeração copiada na abertura. */
 interface TarefaRoteiro {
   plano: string;
@@ -222,7 +223,7 @@ export class RelatorioChecklistOficinaComponent {
 
   private readonly service = inject(FrotaService);
   private readonly router = inject(Router);
-  private readonly location = inject(Location);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly detalhe = signal<OrdemServicoDetalhe | null>(null);
@@ -280,8 +281,7 @@ export class RelatorioChecklistOficinaComponent {
   }
 
   protected voltar(): void {
-    if (window.history.length > 1) this.location.back();
-    else void this.router.navigate(['/frota', 'ordens-servico']);
+    this.navegacao.back(['/frota', 'ordens-servico']);
   }
 
   protected abrirFicha(id: string): void {

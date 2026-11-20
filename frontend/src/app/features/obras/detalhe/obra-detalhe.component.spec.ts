@@ -168,7 +168,7 @@ describe('ObraDetalheComponent', () => {
   it('as ações ficam na barra da ficha e "Atualizar obra" reúne o que muda a obra', async () => {
     const el = await abrir();
     const barra = el.querySelector('.obra-acoes')!;
-    expect(barra.textContent).toContain('Obras');
+    expect(barra.textContent).toContain('Voltar');
     expect(barra.textContent).toContain('Imprimir');
     expect(barra.textContent).toContain('Atualizar obra');
     const itens = tela.acoesAtualizar().map((i: MenuItem) => i.label);

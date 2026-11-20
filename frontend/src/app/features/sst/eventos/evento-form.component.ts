@@ -51,6 +51,7 @@ import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 
 import { GeoAutocompleteComponent, GeoBreadcrumbItem, GeoButtonComponent, GeoPageHeaderComponent } from '@geo/ui';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 interface EnvolvidoForm {
   tipo: TipoEnvolvido;
   papel: PapelEnvolvido;
@@ -88,6 +89,7 @@ interface EnvolvidoForm {
 export class EventoFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly sst = inject(SstService);
   private readonly messages = inject(MessageService);
   private readonly lookupsService = inject(EventosLookupsService);
@@ -415,7 +417,7 @@ export class EventoFormComponent implements OnInit {
   }
 
   protected voltar(): void {
-    this.router.navigate(this.idEvento ? ['/sst/eventos', this.idEvento] : ['/sst/eventos']);
+    this.navegacao.back(this.idEvento ? ['/sst/eventos', this.idEvento] : ['/sst/eventos']);
   }
 
   protected salvar(): void {

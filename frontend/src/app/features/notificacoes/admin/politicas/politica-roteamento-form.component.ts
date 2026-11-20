@@ -39,6 +39,7 @@ import {
   validarPolitica
 } from './politica-roteamento-form';
 
+import { NavigationHistoryService } from '../../../../core/navigation/navigation-history.service';
 @Component({
   selector: 'app-politica-roteamento-form',
   standalone: true,
@@ -65,6 +66,7 @@ export class PoliticaRoteamentoFormComponent {
   private readonly usuariosService = inject(UsuariosService);
   private readonly notification = inject(NotificationService);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly route = inject(ActivatedRoute);
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -377,7 +379,7 @@ export class PoliticaRoteamentoFormComponent {
   }
 
   protected sair(): void {
-    void this.router.navigate(['/notificacoes/admin/politicas-roteamento']);
+    this.navegacao.back(['/notificacoes/admin/politicas-roteamento']);
   }
 
   protected alternarAtivacao(): void {

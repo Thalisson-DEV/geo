@@ -47,6 +47,7 @@ import {
   formatarTamanhoArquivo
 } from '../../notificacoes-ui';
 
+import { NavigationHistoryService } from '../../../../core/navigation/navigation-history.service';
 const ANEXO_TIPOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
 const ANEXO_LIMITE_BYTES = 15 * 1024 * 1024;
 
@@ -105,6 +106,7 @@ export class ComunicadoFormComponent {
   private readonly usuariosService = inject(UsuariosService);
   private readonly messages = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly usuarioLookup = new RemoteLookup<UsuarioResponse>(
@@ -350,7 +352,7 @@ export class ComunicadoFormComponent {
   }
 
   protected sair(): void {
-    this.router.navigate(['/notificacoes/admin/comunicados']);
+    this.navegacao.back(['/notificacoes/admin/comunicados']);
   }
 
   private validarConteudo(): boolean {

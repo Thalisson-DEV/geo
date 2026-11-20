@@ -85,6 +85,7 @@ import {
   formatarDataParaApi,
   formatarMoeda,
   parseDataBrParaDate,
+  rotuloStatus,
   statusIcon,
   statusTone
 } from '../obras-ui';
@@ -99,6 +100,7 @@ import { ObrasMedicoesService } from '../../../core/services/obras-medicoes.serv
 import { MedirObraDrawerComponent } from '../medicoes/medir-obra-drawer.component';
 import { STATUS_MEDICAO, TIPO_MEDICAO, rotuloCompetencia } from '../medicoes/medicoes.logic';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 declare var L: any;
 
 /** dd/MM/yyyy -> yyyyMMdd, para ordenar. */
@@ -193,6 +195,7 @@ interface MarcoPrazo {
 export class ObraDetalheComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly service = inject(ObrasService);
   private readonly contratos = inject(ContratoService);
   private readonly rhService = inject(RhService);
@@ -245,6 +248,7 @@ export class ObraDetalheComponent {
   protected readonly dataHora = formatarDataHora;
   protected readonly statusTone = statusTone;
   protected readonly statusIcon = statusIcon;
+  protected readonly rotuloStatus = rotuloStatus;
   protected readonly statusSolicitacaoLabel = statusSolicitacaoLabel;
   protected readonly statusSolicitacaoTone = statusSolicitacaoTone;
   protected readonly tipoTecnicoLabel = tipoTecnicoLabel;
@@ -829,7 +833,7 @@ export class ObraDetalheComponent {
   }
 
   protected voltar(): void {
-    void this.router.navigate(['/obras']);
+    this.navegacao.back(['/obras']);
   }
 
   /** Lista do encerramento já no recorte desta obra. */

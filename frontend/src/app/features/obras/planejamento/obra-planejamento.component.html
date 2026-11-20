@@ -7,7 +7,7 @@
   @let p = plano()!;
   <div class="plan" [class.plan--sem-painel]="painelOculto()">
     <header class="plan-topo">
-      <geo-icon-button icon="pi pi-arrow-left" variant="ghost" label="Voltar para a obra" tooltip="Voltar para a obra" (pressed)="voltar()"></geo-icon-button>
+      <geo-icon-button icon="pi pi-arrow-left" variant="ghost" label="Voltar" tooltip="Voltar" (pressed)="voltar()"></geo-icon-button>
       <div class="plan-topo__obra">
         <strong>{{ p.numeroObra }}</strong>
         <span [title]="p.tituloObra">{{ p.tituloObra }}</span>

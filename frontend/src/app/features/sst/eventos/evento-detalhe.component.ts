@@ -46,6 +46,7 @@ import {
   tituloDoRelatorio
 } from './evento-relatorio.util';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 declare var L: any;
 
 type AcaoCicloVida = 'tratativa' | 'conclusao' | 'cancelamento' | 'reabertura';
@@ -92,6 +93,7 @@ interface MarcoEvento {
 export class EventoDetalheComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private readonly sst = inject(SstService);
   private readonly auth = inject(AuthService);
   private readonly notifications = inject(NotificationService);
@@ -259,7 +261,7 @@ export class EventoDetalheComponent implements OnInit, OnDestroy {
   }
 
   protected voltar(): void {
-    this.router.navigate(['/sst/eventos']);
+    this.navegacao.back(['/sst/eventos']);
   }
 
   protected imprimir(): void {

@@ -4,6 +4,7 @@ import {
   formatarDataParaApi,
   formatarMoeda,
   parseDataBrParaDate,
+  rotuloStatus,
   sanitizarNumeroObra,
   sanitizarTituloObra,
   statusClass,
@@ -53,7 +54,11 @@ describe('Obras UI Helpers & Sanitization', () => {
     it('deve identificar status EM EXECUÇÃO', () => {
       expect(statusTone('EM EXECUÇÃO')).toBe('info');
       expect(statusClass('EM EXECUÇÃO')).toContain('blue');
-      expect(statusIcon('EM EXECUÇÃO')).toContain('spinner');
+      // Ícone parado: status não é carregamento, não gira.
+      expect(statusIcon('EM EXECUÇÃO')).toBe('pi pi-play');
+      expect(rotuloStatus('EM EXECUÇÃO')).toBe('Em execução');
+      expect(rotuloStatus('CONCLUÍDA')).toBe('Concluída');
+      expect(rotuloStatus(null)).toBe('');
     });
 
     it('deve identificar status CONCLUÍDA', () => {

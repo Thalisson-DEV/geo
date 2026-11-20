@@ -22,6 +22,7 @@ import {
   PainelAdicionarComponent, PainelConfigComponent, PainelConfiguracoesComponent, PainelPedirComponent
 } from './paineis.component';
 
+import { NavigationHistoryService } from '../../../../core/navigation/navigation-history.service';
 interface Estado {
   definicao: Definicao;
   nome: string;
@@ -151,8 +152,9 @@ export class AutomacaoDesignerComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
+  private readonly navegacao = inject(NavigationHistoryService);
   protected voltar(): void {
-    void this.router.navigate(['/notificacoes/automacoes', this.detalhe()!.resumo.id]);
+    this.navegacao.back(['/notificacoes/automacoes', this.detalhe()!.resumo.id]);
   }
   private readonly service = inject(AutomacoesService);
   private readonly notificacao = inject(NotificationService);

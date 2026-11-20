@@ -114,7 +114,7 @@ const OPCOES_CONCLUSAO = [
         (rowActivate)="editar($event)"
       >
         <ng-template geoCell="concluida" let-row>
-          <geo-status [tone]="row.concluida ? 'success' : 'info'" [icon]="row.concluida ? 'pi-check-circle' : 'pi-spinner'">
+          <geo-status [tone]="row.concluida ? 'success' : 'info'" [icon]="row.concluida ? 'pi-check-circle' : 'pi-circle'">
             {{ row.concluida ? 'Concluída / finalizada' : 'Em andamento' }}
           </geo-status>
         </ng-template>

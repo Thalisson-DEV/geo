@@ -10,7 +10,7 @@
   <div class="obra">
     <!-- Barra da ficha: voltar à carteira à esquerda; ações da obra à direita, a primária por último -->
     <div class="obra-acoes" role="toolbar" aria-label="Ações da obra">
-      <geo-button variant="ghost" size="sm" icon="pi pi-arrow-left" label="Obras" (pressed)="voltar()"></geo-button>
+      <geo-button variant="ghost" size="sm" icon="pi pi-arrow-left" label="Voltar" (pressed)="voltar()"></geo-button>
       <span class="obra-acoes__grupo">
         <app-analisar-com-copiloto origem="Detalhe da obra" tipo="obra" [entidade]="o.id" [rotulo]="o.numero" [filtros]="{ obra: o.id }" size="sm" variant="ghost" label="Bússola"
           pergunta="Faça um resumo desta obra: situação, prazo, carteira, materiais solicitados e pendências."></app-analisar-com-copiloto>
@@ -46,7 +46,7 @@
         </p>
         <h1 id="obra-titulo" class="obra-hero__titulo">{{ o.titulo }}</h1>
         <div class="obra-hero__chips">
-          <geo-status [tone]="statusTone(o.statusNome, o.statusConcluida)" [icon]="statusIcon(o.statusNome)">{{ o.statusNome }}</geo-status>
+          <geo-status [tone]="statusTone(o.statusNome, o.statusConcluida)" [icon]="statusIcon(o.statusNome)">{{ rotuloStatus(o.statusNome) }}</geo-status>
           @if (carteira()?.classeTensaoRotulo) {
             <geo-status tone="brand" icon="pi-bolt">{{ carteira()!.classeTensaoRotulo }}</geo-status>
           } @else {
@@ -480,7 +480,7 @@
                   <div class="obra-subprojeto__topo">
                     <a class="obra-subprojeto__numero" [routerLink]="['/obras', sub.id]">{{ sub.numero }}</a>
                     <geo-status tone="neutral" emphasis="outline">{{ sub.tipoVinculo }}</geo-status>
-                    <geo-status [tone]="statusTone(sub.statusNome)">{{ sub.statusNome }}</geo-status>
+                    <geo-status [tone]="statusTone(sub.statusNome)" [icon]="statusIcon(sub.statusNome)">{{ rotuloStatus(sub.statusNome) }}</geo-status>
                   </div>
                   <span class="obra-subprojeto__titulo" [title]="sub.titulo">{{ sub.titulo }}</span>
                   <div class="obra-subprojeto__rodape">
@@ -541,7 +541,7 @@
                         <span class="obra-lista__corpo">
                           <a class="obra-lista__titulo" [routerLink]="['/obras', p.id]">{{ p.numero }}</a>
                           <span class="obra-lista__detalhe" [title]="p.titulo">{{ p.titulo }}</span>
-                          <span class="obra-lista__detalhe">{{ p.statusNome }}{{ p.municipioNome ? ' · ' + p.municipioNome : '' }}</span>
+                          <span class="obra-lista__detalhe">{{ rotuloStatus(p.statusNome) }}{{ p.municipioNome ? ' · ' + p.municipioNome : '' }}</span>
                         </span>
                         <span class="obra-lista__valor">{{ km(p.distanciaKm) }}</span>
                       </li>
@@ -580,9 +580,9 @@
                       <div class="obra-linha-tempo__corpo">
                         <span class="obra-linha-tempo__titulo">
                           @if (h.statusAnteriorNome && h.statusAnteriorNome !== h.statusNovoNome) {
-                            {{ h.statusAnteriorNome }} <i class="pi pi-arrow-right" aria-label="para"></i> {{ h.statusNovoNome }}
+                            {{ rotuloStatus(h.statusAnteriorNome) }} <i class="pi pi-arrow-right" aria-label="para"></i> {{ rotuloStatus(h.statusNovoNome) }}
                           } @else {
-                            {{ h.statusNovoNome }}
+                            {{ rotuloStatus(h.statusNovoNome) }}
                           }
                         </span>
                         @if (h.observacao) {
@@ -641,7 +641,7 @@
   </div>
 
   <!-- Drawer: status operacional -->
-  <geo-form-drawer [(visible)]="statusAberto" title="Alterar status" [description]="o.numero + ' · status atual ' + o.statusNome" size="sm"
+  <geo-form-drawer [(visible)]="statusAberto" title="Alterar status" [description]="o.numero + ' · status atual: ' + rotuloStatus(o.statusNome)" size="sm"
     [dirty]="novoStatusId() !== o.statusId || !!observacaoStatus().trim()">
     <geo-form-section title="Status operacional" icon="pi pi-sync">
       <div class="geo-form-stack">

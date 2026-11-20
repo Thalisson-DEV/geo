@@ -14,6 +14,7 @@ import { CanvasComponent, EstadoExecucaoNo, formatarDuracao } from './designer/c
 import { buscarNo, normalizar } from './lib/arvore';
 import { icone, mapaEspecs, nomeBonito } from './lib/dinamico';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 /** Chaves que aparecem fora do catálogo (contexto do gatilho, papéis). */
 const ROTULOS_COMUNS: Record<string, string> = {
   ano: 'Ano', mes: 'Mês', data: 'Data', hora: 'Hora', semana: 'Semana', dia_semana: 'Dia da semana', papeis: 'Pessoas do evento',
@@ -37,7 +38,7 @@ const ROTULOS_COMUNS: Record<string, string> = {
       @let e = execucao()!;
       <div class="aut aut-designer">
         <header class="aut-topbar">
-          <geo-icon-button icon="pi pi-arrow-left" label="Voltar" variant="ghost" size="icon-sm" (pressed)="ir(['/notificacoes/automacoes', e.resumo.automacaoId])"></geo-icon-button>
+          <geo-icon-button icon="pi pi-arrow-left" label="Voltar" variant="ghost" size="icon-sm" (pressed)="voltar(e.resumo.automacaoId)"></geo-icon-button>
           <div class="aut-topbar-title">
             <strong style="padding-left:0.375rem">{{ e.automacaoNome }}</strong>
             <span class="aut-topbar-meta">
@@ -146,6 +147,11 @@ const ROTULOS_COMUNS: Record<string, string> = {
 export class AutomacaoExecucaoComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
+  private readonly navegacao = inject(NavigationHistoryService);
+  protected voltar(idAutomacao: string): void {
+    this.navegacao.back(['/notificacoes/automacoes', idAutomacao]);
+  }
 
   protected ir(destino: unknown[]): void {
     void this.router.navigate(destino);

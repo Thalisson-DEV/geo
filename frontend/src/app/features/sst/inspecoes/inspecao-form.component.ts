@@ -56,6 +56,7 @@ import { RemoteLookup } from '../../../core/utils/remote-lookup.util';
 import { GeoAutocompleteComponent, GeoBooleanControlComponent } from '@geo/ui/forms';
 import { GeoBreadcrumbItem, GeoButtonComponent, GeoIconButtonComponent, GeoPageHeaderComponent, GeoStatusComponent, GeoTone } from '@geo/ui';
 
+import { NavigationHistoryService } from '../../../core/navigation/navigation-history.service';
 interface RespostaState {
   opcoesSelecionadas: string[];
   valorTexto: string | null;
@@ -684,6 +685,7 @@ export class InspecaoFormComponent implements OnInit {
   private theme = inject(ThemeService, { optional: true });
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private readonly navegacao = inject(NavigationHistoryService);
   private messageService = inject(MessageService);
   private cdr = inject(ChangeDetectorRef);
   private destroyRef = inject(DestroyRef);
@@ -1696,10 +1698,6 @@ export class InspecaoFormComponent implements OnInit {
   }
 
   protected voltar() {
-    if (this.isModoEdicao()) {
-      this.router.navigate(['/sst/inspecoes', this.idInspecaoEdicao()]);
-    } else {
-      this.router.navigate(['/sst/inspecoes']);
-    }
+    this.navegacao.back(this.isModoEdicao() ? ['/sst/inspecoes', this.idInspecaoEdicao()] : ['/sst/inspecoes']);
   }
 }
