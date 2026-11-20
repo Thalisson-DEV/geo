@@ -162,6 +162,8 @@ const CONTADAS: readonly SituacaoTecnicaDef[] = [SITUACAO_EM_ABERTO, ...SITUACOE
     .sol-visoes button:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }
     .sol-visoes .pi { font-size: var(--geo-font-caption); }
     .sol-prazo { display: grid; gap: 0.125rem; justify-items: start; }
+    /* Códigos de equipe (CON-JZR-02) e data+hora não quebram no hífen nem no espaço. */
+    .sol-nowrap { white-space: nowrap; }
     @media (max-width: 40rem) {
       .sol-toolbar { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0.625rem; }
       .sol-atalhos { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; scroll-snap-type: x proximity; }
@@ -297,7 +299,7 @@ const CONTADAS: readonly SituacaoTecnicaDef[] = [SITUACAO_EM_ABERTO, ...SITUACOE
             </div>
             <ng-template geoCell="solicitacao" let-row>
               <span class="geo-cell-strong">#{{ row.id.slice(0, 8) }}</span>
-              <span class="geo-cell-muted">{{ row.dataSolicitacao | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="geo-cell-muted sol-nowrap">{{ row.dataSolicitacao | date: 'dd/MM/yyyy HH:mm' }}</span>
               @if (row.numeroProgramacao) {
                 <span class="geo-cell-muted" title="Gerada ao programar a obra"><i class="pi pi-calendar-plus" aria-hidden="true"></i> Programação #{{ row.numeroProgramacao }}</span>
               } @else {
@@ -320,7 +322,7 @@ const CONTADAS: readonly SituacaoTecnicaDef[] = [SITUACAO_EM_ABERTO, ...SITUACOE
               }
             </ng-template>
             <ng-template geoCell="equipe" let-row>
-              <span [class.geo-cell-muted]="!row.idEquipe">{{ row.idEquipe ? equipeLabel(row.idEquipe) : 'A definir' }}</span>
+              <span class="sol-nowrap" [class.geo-cell-muted]="!row.idEquipe">{{ row.idEquipe ? equipeLabel(row.idEquipe) : 'A definir' }}</span>
               @if (row.saqueForaEquipe) { <span class="geo-cell-muted">Saque fora da equipe</span> }
             </ng-template>
             <ng-template geoCell="saque" let-row>
