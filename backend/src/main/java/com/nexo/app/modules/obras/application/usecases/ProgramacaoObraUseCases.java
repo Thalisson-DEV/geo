@@ -80,7 +80,7 @@ public class ProgramacaoObraUseCases {
             return new ProgramacaoResponses.Previa(itens.size(), servicos, itens.size() - servicos, 0, 0, 0, 0, List.of(), valor,
                     obra.getDataPrevisaoFim(), obra.getPrazoRegulado(),
                     projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), valor, programacao.getId()),
-                    0, obra.getTipoObra().name());
+                    0, obra.getTipoObra().name(), !obra.possuiLocalizacao());
         }
         Selecao selecao = selecionar(idObra, request.idsItens());
         Map<UUID, Map<UUID, BigDecimal>> valores = new HashMap<>();
@@ -107,7 +107,7 @@ public class ProgramacaoObraUseCases {
                 List.copyOf(nomesSemValor), total, obra.getDataPrevisaoFim(), obra.getPrazoRegulado(),
                 projecao.projetar(obra, request.inicio(), request.fim(), request.idBase(), request.idTipoEquipe(), total, null),
                 materiaisASolicitar(selecao.itens().stream().map(i -> new ItemQuantidade(i, i.getQuantidadePrevista())).toList()).size(),
-                obra.getTipoObra().name());
+                obra.getTipoObra().name(), !obra.possuiLocalizacao());
     }
 
     @Transactional
@@ -123,6 +123,7 @@ public class ProgramacaoObraUseCases {
         }
         Programacao programacao = new Programacao(repository.proximoNumero(), idObra, request.idEquipe(),
                 request.inicio(), request.fim(), request.condicoes());
+        programacao.informarDesligamento(request.horaDesligamentoInicio(), request.horaDesligamentoFim(), request.numeroManobra());
         Map<UUID, Map<UUID, BigDecimal>> valores = new HashMap<>();
         int semValor = 0;
         for (ItemPlanejado item : selecao.itens()) {
@@ -156,6 +157,7 @@ public class ProgramacaoObraUseCases {
         conferirVersao(programacao, request.versao());
         Obra obra = buscarObra(programacao.getIdObra());
         programacao.editar(request.condicoes()).ifPresent(evento -> registrar(evento, obra));
+        programacao.informarDesligamento(request.horaDesligamentoInicio(), request.horaDesligamentoFim(), request.numeroManobra());
         return detalhar(repository.saveAndFlush(programacao), obra);
     }
 
@@ -287,7 +289,8 @@ public class ProgramacaoObraUseCases {
         }
         Map<UUID, String> codigos = codigos(ids);
         evento.identificar(obra.getNumero(), codigos.get(evento.getIdEquipeOrigem()), codigos.get(evento.getIdEquipeDestino()));
-        eventoRepository.save(evento);
+        EventoProgramacao salvo = eventoRepository.save(evento);
+        eventos.publishEvent(new AvisosCampoObras.ProgramacaoAlterada(salvo != null ? salvo.getId() : evento.getId()));
     }
 
     private Map<UUID, String> codigos(Set<UUID> ids) {
@@ -311,7 +314,8 @@ public class ProgramacaoObraUseCases {
                 obra.getTitulo(), p.getIdEquipe(), codigos(Set.of(p.getIdEquipe())).get(p.getIdEquipe()),
                 p.getDataInicio(), p.getDataFim(), p.getDescricao(), p.isLinhaViva(), p.isDesligamento(), p.isFinalizaObra(),
                 p.getTurno(), p.getSituacaoIntervencao(), p.getObservacao(), p.situacaoEm(LocalDate.now()),
-                p.valorTotal().setScale(2, RoundingMode.HALF_UP), p.getUsuarioCriacao(), p.getDataCriacao(), p.getVersao(), itens);
+                p.valorTotal().setScale(2, RoundingMode.HALF_UP), p.getUsuarioCriacao(), p.getDataCriacao(), p.getVersao(), itens,
+                p.getHoraDesligamentoInicio(), p.getHoraDesligamentoFim(), p.getNumeroManobra());
     }
 
     Map<UUID, String> locais(UUID idObra) {

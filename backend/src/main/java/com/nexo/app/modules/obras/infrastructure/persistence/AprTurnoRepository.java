@@ -13,4 +13,8 @@ public interface AprTurnoRepository extends JpaRepository<AprTurno, UUID> {
     List<AprTurno> findByIdTurnoInAndAtivoTrue(Collection<UUID> idsTurnos);
 
     Optional<AprTurno> findByIdAndIdTurnoAndAtivoTrue(UUID id, UUID idTurno);
+
+    Optional<AprTurno> findByCampoIdLocal(UUID idLocal);
+
+    Optional<AprTurno> findByIdLocalConclusao(UUID idLocal);
 }

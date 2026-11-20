@@ -69,6 +69,9 @@ import {
   ],
   templateUrl: './obra-form.component.html',
   styles: `
+    .obra-form__larga {
+      grid-column: 1 / -1;
+    }
     @media (min-width: 40rem) {
       .obra-grade-2 {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -119,6 +122,8 @@ export class ObraFormComponent implements OnInit {
   protected readonly tipoVinculoPai = signal<TipoVinculoSubprojeto | null>(TipoVinculoSubprojeto.KIT);
   protected readonly latitude = signal<number | null>(null);
   protected readonly longitude = signal<number | null>(null);
+  protected readonly endereco = signal('');
+  protected readonly referencia = signal('');
 
   private readonly statusLista = signal<StatusObraResponse[]>([]);
   private readonly tiposObra = signal<TipoDeObraResponse[]>([]);
@@ -185,7 +190,8 @@ export class ObraFormComponent implements OnInit {
       this.numero(), this.titulo(), this.notaObra(), this.descricao(), this.idProcesso(), this.idBaseOperacional(),
       this.idMunicipio(), this.idCentroCusto(), this.idSupervisor(), this.idCoordenador(), this.idAgenteResponsavel(),
       this.idStatusObra(), this.idTipoObra(), this.valorProjeto(), this.dataInicio(), this.dataPrevisaoFim(), this.dataFimEfetiva(),
-      this.equipes(), this.ehSubprojeto(), this.idObraPai(), this.tipoVinculoPai(), this.latitude(), this.longitude()
+      this.equipes(), this.ehSubprojeto(), this.idObraPai(), this.tipoVinculoPai(), this.latitude(), this.longitude(),
+      this.endereco(), this.referencia()
     ])
   );
   private readonly original = signal('');
@@ -250,6 +256,8 @@ export class ObraFormComponent implements OnInit {
       dataFimEfetiva: formatarDataParaApi(this.dataFimEfetiva()) || null,
       latitude: this.latitude() ?? undefined,
       longitude: this.longitude() ?? undefined,
+      endereco: this.endereco().trim() || null,
+      referencia: this.referencia().trim() || null,
       idProcesso: this.idProcesso()!,
       idBaseOperacional: this.idBaseOperacional()!,
       idMunicipio: this.idMunicipio()!,
@@ -309,6 +317,8 @@ export class ObraFormComponent implements OnInit {
         this.tipoVinculoPai.set(obra.tipoVinculoPai || TipoVinculoSubprojeto.KIT);
         this.latitude.set(obra.latitude ?? null);
         this.longitude.set(obra.longitude ?? null);
+        this.endereco.set(obra.endereco ?? '');
+        this.referencia.set(obra.referencia ?? '');
         this.garantirObraPai(obra);
         this.original.set(this.retrato());
         this.carregando.set(false);

@@ -2,6 +2,7 @@ package com.nexo.app.modules.obras.domain;
 
 import com.nexo.app.shared.domain.BaseEntity;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -37,6 +38,16 @@ public class AtividadeTurno extends BaseEntity {
         this.idObra = Objects.requireNonNull(idObra);
         this.idProgramacao = idProgramacao;
         this.observacao = observacao != null && !observacao.isBlank() ? observacao.trim() : null;
+    }
+
+    @Embedded
+    private RegistroCampo campo;
+
+    /** Obra não programada registrada pelo app, com o id do aparelho. */
+    public static AtividadeTurno doCampo(UUID idTurno, UUID idObra, String observacao, RegistroCampo campo) {
+        AtividadeTurno atividade = new AtividadeTurno(idTurno, idObra, null, observacao);
+        atividade.campo = Objects.requireNonNull(campo);
+        return atividade;
     }
 
     public boolean isProgramada() {

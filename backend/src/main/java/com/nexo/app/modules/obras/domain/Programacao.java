@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -81,6 +82,17 @@ public class Programacao extends BaseEntity {
     @Column(name = "status", nullable = false, length = 20)
     private StatusProgramacao status = StatusProgramacao.PROGRAMADA;
 
+    /** Janela prevista do desligamento, para a equipe se organizar. Só com desligamento. */
+    @Column(name = "hora_desligamento_inicio")
+    private LocalTime horaDesligamentoInicio;
+
+    @Column(name = "hora_desligamento_fim")
+    private LocalTime horaDesligamentoFim;
+
+    /** Número da manobra na concessionária, que a equipe informa ao centro de operação. */
+    @Column(name = "numero_manobra", length = 50)
+    private String numeroManobra;
+
     @OneToMany(mappedBy = "programacao", cascade = CascadeType.ALL)
     private List<ProgramacaoItem> itens = new ArrayList<>();
 
@@ -89,6 +101,22 @@ public class Programacao extends BaseEntity {
         this.idObra = Objects.requireNonNull(idObra);
         definirEquipeEPeriodo(idEquipe, inicio, fim);
         aplicar(condicoes);
+    }
+
+    /** Horário e manobra do desligamento. Sem desligamento, nada disso se aplica e fica vazio. */
+    public void informarDesligamento(LocalTime inicio, LocalTime fim, String manobra) {
+        if (!desligamento) {
+            this.horaDesligamentoInicio = null;
+            this.horaDesligamentoFim = null;
+            this.numeroManobra = null;
+            return;
+        }
+        if (inicio != null && fim != null && !fim.isAfter(inicio)) {
+            throw new InvarianteVioladaException("O fim do desligamento deve ser depois do início.");
+        }
+        this.horaDesligamentoInicio = inicio;
+        this.horaDesligamentoFim = fim;
+        this.numeroManobra = manobra != null && !manobra.isBlank() ? manobra.trim() : null;
     }
 
     /** Coloca o item na programação com o valor unitário vigente no início (nulo para material ou sem valor). */
@@ -226,6 +254,36 @@ public class Programacao extends BaseEntity {
                 .orElseThrow(() -> new InvarianteVioladaException("O item não está na programação #" + numero + "."));
         BigDecimal excedente = vinculo.getItemPlanejado().apontar(quantidade);
         return new ApontamentoExecucao(this, vinculo, idTurno, data, quantidade, excedente, justificativa);
+    }
+
+    /**
+     * "Tudo feito" no ponto (ou vão): aponta o restante programado de cada item ainda não concluído ali. Item já
+     * concluído fica de fora; sem nada a apontar, o ponto já estava feito.
+     *
+     * @param idLocal o ponto ou o vão, como o planejamento os identifica.
+     */
+    public List<ApontamentoExecucao> apontarLocalInteiro(UUID idLocal, LocalDate data, UUID idTurno) {
+        validarAberta("apontar");
+        if (idLocal == null) {
+            throw new InvarianteVioladaException("Informe o ponto ou o vão.");
+        }
+        List<ProgramacaoItem> doLocal = getItensAtivos().stream()
+                .filter(v -> idLocal.equals(v.getItemPlanejado().getKitAplicado().getIdPonto())
+                        || idLocal.equals(v.getItemPlanejado().getKitAplicado().getIdVao()))
+                .toList();
+        if (doLocal.isEmpty()) {
+            throw new InvarianteVioladaException("O ponto não tem itens na programação #" + numero + ".");
+        }
+        List<ApontamentoExecucao> criados = new ArrayList<>();
+        for (ProgramacaoItem vinculo : doLocal) {
+            ItemPlanejado item = vinculo.getItemPlanejado();
+            BigDecimal restante = vinculo.getQuantidade().subtract(item.getQuantidadeExecutada());
+            if (item.concluido() || restante.signum() <= 0) {
+                continue;
+            }
+            criados.add(apontar(item.getId(), restante, data, idTurno, null));
+        }
+        return criados;
     }
 
     /**

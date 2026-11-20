@@ -18,4 +18,8 @@ public interface EvidenciaPontoRepository extends JpaRepository<EvidenciaPonto, 
     Optional<EvidenciaPonto> findFirstByIdPontoAndIdModeloIsNotNullAndAtivoTrue(UUID idPonto);
 
     boolean existsByIdModelo(UUID idModelo);
+
+    Optional<EvidenciaPonto> findByIdLocal(UUID idLocal);
+
+    List<EvidenciaPonto> findByIdObraInAndAtivoTrue(java.util.Collection<UUID> idsObras);
 }

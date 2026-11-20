@@ -73,15 +73,37 @@ public class TurnoUseCases implements TurnoApi {
                         request.idEquipe(), idUsuario, request.idVeiculo(), request.idsColaboradores())
                 : composicaoEquipeApi.buscarComposicao(request.idEquipe()).orElse(null);
 
-        Turno turno = new Turno(request.idEquipe(), idUsuario);
+        Turno turno = new Turno(request.idEquipe(), idUsuario, inicioInformado(request.dataInicio()));
         if (composicao != null) {
             turno.registrarComposicao(
                     composicao.veiculo() != null ? composicao.veiculo().id() : null,
                     composicao.membros().stream().map(ComposicaoEquipeApi.MembroComposicao::idColaborador).toList());
         }
+        if (request.idLider() != null || (request.idsSubstitutos() != null && !request.idsSubstitutos().isEmpty())) {
+            java.util.Set<UUID> pessoas = new java.util.LinkedHashSet<>(turno.getIdsColaboradores());
+            if (request.idLider() != null) {
+                pessoas.add(request.idLider());
+            }
+            if (request.idsSubstitutos() != null) {
+                request.idsSubstitutos().stream().filter(java.util.Objects::nonNull).forEach(pessoas::add);
+            }
+            turno.informarComposicao(turno.getIdVeiculo(), pessoas, request.idLider(), request.idsSubstitutos());
+        }
         Turno salvo = repository.save(turno);
         eventPublisher.publishEvent(new TurnoAbertoEvent(salvo.getId(), salvo.getIdEquipe(), salvo.getDataInicio()));
         return mapper.toResponse(salvo);
+    }
+
+    /**
+     * Hora de abertura informada pelo aparelho (turno aberto sem sinal). Vale se não estiver no futuro nem mais de um
+     * dia atrás; fora disso, a hora do servidor.
+     */
+    static java.time.OffsetDateTime inicioInformado(java.time.OffsetDateTime informado) {
+        java.time.OffsetDateTime agora = java.time.OffsetDateTime.now();
+        if (informado == null || informado.isAfter(agora) || informado.isBefore(agora.minusHours(24))) {
+            return agora;
+        }
+        return informado;
     }
 
     /**

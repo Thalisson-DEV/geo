@@ -309,6 +309,12 @@ geo:
     # Varredura das regras por limiar. Situações ("há N pendentes") não emitem evento,
     # então só uma varredura as detecta; o cooldown de cada regra evita o spam.
     limiares-cron: ${NOTIFICACAO_LIMIARES_CRON:0 */15 * * * *}
+  # Web Push para o app de campo (avisos de reprogramação). Sem as chaves VAPID, o push fica
+  # desligado e o app vê os avisos ao abrir. Gere o par com `npx web-push generate-vapid-keys`.
+  push:
+    vapid-publica: ${PUSH_VAPID_PUBLICA:}
+    vapid-privada: ${PUSH_VAPID_PRIVADA:}
+    assunto: ${PUSH_VAPID_ASSUNTO:mailto:suporte@example.com}
   security:
     jwt:
       secret: ${JWT_SECRET}

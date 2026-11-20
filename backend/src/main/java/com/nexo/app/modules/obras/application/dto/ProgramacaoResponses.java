@@ -11,6 +11,7 @@ import com.nexo.app.modules.obras.domain.TurnoProgramacao;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +31,9 @@ public final class ProgramacaoResponses {
                          List<String> nomesServicosSemValor, BigDecimal valor,
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate prazoPrevisto,
                          @JsonFormat(pattern = "dd/MM/yyyy") LocalDate prazoRegulado,
-                         List<EquipeProjetada> equipes, int materiaisASolicitar, String tipoObra) {
+                         List<EquipeProjetada> equipes, int materiaisASolicitar, String tipoObra,
+                         /** Sem coordenada nem endereço: a equipe não terá "Como chegar" no app. */
+                         boolean obraSemLocalizacao) {
     }
 
     /**
@@ -78,7 +81,10 @@ public final class ProgramacaoResponses {
                                      String descricao, boolean linhaViva, boolean desligamento, boolean finalizaObra,
                                      TurnoProgramacao turno, SituacaoIntervencao situacaoIntervencao, String observacao,
                                      SituacaoProgramacao situacao, BigDecimal valor, String criadoPor,
-                                     OffsetDateTime criadoEm, Long versao, List<ItemProgramado> itens) {
+                                     OffsetDateTime criadoEm, Long versao, List<ItemProgramado> itens,
+                                     @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoInicio,
+                                     @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoFim,
+                                     String numeroManobra) {
     }
 
     public record ItemProgramado(UUID idItem, String local, TipoItemKit tipo, String codigo, String descricao,

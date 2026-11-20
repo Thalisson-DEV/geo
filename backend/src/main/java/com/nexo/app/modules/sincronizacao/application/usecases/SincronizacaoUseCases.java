@@ -48,6 +48,7 @@ public class SincronizacaoUseCases {
  private final SincronizacaoFalhaService falhaService;
  private final DiagnosticoCasoSincronizacao diagnostico;
  private final ReferenciasCasoSincronizacao referencias;
+ private final AplicacaoImediataObras aplicacaoObras;
 
  @Transactional
  public OperacaoResponse receber(OperacaoRequest r, UUID usuario) {
@@ -66,6 +67,19 @@ public class SincronizacaoUseCases {
    totalAnexos += bytes.length; if(totalAnexos>30_000_000) throw new InvarianteVioladaException("A soma dos anexos excede o limite de 30 MB.");
    if(!hash(bytes).equalsIgnoreCase(a.sha256())) throw new InvarianteVioladaException("Hash do anexo não confere.");
    anexos.save(new AnexoSincronizacao(op,a.idLocal(),a.nome(),a.contentType(),a.sha256().toLowerCase(),bytes));
+  }
+  // Registros de Obras são aplicados na hora; só a recusa vira caso para o backoffice.
+  if(r.tipo().deObras()){
+   String recusa;
+   try{
+    var aplicado=aplicacaoObras.aplicar(r.tipo(),payloadSemEnvelope(r.payload()),usuario,arquivoObras(r));
+    op.tentativa(); op.resolvida();
+    return new OperacaoResponse(op.getIdOperacaoLocal(),op.getIdRegistroLocal(),op.getTipo(),op.getStatus(),false,null,op.getHashOriginal(),op.getTentativas(),null,aplicado.ids());
+   }catch(RuntimeException e){ recusa=e.getMessage()==null?"Registro recusado sem motivo informado.":e.getMessage(); }
+   op.tentativa(); op.emTratamento();
+   var caso=casos.save(new CasoSincronizacao(op,recusa.substring(0,Math.min(recusa.length(),1800))));
+   notificarBackoffice(caso);
+   return resposta(op,caso);
   }
   // Até os adaptadores tipados estarem ligados, a fila segura cada escrita para tratamento humano.
   op.emTratamento();
@@ -173,7 +187,16 @@ public class SincronizacaoUseCases {
   if(p.get("request") instanceof Map<?,?> request) return (Map<String,Object>) request;
   return p;
  }
- private OperacaoResponse resposta(OperacaoSincronizacao o,CasoSincronizacao c){return new OperacaoResponse(o.getIdOperacaoLocal(),o.getIdRegistroLocal(),o.getTipo(),o.getStatus(),c!=null,c==null?null:c.getId(),o.getHashOriginal(),o.getTentativas());}
+ private OperacaoResponse resposta(OperacaoSincronizacao o,CasoSincronizacao c){
+  String motivo=c==null||c.isEncerrado()?null:DiagnosticoCasoSincronizacao.limpar(DiagnosticoCasoSincronizacao.ultimoErro(c));
+  return new OperacaoResponse(o.getIdOperacaoLocal(),o.getIdRegistroLocal(),o.getTipo(),o.getStatus(),c!=null,c==null?null:c.getId(),o.getHashOriginal(),o.getTentativas(),motivo,List.of());
+ }
+ /** A foto do registro de Obras, decodificada do primeiro anexo. */
+ private static com.nexo.app.modules.obras.CampoObrasApi.Arquivo arquivoObras(OperacaoRequest r){
+  if(r.anexos().isEmpty()) return null;
+  var a=r.anexos().get(0);
+  return new com.nexo.app.modules.obras.CampoObrasApi.Arquivo(a.nome(),a.contentType(),Base64.getDecoder().decode(a.conteudoBase64()));
+ }
  private void notificarBackoffice(CasoSincronizacao c){var ids=usuarios.buscarIdsAtivosComPermissao("sincronizacao:manage");if(ids.isEmpty())return;publicador.publicar(NovaNotificacao.builder().destinatarios(new HashSet<>(ids)).origem(OrigemNotificacao.SISTEMA).categoria(CategoriaNotificacao.SISTEMA).prioridade(PrioridadeNotificacao.ALTA).titulo("Registro de campo recebido para tratamento").corpo("Um registro foi preservado e aguarda análise do backoffice.").deeplink("/sincronizacao/casos/"+c.getId()).contexto(Map.of("idCaso",c.getId().toString())).chaveIdempotencia("sincronizacao:caso:"+c.getId()).email(false).build());}
  private String hash(Object value){try{return hash(mapper.writeValueAsBytes(value));}catch(Exception e){throw new InvarianteVioladaException("Não foi possível calcular a integridade do registro.");}}
  private String hashEnvelope(OperacaoRequest r){var envelope=new LinkedHashMap<String,Object>();envelope.put("idOperacaoLocal",r.idOperacaoLocal());envelope.put("idRegistroLocal",r.idRegistroLocal());envelope.put("tipo",r.tipo().name());envelope.put("instanteOrigem",r.instanteOrigem().toString());envelope.put("payload",r.payload());envelope.put("anexos",r.anexos().stream().map(a->Map.of("idLocal",a.idLocal(),"nome",a.nome(),"contentType",a.contentType(),"sha256",a.sha256().toLowerCase(Locale.ROOT),"tamanhoBase64",a.conteudoBase64().length())).toList());return hash(envelope);}

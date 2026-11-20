@@ -26,10 +26,24 @@ public enum SituacaoLiberacao {
      */
     public static SituacaoLiberacao avaliar(UUID idObra, UUID idProgramacao, LocalDate dia, ZoneId fuso,
                                             Collection<AprTurno> aprs, Collection<OcorrenciaTurno> ocorrencias) {
+        return avaliar(idObra, idProgramacao, dia, fuso, aprs, ocorrencias, null);
+    }
+
+    /**
+     * Avaliação no momento em que a equipe fez o registro, como o aparelho informou: o que aconteceu depois (uma
+     * ocorrência impeditiva da tarde, enviada junto à noite) não muda a liberação do apontamento da manhã, e a APR
+     * concluída depois do apontamento não o libera.
+     *
+     * @param ate o instante do registro avaliado; nulo considera o dia inteiro.
+     */
+    public static SituacaoLiberacao avaliar(UUID idObra, UUID idProgramacao, LocalDate dia, ZoneId fuso,
+                                            Collection<AprTurno> aprs, Collection<OcorrenciaTurno> ocorrencias,
+                                            OffsetDateTime ate) {
         Optional<OffsetDateTime> impedimento = ocorrencias.stream()
                 .filter(o -> o.isImpedeExecucao() && idObra.equals(o.getIdObra()))
-                .map(SituacaoLiberacao::momento)
+                .map(OcorrenciaTurno::momento)
                 .filter(momento -> doDia(momento, dia, fuso))
+                .filter(momento -> ate == null || !momento.isAfter(ate))
                 .max(OffsetDateTime::compareTo);
         var doServico = aprs.stream()
                 .filter(a -> idObra.equals(a.getIdObra()) && (idProgramacao == null || idProgramacao.equals(a.getIdProgramacao())))
@@ -39,6 +53,7 @@ public enum SituacaoLiberacao {
                 .map(AprTurno::getDataConclusao)
                 .filter(Objects::nonNull)
                 .filter(momento -> doDia(momento, dia, fuso))
+                .filter(momento -> ate == null || !momento.isAfter(ate))
                 .max(OffsetDateTime::compareTo);
         if (impedimento.isPresent() && (concluida.isEmpty() || concluida.get().isBefore(impedimento.get()))) {
             return IMPEDIDA;
@@ -48,14 +63,6 @@ public enum SituacaoLiberacao {
         }
         return doServico.stream().anyMatch(a -> a.getStatus() == StatusAprTurno.RASCUNHO && doDia(a.getDataCriacao(), dia, fuso))
                 ? EM_PREENCHIMENTO : PENDENTE;
-    }
-
-    /** Ainda sem data de gravação, o registro é de agora. */
-    private static OffsetDateTime momento(OcorrenciaTurno ocorrencia) {
-        if (ocorrencia.getDataUltimaAlteracao() != null) {
-            return ocorrencia.getDataUltimaAlteracao();
-        }
-        return ocorrencia.getDataCriacao() != null ? ocorrencia.getDataCriacao() : OffsetDateTime.now();
     }
 
     private static boolean doDia(OffsetDateTime momento, LocalDate dia, ZoneId fuso) {

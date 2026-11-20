@@ -93,6 +93,50 @@ public class EvidenciaPonto extends BaseEntity {
     @Column(name = "data_captura", updatable = false)
     private OffsetDateTime dataCaptura;
 
+    /** Id gerado no aparelho; nulo na foto lançada pelo web. */
+    @Column(name = "id_local", updatable = false)
+    private UUID idLocal;
+
+    @Column(name = "hash_campo", length = 64, updatable = false)
+    private String hashCampo;
+
+    @Column(name = "recebido_em", updatable = false)
+    private OffsetDateTime recebidoEm;
+
+    @Column(name = "precisao_metros", precision = 8, scale = 1, updatable = false)
+    private BigDecimal precisao;
+
+    /** Vão fotografado; a foto de vão fica também no ponto A dele. */
+    @Column(name = "id_vao", updatable = false)
+    private UUID idVao;
+
+    @Column(name = "id_programacao", updatable = false)
+    private UUID idProgramacao;
+
+    /** O apontamento (pelo id do aparelho) que a foto comprova. */
+    @Column(name = "id_apontamento_local", updatable = false)
+    private UUID idApontamentoLocal;
+
+    /** Vínculos da foto que veio do app. */
+    public record OrigemCampo(UUID idLocal, String hash, UUID idVao, UUID idProgramacao, UUID idApontamentoLocal,
+                              BigDecimal precisao) {
+    }
+
+    /** Foto lançada pelo app, com o carimbo já desenhado no aparelho. */
+    public static EvidenciaPonto doCampo(UUID idObra, UUID idPonto, ItemRespondido item, String legenda, Arquivo arquivo,
+                                         Captura captura, OrigemCampo origem) {
+        EvidenciaPonto evidencia = new EvidenciaPonto(idObra, idPonto, item, legenda, arquivo, captura);
+        evidencia.idLocal = Objects.requireNonNull(origem.idLocal());
+        evidencia.hashCampo = origem.hash();
+        evidencia.recebidoEm = OffsetDateTime.now();
+        evidencia.idVao = origem.idVao();
+        evidencia.idProgramacao = origem.idProgramacao();
+        evidencia.idApontamentoLocal = origem.idApontamentoLocal();
+        evidencia.precisao = origem.precisao() != null && origem.precisao().signum() >= 0
+                ? origem.precisao().min(new BigDecimal("9999999")).setScale(1, RoundingMode.HALF_UP) : null;
+        return evidencia;
+    }
+
     public EvidenciaPonto(UUID idObra, UUID idPonto, ItemRespondido item, String legenda, Arquivo arquivo) {
         this(idObra, idPonto, item, legenda, arquivo, Captura.VAZIA);
     }

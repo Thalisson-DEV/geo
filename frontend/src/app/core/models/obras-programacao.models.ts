@@ -81,6 +81,8 @@ export interface PreviaProgramacao {
   /** Materiais a instalar que vão para o almoxarifado ao programar (somados por material). */
   materiaisASolicitar: number;
   tipoObra: string;
+  /** Obra sem coordenada nem endereço: a equipe não terá "Como chegar" no app. */
+  obraSemLocalizacao?: boolean;
 }
 
 export interface CondicoesProgramacao {
@@ -91,6 +93,10 @@ export interface CondicoesProgramacao {
   turno: TurnoProgramacao;
   situacaoIntervencao: SituacaoIntervencao;
   observacao?: string | null;
+  /** Janela prevista do desligamento (HH:mm) e número da manobra; só com desligamento. */
+  horaDesligamentoInicio?: string | null;
+  horaDesligamentoFim?: string | null;
+  numeroManobra?: string | null;
 }
 
 export interface ProgramarRequest extends CondicoesProgramacao {

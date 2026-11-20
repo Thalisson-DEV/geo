@@ -12,7 +12,10 @@ public final class SincronizacaoDtos {
  public record OperacaoRequest(@NotNull UUID idOperacaoLocal, UUID idRegistroLocal,@NotNull TipoOperacaoSincronizacao tipo,@NotNull OffsetDateTime instanteOrigem,@NotNull Map<String,Object> payload,@Valid List<AnexoRequest> anexos,String erroOrigem){
   public OperacaoRequest { anexos=anexos==null?List.of():List.copyOf(anexos); if(anexos.size()>20) throw new IllegalArgumentException("No máximo 20 anexos por operação."); }
  }
- public record OperacaoResponse(UUID idOperacaoLocal,UUID idRegistroLocal,TipoOperacaoSincronizacao tipo,StatusOperacaoSincronizacao status,boolean backofficeInformado,UUID idCaso,String hashOriginal,int tentativas){}
+ /** {@code motivo}: por que o registro ficou para o backoffice (só quando não foi aplicado); {@code idsRegistros}: o que a aplicação imediata gravou. */
+ public record OperacaoResponse(UUID idOperacaoLocal,UUID idRegistroLocal,TipoOperacaoSincronizacao tipo,StatusOperacaoSincronizacao status,boolean backofficeInformado,UUID idCaso,String hashOriginal,int tentativas,String motivo,List<UUID> idsRegistros){
+  public OperacaoResponse(UUID idOperacaoLocal,UUID idRegistroLocal,TipoOperacaoSincronizacao tipo,StatusOperacaoSincronizacao status,boolean backofficeInformado,UUID idCaso,String hashOriginal,int tentativas){this(idOperacaoLocal,idRegistroLocal,tipo,status,backofficeInformado,idCaso,hashOriginal,tentativas,null,List.of());}
+ }
  public record AtribuicaoRequest(@NotNull UUID idResponsavel){}
  public record CorrecaoRequest(@NotNull Map<String,Object> payload,@NotBlank @Size(max=4000) String justificativa){}
  public record ReprocessamentoRequest(@NotBlank @Size(max=4000) String justificativa){}

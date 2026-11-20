@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,13 +53,16 @@ public final class ProgramacaoRequests {
             @NotNull(message = "Informe a situação da intervenção") SituacaoIntervencao situacaoIntervencao,
             @Size(max = 1000) String observacao,
             UUID idAlmoxarifadoAtendimento,
-            @Size(max = 100) String ocorrencia) {
+            @Size(max = 100) String ocorrencia,
+            @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoInicio,
+            @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoFim,
+            @Size(max = 50) String numeroManobra) {
 
         public Programar(List<UUID> idsItens, UUID idEquipe, LocalDate inicio, LocalDate fim, String descricao,
                          Boolean linhaViva, Boolean desligamento, Boolean finalizaObra, TurnoProgramacao turno,
                          SituacaoIntervencao situacaoIntervencao, String observacao) {
             this(idsItens, idEquipe, inicio, fim, descricao, linhaViva, desligamento, finalizaObra, turno,
-                    situacaoIntervencao, observacao, null, null);
+                    situacaoIntervencao, observacao, null, null, null, null, null);
         }
 
         public Programacao.Condicoes condicoes() {
@@ -74,7 +78,10 @@ public final class ProgramacaoRequests {
             @NotNull(message = "Informe o turno") TurnoProgramacao turno,
             @NotNull(message = "Informe a situação da intervenção") SituacaoIntervencao situacaoIntervencao,
             @Size(max = 1000) String observacao,
-            Long versao) {
+            Long versao,
+            @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoInicio,
+            @JsonFormat(pattern = "HH:mm") LocalTime horaDesligamentoFim,
+            @Size(max = 50) String numeroManobra) {
 
         public Programacao.Condicoes condicoes() {
             return new Programacao.Condicoes(descricao, linhaViva, desligamento, finalizaObra, turno, situacaoIntervencao, observacao);

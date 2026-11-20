@@ -8,6 +8,7 @@ import com.nexo.app.modules.obras.domain.ApontamentoExecucao;
 import com.nexo.app.modules.obras.domain.AtividadeTurno;
 import com.nexo.app.modules.obras.domain.Obra;
 import com.nexo.app.modules.obras.domain.Programacao;
+import com.nexo.app.modules.obras.domain.RegistroCampo;
 import com.nexo.app.modules.obras.domain.SituacaoLiberacao;
 import com.nexo.app.modules.obras.infrastructure.persistence.ApontamentoExecucaoRepository;
 import com.nexo.app.modules.obras.infrastructure.persistence.AprTurnoRepository;
@@ -66,7 +67,7 @@ public class ApontamentoExecucaoUseCases {
             throw new InvarianteVioladaException("A data do apontamento não pode ser no futuro.");
         }
         UUID idTurno = turnoDoApontamento(programacao, request.idTurno(), request.data());
-        exigirLiberacao(programacao, idTurno, request.data());
+        exigirLiberacao(programacao, idTurno, request.data(), null);
         boolean primeiroDaObra = !repository.existsByIdObraAndAtivoTrue(programacao.getIdObra());
 
         for (TurnoObraRequests.LinhaApontamento linha : request.itens()) {
@@ -83,6 +84,53 @@ public class ApontamentoExecucaoUseCases {
         }
         repository.flush();
         return programacaoUseCases.buscarPorId(idProgramacao);
+    }
+
+    /**
+     * Apontamento que veio do app. A liberação é avaliada no momento informado pelo aparelho: a APR concluída às 08:10
+     * libera o apontamento das 10:30 mesmo que os dois cheguem juntos à noite.
+     *
+     * @param idLocal ponto ou vão do "Tudo feito"; com ele e {@code pontoInteiro}, as linhas são ignoradas.
+     */
+    @Transactional
+    @CacheEvict(cacheNames = CacheNames.OBRAS, allEntries = true)
+    public List<ApontamentoExecucao> apontarDoCampo(UUID idProgramacao, UUID idTurno, RegistroCampo campo, UUID idLocal,
+                                                    boolean pontoInteiro, List<TurnoObraRequests.LinhaApontamento> linhas) {
+        Programacao programacao = buscarProgramacao(idProgramacao);
+        OffsetDateTime momento = campo.momentoConfiavel();
+        LocalDate data = momento.atZoneSameInstant(FUSO).toLocalDate();
+        UUID turno = turnoDoApontamento(programacao, idTurno, data);
+        exigirLiberacao(programacao, turno, data, momento);
+        boolean primeiroDaObra = !repository.existsByIdObraAndAtivoTrue(programacao.getIdObra());
+
+        List<ApontamentoExecucao> criados = new java.util.ArrayList<>();
+        if (pontoInteiro) {
+            criados.addAll(programacao.apontarLocalInteiro(idLocal, data, turno));
+            if (criados.isEmpty()) {
+                throw new InvarianteVioladaException("Tudo deste ponto já estava apontado na programação #" + programacao.getNumero() + ".");
+            }
+        } else {
+            if (linhas == null || linhas.isEmpty()) {
+                throw new InvarianteVioladaException("Informe ao menos um item.");
+            }
+            for (TurnoObraRequests.LinhaApontamento linha : linhas) {
+                criados.add(programacao.apontar(linha.idItem(), linha.quantidade(), data, turno, linha.justificativa()));
+            }
+        }
+        for (ApontamentoExecucao apontamento : criados) {
+            apontamento.registrarOrigemCampo(campo, idLocal, pontoInteiro);
+            ApontamentoExecucao salvo = repository.save(apontamento);
+            eventPublisher.publishEvent(new ItemExecutadoEvent(salvo.getId(), salvo.getItemPlanejado().getId(), programacao.getIdObra(),
+                    programacao.getId(), programacao.getIdEquipe(), turno, data, salvo.getQuantidade(), salvo.getValorTotal()));
+        }
+        if (!atividadeRepository.existsByIdTurnoAndIdProgramacaoAndAtivoTrue(turno, programacao.getId())) {
+            atividadeRepository.save(new AtividadeTurno(turno, programacao.getIdObra(), programacao.getId(), null));
+        }
+        if (primeiroDaObra) {
+            colocarObraEmExecucao(programacao.getIdObra());
+        }
+        repository.flush();
+        return criados;
     }
 
     @Transactional
@@ -110,7 +158,7 @@ public class ApontamentoExecucaoUseCases {
     }
 
     /** A APR pode ter sido feita em outro turno do mesmo dia: vale o dia da equipe, não só o turno do apontamento. */
-    private void exigirLiberacao(Programacao programacao, UUID idTurno, LocalDate data) {
+    private void exigirLiberacao(Programacao programacao, UUID idTurno, LocalDate data, OffsetDateTime ate) {
         if (idTurno == null) {
             throw new InvarianteVioladaException("A equipe não tem turno nessa data. Abra o turno e conclua a APR antes de apontar.");
         }
@@ -119,7 +167,7 @@ public class ApontamentoExecucaoUseCases {
         turnoApi.listarSobrepostosAoPeriodo(inicio, inicio.plusDays(1), List.of(programacao.getIdEquipe()))
                 .forEach(turno -> turnosDoDia.add(turno.id()));
         SituacaoLiberacao situacao = SituacaoLiberacao.avaliar(programacao.getIdObra(), programacao.getId(), data, FUSO,
-                aprRepository.findByIdTurnoInAndAtivoTrue(turnosDoDia), ocorrenciaRepository.findByIdTurnoInAndAtivoTrue(turnosDoDia));
+                aprRepository.findByIdTurnoInAndAtivoTrue(turnosDoDia), ocorrenciaRepository.findByIdTurnoInAndAtivoTrue(turnosDoDia), ate);
         if (situacao == SituacaoLiberacao.IMPEDIDA) {
             throw new InvarianteVioladaException("Foi registrado que o serviço nessa obra não tem condição de ser feito. Conclua uma nova APR ou retire o impedimento antes de apontar.");
         }

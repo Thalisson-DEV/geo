@@ -58,4 +58,13 @@ public interface ProgramacaoRepository extends JpaRepository<Programacao, UUID> 
             """)
     List<ValorProgramado> somarNoPeriodo(@Param("idsEquipes") Collection<UUID> idsEquipes,
                                          @Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);
+
+    /** Agenda de uma equipe na janela, com os itens; inclui canceladas para o app saber que saíram. */
+    @Query("""
+            select distinct p from Programacao p left join fetch p.itens i left join fetch i.itemPlanejado ip
+            left join fetch ip.kitAplicado
+            where p.idEquipe = :idEquipe and p.dataInicio <= :fim and p.dataFim >= :inicio
+            """)
+    List<Programacao> listarDaEquipeNoPeriodoComItens(@Param("idEquipe") UUID idEquipe,
+                                                      @Param("inicio") LocalDate inicio, @Param("fim") LocalDate fim);
 }

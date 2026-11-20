@@ -3,18 +3,18 @@
 
 ## A. Backend: contrato offline de Obras
 
-- [ ] A.1 Ids gerados no aparelho e idempotência em APR, conclusão de APR, ocorrência, atividade e apontamento (reenvio igual devolve o registro; conteúdo diferente com o mesmo id é recusado)
-- [ ] A.2 Avaliação da liberação pela data/hora de origem do aparelho, aceitando a cadeia APR → conclusão → apontamento enviada de uma vez
-- [ ] A.3 Comando "ponto inteiro": aponta o restante programado de todos os itens do ponto na programação
-- [ ] A.4 Data/hora do aparelho e do servidor, latitude, longitude e precisão em apontamento, APR, ocorrência e evidência
-- [ ] A.5 Chegada/saída da equipe na obra (entidade, comando idempotente, consulta por turno)
-- [ ] A.6 Pacote da equipe `GET /v1/obras/campo/pacote?desde=` (programações hoje + 7 dias, obras, planejamento compacto, kits, modelos de APR/foto, versões de PDF) restrito à equipe do usuário; download do PDF por hash
-- [ ] A.7 Tipos `OBRA_*` no envio durável e adaptadores no módulo de Obras, com diagnósticos traduzidos
-- [ ] A.8 Evidência por ponto/vão com id do aparelho, vínculo ao apontamento, etapa e carimbo; pendências de foto calculadas por modelo
-- [ ] A.9 Endereço/referência da obra; horário previsto e número da manobra na programação com desligamento (migração + web)
+- [x] A.1 Ids gerados no aparelho e idempotência em APR, conclusão de APR, ocorrência, atividade e apontamento (reenvio igual devolve o registro; conteúdo diferente com o mesmo id é recusado)
+- [x] A.2 Avaliação da liberação pela data/hora de origem do aparelho, aceitando a cadeia APR → conclusão → apontamento enviada de uma vez
+- [x] A.3 Comando "ponto inteiro": aponta o restante programado de todos os itens do ponto na programação
+- [x] A.4 Data/hora do aparelho e do servidor, latitude, longitude e precisão em apontamento, APR, ocorrência e evidência
+- [x] A.5 Chegada/saída da equipe na obra (entidade, comando idempotente, consulta por turno)
+- [x] A.6 Pacote da equipe `GET /v1/obras/campo/pacote?desde=` (programações hoje + 7 dias, obras, planejamento compacto, kits, modelos de APR/foto, versões de PDF) restrito à equipe do usuário; download do PDF por hash
+- [x] A.7 Tipos `OBRA_*` no envio durável e adaptadores no módulo de Obras, com diagnósticos traduzidos
+- [x] A.8 Evidência por ponto/vão com id do aparelho, vínculo ao apontamento, etapa e carimbo; pendências de foto calculadas por modelo
+- [x] A.9 Endereço/referência da obra; horário previsto e número da manobra na programação com desligamento (migração + web)
 - [ ] ~~A.10 `idProgramacao` na solicitação técnica de material~~ — fora: a equipe não pede material (vem da programação ou de solicitação manual no web)
-- [ ] A.11 Perfil da equipe de Obras com `obras:turno:write` e `obras:execucao:write`; composição (líder e substitutos) ao abrir o turno (`Turno.informarComposicao`)
-- [ ] A.12 Eventos de mudança de programação para aviso à equipe (Web Push com chave VAPID e assinatura por aparelho)
+- [x] A.11 Perfil da equipe de Obras com `obras:turno:write` e `obras:execucao:write`; composição (líder e substitutos) ao abrir o turno (`Turno.informarComposicao`)
+- [x] A.12 Eventos de mudança de programação para aviso à equipe (Web Push com chave VAPID e assinatura por aparelho)
 
 ## B. App: base de Obras (depende da fundação do app)
 

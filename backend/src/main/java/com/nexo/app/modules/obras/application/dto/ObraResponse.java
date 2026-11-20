@@ -29,6 +29,8 @@ public record ObraResponse(
         @JsonFormat(pattern = "dd/MM/yyyy") LocalDate dataFimEfetiva,
         Double latitude,
         Double longitude,
+        String endereco,
+        String referencia,
         UUID processoId,
         String processoNome,
         UUID baseOperacionalId,

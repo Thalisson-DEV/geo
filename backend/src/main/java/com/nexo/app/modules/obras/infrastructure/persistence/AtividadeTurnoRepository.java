@@ -17,4 +17,6 @@ public interface AtividadeTurnoRepository extends JpaRepository<AtividadeTurno, 
     boolean existsByIdTurnoAndIdProgramacaoAndAtivoTrue(UUID idTurno, UUID idProgramacao);
 
     boolean existsByIdTurnoAndIdObraAndIdProgramacaoIsNullAndAtivoTrue(UUID idTurno, UUID idObra);
+
+    Optional<AtividadeTurno> findByCampoIdLocal(UUID idLocal);
 }

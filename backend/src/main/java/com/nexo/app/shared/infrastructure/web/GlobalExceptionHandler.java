@@ -151,6 +151,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(com.nexo.app.shared.domain.exception.IdLocalReutilizadoException.class)
+    public ProblemDetail handleIdLocalReutilizado(com.nexo.app.shared.domain.exception.IdLocalReutilizadoException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getStatus(), ex.getMessage());
+        problemDetail.setTitle(ex.getTitle());
+        problemDetail.setType(ex.getType());
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("code", com.nexo.app.shared.domain.exception.IdLocalReutilizadoException.CODIGO);
+        return problemDetail;
+    }
+
     @ExceptionHandler(BaseBusinessException.class)
     public ProblemDetail handleBusinessException(BaseBusinessException ex) {
         ProblemDetail problemDetail = ProblemDetail

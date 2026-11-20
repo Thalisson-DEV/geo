@@ -63,6 +63,10 @@
     <div class="geo-form-grid">
       <geo-number-input label="Latitude" [(value)]="latitude" [minFractionDigits]="6" [maxFractionDigits]="6" placeholder="Ex.: -9,416667" [showOptional]="true"></geo-number-input>
       <geo-number-input label="Longitude" [(value)]="longitude" [minFractionDigits]="6" [maxFractionDigits]="6" placeholder="Ex.: -40,500000" [showOptional]="true"></geo-number-input>
+      <geo-text-input class="obra-form__larga" label="Endereço" [(value)]="endereco" [maxlength]="500" [showOptional]="true"
+        placeholder="Rua, número, bairro ou estrada" description="A equipe usa no &quot;Como chegar&quot; do app quando não há coordenada."></geo-text-input>
+      <geo-text-input class="obra-form__larga" label="Ponto de referência" [(value)]="referencia" [maxlength]="500" [showOptional]="true"
+        placeholder="Ex.: ao lado do posto, entrada pela estrada de terra"></geo-text-input>
     </div>
   </geo-form-section>
 

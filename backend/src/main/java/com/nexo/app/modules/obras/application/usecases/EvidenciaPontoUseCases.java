@@ -67,6 +67,32 @@ public class EvidenciaPontoUseCases {
                 new EvidenciaPonto.Arquivo(nome, contentType, conteudo.length, chave, chaveMiniatura), captura)).getId();
     }
 
+    /**
+     * Foto que veio do app, já com o carimbo desenhado no aparelho. Foto de vão fica no ponto A dele, com o vão
+     * informado.
+     */
+    @Transactional
+    public EvidenciaPonto registrarDoCampo(UUID idObra, UUID idPonto, UUID idModelo, String idItem, String legenda,
+                                           byte[] conteudo, String nomeArquivo, String contentType,
+                                           EvidenciaPonto.Captura captura, EvidenciaPonto.OrigemCampo origem) {
+        pontoRepository.findByIdAndIdObraAndAtivoTrue(idPonto, idObra)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Ponto não encontrado nesta obra."));
+        if (conteudo == null || conteudo.length == 0) {
+            throw new InvarianteVioladaException("A foto chegou vazia.");
+        }
+        EvidenciaPonto.ItemRespondido item = idItem == null || idItem.isBlank() ? null : itemDoModelo(idPonto, idModelo, idItem);
+        byte[] miniatura = FotoEvidencia.jpeg(FotoEvidencia.ler(conteudo), FotoEvidencia.LADO_MINIATURA, 0.75f);
+        String nome = nomeSeguro(nomeArquivo);
+        String tipo = contentType != null ? contentType : "image/jpeg";
+        String base = "obras/" + idObra + "/book/" + idPonto + "/" + origem.idLocal();
+        String chave = base + "_" + nome;
+        String chaveMiniatura = base + "_miniatura.jpg";
+        objectStorage.enviar(chave, new ByteArrayInputStream(conteudo), conteudo.length, tipo);
+        objectStorage.enviar(chaveMiniatura, new ByteArrayInputStream(miniatura), miniatura.length, "image/jpeg");
+        return repository.save(EvidenciaPonto.doCampo(idObra, idPonto, item, legenda,
+                new EvidenciaPonto.Arquivo(nome, tipo, conteudo.length, chave, chaveMiniatura), captura, origem));
+    }
+
     @Transactional
     public void classificarEtapa(UUID idObra, UUID idEvidencia, EvidenciaPonto.Etapa etapa) {
         EvidenciaPonto evidencia = buscar(idObra, idEvidencia);

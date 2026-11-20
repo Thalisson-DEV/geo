@@ -23,7 +23,7 @@ import { ObrasService } from '../../../core/services/obras.service';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { SolicitacaoMaterialTecnicaService } from '../../../core/services/solicitacao-material-tecnica.service';
 import { formatarDataParaApi, formatarMoeda, parseDataBrParaDate } from '../obras-ui';
-import { CondicoesProgramacaoComponent } from './condicoes-programacao.component';
+import { CondicoesProgramacaoComponent, camposDesligamento } from './condicoes-programacao.component';
 import { EquipesProjecaoComponent } from './equipes-projecao.component';
 import { proximoDiaDeSemana, sugerirDescricao } from './programacao.logic';
 import { locaisProgramaveis } from './programar.logic';
@@ -116,6 +116,9 @@ import { locaisProgramaveis } from './programar.logic';
           @if (p.servicosSemValor) {
             <geo-callout tone="warning" [dense]="true">Sem valor vigente no início, fora da soma: {{ p.nomesServicosSemValor.join(', ') }}. Confira as Ações do contrato.</geo-callout>
           }
+          @if (p.obraSemLocalizacao) {
+            <geo-callout tone="warning" [dense]="true">A obra não tem coordenada nem endereço: a equipe não terá "Como chegar" no app. Cadastre a localização na obra.</geo-callout>
+          }
           @if (!p.itens) {
             <geo-callout tone="danger" [dense]="true">Nenhum item pendente nesta seleção.</geo-callout>
           }
@@ -139,7 +142,8 @@ import { locaisProgramaveis } from './programar.logic';
 
       <geo-form-section title="Condições da intervenção" icon="pi pi-bolt" description="Linha viva e desligamento precisam de resposta a cada programação.">
         <app-condicoes-programacao [validar]="tentou()" [(linhaViva)]="linhaViva" [(desligamento)]="desligamento"
-          [(finalizaObra)]="finalizaObra" [(turno)]="turno" [(situacaoIntervencao)]="situacaoIntervencao" [(observacao)]="observacao"></app-condicoes-programacao>
+          [(finalizaObra)]="finalizaObra" [(turno)]="turno" [(situacaoIntervencao)]="situacaoIntervencao" [(observacao)]="observacao"
+          [(horaDesligamentoInicio)]="horaDesligamentoInicio" [(horaDesligamentoFim)]="horaDesligamentoFim" [(numeroManobra)]="numeroManobra"></app-condicoes-programacao>
       </geo-form-section>
 
       @if (materiaisASolicitar(); as qtd) {
@@ -216,6 +220,9 @@ export class ProgramarDrawerComponent {
   protected readonly descricao = signal('');
   protected readonly linhaViva = signal<boolean | null>(null);
   protected readonly desligamento = signal<boolean | null>(null);
+  protected readonly horaDesligamentoInicio = signal('');
+  protected readonly horaDesligamentoFim = signal('');
+  protected readonly numeroManobra = signal('');
   protected readonly finalizaObra = signal<boolean | null>(null);
   protected readonly turno = signal<TurnoProgramacao | null>(null);
   protected readonly situacaoIntervencao = signal<SituacaoIntervencao | null>(null);
@@ -358,6 +365,9 @@ export class ProgramarDrawerComponent {
     this.descricaoEditada = false;
     this.linhaViva.set(null);
     this.desligamento.set(null);
+    this.horaDesligamentoInicio.set('');
+    this.horaDesligamentoFim.set('');
+    this.numeroManobra.set('');
     this.finalizaObra.set(false);
     this.turno.set('DIA_TODO');
     this.situacaoIntervencao.set(null);
@@ -527,7 +537,8 @@ export class ProgramarDrawerComponent {
       situacaoIntervencao: situacao,
       observacao: this.observacao().trim() || null,
       idAlmoxarifadoAtendimento: comMaterial ? this.idAlmoxarifado() : null,
-      ocorrencia: comMaterial && this.exigeOcorrencia() ? this.ocorrencia().trim() : null
+      ocorrencia: comMaterial && this.exigeOcorrencia() ? this.ocorrencia().trim() : null,
+      ...camposDesligamento(desligamento, this.horaDesligamentoInicio(), this.horaDesligamentoFim(), this.numeroManobra())
     }).subscribe({
       next: (resultado) => {
         this.salvando.set(false);

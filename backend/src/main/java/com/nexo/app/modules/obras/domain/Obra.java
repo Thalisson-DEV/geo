@@ -95,6 +95,14 @@ public class Obra extends BaseEntity {
     @Column(name = "longitude")
     private Double longitude;
 
+    /** Endereço em texto, para a equipe chegar sem coordenada. */
+    @Column(name = "endereco", length = 500)
+    private String endereco;
+
+    /** Ponto de referência ("ao lado do posto", "entrada pela estrada de terra"). */
+    @Column(name = "referencia", length = 500)
+    private String referencia;
+
     @NotNull(message = "O processo de negócio da obra é obrigatório")
     @Column(name = "id_processo", nullable = false)
     private UUID idProcesso;
@@ -444,6 +452,18 @@ public class Obra extends BaseEntity {
         }
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    /** Endereço e referência em texto; vazio vira nulo. */
+    public void informarEndereco(String endereco, String referencia) {
+        validarAtivo();
+        this.endereco = endereco != null && !endereco.isBlank() ? endereco.trim() : null;
+        this.referencia = referencia != null && !referencia.isBlank() ? referencia.trim() : null;
+    }
+
+    /** A equipe consegue chegar: tem coordenada ou endereço. */
+    public boolean possuiLocalizacao() {
+        return possuiCoordenadas() || endereco != null;
     }
 
     public boolean possuiCoordenadas() {

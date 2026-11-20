@@ -63,6 +63,37 @@ Equipes de Obras são separadas das comerciais.
 - **Status da equipe**: cálculo no backend a partir de eventos (turno, chegada/saída, apontamento, telemetria) com regras
   configuráveis (raio da base, raio da obra, minutos de inatividade).
 
+## Decisões tomadas na implementação (20/11/2026)
+
+- **Id do aparelho em coluna própria (`id_local`)**, não como chave primária: a `BaseEntity` gera o UUID pelo Hibernate.
+  Cada registro de campo guarda também `hash_campo` (SHA-256 do comando sem o turno), `data_origem`, `recebido_em`, GPS e
+  precisão (`RegistroCampo`, embutido). O apontamento usa o par (`id_local`, item), porque um comando gera um apontamento por
+  item. Reuso do id com outro conteúdo responde 409 `ID_LOCAL_REUTILIZADO`.
+- **O turno não entra no hash** e pode vir vazio ou com o id provisório do aparelho: o servidor usa o turno que a equipe tinha
+  aberto no instante do registro. Assim o reenvio depois da troca de ids não vira conflito.
+- **Liberação no instante de origem** (`SituacaoLiberacao.avaliar(..., ate)`): só contam APR concluída e ocorrência impeditiva
+  até a hora do apontamento. A conclusão vinda do app grava a hora do aparelho (nunca no futuro). Relógio do aparelho adiantado
+  mais de 10 min vira a hora do servidor (`RegistroCampo.momentoConfiavel`).
+- **Envio durável aplica na hora.** Os tipos `OBRA_*` são gravados como operação durável e aplicados em transação própria pelo
+  `CampoObrasApi`; deu certo → `RESOLVIDO`, sem caso; recusou → caso no backoffice com o motivo, devolvido ao app em
+  `motivo`. O reprocessamento do backoffice usa o mesmo adaptador. Diagnósticos próprios (`OBRA_SEM_APR`,
+  `OBRA_PROGRAMACAO_ALTERADA`, `OBRA_SEM_TURNO`…). Também há a API direta `/v1/obras/campo/*`.
+- **Hash do PDF** = SHA-256 da chave do armazenamento + tamanho (a chave muda a cada envio do arquivo); o PDF é baixado por
+  `/v1/obras/campo/obras/{id}/projeto` (só obras na agenda da equipe).
+- **Pacote**: o encarregado recebe a própria equipe (outra → 403); supervisor/backoffice informam `idEquipe`. Com `desde`, vão
+  as programações criadas/alteradas, com evento ou com item executado depois disso; canceladas, excluídas e passadas a outra
+  equipe vão em `programacoesRemovidas`. Avisos = eventos de programação da equipe.
+- **Opções da APR no servidor** (`modeloApr` no pacote), com sugestões por condição (`SEMPRE`, `DESLIGAMENTO`, `LINHA_VIVA`,
+  `PODA`, `ATERRAMENTO`), a validar com o SST.
+- **Pendência de foto** = item obrigatório do modelo do ponto (ficha As Built ou o primeiro modelo usado na obra) sem foto,
+  em ponto com algum item executado. Calculada no servidor (pacote e `/obras/{id}/pendencias-foto`) e no app.
+- **Web Push sem biblioteca**: aes128gcm e VAPID com a criptografia do JDK (`WebPushService`). Sem `PUSH_VAPID_*`, fica
+  desligado e os avisos chegam pelo pacote ao abrir. A assinatura guarda a equipe do usuário; os avisos saem depois do commit
+  da mudança de programação.
+- **Perfil `EQUIPE_OBRAS`** com `obras:turno:read/write`, `obras:execucao:write` e `obras:campo:read` (nova, também para
+  administrador e supervisor, só leitura do pacote). Os perfis do web continuam sem escrita de turno/execução (V205).
+- **Abertura do turno** aceita `dataInicio` (hora do aparelho, até 24 h atrás), `idLider` e `idsSubstitutos`.
+
 ## Risks / Trade-offs
 
 - [Armazenamento com PDFs grandes / iOS limpando dados] → armazenamento persistente, só obras programadas, limpeza automática,

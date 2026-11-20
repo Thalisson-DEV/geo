@@ -122,6 +122,8 @@ export interface ObraResponse {
   dataFimEfetiva?: string | null; // dd/MM/yyyy
   latitude?: number;
   longitude?: number;
+  endereco?: string | null;
+  referencia?: string | null;
   processoId?: string;
   processoNome?: string;
   baseOperacionalId?: string;
@@ -253,6 +255,8 @@ export interface ObraRequest {
   dataFimEfetiva?: string | null; // dd/MM/yyyy
   latitude?: number;
   longitude?: number;
+  endereco?: string | null;
+  referencia?: string | null;
   idProcesso: string;
   idBaseOperacional: string;
   idMunicipio: string;

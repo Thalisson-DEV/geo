@@ -20,7 +20,7 @@ import { EquipeProjetada, EventoProgramacao, ItemProgramado, ProgramacaoDetalhe,
 import { AuthService } from '../../../core/services/auth.service';
 import { ObrasProgramacaoService } from '../../../core/services/obras-programacao.service';
 import { formatarDataHora, formatarDataParaApi, formatarMoeda, parseDataBrParaDate } from '../obras-ui';
-import { CondicoesProgramacaoComponent } from './condicoes-programacao.component';
+import { CondicoesProgramacaoComponent, camposDesligamento } from './condicoes-programacao.component';
 import { EquipesProjecaoComponent } from './equipes-projecao.component';
 import { ROTULO_INTERVENCAO, ROTULO_TURNO, SITUACAO_PROGRAMACAO, TIPO_EVENTO, formatarNumero, lerEvento } from './programacao.logic';
 
@@ -71,7 +71,8 @@ function realizadoDo(item: ItemProgramado): number {
               <geo-text-input label="Descrição do planejamento" [required]="true" [maxlength]="500" [(value)]="descricao"
                 [error]="tentou() && !descricao().trim() ? 'Informe a descrição do planejamento.' : undefined"></geo-text-input>
               <app-condicoes-programacao [validar]="tentou()" [(linhaViva)]="linhaViva" [(desligamento)]="desligamento"
-                [(finalizaObra)]="finalizaObra" [(turno)]="turno" [(situacaoIntervencao)]="situacaoIntervencao" [(observacao)]="observacao"></app-condicoes-programacao>
+                [(finalizaObra)]="finalizaObra" [(turno)]="turno" [(situacaoIntervencao)]="situacaoIntervencao" [(observacao)]="observacao"
+          [(horaDesligamentoInicio)]="horaDesligamentoInicio" [(horaDesligamentoFim)]="horaDesligamentoFim" [(numeroManobra)]="numeroManobra"></app-condicoes-programacao>
             </geo-form-section>
           }
           @case ('reprogramar') {
@@ -116,7 +117,7 @@ function realizadoDo(item: ItemProgramado): number {
               </dl>
               <ul class="pd-tags" aria-label="Condições da intervenção">
                 <li [attr.data-ativo]="programacao.linhaViva"><i class="pi pi-bolt" aria-hidden="true"></i> {{ programacao.linhaViva ? 'Linha viva' : 'Sem linha viva' }}</li>
-                <li [attr.data-ativo]="programacao.desligamento"><i class="pi pi-power-off" aria-hidden="true"></i> {{ programacao.desligamento ? 'Com desligamento' : 'Sem desligamento' }}</li>
+                <li [attr.data-ativo]="programacao.desligamento"><i class="pi pi-power-off" aria-hidden="true"></i> {{ programacao.desligamento ? 'Com desligamento' : 'Sem desligamento' }}@if (programacao.desligamento && (programacao.horaDesligamentoInicio || programacao.numeroManobra)) {<span> ({{ programacao.horaDesligamentoInicio ?? '' }}{{ programacao.horaDesligamentoFim ? '–' + programacao.horaDesligamentoFim : '' }}{{ programacao.numeroManobra ? ' · manobra ' + programacao.numeroManobra : '' }})</span>}</li>
                 @if (programacao.finalizaObra) { <li data-ativo="true"><i class="pi pi-flag" aria-hidden="true"></i> Finaliza a obra</li> }
                 <li><i class="pi pi-file-check" aria-hidden="true"></i> Intervenção: {{ rotuloIntervencao[programacao.situacaoIntervencao] }}</li>
               </ul>
@@ -344,6 +345,9 @@ export class ProgramacaoDetalheComponent {
   protected readonly descricao = signal('');
   protected readonly linhaViva = signal<boolean | null>(null);
   protected readonly desligamento = signal<boolean | null>(null);
+  protected readonly horaDesligamentoInicio = signal('');
+  protected readonly horaDesligamentoFim = signal('');
+  protected readonly numeroManobra = signal('');
   protected readonly finalizaObra = signal<boolean | null>(null);
   protected readonly turno = signal<TurnoProgramacao | null>(null);
   protected readonly situacaoIntervencao = signal<SituacaoIntervencao | null>(null);
@@ -478,6 +482,9 @@ export class ProgramacaoDetalheComponent {
       this.descricao.set(p.descricao);
       this.linhaViva.set(p.linhaViva);
       this.desligamento.set(p.desligamento);
+      this.horaDesligamentoInicio.set(p.horaDesligamentoInicio ?? '');
+      this.horaDesligamentoFim.set(p.horaDesligamentoFim ?? '');
+      this.numeroManobra.set(p.numeroManobra ?? '');
       this.finalizaObra.set(p.finalizaObra);
       this.turno.set(p.turno);
       this.situacaoIntervencao.set(p.situacaoIntervencao);
@@ -527,7 +534,8 @@ export class ProgramacaoDetalheComponent {
     if (!this.descricao().trim() || linhaViva === null || desligamento === null || finalizaObra === null || !turno || !situacao) return;
     this.gravar(this.api.editar(p.id, {
       descricao: this.descricao().trim(), linhaViva, desligamento, finalizaObra, turno,
-      situacaoIntervencao: situacao, observacao: this.observacao().trim() || null
+      situacaoIntervencao: situacao, observacao: this.observacao().trim() || null,
+      ...camposDesligamento(desligamento, this.horaDesligamentoInicio(), this.horaDesligamentoFim(), this.numeroManobra())
     }, p.versao), 'Programação atualizada.');
   }
 

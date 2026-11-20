@@ -121,4 +121,6 @@ public interface ApontamentoExecucaoRepository extends JpaRepository<Apontamento
             group by a.idObra
             """)
     List<Object[]> somarValorPorObra(@Param("ids") Collection<UUID> ids);
+
+    List<ApontamentoExecucao> findByCampoIdLocal(UUID idLocal);
 }

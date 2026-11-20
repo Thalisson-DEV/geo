@@ -63,6 +63,7 @@ public class DiagnosticoCasoSincronizacao {
   String erro = limpar(ultimoErro(c));
   String lower = erro.toLowerCase(Locale.ROOT);
   if (semTurnoAberto(c)) return completo ? semTurno(payload, erro) : resumoSemTurno(erro);
+  if (c.getOperacao().getTipo().deObras()) { var obra = obras(lower, erro); if (obra != null) return obra; }
   if (lower.contains("já foi registrado nesta execução")) return serieRepetida(payload, erro);
   if (lower.contains("já foi adicionada a esta execução")) return new DiagnosticoResponse("ACAO_REPETIDA", "Serviço repetido na nota", erro,
           "A mesma ação foi informada duas vezes. Em Corrigir, deixe a ação uma vez só e reenvie.", AcaoRecomendada.CORRIGIR);
@@ -82,6 +83,23 @@ public class DiagnosticoCasoSincronizacao {
           "Confira os dados e reenvie sem alterar.", AcaoRecomendada.REENVIAR);
   return new DiagnosticoResponse("OUTRO", "Registro recusado pelo servidor", erro.isBlank() ? "O servidor não informou o motivo." : erro,
           "Confira os dados abaixo com a equipe. Corrija o que estiver errado e reenvie, ou descarte se o registro não deve entrar.", AcaoRecomendada.CONFERIR);
+ }
+
+ /** Recusas dos registros de Obras do app, na linguagem de quem acompanha a equipe. */
+ static DiagnosticoResponse obras(String lower, String erro) {
+  if (lower.contains("apr deste serviço precisa estar concluída") || lower.contains("apr ainda não chegou")) return new DiagnosticoResponse("OBRA_SEM_APR", "Apontamento sem APR concluída", erro,
+          "A APR do serviço não chegou ou foi concluída depois do apontamento. Confira a APR do dia no turno; quando ela entrar, reenvie sem alterar.", AcaoRecomendada.CONFERIR);
+  if (lower.contains("não tem condição de ser feito")) return new DiagnosticoResponse("OBRA_IMPEDIDA", "Serviço registrado como sem condição", erro,
+          "A equipe registrou que não havia condição de executar antes deste apontamento. Confirme com a equipe o que foi feito; descarte se o serviço não aconteceu.", AcaoRecomendada.CONFERIR);
+  if (lower.contains("foi cancelada ou excluída") || lower.contains("não é mais desta equipe") || lower.contains("não está na programação")) return new DiagnosticoResponse("OBRA_PROGRAMACAO_ALTERADA", "A programação mudou depois do lançamento", erro,
+          "A programação foi cancelada, reprogramada ou teve o item retirado enquanto a equipe estava sem sinal. Decida com a supervisão em qual programação o serviço entra, corrija e reenvie, ou descarte.", AcaoRecomendada.CONFERIR);
+  if (lower.contains("não tinha turno aberto")) return new DiagnosticoResponse("OBRA_SEM_TURNO", "Registro feito sem turno aberto", erro,
+          "O turno da equipe ainda não tinha chegado ao servidor. Reenvie sem alterar depois que o turno do dia entrar.", AcaoRecomendada.REENVIAR);
+  if (lower.contains("já estava apontado")) return new DiagnosticoResponse("OBRA_PONTO_JA_APONTADO", "Ponto já apontado", erro,
+          "Tudo deste ponto já estava apontado na programação. Descarte o registro.", AcaoRecomendada.DESCARTAR);
+  if (lower.contains("já foi usado com outro conteúdo") || lower.contains("já foi recebida com outro conteúdo")) return new DiagnosticoResponse("OBRA_ID_REPETIDO", "Registro repetido com conteúdo diferente", erro,
+          "O aparelho mandou dois registros diferentes com o mesmo identificador. O primeiro já entrou; confira com a equipe e descarte este se for repetição.", AcaoRecomendada.CONFERIR);
+  return null;
  }
 
  private DiagnosticoResponse resumoSemTurno(String erro) {

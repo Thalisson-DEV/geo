@@ -109,6 +109,7 @@ public class ObraUseCases {
             obra.vincularObraPai(pai, request.tipoVinculoPai());
         }
 
+        obra.informarEndereco(request.endereco(), request.referencia());
         Obra salva = repository.save(obra);
         if (request.idObraPai() != null) {
             relacionamentoProjetoUseCases.garantirVinculoLegado(
@@ -183,6 +184,7 @@ public class ObraUseCases {
             obra.desvincularObraPai();
         }
 
+        obra.informarEndereco(request.endereco(), request.referencia());
         Obra salva = repository.save(obra);
         if (idObraPaiAnterior != null && !idObraPaiAnterior.equals(request.idObraPai())) {
             relacionamentoProjetoUseCases.desvincular(id, idObraPaiAnterior);

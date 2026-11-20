@@ -25,15 +25,22 @@ public class SincronizacaoReplayExecutor {
  private final ObjectMapper mapper; private final TurnoApi turnoApi; private final ExecucaoComercialApi execucaoApi;
  private final SolicitacaoMaterialApi solicitacaoApi; private final MovimentacaoEstoqueApi movimentacaoApi;
  private final InspecaoSincronizacaoApi inspecaoApi;
+ private final com.nexo.app.modules.obras.CampoObrasApi campoObras;
  @Transactional
  public void executar(TipoOperacaoSincronizacao tipo, Map<String,Object> original, UUID atorOrigem, List<AnexoSincronizacao> anexos){
   Map<String,Object> p=payloadReal(original);
+  if(tipo.deObras()){
+   var arquivo=anexos.isEmpty()?null:new com.nexo.app.modules.obras.CampoObrasApi.Arquivo(anexos.get(0).getNome(),anexos.get(0).getContentType(),anexos.get(0).getConteudo());
+   campoObras.aplicar(AplicacaoImediataObras.comando(tipo),p,atorOrigem,arquivo);
+   return;
+  }
   try { switch(tipo){
    case TURNO -> { if(p.get("idTurno")!=null) turnoApi.fechar(UUID.fromString(String.valueOf(p.get("idTurno")))); else turnoApi.abrir(mapper.convertValue(p,AbrirTurnoRequest.class)); }
    case EXECUCAO -> execucaoApi.registrar(mapper.convertValue(p,RegistrarExecucaoRequest.class),atorOrigem);
    case SOLICITACAO -> solicitacaoApi.criar(mapper.convertValue(p,SolicitacaoRequest.class),atorOrigem);
    case TRANSFERENCIA -> movimentacaoApi.transferenciaLote(mapper.convertValue(p,MovimentacaoBulkRequest.class),atorOrigem);
    case INSPECAO -> inspecaoApi.registrar(p,anexosEvidencia(original,anexos),atorOrigem);
+   default -> throw new InvarianteVioladaException("Tipo sem adaptador: "+tipo+".");
    case ANEXO -> { if(anexos.size()!=1 || p.get("idInspecao")==null || p.get("idDesvio")==null || !(p.get("anexo") instanceof Map<?,?> dados)) throw new InvarianteVioladaException("Anexo requer arquivo, inspeção, desvio e contexto."); String contexto=String.valueOf(dados.get("contexto")); inspecaoApi.anexar(UUID.fromString(String.valueOf(p.get("idInspecao"))),UUID.fromString(String.valueOf(p.get("idDesvio"))),ContextoAnexo.valueOf(contexto),anexos.get(0),atorOrigem); }
   }} catch(IllegalArgumentException e){throw new InvarianteVioladaException("Payload incompatível com o adaptador de "+tipo+".");}
  }

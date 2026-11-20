@@ -140,7 +140,7 @@ class ObraUseCasesTest {
                 null, null, ControleExecucaoObra.OBRA, false,
                 "Descricao", "9101923953", new BigDecimal("150000.00"),
                 LocalDate.of(2025, 11, 3), LocalDate.of(2025, 11, 30), null,
-                -9.439007, -41.968228,
+                -9.439007, -41.968228, null, null,
                 null, null, null, null, null, null, null, null,
                 idStatus, "EM EXECUÇÃO", false,
                 idSupervisor, "SUPERVISOR TESTE",

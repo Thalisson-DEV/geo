@@ -3,6 +3,7 @@ package com.nexo.app.modules.obras.domain;
 import com.nexo.app.shared.domain.BaseEntity;
 import com.nexo.app.shared.domain.exception.InvarianteVioladaException;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -54,9 +56,51 @@ public class AprTurno extends BaseEntity {
     @Column(name = "formulario", columnDefinition = "jsonb")
     private FormularioApr formulario;
 
+    /** Quando veio do app: id do aparelho, hora e GPS. Nula na APR lançada antes do app. */
+    @Embedded
+    private RegistroCampo campo;
+
+    /** Id do aparelho do comando de conclusão, para o reenvio não falhar. */
+    @Column(name = "id_local_conclusao")
+    private UUID idLocalConclusao;
+
+    /** Participantes que assinaram na tela do encarregado. */
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "assinaturas", columnDefinition = "jsonb")
+    private List<Assinatura> assinaturas;
+
+    /** Assinatura de um participante; a imagem vem em PNG (base64). */
+    public record Assinatura(UUID idColaborador, String nome, OffsetDateTime assinadaEm, String imagemPng) {
+    }
+
     public AprTurno(UUID idTurno, UUID idObra, UUID idProgramacao, String atividade, UUID idResponsavel, FormularioApr formulario) {
         this.idTurno = Objects.requireNonNull(idTurno);
         informar(idObra, idProgramacao, atividade, idResponsavel, formulario);
+    }
+
+    /** APR lançada pelo app, com o id gerado no aparelho. */
+    public static AprTurno doCampo(UUID idTurno, UUID idObra, UUID idProgramacao, String atividade, UUID idResponsavel,
+                                   FormularioApr formulario, List<Assinatura> assinaturas, RegistroCampo campo) {
+        AprTurno apr = new AprTurno(idTurno, idObra, idProgramacao, atividade, idResponsavel, formulario);
+        apr.campo = Objects.requireNonNull(campo);
+        apr.assinaturas = assinaturas == null || assinaturas.isEmpty() ? null : List.copyOf(assinaturas);
+        return apr;
+    }
+
+    /**
+     * Conclusão feita no aparelho, possivelmente horas antes de chegar ao servidor: vale a hora do aparelho, para a
+     * APR das 08:10 liberar o apontamento das 10:30 enviados juntos à noite. Hora no futuro vira a hora do servidor.
+     */
+    public void concluirEm(OffsetDateTime momento, UUID idLocal) {
+        if (status == StatusAprTurno.CONCLUIDA) {
+            return;
+        }
+        concluir();
+        OffsetDateTime agora = OffsetDateTime.now();
+        if (momento != null && !momento.isAfter(agora.plus(RegistroCampo.TOLERANCIA_RELOGIO))) {
+            this.dataConclusao = momento.isAfter(agora) ? agora : momento;
+        }
+        this.idLocalConclusao = idLocal;
     }
 
     public void informar(UUID idObra, UUID idProgramacao, String atividade, UUID idResponsavel, FormularioApr formulario) {
