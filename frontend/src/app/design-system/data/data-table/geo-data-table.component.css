@@ -573,3 +573,6 @@ tr.is-selected > td,
   font-size: var(--geo-font-label);
   cursor: pointer;
 }
+
+/* Datas não quebram no meio. */
+.geo-data-table__nowrap { white-space: nowrap; }

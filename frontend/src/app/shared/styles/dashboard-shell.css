@@ -94,29 +94,30 @@
   margin-bottom: 1.5rem;
   overflow: hidden;
   border-radius: var(--geo-radius-lg);
-  background: var(--geo-surface-inverse);
-  color: var(--geo-foreground-inverse);
-  box-shadow: var(--geo-shadow-md);
+  background: var(--geo-surface);
+  border: 1px solid var(--geo-border);
+  color: var(--geo-foreground);
+  box-shadow: none;
 }
-.dash-briefing__intro { padding: 1.6rem; border-right: 1px solid color-mix(in srgb, var(--geo-foreground-inverse) 10%, transparent); }
-.dash-briefing__intro h2 { margin: 0; font-size: 1.45rem; letter-spacing: -0.025em; }
+.dash-briefing__intro { padding: 1.6rem; border-right: 1px solid var(--geo-border); }
+.dash-briefing__intro h2 { margin: 0; font-size: var(--geo-text-title-2); letter-spacing: -0.01em; }
 .dash-briefing__intro p { margin: 0.65rem 0 0; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); line-height: 1.6; }
 .dash-briefing__signals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.dash-signal { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.75rem; padding: 1.4rem; border-right: 1px solid color-mix(in srgb, var(--geo-foreground-inverse) 10%, transparent); }
+.dash-signal { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0.75rem; padding: 1.4rem; border-right: 1px solid var(--geo-border); }
 .dash-signal:last-child { border-right: 0; }
-.dash-signal::after { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: var(--p-primary-500); content: ''; }
-.dash-signal[data-tone='critical']::after { background: var(--p-red-400); }
-.dash-signal[data-tone='warning']::after { background: var(--p-yellow-600); }
-.dash-signal[data-tone='positive']::after { background: var(--p-emerald-600); }
-.dash-signal__marker { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: 0.6rem; background: color-mix(in srgb, var(--geo-foreground-inverse) 10%, transparent); color: var(--geo-foreground-subtle); }
-.dash-signal[data-tone='critical'] .dash-signal__marker { color: var(--p-red-300); }
-.dash-signal[data-tone='warning'] .dash-signal__marker { color: var(--p-orange-300); }
-.dash-signal[data-tone='positive'] .dash-signal__marker { color: var(--p-emerald-200); }
+.dash-signal::after { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: var(--geo-border-strong); content: ''; }
+.dash-signal[data-tone='critical']::after { background: var(--geo-danger); }
+.dash-signal[data-tone='warning']::after { background: var(--geo-warning); }
+.dash-signal[data-tone='positive']::after { background: var(--geo-success); }
+.dash-signal__marker { display: grid; width: 2rem; height: 2rem; place-items: center; border-radius: var(--geo-radius-sm); background: var(--geo-surface-muted); color: var(--geo-foreground-muted); }
+.dash-signal[data-tone='critical'] .dash-signal__marker { color: var(--geo-danger-text); }
+.dash-signal[data-tone='warning'] .dash-signal__marker { color: var(--geo-warning-text); }
+.dash-signal[data-tone='positive'] .dash-signal__marker { color: var(--geo-success-text); }
 .dash-signal__type { color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .dash-signal h3 { margin: 0.3rem 0 0; font-size: 0.9rem; line-height: 1.35; }
 .dash-signal p { margin: 0.4rem 0 0; color: var(--geo-foreground-subtle); font-size: var(--geo-font-caption); line-height: 1.5; }
-.dash-signal strong { display: block; margin-top: 0.65rem; color: var(--geo-foreground-inverse); font-size: var(--geo-font-caption); line-height: 1.45; }
-.dash-signal__action { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.65rem; padding: 0; border: 0; background: transparent; color: var(--geo-foreground-inverse); cursor: pointer; font: inherit; font-size: var(--geo-font-caption); font-weight: 600; line-height: 1.45; text-align: left; }
+.dash-signal strong { display: block; margin-top: 0.65rem; color: var(--geo-foreground); font-size: var(--geo-font-caption); line-height: 1.45; }
+.dash-signal__action { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.65rem; padding: 0; border: 0; background: transparent; color: var(--geo-brand-text); cursor: pointer; font: inherit; font-size: var(--geo-font-caption); font-weight: 600; line-height: 1.45; text-align: left; }
 .dash-signal__action:hover { color: var(--geo-foreground-subtle); }
 .dash-signal__action:focus-visible { outline: 2px solid var(--p-blue-300); outline-offset: 3px; }
 
@@ -236,8 +237,8 @@
 .dash-severity[data-level='critical'] { border-color: var(--geo-border-strong); background: var(--geo-surface-muted); }
 .dash-severity[data-level='critical'] strong { color: var(--p-red-700); }
 
-.dash-tabs { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
-.dash-tab { min-height: 26px; padding: 0 10px; border: 0; border-radius: var(--geo-radius-sm); background: transparent; color: var(--geo-foreground-muted); cursor: pointer; font: inherit; font-size: var(--geo-font-label); font-weight: var(--geo-font-weight-medium); transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out); }
+.dash-tabs { display: inline-flex; flex: none; gap: 2px; padding: 2px; border: 1px solid var(--geo-border); border-radius: var(--geo-radius-md); background: var(--geo-surface-muted); }
+.dash-tab { white-space: nowrap; min-height: 26px; padding: 0 10px; border: 0; border-radius: var(--geo-radius-sm); background: transparent; color: var(--geo-foreground-muted); cursor: pointer; font: inherit; font-size: var(--geo-font-label); font-weight: var(--geo-font-weight-medium); transition: background-color var(--geo-motion-fast) var(--geo-ease-out), color var(--geo-motion-fast) var(--geo-ease-out); }
 .dash-tab:hover { color: var(--geo-foreground); }
 .dash-tab.is-active { background: var(--geo-surface); color: var(--geo-foreground); box-shadow: var(--geo-shadow-sm); }
 .dash-tab:focus-visible { outline: 2px solid var(--geo-focus-ring); outline-offset: 1px; }

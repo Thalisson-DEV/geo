@@ -295,7 +295,7 @@
               </td>
             }
             @for (column of visibleColumns(); track column.key) {
-              <td [class.geo-data-table__numeric]="isNumeric(column)">
+              <td [class.geo-data-table__numeric]="isNumeric(column)" [class.geo-data-table__nowrap]="column.type === 'date'">
                 @if (templates().get(column.key); as tpl) {
                   <ng-container *ngTemplateOutlet="tpl; context: { $implicit: row, index: i }"></ng-container>
                 } @else if (fit()) {
