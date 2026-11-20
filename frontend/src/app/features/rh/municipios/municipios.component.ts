@@ -127,7 +127,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar município' : 'Novo município'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do município" icon="pi pi-map">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Salvador" [error]="erro('nome')"></geo-text-input>
         <geo-select label="Base operacional" [required]="true" [options]="basesOpcoes()" [(value)]="idBase" [filter]="true" [error]="erro('base')"></geo-select>

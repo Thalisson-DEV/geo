@@ -155,7 +155,7 @@ const SITUACOES: GeoSelectOption<boolean | null>[] = [
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar atividade de SST' : 'Nova atividade de SST'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="md">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="md">
       <geo-form-section title="Atividade" icon="pi pi-briefcase">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Poda de árvores"
           description="Use o nome pelo qual a atividade é reconhecida pelas equipes." [error]="tentouSalvar() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>

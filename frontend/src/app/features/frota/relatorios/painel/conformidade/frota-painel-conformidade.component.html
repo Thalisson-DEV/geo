@@ -50,7 +50,7 @@
           actionLabel="Ver o seguro" (activate)="analisar('kpi', 'seguro')" />
         <app-dashboard-metric-card label="Checklist nos dias úteis" icon="pi-list-check"
           [tone]="c.coberturaChecklist?.atual == null ? 'slate' : (c.coberturaChecklist?.atual ?? 0) < limites.checklistMeta ? 'amber' : 'green'"
-          [value]="pct(c.coberturaChecklist?.atual)" [progress]="c.coberturaChecklist?.atual != null ? (c.coberturaChecklist?.atual ?? 0) * 100 : null"
+          [value]="pct($safeNavigationMigration(c.coberturaChecklist?.atual))" [progress]="c.coberturaChecklist?.atual != null ? (c.coberturaChecklist?.atual ?? 0) * 100 : null"
           [detail]="'Meta 80% · ' + c.veiculosChecklistAbaixoMeta + ' veículos abaixo'" actionLabel="Ver o checklist" (activate)="analisar('kpi', 'checklist')" />
       </section>
       <section class="dash-metrics" aria-label="Risco operacional">

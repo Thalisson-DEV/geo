@@ -154,7 +154,7 @@ const OPCOES_CONTROLE: GeoSelectOption<ControleExecucaoObra | null>[] = [
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de obra' : 'Novo tipo de obra'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do tipo" icon="pi pi-tags">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="60" description="Ex.: COMUM, LPT, CORRETIVA. Gravado em letras maiúsculas." [error]="erro('nome')"></geo-text-input>
         <geo-textarea label="Descrição" [(value)]="descricao" [rows]="2" [maxlength]="255" [showOptional]="true"></geo-textarea>

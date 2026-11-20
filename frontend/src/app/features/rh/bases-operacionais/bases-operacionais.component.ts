@@ -123,7 +123,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar base' : 'Nova base'" [description]="emEdicao()?.nome"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar base' : 'Nova base'" [description]="$safeNavigationMigration(emEdicao()?.nome)"
       [dirty]="alterado()" size="md">
       <geo-form-section title="Dados da base" icon="pi pi-building">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Juazeiro" [error]="erro('nome')"></geo-text-input>

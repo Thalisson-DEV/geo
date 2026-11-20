@@ -86,7 +86,7 @@ interface SubtipoEditavel {
     </geo-data-table>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de despesa' : 'Novo tipo de despesa'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" [loading]="salvando()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" [loading]="salvando()" size="sm">
       <div class="geo-form-stack">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="80"
           placeholder="Ex.: Lavagem" [error]="tentou() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>

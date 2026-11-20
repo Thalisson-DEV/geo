@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -17,6 +17,7 @@ import { TooltipModule } from 'primeng/tooltip';
     TagModule,
     TooltipModule
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './manual-descontos.component.html'
 })
 export class ManualDescontosComponent {

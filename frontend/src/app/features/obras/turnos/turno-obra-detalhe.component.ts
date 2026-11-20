@@ -124,7 +124,7 @@ import { LIBERACAO, TIPO_OCORRENCIA, cartoesDoTurno } from './turnos-obra.logic'
                       }
                       @case ('LIBERADA') {
                         <strong>APR concluída</strong>
-                        <span>{{ c.aprConcluida?.atividade }} · {{ c.aprConcluida?.responsavel ?? 'Sem responsável' }}{{ c.aprConcluida?.dataConclusao ? ' · ' + (c.aprConcluida?.dataConclusao | date: 'dd/MM HH:mm') : '' }}</span>
+                        <span>{{ c.aprConcluida?.atividade }} · {{ c.aprConcluida?.responsavel ?? 'Sem responsável' }}{{ c.aprConcluida?.dataConclusao ? ' · ' + ($safeNavigationMigration(c.aprConcluida?.dataConclusao) | date: 'dd/MM HH:mm') : '' }}</span>
                       }
                       @case ('IMPEDIDA') {
                         <strong>Sem condição de executar · {{ tipoOcorrencia[c.impedimento!.tipo].rotulo }}</strong>

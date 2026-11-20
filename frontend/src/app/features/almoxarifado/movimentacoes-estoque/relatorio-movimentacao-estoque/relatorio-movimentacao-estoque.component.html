@@ -195,7 +195,7 @@
                 @if (mov.estoqueOrigem?.id) {
                   <button
                     type="button"
-                    (click)="abrirSaldo(mov.estoqueOrigem?.id, mov.estoqueOrigem?.nomeIdentificador)"
+                    (click)="abrirSaldo($safeNavigationMigration(mov.estoqueOrigem?.id), $safeNavigationMigration(mov.estoqueOrigem?.nomeIdentificador))"
                     pTooltip="Consultar Saldo da Origem"
                     class="p-1 text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-md print:hidden transition-colors cursor-pointer"
                   >
@@ -231,7 +231,7 @@
                 @if (mov.estoqueDestino?.id) {
                   <button
                     type="button"
-                    (click)="abrirSaldo(mov.estoqueDestino?.id, mov.estoqueDestino?.nomeIdentificador)"
+                    (click)="abrirSaldo($safeNavigationMigration(mov.estoqueDestino?.id), $safeNavigationMigration(mov.estoqueDestino?.nomeIdentificador))"
                     pTooltip="Consultar Saldo do Destino"
                     class="p-1 text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-md print:hidden transition-colors cursor-pointer"
                   >

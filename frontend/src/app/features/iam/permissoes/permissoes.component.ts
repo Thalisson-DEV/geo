@@ -145,7 +145,7 @@ function separar(p: PermissaoResponse): PermissaoLinha {
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar permissão' : 'Nova permissão'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Composição" icon="pi pi-lock">
         <div class="geo-form-grid">
           <geo-select label="Módulo" [required]="true" [options]="modulos" [(value)]="modulo" [error]="erro('modulo')"></geo-select>

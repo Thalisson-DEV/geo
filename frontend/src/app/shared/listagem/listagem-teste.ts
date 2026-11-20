@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withXhr } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { of } from 'rxjs';
@@ -27,7 +27,7 @@ export async function abrirListagem<T>(
   TestBed.configureTestingModule({
     providers: [
       provideNoopAnimations(),
-      provideHttpClient(),
+      provideHttpClient(withXhr()),
       provideHttpClientTesting(),
       provideRouter([{ path: caminho, component: componente, data }]),
       MessageService,

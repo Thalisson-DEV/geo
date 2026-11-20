@@ -121,7 +121,7 @@ import { OPCOES_STATUS, LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar centro de investimento' : 'Novo centro de investimento'"
-      [description]="emEdicao()?.codigo" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.codigo)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do centro de investimento" icon="pi pi-chart-line">
         <geo-text-input label="Código" [required]="true" [(value)]="principal" [maxlength]="10" placeholder="Ex.: 670" [error]="erro('principal')"></geo-text-input>
         <geo-boolean-control label="Centro de investimento ativo" kind="toggle" [(value)]="ativo"></geo-boolean-control>

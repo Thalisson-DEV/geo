@@ -135,7 +135,7 @@ const CONFIGURACAO: Record<AcaoDecisao, ConfiguracaoAcao> = {
           <div class="geo-form-stack">
             @if (acao() === 'APROVAR') {
               <geo-number-input label="Valor autorizado" mode="currency" [required]="true"
-                [min]="0.01" [max]="solicitacao()?.valor" [minFractionDigits]="2" [maxFractionDigits]="2"
+                [min]="0.01" [max]="$safeNavigationMigration(solicitacao()?.valor)" [minFractionDigits]="2" [maxFractionDigits]="2"
                 [(value)]="valor" [error]="erroValor()"
                 [description]="descricaoValor()"></geo-number-input>
               @if (solicitacao()?.documentos?.length) {

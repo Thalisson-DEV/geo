@@ -246,7 +246,7 @@
             </span>
           </ng-template>
           <ng-template geoCell="processo" let-row>
-            @if (processoVisual(row.material.processo?.nome); as p) {
+            @if (processoVisual($safeNavigationMigration(row.material.processo?.nome)); as p) {
               <geo-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</geo-status>
             } @else {
               —

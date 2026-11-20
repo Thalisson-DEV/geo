@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, model, output, signal } from '@angular/core';
+import { Component, DestroyRef, ViewEncapsulation, computed, inject, input, model, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PanelMenuModule } from 'primeng/panelmenu';
 import { TooltipModule } from 'primeng/tooltip';
@@ -155,6 +155,7 @@ const PASSO_TECLADO = 16;
       }
     </nav>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     app-sidebar { display: contents; }
     .geo-nav {

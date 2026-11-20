@@ -118,7 +118,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de serviço' : 'Novo tipo de serviço'"
-      [description]="emEdicao()?.descricao" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.descricao)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do tipo" icon="pi pi-tags">
         <geo-text-input label="Código" [required]="true" [(value)]="codigo" [maxlength]="10" placeholder="Ex.: CL"
           description="Classificação da nota. Pode se repetir entre tipos." [error]="erro('codigo')"></geo-text-input>

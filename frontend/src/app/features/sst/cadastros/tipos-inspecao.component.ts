@@ -130,7 +130,7 @@ const SITUACOES: GeoSelectOption<boolean | null>[] = [
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de inspeção' : 'Novo tipo de inspeção'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do tipo" icon="pi pi-list-check">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Campo, Veicular, Alojamento"
           [error]="tentouSalvar() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>

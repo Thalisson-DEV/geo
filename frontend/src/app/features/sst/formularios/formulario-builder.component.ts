@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MenuItem, MessageService, ConfirmationService } from 'primeng/api';
@@ -274,6 +274,7 @@ function uid(): string {
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host ::ng-deep {
       .doc-input.p-inputtext, .doc-select .p-select-label, .doc-select .p-select-placeholder {

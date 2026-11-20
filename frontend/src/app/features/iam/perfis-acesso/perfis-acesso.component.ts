@@ -136,7 +136,7 @@ import { PermissoesPerfilEditorComponent } from './permissoes-perfil-editor.comp
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar perfil' : 'Novo perfil'" [description]="emEdicao()?.nome"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar perfil' : 'Novo perfil'" [description]="$safeNavigationMigration(emEdicao()?.nome)"
       [dirty]="alterado()" size="xl">
       <geo-form-section title="Perfil" icon="pi pi-shield">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="50" placeholder="Ex.: ADMIN" [error]="erro('nome')"></geo-text-input>

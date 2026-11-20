@@ -1,6 +1,6 @@
 import { iconeCondicao } from '../../../../shared/utils/movimentacao.utils';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, ViewChild, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -81,6 +81,7 @@ const ORDENACAO_PADRAO = 'material.descricao,asc';
     SeriesAConferirComponent
   ],
   templateUrl: './relatorio-saldo.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './relatorio-saldo.component.css'
 })
 export class RelatorioSaldoComponent implements OnInit {

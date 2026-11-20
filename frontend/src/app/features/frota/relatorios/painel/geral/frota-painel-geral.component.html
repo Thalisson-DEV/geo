@@ -46,17 +46,17 @@
         <app-dashboard-metric-card label="Custo por km" icon="pi-directions" tone="slate" [value]="moeda(d.resumo.custoPorKm.atual)"
           [detail]="moeda(d.resumo.custoVeiculoMes.atual) + ' por veículo/mês · ' + comparacao(d.resumo.custoPorKm, 'moeda')"
           actionLabel="Ver eficiência" (activate)="abrirPainel('custos', 'kpi:km')" />
-        <app-dashboard-metric-card label="Disponibilidade" icon="pi-check-circle" [tone]="tomDisponibilidade(d.resumo.disponibilidade?.atual)"
-          [value]="pct(d.resumo.disponibilidade?.atual)" [progress]="percentual(d.resumo.disponibilidade?.atual)"
+        <app-dashboard-metric-card label="Disponibilidade" icon="pi-check-circle" [tone]="tomDisponibilidade($safeNavigationMigration(d.resumo.disponibilidade?.atual))"
+          [value]="pct($safeNavigationMigration(d.resumo.disponibilidade?.atual))" [progress]="percentual($safeNavigationMigration(d.resumo.disponibilidade?.atual))"
           [detail]="'Meta 95% · ' + (d.manutencao?.paradosAgora?.length ?? 0) + ' parados agora'" actionLabel="Ver os parados" (activate)="abrirPainel('manutencao', 'kpi:parados')" />
-        <app-dashboard-metric-card label="OS preventivas" icon="pi-calendar-clock" [tone]="tomPreventiva(d.resumo.percentualPreventiva?.atual)"
-          [value]="pct(d.resumo.percentualPreventiva?.atual)" [progress]="percentual(d.resumo.percentualPreventiva?.atual)"
+        <app-dashboard-metric-card label="OS preventivas" icon="pi-calendar-clock" [tone]="tomPreventiva($safeNavigationMigration(d.resumo.percentualPreventiva?.atual))"
+          [value]="pct($safeNavigationMigration(d.resumo.percentualPreventiva?.atual))" [progress]="percentual($safeNavigationMigration(d.resumo.percentualPreventiva?.atual))"
           [detail]="'Referência 70% · ' + (d.manutencao?.preventivasVencidas ?? 0) + ' vencidas hoje'" actionLabel="Ver a preventiva" (activate)="abrirPainel('manutencao', 'kpi:preventiva')" />
       </section>
       <section class="dash-metrics" aria-label="Combustível, uso e risco">
         <app-dashboard-metric-card label="Consumo médio" icon="pi-gauge" [tone]="d.combustivel?.veiculosForaDoPadrao ? 'amber' : 'green'"
-          [value]="d.combustivel?.kmPorLitro?.atual == null ? '—' : numero(d.combustivel?.kmPorLitro?.atual, 2) + ' km/l'"
-          [detail]="(d.combustivel?.veiculosForaDoPadrao ?? 0) + ' fora do padrão · ' + moeda(d.combustivel?.precoMedio?.atual) + '/l'"
+          [value]="d.combustivel?.kmPorLitro?.atual == null ? '—' : numero($safeNavigationMigration(d.combustivel?.kmPorLitro?.atual), 2) + ' km/l'"
+          [detail]="(d.combustivel?.veiculosForaDoPadrao ?? 0) + ' fora do padrão · ' + moeda($safeNavigationMigration(d.combustivel?.precoMedio?.atual)) + '/l'"
           actionLabel="Ver o consumo" (activate)="abrirPainel('combustivel', 'kpi:consumo')" />
         <app-dashboard-metric-card label="Custo sobre o faturamento" icon="pi-percentage"
           [tone]="(d.resumo.custoSobreFaturamento.atual ?? 0) > limites.custoSobreFaturamentoAtencao ? 'amber' : 'green'"

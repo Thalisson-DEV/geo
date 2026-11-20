@@ -8,7 +8,8 @@ import {
   computed,
   inject,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -57,6 +58,7 @@ import { imprimirSempreNoTemaClaro } from '../relatorios/relatorio-impressao';
     HistoricoNotaComponent
   ],
   templateUrl: './execucao-relatorio.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../relatorios/relatorio.css'
 })
 export class ExecucaoRelatorioComponent implements OnInit, AfterViewChecked {

@@ -194,7 +194,7 @@ const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', 
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="publicacaoAberta" title="Publicar comunicado" [description]="selecionado()?.titulo" [dirty]="!!(inicio() || fim())" size="sm">
+    <geo-form-drawer [(visible)]="publicacaoAberta" title="Publicar comunicado" [description]="$safeNavigationMigration(selecionado()?.titulo)" [dirty]="!!(inicio() || fim())" size="sm">
       <geo-callout tone="info">Sem início, o comunicado entra no ar agora. Com início futuro ele já fica publicado e aparece quando a janela começar.</geo-callout>
       <geo-datepicker label="Início da vigência" [showTime]="true" [(value)]="inicio" [clearable]="true" [showOptional]="true" placeholder="Publicar agora"></geo-datepicker>
       <geo-datepicker label="Fim da vigência" [showTime]="true" [(value)]="fim" [clearable]="true" [showOptional]="true" placeholder="Até arquivar"
@@ -213,7 +213,7 @@ const ICONE_STATUS: Record<StatusComunicado, string> = { RASCUNHO: 'pi-pencil', 
       </div>
     </geo-form-drawer>
 
-    <geo-drawer [(visible)]="relatorioAberto" title="Relatório de confirmação" [description]="selecionado()?.titulo" size="lg">
+    <geo-drawer [(visible)]="relatorioAberto" title="Relatório de confirmação" [description]="$safeNavigationMigration(selecionado()?.titulo)" size="lg">
       @if (carregandoRelatorio()) {
         <geo-async-state state="loading" title="Carregando o relatório"></geo-async-state>
       } @else if (relatorio(); as dados) {

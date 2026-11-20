@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, inject, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -67,6 +67,7 @@ const COEFICIENTE = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 4, m
     AjudaListagemComponent,
     DateMaskDirective
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="geo-page" geoListShortcuts #atalhos="geoListShortcuts" [newAction]="true" (newRequested)="showAddDialog()">
       <geo-page-header

@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { provideRouter, withInMemoryScrolling, withNavigationErrorHandler, withViewTransitions } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, withXhr } from '@angular/common/http';
 import { providePrimeNG } from 'primeng/config';
 
 import { registerLocaleData } from '@angular/common';
@@ -56,7 +56,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     // A ordem importa: o de idempotência roda DEPOIS do de autenticação, sendo o último a
     // tocar nos headers antes do envio — é assim que a chave sobrevive até o backend.
-    provideHttpClient(withInterceptors([authInterceptor, idempotencyInterceptor])),
+    provideHttpClient(withXhr(), withInterceptors([authInterceptor, idempotencyInterceptor])),
     { provide: LOCALE_ID, useValue: 'pt-BR' },
     MessageService,
     ConfirmationService,

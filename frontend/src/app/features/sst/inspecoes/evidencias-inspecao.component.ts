@@ -12,7 +12,8 @@ import {
   input,
   output,
   signal,
-  untracked
+  untracked,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -88,6 +89,7 @@ interface ItemGaleria {
   standalone: true,
   imports: [CommonModule, DatePipe, ButtonModule, GeoButtonComponent, ConfirmPopupModule, DialogModule, TooltipModule],
   providers: [ConfirmationService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="mb-8 print:mb-3">
       <div class="flex items-center justify-between gap-3 mb-3 print:mb-2 flex-wrap">

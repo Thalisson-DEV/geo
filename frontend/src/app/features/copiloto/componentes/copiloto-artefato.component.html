@@ -161,7 +161,7 @@
                       <tr>
                         @for (celula of linha; track $index) {
                           <td [class.num]="$any(componente).colunas[$index]?.tipo === 'inteiro' || $any(componente).colunas[$index]?.tipo === 'numero'">
-                            {{ formatarCelula(celula, $any(componente).colunas[$index]?.tipo, $any(componente).colunas[$index]?.nome) }}
+                            {{ formatarCelula(celula, $safeNavigationMigration($any(componente).colunas[$index]?.tipo), $safeNavigationMigration($any(componente).colunas[$index]?.nome)) }}
                           </td>
                         }
                       </tr>

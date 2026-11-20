@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal, ChangeDetectionStrategy } from '@angular/core';
 import { GeoButtonComponent, GeoStatusComponent, NotificationService } from '@geo/ui';
 import { AlmoxarifadoService } from '../../../core/services/almoxarifado.service';
 import { MaterialResponse, MotivoPendenciaResponse } from '../../../core/models/almoxarifado.models';
@@ -22,6 +22,7 @@ export interface PendenciaDetalhe {
   selector: 'app-solicitacao-pendencias',
   standalone: true,
   imports: [GeoButtonComponent, GeoStatusComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     @if (temPendenciaGeral(); as current) {
       <section

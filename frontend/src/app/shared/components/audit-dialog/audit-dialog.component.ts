@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 import { TimelineModule } from 'primeng/timeline';
 import { AuditService } from '../../../core/services/audit.service';
@@ -130,6 +130,7 @@ import { TooltipModule } from 'primeng/tooltip';
       </div>
     </p-dialog>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host ::ng-deep {
       .audit-dialog-custom .p-dialog-header {

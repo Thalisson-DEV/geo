@@ -125,7 +125,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar estoque' : 'Novo estoque'" [description]="emEdicao()?.nomeIdentificador"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar estoque' : 'Novo estoque'" [description]="$safeNavigationMigration(emEdicao()?.nomeIdentificador)"
       [dirty]="alterado()" size="md">
       <geo-form-section title="Estoque" icon="pi pi-database">
         <geo-text-input label="Identificador" [required]="true" [(value)]="identificador" [maxlength]="100" placeholder="Ex.: Almoxarifado Central" [error]="erro('nome')"></geo-text-input>

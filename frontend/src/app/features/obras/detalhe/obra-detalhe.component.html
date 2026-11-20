@@ -72,11 +72,11 @@
       </div>
       <div class="geo-kpi">
         <span class="geo-kpi__icon"><i class="pi pi-box" aria-hidden="true"></i></span>
-        <span class="geo-kpi__body"><span class="geo-kpi__label">Material previsto</span><span class="geo-kpi__value">{{ moeda(carteira()?.valorMaterialPrevisto) }}</span></span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Material previsto</span><span class="geo-kpi__value">{{ moeda($safeNavigationMigration(carteira()?.valorMaterialPrevisto)) }}</span></span>
       </div>
       <div class="geo-kpi">
         <span class="geo-kpi__icon"><i class="pi pi-wrench" aria-hidden="true"></i></span>
-        <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span><span class="geo-kpi__value">{{ moeda(carteira()?.valorServicoPrevisto) }}</span>
+        <span class="geo-kpi__body"><span class="geo-kpi__label">Serviço previsto</span><span class="geo-kpi__value">{{ moeda($safeNavigationMigration(carteira()?.valorServicoPrevisto)) }}</span>
           @if (dados(orcamento())?.importado) {
             <span class="geo-kpi__detail">{{ moeda(dados(orcamento())!.totalServicosImportados) }} no orçamento importado</span>
           }

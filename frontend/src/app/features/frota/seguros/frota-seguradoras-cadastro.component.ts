@@ -158,7 +158,7 @@ const FILTRO_ASSISTENCIA: GeoSelectOption<Assistencia | null>[] = [
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar ' + emEdicao()!.papelRotulo.toLowerCase() : 'Nova seguradora ou corretora'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" [loading]="salvando()" size="md">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" [loading]="salvando()" size="md">
       <geo-form-section title="Dados da seguradora" icon="pi pi-shield">
         <geo-select label="Papel" [required]="true" [options]="papeis" [(value)]="papel"
           description="A seguradora emite a apólice; a corretora intermedia e cuida dos endossos."></geo-select>

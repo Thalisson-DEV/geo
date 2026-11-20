@@ -6,7 +6,8 @@ import {
   inject,
   output,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
@@ -131,6 +132,7 @@ export interface LocalSelecionado {
       </div>
     </p-dialog>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       /*

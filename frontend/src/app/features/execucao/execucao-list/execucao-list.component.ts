@@ -182,7 +182,7 @@ function inicioPadrao(): string {
           </span>
         </ng-template>
         <ng-template geoCell="status" let-row>
-          <geo-status [tone]="status(row.statusExecucao)?.tom ?? 'neutral'" [icon]="status(row.statusExecucao)?.icone?.replace('pi ', '')">
+          <geo-status [tone]="status(row.statusExecucao)?.tom ?? 'neutral'" [icon]="$safeNavigationMigration(status(row.statusExecucao)?.icone?.replace('pi ', ''))">
             {{ status(row.statusExecucao)?.rotulo ?? row.statusExecucao }}
           </geo-status>
         </ng-template>

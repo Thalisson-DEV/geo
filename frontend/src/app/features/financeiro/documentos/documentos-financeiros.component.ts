@@ -270,7 +270,7 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
       </div>
     </geo-form-drawer>
 
-    <geo-form-drawer #edicao [(visible)]="edicaoAberta" title="Dados do documento" [description]="editando()?.nomeArquivo" [dirty]="form.dirty" size="md">
+    <geo-form-drawer #edicao [(visible)]="edicaoAberta" title="Dados do documento" [description]="$safeNavigationMigration(editando()?.nomeArquivo)" [dirty]="form.dirty" size="md">
       <geo-callout tone="info">Corrija ou complete o que ficou faltando. Documentos arquivados precisam ser reabertos antes.</geo-callout>
       <ng-container [ngTemplateOutlet]="campos"></ng-container>
       <div drawer-footer class="geo-actions-row">
@@ -279,7 +279,7 @@ const ATALHOS: { chave: Atalho; rotulo: string; icone: string }[] = [
       </div>
     </geo-form-drawer>
 
-    <geo-form-drawer [(visible)]="pendenciaAberta" title="Devolver com pendência" [description]="emPendencia()?.nomeArquivo" [dirty]="!!motivo().trim()" size="sm">
+    <geo-form-drawer [(visible)]="pendenciaAberta" title="Devolver com pendência" [description]="$safeNavigationMigration(emPendencia()?.nomeArquivo)" [dirty]="!!motivo().trim()" size="sm">
       <geo-callout tone="info">Quem enviou o documento verá esta mensagem e poderá corrigir.</geo-callout>
       <geo-textarea label="O que está pendente?" [required]="true" [(value)]="motivo" [rows]="4" placeholder="Ex.: a nota está sem o número e não confere com o boleto"></geo-textarea>
       <div drawer-footer class="geo-actions-row">

@@ -121,7 +121,7 @@ import { OPCOES_STATUS, LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de estoque' : 'Novo tipo de estoque'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do tipo de estoque" icon="pi pi-database">
         <geo-text-input label="Nome" [required]="true" [(value)]="principal" [maxlength]="20" placeholder="Ex.: FISICO" [error]="erro('principal')"></geo-text-input>
         <geo-boolean-control label="Tipo de estoque ativo" kind="toggle" [(value)]="ativo"></geo-boolean-control>

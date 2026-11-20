@@ -175,7 +175,7 @@ const CORES: GeoSelectOption<string>[] = [
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar usuário' : 'Novo usuário'" [description]="emEdicao()?.login"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar usuário' : 'Novo usuário'" [description]="$safeNavigationMigration(emEdicao()?.login)"
       [dirty]="alterado()" size="lg">
       <geo-form-section title="Acesso" icon="pi pi-key">
         <div class="geo-form-grid">

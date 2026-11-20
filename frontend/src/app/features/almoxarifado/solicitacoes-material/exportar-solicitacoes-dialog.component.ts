@@ -9,6 +9,7 @@ import {
   Output,
   signal,
   SimpleChanges,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -48,6 +49,7 @@ export type TipoArquivoExportacao = 'CONSOLIDADO' | 'ZIP';
     DateMaskDirective,
     GeoButtonComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p-dialog
       [header]="ehFechamento ? 'Exportar Solicitações de Fechamento (CSV)' : processoSelecionado === 'TODOS' && tipoArquivo === 'ZIP' ? 'Exportar Solicitações de Material (.ZIP)' : 'Exportar Solicitações de Material (CSV)'"

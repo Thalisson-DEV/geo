@@ -194,7 +194,7 @@ const OPERACOES: GeoSelectOption<OperacaoItemKit>[] = [
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="titulo()" [description]="emEdicao()?.descricao"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="titulo()" [description]="$safeNavigationMigration(emEdicao()?.descricao)"
       [dirty]="alterado()" [loading]="carregandoKit()" size="xl">
       <geo-form-section title="Kit" icon="pi pi-box">
         <div class="geo-form-grid">

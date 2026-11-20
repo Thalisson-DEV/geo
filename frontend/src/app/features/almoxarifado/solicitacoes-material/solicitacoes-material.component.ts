@@ -284,11 +284,11 @@ const mesmoConjunto = (a: readonly string[], b: readonly string[]) => a.length =
             </ng-template>
             <ng-template geoRowActions let-row>
               <span class="geo-table-actions">
-                <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + row.id?.substring(0, 8)" size="icon-sm" (pressed)="imprimir(row)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da solicitação #' + $safeNavigationMigration(row.id?.substring(0, 8))" size="icon-sm" (pressed)="imprimir(row)"></geo-icon-button>
                 @if (row.status === 'ENTREGUE' || row.status === 'ENTREGUE_PARCIAL') {
-                  <geo-icon-button icon="pi pi-replay" [label]="'Estornar solicitação #' + row.id?.substring(0, 8)" size="icon-sm" (pressed)="confirmarEstorno(row)"></geo-icon-button>
+                  <geo-icon-button icon="pi pi-replay" [label]="'Estornar solicitação #' + $safeNavigationMigration(row.id?.substring(0, 8))" size="icon-sm" (pressed)="confirmarEstorno(row)"></geo-icon-button>
                 }
-                <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da solicitação #' + row.id?.substring(0, 8)" size="icon-sm" (pressed)="showLogs(row)"></geo-icon-button>
+                <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da solicitação #' + $safeNavigationMigration(row.id?.substring(0, 8))" size="icon-sm" (pressed)="showLogs(row)"></geo-icon-button>
               </span>
             </ng-template>
           </geo-data-table>

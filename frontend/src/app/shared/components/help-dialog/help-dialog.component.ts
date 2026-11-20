@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, model } from '@angular/core';
+import { Component, input, model, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 
@@ -7,6 +7,7 @@ import { DialogModule } from 'primeng/dialog';
   selector: 'app-help-dialog',
   standalone: true,
   imports: [CommonModule, DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p-dialog
       [(visible)]="visible"

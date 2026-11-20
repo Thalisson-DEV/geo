@@ -121,7 +121,7 @@ export function valePara(p: Pick<PlanoPreventivo, 'tiposVeiculo' | 'tiposImpleme
     </geo-data-table>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar plano' : 'Novo plano de preventiva'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" [loading]="salvando()" size="md">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" [loading]="salvando()" size="md">
       <div class="geo-form-stack">
         <geo-form-section title="Plano" icon="pi pi-calendar-clock">
           <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120" placeholder="Ex.: Revisão 10 mil km"

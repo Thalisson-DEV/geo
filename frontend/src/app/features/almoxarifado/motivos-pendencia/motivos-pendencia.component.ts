@@ -109,7 +109,7 @@ import { OPCOES_STATUS } from '../../../shared/listagem/listagem';
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar motivo' : 'Novo motivo'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do motivo" icon="pi pi-clock">
         <geo-text-input label="Nome" [required]="true" [(value)]="principal" [maxlength]="100" placeholder="Ex.: Falta de estoque" [error]="erro('principal')"></geo-text-input>
         <geo-textarea label="Descrição" [required]="true" [(value)]="descricao" [rows]="3" [maxlength]="255" placeholder="Ex.: Aguardando remessa do fornecedor" [error]="erro('descricao')"></geo-textarea>

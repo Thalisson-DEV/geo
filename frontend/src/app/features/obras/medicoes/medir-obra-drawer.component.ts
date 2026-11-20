@@ -54,7 +54,7 @@ const TIPOS: GeoSelectOption<TipoMedicao>[] = [
     GeoTextareaComponent
   ],
   template: `
-    <geo-form-drawer [(visible)]="aberto" [title]="obra() ? 'Medir a obra ' + obra()!.numero : 'Medir obra'" [description]="obra()?.titulo"
+    <geo-form-drawer [(visible)]="aberto" [title]="obra() ? 'Medir a obra ' + obra()!.numero : 'Medir obra'" [description]="$safeNavigationMigration(obra()?.titulo)"
       [dirty]="!!observacao().trim()" size="lg">
       @if (erro(); as mensagem) {
         <geo-async-state state="error" title="Não foi possível abrir a medição da obra" [description]="mensagem"></geo-async-state>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
 
 declare var L: any;
@@ -14,6 +14,7 @@ declare var L: any;
   selector: 'app-map-dialog',
   standalone: true,
   imports: [CommonModule, DialogModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <p-dialog
       [(visible)]="visible"

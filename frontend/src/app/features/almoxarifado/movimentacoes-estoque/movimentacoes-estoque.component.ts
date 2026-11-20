@@ -294,8 +294,8 @@ const OPERACOES: OperacaoCardOption[] = [
         <ng-template geoCell="tipo" let-mov><geo-status [tone]="tipoTone(mov.tipo)" [icon]="tipoIcone(mov.tipo)">{{ tipoLabel(mov.tipo) }}</geo-status></ng-template>
         <ng-template geoRowActions let-mov>
           <span class="geo-table-actions">
-            <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da operação #' + mov.idReferenciaOperacao?.substring(0, 8)" size="icon-sm" (pressed)="imprimir(mov)"></geo-icon-button>
-            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da operação #' + mov.idReferenciaOperacao?.substring(0, 8)" size="icon-sm" (pressed)="showLogs(mov)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-print" [label]="'Imprimir relatório da operação #' + $safeNavigationMigration(mov.idReferenciaOperacao?.substring(0, 8))" size="icon-sm" (pressed)="imprimir(mov)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações da operação #' + $safeNavigationMigration(mov.idReferenciaOperacao?.substring(0, 8))" size="icon-sm" (pressed)="showLogs(mov)"></geo-icon-button>
           </span>
         </ng-template>
       </geo-data-table>
@@ -368,7 +368,7 @@ const OPERACOES: OperacaoCardOption[] = [
           </ng-template>
           <ng-template geoCell="condicao" let-g><geo-status [tone]="tomCondicao(g.condicao)" [icon]="iconeCondicao(g.condicao)">{{ rotuloCondicao(g.condicao) }}</geo-status></ng-template>
           <ng-template geoRowDetail let-g>
-            <app-series-grade [series]="g.grade" [rotulo]="'Números de série de ' + g.material?.descricao" />
+            <app-series-grade [series]="g.grade" [rotulo]="'Números de série de ' + $safeNavigationMigration(g.material?.descricao)" />
           </ng-template>
         </geo-data-table>
       }

@@ -148,7 +148,7 @@ interface EtapaFluxo {
                   <span class="dd-muted">{{ prazo(det.prazoVigente.situacao)?.label }} · 48 horas úteis</span>
                 } @else if (det.movimentacaoConcluidaEm) {
                   <strong>{{ det.movimentacaoConcluidaEm | date: "dd/MM/yyyy 'às' HH:mm" }}</strong>
-                  <span class="dd-muted">{{ prazo(det.prazoMovimentacao?.situacao)?.label ?? 'Concluída' }}</span>
+                  <span class="dd-muted">{{ prazo($safeNavigationMigration(det.prazoMovimentacao?.situacao))?.label ?? 'Concluída' }}</span>
                 } @else {
                   <strong>Sem prazo correndo</strong>
                 }

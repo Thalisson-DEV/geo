@@ -139,7 +139,7 @@ const SECOES: Record<SecaoCadastroMedida, { titulo: string; icone: string; descr
       }
     </div>
 
-    <geo-form-drawer [(visible)]="tipoAberto" [title]="tipoEmEdicao() ? 'Editar tipo de medida' : 'Novo tipo de medida'" [description]="tipoEmEdicao()?.nome"
+    <geo-form-drawer [(visible)]="tipoAberto" [title]="tipoEmEdicao() ? 'Editar tipo de medida' : 'Novo tipo de medida'" [description]="$safeNavigationMigration(tipoEmEdicao()?.nome)"
       [loading]="salvando()" size="sm">
       <geo-form-section title="Tipo" icon="pi pi-tag">
         <div class="geo-form-grid">
@@ -156,7 +156,7 @@ const SECOES: Record<SecaoCadastroMedida, { titulo: string; icone: string; descr
       </div>
     </geo-form-drawer>
 
-    <geo-form-drawer [(visible)]="motivoAberto" [title]="motivoEmEdicao() ? 'Renomear motivo' : 'Novo motivo'" [description]="motivoEmEdicao()?.nome"
+    <geo-form-drawer [(visible)]="motivoAberto" [title]="motivoEmEdicao() ? 'Renomear motivo' : 'Novo motivo'" [description]="$safeNavigationMigration(motivoEmEdicao()?.nome)"
       [loading]="salvando()" size="sm">
       <geo-text-input label="Nome" [required]="true" [(value)]="nomeMotivo" [maxlength]="80" placeholder="Ex.: Trânsito"
         [error]="tentou() && !nomeMotivo().trim() ? 'Informe o nome.' : undefined"></geo-text-input>

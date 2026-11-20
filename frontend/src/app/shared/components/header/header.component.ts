@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal, ViewChild } from '@angular/core';
+import { Component, computed, inject, input, output, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
 import { CommonModule } from '@angular/common';
@@ -59,6 +59,7 @@ import { ViewStateStore } from '../../../core/navigation/view-state.store';
   `],
   standalone: true,
   imports: [CommonModule, GeoIconButtonComponent, GeoIconComponent, GeoLogoComponent, ButtonModule, AvatarModule, PopoverModule, DialogModule, TooltipModule, RouterLink, ChangePasswordDialogComponent, NotificacoesPanelComponent, BuscaTelasComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <header class="geo-topo">
       <div class="geo-topo__inicio">

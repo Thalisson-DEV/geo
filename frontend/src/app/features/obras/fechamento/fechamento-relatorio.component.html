@@ -116,7 +116,7 @@
           }
           <div class="kv">
             <span class="kv-l">Movimentar até</span>
-            <span class="kv-v" [class.kv-v--muted]="!sol.prazoMovimentacao?.limite">{{ (sol.prazoMovimentacao?.limite | date: 'dd/MM/yyyy HH:mm') || 'Após a reserva' }}</span>
+            <span class="kv-v" [class.kv-v--muted]="!sol.prazoMovimentacao?.limite">{{ ($safeNavigationMigration(sol.prazoMovimentacao?.limite) | date: 'dd/MM/yyyy HH:mm') || 'Após a reserva' }}</span>
           </div>
           @if (prazo(sol.prazoVigente.situacao); as p) {
             <div class="kv">

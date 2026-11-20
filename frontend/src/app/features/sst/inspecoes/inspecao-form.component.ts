@@ -1,6 +1,6 @@
 import { DateMaskDirective } from '../../../shared/directives/date-mask.directive';
 import { CommonModule } from '@angular/common';
-import { Component, DestroyRef, ElementRef, OnInit, ViewChild, signal, computed, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnInit, ViewChild, signal, computed, inject, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -663,6 +663,7 @@ interface Inspecionado {
       </div>
     </app-help-dialog>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .checklist-opcao { margin-left: 0; margin-right: 0; padding-left: .75rem; padding-right: .75rem; border: 1px solid var(--p-content-border-color); align-items: center; }
     :host ::ng-deep {

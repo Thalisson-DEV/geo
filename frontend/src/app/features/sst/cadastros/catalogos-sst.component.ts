@@ -135,7 +135,7 @@ const SITUACOES: GeoSelectOption<boolean | null>[] = [
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? config.dialogEditar : config.dialogNovo"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="md">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="md">
       <geo-form-section [title]="config.colunaNome" [icon]="config.icone">
         <geo-text-input [label]="config.nomeLabel" [required]="true" [(value)]="nome" [maxlength]="120" [placeholder]="config.nomePlaceholder"
           [description]="config.nomeAjuda" [error]="tentouSalvar() && !nome().trim() ? 'Campo obrigatório.' : undefined"></geo-text-input>

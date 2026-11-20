@@ -47,8 +47,8 @@
       }
 
       <section class="dash-metrics" aria-label="Indicadores de manutenção">
-        <app-dashboard-metric-card label="Disponibilidade" icon="pi-check-circle" [tone]="tomDisponibilidade(m.r.manutencao?.disponibilidade?.atual)"
-          [value]="pct(m.r.manutencao?.disponibilidade?.atual)" [progress]="percentual(m.r.manutencao?.disponibilidade?.atual)"
+        <app-dashboard-metric-card label="Disponibilidade" icon="pi-check-circle" [tone]="tomDisponibilidade($safeNavigationMigration(m.r.manutencao?.disponibilidade?.atual))"
+          [value]="pct($safeNavigationMigration(m.r.manutencao?.disponibilidade?.atual))" [progress]="percentual($safeNavigationMigration(m.r.manutencao?.disponibilidade?.atual))"
           [detail]="'Meta 95% · ' + textoVariacao(m.r.manutencao?.disponibilidade?.atual ?? null, m.r.manutencao?.disponibilidade?.anterior ?? null, 'fracao')"
           actionLabel="Ver os parados" (activate)="analisar('kpi', 'parados')">
           <app-copiloto-perguntar metric-action [foco]="{ tipo: 'metrica', id: 'disponibilidade', rotulo: 'Disponibilidade' }" />

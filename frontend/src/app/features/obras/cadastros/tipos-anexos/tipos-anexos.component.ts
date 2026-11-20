@@ -118,7 +118,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de anexo' : 'Novo tipo de anexo'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do tipo" icon="pi pi-paperclip">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="100" description="Gravado em letras maiúsculas." [error]="erro('nome')"></geo-text-input>
         <geo-textarea label="Descrição / finalidade" [(value)]="descricao" [rows]="3" [maxlength]="300" [showOptional]="true"></geo-textarea>

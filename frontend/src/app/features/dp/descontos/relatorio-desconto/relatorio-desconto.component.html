@@ -73,7 +73,7 @@
             <span class="text-xs font-bold text-slate-800 dark:text-slate-200 print:text-black uppercase tracking-wider">Colaborador</span>
           </div>
           <div class="kv"><span class="kv-l">Nome</span><span class="kv-v kv-v--wrap uppercase" [class.kv-v--muted]="!nomeColaborador()">{{ nomeColaborador() || 'Carregando...' }}</span></div>
-          <div class="kv"><span class="kv-l">CPF</span><span class="kv-v font-mono">{{ formatarCpf(colaborador()?.cpf) }}</span></div>
+          <div class="kv"><span class="kv-l">CPF</span><span class="kv-v font-mono">{{ formatarCpf($safeNavigationMigration(colaborador()?.cpf)) }}</span></div>
           <div class="kv"><span class="kv-l">Função</span><span class="kv-v" [title]="colaborador()?.funcao?.nome || ''">{{ colaborador()?.funcao?.nome || '—' }}</span></div>
           <div class="kv"><span class="kv-l">Admissão</span><span class="kv-v">{{ colaborador()?.dataContratacao ? (colaborador()!.dataContratacao | date: 'dd/MM/yyyy') : '—' }}</span></div>
         </div>

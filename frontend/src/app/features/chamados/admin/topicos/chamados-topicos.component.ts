@@ -133,7 +133,7 @@ const SITUACOES: GeoSelectOption<boolean | null>[] = [
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tópico' : 'Novo tópico'" [description]="emEdicao()?.nome"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tópico' : 'Novo tópico'" [description]="$safeNavigationMigration(emEdicao()?.nome)"
       [dirty]="alterado()" size="md">
       <geo-form-section title="Tópico" icon="pi pi-tags">
         <div class="geo-form-grid">

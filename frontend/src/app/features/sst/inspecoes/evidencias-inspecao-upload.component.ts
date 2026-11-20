@@ -8,7 +8,8 @@ import {
   ViewChild,
   computed,
   inject,
-  signal
+  signal,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { TooltipModule } from 'primeng/tooltip';
@@ -54,6 +55,7 @@ let seqEvidencia = 0;
   selector: 'app-evidencias-inspecao-upload',
   standalone: true,
   imports: [CommonModule, TooltipModule],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
       <!-- Cabeçalho do painel (mesmo padrão do bloco de inspecionados) -->

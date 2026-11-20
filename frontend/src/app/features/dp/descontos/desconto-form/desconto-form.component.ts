@@ -1,5 +1,5 @@
 import { DateMaskDirective } from '../../../../shared/directives/date-mask.directive';
-import { Component, DestroyRef, OnInit, OnDestroy, signal, inject, output, ViewChild, effect, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, OnDestroy, signal, inject, output, ViewChild, effect, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -84,6 +84,7 @@ interface AnexoPreview {
     GeoAutocompleteComponent
   ],
   templateUrl: './desconto-form.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .kv { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
     .kv-l { font-size: 10px; font-weight: 600; color: #475569; }

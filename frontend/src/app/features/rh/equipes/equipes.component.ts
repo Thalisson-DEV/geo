@@ -181,7 +181,7 @@ const FUNCOES_MEMBRO: GeoSelectOption<FuncaoMembro>[] = [
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar equipe' : 'Nova equipe'" [description]="emEdicao()?.codigo"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar equipe' : 'Nova equipe'" [description]="$safeNavigationMigration(emEdicao()?.codigo)"
       [dirty]="alterado()" size="lg">
       <geo-form-section title="Identificação" icon="pi pi-tag">
         <div class="geo-form-grid">

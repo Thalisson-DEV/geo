@@ -1,5 +1,5 @@
 import { iconeCondicao } from '../../../../shared/utils/movimentacao.utils';
-import { Component, OnInit, signal, inject, ViewChild, AfterViewInit, OnDestroy, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewChild, AfterViewInit, OnDestroy, computed, ChangeDetectionStrategy } from '@angular/core';
 import { numero, quantidadeComInformada } from '../../shared/unidade-material';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -54,6 +54,7 @@ type GrupoItens = ItemMovimentacaoAgrupado & { readonly grade: readonly SerieGra
     SeriesGradeComponent,
   ],
   templateUrl: './relatorio-movimentacao-estoque.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './relatorio-movimentacao-estoque.component.css',
 })
 export class RelatorioMovimentacaoEstoqueComponent implements OnInit, AfterViewInit, OnDestroy {

@@ -146,7 +146,7 @@ const OPCOES_SERIE: GeoSelectOption<boolean | null>[] = [
       >
         <ng-template geoCell="codigo" let-row><span class="geo-cell-strong">{{ row.codigo }}</span></ng-template>
         <ng-template geoCell="processo" let-row>
-          @if (visualProcesso(row.processo?.nome); as p) {
+          @if (visualProcesso($safeNavigationMigration(row.processo?.nome)); as p) {
             <geo-status tone="neutral" [icon]="p.icone">{{ p.rotulo }}</geo-status>
           } @else {
             <span class="geo-cell-muted">—</span>
@@ -179,7 +179,7 @@ const OPCOES_SERIE: GeoSelectOption<boolean | null>[] = [
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar material' : 'Novo material'" [description]="emEdicao()?.codigo"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar material' : 'Novo material'" [description]="$safeNavigationMigration(emEdicao()?.codigo)"
       [dirty]="alterado()" size="md">
       <geo-form-section title="Material" icon="pi pi-box">
         <div class="geo-form-grid">

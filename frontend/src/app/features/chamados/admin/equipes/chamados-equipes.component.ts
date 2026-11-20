@@ -144,7 +144,7 @@ const SITUACOES: GeoSelectOption<boolean | null>[] = [
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar equipe' : 'Nova equipe'" [description]="emEdicao()?.nome"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar equipe' : 'Nova equipe'" [description]="$safeNavigationMigration(emEdicao()?.nome)"
       [dirty]="alterado()" [loading]="carregandoDetalhe()" size="md">
       <geo-form-section title="Identificação" icon="pi pi-users">
         <div class="geo-form-grid">

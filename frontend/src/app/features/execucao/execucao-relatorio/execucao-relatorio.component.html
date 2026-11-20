@@ -99,8 +99,8 @@
           <div class="kv"><span class="kv-l">Equipe</span><span class="kv-v uppercase">{{ equipe()?.codigo || '—' }}{{ equipe()?.tipoEquipe ? ' - ' + equipe()!.tipoEquipe!.nome : '' }}</span></div>
           <div class="kv"><span class="kv-l">Base</span><span class="kv-v">{{ equipe()?.baseOperacional?.nome || '—' }}</span></div>
           <div class="kv"><span class="kv-l">Processo</span><span class="kv-v">{{ equipe()?.processo?.nome || '—' }}</span></div>
-          <div class="kv"><span class="kv-l">Supervisor</span><span class="kv-v uppercase">{{ nomeColaborador(equipe()?.supervisor) }}</span></div>
-          <div class="kv"><span class="kv-l">Coordenador</span><span class="kv-v uppercase">{{ nomeColaborador(equipe()?.coordenador) }}</span></div>
+          <div class="kv"><span class="kv-l">Supervisor</span><span class="kv-v uppercase">{{ nomeColaborador($safeNavigationMigration(equipe()?.supervisor)) }}</span></div>
+          <div class="kv"><span class="kv-l">Coordenador</span><span class="kv-v uppercase">{{ nomeColaborador($safeNavigationMigration(equipe()?.coordenador)) }}</span></div>
         </div>
 
         <div class="flex flex-col gap-3">
@@ -139,7 +139,7 @@
           <div>
             <span class="text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums block">{{ moeda(e.valorTotalFaturado) }}</span>
             <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              @if (variacaoMedia() !== null) { {{ variacao(variacaoMedia()) }} vs. nota média ({{ moeda(ctx?.referenciaEquipe?.valorMedioNota) }}) }
+              @if (variacaoMedia() !== null) { {{ variacao(variacaoMedia()) }} vs. nota média ({{ moeda($safeNavigationMigration(ctx?.referenciaEquipe?.valorMedioNota)) }}) }
               @else { {{ e.acoes.length }} {{ e.acoes.length === 1 ? 'ação' : 'ações' }} na nota }
             </span>
           </div>
@@ -174,7 +174,7 @@
             <div class="w-7 h-7 rounded-lg bg-primary-100 dark:bg-primary-900/60 text-primary-700 dark:text-primary-300 flex items-center justify-center shrink-0 border border-primary-200/80 dark:border-primary-800/80"><i class="pi pi-flag text-xs"></i></div>
           </div>
           <div>
-            @let dia = ctx?.diaDaEquipe;
+            @let dia = $safeNavigationMigration(ctx?.diaDaEquipe);
             <span class="text-2xl font-bold text-primary-700 dark:text-primary-300 tabular-nums block">
               {{ dia?.percentualMetaDiaria != null ? percentual(dia!.percentualMetaDiaria) : (dia ? moeda(dia.producao) : '—') }}
             </span>

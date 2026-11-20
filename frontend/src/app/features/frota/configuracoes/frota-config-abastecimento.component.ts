@@ -214,7 +214,7 @@ const COMBUSTIVEIS: GeoSelectOption<CombustivelPosto>[] = [
       [podeEditar]="acesso.configurarAbastecimento() || acesso.liberarAbastecimento()"></app-frota-precos-posto-drawer>
 
     <geo-form-drawer [(visible)]="postoAberto" [title]="postoEmEdicao() ? 'Editar posto' : 'Novo posto'"
-      [description]="postoEmEdicao()?.nome" [dirty]="!!nomePosto().trim()" [loading]="salvando()" size="md">
+      [description]="$safeNavigationMigration(postoEmEdicao()?.nome)" [dirty]="!!nomePosto().trim()" [loading]="salvando()" size="md">
       <div class="geo-form-stack">
         <geo-form-section title="Identificação" icon="pi pi-map-marker">
           <geo-text-input label="Nome" [required]="true" [(value)]="nomePosto" [maxlength]="120" placeholder="Ex.: Posto Central"
@@ -241,7 +241,7 @@ const COMBUSTIVEIS: GeoSelectOption<CombustivelPosto>[] = [
 
     <!-- Produto -->
     <geo-form-drawer [(visible)]="produtoAberto" [title]="produtoEmEdicao() ? 'Editar produto' : 'Novo produto'"
-      [description]="produtoEmEdicao()?.nome" [dirty]="!!nomeProduto().trim()" [loading]="salvando()" size="sm">
+      [description]="$safeNavigationMigration(produtoEmEdicao()?.nome)" [dirty]="!!nomeProduto().trim()" [loading]="salvando()" size="sm">
       <div class="geo-form-stack">
         <geo-text-input label="Nome" [required]="true" [(value)]="nomeProduto" [maxlength]="80" placeholder="Ex.: Óleo do motor 15W40"
           [error]="tentou() && !nomeProduto().trim() ? 'Informe o nome do produto.' : undefined"></geo-text-input>

@@ -172,7 +172,7 @@ export function formatarDocumento(valor?: string | null): string {
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar fornecedor' : 'Novo fornecedor'" [description]="emEdicao()?.nomeFantasia"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar fornecedor' : 'Novo fornecedor'" [description]="$safeNavigationMigration(emEdicao()?.nomeFantasia)"
       [dirty]="alterado()" size="md">
       <geo-form-section title="Identificação" icon="pi pi-building">
         <geo-text-input label="Nome fantasia" [required]="true" [(value)]="nomeFantasia" [maxlength]="150" placeholder="Nome pelo qual o fornecedor é conhecido" [error]="erro('nome')"></geo-text-input>
@@ -191,7 +191,7 @@ export function formatarDocumento(valor?: string | null): string {
       </div>
     </geo-form-drawer>
 
-    <geo-form-drawer [(visible)]="bloqueioAberto" title="Bloquear fornecedor" [description]="emBloqueio()?.nomeFantasia" [dirty]="!!motivo().trim()" size="sm">
+    <geo-form-drawer [(visible)]="bloqueioAberto" title="Bloquear fornecedor" [description]="$safeNavigationMigration(emBloqueio()?.nomeFantasia)" [dirty]="!!motivo().trim()" size="sm">
       <geo-callout tone="warning">Novas solicitações não poderão usar este fornecedor até o desbloqueio.</geo-callout>
       <geo-textarea label="Motivo do bloqueio" [required]="true" [(value)]="motivo" [rows]="4" [error]="tentouBloquear() && !motivo().trim() ? 'Informe o motivo.' : undefined"></geo-textarea>
       <div drawer-footer class="geo-actions-row">

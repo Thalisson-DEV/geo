@@ -1,5 +1,5 @@
 import { iconeCondicao } from '../../utils/movimentacao.utils';
-import { Component, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, ViewChild, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -44,6 +44,7 @@ const ORDENACAO_PADRAO = 'material.descricao,asc';
     SaldoSeriaisPainelComponent,
   ],
   templateUrl: './saldo-estoque-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './saldo-estoque-dialog.component.css',
 })
 export class SaldoEstoqueDialogComponent {

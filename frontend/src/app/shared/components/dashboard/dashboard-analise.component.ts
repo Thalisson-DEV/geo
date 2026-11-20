@@ -108,10 +108,10 @@ const VAZIO: EstadoOrigem = { carregando: false, erro: false, linhas: [], total:
             @if (v.anterior || v.proximo) {
               <div class="an-passos" role="group" [attr.aria-label]="'Navegar entre ' + v.eyebrow.toLowerCase()">
                 <geo-icon-button icon="pi pi-chevron-left" size="icon-sm" variant="outline"
-                  [label]="v.anterior ? 'Ir para ' + v.anterior.rotulo : 'Não há anterior'" [tooltip]="v.anterior?.rotulo"
+                  [label]="v.anterior ? 'Ir para ' + v.anterior.rotulo : 'Não há anterior'" [tooltip]="$safeNavigationMigration(v.anterior?.rotulo)"
                   [disabled]="!v.anterior" (pressed)="v.anterior && trocar.emit(v.anterior.alvo)"></geo-icon-button>
                 <geo-icon-button icon="pi pi-chevron-right" size="icon-sm" variant="outline"
-                  [label]="v.proximo ? 'Ir para ' + v.proximo.rotulo : 'Não há seguinte'" [tooltip]="v.proximo?.rotulo"
+                  [label]="v.proximo ? 'Ir para ' + v.proximo.rotulo : 'Não há seguinte'" [tooltip]="$safeNavigationMigration(v.proximo?.rotulo)"
                   [disabled]="!v.proximo" (pressed)="v.proximo && trocar.emit(v.proximo.alvo)"></geo-icon-button>
               </div>
             }

@@ -127,7 +127,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar agente' : 'Novo agente'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="md">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="md">
       <geo-form-section title="Identificação" icon="pi pi-id-card">
         <div class="geo-form-grid">
           <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="150" description="Gravado em letras maiúsculas." [error]="erro('nome')"></geo-text-input>

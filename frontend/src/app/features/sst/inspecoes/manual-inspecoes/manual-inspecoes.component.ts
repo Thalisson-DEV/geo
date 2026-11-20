@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -11,6 +11,7 @@ import { TableModule } from 'primeng/table';
     ButtonModule,
     TableModule
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './manual-inspecoes.component.html'
 })
 export class ManualInspecoesComponent {

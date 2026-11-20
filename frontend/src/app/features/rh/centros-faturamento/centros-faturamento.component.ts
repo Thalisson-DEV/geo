@@ -114,7 +114,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar centro de custo' : 'Novo centro de custo'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do centro" icon="pi pi-wallet">
         <geo-text-input label="Nome" [required]="true" [(value)]="descricao" [maxlength]="120" placeholder="Ex.: Centro Norte" [error]="erro('descricao')"></geo-text-input>
         <geo-boolean-control label="Centro ativo" kind="toggle" [(value)]="ativo"></geo-boolean-control>

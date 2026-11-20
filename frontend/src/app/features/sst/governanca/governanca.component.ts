@@ -164,7 +164,7 @@ const dataBr = (iso?: string | null) => (iso ? new Date(`${iso.substring(0, 10)}
             </div>
             <div class="gov-atencao">
               <h3>O que precisa de atenção</h3>
-              <span class="geo-cell-muted">Atualizado em {{ dashboard()?.calculadoEm | date: 'dd/MM/yyyy HH:mm' }}</span>
+              <span class="geo-cell-muted">Atualizado em {{ $safeNavigationMigration(dashboard()?.calculadoEm) | date: 'dd/MM/yyyy HH:mm' }}</span>
               @for (item of dashboard()?.atencao ?? []; track item.idRegistro) {
                 <button type="button" class="gov-atencao__item" (click)="abrirAtencao(item)">
                   <geo-status [tone]="item.severidade === 'VENCIDO' ? 'danger' : 'warning'" [icon]="item.severidade === 'VENCIDO' ? 'pi-calendar-times' : 'pi-clock'">{{ item.severidade === 'VENCIDO' ? 'Vencido' : 'A vencer' }}</geo-status>

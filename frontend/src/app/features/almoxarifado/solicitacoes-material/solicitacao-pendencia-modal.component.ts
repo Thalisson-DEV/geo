@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal, untracked, ChangeDetectionStrategy } from '@angular/core';
 import {
   GeoButtonComponent,
   GeoFormDrawerComponent,
@@ -39,6 +39,7 @@ export interface ItemPendenciaConfig {
     GeoTextareaComponent,
     GeoStatusComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <geo-form-drawer
       [title]="modalTitle()"

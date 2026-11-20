@@ -8,7 +8,8 @@ import {
   computed,
   inject,
   signal,
-  viewChild
+  viewChild,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -49,6 +50,7 @@ import { imprimirSempreNoTemaClaro } from '../relatorios/relatorio-impressao';
     GeoStatusComponent
   ],
   templateUrl: './turno-detalhamento.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: '../relatorios/relatorio.css'
 })
 export class TurnoDetalhamentoComponent implements OnInit, AfterViewChecked {

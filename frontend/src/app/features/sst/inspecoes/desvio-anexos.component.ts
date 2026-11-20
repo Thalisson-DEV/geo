@@ -12,7 +12,8 @@ import {
   input,
   output,
   signal,
-  untracked
+  untracked,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -59,6 +60,7 @@ interface SecaoAnexo {
     ConfirmPopupModule
   ],
   providers: [ConfirmationService],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="mt-1 print:break-inside-avoid">
       <div class="flex items-center gap-2 mb-2">

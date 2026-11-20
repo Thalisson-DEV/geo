@@ -174,7 +174,7 @@ export function formatarCpf(valor: string | null | undefined): string {
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar colaborador' : 'Novo colaborador'" [description]="emEdicao()?.nomeCompleto"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar colaborador' : 'Novo colaborador'" [description]="$safeNavigationMigration(emEdicao()?.nomeCompleto)"
       [dirty]="alterado()" size="lg">
       @if (emEdicao() && verMedidas()) {
         <geo-tabs [(value)]="abaColaborador" [tabs]="abasColaborador" ariaLabel="Seções do colaborador">

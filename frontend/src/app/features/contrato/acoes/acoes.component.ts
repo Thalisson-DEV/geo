@@ -126,7 +126,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
       </geo-data-table>
     </div>
 
-    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar ação' : 'Nova ação'" [description]="emEdicao()?.codigo"
+    <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar ação' : 'Nova ação'" [description]="$safeNavigationMigration(emEdicao()?.codigo)"
       [dirty]="alterado()" size="md">
       <geo-form-section title="Ação" icon="pi pi-bolt">
         <div class="geo-form-grid">

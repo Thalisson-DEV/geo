@@ -44,7 +44,7 @@ const TEXTOS: Record<EtapaOrdemServico, { titulo: string; descricao: string; bot
   styles: `.horarios { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: -0.25rem; }`,
   template: `
     <geo-form-drawer [(visible)]="visivel" [title]="textos().titulo"
-      [description]="rotuloOs(ordem()?.ordem?.numero) + ' · ' + (ordem()?.ordem?.placa ?? '') + '. ' + textos().descricao"
+      [description]="rotuloOs($safeNavigationMigration(ordem()?.ordem?.numero)) + ' · ' + (ordem()?.ordem?.placa ?? '') + '. ' + textos().descricao"
       [dirty]="alterado()" [loading]="salvando()" size="sm">
       <!-- Só com o drawer aberto: fechar destrói os datepickers e o painel que eles anexam ao body. -->
       @if (visivel()) {

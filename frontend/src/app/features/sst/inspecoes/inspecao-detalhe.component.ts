@@ -1,6 +1,6 @@
 import { ICONE_GRAVIDADE_DESVIO } from '../../../core/models/sst.models';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, OnDestroy, ViewChild, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   GeoAsyncStateComponent,
@@ -90,6 +90,7 @@ declare var L: any;
   ],
   providers: [MessageService],
   templateUrl: './inspecao-detalhe.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../execucao/relatorios/relatorio.css', './inspecao-detalhe.component.css']
 })
 export class InspecaoDetalheComponent implements OnInit, OnDestroy {

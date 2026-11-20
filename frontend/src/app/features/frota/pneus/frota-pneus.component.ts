@@ -168,7 +168,7 @@ const moeda = (v: number | null | undefined) => (v ?? 0).toLocaleString('pt-BR',
             <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-dollar"></i></span>
             <span class="geo-kpi__body">
               <span class="geo-kpi__label">Custo médio por km</span>
-              <span class="geo-kpi__value">{{ custoKm(r?.custoPorKm) }}</span>
+              <span class="geo-kpi__value">{{ custoKm($safeNavigationMigration(r?.custoPorKm)) }}</span>
               @if (r) { <span class="geo-kpi__detail">{{ moeda(r.custoTotal) }} em compra, reparos e reformas</span> }
             </span>
           </div>

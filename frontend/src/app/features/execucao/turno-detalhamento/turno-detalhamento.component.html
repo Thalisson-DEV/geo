@@ -85,8 +85,8 @@
             <i class="pi pi-sitemap text-primary-500 text-xs"></i>
             <span class="text-xs font-bold text-slate-800 dark:text-slate-200 print:text-black uppercase tracking-wider">Gestão</span>
           </div>
-          <div class="kv"><span class="kv-l">Supervisor</span><span class="kv-v uppercase">{{ nomeColaborador(equipe()?.supervisor) }}</span></div>
-          <div class="kv"><span class="kv-l">Coordenador</span><span class="kv-v uppercase">{{ nomeColaborador(equipe()?.coordenador) }}</span></div>
+          <div class="kv"><span class="kv-l">Supervisor</span><span class="kv-v uppercase">{{ nomeColaborador($safeNavigationMigration(equipe()?.supervisor)) }}</span></div>
+          <div class="kv"><span class="kv-l">Coordenador</span><span class="kv-v uppercase">{{ nomeColaborador($safeNavigationMigration(equipe()?.coordenador)) }}</span></div>
           <div class="kv"><span class="kv-l">Meta do dia</span><span class="kv-v">{{ ind.metaDiaria !== null ? moeda(ind.metaDiaria) : 'Sem meta' }}</span></div>
           <div class="kv"><span class="kv-l">Turnos (30 dias)</span><span class="kv-v">{{ hist.turnos }}</span></div>
           <div class="kv"><span class="kv-l">Média por turno</span><span class="kv-v">{{ hist.mediaProducaoPorTurno !== null ? moeda(hist.mediaProducaoPorTurno) : '—' }}</span></div>
@@ -426,7 +426,7 @@
             </div>
             <div class="w-full flex flex-col items-center mt-4 print:mt-3">
               <div class="signature-slot"></div>
-              <span class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-full uppercase">{{ nomeColaborador(equipe()?.supervisor) === '—' ? 'Supervisor Responsável' : nomeColaborador(equipe()?.supervisor) }}</span>
+              <span class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate max-w-full uppercase">{{ nomeColaborador($safeNavigationMigration(equipe()?.supervisor)) === '—' ? 'Supervisor Responsável' : nomeColaborador($safeNavigationMigration(equipe()?.supervisor)) }}</span>
               <span class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data: ____/____/________</span>
             </div>
           </div>

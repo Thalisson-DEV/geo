@@ -14,5 +14,13 @@
     "src/**/*.spec.ts",
     "src/app/shared/components/chatbot/**/*.ts",
     "src/app/core/utils/assistente-presentation.util.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "extendedDiagnostics": {
+      "checks": {
+        "nullishCoalescingNotNullable": "suppress",
+        "optionalChainNotNullable": "suppress"
+      }
+    }
+  }
 }

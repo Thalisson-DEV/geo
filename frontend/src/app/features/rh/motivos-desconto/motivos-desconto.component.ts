@@ -114,7 +114,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar motivo' : 'Novo motivo'"
-      [description]="emEdicao()?.descricao" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.descricao)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do motivo" icon="pi pi-tags">
         <geo-text-input label="Descrição" [required]="true" [(value)]="descricao" [maxlength]="120" placeholder="Ex.: Mau uso" [error]="erro('descricao')"></geo-text-input>
         <geo-number-input label="Teto de parcelas" [required]="true" [(value)]="tetoParcelas" [min]="1" [useGrouping]="false"

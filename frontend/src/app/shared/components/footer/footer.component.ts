@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ConnectivityService } from '../../../core/services/connectivity.service';
@@ -27,6 +27,7 @@ import { ConnectivityService } from '../../../core/services/connectivity.service
       </div>
     </footer>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host { display: block; }
   `]

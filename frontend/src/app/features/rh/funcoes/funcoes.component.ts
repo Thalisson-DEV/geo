@@ -123,7 +123,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar função' : 'Nova função'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados da função" icon="pi pi-briefcase">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="100" placeholder="Ex.: Eletricista" [error]="erro('nome')"></geo-text-input>
         <geo-textarea label="Descrição" [(value)]="descricao" [rows]="3" [maxlength]="500" [showOptional]="true"></geo-textarea>

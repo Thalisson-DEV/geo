@@ -15,6 +15,7 @@ import {
   OnDestroy,
   ElementRef,
   computed,
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -144,6 +145,7 @@ interface FaixaSituacao {
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './relatorio-solicitacao-material.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./relatorio-solicitacao-material.component.css'],
 })
 export class RelatorioSolicitacaoMaterialComponent implements OnInit, AfterViewInit, OnDestroy {

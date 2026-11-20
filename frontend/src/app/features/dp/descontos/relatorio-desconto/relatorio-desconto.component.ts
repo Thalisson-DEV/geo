@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -134,6 +134,7 @@ const ICONE_STATUS: Record<DescontoStatus, string> = {
     DescontoHistoricoComponent
   ],
   templateUrl: './relatorio-desconto.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../../../execucao/relatorios/relatorio.css', './relatorio-desconto.component.css']
 })
 export class RelatorioDescontoComponent implements OnInit {

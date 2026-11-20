@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { VersaoAppService } from '../../../core/services/versao-app.service';
 
@@ -80,6 +80,7 @@ import { VersaoAppService } from '../../../core/services/versao-app.service';
       </div>
     }
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [
     `
       @keyframes subir {

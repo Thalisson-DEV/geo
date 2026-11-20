@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, effect, untracked } from '@angular/core';
+import { Component, computed, inject, signal, effect, untracked, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from './shared/components/footer/footer.component';
@@ -49,6 +49,7 @@ const ICONES_AVISO: Record<string, string> = {
     ScrollMemoryDirective
   ],
   templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.css'
 })
 export class App {

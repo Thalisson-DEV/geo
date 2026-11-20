@@ -83,7 +83,7 @@ const ROTULOS_COMUNS: Record<string, string> = {
             } @else {
               @let n = noSelecionado();
               <header class="aut-panel-head" [attr.data-group]="espec()?.grupo">
-                <span class="aut-node-icon"><i [class]="icone(espec()?.icone)" aria-hidden="true"></i></span>
+                <span class="aut-node-icon"><i [class]="icone($safeNavigationMigration(espec()?.icone))" aria-hidden="true"></i></span>
                 <div style="display:flex;flex-direction:column;flex:1;min-width:0">
                   <span class="aut-panel-title">{{ n?.label || espec()?.rotulo }}</span>
                   <span class="aut-muted">{{ espec()?.rotulo }}</span>

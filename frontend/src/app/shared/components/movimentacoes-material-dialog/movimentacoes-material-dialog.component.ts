@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { Subject, catchError, debounceTime, map, merge, of, skip, switchMap } from 'rxjs';
@@ -98,6 +98,7 @@ const TAMANHO_PADRAO = 25;
       }
     `
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <geo-drawer
       [(visible)]="visible"

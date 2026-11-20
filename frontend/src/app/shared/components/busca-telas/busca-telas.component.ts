@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, computed, inject, input, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, input, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ViewStateStore } from '../../../core/navigation/view-state.store';
@@ -113,6 +113,7 @@ interface TelaBuscavel {
       </div>
     </p-dialog>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     /* O diálogo vai para o body, fora do alcance de :host ::ng-deep — o seletor é
        global de propósito, ancorado numa classe que só este componente usa. */

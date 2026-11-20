@@ -121,7 +121,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar processo' : 'Novo processo'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do processo" icon="pi pi-sitemap">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="50" placeholder="Ex.: Comercial" [error]="erro('nome')"></geo-text-input>
         <geo-boolean-control label="Processo ativo" kind="toggle" [(value)]="ativo"></geo-boolean-control>

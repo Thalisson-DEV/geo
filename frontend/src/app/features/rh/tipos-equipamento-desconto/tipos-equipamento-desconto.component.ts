@@ -112,7 +112,7 @@ import { LIMITE_EXPORTACAO, OPCOES_STATUS, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar tipo de equipamento' : 'Novo tipo de equipamento'"
-      [description]="emEdicao()?.descricao" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.descricao)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do tipo" icon="pi pi-box">
         <geo-text-input label="Descrição" [required]="true" [(value)]="descricao" [maxlength]="120" placeholder="Ex.: EPI" [error]="erro('descricao')"></geo-text-input>
       </geo-form-section>

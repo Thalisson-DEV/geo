@@ -134,7 +134,7 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
           <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-inbox"></i></span>
           <span class="geo-kpi__body">
             <span class="geo-kpi__label">Pendentes</span>
-            <span class="geo-kpi__value">{{ valor(painel()?.pendentes) }}</span>
+            <span class="geo-kpi__value">{{ valor($safeNavigationMigration(painel()?.pendentes)) }}</span>
             <span class="geo-kpi__detail">{{ detalheCriticidade() }}</span>
           </span>
           <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
@@ -144,7 +144,7 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
           <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-calendar"></i></span>
           <span class="geo-kpi__body">
             <span class="geo-kpi__label">Agendadas</span>
-            <span class="geo-kpi__value">{{ valor(painel()?.agendadas) }}</span>
+            <span class="geo-kpi__value">{{ valor($safeNavigationMigration(painel()?.agendadas)) }}</span>
             <span class="geo-kpi__detail">{{ contar(painel()?.agendadasVencidas ?? 0, 'com data passada', 'com data passada', 'Nenhuma com data passada') }}</span>
           </span>
           <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
@@ -154,7 +154,7 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
           <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-cog"></i></span>
           <span class="geo-kpi__body">
             <span class="geo-kpi__label">Em andamento</span>
-            <span class="geo-kpi__value">{{ valor(painel()?.emAndamento) }}</span>
+            <span class="geo-kpi__value">{{ valor($safeNavigationMigration(painel()?.emAndamento)) }}</span>
             <span class="geo-kpi__detail">{{ contar(painel()?.atrasadas ?? 0, 'com prazo estourado', 'com prazo estourado', 'Todas dentro do prazo') }}</span>
           </span>
           <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
@@ -164,7 +164,7 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
           <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-stop-circle"></i></span>
           <span class="geo-kpi__body">
             <span class="geo-kpi__label">Veículos parados</span>
-            <span class="geo-kpi__value">{{ valor(painel()?.veiculosParados) }}</span>
+            <span class="geo-kpi__value">{{ valor($safeNavigationMigration(painel()?.veiculosParados)) }}</span>
             <span class="geo-kpi__detail">{{ contar(painel()?.aguardandoAprovacao ?? 0, 'OS aguardando aprovação', 'OS aguardando aprovação', 'Nenhuma aguardando aprovação') }}</span>
           </span>
           <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>
@@ -173,7 +173,7 @@ const SIM_NAO: GeoSelectOption<boolean | null>[] = [
           <span class="geo-kpi__icon" aria-hidden="true"><i class="pi pi-check-circle"></i></span>
           <span class="geo-kpi__body">
             <span class="geo-kpi__label">Concluídas</span>
-            <span class="geo-kpi__value">{{ valor(painel()?.concluidasUltimos30Dias) }}</span>
+            <span class="geo-kpi__value">{{ valor($safeNavigationMigration(painel()?.concluidasUltimos30Dias)) }}</span>
             <span class="geo-kpi__detail">{{ painel()?.baixaPendente ? 'Nos últimos 30 dias · ' + contar(painel()!.baixaPendente!, 'com valores pendentes', 'com valores pendentes', '') : 'Nos últimos 30 dias' }}</span>
           </span>
           <i class="pi pi-angle-right geo-kpi__go" aria-hidden="true"></i>

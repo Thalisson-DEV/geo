@@ -125,22 +125,22 @@ import { buscaColaboradores, resumoColaborador, rotuloColaborador, situacaoVigen
       >
         <ng-template geoCell="nome" let-row>
           <span class="geo-cell-strong">{{ row.colaborador?.nomeCompleto }}</span>
-          <span class="geo-cell-muted">{{ formatarCpf(row.colaborador?.cpf) }}</span>
+          <span class="geo-cell-muted">{{ formatarCpf($safeNavigationMigration(row.colaborador?.cpf)) }}</span>
         </ng-template>
         <ng-template geoCell="situacao" let-row>
           <geo-status [tone]="vigencia(row).tone" [icon]="vigencia(row).icon">{{ vigencia(row).label }}</geo-status>
         </ng-template>
         <ng-template geoRowActions let-row>
           <span class="geo-table-actions">
-            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + row.colaborador?.nomeCompleto" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
-            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + row.colaborador?.nomeCompleto" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
+            <geo-icon-button [icon]="row.ativo ? 'pi pi-ban' : 'pi pi-replay'" [label]="(row.ativo ? 'Desativar ' : 'Ativar ') + $safeNavigationMigration(row.colaborador?.nomeCompleto)" size="icon-sm" (pressed)="alternar(row)"></geo-icon-button>
+            <geo-icon-button icon="pi pi-history" [label]="'Histórico de alterações de ' + $safeNavigationMigration(row.colaborador?.nomeCompleto)" size="icon-sm" (pressed)="logs(row)"></geo-icon-button>
           </span>
         </ng-template>
       </geo-data-table>
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar supervisor' : 'Novo supervisor'"
-      [description]="emEdicao()?.colaborador?.nomeCompleto" [dirty]="alterado()" size="md">
+      [description]="$safeNavigationMigration(emEdicao()?.colaborador?.nomeCompleto)" [dirty]="alterado()" size="md">
       <geo-form-section title="Colaborador" icon="pi pi-user">
         <geo-autocomplete label="Colaborador" [required]="true" placeholder="Digite o nome" [options]="colaboradoresLookup.items()"
           [ngModel]="idColaborador()" (ngModelChange)="selecionar($event)" [loading]="colaboradoresLookup.loading()"

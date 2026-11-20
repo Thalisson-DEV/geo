@@ -77,7 +77,7 @@ import { acessoFrota } from '../shared/frota-acesso';
     </geo-data-table>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar item' : 'Novo item de manutenção'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" [loading]="salvando()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" [loading]="salvando()" size="sm">
       <div class="geo-form-stack">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="120"
           placeholder="Ex.: Pastilha de freio dianteira" [error]="tentou() && !nome().trim() ? 'Informe o nome.' : undefined"></geo-text-input>

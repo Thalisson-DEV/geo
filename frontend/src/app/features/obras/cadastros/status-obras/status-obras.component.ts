@@ -133,7 +133,7 @@ const OPCOES_CONCLUSAO = [
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar status' : 'Novo status'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados do status" icon="pi pi-flag">
         <geo-text-input label="Nome" [required]="true" [(value)]="nome" [maxlength]="100" description="Gravado em letras maiúsculas." [error]="erro('nome')"></geo-text-input>
         <geo-number-input label="Ordem de exibição" [(value)]="ordem" [min]="0" [useGrouping]="false" description="Posição do status no painel de obras."></geo-number-input>

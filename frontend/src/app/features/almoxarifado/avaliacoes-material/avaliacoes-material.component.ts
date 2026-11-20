@@ -121,7 +121,7 @@ import { OPCOES_STATUS, LIMITE_EXPORTACAO, exportacaoPadrao, paginaPadrao } from
     </div>
 
     <geo-form-drawer [(visible)]="formularioAberto" [title]="emEdicao() ? 'Editar avaliação' : 'Nova avaliação'"
-      [description]="emEdicao()?.nome" [dirty]="alterado()" size="sm">
+      [description]="$safeNavigationMigration(emEdicao()?.nome)" [dirty]="alterado()" size="sm">
       <geo-form-section title="Dados da avaliação" icon="pi pi-star">
         <geo-text-input label="Nome" [required]="true" [(value)]="principal" [maxlength]="50" placeholder="Ex.: INVEST" [error]="erro('principal')"></geo-text-input>
         <geo-boolean-control label="Avaliação ativa" kind="toggle" [(value)]="ativo"></geo-boolean-control>

@@ -1,4 +1,4 @@
-import { Component, inject, signal, output, computed } from '@angular/core';
+import { Component, inject, signal, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
@@ -142,6 +142,7 @@ import { getErrorMessage } from '../../../core/models/shared.models';
       </div>
     </p-dialog>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     :host ::ng-deep {
       .p-password-input {
