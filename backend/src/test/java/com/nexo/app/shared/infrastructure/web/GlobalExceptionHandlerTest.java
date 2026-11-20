@@ -96,4 +96,35 @@ class GlobalExceptionHandlerTest {
 
         assertThat(problem.getStatus()).isEqualTo(403);
     }
+
+    @Test
+    void preenchimentoInvalidoExpoeErrorsNoFormatoDoContrato() {
+        var problem = handler.handlePreenchimentoInvalidoException(
+                new PreenchimentoInvalidoException(Map.of("ocorrencia", "A ocorrencia e obrigatoria.")));
+
+        assertThat(problem.getProperties().get("errors").toString())
+                .contains("field=ocorrencia")
+                .contains("message=A ocorrencia e obrigatoria.")
+                .contains("code=OCORRENCIA_OBRIGATORIA");
+    }
+
+    @Test
+    void estadoInvalidoERegraDeNegocioSao422ComCodigo() {
+        var estado = handler.handleIllegalState(new IllegalStateException("Turno já encerrado."));
+        assertThat(estado.getStatus()).isEqualTo(422);
+        assertThat(estado.getProperties()).containsEntry("code", "ESTADO_INVALIDO");
+
+        var regra = handler.handleValidationException(new jakarta.validation.ValidationException("Fora do prazo."));
+        assertThat(regra.getStatus()).isEqualTo(422);
+        assertThat(regra.getProperties()).containsEntry("code", "REGRA_NEGOCIO_VIOLADA");
+    }
+
+    @Test
+    void ordenacaoPorCampoInexistenteE400() {
+        var ex = new org.springframework.data.core.PropertyReferenceException(
+                "campoQueNaoExiste", org.springframework.data.core.TypeInformation.of(Object.class), java.util.List.of());
+        var problem = handler.handlePropertyReference(ex);
+        assertThat(problem.getStatus()).isEqualTo(400);
+        assertThat(problem.getProperties()).containsEntry("code", "ORDENACAO_INVALIDA");
+    }
 }

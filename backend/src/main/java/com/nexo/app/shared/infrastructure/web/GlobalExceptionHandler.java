@@ -17,6 +17,7 @@ import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.dao.InvalidDataAccessResourceUsageException;
 import org.springframework.http.*;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -33,7 +34,9 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -114,6 +117,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setProperty("timestamp", Instant.now());
         problemDetail.setProperty("erros", ex.getErros());
         problemDetail.setProperty("fieldErrors", errosPorCampo(ex.getErros()));
+        problemDetail.setProperty("errors", errosDoContrato(ex.getErros()));
         problemDetail.setProperty("code", codigo);
         return problemDetail;
     }
@@ -265,10 +269,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ProblemDetail handleIllegalState(IllegalStateException ex) {
         ProblemDetail problemDetail = ProblemDetail
                 .forStatusAndDetail(
-                        HttpStatus.BAD_REQUEST,
+                        HttpStatus.UNPROCESSABLE_CONTENT,
                         ex.getMessage()
                 );
         problemDetail.setTitle("Estado Inválido");
+        problemDetail.setProperty("code", "ESTADO_INVALIDO");
         problemDetail.setType(URI.create("https://app.exemplo.com/errors/invalid-state"));
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
@@ -380,6 +385,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(erro ->
                 erros.putIfAbsent(erro.getField(), erro.getDefaultMessage()));
         problemDetail.setProperty("fieldErrors", errosPorCampo(erros));
+        problemDetail.setProperty("errors", errosDoContrato(erros));
+        problemDetail.setProperty("code", "CAMPOS_INVALIDOS");
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
@@ -426,14 +433,48 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private record FieldError(String code, String message) {
     }
 
+    /**
+     * Erros por campo no formato do contrato de UI (RFC 9457 + extensão {@code errors}):
+     * lista de {@code {field, message, code}}, com {@code field} no mesmo caminho do FormControl.
+     * Convive com {@code fieldErrors}/{@code erros}, mantidos para os consumidores antigos.
+     */
+    private List<ErroDeCampo> errosDoContrato(Map<String, String> erros) {
+        List<ErroDeCampo> lista = new ArrayList<>();
+        if (erros != null) {
+            erros.forEach((campo, mensagem) -> lista.add(
+                    new ErroDeCampo(campo, mensagem, codigoTecnico(campo + " " + mensagem))));
+        }
+        return lista;
+    }
+
+    private record ErroDeCampo(String field, String message, String code) {
+    }
+
+    /**
+     * Ordenação por um campo que não existe na entidade ({@code sort=foo,asc}): é erro de quem
+     * chamou, não do servidor. Antes caía no handler genérico e virava 500.
+     */
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ProblemDetail handlePropertyReference(PropertyReferenceException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "Não é possível ordenar ou filtrar pelo campo '" + ex.getPropertyName() + "'.");
+        problemDetail.setTitle("Ordenação inválida");
+        problemDetail.setType(URI.create("https://app.exemplo.com/errors/ordenacao-invalida"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty("code", "ORDENACAO_INVALIDA");
+        return problemDetail;
+    }
+
     @ExceptionHandler(ValidationException.class)
     public ProblemDetail handleValidationException(ValidationException ex) {
         ProblemDetail problemDetail = ProblemDetail
                 .forStatusAndDetail(
-                        HttpStatus.BAD_REQUEST,
+                        HttpStatus.UNPROCESSABLE_CONTENT,
                         ex.getMessage()
                 );
-        problemDetail.setTitle("Violação de regra de negocio");
+        problemDetail.setTitle("Violação de regra de negócio");
+        problemDetail.setProperty("code", "REGRA_NEGOCIO_VIOLADA");
         problemDetail.setType(URI.create("https://app.exemplo.com/erros/violacao-de-regra-negocio"));
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
