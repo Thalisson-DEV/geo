@@ -164,15 +164,21 @@
     "movimento-literal": 1
   },
   "src/app/features/almoxarifado/solicitacoes-material/devolucao-tecnica-form/devolucao-tecnica-form.component.html": {
-    "icone-primeicons": 8
+    "icone-primeicons": 18
   },
   "src/app/features/almoxarifado/solicitacoes-material/exportar-solicitacoes-dialog.component.ts": {
     "icone-primeicons": 33,
     "paleta-tailwind": 58,
     "primeng-direto": 7
   },
+  "src/app/features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-comercial-drawer.component.ts": {
+    "icone-primeicons": 5
+  },
   "src/app/features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-materiais.component.ts": {
     "icone-primeicons": 6
+  },
+  "src/app/features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao-tecnica-drawer.component.ts": {
+    "icone-primeicons": 8
   },
   "src/app/features/almoxarifado/solicitacoes-material/nova-solicitacao/nova-solicitacao.css": {
     "movimento-literal": 1
@@ -217,9 +223,6 @@
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-consumo-anterior/solicitacao-consumo-operacoes.component.ts": {
     "icone-primeicons": 5
   },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-material-form/solicitacao-material-form.component.html": {
-    "icone-primeicons": 7
-  },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-material-report-navigator.data-source.ts": {
     "icone-primeicons": 8
   },
@@ -228,7 +231,7 @@
     "movimento-tailwind": 2
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-operacoes-historico/solicitacao-operacoes-historico.component.ts": {
-    "icone-primeicons": 2
+    "icone-primeicons": 4
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-pendencia-modal.component.ts": {
     "icone-primeicons": 8,
@@ -241,50 +244,28 @@
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-rejeicao-dialog.component.ts": {
     "icone-primeicons": 1
   },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-acao/solicitacao-tecnica-acao.component.css": {
-    "movimento-literal": 1
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-acao/solicitacao-tecnica-acao.component.html": {
-    "icone-primeicons": 66,
-    "movimento-tailwind": 7,
-    "p-button": 24,
-    "paleta-tailwind": 457
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-acao/solicitacao-tecnica-acao.component.ts": {
-    "cor-literal": 1,
-    "primeng-direto": 10
-  },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-assinatura/solicitacao-tecnica-assinatura.component.css": {
     "cor-literal": 2
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-assinatura/solicitacao-tecnica-assinatura.component.html": {
     "icone-primeicons": 3
   },
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe-drawer.component.ts": {
+    "icone-primeicons": 44
+  },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component.css": {
-    "cor-literal": 12,
-    "important": 32,
+    "cor-literal": 21,
+    "important": 39,
     "movimento-literal": 1
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component.html": {
-    "icone-primeicons": 41,
-    "movimento-tailwind": 6,
-    "p-button": 12,
-    "paleta-tailwind": 595
+    "icone-primeicons": 33,
+    "p-button": 13,
+    "paleta-tailwind": 9
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-detalhe/solicitacao-tecnica-detalhe.component.ts": {
-    "icone-primeicons": 12,
-    "primeng-direto": 5
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-equipe/solicitacao-tecnica-equipe.component.html": {
-    "icone-primeicons": 7,
-    "p-button": 2,
-    "paleta-tailwind": 30
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-equipe/solicitacao-tecnica-equipe.component.ts": {
-    "primeng-direto": 3
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-form/solicitacao-tecnica-form.component.html": {
-    "icone-primeicons": 7
+    "icone-primeicons": 11,
+    "primeng-direto": 2
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-historico/solicitacao-tecnica-historico.component.css": {
     "cor-literal": 38
@@ -293,18 +274,6 @@
     "icone-primeicons": 11,
     "movimento-tailwind": 2,
     "paleta-tailwind": 14
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-planejamento/solicitacao-tecnica-planejamento.component.css": {
-    "movimento-literal": 1
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-planejamento/solicitacao-tecnica-planejamento.component.html": {
-    "cor-literal": 2,
-    "icone-primeicons": 29,
-    "movimento-tailwind": 1,
-    "paleta-tailwind": 242
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-planejamento/solicitacao-tecnica-planejamento.component.ts": {
-    "primeng-direto": 10
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacao-tecnica-presentation.ts": {
     "icone-primeicons": 28,
@@ -323,7 +292,7 @@
     "icone-primeicons": 4
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacao-comercial-kanban-card.component.ts": {
-    "icone-primeicons": 10
+    "icone-primeicons": 18
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-comerciais-kanban/solicitacoes-comerciais-kanban.component.css": {
     "cor-literal": 8,
@@ -334,34 +303,16 @@
     "icone-primeicons": 18
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-material-tecnicas.component.ts": {
-    "icone-primeicons": 15
+    "icone-primeicons": 26
   },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-material.component.ts": {
     "icone-primeicons": 22
   },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-calendario/solicitacoes-tecnicas-calendario.component.ts": {
-    "cor-literal": 1,
-    "icone-primeicons": 8
-  },
   "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-importacao/solicitacoes-tecnicas-importacao.component.ts": {
     "icone-primeicons": 4
   },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-kanban/solicitacao-tecnica-kanban-card.component.ts": {
-    "cor-literal": 2,
-    "icone-primeicons": 20,
-    "movimento-tailwind": 1,
-    "paleta-tailwind": 60,
-    "primeng-direto": 4
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-kanban/solicitacao-tecnica-kanban-detail.component.ts": {
-    "icone-primeicons": 33,
-    "movimento-tailwind": 1,
-    "primeng-direto": 1
-  },
-  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-kanban/solicitacoes-tecnicas-kanban.component.ts": {
-    "icone-primeicons": 9,
-    "paleta-tailwind": 59,
-    "primeng-direto": 2
+  "src/app/features/almoxarifado/solicitacoes-material/solicitacoes-tecnicas-quadro/solicitacoes-tecnicas-quadro.component.ts": {
+    "icone-primeicons": 22
   },
   "src/app/features/almoxarifado/solicitacoes-material/troca-ocorrencia-drawer.component.ts": {
     "icone-primeicons": 1
@@ -1529,7 +1480,7 @@
     "icone-primeicons": 10
   },
   "src/app/features/obras/programacao/programar-drawer.component.ts": {
-    "icone-primeicons": 7
+    "icone-primeicons": 8
   },
   "src/app/features/obras/turnos/apr-drawer.component.ts": {
     "icone-primeicons": 3
